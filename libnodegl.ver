@@ -1,0 +1,6 @@
+LIBNODEGL {
+    global:
+        ngl_*;
+    local:
+        *;
+};
