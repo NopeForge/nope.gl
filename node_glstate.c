@@ -30,7 +30,7 @@
 #define OFFSET(x) offsetof(struct glstate, x)
 static const struct node_param glstate_params[] = {
     {"capability", PARAM_TYPE_INT, OFFSET(capability), {.i64=GL_NONE}, .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"enabled", PARAM_TYPE_INT, OFFSET(state[0].enabled), {.i64=GL_NONE}, .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"enabled",    PARAM_TYPE_INT, OFFSET(enabled[0]), {.i64=GL_FALSE}, .flags=PARAM_FLAG_CONSTRUCTOR},
     {NULL}
 };
 
@@ -38,7 +38,7 @@ static char *glstate_info_str(const struct ngl_node *node)
 {
     const struct glstate *s = node->priv_data;
     return ngli_asprintf("0x%x enabled=%s",
-                         s->capability, s->state[0].enabled ? "yes" : "no");
+                         s->capability, s->enabled[0] ? "yes" : "no");
 }
 
 const struct node_class ngli_glstate_class = {

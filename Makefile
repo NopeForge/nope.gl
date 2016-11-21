@@ -36,6 +36,7 @@ PROJECT_OBJS = api.o                    \
                node_camera.o            \
                node_fps.o               \
                node_glstate.o           \
+               node_glblendstate.o      \
                node_group.o             \
                node_media.o             \
                node_quad.o              \

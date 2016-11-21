@@ -67,9 +67,15 @@ struct ngl_node {
 
 struct glstate {
     GLenum capability;
-    union {
-    int enabled;
-    } state[2];
+    int enabled[2];
+
+    GLenum src_rgb[2];
+    GLenum dst_rgb[2];
+    GLenum src_alpha[2];
+    GLenum dst_alpha[2];
+
+    GLenum mode_rgb[2];
+    GLenum mode_alpha[2];
 };
 
 struct camera {
