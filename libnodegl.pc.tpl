@@ -2,6 +2,7 @@ prefix=PREFIX
 exec_prefix=${prefix}
 includedir=${prefix}/include
 libdir=${exec_prefix}/lib
+datarootdir=${prefix}/share
 
 Name: node.gl
 Description: Node/Graph based OpenGL engine

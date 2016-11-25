@@ -173,9 +173,12 @@ install: $(LIBNAME) $(PCNAME)
 	install -d $(DESTDIR)$(PREFIX)/lib
 	install -d $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	install -d $(DESTDIR)$(PREFIX)/include
+	install -d $(DESTDIR)$(PREFIX)/share
+	install -d $(DESTDIR)$(PREFIX)/share/$(NAME)
 	install -m 644 $(LIBNAME) $(DESTDIR)$(PREFIX)/lib
 	install -m 644 $(PCNAME) $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	install -m 644 $(NAME).h $(DESTDIR)$(PREFIX)/include/$(NAME).h
+	install -m 644 $(SPECS_FILE) $(DESTDIR)$(PREFIX)/share/$(NAME)
 
 pyinstall: install $(NODES_DEFS).pyx
 	$(PYTHON) setup.py install
@@ -183,6 +186,7 @@ pyinstall: install $(NODES_DEFS).pyx
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/lib/$(LIBNAME)
 	$(RM) $(DESTDIR)$(PREFIX)/include/$(NAME).h
+	$(RM) -r $(DESTDIR)$(PREFIX)/share/$(NAME)
 
 .PHONY: all updatespecs clean install pyinstall uninstall
 
