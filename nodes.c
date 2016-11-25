@@ -324,6 +324,10 @@ static int node_init(struct ngl_node *node)
     // TODO: merge successive continuous and norender ones?
     qsort(node->ranges, node->nb_ranges, sizeof(*node->ranges), compare_range);
 
+    for (int i = 0; i < node->nb_glstates; i++) {
+        ngli_node_init(node->glstates[i]);
+    }
+
     node->state = STATE_INITIALIZED;
 
     return 0;
