@@ -133,10 +133,10 @@ demo: CFLAGS += -lnodegl -I. $(shell $(PKG_CONFIG) --cflags glfw3)
 demo: LDLIBS += -L. $(shell $(PKG_CONFIG) --libs glfw3)
 demo: demo.o $(LIBNAME)
 
+SPECS_FILE = nodes.specs
 gen_specs: gen_specs.o $(OBJS)
-
-$(NODES_DEFS).pyx: nodes.specs
-	$(PYTHON) gen-pyx.py $< $@
+updatespecs: gen_specs
+	./gen_specs > $(SPECS_FILE)
 
 $(LIBNAME): $(OBJS)
 ifeq ($(SHARED),yes)
@@ -184,6 +184,6 @@ uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/lib/$(LIBNAME)
 	$(RM) $(DESTDIR)$(PREFIX)/include/$(NAME).h
 
-.PHONY: all clean install pyinstall uninstall
+.PHONY: all updatespecs clean install pyinstall uninstall
 
 -include $(ALLDEPS)
