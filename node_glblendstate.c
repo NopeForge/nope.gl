@@ -29,7 +29,6 @@
 
 #define OFFSET(x) offsetof(struct glstate, x)
 static const struct node_param glblendstate_params[] = {
-    {"capability", PARAM_TYPE_INT, OFFSET(capability),    {.i64=GL_BLEND}, .flags=PARAM_FLAG_CONSTRUCTOR},
     {"enabled",    PARAM_TYPE_INT, OFFSET(enabled[0]),    {.i64=GL_FALSE}, .flags=PARAM_FLAG_CONSTRUCTOR},
     {"src_rgb",    PARAM_TYPE_INT, OFFSET(src_rgb[0]),    {.i64=GL_ONE}},
     {"dst_rgb",    PARAM_TYPE_INT, OFFSET(dst_rgb[0]),    {.i64=GL_ZERO}},
@@ -113,10 +112,20 @@ static char *glblendstate_info_str(const struct ngl_node *node)
     return info_str;
 }
 
+static int glblendstate_init(struct ngl_node *node)
+{
+    struct glstate *s = node->priv_data;
+
+    s->capability = GL_BLEND;
+
+    return 0;
+}
+
 const struct node_class ngli_glblendstate_class = {
     .id        = NGL_NODE_GLBLENDSTATE,
     .name      = "GLBlendState",
     .info_str  = glblendstate_info_str,
+    .init      = glblendstate_init,
     .priv_size = sizeof(struct glstate),
     .params    = glblendstate_params,
 };
