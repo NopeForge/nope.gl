@@ -1,3 +1,7 @@
+#
+# Nodes specifications for node.gl v0.0.0
+#
+
 - _Node:
     optional:
         - [glstates, NodeList]
