@@ -1,7 +1,7 @@
 from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, Group
 from pynodegl import GLState, GLBlendState
 
-from misc import scene
+from pynodegl_utils.misc import scene
 
 from OpenGL import GL
 

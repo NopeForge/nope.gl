@@ -5,7 +5,3 @@ gen_specs
 libnodegl.a
 libnodegl.pc
 libnodegl.so
-nodes_def.c
-nodes_def.pyx
-pynodegl.c
-pynodegl.so

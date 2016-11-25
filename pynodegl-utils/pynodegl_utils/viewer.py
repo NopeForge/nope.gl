@@ -30,15 +30,12 @@ import inspect
 import pkgutil
 import subprocess
 
-from pynodegl import Viewer
 import pynodegl as ngl
 
 from PySide import QtGui, QtCore
 from PySide.QtOpenGL import QGLWidget
 
-ngl.log_set_min_level(ngl.LOG_DEBUG)
-
-class glWidget(QGLWidget):
+class _GLWidget(QGLWidget):
 
     def set_time(self, t):
         self._time = t
@@ -51,7 +48,7 @@ class glWidget(QGLWidget):
     def __init__(self, parent):
         QGLWidget.__init__(self, parent)
         self.setMinimumSize(800, 600)
-        self._viewer = Viewer(None)
+        self._viewer = ngl.Viewer(None)
         self._scene = None
         self._time = 0
 
@@ -65,7 +62,7 @@ class glWidget(QGLWidget):
     def initializeGL(self):
         self._viewer.set_window(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
 
-class MainWindow(QtGui.QSplitter):
+class _MainWindow(QtGui.QSplitter):
 
     RENDERING_FPS = 60
     LOOP_DURATION = 30.0
@@ -240,7 +237,7 @@ class MainWindow(QtGui.QSplitter):
             module_finder, name, ispkg = module
             module_name = 'examples.' + name
             if initial_import:
-                script = importlib.import_module(module_name)
+                script = importlib.import_module('pynodegl_utils.' + module_name)
             else:
                 script = eval(module_name)
                 reload(script)
@@ -294,9 +291,9 @@ class MainWindow(QtGui.QSplitter):
         self._imglabel.adjustSize()
 
     def __init__(self, scene_args):
-        super(MainWindow, self).__init__(QtCore.Qt.Horizontal)
+        super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Demo node.gl")
-        self._gl_widget = glWidget(self)
+        self._gl_widget = _GLWidget(self)
         self._scene_args = scene_args
         self._base_scene = None
         self._scene_opts_widget = None
@@ -386,8 +383,9 @@ class MainWindow(QtGui.QSplitter):
         del self._gl_widget
         self._gl_widget = None
 
-if __name__ == '__main__':
+def run():
+    ngl.log_set_min_level(ngl.LOG_DEBUG)
     app = QtGui.QApplication(sys.argv)
-    window = MainWindow(sys.argv[1:])
+    window = _MainWindow(sys.argv[1:])
     window.show()
     app.exec_()

@@ -22,7 +22,6 @@
 
 NAME = nodegl
 
-NODES_DEFS = nodes_def
 PROJECT_OBJS = api.o                    \
                bstr.o                   \
                dot.o                    \
@@ -145,22 +144,24 @@ else
 	$(AR) rcs $@ $^
 endif
 
-setup.py: $(NODES_DEFS).pyx $(PYNAME).pyx
-
-$(PYNAME).so: $(LIBNAME) setup.py
-$(PYNAME).so:
-	LDFLAGS=-L. CFLAGS=-I. $(PYTHON) setup.py build_ext --inplace
+cleanpy:
+	$(RM) pynodegl/nodes_def.pyx
+	$(RM) pynodegl/pynodegl.c
+	$(RM) pynodegl/pynodegl.so
+	$(RM) -r pynodegl/build
+	$(RM) -r pynodegl/pynodegl.egg-info
+	$(RM) -r pynodegl/.eggs
+	$(RM) -r pynodegl-utils/pynodegl_utils.egg-info
+	$(RM) -r pynodegl-utils/.eggs
 
 clean:
 	$(RM) lib$(NAME).so lib$(NAME).dylib lib$(NAME).a
 	$(RM) $(PYNAME).so $(PYNAME).c
 	$(RM) $(OBJS) $(ALLDEPS)
-	$(RM) $(NODES_DEFS).pyx
 	$(RM) examples/*.pyc
 	$(RM) $(PCNAME)
 	$(RM) demo.o demo
 	$(RM) gen_specs gen_specs.o
-	$(RM) -r build
 
 $(PCNAME): $(PCNAME).tpl
 ifeq ($(SHARED),yes)
@@ -180,14 +181,11 @@ install: $(LIBNAME) $(PCNAME)
 	install -m 644 $(NAME).h $(DESTDIR)$(PREFIX)/include/$(NAME).h
 	install -m 644 $(SPECS_FILE) $(DESTDIR)$(PREFIX)/share/$(NAME)
 
-pyinstall: install $(NODES_DEFS).pyx
-	$(PYTHON) setup.py install
-
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/lib/$(LIBNAME)
 	$(RM) $(DESTDIR)$(PREFIX)/include/$(NAME).h
 	$(RM) -r $(DESTDIR)$(PREFIX)/share/$(NAME)
 
-.PHONY: all updatespecs clean install pyinstall uninstall
+.PHONY: all updatespecs cleanpy clean install uninstall
 
 -include $(ALLDEPS)

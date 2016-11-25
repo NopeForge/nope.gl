@@ -5,7 +5,7 @@ from pynodegl import Rotate, AnimKeyFrameScalar, Camera
 from pynodegl import UniformVec3, UniformSampler, RTT, GLState
 from pynodegl import AttributeVec2
 
-from misc import scene
+from pynodegl_utils.misc import scene
 
 def _get_cube_quads():
             # corner             width        height      color

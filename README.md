@@ -5,6 +5,12 @@ node.gl
 and rendering graph-based scenes. It is designed to run on both desktop (Linux,
 OSX) and mobile (Android, iOS).
 
+The `node.gl` project is split in 3 parts:
+
+- `libnodegl`: the core of the project, an `OpenGL` engine in `C`
+- `pynodegl`: a Python binding for `libnodegl` (with the help of `Cython`)
+- `pynodegl-utils`: various Python utilities and examples such as a Qt viewer
+
 *Warning:* note that `node.gl` is still highly experimental. This means the ABI
 and API can change at any time.
 
@@ -13,33 +19,61 @@ and API can change at any time.
 
 ## Dependencies
 
-`node.gl` is written in C11 and needs [Python][python] and [Cython][cython] to
-build its Python binding.
+- `libnodegl` requires a standard C toolchain (C compiler, linker, GNU/Make).
+  It also depends on [sxplayer library][sxplayer] for media (video and images)
+  playback. [Graphviz][graphviz] is optional but can be used to render and
+  preview graphs obtained from the API.
+- `pynodegl` needs [Python][python] and [Cython][cython], and `libnodegl`
+  installed.
+- `pynodegl-utils` needs [Python][python] and `pynodegl`. The viewer depends on
+  `Qt` (which is the main reason why this package is separated from the
+  `pynodegl` package). It is also recommended to install [Graphviz][graphviz]
+  in order to render graph in the viewer.
 
-It also depends on [sxplayer library][sxplayer] for media (video and images)
-playback.
-
-It is recommended to install [Graphviz][graphviz] in order to be able to render
-and preview graph (using the `viewer.py` demo script or using the API).
-
-[python]: https://www.python.org/
-[cython]: http://cython.org/
 [sxplayer]: https://github.com/stupeflix/sxplayer
 [graphviz]: http://www.graphviz.org/
+[python]: https://www.python.org/
+[cython]: http://cython.org/
+
+## Installation `libnodegl` (the core library)
+
+### Build
+
+`make` is enough to build `libnodegl.a`.
+
+If you prefer a dynamic library, you can use the variable `SHARED`, such as
+`make SHARED=yes`.
+
+If you need symbol debugging, you can use `make DEBUG=yes`.
+
+Make allow options to be combinable, so `make SHARED=yes DEBUG=yes` is valid.
+
+Additionally, `PYTHON` and `PKG_CONFIG` which respectively allows to customize
+`python` and `pkg-config` executable paths.
+
+### Installation
+
+`make install` will install the library in `PREFIX`, which you can override,
+for example using `make install PREFIX=/tmp/local`.
+
+You can check the installed version of `libnodegl` using `pkg-config
+--modversion libnodegl`
+
+## Installation of `pynodegl` (the Python binding)
+
+`pip install ./pynodegl`
+
+## Installation of `pynodegl-utils` (the Python utilities and examples)
+
+`pip install ./pynodegl-utils`
 
 ## License
 
 `node.gl` is licensed under the Apache License, Version 2.0. Read the `LICENSE`
 file for details.
 
-## Demo
-
-You can get an overview of the engine by running
-`make SHARED=yes pynodegl.so && python2 ./viewer.py /path/to/a/video.mkv`
-
-The examples imported by the viewer are located in the `examples` directory.
-
 ## Using the API
 
 All the API is defined in the installed header `nodegl.h`. You can consult the
-nodes parameters in the `nodes.specs` file.
+nodes parameters in the `nodes.specs` file installed in the data root dir
+(usually something along the lines `/usr/share/nodegl/nodes.specs`).

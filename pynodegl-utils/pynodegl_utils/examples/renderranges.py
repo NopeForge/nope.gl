@@ -2,7 +2,7 @@ from pynodegl import TexturedShape, Quad, Texture, Media, Shader, Group
 from pynodegl import UniformSampler, AttributeVec2
 from pynodegl import RenderRangeContinuous, RenderRangeOnce, RenderRangeNoRender
 
-from misc import scene
+from pynodegl_utils.misc import scene
 
 @scene({'name': 'overlap_time', 'type': 'range', 'range': [0,5], 'unit_base': 10},
        {'name': 'dim', 'type': 'range', 'range': [1,10]})

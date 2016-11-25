@@ -3,7 +3,7 @@ from pynodegl import Scale, Rotate, Translate
 from pynodegl import UniformSampler, UniformVec4, AttributeVec2
 from pynodegl import AnimKeyFrameScalar, AnimKeyFrameVec3
 
-from misc import scene
+from pynodegl_utils.misc import scene
 
 frag_data = """
 uniform vec4 blend_color;
