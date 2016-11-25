@@ -40,54 +40,77 @@ static const struct node_param glblendstate_params[] = {
     {NULL}
 };
 
-#define DECLARE_GLENUM(glenum) case ((glenum)): name = #glenum + 3; break
-
-static const char *get_enum_name(GLenum glenum)
+static char *get_blend_str(GLenum parameter, const char *comp, const int rgb)
 {
-    const char *name = NULL;
+    const char *comp_str = rgb ? "" : "A";
+    switch (parameter) {
+        case GL_ZERO:                       return NULL;
+        case GL_ONE:                        return ngli_asprintf("%s", comp);
+        case GL_SRC_COLOR:                  return ngli_asprintf(   "%s*src%s/k%s",  comp, comp_str, comp_str);
+        case GL_ONE_MINUS_SRC_COLOR:        return ngli_asprintf("%s*(1-src%s/k%s)", comp, comp_str, comp_str);
+        case GL_DST_COLOR:                  return ngli_asprintf(   "%s*dst%s/k%s",  comp, comp_str, comp_str);
+        case GL_ONE_MINUS_DST_COLOR:        return ngli_asprintf("%s*(1-dst%s/k%s)", comp, comp_str, comp_str);
+        case GL_SRC_ALPHA:                  return ngli_asprintf(   "%s*srcA/kA",  comp);
+        case GL_ONE_MINUS_SRC_ALPHA:        return ngli_asprintf("%s*(1-srcA/kA)", comp);
+        case GL_DST_ALPHA:                  return ngli_asprintf(   "%s*dstA/kA",  comp);
+        case GL_ONE_MINUS_DST_ALPHA:        return ngli_asprintf("%s*(1-dstA/kA)", comp);
+        case GL_CONSTANT_COLOR:             return ngli_asprintf(   "%s*src%s",  comp, comp_str);
+        case GL_ONE_MINUS_CONSTANT_COLOR:   return ngli_asprintf("%s*(1-src%s)", comp, comp_str);
+        case GL_CONSTANT_ALPHA:             return ngli_asprintf(   "%s*srcA",  comp);
+        case GL_ONE_MINUS_CONSTANT_ALPHA:   return ngli_asprintf("%s*(1-srcA)", comp);
+        case GL_SRC_ALPHA_SATURATE:         return ngli_asprintf(rgb ? "%s*min(srcA,1-dstA)" : "%s", comp);
+        default:
+            LOG(WARNING, "unsupported blend parameter 0x%x", parameter);
+            return ngli_asprintf("%s*[?]", comp);
+    }
+}
 
-    switch(glenum) {
-    DECLARE_GLENUM(GL_ZERO);
-    DECLARE_GLENUM(GL_ONE);
-    DECLARE_GLENUM(GL_SRC_COLOR);
-    DECLARE_GLENUM(GL_ONE_MINUS_SRC_COLOR);
-    DECLARE_GLENUM(GL_DST_COLOR);
-    DECLARE_GLENUM(GL_ONE_MINUS_DST_COLOR);
-    DECLARE_GLENUM(GL_SRC_ALPHA);
-    DECLARE_GLENUM(GL_ONE_MINUS_SRC_ALPHA);
-    DECLARE_GLENUM(GL_DST_ALPHA);
-    DECLARE_GLENUM(GL_ONE_MINUS_DST_ALPHA);
-    DECLARE_GLENUM(GL_CONSTANT_COLOR);
-    DECLARE_GLENUM(GL_ONE_MINUS_CONSTANT_COLOR);
-    DECLARE_GLENUM(GL_CONSTANT_ALPHA);
-    DECLARE_GLENUM(GL_ONE_MINUS_CONSTANT_ALPHA);
-    DECLARE_GLENUM(GL_SRC_ALPHA_SATURATE);
-    DECLARE_GLENUM(GL_FUNC_ADD);
-    DECLARE_GLENUM(GL_FUNC_SUBTRACT);
-    DECLARE_GLENUM(GL_FUNC_REVERSE_SUBTRACT);
-    DECLARE_GLENUM(GL_MIN);
-    DECLARE_GLENUM(GL_MAX);
-    default:
-        LOG(ERROR, "unsupported GLenum %x", glenum);
+static char *get_func_str(GLenum mode, GLenum src, GLenum dst, const int rgb)
+{
+    const char op = mode == GL_FUNC_ADD ? '+' : '-';
+    const char *lcomp = rgb ? "src" : "srcA";
+    const char *rcomp = rgb ? "dst" : "dstA";
+
+    char *lblend = get_blend_str(src, lcomp, rgb);
+    char *rblend = get_blend_str(dst, rcomp, rgb);
+
+    if (mode == GL_FUNC_REVERSE_SUBTRACT) {
+        NGLI_SWAP(const char *, lcomp,  rcomp);
+        NGLI_SWAP(      char *, lblend, rblend);
     }
 
-    return name;
+    char *ret;
+
+    if (!lblend && !rblend) {
+        ret = ngli_asprintf("0");
+    } else if (!lblend) {
+        ret = ngli_asprintf("%s%s", op == '-' ? "-" : "", rblend);
+        free(rblend);
+    } else if (!rblend) {
+        ret = lblend;
+    } else {
+        ret = ngli_asprintf("%s %c %s", lblend, op, rblend);
+        free(lblend);
+        free(rblend);
+    }
+
+    return ret;
 }
 
 static char *glblendstate_info_str(const struct ngl_node *node)
 {
+    char *info_str;
     const struct glstate *s = node->priv_data;
     if (s->enabled[0]) {
-        return ngli_asprintf("BLEND "
-                             "src_rgb=%s dst_rgb=%s "
-                             "src_alpha=%s dst_alpha=%s "
-                             "mode_rgb=%s mode_alpha=%s",
-                             get_enum_name(s->src_rgb[0]),   get_enum_name(s->dst_rgb[0]),
-                             get_enum_name(s->src_alpha[0]), get_enum_name(s->dst_alpha[0]),
-                             get_enum_name(s->mode_rgb[0]),  get_enum_name(s->mode_alpha[0]));
+        char *rgb_blend   = get_func_str(s->mode_rgb[0],   s->src_rgb[0],   s->dst_rgb[0],   1);
+        char *alpha_blend = get_func_str(s->mode_alpha[0], s->src_alpha[0], s->dst_alpha[0], 0);
+        info_str = ngli_asprintf("BLEND dst=%s  dstA=%s", rgb_blend, alpha_blend);
+        free(rgb_blend);
+        free(alpha_blend);
     } else {
-        return ngli_asprintf("BLEND disabled");
+        info_str = ngli_asprintf("BLEND disabled");
     }
+    return info_str;
 }
 
 const struct node_class ngli_glblendstate_class = {

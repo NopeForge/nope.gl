@@ -42,6 +42,7 @@
 } while (0)
 
 #define NGLI_ARRAY_NB(x) ((int)(sizeof(x)/sizeof(*(x))))
+#define NGLI_SWAP(type, a, b) do { type tmp_swap = b; b = a; a = tmp_swap; } while (0)
 
 char *ngli_strdup(const char *s);
 int64_t ngli_gettime(void);
