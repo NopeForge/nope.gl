@@ -35,6 +35,9 @@ static const struct node_param camera_params[] = {
     {"center", PARAM_TYPE_VEC3,  OFFSET(center)},
     {"up", PARAM_TYPE_VEC3,  OFFSET(up)},
     {"perspective", PARAM_TYPE_VEC4,  OFFSET(perspective)},
+    {"eye_animkf", PARAM_TYPE_NODELIST, OFFSET(eye_animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED, .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1}},
+    {"center_animkf", PARAM_TYPE_NODELIST, OFFSET(center_animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED, .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1}},
+    {"fov_animkf", PARAM_TYPE_NODELIST, OFFSET(fov_animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED, .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
     {NULL}
 };
 
@@ -53,12 +56,21 @@ static void camera_update(struct ngl_node *node, double t)
     float perspective[4*4];
     float view[4*4];
 
+    if (s->nb_eye_animkf)
+        ngli_animkf_interpolate(s->eye, s->eye_animkf, s->nb_eye_animkf, &s->current_eye_kf, t);
+
+    if (s->nb_center_animkf)
+        ngli_animkf_interpolate(s->center, s->center_animkf, s->nb_center_animkf, &s->current_center_kf, t);
+
     ngli_mat4_look_at(
         view,
         s->eye,
         s->center,
         s->up
     );
+
+    if (s->nb_fov_animkf)
+        ngli_animkf_interpolate(&s->perspective[0], s->fov_animkf, s->nb_fov_animkf, &s->current_fov_kf, t);
 
     ngli_mat4_perspective(
         perspective,
@@ -68,7 +80,6 @@ static void camera_update(struct ngl_node *node, double t)
         s->perspective[3]
     );
 
-    /* FIXME: handle transformations on camera */
     memcpy(child->modelview_matrix, view, sizeof(view));
     memcpy(child->projection_matrix, perspective, sizeof(perspective));
 

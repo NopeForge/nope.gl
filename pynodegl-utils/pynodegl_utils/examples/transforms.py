@@ -1,9 +1,11 @@
-from pynodegl import Quad, Texture, Shader, TexturedShape, Media, Camera
+from pynodegl import Quad, Texture, Shader, TexturedShape, Media, Camera, Group, GLState
 from pynodegl import Scale, Rotate, Translate
 from pynodegl import UniformSampler, UniformVec4, AttributeVec2
 from pynodegl import AnimKeyFrameScalar, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
+
+from OpenGL import GL
 
 frag_data = """
 uniform vec4 blend_color;
@@ -74,3 +76,47 @@ def animated(args, duration, rotate=True, scale=True, translate=True):
                         AnimKeyFrameVec3(duration,   (-0.5, -0.3, -0.5)))
 
     return node
+
+@scene()
+def animated_camera(args, duration):
+    g = Group()
+    g.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
+
+    q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
+    m = Media(args[0])
+    t = Texture(data_src=m)
+    s = Shader()
+    node = TexturedShape(q, s, t)
+    g.add_children(node)
+
+    z = -1
+    q = Quad((-1.1, 0.3, z), (1, 0, 0), (0, 1, 0))
+    node = TexturedShape(q, s, t)
+    g.add_children(node)
+
+    q = Quad((0.1, 0.3, z), (1, 0, 0), (0, 1, 0))
+    node = TexturedShape(q, s, t)
+    g.add_children(node)
+
+    q = Quad((-1.1, -1.0, z), (1, 0, 0), (0, 1, 0))
+    node = TexturedShape(q, s, t)
+    g.add_children(node)
+
+    q = Quad((0.1, -1.0, z), (1, 0, 0), (0, 1, 0))
+    node = TexturedShape(q, s, t)
+    g.add_children(node)
+
+    camera = Camera(g)
+    camera.set_eye(0, 0, 2)
+    camera.set_center(0.0, 0.0, 0.0)
+    camera.set_up(0.0, 1.0, 0.0)
+    camera.set_perspective(45.0, 640.0/480.0, 0.1, 10.0)
+    camera.add_eye_animkf(
+            AnimKeyFrameVec3(0, (0, 0, 0.2), "exp_out"),
+            AnimKeyFrameVec3(10, (0, 0, 3)))
+
+    camera.add_fov_animkf(
+            AnimKeyFrameScalar(0.5, 60.0, "exp_out"),
+            AnimKeyFrameScalar(duration, 45.0))
+
+    return camera
