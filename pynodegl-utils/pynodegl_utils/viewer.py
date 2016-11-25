@@ -66,6 +66,7 @@ class _MainWindow(QtGui.QSplitter):
 
     RENDERING_FPS = 60
     LOOP_DURATION = 30.0
+    LOG_LEVELS = ('verbose', 'debug', 'info', 'warning', 'error')
 
     def _set_action(self, action):
         if action == 'play':
@@ -290,6 +291,12 @@ class _MainWindow(QtGui.QSplitter):
         self._imglabel.setPixmap(pixmap)
         self._imglabel.adjustSize()
 
+    def _set_loglevel(self):
+        level_id = self._loglevel_cbbox.currentIndex()
+        level_str = self.LOG_LEVELS[level_id]
+        ngl_level = eval('ngl.LOG_%s' % level_str.upper())
+        ngl.log_set_min_level(ngl_level)
+
     def __init__(self, scene_args):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Demo node.gl")
@@ -342,6 +349,16 @@ class _MainWindow(QtGui.QSplitter):
         scroll_area = QtGui.QScrollArea()
         scroll_area.setWidget(self._imglabel)
 
+        self._loglevel_cbbox = QtGui.QComboBox()
+        for level in self.LOG_LEVELS:
+            self._loglevel_cbbox.addItem(level.title())
+        self._loglevel_cbbox.setCurrentIndex(self.LOG_LEVELS.index('debug'))
+        self._set_loglevel()
+        loglevel_lbl = QtGui.QLabel('Min log level:')
+        loglevel_hbox = QtGui.QHBoxLayout()
+        loglevel_hbox.addWidget(loglevel_lbl)
+        loglevel_hbox.addWidget(self._loglevel_cbbox)
+
         self._graph_chkbox = QtGui.QCheckBox('Enable dot graph')
         self._fps_chkbox = QtGui.QCheckBox('Show FPS')
         reload_btn = QtGui.QPushButton('Reload scripts')
@@ -349,6 +366,7 @@ class _MainWindow(QtGui.QSplitter):
         self._scene_toolbar_layout = QtGui.QVBoxLayout()
         self._scene_toolbar_layout.addWidget(self._graph_chkbox)
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
+        self._scene_toolbar_layout.addLayout(loglevel_hbox)
         self._scene_toolbar_layout.addWidget(reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
 
@@ -377,6 +395,7 @@ class _MainWindow(QtGui.QSplitter):
         self._scn_view.clicked.connect(self._scn_view_clicked)
         self._graph_chkbox.stateChanged.connect(self._reload_scene)
         self._fps_chkbox.stateChanged.connect(self._reload_scene)
+        self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
         reload_btn.clicked.connect(self._reload_scripts)
 
     def closeEvent(self, event):
@@ -384,7 +403,6 @@ class _MainWindow(QtGui.QSplitter):
         self._gl_widget = None
 
 def run():
-    ngl.log_set_min_level(ngl.LOG_DEBUG)
     app = QtGui.QApplication(sys.argv)
     window = _MainWindow(sys.argv[1:])
     window.show()
