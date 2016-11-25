@@ -62,7 +62,6 @@ int ngl_set_viewport(struct ngl_ctx *s, int w, int h)
 int ngl_draw(struct ngl_ctx *s, struct ngl_node *scene, double t)
 {
     LOG(DEBUG, "draw scene %s @ t=%f", scene->name, t);
-    glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     ngli_node_check_resources(scene, t);
