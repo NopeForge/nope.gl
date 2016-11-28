@@ -16,35 +16,10 @@ def _get_cube_quads():
             ((-0.5, -0.5, -0.5), ( 1, 0,  0), (0, 0,  1), (1, 0, 0)), # bottom
             ((-0.5,  0.5,  0.5), ( 1, 0,  0), (0, 0, -1), (1, 0, 1))) # top
 
-def scene_quads(args, duration=None):
-    g = Group()
-    g.set_name("cube")
-
-    m = Media(args[0])
-    t = Texture(data_src=m)
-    s = Shader()
-
-    cube_quads_info = _get_cube_quads()
-    children = [TexturedShape(Quad(qi[0], qi[1], qi[2]), s, t) for qi in _get_cube_quads()]
-    g.add_children(*children)
-
-    return g
-
 def _get_cube_side(texture, shader, corner, width, height, color):
     return TexturedShape(Quad(corner, width, height),
-                        shader, texture,
-                        uniforms=[UniformVec3("blend_color", value=color)])
-
-def scene_with_camera(args, duration=None):
-    node = scene_quads(args)
-
-    camera = Camera(node)
-    camera.set_eye(0.0, 1.0, 2.0)
-    camera.set_center(0.0, 0.0, 0.0)
-    camera.set_up(0.0, 1.0, 0.0)
-    camera.set_perspective(45.0, 640.0/480.0, 1.0, 10.0)
-
-    return camera
+                         shader, texture,
+                         uniforms=[UniformVec3("blend_color", value=color)])
 
 @scene()
 def rotating_cube(args, duration):
@@ -91,7 +66,7 @@ void main(void)
     return camera
 
 @scene()
-def scene_with_framebuffer(args, duration=None):
+def scene_with_framebuffer(args, duration):
     g = Group()
 
     d = Texture()
@@ -104,7 +79,7 @@ def scene_with_framebuffer(args, duration=None):
     t = Texture()
     t.set_width(640)
     t.set_height(480)
-    rtt = RTT(scene_with_camera(args), t)
+    rtt = RTT(rotating_cube(args, duration), t)
     rtt.set_depth_texture(d)
 
     q = Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
@@ -117,13 +92,4 @@ def scene_with_framebuffer(args, duration=None):
     tshape = TexturedShape(q, s, d)
     g.add_children(rtt, tshape)
 
-    camera = Camera(g)
-    camera.set_eye(1.0, 0.0, 2.0)
-    camera.set_center(0.0, 0.0, 0.0)
-    camera.set_up(0.0, 1.0, 0.0)
-    camera.set_perspective(45.0, 640.0/480.0, 1.0, 10.0)
-
-    state = GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE)
-    camera.add_glstates(state)
-
-    return camera
+    return g
