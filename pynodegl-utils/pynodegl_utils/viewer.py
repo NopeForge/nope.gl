@@ -279,17 +279,21 @@ class _MainWindow(QtGui.QSplitter):
             g.add_children(fps, tshape)
             scene = g
 
+        self._scene = scene
         self._gl_widget.set_scene(scene)
 
-        pixmap = None
-        if self._graph_chkbox.isChecked():
-            dotfile = '/tmp/ngl_scene.dot'
-            open(dotfile, 'w').write(scene.dot())
-            data = subprocess.check_output(['dot', '-Tpng', dotfile])
-            pixmap = QtGui.QPixmap()
-            pixmap.loadFromData(data)
-        self._imglabel.setPixmap(pixmap)
-        self._imglabel.adjustSize()
+    def _update_graph(self):
+        scene = self._scene
+        if not scene:
+            return
+
+        dotfile = '/tmp/ngl_scene.dot'
+        open(dotfile, 'w').write(scene.dot())
+        data = subprocess.check_output(['dot', '-Tpng', dotfile])
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(data)
+        self._graph_lbl.setPixmap(pixmap)
+        self._graph_lbl.adjustSize()
 
     def _set_loglevel(self):
         level_id = self._loglevel_cbbox.currentIndex()
@@ -302,6 +306,7 @@ class _MainWindow(QtGui.QSplitter):
         self.setWindowTitle("Demo node.gl")
         self._gl_widget = _GLWidget(self)
         self._scene_args = scene_args
+        self._scene = None
         self._base_scene = None
         self._scene_opts_widget = None
         self._scene_extra_args = {}
@@ -327,11 +332,27 @@ class _MainWindow(QtGui.QSplitter):
         toolbar.addWidget(self._time_lbl)
         toolbar.setStretchFactor(self._time_lbl, 1)
 
-        layout = QtGui.QVBoxLayout()
-        layout.addWidget(self._gl_widget)
-        layout.setStretchFactor(self._gl_widget, 1)
-        layout.addWidget(self._slider)
-        layout.addLayout(toolbar)
+        self._graph_btn = QtGui.QPushButton("Update Graph")
+        self._graph_lbl = QtGui.QLabel()
+        img_area = QtGui.QScrollArea()
+        img_area.setWidget(self._graph_lbl)
+        graph_layout = QtGui.QVBoxLayout()
+        graph_layout.addWidget(self._graph_btn)
+        graph_layout.addWidget(img_area)
+        graph_tab_widget = QtGui.QWidget()
+        graph_tab_widget.setLayout(graph_layout)
+
+        gl_layout = QtGui.QVBoxLayout()
+        gl_layout.addWidget(self._gl_widget)
+        gl_layout.setStretchFactor(self._gl_widget, 1)
+        gl_layout.addWidget(self._slider)
+        gl_layout.addLayout(toolbar)
+        gl_tab_widget = QtGui.QWidget()
+        gl_tab_widget.setLayout(gl_layout)
+
+        tabs = QtGui.QTabWidget()
+        tabs.addTab(gl_tab_widget, "GL view")
+        tabs.addTab(graph_tab_widget, "Graph view")
 
         self._scn_view = QtGui.QTreeView()
         self._scn_view.setHeaderHidden(True)
@@ -344,11 +365,6 @@ class _MainWindow(QtGui.QSplitter):
         self._reload_scripts(initial_import=True)
         self._reload_scene_view()
 
-        self._imglabel = QtGui.QLabel()
-
-        scroll_area = QtGui.QScrollArea()
-        scroll_area.setWidget(self._imglabel)
-
         self._loglevel_cbbox = QtGui.QComboBox()
         for level in self.LOG_LEVELS:
             self._loglevel_cbbox.addItem(level.title())
@@ -359,29 +375,20 @@ class _MainWindow(QtGui.QSplitter):
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
-        self._graph_chkbox = QtGui.QCheckBox('Enable dot graph')
         self._fps_chkbox = QtGui.QCheckBox('Show FPS')
         reload_btn = QtGui.QPushButton('Reload scripts')
 
         self._scene_toolbar_layout = QtGui.QVBoxLayout()
-        self._scene_toolbar_layout.addWidget(self._graph_chkbox)
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
         self._scene_toolbar_layout.addWidget(reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
 
-        scene_toolbar_widget = QtGui.QWidget()
-        scene_toolbar_widget.setLayout(self._scene_toolbar_layout)
+        scene_toolbar = QtGui.QWidget()
+        scene_toolbar.setLayout(self._scene_toolbar_layout)
 
-        left = QtGui.QSplitter(QtCore.Qt.Vertical)
-        left.addWidget(scroll_area)
-        left.addWidget(scene_toolbar_widget)
-
-        right = QtGui.QWidget()
-        right.setLayout(layout)
-
-        self.addWidget(left)
-        self.addWidget(right)
+        self.addWidget(scene_toolbar)
+        self.addWidget(tabs)
         self.setStretchFactor(1, 1)
 
         self._update_tick(0)
@@ -393,7 +400,7 @@ class _MainWindow(QtGui.QSplitter):
         self._slider.sliderPressed.connect(self._slider_clicked)
         self._slider.valueChanged.connect(self._slider_value_changed)
         self._scn_view.clicked.connect(self._scn_view_clicked)
-        self._graph_chkbox.stateChanged.connect(self._reload_scene)
+        self._graph_btn.clicked.connect(self._update_graph)
         self._fps_chkbox.stateChanged.connect(self._reload_scene)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
         reload_btn.clicked.connect(self._reload_scripts)
