@@ -230,6 +230,7 @@ static void texturedshape_draw(struct ngl_node *node)
         ngli_mat3_from_mat4(normal_matrix, node->modelview_matrix);
         ngli_mat3_inverse(normal_matrix, normal_matrix);
         ngli_mat3_transpose(normal_matrix, normal_matrix);
+        glUniformMatrix3fv(shader->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
     }
 
     glEnableVertexAttribArray(shader->position_location_id);
