@@ -127,20 +127,8 @@ static void handle_fps_frame(struct texture *s)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-static void texture_update(struct ngl_node *node, double t)
+static void handle_media_frame(struct texture *s)
 {
-    struct texture *s = node->priv_data;
-
-    if (!s->data_src)
-        return;
-
-    ngli_node_update(s->data_src, t);
-
-    if (s->data_src->class->id == NGL_NODE_FPS) {
-        handle_fps_frame(s);
-        return;
-    }
-
     struct media *media = s->data_src->priv_data;
     struct sxplayer_frame *frame = media->frame;
 
@@ -233,6 +221,22 @@ static void texture_update(struct ngl_node *node, double t)
 
         sxplayer_release_frame(media->frame);
         media->frame = frame = NULL;
+    }
+}
+
+static void texture_update(struct ngl_node *node, double t)
+{
+    struct texture *s = node->priv_data;
+
+    if (!s->data_src)
+        return;
+
+    ngli_node_update(s->data_src, t);
+
+    if (s->data_src->class->id == NGL_NODE_FPS) {
+        handle_fps_frame(s);
+    } else if (s->data_src->class->id == NGL_NODE_MEDIA) {
+        handle_media_frame(s);
     }
 }
 
