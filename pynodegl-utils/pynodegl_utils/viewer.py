@@ -235,17 +235,18 @@ class _MainWindow(QtGui.QSplitter):
         self._scenes = []
         found_current_scene = False
 
-        for module in pkgutil.iter_modules(examples.__path__):
+        if initial_import:
+            self._module = importlib.import_module(self._module_pkgname)
+        else:
+            self._module = reload(self._module)
+
+        for module in pkgutil.iter_modules(self._module.__path__):
 
             # load or reload scripts
-            module_finder, name, ispkg = module
-            module_name = 'examples.' + name
-            if initial_import:
-                script = importlib.import_module('pynodegl_utils.' + module_name)
-            else:
-                script = eval(module_name)
-                reload(script)
-                script = eval(module_name)
+            module_finder, module_name, ispkg = module
+            script = importlib.import_module('.' + module_name, self._module_pkgname)
+            if not initial_import:
+                script = reload(script)
             all_funcs = inspect.getmembers(script, inspect.isfunction)
             scene_funcs = filter(lambda f: hasattr(f[1], 'iam_a_ngl_scene_func'), all_funcs)
             if not scene_funcs:
@@ -307,6 +308,12 @@ class _MainWindow(QtGui.QSplitter):
     def __init__(self, args):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Demo node.gl")
+
+        if not args:
+            self._module_pkgname = 'pynodegl_utils.examples'
+        else:
+            self._module_pkgname = args[0]
+            args = args[1:]
 
         if not args:
             media_file = self.DEFAULT_MEDIA_FILE
