@@ -23,7 +23,9 @@
 # under the License.
 #
 
+import os
 import sys
+import math
 import examples
 import importlib
 import inspect
@@ -65,6 +67,7 @@ class _GLWidget(QGLWidget):
 class _MainWindow(QtGui.QSplitter):
 
     RENDERING_FPS = 60
+    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
     LOOP_DURATION = 30.0
     LOG_LEVELS = ('verbose', 'debug', 'info', 'warning', 'error')
 
@@ -301,11 +304,23 @@ class _MainWindow(QtGui.QSplitter):
         ngl_level = eval('ngl.LOG_%s' % level_str.upper())
         ngl.log_set_min_level(ngl_level)
 
-    def __init__(self, scene_args):
+    def __init__(self, args):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Demo node.gl")
+
+        if not args:
+            media_file = self.DEFAULT_MEDIA_FILE
+            if not os.path.exists(self.DEFAULT_MEDIA_FILE):
+                ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
+                                       'testsrc2=d=%d:r=%d' % (int(math.ceil(self.LOOP_DURATION)), self.RENDERING_FPS),
+                                       media_file])
+                if ret:
+                    raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
+        else:
+            media_file = args[0]
+
         self._gl_widget = _GLWidget(self)
-        self._scene_args = scene_args
+        self._scene_args = [media_file]
         self._scene = None
         self._base_scene = None
         self._scene_opts_widget = None
