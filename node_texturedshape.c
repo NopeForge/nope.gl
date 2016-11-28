@@ -209,7 +209,7 @@ static void texturedshape_draw(struct ngl_node *node)
         if (textureshaderinfo->coordinates_id >= 0) {
             uint8_t *data = (uint8_t *)shape->vertices + 4 * sizeof(*shape->vertices);
             glEnableVertexAttribArray(textureshaderinfo->coordinates_id);
-            glVertexAttribPointer(textureshaderinfo->coordinates_id, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(*shape->vertices), data);
+            glVertexAttribPointer(textureshaderinfo->coordinates_id, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(*shape->vertices), data);
         }
 
         if (textureshaderinfo->coordinates_mvp_id >= 0) {
@@ -234,7 +234,14 @@ static void texturedshape_draw(struct ngl_node *node)
     }
 
     glEnableVertexAttribArray(shader->position_location_id);
-    glVertexAttribPointer(shader->position_location_id, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), shape->vertices);
+    glVertexAttribPointer(shader->position_location_id, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), shape->vertices);
+
+    if (shader->normal_location_id >= 0) {
+        uint8_t *data = (uint8_t *)shape->vertices + 6 * sizeof(*shape->vertices);
+        glEnableVertexAttribArray(shader->normal_location_id);
+        glVertexAttribPointer(shader->normal_location_id, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), data);
+    }
+
     glDrawElements(shape->draw_mode, shape->nb_indices, shape->draw_type, shape->indices);
 
     glUseProgram(0);

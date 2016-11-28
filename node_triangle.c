@@ -44,11 +44,11 @@ static int triangle_init(struct ngl_node *node)
     struct shape *s = node->priv_data;
 
     const GLfloat vertices[] = {
-        e(0), e(1), e(2), 1.0f, 0.0f, 1.0f,
-        e(3), e(4), e(5), 1.0f, 0.0f, 0.0f,
-        e(6), e(7), e(8), 1.0f, 1.0f, 1.0f,
+        e(0), e(1), e(2), 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        e(3), e(4), e(5), 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        e(6), e(7), e(8), 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
     };
-    s->nb_vertices = NGLI_ARRAY_NB(vertices) / 6;
+    s->nb_vertices = NGLI_ARRAY_NB(vertices) / 9;
     s->vertices = calloc(1, sizeof(vertices));
     if (!s->vertices)
         return -1;

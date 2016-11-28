@@ -49,6 +49,7 @@ static const char default_fragment_shader_data[] =
 
 static const char default_vertex_shader_data[] =
     "attribute vec4 ngl_position;"                                                      "\n"
+    "attribute vec3 ngl_normal;"                                                        "\n"
     "uniform mat4 ngl_modelview_matrix;"                                                "\n"
     "uniform mat4 ngl_projection_matrix;"                                               "\n"
     "uniform mat3 ngl_normal_matrix;"                                                   "\n"
@@ -58,10 +59,12 @@ static const char default_vertex_shader_data[] =
     "uniform vec2 tex0_dimensions;"                                                     "\n"
 
     "varying vec2 var_tex0_coords;"                                                     "\n"
+    "varying vec3 var_normal;"                                                          "\n"
     "void main()"                                                                       "\n"
     "{"                                                                                 "\n"
     "    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;"    "\n"
     "    var_tex0_coords = (tex0_coords_matrix * vec4(tex0_coords, 0, 1)).xy;"          "\n"
+    "    var_normal = ngl_normal_matrix * ngl_normal;"                                  "\n"
     "}";
 
 #define OFFSET(x) offsetof(struct shader, x)
@@ -160,6 +163,7 @@ static int shader_init(struct ngl_node *node)
         return -1;
 
     s->position_location_id          = glGetAttribLocation(s->program_id,  "ngl_position");
+    s->normal_location_id            = glGetAttribLocation(s->program_id,  "ngl_normal");
     s->modelview_matrix_location_id  = glGetUniformLocation(s->program_id, "ngl_modelview_matrix");
     s->projection_matrix_location_id = glGetUniformLocation(s->program_id, "ngl_projection_matrix");
     s->normal_matrix_location_id     = glGetUniformLocation(s->program_id, "ngl_normal_matrix");

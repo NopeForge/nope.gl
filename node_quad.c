@@ -45,12 +45,12 @@ static int quad_init(struct ngl_node *node)
     struct shape *s = node->priv_data;
 
     const GLfloat vertices[] = {
-        c(0) + h(0),        c(1) + h(1),        c(2) + h(2),        1.0f, 0.0f, 0.0f,
-        c(0) + w(0),        c(1) + w(1),        c(2) + w(2),        1.0f, 1.0f, 1.0f,
-        c(0),               c(1),               c(2),               1.0f, 0.0f, 1.0f,
-        c(0) + h(0) + w(0), c(1) + h(1) + w(1), c(2) + h(2) + w(2), 1.0f, 1.0f, 0.0f,
+        c(0) + h(0),        c(1) + h(1),        c(2) + h(2),        1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        c(0) + w(0),        c(1) + w(1),        c(2) + w(2),        1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        c(0),               c(1),               c(2),               1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        c(0) + h(0) + w(0), c(1) + h(1) + w(1), c(2) + h(2) + w(2), 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
     };
-    s->nb_vertices = NGLI_ARRAY_NB(vertices) / 6;
+    s->nb_vertices = NGLI_ARRAY_NB(vertices) / 9;
     s->vertices = calloc(1, sizeof(vertices));
     if (!s->vertices)
         return -1;

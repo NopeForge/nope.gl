@@ -43,7 +43,7 @@ static int shape_init(struct ngl_node *node)
 {
     struct shape *s = node->priv_data;
 
-    s->vertices = calloc(s->nb_primitives, 6 * sizeof(*s->vertices));
+    s->vertices = calloc(s->nb_primitives, 9 * sizeof(*s->vertices));
     if (!s->vertices)
         return -1;
 
@@ -56,6 +56,8 @@ static int shape_init(struct ngl_node *node)
         *p++ = 1.0f;
         memcpy(p, primitive->texture_coordinates, sizeof(primitive->texture_coordinates));
         p += NGLI_ARRAY_NB(primitive->texture_coordinates);
+        memcpy(p, primitive->normals, sizeof(primitive->normals));
+        p += NGLI_ARRAY_NB(primitive->normals);
     }
 
     s->nb_indices = s->nb_primitives;

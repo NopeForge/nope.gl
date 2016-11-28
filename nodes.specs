@@ -99,6 +99,8 @@
     constructors:
         - [coordinates, vec3]
         - [texture_coordinates, vec2]
+    optional:
+        - [normals, vec3]
 
 - Shape:
     optional:
