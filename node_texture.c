@@ -142,9 +142,8 @@ static void texture_update(struct ngl_node *node, double t)
     }
 
     struct media *media = s->data_src->priv_data;
-    struct sxplayer_frame *frame;
+    struct sxplayer_frame *frame = media->frame;
 
-    frame = media->frame;
     if (frame) {
         if (frame->pix_fmt == SXPLAYER_PIXFMT_MEDIACODEC) {
 #ifdef __ANDROID__
@@ -231,6 +230,9 @@ static void texture_update(struct ngl_node *node, double t)
             s->width = width;
             s->height = height;
         }
+
+        sxplayer_release_frame(media->frame);
+        media->frame = frame = NULL;
     }
 }
 
