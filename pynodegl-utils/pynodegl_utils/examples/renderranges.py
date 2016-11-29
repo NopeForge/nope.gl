@@ -40,20 +40,14 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     s = Shader()
 
-    m1 = Media(cfg.media_filename)
-    m2 = Media(cfg.media_filename)
-    m1.set_name("media1")
-    m2.set_name("media2")
+    m1 = Media(cfg.media_filename, name="media1")
+    m2 = Media(cfg.media_filename, name="media2")
 
-    t1 = Texture(data_src=m1)
-    t2 = Texture(data_src=m2)
-    t1.set_name("texture1")
-    t2.set_name("texture2")
+    t1 = Texture(data_src=m1, name="texture1")
+    t2 = Texture(data_src=m2, name="texture2")
 
-    tshape1 = TexturedShape(q, s, t1)
-    tshape2 = TexturedShape(q, s, t2)
-    tshape1.set_name("texturedshape1")
-    tshape2.set_name("texturedshape2")
+    tshape1 = TexturedShape(q, s, t1, name="texturedshape1")
+    tshape2 = TexturedShape(q, s, t2, name="texturedshape2")
 
     t = 0
     rr1 = []

@@ -162,8 +162,7 @@ def centered_model_media(cfg, n=0.5, model=None):
     tshape = TexturedShape(q, s, t)
     tshape.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
-    rot = Rotate(tshape, axis=(0,1,0))
-    rot.set_name("roty")
+    rot = Rotate(tshape, axis=(0,1,0), name="roty")
     rot.add_animkf(AnimKeyFrameScalar(0, 0),
                    AnimKeyFrameScalar(cfg.duration, 360*2))
 

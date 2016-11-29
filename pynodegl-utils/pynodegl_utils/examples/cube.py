@@ -23,8 +23,7 @@ def _get_cube_side(texture, shader, corner, width, height, color):
 
 @scene()
 def rotating_cube(cfg):
-    cube = Group()
-    cube.set_name("cube")
+    cube = Group(name="cube")
     cube.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
     frag_data = """
@@ -43,18 +42,15 @@ void main(void)
     children = [_get_cube_side(t, s, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)
 
-    rot = Rotate(cube, axis=(1,0,0))
-    rot.set_name("rotx")
+    rot = Rotate(cube, axis=(1,0,0), name="rotx")
     rot.add_animkf(AnimKeyFrameScalar(0,  0),
                    AnimKeyFrameScalar(cfg.duration, 360))
 
-    rot = Rotate(rot, axis=(0,1,0))
-    rot.set_name("roty")
+    rot = Rotate(rot, axis=(0,1,0), name="roty")
     rot.add_animkf(AnimKeyFrameScalar(0,  0),
                    AnimKeyFrameScalar(cfg.duration, 360*2))
 
-    rot = Rotate(rot, axis=(0,0,1))
-    rot.set_name("rotz")
+    rot = Rotate(rot, axis=(0,0,1), name="rotz")
     rot.add_animkf(AnimKeyFrameScalar(0,  0),
                    AnimKeyFrameScalar(cfg.duration, 360*3))
 
