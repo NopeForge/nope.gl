@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
-# Copyright 2016 Clément Bœsch <cboesch@gopro.com>
-# Copyright 2016 Matthieu Bouron <mbouron@gopro.com>
+# Copyright 2016 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
