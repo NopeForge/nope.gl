@@ -144,6 +144,16 @@ class _MainWindow(QtGui.QSplitter):
             self._load_current_scene(load_widgets=False)
         return pick_color
 
+    def _craft_choose_filename_cb(self, id_name, label, dialog_btn, files_filter):
+        def choose_filename():
+            filenames = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '', files_filter)
+            if not filenames[0]:
+                return
+            label.setText(self._get_label_text(id_name, os.path.basename(filenames[0])))
+            self._scene_extra_args[id_name] = filenames[0]
+            self._load_current_scene(load_widgets=False)
+        return choose_filename
+
     def _craft_checkbox_toggle_cb(self, id_name, chkbox):
         def checkbox_toggle():
             self._scene_extra_args[id_name] = chkbox.isChecked()
@@ -188,6 +198,14 @@ class _MainWindow(QtGui.QSplitter):
                 checkbox_toggle_cb = self._craft_checkbox_toggle_cb(name, chkbox)
                 chkbox.stateChanged.connect(checkbox_toggle_cb)
                 widgets.append(chkbox)
+
+            elif widget_specs['type'] == 'model':
+                dialog_btn = QtGui.QPushButton('Open file')
+                label = QtGui.QLabel(self._get_label_text(name, default_value))
+                widgets.append(label)
+                choose_filename_cb = self._craft_choose_filename_cb(name, label, dialog_btn, widget_specs.get('filter', ''))
+                dialog_btn.pressed.connect(choose_filename_cb)
+                widgets.append(dialog_btn)
 
         if not widgets:
             return None

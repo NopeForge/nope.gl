@@ -135,7 +135,7 @@ void main() {
 """
 
 
-@scene()
+@scene({'name': 'model', 'type': 'model', 'filter': 'Object files (*.obj)'})
 def centered_model_media(cfg, n=0.5, model=None):
 
     try:
