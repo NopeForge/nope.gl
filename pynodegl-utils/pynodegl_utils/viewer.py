@@ -27,6 +27,7 @@ import math
 import examples
 import importlib
 import inspect
+import json
 import pkgutil
 import subprocess
 import traceback
@@ -350,6 +351,17 @@ class _MainWindow(QtGui.QSplitter):
         ngl_level = eval('ngl.LOG_%s' % level_str.upper())
         ngl.log_set_min_level(ngl_level)
 
+    def _get_media_dimensions(self, filename):
+        try:
+            data = subprocess.check_output(['ffprobe', '-select_streams', 'v:0',
+                                            '-of', 'json', '-show_streams',
+                                            filename])
+            data = json.loads(data)
+        except:
+            return (-1, -1)
+        st = data['streams'][0]
+        return (st['width'], st['height'])
+
     def __init__(self, args):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Demo node.gl")
@@ -374,6 +386,7 @@ class _MainWindow(QtGui.QSplitter):
         class _SceneCfg: pass
         self._scene_cfg = _SceneCfg()
         self._scene_cfg.media_filename = media_file
+        self._scene_cfg.media_dimensions = self._get_media_dimensions(media_file)
         self._scene_cfg.duration = self.LOOP_DURATION
         self._scene_cfg.aspect_ratio = ASPECT_RATIO[0] / float(ASPECT_RATIO[1])
 
