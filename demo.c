@@ -154,7 +154,7 @@ static void init(GLFWwindow *window, const char *filename)
 
     g_ctx = ngl_create();
     ngl_set_glcontext(g_ctx, NULL, NULL, NULL, platform, api);
-    ngl_set_viewport(g_ctx, WINDOW_WIDTH, WINDOW_HEIGHT);
+    ngl_set_viewport(g_ctx, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     g_scene = get_scene(filename);
 }

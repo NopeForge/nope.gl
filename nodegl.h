@@ -126,7 +126,7 @@ struct ngl_ctx;
 struct ngl_ctx *ngl_create(void);
 int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *handle, int platform, int api);
 int ngl_draw(struct ngl_ctx *s, struct ngl_node *scene, double t);
-int ngl_set_viewport(struct ngl_ctx *s, int w, int h);
+int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int w, int h);
 void ngl_free(struct ngl_ctx **ss);
 
 #endif

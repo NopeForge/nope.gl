@@ -28,7 +28,7 @@ cdef extern from "nodegl.h":
     ngl_ctx *ngl_create()
     int ngl_set_glcontext(ngl_ctx *s, void *display, void *window, void *handle, int platform, int api)
     int ngl_draw(ngl_ctx *s, ngl_node *scene, double t)
-    int ngl_set_viewport(ngl_ctx *s, int w, int h)
+    int ngl_set_viewport(ngl_ctx *s, int x, int y, int w, int h)
     void ngl_free(ngl_ctx **ss)
 
 GLPLATFORM_GLX = NGL_GLPLATFORM_GLX
@@ -59,8 +59,8 @@ cdef class Viewer:
     def draw(self, _Node scene, double t):
         return ngl_draw(self.ctx, scene.ctx, t)
 
-    def set_viewport(self, int w, int h):
-        return ngl_set_viewport(self.ctx, w, h)
+    def set_viewport(self, int x, int y, int w, int h):
+        return ngl_set_viewport(self.ctx, x, y, w, h)
 
     def __dealloc__(self):
         ngl_free(&self.ctx)

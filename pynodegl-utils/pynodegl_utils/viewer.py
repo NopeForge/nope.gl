@@ -60,7 +60,7 @@ class _GLWidget(QGLWidget):
             self._viewer.draw(self._scene, self._time)
 
     def resizeGL(self, w, h):
-        self._viewer.set_viewport(w, h)
+        self._viewer.set_viewport(0, 0, w, h)
 
     def initializeGL(self):
         self._viewer.set_window(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)

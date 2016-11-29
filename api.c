@@ -52,10 +52,10 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
     return 0;
 }
 
-int ngl_set_viewport(struct ngl_ctx *s, int w, int h)
+int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int w, int h)
 {
-    LOG(DEBUG, "update viewport to %dx%d", w, h);
-    glViewport(0, 0, w, h);
+    LOG(DEBUG, "update viewport to %d,%d %dx%d", x, y, w, h);
+    glViewport(x, y, w, h);
     return 0;
 }
 
