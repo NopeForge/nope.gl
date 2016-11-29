@@ -353,7 +353,8 @@ class _MainWindow(QtGui.QSplitter):
 
     def _get_media_dimensions(self, filename):
         try:
-            data = subprocess.check_output(['ffprobe', '-select_streams', 'v:0',
+            data = subprocess.check_output(['ffprobe', '-v', '0',
+                                            '-select_streams', 'v:0',
                                             '-of', 'json', '-show_streams',
                                             filename])
             data = json.loads(data)
