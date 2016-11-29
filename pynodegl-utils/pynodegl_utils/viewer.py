@@ -31,6 +31,7 @@ import importlib
 import inspect
 import pkgutil
 import subprocess
+import traceback
 
 import pynodegl as ngl
 
@@ -226,8 +227,16 @@ class _MainWindow(QtGui.QSplitter):
             self._del_scene_opts_widget()
             scene_opts_widget = self._get_opts_widget_from_specs(scene_func.widgets_specs)
             self._set_scene_opts_widget(scene_opts_widget)
-        scene = scene_func(self._scene_cfg, **self._scene_extra_args)
-        scene.set_name(scene_name)
+        try:
+            scene = scene_func(self._scene_cfg, **self._scene_extra_args)
+            scene.set_name(scene_name)
+        except:
+            self._errbuf.setText(traceback.format_exc())
+            self._errbuf.show()
+            raise
+        else:
+            self._errbuf.hide()
+
         self._base_scene = scene
         self._reload_scene()
 
@@ -263,7 +272,15 @@ class _MainWindow(QtGui.QSplitter):
             module_finder, module_name, ispkg = module
             script = importlib.import_module('.' + module_name, self._module_pkgname)
             if not initial_import:
-                script = reload(script)
+                try:
+                    reload(script)
+                except:
+                    self._errbuf.setText(traceback.format_exc())
+                    self._errbuf.show()
+                    raise
+                else:
+                    self._errbuf.hide()
+
             all_funcs = inspect.getmembers(script, inspect.isfunction)
             scene_funcs = filter(lambda f: hasattr(f[1], 'iam_a_ngl_scene_func'), all_funcs)
             if not scene_funcs:
@@ -430,8 +447,17 @@ class _MainWindow(QtGui.QSplitter):
         scene_toolbar = QtGui.QWidget()
         scene_toolbar.setLayout(self._scene_toolbar_layout)
 
+        self._errbuf = QtGui.QTextEdit()
+        self._errbuf.hide()
+
+        tabs_and_errbuf = QtGui.QVBoxLayout()
+        tabs_and_errbuf.addWidget(tabs)
+        tabs_and_errbuf.addWidget(self._errbuf)
+        tabs_and_errbuf_widget = QtGui.QWidget()
+        tabs_and_errbuf_widget.setLayout(tabs_and_errbuf)
+
         self.addWidget(scene_toolbar)
-        self.addWidget(tabs)
+        self.addWidget(tabs_and_errbuf_widget)
         self.setStretchFactor(1, 1)
 
         self._update_tick(0)
