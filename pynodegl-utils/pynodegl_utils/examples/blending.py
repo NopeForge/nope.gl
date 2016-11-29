@@ -12,12 +12,12 @@ void main() {
 """
 
 @scene()
-def blending_test(args, duration):
+def blending_test(cfg):
     g = Group()
     g2 = Group()
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(args[0])
+    m = Media(cfg.media_filename)
     t = Texture(data_src=m)
     s = Shader()
     ts = TexturedShape(q, s, t)

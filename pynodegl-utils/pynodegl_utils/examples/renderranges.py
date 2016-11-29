@@ -6,7 +6,7 @@ from pynodegl_utils.misc import scene
 
 @scene({'name': 'overlap_time', 'type': 'range', 'range': [0,5], 'unit_base': 10},
        {'name': 'dim', 'type': 'range', 'range': [1,10]})
-def queued_medias(args, duration, overlap_time=1., dim=3):
+def queued_medias(cfg, overlap_time=1., dim=3):
     qw = qh = 2. / dim
     nb_videos = dim * dim
     tqs = []
@@ -14,8 +14,8 @@ def queued_medias(args, duration, overlap_time=1., dim=3):
     for y in range(dim):
         for x in range(dim):
             video_id = y*dim + x
-            start = video_id * duration / nb_videos
-            m = Media(args[0], start=start)
+            start = video_id * cfg.duration / nb_videos
+            m = Media(cfg.media_filename, start=start)
             m.set_name('media #%d' % video_id)
 
             corner = (-1. + x*qw, 1. - (y+1)*qh, 0)
@@ -28,7 +28,7 @@ def queued_medias(args, duration, overlap_time=1., dim=3):
             if start:
                 tshape.add_ranges(RenderRangeNoRender(0))
             tshape.add_ranges(RenderRangeContinuous(start),
-                          RenderRangeNoRender(start + duration/nb_videos + overlap_time))
+                          RenderRangeNoRender(start + cfg.duration/nb_videos + overlap_time))
 
             tqs.append(tshape)
 
@@ -36,12 +36,12 @@ def queued_medias(args, duration, overlap_time=1., dim=3):
 
 @scene({'name': 'fast', 'type': 'bool'},
        {'name': 'segment_time', 'type': 'range', 'range': [0,10], 'unit_base': 10})
-def parallel_playback(args, duration, fast=True, segment_time=2.):
+def parallel_playback(cfg, fast=True, segment_time=2.):
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     s = Shader()
 
-    m1 = Media(args[0])
-    m2 = Media(args[0])
+    m1 = Media(cfg.media_filename)
+    m2 = Media(cfg.media_filename)
     m1.set_name("media1")
     m2.set_name("media2")
 
@@ -58,7 +58,7 @@ def parallel_playback(args, duration, fast=True, segment_time=2.):
     t = 0
     rr1 = []
     rr2 = []
-    while t < duration:
+    while t < cfg.duration:
         rr1.append(RenderRangeContinuous(t))
         rr1.append(RenderRangeNoRender(t + segment_time))
 

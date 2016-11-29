@@ -208,8 +208,7 @@ class _MainWindow(QtGui.QSplitter):
             self._del_scene_opts_widget()
             scene_opts_widget = self._get_opts_widget_from_specs(scene_func.widgets_specs)
             self._set_scene_opts_widget(scene_opts_widget)
-        scene = scene_func(self._scene_args, duration=self.LOOP_DURATION,
-                           **self._scene_extra_args)
+        scene = scene_func(self._scene_cfg, **self._scene_extra_args)
         scene.set_name(scene_name)
         self._base_scene = scene
         self._reload_scene()
@@ -326,8 +325,12 @@ class _MainWindow(QtGui.QSplitter):
         else:
             media_file = args[0]
 
+        class _SceneCfg: pass
+        self._scene_cfg = _SceneCfg()
+        self._scene_cfg.media_filename = media_file
+        self._scene_cfg.duration = self.LOOP_DURATION
+
         self._gl_widget = _GLWidget(self)
-        self._scene_args = [media_file]
         self._scene = None
         self._base_scene = None
         self._scene_opts_widget = None

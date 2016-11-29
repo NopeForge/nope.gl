@@ -22,7 +22,7 @@ def _get_cube_side(texture, shader, corner, width, height, color):
                          uniforms=[UniformVec3("blend_color", value=color)])
 
 @scene()
-def rotating_cube(args, duration):
+def rotating_cube(cfg):
     cube = Group()
     cube.set_name("cube")
     cube.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
@@ -38,7 +38,7 @@ void main(void)
 }"""
     s = Shader(fragment_data=frag_data)
 
-    t = Texture(data_src=Media(args[0]))
+    t = Texture(data_src=Media(cfg.media_filename))
     cube_quads_info = _get_cube_quads()
     children = [_get_cube_side(t, s, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)
@@ -46,17 +46,17 @@ void main(void)
     rot = Rotate(cube, axis=(1,0,0))
     rot.set_name("rotx")
     rot.add_animkf(AnimKeyFrameScalar(0,  0),
-                   AnimKeyFrameScalar(duration, 360))
+                   AnimKeyFrameScalar(cfg.duration, 360))
 
     rot = Rotate(rot, axis=(0,1,0))
     rot.set_name("roty")
     rot.add_animkf(AnimKeyFrameScalar(0,  0),
-                   AnimKeyFrameScalar(duration, 360*2))
+                   AnimKeyFrameScalar(cfg.duration, 360*2))
 
     rot = Rotate(rot, axis=(0,0,1))
     rot.set_name("rotz")
     rot.add_animkf(AnimKeyFrameScalar(0,  0),
-                   AnimKeyFrameScalar(duration, 360*3))
+                   AnimKeyFrameScalar(cfg.duration, 360*3))
 
     camera = Camera(rot)
     camera.set_eye(0.0, 0.0, 2.0)
@@ -66,7 +66,7 @@ void main(void)
     return camera
 
 @scene()
-def scene_with_framebuffer(args, duration):
+def scene_with_framebuffer(cfg):
     g = Group()
 
     d = Texture()
@@ -79,7 +79,7 @@ def scene_with_framebuffer(args, duration):
     t = Texture()
     t.set_width(640)
     t.set_height(480)
-    rtt = RTT(rotating_cube(args, duration), t)
+    rtt = RTT(rotating_cube(cfg), t)
     rtt.set_depth_texture(d)
 
     q = Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))

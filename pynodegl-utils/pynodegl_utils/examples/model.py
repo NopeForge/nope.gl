@@ -136,7 +136,7 @@ void main() {
 
 
 @scene()
-def centered_model_media(args, duration, n=0.5, model=None):
+def centered_model_media(cfg, n=0.5, model=None):
 
     try:
         with open(model) as fp:
@@ -156,7 +156,7 @@ def centered_model_media(args, duration, n=0.5, model=None):
         ))
 
     q = Shape(primitives)
-    m = Media(args[0])
+    m = Media(cfg.media_filename)
     t = Texture(data_src=m)
     s = Shader(fragment_data=fragment_data)
     tshape = TexturedShape(q, s, t)
@@ -164,8 +164,8 @@ def centered_model_media(args, duration, n=0.5, model=None):
 
     rot = Rotate(tshape, axis=(0,1,0))
     rot.set_name("roty")
-    rot.add_animkf(AnimKeyFrameScalar(0,  0),
-                   AnimKeyFrameScalar(duration, 360*2))
+    rot.add_animkf(AnimKeyFrameScalar(0, 0),
+                   AnimKeyFrameScalar(cfg.duration, 360*2))
 
     camera = Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)
