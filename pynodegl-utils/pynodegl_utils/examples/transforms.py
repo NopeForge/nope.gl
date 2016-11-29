@@ -110,7 +110,7 @@ def animated_camera(cfg):
     camera.set_eye(0, 0, 2)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
-    camera.set_perspective(45.0, 640.0/480.0, 0.1, 10.0)
+    camera.set_perspective(45.0, 16.0/9.0, 0.1, 10.0)
     camera.add_eye_animkf(
             AnimKeyFrameVec3(0, (0, 0, 0.2), "exp_out"),
             AnimKeyFrameVec3(10, (0, 0, 3)))

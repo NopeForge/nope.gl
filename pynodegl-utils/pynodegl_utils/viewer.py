@@ -59,8 +59,19 @@ class _GLWidget(QGLWidget):
         if self._scene:
             self._viewer.draw(self._scene, self._time)
 
-    def resizeGL(self, w, h):
-        self._viewer.set_viewport(0, 0, w, h)
+    def resizeGL(self, screen_width, screen_height):
+        aspect = 16.0 / 9.0
+        view_width = screen_width
+        view_height = screen_width / aspect
+
+        if view_height > screen_height:
+            view_height = screen_height
+            view_width = screen_height * aspect
+
+        view_x = (screen_width - view_width) / 2.0
+        view_y = (screen_height - view_height) / 2.0
+
+        self._viewer.set_viewport(view_x, view_y, view_width, view_height)
 
     def initializeGL(self):
         self._viewer.set_window(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
