@@ -105,7 +105,11 @@ class BuildExtCommand(build_ext):
                     construct_cargs.append('%s.ctx' % field_name)
                     construct_args.append('_Node %s' % field_name)
 
-            for field in fields.get('optional', []):
+            opt_fields = fields.get('optional', [])
+            if node != '_Node':
+                opt_fields += specs[0]['_Node']['optional']
+
+            for field in opt_fields:
                 field_name, field_type = field
                 construct_args.append('%s=None' % field_name)
                 is_list = field_type.endswith('List')
