@@ -10,15 +10,15 @@
 
 - AttributeVec2:
     constructors:
-        - [name, string]
+        - [id, string]
 
 - AttributeVec3:
     constructors:
-        - [name, string]
+        - [id, string]
 
 - AttributeVec4:
     constructors:
-        - [name, string]
+        - [id, string]
 
 - Camera:
     constructors:
@@ -186,45 +186,45 @@
 
 - UniformScalar:
     constructors:
-        - [name, string]
+        - [id, string]
     optional:
         - [value, double]
         - [animkf, NodeList]
 
 - UniformVec2:
     constructors:
-        - [name, string]
+        - [id, string]
     optional:
         - [value, vec2]
         - [animkf, NodeList]
 
 - UniformVec3:
     constructors:
-        - [name, string]
+        - [id, string]
     optional:
         - [value, vec3]
         - [animkf, NodeList]
 
 - UniformVec4:
     constructors:
-        - [name, string]
+        - [id, string]
     optional:
         - [value, vec4]
         - [animkf, NodeList]
 
 - UniformMat4:
     constructors:
-        - [name, string]
+        - [id, string]
 
 - UniformSampler:
     constructors:
-        - [name, string]
+        - [id, string]
     optional:
         - [type, int]
 
 - UniformInt:
     constructors:
-        - [name, string]
+        - [id, string]
     optional:
         - [value, int]
 

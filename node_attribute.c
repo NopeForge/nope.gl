@@ -32,17 +32,17 @@
 
 #define OFFSET(x) offsetof(struct attribute, x)
 static const struct node_param attributevec2_params[] = {
-    {"name",   PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {NULL}
 };
 
 static const struct node_param attributevec3_params[] = {
-    {"name",   PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {NULL}
 };
 
 static const struct node_param attributevec4_params[] = {
-    {"name",   PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {NULL}
 };
 
