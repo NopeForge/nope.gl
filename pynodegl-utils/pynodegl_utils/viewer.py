@@ -38,6 +38,8 @@ import pynodegl as ngl
 from PySide import QtGui, QtCore
 from PySide.QtOpenGL import QGLWidget
 
+ASPECT_RATIO = (16, 9)
+
 class _GLWidget(QGLWidget):
 
     def set_time(self, t):
@@ -50,7 +52,7 @@ class _GLWidget(QGLWidget):
 
     def __init__(self, parent):
         QGLWidget.__init__(self, parent)
-        self.setMinimumSize(800, 600)
+        self.setMinimumSize(640, 360)
         self._viewer = ngl.Viewer(None)
         self._scene = None
         self._time = 0
@@ -60,7 +62,7 @@ class _GLWidget(QGLWidget):
             self._viewer.draw(self._scene, self._time)
 
     def resizeGL(self, screen_width, screen_height):
-        aspect = 16.0 / 9.0
+        aspect = ASPECT_RATIO[0] / float(ASPECT_RATIO[1])
         view_width = screen_width
         view_height = screen_width / aspect
 
@@ -375,6 +377,7 @@ class _MainWindow(QtGui.QSplitter):
         self._scene_cfg = _SceneCfg()
         self._scene_cfg.media_filename = media_file
         self._scene_cfg.duration = self.LOOP_DURATION
+        self._scene_cfg.aspect_ratio = ASPECT_RATIO[0] / float(ASPECT_RATIO[1])
 
         self._gl_widget = _GLWidget(self)
         self._scene = None
