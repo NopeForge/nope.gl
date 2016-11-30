@@ -40,17 +40,17 @@ static const struct node_param rtt_params[] = {
 static int rtt_init(struct ngl_node *node)
 {
     struct rtt *s = node->priv_data;
-    struct texture *t = s->color_texture->priv_data;
-    struct texture *d = NULL;
+    struct texture *texture = s->color_texture->priv_data;
+    struct texture *depth_texture = NULL;
 
     ngli_node_init(s->color_texture);
-    s->width = t->width;
-    s->height = t->height;
+    s->width = texture->width;
+    s->height = texture->height;
 
     if (s->depth_texture) {
-        d = s->depth_texture->priv_data;
+        depth_texture = s->depth_texture->priv_data;
         ngli_node_init(s->depth_texture);
-        ngli_assert(s->width == d->width && s->height == d->height);
+        ngli_assert(s->width == depth_texture->width && s->height == depth_texture->height);
     }
 
     GLuint framebuffer_id = 0;
@@ -59,11 +59,11 @@ static int rtt_init(struct ngl_node *node)
     glGenFramebuffers(1, &s->framebuffer_id);
     glBindFramebuffer(GL_FRAMEBUFFER, s->framebuffer_id);
 
-    LOG(VERBOSE, "init rtt with texture %d", t->id);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, t->id, 0);
+    LOG(VERBOSE, "init rtt with texture %d", texture->id);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->id, 0);
 
-    if (d) {
-        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, d->id, 0);
+    if (depth_texture) {
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture->id, 0);
     } else {
         glGenRenderbuffers(1, &s->renderbuffer_id);
         glBindRenderbuffer(GL_RENDERBUFFER, s->renderbuffer_id);
