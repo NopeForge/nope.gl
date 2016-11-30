@@ -37,8 +37,6 @@ import pynodegl as ngl
 from PySide import QtGui, QtCore
 from PySide.QtOpenGL import QGLWidget
 
-ASPECT_RATIO = (16, 9)
-
 class _GLWidget(QGLWidget):
 
     def set_time(self, t):
@@ -49,19 +47,30 @@ class _GLWidget(QGLWidget):
         self._scene = scene
         self.update()
 
-    def __init__(self, parent):
+    def set_aspect_ratio(self, aspect_ratio):
+        self._aspect_ratio = aspect_ratio
+        # XXX: self.resize(self.size()) doesn't seem to have any effect as it
+        # doesn't call resizeGL() callback, so we do something a bit more
+        # clumsy
+        self.makeCurrent()
+        screen_size = self.size()
+        self.resizeGL(screen_size.width(), screen_size.height())
+        self.update()
+
+    def __init__(self, parent, aspect_ratio):
         QGLWidget.__init__(self, parent)
         self.setMinimumSize(640, 360)
         self._viewer = ngl.Viewer(None)
         self._scene = None
         self._time = 0
+        self._aspect_ratio = aspect_ratio
 
     def paintGL(self):
         if self._scene:
             self._viewer.draw(self._scene, self._time)
 
     def resizeGL(self, screen_width, screen_height):
-        aspect = ASPECT_RATIO[0] / float(ASPECT_RATIO[1])
+        aspect = self._aspect_ratio[0] / float(self._aspect_ratio[1])
         view_width = screen_width
         view_height = screen_width / aspect
 
@@ -83,6 +92,7 @@ class _MainWindow(QtGui.QSplitter):
     DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
     LOOP_DURATION = 30.0
     LOG_LEVELS = ('verbose', 'debug', 'info', 'warning', 'error')
+    ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
 
     def _set_action(self, action):
         if action == 'play':
@@ -351,6 +361,10 @@ class _MainWindow(QtGui.QSplitter):
         ngl_level = eval('ngl.LOG_%s' % level_str.upper())
         ngl.log_set_min_level(ngl_level)
 
+    def _set_aspect_ratio(self):
+        ar_id = self._ar_cbbox.currentIndex()
+        self._gl_widget.set_aspect_ratio(self.ASPECT_RATIOS[ar_id])
+
     def _get_media_dimensions(self, filename):
         try:
             data = subprocess.check_output(['ffprobe', '-v', '0',
@@ -384,14 +398,16 @@ class _MainWindow(QtGui.QSplitter):
         else:
             media_file = args[0]
 
+        default_ar = self.ASPECT_RATIOS[0]
+
         class _SceneCfg: pass
         self._scene_cfg = _SceneCfg()
         self._scene_cfg.media_filename = media_file
         self._scene_cfg.media_dimensions = self._get_media_dimensions(media_file)
         self._scene_cfg.duration = self.LOOP_DURATION
-        self._scene_cfg.aspect_ratio = ASPECT_RATIO[0] / float(ASPECT_RATIO[1])
+        self._scene_cfg.aspect_ratio = default_ar[0] / float(default_ar[1])
 
-        self._gl_widget = _GLWidget(self)
+        self._gl_widget = _GLWidget(self, default_ar)
         self._scene = None
         self._base_scene = None
         self._scene_opts_widget = None
@@ -451,6 +467,16 @@ class _MainWindow(QtGui.QSplitter):
         self._reload_scripts(initial_import=True)
         self._reload_scene_view()
 
+        self._ar_cbbox = QtGui.QComboBox()
+        for ar in self.ASPECT_RATIOS:
+            self._ar_cbbox.addItem('%d:%d' % ar)
+        self._ar_cbbox.setCurrentIndex(self.ASPECT_RATIOS.index(default_ar))
+        self._set_aspect_ratio()
+        ar_lbl = QtGui.QLabel('Aspect ratio:')
+        ar_hbox = QtGui.QHBoxLayout()
+        ar_hbox.addWidget(ar_lbl)
+        ar_hbox.addWidget(self._ar_cbbox)
+
         self._loglevel_cbbox = QtGui.QComboBox()
         for level in self.LOG_LEVELS:
             self._loglevel_cbbox.addItem(level.title())
@@ -466,6 +492,7 @@ class _MainWindow(QtGui.QSplitter):
 
         self._scene_toolbar_layout = QtGui.QVBoxLayout()
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
+        self._scene_toolbar_layout.addLayout(ar_hbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
         self._scene_toolbar_layout.addWidget(reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
@@ -497,6 +524,7 @@ class _MainWindow(QtGui.QSplitter):
         self._scn_view.clicked.connect(self._scn_view_clicked)
         self._graph_btn.clicked.connect(self._update_graph)
         self._fps_chkbox.stateChanged.connect(self._reload_scene)
+        self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
         reload_btn.clicked.connect(self._reload_scripts)
 
