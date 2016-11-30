@@ -362,8 +362,10 @@ class _MainWindow(QtGui.QSplitter):
         ngl.log_set_min_level(ngl_level)
 
     def _set_aspect_ratio(self):
-        ar_id = self._ar_cbbox.currentIndex()
-        self._gl_widget.set_aspect_ratio(self.ASPECT_RATIOS[ar_id])
+        ar = self.ASPECT_RATIOS[self._ar_cbbox.currentIndex()]
+        self._scene_cfg.aspect_ratio = ar[0] / float(ar[1])
+        self._gl_widget.set_aspect_ratio(ar)
+        self._load_current_scene()
 
     def _get_media_dimensions(self, filename):
         try:
