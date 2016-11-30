@@ -1,9 +1,9 @@
 node.gl
 =======
 
-`node.gl` is a [GoPro][gopro]/[Stupeflix][stupeflix] OpenGL engine for building
-and rendering graph-based scenes. It is designed to run on both desktop (Linux,
-OSX) and mobile (Android, iOS).
+`node.gl` is a [GoPro][gopro] OpenGL engine for building and rendering
+graph-based scenes. It is designed to run on both desktop (Linux, OSX) and
+mobile (Android, iOS).
 
 The `node.gl` project is split in 3 parts:
 
@@ -15,7 +15,6 @@ The `node.gl` project is split in 3 parts:
 and API can change at any time.
 
 [gopro]: https://gopro.com/
-[stupeflix]: https://stupeflix.com/
 
 ## Dependencies
 
