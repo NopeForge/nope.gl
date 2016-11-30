@@ -70,7 +70,7 @@ You can check the installed version of `libnodegl` using `pkg-config
 ## License
 
 `node.gl` is licensed under the Apache License, Version 2.0. Read the `LICENSE`
-file for details.
+and `NOTICE` files for details.
 
 ## Using the API
 
