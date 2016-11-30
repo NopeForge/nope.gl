@@ -73,6 +73,28 @@ static const struct node_param shader_params[] = {
     {NULL}
 };
 
+#define DEFINE_GET_INFO_LOG_FUNCTION(func, name)                                      \
+static void get_##func##_info_log(GLuint id, char **info_logp, int *info_log_lengthp) \
+{                                                                                     \
+    glGet##name##iv(id, GL_INFO_LOG_LENGTH, info_log_lengthp);                        \
+    if (!*info_log_lengthp) {                                                         \
+        *info_logp = NULL;                                                            \
+        return;                                                                       \
+    }                                                                                 \
+                                                                                      \
+    *info_logp = malloc(*info_log_lengthp);                                           \
+    if (!*info_logp) {                                                                \
+        *info_log_lengthp = 0;                                                        \
+        return;                                                                       \
+    }                                                                                 \
+                                                                                      \
+    glGet##name##InfoLog(id, *info_log_lengthp, NULL, *info_logp);                    \
+    return;                                                                           \
+}                                                                                     \
+
+DEFINE_GET_INFO_LOG_FUNCTION(shader, Shader)
+DEFINE_GET_INFO_LOG_FUNCTION(program, Program)
+
 static GLuint load_shader(const char *vertex_shader_data, const char *fragment_shader_data)
 {
     char *info_log = NULL;
@@ -89,12 +111,7 @@ static GLuint load_shader(const char *vertex_shader_data, const char *fragment_s
 
     glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &result);
     if (!result) {
-        glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &info_log_length);
-        info_log = malloc(info_log_length + 1);
-        if (!info_log) {
-            goto fail;
-        }
-        glGetShaderInfoLog(vertex_shader, info_log_length, NULL, info_log);
+        get_shader_info_log(vertex_shader, &info_log, &info_log_length);
         goto fail;
     }
 
@@ -103,12 +120,7 @@ static GLuint load_shader(const char *vertex_shader_data, const char *fragment_s
 
     glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &result);
     if (!result) {
-        glGetShaderiv(fragment_shader, GL_INFO_LOG_LENGTH, &info_log_length);
-        info_log = malloc(info_log_length + 1);
-        if (!info_log) {
-            goto fail;
-        }
-        glGetShaderInfoLog(fragment_shader, info_log_length, NULL, info_log);
+        get_shader_info_log(fragment_shader, &info_log, &info_log_length);
         goto fail;
     }
 
@@ -118,12 +130,7 @@ static GLuint load_shader(const char *vertex_shader_data, const char *fragment_s
 
     glGetProgramiv(program, GL_LINK_STATUS, &result);
     if (!result) {
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &info_log_length);
-        info_log = malloc(info_log_length + 1);
-        if (!info_log) {
-            goto fail;
-        }
-        glGetProgramInfoLog(program, info_log_length, NULL, info_log);
+        get_program_info_log(program, &info_log, &info_log_length);
         goto fail;
     }
 
