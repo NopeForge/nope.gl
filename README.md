@@ -34,7 +34,7 @@ and API can change at any time.
 [python]: https://www.python.org/
 [cython]: http://cython.org/
 
-## Installation `libnodegl` (the core library)
+## Installation of `libnodegl` (the core library)
 
 ### Build
 
