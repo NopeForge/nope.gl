@@ -75,6 +75,17 @@ static int rtt_init(struct ngl_node *node)
     ngli_assert(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
     glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
 
+    /* flip vertically the color and depth textures so the coordinates match
+     * how the uv coordinates system works */
+    texture->coordinates_matrix[5] = -1.0f;
+    texture->coordinates_matrix[13] = 1.0f;
+
+    if (s->depth_texture) {
+        struct texture *depth_texture = s->depth_texture->priv_data;
+        depth_texture->coordinates_matrix[5] = -1.0f;
+        depth_texture->coordinates_matrix[13] = 1.0f;
+    }
+
     ngli_node_init(s->child);
 
     return 0;
