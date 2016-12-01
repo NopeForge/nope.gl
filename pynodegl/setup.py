@@ -85,6 +85,9 @@ class BuildExtCommand(build_ext):
             special_inits = ''
             extra_args = ''
 
+            if not fields:
+                fields = {}
+
             for field in fields.get('constructors', []):
                 field_name, field_type = field
                 assert not field_type.endswith('List')
