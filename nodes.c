@@ -300,8 +300,8 @@ static void node_uninit(struct ngl_node *node)
     if (node->class->uninit) {
         LOG(VERBOSE, "UNINIT %s @ %p", node->name, node);
         node->class->uninit(node);
-        reset_non_params(node);
     }
+    reset_non_params(node);
     node->state = STATE_UNINITIALIZED;
 }
 
