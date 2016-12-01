@@ -98,6 +98,9 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
 
 int ngli_params_set_constructors(uint8_t *base_ptr, const struct node_param *params, va_list *ap)
 {
+    if (!params)
+        return 0;
+
     for (int i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
 
@@ -115,6 +118,9 @@ int ngli_params_set_constructors(uint8_t *base_ptr, const struct node_param *par
 int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
 {
     int last_offset = 0;
+
+    if (!params)
+        return 0;
 
     for (int i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
@@ -199,6 +205,9 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
 
 void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
 {
+    if (!params)
+        return;
+
     for (int i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
         uint8_t *parp = base_ptr + par->offset;
