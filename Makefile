@@ -36,6 +36,7 @@ PROJECT_OBJS = api.o                    \
                node_glstate.o           \
                node_glblendstate.o      \
                node_group.o             \
+               node_identity.o          \
                node_media.o             \
                node_quad.o              \
                node_triangle.o          \

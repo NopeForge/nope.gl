@@ -40,6 +40,7 @@ extern const struct node_class ngli_texture_class;
 extern const struct node_class ngli_glstate_class;
 extern const struct node_class ngli_glblendstate_class;
 extern const struct node_class ngli_group_class;
+extern const struct node_class ngli_identity_class;
 extern const struct node_class ngli_media_class;
 extern const struct node_class ngli_texturedshape_class;
 extern const struct node_class ngli_quad_class;
@@ -77,6 +78,7 @@ static const struct node_class *node_class_map[] = {
     [NGL_NODE_GLSTATE]               = &ngli_glstate_class,
     [NGL_NODE_GLBLENDSTATE]          = &ngli_glblendstate_class,
     [NGL_NODE_GROUP]                 = &ngli_group_class,
+    [NGL_NODE_IDENTITY]              = &ngli_identity_class,
     [NGL_NODE_TEXTUREDSHAPE]         = &ngli_texturedshape_class,
     [NGL_NODE_QUAD]                  = &ngli_quad_class,
     [NGL_NODE_TRIANGLE]              = &ngli_triangle_class,

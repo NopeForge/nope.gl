@@ -87,6 +87,7 @@ enum {
     NGL_NODE_UNIFORMSAMPLER,
     NGL_NODE_UNIFORMINT,
     NGL_NODE_FPS,
+    NGL_NODE_IDENTITY,
 };
 
 struct ngl_node *ngl_node_create(int type, ...);
