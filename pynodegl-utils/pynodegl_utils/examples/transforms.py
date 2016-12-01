@@ -1,5 +1,5 @@
 from pynodegl import Quad, Texture, Shader, TexturedShape, Media, Camera, Group, GLState
-from pynodegl import Scale, Rotate, Translate
+from pynodegl import Scale, Rotate, Translate, Identity
 from pynodegl import UniformSampler, UniformVec4, AttributeVec2
 from pynodegl import AnimKeyFrameScalar, AnimKeyFrameVec3
 
@@ -77,8 +77,8 @@ def animated(cfg, rotate=True, scale=True, translate=True):
 
     return node
 
-@scene()
-def animated_camera(cfg):
+@scene({'name': 'rotate', 'type': 'bool'})
+def animated_camera(cfg, rotate=False):
     g = Group()
     g.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
@@ -111,9 +111,18 @@ def animated_camera(cfg):
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
     camera.set_perspective(45.0, cfg.aspect_ratio, 0.1, 10.0)
-    camera.add_eye_animkf(
-            AnimKeyFrameVec3(0, (0, 0, 0.2), "exp_out"),
-            AnimKeyFrameVec3(10, (0, 0, 3)))
+
+    node = Translate(Identity())
+    node.add_animkf(
+            AnimKeyFrameVec3(0, (0.0,  0.0, 0.0), "exp_out"),
+            AnimKeyFrameVec3(10, ( 0.0, 0.0,  3)))
+
+    if rotate:
+        node = Rotate(node, axis=(0,1,0))
+        node.add_animkf(AnimKeyFrameScalar(0,  0,   "exp_out"),
+                        AnimKeyFrameScalar(cfg.duration, 360))
+
+    camera.set_eye_transform(node)
 
     camera.add_fov_animkf(
             AnimKeyFrameScalar(0.5, 60.0, "exp_out"),

@@ -28,8 +28,9 @@
         - [center, vec3]
         - [up, vec3]
         - [perspective, vec4]
-        - [eye_animkf, NodeList]
-        - [center_animkf, NodeList]
+        - [eye_transform, Node]
+        - [center_transform, Node]
+        - [up_transform, Node]
         - [fov_animkf, NodeList]
 
 - Texture:

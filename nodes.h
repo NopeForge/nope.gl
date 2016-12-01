@@ -85,13 +85,9 @@ struct camera {
     float up[3];
     float perspective[4];
 
-    struct ngl_node **eye_animkf;
-    int nb_eye_animkf;
-    int current_eye_kf;
-
-    struct ngl_node **center_animkf;
-    int nb_center_animkf;
-    int current_center_kf;
+    struct ngl_node *eye_transform;
+    struct ngl_node *center_transform;
+    struct ngl_node *up_transform;
 
     struct ngl_node **fov_animkf;
     int nb_fov_animkf;
