@@ -185,10 +185,14 @@ void ngli_mat4_mul(float *dst, const float *m1, const float *m2)
 
 void ngli_mat4_mul_vec4(float *dst, const float *m, const float *v)
 {
-    dst[0] = m[ 0]*v[0] + m[ 1]*v[1] + m[ 2]*v[2] + m[ 3]*v[3];
-    dst[1] = m[ 4]*v[0] + m[ 5]*v[1] + m[ 6]*v[2] + m[ 7]*v[3];
-    dst[2] = m[ 8]*v[0] + m[ 9]*v[1] + m[10]*v[2] + m[11]*v[3];
-    dst[3] = m[12]*v[0] + m[13]*v[1] + m[14]*v[2] + m[15]*v[3];
+    float tmp[4];
+
+    tmp[0] = m[ 0]*v[0] + m[ 4]*v[1] + m[ 8]*v[2] + m[12]*v[3];
+    tmp[1] = m[ 1]*v[0] + m[ 5]*v[1] + m[ 9]*v[2] + m[13]*v[3];
+    tmp[2] = m[ 2]*v[0] + m[ 6]*v[1] + m[10]*v[2] + m[14]*v[3];
+    tmp[3] = m[ 3]*v[0] + m[ 7]*v[1] + m[11]*v[2] + m[15]*v[3];
+
+    memcpy(dst, tmp, sizeof(tmp));
 }
 
 void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up)
