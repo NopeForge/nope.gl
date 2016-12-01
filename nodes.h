@@ -28,6 +28,7 @@
 #include <stdatomic.h>
 
 #include "gl_utils.h"
+#include "params.h"
 
 struct node_class;
 
@@ -282,35 +283,6 @@ struct fps {
     int64_t update_end;
     uint8_t *data_buf;
     int data_w, data_h;
-};
-
-enum {
-    PARAM_TYPE_INT,
-    PARAM_TYPE_I64,
-    PARAM_TYPE_DBL,
-    PARAM_TYPE_STR,
-    PARAM_TYPE_VEC2,
-    PARAM_TYPE_VEC3,
-    PARAM_TYPE_VEC4,
-    PARAM_TYPE_NODE,
-    PARAM_TYPE_NODELIST,
-};
-
-#define PARAM_FLAG_CONSTRUCTOR (1<<0)
-#define PARAM_FLAG_DOT_DISPLAY_PACKED (1<<1)
-#define PARAM_FLAG_DOT_DISPLAY_FIELDNAME (1<<2)
-struct node_param {
-    const char *key;
-    int type;
-    int offset;
-    union {
-        int64_t i64;
-        double dbl;
-        const char *str;
-        void *p;
-    } def_value;
-    int flags;
-    const int *node_types;
 };
 
 /**
