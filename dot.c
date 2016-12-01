@@ -223,9 +223,11 @@ static void free_list_links(struct link **links)
 }
 
 static void print_link(struct bstr *b,
-                       const struct ngl_node *x, const struct ngl_node *y)
+                       const struct ngl_node *x, const struct ngl_node *y,
+                       const char *label)
 {
-    ngli_bstr_print(b, "    %s_%p -> %s_%p\n", x->class->name, x, y->class->name, y);
+    ngli_bstr_print(b, "    %s_%p -> %s_%p%s\n",
+                    x->class->name, x, y->class->name, y, label);
 }
 
 static void print_links(struct bstr *b, const struct ngl_node *node,
@@ -243,13 +245,15 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                         struct link **idxlinks)
 {
     while (p && p->key) {
+        char *label = ngli_asprintf("[label=\"%s\"]",
+                                    (p->flags & PARAM_FLAG_DOT_DISPLAY_FIELDNAME) ? p->key : "");
         switch (p->type) {
             case PARAM_TYPE_NODE: {
                 const struct ngl_node *child = *(struct ngl_node **)(priv + p->offset);
                 if (child) {
                     if (list_check_links(idxlinks, node, child))
                         break;
-                    print_link(b, node, child);
+                    print_link(b, node, child, label);
                     print_all_links(b, child, idxlinks);
                 }
                 break;
@@ -261,7 +265,8 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 if (nb_children && (p->flags & PARAM_FLAG_DOT_DISPLAY_PACKED)) {
                     if (list_check_links(idxlinks, node, children))
                         break;
-                    ngli_bstr_print(b, "    %s_%p -> %s_%p\n", node->class->name, node, p->key, children);
+                    ngli_bstr_print(b, "    %s_%p -> %s_%p%s\n",
+                                    node->class->name, node, p->key, children, label);
                     break;
                 }
 
@@ -270,12 +275,13 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
 
                     if (list_check_links(idxlinks, node, child))
                         continue;
-                    print_link(b, node, child);
+                    print_link(b, node, child, label);
                     print_all_links(b, child, idxlinks);
                 }
                 break;
             }
         }
+        free(label);
         p++;
     }
 }
@@ -289,8 +295,12 @@ char *ngl_node_dot(const struct ngl_node *node)
     if (!b)
         return NULL;
 
+    const char *font_settings="fontsize=9,fontname=Arial";
+
     ngli_bstr_print(b, "digraph G {\n"
-                    "    node [style=filled,fontsize=9,fontname=Arial];\n");
+                    "    edge [%s];\n"
+                    "    node [style=filled,%s];\n",
+                    font_settings, font_settings);
 
     print_all_decls(b, node, &idxdecls);
     print_all_links(b, node, &idxlinks);
