@@ -319,8 +319,9 @@ static int node_init(struct ngl_node *node)
 
     if (node->class->init) {
         LOG(VERBOSE, "INIT %s @ %p", node->name, node);
-        if (node->class->init(node) < 0)
-            return -1;
+        int ret = node->class->init(node);
+        if (ret < 0)
+            return ret;
     }
     // Sort the ranges by start time. We also skip the ngli_node_init as, for
     // now, render ranges don't have any
@@ -328,7 +329,9 @@ static int node_init(struct ngl_node *node)
     qsort(node->ranges, node->nb_ranges, sizeof(*node->ranges), compare_range);
 
     for (int i = 0; i < node->nb_glstates; i++) {
-        ngli_node_init(node->glstates[i]);
+        int ret = ngli_node_init(node->glstates[i]);
+        if (ret < 0)
+            return ret;
     }
 
     node->state = STATE_INITIALIZED;
@@ -336,11 +339,12 @@ static int node_init(struct ngl_node *node)
     return 0;
 }
 
-void ngli_node_init(struct ngl_node *node)
+int ngli_node_init(struct ngl_node *node)
 {
     pthread_mutex_lock(&node->lock);
-    node_init(node);
+    int ret = node_init(node);
     pthread_mutex_unlock(&node->lock);
+    return ret;
 }
 
 static int get_rr_id(const struct ngl_node *node, int start, double t)

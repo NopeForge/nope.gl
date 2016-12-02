@@ -331,7 +331,7 @@ struct node_class {
 
 void ngli_node_print_specs(void);
 
-void ngli_node_init(struct ngl_node *node);
+int ngli_node_init(struct ngl_node *node);
 void ngli_node_prefetch(struct ngl_node *node);
 void ngli_node_check_resources(struct ngl_node *node, double t);
 void ngli_node_update(struct ngl_node *node, double t);
