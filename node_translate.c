@@ -42,9 +42,14 @@ static int translate_init(struct ngl_node *node)
     LOG(VERBOSE, "translate %s by (%f,%f,%f)",
         s->child->class->name,
         s->vector[0], s->vector[1], s->vector[2]);
-    ngli_node_init(s->child);
-    for (int i = 0; i < s->nb_animkf; i++)
-        ngli_node_init(s->animkf[i]);
+    int ret = ngli_node_init(s->child);
+    if (ret < 0)
+        return ret;
+    for (int i = 0; i < s->nb_animkf; i++) {
+        ret = ngli_node_init(s->animkf[i]);
+        if (ret < 0)
+            return ret;
+    }
     return 0;
 }
 

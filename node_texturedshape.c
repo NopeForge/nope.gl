@@ -63,11 +63,17 @@ static const struct node_param texturedshape_params[] = {
 
 static int texturedshape_init(struct ngl_node *node)
 {
+    int ret;
     struct texturedshape *s = node->priv_data;
     struct shader *shader = s->shader->priv_data;
 
-    ngli_node_init(s->shape);
-    ngli_node_init(s->shader);
+    ret = ngli_node_init(s->shape);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_node_init(s->shader);
+    if (ret < 0)
+        return ret;
 
     s->uniform_ids = calloc(s->nb_uniforms, sizeof(*s->uniform_ids));
     if (!s->uniform_ids)
@@ -76,7 +82,9 @@ static int texturedshape_init(struct ngl_node *node)
     for (int i = 0; i < s->nb_uniforms; i++) {
         struct ngl_node *unode = s->uniforms[i];
         struct uniform *u = unode->priv_data;
-        ngli_node_init(unode);
+        ret = ngli_node_init(unode);
+        if (ret < 0)
+            return ret;
         s->uniform_ids[i] = glGetUniformLocation(shader->program_id, u->name);
     }
 
@@ -87,7 +95,9 @@ static int texturedshape_init(struct ngl_node *node)
     for (int i = 0; i < s->nb_attributes; i++) {
         struct ngl_node *unode = s->attributes[i];
         struct attribute *u = unode->priv_data;
-        ngli_node_init(unode);
+        ret = ngli_node_init(unode);
+        if (ret < 0)
+            return ret;
         s->attribute_ids[i] = glGetAttribLocation(shader->program_id, u->name);
     }
 
@@ -95,7 +105,9 @@ static int texturedshape_init(struct ngl_node *node)
         char name[32];
 
         if (s->textures[i]) {
-            ngli_node_init(s->textures[i]);
+            ret = ngli_node_init(s->textures[i]);
+            if (ret < 0)
+                return ret;
 
             snprintf(name, sizeof(name), "tex%d_sampler", i);
             s->textureshaderinfos[i].sampler_id = glGetUniformLocation(shader->program_id, name);

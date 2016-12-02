@@ -43,13 +43,17 @@ static int rtt_init(struct ngl_node *node)
     struct texture *texture = s->color_texture->priv_data;
     struct texture *depth_texture = NULL;
 
-    ngli_node_init(s->color_texture);
+    int ret = ngli_node_init(s->color_texture);
+    if (ret < 0)
+        return ret;
     s->width = texture->width;
     s->height = texture->height;
 
     if (s->depth_texture) {
         depth_texture = s->depth_texture->priv_data;
-        ngli_node_init(s->depth_texture);
+        ret = ngli_node_init(s->depth_texture);
+        if (ret < 0)
+            return ret;
         ngli_assert(s->width == depth_texture->width && s->height == depth_texture->height);
     }
 
@@ -86,7 +90,9 @@ static int rtt_init(struct ngl_node *node)
         depth_texture->coordinates_matrix[13] = 1.0f;
     }
 
-    ngli_node_init(s->child);
+    ret = ngli_node_init(s->child);
+    if (ret < 0)
+        return ret;
 
     return 0;
 }

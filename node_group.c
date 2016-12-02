@@ -39,8 +39,11 @@ static const struct node_param group_params[] = {
 static int group_init(struct ngl_node *node)
 {
     struct group *s = node->priv_data;
-    for (int i = 0; i < s->nb_children; i++)
-        ngli_node_init(s->children[i]);
+    for (int i = 0; i < s->nb_children; i++) {
+        int ret = ngli_node_init(s->children[i]);
+        if (ret < 0)
+            return ret;
+    }
     return 0;
 }
 

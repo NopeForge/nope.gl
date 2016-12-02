@@ -105,8 +105,11 @@ static int texture_init(struct ngl_node *node)
     }
     memcpy(s->coordinates_matrix, coordinates_matrix, sizeof(s->coordinates_matrix));
 
-    if (s->data_src)
-        ngli_node_init(s->data_src);
+    if (s->data_src) {
+        int ret = ngli_node_init(s->data_src);
+        if (ret < 0)
+            return ret;
+    }
 
     return 0;
 }

@@ -44,9 +44,14 @@ static int rotate_init(struct ngl_node *node)
     LOG(VERBOSE, "rotate %s by %f on (%f,%f,%f)",
         s->child->class->name, s->angle,
         s->axis[0], s->axis[1], s->axis[2]);
-    ngli_node_init(s->child);
-    for (int i = 0; i < s->nb_animkf; i++)
-        ngli_node_init(s->animkf[i]);
+    int ret = ngli_node_init(s->child);
+    if (ret < 0)
+        return ret;
+    for (int i = 0; i < s->nb_animkf; i++) {
+        ret = ngli_node_init(s->animkf[i]);
+        if (ret < 0)
+            return ret;
+    }
     return 0;
 }
 

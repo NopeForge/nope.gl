@@ -44,9 +44,14 @@ static int scale_init(struct ngl_node *node)
         s->child->class->name,
         s->factors[0], s->factors[1], s->factors[2],
         s->anchor[0],  s->anchor[1],  s->anchor[2]);
-    ngli_node_init(s->child);
-    for (int i = 0; i < s->nb_animkf; i++)
-        ngli_node_init(s->animkf[i]);
+    int ret = ngli_node_init(s->child);
+    if (ret < 0)
+        return ret;
+    for (int i = 0; i < s->nb_animkf; i++) {
+        ret = ngli_node_init(s->animkf[i]);
+        if (ret < 0)
+            return ret;
+    }
     return 0;
 }
 
