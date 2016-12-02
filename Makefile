@@ -110,7 +110,6 @@ endif
 
 LIBNAME = lib$(NAME).$(LIBSUFFIX)
 PCNAME  = lib$(NAME).pc
-PYNAME  = py$(NAME)
 
 OBJS += $(PROJECT_OBJS)
 
@@ -156,7 +155,6 @@ cleanpy:
 
 clean:
 	$(RM) lib$(NAME).so lib$(NAME).dylib lib$(NAME).a
-	$(RM) $(PYNAME).so $(PYNAME).c
 	$(RM) $(OBJS) $(ALLDEPS)
 	$(RM) examples/*.pyc
 	$(RM) $(PCNAME)
