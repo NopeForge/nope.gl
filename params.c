@@ -20,12 +20,66 @@
  */
 
 #include <string.h>
+#include <inttypes.h>
 
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "params.h"
 #include "utils.h"
+
+const struct node_param *ngli_params_find(const struct node_param *params, const char *key)
+{
+    if (!params)
+        return NULL;
+    for (int i = 0; params[i].key; i++) {
+        const struct node_param *par = &params[i];
+        if (!strcmp(par->key, key))
+            return par;
+    }
+    return NULL;
+}
+
+void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct node_param *par)
+{
+    switch (par->type) {
+        case PARAM_TYPE_DBL: {
+            const double v = *(double *)(base_ptr + par->offset);
+            ngli_bstr_print(b, "%g", v);
+            break;
+        }
+        case PARAM_TYPE_INT: {
+            const int v = *(int *)(base_ptr + par->offset);
+            ngli_bstr_print(b, "%d", v);
+            break;
+        }
+        case PARAM_TYPE_I64: {
+            const int64_t v = *(int64_t *)(base_ptr + par->offset);
+            ngli_bstr_print(b, "%" PRId64, v);
+            break;
+        }
+        case PARAM_TYPE_VEC3: {
+            const float *v = (const float *)(base_ptr + par->offset);
+            ngli_bstr_print(b, "(%g,%g,%g)", v[0], v[1], v[2]);
+            break;
+        }
+        case PARAM_TYPE_VEC4: {
+            const float *v = (const float *)(base_ptr + par->offset);
+            ngli_bstr_print(b, "(%g,%g,%g,%g)", v[0], v[1], v[2], v[3]);
+            break;
+        }
+        case PARAM_TYPE_STR: {
+            const char *s = *(const char **)(base_ptr + par->offset);
+            if (!s)
+                ngli_bstr_print(b, "\"\"");
+            else if (strchr(s, '/')) // assume a file and display only basename
+                ngli_bstr_print(b, "\"%s\"", strrchr(s, '/') + 1);
+            else
+                ngli_bstr_print(b, "\"%s\"", s);
+            break;
+        }
+    }
+}
 
 static int allowed_node(const struct ngl_node *node, const int *allowed_ids)
 {

@@ -24,6 +24,8 @@
 
 #include <stdarg.h>
 
+#include "bstr.h"
+
 enum {
     PARAM_TYPE_INT,
     PARAM_TYPE_I64,
@@ -53,6 +55,8 @@ struct node_param {
     const int *node_types;
 };
 
+const struct node_param *ngli_params_find(const struct node_param *params, const char *key);
+void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct node_param *par);
 int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap);
 int ngli_params_set_constructors(uint8_t *base_ptr, const struct node_param *params, va_list *ap);
 int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params);

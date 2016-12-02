@@ -19,7 +19,6 @@
  * under the License.
  */
 
-#include <inttypes.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -70,6 +69,38 @@ static float get_hue(const char *name)
     return (hash & 0xffffff) / (float)(0xffffff);
 }
 
+static int should_print_par(uint8_t *priv, const struct node_param *par)
+{
+    switch (par->type) {
+        case PARAM_TYPE_DBL: {
+            const double v = *(double *)(priv + par->offset);
+            return v != par->def_value.dbl;
+        }
+        case PARAM_TYPE_INT: {
+            const int v = *(int *)(priv + par->offset);
+            return v != par->def_value.i64;
+        }
+        case PARAM_TYPE_I64: {
+            const int64_t v = *(int64_t *)(priv + par->offset);
+            return v != par->def_value.i64;
+        }
+        case PARAM_TYPE_VEC3: {
+            const float *v = (const float *)(priv + par->offset);
+            return v[0] || v[1] || v[2];
+        }
+        case PARAM_TYPE_VEC4: {
+            const float *v = (const float *)(priv + par->offset);
+            return v[0] || v[1] || v[2] || v[4];
+        }
+        case PARAM_TYPE_STR: {
+            const char *s = *(const char **)(priv + par->offset);
+            return (s && !strchr(s, '\n') /* prevent shaders from being printed */ &&
+                    (!par->def_value.str || strcmp(s, par->def_value.str)));
+        }
+    }
+    return 0;
+}
+
 static void print_custom_priv_options(struct bstr *b, const struct ngl_node *node)
 {
     const struct node_param *par = node->class->params;
@@ -79,48 +110,10 @@ static void print_custom_priv_options(struct bstr *b, const struct ngl_node *nod
         return;
 
     while (par->key) {
-        switch (par->type) {
-            case PARAM_TYPE_DBL: {
-                const double v = *(double *)(priv + par->offset);
-                if (v != par->def_value.dbl)
-                    ngli_bstr_print(b, "%s: %g" LB, par->key, v);
-                break;
-            }
-            case PARAM_TYPE_INT: {
-                const int v = *(int *)(priv + par->offset);
-                if (v != par->def_value.i64)
-                    ngli_bstr_print(b, "%s: %d" LB, par->key, v);
-                break;
-            }
-            case PARAM_TYPE_I64: {
-                const int64_t v = *(int64_t *)(priv + par->offset);
-                if (v != par->def_value.i64)
-                    ngli_bstr_print(b, "%s: %" PRId64 LB, par->key, v);
-                break;
-            }
-            case PARAM_TYPE_VEC3: {
-                const float *v = (const float *)(priv + par->offset);
-                if (v[0] || v[1] || v[2])
-                    ngli_bstr_print(b, "%s: (%g,%g,%g)" LB, par->key, v[0], v[1], v[2]);
-                break;
-            }
-            case PARAM_TYPE_VEC4: {
-                const float *v = (const float *)(priv + par->offset);
-                if (v[0] || v[1] || v[2] || v[3])
-                    ngli_bstr_print(b, "%s: (%g,%g,%g,%g)" LB, par->key, v[0], v[1], v[2], v[3]);
-                break;
-            }
-            case PARAM_TYPE_STR: {
-                const char *s = *(const char **)(priv + par->offset);
-                if (s && !strchr(s, '\n') /* prevent shaders from being printed */ &&
-                    (!par->def_value.str || strcmp(s, par->def_value.str))) {
-                    if (strchr(s, '/')) // assume a file and display only basename
-                        ngli_bstr_print(b, "%s: \"%s\"" LB, par->key, strrchr(s, '/') + 1);
-                    else
-                        ngli_bstr_print(b, "%s: \"%s\"" LB, par->key, s);
-                }
-                break;
-            }
+        if (should_print_par(priv, par)) {
+            ngli_bstr_print(b, "%s: ", par->key);
+            ngli_params_bstr_print_val(b, priv, par);
+            ngli_bstr_print(b, LB);
         }
         par++;
     }
