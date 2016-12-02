@@ -718,7 +718,7 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
     va_end(ap);
     node_uninit(node); // need a reinit after changing options
     pthread_mutex_unlock(&node->lock);
-    return 0;
+    return ret;
 }
 
 void ngl_node_ref(struct ngl_node *node)
