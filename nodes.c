@@ -666,40 +666,31 @@ void ngli_node_draw(struct ngl_node *node)
     }
 }
 
-static const struct node_param *get_base_node_par(const char *key)
+static const struct node_param *node_param_find(const struct ngl_node *node, const char *key,
+                                                uint8_t **base_ptrp)
 {
-    for (int i = 0; ngli_base_node_params[i].key; i++) {
-        const struct node_param *par = &ngli_base_node_params[i];
-        if (!strcmp(par->key, key))
-            return par;
-    }
-    return NULL;
-}
+    const struct node_param *par = ngli_params_find(ngli_base_node_params, key);
+    *base_ptrp = (uint8_t *)node;
 
-static const struct node_param *get_par(struct ngl_node *node, const char *key)
-{
-    for (int i = 0; node->class->params[i].key; i++) {
-        const struct node_param *par = &node->class->params[i];
-        if (!strcmp(par->key, key))
-            return par;
+    if (!par) {
+        par = ngli_params_find(node->class->params, key);
+        *base_ptrp = (uint8_t *)node->priv_data;
     }
-    LOG(ERROR, "parameter %s not found in %s", key, node->class->name);
-    return NULL;
+    if (!par)
+        LOG(ERROR, "parameter %s not found in %s", key, node->class->name);
+    return par;
 }
 
 int ngl_node_param_add(struct ngl_node *node, const char *key,
                        int nb_elems, void *elems)
 {
     int ret = 0;
-    uint8_t *base_ptr = (uint8_t *)node;
-    const struct node_param *par = get_base_node_par(key);
 
-    if (!par) {
-        par = get_par(node, key);
-        base_ptr = (uint8_t *)node->priv_data;
-    }
+    uint8_t *base_ptr;
+    const struct node_param *par = node_param_find(node, key, &base_ptr);
     if (!par)
         return -1;
+
     pthread_mutex_lock(&node->lock);
     ret = ngli_params_add(base_ptr, par, nb_elems, elems);
     if (ret < 0)
@@ -713,13 +704,9 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
 {
     int ret = 0;
     va_list ap;
-    uint8_t *base_ptr = (uint8_t *)node;
-    const struct node_param *par = get_base_node_par(key);
 
-    if (!par) {
-        par = get_par(node, key);
-        base_ptr = (uint8_t *)node->priv_data;
-    }
+    uint8_t *base_ptr;
+    const struct node_param *par = node_param_find(node, key, &base_ptr);
     if (!par)
         return -1;
 
