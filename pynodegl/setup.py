@@ -166,14 +166,18 @@ cdef class _Node:
 
                 if field_type.endswith('List'):
                     field_name, field_type = field
-                    assert field_type == 'NodeList' # TODO support other lists
-                    ctype = field_type
-                    cparam = field_name
+                    base_field_type = field_type[:-len('List')]
+                    citem_type = {
+                        'Node': 'ngl_node *',
+                    }.get(base_field_type, base_field_type)
+                    if base_field_type == 'Node':
+                        cfield = '(<_Node>item).ctx'
+                    else:
+                        cfield = '<%s>item' % base_field_type
                     field_data = {
                         'field_name': field_name,
-                        'field_type': ctype,
-                        'cparam': cparam,
-                        'citem_type': 'ngl_node *',
+                        'cfield': cfield,
+                        'citem_type': citem_type,
                         'clist': field_name + '_c'
                     }
                     class_str += '''
@@ -182,7 +186,7 @@ cdef class _Node:
         if %(clist)s is NULL:
             raise MemoryError()
         for i, item in enumerate(%(field_name)s):
-            %(clist)s[i] = (<_Node>item).ctx
+            %(clist)s[i] = %(cfield)s
 
         return ngl_node_param_add(self.ctx, "%(field_name)s",
                                   len(%(field_name)s), %(clist)s)
