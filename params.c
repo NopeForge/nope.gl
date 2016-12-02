@@ -58,6 +58,11 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             ngli_bstr_print(b, "%" PRId64, v);
             break;
         }
+        case PARAM_TYPE_VEC2: {
+            const float *v = (const float *)(base_ptr + par->offset);
+            ngli_bstr_print(b, "(%g,%g)", v[0], v[1]);
+            break;
+        }
         case PARAM_TYPE_VEC3: {
             const float *v = (const float *)(base_ptr + par->offset);
             ngli_bstr_print(b, "(%g,%g,%g)", v[0], v[1], v[2]);
