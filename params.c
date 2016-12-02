@@ -83,6 +83,15 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
                 ngli_bstr_print(b, "\"%s\"", s);
             break;
         }
+        case PARAM_TYPE_DBLLIST: {
+            uint8_t *elems_p = base_ptr + par->offset;
+            uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(double *);
+            const double *elems = *(double **)elems_p;
+            const int nb_elems = *(int *)nb_elems_p;
+            for (int i = 0; i < nb_elems; i++)
+                ngli_bstr_print(b, "%s%g", i ? "," : "", elems[i]);
+            break;
+        }
     }
 }
 
@@ -255,6 +264,24 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
             *(int *)nb_cur_elems_p = nb_new_elems;
             break;
         }
+        case PARAM_TYPE_DBLLIST: {
+            uint8_t *cur_elems_p = base_ptr + par->offset;
+            uint8_t *nb_cur_elems_p = base_ptr + par->offset + sizeof(double *);
+            double *cur_elems = *(double **)cur_elems_p;
+            const int nb_cur_elems = *(int *)nb_cur_elems_p;
+            const int nb_new_elems = nb_cur_elems + nb_elems;
+            double *new_elems = realloc(cur_elems, nb_new_elems * sizeof(*new_elems));
+            double *new_elems_addp = new_elems + nb_cur_elems;
+            double *add_elems = elems;
+
+            if (!new_elems)
+                return -1;
+            for (int i = 0; i < nb_elems; i++)
+                new_elems_addp[i] = add_elems[i];
+            *(double **)cur_elems_p = new_elems;
+            *(int *)nb_cur_elems_p = nb_new_elems;
+            break;
+        }
         default:
             LOG(ERROR, "parameter %s is not a list", par->key);
             return -1;
@@ -291,6 +318,12 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 const int nb_elems = *(int *)nb_elems_p;
                 for (j = 0; j < nb_elems; j++)
                     ngl_node_unrefp(&elems[j]);
+                free(elems);
+                break;
+            }
+            case PARAM_TYPE_DBLLIST: {
+                uint8_t *elems_p = base_ptr + par->offset;
+                double *elems = *(double **)elems_p;
                 free(elems);
                 break;
             }
