@@ -36,6 +36,7 @@ static const struct node_param animkeyframescalar_params[] = {
     {"time",   PARAM_TYPE_DBL,  OFFSET(time),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar), .flags=PARAM_FLAG_CONSTRUCTOR},
     {"easing", PARAM_TYPE_STR,  OFFSET(easing), {.str="linear"}},
+    {"easing_args", PARAM_TYPE_DBLLIST, OFFSET(args)},
     {NULL}
 };
 
@@ -43,6 +44,7 @@ static const struct node_param animkeyframevec2_params[] = {
     {"time",   PARAM_TYPE_DBL,  OFFSET(time),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_VEC2, OFFSET(value),  .flags=PARAM_FLAG_CONSTRUCTOR},
     {"easing", PARAM_TYPE_STR,  OFFSET(easing), {.str="linear"}},
+    {"easing_args", PARAM_TYPE_DBLLIST, OFFSET(args)},
     {NULL}
 };
 
@@ -50,6 +52,7 @@ static const struct node_param animkeyframevec3_params[] = {
     {"time",   PARAM_TYPE_DBL,  OFFSET(time),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_VEC3, OFFSET(value),  .flags=PARAM_FLAG_CONSTRUCTOR},
     {"easing", PARAM_TYPE_STR,  OFFSET(easing), {.str="linear"}},
+    {"easing_args", PARAM_TYPE_DBLLIST, OFFSET(args)},
     {NULL}
 };
 
@@ -57,6 +60,7 @@ static const struct node_param animkeyframevec4_params[] = {
     {"time",   PARAM_TYPE_DBL,  OFFSET(time),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_VEC4, OFFSET(value),  .flags=PARAM_FLAG_CONSTRUCTOR},
     {"easing", PARAM_TYPE_STR,  OFFSET(easing), {.str="linear"}},
+    {"easing_args", PARAM_TYPE_DBLLIST, OFFSET(args)},
     {NULL}
 };
 
@@ -396,7 +400,7 @@ static const struct {
 static int get_easing_id(const char *interpolation_type)
 {
     for (int i = 0; i < NGLI_ARRAY_NB(easings); i++)
-        if (strncmp(interpolation_type, easings[i].name, strlen(easings[i].name)) == 0)
+        if (strcmp(interpolation_type, easings[i].name) == 0)
             return i;
     return -1;
 }
@@ -406,11 +410,8 @@ static int animkeyframe_init(struct ngl_node *node)
     struct animkeyframe *s = node->priv_data;
 
     const int easing_id = get_easing_id(s->easing);
-    const char *p = strchr(s->easing, ':');
-
     if (easing_id < 0) {
-        LOG(ERROR, "easing '%.*s' not found",
-            (int)strcspn(s->easing, ":"), s->easing);
+        LOG(ERROR, "easing '%s' not found", s->easing);
         return -1;
     }
 
@@ -432,15 +433,6 @@ static int animkeyframe_init(struct ngl_node *node)
             s->scalar, s->time);
     else
         return -1;
-
-    while (p && *p) {
-        p++;
-        if (s->nb_args >= ANIMKF_MAX_ARGS) {
-            LOG(ERROR, "Maximum number of arguments reached");
-            return -1;
-        }
-        s->args[s->nb_args++] = strtod(p, (char **)&p);
-    }
 
     s->function   = easings[easing_id].function;
     s->resolution = easings[easing_id].resolution;

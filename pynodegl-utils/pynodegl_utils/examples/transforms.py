@@ -72,7 +72,7 @@ def animated(cfg, rotate=True, scale=True, translate=True):
     if translate:
         node = Translate(node)
         node.add_animkf(AnimKeyFrameVec3(0,              (-0.5,  0.5, -0.7), "circular_in"),
-                        AnimKeyFrameVec3(cfg.duration/2, ( 0.5, -0.5,  0.7), "sinus_in_out:0:.7"),
+                        AnimKeyFrameVec3(cfg.duration/2, ( 0.5, -0.5,  0.7), "sinus_in_out", easing_args=(0, .7)),
                         AnimKeyFrameVec3(cfg.duration,   (-0.5, -0.3, -0.5)))
 
     return node

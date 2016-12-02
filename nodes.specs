@@ -163,6 +163,7 @@
         - [value, double]
     optional:
         - [easing, string]
+        - [easing_args, doubleList]
 
 - AnimKeyFrameVec2:
     constructors:
@@ -170,6 +171,7 @@
         - [value, vec2]
     optional:
         - [easing, string]
+        - [easing_args, doubleList]
 
 - AnimKeyFrameVec3:
     constructors:
@@ -177,6 +179,7 @@
         - [value, vec3]
     optional:
         - [easing, string]
+        - [easing_args, doubleList]
 
 - AnimKeyFrameVec4:
     constructors:
@@ -184,6 +187,7 @@
         - [value, vec4]
     optional:
         - [easing, string]
+        - [easing_args, doubleList]
 
 - UniformScalar:
     constructors:

@@ -254,8 +254,6 @@ struct scale {
 typedef double easing_type;
 typedef easing_type (*easing_function)(easing_type, int, const easing_type *);
 
-#define ANIMKF_MAX_ARGS 2
-
 void ngli_animkf_interpolate(float *dst, struct ngl_node **animkf, int nb_animkf,
                              int *current_kf, double t);
 
@@ -266,7 +264,7 @@ struct animkeyframe {
     const char *easing;
     easing_function function;
     easing_function resolution;
-    easing_type args[ANIMKF_MAX_ARGS];
+    double *args;
     int nb_args;
 };
 
