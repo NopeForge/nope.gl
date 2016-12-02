@@ -25,10 +25,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "bstr.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "math_utils.h"
+#include "params.h"
 #include "utils.h"
 
 #define OFFSET(x) offsetof(struct animkeyframe, x)
@@ -490,38 +492,39 @@ void ngli_animkf_interpolate(float *dst, struct ngl_node **animkf, int nb_animkf
     }
 }
 
-static char *animkeyframe_info_str_scalar(const struct ngl_node *node)
+static char *animkeyframe_info_str(const struct ngl_node *node)
 {
     const struct animkeyframe *s = node->priv_data;
-    return ngli_asprintf("%s at %g with v=%g", s->easing, s->time, s->scalar);
-}
+    const struct node_param *params = node->class->params;
+    struct bstr *b = ngli_bstr_create();
 
-static char *animkeyframe_info_str_vec2(const struct ngl_node *node)
-{
-    const struct animkeyframe *s = node->priv_data;
-    return ngli_asprintf("%s at %g with (%g,%g)", s->easing, s->time,
-                         s->value[0], s->value[1]);
-}
+    if (!b)
+        return NULL;
 
-static char *animkeyframe_info_str_vec3(const struct ngl_node *node)
-{
-    const struct animkeyframe *s = node->priv_data;
-    return ngli_asprintf("%s at %g with (%g,%g,%g)", s->easing, s->time,
-                         s->value[0], s->value[1], s->value[2]);
-}
+    ngli_bstr_print(b, "%s ", s->easing);
+    if (s->nb_args) {
+        const struct node_param *easing_args_par = ngli_params_find(params, "easing_args");
+        ngli_assert(easing_args_par);
+        ngli_bstr_print(b, "(args: ");
+        ngli_params_bstr_print_val(b, node->priv_data, easing_args_par);
+        ngli_bstr_print(b, ") ");
+    }
 
-static char *animkeyframe_info_str_vec4(const struct ngl_node *node)
-{
-    const struct animkeyframe *s = node->priv_data;
-    return ngli_asprintf("%s at %g with (%g,%g,%g,%g)", s->easing, s->time,
-                         s->value[0], s->value[1], s->value[2], s->value[3]);
+    ngli_bstr_print(b, "with v=");
+    const struct node_param *val_par = ngli_params_find(params, "value");
+    ngli_assert(val_par);
+    ngli_params_bstr_print_val(b, node->priv_data, val_par);
+
+    char *ret = ngli_bstr_strdup(b);
+    ngli_bstr_freep(&b);
+    return ret;
 }
 
 const struct node_class ngli_animkeyframescalar_class = {
     .id        = NGL_NODE_ANIMKEYFRAMESCALAR,
     .name      = "AnimKeyFrameScalar",
     .init      = animkeyframe_init,
-    .info_str  = animkeyframe_info_str_scalar,
+    .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframescalar_params,
 };
@@ -530,7 +533,7 @@ const struct node_class ngli_animkeyframevec2_class = {
     .id        = NGL_NODE_ANIMKEYFRAMEVEC2,
     .name      = "AnimKeyFrameVec2",
     .init      = animkeyframe_init,
-    .info_str  = animkeyframe_info_str_vec2,
+    .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframevec2_params,
 };
@@ -539,7 +542,7 @@ const struct node_class ngli_animkeyframevec3_class = {
     .id        = NGL_NODE_ANIMKEYFRAMEVEC3,
     .name      = "AnimKeyFrameVec3",
     .init      = animkeyframe_init,
-    .info_str  = animkeyframe_info_str_vec3,
+    .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframevec3_params,
 };
@@ -548,7 +551,7 @@ const struct node_class ngli_animkeyframevec4_class = {
     .id        = NGL_NODE_ANIMKEYFRAMEVEC4,
     .name      = "AnimKeyFrameVec4",
     .init      = animkeyframe_init,
-    .info_str  = animkeyframe_info_str_vec4,
+    .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframevec4_params,
 };
