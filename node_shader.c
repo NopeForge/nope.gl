@@ -26,6 +26,14 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+static const char default_fragment_shader_header_data[] =
+    "#ifndef GL_ES"   "\n"
+    "#define lowp"    "\n"
+    "#define mediump" "\n"
+    "#define highp"   "\n"
+    "#endif"          "\n"
+                      "\n";
+
 static const char default_fragment_shader_data[] =
 #ifdef __ANDROID__
     "#extension GL_OES_EGL_image_external : require"                                    "\n"
@@ -164,7 +172,15 @@ static int shader_init(struct ngl_node *node)
 {
     struct shader *s = node->priv_data;
 
-    s->program_id = load_shader(s->vertex_data, s->fragment_data);
+    char *fragment_data = ngli_asprintf("%s%s",
+                                        default_fragment_shader_header_data,
+                                        s->fragment_data);
+    if (!fragment_data)
+        return -1;
+
+    s->program_id = load_shader(s->vertex_data, fragment_data);
+    free(fragment_data);
+
     if (!s->program_id)
         return -1;
 
