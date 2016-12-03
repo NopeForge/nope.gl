@@ -36,8 +36,8 @@
 #error "OSX and IOS are not supported for now (but will be)"
 #endif
 
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 640
+#define WINDOW_HEIGHT 360
 #define WINDOW_ASPECT_RATIO (WINDOW_WIDTH / (double)WINDOW_HEIGHT)
 
 #define FRAMERATE 60
