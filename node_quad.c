@@ -35,19 +35,19 @@ static const struct node_param quad_params[] = {
     {NULL}
 };
 
-#define c(index) s->quad_corner[(index)]
-#define w(index) s->quad_width[(index)]
-#define h(index) s->quad_height[(index)]
+#define C(index) s->quad_corner[(index)]
+#define W(index) s->quad_width[(index)]
+#define H(index) s->quad_height[(index)]
 
 static int quad_init(struct ngl_node *node)
 {
     struct shape *s = node->priv_data;
 
     const GLfloat vertices[] = {
-        c(0) + h(0),        c(1) + h(1),        c(2) + h(2),        1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        c(0) + w(0),        c(1) + w(1),        c(2) + w(2),        1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        c(0),               c(1),               c(2),               1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        c(0) + h(0) + w(0), c(1) + h(1) + w(1), c(2) + h(2) + w(2), 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        C(0) + H(0),        C(1) + H(1),        C(2) + H(2),        1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        C(0) + W(0),        C(1) + W(1),        C(2) + W(2),        1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        C(0),               C(1),               C(2),               1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2), 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
     };
     s->nb_vertices = NGLI_ARRAY_NB(vertices) / 9;
     s->vertices = calloc(1, sizeof(vertices));

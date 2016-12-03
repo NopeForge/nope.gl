@@ -36,16 +36,16 @@ static const struct node_param triangle_params[] = {
     {NULL}
 };
 
-#define e(index) s->triangle_edges[(index)]
+#define E(index) s->triangle_edges[(index)]
 
 static int triangle_init(struct ngl_node *node)
 {
     struct shape *s = node->priv_data;
 
     const GLfloat vertices[] = {
-        e(0), e(1), e(2), 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        e(3), e(4), e(5), 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        e(6), e(7), e(8), 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        E(0), E(1), E(2), 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        E(3), E(4), E(5), 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        E(6), E(7), E(8), 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
     };
     s->nb_vertices = NGLI_ARRAY_NB(vertices) / 9;
     s->vertices = calloc(1, sizeof(vertices));
