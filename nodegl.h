@@ -108,6 +108,7 @@ enum {
     NGL_GLPLATFORM_EAGL,
 };
 
+/* GL API version */
 enum {
     NGL_GLAPI_NONE,
     NGL_GLAPI_OPENGL3,
