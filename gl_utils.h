@@ -23,10 +23,21 @@
 #define GL_UTILS_H
 
 #if __APPLE__
-# include <OpenGL/gl.h>
-#else
+# include <OpenGL/gl3.h>
+# include <OpenGL/glext.h>
+#endif
+
+#if __ANDROID__
 # include <GLES2/gl2.h>
 # include <GLES2/gl2ext.h>
+# define GL_NUM_EXTENSIONS 0x821D
+# define GL_RED GL_LUMINANCE
+#endif
+
+#if __linux__ && !__ANDROID__
+# define GL_GLEXT_PROTOTYPES
+# include <GL/glcorearb.h>
+# include <GL/glext.h>
 #endif
 
 GLenum ngli_check_gl_error(void);

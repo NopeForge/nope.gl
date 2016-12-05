@@ -90,9 +90,9 @@ static int texture_init(struct ngl_node *node)
 
     if (s->data_src && s->data_src->class->id == NGL_NODE_FPS) {
         if (s->format == GL_NONE)
-            s->format = GL_LUMINANCE;
+            s->format = GL_RED;
         if (s->internal_format == GL_NONE)
-            s->internal_format = GL_LUMINANCE;
+            s->internal_format = GL_RED;
     } else {
         if (s->format == GL_NONE)
             s->format = GL_RGBA;
