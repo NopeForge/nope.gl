@@ -83,7 +83,7 @@ static int glcontext_x11_create(struct glcontext *glcontext, struct glcontext *o
     struct glcontext_x11 *glcontext_x11 = glcontext->priv_data;
     struct glcontext_x11 *other_x11 = other->priv_data;
 
-    glXCreateContextAttribsFunc glXCreateContextAttribs = 
+    glXCreateContextAttribsFunc glXCreateContextAttribs =
         (glXCreateContextAttribsFunc)glXGetProcAddress((const GLubyte *)"glXCreateContextAttribsARB");
     if (!glXCreateContextAttribs)
         return -1;
@@ -167,6 +167,11 @@ static void *glcontext_x11_get_handle(struct glcontext *glcontext)
     return &glcontext_x11->handle;
 }
 
+static void *glcontext_x11_get_proc_address(struct glcontext *glcontext, const char *name)
+{
+    return glXGetProcAddress((const GLubyte *)name);
+}
+
 const struct glcontext_class ngli_glcontext_x11_class = {
     .init = glcontext_x11_init,
     .uninit = glcontext_x11_uninit,
@@ -175,5 +180,6 @@ const struct glcontext_class ngli_glcontext_x11_class = {
     .get_display = glcontext_x11_get_display,
     .get_window = glcontext_x11_get_window,
     .get_handle = glcontext_x11_get_handle,
+    .get_proc_address = glcontext_x11_get_proc_address,
     .priv_size = sizeof(struct glcontext_x11),
 };

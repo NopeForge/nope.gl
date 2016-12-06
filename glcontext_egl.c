@@ -153,6 +153,11 @@ static void *glcontext_egl_get_handle(struct glcontext *glcontext)
     return &glcontext_egl->handle;
 }
 
+static void *glcontext_egl_get_proc_address(struct glcontext *glcontext, const char *name)
+{
+    return eglGetProcAddress(name);
+}
+
 const struct glcontext_class ngli_glcontext_egl_class = {
     .init = glcontext_egl_init,
     .uninit = glcontext_egl_uninit,
@@ -161,5 +166,6 @@ const struct glcontext_class ngli_glcontext_egl_class = {
     .get_display = glcontext_egl_get_display,
     .get_window = glcontext_egl_get_window,
     .get_handle = glcontext_egl_get_handle,
+    .get_proc_address = glcontext_egl_get_proc_address,
     .priv_size = sizeof(struct glcontext_egl),
 };

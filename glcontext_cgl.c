@@ -69,6 +69,21 @@ static void *glcontext_cgl_get_handle(struct glcontext *glcontext)
     return glcontext_cgl->handle;
 }
 
+static void *glcontext_cgl_get_proc_address(struct glcontext *glcontext, const char *name)
+{
+    struct glcontext_cgl *glcontext_cgl = glcontext->priv_data;
+
+    CFStringRef symbol_name = CFStringCreateWithCString(kCFAllocatorDefault, name, kCFStringEncodingASCII);
+    if (!symbol_name) {
+        return NULL;
+    }
+
+    void *symbol_address = CFBundleGetFunctionPointerForName(glcontext_cgl->framework, symbol_name);
+    CFRelease(symbol_name);
+
+    return symbol_address;
+}
+
 static void glcontext_cgl_uninit(struct glcontext *glcontext)
 {
     struct glcontext_cgl *glcontext_cgl = glcontext->priv_data;
@@ -81,5 +96,6 @@ const struct glcontext_class ngli_glcontext_cgl_class = {
     .uninit = glcontext_cgl_uninit,
     .make_current = glcontext_cgl_make_current,
     .get_handle = glcontext_cgl_get_handle,
+    .get_proc_address = glcontext_cgl_get_proc_address,
     .priv_size = sizeof(struct glcontext_cgl),
 };

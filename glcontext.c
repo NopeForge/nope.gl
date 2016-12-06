@@ -152,6 +152,16 @@ void ngli_glcontext_freep(struct glcontext **glcontextp)
     *glcontextp = NULL;
 }
 
+void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *name)
+{
+    void *ptr = NULL;
+
+    if (glcontext->class->get_proc_address)
+        ptr = glcontext->class->get_proc_address(glcontext, name);
+
+    return ptr;
+}
+
 int ngli_glcontext_check_extension(const char *extension, const char *extensions)
 {
     if (!extension || !extensions)
