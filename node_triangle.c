@@ -43,16 +43,17 @@ static int triangle_init(struct ngl_node *node)
     struct shape *s = node->priv_data;
 
     const GLfloat vertices[] = {
-        E(0), E(1), E(2), 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        E(3), E(4), E(5), 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        E(6), E(7), E(8), 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        E(0), E(1), E(2), 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        E(3), E(4), E(5), 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        E(6), E(7), E(8), 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
     };
-    s->nb_vertices = NGLI_ARRAY_NB(vertices) / 9;
+    s->nb_vertices = sizeof(vertices) / NGLI_SHAPE_VERTICES_STRIDE(s);
     s->vertices = calloc(1, sizeof(vertices));
     if (!s->vertices)
         return -1;
 
     memcpy(s->vertices, vertices, sizeof(vertices));
+    NGLI_SHAPE_GENERATE_BUFFERS(s);
 
     static const GLushort indices[] = { 0, 1, 2 };
     s->nb_indices = NGLI_ARRAY_NB(indices);
@@ -61,6 +62,7 @@ static int triangle_init(struct ngl_node *node)
         return -1;
 
     memcpy(s->indices, indices, sizeof(indices));
+    NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(s);
 
     s->draw_mode = GL_TRIANGLES;
     s->draw_type = GL_UNSIGNED_SHORT;

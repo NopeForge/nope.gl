@@ -23,6 +23,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include "gl_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "utils.h"
@@ -44,17 +45,18 @@ static int quad_init(struct ngl_node *node)
     struct shape *s = node->priv_data;
 
     const GLfloat vertices[] = {
-        C(0) + H(0),        C(1) + H(1),        C(2) + H(2),        1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        C(0) + W(0),        C(1) + W(1),        C(2) + W(2),        1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        C(0),               C(1),               C(2),               1.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2), 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        C(0) + H(0),        C(1) + H(1),        C(2) + H(2),        0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        C(0) + W(0),        C(1) + W(1),        C(2) + W(2),        1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        C(0),               C(1),               C(2),               0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+        C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2), 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
     };
-    s->nb_vertices = NGLI_ARRAY_NB(vertices) / 9;
+    s->nb_vertices = sizeof(vertices) / NGLI_SHAPE_VERTICES_STRIDE(s);
     s->vertices = calloc(1, sizeof(vertices));
     if (!s->vertices)
         return -1;
 
     memcpy(s->vertices, vertices, sizeof(vertices));
+    NGLI_SHAPE_GENERATE_BUFFERS(s);
 
     static const GLushort indices[] = { 0, 1, 2, 0, 3, 1 };
     s->nb_indices = NGLI_ARRAY_NB(indices);
@@ -63,6 +65,7 @@ static int quad_init(struct ngl_node *node)
         return -1;
 
     memcpy(s->indices, indices, sizeof(indices));
+    NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(s);
 
     s->draw_mode = GL_TRIANGLES;
     s->draw_type = GL_UNSIGNED_SHORT;

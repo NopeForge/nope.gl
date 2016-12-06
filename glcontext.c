@@ -133,6 +133,13 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
 
     if (glcontext->api == NGL_GLAPI_OPENGL3) {
         GLint i, nb_extensions;
+
+        glGetIntegerv(GL_MAJOR_VERSION, &glcontext->major_version);
+        glGetIntegerv(GL_MINOR_VERSION, &glcontext->minor_version);
+
+        if (glcontext->major_version >= 4)
+            glcontext->has_vao_compatibility = 1;
+
         glGetIntegerv(GL_NUM_EXTENSIONS, &nb_extensions);
         for (i = 0; i < nb_extensions; i++) {
             const char *extension = (const char *)glcontext->glGetStringi(GL_EXTENSIONS, i);
@@ -146,11 +153,17 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
         const char *gl_extensions = (const char *)glGetString(GL_EXTENSIONS);
+        glcontext->major_version = 2;
+        glcontext->minor_version = 0;
         glcontext->has_es2_compatibility = 1;
         glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
     }
 
-    LOG(INFO, "ES2_compatibility=%d vertex_array_object=%d", glcontext->has_es2_compatibility, glcontext->has_vao_compatibility);
+    LOG(INFO, "OpenGL %d.%d ES2_compatibility=%d vertex_array_object=%d",
+        glcontext->major_version,
+        glcontext->minor_version,
+        glcontext->has_es2_compatibility,
+        glcontext->has_vao_compatibility);
 
     glcontext->loaded = 1;
 

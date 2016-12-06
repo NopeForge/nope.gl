@@ -61,9 +61,127 @@ static const struct node_param texturedshape_params[] = {
     {NULL}
 };
 
+static inline void bind_texture(GLenum target, GLint uniform_location, GLuint texture_id, int idx)
+{
+    glActiveTexture(GL_TEXTURE0 + idx);
+    glBindTexture(target, texture_id);
+    glUniform1i(uniform_location, idx);
+}
+
+static int update_uniforms(struct ngl_node *node)
+{
+    struct texturedshape *s = node->priv_data;
+    struct shader *shader = s->shader->priv_data;
+
+    for (int i = 0; i < s->nb_uniforms; i++) {
+        const struct ngl_node *unode = s->uniforms[i];
+        const struct uniform *u = unode->priv_data;
+        const GLint uid = s->uniform_ids[i];
+        switch (unode->class->id) {
+        case NGL_NODE_UNIFORMSCALAR:
+            glUniform1f(uid, u->scalar);
+            break;
+        case NGL_NODE_UNIFORMVEC2: glUniform2fv(uid, 1, u->vector);                break;
+        case NGL_NODE_UNIFORMVEC3: glUniform3fv(uid, 1, u->vector);                break;
+        case NGL_NODE_UNIFORMVEC4: glUniform4fv(uid, 1, u->vector);                break;
+        case NGL_NODE_UNIFORMINT:  glUniform1i (uid,    u->ival);                  break;
+        case NGL_NODE_UNIFORMMAT4: glUniformMatrix4fv(uid, 1, GL_FALSE, u->matrix); break;
+        case NGL_NODE_UNIFORMSAMPLER:                                              break;
+        default:
+            LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
+            break;
+        }
+    }
+
+    for (int j = 0; j < NGLI_ARRAY_NB(s->textures); j++) {
+        if (!s->textures[j])
+            continue;
+
+        struct texture *texture = s->textures[j]->priv_data;
+        struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[j];
+
+        if (textureshaderinfo->sampler_id >= 0) {
+            const int sampler_id = textureshaderinfo->sampler_id;
+
+#ifdef __ANDROID__
+            const int external_sampler_id = textureshaderinfo->sampler_external_id;
+
+            if (texture->target == GL_TEXTURE_2D) {
+                bind_texture(GL_TEXTURE_2D,           sampler_id,          texture->id, j*2);
+                bind_texture(GL_TEXTURE_EXTERNAL_OES, external_sampler_id, 0,           j*2 + 1);
+            } else {
+                bind_texture(GL_TEXTURE_2D,           sampler_id,          0,           j*2);
+                bind_texture(GL_TEXTURE_EXTERNAL_OES, external_sampler_id, texture->id, j*2 + 1);
+            }
+#else
+            bind_texture(GL_TEXTURE_2D, sampler_id, texture->id, j);
+#endif
+        }
+
+        if (textureshaderinfo->coordinates_mvp_id >= 0) {
+            glUniformMatrix4fv(textureshaderinfo->coordinates_mvp_id, 1, GL_FALSE, texture->coordinates_matrix);
+        }
+
+        if (textureshaderinfo->dimensions_id >= 0) {
+            float dimensions[2] = { texture->width, texture->height };
+            glUniform2fv(textureshaderinfo->dimensions_id, 1, dimensions);
+        }
+    }
+
+    if (shader->modelview_matrix_location_id >= 0) {
+        glUniformMatrix4fv(shader->modelview_matrix_location_id, 1, GL_FALSE, node->modelview_matrix);
+    }
+
+    if (shader->projection_matrix_location_id >= 0) {
+        glUniformMatrix4fv(shader->projection_matrix_location_id, 1, GL_FALSE, node->projection_matrix);
+    }
+
+    if (shader->normal_matrix_location_id >= 0) {
+        float normal_matrix[3*3];
+        ngli_mat3_from_mat4(normal_matrix, node->modelview_matrix);
+        ngli_mat3_inverse(normal_matrix, normal_matrix);
+        ngli_mat3_transpose(normal_matrix, normal_matrix);
+        glUniformMatrix3fv(shader->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
+    }
+
+    return 0;
+}
+
+static int update_vertex_attribs(struct ngl_node *node)
+{
+    struct texturedshape *s = node->priv_data;
+    struct shape *shape = s->shape->priv_data;
+    struct shader *shader = s->shader->priv_data;
+
+    for (int i = 0; i < NGLI_ARRAY_NB(s->textures); i++)  {
+        struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
+        if (textureshaderinfo->coordinates_id >= 0) {
+            glEnableVertexAttribArray(textureshaderinfo->coordinates_id);
+            glBindBuffer(GL_ARRAY_BUFFER, shape->texcoords_buffer_id);
+            glVertexAttribPointer(textureshaderinfo->coordinates_id, 2, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
+        }
+    }
+
+    if (shader->position_location_id >= 0) {
+        glEnableVertexAttribArray(shader->position_location_id);
+        glBindBuffer(GL_ARRAY_BUFFER, shape->vertices_buffer_id);
+        glVertexAttribPointer(shader->position_location_id, 3, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
+    }
+
+    if (shader->normal_location_id >= 0) {
+        glEnableVertexAttribArray(shader->normal_location_id);
+        glBindBuffer(GL_ARRAY_BUFFER, shape->normals_buffer_id);
+        glVertexAttribPointer(shader->normal_location_id, 3, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
+    }
+
+    return 0;
+}
+
 static int texturedshape_init(struct ngl_node *node)
 {
     int ret;
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
     struct texturedshape *s = node->priv_data;
     struct shader *shader = s->shader->priv_data;
 
@@ -126,12 +244,24 @@ static int texturedshape_init(struct ngl_node *node)
         }
     }
 
+    if (glcontext->has_vao_compatibility) {
+        glcontext->glGenVertexArrays(1, &s->vao_id);
+        glcontext->glBindVertexArray(s->vao_id);
+        update_vertex_attribs(node);
+    }
+
     return 0;
 }
 
 static void texturedshape_uninit(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
     struct texturedshape *s = node->priv_data;
+
+    if (glcontext->has_vao_compatibility) {
+        glcontext->glDeleteVertexArrays(1, &s->vao_id);
+    }
 
     free(s->uniform_ids);
     free(s->attribute_ids);
@@ -156,106 +286,28 @@ static void texturedshape_update(struct ngl_node *node, double t)
     ngli_node_update(s->shader, t);
 }
 
-static inline void bind_texture(GLenum target, GLint uniform_location, GLuint texture_id, int idx)
-{
-    glActiveTexture(GL_TEXTURE0 + idx);
-    glBindTexture(target, texture_id);
-    glUniform1i(uniform_location, idx);
-}
-
 static void texturedshape_draw(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
     struct texturedshape *s = node->priv_data;
     const struct shader *shader = s->shader->priv_data;
     const struct shape *shape = s->shape->priv_data;
 
     glUseProgram(shader->program_id);
 
-    for (int i = 0; i < s->nb_uniforms; i++) {
-        const struct ngl_node *unode = s->uniforms[i];
-        const struct uniform *u = unode->priv_data;
-        const GLint uid = s->uniform_ids[i];
-        switch (unode->class->id) {
-        case NGL_NODE_UNIFORMSCALAR:
-            glUniform1f(uid, u->scalar);
-            break;
-        case NGL_NODE_UNIFORMVEC2: glUniform2fv(uid, 1, u->vector);                break;
-        case NGL_NODE_UNIFORMVEC3: glUniform3fv(uid, 1, u->vector);                break;
-        case NGL_NODE_UNIFORMVEC4: glUniform4fv(uid, 1, u->vector);                break;
-        case NGL_NODE_UNIFORMINT:  glUniform1i (uid,    u->ival);                  break;
-        case NGL_NODE_UNIFORMMAT4: glUniformMatrix4fv(uid, 1, GL_FALSE, u->matrix); break;
-        case NGL_NODE_UNIFORMSAMPLER:                                              break;
-        default:
-            LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
-            break;
-        }
+    if (glcontext->has_vao_compatibility) {
+        glcontext->glBindVertexArray(s->vao_id);
     }
 
-    /*  map textures uniforms and attributes */
-    for (int j = 0; j < NGLI_ARRAY_NB(s->textures); j++) {
-        if (!s->textures[j])
-            continue;
+    update_uniforms(node);
 
-        struct texture *texture = s->textures[j]->priv_data;
-        struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[j];
-
-        if (textureshaderinfo->sampler_id >= 0) {
-            const int sampler_id          = textureshaderinfo->sampler_id;
-
-#ifdef __ANDROID__
-            const int external_sampler_id = textureshaderinfo->sampler_external_id;
-
-            if (texture->target == GL_TEXTURE_2D) {
-                bind_texture(GL_TEXTURE_2D,           sampler_id,          texture->id, j*2);
-                bind_texture(GL_TEXTURE_EXTERNAL_OES, external_sampler_id, 0,           j*2 + 1);
-            } else {
-                bind_texture(GL_TEXTURE_2D,           sampler_id,          0,           j*2);
-                bind_texture(GL_TEXTURE_EXTERNAL_OES, external_sampler_id, texture->id, j*2 + 1);
-            }
-#else
-            bind_texture(GL_TEXTURE_2D, sampler_id, texture->id, j);
-#endif
-        }
-
-        if (textureshaderinfo->coordinates_id >= 0) {
-            uint8_t *data = (uint8_t *)shape->vertices + 4 * sizeof(*shape->vertices);
-            glEnableVertexAttribArray(textureshaderinfo->coordinates_id);
-            glVertexAttribPointer(textureshaderinfo->coordinates_id, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(*shape->vertices), data);
-        }
-
-        if (textureshaderinfo->coordinates_mvp_id >= 0) {
-            glUniformMatrix4fv(textureshaderinfo->coordinates_mvp_id, 1, GL_FALSE, texture->coordinates_matrix);
-        }
-
-        if (textureshaderinfo->dimensions_id >= 0) {
-            float dimensions[2] = { texture->width, texture->height };
-            glUniform2fv(textureshaderinfo->dimensions_id, 1, dimensions);
-        }
+    if (!glcontext->has_vao_compatibility) {
+        update_vertex_attribs(node);
     }
 
-    /* shape uniforms and attributes */
-    glUniformMatrix4fv(shader->modelview_matrix_location_id, 1, GL_FALSE, node->modelview_matrix);
-    glUniformMatrix4fv(shader->projection_matrix_location_id, 1, GL_FALSE, node->projection_matrix);
-    if (shader->normal_matrix_location_id >= 0) {
-        float normal_matrix[3*3];
-        ngli_mat3_from_mat4(normal_matrix, node->modelview_matrix);
-        ngli_mat3_inverse(normal_matrix, normal_matrix);
-        ngli_mat3_transpose(normal_matrix, normal_matrix);
-        glUniformMatrix3fv(shader->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
-    }
-
-    glEnableVertexAttribArray(shader->position_location_id);
-    glVertexAttribPointer(shader->position_location_id, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), shape->vertices);
-
-    if (shader->normal_location_id >= 0) {
-        uint8_t *data = (uint8_t *)shape->vertices + 6 * sizeof(*shape->vertices);
-        glEnableVertexAttribArray(shader->normal_location_id);
-        glVertexAttribPointer(shader->normal_location_id, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(GLfloat), data);
-    }
-
-    glDrawElements(shape->draw_mode, shape->nb_indices, shape->draw_type, shape->indices);
-
-    glUseProgram(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shape->indices_buffer_id);
+    glDrawElements(shape->draw_mode, shape->nb_indices, shape->draw_type, 0);
 }
 
 const struct node_class ngli_texturedshape_class = {

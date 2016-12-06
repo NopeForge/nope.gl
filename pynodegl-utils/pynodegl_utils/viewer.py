@@ -36,7 +36,8 @@ import traceback
 import pynodegl as ngl
 
 from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtOpenGL import QGLWidget
+from PyQt5.QtOpenGL import QGLWidget, QGLFormat
+
 
 class _GLWidget(QGLWidget):
 
@@ -59,7 +60,10 @@ class _GLWidget(QGLWidget):
         self.update()
 
     def __init__(self, parent, aspect_ratio):
-        QGLWidget.__init__(self, parent)
+        gl_format = QGLFormat()
+        gl_format.setProfile(QGLFormat.CoreProfile)
+        gl_format.setVersion(3,3)
+        QGLWidget.__init__(self, gl_format, parent=parent)
         self.setMinimumSize(640, 360)
         self._viewer = ngl.Viewer(None)
         self._time = 0

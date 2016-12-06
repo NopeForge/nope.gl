@@ -42,31 +42,35 @@ static int shape_init(struct ngl_node *node)
 {
     struct shape *s = node->priv_data;
 
-    s->vertices = calloc(s->nb_primitives, 9 * sizeof(*s->vertices));
+    s->nb_vertices = s->nb_primitives;
+    s->vertices = calloc(s->nb_vertices, NGLI_SHAPE_VERTICES_STRIDE(s));
     if (!s->vertices)
         return -1;
 
     GLfloat *p = s->vertices;
-    for (int i = 0; i < s->nb_primitives; i++) {
+    for (int i = 0; i < s->nb_vertices; i++) {
         const struct shapeprimitive *primitive = s->primitives[i]->priv_data;
 
         memcpy(p, primitive->coordinates, sizeof(primitive->coordinates));
         p += NGLI_ARRAY_NB(primitive->coordinates);
-        *p++ = 1.0f;
         memcpy(p, primitive->texture_coordinates, sizeof(primitive->texture_coordinates));
         p += NGLI_ARRAY_NB(primitive->texture_coordinates);
         memcpy(p, primitive->normals, sizeof(primitive->normals));
         p += NGLI_ARRAY_NB(primitive->normals);
     }
 
+    NGLI_SHAPE_GENERATE_BUFFERS(s);
+
     s->nb_indices = s->nb_primitives;
-    s->indices = calloc(s->nb_primitives, sizeof(GL_UNSIGNED_SHORT));
+    s->indices = calloc(s->nb_primitives, sizeof(*s->indices));
     if (!s->indices)
         return -1;
 
     for (int i = 0; i < s->nb_primitives; i++) {
         s->indices[i] = i;
     }
+
+    NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(s);
 
     return 0;
 }

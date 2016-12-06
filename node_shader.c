@@ -22,23 +22,18 @@
 #include <stddef.h>
 #include <stdio.h>
 #include "bstr.h"
+#include "gl_utils.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 
-static const char default_fragment_shader_header_data[] =
-    "#ifndef GL_ES"   "\n"
-    "#define lowp"    "\n"
-    "#define mediump" "\n"
-    "#define highp"   "\n"
-    "#endif"          "\n"
-                      "\n";
-
 static const char default_fragment_shader_data[] =
+    "#version 100"                                                                      "\n"
 #ifdef __ANDROID__
     "#extension GL_OES_EGL_image_external : require"                                    "\n"
-    "precision mediump float;"                                                          "\n"
 #endif
+    ""                                                                                  "\n"
+    "precision mediump float;"                                                          "\n"
     "uniform sampler2D tex0_sampler;"                                                   "\n"
 #ifdef __ANDROID__
     "uniform samplerExternalOES tex0_external_sampler;"                                 "\n"
@@ -55,6 +50,7 @@ static const char default_fragment_shader_data[] =
     "}";
 
 static const char default_vertex_shader_data[] =
+    "#version 100"                                                                      "\n"
     "attribute vec4 ngl_position;"                                                      "\n"
     "attribute vec3 ngl_normal;"                                                        "\n"
     "uniform mat4 ngl_modelview_matrix;"                                                "\n"
@@ -172,15 +168,7 @@ static int shader_init(struct ngl_node *node)
 {
     struct shader *s = node->priv_data;
 
-    char *fragment_data = ngli_asprintf("%s%s",
-                                        default_fragment_shader_header_data,
-                                        s->fragment_data);
-    if (!fragment_data)
-        return -1;
-
-    s->program_id = load_shader(s->vertex_data, fragment_data);
-    free(fragment_data);
-
+    s->program_id = load_shader(s->vertex_data, s->fragment_data);
     if (!s->program_id)
         return -1;
 

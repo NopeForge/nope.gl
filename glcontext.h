@@ -36,6 +36,8 @@ struct glcontext {
 
     /* GL api */
     int loaded;
+    int major_version;
+    int minor_version;
     int has_es2_compatibility;
     int has_vao_compatibility;
 

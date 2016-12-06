@@ -35,7 +35,7 @@ def centered_shape_media(cfg, n=0.5):
         ShapePrimitive(( n/2,   -n, 0), (0.75, 1)),
         ShapePrimitive((-n/2,   -n, 0), (0.25, 1)),
     ])
-    q.set_draw_mode(GL.GL_POLYGON)
+    q.set_draw_mode(GL.GL_TRIANGLE_FAN)
 
     m = Media(cfg.media_filename)
     t = Texture(data_src=m)

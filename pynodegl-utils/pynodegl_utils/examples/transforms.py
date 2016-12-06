@@ -8,6 +8,8 @@ from pynodegl_utils.misc import scene
 from OpenGL import GL
 
 frag_data = """
+#version 100
+precision mediump float;
 uniform vec4 blend_color;
 void main(void)
 {
@@ -78,6 +80,8 @@ def animated(cfg, rotate=True, scale=True, translate=True):
     return node
 
 animated_frag_data = """
+#version 100
+precision mediump float;
 uniform mat4 matrix;
 uniform sampler2D tex0_sampler;
 varying vec2 var_tex0_coords;

@@ -124,6 +124,8 @@ def load_model(fp):
 
 
 fragment_data = """
+#version 100
+precision highp float;
 uniform mat3 ngl_normal_matrix;
 uniform sampler2D tex0_sampler;
 varying vec3 var_normal;

@@ -27,6 +27,8 @@ def rotating_cube(cfg):
     cube.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
     frag_data = """
+#version 100
+precision mediump float;
 uniform sampler2D tex0_sampler;
 varying vec2 var_tex0_coords;
 uniform vec3 blend_color;
