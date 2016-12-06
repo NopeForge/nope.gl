@@ -48,6 +48,8 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
     if (!s->glcontext)
         return -1;
 
+    ngli_glcontext_load_extensions(s->glcontext);
+
     return 0;
 }
 

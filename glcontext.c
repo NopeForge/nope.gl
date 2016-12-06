@@ -23,8 +23,10 @@
 #include <string.h>
 
 #include "glcontext.h"
+#include "log.h"
 #include "nodegl.h"
 #include "utils.h"
+#include "gl_utils.h"
 
 #ifdef HAVE_PLATFORM_GLX
 extern const struct glcontext_class ngli_glcontext_x11_class;
@@ -119,6 +121,42 @@ struct glcontext *ngli_glcontext_new_shared(struct glcontext *other)
     return glcontext;
 }
 
+int ngli_glcontext_load_extensions(struct glcontext *glcontext)
+{
+    if (glcontext->loaded)
+        return 0;
+
+    glcontext->glGetStringi         = ngli_glcontext_get_proc_address(glcontext, "glGetStringi");
+    glcontext->glGenVertexArrays    = ngli_glcontext_get_proc_address(glcontext, "glGenVertexArrays");
+    glcontext->glBindVertexArray    = ngli_glcontext_get_proc_address(glcontext, "glBindVertexArray");
+    glcontext->glDeleteVertexArrays = ngli_glcontext_get_proc_address(glcontext, "glDeleteVertexArrays");
+
+    if (glcontext->api == NGL_GLAPI_OPENGL3) {
+        GLint i, nb_extensions;
+        glGetIntegerv(GL_NUM_EXTENSIONS, &nb_extensions);
+        for (i = 0; i < nb_extensions; i++) {
+            const char *extension = (const char *)glcontext->glGetStringi(GL_EXTENSIONS, i);
+            if (!extension)
+                break;
+            if (!strcmp(extension, "GL_ARB_ES2_compatibility")) {
+                glcontext->has_es2_compatibility = 1;
+            } else if (!strcmp(extension, "GL_ARB_vertex_array_object")) {
+                glcontext->has_vao_compatibility = 1;
+            }
+        }
+    } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
+        const char *gl_extensions = (const char *)glGetString(GL_EXTENSIONS);
+        glcontext->has_es2_compatibility = 1;
+        glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
+    }
+
+    LOG(INFO, "ES2_compatibility=%d vertex_array_object=%d", glcontext->has_es2_compatibility, glcontext->has_vao_compatibility);
+
+    glcontext->loaded = 1;
+
+    return 0;
+}
+
 int ngli_glcontext_make_current(struct glcontext *glcontext, int current)
 {
     if (glcontext->class->make_current)
@@ -126,7 +164,6 @@ int ngli_glcontext_make_current(struct glcontext *glcontext, int current)
 
     return 0;
 }
-
 
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext)
 {

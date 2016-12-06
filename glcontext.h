@@ -22,14 +22,28 @@
 #ifndef GLCONTEXT_H
 #define GLCONTEXT_H
 
+#include "gl_utils.h"
+
 struct glcontext_class;
 
 struct glcontext {
+    /* GL context */
     const struct glcontext_class *class;
     int platform;
     int api;
     int wrapped;
     void *priv_data;
+
+    /* GL api */
+    int loaded;
+    int has_es2_compatibility;
+    int has_vao_compatibility;
+
+    void* (*glGetStringi)(GLenum name, GLuint index);
+
+    void (*glGenVertexArrays)(GLsizei n, GLuint *arrays);
+    void (*glBindVertexArray)(GLuint array);
+    void (*glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
 };
 
 struct glcontext_class {
@@ -47,6 +61,7 @@ struct glcontext_class {
 
 struct glcontext *ngli_glcontext_new_wrapped(void *display, void *window, void *handle, int platform, int api);
 struct glcontext *ngli_glcontext_new_shared(struct glcontext *other);
+int ngli_glcontext_load_extensions(struct glcontext *glcontext);
 int ngli_glcontext_make_current(struct glcontext *glcontext, int current);
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext);
 void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *name);
