@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 #include <sxplayer.h>
 
 #ifdef __ANDROID__
@@ -37,17 +38,60 @@ static const struct node_param media_params[] = {
     {"filename", PARAM_TYPE_STR, OFFSET(filename), {.str=NULL}, PARAM_FLAG_CONSTRUCTOR},
     {"start",    PARAM_TYPE_DBL, OFFSET(start)},
     {"initial_seek", PARAM_TYPE_DBL, OFFSET(initial_seek)},
+    {"sxplayer_min_level", PARAM_TYPE_STR, OFFSET(sxplayer_min_level_str), {.str="warning"}},
     {NULL}
 };
 
+static const struct {
+    const char *str;
+    int ngl_id;
+} log_levels[] = {
+    [SXPLAYER_LOG_VERBOSE] = {"verbose", NGL_LOG_VERBOSE},
+    [SXPLAYER_LOG_DEBUG]   = {"debug",   NGL_LOG_DEBUG},
+    [SXPLAYER_LOG_INFO]    = {"info",    NGL_LOG_INFO},
+    [SXPLAYER_LOG_WARNING] = {"warning", NGL_LOG_WARNING},
+    [SXPLAYER_LOG_ERROR]   = {"error",   NGL_LOG_ERROR},
+};
+
+static void callback_sxplayer_log(void *arg, int level, const char *filename, int ln,
+                                  const char *fn, const char *fmt, va_list vl)
+{
+    if (level < 0 || level > NGLI_ARRAY_NB(log_levels))
+        return;
+
+    struct media *s = arg;
+    if (level < s->sxplayer_min_level)
+        return;
+
+    char buf[512];
+    vsnprintf(buf, sizeof(buf), fmt, vl);
+    if (buf[0])
+        ngli_log_print(log_levels[level].ngl_id, __FILE__, __LINE__, __FUNCTION__,
+                       "[SXPLAYER %s:%d %s] %s", filename, ln, fn, buf);
+}
+
 static int media_init(struct ngl_node *node)
 {
+    int i;
     struct media *s = node->priv_data;
     LOG(VERBOSE, "media '%s' @ %f", s->filename, s->start);
 
     s->player = sxplayer_create(s->filename);
     if (!s->player)
         return -1;
+
+    sxplayer_set_log_callback(s->player, s, callback_sxplayer_log);
+
+    for (i = 0; i < NGLI_ARRAY_NB(log_levels); i++) {
+        if (log_levels[i].str && !strcmp(log_levels[i].str, s->sxplayer_min_level_str)) {
+            s->sxplayer_min_level = i;
+            break;
+        }
+    }
+    if (i == NGLI_ARRAY_NB(log_levels)) {
+        LOG(ERROR, "unrecognized sxplayer log level '%s'", s->sxplayer_min_level_str);
+        return -1;
+    }
 
     sxplayer_set_option(s->player, "max_nb_packets", 1);
     sxplayer_set_option(s->player, "max_nb_frames", 1);

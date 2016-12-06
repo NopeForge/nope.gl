@@ -53,6 +53,7 @@
     optional:
         - [start, double]
         - [initial_seek, double]
+        - [sxplayer_min_level, string]
 
 - GLState:
     constructors:

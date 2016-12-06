@@ -210,6 +210,9 @@ struct media {
     const char *filename;
     double start;
     double initial_seek;
+    const char *sxplayer_min_level_str;
+
+    int sxplayer_min_level;
 
     struct sxplayer_ctx *player;
     struct sxplayer_frame *frame;

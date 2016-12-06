@@ -58,7 +58,7 @@ LINUX_OBJS   = glcontext_x11.o
 DARWIN_OBJS  = glcontext_cgl.o
 ANDROID_OBJS = glcontext_egl.o
 
-PROJECT_PKG_CONFIG_LIBS = libsxplayer
+PROJECT_PKG_CONFIG_LIBS = "libsxplayer >= 8.0.0"
 LINUX_PKG_CONFIG_LIBS   = x11 gl
 DARWIN_PKG_CONFIG_LIBS  =
 ANDROID_PKG_CONFIG_LIBS = egl glesv2
