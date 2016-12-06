@@ -55,7 +55,7 @@ PROJECT_OBJS = api.o                    \
                utils.o                  \
 
 LINUX_OBJS   = glcontext_x11.o
-DARWIN_OBJS  =
+DARWIN_OBJS  = glcontext_cgl.o
 ANDROID_OBJS = glcontext_egl.o
 
 PROJECT_PKG_CONFIG_LIBS = libsxplayer
@@ -64,7 +64,7 @@ DARWIN_PKG_CONFIG_LIBS  =
 ANDROID_PKG_CONFIG_LIBS = egl glesv2
 
 PROJECT_LIBS = -lm -lpthread
-DARWIN_LIBS  = -framework OpenGL -framework CoreVideo
+DARWIN_LIBS  = -framework OpenGL -framework CoreVideo -framework CoreFoundation
 ANDROID_LIBS =
 
 PREFIX ?= /usr/local
@@ -86,6 +86,7 @@ ifeq ($(TARGET_OS),Darwin)
 	PROJECT_PKG_CONFIG_LIBS += $(DARWIN_PKG_CONFIG_LIBS)
 	PROJECT_OBJS            += $(DARWIN_OBJS)
 	PROJECT_LDFLAGS =
+	CFLAGS                  += -DHAVE_PLATFORM_CGL
 else
 ifeq ($(TARGET_OS),Android)
 	PROJECT_LIBS            += $(ANDROID_LIBS)

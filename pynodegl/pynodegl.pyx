@@ -21,6 +21,7 @@ cdef extern from "nodegl.h":
     char *ngl_node_dot(const ngl_node *node)
 
     cdef int NGL_GLPLATFORM_GLX
+    cdef int NGL_GLPLATFORM_CGL
     cdef int NGL_GLAPI_OPENGL3
 
     cdef struct ngl_ctx
@@ -32,6 +33,7 @@ cdef extern from "nodegl.h":
     void ngl_free(ngl_ctx **ss)
 
 GLPLATFORM_GLX = NGL_GLPLATFORM_GLX
+GLPLATFORM_CGL = NGL_GLPLATFORM_CGL
 GLAPI_OPENGL3 = NGL_GLAPI_OPENGL3
 
 LOG_VERBOSE = NGL_LOG_VERBOSE

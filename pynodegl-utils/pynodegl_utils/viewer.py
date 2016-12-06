@@ -29,6 +29,7 @@ import importlib
 import inspect
 import json
 import pkgutil
+import platform
 import subprocess
 import traceback
 
@@ -84,7 +85,10 @@ class _GLWidget(QGLWidget):
         self._viewer.set_viewport(view_x, view_y, view_width, view_height)
 
     def initializeGL(self):
-        self._viewer.set_window(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
+        if platform.system() == 'Linux':
+            self._viewer.set_window(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
+        elif platform.system() == 'Darwin':
+            self._viewer.set_window(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
 
 class _MainWindow(QtGui.QSplitter):
 

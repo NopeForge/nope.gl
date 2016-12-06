@@ -34,12 +34,19 @@ extern const struct glcontext_class ngli_glcontext_x11_class;
 extern const struct glcontext_class ngli_glcontext_egl_class;
 #endif
 
+#ifdef HAVE_PLATFORM_CGL
+extern const struct glcontext_class ngli_glcontext_cgl_class;
+#endif
+
 static const struct glcontext_class *glcontext_class_map[] = {
 #ifdef HAVE_PLATFORM_GLX
     [NGL_GLPLATFORM_GLX] = &ngli_glcontext_x11_class,
 #endif
 #ifdef HAVE_PLATFORM_EGL
     [NGL_GLPLATFORM_EGL] = &ngli_glcontext_egl_class,
+#endif
+#ifdef HAVE_PLATFORM_CGL
+    [NGL_GLPLATFORM_CGL] = &ngli_glcontext_cgl_class,
 #endif
 };
 
