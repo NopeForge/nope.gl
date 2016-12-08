@@ -28,16 +28,17 @@
 static pthread_once_t log_initialized = PTHREAD_ONCE_INIT;
 
 struct log_ctx {
-    pthread_mutex_t lock;
     void *user_arg;
-    void (*callback)(void *arg, int level, const char *fmt, va_list vl);
+    ngl_log_callback_type callback;
     int min_level;
 };
 
 static struct log_ctx log_ctx;
 
-static void default_callback(void *arg, int level, const char *fmt, va_list vl)
+static void default_callback(void *arg, int level, const char *filename, int ln,
+                             const char *fn, const char *fmt, va_list vl)
 {
+    char logline[512];
     static const char * const log_strs[] = {
         [NGL_LOG_DEBUG]   = "DEBUG",
         [NGL_LOG_VERBOSE] = "VERBOSE",
@@ -45,19 +46,17 @@ static void default_callback(void *arg, int level, const char *fmt, va_list vl)
         [NGL_LOG_WARNING] = "WARNING",
         [NGL_LOG_ERROR]   = "ERROR",
     };
-    printf("[%s] ", log_strs[level]);
-    vprintf(fmt, vl);
+    vsnprintf(logline, sizeof(logline), fmt, vl);
+    printf("[%s] %s:%d %s: %s\n", log_strs[level], filename, ln, fn, logline);
 }
 
 static void log_init(void)
 {
     log_ctx.callback  = default_callback;
     log_ctx.min_level = NGL_LOG_INFO;
-    pthread_mutex_init(&log_ctx.lock, NULL);
 }
 
-void ngl_log_set_callback(void *arg,
-                          void (*callback)(void *arg, int level, const char *fmt, va_list vl))
+void ngl_log_set_callback(void *arg, ngl_log_callback_type callback)
 {
     int ret = pthread_once(&log_initialized, log_init);
     if (ret < 0)
@@ -74,20 +73,10 @@ void ngl_log_set_min_level(int level)
     log_ctx.min_level = level;
 }
 
-static void exec_log_cb(int log_level, const char *fmt, ...)
-{
-    va_list vl;
-
-    va_start(vl, fmt);
-    log_ctx.callback(log_ctx.user_arg, log_level, fmt, vl);
-    va_end(vl);
-}
-
 void ngli_log_print(int log_level, const char *filename,
                     int ln, const char *fn, const char *fmt, ...)
 {
     va_list arg_list;
-    char logline[512];
 
     int ret = pthread_once(&log_initialized, log_init);
     if (ret < 0)
@@ -97,10 +86,6 @@ void ngli_log_print(int log_level, const char *filename,
         return;
 
     va_start(arg_list, fmt);
-    vsnprintf(logline, sizeof(logline), fmt, arg_list);
+    log_ctx.callback(log_ctx.user_arg, log_level, filename, ln, fn, fmt, arg_list);
     va_end(arg_list);
-
-    pthread_mutex_lock(&log_ctx.lock);
-    exec_log_cb(log_level, "%s:%d %s: %s\n", filename, ln, fn, logline);
-    pthread_mutex_unlock(&log_ctx.lock);
 }

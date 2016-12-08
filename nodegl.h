@@ -46,7 +46,10 @@ enum {
     NGL_LOG_ERROR,
 };
 
-void ngl_log_set_callback(void *arg, void (*callback)(void *arg, int level, const char *fmt, va_list vl));
+typedef void (*ngl_log_callback_type)(void *arg, int level, const char *filename,
+                                      int ln, const char *fn, const char *fmt, va_list vl);
+
+void ngl_log_set_callback(void *arg, ngl_log_callback_type callback);
 void ngl_log_set_min_level(int level);
 
 /* Nodes */
