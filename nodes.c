@@ -136,6 +136,7 @@ static void print_param(const struct node_param *p)
 static void print_node_params(const char *name, const struct node_param *p)
 {
     printf("- %s:\n", name);
+    if (p) {
     if (p->key && (p->flags & PARAM_FLAG_CONSTRUCTOR)) {
         printf("    constructors:\n");
         while (p->key && (p->flags & PARAM_FLAG_CONSTRUCTOR)) {
@@ -149,6 +150,7 @@ static void print_node_params(const char *name, const struct node_param *p)
             print_param(p);
             p++;
         }
+    }
     }
     printf("\n");
 }
