@@ -309,7 +309,7 @@ static void node_uninit(struct ngl_node *node)
     node->state = STATE_UNINITIALIZED;
 }
 
-static int node_init(struct ngl_node *node)
+int ngli_node_init(struct ngl_node *node)
 {
     if (node->state == STATE_INITIALIZED)
         return 0;
@@ -337,12 +337,6 @@ static int node_init(struct ngl_node *node)
     node->state = STATE_INITIALIZED;
 
     return 0;
-}
-
-int ngli_node_init(struct ngl_node *node)
-{
-    int ret = node_init(node);
-    return ret;
 }
 
 static int get_rr_id(const struct ngl_node *node, int start, double t)
@@ -432,7 +426,7 @@ static void check_activity(struct ngl_node *node, double t, int parent_is_active
 {
     int is_active = parent_is_active;
 
-    node_init(node);
+    ngli_node_init(node);
 
     /*
      * The life of the parent takes over the life of its children: if the
@@ -577,7 +571,7 @@ void ngli_node_prefetch(struct ngl_node *node)
     if (node->state == STATE_READY)
         return;
 
-    node_init(node);
+    ngli_node_init(node);
 
     if (node->class->prefetch) {
         LOG(DEBUG, "PREFETCH %s @ %p", node->name, node);
@@ -588,7 +582,7 @@ void ngli_node_prefetch(struct ngl_node *node)
 
 void ngli_node_update(struct ngl_node *node, double t)
 {
-    node_init(node);
+    ngli_node_init(node);
     if (node->class->update)
         node_update(node, t);
 }
