@@ -188,8 +188,6 @@ static struct ngl_node *node_create(const struct node_class *class)
 
     atomic_init(&node->refcount, 1);
 
-    /* lock and its protected fields */
-    pthread_mutex_init(&node->lock, NULL);
     node->state = STATE_UNINITIALIZED;
 
     node->modelview_matrix[ 0] =
@@ -343,9 +341,7 @@ static int node_init(struct ngl_node *node)
 
 int ngli_node_init(struct ngl_node *node)
 {
-    pthread_mutex_lock(&node->lock);
     int ret = node_init(node);
-    pthread_mutex_unlock(&node->lock);
     return ret;
 }
 
@@ -592,11 +588,9 @@ void ngli_node_prefetch(struct ngl_node *node)
 
 void ngli_node_update(struct ngl_node *node, double t)
 {
-    pthread_mutex_lock(&node->lock);
     node_init(node);
     if (node->class->update)
         node_update(node, t);
-    pthread_mutex_unlock(&node->lock);
 }
 
 void ngli_node_draw(struct ngl_node *node)
@@ -608,7 +602,6 @@ void ngli_node_draw(struct ngl_node *node)
 
     if (node->class->draw) {
         LOG(VERBOSE, "DRAW %s @ %p", node->name, node);
-        pthread_mutex_lock(&node->lock);
 
         for (int i = 0; i < node->nb_glstates; i++) {
             struct ngl_node *glstate_node = node->glstates[i];
@@ -667,8 +660,6 @@ void ngli_node_draw(struct ngl_node *node)
                 }
             }
         }
-
-        pthread_mutex_unlock(&node->lock);
     }
 }
 
@@ -697,12 +688,10 @@ int ngl_node_param_add(struct ngl_node *node, const char *key,
     if (!par)
         return -1;
 
-    pthread_mutex_lock(&node->lock);
     ret = ngli_params_add(base_ptr, par, nb_elems, elems);
     if (ret < 0)
         LOG(ERROR, "unable to add elements to %s.%s", node->name, key);
     node_uninit(node); // need a reinit after changing options
-    pthread_mutex_unlock(&node->lock);
     return ret;
 }
 
@@ -716,14 +705,12 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
     if (!par)
         return -1;
 
-    pthread_mutex_lock(&node->lock);
     va_start(ap, key);
     ret = ngli_params_set(base_ptr, par, &ap);
     if (ret < 0)
         LOG(ERROR, "unable to set %s.%s", node->name, key);
     va_end(ap);
     node_uninit(node); // need a reinit after changing options
-    pthread_mutex_unlock(&node->lock);
     return ret;
 }
 
@@ -742,7 +729,6 @@ void ngl_node_unrefp(struct ngl_node **op)
     delete = atomic_fetch_sub(&node->refcount, 1) == 1;
     if (delete) {
         LOG(VERBOSE, "DELETE %s @ %p", node->name, node);
-        pthread_mutex_destroy(&node->lock);
         node_uninit(node);
         ngli_params_free((uint8_t *)node, ngli_base_node_params);
         ngli_params_free(node->priv_data, node->class->params);

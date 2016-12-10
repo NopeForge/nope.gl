@@ -23,7 +23,6 @@
 #define NODES_H
 
 #include <stdlib.h>
-#include <pthread.h>
 #include <sxplayer.h>
 #include <stdatomic.h>
 
@@ -42,7 +41,6 @@ enum {
 struct ngl_node {
     const struct node_class *class;
     _Atomic(int) refcount;
-    pthread_mutex_t lock;
     float modelview_matrix[4*4];
     float projection_matrix[4*4];
     int state;
