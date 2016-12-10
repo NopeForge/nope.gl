@@ -120,7 +120,7 @@ OBJS += $(PROJECT_OBJS)
 
 CPPFLAGS += -MMD -MP
 
-CFLAGS += -Wall -O2 -Werror=missing-prototypes -fPIC -std=c11
+CFLAGS += -Wall -O2 -Werror=missing-prototypes -fPIC -std=c99
 ifeq ($(DEBUG),yes)
 	CFLAGS += -g
 endif
