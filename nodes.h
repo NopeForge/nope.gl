@@ -24,7 +24,6 @@
 
 #include <stdlib.h>
 #include <sxplayer.h>
-#include <stdatomic.h>
 
 #include "gl_utils.h"
 #include "params.h"
@@ -40,7 +39,7 @@ enum {
 
 struct ngl_node {
     const struct node_class *class;
-    _Atomic(int) refcount;
+    int refcount;
     float modelview_matrix[4*4];
     float projection_matrix[4*4];
     int state;

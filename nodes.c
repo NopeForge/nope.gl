@@ -186,7 +186,7 @@ static struct ngl_node *node_create(const struct node_class *class)
     node->last_update_time = -1.;
     node->active_time = -1.;
 
-    atomic_init(&node->refcount, 1);
+    node->refcount = 1;
 
     node->state = STATE_UNINITIALIZED;
 
@@ -716,7 +716,7 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
 
 void ngl_node_ref(struct ngl_node *node)
 {
-    atomic_fetch_add(&node->refcount, 1);
+    node->refcount++;
 }
 
 void ngl_node_unrefp(struct ngl_node **op)
@@ -726,7 +726,7 @@ void ngl_node_unrefp(struct ngl_node **op)
 
     if (!node)
         return;
-    delete = atomic_fetch_sub(&node->refcount, 1) == 1;
+    delete = node->refcount-- == 1;
     if (delete) {
         LOG(VERBOSE, "DELETE %s @ %p", node->name, node);
         node_uninit(node);
