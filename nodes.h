@@ -26,6 +26,7 @@
 #include <sxplayer.h>
 
 #include "gl_utils.h"
+#include "glcontext.h"
 #include "params.h"
 
 struct node_class;
@@ -37,8 +38,15 @@ enum {
     STATE_IDLE          = 3, /* post release() */
 };
 
+struct ngl_ctx {
+    struct glcontext *glcontext;
+    struct ngl_node *scene;
+};
+
 struct ngl_node {
     const struct node_class *class;
+    struct ngl_ctx *ctx;
+
     int refcount;
     float modelview_matrix[4*4];
     float projection_matrix[4*4];
@@ -343,5 +351,8 @@ void ngli_node_check_resources(struct ngl_node *node, double t);
 void ngli_node_update(struct ngl_node *node, double t);
 void ngli_node_draw(struct ngl_node *node);
 void ngli_node_release(struct ngl_node *node);
+
+int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
+void ngli_node_detach_ctx(struct ngl_node *node);
 
 #endif

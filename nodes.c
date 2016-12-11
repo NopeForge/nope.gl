@@ -254,6 +254,7 @@ void ngli_node_release(struct ngl_node *node)
     if (node->state != STATE_READY)
         return;
 
+    ngli_assert(node->ctx);
     if (node->class->release) {
         LOG(DEBUG, "RELEASE %s @ %p", node->name, node);
         node->class->release(node);
@@ -299,6 +300,7 @@ static void node_uninit(struct ngl_node *node)
     if (node->state == STATE_UNINITIALIZED)
         return;
 
+    ngli_assert(node->ctx);
     ngli_node_release(node);
 
     if (node->class->uninit) {
@@ -309,6 +311,72 @@ static void node_uninit(struct ngl_node *node)
     node->state = STATE_UNINITIALIZED;
 }
 
+static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *params,
+                                 struct ngl_ctx *ctx)
+{
+    if (!params)
+        return 0;
+    for (int i = 0; params[i].key; i++) {
+        const struct node_param *par = &params[i];
+
+        if (par->type == PARAM_TYPE_NODE) {
+            uint8_t *node_p = base_ptr + par->offset;
+            struct ngl_node *node = *(struct ngl_node **)node_p;
+            if (node) {
+                int ret = ngli_node_attach_ctx(node, ctx);
+                if (ret < 0)
+                    return ret;
+            }
+        } else if (par->type == PARAM_TYPE_NODELIST) {
+            uint8_t *elems_p = base_ptr + par->offset;
+            uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
+            struct ngl_node **elems = *(struct ngl_node ***)elems_p;
+            const int nb_elems = *(int *)nb_elems_p;
+            for (int j = 0; j < nb_elems; j++) {
+                int ret = ngli_node_attach_ctx(elems[j], ctx);
+                if (ret < 0)
+                    return ret;
+            }
+        }
+    }
+    return 0;
+}
+
+static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
+{
+    int ret;
+
+    if (ctx) {
+        if (node->ctx) {
+            if (node->ctx != ctx) {
+                LOG(ERROR, "\"%s\" is associated with another rendering context", node->name);
+                return -1;
+            }
+        } else {
+            node->ctx = ctx;
+        }
+    } else {
+        node_uninit(node);
+        node->ctx = NULL;
+    }
+
+    if ((ret = node_set_children_ctx(node->priv_data, node->class->params, ctx)) < 0 ||
+        (ret = node_set_children_ctx((uint8_t *)node, ngli_base_node_params, ctx)) < 0)
+        return ret;
+    return 0;
+}
+
+int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
+{
+    return node_set_ctx(node, ctx);
+}
+
+void ngli_node_detach_ctx(struct ngl_node *node)
+{
+    int ret = node_set_ctx(node, NULL);
+    ngli_assert(ret == 0);
+}
+
 int ngli_node_init(struct ngl_node *node)
 {
     if (node->state == STATE_INITIALIZED)
@@ -317,6 +385,7 @@ int ngli_node_init(struct ngl_node *node)
     if (node->state != STATE_UNINITIALIZED)
         return 0;
 
+    ngli_assert(node->ctx);
     if (node->class->init) {
         LOG(VERBOSE, "INIT %s @ %p", node->name, node);
         int ret = node->class->init(node);
@@ -723,7 +792,7 @@ void ngl_node_unrefp(struct ngl_node **op)
     delete = node->refcount-- == 1;
     if (delete) {
         LOG(VERBOSE, "DELETE %s @ %p", node->name, node);
-        node_uninit(node);
+        ngli_assert(!node->ctx);
         ngli_params_free((uint8_t *)node, ngli_base_node_params);
         ngli_params_free(node->priv_data, node->class->params);
         free(node->priv_data);

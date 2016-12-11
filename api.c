@@ -22,15 +22,9 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "glcontext.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
-
-struct ngl_ctx {
-    struct glcontext *glcontext;
-    struct ngl_node *scene;
-};
 
 struct ngl_ctx *ngl_create(void)
 {
@@ -63,8 +57,16 @@ int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int w, int h)
 
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
+    if (s->scene) {
+        ngli_node_detach_ctx(s->scene);
+        ngl_node_unrefp(&s->scene);
+    }
+
+    int ret = ngli_node_attach_ctx(scene, s);
+    if (ret < 0)
+        return ret;
+
     ngl_node_ref(scene);
-    ngl_node_unrefp(&s->scene);
     s->scene = scene;
     return 0;
 }
@@ -95,6 +97,10 @@ void ngl_free(struct ngl_ctx **ss)
     if (!s)
         return;
 
+    if (s->scene) {
+        ngli_node_detach_ctx(s->scene);
+        ngl_node_unrefp(&s->scene);
+    }
     ngli_glcontext_freep(&s->glcontext);
     free(*ss);
     *ss = NULL;
