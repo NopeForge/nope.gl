@@ -26,14 +26,14 @@ def centered_triangle_media(cfg):
 def centered_shape_media(cfg, n=0.5):
 
     q = Shape([
-        ShapePrimitive((  -n, -n/2, 0), (1, 0)),
-        ShapePrimitive((  -n,  n/2, 0), (0, 0)),
-        ShapePrimitive((-n/2,    n, 0), (1, 1)),
-        ShapePrimitive(( n/2,    n, 0), (1, 0)),
-        ShapePrimitive((   n,  n/2, 0), (0, 0)),
-        ShapePrimitive((   n, -n/2, 0), (1, 1)),
-        ShapePrimitive(( n/2,   -n, 0), (1, 1)),
-        ShapePrimitive((-n/2,   -n, 0), (1, 1)),
+        ShapePrimitive((  -n, -n/2, 0), (0,    0.75)),
+        ShapePrimitive((  -n,  n/2, 0), (0,    0.25)),
+        ShapePrimitive((-n/2,    n, 0), (0.25, 0)),
+        ShapePrimitive(( n/2,    n, 0), (0.75, 0)),
+        ShapePrimitive((   n,  n/2, 0), (1,    0.25)),
+        ShapePrimitive((   n, -n/2, 0), (1,    0.75)),
+        ShapePrimitive(( n/2,   -n, 0), (0.75, 1)),
+        ShapePrimitive((-n/2,   -n, 0), (0.25, 1)),
     ])
     q.set_draw_mode(GL.GL_POLYGON)
 
