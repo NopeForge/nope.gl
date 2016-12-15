@@ -1,6 +1,6 @@
 from pynodegl import Quad, Texture, Shader, TexturedShape, Media, Camera, Group, GLState
 from pynodegl import Scale, Rotate, Translate, Identity
-from pynodegl import UniformSampler, UniformVec4, AttributeVec2
+from pynodegl import UniformSampler, UniformVec4, UniformMat4, AttributeVec2
 from pynodegl import AnimKeyFrameScalar, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
@@ -76,6 +76,42 @@ def animated(cfg, rotate=True, scale=True, translate=True):
                         AnimKeyFrameVec3(cfg.duration,   (-0.5, -0.3, -0.5)))
 
     return node
+
+animated_frag_data = """
+uniform mat4 matrix;
+uniform sampler2D tex0_sampler;
+varying vec2 var_tex0_coords;
+
+void main(void)
+{
+    vec2 coords = var_tex0_coords * 2.0 - 1.0;
+    coords = (matrix * vec4(coords.xy, 1.0, 1.0)).xy;
+    coords = (coords + 1.0) / 2.0;
+
+    gl_FragColor = texture2D(tex0_sampler, coords);
+}
+"""
+
+@scene()
+def animated_uniform(cfg):
+    q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
+    m = Media(cfg.media_filename)
+    t = Texture(data_src=m)
+    s = Shader(fragment_data=animated_frag_data)
+    ts = TexturedShape(q, s, t)
+
+    s = Scale(Identity())
+    s.add_animkf(AnimKeyFrameVec3(0, (1,1,1), "quartic_out"),
+                 AnimKeyFrameVec3(cfg.duration, (0.1,0.1,0.1)))
+
+    r = Rotate(s, axis=(0,0,1))
+    r.add_animkf(AnimKeyFrameScalar(0, 0, "exp_out"),
+                 AnimKeyFrameScalar(cfg.duration, 360))
+
+    u = UniformMat4("matrix", transform=r)
+    ts.add_uniforms(u)
+
+    return ts
 
 @scene({'name': 'rotate', 'type': 'bool'})
 def animated_camera(cfg, rotate=False):
