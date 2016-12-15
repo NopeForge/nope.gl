@@ -24,6 +24,6 @@
 
 #include "nodes.h"
 
-float *ngli_get_last_transformation_matrix(struct ngl_node *node);
+const float *ngli_get_last_transformation_matrix(const struct ngl_node *node);
 
 #endif

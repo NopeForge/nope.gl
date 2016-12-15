@@ -84,7 +84,7 @@ static void camera_update(struct ngl_node *node, double t)
     float perspective[4*4];
     float view[4*4];
 
-    float *matrix;
+    const float *matrix;
 
     memcpy(eye, s->eye, sizeof(s->eye));
     if (s->eye_transform) {

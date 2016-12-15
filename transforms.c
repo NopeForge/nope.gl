@@ -23,18 +23,18 @@
 #include "nodegl.h"
 #include "transforms.h"
 
-float *ngli_get_last_transformation_matrix(struct ngl_node *node)
+const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
 {
     while (node) {
-        int id = node->class->id;
+        const int id = node->class->id;
         if (id == NGL_NODE_ROTATE) {
-            struct rotate *rotate = node->priv_data;
+            const struct rotate *rotate = node->priv_data;
             node = rotate->child;
         } else if (id == NGL_NODE_TRANSLATE) {
-            struct translate *translate = node->priv_data;
+            const struct translate *translate = node->priv_data;
             node = translate->child;
         } else if (id == NGL_NODE_SCALE) {
-            struct scale *scale = node->priv_data;
+            const struct scale *scale = node->priv_data;
             node = scale->child;
         } else if (id == NGL_NODE_IDENTITY) {
             return node->modelview_matrix;
