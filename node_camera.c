@@ -86,30 +86,19 @@ static void camera_update(struct ngl_node *node, double t)
 
     const float *matrix;
 
-    memcpy(eye, s->eye, sizeof(s->eye));
-    if (s->eye_transform) {
-        ngli_node_update(s->eye_transform, t);
-        matrix = ngli_get_last_transformation_matrix(s->eye_transform);
-        if (matrix) {
-            ngli_mat4_mul_vec4(eye, matrix, eye);
-        }
-    }
+#define APPLY_TRANSFORM(what) do {                                          \
+    memcpy(what, s->what, sizeof(s->what));                                 \
+    if (s->what##_transform) {                                              \
+        ngli_node_update(s->what##_transform, t);                           \
+        matrix = ngli_get_last_transformation_matrix(s->what##_transform);  \
+        if (matrix)                                                         \
+            ngli_mat4_mul_vec4(what, matrix, what);                         \
+    }                                                                       \
+} while (0)
 
-    memcpy(center, s->center, sizeof(s->center));
-    if (s->center_transform) {
-        ngli_node_update(s->center_transform, t);
-        matrix = ngli_get_last_transformation_matrix(s->center_transform);
-        if (matrix)
-            ngli_mat4_mul_vec4(center, matrix, center);
-    }
-
-    memcpy(up, s->up, sizeof(s->up));
-    if (s->up_transform) {
-        ngli_node_update(s->up_transform, t);
-        matrix = ngli_get_last_transformation_matrix(s->up_transform);
-        if (matrix)
-            ngli_mat4_mul_vec4(up, matrix, up);
-    }
+    APPLY_TRANSFORM(eye);
+    APPLY_TRANSFORM(center);
+    APPLY_TRANSFORM(up);
 
     ngli_mat4_look_at(
         view,
