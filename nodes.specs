@@ -221,6 +221,8 @@
 - UniformMat4:
     constructors:
         - [id, string]
+    optional:
+        - [transform, Node]
 
 - UniformSampler:
     constructors:

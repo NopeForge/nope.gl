@@ -25,8 +25,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "transforms.h"
 
 #define OFFSET(x) offsetof(struct uniform, x)
 static const struct node_param uniformscalar_params[] = {
@@ -69,6 +71,7 @@ static const struct node_param uniformint_params[] = {
 
 static const struct node_param uniformmat4_params[] = {
     {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"transform", PARAM_TYPE_NODE, OFFSET(transform), .node_types=TRANSFORM_TYPES_LIST},
     {NULL}
 };
 
@@ -93,6 +96,16 @@ static void uniform_vec_update(struct ngl_node *node, double t)
     struct uniform *s = node->priv_data;
     if (s->nb_animkf)
         ngli_animkf_interpolate(s->vector, s->animkf, s->nb_animkf, &s->current_kf, t);
+}
+
+static void uniform_mat_update(struct ngl_node *node, double t)
+{
+    struct uniform *s = node->priv_data;
+    if (s->transform) {
+        ngli_node_update(s->transform, t);
+        const float *matrix = ngli_get_last_transformation_matrix(s->transform);
+        memcpy(s->matrix, matrix, sizeof(s->matrix));
+    }
 }
 
 static int uniform_init(struct ngl_node *node)
@@ -160,6 +173,7 @@ const struct node_class ngli_uniformmat4_class = {
     .id        = NGL_NODE_UNIFORMMAT4,
     .name      = "UniformMat4",
     .init      = uniform_init,
+    .update    = uniform_mat_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformmat4_params,
 };

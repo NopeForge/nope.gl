@@ -138,6 +138,7 @@ struct uniform {
     struct ngl_node **animkf;
     int nb_animkf;
     int current_kf;
+    struct ngl_node *transform;
 };
 
 struct attribute {
