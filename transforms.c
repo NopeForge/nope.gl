@@ -25,29 +25,24 @@
 
 float *ngli_get_last_transformation_matrix(struct ngl_node *node)
 {
-    struct ngl_node *child = NULL;
-    struct ngl_node *current_node = node;
-
-    while (current_node) {
-        int id = current_node->class->id;
+    while (node) {
+        int id = node->class->id;
         if (id == NGL_NODE_ROTATE) {
-            struct rotate *rotate = current_node->priv_data;
-            child  = rotate->child;
+            struct rotate *rotate = node->priv_data;
+            node = rotate->child;
         } else if (id == NGL_NODE_TRANSLATE) {
-            struct translate *translate= current_node->priv_data;
-            child  = translate->child;
+            struct translate *translate = node->priv_data;
+            node = translate->child;
         } else if (id == NGL_NODE_SCALE) {
-            struct scale *scale= current_node->priv_data;
-            child  = scale->child;
+            struct scale *scale = node->priv_data;
+            node = scale->child;
         } else if (id == NGL_NODE_IDENTITY) {
-            return current_node->modelview_matrix;
+            return node->modelview_matrix;
         } else {
             LOG(ERROR, "%s (%s) is not an allowed type for a camera transformation",
-                current_node->name, current_node->class->name);
+                node->name, node->class->name);
             break;
         }
-
-        current_node = child;
     }
 
     return NULL;
