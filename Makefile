@@ -52,6 +52,7 @@ PROJECT_OBJS = api.o                    \
                node_translate.o         \
                node_uniform.o           \
                params.o                 \
+               transforms.o             \
                utils.o                  \
 
 LINUX_OBJS   = glcontext_x11.o

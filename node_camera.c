@@ -27,11 +27,7 @@
 #include "nodegl.h"
 #include "nodes.h"
 #include "math_utils.h"
-
-#define TRANSFORM_TYPES_LIST (const int[]){NGL_NODE_ROTATE,    \
-                                           NGL_NODE_TRANSLATE, \
-                                           NGL_NODE_SCALE,     \
-                                           -1}                 \
+#include "transforms.h"
 
 #define OFFSET(x) offsetof(struct camera, x)
 static const struct node_param camera_params[] = {
@@ -76,36 +72,6 @@ static int camera_init(struct ngl_node *node)
     return 0;
 }
 
-static float *get_last_transformation_matrix(struct ngl_node *node)
-{
-    struct ngl_node *child = NULL;
-    struct ngl_node *current_node = node;
-
-    while (current_node) {
-        int id = current_node->class->id;
-        if (id == NGL_NODE_ROTATE) {
-            struct rotate *rotate = current_node->priv_data;
-            child  = rotate->child;
-        } else if (id == NGL_NODE_TRANSLATE) {
-            struct translate *translate= current_node->priv_data;
-            child  = translate->child;
-        } else if (id == NGL_NODE_SCALE) {
-            struct scale *scale= current_node->priv_data;
-            child  = scale->child;
-        } else if (id == NGL_NODE_IDENTITY) {
-            return current_node->modelview_matrix;
-        } else {
-            LOG(ERROR, "%s (%s) is not an allowed type for a camera transformation",
-                current_node->name, current_node->class->name);
-            break;
-        }
-
-        current_node = child;
-    }
-
-    return NULL;
-}
-
 static void camera_update(struct ngl_node *node, double t)
 {
     struct camera *s = node->priv_data;
@@ -123,7 +89,7 @@ static void camera_update(struct ngl_node *node, double t)
     memcpy(eye, s->eye, sizeof(s->eye));
     if (s->eye_transform) {
         ngli_node_update(s->eye_transform, t);
-        matrix = get_last_transformation_matrix(s->eye_transform);
+        matrix = ngli_get_last_transformation_matrix(s->eye_transform);
         if (matrix) {
             ngli_mat4_mul_vec4(eye, matrix, eye);
         }
@@ -132,7 +98,7 @@ static void camera_update(struct ngl_node *node, double t)
     memcpy(center, s->center, sizeof(s->center));
     if (s->center_transform) {
         ngli_node_update(s->center_transform, t);
-        matrix = get_last_transformation_matrix(s->center_transform);
+        matrix = ngli_get_last_transformation_matrix(s->center_transform);
         if (matrix)
             ngli_mat4_mul_vec4(center, matrix, center);
     }
@@ -140,7 +106,7 @@ static void camera_update(struct ngl_node *node, double t)
     memcpy(up, s->up, sizeof(s->up));
     if (s->up_transform) {
         ngli_node_update(s->up_transform, t);
-        matrix = get_last_transformation_matrix(s->up_transform);
+        matrix = ngli_get_last_transformation_matrix(s->up_transform);
         if (matrix)
             ngli_mat4_mul_vec4(up, matrix, up);
     }

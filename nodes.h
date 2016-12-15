@@ -65,6 +65,11 @@ struct ngl_node {
     void *priv_data;
 };
 
+#define TRANSFORM_TYPES_LIST (const int[]){NGL_NODE_ROTATE,    \
+                                           NGL_NODE_TRANSLATE, \
+                                           NGL_NODE_SCALE,     \
+                                           -1}
+
 struct glstate {
     GLenum capability;
     int enabled[2];
