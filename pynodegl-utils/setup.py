@@ -26,7 +26,7 @@ from setuptools import setup, find_packages
 setup(name='pynodegl-utils',
       version='1.0',
       packages=find_packages(),
-      install_requires=['PySide', 'pynodegl'],
+      install_requires=['pynodegl'],
       entry_points={
           'console_scripts': [
               'ngl-viewer = pynodegl_utils.viewer:run',

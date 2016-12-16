@@ -35,8 +35,8 @@ import traceback
 
 import pynodegl as ngl
 
-from PySide import QtGui, QtCore
-from PySide.QtOpenGL import QGLWidget
+from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5.QtOpenGL import QGLWidget
 
 class _GLWidget(QGLWidget):
 
@@ -88,7 +88,7 @@ class _GLWidget(QGLWidget):
         elif platform.system() == 'Darwin':
             self._viewer.set_window(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
 
-class _MainWindow(QtGui.QSplitter):
+class _MainWindow(QtWidgets.QSplitter):
 
     RENDERING_FPS = 60
     DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
@@ -162,7 +162,7 @@ class _MainWindow(QtGui.QSplitter):
 
     def _craft_pick_color_cb(self, id_name, label, color_btn):
         def pick_color():
-            color = QtGui.QColorDialog.getColor()
+            color = QtWidgets.QColorDialog.getColor()
             color_btn.setStyleSheet('background-color: %s;' % color.name())
             label.setText(self._get_label_text(id_name, color.name()))
             self._scene_extra_args[id_name] = color.getRgbF()
@@ -171,7 +171,7 @@ class _MainWindow(QtGui.QSplitter):
 
     def _craft_choose_filename_cb(self, id_name, label, dialog_btn, files_filter):
         def choose_filename():
-            filenames = QtGui.QFileDialog.getOpenFileName(self, 'Open file', '', files_filter)
+            filenames = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', files_filter)
             if not filenames[0]:
                 return
             label.setText(self._get_label_text(id_name, os.path.basename(filenames[0])))
@@ -193,40 +193,40 @@ class _MainWindow(QtGui.QSplitter):
             default_value = widget_specs['default']
 
             if widget_specs['type'] == 'range':
-                slider = QtGui.QSlider(QtCore.Qt.Horizontal)
+                slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
                 unit_base = widget_specs.get('unit_base', 1)
                 if 'range' in widget_specs:
                     srange = widget_specs['range']
                     slider.setRange(srange[0] * unit_base, srange[1] * unit_base)
                 slider.setValue(default_value * unit_base)
-                label = QtGui.QLabel(self._get_label_text(name, default_value))
+                label = QtWidgets.QLabel(self._get_label_text(name, default_value))
                 widgets.append(label)
                 slider_value_changed_cb = self._craft_slider_value_changed_cb(name, label, unit_base)
                 slider.valueChanged.connect(slider_value_changed_cb)
                 widgets.append(slider)
 
             elif widget_specs['type'] == 'color':
-                color_btn = QtGui.QPushButton()
+                color_btn = QtWidgets.QPushButton()
                 color = QtGui.QColor()
                 color.setRgbF(*default_value)
                 color_name = color.name()
                 color_btn.setStyleSheet('background-color: %s;' % color_name)
-                label = QtGui.QLabel(self._get_label_text(name, color_name))
+                label = QtWidgets.QLabel(self._get_label_text(name, color_name))
                 widgets.append(label)
                 pick_color_cb = self._craft_pick_color_cb(name, label, color_btn)
                 color_btn.pressed.connect(pick_color_cb)
                 widgets.append(color_btn)
 
             elif widget_specs['type'] == 'bool':
-                chkbox = QtGui.QCheckBox(name)
+                chkbox = QtWidgets.QCheckBox(name)
                 chkbox.setChecked(default_value)
                 checkbox_toggle_cb = self._craft_checkbox_toggle_cb(name, chkbox)
                 chkbox.stateChanged.connect(checkbox_toggle_cb)
                 widgets.append(chkbox)
 
             elif widget_specs['type'] == 'model':
-                dialog_btn = QtGui.QPushButton('Open file')
-                label = QtGui.QLabel(self._get_label_text(name, default_value))
+                dialog_btn = QtWidgets.QPushButton('Open file')
+                label = QtWidgets.QLabel(self._get_label_text(name, default_value))
                 widgets.append(label)
                 choose_filename_cb = self._craft_choose_filename_cb(name, label, dialog_btn, widget_specs.get('filter', ''))
                 dialog_btn.pressed.connect(choose_filename_cb)
@@ -235,8 +235,8 @@ class _MainWindow(QtGui.QSplitter):
         if not widgets:
             return None
 
-        groupbox = QtGui.QGroupBox('Custom scene options')
-        vbox = QtGui.QVBoxLayout()
+        groupbox = QtWidgets.QGroupBox('Custom scene options')
+        vbox = QtWidgets.QVBoxLayout()
         for widget in widgets:
             vbox.addWidget(widget)
         groupbox.setLayout(vbox)
@@ -420,50 +420,50 @@ class _MainWindow(QtGui.QSplitter):
         self._timer = QtCore.QTimer()
         self._timer.setInterval(1000.0 / self.RENDERING_FPS) # in milliseconds
 
-        self._slider = QtGui.QSlider(QtCore.Qt.Horizontal, self)
+        self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
         self._slider.setRange(0, self.LOOP_DURATION * self.RENDERING_FPS)
 
-        self._action_btn = QtGui.QPushButton()
+        self._action_btn = QtWidgets.QPushButton()
         self._set_action('pause')
 
-        fw_btn = QtGui.QPushButton('>')
-        bw_btn = QtGui.QPushButton('<')
+        fw_btn = QtWidgets.QPushButton('>')
+        bw_btn = QtWidgets.QPushButton('<')
 
-        self._time_lbl = QtGui.QLabel()
+        self._time_lbl = QtWidgets.QLabel()
 
-        toolbar = QtGui.QHBoxLayout()
+        toolbar = QtWidgets.QHBoxLayout()
         toolbar.addWidget(bw_btn)
         toolbar.addWidget(self._action_btn)
         toolbar.addWidget(fw_btn)
         toolbar.addWidget(self._time_lbl)
         toolbar.setStretchFactor(self._time_lbl, 1)
 
-        self._graph_btn = QtGui.QPushButton("Update Graph")
-        self._graph_lbl = QtGui.QLabel()
-        img_area = QtGui.QScrollArea()
+        self._graph_btn = QtWidgets.QPushButton("Update Graph")
+        self._graph_lbl = QtWidgets.QLabel()
+        img_area = QtWidgets.QScrollArea()
         img_area.setWidget(self._graph_lbl)
-        graph_layout = QtGui.QVBoxLayout()
+        graph_layout = QtWidgets.QVBoxLayout()
         graph_layout.addWidget(self._graph_btn)
         graph_layout.addWidget(img_area)
-        graph_tab_widget = QtGui.QWidget()
+        graph_tab_widget = QtWidgets.QWidget()
         graph_tab_widget.setLayout(graph_layout)
 
-        gl_layout = QtGui.QVBoxLayout()
+        gl_layout = QtWidgets.QVBoxLayout()
         gl_layout.addWidget(self._gl_widget)
         gl_layout.setStretchFactor(self._gl_widget, 1)
         gl_layout.addWidget(self._slider)
         gl_layout.addLayout(toolbar)
-        gl_tab_widget = QtGui.QWidget()
+        gl_tab_widget = QtWidgets.QWidget()
         gl_tab_widget.setLayout(gl_layout)
 
-        tabs = QtGui.QTabWidget()
+        tabs = QtWidgets.QTabWidget()
         tabs.addTab(gl_tab_widget, "GL view")
         tabs.addTab(graph_tab_widget, "Graph view")
 
-        self._scn_view = QtGui.QTreeView()
+        self._scn_view = QtWidgets.QTreeView()
         self._scn_view.setHeaderHidden(True)
-        self._scn_view.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
-        self._scn_view.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self._scn_view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self._scn_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self._scn_mdl = QtGui.QStandardItemModel()
         self._scn_view.setModel(self._scn_mdl)
 
@@ -471,46 +471,46 @@ class _MainWindow(QtGui.QSplitter):
         self._reload_scripts(initial_import=True)
         self._reload_scene_view()
 
-        self._ar_cbbox = QtGui.QComboBox()
+        self._ar_cbbox = QtWidgets.QComboBox()
         for ar in self.ASPECT_RATIOS:
             self._ar_cbbox.addItem('%d:%d' % ar)
         self._ar_cbbox.setCurrentIndex(self.ASPECT_RATIOS.index(default_ar))
         self._set_aspect_ratio()
-        ar_lbl = QtGui.QLabel('Aspect ratio:')
-        ar_hbox = QtGui.QHBoxLayout()
+        ar_lbl = QtWidgets.QLabel('Aspect ratio:')
+        ar_hbox = QtWidgets.QHBoxLayout()
         ar_hbox.addWidget(ar_lbl)
         ar_hbox.addWidget(self._ar_cbbox)
 
-        self._loglevel_cbbox = QtGui.QComboBox()
+        self._loglevel_cbbox = QtWidgets.QComboBox()
         for level in self.LOG_LEVELS:
             self._loglevel_cbbox.addItem(level.title())
         self._loglevel_cbbox.setCurrentIndex(self.LOG_LEVELS.index('debug'))
         self._set_loglevel()
-        loglevel_lbl = QtGui.QLabel('Min log level:')
-        loglevel_hbox = QtGui.QHBoxLayout()
+        loglevel_lbl = QtWidgets.QLabel('Min log level:')
+        loglevel_hbox = QtWidgets.QHBoxLayout()
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
-        self._fps_chkbox = QtGui.QCheckBox('Show FPS')
-        reload_btn = QtGui.QPushButton('Reload scripts')
+        self._fps_chkbox = QtWidgets.QCheckBox('Show FPS')
+        reload_btn = QtWidgets.QPushButton('Reload scripts')
 
-        self._scene_toolbar_layout = QtGui.QVBoxLayout()
+        self._scene_toolbar_layout = QtWidgets.QVBoxLayout()
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
         self._scene_toolbar_layout.addLayout(ar_hbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
         self._scene_toolbar_layout.addWidget(reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
 
-        scene_toolbar = QtGui.QWidget()
+        scene_toolbar = QtWidgets.QWidget()
         scene_toolbar.setLayout(self._scene_toolbar_layout)
 
-        self._errbuf = QtGui.QTextEdit()
+        self._errbuf = QtWidgets.QTextEdit()
         self._errbuf.hide()
 
-        tabs_and_errbuf = QtGui.QVBoxLayout()
+        tabs_and_errbuf = QtWidgets.QVBoxLayout()
         tabs_and_errbuf.addWidget(tabs)
         tabs_and_errbuf.addWidget(self._errbuf)
-        tabs_and_errbuf_widget = QtGui.QWidget()
+        tabs_and_errbuf_widget = QtWidgets.QWidget()
         tabs_and_errbuf_widget.setLayout(tabs_and_errbuf)
 
         self.addWidget(scene_toolbar)
@@ -537,7 +537,7 @@ class _MainWindow(QtGui.QSplitter):
         self._gl_widget = None
 
 def run():
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     window = _MainWindow(sys.argv[1:])
     window.show()
     app.exec_()

@@ -9,7 +9,7 @@ The `node.gl` project is split in 3 parts:
 
 - `libnodegl`: the core of the project, an `OpenGL` engine in `C`
 - `pynodegl`: a Python binding for `libnodegl` (with the help of `Cython`)
-- `pynodegl-utils`: various Python utilities and examples such as a Qt viewer
+- `pynodegl-utils`: various Python utilities and examples such as a Qt5 viewer
 
 *Warning:* note that `node.gl` is still highly experimental. This means the ABI
 and API can change at any time.
@@ -25,7 +25,7 @@ and API can change at any time.
 - `pynodegl` needs [Python][python] and [Cython][cython], and `libnodegl`
   installed.
 - `pynodegl-utils` needs [Python][python] and `pynodegl`. The viewer depends on
-  `Qt` (which is the main reason why this package is separated from the
+  `PyQt5` (which is the main reason why this package is separated from the
   `pynodegl` package). It is also recommended to install [Graphviz][graphviz]
   in order to render graph in the viewer.
 
@@ -70,6 +70,10 @@ You can check the installed version of `libnodegl` using `pkg-config
 
 `node.gl` is licensed under the Apache License, Version 2.0. Read the `LICENSE`
 and `NOTICE` files for details.
+
+**Warning**: `pynodegl-utils` has an optional dependency on PyQt5 which is
+licensed under the GPL and thus restrict the `pynodegl-utils` module
+distribution.
 
 ## Using the API
 
