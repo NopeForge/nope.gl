@@ -45,7 +45,7 @@ class _GLWidget(QGLWidget):
         self.update()
 
     def set_scene(self, scene):
-        self._scene = scene
+        self._viewer.set_scene(scene)
         self.update()
 
     def set_aspect_ratio(self, aspect_ratio):
@@ -62,13 +62,11 @@ class _GLWidget(QGLWidget):
         QGLWidget.__init__(self, parent)
         self.setMinimumSize(640, 360)
         self._viewer = ngl.Viewer(None)
-        self._scene = None
         self._time = 0
         self._aspect_ratio = aspect_ratio
 
     def paintGL(self):
-        if self._scene:
-            self._viewer.draw(self._scene, self._time)
+        self._viewer.draw(self._time)
 
     def resizeGL(self, screen_width, screen_height):
         aspect = self._aspect_ratio[0] / float(self._aspect_ratio[1])

@@ -29,6 +29,7 @@
 
 struct ngl_ctx {
     struct glcontext *glcontext;
+    struct ngl_node *scene;
 };
 
 struct ngl_ctx *ngl_create(void)
@@ -60,8 +61,23 @@ int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int w, int h)
     return 0;
 }
 
-int ngl_draw(struct ngl_ctx *s, struct ngl_node *scene, double t)
+int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
+    ngl_node_ref(scene);
+    ngl_node_unrefp(&s->scene);
+    s->scene = scene;
+    return 0;
+}
+
+int ngl_draw(struct ngl_ctx *s, double t)
+{
+    struct ngl_node *scene = s->scene;
+
+    if (!scene) {
+        LOG(ERROR, "scene is not set, can not draw");
+        return -1;
+    }
+
     LOG(DEBUG, "draw scene %s @ t=%f", scene->name, t);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

@@ -45,7 +45,6 @@
 int64_t g_tick;
 
 struct ngl_ctx *g_ctx;
-struct ngl_node *g_scene;
 
 static int64_t gettime()
 {
@@ -146,7 +145,7 @@ static struct ngl_node *get_scene(const char *filename)
     return group;
 }
 
-static void init(GLFWwindow *window, const char *filename)
+static int init(GLFWwindow *window, const char *filename)
 {
     int platform = NGL_GLPLATFORM_GLX;
     int api = NGL_GLAPI_OPENGL3;
@@ -155,18 +154,23 @@ static void init(GLFWwindow *window, const char *filename)
     ngl_set_glcontext(g_ctx, NULL, NULL, NULL, platform, api);
     ngl_set_viewport(g_ctx, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    g_scene = get_scene(filename);
+    struct ngl_node *scene = get_scene(filename);
+    int ret = ngl_set_scene(g_ctx, scene);
+    if (ret < 0)
+        return ret;
+
+    ngl_node_unrefp(&scene);
+    return 0;
 }
 
 static void render()
 {
-    ngl_draw(g_ctx, g_scene, g_tick / (double)FRAMERATE);
+    ngl_draw(g_ctx, g_tick / (double)FRAMERATE);
     g_tick++;
 }
 
 static void reset()
 {
-    ngl_node_unrefp(&g_scene);
     ngl_free(&g_ctx);
 }
 
@@ -199,7 +203,9 @@ int main(int argc, char *argv[])
     int nb_frames = 0;
     int64_t timer = gettime();
 
-    init(window, argv[1]);
+    int ret = init(window, argv[1]);
+    if (ret < 0)
+        goto end;
 
     do {
         render();
@@ -214,10 +220,11 @@ int main(int argc, char *argv[])
 
     fprintf(stderr, "Fps=%f\n", nb_frames / ((gettime() - timer) / (double)1000000));
 
+end:
     reset();
 
     glfwDestroyWindow(window);
     glfwTerminate();
 
-    return 0;
+    return ret;
 }
