@@ -78,7 +78,9 @@ PYTHON ?= python
 
 TARGET_OS ?= $(shell uname -s)
 
-PROJECT_LDFLAGS = -Wl,--version-script,lib$(NAME).ver
+LD_SYM_FILE   = lib$(NAME).symexport
+LD_SYM_OPTION = --version-script
+LD_SYM_DATA   = "{\n\tglobal: ngl_*;\n\tlocal: *;\n};\n"
 
 DYLIBSUFFIX = so
 ifeq ($(TARGET_OS),Darwin)
@@ -86,8 +88,9 @@ ifeq ($(TARGET_OS),Darwin)
 	PROJECT_LIBS            += $(DARWIN_LIBS)
 	PROJECT_PKG_CONFIG_LIBS += $(DARWIN_PKG_CONFIG_LIBS)
 	PROJECT_OBJS            += $(DARWIN_OBJS)
-	PROJECT_LDFLAGS =
 	CFLAGS                  += -DHAVE_PLATFORM_CGL
+	LD_SYM_OPTION = -exported_symbols_list
+	LD_SYM_DATA   = "_ngl_*\n"
 else
 ifeq ($(TARGET_OS),Android)
 	PROJECT_LIBS            += $(ANDROID_LIBS)
@@ -123,7 +126,6 @@ ifeq ($(DEBUG),yes)
 endif
 CFLAGS := $(shell $(PKG_CONFIG) --cflags $(PROJECT_PKG_CONFIG_LIBS)) $(CFLAGS)
 LDLIBS := $(shell $(PKG_CONFIG) --libs   $(PROJECT_PKG_CONFIG_LIBS)) $(LDLIBS) $(PROJECT_LIBS)
-LDFLAGS := $(PROJECT_LDFLAGS)
 
 ALLDEPS = $(OBJS:.o=.d)
 
@@ -138,12 +140,16 @@ gen_specs: gen_specs.o $(OBJS)
 updatespecs: gen_specs
 	./gen_specs > $(SPECS_FILE)
 
-$(LIBNAME): $(OBJS)
+$(LIBNAME): LDFLAGS += -Wl,$(LD_SYM_OPTION),$(LD_SYM_FILE)
+$(LIBNAME): $(LD_SYM_FILE) $(OBJS)
 ifeq ($(SHARED),yes)
-	$(CC) $(LDFLAGS) $^ -shared -o $@ $(LDLIBS)
+	$(CC) $(LDFLAGS) $(OBJS) -shared -o $@ $(LDLIBS)
 else
 	$(AR) rcs $@ $^
 endif
+
+$(LD_SYM_FILE):
+	$(shell printf $(LD_SYM_DATA) > $(LD_SYM_FILE))
 
 cleanpy:
 	$(RM) pynodegl/nodes_def.pyx
@@ -160,6 +166,7 @@ clean:
 	$(RM) $(OBJS) $(ALLDEPS)
 	$(RM) examples/*.pyc
 	$(RM) $(PCNAME)
+	$(RM) $(LD_SYM_FILE)
 	$(RM) demo.o demo
 	$(RM) gen_specs gen_specs.o
 
