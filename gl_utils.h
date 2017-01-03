@@ -23,8 +23,18 @@
 #define GL_UTILS_H
 
 #if __APPLE__
-# include <OpenGL/gl3.h>
-# include <OpenGL/glext.h>
+# include <TargetConditionals.h>
+# if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
+#  include <OpenGLES/ES2/gl.h>
+#  include <OpenGLES/ES2/glext.h>
+#  define GL_MAJOR_VERSION  0x821B
+#  define GL_MINOR_VERSION  0x821C
+#  define GL_NUM_EXTENSIONS 0x821D
+#  define GL_RED GL_LUMINANCE
+# elif TARGET_OS_MAC
+#  include <OpenGL/gl3.h>
+#  include <OpenGL/glext.h>
+# endif
 #endif
 
 #if __ANDROID__
