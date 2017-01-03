@@ -218,7 +218,7 @@ int main(int argc, char *argv[])
     while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
            glfwWindowShouldClose(window) == 0);
 
-    fprintf(stderr, "Fps=%f\n", nb_frames / ((gettime() - timer) / (double)1000000));
+    fprintf(stderr, "FPS=%f\n", nb_frames / ((gettime() - timer) / (double)1000000));
 
 end:
     reset();
