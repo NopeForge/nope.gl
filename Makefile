@@ -19,138 +19,176 @@
 # under the License.
 #
 
-NAME = nodegl
-
-PROJECT_OBJS = api.o                    \
-               bstr.o                   \
-               dot.o                    \
-               glcontext.o              \
-               gl_utils.o               \
-               log.o                    \
-               math_utils.o             \
-               nodes.o                  \
-               node_attribute.o         \
-               node_animkeyframe.o      \
-               node_camera.o            \
-               node_fps.o               \
-               node_glstate.o           \
-               node_glblendstate.o      \
-               node_group.o             \
-               node_identity.o          \
-               node_media.o             \
-               node_quad.o              \
-               node_triangle.o          \
-               node_shapeprimitive.o    \
-               node_shape.o             \
-               node_renderrange.o       \
-               node_rotate.o            \
-               node_rtt.o               \
-               node_scale.o             \
-               node_shader.o            \
-               node_texture.o           \
-               node_texturedshape.o     \
-               node_translate.o         \
-               node_uniform.o           \
-               params.o                 \
-               transforms.o             \
-               utils.o                  \
-
-LINUX_OBJS   = glcontext_x11.o
-DARWIN_OBJS  = glcontext_cgl.o
-ANDROID_OBJS = glcontext_egl.o
-
-PROJECT_PKG_CONFIG_LIBS = "libsxplayer >= 8.0.0"
-LINUX_PKG_CONFIG_LIBS   = x11 gl
-DARWIN_PKG_CONFIG_LIBS  =
-ANDROID_PKG_CONFIG_LIBS = egl glesv2
-
-PROJECT_LIBS = -lm -lpthread
-DARWIN_LIBS  = -framework OpenGL -framework CoreVideo -framework CoreFoundation
-ANDROID_LIBS =
-
-PREFIX ?= /usr/local
+#
+# User configuration
+#
+PREFIX     ?= /usr/local
+SHARED     ?= no
+DEBUG      ?= no
 PKG_CONFIG ?= pkg-config
+PYTHON     ?= python
+TARGET_OS  ?= $(shell uname -s)
 
-SHARED ?= no
-DEBUG  ?= no
 
-PYTHON ?= python
+#
+# Project configuration
+#
+PROJECT_NAME = nodegl
+SPECS_FILE = nodes.specs
+PROJECT_CFLAGS := $(CFLAGS) -Wall -O2 -Werror=missing-prototypes -std=c99
+ifeq ($(DEBUG),yes)
+	PROJECT_CFLAGS += -g
+endif
+PROJECT_LDLIBS := $(LDLIBS)
 
-TARGET_OS ?= $(shell uname -s)
 
-LD_SYM_FILE   = lib$(NAME).symexport
+#
+# Library configuration
+#
+LD_SYM_FILE   = $(LIB_BASENAME).symexport
 LD_SYM_OPTION = --version-script
 LD_SYM_DATA   = "{\n\tglobal: ngl_*;\n\tlocal: *;\n};\n"
-
 DYLIBSUFFIX = so
 ifeq ($(TARGET_OS),Darwin)
 	DYLIBSUFFIX = dylib
-	PROJECT_LIBS            += $(DARWIN_LIBS)
-	PROJECT_PKG_CONFIG_LIBS += $(DARWIN_PKG_CONFIG_LIBS)
-	PROJECT_OBJS            += $(DARWIN_OBJS)
-	CFLAGS                  += -DHAVE_PLATFORM_CGL
 	LD_SYM_OPTION = -exported_symbols_list
 	LD_SYM_DATA   = "_ngl_*\n"
-else
-ifeq ($(TARGET_OS),Android)
-	PROJECT_LIBS            += $(ANDROID_LIBS)
-	PROJECT_PKG_CONFIG_LIBS += $(ANDROID_PKG_CONFIG_LIBS)
-	PROJECT_OBJS            += $(ANDROID_OBJS)
-	CFLAGS                  += -DHAVE_PLATFORM_EGL
-else
-ifeq ($(TARGET_OS),Linux)
-	PROJECT_LIBS            += $(LINUX_LIBS)
-	PROJECT_PKG_CONFIG_LIBS += $(LINUX_PKG_CONFIG_LIBS)
-	PROJECT_OBJS            += $(LINUX_OBJS)
-	CFLAGS                  += -DHAVE_PLATFORM_GLX
-endif # linux
-endif # android
-endif # darwin
-
+endif
 ifeq ($(SHARED),yes)
 	LIBSUFFIX = $(DYLIBSUFFIX)
 else
 	LIBSUFFIX = a
 endif
+LIB_BASENAME = lib$(PROJECT_NAME)
+LIB_NAME     = $(LIB_BASENAME).$(LIBSUFFIX)
+LIB_PCNAME   = $(LIB_BASENAME).pc
 
-LIBNAME = lib$(NAME).$(LIBSUFFIX)
-PCNAME  = lib$(NAME).pc
+LIB_OBJS = api.o                    \
+           bstr.o                   \
+           dot.o                    \
+           glcontext.o              \
+           gl_utils.o               \
+           log.o                    \
+           math_utils.o             \
+           nodes.o                  \
+           node_attribute.o         \
+           node_animkeyframe.o      \
+           node_camera.o            \
+           node_fps.o               \
+           node_glstate.o           \
+           node_glblendstate.o      \
+           node_group.o             \
+           node_identity.o          \
+           node_media.o             \
+           node_quad.o              \
+           node_triangle.o          \
+           node_shapeprimitive.o    \
+           node_shape.o             \
+           node_renderrange.o       \
+           node_rotate.o            \
+           node_rtt.o               \
+           node_scale.o             \
+           node_shader.o            \
+           node_texture.o           \
+           node_texturedshape.o     \
+           node_translate.o         \
+           node_uniform.o           \
+           params.o                 \
+           transforms.o             \
+           utils.o                  \
 
-OBJS += $(PROJECT_OBJS)
+LIB_EXTRA_OBJS_Linux   = glcontext_x11.o
+LIB_EXTRA_OBJS_Darwin  = glcontext_cgl.o
+LIB_EXTRA_OBJS_Android = glcontext_egl.o
 
-CPPFLAGS += -MMD -MP
+LIB_CFLAGS               = -fPIC
+LIB_EXTRA_CFLAGS_Linux   = -DHAVE_PLATFORM_GLX
+LIB_EXTRA_CFLAGS_Darwin  = -DHAVE_PLATFORM_CGL
+LIB_EXTRA_CFLAGS_Android = -DHAVE_PLATFORM_EGL
 
-CFLAGS += -Wall -O2 -Werror=missing-prototypes -fPIC -std=c99
-ifeq ($(DEBUG),yes)
-	CFLAGS += -g
+LIB_LDLIBS               = -lm -lpthread
+LIB_EXTRA_LDLIBS_Linux   =
+LIB_EXTRA_LDLIBS_Darwin  = -framework OpenGL -framework CoreVideo -framework CoreFoundation
+LIB_EXTRA_LDLIBS_Android =
+
+LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 8.0.0"
+LIB_EXTRA_PKG_CONFIG_LIBS_Linux   = x11 gl
+LIB_EXTRA_PKG_CONFIG_LIBS_Darwin  =
+LIB_EXTRA_PKG_CONFIG_LIBS_Android = egl glesv2
+
+LIB_OBJS   += $(LIB_EXTRA_OBJS_$(TARGET_OS))
+LIB_CFLAGS += $(LIB_EXTRA_CFLAGS_$(TARGET_OS))
+LIB_LDLIBS += $(LIB_EXTRA_LDLIBS_$(TARGET_OS))
+LIB_CFLAGS += $(shell $(PKG_CONFIG) --cflags $(LIB_PKG_CONFIG_LIBS) $(LIB_EXTRA_PKG_CONFIG_LIBS_$(TARGET_OS)))
+LIB_LDLIBS += $(shell $(PKG_CONFIG) --libs   $(LIB_PKG_CONFIG_LIBS) $(LIB_EXTRA_PKG_CONFIG_LIBS_$(TARGET_OS)))
+
+LIB_DEPS = $(LIB_OBJS:.o=.d)
+
+
+#
+# Demo configuration
+#
+DEMO_OBJS = demo.o
+DEMO_CFLAGS = $(shell $(PKG_CONFIG) --cflags glfw3) -I.
+DEMO_LDLIBS = $(shell $(PKG_CONFIG) --libs   glfw3)
+ifeq ($(SHARED),no)
+DEMO_LDLIBS += $(LIB_LDLIBS)
 endif
-CFLAGS := $(shell $(PKG_CONFIG) --cflags $(PROJECT_PKG_CONFIG_LIBS)) $(CFLAGS)
-LDLIBS := $(shell $(PKG_CONFIG) --libs   $(PROJECT_PKG_CONFIG_LIBS)) $(LDLIBS) $(PROJECT_LIBS)
 
-ALLDEPS = $(OBJS:.o=.d)
 
-all: $(PCNAME) $(LIBNAME)
+#
+# gen_specs configuration
+#
+GENSPECS_OBJS = gen_specs.o $(LIB_OBJS)
+GENSPECS_CFLAGS = $(LIB_CFLAGS)
+GENSPECS_LDLIBS = $(LIB_LDLIBS)
 
-demo: CFLAGS += -lnodegl -I. $(shell $(PKG_CONFIG) --cflags glfw3)
-demo: LDLIBS += -L. $(shell $(PKG_CONFIG) --libs glfw3)
-demo: demo.o $(LIBNAME)
 
-SPECS_FILE = nodes.specs
-gen_specs: gen_specs.o $(OBJS)
-updatespecs: gen_specs
-	./gen_specs > $(SPECS_FILE)
+#
+# build rules
+#
+all: $(LIB_PCNAME) $(LIB_NAME)
 
-$(LIBNAME): LDFLAGS += -Wl,$(LD_SYM_OPTION),$(LD_SYM_FILE)
-$(LIBNAME): $(LD_SYM_FILE) $(OBJS)
+$(LIB_NAME): CFLAGS  = $(PROJECT_CFLAGS) $(LIB_CFLAGS)
+$(LIB_NAME): LDLIBS  = $(PROJECT_LDLIBS) $(LIB_LDLIBS)
+$(LIB_NAME): LDFLAGS = -Wl,$(LD_SYM_OPTION),$(LD_SYM_FILE)
+$(LIB_NAME): CPPFLAGS += -MMD -MP
+$(LIB_NAME): $(LD_SYM_FILE) $(LIB_OBJS)
 ifeq ($(SHARED),yes)
-	$(CC) $(LDFLAGS) $(OBJS) -shared -o $@ $(LDLIBS)
+	$(CC) $(LDFLAGS) $(LIB_OBJS) -shared -o $@ $(LDLIBS)
 else
-	$(AR) rcs $@ $^
+	$(AR) rcs $@ $(LIB_OBJS)
 endif
 
+demo: CFLAGS = $(PROJECT_CFLAGS) $(DEMO_CFLAGS)
+demo: LDLIBS = $(PROJECT_LDLIBS) $(DEMO_LDLIBS)
+demo: $(DEMO_OBJS) $(LIB_NAME)
+
+gen_specs: CFLAGS = $(PROJECT_CFLAGS) $(GENSPECS_CFLAGS)
+gen_specs: LDLIBS = $(PROJECT_LDLIBS) $(GENSPECS_LDLIBS)
+gen_specs: $(GENSPECS_OBJS)
+
+
+#
+# Misc rules
+#
 $(LD_SYM_FILE):
 	$(shell printf $(LD_SYM_DATA) > $(LD_SYM_FILE))
 
+$(LIB_PCNAME): $(LIB_PCNAME).tpl
+ifeq ($(SHARED),yes)
+	sed -e "s#PREFIX#$(PREFIX)#;s#DEP_LIBS##;s#DEP_PRIVATE_LIBS#$(LDLIBS)#" $^ > $@
+else
+	sed -e "s#PREFIX#$(PREFIX)#;s#DEP_LIBS#$(LDLIBS)#;s#DEP_PRIVATE_LIBS##" $^ > $@
+endif
+
+updatespecs: gen_specs
+	./gen_specs > $(SPECS_FILE)
+
+
+#
+# Project rules
+#
 cleanpy:
 	$(RM) pynodegl/nodes_def.pyx
 	$(RM) pynodegl/pynodegl.c
@@ -162,37 +200,30 @@ cleanpy:
 	$(RM) -r pynodegl-utils/.eggs
 
 clean:
-	$(RM) lib$(NAME).so lib$(NAME).dylib lib$(NAME).a
-	$(RM) $(OBJS) $(ALLDEPS)
+	$(RM) $(LIB_BASENAME).so $(LIB_BASENAME).dylib $(LIB_BASENAME).a
+	$(RM) $(LIB_OBJS) $(LIB_DEPS)
+	$(RM) $(DEMO_OBJS) demo
+	$(RM) $(GENSPECS_OBJS) gen_specs
 	$(RM) examples/*.pyc
-	$(RM) $(PCNAME)
+	$(RM) $(LIB_PCNAME)
 	$(RM) $(LD_SYM_FILE)
-	$(RM) demo.o demo
-	$(RM) gen_specs gen_specs.o
 
-$(PCNAME): $(PCNAME).tpl
-ifeq ($(SHARED),yes)
-	sed -e "s#PREFIX#$(PREFIX)#;s#DEP_LIBS##;s#DEP_PRIVATE_LIBS#$(LDLIBS)#" $^ > $@
-else
-	sed -e "s#PREFIX#$(PREFIX)#;s#DEP_LIBS#$(LDLIBS)#;s#DEP_PRIVATE_LIBS##" $^ > $@
-endif
-
-install: $(LIBNAME) $(PCNAME)
+install: $(LIB_NAME) $(LIB_PCNAME)
 	install -d $(DESTDIR)$(PREFIX)/lib
 	install -d $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -d $(DESTDIR)$(PREFIX)/share
-	install -d $(DESTDIR)$(PREFIX)/share/$(NAME)
-	install -m 644 $(LIBNAME) $(DESTDIR)$(PREFIX)/lib
-	install -m 644 $(PCNAME) $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	install -m 644 $(NAME).h $(DESTDIR)$(PREFIX)/include/$(NAME).h
-	install -m 644 $(SPECS_FILE) $(DESTDIR)$(PREFIX)/share/$(NAME)
+	install -d $(DESTDIR)$(PREFIX)/share/$(PROJECT_NAME)
+	install -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/lib
+	install -m 644 $(LIB_PCNAME) $(DESTDIR)$(PREFIX)/lib/pkgconfig
+	install -m 644 $(PROJECT_NAME).h $(DESTDIR)$(PREFIX)/include/$(PROJECT_NAME).h
+	install -m 644 $(SPECS_FILE) $(DESTDIR)$(PREFIX)/share/$(PROJECT_NAME)
 
 uninstall:
-	$(RM) $(DESTDIR)$(PREFIX)/lib/$(LIBNAME)
-	$(RM) $(DESTDIR)$(PREFIX)/include/$(NAME).h
-	$(RM) -r $(DESTDIR)$(PREFIX)/share/$(NAME)
+	$(RM) $(DESTDIR)$(PREFIX)/lib/$(LIB_NAME)
+	$(RM) $(DESTDIR)$(PREFIX)/include/$(PROJECT_NAME).h
+	$(RM) -r $(DESTDIR)$(PREFIX)/share/$(PROJECT_NAME)
 
 .PHONY: all updatespecs cleanpy clean install uninstall
 
--include $(ALLDEPS)
+-include $(LIB_DEPS)
