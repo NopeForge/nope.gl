@@ -790,10 +790,10 @@ void ngl_node_ref(struct ngl_node *node)
     node->refcount++;
 }
 
-void ngl_node_unrefp(struct ngl_node **op)
+void ngl_node_unrefp(struct ngl_node **nodep)
 {
     int delete = 0;
-    struct ngl_node *node = *op;
+    struct ngl_node *node = *nodep;
 
     if (!node)
         return;
@@ -806,5 +806,5 @@ void ngl_node_unrefp(struct ngl_node **op)
         free(node->priv_data);
         free(node);
     }
-    *op = NULL;
+    *nodep = NULL;
 }

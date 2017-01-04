@@ -13,7 +13,7 @@ cdef extern from "nodegl.h":
 
     ngl_node *ngl_node_create(int type, ...)
     void ngl_node_ref(ngl_node *node)
-    void ngl_node_unrefp(ngl_node **op)
+    void ngl_node_unrefp(ngl_node **nodep)
 
     int ngl_node_param_add(ngl_node *node, const char *key,
                            int nb_elems, void *elems)
