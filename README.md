@@ -76,3 +76,7 @@ and `NOTICE` files for details.
 All the API is defined in the installed header `nodegl.h`. You can consult the
 nodes parameters in the `nodes.specs` file installed in the data root dir
 (usually something along the lines `/usr/share/nodegl/nodes.specs`).
+
+## Contributing
+
+See `DEVELOPERS.md` file.
