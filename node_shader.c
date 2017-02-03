@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 #include "bstr.h"
 #include "gl_utils.h"
 #include "log.h"
@@ -93,7 +94,8 @@ static void get_##func##_info_log(GLuint id, char **info_logp, int *info_log_len
     }                                                                                 \
                                                                                       \
     glGet##name##InfoLog(id, *info_log_lengthp, NULL, *info_logp);                    \
-    return;                                                                           \
+    while (*info_log_lengthp && strchr(" \r\n", (*info_logp)[*info_log_lengthp - 1])) \
+        (*info_logp)[--*info_log_lengthp] = 0;                                        \
 }                                                                                     \
 
 DEFINE_GET_INFO_LOG_FUNCTION(shader, Shader)
