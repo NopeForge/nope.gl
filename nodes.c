@@ -497,7 +497,7 @@ static void check_activity(struct ngl_node *node, double t, int parent_is_active
 
     int ret = ngli_node_init(node);
     if (ret < 0)
-        return ret;
+        return;
 
     /*
      * The life of the parent takes over the life of its children: if the
