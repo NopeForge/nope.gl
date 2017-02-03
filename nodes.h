@@ -222,6 +222,9 @@ struct media {
     double start;
     double initial_seek;
     const char *sxplayer_min_level_str;
+    struct ngl_node **animkf;
+    int nb_animkf;
+    int current_kf;
 
     int sxplayer_min_level;
 

@@ -39,6 +39,8 @@ static const struct node_param media_params[] = {
     {"start",    PARAM_TYPE_DBL, OFFSET(start)},
     {"initial_seek", PARAM_TYPE_DBL, OFFSET(initial_seek)},
     {"sxplayer_min_level", PARAM_TYPE_STR, OFFSET(sxplayer_min_level_str), {.str="warning"}},
+    {"time_animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+                    .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
     {NULL}
 };
 
@@ -93,6 +95,15 @@ static int media_init(struct ngl_node *node)
         return -1;
     }
 
+    // Sanity check for time animation keyframe
+    for (i = 0; i < s->nb_animkf; i++) {
+        const struct animkeyframe *kf = s->animkf[i]->priv_data;
+        if (strcmp(kf->easing, "linear")) {
+            LOG(ERROR, "Only linear interpolation is allowed for time remapping");
+            return -1;
+        }
+    }
+
     sxplayer_set_option(s->player, "max_nb_packets", 1);
     sxplayer_set_option(s->player, "max_nb_frames", 1);
     sxplayer_set_option(s->player, "max_nb_sink", 1);
@@ -126,6 +137,12 @@ static void media_prefetch(struct ngl_node *node)
 static void media_update(struct ngl_node *node, double t)
 {
     struct media *s = node->priv_data;
+
+    if (s->nb_animkf) {
+        float new_t; // FIXME we currently loose double precision
+        ngli_animkf_interpolate(&new_t, s->animkf, s->nb_animkf, &s->current_kf, t);
+        t = new_t;
+    }
 
     t = t - s->start;
     if (t < 0)
