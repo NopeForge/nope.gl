@@ -495,7 +495,9 @@ static void check_activity(struct ngl_node *node, double t, int parent_is_active
 {
     int is_active = parent_is_active;
 
-    ngli_node_init(node);
+    int ret = ngli_node_init(node);
+    if (ret < 0)
+        return ret;
 
     /*
      * The life of the parent takes over the life of its children: if the
@@ -640,7 +642,9 @@ void ngli_node_prefetch(struct ngl_node *node)
     if (node->state == STATE_READY)
         return;
 
-    ngli_node_init(node);
+    int ret = ngli_node_init(node);
+    if (ret < 0)
+        return;
 
     if (node->class->prefetch) {
         LOG(DEBUG, "PREFETCH %s @ %p", node->name, node);
@@ -651,7 +655,9 @@ void ngli_node_prefetch(struct ngl_node *node)
 
 void ngli_node_update(struct ngl_node *node, double t)
 {
-    ngli_node_init(node);
+    int ret = ngli_node_init(node);
+    if (ret < 0)
+        return;
     if (node->class->update)
         node_update(node, t);
 }
