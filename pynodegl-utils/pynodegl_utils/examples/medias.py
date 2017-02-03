@@ -46,7 +46,7 @@ def centered_shape_media(cfg, n=0.5):
 @scene({'name': 'speed', 'type': 'range', 'range': [0,2], 'unit_base': 1000})
 def playback_speed(cfg, speed=1):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(cfg.media_filename)
+    m = Media(cfg.media_filename, initial_seek=5)
     m.add_time_animkf(AnimKeyFrameScalar(0, 0),
                       AnimKeyFrameScalar(cfg.duration, cfg.duration * speed))
     t = Texture(data_src=m)
