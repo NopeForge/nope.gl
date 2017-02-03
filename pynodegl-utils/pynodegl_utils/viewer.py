@@ -257,7 +257,7 @@ class _MainWindow(QtWidgets.QSplitter):
         except:
             self._errbuf.setText(traceback.format_exc())
             self._errbuf.show()
-            raise
+            return
         else:
             self._errbuf.hide()
 
@@ -301,7 +301,7 @@ class _MainWindow(QtWidgets.QSplitter):
                 except:
                     self._errbuf.setText(traceback.format_exc())
                     self._errbuf.show()
-                    raise
+                    return
                 else:
                     self._errbuf.hide()
 
