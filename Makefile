@@ -66,33 +66,33 @@ LIB_PCNAME   = $(LIB_BASENAME).pc
 LIB_OBJS = api.o                    \
            bstr.o                   \
            dot.o                    \
-           glcontext.o              \
            gl_utils.o               \
+           glcontext.o              \
            log.o                    \
            math_utils.o             \
-           nodes.o                  \
-           node_attribute.o         \
            node_animkeyframe.o      \
+           node_attribute.o         \
            node_camera.o            \
            node_fps.o               \
-           node_glstate.o           \
            node_glblendstate.o      \
+           node_glstate.o           \
            node_group.o             \
            node_identity.o          \
            node_media.o             \
            node_quad.o              \
-           node_triangle.o          \
-           node_shapeprimitive.o    \
-           node_shape.o             \
            node_renderrange.o       \
            node_rotate.o            \
            node_rtt.o               \
            node_scale.o             \
            node_shader.o            \
+           node_shape.o             \
+           node_shapeprimitive.o    \
            node_texture.o           \
            node_texturedshape.o     \
            node_translate.o         \
+           node_triangle.o          \
            node_uniform.o           \
+           nodes.o                  \
            params.o                 \
            transforms.o             \
            utils.o                  \
