@@ -41,4 +41,7 @@ In order to add a node, you need to:
   the Copyright header. See other node files, such as `node_identity.c`
 - in `nodes.c`: declare the class you just create as `extern`
 - in `nodes.c`: add a pointer to that class in `node_class_map`
-- run `make updatespecs` to update `nodes.specs`
+- in `Makefile`: add the object name associated with your `.c` to `LIB_OBJS`
+- run `make updatespecs` to update `nodes.specs` every time you update the
+  parameter of the node
+- refer to `nodes.h` for the available callbacks to implement in your class map
