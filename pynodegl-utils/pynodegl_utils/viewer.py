@@ -70,7 +70,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.setFormat(gl_format)
 
         self.setMinimumSize(640, 360)
-        self._viewer = ngl.Viewer(None)
+        self._viewer = ngl.Viewer()
         self._time = 0
         self._aspect_ratio = aspect_ratio
 
