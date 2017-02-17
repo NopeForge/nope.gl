@@ -55,33 +55,30 @@ static int64_t gettime()
 }
 
 #if 0
-static struct ngl_node *get_simple_scene(const char *filename)
+static struct ngl_node *get_scene(const char *filename)
 {
-    struct ngl_node *group = ngl_node_create(NGL_NODE_GROUP);
+    static const float corner[3] = { -0.5, -0.5, 0.0 };
+    static const float width[3]  = {  1.0,  0.0, 0.0 };
+    static const float height[3] = {  0.0,  1.0, 0.0 };
 
-    static const float corner[3] = { -1.0, -1.0, 0.0 };
-    static const float width[3]  = {  2.0,  0.0, 0.0 };
-    static const float height[3] = {  0.0,  2.0, 0.0 };
+    struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA, filename);
+    struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE);
+    struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD, corner, width, height);
+    struct ngl_node *shader  = ngl_node_create(NGL_NODE_SHADER);
+    struct ngl_node *tshape  = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
 
-    struct ngl_node *media       = ngl_node_create(NGL_NODE_MEDIA, filename);
-    struct ngl_node *texture     = ngl_node_create(NGL_NODE_TEXTURE);
-    struct ngl_node *quad        = ngl_node_create(NGL_NODE_QUAD, corner, width, height);
-    struct ngl_node *shader      = ngl_node_create(NGL_NODE_SHADER);
-    struct ngl_node *tshape      = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
-
-    ngl_node_param_set(tshape, "texture0", texture);
+    ngl_node_param_set(tshape,  "texture0", texture);
     ngl_node_param_set(texture, "data_src", media);
-    ngl_node_param_add(group, "children", 1, &tshape);
 
-    ngl_node_unrefp(&tshape);
     ngl_node_unrefp(&shader);
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);
     ngl_node_unrefp(&quad);
 
-    return group;
+    return tshape
 }
-#endif
+
+#else
 
 static struct ngl_node *get_scene(const char *filename)
 {
@@ -144,6 +141,7 @@ static struct ngl_node *get_scene(const char *filename)
 
     return group;
 }
+#endif
 
 static int init(GLFWwindow *window, const char *filename)
 {
