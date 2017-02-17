@@ -31,7 +31,7 @@ def static(cfg, color=(0.5, 0.0, 1.0, 1.0), width=0.5, height=0.5,
            translate=False, translate_x=0, translate_y=0,
            scale=False, scale_x=1, scale_y=1,
            rotate=False, rotate_deg=0):
-    q = Quad((-width/2, -height/2., 0), (width, 0, 0), (0, height, 0))
+    q = Quad((-width/2., -height/2., 0), (width, 0, 0), (0, height, 0))
     s = Shader()
 
     ucolor = UniformVec4("blend_color", value=color)
