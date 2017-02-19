@@ -29,7 +29,7 @@ cdef extern from "nodegl.h":
     ngl_ctx *ngl_create()
     int ngl_set_glcontext(ngl_ctx *s, void *display, void *window, void *handle, int platform, int api)
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
-    int ngl_draw(ngl_ctx *s, double t)
+    int ngl_draw(ngl_ctx *s, double t) nogil
     int ngl_set_viewport(ngl_ctx *s, int x, int y, int w, int h)
     void ngl_free(ngl_ctx **ss)
 
@@ -63,7 +63,8 @@ cdef class Viewer:
         return ngl_set_scene(self.ctx, scene.ctx)
 
     def draw(self, double t):
-        return ngl_draw(self.ctx, t)
+        with nogil:
+            ngl_draw(self.ctx, t)
 
     def set_viewport(self, int x, int y, int w, int h):
         return ngl_set_viewport(self.ctx, x, y, w, h)
