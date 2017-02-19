@@ -94,9 +94,9 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
 
     def initializeGL(self):
         if platform.system() == 'Linux':
-            self._viewer.set_window(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
+            self._viewer.configure(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
         elif platform.system() == 'Darwin':
-            self._viewer.set_window(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
+            self._viewer.configure(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
 
 
 class _ExportWidget(QtWidgets.QWidget):

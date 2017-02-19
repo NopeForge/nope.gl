@@ -56,7 +56,7 @@ cdef class Viewer:
         if self.ctx is NULL:
             raise MemoryError()
 
-    def set_window(self, int platform, int api):
+    def configure(self, int platform, int api):
         return ngl_set_glcontext(self.ctx, NULL, NULL, NULL, platform, api);
 
     def set_scene(self, _Node scene):

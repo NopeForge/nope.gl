@@ -94,9 +94,9 @@ class Exporter(QtCore.QObject):
         ngl_viewer = ngl.Viewer()
         ngl_viewer.set_scene(scene)
         if platform.system() == 'Linux':
-            ngl_viewer.set_window(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
+            ngl_viewer.configure(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
         elif platform.system() == 'Darwin':
-            ngl_viewer.set_window(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
+            ngl_viewer.configure(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
         ngl_viewer.set_viewport(0, 0, w, h)
 
         # Draw every frame
