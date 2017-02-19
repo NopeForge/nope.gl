@@ -34,6 +34,7 @@ import subprocess
 import traceback
 
 import pynodegl as ngl
+from export import Exporter
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 
@@ -96,6 +97,77 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
             self._viewer.set_window(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
         elif platform.system() == 'Darwin':
             self._viewer.set_window(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
+
+
+class _ExportWidget(QtWidgets.QWidget):
+
+    def _export(self):
+        scene = self.parent.construct_current_scene()
+        if scene is not None:
+            ofile  = self._ofile_text.text()
+            width  = self._spinbox_width.value()
+            height = self._spinbox_height.value()
+            fps    = self._spinbox_fps.value()
+
+            self._pgbar.setValue(0)
+            self._pgbar.show()
+
+            exporter = Exporter()
+            exporter.progressed.connect(self._pgbar.setValue)
+            exporter.export(scene, ofile, width, height, self.parent.LOOP_DURATION, fps)
+
+            self._pgbar.hide()
+        else:
+            QtWidgets.QMessageBox.critical(self, 'No scene',
+                                           "You didn't select any scene to export.",
+                                           QtWidgets.QMessageBox.Ok)
+
+    def _select_ofile(self):
+        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
+        if not filenames[0]:
+            return
+        self._ofile_text.setText(filenames[0])
+
+    def __init__(self, parent):
+        super(_ExportWidget, self).__init__(parent)
+
+        self.parent = parent
+
+        self._ofile_text = QtWidgets.QLineEdit('/tmp/ngl-export.mp4')
+        ofile_btn = QtWidgets.QPushButton('Browse')
+
+        file_box = QtWidgets.QHBoxLayout()
+        file_box.addWidget(self._ofile_text)
+        file_box.addWidget(ofile_btn)
+
+        self._spinbox_width = QtWidgets.QSpinBox()
+        self._spinbox_width.setRange(1, 0xffff)
+        self._spinbox_width.setValue(800)
+
+        self._spinbox_height = QtWidgets.QSpinBox()
+        self._spinbox_height.setRange(1, 0xffff)
+        self._spinbox_height.setValue(600)
+
+        self._spinbox_fps = QtWidgets.QSpinBox()
+        self._spinbox_fps.setRange(1, 1000)
+        self._spinbox_fps.setValue(60)
+
+        self._export_btn = QtWidgets.QPushButton('Export')
+
+        self._pgbar = QtWidgets.QProgressBar()
+        self._pgbar.hide()
+
+        form = QtWidgets.QFormLayout(self)
+        form.addRow('Filename:', file_box)
+        form.addRow('Width:',    self._spinbox_width)
+        form.addRow('Height:',   self._spinbox_height)
+        form.addRow('FPS:',      self._spinbox_fps)
+        form.addRow(self._export_btn)
+        form.addRow(self._pgbar)
+
+        ofile_btn.clicked.connect(self._select_ofile)
+        self._export_btn.clicked.connect(self._export)
+
 
 class _MainWindow(QtWidgets.QSplitter):
 
@@ -251,6 +323,14 @@ class _MainWindow(QtWidgets.QSplitter):
         groupbox.setLayout(vbox)
         return groupbox
 
+    def construct_current_scene(self):
+        if not self._current_scene_data:
+            return None
+        module_name, scene_name, scene_func = self._current_scene_data
+        scene = scene_func(self._scene_cfg, **self._scene_extra_args)
+        scene.set_name(scene_name)
+        return scene
+
     def _load_current_scene(self, load_widgets=True):
         if not self._current_scene_data:
             return
@@ -261,8 +341,8 @@ class _MainWindow(QtWidgets.QSplitter):
             scene_opts_widget = self._get_opts_widget_from_specs(scene_func.widgets_specs)
             self._set_scene_opts_widget(scene_opts_widget)
         try:
-            scene = scene_func(self._scene_cfg, **self._scene_extra_args)
-            scene.set_name(scene_name)
+            scene = self.construct_current_scene()
+            assert scene is not None
         except:
             self._errbuf.setText(traceback.format_exc())
             self._errbuf.show()
@@ -465,9 +545,12 @@ class _MainWindow(QtWidgets.QSplitter):
         gl_tab_widget = QtWidgets.QWidget()
         gl_tab_widget.setLayout(gl_layout)
 
+        export_widget = _ExportWidget(self)
+
         tabs = QtWidgets.QTabWidget()
         tabs.addTab(gl_tab_widget, "GL view")
         tabs.addTab(graph_tab_widget, "Graph view")
+        tabs.addTab(export_widget, "Export")
 
         self._scn_view = QtWidgets.QTreeView()
         self._scn_view.setHeaderHidden(True)
