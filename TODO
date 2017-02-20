@@ -5,6 +5,7 @@
 - export: support custom FFmpeg encode options
 - export: support profiles
 - utils/qt: fix crashes with exceptions
+- viewer: add screenshot feature
 - viewer: factor out GL utils (initialization, surface format, ...)
 - viewer: split widgets in different classes (cleanup)
 - viewer: support importing files in addition to modules
