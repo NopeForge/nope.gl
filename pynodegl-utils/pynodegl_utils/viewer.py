@@ -169,6 +169,38 @@ class _ExportWidget(QtWidgets.QWidget):
         self._export_btn.clicked.connect(self._export)
 
 
+class _GraphView(QtWidgets.QWidget):
+
+    def _update_graph(self):
+        scene = self._parent._scene # FIXME
+        if not scene:
+            return
+
+        dotfile = '/tmp/ngl_scene.dot'
+        open(dotfile, 'w').write(scene.dot())
+        data = subprocess.check_output(['dot', '-Tpng', dotfile])
+        pixmap = QtGui.QPixmap()
+        pixmap.loadFromData(data)
+        self._graph_lbl.setPixmap(pixmap)
+        self._graph_lbl.adjustSize()
+
+    def __init__(self, parent):
+        super(_GraphView, self).__init__(parent)
+
+        self._parent = parent
+
+        self._graph_btn = QtWidgets.QPushButton("Update Graph")
+        self._graph_lbl = QtWidgets.QLabel()
+        img_area = QtWidgets.QScrollArea()
+        img_area.setWidget(self._graph_lbl)
+
+        graph_layout = QtWidgets.QVBoxLayout(self)
+        graph_layout.addWidget(self._graph_btn)
+        graph_layout.addWidget(img_area)
+
+        self._graph_btn.clicked.connect(self._update_graph)
+
+
 class _MainWindow(QtWidgets.QSplitter):
 
     RENDERING_FPS = 60
@@ -433,19 +465,6 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene = scene
         self._gl_widget.set_scene(scene)
 
-    def _update_graph(self):
-        scene = self._scene
-        if not scene:
-            return
-
-        dotfile = '/tmp/ngl_scene.dot'
-        open(dotfile, 'w').write(scene.dot())
-        data = subprocess.check_output(['dot', '-Tpng', dotfile])
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(data)
-        self._graph_lbl.setPixmap(pixmap)
-        self._graph_lbl.adjustSize()
-
     def _set_loglevel(self):
         level_id = self._loglevel_cbbox.currentIndex()
         level_str = self.LOG_LEVELS[level_id]
@@ -527,16 +546,6 @@ class _MainWindow(QtWidgets.QSplitter):
         toolbar.addWidget(self._time_lbl)
         toolbar.setStretchFactor(self._time_lbl, 1)
 
-        self._graph_btn = QtWidgets.QPushButton("Update Graph")
-        self._graph_lbl = QtWidgets.QLabel()
-        img_area = QtWidgets.QScrollArea()
-        img_area.setWidget(self._graph_lbl)
-        graph_layout = QtWidgets.QVBoxLayout()
-        graph_layout.addWidget(self._graph_btn)
-        graph_layout.addWidget(img_area)
-        graph_tab_widget = QtWidgets.QWidget()
-        graph_tab_widget.setLayout(graph_layout)
-
         gl_layout = QtWidgets.QVBoxLayout()
         gl_layout.addWidget(self._gl_widget)
         gl_layout.setStretchFactor(self._gl_widget, 1)
@@ -545,11 +554,12 @@ class _MainWindow(QtWidgets.QSplitter):
         gl_tab_widget = QtWidgets.QWidget()
         gl_tab_widget.setLayout(gl_layout)
 
+        graph_view = _GraphView(self)
         export_widget = _ExportWidget(self)
 
         tabs = QtWidgets.QTabWidget()
         tabs.addTab(gl_tab_widget, "GL view")
-        tabs.addTab(graph_tab_widget, "Graph view")
+        tabs.addTab(graph_view, "Graph view")
         tabs.addTab(export_widget, "Export")
 
         self._scn_view = QtWidgets.QTreeView()
@@ -618,7 +628,6 @@ class _MainWindow(QtWidgets.QSplitter):
         self._slider.sliderPressed.connect(self._slider_clicked)
         self._slider.valueChanged.connect(self._slider_value_changed)
         self._scn_view.clicked.connect(self._scn_view_clicked)
-        self._graph_btn.clicked.connect(self._update_graph)
         self._fps_chkbox.stateChanged.connect(self._reload_scene)
         self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
