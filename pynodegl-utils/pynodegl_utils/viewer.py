@@ -201,13 +201,9 @@ class _GraphView(QtWidgets.QWidget):
         self._graph_btn.clicked.connect(self._update_graph)
 
 
-class _MainWindow(QtWidgets.QSplitter):
+class _GLView(QtWidgets.QWidget):
 
     RENDERING_FPS = 60
-    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
-    LOOP_DURATION = 30.0
-    LOG_LEVELS = ('verbose', 'debug', 'info', 'warning', 'error')
-    ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
 
     def _set_action(self, action):
         if action == 'play':
@@ -227,10 +223,10 @@ class _MainWindow(QtWidgets.QSplitter):
     def _update_tick(self, value):
         self._tick = value
         t = self._tick * 1./self.RENDERING_FPS
-        if t > self.LOOP_DURATION:
+        if t > self._scene_cfg.duration:
             self._tick = 0
         cur_time = '%02d:%02d' % divmod(self._tick, 60)
-        duration = '%02d:%02d' % divmod(self.LOOP_DURATION, 60)
+        duration = '%02d:%02d' % divmod(self._scene_cfg.duration, 60)
         self._time_lbl.setText('%s / %s (%d @ %dHz)' % (cur_time, duration, self._tick, self.RENDERING_FPS))
         self._slider.setValue(self._tick)
 
@@ -249,6 +245,63 @@ class _MainWindow(QtWidgets.QSplitter):
     def _step_bw(self):
         self._set_action('pause')
         self._update_tick(self._tick - 1)
+
+    def set_aspect_ratio(self, ar):
+        self._gl_widget.set_aspect_ratio(ar)
+
+    def set_scene(self, scene):
+        self._gl_widget.set_scene(scene)
+
+    def __init__(self, parent, default_ar, scene_cfg):
+        super(_GLView, self).__init__(parent)
+
+        self._scene_cfg = scene_cfg
+
+        self._timer = QtCore.QTimer()
+        self._timer.setInterval(1000.0 / self.RENDERING_FPS) # in milliseconds
+
+        self._gl_widget = _GLWidget(self, default_ar)
+
+        self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self._slider.setRange(0, scene_cfg.duration * self.RENDERING_FPS)
+
+        self._action_btn = QtWidgets.QPushButton()
+        self._set_action('pause')
+
+        fw_btn = QtWidgets.QPushButton('>')
+        bw_btn = QtWidgets.QPushButton('<')
+
+        self._time_lbl = QtWidgets.QLabel()
+
+        toolbar = QtWidgets.QHBoxLayout()
+        toolbar.addWidget(bw_btn)
+        toolbar.addWidget(self._action_btn)
+        toolbar.addWidget(fw_btn)
+        toolbar.addWidget(self._time_lbl)
+        toolbar.setStretchFactor(self._time_lbl, 1)
+
+        gl_layout = QtWidgets.QVBoxLayout(self)
+        gl_layout.addWidget(self._gl_widget)
+        gl_layout.setStretchFactor(self._gl_widget, 1)
+        gl_layout.addWidget(self._slider)
+        gl_layout.addLayout(toolbar)
+
+        self._update_tick(0)
+
+        self._timer.timeout.connect(self._increment_time)
+        self._action_btn.clicked.connect(self._toggle_playback)
+        fw_btn.clicked.connect(self._step_fw)
+        bw_btn.clicked.connect(self._step_bw)
+        self._slider.sliderPressed.connect(self._slider_clicked)
+        self._slider.valueChanged.connect(self._slider_value_changed)
+
+
+class _MainWindow(QtWidgets.QSplitter):
+
+    LOOP_DURATION = 30.0
+    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
+    LOG_LEVELS = ('verbose', 'debug', 'info', 'warning', 'error')
+    ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
 
     def _del_scene_opts_widget(self):
         if self._scene_opts_widget:
@@ -463,7 +516,7 @@ class _MainWindow(QtWidgets.QSplitter):
             scene = g
 
         self._scene = scene
-        self._gl_widget.set_scene(scene)
+        self._gl_view.set_scene(scene)
 
     def _set_loglevel(self):
         level_id = self._loglevel_cbbox.currentIndex()
@@ -474,7 +527,7 @@ class _MainWindow(QtWidgets.QSplitter):
     def _set_aspect_ratio(self):
         ar = self.ASPECT_RATIOS[self._ar_cbbox.currentIndex()]
         self._scene_cfg.aspect_ratio = ar[0] / float(ar[1])
-        self._gl_widget.set_aspect_ratio(ar)
+        self._gl_view.set_aspect_ratio(ar)
         self._load_current_scene()
 
     def _get_media_dimensions(self, filename):
@@ -519,46 +572,17 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_cfg.duration = self.LOOP_DURATION
         self._scene_cfg.aspect_ratio = default_ar[0] / float(default_ar[1])
 
-        self._gl_widget = _GLWidget(self, default_ar)
         self._scene = None
         self._base_scene = None
         self._scene_opts_widget = None
         self._scene_extra_args = {}
 
-        self._timer = QtCore.QTimer()
-        self._timer.setInterval(1000.0 / self.RENDERING_FPS) # in milliseconds
-
-        self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal, self)
-        self._slider.setRange(0, self.LOOP_DURATION * self.RENDERING_FPS)
-
-        self._action_btn = QtWidgets.QPushButton()
-        self._set_action('pause')
-
-        fw_btn = QtWidgets.QPushButton('>')
-        bw_btn = QtWidgets.QPushButton('<')
-
-        self._time_lbl = QtWidgets.QLabel()
-
-        toolbar = QtWidgets.QHBoxLayout()
-        toolbar.addWidget(bw_btn)
-        toolbar.addWidget(self._action_btn)
-        toolbar.addWidget(fw_btn)
-        toolbar.addWidget(self._time_lbl)
-        toolbar.setStretchFactor(self._time_lbl, 1)
-
-        gl_layout = QtWidgets.QVBoxLayout()
-        gl_layout.addWidget(self._gl_widget)
-        gl_layout.setStretchFactor(self._gl_widget, 1)
-        gl_layout.addWidget(self._slider)
-        gl_layout.addLayout(toolbar)
-        gl_tab_widget = QtWidgets.QWidget()
-        gl_tab_widget.setLayout(gl_layout)
-
+        self._gl_view = _GLView(self, default_ar, self._scene_cfg)
         graph_view = _GraphView(self)
         export_widget = _ExportWidget(self)
 
         tabs = QtWidgets.QTabWidget()
-        tabs.addTab(gl_tab_widget, "GL view")
+        tabs.addTab(self._gl_view, "GL view")
         tabs.addTab(graph_view, "Graph view")
         tabs.addTab(export_widget, "Export")
 
@@ -619,23 +643,11 @@ class _MainWindow(QtWidgets.QSplitter):
         self.addWidget(tabs_and_errbuf_widget)
         self.setStretchFactor(1, 1)
 
-        self._update_tick(0)
-
-        self._timer.timeout.connect(self._increment_time)
-        self._action_btn.clicked.connect(self._toggle_playback)
-        fw_btn.clicked.connect(self._step_fw)
-        bw_btn.clicked.connect(self._step_bw)
-        self._slider.sliderPressed.connect(self._slider_clicked)
-        self._slider.valueChanged.connect(self._slider_value_changed)
         self._scn_view.clicked.connect(self._scn_view_clicked)
         self._fps_chkbox.stateChanged.connect(self._reload_scene)
         self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
         reload_btn.clicked.connect(self._reload_scripts)
-
-    def closeEvent(self, event):
-        del self._gl_widget
-        self._gl_widget = None
 
 def run():
     app = QtWidgets.QApplication(sys.argv)
