@@ -39,6 +39,8 @@ from export import Exporter
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 
+ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
+
 class _GLWidget(QtWidgets.QOpenGLWidget):
 
     def set_time(self, t):
@@ -102,7 +104,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
 class _ExportWidget(QtWidgets.QWidget):
 
     def _export(self):
-        scene = self.parent.construct_current_scene()
+        scene = self._get_scene_func()
         if scene is not None:
             ofile  = self._ofile_text.text()
             width  = self._spinbox_width.value()
@@ -128,9 +130,10 @@ class _ExportWidget(QtWidgets.QWidget):
             return
         self._ofile_text.setText(filenames[0])
 
-    def __init__(self, parent):
-        super(_ExportWidget, self).__init__(parent)
+    def __init__(self, parent, get_scene_func):
+        super(_ExportWidget, self).__init__()
 
+        self._get_scene_func = get_scene_func
         self.parent = parent
 
         self._ofile_text = QtWidgets.QLineEdit('/tmp/ngl-export.mp4')
@@ -172,7 +175,7 @@ class _ExportWidget(QtWidgets.QWidget):
 class _GraphView(QtWidgets.QWidget):
 
     def _update_graph(self):
-        scene = self._parent._scene # FIXME
+        scene = self._get_scene_func()
         if not scene:
             return
 
@@ -184,10 +187,10 @@ class _GraphView(QtWidgets.QWidget):
         self._graph_lbl.setPixmap(pixmap)
         self._graph_lbl.adjustSize()
 
-    def __init__(self, parent):
-        super(_GraphView, self).__init__(parent)
+    def __init__(self, get_scene_func):
+        super(_GraphView, self).__init__()
 
-        self._parent = parent
+        self._get_scene_func = get_scene_func
 
         self._graph_btn = QtWidgets.QPushButton("Update Graph")
         self._graph_lbl = QtWidgets.QLabel()
@@ -249,11 +252,15 @@ class _GLView(QtWidgets.QWidget):
     def set_aspect_ratio(self, ar):
         self._gl_widget.set_aspect_ratio(ar)
 
-    def set_scene(self, scene):
-        self._gl_widget.set_scene(scene)
+    def scene_changed(self):
+        scene = self._get_scene_func()
+        if scene:
+            self._gl_widget.set_scene(scene)
 
-    def __init__(self, parent, default_ar, scene_cfg):
-        super(_GLView, self).__init__(parent)
+    def __init__(self, get_scene_func, default_ar, scene_cfg):
+        super(_GLView, self).__init__()
+
+        self._get_scene_func = get_scene_func
 
         self._scene_cfg = scene_cfg
 
@@ -296,12 +303,13 @@ class _GLView(QtWidgets.QWidget):
         self._slider.valueChanged.connect(self._slider_value_changed)
 
 
-class _MainWindow(QtWidgets.QSplitter):
+class _Toolbar(QtWidgets.QWidget):
 
-    LOOP_DURATION = 30.0
-    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
     LOG_LEVELS = ('verbose', 'debug', 'info', 'warning', 'error')
-    ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
+
+    scene_changed = QtCore.pyqtSignal(name='sceneChanged')
+    aspect_ratio_changed = QtCore.pyqtSignal(tuple, name='aspectRatioChanged')
+    error = QtCore.pyqtSignal(str)
 
     def _del_scene_opts_widget(self):
         if self._scene_opts_widget:
@@ -414,6 +422,18 @@ class _MainWindow(QtWidgets.QSplitter):
         module_name, scene_name, scene_func = self._current_scene_data
         scene = scene_func(self._scene_cfg, **self._scene_extra_args)
         scene.set_name(scene_name)
+
+        if self._fps_chkbox.isChecked():
+            from pynodegl import FPS, Quad, Shader, Texture, TexturedShape, Group
+            fps = FPS(scene, measure_update=1, measure_draw=1, create_databuf=1)
+            q = Quad((0, 15/16., 0), (1., 0, 0), (0, 1/16., 0))
+            s = Shader()
+            t = Texture(data_src=fps)
+            tshape = TexturedShape(q, s, t)
+            g = Group()
+            g.add_children(fps, tshape)
+            scene = g
+
         return scene
 
     def _load_current_scene(self, load_widgets=True):
@@ -425,18 +445,7 @@ class _MainWindow(QtWidgets.QSplitter):
             self._del_scene_opts_widget()
             scene_opts_widget = self._get_opts_widget_from_specs(scene_func.widgets_specs)
             self._set_scene_opts_widget(scene_opts_widget)
-        try:
-            scene = self.construct_current_scene()
-            assert scene is not None
-        except:
-            self._errbuf.setText(traceback.format_exc())
-            self._errbuf.show()
-            return
-        else:
-            self._errbuf.hide()
-
-        self._base_scene = scene
-        self._reload_scene()
+        self.sceneChanged.emit()
 
     def _reload_scene_view(self):
         self._scn_mdl.clear()
@@ -473,11 +482,10 @@ class _MainWindow(QtWidgets.QSplitter):
                 try:
                     reload(script)
                 except:
-                    self._errbuf.setText(traceback.format_exc())
-                    self._errbuf.show()
+                    self.error.emit(traceback.format_exc())
                     return
                 else:
-                    self._errbuf.hide()
+                    self.error.emit(None)
 
             all_funcs = inspect.getmembers(script, inspect.isfunction)
             scene_funcs = filter(lambda f: hasattr(f[1], 'iam_a_ngl_scene_func'), all_funcs)
@@ -499,24 +507,8 @@ class _MainWindow(QtWidgets.QSplitter):
 
         self._reload_scene_view()
 
-    def _reload_scene(self):
-        scene = self._base_scene
-        if not scene:
-            return
-
-        if self._fps_chkbox.isChecked():
-            from pynodegl import FPS, Quad, Shader, Texture, TexturedShape, Group
-            fps = FPS(scene, measure_update=1, measure_draw=1, create_databuf=1)
-            q = Quad((0, 15/16., 0), (1., 0, 0), (0, 1/16., 0))
-            s = Shader()
-            t = Texture(data_src=fps)
-            tshape = TexturedShape(q, s, t)
-            g = Group()
-            g.add_children(fps, tshape)
-            scene = g
-
-        self._scene = scene
-        self._gl_view.set_scene(scene)
+    def _fps_chkbox_changed(self):
+        self._load_current_scene()
 
     def _set_loglevel(self):
         level_id = self._loglevel_cbbox.currentIndex()
@@ -525,66 +517,20 @@ class _MainWindow(QtWidgets.QSplitter):
         ngl.log_set_min_level(ngl_level)
 
     def _set_aspect_ratio(self):
-        ar = self.ASPECT_RATIOS[self._ar_cbbox.currentIndex()]
+        ar = ASPECT_RATIOS[self._ar_cbbox.currentIndex()]
         self._scene_cfg.aspect_ratio = ar[0] / float(ar[1])
-        self._gl_view.set_aspect_ratio(ar)
+        self.aspectRatioChanged.emit(ar)
         self._load_current_scene()
 
-    def _get_media_dimensions(self, filename):
-        try:
-            data = subprocess.check_output(['ffprobe', '-v', '0',
-                                            '-select_streams', 'v:0',
-                                            '-of', 'json', '-show_streams',
-                                            filename])
-            data = json.loads(data)
-        except:
-            return (-1, -1)
-        st = data['streams'][0]
-        return (st['width'], st['height'])
+    def __init__(self, scene_cfg, module_pkgname, default_ar):
+        super(_Toolbar, self).__init__()
 
-    def __init__(self, args):
-        super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
-        self.setWindowTitle("Demo node.gl")
+        self._module_pkgname = module_pkgname
 
-        if not args:
-            self._module_pkgname = 'pynodegl_utils.examples'
-        else:
-            self._module_pkgname = args[0]
-            args = args[1:]
-
-        if not args:
-            media_file = self.DEFAULT_MEDIA_FILE
-            if not os.path.exists(self.DEFAULT_MEDIA_FILE):
-                ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
-                                       'testsrc2=d=%d:r=%d' % (int(math.ceil(self.LOOP_DURATION)), self.RENDERING_FPS),
-                                       media_file])
-                if ret:
-                    raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
-        else:
-            media_file = args[0]
-
-        default_ar = self.ASPECT_RATIOS[0]
-
-        class _SceneCfg: pass
-        self._scene_cfg = _SceneCfg()
-        self._scene_cfg.media_filename = media_file
-        self._scene_cfg.media_dimensions = self._get_media_dimensions(media_file)
-        self._scene_cfg.duration = self.LOOP_DURATION
-        self._scene_cfg.aspect_ratio = default_ar[0] / float(default_ar[1])
-
-        self._scene = None
-        self._base_scene = None
         self._scene_opts_widget = None
         self._scene_extra_args = {}
 
-        self._gl_view = _GLView(self, default_ar, self._scene_cfg)
-        graph_view = _GraphView(self)
-        export_widget = _ExportWidget(self)
-
-        tabs = QtWidgets.QTabWidget()
-        tabs.addTab(self._gl_view, "GL view")
-        tabs.addTab(graph_view, "Graph view")
-        tabs.addTab(export_widget, "Export")
+        self._scene_cfg = scene_cfg
 
         self._scn_view = QtWidgets.QTreeView()
         self._scn_view.setHeaderHidden(True)
@@ -597,10 +543,12 @@ class _MainWindow(QtWidgets.QSplitter):
         self._reload_scripts(initial_import=True)
         self._reload_scene_view()
 
+        self._fps_chkbox = QtWidgets.QCheckBox('Show FPS')
+
         self._ar_cbbox = QtWidgets.QComboBox()
-        for ar in self.ASPECT_RATIOS:
+        for ar in ASPECT_RATIOS:
             self._ar_cbbox.addItem('%d:%d' % ar)
-        self._ar_cbbox.setCurrentIndex(self.ASPECT_RATIOS.index(default_ar))
+        self._ar_cbbox.setCurrentIndex(ASPECT_RATIOS.index(default_ar))
         self._set_aspect_ratio()
         ar_lbl = QtWidgets.QLabel('Aspect ratio:')
         ar_hbox = QtWidgets.QHBoxLayout()
@@ -617,18 +565,103 @@ class _MainWindow(QtWidgets.QSplitter):
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
-        self._fps_chkbox = QtWidgets.QCheckBox('Show FPS')
         reload_btn = QtWidgets.QPushButton('Reload scripts')
 
-        self._scene_toolbar_layout = QtWidgets.QVBoxLayout()
+        self._scene_toolbar_layout = QtWidgets.QVBoxLayout(self)
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
         self._scene_toolbar_layout.addLayout(ar_hbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
         self._scene_toolbar_layout.addWidget(reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
 
-        scene_toolbar = QtWidgets.QWidget()
-        scene_toolbar.setLayout(self._scene_toolbar_layout)
+        self._scn_view.clicked.connect(self._scn_view_clicked)
+        self._fps_chkbox.stateChanged.connect(self._fps_chkbox_changed)
+        self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
+        self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
+        reload_btn.clicked.connect(self._reload_scripts)
+
+
+class _MainWindow(QtWidgets.QSplitter):
+
+    LOOP_DURATION = 30.0
+    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
+
+    def _get_media_dimensions(self, filename):
+        try:
+            data = subprocess.check_output(['ffprobe', '-v', '0',
+                                            '-select_streams', 'v:0',
+                                            '-of', 'json', '-show_streams',
+                                            filename])
+            data = json.loads(data)
+        except:
+            return (-1, -1)
+        st = data['streams'][0]
+        return (st['width'], st['height'])
+
+    def _update_err_buf(self, err_str):
+        if err_str:
+            self._errbuf.setText(err_str)
+            self._errbuf.show()
+            sys.stderr.write(err_str)
+        else:
+            self._errbuf.hide()
+
+    def _get_scene(self):
+        scene = None
+        try:
+            scene = self._scene_toolbar.construct_current_scene()
+        except:
+            self._update_err_buf(traceback.format_exc())
+        else:
+            self._update_err_buf(None)
+        finally:
+            return scene
+
+    def __init__(self, args):
+        super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
+        self.setWindowTitle("Demo node.gl")
+
+        if not args:
+            module_pkgname = 'pynodegl_utils.examples'
+        else:
+            module_pkgname = args[0]
+            args = args[1:]
+
+        if not args:
+            media_file = self.DEFAULT_MEDIA_FILE
+            if not os.path.exists(self.DEFAULT_MEDIA_FILE):
+                ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
+                                       'testsrc2=d=%d:r=%d' % (int(math.ceil(self.LOOP_DURATION)), self.RENDERING_FPS),
+                                       media_file])
+                if ret:
+                    raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
+        else:
+            media_file = args[0]
+
+        default_ar = ASPECT_RATIOS[0]
+
+        class _SceneCfg: pass
+        self._scene_cfg = _SceneCfg()
+        self._scene_cfg.media_filename = media_file
+        self._scene_cfg.media_dimensions = self._get_media_dimensions(media_file)
+        self._scene_cfg.duration = self.LOOP_DURATION
+        self._scene_cfg.aspect_ratio = default_ar[0] / float(default_ar[1])
+
+        get_scene_func = self._get_scene
+
+        gl_view = _GLView(get_scene_func, default_ar, self._scene_cfg)
+        graph_view = _GraphView(get_scene_func)
+        export_widget = _ExportWidget(self, get_scene_func)
+
+        tabs = QtWidgets.QTabWidget()
+        tabs.addTab(gl_view, "GL view")
+        tabs.addTab(graph_view, "Graph view")
+        tabs.addTab(export_widget, "Export")
+
+        self._scene_toolbar = _Toolbar(self._scene_cfg, module_pkgname, default_ar)
+        self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
+        self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
+        self._scene_toolbar.error.connect(self._update_err_buf)
 
         self._errbuf = QtWidgets.QTextEdit()
         self._errbuf.hide()
@@ -639,15 +672,10 @@ class _MainWindow(QtWidgets.QSplitter):
         tabs_and_errbuf_widget = QtWidgets.QWidget()
         tabs_and_errbuf_widget.setLayout(tabs_and_errbuf)
 
-        self.addWidget(scene_toolbar)
+        self.addWidget(self._scene_toolbar)
         self.addWidget(tabs_and_errbuf_widget)
         self.setStretchFactor(1, 1)
 
-        self._scn_view.clicked.connect(self._scn_view_clicked)
-        self._fps_chkbox.stateChanged.connect(self._reload_scene)
-        self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
-        self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
-        reload_btn.clicked.connect(self._reload_scripts)
 
 def run():
     app = QtWidgets.QApplication(sys.argv)
