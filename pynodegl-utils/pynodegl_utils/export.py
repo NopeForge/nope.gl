@@ -27,9 +27,10 @@ class _PipeThread(QtCore.QThread):
 
 class _ReaderThread(_PipeThread):
 
-    def __init__(self, fd, unused_fd, w, h, fps, filename):
+    def __init__(self, fd, unused_fd, w, h, fps, filename, extra_enc_args):
         super(_ReaderThread, self).__init__(fd, unused_fd, w, h, fps)
         self._filename = filename
+        self._extra_enc_args = extra_enc_args if extra_enc_args else []
 
     def run_with_except(self):
         cmd = ['ffmpeg', '-r', str(self.fps),
@@ -38,8 +39,9 @@ class _ReaderThread(_PipeThread):
                '-video_size', '%dx%d' % (self.w, self.h),
                '-pixel_format', 'rgba',
                '-i', 'pipe:%d' % self.fd,
-               '-vf', 'vflip',
-               '-y', self._filename]
+               '-vf', 'vflip'] + \
+                self._extra_enc_args + \
+               ['-y', self._filename]
 
         #print 'Executing: ' + ' '.join(cmd)
 
@@ -52,14 +54,14 @@ class Exporter(QtCore.QObject):
 
     progressed = QtCore.pyqtSignal(int)
 
-    def export(self, scene, filename, w, h, duration, fps):
+    def export(self, scene, filename, w, h, duration, fps, extra_enc_args=None):
 
         fd_r, fd_w = os.pipe()
 
         from pynodegl import Pipe, Scale
         scene = Pipe(scene, fd_w, w, h)
 
-        reader = _ReaderThread(fd_r, fd_w, w, h, fps, filename)
+        reader = _ReaderThread(fd_r, fd_w, w, h, fps, filename, extra_enc_args)
         reader.start()
 
         # Surface Format
