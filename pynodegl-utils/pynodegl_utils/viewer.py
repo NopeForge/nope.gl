@@ -74,23 +74,23 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self._viewer = ngl.Viewer()
         self._time = 0
         self._aspect_ratio = aspect_ratio
+        self.resizeGL(self.width(), self.height())
 
     def paintGL(self):
+        self._viewer.set_viewport(self.view_x, self.view_y, self.view_width, self.view_height)
         self._viewer.draw(self._time)
 
     def resizeGL(self, screen_width, screen_height):
         aspect = self._aspect_ratio[0] / float(self._aspect_ratio[1])
-        view_width = screen_width
-        view_height = screen_width / aspect
+        self.view_width = screen_width
+        self.view_height = screen_width / aspect
 
-        if view_height > screen_height:
-            view_height = screen_height
-            view_width = screen_height * aspect
+        if self.view_height > screen_height:
+            self.view_height = screen_height
+            self.view_width = screen_height * aspect
 
-        view_x = (screen_width - view_width) / 2.0
-        view_y = (screen_height - view_height) / 2.0
-
-        self._viewer.set_viewport(view_x, view_y, view_width, view_height)
+        self.view_x = (screen_width - self.view_width) / 2.0
+        self.view_y = (screen_height - self.view_height) / 2.0
 
     def initializeGL(self):
         if platform.system() == 'Linux':
