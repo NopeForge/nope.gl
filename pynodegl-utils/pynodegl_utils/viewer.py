@@ -280,6 +280,12 @@ class _GLView(QtWidgets.QWidget):
         self._set_action('pause')
         self._update_tick(self._tick - 1)
 
+    def _screenshot(self):
+        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Save screenshot file')
+        if not filenames[0]:
+            return
+        self._gl_widget.grabFramebuffer().save(filenames[0])
+
     def set_aspect_ratio(self, ar):
         self._gl_widget.set_aspect_ratio(ar)
 
@@ -311,12 +317,15 @@ class _GLView(QtWidgets.QWidget):
 
         self._time_lbl = QtWidgets.QLabel()
 
+        screenshot_btn = QtWidgets.QPushButton('Screenshot')
+
         toolbar = QtWidgets.QHBoxLayout()
         toolbar.addWidget(bw_btn)
         toolbar.addWidget(self._action_btn)
         toolbar.addWidget(fw_btn)
         toolbar.addWidget(self._time_lbl)
         toolbar.setStretchFactor(self._time_lbl, 1)
+        toolbar.addWidget(screenshot_btn)
 
         gl_layout = QtWidgets.QVBoxLayout(self)
         gl_layout.addWidget(self._gl_widget)
@@ -332,6 +341,7 @@ class _GLView(QtWidgets.QWidget):
         bw_btn.clicked.connect(self._step_bw)
         self._slider.sliderPressed.connect(self._slider_clicked)
         self._slider.valueChanged.connect(self._slider_value_changed)
+        screenshot_btn.clicked.connect(self._screenshot)
 
 
 class _Toolbar(QtWidgets.QWidget):
