@@ -101,7 +101,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
             self._viewer.configure(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
 
 
-class _ExportWidget(QtWidgets.QWidget):
+class _ExportView(QtWidgets.QWidget):
 
     def _export(self):
         scene = self._get_scene_func()
@@ -131,7 +131,7 @@ class _ExportWidget(QtWidgets.QWidget):
         self._ofile_text.setText(filenames[0])
 
     def __init__(self, parent, get_scene_func):
-        super(_ExportWidget, self).__init__()
+        super(_ExportView, self).__init__()
 
         self._get_scene_func = get_scene_func
         self.parent = parent
@@ -651,12 +651,12 @@ class _MainWindow(QtWidgets.QSplitter):
 
         gl_view = _GLView(get_scene_func, default_ar, self._scene_cfg)
         graph_view = _GraphView(get_scene_func)
-        export_widget = _ExportWidget(self, get_scene_func)
+        export_view = _ExportView(self, get_scene_func)
 
         tabs = QtWidgets.QTabWidget()
         tabs.addTab(gl_view, "GL view")
         tabs.addTab(graph_view, "Graph view")
-        tabs.addTab(export_widget, "Export")
+        tabs.addTab(export_view, "Export")
 
         self._scene_toolbar = _Toolbar(self._scene_cfg, module_pkgname, default_ar)
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
