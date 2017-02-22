@@ -7,6 +7,6 @@
 - utils/qt: fix crashes with exceptions
 - viewer: add screenshot feature
 - viewer: factor out GL utils (initialization, surface format, ...)
-- viewer: split widgets in different classes (cleanup)
+- viewer: fix inconsistent behaviour in error handling (regression since qt5)
 - viewer: support importing files in addition to modules
 - viewer: watch and reload files automatically
