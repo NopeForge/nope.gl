@@ -56,6 +56,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         # clumsy
         self.makeCurrent()
         self.resizeGL(self.width(), self.height())
+        self.doneCurrent()
         self.update()
 
     def __init__(self, parent, aspect_ratio):
