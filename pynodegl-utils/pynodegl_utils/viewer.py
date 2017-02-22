@@ -619,7 +619,7 @@ class _MainWindow(QtWidgets.QSplitter):
 
     def __init__(self, args):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
-        self.setWindowTitle("Demo node.gl")
+        self.setWindowTitle("Node.gl viewer")
 
         if not args:
             module_pkgname = 'pynodegl_utils.examples'
