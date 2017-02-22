@@ -62,7 +62,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.update()
 
     def __init__(self, parent, aspect_ratio):
-        QtWidgets.QOpenGLWidget.__init__(self, parent=parent)
+        super(_GLWidget, self).__init__(parent)
 
         gl_format = QtGui.QSurfaceFormat()
         gl_format.setVersion(3, 3)
