@@ -55,8 +55,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         # doesn't call resizeGL() callback, so we do something a bit more
         # clumsy
         self.makeCurrent()
-        screen_size = self.size()
-        self.resizeGL(screen_size.width(), screen_size.height())
+        self.resizeGL(self.width(), self.height())
         self.update()
 
     def __init__(self, parent, aspect_ratio):
