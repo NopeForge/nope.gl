@@ -2,8 +2,6 @@
 - animkeyframe: find a way to expose resolutions
 - api: design a more advanced time remapping API
 - export: flip in the GL world instead of CPU (-vf flip)
-- export: support custom FFmpeg encode options
-- export: support profiles
 - utils/qt: fix crashes with exceptions
 - viewer: add screenshot feature
 - viewer: factor out GL utils (initialization, surface format, ...)

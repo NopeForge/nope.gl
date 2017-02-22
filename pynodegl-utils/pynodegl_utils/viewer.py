@@ -103,6 +103,9 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
 
 class _ExportView(QtWidgets.QWidget):
 
+    def _get_encoders_list(self):
+        return ['', 'libx264', 'ffv1']
+
     def _export(self):
         scene = self._get_scene_func()
         if scene is not None:
@@ -111,12 +114,20 @@ class _ExportView(QtWidgets.QWidget):
             height = self._spinbox_height.value()
             fps    = self._spinbox_fps.value()
 
+            extra_enc_args = []
+            encoder_id = self._encoders_cbox.currentIndex()
+            if encoder_id:
+                extra_enc_args += ['-c:v', self._encoders_cbox.itemText(encoder_id)]
+            extra_enc_args += self._encopts_text.text().split()
+
             self._pgbar.setValue(0)
             self._pgbar.show()
 
             exporter = Exporter()
             exporter.progressed.connect(self._pgbar.setValue)
-            exporter.export(scene, ofile, width, height, self.parent.LOOP_DURATION, fps)
+            exporter.export(scene, ofile, width, height,
+                            self.parent.LOOP_DURATION, fps,
+                            extra_enc_args)
 
             self._pgbar.hide()
         else:
@@ -155,6 +166,11 @@ class _ExportView(QtWidgets.QWidget):
         self._spinbox_fps.setRange(1, 1000)
         self._spinbox_fps.setValue(60)
 
+        self._encoders_cbox = QtWidgets.QComboBox()
+        self._encoders_cbox.addItems(self._get_encoders_list())
+
+        self._encopts_text = QtWidgets.QLineEdit()
+
         self._export_btn = QtWidgets.QPushButton('Export')
 
         self._pgbar = QtWidgets.QProgressBar()
@@ -165,6 +181,8 @@ class _ExportView(QtWidgets.QWidget):
         form.addRow('Width:',    self._spinbox_width)
         form.addRow('Height:',   self._spinbox_height)
         form.addRow('FPS:',      self._spinbox_fps)
+        form.addRow('Encoder:',  self._encoders_cbox)
+        form.addRow('Extra encoder arguments:', self._encopts_text)
         form.addRow(self._export_btn)
         form.addRow(self._pgbar)
 
