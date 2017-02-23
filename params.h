@@ -51,6 +51,7 @@ struct node_param {
         double dbl;
         const char *str;
         void *p;
+        float vec[4];
     } def_value;
     int flags;
     const int *node_types;

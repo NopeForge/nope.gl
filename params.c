@@ -225,6 +225,21 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                     memcpy(dstp, &s, sizeof(s));
                     break;
                 }
+                case PARAM_TYPE_VEC2: {
+                    const float *v = par->def_value.vec;
+                    memcpy(dstp, v, 2 * sizeof(*v));
+                    break;
+                }
+                case PARAM_TYPE_VEC3: {
+                    const float *v = par->def_value.vec;
+                    memcpy(dstp, v, 3 * sizeof(*v));
+                    break;
+                }
+                case PARAM_TYPE_VEC4: {
+                    const float *v = par->def_value.vec;
+                    memcpy(dstp, v, 4 * sizeof(*v));
+                    break;
+                }
             }
         }
     }
