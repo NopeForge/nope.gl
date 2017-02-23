@@ -32,9 +32,9 @@
 #define OFFSET(x) offsetof(struct camera, x)
 static const struct node_param camera_params[] = {
     {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"eye", PARAM_TYPE_VEC3,  OFFSET(eye)},
+    {"eye", PARAM_TYPE_VEC3,  OFFSET(eye), {.vec={0.0f, 0.0f, 1.0f}}},
     {"center", PARAM_TYPE_VEC3,  OFFSET(center)},
-    {"up", PARAM_TYPE_VEC3,  OFFSET(up)},
+    {"up", PARAM_TYPE_VEC3,  OFFSET(up), {.vec={0.0f, 1.0f, 0.0f}}},
     {"perspective", PARAM_TYPE_VEC4,  OFFSET(perspective)},
     {"eye_transform", PARAM_TYPE_NODE, OFFSET(eye_transform), .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME, .node_types=TRANSFORM_TYPES_LIST},
     {"center_transform", PARAM_TYPE_NODE, OFFSET(center_transform), .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME, .node_types=TRANSFORM_TYPES_LIST},
