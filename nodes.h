@@ -102,6 +102,10 @@ struct camera {
     struct ngl_node **fov_animkf;
     int nb_fov_animkf;
     int current_fov_kf;
+
+    int pipe_fd;
+    int pipe_width, pipe_height;
+    uint8_t *pipe_buf;
 };
 
 struct shapeprimitive {

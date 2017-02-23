@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 GoPro Inc.
+ * Copyright 2016-2017 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -23,6 +23,8 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -40,6 +42,9 @@ static const struct node_param camera_params[] = {
     {"center_transform", PARAM_TYPE_NODE, OFFSET(center_transform), .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME, .node_types=TRANSFORM_TYPES_LIST},
     {"up_transform", PARAM_TYPE_NODE, OFFSET(up_transform), .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME, .node_types=TRANSFORM_TYPES_LIST},
     {"fov_animkf", PARAM_TYPE_NODELIST, OFFSET(fov_animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED, .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
+    {"pipe_fd", PARAM_TYPE_INT, OFFSET(pipe_fd)},
+    {"pipe_width", PARAM_TYPE_INT, OFFSET(pipe_width)},
+    {"pipe_height", PARAM_TYPE_INT, OFFSET(pipe_height)},
     {NULL}
 };
 
@@ -67,6 +72,12 @@ static int camera_init(struct ngl_node *node)
         ret = ngli_node_init(s->up_transform);
         if (ret < 0)
             return ret;
+    }
+
+    if (s->pipe_fd) {
+        s->pipe_buf = calloc(4 /* RGBA */, s->pipe_width * s->pipe_height);
+        if (!s->pipe_buf)
+            return -1;
     }
 
     return 0;
@@ -128,6 +139,19 @@ static void camera_draw(struct ngl_node *node)
 {
     struct camera *s = node->priv_data;
     ngli_node_draw(s->child);
+
+    if (s->pipe_fd) {
+        LOG(DEBUG, "write %dx%d buffer to FD=%d", s->pipe_width, s->pipe_height, s->pipe_fd);
+        glReadPixels(0, 0, s->pipe_width, s->pipe_height, GL_RGBA, GL_UNSIGNED_BYTE, s->pipe_buf);
+        write(s->pipe_fd, s->pipe_buf, s->pipe_width * s->pipe_height * 4);
+    }
+}
+
+static void camera_uninit(struct ngl_node *node)
+{
+    struct camera *s = node->priv_data;
+    if (s->pipe_fd)
+        free(s->pipe_buf);
 }
 
 const struct node_class ngli_camera_class = {
@@ -136,6 +160,7 @@ const struct node_class ngli_camera_class = {
     .init      = camera_init,
     .update    = camera_update,
     .draw      = camera_draw,
+    .uninit    = camera_uninit,
     .priv_size = sizeof(struct camera),
     .params    = camera_params,
 };
