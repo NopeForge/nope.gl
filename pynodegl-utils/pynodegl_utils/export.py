@@ -58,8 +58,11 @@ class Exporter(QtCore.QObject):
 
         fd_r, fd_w = os.pipe()
 
-        from pynodegl import Pipe, Scale
-        scene = Pipe(scene, fd_w, w, h)
+        from pynodegl import Camera
+        camera = scene if isinstance(scene, Camera) else Camera(scene)
+        camera.set_pipe_fd(fd_w)
+        camera.set_pipe_width(w)
+        camera.set_pipe_height(h)
 
         reader = _ReaderThread(fd_r, fd_w, w, h, fps, filename, extra_enc_args)
         reader.start()
@@ -94,7 +97,7 @@ class Exporter(QtCore.QObject):
 
         # node.gl context
         ngl_viewer = ngl.Viewer()
-        ngl_viewer.set_scene(scene)
+        ngl_viewer.set_scene(camera)
         if platform.system() == 'Linux':
             ngl_viewer.configure(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
         elif platform.system() == 'Darwin':
