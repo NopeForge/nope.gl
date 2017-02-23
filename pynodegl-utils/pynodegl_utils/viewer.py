@@ -672,7 +672,7 @@ class _MainWindow(QtWidgets.QSplitter):
             media_file = self.DEFAULT_MEDIA_FILE
             if not os.path.exists(self.DEFAULT_MEDIA_FILE):
                 ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
-                                       'testsrc2=d=%d:r=%d' % (int(math.ceil(self.LOOP_DURATION)), self.RENDERING_FPS),
+                                       'testsrc2=d=%d:r=%d' % (int(math.ceil(self.LOOP_DURATION)), _GLView.RENDERING_FPS),
                                        media_file])
                 if ret:
                     raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
