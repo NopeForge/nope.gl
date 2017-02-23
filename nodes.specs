@@ -250,10 +250,3 @@
 
 - Identity:
 
-- Pipe:
-    constructors:
-        - [child, Node]
-        - [fd, int]
-        - [width, int]
-        - [height, int]
-

@@ -91,7 +91,6 @@ enum {
     NGL_NODE_UNIFORMINT,
     NGL_NODE_FPS,
     NGL_NODE_IDENTITY,
-    NGL_NODE_PIPE,
 };
 
 struct ngl_node *ngl_node_create(int type, ...);

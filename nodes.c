@@ -67,7 +67,6 @@ extern const struct node_class ngli_uniformint_class;
 extern const struct node_class ngli_uniformmat4_class;
 extern const struct node_class ngli_uniformsampler_class;
 extern const struct node_class ngli_fps_class;
-extern const struct node_class ngli_pipe_class;
 
 static const struct node_class *node_class_map[] = {
     [NGL_NODE_ATTRIBUTEVEC2]         = &ngli_attributevec2_class,
@@ -105,7 +104,6 @@ static const struct node_class *node_class_map[] = {
     [NGL_NODE_UNIFORMMAT4]           = &ngli_uniformmat4_class,
     [NGL_NODE_UNIFORMSAMPLER]        = &ngli_uniformsampler_class,
     [NGL_NODE_FPS]                   = &ngli_fps_class,
-    [NGL_NODE_PIPE]                  = &ngli_pipe_class,
 };
 
 static const char *param_type_strings[] = {

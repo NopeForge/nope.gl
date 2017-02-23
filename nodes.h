@@ -345,13 +345,6 @@ struct fps {
     int data_w, data_h;
 };
 
-struct pipe {
-    struct ngl_node *child;
-    int fd;
-    int width, height;
-    uint8_t *buf;
-};
-
 /**
  *   Operation        State result
  * -----------------------------------

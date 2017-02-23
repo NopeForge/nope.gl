@@ -79,7 +79,6 @@ LIB_OBJS = api.o                    \
            node_group.o             \
            node_identity.o          \
            node_media.o             \
-           node_pipe.o              \
            node_quad.o              \
            node_renderrange.o       \
            node_rotate.o            \
