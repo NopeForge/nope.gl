@@ -118,6 +118,9 @@ static void camera_update(struct ngl_node *node, double t)
         up
     );
 
+    if (s->pipe_fd)
+        view[5] = -view[5];
+
     if (s->nb_fov_animkf)
         ngli_animkf_interpolate(&s->perspective[0], s->fov_animkf, s->nb_fov_animkf, &s->current_fov_kf, t);
 

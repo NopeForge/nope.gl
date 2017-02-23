@@ -38,8 +38,7 @@ class _ReaderThread(_PipeThread):
                '-f', 'rawvideo',
                '-video_size', '%dx%d' % (self.w, self.h),
                '-pixel_format', 'rgba',
-               '-i', 'pipe:%d' % self.fd,
-               '-vf', 'vflip'] + \
+               '-i', 'pipe:%d' % self.fd] + \
                 self._extra_enc_args + \
                ['-y', self._filename]
 
