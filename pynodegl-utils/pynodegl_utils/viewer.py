@@ -505,7 +505,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._current_scene_data = self._scn_mdl.itemFromIndex(index).data()
         self._load_current_scene()
 
-    def _reload_scripts(self, initial_import=False):
+    def _reload_scripts_unsafe(self, initial_import):
         self._scenes = []
         found_current_scene = False
 
@@ -520,13 +520,7 @@ class _Toolbar(QtWidgets.QWidget):
             module_finder, module_name, ispkg = module
             script = importlib.import_module('.' + module_name, self._module_pkgname)
             if not initial_import:
-                try:
-                    reload(script)
-                except:
-                    self.error.emit(traceback.format_exc())
-                    return
-                else:
-                    self.error.emit(None)
+                reload(script)
 
             all_funcs = inspect.getmembers(script, inspect.isfunction)
             scene_funcs = filter(lambda f: hasattr(f[1], 'iam_a_ngl_scene_func'), all_funcs)
@@ -544,8 +538,16 @@ class _Toolbar(QtWidgets.QWidget):
                         scene_name, scene_func = matches[0]
                         self._current_scene_data = (cur_module_name, scene_name, scene_func)
                         found_current_scene = True
-                        self._load_current_scene()
 
+    def reload_scripts(self, initial_import=False):
+        try:
+            self._reload_scripts_unsafe(initial_import)
+        except:
+            self._scenes = []
+            self.error.emit(traceback.format_exc())
+        else:
+            self.error.emit(None)
+            self._load_current_scene()
         self._reload_scene_view()
 
     def _fps_chkbox_changed(self):
@@ -581,8 +583,6 @@ class _Toolbar(QtWidgets.QWidget):
         self._scn_view.setModel(self._scn_mdl)
 
         self._current_scene_data = None
-        self._reload_scripts(initial_import=True)
-        self._reload_scene_view()
 
         self._fps_chkbox = QtWidgets.QCheckBox('Show FPS')
 
@@ -619,7 +619,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._fps_chkbox.stateChanged.connect(self._fps_chkbox_changed)
         self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
-        reload_btn.clicked.connect(self._reload_scripts)
+        reload_btn.clicked.connect(self.reload_scripts)
 
 
 class _MainWindow(QtWidgets.QSplitter):
@@ -716,6 +716,8 @@ class _MainWindow(QtWidgets.QSplitter):
         self.addWidget(self._scene_toolbar)
         self.addWidget(tabs_and_errbuf_widget)
         self.setStretchFactor(1, 1)
+
+        self._scene_toolbar.reload_scripts(initial_import=True)
 
 
 def run():
