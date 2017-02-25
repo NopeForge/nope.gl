@@ -350,7 +350,6 @@ class _Toolbar(QtWidgets.QWidget):
 
     scene_changed = QtCore.pyqtSignal(name='sceneChanged')
     aspect_ratio_changed = QtCore.pyqtSignal(tuple, name='aspectRatioChanged')
-    error = QtCore.pyqtSignal(str)
 
     def _del_scene_opts_widget(self):
         if self._scene_opts_widget:
@@ -488,9 +487,12 @@ class _Toolbar(QtWidgets.QWidget):
             self._set_scene_opts_widget(scene_opts_widget)
         self.sceneChanged.emit()
 
-    def _reload_scene_view(self):
+    def clear_scripts(self):
         self._scn_mdl.clear()
-        for module_name, scene_funcs in self._scenes:
+
+    def _reload_scene_view(self, scenes):
+        self._scn_mdl.clear()
+        for module_name, scene_funcs in scenes:
             qitem_script = QtGui.QStandardItem(module_name)
             for scene_name, scene_func in scene_funcs:
                 scene_data = (module_name, scene_name, scene_func)
@@ -505,28 +507,16 @@ class _Toolbar(QtWidgets.QWidget):
         self._current_scene_data = self._scn_mdl.itemFromIndex(index).data()
         self._load_current_scene()
 
-    def _reload_scripts_unsafe(self, initial_import):
-        self._scenes = []
+    def on_scripts_changed(self, scripts):
         found_current_scene = False
+        scenes = []
 
-        if initial_import:
-            self._module = importlib.import_module(self._module_pkgname)
-        else:
-            self._module = reload(self._module)
-
-        for module in pkgutil.iter_modules(self._module.__path__):
-
-            # load or reload scripts
-            module_finder, module_name, ispkg = module
-            script = importlib.import_module('.' + module_name, self._module_pkgname)
-            if not initial_import:
-                reload(script)
-
+        for module_name, script in scripts:
             all_funcs = inspect.getmembers(script, inspect.isfunction)
             scene_funcs = filter(lambda f: hasattr(f[1], 'iam_a_ngl_scene_func'), all_funcs)
             if not scene_funcs:
                 continue
-            self._scenes.append((module_name, scene_funcs))
+            scenes.append((module_name, scene_funcs))
 
             # found back the current scene in the module if needed
             if not found_current_scene and self._current_scene_data:
@@ -539,16 +529,8 @@ class _Toolbar(QtWidgets.QWidget):
                         self._current_scene_data = (cur_module_name, scene_name, scene_func)
                         found_current_scene = True
 
-    def reload_scripts(self, initial_import=False):
-        try:
-            self._reload_scripts_unsafe(initial_import)
-        except:
-            self._scenes = []
-            self.error.emit(traceback.format_exc())
-        else:
-            self.error.emit(None)
-            self._load_current_scene()
-        self._reload_scene_view()
+        self._reload_scene_view(scenes)
+        self._load_current_scene()
 
     def _fps_chkbox_changed(self):
         self._load_current_scene()
@@ -606,20 +588,58 @@ class _Toolbar(QtWidgets.QWidget):
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
-        reload_btn = QtWidgets.QPushButton('Reload scripts')
+        self.reload_btn = QtWidgets.QPushButton('Reload scripts')
 
         self._scene_toolbar_layout = QtWidgets.QVBoxLayout(self)
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
         self._scene_toolbar_layout.addLayout(ar_hbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
-        self._scene_toolbar_layout.addWidget(reload_btn)
+        self._scene_toolbar_layout.addWidget(self.reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
 
         self._scn_view.clicked.connect(self._scn_view_clicked)
         self._fps_chkbox.stateChanged.connect(self._fps_chkbox_changed)
         self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
-        reload_btn.clicked.connect(self.reload_scripts)
+
+
+class _ScriptsManager(QtCore.QObject):
+
+    scripts_changed = QtCore.pyqtSignal(list, name='scriptsChanged')
+    error = QtCore.pyqtSignal(str)
+
+    def __init__(self, module_pkgname):
+        super(_ScriptsManager, self).__init__()
+        self._module_pkgname = module_pkgname
+
+    def start(self):
+        self._reload_scripts(initial_import=True)
+
+    def reload(self): # TODO: should be called automatically
+        self._reload_scripts()
+
+    def _reload_unsafe(self, initial_import):
+        scripts = []
+
+        if initial_import:
+            self._module = importlib.import_module(self._module_pkgname)
+        else:
+            self._module = reload(self._module)
+
+        for module in pkgutil.iter_modules(self._module.__path__):
+            module_finder, module_name, ispkg = module
+            script = importlib.import_module('.' + module_name, self._module_pkgname)
+            if not initial_import:
+                reload(script)
+            scripts.append((module_name, script))
+
+        self.scripts_changed.emit(scripts)
+
+    def _reload_scripts(self, initial_import=False):
+        try:
+            self._reload_unsafe(initial_import)
+        except:
+            self.error.emit(traceback.format_exc())
 
 
 class _MainWindow(QtWidgets.QSplitter):
@@ -647,6 +667,10 @@ class _MainWindow(QtWidgets.QSplitter):
         else:
             self._errbuf.hide()
 
+    def _all_scripts_err(self, err_str):
+        self._scene_toolbar.clear_scripts()
+        self._update_err_buf(err_str)
+
     def _get_scene(self):
         scene = None
         try:
@@ -667,6 +691,7 @@ class _MainWindow(QtWidgets.QSplitter):
         else:
             module_pkgname = args[0]
             args = args[1:]
+        self._scripts_mgr = _ScriptsManager(module_pkgname)
 
         if not args:
             media_file = self.DEFAULT_MEDIA_FILE
@@ -702,7 +727,6 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar = _Toolbar(self._scene_cfg, module_pkgname, default_ar)
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
-        self._scene_toolbar.error.connect(self._update_err_buf)
 
         self._errbuf = QtWidgets.QTextEdit()
         self._errbuf.hide()
@@ -717,7 +741,10 @@ class _MainWindow(QtWidgets.QSplitter):
         self.addWidget(tabs_and_errbuf_widget)
         self.setStretchFactor(1, 1)
 
-        self._scene_toolbar.reload_scripts(initial_import=True)
+        self._scene_toolbar.reload_btn.clicked.connect(self._scripts_mgr.reload) # TODO: drop
+        self._scripts_mgr.error.connect(self._all_scripts_err)
+        self._scripts_mgr.scriptsChanged.connect(self._scene_toolbar.on_scripts_changed)
+        self._scripts_mgr.start()
 
 
 def run():
