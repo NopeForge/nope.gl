@@ -529,8 +529,10 @@ class _Toolbar(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(QtCore.QModelIndex)
     def _scn_view_clicked(self, index):
-        self._current_scene_data = self._scn_mdl.itemFromIndex(index).data()
-        self._load_current_scene()
+        data = self._scn_mdl.itemFromIndex(index).data()
+        if data:
+            self._current_scene_data = data
+            self._load_current_scene()
 
     @QtCore.pyqtSlot(list)
     def on_scripts_changed(self, scripts):
