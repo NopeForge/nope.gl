@@ -119,6 +119,7 @@ class _ExportView(QtWidgets.QWidget):
             encoders.append(encoder)
         return encoders
 
+    @QtCore.pyqtSlot()
     def _export(self):
         scene = self._get_scene_func()
         if scene is not None:
@@ -148,6 +149,7 @@ class _ExportView(QtWidgets.QWidget):
                                            "You didn't select any scene to export.",
                                            QtWidgets.QMessageBox.Ok)
 
+    @QtCore.pyqtSlot()
     def _select_ofile(self):
         filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
         if not filenames[0]:
@@ -205,6 +207,7 @@ class _ExportView(QtWidgets.QWidget):
 
 class _GraphView(QtWidgets.QWidget):
 
+    @QtCore.pyqtSlot()
     def _update_graph(self):
         scene = self._get_scene_func()
         if not scene:
@@ -248,9 +251,11 @@ class _GLView(QtWidgets.QWidget):
             self._action_btn.setText(u'►')
         self._current_action = action
 
+    @QtCore.pyqtSlot()
     def _slider_clicked(self):
         self._set_action('pause')
 
+    @QtCore.pyqtSlot()
     def _toggle_playback(self):
         self._set_action('play' if self._current_action == 'pause' else 'pause')
 
@@ -264,31 +269,38 @@ class _GLView(QtWidgets.QWidget):
         self._time_lbl.setText('%s / %s (%d @ %dHz)' % (cur_time, duration, self._tick, self.RENDERING_FPS))
         self._slider.setValue(self._tick)
 
+    @QtCore.pyqtSlot(int)
     def _slider_value_changed(self, value):
         if self._gl_widget:
             self._gl_widget.set_time(value * 1./self.RENDERING_FPS)
         self._update_tick(value)
 
+    @QtCore.pyqtSlot()
     def _increment_time(self):
         self._update_tick(self._tick + 1)
 
+    @QtCore.pyqtSlot()
     def _step_fw(self):
         self._set_action('pause')
         self._update_tick(self._tick + 1)
 
+    @QtCore.pyqtSlot()
     def _step_bw(self):
         self._set_action('pause')
         self._update_tick(self._tick - 1)
 
+    @QtCore.pyqtSlot()
     def _screenshot(self):
         filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Save screenshot file')
         if not filenames[0]:
             return
         self._gl_widget.grabFramebuffer().save(filenames[0])
 
+    @QtCore.pyqtSlot(tuple)
     def set_aspect_ratio(self, ar):
         self._gl_widget.set_aspect_ratio(ar)
 
+    @QtCore.pyqtSlot()
     def scene_changed(self):
         scene = self._get_scene_func()
         if scene:
@@ -367,23 +379,31 @@ class _Toolbar(QtWidgets.QWidget):
         return '<b>{}:</b> {}'.format(id_name, value)
 
     def _craft_slider_value_changed_cb(self, id_name, label, unit_base):
+
+        @QtCore.pyqtSlot(int)
         def slider_value_changed(value):
             real_value = value if unit_base is 1 else value / float(unit_base)
             self._scene_extra_args[id_name] = real_value
             label.setText(self._get_label_text(id_name, real_value))
             self._load_current_scene(load_widgets=False)
+
         return slider_value_changed
 
     def _craft_pick_color_cb(self, id_name, label, color_btn):
+
+        @QtCore.pyqtSlot()
         def pick_color():
             color = QtWidgets.QColorDialog.getColor()
             color_btn.setStyleSheet('background-color: %s;' % color.name())
             label.setText(self._get_label_text(id_name, color.name()))
             self._scene_extra_args[id_name] = color.getRgbF()
             self._load_current_scene(load_widgets=False)
+
         return pick_color
 
     def _craft_choose_filename_cb(self, id_name, label, dialog_btn, files_filter):
+
+        @QtCore.pyqtSlot()
         def choose_filename():
             filenames = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', files_filter)
             if not filenames[0]:
@@ -391,12 +411,16 @@ class _Toolbar(QtWidgets.QWidget):
             label.setText(self._get_label_text(id_name, os.path.basename(filenames[0])))
             self._scene_extra_args[id_name] = filenames[0]
             self._load_current_scene(load_widgets=False)
+
         return choose_filename
 
     def _craft_checkbox_toggle_cb(self, id_name, chkbox):
+
+        @QtCore.pyqtSlot()
         def checkbox_toggle():
             self._scene_extra_args[id_name] = chkbox.isChecked()
             self._load_current_scene(load_widgets=False)
+
         return checkbox_toggle
 
     def _get_opts_widget_from_specs(self, widgets_specs):
@@ -503,10 +527,12 @@ class _Toolbar(QtWidgets.QWidget):
             index = self._scn_mdl.indexFromItem(qitem_script)
         self._scn_view.expandAll()
 
+    @QtCore.pyqtSlot(QtCore.QModelIndex)
     def _scn_view_clicked(self, index):
         self._current_scene_data = self._scn_mdl.itemFromIndex(index).data()
         self._load_current_scene()
 
+    @QtCore.pyqtSlot(list)
     def on_scripts_changed(self, scripts):
         found_current_scene = False
         scenes = []
@@ -532,15 +558,18 @@ class _Toolbar(QtWidgets.QWidget):
         self._reload_scene_view(scenes)
         self._load_current_scene()
 
+    @QtCore.pyqtSlot()
     def _fps_chkbox_changed(self):
         self._load_current_scene()
 
+    @QtCore.pyqtSlot()
     def _set_loglevel(self):
         level_id = self._loglevel_cbbox.currentIndex()
         level_str = self.LOG_LEVELS[level_id]
         ngl_level = eval('ngl.LOG_%s' % level_str.upper())
         ngl.log_set_min_level(ngl_level)
 
+    @QtCore.pyqtSlot()
     def _set_aspect_ratio(self):
         ar = ASPECT_RATIOS[self._ar_cbbox.currentIndex()]
         self._scene_cfg.aspect_ratio = ar[0] / float(ar[1])
@@ -615,6 +644,7 @@ class _ScriptsManager(QtCore.QObject):
     def start(self):
         self._reload_scripts(initial_import=True)
 
+    @QtCore.pyqtSlot()
     def reload(self): # TODO: should be called automatically
         self._reload_scripts()
 
@@ -667,6 +697,7 @@ class _MainWindow(QtWidgets.QSplitter):
         else:
             self._errbuf.hide()
 
+    @QtCore.pyqtSlot(str)
     def _all_scripts_err(self, err_str):
         self._scene_toolbar.clear_scripts()
         self._update_err_buf(err_str)
