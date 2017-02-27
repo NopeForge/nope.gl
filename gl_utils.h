@@ -30,6 +30,8 @@
 #if __ANDROID__
 # include <GLES2/gl2.h>
 # include <GLES2/gl2ext.h>
+# define GL_MAJOR_VERSION  0x821B
+# define GL_MINOR_VERSION  0x821C
 # define GL_NUM_EXTENSIONS 0x821D
 # define GL_RED GL_LUMINANCE
 #endif
