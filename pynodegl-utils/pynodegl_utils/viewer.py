@@ -24,7 +24,6 @@
 import os
 import sys
 import math
-import examples
 import importlib
 import inspect
 import json
@@ -32,6 +31,10 @@ import pkgutil
 import platform
 import subprocess
 import traceback
+import __builtin__
+
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 import pynodegl as ngl
 from export import Exporter
@@ -619,7 +622,7 @@ class _Toolbar(QtWidgets.QWidget):
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
-        self.reload_btn = QtWidgets.QPushButton('Reload scripts')
+        self.reload_btn = QtWidgets.QPushButton('Force scripts reload')
 
         self._scene_toolbar_layout = QtWidgets.QVBoxLayout(self)
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
@@ -642,13 +645,45 @@ class _ScriptsManager(QtCore.QObject):
     def __init__(self, module_pkgname):
         super(_ScriptsManager, self).__init__()
         self._module_pkgname = module_pkgname
+        self._builtin_import = __builtin__.__import__
+        self._builtin_open = __builtin__.open
+        self._dirs_to_watch = set()
+        self._files_to_watch = set()
+
+        self._event_handler = FileSystemEventHandler()
+        self._event_handler.on_any_event = self._on_any_event
+        self._observer = Observer()
+        self._observer.start()
 
     def start(self):
         self._reload_scripts(initial_import=True)
 
     @QtCore.pyqtSlot()
-    def reload(self): # TODO: should be called automatically
+    def reload(self):
         self._reload_scripts()
+
+    def _on_any_event(self, event):
+        if event.src_path in self._files_to_watch:
+            print('Change in %s detected, reload scene' % event.src_path)
+            self.reload()
+
+    def start_hooking(self):
+        __builtin__.__import__ = self._import_hook
+        __builtin__.open = self._open_hook
+
+    def end_hooking(self):
+        __builtin__.__import__ = self._builtin_import
+        __builtin__.open = self._builtin_open
+
+        self._observer.unschedule_all()
+        for path in self._dirs_to_watch:
+            self._observer.schedule(self._event_handler, path)
+
+    def _queue_watch_path(self, path):
+        self._dirs_to_watch.update([os.path.dirname(path)])
+        if path.endswith('.pyc'):
+            path = path[:-1]
+        self._files_to_watch.update([path])
 
     def _reload_unsafe(self, initial_import):
         scripts = []
@@ -657,21 +692,36 @@ class _ScriptsManager(QtCore.QObject):
             self._module = importlib.import_module(self._module_pkgname)
         else:
             self._module = reload(self._module)
+        self._queue_watch_path(self._module.__file__)
 
         for module in pkgutil.iter_modules(self._module.__path__):
             module_finder, module_name, ispkg = module
             script = importlib.import_module('.' + module_name, self._module_pkgname)
+            self._queue_watch_path(script.__file__)
             if not initial_import:
                 reload(script)
             scripts.append((module_name, script))
 
         self.scripts_changed.emit(scripts)
 
+    def _import_hook(self, name, globals={}, locals={}, fromlist=[], level=-1):
+        ret = self._builtin_import(name, globals, locals, fromlist, level)
+        if hasattr(ret, '__file__'):
+            self._queue_watch_path(ret.__file__)
+        return ret
+
+    def _open_hook(self, name, mode="r", buffering=-1):
+        ret = self._builtin_open(name, mode, buffering)
+        self._queue_watch_path(name)
+        return ret
+
     def _reload_scripts(self, initial_import=False):
+        self.start_hooking()
         try:
             self._reload_unsafe(initial_import)
         except:
             self.error.emit(traceback.format_exc())
+        self.end_hooking()
 
 
 class _MainWindow(QtWidgets.QSplitter):
@@ -707,12 +757,14 @@ class _MainWindow(QtWidgets.QSplitter):
     def _get_scene(self):
         scene = None
         try:
+            self._scripts_mgr.start_hooking()
             scene = self._scene_toolbar.construct_current_scene()
         except:
             self._update_err_buf(traceback.format_exc())
         else:
             self._update_err_buf(None)
         finally:
+            self._scripts_mgr.end_hooking()
             return scene
 
     def __init__(self, args):
