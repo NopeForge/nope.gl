@@ -226,14 +226,18 @@ static void print_report(struct ngl_node *node, int op, const int64_t t)
 static void fps_update(struct ngl_node *node, double t)
 {
     struct fps *s = node->priv_data;
+    struct ngl_node *child = s->child;
+
+    memcpy(child->modelview_matrix, node->modelview_matrix, sizeof(node->modelview_matrix));
+    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
 
     if (s->measure_update) {
         s->update_start = ngli_gettime();
-        ngli_node_update(s->child, t);
+        ngli_node_update(child, t);
         s->update_end = ngli_gettime();
         print_report(node, 0, s->update_end - s->update_start);
     } else {
-        ngli_node_update(s->child, t);
+        ngli_node_update(child, t);
     }
 }
 
