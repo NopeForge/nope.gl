@@ -64,7 +64,10 @@ You can check the installed version of `libnodegl` using `pkg-config
 
 ## Installation of `pynodegl-utils` (the Python utilities and examples)
 
-`pip install ./pynodegl-utils`
+```
+pip install -r ./pynodegl-utils/requirements.txt
+pip install ./pynodegl-utils
+```
 
 ## License
 
