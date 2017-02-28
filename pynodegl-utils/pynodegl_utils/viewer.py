@@ -224,21 +224,36 @@ class _GraphView(QtWidgets.QWidget):
         self._graph_lbl.setPixmap(pixmap)
         self._graph_lbl.adjustSize()
 
+    @QtCore.pyqtSlot()
+    def scene_changed(self):
+        if self._auto_chkbox.isChecked():
+            self._update_graph()
+
+    @QtCore.pyqtSlot(int)
+    def _auto_check_changed(self, state):
+        if state:
+            self._graph_btn.setEnabled(False)
+        else:
+            self._graph_btn.setEnabled(True)
+
     def __init__(self, get_scene_func):
         super(_GraphView, self).__init__()
 
         self._get_scene_func = get_scene_func
 
         self._graph_btn = QtWidgets.QPushButton("Update Graph")
+        self._auto_chkbox = QtWidgets.QCheckBox("Automatically update")
         self._graph_lbl = QtWidgets.QLabel()
         img_area = QtWidgets.QScrollArea()
         img_area.setWidget(self._graph_lbl)
 
         graph_layout = QtWidgets.QVBoxLayout(self)
+        graph_layout.addWidget(self._auto_chkbox)
         graph_layout.addWidget(self._graph_btn)
         graph_layout.addWidget(img_area)
 
         self._graph_btn.clicked.connect(self._update_graph)
+        self._auto_chkbox.stateChanged.connect(self._auto_check_changed)
 
 
 class _GLView(QtWidgets.QWidget):
@@ -811,6 +826,7 @@ class _MainWindow(QtWidgets.QSplitter):
 
         self._scene_toolbar = _Toolbar(self._scene_cfg, module_pkgname, default_ar)
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
+        self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
 
         self._errbuf = QtWidgets.QTextEdit()
