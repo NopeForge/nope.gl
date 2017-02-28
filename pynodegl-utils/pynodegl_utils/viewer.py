@@ -546,7 +546,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._scn_view.expandAll()
 
     @QtCore.pyqtSlot(QtCore.QModelIndex)
-    def _scn_view_clicked(self, index):
+    def _scn_view_selected(self, index):
         data = self._scn_mdl.itemFromIndex(index).data()
         if data:
             self._current_scene_data = data
@@ -646,7 +646,8 @@ class _Toolbar(QtWidgets.QWidget):
         self._scene_toolbar_layout.addWidget(self.reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
 
-        self._scn_view.clicked.connect(self._scn_view_clicked)
+        self._scn_view.clicked.connect(self._scn_view_selected)
+        self._scn_view.activated.connect(self._scn_view_selected)
         self._fps_chkbox.stateChanged.connect(self._fps_chkbox_changed)
         self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
