@@ -4,7 +4,6 @@
 - glcontext: support EAGL (iOS)
 - nodes: support masking
 - nodes: threaded texture uploading
-- rotate: support anchor
 - shader: remove version #100 restriction
 - texture: support yuv
 - viewer/export: add advanced screenshot feature

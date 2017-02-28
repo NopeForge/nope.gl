@@ -138,6 +138,7 @@
     optional:
         - [angle, double]
         - [axis, vec3]
+        - [anchor, vec3]
         - [animkf, NodeList]
 
 - RTT:

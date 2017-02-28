@@ -33,6 +33,7 @@ static const struct node_param rotate_params[] = {
     {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
     {"angle", PARAM_TYPE_DBL,  OFFSET(angle)},
     {"axis",  PARAM_TYPE_VEC3, OFFSET(axis)},
+    {"anchor", PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}}},
     {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
     {NULL}
@@ -68,6 +69,18 @@ static void rotate_update(struct ngl_node *node, double t)
     struct rotate *s = node->priv_data;
     struct ngl_node *child = s->child;
     const float x = get_angle(s, t) * 2.0f * M_PI / 360.0f;
+    static const float zero_anchor[3] = { 0.0, 0.0, 0.0 };
+    int translate = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
+
+    if (translate) {
+        const float transm[4*4] = {
+            1.0f,   0.0f,   0.0f,   0.0f,
+            0.0f,   1.0f,   0.0f,   0.0f,
+            0.0f,   0.0f,   1.0f,   0.0f,
+            s->anchor[0], s->anchor[1], s->anchor[2], 1.0f,
+        };
+        ngli_mat4_mul(node->modelview_matrix, node->modelview_matrix, transm);
+    }
 
     if (s->axis[0] == 1) {
         const float rotm[4*4] = {
@@ -94,6 +107,17 @@ static void rotate_update(struct ngl_node *node, double t)
         };
         ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, rotm);
     }
+
+    if (translate) {
+        const float transm[4*4] = {
+            1.0f,   0.0f,   0.0f,   0.0f,
+            0.0f,   1.0f,   0.0f,   0.0f,
+            0.0f,   0.0f,   1.0f,   0.0f,
+            -s->anchor[0], -s->anchor[1], -s->anchor[2], 1.0f,
+        };
+        ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, transm);
+    }
+
     memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
     ngli_node_update(child, t);
 }

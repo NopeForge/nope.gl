@@ -26,11 +26,14 @@ void main(void)
        {'name': 'scale_x', 'type': 'range', 'range': [0.01,2], 'unit_base': 100},
        {'name': 'scale_y', 'type': 'range', 'range': [0.01,2], 'unit_base': 100},
        {'name': 'rotate', 'type': 'bool'},
-       {'name': 'rotate_deg', 'type': 'range', 'range': [0,360], 'unit_base': 10})
+       {'name': 'rotate_deg', 'type': 'range', 'range': [0,360], 'unit_base': 10},
+       {'name': 'rotate_anchor_x', 'type': 'range', 'range': [-1, 1], 'unit_base': 100},
+       {'name': 'rotate_anchor_y', 'type': 'range', 'range': [-1, 1], 'unit_base': 100},
+       {'name': 'rotate_anchor_z', 'type': 'range', 'range': [-1, 1], 'unit_base': 100})
 def static(cfg, color=(0.5, 0.0, 1.0, 1.0), width=0.5, height=0.5,
            translate=False, translate_x=0, translate_y=0,
            scale=False, scale_x=1, scale_y=1,
-           rotate=False, rotate_deg=0):
+           rotate=False, rotate_deg=0, rotate_anchor_x=0, rotate_anchor_y=0, rotate_anchor_z=0):
     q = Quad((-width/2., -height/2., 0), (width, 0, 0), (0, height, 0))
     s = Shader()
 
@@ -41,7 +44,8 @@ def static(cfg, color=(0.5, 0.0, 1.0, 1.0), width=0.5, height=0.5,
     node.add_uniforms(ucolor)
 
     if rotate:
-        node = Rotate(node, axis=(0,0,1), angle=rotate_deg)
+        node = Rotate(node, axis=(0,0,1), angle=rotate_deg,
+                      anchor=(rotate_anchor_x, rotate_anchor_y, rotate_anchor_z))
 
     if scale:
         node = Scale(node, factors=(scale_x, scale_y, 0))
