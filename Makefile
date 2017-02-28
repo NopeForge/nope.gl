@@ -49,7 +49,7 @@ LD_SYM_FILE   = $(LIB_BASENAME).symexport
 LD_SYM_OPTION = --version-script
 LD_SYM_DATA   = "{\n\tglobal: ngl_*;\n\tlocal: *;\n};\n"
 DYLIBSUFFIX = so
-ifeq ($(TARGET_OS),Darwin)
+ifeq ($(TARGET_OS),$(filter $(TARGET_OS),Darwin iPhone))
 	DYLIBSUFFIX = dylib
 	LD_SYM_OPTION = -exported_symbols_list
 	LD_SYM_DATA   = "_ngl_*\n"
@@ -100,21 +100,25 @@ LIB_OBJS = api.o                    \
 LIB_EXTRA_OBJS_Linux   = glcontext_x11.o
 LIB_EXTRA_OBJS_Darwin  = glcontext_cgl.o
 LIB_EXTRA_OBJS_Android = glcontext_egl.o
+LIB_EXTRA_OBJS_iPhone  = glcontext_eagl.o
 
 LIB_CFLAGS               = -fPIC
 LIB_EXTRA_CFLAGS_Linux   = -DHAVE_PLATFORM_GLX
 LIB_EXTRA_CFLAGS_Darwin  = -DHAVE_PLATFORM_CGL
 LIB_EXTRA_CFLAGS_Android = -DHAVE_PLATFORM_EGL
+LIB_EXTRA_CFLAGS_iPhone  = -DHAVE_PLATFORM_EAGL
 
 LIB_LDLIBS               = -lm -lpthread
 LIB_EXTRA_LDLIBS_Linux   =
 LIB_EXTRA_LDLIBS_Darwin  = -framework OpenGL -framework CoreVideo -framework CoreFoundation
 LIB_EXTRA_LDLIBS_Android =
+LIB_EXTRA_LDLIBS_iPhone  = -framework OpenGLES -framework CoreMedia
 
 LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 8.0.0"
 LIB_EXTRA_PKG_CONFIG_LIBS_Linux   = x11 gl
 LIB_EXTRA_PKG_CONFIG_LIBS_Darwin  =
 LIB_EXTRA_PKG_CONFIG_LIBS_Android = egl glesv2
+LIB_EXTRA_PKG_CONFIG_LIBS_iPhone  =
 
 LIB_OBJS   += $(LIB_EXTRA_OBJS_$(TARGET_OS))
 LIB_CFLAGS += $(LIB_EXTRA_CFLAGS_$(TARGET_OS))
