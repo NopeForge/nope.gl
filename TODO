@@ -1,7 +1,6 @@
 - add tests
 - animkeyframe: find a way to expose resolutions
 - api: design a more advanced time remapping API
-- glcontext: support EAGL (iOS)
 - nodes: support masking
 - nodes: threaded texture uploading
 - shader: remove version #100 restriction
