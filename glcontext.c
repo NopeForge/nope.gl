@@ -166,6 +166,16 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
     }
 
+    if (glcontext->has_vao_compatibility) {
+        glcontext->has_vao_compatibility =
+            glcontext->glGenVertexArrays != NULL &&
+            glcontext->glBindVertexArray != NULL &&
+            glcontext->glDeleteVertexArrays != NULL;
+        if (!glcontext->has_vao_compatibility)
+            LOG(WARNING, "OpenGL driver claims VAO support but we could not load related functions");
+
+    }
+
     LOG(INFO, "OpenGL %d.%d ES2_compatibility=%d vertex_array_object=%d",
         glcontext->major_version,
         glcontext->minor_version,
