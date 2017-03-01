@@ -63,6 +63,7 @@ class BuildExtCommand(build_ext):
 ''' % {'n': n, 'vecname': vecname, 'cvecname': cvecname}
 
         content = 'from libc.stdlib cimport free\n'
+        content += 'from libc.stdint cimport uintptr_t\n'
         content += 'cdef extern from "nodegl.h":\n'
 
         nodes_decls = []
@@ -147,6 +148,10 @@ cdef class %(class_name)s(_Node):
                 class_str = '''
 cdef class _Node:
     cdef ngl_node *ctx
+
+    @property
+    def cptr(self):
+        return <uintptr_t>self.ctx
 
     def dot(self):
         cdef char *s
