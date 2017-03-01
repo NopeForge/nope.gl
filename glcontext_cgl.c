@@ -88,7 +88,8 @@ static void glcontext_cgl_uninit(struct glcontext *glcontext)
 {
     struct glcontext_cgl *glcontext_cgl = glcontext->priv_data;
 
-    CFRelease(glcontext_cgl->framework);
+    if (glcontext_cgl->framework)
+        CFRelease(glcontext_cgl->framework);
 }
 
 const struct glcontext_class ngli_glcontext_cgl_class = {
