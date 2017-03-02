@@ -229,6 +229,16 @@ void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *n
     return ptr;
 }
 
+void *ngli_glcontext_get_handle(struct glcontext *glcontext)
+{
+    void *handle = NULL;
+
+    if (glcontext->class->get_handle)
+        handle = glcontext->class->get_handle(glcontext);
+
+    return handle;
+}
+
 int ngli_glcontext_check_extension(const char *extension, const char *extensions)
 {
     if (!extension || !extensions)
