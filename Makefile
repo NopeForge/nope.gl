@@ -102,7 +102,7 @@ LIB_EXTRA_OBJS_Darwin  = glcontext_cgl.o
 LIB_EXTRA_OBJS_Android = glcontext_egl.o
 LIB_EXTRA_OBJS_iPhone  = glcontext_eagl.o
 
-LIB_CFLAGS               = -fPIC
+LIB_CFLAGS               = -fPIC -DTARGET_$(shell echo $(TARGET_OS) | tr a-z A-Z)
 LIB_EXTRA_CFLAGS_Linux   = -DHAVE_PLATFORM_GLX
 LIB_EXTRA_CFLAGS_Darwin  = -DHAVE_PLATFORM_CGL
 LIB_EXTRA_CFLAGS_Android = -DHAVE_PLATFORM_EGL
