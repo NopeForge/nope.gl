@@ -25,6 +25,10 @@
 #include <stdlib.h>
 #include <sxplayer.h>
 
+#ifdef TARGET_IPHONE
+#include <CoreVideo/CoreVideo.h>
+#endif
+
 #include "gl_utils.h"
 #include "glcontext.h"
 #include "params.h"
@@ -238,6 +242,11 @@ struct texture {
     GLenum local_target;
     GLuint media_id;
     GLenum media_target;
+
+#ifdef TARGET_IPHONE
+    CVOpenGLESTextureCacheRef cache;
+    CVOpenGLESTextureRef texture;
+#endif
 };
 
 struct textureshaderinfo {

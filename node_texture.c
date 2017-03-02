@@ -111,6 +111,22 @@ static int texture_init(struct ngl_node *node)
             return ret;
     }
 
+#ifdef TARGET_IPHONE
+    struct glcontext *glcontext = node->ctx->glcontext;
+    CVEAGLContext eaglcontext = ngli_glcontext_get_handle(glcontext);
+
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
+                                                NULL,
+                                                eaglcontext,
+                                                NULL,
+                                                &s->cache);
+
+    if (err != noErr) {
+        LOG(ERROR, "Could not create CoreVideo texture cache: %d", err);
+        return -1;
+    }
+#endif
+
     return 0;
 }
 
@@ -154,7 +170,7 @@ static void handle_media_frame(struct texture *s)
             s->height = frame->height;
 #endif
         } else if (frame->pix_fmt == SXPLAYER_PIXFMT_VT) {
-#ifdef __APPLE__
+#if defined(TARGET_DARWIN)
             CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
             CVPixelBufferLockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
 
@@ -186,6 +202,52 @@ static void handle_media_frame(struct texture *s)
                 glGenerateMipmap(GL_TEXTURE_2D);
                 break;
             }
+            glBindTexture(GL_TEXTURE_2D, 0);
+
+            s->width = width;
+            s->height = height;
+#elif defined(TARGET_IPHONE)
+            CVOpenGLESTextureRef texture = NULL;
+            CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+
+            int width = CVPixelBufferGetBytesPerRow(cvpixbuf) >> 2;
+            int height = CVPixelBufferGetHeight(cvpixbuf);
+            float padding = CVPixelBufferGetWidth(cvpixbuf) / (float)width;
+
+            CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                                        s->cache,
+                                                                        cvpixbuf,
+                                                                        NULL,
+                                                                        GL_TEXTURE_2D,
+                                                                        GL_RGBA,
+                                                                        width,
+                                                                        height,
+                                                                        GL_BGRA,
+                                                                        GL_UNSIGNED_BYTE,
+                                                                        0,
+                                                                        &texture);
+
+            if (err != noErr) {
+                LOG(ERROR, "Could not create CoreVideo texture from image: %d", err);
+                s->id = s->local_id;
+                return;
+            }
+
+            if (s->texture)
+                CFRelease(s->texture);
+
+            s->texture = texture;
+            s->id = s->media_id = CVOpenGLESTextureGetName(texture);
+            s->target = GL_TEXTURE_2D;
+            s->format = GL_BGRA;
+            s->internal_format = GL_RGBA;
+            s->coordinates_matrix[0] = padding;
+
+            glBindTexture(GL_TEXTURE_2D, s->id);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
             glBindTexture(GL_TEXTURE_2D, 0);
 
             s->width = width;
@@ -247,6 +309,13 @@ static void texture_uninit(struct ngl_node *node)
     struct texture *s = node->priv_data;
 
     glDeleteTextures(1, &s->local_id);
+
+#ifdef TARGET_IPHONE
+    if (s->texture)
+        CFRelease(s->texture);
+    if (s->cache)
+        CFRelease(s->cache);
+#endif
 }
 
 const struct node_class ngli_texture_class = {
