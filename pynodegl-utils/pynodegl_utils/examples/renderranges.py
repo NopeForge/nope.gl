@@ -15,7 +15,7 @@ def queued_medias(cfg, overlap_time=1., dim=3):
         for x in range(dim):
             video_id = y*dim + x
             start = video_id * cfg.duration / nb_videos
-            m = Media(cfg.media_filename, start=start)
+            m = Media(cfg.medias[0].filename, start=start)
             m.set_name('media #%d' % video_id)
 
             corner = (-1. + x*qw, 1. - (y+1)*qh, 0)
@@ -40,8 +40,8 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     s = Shader()
 
-    m1 = Media(cfg.media_filename, name="media1")
-    m2 = Media(cfg.media_filename, name="media2")
+    m1 = Media(cfg.medias[0].filename, name="media1")
+    m2 = Media(cfg.medias[0].filename, name="media2")
 
     t1 = Texture(data_src=m1, name="texture1")
     t2 = Texture(data_src=m2, name="texture2")
@@ -127,8 +127,8 @@ void main(void)
     s = Shader()
     s1_2 = Shader(vertex_data=vertex, fragment_data=fragment)
 
-    m1 = Media(cfg.media_filename, name="media1")
-    m2 = Media(cfg.media_filename, name="media2", start=transition_start)
+    m1 = Media(cfg.medias[0].filename, name="media1")
+    m2 = Media(cfg.medias[0].filename, name="media2", start=transition_start)
 
     t1 = Texture(data_src=m1, name="texture1")
     t2 = Texture(data_src=m2, name="texture2")

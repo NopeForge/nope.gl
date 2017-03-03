@@ -60,7 +60,7 @@ def static(cfg, color=(0.5, 0.0, 1.0, 1.0), width=0.5, height=0.5,
        {'name': 'translate', 'type': 'bool'})
 def animated(cfg, rotate=True, scale=True, translate=True):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(cfg.media_filename)
+    m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
     node = TexturedShape(q, s, t)
@@ -103,7 +103,7 @@ void main(void)
 @scene()
 def animated_uniform(cfg):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(cfg.media_filename)
+    m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader(fragment_data=animated_frag_data)
     ts = TexturedShape(q, s, t)
@@ -127,7 +127,7 @@ def animated_camera(cfg, rotate=False):
     g.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(cfg.media_filename)
+    m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
     node = TexturedShape(q, s, t)

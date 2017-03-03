@@ -19,7 +19,7 @@ def blending_test(cfg):
     g2 = Group()
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(cfg.media_filename)
+    m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
     ts = TexturedShape(q, s, t)

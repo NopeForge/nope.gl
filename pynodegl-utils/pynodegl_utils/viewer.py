@@ -26,7 +26,6 @@ import sys
 import math
 import importlib
 import inspect
-import json
 import pkgutil
 import platform
 import subprocess
@@ -37,6 +36,8 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
 import pynodegl as ngl
+
+from misc import NGLMedia
 from export import Exporter
 
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -745,18 +746,6 @@ class _MainWindow(QtWidgets.QSplitter):
     LOOP_DURATION = 30.0
     DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
 
-    def _get_media_dimensions(self, filename):
-        try:
-            data = subprocess.check_output(['ffprobe', '-v', '0',
-                                            '-select_streams', 'v:0',
-                                            '-of', 'json', '-show_streams',
-                                            filename])
-            data = json.loads(data)
-        except:
-            return (-1, -1)
-        st = data['streams'][0]
-        return (st['width'], st['height'])
-
     def _update_err_buf(self, err_str):
         if err_str:
             self._errbuf.setText(err_str)
@@ -794,6 +783,7 @@ class _MainWindow(QtWidgets.QSplitter):
             args = args[1:]
         self._scripts_mgr = _ScriptsManager(module_pkgname)
 
+        medias = []
         if not args:
             media_file = self.DEFAULT_MEDIA_FILE
             if not os.path.exists(self.DEFAULT_MEDIA_FILE):
@@ -802,15 +792,18 @@ class _MainWindow(QtWidgets.QSplitter):
                                        media_file])
                 if ret:
                     raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
+            medias.append(NGLMedia(media_file))
         else:
-            media_file = args[0]
+            for f in os.listdir(args[0]):
+                ext = f.rsplit('.', 1)[-1].lower()
+                if ext in ('mp4', 'mkv', 'avi'):
+                    medias.append(NGLMedia(os.path.join(args[0], f)))
 
         default_ar = ASPECT_RATIOS[0]
 
         class _SceneCfg: pass
         self._scene_cfg = _SceneCfg()
-        self._scene_cfg.media_filename = media_file
-        self._scene_cfg.media_dimensions = self._get_media_dimensions(media_file)
+        self._scene_cfg.medias = medias
         self._scene_cfg.duration = self.LOOP_DURATION
         self._scene_cfg.aspect_ratio = default_ar[0] / float(default_ar[1])
 

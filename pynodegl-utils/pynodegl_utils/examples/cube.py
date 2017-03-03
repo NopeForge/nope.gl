@@ -39,7 +39,7 @@ void main(void)
 }"""
     s = Shader(fragment_data=frag_data)
 
-    t = Texture(data_src=Media(cfg.media_filename))
+    t = Texture(data_src=Media(cfg.medias[0].filename))
     cube_quads_info = _get_cube_quads()
     children = [_get_cube_side(t, s, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)

@@ -1,4 +1,7 @@
 import inspect
+import json
+import subprocess
+import traceback
 
 def scene(*widgets_specs):
     def real_decorator(scene_func):
@@ -33,3 +36,38 @@ def scene(*widgets_specs):
         return func_wrapper
 
     return real_decorator
+
+class NGLMedia:
+
+    @property
+    def filename(self):
+        return self._filename
+
+    @property
+    def width(self):
+        return self._dimensions[0]
+
+    @property
+    def height(self):
+        return self._dimensions[1]
+
+    @property
+    def dimensions(self):
+        return self._dimensions
+
+    def _set_media_dimensions(self):
+        try:
+            data = subprocess.check_output(['ffprobe', '-v', '0',
+                                            '-select_streams', 'v:0',
+                                            '-of', 'json', '-show_streams',
+                                            self._filename])
+            data = json.loads(data)
+        except:
+            print('Error while loading %s: %s' % (self._filename, traceback.format_exc()))
+            return (-1, -1)
+        st = data['streams'][0]
+        self._dimensions = (st['width'], st['height'])
+
+    def __init__(self, filename):
+        self._filename = filename
+        self._set_media_dimensions()

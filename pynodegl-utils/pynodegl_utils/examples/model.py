@@ -158,7 +158,7 @@ def centered_model_media(cfg, n=0.5, model=None):
         ))
 
     q = Shape(primitives)
-    m = Media(cfg.media_filename)
+    m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader(fragment_data=fragment_data)
     tshape = TexturedShape(q, s, t)
