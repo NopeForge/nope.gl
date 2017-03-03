@@ -281,10 +281,10 @@ class _GLView(QtWidgets.QWidget):
     def _update_tick(self, value):
         self._tick = value
         t = self._tick * 1./self.RENDERING_FPS
-        if t > self._scene_cfg.duration:
+        if t > self._scene_duration:
             self._tick = 0
         cur_time = '%02d:%02d' % divmod(self._tick, 60)
-        duration = '%02d:%02d' % divmod(self._scene_cfg.duration, 60)
+        duration = '%02d:%02d' % divmod(self._scene_duration, 60)
         self._time_lbl.setText('%s / %s (%d @ %dHz)' % (cur_time, duration, self._tick, self.RENDERING_FPS))
         self._slider.setValue(self._tick)
 
@@ -325,12 +325,12 @@ class _GLView(QtWidgets.QWidget):
         if scene:
             self._gl_widget.set_scene(scene)
 
-    def __init__(self, get_scene_func, default_ar, scene_cfg):
+    def __init__(self, get_scene_func, default_ar, scene_duration):
         super(_GLView, self).__init__()
 
         self._get_scene_func = get_scene_func
 
-        self._scene_cfg = scene_cfg
+        self._scene_duration = scene_duration
 
         self._timer = QtCore.QTimer()
         self._timer.setInterval(1000.0 / self.RENDERING_FPS) # in milliseconds
@@ -338,7 +338,7 @@ class _GLView(QtWidgets.QWidget):
         self._gl_widget = _GLWidget(self, default_ar)
 
         self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        self._slider.setRange(0, scene_cfg.duration * self.RENDERING_FPS)
+        self._slider.setRange(0, scene_duration * self.RENDERING_FPS)
 
         self._action_btn = QtWidgets.QPushButton()
         self._set_action('pause')
@@ -499,25 +499,15 @@ class _Toolbar(QtWidgets.QWidget):
         groupbox.setLayout(vbox)
         return groupbox
 
-    def construct_current_scene(self):
-        if not self._current_scene_data:
-            return None
+    def get_scene_cfg(self):
         module_name, scene_name, scene_func = self._current_scene_data
-        scene = scene_func(self._scene_cfg, **self._scene_extra_args)
-        scene.set_name(scene_name)
-
-        if self._fps_chkbox.isChecked():
-            from pynodegl import FPS, Quad, Shader, Texture, TexturedShape, Group
-            fps = FPS(scene, measure_update=1, measure_draw=1, create_databuf=1)
-            q = Quad((0, 15/16., 0), (1., 0, 0), (0, 1/16., 0))
-            s = Shader()
-            t = Texture(data_src=fps)
-            tshape = TexturedShape(q, s, t)
-            g = Group()
-            g.add_children(fps, tshape)
-            scene = g
-
-        return scene
+        return {
+                'name': scene_name,
+                'func': scene_func,
+                'aspect_ratio': ASPECT_RATIOS[self._ar_cbbox.currentIndex()],
+                'extra_args': self._scene_extra_args,
+                'has_fps': self._fps_chkbox.isChecked(),
+        }
 
     def _load_current_scene(self, load_widgets=True):
         if not self._current_scene_data:
@@ -593,17 +583,14 @@ class _Toolbar(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def _set_aspect_ratio(self):
         ar = ASPECT_RATIOS[self._ar_cbbox.currentIndex()]
-        self._scene_cfg.aspect_ratio = ar[0] / float(ar[1])
         self.aspectRatioChanged.emit(ar)
         self._load_current_scene()
 
-    def __init__(self, scene_cfg, default_ar):
+    def __init__(self, default_ar):
         super(_Toolbar, self).__init__()
 
         self._scene_opts_widget = None
         self._scene_extra_args = {}
-
-        self._scene_cfg = scene_cfg
 
         self._scn_view = QtWidgets.QTreeView()
         self._scn_view.setHeaderHidden(True)
@@ -757,11 +744,37 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.clear_scripts()
         self._update_err_buf(err_str)
 
+    def _construct_current_scene(self, cfg_dict):
+        ar = cfg_dict['aspect_ratio']
+
+        class _SceneCfg: pass
+        scene_cfg = _SceneCfg()
+        scene_cfg.medias = self._medias
+        scene_cfg.duration = self.LOOP_DURATION
+        scene_cfg.aspect_ratio = ar[0] / float(ar[1])
+
+        scene = cfg_dict['func'](scene_cfg, **cfg_dict['extra_args'])
+        scene.set_name(cfg_dict['name'])
+
+        if cfg_dict['has_fps']:
+            from pynodegl import FPS, Quad, Shader, Texture, TexturedShape, Group
+            fps = FPS(scene, measure_update=1, measure_draw=1, create_databuf=1)
+            q = Quad((0, 15/16., 0), (1., 0, 0), (0, 1/16., 0))
+            s = Shader()
+            t = Texture(data_src=fps)
+            tshape = TexturedShape(q, s, t)
+            g = Group()
+            g.add_children(fps, tshape)
+            scene = g
+
+        return scene
+
     def _get_scene(self):
+        cfg_dict = self._scene_toolbar.get_scene_cfg()
         scene = None
         try:
             self._scripts_mgr.start_hooking()
-            scene = self._scene_toolbar.construct_current_scene()
+            scene = self._construct_current_scene(cfg_dict)
         except:
             self._update_err_buf(traceback.format_exc())
         else:
@@ -792,17 +805,13 @@ class _MainWindow(QtWidgets.QSplitter):
                 if ext in ('mp4', 'mkv', 'avi'):
                     medias.append(NGLMedia(os.path.join(assets_dir, f)))
 
-        default_ar = ASPECT_RATIOS[0]
+        self._medias = medias
 
-        class _SceneCfg: pass
-        self._scene_cfg = _SceneCfg()
-        self._scene_cfg.medias = medias
-        self._scene_cfg.duration = self.LOOP_DURATION
-        self._scene_cfg.aspect_ratio = default_ar[0] / float(default_ar[1])
+        default_ar = ASPECT_RATIOS[0]
 
         get_scene_func = self._get_scene
 
-        gl_view = _GLView(get_scene_func, default_ar, self._scene_cfg)
+        gl_view = _GLView(get_scene_func, default_ar, self.LOOP_DURATION)
         graph_view = _GraphView(get_scene_func)
         export_view = _ExportView(self, get_scene_func)
 
@@ -811,7 +820,7 @@ class _MainWindow(QtWidgets.QSplitter):
         tabs.addTab(graph_view, "Graph view")
         tabs.addTab(export_view, "Export")
 
-        self._scene_toolbar = _Toolbar(self._scene_cfg, default_ar)
+        self._scene_toolbar = _Toolbar(default_ar)
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
