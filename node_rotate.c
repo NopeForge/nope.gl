@@ -68,7 +68,7 @@ static void rotate_update(struct ngl_node *node, double t)
 {
     struct rotate *s = node->priv_data;
     struct ngl_node *child = s->child;
-    const float trans[4*4];
+    float trans[4*4];
     const float x = get_angle(s, t) * 2.0f * M_PI / 360.0f;
     static const float zero_anchor[3] = { 0.0, 0.0, 0.0 };
     int translate = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
