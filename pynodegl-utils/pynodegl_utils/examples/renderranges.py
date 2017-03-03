@@ -15,7 +15,7 @@ def queued_medias(cfg, overlap_time=1., dim=3):
         for x in range(dim):
             video_id = y*dim + x
             start = video_id * cfg.duration / nb_videos
-            m = Media(cfg.medias[0].filename, start=start)
+            m = Media(cfg.medias[video_id % len(cfg.medias)].filename, start=start)
             m.set_name('media #%d' % video_id)
 
             corner = (-1. + x*qw, 1. - (y+1)*qh, 0)
