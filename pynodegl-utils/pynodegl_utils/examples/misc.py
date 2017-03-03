@@ -38,6 +38,8 @@ void main(void) {
     gl_FragColor = color;
 }'''
 
+    cfg.duration = 5
+
     s = Shader(fragment_data=frag_data)
 
     fib = [0, 1, 1]

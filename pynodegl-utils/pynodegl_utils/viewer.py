@@ -125,7 +125,7 @@ class _ExportView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def _export(self):
-        scene = self._get_scene_func()
+        scene, cfg = self._get_scene_func()
         if scene is not None:
             ofile  = self._ofile_text.text()
             width  = self._spinbox_width.value()
@@ -144,7 +144,7 @@ class _ExportView(QtWidgets.QWidget):
             exporter = Exporter()
             exporter.progressed.connect(self._pgbar.setValue)
             exporter.export(scene, ofile, width, height,
-                            self.parent.LOOP_DURATION, fps,
+                            cfg.duration, fps,
                             extra_enc_args)
 
             self._pgbar.hide()
@@ -213,7 +213,7 @@ class _GraphView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def _update_graph(self):
-        scene = self._get_scene_func()
+        scene, _ = self._get_scene_func()
         if not scene:
             return
 
@@ -321,16 +321,19 @@ class _GLView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def scene_changed(self):
-        scene = self._get_scene_func()
+        scene, cfg = self._get_scene_func()
         if scene:
             self._gl_widget.set_scene(scene)
+            self._scene_duration = cfg.duration
+            self._slider.setRange(0, self._scene_duration * self.RENDERING_FPS)
+            self._update_tick(self._tick)
 
-    def __init__(self, get_scene_func, default_ar, scene_duration):
+    def __init__(self, get_scene_func, default_ar):
         super(_GLView, self).__init__()
 
         self._get_scene_func = get_scene_func
 
-        self._scene_duration = scene_duration
+        self._scene_duration = 0
 
         self._timer = QtCore.QTimer()
         self._timer.setInterval(1000.0 / self.RENDERING_FPS) # in milliseconds
@@ -338,7 +341,6 @@ class _GLView(QtWidgets.QWidget):
         self._gl_widget = _GLWidget(self, default_ar)
 
         self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        self._slider.setRange(0, scene_duration * self.RENDERING_FPS)
 
         self._action_btn = QtWidgets.QPushButton()
         self._set_action('pause')
@@ -767,21 +769,22 @@ class _MainWindow(QtWidgets.QSplitter):
             g.add_children(fps, tshape)
             scene = g
 
-        return scene
+        return scene, scene_cfg
 
     def _get_scene(self):
         cfg_dict = self._scene_toolbar.get_scene_cfg()
         scene = None
+        cfg = None
         try:
             self._scripts_mgr.start_hooking()
-            scene = self._construct_current_scene(cfg_dict)
+            scene, cfg = self._construct_current_scene(cfg_dict)
         except:
             self._update_err_buf(traceback.format_exc())
         else:
             self._update_err_buf(None)
         finally:
             self._scripts_mgr.end_hooking()
-            return scene
+            return scene, cfg
 
     def __init__(self, module_pkgname, assets_dir):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
@@ -811,7 +814,7 @@ class _MainWindow(QtWidgets.QSplitter):
 
         get_scene_func = self._get_scene
 
-        gl_view = _GLView(get_scene_func, default_ar, self.LOOP_DURATION)
+        gl_view = _GLView(get_scene_func, default_ar)
         graph_view = _GraphView(get_scene_func)
         export_view = _ExportView(self, get_scene_func)
 
