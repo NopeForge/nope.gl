@@ -68,6 +68,7 @@ static void rotate_update(struct ngl_node *node, double t)
 {
     struct rotate *s = node->priv_data;
     struct ngl_node *child = s->child;
+    const float trans[4*4];
     const float x = get_angle(s, t) * 2.0f * M_PI / 360.0f;
     static const float zero_anchor[3] = { 0.0, 0.0, 0.0 };
     int translate = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
@@ -79,7 +80,9 @@ static void rotate_update(struct ngl_node *node, double t)
             0.0f,   0.0f,   1.0f,   0.0f,
             s->anchor[0], s->anchor[1], s->anchor[2], 1.0f,
         };
-        ngli_mat4_mul(node->modelview_matrix, node->modelview_matrix, transm);
+        ngli_mat4_mul(trans, node->modelview_matrix, transm);
+    } else {
+        memcpy(trans, node->modelview_matrix, sizeof(node->modelview_matrix));
     }
 
     if (s->axis[0] == 1) {
@@ -89,7 +92,7 @@ static void rotate_update(struct ngl_node *node, double t)
             0.0f, -sin(x),  cos(x), 0.0f,
             0.0f,    0.0f,    0.0f, 1.0f,
         };
-        ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, rotm);
+        ngli_mat4_mul(child->modelview_matrix, trans, rotm);
     } else if (s->axis[1] == 1) {
         const float rotm[4*4] = {
             cos(x), 0.0f, -sin(x), 0.0f,
@@ -97,7 +100,7 @@ static void rotate_update(struct ngl_node *node, double t)
             sin(x), 0.0f,  cos(x), 0.0f,
               0.0f, 0.0f,    0.0f, 1.0f,
         };
-        ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, rotm);
+        ngli_mat4_mul(child->modelview_matrix, trans, rotm);
     } else if (s->axis[2] == 1) {
         const float rotm[4*4] = {
             cos(x),  sin(x), 0.0f, 0.0f,
@@ -105,7 +108,7 @@ static void rotate_update(struct ngl_node *node, double t)
               0.0f,    0.0f, 1.0f, 0.0f,
               0.0f,    0.0f, 0.0f, 1.0f,
         };
-        ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, rotm);
+        ngli_mat4_mul(child->modelview_matrix, trans, rotm);
     }
 
     if (translate) {
