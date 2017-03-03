@@ -597,10 +597,8 @@ class _Toolbar(QtWidgets.QWidget):
         self.aspectRatioChanged.emit(ar)
         self._load_current_scene()
 
-    def __init__(self, scene_cfg, module_pkgname, default_ar):
+    def __init__(self, scene_cfg, default_ar):
         super(_Toolbar, self).__init__()
-
-        self._module_pkgname = module_pkgname
 
         self._scene_opts_widget = None
         self._scene_extra_args = {}
@@ -813,7 +811,7 @@ class _MainWindow(QtWidgets.QSplitter):
         tabs.addTab(graph_view, "Graph view")
         tabs.addTab(export_view, "Export")
 
-        self._scene_toolbar = _Toolbar(self._scene_cfg, module_pkgname, default_ar)
+        self._scene_toolbar = _Toolbar(self._scene_cfg, default_ar)
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
