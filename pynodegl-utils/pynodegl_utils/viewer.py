@@ -772,19 +772,14 @@ class _MainWindow(QtWidgets.QSplitter):
             self._scripts_mgr.end_hooking()
             return scene
 
-    def __init__(self, args):
+    def __init__(self, module_pkgname, assets_dir):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Node.gl viewer")
 
-        if not args:
-            module_pkgname = 'pynodegl_utils.examples'
-        else:
-            module_pkgname = args[0]
-            args = args[1:]
         self._scripts_mgr = _ScriptsManager(module_pkgname)
 
         medias = []
-        if not args:
+        if not assets_dir:
             media_file = self.DEFAULT_MEDIA_FILE
             if not os.path.exists(self.DEFAULT_MEDIA_FILE):
                 ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
@@ -794,10 +789,10 @@ class _MainWindow(QtWidgets.QSplitter):
                     raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
             medias.append(NGLMedia(media_file))
         else:
-            for f in os.listdir(args[0]):
+            for f in os.listdir(assets_dir):
                 ext = f.rsplit('.', 1)[-1].lower()
                 if ext in ('mp4', 'mkv', 'avi'):
-                    medias.append(NGLMedia(os.path.join(args[0], f)))
+                    medias.append(NGLMedia(os.path.join(assets_dir, f)))
 
         default_ar = ASPECT_RATIOS[0]
 
@@ -843,7 +838,16 @@ class _MainWindow(QtWidgets.QSplitter):
 
 
 def run():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-m', dest='module', default='pynodegl_utils.examples',
+                        help='set the module name containing the scene functions')
+    parser.add_argument('-a', dest='assets_dir',
+                        help='set the assets directory to be used by the scene functions')
+    pargs = parser.parse_args(sys.argv[1:])
+
     app = QtWidgets.QApplication(sys.argv)
-    window = _MainWindow(sys.argv[1:])
+    window = _MainWindow(pargs.module, pargs.assets_dir)
     window.show()
     app.exec_()
