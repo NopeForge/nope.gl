@@ -93,6 +93,11 @@ class Exporter(QtCore.QObject):
         nb_frame = int(fps * duration)
         for i in range(nb_frame):
             time = i / float(fps)
+            # FIXME: due to the nature of Python threads, another widget can
+            # make another GL context current once the GIL is released, thus we
+            # need to make sure this rendering context is the current one
+            # before each draw call.
+            glctx.makeCurrent(surface)
             ngl_viewer.draw(time)
             self.progressed.emit(i*100 / nb_frame)
             glctx.swapBuffers(surface)
