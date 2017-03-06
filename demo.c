@@ -145,11 +145,8 @@ static struct ngl_node *get_scene(const char *filename)
 
 static int init(GLFWwindow *window, const char *filename)
 {
-    int platform = NGL_GLPLATFORM_GLX;
-    int api = NGL_GLAPI_OPENGL3;
-
     g_ctx = ngl_create();
-    ngl_set_glcontext(g_ctx, NULL, NULL, NULL, platform, api);
+    ngl_set_glcontext(g_ctx, NULL, NULL, NULL, NGL_GLPLATFORM_AUTO, NGL_GLAPI_AUTO);
     ngl_set_viewport(g_ctx, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     struct ngl_node *scene = get_scene(filename);
