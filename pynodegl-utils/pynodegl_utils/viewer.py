@@ -498,6 +498,8 @@ class _Toolbar(QtWidgets.QWidget):
         return groupbox
 
     def get_scene_cfg(self):
+        if not self._current_scene_data:
+            return None
         module_name, scene_name, scene_func = self._current_scene_data
         return {
                 'name': scene_name,
@@ -771,6 +773,8 @@ class _MainWindow(QtWidgets.QSplitter):
         cfg_dict = self._scene_toolbar.get_scene_cfg()
         scene = None
         cfg = None
+        if not cfg_dict:
+            return None, None
         try:
             self._scripts_mgr.start_hooking()
             scene, cfg = self._construct_current_scene(cfg_dict)
