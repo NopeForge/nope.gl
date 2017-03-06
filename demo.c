@@ -26,7 +26,6 @@
 #include <time.h>
 #include <unistd.h>
 
-#include <glcontext.h>
 #include <nodegl.h>
 
 #include <GLFW/glfw3.h>
