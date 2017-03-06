@@ -65,23 +65,13 @@ class Exporter(QtCore.QObject):
         reader = _ReaderThread(fd_r, fd_w, w, h, fps, filename, extra_enc_args)
         reader.start()
 
-        # Surface Format
-        gl_format = QtGui.QSurfaceFormat()
-        gl_format.setVersion(3, 3)
-        gl_format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
-        gl_format.setDepthBufferSize(24)
-        gl_format.setStencilBufferSize(8)
-        gl_format.setAlphaBufferSize(8)
-
         # GL context
         glctx = QtGui.QOpenGLContext()
-        glctx.setFormat(gl_format)
         assert glctx.create() == True
         assert glctx.isValid() == True
 
         # Offscreen Surface
         surface = QtGui.QOffscreenSurface()
-        surface.setFormat(gl_format)
         surface.create()
         assert surface.isValid() == True
 
@@ -133,6 +123,14 @@ def test_export():
     if len(sys.argv) != 2:
         print 'Usage: %s <outfile>' % sys.argv[0]
         sys.exit(0)
+
+    gl_format = QtGui.QSurfaceFormat()
+    gl_format.setVersion(3, 3)
+    gl_format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
+    gl_format.setDepthBufferSize(24)
+    gl_format.setStencilBufferSize(8)
+    gl_format.setAlphaBufferSize(8)
+    QtGui.QSurfaceFormat.setDefaultFormat(gl_format)
 
     filename = sys.argv[1]
     duration = 5
