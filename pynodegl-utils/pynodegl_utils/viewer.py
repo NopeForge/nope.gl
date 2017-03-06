@@ -93,6 +93,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.view_y = int((screen_height - self.view_height) / 2.0)
 
     def initializeGL(self):
+        GL.glClearColor(0.0, 0.0, 0.0, 1.0)
         self._viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
 
 
