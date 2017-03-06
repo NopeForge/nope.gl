@@ -6,6 +6,8 @@ from OpenGL import GL
 
 @scene()
 def centered_media(cfg):
+    cfg.duration = cfg.medias[0].duration
+
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
@@ -15,6 +17,8 @@ def centered_media(cfg):
 
 @scene()
 def centered_triangle_media(cfg):
+    cfg.duration = cfg.medias[0].duration
+
     q = Triangle((-0.5, -0.5, 0), (-0.5, 0.5, 0), (0.5, -0.5, 0))
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
@@ -24,6 +28,7 @@ def centered_triangle_media(cfg):
 
 @scene({'name': 'n', 'type': 'range', 'range': [0,1], 'unit_base': 1000})
 def centered_shape_media(cfg, n=0.5):
+    cfg.duration = cfg.medias[0].duration
 
     q = Shape([
         ShapePrimitive((  -n, -n/2, 0), (0,    0.75)),
@@ -43,8 +48,10 @@ def centered_shape_media(cfg, n=0.5):
     tshape = TexturedShape(q, s, t)
     return tshape
 
-@scene({'name': 'speed', 'type': 'range', 'range': [0,2], 'unit_base': 1000})
-def playback_speed(cfg, speed=1):
+@scene({'name': 'speed', 'type': 'range', 'range': [0.01,2], 'unit_base': 1000})
+def playback_speed(cfg, speed=1.0):
+    cfg.duration = cfg.medias[0].duration / speed
+
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename, initial_seek=5)
     m.add_time_animkf(AnimKeyFrameScalar(0, 0),
