@@ -205,11 +205,21 @@ class _GraphView(QtWidgets.QWidget):
     def _update_graph(self):
         scene, _ = self._get_scene_func()
         if not scene:
+            QtWidgets.QMessageBox.critical(self, 'No scene',
+                                           "You didn't select any scene to graph.",
+                                           QtWidgets.QMessageBox.Ok)
             return
 
         dotfile = '/tmp/ngl_scene.dot'
         open(dotfile, 'w').write(scene.dot())
-        data = subprocess.check_output(['dot', '-Tpng', dotfile])
+        try:
+            data = subprocess.check_output(['dot', '-Tpng', dotfile])
+        except OSError, e:
+            QtWidgets.QMessageBox.critical(self, 'Graphviz error',
+                                          'Error while executing dot (Graphviz): %s' % e.strerror,
+                                           QtWidgets.QMessageBox.Ok)
+            return
+
         pixmap = QtGui.QPixmap()
         pixmap.loadFromData(data)
         self._graph_lbl.setPixmap(pixmap)
