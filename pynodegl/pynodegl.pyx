@@ -20,9 +20,15 @@ cdef extern from "nodegl.h":
     int ngl_node_param_set(ngl_node *node, const char *key, ...)
     char *ngl_node_dot(const ngl_node *node)
 
+    cdef int NGL_GLPLATFORM_AUTO
     cdef int NGL_GLPLATFORM_GLX
+    cdef int NGL_GLPLATFORM_EGL
     cdef int NGL_GLPLATFORM_CGL
+    cdef int NGL_GLPLATFORM_EAGL
+
+    cdef int NGL_GLAPI_AUTO
     cdef int NGL_GLAPI_OPENGL3
+    cdef int NGL_GLAPI_OPENGLES2
 
     cdef struct ngl_ctx
 
@@ -33,9 +39,15 @@ cdef extern from "nodegl.h":
     int ngl_set_viewport(ngl_ctx *s, int x, int y, int w, int h)
     void ngl_free(ngl_ctx **ss)
 
-GLPLATFORM_GLX = NGL_GLPLATFORM_GLX
-GLPLATFORM_CGL = NGL_GLPLATFORM_CGL
-GLAPI_OPENGL3 = NGL_GLAPI_OPENGL3
+GLPLATFORM_AUTO = NGL_GLPLATFORM_AUTO
+GLPLATFORM_GLX  = NGL_GLPLATFORM_GLX
+GLPLATFORM_EGL  = NGL_GLPLATFORM_EGL
+GLPLATFORM_CGL  = NGL_GLPLATFORM_CGL
+GLPLATFORM_EAGL = NGL_GLPLATFORM_EAGL
+
+GLAPI_AUTO      = NGL_GLAPI_AUTO
+GLAPI_OPENGL3   = NGL_GLAPI_OPENGL3
+GLAPI_OPENGLES2 = NGL_GLAPI_OPENGLES2
 
 LOG_VERBOSE = NGL_LOG_VERBOSE
 LOG_DEBUG   = NGL_LOG_DEBUG
