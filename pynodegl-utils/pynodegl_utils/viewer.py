@@ -67,14 +67,6 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
     def __init__(self, parent, aspect_ratio):
         super(_GLWidget, self).__init__(parent)
 
-        gl_format = QtGui.QSurfaceFormat()
-        gl_format.setVersion(3, 3)
-        gl_format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
-        gl_format.setDepthBufferSize(24)
-        gl_format.setStencilBufferSize(8)
-        gl_format.setAlphaBufferSize(8)
-        self.setFormat(gl_format)
-
         self.setMinimumSize(640, 360)
         self._viewer = ngl.Viewer()
         self._time = 0
@@ -858,6 +850,14 @@ def run():
     parser.add_argument('-a', dest='assets_dir',
                         help='set the assets directory to be used by the scene functions')
     pargs = parser.parse_args(sys.argv[1:])
+
+    gl_format = QtGui.QSurfaceFormat()
+    gl_format.setVersion(3, 3)
+    gl_format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
+    gl_format.setDepthBufferSize(24)
+    gl_format.setStencilBufferSize(8)
+    gl_format.setAlphaBufferSize(8)
+    QtGui.QSurfaceFormat.setDefaultFormat(gl_format)
 
     app = QtWidgets.QApplication(sys.argv)
     window = _MainWindow(pargs.module, pargs.assets_dir)
