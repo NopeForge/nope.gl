@@ -1,5 +1,4 @@
 import os
-import platform
 import subprocess
 
 import pynodegl as ngl
@@ -97,10 +96,7 @@ class Exporter(QtCore.QObject):
         # node.gl context
         ngl_viewer = ngl.Viewer()
         ngl_viewer.set_scene(camera)
-        if platform.system() == 'Linux':
-            ngl_viewer.configure(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
-        elif platform.system() == 'Darwin':
-            ngl_viewer.configure(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
+        ngl_viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
         ngl_viewer.set_viewport(0, 0, w, h)
 
         # Draw every frame

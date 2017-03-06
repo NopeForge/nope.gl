@@ -27,7 +27,6 @@ import math
 import importlib
 import inspect
 import pkgutil
-import platform
 import subprocess
 import traceback
 import __builtin__
@@ -99,10 +98,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.view_y = (screen_height - self.view_height) / 2.0
 
     def initializeGL(self):
-        if platform.system() == 'Linux':
-            self._viewer.configure(ngl.GLPLATFORM_GLX, ngl.GLAPI_OPENGL3)
-        elif platform.system() == 'Darwin':
-            self._viewer.configure(ngl.GLPLATFORM_CGL, ngl.GLAPI_OPENGL3)
+        self._viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
 
 
 class _ExportView(QtWidgets.QWidget):
