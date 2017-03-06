@@ -187,6 +187,9 @@ cdef class _Node:
                     }
                     class_str += '''
     def add_%(field_name)s(self, *%(field_name)s):
+        if hasattr(%(field_name)s[0], '__iter__'):
+            raise Exception("add_%(field_name)s() takes elements as "
+                            "positional arguments, not list")
         %(clist)s = <%(citem_type)s*>calloc(len(%(field_name)s), sizeof(%(citem_type)s))
         if %(clist)s is NULL:
             raise MemoryError()
