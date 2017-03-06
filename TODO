@@ -3,9 +3,12 @@
 - api: design a more advanced time remapping API
 - nodes: support masking
 - nodes: threaded texture uploading
+- nodes: add data node
 - shader: remove version #100 restriction
 - texture: support yuv
+- texture: support > 8bits per component textures
 - viewer/export: add advanced screenshot feature
+- viewer/export: support multisampling
 - viewer: factor out GL utils (initialization, surface format, ...)
 - viewer: support importing files in addition to modules
 - viewer: watch and reload files automatically
