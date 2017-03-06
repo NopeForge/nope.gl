@@ -55,11 +55,16 @@ class NGLMedia:
     def dimensions(self):
         return self._dimensions
 
+    @property
+    def duration(self):
+        return self._duration
+
     def _set_media_dimensions(self):
         try:
             data = subprocess.check_output(['ffprobe', '-v', '0',
                                             '-select_streams', 'v:0',
-                                            '-of', 'json', '-show_streams',
+                                            '-of', 'json',
+                                            '-show_streams', '-show_format',
                                             self._filename])
             data = json.loads(data)
         except:
@@ -67,6 +72,7 @@ class NGLMedia:
             return (-1, -1)
         st = data['streams'][0]
         self._dimensions = (st['width'], st['height'])
+        self._duration = float(data['format']['duration'])
 
     def __init__(self, filename):
         self._filename = filename
