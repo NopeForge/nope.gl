@@ -75,7 +75,7 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_unrefp(&texture);
     ngl_node_unrefp(&quad);
 
-    return tshape
+    return tshape;
 }
 
 #else
