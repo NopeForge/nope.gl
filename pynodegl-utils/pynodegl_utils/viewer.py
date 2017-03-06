@@ -86,6 +86,8 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self._viewer.draw(self._time)
 
     def resizeGL(self, screen_width, screen_height):
+        screen_width = screen_width * self.devicePixelRatioF()
+        screen_height = screen_height * self.devicePixelRatioF()
         aspect = self._aspect_ratio[0] / float(self._aspect_ratio[1])
         self.view_width = screen_width
         self.view_height = screen_width / aspect
