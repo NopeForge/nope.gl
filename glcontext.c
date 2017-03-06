@@ -97,6 +97,29 @@ struct glcontext *ngli_glcontext_new_wrapped(void *display, void *window, void *
 {
     struct glcontext *glcontext;
 
+    if (platform == NGL_GLPLATFORM_AUTO) {
+#if defined(TARGET_LINUX)
+        platform = NGL_GLPLATFORM_GLX;
+#elif defined(TARGET_IPHONE)
+        platform = NGL_GLPLATFORM_EAGL;
+#elif defined(TARGET_DARWIN)
+        platform = NGL_GLPLATFORM_CGL;
+#elif defined(TARGET_ANDROID)
+        platform = NGL_GLPLATFORM_EGL;
+#else
+        LOG(ERROR, "Can not determine which GL platform to use");
+        return NULL;
+#endif
+    }
+
+    if (api == NGL_GLAPI_AUTO) {
+#if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
+        api = NGL_GLAPI_OPENGLES2;
+#else
+        api = NGL_GLAPI_OPENGL3;
+#endif
+    }
+
     glcontext = glcontext_new(display, window, handle, platform, api);
     if (!glcontext)
         return NULL;

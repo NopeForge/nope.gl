@@ -104,7 +104,7 @@ char *ngl_node_dot(const struct ngl_node *node);
 
 /* GL context */
 enum {
-    NGL_GLPLATFORM_NONE,
+    NGL_GLPLATFORM_AUTO,
     NGL_GLPLATFORM_GLX,
     NGL_GLPLATFORM_EGL,
     NGL_GLPLATFORM_CGL,
@@ -113,7 +113,7 @@ enum {
 
 /* GL API version */
 enum {
-    NGL_GLAPI_NONE,
+    NGL_GLAPI_AUTO,
     NGL_GLAPI_OPENGL3,
     NGL_GLAPI_OPENGLES2,
 };
