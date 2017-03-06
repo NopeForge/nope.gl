@@ -147,7 +147,7 @@ static int init(GLFWwindow *window, const char *filename)
 {
     g_ctx = ngl_create();
     ngl_set_glcontext(g_ctx, NULL, NULL, NULL, NGL_GLPLATFORM_AUTO, NGL_GLAPI_AUTO);
-    ngl_set_viewport(g_ctx, 0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     struct ngl_node *scene = get_scene(filename);
     int ret = ngl_set_scene(g_ctx, scene);

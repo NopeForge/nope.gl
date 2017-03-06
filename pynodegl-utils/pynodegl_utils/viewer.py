@@ -40,6 +40,7 @@ from misc import NGLMedia
 from export import Exporter
 
 from PyQt5 import QtGui, QtCore, QtWidgets
+from OpenGL import GL
 
 
 ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
@@ -74,22 +75,22 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.resizeGL(self.width(), self.height())
 
     def paintGL(self):
-        self._viewer.set_viewport(self.view_x, self.view_y, self.view_width, self.view_height)
+        GL.glViewport(self.view_x, self.view_y, self.view_width, self.view_height)
         self._viewer.draw(self._time)
 
     def resizeGL(self, screen_width, screen_height):
-        screen_width = screen_width * self.devicePixelRatioF()
-        screen_height = screen_height * self.devicePixelRatioF()
+        screen_width = int(screen_width * self.devicePixelRatioF())
+        screen_height = int(screen_height * self.devicePixelRatioF())
         aspect = self._aspect_ratio[0] / float(self._aspect_ratio[1])
         self.view_width = screen_width
-        self.view_height = screen_width / aspect
+        self.view_height = int(screen_width / aspect)
 
         if self.view_height > screen_height:
             self.view_height = screen_height
-            self.view_width = screen_height * aspect
+            self.view_width = int(screen_height * aspect)
 
-        self.view_x = (screen_width - self.view_width) / 2.0
-        self.view_y = (screen_height - self.view_height) / 2.0
+        self.view_x = int((screen_width - self.view_width) / 2.0)
+        self.view_y = int((screen_height - self.view_height) / 2.0)
 
     def initializeGL(self):
         self._viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)

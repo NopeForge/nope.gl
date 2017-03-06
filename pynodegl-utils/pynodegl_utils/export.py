@@ -3,6 +3,7 @@ import subprocess
 
 import pynodegl as ngl
 from PyQt5 import QtGui, QtCore
+from OpenGL import GL
 
 
 class _PipeThread(QtCore.QThread):
@@ -87,7 +88,7 @@ class Exporter(QtCore.QObject):
         ngl_viewer = ngl.Viewer()
         ngl_viewer.set_scene(camera)
         ngl_viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
-        ngl_viewer.set_viewport(0, 0, w, h)
+        GL.glViewport(0, 0, w, h)
 
         # Draw every frame
         nb_frame = int(fps * duration)

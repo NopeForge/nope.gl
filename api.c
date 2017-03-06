@@ -46,13 +46,6 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
     return ngli_glcontext_load_extensions(s->glcontext);
 }
 
-int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int w, int h)
-{
-    LOG(DEBUG, "update viewport to %d,%d %dx%d", x, y, w, h);
-    glViewport(x, y, w, h);
-    return 0;
-}
-
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
     if (s->scene) {
