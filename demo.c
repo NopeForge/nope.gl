@@ -31,11 +31,6 @@
 
 #include <GLFW/glfw3.h>
 
-
-#ifdef __APPLE__
-#error "OSX and IOS are not supported for now (but will be)"
-#endif
-
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 360
 #define WINDOW_ASPECT_RATIO (WINDOW_WIDTH / (double)WINDOW_HEIGHT)
@@ -182,8 +177,15 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+#else
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#endif
 
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "node.gl playground", NULL, NULL);
     if (window == NULL) {
