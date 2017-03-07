@@ -40,6 +40,7 @@ struct glcontext {
     int minor_version;
     int has_es2_compatibility;
     int has_vao_compatibility;
+    int max_texture_image_units;
 
     void* (*glGetStringi)(GLenum name, GLuint index);
 

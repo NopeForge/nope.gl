@@ -189,6 +189,8 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
     }
 
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
+
     if (glcontext->has_vao_compatibility) {
         glcontext->has_vao_compatibility =
             glcontext->glGenVertexArrays != NULL &&
