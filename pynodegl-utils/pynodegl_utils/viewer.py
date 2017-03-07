@@ -44,6 +44,7 @@ from OpenGL import GL
 
 
 ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
+SAMPLES = [0, 2, 4, 8]
 
 class _GLWidget(QtWidgets.QOpenGLWidget):
 
@@ -65,13 +66,14 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.doneCurrent()
         self.update()
 
-    def __init__(self, parent, aspect_ratio):
+    def __init__(self, parent, aspect_ratio, samples):
         super(_GLWidget, self).__init__(parent)
 
         self.setMinimumSize(640, 360)
         self._viewer = ngl.Viewer()
         self._time = 0
         self._aspect_ratio = aspect_ratio
+        self._samples = samples
         self.resizeGL(self.width(), self.height())
 
     def paintGL(self):
@@ -321,6 +323,13 @@ class _GLView(QtWidgets.QWidget):
     def set_aspect_ratio(self, ar):
         self._gl_widget.set_aspect_ratio(ar)
 
+    @QtCore.pyqtSlot(int)
+    def _set_samples(self, samples):
+        gl_widget = _GLWidget(self, self._default_ar, self._default_samples)
+        gl_widget.set_time(self._slider.value() * 1./self.RENDERING_FPS)
+        self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
+        self._gl_widget = gl_widget
+
     @QtCore.pyqtSlot()
     def scene_changed(self):
         scene, cfg = self._get_scene_func()
@@ -330,8 +339,11 @@ class _GLView(QtWidgets.QWidget):
             self._slider.setRange(0, self._scene_duration * self.RENDERING_FPS)
             self._update_tick(self._tick)
 
-    def __init__(self, get_scene_func, default_ar):
+    def __init__(self, get_scene_func, default_ar, default_samples):
         super(_GLView, self).__init__()
+
+        self._default_ar = default_ar
+        self._default_samples = default_samples
 
         self._get_scene_func = get_scene_func
 
@@ -340,7 +352,7 @@ class _GLView(QtWidgets.QWidget):
         self._timer = QtCore.QTimer()
         self._timer.setInterval(1000.0 / self.RENDERING_FPS) # in milliseconds
 
-        self._gl_widget = _GLWidget(self, default_ar)
+        self._gl_widget = _GLWidget(self, default_ar, default_samples)
 
         self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
 
@@ -362,11 +374,11 @@ class _GLView(QtWidgets.QWidget):
         toolbar.setStretchFactor(self._time_lbl, 1)
         toolbar.addWidget(screenshot_btn)
 
-        gl_layout = QtWidgets.QVBoxLayout(self)
-        gl_layout.addWidget(self._gl_widget)
-        gl_layout.setStretchFactor(self._gl_widget, 1)
-        gl_layout.addWidget(self._slider)
-        gl_layout.addLayout(toolbar)
+        self._gl_layout = QtWidgets.QVBoxLayout(self)
+        self._gl_layout.addWidget(self._gl_widget)
+        self._gl_layout.setStretchFactor(self._gl_widget, 1)
+        self._gl_layout.addWidget(self._slider)
+        self._gl_layout.addLayout(toolbar)
 
         self._update_tick(0)
 
@@ -385,6 +397,7 @@ class _Toolbar(QtWidgets.QWidget):
 
     scene_changed = QtCore.pyqtSignal(name='sceneChanged')
     aspect_ratio_changed = QtCore.pyqtSignal(tuple, name='aspectRatioChanged')
+    samples_changed = QtCore.pyqtSignal(int, name='samplesChanged')
 
     def _del_scene_opts_widget(self):
         if self._scene_opts_widget:
@@ -592,7 +605,18 @@ class _Toolbar(QtWidgets.QWidget):
         self.aspectRatioChanged.emit(ar)
         self._load_current_scene()
 
-    def __init__(self, default_ar):
+    @QtCore.pyqtSlot()
+    def _set_samples(self):
+        samples = SAMPLES[self._samples_cbbox.currentIndex()]
+
+        gl_format = QtGui.QSurfaceFormat.defaultFormat()
+        gl_format.setSamples(samples)
+        QtGui.QSurfaceFormat.setDefaultFormat(gl_format)
+
+        self.samplesChanged.emit(samples)
+        self._load_current_scene()
+
+    def __init__(self, default_ar, default_samples):
         super(_Toolbar, self).__init__()
 
         self._scene_opts_widget = None
@@ -619,6 +643,15 @@ class _Toolbar(QtWidgets.QWidget):
         ar_hbox.addWidget(ar_lbl)
         ar_hbox.addWidget(self._ar_cbbox)
 
+        self._samples_cbbox = QtWidgets.QComboBox()
+        for samples in SAMPLES:
+            self._samples_cbbox.addItem('%dx' % samples if samples else 'Disabled')
+        self._samples_cbbox.setCurrentIndex(SAMPLES.index(default_samples))
+        samples_lbl = QtWidgets.QLabel('MSAA:')
+        samples_hbox = QtWidgets.QHBoxLayout()
+        samples_hbox.addWidget(samples_lbl)
+        samples_hbox.addWidget(self._samples_cbbox)
+
         self._loglevel_cbbox = QtWidgets.QComboBox()
         for level in self.LOG_LEVELS:
             self._loglevel_cbbox.addItem(level.title())
@@ -634,6 +667,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._scene_toolbar_layout = QtWidgets.QVBoxLayout(self)
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
         self._scene_toolbar_layout.addLayout(ar_hbox)
+        self._scene_toolbar_layout.addLayout(samples_hbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
         self._scene_toolbar_layout.addWidget(self.reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
@@ -642,6 +676,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._scn_view.activated.connect(self._scn_view_selected)
         self._fps_chkbox.stateChanged.connect(self._fps_chkbox_changed)
         self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
+        self._samples_cbbox.currentIndexChanged.connect(self._set_samples)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
 
 
@@ -817,10 +852,11 @@ class _MainWindow(QtWidgets.QSplitter):
         self._medias = medias
 
         default_ar = ASPECT_RATIOS[0]
+        default_samples = SAMPLES[0]
 
         get_scene_func = self._get_scene
 
-        gl_view = _GLView(get_scene_func, default_ar)
+        gl_view = _GLView(get_scene_func, default_ar, default_samples)
         graph_view = _GraphView(get_scene_func)
         export_view = _ExportView(self, get_scene_func)
 
@@ -829,10 +865,11 @@ class _MainWindow(QtWidgets.QSplitter):
         tabs.addTab(graph_view, "Graph view")
         tabs.addTab(export_view, "Export")
 
-        self._scene_toolbar = _Toolbar(default_ar)
+        self._scene_toolbar = _Toolbar(default_ar, default_samples)
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
+        self._scene_toolbar.samplesChanged.connect(gl_view._set_samples)
 
         self._errbuf = QtWidgets.QTextEdit()
         self._errbuf.hide()

@@ -79,8 +79,10 @@ class Exporter(QtCore.QObject):
         glctx.makeCurrent(surface)
 
         # Framebuffer
-        fbo = QtGui.QOpenGLFramebufferObject(w, h)
-        fbo.setAttachment(QtGui.QOpenGLFramebufferObject.CombinedDepthStencil)
+        fbo_format = QtGui.QOpenGLFramebufferObjectFormat()
+        fbo_format.setSamples(QtGui.QSurfaceFormat.defaultFormat().samples())
+        fbo_format.setAttachment(QtGui.QOpenGLFramebufferObject.CombinedDepthStencil)
+        fbo = QtGui.QOpenGLFramebufferObject(w, h, fbo_format)
         assert fbo.isValid() == True
         fbo.bind()
 
