@@ -116,15 +116,22 @@ class BuildExtCommand(build_ext):
                 field_name, field_type = field
                 construct_args.append('%s=None' % field_name)
                 is_list = field_type.endswith('List')
-                dereference = is_list or field_type.startswith('vec')
                 optset_data = {
                     'var': field_name,
-                    'op': 'add' if is_list else 'set',
-                    'arg': '*' + field_name if dereference else field_name,
                 }
                 extra_args += '''
-        if %(var)s is not None:
-            self.%(op)s_%(var)s(%(arg)s)''' % optset_data
+        if %(var)s is not None:''' % optset_data
+                if is_list:
+                    extra_args += '''
+            if hasattr(%(var)s, '__iter__'):
+                self.add_%(var)s(*%(var)s)
+            else:
+                self.add_%(var)s(%(var)s)''' % optset_data
+                else:
+                    dereference = field_type.startswith('vec')
+                    optset_data['arg'] = '*' + field_name if dereference else field_name
+                    extra_args += '''
+            self.set_%(var)s(%(arg)s)''' % optset_data
 
             class_data = {
                 'class_name': node,
