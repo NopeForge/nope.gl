@@ -35,7 +35,11 @@ static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void 
 
     glcontext_eagl->handle = handle ? (EAGLContext *)handle : [EAGLContext currentContext];
 
-    glcontext_eagl->framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
+    CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
+    if (!framework)
+        return -1;
+
+    glcontext_eagl->framework = (CFBundleRef)CFRetain(framework);
     if (!glcontext_eagl->framework)
         return -1;
 

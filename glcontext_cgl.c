@@ -42,7 +42,11 @@ static int glcontext_cgl_init(struct glcontext *glcontext, void *display, void *
     if (!glcontext_cgl->handle)
         return -1;
 
-    glcontext_cgl->framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
+    CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
+    if (!framework)
+        return -1;
+
+    glcontext_cgl->framework = (CFBundleRef)CFRetain(framework);
     if (!glcontext_cgl->framework)
         return -1;
 
