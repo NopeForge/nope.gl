@@ -140,9 +140,7 @@ void main(void)
     delta.add_animkf(AnimKeyFrameScalar(transition_start, 1.0),
                      AnimKeyFrameScalar(transition_start + transition_duration, 0.0))
 
-    tshape1_2 = TexturedShape(q, s1_2, name="texturedshape1_2")
-    tshape1_2.set_texture0(t1)
-    tshape1_2.set_texture1(t2)
+    tshape1_2 = TexturedShape(q, s1_2, textures=[t1, t2], name="texturedshape1_2")
     tshape1_2.add_uniforms(delta)
 
     rr1 = []

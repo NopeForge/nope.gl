@@ -84,8 +84,7 @@
         - [shape, Node]
         - [shader, Node]
     optional:
-        - [texture0, Node]
-        - [texture1, Node]
+        - [textures, NodeList]
         - [uniforms, NodeList]
         - [attributes, NodeList]
 

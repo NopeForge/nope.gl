@@ -50,9 +50,7 @@ static const struct node_param texturedshape_params[] = {
                  .node_types=(const int[]){NGL_NODE_QUAD, NGL_NODE_TRIANGLE, NGL_NODE_SHAPE, -1}},
     {"shader",   PARAM_TYPE_NODE, OFFSET(shader), .flags=PARAM_FLAG_CONSTRUCTOR,
                  .node_types=(const int[]){NGL_NODE_SHADER, -1}},
-    {"texture0", PARAM_TYPE_NODE, OFFSET(textures[0]),
-                 .node_types=(const int[]){NGL_NODE_TEXTURE, -1}},
-    {"texture1", PARAM_TYPE_NODE, OFFSET(textures[1]),
+    {"textures", PARAM_TYPE_NODELIST, OFFSET(textures),
                  .node_types=(const int[]){NGL_NODE_TEXTURE, -1}},
     {"uniforms", PARAM_TYPE_NODELIST, OFFSET(uniforms),
                  .node_types=UNIFORMS_TYPES_LIST},
@@ -93,7 +91,7 @@ static int update_uniforms(struct ngl_node *node)
         }
     }
 
-    for (int j = 0; j < NGLI_ARRAY_NB(s->textures); j++) {
+    for (int j = 0; j < s->nb_textures; j++) {
         if (!s->textures[j])
             continue;
 
@@ -153,7 +151,7 @@ static int update_vertex_attribs(struct ngl_node *node)
     struct shape *shape = s->shape->priv_data;
     struct shader *shader = s->shader->priv_data;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(s->textures); i++)  {
+    for (int i = 0; i < s->nb_textures; i++)  {
         struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
         if (textureshaderinfo->coordinates_id >= 0) {
             glEnableVertexAttribArray(textureshaderinfo->coordinates_id);
@@ -219,7 +217,19 @@ static int texturedshape_init(struct ngl_node *node)
         s->attribute_ids[i] = glGetAttribLocation(shader->program_id, u->name);
     }
 
-    for (int i = 0; i < NGLI_ARRAY_NB(s->textures); i++)  {
+    if (s->nb_textures > glcontext->max_texture_image_units) {
+        LOG(ERROR, "Attached textures count (%d) exceeds driver limit (%d)",
+            s->nb_textures, glcontext->max_texture_image_units);
+        return -1;
+    }
+
+    if (s->nb_textures) {
+        s->textureshaderinfos = calloc(s->nb_textures, sizeof(*s->textureshaderinfos));
+        if (!s->textureshaderinfos)
+            return -1;
+    }
+
+    for (int i = 0; i < s->nb_textures; i++)  {
         char name[32];
 
         if (s->textures[i]) {
@@ -263,6 +273,7 @@ static void texturedshape_uninit(struct ngl_node *node)
         glcontext->glDeleteVertexArrays(1, &s->vao_id);
     }
 
+    free(s->textureshaderinfos);
     free(s->uniform_ids);
     free(s->attribute_ids);
 }
@@ -273,7 +284,7 @@ static void texturedshape_update(struct ngl_node *node, double t)
 
     ngli_node_update(s->shape, t);
 
-    for (int i = 0; i < NGLI_ARRAY_NB(s->textures); i++) {
+    for (int i = 0; i < s->nb_textures; i++) {
         if (s->textures[i]) {
             ngli_node_update(s->textures[i], t);
         }

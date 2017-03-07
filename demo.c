@@ -61,8 +61,8 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *shader  = ngl_node_create(NGL_NODE_SHADER);
     struct ngl_node *tshape  = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
 
-    ngl_node_param_set(tshape,  "texture0", texture);
     ngl_node_param_set(texture, "data_src", media);
+    ngl_node_param_add(tshape, "textures", 1, &texture);
 
     ngl_node_unrefp(&shader);
     ngl_node_unrefp(&media);
@@ -106,8 +106,8 @@ static struct ngl_node *get_scene(const char *filename)
             struct ngl_node *tshape  = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
 
             ngl_node_param_set(media, "start", start);
-            ngl_node_param_set(tshape, "texture0", texture);
             ngl_node_param_set(texture, "data_src", media);
+            ngl_node_param_add(tshape, "textures", 1, &texture);
 
             struct ngl_node *rrs[3] = {
                 ngl_node_create(NGL_NODE_RENDERRANGENORENDER, 0.),
