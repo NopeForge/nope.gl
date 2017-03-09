@@ -48,6 +48,9 @@ SAMPLES = [0, 2, 4, 8]
 
 class _GLWidget(QtWidgets.QOpenGLWidget):
 
+    def get_time(self):
+        return self._time
+
     def set_time(self, t):
         self._time = t
         self.update()
@@ -329,7 +332,7 @@ class _GLView(QtWidgets.QWidget):
     @QtCore.pyqtSlot(int)
     def _set_samples(self, samples):
         gl_widget = _GLWidget(self, self._default_ar, self._default_samples)
-        gl_widget.set_time(self._slider.value() * 1./self.RENDERING_FPS)
+        gl_widget.set_time(self._gl_widget.get_time())
         gl_widget.set_aspect_ratio(self._gl_widget.get_aspect_ratio())
         self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
         self._gl_widget = gl_widget
