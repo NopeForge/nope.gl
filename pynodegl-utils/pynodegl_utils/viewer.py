@@ -56,6 +56,9 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self._viewer.set_scene(scene)
         self.update()
 
+    def get_aspect_ratio(self):
+        return self._aspect_ratio
+
     def set_aspect_ratio(self, aspect_ratio):
         self._aspect_ratio = aspect_ratio
         # XXX: self.resize(self.size()) doesn't seem to have any effect as it
@@ -327,6 +330,7 @@ class _GLView(QtWidgets.QWidget):
     def _set_samples(self, samples):
         gl_widget = _GLWidget(self, self._default_ar, self._default_samples)
         gl_widget.set_time(self._slider.value() * 1./self.RENDERING_FPS)
+        gl_widget.set_aspect_ratio(self._gl_widget.get_aspect_ratio())
         self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
         self._gl_widget = gl_widget
 
