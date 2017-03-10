@@ -46,6 +46,63 @@ from OpenGL import GL
 ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
 SAMPLES = [0, 2, 4, 8]
 
+class _SerialView(QtWidgets.QWidget):
+
+    @QtCore.pyqtSlot()
+    def _save_to_file(self):
+        data = self._text.toPlainText()
+        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
+        if not filenames[0]:
+            return
+        open(filenames[0], 'w').write(data)
+
+    @QtCore.pyqtSlot()
+    def _update_graph(self):
+        scene, _ = self._get_scene_func()
+        if not scene:
+            QtWidgets.QMessageBox.critical(self, 'No scene',
+                                           "You didn't select any scene to graph.",
+                                           QtWidgets.QMessageBox.Ok)
+            return
+        self._text.setPlainText(scene.serialize())
+
+    @QtCore.pyqtSlot()
+    def scene_changed(self):
+        if self._auto_chkbox.isChecked():
+            self._update_graph()
+
+    @QtCore.pyqtSlot(int)
+    def _auto_check_changed(self, state):
+        if state:
+            self._buffer_btn.setEnabled(False)
+        else:
+            self._buffer_btn.setEnabled(True)
+
+    def __init__(self, get_scene_func):
+        super(_SerialView, self).__init__()
+
+        self._get_scene_func = get_scene_func
+
+        self._buffer_btn = QtWidgets.QPushButton("Update buffer")
+        self._save_btn = QtWidgets.QPushButton("Save to file")
+        self._auto_chkbox = QtWidgets.QCheckBox("Automatically update")
+        self._graph_lbl = QtWidgets.QLabel()
+        self._text = QtWidgets.QPlainTextEdit()
+
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.addWidget(self._buffer_btn)
+        hbox.addWidget(self._save_btn)
+
+        serial_layout = QtWidgets.QVBoxLayout(self)
+        serial_layout.addWidget(self._auto_chkbox)
+        serial_layout.addLayout(hbox)
+        serial_layout.addWidget(self._text)
+
+        self._buffer_btn.clicked.connect(self._update_graph)
+        self._save_btn.clicked.connect(self._save_to_file)
+        self._auto_chkbox.stateChanged.connect(self._auto_check_changed)
+
+
 class _GLWidget(QtWidgets.QOpenGLWidget):
 
     def get_time(self):
@@ -866,15 +923,18 @@ class _MainWindow(QtWidgets.QSplitter):
         gl_view = _GLView(get_scene_func, default_ar, default_samples)
         graph_view = _GraphView(get_scene_func)
         export_view = _ExportView(self, get_scene_func)
+        serial_view = _SerialView(get_scene_func)
 
         tabs = QtWidgets.QTabWidget()
         tabs.addTab(gl_view, "GL view")
         tabs.addTab(graph_view, "Graph view")
         tabs.addTab(export_view, "Export")
+        tabs.addTab(serial_view, "Serialization")
 
         self._scene_toolbar = _Toolbar(default_ar, default_samples)
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
+        self._scene_toolbar.sceneChanged.connect(serial_view.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
         self._scene_toolbar.samplesChanged.connect(gl_view._set_samples)
 
