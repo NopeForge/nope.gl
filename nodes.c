@@ -203,6 +203,17 @@ static struct ngl_node *node_create(const struct node_class *class)
     return node;
 }
 
+char *ngli_node_default_name(const char *class_name)
+{
+    char *name = ngli_strdup(class_name);
+    if (!name)
+        return NULL;
+    for (int i = 0; name[i]; i++)
+        if (name[i] >= 'A' && name[i] <= 'Z')
+            name[i] ^= 0x20;
+    return name;
+}
+
 struct ngl_node *ngli_node_create_noconstructor(int type)
 {
     struct ngl_node *node = NULL;
@@ -216,15 +227,11 @@ struct ngl_node *ngli_node_create_noconstructor(int type)
     ngli_params_set_defaults((uint8_t *)node, ngli_base_node_params);
     ngli_params_set_defaults(node->priv_data, node->class->params);
 
-    /* set default name to lower(class->name) */
-    node->name = ngli_strdup(node->class->name);
+    node->name = ngli_node_default_name(node->class->name);
     if (!node->name) {
         free(node);
         return NULL;
     }
-    for (int i = 0; node->name[i]; i++)
-        if (node->name[i] >= 'A' && node->name[i] <= 'Z')
-            node->name[i] ^= 0x20;
 
     return node;
 }
