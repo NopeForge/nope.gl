@@ -160,6 +160,15 @@ cdef class _Node:
     def cptr(self):
         return <uintptr_t>self.ctx
 
+    def serialize(self):
+        cdef char *s
+        s = ngl_node_serialize(self.ctx)
+        try:
+            pystr = <bytes>s
+        finally:
+            free(s)
+        return pystr
+
     def dot(self):
         cdef char *s
         s = ngl_node_dot(self.ctx)

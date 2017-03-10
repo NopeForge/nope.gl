@@ -19,6 +19,7 @@ cdef extern from "nodegl.h":
                            int nb_elems, void *elems)
     int ngl_node_param_set(ngl_node *node, const char *key, ...)
     char *ngl_node_dot(const ngl_node *node)
+    char *ngl_node_serialize(const ngl_node *node)
 
     cdef int NGL_GLPLATFORM_AUTO
     cdef int NGL_GLPLATFORM_GLX
