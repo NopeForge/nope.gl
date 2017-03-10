@@ -1,5 +1,6 @@
 - add tests
 - animkeyframe: find a way to expose resolutions
+- animkeyframe: use a faster method to locate position (bisect)
 - api: design a more advanced time remapping API
 - nodes: support masking
 - nodes: threaded texture uploading
