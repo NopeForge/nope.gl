@@ -33,6 +33,9 @@ static const struct node_param quad_params[] = {
     {"corner", PARAM_TYPE_VEC3, OFFSET(quad_corner), .flags=PARAM_FLAG_CONSTRUCTOR},
     {"width",  PARAM_TYPE_VEC3, OFFSET(quad_width),  .flags=PARAM_FLAG_CONSTRUCTOR},
     {"height", PARAM_TYPE_VEC3, OFFSET(quad_height), .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"uv_corner", PARAM_TYPE_VEC2, OFFSET(quad_uv_corner), {.vec={0.0f, 0.0f}}},
+    {"uv_width",  PARAM_TYPE_VEC2, OFFSET(quad_uv_width),  {.vec={1.0f, 0.0f}}},
+    {"uv_height", PARAM_TYPE_VEC2, OFFSET(quad_uv_height), {.vec={0.0f, 1.0f}}},
     {NULL}
 };
 
@@ -40,15 +43,19 @@ static const struct node_param quad_params[] = {
 #define W(index) s->quad_width[(index)]
 #define H(index) s->quad_height[(index)]
 
+#define UV_C(index) s->quad_uv_corner[(index)]
+#define UV_W(index) s->quad_uv_width[(index)]
+#define UV_H(index) s->quad_uv_height[(index)]
+
 static int quad_init(struct ngl_node *node)
 {
     struct shape *s = node->priv_data;
 
     const GLfloat vertices[] = {
-        C(0) + H(0),        C(1) + H(1),        C(2) + H(2),        0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-        C(0) + W(0),        C(1) + W(1),        C(2) + W(2),        1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        C(0),               C(1),               C(2),               0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-        C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2), 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+        C(0) + H(0),        C(1) + H(1),        C(2) + H(2),        UV_C(0) + UV_H(0),           1.0f - UV_C(1) - UV_H(1),           0.0f, 0.0f, 0.0f,
+        C(0) + W(0),        C(1) + W(1),        C(2) + W(2),        UV_C(0) + UV_W(0),           1.0f - UV_C(1) - UV_W(1),           0.0f, 0.0f, 0.0f,
+        C(0),               C(1),               C(2),               UV_C(0),                     1.0f - UV_C(1),                     0.0f, 0.0f, 0.0f,
+        C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2), UV_C(0) + UV_H(0) + UV_W(0), 1.0f - UV_C(1) - UV_H(1) - UV_W(1), 0.0f, 0.0f, 0.0f,
     };
     s->nb_vertices = sizeof(vertices) / NGLI_SHAPE_VERTICES_STRIDE(s);
     s->vertices = calloc(1, sizeof(vertices));

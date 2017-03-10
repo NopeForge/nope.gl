@@ -4,11 +4,15 @@ from pynodegl_utils.misc import scene
 
 from OpenGL import GL
 
-@scene()
-def centered_media(cfg):
+@scene({'name': 'uv_corner_x', 'type': 'range', 'range': [0,1], 'unit_base': 100},
+       {'name': 'uv_corner_y', 'type': 'range', 'range': [0,1], 'unit_base': 100},
+       {'name': 'uv_width', 'type': 'range', 'range': [0,1], 'unit_base': 100},
+       {'name': 'uv_height', 'type': 'range', 'range': [0,1], 'unit_base': 100})
+def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1):
     cfg.duration = cfg.medias[0].duration
 
-    q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
+    q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0),
+             (uv_corner_x, uv_corner_y), (uv_width, 0), (0, uv_height))
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
