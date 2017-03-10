@@ -44,6 +44,7 @@ struct bstr *ngli_bstr_create(void)
         free(b);
         return NULL;
     }
+    b->str[0] = 0;
     return b;
 }
 
