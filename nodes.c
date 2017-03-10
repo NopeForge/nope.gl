@@ -747,8 +747,8 @@ void ngli_node_draw(struct ngl_node *node)
     }
 }
 
-static const struct node_param *node_param_find(const struct ngl_node *node, const char *key,
-                                                uint8_t **base_ptrp)
+const struct node_param *ngli_node_param_find(const struct ngl_node *node, const char *key,
+                                              uint8_t **base_ptrp)
 {
     const struct node_param *par = ngli_params_find(ngli_base_node_params, key);
     *base_ptrp = (uint8_t *)node;
@@ -768,7 +768,7 @@ int ngl_node_param_add(struct ngl_node *node, const char *key,
     int ret = 0;
 
     uint8_t *base_ptr;
-    const struct node_param *par = node_param_find(node, key, &base_ptr);
+    const struct node_param *par = ngli_node_param_find(node, key, &base_ptr);
     if (!par)
         return -1;
 
@@ -785,7 +785,7 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
     va_list ap;
 
     uint8_t *base_ptr;
-    const struct node_param *par = node_param_find(node, key, &base_ptr);
+    const struct node_param *par = ngli_node_param_find(node, key, &base_ptr);
     if (!par)
         return -1;
 
