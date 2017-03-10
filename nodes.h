@@ -426,4 +426,6 @@ void ngli_node_release(struct ngl_node *node);
 int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 void ngli_node_detach_ctx(struct ngl_node *node);
 
+struct ngl_node *ngli_node_create_noconstructor(int type);
+
 #endif

@@ -203,17 +203,15 @@ static struct ngl_node *node_create(const struct node_class *class)
     return node;
 }
 
-struct ngl_node *ngl_node_create(int type, ...)
+struct ngl_node *ngli_node_create_noconstructor(int type)
 {
-    va_list ap;
     struct ngl_node *node = NULL;
 
-    va_start(ap, type);
     if (type < 0 || type >= NGLI_ARRAY_NB(node_class_map))
-        goto end;
+        return NULL;
     node = node_create(node_class_map[type]);
     if (!node)
-        goto end;
+        return NULL;
 
     ngli_params_set_defaults((uint8_t *)node, ngli_base_node_params);
     ngli_params_set_defaults(node->priv_data, node->class->params);
@@ -228,12 +226,22 @@ struct ngl_node *ngl_node_create(int type, ...)
         if (node->name[i] >= 'A' && node->name[i] <= 'Z')
             node->name[i] ^= 0x20;
 
+    return node;
+}
+
+struct ngl_node *ngl_node_create(int type, ...)
+{
+    struct ngl_node *node = ngli_node_create_noconstructor(type);
+    if (!node)
+        return NULL;
+
+    va_list ap;
+    va_start(ap, type);
     ngli_params_set_constructors(node->priv_data, node->class->params, &ap);
+    va_end(ap);
 
     LOG(VERBOSE, "CREATED %s @ %p", node->name, node);
 
-end:
-    va_end(ap);
     return node;
 }
 
