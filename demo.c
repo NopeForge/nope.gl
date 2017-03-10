@@ -144,6 +144,9 @@ static int init(GLFWwindow *window, const char *filename)
     glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 
     struct ngl_node *scene = get_scene(filename);
+    if (!scene)
+        return -1;
+
     int ret = ngl_set_scene(g_ctx, scene);
     if (ret < 0)
         return ret;
