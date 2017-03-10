@@ -219,44 +219,22 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
         last_offset = par->offset;
 
         if (!(par->flags & PARAM_FLAG_CONSTRUCTOR)) {
-            uint8_t *dstp = base_ptr + par->offset;
-
             switch (par->type) {
-                case PARAM_TYPE_INT: {
-                    int v = par->def_value.i64;
-                    memcpy(dstp, &v, sizeof(v));
+                case PARAM_TYPE_INT:
+                case PARAM_TYPE_I64:
+                    ngli_params_vset(base_ptr, par, par->def_value.i64);
                     break;
-                }
-                case PARAM_TYPE_I64: {
-                    int64_t v = par->def_value.i64;
-                    memcpy(dstp, &v, sizeof(v));
+                case PARAM_TYPE_DBL:
+                    ngli_params_vset(base_ptr, par, par->def_value.dbl);
                     break;
-                }
-                case PARAM_TYPE_DBL: {
-                    double v = par->def_value.dbl;
-                    memcpy(dstp, &v, sizeof(v));
+                case PARAM_TYPE_STR:
+                    ngli_params_vset(base_ptr, par, par->def_value.str);
                     break;
-                }
-                case PARAM_TYPE_STR: {
-                    const char *s = ngli_strdup(par->def_value.str);
-                    memcpy(dstp, &s, sizeof(s));
+                case PARAM_TYPE_VEC2:
+                case PARAM_TYPE_VEC3:
+                case PARAM_TYPE_VEC4:
+                    ngli_params_vset(base_ptr, par, par->def_value.vec);
                     break;
-                }
-                case PARAM_TYPE_VEC2: {
-                    const float *v = par->def_value.vec;
-                    memcpy(dstp, v, 2 * sizeof(*v));
-                    break;
-                }
-                case PARAM_TYPE_VEC3: {
-                    const float *v = par->def_value.vec;
-                    memcpy(dstp, v, 3 * sizeof(*v));
-                    break;
-                }
-                case PARAM_TYPE_VEC4: {
-                    const float *v = par->def_value.vec;
-                    memcpy(dstp, v, 4 * sizeof(*v));
-                    break;
-                }
             }
         }
     }
