@@ -172,6 +172,15 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
     return 0;
 }
 
+int ngli_params_vset(uint8_t *base_ptr, const struct node_param *par, ...)
+{
+    va_list ap;
+    va_start(ap, par);
+    int ret = ngli_params_set(base_ptr, par, &ap);
+    va_end(ap);
+    return ret;
+}
+
 int ngli_params_set_constructors(uint8_t *base_ptr, const struct node_param *params, va_list *ap)
 {
     if (!params)
