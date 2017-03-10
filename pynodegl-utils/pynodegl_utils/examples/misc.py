@@ -1,7 +1,9 @@
 import math
+import random
 
 from pynodegl import Texture, Shader, TexturedShape, Rotate, AnimKeyFrameScalar, Triangle
 from pynodegl import Quad, UniformVec4, Camera, Group
+from pynodegl import Media, Translate, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
 
@@ -80,3 +82,35 @@ void main(void) {
     root.set_up(0.0, 1.0, 0.0)
     root.set_perspective(45.0, cfg.aspect_ratio, 1.0, 10.0)
     return root
+
+@scene({'name': 'dim', 'type': 'range', 'range': [1,50]})
+def cropboard(cfg, dim=15):
+    cfg.duration = 10
+
+    kw = kh = 1. / dim
+    qw = qh = 2. / dim
+    tqs = []
+
+    s = Shader()
+    m = Media(cfg.medias[0].filename)
+    t = Texture(data_src=m)
+
+    for y in range(dim):
+        for x in range(dim):
+            corner = (-1. + x*qw, 1. - (y+1.)*qh, 0)
+            q = Quad(corner, (qw, 0, 0), (0, qh, 0))
+
+            q.set_uv_corner(x*kw, 1. - (y+1.)*kh)
+            q.set_uv_width(kw, 0)
+            q.set_uv_height(0, kh)
+
+            tshape = TexturedShape(q, s, t)
+
+            startx = random.uniform(-2, 2)
+            starty = random.uniform(-2, 2)
+            trn = Translate(tshape)
+            trn.add_animkf(AnimKeyFrameVec3(0, (startx, starty, 0), "exp_out"),
+                           AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0)))
+            tqs.append(trn)
+
+    return Group(children=tqs)
