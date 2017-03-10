@@ -1,7 +1,9 @@
+- Windows and ANGLE (MS dx to gl) support
 - add tests
 - animkeyframe: find a way to expose resolutions
 - animkeyframe: use a faster method to locate position (bisect)
 - api: design a more advanced time remapping API
+- delayed draws for better performance
 - nodes: support masking
 - nodes: threaded texture uploading
 - nodes: add data node
@@ -11,4 +13,4 @@
 - viewer/export: add advanced screenshot feature
 - viewer: factor out GL utils (initialization, surface format, ...)
 - viewer: support importing files in addition to modules
-- viewer: watch and reload files automatically
+- viewer: proper reloading of the whole dependency tree
