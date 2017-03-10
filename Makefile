@@ -94,6 +94,7 @@ LIB_OBJS = api.o                    \
            node_uniform.o           \
            nodes.o                  \
            params.o                 \
+           serialize.o              \
            transforms.o             \
            utils.o                  \
 

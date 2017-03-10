@@ -101,6 +101,7 @@ int ngl_node_param_add(struct ngl_node *node, const char *key,
                        int nb_elems, void *elems);
 int ngl_node_param_set(struct ngl_node *node, const char *key, ...);
 char *ngl_node_dot(const struct ngl_node *node);
+char *ngl_node_serialize(const struct ngl_node *node);
 
 /* GL context */
 enum {
