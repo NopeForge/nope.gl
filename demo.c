@@ -23,6 +23,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -48,94 +51,34 @@ static int64_t gettime()
     return 1000000 * (int64_t)tv.tv_sec + tv.tv_usec;
 }
 
-#if 0
 static struct ngl_node *get_scene(const char *filename)
 {
-    static const float corner[3] = { -0.5, -0.5, 0.0 };
-    static const float width[3]  = {  1.0,  0.0, 0.0 };
-    static const float height[3] = {  0.0,  1.0, 0.0 };
+    struct ngl_node *scene = NULL;
+    char *buf = NULL;
+    struct stat st;
 
-    struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA, filename);
-    struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE);
-    struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD, corner, width, height);
-    struct ngl_node *shader  = ngl_node_create(NGL_NODE_SHADER);
-    struct ngl_node *tshape  = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
+    int fd = open(filename, O_RDONLY);
+    if (fd == -1)
+        goto end;
 
-    ngl_node_param_set(texture, "data_src", media);
-    ngl_node_param_add(tshape, "textures", 1, &texture);
+    if (fstat(fd, &st) == -1)
+        goto end;
 
-    ngl_node_unrefp(&shader);
-    ngl_node_unrefp(&media);
-    ngl_node_unrefp(&texture);
-    ngl_node_unrefp(&quad);
+    buf = malloc(st.st_size + 1);
+    if (!buf)
+        goto end;
 
-    return tshape;
+    int n = read(fd, buf, st.st_size);
+    buf[n] = 0;
+
+    scene = ngl_node_deserialize(buf);
+
+end:
+    if (fd != -1)
+        close(fd);
+    free(buf);
+    return scene;
 }
-
-#else
-
-static struct ngl_node *get_scene(const char *filename)
-{
-    struct ngl_node *group = ngl_node_create(NGL_NODE_GROUP);
-
-    const float duration = 30.;
-    const float overlap_time = 1.;
-    const int dim = 3;
-
-    const float qw = 2. / dim;
-    const float qh = qw;
-    const int nb_videos = dim * dim;
-
-    struct ngl_node *shader = ngl_node_create(NGL_NODE_SHADER);
-
-    for (int y = 0; y < dim; y++) {
-        for (int x = 0; x < dim; x++) {
-            const int video_id = y*dim + x;
-            const float start = video_id * duration / nb_videos;
-
-            const float corner_x = -1. + x*qw;
-            const float corner_y =  1. - (y+1)*qh;
-
-            const float corner[3] = {corner_x, corner_y, 0};
-            const float width[3]  = {qw, 0, 0};
-            const float height[3] = {0, qh, 0};
-
-            struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA, filename);
-            struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE);
-            struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD, corner, width, height);
-            struct ngl_node *tshape  = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
-
-            ngl_node_param_set(media, "start", start);
-            ngl_node_param_set(texture, "data_src", media);
-            ngl_node_param_add(tshape, "textures", 1, &texture);
-
-            struct ngl_node *rrs[3] = {
-                ngl_node_create(NGL_NODE_RENDERRANGENORENDER, 0.),
-                ngl_node_create(NGL_NODE_RENDERRANGECONTINUOUS, start),
-                ngl_node_create(NGL_NODE_RENDERRANGENORENDER,
-                                start + duration/nb_videos + overlap_time),
-            };
-
-            if (video_id) ngl_node_param_add(tshape, "ranges", 3, rrs);
-            else          ngl_node_param_add(tshape, "ranges", 2, rrs + 1);
-
-            ngl_node_param_add(group, "children", 1, &tshape);
-
-            ngl_node_unrefp(&rrs[0]);
-            ngl_node_unrefp(&rrs[1]);
-            ngl_node_unrefp(&rrs[2]);
-            ngl_node_unrefp(&tshape);
-            ngl_node_unrefp(&media);
-            ngl_node_unrefp(&texture);
-            ngl_node_unrefp(&quad);
-        }
-    }
-
-    ngl_node_unrefp(&shader);
-
-    return group;
-}
-#endif
 
 static int init(GLFWwindow *window, const char *filename)
 {
@@ -175,7 +118,7 @@ int main(int argc, char *argv[])
     }
 
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s <filename>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <scene.ngl>\n", argv[0]);
         return -1;
     }
 
