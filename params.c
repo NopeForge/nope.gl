@@ -113,16 +113,19 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
     switch (par->type) {
         case PARAM_TYPE_INT: {
             int v = va_arg(*ap, int);
+            LOG(VERBOSE, "set %s to %d", par->key, v);
             memcpy(dstp, &v, sizeof(v));
             break;
         }
         case PARAM_TYPE_I64: {
             int64_t v = va_arg(*ap, int64_t);
+            LOG(VERBOSE, "set %s to %"PRId64, par->key, v);
             memcpy(dstp, &v, sizeof(v));
             break;
         }
         case PARAM_TYPE_DBL: {
             double v = va_arg(*ap, double);
+            LOG(VERBOSE, "set %s to %g", par->key, v);
             memcpy(dstp, &v, sizeof(v));
             break;
         }
@@ -131,21 +134,25 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             if (!s)
                 return -1;
             free(*(char **)dstp);
+            LOG(VERBOSE, "set %s to \"%s\"", par->key, s);
             memcpy(dstp, &s, sizeof(s));
             break;
         }
         case PARAM_TYPE_VEC2: {
             const float *v = va_arg(*ap, const float *);
+            LOG(VERBOSE, "set %s to (%g,%g)", par->key, v[0], v[1]);
             memcpy(dstp, v, 2 * sizeof(*v));
             break;
         }
         case PARAM_TYPE_VEC3: {
             const float *v = va_arg(*ap, const float *);
+            LOG(VERBOSE, "set %s to (%g,%g,%g)", par->key, v[0], v[1], v[2]);
             memcpy(dstp, v, 3 * sizeof(*v));
             break;
         }
         case PARAM_TYPE_VEC4: {
             const float *v = va_arg(*ap, const float *);
+            LOG(VERBOSE, "set %s to (%g,%g,%g,%g)", par->key, v[0], v[1], v[2], v[3]);
             memcpy(dstp, v, 4 * sizeof(*v));
             break;
         }
@@ -157,6 +164,7 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
                 return -1;
             }
             ngl_node_ref(node);
+            LOG(VERBOSE, "set %s to %s", par->key, node->name);
             memcpy(dstp, &node, sizeof(node));
             break;
         }
@@ -249,6 +257,7 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
 int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
                     int nb_elems, void *elems)
 {
+    LOG(VERBOSE, "add %d elems to %s", nb_elems, par->key);
     switch (par->type) {
         case PARAM_TYPE_NODELIST: {
             uint8_t *cur_elems_p = base_ptr + par->offset;
