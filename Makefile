@@ -65,6 +65,7 @@ LIB_PCNAME   = $(LIB_BASENAME).pc
 
 LIB_OBJS = api.o                    \
            bstr.o                   \
+           deserialize.o            \
            dot.o                    \
            gl_utils.o               \
            glcontext.o              \
