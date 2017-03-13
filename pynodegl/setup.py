@@ -212,8 +212,10 @@ cdef class _Node:
         for i, item in enumerate(%(field_name)s):
             %(clist)s[i] = %(cfield)s
 
-        return ngl_node_param_add(self.ctx, "%(field_name)s",
-                                  len(%(field_name)s), %(clist)s)
+        ret = ngl_node_param_add(self.ctx, "%(field_name)s",
+                                 len(%(field_name)s), %(clist)s)
+        free(%(clist)s)
+        return ret
 ''' % field_data
 
                 elif field_type.startswith('vec'):
