@@ -134,6 +134,13 @@ static void media_prefetch(struct ngl_node *node)
     sxplayer_start(s->player);
 }
 
+static const char * const pix_fmt_names[] = {
+    [SXPLAYER_PIXFMT_RGBA]       = "rgba",
+    [SXPLAYER_PIXFMT_BGRA]       = "bgra",
+    [SXPLAYER_PIXFMT_VT]         = "vt",
+    [SXPLAYER_PIXFMT_MEDIACODEC] = "mediacodec",
+};
+
 static void media_update(struct ngl_node *node, double t)
 {
     struct media *s = node->priv_data;
@@ -150,7 +157,16 @@ static void media_update(struct ngl_node *node, double t)
 
     sxplayer_release_frame(s->frame);
     LOG(VERBOSE, "get frame from %s at t=%f", node->name, t);
-    s->frame = sxplayer_get_frame(s->player, t);
+    struct sxplayer_frame *frame = sxplayer_get_frame(s->player, t);
+    if (frame) {
+        if (frame->pix_fmt < 0 || frame->pix_fmt >= NGLI_ARRAY_NB(pix_fmt_names)) {
+            LOG(ERROR, "Invalid pixel format %d in sxplayer frame", frame->pix_fmt);
+            return;
+        }
+        LOG(VERBOSE, "got frame %dx%d %s with ts=%f", frame->width, frame->height,
+            pix_fmt_names[frame->pix_fmt], frame->ts);
+    }
+    s->frame = frame;
 }
 
 static void media_release(struct ngl_node *node)
