@@ -58,7 +58,7 @@ static const struct {
 static void callback_sxplayer_log(void *arg, int level, const char *filename, int ln,
                                   const char *fn, const char *fmt, va_list vl)
 {
-    if (level < 0 || level > NGLI_ARRAY_NB(log_levels))
+    if (level < 0 || level >= NGLI_ARRAY_NB(log_levels))
         return;
 
     struct media *s = arg;
