@@ -269,6 +269,17 @@ class _ExportView(QtWidgets.QWidget):
 class _GraphView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
+    def _save_to_file(self):
+        pixmap = self._graph_lbl.pixmap()
+        if not pixmap:
+            return
+        img = pixmap.toImage()
+        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
+        if not filenames[0]:
+            return
+        img.save(filenames[0])
+
+    @QtCore.pyqtSlot()
     def _update_graph(self):
         scene, _ = self._get_scene_func()
         if not scene:
@@ -310,17 +321,23 @@ class _GraphView(QtWidgets.QWidget):
         self._get_scene_func = get_scene_func
 
         self._graph_btn = QtWidgets.QPushButton("Update Graph")
+        self._save_btn = QtWidgets.QPushButton("Save to file")
         self._auto_chkbox = QtWidgets.QCheckBox("Automatically update")
         self._graph_lbl = QtWidgets.QLabel()
         img_area = QtWidgets.QScrollArea()
         img_area.setWidget(self._graph_lbl)
 
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.addWidget(self._graph_btn)
+        hbox.addWidget(self._save_btn)
+
         graph_layout = QtWidgets.QVBoxLayout(self)
         graph_layout.addWidget(self._auto_chkbox)
-        graph_layout.addWidget(self._graph_btn)
+        graph_layout.addLayout(hbox)
         graph_layout.addWidget(img_area)
 
         self._graph_btn.clicked.connect(self._update_graph)
+        self._save_btn.clicked.connect(self._save_to_file)
         self._auto_chkbox.stateChanged.connect(self._auto_check_changed)
 
 
