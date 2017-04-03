@@ -93,12 +93,21 @@ static int texture_init(struct ngl_node *node)
             s->format = GL_RED;
         if (s->internal_format == GL_NONE)
             s->internal_format = GL_RED;
+    } else if (s->data_src && s->data_src->class->id == NGL_NODE_MEDIA) {
+        struct media *media = s->data_src->priv_data;
+        if (media->audio_tex) {
+            s->internal_format = GL_R32F;
+            s->format = GL_RED;
+            s->type = GL_FLOAT;
+        }
     } else {
-        if (s->format == GL_NONE)
-            s->format = GL_RGBA;
-        if (s->internal_format == GL_NONE)
-            s->internal_format = GL_RGBA;
+        ngli_assert(!s->data_src);
     }
+
+    if (s->format == GL_NONE)
+        s->format = GL_RGBA;
+    if (s->internal_format == GL_NONE)
+        s->internal_format = GL_RGBA;
 
     if (s->target == GL_TEXTURE_2D) {
         texture_init_2D(node);

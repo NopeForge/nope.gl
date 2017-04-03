@@ -58,6 +58,7 @@
         - [initial_seek, double]
         - [sxplayer_min_level, string]
         - [time_animkf, NodeList]
+        - [audio_tex, int]
 
 - GLState:
     constructors:

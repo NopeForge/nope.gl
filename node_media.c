@@ -41,6 +41,7 @@ static const struct node_param media_params[] = {
     {"sxplayer_min_level", PARAM_TYPE_STR, OFFSET(sxplayer_min_level_str), {.str="warning"}},
     {"time_animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                     .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
+    {"audio_tex", PARAM_TYPE_INT, OFFSET(audio_tex)},
     {NULL}
 };
 
@@ -110,6 +111,12 @@ static int media_init(struct ngl_node *node)
     sxplayer_set_option(s->player, "sw_pix_fmt", SXPLAYER_PIXFMT_RGBA);
     sxplayer_set_option(s->player, "skip", s->initial_seek);
 
+    if (s->audio_tex) {
+        sxplayer_set_option(s->player, "avselect", SXPLAYER_SELECT_AUDIO);
+        sxplayer_set_option(s->player, "audio_texture", 1);
+        return 0;
+    }
+
 #ifdef __ANDROID__
     glGenTextures(1, &s->android_texture_id);
     glBindTexture(GL_TEXTURE_EXTERNAL_OES, s->android_texture_id);
@@ -159,12 +166,22 @@ static void media_update(struct ngl_node *node, double t)
     LOG(VERBOSE, "get frame from %s at t=%f", node->name, t);
     struct sxplayer_frame *frame = sxplayer_get_frame(s->player, t);
     if (frame) {
-        if (frame->pix_fmt < 0 || frame->pix_fmt >= NGLI_ARRAY_NB(pix_fmt_names)) {
+        const char *pix_fmt_str = frame->pix_fmt >= 0 &&
+                                  frame->pix_fmt < NGLI_ARRAY_NB(pix_fmt_names) ? pix_fmt_names[frame->pix_fmt]
+                                                                                : NULL;
+        if (s->audio_tex) {
+            if (frame->pix_fmt != SXPLAYER_SMPFMT_FLT) {
+                LOG(ERROR, "Unexpected %s (%d) sxplayer frame",
+                    pix_fmt_str ? pix_fmt_str : "unknown", frame->pix_fmt);
+                return;
+            }
+            pix_fmt_str = "audio";
+        } else if (!pix_fmt_str) {
             LOG(ERROR, "Invalid pixel format %d in sxplayer frame", frame->pix_fmt);
             return;
         }
         LOG(VERBOSE, "got frame %dx%d %s with ts=%f", frame->width, frame->height,
-            pix_fmt_names[frame->pix_fmt], frame->ts);
+            pix_fmt_str, frame->ts);
     }
     s->frame = frame;
 }

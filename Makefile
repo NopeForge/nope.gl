@@ -116,7 +116,7 @@ LIB_EXTRA_LDLIBS_Darwin  = -framework OpenGL -framework CoreVideo -framework Cor
 LIB_EXTRA_LDLIBS_Android = -legl -lglesv2
 LIB_EXTRA_LDLIBS_iPhone  = -framework OpenGLES -framework CoreMedia
 
-LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 8.0.0"
+LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 8.1.1"
 LIB_EXTRA_PKG_CONFIG_LIBS_Linux   = x11 gl
 LIB_EXTRA_PKG_CONFIG_LIBS_Darwin  =
 LIB_EXTRA_PKG_CONFIG_LIBS_Android =

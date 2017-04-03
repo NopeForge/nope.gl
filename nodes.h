@@ -292,6 +292,7 @@ struct media {
     struct ngl_node **animkf;
     int nb_animkf;
     int current_kf;
+    int audio_tex;
 
     int sxplayer_min_level;
 
