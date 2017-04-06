@@ -30,7 +30,8 @@
 #  define GL_MAJOR_VERSION  0x821B
 #  define GL_MINOR_VERSION  0x821C
 #  define GL_NUM_EXTENSIONS 0x821D
-#  define GL_RED GL_LUMINANCE
+#  define GL_RED            GL_LUMINANCE
+#  define GL_R32F           0x822E
 # elif TARGET_OS_MAC
 #  include <OpenGL/gl3.h>
 #  include <OpenGL/glext.h>
@@ -43,7 +44,8 @@
 # define GL_MAJOR_VERSION  0x821B
 # define GL_MINOR_VERSION  0x821C
 # define GL_NUM_EXTENSIONS 0x821D
-# define GL_RED GL_LUMINANCE
+# define GL_RED            GL_LUMINANCE
+# define GL_R32F           0x822E
 #endif
 
 #if __linux__ && !__ANDROID__
