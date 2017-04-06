@@ -154,11 +154,14 @@ void main()
 
     float diff_wave_ch_1 = abs(sample_ch_1 - var_tex0_coords.y);
     float diff_wave_ch_2 = abs(sample_ch_2 - var_tex0_coords.y);
-    if (diff_wave_ch_1 < 0.003 || diff_wave_ch_2 < 0.003) {
-        audio_pix = vec4(0.0, 1.0, 0.0, 1.0);
-    } else if ((var_tex0_coords.y > 0.75 - power_ch_1 && var_tex0_coords.y < 0.75) ||
-               (var_tex0_coords.y > 1.   - power_ch_2 && var_tex0_coords.y < 1.)) {
-        audio_pix = vec4(1.0, 0.0, 0.0, 1.0);
+    if (diff_wave_ch_1 < 0.003) {
+        audio_pix = vec4(0.5, 1.0, 0.0, 1.0);
+    } else if (diff_wave_ch_2 < 0.003) {
+        audio_pix = vec4(0.0, 1.0, 0.5, 1.0);
+    } else if (var_tex0_coords.y > 0.75 - power_ch_1 && var_tex0_coords.y < 0.75) {
+        audio_pix = vec4(1.0, 0.5, 0.0, 1.0);
+    } else if (var_tex0_coords.y > 1.   - power_ch_2 && var_tex0_coords.y < 1.) {
+        audio_pix = vec4(1.0, 0.0, 0.5, 1.0);
     } else {
         audio_pix = vec4(0.0, 0.0, 0.0, 1.0);
     }
