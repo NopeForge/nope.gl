@@ -21,17 +21,6 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1):
     tshape = TexturedShape(q, s, t)
     return tshape
 
-@scene()
-def centered_triangle_media(cfg):
-    cfg.duration = cfg.medias[0].duration
-
-    q = Triangle((-0.5, -0.5, 0), (-0.5, 0.5, 0), (0.5, -0.5, 0))
-    m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
-    s = Shader()
-    tshape = TexturedShape(q, s, t)
-    return tshape
-
 @scene({'name': 'n', 'type': 'range', 'range': [0,1], 'unit_base': 1000},
        {'name': 'k', 'type': 'range', 'range': [3,50]})
 def centered_shape_media(cfg, n=0.9, k=5):
