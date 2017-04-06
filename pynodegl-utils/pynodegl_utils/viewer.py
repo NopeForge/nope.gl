@@ -367,7 +367,7 @@ class _GLView(QtWidgets.QWidget):
         t = self._tick * 1./self.RENDERING_FPS
         if t > self._scene_duration:
             self._tick = 0
-        cur_time = '%02d:%02d' % divmod(self._tick, 60)
+        cur_time = '%02d:%02d' % divmod(t, 60)
         duration = '%02d:%02d' % divmod(self._scene_duration, 60)
         self._time_lbl.setText('%s / %s (%d @ %dHz)' % (cur_time, duration, self._tick, self.RENDERING_FPS))
         self._slider.setValue(self._tick)
