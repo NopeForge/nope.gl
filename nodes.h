@@ -124,6 +124,10 @@ struct shapeprimitive {
 #define NGLI_SHAPE_VERTICES_STRIDE(s) (8 * sizeof(*(s)->vertices))
 #define NGLI_SHAPE_VERTICES_SIZE(s) ((s)->nb_vertices * NGLI_SHAPE_VERTICES_STRIDE(s))
 
+#define NGLI_SHAPE_COORDS_NB        3
+#define NGLI_SHAPE_TEXCOORDS_NB     2
+#define NGLI_SHAPE_NORMALS_NB       3
+
 #define NGLI_SHAPE_TEXCOORDS_OFFSET 3
 #define NGLI_SHAPE_NORMALS_OFFSET   5
 

@@ -39,6 +39,8 @@ static const struct node_param quad_params[] = {
     {NULL}
 };
 
+#define NB_VERTICES 4
+
 #define C(index) s->quad_corner[(index)]
 #define W(index) s->quad_width[(index)]
 #define H(index) s->quad_height[(index)]
@@ -51,18 +53,41 @@ static int quad_init(struct ngl_node *node)
 {
     struct shape *s = node->priv_data;
 
-    const GLfloat vertices[] = {
-        C(0) + H(0),        C(1) + H(1),        C(2) + H(2),        UV_C(0) + UV_H(0),           1.0f - UV_C(1) - UV_H(1),           0.0f, 0.0f, 0.0f,
-        C(0) + W(0),        C(1) + W(1),        C(2) + W(2),        UV_C(0) + UV_W(0),           1.0f - UV_C(1) - UV_W(1),           0.0f, 0.0f, 0.0f,
-        C(0),               C(1),               C(2),               UV_C(0),                     1.0f - UV_C(1),                     0.0f, 0.0f, 0.0f,
-        C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2), UV_C(0) + UV_H(0) + UV_W(0), 1.0f - UV_C(1) - UV_H(1) - UV_W(1), 0.0f, 0.0f, 0.0f,
+    const GLfloat vertices[NB_VERTICES*NGLI_SHAPE_COORDS_NB] = {
+        C(0) + H(0),        C(1) + H(1),        C(2) + H(2),
+        C(0) + W(0),        C(1) + W(1),        C(2) + W(2),
+        C(0),               C(1),               C(2),
+        C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2),
     };
-    s->nb_vertices = sizeof(vertices) / NGLI_SHAPE_VERTICES_STRIDE(s);
-    s->vertices = calloc(1, sizeof(vertices));
+
+    const GLfloat uvs[NB_VERTICES*NGLI_SHAPE_TEXCOORDS_NB] = {
+        UV_C(0) + UV_H(0),           1.0f - UV_C(1) - UV_H(1),
+        UV_C(0) + UV_W(0),           1.0f - UV_C(1) - UV_W(1),
+        UV_C(0),                     1.0f - UV_C(1),
+        UV_C(0) + UV_H(0) + UV_W(0), 1.0f - UV_C(1) - UV_H(1) - UV_W(1),
+    };
+
+    s->nb_vertices = NB_VERTICES;
+    s->vertices = calloc(1, NGLI_SHAPE_VERTICES_SIZE(s));
     if (!s->vertices)
         return -1;
 
-    memcpy(s->vertices, vertices, sizeof(vertices));
+    float *dst = s->vertices;
+    const float *y = vertices;
+    const float *uv = uvs;
+
+    for (int i = 0; i < NB_VERTICES; i++) {
+        memcpy(dst, y, sizeof(*s->vertices) * NGLI_SHAPE_COORDS_NB);
+        y   += NGLI_SHAPE_COORDS_NB;
+        dst += NGLI_SHAPE_COORDS_NB;
+
+        memcpy(dst, uv, sizeof(*s->vertices) * NGLI_SHAPE_TEXCOORDS_NB);
+        uv  += NGLI_SHAPE_TEXCOORDS_NB;
+        dst += NGLI_SHAPE_TEXCOORDS_NB;
+
+        dst += NGLI_SHAPE_NORMALS_NB;
+    }
+
     NGLI_SHAPE_GENERATE_BUFFERS(s);
 
     static const GLushort indices[] = { 0, 1, 2, 0, 3, 1 };
