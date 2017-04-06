@@ -114,3 +114,66 @@ def cropboard(cfg, dim=15):
             tqs.append(trn)
 
     return Group(children=tqs)
+
+@scene({'name': 'freq_precision', 'type': 'range', 'range': [1,10]})
+def audiotex(cfg, freq_precision=7):
+    media = cfg.medias[0]
+    cfg.duration = media.duration
+
+    freq_line = 2                           # skip the 2 audio channels
+    freq_line += (10 - freq_precision) * 2  # 2x10 lines of FFT
+
+    fft1, fft2 = freq_line + 0.5, freq_line + 1 + 0.5
+
+    frag_data = '''
+#version 100
+precision mediump float;
+
+uniform sampler2D tex0_sampler;
+uniform sampler2D tex1_sampler;
+varying vec2 var_tex0_coords;
+
+void main()
+{
+    vec4 audio_pix;
+    vec4 video_pix = texture2D(tex1_sampler, var_tex0_coords);
+    vec2 sample_id_ch_1 = vec2(var_tex0_coords.x,      0.5 / 22.);
+    vec2 sample_id_ch_2 = vec2(var_tex0_coords.x,      1.5 / 22.);
+    vec2  power_id_ch_1 = vec2(var_tex0_coords.x, %(fft1)f / 22.);
+    vec2  power_id_ch_2 = vec2(var_tex0_coords.x, %(fft2)f / 22.);
+    float sample_ch_1 = texture2D(tex0_sampler, sample_id_ch_1).x;
+    float sample_ch_2 = texture2D(tex0_sampler, sample_id_ch_2).x;
+    float  power_ch_1 = texture2D(tex0_sampler,  power_id_ch_1).x;
+    float  power_ch_2 = texture2D(tex0_sampler,  power_id_ch_2).x;
+    power_ch_1 = sqrt(power_ch_1);
+    power_ch_2 = sqrt(power_ch_2);
+    sample_ch_1 = (sample_ch_1 + 1.) / 8.; // [-1;1] -> [0    ; 0.25]
+    sample_ch_2 = (sample_ch_2 + 3.) / 8.; // [-1;1] -> [0.25 ; 0.5 ]
+    power_ch_1 = clamp(power_ch_1, 0., 1.) / 4.; // [0 ; +oo] -> [0 ; 0.25]
+    power_ch_2 = clamp(power_ch_2, 0., 1.) / 4.; // [0 ; +oo] -> [0 ; 0.25]
+
+    float diff_wave_ch_1 = abs(sample_ch_1 - var_tex0_coords.y);
+    float diff_wave_ch_2 = abs(sample_ch_2 - var_tex0_coords.y);
+    if (diff_wave_ch_1 < 0.003 || diff_wave_ch_2 < 0.003) {
+        audio_pix = vec4(0.0, 1.0, 0.0, 1.0);
+    } else if ((var_tex0_coords.y > 0.75 - power_ch_1 && var_tex0_coords.y < 0.75) ||
+               (var_tex0_coords.y > 1.   - power_ch_2 && var_tex0_coords.y < 1.)) {
+        audio_pix = vec4(1.0, 0.0, 0.0, 1.0);
+    } else {
+        audio_pix = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+    gl_FragColor = mix(video_pix, audio_pix, 0.6);
+}
+''' % {'fft1': fft1, 'fft2': fft2}
+
+    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+
+    audio_m = Media(media.filename, audio_tex=1)
+    audio_tex = Texture(data_src=audio_m)
+
+    video_m = Media(media.filename)
+    video_tex = Texture(data_src=video_m)
+
+    s = Shader(fragment_data=frag_data)
+    tshape = TexturedShape(q, s, [audio_tex, video_tex])
+    return tshape
