@@ -1,3 +1,5 @@
+import math
+
 from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, AnimKeyFrameScalar
 
 from pynodegl_utils.misc import scene
@@ -30,20 +32,18 @@ def centered_triangle_media(cfg):
     tshape = TexturedShape(q, s, t)
     return tshape
 
-@scene({'name': 'n', 'type': 'range', 'range': [0,1], 'unit_base': 1000})
-def centered_shape_media(cfg, n=0.5):
+@scene({'name': 'n', 'type': 'range', 'range': [0,1], 'unit_base': 1000},
+       {'name': 'k', 'type': 'range', 'range': [3,50]})
+def centered_shape_media(cfg, n=0.9, k=5):
     cfg.duration = cfg.medias[0].duration
 
-    q = Shape([
-        ShapePrimitive((  -n, -n/2, 0), (0,    0.75)),
-        ShapePrimitive((  -n,  n/2, 0), (0,    0.25)),
-        ShapePrimitive((-n/2,    n, 0), (0.25, 0)),
-        ShapePrimitive(( n/2,    n, 0), (0.75, 0)),
-        ShapePrimitive((   n,  n/2, 0), (1,    0.25)),
-        ShapePrimitive((   n, -n/2, 0), (1,    0.75)),
-        ShapePrimitive(( n/2,   -n, 0), (0.75, 1)),
-        ShapePrimitive((-n/2,   -n, 0), (0.25, 1)),
-    ])
+    sp = []
+    for i in range(k):
+        angle = i * 2 * math.pi / k
+        x, y = math.sin(angle) * n, math.cos(angle) * n
+        sp.append(ShapePrimitive((x, y, 0), ((x+1)/2, (1-y)/2)))
+
+    q = Shape(sp)
     q.set_draw_mode(GL.GL_TRIANGLE_FAN)
 
     m = Media(cfg.medias[0].filename)
