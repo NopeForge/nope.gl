@@ -36,8 +36,6 @@ static const struct node_param shape_params[] = {
     {NULL}
 };
 
-#define e(index) s->shape_edges[(index)]
-
 static int shape_init(struct ngl_node *node)
 {
     struct shape *s = node->priv_data;
