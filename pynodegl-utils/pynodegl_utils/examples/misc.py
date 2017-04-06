@@ -115,8 +115,9 @@ def cropboard(cfg, dim=15):
 
     return Group(children=tqs)
 
-@scene({'name': 'freq_precision', 'type': 'range', 'range': [1,10]})
-def audiotex(cfg, freq_precision=7):
+@scene({'name': 'freq_precision', 'type': 'range', 'range': [1,10]},
+       {'name': 'overlay', 'type': 'range', 'unit_base': 100})
+def audiotex(cfg, freq_precision=7, overlay=0.6):
     media = cfg.medias[0]
     cfg.duration = media.duration
 
@@ -165,9 +166,9 @@ void main()
     } else {
         audio_pix = vec4(0.0, 0.0, 0.0, 1.0);
     }
-    gl_FragColor = mix(video_pix, audio_pix, 0.6);
+    gl_FragColor = mix(video_pix, audio_pix, %(overlay)f);
 }
-''' % {'fft1': fft1, 'fft2': fft2}
+''' % {'fft1': fft1, 'fft2': fft2, 'overlay': overlay}
 
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
