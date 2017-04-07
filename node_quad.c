@@ -54,17 +54,17 @@ static int quad_init(struct ngl_node *node)
     struct shape *s = node->priv_data;
 
     const GLfloat vertices[NB_VERTICES*NGLI_SHAPE_COORDS_NB] = {
-        C(0) + H(0),        C(1) + H(1),        C(2) + H(2),
-        C(0) + W(0),        C(1) + W(1),        C(2) + W(2),
         C(0),               C(1),               C(2),
+        C(0) + W(0),        C(1) + W(1),        C(2) + W(2),
         C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2),
+        C(0) + H(0),        C(1) + H(1),        C(2) + H(2),
     };
 
     const GLfloat uvs[NB_VERTICES*NGLI_SHAPE_TEXCOORDS_NB] = {
-        UV_C(0) + UV_H(0),           1.0f - UV_C(1) - UV_H(1),
-        UV_C(0) + UV_W(0),           1.0f - UV_C(1) - UV_W(1),
         UV_C(0),                     1.0f - UV_C(1),
+        UV_C(0) + UV_W(0),           1.0f - UV_C(1) - UV_W(1),
         UV_C(0) + UV_H(0) + UV_W(0), 1.0f - UV_C(1) - UV_H(1) - UV_W(1),
+        UV_C(0) + UV_H(0),           1.0f - UV_C(1) - UV_H(1),
     };
 
     s->nb_vertices = NB_VERTICES;
@@ -90,7 +90,7 @@ static int quad_init(struct ngl_node *node)
 
     NGLI_SHAPE_GENERATE_BUFFERS(s);
 
-    static const GLushort indices[] = { 0, 1, 2, 0, 3, 1 };
+    static const GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
     s->nb_indices = NGLI_ARRAY_NB(indices);
     s->indices = calloc(1, sizeof(indices));
     if (!s->indices)
