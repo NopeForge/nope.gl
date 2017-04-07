@@ -51,6 +51,14 @@ static int triangle_init(struct ngl_node *node)
     if (!s->vertices)
         return -1;
 
+    float a[3];
+    float b[3];
+    float normal[3];
+    ngli_vec3_sub(a, s->triangle_edges + 1 * NGLI_SHAPE_COORDS_NB, s->triangle_edges);
+    ngli_vec3_sub(b, s->triangle_edges + 2 * NGLI_SHAPE_COORDS_NB, s->triangle_edges);
+    ngli_vec3_cross(normal, a, b);
+    ngli_vec3_norm(normal, normal);
+
     float *dst = s->vertices;
     const float *y = s->triangle_edges;
     const float *uv = s->triangle_uvs;
@@ -64,6 +72,7 @@ static int triangle_init(struct ngl_node *node)
         uv  += NGLI_SHAPE_TEXCOORDS_NB;
         dst += NGLI_SHAPE_TEXCOORDS_NB;
 
+        memcpy(dst, normal, sizeof(normal));
         dst += NGLI_SHAPE_NORMALS_NB;
     }
 
