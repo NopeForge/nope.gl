@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "gl_utils.h"
+#include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "utils.h"
@@ -67,6 +68,10 @@ static int quad_init(struct ngl_node *node)
         UV_C(0) + UV_H(0),           1.0f - UV_C(1) - UV_H(1),
     };
 
+    float normal[3];
+    ngli_vec3_cross(normal, s->quad_width, s->quad_height);
+    ngli_vec3_norm(normal, normal);
+
     s->nb_vertices = NB_VERTICES;
     s->vertices = calloc(1, NGLI_SHAPE_VERTICES_SIZE(s));
     if (!s->vertices)
@@ -85,6 +90,7 @@ static int quad_init(struct ngl_node *node)
         uv  += NGLI_SHAPE_TEXCOORDS_NB;
         dst += NGLI_SHAPE_TEXCOORDS_NB;
 
+        memcpy(dst, normal, sizeof(normal));
         dst += NGLI_SHAPE_NORMALS_NB;
     }
 
