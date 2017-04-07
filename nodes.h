@@ -175,6 +175,7 @@ struct shape {
 
     /* triangle params */
     float triangle_edges[9];
+    float triangle_uvs[6];
 
     /* shape params */
     struct ngl_node **primitives;
