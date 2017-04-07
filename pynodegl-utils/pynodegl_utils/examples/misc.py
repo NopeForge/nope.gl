@@ -16,13 +16,13 @@ varying vec2 var_tex0_coords;
 void main(void)
 {
     vec2 c = var_tex0_coords;
-    gl_FragColor = vec4(c.y-c.x, 1.0-c.y, c.x, 1.0);
+    gl_FragColor = vec4(c.y-c.x, c.x, 1.0-c.y, 1.0);
 }'''
 
     b = size * math.sqrt(3) / 2.0
     c = size * 1/2.
 
-    triangle = Triangle((0, size, 0), (b, -c, 0), (-b, -c, 0))
+    triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
     s = Shader(fragment_data=frag_data)
     node = TexturedShape(triangle, s, Texture())
     node = Rotate(node, axis=(0,0,1))
