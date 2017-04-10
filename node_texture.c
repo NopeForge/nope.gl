@@ -56,18 +56,22 @@ static const struct node_param texture_params[] = {
 
 static int texture_init_2D(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     struct texture *s = node->priv_data;
 
-    glGenTextures(1, &s->local_id);
-    glBindTexture(GL_TEXTURE_2D, s->local_id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->GenTextures(1, &s->local_id);
+    gl->BindTexture(GL_TEXTURE_2D, s->local_id);
+    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     if (s->width && s->height) {
-        glTexImage2D(GL_TEXTURE_2D, 0, s->format, s->width, s->height, 0, s->internal_format, s->type, NULL);
+        gl->TexImage2D(GL_TEXTURE_2D, 0, s->format, s->width, s->height, 0, s->internal_format, s->type, NULL);
     }
-    glBindTexture(GL_TEXTURE_2D, 0);
+    gl->BindTexture(GL_TEXTURE_2D, 0);
     s->id = s->local_id;
     s->target = s->local_target = GL_TEXTURE_2D;
 
@@ -139,23 +143,33 @@ static int texture_init(struct ngl_node *node)
     return 0;
 }
 
-static void handle_fps_frame(struct texture *s)
+static void handle_fps_frame(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    struct texture *s = node->priv_data;
     struct fps *fps = s->data_src->priv_data;
     const int width = fps->data_w;
     const int height = fps->data_h;
     const uint8_t *data = fps->data_buf;
 
-    glBindTexture(GL_TEXTURE_2D, s->id);
+    gl->BindTexture(GL_TEXTURE_2D, s->id);
     if (s->width == width && s->height == height)
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, s->format, s->type, data);
+        gl->TexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, s->format, s->type, data);
     else
-        glTexImage2D(GL_TEXTURE_2D, 0, s->internal_format, width, height, 0, s->format, s->type, data);
-    glBindTexture(GL_TEXTURE_2D, 0);
+        gl->TexImage2D(GL_TEXTURE_2D, 0, s->internal_format, width, height, 0, s->format, s->type, data);
+    gl->BindTexture(GL_TEXTURE_2D, 0);
 }
 
-static void handle_media_frame(struct texture *s)
+static void handle_media_frame(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    struct texture *s = node->priv_data;
     struct media *media = s->data_src->priv_data;
     struct sxplayer_frame *frame = media->frame;
 
@@ -194,11 +208,11 @@ static void handle_media_frame(struct texture *s)
             s->internal_format = GL_RGBA;
             s->coordinates_matrix[0] = padding;
 
-            glBindTexture(GL_TEXTURE_2D, s->id);
+            gl->BindTexture(GL_TEXTURE_2D, s->id);
             if (s->width == width && s->height == height) {
-                glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, s->format, s->type, data);
+                gl->TexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, s->format, s->type, data);
             } else {
-                glTexImage2D(GL_TEXTURE_2D, 0, s->internal_format, width, height, 0, s->format, s->type, data);
+                gl->TexImage2D(GL_TEXTURE_2D, 0, s->internal_format, width, height, 0, s->format, s->type, data);
             }
 
             CVPixelBufferUnlockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
@@ -208,10 +222,10 @@ static void handle_media_frame(struct texture *s)
             case GL_NEAREST_MIPMAP_LINEAR:
             case GL_LINEAR_MIPMAP_NEAREST:
             case GL_LINEAR_MIPMAP_LINEAR:
-                glGenerateMipmap(GL_TEXTURE_2D);
+                gl->GenerateMipmap(GL_TEXTURE_2D);
                 break;
             }
-            glBindTexture(GL_TEXTURE_2D, 0);
+            gl->BindTexture(GL_TEXTURE_2D, 0);
 
             s->width = width;
             s->height = height;
@@ -252,12 +266,12 @@ static void handle_media_frame(struct texture *s)
             s->internal_format = GL_RGBA;
             s->coordinates_matrix[0] = padding;
 
-            glBindTexture(GL_TEXTURE_2D, s->id);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
-            glBindTexture(GL_TEXTURE_2D, 0);
+            gl->BindTexture(GL_TEXTURE_2D, s->id);
+            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
+            gl->BindTexture(GL_TEXTURE_2D, 0);
 
             s->width = width;
             s->height = height;
@@ -271,11 +285,11 @@ static void handle_media_frame(struct texture *s)
             s->target = s->local_target;
             s->coordinates_matrix[0] = padding;
 
-            glBindTexture(GL_TEXTURE_2D, s->id);
+            gl->BindTexture(GL_TEXTURE_2D, s->id);
             if (s->width == width && s->height == height) {
-                glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, s->format, s->type, frame->data);
+                gl->TexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, s->format, s->type, frame->data);
             } else {
-                glTexImage2D(GL_TEXTURE_2D, 0, s->internal_format, width, height, 0, s->format, s->type, frame->data);
+                gl->TexImage2D(GL_TEXTURE_2D, 0, s->internal_format, width, height, 0, s->format, s->type, frame->data);
             }
 
             switch(s->min_filter) {
@@ -283,10 +297,10 @@ static void handle_media_frame(struct texture *s)
             case GL_NEAREST_MIPMAP_LINEAR:
             case GL_LINEAR_MIPMAP_NEAREST:
             case GL_LINEAR_MIPMAP_LINEAR:
-                glGenerateMipmap(GL_TEXTURE_2D);
+                gl->GenerateMipmap(GL_TEXTURE_2D);
                 break;
             }
-            glBindTexture(GL_TEXTURE_2D, 0);
+            gl->BindTexture(GL_TEXTURE_2D, 0);
 
             s->width = width;
             s->height = height;
@@ -307,17 +321,21 @@ static void texture_update(struct ngl_node *node, double t)
     ngli_node_update(s->data_src, t);
 
     if (s->data_src->class->id == NGL_NODE_FPS) {
-        handle_fps_frame(s);
+        handle_fps_frame(node);
     } else if (s->data_src->class->id == NGL_NODE_MEDIA) {
-        handle_media_frame(s);
+        handle_media_frame(node);
     }
 }
 
 static void texture_uninit(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     struct texture *s = node->priv_data;
 
-    glDeleteTextures(1, &s->local_id);
+    gl->DeleteTextures(1, &s->local_id);
 
 #ifdef TARGET_IPHONE
     if (s->texture)

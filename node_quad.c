@@ -52,6 +52,10 @@ static const struct node_param quad_params[] = {
 
 static int quad_init(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     struct shape *s = node->priv_data;
 
     const GLfloat vertices[NB_VERTICES*NGLI_SHAPE_COORDS_NB] = {
@@ -94,7 +98,7 @@ static int quad_init(struct ngl_node *node)
         dst += NGLI_SHAPE_NORMALS_NB;
     }
 
-    NGLI_SHAPE_GENERATE_BUFFERS(s);
+    NGLI_SHAPE_GENERATE_BUFFERS(gl, s);
 
     static const GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
     s->nb_indices = NGLI_ARRAY_NB(indices);
@@ -103,7 +107,7 @@ static int quad_init(struct ngl_node *node)
         return -1;
 
     memcpy(s->indices, indices, sizeof(indices));
-    NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(s);
+    NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(gl, s);
 
     s->draw_mode = GL_TRIANGLES;
     s->draw_type = GL_UNSIGNED_SHORT;

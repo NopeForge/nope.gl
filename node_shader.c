@@ -79,9 +79,10 @@ static const struct node_param shader_params[] = {
 };
 
 #define DEFINE_GET_INFO_LOG_FUNCTION(func, name)                                      \
-static void get_##func##_info_log(GLuint id, char **info_logp, int *info_log_lengthp) \
+static void get_##func##_info_log(const struct glfunctions *gl, GLuint id,            \
+                                  char **info_logp, int *info_log_lengthp)            \
 {                                                                                     \
-    glGet##name##iv(id, GL_INFO_LOG_LENGTH, info_log_lengthp);                        \
+    gl->Get##name##iv(id, GL_INFO_LOG_LENGTH, info_log_lengthp);                      \
     if (!*info_log_lengthp) {                                                         \
         *info_logp = NULL;                                                            \
         return;                                                                       \
@@ -93,7 +94,7 @@ static void get_##func##_info_log(GLuint id, char **info_logp, int *info_log_len
         return;                                                                       \
     }                                                                                 \
                                                                                       \
-    glGet##name##InfoLog(id, *info_log_lengthp, NULL, *info_logp);                    \
+    gl->Get##name##InfoLog(id, *info_log_lengthp, NULL, *info_logp);                  \
     while (*info_log_lengthp && strchr(" \r\n", (*info_logp)[*info_log_lengthp - 1])) \
         (*info_logp)[--*info_log_lengthp] = 0;                                        \
 }                                                                                     \
@@ -101,47 +102,51 @@ static void get_##func##_info_log(GLuint id, char **info_logp, int *info_log_len
 DEFINE_GET_INFO_LOG_FUNCTION(shader, Shader)
 DEFINE_GET_INFO_LOG_FUNCTION(program, Program)
 
-static GLuint load_shader(const char *vertex_shader_data, const char *fragment_shader_data)
+static GLuint load_shader(struct ngl_node *node, const char *vertex_shader_data, const char *fragment_shader_data)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     char *info_log = NULL;
     int info_log_length = 0;
 
     GLint result = GL_FALSE;
 
-    GLuint program = glCreateProgram();
-    GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    GLuint program = gl->CreateProgram();
+    GLuint vertex_shader = gl->CreateShader(GL_VERTEX_SHADER);
+    GLuint fragment_shader = gl->CreateShader(GL_FRAGMENT_SHADER);
 
-    glShaderSource(vertex_shader, 1, &vertex_shader_data, NULL);
-    glCompileShader(vertex_shader);
+    gl->ShaderSource(vertex_shader, 1, &vertex_shader_data, NULL);
+    gl->CompileShader(vertex_shader);
 
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &result);
+    gl->GetShaderiv(vertex_shader, GL_COMPILE_STATUS, &result);
     if (!result) {
-        get_shader_info_log(vertex_shader, &info_log, &info_log_length);
+        get_shader_info_log(gl, vertex_shader, &info_log, &info_log_length);
         goto fail;
     }
 
-    glShaderSource(fragment_shader, 1, &fragment_shader_data, NULL);
-    glCompileShader(fragment_shader);
+    gl->ShaderSource(fragment_shader, 1, &fragment_shader_data, NULL);
+    gl->CompileShader(fragment_shader);
 
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &result);
+    gl->GetShaderiv(fragment_shader, GL_COMPILE_STATUS, &result);
     if (!result) {
-        get_shader_info_log(fragment_shader, &info_log, &info_log_length);
+        get_shader_info_log(gl, fragment_shader, &info_log, &info_log_length);
         goto fail;
     }
 
-    glAttachShader(program, vertex_shader);
-    glAttachShader(program, fragment_shader);
-    glLinkProgram(program);
+    gl->AttachShader(program, vertex_shader);
+    gl->AttachShader(program, fragment_shader);
+    gl->LinkProgram(program);
 
-    glGetProgramiv(program, GL_LINK_STATUS, &result);
+    gl->GetProgramiv(program, GL_LINK_STATUS, &result);
     if (!result) {
-        get_program_info_log(program, &info_log, &info_log_length);
+        get_program_info_log(gl, program, &info_log, &info_log_length);
         goto fail;
     }
 
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
+    gl->DeleteShader(vertex_shader);
+    gl->DeleteShader(fragment_shader);
 
     return program;
 
@@ -152,15 +157,15 @@ fail:
     }
 
     if (vertex_shader) {
-        glDeleteShader(vertex_shader);
+        gl->DeleteShader(vertex_shader);
     }
 
     if (fragment_shader) {
-        glDeleteShader(fragment_shader);
+        gl->DeleteShader(fragment_shader);
     }
 
     if (program) {
-        glDeleteProgram(program);
+        gl->DeleteProgram(program);
     }
 
     return 0;
@@ -168,26 +173,34 @@ fail:
 
 static int shader_init(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     struct shader *s = node->priv_data;
 
-    s->program_id = load_shader(s->vertex_data, s->fragment_data);
+    s->program_id = load_shader(node, s->vertex_data, s->fragment_data);
     if (!s->program_id)
         return -1;
 
-    s->position_location_id          = glGetAttribLocation(s->program_id,  "ngl_position");
-    s->normal_location_id            = glGetAttribLocation(s->program_id,  "ngl_normal");
-    s->modelview_matrix_location_id  = glGetUniformLocation(s->program_id, "ngl_modelview_matrix");
-    s->projection_matrix_location_id = glGetUniformLocation(s->program_id, "ngl_projection_matrix");
-    s->normal_matrix_location_id     = glGetUniformLocation(s->program_id, "ngl_normal_matrix");
+    s->position_location_id          = gl->GetAttribLocation(s->program_id,  "ngl_position");
+    s->normal_location_id            = gl->GetAttribLocation(s->program_id,  "ngl_normal");
+    s->modelview_matrix_location_id  = gl->GetUniformLocation(s->program_id, "ngl_modelview_matrix");
+    s->projection_matrix_location_id = gl->GetUniformLocation(s->program_id, "ngl_projection_matrix");
+    s->normal_matrix_location_id     = gl->GetUniformLocation(s->program_id, "ngl_normal_matrix");
 
     return 0;
 }
 
 static void shader_uninit(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     struct shader *s = node->priv_data;
 
-    glDeleteProgram(s->program_id);
+    gl->DeleteProgram(s->program_id);
 }
 
 const struct node_class ngli_shader_class = {

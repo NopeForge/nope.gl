@@ -64,7 +64,10 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 
 int ngl_draw(struct ngl_ctx *s, double t)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    struct glcontext *glcontext = s->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    gl->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     struct ngl_node *scene = s->scene;
     if (!scene) {

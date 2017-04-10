@@ -118,13 +118,17 @@ static int media_init(struct ngl_node *node)
     }
 
 #ifdef __ANDROID__
-    glGenTextures(1, &s->android_texture_id);
-    glBindTexture(GL_TEXTURE_EXTERNAL_OES, s->android_texture_id);
-    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glBindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    gl->GenTextures(1, &s->android_texture_id);
+    gl->BindTexture(GL_TEXTURE_EXTERNAL_OES, s->android_texture_id);
+    gl->TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    gl->TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    gl->TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    gl->TexParameteri(GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->BindTexture(GL_TEXTURE_EXTERNAL_OES, 0);
     s->android_texture_target = GL_TEXTURE_EXTERNAL_OES;
 
     s->android_surface = av_android_surface_new(NULL, s->android_texture_id);
@@ -200,8 +204,12 @@ static void media_uninit(struct ngl_node *node)
     sxplayer_free(&s->player);
 
 #ifdef __ANDROID__
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     av_android_surface_free((AVAndroidSurface **)&s->android_surface);
-    glDeleteTextures(1, &s->android_texture_id);
+    gl->DeleteTextures(1, &s->android_texture_id);
 #endif
 }
 

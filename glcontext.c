@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -27,6 +28,18 @@
 #include "nodegl.h"
 #include "utils.h"
 #include "glincludes.h"
+
+#define NGLI_GL_FUNC(flags, ret, name, ...) { "gl"#name, offsetof(struct glfunctions, name), flags },
+
+static const struct gldefinition {
+    const char *name;
+    size_t offset;
+    int flags;
+} gldefinitions[] = {
+#include "glfunctions.h"
+};
+
+#undef NGLI_GL_FUNC
 
 #ifdef HAVE_PLATFORM_GLX
 extern const struct glcontext_class ngli_glcontext_x11_class;
@@ -153,26 +166,36 @@ struct glcontext *ngli_glcontext_new_shared(struct glcontext *other)
 
 int ngli_glcontext_load_extensions(struct glcontext *glcontext)
 {
+    const struct glfunctions *gl = &glcontext->funcs;
+
     if (glcontext->loaded)
         return 0;
 
-    glcontext->glGetStringi         = ngli_glcontext_get_proc_address(glcontext, "glGetStringi");
-    glcontext->glGenVertexArrays    = ngli_glcontext_get_proc_address(glcontext, "glGenVertexArrays");
-    glcontext->glBindVertexArray    = ngli_glcontext_get_proc_address(glcontext, "glBindVertexArray");
-    glcontext->glDeleteVertexArrays = ngli_glcontext_get_proc_address(glcontext, "glDeleteVertexArrays");
+    for (int i = 0; i < NGLI_ARRAY_NB(gldefinitions); i++) {
+        void *func;
+        const struct gldefinition *gldefinition = &gldefinitions[i];
+
+        func = ngli_glcontext_get_proc_address(glcontext, gldefinition->name);
+        if ((gldefinition->flags & M) && !func) {
+            LOG(ERROR, "could not find core function: %s", gldefinition->name);
+            return -1;
+        }
+
+        *(void **)((uint8_t *)gl + gldefinition->offset) = func;
+    }
 
     if (glcontext->api == NGL_GLAPI_OPENGL3) {
         GLint i, nb_extensions;
 
-        glGetIntegerv(GL_MAJOR_VERSION, &glcontext->major_version);
-        glGetIntegerv(GL_MINOR_VERSION, &glcontext->minor_version);
+        gl->GetIntegerv(GL_MAJOR_VERSION, &glcontext->major_version);
+        gl->GetIntegerv(GL_MINOR_VERSION, &glcontext->minor_version);
 
         if (glcontext->major_version >= 4)
             glcontext->has_vao_compatibility = 1;
 
-        glGetIntegerv(GL_NUM_EXTENSIONS, &nb_extensions);
+        gl->GetIntegerv(GL_NUM_EXTENSIONS, &nb_extensions);
         for (i = 0; i < nb_extensions; i++) {
-            const char *extension = (const char *)glcontext->glGetStringi(GL_EXTENSIONS, i);
+            const char *extension = (const char *)gl->GetStringi(GL_EXTENSIONS, i);
             if (!extension)
                 break;
             if (!strcmp(extension, "GL_ARB_ES2_compatibility")) {
@@ -182,20 +205,20 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
             }
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
-        const char *gl_extensions = (const char *)glGetString(GL_EXTENSIONS);
+        const char *gl_extensions = (const char *)gl->GetString(GL_EXTENSIONS);
         glcontext->major_version = 2;
         glcontext->minor_version = 0;
         glcontext->has_es2_compatibility = 1;
         glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
     }
 
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
+    gl->GetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
 
     if (glcontext->has_vao_compatibility) {
         glcontext->has_vao_compatibility =
-            glcontext->glGenVertexArrays != NULL &&
-            glcontext->glBindVertexArray != NULL &&
-            glcontext->glDeleteVertexArrays != NULL;
+            gl->GenVertexArrays != NULL &&
+            gl->BindVertexArray != NULL &&
+            gl->DeleteVertexArrays != NULL;
         if (!glcontext->has_vao_compatibility)
             LOG(WARNING, "OpenGL driver claims VAO support but we could not load related functions");
 
@@ -288,6 +311,8 @@ int ngli_glcontext_check_extension(const char *extension, const char *extensions
 
 int ngli_glcontext_check_gl_error(struct glcontext *glcontext)
 {
+    const struct glfunctions *gl = &glcontext->funcs;
+
     static const char * const errors[] = {
         [GL_INVALID_ENUM]                   = "GL_INVALID_ENUM",
         [GL_INVALID_VALUE]                  = "GL_INVALID_VALUE",
@@ -295,7 +320,7 @@ int ngli_glcontext_check_gl_error(struct glcontext *glcontext)
         [GL_INVALID_FRAMEBUFFER_OPERATION ] = "GL_INVALID_FRAMEBUFFER_OPERATION",
         [GL_OUT_OF_MEMORY]                  = "GL_OUT_OF_MEMORY",
     };
-    const GLenum error = glGetError();
+    const GLenum error = gl->GetError();
 
     if (!error)
         return error;

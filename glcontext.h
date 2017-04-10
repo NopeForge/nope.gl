@@ -24,6 +24,14 @@
 
 #include "glincludes.h"
 
+#define NGLI_GL_FUNC(flags, ret, name, ...) ret (*name)(__VA_ARGS__);
+
+struct glfunctions {
+#include "glfunctions.h"
+};
+
+#undef NGLI_GL_FUNC
+
 struct glcontext_class;
 
 struct glcontext {
@@ -42,11 +50,7 @@ struct glcontext {
     int has_vao_compatibility;
     int max_texture_image_units;
 
-    void* (*glGetStringi)(GLenum name, GLuint index);
-
-    void (*glGenVertexArrays)(GLsizei n, GLuint *arrays);
-    void (*glBindVertexArray)(GLuint array);
-    void (*glDeleteVertexArrays)(GLsizei n, const GLuint *arrays);
+    struct glfunctions funcs;
 };
 
 struct glcontext_class {

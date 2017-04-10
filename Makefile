@@ -112,8 +112,8 @@ LIB_EXTRA_CFLAGS_iPhone  = -DHAVE_PLATFORM_EAGL
 LIB_LDLIBS               = -lm -lpthread
 LIB_EXTRA_LDLIBS_Linux   =
 LIB_EXTRA_LDLIBS_Darwin  = -framework OpenGL -framework CoreVideo -framework CoreFoundation
-LIB_EXTRA_LDLIBS_Android = -legl -lglesv2
-LIB_EXTRA_LDLIBS_iPhone  = -framework OpenGLES -framework CoreMedia
+LIB_EXTRA_LDLIBS_Android = -legl
+LIB_EXTRA_LDLIBS_iPhone  = -framework CoreMedia
 
 LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 8.1.1"
 LIB_EXTRA_PKG_CONFIG_LIBS_Linux   = x11 gl

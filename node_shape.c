@@ -38,6 +38,10 @@ static const struct node_param shape_params[] = {
 
 static int shape_init(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     struct shape *s = node->priv_data;
 
     s->nb_vertices = s->nb_primitives;
@@ -57,7 +61,7 @@ static int shape_init(struct ngl_node *node)
         p += NGLI_ARRAY_NB(primitive->normals);
     }
 
-    NGLI_SHAPE_GENERATE_BUFFERS(s);
+    NGLI_SHAPE_GENERATE_BUFFERS(gl, s);
 
     s->nb_indices = s->nb_primitives;
     s->indices = calloc(s->nb_primitives, sizeof(*s->indices));
@@ -68,7 +72,7 @@ static int shape_init(struct ngl_node *node)
         s->indices[i] = i;
     }
 
-    NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(s);
+    NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(gl, s);
 
     return 0;
 }
