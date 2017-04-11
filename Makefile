@@ -67,7 +67,6 @@ LIB_OBJS = api.o                    \
            bstr.o                   \
            deserialize.o            \
            dot.o                    \
-           gl_utils.o               \
            glcontext.o              \
            log.o                    \
            math_utils.o             \

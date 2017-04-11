@@ -285,3 +285,25 @@ int ngli_glcontext_check_extension(const char *extension, const char *extensions
 
     return 0;
 }
+
+int ngli_glcontext_check_gl_error(struct glcontext *glcontext)
+{
+    static const char * const errors[] = {
+        [GL_INVALID_ENUM]                   = "GL_INVALID_ENUM",
+        [GL_INVALID_VALUE]                  = "GL_INVALID_VALUE",
+        [GL_INVALID_OPERATION]              = "GL_INVALID_OPERATION",
+        [GL_INVALID_FRAMEBUFFER_OPERATION ] = "GL_INVALID_FRAMEBUFFER_OPERATION",
+        [GL_OUT_OF_MEMORY]                  = "GL_OUT_OF_MEMORY",
+    };
+    const GLenum error = glGetError();
+
+    if (!error)
+        return error;
+
+    if (error < NGLI_ARRAY_NB(errors))
+        LOG(ERROR, "detected gl error: %s", errors[error]);
+    else
+        LOG(ERROR, "detected gl error: %d", error);
+
+    return error;
+}

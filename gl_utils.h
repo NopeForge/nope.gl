@@ -54,6 +54,4 @@
 # include <GL/glext.h>
 #endif
 
-GLenum ngli_check_gl_error(void);
-
 #endif /* GL_UTILS_H */

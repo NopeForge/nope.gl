@@ -71,5 +71,6 @@ void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *n
 void *ngli_glcontext_get_handle(struct glcontext *glcontext);
 void ngli_glcontext_freep(struct glcontext **glcontext);
 int ngli_glcontext_check_extension(const char *extension, const char *extensions);
+int ngli_glcontext_check_gl_error(struct glcontext *glcontext);
 
 #endif /* GLCONTEXT_H */
