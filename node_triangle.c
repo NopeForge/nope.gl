@@ -99,7 +99,16 @@ static int triangle_init(struct ngl_node *node)
 
 static void triangle_uninit(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     struct shape *s = node->priv_data;
+
+    gl->DeleteBuffers(1, &s->vertices_buffer_id);
+    gl->DeleteBuffers(1, &s->texcoords_buffer_id);
+    gl->DeleteBuffers(1, &s->normals_buffer_id);
+    gl->DeleteBuffers(1, &s->indices_buffer_id);
 
     free(s->vertices);
     free(s->indices);
