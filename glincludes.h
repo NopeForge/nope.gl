@@ -19,8 +19,8 @@
  * under the License.
  */
 
-#ifndef GL_UTILS_H
-#define GL_UTILS_H
+#ifndef GLINCLUDES_H
+#define GLINCLUDES_H
 
 #if __APPLE__
 # include <TargetConditionals.h>
@@ -54,4 +54,4 @@
 # include <GL/glext.h>
 #endif
 
-#endif /* GL_UTILS_H */
+#endif /* GLINCLUDES_H */

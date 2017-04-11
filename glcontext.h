@@ -22,7 +22,7 @@
 #ifndef GLCONTEXT_H
 #define GLCONTEXT_H
 
-#include "gl_utils.h"
+#include "glincludes.h"
 
 struct glcontext_class;
 

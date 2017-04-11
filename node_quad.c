@@ -23,7 +23,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include "gl_utils.h"
+#include "glincludes.h"
 #include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"

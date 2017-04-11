@@ -28,7 +28,7 @@
 #include <libavcodec/mediacodec.h>
 #endif
 
-#include "gl_utils.h"
+#include "glincludes.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"

@@ -29,7 +29,7 @@
 #include <CoreVideo/CoreVideo.h>
 #endif
 
-#include "gl_utils.h"
+#include "glincludes.h"
 #include "glcontext.h"
 #include "params.h"
 

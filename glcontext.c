@@ -26,7 +26,7 @@
 #include "log.h"
 #include "nodegl.h"
 #include "utils.h"
-#include "gl_utils.h"
+#include "glincludes.h"
 
 #ifdef HAVE_PLATFORM_GLX
 extern const struct glcontext_class ngli_glcontext_x11_class;
