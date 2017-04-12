@@ -86,6 +86,9 @@ int ngl_draw(struct ngl_ctx *s, double t)
     ngli_node_update(scene, t);
     ngli_node_draw(scene);
 
+    if (ngli_glcontext_check_gl_error(glcontext))
+        return -1;
+
     return 0;
 }
 
