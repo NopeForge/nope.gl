@@ -67,6 +67,11 @@ int ngl_draw(struct ngl_ctx *s, double t)
     struct glcontext *glcontext = s->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
+    if (!glcontext->loaded) {
+        LOG(ERROR, "glcontext not loaded");
+        return -1;
+    }
+
     gl->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     struct ngl_node *scene = s->scene;
