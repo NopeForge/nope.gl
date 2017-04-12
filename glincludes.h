@@ -54,4 +54,10 @@
 # include <GL/glext.h>
 #endif
 
+#if _WIN32
+# include <GL/gl.h>
+# include <GL/glcorearb.h>
+# include <GL/glext.h>
+#endif
+
 #endif /* GLINCLUDES_H */

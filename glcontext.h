@@ -24,7 +24,13 @@
 
 #include "glincludes.h"
 
-#define NGLI_GL_FUNC(flags, ret, name, ...) ret (*name)(__VA_ARGS__);
+#ifdef _WIN32
+#define NGLI_GL_APIENTRY WINAPI
+#else
+#define NGLI_GL_APIENTRY
+#endif
+
+#define NGLI_GL_FUNC(flags, ret, name, ...) ret NGLI_GL_APIENTRY (*name)(__VA_ARGS__);
 
 struct glfunctions {
 #include "glfunctions.h"

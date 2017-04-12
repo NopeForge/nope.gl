@@ -111,6 +111,7 @@ enum {
     NGL_GLPLATFORM_EGL,
     NGL_GLPLATFORM_CGL,
     NGL_GLPLATFORM_EAGL,
+    NGL_GLPLATFORM_WGL,
 };
 
 /* GL API version */
