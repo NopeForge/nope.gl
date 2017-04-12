@@ -165,8 +165,11 @@ static void serialize_options(struct serial_ctx *sctx,
                 uint8_t *nb_elems_p = priv + p->offset + sizeof(double *);
                 const double *elems = *(double **)elems_p;
                 const int nb_elems = *(int *)nb_elems_p;
-                for (int i = 0; i < nb_elems; i++)
-                    ngli_bstr_print(b, "%s%a", i ? "," : "", elems[i]);
+                if (nb_elems) {
+                    ngli_bstr_print(b, " ");
+                    for (int i = 0; i < nb_elems; i++)
+                        ngli_bstr_print(b, "%s%a", i ? "," : "", elems[i]);
+                }
                 break;
             }
             default:
