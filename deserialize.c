@@ -281,7 +281,6 @@ struct ngl_node *ngl_node_deserialize(const char *str)
             break;
 
         register_node(&sctx, node);
-        ngl_node_ref(node);
 
         size_t eol = strcspn(s, "\n");
         s[eol] = 0;
