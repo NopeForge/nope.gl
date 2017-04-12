@@ -325,10 +325,10 @@ int ngli_glcontext_check_gl_error(struct glcontext *glcontext)
     if (!error)
         return error;
 
-    if (error < NGLI_ARRAY_NB(errors))
-        LOG(ERROR, "detected gl error: %s", errors[error]);
+    if (error < NGLI_ARRAY_NB(errors) && errors[error])
+        LOG(ERROR, "GL error: %s", errors[error]);
     else
-        LOG(ERROR, "detected gl error: %d", error);
+        LOG(ERROR, "GL error: %04x", error);
 
     return error;
 }
