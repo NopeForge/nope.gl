@@ -126,11 +126,11 @@ static int texture_init(struct ngl_node *node)
 
 #ifdef TARGET_IPHONE
     struct glcontext *glcontext = node->ctx->glcontext;
-    CVEAGLContext eaglcontext = ngli_glcontext_get_handle(glcontext);
+    CVEAGLContext *eaglcontext = ngli_glcontext_get_handle(glcontext);
 
     CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
                                                 NULL,
-                                                eaglcontext,
+                                                *eaglcontext,
                                                 NULL,
                                                 &s->cache);
 

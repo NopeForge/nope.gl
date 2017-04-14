@@ -86,7 +86,7 @@ static void *glcontext_eagl_get_window(struct glcontext *glcontext)
 static void *glcontext_eagl_get_handle(struct glcontext *glcontext)
 {
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
-    return glcontext_eagl->handle;
+    return &glcontext_eagl->handle;
 }
 
 static void *glcontext_eagl_get_proc_address(struct glcontext *glcontext, const char *name)
