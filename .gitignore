@@ -1,7 +1,6 @@
 *.d
 *.exe
 *.o
-demo
 gen_specs
 libnodegl.a
 libnodegl.pc
