@@ -75,13 +75,11 @@ static int glcontext_eagl_make_current(struct glcontext *glcontext, int current)
 
 static void *glcontext_eagl_get_display(struct glcontext *glcontext)
 {
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
     return NULL;
 }
 
 static void *glcontext_eagl_get_window(struct glcontext *glcontext)
 {
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
     return NULL;
 }
 
