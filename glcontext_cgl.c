@@ -67,6 +67,16 @@ static int glcontext_cgl_make_current(struct glcontext *glcontext, int current)
     return error == kCGLNoError ? 0 : -1;
 }
 
+static void *glcontext_cgl_get_display(struct glcontext *glcontext)
+{
+    return NULL;
+}
+
+static void *glcontext_cgl_get_window(struct glcontext *glcontext)
+{
+    return NULL;
+}
+
 static void *glcontext_cgl_get_handle(struct glcontext *glcontext)
 {
     struct glcontext_cgl *glcontext_cgl = glcontext->priv_data;
@@ -100,6 +110,8 @@ const struct glcontext_class ngli_glcontext_cgl_class = {
     .init = glcontext_cgl_init,
     .uninit = glcontext_cgl_uninit,
     .make_current = glcontext_cgl_make_current,
+    .get_display = glcontext_x11_get_display,
+    .get_window = glcontext_x11_get_window,
     .get_handle = glcontext_cgl_get_handle,
     .get_proc_address = glcontext_cgl_get_proc_address,
     .priv_size = sizeof(struct glcontext_cgl),
