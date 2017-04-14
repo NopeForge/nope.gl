@@ -7,3 +7,5 @@ libnodegl.pc
 libnodegl.so
 libnodegl.symexport
 ngl-player
+ngl-render
+tests/data

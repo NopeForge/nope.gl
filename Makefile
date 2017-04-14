@@ -142,6 +142,17 @@ endif
 
 
 #
+# Render tool configuration
+#
+RENDER_OBJS = ngl-render.o
+RENDER_CFLAGS = $(shell $(PKG_CONFIG) --cflags glfw3) -I.
+RENDER_LDLIBS = $(shell $(PKG_CONFIG) --libs   glfw3)
+ifeq ($(SHARED),no)
+RENDER_LDLIBS += $(LIB_LDLIBS)
+endif
+
+
+#
 # gen_specs configuration
 #
 GENSPECS_OBJS = gen_specs.o $(LIB_OBJS)
@@ -168,6 +179,10 @@ endif
 ngl-player: CFLAGS = $(PROJECT_CFLAGS) $(PLAYER_CFLAGS)
 ngl-player: LDLIBS = $(PROJECT_LDLIBS) $(PLAYER_LDLIBS)
 ngl-player: $(PLAYER_OBJS) $(LIB_NAME)
+
+ngl-render: CFLAGS = $(PROJECT_CFLAGS) $(RENDER_CFLAGS)
+ngl-render: LDLIBS = $(PROJECT_LDLIBS) $(RENDER_LDLIBS)
+ngl-render: $(RENDER_OBJS) $(LIB_NAME)
 
 gen_specs: CFLAGS = $(PROJECT_CFLAGS) $(GENSPECS_CFLAGS)
 gen_specs: LDLIBS = $(PROJECT_LDLIBS) $(GENSPECS_LDLIBS)
@@ -208,6 +223,7 @@ clean:
 	$(RM) $(LIB_BASENAME).so $(LIB_BASENAME).dylib $(LIB_BASENAME).a
 	$(RM) $(LIB_OBJS) $(LIB_DEPS)
 	$(RM) $(PLAYER_OBJS) ngl-player
+	$(RM) $(RENDER_OBJS) ngl-render
 	$(RM) $(GENSPECS_OBJS) gen_specs
 	$(RM) examples/*.pyc
 	$(RM) $(LIB_PCNAME)
@@ -229,6 +245,14 @@ uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/include/$(PROJECT_NAME).h
 	$(RM) -r $(DESTDIR)$(PREFIX)/share/$(PROJECT_NAME)
 
-.PHONY: all updatespecs cleanpy clean install uninstall
+tests_serial:
+	$(PYTHON) ./tests/serialize.py data
+
+tests: tests_serial ngl-render
+	@for f in tests/data/*.ngl; do \
+		./ngl-render $$f -t 3:2:5 -t 0:1:60 -t 7:3:15; \
+	done
+
+.PHONY: all updatespecs cleanpy clean install uninstall tests tests_serial
 
 -include $(LIB_DEPS)
