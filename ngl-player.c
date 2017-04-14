@@ -35,13 +35,9 @@
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 360
-#define WINDOW_ASPECT_RATIO (WINDOW_WIDTH / (double)WINDOW_HEIGHT)
-
-#define FRAMERATE 60
-
-int64_t g_tick;
 
 struct ngl_ctx *g_ctx;
+int64_t g_clock_off = -1;
 
 static int64_t gettime()
 {
@@ -53,31 +49,25 @@ static int64_t gettime()
 
 static struct ngl_node *get_scene(const char *filename)
 {
-    struct ngl_node *scene = NULL;
-    char *buf = NULL;
-    struct stat st;
+    static const float corner[3] = { -1.0, -1.0, 0.0 };
+    static const float width[3]  = {  2.0,  0.0, 0.0 };
+    static const float height[3] = {  0.0,  2.0, 0.0 };
 
-    int fd = open(filename, O_RDONLY);
-    if (fd == -1)
-        goto end;
+    struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA, filename);
+    struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE);
+    struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD, corner, width, height);
+    struct ngl_node *shader  = ngl_node_create(NGL_NODE_SHADER);
+    struct ngl_node *tshape  = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
 
-    if (fstat(fd, &st) == -1)
-        goto end;
+    ngl_node_param_set(texture, "data_src", media);
+    ngl_node_param_add(tshape, "textures", 1, &texture);
 
-    buf = malloc(st.st_size + 1);
-    if (!buf)
-        goto end;
+    ngl_node_unrefp(&shader);
+    ngl_node_unrefp(&media);
+    ngl_node_unrefp(&texture);
+    ngl_node_unrefp(&quad);
 
-    int n = read(fd, buf, st.st_size);
-    buf[n] = 0;
-
-    scene = ngl_node_deserialize(buf);
-
-end:
-    if (fd != -1)
-        close(fd);
-    free(buf);
-    return scene;
+    return tshape;
 }
 
 static int init(GLFWwindow *window, const char *filename)
@@ -100,8 +90,14 @@ static int init(GLFWwindow *window, const char *filename)
 
 static void render()
 {
-    ngl_draw(g_ctx, g_tick / (double)FRAMERATE);
-    g_tick++;
+    int64_t clock_cur = gettime();
+
+    if (g_clock_off < 0)
+        g_clock_off = gettime();
+
+    int64_t time = (clock_cur - g_clock_off);
+
+    ngl_draw(g_ctx, time / 1000000.0);
 }
 
 static void reset()
@@ -118,7 +114,7 @@ int main(int argc, char *argv[])
     }
 
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s <scene.ngl>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <media>\n", argv[0]);
         return -1;
     }
 
@@ -132,7 +128,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "node.gl playground", NULL, NULL);
+    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "ngl-player", NULL, NULL);
     if (window == NULL) {
         fprintf(stderr, "Failed to initialize GL context\n");
         glfwTerminate();
@@ -142,9 +138,6 @@ int main(int argc, char *argv[])
     glfwMakeContextCurrent(window);
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-    int nb_frames = 0;
-    int64_t timer = gettime();
-
     int ret = init(window, argv[1]);
     if (ret < 0)
         goto end;
@@ -153,14 +146,8 @@ int main(int argc, char *argv[])
         render();
         glfwSwapBuffers(window);
         glfwPollEvents();
-        nb_frames++;
-        if (nb_frames == 1)
-            timer = gettime();
-    }
-    while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
-           glfwWindowShouldClose(window) == 0);
-
-    fprintf(stderr, "FPS=%f\n", nb_frames / ((gettime() - timer) / (double)1000000));
+    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
+             glfwWindowShouldClose(window) == 0);
 
 end:
     reset();

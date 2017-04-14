@@ -131,13 +131,13 @@ LIB_DEPS = $(LIB_OBJS:.o=.d)
 
 
 #
-# Demo configuration
+# Player configuration
 #
-DEMO_OBJS = demo.o
-DEMO_CFLAGS = $(shell $(PKG_CONFIG) --cflags glfw3) -I.
-DEMO_LDLIBS = $(shell $(PKG_CONFIG) --libs   glfw3)
+PLAYER_OBJS = ngl-player.o
+PLAYER_CFLAGS = $(shell $(PKG_CONFIG) --cflags glfw3) -I.
+PLAYER_LDLIBS = $(shell $(PKG_CONFIG) --libs   glfw3)
 ifeq ($(SHARED),no)
-DEMO_LDLIBS += $(LIB_LDLIBS)
+PLAYER_LDLIBS += $(LIB_LDLIBS)
 endif
 
 
@@ -165,9 +165,9 @@ else
 	$(AR) rcs $@ $(LIB_OBJS)
 endif
 
-demo: CFLAGS = $(PROJECT_CFLAGS) $(DEMO_CFLAGS)
-demo: LDLIBS = $(PROJECT_LDLIBS) $(DEMO_LDLIBS)
-demo: $(DEMO_OBJS) $(LIB_NAME)
+ngl-player: CFLAGS = $(PROJECT_CFLAGS) $(PLAYER_CFLAGS)
+ngl-player: LDLIBS = $(PROJECT_LDLIBS) $(PLAYER_LDLIBS)
+ngl-player: $(PLAYER_OBJS) $(LIB_NAME)
 
 gen_specs: CFLAGS = $(PROJECT_CFLAGS) $(GENSPECS_CFLAGS)
 gen_specs: LDLIBS = $(PROJECT_LDLIBS) $(GENSPECS_LDLIBS)
@@ -207,7 +207,7 @@ cleanpy:
 clean:
 	$(RM) $(LIB_BASENAME).so $(LIB_BASENAME).dylib $(LIB_BASENAME).a
 	$(RM) $(LIB_OBJS) $(LIB_DEPS)
-	$(RM) $(DEMO_OBJS) demo
+	$(RM) $(PLAYER_OBJS) ngl-player
 	$(RM) $(GENSPECS_OBJS) gen_specs
 	$(RM) examples/*.pyc
 	$(RM) $(LIB_PCNAME)

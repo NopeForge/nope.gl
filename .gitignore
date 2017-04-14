@@ -6,3 +6,4 @@ libnodegl.a
 libnodegl.pc
 libnodegl.so
 libnodegl.symexport
+ngl-player
