@@ -70,7 +70,7 @@ static int glcontext_cgl_make_current(struct glcontext *glcontext, int current)
 static void *glcontext_cgl_get_handle(struct glcontext *glcontext)
 {
     struct glcontext_cgl *glcontext_cgl = glcontext->priv_data;
-    return glcontext_cgl->handle;
+    return &glcontext_cgl->handle;
 }
 
 static void *glcontext_cgl_get_proc_address(struct glcontext *glcontext, const char *name)
