@@ -129,6 +129,27 @@ static void reset()
     ngl_free(&g_ctx);
 }
 
+static double clipd(double v, double min, double max)
+{
+    if (v < min) return min;
+    if (v > max) return max;
+    return v;
+}
+
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        double pos;
+        double xpos;
+        double ypos;
+
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        pos = clipd(xpos - g_view_info.x, 0.0, g_view_info.width);
+        g_clock_off = gettime() - (pos / g_view_info.width * g_info.duration * 1000000);
+    }
+}
+
 static void size_callback(GLFWwindow *window, int width, int height)
 {
     g_view_info.width = width;
@@ -182,6 +203,7 @@ int main(int argc, char *argv[])
 
     glfwMakeContextCurrent(window);
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetWindowSizeCallback(window, size_callback);
 
     ret = init(window, argv[1]);
