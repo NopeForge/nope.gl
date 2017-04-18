@@ -45,8 +45,10 @@ struct view_info {
 
 struct ngl_ctx *g_ctx;
 int64_t g_clock_off = -1;
+int64_t g_frame_ts;
 struct sxplayer_info g_info;
 struct view_info g_view_info;
+int g_paused;
 
 static int64_t gettime()
 {
@@ -112,16 +114,27 @@ static int init(GLFWwindow *window, const char *filename)
     return 0;
 }
 
+static void update_time(int64_t seek_at)
+{
+    if (seek_at >= 0) {
+        g_clock_off = gettime() - seek_at;
+        g_frame_ts = seek_at;
+        return;
+    }
+
+    if (!g_paused) {
+        const int64_t now = gettime();
+
+        if (g_clock_off < 0)
+            g_clock_off = now;
+
+        g_frame_ts = now - g_clock_off;
+    }
+}
+
 static void render()
 {
-    int64_t clock_cur = gettime();
-
-    if (g_clock_off < 0)
-        g_clock_off = gettime();
-
-    int64_t time = (clock_cur - g_clock_off);
-
-    ngl_draw(g_ctx, time / 1000000.0);
+    ngl_draw(g_ctx, g_frame_ts / 1000000.0);
 }
 
 static void reset()
@@ -136,17 +149,38 @@ static double clipd(double v, double min, double max)
     return v;
 }
 
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+    if (action == GLFW_PRESS) {
+        switch(key) {
+        case GLFW_KEY_ESCAPE:
+        case GLFW_KEY_Q:
+            glfwSetWindowShouldClose(window, GL_TRUE);
+            break;
+        case GLFW_KEY_SPACE:
+            g_paused ^= 1;
+            g_clock_off = gettime() - g_frame_ts;
+            break;
+        default:
+            break;
+        }
+    }
+}
+
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         double pos;
         double xpos;
         double ypos;
+        int64_t seek_at;
 
         glfwGetCursorPos(window, &xpos, &ypos);
 
         pos = clipd(xpos - g_view_info.x, 0.0, g_view_info.width);
-        g_clock_off = gettime() - (pos / g_view_info.width * g_info.duration * 1000000);
+        seek_at = 1000000 * g_info.duration * pos / g_view_info.width;
+
+        update_time(seek_at);
     }
 }
 
@@ -203,6 +237,7 @@ int main(int argc, char *argv[])
 
     glfwMakeContextCurrent(window);
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetWindowSizeCallback(window, size_callback);
 
@@ -211,6 +246,7 @@ int main(int argc, char *argv[])
         goto end;
 
     do {
+        update_time(-1);
         render();
         glfwSwapBuffers(window);
         glfwPollEvents();
