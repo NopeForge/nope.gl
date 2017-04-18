@@ -143,12 +143,13 @@ LIB_DEPS = $(LIB_OBJS:.o=.d)
 # Player configuration
 #
 PLAYER_OBJS = ngl-player.o
+PLAYER_CFLAGS = $(shell $(PKG_CONFIG) --cflags libsxplayer) -I.
+PLAYER_LDLIBS = $(shell $(PKG_CONFIG) --libs   libsxplayer)
 ifeq ($(TARGET_OS),MinGW-w64)
-PLAYER_CFLAGS = -I.
-PLAYER_LDLIBS = -lopengl32 -lglfw3
+PLAYER_LDLIBS += -lopengl32 -lglfw3
 else
-PLAYER_CFLAGS = $(shell $(PKG_CONFIG) --cflags glfw3) -I.
-PLAYER_LDLIBS = $(shell $(PKG_CONFIG) --libs   glfw3)
+PLAYER_CFLAGS += $(shell $(PKG_CONFIG) --cflags glfw3)
+PLAYER_LDLIBS += $(shell $(PKG_CONFIG) --libs   glfw3)
 endif
 ifeq ($(SHARED),no)
 PLAYER_LDLIBS += $(LIB_LDLIBS)

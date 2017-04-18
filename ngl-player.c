@@ -30,14 +30,23 @@
 #include <unistd.h>
 
 #include <nodegl.h>
+#include <sxplayer.h>
 
 #include <GLFW/glfw3.h>
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 360
+struct view_info {
+    double x;
+    double y;
+    double width;
+    double height;
+};
+
+#define ASPECT_RATIO(info) ((info).width / (double)(info).height)
 
 struct ngl_ctx *g_ctx;
 int64_t g_clock_off = -1;
+struct sxplayer_info g_info;
+struct view_info g_view_info;
 
 static int64_t gettime()
 {
@@ -70,11 +79,26 @@ static struct ngl_node *get_scene(const char *filename)
     return tshape;
 }
 
+static int probe(const char *filename)
+{
+    struct sxplayer_ctx *ctx = sxplayer_create(filename);
+    if (!ctx)
+        return -1;
+
+    int ret = sxplayer_get_info(ctx, &g_info);
+    if (ret < 0)
+        return ret;
+
+    sxplayer_free(&ctx);
+
+    return 0;
+}
+
 static int init(GLFWwindow *window, const char *filename)
 {
     g_ctx = ngl_create();
     ngl_set_glcontext(g_ctx, NULL, NULL, NULL, NGL_GLPLATFORM_AUTO, NGL_GLAPI_AUTO);
-    glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glViewport(0, 0, g_info.width, g_info.height);
 
     struct ngl_node *scene = get_scene(filename);
     if (!scene)
@@ -105,8 +129,25 @@ static void reset()
     ngl_free(&g_ctx);
 }
 
+static void size_callback(GLFWwindow *window, int width, int height)
+{
+    g_view_info.width = width;
+    g_view_info.height = width / ASPECT_RATIO(g_info);
+
+    if (g_view_info.height > height) {
+        g_view_info.height = height;
+        g_view_info.width = height * ASPECT_RATIO(g_info);
+    }
+
+    g_view_info.x = (width - g_view_info.width) / 2.0;
+    g_view_info.y = (height - g_view_info.height) / 2.0;
+
+    glViewport(g_view_info.x, g_view_info.y, g_view_info.width, g_view_info.height);
+}
+
 int main(int argc, char *argv[])
 {
+    int ret;
     GLFWwindow *window;
     if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
@@ -118,6 +159,10 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    ret = probe(argv[1]);
+    if (ret < 0)
+        return ret;
+
 #ifdef __APPLE__
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
@@ -128,7 +173,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #endif
 
-    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "ngl-player", NULL, NULL);
+    window = glfwCreateWindow(g_info.width, g_info.height, "ngl-player", NULL, NULL);
     if (window == NULL) {
         fprintf(stderr, "Failed to initialize GL context\n");
         glfwTerminate();
@@ -137,8 +182,9 @@ int main(int argc, char *argv[])
 
     glfwMakeContextCurrent(window);
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetWindowSizeCallback(window, size_callback);
 
-    int ret = init(window, argv[1]);
+    ret = init(window, argv[1]);
     if (ret < 0)
         goto end;
 
