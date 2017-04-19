@@ -76,6 +76,18 @@
         - [mode_rgb, int]
         - [mode_alpha, int]
 
+- GLStencilState:
+    constructors:
+        - [enabled, int]
+    optional:
+        - [writemask, int]
+        - [func, int]
+        - [func_ref, int]
+        - [func_mask, int]
+        - [op_sfail, int]
+        - [op_dpfail, int]
+        - [op_dppass, int]
+
 - Group:
     optional:
         - [children, NodeList]

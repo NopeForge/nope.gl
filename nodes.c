@@ -39,6 +39,7 @@ extern const struct node_class ngli_camera_class;
 extern const struct node_class ngli_texture_class;
 extern const struct node_class ngli_glstate_class;
 extern const struct node_class ngli_glblendstate_class;
+extern const struct node_class ngli_glstencilstate_class;
 extern const struct node_class ngli_group_class;
 extern const struct node_class ngli_identity_class;
 extern const struct node_class ngli_media_class;
@@ -77,6 +78,7 @@ static const struct node_class *node_class_map[] = {
     [NGL_NODE_MEDIA]                 = &ngli_media_class,
     [NGL_NODE_GLSTATE]               = &ngli_glstate_class,
     [NGL_NODE_GLBLENDSTATE]          = &ngli_glblendstate_class,
+    [NGL_NODE_GLSTENCILSTATE]        = &ngli_glstencilstate_class,
     [NGL_NODE_GROUP]                 = &ngli_group_class,
     [NGL_NODE_IDENTITY]              = &ngli_identity_class,
     [NGL_NODE_TEXTUREDSHAPE]         = &ngli_texturedshape_class,
@@ -703,6 +705,24 @@ void ngli_honor_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node *
             } else {
                 gl->Disable(glstate->capability);
             }
+        } else if (glstate_node->class->id == NGL_NODE_GLSTENCILSTATE) {
+            gl->GetIntegerv(glstate->capability, (GLint *)&glstate->enabled[1]);
+            if (glstate->enabled[0]) {
+                gl->GetIntegerv(GL_STENCIL_WRITEMASK, (GLint *)&glstate->writemask[1]);
+                gl->GetIntegerv(GL_STENCIL_FUNC, (GLint *)&glstate->func[1]);
+                gl->GetIntegerv(GL_STENCIL_REF, (GLint *)&glstate->func_ref[1]);
+                gl->GetIntegerv(GL_STENCIL_VALUE_MASK, (GLint *)&glstate->func_mask[1]);
+                gl->GetIntegerv(GL_STENCIL_FAIL, (GLint *)&glstate->op_sfail[1]);
+                gl->GetIntegerv(GL_STENCIL_PASS_DEPTH_FAIL, (GLint *)&glstate->op_dpfail[1]);
+                gl->GetIntegerv(GL_STENCIL_PASS_DEPTH_PASS, (GLint *)&glstate->op_dppass[1]);
+
+                gl->Enable(glstate->capability);
+                gl->StencilMask(glstate->writemask[0]);
+                gl->StencilFunc(glstate->func[0], glstate->func_ref[0], glstate->func_mask[0]);
+                gl->StencilOp(glstate->op_sfail[0], glstate->op_dpfail[0], glstate->op_dppass[0]);
+            } else {
+                gl->Disable(glstate->capability);
+            }
         } else {
             gl->GetIntegerv(glstate->capability, (GLint *)&glstate->enabled[1]);
             if (glstate->enabled[0] != glstate->enabled[1]) {
@@ -730,6 +750,15 @@ void ngli_restore_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node
                 gl->BlendFuncSeparate(glstate->src_rgb[1], glstate->dst_rgb[1],
                                     glstate->src_alpha[1], glstate->dst_alpha[1]);
                 gl->BlendEquationSeparate(glstate->mode_rgb[1], glstate->mode_alpha[1]);
+            } else {
+                gl->Disable(glstate->capability);
+            }
+        } else if (glstate_node->class->id == NGL_NODE_GLSTENCILSTATE) {
+            if (glstate->enabled[1]) {
+                gl->Enable(glstate->capability);
+                gl->StencilMask(glstate->writemask[1]);
+                gl->StencilFunc(glstate->func[1], glstate->func_ref[1], glstate->func_mask[1]);
+                gl->StencilOp(glstate->op_sfail[1], glstate->op_dpfail[1], glstate->op_dppass[1]);
             } else {
                 gl->Disable(glstate->capability);
             }

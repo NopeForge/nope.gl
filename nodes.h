@@ -86,6 +86,7 @@ struct glstate {
     GLenum capability;
     int enabled[2];
 
+    /* Blending */
     GLenum src_rgb[2];
     GLenum dst_rgb[2];
     GLenum src_alpha[2];
@@ -93,6 +94,17 @@ struct glstate {
 
     GLenum mode_rgb[2];
     GLenum mode_alpha[2];
+
+    /* Stencil */
+    GLuint writemask[2];
+
+    GLenum func[2];
+    GLint  func_ref[2];
+    GLuint func_mask[2];
+
+    GLenum op_sfail[2];
+    GLenum op_dpfail[2];
+    GLenum op_dppass[2];
 };
 
 struct camera {

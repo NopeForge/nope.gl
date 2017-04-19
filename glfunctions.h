@@ -135,3 +135,11 @@ NGLI_GL_FUNC(M, void, UniformMatrix4fv, GLint location, GLsizei count, GLboolean
 NGLI_GL_FUNC(0, void, BindVertexArray, GLuint array)
 NGLI_GL_FUNC(0, void, DeleteVertexArrays, GLsizei n, const GLuint *arrays)
 NGLI_GL_FUNC(0, void, GenVertexArrays, GLsizei n, GLuint *arrays)
+
+/* Stencil */
+NGLI_GL_FUNC(0, void, StencilFunc, GLenum func, GLint ref, GLuint mask)
+NGLI_GL_FUNC(0, void, StencilFuncSeparate, GLenum face, GLenum func, GLint ref, GLuint mask)
+NGLI_GL_FUNC(0, void, StencilMask, GLuint mask)
+NGLI_GL_FUNC(0, void, StencilMaskSeparate, GLenum face, GLuint mask)
+NGLI_GL_FUNC(0, void, StencilOp, GLenum fail, GLenum zfail, GLenum zpass)
+NGLI_GL_FUNC(0, void, StencilOpSeparate, GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)
