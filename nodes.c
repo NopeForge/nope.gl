@@ -677,6 +677,74 @@ void ngli_node_update(struct ngl_node *node, double t)
         node_update(node, t);
 }
 
+void ngli_honor_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node **glstates)
+{
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    for (int i = 0; i < nb_glstates; i++) {
+        struct ngl_node *glstate_node = glstates[i];
+        struct glstate *glstate = glstate_node->priv_data;
+
+        if (glstate_node->class->id == NGL_NODE_GLBLENDSTATE) {
+            gl->GetIntegerv(glstate->capability, (GLint *)&glstate->enabled[1]);
+            if (glstate->enabled[0]) {
+                gl->GetIntegerv(GL_BLEND_SRC_RGB, (GLint *)&glstate->src_rgb[1]);
+                gl->GetIntegerv(GL_BLEND_DST_RGB, (GLint *)&glstate->dst_rgb[1]);
+                gl->GetIntegerv(GL_BLEND_SRC_ALPHA, (GLint *)&glstate->src_alpha[1]);
+                gl->GetIntegerv(GL_BLEND_DST_ALPHA, (GLint *)&glstate->dst_alpha[1]);
+                gl->GetIntegerv(GL_BLEND_EQUATION_RGB, (GLint *)&glstate->mode_rgb[1]);
+                gl->GetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint *)&glstate->mode_alpha[1]);
+
+                gl->Enable(glstate->capability);
+                gl->BlendFuncSeparate(glstate->src_rgb[0], glstate->dst_rgb[0],
+                                    glstate->src_alpha[0], glstate->dst_alpha[0]);
+                gl->BlendEquationSeparate(glstate->mode_rgb[0], glstate->mode_alpha[0]);
+            } else {
+                gl->Disable(glstate->capability);
+            }
+        } else {
+            gl->GetIntegerv(glstate->capability, (GLint *)&glstate->enabled[1]);
+            if (glstate->enabled[0] != glstate->enabled[1]) {
+                if (glstate->enabled[0]) {
+                    gl->Enable(glstate->capability);
+                } else {
+                    gl->Disable(glstate->capability);
+                }
+            }
+        }
+    }
+}
+
+void ngli_restore_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node **glstates)
+{
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    for (int i = 0; i < nb_glstates; i++) {
+        struct ngl_node *glstate_node = glstates[i];
+        struct glstate *glstate = glstates[i]->priv_data;
+        if (glstate_node->class->id == NGL_NODE_GLBLENDSTATE) {
+            if (glstate->enabled[1]) {
+                gl->Enable(glstate->capability);
+                gl->BlendFuncSeparate(glstate->src_rgb[1], glstate->dst_rgb[1],
+                                    glstate->src_alpha[1], glstate->dst_alpha[1]);
+                gl->BlendEquationSeparate(glstate->mode_rgb[1], glstate->mode_alpha[1]);
+            } else {
+                gl->Disable(glstate->capability);
+            }
+        } else {
+            if (glstate->enabled[0] != glstate->enabled[1]) {
+                if (glstate->enabled[1]) {
+                    gl->Enable(glstate->capability);
+                } else {
+                    gl->Disable(glstate->capability);
+                }
+            }
+        }
+    }
+}
+
 void ngli_node_draw(struct ngl_node *node)
 {
     if (!node->drawme) {
@@ -685,69 +753,11 @@ void ngli_node_draw(struct ngl_node *node)
     }
 
     if (node->class->draw) {
-        struct ngl_ctx *ctx = node->ctx;
-        struct glcontext *glcontext = ctx->glcontext;
-        const struct glfunctions *gl = &glcontext->funcs;
-
         LOG(VERBOSE, "DRAW %s @ %p", node->name, node);
 
-        for (int i = 0; i < node->nb_glstates; i++) {
-            struct ngl_node *glstate_node = node->glstates[i];
-            struct glstate *glstate = glstate_node->priv_data;
-
-            if (glstate_node->class->id == NGL_NODE_GLBLENDSTATE) {
-                gl->GetIntegerv(glstate->capability, (GLint *)&glstate->enabled[1]);
-                if (glstate->enabled[0]) {
-                    gl->GetIntegerv(GL_BLEND_SRC_RGB, (GLint *)&glstate->src_rgb[1]);
-                    gl->GetIntegerv(GL_BLEND_DST_RGB, (GLint *)&glstate->dst_rgb[1]);
-                    gl->GetIntegerv(GL_BLEND_SRC_ALPHA, (GLint *)&glstate->src_alpha[1]);
-                    gl->GetIntegerv(GL_BLEND_DST_ALPHA, (GLint *)&glstate->dst_alpha[1]);
-                    gl->GetIntegerv(GL_BLEND_EQUATION_RGB, (GLint *)&glstate->mode_rgb[1]);
-                    gl->GetIntegerv(GL_BLEND_EQUATION_ALPHA, (GLint *)&glstate->mode_alpha[1]);
-
-                    gl->Enable(glstate->capability);
-                    gl->BlendFuncSeparate(glstate->src_rgb[0], glstate->dst_rgb[0],
-                                        glstate->src_alpha[0], glstate->dst_alpha[0]);
-                    gl->BlendEquationSeparate(glstate->mode_rgb[0], glstate->mode_alpha[0]);
-                } else {
-                    gl->Disable(glstate->capability);
-                }
-            } else {
-                gl->GetIntegerv(glstate->capability, (GLint *)&glstate->enabled[1]);
-                if (glstate->enabled[0] != glstate->enabled[1]) {
-                    if (glstate->enabled[0]) {
-                        gl->Enable(glstate->capability);
-                    } else {
-                        gl->Disable(glstate->capability);
-                    }
-                }
-            }
-        }
-
+        ngli_honor_glstates(node->ctx, node->nb_glstates, node->glstates);
         node->class->draw(node);
-
-        for (int i = 0; i < node->nb_glstates; i++) {
-            struct ngl_node *glstate_node = node->glstates[i];
-            struct glstate *glstate = node->glstates[i]->priv_data;
-            if (glstate_node->class->id == NGL_NODE_GLBLENDSTATE) {
-                if (glstate->enabled[1]) {
-                    gl->Enable(glstate->capability);
-                    gl->BlendFuncSeparate(glstate->src_rgb[1], glstate->dst_rgb[1],
-                                        glstate->src_alpha[1], glstate->dst_alpha[1]);
-                    gl->BlendEquationSeparate(glstate->mode_rgb[1], glstate->mode_alpha[1]);
-                } else {
-                    gl->Disable(glstate->capability);
-                }
-            } else {
-                if (glstate->enabled[0] != glstate->enabled[1]) {
-                    if (glstate->enabled[1]) {
-                        gl->Enable(glstate->capability);
-                    } else {
-                        gl->Disable(glstate->capability);
-                    }
-                }
-            }
-        }
+        ngli_restore_glstates(node->ctx, node->nb_glstates, node->glstates);
     }
 }
 
