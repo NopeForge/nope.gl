@@ -112,7 +112,8 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self._time = t
         self.update()
 
-    def set_scene(self, scene):
+    def set_scene(self, scene, cfg):
+        self._viewer.set_glstates(*cfg.glstates)
         self._viewer.set_scene(scene)
         self.update()
 
@@ -415,7 +416,7 @@ class _GLView(QtWidgets.QWidget):
     def scene_changed(self):
         scene, cfg = self._get_scene_func()
         if scene:
-            self._gl_widget.set_scene(scene)
+            self._gl_widget.set_scene(scene, cfg)
             self._scene_duration = cfg.duration
             self._slider.setRange(0, self._scene_duration * self.RENDERING_FPS)
             self._update_tick(self._tick)
@@ -874,6 +875,7 @@ class _MainWindow(QtWidgets.QSplitter):
         scene_cfg.medias = self._medias
         scene_cfg.duration = self.LOOP_DURATION
         scene_cfg.aspect_ratio = ar[0] / float(ar[1])
+        scene_cfg.glstates = []
 
         scene = cfg_dict['func'](scene_cfg, **cfg_dict['extra_args'])
         scene.set_name(cfg_dict['name'])
