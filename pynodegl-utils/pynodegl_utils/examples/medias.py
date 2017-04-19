@@ -1,6 +1,6 @@
 import math
 
-from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, AnimKeyFrameScalar
+from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, AnimKeyFrameScalar, Group, GLStencilState, GLState, Scale, AnimKeyFrameScalar, AnimKeyFrameVec3, Rotate, GLColorState
 
 from pynodegl_utils.misc import scene
 
@@ -20,6 +20,65 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1):
     s = Shader()
     tshape = TexturedShape(q, s, t)
     return tshape
+
+frag_data='''
+#version 100
+void main(void)
+{
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+}
+'''
+
+@scene()
+def centered_masked_media(cfg):
+    cfg.duration = 2
+    cfg.glstates = [
+        GLState(GL.GL_STENCIL_TEST, GL.GL_TRUE),
+    ]
+
+    g = Group()
+
+    q = Quad((-0.2, -0.2, 0), (0.4, 0.0, 0.0), (0.0, 0.4, 0.0))
+    s = Shader(fragment_data=frag_data)
+    node = TexturedShape(q, s)
+    node.add_glstates(GLStencilState(GL.GL_TRUE,
+                                     0xFF,
+                                     GL.GL_ALWAYS,
+                                     1,
+                                     0xFF,
+                                     GL.GL_KEEP,
+                                     GL.GL_KEEP,
+                                     GL.GL_REPLACE),
+                      GLColorState(GL.GL_TRUE, 0, 0, 0, 0))
+
+
+    node = Scale(node)
+    node.add_animkf(AnimKeyFrameVec3(0, (0.1,  0.1, 1.0), "exp_out"),
+                    AnimKeyFrameVec3(10, (10., 10.0,  3)))
+
+    node = Rotate(node, axis=(0, 0, 1))
+    node.add_animkf(AnimKeyFrameScalar(0, 0, "exp_out"),
+                    AnimKeyFrameScalar(cfg.duration, 360))
+
+    g.add_children(node)
+
+    q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
+    m = Media(cfg.medias[0].filename)
+    t = Texture(data_src=m)
+    s = Shader()
+    node = TexturedShape(q, s, t)
+    node.add_glstates(GLStencilState(GL.GL_TRUE,
+                                     0x00,
+                                     GL.GL_EQUAL,
+                                     1,
+                                     0xFF,
+                                     GL.GL_KEEP,
+                                     GL.GL_KEEP,
+                                     GL.GL_KEEP),
+                      GLColorState(GL.GL_TRUE, 1, 1, 1, 1))
+
+    g.add_children(node)
+    return g
 
 @scene({'name': 'n', 'type': 'range', 'range': [0,1], 'unit_base': 1000},
        {'name': 'k', 'type': 'range', 'range': [3,50]})
