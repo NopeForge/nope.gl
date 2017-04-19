@@ -72,8 +72,6 @@ int ngl_draw(struct ngl_ctx *s, double t)
         return -1;
     }
 
-    gl->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     struct ngl_node *scene = s->scene;
     if (!scene) {
         LOG(ERROR, "scene is not set, can not draw");
@@ -81,6 +79,8 @@ int ngl_draw(struct ngl_ctx *s, double t)
     }
 
     LOG(DEBUG, "draw scene %s @ t=%f", scene->name, t);
+
+    gl->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     ngli_node_check_resources(scene, t);
     ngli_node_update(scene, t);
