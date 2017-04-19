@@ -46,6 +46,34 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
     return ngli_glcontext_load_extensions(s->glcontext);
 }
 
+int ngl_set_glstates(struct ngl_ctx *s, int nb_glstates, struct ngl_node **glstates)
+{
+    for (int i = 0; i < s->nb_glstates; i++) {
+        ngl_node_unrefp(&s->glstates[i]);
+    }
+    free(s->glstates);
+    s->glstates = NULL;
+
+    s->nb_glstates = nb_glstates;
+    if (s->nb_glstates <= 0)
+        return 0;
+
+    s->glstates = calloc(s->nb_glstates, sizeof(*s->glstates));
+    if (!s->glstates) {
+        s->nb_glstates = 0;
+        return -1;
+    }
+
+    for (int i = 0; i < s->nb_glstates; i++) {
+        ngli_assert(glstates[i]);
+
+        s->glstates[i] = glstates[i];
+        ngl_node_ref(s->glstates[i]);
+    }
+
+    return 0;
+}
+
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
     if (s->scene) {
@@ -80,11 +108,15 @@ int ngl_draw(struct ngl_ctx *s, double t)
 
     LOG(DEBUG, "draw scene %s @ t=%f", scene->name, t);
 
+    ngli_honor_glstates(s, s->nb_glstates, s->glstates);
+
     gl->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     ngli_node_check_resources(scene, t);
     ngli_node_update(scene, t);
     ngli_node_draw(scene);
+
+    ngli_restore_glstates(s, s->nb_glstates, s->glstates);
 
     if (ngli_glcontext_check_gl_error(glcontext))
         return -1;

@@ -35,6 +35,7 @@ cdef extern from "nodegl.h":
 
     ngl_ctx *ngl_create()
     int ngl_set_glcontext(ngl_ctx *s, void *display, void *window, void *handle, int platform, int api)
+    int ngl_set_glstates(ngl_ctx *s, int nb_glstates,  ngl_node **glstates);
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
     int ngl_draw(ngl_ctx *s, double t) nogil
     void ngl_free(ngl_ctx **ss)
@@ -70,6 +71,23 @@ cdef class Viewer:
 
     def configure(self, int platform, int api):
         return ngl_set_glcontext(self.ctx, NULL, NULL, NULL, platform, api);
+
+    def set_glstates(self, *glstates):
+        if not glstates:
+            return ngl_set_glstates(self.ctx, 0, NULL)
+
+        if hasattr(glstates[0], '__iter__'):
+            raise Exception("set_glstates() takes elements as "
+                            "positional arguments, not list")
+        glstates_c = <ngl_node **>calloc(len(glstates), sizeof(ngl_node *))
+        if glstates_c is NULL:
+            raise MemoryError()
+        for i, item in enumerate(glstates):
+            glstates_c[i] = (<_Node>item).ctx
+
+        ret = ngl_set_glstates(self.ctx, len(glstates), glstates_c)
+        free(glstates_c)
+        return ret
 
     def set_scene(self, _Node scene):
         return ngl_set_scene(self.ctx, scene.ctx)
