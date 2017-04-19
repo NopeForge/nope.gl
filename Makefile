@@ -81,6 +81,7 @@ LIB_OBJS = api.o                    \
            node_camera.o            \
            node_fps.o               \
            node_glblendstate.o      \
+           node_glcolorstate.o      \
            node_glstencilstate.o    \
            node_glstate.o           \
            node_group.o             \

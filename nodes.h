@@ -95,6 +95,9 @@ struct glstate {
     GLenum mode_rgb[2];
     GLenum mode_alpha[2];
 
+    /* Color */
+    GLint rgba[2][4];
+
     /* Stencil */
     GLuint writemask[2];
 

@@ -39,6 +39,7 @@ extern const struct node_class ngli_camera_class;
 extern const struct node_class ngli_texture_class;
 extern const struct node_class ngli_glstate_class;
 extern const struct node_class ngli_glblendstate_class;
+extern const struct node_class ngli_glcolorstate_class;
 extern const struct node_class ngli_glstencilstate_class;
 extern const struct node_class ngli_group_class;
 extern const struct node_class ngli_identity_class;
@@ -78,6 +79,7 @@ static const struct node_class *node_class_map[] = {
     [NGL_NODE_MEDIA]                 = &ngli_media_class,
     [NGL_NODE_GLSTATE]               = &ngli_glstate_class,
     [NGL_NODE_GLBLENDSTATE]          = &ngli_glblendstate_class,
+    [NGL_NODE_GLCOLORSTATE]          = &ngli_glcolorstate_class,
     [NGL_NODE_GLSTENCILSTATE]        = &ngli_glstencilstate_class,
     [NGL_NODE_GROUP]                 = &ngli_group_class,
     [NGL_NODE_IDENTITY]              = &ngli_identity_class,
@@ -705,6 +707,20 @@ void ngli_honor_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node *
             } else {
                 gl->Disable(glstate->capability);
             }
+        } else if (glstate_node->class->id == NGL_NODE_GLCOLORSTATE) {
+            GLboolean rgba[4];
+
+            gl->GetBooleanv(GL_COLOR_WRITEMASK, rgba);
+
+            glstate->rgba[1][0] = rgba[0];
+            glstate->rgba[1][1] = rgba[1];
+            glstate->rgba[1][2] = rgba[2];
+            glstate->rgba[1][3] = rgba[3];
+
+            gl->ColorMask(glstate->rgba[0][0],
+                          glstate->rgba[0][1],
+                          glstate->rgba[0][2],
+                          glstate->rgba[0][3]);
         } else if (glstate_node->class->id == NGL_NODE_GLSTENCILSTATE) {
             gl->GetIntegerv(glstate->capability, (GLint *)&glstate->enabled[1]);
             if (glstate->enabled[0]) {
@@ -753,6 +769,11 @@ void ngli_restore_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node
             } else {
                 gl->Disable(glstate->capability);
             }
+        } else if (glstate_node->class->id == NGL_NODE_GLCOLORSTATE) {
+            gl->ColorMask(glstate->rgba[1][0],
+                          glstate->rgba[1][1],
+                          glstate->rgba[1][2],
+                          glstate->rgba[1][3]);
         } else if (glstate_node->class->id == NGL_NODE_GLSTENCILSTATE) {
             if (glstate->enabled[1]) {
                 gl->Enable(glstate->capability);

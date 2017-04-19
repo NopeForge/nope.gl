@@ -76,6 +76,15 @@
         - [mode_rgb, int]
         - [mode_alpha, int]
 
+- GLColorState:
+    constructors:
+        - [enabled, int]
+    optional:
+        - [red, int]
+        - [green, int]
+        - [blue, int]
+        - [alpha, int]
+
 - GLStencilState:
     constructors:
         - [enabled, int]

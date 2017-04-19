@@ -29,12 +29,16 @@ NGLI_GL_FUNC(M, void, Disable, GLenum cap)
 NGLI_GL_FUNC(M, GLenum, GetError, void)
 
 /* Get */
+NGLI_GL_FUNC(M, void, GetBooleanv, GLenum pname, GLboolean *data)
 NGLI_GL_FUNC(M, void, GetIntegerv, GLenum pname, GLint *data)
 NGLI_GL_FUNC(M, const GLubyte*, GetString, GLenum name)
 NGLI_GL_FUNC(M, const GLubyte*, GetStringi, GLenum name, GLuint index)
 
 /* Viewport */
 NGLI_GL_FUNC(M, void, Viewport, GLint x, GLint y, GLsizei width, GLsizei height)
+
+/* Color */
+NGLI_GL_FUNC(M, void, ColorMask, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 
 /* Clear */
 NGLI_GL_FUNC(M, void, Clear, GLbitfield mask)
