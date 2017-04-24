@@ -132,12 +132,12 @@ static void update_time(int64_t seek_at)
     }
 }
 
-static void render()
+static void render(void)
 {
     ngl_draw(g_ctx, g_frame_ts / 1000000.0);
 }
 
-static void reset()
+static void reset(void)
 {
     ngl_free(&g_ctx);
 }
