@@ -3,7 +3,6 @@
 - animkeyframe: use a faster method to locate position (bisect)
 - api: design a more advanced time remapping API
 - delayed draws for better performance
-- nodes: support masking
 - nodes: threaded texture uploading
 - nodes: add data node
 - shader: remove version #100 restriction
