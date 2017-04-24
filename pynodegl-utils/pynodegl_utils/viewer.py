@@ -203,6 +203,7 @@ class _ExportView(QtWidgets.QWidget):
             exporter.progressed.connect(self._pgbar.setValue)
             exporter.export(scene, ofile, width, height,
                             cfg.duration, fps,
+                            cfg.glstates,
                             extra_enc_args)
 
             self._pgbar.hide()
