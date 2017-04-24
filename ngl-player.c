@@ -163,7 +163,12 @@ static int init(GLFWwindow *window, const char *filename)
     return 0;
 }
 
-static double clipd(double v, double min, double max);
+static double clipd(double v, double min, double max)
+{
+    if (v < min) return min;
+    if (v > max) return max;
+    return v;
+}
 
 static void update_time(int64_t seek_at)
 {
@@ -197,13 +202,6 @@ static void render(void)
 static void reset(void)
 {
     ngl_free(&g_ctx);
-}
-
-static double clipd(double v, double min, double max)
-{
-    if (v < min) return min;
-    if (v > max) return max;
-    return v;
 }
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
