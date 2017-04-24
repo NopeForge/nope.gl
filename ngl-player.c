@@ -46,9 +46,33 @@ struct view_info {
 struct ngl_ctx *g_ctx;
 int64_t g_clock_off = -1;
 int64_t g_frame_ts;
+int64_t g_lasthover = -1;
 struct sxplayer_info g_info;
 struct view_info g_view_info;
 int g_paused;
+struct ngl_node *g_opacity_uniform;
+
+static const char *pgbar_shader = \
+"#version 100"                                                          "\n" \
+"precision mediump float;"                                              "\n" \
+                                                                        "\n" \
+"uniform float time;"                                                   "\n" \
+"uniform float ar;"                                                     "\n" \
+"uniform float opacity;"                                                "\n" \
+"uniform sampler2D tex0_sampler;"                                       "\n" \
+"varying vec2 var_tex0_coords;"                                         "\n" \
+                                                                        "\n" \
+"void main()"                                                           "\n" \
+"{"                                                                     "\n" \
+"    float height = 2.0 / 100. * ar;"                                   "\n" \
+"    float x = var_tex0_coords.x;"                                      "\n" \
+"    float y = var_tex0_coords.y;"                                      "\n" \
+"    vec4 video_pix = texture2D(tex0_sampler, var_tex0_coords);"        "\n" \
+"    vec4 color = video_pix;"                                           "\n" \
+"    if (y > 1. - height)"                                              "\n" \
+"        color = x < time ? vec4(1) : mix(video_pix, vec4(1), 0.3);"    "\n" \
+"    gl_FragColor = mix(video_pix, color, opacity);"                    "\n" \
+"}"                                                                     "\n";
 
 static int64_t gettime()
 {
@@ -70,8 +94,33 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *shader  = ngl_node_create(NGL_NODE_SHADER);
     struct ngl_node *tshape  = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
 
+    struct ngl_node *uniforms[3] = {
+        ngl_node_create(NGL_NODE_UNIFORMSCALAR, "time"),
+        ngl_node_create(NGL_NODE_UNIFORMSCALAR, "ar"),
+        ngl_node_create(NGL_NODE_UNIFORMSCALAR, "opacity"),
+    };
+
+    struct ngl_node *time_animkf[2] = {
+        ngl_node_create(NGL_NODE_ANIMKEYFRAMESCALAR, 0.0, 0.0),
+        ngl_node_create(NGL_NODE_ANIMKEYFRAMESCALAR, g_info.duration, 1.0),
+    };
+
     ngl_node_param_set(texture, "data_src", media);
+    ngl_node_param_set(shader, "fragment_data", pgbar_shader);
+    ngl_node_param_add(uniforms[0], "animkf", 2, time_animkf);
+    ngl_node_param_set(uniforms[1], "value", ASPECT_RATIO(g_info));
+    ngl_node_param_set(uniforms[2], "value", 0.0);
+
     ngl_node_param_add(tshape, "textures", 1, &texture);
+    ngl_node_param_add(tshape, "uniforms", 3, uniforms);
+
+    g_opacity_uniform = uniforms[2];
+
+    ngl_node_unrefp(&uniforms[0]);
+    ngl_node_unrefp(&uniforms[1]);
+    ngl_node_unrefp(&uniforms[2]);
+    ngl_node_unrefp(&time_animkf[0]);
+    ngl_node_unrefp(&time_animkf[1]);
 
     ngl_node_unrefp(&shader);
     ngl_node_unrefp(&media);
@@ -114,6 +163,8 @@ static int init(GLFWwindow *window, const char *filename)
     return 0;
 }
 
+static double clipd(double v, double min, double max);
+
 static void update_time(int64_t seek_at)
 {
     if (seek_at >= 0) {
@@ -129,6 +180,12 @@ static void update_time(int64_t seek_at)
             g_clock_off = now;
 
         g_frame_ts = now - g_clock_off;
+    }
+
+    if (g_lasthover >= 0) {
+        const int64_t t64_diff = gettime() - g_lasthover;
+        const double opacity = clipd(1.5 - t64_diff / 1000000.0, 0, 1);
+        ngl_node_param_set(g_opacity_uniform, "value", opacity);
     }
 }
 
@@ -180,8 +237,14 @@ static void mouse_button_callback(GLFWwindow* window, int button, int action, in
         pos = clipd(xpos - g_view_info.x, 0.0, g_view_info.width);
         seek_at = 1000000 * g_info.duration * pos / g_view_info.width;
 
+        g_lasthover = gettime();
         update_time(seek_at);
     }
+}
+
+static void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
+{
+    g_lasthover = gettime();
 }
 
 static void size_callback(GLFWwindow *window, int width, int height)
@@ -240,6 +303,7 @@ int main(int argc, char *argv[])
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetWindowSizeCallback(window, size_callback);
+    glfwSetCursorPosCallback(window, cursor_pos_callback);
 
     ret = init(window, argv[1]);
     if (ret < 0)
