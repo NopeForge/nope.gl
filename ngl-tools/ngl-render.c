@@ -67,6 +67,14 @@ struct range {
     int freq;
 };
 
+static int64_t gettime(void)
+{
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    return 1000000 * (int64_t)tv.tv_sec + tv.tv_usec;
+}
+
 int main(int argc, char *argv[])
 {
     int ret = 0;
@@ -211,6 +219,8 @@ int main(int argc, char *argv[])
         const float t0 = r->start;
         const float t1 = r->start + r->duration;
 
+        const int64_t start = gettime();
+
         for (;;) {
             const float t = t0 + k*1./r->freq;
             if (t >= t1)
@@ -227,6 +237,9 @@ int main(int argc, char *argv[])
             glfwPollEvents();
             k++;
         }
+
+        const double tdiff = (gettime() - start) / 1000000.;
+        printf("Rendered %d frames in %g (FPS=%g)\n", k, tdiff, k / tdiff);
     }
 
 end:
