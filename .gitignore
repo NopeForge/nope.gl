@@ -1,11 +1,3 @@
 *.d
 *.exe
 *.o
-gen_specs
-libnodegl.a
-libnodegl.pc
-libnodegl.so
-libnodegl.symexport
-ngl-player
-ngl-render
-tests/data

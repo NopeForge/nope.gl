@@ -56,4 +56,4 @@ def serialize(dirname):
 
 if __name__ == '__main__':
     import sys
-    serialize(os.path.join('tests', sys.argv[1]))
+    serialize(os.path.join(sys.argv[1]))

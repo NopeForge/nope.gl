@@ -8,6 +8,7 @@ and mobile (Android, iOS).
 The `node.gl` project is split in 3 parts:
 
 - `libnodegl`: the core of the project, an `OpenGL` engine in `C`
+- `ngl-tools`: a set of program tools using `libnodegl`
 - `pynodegl`: a Python binding for `libnodegl` (with the help of `Cython`)
 - `pynodegl-utils`: various Python utilities and examples such as a Qt5 viewer
 
@@ -22,6 +23,7 @@ and API can change at any time.
   It also depends on [sxplayer library][sxplayer] for media (video and images)
   playback. [Graphviz][graphviz] is optional but can be used to render and
   preview graphs obtained from the API.
+- `ngl-tools` needs [GLFW3][glfw3] and `libnodegl` installed.
 - `pynodegl` needs [Python][python] and [Cython][cython], and `libnodegl`
   installed.
 - `pynodegl-utils` needs [Python][python] and `pynodegl`. The viewer depends on
@@ -33,6 +35,7 @@ and API can change at any time.
 [graphviz]: http://www.graphviz.org/
 [python]: https://www.python.org/
 [cython]: http://cython.org/
+[glfw3]: http://www.glfw.org/
 
 ## Installation of `libnodegl` (the core library)
 
@@ -57,6 +60,11 @@ for example using `make install PREFIX=/tmp/local`.
 
 You can check the installed version of `libnodegl` using `pkg-config
 --modversion libnodegl`
+
+## Installation of `ngl-tools`
+
+The `node.gl` tools located in the `ngl-tools/` directory are to be built and
+installed exactly the same way as `libnodegl`.
 
 ## Installation of `pynodegl` (the Python binding)
 
