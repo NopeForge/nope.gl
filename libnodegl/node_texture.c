@@ -66,8 +66,8 @@ static int texture_init_2D(struct ngl_node *node)
     gl->BindTexture(GL_TEXTURE_2D, s->local_id);
     gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
     gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
     if (s->width && s->height) {
         gl->TexImage2D(GL_TEXTURE_2D, 0, s->format, s->width, s->height, 0, s->internal_format, s->type, NULL);
     }
