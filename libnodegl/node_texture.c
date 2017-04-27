@@ -41,8 +41,8 @@
 #define OFFSET(x) offsetof(struct texture, x)
 static const struct node_param texture_params[] = {
     {"target", PARAM_TYPE_INT, OFFSET(target), {.i64=GL_TEXTURE_2D}},
-    {"format", PARAM_TYPE_INT, OFFSET(format), {.i64=GL_NONE}},
-    {"internal_format", PARAM_TYPE_INT, OFFSET(internal_format), {.i64=GL_NONE}},
+    {"format", PARAM_TYPE_INT, OFFSET(format), {.i64=GL_RGBA}},
+    {"internal_format", PARAM_TYPE_INT, OFFSET(internal_format), {.i64=GL_RGBA}},
     {"type", PARAM_TYPE_INT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}},
     {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0}},
     {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0}},
@@ -72,8 +72,8 @@ static int texture_init_2D(struct ngl_node *node)
         gl->TexImage2D(GL_TEXTURE_2D, 0, s->format, s->width, s->height, 0, s->internal_format, s->type, NULL);
     }
     gl->BindTexture(GL_TEXTURE_2D, 0);
-    s->id = s->local_id;
-    s->target = s->local_target = GL_TEXTURE_2D;
+
+    s->local_target = GL_TEXTURE_2D;
 
     return 0;
 }
@@ -92,30 +92,33 @@ static int texture_init(struct ngl_node *node)
     if (s->id)
         return 0;
 
-    if (s->data_src && s->data_src->class->id == NGL_NODE_FPS) {
-        if (s->format == GL_NONE)
+    if (s->data_src) {
+        switch (s->data_src->class->id) {
+        case NGL_NODE_FPS:
             s->format = GL_RED;
-        if (s->internal_format == GL_NONE)
             s->internal_format = GL_RED;
-    } else if (s->data_src && s->data_src->class->id == NGL_NODE_MEDIA) {
-        struct media *media = s->data_src->priv_data;
-        if (media->audio_tex) {
-            s->internal_format = GL_R32F;
-            s->format = GL_RED;
-            s->type = GL_FLOAT;
+            s->type = GL_UNSIGNED_BYTE;
+            break;
+        case NGL_NODE_MEDIA: {
+            struct media *media = s->data_src->priv_data;
+            if (media->audio_tex) {
+                s->format = GL_RED;
+                s->internal_format = GL_R32F;
+                s->type = GL_FLOAT;
+            }
+            break;
         }
-    } else {
-        ngli_assert(!s->data_src);
+        default:
+            ngli_assert(0);
+        }
     }
 
-    if (s->format == GL_NONE)
-        s->format = GL_RGBA;
-    if (s->internal_format == GL_NONE)
-        s->internal_format = GL_RGBA;
-
-    if (s->target == GL_TEXTURE_2D) {
+    if (s->target == GL_TEXTURE_2D)
         texture_init_2D(node);
-    }
+
+    s->id = s->local_id;
+    s->target = s->local_target;
+
     memcpy(s->coordinates_matrix, coordinates_matrix, sizeof(s->coordinates_matrix));
 
     if (s->data_src) {
