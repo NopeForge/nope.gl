@@ -21,9 +21,6 @@
 
 include ../common.mak
 
-#
-# Library configuration
-#
 LD_SYM_FILE   = $(LIB_BASENAME).symexport
 LD_SYM_OPTION = --version-script
 LD_SYM_DATA   = "{\n\tglobal: ngl_*;\n\tlocal: *;\n};\n"
@@ -119,11 +116,12 @@ LIB_LDLIBS += $(shell $(PKG_CONFIG) --libs   $(LIB_PKG_CONFIG_LIBS) $(LIB_EXTRA_
 LIB_DEPS = $(LIB_OBJS:.o=.d)
 
 
-#
-# build rules
-#
 all: $(LIB_PCNAME) $(LIB_NAME)
 
+
+#
+# Library
+#
 $(LIB_NAME): CFLAGS  = $(PROJECT_CFLAGS) $(LIB_CFLAGS)
 $(LIB_NAME): LDLIBS  = $(PROJECT_LDLIBS) $(LIB_LDLIBS)
 $(LIB_NAME): LDFLAGS = -Wl,$(LD_SYM_OPTION),$(LD_SYM_FILE)
@@ -137,11 +135,15 @@ endif
 
 
 #
-# Misc rules
+# Symbols
 #
 $(LD_SYM_FILE):
 	$(shell printf $(LD_SYM_DATA) > $(LD_SYM_FILE))
 
+
+#
+# pkg-config
+#
 $(LIB_PCNAME): $(LIB_PCNAME).tpl
 ifeq ($(SHARED),yes)
 	sed -e "s#PREFIX#$(PREFIX)#;s#DEP_LIBS##;s#DEP_PRIVATE_LIBS#$(LDLIBS)#" $^ > $@
@@ -165,7 +167,7 @@ updatespecs: gen_specs$(EXESUF)
 
 
 #
-# Project rules
+# Misc/general
 #
 clean:
 	$(RM) $(LIB_BASENAME).so $(LIB_BASENAME).dylib $(LIB_BASENAME).a $(LIB_BASENAME).dll
