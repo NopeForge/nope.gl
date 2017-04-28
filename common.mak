@@ -38,3 +38,7 @@ PROJECT_LDLIBS := $(LDLIBS)
 ifeq ($(TARGET_OS),MinGW-w64)
 	EXESUF = .exe
 endif # MinGW
+
+define capitalize
+$(shell echo $(1) | tr a-z- A-Z_)
+endef

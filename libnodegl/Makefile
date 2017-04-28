@@ -96,7 +96,7 @@ LIB_EXTRA_OBJS_Android   = glcontext_egl.o
 LIB_EXTRA_OBJS_iPhone    = glcontext_eagl.o
 LIB_EXTRA_OBJS_MinGW-w64 = glcontext_wgl.o
 
-LIB_CFLAGS                 = -fPIC -DTARGET_$(shell echo $(TARGET_OS) | tr a-z- A-Z_)
+LIB_CFLAGS                 = -fPIC -DTARGET_$(call capitalize, $(TARGET_OS))
 LIB_EXTRA_CFLAGS_Linux     = -DHAVE_PLATFORM_GLX
 LIB_EXTRA_CFLAGS_Darwin    = -DHAVE_PLATFORM_CGL
 LIB_EXTRA_CFLAGS_Android   = -DHAVE_PLATFORM_EGL
