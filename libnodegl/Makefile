@@ -22,12 +22,6 @@
 include ../common.mak
 
 #
-# Project configuration
-#
-PROJECT_NAME = nodegl
-
-
-#
 # Library configuration
 #
 LD_SYM_FILE   = $(LIB_BASENAME).symexport
@@ -49,7 +43,7 @@ ifeq ($(SHARED),yes)
 else
 	LIBSUFFIX = a
 endif
-LIB_BASENAME = lib$(PROJECT_NAME)
+LIB_BASENAME = libnodegl
 LIB_NAME     = $(LIB_BASENAME).$(LIBSUFFIX)
 LIB_PCNAME   = $(LIB_BASENAME).pc
 
@@ -185,20 +179,20 @@ install: $(LIB_NAME) $(LIB_PCNAME)
 	install -d $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -d $(DESTDIR)$(PREFIX)/share
-	install -d $(DESTDIR)$(PREFIX)/share/$(PROJECT_NAME)
+	install -d $(DESTDIR)$(PREFIX)/share/nodegl
 ifeq ($(TARGET_OS),MinGW-w64)
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/bin
 endif
 	install -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/lib
 	install -m 644 $(LIB_PCNAME) $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	install -m 644 $(PROJECT_NAME).h $(DESTDIR)$(PREFIX)/include/$(PROJECT_NAME).h
-	install -m 644 $(SPECS_FILE) $(DESTDIR)$(PREFIX)/share/$(PROJECT_NAME)
+	install -m 644 nodegl.h $(DESTDIR)$(PREFIX)/include/nodegl.h
+	install -m 644 $(SPECS_FILE) $(DESTDIR)$(PREFIX)/share/nodegl
 
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/lib/$(LIB_NAME)
-	$(RM) $(DESTDIR)$(PREFIX)/include/$(PROJECT_NAME).h
-	$(RM) -r $(DESTDIR)$(PREFIX)/share/$(PROJECT_NAME)
+	$(RM) $(DESTDIR)$(PREFIX)/include/nodegl.h
+	$(RM) -r $(DESTDIR)$(PREFIX)/share/nodegl
 
 .PHONY: all updatespecs clean install uninstall
 
