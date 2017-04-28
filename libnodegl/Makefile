@@ -200,6 +200,6 @@ uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/include/$(PROJECT_NAME).h
 	$(RM) -r $(DESTDIR)$(PREFIX)/share/$(PROJECT_NAME)
 
-.PHONY: all updatespecs clean install uninstall tests tests_serial
+.PHONY: all updatespecs clean install uninstall
 
 -include $(LIB_DEPS)
