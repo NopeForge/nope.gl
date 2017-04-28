@@ -145,12 +145,16 @@ $(LD_SYM_FILE):
 # pkg-config
 #
 $(LIB_PCNAME): LDLIBS = $(PROJECT_LDLIBS) $(LIB_LDLIBS)
-$(LIB_PCNAME): $(LIB_PCNAME).tpl
 ifeq ($(SHARED),yes)
-	sed -e "s#PREFIX#$(PREFIX)#;s#DEP_LIBS##;s#DEP_PRIVATE_LIBS#$(LDLIBS)#" $^ > $@
+$(LIB_PCNAME): DEP_PRIVATE_LIBS = $(LDLIBS)
 else
-	sed -e "s#PREFIX#$(PREFIX)#;s#DEP_LIBS#$(LDLIBS)#;s#DEP_PRIVATE_LIBS##" $^ > $@
+$(LIB_PCNAME): DEP_LIBS = $(LDLIBS)
 endif
+$(LIB_PCNAME): $(LIB_PCNAME).tpl
+	sed -e "s#PREFIX#$(PREFIX)#" \
+	    -e "s#DEP_LIBS#$(DEP_LIBS)#" \
+	    -e "s#DEP_PRIVATE_LIBS#$(DEP_PRIVATE_LIBS)#" \
+	    $^ > $@
 
 
 #
