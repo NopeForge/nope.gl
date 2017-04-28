@@ -19,21 +19,10 @@
  * under the License.
  */
 
-#include <pthread.h>
 #include <stdarg.h>
 #include <stdio.h>
 
 #include "log.h"
-
-static pthread_once_t log_initialized = PTHREAD_ONCE_INIT;
-
-struct log_ctx {
-    void *user_arg;
-    ngl_log_callback_type callback;
-    int min_level;
-};
-
-static struct log_ctx log_ctx;
 
 static void default_callback(void *arg, int level, const char *filename, int ln,
                              const char *fn, const char *fmt, va_list vl)
@@ -50,26 +39,23 @@ static void default_callback(void *arg, int level, const char *filename, int ln,
     printf("[%s] %s:%d %s: %s\n", log_strs[level], filename, ln, fn, logline);
 }
 
-static void log_init(void)
-{
-    log_ctx.callback  = default_callback;
-    log_ctx.min_level = NGL_LOG_INFO;
-}
+static struct {
+    void *user_arg;
+    ngl_log_callback_type callback;
+    int min_level;
+} log_ctx = {
+    .callback  = default_callback,
+    .min_level = NGL_LOG_INFO,
+};
 
 void ngl_log_set_callback(void *arg, ngl_log_callback_type callback)
 {
-    int ret = pthread_once(&log_initialized, log_init);
-    if (ret < 0)
-        return;
     log_ctx.user_arg = arg;
     log_ctx.callback = callback;
 }
 
 void ngl_log_set_min_level(int level)
 {
-    int ret = pthread_once(&log_initialized, log_init);
-    if (ret < 0)
-        return;
     log_ctx.min_level = level;
 }
 
@@ -77,10 +63,6 @@ void ngli_log_print(int log_level, const char *filename,
                     int ln, const char *fn, const char *fmt, ...)
 {
     va_list arg_list;
-
-    int ret = pthread_once(&log_initialized, log_init);
-    if (ret < 0)
-        return;
 
     if (log_level < log_ctx.min_level)
         return;
