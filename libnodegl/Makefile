@@ -144,6 +144,11 @@ $(LD_SYM_FILE):
 #
 # pkg-config
 #
+define headver
+$(shell sed -nE 's/^\#define NODEGL_VERSION_$(1)[^0-9]*([0-9]*)/\1/p' nodegl.h)
+endef
+
+$(LIB_PCNAME): VERSION = $(call headver,MAJOR).$(call headver,MINOR).$(call headver,MICRO)
 $(LIB_PCNAME): LDLIBS = $(PROJECT_LDLIBS) $(LIB_LDLIBS)
 ifeq ($(SHARED),yes)
 $(LIB_PCNAME): DEP_PRIVATE_LIBS = $(LDLIBS)
@@ -154,6 +159,7 @@ $(LIB_PCNAME): $(LIB_PCNAME).tpl
 	sed -e "s#PREFIX#$(PREFIX)#" \
 	    -e "s#DEP_LIBS#$(DEP_LIBS)#" \
 	    -e "s#DEP_PRIVATE_LIBS#$(DEP_PRIVATE_LIBS)#" \
+	    -e "s#VERSION#$(VERSION)#" \
 	    $^ > $@
 
 

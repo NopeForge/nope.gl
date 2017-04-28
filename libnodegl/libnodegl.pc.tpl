@@ -6,7 +6,7 @@ datarootdir=${prefix}/share
 
 Name: node.gl
 Description: Node/Graph based OpenGL engine
-Version: 0.0.0
+Version: VERSION
 Cflags: -I${includedir}
 Libs: -L${libdir} -lnodegl DEP_LIBS
 Libs.private: DEP_PRIVATE_LIBS
