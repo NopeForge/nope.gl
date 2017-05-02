@@ -272,6 +272,14 @@ struct texture {
     GLuint local_id;
     GLenum local_target;
 
+    int upload_fmt;
+    struct ngl_node *quad;
+    struct ngl_node *shader;
+    struct ngl_node *tshape;
+    struct ngl_node *textures[3];
+    struct ngl_node *target_texture;
+    struct ngl_node *rtt;
+
 #ifdef TARGET_IPHONE
     CVOpenGLESTextureCacheRef cache;
     CVOpenGLESTextureRef texture;

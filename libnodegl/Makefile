@@ -49,6 +49,7 @@ LIB_OBJS = api.o                    \
            deserialize.o            \
            dot.o                    \
            glcontext.o              \
+           hwupload.o               \
            log.o                    \
            math_utils.o             \
            node_animkeyframe.o      \
