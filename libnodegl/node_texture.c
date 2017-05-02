@@ -51,6 +51,7 @@ static const struct node_param texture_params[] = {
     {"wrap_s", PARAM_TYPE_INT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}},
     {"wrap_t", PARAM_TYPE_INT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=(const int[]){NGL_NODE_MEDIA, NGL_NODE_FPS, -1}},
+    {"external_id", PARAM_TYPE_INT, OFFSET(external_id), {.i64=0}},
     {NULL}
 };
 
@@ -89,6 +90,11 @@ static int texture_init(struct ngl_node *node)
         0.0f, 0.0f, 0.0f, 1.0f,
     };
 
+    memcpy(s->coordinates_matrix, coordinates_matrix, sizeof(s->coordinates_matrix));
+
+    if (s->external_id)
+        s->id = s->external_id;
+
     if (s->id)
         return 0;
 
@@ -119,7 +125,6 @@ static int texture_init(struct ngl_node *node)
     s->id = s->local_id;
     s->target = s->local_target;
 
-    memcpy(s->coordinates_matrix, coordinates_matrix, sizeof(s->coordinates_matrix));
 
     if (s->data_src) {
         int ret = ngli_node_init(s->data_src);

@@ -265,6 +265,7 @@ struct texture {
     GLint wrap_s;
     GLint wrap_t;
     struct ngl_node *data_src;
+    GLuint external_id;
 
     float coordinates_matrix[16];
     GLuint id;
