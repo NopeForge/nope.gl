@@ -63,8 +63,11 @@ static int texture_init_2D(struct ngl_node *node)
 
     struct texture *s = node->priv_data;
 
-    gl->GenTextures(1, &s->local_id);
-    gl->BindTexture(GL_TEXTURE_2D, s->local_id);
+    if (s->local_id)
+        return 0;
+
+    gl->GenTextures(1, &s->id);
+    gl->BindTexture(GL_TEXTURE_2D, s->id);
     gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
     gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
     gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
@@ -74,6 +77,7 @@ static int texture_init_2D(struct ngl_node *node)
     }
     gl->BindTexture(GL_TEXTURE_2D, 0);
 
+    s->local_id = s->id;
     s->local_target = GL_TEXTURE_2D;
 
     return 0;
@@ -121,10 +125,6 @@ static int texture_init(struct ngl_node *node)
 
     if (s->target == GL_TEXTURE_2D)
         texture_init_2D(node);
-
-    s->id = s->local_id;
-    s->target = s->local_target;
-
 
     if (s->data_src) {
         int ret = ngli_node_init(s->data_src);
