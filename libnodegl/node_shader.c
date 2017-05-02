@@ -30,23 +30,14 @@
 
 static const char default_fragment_shader_data[] =
     "#version 100"                                                                      "\n"
-#ifdef __ANDROID__
-    "#extension GL_OES_EGL_image_external : require"                                    "\n"
-#endif
     ""                                                                                  "\n"
     "precision mediump float;"                                                          "\n"
     "uniform sampler2D tex0_sampler;"                                                   "\n"
-#ifdef __ANDROID__
-    "uniform samplerExternalOES tex0_external_sampler;"                                 "\n"
-#endif
     "varying vec2 var_tex0_coords;"                                                     "\n"
     "void main(void)"                                                                   "\n"
     "{"                                                                                 "\n"
     "    vec4 t;"                                                                       "\n"
     "    t  = texture2D(tex0_sampler, var_tex0_coords);"                                "\n"
-#ifdef __ANDROID__
-    "    t += texture2D(tex0_external_sampler, var_tex0_coords);"                       "\n"
-#endif
     "    gl_FragColor = vec4(t.rgb, 1.0);"                                              "\n"
     "}";
 

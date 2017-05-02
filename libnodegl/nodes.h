@@ -281,7 +281,6 @@ struct texture {
 
 struct textureshaderinfo {
     int sampler_id;
-    int sampler_external_id;
     int coordinates_id;
     int coordinates_mvp_id;
     int dimensions_id;

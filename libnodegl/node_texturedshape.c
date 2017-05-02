@@ -104,20 +104,7 @@ static int update_uniforms(struct ngl_node *node)
 
         if (textureshaderinfo->sampler_id >= 0) {
             const int sampler_id = textureshaderinfo->sampler_id;
-
-#ifdef __ANDROID__
-            const int external_sampler_id = textureshaderinfo->sampler_external_id;
-
-            if (texture->target == GL_TEXTURE_2D) {
-                bind_texture(gl, GL_TEXTURE_2D,           sampler_id,          texture->id, j*2);
-                bind_texture(gl, GL_TEXTURE_EXTERNAL_OES, external_sampler_id, 0,           j*2 + 1);
-            } else {
-                bind_texture(gl, GL_TEXTURE_2D,           sampler_id,          0,           j*2);
-                bind_texture(gl, GL_TEXTURE_EXTERNAL_OES, external_sampler_id, texture->id, j*2 + 1);
-            }
-#else
-            bind_texture(gl, GL_TEXTURE_2D, sampler_id, texture->id, j);
-#endif
+            bind_texture(gl, texture->target, sampler_id, texture->id, j);
         }
 
         if (textureshaderinfo->coordinates_mvp_id >= 0) {
@@ -250,9 +237,6 @@ static int texturedshape_init(struct ngl_node *node)
 
             snprintf(name, sizeof(name), "tex%d_sampler", i);
             s->textureshaderinfos[i].sampler_id = gl->GetUniformLocation(shader->program_id, name);
-
-            snprintf(name, sizeof(name), "tex%d_external_sampler", i);
-            s->textureshaderinfos[i].sampler_external_id = gl->GetUniformLocation(shader->program_id, name);
 
             snprintf(name, sizeof(name), "tex%d_coords", i);
             s->textureshaderinfos[i].coordinates_id = gl->GetAttribLocation(shader->program_id, name);
