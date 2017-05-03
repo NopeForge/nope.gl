@@ -271,8 +271,6 @@ struct texture {
     GLuint id;
     GLuint local_id;
     GLenum local_target;
-    GLuint media_id;
-    GLenum media_target;
 
 #ifdef TARGET_IPHONE
     CVOpenGLESTextureCacheRef cache;

@@ -192,8 +192,8 @@ static void handle_mc_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     av_android_surface_render_buffer(media->android_surface, buffer, s->coordinates_matrix);
     ngli_mat4_mul(s->coordinates_matrix, matrix, s->coordinates_matrix);
 
-    s->id = s->media_id = media->android_texture_id;
-    s->target = s->media_target = media->android_texture_target;
+    s->id = media->android_texture_id;
+    s->target = media->android_texture_target;
     s->width = frame->width;
     s->height = frame->height;
 }
@@ -308,7 +308,7 @@ static void handle_vt_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         CFRelease(s->texture);
 
     s->texture = texture;
-    s->id = s->media_id = CVOpenGLESTextureGetName(texture);
+    s->id = CVOpenGLESTextureGetName(texture);
 
     gl->BindTexture(GL_TEXTURE_2D, s->id);
     gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
