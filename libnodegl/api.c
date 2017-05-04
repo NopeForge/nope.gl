@@ -25,6 +25,7 @@
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "glcontext.h"
 
 struct ngl_ctx *ngl_create(void)
 {
