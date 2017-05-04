@@ -281,7 +281,6 @@ struct texture {
     struct ngl_node *rtt;
 
 #ifdef TARGET_IPHONE
-    CVOpenGLESTextureCacheRef cache;
     CVOpenGLESTextureRef texture;
 #endif
 };

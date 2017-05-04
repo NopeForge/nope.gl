@@ -19,14 +19,17 @@
  * under the License.
  */
 
+#include <CoreVideo/CoreVideo.h>
 #include <OpenGLES/EAGL.h>
 
 #include "glcontext.h"
+#include "log.h"
 #include "nodegl.h"
 
 struct glcontext_eagl {
     EAGLContext *handle;
     CFBundleRef framework;
+    CVOpenGLESTextureCacheRef texture_cache;
 };
 
 static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void *window, void *handle)
@@ -43,6 +46,17 @@ static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void 
     if (!glcontext_eagl->framework)
         return -1;
 
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
+                                                NULL,
+                                                glcontext_eagl->handle,
+                                                NULL,
+                                                &glcontext_eagl->texture_cache);
+
+    if (err != noErr) {
+        LOG(ERROR, "Could not create CoreVideo texture cache: %d", err);
+        return -1;
+    }
+
     return 0;
 }
 
@@ -52,6 +66,9 @@ static void glcontext_eagl_uninit(struct glcontext *glcontext)
 
     if (glcontext_eagl->framework)
         CFRelease(glcontext_eagl->framework);
+
+    if (glcontext_eagl->texture_cache)
+        CFRelease(glcontext_eagl->texture_cache);
 }
 
 static int glcontext_eagl_create(struct glcontext *glcontext, struct glcontext *other)
@@ -89,6 +106,12 @@ static void *glcontext_eagl_get_handle(struct glcontext *glcontext)
     return &glcontext_eagl->handle;
 }
 
+static void *glcontext_eagl_get_texture_cache(struct glcontext *glcontext)
+{
+    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    return &glcontext_eagl->texture_cache;
+}
+
 static void *glcontext_eagl_get_proc_address(struct glcontext *glcontext, const char *name)
 {
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
@@ -112,6 +135,7 @@ const struct glcontext_class ngli_glcontext_eagl_class = {
     .get_display = glcontext_eagl_get_display,
     .get_window = glcontext_eagl_get_window,
     .get_handle = glcontext_eagl_get_handle,
+    .get_texture_cache = glcontext_eagl_get_texture_cache,
     .get_proc_address = glcontext_eagl_get_proc_address,
     .priv_size = sizeof(struct glcontext_eagl),
 };

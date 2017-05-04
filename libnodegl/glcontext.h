@@ -67,6 +67,7 @@ struct glcontext_class {
     void* (*get_display)(struct glcontext *glcontext);
     void* (*get_window)(struct glcontext *glcontext);
     void* (*get_handle)(struct glcontext *glcontext);
+    void* (*get_texture_cache)(struct glcontext *glcontext);
     void* (*get_proc_address)(struct glcontext *glcontext, const char *name);
     void (*uninit)(struct glcontext *glcontext);
     size_t priv_size;
@@ -79,6 +80,7 @@ int ngli_glcontext_make_current(struct glcontext *glcontext, int current);
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext);
 void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *name);
 void *ngli_glcontext_get_handle(struct glcontext *glcontext);
+void *ngli_glcontext_get_texture_cache(struct glcontext *glcontext);
 void ngli_glcontext_freep(struct glcontext **glcontext);
 int ngli_glcontext_check_extension(const char *extension, const char *extensions);
 int ngli_glcontext_check_gl_error(struct glcontext *glcontext);

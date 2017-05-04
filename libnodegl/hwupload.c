@@ -223,19 +223,6 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
     if (s->upload_fmt == config->format)
         return 0;
 
-    CVEAGLContext *eaglcontext = ngli_glcontext_get_handle(glcontext);
-
-    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
-                                                NULL,
-                                                *eaglcontext,
-                                                NULL,
-                                                &s->cache);
-
-    if (err != noErr) {
-        LOG(ERROR, "Could not create CoreVideo texture cache: %d", err);
-        return -1;
-    }
-
     s->upload_fmt = config->format;
 
     return 0;
@@ -250,6 +237,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
     struct texture *s = node->priv_data;
 
     CVOpenGLESTextureRef texture = NULL;
+    CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(glcontext);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
 
     s->format                = config->gl_format;
@@ -260,7 +248,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
     s->coordinates_matrix[0] = config->xscale;
 
     CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                                                s->cache,
+                                                                *texture_cache,
                                                                 cvpixbuf,
                                                                 NULL,
                                                                 GL_TEXTURE_2D,
@@ -372,7 +360,5 @@ void ngli_hwupload_uninit(struct ngl_node *node)
 #if defined(TARGET_IPHONE)
     if (s->texture)
         CFRelease(s->texture);
-    if (s->cache)
-        CFRelease(s->cache);
 #endif
 }
