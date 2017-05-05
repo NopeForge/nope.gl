@@ -45,6 +45,7 @@ enum {
     HWUPLOAD_FMT_MEDIACODEC,
     HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA,
     HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA,
+    HWUPLOAD_FMT_VIDEOTOOLBOX_NV12,
 };
 
 struct hwupload_config {
@@ -109,6 +110,12 @@ static int get_config_from_frame(struct sxplayer_frame *frame, struct hwupload_c
             config->format = HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA;
             config->gl_format = GL_RGBA;
             break;
+#if defined(TARGET_IPHONE)
+        case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+            config->format = HWUPLOAD_FMT_VIDEOTOOLBOX_NV12;
+            config->gl_format = GL_BGRA;
+            break;
+#endif
         default:
             ngli_assert(0);
         };
@@ -171,21 +178,6 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
     return 0;
 }
 
-#if defined(TARGET_ANDROID)
-static const char fragment_shader_hwupload_oes_data[] = ""
-    "#version 100"                                                                      "\n"
-    "#extension GL_OES_EGL_image_external : require"                                    "\n"
-    ""                                                                                  "\n"
-    "precision mediump float;"                                                          "\n"
-    "uniform samplerExternalOES tex0_sampler;"                                          "\n"
-    "varying vec2 var_tex0_coords;"                                                     "\n"
-    "void main(void)"                                                                   "\n"
-    "{"                                                                                 "\n"
-    "    vec4 t;"                                                                       "\n"
-    "    t  = texture2D(tex0_sampler, var_tex0_coords);"                                "\n"
-    "    gl_FragColor = vec4(t.rgb, 1.0);"                                              "\n"
-    "}";
-
 static int update_texture_dimensions(struct ngl_node *node, struct hwupload_config *config)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -205,6 +197,21 @@ static int update_texture_dimensions(struct ngl_node *node, struct hwupload_conf
 
     return 0;
 }
+
+#if defined(TARGET_ANDROID)
+static const char fragment_shader_hwupload_oes_data[] = ""
+    "#version 100"                                                                      "\n"
+    "#extension GL_OES_EGL_image_external : require"                                    "\n"
+    ""                                                                                  "\n"
+    "precision mediump float;"                                                          "\n"
+    "uniform samplerExternalOES tex0_sampler;"                                          "\n"
+    "varying vec2 var_tex0_coords;"                                                     "\n"
+    "void main(void)"                                                                   "\n"
+    "{"                                                                                 "\n"
+    "    vec4 t;"                                                                       "\n"
+    "    t  = texture2D(tex0_sampler, var_tex0_coords);"                                "\n"
+    "    gl_FragColor = vec4(t.rgb, 1.0);"                                              "\n"
+    "}";
 
 static int init_mc(struct ngl_node *node, struct hwupload_config *config)
 {
@@ -375,14 +382,109 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
 #endif
 
 #if defined(TARGET_IPHONE)
+const char fragment_shader_hwupload_nv12_data[] =
+    "precision mediump float;"                                                     "\n"
+    "uniform sampler2D tex0_sampler;"                                              "\n"
+    "uniform sampler2D tex1_sampler;"                                              "\n"
+    "varying vec2 var_tex0_coords;"                                                "\n"
+    "const mat3 conv = mat3("                                                      "\n"
+    "     1.0,      1.0,     1.0,"                                                 "\n"
+    "     0.0,     -0.21482, 2.12798,"                                             "\n"
+    "     1.28033, -0.38059, 0.0);"                                                "\n"
+    "void main(void)"                                                              "\n"
+    "{"                                                                            "\n"
+    "    vec3 yuv;"                                                                "\n"
+    "    vec3 rgb;"                                                                "\n"
+    "    yuv.x = texture2D(tex0_sampler, var_tex0_coords).r;"                      "\n"
+    "    yuv.yz = texture2D(tex1_sampler, var_tex0_coords).ra - vec2(0.5, 0.5);"   "\n"
+    "    rgb = conv * yuv;"                                                        "\n"
+    "    gl_FragColor = vec4(rgb, 1);"                                             "\n"
+    "}";
+
 static int init_vt(struct ngl_node *node, struct hwupload_config *config)
 {
     struct texture *s = node->priv_data;
+
+    if (config->format == HWUPLOAD_FMT_VIDEOTOOLBOX_NV12)
+        update_texture_dimensions(node, config);
 
     if (s->upload_fmt == config->format)
         return 0;
 
     s->upload_fmt = config->format;
+
+    if (s->upload_fmt == HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
+        struct texture *t;
+
+        static const float corner[3] = { -1.0, -1.0, 0.0 };
+        static const float width[3]  = {  2.0,  0.0, 0.0 };
+        static const float height[3] = {  0.0,  2.0, 0.0 };
+
+        s->quad = ngl_node_create(NGL_NODE_QUAD, corner, width, height);
+        if (!s->quad)
+            return -1;
+
+        s->shader = ngl_node_create(NGL_NODE_SHADER);
+        if (!s->shader)
+            return -1;
+
+        ngl_node_param_set(s->shader, "fragment_data", fragment_shader_hwupload_nv12_data);
+
+        s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE);
+        if (!s->textures[0])
+            return -1;
+
+        t = s->textures[0]->priv_data;
+        t->target          = GL_TEXTURE_2D;
+        s->format          = GL_LUMINANCE;
+        s->internal_format = GL_LUMINANCE;
+        s->type            = GL_UNSIGNED_BYTE;
+        t->width           = s->width;
+        t->height          = s->height;
+        t->external_id     = UINT_MAX;
+
+        s->textures[1] = ngl_node_create(NGL_NODE_TEXTURE);
+        if (!s->textures[1])
+            return -1;
+
+        t = s->textures[1]->priv_data;
+        t->target          = GL_TEXTURE_2D;
+        s->format          = GL_LUMINANCE_ALPHA;
+        s->internal_format = GL_LUMINANCE_ALPHA;
+        s->type            = GL_UNSIGNED_BYTE;
+        t->width           = (s->width + 1) >> 1;
+        t->height          = (s->height + 1) >> 1;
+        t->external_id     = UINT_MAX;
+
+        s->target_texture = ngl_node_create(NGL_NODE_TEXTURE);
+        if (!s->target_texture)
+            return -1;
+
+        t = s->target_texture->priv_data;
+        t->target          = s->target;
+        t->format          = s->format;
+        t->internal_format = s->internal_format;
+        t->width           = s->width;
+        t->height          = s->height;
+        t->min_filter      = s->min_filter;
+        t->mag_filter      = s->mag_filter;
+        t->wrap_s          = s->wrap_s;
+        t->wrap_t          = s->wrap_t;
+        t->external_id     = s->local_id;
+
+        s->tshape = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, s->quad, s->shader);
+        if (!s->tshape)
+            return -1;
+
+        ngl_node_param_add(s->tshape, "textures", 2, s->textures);
+
+        s->rtt = ngl_node_create(NGL_NODE_RTT, s->tshape, s->target_texture);
+        if (!s->rtt)
+            return -1;
+
+        ngli_node_attach_ctx(s->rtt, node->ctx);
+        ngli_node_init(s->rtt);
+    }
 
     return 0;
 }
@@ -395,55 +497,152 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
 
     struct texture *s = node->priv_data;
 
-    CVOpenGLESTextureRef texture = NULL;
+    CVOpenGLESTextureRef textures[2] = { 0 };
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(glcontext);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
 
-    s->format                = config->gl_format;
-    s->internal_format       = config->gl_internal_format;
-    s->type                  = config->gl_type;
-    s->width                 = config->linesize >> 2;
-    s->height                = config->height;
-    s->coordinates_matrix[0] = config->xscale;
+    switch (s->upload_fmt) {
+    case HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
+    case HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA: {
+        s->format                = config->gl_format;
+        s->internal_format       = config->gl_internal_format;
+        s->type                  = config->gl_type;
+        s->width                 = config->linesize >> 2;
+        s->height                = config->height;
+        s->coordinates_matrix[0] = config->xscale;
 
-    CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                                                *texture_cache,
-                                                                cvpixbuf,
-                                                                NULL,
-                                                                GL_TEXTURE_2D,
-                                                                s->internal_format,
-                                                                s->width,
-                                                                s->height,
-                                                                s->format,
-                                                                s->type,
-                                                                0,
-                                                                &texture);
-    if (err != noErr) {
-        LOG(ERROR, "Could not create CoreVideo texture from image: %d", err);
-        s->id = s->local_id;
-        return -1;
-    }
+        CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                                    *texture_cache,
+                                                                    cvpixbuf,
+                                                                    NULL,
+                                                                    GL_TEXTURE_2D,
+                                                                    s->internal_format,
+                                                                    s->width,
+                                                                    s->height,
+                                                                    s->format,
+                                                                    s->type,
+                                                                    0,
+                                                                    &textures[0]);
+        if (err != noErr) {
+            LOG(ERROR, "Could not create CoreVideo texture from image: %d", err);
+            s->id = s->local_id;
+            return -1;
+        }
 
-    if (s->texture)
-        CFRelease(s->texture);
+        if (s->texture)
+            CFRelease(s->texture);
 
-    s->texture = texture;
-    s->id = CVOpenGLESTextureGetName(texture);
+        s->texture = textures[0];
+        s->id = CVOpenGLESTextureGetName(s->texture);
 
-    gl->BindTexture(GL_TEXTURE_2D, s->id);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
-    switch(s->min_filter) {
-    case GL_NEAREST_MIPMAP_NEAREST:
-    case GL_NEAREST_MIPMAP_LINEAR:
-    case GL_LINEAR_MIPMAP_NEAREST:
-    case GL_LINEAR_MIPMAP_LINEAR:
-        gl->GenerateMipmap(GL_TEXTURE_2D);
+        gl->BindTexture(GL_TEXTURE_2D, s->id);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
+        switch(s->min_filter) {
+        case GL_NEAREST_MIPMAP_NEAREST:
+        case GL_NEAREST_MIPMAP_LINEAR:
+        case GL_LINEAR_MIPMAP_NEAREST:
+        case GL_LINEAR_MIPMAP_LINEAR:
+            gl->GenerateMipmap(GL_TEXTURE_2D);
+            break;
+        }
+        gl->BindTexture(GL_TEXTURE_2D, 0);
         break;
     }
-    gl->BindTexture(GL_TEXTURE_2D, 0);
+    case HWUPLOAD_FMT_VIDEOTOOLBOX_NV12: {
+        s->format                = config->gl_format;
+        s->internal_format       = config->gl_internal_format;
+        s->type                  = config->gl_type;
+        s->width                 = config->width;
+        s->height                = config->height;
+        s->coordinates_matrix[0] = 1.0;
+
+        update_texture_dimensions(node, config);
+
+        for (int i = 0; i < 2; i++) {
+            int width;
+            int height;
+            GLenum format;
+            GLenum internal_format;
+            GLenum type = GL_UNSIGNED_BYTE;
+
+            switch (i) {
+            case 0:
+                width = s->width;
+                height = s->height;
+                format = GL_LUMINANCE;
+                internal_format = GL_LUMINANCE;
+                break;
+            case 1:
+                width = (s->width + 1) >> 1;
+                height = (s->height + 1) >> 1;
+                format = GL_LUMINANCE_ALPHA;
+                internal_format = GL_LUMINANCE_ALPHA;
+                break;
+            default:
+                ngli_assert(0);
+            }
+
+            CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                                        *texture_cache,
+                                                                        cvpixbuf,
+                                                                        NULL,
+                                                                        GL_TEXTURE_2D,
+                                                                        internal_format,
+                                                                        width,
+                                                                        height,
+                                                                        format,
+                                                                        type,
+                                                                        i,
+                                                                        &textures[i]);
+            if (err != noErr) {
+                LOG(ERROR, "Could not create CoreVideo texture from image: %d", err);
+                for (int j = 0; j < 2; j++) {
+                    if (textures[j])
+                        CFRelease(textures[j]);
+                }
+                return -1;
+            }
+
+            struct texture *t = s->textures[i]->priv_data;
+
+            t->id = t->external_id = CVOpenGLESTextureGetName(textures[i]);
+            gl->BindTexture(GL_TEXTURE_2D, t->id);
+            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, t->min_filter);
+            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, t->mag_filter);
+            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, t->wrap_s);
+            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, t->wrap_t);
+            gl->BindTexture(GL_TEXTURE_2D, 0);
+        }
+
+        ngli_node_update(s->rtt, 0.0);
+        ngli_node_draw(s->rtt);
+
+        CFRelease(textures[0]);
+        CFRelease(textures[1]);
+
+        struct texture *t = s->target_texture->priv_data;
+        memcpy(s->coordinates_matrix, t->coordinates_matrix, sizeof(s->coordinates_matrix));
+
+        gl->BindTexture(GL_TEXTURE_2D, s->id);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
+        switch(s->min_filter) {
+        case GL_NEAREST_MIPMAP_NEAREST:
+        case GL_NEAREST_MIPMAP_LINEAR:
+        case GL_LINEAR_MIPMAP_NEAREST:
+        case GL_LINEAR_MIPMAP_LINEAR:
+            gl->GenerateMipmap(GL_TEXTURE_2D);
+            break;
+        }
+        gl->BindTexture(GL_TEXTURE_2D, 0);
+        break;
+    }
+    }
 
     return 0;
 }
@@ -464,6 +663,7 @@ static int hwupload_init(struct ngl_node *node, struct hwupload_config *config)
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
     case HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
     case HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA:
+    case HWUPLOAD_FMT_VIDEOTOOLBOX_NV12:
         ret = init_vt(node, config);
         break;
 #endif
