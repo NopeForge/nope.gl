@@ -33,8 +33,10 @@ define capitalize
 $(shell echo $1 | tr a-z- A-Z_)
 endef
 
+PROJECT_CFLAGS := $(CFLAGS) -Wall -O2 -Werror=missing-prototypes \
+                  -std=c99 \
+                  -DTARGET_$(call capitalize,$(TARGET_OS)) \
 
-PROJECT_CFLAGS := $(CFLAGS) -Wall -O2 -Werror=missing-prototypes -std=c99
 ifeq ($(DEBUG),yes)
 	PROJECT_CFLAGS += -g
 endif
