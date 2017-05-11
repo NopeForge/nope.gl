@@ -39,9 +39,22 @@ float ngli_mat3_determinant(const float *m);
 void ngli_mat3_adjugate(float *dst, const float* m);
 void ngli_mat3_inverse(float *dst, const float *m);
 
-void ngli_mat4_mul(float *dst, const float *m1, const float *m2);
-void ngli_mat4_mul_vec4(float *dst, const float *m, const float *v);
+void ngli_mat4_mul_c(float *dst, const float *m1, const float *m2);
+void ngli_mat4_mul_vec4_c(float *dst, const float *m, const float *v);
 void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up);
 void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, float far);
+
+/* Arch specific versions */
+
+#ifdef ARCH_AARCH64
+# define ngli_mat4_mul          ngli_mat4_mul_aarch64
+# define ngli_mat4_mul_vec4     ngli_mat4_mul_vec4_aarch64
+#else
+# define ngli_mat4_mul          ngli_mat4_mul_c
+# define ngli_mat4_mul_vec4     ngli_mat4_mul_vec4_c
+#endif
+
+void ngli_mat4_mul_aarch64(float *dst, const float *m1, const float *m2);
+void ngli_mat4_mul_vec4_aarch64(float *dst, const float *m, const float *v);
 
 #endif

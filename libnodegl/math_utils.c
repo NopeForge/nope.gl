@@ -142,7 +142,7 @@ void ngli_mat3_inverse(float *dst, const float *m)
     ngli_mat3_mul_scalar(dst, a, 1.0 / det);
 }
 
-void ngli_mat4_mul(float *dst, const float *m1, const float *m2)
+void ngli_mat4_mul_c(float *dst, const float *m1, const float *m2)
 {
     float m[4*4];
 
@@ -169,7 +169,7 @@ void ngli_mat4_mul(float *dst, const float *m1, const float *m2)
     memcpy(dst, m, sizeof(m));
 }
 
-void ngli_mat4_mul_vec4(float *dst, const float *m, const float *v)
+void ngli_mat4_mul_vec4_c(float *dst, const float *m, const float *v)
 {
     float tmp[4];
 

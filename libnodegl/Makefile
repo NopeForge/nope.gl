@@ -82,6 +82,10 @@ LIB_OBJS = api.o                    \
            transforms.o             \
            utils.o                  \
 
+LIB_OBJS_ARCH_aarch64 = asm_aarch64.o
+
+LIB_OBJS += $(LIB_OBJS_ARCH_$(ARCH))
+
 LIB_EXTRA_OBJS_Linux     = glcontext_x11.o
 LIB_EXTRA_OBJS_Darwin    = glcontext_cgl.o
 LIB_EXTRA_OBJS_Android   = glcontext_egl.o
