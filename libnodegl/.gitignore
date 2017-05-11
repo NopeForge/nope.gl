@@ -3,3 +3,4 @@
 /libnodegl.pc
 /libnodegl.so
 /libnodegl.symexport
+/test_asm

@@ -183,6 +183,14 @@ updatespecs: gen_specs$(EXESUF)
 
 
 #
+# Tests
+#
+test_asm: CFLAGS = $(PROJECT_CFLAGS)
+test_asm: LDLIBS = $(PROJECT_LDLIBS) -lm
+test_asm: test_asm.o math_utils.o $(LIB_OBJS_ARCH_$(ARCH))
+
+
+#
 # Misc/general
 #
 clean:
@@ -191,6 +199,7 @@ clean:
 	$(RM) $(GENSPECS_OBJS) gen_specs$(EXESUF)
 	$(RM) $(LIB_PCNAME)
 	$(RM) $(LD_SYM_FILE)
+	$(RM) test_asm.o test_asm
 
 install: $(LIB_NAME) $(LIB_PCNAME)
 	install -d $(DESTDIR)$(PREFIX)/lib
