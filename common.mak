@@ -29,6 +29,11 @@ PKG_CONFIG ?= pkg-config
 PYTHON     ?= python
 TARGET_OS  ?= $(shell uname -s)
 
+define capitalize
+$(shell echo $1 | tr a-z- A-Z_)
+endef
+
+
 PROJECT_CFLAGS := $(CFLAGS) -Wall -O2 -Werror=missing-prototypes -std=c99
 ifeq ($(DEBUG),yes)
 	PROJECT_CFLAGS += -g
@@ -38,7 +43,3 @@ PROJECT_LDLIBS := $(LDLIBS)
 ifeq ($(TARGET_OS),MinGW-w64)
 	EXESUF = .exe
 endif # MinGW
-
-define capitalize
-$(shell echo $(1) | tr a-z- A-Z_)
-endef
