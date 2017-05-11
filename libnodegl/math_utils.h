@@ -32,7 +32,6 @@ void ngli_vec3_norm(float *dst, float *v);
 void ngli_vec3_cross(float *dst, float *v1, float *v2);
 float ngli_vec3_dot(float *v1, float *v2);
 
-void ngli_mat3_print(const float *m);
 void ngli_mat3_from_mat4(float *dst, const float *m);
 void ngli_mat3_mul_scalar(float *dst, const float *m, const float s);
 void ngli_mat3_transpose(float *dst, const float *m);
@@ -40,7 +39,6 @@ float ngli_mat3_determinant(const float *m);
 void ngli_mat3_adjugate(float *dst, const float* m);
 void ngli_mat3_inverse(float *dst, const float *m);
 
-void ngli_mat4_print(const float *m);
 void ngli_mat4_mul(float *dst, const float *m1, const float *m2);
 void ngli_mat4_mul_vec4(float *dst, const float *m, const float *v);
 void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up);

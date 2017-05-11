@@ -23,7 +23,6 @@
 #include <string.h>
 #include <math.h>
 
-#include "log.h"
 #include "math_utils.h"
 
 float ngli_vec3_length(float *v)
@@ -63,12 +62,6 @@ float ngli_vec3_dot(float *v1, float *v2)
     return v1[0]*v2[0]
          + v1[1]*v2[1]
          + v1[2]*v2[2];
-}
-
-void ngli_mat3_print(const float *m)
-{
-    for (int i = 0; i < 9; i += 3)
-        LOG(INFO, "%g %g %g", m[i + 0], m[i + 1], m[i + 2]);
 }
 
 void ngli_mat3_from_mat4(float *dst, const float *m)
@@ -147,13 +140,6 @@ void ngli_mat3_inverse(float *dst, const float *m)
 
     ngli_mat3_adjugate(a, m);
     ngli_mat3_mul_scalar(dst, a, 1.0 / det);
-}
-
-void ngli_mat4_print(const float *m)
-{
-    for (int i = 0; i < 16; i += 4) {
-        LOG(INFO, "%g %g %g %g", m[i + 0], m[i + 1], m[i + 2], m[i + 3]);
-    }
 }
 
 void ngli_mat4_mul(float *dst, const float *m1, const float *m2)

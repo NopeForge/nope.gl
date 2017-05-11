@@ -45,6 +45,38 @@
 
 #define NGLI_ALIGN 32
 
+/* Format printf helpers */
+#define NGLI_FMT_F    "%12g"
+#define NGLI_FMT_VEC2 NGLI_FMT_F " " NGLI_FMT_F
+#define NGLI_FMT_VEC3 NGLI_FMT_F " " NGLI_FMT_VEC2
+#define NGLI_FMT_VEC4 NGLI_FMT_F " " NGLI_FMT_VEC3
+
+#define NGLI_FMT_MAT2 NGLI_FMT_VEC2 "\n" \
+                      NGLI_FMT_VEC2
+#define NGLI_FMT_MAT3 NGLI_FMT_VEC3 "\n" \
+                      NGLI_FMT_VEC3 "\n" \
+                      NGLI_FMT_VEC3
+#define NGLI_FMT_MAT4 NGLI_FMT_VEC4 "\n" \
+                      NGLI_FMT_VEC4 "\n" \
+                      NGLI_FMT_VEC4 "\n" \
+                      NGLI_FMT_VEC4
+
+/* Argument helpers associated with formats declared above */
+#define NGLI_ARG_F(v)    *(v)
+#define NGLI_ARG_VEC2(v) NGLI_ARG_F(v), NGLI_ARG_F((v)+1)
+#define NGLI_ARG_VEC3(v) NGLI_ARG_F(v), NGLI_ARG_VEC2((v)+1)
+#define NGLI_ARG_VEC4(v) NGLI_ARG_F(v), NGLI_ARG_VEC3((v)+1)
+
+#define NGLI_ARG_MAT2(v) NGLI_ARG_VEC2((v)+2*0),    \
+                         NGLI_ARG_VEC2((v)+2*1)
+#define NGLI_ARG_MAT3(v) NGLI_ARG_VEC3((v)+3*0),    \
+                         NGLI_ARG_VEC3((v)+3*1),    \
+                         NGLI_ARG_VEC3((v)+3*2)
+#define NGLI_ARG_MAT4(v) NGLI_ARG_VEC4((v)+4*0),    \
+                         NGLI_ARG_VEC4((v)+4*1),    \
+                         NGLI_ARG_VEC4((v)+4*2),    \
+                         NGLI_ARG_VEC4((v)+4*3)
+
 char *ngli_strdup(const char *s);
 int64_t ngli_gettime(void);
 char *ngli_asprintf(const char *fmt, ...) ngli_printf_format(1, 2);
