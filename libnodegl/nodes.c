@@ -173,13 +173,22 @@ void ngli_node_print_specs(void)
     }
 }
 
+static void *aligned_allocz(size_t size)
+{
+    void *ptr = NULL;
+    if (posix_memalign(&ptr, NGLI_ALIGN, size))
+        return NULL;
+    memset(ptr, 0, size);
+    return ptr;
+}
+
 static struct ngl_node *node_create(const struct node_class *class)
 {
-    struct ngl_node *node = calloc(1, sizeof(*node));
+    struct ngl_node *node = aligned_allocz(sizeof(*node));
     if (!node)
         return NULL;
     if (class->priv_size) {
-        node->priv_data = calloc(1, class->priv_size);
+        node->priv_data = aligned_allocz(class->priv_size);
         if (!node->priv_data) {
             free(node);
             return NULL;

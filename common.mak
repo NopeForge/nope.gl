@@ -34,7 +34,7 @@ $(shell echo $1 | tr a-z- A-Z_)
 endef
 
 PROJECT_CFLAGS := $(CFLAGS) -Wall -O2 -Werror=missing-prototypes \
-                  -std=c99 \
+                  -std=c99 -D_POSIX_C_SOURCE=200112L \
                   -DTARGET_$(call capitalize,$(TARGET_OS)) \
 
 ifeq ($(DEBUG),yes)

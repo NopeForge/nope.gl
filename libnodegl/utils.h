@@ -43,6 +43,8 @@
 #define NGLI_ARRAY_NB(x) ((int)(sizeof(x)/sizeof(*(x))))
 #define NGLI_SWAP(type, a, b) do { type tmp_swap = b; b = a; a = tmp_swap; } while (0)
 
+#define NGLI_ALIGN 32
+
 char *ngli_strdup(const char *s);
 int64_t ngli_gettime(void);
 char *ngli_asprintf(const char *fmt, ...) ngli_printf_format(1, 2);
