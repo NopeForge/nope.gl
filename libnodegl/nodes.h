@@ -55,8 +55,8 @@ struct ngl_node {
     struct ngl_ctx *ctx;
 
     int refcount;
-    float modelview_matrix[4*4];
-    float projection_matrix[4*4];
+    NGLI_ALIGNED_MAT(modelview_matrix);
+    NGLI_ALIGNED_MAT(projection_matrix);
     int state;
 
     double last_update_time;
@@ -267,7 +267,7 @@ struct texture {
     struct ngl_node *data_src;
     GLuint external_id;
 
-    float coordinates_matrix[16];
+    NGLI_ALIGNED_MAT(coordinates_matrix);
     GLuint id;
     GLuint local_id;
     GLenum local_target;

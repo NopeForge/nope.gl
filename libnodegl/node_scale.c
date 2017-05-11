@@ -67,7 +67,7 @@ static void scale_update(struct ngl_node *node, double t)
     struct scale *s = node->priv_data;
     struct ngl_node *child = s->child;
     const float *f = get_factors(s, t);
-    const float sm[4*4] = { // TODO: anchor
+    const NGLI_ALIGNED_MAT(sm) = { // TODO: anchor
         f[0], 0.0f, 0.0f, 0.0f,
         0.0f, f[1], 0.0f, 0.0f,
         0.0f, 0.0f, f[2], 0.0f,

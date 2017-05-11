@@ -294,14 +294,14 @@ static int upload_mc_frame(struct ngl_node *node, struct hwupload_config *config
     struct media *media = s->data_src->priv_data;
     AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 
-    float matrix[4*4] = {
+    NGLI_ALIGNED_MAT(matrix) = {
         1.0f, 0.0f, 0.0f, 0.0f,
         0.0f, 1.0f, 0.0f, 0.0f,
         0.0f, 0.0f, 1.0f, 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    float flip_matrix[4*4] = {
+    NGLI_ALIGNED_MAT(flip_matrix) = {
         1.0f,  0.0f, 0.0f, 0.0f,
         0.0f, -1.0f, 0.0f, 0.0f,
         0.0f,  0.0f, 1.0f, 0.0f,

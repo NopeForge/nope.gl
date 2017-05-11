@@ -65,7 +65,7 @@ static void translate_update(struct ngl_node *node, double t)
     struct translate *s = node->priv_data;
     struct ngl_node *child = s->child;
     const float *vec = get_vector(s, t);
-    const float tm[4*4] = {
+    const NGLI_ALIGNED_MAT(tm) = {
         1.0f,   0.0f,   0.0f,   0.0f,
         0.0f,   1.0f,   0.0f,   0.0f,
         0.0f,   0.0f,   1.0f,   0.0f,
