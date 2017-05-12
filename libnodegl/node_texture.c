@@ -128,6 +128,16 @@ static int texture_init(struct ngl_node *node)
     return 0;
 }
 
+static void texture_prefetch(struct ngl_node *node)
+{
+    struct texture *s = node->priv_data;
+
+    texture_init(node);
+
+    if (s->data_src)
+        ngli_node_prefetch(s->data_src);
+}
+
 static void handle_fps_frame(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -188,13 +198,30 @@ static void texture_uninit(struct ngl_node *node)
     ngli_hwupload_uninit(node);
 
     gl->DeleteTextures(1, &s->local_id);
+    s->id = s->local_id = 0;
+}
+
+static void texture_release(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    struct texture *s = node->priv_data;
+
+    if (s->data_src)
+        ngli_node_release(s->data_src);
+
+    texture_uninit(node);
 }
 
 const struct node_class ngli_texture_class = {
     .id        = NGL_NODE_TEXTURE,
     .name      = "Texture",
     .init      = texture_init,
+    .prefetch  = texture_prefetch,
     .update    = texture_update,
+    .release   = texture_release,
     .uninit    = texture_uninit,
     .priv_size = sizeof(struct texture),
     .params    = texture_params,
