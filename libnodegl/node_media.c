@@ -110,6 +110,9 @@ static int media_init(struct ngl_node *node)
     sxplayer_set_option(s->player, "max_nb_sink", 1);
     sxplayer_set_option(s->player, "sw_pix_fmt", SXPLAYER_PIXFMT_RGBA);
     sxplayer_set_option(s->player, "skip", s->initial_seek);
+#if defined(TARGET_IPHONE)
+    sxplayer_set_option(s->player, "vt_pix_fmt", "nv12");
+#endif
 
     if (s->audio_tex) {
         sxplayer_set_option(s->player, "avselect", SXPLAYER_SELECT_AUDIO);
