@@ -66,7 +66,7 @@ static int texture_init_2D(struct ngl_node *node)
     gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
     gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
     if (s->width && s->height) {
-        gl->TexImage2D(GL_TEXTURE_2D, 0, s->format, s->width, s->height, 0, s->internal_format, s->type, NULL);
+        gl->TexImage2D(GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, NULL);
     }
     gl->BindTexture(GL_TEXTURE_2D, 0);
 
