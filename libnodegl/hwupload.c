@@ -715,6 +715,9 @@ void ngli_hwupload_uninit(struct ngl_node *node)
 
     s->upload_fmt = HWUPLOAD_FMT_NONE;
 
+    if (s->rtt)
+        ngli_node_detach_ctx(s->rtt);
+
     ngl_node_unrefp(&s->quad);
     ngl_node_unrefp(&s->shader);
     ngl_node_unrefp(&s->tshape);
