@@ -23,7 +23,6 @@
 
 import os
 import sys
-import math
 import importlib
 import inspect
 import pkgutil
@@ -36,7 +35,7 @@ from watchdog.events import FileSystemEventHandler
 
 import pynodegl as ngl
 
-from misc import NGLMedia
+from misc import NGLMedia, NGLSceneCfg
 from export import Exporter
 
 from PyQt5 import QtGui, QtCore, QtWidgets
@@ -852,9 +851,6 @@ class _ScriptsManager(QtCore.QObject):
 
 class _MainWindow(QtWidgets.QSplitter):
 
-    LOOP_DURATION = 30.0
-    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
-
     def _update_err_buf(self, err_str):
         if err_str:
             self._errbuf.setText(err_str)
@@ -871,12 +867,8 @@ class _MainWindow(QtWidgets.QSplitter):
     def _construct_current_scene(self, cfg_dict):
         ar = cfg_dict['aspect_ratio']
 
-        class _SceneCfg: pass
-        scene_cfg = _SceneCfg()
-        scene_cfg.medias = self._medias
-        scene_cfg.duration = self.LOOP_DURATION
+        scene_cfg = NGLSceneCfg(medias=self._medias)
         scene_cfg.aspect_ratio = ar[0] / float(ar[1])
-        scene_cfg.glstates = []
 
         scene = cfg_dict['func'](scene_cfg, **cfg_dict['extra_args'])
         scene.set_name(cfg_dict['name'])
@@ -917,17 +909,9 @@ class _MainWindow(QtWidgets.QSplitter):
 
         self._scripts_mgr = _ScriptsManager(module_pkgname)
 
-        medias = []
-        if not assets_dir:
-            media_file = self.DEFAULT_MEDIA_FILE
-            if not os.path.exists(self.DEFAULT_MEDIA_FILE):
-                ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
-                                       'testsrc2=d=%d:r=%d' % (int(math.ceil(self.LOOP_DURATION)), _GLView.RENDERING_FPS),
-                                       media_file])
-                if ret:
-                    raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
-            medias.append(NGLMedia(media_file))
-        else:
+        medias = None
+        if assets_dir:
+            medias = []
             for f in os.listdir(assets_dir):
                 ext = f.rsplit('.', 1)[-1].lower()
                 path = os.path.join(assets_dir, f)

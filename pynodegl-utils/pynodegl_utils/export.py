@@ -119,8 +119,8 @@ def test_export():
 
     def _get_scene(duration):
         from examples import misc
-        class DummyCfg: pass
-        cfg = DummyCfg()
+        from misc import NGLSceneCfg
+        cfg = NGLSceneCfg(medias=[])
         cfg.duration = duration
         return misc.triangle(cfg)
 

@@ -10,7 +10,7 @@ import subprocess
 
 def serialize(dirname):
     from pynodegl_utils import examples
-    from pynodegl_utils.misc import NGLMedia
+    from pynodegl_utils.misc import NGLMedia, NGLSceneCfg
 
     scripts = []
     for module in pkgutil.iter_modules(examples.__path__):
@@ -26,18 +26,7 @@ def serialize(dirname):
             continue
         scenes.append((module_name, scene_funcs))
 
-    duration = 30.0
-
-    media_file = '/tmp/ngl-test.mkv'
-    if not os.path.exists(media_file):
-        ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
-                               'testsrc2=d=%d:r=60' % int(math.ceil(duration)), media_file])
-        if ret:
-            raise Exception('Unable to create a media file using ffmpeg (ret=%d)' % ret)
-
-    class _SceneCfg: pass
-    scene_cfg = _SceneCfg()
-    scene_cfg.medias = [NGLMedia(media_file)]
+    scene_cfg = NGLSceneCfg()
     scene_cfg.aspect_ratio = 16 / 9.
 
     try:

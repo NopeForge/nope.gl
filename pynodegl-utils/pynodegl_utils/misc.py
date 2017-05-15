@@ -1,3 +1,5 @@
+import os
+import math
 import inspect
 import json
 import subprocess
@@ -73,3 +75,24 @@ class NGLMedia:
     def __init__(self, filename):
         self._filename = filename
         self._set_media_dimensions()
+
+class NGLSceneCfg:
+
+    LOOP_DURATION = 30.0
+    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
+
+    def __init__(self, medias=None):
+        if medias is None:
+            media_file = self.DEFAULT_MEDIA_FILE
+            if not os.path.exists(self.DEFAULT_MEDIA_FILE):
+                ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
+                                       'testsrc2=d=%d:r=%d' % (int(math.ceil(self.LOOP_DURATION)), 60),
+                                       media_file])
+                if ret:
+                    raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
+            medias = [NGLMedia(media_file)]
+
+        self.medias = medias
+        self.duration = self.LOOP_DURATION
+        self.aspect_ratio = 16. / 9.
+        self.glstates = []
