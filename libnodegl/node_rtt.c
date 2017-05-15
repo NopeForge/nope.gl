@@ -142,6 +142,16 @@ static void rtt_draw(struct ngl_node *node)
         gl->GenerateMipmap(GL_TEXTURE_2D);
         break;
     }
+
+    texture->coordinates_matrix[5] = -1.0f;
+    texture->coordinates_matrix[13] = 1.0f;
+
+    if (s->depth_texture) {
+        struct texture *depth_texture = s->depth_texture->priv_data;
+        depth_texture->coordinates_matrix[5] = -1.0f;
+        depth_texture->coordinates_matrix[13] = 1.0f;
+    }
+
 }
 
 static void rtt_uninit(struct ngl_node *node)
