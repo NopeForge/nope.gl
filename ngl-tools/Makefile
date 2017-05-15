@@ -44,20 +44,34 @@ TOOLS_LDLIBS += $(shell $(PKG_CONFIG) --libs   gl)
 endif
 endif
 
+HAS_PYTHON := $(if $(shell pkg-config --exists python2 && echo 1),yes,no)
+
 TOOLS = ngl-player$(EXESUF) ngl-render$(EXESUF)
+ifeq ($(HAS_PYTHON),yes)
+TOOLS += ngl-python$(EXESUF)
+endif
 
 all: $(TOOLS)
+
+ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
+ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
 ngl-player$(EXESUF): ngl-player.o
+
+ngl-render$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
+ngl-render$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
 ngl-render$(EXESUF): ngl-render.o
 
-$(TOOLS): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
-$(TOOLS): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
+ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(shell python2-config --cflags)
+ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(shell python2-config --libs)
+ngl-python$(EXESUF): ngl-python.o
+
 $(TOOLS):
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 clean:
 	$(RM) ngl-player.o ngl-player$(EXESUF)
 	$(RM) ngl-render.o ngl-render$(EXESUF)
+	$(RM) ngl-python.o ngl-python$(EXESUF)
 
 install: $(TOOLS)
 	install -d $(DESTDIR)$(PREFIX)/bin
