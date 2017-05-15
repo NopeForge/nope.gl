@@ -152,12 +152,15 @@ static void rtt_uninit(struct ngl_node *node)
 
     struct rtt *s = node->priv_data;
 
+    GLuint framebuffer_id = 0;
+    gl->GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
     gl->BindFramebuffer(GL_FRAMEBUFFER, s->framebuffer_id);
     gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
     gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
 
     gl->DeleteRenderbuffers(1, &s->renderbuffer_id);
     gl->DeleteFramebuffers(1, &s->framebuffer_id);
+    gl->BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
 }
 
 const struct node_class ngli_rtt_class = {
