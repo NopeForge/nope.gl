@@ -95,7 +95,7 @@ LIB_OBJS += $(LIB_OBJS_ARCH_$(ARCH))
 
 LIB_EXTRA_OBJS_Linux     = glcontext_x11.o
 LIB_EXTRA_OBJS_Darwin    = glcontext_cgl.o
-LIB_EXTRA_OBJS_Android   = glcontext_egl.o jni_utils.o android_utils.o
+LIB_EXTRA_OBJS_Android   = glcontext_egl.o jni_utils.o android_utils.o android_looper.o android_surface.o
 LIB_EXTRA_OBJS_iPhone    = glcontext_eagl.o
 LIB_EXTRA_OBJS_MinGW-w64 = glcontext_wgl.o
 
@@ -116,7 +116,7 @@ LIB_EXTRA_LDLIBS_MinGW-w64 = -lopengl32
 LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 8.1.1"
 LIB_EXTRA_PKG_CONFIG_LIBS_Linux   = x11 gl
 LIB_EXTRA_PKG_CONFIG_LIBS_Darwin  =
-LIB_EXTRA_PKG_CONFIG_LIBS_Android =
+LIB_EXTRA_PKG_CONFIG_LIBS_Android = libavcodec
 LIB_EXTRA_PKG_CONFIG_LIBS_iPhone  =
 
 LIB_OBJS   += $(LIB_EXTRA_OBJS_$(TARGET_OS))
@@ -223,6 +223,9 @@ install: $(LIB_NAME) $(LIB_PCNAME)
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -d $(DESTDIR)$(PREFIX)/share
 	install -d $(DESTDIR)$(PREFIX)/share/nodegl
+	install -d $(DESTDIR)$(PREFIX)/share/nodegl/java
+	install -d $(DESTDIR)$(PREFIX)/share/nodegl/java/org
+	install -d $(DESTDIR)$(PREFIX)/share/nodegl/java/org/nodegl
 ifeq ($(TARGET_OS),MinGW-w64)
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/bin
@@ -231,6 +234,7 @@ endif
 	install -m 644 $(LIB_PCNAME) $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	install -m 644 nodegl.h $(DESTDIR)$(PREFIX)/include/nodegl.h
 	install -m 644 $(SPECS_FILE) $(DESTDIR)$(PREFIX)/share/nodegl
+	install -m 644 android/java/OnFrameAvailableListener.java $(DESTDIR)$(PREFIX)/share/nodegl/java/org/nodegl
 
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/lib/$(LIB_NAME)
