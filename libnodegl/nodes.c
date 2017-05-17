@@ -182,18 +182,21 @@ static void *aligned_allocz(size_t size)
     return ptr;
 }
 
+#define ALIGN(v, a) ((v) + (((v) + (a) - 1) & ~((v) - 1)))
+
 static struct ngl_node *node_create(const struct node_class *class)
 {
-    struct ngl_node *node = aligned_allocz(sizeof(*node));
+    struct ngl_node *node;
+    const size_t node_size = ALIGN(sizeof(*node), NGLI_ALIGN);
+
+    node = aligned_allocz(node_size + class->priv_size);
     if (!node)
         return NULL;
-    if (class->priv_size) {
-        node->priv_data = aligned_allocz(class->priv_size);
-        if (!node->priv_data) {
-            free(node);
-            return NULL;
-        }
-    }
+    node->priv_data = ((uint8_t *)node) + node_size;
+
+    /* Make sure the node and its private data are properly aligned */
+    ngli_assert((((uintptr_t)node)            & ~(NGLI_ALIGN - 1)) == (uintptr_t)node);
+    ngli_assert((((uintptr_t)node->priv_data) & ~(NGLI_ALIGN - 1)) == (uintptr_t)node->priv_data);
 
     node->class = class;
     node->last_update_time = -1.;
@@ -889,7 +892,6 @@ void ngl_node_unrefp(struct ngl_node **nodep)
         ngli_assert(!node->ctx);
         ngli_params_free((uint8_t *)node, ngli_base_node_params);
         ngli_params_free(node->priv_data, node->class->params);
-        free(node->priv_data);
         free(node);
     }
     *nodep = NULL;
