@@ -46,12 +46,14 @@ endif
 
 HAS_PYTHON := $(if $(shell pkg-config --exists python2 && echo 1),yes,no)
 
-TOOLS = ngl-player$(EXESUF) ngl-render$(EXESUF)
+TOOLS = player render
 ifeq ($(HAS_PYTHON),yes)
-TOOLS += ngl-python$(EXESUF)
+TOOLS += python
 endif
 
-all: $(TOOLS)
+TOOLS_BINS = $(addprefix ngl-, $(addsuffix $(EXESUF), $(TOOLS)))
+
+all: $(TOOLS_BINS)
 
 ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
 ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
@@ -65,19 +67,18 @@ ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(shell python2-
 ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(shell python2-config --libs)
 ngl-python$(EXESUF): ngl-python.o player.o
 
-$(TOOLS): common.o
+$(TOOLS_BINS): common.o
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 clean:
-	$(RM) ngl-player.o ngl-player$(EXESUF)
-	$(RM) ngl-render.o ngl-render$(EXESUF)
-	$(RM) ngl-python.o ngl-python$(EXESUF)
+	$(RM) $(TOOLS_BINS)
+	$(RM) ngl-*.o common.o player.o
 
-install: $(TOOLS)
+install: $(TOOLS_BINS)
 	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 $(TOOLS) $(DESTDIR)$(PREFIX)/bin
+	install -m 755 $(TOOLS_BINS) $(DESTDIR)$(PREFIX)/bin
 
 uninstall:
-	$(RM) $(addprefix $(DESTDIR)$(PREFIX)/bin/, $(TOOLS))
+	$(RM) $(addprefix $(DESTDIR)$(PREFIX)/bin/, $(TOOLS_BINS))
 
 .PHONY: all clean install uninstall
