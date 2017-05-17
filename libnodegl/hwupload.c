@@ -26,6 +26,7 @@
 
 #if defined(TARGET_ANDROID)
 #include <libavcodec/mediacodec.h>
+#include "android_surface.h"
 #endif
 
 #if defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
@@ -314,7 +315,7 @@ static int upload_mc_frame(struct ngl_node *node, struct hwupload_config *config
     if (ret < 0)
         return ret;
 
-    av_android_surface_render_buffer(media->android_surface, buffer, matrix);
+    ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
 
     struct texture *t = s->textures[0]->priv_data;
     ngli_mat4_mul(t->coordinates_matrix, flip_matrix, matrix);

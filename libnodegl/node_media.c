@@ -134,8 +134,8 @@ static int media_init(struct ngl_node *node)
     ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
     s->android_texture_target = GL_TEXTURE_EXTERNAL_OES;
 
-    s->android_surface = av_android_surface_new(NULL, s->android_texture_id);
-    void *android_surface = av_android_surface_get_surface(s->android_surface);
+    s->android_surface = ngli_android_surface_new(s->android_texture_id);
+    void *android_surface = ngli_android_surface_get_surface(s->android_surface);
     sxplayer_set_option(s->player, "opaque", &android_surface);
 #endif
 
@@ -211,7 +211,7 @@ static void media_uninit(struct ngl_node *node)
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    av_android_surface_free((AVAndroidSurface **)&s->android_surface);
+    ngli_android_surface_free(&s->android_surface);
     ngli_glDeleteTextures(gl, 1, &s->android_texture_id);
 #endif
 }

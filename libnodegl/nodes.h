@@ -25,6 +25,10 @@
 #include <stdlib.h>
 #include <sxplayer.h>
 
+#ifdef TARGET_ANDROID
+#include "android_surface.h"
+#endif
+
 #ifdef TARGET_IPHONE
 #include <CoreVideo/CoreVideo.h>
 #endif
@@ -327,9 +331,11 @@ struct media {
     struct sxplayer_ctx *player;
     struct sxplayer_frame *frame;
 
+#ifdef TARGET_ANDROID
     GLuint android_texture_id;
     GLenum android_texture_target;
-    void *android_surface;
+    struct android_surface *android_surface;
+#endif
 };
 
 struct renderrange {
