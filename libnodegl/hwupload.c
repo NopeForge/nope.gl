@@ -178,6 +178,7 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
     return 0;
 }
 
+#if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
 static int update_texture_dimensions(struct ngl_node *node, struct hwupload_config *config)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -197,6 +198,7 @@ static int update_texture_dimensions(struct ngl_node *node, struct hwupload_conf
 
     return 0;
 }
+#endif
 
 #if defined(TARGET_ANDROID)
 static const char fragment_shader_hwupload_oes_data[] = ""
