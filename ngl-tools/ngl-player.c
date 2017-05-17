@@ -179,16 +179,6 @@ static void update_time(int64_t seek_at)
     }
 }
 
-static void render(void)
-{
-    ngl_draw(g_ctx, g_frame_ts / 1000000.0);
-}
-
-static void reset(void)
-{
-    ngl_free(&g_ctx);
-}
-
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS) {
@@ -280,14 +270,14 @@ int main(int argc, char *argv[])
 
     do {
         update_time(-1);
-        render();
+        ngl_draw(g_ctx, g_frame_ts / 1000000.0);
         glfwSwapBuffers(window);
         glfwPollEvents();
     } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
              glfwWindowShouldClose(window) == 0);
 
 end:
-    reset();
+    ngl_free(&g_ctx);
 
     glfwDestroyWindow(window);
     glfwTerminate();
