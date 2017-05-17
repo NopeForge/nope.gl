@@ -22,12 +22,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <GLFW/glfw3.h>
 #include <Python.h>
 
 #include <nodegl.h>
 
 #include "common.h"
+#include "player.h"
 
 static PyObject *g_pyscene;
 
@@ -91,152 +91,31 @@ end:
     return scene;
 }
 
-struct view_info {
-    double x;
-    double y;
-    double width;
-    double height;
-};
-
-#define ASPECT_RATIO (g_width / (double)g_height)
-
-struct ngl_ctx *g_ctx;
-int64_t g_clock_off = -1;
-int64_t g_frame_ts;
-struct view_info g_view_info;
-int g_paused;
-struct ngl_node *g_opacity_uniform;
-int g_width = 1280;
-int g_height = 800;
-double g_duration;
-
-static int init(GLFWwindow *window, const char *modname, const char *funcname)
-{
-    g_ctx = ngl_create();
-    ngl_set_glcontext(g_ctx, NULL, NULL, NULL, NGL_GLPLATFORM_AUTO, NGL_GLAPI_AUTO);
-    glViewport(0, 0, g_width, g_height);
-
-    struct ngl_node *scene = get_scene(modname, funcname, &g_duration);
-    if (!scene)
-        return -1;
-
-    int ret = ngl_set_scene(g_ctx, scene);
-    if (ret < 0)
-        return ret;
-
-    ngl_node_unrefp(&scene);
-    return 0;
-}
-
-static void update_time(int64_t seek_at)
-{
-    if (seek_at >= 0) {
-        g_clock_off = gettime() - seek_at;
-        g_frame_ts = seek_at;
-        return;
-    }
-
-    if (!g_paused) {
-        const int64_t now = gettime();
-
-        if (g_clock_off < 0)
-            g_clock_off = now;
-
-        g_frame_ts = now - g_clock_off;
-    }
-}
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (action == GLFW_PRESS) {
-        switch(key) {
-        case GLFW_KEY_ESCAPE:
-        case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, GL_TRUE);
-            break;
-        case GLFW_KEY_SPACE:
-            g_paused ^= 1;
-            g_clock_off = gettime() - g_frame_ts;
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        double pos;
-        double xpos;
-        double ypos;
-        int64_t seek_at;
-
-        glfwGetCursorPos(window, &xpos, &ypos);
-
-        pos = clipd(xpos - g_view_info.x, 0.0, g_view_info.width);
-        seek_at = 1000000 * g_duration * pos / g_view_info.width;
-
-        update_time(seek_at);
-    }
-}
-
-static void size_callback(GLFWwindow *window, int width, int height)
-{
-    g_view_info.width = width;
-    g_view_info.height = width / ASPECT_RATIO;
-
-    if (g_view_info.height > height) {
-        g_view_info.height = height;
-        g_view_info.width = height * ASPECT_RATIO;
-    }
-
-    g_view_info.x = (width - g_view_info.width) / 2.0;
-    g_view_info.y = (height - g_view_info.height) / 2.0;
-
-    glViewport(g_view_info.x, g_view_info.y, g_view_info.width, g_view_info.height);
-}
-
 int main(int argc, char *argv[])
 {
     int ret;
+    double duration;
 
     if (argc < 3) {
         fprintf(stderr, "Usage: %s <module> <scene_func>\n", argv[0]);
         return -1;
     }
 
-    if (init_glfw() < 0)
-        return EXIT_FAILURE;
+    struct ngl_node *scene = get_scene(argv[1], argv[2], &duration);
+    if (!scene)
+        return -1;
 
-    GLFWwindow *window = get_window("ngl-python", g_width, g_height);
-    if (!window) {
-        glfwTerminate();
-        return EXIT_FAILURE;
-    }
-
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetWindowSizeCallback(window, size_callback);
-
-    ret = init(window, argv[1], argv[2]);
+    struct player p;
+    ret = player_init(&p, "ngl-python", scene,
+                      1280, 800, duration);
     if (ret < 0)
         goto end;
+    ngl_node_unrefp(&scene);
 
-    do {
-        update_time(-1);
-        ngl_draw(g_ctx, g_frame_ts / 1000000.0);
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
-             glfwWindowShouldClose(window) == 0);
+    player_main_loop();
 
 end:
-    ngl_free(&g_ctx);
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    player_uninit();
 
     return ret;
 }

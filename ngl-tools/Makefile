@@ -55,7 +55,7 @@ all: $(TOOLS)
 
 ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
 ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
-ngl-player$(EXESUF): ngl-player.o
+ngl-player$(EXESUF): ngl-player.o player.o
 
 ngl-render$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
 ngl-render$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
@@ -63,7 +63,7 @@ ngl-render$(EXESUF): ngl-render.o
 
 ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(shell python2-config --cflags)
 ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(shell python2-config --libs)
-ngl-python$(EXESUF): ngl-python.o
+ngl-python$(EXESUF): ngl-python.o player.o
 
 $(TOOLS): common.o
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@

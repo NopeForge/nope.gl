@@ -33,23 +33,9 @@
 #include <GLFW/glfw3.h>
 
 #include "common.h"
+#include "player.h"
 
-struct view_info {
-    double x;
-    double y;
-    double width;
-    double height;
-};
-
-#define ASPECT_RATIO(info) ((info).width / (double)(info).height)
-
-struct ngl_ctx *g_ctx;
-int64_t g_clock_off = -1;
-int64_t g_frame_ts;
-int64_t g_lasthover = -1;
 struct sxplayer_info g_info;
-struct view_info g_view_info;
-int g_paused;
 struct ngl_node *g_opacity_uniform;
 
 static const char *pgbar_shader = \
@@ -100,7 +86,7 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_param_set(texture, "data_src", media);
     ngl_node_param_set(shader, "fragment_data", pgbar_shader);
     ngl_node_param_add(uniforms[0], "animkf", 2, time_animkf);
-    ngl_node_param_set(uniforms[1], "value", ASPECT_RATIO(g_info));
+    ngl_node_param_set(uniforms[1], "value", g_info.width / (double)g_info.height);
     ngl_node_param_set(uniforms[2], "value", 0.0);
 
     ngl_node_param_add(tshape, "textures", 1, &texture);
@@ -137,103 +123,13 @@ static int probe(const char *filename)
     return 0;
 }
 
-static int init(GLFWwindow *window, const char *filename)
+static void tick_callback(struct player *p)
 {
-    g_ctx = ngl_create();
-    ngl_set_glcontext(g_ctx, NULL, NULL, NULL, NGL_GLPLATFORM_AUTO, NGL_GLAPI_AUTO);
-    glViewport(0, 0, g_info.width, g_info.height);
-
-    struct ngl_node *scene = get_scene(filename);
-    if (!scene)
-        return -1;
-
-    int ret = ngl_set_scene(g_ctx, scene);
-    if (ret < 0)
-        return ret;
-
-    ngl_node_unrefp(&scene);
-    return 0;
-}
-
-static void update_time(int64_t seek_at)
-{
-    if (seek_at >= 0) {
-        g_clock_off = gettime() - seek_at;
-        g_frame_ts = seek_at;
-        return;
-    }
-
-    if (!g_paused) {
-        const int64_t now = gettime();
-
-        if (g_clock_off < 0)
-            g_clock_off = now;
-
-        g_frame_ts = now - g_clock_off;
-    }
-
-    if (g_lasthover >= 0) {
-        const int64_t t64_diff = gettime() - g_lasthover;
+    if (p->lasthover >= 0) {
+        const int64_t t64_diff = gettime() - p->lasthover;
         const double opacity = clipd(1.5 - t64_diff / 1000000.0, 0, 1);
         ngl_node_param_set(g_opacity_uniform, "value", opacity);
     }
-}
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (action == GLFW_PRESS) {
-        switch(key) {
-        case GLFW_KEY_ESCAPE:
-        case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, GL_TRUE);
-            break;
-        case GLFW_KEY_SPACE:
-            g_paused ^= 1;
-            g_clock_off = gettime() - g_frame_ts;
-            break;
-        default:
-            break;
-        }
-    }
-}
-
-static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        double pos;
-        double xpos;
-        double ypos;
-        int64_t seek_at;
-
-        glfwGetCursorPos(window, &xpos, &ypos);
-
-        pos = clipd(xpos - g_view_info.x, 0.0, g_view_info.width);
-        seek_at = 1000000 * g_info.duration * pos / g_view_info.width;
-
-        g_lasthover = gettime();
-        update_time(seek_at);
-    }
-}
-
-static void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
-{
-    g_lasthover = gettime();
-}
-
-static void size_callback(GLFWwindow *window, int width, int height)
-{
-    g_view_info.width = width;
-    g_view_info.height = width / ASPECT_RATIO(g_info);
-
-    if (g_view_info.height > height) {
-        g_view_info.height = height;
-        g_view_info.width = height * ASPECT_RATIO(g_info);
-    }
-
-    g_view_info.x = (width - g_view_info.width) / 2.0;
-    g_view_info.y = (height - g_view_info.height) / 2.0;
-
-    glViewport(g_view_info.x, g_view_info.y, g_view_info.width, g_view_info.height);
 }
 
 int main(int argc, char *argv[])
@@ -249,38 +145,22 @@ int main(int argc, char *argv[])
     if (ret < 0)
         return ret;
 
-    if (init_glfw() < 0)
-        return EXIT_FAILURE;
+    struct ngl_node *scene = get_scene(argv[1]);
+    if (!scene)
+        return -1;
 
-    GLFWwindow *window = get_window("ngl-player", g_info.width, g_info.height);
-    if (!window) {
-        glfwTerminate();
-        return EXIT_FAILURE;
-    }
-
-    glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
-    glfwSetWindowSizeCallback(window, size_callback);
-    glfwSetCursorPosCallback(window, cursor_pos_callback);
-
-    ret = init(window, argv[1]);
+    struct player p;
+    ret = player_init(&p, "ngl-player", scene,
+                      g_info.width, g_info.height, g_info.duration);
     if (ret < 0)
         goto end;
+    ngl_node_unrefp(&scene);
+    p.tick_callback = tick_callback;
 
-    do {
-        update_time(-1);
-        ngl_draw(g_ctx, g_frame_ts / 1000000.0);
-        glfwSwapBuffers(window);
-        glfwPollEvents();
-    } while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
-             glfwWindowShouldClose(window) == 0);
+    player_main_loop();
 
 end:
-    ngl_free(&g_ctx);
-
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    player_uninit();
 
     return ret;
 }
