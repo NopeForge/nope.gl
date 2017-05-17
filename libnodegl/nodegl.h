@@ -139,4 +139,9 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene);
 int ngl_draw(struct ngl_ctx *s, double t);
 void ngl_free(struct ngl_ctx **ss);
 
+/* Android */
+
+int ngl_jni_set_java_vm(void *vm);
+void *ngl_jni_get_java_vm(void);
+
 #endif

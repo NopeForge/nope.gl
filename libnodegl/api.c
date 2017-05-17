@@ -22,6 +22,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#if defined(TARGET_ANDROID)
+#include <jni.h>
+#include <pthread.h>
+#endif
+
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -140,3 +145,45 @@ void ngl_free(struct ngl_ctx **ss)
     free(*ss);
     *ss = NULL;
 }
+
+#if defined(TARGET_ANDROID)
+static void *java_vm;
+static pthread_mutex_t lock = PTHREAD_MUTEX_INITIALIZER;
+
+int ngl_jni_set_java_vm(void *vm)
+{
+    int ret = 0;
+
+    pthread_mutex_lock(&lock);
+    if (java_vm == NULL) {
+        java_vm = vm;
+    } else if (java_vm != vm) {
+        ret = -1;
+        LOG(ERROR, "A Java virtual machine has already been set");
+    }
+    pthread_mutex_unlock(&lock);
+
+    return ret;
+}
+
+void *ngl_jni_get_java_vm(void)
+{
+    void *vm;
+
+    pthread_mutex_lock(&lock);
+    vm = java_vm;
+    pthread_mutex_unlock(&lock);
+
+    return vm;
+}
+#else
+int ngl_jni_set_java_vm(void *vm)
+{
+    return -1;
+}
+
+void *ngl_jni_get_java_vm(void)
+{
+    return NULL;
+}
+#endif
