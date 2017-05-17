@@ -203,10 +203,6 @@ static void texture_uninit(struct ngl_node *node)
 
 static void texture_release(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
     struct texture *s = node->priv_data;
 
     if (s->data_src)
