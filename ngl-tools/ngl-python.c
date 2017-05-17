@@ -21,12 +21,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
 
 #include <GLFW/glfw3.h>
 #include <Python.h>
 
 #include <nodegl.h>
+
+#include "common.h"
 
 static PyObject *g_pyscene;
 
@@ -109,14 +110,6 @@ int g_width = 1280;
 int g_height = 800;
 double g_duration;
 
-static int64_t gettime()
-{
-    struct timeval tv;
-
-    gettimeofday(&tv, NULL);
-    return 1000000 * (int64_t)tv.tv_sec + tv.tv_usec;
-}
-
 static int init(GLFWwindow *window, const char *modname, const char *funcname)
 {
     g_ctx = ngl_create();
@@ -133,13 +126,6 @@ static int init(GLFWwindow *window, const char *modname, const char *funcname)
 
     ngl_node_unrefp(&scene);
     return 0;
-}
-
-static double clipd(double v, double min, double max)
-{
-    if (v < min) return min;
-    if (v > max) return max;
-    return v;
 }
 
 static void update_time(int64_t seek_at)
@@ -224,35 +210,21 @@ static void size_callback(GLFWwindow *window, int width, int height)
 int main(int argc, char *argv[])
 {
     int ret;
-    GLFWwindow *window;
-    if (!glfwInit()) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        return -1;
-    }
 
     if (argc < 3) {
         fprintf(stderr, "Usage: %s <module> <scene_func>\n", argv[0]);
         return -1;
     }
 
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#else
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif
+    if (init_glfw() < 0)
+        return EXIT_FAILURE;
 
-    window = glfwCreateWindow(g_width, g_height, "ngl-python", NULL, NULL);
-    if (window == NULL) {
-        fprintf(stderr, "Failed to initialize GL context\n");
+    GLFWwindow *window = get_window("ngl-python", g_width, g_height);
+    if (!window) {
         glfwTerminate();
-        return -1;
+        return EXIT_FAILURE;
     }
 
-    glfwMakeContextCurrent(window);
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);

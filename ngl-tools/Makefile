@@ -65,7 +65,7 @@ ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(shell python2-
 ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(shell python2-config --libs)
 ngl-python$(EXESUF): ngl-python.o
 
-$(TOOLS):
+$(TOOLS): common.o
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 clean:

@@ -22,17 +22,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <time.h>
 #include <unistd.h>
 
 #include <nodegl.h>
 #include <sxplayer.h>
 
 #include <GLFW/glfw3.h>
+
+#include "common.h"
 
 struct view_info {
     double x;
@@ -73,14 +73,6 @@ static const char *pgbar_shader = \
 "        color = x < time ? vec4(1) : mix(video_pix, vec4(1), 0.3);"    "\n" \
 "    gl_FragColor = mix(video_pix, color, opacity);"                    "\n" \
 "}"                                                                     "\n";
-
-static int64_t gettime()
-{
-    struct timeval tv;
-
-    gettimeofday(&tv, NULL);
-    return 1000000 * (int64_t)tv.tv_sec + tv.tv_usec;
-}
 
 static struct ngl_node *get_scene(const char *filename)
 {
@@ -161,13 +153,6 @@ static int init(GLFWwindow *window, const char *filename)
 
     ngl_node_unrefp(&scene);
     return 0;
-}
-
-static double clipd(double v, double min, double max)
-{
-    if (v < min) return min;
-    if (v > max) return max;
-    return v;
 }
 
 static void update_time(int64_t seek_at)
@@ -264,11 +249,6 @@ static void size_callback(GLFWwindow *window, int width, int height)
 int main(int argc, char *argv[])
 {
     int ret;
-    GLFWwindow *window;
-    if (!glfwInit()) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        return -1;
-    }
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <media>\n", argv[0]);
@@ -279,24 +259,15 @@ int main(int argc, char *argv[])
     if (ret < 0)
         return ret;
 
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#else
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif
+    if (init_glfw() < 0)
+        return EXIT_FAILURE;
 
-    window = glfwCreateWindow(g_info.width, g_info.height, "ngl-player", NULL, NULL);
-    if (window == NULL) {
-        fprintf(stderr, "Failed to initialize GL context\n");
+    GLFWwindow *window = get_window("ngl-player", g_info.width, g_info.height);
+    if (!window) {
         glfwTerminate();
-        return -1;
+        return EXIT_FAILURE;
     }
 
-    glfwMakeContextCurrent(window);
     glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetKeyCallback(window, key_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);

@@ -22,7 +22,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -31,6 +30,8 @@
 #include <nodegl.h>
 
 #include <GLFW/glfw3.h>
+
+#include "common.h"
 
 static struct ngl_node *get_scene(const char *filename)
 {
@@ -66,14 +67,6 @@ struct range {
     float duration;
     int freq;
 };
-
-static int64_t gettime(void)
-{
-    struct timeval tv;
-
-    gettimeofday(&tv, NULL);
-    return 1000000 * (int64_t)tv.tv_sec + tv.tv_usec;
-}
 
 int main(int argc, char *argv[])
 {
@@ -148,33 +141,17 @@ int main(int argc, char *argv[])
 
     printf("%s -> %s %dx%d\n", input, output ? output : "-", width, height);
 
-    GLFWwindow *window;
-    if (!glfwInit()) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
+    if (init_glfw() < 0)
         return EXIT_FAILURE;
-    }
 
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-#else
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#endif
-
-    window = glfwCreateWindow(width, height, "ngl-render", NULL, NULL);
+    GLFWwindow *window = get_window("ngl-render", width, height);
     if (!window) {
-        fprintf(stderr, "Failed to initialize GL context\n");
         glfwTerminate();
         return EXIT_FAILURE;
     }
 
     if (!show_window)
         glfwHideWindow(window);
-
-    glfwMakeContextCurrent(window);
 
     glfwSwapInterval(swap_interval);
 
