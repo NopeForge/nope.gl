@@ -95,7 +95,7 @@ LIB_OBJS += $(LIB_OBJS_ARCH_$(ARCH))
 
 LIB_EXTRA_OBJS_Linux     = glcontext_x11.o
 LIB_EXTRA_OBJS_Darwin    = glcontext_cgl.o
-LIB_EXTRA_OBJS_Android   = glcontext_egl.o jni_utils.o
+LIB_EXTRA_OBJS_Android   = glcontext_egl.o jni_utils.o android_utils.o
 LIB_EXTRA_OBJS_iPhone    = glcontext_eagl.o
 LIB_EXTRA_OBJS_MinGW-w64 = glcontext_wgl.o
 

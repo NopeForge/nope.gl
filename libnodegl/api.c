@@ -25,6 +25,8 @@
 #if defined(TARGET_ANDROID)
 #include <jni.h>
 #include <pthread.h>
+
+#include "jni_utils.h"
 #endif
 
 #include "log.h"
@@ -176,6 +178,43 @@ void *ngl_jni_get_java_vm(void)
 
     return vm;
 }
+
+static void *android_application_context;
+
+int ngl_android_set_application_context(void *application_context)
+{
+    JNIEnv *env;
+
+    env = ngli_jni_get_env();
+    if (!env)
+        return -1;
+
+    pthread_mutex_lock(&lock);
+
+    if (android_application_context) {
+        (*env)->DeleteGlobalRef(env, android_application_context);
+        android_application_context = NULL;
+    }
+
+    if (application_context)
+        android_application_context = (*env)->NewGlobalRef(env, application_context);
+
+    pthread_mutex_unlock(&lock);
+
+    return 0;
+}
+
+void *ngl_android_get_application_context(void)
+{
+    void *context;
+
+    pthread_mutex_lock(&lock);
+    context = android_application_context;
+    pthread_mutex_unlock(&lock);
+
+    return context;
+}
+
 #else
 int ngl_jni_set_java_vm(void *vm)
 {
@@ -185,5 +224,14 @@ int ngl_jni_set_java_vm(void *vm)
 void *ngl_jni_get_java_vm(void)
 {
     return NULL;
+}
+
+int ngl_android_set_application_context(void *application_context)
+{
+    return -1;
+}
+
+void *ngl_android_get_application_context(void)
+{
 }
 #endif

@@ -140,8 +140,10 @@ int ngl_draw(struct ngl_ctx *s, double t);
 void ngl_free(struct ngl_ctx **ss);
 
 /* Android */
-
 int ngl_jni_set_java_vm(void *vm);
 void *ngl_jni_get_java_vm(void);
+
+int ngl_android_set_application_context(void *application_context);
+void *ngl_android_get_application_context(void);
 
 #endif
