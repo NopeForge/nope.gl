@@ -62,26 +62,26 @@ static int rtt_init(struct ngl_node *node)
     }
 
     GLuint framebuffer_id = 0;
-    gl->GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
 
-    gl->GenFramebuffers(1, &s->framebuffer_id);
-    gl->BindFramebuffer(GL_FRAMEBUFFER, s->framebuffer_id);
+    ngli_glGenFramebuffers(gl, 1, &s->framebuffer_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
 
     LOG(VERBOSE, "init rtt with texture %d", texture->id);
-    gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->id, 0);
+    ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->id, 0);
 
     if (depth_texture) {
-        gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture->id, 0);
+        ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture->id, 0);
     } else {
-        gl->GenRenderbuffers(1, &s->renderbuffer_id);
-        gl->BindRenderbuffer(GL_RENDERBUFFER, s->renderbuffer_id);
-        gl->RenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, s->width, s->height);
-        gl->BindRenderbuffer(GL_RENDERBUFFER, 0);
-        gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s->renderbuffer_id);
+        ngli_glGenRenderbuffers(gl, 1, &s->renderbuffer_id);
+        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->renderbuffer_id);
+        ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, s->width, s->height);
+        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s->renderbuffer_id);
     }
 
-    ngli_assert(gl->CheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-    gl->BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+    ngli_assert(ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
 
     /* flip vertically the color and depth textures so the coordinates match
      * how the uv coordinates system works */
@@ -118,19 +118,19 @@ static void rtt_draw(struct ngl_node *node)
     struct rtt *s = node->priv_data;
 
     GLuint framebuffer_id = 0;
-    gl->GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
-    gl->BindFramebuffer(GL_FRAMEBUFFER, s->framebuffer_id);
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
 
-    gl->GetIntegerv(GL_VIEWPORT, viewport);
-    gl->Viewport(0, 0, s->width, s->height);
-    gl->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
+    ngli_glViewport(gl, 0, 0, s->width, s->height);
+    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     ngli_node_draw(s->child);
 
-    ngli_assert(gl->CheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    ngli_assert(ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
-    gl->BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
-    gl->Viewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
+    ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
 
     struct texture *texture = s->color_texture->priv_data;
     switch(texture->min_filter) {
@@ -138,8 +138,8 @@ static void rtt_draw(struct ngl_node *node)
     case GL_NEAREST_MIPMAP_LINEAR:
     case GL_LINEAR_MIPMAP_NEAREST:
     case GL_LINEAR_MIPMAP_LINEAR:
-        gl->BindTexture(GL_TEXTURE_2D, texture->id);
-        gl->GenerateMipmap(GL_TEXTURE_2D);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, texture->id);
+        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
         break;
     }
 
@@ -163,14 +163,14 @@ static void rtt_uninit(struct ngl_node *node)
     struct rtt *s = node->priv_data;
 
     GLuint framebuffer_id = 0;
-    gl->GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
-    gl->BindFramebuffer(GL_FRAMEBUFFER, s->framebuffer_id);
-    gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-    gl->FramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
+    ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+    ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
 
-    gl->DeleteRenderbuffers(1, &s->renderbuffer_id);
-    gl->DeleteFramebuffers(1, &s->framebuffer_id);
-    gl->BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+    ngli_glDeleteRenderbuffers(gl, 1, &s->renderbuffer_id);
+    ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
 }
 
 const struct node_class ngli_rtt_class = {

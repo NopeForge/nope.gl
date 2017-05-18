@@ -111,7 +111,7 @@ int ngl_draw(struct ngl_ctx *s, double t)
 
     ngli_honor_glstates(s, s->nb_glstates, s->glstates);
 
-    gl->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     ngli_node_check_resources(scene, t);
     ngli_node_update(scene, t);

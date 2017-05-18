@@ -159,21 +159,21 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
     s->height                = config->height;
     s->coordinates_matrix[0] = config->xscale;
 
-    gl->BindTexture(GL_TEXTURE_2D, s->id);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
     if (dimension_changed)
-        gl->TexImage2D(GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, frame->data);
+        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, frame->data);
     else
-        gl->TexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, s->width, s->height, s->format, s->type, frame->data);
+        ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, s->width, s->height, s->format, s->type, frame->data);
 
     switch(s->min_filter) {
     case GL_NEAREST_MIPMAP_NEAREST:
     case GL_NEAREST_MIPMAP_LINEAR:
     case GL_LINEAR_MIPMAP_NEAREST:
     case GL_LINEAR_MIPMAP_LINEAR:
-        gl->GenerateMipmap(GL_TEXTURE_2D);
+        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
         break;
     }
-    gl->BindTexture(GL_TEXTURE_2D, 0);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
     return 0;
 }
@@ -191,9 +191,9 @@ static int update_texture_dimensions(struct ngl_node *node, struct hwupload_conf
         s->width = config->width;
         s->height = config->height;
 
-        gl->BindTexture(GL_TEXTURE_2D, s->id);
-        gl->TexImage2D(GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, NULL);
-        gl->BindTexture(GL_TEXTURE_2D, 0);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
+        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, NULL);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
     }
 
     return 0;
@@ -361,11 +361,11 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
     s->height                = config->height;
     s->coordinates_matrix[0] = config->xscale;
 
-    gl->BindTexture(GL_TEXTURE_2D, s->id);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
     if (dimension_changed)
-        gl->TexImage2D(GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, data);
+        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, data);
     else
-        gl->TexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, s->width, s->height, s->format, s->type, data);
+        ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, s->width, s->height, s->format, s->type, data);
 
     CVPixelBufferUnlockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
 
@@ -374,10 +374,10 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
     case GL_NEAREST_MIPMAP_LINEAR:
     case GL_LINEAR_MIPMAP_NEAREST:
     case GL_LINEAR_MIPMAP_LINEAR:
-        gl->GenerateMipmap(GL_TEXTURE_2D);
+        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
         break;
     }
-    gl->BindTexture(GL_TEXTURE_2D, 0);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
     return 0;
 }
@@ -537,20 +537,20 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         s->texture = textures[0];
         s->id = CVOpenGLESTextureGetName(s->texture);
 
-        gl->BindTexture(GL_TEXTURE_2D, s->id);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
         switch(s->min_filter) {
         case GL_NEAREST_MIPMAP_NEAREST:
         case GL_NEAREST_MIPMAP_LINEAR:
         case GL_LINEAR_MIPMAP_NEAREST:
         case GL_LINEAR_MIPMAP_LINEAR:
-            gl->GenerateMipmap(GL_TEXTURE_2D);
+            ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
             break;
         }
-        gl->BindTexture(GL_TEXTURE_2D, 0);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         break;
     }
     case HWUPLOAD_FMT_VIDEOTOOLBOX_NV12: {
@@ -611,12 +611,12 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
             struct texture *t = s->textures[i]->priv_data;
 
             t->id = t->external_id = CVOpenGLESTextureGetName(textures[i]);
-            gl->BindTexture(GL_TEXTURE_2D, t->id);
-            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, t->min_filter);
-            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, t->mag_filter);
-            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, t->wrap_s);
-            gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, t->wrap_t);
-            gl->BindTexture(GL_TEXTURE_2D, 0);
+            ngli_glBindTexture(gl, GL_TEXTURE_2D, t->id);
+            ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, t->min_filter);
+            ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, t->mag_filter);
+            ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, t->wrap_s);
+            ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, t->wrap_t);
+            ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         }
 
         ngli_node_update(s->rtt, 0.0);
@@ -628,20 +628,20 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         struct texture *t = s->target_texture->priv_data;
         memcpy(s->coordinates_matrix, t->coordinates_matrix, sizeof(s->coordinates_matrix));
 
-        gl->BindTexture(GL_TEXTURE_2D, s->id);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
         switch(s->min_filter) {
         case GL_NEAREST_MIPMAP_NEAREST:
         case GL_NEAREST_MIPMAP_LINEAR:
         case GL_LINEAR_MIPMAP_NEAREST:
         case GL_LINEAR_MIPMAP_LINEAR:
-            gl->GenerateMipmap(GL_TEXTURE_2D);
+            ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
             break;
         }
-        gl->BindTexture(GL_TEXTURE_2D, 0);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         break;
     }
     }

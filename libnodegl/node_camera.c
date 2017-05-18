@@ -84,24 +84,24 @@ static int camera_init(struct ngl_node *node)
         struct glcontext *glcontext = ctx->glcontext;
         const struct glfunctions *gl = &glcontext->funcs;
 
-        gl->GenTextures(1, &s->texture_id);
-        gl->BindTexture(GL_TEXTURE_2D, s->texture_id);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        gl->TexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, s->pipe_width, s->pipe_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        gl->BindTexture(GL_TEXTURE_2D, 0);
+        ngli_glGenTextures(gl, 1, &s->texture_id);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->texture_id);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, GL_RGBA, s->pipe_width, s->pipe_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
         GLuint framebuffer_id;
-        gl->GetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
+        ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
 
-        gl->GenFramebuffers(1, &s->framebuffer_id);
-        gl->BindFramebuffer(GL_FRAMEBUFFER, s->framebuffer_id);
-        gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->texture_id, 0);
-        ngli_assert(gl->CheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+        ngli_glGenFramebuffers(gl, 1, &s->framebuffer_id);
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
+        ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->texture_id, 0);
+        ngli_assert(ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
-        gl->BindFramebuffer(GL_FRAMEBUFFER, framebuffer_id);
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
 #endif
     }
 
@@ -178,28 +178,28 @@ static void camera_draw(struct ngl_node *node)
         GLuint framebuffer_read_id;
         GLuint framebuffer_draw_id;
 
-        gl->GetIntegerv(GL_MULTISAMPLE, &multisampling);
+        ngli_glGetIntegerv(gl, GL_MULTISAMPLE, &multisampling);
 
         if (multisampling) {
-            gl->GetIntegerv(GL_READ_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_read_id);
-            gl->GetIntegerv(GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_draw_id);
+            ngli_glGetIntegerv(gl, GL_READ_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_read_id);
+            ngli_glGetIntegerv(gl, GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_draw_id);
 
-            gl->BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer_draw_id);
-            gl->BindFramebuffer(GL_DRAW_FRAMEBUFFER, s->framebuffer_id);
-            gl->BlitFramebuffer(0, 0, s->pipe_width, s->pipe_height, 0, 0, s->pipe_width, s->pipe_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, framebuffer_draw_id);
+            ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->framebuffer_id);
+            ngli_glBlitFramebuffer(gl, 0, 0, s->pipe_width, s->pipe_height, 0, 0, s->pipe_width, s->pipe_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-            gl->BindFramebuffer(GL_READ_FRAMEBUFFER, s->framebuffer_id);
+            ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->framebuffer_id);
         }
 #endif
 
         LOG(DEBUG, "write %dx%d buffer to FD=%d", s->pipe_width, s->pipe_height, s->pipe_fd);
-        gl->ReadPixels(0, 0, s->pipe_width, s->pipe_height, GL_RGBA, GL_UNSIGNED_BYTE, s->pipe_buf);
+        ngli_glReadPixels(gl, 0, 0, s->pipe_width, s->pipe_height, GL_RGBA, GL_UNSIGNED_BYTE, s->pipe_buf);
         write(s->pipe_fd, s->pipe_buf, s->pipe_width * s->pipe_height * 4);
 
 #if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
         if (multisampling) {
-            gl->BindFramebuffer(GL_READ_FRAMEBUFFER, framebuffer_read_id);
-            gl->BindFramebuffer(GL_DRAW_FRAMEBUFFER, framebuffer_draw_id);
+            ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, framebuffer_read_id);
+            ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, framebuffer_draw_id);
         }
 #endif
     }
@@ -217,11 +217,11 @@ static void camera_uninit(struct ngl_node *node)
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    gl->BindFramebuffer(GL_FRAMEBUFFER, s->framebuffer_id);
-    gl->FramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
+    ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 
-    gl->DeleteRenderbuffers(1, &s->framebuffer_id);
-    gl->DeleteTextures(1, &s->texture_id);
+    ngli_glDeleteRenderbuffers(gl, 1, &s->framebuffer_id);
+    ngli_glDeleteTextures(gl, 1, &s->texture_id);
 #endif
 }
 

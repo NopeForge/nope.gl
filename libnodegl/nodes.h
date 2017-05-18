@@ -152,34 +152,34 @@ struct shapeprimitive {
 #define NGLI_SHAPE_GENERATE_BUFFERS(gl, s) do {                                                                   \
     size_t vertices_size  = NGLI_SHAPE_VERTICES_SIZE(s);                                                          \
                                                                                                                   \
-    (gl)->GenBuffers(1, &s->vertices_buffer_id);                                                                  \
-    (gl)->BindBuffer(GL_ARRAY_BUFFER, (s)->vertices_buffer_id);                                                   \
-    (gl)->BufferData(GL_ARRAY_BUFFER, vertices_size, (s)->vertices, GL_STATIC_DRAW);                              \
-    (gl)->BindBuffer(GL_ARRAY_BUFFER, 0);                                                                         \
+    ngli_glGenBuffers(gl, 1, &s->vertices_buffer_id);                                                             \
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, (s)->vertices_buffer_id);                                              \
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, vertices_size, (s)->vertices, GL_STATIC_DRAW);                         \
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);                                                                    \
                                                                                                                   \
     GLfloat *texcoords = (s)->vertices + NGLI_SHAPE_TEXCOORDS_OFFSET;                                             \
     size_t texcoords_size = vertices_size - NGLI_SHAPE_TEXCOORDS_OFFSET * sizeof(*(s)->vertices);                 \
                                                                                                                   \
-    (gl)->GenBuffers(1, &(s)->texcoords_buffer_id);                                                               \
-    (gl)->BindBuffer(GL_ARRAY_BUFFER, (s)->texcoords_buffer_id);                                                  \
-    (gl)->BufferData(GL_ARRAY_BUFFER, texcoords_size, texcoords, GL_STATIC_DRAW);                                 \
-    (gl)->BindBuffer(GL_ARRAY_BUFFER, 0);                                                                         \
+    ngli_glGenBuffers(gl, 1, &(s)->texcoords_buffer_id);                                                          \
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, (s)->texcoords_buffer_id);                                             \
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, texcoords_size, texcoords, GL_STATIC_DRAW);                            \
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);                                                                    \
                                                                                                                   \
     GLfloat *normals = (s)->vertices + NGLI_SHAPE_NORMALS_OFFSET;                                                 \
     size_t normals_size = vertices_size - NGLI_SHAPE_NORMALS_OFFSET * sizeof(*s->vertices);                       \
                                                                                                                   \
-    (gl)->GenBuffers(1, &s->normals_buffer_id);                                                                   \
-    (gl)->BindBuffer(GL_ARRAY_BUFFER, (s)->normals_buffer_id);                                                    \
-    (gl)->BufferData(GL_ARRAY_BUFFER, normals_size, normals, GL_STATIC_DRAW);                                     \
-    (gl)->BindBuffer(GL_ARRAY_BUFFER, 0);                                                                         \
+    ngli_glGenBuffers(gl, 1, &s->normals_buffer_id);                                                              \
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, (s)->normals_buffer_id);                                               \
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, normals_size, normals, GL_STATIC_DRAW);                                \
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);                                                                    \
 } while (0)                                                                                                       \
 
 #define NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(gl, s) do {                                                           \
-    (gl)->GenBuffers(1, &(s)->indices_buffer_id);                                                                 \
-    (gl)->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, (s)->indices_buffer_id);                                            \
-    (gl)->BufferData(GL_ELEMENT_ARRAY_BUFFER,                                                                     \
+    ngli_glGenBuffers(gl, 1, &(s)->indices_buffer_id);                                                            \
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, (s)->indices_buffer_id);                                       \
+    ngli_glBufferData(gl, GL_ELEMENT_ARRAY_BUFFER,                                                                \
                      (s)->nb_indices * sizeof(*(s)->indices), (s)->indices, GL_STATIC_DRAW);                      \
-    (gl)->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);                                                                 \
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, 0);                                                            \
 } while (0)                                                                                                       \
 
 struct shape {

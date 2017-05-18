@@ -73,7 +73,7 @@ static const struct node_param shader_params[] = {
 static void get_##func##_info_log(const struct glfunctions *gl, GLuint id,            \
                                   char **info_logp, int *info_log_lengthp)            \
 {                                                                                     \
-    gl->Get##name##iv(id, GL_INFO_LOG_LENGTH, info_log_lengthp);                      \
+    ngli_glGet##name##iv(gl, id, GL_INFO_LOG_LENGTH, info_log_lengthp);               \
     if (!*info_log_lengthp) {                                                         \
         *info_logp = NULL;                                                            \
         return;                                                                       \
@@ -85,7 +85,7 @@ static void get_##func##_info_log(const struct glfunctions *gl, GLuint id,      
         return;                                                                       \
     }                                                                                 \
                                                                                       \
-    gl->Get##name##InfoLog(id, *info_log_lengthp, NULL, *info_logp);                  \
+    ngli_glGet##name##InfoLog(gl, id, *info_log_lengthp, NULL, *info_logp);           \
     while (*info_log_lengthp && strchr(" \r\n", (*info_logp)[*info_log_lengthp - 1])) \
         (*info_logp)[--*info_log_lengthp] = 0;                                        \
 }                                                                                     \
@@ -104,40 +104,40 @@ static GLuint load_shader(struct ngl_node *node, const char *vertex_shader_data,
 
     GLint result = GL_FALSE;
 
-    GLuint program = gl->CreateProgram();
-    GLuint vertex_shader = gl->CreateShader(GL_VERTEX_SHADER);
-    GLuint fragment_shader = gl->CreateShader(GL_FRAGMENT_SHADER);
+    GLuint program = ngli_glCreateProgram(gl);
+    GLuint vertex_shader = ngli_glCreateShader(gl, GL_VERTEX_SHADER);
+    GLuint fragment_shader = ngli_glCreateShader(gl, GL_FRAGMENT_SHADER);
 
-    gl->ShaderSource(vertex_shader, 1, &vertex_shader_data, NULL);
-    gl->CompileShader(vertex_shader);
+    ngli_glShaderSource(gl, vertex_shader, 1, &vertex_shader_data, NULL);
+    ngli_glCompileShader(gl, vertex_shader);
 
-    gl->GetShaderiv(vertex_shader, GL_COMPILE_STATUS, &result);
+    ngli_glGetShaderiv(gl, vertex_shader, GL_COMPILE_STATUS, &result);
     if (!result) {
         get_shader_info_log(gl, vertex_shader, &info_log, &info_log_length);
         goto fail;
     }
 
-    gl->ShaderSource(fragment_shader, 1, &fragment_shader_data, NULL);
-    gl->CompileShader(fragment_shader);
+    ngli_glShaderSource(gl, fragment_shader, 1, &fragment_shader_data, NULL);
+    ngli_glCompileShader(gl, fragment_shader);
 
-    gl->GetShaderiv(fragment_shader, GL_COMPILE_STATUS, &result);
+    ngli_glGetShaderiv(gl, fragment_shader, GL_COMPILE_STATUS, &result);
     if (!result) {
         get_shader_info_log(gl, fragment_shader, &info_log, &info_log_length);
         goto fail;
     }
 
-    gl->AttachShader(program, vertex_shader);
-    gl->AttachShader(program, fragment_shader);
-    gl->LinkProgram(program);
+    ngli_glAttachShader(gl, program, vertex_shader);
+    ngli_glAttachShader(gl, program, fragment_shader);
+    ngli_glLinkProgram(gl, program);
 
-    gl->GetProgramiv(program, GL_LINK_STATUS, &result);
+    ngli_glGetProgramiv(gl, program, GL_LINK_STATUS, &result);
     if (!result) {
         get_program_info_log(gl, program, &info_log, &info_log_length);
         goto fail;
     }
 
-    gl->DeleteShader(vertex_shader);
-    gl->DeleteShader(fragment_shader);
+    ngli_glDeleteShader(gl, vertex_shader);
+    ngli_glDeleteShader(gl, fragment_shader);
 
     return program;
 
@@ -148,15 +148,15 @@ fail:
     }
 
     if (vertex_shader) {
-        gl->DeleteShader(vertex_shader);
+        ngli_glDeleteShader(gl, vertex_shader);
     }
 
     if (fragment_shader) {
-        gl->DeleteShader(fragment_shader);
+        ngli_glDeleteShader(gl, fragment_shader);
     }
 
     if (program) {
-        gl->DeleteProgram(program);
+        ngli_glDeleteProgram(gl, program);
     }
 
     return 0;
@@ -174,11 +174,11 @@ static int shader_init(struct ngl_node *node)
     if (!s->program_id)
         return -1;
 
-    s->position_location_id          = gl->GetAttribLocation(s->program_id,  "ngl_position");
-    s->normal_location_id            = gl->GetAttribLocation(s->program_id,  "ngl_normal");
-    s->modelview_matrix_location_id  = gl->GetUniformLocation(s->program_id, "ngl_modelview_matrix");
-    s->projection_matrix_location_id = gl->GetUniformLocation(s->program_id, "ngl_projection_matrix");
-    s->normal_matrix_location_id     = gl->GetUniformLocation(s->program_id, "ngl_normal_matrix");
+    s->position_location_id          = ngli_glGetAttribLocation(gl, s->program_id,  "ngl_position");
+    s->normal_location_id            = ngli_glGetAttribLocation(gl, s->program_id,  "ngl_normal");
+    s->modelview_matrix_location_id  = ngli_glGetUniformLocation(gl, s->program_id, "ngl_modelview_matrix");
+    s->projection_matrix_location_id = ngli_glGetUniformLocation(gl, s->program_id, "ngl_projection_matrix");
+    s->normal_matrix_location_id     = ngli_glGetUniformLocation(gl, s->program_id, "ngl_normal_matrix");
 
     return 0;
 }
@@ -191,7 +191,7 @@ static void shader_uninit(struct ngl_node *node)
 
     struct shader *s = node->priv_data;
 
-    gl->DeleteProgram(s->program_id);
+    ngli_glDeleteProgram(gl, s->program_id);
 }
 
 const struct node_class ngli_shader_class = {

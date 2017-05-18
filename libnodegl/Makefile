@@ -21,6 +21,13 @@
 
 include ../common.mak
 
+DEBUG_GL ?= no
+WGET     ?= wget
+
+ifeq ($(DEBUG_GL),yes)
+	PROJECT_CFLAGS += -DDEBUG_GL
+endif
+
 LD_SYM_FILE   = $(LIB_BASENAME).symexport
 LD_SYM_OPTION = --version-script
 LD_SYM_DATA   = "{\n\tglobal: ngl_*;\n\tlocal: *;\n};\n"
@@ -183,6 +190,15 @@ updatespecs: gen_specs$(EXESUF)
 
 
 #
+# OpenGL function wrappers
+#
+gen-gl-wrappers: gl.xml
+	$(PYTHON) gen-gl-wrappers.py $^
+gl.xml:
+	$(WGET) https://raw.githubusercontent.com/KhronosGroup/OpenGL-Registry/master/xml/gl.xml
+
+
+#
 # Tests
 #
 test_asm: CFLAGS = $(PROJECT_CFLAGS)
@@ -221,6 +237,6 @@ uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/include/nodegl.h
 	$(RM) -r $(DESTDIR)$(PREFIX)/share/nodegl
 
-.PHONY: all updatespecs clean install uninstall
+.PHONY: all updatespecs clean install uninstall gen-gl-wrappers
 
 -include $(LIB_DEPS)

@@ -59,16 +59,16 @@ static int texture_init_2D(struct ngl_node *node)
     if (s->local_id)
         return 0;
 
-    gl->GenTextures(1, &s->id);
-    gl->BindTexture(GL_TEXTURE_2D, s->id);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
-    gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
+    ngli_glGenTextures(gl, 1, &s->id);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
     if (s->width && s->height) {
-        gl->TexImage2D(GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, NULL);
+        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, NULL);
     }
-    gl->BindTexture(GL_TEXTURE_2D, 0);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
     s->local_id = s->id;
     s->local_target = GL_TEXTURE_2D;
@@ -150,12 +150,12 @@ static void handle_fps_frame(struct ngl_node *node)
     const int height = fps->data_h;
     const uint8_t *data = fps->data_buf;
 
-    gl->BindTexture(GL_TEXTURE_2D, s->id);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
     if (s->width == width && s->height == height)
-        gl->TexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, s->format, s->type, data);
+        ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, width, height, s->format, s->type, data);
     else
-        gl->TexImage2D(GL_TEXTURE_2D, 0, s->internal_format, width, height, 0, s->format, s->type, data);
-    gl->BindTexture(GL_TEXTURE_2D, 0);
+        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, width, height, 0, s->format, s->type, data);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 }
 
 static void handle_media_frame(struct ngl_node *node)
@@ -197,7 +197,7 @@ static void texture_uninit(struct ngl_node *node)
 
     ngli_hwupload_uninit(node);
 
-    gl->DeleteTextures(1, &s->local_id);
+    ngli_glDeleteTextures(gl, 1, &s->local_id);
     s->id = s->local_id = 0;
 }
 

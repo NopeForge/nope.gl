@@ -61,9 +61,9 @@ static const struct node_param texturedshape_params[] = {
 
 static inline void bind_texture(const struct glfunctions *gl, GLenum target, GLint uniform_location, GLuint texture_id, int idx)
 {
-    gl->ActiveTexture(GL_TEXTURE0 + idx);
-    gl->BindTexture(target, texture_id);
-    gl->Uniform1i(uniform_location, idx);
+    ngli_glActiveTexture(gl, GL_TEXTURE0 + idx);
+    ngli_glBindTexture(gl, target, texture_id);
+    ngli_glUniform1i(gl, uniform_location, idx);
 }
 
 static int update_uniforms(struct ngl_node *node)
@@ -81,13 +81,13 @@ static int update_uniforms(struct ngl_node *node)
         const GLint uid = s->uniform_ids[i];
         switch (unode->class->id) {
         case NGL_NODE_UNIFORMSCALAR:
-            gl->Uniform1f(uid, u->scalar);
+            ngli_glUniform1f(gl, uid, u->scalar);
             break;
-        case NGL_NODE_UNIFORMVEC2: gl->Uniform2fv(uid, 1, u->vector);                break;
-        case NGL_NODE_UNIFORMVEC3: gl->Uniform3fv(uid, 1, u->vector);                break;
-        case NGL_NODE_UNIFORMVEC4: gl->Uniform4fv(uid, 1, u->vector);                break;
-        case NGL_NODE_UNIFORMINT:  gl->Uniform1i (uid,    u->ival);                  break;
-        case NGL_NODE_UNIFORMMAT4: gl->UniformMatrix4fv(uid, 1, GL_FALSE, u->matrix); break;
+        case NGL_NODE_UNIFORMVEC2: ngli_glUniform2fv(gl, uid, 1, u->vector);                break;
+        case NGL_NODE_UNIFORMVEC3: ngli_glUniform3fv(gl, uid, 1, u->vector);                break;
+        case NGL_NODE_UNIFORMVEC4: ngli_glUniform4fv(gl, uid, 1, u->vector);                break;
+        case NGL_NODE_UNIFORMINT:  ngli_glUniform1i (gl, uid,    u->ival);                  break;
+        case NGL_NODE_UNIFORMMAT4: ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix); break;
         case NGL_NODE_UNIFORMSAMPLER:                                              break;
         default:
             LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
@@ -108,21 +108,21 @@ static int update_uniforms(struct ngl_node *node)
         }
 
         if (textureshaderinfo->coordinates_mvp_id >= 0) {
-            gl->UniformMatrix4fv(textureshaderinfo->coordinates_mvp_id, 1, GL_FALSE, texture->coordinates_matrix);
+            ngli_glUniformMatrix4fv(gl, textureshaderinfo->coordinates_mvp_id, 1, GL_FALSE, texture->coordinates_matrix);
         }
 
         if (textureshaderinfo->dimensions_id >= 0) {
             float dimensions[2] = { texture->width, texture->height };
-            gl->Uniform2fv(textureshaderinfo->dimensions_id, 1, dimensions);
+            ngli_glUniform2fv(gl, textureshaderinfo->dimensions_id, 1, dimensions);
         }
     }
 
     if (shader->modelview_matrix_location_id >= 0) {
-        gl->UniformMatrix4fv(shader->modelview_matrix_location_id, 1, GL_FALSE, node->modelview_matrix);
+        ngli_glUniformMatrix4fv(gl, shader->modelview_matrix_location_id, 1, GL_FALSE, node->modelview_matrix);
     }
 
     if (shader->projection_matrix_location_id >= 0) {
-        gl->UniformMatrix4fv(shader->projection_matrix_location_id, 1, GL_FALSE, node->projection_matrix);
+        ngli_glUniformMatrix4fv(gl, shader->projection_matrix_location_id, 1, GL_FALSE, node->projection_matrix);
     }
 
     if (shader->normal_matrix_location_id >= 0) {
@@ -130,7 +130,7 @@ static int update_uniforms(struct ngl_node *node)
         ngli_mat3_from_mat4(normal_matrix, node->modelview_matrix);
         ngli_mat3_inverse(normal_matrix, normal_matrix);
         ngli_mat3_transpose(normal_matrix, normal_matrix);
-        gl->UniformMatrix3fv(shader->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
+        ngli_glUniformMatrix3fv(gl, shader->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
     }
 
     return 0;
@@ -149,22 +149,22 @@ static int update_vertex_attribs(struct ngl_node *node)
     for (int i = 0; i < s->nb_textures; i++)  {
         struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
         if (textureshaderinfo->coordinates_id >= 0) {
-            gl->EnableVertexAttribArray(textureshaderinfo->coordinates_id);
-            gl->BindBuffer(GL_ARRAY_BUFFER, shape->texcoords_buffer_id);
-            gl->VertexAttribPointer(textureshaderinfo->coordinates_id, 2, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
+            ngli_glEnableVertexAttribArray(gl, textureshaderinfo->coordinates_id);
+            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, shape->texcoords_buffer_id);
+            ngli_glVertexAttribPointer(gl, textureshaderinfo->coordinates_id, 2, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
         }
     }
 
     if (shader->position_location_id >= 0) {
-        gl->EnableVertexAttribArray(shader->position_location_id);
-        gl->BindBuffer(GL_ARRAY_BUFFER, shape->vertices_buffer_id);
-        gl->VertexAttribPointer(shader->position_location_id, 3, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
+        ngli_glEnableVertexAttribArray(gl, shader->position_location_id);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, shape->vertices_buffer_id);
+        ngli_glVertexAttribPointer(gl, shader->position_location_id, 3, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
     }
 
     if (shader->normal_location_id >= 0) {
-        gl->EnableVertexAttribArray(shader->normal_location_id);
-        gl->BindBuffer(GL_ARRAY_BUFFER, shape->normals_buffer_id);
-        gl->VertexAttribPointer(shader->normal_location_id, 3, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
+        ngli_glEnableVertexAttribArray(gl, shader->normal_location_id);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, shape->normals_buffer_id);
+        ngli_glVertexAttribPointer(gl, shader->normal_location_id, 3, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
     }
 
     return 0;
@@ -199,7 +199,7 @@ static int texturedshape_init(struct ngl_node *node)
         ret = ngli_node_init(unode);
         if (ret < 0)
             return ret;
-        s->uniform_ids[i] = gl->GetUniformLocation(shader->program_id, u->name);
+        s->uniform_ids[i] = ngli_glGetUniformLocation(gl, shader->program_id, u->name);
     }
 
     s->attribute_ids = calloc(s->nb_attributes, sizeof(*s->attribute_ids));
@@ -212,7 +212,7 @@ static int texturedshape_init(struct ngl_node *node)
         ret = ngli_node_init(unode);
         if (ret < 0)
             return ret;
-        s->attribute_ids[i] = gl->GetAttribLocation(shader->program_id, u->name);
+        s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, u->name);
     }
 
     if (s->nb_textures > glcontext->max_texture_image_units) {
@@ -236,22 +236,22 @@ static int texturedshape_init(struct ngl_node *node)
                 return ret;
 
             snprintf(name, sizeof(name), "tex%d_sampler", i);
-            s->textureshaderinfos[i].sampler_id = gl->GetUniformLocation(shader->program_id, name);
+            s->textureshaderinfos[i].sampler_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
 
             snprintf(name, sizeof(name), "tex%d_coords", i);
-            s->textureshaderinfos[i].coordinates_id = gl->GetAttribLocation(shader->program_id, name);
+            s->textureshaderinfos[i].coordinates_id = ngli_glGetAttribLocation(gl, shader->program_id, name);
 
             snprintf(name, sizeof(name), "tex%d_coords_matrix", i);
-            s->textureshaderinfos[i].coordinates_mvp_id = gl->GetUniformLocation(shader->program_id, name);
+            s->textureshaderinfos[i].coordinates_mvp_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
 
             snprintf(name, sizeof(name), "tex%d_dimensions", i);
-            s->textureshaderinfos[i].dimensions_id = gl->GetUniformLocation(shader->program_id, name);
+            s->textureshaderinfos[i].dimensions_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
         }
     }
 
     if (glcontext->has_vao_compatibility) {
-        gl->GenVertexArrays(1, &s->vao_id);
-        gl->BindVertexArray(s->vao_id);
+        ngli_glGenVertexArrays(gl, 1, &s->vao_id);
+        ngli_glBindVertexArray(gl, s->vao_id);
         update_vertex_attribs(node);
     }
 
@@ -267,7 +267,7 @@ static void texturedshape_uninit(struct ngl_node *node)
     struct texturedshape *s = node->priv_data;
 
     if (glcontext->has_vao_compatibility) {
-        gl->DeleteVertexArrays(1, &s->vao_id);
+        ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
     }
 
     free(s->textureshaderinfos);
@@ -304,10 +304,10 @@ static void texturedshape_draw(struct ngl_node *node)
     const struct shader *shader = s->shader->priv_data;
     const struct shape *shape = s->shape->priv_data;
 
-    gl->UseProgram(shader->program_id);
+    ngli_glUseProgram(gl, shader->program_id);
 
     if (glcontext->has_vao_compatibility) {
-        gl->BindVertexArray(s->vao_id);
+        ngli_glBindVertexArray(gl, s->vao_id);
     }
 
     update_uniforms(node);
@@ -316,8 +316,8 @@ static void texturedshape_draw(struct ngl_node *node)
         update_vertex_attribs(node);
     }
 
-    gl->BindBuffer(GL_ELEMENT_ARRAY_BUFFER, shape->indices_buffer_id);
-    gl->DrawElements(shape->draw_mode, shape->nb_indices, shape->draw_type, 0);
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, shape->indices_buffer_id);
+    ngli_glDrawElements(gl, shape->draw_mode, shape->nb_indices, shape->draw_type, 0);
 }
 
 const struct node_class ngli_texturedshape_class = {

@@ -29,17 +29,7 @@
 #include "utils.h"
 #include "glincludes.h"
 
-#define NGLI_GL_FUNC(flags, ret, name, ...) { "gl"#name, offsetof(struct glfunctions, name), flags },
-
-static const struct gldefinition {
-    const char *name;
-    size_t offset;
-    int flags;
-} gldefinitions[] = {
-#include "glfunctions.h"
-};
-
-#undef NGLI_GL_FUNC
+#include "gldefinitions_data.h"
 
 #ifdef HAVE_PLATFORM_GLX
 extern const struct glcontext_class ngli_glcontext_x11_class;
@@ -196,15 +186,15 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
     if (glcontext->api == NGL_GLAPI_OPENGL3) {
         GLint i, nb_extensions;
 
-        gl->GetIntegerv(GL_MAJOR_VERSION, &glcontext->major_version);
-        gl->GetIntegerv(GL_MINOR_VERSION, &glcontext->minor_version);
+        ngli_glGetIntegerv(gl, GL_MAJOR_VERSION, &glcontext->major_version);
+        ngli_glGetIntegerv(gl, GL_MINOR_VERSION, &glcontext->minor_version);
 
         if (glcontext->major_version >= 4)
             glcontext->has_vao_compatibility = 1;
 
-        gl->GetIntegerv(GL_NUM_EXTENSIONS, &nb_extensions);
+        ngli_glGetIntegerv(gl, GL_NUM_EXTENSIONS, &nb_extensions);
         for (i = 0; i < nb_extensions; i++) {
-            const char *extension = (const char *)gl->GetStringi(GL_EXTENSIONS, i);
+            const char *extension = (const char *)ngli_glGetStringi(gl, GL_EXTENSIONS, i);
             if (!extension)
                 break;
             if (!strcmp(extension, "GL_ARB_ES2_compatibility")) {
@@ -214,14 +204,14 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
             }
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
-        const char *gl_extensions = (const char *)gl->GetString(GL_EXTENSIONS);
+        const char *gl_extensions = (const char *)ngli_glGetString(gl, GL_EXTENSIONS);
         glcontext->major_version = 2;
         glcontext->minor_version = 0;
         glcontext->has_es2_compatibility = 1;
         glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
     }
 
-    gl->GetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
+    ngli_glGetIntegerv(gl, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
 
     if (glcontext->has_vao_compatibility) {
         glcontext->has_vao_compatibility =
@@ -339,7 +329,7 @@ int ngli_glcontext_check_gl_error(struct glcontext *glcontext)
         [GL_INVALID_FRAMEBUFFER_OPERATION ] = "GL_INVALID_FRAMEBUFFER_OPERATION",
         [GL_OUT_OF_MEMORY]                  = "GL_OUT_OF_MEMORY",
     };
-    const GLenum error = gl->GetError();
+    const GLenum error = ngli_glGetError(gl);
 
     if (!error)
         return error;
