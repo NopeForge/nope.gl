@@ -9,6 +9,5 @@
 - texture: support yuv
 - texture: support > 8bits per component textures
 - viewer/export: add advanced screenshot feature
-- viewer: factor out GL utils (initialization, surface format, ...)
 - viewer: support importing files in addition to modules
 - viewer: proper reloading of the whole dependency tree

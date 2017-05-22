@@ -37,6 +37,7 @@ import pynodegl as ngl
 
 from misc import NGLMedia, NGLSceneCfg
 from export import Exporter
+from gl import get_gl_format
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from OpenGL import GL
@@ -977,13 +978,7 @@ def run():
                         help='set the assets directory to be used by the scene functions')
     pargs = parser.parse_args(sys.argv[1:])
 
-    gl_format = QtGui.QSurfaceFormat()
-    gl_format.setVersion(3, 3)
-    gl_format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
-    gl_format.setDepthBufferSize(24)
-    gl_format.setStencilBufferSize(8)
-    gl_format.setAlphaBufferSize(8)
-    QtGui.QSurfaceFormat.setDefaultFormat(gl_format)
+    QtGui.QSurfaceFormat.setDefaultFormat(get_gl_format())
 
     app = QtWidgets.QApplication(sys.argv)
     window = _MainWindow(pargs.module, pargs.assets_dir)

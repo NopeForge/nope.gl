@@ -5,6 +5,7 @@ import pynodegl as ngl
 from PyQt5 import QtGui, QtCore
 from OpenGL import GL
 
+from gl import get_gl_format
 
 class _PipeThread(QtCore.QThread):
 
@@ -133,13 +134,7 @@ def test_export():
         print 'Usage: %s <outfile>' % sys.argv[0]
         sys.exit(0)
 
-    gl_format = QtGui.QSurfaceFormat()
-    gl_format.setVersion(3, 3)
-    gl_format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
-    gl_format.setDepthBufferSize(24)
-    gl_format.setStencilBufferSize(8)
-    gl_format.setAlphaBufferSize(8)
-    QtGui.QSurfaceFormat.setDefaultFormat(gl_format)
+    QtGui.QSurfaceFormat.setDefaultFormat(get_gl_format())
 
     filename = sys.argv[1]
     duration = 5
