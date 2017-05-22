@@ -21,6 +21,8 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 #include "log.h"
 
@@ -36,7 +38,26 @@ static void default_callback(void *arg, int level, const char *filename, int ln,
         [NGL_LOG_ERROR]   = "ERROR",
     };
     vsnprintf(logline, sizeof(logline), fmt, vl);
-    printf("[%s] %s:%d %s: %s\n", log_strs[level], filename, ln, fn, logline);
+
+    const char *color_start = "", *color_end = "";
+
+#if !defined(TARGET_IPHONE) && !defined(TARGET_ANDROID) && !defined(TARGET_MINGW_W64)
+    if (isatty(1) && getenv("TERM")) {
+        static const char * const colors[] = {
+            [NGL_LOG_DEBUG]   = "\033[0;32m", // green
+            [NGL_LOG_VERBOSE] = "\033[1;32m", // green (light)
+            [NGL_LOG_INFO]    = "\033[0m",    // no color
+            [NGL_LOG_WARNING] = "\033[1;33m", // yellow (light)
+            [NGL_LOG_ERROR]   = "\033[0;31m", // red
+        };
+        color_start = colors[level];
+        color_end = "\033[0m";
+    }
+#endif
+
+    printf("%s[%s] %s:%d %s: %s%s\n", color_start,
+           log_strs[level], filename, ln, fn, logline,
+           color_end);
 }
 
 static struct {
