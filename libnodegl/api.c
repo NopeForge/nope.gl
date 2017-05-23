@@ -233,5 +233,6 @@ int ngl_android_set_application_context(void *application_context)
 
 void *ngl_android_get_application_context(void)
 {
+    return NULL;
 }
 #endif
