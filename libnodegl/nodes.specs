@@ -112,11 +112,10 @@
         - [attributes, NodeList]
 
 - Quad:
-    constructors:
+    optional:
         - [corner, vec3]
         - [width, vec3]
         - [height, vec3]
-    optional:
         - [uv_corner, vec2]
         - [uv_width, vec2]
         - [uv_height, vec2]

@@ -31,9 +31,9 @@
 
 #define OFFSET(x) offsetof(struct shape, x)
 static const struct node_param quad_params[] = {
-    {"corner", PARAM_TYPE_VEC3, OFFSET(quad_corner), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"width",  PARAM_TYPE_VEC3, OFFSET(quad_width),  .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"height", PARAM_TYPE_VEC3, OFFSET(quad_height), .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"corner",    PARAM_TYPE_VEC3, OFFSET(quad_corner),    {.vec={-0.5f, -0.5f}}},
+    {"width",     PARAM_TYPE_VEC3, OFFSET(quad_width),     {.vec={ 1.0f,  0.0f}}},
+    {"height",    PARAM_TYPE_VEC3, OFFSET(quad_height),    {.vec={ 0.0f,  1.0f}}},
     {"uv_corner", PARAM_TYPE_VEC2, OFFSET(quad_uv_corner), {.vec={0.0f, 0.0f}}},
     {"uv_width",  PARAM_TYPE_VEC2, OFFSET(quad_uv_width),  {.vec={1.0f, 0.0f}}},
     {"uv_height", PARAM_TYPE_VEC2, OFFSET(quad_uv_height), {.vec={0.0f, 1.0f}}},
