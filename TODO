@@ -10,4 +10,3 @@
 - texture: support > 8bits per component textures
 - viewer/export: add advanced screenshot feature
 - viewer: support importing files in addition to modules
-- viewer: proper reloading of the whole dependency tree

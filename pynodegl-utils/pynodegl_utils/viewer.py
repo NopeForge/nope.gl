@@ -775,6 +775,7 @@ class _ScriptsManager(QtCore.QObject):
         self._builtin_open = __builtin__.open
         self._dirs_to_watch = set()
         self._files_to_watch = set()
+        self._modules_to_reload = set()
 
         self._event_handler = FileSystemEventHandler()
         self._event_handler.on_any_event = self._on_any_event
@@ -812,20 +813,22 @@ class _ScriptsManager(QtCore.QObject):
         self._files_to_watch.update([path])
 
     def _reload_unsafe(self, initial_import):
-        scripts = []
+
+        modules_to_reload = self._modules_to_reload.copy()
+        for i, module in enumerate(modules_to_reload):
+            reload(module)
 
         if initial_import:
             self._module = importlib.import_module(self._module_pkgname)
-        else:
-            self._module = reload(self._module)
-        self._queue_watch_path(self._module.__file__)
+            self._queue_watch_path(self._module.__file__)
 
+        scripts = []
         for module in pkgutil.iter_modules(self._module.__path__):
             module_finder, module_name, ispkg = module
             script = importlib.import_module('.' + module_name, self._module_pkgname)
-            self._queue_watch_path(script.__file__)
             if not initial_import:
                 reload(script)
+            self._queue_watch_path(script.__file__)
             scripts.append((module_name, script))
 
         self.scripts_changed.emit(scripts)
@@ -834,6 +837,7 @@ class _ScriptsManager(QtCore.QObject):
         ret = self._builtin_import(name, globals, locals, fromlist, level)
         if hasattr(ret, '__file__'):
             self._queue_watch_path(ret.__file__)
+            self._modules_to_reload.update([ret])
         return ret
 
     def _open_hook(self, name, mode="r", buffering=-1):
