@@ -49,6 +49,7 @@
         - [wrap_s, int]
         - [wrap_t, int]
         - [data_src, Node]
+        - [external_id, int]
 
 - Media:
     constructors:
