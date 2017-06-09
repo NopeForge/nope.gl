@@ -236,9 +236,13 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     if (ret < 0)
         return ret;
 
-    s->quad = ngl_node_create(NGL_NODE_QUAD, corner, width, height);
+    s->quad = ngl_node_create(NGL_NODE_QUAD);
     if (!s->quad)
         return -1;
+
+    ngl_node_param_set(s->quad, "corner", corner);
+    ngl_node_param_set(s->quad, "width", width);
+    ngl_node_param_set(s->quad, "height", height);
 
     s->shader = ngl_node_create(NGL_NODE_SHADER);
     if (!s->shader)
@@ -423,9 +427,13 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         static const float width[3]  = {  2.0,  0.0, 0.0 };
         static const float height[3] = {  0.0,  2.0, 0.0 };
 
-        s->quad = ngl_node_create(NGL_NODE_QUAD, corner, width, height);
+        s->quad = ngl_node_create(NGL_NODE_QUAD);
         if (!s->quad)
             return -1;
+
+        ngl_node_param_set(s->quad, "corner", corner);
+        ngl_node_param_set(s->quad, "width", width);
+        ngl_node_param_set(s->quad, "height", height);
 
         s->shader = ngl_node_create(NGL_NODE_SHADER);
         if (!s->shader)
