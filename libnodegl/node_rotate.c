@@ -32,7 +32,7 @@
 static const struct node_param rotate_params[] = {
     {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
     {"angle", PARAM_TYPE_DBL,  OFFSET(angle)},
-    {"axis",  PARAM_TYPE_VEC3, OFFSET(axis)},
+    {"axis",  PARAM_TYPE_VEC3, OFFSET(axis), {.vec={0.0, 0.0, 1.0}}},
     {"anchor", PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}}},
     {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
