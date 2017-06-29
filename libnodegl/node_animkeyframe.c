@@ -501,7 +501,7 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
     if (!b)
         return NULL;
 
-    ngli_bstr_print(b, "%s ", s->easing);
+    ngli_bstr_print(b, "%s @ t=%g ", s->easing, s->time);
     if (s->nb_args) {
         const struct node_param *easing_args_par = ngli_params_find(params, "easing_args");
         ngli_assert(easing_args_par);
