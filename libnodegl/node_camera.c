@@ -213,15 +213,15 @@ static void camera_uninit(struct ngl_node *node)
         free(s->pipe_buf);
 
 #if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+        struct ngl_ctx *ctx = node->ctx;
+        struct glcontext *glcontext = ctx->glcontext;
+        const struct glfunctions *gl = &glcontext->funcs;
 
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
-    ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
+        ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 
-    ngli_glDeleteRenderbuffers(gl, 1, &s->framebuffer_id);
-    ngli_glDeleteTextures(gl, 1, &s->texture_id);
+        ngli_glDeleteRenderbuffers(gl, 1, &s->framebuffer_id);
+        ngli_glDeleteTextures(gl, 1, &s->texture_id);
 #endif
     }
 }
