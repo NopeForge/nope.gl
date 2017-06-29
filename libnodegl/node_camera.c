@@ -209,7 +209,7 @@ static void camera_draw(struct ngl_node *node)
 static void camera_uninit(struct ngl_node *node)
 {
     struct camera *s = node->priv_data;
-    if (s->pipe_fd)
+    if (s->pipe_fd) {
         free(s->pipe_buf);
 
 #if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
@@ -223,6 +223,7 @@ static void camera_uninit(struct ngl_node *node)
     ngli_glDeleteRenderbuffers(gl, 1, &s->framebuffer_id);
     ngli_glDeleteTextures(gl, 1, &s->texture_id);
 #endif
+    }
 }
 
 const struct node_class ngli_camera_class = {
