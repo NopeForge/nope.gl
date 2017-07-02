@@ -296,7 +296,7 @@ char *ngl_node_dot(const struct ngl_node *node)
 
     ngli_bstr_print(b, "digraph G {\n"
                     "    bgcolor=\"#222222\";\n"
-                    "    edge [%s,color=\"#dddddd\",fontcolor=\"#dddddd\"];\n"
+                    "    edge [%s,color=\"#dddddd\",fontcolor=\"#dddddd\",arrowsize=0.7];\n"
                     "    node [style=filled,%s];\n",
                     font_settings, font_settings);
 
