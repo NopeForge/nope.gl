@@ -233,6 +233,7 @@ struct texture {
     GLint wrap_t;
     struct ngl_node *data_src;
     GLuint external_id;
+    GLenum access;
 
     NGLI_ALIGNED_MAT(coordinates_matrix);
     GLuint id;

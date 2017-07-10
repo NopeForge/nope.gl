@@ -45,6 +45,7 @@ static const struct node_param texture_params[] = {
     {"wrap_t", PARAM_TYPE_INT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=(const int[]){NGL_NODE_MEDIA, NGL_NODE_FPS, -1}},
     {"external_id", PARAM_TYPE_INT, OFFSET(external_id), {.i64=0}},
+    {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
     {NULL}
 };
 
