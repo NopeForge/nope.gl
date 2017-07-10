@@ -287,7 +287,7 @@ static inline %(func_ret)s ngli_%(func_name)s(%(wrapper_args_specs)s)
             break
 
     if cmds:
-        print('WARNING: function(s) not found:', ', '.join(cmds))
+        print('WARNING: function(s) not found: ' + ', '.join(cmds))
 
     glwrappers    += '\n#endif\n'
     glfunctions   += '};\n\n#endif\n'
