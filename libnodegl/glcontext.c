@@ -322,20 +322,32 @@ int ngli_glcontext_check_gl_error(struct glcontext *glcontext)
 {
     const struct glfunctions *gl = &glcontext->funcs;
 
-    static const char * const errors[] = {
-        [GL_INVALID_ENUM]                   = "GL_INVALID_ENUM",
-        [GL_INVALID_VALUE]                  = "GL_INVALID_VALUE",
-        [GL_INVALID_OPERATION]              = "GL_INVALID_OPERATION",
-        [GL_INVALID_FRAMEBUFFER_OPERATION ] = "GL_INVALID_FRAMEBUFFER_OPERATION",
-        [GL_OUT_OF_MEMORY]                  = "GL_OUT_OF_MEMORY",
-    };
     const GLenum error = ngli_glGetError(gl);
+    const char *errorstr = NULL;
 
     if (!error)
         return error;
 
-    if (error < NGLI_ARRAY_NB(errors) && errors[error])
-        LOG(ERROR, "GL error: %s", errors[error]);
+    switch (error) {
+    case GL_INVALID_ENUM:
+        errorstr = "GL_INVALID_ENUM";
+        break;
+    case GL_INVALID_VALUE:
+        errorstr = "GL_INVALID_VALUE";
+        break;
+    case GL_INVALID_OPERATION:
+        errorstr = "GL_INVALID_OPERATION";
+        break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION:
+        errorstr = "GL_INVALID_FRAMEBUFFER_OPERATION";
+        break;
+    case GL_OUT_OF_MEMORY:
+        errorstr = "GL_OUT_OF_MEMORY";
+        break;
+    }
+
+    if (errorstr)
+        LOG(ERROR, "GL error: %s", errorstr);
     else
         LOG(ERROR, "GL error: %04x", error);
 
