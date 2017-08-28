@@ -44,10 +44,6 @@ static const struct node_param triangle_params[] = {
 
 static int triangle_init(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
     struct shape *s = node->priv_data;
 
     s->nb_vertices = NB_VERTICES;
@@ -80,16 +76,14 @@ static int triangle_init(struct ngl_node *node)
         dst += NGLI_SHAPE_NORMALS_NB;
     }
 
-    NGLI_SHAPE_GENERATE_BUFFERS(gl, s);
-
     static const GLushort indices[] = { 0, 1, 2 };
     s->nb_indices = NGLI_ARRAY_NB(indices);
     s->indices = calloc(1, sizeof(indices));
     if (!s->indices)
         return -1;
-
     memcpy(s->indices, indices, sizeof(indices));
-    NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(gl, s);
+
+    ngli_shape_generate_buffers(node);
 
     s->draw_mode = GL_TRIANGLES;
     s->draw_type = GL_UNSIGNED_SHORT;

@@ -143,9 +143,6 @@ struct shapeprimitive {
     float normals[3];
 };
 
-#define NGLI_SHAPE_VERTICES_STRIDE(s) (8 * sizeof(*(s)->vertices))
-#define NGLI_SHAPE_VERTICES_SIZE(s) ((s)->nb_vertices * NGLI_SHAPE_VERTICES_STRIDE(s))
-
 #define NGLI_SHAPE_COORDS_NB        3
 #define NGLI_SHAPE_TEXCOORDS_NB     2
 #define NGLI_SHAPE_NORMALS_NB       3
@@ -153,38 +150,8 @@ struct shapeprimitive {
 #define NGLI_SHAPE_TEXCOORDS_OFFSET 3
 #define NGLI_SHAPE_NORMALS_OFFSET   5
 
-#define NGLI_SHAPE_GENERATE_BUFFERS(gl, s) do {                                                                   \
-    size_t vertices_size  = NGLI_SHAPE_VERTICES_SIZE(s);                                                          \
-                                                                                                                  \
-    ngli_glGenBuffers(gl, 1, &s->vertices_buffer_id);                                                             \
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, (s)->vertices_buffer_id);                                              \
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, vertices_size, (s)->vertices, GL_STATIC_DRAW);                         \
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);                                                                    \
-                                                                                                                  \
-    GLfloat *texcoords = (s)->vertices + NGLI_SHAPE_TEXCOORDS_OFFSET;                                             \
-    size_t texcoords_size = vertices_size - NGLI_SHAPE_TEXCOORDS_OFFSET * sizeof(*(s)->vertices);                 \
-                                                                                                                  \
-    ngli_glGenBuffers(gl, 1, &(s)->texcoords_buffer_id);                                                          \
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, (s)->texcoords_buffer_id);                                             \
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, texcoords_size, texcoords, GL_STATIC_DRAW);                            \
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);                                                                    \
-                                                                                                                  \
-    GLfloat *normals = (s)->vertices + NGLI_SHAPE_NORMALS_OFFSET;                                                 \
-    size_t normals_size = vertices_size - NGLI_SHAPE_NORMALS_OFFSET * sizeof(*s->vertices);                       \
-                                                                                                                  \
-    ngli_glGenBuffers(gl, 1, &s->normals_buffer_id);                                                              \
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, (s)->normals_buffer_id);                                               \
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, normals_size, normals, GL_STATIC_DRAW);                                \
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);                                                                    \
-} while (0)                                                                                                       \
-
-#define NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(gl, s) do {                                                           \
-    ngli_glGenBuffers(gl, 1, &(s)->indices_buffer_id);                                                            \
-    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, (s)->indices_buffer_id);                                       \
-    ngli_glBufferData(gl, GL_ELEMENT_ARRAY_BUFFER,                                                                \
-                     (s)->nb_indices * sizeof(*(s)->indices), (s)->indices, GL_STATIC_DRAW);                      \
-    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, 0);                                                            \
-} while (0)                                                                                                       \
+#define NGLI_SHAPE_VERTICES_STRIDE(s) ((NGLI_SHAPE_COORDS_NB + NGLI_SHAPE_TEXCOORDS_NB + NGLI_SHAPE_NORMALS_NB) * sizeof(*(s)->vertices))
+#define NGLI_SHAPE_VERTICES_SIZE(s) ((s)->nb_vertices * NGLI_SHAPE_VERTICES_STRIDE(s))
 
 struct shape {
     /* quad params */
@@ -217,6 +184,8 @@ struct shape {
     GLenum draw_mode;
     GLenum draw_type;
 };
+
+void ngli_shape_generate_buffers(struct ngl_node *node);
 
 struct uniform {
     const char *name;

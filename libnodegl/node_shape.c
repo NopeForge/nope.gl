@@ -28,6 +28,38 @@
 #include "nodes.h"
 #include "utils.h"
 
+#define GENERATE_BUFFER(name) do {                                             \
+    ngli_glGenBuffers(gl, 1, &s->name##_buffer_id);                            \
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->name##_buffer_id);               \
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, name##_size, name, GL_STATIC_DRAW); \
+} while (0)
+
+void ngli_shape_generate_buffers(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    struct shape *s = node->priv_data;
+
+    const GLfloat *vertices  = s->vertices;
+    const GLfloat *texcoords = s->vertices + NGLI_SHAPE_TEXCOORDS_OFFSET;
+    const GLfloat *normals   = s->vertices + NGLI_SHAPE_NORMALS_OFFSET;
+    const GLushort *indices  = s->indices;
+
+    size_t vertices_size  = NGLI_SHAPE_VERTICES_SIZE(s);
+    size_t texcoords_size = vertices_size - NGLI_SHAPE_TEXCOORDS_OFFSET * sizeof(*s->vertices);
+    size_t normals_size   = vertices_size - NGLI_SHAPE_NORMALS_OFFSET * sizeof(*s->vertices);
+    size_t indices_size   = s->nb_indices * sizeof(*s->indices);
+
+    GENERATE_BUFFER(vertices);
+    GENERATE_BUFFER(texcoords);
+    GENERATE_BUFFER(normals);
+    GENERATE_BUFFER(indices);
+
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
 #define OFFSET(x) offsetof(struct shape, x)
 static const struct node_param shape_params[] = {
     {"primitives", PARAM_TYPE_NODELIST, OFFSET(primitives), .node_types=(const int[]){NGL_NODE_SHAPEPRIMITIVE, -1}},
@@ -38,10 +70,6 @@ static const struct node_param shape_params[] = {
 
 static int shape_init(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
     struct shape *s = node->priv_data;
 
     s->nb_vertices = s->nb_primitives;
@@ -61,8 +89,6 @@ static int shape_init(struct ngl_node *node)
         p += NGLI_ARRAY_NB(primitive->normals);
     }
 
-    NGLI_SHAPE_GENERATE_BUFFERS(gl, s);
-
     s->nb_indices = s->nb_primitives;
     s->indices = calloc(s->nb_primitives, sizeof(*s->indices));
     if (!s->indices)
@@ -72,7 +98,7 @@ static int shape_init(struct ngl_node *node)
         s->indices[i] = i;
     }
 
-    NGLI_SHAPE_GENERATE_ELEMENT_BUFFERS(gl, s);
+    ngli_shape_generate_buffers(node);
 
     return 0;
 }
