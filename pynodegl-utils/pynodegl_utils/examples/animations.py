@@ -1,5 +1,8 @@
+import array
+
 from pynodegl import Shader, Render, Group, UniformVec4
-from pynodegl import Shape, ShapePrimitive
+from pynodegl import Shape
+from pynodegl import BufferVec3
 from pynodegl import AnimationScalar, AnimKeyFrameScalar
 
 from pynodegl_utils.misc import scene
@@ -61,12 +64,13 @@ def _get_func(name, flags=0):
             anim = AnimationScalar([AnimKeyFrameScalar(-1,-1),
                                     AnimKeyFrameScalar( 1, 1, interp)])
 
-            vertices = []
+            vertices_data = array.array('f')
             for i in range(nb_points + 1):
                 x = (i/float(nb_points) * 2 - 1)
                 y = anim.evaluate(x * 1/zoom) * zoom
-                vertices.append(ShapePrimitive((x, y, 0)))
+                vertices_data.extend([x, y, 0])
 
+            vertices = BufferVec3(data=vertices_data)
             shape = Shape(vertices, draw_mode=GL.GL_LINE_STRIP)
             render = Render(shape, shader)
             render.update_uniforms(color=UniformVec4(_colors[idx]))

@@ -1,6 +1,8 @@
+import array
 import math
 
-from pynodegl import Render, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, Group, GLStencilState, GLState, Scale, Rotate, GLColorState, UniformScalar
+from pynodegl import Render, Quad, Triangle, Shape, Texture, Media, Shader, Group, GLStencilState, GLState, Scale, Rotate, GLColorState, UniformScalar
+from pynodegl import BufferVec2, BufferVec3
 from pynodegl import AnimationScalar, AnimKeyFrameScalar
 from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
@@ -148,13 +150,18 @@ def centered_masked_media(cfg):
 def centered_shape_media(cfg, n=0.9, k=5):
     cfg.duration = cfg.medias[0].duration
 
-    sp = []
+    vertices_data = array.array('f')
+    texcoords_data = array.array('f')
     for i in range(k):
         angle = i * 2 * math.pi / k
         x, y = math.sin(angle) * n, math.cos(angle) * n
-        sp.append(ShapePrimitive((x, y, 0), ((x+1)/2, (1-y)/2)))
+        vertices_data.extend([x, y, 0])
+        texcoords_data.extend([(x+1)/2, (1-y)/2])
 
-    q = Shape(sp)
+    vertices = BufferVec3(data=vertices_data)
+    texcoords = BufferVec2(data=texcoords_data)
+
+    q = Shape(vertices, texcoords)
     q.set_draw_mode(GL.GL_TRIANGLE_FAN)
 
     m = Media(cfg.medias[0].filename)

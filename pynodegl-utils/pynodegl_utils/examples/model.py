@@ -1,4 +1,7 @@
-from pynodegl import Render, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, GLState, Camera, Rotate
+import array
+
+from pynodegl import Render, Quad, Triangle, Shape, Texture, Media, Shader, GLState, Camera, Rotate
+from pynodegl import BufferVec2, BufferVec3
 from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
@@ -75,9 +78,9 @@ def load_model(fp):
     uv_indices = []
     normal_indices = []
 
-    indexed_vertices = []
-    indexed_uvs = []
-    indexed_normals = []
+    indexed_vertices = array.array('f')
+    indexed_uvs = array.array('f')
+    indexed_normals = array.array('f')
 
     while True:
         line = fp.readline()
@@ -117,9 +120,9 @@ def load_model(fp):
         uv = uvs[uv_index - 1]
         normal = normals[normal_index - 1]
 
-        indexed_vertices.append(vertex)
-        indexed_uvs.append(uv)
-        indexed_normals.append(normal)
+        indexed_vertices.extend(vertex)
+        indexed_uvs.extend(uv)
+        indexed_normals.extend(normal)
 
     return indexed_vertices, indexed_uvs, indexed_normals
 
@@ -146,19 +149,13 @@ def centered_model_media(cfg, n=0.5, model=None):
             vertices, uvs, normals = load_model(fp)
     except:
         import StringIO
-        vertices, uvs, normals = load_model(StringIO.StringIO(default_model))
+        vertices_data, uvs_data, normals_data = load_model(StringIO.StringIO(default_model))
 
-    primitives = []
-    for i, vertex in enumerate(vertices):
-        uv = uvs[i]
-        normal = normals[i]
-        primitives.append(ShapePrimitive((
-            vertex[0], vertex[1], vertex[2]),
-            (uv[0], uv[1]),
-            (normal[0], normal[1], normal[2]),
-        ))
+    vertices = BufferVec3(data=vertices_data)
+    texcoords = BufferVec2(data=uvs_data)
+    normals = BufferVec3(data=normals_data)
 
-    q = Shape(primitives)
+    q = Shape(vertices, texcoords, normals)
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader(fragment_data=fragment_data)

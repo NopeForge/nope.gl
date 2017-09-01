@@ -233,10 +233,13 @@
         - [fragment_data, string]
 
 - Shape:
+    constructors:
+        - [vertices, Node]
     optional:
-        - [primitives, NodeList]
+        - [texcoords, Node]
+        - [normals, Node]
+        - [indices, Node]
         - [draw_mode, int]
-        - [draw_type, int]
 
 - ShapePrimitive:
     constructors:

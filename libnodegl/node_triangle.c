@@ -46,67 +46,65 @@ static int triangle_init(struct ngl_node *node)
 {
     struct shape *s = node->priv_data;
 
-    s->nb_vertices = NB_VERTICES;
-    s->vertices = calloc(1, NGLI_SHAPE_VERTICES_SIZE(s));
-    if (!s->vertices)
+    s->vertices_buffer = ngli_shape_generate_buffer(node->ctx,
+                                                    NGL_NODE_BUFFERVEC3,
+                                                    NB_VERTICES,
+                                                    sizeof(s->triangle_edges),
+                                                    s->triangle_edges);
+    if (!s->vertices_buffer)
         return -1;
 
-    float a[3];
-    float b[3];
-    float normal[3];
-    ngli_vec3_sub(a, s->triangle_edges + 1 * NGLI_SHAPE_COORDS_NB, s->triangle_edges);
-    ngli_vec3_sub(b, s->triangle_edges + 2 * NGLI_SHAPE_COORDS_NB, s->triangle_edges);
-    ngli_vec3_cross(normal, a, b);
-    ngli_vec3_norm(normal, normal);
-
-    float *dst = s->vertices;
-    const float *y = s->triangle_edges;
-    const float *uv = s->triangle_uvs;
-
-    for (int i = 0; i < NB_VERTICES; i++) {
-        memcpy(dst, y, sizeof(*s->vertices) * NGLI_SHAPE_COORDS_NB);
-        y   += NGLI_SHAPE_COORDS_NB;
-        dst += NGLI_SHAPE_COORDS_NB;
-
-        memcpy(dst, uv, sizeof(*s->vertices) * NGLI_SHAPE_TEXCOORDS_NB);
-        uv  += NGLI_SHAPE_TEXCOORDS_NB;
-        dst += NGLI_SHAPE_TEXCOORDS_NB;
-
-        memcpy(dst, normal, sizeof(normal));
-        dst += NGLI_SHAPE_NORMALS_NB;
-    }
-
-    static const GLushort indices[] = { 0, 1, 2 };
-    s->indice_size = sizeof(*indices);
-    s->nb_indices = NGLI_ARRAY_NB(indices);
-    s->indices = calloc(1, sizeof(indices));
-    if (!s->indices)
+    s->texcoords_buffer = ngli_shape_generate_buffer(node->ctx,
+                                                     NGL_NODE_BUFFERVEC2,
+                                                     NB_VERTICES,
+                                                     sizeof(s->triangle_uvs),
+                                                     s->triangle_uvs);
+    if (!s->texcoords_buffer)
         return -1;
-    memcpy(s->indices, indices, sizeof(indices));
 
-    ngli_shape_generate_buffers(node);
+    float normals[3 * NB_VERTICES];
+    ngli_vec3_normalvec(normals,
+                        s->triangle_edges,
+                        s->triangle_edges + 3,
+                        s->triangle_edges + 6);
+
+    for (int i = 1; i < NB_VERTICES; i++)
+        memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
+
+    s->normals_buffer = ngli_shape_generate_buffer(node->ctx,
+                                                   NGL_NODE_BUFFERVEC3,
+                                                   NB_VERTICES,
+                                                   sizeof(normals),
+                                                   normals);
+    if (!s->normals_buffer)
+        return -1;
+
+    s->indices_buffer = ngli_shape_generate_indices_buffer(node->ctx,
+                                                           NB_VERTICES);
+    if (!s->indices_buffer)
+        return -1;
 
     s->draw_mode = GL_TRIANGLES;
-    s->draw_type = GL_UNSIGNED_SHORT;
+    s->draw_type = GL_UNSIGNED_INT;
 
     return 0;
 }
 
+#define NODE_UNREFP(node) do {                    \
+    if (node) {                                   \
+        ngli_node_detach_ctx(node);               \
+        ngl_node_unrefp(&node);                   \
+    }                                             \
+} while (0)
+
 static void triangle_uninit(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
     struct shape *s = node->priv_data;
 
-    ngli_glDeleteBuffers(gl, 1, &s->vertices_buffer_id);
-    ngli_glDeleteBuffers(gl, 1, &s->texcoords_buffer_id);
-    ngli_glDeleteBuffers(gl, 1, &s->normals_buffer_id);
-    ngli_glDeleteBuffers(gl, 1, &s->indices_buffer_id);
-
-    free(s->vertices);
-    free(s->indices);
+    NODE_UNREFP(s->vertices_buffer);
+    NODE_UNREFP(s->texcoords_buffer);
+    NODE_UNREFP(s->normals_buffer);
+    NODE_UNREFP(s->indices_buffer);
 }
 
 const struct node_class ngli_triangle_class = {

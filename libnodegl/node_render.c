@@ -153,26 +153,35 @@ static int update_vertex_attribs(struct ngl_node *node)
     struct shape *shape = s->shape->priv_data;
     struct shader *shader = s->shader->priv_data;
 
-    int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
-    for (int i = 0; i < nb_textures; i++)  {
-        struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
-        if (textureshaderinfo->coordinates_id >= 0) {
-            ngli_glEnableVertexAttribArray(gl, textureshaderinfo->coordinates_id);
-            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, shape->texcoords_buffer_id);
-            ngli_glVertexAttribPointer(gl, textureshaderinfo->coordinates_id, 2, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
+    if (shape->texcoords_buffer) {
+        struct buffer *buffer = shape->texcoords_buffer->priv_data;
+        int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
+        for (int i = 0; i < nb_textures; i++)  {
+            struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
+            if (textureshaderinfo->coordinates_id >= 0) {
+                ngli_glEnableVertexAttribArray(gl, textureshaderinfo->coordinates_id);
+                ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
+                ngli_glVertexAttribPointer(gl, textureshaderinfo->coordinates_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+            }
         }
     }
 
-    if (shader->position_location_id >= 0) {
-        ngli_glEnableVertexAttribArray(gl, shader->position_location_id);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, shape->vertices_buffer_id);
-        ngli_glVertexAttribPointer(gl, shader->position_location_id, 3, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
+    if (shape->vertices_buffer) {
+        struct buffer *buffer = shape->vertices_buffer->priv_data;
+        if (shader->position_location_id >= 0) {
+            ngli_glEnableVertexAttribArray(gl, shader->position_location_id);
+            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
+            ngli_glVertexAttribPointer(gl, shader->position_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+        }
     }
 
-    if (shader->normal_location_id >= 0) {
-        ngli_glEnableVertexAttribArray(gl, shader->normal_location_id);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, shape->normals_buffer_id);
-        ngli_glVertexAttribPointer(gl, shader->normal_location_id, 3, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
+    if (shape->normals_buffer) {
+        struct buffer *buffer = shape->normals_buffer->priv_data;
+        if (shader->normal_location_id >= 0) {
+            ngli_glEnableVertexAttribArray(gl, shader->normal_location_id);
+            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
+            ngli_glVertexAttribPointer(gl, shader->normal_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+        }
     }
 
     if (s->attributes) {
@@ -234,6 +243,7 @@ static int render_init(struct ngl_node *node)
     int nb_attributes = s->attributes ? ngli_hmap_count(s->attributes) : 0;
     if (nb_attributes > 0) {
         struct shape *shape = s->shape->priv_data;
+        struct buffer *vertices = shape->vertices_buffer->priv_data;
         s->attribute_ids = calloc(nb_attributes, sizeof(*s->attribute_ids));
         if (!s->attribute_ids)
             return -1;
@@ -246,12 +256,12 @@ static int render_init(struct ngl_node *node)
             if (ret < 0)
                 return ret;
             struct buffer *buffer = anode->priv_data;
-            if (buffer->count != shape->nb_vertices) {
+            if (buffer->count != vertices->count) {
                 LOG(ERROR,
                     "attribute buffer %s count (%d) does not match vertices count (%d)",
                     entry->key,
                     buffer->count,
-                    shape->nb_vertices);
+                    vertices->count);
                 return -1;
             }
             s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, entry->key);
@@ -352,9 +362,8 @@ static void render_draw(struct ngl_node *node)
     const struct glfunctions *gl = &glcontext->funcs;
 
     struct render *s = node->priv_data;
-    const struct shader *shader = s->shader->priv_data;
-    const struct shape *shape = s->shape->priv_data;
 
+    const struct shader *shader = s->shader->priv_data;
     ngli_glUseProgram(gl, shader->program_id);
 
     if (glcontext->has_vao_compatibility) {
@@ -367,8 +376,11 @@ static void render_draw(struct ngl_node *node)
         update_vertex_attribs(node);
     }
 
-    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, shape->indices_buffer_id);
-    ngli_glDrawElements(gl, shape->draw_mode, shape->nb_indices, shape->draw_type, 0);
+    const struct shape *shape = s->shape->priv_data;
+    const struct buffer *indices_buffer = shape->indices_buffer->priv_data;
+
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_buffer->buffer_id);
+    ngli_glDrawElements(gl, shape->draw_mode, indices_buffer->count, shape->draw_type, 0);
 }
 
 const struct node_class ngli_render_class = {

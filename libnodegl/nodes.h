@@ -142,16 +142,6 @@ struct shapeprimitive {
     float normals[3];
 };
 
-#define NGLI_SHAPE_COORDS_NB        3
-#define NGLI_SHAPE_TEXCOORDS_NB     2
-#define NGLI_SHAPE_NORMALS_NB       3
-
-#define NGLI_SHAPE_TEXCOORDS_OFFSET 3
-#define NGLI_SHAPE_NORMALS_OFFSET   5
-
-#define NGLI_SHAPE_VERTICES_STRIDE(s) ((NGLI_SHAPE_COORDS_NB + NGLI_SHAPE_TEXCOORDS_NB + NGLI_SHAPE_NORMALS_NB) * sizeof(*(s)->vertices))
-#define NGLI_SHAPE_VERTICES_SIZE(s) ((s)->nb_vertices * NGLI_SHAPE_VERTICES_STRIDE(s))
-
 struct shape {
     /* quad params */
     float quad_corner[3];
@@ -167,25 +157,17 @@ struct shape {
     float triangle_uvs[6];
 
     /* shape params */
-    struct ngl_node **primitives;
-    int nb_primitives;
-
-    GLfloat *vertices;
-    int nb_vertices;
-    GLuint vertices_buffer_id;
-    GLuint texcoords_buffer_id;
-    GLuint normals_buffer_id;
-
-    int indice_size;
-    uint8_t *indices;
-    int nb_indices;
-    GLuint indices_buffer_id;
+    struct ngl_node *vertices_buffer;
+    struct ngl_node *texcoords_buffer;
+    struct ngl_node *normals_buffer;
+    struct ngl_node *indices_buffer;
 
     GLenum draw_mode;
     GLenum draw_type;
 };
 
-void ngli_shape_generate_buffers(struct ngl_node *node);
+struct ngl_node *ngli_shape_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data);
+struct ngl_node *ngli_shape_generate_indices_buffer(struct ngl_ctx *ctx, int count);
 
 struct buffer {
     int count;

@@ -22,55 +22,67 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 
-#define SET_INDICES(type) do {                                                 \
-    type *indices = (type *)s->indices;                                        \
-    for (int i = 0; i < s->nb_indices; i++) {                                  \
+#define SET_INDICES(type, count, data) do {                                    \
+    type *indices = (type *)(data);                                            \
+    for (int i = 0; i < (count); i++) {                                        \
         indices[i] = i;                                                        \
     }                                                                          \
 } while (0)
 
-#define GENERATE_BUFFER(name) do {                                             \
-    ngli_glGenBuffers(gl, 1, &s->name##_buffer_id);                            \
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->name##_buffer_id);               \
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, name##_size, name, GL_STATIC_DRAW); \
-} while (0)
-
-void ngli_shape_generate_buffers(struct ngl_node *node)
+struct ngl_node *ngli_shape_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct ngl_node *node = ngl_node_create(type, count);
+    if (!node)
+        return NULL;
 
-    struct shape *s = node->priv_data;
+    if (data)
+        ngl_node_param_set(node, "data", size, data);
 
-    const GLfloat *vertices  = s->vertices;
-    const GLfloat *texcoords = s->vertices + NGLI_SHAPE_TEXCOORDS_OFFSET;
-    const GLfloat *normals   = s->vertices + NGLI_SHAPE_NORMALS_OFFSET;
-    const uint8_t *indices   = s->indices;
+    int ret = ngli_node_attach_ctx(node, ctx);
+    if (ret < 0)
+        goto fail;
 
-    size_t vertices_size  = NGLI_SHAPE_VERTICES_SIZE(s);
-    size_t texcoords_size = vertices_size - NGLI_SHAPE_TEXCOORDS_OFFSET * sizeof(*s->vertices);
-    size_t normals_size   = vertices_size - NGLI_SHAPE_NORMALS_OFFSET * sizeof(*s->vertices);
-    size_t indices_size   = s->nb_indices * s->indice_size;
+    ret = ngli_node_init(node);
+    if (ret < 0)
+        goto fail;
 
-    GENERATE_BUFFER(vertices);
-    GENERATE_BUFFER(texcoords);
-    GENERATE_BUFFER(normals);
-    GENERATE_BUFFER(indices);
+    return node;
+fail:
+    ngli_node_detach_ctx(node);
+    ngl_node_unrefp(&node);
+    return NULL;
+}
 
-    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, 0);
+struct ngl_node *ngli_shape_generate_indices_buffer(struct ngl_ctx *ctx, int count)
+{
+    int size = count * sizeof(GLuint);
+    uint8_t *data = calloc(count, sizeof(GLuint));
+    if (!data)
+        return NULL;
+
+    SET_INDICES(GLuint, count, data);
+
+    struct ngl_node *node = ngli_shape_generate_buffer(ctx,
+                                                       NGL_NODE_BUFFERUINT,
+                                                       count,
+                                                       size,
+                                                       data);
+    free(data);
+    return node;
 }
 
 #define OFFSET(x) offsetof(struct shape, x)
 static const struct node_param shape_params[] = {
-    {"primitives", PARAM_TYPE_NODELIST, OFFSET(primitives),
-                   .node_types=(const int[]){NGL_NODE_SHAPEPRIMITIVE, -1},
-                   .flags=PARAM_FLAG_DOT_DISPLAY_PACKED},
+    {"vertices",  PARAM_TYPE_NODE, OFFSET(vertices_buffer),  .node_types=(const int[]){NGL_NODE_BUFFERVEC3, -1}, .flags=PARAM_FLAG_CONSTRUCTOR | PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
+    {"texcoords", PARAM_TYPE_NODE, OFFSET(texcoords_buffer), .node_types=(const int[]){NGL_NODE_BUFFERVEC2, -1}, .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
+    {"normals",   PARAM_TYPE_NODE, OFFSET(normals_buffer),   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, -1}, .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
+    {"indices",   PARAM_TYPE_NODE, OFFSET(indices_buffer),   .node_types=(const int[]){NGL_NODE_BUFFERUINT, -1}, .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
     {"draw_mode", PARAM_TYPE_INT, OFFSET(draw_mode), {.i64=GL_TRIANGLES}},
-    {"draw_type", PARAM_TYPE_INT, OFFSET(draw_type), {.i64=GL_UNSIGNED_SHORT}},
     {NULL}
 };
 
@@ -78,71 +90,62 @@ static int shape_init(struct ngl_node *node)
 {
     struct shape *s = node->priv_data;
 
-    s->nb_vertices = s->nb_primitives;
-    s->vertices = calloc(s->nb_vertices, NGLI_SHAPE_VERTICES_STRIDE(s));
-    if (!s->vertices)
-        return -1;
+    int ret = ngli_node_init(s->vertices_buffer);
+    if (ret < 0)
+        return ret;
 
-    GLfloat *p = s->vertices;
-    for (int i = 0; i < s->nb_vertices; i++) {
-        const struct shapeprimitive *primitive = s->primitives[i]->priv_data;
+    struct buffer *vertices = s->vertices_buffer->priv_data;
 
-        memcpy(p, primitive->coordinates, sizeof(primitive->coordinates));
-        p += NGLI_ARRAY_NB(primitive->coordinates);
-        memcpy(p, primitive->texture_coordinates, sizeof(primitive->texture_coordinates));
-        p += NGLI_ARRAY_NB(primitive->texture_coordinates);
-        memcpy(p, primitive->normals, sizeof(primitive->normals));
-        p += NGLI_ARRAY_NB(primitive->normals);
+    if (s->texcoords_buffer) {
+        int ret = ngli_node_init(s->texcoords_buffer);
+        if (ret < 0)
+            return ret;
+
+        struct buffer *b = s->texcoords_buffer->priv_data;
+        if (b->count != vertices->count) {
+            LOG(ERROR,
+                "texcoords count (%d) does not match vertices count (%d)",
+                b->count,
+                vertices->count);
+            return -1;
+        }
     }
 
-    switch(s->draw_type) {
-    case GL_UNSIGNED_BYTE:  s->indice_size = sizeof(GLubyte);  break;
-    case GL_UNSIGNED_SHORT: s->indice_size = sizeof(GLushort); break;
-    case GL_UNSIGNED_INT:   s->indice_size = sizeof(GLuint);   break;
-    default:
-        ngli_assert(0);
+    if (s->normals_buffer) {
+        int ret = ngli_node_init(s->normals_buffer);
+        if (ret < 0)
+            return ret;
+
+        struct buffer *b = s->normals_buffer->priv_data;
+        if (b->count != vertices->count) {
+            LOG(ERROR,
+                "normals count (%d) does not match vertices count (%d)",
+                b->count,
+                vertices->count);
+            return -1;
+        }
     }
 
-    s->nb_indices = s->nb_primitives;
-    s->indices = calloc(s->nb_indices, s->indice_size);
-    if (!s->indices)
-        return -1;
-
-    switch(s->draw_type) {
-    case GL_UNSIGNED_BYTE:  SET_INDICES(GLubyte);  break;
-    case GL_UNSIGNED_SHORT: SET_INDICES(GLushort); break;
-    case GL_UNSIGNED_INT:   SET_INDICES(GLuint);   break;
-    default:
-        ngli_assert(0);
+    if (s->indices_buffer) {
+        int ret = ngli_node_init(s->indices_buffer);
+        if (ret < 0)
+            return ret;
+    } else {
+        s->indices_buffer = ngli_shape_generate_indices_buffer(node->ctx,
+                                                               vertices->count);
+        if (!s->indices_buffer)
+            return -1;
     }
 
-    ngli_shape_generate_buffers(node);
+    s->draw_type = GL_UNSIGNED_INT;
 
     return 0;
-}
-
-static void shape_uninit(struct ngl_node *node)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
-    struct shape *s = node->priv_data;
-
-    ngli_glDeleteBuffers(gl, 1, &s->vertices_buffer_id);
-    ngli_glDeleteBuffers(gl, 1, &s->texcoords_buffer_id);
-    ngli_glDeleteBuffers(gl, 1, &s->normals_buffer_id);
-    ngli_glDeleteBuffers(gl, 1, &s->indices_buffer_id);
-
-    free(s->vertices);
-    free(s->indices);
 }
 
 const struct node_class ngli_shape_class = {
     .id        = NGL_NODE_SHAPE,
     .name      = "Shape",
     .init      = shape_init,
-    .uninit    = shape_uninit,
     .priv_size = sizeof(struct shape),
     .params    = shape_params,
 };
