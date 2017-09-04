@@ -56,9 +56,6 @@ void ngl_log_set_min_level(int level);
 struct ngl_node;
 
 enum {
-    NGL_NODE_ATTRIBUTEVEC2,
-    NGL_NODE_ATTRIBUTEVEC3,
-    NGL_NODE_ATTRIBUTEVEC4,
     NGL_NODE_CAMERA,
     NGL_NODE_TEXTURE,
     NGL_NODE_MEDIA,

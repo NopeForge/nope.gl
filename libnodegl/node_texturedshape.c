@@ -39,10 +39,7 @@
                                           NGL_NODE_UNIFORMMAT4,    \
                                           -1}
 
-#define ATTRIBUTES_TYPES_LIST (const int[]){NGL_NODE_ATTRIBUTEVEC2, \
-                                            NGL_NODE_ATTRIBUTEVEC3, \
-                                            NGL_NODE_ATTRIBUTEVEC4, \
-                                            -1}
+#define ATTRIBUTES_TYPES_LIST (const int[]){-1}
 
 #define OFFSET(x) offsetof(struct texturedshape, x)
 static const struct node_param texturedshape_params[] = {

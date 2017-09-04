@@ -33,9 +33,6 @@
 #include "params.h"
 #include "utils.h"
 
-extern const struct node_class ngli_attributevec2_class;
-extern const struct node_class ngli_attributevec3_class;
-extern const struct node_class ngli_attributevec4_class;
 extern const struct node_class ngli_camera_class;
 extern const struct node_class ngli_texture_class;
 extern const struct node_class ngli_glstate_class;
@@ -71,9 +68,6 @@ extern const struct node_class ngli_uniformmat4_class;
 extern const struct node_class ngli_fps_class;
 
 static const struct node_class *node_class_map[] = {
-    [NGL_NODE_ATTRIBUTEVEC2]         = &ngli_attributevec2_class,
-    [NGL_NODE_ATTRIBUTEVEC3]         = &ngli_attributevec3_class,
-    [NGL_NODE_ATTRIBUTEVEC4]         = &ngli_attributevec4_class,
     [NGL_NODE_CAMERA]                = &ngli_camera_class,
     [NGL_NODE_TEXTURE]               = &ngli_texture_class,
     [NGL_NODE_MEDIA]                 = &ngli_media_class,

@@ -8,18 +8,6 @@
         - [ranges, NodeList]
         - [name, string]
 
-- AttributeVec2:
-    constructors:
-        - [id, string]
-
-- AttributeVec3:
-    constructors:
-        - [id, string]
-
-- AttributeVec4:
-    constructors:
-        - [id, string]
-
 - Camera:
     constructors:
         - [child, Node]

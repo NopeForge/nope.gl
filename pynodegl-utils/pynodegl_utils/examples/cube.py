@@ -3,7 +3,6 @@ from OpenGL import GL
 from pynodegl import TexturedShape, Quad, Texture, Media, Shader, Group
 from pynodegl import Rotate, AnimKeyFrameScalar, Camera
 from pynodegl import UniformVec3, RTT, GLState
-from pynodegl import AttributeVec2
 
 from pynodegl_utils.misc import scene
 

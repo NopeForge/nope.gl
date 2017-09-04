@@ -1,6 +1,6 @@
 from pynodegl import Quad, Texture, Shader, TexturedShape, Media, Camera, Group, GLState
 from pynodegl import Scale, Rotate, Translate, Identity
-from pynodegl import UniformVec4, UniformMat4, AttributeVec2
+from pynodegl import UniformVec4, UniformMat4
 from pynodegl import AnimKeyFrameScalar, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
