@@ -201,7 +201,19 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
                 glcontext->has_es2_compatibility = 1;
             } else if (!strcmp(extension, "GL_ARB_vertex_array_object")) {
                 glcontext->has_vao_compatibility = 1;
+            } else if (!strcmp(extension, "GL_ARB_compute_shader")) {
+                glcontext->has_cs_compatibility = 1;
+            } else if (!strcmp(extension, "GL_ARB_shader_storage_buffer_object")) {
+                glcontext->has_ssbo_compatibility = 1;
             }
+        }
+
+        if (glcontext->has_cs_compatibility) {
+            for (int i = 0; i < NGLI_ARRAY_NB(glcontext->max_compute_work_group_counts); i++)
+                ngli_glGetIntegeri_v(gl,
+                                     GL_MAX_COMPUTE_WORK_GROUP_COUNT,
+                                     i,
+                                     &glcontext->max_compute_work_group_counts[i]);
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
         const char *gl_extensions = (const char *)ngli_glGetString(gl, GL_EXTENSIONS);

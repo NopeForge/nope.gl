@@ -141,6 +141,21 @@
         - [radius, double]
         - [npoints, int]
 
+- Compute:
+    constructors:
+        - [nb_group_x, int]
+        - [nb_group_y, int]
+        - [nb_group_z, int]
+        - [program, Node]
+    optional:
+        - [textures, NodeDict]
+        - [uniforms, NodeDict]
+        - [buffers, NodeDict]
+
+- ComputeProgram:
+    constructors:
+        - [compute, string]
+
 - FPS:
     constructors:
         - [child, Node]

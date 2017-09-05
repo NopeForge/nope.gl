@@ -1,11 +1,22 @@
+import array
 import math
 import random
 
+from OpenGL import GL
+
 from pynodegl import (
+        AnimKeyFrameScalar,
         AnimKeyFrameVec3,
+        AnimationScalar,
         AnimationVec3,
+        BufferScalar,
+        BufferVec2,
+        BufferVec3,
         Camera,
         Circle,
+        Compute,
+        ComputeProgram,
+        Geometry,
         Group,
         Media,
         Program,
@@ -15,6 +26,7 @@ from pynodegl import (
         Texture,
         Translate,
         Triangle,
+        UniformScalar,
         UniformVec4,
 )
 
@@ -209,3 +221,141 @@ void main()
     render = Render(q, p)
     render.update_textures(tex0=audio_tex, tex1=video_tex)
     return render
+
+@scene({'name': 'particules', 'type': 'range', 'range': [1,1024]})
+def particules(cfg, particules=32):
+    compute_data = '''
+#version 430
+
+layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout (std430, binding = 0) buffer ipositions_buffer {
+    vec3 ipositions[];
+};
+
+layout (std430, binding = 1) buffer ivelocities_buffer {
+    vec2 ivelocities[];
+};
+
+layout (std430, binding = 2) buffer opositions_buffer {
+    vec3 opositions[];
+};
+
+uniform float time;
+uniform float duration;
+
+float bounceOut(float t)
+{
+    float c = 1.0;
+    float a = 1.70158;
+
+    if (t >= 1.0) {
+        return c;
+    } else if (t < 4.0 / 11.0) {
+        return c * (7.5625 * t * t);
+    } else if (t < 8.0 / 11.0) {
+        t -= 6.0 / 11.0;
+        return -a * (1.0 - (7.5625 * t * t + 0.75)) + c;
+    } else if (t < 10.0 / 11.0) {
+        t -= 9.0 / 11.0;
+        return -a * (1.0 - (7.5625 * t * t + 0.9375)) + c;
+    } else {
+        t -= (21.0 / 22.0);
+        return -a * (1.0 - (7.5625 * t * t + 0.984375)) + c;
+    }
+}
+
+float bounce(float t)
+{
+    return 1.0 - bounceOut(t);
+}
+
+void main(void)
+{
+    uint i = gl_GlobalInvocationID.x +
+             gl_GlobalInvocationID.y * 1024;
+
+    vec3 iposition = ipositions[i];
+    vec2 ivelocity = ivelocities[i];
+    float step = time * duration * 30;
+    vec2 velocity = ivelocity;
+    vec3 position = iposition;
+    float yoffset = 1.0 - iposition.y;
+    float speed = 1.0 + ivelocity.y;
+
+    position.x = iposition.x + step * velocity.x;
+    position.y = ((2.0 - yoffset) * bounce(time * speed * (1.0  + yoffset))) - 0.99;
+
+    opositions[i] = position;
+}
+'''
+
+    fragment_data = '''
+#version 100
+
+precision highp float;
+
+void main(void)
+{
+    gl_FragColor = vec4(0.0, 0.6, 0.8, 1.0);
+}'''
+
+    cfg.duration = 6
+
+    x = 1024
+    p = x * particules
+
+    positions = array.array('f')
+    velocities = array.array('f')
+
+    for i in range(p):
+        positions.extend([
+            random.uniform(-1.0, 1.0),
+            random.uniform(0.0, 1.0),
+            0.0,
+            0.0,
+        ])
+
+        velocities.extend([
+            random.uniform(-0.01, 0.01),
+            random.uniform(-0.05, 0.05),
+        ])
+
+    ipositions = BufferVec3()
+    ipositions.set_data(positions)
+    ipositions.set_stride(4 * 4)
+    ivelocities = BufferVec2()
+    ivelocities.set_data(velocities)
+
+    opositions = BufferVec3(p)
+    opositions.set_stride(4 * 4)
+
+    animkf = [AnimKeyFrameScalar(0, 0),
+              AnimKeyFrameScalar(cfg.duration, 1)]
+    utime = UniformScalar(anim=AnimationScalar(animkf))
+    uduration = UniformScalar(cfg.duration)
+
+    cp = ComputeProgram(compute_data)
+
+    c = Compute(1024, particules, 1, cp)
+    c.update_uniforms(
+        time=utime,
+        duration=uduration,
+    )
+    c.update_buffers(
+        ipositions_buffer=ipositions,
+        ivelocities_buffer=ivelocities,
+        opositions_buffer=opositions,
+    )
+
+    gm = Geometry(opositions)
+    gm.set_draw_mode(GL.GL_POINTS)
+
+    m = Media(cfg.medias[0].filename, initial_seek=5)
+    p = Program(fragment=fragment_data)
+    r = Render(gm, p)
+
+    g = Group()
+    g.add_children(c, r)
+
+    return Camera(g)

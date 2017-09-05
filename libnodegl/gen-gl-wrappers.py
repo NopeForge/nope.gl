@@ -28,10 +28,27 @@ cmds_optional = [
     # Framebuffer
     'glBlitFramebuffer',
 
+    # Texture
+    'glBindImageTexture',
+
     # Vertex Arrays
     'glBindVertexArray',
     'glDeleteVertexArrays',
     'glGenVertexArrays',
+
+    # Barrier
+    'glMemoryBarrier',
+
+    #  Buffers
+    'glBindBufferBase',
+
+    # Compute shaders
+    'glDispatchCompute',
+
+    # Shaders
+    'glGetProgramResourceLocation',
+    'glGetProgramResourceIndex',
+    'glGetProgramResourceiv',
 ]
 
 cmds = [
@@ -44,6 +61,7 @@ cmds = [
 
     # Get
     'glGetBooleanv',
+    'glGetIntegeri_v',
     'glGetIntegerv',
     'glGetString',
     'glGetStringi',

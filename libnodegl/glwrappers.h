@@ -56,10 +56,22 @@ static inline void ngli_glBindBuffer(const struct glfunctions *gl, GLenum target
     check_error_code(gl, "glBindBuffer");
 }
 
+static inline void ngli_glBindBufferBase(const struct glfunctions *gl, GLenum target, GLuint index, GLuint buffer)
+{
+    gl->BindBufferBase(target, index, buffer);
+    check_error_code(gl, "glBindBufferBase");
+}
+
 static inline void ngli_glBindFramebuffer(const struct glfunctions *gl, GLenum target, GLuint framebuffer)
 {
     gl->BindFramebuffer(target, framebuffer);
     check_error_code(gl, "glBindFramebuffer");
+}
+
+static inline void ngli_glBindImageTexture(const struct glfunctions *gl, GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format)
+{
+    gl->BindImageTexture(unit, texture, level, layered, layer, access, format);
+    check_error_code(gl, "glBindImageTexture");
 }
 
 static inline void ngli_glBindRenderbuffer(const struct glfunctions *gl, GLenum target, GLuint renderbuffer)
@@ -227,6 +239,12 @@ static inline void ngli_glDisable(const struct glfunctions *gl, GLenum cap)
     check_error_code(gl, "glDisable");
 }
 
+static inline void ngli_glDispatchCompute(const struct glfunctions *gl, GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+{
+    gl->DispatchCompute(num_groups_x, num_groups_y, num_groups_z);
+    check_error_code(gl, "glDispatchCompute");
+}
+
 static inline void ngli_glDrawElements(const struct glfunctions *gl, GLenum mode, GLsizei count, GLenum type, const void * indices)
 {
     gl->DrawElements(mode, count, type, indices);
@@ -319,6 +337,12 @@ static inline GLenum ngli_glGetError(const struct glfunctions *gl)
     return ret;
 }
 
+static inline void ngli_glGetIntegeri_v(const struct glfunctions *gl, GLenum target, GLuint index, GLint * data)
+{
+    gl->GetIntegeri_v(target, index, data);
+    check_error_code(gl, "glGetIntegeri_v");
+}
+
 static inline void ngli_glGetIntegerv(const struct glfunctions *gl, GLenum pname, GLint * data)
 {
     gl->GetIntegerv(pname, data);
@@ -329,6 +353,26 @@ static inline void ngli_glGetProgramInfoLog(const struct glfunctions *gl, GLuint
 {
     gl->GetProgramInfoLog(program, bufSize, length, infoLog);
     check_error_code(gl, "glGetProgramInfoLog");
+}
+
+static inline GLuint ngli_glGetProgramResourceIndex(const struct glfunctions *gl, GLuint program, GLenum programInterface, const GLchar * name)
+{
+    GLuint ret = gl->GetProgramResourceIndex(program, programInterface, name);
+    check_error_code(gl, "glGetProgramResourceIndex");
+    return ret;
+}
+
+static inline GLint ngli_glGetProgramResourceLocation(const struct glfunctions *gl, GLuint program, GLenum programInterface, const GLchar * name)
+{
+    GLint ret = gl->GetProgramResourceLocation(program, programInterface, name);
+    check_error_code(gl, "glGetProgramResourceLocation");
+    return ret;
+}
+
+static inline void ngli_glGetProgramResourceiv(const struct glfunctions *gl, GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum * props, GLsizei bufSize, GLsizei * length, GLint * params)
+{
+    gl->GetProgramResourceiv(program, programInterface, index, propCount, props, bufSize, length, params);
+    check_error_code(gl, "glGetProgramResourceiv");
 }
 
 static inline void ngli_glGetProgramiv(const struct glfunctions *gl, GLuint program, GLenum pname, GLint * params)
@@ -386,6 +430,12 @@ static inline void ngli_glLinkProgram(const struct glfunctions *gl, GLuint progr
 {
     gl->LinkProgram(program);
     check_error_code(gl, "glLinkProgram");
+}
+
+static inline void ngli_glMemoryBarrier(const struct glfunctions *gl, GLbitfield barriers)
+{
+    gl->MemoryBarrier(barriers);
+    check_error_code(gl, "glMemoryBarrier");
 }
 
 static inline void ngli_glReadPixels(const struct glfunctions *gl, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void * pixels)

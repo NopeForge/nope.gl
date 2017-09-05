@@ -41,7 +41,10 @@ struct glcontext {
     int minor_version;
     int has_es2_compatibility;
     int has_vao_compatibility;
+    int has_cs_compatibility;
+    int has_ssbo_compatibility;
     int max_texture_image_units;
+    int max_compute_work_group_counts[3];
 
     struct glfunctions funcs;
 };

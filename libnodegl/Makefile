@@ -66,6 +66,8 @@ LIB_OBJS = api.o                    \
            node_buffer.o            \
            node_camera.o            \
            node_circle.o            \
+           node_compute.o           \
+           node_computeprogram.o    \
            node_fps.o               \
            node_geometry.o          \
            node_glblendstate.o      \

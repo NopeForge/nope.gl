@@ -220,6 +220,12 @@ struct program {
     GLint normal_matrix_location_id;
 };
 
+struct computeprogram {
+    const char *compute;
+
+    GLuint program_id;
+};
+
 struct texture {
     GLenum target;
     GLint format;
@@ -274,6 +280,26 @@ struct render {
     GLint *attribute_ids;
 
     GLuint vao_id;
+};
+
+struct compute {
+    int nb_group_x;
+    int nb_group_y;
+    int nb_group_z;
+
+    struct ngl_node *program;
+
+    struct hmap *textures;
+    struct textureprograminfo *textureprograminfos;
+
+    struct hmap *uniforms;
+    GLint *uniform_ids;
+
+    struct hmap *attributes;
+    GLint *attribute_ids;
+
+    struct hmap *buffers;
+    GLint *buffer_ids;
 };
 
 struct media {

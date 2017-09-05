@@ -16,7 +16,9 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*AttachShader)(GLuint program, GLuint shader);
     NGLI_GL_APIENTRY void (*BindAttribLocation)(GLuint program, GLuint index, const GLchar * name);
     NGLI_GL_APIENTRY void (*BindBuffer)(GLenum target, GLuint buffer);
+    NGLI_GL_APIENTRY void (*BindBufferBase)(GLenum target, GLuint index, GLuint buffer);
     NGLI_GL_APIENTRY void (*BindFramebuffer)(GLenum target, GLuint framebuffer);
+    NGLI_GL_APIENTRY void (*BindImageTexture)(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
     NGLI_GL_APIENTRY void (*BindRenderbuffer)(GLenum target, GLuint renderbuffer);
     NGLI_GL_APIENTRY void (*BindTexture)(GLenum target, GLuint texture);
     NGLI_GL_APIENTRY void (*BindVertexArray)(GLuint array);
@@ -44,6 +46,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*DeleteVertexArrays)(GLsizei n, const GLuint * arrays);
     NGLI_GL_APIENTRY void (*DetachShader)(GLuint program, GLuint shader);
     NGLI_GL_APIENTRY void (*Disable)(GLenum cap);
+    NGLI_GL_APIENTRY void (*DispatchCompute)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
     NGLI_GL_APIENTRY void (*DrawElements)(GLenum mode, GLsizei count, GLenum type, const void * indices);
     NGLI_GL_APIENTRY void (*Enable)(GLenum cap);
     NGLI_GL_APIENTRY void (*EnableVertexAttribArray)(GLuint index);
@@ -59,8 +62,12 @@ struct glfunctions {
     NGLI_GL_APIENTRY GLint (*GetAttribLocation)(GLuint program, const GLchar * name);
     NGLI_GL_APIENTRY void (*GetBooleanv)(GLenum pname, GLboolean * data);
     NGLI_GL_APIENTRY GLenum (*GetError)();
+    NGLI_GL_APIENTRY void (*GetIntegeri_v)(GLenum target, GLuint index, GLint * data);
     NGLI_GL_APIENTRY void (*GetIntegerv)(GLenum pname, GLint * data);
     NGLI_GL_APIENTRY void (*GetProgramInfoLog)(GLuint program, GLsizei bufSize, GLsizei * length, GLchar * infoLog);
+    NGLI_GL_APIENTRY GLuint (*GetProgramResourceIndex)(GLuint program, GLenum programInterface, const GLchar * name);
+    NGLI_GL_APIENTRY GLint (*GetProgramResourceLocation)(GLuint program, GLenum programInterface, const GLchar * name);
+    NGLI_GL_APIENTRY void (*GetProgramResourceiv)(GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum * props, GLsizei bufSize, GLsizei * length, GLint * params);
     NGLI_GL_APIENTRY void (*GetProgramiv)(GLuint program, GLenum pname, GLint * params);
     NGLI_GL_APIENTRY void (*GetRenderbufferParameteriv)(GLenum target, GLenum pname, GLint * params);
     NGLI_GL_APIENTRY void (*GetShaderInfoLog)(GLuint shader, GLsizei bufSize, GLsizei * length, GLchar * infoLog);
@@ -70,6 +77,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY const GLubyte * (*GetStringi)(GLenum name, GLuint index);
     NGLI_GL_APIENTRY GLint (*GetUniformLocation)(GLuint program, const GLchar * name);
     NGLI_GL_APIENTRY void (*LinkProgram)(GLuint program);
+    NGLI_GL_APIENTRY void (*MemoryBarrier)(GLbitfield barriers);
     NGLI_GL_APIENTRY void (*ReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void * pixels);
     NGLI_GL_APIENTRY void (*ReleaseShaderCompiler)();
     NGLI_GL_APIENTRY void (*RenderbufferStorage)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
