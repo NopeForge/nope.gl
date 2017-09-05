@@ -24,6 +24,13 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+#define SET_INDICES(type) do {                                                 \
+    type *indices = (type *)s->indices;                                        \
+    for (int i = 0; i < s->nb_indices; i++) {                                  \
+        indices[i] = i;                                                        \
+    }                                                                          \
+} while (0)
+
 #define GENERATE_BUFFER(name) do {                                             \
     ngli_glGenBuffers(gl, 1, &s->name##_buffer_id);                            \
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->name##_buffer_id);               \
@@ -41,12 +48,12 @@ void ngli_shape_generate_buffers(struct ngl_node *node)
     const GLfloat *vertices  = s->vertices;
     const GLfloat *texcoords = s->vertices + NGLI_SHAPE_TEXCOORDS_OFFSET;
     const GLfloat *normals   = s->vertices + NGLI_SHAPE_NORMALS_OFFSET;
-    const GLushort *indices  = s->indices;
+    const uint8_t *indices   = s->indices;
 
     size_t vertices_size  = NGLI_SHAPE_VERTICES_SIZE(s);
     size_t texcoords_size = vertices_size - NGLI_SHAPE_TEXCOORDS_OFFSET * sizeof(*s->vertices);
     size_t normals_size   = vertices_size - NGLI_SHAPE_NORMALS_OFFSET * sizeof(*s->vertices);
-    size_t indices_size   = s->nb_indices * sizeof(*s->indices);
+    size_t indices_size   = s->nb_indices * s->indice_size;
 
     GENERATE_BUFFER(vertices);
     GENERATE_BUFFER(texcoords);
@@ -85,13 +92,25 @@ static int shape_init(struct ngl_node *node)
         p += NGLI_ARRAY_NB(primitive->normals);
     }
 
+    switch(s->draw_type) {
+    case GL_UNSIGNED_BYTE:  s->indice_size = sizeof(GLubyte);  break;
+    case GL_UNSIGNED_SHORT: s->indice_size = sizeof(GLushort); break;
+    case GL_UNSIGNED_INT:   s->indice_size = sizeof(GLuint);   break;
+    default:
+        ngli_assert(0);
+    }
+
     s->nb_indices = s->nb_primitives;
-    s->indices = calloc(s->nb_primitives, sizeof(*s->indices));
+    s->indices = calloc(s->nb_indices, s->indice_size);
     if (!s->indices)
         return -1;
 
-    for (int i = 0; i < s->nb_primitives; i++) {
-        s->indices[i] = i;
+    switch(s->draw_type) {
+    case GL_UNSIGNED_BYTE:  SET_INDICES(GLubyte);  break;
+    case GL_UNSIGNED_SHORT: SET_INDICES(GLushort); break;
+    case GL_UNSIGNED_INT:   SET_INDICES(GLuint);   break;
+    default:
+        ngli_assert(0);
     }
 
     ngli_shape_generate_buffers(node);

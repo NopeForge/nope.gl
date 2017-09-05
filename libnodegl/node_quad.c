@@ -95,6 +95,7 @@ static int quad_init(struct ngl_node *node)
     }
 
     static const GLushort indices[] = { 0, 1, 2, 0, 2, 3 };
+    s->indice_size = sizeof(*indices);
     s->nb_indices = NGLI_ARRAY_NB(indices);
     s->indices = calloc(1, sizeof(indices));
     if (!s->indices)

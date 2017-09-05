@@ -177,7 +177,8 @@ struct shape {
     GLuint texcoords_buffer_id;
     GLuint normals_buffer_id;
 
-    GLushort *indices;
+    int indice_size;
+    uint8_t *indices;
     int nb_indices;
     GLuint indices_buffer_id;
 
