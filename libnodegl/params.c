@@ -145,6 +145,22 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             memcpy(dstp, &s, sizeof(s));
             break;
         }
+        case PARAM_TYPE_DATA: {
+            int size = va_arg(*ap, int);
+            void *data = va_arg(*ap, void *);
+            LOG(VERBOSE, "set %s to %p (of size %d)", par->key, data, size);
+            uint8_t **dst = (uint8_t **)dstp;
+            if (data && size) {
+                *dst = malloc(size);
+                if (!*dst)
+                    return -1;
+                memcpy(*dst, data, size);
+            } else {
+                *dst = NULL;
+            }
+            memcpy(dstp + sizeof(void *), &size, sizeof(size));
+            break;
+        }
         case PARAM_TYPE_VEC2: {
             const float *v = va_arg(*ap, const float *);
             LOG(VERBOSE, "set %s to (%g,%g)", par->key, v[0], v[1]);
@@ -265,6 +281,9 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                 case PARAM_TYPE_VEC3:
                 case PARAM_TYPE_VEC4:
                     ngli_params_vset(base_ptr, par, par->def_value.vec);
+                    break;
+                case PARAM_TYPE_DATA:
+                    ngli_params_vset(base_ptr, par, 0, par->def_value.p);
                     break;
             }
         }

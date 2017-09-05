@@ -199,6 +199,7 @@ static const size_t opt_sizes[] = {
     [PARAM_TYPE_I64]      = sizeof(int64_t),
     [PARAM_TYPE_DBL]      = sizeof(double),
     [PARAM_TYPE_STR]      = sizeof(char *),
+    [PARAM_TYPE_DATA]     = sizeof(void *)             + sizeof(int),
     [PARAM_TYPE_VEC2]     = sizeof(float[2]),
     [PARAM_TYPE_VEC3]     = sizeof(float[3]),
     [PARAM_TYPE_VEC4]     = sizeof(float[4]),

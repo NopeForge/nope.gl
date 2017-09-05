@@ -190,6 +190,42 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             free(sstart);
             break;
         }
+        case PARAM_TYPE_DATA: {
+            int size = 0;
+            int consumed = 0;
+            const char *cur = str;
+            const char *end = str + strlen(str);
+            int ret = sscanf(str, "%d%n", &size, &consumed);
+            if (ret != 1)
+                return -1;
+            if (!size)
+                break;
+            if (cur >= end - consumed)
+                return -1;
+            cur += consumed;
+            uint8_t *data = calloc(size, sizeof(*data));
+            if (!data)
+                return -1;
+            for (int i = 0; i < size; i++) {
+                unsigned int value;
+                ret = sscanf(cur, ",%02x", &value);
+                if (ret != 1) {
+                    free(data);
+                    return -1;
+                }
+                data[i] = value;
+                if (cur > end - consumed) {
+                    free(data);
+                    return -1;
+                }
+                cur += consumed;
+            }
+            ngli_params_vset(base_ptr, par, size, data);
+            free(data);
+            len = cur - str;
+            break;
+        }
+
         case PARAM_TYPE_VEC2: {
             float v[2];
             n = sscanf(str, "%a,%a%n", v, v+1, &len);

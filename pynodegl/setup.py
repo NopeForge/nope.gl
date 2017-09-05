@@ -64,6 +64,7 @@ class BuildExtCommand(build_ext):
 
         content = 'from libc.stdlib cimport free\n'
         content += 'from libc.stdint cimport uintptr_t\n'
+        content += 'from cpython cimport array\n'
         content += 'cdef extern from "nodegl.h":\n'
 
         nodes_decls = []
@@ -267,6 +268,20 @@ cdef class _Node:
                     class_str += '''
     def set_%(field_name)s(self, *%(field_name)s):%(vec_init_code)s
         return ngl_node_param_set(self.ctx, "%(field_name)s", %(cparam)s)
+''' % field_data
+
+                elif field_type == 'data':
+                    field_data = {
+                        'field_name': field_name,
+                        'field_type': 'const char *',
+                    }
+                    class_str += '''
+    def set_%(field_name)s(self, array.array %(field_name)s):
+        return ngl_node_param_set(self.ctx,
+                                  "%(field_name)s",
+                                  <int>(%(field_name)s.buffer_info()[1] * %(field_name)s.itemsize),
+                                  <void *>(%(field_name)s.data.as_voidptr))
+
 ''' % field_data
 
                 else:

@@ -114,6 +114,20 @@ static void serialize_options(struct hmap *nlist,
                         ngli_bstr_print(b, "%%%02x", s[i] & 0xff);
                 break;
             }
+            case PARAM_TYPE_DATA: {
+                const uint8_t *data = *(uint8_t **)(priv + p->offset);
+                const int size = *(int *)(priv + p->offset + sizeof(uint8_t *));
+                if (!data || !size)
+                    break;
+                if (!constructor)
+                    ngli_bstr_print(b, " %s:%d", p->key, size);
+                else
+                    ngli_bstr_print(b, " %d", size);
+                for (int i = 0; i < size; i++) {
+                    ngli_bstr_print(b, ",%02x", data[i]);
+                }
+                break;
+            }
             case PARAM_TYPE_VEC2: {
                 const float *v = (float *)(priv + p->offset);
                 if (constructor)

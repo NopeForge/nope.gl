@@ -33,6 +33,7 @@ static const char *param_type_strings[] = {
     [PARAM_TYPE_I64]      = "i64",
     [PARAM_TYPE_DBL]      = "double",
     [PARAM_TYPE_STR]      = "string",
+    [PARAM_TYPE_DATA]     = "data",
     [PARAM_TYPE_VEC2]     = "vec2",
     [PARAM_TYPE_VEC3]     = "vec3",
     [PARAM_TYPE_VEC4]     = "vec4",
