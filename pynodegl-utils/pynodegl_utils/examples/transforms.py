@@ -67,19 +67,19 @@ def animated(cfg, rotate=True, scale=True, translate=True):
 
     if rotate:
         node = Rotate(node, axis=(0,0,1))
-        node.add_animkf(AnimKeyFrameScalar(0,  0,   "exp_in"),
-                        AnimKeyFrameScalar(cfg.duration, 360))
+        node.add_animkf(AnimKeyFrameScalar(0, 0),
+                        AnimKeyFrameScalar(cfg.duration, 360, "exp_in"))
 
     if scale:
         node = Scale(node)
-        node.add_animkf(AnimKeyFrameVec3(0, (16/9., 0.5, 1.0), "exp_out"),
-                        AnimKeyFrameVec3(cfg.duration, (4/3.,  1.0, 0.5)))
+        node.add_animkf(AnimKeyFrameVec3(0, (16/9., 0.5, 1.0)),
+                        AnimKeyFrameVec3(cfg.duration, (4/3.,  1.0, 0.5), "exp_out"))
 
     if translate:
         node = Translate(node)
-        node.add_animkf(AnimKeyFrameVec3(0,              (-0.5,  0.5, -0.7), "circular_in"),
-                        AnimKeyFrameVec3(cfg.duration/2, ( 0.5, -0.5,  0.7), "sinus_in_out", easing_args=(0, .7)),
-                        AnimKeyFrameVec3(cfg.duration,   (-0.5, -0.3, -0.5)))
+        node.add_animkf(AnimKeyFrameVec3(0,              (-0.5,  0.5, -0.7)),
+                        AnimKeyFrameVec3(cfg.duration/2, ( 0.5, -0.5,  0.7), "circular_in"),
+                        AnimKeyFrameVec3(cfg.duration,   (-0.5, -0.3, -0.5), "sinus_in_out", easing_args=(0, .7)))
 
     return node
 
@@ -109,12 +109,12 @@ def animated_uniform(cfg):
     ts = TexturedShape(q, s, t)
 
     s = Scale(Identity())
-    s.add_animkf(AnimKeyFrameVec3(0, (1,1,1), "quartic_out"),
-                 AnimKeyFrameVec3(cfg.duration, (0.1,0.1,0.1)))
+    s.add_animkf(AnimKeyFrameVec3(0, (1,1,1)),
+                 AnimKeyFrameVec3(cfg.duration, (0.1,0.1,0.1), "quartic_out"))
 
     r = Rotate(s, axis=(0,0,1))
-    r.add_animkf(AnimKeyFrameScalar(0, 0, "exp_out"),
-                 AnimKeyFrameScalar(cfg.duration, 360))
+    r.add_animkf(AnimKeyFrameScalar(0, 0),
+                 AnimKeyFrameScalar(cfg.duration, 360, "exp_out"))
 
     u = UniformMat4("matrix", transform=r)
     ts.add_uniforms(u)
@@ -158,18 +158,18 @@ def animated_camera(cfg, rotate=False):
 
     node = Translate(Identity())
     node.add_animkf(
-            AnimKeyFrameVec3(0, (0.0,  0.0, 0.0), "exp_out"),
-            AnimKeyFrameVec3(10, ( 0.0, 0.0,  3)))
+            AnimKeyFrameVec3(0, (0.0,  0.0, 0.0)),
+            AnimKeyFrameVec3(10, ( 0.0, 0.0,  3), "exp_out"))
 
     if rotate:
         node = Rotate(node, axis=(0,1,0))
-        node.add_animkf(AnimKeyFrameScalar(0,  0,   "exp_out"),
-                        AnimKeyFrameScalar(cfg.duration, 360))
+        node.add_animkf(AnimKeyFrameScalar(0, 0),
+                        AnimKeyFrameScalar(cfg.duration, 360, "exp_out"))
 
     camera.set_eye_transform(node)
 
     camera.add_fov_animkf(
-            AnimKeyFrameScalar(0.5, 60.0, "exp_out"),
-            AnimKeyFrameScalar(cfg.duration, 45.0))
+            AnimKeyFrameScalar(0.5, 60.0),
+            AnimKeyFrameScalar(cfg.duration, 45.0, "exp_out"))
 
     return camera

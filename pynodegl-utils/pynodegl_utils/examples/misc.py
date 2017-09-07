@@ -65,9 +65,9 @@ void main(void) {
 
         new_g = Group()
         rot = Rotate(new_g, axis=(0,0,1), anchor=orig)
-        rot.add_animkf(AnimKeyFrameScalar(0, 90, "exp_in_out"),
+        rot.add_animkf(AnimKeyFrameScalar(0, 90),
                        AnimKeyFrameScalar(cfg.duration/2, -90, "exp_in_out"),
-                       AnimKeyFrameScalar(cfg.duration, 90))
+                       AnimKeyFrameScalar(cfg.duration, 90, "exp_in_out"))
         if g:
             g.add_children(rot)
         else:
@@ -109,8 +109,8 @@ def cropboard(cfg, dim=15):
             startx = random.uniform(-2, 2)
             starty = random.uniform(-2, 2)
             trn = Translate(tshape)
-            trn.add_animkf(AnimKeyFrameVec3(0, (startx, starty, 0), "exp_out"),
-                           AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0)))
+            trn.add_animkf(AnimKeyFrameVec3(0, (startx, starty, 0)),
+                           AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0), "exp_out"))
             tqs.append(trn)
 
     return Group(children=tqs)

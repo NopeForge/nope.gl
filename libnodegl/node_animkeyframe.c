@@ -474,7 +474,7 @@ void ngli_animkf_interpolate(float *dst, struct ngl_node **animkf, int nb_animkf
         const double t0 = kf0->time;
         const double t1 = kf1->time;
         const double tnorm = (t - t0) / (t1 - t0);
-        const double ratio = kf0->function(tnorm, kf0->nb_args, kf0->args);
+        const double ratio = kf1->function(tnorm, kf1->nb_args, kf1->args);
         *current_kf = kf_id;
         if (class_id == NGL_NODE_ANIMKEYFRAMESCALAR)
             dst[0] = MIX(kf0->scalar, kf1->scalar, ratio);
