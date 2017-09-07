@@ -19,14 +19,10 @@
  * under the License.
  */
 
-#include <math.h>
-#include <stddef.h>
-#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
-#include "utils.h"
 
 #define GENERATE_BUFFER(name) do {                                             \
     ngli_glGenBuffers(gl, 1, &s->name##_buffer_id);                            \
