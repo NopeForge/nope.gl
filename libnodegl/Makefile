@@ -59,6 +59,7 @@ LIB_OBJS = api.o                    \
            hwupload.o               \
            log.o                    \
            math_utils.o             \
+           ndict.o                  \
            node_animkeyframe.o      \
            node_attribute.o         \
            node_camera.o            \
