@@ -23,6 +23,7 @@
 
 import os
 import sys
+import imp
 import importlib
 import inspect
 import pkgutil
@@ -770,7 +771,10 @@ class _ScriptsManager(QtCore.QObject):
 
     def __init__(self, module_pkgname):
         super(_ScriptsManager, self).__init__()
+        self._module_is_script = module_pkgname.endswith('.py')
         self._module_pkgname = module_pkgname
+        if self._module_is_script:
+            self._module_pkgname = os.path.realpath(self._module_pkgname)
         self._builtin_import = __builtin__.__import__
         self._builtin_open = __builtin__.open
         self._dirs_to_watch = set()
@@ -812,6 +816,17 @@ class _ScriptsManager(QtCore.QObject):
             path = path[:-1]
         self._files_to_watch.update([path])
 
+    def _load_script(self, path):
+        dname = os.path.dirname(path)
+        fname = os.path.basename(path)
+        name = fname[:-3]
+        fp, pathname, description = imp.find_module(name, [dname])
+        try:
+            return imp.load_module(name, fp, pathname, description)
+        finally:
+            if fp:
+                fp.close()
+
     def _reload_unsafe(self, initial_import):
 
         modules_to_reload = self._modules_to_reload.copy()
@@ -819,17 +834,26 @@ class _ScriptsManager(QtCore.QObject):
             reload(module)
 
         if initial_import:
-            self._module = importlib.import_module(self._module_pkgname)
+            if self._module_is_script:
+                self._module = self._load_script(self._module_pkgname)
+            else:
+                self._module = importlib.import_module(self._module_pkgname)
             self._queue_watch_path(self._module.__file__)
 
         scripts = []
-        for module in pkgutil.iter_modules(self._module.__path__):
-            module_finder, module_name, ispkg = module
-            script = importlib.import_module('.' + module_name, self._module_pkgname)
+        if self._module_is_script:
             if not initial_import:
-                reload(script)
-            self._queue_watch_path(script.__file__)
-            scripts.append((module_name, script))
+                self._module = self._load_script(self._module_pkgname) # reload
+            self._queue_watch_path(self._module_pkgname)
+            scripts.append((self._module.__name__, self._module))
+        else:
+            for module in pkgutil.iter_modules(self._module.__path__):
+                module_finder, module_name, ispkg = module
+                script = importlib.import_module('.' + module_name, self._module_pkgname)
+                if not initial_import:
+                    reload(script)
+                self._queue_watch_path(script.__file__)
+                scripts.append((module_name, script))
 
         self.scripts_changed.emit(scripts)
 

@@ -8,4 +8,3 @@
 - texture: support yuv
 - texture: support > 8bits per component textures
 - viewer/export: add advanced screenshot feature
-- viewer: support importing files in addition to modules
