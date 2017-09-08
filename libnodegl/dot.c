@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "bstr.h"
+#include "ndict.h"
 #include "nodegl.h"
 #include "nodes.h"
 
@@ -181,6 +182,13 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                     print_all_decls(b, children[i], idxdecls);
                 break;
             }
+            case PARAM_TYPE_NODEDICT: {
+                struct ndict *ndict = *(struct ndict **)(priv + p->offset);
+                struct ndict_entry *entry = NULL;
+                while ((entry = ngli_ndict_get(ndict, NULL, entry)))
+                    print_all_decls(b, entry->node, idxdecls);
+                break;
+            }
         }
         p++;
     }
@@ -274,6 +282,31 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                         continue;
                     print_link(b, node, child, label);
                     print_all_links(b, child, idxlinks);
+                }
+                break;
+            }
+            case PARAM_TYPE_NODEDICT: {
+                struct ndict *ndict = *(struct ndict **)(priv + p->offset);
+                struct ndict_entry *entry = NULL;
+
+                while ((entry = ngli_ndict_get(ndict, NULL, entry))) {
+                    char *key;
+                    const struct ngl_node *child = entry->node;
+
+                    if (p->flags & PARAM_FLAG_DOT_DISPLAY_FIELDNAME)
+                        key = ngli_asprintf("[label=\"%s:%s\"]", p->key, entry->name);
+                    else
+                        key = ngli_asprintf("[label=\"%s\"]", entry->name);
+
+                    if (!key)
+                        return;
+
+                    if (list_check_links(idxlinks, node, child))
+                        continue;
+                    print_link(b, node, child, key);
+                    print_all_links(b, child, idxlinks);
+
+                    free(key);
                 }
                 break;
             }

@@ -27,6 +27,7 @@
 #include <string.h>
 
 #include "log.h"
+#include "ndict.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "params.h"
@@ -119,6 +120,7 @@ static const char *param_type_strings[] = {
     [PARAM_TYPE_NODE]     = "Node",
     [PARAM_TYPE_NODELIST] = "NodeList",
     [PARAM_TYPE_DBLLIST]  = "doubleList",
+    [PARAM_TYPE_NODEDICT] = "NodeDict",
 };
 
 #define OFFSET(x) offsetof(struct ngl_node, x)
@@ -302,6 +304,7 @@ static const size_t opt_sizes[] = {
     [PARAM_TYPE_NODE]     = sizeof(struct ngl_node *),
     [PARAM_TYPE_NODELIST] = sizeof(struct ngl_node **) + sizeof(int),
     [PARAM_TYPE_DBLLIST]  = sizeof(double *)           + sizeof(int),
+    [PARAM_TYPE_NODEDICT] = sizeof(struct ndict *),
 };
 
 /*
@@ -363,6 +366,15 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
             const int nb_elems = *(int *)nb_elems_p;
             for (int j = 0; j < nb_elems; j++) {
                 int ret = ngli_node_attach_ctx(elems[j], ctx);
+                if (ret < 0)
+                    return ret;
+            }
+        } else if (par->type == PARAM_TYPE_NODEDICT) {
+            struct ndict *ndict = *(struct ndict **)(base_ptr + par->offset);
+            struct ndict_entry *entry = NULL;
+            while ((entry = ngli_ndict_get(ndict, NULL, entry))) {
+                struct ngl_node *node = entry->node;
+                int ret = ngli_node_attach_ctx(node, ctx);
                 if (ret < 0)
                     return ret;
             }
@@ -619,6 +631,13 @@ static void check_activity(struct ngl_node *node, double t, int parent_is_active
                     check_activity(elems[i], t, node->is_active);
                 break;
             }
+            case PARAM_TYPE_NODEDICT: {
+                struct ndict *ndict = *(struct ndict **)(base_ptr + par->offset);
+                struct ndict_entry *entry = NULL;
+                while ((entry = ngli_ndict_get(ndict, NULL, entry)))
+                    check_activity(entry->node, t, node->is_active);
+                break;
+            }
         }
         par++;
     }
@@ -648,6 +667,13 @@ static void honor_release_prefetch(struct ngl_node *node, double t)
                 const int nb_elems = *(int *)nb_elems_p;
                 for (int i = 0; i < nb_elems; i++)
                     honor_release_prefetch(elems[i], t);
+                break;
+            }
+            case PARAM_TYPE_NODEDICT: {
+                struct ndict *ndict = *(struct ndict **)(base_ptr + par->offset);
+                struct ndict_entry *entry = NULL;
+                while ((entry = ngli_ndict_get(ndict, NULL, entry)))
+                    honor_release_prefetch(entry->node, t);
                 break;
             }
         }

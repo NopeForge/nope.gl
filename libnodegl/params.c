@@ -23,6 +23,7 @@
 #include <inttypes.h>
 
 #include "log.h"
+#include "ndict.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "params.h"
@@ -168,6 +169,22 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             memcpy(dstp, &node, sizeof(node));
             break;
         }
+        case PARAM_TYPE_NODEDICT: {
+            int ret;
+            const char *name = va_arg(*ap, const char *);
+            struct ngl_node *node = va_arg(*ap, struct ngl_node *);
+            if (node && !allowed_node(node, par->node_types)) {
+                LOG(ERROR, "%s (%s) is not an allowed type for %s",
+                    node->name, node->class->name, par->key);
+                return -1;
+            }
+            LOG(VERBOSE, "set %s to (%s,%p)", par->key, name, node);
+            ret = ngli_ndict_set((struct ndict **)dstp, name, node);
+            if (ret < 0)
+                return ret;
+            break;
+        }
+
     }
     return 0;
 }
@@ -336,6 +353,11 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 uint8_t *elems_p = base_ptr + par->offset;
                 double *elems = *(double **)elems_p;
                 free(elems);
+                break;
+            }
+            case PARAM_TYPE_NODEDICT: {
+                struct ndict **ndictp = (struct ndict **)(base_ptr + par->offset);
+                ngli_ndict_freep(ndictp);
                 break;
             }
         }

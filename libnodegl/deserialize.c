@@ -88,6 +88,57 @@ static int parse_##type##s(const char *s, type **valsp, int *nb_valsp)      \
 DECLARE_PARSE_LIST_FUNC(double, "%la")
 DECLARE_PARSE_LIST_FUNC(int,    "%x")
 
+#define FREE_KVS(count, keys, vals) do {                                    \
+    for (int k = 0; k < (count); k++)                                       \
+        free((keys)[k]);                                                    \
+    free(keys);                                                             \
+    free(vals);                                                             \
+} while (0)
+
+static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
+{
+    char **keys = NULL;
+    int *vals = NULL;
+    int nb_vals = 0, consumed = 0, len;
+
+    for (;;) {
+        char key[63 + 1];
+        int val;
+        int n = sscanf(s, "%63[^=]=%x" "%n", key, &val, &len);
+        if (n != 2) {
+            FREE_KVS(nb_vals, keys, vals);
+            return -1;
+        }
+        char **new_keys = realloc(keys, (nb_vals +1) * sizeof(*new_keys));
+        if (!new_keys) {
+            FREE_KVS(nb_vals, keys, vals);
+            return -1;
+        }
+
+        int *new_vals = realloc(vals, (nb_vals + 1) * sizeof(*new_vals));
+        if (!new_vals) {
+            FREE_KVS(nb_vals, keys, vals);
+            return -1;
+        }
+
+        s += len;
+        consumed += len;
+        new_keys[nb_vals] = ngli_strdup(key);
+        new_vals[nb_vals] = val;
+        nb_vals++;
+        keys = new_keys;
+        vals = new_vals;
+        if (*s != ',')
+            break;
+        s++;
+        consumed++;
+    }
+    *keysp = keys;
+    *valsp = vals;
+    *nb_kvsp = nb_vals;
+    return consumed;
+}
+
 static inline int hexv(char c)
 {
     if (c >= 'a' && c <= 'f')
@@ -185,6 +236,25 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             if (len < 0)
                 return -1;
             ngli_params_add(base_ptr, par, nb_dbls, dbls);
+            break;
+        }
+        case PARAM_TYPE_NODEDICT: {
+            char **node_keys;
+            int *node_ids, nb_nodes;
+            len = parse_kvs(str, &nb_nodes, &node_keys, &node_ids);
+            if (len < 0)
+                return -1;
+            for (int i = 0; i < nb_nodes; i++) {
+                const char *key = node_keys[i];
+                const int node_id = node_ids[i];
+                if (node_id < 0 || node_id >= sctx->nb_nodes) {
+                    FREE_KVS(nb_nodes, node_keys, node_ids);
+                    return -1;
+                }
+                struct ngl_node *node = sctx->nodes[node_id];
+                ngli_params_vset(base_ptr, par, key, node);
+            }
+            FREE_KVS(nb_nodes, node_keys, node_ids);
             break;
         }
         default:

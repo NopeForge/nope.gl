@@ -92,6 +92,7 @@ class BuildExtCommand(build_ext):
             for field in fields.get('constructors', []):
                 field_name, field_type = field
                 assert not field_type.endswith('List')
+                assert not field_type.endswith('Dict')
                 if field_type in ('int', 'float', 'double'):
                     construct_cargs.append(field_name)
                     construct_args.append('%s %s' % (field_type, field_name))
@@ -116,6 +117,7 @@ class BuildExtCommand(build_ext):
                 field_name, field_type = field
                 construct_args.append('%s=None' % field_name)
                 is_list = field_type.endswith('List')
+                is_dict = field_type.endswith('Dict')
                 optset_data = {
                     'var': field_name,
                 }
@@ -127,6 +129,11 @@ class BuildExtCommand(build_ext):
                 self.add_%(var)s(*%(var)s)
             else:
                 self.add_%(var)s(%(var)s)''' % optset_data
+                elif is_dict:
+                    extra_args += '''
+            if not isinstance(%(var)s, dict):
+                raise TypeError("%(var)s must be of type dict")
+            self.update_%(var)s(%(var)s)''' % optset_data
                 else:
                     dereference = field_type.startswith('vec')
                     optset_data['arg'] = '*' + field_name if dereference else field_name
@@ -211,6 +218,29 @@ cdef class _Node:
                                  len(%(field_name)s), %(clist)s)
         free(%(clist)s)
         return ret
+''' % field_data
+
+                elif field_type.endswith('Dict'):
+                    field_type = field_type[:-len('Dict')]
+                    assert field_type == 'Node'
+                    field_data = {
+                        'field_name': field_name,
+                    }
+                    class_str += '''
+    def update_%(field_name)s(self, arg=None, **kwargs):
+        cdef ngl_node *node
+        %(field_name)s = {}
+        if arg is not None:
+            %(field_name)s.update(arg)
+        %(field_name)s.update(**kwargs)
+        for key, val in %(field_name)s.iteritems():
+            if not isinstance(key, str) or (val is not None and not isinstance(val, _Node)):
+                raise TypeError("update_%(field_name)s takes a dictionary of <string, Node>")
+            node = (<_Node>val).ctx if val is not None else NULL
+            ret = ngl_node_param_set(self.ctx, "%(field_name)s", <const char *>key, node)
+            if ret < 0:
+                return ret
+        return 0
 ''' % field_data
 
                 elif field_type.startswith('vec'):

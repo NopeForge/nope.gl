@@ -24,6 +24,7 @@
 
 #include "bstr.h"
 #include "log.h"
+#include "ndict.h"
 #include "nodes.h"
 #include "nodegl.h"
 
@@ -172,6 +173,24 @@ static void serialize_options(struct serial_ctx *sctx,
                 }
                 break;
             }
+            case PARAM_TYPE_NODEDICT: {
+                struct ndict *ndict = *(struct ndict **)(priv + p->offset);
+                struct ndict_entry *entry = NULL;
+                const int nb_nodes = ngli_ndict_count(ndict);
+                if (!nb_nodes)
+                    break;
+                if (constructor)
+                    ngli_bstr_print(b, " ");
+                else
+                    ngli_bstr_print(b, " %s:", p->key);
+                int i = 0;
+                while ((entry = ngli_ndict_get(ndict, NULL, entry))) {
+                    const int node_id = get_node_id(sctx, entry->node);
+                    ngli_bstr_print(b, "%s%s=%x", i ? "," : "", entry->name, node_id);
+                    i++;
+                }
+                break;
+            }
             default:
                 LOG(ERROR, "Cannot serialize %s: unsupported parameter type", p->key);
         }
@@ -203,6 +222,13 @@ static void serialize_children(struct serial_ctx *sctx,
 
                 for (int i = 0; i < nb_children; i++)
                     serialize(sctx, b, children[i]);
+                break;
+            }
+            case PARAM_TYPE_NODEDICT: {
+                struct ndict *ndict = *(struct ndict **)(priv + p->offset);
+                struct ndict_entry *entry = NULL;
+                while ((entry = ngli_ndict_get(ndict, NULL, entry)))
+                    serialize(sctx, b, entry->node);
                 break;
             }
         }
