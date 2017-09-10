@@ -95,7 +95,7 @@ enum {
 };
 
 struct ngl_node *ngl_node_create(int type, ...);
-void ngl_node_ref(struct ngl_node *node);
+struct ngl_node *ngl_node_ref(struct ngl_node *node);
 void ngl_node_unrefp(struct ngl_node **nodep);
 
 int ngl_node_param_add(struct ngl_node *node, const char *key,

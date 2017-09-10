@@ -872,9 +872,10 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
     return ret;
 }
 
-void ngl_node_ref(struct ngl_node *node)
+struct ngl_node *ngl_node_ref(struct ngl_node *node)
 {
     node->refcount++;
+    return node;
 }
 
 void ngl_node_unrefp(struct ngl_node **nodep)
