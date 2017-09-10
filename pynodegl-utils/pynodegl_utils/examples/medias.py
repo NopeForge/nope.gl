@@ -69,14 +69,16 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    tshape = TexturedShape(q, s, t)
+    tshape = TexturedShape(q, s)
+    tshape.update_textures(tex0=t)
+
     if progress_bar:
         s.set_fragment_data(pgbar_shader)
         time = UniformScalar("time")
         time.add_animkf(AnimKeyFrameScalar(0, 0),
                         AnimKeyFrameScalar(cfg.duration, 1))
         ar = UniformScalar("ar", cfg.aspect_ratio)
-        tshape.add_uniforms(time, ar)
+        tshape.update_uniforms(time=time, ar=ar)
     return tshape
 
 frag_data='''
@@ -124,7 +126,8 @@ def centered_masked_media(cfg):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    node = TexturedShape(q, s, t)
+    node = TexturedShape(q, s)
+    node.update_textures(tex0=t)
     node.add_glstates(GLStencilState(GL.GL_TRUE,
                                      0x00,
                                      GL.GL_EQUAL,
@@ -155,7 +158,8 @@ def centered_shape_media(cfg, n=0.9, k=5):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    tshape = TexturedShape(q, s, t)
+    tshape = TexturedShape(q, s)
+    tshape.update_textures(tex0=t)
     return tshape
 
 @scene({'name': 'speed', 'type': 'range', 'range': [0.01,2], 'unit_base': 1000})
@@ -168,5 +172,6 @@ def playback_speed(cfg, speed=1.0):
                       AnimKeyFrameScalar(cfg.duration, cfg.duration * speed))
     t = Texture(data_src=m)
     s = Shader()
-    tshape = TexturedShape(q, s, t)
+    tshape = TexturedShape(q, s)
+    tshape.update_textures(tex0=t)
     return tshape

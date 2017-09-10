@@ -41,7 +41,7 @@ def static(cfg, color=(0.5, 0.0, 1.0, 1.0), width=0.5, height=0.5,
 
     s.set_fragment_data(frag_data)
     node = TexturedShape(q, s)
-    node.add_uniforms(ucolor)
+    node.update_uniforms(blend_color=ucolor)
 
     if rotate:
         node = Rotate(node, axis=(0,0,1), angle=rotate_deg,
@@ -63,7 +63,8 @@ def animated(cfg, rotate=True, scale=True, translate=True):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    node = TexturedShape(q, s, t)
+    node = TexturedShape(q, s)
+    node.update_textures(tex0=t)
 
     if rotate:
         node = Rotate(node, axis=(0,0,1))
@@ -106,7 +107,8 @@ def animated_uniform(cfg):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader(fragment_data=animated_frag_data)
-    ts = TexturedShape(q, s, t)
+    ts = TexturedShape(q, s)
+    ts.update_textures(tex0=t)
 
     s = Scale(Identity())
     s.add_animkf(AnimKeyFrameVec3(0, (1,1,1)),
@@ -117,7 +119,7 @@ def animated_uniform(cfg):
                  AnimKeyFrameScalar(cfg.duration, 360, "exp_out"))
 
     u = UniformMat4("matrix", transform=r)
-    ts.add_uniforms(u)
+    ts.update_uniforms(matrix=u)
 
     return ts
 
@@ -130,24 +132,29 @@ def animated_camera(cfg, rotate=False):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    node = TexturedShape(q, s, t)
+    node = TexturedShape(q, s)
+    node.update_textures(tex0=t)
     g.add_children(node)
 
     z = -1
     q = Quad((-1.1, 0.3, z), (1, 0, 0), (0, 1, 0))
-    node = TexturedShape(q, s, t)
+    node = TexturedShape(q, s)
+    node.update_textures(tex0=t)
     g.add_children(node)
 
     q = Quad((0.1, 0.3, z), (1, 0, 0), (0, 1, 0))
-    node = TexturedShape(q, s, t)
+    node = TexturedShape(q, s)
+    node.update_textures(tex0=t)
     g.add_children(node)
 
     q = Quad((-1.1, -1.0, z), (1, 0, 0), (0, 1, 0))
-    node = TexturedShape(q, s, t)
+    node = TexturedShape(q, s)
+    node.update_textures(tex0=t)
     g.add_children(node)
 
     q = Quad((0.1, -1.0, z), (1, 0, 0), (0, 1, 0))
-    node = TexturedShape(q, s, t)
+    node = TexturedShape(q, s)
+    node.update_textures(tex0=t)
     g.add_children(node)
 
     camera = Camera(g)

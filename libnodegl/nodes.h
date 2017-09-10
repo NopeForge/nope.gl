@@ -269,13 +269,10 @@ struct texturedshape {
     struct ngl_node *shape;
     struct ngl_node *shader;
 
-    struct ngl_node **textures;
-    int nb_textures;
-
+    struct ndict *textures;
     struct textureshaderinfo *textureshaderinfos;
 
-    struct ngl_node **uniforms;
-    int nb_uniforms;
+    struct ndict *uniforms;
     GLint *uniform_ids;
 
     struct ndict *attributes;

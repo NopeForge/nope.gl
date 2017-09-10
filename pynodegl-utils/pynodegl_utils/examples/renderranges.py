@@ -22,8 +22,9 @@ def queued_medias(cfg, overlap_time=1., dim=3):
             q = Quad(corner, (qw, 0, 0), (0, qh, 0))
             t = Texture(data_src=m)
 
-            tshape = TexturedShape(q, s, t)
+            tshape = TexturedShape(q, s)
             tshape.set_name('TShape #%d' % video_id)
+            tshape.update_textures(tex0=t)
 
             if start:
                 tshape.add_ranges(RenderRangeNoRender(0))
@@ -46,8 +47,10 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     t1 = Texture(data_src=m1, name="texture1")
     t2 = Texture(data_src=m2, name="texture2")
 
-    tshape1 = TexturedShape(q, s, t1, name="texturedshape1")
-    tshape2 = TexturedShape(q, s, t2, name="texturedshape2")
+    tshape1 = TexturedShape(q, s, name="texturedshape1")
+    tshape1.update_textures(tex0=t1)
+    tshape2 = TexturedShape(q, s, name="texturedshape2")
+    tshape2.update_textures(tex0=t2)
 
     t = 0
     rr1 = []
@@ -133,15 +136,18 @@ void main(void)
     t1 = Texture(data_src=m1, name="texture1")
     t2 = Texture(data_src=m2, name="texture2")
 
-    tshape1 = TexturedShape(q, s, t1, name="texturedshape1")
-    tshape2 = TexturedShape(q, s, t2, name="texturedshape2")
+    tshape1 = TexturedShape(q, s, name="texturedshape1")
+    tshape1.update_textures(tex0=t1)
+    tshape2 = TexturedShape(q, s, name="texturedshape2")
+    tshape2.update_textures(tex0=t2)
 
     delta = UniformScalar("delta", value=1.0)
     delta.add_animkf(AnimKeyFrameScalar(transition_start, 1.0),
                      AnimKeyFrameScalar(transition_start + transition_duration, 0.0))
 
-    tshape1_2 = TexturedShape(q, s1_2, textures=[t1, t2], name="texturedshape1_2")
-    tshape1_2.add_uniforms(delta)
+    tshape1_2 = TexturedShape(q, s1_2, name="texturedshape1_2")
+    tshape1_2.update_textures(tex0=t1, tex1=t2)
+    tshape1_2.update_uniforms(delta=delta)
 
     rr1 = []
     rr2 = []

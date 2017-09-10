@@ -161,7 +161,8 @@ def centered_model_media(cfg, n=0.5, model=None):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader(fragment_data=fragment_data)
-    tshape = TexturedShape(q, s, t)
+    tshape = TexturedShape(q, s)
+    tshape.update_textures(tex0=t)
     tshape.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
     rot = Rotate(tshape, axis=(0,1,0), name="roty")

@@ -280,7 +280,7 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     if (!s->tshape)
         return -1;
 
-    ngl_node_param_add(s->tshape, "textures", 1, s->textures);
+    ngl_node_param_set(s->tshape, "textures", "tex0", s->textures[0]);
 
     s->rtt = ngl_node_create(NGL_NODE_RTT, s->tshape, s->target_texture);
     if (!s->rtt)
@@ -487,7 +487,8 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         if (!s->tshape)
             return -1;
 
-        ngl_node_param_add(s->tshape, "textures", 2, s->textures);
+        ngl_node_param_set(s->tshape, "textures", "tex0", s->textures[0]);
+        ngl_node_param_set(s->tshape, "textures", "tex1", s->textures[1]);
 
         s->rtt = ngl_node_create(NGL_NODE_RTT, s->tshape, s->target_texture);
         if (!s->rtt)

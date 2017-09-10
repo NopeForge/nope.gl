@@ -24,7 +24,8 @@ void main(void)
 
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
     s = Shader(fragment_data=frag_data)
-    node = TexturedShape(triangle, s, Texture())
+    node = TexturedShape(triangle, s)
+    node.update_textures(tex0=Texture())
     node = Rotate(node, axis=(0,0,1))
     node.add_animkf(AnimKeyFrameScalar(0, 0),
                     AnimKeyFrameScalar(cfg.duration, -360*2))
@@ -61,7 +62,7 @@ void main(void) {
         color = [gray, gray, gray, 1]
         q = Quad(orig, (w, 0, 0), (0, w, 0))
         tshape = TexturedShape(q, s)
-        tshape.add_uniforms(UniformVec4("color", value=color))
+        tshape.update_uniforms(color=UniformVec4("color", value=color))
 
         new_g = Group()
         rot = Rotate(new_g, axis=(0,0,1), anchor=orig)
@@ -104,7 +105,8 @@ def cropboard(cfg, dim=15):
             q.set_uv_width(kw, 0)
             q.set_uv_height(0, kh)
 
-            tshape = TexturedShape(q, s, t)
+            tshape = TexturedShape(q, s)
+            tshape.update_textures(tex0=t)
 
             startx = random.uniform(-2, 2)
             starty = random.uniform(-2, 2)
@@ -179,5 +181,6 @@ void main()
     video_tex = Texture(data_src=video_m)
 
     s = Shader(fragment_data=frag_data)
-    tshape = TexturedShape(q, s, [audio_tex, video_tex])
+    tshape = TexturedShape(q, s)
+    tshape.update_textures(tex0=audio_tex, tex1=video_tex)
     return tshape

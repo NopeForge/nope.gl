@@ -17,9 +17,10 @@ def _get_cube_quads():
             ((-0.5,  0.5,  0.5), ( 1, 0,  0), (0, 0, -1), (1, 0, 1))) # top
 
 def _get_cube_side(texture, shader, corner, width, height, color):
-    return TexturedShape(Quad(corner, width, height),
-                         shader, texture,
-                         uniforms=[UniformVec3("blend_color", value=color)])
+    ts = TexturedShape(Quad(corner, width, height), shader)
+    ts.update_textures(tex0=texture)
+    ts.update_uniforms(blend_color=UniformVec3("blend_color", value=color))
+    return ts
 
 @scene()
 def rotating_cube(cfg):
@@ -82,12 +83,14 @@ def scene_with_framebuffer(cfg):
 
     q = Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
     s = Shader()
-    tshape = TexturedShape(q, s, t)
+    tshape = TexturedShape(q, s)
+    tshape.update_textures(tex0=t)
     g.add_children(rtt, tshape)
 
     q = Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
     s = Shader()
-    tshape = TexturedShape(q, s, d)
+    tshape = TexturedShape(q, s)
+    tshape.update_textures(tex0=d)
     g.add_children(rtt, tshape)
 
     return g
