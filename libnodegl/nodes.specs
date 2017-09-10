@@ -109,7 +109,7 @@
     optional:
         - [textures, NodeList]
         - [uniforms, NodeList]
-        - [attributes, NodeList]
+        - [attributes, NodeDict]
 
 - Quad:
     optional:

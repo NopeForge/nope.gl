@@ -26,6 +26,7 @@
 #include "glincludes.h"
 #include "log.h"
 #include "math_utils.h"
+#include "ndict.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "utils.h"
@@ -53,7 +54,7 @@ static const struct node_param texturedshape_params[] = {
                  .node_types=(const int[]){NGL_NODE_TEXTURE, -1}},
     {"uniforms", PARAM_TYPE_NODELIST, OFFSET(uniforms),
                  .node_types=UNIFORMS_TYPES_LIST},
-    {"attributes", PARAM_TYPE_NODELIST, OFFSET(attributes),
+    {"attributes", PARAM_TYPE_NODEDICT, OFFSET(attributes),
                  .node_types=ATTRIBUTES_TYPES_LIST},
     {NULL}
 };
@@ -198,17 +199,20 @@ static int texturedshape_init(struct ngl_node *node)
         s->uniform_ids[i] = ngli_glGetUniformLocation(gl, shader->program_id, u->name);
     }
 
-    s->attribute_ids = calloc(s->nb_attributes, sizeof(*s->attribute_ids));
+    int nb_attributes = ngli_ndict_count(s->attributes);
+    s->attribute_ids = calloc(nb_attributes, sizeof(*s->attribute_ids));
     if (!s->attribute_ids)
         return -1;
 
-    for (int i = 0; i < s->nb_attributes; i++) {
-        struct ngl_node *unode = s->attributes[i];
-        struct attribute *u = unode->priv_data;
+    int i = 0;
+    struct ndict_entry *entry = NULL;
+    while ((entry = ngli_ndict_get(s->attributes, NULL, entry))) {
+        struct ngl_node *unode = entry->node;
         ret = ngli_node_init(unode);
         if (ret < 0)
             return ret;
-        s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, u->name);
+        s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, entry->name);
+        i++;
     }
 
     if (s->nb_textures > glcontext->max_texture_image_units) {

@@ -278,8 +278,7 @@ struct texturedshape {
     int nb_uniforms;
     GLint *uniform_ids;
 
-    struct ngl_node **attributes;
-    int nb_attributes;
+    struct ndict *attributes;
     GLint *attribute_ids;
 
     GLuint vao_id;
