@@ -153,6 +153,13 @@ cdef class %(class_name)s(_Node):
 
             if node == '_Node':
                 class_str = '''
+cdef _ret_pystr(char *s):
+    try:
+        pystr = <bytes>s
+    finally:
+        free(s)
+    return pystr
+
 cdef class _Node:
     cdef ngl_node *ctx
 
@@ -161,22 +168,10 @@ cdef class _Node:
         return <uintptr_t>self.ctx
 
     def serialize(self):
-        cdef char *s
-        s = ngl_node_serialize(self.ctx)
-        try:
-            pystr = <bytes>s
-        finally:
-            free(s)
-        return pystr
+        return _ret_pystr(ngl_node_serialize(self.ctx))
 
     def dot(self):
-        cdef char *s
-        s = ngl_node_dot(self.ctx)
-        try:
-            pystr = <bytes>s
-        finally:
-            free(s)
-        return pystr
+        return _ret_pystr(ngl_node_dot(self.ctx))
 
     def __dealloc__(self):
         ngl_node_unrefp(&self.ctx)
