@@ -128,7 +128,7 @@ void main(void)
     s1_2 = Shader(vertex_data=vertex, fragment_data=fragment)
 
     m1 = Media(cfg.medias[0].filename, name="media1")
-    m2 = Media(cfg.medias[0].filename, name="media2", start=transition_start)
+    m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name="media2", start=transition_start)
 
     t1 = Texture(data_src=m1, name="texture1")
     t2 = Texture(data_src=m2, name="texture2")
