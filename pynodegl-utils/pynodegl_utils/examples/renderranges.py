@@ -1,5 +1,5 @@
 from pynodegl import TexturedShape, Quad, Texture, Media, Shader, Group
-from pynodegl import UniformSampler, UniformScalar, AttributeVec2, AnimKeyFrameScalar
+from pynodegl import UniformScalar, AttributeVec2, AnimKeyFrameScalar
 from pynodegl import RenderRangeContinuous, RenderRangeOnce, RenderRangeNoRender
 
 from pynodegl_utils.misc import scene

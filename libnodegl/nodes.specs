@@ -258,12 +258,6 @@
     optional:
         - [transform, Node]
 
-- UniformSampler:
-    constructors:
-        - [id, string]
-    optional:
-        - [type, int]
-
 - UniformInt:
     constructors:
         - [id, string]

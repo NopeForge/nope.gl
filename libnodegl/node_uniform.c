@@ -75,12 +75,6 @@ static const struct node_param uniformmat4_params[] = {
     {NULL}
 };
 
-static const struct node_param uniformsampler_params[] = {
-    {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"type",   PARAM_TYPE_INT,  OFFSET(type),   {.i64=NGL_UNIFORM_SAMPLER_2D}},
-    {NULL}
-};
-
 static void uniform_scalar_update(struct ngl_node *node, double t)
 {
     struct uniform *s = node->priv_data;
@@ -176,12 +170,4 @@ const struct node_class ngli_uniformmat4_class = {
     .update    = uniform_mat_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformmat4_params,
-};
-
-const struct node_class ngli_uniformsampler_class = {
-    .id        = NGL_NODE_UNIFORMSAMPLER,
-    .name      = "UniformSampler",
-    .init      = uniform_init,
-    .priv_size = sizeof(struct uniform),
-    .params    = uniformsampler_params,
 };
