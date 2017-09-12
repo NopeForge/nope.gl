@@ -36,23 +36,6 @@ static const struct node_param translate_params[] = {
     {NULL}
 };
 
-static int translate_init(struct ngl_node *node)
-{
-    struct translate *s = node->priv_data;
-    LOG(VERBOSE, "translate %s by (%f,%f,%f)",
-        s->child->class->name,
-        s->vector[0], s->vector[1], s->vector[2]);
-    int ret = ngli_node_init(s->child);
-    if (ret < 0)
-        return ret;
-    for (int i = 0; i < s->nb_animkf; i++) {
-        ret = ngli_node_init(s->animkf[i]);
-        if (ret < 0)
-            return ret;
-    }
-    return 0;
-}
-
 static const float *get_vector(struct translate *s, double t)
 {
     if (s->nb_animkf)
@@ -85,7 +68,6 @@ static void translate_draw(struct ngl_node *node)
 const struct node_class ngli_translate_class = {
     .id        = NGL_NODE_TRANSLATE,
     .name      = "Translate",
-    .init      = translate_init,
     .update    = translate_update,
     .draw      = translate_draw,
     .priv_size = sizeof(struct translate),

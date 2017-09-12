@@ -39,23 +39,6 @@ static const struct node_param rotate_params[] = {
     {NULL}
 };
 
-static int rotate_init(struct ngl_node *node)
-{
-    struct rotate *s = node->priv_data;
-    LOG(VERBOSE, "rotate %s by %f on (%f,%f,%f)",
-        s->child->class->name, s->angle,
-        s->axis[0], s->axis[1], s->axis[2]);
-    int ret = ngli_node_init(s->child);
-    if (ret < 0)
-        return ret;
-    for (int i = 0; i < s->nb_animkf; i++) {
-        ret = ngli_node_init(s->animkf[i]);
-        if (ret < 0)
-            return ret;
-    }
-    return 0;
-}
-
 static const float get_angle(struct rotate *s, double t)
 {
     float angle = s->angle;
@@ -134,7 +117,6 @@ static void rotate_draw(struct ngl_node *node)
 const struct node_class ngli_rotate_class = {
     .id        = NGL_NODE_ROTATE,
     .name      = "Rotate",
-    .init      = rotate_init,
     .update    = rotate_update,
     .draw      = rotate_draw,
     .priv_size = sizeof(struct rotate),

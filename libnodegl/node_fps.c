@@ -178,9 +178,6 @@ static const uint8_t font8[128][8] = {
 static int fps_init(struct ngl_node *node)
 {
     struct fps *s = node->priv_data;
-    int ret = ngli_node_init(s->child);
-    if (ret < 0)
-        return ret;
 
     if (s->create_databuf) {
         s->data_w = DATA_W;

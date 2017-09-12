@@ -36,17 +36,6 @@ static const struct node_param group_params[] = {
     {NULL}
 };
 
-static int group_init(struct ngl_node *node)
-{
-    struct group *s = node->priv_data;
-    for (int i = 0; i < s->nb_children; i++) {
-        int ret = ngli_node_init(s->children[i]);
-        if (ret < 0)
-            return ret;
-    }
-    return 0;
-}
-
 static void group_update(struct ngl_node *node, double t)
 {
     struct group *s = node->priv_data;
@@ -69,7 +58,6 @@ static void group_draw(struct ngl_node *node)
 const struct node_class ngli_group_class = {
     .id        = NGL_NODE_GROUP,
     .name      = "Group",
-    .init      = group_init,
     .update    = group_update,
     .draw      = group_draw,
     .priv_size = sizeof(struct group),

@@ -105,11 +105,6 @@ static void uniform_mat_update(struct ngl_node *node, double t)
 static int uniform_init(struct ngl_node *node)
 {
     struct uniform *s = node->priv_data;
-    for (int i = 0; i < s->nb_animkf; i++) {
-        int ret = ngli_node_init(s->animkf[i]);
-        if (ret < 0)
-            return ret;
-    }
 
     s->matrix[0] =
     s->matrix[5] =

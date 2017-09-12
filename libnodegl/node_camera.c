@@ -52,28 +52,6 @@ static int camera_init(struct ngl_node *node)
 {
     struct camera *s = node->priv_data;
 
-    int ret = ngli_node_init(s->child);
-    if (ret < 0)
-        return ret;
-
-    if (s->eye_transform) {
-        ret = ngli_node_init(s->eye_transform);
-        if (ret < 0)
-            return ret;
-    }
-
-    if (s->center_transform) {
-        ret = ngli_node_init(s->center_transform);
-        if (ret < 0)
-            return ret;
-    }
-
-    if (s->up_transform) {
-        ret = ngli_node_init(s->up_transform);
-        if (ret < 0)
-            return ret;
-    }
-
     if (s->pipe_fd) {
         s->pipe_buf = calloc(4 /* RGBA */, s->pipe_width * s->pipe_height);
         if (!s->pipe_buf)

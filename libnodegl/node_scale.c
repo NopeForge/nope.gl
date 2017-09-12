@@ -37,24 +37,6 @@ static const struct node_param scale_params[] = {
     {NULL}
 };
 
-static int scale_init(struct ngl_node *node)
-{
-    struct scale *s = node->priv_data;
-    LOG(VERBOSE, "scale %s by (%f,%f,%f) with anchor (%f,%f,%f)",
-        s->child->class->name,
-        s->factors[0], s->factors[1], s->factors[2],
-        s->anchor[0],  s->anchor[1],  s->anchor[2]);
-    int ret = ngli_node_init(s->child);
-    if (ret < 0)
-        return ret;
-    for (int i = 0; i < s->nb_animkf; i++) {
-        ret = ngli_node_init(s->animkf[i]);
-        if (ret < 0)
-            return ret;
-    }
-    return 0;
-}
-
 static const float *get_factors(struct scale *s, double t)
 {
     if (s->nb_animkf)
@@ -87,7 +69,6 @@ static void scale_draw(struct ngl_node *node)
 const struct node_class ngli_scale_class = {
     .id        = NGL_NODE_SCALE,
     .name      = "Scale",
-    .init      = scale_init,
     .update    = scale_update,
     .draw      = scale_draw,
     .priv_size = sizeof(struct scale),
