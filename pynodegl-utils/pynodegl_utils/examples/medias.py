@@ -74,10 +74,10 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
 
     if progress_bar:
         s.set_fragment_data(pgbar_shader)
-        time = UniformScalar("time")
+        time = UniformScalar()
         time.add_animkf(AnimKeyFrameScalar(0, 0),
                         AnimKeyFrameScalar(cfg.duration, 1))
-        ar = UniformScalar("ar", cfg.aspect_ratio)
+        ar = UniformScalar(cfg.aspect_ratio)
         tshape.update_uniforms(time=time, ar=ar)
     return tshape
 

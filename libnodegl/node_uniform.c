@@ -32,7 +32,6 @@
 
 #define OFFSET(x) offsetof(struct uniform, x)
 static const struct node_param uniformscalar_params[] = {
-    {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar)},
     {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
@@ -40,7 +39,6 @@ static const struct node_param uniformscalar_params[] = {
 };
 
 static const struct node_param uniformvec2_params[] = {
-    {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_VEC2, OFFSET(vector)},
     {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC2, -1}},
@@ -48,7 +46,6 @@ static const struct node_param uniformvec2_params[] = {
 };
 
 static const struct node_param uniformvec3_params[] = {
-    {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_VEC3, OFFSET(vector)},
     {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1}},
@@ -56,7 +53,6 @@ static const struct node_param uniformvec3_params[] = {
 };
 
 static const struct node_param uniformvec4_params[] = {
-    {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_VEC4, OFFSET(vector)},
     {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC4, -1}},
@@ -64,13 +60,11 @@ static const struct node_param uniformvec4_params[] = {
 };
 
 static const struct node_param uniformint_params[] = {
-    {"id",     PARAM_TYPE_STR, OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_INT, OFFSET(ival)},
     {NULL}
 };
 
 static const struct node_param uniformmat4_params[] = {
-    {"id",     PARAM_TYPE_STR,  OFFSET(name),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"transform", PARAM_TYPE_NODE, OFFSET(transform), .node_types=TRANSFORM_TYPES_LIST},
     {NULL}
 };

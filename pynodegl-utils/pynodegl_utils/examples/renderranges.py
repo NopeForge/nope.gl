@@ -141,7 +141,7 @@ void main(void)
     tshape2 = TexturedShape(q, s, name="texturedshape2")
     tshape2.update_textures(tex0=t2)
 
-    delta = UniformScalar("delta", value=1.0)
+    delta = UniformScalar(value=1.0)
     delta.add_animkf(AnimKeyFrameScalar(transition_start, 1.0),
                      AnimKeyFrameScalar(transition_start + transition_duration, 0.0))
 

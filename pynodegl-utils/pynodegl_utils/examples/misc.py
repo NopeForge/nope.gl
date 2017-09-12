@@ -62,7 +62,7 @@ void main(void) {
         color = [gray, gray, gray, 1]
         q = Quad(orig, (w, 0, 0), (0, w, 0))
         tshape = TexturedShape(q, s)
-        tshape.update_uniforms(color=UniformVec4("color", value=color))
+        tshape.update_uniforms(color=UniformVec4(value=color))
 
         new_g = Group()
         rot = Rotate(new_g, axis=(0,0,1), anchor=orig)

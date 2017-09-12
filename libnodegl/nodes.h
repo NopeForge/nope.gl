@@ -188,7 +188,6 @@ struct shape {
 void ngli_shape_generate_buffers(struct ngl_node *node);
 
 struct uniform {
-    const char *name;
     double scalar;
     float vector[4];
     float matrix[4*4];

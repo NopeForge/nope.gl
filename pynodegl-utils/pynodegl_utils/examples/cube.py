@@ -19,7 +19,7 @@ def _get_cube_quads():
 def _get_cube_side(texture, shader, corner, width, height, color):
     ts = TexturedShape(Quad(corner, width, height), shader)
     ts.update_textures(tex0=texture)
-    ts.update_uniforms(blend_color=UniformVec3("blend_color", value=color))
+    ts.update_uniforms(blend_color=UniformVec3(value=color))
     return ts
 
 @scene()

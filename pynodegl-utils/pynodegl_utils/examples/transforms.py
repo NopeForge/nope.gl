@@ -37,7 +37,7 @@ def static(cfg, color=(0.5, 0.0, 1.0, 1.0), width=0.5, height=0.5,
     q = Quad((-width/2., -height/2., 0), (width, 0, 0), (0, height, 0))
     s = Shader()
 
-    ucolor = UniformVec4("blend_color", value=color)
+    ucolor = UniformVec4(value=color)
 
     s.set_fragment_data(frag_data)
     node = TexturedShape(q, s)
@@ -118,7 +118,7 @@ def animated_uniform(cfg):
     r.add_animkf(AnimKeyFrameScalar(0, 0),
                  AnimKeyFrameScalar(cfg.duration, 360, "exp_out"))
 
-    u = UniformMat4("matrix", transform=r)
+    u = UniformMat4(transform=r)
     ts.update_uniforms(matrix=u)
 
     return ts
