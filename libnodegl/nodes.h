@@ -125,9 +125,7 @@ struct camera {
     struct ngl_node *center_transform;
     struct ngl_node *up_transform;
 
-    struct ngl_node **fov_animkf;
-    int nb_fov_animkf;
-    int current_fov_kf;
+    struct ngl_node *fov_anim;
 
     int pipe_fd;
     int pipe_width, pipe_height;
@@ -194,9 +192,7 @@ struct uniform {
     float matrix[4*4];
     int ival;
     int type;
-    struct ngl_node **animkf;
-    int nb_animkf;
-    int current_kf;
+    struct ngl_node *anim;
     struct ngl_node *transform;
 };
 
@@ -286,9 +282,7 @@ struct media {
     double start;
     double initial_seek;
     const char *sxplayer_min_level_str;
-    struct ngl_node **animkf;
-    int nb_animkf;
-    int current_kf;
+    struct ngl_node *anim;
     int audio_tex;
 
     int sxplayer_min_level;
@@ -314,33 +308,31 @@ struct rotate {
     double angle;
     float axis[3];
     float anchor[3];
-    struct ngl_node **animkf;
-    int nb_animkf;
-    int current_kf;
+    struct ngl_node *anim;
 };
 
 struct translate {
     struct ngl_node *child;
     float vector[3];
-    struct ngl_node **animkf;
-    int nb_animkf;
-    int current_kf;
+    struct ngl_node *anim;
 };
 
 struct scale {
     struct ngl_node *child;
     float factors[3];
     float anchor[3];
-    struct ngl_node **animkf;
-    int nb_animkf;
-    int current_kf;
+    struct ngl_node *anim;
 };
 
 typedef double easing_type;
 typedef easing_type (*easing_function)(easing_type, int, const easing_type *);
 
-void ngli_animkf_interpolate(float *dst, struct ngl_node **animkf, int nb_animkf,
-                             int *current_kf, double t);
+struct animation {
+    struct ngl_node **animkf;
+    int nb_animkf;
+    int current_kf;
+    float values[4];
+};
 
 struct animkeyframe {
     double time;

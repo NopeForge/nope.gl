@@ -19,7 +19,7 @@
         - [eye_transform, Node]
         - [center_transform, Node]
         - [up_transform, Node]
-        - [fov_animkf, NodeList]
+        - [fov_anim, Node]
         - [pipe_fd, int]
         - [pipe_width, int]
         - [pipe_height, int]
@@ -46,7 +46,7 @@
         - [start, double]
         - [initial_seek, double]
         - [sxplayer_min_level, string]
-        - [time_animkf, NodeList]
+        - [time_anim, Node]
         - [audio_tex, int]
 
 - GLState:
@@ -156,7 +156,7 @@
         - [angle, double]
         - [axis, vec3]
         - [anchor, vec3]
-        - [animkf, NodeList]
+        - [anim, Node]
 
 - RTT:
     constructors:
@@ -170,7 +170,7 @@
         - [child, Node]
     optional:
         - [vector, vec3]
-        - [animkf, NodeList]
+        - [anim, Node]
 
 - Scale:
     constructors:
@@ -178,7 +178,7 @@
     optional:
         - [factors, vec3]
         - [anchor, vec3]
-        - [animkf, NodeList]
+        - [anim, Node]
 
 - AnimKeyFrameScalar:
     constructors:
@@ -215,22 +215,22 @@
 - UniformScalar:
     optional:
         - [value, double]
-        - [animkf, NodeList]
+        - [anim, Node]
 
 - UniformVec2:
     optional:
         - [value, vec2]
-        - [animkf, NodeList]
+        - [anim, Node]
 
 - UniformVec3:
     optional:
         - [value, vec3]
-        - [animkf, NodeList]
+        - [anim, Node]
 
 - UniformVec4:
     optional:
         - [value, vec4]
-        - [animkf, NodeList]
+        - [anim, Node]
 
 - UniformMat4:
     optional:
@@ -249,4 +249,20 @@
         - [create_databuf, int]
 
 - Identity:
+
+- AnimationScalar:
+    optional:
+        - [keyframes, NodeList]
+
+- AnimationVec2:
+    optional:
+        - [keyframes, NodeList]
+
+- AnimationVec3:
+    optional:
+        - [keyframes, NodeList]
+
+- AnimationVec4:
+    optional:
+        - [keyframes, NodeList]
 

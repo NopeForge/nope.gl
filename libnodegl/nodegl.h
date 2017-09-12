@@ -89,6 +89,10 @@ enum {
     NGL_NODE_UNIFORMINT,
     NGL_NODE_FPS,
     NGL_NODE_IDENTITY,
+    NGL_NODE_ANIMATIONSCALAR,
+    NGL_NODE_ANIMATIONVEC2,
+    NGL_NODE_ANIMATIONVEC3,
+    NGL_NODE_ANIMATIONVEC4,
 };
 
 struct ngl_node *ngl_node_create(int type, ...);

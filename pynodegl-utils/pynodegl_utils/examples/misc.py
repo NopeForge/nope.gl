@@ -1,9 +1,11 @@
 import math
 import random
 
-from pynodegl import Texture, Shader, TexturedShape, Rotate, AnimKeyFrameScalar, Triangle
+from pynodegl import Texture, Shader, TexturedShape, Rotate, Triangle
 from pynodegl import Quad, UniformVec4, Camera, Group
-from pynodegl import Media, Translate, AnimKeyFrameVec3
+from pynodegl import Media, Translate
+from pynodegl import AnimationScalar, AnimKeyFrameScalar
+from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
 
@@ -26,9 +28,9 @@ void main(void)
     s = Shader(fragment_data=frag_data)
     node = TexturedShape(triangle, s)
     node.update_textures(tex0=Texture())
-    node = Rotate(node, axis=(0,0,1))
-    node.add_animkf(AnimKeyFrameScalar(0, 0),
-                    AnimKeyFrameScalar(cfg.duration, -360*2))
+    animkf = [AnimKeyFrameScalar(0, 0),
+              AnimKeyFrameScalar(cfg.duration, -360*2)]
+    node = Rotate(node, axis=(0,0,1), anim=AnimationScalar(animkf))
     return node
 
 @scene({'name': 'n', 'type': 'range', 'range': [2,10]})
@@ -65,10 +67,10 @@ void main(void) {
         tshape.update_uniforms(color=UniformVec4(value=color))
 
         new_g = Group()
-        rot = Rotate(new_g, axis=(0,0,1), anchor=orig)
-        rot.add_animkf(AnimKeyFrameScalar(0, 90),
-                       AnimKeyFrameScalar(cfg.duration/2, -90, "exp_in_out"),
-                       AnimKeyFrameScalar(cfg.duration, 90, "exp_in_out"))
+        animkf = [AnimKeyFrameScalar(0, 90),
+                  AnimKeyFrameScalar(cfg.duration/2, -90, "exp_in_out"),
+                  AnimKeyFrameScalar(cfg.duration, 90, "exp_in_out")]
+        rot = Rotate(new_g, axis=(0,0,1), anchor=orig, anim=AnimationScalar(animkf))
         if g:
             g.add_children(rot)
         else:
@@ -110,9 +112,9 @@ def cropboard(cfg, dim=15):
 
             startx = random.uniform(-2, 2)
             starty = random.uniform(-2, 2)
-            trn = Translate(tshape)
-            trn.add_animkf(AnimKeyFrameVec3(0, (startx, starty, 0)),
-                           AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0), "exp_out"))
+            trn_animkf = [AnimKeyFrameVec3(0, (startx, starty, 0)),
+                          AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0), "exp_out")]
+            trn = Translate(tshape, anim=AnimationVec3(trn_animkf))
             tqs.append(trn)
 
     return Group(children=tqs)

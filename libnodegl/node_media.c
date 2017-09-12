@@ -39,8 +39,8 @@ static const struct node_param media_params[] = {
     {"start",    PARAM_TYPE_DBL, OFFSET(start)},
     {"initial_seek", PARAM_TYPE_DBL, OFFSET(initial_seek)},
     {"sxplayer_min_level", PARAM_TYPE_STR, OFFSET(sxplayer_min_level_str), {.str="warning"}},
-    {"time_animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-                    .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
+    {"time_anim", PARAM_TYPE_NODE, OFFSET(anim), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+                    .node_types=(const int[]){NGL_NODE_ANIMATIONSCALAR, -1}},
     {"audio_tex", PARAM_TYPE_INT, OFFSET(audio_tex)},
     {NULL}
 };
@@ -97,11 +97,16 @@ static int media_init(struct ngl_node *node)
     }
 
     // Sanity check for time animation keyframe
-    for (i = 0; i < s->nb_animkf; i++) {
-        const struct animkeyframe *kf = s->animkf[i]->priv_data;
+    struct ngl_node *anim_node = s->anim;
+    if (anim_node) {
+        struct animation *anim = anim_node->priv_data;
+        for (i = 0; i < anim->nb_animkf; i++) {
+            const struct animkeyframe *kf = anim->animkf[i]->priv_data;
+        // TODO: reindent
         if (strcmp(kf->easing, "linear")) {
             LOG(ERROR, "Only linear interpolation is allowed for time remapping");
             return -1;
+        }
         }
     }
 
@@ -159,10 +164,11 @@ static void media_update(struct ngl_node *node, double t)
 {
     struct media *s = node->priv_data;
 
-    if (s->nb_animkf) {
-        float new_t; // FIXME we currently loose double precision
-        ngli_animkf_interpolate(&new_t, s->animkf, s->nb_animkf, &s->current_kf, t);
-        t = new_t;
+    if (s->anim) {
+        struct ngl_node *anim_node = s->anim;
+        struct animation *anim = anim_node->priv_data;
+        ngli_node_update(anim_node, t);
+        t = anim->values[0]; // FIXME we currently loose double precision
     }
 
     t = t - s->start;

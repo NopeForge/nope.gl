@@ -34,17 +34,18 @@ static const struct node_param rotate_params[] = {
     {"angle", PARAM_TYPE_DBL,  OFFSET(angle)},
     {"axis",  PARAM_TYPE_VEC3, OFFSET(axis), {.vec={0.0, 0.0, 1.0}}},
     {"anchor", PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}}},
-    {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-               .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .node_types=(const int[]){NGL_NODE_ANIMATIONSCALAR, -1}},
     {NULL}
 };
 
 static const float get_angle(struct rotate *s, double t)
 {
-    float angle = s->angle;
-    if (s->nb_animkf)
-        ngli_animkf_interpolate(&angle, s->animkf, s->nb_animkf, &s->current_kf, t);
-    return angle;
+    if (!s->anim)
+        return s->angle;
+    struct ngl_node *anim_node = s->anim;
+    struct animation *anim = anim_node->priv_data;
+    ngli_node_update(anim_node, t);
+    return anim->values[0];
 }
 
 static void rotate_update(struct ngl_node *node, double t)

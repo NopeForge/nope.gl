@@ -77,13 +77,17 @@ static struct ngl_node *get_scene(const char *filename)
         ngl_node_create(NGL_NODE_ANIMKEYFRAMESCALAR, g_info.duration, 1.0),
     };
 
+    struct ngl_node *time_anim = ngl_node_create(NGL_NODE_ANIMATIONSCALAR);
+
+    ngl_node_param_add(time_anim, "keyframes", 2, time_animkf);
+
     ngl_node_param_set(quad, "corner", corner);
     ngl_node_param_set(quad, "width", width);
     ngl_node_param_set(quad, "height", height);
 
     ngl_node_param_set(texture, "data_src", media);
     ngl_node_param_set(shader, "fragment_data", pgbar_shader);
-    ngl_node_param_add(uniforms[0], "animkf", 2, time_animkf);
+    ngl_node_param_set(uniforms[0], "anim", time_anim);
     ngl_node_param_set(uniforms[1], "value", g_info.width / (double)g_info.height);
     ngl_node_param_set(uniforms[2], "value", 0.0);
 
@@ -100,6 +104,7 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_unrefp(&time_animkf[0]);
     ngl_node_unrefp(&time_animkf[1]);
 
+    ngl_node_unrefp(&time_anim);
     ngl_node_unrefp(&shader);
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);

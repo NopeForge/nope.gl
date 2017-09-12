@@ -441,57 +441,6 @@ static int animkeyframe_init(struct ngl_node *node)
     return 0;
 }
 
-static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double t)
-{
-    int ret = -1;
-
-    for (int i = start; i < nb_animkf; i++) {
-        const struct animkeyframe *kf = animkf[i]->priv_data;
-        if (kf->time >= t)
-            break;
-        ret = i;
-    }
-    return ret;
-}
-
-#define MIX(x, y, a) ((x)*(1.-(a)) + (y)*(a))
-
-void ngli_animkf_interpolate(float *dst, struct ngl_node **animkf, int nb_animkf,
-                             int *current_kf, double t)
-{
-    const int vec_lens[] = {
-        [NGL_NODE_ANIMKEYFRAMEVEC4] = 4,
-        [NGL_NODE_ANIMKEYFRAMEVEC3] = 3,
-        [NGL_NODE_ANIMKEYFRAMEVEC2] = 2,
-    };
-    const int class_id = animkf[0]->class->id;
-    int kf_id = get_kf_id(animkf, nb_animkf, *current_kf, t);
-    if (kf_id < 0)
-        kf_id = get_kf_id(animkf, nb_animkf, 0, t);
-    if (kf_id >= 0 && kf_id < nb_animkf-1) {
-        const struct animkeyframe *kf0 = animkf[kf_id  ]->priv_data;
-        const struct animkeyframe *kf1 = animkf[kf_id+1]->priv_data;
-        const double t0 = kf0->time;
-        const double t1 = kf1->time;
-        const double tnorm = (t - t0) / (t1 - t0);
-        const double ratio = kf1->function(tnorm, kf1->nb_args, kf1->args);
-        *current_kf = kf_id;
-        if (class_id == NGL_NODE_ANIMKEYFRAMESCALAR)
-            dst[0] = MIX(kf0->scalar, kf1->scalar, ratio);
-        else
-            for (int i = 0; i < vec_lens[class_id]; i++)
-                dst[i] = MIX(kf0->value[i], kf1->value[i], ratio);
-    } else {
-        const struct animkeyframe *kf0 = animkf[          0]->priv_data;
-        const struct animkeyframe *kfn = animkf[nb_animkf-1]->priv_data;
-        const struct animkeyframe *kf  = t <= kf0->time ? kf0 : kfn;
-        if (class_id == NGL_NODE_ANIMKEYFRAMESCALAR)
-            dst[0] = kf->scalar;
-        else
-            memcpy(dst, kf->value, vec_lens[class_id] * sizeof(*dst));
-    }
-}
-
 static char *animkeyframe_info_str(const struct ngl_node *node)
 {
     const struct animkeyframe *s = node->priv_data;

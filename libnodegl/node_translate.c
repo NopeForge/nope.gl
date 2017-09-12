@@ -31,16 +31,18 @@
 static const struct node_param translate_params[] = {
     {"child",  PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
     {"vector", PARAM_TYPE_VEC3, OFFSET(vector)},
-    {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-               .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1}},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .node_types=(const int[]){NGL_NODE_ANIMATIONVEC3, -1}},
     {NULL}
 };
 
 static const float *get_vector(struct translate *s, double t)
 {
-    if (s->nb_animkf)
-        ngli_animkf_interpolate(s->vector, s->animkf, s->nb_animkf, &s->current_kf, t);
-    return s->vector;
+    if (!s->anim)
+        return s->vector;
+    struct ngl_node *anim_node = s->anim;
+    struct animation *anim = anim_node->priv_data;
+    ngli_node_update(anim_node, t);
+    return anim->values;
 }
 
 static void translate_update(struct ngl_node *node, double t)

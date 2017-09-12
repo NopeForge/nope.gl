@@ -1,6 +1,8 @@
 import math
 
-from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, AnimKeyFrameScalar, Group, GLStencilState, GLState, Scale, AnimKeyFrameScalar, AnimKeyFrameVec3, Rotate, GLColorState, UniformScalar
+from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, Group, GLStencilState, GLState, Scale, Rotate, GLColorState, UniformScalar
+from pynodegl import AnimationScalar, AnimKeyFrameScalar
+from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
 
@@ -74,9 +76,9 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
 
     if progress_bar:
         s.set_fragment_data(pgbar_shader)
-        time = UniformScalar()
-        time.add_animkf(AnimKeyFrameScalar(0, 0),
-                        AnimKeyFrameScalar(cfg.duration, 1))
+        time_animkf = [AnimKeyFrameScalar(0, 0),
+                       AnimKeyFrameScalar(cfg.duration, 1)]
+        time = UniformScalar(anim=AnimationScalar(time_animkf))
         ar = UniformScalar(cfg.aspect_ratio)
         tshape.update_uniforms(time=time, ar=ar)
     return tshape
@@ -112,13 +114,13 @@ def centered_masked_media(cfg):
                       GLColorState(GL.GL_TRUE, 0, 0, 0, 0))
 
 
-    node = Scale(node)
-    node.add_animkf(AnimKeyFrameVec3(0, (0.1,  0.1, 1.0)),
-                    AnimKeyFrameVec3(10, (10., 10.0,  3), "exp_out"))
+    scale_animkf = [AnimKeyFrameVec3(0, (0.1,  0.1, 1.0)),
+                    AnimKeyFrameVec3(10, (10., 10.0,  3), "exp_out")]
+    node = Scale(node, anim=AnimationVec3(scale_animkf))
 
-    node = Rotate(node, axis=(0, 0, 1))
-    node.add_animkf(AnimKeyFrameScalar(0, 0),
-                    AnimKeyFrameScalar(cfg.duration, 360, "exp_out"))
+    rotate_animkf = [AnimKeyFrameScalar(0, 0),
+                     AnimKeyFrameScalar(cfg.duration, 360, "exp_out")]
+    node = Rotate(node, axis=(0, 0, 1), anim=AnimationScalar(rotate_animkf))
 
     g.add_children(node)
 
@@ -167,9 +169,9 @@ def playback_speed(cfg, speed=1.0):
     cfg.duration = cfg.medias[0].duration / speed
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(cfg.medias[0].filename, initial_seek=5)
-    m.add_time_animkf(AnimKeyFrameScalar(0, 0),
-                      AnimKeyFrameScalar(cfg.duration, cfg.duration * speed))
+    time_animkf = [AnimKeyFrameScalar(0, 0),
+                   AnimKeyFrameScalar(cfg.duration, cfg.duration * speed)]
+    m = Media(cfg.medias[0].filename, initial_seek=5, time_anim=AnimationScalar(time_animkf))
     t = Texture(data_src=m)
     s = Shader()
     tshape = TexturedShape(q, s)

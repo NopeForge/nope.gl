@@ -33,29 +33,29 @@
 #define OFFSET(x) offsetof(struct uniform, x)
 static const struct node_param uniformscalar_params[] = {
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar)},
-    {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-               .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+               .node_types=(const int[]){NGL_NODE_ANIMATIONSCALAR, -1}},
     {NULL}
 };
 
 static const struct node_param uniformvec2_params[] = {
     {"value",  PARAM_TYPE_VEC2, OFFSET(vector)},
-    {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-               .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC2, -1}},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+               .node_types=(const int[]){NGL_NODE_ANIMATIONVEC2, -1}},
     {NULL}
 };
 
 static const struct node_param uniformvec3_params[] = {
     {"value",  PARAM_TYPE_VEC3, OFFSET(vector)},
-    {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-               .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1}},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+               .node_types=(const int[]){NGL_NODE_ANIMATIONVEC3, -1}},
     {NULL}
 };
 
 static const struct node_param uniformvec4_params[] = {
     {"value",  PARAM_TYPE_VEC4, OFFSET(vector)},
-    {"animkf", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-               .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC4, -1}},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+               .node_types=(const int[]){NGL_NODE_ANIMATIONVEC4, -1}},
     {NULL}
 };
 
@@ -69,22 +69,29 @@ static const struct node_param uniformmat4_params[] = {
     {NULL}
 };
 
-static void uniform_scalar_update(struct ngl_node *node, double t)
+static inline void uniform_update(struct uniform *s, double t, int len)
 {
-    struct uniform *s = node->priv_data;
-    if (s->nb_animkf) {
-        float scalar;
-        ngli_animkf_interpolate(&scalar, s->animkf, s->nb_animkf, &s->current_kf, t);
-        s->scalar = scalar;
+    if (s->anim) {
+        struct ngl_node *anim_node = s->anim;
+        struct animation *anim = anim_node->priv_data;
+        ngli_node_update(anim_node, t);
+        if (len == 1)
+            s->scalar = anim->values[0];
+        else
+            memcpy(s->vector, anim->values, len * sizeof(*s->vector));
     }
 }
 
-static void uniform_vec_update(struct ngl_node *node, double t)
-{
-    struct uniform *s = node->priv_data;
-    if (s->nb_animkf)
-        ngli_animkf_interpolate(s->vector, s->animkf, s->nb_animkf, &s->current_kf, t);
+#define UPDATE_FUNC(type, len)                                          \
+static void uniform##type##_update(struct ngl_node *node, double t)     \
+{                                                                       \
+    uniform_update(node->priv_data, t, len);                            \
 }
+
+UPDATE_FUNC(scalar, 1);
+UPDATE_FUNC(vec2,   2);
+UPDATE_FUNC(vec3,   3);
+UPDATE_FUNC(vec4,   4);
 
 static void uniform_mat_update(struct ngl_node *node, double t)
 {
@@ -112,7 +119,7 @@ const struct node_class ngli_uniformscalar_class = {
     .id        = NGL_NODE_UNIFORMSCALAR,
     .name      = "UniformScalar",
     .init      = uniform_init,
-    .update    = uniform_scalar_update,
+    .update    = uniformscalar_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformscalar_params,
 };
@@ -121,7 +128,7 @@ const struct node_class ngli_uniformvec2_class = {
     .id        = NGL_NODE_UNIFORMVEC2,
     .name      = "UniformVec2",
     .init      = uniform_init,
-    .update    = uniform_vec_update,
+    .update    = uniformvec2_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec2_params,
 };
@@ -130,7 +137,7 @@ const struct node_class ngli_uniformvec3_class = {
     .id        = NGL_NODE_UNIFORMVEC3,
     .name      = "UniformVec3",
     .init      = uniform_init,
-    .update    = uniform_vec_update,
+    .update    = uniformvec3_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec3_params,
 };
@@ -139,7 +146,7 @@ const struct node_class ngli_uniformvec4_class = {
     .id        = NGL_NODE_UNIFORMVEC4,
     .name      = "UniformVec4",
     .init      = uniform_init,
-    .update    = uniform_vec_update,
+    .update    = uniformvec4_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec4_params,
 };

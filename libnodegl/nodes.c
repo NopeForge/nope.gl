@@ -66,6 +66,10 @@ extern const struct node_class ngli_uniformvec4_class;
 extern const struct node_class ngli_uniformint_class;
 extern const struct node_class ngli_uniformmat4_class;
 extern const struct node_class ngli_fps_class;
+extern const struct node_class ngli_animationscalar_class;
+extern const struct node_class ngli_animationvec2_class;
+extern const struct node_class ngli_animationvec3_class;
+extern const struct node_class ngli_animationvec4_class;
 
 static const struct node_class *node_class_map[] = {
     [NGL_NODE_CAMERA]                = &ngli_camera_class,
@@ -101,6 +105,10 @@ static const struct node_class *node_class_map[] = {
     [NGL_NODE_UNIFORMINT]            = &ngli_uniformint_class,
     [NGL_NODE_UNIFORMMAT4]           = &ngli_uniformmat4_class,
     [NGL_NODE_FPS]                   = &ngli_fps_class,
+    [NGL_NODE_ANIMATIONSCALAR]       = &ngli_animationscalar_class,
+    [NGL_NODE_ANIMATIONVEC2]         = &ngli_animationvec2_class,
+    [NGL_NODE_ANIMATIONVEC3]         = &ngli_animationvec3_class,
+    [NGL_NODE_ANIMATIONVEC4]         = &ngli_animationvec4_class,
 };
 
 static const char *param_type_strings[] = {

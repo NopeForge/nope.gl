@@ -1,7 +1,8 @@
 from pynodegl import Quad, Texture, Shader, TexturedShape, Media, Camera, Group, GLState
 from pynodegl import Scale, Rotate, Translate, Identity
 from pynodegl import UniformVec4, UniformMat4
-from pynodegl import AnimKeyFrameScalar, AnimKeyFrameVec3
+from pynodegl import AnimationScalar, AnimKeyFrameScalar
+from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
 
@@ -67,20 +68,20 @@ def animated(cfg, rotate=True, scale=True, translate=True):
     node.update_textures(tex0=t)
 
     if rotate:
-        node = Rotate(node, axis=(0,0,1))
-        node.add_animkf(AnimKeyFrameScalar(0, 0),
-                        AnimKeyFrameScalar(cfg.duration, 360, "exp_in"))
+        animkf = [AnimKeyFrameScalar(0, 0),
+                  AnimKeyFrameScalar(cfg.duration, 360, "exp_in")]
+        node = Rotate(node, axis=(0,0,1), anim=AnimationScalar(animkf))
 
     if scale:
-        node = Scale(node)
-        node.add_animkf(AnimKeyFrameVec3(0, (16/9., 0.5, 1.0)),
-                        AnimKeyFrameVec3(cfg.duration, (4/3.,  1.0, 0.5), "exp_out"))
+        animkf = [AnimKeyFrameVec3(0, (16/9., 0.5, 1.0)),
+                  AnimKeyFrameVec3(cfg.duration, (4/3.,  1.0, 0.5), "exp_out")]
+        node = Scale(node, anim=AnimationVec3(animkf))
 
     if translate:
-        node = Translate(node)
-        node.add_animkf(AnimKeyFrameVec3(0,              (-0.5,  0.5, -0.7)),
-                        AnimKeyFrameVec3(cfg.duration/2, ( 0.5, -0.5,  0.7), "circular_in"),
-                        AnimKeyFrameVec3(cfg.duration,   (-0.5, -0.3, -0.5), "sinus_in_out", easing_args=(0, .7)))
+        animkf = [AnimKeyFrameVec3(0,              (-0.5,  0.5, -0.7)),
+                  AnimKeyFrameVec3(cfg.duration/2, ( 0.5, -0.5,  0.7), "circular_in"),
+                  AnimKeyFrameVec3(cfg.duration,   (-0.5, -0.3, -0.5), "sinus_in_out", easing_args=(0, .7))]
+        node = Translate(node, anim=AnimationVec3(animkf))
 
     return node
 
@@ -110,13 +111,13 @@ def animated_uniform(cfg):
     ts = TexturedShape(q, s)
     ts.update_textures(tex0=t)
 
-    s = Scale(Identity())
-    s.add_animkf(AnimKeyFrameVec3(0, (1,1,1)),
-                 AnimKeyFrameVec3(cfg.duration, (0.1,0.1,0.1), "quartic_out"))
+    scale_animkf = [AnimKeyFrameVec3(0, (1,1,1)),
+                    AnimKeyFrameVec3(cfg.duration, (0.1,0.1,0.1), "quartic_out")]
+    s = Scale(Identity(), anim=AnimationVec3(scale_animkf))
 
-    r = Rotate(s, axis=(0,0,1))
-    r.add_animkf(AnimKeyFrameScalar(0, 0),
-                 AnimKeyFrameScalar(cfg.duration, 360, "exp_out"))
+    rotate_animkf = [AnimKeyFrameScalar(0, 0),
+                     AnimKeyFrameScalar(cfg.duration, 360, "exp_out")]
+    r = Rotate(s, axis=(0,0,1), anim=AnimationScalar(rotate_animkf))
 
     u = UniformMat4(transform=r)
     ts.update_uniforms(matrix=u)
@@ -163,20 +164,19 @@ def animated_camera(cfg, rotate=False):
     camera.set_up(0.0, 1.0, 0.0)
     camera.set_perspective(45.0, cfg.aspect_ratio, 0.1, 10.0)
 
-    node = Translate(Identity())
-    node.add_animkf(
-            AnimKeyFrameVec3(0, (0.0,  0.0, 0.0)),
-            AnimKeyFrameVec3(10, ( 0.0, 0.0,  3), "exp_out"))
+    tr_animkf = [AnimKeyFrameVec3(0,  (0.0, 0.0, 0.0)),
+                 AnimKeyFrameVec3(10, (0.0, 0.0, 3.0), "exp_out")]
+    node = Translate(Identity(), anim=AnimationVec3(tr_animkf))
 
     if rotate:
-        node = Rotate(node, axis=(0,1,0))
-        node.add_animkf(AnimKeyFrameScalar(0, 0),
-                        AnimKeyFrameScalar(cfg.duration, 360, "exp_out"))
+        rot_animkf = [AnimKeyFrameScalar(0, 0),
+                      AnimKeyFrameScalar(cfg.duration, 360, "exp_out")]
+        node = Rotate(node, axis=(0,1,0), anim=AnimationScalar(rot_animkf))
 
     camera.set_eye_transform(node)
 
-    camera.add_fov_animkf(
-            AnimKeyFrameScalar(0.5, 60.0),
-            AnimKeyFrameScalar(cfg.duration, 45.0, "exp_out"))
+    fov_animkf = [AnimKeyFrameScalar(0.5, 60.0),
+                  AnimKeyFrameScalar(cfg.duration, 45.0, "exp_out")]
+    camera.set_fov_anim(AnimationScalar(fov_animkf))
 
     return camera

@@ -1,5 +1,6 @@
 from pynodegl import TexturedShape, Quad, Texture, Media, Shader, Group
-from pynodegl import UniformScalar, AnimKeyFrameScalar
+from pynodegl import UniformScalar
+from pynodegl import AnimationScalar, AnimKeyFrameScalar
 from pynodegl import RenderRangeContinuous, RenderRangeOnce, RenderRangeNoRender
 
 from pynodegl_utils.misc import scene
@@ -141,9 +142,9 @@ void main(void)
     tshape2 = TexturedShape(q, s, name="texturedshape2")
     tshape2.update_textures(tex0=t2)
 
-    delta = UniformScalar(value=1.0)
-    delta.add_animkf(AnimKeyFrameScalar(transition_start, 1.0),
-                     AnimKeyFrameScalar(transition_start + transition_duration, 0.0))
+    delta_animkf = [AnimKeyFrameScalar(transition_start, 1.0),
+                    AnimKeyFrameScalar(transition_start + transition_duration, 0.0)]
+    delta = UniformScalar(value=1.0, anim=AnimationScalar(delta_animkf))
 
     tshape1_2 = TexturedShape(q, s1_2, name="texturedshape1_2")
     tshape1_2.update_textures(tex0=t1, tex1=t2)

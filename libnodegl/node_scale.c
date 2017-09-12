@@ -32,16 +32,19 @@ static const struct node_param scale_params[] = {
     {"child",   PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
     {"factors", PARAM_TYPE_VEC3, OFFSET(factors)},
     {"anchor",  PARAM_TYPE_VEC3, OFFSET(anchor)},
-    {"animkf",  PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-                .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1}},
+    {"anim",    PARAM_TYPE_NODE, OFFSET(anim), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+                .node_types=(const int[]){NGL_NODE_ANIMATIONVEC3, -1}},
     {NULL}
 };
 
 static const float *get_factors(struct scale *s, double t)
 {
-    if (s->nb_animkf)
-        ngli_animkf_interpolate(s->factors, s->animkf, s->nb_animkf, &s->current_kf, t);
-    return s->factors;
+    if (!s->anim)
+        return s->factors;
+    struct ngl_node *anim_node = s->anim;
+    struct animation *anim = anim_node->priv_data;
+    ngli_node_update(anim_node, t);
+    return anim->values;
 }
 
 static void scale_update(struct ngl_node *node, double t)
