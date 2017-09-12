@@ -485,10 +485,10 @@ void ngli_animkf_interpolate(float *dst, struct ngl_node **animkf, int nb_animkf
         const struct animkeyframe *kf0 = animkf[          0]->priv_data;
         const struct animkeyframe *kfn = animkf[nb_animkf-1]->priv_data;
         const struct animkeyframe *kf  = t <= kf0->time ? kf0 : kfn;
-        if (class_id == NGL_NODE_ANIMKEYFRAMEVEC3)
-            memcpy(dst, kf->value, vec_lens[class_id] * sizeof(*dst));
-        else
+        if (class_id == NGL_NODE_ANIMKEYFRAMESCALAR)
             dst[0] = kf->scalar;
+        else
+            memcpy(dst, kf->value, vec_lens[class_id] * sizeof(*dst));
     }
 }
 
