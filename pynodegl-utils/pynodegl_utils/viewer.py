@@ -908,7 +908,8 @@ class _MainWindow(QtWidgets.QSplitter):
             q = Quad((0, 15/16., 0), (1., 0, 0), (0, 1/16., 0))
             s = Shader()
             t = Texture(data_src=fps)
-            tshape = TexturedShape(q, s, t)
+            tshape = TexturedShape(q, s)
+            tshape.update_textures(tex0=t)
             g = Group()
             g.add_children(fps, tshape)
             scene = g
