@@ -37,7 +37,7 @@ cdef extern from "nodegl.h":
 
     ngl_ctx *ngl_create()
     int ngl_set_glcontext(ngl_ctx *s, void *display, void *window, void *handle, int platform, int api)
-    int ngl_set_glstates(ngl_ctx *s, int nb_glstates,  ngl_node **glstates);
+    int ngl_set_glstates(ngl_ctx *s, int nb_glstates,  ngl_node **glstates)
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
     int ngl_draw(ngl_ctx *s, double t) nogil
     void ngl_free(ngl_ctx **ss)
@@ -72,7 +72,7 @@ cdef class Viewer:
             raise MemoryError()
 
     def configure(self, int platform, int api):
-        return ngl_set_glcontext(self.ctx, NULL, NULL, NULL, platform, api);
+        return ngl_set_glcontext(self.ctx, NULL, NULL, NULL, platform, api)
 
     def set_glstates(self, *glstates):
         if not glstates:
