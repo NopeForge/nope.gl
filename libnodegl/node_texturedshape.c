@@ -190,9 +190,11 @@ static int texturedshape_init(struct ngl_node *node)
         return ret;
 
     int nb_uniforms = ngli_ndict_count(s->uniforms);
-    s->uniform_ids = calloc(nb_uniforms, sizeof(*s->uniform_ids));
-    if (!s->uniform_ids)
-        return -1;
+    if (nb_uniforms > 0) {
+        s->uniform_ids = calloc(nb_uniforms, sizeof(*s->uniform_ids));
+        if (!s->uniform_ids)
+            return -1;
+    }
 
     int i = 0;
     struct ndict_entry *entry = NULL;
@@ -206,9 +208,11 @@ static int texturedshape_init(struct ngl_node *node)
     }
 
     int nb_attributes = ngli_ndict_count(s->attributes);
-    s->attribute_ids = calloc(nb_attributes, sizeof(*s->attribute_ids));
-    if (!s->attribute_ids)
-        return -1;
+    if (nb_attributes > 0) {
+        s->attribute_ids = calloc(nb_attributes, sizeof(*s->attribute_ids));
+        if (!s->attribute_ids)
+            return -1;
+    }
 
     i = 0;
     entry = NULL;
@@ -228,7 +232,7 @@ static int texturedshape_init(struct ngl_node *node)
         return -1;
     }
 
-    if (nb_textures) {
+    if (nb_textures > 0) {
         s->textureshaderinfos = calloc(nb_textures, sizeof(*s->textureshaderinfos));
         if (!s->textureshaderinfos)
             return -1;
