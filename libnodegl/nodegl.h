@@ -140,4 +140,7 @@ void *ngl_jni_get_java_vm(void);
 int ngl_android_set_application_context(void *application_context);
 void *ngl_android_get_application_context(void);
 
+/* Animation */
+void ngl_anim_evaluate(struct ngl_node *anim, float *dst, double t);
+
 #endif

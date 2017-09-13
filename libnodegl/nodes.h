@@ -331,6 +331,7 @@ struct animation {
     struct ngl_node **animkf;
     int nb_animkf;
     int current_kf;
+    int eval_current_kf;
     float values[4];
 };
 
