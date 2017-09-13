@@ -36,9 +36,29 @@ static const struct node_param shapeprimitive_params[] = {
     {NULL}
 };
 
+static char *shapeprimitive_info_str(const struct ngl_node *node)
+{
+    struct shapeprimitive *s = node->priv_data;
+    struct bstr *b = ngli_bstr_create();
+
+    if (!b)
+        return NULL;
+
+    ngli_bstr_print(b, "(%g,%g,%g)  ", NGLI_ARG_VEC3(s->coordinates));
+    if (s->texture_coordinates[0] || s->texture_coordinates[1])
+        ngli_bstr_print(b, "tex:(%g,%g)  ", NGLI_ARG_VEC2(s->texture_coordinates));
+    if (s->normals[0] || s->normals[1] || s->normals[2])
+        ngli_bstr_print(b, "nor:(%g,%g,%g)", NGLI_ARG_VEC3(s->normals));
+
+    char *ret = ngli_bstr_strdup(b);
+    ngli_bstr_freep(&b);
+    return ret;
+}
+
 const struct node_class ngli_shapeprimitive_class = {
     .id        = NGL_NODE_SHAPEPRIMITIVE,
     .name      = "ShapePrimitive",
+    .info_str  = shapeprimitive_info_str,
     .priv_size = sizeof(struct shapeprimitive),
     .params    = shapeprimitive_params,
 };

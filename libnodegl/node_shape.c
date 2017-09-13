@@ -65,7 +65,9 @@ void ngli_shape_generate_buffers(struct ngl_node *node)
 
 #define OFFSET(x) offsetof(struct shape, x)
 static const struct node_param shape_params[] = {
-    {"primitives", PARAM_TYPE_NODELIST, OFFSET(primitives), .node_types=(const int[]){NGL_NODE_SHAPEPRIMITIVE, -1}},
+    {"primitives", PARAM_TYPE_NODELIST, OFFSET(primitives),
+                   .node_types=(const int[]){NGL_NODE_SHAPEPRIMITIVE, -1},
+                   .flags=PARAM_FLAG_DOT_DISPLAY_PACKED},
     {"draw_mode", PARAM_TYPE_INT, OFFSET(draw_mode), {.i64=GL_TRIANGLES}},
     {"draw_type", PARAM_TYPE_INT, OFFSET(draw_type), {.i64=GL_UNSIGNED_SHORT}},
     {NULL}
