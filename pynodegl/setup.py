@@ -184,6 +184,19 @@ cdef class _Node:
         ngl_node_unrefp(&self.ctx)
 '''
 
+            elif node.startswith('Animation'):
+                n = ['Scalar', 'Vec2', 'Vec3', 'Vec4'].index(node[len('Animation'):]) + 1
+                if n == 1:
+                    retstr = 'vec[0]'
+                else:
+                    retstr = '(%s)' % ', '.join('vec[%d]' % x for x in range(n))
+                class_str += '''
+    def evaluate(self, t):
+        cdef float[%d] vec
+        ngl_anim_evaluate(self.ctx, vec, t)
+        return %s
+''' % (n, retstr)
+
             for field in fields.get('optional', []):
                 field_name, field_type = field
 

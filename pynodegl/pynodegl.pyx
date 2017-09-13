@@ -21,6 +21,8 @@ cdef extern from "nodegl.h":
     char *ngl_node_dot(const ngl_node *node)
     char *ngl_node_serialize(const ngl_node *node)
 
+    void ngl_anim_evaluate(ngl_node *anim, float *dst, double t)
+
     cdef int NGL_GLPLATFORM_AUTO
     cdef int NGL_GLPLATFORM_GLX
     cdef int NGL_GLPLATFORM_EGL
