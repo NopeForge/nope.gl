@@ -62,14 +62,14 @@ static struct ngl_node *get_scene(const char *filename)
 
     struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA, filename);
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE);
-    struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD, corner, width, height);
+    struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD);
     struct ngl_node *shader  = ngl_node_create(NGL_NODE_SHADER);
     struct ngl_node *tshape  = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
 
     struct ngl_node *uniforms[3] = {
-        ngl_node_create(NGL_NODE_UNIFORMSCALAR, "time"),
-        ngl_node_create(NGL_NODE_UNIFORMSCALAR, "ar"),
-        ngl_node_create(NGL_NODE_UNIFORMSCALAR, "opacity"),
+        ngl_node_create(NGL_NODE_UNIFORMSCALAR),
+        ngl_node_create(NGL_NODE_UNIFORMSCALAR),
+        ngl_node_create(NGL_NODE_UNIFORMSCALAR),
     };
 
     struct ngl_node *time_animkf[2] = {
@@ -77,14 +77,20 @@ static struct ngl_node *get_scene(const char *filename)
         ngl_node_create(NGL_NODE_ANIMKEYFRAMESCALAR, g_info.duration, 1.0),
     };
 
+    ngl_node_param_set(quad, "corner", corner);
+    ngl_node_param_set(quad, "width", width);
+    ngl_node_param_set(quad, "height", height);
+
     ngl_node_param_set(texture, "data_src", media);
     ngl_node_param_set(shader, "fragment_data", pgbar_shader);
     ngl_node_param_add(uniforms[0], "animkf", 2, time_animkf);
     ngl_node_param_set(uniforms[1], "value", g_info.width / (double)g_info.height);
     ngl_node_param_set(uniforms[2], "value", 0.0);
 
-    ngl_node_param_add(tshape, "textures", 1, &texture);
-    ngl_node_param_add(tshape, "uniforms", 3, uniforms);
+    ngl_node_param_set(tshape, "textures", "tex0",    texture);
+    ngl_node_param_set(tshape, "uniforms", "time",    uniforms[0]);
+    ngl_node_param_set(tshape, "uniforms", "ar",      uniforms[1]);
+    ngl_node_param_set(tshape, "uniforms", "opacity", uniforms[2]);
 
     g_opacity_uniform = uniforms[2];
 
