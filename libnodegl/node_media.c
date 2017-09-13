@@ -102,11 +102,10 @@ static int media_init(struct ngl_node *node)
         struct animation *anim = anim_node->priv_data;
         for (i = 0; i < anim->nb_animkf; i++) {
             const struct animkeyframe *kf = anim->animkf[i]->priv_data;
-        // TODO: reindent
-        if (strcmp(kf->easing, "linear")) {
-            LOG(ERROR, "Only linear interpolation is allowed for time remapping");
-            return -1;
-        }
+            if (strcmp(kf->easing, "linear")) {
+                LOG(ERROR, "Only linear interpolation is allowed for time remapping");
+                return -1;
+            }
         }
     }
 
