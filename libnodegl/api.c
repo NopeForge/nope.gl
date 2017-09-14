@@ -75,8 +75,7 @@ int ngl_set_glstates(struct ngl_ctx *s, int nb_glstates, struct ngl_node **glsta
     for (int i = 0; i < s->nb_glstates; i++) {
         ngli_assert(glstates[i]);
 
-        s->glstates[i] = glstates[i];
-        ngl_node_ref(s->glstates[i]);
+        s->glstates[i] = ngl_node_ref(glstates[i]);
     }
 
     return 0;
@@ -93,8 +92,7 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
     if (ret < 0)
         return ret;
 
-    ngl_node_ref(scene);
-    s->scene = scene;
+    s->scene = ngl_node_ref(scene);
     return 0;
 }
 
