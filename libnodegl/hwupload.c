@@ -68,7 +68,7 @@ static int get_config_from_frame(struct sxplayer_frame *frame, struct hwupload_c
     config->width = frame->width;
     config->height = frame->height;
     config->linesize = frame->linesize;
-    config->xscale = config->width ? 1.0 : (config->linesize >> 2) / (float)config->width;
+    config->xscale = config->width ? (config->linesize >> 2) / (float)config->width : 1.0;
 
     switch (frame->pix_fmt) {
     case SXPLAYER_PIXFMT_RGBA:
