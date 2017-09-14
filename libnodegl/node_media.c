@@ -39,7 +39,7 @@ static const struct node_param media_params[] = {
     {"start",    PARAM_TYPE_DBL, OFFSET(start)},
     {"initial_seek", PARAM_TYPE_DBL, OFFSET(initial_seek)},
     {"sxplayer_min_level", PARAM_TYPE_STR, OFFSET(sxplayer_min_level_str), {.str="warning"}},
-    {"time_anim", PARAM_TYPE_NODE, OFFSET(anim), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+    {"time_anim", PARAM_TYPE_NODE, OFFSET(anim),
                     .node_types=(const int[]){NGL_NODE_ANIMATIONSCALAR, -1}},
     {"audio_tex", PARAM_TYPE_INT, OFFSET(audio_tex)},
     {NULL}

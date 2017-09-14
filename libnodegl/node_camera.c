@@ -41,7 +41,7 @@ static const struct node_param camera_params[] = {
     {"eye_transform", PARAM_TYPE_NODE, OFFSET(eye_transform), .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME, .node_types=TRANSFORM_TYPES_LIST},
     {"center_transform", PARAM_TYPE_NODE, OFFSET(center_transform), .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME, .node_types=TRANSFORM_TYPES_LIST},
     {"up_transform", PARAM_TYPE_NODE, OFFSET(up_transform), .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME, .node_types=TRANSFORM_TYPES_LIST},
-    {"fov_anim", PARAM_TYPE_NODE, OFFSET(fov_anim), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED, .node_types=(const int[]){NGL_NODE_ANIMATIONSCALAR, -1}},
+    {"fov_anim", PARAM_TYPE_NODE, OFFSET(fov_anim), .node_types=(const int[]){NGL_NODE_ANIMATIONSCALAR, -1}},
     {"pipe_fd", PARAM_TYPE_INT, OFFSET(pipe_fd)},
     {"pipe_width", PARAM_TYPE_INT, OFFSET(pipe_width)},
     {"pipe_height", PARAM_TYPE_INT, OFFSET(pipe_height)},
