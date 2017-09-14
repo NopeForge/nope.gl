@@ -62,6 +62,9 @@ struct hwupload_config {
 
 static int get_config_from_frame(struct sxplayer_frame *frame, struct hwupload_config *config)
 {
+    if (!frame)
+        return -1;
+
     config->width = frame->width;
     config->height = frame->height;
     config->linesize = frame->linesize;
