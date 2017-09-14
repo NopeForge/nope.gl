@@ -3,7 +3,7 @@ from OpenGL import GL
 from pynodegl import TexturedShape, Quad, Texture, Media, Shader, Group
 from pynodegl import Rotate, Camera
 from pynodegl import UniformVec3, RTT, GLState
-from pynodegl import AnimationScalar, AnimKeyFrameScalar
+from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
 
@@ -45,12 +45,10 @@ void main(void)
     children = [_get_cube_side(t, s, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)
 
-    rot_anim = lambda f: AnimationScalar([AnimKeyFrameScalar(0, 0),
-                                          AnimKeyFrameScalar(cfg.duration, 360*f)])
+    rot_animkf = AnimationVec3([AnimKeyFrameVec3(0, (0, 0, 0)),
+                                AnimKeyFrameVec3(cfg.duration, (360, 360*2, 360*3))])
 
-    rot = Rotate(cube, axis=(1,0,0), name="rotx", anim=rot_anim(1))
-    rot = Rotate(rot,  axis=(0,1,0), name="roty", anim=rot_anim(2))
-    rot = Rotate(rot,  axis=(0,0,1), name="rotz", anim=rot_anim(3))
+    rot = Rotate(cube, anim=rot_animkf)
 
     camera = Camera(rot)
     camera.set_eye(0.0, 0.0, 2.0)

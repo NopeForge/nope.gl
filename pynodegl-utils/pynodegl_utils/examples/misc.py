@@ -4,7 +4,6 @@ import random
 from pynodegl import Texture, Shader, TexturedShape, Rotate, Triangle
 from pynodegl import Quad, UniformVec4, Camera, Group
 from pynodegl import Media, Translate
-from pynodegl import AnimationScalar, AnimKeyFrameScalar
 from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
@@ -28,9 +27,9 @@ void main(void)
     s = Shader(fragment_data=frag_data)
     node = TexturedShape(triangle, s)
     node.update_textures(tex0=Texture())
-    animkf = [AnimKeyFrameScalar(0, 0),
-              AnimKeyFrameScalar(cfg.duration, -360*2)]
-    node = Rotate(node, axis=(0,0,1), anim=AnimationScalar(animkf))
+    animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
+              AnimKeyFrameVec3(cfg.duration, (0, 0, -360*2))]
+    node = Rotate(node, anim=AnimationVec3(animkf))
     return node
 
 @scene({'name': 'n', 'type': 'range', 'range': [2,10]})
@@ -67,10 +66,10 @@ void main(void) {
         tshape.update_uniforms(color=UniformVec4(value=color))
 
         new_g = Group()
-        animkf = [AnimKeyFrameScalar(0, 90),
-                  AnimKeyFrameScalar(cfg.duration/2, -90, "exp_in_out"),
-                  AnimKeyFrameScalar(cfg.duration, 90, "exp_in_out")]
-        rot = Rotate(new_g, axis=(0,0,1), anchor=orig, anim=AnimationScalar(animkf))
+        animkf = [AnimKeyFrameVec3(0,              (0,0, 90)),
+                  AnimKeyFrameVec3(cfg.duration/2, (0,0,-90), "exp_in_out"),
+                  AnimKeyFrameVec3(cfg.duration,   (0,0, 90), "exp_in_out")]
+        rot = Rotate(new_g, anchor=orig, anim=AnimationVec3(animkf))
         if g:
             g.add_children(rot)
         else:

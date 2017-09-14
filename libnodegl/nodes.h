@@ -305,8 +305,7 @@ struct renderrange {
 
 struct rotate {
     struct ngl_node *child;
-    double angle;
-    float axis[3];
+    float angles[3];
     float anchor[3];
     struct ngl_node *anim;
 };

@@ -1,5 +1,5 @@
 from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, GLState, Camera, Rotate
-from pynodegl import AnimationScalar, AnimKeyFrameScalar
+from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
 
@@ -166,9 +166,9 @@ def centered_model_media(cfg, n=0.5, model=None):
     tshape.update_textures(tex0=t)
     tshape.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
-    animkf = [AnimKeyFrameScalar(0, 0),
-              AnimKeyFrameScalar(cfg.duration, 360*2)]
-    rot = Rotate(tshape, axis=(0,1,0), name="roty", anim=AnimationScalar(animkf))
+    animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
+              AnimKeyFrameVec3(cfg.duration, (0, 360*2, 0))]
+    rot = Rotate(tshape, name="roty", anim=AnimationVec3(animkf))
 
     camera = Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)

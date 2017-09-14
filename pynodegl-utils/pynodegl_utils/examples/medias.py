@@ -118,9 +118,9 @@ def centered_masked_media(cfg):
                     AnimKeyFrameVec3(10, (10., 10.0,  3), "exp_out")]
     node = Scale(node, anim=AnimationVec3(scale_animkf))
 
-    rotate_animkf = [AnimKeyFrameScalar(0, 0),
-                     AnimKeyFrameScalar(cfg.duration, 360, "exp_out")]
-    node = Rotate(node, axis=(0, 0, 1), anim=AnimationScalar(rotate_animkf))
+    rotate_animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
+                     AnimKeyFrameVec3(cfg.duration, (0, 0, 360), "exp_out")]
+    node = Rotate(node, anim=AnimationVec3(rotate_animkf))
 
     g.add_children(node)
 
