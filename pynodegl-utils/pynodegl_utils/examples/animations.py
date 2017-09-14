@@ -65,7 +65,7 @@ def _get_func(name, flags=0):
             for i in range(nb_points + 1):
                 x = (i/float(nb_points) * 2 - 1)
                 y = anim.evaluate(x * 1/zoom) * zoom
-                vertices.append(ShapePrimitive((x, y, 0), (0, 0)))
+                vertices.append(ShapePrimitive((x, y, 0)))
 
             shape = Shape(vertices, draw_mode=GL.GL_LINE_STRIP)
             tshape = TexturedShape(shape, shader)

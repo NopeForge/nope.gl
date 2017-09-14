@@ -121,8 +121,8 @@
 - ShapePrimitive:
     constructors:
         - [coordinates, vec3]
-        - [texture_coordinates, vec2]
     optional:
+        - [texture_coordinates, vec2]
         - [normals, vec3]
 
 - Shape:

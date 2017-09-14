@@ -31,7 +31,7 @@
 #define OFFSET(x) offsetof(struct shapeprimitive, x)
 static const struct node_param shapeprimitive_params[] = {
     {"coordinates",         PARAM_TYPE_VEC3, OFFSET(coordinates), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"texture_coordinates", PARAM_TYPE_VEC2, OFFSET(texture_coordinates), .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"texture_coordinates", PARAM_TYPE_VEC2, OFFSET(texture_coordinates)},
     {"normals",             PARAM_TYPE_VEC3, OFFSET(normals)},
     {NULL}
 };

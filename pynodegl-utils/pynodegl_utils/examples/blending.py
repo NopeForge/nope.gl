@@ -1,4 +1,4 @@
-from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, Group
+from pynodegl import TexturedShape, Quad, Triangle, Shape, Texture, Media, Shader, Group
 from pynodegl import GLState, GLBlendState
 
 from pynodegl_utils.misc import scene
