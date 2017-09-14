@@ -298,8 +298,10 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                     else
                         key = ngli_asprintf("[label=\"%s\"]", entry->name);
 
-                    if (!key)
+                    if (!key) {
+                        free(label);
                         return;
+                    }
 
                     if (list_check_links(idxlinks, node, child))
                         continue;
