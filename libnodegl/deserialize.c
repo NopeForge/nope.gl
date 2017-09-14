@@ -117,7 +117,7 @@ static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
 
         int *new_vals = realloc(vals, (nb_vals + 1) * sizeof(*new_vals));
         if (!new_vals) {
-            FREE_KVS(nb_vals, keys, vals);
+            FREE_KVS(nb_vals, new_keys, vals);
             return -1;
         }
 
