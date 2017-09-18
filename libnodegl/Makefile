@@ -56,6 +56,7 @@ LIB_OBJS = api.o                    \
            deserialize.o            \
            dot.o                    \
            glcontext.o              \
+           hmap.o                   \
            hwupload.o               \
            log.o                    \
            math_utils.o             \
@@ -206,6 +207,9 @@ test_asm: CFLAGS = $(PROJECT_CFLAGS)
 test_asm: LDLIBS = $(PROJECT_LDLIBS) -lm
 test_asm: test_asm.o math_utils.o $(LIB_OBJS_ARCH_$(ARCH))
 
+test_hmap: CFLAGS = $(PROJECT_CFLAGS)
+test_hmap: LDLIBS = $(PROJECT_LDLIBS)
+test_hmap: test_hmap.o utils.o
 
 #
 # Misc/general
@@ -217,6 +221,7 @@ clean:
 	$(RM) $(LIB_PCNAME)
 	$(RM) $(LD_SYM_FILE)
 	$(RM) test_asm.o test_asm
+	$(RM) test_hmap.o test_hmap
 
 install: $(LIB_NAME) $(LIB_PCNAME)
 	install -d $(DESTDIR)$(PREFIX)/lib
