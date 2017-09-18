@@ -293,6 +293,9 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                     char *key;
                     const struct ngl_node *child = entry->node;
 
+                    if (list_check_links(idxlinks, node, child))
+                        continue;
+
                     if (p->flags & PARAM_FLAG_DOT_DISPLAY_FIELDNAME)
                         key = ngli_asprintf("[label=\"%s:%s\"]", p->key, entry->name);
                     else
@@ -303,8 +306,6 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                         return;
                     }
 
-                    if (list_check_links(idxlinks, node, child))
-                        continue;
                     print_link(b, node, child, key);
                     print_all_links(b, child, idxlinks);
 
