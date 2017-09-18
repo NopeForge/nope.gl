@@ -252,7 +252,7 @@ struct ngl_node *ngli_node_create_noconstructor(int type)
 
     node->name = ngli_node_default_name(node->class->name);
     if (!node->name) {
-        free(node);
+        ngl_node_unrefp(&node);
         return NULL;
     }
 
