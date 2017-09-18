@@ -33,14 +33,15 @@ struct serial_ctx {
     int nb_nodes;
 };
 
-static void register_node(struct serial_ctx *sctx,
-                          const struct ngl_node *node)
+static int register_node(struct serial_ctx *sctx,
+                         const struct ngl_node *node)
 {
     struct ngl_node **new_nodes = realloc(sctx->nodes, (sctx->nb_nodes + 1) * sizeof(*new_nodes));
     if (!new_nodes)
-        return;
+        return -1;
     new_nodes[sctx->nb_nodes++] = (struct ngl_node *)node;
     sctx->nodes = new_nodes;
+    return 0;
 }
 
 #define CASE_LITERAL(param_type, type, fmt) \
@@ -350,7 +351,11 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         if (!node)
             break;
 
-        register_node(&sctx, node);
+        int ret = register_node(&sctx, node);
+        if (ret < 0) {
+            ngl_node_unrefp(&node);
+            break;
+        }
 
         size_t eol = strcspn(s, "\n");
         s[eol] = 0;
