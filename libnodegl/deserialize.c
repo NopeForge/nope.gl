@@ -249,6 +249,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             if (len < 0)
                 return -1;
             ngli_params_add(base_ptr, par, nb_dbls, dbls);
+            free(dbls);
             break;
         }
         case PARAM_TYPE_NODEDICT: {
