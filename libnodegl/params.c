@@ -275,6 +275,8 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
 
             if (!new_elems)
                 return -1;
+
+            *(struct ngl_node ***)cur_elems_p = new_elems;
             for (int i = 0; i < nb_elems; i++) {
                 const struct ngl_node *e = add_elems[i];
                 if (!allowed_node(e, par->node_types)) {
@@ -287,7 +289,6 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
                 struct ngl_node *e = add_elems[i];
                 new_elems_addp[i] = ngl_node_ref(e);
             }
-            *(struct ngl_node ***)cur_elems_p = new_elems;
             *(int *)nb_cur_elems_p = nb_new_elems;
             break;
         }
