@@ -64,13 +64,13 @@ static int parse_##type##s(const char *s, type **valsp, int *nb_valsp)      \
         type v;                                                             \
         int n = sscanf(s, fmt "%n", &v, &len);                              \
         if (n != 1) {                                                       \
-            free(vals);                                                     \
-            return -1;                                                      \
+            consumed = -1;                                                  \
+            break;                                                          \
         }                                                                   \
         type *new_vals = realloc(vals, (nb_vals + 1) * sizeof(*new_vals));  \
         if (!new_vals) {                                                    \
-            free(vals);                                                     \
-            return -1;                                                      \
+            consumed = -1;                                                  \
+            break;                                                          \
         }                                                                   \
         s += len;                                                           \
         consumed += len;                                                    \
@@ -80,6 +80,11 @@ static int parse_##type##s(const char *s, type **valsp, int *nb_valsp)      \
             break;                                                          \
         s++;                                                                \
         consumed++;                                                         \
+    }                                                                       \
+    if (consumed < 0) {                                                     \
+        free(vals);                                                         \
+        vals = NULL;                                                        \
+        nb_vals = 0;                                                        \
     }                                                                       \
     *valsp = vals;                                                          \
     *nb_valsp = nb_vals;                                                    \
@@ -94,6 +99,8 @@ DECLARE_PARSE_LIST_FUNC(int,    "%x")
         free((keys)[k]);                                                    \
     free(keys);                                                             \
     free(vals);                                                             \
+    keys = NULL;                                                            \
+    vals = NULL;                                                            \
 } while (0)
 
 static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
@@ -107,32 +114,37 @@ static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
         int val;
         int n = sscanf(s, "%63[^=]=%x" "%n", key, &val, &len);
         if (n != 2) {
-            FREE_KVS(nb_vals, keys, vals);
-            return -1;
+            consumed = -1;
+            break;
         }
+
         char **new_keys = realloc(keys, (nb_vals +1) * sizeof(*new_keys));
         if (!new_keys) {
-            FREE_KVS(nb_vals, keys, vals);
-            return -1;
+            consumed = -1;
+            break;
         }
+        keys = new_keys;
 
         int *new_vals = realloc(vals, (nb_vals + 1) * sizeof(*new_vals));
         if (!new_vals) {
-            FREE_KVS(nb_vals, new_keys, vals);
-            return -1;
+            consumed = -1;
+            break;
         }
+        vals = new_vals;
 
         s += len;
         consumed += len;
-        new_keys[nb_vals] = ngli_strdup(key);
-        new_vals[nb_vals] = val;
+        keys[nb_vals] = ngli_strdup(key);
+        vals[nb_vals] = val;
         nb_vals++;
-        keys = new_keys;
-        vals = new_vals;
         if (*s != ',')
             break;
         s++;
         consumed++;
+    }
+    if (consumed < 0) {
+        FREE_KVS(nb_vals, keys, vals);
+        nb_vals = 0;
     }
     *keysp = keys;
     *valsp = vals;
