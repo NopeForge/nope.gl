@@ -34,23 +34,6 @@
 #include "utils.h"
 #include "nodes_register.h"
 
-#define CLASS_LIST(type_name, class) extern const struct node_class class;
-NODE_MAP_TYPE2CLASS(CLASS_LIST)
-
-static const char *param_type_strings[] = {
-    [PARAM_TYPE_INT]      = "int",
-    [PARAM_TYPE_I64]      = "i64",
-    [PARAM_TYPE_DBL]      = "double",
-    [PARAM_TYPE_STR]      = "string",
-    [PARAM_TYPE_VEC2]     = "vec2",
-    [PARAM_TYPE_VEC3]     = "vec3",
-    [PARAM_TYPE_VEC4]     = "vec4",
-    [PARAM_TYPE_NODE]     = "Node",
-    [PARAM_TYPE_NODELIST] = "NodeList",
-    [PARAM_TYPE_DBLLIST]  = "doubleList",
-    [PARAM_TYPE_NODEDICT] = "NodeDict",
-};
-
 #define OFFSET(x) offsetof(struct ngl_node, x)
 const struct node_param ngli_base_node_params[] = {
     {"glstates", PARAM_TYPE_NODELIST, OFFSET(glstates), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED},
@@ -58,55 +41,6 @@ const struct node_param ngli_base_node_params[] = {
     {"name",     PARAM_TYPE_STR,      OFFSET(name)},
     {NULL}
 };
-
-static void print_param(const struct node_param *p)
-{
-    printf("        - [%s, %s]\n",
-           p->key, param_type_strings[p->type]);
-}
-
-static void print_node_params(const char *name, const struct node_param *p)
-{
-    printf("- %s:\n", name);
-    if (p) {
-        if (p->key && (p->flags & PARAM_FLAG_CONSTRUCTOR)) {
-            printf("    constructors:\n");
-            while (p->key && (p->flags & PARAM_FLAG_CONSTRUCTOR)) {
-                print_param(p);
-                p++;
-            }
-        }
-        if (p->key && !(p->flags & PARAM_FLAG_CONSTRUCTOR)) {
-            printf("    optional:\n");
-            while (p->key && !(p->flags & PARAM_FLAG_CONSTRUCTOR)) {
-                print_param(p);
-                p++;
-            }
-        }
-    }
-    printf("\n");
-}
-
-#define CLASS_COMMALIST(type_name, class) &class,
-
-void ngli_node_print_specs(void)
-{
-    printf("#\n# Nodes specifications for node.gl v%d.%d.%d\n#\n\n",
-           NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
-    print_node_params("_Node", ngli_base_node_params);
-
-    static const struct node_class *node_classes[] = {
-        NODE_MAP_TYPE2CLASS(CLASS_COMMALIST)
-    };
-
-    for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
-        const struct node_class *c = node_classes[i];
-        if (c) {
-            const struct node_param *p = &c->params[0];
-            print_node_params(c->name, p);
-        }
-    }
-}
 
 static void *aligned_allocz(size_t size)
 {
@@ -172,6 +106,7 @@ char *ngli_node_default_name(const char *class_name)
 
 #define REGISTER_NODE(type_name, class)         \
     case type_name: {                           \
+        extern const struct node_class class;   \
         ngli_assert(class.id == type_name);     \
         return &class;                          \
     }                                           \
