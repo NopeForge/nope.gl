@@ -55,45 +55,44 @@ void ngl_log_set_min_level(int level);
 /* Nodes */
 struct ngl_node;
 
-enum {
-    NGL_NODE_CAMERA,
-    NGL_NODE_TEXTURE,
-    NGL_NODE_MEDIA,
-    NGL_NODE_GLSTATE,
-    NGL_NODE_GLBLENDSTATE,
-    NGL_NODE_GLCOLORSTATE,
-    NGL_NODE_GLSTENCILSTATE,
-    NGL_NODE_GROUP,
-    NGL_NODE_TEXTUREDSHAPE,
-    NGL_NODE_QUAD,
-    NGL_NODE_TRIANGLE,
-    NGL_NODE_SHAPEPRIMITIVE,
-    NGL_NODE_SHAPE,
-    NGL_NODE_SHADER,
-    NGL_NODE_RENDERRANGECONTINUOUS,
-    NGL_NODE_RENDERRANGENORENDER,
-    NGL_NODE_RENDERRANGEONCE,
-    NGL_NODE_ROTATE,
-    NGL_NODE_RTT,
-    NGL_NODE_TRANSLATE,
-    NGL_NODE_SCALE,
-    NGL_NODE_ANIMKEYFRAMESCALAR,
-    NGL_NODE_ANIMKEYFRAMEVEC2,
-    NGL_NODE_ANIMKEYFRAMEVEC3,
-    NGL_NODE_ANIMKEYFRAMEVEC4,
-    NGL_NODE_UNIFORMSCALAR,
-    NGL_NODE_UNIFORMVEC2,
-    NGL_NODE_UNIFORMVEC3,
-    NGL_NODE_UNIFORMVEC4,
-    NGL_NODE_UNIFORMMAT4,
-    NGL_NODE_UNIFORMINT,
-    NGL_NODE_FPS,
-    NGL_NODE_IDENTITY,
-    NGL_NODE_ANIMATIONSCALAR,
-    NGL_NODE_ANIMATIONVEC2,
-    NGL_NODE_ANIMATIONVEC3,
-    NGL_NODE_ANIMATIONVEC4,
-};
+#define NGLI_FOURCC(a,b,c,d) (((uint32_t)(a))<<24 | (b)<<16 | (c)<<8 | (d))
+#define NGL_NODE_ANIMATIONSCALAR        NGLI_FOURCC('A','n','m','1')
+#define NGL_NODE_ANIMATIONVEC2          NGLI_FOURCC('A','n','m','2')
+#define NGL_NODE_ANIMATIONVEC3          NGLI_FOURCC('A','n','m','3')
+#define NGL_NODE_ANIMATIONVEC4          NGLI_FOURCC('A','n','m','4')
+#define NGL_NODE_ANIMKEYFRAMESCALAR     NGLI_FOURCC('A','K','F','1')
+#define NGL_NODE_ANIMKEYFRAMEVEC2       NGLI_FOURCC('A','K','F','2')
+#define NGL_NODE_ANIMKEYFRAMEVEC3       NGLI_FOURCC('A','K','F','3')
+#define NGL_NODE_ANIMKEYFRAMEVEC4       NGLI_FOURCC('A','K','F','4')
+#define NGL_NODE_CAMERA                 NGLI_FOURCC('C','m','r','a')
+#define NGL_NODE_FPS                    NGLI_FOURCC('F','P','S',' ')
+#define NGL_NODE_GLBLENDSTATE           NGLI_FOURCC('B','l','d','S')
+#define NGL_NODE_GLCOLORSTATE           NGLI_FOURCC('C','l','r','S')
+#define NGL_NODE_GLSTATE                NGLI_FOURCC('G','L','x','S')
+#define NGL_NODE_GLSTENCILSTATE         NGLI_FOURCC('S','t','l','S')
+#define NGL_NODE_GROUP                  NGLI_FOURCC('G','r','p',' ')
+#define NGL_NODE_IDENTITY               NGLI_FOURCC('I','d',' ',' ')
+#define NGL_NODE_MEDIA                  NGLI_FOURCC('M','d','i','a')
+#define NGL_NODE_QUAD                   NGLI_FOURCC('S','4',' ',' ')
+#define NGL_NODE_RENDERRANGECONTINUOUS  NGLI_FOURCC('R','R','C','t')
+#define NGL_NODE_RENDERRANGENORENDER    NGLI_FOURCC('R','R','N','R')
+#define NGL_NODE_RENDERRANGEONCE        NGLI_FOURCC('R','R','1',' ')
+#define NGL_NODE_ROTATE                 NGLI_FOURCC('T','R','o','t')
+#define NGL_NODE_RTT                    NGLI_FOURCC('R','T','T',' ')
+#define NGL_NODE_SCALE                  NGLI_FOURCC('T','s','c','l')
+#define NGL_NODE_SHADER                 NGLI_FOURCC('S','h','a','d')
+#define NGL_NODE_SHAPE                  NGLI_FOURCC('S','h','p','e')
+#define NGL_NODE_SHAPEPRIMITIVE         NGLI_FOURCC('S','P','r','m')
+#define NGL_NODE_TEXTURE                NGLI_FOURCC('T','e','x',' ')
+#define NGL_NODE_TEXTUREDSHAPE          NGLI_FOURCC('T','s','h','p')
+#define NGL_NODE_TRANSLATE              NGLI_FOURCC('T','m','o','v')
+#define NGL_NODE_TRIANGLE               NGLI_FOURCC('S','3',' ',' ')
+#define NGL_NODE_UNIFORMINT             NGLI_FOURCC('U','n','i','1')
+#define NGL_NODE_UNIFORMMAT4            NGLI_FOURCC('U','n','M','4')
+#define NGL_NODE_UNIFORMSCALAR          NGLI_FOURCC('U','n','f','1')
+#define NGL_NODE_UNIFORMVEC2            NGLI_FOURCC('U','n','f','2')
+#define NGL_NODE_UNIFORMVEC3            NGLI_FOURCC('U','n','f','3')
+#define NGL_NODE_UNIFORMVEC4            NGLI_FOURCC('U','n','f','4')
 
 struct ngl_node *ngl_node_create(int type, ...);
 struct ngl_node *ngl_node_ref(struct ngl_node *node);

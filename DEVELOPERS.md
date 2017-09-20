@@ -15,7 +15,7 @@ DO
 DO NOT
 ------
 
-- **do NOT** reorder public enum such as `NGL_NODE_*` as it breaks ABI
+- **do NOT** reorder public enum such as `NGL_GLPLATFORM_*` as it breaks ABI
 - **do NOT** insert a value in the middle of a public enum as it breaks ABI
 - **do NOT** remove or change a public prototype as it breaks API and ABI
 - **do NOT** add ANY external dependency without previous discussion
@@ -36,11 +36,10 @@ prototypes required to implement a new node.
 
 In order to add a node, you need to:
 
-- in `nodegl.h`: declare a new `NGL_NODE_*` at **THE END** of the appropriate enum
+- in `nodegl.h`: declare a new `NGL_NODE_*` with an arbitrary unique FourCC
 - create a `node_*.c` file declaring a `const struct node_class`. Don't forget
   the Copyright header. See other node files, such as `node_identity.c`
-- in `nodes.c`: declare the class you just create as `extern`
-- in `nodes.c`: add a pointer to that class in `node_class_map`
+- in `nodes_register.h`: register the new node
 - in `Makefile`: add the object name associated with your `.c` to `LIB_OBJS`
 - run `make updatespecs` to update `nodes.specs` every time you update the
   parameter of the node

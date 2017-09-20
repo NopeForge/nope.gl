@@ -32,84 +32,10 @@
 #include "nodes.h"
 #include "params.h"
 #include "utils.h"
+#include "nodes_register.h"
 
-extern const struct node_class ngli_camera_class;
-extern const struct node_class ngli_texture_class;
-extern const struct node_class ngli_glstate_class;
-extern const struct node_class ngli_glblendstate_class;
-extern const struct node_class ngli_glcolorstate_class;
-extern const struct node_class ngli_glstencilstate_class;
-extern const struct node_class ngli_group_class;
-extern const struct node_class ngli_identity_class;
-extern const struct node_class ngli_media_class;
-extern const struct node_class ngli_texturedshape_class;
-extern const struct node_class ngli_quad_class;
-extern const struct node_class ngli_triangle_class;
-extern const struct node_class ngli_shapeprimitive_class;
-extern const struct node_class ngli_shape_class;
-extern const struct node_class ngli_shader_class;
-extern const struct node_class ngli_renderrangecontinuous_class;
-extern const struct node_class ngli_renderrangenorender_class;
-extern const struct node_class ngli_renderrangeonce_class;
-extern const struct node_class ngli_rotate_class;
-extern const struct node_class ngli_rtt_class;
-extern const struct node_class ngli_translate_class;
-extern const struct node_class ngli_scale_class;
-extern const struct node_class ngli_animkeyframescalar_class;
-extern const struct node_class ngli_animkeyframevec2_class;
-extern const struct node_class ngli_animkeyframevec3_class;
-extern const struct node_class ngli_animkeyframevec4_class;
-extern const struct node_class ngli_uniformscalar_class;
-extern const struct node_class ngli_uniformvec2_class;
-extern const struct node_class ngli_uniformvec3_class;
-extern const struct node_class ngli_uniformvec4_class;
-extern const struct node_class ngli_uniformint_class;
-extern const struct node_class ngli_uniformmat4_class;
-extern const struct node_class ngli_fps_class;
-extern const struct node_class ngli_animationscalar_class;
-extern const struct node_class ngli_animationvec2_class;
-extern const struct node_class ngli_animationvec3_class;
-extern const struct node_class ngli_animationvec4_class;
-
-static const struct node_class *node_class_map[] = {
-    [NGL_NODE_CAMERA]                = &ngli_camera_class,
-    [NGL_NODE_TEXTURE]               = &ngli_texture_class,
-    [NGL_NODE_MEDIA]                 = &ngli_media_class,
-    [NGL_NODE_GLSTATE]               = &ngli_glstate_class,
-    [NGL_NODE_GLBLENDSTATE]          = &ngli_glblendstate_class,
-    [NGL_NODE_GLCOLORSTATE]          = &ngli_glcolorstate_class,
-    [NGL_NODE_GLSTENCILSTATE]        = &ngli_glstencilstate_class,
-    [NGL_NODE_GROUP]                 = &ngli_group_class,
-    [NGL_NODE_IDENTITY]              = &ngli_identity_class,
-    [NGL_NODE_TEXTUREDSHAPE]         = &ngli_texturedshape_class,
-    [NGL_NODE_QUAD]                  = &ngli_quad_class,
-    [NGL_NODE_TRIANGLE]              = &ngli_triangle_class,
-    [NGL_NODE_SHAPEPRIMITIVE]        = &ngli_shapeprimitive_class,
-    [NGL_NODE_SHAPE]                 = &ngli_shape_class,
-    [NGL_NODE_SHADER]                = &ngli_shader_class,
-    [NGL_NODE_RENDERRANGECONTINUOUS] = &ngli_renderrangecontinuous_class,
-    [NGL_NODE_RENDERRANGENORENDER]   = &ngli_renderrangenorender_class,
-    [NGL_NODE_RENDERRANGEONCE]       = &ngli_renderrangeonce_class,
-    [NGL_NODE_RTT]                   = &ngli_rtt_class,
-    [NGL_NODE_ROTATE]                = &ngli_rotate_class,
-    [NGL_NODE_TRANSLATE]             = &ngli_translate_class,
-    [NGL_NODE_SCALE]                 = &ngli_scale_class,
-    [NGL_NODE_ANIMKEYFRAMESCALAR]    = &ngli_animkeyframescalar_class,
-    [NGL_NODE_ANIMKEYFRAMEVEC2]      = &ngli_animkeyframevec2_class,
-    [NGL_NODE_ANIMKEYFRAMEVEC3]      = &ngli_animkeyframevec3_class,
-    [NGL_NODE_ANIMKEYFRAMEVEC4]      = &ngli_animkeyframevec4_class,
-    [NGL_NODE_UNIFORMSCALAR]         = &ngli_uniformscalar_class,
-    [NGL_NODE_UNIFORMVEC2]           = &ngli_uniformvec2_class,
-    [NGL_NODE_UNIFORMVEC3]           = &ngli_uniformvec3_class,
-    [NGL_NODE_UNIFORMVEC4]           = &ngli_uniformvec4_class,
-    [NGL_NODE_UNIFORMINT]            = &ngli_uniformint_class,
-    [NGL_NODE_UNIFORMMAT4]           = &ngli_uniformmat4_class,
-    [NGL_NODE_FPS]                   = &ngli_fps_class,
-    [NGL_NODE_ANIMATIONSCALAR]       = &ngli_animationscalar_class,
-    [NGL_NODE_ANIMATIONVEC2]         = &ngli_animationvec2_class,
-    [NGL_NODE_ANIMATIONVEC3]         = &ngli_animationvec3_class,
-    [NGL_NODE_ANIMATIONVEC4]         = &ngli_animationvec4_class,
-};
+#define CLASS_LIST(type_name, class) extern const struct node_class class;
+NODE_MAP_TYPE2CLASS(CLASS_LIST)
 
 static const char *param_type_strings[] = {
     [PARAM_TYPE_INT]      = "int",
@@ -161,13 +87,20 @@ static void print_node_params(const char *name, const struct node_param *p)
     printf("\n");
 }
 
+#define CLASS_COMMALIST(type_name, class) &class,
+
 void ngli_node_print_specs(void)
 {
     printf("#\n# Nodes specifications for node.gl v%d.%d.%d\n#\n\n",
            NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
     print_node_params("_Node", ngli_base_node_params);
-    for (int i = 0; i < NGLI_ARRAY_NB(node_class_map); i++) {
-        const struct node_class *c = node_class_map[i];
+
+    static const struct node_class *node_classes[] = {
+        NODE_MAP_TYPE2CLASS(CLASS_COMMALIST)
+    };
+
+    for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
+        const struct node_class *c = node_classes[i];
         if (c) {
             const struct node_param *p = &c->params[0];
             print_node_params(c->name, p);
@@ -237,13 +170,27 @@ char *ngli_node_default_name(const char *class_name)
     return name;
 }
 
+#define REGISTER_NODE(type_name, class)         \
+    case type_name: {                           \
+        ngli_assert(class.id == type_name);     \
+        return &class;                          \
+    }                                           \
+
+static const struct node_class *get_node_class(int type)
+{
+    switch (type) {
+        NODE_MAP_TYPE2CLASS(REGISTER_NODE)
+    }
+    return NULL;
+}
+
 struct ngl_node *ngli_node_create_noconstructor(int type)
 {
-    struct ngl_node *node = NULL;
-
-    if (type < 0 || type >= NGLI_ARRAY_NB(node_class_map))
+    const struct node_class *class = get_node_class(type);
+    if (!class)
         return NULL;
-    node = node_create(node_class_map[type]);
+
+    struct ngl_node *node = node_create(class);
     if (!node)
         return NULL;
 
