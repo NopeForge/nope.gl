@@ -2,7 +2,7 @@ from OpenGL import GL
 
 from pynodegl import Render, Quad, Texture, Media, Shader, Group
 from pynodegl import Rotate, Camera
-from pynodegl import UniformVec3, RTT, GLState
+from pynodegl import UniformVec3, RenderToTexture, GLState
 from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
@@ -71,7 +71,7 @@ def scene_with_framebuffer(cfg):
     t = Texture()
     t.set_width(640)
     t.set_height(480)
-    rtt = RTT(rotating_cube(cfg), t)
+    rtt = RenderToTexture(rotating_cube(cfg), t)
     rtt.set_depth_texture(d)
 
     q = Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))

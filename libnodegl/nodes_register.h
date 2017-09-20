@@ -45,8 +45,8 @@
     action(NGL_NODE_RENDERRANGECONTINUOUS,  ngli_renderrangecontinuous_class)   \
     action(NGL_NODE_RENDERRANGENORENDER,    ngli_renderrangenorender_class)     \
     action(NGL_NODE_RENDERRANGEONCE,        ngli_renderrangeonce_class)         \
+    action(NGL_NODE_RENDERTOTEXTURE,        ngli_rtt_class)                     \
     action(NGL_NODE_ROTATE,                 ngli_rotate_class)                  \
-    action(NGL_NODE_RTT,                    ngli_rtt_class)                     \
     action(NGL_NODE_SCALE,                  ngli_scale_class)                   \
     action(NGL_NODE_SHADER,                 ngli_shader_class)                  \
     action(NGL_NODE_SHAPE,                  ngli_shape_class)                   \

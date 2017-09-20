@@ -174,8 +174,8 @@ static void rtt_uninit(struct ngl_node *node)
 }
 
 const struct node_class ngli_rtt_class = {
-    .id        = NGL_NODE_RTT,
-    .name      = "RTT",
+    .id        = NGL_NODE_RENDERTOTEXTURE,
+    .name      = "RenderToTexture",
     .init      = rtt_init,
     .update    = rtt_update,
     .draw      = rtt_draw,
