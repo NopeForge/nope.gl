@@ -279,13 +279,13 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     t->wrap_t          = s->wrap_t;
     t->external_id     = s->local_id;
 
-    s->tshape = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, s->quad, s->shader);
-    if (!s->tshape)
+    s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->shader);
+    if (!s->render)
         return -1;
 
-    ngl_node_param_set(s->tshape, "textures", "tex0", s->textures[0]);
+    ngl_node_param_set(s->render, "textures", "tex0", s->textures[0]);
 
-    s->rtt = ngl_node_create(NGL_NODE_RTT, s->tshape, s->target_texture);
+    s->rtt = ngl_node_create(NGL_NODE_RTT, s->render, s->target_texture);
     if (!s->rtt)
         return -1;
 
@@ -486,14 +486,14 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         t->wrap_t          = s->wrap_t;
         t->external_id     = s->local_id;
 
-        s->tshape = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, s->quad, s->shader);
-        if (!s->tshape)
+        s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->shader);
+        if (!s->render)
             return -1;
 
-        ngl_node_param_set(s->tshape, "textures", "tex0", s->textures[0]);
-        ngl_node_param_set(s->tshape, "textures", "tex1", s->textures[1]);
+        ngl_node_param_set(s->render, "textures", "tex0", s->textures[0]);
+        ngl_node_param_set(s->render, "textures", "tex1", s->textures[1]);
 
-        s->rtt = ngl_node_create(NGL_NODE_RTT, s->tshape, s->target_texture);
+        s->rtt = ngl_node_create(NGL_NODE_RTT, s->render, s->target_texture);
         if (!s->rtt)
             return -1;
 
@@ -735,7 +735,7 @@ void ngli_hwupload_uninit(struct ngl_node *node)
 
     ngl_node_unrefp(&s->quad);
     ngl_node_unrefp(&s->shader);
-    ngl_node_unrefp(&s->tshape);
+    ngl_node_unrefp(&s->render);
     ngl_node_unrefp(&s->textures[0]);
     ngl_node_unrefp(&s->textures[1]);
     ngl_node_unrefp(&s->textures[2]);

@@ -1,4 +1,4 @@
-from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, GLState, Camera, Rotate
+from pynodegl import Render, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, GLState, Camera, Rotate
 from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
 from pynodegl_utils.misc import scene
@@ -162,13 +162,13 @@ def centered_model_media(cfg, n=0.5, model=None):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader(fragment_data=fragment_data)
-    tshape = TexturedShape(q, s)
-    tshape.update_textures(tex0=t)
-    tshape.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
+    render = Render(q, s)
+    render.update_textures(tex0=t)
+    render.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
     animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
               AnimKeyFrameVec3(cfg.duration, (0, 360*2, 0))]
-    rot = Rotate(tshape, name="roty", anim=AnimationVec3(animkf))
+    rot = Rotate(render, name="roty", anim=AnimationVec3(animkf))
 
     camera = Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)

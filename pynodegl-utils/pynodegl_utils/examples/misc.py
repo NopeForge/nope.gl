@@ -1,7 +1,7 @@
 import math
 import random
 
-from pynodegl import Texture, Shader, TexturedShape, Rotate, Triangle
+from pynodegl import Texture, Shader, Render, Rotate, Triangle
 from pynodegl import Quad, UniformVec4, Camera, Group
 from pynodegl import Media, Translate
 from pynodegl import AnimationVec3, AnimKeyFrameVec3
@@ -25,7 +25,7 @@ void main(void)
 
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
     s = Shader(fragment_data=frag_data)
-    node = TexturedShape(triangle, s)
+    node = Render(triangle, s)
     node.update_textures(tex0=Texture())
     animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
               AnimKeyFrameVec3(cfg.duration, (0, 0, -360*2))]
@@ -62,8 +62,8 @@ void main(void) {
         gray = 1. - i/float(n)
         color = [gray, gray, gray, 1]
         q = Quad(orig, (w, 0, 0), (0, w, 0))
-        tshape = TexturedShape(q, s)
-        tshape.update_uniforms(color=UniformVec4(value=color))
+        render = Render(q, s)
+        render.update_uniforms(color=UniformVec4(value=color))
 
         new_g = Group()
         animkf = [AnimKeyFrameVec3(0,              (0,0, 90)),
@@ -75,7 +75,7 @@ void main(void) {
         else:
             root = rot
         g = new_g
-        new_g.add_children(tshape)
+        new_g.add_children(render)
         orig = (orig[0] + w, orig[1] + w, 0)
 
     root = Camera(root)
@@ -106,14 +106,14 @@ def cropboard(cfg, dim=15):
             q.set_uv_width(kw, 0)
             q.set_uv_height(0, kh)
 
-            tshape = TexturedShape(q, s)
-            tshape.update_textures(tex0=t)
+            render = Render(q, s)
+            render.update_textures(tex0=t)
 
             startx = random.uniform(-2, 2)
             starty = random.uniform(-2, 2)
             trn_animkf = [AnimKeyFrameVec3(0, (startx, starty, 0)),
                           AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0), "exp_out")]
-            trn = Translate(tshape, anim=AnimationVec3(trn_animkf))
+            trn = Translate(render, anim=AnimationVec3(trn_animkf))
             tqs.append(trn)
 
     return Group(children=tqs)
@@ -182,6 +182,6 @@ void main()
     video_tex = Texture(data_src=video_m)
 
     s = Shader(fragment_data=frag_data)
-    tshape = TexturedShape(q, s)
-    tshape.update_textures(tex0=audio_tex, tex1=video_tex)
-    return tshape
+    render = Render(q, s)
+    render.update_textures(tex0=audio_tex, tex1=video_tex)
+    return render

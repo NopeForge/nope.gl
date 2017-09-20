@@ -1,4 +1,4 @@
-from pynodegl import Shader, TexturedShape, Group, UniformVec4
+from pynodegl import Shader, Render, Group, UniformVec4
 from pynodegl import Shape, ShapePrimitive
 from pynodegl import AnimationScalar, AnimKeyFrameScalar
 
@@ -68,10 +68,10 @@ def _get_func(name, flags=0):
                 vertices.append(ShapePrimitive((x, y, 0)))
 
             shape = Shape(vertices, draw_mode=GL.GL_LINE_STRIP)
-            tshape = TexturedShape(shape, shader)
-            tshape.update_uniforms(color=UniformVec4(_colors[idx]))
+            render = Render(shape, shader)
+            render.update_uniforms(color=UniformVec4(_colors[idx]))
 
-            g.add_children(tshape)
+            g.add_children(render)
         return g
     return ret_func
 

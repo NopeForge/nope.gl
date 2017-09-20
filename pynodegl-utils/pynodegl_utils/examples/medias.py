@@ -1,6 +1,6 @@
 import math
 
-from pynodegl import TexturedShape, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, Group, GLStencilState, GLState, Scale, Rotate, GLColorState, UniformScalar
+from pynodegl import Render, Quad, Triangle, Shape, ShapePrimitive, Texture, Media, Shader, Group, GLStencilState, GLState, Scale, Rotate, GLColorState, UniformScalar
 from pynodegl import AnimationScalar, AnimKeyFrameScalar
 from pynodegl import AnimationVec3, AnimKeyFrameVec3
 
@@ -71,8 +71,8 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    tshape = TexturedShape(q, s)
-    tshape.update_textures(tex0=t)
+    render = Render(q, s)
+    render.update_textures(tex0=t)
 
     if progress_bar:
         s.set_fragment_data(pgbar_shader)
@@ -80,8 +80,8 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
                        AnimKeyFrameScalar(cfg.duration, 1)]
         time = UniformScalar(anim=AnimationScalar(time_animkf))
         ar = UniformScalar(cfg.aspect_ratio)
-        tshape.update_uniforms(time=time, ar=ar)
-    return tshape
+        render.update_uniforms(time=time, ar=ar)
+    return render
 
 frag_data='''
 #version 100
@@ -102,7 +102,7 @@ def centered_masked_media(cfg):
 
     q = Quad((-0.2, -0.2, 0), (0.4, 0.0, 0.0), (0.0, 0.4, 0.0))
     s = Shader(fragment_data=frag_data)
-    node = TexturedShape(q, s)
+    node = Render(q, s)
     node.add_glstates(GLStencilState(GL.GL_TRUE,
                                      0xFF,
                                      GL.GL_ALWAYS,
@@ -128,7 +128,7 @@ def centered_masked_media(cfg):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    node = TexturedShape(q, s)
+    node = Render(q, s)
     node.update_textures(tex0=t)
     node.add_glstates(GLStencilState(GL.GL_TRUE,
                                      0x00,
@@ -160,9 +160,9 @@ def centered_shape_media(cfg, n=0.9, k=5):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    tshape = TexturedShape(q, s)
-    tshape.update_textures(tex0=t)
-    return tshape
+    render = Render(q, s)
+    render.update_textures(tex0=t)
+    return render
 
 @scene({'name': 'speed', 'type': 'range', 'range': [0.01,2], 'unit_base': 1000})
 def playback_speed(cfg, speed=1.0):
@@ -174,6 +174,6 @@ def playback_speed(cfg, speed=1.0):
     m = Media(cfg.medias[0].filename, initial_seek=5, time_anim=AnimationScalar(time_animkf))
     t = Texture(data_src=m)
     s = Shader()
-    tshape = TexturedShape(q, s)
-    tshape.update_textures(tex0=t)
-    return tshape
+    render = Render(q, s)
+    render.update_textures(tex0=t)
+    return render

@@ -142,6 +142,15 @@
         - [uv_width, vec2]
         - [uv_height, vec2]
 
+- Render:
+    constructors:
+        - [shape, Node]
+        - [shader, Node]
+    optional:
+        - [textures, NodeDict]
+        - [uniforms, NodeDict]
+        - [attributes, NodeDict]
+
 - RenderRangeContinuous:
     constructors:
         - [start_time, double]
@@ -210,15 +219,6 @@
         - [wrap_t, int]
         - [data_src, Node]
         - [external_id, int]
-
-- TexturedShape:
-    constructors:
-        - [shape, Node]
-        - [shader, Node]
-    optional:
-        - [textures, NodeDict]
-        - [uniforms, NodeDict]
-        - [attributes, NodeDict]
 
 - Translate:
     constructors:

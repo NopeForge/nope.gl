@@ -1,6 +1,6 @@
 from OpenGL import GL
 
-from pynodegl import TexturedShape, Quad, Texture, Media, Shader, Group
+from pynodegl import Render, Quad, Texture, Media, Shader, Group
 from pynodegl import Rotate, Camera
 from pynodegl import UniformVec3, RTT, GLState
 from pynodegl import AnimationVec3, AnimKeyFrameVec3
@@ -17,7 +17,7 @@ def _get_cube_quads():
             ((-0.5,  0.5,  0.5), ( 1, 0,  0), (0, 0, -1), (1, 0, 1))) # top
 
 def _get_cube_side(texture, shader, corner, width, height, color):
-    ts = TexturedShape(Quad(corner, width, height), shader)
+    ts = Render(Quad(corner, width, height), shader)
     ts.update_textures(tex0=texture)
     ts.update_uniforms(blend_color=UniformVec3(value=color))
     return ts
@@ -76,14 +76,14 @@ def scene_with_framebuffer(cfg):
 
     q = Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
     s = Shader()
-    tshape = TexturedShape(q, s)
-    tshape.update_textures(tex0=t)
-    g.add_children(rtt, tshape)
+    render = Render(q, s)
+    render.update_textures(tex0=t)
+    g.add_children(rtt, render)
 
     q = Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
     s = Shader()
-    tshape = TexturedShape(q, s)
-    tshape.update_textures(tex0=d)
-    g.add_children(rtt, tshape)
+    render = Render(q, s)
+    render.update_textures(tex0=d)
+    g.add_children(rtt, render)
 
     return g

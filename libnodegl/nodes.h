@@ -244,7 +244,7 @@ struct texture {
     int upload_fmt;
     struct ngl_node *quad;
     struct ngl_node *shader;
-    struct ngl_node *tshape;
+    struct ngl_node *render;
     struct ngl_node *textures[3];
     struct ngl_node *target_texture;
     struct ngl_node *rtt;
@@ -261,7 +261,7 @@ struct textureshaderinfo {
     int dimensions_id;
 };
 
-struct texturedshape {
+struct render {
     struct ngl_node *shape;
     struct ngl_node *shader;
 

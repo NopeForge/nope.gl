@@ -72,6 +72,7 @@ LIB_OBJS = api.o                    \
            node_identity.o          \
            node_media.o             \
            node_quad.o              \
+           node_render.o            \
            node_renderrange.o       \
            node_rotate.o            \
            node_rtt.o               \
@@ -80,7 +81,6 @@ LIB_OBJS = api.o                    \
            node_shape.o             \
            node_shapeprimitive.o    \
            node_texture.o           \
-           node_texturedshape.o     \
            node_translate.o         \
            node_triangle.o          \
            node_uniform.o           \

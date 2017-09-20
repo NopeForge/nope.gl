@@ -1,4 +1,4 @@
-from pynodegl import TexturedShape, Quad, Texture, Media, Shader, Group
+from pynodegl import Render, Quad, Texture, Media, Shader, Group
 from pynodegl import UniformScalar
 from pynodegl import AnimationScalar, AnimKeyFrameScalar
 from pynodegl import RenderRangeContinuous, RenderRangeOnce, RenderRangeNoRender
@@ -23,16 +23,16 @@ def queued_medias(cfg, overlap_time=1., dim=3):
             q = Quad(corner, (qw, 0, 0), (0, qh, 0))
             t = Texture(data_src=m)
 
-            tshape = TexturedShape(q, s)
-            tshape.set_name('TShape #%d' % video_id)
-            tshape.update_textures(tex0=t)
+            render = Render(q, s)
+            render.set_name('TShape #%d' % video_id)
+            render.update_textures(tex0=t)
 
             if start:
-                tshape.add_ranges(RenderRangeNoRender(0))
-            tshape.add_ranges(RenderRangeContinuous(start),
+                render.add_ranges(RenderRangeNoRender(0))
+            render.add_ranges(RenderRangeContinuous(start),
                           RenderRangeNoRender(start + cfg.duration/nb_videos + overlap_time))
 
-            tqs.append(tshape)
+            tqs.append(render)
 
     return Group(children=tqs)
 
@@ -48,10 +48,10 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     t1 = Texture(data_src=m1, name="texture1")
     t2 = Texture(data_src=m2, name="texture2")
 
-    tshape1 = TexturedShape(q, s, name="texturedshape1")
-    tshape1.update_textures(tex0=t1)
-    tshape2 = TexturedShape(q, s, name="texturedshape2")
-    tshape2.update_textures(tex0=t2)
+    render1 = Render(q, s, name="render1")
+    render1.update_textures(tex0=t1)
+    render2 = Render(q, s, name="render2")
+    render2.update_textures(tex0=t2)
 
     t = 0
     rr1 = []
@@ -65,11 +65,11 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
 
         t += 2 * segment_time
 
-    tshape1.add_ranges(*rr1)
-    tshape2.add_ranges(*rr2)
+    render1.add_ranges(*rr1)
+    render2.add_ranges(*rr2)
 
     g = Group()
-    g.add_children(tshape1, tshape2)
+    g.add_children(render1, render2)
     if fast:
         g.add_children(t1, t2)
     return g
@@ -137,18 +137,18 @@ void main(void)
     t1 = Texture(data_src=m1, name="texture1")
     t2 = Texture(data_src=m2, name="texture2")
 
-    tshape1 = TexturedShape(q, s, name="texturedshape1")
-    tshape1.update_textures(tex0=t1)
-    tshape2 = TexturedShape(q, s, name="texturedshape2")
-    tshape2.update_textures(tex0=t2)
+    render1 = Render(q, s, name="texturedshape1")
+    render1.update_textures(tex0=t1)
+    render2 = Render(q, s, name="texturedshape2")
+    render2.update_textures(tex0=t2)
 
     delta_animkf = [AnimKeyFrameScalar(transition_start, 1.0),
                     AnimKeyFrameScalar(transition_start + transition_duration, 0.0)]
     delta = UniformScalar(value=1.0, anim=AnimationScalar(delta_animkf))
 
-    tshape1_2 = TexturedShape(q, s1_2, name="texturedshape1_2")
-    tshape1_2.update_textures(tex0=t1, tex1=t2)
-    tshape1_2.update_uniforms(delta=delta)
+    render1_2 = Render(q, s1_2, name="texturedshape1_2")
+    render1_2.update_textures(tex0=t1, tex1=t2)
+    render1_2.update_uniforms(delta=delta)
 
     rr1 = []
     rr2 = []
@@ -163,11 +163,11 @@ void main(void)
     rr1_2.append(RenderRangeContinuous(transition_start))
     rr1_2.append(RenderRangeNoRender(transition_start + transition_duration))
 
-    tshape1.add_ranges(*rr1)
-    tshape2.add_ranges(*rr2)
-    tshape1_2.add_ranges(*rr1_2)
+    render1.add_ranges(*rr1)
+    render2.add_ranges(*rr2)
+    render1_2.add_ranges(*rr1_2)
 
     g = Group()
-    g.add_children(tshape1, tshape1_2, tshape2)
+    g.add_children(render1, render1_2, render2)
 
     return g

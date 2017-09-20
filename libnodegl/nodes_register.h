@@ -41,6 +41,7 @@
     action(NGL_NODE_IDENTITY,               ngli_identity_class)                \
     action(NGL_NODE_MEDIA,                  ngli_media_class)                   \
     action(NGL_NODE_QUAD,                   ngli_quad_class)                    \
+    action(NGL_NODE_RENDER,                 ngli_render_class)                  \
     action(NGL_NODE_RENDERRANGECONTINUOUS,  ngli_renderrangecontinuous_class)   \
     action(NGL_NODE_RENDERRANGENORENDER,    ngli_renderrangenorender_class)     \
     action(NGL_NODE_RENDERRANGEONCE,        ngli_renderrangeonce_class)         \
@@ -51,7 +52,6 @@
     action(NGL_NODE_SHAPE,                  ngli_shape_class)                   \
     action(NGL_NODE_SHAPEPRIMITIVE,         ngli_shapeprimitive_class)          \
     action(NGL_NODE_TEXTURE,                ngli_texture_class)                 \
-    action(NGL_NODE_TEXTUREDSHAPE,          ngli_texturedshape_class)           \
     action(NGL_NODE_TRANSLATE,              ngli_translate_class)               \
     action(NGL_NODE_TRIANGLE,               ngli_triangle_class)                \
     action(NGL_NODE_UNIFORMINT,             ngli_uniformint_class)              \

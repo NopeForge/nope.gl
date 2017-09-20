@@ -64,7 +64,7 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE);
     struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD);
     struct ngl_node *shader  = ngl_node_create(NGL_NODE_SHADER);
-    struct ngl_node *tshape  = ngl_node_create(NGL_NODE_TEXTUREDSHAPE, quad, shader);
+    struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER, quad, shader);
 
     struct ngl_node *uniforms[3] = {
         ngl_node_create(NGL_NODE_UNIFORMSCALAR),
@@ -91,10 +91,10 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_param_set(uniforms[1], "value", g_info.width / (double)g_info.height);
     ngl_node_param_set(uniforms[2], "value", 0.0);
 
-    ngl_node_param_set(tshape, "textures", "tex0",    texture);
-    ngl_node_param_set(tshape, "uniforms", "time",    uniforms[0]);
-    ngl_node_param_set(tshape, "uniforms", "ar",      uniforms[1]);
-    ngl_node_param_set(tshape, "uniforms", "opacity", uniforms[2]);
+    ngl_node_param_set(render, "textures", "tex0",    texture);
+    ngl_node_param_set(render, "uniforms", "time",    uniforms[0]);
+    ngl_node_param_set(render, "uniforms", "ar",      uniforms[1]);
+    ngl_node_param_set(render, "uniforms", "opacity", uniforms[2]);
 
     g_opacity_uniform = uniforms[2];
 
@@ -110,7 +110,7 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_unrefp(&texture);
     ngl_node_unrefp(&quad);
 
-    return tshape;
+    return render;
 }
 
 static int probe(const char *filename)

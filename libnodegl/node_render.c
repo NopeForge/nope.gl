@@ -41,8 +41,8 @@
 
 #define ATTRIBUTES_TYPES_LIST (const int[]){-1}
 
-#define OFFSET(x) offsetof(struct texturedshape, x)
-static const struct node_param texturedshape_params[] = {
+#define OFFSET(x) offsetof(struct render, x)
+static const struct node_param render_params[] = {
     {"shape",    PARAM_TYPE_NODE, OFFSET(shape), .flags=PARAM_FLAG_CONSTRUCTOR,
                  .node_types=(const int[]){NGL_NODE_QUAD, NGL_NODE_TRIANGLE, NGL_NODE_SHAPE, -1}},
     {"shader",   PARAM_TYPE_NODE, OFFSET(shader), .flags=PARAM_FLAG_CONSTRUCTOR,
@@ -69,7 +69,7 @@ static int update_uniforms(struct ngl_node *node)
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    struct texturedshape *s = node->priv_data;
+    struct render *s = node->priv_data;
     struct shader *shader = s->shader->priv_data;
 
     int i = 0;
@@ -141,7 +141,7 @@ static int update_vertex_attribs(struct ngl_node *node)
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    struct texturedshape *s = node->priv_data;
+    struct render *s = node->priv_data;
     struct shape *shape = s->shape->priv_data;
     struct shader *shader = s->shader->priv_data;
 
@@ -170,7 +170,7 @@ static int update_vertex_attribs(struct ngl_node *node)
     return 0;
 }
 
-static int texturedshape_init(struct ngl_node *node)
+static int render_init(struct ngl_node *node)
 {
     int ret;
 
@@ -178,7 +178,7 @@ static int texturedshape_init(struct ngl_node *node)
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    struct texturedshape *s = node->priv_data;
+    struct render *s = node->priv_data;
     struct shader *shader = s->shader->priv_data;
 
     ret = ngli_node_init(s->shape);
@@ -271,13 +271,13 @@ static int texturedshape_init(struct ngl_node *node)
     return 0;
 }
 
-static void texturedshape_uninit(struct ngl_node *node)
+static void render_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    struct texturedshape *s = node->priv_data;
+    struct render *s = node->priv_data;
 
     if (glcontext->has_vao_compatibility) {
         ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
@@ -288,10 +288,10 @@ static void texturedshape_uninit(struct ngl_node *node)
     free(s->attribute_ids);
 }
 
-static void texturedshape_update(struct ngl_node *node, double t)
+static void render_update(struct ngl_node *node, double t)
 {
     struct ndict_entry *entry;
-    struct texturedshape *s = node->priv_data;
+    struct render *s = node->priv_data;
 
     ngli_node_update(s->shape, t);
 
@@ -308,13 +308,13 @@ static void texturedshape_update(struct ngl_node *node, double t)
     ngli_node_update(s->shader, t);
 }
 
-static void texturedshape_draw(struct ngl_node *node)
+static void render_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    struct texturedshape *s = node->priv_data;
+    struct render *s = node->priv_data;
     const struct shader *shader = s->shader->priv_data;
     const struct shape *shape = s->shape->priv_data;
 
@@ -334,13 +334,13 @@ static void texturedshape_draw(struct ngl_node *node)
     ngli_glDrawElements(gl, shape->draw_mode, shape->nb_indices, shape->draw_type, 0);
 }
 
-const struct node_class ngli_texturedshape_class = {
-    .id        = NGL_NODE_TEXTUREDSHAPE,
-    .name      = "TexturedShape",
-    .init      = texturedshape_init,
-    .uninit    = texturedshape_uninit,
-    .update    = texturedshape_update,
-    .draw      = texturedshape_draw,
-    .priv_size = sizeof(struct texturedshape),
-    .params    = texturedshape_params,
+const struct node_class ngli_render_class = {
+    .id        = NGL_NODE_RENDER,
+    .name      = "Render",
+    .init      = render_init,
+    .uninit    = render_uninit,
+    .update    = render_update,
+    .draw      = render_draw,
+    .priv_size = sizeof(struct render),
+    .params    = render_params,
 };

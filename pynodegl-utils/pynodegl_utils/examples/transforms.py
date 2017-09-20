@@ -1,4 +1,4 @@
-from pynodegl import Quad, Texture, Shader, TexturedShape, Media, Camera, Group, GLState
+from pynodegl import Quad, Texture, Shader, Render, Media, Camera, Group, GLState
 from pynodegl import Scale, Rotate, Translate, Identity
 from pynodegl import UniformVec4, UniformMat4
 from pynodegl import AnimationScalar, AnimKeyFrameScalar
@@ -41,7 +41,7 @@ def static(cfg, color=(0.5, 0.0, 1.0, 1.0), width=0.5, height=0.5,
     ucolor = UniformVec4(value=color)
 
     s.set_fragment_data(frag_data)
-    node = TexturedShape(q, s)
+    node = Render(q, s)
     node.update_uniforms(blend_color=ucolor)
 
     if rotate:
@@ -64,7 +64,7 @@ def animated(cfg, rotate=True, scale=True, translate=True):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    node = TexturedShape(q, s)
+    node = Render(q, s)
     node.update_textures(tex0=t)
 
     if rotate:
@@ -108,7 +108,7 @@ def animated_uniform(cfg):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader(fragment_data=animated_frag_data)
-    ts = TexturedShape(q, s)
+    ts = Render(q, s)
     ts.update_textures(tex0=t)
 
     scale_animkf = [AnimKeyFrameVec3(0, (1,1,1)),
@@ -133,28 +133,28 @@ def animated_camera(cfg, rotate=False):
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader()
-    node = TexturedShape(q, s)
+    node = Render(q, s)
     node.update_textures(tex0=t)
     g.add_children(node)
 
     z = -1
     q = Quad((-1.1, 0.3, z), (1, 0, 0), (0, 1, 0))
-    node = TexturedShape(q, s)
+    node = Render(q, s)
     node.update_textures(tex0=t)
     g.add_children(node)
 
     q = Quad((0.1, 0.3, z), (1, 0, 0), (0, 1, 0))
-    node = TexturedShape(q, s)
+    node = Render(q, s)
     node.update_textures(tex0=t)
     g.add_children(node)
 
     q = Quad((-1.1, -1.0, z), (1, 0, 0), (0, 1, 0))
-    node = TexturedShape(q, s)
+    node = Render(q, s)
     node.update_textures(tex0=t)
     g.add_children(node)
 
     q = Quad((0.1, -1.0, z), (1, 0, 0), (0, 1, 0))
-    node = TexturedShape(q, s)
+    node = Render(q, s)
     node.update_textures(tex0=t)
     g.add_children(node)
 
