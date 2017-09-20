@@ -213,7 +213,7 @@ test_asm: test_asm.o math_utils.o $(LIB_OBJS_ARCH_$(ARCH))
 clean:
 	$(RM) $(LIB_BASENAME).so $(LIB_BASENAME).dylib $(LIB_BASENAME).a $(LIB_BASENAME).dll
 	$(RM) $(LIB_OBJS) $(LIB_DEPS)
-	$(RM) $(GENSPECS_OBJS) gen_specs$(EXESUF)
+	$(RM) gen_specs.o gen_specs$(EXESUF)
 	$(RM) $(LIB_PCNAME)
 	$(RM) $(LD_SYM_FILE)
 	$(RM) test_asm.o test_asm
