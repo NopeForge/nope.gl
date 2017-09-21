@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "bstr.h"
+#include "hmap.h"
 #include "ndict.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -32,34 +33,31 @@
 
 extern const struct node_param ngli_base_node_params[];
 
-struct decl {
-    const void *id;
-    struct decl *next;
-};
-
-static int list_check(struct decl **idxdecls, const void *id)
+static int list_check_decls(struct hmap *decls, const void *id)
 {
-    for (struct decl *decl = *idxdecls; decl; decl = decl->next)
-        if (id == decl->id)
-            return 1;
-
-    struct decl *cur = malloc(sizeof(*cur));
-    cur->id = id;
-    cur->next = *idxdecls;
-    *idxdecls = cur;
-
-    return 0;
+    char key[32];
+    int ret = snprintf(key, sizeof(key), "%p", id);
+    if (ret < 0)
+        return ret;
+    if (ngli_hmap_get(decls, key))
+        return 1;
+    return ngli_hmap_set(decls, key, "");
 }
 
-static void free_list_decls(struct decl **idxdecls)
+static int list_check_links(struct hmap *links, const void *a, const void *b)
 {
-    struct decl *decl = *idxdecls;
-    while (decl) {
-        struct decl *next = decl->next;
-        free(decl);
-        decl = next;
-    }
-    *idxdecls = NULL;
+    int ret;
+    char key1[64], key2[64];
+    if ((ret = snprintf(key1, sizeof(key1), "%p %p", a, b)) < 0 ||
+        (ret = snprintf(key2, sizeof(key2), "%p %p", b, a)) < 0)
+        return ret;
+
+    if (ngli_hmap_get(links, key1) || ngli_hmap_get(links, key2))
+        return 1;
+    if ((ret = ngli_hmap_set(links, key1, "")) < 0 ||
+        (ret = ngli_hmap_set(links, key2, "")) < 0)
+        return ret;
+    return 0;
 }
 
 static float get_hue(const char *name)
@@ -126,11 +124,11 @@ static void print_custom_priv_options(struct bstr *b, const struct ngl_node *nod
 
 static void print_decls(struct bstr *b, const struct ngl_node *node,
                         const struct node_param *p, uint8_t *priv,
-                        struct decl **idxdecls);
+                        struct hmap *decls);
 
-static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct decl **idxdecls)
+static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct hmap *decls)
 {
-    if (list_check(idxdecls, node))
+    if (list_check_decls(decls, node))
         return;
 
     ngli_bstr_print(b, "    %s_%p[label=<<b>%s</b><br/><i>%s</i><br/>",
@@ -138,8 +136,8 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
     print_custom_priv_options(b, node);
     ngli_bstr_print(b, ">,color="HSLFMT"]\n", get_hue(node->class->name));
 
-    print_decls(b, node, ngli_base_node_params, (uint8_t *)node, idxdecls);
-    print_decls(b, node, node->class->params, node->priv_data, idxdecls);
+    print_decls(b, node, ngli_base_node_params, (uint8_t *)node, decls);
+    print_decls(b, node, node->class->params, node->priv_data, decls);
 }
 
 static void print_packed_decls(struct bstr *b, const char *name,
@@ -157,14 +155,14 @@ static void print_packed_decls(struct bstr *b, const char *name,
 
 static void print_decls(struct bstr *b, const struct ngl_node *node,
                         const struct node_param *p, uint8_t *priv,
-                        struct decl **idxdecls)
+                        struct hmap *decls)
 {
     while (p && p->key) {
         switch (p->type) {
             case PARAM_TYPE_NODE: {
                 const struct ngl_node *child = *(struct ngl_node **)(priv + p->offset);
                 if (child)
-                    print_all_decls(b, child, idxdecls);
+                    print_all_decls(b, child, decls);
                 break;
             }
             case PARAM_TYPE_NODELIST: {
@@ -172,59 +170,26 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                 const int nb_children = *(int *)(priv + p->offset + sizeof(struct ngl_node **));
 
                 if (nb_children && (p->flags & PARAM_FLAG_DOT_DISPLAY_PACKED)) {
-                    if (list_check(idxdecls, children))
+                    if (list_check_decls(decls, children))
                         break;
                     print_packed_decls(b, p->key, children, nb_children);
                     break;
                 }
 
                 for (int i = 0; i < nb_children; i++)
-                    print_all_decls(b, children[i], idxdecls);
+                    print_all_decls(b, children[i], decls);
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
                 struct ndict *ndict = *(struct ndict **)(priv + p->offset);
                 struct ndict_entry *entry = NULL;
                 while ((entry = ngli_ndict_get(ndict, NULL, entry)))
-                    print_all_decls(b, entry->node, idxdecls);
+                    print_all_decls(b, entry->node, decls);
                 break;
             }
         }
         p++;
     }
-}
-
-struct link {
-    const void *a;
-    const void *b;
-    struct link *next;
-};
-
-static int list_check_links(struct link **links, const void *a, const void *b)
-{
-    for (struct link *link = *links; link; link = link->next)
-        if ((link->a == a && link->b == b) ||
-            (link->a == b && link->b == a))
-            return 1;
-
-    struct link *cur = malloc(sizeof(*cur));
-    cur->a = a;
-    cur->b = b;
-    cur->next = *links;
-    *links = cur;
-
-    return 0;
-}
-
-static void free_list_links(struct link **links)
-{
-    struct link *link = *links;
-    while (link) {
-        struct link *next = link->next;
-        free(link);
-        link = next;
-    }
-    *links = NULL;
 }
 
 static void print_link(struct bstr *b,
@@ -237,17 +202,17 @@ static void print_link(struct bstr *b,
 
 static void print_links(struct bstr *b, const struct ngl_node *node,
                         const struct node_param *p, uint8_t *priv,
-                        struct link **idxlinks);
+                        struct hmap *links);
 
-static void print_all_links(struct bstr *b, const struct ngl_node *node, struct link **idxlinks)
+static void print_all_links(struct bstr *b, const struct ngl_node *node, struct hmap *links)
 {
-    print_links(b, node, ngli_base_node_params, (uint8_t *)node, idxlinks);
-    print_links(b, node, node->class->params, node->priv_data, idxlinks);
+    print_links(b, node, ngli_base_node_params, (uint8_t *)node, links);
+    print_links(b, node, node->class->params, node->priv_data, links);
 }
 
 static void print_links(struct bstr *b, const struct ngl_node *node,
                         const struct node_param *p, uint8_t *priv,
-                        struct link **idxlinks)
+                        struct hmap *links)
 {
     while (p && p->key) {
         char *label = ngli_asprintf("[label=\"%s\"]",
@@ -256,10 +221,10 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
             case PARAM_TYPE_NODE: {
                 const struct ngl_node *child = *(struct ngl_node **)(priv + p->offset);
                 if (child) {
-                    if (list_check_links(idxlinks, node, child))
+                    if (list_check_links(links, node, child))
                         break;
                     print_link(b, node, child, label);
-                    print_all_links(b, child, idxlinks);
+                    print_all_links(b, child, links);
                 }
                 break;
             }
@@ -268,7 +233,7 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 const int nb_children = *(int *)(priv + p->offset + sizeof(struct ngl_node **));
 
                 if (nb_children && (p->flags & PARAM_FLAG_DOT_DISPLAY_PACKED)) {
-                    if (list_check_links(idxlinks, node, children))
+                    if (list_check_links(links, node, children))
                         break;
                     ngli_bstr_print(b, "    %s_%p -> %s_%p%s\n",
                                     node->class->name, node, p->key, children, label);
@@ -278,10 +243,10 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 for (int i = 0; i < nb_children; i++) {
                     const struct ngl_node *child = children[i];
 
-                    if (list_check_links(idxlinks, node, child))
+                    if (list_check_links(links, node, child))
                         continue;
                     print_link(b, node, child, label);
-                    print_all_links(b, child, idxlinks);
+                    print_all_links(b, child, links);
                 }
                 break;
             }
@@ -293,7 +258,7 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                     char *key;
                     const struct ngl_node *child = entry->node;
 
-                    if (list_check_links(idxlinks, node, child))
+                    if (list_check_links(links, node, child))
                         continue;
 
                     if (p->flags & PARAM_FLAG_DOT_DISPLAY_FIELDNAME)
@@ -307,7 +272,7 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                     }
 
                     print_link(b, node, child, key);
-                    print_all_links(b, child, idxlinks);
+                    print_all_links(b, child, links);
 
                     free(key);
                 }
@@ -321,12 +286,12 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
 
 char *ngl_node_dot(const struct ngl_node *node)
 {
-    struct decl *idxdecls = NULL;
-    struct link *idxlinks = NULL;
-
+    char *graph = NULL;
+    struct hmap *decls = ngli_hmap_create();
+    struct hmap *links = ngli_hmap_create();
     struct bstr *b = ngli_bstr_create();
-    if (!b)
-        return NULL;
+    if (!decls || !links || !b)
+        goto end;
 
     const char *font_settings="fontsize=9,fontname=Arial";
 
@@ -336,17 +301,16 @@ char *ngl_node_dot(const struct ngl_node *node)
                     "    node [style=filled,%s];\n",
                     font_settings, font_settings);
 
-    print_all_decls(b, node, &idxdecls);
-    print_all_links(b, node, &idxlinks);
+    print_all_decls(b, node, decls);
+    print_all_links(b, node, links);
 
     ngli_bstr_print(b, "}\n");
 
-    free_list_decls(&idxdecls);
-    free_list_links(&idxlinks);
+    graph = ngli_bstr_strdup(b);
 
-    char *graph = ngli_bstr_strdup(b);
-
+end:
     ngli_bstr_freep(&b);
-
+    ngli_hmap_freep(&decls);
+    ngli_hmap_freep(&links);
     return graph;
 }
