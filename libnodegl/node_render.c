@@ -73,51 +73,51 @@ static int update_uniforms(struct ngl_node *node)
     struct shader *shader = s->shader->priv_data;
 
     if (s->uniforms) {
-    int i = 0;
-    const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-        const struct ngl_node *unode = entry->data;
-        const struct uniform *u = unode->priv_data;
-        const GLint uid = s->uniform_ids[i];
-        switch (unode->class->id) {
-        case NGL_NODE_UNIFORMSCALAR: ngli_glUniform1f (gl, uid,    u->scalar);                 break;
-        case NGL_NODE_UNIFORMVEC2:   ngli_glUniform2fv(gl, uid, 1, u->vector);                 break;
-        case NGL_NODE_UNIFORMVEC3:   ngli_glUniform3fv(gl, uid, 1, u->vector);                 break;
-        case NGL_NODE_UNIFORMVEC4:   ngli_glUniform4fv(gl, uid, 1, u->vector);                 break;
-        case NGL_NODE_UNIFORMINT:    ngli_glUniform1i (gl, uid,    u->ival);                   break;
-        case NGL_NODE_UNIFORMMAT4:   ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix); break;
-        default:
-            LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
-            break;
+        int i = 0;
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->uniforms, entry))) {
+            const struct ngl_node *unode = entry->data;
+            const struct uniform *u = unode->priv_data;
+            const GLint uid = s->uniform_ids[i];
+            switch (unode->class->id) {
+            case NGL_NODE_UNIFORMSCALAR: ngli_glUniform1f (gl, uid,    u->scalar);                 break;
+            case NGL_NODE_UNIFORMVEC2:   ngli_glUniform2fv(gl, uid, 1, u->vector);                 break;
+            case NGL_NODE_UNIFORMVEC3:   ngli_glUniform3fv(gl, uid, 1, u->vector);                 break;
+            case NGL_NODE_UNIFORMVEC4:   ngli_glUniform4fv(gl, uid, 1, u->vector);                 break;
+            case NGL_NODE_UNIFORMINT:    ngli_glUniform1i (gl, uid,    u->ival);                   break;
+            case NGL_NODE_UNIFORMMAT4:   ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix); break;
+            default:
+                LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
+                break;
+            }
+            i++;
         }
-        i++;
-    }
     }
 
     if (s->textures) {
-    int i = 0;
-    const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->textures, entry))) {
-        struct ngl_node *tnode = entry->data;
-        struct texture *texture = tnode->priv_data;
-        struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
+        int i = 0;
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->textures, entry))) {
+            struct ngl_node *tnode = entry->data;
+            struct texture *texture = tnode->priv_data;
+            struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
 
-        if (textureshaderinfo->sampler_id >= 0) {
-            const int sampler_id = textureshaderinfo->sampler_id;
-            bind_texture(gl, texture->target, sampler_id, texture->id, i);
+            if (textureshaderinfo->sampler_id >= 0) {
+                const int sampler_id = textureshaderinfo->sampler_id;
+                bind_texture(gl, texture->target, sampler_id, texture->id, i);
+            }
+
+            if (textureshaderinfo->coordinates_mvp_id >= 0) {
+                ngli_glUniformMatrix4fv(gl, textureshaderinfo->coordinates_mvp_id, 1, GL_FALSE, texture->coordinates_matrix);
+            }
+
+            if (textureshaderinfo->dimensions_id >= 0) {
+                float dimensions[2] = { texture->width, texture->height };
+                ngli_glUniform2fv(gl, textureshaderinfo->dimensions_id, 1, dimensions);
+            }
+
+            i++;
         }
-
-        if (textureshaderinfo->coordinates_mvp_id >= 0) {
-            ngli_glUniformMatrix4fv(gl, textureshaderinfo->coordinates_mvp_id, 1, GL_FALSE, texture->coordinates_matrix);
-        }
-
-        if (textureshaderinfo->dimensions_id >= 0) {
-            float dimensions[2] = { texture->width, texture->height };
-            ngli_glUniform2fv(gl, textureshaderinfo->dimensions_id, 1, dimensions);
-        }
-
-        i++;
-    }
     }
 
     if (shader->modelview_matrix_location_id >= 0) {
@@ -199,16 +199,16 @@ static int render_init(struct ngl_node *node)
         if (!s->uniform_ids)
             return -1;
 
-    int i = 0;
-    const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-        struct ngl_node *unode = entry->data;
-        ret = ngli_node_init(unode);
-        if (ret < 0)
-            return ret;
-        s->uniform_ids[i] = ngli_glGetUniformLocation(gl, shader->program_id, entry->key);
-        i++;
-    }
+        int i = 0;
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->uniforms, entry))) {
+            struct ngl_node *unode = entry->data;
+            ret = ngli_node_init(unode);
+            if (ret < 0)
+                return ret;
+            s->uniform_ids[i] = ngli_glGetUniformLocation(gl, shader->program_id, entry->key);
+            i++;
+        }
     }
 
     int nb_attributes = s->attributes ? ngli_hmap_count(s->attributes) : 0;
@@ -217,16 +217,16 @@ static int render_init(struct ngl_node *node)
         if (!s->attribute_ids)
             return -1;
 
-    int i = 0;
-    const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->attributes, entry))) {
-        struct ngl_node *anode = entry->data;
-        ret = ngli_node_init(anode);
-        if (ret < 0)
-            return ret;
-        s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, entry->key);
-        i++;
-    }
+        int i = 0;
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->attributes, entry))) {
+            struct ngl_node *anode = entry->data;
+            ret = ngli_node_init(anode);
+            if (ret < 0)
+                return ret;
+            s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, entry->key);
+            i++;
+        }
     }
 
     int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
@@ -241,29 +241,29 @@ static int render_init(struct ngl_node *node)
         if (!s->textureshaderinfos)
             return -1;
 
-    int i = 0;
-    const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->textures, entry))) {
-        char name[128];
-        struct ngl_node *tnode = entry->data;
+        int i = 0;
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->textures, entry))) {
+            char name[128];
+            struct ngl_node *tnode = entry->data;
 
-        ret = ngli_node_init(tnode);
-        if (ret < 0)
-            return ret;
+            ret = ngli_node_init(tnode);
+            if (ret < 0)
+                return ret;
 
-        snprintf(name, sizeof(name), "%s_sampler", entry->key);
-        s->textureshaderinfos[i].sampler_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
+            snprintf(name, sizeof(name), "%s_sampler", entry->key);
+            s->textureshaderinfos[i].sampler_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
 
-        snprintf(name, sizeof(name), "%s_coords", entry->key);
-        s->textureshaderinfos[i].coordinates_id = ngli_glGetAttribLocation(gl, shader->program_id, name);
+            snprintf(name, sizeof(name), "%s_coords", entry->key);
+            s->textureshaderinfos[i].coordinates_id = ngli_glGetAttribLocation(gl, shader->program_id, name);
 
-        snprintf(name, sizeof(name), "%s_coords_matrix", entry->key);
-        s->textureshaderinfos[i].coordinates_mvp_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
+            snprintf(name, sizeof(name), "%s_coords_matrix", entry->key);
+            s->textureshaderinfos[i].coordinates_mvp_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
 
-        snprintf(name, sizeof(name), "%s_dimensions", entry->key);
-        s->textureshaderinfos[i].dimensions_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
-        i++;
-    }
+            snprintf(name, sizeof(name), "%s_dimensions", entry->key);
+            s->textureshaderinfos[i].dimensions_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
+            i++;
+        }
     }
 
     if (glcontext->has_vao_compatibility) {
@@ -299,17 +299,17 @@ static void render_update(struct ngl_node *node, double t)
     ngli_node_update(s->shape, t);
 
     if (s->textures) {
-    const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->textures, entry))) {
-        ngli_node_update(entry->data, t);
-    }
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->textures, entry))) {
+            ngli_node_update(entry->data, t);
+        }
     }
 
     if (s->uniforms) {
-    const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-        ngli_node_update(entry->data, t);
-    }
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->uniforms, entry))) {
+            ngli_node_update(entry->data, t);
+        }
     }
 
     ngli_node_update(s->shader, t);
