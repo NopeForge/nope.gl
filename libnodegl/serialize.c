@@ -37,13 +37,20 @@ static void free_func(void *arg, void *data)
     free(data);
 }
 
-static void register_node(struct hmap *nlist,
+static int register_node(struct hmap *nlist,
                           const struct ngl_node *node)
 {
     char key[32];
-    (void)snprintf(key, sizeof(key), "%p", node);
+    int ret = snprintf(key, sizeof(key), "%p", node);
+    if (ret < 0)
+        return ret;
     char *val = ngli_asprintf("%x", ngli_hmap_count(nlist));
-    (void)ngli_hmap_set(nlist, key, val);
+    if (!val)
+        return -1;
+    ret = ngli_hmap_set(nlist, key, val);
+    if (ret < 0)
+        free(val);
+    return ret;
 }
 
 static const char *get_node_id(const struct hmap *nlist,
@@ -199,11 +206,11 @@ static void serialize_options(struct hmap *nlist,
     }
 }
 
-static void serialize(struct hmap *nlist,
-                      struct bstr *b,
-                      const struct ngl_node *node);
+static int serialize(struct hmap *nlist,
+                     struct bstr *b,
+                     const struct ngl_node *node);
 
-static void serialize_children(struct hmap *nlist,
+static int serialize_children(struct hmap *nlist,
                                struct bstr *b,
                                const struct ngl_node *node,
                                uint8_t *priv,
@@ -213,46 +220,59 @@ static void serialize_children(struct hmap *nlist,
         switch (p->type) {
             case PARAM_TYPE_NODE: {
                 const struct ngl_node *child = *(struct ngl_node **)(priv + p->offset);
-                if (child)
-                    serialize(nlist, b, child);
+                if (child) {
+                    int ret = serialize(nlist, b, child);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
             case PARAM_TYPE_NODELIST: {
                 struct ngl_node **children = *(struct ngl_node ***)(priv + p->offset);
                 const int nb_children = *(int *)(priv + p->offset + sizeof(struct ngl_node **));
 
-                for (int i = 0; i < nb_children; i++)
-                    serialize(nlist, b, children[i]);
+                for (int i = 0; i < nb_children; i++) {
+                    int ret = serialize(nlist, b, children[i]);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
                 struct ndict *ndict = *(struct ndict **)(priv + p->offset);
                 struct ndict_entry *entry = NULL;
-                while ((entry = ngli_ndict_get(ndict, NULL, entry)))
-                    serialize(nlist, b, entry->node);
+                while ((entry = ngli_ndict_get(ndict, NULL, entry))) {
+                    int ret = serialize(nlist, b, entry->node);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
         }
         p++;
     }
+    return 0;
 }
 
-static void serialize(struct hmap *nlist,
-                      struct bstr *b,
-                      const struct ngl_node *node)
+static int serialize(struct hmap *nlist,
+                     struct bstr *b,
+                     const struct ngl_node *node)
 {
     if (get_node_id(nlist, node))
-        return;
+        return 0;
 
-    serialize_children(nlist, b, node, (uint8_t *)node, ngli_base_node_params);
-    serialize_children(nlist, b, node, node->priv_data, node->class->params);
+    int ret;
+
+    if ((ret = serialize_children(nlist, b, node, (uint8_t *)node, ngli_base_node_params)) < 0 ||
+        (ret = serialize_children(nlist, b, node, node->priv_data, node->class->params)) < 0)
+        return ret;
 
     ngli_bstr_print(b, "%x", node->class->id);
     serialize_options(nlist, b, node, node->priv_data, node->class->params);
     serialize_options(nlist, b, node, (uint8_t *)node, ngli_base_node_params);
     ngli_bstr_print(b, "\n");
 
-    register_node(nlist, node);
+    return register_node(nlist, node);
 }
 
 char *ngl_node_serialize(const struct ngl_node *node)
@@ -266,7 +286,8 @@ char *ngl_node_serialize(const struct ngl_node *node)
     ngli_hmap_set_free(nlist, free_func, NULL);
     ngli_bstr_print(b, "# Node.GL v%d.%d.%d\n",
                     NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
-    serialize(nlist, b, node);
+    if (serialize(nlist, b, node) < 0)
+        goto end;
     s = ngli_bstr_strdup(b);
 
 end:
