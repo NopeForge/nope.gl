@@ -57,7 +57,7 @@ static const char *get_node_id(const struct hmap *nlist,
 
 static const float zvec[4] = {0};
 
-static void serialize_options(struct hmap *sctx,
+static void serialize_options(struct hmap *nlist,
                               struct bstr *b,
                               const struct ngl_node *node,
                               uint8_t *priv,
@@ -140,7 +140,7 @@ static void serialize_options(struct hmap *sctx,
                 const struct ngl_node *node = *(struct ngl_node **)(priv + p->offset);
                 if (!node)
                     break;
-                const char *node_id = get_node_id(sctx, node);
+                const char *node_id = get_node_id(nlist, node);
                 if (constructor)
                     ngli_bstr_print(b, " %s", node_id);
                 else if (node)
@@ -157,7 +157,7 @@ static void serialize_options(struct hmap *sctx,
                 else
                     ngli_bstr_print(b, " %s:", p->key);
                 for (int i = 0; i < nb_nodes; i++) {
-                    const char *node_id = get_node_id(sctx, nodes[i]);
+                    const char *node_id = get_node_id(nlist, nodes[i]);
                     ngli_bstr_print(b, "%s%s", i ? "," : "", node_id);
                 }
                 break;
@@ -186,7 +186,7 @@ static void serialize_options(struct hmap *sctx,
                     ngli_bstr_print(b, " %s:", p->key);
                 int i = 0;
                 while ((entry = ngli_ndict_get(ndict, NULL, entry))) {
-                    const char *node_id = get_node_id(sctx, entry->node);
+                    const char *node_id = get_node_id(nlist, entry->node);
                     ngli_bstr_print(b, "%s%s=%s", i ? "," : "", entry->name, node_id);
                     i++;
                 }
@@ -199,11 +199,11 @@ static void serialize_options(struct hmap *sctx,
     }
 }
 
-static void serialize(struct hmap *sctx,
+static void serialize(struct hmap *nlist,
                       struct bstr *b,
                       const struct ngl_node *node);
 
-static void serialize_children(struct hmap *sctx,
+static void serialize_children(struct hmap *nlist,
                                struct bstr *b,
                                const struct ngl_node *node,
                                uint8_t *priv,
@@ -214,7 +214,7 @@ static void serialize_children(struct hmap *sctx,
             case PARAM_TYPE_NODE: {
                 const struct ngl_node *child = *(struct ngl_node **)(priv + p->offset);
                 if (child)
-                    serialize(sctx, b, child);
+                    serialize(nlist, b, child);
                 break;
             }
             case PARAM_TYPE_NODELIST: {
@@ -222,14 +222,14 @@ static void serialize_children(struct hmap *sctx,
                 const int nb_children = *(int *)(priv + p->offset + sizeof(struct ngl_node **));
 
                 for (int i = 0; i < nb_children; i++)
-                    serialize(sctx, b, children[i]);
+                    serialize(nlist, b, children[i]);
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
                 struct ndict *ndict = *(struct ndict **)(priv + p->offset);
                 struct ndict_entry *entry = NULL;
                 while ((entry = ngli_ndict_get(ndict, NULL, entry)))
-                    serialize(sctx, b, entry->node);
+                    serialize(nlist, b, entry->node);
                 break;
             }
         }
@@ -237,22 +237,22 @@ static void serialize_children(struct hmap *sctx,
     }
 }
 
-static void serialize(struct hmap *sctx,
+static void serialize(struct hmap *nlist,
                       struct bstr *b,
                       const struct ngl_node *node)
 {
-    if (get_node_id(sctx, node))
+    if (get_node_id(nlist, node))
         return;
 
-    serialize_children(sctx, b, node, (uint8_t *)node, ngli_base_node_params);
-    serialize_children(sctx, b, node, node->priv_data, node->class->params);
+    serialize_children(nlist, b, node, (uint8_t *)node, ngli_base_node_params);
+    serialize_children(nlist, b, node, node->priv_data, node->class->params);
 
     ngli_bstr_print(b, "%x", node->class->id);
-    serialize_options(sctx, b, node, node->priv_data, node->class->params);
-    serialize_options(sctx, b, node, (uint8_t *)node, ngli_base_node_params);
+    serialize_options(nlist, b, node, node->priv_data, node->class->params);
+    serialize_options(nlist, b, node, (uint8_t *)node, ngli_base_node_params);
     ngli_bstr_print(b, "\n");
 
-    register_node(sctx, node);
+    register_node(nlist, node);
 }
 
 char *ngl_node_serialize(const struct ngl_node *node)
