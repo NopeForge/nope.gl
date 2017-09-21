@@ -35,6 +35,7 @@
 
 #include "glincludes.h"
 #include "glcontext.h"
+#include "hmap.h"
 #include "params.h"
 
 struct node_class;
@@ -265,13 +266,13 @@ struct render {
     struct ngl_node *shape;
     struct ngl_node *shader;
 
-    struct ndict *textures;
+    struct hmap *textures;
     struct textureshaderinfo *textureshaderinfos;
 
-    struct ndict *uniforms;
+    struct hmap *uniforms;
     GLint *uniform_ids;
 
-    struct ndict *attributes;
+    struct hmap *attributes;
     GLint *attribute_ids;
 
     GLuint vao_id;

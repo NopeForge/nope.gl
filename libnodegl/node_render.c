@@ -24,9 +24,9 @@
 #include <string.h>
 
 #include "glincludes.h"
+#include "hmap.h"
 #include "log.h"
 #include "math_utils.h"
-#include "ndict.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "utils.h"
@@ -72,11 +72,12 @@ static int update_uniforms(struct ngl_node *node)
     struct render *s = node->priv_data;
     struct shader *shader = s->shader->priv_data;
 
+    if (s->uniforms) {
     int i = 0;
-    struct ndict_entry *entry = NULL;
-    while ((entry = ngli_ndict_get(s->uniforms, NULL, entry))) {
-        const struct ngl_node *unode = entry->node;
-        const struct uniform *u = entry->node->priv_data;
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->uniforms, entry))) {
+        const struct ngl_node *unode = entry->data;
+        const struct uniform *u = unode->priv_data;
         const GLint uid = s->uniform_ids[i];
         switch (unode->class->id) {
         case NGL_NODE_UNIFORMSCALAR: ngli_glUniform1f (gl, uid,    u->scalar);                 break;
@@ -91,11 +92,13 @@ static int update_uniforms(struct ngl_node *node)
         }
         i++;
     }
+    }
 
-    i = 0;
-    entry = NULL;
-    while ((entry = ngli_ndict_get(s->textures, NULL, entry))) {
-        struct ngl_node *tnode = entry->node;
+    if (s->textures) {
+    int i = 0;
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->textures, entry))) {
+        struct ngl_node *tnode = entry->data;
         struct texture *texture = tnode->priv_data;
         struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
 
@@ -114,6 +117,7 @@ static int update_uniforms(struct ngl_node *node)
         }
 
         i++;
+    }
     }
 
     if (shader->modelview_matrix_location_id >= 0) {
@@ -145,7 +149,7 @@ static int update_vertex_attribs(struct ngl_node *node)
     struct shape *shape = s->shape->priv_data;
     struct shader *shader = s->shader->priv_data;
 
-    int nb_textures = ngli_ndict_count(s->textures);
+    int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
     for (int i = 0; i < nb_textures; i++)  {
         struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
         if (textureshaderinfo->coordinates_id >= 0) {
@@ -189,43 +193,43 @@ static int render_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    int nb_uniforms = ngli_ndict_count(s->uniforms);
+    int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
     if (nb_uniforms > 0) {
         s->uniform_ids = calloc(nb_uniforms, sizeof(*s->uniform_ids));
         if (!s->uniform_ids)
             return -1;
-    }
 
     int i = 0;
-    struct ndict_entry *entry = NULL;
-    while ((entry = ngli_ndict_get(s->uniforms, NULL, entry))) {
-        struct ngl_node *unode = entry->node;
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->uniforms, entry))) {
+        struct ngl_node *unode = entry->data;
         ret = ngli_node_init(unode);
         if (ret < 0)
             return ret;
-        s->uniform_ids[i] = ngli_glGetUniformLocation(gl, shader->program_id, entry->name);
+        s->uniform_ids[i] = ngli_glGetUniformLocation(gl, shader->program_id, entry->key);
         i++;
     }
+    }
 
-    int nb_attributes = ngli_ndict_count(s->attributes);
+    int nb_attributes = s->attributes ? ngli_hmap_count(s->attributes) : 0;
     if (nb_attributes > 0) {
         s->attribute_ids = calloc(nb_attributes, sizeof(*s->attribute_ids));
         if (!s->attribute_ids)
             return -1;
-    }
 
-    i = 0;
-    entry = NULL;
-    while ((entry = ngli_ndict_get(s->attributes, NULL, entry))) {
-        struct ngl_node *anode = entry->node;
+    int i = 0;
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->attributes, entry))) {
+        struct ngl_node *anode = entry->data;
         ret = ngli_node_init(anode);
         if (ret < 0)
             return ret;
-        s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, entry->name);
+        s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, entry->key);
         i++;
     }
+    }
 
-    int nb_textures = ngli_ndict_count(s->textures);
+    int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
     if (nb_textures > glcontext->max_texture_image_units) {
         LOG(ERROR, "Attached textures count (%d) exceeds driver limit (%d)",
             nb_textures, glcontext->max_texture_image_units);
@@ -236,30 +240,30 @@ static int render_init(struct ngl_node *node)
         s->textureshaderinfos = calloc(nb_textures, sizeof(*s->textureshaderinfos));
         if (!s->textureshaderinfos)
             return -1;
-    }
 
-    i = 0;
-    entry = NULL;
-    while ((entry = ngli_ndict_get(s->textures, NULL, entry))) {
+    int i = 0;
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->textures, entry))) {
         char name[128];
-        struct ngl_node *tnode = entry->node;
+        struct ngl_node *tnode = entry->data;
 
         ret = ngli_node_init(tnode);
         if (ret < 0)
             return ret;
 
-        snprintf(name, sizeof(name), "%s_sampler", entry->name);
+        snprintf(name, sizeof(name), "%s_sampler", entry->key);
         s->textureshaderinfos[i].sampler_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
 
-        snprintf(name, sizeof(name), "%s_coords", entry->name);
+        snprintf(name, sizeof(name), "%s_coords", entry->key);
         s->textureshaderinfos[i].coordinates_id = ngli_glGetAttribLocation(gl, shader->program_id, name);
 
-        snprintf(name, sizeof(name), "%s_coords_matrix", entry->name);
+        snprintf(name, sizeof(name), "%s_coords_matrix", entry->key);
         s->textureshaderinfos[i].coordinates_mvp_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
 
-        snprintf(name, sizeof(name), "%s_dimensions", entry->name);
+        snprintf(name, sizeof(name), "%s_dimensions", entry->key);
         s->textureshaderinfos[i].dimensions_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
         i++;
+    }
     }
 
     if (glcontext->has_vao_compatibility) {
@@ -290,19 +294,22 @@ static void render_uninit(struct ngl_node *node)
 
 static void render_update(struct ngl_node *node, double t)
 {
-    struct ndict_entry *entry;
     struct render *s = node->priv_data;
 
     ngli_node_update(s->shape, t);
 
-    entry = NULL;
-    while ((entry = ngli_ndict_get(s->textures, NULL, entry))) {
-        ngli_node_update(entry->node, t);
+    if (s->textures) {
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->textures, entry))) {
+        ngli_node_update(entry->data, t);
+    }
     }
 
-    entry = NULL;
-    while ((entry = ngli_ndict_get(s->uniforms, NULL, entry))) {
-        ngli_node_update(entry->node, t);
+    if (s->uniforms) {
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->uniforms, entry))) {
+        ngli_node_update(entry->data, t);
+    }
     }
 
     ngli_node_update(s->shader, t);

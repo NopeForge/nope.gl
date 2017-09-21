@@ -26,8 +26,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "hmap.h"
 #include "log.h"
-#include "ndict.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "params.h"
@@ -193,7 +193,7 @@ static const size_t opt_sizes[] = {
     [PARAM_TYPE_NODE]     = sizeof(struct ngl_node *),
     [PARAM_TYPE_NODELIST] = sizeof(struct ngl_node **) + sizeof(int),
     [PARAM_TYPE_DBLLIST]  = sizeof(double *)           + sizeof(int),
-    [PARAM_TYPE_NODEDICT] = sizeof(struct ndict *),
+    [PARAM_TYPE_NODEDICT] = sizeof(struct hmap *),
 };
 
 /*
@@ -259,10 +259,12 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
                     return ret;
             }
         } else if (par->type == PARAM_TYPE_NODEDICT) {
-            struct ndict *ndict = *(struct ndict **)(base_ptr + par->offset);
-            struct ndict_entry *entry = NULL;
-            while ((entry = ngli_ndict_get(ndict, NULL, entry))) {
-                struct ngl_node *node = entry->node;
+            struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
+            if (!hmap)
+                continue;
+            const struct hmap_entry *entry = NULL;
+            while ((entry = ngli_hmap_next(hmap, entry))) {
+                struct ngl_node *node = entry->data;
                 int ret = ngli_node_attach_ctx(node, ctx);
                 if (ret < 0)
                     return ret;
@@ -521,10 +523,12 @@ static void check_activity(struct ngl_node *node, double t, int parent_is_active
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
-                struct ndict *ndict = *(struct ndict **)(base_ptr + par->offset);
-                struct ndict_entry *entry = NULL;
-                while ((entry = ngli_ndict_get(ndict, NULL, entry)))
-                    check_activity(entry->node, t, node->is_active);
+                struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
+                if (!hmap)
+                    break;
+                const struct hmap_entry *entry = NULL;
+                while ((entry = ngli_hmap_next(hmap, entry)))
+                    check_activity(entry->data, t, node->is_active);
                 break;
             }
         }
@@ -559,10 +563,12 @@ static void honor_release_prefetch(struct ngl_node *node, double t)
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
-                struct ndict *ndict = *(struct ndict **)(base_ptr + par->offset);
-                struct ndict_entry *entry = NULL;
-                while ((entry = ngli_ndict_get(ndict, NULL, entry)))
-                    honor_release_prefetch(entry->node, t);
+                struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
+                if (!hmap)
+                    break;
+                const struct hmap_entry *entry = NULL;
+                while ((entry = ngli_hmap_next(hmap, entry)))
+                    honor_release_prefetch(entry->data, t);
                 break;
             }
         }

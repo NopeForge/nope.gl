@@ -24,7 +24,6 @@
 
 #include "bstr.h"
 #include "hmap.h"
-#include "ndict.h"
 #include "nodegl.h"
 #include "nodes.h"
 
@@ -181,10 +180,12 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
-                struct ndict *ndict = *(struct ndict **)(priv + p->offset);
-                struct ndict_entry *entry = NULL;
-                while ((entry = ngli_ndict_get(ndict, NULL, entry)))
-                    print_all_decls(b, entry->node, decls);
+                struct hmap *hmap = *(struct hmap **)(priv + p->offset);
+                if (!hmap)
+                    break;
+                const struct hmap_entry *entry = NULL;
+                while ((entry = ngli_hmap_next(hmap, entry)))
+                    print_all_decls(b, entry->data, decls);
                 break;
             }
         }
@@ -251,20 +252,21 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
-                struct ndict *ndict = *(struct ndict **)(priv + p->offset);
-                struct ndict_entry *entry = NULL;
-
-                while ((entry = ngli_ndict_get(ndict, NULL, entry))) {
+                struct hmap *hmap = *(struct hmap **)(priv + p->offset);
+                if (!hmap)
+                    break;
+                const struct hmap_entry *entry = NULL;
+                while ((entry = ngli_hmap_next(hmap, entry))) {
                     char *key;
-                    const struct ngl_node *child = entry->node;
+                    const struct ngl_node *child = entry->data;
 
                     if (list_check_links(links, node, child))
                         continue;
 
                     if (p->flags & PARAM_FLAG_DOT_DISPLAY_FIELDNAME)
-                        key = ngli_asprintf("[label=\"%s:%s\"]", p->key, entry->name);
+                        key = ngli_asprintf("[label=\"%s:%s\"]", p->key, entry->key);
                     else
-                        key = ngli_asprintf("[label=\"%s\"]", entry->name);
+                        key = ngli_asprintf("[label=\"%s\"]", entry->key);
 
                     if (!key) {
                         free(label);

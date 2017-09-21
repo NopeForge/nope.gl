@@ -23,7 +23,7 @@
 #include <inttypes.h>
 
 #include "log.h"
-#include "ndict.h"
+#include "hmap.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "params.h"
@@ -107,6 +107,12 @@ static int allowed_node(const struct ngl_node *node, const int *allowed_ids)
     return 0;
 }
 
+static void node_hmap_free(void *user_arg, void *data)
+{
+    struct ngl_node *node = data;
+    ngl_node_unrefp(&node);
+}
+
 int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap)
 {
     uint8_t *dstp = base_ptr + par->offset;
@@ -179,7 +185,15 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
                 return -1;
             }
             LOG(VERBOSE, "set %s to (%s,%p)", par->key, name, node);
-            ret = ngli_ndict_set((struct ndict **)dstp, name, node);
+            struct hmap **hmapp = (struct hmap **)dstp;
+            if (!*hmapp) {
+                *hmapp = ngli_hmap_create();
+                if (!*hmapp)
+                    return -1;
+                ngli_hmap_set_free(*hmapp, node_hmap_free, NULL);
+            }
+
+            ret = ngli_hmap_set(*hmapp, name, ngl_node_ref(node));
             if (ret < 0)
                 return ret;
             break;
@@ -356,8 +370,8 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
-                struct ndict **ndictp = (struct ndict **)(base_ptr + par->offset);
-                ngli_ndict_freep(ndictp);
+                struct hmap **hmapp = (struct hmap **)(base_ptr + par->offset);
+                ngli_hmap_freep(hmapp);
                 break;
             }
         }

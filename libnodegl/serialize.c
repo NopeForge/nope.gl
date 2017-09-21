@@ -25,7 +25,6 @@
 #include "bstr.h"
 #include "hmap.h"
 #include "log.h"
-#include "ndict.h"
 #include "nodes.h"
 #include "nodegl.h"
 #include "utils.h"
@@ -182,9 +181,8 @@ static void serialize_options(struct hmap *nlist,
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
-                struct ndict *ndict = *(struct ndict **)(priv + p->offset);
-                struct ndict_entry *entry = NULL;
-                const int nb_nodes = ngli_ndict_count(ndict);
+                struct hmap *hmap = *(struct hmap **)(priv + p->offset);
+                const int nb_nodes = hmap ? ngli_hmap_count(hmap) : 0;
                 if (!nb_nodes)
                     break;
                 if (constructor)
@@ -192,9 +190,10 @@ static void serialize_options(struct hmap *nlist,
                 else
                     ngli_bstr_print(b, " %s:", p->key);
                 int i = 0;
-                while ((entry = ngli_ndict_get(ndict, NULL, entry))) {
-                    const char *node_id = get_node_id(nlist, entry->node);
-                    ngli_bstr_print(b, "%s%s=%s", i ? "," : "", entry->name, node_id);
+                const struct hmap_entry *entry = NULL;
+                while ((entry = ngli_hmap_next(hmap, entry))) {
+                    const char *node_id = get_node_id(nlist, entry->data);
+                    ngli_bstr_print(b, "%s%s=%s", i ? "," : "", entry->key, node_id);
                     i++;
                 }
                 break;
@@ -239,10 +238,12 @@ static int serialize_children(struct hmap *nlist,
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
-                struct ndict *ndict = *(struct ndict **)(priv + p->offset);
-                struct ndict_entry *entry = NULL;
-                while ((entry = ngli_ndict_get(ndict, NULL, entry))) {
-                    int ret = serialize(nlist, b, entry->node);
+                struct hmap *hmap = *(struct hmap **)(priv + p->offset);
+                if (!hmap)
+                    break;
+                const struct hmap_entry *entry = NULL;
+                while ((entry = ngli_hmap_next(hmap, entry))) {
+                    int ret = serialize(nlist, b, entry->data);
                     if (ret < 0)
                         return ret;
                 }
