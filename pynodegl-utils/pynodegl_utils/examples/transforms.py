@@ -18,41 +18,40 @@ void main(void)
 }"""
 
 @scene({'name': 'color', 'type': 'color'},
-       {'name': 'width',  'type': 'range', 'range': [0.01,1], 'unit_base': 100},
-       {'name': 'height', 'type': 'range', 'range': [0.01,1], 'unit_base': 100},
-       {'name': 'translate', 'type': 'bool'},
-       {'name': 'translate_x', 'type': 'range', 'range': [-1,1], 'unit_base': 100},
-       {'name': 'translate_y', 'type': 'range', 'range': [-1,1], 'unit_base': 100},
-       {'name': 'scale', 'type': 'bool'},
-       {'name': 'scale_x', 'type': 'range', 'range': [0.01,2], 'unit_base': 100},
-       {'name': 'scale_y', 'type': 'range', 'range': [0.01,2], 'unit_base': 100},
        {'name': 'rotate', 'type': 'bool'},
-       {'name': 'rotate_deg', 'type': 'range', 'range': [0,360], 'unit_base': 10},
-       {'name': 'rotate_anchor_x', 'type': 'range', 'range': [-1, 1], 'unit_base': 100},
-       {'name': 'rotate_anchor_y', 'type': 'range', 'range': [-1, 1], 'unit_base': 100},
-       {'name': 'rotate_anchor_z', 'type': 'range', 'range': [-1, 1], 'unit_base': 100})
-def static(cfg, color=(0.5, 0.0, 1.0, 1.0), width=0.5, height=0.5,
-           translate=False, translate_x=0, translate_y=0,
-           scale=False, scale_x=1, scale_y=1,
-           rotate=False, rotate_deg=0, rotate_anchor_x=0, rotate_anchor_y=0, rotate_anchor_z=0):
-    q = Quad((-width/2., -height/2., 0), (width, 0, 0), (0, height, 0))
-    s = Shader()
+       {'name': 'scale', 'type': 'bool'},
+       {'name': 'translate', 'type': 'bool'})
+def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=True):
+    cfg.duration = 5
 
-    ucolor = UniformVec4(value=color)
-
-    s.set_fragment_data(frag_data)
+    sz = 1/3.
+    q = Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
+    s = Shader(fragment_data=frag_data)
     node = Render(q, s)
+    ucolor = UniformVec4(value=color)
     node.update_uniforms(blend_color=ucolor)
 
+    coords = [(-1, 1), (1, 1), (1, -1), (-1, -1), (-1, 1)]
+
     if rotate:
-        node = Rotate(node, angles=(0, 0, rotate_deg),
-                      anchor=(rotate_anchor_x, rotate_anchor_y, rotate_anchor_z))
+        animkf = (AnimKeyFrameVec3(0,            (0, 0,   0)),
+                  AnimKeyFrameVec3(cfg.duration, (0, 0, 360)))
+        node = Rotate(node, anim=AnimationVec3(animkf))
 
     if scale:
-        node = Scale(node, factors=(scale_x, scale_y, 0))
+        animkf = (AnimKeyFrameVec3(0,              (1, 1, 1)),
+                  AnimKeyFrameVec3(cfg.duration/2, (2, 2, 2)),
+                  AnimKeyFrameVec3(cfg.duration,   (1, 1, 1)))
+        node = Scale(node, anim=AnimationVec3(animkf))
 
     if translate:
-        node = Translate(node, vector=(translate_x, translate_y, 0))
+        animkf = []
+        tscale = 1. / float(len(coords) - 1) * cfg.duration
+        for i, xy in enumerate(coords):
+            pos = (xy[0] * .5, xy[1] * .5, 0)
+            t = i * tscale
+            animkf.append(AnimKeyFrameVec3(t, pos))
+        node = Translate(node, anim=AnimationVec3(animkf))
 
     return node
 
