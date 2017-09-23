@@ -187,6 +187,18 @@ struct shape {
 
 void ngli_shape_generate_buffers(struct ngl_node *node);
 
+struct buffer {
+    int count;
+    uint8_t *data;
+    int data_size;
+    int data_comp;
+    int data_stride;
+    GLenum target;
+    GLenum usage;
+
+    GLuint buffer_id;
+};
+
 struct uniform {
     double scalar;
     float vector[4];

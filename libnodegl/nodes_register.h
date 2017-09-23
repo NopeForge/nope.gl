@@ -31,6 +31,11 @@
     action(NGL_NODE_ANIMKEYFRAMEVEC2,       ngli_animkeyframevec2_class)        \
     action(NGL_NODE_ANIMKEYFRAMEVEC3,       ngli_animkeyframevec3_class)        \
     action(NGL_NODE_ANIMKEYFRAMEVEC4,       ngli_animkeyframevec4_class)        \
+    action(NGL_NODE_BUFFERSCALAR,           ngli_bufferscalar_class)            \
+    action(NGL_NODE_BUFFERUINT,             ngli_bufferuint_class)              \
+    action(NGL_NODE_BUFFERVEC2,             ngli_buffervec2_class)              \
+    action(NGL_NODE_BUFFERVEC3,             ngli_buffervec3_class)              \
+    action(NGL_NODE_BUFFERVEC4,             ngli_buffervec4_class)              \
     action(NGL_NODE_CAMERA,                 ngli_camera_class)                  \
     action(NGL_NODE_FPS,                    ngli_fps_class)                     \
     action(NGL_NODE_GLBLENDSTATE,           ngli_glblendstate_class)            \

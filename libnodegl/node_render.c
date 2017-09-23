@@ -39,7 +39,11 @@
                                           NGL_NODE_UNIFORMMAT4,    \
                                           -1}
 
-#define ATTRIBUTES_TYPES_LIST (const int[]){-1}
+#define ATTRIBUTES_TYPES_LIST (const int[]){NGL_NODE_BUFFERSCALAR,  \
+                                            NGL_NODE_BUFFERVEC2,    \
+                                            NGL_NODE_BUFFERVEC3,    \
+                                            NGL_NODE_BUFFERVEC4,    \
+                                            -1}
 
 #define OFFSET(x) offsetof(struct render, x)
 static const struct node_param render_params[] = {
@@ -171,6 +175,22 @@ static int update_vertex_attribs(struct ngl_node *node)
         ngli_glVertexAttribPointer(gl, shader->normal_location_id, 3, GL_FLOAT, GL_FALSE, NGLI_SHAPE_VERTICES_STRIDE(shape), NULL);
     }
 
+    if (s->attributes) {
+        int i = 0;
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->attributes, entry))) {
+            if (s->attribute_ids[i] < 0)
+                continue;
+
+            struct ngl_node *anode = entry->data;
+            struct buffer *b = anode->priv_data;
+            ngli_glEnableVertexAttribArray(gl, s->attribute_ids[i]);
+            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, b->buffer_id);
+            ngli_glVertexAttribPointer(gl, s->attribute_ids[i], b->data_comp, GL_FLOAT, GL_FALSE, b->data_stride, NULL);
+            i++;
+        }
+    }
+
     return 0;
 }
 
@@ -213,6 +233,7 @@ static int render_init(struct ngl_node *node)
 
     int nb_attributes = s->attributes ? ngli_hmap_count(s->attributes) : 0;
     if (nb_attributes > 0) {
+        struct shape *shape = s->shape->priv_data;
         s->attribute_ids = calloc(nb_attributes, sizeof(*s->attribute_ids));
         if (!s->attribute_ids)
             return -1;
@@ -224,6 +245,15 @@ static int render_init(struct ngl_node *node)
             ret = ngli_node_init(anode);
             if (ret < 0)
                 return ret;
+            struct buffer *buffer = anode->priv_data;
+            if (buffer->count != shape->nb_vertices) {
+                LOG(ERROR,
+                    "attribute buffer %s count (%d) does not match vertices count (%d)",
+                    entry->key,
+                    buffer->count,
+                    shape->nb_vertices);
+                return -1;
+            }
             s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, entry->key);
             i++;
         }

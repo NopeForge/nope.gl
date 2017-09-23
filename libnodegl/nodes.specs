@@ -56,6 +56,46 @@
         - [easing, string]
         - [easing_args, doubleList]
 
+- BufferScalar:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferUInt:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferVec2:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferVec3:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferVec4:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
 - Camera:
     constructors:
         - [child, Node]
