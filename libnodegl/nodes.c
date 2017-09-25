@@ -93,14 +93,15 @@ static struct ngl_node *node_create(const struct node_class *class)
     return node;
 }
 
+#define DEF_NAME_CHR(c) (((c) >= 'A' && (c) <= 'Z') ? (c) ^ 0x20 : (c))
+
 char *ngli_node_default_name(const char *class_name)
 {
     char *name = ngli_strdup(class_name);
     if (!name)
         return NULL;
     for (int i = 0; name[i]; i++)
-        if (name[i] >= 'A' && name[i] <= 'Z')
-            name[i] ^= 0x20;
+        name[i] = DEF_NAME_CHR(name[i]);
     return name;
 }
 
