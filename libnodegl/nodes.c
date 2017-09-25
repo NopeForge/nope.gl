@@ -105,6 +105,17 @@ char *ngli_node_default_name(const char *class_name)
     return name;
 }
 
+int ngli_is_default_name(const char *class_name, const char *str)
+{
+    const size_t len = strlen(class_name);
+    if (len != strlen(str))
+        return 0;
+    for (int i = 0; i < len; i++)
+        if (DEF_NAME_CHR(class_name[i]) != str[i])
+            return 0;
+    return 1;
+}
+
 #define REGISTER_NODE(type_name, class)         \
     case type_name: {                           \
         extern const struct node_class class;   \
