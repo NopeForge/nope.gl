@@ -264,7 +264,12 @@ static int serialize(struct hmap *nlist,
         (ret = serialize_children(nlist, b, node, node->priv_data, node->class->params)) < 0)
         return ret;
 
-    ngli_bstr_print(b, "%x", node->class->id);
+    const uint32_t tag = node->class->id;
+    ngli_bstr_print(b, "%c%c%c%c",
+                    tag >> 24 & 0xff,
+                    tag >> 16 & 0xff,
+                    tag >>  8 & 0xff,
+                    tag       & 0xff);
     serialize_options(nlist, b, node, node->priv_data, node->class->params);
     serialize_options(nlist, b, node, (uint8_t *)node, ngli_base_node_params);
     ngli_bstr_print(b, "\n");

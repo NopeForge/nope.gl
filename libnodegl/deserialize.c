@@ -354,9 +354,12 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         goto end;
     }
     s += strcspn(s, "\n");
+    if (*s == '\n')
+        s++;
 
-    while (s < end) {
-        const int type = strtol(s, &s, 16);
+    while (s < end - 4) {
+        const int type = NGLI_FOURCC(s[0], s[1], s[2], s[3]);
+        s += 4;
         if (*s == ' ')
             s++;
 
