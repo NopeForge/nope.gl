@@ -1,9 +1,15 @@
 import array
 
-from pynodegl import Shader, Render, Group, UniformVec4
-from pynodegl import Shape
-from pynodegl import BufferVec3
-from pynodegl import AnimationScalar, AnimKeyFrameScalar
+from pynodegl import (
+        AnimKeyFrameScalar,
+        AnimationScalar,
+        BufferVec3,
+        Group,
+        Render,
+        Shader,
+        Shape,
+        UniformVec4,
+)
 
 from pynodegl_utils.misc import scene
 

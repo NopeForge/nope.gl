@@ -1,8 +1,21 @@
 import array
 
-from pynodegl import Render, Quad, Triangle, Shape, Texture, Media, Shader, GLState, Camera, Rotate
-from pynodegl import BufferVec2, BufferVec3
-from pynodegl import AnimationVec3, AnimKeyFrameVec3
+from pynodegl import (
+        AnimKeyFrameVec3,
+        AnimationVec3,
+        BufferVec2,
+        BufferVec3,
+        Camera,
+        GLState,
+        Media,
+        Quad,
+        Render,
+        Rotate,
+        Shader,
+        Shape,
+        Texture,
+        Triangle,
+)
 
 from pynodegl_utils.misc import scene
 

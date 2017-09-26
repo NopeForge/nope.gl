@@ -1,10 +1,21 @@
 import math
 import random
 
-from pynodegl import Texture, Shader, Render, Rotate, Triangle
-from pynodegl import Quad, UniformVec4, Camera, Group
-from pynodegl import Media, Translate
-from pynodegl import AnimationVec3, AnimKeyFrameVec3
+from pynodegl import (
+        AnimKeyFrameVec3,
+        AnimationVec3,
+        Camera,
+        Group,
+        Media,
+        Quad,
+        Render,
+        Rotate,
+        Shader,
+        Texture,
+        Translate,
+        Triangle,
+        UniformVec4,
+)
 
 from pynodegl_utils.misc import scene
 

@@ -1,10 +1,28 @@
 import array
 import math
 
-from pynodegl import Render, Quad, Triangle, Shape, Texture, Media, Shader, Group, GLStencilState, GLState, Scale, Rotate, GLColorState, UniformScalar
-from pynodegl import BufferVec2, BufferVec3
-from pynodegl import AnimationScalar, AnimKeyFrameScalar
-from pynodegl import AnimationVec3, AnimKeyFrameVec3
+from pynodegl import (
+        AnimKeyFrameScalar,
+        AnimKeyFrameVec3,
+        AnimationScalar,
+        AnimationVec3,
+        BufferVec2,
+        BufferVec3,
+        GLColorState,
+        GLState,
+        GLStencilState,
+        Group,
+        Media,
+        Quad,
+        Render,
+        Rotate,
+        Scale,
+        Shader,
+        Shape,
+        Texture,
+        Triangle,
+        UniformScalar,
+)
 
 from pynodegl_utils.misc import scene
 

@@ -1,7 +1,17 @@
-from pynodegl import Render, Quad, Texture, Media, Shader, Group
-from pynodegl import UniformScalar
-from pynodegl import AnimationScalar, AnimKeyFrameScalar
-from pynodegl import RenderRangeContinuous, RenderRangeOnce, RenderRangeNoRender
+from pynodegl import (
+        AnimKeyFrameScalar,
+        AnimationScalar,
+        Group,
+        Media,
+        Quad,
+        Render,
+        RenderRangeContinuous,
+        RenderRangeNoRender,
+        RenderRangeOnce,
+        Shader,
+        Texture,
+        UniformScalar,
+)
 
 from pynodegl_utils.misc import scene
 

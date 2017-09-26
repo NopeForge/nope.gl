@@ -1,5 +1,15 @@
-from pynodegl import Render, Quad, Triangle, Shape, Texture, Media, Shader, Group
-from pynodegl import GLState, GLBlendState
+from pynodegl import (
+        GLBlendState,
+        GLState,
+        Group,
+        Media,
+        Quad,
+        Render,
+        Shader,
+        Shape,
+        Texture,
+        Triangle,
+)
 
 from pynodegl_utils.misc import scene
 

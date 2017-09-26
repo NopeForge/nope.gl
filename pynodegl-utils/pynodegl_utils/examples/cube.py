@@ -1,9 +1,20 @@
 from OpenGL import GL
 
-from pynodegl import Render, Quad, Texture, Media, Shader, Group
-from pynodegl import Rotate, Camera
-from pynodegl import UniformVec3, RenderToTexture, GLState
-from pynodegl import AnimationVec3, AnimKeyFrameVec3
+from pynodegl import (
+        AnimKeyFrameVec3,
+        AnimationVec3,
+        Camera,
+        GLState,
+        Group,
+        Media,
+        Quad,
+        Render,
+        RenderToTexture,
+        Rotate,
+        Shader,
+        Texture,
+        UniformVec3,
+)
 
 from pynodegl_utils.misc import scene
 
