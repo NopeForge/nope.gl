@@ -136,12 +136,6 @@ struct camera {
     GLuint texture_id;
 };
 
-struct shapeprimitive {
-    float coordinates[3];
-    float texture_coordinates[2];
-    float normals[3];
-};
-
 struct shape {
     /* quad params */
     float quad_corner[3];

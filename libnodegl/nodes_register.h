@@ -55,7 +55,6 @@
     action(NGL_NODE_SCALE,                  ngli_scale_class)                   \
     action(NGL_NODE_SHADER,                 ngli_shader_class)                  \
     action(NGL_NODE_SHAPE,                  ngli_shape_class)                   \
-    action(NGL_NODE_SHAPEPRIMITIVE,         ngli_shapeprimitive_class)          \
     action(NGL_NODE_TEXTURE,                ngli_texture_class)                 \
     action(NGL_NODE_TRANSLATE,              ngli_translate_class)               \
     action(NGL_NODE_TRIANGLE,               ngli_triangle_class)                \

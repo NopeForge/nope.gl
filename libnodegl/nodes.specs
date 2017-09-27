@@ -241,13 +241,6 @@
         - [indices, Node]
         - [draw_mode, int]
 
-- ShapePrimitive:
-    constructors:
-        - [coordinates, vec3]
-    optional:
-        - [texture_coordinates, vec2]
-        - [normals, vec3]
-
 - Texture:
     optional:
         - [target, int]

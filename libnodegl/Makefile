@@ -80,7 +80,6 @@ LIB_OBJS = api.o                    \
            node_scale.o             \
            node_shader.o            \
            node_shape.o             \
-           node_shapeprimitive.o    \
            node_texture.o           \
            node_translate.o         \
            node_triangle.o          \

@@ -88,7 +88,6 @@ struct ngl_node;
 #define NGL_NODE_SCALE                  NGLI_FOURCC('T','s','c','l')
 #define NGL_NODE_SHADER                 NGLI_FOURCC('S','h','a','d')
 #define NGL_NODE_SHAPE                  NGLI_FOURCC('S','h','p','e')
-#define NGL_NODE_SHAPEPRIMITIVE         NGLI_FOURCC('S','P','r','m')
 #define NGL_NODE_TEXTURE                NGLI_FOURCC('T','e','x',' ')
 #define NGL_NODE_TRANSLATE              NGLI_FOURCC('T','m','o','v')
 #define NGL_NODE_TRIANGLE               NGLI_FOURCC('S','3',' ',' ')
