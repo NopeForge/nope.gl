@@ -31,6 +31,7 @@ void ngli_vec3_sub(float *dst, float *v1, float *v2);
 void ngli_vec3_norm(float *dst, float *v);
 void ngli_vec3_cross(float *dst, float *v1, float *v2);
 float ngli_vec3_dot(float *v1, float *v2);
+void ngli_vec3_normalvec(float *dst, float *a, float *b, float *c);
 
 void ngli_mat3_from_mat4(float *dst, const float *m);
 void ngli_mat3_mul_scalar(float *dst, const float *m, const float s);

@@ -64,6 +64,17 @@ float ngli_vec3_dot(float *v1, float *v2)
          + v1[2]*v2[2];
 }
 
+void ngli_vec3_normalvec(float *dst, float *a, float *b, float *c)
+{
+    float d[3];
+    float e[3];
+
+    ngli_vec3_sub(d, b, a);
+    ngli_vec3_sub(e, c, a);
+    ngli_vec3_cross(dst, d, e);
+    ngli_vec3_norm(dst, dst);
+}
+
 void ngli_mat3_from_mat4(float *dst, const float *m)
 {
     memcpy(dst,     m,     3 * sizeof(*m));
