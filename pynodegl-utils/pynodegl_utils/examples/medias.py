@@ -57,7 +57,7 @@ void main()
 
     if (x < t && x > padw+thickw &&
         y < 1.-padh-thickh && y > 1.-padh-height) {
-        vec4 color = vec4(1.,0,0,0);
+        vec4 color = vec4(1,0,0,1);
         gl_FragColor = mix(video_pix, color, 0.7);
     } else {
         gl_FragColor = video_pix;
