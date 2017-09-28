@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
 #include "nodegl.h"
