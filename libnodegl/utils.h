@@ -83,5 +83,6 @@
 char *ngli_strdup(const char *s);
 int64_t ngli_gettime(void);
 char *ngli_asprintf(const char *fmt, ...) ngli_printf_format(1, 2);
+uint32_t ngli_crc32(const char *s);
 
 #endif /* UTILS_H */
