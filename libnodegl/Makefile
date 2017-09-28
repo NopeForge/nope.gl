@@ -202,17 +202,21 @@ gl.xml:
 #
 # Tests
 #
-test_asm: CFLAGS = $(PROJECT_CFLAGS)
+TESTS = asm             \
+        hmap            \
+        utils           \
+
+TESTPROGS = $(addprefix test_,$(TESTS))
+$(TESTPROGS): CFLAGS = $(PROJECT_CFLAGS)
+$(TESTPROGS): LDLIBS = $(PROJECT_LDLIBS)
+
+testprogs: $(TESTPROGS)
+
 test_asm: LDLIBS = $(PROJECT_LDLIBS) -lm
 test_asm: test_asm.o math_utils.o $(LIB_OBJS_ARCH_$(ARCH))
-
-test_hmap: CFLAGS = $(PROJECT_CFLAGS)
-test_hmap: LDLIBS = $(PROJECT_LDLIBS)
 test_hmap: test_hmap.o utils.o
-
-test_utils: CFLAGS = $(PROJECT_CFLAGS)
-test_utils: LDLIBS = $(PROJECT_LDLIBS)
 test_utils: test_utils.o utils.o
+
 
 #
 # Misc/general
@@ -223,9 +227,8 @@ clean:
 	$(RM) gen_specs.o gen_specs$(EXESUF)
 	$(RM) $(LIB_PCNAME)
 	$(RM) $(LD_SYM_FILE)
-	$(RM) test_asm.o test_asm
-	$(RM) test_hmap.o test_hmap
-	$(RM) test_utils.o test_utils
+	$(RM) $(TESTPROGS)
+	$(RM) $(addsuffix .o,$(TESTPROGS))
 
 install: $(LIB_NAME) $(LIB_PCNAME)
 	install -d $(DESTDIR)$(PREFIX)/lib
