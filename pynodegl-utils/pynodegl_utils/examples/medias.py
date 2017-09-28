@@ -82,7 +82,7 @@ void main()
        {'name': 'uv_width', 'type': 'range', 'range': [0,1], 'unit_base': 100},
        {'name': 'uv_height', 'type': 'range', 'range': [0,1], 'unit_base': 100},
        {'name': 'progress_bar', 'type': 'bool'})
-def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, progress_bar=False):
+def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, progress_bar=True):
 
     cfg.duration = cfg.medias[0].duration
 
