@@ -129,16 +129,9 @@ UPDATE_FUNC(vec2,   2);
 UPDATE_FUNC(vec3,   3);
 UPDATE_FUNC(vec4,   4);
 
-static void animation_prefetch(struct ngl_node *node)
-{
-    struct animation *s = node->priv_data;
-    s->current_kf = 0;
-}
-
 const struct node_class ngli_animationscalar_class = {
     .id        = NGL_NODE_ANIMATIONSCALAR,
     .name      = "AnimationScalar",
-    .prefetch  = animation_prefetch,
     .update    = animationscalar_update,
     .priv_size = sizeof(struct animation),
     .params    = animationscalar_params,
@@ -147,7 +140,6 @@ const struct node_class ngli_animationscalar_class = {
 const struct node_class ngli_animationvec2_class = {
     .id        = NGL_NODE_ANIMATIONVEC2,
     .name      = "AnimationVec2",
-    .prefetch  = animation_prefetch,
     .update    = animationvec2_update,
     .priv_size = sizeof(struct animation),
     .params    = animationvec2_params,
@@ -156,7 +148,6 @@ const struct node_class ngli_animationvec2_class = {
 const struct node_class ngli_animationvec3_class = {
     .id        = NGL_NODE_ANIMATIONVEC3,
     .name      = "AnimationVec3",
-    .prefetch  = animation_prefetch,
     .update    = animationvec3_update,
     .priv_size = sizeof(struct animation),
     .params    = animationvec3_params,
@@ -165,7 +156,6 @@ const struct node_class ngli_animationvec3_class = {
 const struct node_class ngli_animationvec4_class = {
     .id        = NGL_NODE_ANIMATIONVEC4,
     .name      = "AnimationVec4",
-    .prefetch  = animation_prefetch,
     .update    = animationvec4_update,
     .priv_size = sizeof(struct animation),
     .params    = animationvec4_params,
