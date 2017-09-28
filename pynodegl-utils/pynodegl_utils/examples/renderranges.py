@@ -34,7 +34,7 @@ def queued_medias(cfg, overlap_time=1., dim=3):
             t = Texture(data_src=m)
 
             render = Render(q, s)
-            render.set_name('TShape #%d' % video_id)
+            render.set_name('render #%d' % video_id)
             render.update_textures(tex0=t)
 
             if start:
@@ -52,15 +52,15 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     s = Shader()
 
-    m1 = Media(cfg.medias[0].filename, name="media1")
-    m2 = Media(cfg.medias[0].filename, name="media2")
+    m1 = Media(cfg.medias[0].filename, name="media #1")
+    m2 = Media(cfg.medias[0].filename, name="media #2")
 
-    t1 = Texture(data_src=m1, name="texture1")
-    t2 = Texture(data_src=m2, name="texture2")
+    t1 = Texture(data_src=m1, name="texture #1")
+    t2 = Texture(data_src=m2, name="texture #2")
 
-    render1 = Render(q, s, name="render1")
+    render1 = Render(q, s, name="render #1")
     render1.update_textures(tex0=t1)
-    render2 = Render(q, s, name="render2")
+    render2 = Render(q, s, name="render #2")
     render2.update_textures(tex0=t2)
 
     t = 0
@@ -141,22 +141,22 @@ void main(void)
     s = Shader()
     s1_2 = Shader(vertex_data=vertex, fragment_data=fragment)
 
-    m1 = Media(cfg.medias[0].filename, name="media1")
-    m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name="media2", start=transition_start)
+    m1 = Media(cfg.medias[0].filename, name="media #1")
+    m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name="media #2", start=transition_start)
 
-    t1 = Texture(data_src=m1, name="texture1")
-    t2 = Texture(data_src=m2, name="texture2")
+    t1 = Texture(data_src=m1, name="texture #1")
+    t2 = Texture(data_src=m2, name="texture #2")
 
-    render1 = Render(q, s, name="texturedshape1")
+    render1 = Render(q, s, name="render #1")
     render1.update_textures(tex0=t1)
-    render2 = Render(q, s, name="texturedshape2")
+    render2 = Render(q, s, name="render #2")
     render2.update_textures(tex0=t2)
 
     delta_animkf = [AnimKeyFrameScalar(transition_start, 1.0),
                     AnimKeyFrameScalar(transition_start + transition_duration, 0.0)]
     delta = UniformScalar(value=1.0, anim=AnimationScalar(delta_animkf))
 
-    render1_2 = Render(q, s1_2, name="texturedshape1_2")
+    render1_2 = Render(q, s1_2, name="transition")
     render1_2.update_textures(tex0=t1, tex1=t2)
     render1_2.update_uniforms(delta=delta)
 
