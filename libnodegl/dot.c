@@ -61,10 +61,8 @@ static int list_check_links(struct hmap *links, const void *a, const void *b)
 
 static float get_hue(const char *name)
 {
-    uint32_t hash = 5381;
-    for (int i = 0; name[i]; i++)
-        hash = (hash<<5) + hash + name[i];
-    return (hash & 0xffffff) / (float)(0xffffff);
+    const uint32_t hash = ngli_crc32(name);
+    return (double)hash / (double)0xffffffff;
 }
 
 static int should_print_par(uint8_t *priv, const struct node_param *par)
