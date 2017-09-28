@@ -78,6 +78,8 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             const char *s = *(const char **)(base_ptr + par->offset);
             if (!s)
                 ngli_bstr_print(b, "\"\"");
+            else if (strchr(s, '\n')) // print a checksum when the string is multiline (typically, shaders)
+                ngli_bstr_print(b, "%08X <i>(CRC32)</i>", ngli_crc32(s));
             else if (strchr(s, '/')) // assume a file and display only basename
                 ngli_bstr_print(b, "\"%s\"", strrchr(s, '/') + 1);
             else

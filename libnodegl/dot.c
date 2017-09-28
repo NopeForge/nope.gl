@@ -96,8 +96,7 @@ static int should_print_par(uint8_t *priv, const struct node_param *par)
         }
         case PARAM_TYPE_STR: {
             const char *s = *(const char **)(priv + par->offset);
-            return (s && !strchr(s, '\n') /* prevent shaders from being printed */ &&
-                    (!par->def_value.str || strcmp(s, par->def_value.str)));
+            return s && (!par->def_value.str || strcmp(s, par->def_value.str));
         }
     }
     return 0;
