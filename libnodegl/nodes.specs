@@ -182,6 +182,11 @@
         - [time_anim, Node]
         - [audio_tex, int]
 
+- Program:
+    optional:
+        - [vertex_data, string]
+        - [fragment_data, string]
+
 - Quad:
     optional:
         - [corner, vec3]
@@ -194,7 +199,7 @@
 - Render:
     constructors:
         - [geometry, Node]
-        - [shader, Node]
+        - [program, Node]
     optional:
         - [textures, NodeDict]
         - [uniforms, NodeDict]
@@ -235,11 +240,6 @@
         - [factors, vec3]
         - [anchor, vec3]
         - [anim, Node]
-
-- Shader:
-    optional:
-        - [vertex_data, string]
-        - [fragment_data, string]
 
 - Texture:
     optional:

@@ -14,11 +14,11 @@ from pynodegl import (
         GLStencilState,
         Group,
         Media,
+        Program,
         Quad,
         Render,
         Rotate,
         Scale,
-        Shader,
         Texture,
         Triangle,
         UniformScalar,
@@ -90,12 +90,12 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
              (uv_corner_x, uv_corner_y), (uv_width, 0), (0, uv_height))
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
-    s = Shader()
-    render = Render(q, s)
+    p = Program()
+    render = Render(q, p)
     render.update_textures(tex0=t)
 
     if progress_bar:
-        s.set_fragment_data(pgbar_shader)
+        p.set_fragment_data(pgbar_shader)
         time_animkf = [AnimKeyFrameScalar(0, 0),
                        AnimKeyFrameScalar(cfg.duration, 1)]
         time = UniformScalar(anim=AnimationScalar(time_animkf))
@@ -121,8 +121,8 @@ def centered_masked_media(cfg):
     g = Group()
 
     q = Quad((-0.2, -0.2, 0), (0.4, 0.0, 0.0), (0.0, 0.4, 0.0))
-    s = Shader(fragment_data=frag_data)
-    node = Render(q, s)
+    p = Program(fragment_data=frag_data)
+    node = Render(q, p)
     node.add_glstates(GLStencilState(GL.GL_TRUE,
                                      0xFF,
                                      GL.GL_ALWAYS,
@@ -147,8 +147,8 @@ def centered_masked_media(cfg):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
-    s = Shader()
-    node = Render(q, s)
+    p = Program()
+    node = Render(q, p)
     node.update_textures(tex0=t)
     node.add_glstates(GLStencilState(GL.GL_TRUE,
                                      0x00,
@@ -184,8 +184,8 @@ def centered_geometry_media(cfg, n=0.9, k=5):
 
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
-    s = Shader()
-    render = Render(q, s)
+    p = Program()
+    render = Render(q, p)
     render.update_textures(tex0=t)
     return render
 
@@ -198,7 +198,7 @@ def playback_speed(cfg, speed=1.0):
                    AnimKeyFrameScalar(cfg.duration, cfg.duration * speed)]
     m = Media(cfg.medias[0].filename, initial_seek=5, time_anim=AnimationScalar(time_animkf))
     t = Texture(data_src=m)
-    s = Shader()
-    render = Render(q, s)
+    p = Program()
+    render = Render(q, p)
     render.update_textures(tex0=t)
     return render

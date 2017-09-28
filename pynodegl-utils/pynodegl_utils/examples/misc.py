@@ -7,10 +7,10 @@ from pynodegl import (
         Camera,
         Group,
         Media,
+        Program,
         Quad,
         Render,
         Rotate,
-        Shader,
         Texture,
         Translate,
         Triangle,
@@ -35,8 +35,8 @@ void main(void)
     c = size * 1/2.
 
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
-    s = Shader(fragment_data=frag_data)
-    node = Render(triangle, s)
+    p = Program(fragment_data=frag_data)
+    node = Render(triangle, p)
     node.update_textures(tex0=Texture())
     animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
               AnimKeyFrameVec3(cfg.duration, (0, 0, -360*2))]
@@ -55,7 +55,7 @@ void main(void) {
 
     cfg.duration = 5
 
-    s = Shader(fragment_data=frag_data)
+    p = Program(fragment_data=frag_data)
 
     fib = [0, 1, 1]
     for i in range(2, n):
@@ -73,7 +73,7 @@ void main(void) {
         gray = 1. - i/float(n)
         color = [gray, gray, gray, 1]
         q = Quad(orig, (w, 0, 0), (0, w, 0))
-        render = Render(q, s)
+        render = Render(q, p)
         render.update_uniforms(color=UniformVec4(value=color))
 
         new_g = Group()
@@ -104,7 +104,7 @@ def cropboard(cfg, dim=15):
     qw = qh = 2. / dim
     tqs = []
 
-    s = Shader()
+    p = Program()
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
 
@@ -117,7 +117,7 @@ def cropboard(cfg, dim=15):
             q.set_uv_width(kw, 0)
             q.set_uv_height(0, kh)
 
-            render = Render(q, s)
+            render = Render(q, p)
             render.update_textures(tex0=t)
 
             startx = random.uniform(-2, 2)
@@ -192,7 +192,7 @@ void main()
     video_m = Media(media.filename)
     video_tex = Texture(data_src=video_m)
 
-    s = Shader(fragment_data=frag_data)
-    render = Render(q, s)
+    p = Program(fragment_data=frag_data)
+    render = Render(q, p)
     render.update_textures(tex0=audio_tex, tex1=video_tex)
     return render

@@ -49,8 +49,8 @@
 static const struct node_param render_params[] = {
     {"geometry", PARAM_TYPE_NODE, OFFSET(geometry), .flags=PARAM_FLAG_CONSTRUCTOR,
                  .node_types=(const int[]){NGL_NODE_QUAD, NGL_NODE_TRIANGLE, NGL_NODE_GEOMETRY, -1}},
-    {"shader",   PARAM_TYPE_NODE, OFFSET(shader), .flags=PARAM_FLAG_CONSTRUCTOR,
-                 .node_types=(const int[]){NGL_NODE_SHADER, -1}},
+    {"program",  PARAM_TYPE_NODE, OFFSET(program), .flags=PARAM_FLAG_CONSTRUCTOR,
+                 .node_types=(const int[]){NGL_NODE_PROGRAM, -1}},
     {"textures", PARAM_TYPE_NODEDICT, OFFSET(textures),
                  .node_types=(const int[]){NGL_NODE_TEXTURE, -1}},
     {"uniforms", PARAM_TYPE_NODEDICT, OFFSET(uniforms),
@@ -74,7 +74,7 @@ static int update_uniforms(struct ngl_node *node)
     const struct glfunctions *gl = &glcontext->funcs;
 
     struct render *s = node->priv_data;
-    struct shader *shader = s->shader->priv_data;
+    struct program *program = s->program->priv_data;
 
     if (s->uniforms) {
         int i = 0;
@@ -104,40 +104,40 @@ static int update_uniforms(struct ngl_node *node)
         while ((entry = ngli_hmap_next(s->textures, entry))) {
             struct ngl_node *tnode = entry->data;
             struct texture *texture = tnode->priv_data;
-            struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
+            struct textureprograminfo *textureprograminfo = &s->textureprograminfos[i];
 
-            if (textureshaderinfo->sampler_id >= 0) {
-                const int sampler_id = textureshaderinfo->sampler_id;
+            if (textureprograminfo->sampler_id >= 0) {
+                const int sampler_id = textureprograminfo->sampler_id;
                 bind_texture(gl, texture->target, sampler_id, texture->id, i);
             }
 
-            if (textureshaderinfo->coordinates_mvp_id >= 0) {
-                ngli_glUniformMatrix4fv(gl, textureshaderinfo->coordinates_mvp_id, 1, GL_FALSE, texture->coordinates_matrix);
+            if (textureprograminfo->coordinates_mvp_id >= 0) {
+                ngli_glUniformMatrix4fv(gl, textureprograminfo->coordinates_mvp_id, 1, GL_FALSE, texture->coordinates_matrix);
             }
 
-            if (textureshaderinfo->dimensions_id >= 0) {
+            if (textureprograminfo->dimensions_id >= 0) {
                 float dimensions[2] = { texture->width, texture->height };
-                ngli_glUniform2fv(gl, textureshaderinfo->dimensions_id, 1, dimensions);
+                ngli_glUniform2fv(gl, textureprograminfo->dimensions_id, 1, dimensions);
             }
 
             i++;
         }
     }
 
-    if (shader->modelview_matrix_location_id >= 0) {
-        ngli_glUniformMatrix4fv(gl, shader->modelview_matrix_location_id, 1, GL_FALSE, node->modelview_matrix);
+    if (program->modelview_matrix_location_id >= 0) {
+        ngli_glUniformMatrix4fv(gl, program->modelview_matrix_location_id, 1, GL_FALSE, node->modelview_matrix);
     }
 
-    if (shader->projection_matrix_location_id >= 0) {
-        ngli_glUniformMatrix4fv(gl, shader->projection_matrix_location_id, 1, GL_FALSE, node->projection_matrix);
+    if (program->projection_matrix_location_id >= 0) {
+        ngli_glUniformMatrix4fv(gl, program->projection_matrix_location_id, 1, GL_FALSE, node->projection_matrix);
     }
 
-    if (shader->normal_matrix_location_id >= 0) {
+    if (program->normal_matrix_location_id >= 0) {
         float normal_matrix[3*3];
         ngli_mat3_from_mat4(normal_matrix, node->modelview_matrix);
         ngli_mat3_inverse(normal_matrix, normal_matrix);
         ngli_mat3_transpose(normal_matrix, normal_matrix);
-        ngli_glUniformMatrix3fv(gl, shader->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
+        ngli_glUniformMatrix3fv(gl, program->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
     }
 
     return 0;
@@ -151,36 +151,36 @@ static int update_vertex_attribs(struct ngl_node *node)
 
     struct render *s = node->priv_data;
     struct geometry *geometry = s->geometry->priv_data;
-    struct shader *shader = s->shader->priv_data;
+    struct program *program = s->program->priv_data;
 
     if (geometry->texcoords_buffer) {
         struct buffer *buffer = geometry->texcoords_buffer->priv_data;
         int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
         for (int i = 0; i < nb_textures; i++)  {
-            struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
-            if (textureshaderinfo->coordinates_id >= 0) {
-                ngli_glEnableVertexAttribArray(gl, textureshaderinfo->coordinates_id);
+            struct textureprograminfo *textureprograminfo = &s->textureprograminfos[i];
+            if (textureprograminfo->coordinates_id >= 0) {
+                ngli_glEnableVertexAttribArray(gl, textureprograminfo->coordinates_id);
                 ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-                ngli_glVertexAttribPointer(gl, textureshaderinfo->coordinates_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+                ngli_glVertexAttribPointer(gl, textureprograminfo->coordinates_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
             }
         }
     }
 
     if (geometry->vertices_buffer) {
         struct buffer *buffer = geometry->vertices_buffer->priv_data;
-        if (shader->position_location_id >= 0) {
-            ngli_glEnableVertexAttribArray(gl, shader->position_location_id);
+        if (program->position_location_id >= 0) {
+            ngli_glEnableVertexAttribArray(gl, program->position_location_id);
             ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-            ngli_glVertexAttribPointer(gl, shader->position_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+            ngli_glVertexAttribPointer(gl, program->position_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
         }
     }
 
     if (geometry->normals_buffer) {
         struct buffer *buffer = geometry->normals_buffer->priv_data;
-        if (shader->normal_location_id >= 0) {
-            ngli_glEnableVertexAttribArray(gl, shader->normal_location_id);
+        if (program->normal_location_id >= 0) {
+            ngli_glEnableVertexAttribArray(gl, program->normal_location_id);
             ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-            ngli_glVertexAttribPointer(gl, shader->normal_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+            ngli_glVertexAttribPointer(gl, program->normal_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
         }
     }
 
@@ -212,13 +212,13 @@ static int render_init(struct ngl_node *node)
     const struct glfunctions *gl = &glcontext->funcs;
 
     struct render *s = node->priv_data;
-    struct shader *shader = s->shader->priv_data;
+    struct program *program = s->program->priv_data;
 
     ret = ngli_node_init(s->geometry);
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_init(s->shader);
+    ret = ngli_node_init(s->program);
     if (ret < 0)
         return ret;
 
@@ -235,7 +235,7 @@ static int render_init(struct ngl_node *node)
             ret = ngli_node_init(unode);
             if (ret < 0)
                 return ret;
-            s->uniform_ids[i] = ngli_glGetUniformLocation(gl, shader->program_id, entry->key);
+            s->uniform_ids[i] = ngli_glGetUniformLocation(gl, program->program_id, entry->key);
             i++;
         }
     }
@@ -264,7 +264,7 @@ static int render_init(struct ngl_node *node)
                     vertices->count);
                 return -1;
             }
-            s->attribute_ids[i] = ngli_glGetAttribLocation(gl, shader->program_id, entry->key);
+            s->attribute_ids[i] = ngli_glGetAttribLocation(gl, program->program_id, entry->key);
             i++;
         }
     }
@@ -277,8 +277,8 @@ static int render_init(struct ngl_node *node)
     }
 
     if (nb_textures > 0) {
-        s->textureshaderinfos = calloc(nb_textures, sizeof(*s->textureshaderinfos));
-        if (!s->textureshaderinfos)
+        s->textureprograminfos = calloc(nb_textures, sizeof(*s->textureprograminfos));
+        if (!s->textureprograminfos)
             return -1;
 
         int i = 0;
@@ -292,16 +292,16 @@ static int render_init(struct ngl_node *node)
                 return ret;
 
             snprintf(name, sizeof(name), "%s_sampler", entry->key);
-            s->textureshaderinfos[i].sampler_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
+            s->textureprograminfos[i].sampler_id = ngli_glGetUniformLocation(gl, program->program_id, name);
 
             snprintf(name, sizeof(name), "%s_coords", entry->key);
-            s->textureshaderinfos[i].coordinates_id = ngli_glGetAttribLocation(gl, shader->program_id, name);
+            s->textureprograminfos[i].coordinates_id = ngli_glGetAttribLocation(gl, program->program_id, name);
 
             snprintf(name, sizeof(name), "%s_coords_matrix", entry->key);
-            s->textureshaderinfos[i].coordinates_mvp_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
+            s->textureprograminfos[i].coordinates_mvp_id = ngli_glGetUniformLocation(gl, program->program_id, name);
 
             snprintf(name, sizeof(name), "%s_dimensions", entry->key);
-            s->textureshaderinfos[i].dimensions_id = ngli_glGetUniformLocation(gl, shader->program_id, name);
+            s->textureprograminfos[i].dimensions_id = ngli_glGetUniformLocation(gl, program->program_id, name);
             i++;
         }
     }
@@ -327,7 +327,7 @@ static void render_uninit(struct ngl_node *node)
         ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
     }
 
-    free(s->textureshaderinfos);
+    free(s->textureprograminfos);
     free(s->uniform_ids);
     free(s->attribute_ids);
 }
@@ -352,7 +352,7 @@ static void render_update(struct ngl_node *node, double t)
         }
     }
 
-    ngli_node_update(s->shader, t);
+    ngli_node_update(s->program, t);
 }
 
 static void render_draw(struct ngl_node *node)
@@ -363,8 +363,8 @@ static void render_draw(struct ngl_node *node)
 
     struct render *s = node->priv_data;
 
-    const struct shader *shader = s->shader->priv_data;
-    ngli_glUseProgram(gl, shader->program_id);
+    const struct program *program = s->program->priv_data;
+    ngli_glUseProgram(gl, program->program_id);
 
     if (glcontext->has_vao_compatibility) {
         ngli_glBindVertexArray(gl, s->vao_id);

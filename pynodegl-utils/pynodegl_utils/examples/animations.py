@@ -7,7 +7,7 @@ from pynodegl import (
         Geometry,
         Group,
         Render,
-        Shader,
+        Program,
         UniformVec4,
 )
 
@@ -57,7 +57,7 @@ def _get_func(name, flags=0):
                  draw_in_out=True, draw_out_in=True):
 
         g = Group()
-        shader = Shader(fragment_data=_frag_data)
+        program = Program(fragment_data=_frag_data)
 
         for idx, ext in enumerate(versions):
 
@@ -78,7 +78,7 @@ def _get_func(name, flags=0):
 
             vertices = BufferVec3(data=vertices_data)
             geometry = Geometry(vertices, draw_mode=GL.GL_LINE_STRIP)
-            render = Render(geometry, shader)
+            render = Render(geometry, program)
             render.update_uniforms(color=UniformVec4(_colors[idx]))
 
             g.add_children(render)

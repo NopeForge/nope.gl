@@ -247,11 +247,11 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     ngl_node_param_set(s->quad, "width", width);
     ngl_node_param_set(s->quad, "height", height);
 
-    s->shader = ngl_node_create(NGL_NODE_SHADER);
-    if (!s->shader)
+    s->program = ngl_node_create(NGL_NODE_PROGRAM);
+    if (!s->program)
         return -1;
 
-    ngl_node_param_set(s->shader, "fragment_data", fragment_shader_hwupload_oes_data);
+    ngl_node_param_set(s->program, "fragment_data", fragment_shader_hwupload_oes_data);
 
     s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE);
     if (!s->textures[0])
@@ -279,7 +279,7 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     t->wrap_t          = s->wrap_t;
     t->external_id     = s->local_id;
 
-    s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->shader);
+    s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->program);
     if (!s->render)
         return -1;
 
@@ -438,11 +438,11 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         ngl_node_param_set(s->quad, "width", width);
         ngl_node_param_set(s->quad, "height", height);
 
-        s->shader = ngl_node_create(NGL_NODE_SHADER);
-        if (!s->shader)
+        s->program = ngl_node_create(NGL_NODE_PROGRAM);
+        if (!s->program)
             return -1;
 
-        ngl_node_param_set(s->shader, "fragment_data", fragment_shader_hwupload_nv12_data);
+        ngl_node_param_set(s->program, "fragment_data", fragment_shader_hwupload_nv12_data);
 
         s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE);
         if (!s->textures[0])
@@ -486,7 +486,7 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         t->wrap_t          = s->wrap_t;
         t->external_id     = s->local_id;
 
-        s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->shader);
+        s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->program);
         if (!s->render)
             return -1;
 
@@ -734,7 +734,7 @@ void ngli_hwupload_uninit(struct ngl_node *node)
         ngli_node_detach_ctx(s->rtt);
 
     ngl_node_unrefp(&s->quad);
-    ngl_node_unrefp(&s->shader);
+    ngl_node_unrefp(&s->program);
     ngl_node_unrefp(&s->render);
     ngl_node_unrefp(&s->textures[0]);
     ngl_node_unrefp(&s->textures[1]);

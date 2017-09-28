@@ -903,12 +903,12 @@ class _MainWindow(QtWidgets.QSplitter):
         scene.set_name(cfg_dict['name'])
 
         if cfg_dict['has_fps']:
-            from pynodegl import FPS, Quad, Shader, Texture, Render, Group
+            from pynodegl import FPS, Quad, Program, Texture, Render, Group
             fps = FPS(scene, measure_update=1, measure_draw=1, create_databuf=1)
             q = Quad((0, 15/16., 0), (1., 0, 0), (0, 1/16., 0))
-            s = Shader()
+            p = Program()
             t = Texture(data_src=fps)
-            render = Render(q, s)
+            render = Render(q, p)
             render.update_textures(tex0=t)
             g = Group()
             g.add_children(fps, render)

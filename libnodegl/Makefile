@@ -73,13 +73,13 @@ LIB_OBJS = api.o                    \
            node_group.o             \
            node_identity.o          \
            node_media.o             \
+           node_program.o           \
            node_quad.o              \
            node_render.o            \
            node_renderrange.o       \
            node_rotate.o            \
            node_rtt.o               \
            node_scale.o             \
-           node_shader.o            \
            node_texture.o           \
            node_translate.o         \
            node_triangle.o          \

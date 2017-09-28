@@ -199,7 +199,7 @@ struct rtt {
     GLuint renderbuffer_id;
 };
 
-struct shader {
+struct program {
     const char *vertex_data;
     const char *fragment_data;
 
@@ -232,7 +232,7 @@ struct texture {
 
     int upload_fmt;
     struct ngl_node *quad;
-    struct ngl_node *shader;
+    struct ngl_node *program;
     struct ngl_node *render;
     struct ngl_node *textures[3];
     struct ngl_node *target_texture;
@@ -243,7 +243,7 @@ struct texture {
 #endif
 };
 
-struct textureshaderinfo {
+struct textureprograminfo {
     int sampler_id;
     int coordinates_id;
     int coordinates_mvp_id;
@@ -252,10 +252,10 @@ struct textureshaderinfo {
 
 struct render {
     struct ngl_node *geometry;
-    struct ngl_node *shader;
+    struct ngl_node *program;
 
     struct hmap *textures;
-    struct textureshaderinfo *textureshaderinfos;
+    struct textureprograminfo *textureprograminfos;
 
     struct hmap *uniforms;
     GLint *uniform_ids;

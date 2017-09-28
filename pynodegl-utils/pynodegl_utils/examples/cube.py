@@ -7,11 +7,11 @@ from pynodegl import (
         GLState,
         Group,
         Media,
+        Program,
         Quad,
         Render,
         RenderToTexture,
         Rotate,
-        Shader,
         Texture,
         UniformVec3,
 )
@@ -27,8 +27,8 @@ def _get_cube_quads():
             ((-0.5, -0.5, -0.5), ( 1, 0,  0), (0, 0,  1), (1, 0, 0)), # bottom
             ((-0.5,  0.5,  0.5), ( 1, 0,  0), (0, 0, -1), (1, 0, 1))) # top
 
-def _get_cube_side(texture, shader, corner, width, height, color):
-    ts = Render(Quad(corner, width, height), shader)
+def _get_cube_side(texture, program, corner, width, height, color):
+    ts = Render(Quad(corner, width, height), program)
     ts.update_textures(tex0=texture)
     ts.update_uniforms(blend_color=UniformVec3(value=color))
     return ts
@@ -49,11 +49,11 @@ void main(void)
     vec4 t = texture2D(tex0_sampler, var_tex0_coords);
     gl_FragColor = vec4(mix(t.rgb, blend_color, 0.2), 1.0);
 }"""
-    s = Shader(fragment_data=frag_data)
+    p = Program(fragment_data=frag_data)
 
     t = Texture(data_src=Media(cfg.medias[0].filename))
     cube_quads_info = _get_cube_quads()
-    children = [_get_cube_side(t, s, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
+    children = [_get_cube_side(t, p, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)
 
     rot_animkf = AnimationVec3([AnimKeyFrameVec3(0, (0, 0, 0)),
@@ -86,14 +86,14 @@ def scene_with_framebuffer(cfg):
     rtt.set_depth_texture(d)
 
     q = Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
-    s = Shader()
-    render = Render(q, s)
+    p = Program()
+    render = Render(q, p)
     render.update_textures(tex0=t)
     g.add_children(rtt, render)
 
     q = Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
-    s = Shader()
-    render = Render(q, s)
+    p = Program()
+    render = Render(q, p)
     render.update_textures(tex0=d)
     g.add_children(rtt, render)
 

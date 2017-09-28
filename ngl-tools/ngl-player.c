@@ -63,8 +63,8 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA, filename);
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE);
     struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD);
-    struct ngl_node *shader  = ngl_node_create(NGL_NODE_SHADER);
-    struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER, quad, shader);
+    struct ngl_node *program = ngl_node_create(NGL_NODE_PROGRAM);
+    struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER, quad, program);
 
     struct ngl_node *uniforms[3] = {
         ngl_node_create(NGL_NODE_UNIFORMSCALAR),
@@ -86,7 +86,7 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_param_set(quad, "height", height);
 
     ngl_node_param_set(texture, "data_src", media);
-    ngl_node_param_set(shader, "fragment_data", pgbar_shader);
+    ngl_node_param_set(program, "fragment_data", pgbar_shader);
     ngl_node_param_set(uniforms[0], "anim", time_anim);
     ngl_node_param_set(uniforms[1], "value", g_info.width / (double)g_info.height);
     ngl_node_param_set(uniforms[2], "value", 0.0);
@@ -105,7 +105,7 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_unrefp(&time_animkf[1]);
 
     ngl_node_unrefp(&time_anim);
-    ngl_node_unrefp(&shader);
+    ngl_node_unrefp(&program);
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);
     ngl_node_unrefp(&quad);

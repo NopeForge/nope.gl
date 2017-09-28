@@ -9,10 +9,10 @@ from pynodegl import (
         Geometry,
         GLState,
         Media,
+        Program,
         Quad,
         Render,
         Rotate,
-        Shader,
         Texture,
         Triangle,
 )
@@ -171,8 +171,8 @@ def centered_model_media(cfg, n=0.5, model=None):
     q = Geometry(vertices, texcoords, normals)
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
-    s = Shader(fragment_data=fragment_data)
-    render = Render(q, s)
+    p = Program(fragment_data=fragment_data)
+    render = Render(q, p)
     render.update_textures(tex0=t)
     render.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 

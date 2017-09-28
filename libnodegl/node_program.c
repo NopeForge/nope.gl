@@ -62,8 +62,8 @@ static const char default_vertex_shader_data[] =
     "    var_normal = ngl_normal_matrix * ngl_normal;"                                  "\n"
     "}";
 
-#define OFFSET(x) offsetof(struct shader, x)
-static const struct node_param shader_params[] = {
+#define OFFSET(x) offsetof(struct program, x)
+static const struct node_param program_params[] = {
     {"vertex_data",   PARAM_TYPE_STR, OFFSET(vertex_data),   {.str=default_vertex_shader_data}},
     {"fragment_data", PARAM_TYPE_STR, OFFSET(fragment_data), {.str=default_fragment_shader_data}},
     {NULL}
@@ -93,7 +93,7 @@ static void get_##func##_info_log(const struct glfunctions *gl, GLuint id,      
 DEFINE_GET_INFO_LOG_FUNCTION(shader, Shader)
 DEFINE_GET_INFO_LOG_FUNCTION(program, Program)
 
-static GLuint load_shader(struct ngl_node *node, const char *vertex_shader_data, const char *fragment_shader_data)
+static GLuint load_program(struct ngl_node *node, const char *vertex_shader_data, const char *fragment_shader_data)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -162,15 +162,15 @@ fail:
     return 0;
 }
 
-static int shader_init(struct ngl_node *node)
+static int program_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    struct shader *s = node->priv_data;
+    struct program *s = node->priv_data;
 
-    s->program_id = load_shader(node, s->vertex_data, s->fragment_data);
+    s->program_id = load_program(node, s->vertex_data, s->fragment_data);
     if (!s->program_id)
         return -1;
 
@@ -183,22 +183,22 @@ static int shader_init(struct ngl_node *node)
     return 0;
 }
 
-static void shader_uninit(struct ngl_node *node)
+static void program_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    struct shader *s = node->priv_data;
+    struct program *s = node->priv_data;
 
     ngli_glDeleteProgram(gl, s->program_id);
 }
 
-const struct node_class ngli_shader_class = {
-    .id        = NGL_NODE_SHADER,
-    .name      = "Shader",
-    .init      = shader_init,
-    .uninit    = shader_uninit,
-    .priv_size = sizeof(struct shader),
-    .params    = shader_params,
+const struct node_class ngli_program_class = {
+    .id        = NGL_NODE_PROGRAM,
+    .name      = "Program",
+    .init      = program_init,
+    .uninit    = program_uninit,
+    .priv_size = sizeof(struct program),
+    .params    = program_params,
 };

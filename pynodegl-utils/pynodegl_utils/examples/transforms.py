@@ -8,11 +8,11 @@ from pynodegl import (
         Group,
         Identity,
         Media,
+        Program,
         Quad,
         Render,
         Rotate,
         Scale,
-        Shader,
         Texture,
         Translate,
         UniformMat4,
@@ -41,8 +41,8 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
 
     sz = 1/3.
     q = Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
-    s = Shader(fragment_data=frag_data)
-    node = Render(q, s)
+    p = Program(fragment_data=frag_data)
+    node = Render(q, p)
     ucolor = UniformVec4(value=color)
     node.update_uniforms(blend_color=ucolor)
 
@@ -77,8 +77,8 @@ def animated(cfg, rotate=True, scale=True, translate=True):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
-    s = Shader()
-    node = Render(q, s)
+    p = Program()
+    node = Render(q, p)
     node.update_textures(tex0=t)
 
     if rotate:
@@ -121,8 +121,8 @@ def animated_uniform(cfg):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
-    s = Shader(fragment_data=animated_frag_data)
-    ts = Render(q, s)
+    p = Program(fragment_data=animated_frag_data)
+    ts = Render(q, p)
     ts.update_textures(tex0=t)
 
     scale_animkf = [AnimKeyFrameVec3(0, (1,1,1)),
@@ -146,29 +146,29 @@ def animated_camera(cfg, rotate=False):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
-    s = Shader()
-    node = Render(q, s)
+    p = Program()
+    node = Render(q, p)
     node.update_textures(tex0=t)
     g.add_children(node)
 
     z = -1
     q = Quad((-1.1, 0.3, z), (1, 0, 0), (0, 1, 0))
-    node = Render(q, s)
+    node = Render(q, p)
     node.update_textures(tex0=t)
     g.add_children(node)
 
     q = Quad((0.1, 0.3, z), (1, 0, 0), (0, 1, 0))
-    node = Render(q, s)
+    node = Render(q, p)
     node.update_textures(tex0=t)
     g.add_children(node)
 
     q = Quad((-1.1, -1.0, z), (1, 0, 0), (0, 1, 0))
-    node = Render(q, s)
+    node = Render(q, p)
     node.update_textures(tex0=t)
     g.add_children(node)
 
     q = Quad((0.1, -1.0, z), (1, 0, 0), (0, 1, 0))
-    node = Render(q, s)
+    node = Render(q, p)
     node.update_textures(tex0=t)
     g.add_children(node)
 
