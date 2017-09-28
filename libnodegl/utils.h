@@ -34,8 +34,8 @@
 
 #define ngli_assert(cond) do {                          \
     if (!(cond)) {                                      \
-        fprintf(stderr, "Assert " #cond " @ %s:%d\n",   \
-                __FILE__, __LINE__);                    \
+        fprintf(stderr, "Assert %s @ %s:%d\n",          \
+                #cond, __FILE__, __LINE__);             \
         abort();                                        \
     }                                                   \
 } while (0)
