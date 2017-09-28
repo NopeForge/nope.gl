@@ -210,6 +210,10 @@ test_hmap: CFLAGS = $(PROJECT_CFLAGS)
 test_hmap: LDLIBS = $(PROJECT_LDLIBS)
 test_hmap: test_hmap.o utils.o
 
+test_utils: CFLAGS = $(PROJECT_CFLAGS)
+test_utils: LDLIBS = $(PROJECT_LDLIBS)
+test_utils: test_utils.o utils.o
+
 #
 # Misc/general
 #
@@ -221,6 +225,7 @@ clean:
 	$(RM) $(LD_SYM_FILE)
 	$(RM) test_asm.o test_asm
 	$(RM) test_hmap.o test_hmap
+	$(RM) test_utils.o test_utils
 
 install: $(LIB_NAME) $(LIB_PCNAME)
 	install -d $(DESTDIR)$(PREFIX)/lib
