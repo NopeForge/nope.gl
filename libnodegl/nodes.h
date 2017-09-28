@@ -136,7 +136,7 @@ struct camera {
     GLuint texture_id;
 };
 
-struct shape {
+struct geometry {
     /* quad params */
     float quad_corner[3];
     float quad_width[3];
@@ -150,7 +150,7 @@ struct shape {
     float triangle_edges[9];
     float triangle_uvs[6];
 
-    /* shape params */
+    /* geometry params */
     struct ngl_node *vertices_buffer;
     struct ngl_node *texcoords_buffer;
     struct ngl_node *normals_buffer;
@@ -160,8 +160,8 @@ struct shape {
     GLenum draw_type;
 };
 
-struct ngl_node *ngli_shape_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data);
-struct ngl_node *ngli_shape_generate_indices_buffer(struct ngl_ctx *ctx, int count);
+struct ngl_node *ngli_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data);
+struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int count);
 
 struct buffer {
     int count;
@@ -251,7 +251,7 @@ struct textureshaderinfo {
 };
 
 struct render {
-    struct ngl_node *shape;
+    struct ngl_node *geometry;
     struct ngl_node *shader;
 
     struct hmap *textures;

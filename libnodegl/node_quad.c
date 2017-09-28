@@ -29,7 +29,7 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct shape, x)
+#define OFFSET(x) offsetof(struct geometry, x)
 static const struct node_param quad_params[] = {
     {"corner",    PARAM_TYPE_VEC3, OFFSET(quad_corner),    {.vec={-0.5f, -0.5f}}},
     {"width",     PARAM_TYPE_VEC3, OFFSET(quad_width),     {.vec={ 1.0f,  0.0f}}},
@@ -52,7 +52,7 @@ static const struct node_param quad_params[] = {
 
 static int quad_init(struct ngl_node *node)
 {
-    struct shape *s = node->priv_data;
+    struct geometry *s = node->priv_data;
 
     const GLfloat vertices[] = {
         C(0),               C(1),               C(2),
@@ -70,19 +70,19 @@ static int quad_init(struct ngl_node *node)
 
     static const GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
 
-    s->vertices_buffer = ngli_shape_generate_buffer(node->ctx,
-                                                    NGL_NODE_BUFFERVEC3,
-                                                    NB_VERTICES,
-                                                    sizeof(vertices),
-                                                    (void *)vertices);
+    s->vertices_buffer = ngli_geometry_generate_buffer(node->ctx,
+                                                       NGL_NODE_BUFFERVEC3,
+                                                       NB_VERTICES,
+                                                       sizeof(vertices),
+                                                       (void *)vertices);
     if (!s->vertices_buffer)
         return -1;
 
-    s->texcoords_buffer = ngli_shape_generate_buffer(node->ctx,
-                                                     NGL_NODE_BUFFERVEC2,
-                                                     NB_VERTICES,
-                                                     sizeof(uvs),
-                                                     (void *)uvs);
+    s->texcoords_buffer = ngli_geometry_generate_buffer(node->ctx,
+                                                        NGL_NODE_BUFFERVEC2,
+                                                        NB_VERTICES,
+                                                        sizeof(uvs),
+                                                        (void *)uvs);
     if (!s->texcoords_buffer)
         return -1;
 
@@ -95,20 +95,20 @@ static int quad_init(struct ngl_node *node)
     for (int i = 1; i < NB_VERTICES; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
-    s->normals_buffer = ngli_shape_generate_buffer(node->ctx,
-                                                   NGL_NODE_BUFFERVEC3,
-                                                   NB_VERTICES,
-                                                   sizeof(normals),
-                                                   normals);
+    s->normals_buffer = ngli_geometry_generate_buffer(node->ctx,
+                                                      NGL_NODE_BUFFERVEC3,
+                                                      NB_VERTICES,
+                                                      sizeof(normals),
+                                                      normals);
     if (!s->normals_buffer)
         return -1;
 
 
-    s->indices_buffer = ngli_shape_generate_buffer(node->ctx,
-                                                   NGL_NODE_BUFFERUINT,
-                                                   NGLI_ARRAY_NB(indices),
-                                                   sizeof(indices),
-                                                   (void *)indices);
+    s->indices_buffer = ngli_geometry_generate_buffer(node->ctx,
+                                                      NGL_NODE_BUFFERUINT,
+                                                      NGLI_ARRAY_NB(indices),
+                                                      sizeof(indices),
+                                                      (void *)indices);
     if (!s->indices_buffer)
         return -1;
 
@@ -127,7 +127,7 @@ static int quad_init(struct ngl_node *node)
 
 static void quad_uninit(struct ngl_node *node)
 {
-    struct shape *s = node->priv_data;
+    struct geometry *s = node->priv_data;
 
     NODE_UNREFP(s->vertices_buffer);
     NODE_UNREFP(s->texcoords_buffer);
@@ -140,6 +140,6 @@ const struct node_class ngli_quad_class = {
     .name      = "Quad",
     .init      = quad_init,
     .uninit    = quad_uninit,
-    .priv_size = sizeof(struct shape),
+    .priv_size = sizeof(struct geometry),
     .params    = quad_params,
 };

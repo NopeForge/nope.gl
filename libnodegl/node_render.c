@@ -47,8 +47,8 @@
 
 #define OFFSET(x) offsetof(struct render, x)
 static const struct node_param render_params[] = {
-    {"shape",    PARAM_TYPE_NODE, OFFSET(shape), .flags=PARAM_FLAG_CONSTRUCTOR,
-                 .node_types=(const int[]){NGL_NODE_QUAD, NGL_NODE_TRIANGLE, NGL_NODE_SHAPE, -1}},
+    {"geometry", PARAM_TYPE_NODE, OFFSET(geometry), .flags=PARAM_FLAG_CONSTRUCTOR,
+                 .node_types=(const int[]){NGL_NODE_QUAD, NGL_NODE_TRIANGLE, NGL_NODE_GEOMETRY, -1}},
     {"shader",   PARAM_TYPE_NODE, OFFSET(shader), .flags=PARAM_FLAG_CONSTRUCTOR,
                  .node_types=(const int[]){NGL_NODE_SHADER, -1}},
     {"textures", PARAM_TYPE_NODEDICT, OFFSET(textures),
@@ -150,11 +150,11 @@ static int update_vertex_attribs(struct ngl_node *node)
     const struct glfunctions *gl = &glcontext->funcs;
 
     struct render *s = node->priv_data;
-    struct shape *shape = s->shape->priv_data;
+    struct geometry *geometry = s->geometry->priv_data;
     struct shader *shader = s->shader->priv_data;
 
-    if (shape->texcoords_buffer) {
-        struct buffer *buffer = shape->texcoords_buffer->priv_data;
+    if (geometry->texcoords_buffer) {
+        struct buffer *buffer = geometry->texcoords_buffer->priv_data;
         int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
         for (int i = 0; i < nb_textures; i++)  {
             struct textureshaderinfo *textureshaderinfo = &s->textureshaderinfos[i];
@@ -166,8 +166,8 @@ static int update_vertex_attribs(struct ngl_node *node)
         }
     }
 
-    if (shape->vertices_buffer) {
-        struct buffer *buffer = shape->vertices_buffer->priv_data;
+    if (geometry->vertices_buffer) {
+        struct buffer *buffer = geometry->vertices_buffer->priv_data;
         if (shader->position_location_id >= 0) {
             ngli_glEnableVertexAttribArray(gl, shader->position_location_id);
             ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
@@ -175,8 +175,8 @@ static int update_vertex_attribs(struct ngl_node *node)
         }
     }
 
-    if (shape->normals_buffer) {
-        struct buffer *buffer = shape->normals_buffer->priv_data;
+    if (geometry->normals_buffer) {
+        struct buffer *buffer = geometry->normals_buffer->priv_data;
         if (shader->normal_location_id >= 0) {
             ngli_glEnableVertexAttribArray(gl, shader->normal_location_id);
             ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
@@ -214,7 +214,7 @@ static int render_init(struct ngl_node *node)
     struct render *s = node->priv_data;
     struct shader *shader = s->shader->priv_data;
 
-    ret = ngli_node_init(s->shape);
+    ret = ngli_node_init(s->geometry);
     if (ret < 0)
         return ret;
 
@@ -242,8 +242,8 @@ static int render_init(struct ngl_node *node)
 
     int nb_attributes = s->attributes ? ngli_hmap_count(s->attributes) : 0;
     if (nb_attributes > 0) {
-        struct shape *shape = s->shape->priv_data;
-        struct buffer *vertices = shape->vertices_buffer->priv_data;
+        struct geometry *geometry = s->geometry->priv_data;
+        struct buffer *vertices = geometry->vertices_buffer->priv_data;
         s->attribute_ids = calloc(nb_attributes, sizeof(*s->attribute_ids));
         if (!s->attribute_ids)
             return -1;
@@ -336,7 +336,7 @@ static void render_update(struct ngl_node *node, double t)
 {
     struct render *s = node->priv_data;
 
-    ngli_node_update(s->shape, t);
+    ngli_node_update(s->geometry, t);
 
     if (s->textures) {
         const struct hmap_entry *entry = NULL;
@@ -376,11 +376,11 @@ static void render_draw(struct ngl_node *node)
         update_vertex_attribs(node);
     }
 
-    const struct shape *shape = s->shape->priv_data;
-    const struct buffer *indices_buffer = shape->indices_buffer->priv_data;
+    const struct geometry *geometry = s->geometry->priv_data;
+    const struct buffer *indices_buffer = geometry->indices_buffer->priv_data;
 
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_buffer->buffer_id);
-    ngli_glDrawElements(gl, shape->draw_mode, indices_buffer->count, shape->draw_type, 0);
+    ngli_glDrawElements(gl, geometry->draw_mode, indices_buffer->count, geometry->draw_type, 0);
 }
 
 const struct node_class ngli_render_class = {

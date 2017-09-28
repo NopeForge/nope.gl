@@ -29,7 +29,7 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct shape, x)
+#define OFFSET(x) offsetof(struct geometry, x)
 static const struct node_param triangle_params[] = {
     {"edge0", PARAM_TYPE_VEC3, OFFSET(triangle_edges[0]), .flags=PARAM_FLAG_CONSTRUCTOR},
     {"edge1", PARAM_TYPE_VEC3, OFFSET(triangle_edges[3]), .flags=PARAM_FLAG_CONSTRUCTOR},
@@ -44,21 +44,21 @@ static const struct node_param triangle_params[] = {
 
 static int triangle_init(struct ngl_node *node)
 {
-    struct shape *s = node->priv_data;
+    struct geometry *s = node->priv_data;
 
-    s->vertices_buffer = ngli_shape_generate_buffer(node->ctx,
-                                                    NGL_NODE_BUFFERVEC3,
-                                                    NB_VERTICES,
-                                                    sizeof(s->triangle_edges),
-                                                    s->triangle_edges);
+    s->vertices_buffer = ngli_geometry_generate_buffer(node->ctx,
+                                                       NGL_NODE_BUFFERVEC3,
+                                                       NB_VERTICES,
+                                                       sizeof(s->triangle_edges),
+                                                       s->triangle_edges);
     if (!s->vertices_buffer)
         return -1;
 
-    s->texcoords_buffer = ngli_shape_generate_buffer(node->ctx,
-                                                     NGL_NODE_BUFFERVEC2,
-                                                     NB_VERTICES,
-                                                     sizeof(s->triangle_uvs),
-                                                     s->triangle_uvs);
+    s->texcoords_buffer = ngli_geometry_generate_buffer(node->ctx,
+                                                        NGL_NODE_BUFFERVEC2,
+                                                        NB_VERTICES,
+                                                        sizeof(s->triangle_uvs),
+                                                        s->triangle_uvs);
     if (!s->texcoords_buffer)
         return -1;
 
@@ -71,16 +71,16 @@ static int triangle_init(struct ngl_node *node)
     for (int i = 1; i < NB_VERTICES; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
-    s->normals_buffer = ngli_shape_generate_buffer(node->ctx,
-                                                   NGL_NODE_BUFFERVEC3,
-                                                   NB_VERTICES,
-                                                   sizeof(normals),
-                                                   normals);
+    s->normals_buffer = ngli_geometry_generate_buffer(node->ctx,
+                                                      NGL_NODE_BUFFERVEC3,
+                                                      NB_VERTICES,
+                                                      sizeof(normals),
+                                                      normals);
     if (!s->normals_buffer)
         return -1;
 
-    s->indices_buffer = ngli_shape_generate_indices_buffer(node->ctx,
-                                                           NB_VERTICES);
+    s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx,
+                                                              NB_VERTICES);
     if (!s->indices_buffer)
         return -1;
 
@@ -99,7 +99,7 @@ static int triangle_init(struct ngl_node *node)
 
 static void triangle_uninit(struct ngl_node *node)
 {
-    struct shape *s = node->priv_data;
+    struct geometry *s = node->priv_data;
 
     NODE_UNREFP(s->vertices_buffer);
     NODE_UNREFP(s->texcoords_buffer);
@@ -112,6 +112,6 @@ const struct node_class ngli_triangle_class = {
     .name      = "Triangle",
     .init      = triangle_init,
     .uninit    = triangle_uninit,
-    .priv_size = sizeof(struct shape),
+    .priv_size = sizeof(struct geometry),
     .params    = triangle_params,
 };

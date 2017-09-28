@@ -6,7 +6,6 @@ from pynodegl import (
         Quad,
         Render,
         Shader,
-        Shape,
         Texture,
         Triangle,
 )

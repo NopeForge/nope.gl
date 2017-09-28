@@ -4,10 +4,10 @@ from pynodegl import (
         AnimKeyFrameScalar,
         AnimationScalar,
         BufferVec3,
+        Geometry,
         Group,
         Render,
         Shader,
-        Shape,
         UniformVec4,
 )
 
@@ -77,8 +77,8 @@ def _get_func(name, flags=0):
                 vertices_data.extend([x, y, 0])
 
             vertices = BufferVec3(data=vertices_data)
-            shape = Shape(vertices, draw_mode=GL.GL_LINE_STRIP)
-            render = Render(shape, shader)
+            geometry = Geometry(vertices, draw_mode=GL.GL_LINE_STRIP)
+            render = Render(geometry, shader)
             render.update_uniforms(color=UniformVec4(_colors[idx]))
 
             g.add_children(render)

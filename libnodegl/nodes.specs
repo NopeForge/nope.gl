@@ -120,6 +120,15 @@
         - [measure_draw, int]
         - [create_databuf, int]
 
+- Geometry:
+    constructors:
+        - [vertices, Node]
+    optional:
+        - [texcoords, Node]
+        - [normals, Node]
+        - [indices, Node]
+        - [draw_mode, int]
+
 - GLBlendState:
     constructors:
         - [enabled, int]
@@ -184,7 +193,7 @@
 
 - Render:
     constructors:
-        - [shape, Node]
+        - [geometry, Node]
         - [shader, Node]
     optional:
         - [textures, NodeDict]
@@ -231,15 +240,6 @@
     optional:
         - [vertex_data, string]
         - [fragment_data, string]
-
-- Shape:
-    constructors:
-        - [vertices, Node]
-    optional:
-        - [texcoords, Node]
-        - [normals, Node]
-        - [indices, Node]
-        - [draw_mode, int]
 
 - Texture:
     optional:

@@ -38,6 +38,7 @@
     action(NGL_NODE_BUFFERVEC4,             ngli_buffervec4_class)              \
     action(NGL_NODE_CAMERA,                 ngli_camera_class)                  \
     action(NGL_NODE_FPS,                    ngli_fps_class)                     \
+    action(NGL_NODE_GEOMETRY,               ngli_geometry_class)                \
     action(NGL_NODE_GLBLENDSTATE,           ngli_glblendstate_class)            \
     action(NGL_NODE_GLCOLORSTATE,           ngli_glcolorstate_class)            \
     action(NGL_NODE_GLSTATE,                ngli_glstate_class)                 \
@@ -54,7 +55,6 @@
     action(NGL_NODE_ROTATE,                 ngli_rotate_class)                  \
     action(NGL_NODE_SCALE,                  ngli_scale_class)                   \
     action(NGL_NODE_SHADER,                 ngli_shader_class)                  \
-    action(NGL_NODE_SHAPE,                  ngli_shape_class)                   \
     action(NGL_NODE_TEXTURE,                ngli_texture_class)                 \
     action(NGL_NODE_TRANSLATE,              ngli_translate_class)               \
     action(NGL_NODE_TRIANGLE,               ngli_triangle_class)                \

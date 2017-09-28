@@ -65,6 +65,7 @@ LIB_OBJS = api.o                    \
            node_buffer.o            \
            node_camera.o            \
            node_fps.o               \
+           node_geometry.o          \
            node_glblendstate.o      \
            node_glcolorstate.o      \
            node_glstencilstate.o    \
@@ -79,7 +80,6 @@ LIB_OBJS = api.o                    \
            node_rtt.o               \
            node_scale.o             \
            node_shader.o            \
-           node_shape.o             \
            node_texture.o           \
            node_translate.o         \
            node_triangle.o          \

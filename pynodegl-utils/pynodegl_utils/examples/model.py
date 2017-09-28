@@ -6,13 +6,13 @@ from pynodegl import (
         BufferVec2,
         BufferVec3,
         Camera,
+        Geometry,
         GLState,
         Media,
         Quad,
         Render,
         Rotate,
         Shader,
-        Shape,
         Texture,
         Triangle,
 )
@@ -168,7 +168,7 @@ def centered_model_media(cfg, n=0.5, model=None):
     texcoords = BufferVec2(data=uvs_data)
     normals = BufferVec3(data=normals_data)
 
-    q = Shape(vertices, texcoords, normals)
+    q = Geometry(vertices, texcoords, normals)
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     s = Shader(fragment_data=fragment_data)

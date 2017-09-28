@@ -8,6 +8,7 @@ from pynodegl import (
         AnimationVec3,
         BufferVec2,
         BufferVec3,
+        Geometry,
         GLColorState,
         GLState,
         GLStencilState,
@@ -18,7 +19,6 @@ from pynodegl import (
         Rotate,
         Scale,
         Shader,
-        Shape,
         Texture,
         Triangle,
         UniformScalar,
@@ -165,7 +165,7 @@ def centered_masked_media(cfg):
 
 @scene({'name': 'n', 'type': 'range', 'range': [0,1], 'unit_base': 1000},
        {'name': 'k', 'type': 'range', 'range': [3,50]})
-def centered_shape_media(cfg, n=0.9, k=5):
+def centered_geometry_media(cfg, n=0.9, k=5):
     cfg.duration = cfg.medias[0].duration
 
     vertices_data = array.array('f')
@@ -179,7 +179,7 @@ def centered_shape_media(cfg, n=0.9, k=5):
     vertices = BufferVec3(data=vertices_data)
     texcoords = BufferVec2(data=texcoords_data)
 
-    q = Shape(vertices, texcoords)
+    q = Geometry(vertices, texcoords)
     q.set_draw_mode(GL.GL_TRIANGLE_FAN)
 
     m = Media(cfg.medias[0].filename)

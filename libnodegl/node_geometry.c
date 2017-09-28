@@ -34,7 +34,7 @@
     }                                                                          \
 } while (0)
 
-struct ngl_node *ngli_shape_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data)
+struct ngl_node *ngli_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data)
 {
     struct ngl_node *node = ngl_node_create(type, count);
     if (!node)
@@ -58,7 +58,7 @@ fail:
     return NULL;
 }
 
-struct ngl_node *ngli_shape_generate_indices_buffer(struct ngl_ctx *ctx, int count)
+struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int count)
 {
     int size = count * sizeof(GLuint);
     uint8_t *data = calloc(count, sizeof(GLuint));
@@ -67,17 +67,17 @@ struct ngl_node *ngli_shape_generate_indices_buffer(struct ngl_ctx *ctx, int cou
 
     SET_INDICES(GLuint, count, data);
 
-    struct ngl_node *node = ngli_shape_generate_buffer(ctx,
-                                                       NGL_NODE_BUFFERUINT,
-                                                       count,
-                                                       size,
-                                                       data);
+    struct ngl_node *node = ngli_geometry_generate_buffer(ctx,
+                                                          NGL_NODE_BUFFERUINT,
+                                                          count,
+                                                          size,
+                                                          data);
     free(data);
     return node;
 }
 
-#define OFFSET(x) offsetof(struct shape, x)
-static const struct node_param shape_params[] = {
+#define OFFSET(x) offsetof(struct geometry, x)
+static const struct node_param geometry_params[] = {
     {"vertices",  PARAM_TYPE_NODE, OFFSET(vertices_buffer),  .node_types=(const int[]){NGL_NODE_BUFFERVEC3, -1}, .flags=PARAM_FLAG_CONSTRUCTOR | PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
     {"texcoords", PARAM_TYPE_NODE, OFFSET(texcoords_buffer), .node_types=(const int[]){NGL_NODE_BUFFERVEC2, -1}, .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
     {"normals",   PARAM_TYPE_NODE, OFFSET(normals_buffer),   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, -1}, .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
@@ -86,9 +86,9 @@ static const struct node_param shape_params[] = {
     {NULL}
 };
 
-static int shape_init(struct ngl_node *node)
+static int geometry_init(struct ngl_node *node)
 {
-    struct shape *s = node->priv_data;
+    struct geometry *s = node->priv_data;
 
     int ret = ngli_node_init(s->vertices_buffer);
     if (ret < 0)
@@ -131,8 +131,8 @@ static int shape_init(struct ngl_node *node)
         if (ret < 0)
             return ret;
     } else {
-        s->indices_buffer = ngli_shape_generate_indices_buffer(node->ctx,
-                                                               vertices->count);
+        s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx,
+                                                                  vertices->count);
         if (!s->indices_buffer)
             return -1;
     }
@@ -142,10 +142,10 @@ static int shape_init(struct ngl_node *node)
     return 0;
 }
 
-const struct node_class ngli_shape_class = {
-    .id        = NGL_NODE_SHAPE,
-    .name      = "Shape",
-    .init      = shape_init,
-    .priv_size = sizeof(struct shape),
-    .params    = shape_params,
+const struct node_class ngli_geometry_class = {
+    .id        = NGL_NODE_GEOMETRY,
+    .name      = "Geometry",
+    .init      = geometry_init,
+    .priv_size = sizeof(struct geometry),
+    .params    = geometry_params,
 };
