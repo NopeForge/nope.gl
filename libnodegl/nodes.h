@@ -200,8 +200,8 @@ struct rtt {
 };
 
 struct program {
-    const char *vertex_data;
-    const char *fragment_data;
+    const char *vertex;
+    const char *fragment;
 
     GLuint program_id;
     GLint position_location_id;

@@ -57,7 +57,7 @@ def _get_func(name, flags=0):
                  draw_in_out=True, draw_out_in=True):
 
         g = Group()
-        program = Program(fragment_data=_frag_data)
+        program = Program(fragment=_frag_data)
 
         for idx, ext in enumerate(versions):
 

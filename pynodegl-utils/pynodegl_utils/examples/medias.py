@@ -95,7 +95,7 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
     render.update_textures(tex0=t)
 
     if progress_bar:
-        p.set_fragment_data(pgbar_shader)
+        p.set_fragment(pgbar_shader)
         time_animkf = [AnimKeyFrameScalar(0, 0),
                        AnimKeyFrameScalar(cfg.duration, 1)]
         time = UniformScalar(anim=AnimationScalar(time_animkf))
@@ -121,7 +121,7 @@ def centered_masked_media(cfg):
     g = Group()
 
     q = Quad((-0.2, -0.2, 0), (0.4, 0.0, 0.0), (0.0, 0.4, 0.0))
-    p = Program(fragment_data=frag_data)
+    p = Program(fragment=frag_data)
     node = Render(q, p)
     node.add_glstates(GLStencilState(GL.GL_TRUE,
                                      0xFF,

@@ -86,7 +86,7 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_param_set(quad, "height", height);
 
     ngl_node_param_set(texture, "data_src", media);
-    ngl_node_param_set(program, "fragment_data", pgbar_shader);
+    ngl_node_param_set(program, "fragment", pgbar_shader);
     ngl_node_param_set(uniforms[0], "anim", time_anim);
     ngl_node_param_set(uniforms[1], "value", g_info.width / (double)g_info.height);
     ngl_node_param_set(uniforms[2], "value", 0.0);

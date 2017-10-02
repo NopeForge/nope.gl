@@ -41,7 +41,7 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
 
     sz = 1/3.
     q = Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
-    p = Program(fragment_data=frag_data)
+    p = Program(fragment=frag_data)
     node = Render(q, p)
     ucolor = UniformVec4(value=color)
     node.update_uniforms(blend_color=ucolor)
@@ -121,7 +121,7 @@ def animated_uniform(cfg):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
-    p = Program(fragment_data=animated_frag_data)
+    p = Program(fragment=animated_frag_data)
     ts = Render(q, p)
     ts.update_textures(tex0=t)
 

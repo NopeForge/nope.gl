@@ -251,7 +251,7 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     if (!s->program)
         return -1;
 
-    ngl_node_param_set(s->program, "fragment_data", fragment_shader_hwupload_oes_data);
+    ngl_node_param_set(s->program, "fragment", fragment_shader_hwupload_oes_data);
 
     s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE);
     if (!s->textures[0])
@@ -442,7 +442,7 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         if (!s->program)
             return -1;
 
-        ngl_node_param_set(s->program, "fragment_data", fragment_shader_hwupload_nv12_data);
+        ngl_node_param_set(s->program, "fragment", fragment_shader_hwupload_nv12_data);
 
         s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE);
         if (!s->textures[0])

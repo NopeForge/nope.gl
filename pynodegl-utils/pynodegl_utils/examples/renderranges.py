@@ -139,7 +139,7 @@ void main(void)
 
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p = Program()
-    p1_2 = Program(vertex_data=vertex, fragment_data=fragment)
+    p1_2 = Program(vertex=vertex, fragment=fragment)
 
     m1 = Media(cfg.medias[0].filename, name="media #1")
     m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name="media #2", start=transition_start)

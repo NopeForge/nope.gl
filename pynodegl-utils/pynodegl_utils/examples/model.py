@@ -140,7 +140,7 @@ def load_model(fp):
     return indexed_vertices, indexed_uvs, indexed_normals
 
 
-fragment_data = """
+fragment = """
 #version 100
 precision highp float;
 uniform mat3 ngl_normal_matrix;
@@ -171,7 +171,7 @@ def centered_model_media(cfg, n=0.5, model=None):
     q = Geometry(vertices, texcoords, normals)
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
-    p = Program(fragment_data=fragment_data)
+    p = Program(fragment=fragment)
     render = Render(q, p)
     render.update_textures(tex0=t)
     render.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))

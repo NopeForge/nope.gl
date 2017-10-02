@@ -14,7 +14,7 @@ from pynodegl_utils.misc import scene
 
 from OpenGL import GL
 
-fragment_data="""
+fragment="""
 #version 100
 precision mediump float;
 void main() {
@@ -36,7 +36,7 @@ def blending_test(cfg):
     g.add_children(ts)
 
     q = Quad((-0.1, 0.0, 0), (1.1, 0, 0), (0, 1, 0))
-    p = Program(fragment_data=fragment_data)
+    p = Program(fragment=fragment)
     ts = Render(q, p)
     ts.add_glstates(GLBlendState(GL.GL_TRUE,
                                  GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA,
@@ -44,7 +44,7 @@ def blending_test(cfg):
     g.add_children(ts)
 
     q = Quad((-1.0, 0.0, 0), (1.1, 0, 0), (0, 1, 0))
-    p = Program(fragment_data=fragment_data)
+    p = Program(fragment=fragment)
     ts = Render(q, p)
     ts.add_glstates(GLBlendState(GL.GL_TRUE,
                                  GL.GL_ONE, GL.GL_ONE_MINUS_SRC_ALPHA,
@@ -52,7 +52,7 @@ def blending_test(cfg):
     g.add_children(ts)
 
     q = Quad((-0.125, -0.125, 0), (0.25, 0, 0), (0, 0.25, 0))
-    p = Program(fragment_data=fragment_data)
+    p = Program(fragment=fragment)
     ts = Render(q, p)
     ts.add_glstates(GLBlendState(GL.GL_FALSE))
 

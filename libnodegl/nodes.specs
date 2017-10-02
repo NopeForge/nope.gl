@@ -184,8 +184,8 @@
 
 - Program:
     optional:
-        - [vertex_data, string]
-        - [fragment_data, string]
+        - [vertex, string]
+        - [fragment, string]
 
 - Quad:
     optional:

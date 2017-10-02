@@ -49,7 +49,7 @@ void main(void)
     vec4 t = texture2D(tex0_sampler, var_tex0_coords);
     gl_FragColor = vec4(mix(t.rgb, blend_color, 0.2), 1.0);
 }"""
-    p = Program(fragment_data=frag_data)
+    p = Program(fragment=frag_data)
 
     t = Texture(data_src=Media(cfg.medias[0].filename))
     cube_quads_info = _get_cube_quads()

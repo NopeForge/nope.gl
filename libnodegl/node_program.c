@@ -28,7 +28,7 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-static const char default_fragment_shader_data[] =
+static const char default_fragment_shader[] =
     "#version 100"                                                                      "\n"
     ""                                                                                  "\n"
     "precision mediump float;"                                                          "\n"
@@ -41,7 +41,7 @@ static const char default_fragment_shader_data[] =
     "    gl_FragColor = vec4(t.rgb, 1.0);"                                              "\n"
     "}";
 
-static const char default_vertex_shader_data[] =
+static const char default_vertex_shader[] =
     "#version 100"                                                                      "\n"
     "attribute vec4 ngl_position;"                                                      "\n"
     "attribute vec3 ngl_normal;"                                                        "\n"
@@ -64,8 +64,8 @@ static const char default_vertex_shader_data[] =
 
 #define OFFSET(x) offsetof(struct program, x)
 static const struct node_param program_params[] = {
-    {"vertex_data",   PARAM_TYPE_STR, OFFSET(vertex_data),   {.str=default_vertex_shader_data}},
-    {"fragment_data", PARAM_TYPE_STR, OFFSET(fragment_data), {.str=default_fragment_shader_data}},
+    {"vertex",   PARAM_TYPE_STR, OFFSET(vertex),   {.str=default_vertex_shader}},
+    {"fragment", PARAM_TYPE_STR, OFFSET(fragment), {.str=default_fragment_shader}},
     {NULL}
 };
 
@@ -93,7 +93,7 @@ static void get_##func##_info_log(const struct glfunctions *gl, GLuint id,      
 DEFINE_GET_INFO_LOG_FUNCTION(shader, Shader)
 DEFINE_GET_INFO_LOG_FUNCTION(program, Program)
 
-static GLuint load_program(struct ngl_node *node, const char *vertex_shader_data, const char *fragment_shader_data)
+static GLuint load_program(struct ngl_node *node, const char *vertex, const char *fragment)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -108,7 +108,7 @@ static GLuint load_program(struct ngl_node *node, const char *vertex_shader_data
     GLuint vertex_shader = ngli_glCreateShader(gl, GL_VERTEX_SHADER);
     GLuint fragment_shader = ngli_glCreateShader(gl, GL_FRAGMENT_SHADER);
 
-    ngli_glShaderSource(gl, vertex_shader, 1, &vertex_shader_data, NULL);
+    ngli_glShaderSource(gl, vertex_shader, 1, &vertex, NULL);
     ngli_glCompileShader(gl, vertex_shader);
 
     ngli_glGetShaderiv(gl, vertex_shader, GL_COMPILE_STATUS, &result);
@@ -117,7 +117,7 @@ static GLuint load_program(struct ngl_node *node, const char *vertex_shader_data
         goto fail;
     }
 
-    ngli_glShaderSource(gl, fragment_shader, 1, &fragment_shader_data, NULL);
+    ngli_glShaderSource(gl, fragment_shader, 1, &fragment, NULL);
     ngli_glCompileShader(gl, fragment_shader);
 
     ngli_glGetShaderiv(gl, fragment_shader, GL_COMPILE_STATUS, &result);
@@ -170,7 +170,7 @@ static int program_init(struct ngl_node *node)
 
     struct program *s = node->priv_data;
 
-    s->program_id = load_program(node, s->vertex_data, s->fragment_data);
+    s->program_id = load_program(node, s->vertex, s->fragment);
     if (!s->program_id)
         return -1;
 

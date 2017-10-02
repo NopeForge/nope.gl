@@ -35,7 +35,7 @@ void main(void)
     c = size * 1/2.
 
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
-    p = Program(fragment_data=frag_data)
+    p = Program(fragment=frag_data)
     node = Render(triangle, p)
     node.update_textures(tex0=Texture())
     animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
@@ -55,7 +55,7 @@ void main(void) {
 
     cfg.duration = 5
 
-    p = Program(fragment_data=frag_data)
+    p = Program(fragment=frag_data)
 
     fib = [0, 1, 1]
     for i in range(2, n):
@@ -192,7 +192,7 @@ void main()
     video_m = Media(media.filename)
     video_tex = Texture(data_src=video_m)
 
-    p = Program(fragment_data=frag_data)
+    p = Program(fragment=frag_data)
     render = Render(q, p)
     render.update_textures(tex0=audio_tex, tex1=video_tex)
     return render
