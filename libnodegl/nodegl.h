@@ -56,10 +56,15 @@ void ngl_log_set_min_level(int level);
 struct ngl_node;
 
 #define NGLI_FOURCC(a,b,c,d) (((uint32_t)(a))<<24 | (b)<<16 | (c)<<8 | (d))
+#define NGL_NODE_ANIMATEDBUFFERSCALAR   NGLI_FOURCC('A','B','f','1')
+#define NGL_NODE_ANIMATEDBUFFERVEC2     NGLI_FOURCC('A','B','f','2')
+#define NGL_NODE_ANIMATEDBUFFERVEC3     NGLI_FOURCC('A','B','f','3')
+#define NGL_NODE_ANIMATEDBUFFERVEC4     NGLI_FOURCC('A','B','f','4')
 #define NGL_NODE_ANIMATIONSCALAR        NGLI_FOURCC('A','n','m','1')
 #define NGL_NODE_ANIMATIONVEC2          NGLI_FOURCC('A','n','m','2')
 #define NGL_NODE_ANIMATIONVEC3          NGLI_FOURCC('A','n','m','3')
 #define NGL_NODE_ANIMATIONVEC4          NGLI_FOURCC('A','n','m','4')
+#define NGL_NODE_ANIMKEYFRAMEBUFFER     NGLI_FOURCC('A','K','F','B')
 #define NGL_NODE_ANIMKEYFRAMESCALAR     NGLI_FOURCC('A','K','F','1')
 #define NGL_NODE_ANIMKEYFRAMEVEC2       NGLI_FOURCC('A','K','F','2')
 #define NGL_NODE_ANIMKEYFRAMEVEC3       NGLI_FOURCC('A','K','F','3')

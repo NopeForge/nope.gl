@@ -66,6 +66,14 @@ static const struct node_param animkeyframevec4_params[] = {
     {NULL}
 };
 
+static const struct node_param animkeyframebuffer_params[] = {
+    {"time",        PARAM_TYPE_DBL,     OFFSET(time), .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"data",        PARAM_TYPE_DATA,    OFFSET(data)},
+    {"easing",      PARAM_TYPE_STR,     OFFSET(easing), {.str="linear"}},
+    {"easing_args", PARAM_TYPE_DBLLIST, OFFSET(args)},
+    {NULL}
+};
+
 #ifdef __ANDROID__
    #define log2(x)  (log(x) / log(2))
 #endif
@@ -433,6 +441,10 @@ static int animkeyframe_init(struct ngl_node *node)
         LOG(VERBOSE, "%s of type %s starting at %f for t=%f",
             node->class->name, easings[easing_id].name,
             s->scalar, s->time);
+    else if (node->class->id == NGL_NODE_ANIMKEYFRAMEBUFFER)
+        LOG(VERBOSE, "%s of type %s starting with t=%f (data size: %d)",
+            node->class->name, easings[easing_id].name,
+            s->time, s->data_size);
     else
         return -1;
 
@@ -459,10 +471,14 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
         ngli_bstr_print(b, ") ");
     }
 
+    if (node->class->id == NGL_NODE_ANIMKEYFRAMEBUFFER) {
+        ngli_bstr_print(b, "with data size of %dB", s->data_size);
+    } else {
     ngli_bstr_print(b, "with v=");
     const struct node_param *val_par = ngli_params_find(params, "value");
     ngli_assert(val_par);
     ngli_params_bstr_print_val(b, node->priv_data, val_par);
+    }
 
     char *ret = ngli_bstr_strdup(b);
     ngli_bstr_freep(&b);
@@ -503,4 +519,13 @@ const struct node_class ngli_animkeyframevec4_class = {
     .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframevec4_params,
+};
+
+const struct node_class ngli_animkeyframebuffer_class = {
+    .id        = NGL_NODE_ANIMKEYFRAMEBUFFER,
+    .name      = "AnimKeyFrameBuffer",
+    .init      = animkeyframe_init,
+    .info_str  = animkeyframe_info_str,
+    .priv_size = sizeof(struct animkeyframe),
+    .params    = animkeyframebuffer_params,
 };

@@ -1,11 +1,17 @@
+import array
 import math
 import random
 
+from OpenGL import GL
+
 from pynodegl import (
         AnimKeyFrameVec3,
+        AnimatedBufferVec3,
+        AnimKeyFrameBuffer,
         AnimationVec3,
         Camera,
         Circle,
+        Geometry,
         Group,
         Media,
         Program,
@@ -19,6 +25,55 @@ from pynodegl import (
 )
 
 from pynodegl_utils.misc import scene
+
+def _get_vertices(n, radius_func, offset=0):
+    vertices = []
+    step = 2 * math.pi / n
+    for i in range(n):
+        angle = (i + offset) * step
+        radius = radius_func()
+        x, y = math.sin(angle) * radius, math.cos(angle) * radius
+        vertices.append([x, y, 0])
+    return vertices
+
+
+@scene({'name': 'npoints', 'type': 'range', 'range': [3, 100]})
+def morphing(cfg, npoints=25):
+    cfg.duration = 1
+
+    frag = '''#version 100
+precision mediump float;
+void main(void)
+{
+    gl_FragColor = vec4(.9, .1, .3, 1.0);
+}'''
+
+    random.seed(0)
+
+    n, m = .1, .9
+    mid = n + (m-n)/2.
+
+    inner_rfunc = lambda: n
+    inner_vertices = _get_vertices(npoints, inner_rfunc)
+    outer_rfunc_0 = lambda: random.uniform(n, mid)
+    outer_rfunc_1 = lambda: random.uniform(mid, m)
+    outer_vertices_0 = _get_vertices(npoints, outer_rfunc_0, offset=.5)
+    outer_vertices_1 = _get_vertices(npoints, outer_rfunc_1, offset=.5)
+
+    animkf = []
+    for i, outer_vertices in enumerate([outer_vertices_0, outer_vertices_1, outer_vertices_0]):
+        vertices_data = array.array('f')
+        for inner_vertex, outer_vertex in zip(inner_vertices, outer_vertices):
+            vertices_data.extend(inner_vertex + outer_vertex)
+        vertices_data.extend(inner_vertices[0])
+        animkf.append(AnimKeyFrameBuffer(i*cfg.duration/2., vertices_data))
+    vertices = AnimatedBufferVec3(animkf)
+
+    geom = Geometry(vertices)
+    geom.set_draw_mode(GL.GL_LINE_STRIP)
+    p = Program(fragment=frag)
+    render = Render(geom, p)
+    return render
 
 @scene({'name': 'size', 'type': 'range', 'range': [0,1.5], 'unit_base': 1000})
 def triangle(cfg, size=0.5):

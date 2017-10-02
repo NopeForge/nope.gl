@@ -176,6 +176,11 @@ struct buffer {
     GLenum target;
     GLenum usage;
 
+    /* animatedbuffer */
+    struct ngl_node **animkf;
+    int nb_animkf;
+    int current_kf;
+
     GLuint buffer_id;
 };
 
@@ -331,6 +336,8 @@ struct animkeyframe {
     double time;
     float value[4];
     double scalar;
+    uint8_t *data;
+    int data_size;
     const char *easing;
     easing_function function;
     easing_function resolution;

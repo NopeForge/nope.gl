@@ -90,6 +90,7 @@ cmds = [
     # Buffer
     'glBindBuffer',
     'glBufferData',
+    'glBufferSubData',
     'glDeleteBuffers',
     'glGenBuffers',
 

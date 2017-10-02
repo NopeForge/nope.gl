@@ -122,6 +122,12 @@ static inline void ngli_glBufferData(const struct glfunctions *gl, GLenum target
     check_error_code(gl, "glBufferData");
 }
 
+static inline void ngli_glBufferSubData(const struct glfunctions *gl, GLenum target, GLintptr offset, GLsizeiptr size, const void * data)
+{
+    gl->BufferSubData(target, offset, size, data);
+    check_error_code(gl, "glBufferSubData");
+}
+
 static inline GLenum ngli_glCheckFramebufferStatus(const struct glfunctions *gl, GLenum target)
 {
     GLenum ret = gl->CheckFramebufferStatus(target);

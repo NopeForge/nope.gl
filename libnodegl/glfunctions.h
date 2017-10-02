@@ -27,6 +27,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*BlendFuncSeparate)(GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha);
     NGLI_GL_APIENTRY void (*BlitFramebuffer)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
     NGLI_GL_APIENTRY void (*BufferData)(GLenum target, GLsizeiptr size, const void * data, GLenum usage);
+    NGLI_GL_APIENTRY void (*BufferSubData)(GLenum target, GLintptr offset, GLsizeiptr size, const void * data);
     NGLI_GL_APIENTRY GLenum (*CheckFramebufferStatus)(GLenum target);
     NGLI_GL_APIENTRY void (*Clear)(GLbitfield mask);
     NGLI_GL_APIENTRY void (*ClearColor)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);

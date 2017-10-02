@@ -26,6 +26,7 @@ static const struct gldefinition {
     {"glBlendFuncSeparate", offsetof(struct glfunctions, BlendFuncSeparate), M},
     {"glBlitFramebuffer", offsetof(struct glfunctions, BlitFramebuffer), 0},
     {"glBufferData", offsetof(struct glfunctions, BufferData), M},
+    {"glBufferSubData", offsetof(struct glfunctions, BufferSubData), M},
     {"glCheckFramebufferStatus", offsetof(struct glfunctions, CheckFramebufferStatus), M},
     {"glClear", offsetof(struct glfunctions, Clear), M},
     {"glClearColor", offsetof(struct glfunctions, ClearColor), M},

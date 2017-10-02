@@ -8,6 +8,22 @@
         - [ranges, NodeList]
         - [name, string]
 
+- AnimatedBufferScalar:
+    optional:
+        - [animkf, NodeList]
+
+- AnimatedBufferVec2:
+    optional:
+        - [animkf, NodeList]
+
+- AnimatedBufferVec3:
+    optional:
+        - [animkf, NodeList]
+
+- AnimatedBufferVec4:
+    optional:
+        - [animkf, NodeList]
+
 - AnimationScalar:
     optional:
         - [keyframes, NodeList]
@@ -53,6 +69,14 @@
         - [time, double]
         - [value, vec4]
     optional:
+        - [easing, string]
+        - [easing_args, doubleList]
+
+- AnimKeyFrameBuffer:
+    constructors:
+        - [time, double]
+    optional:
+        - [data, data]
         - [easing, string]
         - [easing_args, doubleList]
 
