@@ -65,6 +65,15 @@ static float get_hue(const char *name)
     return (double)hash / (double)0xffffffff;
 }
 
+static int vec_is_set(uint8_t *base_ptr, const struct node_param *par)
+{
+    const int n = par->type - PARAM_TYPE_VEC2 + 2;
+    static const float zvec[4] = {0};
+    const float *v = (const float *)(base_ptr + par->offset);
+    const float *defv = par->def_value.vec ? par->def_value.vec : zvec;
+    return memcmp(v, defv, n * sizeof(*v));
+}
+
 static int should_print_par(uint8_t *priv, const struct node_param *par)
 {
     switch (par->type) {
@@ -80,22 +89,14 @@ static int should_print_par(uint8_t *priv, const struct node_param *par)
             const int64_t v = *(int64_t *)(priv + par->offset);
             return v != par->def_value.i64;
         }
-        case PARAM_TYPE_VEC2: {
-            const float *v = (const float *)(priv + par->offset);
-            return v[0] || v[1];
-        }
-        case PARAM_TYPE_VEC3: {
-            const float *v = (const float *)(priv + par->offset);
-            return v[0] || v[1] || v[2];
-        }
-        case PARAM_TYPE_VEC4: {
-            const float *v = (const float *)(priv + par->offset);
-            return v[0] || v[1] || v[2] || v[4];
-        }
         case PARAM_TYPE_STR: {
             const char *s = *(const char **)(priv + par->offset);
             return s && (!par->def_value.str || strcmp(s, par->def_value.str));
         }
+        case PARAM_TYPE_VEC2:
+        case PARAM_TYPE_VEC3:
+        case PARAM_TYPE_VEC4:
+            return vec_is_set(priv, par);
     }
     return 0;
 }
