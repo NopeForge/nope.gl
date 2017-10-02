@@ -37,6 +37,7 @@ static const struct node_param circle_params[] = {
 
 static int circle_init(struct ngl_node *node)
 {
+    int ret = -1;
     struct geometry *s = node->priv_data;
 
     if (s->npoints < 3) {
@@ -49,7 +50,7 @@ static int circle_init(struct ngl_node *node)
     float *normals   = calloc(s->npoints, sizeof(*normals)   * 3);
 
     if (!vertices || !texcoords || !normals)
-        return -1;
+        goto end;
 
     for (int i = 0; i < s->npoints; i++) {
         const float angle = i * 2.f * M_PI / s->npoints;
@@ -87,12 +88,18 @@ static int circle_init(struct ngl_node *node)
     s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx, s->npoints);
 
     if (!s->vertices_buffer || !s->texcoords_buffer || !s->indices_buffer || !s->normals_buffer)
-        return -1;
+        goto end;
 
     s->draw_mode = GL_TRIANGLE_FAN;
     s->draw_type = GL_UNSIGNED_INT;
 
-    return 0;
+    ret = 0;
+
+end:
+    free(vertices);
+    free(texcoords);
+    free(normals);
+    return ret;
 }
 
 #define NODE_UNREFP(node) do {                    \
