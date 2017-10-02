@@ -45,10 +45,16 @@
                                             NGL_NODE_BUFFERVEC4,    \
                                             -1}
 
+#define GEOMETRY_TYPES_LIST (const int[]){NGL_NODE_CIRCLE,          \
+                                          NGL_NODE_GEOMETRY,        \
+                                          NGL_NODE_QUAD,            \
+                                          NGL_NODE_TRIANGLE,        \
+                                          -1}
+
 #define OFFSET(x) offsetof(struct render, x)
 static const struct node_param render_params[] = {
     {"geometry", PARAM_TYPE_NODE, OFFSET(geometry), .flags=PARAM_FLAG_CONSTRUCTOR,
-                 .node_types=(const int[]){NGL_NODE_QUAD, NGL_NODE_TRIANGLE, NGL_NODE_GEOMETRY, -1}},
+                 .node_types=GEOMETRY_TYPES_LIST},
     {"program",  PARAM_TYPE_NODE, OFFSET(program), .flags=PARAM_FLAG_CONSTRUCTOR,
                  .node_types=(const int[]){NGL_NODE_PROGRAM, -1}},
     {"textures", PARAM_TYPE_NODEDICT, OFFSET(textures),

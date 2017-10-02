@@ -37,6 +37,7 @@
     action(NGL_NODE_BUFFERVEC3,             ngli_buffervec3_class)              \
     action(NGL_NODE_BUFFERVEC4,             ngli_buffervec4_class)              \
     action(NGL_NODE_CAMERA,                 ngli_camera_class)                  \
+    action(NGL_NODE_CIRCLE,                 ngli_circle_class)                  \
     action(NGL_NODE_FPS,                    ngli_fps_class)                     \
     action(NGL_NODE_GEOMETRY,               ngli_geometry_class)                \
     action(NGL_NODE_GLBLENDSTATE,           ngli_glblendstate_class)            \

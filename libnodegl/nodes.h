@@ -150,6 +150,10 @@ struct geometry {
     float triangle_edges[9];
     float triangle_uvs[6];
 
+    /* circle params */
+    double radius;
+    int npoints;
+
     /* geometry params */
     struct ngl_node *vertices_buffer;
     struct ngl_node *texcoords_buffer;

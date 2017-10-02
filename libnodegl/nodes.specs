@@ -112,6 +112,11 @@
         - [pipe_width, int]
         - [pipe_height, int]
 
+- Circle:
+    optional:
+        - [radius, double]
+        - [npoints, int]
+
 - FPS:
     constructors:
         - [child, Node]
