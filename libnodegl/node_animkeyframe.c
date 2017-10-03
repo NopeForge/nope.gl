@@ -474,10 +474,10 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
     if (node->class->id == NGL_NODE_ANIMKEYFRAMEBUFFER) {
         ngli_bstr_print(b, "with data size of %dB", s->data_size);
     } else {
-    ngli_bstr_print(b, "with v=");
-    const struct node_param *val_par = ngli_params_find(params, "value");
-    ngli_assert(val_par);
-    ngli_params_bstr_print_val(b, node->priv_data, val_par);
+        ngli_bstr_print(b, "with v=");
+        const struct node_param *val_par = ngli_params_find(params, "value");
+        ngli_assert(val_par);
+        ngli_params_bstr_print_val(b, node->priv_data, val_par);
     }
 
     char *ret = ngli_bstr_strdup(b);
