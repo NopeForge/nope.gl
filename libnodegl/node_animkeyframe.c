@@ -198,7 +198,7 @@ static easing_type exp_out_in_resolution(easing_type v, int args_nb, const easin
 
 
 // Bounce
-static easing_type bounce_out_helper(easing_type t, easing_type c, easing_type a)
+static easing_type bounce_helper(easing_type t, easing_type c, easing_type a)
 {
     if (t == 1.0) {
         return c;
@@ -219,13 +219,13 @@ static easing_type bounce_out_helper(easing_type t, easing_type c, easing_type a
 static easing_type bounce_in(easing_type t, int args_nb, const easing_type *args)
 {
     const easing_type a = DEFAULT_PARAMETER(0, 1.70158);
-    return 1.0 - bounce_out_helper(1.0 - t, 1.0, a);
+    return 1.0 - bounce_helper(1.0 - t, 1.0, a);
 }
 
 static easing_type bounce_out(easing_type t, int args_nb, const easing_type *args)
 {
     const easing_type a = DEFAULT_PARAMETER(0, 1.70158);
-    return bounce_out_helper(t, 1.0, a);
+    return bounce_helper(t, 1.0, a);
 }
 
 
