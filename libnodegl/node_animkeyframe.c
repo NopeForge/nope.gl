@@ -78,39 +78,6 @@ static const struct node_param animkeyframebuffer_params[] = {
    #define log2(x)  (log(x) / log(2))
 #endif
 
-// Create a easing :
-// 1) define function with optional default parameters
-// 2) define optional function resolution with optional default parameters
-// 3) need to add it in easings[] :
-//      {"function",          function,         function_resolution},
-//
-// Template without parameters :
-// static easing_type function(easing_type t, int args_nb, const easing_type *args)
-// {
-//     return f(t);
-// }
-// static easing_type function_resolution(easing_type v, int args_nb, const easing_type *args)
-// {
-//     return r(v);
-// }
-//
-// template with parameters :
-// static easing_type function(easing_type t, int args_nb, const easing_type *args)
-// {
-//     const easing_type my_paramater = DEFAULT_PARAMETER(0, my_paramater, 1.0)
-//     const easing_type second_paramater = DEFAULT_PARAMETER(1, second_paramater, 0.5)
-//     return f(t, my_paramater, second_parameter);
-// }
-// static easing_type function_resolution(easing_type v, int args_nb, const easing_type *args)
-// {
-//     const easing_type my_paramater = DEFAULT_PARAMETER(0, my_paramater, 1.0)
-//     const easing_type second_paramater = DEFAULT_PARAMETER(1, second_paramater, 0.5)
-//     return r(v, my_paramater, second_parameter);
-// }
-
-
-// useful macros to declare simple easings using only one line
-// Transformations in/out/in_out/out_in
 #define TRANSFORM_IN(function) function(x)
 #define TRANSFORM_OUT(function) (1.0 - function(1.0 - x))
 #define TRANSFORM_IN_OUT(function) (x < 0.5 ? function(2.0 * x) / 2.0 \
@@ -118,21 +85,18 @@ static const struct node_param animkeyframebuffer_params[] = {
 #define TRANSFORM_OUT_IN(function) (x < 0.5 ? (1.0 - function(1.0 - 2.0 * x)) / 2.0 \
                                             : (1.0 + function(2.0 * x - 1.0)) / 2.0)
 
-// Easing or resolution declaration
 #define DECLARE_EASING(base_name, name, transform)                            \
 static easing_type name(easing_type x, int args_nb, const easing_type *args)  \
 {                                                                             \
     return transform(base_name##_helper);                                     \
 }
 
-// Easing or resolution helper
 #define DECLARE_HELPER(base_name, formula)                              \
 static inline easing_type base_name##_helper(easing_type x)             \
 {                                                                       \
     return formula;                                                     \
 }
 
-// Declarations of all easings or resolutions
 #define DECLARE_EASINGS(base_name, suffix, formula) \
 DECLARE_HELPER(base_name##suffix, formula) \
 DECLARE_EASING(base_name##suffix, base_name##_in##suffix,       TRANSFORM_IN)       \
@@ -140,16 +104,12 @@ DECLARE_EASING(base_name##suffix, base_name##_out##suffix,      TRANSFORM_OUT)  
 DECLARE_EASING(base_name##suffix, base_name##_in_out##suffix,   TRANSFORM_IN_OUT)   \
 DECLARE_EASING(base_name##suffix, base_name##_out_in##suffix,   TRANSFORM_OUT_IN)
 
-// Easings + resolutions declarations
 #define DECLARE_EASINGS_WITH_RESOLUTIONS(base_name, direct_function, resolution_function)   \
 DECLARE_EASINGS(base_name,            , direct_function)                                    \
 DECLARE_EASINGS(base_name, _resolution, resolution_function)
 
-// Default parameter(s)
 #define DEFAULT_PARAMETER(index, default_value) args_nb > index ? args[index] : default_value
 
-
-// Easings
 
 // Linear
 static easing_type linear(easing_type t, int args_nb, const easing_type *args)
