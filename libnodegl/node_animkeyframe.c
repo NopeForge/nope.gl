@@ -237,7 +237,7 @@ static easing_type elastic_in_helper(easing_type t, easing_type b, easing_type c
     easing_type t_adj = t / d;
     if (t_adj == 1.0)
         return b + c;
-    easing_type s = 0.0;
+    easing_type s;
     if (a < fabs(c)) {
         a = c;
         s = p / 4.0;
@@ -261,7 +261,7 @@ static easing_type elastic_out_helper(easing_type t, easing_type b, easing_type 
         return 0.0;
     if (t >= 1.0)
         return c;
-    easing_type s = 0.0;
+    easing_type s;
     if (a < c) {
         a = c;
         s = p / 4.0;
