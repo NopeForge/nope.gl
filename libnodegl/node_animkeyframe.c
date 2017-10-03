@@ -97,14 +97,14 @@ static const struct node_param animkeyframebuffer_params[] = {
 // template with parameters :
 // static easing_type function(easing_type t, int args_nb, const easing_type *args)
 // {
-//     DEFAULT_PARAMETER(0, my_paramater, 1.0)
-//     DEFAULT_PARAMETER(1, second_paramater, 0.5)
+//     const easing_type my_paramater = DEFAULT_PARAMETER(0, my_paramater, 1.0)
+//     const easing_type second_paramater = DEFAULT_PARAMETER(1, second_paramater, 0.5)
 //     return f(t, my_paramater, second_parameter);
 // }
 // static easing_type function_resolution(easing_type v, int args_nb, const easing_type *args)
 // {
-//     DEFAULT_PARAMETER(0, my_paramater, 1.0)
-//     DEFAULT_PARAMETER(1, second_paramater, 0.5)
+//     const easing_type my_paramater = DEFAULT_PARAMETER(0, my_paramater, 1.0)
+//     const easing_type second_paramater = DEFAULT_PARAMETER(1, second_paramater, 0.5)
 //     return r(v, my_paramater, second_parameter);
 // }
 
@@ -146,7 +146,7 @@ DECLARE_EASINGS(base_name,            , direct_function)                        
 DECLARE_EASINGS(base_name, _resolution, resolution_function)
 
 // Default parameter(s)
-#define DEFAULT_PARAMETER(index, name, default_value) easing_type name = args_nb > index ? args[index] : default_value
+#define DEFAULT_PARAMETER(index, default_value) args_nb > index ? args[index] : default_value
 
 
 // Easings
@@ -182,29 +182,29 @@ static inline easing_type exp_resolution_helper(easing_type x, easing_type exp_b
 
 static easing_type exp_in(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, exp_base, 1024.0);
+    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     return exp_helper(t, exp_base);
 }
 static easing_type exp_in_resolution(easing_type v, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, exp_base, 1024.0);
+    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     return exp_resolution_helper(v, exp_base);
 }
 
 static easing_type exp_out(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, exp_base, 1024.0);
+    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     return 1.0 - exp_helper(1.0 - t, exp_base);
 }
 static easing_type exp_out_resolution(easing_type v, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, exp_base, 1024.0);
+    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     return 1.0 - exp_resolution_helper(1.0 - v, exp_base);
 }
 
 static easing_type exp_in_out(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, exp_base, 1024.0);
+    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     if (t < 0.5)
         return exp_helper(2.0 * t, exp_base) / 2.0;
     else
@@ -212,7 +212,7 @@ static easing_type exp_in_out(easing_type t, int args_nb, const easing_type *arg
 }
 static easing_type exp_in_out_resolution(easing_type v, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, exp_base, 1024.0);
+    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     if (v < 0.5)
         return exp_resolution_helper(2.0 * v, exp_base) / 2.0;
     else
@@ -221,7 +221,7 @@ static easing_type exp_in_out_resolution(easing_type v, int args_nb, const easin
 
 static easing_type exp_out_in(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, exp_base, 1024.0);
+    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     if (t < 0.5)
         return (1.0 - exp_helper(1.0 - 2.0 * t, exp_base)) / 2.0;
     else
@@ -229,7 +229,7 @@ static easing_type exp_out_in(easing_type t, int args_nb, const easing_type *arg
 }
 static easing_type exp_out_in_resolution(easing_type v, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, exp_base, 1024.0);
+    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     if (v < 0.5)
         return (1.0 - exp_resolution_helper(1.0 - 2.0 * v, exp_base)) / 2.0;
     else
@@ -258,13 +258,13 @@ static easing_type bounce_out_helper(easing_type t, easing_type c, easing_type a
 
 static easing_type bounce_in(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, a, 1.70158);
+    const easing_type a = DEFAULT_PARAMETER(0, 1.70158);
     return 1.0 - bounce_out_helper(1.0 - t, 1.0, a);
 }
 
 static easing_type bounce_out(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, a, 1.70158);
+    const easing_type a = DEFAULT_PARAMETER(0, 1.70158);
     return bounce_out_helper(t, 1.0, a);
 }
 
@@ -290,8 +290,8 @@ static easing_type elastic_in_helper(easing_type t, easing_type b, easing_type c
 
 static easing_type elastic_in(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, amplitude, 0.1);
-    DEFAULT_PARAMETER(1, period, 0.25);
+    const easing_type amplitude = DEFAULT_PARAMETER(0, 0.1);
+    const easing_type period    = DEFAULT_PARAMETER(1, 0.25);
     return elastic_in_helper(t, 0.0, 1.0, 1.0, amplitude, period);
 }
 
@@ -313,8 +313,8 @@ static easing_type elastic_out_helper(easing_type t, easing_type b, easing_type 
 
 static easing_type elastic_out(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, amplitude, 0.1);
-    DEFAULT_PARAMETER(1, period, 0.25);
+    const easing_type amplitude = DEFAULT_PARAMETER(0, 0.1);
+    const easing_type period    = DEFAULT_PARAMETER(1, 0.25);
     return elastic_out_helper(t, 0.0, 1.0, 1.0, amplitude, period);
 }
 
@@ -322,20 +322,20 @@ static easing_type elastic_out(easing_type t, int args_nb, const easing_type *ar
 // Back
 static easing_type back_in(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, s, 1.70158);
+    const easing_type s = DEFAULT_PARAMETER(0, 1.70158);
     return t * t * ((s + 1.0) * t - s);
 }
 
 static easing_type back_out(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, s, 1.70158);
+    const easing_type s = DEFAULT_PARAMETER(0, 1.70158);
     t -= 1.0;
     return t * t * ((s + 1.0) * t + s) + 1.0;
 }
 
 static easing_type back_in_out(easing_type t, int args_nb, const easing_type *args)
 {
-    DEFAULT_PARAMETER(0, s, 1.70158);
+    easing_type s = DEFAULT_PARAMETER(0, 1.70158);
     t *= 2.0;
     if (t < 1.0) {
         s *= 1.525;
