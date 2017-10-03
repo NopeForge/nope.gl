@@ -200,11 +200,11 @@ static easing_type exp_out_in_resolution(easing_type v, int args_nb, const easin
 // Bounce
 static easing_type bounce_out_helper(easing_type t, easing_type c, easing_type a)
 {
-    if (t == 1.0)
+    if (t == 1.0) {
         return c;
-    if (t < 4.0 / 11.0)
+    } else if (t < 4.0 / 11.0) {
         return c * (7.5625 * t * t);
-    if (t < 8.0 / 11.0) {
+    } else if (t < 8.0 / 11.0) {
         t -= 6.0 / 11.0;
         return -a * (1.0 - (7.5625 * t * t + 0.75)) + c;
     } else if (t < 10.0 / 11.0) {
