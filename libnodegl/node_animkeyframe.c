@@ -75,7 +75,7 @@ static const struct node_param animkeyframebuffer_params[] = {
 };
 
 #ifdef __ANDROID__
-   #define log2(x)  (log(x) / log(2))
+#define log2(x)  (log(x) / log(2))
 #endif
 
 #define TRANSFORM_IN(function) function(x)
