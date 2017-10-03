@@ -295,14 +295,11 @@ static easing_type back_out(easing_type t, int args_nb, const easing_type *args)
 
 static easing_type back_in_out(easing_type t, int args_nb, const easing_type *args)
 {
-    easing_type s = DEFAULT_PARAMETER(0, 1.70158);
+    const easing_type s = DEFAULT_PARAMETER(0, 1.70158) * 1.525;
     t *= 2.0;
-    if (t < 1.0) {
-        s *= 1.525;
+    if (t < 1.0)
         return t * t * ((s + 1.0) * t - s) / 2.0;
-    }
     t -= 2.0;
-    s *= 1.525;
     return (t * t * ((s + 1.0) * t + s) + 2.0) / 2.0;
 }
 
