@@ -52,8 +52,9 @@ static int circle_init(struct ngl_node *node)
     if (!vertices || !texcoords || !normals)
         goto end;
 
+    const float step = 2.f * M_PI / s->npoints;
     for (int i = 0; i < s->npoints; i++) {
-        const float angle = i * 2.f * M_PI / s->npoints;
+        const float angle = i * step;
         const float x = sin(angle) * s->radius;
         const float y = cos(angle) * s->radius;
         vertices[i*3 + 0] = x;
