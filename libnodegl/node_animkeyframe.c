@@ -111,15 +111,18 @@ DECLARE_EASINGS(base_name, _resolution, resolution_function)
 #define DEFAULT_PARAMETER(index, default_value) args_nb > index ? args[index] : default_value
 
 
-// Linear
+/* Linear */
+
 static easing_type linear(easing_type t, int args_nb, const easing_type *args)
 {
     return t;
 }
+
 static easing_type linear_resolution(easing_type v, int args_nb, const easing_type *args)
 {
     return v;
 }
+
 
 DECLARE_EASINGS_WITH_RESOLUTIONS(quadratic, x * x ,             sqrt(x))
 DECLARE_EASINGS_WITH_RESOLUTIONS(cubic,     x * x * x,          pow(x, 1.0 / 3.0))
@@ -130,14 +133,16 @@ DECLARE_EASINGS_WITH_RESOLUTIONS(sinus, 1.0 - cos(x * M_PI / 2.0), acos(1.0 - x)
 DECLARE_EASINGS_WITH_RESOLUTIONS(circular, 1.0 - sqrt(1.0 - x * x), sqrt(x*(2.0 - x)))
 
 
-// Exponential
+/* Exponential */
+
 static inline easing_type exp_helper(easing_type x, easing_type exp_base)
 {
     return (pow(exp_base, x) - 1.0) / (exp_base - 1.0);
 }
+
 static inline easing_type exp_resolution_helper(easing_type x, easing_type exp_base)
 {
-    return log2(x * (exp_base - 1.0) + 1.0 ) / log2(exp_base);
+    return log2(x * (exp_base - 1.0) + 1.0) / log2(exp_base);
 }
 
 static easing_type exp_in(easing_type t, int args_nb, const easing_type *args)
@@ -145,6 +150,7 @@ static easing_type exp_in(easing_type t, int args_nb, const easing_type *args)
     const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     return exp_helper(t, exp_base);
 }
+
 static easing_type exp_in_resolution(easing_type v, int args_nb, const easing_type *args)
 {
     const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
@@ -156,6 +162,7 @@ static easing_type exp_out(easing_type t, int args_nb, const easing_type *args)
     const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
     return 1.0 - exp_helper(1.0 - t, exp_base);
 }
+
 static easing_type exp_out_resolution(easing_type v, int args_nb, const easing_type *args)
 {
     const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
@@ -170,6 +177,7 @@ static easing_type exp_in_out(easing_type t, int args_nb, const easing_type *arg
     else
         return 1.0 - exp_helper(2.0 * (1.0 - t), exp_base) / 2.0;
 }
+
 static easing_type exp_in_out_resolution(easing_type v, int args_nb, const easing_type *args)
 {
     const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
@@ -187,6 +195,7 @@ static easing_type exp_out_in(easing_type t, int args_nb, const easing_type *arg
     else
         return (1.0 + exp_helper(2.0 * t - 1.0, exp_base)) / 2.0;
 }
+
 static easing_type exp_out_in_resolution(easing_type v, int args_nb, const easing_type *args)
 {
     const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
@@ -197,7 +206,8 @@ static easing_type exp_out_in_resolution(easing_type v, int args_nb, const easin
 }
 
 
-// Bounce
+/* Bounce */
+
 static easing_type bounce_helper(easing_type t, easing_type c, easing_type a)
 {
     if (t == 1.0) {
@@ -229,7 +239,8 @@ static easing_type bounce_out(easing_type t, int args_nb, const easing_type *arg
 }
 
 
-// Elastic
+/* Elastic */
+
 static easing_type elastic_in_helper(easing_type t, easing_type b, easing_type c, easing_type d, easing_type a, easing_type p)
 {
     if (t == 0.0)
@@ -268,7 +279,7 @@ static easing_type elastic_out_helper(easing_type t, easing_type b, easing_type 
     } else {
         s = p / (2.0 * M_PI) * asin(c / a);
     }
-    return a * exp2(-10.0 * t) * sin((t - s) * (2 * M_PI)/p ) + c;
+    return a * exp2(-10.0 * t) * sin((t - s) * (2 * M_PI) / p) + c;
 }
 
 static easing_type elastic_out(easing_type t, int args_nb, const easing_type *args)
@@ -279,7 +290,8 @@ static easing_type elastic_out(easing_type t, int args_nb, const easing_type *ar
 }
 
 
-// Back
+/* Back */
+
 static easing_type back_in(easing_type t, int args_nb, const easing_type *args)
 {
     const easing_type s = DEFAULT_PARAMETER(0, 1.70158);
