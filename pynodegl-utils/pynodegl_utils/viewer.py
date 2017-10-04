@@ -1008,7 +1008,7 @@ def run():
                         help='set the module name containing the scene functions')
     parser.add_argument('-a', dest='assets_dir',
                         help='set the assets directory to be used by the scene functions')
-    parser.add_argument('--gl-backend', dest='glbackend', choices=('gl', 'gles'),
+    parser.add_argument('--gl-backend', dest='glbackend', choices=('gl', 'gles'), default='gl',
                         help='select the GL rendering backend')
     pargs = parser.parse_args(sys.argv[1:])
 
