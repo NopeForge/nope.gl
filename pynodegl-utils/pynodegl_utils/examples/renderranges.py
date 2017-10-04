@@ -89,6 +89,8 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
        {'name': 'transition_duration', 'type': 'range', 'range': [0, 30]})
 def simple_transition(cfg, transition_start=2, transition_duration=4):
 
+    cfg.duration = transition_start*2 + transition_duration
+
     vertex='''
 #version 100
 attribute vec4 ngl_position;
