@@ -160,8 +160,11 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.view_y = int((screen_height - self.view_height) / 2.0)
 
     def initializeGL(self):
+        api = ngl.GLAPI_OPENGL3
+        if self.context().isOpenGLES():
+            api = ngl.GLAPI_OPENGLES2
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
-        self._viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
+        self._viewer.configure(ngl.GLPLATFORM_AUTO, api)
 
 
 class _ExportView(QtWidgets.QWidget):
