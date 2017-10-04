@@ -1005,9 +1005,11 @@ def run():
                         help='set the module name containing the scene functions')
     parser.add_argument('-a', dest='assets_dir',
                         help='set the assets directory to be used by the scene functions')
+    parser.add_argument('--gl-backend', dest='glbackend', choices=('gl', 'gles'),
+                        help='select the GL rendering backend')
     pargs = parser.parse_args(sys.argv[1:])
 
-    QtGui.QSurfaceFormat.setDefaultFormat(get_gl_format())
+    QtGui.QSurfaceFormat.setDefaultFormat(get_gl_format(renderable=pargs.glbackend))
 
     app = QtWidgets.QApplication(sys.argv)
     window = _MainWindow(pargs.module, pargs.assets_dir)
