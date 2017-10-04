@@ -68,10 +68,8 @@ static float get_hue(const char *name)
 static int vec_is_set(uint8_t *base_ptr, const struct node_param *par)
 {
     const int n = par->type - PARAM_TYPE_VEC2 + 2;
-    static const float zvec[4] = {0};
     const float *v = (const float *)(base_ptr + par->offset);
-    const float *defv = par->def_value.vec ? par->def_value.vec : zvec;
-    return memcmp(v, defv, n * sizeof(*v));
+    return memcmp(v, par->def_value.vec, n * sizeof(*v));
 }
 
 static int should_print_par(uint8_t *priv, const struct node_param *par)
