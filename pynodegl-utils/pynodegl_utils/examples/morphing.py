@@ -85,7 +85,7 @@ void main(void)
 
 @scene({'name': 'npoints', 'type': 'range', 'range': [3, 100]})
 def urchin(cfg, npoints=25):
-    cfg.duration = 1
+    cfg.duration = 5
 
     frag = '''#version 100
 precision mediump float;
@@ -106,24 +106,26 @@ void main(void)
             vertices.append([x, y, 0])
         return vertices
 
-
+    k = 16
     n, m = .1, .9
-    mid = n + (m-n)/2.
 
     inner_rfunc = lambda: n
     inner_vertices = get_vertices(npoints, inner_rfunc)
-    outer_rfunc_0 = lambda: random.uniform(n, mid)
-    outer_rfunc_1 = lambda: random.uniform(mid, m)
-    outer_vertices_0 = get_vertices(npoints, outer_rfunc_0, offset=.5)
-    outer_vertices_1 = get_vertices(npoints, outer_rfunc_1, offset=.5)
 
-    animkf = []
-    for i, outer_vertices in enumerate([outer_vertices_0, outer_vertices_1, outer_vertices_0]):
+    vdata = []
+    for i in range(k):
+        outer_rfunc = lambda: random.uniform(n, m)
+        outer_vertices = get_vertices(npoints, outer_rfunc, offset=.5)
         vertices_data = array.array('f')
         for inner_vertex, outer_vertex in zip(inner_vertices, outer_vertices):
             vertices_data.extend(inner_vertex + outer_vertex)
         vertices_data.extend(inner_vertices[0])
-        animkf.append(AnimKeyFrameBuffer(i*cfg.duration/2., vertices_data))
+        vdata.append(vertices_data)
+
+    animkf = []
+    for i, v in enumerate(vdata + [vdata[0]]):
+        animkf.append(AnimKeyFrameBuffer(i*cfg.duration/float(k), v))
+
     vertices = AnimatedBufferVec3(animkf)
 
     geom = Geometry(vertices)
