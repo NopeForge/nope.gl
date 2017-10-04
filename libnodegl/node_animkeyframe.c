@@ -221,7 +221,7 @@ static easing_type bounce_helper(easing_type t, easing_type c, easing_type a)
         t -= 9.0 / 11.0;
         return -a * (1.0 - (7.5625 * t * t + 0.9375)) + c;
     } else {
-        t -= (21.0 / 22.0);
+        t -= 21.0 / 22.0;
         return -a * (1.0 - (7.5625 * t * t + 0.984375)) + c;
     }
 }
