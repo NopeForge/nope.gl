@@ -6,9 +6,7 @@ from pynodegl import (
         AnimKeyFrameVec3,
         AnimationScalar,
         AnimationVec3,
-        BufferVec2,
-        BufferVec3,
-        Geometry,
+        Circle,
         GLColorState,
         GLState,
         GLStencilState,
@@ -20,7 +18,6 @@ from pynodegl import (
         Rotate,
         Scale,
         Texture,
-        Triangle,
         UniformScalar,
 )
 
@@ -163,31 +160,18 @@ def centered_masked_media(cfg):
     g.add_children(node)
     return g
 
-@scene({'name': 'n', 'type': 'range', 'range': [0,1], 'unit_base': 1000},
-       {'name': 'k', 'type': 'range', 'range': [3,50]})
-def centered_geometry_media(cfg, n=0.9, k=5):
-    cfg.duration = cfg.medias[0].duration
 
-    vertices_data = array.array('f')
-    texcoords_data = array.array('f')
-    for i in range(k):
-        angle = i * 2 * math.pi / k
-        x, y = math.sin(angle) * n, math.cos(angle) * n
-        vertices_data.extend([x, y, 0])
-        texcoords_data.extend([(x+1)/2, (1-y)/2])
-
-    vertices = BufferVec3(data=vertices_data)
-    texcoords = BufferVec2(data=texcoords_data)
-
-    q = Geometry(vertices, texcoords)
-    q.set_draw_mode(GL.GL_TRIANGLE_FAN)
-
+@scene({'name': 'npoints', 'type': 'range', 'range': [3, 300]},
+       {'name': 'radius', 'type': 'range', 'range': [0.01, 5], 'unit_base': 100})
+def media_in_circle(cfg, npoints=64, radius=0.5):
+    circle = Circle(npoints=npoints, radius=radius)
     m = Media(cfg.medias[0].filename)
     t = Texture(data_src=m)
     p = Program()
-    render = Render(q, p)
+    render = Render(circle, p)
     render.update_textures(tex0=t)
     return render
+
 
 @scene({'name': 'speed', 'type': 'range', 'range': [0.01,2], 'unit_base': 1000})
 def playback_speed(cfg, speed=1.0):

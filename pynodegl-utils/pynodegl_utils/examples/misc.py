@@ -13,7 +13,6 @@ from pynodegl import (
         BufferVec2,
         BufferVec3,
         Camera,
-        Circle,
         Compute,
         ComputeProgram,
         Geometry,
@@ -56,17 +55,6 @@ void main(void)
               AnimKeyFrameVec3(cfg.duration, (0, 0, -360*2))]
     node = Rotate(node, anim=AnimationVec3(animkf))
     return node
-
-@scene({'name': 'npoints', 'type': 'range', 'range': [3, 300]},
-       {'name': 'radius', 'type': 'range', 'range': [0.01, 5], 'unit_base': 100})
-def circle(cfg, npoints=64, radius=0.5):
-    circle = Circle(npoints=npoints, radius=radius)
-    m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
-    p = Program()
-    render = Render(circle, p)
-    render.update_textures(tex0=t)
-    return render
 
 @scene({'name': 'n', 'type': 'range', 'range': [2,10]})
 def fibo(cfg, n=8):
