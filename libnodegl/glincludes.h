@@ -54,14 +54,14 @@
 #endif
 
 #if NGL_GLES2_COMPAT_INCLUDES
-# define GL_MAJOR_VERSION  0x821B
-# define GL_MINOR_VERSION  0x821C
-# define GL_NUM_EXTENSIONS 0x821D
-# define GL_RED            GL_LUMINANCE
-# define GL_R32F           0x822E
-# define GL_READ_ONLY      0x88B8
-# define GL_WRITE_ONLY     0x88B9
-# define GL_READ_WRITE     0x88BA
+# define GL_MAJOR_VERSION                      0x821B
+# define GL_MINOR_VERSION                      0x821C
+# define GL_NUM_EXTENSIONS                     0x821D
+# define GL_RED                                GL_LUMINANCE
+# define GL_R32F                               0x822E
+# define GL_READ_ONLY                          0x88B8
+# define GL_WRITE_ONLY                         0x88B9
+# define GL_READ_WRITE                         0x88BA
 # define GL_STREAM_READ                        0x88E1
 # define GL_STREAM_COPY                        0x88E2
 # define GL_STATIC_READ                        0x88E5
