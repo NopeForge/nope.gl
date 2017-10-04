@@ -769,6 +769,12 @@ class _Toolbar(QtWidgets.QWidget):
 
 class _ScriptsManager(QtCore.QObject):
 
+    MODULES_BLACKLIST = [
+        'numpy',
+        'threading',
+        'watchdog',
+    ]
+
     scripts_changed = QtCore.pyqtSignal(list, name='scriptsChanged')
     error = QtCore.pyqtSignal(str)
 
@@ -788,6 +794,12 @@ class _ScriptsManager(QtCore.QObject):
         self._event_handler.on_any_event = self._on_any_event
         self._observer = Observer()
         self._observer.start()
+
+    def _mod_is_blacklisted(self, mod):
+        for bl_mod in self.MODULES_BLACKLIST:
+            if mod.startswith(bl_mod):
+                return True
+        return False
 
     def start(self):
         self._reload_scripts(initial_import=True)
@@ -862,7 +874,7 @@ class _ScriptsManager(QtCore.QObject):
 
     def _import_hook(self, name, globals={}, locals={}, fromlist=[], level=-1):
         ret = self._builtin_import(name, globals, locals, fromlist, level)
-        if hasattr(ret, '__file__'):
+        if hasattr(ret, '__file__') and not self._mod_is_blacklisted(ret.__name__):
             self._queue_watch_path(ret.__file__)
             self._modules_to_reload.update([ret])
         return ret
