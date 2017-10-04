@@ -87,7 +87,7 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
 
 @scene({'name': 'transition_start', 'type': 'range', 'range': [0, 30]},
        {'name': 'transition_duration', 'type': 'range', 'range': [0, 30]})
-def simple_transition(cfg, transition_start=2, transition_duration=4):
+def simple_transition(cfg, transition_start=1, transition_duration=4):
 
     cfg.duration = transition_start*2 + transition_duration
 
