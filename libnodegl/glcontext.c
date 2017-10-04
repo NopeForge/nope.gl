@@ -243,11 +243,10 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
 
     }
 
-    LOG(INFO, "OpenGL %d.%d ES2_compatibility=%d vertex_array_object=%d",
+    LOG(INFO, "OpenGL%s%d.%d",
+        glcontext->api == NGL_GLAPI_OPENGLES2 ? " ES " : " ",
         glcontext->major_version,
-        glcontext->minor_version,
-        glcontext->has_es2_compatibility,
-        glcontext->has_vao_compatibility);
+        glcontext->minor_version);
 
     glcontext->loaded = 1;
 
