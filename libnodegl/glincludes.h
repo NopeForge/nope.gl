@@ -27,11 +27,7 @@
 # if TARGET_OS_IPHONE || TARGET_IPHONE_SIMULATOR
 #  include <OpenGLES/ES2/gl.h>
 #  include <OpenGLES/ES2/glext.h>
-#  define GL_MAJOR_VERSION  0x821B
-#  define GL_MINOR_VERSION  0x821C
-#  define GL_NUM_EXTENSIONS 0x821D
-#  define GL_RED            GL_LUMINANCE
-#  define GL_R32F           0x822E
+#  define NGL_GLES2_COMPAT_INCLUDES 1
 # elif TARGET_OS_MAC
 #  include <OpenGL/gl3.h>
 #  include <OpenGL/glext.h>
@@ -41,12 +37,8 @@
 #if __ANDROID__
 # include <GLES2/gl2.h>
 # include <GLES2/gl2ext.h>
-# define GL_BGRA           GL_BGRA_EXT
-# define GL_MAJOR_VERSION  0x821B
-# define GL_MINOR_VERSION  0x821C
-# define GL_NUM_EXTENSIONS 0x821D
-# define GL_RED            GL_LUMINANCE
-# define GL_R32F           0x822E
+# define NGL_GLES2_COMPAT_INCLUDES 1
+# define GL_BGRA GL_BGRA_EXT
 #endif
 
 #if __linux__ && !__ANDROID__
@@ -59,6 +51,14 @@
 # include <GL/gl.h>
 # include <GL/glcorearb.h>
 # include <GL/glext.h>
+#endif
+
+#if NGL_GLES2_COMPAT_INCLUDES
+# define GL_MAJOR_VERSION  0x821B
+# define GL_MINOR_VERSION  0x821C
+# define GL_NUM_EXTENSIONS 0x821D
+# define GL_RED            GL_LUMINANCE
+# define GL_R32F           0x822E
 #endif
 
 #endif /* GLINCLUDES_H */
