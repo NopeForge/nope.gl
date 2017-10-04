@@ -216,9 +216,17 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
                                      &glcontext->max_compute_work_group_counts[i]);
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
+        const char *gl_version = (const char *)ngli_glGetString(gl, GL_VERSION);
+        if (gl_version)
+            sscanf(gl_version, "OpenGL ES %d.%d", &glcontext->major_version, &glcontext->minor_version);
+
+        if (!glcontext->major_version) {
+            LOG(ERROR, "Could not detect OpenGL ES version, falling back to 2.0");
+            glcontext->major_version = 2;
+            glcontext->minor_version = 0;
+        }
+
         const char *gl_extensions = (const char *)ngli_glGetString(gl, GL_EXTENSIONS);
-        glcontext->major_version = 2;
-        glcontext->minor_version = 0;
         glcontext->has_es2_compatibility = 1;
         glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
     }
