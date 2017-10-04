@@ -942,7 +942,7 @@ class _MainWindow(QtWidgets.QSplitter):
         medias = None
         if assets_dir:
             medias = []
-            for f in os.listdir(assets_dir):
+            for f in sorted(os.listdir(assets_dir)):
                 ext = f.rsplit('.', 1)[-1].lower()
                 path = os.path.join(assets_dir, f)
                 if os.path.isfile(path) and ext in ('mp4', 'mkv', 'avi', 'webm', 'mov'):
