@@ -68,7 +68,7 @@ static int quad_init(struct ngl_node *node)
         UV_C(0) + UV_H(0),           1.0f - UV_C(1) - UV_H(1),
     };
 
-    static const GLuint indices[] = { 0, 1, 2, 0, 2, 3 };
+    static const GLuint indices[] = { 0, 1, 2, 3 };
 
     s->vertices_buffer = ngli_geometry_generate_buffer(node->ctx,
                                                        NGL_NODE_BUFFERVEC3,
@@ -112,7 +112,7 @@ static int quad_init(struct ngl_node *node)
     if (!s->indices_buffer)
         return -1;
 
-    s->draw_mode = GL_TRIANGLES;
+    s->draw_mode = GL_TRIANGLE_FAN;
     s->draw_type = GL_UNSIGNED_INT;
 
     return 0;
