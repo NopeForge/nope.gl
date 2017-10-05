@@ -61,8 +61,6 @@ static const char *get_node_id(const struct hmap *nlist,
     return val;
 }
 
-static const float zvec[4] = {0};
-
 static void serialize_options(struct hmap *nlist,
                               struct bstr *b,
                               const struct ngl_node *node,
@@ -132,7 +130,7 @@ static void serialize_options(struct hmap *nlist,
                 const float *v = (float *)(priv + p->offset);
                 if (constructor)
                     ngli_bstr_print(b, " %a,%a", v[0], v[1]);
-                else if (memcmp(v, zvec, 2 * sizeof(*v)))
+                else if (memcmp(v, p->def_value.vec, 2 * sizeof(*v)))
                     ngli_bstr_print(b, " %s:%a,%a", p->key, v[0], v[1]);
                 break;
             }
@@ -140,7 +138,7 @@ static void serialize_options(struct hmap *nlist,
                 const float *v = (float *)(priv + p->offset);
                 if (constructor)
                     ngli_bstr_print(b, " %a,%a,%a", v[0], v[1], v[2]);
-                else if (memcmp(v, zvec, 3 * sizeof(*v)))
+                else if (memcmp(v, p->def_value.vec, 3 * sizeof(*v)))
                     ngli_bstr_print(b, " %s:%a,%a,%a", p->key, v[0], v[1], v[2]);
                 break;
             }
@@ -148,7 +146,7 @@ static void serialize_options(struct hmap *nlist,
                 const float *v = (float *)(priv + p->offset);
                 if (constructor)
                     ngli_bstr_print(b, " %a,%a,%a,%a", v[0], v[1], v[2], v[3]);
-                else if (memcmp(v, zvec, 4 * sizeof(*v)))
+                else if (memcmp(v, p->def_value.vec, 4 * sizeof(*v)))
                     ngli_bstr_print(b, " %s:%a,%a,%a,%a", p->key, v[0], v[1], v[2], v[3]);
                 break;
             }
