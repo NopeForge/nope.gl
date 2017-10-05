@@ -229,6 +229,18 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         const char *gl_extensions = (const char *)ngli_glGetString(gl, GL_EXTENSIONS);
         glcontext->has_es2_compatibility = 1;
         glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
+
+        if (glcontext->major_version >= 3 &&
+            glcontext->minor_version >= 1) {
+            glcontext->has_cs_compatibility = 1;
+            glcontext->has_ssbo_compatibility = 1;
+            for (int i = 0; i < NGLI_ARRAY_NB(glcontext->max_compute_work_group_counts); i++)
+                ngli_glGetIntegeri_v(gl,
+                                     GL_MAX_COMPUTE_WORK_GROUP_COUNT,
+                                     i,
+                                     &glcontext->max_compute_work_group_counts[i]);
+        }
+
     }
 
     ngli_glGetIntegerv(gl, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
