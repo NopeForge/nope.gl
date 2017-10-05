@@ -37,7 +37,9 @@
     action(NGL_NODE_ANIMKEYFRAMEVEC4,       ngli_animkeyframevec4_class)        \
     action(NGL_NODE_ANIMKEYFRAMEBUFFER,     ngli_animkeyframebuffer_class)      \
     action(NGL_NODE_BUFFERSCALAR,           ngli_bufferscalar_class)            \
+    action(NGL_NODE_BUFFERUBYTE,            ngli_bufferubyte_class)             \
     action(NGL_NODE_BUFFERUINT,             ngli_bufferuint_class)              \
+    action(NGL_NODE_BUFFERUSHORT,           ngli_bufferushort_class)            \
     action(NGL_NODE_BUFFERVEC2,             ngli_buffervec2_class)              \
     action(NGL_NODE_BUFFERVEC3,             ngli_buffervec3_class)              \
     action(NGL_NODE_BUFFERVEC4,             ngli_buffervec4_class)              \
