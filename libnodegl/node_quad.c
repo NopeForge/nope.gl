@@ -68,8 +68,6 @@ static int quad_init(struct ngl_node *node)
         UV_C(0) + UV_H(0),           1.0f - UV_C(1) - UV_H(1),
     };
 
-    static const GLushort indices[] = { 0, 1, 2, 3 };
-
     s->vertices_buffer = ngli_geometry_generate_buffer(node->ctx,
                                                        NGL_NODE_BUFFERVEC3,
                                                        NB_VERTICES,
@@ -104,11 +102,8 @@ static int quad_init(struct ngl_node *node)
         return -1;
 
 
-    s->indices_buffer = ngli_geometry_generate_buffer(node->ctx,
-                                                      NGL_NODE_BUFFERUSHORT,
-                                                      NGLI_ARRAY_NB(indices),
-                                                      sizeof(indices),
-                                                      (void *)indices);
+    s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx,
+                                                              NB_VERTICES);
     if (!s->indices_buffer)
         return -1;
 
