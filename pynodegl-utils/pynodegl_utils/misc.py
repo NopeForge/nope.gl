@@ -96,3 +96,4 @@ class NGLSceneCfg:
         self.duration = self.LOOP_DURATION
         self.aspect_ratio = 16. / 9.
         self.glstates = []
+        self.glbackend = 'gl'

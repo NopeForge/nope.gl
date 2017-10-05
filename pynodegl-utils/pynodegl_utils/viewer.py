@@ -913,6 +913,7 @@ class _MainWindow(QtWidgets.QSplitter):
 
         scene_cfg = NGLSceneCfg(medias=self._medias)
         scene_cfg.aspect_ratio = ar[0] / float(ar[1])
+        scene_cfg.glbackend = self._glbackend
 
         scene = cfg_dict['func'](scene_cfg, **cfg_dict['extra_args'])
         scene.set_name(cfg_dict['name'])
@@ -948,10 +949,11 @@ class _MainWindow(QtWidgets.QSplitter):
             self._scripts_mgr.end_hooking()
             return scene, cfg
 
-    def __init__(self, module_pkgname, assets_dir):
+    def __init__(self, module_pkgname, assets_dir, glbackend):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Node.gl viewer")
 
+        self._glbackend = glbackend
         self._scripts_mgr = _ScriptsManager(module_pkgname)
 
         medias = None
@@ -1027,6 +1029,6 @@ def run():
     QtGui.QSurfaceFormat.setDefaultFormat(get_gl_format(renderable=pargs.glbackend))
 
     app = QtWidgets.QApplication(sys.argv)
-    window = _MainWindow(pargs.module, pargs.assets_dir)
+    window = _MainWindow(pargs.module, pargs.assets_dir, pargs.glbackend)
     window.show()
     app.exec_()
