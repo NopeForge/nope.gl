@@ -33,10 +33,10 @@ _colors = [
 
 def _get_func(name, flags=0):
 
-    widgets = [
-        {'name': 'nb_points', 'type': 'range', 'range': [2, 200]},
-        {'name': 'zoom', 'type': 'range', 'range': [0.1, 2], 'unit_base': 100}
-    ]
+    widgets = {
+            'nb_points': {'type': 'range', 'range': [2, 200]},
+            'zoom': {'type': 'range', 'range': [0.1, 2], 'unit_base': 100},
+    }
 
     versions = []
     if flags & 1:
@@ -49,9 +49,9 @@ def _get_func(name, flags=0):
 
     for ext in versions:
         if ext is not None:
-            widgets.append({'name': 'draw_' + ext, 'type': 'bool'})
+            widgets['draw_' + ext] = {'type': 'bool'}
 
-    @scene(*widgets)
+    @scene(**widgets)
     def ret_func(cfg, nb_points=100, zoom=1,
                  draw_in=True, draw_out=True,
                  draw_in_out=True, draw_out_in=True):

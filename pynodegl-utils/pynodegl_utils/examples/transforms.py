@@ -32,10 +32,10 @@ void main(void)
     gl_FragColor = blend_color;
 }"""
 
-@scene({'name': 'color', 'type': 'color'},
-       {'name': 'rotate', 'type': 'bool'},
-       {'name': 'scale', 'type': 'bool'},
-       {'name': 'translate', 'type': 'bool'})
+@scene(color={'type': 'color'},
+       rotate={'type': 'bool'},
+       scale={'type': 'bool'},
+       translate={'type': 'bool'})
 def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=True):
     cfg.duration = 5
 
@@ -70,9 +70,9 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
 
     return node
 
-@scene({'name': 'rotate', 'type': 'bool'},
-       {'name': 'scale', 'type': 'bool'},
-       {'name': 'translate', 'type': 'bool'})
+@scene(rotate={'type': 'bool'},
+       scale={'type': 'bool'},
+       translate={'type': 'bool'})
 def animated(cfg, rotate=True, scale=True, translate=True):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
@@ -138,7 +138,7 @@ def animated_uniform(cfg):
 
     return ts
 
-@scene({'name': 'rotate', 'type': 'bool'})
+@scene(rotate={'type': 'bool'})
 def animated_camera(cfg, rotate=False):
     g = Group()
     g.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))

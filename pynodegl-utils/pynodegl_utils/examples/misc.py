@@ -32,7 +32,7 @@ from pynodegl import (
 from pynodegl_utils.misc import scene
 
 
-@scene({'name': 'size', 'type': 'range', 'range': [0,1.5], 'unit_base': 1000})
+@scene(size={'type': 'range', 'range': [0,1.5], 'unit_base': 1000})
 def triangle(cfg, size=0.5):
     frag_data = '''
 #version 100
@@ -56,7 +56,7 @@ void main(void)
     node = Rotate(node, anim=AnimationVec3(animkf))
     return node
 
-@scene({'name': 'n', 'type': 'range', 'range': [2,10]})
+@scene(n={'type': 'range', 'range': [2,10]})
 def fibo(cfg, n=8):
     frag_data = '''
 #version 100
@@ -109,7 +109,7 @@ void main(void) {
     root.set_perspective(45.0, cfg.aspect_ratio, 1.0, 10.0)
     return root
 
-@scene({'name': 'dim', 'type': 'range', 'range': [1,50]})
+@scene(dim={'type': 'range', 'range': [1,50]})
 def cropboard(cfg, dim=15):
     cfg.duration = 10
 
@@ -142,8 +142,8 @@ def cropboard(cfg, dim=15):
 
     return Group(children=tqs)
 
-@scene({'name': 'freq_precision', 'type': 'range', 'range': [1,10]},
-       {'name': 'overlay', 'type': 'range', 'unit_base': 100})
+@scene(freq_precision={'type': 'range', 'range': [1,10]},
+       overlay={'type': 'range', 'unit_base': 100})
 def audiotex(cfg, freq_precision=7, overlay=0.6):
     media = cfg.medias[0]
     cfg.duration = media.duration
@@ -210,7 +210,7 @@ void main()
     render.update_textures(tex0=audio_tex, tex1=video_tex)
     return render
 
-@scene({'name': 'particules', 'type': 'range', 'range': [1,1024]})
+@scene(particules={'type': 'range', 'range': [1,1024]})
 def particules(cfg, particules=32):
     compute_data_version = "310 es" if cfg.glbackend == "gles" else "430"
     compute_data = '''

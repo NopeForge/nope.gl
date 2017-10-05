@@ -74,11 +74,11 @@ void main()
 }
 '''
 
-@scene({'name': 'uv_corner_x', 'type': 'range', 'range': [0,1], 'unit_base': 100},
-       {'name': 'uv_corner_y', 'type': 'range', 'range': [0,1], 'unit_base': 100},
-       {'name': 'uv_width', 'type': 'range', 'range': [0,1], 'unit_base': 100},
-       {'name': 'uv_height', 'type': 'range', 'range': [0,1], 'unit_base': 100},
-       {'name': 'progress_bar', 'type': 'bool'})
+@scene(uv_corner_x={'type': 'range', 'range': [0,1], 'unit_base': 100},
+       uv_corner_y={'type': 'range', 'range': [0,1], 'unit_base': 100},
+       uv_width={'type': 'range', 'range': [0,1], 'unit_base': 100},
+       uv_height={'type': 'range', 'range': [0,1], 'unit_base': 100},
+       progress_bar={'type': 'bool'})
 def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, progress_bar=True):
 
     cfg.duration = cfg.medias[0].duration
@@ -161,8 +161,8 @@ def centered_masked_media(cfg):
     return g
 
 
-@scene({'name': 'npoints', 'type': 'range', 'range': [3, 300]},
-       {'name': 'radius', 'type': 'range', 'range': [0.01, 5], 'unit_base': 100})
+@scene(npoints={'type': 'range', 'range': [3, 300]},
+       radius={'type': 'range', 'range': [0.01, 5], 'unit_base': 100})
 def media_in_circle(cfg, npoints=64, radius=0.5):
     circle = Circle(npoints=npoints, radius=radius)
     m = Media(cfg.medias[0].filename)
@@ -173,7 +173,7 @@ def media_in_circle(cfg, npoints=64, radius=0.5):
     return render
 
 
-@scene({'name': 'speed', 'type': 'range', 'range': [0.01,2], 'unit_base': 1000})
+@scene(speed={'type': 'range', 'range': [0.01,2], 'unit_base': 1000})
 def playback_speed(cfg, speed=1.0):
     cfg.duration = cfg.medias[0].duration / speed
 

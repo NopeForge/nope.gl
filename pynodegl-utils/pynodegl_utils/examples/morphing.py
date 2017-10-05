@@ -18,8 +18,8 @@ from pynodegl import (
 from pynodegl_utils.misc import scene
 
 
-@scene({'name': 'square_color', 'type': 'color'},
-       {'name': 'circle_color', 'type': 'color'})
+@scene(square_color={'type': 'color'},
+       circle_color={'type': 'color'})
 def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0, 1.0, 1.0)):
     cfg.duration = 5
 
@@ -83,7 +83,7 @@ void main(void)
     return render
 
 
-@scene({'name': 'npoints', 'type': 'range', 'range': [3, 100]})
+@scene(npoints={'type': 'range', 'range': [3, 100]})
 def urchin(cfg, npoints=25):
     cfg.duration = 5
 
