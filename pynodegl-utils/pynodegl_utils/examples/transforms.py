@@ -104,11 +104,11 @@ animated_frag_data = """
 precision mediump float;
 uniform mat4 matrix;
 uniform sampler2D tex0_sampler;
-varying vec2 var_tex0_coords;
+varying vec2 var_texcoord;
 
 void main(void)
 {
-    vec2 coords = var_tex0_coords * 2.0 - 1.0;
+    vec2 coords = var_texcoord * 2.0 - 1.0;
     coords = (matrix * vec4(coords.xy, 1.0, 1.0)).xy;
     coords = (coords + 1.0) / 2.0;
 

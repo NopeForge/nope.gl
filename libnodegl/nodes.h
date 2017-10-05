@@ -214,6 +214,7 @@ struct program {
 
     GLuint program_id;
     GLint position_location_id;
+    GLint texcoord_location_id;
     GLint normal_location_id;
     GLint modelview_matrix_location_id;
     GLint projection_matrix_location_id;

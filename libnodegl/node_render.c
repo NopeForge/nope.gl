@@ -159,25 +159,21 @@ static int update_vertex_attribs(struct ngl_node *node)
     struct geometry *geometry = s->geometry->priv_data;
     struct program *program = s->program->priv_data;
 
-    if (geometry->texcoords_buffer) {
-        struct buffer *buffer = geometry->texcoords_buffer->priv_data;
-        int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
-        for (int i = 0; i < nb_textures; i++)  {
-            struct textureprograminfo *textureprograminfo = &s->textureprograminfos[i];
-            if (textureprograminfo->coordinates_id >= 0) {
-                ngli_glEnableVertexAttribArray(gl, textureprograminfo->coordinates_id);
-                ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-                ngli_glVertexAttribPointer(gl, textureprograminfo->coordinates_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
-            }
-        }
-    }
-
     if (geometry->vertices_buffer) {
         struct buffer *buffer = geometry->vertices_buffer->priv_data;
         if (program->position_location_id >= 0) {
             ngli_glEnableVertexAttribArray(gl, program->position_location_id);
             ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
             ngli_glVertexAttribPointer(gl, program->position_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+        }
+    }
+
+    if (geometry->texcoords_buffer) {
+        struct buffer *buffer = geometry->texcoords_buffer->priv_data;
+        if (program->texcoord_location_id >= 0) {
+            ngli_glEnableVertexAttribArray(gl, program->texcoord_location_id);
+            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
+            ngli_glVertexAttribPointer(gl, program->texcoord_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
         }
     }
 
@@ -300,10 +296,7 @@ static int render_init(struct ngl_node *node)
             snprintf(name, sizeof(name), "%s_sampler", entry->key);
             s->textureprograminfos[i].sampler_id = ngli_glGetUniformLocation(gl, program->program_id, name);
 
-            snprintf(name, sizeof(name), "%s_coords", entry->key);
-            s->textureprograminfos[i].coordinates_id = ngli_glGetAttribLocation(gl, program->program_id, name);
-
-            snprintf(name, sizeof(name), "%s_coords_matrix", entry->key);
+            snprintf(name, sizeof(name), "%s_coord_matrix", entry->key);
             s->textureprograminfos[i].coordinates_mvp_id = ngli_glGetUniformLocation(gl, program->program_id, name);
 
             snprintf(name, sizeof(name), "%s_dimensions", entry->key);

@@ -94,41 +94,40 @@ def simple_transition(cfg, transition_start=1, transition_duration=4):
     vertex='''
 #version 100
 attribute vec4 ngl_position;
+attribute vec2 ngl_texcoord;
 attribute vec3 ngl_normal;
 uniform mat4 ngl_modelview_matrix;
 uniform mat4 ngl_projection_matrix;
 uniform mat3 ngl_normal_matrix;
 
-attribute vec2 tex0_coords;
-uniform mat4 tex0_coords_matrix;
+uniform mat4 tex0_coord_matrix;
 uniform vec2 tex0_dimensions;
 
-attribute vec2 tex1_coords;
-uniform mat4 tex1_coords_matrix;
+uniform mat4 tex1_coord_matrix;
 uniform vec2 tex1_dimensions;
 
-varying vec2 var_tex0_coords;
-varying vec2 var_tex1_coords;
+varying vec2 var_tex0_coord;
+varying vec2 var_tex1_coord;
 void main()
 {
     gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;
-    var_tex0_coords = (tex0_coords_matrix * vec4(tex0_coords, 0, 1)).xy;
-    var_tex1_coords = (tex1_coords_matrix * vec4(tex1_coords, 0, 1)).xy;
+    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_texcoord, 0, 1)).xy;
+    var_tex1_coord = (tex1_coord_matrix * vec4(ngl_texcoord, 0, 1)).xy;
 }
 '''
 
     fragment='''
 #version 100
 precision mediump float;
-varying vec2 var_tex0_coords;
-varying vec2 var_tex1_coords;
+varying vec2 var_tex0_coord;
+varying vec2 var_tex1_coord;
 uniform sampler2D tex0_sampler;
 uniform sampler2D tex1_sampler;
 uniform float delta;
 void main(void)
 {
-    vec4 c1 = texture2D(tex0_sampler, var_tex0_coords);
-    vec4 c2 = texture2D(tex1_sampler, var_tex1_coords);
+    vec4 c1 = texture2D(tex0_sampler, var_tex0_coord);
+    vec4 c2 = texture2D(tex1_sampler, var_tex1_coord);
     vec4 c3 = vec4(
         c1.r * delta + c2.r * (1.0 - delta),
         c1.g * delta + c2.g * (1.0 - delta),

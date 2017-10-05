@@ -40,14 +40,14 @@ static const char *pgbar_shader = \
 "uniform float ar;"                                                     "\n" \
 "uniform float opacity;"                                                "\n" \
 "uniform sampler2D tex0_sampler;"                                       "\n" \
-"varying vec2 var_tex0_coords;"                                         "\n" \
+"varying vec2 var_texcoord;"                                            "\n" \
                                                                         "\n" \
 "void main()"                                                           "\n" \
 "{"                                                                     "\n" \
 "    float height = 2.0 / 100. * ar;"                                   "\n" \
-"    float x = var_tex0_coords.x;"                                      "\n" \
-"    float y = var_tex0_coords.y;"                                      "\n" \
-"    vec4 video_pix = texture2D(tex0_sampler, var_tex0_coords);"        "\n" \
+"    float x = var_texcoord.x;"                                         "\n" \
+"    float y = var_texcoord.y;"                                         "\n" \
+"    vec4 video_pix = texture2D(tex0_sampler, var_texcoord);"           "\n" \
 "    vec4 color = video_pix;"                                           "\n" \
 "    if (y > 1. - height)"                                              "\n" \
 "        color = x < time ? vec4(1) : mix(video_pix, vec4(1), 0.3);"    "\n" \

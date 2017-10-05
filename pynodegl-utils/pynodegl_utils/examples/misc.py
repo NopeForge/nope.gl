@@ -37,10 +37,10 @@ def triangle(cfg, size=0.5):
     frag_data = '''
 #version 100
 precision mediump float;
-varying vec2 var_tex0_coords;
+varying vec2 var_texcoord;
 void main(void)
 {
-    vec2 c = var_tex0_coords;
+    vec2 c = var_texcoord;
     gl_FragColor = vec4(c.y-c.x, c.x, 1.0-c.y, 1.0);
 }'''
 
@@ -159,16 +159,16 @@ precision mediump float;
 
 uniform sampler2D tex0_sampler;
 uniform sampler2D tex1_sampler;
-varying vec2 var_tex0_coords;
+varying vec2 var_texcoord;
 
 void main()
 {
     vec4 audio_pix;
-    vec4 video_pix = texture2D(tex1_sampler, var_tex0_coords);
-    vec2 sample_id_ch_1 = vec2(var_tex0_coords.x,      0.5 / 22.);
-    vec2 sample_id_ch_2 = vec2(var_tex0_coords.x,      1.5 / 22.);
-    vec2  power_id_ch_1 = vec2(var_tex0_coords.x, %(fft1)f / 22.);
-    vec2  power_id_ch_2 = vec2(var_tex0_coords.x, %(fft2)f / 22.);
+    vec4 video_pix = texture2D(tex1_sampler, var_texcoord);
+    vec2 sample_id_ch_1 = vec2(var_texcoord.x,        0.5 / 22.);
+    vec2 sample_id_ch_2 = vec2(var_texcoord.x,        1.5 / 22.);
+    vec2  power_id_ch_1 = vec2(var_texcoord.x,   %(fft1)f / 22.);
+    vec2  power_id_ch_2 = vec2(var_texcoord.x,   %(fft2)f / 22.);
     float sample_ch_1 = texture2D(tex0_sampler, sample_id_ch_1).x;
     float sample_ch_2 = texture2D(tex0_sampler, sample_id_ch_2).x;
     float  power_ch_1 = texture2D(tex0_sampler,  power_id_ch_1).x;
@@ -180,15 +180,15 @@ void main()
     power_ch_1 = clamp(power_ch_1, 0., 1.) / 4.; // [0 ; +oo] -> [0 ; 0.25]
     power_ch_2 = clamp(power_ch_2, 0., 1.) / 4.; // [0 ; +oo] -> [0 ; 0.25]
 
-    float diff_wave_ch_1 = abs(sample_ch_1 - var_tex0_coords.y);
-    float diff_wave_ch_2 = abs(sample_ch_2 - var_tex0_coords.y);
+    float diff_wave_ch_1 = abs(sample_ch_1 - var_texcoord.y);
+    float diff_wave_ch_2 = abs(sample_ch_2 - var_texcoord.y);
     if (diff_wave_ch_1 < 0.003) {
         audio_pix = vec4(0.5, 1.0, 0.0, 1.0);
     } else if (diff_wave_ch_2 < 0.003) {
         audio_pix = vec4(0.0, 1.0, 0.5, 1.0);
-    } else if (var_tex0_coords.y > 0.75 - power_ch_1 && var_tex0_coords.y < 0.75) {
+    } else if (var_texcoord.y > 0.75 - power_ch_1 && var_texcoord.y < 0.75) {
         audio_pix = vec4(1.0, 0.5, 0.0, 1.0);
-    } else if (var_tex0_coords.y > 1.   - power_ch_2 && var_tex0_coords.y < 1.) {
+    } else if (var_texcoord.y > 1.   - power_ch_2 && var_texcoord.y < 1.) {
         audio_pix = vec4(1.0, 0.0, 0.5, 1.0);
     } else {
         audio_pix = vec4(0.0, 0.0, 0.0, 1.0);
