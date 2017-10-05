@@ -60,15 +60,15 @@ fail:
 
 struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int count)
 {
-    int size = count * sizeof(GLuint);
-    uint8_t *data = calloc(count, sizeof(GLuint));
+    int size = count * sizeof(GLushort);
+    uint8_t *data = calloc(count, sizeof(GLushort));
     if (!data)
         return NULL;
 
-    SET_INDICES(GLuint, count, data);
+    SET_INDICES(GLushort, count, data);
 
     struct ngl_node *node = ngli_geometry_generate_buffer(ctx,
-                                                          NGL_NODE_BUFFERUINT,
+                                                          NGL_NODE_BUFFERUSHORT,
                                                           count,
                                                           size,
                                                           data);
@@ -87,7 +87,9 @@ static const struct node_param geometry_params[] = {
     {"normals",   PARAM_TYPE_NODE, OFFSET(normals_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
                   .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
-    {"indices",   PARAM_TYPE_NODE, OFFSET(indices_buffer),   .node_types=(const int[]){NGL_NODE_BUFFERUINT, -1}, .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
+    {"indices",   PARAM_TYPE_NODE, OFFSET(indices_buffer),
+                  .node_types=(const int[]){NGL_NODE_BUFFERUBYTE, NGL_NODE_BUFFERUINT, NGL_NODE_BUFFERUSHORT, -1},
+                  .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
     {"draw_mode", PARAM_TYPE_INT, OFFSET(draw_mode), {.i64=GL_TRIANGLES}},
     {NULL}
 };
@@ -136,14 +138,22 @@ static int geometry_init(struct ngl_node *node)
         int ret = ngli_node_init(s->indices_buffer);
         if (ret < 0)
             return ret;
+
+        switch (s->indices_buffer->class->id) {
+        case NGL_NODE_BUFFERUBYTE:  s->draw_type = GL_UNSIGNED_BYTE;  break;
+        case NGL_NODE_BUFFERUINT:   s->draw_type = GL_UNSIGNED_INT;   break;
+        case NGL_NODE_BUFFERUSHORT: s->draw_type = GL_UNSIGNED_SHORT; break;
+        default:
+            ngli_assert(0);
+        }
     } else {
         s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx,
                                                                   vertices->count);
         if (!s->indices_buffer)
             return -1;
-    }
 
-    s->draw_type = GL_UNSIGNED_INT;
+        s->draw_type = GL_UNSIGNED_SHORT;
+    }
 
     return 0;
 }
