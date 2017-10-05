@@ -29,6 +29,7 @@ import inspect
 import pkgutil
 import subprocess
 import traceback
+import distutils
 import __builtin__
 
 from watchdog.observers import Observer
@@ -789,6 +790,7 @@ class _ScriptsManager(QtCore.QObject):
         self._dirs_to_watch = set()
         self._files_to_watch = set()
         self._modules_to_reload = set()
+        self._pysysdir = os.path.realpath(distutils.sysconfig.get_python_lib(standard_lib=True))
 
         self._event_handler = FileSystemEventHandler()
         self._event_handler.on_any_event = self._on_any_event
@@ -796,9 +798,18 @@ class _ScriptsManager(QtCore.QObject):
         self._observer.start()
 
     def _mod_is_blacklisted(self, mod):
+        if not hasattr(mod, '__file__'):
+            return True
+
+        modpath = os.path.realpath(os.path.dirname(mod.__file__))
+        if modpath == self._pysysdir:
+            return True
+
+        modname = mod.__name__
         for bl_mod in self.MODULES_BLACKLIST:
-            if mod.startswith(bl_mod):
+            if modname.startswith(bl_mod):
                 return True
+
         return False
 
     def start(self):
@@ -874,7 +885,7 @@ class _ScriptsManager(QtCore.QObject):
 
     def _import_hook(self, name, globals={}, locals={}, fromlist=[], level=-1):
         ret = self._builtin_import(name, globals, locals, fromlist, level)
-        if hasattr(ret, '__file__') and not self._mod_is_blacklisted(ret.__name__):
+        if not self._mod_is_blacklisted(ret):
             self._queue_watch_path(ret.__file__)
             self._modules_to_reload.update([ret])
         return ret
