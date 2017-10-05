@@ -212,8 +212,9 @@ void main()
 
 @scene({'name': 'particules', 'type': 'range', 'range': [1,1024]})
 def particules(cfg, particules=32):
+    compute_data_version = "310 es" if cfg.glbackend == "gles" else "430"
     compute_data = '''
-#version 430
+#version %s
 
 layout(local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
@@ -276,7 +277,7 @@ void main(void)
 
     opositions[i] = position;
 }
-'''
+''' % (compute_data_version)
 
     fragment_data = '''
 #version 100
