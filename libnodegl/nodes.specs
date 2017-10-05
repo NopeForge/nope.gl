@@ -324,6 +324,7 @@
 
 - UniformMat4:
     optional:
+        - [value, mat4]
         - [transform, Node]
 
 - UniformScalar:

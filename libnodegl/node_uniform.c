@@ -30,6 +30,13 @@
 #include "nodes.h"
 #include "transforms.h"
 
+#define IDENTITY {           \
+    1.0f, 0.0f, 0.0f, 0.0f,  \
+    0.0f, 1.0f, 0.0f, 0.0f,  \
+    0.0f, 0.0f, 1.0f, 0.0f,  \
+    0.0f, 0.0f, 0.0f, 1.0f   \
+}
+
 #define OFFSET(x) offsetof(struct uniform, x)
 static const struct node_param uniformscalar_params[] = {
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar)},
@@ -65,6 +72,7 @@ static const struct node_param uniformint_params[] = {
 };
 
 static const struct node_param uniformmat4_params[] = {
+    {"value",     PARAM_TYPE_MAT4, OFFSET(matrix), {.mat=IDENTITY}},
     {"transform", PARAM_TYPE_NODE, OFFSET(transform), .node_types=TRANSFORM_TYPES_LIST},
     {NULL}
 };
@@ -103,22 +111,9 @@ static void uniform_mat_update(struct ngl_node *node, double t)
     }
 }
 
-static int uniform_init(struct ngl_node *node)
-{
-    struct uniform *s = node->priv_data;
-
-    s->matrix[0] =
-    s->matrix[5] =
-    s->matrix[10] =
-    s->matrix[15] = 1.0f;
-
-    return 0;
-}
-
 const struct node_class ngli_uniformscalar_class = {
     .id        = NGL_NODE_UNIFORMSCALAR,
     .name      = "UniformScalar",
-    .init      = uniform_init,
     .update    = uniformscalar_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformscalar_params,
@@ -127,7 +122,6 @@ const struct node_class ngli_uniformscalar_class = {
 const struct node_class ngli_uniformvec2_class = {
     .id        = NGL_NODE_UNIFORMVEC2,
     .name      = "UniformVec2",
-    .init      = uniform_init,
     .update    = uniformvec2_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec2_params,
@@ -136,7 +130,6 @@ const struct node_class ngli_uniformvec2_class = {
 const struct node_class ngli_uniformvec3_class = {
     .id        = NGL_NODE_UNIFORMVEC3,
     .name      = "UniformVec3",
-    .init      = uniform_init,
     .update    = uniformvec3_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec3_params,
@@ -145,7 +138,6 @@ const struct node_class ngli_uniformvec3_class = {
 const struct node_class ngli_uniformvec4_class = {
     .id        = NGL_NODE_UNIFORMVEC4,
     .name      = "UniformVec4",
-    .init      = uniform_init,
     .update    = uniformvec4_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec4_params,
@@ -154,7 +146,6 @@ const struct node_class ngli_uniformvec4_class = {
 const struct node_class ngli_uniformint_class = {
     .id        = NGL_NODE_UNIFORMINT,
     .name      = "UniformInt",
-    .init      = uniform_init,
     .priv_size = sizeof(struct uniform),
     .params    = uniformint_params,
 };
@@ -162,7 +153,6 @@ const struct node_class ngli_uniformint_class = {
 const struct node_class ngli_uniformmat4_class = {
     .id        = NGL_NODE_UNIFORMMAT4,
     .name      = "UniformMat4",
-    .init      = uniform_init,
     .update    = uniform_mat_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformmat4_params,
