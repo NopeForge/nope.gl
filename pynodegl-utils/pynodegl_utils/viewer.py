@@ -743,7 +743,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._loglevel_cbbox = QtWidgets.QComboBox()
         for level in self.LOG_LEVELS:
             self._loglevel_cbbox.addItem(level.title())
-        self._loglevel_cbbox.setCurrentIndex(self.LOG_LEVELS.index('debug'))
+        self._loglevel_cbbox.setCurrentIndex(self.LOG_LEVELS.index('info'))
         self._set_loglevel()
         loglevel_lbl = QtWidgets.QLabel('Min log level:')
         loglevel_hbox = QtWidgets.QHBoxLayout()
