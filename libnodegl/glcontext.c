@@ -217,9 +217,14 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
         const char *gl_version = (const char *)ngli_glGetString(gl, GL_VERSION);
-        if (gl_version)
-            sscanf(gl_version, "OpenGL ES %d.%d", &glcontext->major_version, &glcontext->minor_version);
-
+        if (gl_version) {
+            int ret = sscanf(gl_version,
+                             "OpenGL ES %d.%d",
+                             &glcontext->major_version,
+                             &glcontext->minor_version);
+            if (ret != 2)
+                LOG(ERROR, "Could not parse OpenGL ES version (%s)", gl_version);
+        }
         if (!glcontext->major_version) {
             LOG(ERROR, "Could not detect OpenGL ES version, falling back to 2.0");
             glcontext->major_version = 2;
