@@ -28,9 +28,11 @@
 #  include <OpenGLES/ES2/gl.h>
 #  include <OpenGLES/ES2/glext.h>
 #  define NGL_GLES2_COMPAT_INCLUDES 1
+#  define NGL_CS_COMPAT_INCLUDES 1
 # elif TARGET_OS_MAC
 #  include <OpenGL/gl3.h>
 #  include <OpenGL/glext.h>
+#  define NGL_CS_COMPAT_INCLUDES 1
 # endif
 #endif
 
@@ -38,6 +40,7 @@
 # include <GLES2/gl2.h>
 # include <GLES2/gl2ext.h>
 # define NGL_GLES2_COMPAT_INCLUDES 1
+# define NGL_CS_COMPAT_INCLUDES 1
 # define GL_BGRA GL_BGRA_EXT
 #endif
 
@@ -68,6 +71,9 @@
 # define GL_STATIC_COPY                        0x88E6
 # define GL_DYNAMIC_READ                       0x88E9
 # define GL_DYNAMIC_COPY                       0x88EA
+#endif
+
+#if NGL_CS_COMPAT_INCLUDES
 # define GL_COMPUTE_SHADER                     0x91B9
 # define GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS 0x90EB
 # define GL_MAX_COMPUTE_WORK_GROUP_COUNT       0x91BE
