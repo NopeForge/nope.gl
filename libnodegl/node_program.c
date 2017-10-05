@@ -31,7 +31,7 @@
 static const char default_fragment_shader[] =
     "#version 100"                                                                      "\n"
     ""                                                                                  "\n"
-    "precision mediump float;"                                                          "\n"
+    "precision highp float;"                                                            "\n"
     "uniform sampler2D tex0_sampler;"                                                   "\n"
     "varying vec2 var_tex0_coords;"                                                     "\n"
     "void main(void)"                                                                   "\n"
@@ -43,6 +43,8 @@ static const char default_fragment_shader[] =
 
 static const char default_vertex_shader[] =
     "#version 100"                                                                      "\n"
+    ""                                                                                  "\n"
+    "precision highp float;"                                                            "\n"
     "attribute vec4 ngl_position;"                                                      "\n"
     "attribute vec3 ngl_normal;"                                                        "\n"
     "uniform mat4 ngl_modelview_matrix;"                                                "\n"
