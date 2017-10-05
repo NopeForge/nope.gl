@@ -74,6 +74,16 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             ngli_bstr_print(b, "(%g,%g,%g,%g)", v[0], v[1], v[2], v[3]);
             break;
         }
+        case PARAM_TYPE_MAT4: {
+            const float *m = (const float *)(base_ptr + par->offset);
+            ngli_bstr_print(b,
+                            "(%g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g)",
+                            m[ 0], m[ 1], m[ 2], m[ 3],
+                            m[ 4], m[ 5], m[ 6], m[ 7],
+                            m[ 8], m[ 9], m[10], m[11],
+                            m[12], m[13], m[14], m[15]);
+            break;
+        }
         case PARAM_TYPE_STR: {
             const char *s = *(const char **)(base_ptr + par->offset);
             if (!s)
@@ -181,6 +191,18 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             memcpy(dstp, v, 4 * sizeof(*v));
             break;
         }
+        case PARAM_TYPE_MAT4: {
+            const float *v = va_arg(*ap, const float *);
+            LOG(VERBOSE,
+                "set %s to (%g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g)",
+                par->key,
+                v[ 0], v[ 1], v[ 2], v[ 3],
+                v[ 4], v[ 5], v[ 6], v[ 7],
+                v[ 8], v[ 9], v[10], v[11],
+                v[12], v[13], v[14], v[15]);
+            memcpy(dstp, v, 16 * sizeof(*v));
+            break;
+        }
         case PARAM_TYPE_NODE: {
             struct ngl_node *node = va_arg(*ap, struct ngl_node *);
             if (!allowed_node(node, par->node_types)) {
@@ -283,6 +305,9 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                 case PARAM_TYPE_VEC3:
                 case PARAM_TYPE_VEC4:
                     ngli_params_vset(base_ptr, par, par->def_value.vec);
+                    break;
+                case PARAM_TYPE_MAT4:
+                    ngli_params_vset(base_ptr, par, par->def_value.mat);
                     break;
                 case PARAM_TYPE_DATA:
                     ngli_params_vset(base_ptr, par, 0, par->def_value.p);

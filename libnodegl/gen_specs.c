@@ -37,6 +37,7 @@ static const char *param_type_strings[] = {
     [PARAM_TYPE_VEC2]     = "vec2",
     [PARAM_TYPE_VEC3]     = "vec3",
     [PARAM_TYPE_VEC4]     = "vec4",
+    [PARAM_TYPE_MAT4]     = "mat4",
     [PARAM_TYPE_NODE]     = "Node",
     [PARAM_TYPE_NODELIST] = "NodeList",
     [PARAM_TYPE_DBLLIST]  = "doubleList",

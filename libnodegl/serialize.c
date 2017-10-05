@@ -152,6 +152,21 @@ static void serialize_options(struct hmap *nlist,
                     ngli_bstr_print(b, " %s:%a,%a,%a,%a", p->key, v[0], v[1], v[2], v[3]);
                 break;
             }
+            case PARAM_TYPE_MAT4: {
+                const float *m = (float *)(priv + p->offset);
+                ngli_bstr_print(b, " ");
+                if (memcmp(m, p->def_value.mat, 16 * sizeof(*m)))
+                    ngli_bstr_print(b, "%s:", p->key);
+                for (int i = 0; i < 4; i++)
+                    ngli_bstr_print(b,
+                                    "%a,%a,%a,%a%s",
+                                    m[0 + i * 4],
+                                    m[1 + i * 4],
+                                    m[2 + i * 4],
+                                    m[3 + i * 4],
+                                    i != 3 ? "," : "");
+                break;
+            }
             case PARAM_TYPE_NODE: {
                 const struct ngl_node *node = *(struct ngl_node **)(priv + p->offset);
                 if (!node)

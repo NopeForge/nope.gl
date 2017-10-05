@@ -250,6 +250,20 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             ngli_params_vset(base_ptr, par, v);
             break;
         }
+        case PARAM_TYPE_MAT4: {
+            float m[16];
+            n = sscanf(str,
+                       "%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a%n",
+                       m,    m+ 1, m+ 2, m+ 3,
+                       m+ 4, m+ 5, m+ 6, m+ 7,
+                       m+ 8, m+ 9, m+10, m+11,
+                       m+12, m+13, m+14, m+15,
+                       &len);
+            if (n != 16)
+                return -1;
+            ngli_params_vset(base_ptr, par, m);
+            break;
+        }
         case PARAM_TYPE_NODE: {
             int node_id;
             n = sscanf(str, "%x%n", &node_id, &len);

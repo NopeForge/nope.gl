@@ -100,8 +100,8 @@ class BuildExtCommand(build_ext):
                 elif field_type == 'string':
                     construct_cargs.append(field_name)
                     construct_args.append('const char *%s' % field_name)
-                elif field_type.startswith('vec'):
-                    n = int(field_type[3:])
+                elif field_type.startswith('vec') or field_type == 'mat4':
+                    n = int(field_type[3:]) if field_type.startswith('vec') else 16
                     cparam = field_name + '_c'
                     special_inits += _get_vec_init_code(n, field_name, cparam)
                     construct_cargs.append(cparam)
@@ -136,7 +136,7 @@ class BuildExtCommand(build_ext):
                 raise TypeError("%(var)s must be of type dict")
             self.update_%(var)s(%(var)s)''' % optset_data
                 else:
-                    dereference = field_type.startswith('vec')
+                    dereference = field_type.startswith('vec') or field_type == 'mat4'
                     optset_data['arg'] = '*' + field_name if dereference else field_name
                     extra_args += '''
             self.set_%(var)s(%(arg)s)''' % optset_data
@@ -257,8 +257,8 @@ cdef class _Node:
         return 0
 ''' % field_data
 
-                elif field_type.startswith('vec'):
-                    n = int(field_type[3:])
+                elif field_type.startswith('vec') or field_type == 'mat4':
+                    n = int(field_type[3:]) if field_type.startswith('vec') else 16
                     cparam = field_name + '_c'
                     field_data = {
                         'field_name': field_name,

@@ -35,6 +35,7 @@ enum {
     PARAM_TYPE_VEC2,
     PARAM_TYPE_VEC3,
     PARAM_TYPE_VEC4,
+    PARAM_TYPE_MAT4,
     PARAM_TYPE_NODE,
     PARAM_TYPE_NODELIST,
     PARAM_TYPE_DBLLIST,
@@ -54,6 +55,7 @@ struct node_param {
         const char *str;
         void *p;
         float vec[4];
+        float mat[4*4];
     } def_value;
     int flags;
     const int *node_types;
