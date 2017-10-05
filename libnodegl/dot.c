@@ -128,7 +128,7 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
 
     ngli_bstr_print(b, "    %s_%p[label=<<b>%s</b><br/>",
                     node->class->name, node, node->class->name);
-    if (!ngli_is_default_name(node->class->name, node->name))
+    if (!ngli_is_default_name(node->class->name, node->name) && *node->name)
         ngli_bstr_print(b, "<i>%s</i><br/>", node->name);
     print_custom_priv_options(b, node);
     ngli_bstr_print(b, ">,color="HSLFMT"]\n", get_hue(node->class->name));
