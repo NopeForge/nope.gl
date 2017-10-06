@@ -121,9 +121,6 @@ static void camera_update(struct ngl_node *node, double t)
         up
     );
 
-    if (s->pipe_fd)
-        view[5] = -view[5];
-
     if (s->fov_anim) {
         struct ngl_node *anim_node = s->fov_anim;
         struct animation *anim = anim_node->priv_data;
@@ -138,6 +135,9 @@ static void camera_update(struct ngl_node *node, double t)
         s->perspective[2],
         s->perspective[3]
     );
+
+    if (s->pipe_fd)
+        perspective[5] = -perspective[5];
 
     memcpy(child->modelview_matrix, view, sizeof(view));
     memcpy(child->projection_matrix, perspective, sizeof(perspective));
