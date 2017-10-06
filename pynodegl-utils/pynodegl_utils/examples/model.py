@@ -3,7 +3,9 @@ import array
 
 from pynodegl import (
         AnimKeyFrameFloat,
+        AnimKeyFrameVec3,
         AnimatedFloat,
+        AnimatedVec3,
         BufferVec2,
         BufferVec3,
         Camera,
@@ -15,6 +17,7 @@ from pynodegl import (
         Render,
         Rotate,
         Texture2D,
+        Scale,
         Triangle,
 )
 
@@ -109,6 +112,58 @@ def centered_model_media(cfg, n=0.5, model=None):
     rot = Rotate(render, name="roty", axis=(0, 1, 0), anim=AnimatedFloat(animkf))
 
     camera = Camera(rot)
+    camera.set_eye(2.0, 2.0, 2.0)
+    camera.set_center(0.0, 0.0, 0.0)
+    camera.set_up(0.0, 1.0, 0.0)
+    camera.set_perspective(45.0, cfg.aspect_ratio, 1.0, 10.0)
+
+    return camera
+
+
+@scene(stl={'type': 'file', 'filter': 'STL files (*.stl)'},
+       scale={'type': 'range', 'range': [0.01, 10], 'unit_base': 100})
+def stl(cfg, stl=None, scale=.8):
+
+    if stl is None:
+        # generated with: echo 'sphere($fn=15);'>sphere.scad; openscad sphere.scad -o sphere.stl
+        stl = os.path.join(os.path.dirname(__file__), 'data', 'sphere.stl')
+
+    normals_data  = array.array('f')
+    vertices_data = array.array('f')
+    solid_name = None
+    normal = None
+
+    with open(stl) as fp:
+        for line in fp.readlines():
+            line = line.strip()
+            if line.startswith('solid'):
+                solid_name = line.split(None, 1)[1]
+            elif line.startswith('facet normal'):
+                _, _, normal = line.split(None, 2)
+                normal = [float(f) for f in normal.split()]
+            elif normal and line.startswith('vertex'):
+                _, vertex = line.split(None, 1)
+                vertex = [float(f) for f in vertex.split()]
+                normals_data.extend(normal)
+                vertices_data.extend(vertex)
+
+    vertices = BufferVec3(data=vertices_data)
+    normals  = BufferVec3(data=normals_data)
+
+    g = Geometry(vertices=vertices, normals=normals)
+    p = Program(fragment=get_shader('colored-normals'))
+    solid = Render(g, p, name=solid_name)
+    solid.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
+
+    solid = Scale(solid, [scale] * 3)
+
+    for i in range(3):
+        rot_animkf = AnimatedFloat([AnimKeyFrameFloat(0, 0),
+                                    AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
+        axis = [int(i == x) for x in range(3)]
+        solid = Rotate(solid, axis=axis, anim=rot_animkf)
+
+    camera = Camera(solid)
     camera.set_eye(2.0, 2.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
