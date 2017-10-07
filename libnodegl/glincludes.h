@@ -71,6 +71,7 @@
 # define GL_STATIC_COPY                        0x88E6
 # define GL_DYNAMIC_READ                       0x88E9
 # define GL_DYNAMIC_COPY                       0x88EA
+# define GL_INVALID_INDEX                      0xFFFFFFFFU
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES
