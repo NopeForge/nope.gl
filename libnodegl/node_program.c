@@ -33,11 +33,12 @@ static const char default_fragment_shader[] =
     ""                                                                                  "\n"
     "precision highp float;"                                                            "\n"
     "uniform sampler2D tex0_sampler;"                                                   "\n"
-    "varying vec2 var_texcoord;"                                                        "\n"
+    "varying vec2 var_uvcoord;"                                                        "\n"
+    "varying vec2 var_tex0_coord;"                                                      "\n"
     "void main(void)"                                                                   "\n"
     "{"                                                                                 "\n"
     "    vec4 t;"                                                                       "\n"
-    "    t = texture2D(tex0_sampler, var_texcoord);"                                    "\n"
+    "    t = texture2D(tex0_sampler, var_tex0_coord);"                                  "\n"
     "    gl_FragColor = vec4(t.rgb, 1.0);"                                              "\n"
     "}";
 
@@ -46,7 +47,7 @@ static const char default_vertex_shader[] =
     ""                                                                                  "\n"
     "precision highp float;"                                                            "\n"
     "attribute vec4 ngl_position;"                                                      "\n"
-    "attribute vec2 ngl_texcoord;"                                                      "\n"
+    "attribute vec2 ngl_uvcoord;"                                                      "\n"
     "attribute vec3 ngl_normal;"                                                        "\n"
     "uniform mat4 ngl_modelview_matrix;"                                                "\n"
     "uniform mat4 ngl_projection_matrix;"                                               "\n"
@@ -55,13 +56,15 @@ static const char default_vertex_shader[] =
     "uniform mat4 tex0_coord_matrix;"                                                   "\n"
     "uniform vec2 tex0_dimensions;"                                                     "\n"
 
-    "varying vec2 var_texcoord;"                                                        "\n"
+    "varying vec2 var_uvcoord;"                                                        "\n"
     "varying vec3 var_normal;"                                                          "\n"
+    "varying vec2 var_tex0_coord;"                                                      "\n"
     "void main()"                                                                       "\n"
     "{"                                                                                 "\n"
     "    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;"    "\n"
-    "    var_texcoord = (tex0_coord_matrix * vec4(ngl_texcoord, 0, 1)).xy;"             "\n"
+    "    var_uvcoord = ngl_uvcoord;"                                                  "\n"
     "    var_normal = ngl_normal_matrix * ngl_normal;"                                  "\n"
+    "    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0, 1)).xy;"           "\n"
     "}";
 
 #define OFFSET(x) offsetof(struct program, x)
@@ -177,7 +180,7 @@ static int program_init(struct ngl_node *node)
         return -1;
 
     s->position_location_id          = ngli_glGetAttribLocation(gl, s->program_id,  "ngl_position");
-    s->texcoord_location_id          = ngli_glGetAttribLocation(gl, s->program_id,  "ngl_texcoord");
+    s->uvcoord_location_id           = ngli_glGetAttribLocation(gl, s->program_id,  "ngl_uvcoord");
     s->normal_location_id            = ngli_glGetAttribLocation(gl, s->program_id,  "ngl_normal");
     s->modelview_matrix_location_id  = ngli_glGetUniformLocation(gl, s->program_id, "ngl_modelview_matrix");
     s->projection_matrix_location_id = ngli_glGetUniformLocation(gl, s->program_id, "ngl_projection_matrix");

@@ -32,7 +32,7 @@ precision mediump float;
 uniform float time;
 uniform float ar;
 uniform sampler2D tex0_sampler;
-varying vec2 var_texcoord;
+varying vec2 var_tex0_coord;
 
 void main()
 {
@@ -44,9 +44,9 @@ void main()
     float thickw = thick;
     float thickh = thick * ar;
 
-    float x = var_texcoord.x;
-    float y = var_texcoord.y;
-    vec4 video_pix = texture2D(tex0_sampler, var_texcoord);
+    float x = var_tex0_coord.x;
+    float y = var_tex0_coord.y;
+    vec4 video_pix = texture2D(tex0_sampler, var_tex0_coord);
 
     float bar_width = 1. - padw*2. - thickw*2.;
 

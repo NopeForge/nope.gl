@@ -42,11 +42,11 @@ def rotating_cube(cfg):
 #version 100
 precision mediump float;
 uniform sampler2D tex0_sampler;
-varying vec2 var_texcoord;
+varying vec2 var_tex0_coord;
 uniform vec3 blend_color;
 void main(void)
 {
-    vec4 t = texture2D(tex0_sampler, var_texcoord);
+    vec4 t = texture2D(tex0_sampler, var_tex0_coord);
     gl_FragColor = vec4(mix(t.rgb, blend_color, 0.2), 1.0);
 }"""
     p = Program(fragment=frag_data)

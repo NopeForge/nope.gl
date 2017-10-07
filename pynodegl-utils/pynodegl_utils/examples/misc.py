@@ -37,10 +37,10 @@ def triangle(cfg, size=0.5):
     frag_data = '''
 #version 100
 precision mediump float;
-varying vec2 var_texcoord;
+varying vec2 var_uvcoord;
 void main(void)
 {
-    vec2 c = var_texcoord;
+    vec2 c = var_uvcoord;
     gl_FragColor = vec4(c.y-c.x, c.x, 1.0-c.y, 1.0);
 }'''
 
@@ -50,7 +50,6 @@ void main(void)
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
     p = Program(fragment=frag_data)
     node = Render(triangle, p)
-    node.update_textures(tex0=Texture())
     animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
               AnimKeyFrameVec3(cfg.duration, (0, 0, -360*2))]
     node = Rotate(node, anim=AnimationVec3(animkf))
@@ -159,16 +158,16 @@ precision mediump float;
 
 uniform sampler2D tex0_sampler;
 uniform sampler2D tex1_sampler;
-varying vec2 var_texcoord;
+varying vec2 var_tex0_coord;
 
 void main()
 {
     vec4 audio_pix;
-    vec4 video_pix = texture2D(tex1_sampler, var_texcoord);
-    vec2 sample_id_ch_1 = vec2(var_texcoord.x,        0.5 / 22.);
-    vec2 sample_id_ch_2 = vec2(var_texcoord.x,        1.5 / 22.);
-    vec2  power_id_ch_1 = vec2(var_texcoord.x,   %(fft1)f / 22.);
-    vec2  power_id_ch_2 = vec2(var_texcoord.x,   %(fft2)f / 22.);
+    vec4 video_pix = texture2D(tex1_sampler, var_tex0_coord);
+    vec2 sample_id_ch_1 = vec2(var_tex0_coord.x,        0.5 / 22.);
+    vec2 sample_id_ch_2 = vec2(var_tex0_coord.x,        1.5 / 22.);
+    vec2  power_id_ch_1 = vec2(var_tex0_coord.x,   %(fft1)f / 22.);
+    vec2  power_id_ch_2 = vec2(var_tex0_coord.x,   %(fft2)f / 22.);
     float sample_ch_1 = texture2D(tex0_sampler, sample_id_ch_1).x;
     float sample_ch_2 = texture2D(tex0_sampler, sample_id_ch_2).x;
     float  power_ch_1 = texture2D(tex0_sampler,  power_id_ch_1).x;
@@ -180,15 +179,15 @@ void main()
     power_ch_1 = clamp(power_ch_1, 0., 1.) / 4.; // [0 ; +oo] -> [0 ; 0.25]
     power_ch_2 = clamp(power_ch_2, 0., 1.) / 4.; // [0 ; +oo] -> [0 ; 0.25]
 
-    float diff_wave_ch_1 = abs(sample_ch_1 - var_texcoord.y);
-    float diff_wave_ch_2 = abs(sample_ch_2 - var_texcoord.y);
+    float diff_wave_ch_1 = abs(sample_ch_1 - var_tex0_coord.y);
+    float diff_wave_ch_2 = abs(sample_ch_2 - var_tex0_coord.y);
     if (diff_wave_ch_1 < 0.003) {
         audio_pix = vec4(0.5, 1.0, 0.0, 1.0);
     } else if (diff_wave_ch_2 < 0.003) {
         audio_pix = vec4(0.0, 1.0, 0.5, 1.0);
-    } else if (var_texcoord.y > 0.75 - power_ch_1 && var_texcoord.y < 0.75) {
+    } else if (var_tex0_coord.y > 0.75 - power_ch_1 && var_tex0_coord.y < 0.75) {
         audio_pix = vec4(1.0, 0.5, 0.0, 1.0);
-    } else if (var_texcoord.y > 1.   - power_ch_2 && var_texcoord.y < 1.) {
+    } else if (var_tex0_coord.y > 1.   - power_ch_2 && var_tex0_coord.y < 1.) {
         audio_pix = vec4(1.0, 0.0, 0.5, 1.0);
     } else {
         audio_pix = vec4(0.0, 0.0, 0.0, 1.0);

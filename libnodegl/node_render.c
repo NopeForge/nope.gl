@@ -170,10 +170,10 @@ static int update_vertex_attribs(struct ngl_node *node)
 
     if (geometry->texcoords_buffer) {
         struct buffer *buffer = geometry->texcoords_buffer->priv_data;
-        if (program->texcoord_location_id >= 0) {
-            ngli_glEnableVertexAttribArray(gl, program->texcoord_location_id);
+        if (program->uvcoord_location_id >= 0) {
+            ngli_glEnableVertexAttribArray(gl, program->uvcoord_location_id);
             ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-            ngli_glVertexAttribPointer(gl, program->texcoord_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+            ngli_glVertexAttribPointer(gl, program->uvcoord_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
         }
     }
 
