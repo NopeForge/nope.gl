@@ -182,6 +182,7 @@ def centered_model_media(cfg, n=0.5, model=None):
 
     camera = Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)
+    camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
     camera.set_perspective(45.0, cfg.aspect_ratio, 1.0, 10.0)
 
