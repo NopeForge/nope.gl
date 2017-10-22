@@ -115,8 +115,10 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.update()
 
     def set_scene(self, scene, cfg):
+        self.makeCurrent()
         self._viewer.set_glstates(*cfg.glstates)
         self._viewer.set_scene(scene)
+        self.doneCurrent()
         self.update()
 
     def get_aspect_ratio(self):
