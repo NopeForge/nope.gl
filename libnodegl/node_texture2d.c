@@ -31,6 +31,42 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+#define DATA_SRC_TYPES_LIST (const int[]){NGL_NODE_MEDIA,                   \
+                                          NGL_NODE_FPS,                     \
+                                          NGL_NODE_ANIMATEDBUFFERFLOAT,     \
+                                          NGL_NODE_ANIMATEDBUFFERVEC2,      \
+                                          NGL_NODE_ANIMATEDBUFFERVEC3,      \
+                                          NGL_NODE_ANIMATEDBUFFERVEC4,      \
+                                          NGL_NODE_BUFFERBYTE,              \
+                                          NGL_NODE_BUFFERBVEC2,             \
+                                          NGL_NODE_BUFFERBVEC3,             \
+                                          NGL_NODE_BUFFERBVEC4,             \
+                                          NGL_NODE_BUFFERINT,               \
+                                          NGL_NODE_BUFFERIVEC2,             \
+                                          NGL_NODE_BUFFERIVEC3,             \
+                                          NGL_NODE_BUFFERIVEC4,             \
+                                          NGL_NODE_BUFFERSHORT,             \
+                                          NGL_NODE_BUFFERSVEC2,             \
+                                          NGL_NODE_BUFFERSVEC3,             \
+                                          NGL_NODE_BUFFERSVEC4,             \
+                                          NGL_NODE_BUFFERUBYTE,             \
+                                          NGL_NODE_BUFFERUBVEC2,            \
+                                          NGL_NODE_BUFFERUBVEC3,            \
+                                          NGL_NODE_BUFFERUBVEC4,            \
+                                          NGL_NODE_BUFFERUINT,              \
+                                          NGL_NODE_BUFFERUIVEC2,            \
+                                          NGL_NODE_BUFFERUIVEC3,            \
+                                          NGL_NODE_BUFFERUIVEC4,            \
+                                          NGL_NODE_BUFFERUSHORT,            \
+                                          NGL_NODE_BUFFERUSVEC2,            \
+                                          NGL_NODE_BUFFERUSVEC3,            \
+                                          NGL_NODE_BUFFERUSVEC4,            \
+                                          NGL_NODE_BUFFERFLOAT,             \
+                                          NGL_NODE_BUFFERVEC2,              \
+                                          NGL_NODE_BUFFERVEC3,              \
+                                          NGL_NODE_BUFFERVEC4,              \
+                                          -1}
+
 #define OFFSET(x) offsetof(struct texture, x)
 static const struct node_param texture2d_params[] = {
     {"format", PARAM_TYPE_INT, OFFSET(format), {.i64=GL_RGBA}},
@@ -42,12 +78,12 @@ static const struct node_param texture2d_params[] = {
     {"mag_filter", PARAM_TYPE_INT, OFFSET(mag_filter), {.i64=GL_NEAREST}},
     {"wrap_s", PARAM_TYPE_INT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}},
     {"wrap_t", PARAM_TYPE_INT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}},
-    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=(const int[]){NGL_NODE_MEDIA, NGL_NODE_FPS, -1}},
+    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST},
     {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
     {NULL}
 };
 
-static int texture_init_2D(struct ngl_node *node)
+static int texture_init_2D(struct ngl_node *node, const uint8_t *data)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -65,7 +101,7 @@ static int texture_init_2D(struct ngl_node *node)
     ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
     ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
     if (s->width && s->height) {
-        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, NULL);
+        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, data);
     }
     ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
@@ -98,7 +134,13 @@ static int texture2d_init(struct ngl_node *node)
     if (s->id)
         return 0;
 
+    const uint8_t *data = NULL;
+
     if (s->data_src) {
+        int ret = ngli_node_init(s->data_src);
+        if (ret < 0)
+            return ret;
+
         switch (s->data_src->class->id) {
         case NGL_NODE_FPS:
             s->format = GL_RED;
@@ -114,18 +156,63 @@ static int texture2d_init(struct ngl_node *node)
             }
             break;
         }
+        case NGL_NODE_ANIMATEDBUFFERFLOAT:
+        case NGL_NODE_ANIMATEDBUFFERVEC2:
+        case NGL_NODE_ANIMATEDBUFFERVEC3:
+        case NGL_NODE_ANIMATEDBUFFERVEC4:
+        case NGL_NODE_BUFFERBYTE:
+        case NGL_NODE_BUFFERBVEC2:
+        case NGL_NODE_BUFFERBVEC3:
+        case NGL_NODE_BUFFERBVEC4:
+        case NGL_NODE_BUFFERINT:
+        case NGL_NODE_BUFFERIVEC2:
+        case NGL_NODE_BUFFERIVEC3:
+        case NGL_NODE_BUFFERIVEC4:
+        case NGL_NODE_BUFFERSHORT:
+        case NGL_NODE_BUFFERSVEC2:
+        case NGL_NODE_BUFFERSVEC3:
+        case NGL_NODE_BUFFERSVEC4:
+        case NGL_NODE_BUFFERUBYTE:
+        case NGL_NODE_BUFFERUBVEC2:
+        case NGL_NODE_BUFFERUBVEC3:
+        case NGL_NODE_BUFFERUBVEC4:
+        case NGL_NODE_BUFFERUINT:
+        case NGL_NODE_BUFFERUIVEC2:
+        case NGL_NODE_BUFFERUIVEC3:
+        case NGL_NODE_BUFFERUIVEC4:
+        case NGL_NODE_BUFFERUSHORT:
+        case NGL_NODE_BUFFERUSVEC2:
+        case NGL_NODE_BUFFERUSVEC3:
+        case NGL_NODE_BUFFERUSVEC4:
+        case NGL_NODE_BUFFERFLOAT:
+        case NGL_NODE_BUFFERVEC2:
+        case NGL_NODE_BUFFERVEC3:
+        case NGL_NODE_BUFFERVEC4: {
+            struct buffer *buffer = s->data_src->priv_data;
+            if (buffer->count != s->width * s->height) {
+                LOG(ERROR, "dimensions (%dx%d) do not match buffer count (%d),"
+                    " assuming %dx1", s->width, s->height,
+                    buffer->count, buffer->count);
+                s->width = buffer->count;
+                s->height = 1;
+            }
+            data = buffer->data;
+            s->type = buffer->comp_type;
+            switch (buffer->data_comp) {
+            case 1: s->internal_format = s->format = GL_RED;  break;
+            case 2: s->internal_format = s->format = GL_RG;   break;
+            case 3: s->internal_format = s->format = GL_RGB;  break;
+            case 4: s->internal_format = s->format = GL_RGBA; break;
+            default: ngli_assert(0);
+            }
+            break;
+        }
         default:
             ngli_assert(0);
         }
     }
 
-    texture_init_2D(node);
-
-    if (s->data_src) {
-        int ret = ngli_node_init(s->data_src);
-        if (ret < 0)
-            return ret;
-    }
+    texture_init_2D(node, data);
 
     return 0;
 }
@@ -173,6 +260,22 @@ static void handle_media_frame(struct ngl_node *node)
     }
 }
 
+static void handle_buffer_frame(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    struct texture *s = node->priv_data;
+    struct buffer *buffer = s->data_src->priv_data;
+    const uint8_t *data = buffer->data;
+
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
+    if (buffer->count)
+        ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, s->width, s->height, s->format, s->type, data);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+}
+
 static void texture2d_update(struct ngl_node *node, double t)
 {
     struct texture *s = node->priv_data;
@@ -182,10 +285,20 @@ static void texture2d_update(struct ngl_node *node, double t)
 
     ngli_node_update(s->data_src, t);
 
-    if (s->data_src->class->id == NGL_NODE_FPS) {
-        handle_fps_frame(node);
-    } else if (s->data_src->class->id == NGL_NODE_MEDIA) {
-        handle_media_frame(node);
+    switch (s->data_src->class->id) {
+        case NGL_NODE_FPS:
+            handle_fps_frame(node);
+            break;
+        case NGL_NODE_MEDIA:
+            handle_media_frame(node);
+            break;
+        case NGL_NODE_ANIMATEDBUFFERFLOAT:
+        case NGL_NODE_ANIMATEDBUFFERVEC2:
+        case NGL_NODE_ANIMATEDBUFFERVEC3:
+        case NGL_NODE_ANIMATEDBUFFERVEC4:
+            ngli_node_update(s->data_src, t);
+            handle_buffer_frame(node);
+            break;
     }
 }
 

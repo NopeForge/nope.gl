@@ -61,6 +61,7 @@
 # define GL_MINOR_VERSION                      0x821C
 # define GL_NUM_EXTENSIONS                     0x821D
 # define GL_RED                                GL_LUMINANCE
+# define GL_RG                                 GL_LUMINANCE_ALPHA
 # define GL_R32F                               0x822E
 # define GL_READ_ONLY                          0x88B8
 # define GL_WRITE_ONLY                         0x88B9
