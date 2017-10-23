@@ -373,13 +373,20 @@ struct animkeyframe {
     int nb_args;
 };
 
+struct fps_measuring {
+    int nb;
+    int64_t *times;
+    int count;
+    int pos;
+    int64_t total_times;
+};
+
 struct fps {
     struct ngl_node *child;
-    int measure_update;
-    int measure_draw;
+    struct fps_measuring m_update;
+    struct fps_measuring m_draw;
+    struct fps_measuring m_total;
     int create_databuf;
-    int64_t update_start;
-    int64_t update_end;
     uint8_t *data_buf;
     int data_w, data_h;
 };

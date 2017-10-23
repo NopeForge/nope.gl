@@ -31,8 +31,8 @@
 #define OFFSET(x) offsetof(struct fps, x)
 static const struct node_param fps_params[] = {
     {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"measure_update", PARAM_TYPE_INT, OFFSET(measure_update)},
-    {"measure_draw",   PARAM_TYPE_INT, OFFSET(measure_draw)},
+    {"measure_update", PARAM_TYPE_INT, OFFSET(m_update.nb), {.i64=60}},
+    {"measure_draw",   PARAM_TYPE_INT, OFFSET(m_draw.nb),   {.i64=60}},
     {"create_databuf", PARAM_TYPE_INT, OFFSET(create_databuf)},
     {NULL}
 };
@@ -175,6 +175,16 @@ static const uint8_t font8[128][8] = {
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 };
 
+static int alloc_measures(struct fps_measuring *m)
+{
+   if (m->nb) {
+       m->times = calloc(m->nb, sizeof(*m->times));
+       if (!m->times)
+           return -1;
+   }
+   return 0;
+}
+
 static int fps_init(struct ngl_node *node)
 {
     struct fps *s = node->priv_data;
@@ -186,14 +196,23 @@ static int fps_init(struct ngl_node *node)
         if (!s->data_buf)
             return -1;
     }
+
+    s->m_total.nb = NGLI_MAX(s->m_update.nb, s->m_draw.nb);
+    if (alloc_measures(&s->m_update) < 0 ||
+        alloc_measures(&s->m_draw)   < 0 ||
+        alloc_measures(&s->m_total)  < 0)
+        return -1;
+
     return 0;
 }
 
 static const char * const ops[] = {"update", "draw", "total"};
 
-static void print_report(struct ngl_node *node, int op, const int64_t t)
+static void print_report(struct ngl_node *node, int op)
 {
     struct fps *s = node->priv_data;
+    const struct fps_measuring *m = &s->m_update + op;
+    const int64_t t = m->total_times / m->count;
     const double fps = 1000000. / t;
     char buf[DATA_NBCHAR_W+1];
 
@@ -220,6 +239,14 @@ static void print_report(struct ngl_node *node, int op, const int64_t t)
     }
 }
 
+static void register_time(struct fps_measuring *m, int64_t t)
+{
+    m->total_times = m->total_times - m->times[m->pos] + t;
+    m->times[m->pos] = t;
+    m->pos = (m->pos + 1) % m->nb;
+    m->count = NGLI_MIN(m->count + 1, m->nb);
+}
+
 static void fps_update(struct ngl_node *node, double t)
 {
     struct fps *s = node->priv_data;
@@ -228,11 +255,12 @@ static void fps_update(struct ngl_node *node, double t)
     memcpy(child->modelview_matrix, node->modelview_matrix, sizeof(node->modelview_matrix));
     memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
 
-    if (s->measure_update) {
-        s->update_start = ngli_gettime();
+    if (s->m_update.nb) {
+        int64_t update_start = ngli_gettime();
         ngli_node_update(child, t);
-        s->update_end = ngli_gettime();
-        print_report(node, 0, s->update_end - s->update_start);
+        int64_t update_end = ngli_gettime();
+        register_time(&s->m_update, update_end - update_start);
+        print_report(node, 0);
     } else {
         ngli_node_update(child, t);
     }
@@ -242,16 +270,19 @@ static void fps_draw(struct ngl_node *node)
 {
     struct fps *s = node->priv_data;
 
-    if (s->measure_draw) {
+    if (s->m_draw.nb) {
         const int64_t draw_start = ngli_gettime();
         ngli_node_draw(s->child);
         const int64_t draw_end = ngli_gettime();
         const int64_t tdraw = draw_end - draw_start;
-        print_report(node, 1, tdraw);
+        register_time(&s->m_draw, draw_end - draw_start);
 
-        if (s->measure_update) {
-            const int64_t tupdate = s->update_end - s->update_start;
-            print_report(node, 2, tdraw + tupdate);
+        print_report(node, 1);
+        if (s->m_update.nb) {
+            const struct fps_measuring *mu = &s->m_update;
+            const int64_t tupdate = mu->times[(mu->pos ? mu->pos : mu->count) - 1];
+            register_time(&s->m_total, tdraw + tupdate);
+            print_report(node, 2);
         }
     } else {
         ngli_node_draw(s->child);
@@ -262,6 +293,9 @@ static void fps_uninit(struct ngl_node *node)
 {
     struct fps *s = node->priv_data;
     free(s->data_buf);
+    free(s->m_update.times);
+    free(s->m_draw.times);
+    free(s->m_total.times);
 }
 
 const struct node_class ngli_fps_class = {
