@@ -52,13 +52,35 @@ static void scale_update(struct ngl_node *node, double t)
     struct scale *s = node->priv_data;
     struct ngl_node *child = s->child;
     const float *f = get_factors(s, t);
-    const NGLI_ALIGNED_MAT(sm) = { // TODO: anchor
+    const NGLI_ALIGNED_MAT(sm) = {
         f[0], 0.0f, 0.0f, 0.0f,
         0.0f, f[1], 0.0f, 0.0f,
         0.0f, 0.0f, f[2], 0.0f,
         0.0f, 0.0f, 0.0f, 1.0f,
     };
-    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, sm);
+    static const float zero_anchor[3] = { 0.0, 0.0, 0.0 };
+    const int translate = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
+    if (translate) {
+        const float *a = s->anchor;
+        const NGLI_ALIGNED_MAT(tm) = {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+            a[0], a[1], a[2], 1.0f,
+        };
+        ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, tm);
+        ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, sm);
+        const NGLI_ALIGNED_MAT(itm) = {
+            1.0f, 0.0f, 0.0f, 0.0f,
+            0.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 1.0f, 0.0f,
+           -a[0],-a[1],-a[2], 1.0f,
+        };
+        ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, itm);
+    } else {
+        ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, sm);
+    }
+
     memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
     ngli_node_update(child, t);
 }
