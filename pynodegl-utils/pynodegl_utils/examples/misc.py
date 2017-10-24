@@ -160,39 +160,45 @@ uniform sampler2D tex0_sampler;
 uniform sampler2D tex1_sampler;
 varying vec2 var_tex0_coord;
 
+float wave(float sample, float y, float yoff)
+{
+    float s = (sample + 1.0) / 2.0; // [-1;1] -> [0;1]
+    float v = yoff + s/4.0;         // [0;1] -> [off;off+0.25]
+    return smoothstep(v-0.005, v, y)
+         - smoothstep(v, v+0.005, y);
+}
+
+float freq(float power, float y, float yoff)
+{
+    float p = sqrt(power);
+    float v = clamp(p, 0.0, 1.0) / 4.0; // [0;+oo] -> [0;0.25]
+    float a = yoff + 0.25;
+    float b = a - v;
+    return step(y, a) * (1.0 - step(y, b)); // y <= a && y > b
+}
+
 void main()
 {
-    vec4 audio_pix;
+    float x = var_tex0_coord.x;
+    float y = var_tex0_coord.y;
     vec4 video_pix = texture2D(tex1_sampler, var_tex0_coord);
-    vec2 sample_id_ch_1 = vec2(var_tex0_coord.x,        0.5 / 22.);
-    vec2 sample_id_ch_2 = vec2(var_tex0_coord.x,        1.5 / 22.);
-    vec2  power_id_ch_1 = vec2(var_tex0_coord.x,   %(fft1)f / 22.);
-    vec2  power_id_ch_2 = vec2(var_tex0_coord.x,   %(fft2)f / 22.);
+    vec2 sample_id_ch_1 = vec2(x,      0.5 / 22.);
+    vec2 sample_id_ch_2 = vec2(x,      1.5 / 22.);
+    vec2  power_id_ch_1 = vec2(x, %(fft1)f / 22.);
+    vec2  power_id_ch_2 = vec2(x, %(fft2)f / 22.);
     float sample_ch_1 = texture2D(tex0_sampler, sample_id_ch_1).x;
     float sample_ch_2 = texture2D(tex0_sampler, sample_id_ch_2).x;
     float  power_ch_1 = texture2D(tex0_sampler,  power_id_ch_1).x;
     float  power_ch_2 = texture2D(tex0_sampler,  power_id_ch_2).x;
-    power_ch_1 = sqrt(power_ch_1);
-    power_ch_2 = sqrt(power_ch_2);
-    sample_ch_1 = (sample_ch_1 + 1.) / 8.; // [-1;1] -> [0    ; 0.25]
-    sample_ch_2 = (sample_ch_2 + 3.) / 8.; // [-1;1] -> [0.25 ; 0.5 ]
-    power_ch_1 = clamp(power_ch_1, 0., 1.) / 4.; // [0 ; +oo] -> [0 ; 0.25]
-    power_ch_2 = clamp(power_ch_2, 0., 1.) / 4.; // [0 ; +oo] -> [0 ; 0.25]
-
-    float diff_wave_ch_1 = abs(sample_ch_1 - var_tex0_coord.y);
-    float diff_wave_ch_2 = abs(sample_ch_2 - var_tex0_coord.y);
-    if (diff_wave_ch_1 < 0.003) {
-        audio_pix = vec4(0.5, 1.0, 0.0, 1.0);
-    } else if (diff_wave_ch_2 < 0.003) {
-        audio_pix = vec4(0.0, 1.0, 0.5, 1.0);
-    } else if (var_tex0_coord.y > 0.75 - power_ch_1 && var_tex0_coord.y < 0.75) {
-        audio_pix = vec4(1.0, 0.5, 0.0, 1.0);
-    } else if (var_tex0_coord.y > 1.   - power_ch_2 && var_tex0_coord.y < 1.) {
-        audio_pix = vec4(1.0, 0.0, 0.5, 1.0);
-    } else {
-        audio_pix = vec4(0.0, 0.0, 0.0, 1.0);
-    }
-    gl_FragColor = mix(video_pix, audio_pix, %(overlay)f);
+    float wave1 = wave(sample_ch_1, y, 0.0);
+    float wave2 = wave(sample_ch_2, y, 0.25);
+    float freq1 = freq(power_ch_1, y, 0.5);
+    float freq2 = freq(power_ch_2, y, 0.75);
+    vec3 audio_pix = vec3(0.0, 1.0, 0.5) * wave2
+                   + vec3(0.5, 1.0, 0.0) * wave1
+                   + vec3(1.0, 0.5, 0.0) * freq1
+                   + vec3(1.0, 0.0, 0.5) * freq2;
+    gl_FragColor = mix(video_pix, vec4(audio_pix, 1.0), %(overlay)f);
 }
 ''' % {'fft1': fft1, 'fft2': fft2, 'overlay': overlay}
 
