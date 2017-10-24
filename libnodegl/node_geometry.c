@@ -76,13 +76,21 @@ struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int 
     return node;
 }
 
+#define TEXCOORDS_TYPES_LIST (const int[]){NGL_NODE_BUFFERSCALAR,           \
+                                           NGL_NODE_BUFFERVEC2,             \
+                                           NGL_NODE_BUFFERVEC3,             \
+                                           NGL_NODE_ANIMATEDBUFFERSCALAR,   \
+                                           NGL_NODE_ANIMATEDBUFFERVEC2,     \
+                                           NGL_NODE_ANIMATEDBUFFERVEC3,     \
+                                           -1}
+
 #define OFFSET(x) offsetof(struct geometry, x)
 static const struct node_param geometry_params[] = {
     {"vertices",  PARAM_TYPE_NODE, OFFSET(vertices_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
                   .flags=PARAM_FLAG_CONSTRUCTOR | PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
     {"texcoords", PARAM_TYPE_NODE, OFFSET(texcoords_buffer),
-                  .node_types=(const int[]){NGL_NODE_BUFFERVEC2, NGL_NODE_ANIMATEDBUFFERVEC2, -1},
+                  .node_types=TEXCOORDS_TYPES_LIST,
                   .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
     {"normals",   PARAM_TYPE_NODE, OFFSET(normals_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
