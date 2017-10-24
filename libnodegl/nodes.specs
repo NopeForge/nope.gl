@@ -302,9 +302,8 @@
         - [anchor, vec3]
         - [anim, Node]
 
-- Texture:
+- Texture2D:
     optional:
-        - [target, int]
         - [format, int]
         - [internal_format, int]
         - [type, int]
@@ -315,7 +314,6 @@
         - [wrap_s, int]
         - [wrap_t, int]
         - [data_src, Node]
-        - [external_id, int]
         - [access, int]
 
 - Translate:

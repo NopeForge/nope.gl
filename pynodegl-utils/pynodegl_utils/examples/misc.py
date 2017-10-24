@@ -22,7 +22,7 @@ from pynodegl import (
         Quad,
         Render,
         Rotate,
-        Texture,
+        Texture2D,
         Translate,
         Triangle,
         UniformFloat,
@@ -118,7 +118,7 @@ def cropboard(cfg, dim=15):
 
     p = Program()
     m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
 
     for y in range(dim):
         for x in range(dim):
@@ -199,10 +199,10 @@ void main()
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
     audio_m = Media(media.filename, audio_tex=1)
-    audio_tex = Texture(data_src=audio_m)
+    audio_tex = Texture2D(data_src=audio_m)
 
     video_m = Media(media.filename)
-    video_tex = Texture(data_src=video_m)
+    video_tex = Texture2D(data_src=video_m)
 
     p = Program(fragment=frag_data)
     render = Render(q, p)

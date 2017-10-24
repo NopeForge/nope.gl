@@ -13,7 +13,7 @@ from pynodegl import (
         Quad,
         Render,
         Rotate,
-        Texture,
+        Texture2D,
         Triangle,
 )
 
@@ -170,7 +170,7 @@ def centered_model_media(cfg, n=0.5, model=None):
 
     q = Geometry(vertices, texcoords, normals)
     m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
     p = Program(fragment=fragment)
     render = Render(q, p)
     render.update_textures(tex0=t)

@@ -30,7 +30,7 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE,       \
+#define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE2D,      \
                                           -1}
 
 #define PROGRAMS_TYPES_LIST (const int[]){NGL_NODE_COMPUTEPROGRAM, \

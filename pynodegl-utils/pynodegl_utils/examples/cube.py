@@ -12,7 +12,7 @@ from pynodegl import (
         Render,
         RenderToTexture,
         Rotate,
-        Texture,
+        Texture2D,
         UniformVec3,
 )
 
@@ -51,7 +51,7 @@ void main(void)
 }"""
     p = Program(fragment=frag_data)
 
-    t = Texture(data_src=Media(cfg.medias[0].filename))
+    t = Texture2D(data_src=Media(cfg.medias[0].filename))
     cube_quads_info = _get_cube_quads()
     children = [_get_cube_side(t, p, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)
@@ -74,14 +74,14 @@ void main(void)
 def scene_with_framebuffer(cfg):
     g = Group()
 
-    d = Texture()
+    d = Texture2D()
     d.set_format(GL.GL_DEPTH_COMPONENT)
     d.set_internal_format(GL.GL_DEPTH_COMPONENT)
     d.set_type(GL.GL_FLOAT)
     d.set_width(640)
     d.set_height(480)
 
-    t = Texture()
+    t = Texture2D()
     t.set_width(640)
     t.set_height(480)
     rtt = RenderToTexture(rotating_cube(cfg), t)

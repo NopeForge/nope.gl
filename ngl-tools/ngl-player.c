@@ -61,7 +61,7 @@ static struct ngl_node *get_scene(const char *filename)
     static const float height[3] = {  0.0,  2.0, 0.0 };
 
     struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA, filename);
-    struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE);
+    struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD);
     struct ngl_node *program = ngl_node_create(NGL_NODE_PROGRAM);
     struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER, quad, program);

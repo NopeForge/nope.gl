@@ -32,8 +32,7 @@
 #include "nodes.h"
 
 #define OFFSET(x) offsetof(struct texture, x)
-static const struct node_param texture_params[] = {
-    {"target", PARAM_TYPE_INT, OFFSET(target), {.i64=GL_TEXTURE_2D}},
+static const struct node_param texture2d_params[] = {
     {"format", PARAM_TYPE_INT, OFFSET(format), {.i64=GL_RGBA}},
     {"internal_format", PARAM_TYPE_INT, OFFSET(internal_format), {.i64=GL_RGBA}},
     {"type", PARAM_TYPE_INT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}},
@@ -44,7 +43,6 @@ static const struct node_param texture_params[] = {
     {"wrap_s", PARAM_TYPE_INT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}},
     {"wrap_t", PARAM_TYPE_INT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=(const int[]){NGL_NODE_MEDIA, NGL_NODE_FPS, -1}},
-    {"external_id", PARAM_TYPE_INT, OFFSET(external_id), {.i64=0}},
     {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
     {NULL}
 };
@@ -77,9 +75,11 @@ static int texture_init_2D(struct ngl_node *node)
     return 0;
 }
 
-static int texture_init(struct ngl_node *node)
+static int texture2d_init(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
+
+    s->target = GL_TEXTURE_2D;
 
     static const float coordinates_matrix[] = {
         1.0f, 0.0f, 0.0f, 0.0f,
@@ -90,8 +90,10 @@ static int texture_init(struct ngl_node *node)
 
     memcpy(s->coordinates_matrix, coordinates_matrix, sizeof(s->coordinates_matrix));
 
-    if (s->external_id)
+    if (s->external_id) {
         s->id = s->external_id;
+        s->target = s->external_target;
+    }
 
     if (s->id)
         return 0;
@@ -117,8 +119,7 @@ static int texture_init(struct ngl_node *node)
         }
     }
 
-    if (s->target == GL_TEXTURE_2D)
-        texture_init_2D(node);
+    texture_init_2D(node);
 
     if (s->data_src) {
         int ret = ngli_node_init(s->data_src);
@@ -129,11 +130,11 @@ static int texture_init(struct ngl_node *node)
     return 0;
 }
 
-static void texture_prefetch(struct ngl_node *node)
+static void texture2d_prefetch(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
 
-    texture_init(node);
+    texture2d_init(node);
 
     if (s->data_src)
         ngli_node_prefetch(s->data_src);
@@ -172,7 +173,7 @@ static void handle_media_frame(struct ngl_node *node)
     }
 }
 
-static void texture_update(struct ngl_node *node, double t)
+static void texture2d_update(struct ngl_node *node, double t)
 {
     struct texture *s = node->priv_data;
 
@@ -188,7 +189,7 @@ static void texture_update(struct ngl_node *node, double t)
     }
 }
 
-static void texture_uninit(struct ngl_node *node)
+static void texture2d_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -202,24 +203,24 @@ static void texture_uninit(struct ngl_node *node)
     s->id = s->local_id = 0;
 }
 
-static void texture_release(struct ngl_node *node)
+static void texture2d_release(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
 
     if (s->data_src)
         ngli_node_release(s->data_src);
 
-    texture_uninit(node);
+    texture2d_uninit(node);
 }
 
-const struct node_class ngli_texture_class = {
-    .id        = NGL_NODE_TEXTURE,
-    .name      = "Texture",
-    .init      = texture_init,
-    .prefetch  = texture_prefetch,
-    .update    = texture_update,
-    .release   = texture_release,
-    .uninit    = texture_uninit,
+const struct node_class ngli_texture2d_class = {
+    .id        = NGL_NODE_TEXTURE2D,
+    .name      = "Texture2D",
+    .init      = texture2d_init,
+    .prefetch  = texture2d_prefetch,
+    .update    = texture2d_update,
+    .release   = texture2d_release,
+    .uninit    = texture2d_uninit,
     .priv_size = sizeof(struct texture),
-    .params    = texture_params,
+    .params    = texture2d_params,
 };

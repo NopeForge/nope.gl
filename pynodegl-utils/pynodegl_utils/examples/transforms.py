@@ -13,7 +13,7 @@ from pynodegl import (
         Render,
         Rotate,
         Scale,
-        Texture,
+        Texture2D,
         Translate,
         UniformMat4,
         UniformVec4,
@@ -76,7 +76,7 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
 def animated(cfg, rotate=True, scale=True, translate=True):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
     p = Program()
     node = Render(q, p)
     node.update_textures(tex0=t)
@@ -120,7 +120,7 @@ void main(void)
 def animated_uniform(cfg):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
     p = Program(fragment=animated_frag_data)
     ts = Render(q, p)
     ts.update_textures(tex0=t)
@@ -145,7 +145,7 @@ def animated_camera(cfg, rotate=False):
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
     p = Program()
     node = Render(q, p)
     node.update_textures(tex0=t)

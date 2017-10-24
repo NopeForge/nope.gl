@@ -6,7 +6,7 @@ from pynodegl import (
         Program,
         Quad,
         Render,
-        Texture,
+        Texture2D,
         Triangle,
 )
 
@@ -29,7 +29,7 @@ def blending_test(cfg):
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
     p = Program()
     ts = Render(q, p)
     ts.update_textures(tex0=t)

@@ -58,7 +58,7 @@ static const struct node_param render_params[] = {
     {"program",  PARAM_TYPE_NODE, OFFSET(program), .flags=PARAM_FLAG_CONSTRUCTOR,
                  .node_types=(const int[]){NGL_NODE_PROGRAM, -1}},
     {"textures", PARAM_TYPE_NODEDICT, OFFSET(textures),
-                 .node_types=(const int[]){NGL_NODE_TEXTURE, -1}},
+                 .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1}},
     {"uniforms", PARAM_TYPE_NODEDICT, OFFSET(uniforms),
                  .node_types=UNIFORMS_TYPES_LIST},
     {"attributes", PARAM_TYPE_NODEDICT, OFFSET(attributes),

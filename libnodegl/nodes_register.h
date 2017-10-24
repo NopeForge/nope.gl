@@ -65,7 +65,7 @@
     action(NGL_NODE_RENDERTOTEXTURE,        ngli_rtt_class)                     \
     action(NGL_NODE_ROTATE,                 ngli_rotate_class)                  \
     action(NGL_NODE_SCALE,                  ngli_scale_class)                   \
-    action(NGL_NODE_TEXTURE,                ngli_texture_class)                 \
+    action(NGL_NODE_TEXTURE2D,              ngli_texture2d_class)               \
     action(NGL_NODE_TRANSLATE,              ngli_translate_class)               \
     action(NGL_NODE_TRIANGLE,               ngli_triangle_class)                \
     action(NGL_NODE_UNIFORMINT,             ngli_uniformint_class)              \

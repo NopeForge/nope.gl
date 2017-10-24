@@ -253,22 +253,21 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
 
     ngl_node_param_set(s->program, "fragment", fragment_shader_hwupload_oes_data);
 
-    s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE);
+    s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE2D);
     if (!s->textures[0])
         return -1;
 
     t = s->textures[0]->priv_data;
-    t->target      = GL_TEXTURE_EXTERNAL_OES;
     t->width       = s->width;
     t->height      = s->height;
     t->external_id = media->android_texture_id;
+    t->external_target = GL_TEXTURE_EXTERNAL_OES;
 
-    s->target_texture = ngl_node_create(NGL_NODE_TEXTURE);
+    s->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     if (!s->target_texture)
         return -1;
 
     t = s->target_texture->priv_data;
-    t->target          = s->target;
     t->format          = s->format;
     t->internal_format = s->internal_format;
     t->width           = s->width;
@@ -278,6 +277,7 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     t->wrap_s          = s->wrap_s;
     t->wrap_t          = s->wrap_t;
     t->external_id     = s->local_id;
+    t->external_target = s->local_target;
 
     s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->program);
     if (!s->render)
@@ -444,38 +444,37 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
 
         ngl_node_param_set(s->program, "fragment", fragment_shader_hwupload_nv12_data);
 
-        s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE);
+        s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE2D);
         if (!s->textures[0])
             return -1;
 
         t = s->textures[0]->priv_data;
-        t->target          = GL_TEXTURE_2D;
         s->format          = GL_LUMINANCE;
         s->internal_format = GL_LUMINANCE;
         s->type            = GL_UNSIGNED_BYTE;
         t->width           = s->width;
         t->height          = s->height;
         t->external_id     = UINT_MAX;
+        t->external_target = GL_TEXTURE_2D;
 
-        s->textures[1] = ngl_node_create(NGL_NODE_TEXTURE);
+        s->textures[1] = ngl_node_create(NGL_NODE_TEXTURE2D);
         if (!s->textures[1])
             return -1;
 
         t = s->textures[1]->priv_data;
-        t->target          = GL_TEXTURE_2D;
         s->format          = GL_LUMINANCE_ALPHA;
         s->internal_format = GL_LUMINANCE_ALPHA;
         s->type            = GL_UNSIGNED_BYTE;
         t->width           = (s->width + 1) >> 1;
         t->height          = (s->height + 1) >> 1;
         t->external_id     = UINT_MAX;
+        t->external_target = GL_TEXTURE_2D;
 
-        s->target_texture = ngl_node_create(NGL_NODE_TEXTURE);
+        s->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
         if (!s->target_texture)
             return -1;
 
         t = s->target_texture->priv_data;
-        t->target          = s->target;
         t->format          = s->format;
         t->internal_format = s->internal_format;
         t->width           = s->width;
@@ -485,6 +484,7 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         t->wrap_s          = s->wrap_s;
         t->wrap_t          = s->wrap_t;
         t->external_id     = s->local_id;
+        t->external_target = GL_TEXTURE_2D;
 
         s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->program);
         if (!s->render)

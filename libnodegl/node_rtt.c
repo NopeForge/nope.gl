@@ -31,9 +31,9 @@
 static const struct node_param rtt_params[] = {
     {"child",   PARAM_TYPE_NODE, OFFSET(child),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"color_texture", PARAM_TYPE_NODE, OFFSET(color_texture), .flags=PARAM_FLAG_CONSTRUCTOR,
-                      .node_types=(const int[]){NGL_NODE_TEXTURE, -1}},
+                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1}},
     {"depth_texture", PARAM_TYPE_NODE, OFFSET(depth_texture), .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
-                      .node_types=(const int[]){NGL_NODE_TEXTURE, -1}},
+                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1}},
     {NULL}
 };
 

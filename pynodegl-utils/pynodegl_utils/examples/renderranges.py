@@ -9,7 +9,7 @@ from pynodegl import (
         RenderRangeContinuous,
         RenderRangeNoRender,
         RenderRangeOnce,
-        Texture,
+        Texture2D,
         UniformFloat,
 )
 
@@ -31,7 +31,7 @@ def queued_medias(cfg, overlap_time=1., dim=3):
 
             corner = (-1. + x*qw, 1. - (y+1)*qh, 0)
             q = Quad(corner, (qw, 0, 0), (0, qh, 0))
-            t = Texture(data_src=m)
+            t = Texture2D(data_src=m)
 
             render = Render(q, p)
             render.set_name('render #%d' % video_id)
@@ -55,8 +55,8 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     m1 = Media(cfg.medias[0].filename, name="media #1")
     m2 = Media(cfg.medias[0].filename, name="media #2")
 
-    t1 = Texture(data_src=m1, name="texture #1")
-    t2 = Texture(data_src=m2, name="texture #2")
+    t1 = Texture2D(data_src=m1, name="texture #1")
+    t2 = Texture2D(data_src=m2, name="texture #2")
 
     render1 = Render(q, p, name="render #1")
     render1.update_textures(tex0=t1)
@@ -145,8 +145,8 @@ void main(void)
     m1 = Media(cfg.medias[0].filename, name="media #1")
     m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name="media #2", start=transition_start)
 
-    t1 = Texture(data_src=m1, name="texture #1")
-    t2 = Texture(data_src=m2, name="texture #2")
+    t1 = Texture2D(data_src=m1, name="texture #1")
+    t2 = Texture2D(data_src=m2, name="texture #2")
 
     render1 = Render(q, p, name="render #1")
     render1.update_textures(tex0=t1)

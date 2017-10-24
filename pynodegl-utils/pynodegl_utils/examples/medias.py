@@ -17,7 +17,7 @@ from pynodegl import (
         Render,
         Rotate,
         Scale,
-        Texture,
+        Texture2D,
         UniformFloat,
 )
 
@@ -86,7 +86,7 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0),
              (uv_corner_x, uv_corner_y), (uv_width, 0), (0, uv_height))
     m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
     p = Program()
     render = Render(q, p)
     render.update_textures(tex0=t)
@@ -143,7 +143,7 @@ def centered_masked_media(cfg):
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
     p = Program()
     node = Render(q, p)
     node.update_textures(tex0=t)
@@ -166,7 +166,7 @@ def centered_masked_media(cfg):
 def media_in_circle(cfg, npoints=64, radius=0.5):
     circle = Circle(npoints=npoints, radius=radius)
     m = Media(cfg.medias[0].filename)
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
     p = Program()
     render = Render(circle, p)
     render.update_textures(tex0=t)
@@ -181,7 +181,7 @@ def playback_speed(cfg, speed=1.0):
     time_animkf = [AnimKeyFrameFloat(0, 0),
                    AnimKeyFrameFloat(cfg.duration, cfg.duration * speed)]
     m = Media(cfg.medias[0].filename, initial_seek=5, time_anim=AnimationFloat(time_animkf))
-    t = Texture(data_src=m)
+    t = Texture2D(data_src=m)
     p = Program()
     render = Render(q, p)
     render.update_textures(tex0=t)
