@@ -167,11 +167,11 @@ struct ngl_node *ngli_geometry_generate_buffer(struct ngl_ctx *ctx, int type, in
 struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int count);
 
 struct buffer {
-    int count;
-    uint8_t *data;
-    int data_size;
-    int data_comp;
-    int data_stride;
+    int count;              // number of elements
+    uint8_t *data;          // buffer of <count> elements
+    int data_size;          // total buffer data size in bytes
+    int data_comp;          // number of components per element
+    int data_stride;        // stride of 1 element, in bytes
     GLenum target;
     GLenum usage;
 
