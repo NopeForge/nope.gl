@@ -289,7 +289,8 @@
     constructors:
         - [child, Node]
     optional:
-        - [angles, vec3]
+        - [angle, double]
+        - [axis, vec3]
         - [anchor, vec3]
         - [anim, Node]
 

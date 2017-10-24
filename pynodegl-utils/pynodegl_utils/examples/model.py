@@ -1,8 +1,8 @@
 import array
 
 from pynodegl import (
-        AnimKeyFrameVec3,
-        AnimationVec3,
+        AnimKeyFrameScalar,
+        AnimationScalar,
         BufferVec2,
         BufferVec3,
         Camera,
@@ -176,9 +176,9 @@ def centered_model_media(cfg, n=0.5, model=None):
     render.update_textures(tex0=t)
     render.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
-    animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
-              AnimKeyFrameVec3(cfg.duration, (0, 360*2, 0))]
-    rot = Rotate(render, name="roty", anim=AnimationVec3(animkf))
+    animkf = [AnimKeyFrameScalar(0, 0),
+              AnimKeyFrameScalar(cfg.duration, 360*2)]
+    rot = Rotate(render, name="roty", axis=(0, 1, 0), anim=AnimationScalar(animkf))
 
     camera = Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)

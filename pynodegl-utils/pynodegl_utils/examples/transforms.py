@@ -49,9 +49,9 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
     coords = [(-1, 1), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 
     if rotate:
-        animkf = (AnimKeyFrameVec3(0,            (0, 0,   0)),
-                  AnimKeyFrameVec3(cfg.duration, (0, 0, 360)))
-        node = Rotate(node, anim=AnimationVec3(animkf))
+        animkf = (AnimKeyFrameScalar(0,            0),
+                  AnimKeyFrameScalar(cfg.duration, 360))
+        node = Rotate(node, anim=AnimationScalar(animkf))
 
     if scale:
         animkf = (AnimKeyFrameVec3(0,              (1, 1, 1)),
@@ -82,9 +82,9 @@ def animated(cfg, rotate=True, scale=True, translate=True):
     node.update_textures(tex0=t)
 
     if rotate:
-        animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
-                  AnimKeyFrameVec3(cfg.duration, (0, 0, 360), "exp_in")]
-        node = Rotate(node, anim=AnimationVec3(animkf))
+        animkf = [AnimKeyFrameScalar(0, 0),
+                  AnimKeyFrameScalar(cfg.duration, 360, "exp_in")]
+        node = Rotate(node, anim=AnimationScalar(animkf))
 
     if scale:
         animkf = [AnimKeyFrameVec3(0, (16/9., 0.5, 1.0)),
@@ -129,9 +129,9 @@ def animated_uniform(cfg):
                     AnimKeyFrameVec3(cfg.duration, (0.1,0.1,0.1), "quartic_out")]
     s = Scale(Identity(), anim=AnimationVec3(scale_animkf))
 
-    rotate_animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
-                     AnimKeyFrameVec3(cfg.duration, (0, 0, 360), "exp_out")]
-    r = Rotate(s, anim=AnimationVec3(rotate_animkf))
+    rotate_animkf = [AnimKeyFrameScalar(0, 0),
+                     AnimKeyFrameScalar(cfg.duration, 360, "exp_out")]
+    r = Rotate(s, axis=(0, 0, 1), anim=AnimationScalar(rotate_animkf))
 
     u = UniformMat4(transform=r)
     ts.update_uniforms(matrix=u)
@@ -183,9 +183,9 @@ def animated_camera(cfg, rotate=False):
     node = Translate(Identity(), anim=AnimationVec3(tr_animkf))
 
     if rotate:
-        rot_animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
-                      AnimKeyFrameVec3(cfg.duration, (0, 360, 0), "exp_out")]
-        node = Rotate(node, anim=AnimationVec3(rot_animkf))
+        rot_animkf = [AnimKeyFrameScalar(0, 0),
+                      AnimKeyFrameScalar(cfg.duration, 360, "exp_out")]
+        node = Rotate(node, axis=(0, 1, 0), anim=AnimationScalar(rot_animkf))
 
     camera.set_eye_transform(node)
 

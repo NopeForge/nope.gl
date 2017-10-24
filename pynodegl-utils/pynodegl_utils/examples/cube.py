@@ -1,8 +1,8 @@
 from OpenGL import GL
 
 from pynodegl import (
-        AnimKeyFrameVec3,
-        AnimationVec3,
+        AnimKeyFrameScalar,
+        AnimationScalar,
         Camera,
         GLState,
         Group,
@@ -56,12 +56,13 @@ void main(void)
     children = [_get_cube_side(t, p, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)
 
-    rot_animkf = AnimationVec3([AnimKeyFrameVec3(0, (0, 0, 0)),
-                                AnimKeyFrameVec3(cfg.duration, (360, 360*2, 360*3))])
+    for i in range(3):
+        rot_animkf = AnimationScalar([AnimKeyFrameScalar(0, 0),
+                                      AnimKeyFrameScalar(cfg.duration, 360 * (i + 1))])
+        axis = [int(i == x) for x in range(3)]
+        cube = Rotate(cube, axis=axis, anim=rot_animkf)
 
-    rot = Rotate(cube, anim=rot_animkf)
-
-    camera = Camera(rot)
+    camera = Camera(cube)
     camera.set_eye(0.0, 0.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)

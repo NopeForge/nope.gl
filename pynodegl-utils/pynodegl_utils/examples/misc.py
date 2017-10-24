@@ -50,9 +50,9 @@ void main(void)
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
     p = Program(fragment=frag_data)
     node = Render(triangle, p)
-    animkf = [AnimKeyFrameVec3(0, (0, 0, 0)),
-              AnimKeyFrameVec3(cfg.duration, (0, 0, -360*2))]
-    node = Rotate(node, anim=AnimationVec3(animkf))
+    animkf = [AnimKeyFrameScalar(0, 0),
+              AnimKeyFrameScalar(cfg.duration, -360*2)]
+    node = Rotate(node, anim=AnimationScalar(animkf))
     return node
 
 @scene(n={'type': 'range', 'range': [2,10]})
@@ -89,10 +89,10 @@ void main(void) {
         render.update_uniforms(color=UniformVec4(value=color))
 
         new_g = Group()
-        animkf = [AnimKeyFrameVec3(0,              (0,0, 90)),
-                  AnimKeyFrameVec3(cfg.duration/2, (0,0,-90), "exp_in_out"),
-                  AnimKeyFrameVec3(cfg.duration,   (0,0, 90), "exp_in_out")]
-        rot = Rotate(new_g, anchor=orig, anim=AnimationVec3(animkf))
+        animkf = [AnimKeyFrameScalar(0,               90),
+                  AnimKeyFrameScalar(cfg.duration/2, -90, "exp_in_out"),
+                  AnimKeyFrameScalar(cfg.duration,    90, "exp_in_out")]
+        rot = Rotate(new_g, anchor=orig, anim=AnimationScalar(animkf))
         if g:
             g.add_children(rot)
         else:
