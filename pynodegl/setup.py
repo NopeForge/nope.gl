@@ -126,10 +126,7 @@ class BuildExtCommand(build_ext):
         if %(var)s is not None:''' % optset_data
                 if is_list:
                     extra_args += '''
-            if hasattr(%(var)s, '__iter__'):
-                self.add_%(var)s(*%(var)s)
-            else:
-                self.add_%(var)s(%(var)s)''' % optset_data
+            self.add_%(var)s(*%(var)s)''' % optset_data
                 elif is_dict:
                     extra_args += '''
             if not isinstance(%(var)s, dict):
