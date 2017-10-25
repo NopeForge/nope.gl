@@ -185,6 +185,37 @@ cdef class _Node:
         ngl_node_unrefp(&self.ctx)
 '''
 
+                for field_type in 'NodeList', 'doubleList':
+                    base_field_type = field_type[:-len('List')]
+                    citem_type = {
+                        'Node': 'ngl_node *',
+                    }.get(base_field_type, base_field_type)
+                    if base_field_type == 'Node':
+                        cfield = '(<_Node>item).ctx'
+                    else:
+                        cfield = '<%s>item' % base_field_type
+                    field_data = {
+                        'field_type': field_type.lower(),
+                        'cfield': cfield,
+                        'citem_type': citem_type,
+                    }
+                    class_str += '''
+    def _add_%(field_type)s(self, field_name, *elems):
+        if hasattr(elems[0], '__iter__'):
+            raise Exception("add_" + field_name + "() takes elements as "
+                            "positional arguments, not list")
+        cdef int nb_elems = len(elems)
+        elems_c = <%(citem_type)s*>calloc(len(elems), sizeof(%(citem_type)s))
+        if elems_c is NULL:
+            raise MemoryError()
+        cdef int i
+        for i, item in enumerate(elems):
+            elems_c[i] = %(cfield)s
+        ret = ngl_node_param_add(self.ctx, field_name, nb_elems, elems_c)
+        free(elems_c)
+        return ret
+''' % field_data
+
             elif node.startswith('Animation'):
                 n = ['Float', 'Vec2', 'Vec3', 'Vec4'].index(node[len('Animation'):]) + 1
                 if n == 1:
@@ -203,35 +234,13 @@ cdef class _Node:
 
                 if field_type.endswith('List'):
                     field_name, field_type = field
-                    base_field_type = field_type[:-len('List')]
-                    citem_type = {
-                        'Node': 'ngl_node *',
-                    }.get(base_field_type, base_field_type)
-                    if base_field_type == 'Node':
-                        cfield = '(<_Node>item).ctx'
-                    else:
-                        cfield = '<%s>item' % base_field_type
                     field_data = {
                         'field_name': field_name,
-                        'cfield': cfield,
-                        'citem_type': citem_type,
-                        'clist': field_name + '_c'
+                        'field_type': field_type.lower(),
                     }
                     class_str += '''
     def add_%(field_name)s(self, *%(field_name)s):
-        if hasattr(%(field_name)s[0], '__iter__'):
-            raise Exception("add_%(field_name)s() takes elements as "
-                            "positional arguments, not list")
-        %(clist)s = <%(citem_type)s*>calloc(len(%(field_name)s), sizeof(%(citem_type)s))
-        if %(clist)s is NULL:
-            raise MemoryError()
-        for i, item in enumerate(%(field_name)s):
-            %(clist)s[i] = %(cfield)s
-
-        ret = ngl_node_param_add(self.ctx, "%(field_name)s",
-                                 len(%(field_name)s), %(clist)s)
-        free(%(clist)s)
-        return ret
+        return self._add_%(field_type)s("%(field_name)s", *%(field_name)s)
 ''' % field_data
 
                 elif field_type.endswith('Dict'):
