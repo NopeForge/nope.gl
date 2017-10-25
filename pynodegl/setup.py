@@ -129,8 +129,6 @@ class BuildExtCommand(build_ext):
             self.add_%(var)s(*%(var)s)''' % optset_data
                 elif is_dict:
                     extra_args += '''
-            if not isinstance(%(var)s, dict):
-                raise TypeError("%(var)s must be of type dict")
             self.update_%(var)s(%(var)s)''' % optset_data
                 else:
                     dereference = field_type.startswith('vec') or field_type == 'mat4'
@@ -185,6 +183,8 @@ cdef class _Node:
         cdef ngl_node *node
         data_dict = {}
         if arg is not None:
+            if not isinstance(arg, dict):
+                raise TypeError(field_name + " must be of type dict")
             data_dict.update(arg)
         data_dict.update(**kwargs)
         for key, val in data_dict.iteritems():
