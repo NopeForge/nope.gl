@@ -152,9 +152,12 @@ static void serialize_options(struct hmap *nlist,
             }
             case PARAM_TYPE_MAT4: {
                 const float *m = (float *)(priv + p->offset);
-                ngli_bstr_print(b, " ");
-                if (memcmp(m, p->def_value.mat, 16 * sizeof(*m)))
-                    ngli_bstr_print(b, "%s:", p->key);
+                if (constructor)
+                    ngli_bstr_print(b, " ");
+                else if (memcmp(m, p->def_value.mat, 16 * sizeof(*m)))
+                    ngli_bstr_print(b, " %s:", p->key);
+                else
+                    break;
                 for (int i = 0; i < 4; i++)
                     ngli_bstr_print(b,
                                     "%a,%a,%a,%a%s",
