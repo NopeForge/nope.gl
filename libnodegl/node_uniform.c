@@ -38,10 +38,10 @@
 }
 
 #define OFFSET(x) offsetof(struct uniform, x)
-static const struct node_param uniformscalar_params[] = {
+static const struct node_param uniformfloat_params[] = {
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar)},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATIONSCALAR, -1}},
+               .node_types=(const int[]){NGL_NODE_ANIMATIONFLOAT, -1}},
     {NULL}
 };
 
@@ -96,7 +96,7 @@ static void uniform##type##_update(struct ngl_node *node, double t)     \
     uniform_update(node->priv_data, t, len);                            \
 }
 
-UPDATE_FUNC(scalar, 1);
+UPDATE_FUNC(float,  1);
 UPDATE_FUNC(vec2,   2);
 UPDATE_FUNC(vec3,   3);
 UPDATE_FUNC(vec4,   4);
@@ -111,12 +111,12 @@ static void uniform_mat_update(struct ngl_node *node, double t)
     }
 }
 
-const struct node_class ngli_uniformscalar_class = {
-    .id        = NGL_NODE_UNIFORMSCALAR,
-    .name      = "UniformScalar",
-    .update    = uniformscalar_update,
+const struct node_class ngli_uniformfloat_class = {
+    .id        = NGL_NODE_UNIFORMFLOAT,
+    .name      = "UniformFloat",
+    .update    = uniformfloat_update,
     .priv_size = sizeof(struct uniform),
-    .params    = uniformscalar_params,
+    .params    = uniformfloat_params,
 };
 
 const struct node_class ngli_uniformvec2_class = {

@@ -34,7 +34,7 @@ static const struct node_param rotate_params[] = {
     {"angle",  PARAM_TYPE_DBL,  OFFSET(angle)},
     {"axis",   PARAM_TYPE_VEC3, OFFSET(axis),   {.vec={0.0, 0.0, 1.0}}},
     {"anchor", PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}}},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .node_types=(const int[]){NGL_NODE_ANIMATIONSCALAR, -1}},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .node_types=(const int[]){NGL_NODE_ANIMATIONFLOAT, -1}},
     {NULL}
 };
 

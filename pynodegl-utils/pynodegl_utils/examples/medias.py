@@ -2,9 +2,9 @@ import array
 import math
 
 from pynodegl import (
-        AnimKeyFrameScalar,
+        AnimKeyFrameFloat,
         AnimKeyFrameVec3,
-        AnimationScalar,
+        AnimationFloat,
         AnimationVec3,
         Circle,
         GLColorState,
@@ -18,7 +18,7 @@ from pynodegl import (
         Rotate,
         Scale,
         Texture,
-        UniformScalar,
+        UniformFloat,
 )
 
 from pynodegl_utils.misc import scene
@@ -93,10 +93,10 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
 
     if progress_bar:
         p.set_fragment(pgbar_shader)
-        time_animkf = [AnimKeyFrameScalar(0, 0),
-                       AnimKeyFrameScalar(cfg.duration, 1)]
-        time = UniformScalar(anim=AnimationScalar(time_animkf))
-        ar = UniformScalar(cfg.aspect_ratio)
+        time_animkf = [AnimKeyFrameFloat(0, 0),
+                       AnimKeyFrameFloat(cfg.duration, 1)]
+        time = UniformFloat(anim=AnimationFloat(time_animkf))
+        ar = UniformFloat(cfg.aspect_ratio)
         render.update_uniforms(time=time, ar=ar)
     return render
 
@@ -135,9 +135,9 @@ def centered_masked_media(cfg):
                     AnimKeyFrameVec3(10, (10., 10.0,  3), "exp_out")]
     node = Scale(node, anim=AnimationVec3(scale_animkf))
 
-    rotate_animkf = [AnimKeyFrameScalar(0, 0),
-                     AnimKeyFrameScalar(cfg.duration, 360, "exp_out")]
-    node = Rotate(node, anim=AnimationScalar(rotate_animkf))
+    rotate_animkf = [AnimKeyFrameFloat(0, 0),
+                     AnimKeyFrameFloat(cfg.duration, 360, "exp_out")]
+    node = Rotate(node, anim=AnimationFloat(rotate_animkf))
 
     g.add_children(node)
 
@@ -178,9 +178,9 @@ def playback_speed(cfg, speed=1.0):
     cfg.duration = cfg.medias[0].duration / speed
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    time_animkf = [AnimKeyFrameScalar(0, 0),
-                   AnimKeyFrameScalar(cfg.duration, cfg.duration * speed)]
-    m = Media(cfg.medias[0].filename, initial_seek=5, time_anim=AnimationScalar(time_animkf))
+    time_animkf = [AnimKeyFrameFloat(0, 0),
+                   AnimKeyFrameFloat(cfg.duration, cfg.duration * speed)]
+    m = Media(cfg.medias[0].filename, initial_seek=5, time_anim=AnimationFloat(time_animkf))
     t = Texture(data_src=m)
     p = Program()
     render = Render(q, p)

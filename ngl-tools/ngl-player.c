@@ -67,17 +67,17 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER, quad, program);
 
     struct ngl_node *uniforms[3] = {
-        ngl_node_create(NGL_NODE_UNIFORMSCALAR),
-        ngl_node_create(NGL_NODE_UNIFORMSCALAR),
-        ngl_node_create(NGL_NODE_UNIFORMSCALAR),
+        ngl_node_create(NGL_NODE_UNIFORMFLOAT),
+        ngl_node_create(NGL_NODE_UNIFORMFLOAT),
+        ngl_node_create(NGL_NODE_UNIFORMFLOAT),
     };
 
     struct ngl_node *time_animkf[2] = {
-        ngl_node_create(NGL_NODE_ANIMKEYFRAMESCALAR, 0.0, 0.0),
-        ngl_node_create(NGL_NODE_ANIMKEYFRAMESCALAR, g_info.duration, 1.0),
+        ngl_node_create(NGL_NODE_ANIMKEYFRAMEFLOAT, 0.0, 0.0),
+        ngl_node_create(NGL_NODE_ANIMKEYFRAMEFLOAT, g_info.duration, 1.0),
     };
 
-    struct ngl_node *time_anim = ngl_node_create(NGL_NODE_ANIMATIONSCALAR);
+    struct ngl_node *time_anim = ngl_node_create(NGL_NODE_ANIMATIONFLOAT);
 
     ngl_node_param_add(time_anim, "keyframes", 2, time_animkf);
 

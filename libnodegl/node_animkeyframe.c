@@ -34,7 +34,7 @@
 #include "utils.h"
 
 #define OFFSET(x) offsetof(struct animkeyframe, x)
-static const struct node_param animkeyframescalar_params[] = {
+static const struct node_param animkeyframefloat_params[] = {
     {"time",   PARAM_TYPE_DBL,  OFFSET(time),   .flags=PARAM_FLAG_CONSTRUCTOR},
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar), .flags=PARAM_FLAG_CONSTRUCTOR},
     {"easing", PARAM_TYPE_STR,  OFFSET(easing), {.str="linear"}},
@@ -406,7 +406,7 @@ static int animkeyframe_init(struct ngl_node *node)
         LOG(VERBOSE, "%s of type %s starting at (%f,%f,%f,%f) for t=%f",
             node->class->name, easings[easing_id].name,
             s->value[0], s->value[1], s->value[2], s->value[3], s->time);
-    else if (node->class->id == NGL_NODE_ANIMKEYFRAMESCALAR)
+    else if (node->class->id == NGL_NODE_ANIMKEYFRAMEFLOAT)
         LOG(VERBOSE, "%s of type %s starting at %f for t=%f",
             node->class->name, easings[easing_id].name,
             s->scalar, s->time);
@@ -454,13 +454,13 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
     return ret;
 }
 
-const struct node_class ngli_animkeyframescalar_class = {
-    .id        = NGL_NODE_ANIMKEYFRAMESCALAR,
-    .name      = "AnimKeyFrameScalar",
+const struct node_class ngli_animkeyframefloat_class = {
+    .id        = NGL_NODE_ANIMKEYFRAMEFLOAT,
+    .name      = "AnimKeyFrameFloat",
     .init      = animkeyframe_init,
     .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
-    .params    = animkeyframescalar_params,
+    .params    = animkeyframefloat_params,
 };
 
 const struct node_class ngli_animkeyframevec2_class = {

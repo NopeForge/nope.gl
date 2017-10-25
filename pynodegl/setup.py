@@ -186,7 +186,7 @@ cdef class _Node:
 '''
 
             elif node.startswith('Animation'):
-                n = ['Scalar', 'Vec2', 'Vec3', 'Vec4'].index(node[len('Animation'):]) + 1
+                n = ['Float', 'Vec2', 'Vec3', 'Vec4'].index(node[len('Animation'):]) + 1
                 if n == 1:
                     retstr = 'vec[0]'
                 else:

@@ -25,9 +25,9 @@
 #include "nodes.h"
 
 #define OFFSET(x) offsetof(struct animation, x)
-static const struct node_param animationscalar_params[] = {
+static const struct node_param animationfloat_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMESCALAR, -1}},
+                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1}},
     {NULL}
 };
 
@@ -113,7 +113,7 @@ void ngl_anim_evaluate(struct ngl_node *node, float *dst, double t)
         }
     }
 
-    const int len = node->class->id - NGL_NODE_ANIMATIONSCALAR + 1;
+    const int len = node->class->id - NGL_NODE_ANIMATIONFLOAT + 1;
     animation_update(s, t, len, dst, &s->eval_current_kf);
 }
 
@@ -124,17 +124,17 @@ static void animation##type##_update(struct ngl_node *node, double t)   \
     animation_update(s, t, len, s->values, &s->current_kf);             \
 }
 
-UPDATE_FUNC(scalar, 1);
+UPDATE_FUNC(float,  1);
 UPDATE_FUNC(vec2,   2);
 UPDATE_FUNC(vec3,   3);
 UPDATE_FUNC(vec4,   4);
 
-const struct node_class ngli_animationscalar_class = {
-    .id        = NGL_NODE_ANIMATIONSCALAR,
-    .name      = "AnimationScalar",
-    .update    = animationscalar_update,
+const struct node_class ngli_animationfloat_class = {
+    .id        = NGL_NODE_ANIMATIONFLOAT,
+    .name      = "AnimationFloat",
+    .update    = animationfloat_update,
     .priv_size = sizeof(struct animation),
-    .params    = animationscalar_params,
+    .params    = animationfloat_params,
 };
 
 const struct node_class ngli_animationvec2_class = {

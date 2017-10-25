@@ -8,7 +8,7 @@
         - [ranges, NodeList]
         - [name, string]
 
-- AnimatedBufferScalar:
+- AnimatedBufferFloat:
     optional:
         - [animkf, NodeList]
 
@@ -24,7 +24,7 @@
     optional:
         - [animkf, NodeList]
 
-- AnimationScalar:
+- AnimationFloat:
     optional:
         - [keyframes, NodeList]
 
@@ -40,7 +40,7 @@
     optional:
         - [keyframes, NodeList]
 
-- AnimKeyFrameScalar:
+- AnimKeyFrameFloat:
     constructors:
         - [time, double]
         - [value, double]
@@ -80,7 +80,7 @@
         - [easing, string]
         - [easing_args, doubleList]
 
-- BufferScalar:
+- BufferFloat:
     optional:
         - [count, int]
         - [data, data]
@@ -344,7 +344,7 @@
         - [value, mat4]
         - [transform, Node]
 
-- UniformScalar:
+- UniformFloat:
     optional:
         - [value, double]
         - [anim, Node]

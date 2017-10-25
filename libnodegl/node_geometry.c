@@ -76,10 +76,10 @@ struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int 
     return node;
 }
 
-#define TEXCOORDS_TYPES_LIST (const int[]){NGL_NODE_BUFFERSCALAR,           \
+#define TEXCOORDS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,            \
                                            NGL_NODE_BUFFERVEC2,             \
                                            NGL_NODE_BUFFERVEC3,             \
-                                           NGL_NODE_ANIMATEDBUFFERSCALAR,   \
+                                           NGL_NODE_ANIMATEDBUFFERFLOAT,    \
                                            NGL_NODE_ANIMATEDBUFFERVEC2,     \
                                            NGL_NODE_ANIMATEDBUFFERVEC3,     \
                                            -1}

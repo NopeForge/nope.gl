@@ -1,8 +1,8 @@
 import array
 
 from pynodegl import (
-        AnimKeyFrameScalar,
-        AnimationScalar,
+        AnimKeyFrameFloat,
+        AnimationFloat,
         BufferVec3,
         Geometry,
         Group,
@@ -67,8 +67,8 @@ def _get_func(name, flags=0):
                 if not eval('draw_' + ext):
                     continue
 
-            anim = AnimationScalar([AnimKeyFrameScalar(-1,-1),
-                                    AnimKeyFrameScalar( 1, 1, interp)])
+            anim = AnimationFloat([AnimKeyFrameFloat(-1,-1),
+                                   AnimKeyFrameFloat( 1, 1, interp)])
 
             vertices_data = array.array('f')
             for i in range(nb_points + 1):

@@ -5,11 +5,11 @@ import random
 from OpenGL import GL
 
 from pynodegl import (
-        AnimKeyFrameScalar,
+        AnimKeyFrameFloat,
         AnimKeyFrameVec3,
-        AnimationScalar,
+        AnimationFloat,
         AnimationVec3,
-        BufferScalar,
+        BufferFloat,
         BufferVec2,
         BufferVec3,
         Camera,
@@ -25,7 +25,7 @@ from pynodegl import (
         Texture,
         Translate,
         Triangle,
-        UniformScalar,
+        UniformFloat,
         UniformVec4,
 )
 
@@ -50,9 +50,9 @@ void main(void)
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
     p = Program(fragment=frag_data)
     node = Render(triangle, p)
-    animkf = [AnimKeyFrameScalar(0, 0),
-              AnimKeyFrameScalar(cfg.duration, -360*2)]
-    node = Rotate(node, anim=AnimationScalar(animkf))
+    animkf = [AnimKeyFrameFloat(0, 0),
+              AnimKeyFrameFloat(cfg.duration, -360*2)]
+    node = Rotate(node, anim=AnimationFloat(animkf))
     return node
 
 @scene(n={'type': 'range', 'range': [2,10]})
@@ -89,10 +89,10 @@ void main(void) {
         render.update_uniforms(color=UniformVec4(value=color))
 
         new_g = Group()
-        animkf = [AnimKeyFrameScalar(0,               90),
-                  AnimKeyFrameScalar(cfg.duration/2, -90, "exp_in_out"),
-                  AnimKeyFrameScalar(cfg.duration,    90, "exp_in_out")]
-        rot = Rotate(new_g, anchor=orig, anim=AnimationScalar(animkf))
+        animkf = [AnimKeyFrameFloat(0,               90),
+                  AnimKeyFrameFloat(cfg.duration/2, -90, "exp_in_out"),
+                  AnimKeyFrameFloat(cfg.duration,    90, "exp_in_out")]
+        rot = Rotate(new_g, anchor=orig, anim=AnimationFloat(animkf))
         if g:
             g.add_children(rot)
         else:
@@ -318,10 +318,10 @@ void main(void)
     opositions = BufferVec3(p)
     opositions.set_stride(4 * 4)
 
-    animkf = [AnimKeyFrameScalar(0, 0),
-              AnimKeyFrameScalar(cfg.duration, 1)]
-    utime = UniformScalar(anim=AnimationScalar(animkf))
-    uduration = UniformScalar(cfg.duration)
+    animkf = [AnimKeyFrameFloat(0, 0),
+              AnimKeyFrameFloat(cfg.duration, 1)]
+    utime = UniformFloat(anim=AnimationFloat(animkf))
+    uduration = UniformFloat(cfg.duration)
 
     cp = ComputeProgram(compute_data)
 

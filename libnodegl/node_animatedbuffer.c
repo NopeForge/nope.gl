@@ -98,7 +98,7 @@ static int animatedbuffer_init(struct ngl_node *node)
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    s->data_comp = node->class->id - NGL_NODE_ANIMATEDBUFFERSCALAR + 1;
+    s->data_comp = node->class->id - NGL_NODE_ANIMATEDBUFFERFLOAT + 1;
     s->data_stride = s->data_comp * sizeof(float);
 
     for (int i = 0; i < s->nb_animkf; i++) {
@@ -107,7 +107,7 @@ static int animatedbuffer_init(struct ngl_node *node)
         const int data_pad   = kf->data_size % s->data_stride;
 
         if (s->count && s->count != data_count) {
-            static const char *types[] = {"scalar", "vec2", "vec3", "vec4"};
+            static const char *types[] = {"float", "vec2", "vec3", "vec4"};
             LOG(ERROR, "the number of %s in buffer key frame %d "
                 "does not match the previous ones (%d vs %d)",
                 types[s->data_comp - 1], i, data_count, s->count);
@@ -155,9 +155,9 @@ static void animatedbuffer_uninit(struct ngl_node *node)
     s->data = NULL;
 }
 
-const struct node_class ngli_animatedbufferscalar_class = {
-    .id        = NGL_NODE_ANIMATEDBUFFERSCALAR,
-    .name      = "AnimatedBufferScalar",
+const struct node_class ngli_animatedbufferfloat_class = {
+    .id        = NGL_NODE_ANIMATEDBUFFERFLOAT,
+    .name      = "AnimatedBufferFloat",
     .init      = animatedbuffer_init,
     .update    = animatedbuffer_update,
     .uninit    = animatedbuffer_uninit,

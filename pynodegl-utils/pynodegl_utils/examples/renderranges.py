@@ -1,6 +1,6 @@
 from pynodegl import (
-        AnimKeyFrameScalar,
-        AnimationScalar,
+        AnimKeyFrameFloat,
+        AnimationFloat,
         Group,
         Media,
         Program,
@@ -10,7 +10,7 @@ from pynodegl import (
         RenderRangeNoRender,
         RenderRangeOnce,
         Texture,
-        UniformScalar,
+        UniformFloat,
 )
 
 from pynodegl_utils.misc import scene
@@ -153,9 +153,9 @@ void main(void)
     render2 = Render(q, p, name="render #2")
     render2.update_textures(tex0=t2)
 
-    delta_animkf = [AnimKeyFrameScalar(transition_start, 1.0),
-                    AnimKeyFrameScalar(transition_start + transition_duration, 0.0)]
-    delta = UniformScalar(value=1.0, anim=AnimationScalar(delta_animkf))
+    delta_animkf = [AnimKeyFrameFloat(transition_start, 1.0),
+                    AnimKeyFrameFloat(transition_start + transition_duration, 0.0)]
+    delta = UniformFloat(value=1.0, anim=AnimationFloat(delta_animkf))
 
     render1_2 = Render(q, p1_2, name="transition")
     render1_2.update_textures(tex0=t1, tex1=t2)

@@ -31,7 +31,7 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_UNIFORMSCALAR,  \
+#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_UNIFORMFLOAT,   \
                                           NGL_NODE_UNIFORMVEC2,    \
                                           NGL_NODE_UNIFORMVEC3,    \
                                           NGL_NODE_UNIFORMVEC4,    \
@@ -39,7 +39,7 @@
                                           NGL_NODE_UNIFORMMAT4,    \
                                           -1}
 
-#define ATTRIBUTES_TYPES_LIST (const int[]){NGL_NODE_BUFFERSCALAR,  \
+#define ATTRIBUTES_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,   \
                                             NGL_NODE_BUFFERVEC2,    \
                                             NGL_NODE_BUFFERVEC3,    \
                                             NGL_NODE_BUFFERVEC4,    \
@@ -90,7 +90,7 @@ static int update_uniforms(struct ngl_node *node)
             const struct uniform *u = unode->priv_data;
             const GLint uid = s->uniform_ids[i];
             switch (unode->class->id) {
-            case NGL_NODE_UNIFORMSCALAR: ngli_glUniform1f (gl, uid,    u->scalar);                 break;
+            case NGL_NODE_UNIFORMFLOAT:  ngli_glUniform1f (gl, uid,    u->scalar);                 break;
             case NGL_NODE_UNIFORMVEC2:   ngli_glUniform2fv(gl, uid, 1, u->vector);                 break;
             case NGL_NODE_UNIFORMVEC3:   ngli_glUniform3fv(gl, uid, 1, u->vector);                 break;
             case NGL_NODE_UNIFORMVEC4:   ngli_glUniform4fv(gl, uid, 1, u->vector);                 break;

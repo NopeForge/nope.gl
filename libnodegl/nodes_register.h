@@ -23,20 +23,20 @@
 #define NODES_REGISTER_H
 
 #define NODE_MAP_TYPE2CLASS(action)                                             \
-    action(NGL_NODE_ANIMATEDBUFFERSCALAR,   ngli_animatedbufferscalar_class)    \
+    action(NGL_NODE_ANIMATEDBUFFERFLOAT,    ngli_animatedbufferfloat_class)     \
     action(NGL_NODE_ANIMATEDBUFFERVEC2,     ngli_animatedbuffervec2_class)      \
     action(NGL_NODE_ANIMATEDBUFFERVEC3,     ngli_animatedbuffervec3_class)      \
     action(NGL_NODE_ANIMATEDBUFFERVEC4,     ngli_animatedbuffervec4_class)      \
-    action(NGL_NODE_ANIMATIONSCALAR,        ngli_animationscalar_class)         \
+    action(NGL_NODE_ANIMATIONFLOAT,         ngli_animationfloat_class)          \
     action(NGL_NODE_ANIMATIONVEC2,          ngli_animationvec2_class)           \
     action(NGL_NODE_ANIMATIONVEC3,          ngli_animationvec3_class)           \
     action(NGL_NODE_ANIMATIONVEC4,          ngli_animationvec4_class)           \
-    action(NGL_NODE_ANIMKEYFRAMESCALAR,     ngli_animkeyframescalar_class)      \
+    action(NGL_NODE_ANIMKEYFRAMEFLOAT,      ngli_animkeyframefloat_class)       \
     action(NGL_NODE_ANIMKEYFRAMEVEC2,       ngli_animkeyframevec2_class)        \
     action(NGL_NODE_ANIMKEYFRAMEVEC3,       ngli_animkeyframevec3_class)        \
     action(NGL_NODE_ANIMKEYFRAMEVEC4,       ngli_animkeyframevec4_class)        \
     action(NGL_NODE_ANIMKEYFRAMEBUFFER,     ngli_animkeyframebuffer_class)      \
-    action(NGL_NODE_BUFFERSCALAR,           ngli_bufferscalar_class)            \
+    action(NGL_NODE_BUFFERFLOAT,            ngli_bufferfloat_class)             \
     action(NGL_NODE_BUFFERUBYTE,            ngli_bufferubyte_class)             \
     action(NGL_NODE_BUFFERUINT,             ngli_bufferuint_class)              \
     action(NGL_NODE_BUFFERUSHORT,           ngli_bufferushort_class)            \
@@ -70,7 +70,7 @@
     action(NGL_NODE_TRIANGLE,               ngli_triangle_class)                \
     action(NGL_NODE_UNIFORMINT,             ngli_uniformint_class)              \
     action(NGL_NODE_UNIFORMMAT4,            ngli_uniformmat4_class)             \
-    action(NGL_NODE_UNIFORMSCALAR,          ngli_uniformscalar_class)           \
+    action(NGL_NODE_UNIFORMFLOAT,           ngli_uniformfloat_class)            \
     action(NGL_NODE_UNIFORMVEC2,            ngli_uniformvec2_class)             \
     action(NGL_NODE_UNIFORMVEC3,            ngli_uniformvec3_class)             \
     action(NGL_NODE_UNIFORMVEC4,            ngli_uniformvec4_class)             \

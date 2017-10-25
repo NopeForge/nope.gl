@@ -48,7 +48,7 @@ static int buffer_init(struct ngl_node *node)
     case NGL_NODE_BUFFERUBYTE:  data_comp_size = 1; s->data_comp = 1; s->type = GL_UNSIGNED_BYTE;  break;
     case NGL_NODE_BUFFERUSHORT: data_comp_size = 2; s->data_comp = 1; s->type = GL_UNSIGNED_SHORT; break;
     case NGL_NODE_BUFFERUINT:   data_comp_size = 4; s->data_comp = 1; s->type = GL_UNSIGNED_INT;   break;
-    case NGL_NODE_BUFFERSCALAR: data_comp_size = 4; s->data_comp = 1; s->type = GL_FLOAT;          break;
+    case NGL_NODE_BUFFERFLOAT:  data_comp_size = 4; s->data_comp = 1; s->type = GL_FLOAT;          break;
     case NGL_NODE_BUFFERVEC2:   data_comp_size = 4; s->data_comp = 2; s->type = GL_FLOAT;          break;
     case NGL_NODE_BUFFERVEC3:   data_comp_size = 4; s->data_comp = 3; s->type = GL_FLOAT;          break;
     case NGL_NODE_BUFFERVEC4:   data_comp_size = 4; s->data_comp = 4; s->type = GL_FLOAT;          break;
@@ -98,9 +98,9 @@ static void buffer_uninit(struct ngl_node *node)
     s->data = NULL;
 }
 
-const struct node_class ngli_bufferscalar_class = {
-    .id        = NGL_NODE_BUFFERSCALAR,
-    .name      = "BufferScalar",
+const struct node_class ngli_bufferfloat_class = {
+    .id        = NGL_NODE_BUFFERFLOAT,
+    .name      = "BufferFloat",
     .init      = buffer_init,
     .uninit    = buffer_uninit,
     .priv_size = sizeof(struct buffer),
