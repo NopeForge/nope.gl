@@ -183,6 +183,21 @@ cdef class _Node:
 
     def __dealloc__(self):
         ngl_node_unrefp(&self.ctx)
+
+    def _update_dict(self, field_name, arg=None, **kwargs):
+        cdef ngl_node *node
+        data_dict = {}
+        if arg is not None:
+            data_dict.update(arg)
+        data_dict.update(**kwargs)
+        for key, val in data_dict.iteritems():
+            if not isinstance(key, str) or (val is not None and not isinstance(val, _Node)):
+                raise TypeError("update_" + field_name + "() takes a dictionary of <string, Node>")
+            node = (<_Node>val).ctx if val is not None else NULL
+            ret = ngl_node_param_set(self.ctx, field_name, <const char *>key, node)
+            if ret < 0:
+                return ret
+        return 0
 '''
 
                 for field_type in 'NodeList', 'doubleList':
@@ -251,19 +266,7 @@ cdef class _Node:
                     }
                     class_str += '''
     def update_%(field_name)s(self, arg=None, **kwargs):
-        cdef ngl_node *node
-        %(field_name)s = {}
-        if arg is not None:
-            %(field_name)s.update(arg)
-        %(field_name)s.update(**kwargs)
-        for key, val in %(field_name)s.iteritems():
-            if not isinstance(key, str) or (val is not None and not isinstance(val, _Node)):
-                raise TypeError("update_%(field_name)s takes a dictionary of <string, Node>")
-            node = (<_Node>val).ctx if val is not None else NULL
-            ret = ngl_node_param_set(self.ctx, "%(field_name)s", <const char *>key, node)
-            if ret < 0:
-                return ret
-        return 0
+        return self._update_dict("%(field_name)s", arg, **kwargs)
 ''' % field_data
 
                 elif field_type.startswith('vec') or field_type == 'mat4':
