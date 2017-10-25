@@ -129,6 +129,7 @@ static int animatedbuffer_init(struct ngl_node *node)
 
     s->target = GL_ARRAY_BUFFER;
     s->usage  = GL_DYNAMIC_DRAW;
+    s->type   = GL_FLOAT;
 
     s->data_size = s->count * s->data_stride;
 

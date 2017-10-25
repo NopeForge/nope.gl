@@ -161,7 +161,6 @@ struct geometry {
     struct ngl_node *indices_buffer;
 
     GLenum draw_mode;
-    GLenum draw_type;
 };
 
 struct ngl_node *ngli_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data);
@@ -182,6 +181,7 @@ struct buffer {
     int current_kf;
 
     GLuint buffer_id;
+    GLenum type;
 };
 
 struct uniform {

@@ -85,7 +85,6 @@ static int triangle_init(struct ngl_node *node)
         return -1;
 
     s->draw_mode = GL_TRIANGLES;
-    s->draw_type = GL_UNSIGNED_SHORT;
 
     return 0;
 }

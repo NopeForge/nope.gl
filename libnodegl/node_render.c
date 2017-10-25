@@ -379,7 +379,7 @@ static void render_draw(struct ngl_node *node)
     const struct buffer *indices_buffer = geometry->indices_buffer->priv_data;
 
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_buffer->buffer_id);
-    ngli_glDrawElements(gl, geometry->draw_mode, indices_buffer->count, geometry->draw_type, 0);
+    ngli_glDrawElements(gl, geometry->draw_mode, indices_buffer->count, indices_buffer->type, 0);
 }
 
 const struct node_class ngli_render_class = {

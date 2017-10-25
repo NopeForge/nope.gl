@@ -92,7 +92,6 @@ static int circle_init(struct ngl_node *node)
         goto end;
 
     s->draw_mode = GL_TRIANGLE_FAN;
-    s->draw_type = GL_UNSIGNED_SHORT;
 
     ret = 0;
 

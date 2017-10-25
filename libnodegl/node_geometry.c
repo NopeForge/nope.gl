@@ -146,21 +146,11 @@ static int geometry_init(struct ngl_node *node)
         int ret = ngli_node_init(s->indices_buffer);
         if (ret < 0)
             return ret;
-
-        switch (s->indices_buffer->class->id) {
-        case NGL_NODE_BUFFERUBYTE:  s->draw_type = GL_UNSIGNED_BYTE;  break;
-        case NGL_NODE_BUFFERUINT:   s->draw_type = GL_UNSIGNED_INT;   break;
-        case NGL_NODE_BUFFERUSHORT: s->draw_type = GL_UNSIGNED_SHORT; break;
-        default:
-            ngli_assert(0);
-        }
     } else {
         s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx,
                                                                   vertices->count);
         if (!s->indices_buffer)
             return -1;
-
-        s->draw_type = GL_UNSIGNED_SHORT;
     }
 
     return 0;
