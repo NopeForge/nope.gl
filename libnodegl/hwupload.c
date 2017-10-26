@@ -44,6 +44,7 @@ enum {
     HWUPLOAD_FMT_NONE,
     HWUPLOAD_FMT_COMMON,
     HWUPLOAD_FMT_MEDIACODEC,
+    HWUPLOAD_FMT_MEDIACODEC_DR,
     HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA,
     HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA,
     HWUPLOAD_FMT_VIDEOTOOLBOX_NV12,
@@ -60,7 +61,7 @@ struct hwupload_config {
     GLint gl_type;
 };
 
-static int get_config_from_frame(struct sxplayer_frame *frame, struct hwupload_config *config)
+static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *frame, struct hwupload_config *config)
 {
     config->width = frame->width;
     config->height = frame->height;
@@ -88,7 +89,11 @@ static int get_config_from_frame(struct sxplayer_frame *frame, struct hwupload_c
         break;
 #if defined(TARGET_ANDROID)
     case SXPLAYER_PIXFMT_MEDIACODEC: {
-        config->format = HWUPLOAD_FMT_MEDIACODEC;
+        struct texture *s = node->priv_data;
+        if (s->direct_rendering)
+            config->format = HWUPLOAD_FMT_MEDIACODEC_DR;
+        else
+            config->format = HWUPLOAD_FMT_MEDIACODEC;
         break;
     }
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
@@ -334,6 +339,49 @@ static int upload_mc_frame(struct ngl_node *node, struct hwupload_config *config
 
     t = s->target_texture->priv_data;
     memcpy(s->coordinates_matrix, t->coordinates_matrix, sizeof(s->coordinates_matrix));
+
+    return 0;
+}
+
+static int init_mc_dr(struct ngl_node *node, struct hwupload_config *config)
+{
+    struct texture *s = node->priv_data, *t;
+    struct media *media = s->data_src->priv_data;
+
+    s->id = media->android_texture_id;
+    s->target = GL_TEXTURE_EXTERNAL_OES;
+
+    return 0;
+}
+
+static int upload_mc_frame_dr(struct ngl_node *node, struct hwupload_config *config, struct sxplayer_frame *frame)
+{
+    int ret;
+
+    struct texture *s = node->priv_data;
+
+    struct media *media = s->data_src->priv_data;
+    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
+
+    NGLI_ALIGNED_MAT(matrix) = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f, 1.0f,
+    };
+
+    NGLI_ALIGNED_MAT(flip_matrix) = {
+        1.0f,  0.0f, 0.0f, 0.0f,
+        0.0f, -1.0f, 0.0f, 0.0f,
+        0.0f,  0.0f, 1.0f, 0.0f,
+        0.0f,  1.0f, 0.0f, 1.0f,
+    };
+
+    s->width  = config->width;
+    s->height = config->height;
+
+    ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
+    ngli_mat4_mul(s->coordinates_matrix, flip_matrix, matrix);
 
     return 0;
 }
@@ -684,6 +732,9 @@ static int hwupload_init(struct ngl_node *node, struct hwupload_config *config)
     case HWUPLOAD_FMT_MEDIACODEC:
         ret = init_mc(node, config);
         break;
+    case HWUPLOAD_FMT_MEDIACODEC_DR:
+        ret = init_mc_dr(node, config);
+        break;
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
     case HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
     case HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA:
@@ -712,6 +763,9 @@ static int hwupload_upload_frame(struct ngl_node *node,
     case HWUPLOAD_FMT_MEDIACODEC:
         ret = upload_mc_frame(node, config, frame);
         break;
+    case HWUPLOAD_FMT_MEDIACODEC_DR:
+        ret = upload_mc_frame_dr(node, config, frame);
+        break;
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
     case HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
     case HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA:
@@ -732,7 +786,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *fra
         return 0;
 
     struct hwupload_config config = { 0 };
-    int ret = get_config_from_frame(frame, &config);
+    int ret = get_config_from_frame(node, frame, &config);
     if (ret < 0)
         return ret;
 

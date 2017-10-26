@@ -80,6 +80,7 @@ static const struct node_param texture2d_params[] = {
     {"wrap_t", PARAM_TYPE_INT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST},
     {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
+    {"direct_rendering", PARAM_TYPE_INT, OFFSET(direct_rendering), {.i64=-1}},
     {NULL}
 };
 

@@ -240,6 +240,7 @@ struct texture {
     GLint wrap_t;
     struct ngl_node *data_src;
     GLenum access;
+    int direct_rendering;
 
     GLuint external_id;
     GLenum external_target;
