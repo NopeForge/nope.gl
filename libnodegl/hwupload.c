@@ -679,6 +679,8 @@ static int hwupload_init(struct ngl_node *node, struct hwupload_config *config)
         ret = init_vt(node, config);
         break;
 #endif
+    default:
+        ngli_assert(0);
     }
 
     return ret;
