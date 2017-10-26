@@ -692,18 +692,18 @@ static int hwupload_upload_frame(struct ngl_node *node,
 {
     int ret = 0;
 
-    switch(frame->pix_fmt) {
-    case SXPLAYER_PIXFMT_BGRA:
-    case SXPLAYER_PIXFMT_RGBA:
-    case SXPLAYER_SMPFMT_FLT:
+    switch(config->format) {
+    case HWUPLOAD_FMT_COMMON:
         ret = upload_common_frame(node, config, frame);
         break;
 #if defined(TARGET_ANDROID)
-    case SXPLAYER_PIXFMT_MEDIACODEC:
+    case HWUPLOAD_FMT_MEDIACODEC:
         ret = upload_mc_frame(node, config, frame);
         break;
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
-    case SXPLAYER_PIXFMT_VT:
+    case HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
+    case HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA:
+    case HWUPLOAD_FMT_VIDEOTOOLBOX_NV12:
         ret = upload_vt_frame(node, config, frame);
         break;
 #endif
