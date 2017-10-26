@@ -684,6 +684,34 @@ static int hwupload_init(struct ngl_node *node, struct hwupload_config *config)
     return ret;
 }
 
+static int hwupload_upload_frame(struct ngl_node *node,
+                                 struct hwupload_config *config,
+                                 struct sxplayer_frame *frame)
+{
+    int ret = 0;
+
+    switch(frame->pix_fmt) {
+    case SXPLAYER_PIXFMT_BGRA:
+    case SXPLAYER_PIXFMT_RGBA:
+    case SXPLAYER_SMPFMT_FLT:
+        ret = upload_common_frame(node, config, frame);
+        break;
+#if defined(TARGET_ANDROID)
+    case SXPLAYER_PIXFMT_MEDIACODEC:
+        ret = upload_mc_frame(node, config, frame);
+        break;
+#elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
+    case SXPLAYER_PIXFMT_VT:
+        ret = upload_vt_frame(node, config, frame);
+        break;
+#endif
+    default:
+        ngli_assert(0);
+    }
+
+    return ret;
+}
+
 int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     if (!frame)
@@ -698,26 +726,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *fra
     if (ret < 0)
         return ret;
 
-    switch(frame->pix_fmt) {
-    case SXPLAYER_PIXFMT_BGRA:
-    case SXPLAYER_PIXFMT_RGBA:
-    case SXPLAYER_SMPFMT_FLT:
-        ret = upload_common_frame(node, &config, frame);
-        break;
-#if defined(TARGET_ANDROID)
-    case SXPLAYER_PIXFMT_MEDIACODEC:
-        ret = upload_mc_frame(node, &config, frame);
-        break;
-#elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
-    case SXPLAYER_PIXFMT_VT:
-        ret = upload_vt_frame(node, &config, frame);
-        break;
-#endif
-    default:
-        ngli_assert(0);
-    }
-
-    return ret;
+    return hwupload_upload_frame(node, &config, frame);
 }
 
 void ngli_hwupload_uninit(struct ngl_node *node)
