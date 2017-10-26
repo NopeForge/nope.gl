@@ -62,9 +62,6 @@ struct hwupload_config {
 
 static int get_config_from_frame(struct sxplayer_frame *frame, struct hwupload_config *config)
 {
-    if (!frame)
-        return -1;
-
     config->width = frame->width;
     config->height = frame->height;
     config->linesize = frame->linesize;
@@ -689,10 +686,11 @@ static int hwupload_init(struct ngl_node *node, struct hwupload_config *config)
 
 int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    int ret;
-    struct hwupload_config config = { 0 };
+    if (!frame)
+        return 0;
 
-    ret = get_config_from_frame(frame, &config);
+    struct hwupload_config config = { 0 };
+    int ret = get_config_from_frame(frame, &config);
     if (ret < 0)
         return ret;
 
@@ -700,7 +698,6 @@ int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *fra
     if (ret < 0)
         return ret;
 
-    if (frame) {
         switch(frame->pix_fmt) {
         case SXPLAYER_PIXFMT_BGRA:
         case SXPLAYER_PIXFMT_RGBA:
@@ -719,7 +716,6 @@ int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *fra
         default:
             ngli_assert(0);
         }
-    }
 
     return ret;
 }
