@@ -264,7 +264,6 @@ struct texture {
 
 struct textureprograminfo {
     int sampler_id;
-    int coordinates_id;
     int coord_matrix_id;
     int dimensions_id;
 };
