@@ -286,7 +286,6 @@ static int render_init(struct ngl_node *node)
         int i = 0;
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->textures, entry))) {
-            char name[128];
             struct ngl_node *tnode = entry->data;
 
             ret = ngli_node_init(tnode);
@@ -295,14 +294,18 @@ static int render_init(struct ngl_node *node)
 
             struct textureprograminfo *info = &s->textureprograminfos[i];
 
-            snprintf(name, sizeof(name), "%s_sampler", entry->key);
-            info->sampler_id = ngli_glGetUniformLocation(gl, program->program_id, name);
+#define GET_TEXTURE_UNIFORM_LOCATION(suffix) do {                                          \
+            char name[128];                                                                \
+            snprintf(name, sizeof(name), "%s_" #suffix, entry->key);                       \
+            info->suffix##_id = ngli_glGetUniformLocation(gl, program->program_id, name);  \
+} while (0)
 
-            snprintf(name, sizeof(name), "%s_coord_matrix", entry->key);
-            info->coord_matrix_id = ngli_glGetUniformLocation(gl, program->program_id, name);
+            GET_TEXTURE_UNIFORM_LOCATION(sampler);
+            GET_TEXTURE_UNIFORM_LOCATION(coord_matrix);
+            GET_TEXTURE_UNIFORM_LOCATION(dimensions);
 
-            snprintf(name, sizeof(name), "%s_dimensions", entry->key);
-            info->dimensions_id = ngli_glGetUniformLocation(gl, program->program_id, name);
+#undef GET_TEXTURE_UNIFORM_LOCATION
+
             i++;
         }
     }
