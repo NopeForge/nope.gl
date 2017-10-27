@@ -44,17 +44,44 @@ static int buffer_init(struct ngl_node *node)
     struct buffer *s = node->priv_data;
 
     int data_comp_size;
+    int nb_comp;
+    GLenum comp_type;
+
     switch (node->class->id) {
-    case NGL_NODE_BUFFERUBYTE:  data_comp_size = 1; s->data_comp = 1; s->type = GL_UNSIGNED_BYTE;  break;
-    case NGL_NODE_BUFFERUSHORT: data_comp_size = 2; s->data_comp = 1; s->type = GL_UNSIGNED_SHORT; break;
-    case NGL_NODE_BUFFERUINT:   data_comp_size = 4; s->data_comp = 1; s->type = GL_UNSIGNED_INT;   break;
-    case NGL_NODE_BUFFERFLOAT:  data_comp_size = 4; s->data_comp = 1; s->type = GL_FLOAT;          break;
-    case NGL_NODE_BUFFERVEC2:   data_comp_size = 4; s->data_comp = 2; s->type = GL_FLOAT;          break;
-    case NGL_NODE_BUFFERVEC3:   data_comp_size = 4; s->data_comp = 3; s->type = GL_FLOAT;          break;
-    case NGL_NODE_BUFFERVEC4:   data_comp_size = 4; s->data_comp = 4; s->type = GL_FLOAT;          break;
+    case NGL_NODE_BUFFERBYTE:   data_comp_size = 1; nb_comp = 1; comp_type = GL_BYTE;              break;
+    case NGL_NODE_BUFFERBVEC2:  data_comp_size = 1; nb_comp = 2; comp_type = GL_BYTE;              break;
+    case NGL_NODE_BUFFERBVEC3:  data_comp_size = 1; nb_comp = 3; comp_type = GL_BYTE;              break;
+    case NGL_NODE_BUFFERBVEC4:  data_comp_size = 1; nb_comp = 4; comp_type = GL_BYTE;              break;
+    case NGL_NODE_BUFFERINT:    data_comp_size = 4; nb_comp = 1; comp_type = GL_INT;               break;
+    case NGL_NODE_BUFFERIVEC2:  data_comp_size = 4; nb_comp = 2; comp_type = GL_INT;               break;
+    case NGL_NODE_BUFFERIVEC3:  data_comp_size = 4; nb_comp = 3; comp_type = GL_INT;               break;
+    case NGL_NODE_BUFFERIVEC4:  data_comp_size = 4; nb_comp = 4; comp_type = GL_INT;               break;
+    case NGL_NODE_BUFFERSHORT:  data_comp_size = 2; nb_comp = 1; comp_type = GL_SHORT;             break;
+    case NGL_NODE_BUFFERSVEC2:  data_comp_size = 2; nb_comp = 2; comp_type = GL_SHORT;             break;
+    case NGL_NODE_BUFFERSVEC3:  data_comp_size = 2; nb_comp = 3; comp_type = GL_SHORT;             break;
+    case NGL_NODE_BUFFERSVEC4:  data_comp_size = 2; nb_comp = 4; comp_type = GL_SHORT;             break;
+    case NGL_NODE_BUFFERUBYTE:  data_comp_size = 1; nb_comp = 1; comp_type = GL_UNSIGNED_BYTE;     break;
+    case NGL_NODE_BUFFERUBVEC2: data_comp_size = 1; nb_comp = 2; comp_type = GL_UNSIGNED_BYTE;     break;
+    case NGL_NODE_BUFFERUBVEC3: data_comp_size = 1; nb_comp = 3; comp_type = GL_UNSIGNED_BYTE;     break;
+    case NGL_NODE_BUFFERUBVEC4: data_comp_size = 1; nb_comp = 4; comp_type = GL_UNSIGNED_BYTE;     break;
+    case NGL_NODE_BUFFERUINT:   data_comp_size = 4; nb_comp = 1; comp_type = GL_UNSIGNED_INT;      break;
+    case NGL_NODE_BUFFERUIVEC2: data_comp_size = 4; nb_comp = 2; comp_type = GL_UNSIGNED_INT;      break;
+    case NGL_NODE_BUFFERUIVEC3: data_comp_size = 4; nb_comp = 3; comp_type = GL_UNSIGNED_INT;      break;
+    case NGL_NODE_BUFFERUIVEC4: data_comp_size = 4; nb_comp = 4; comp_type = GL_UNSIGNED_INT;      break;
+    case NGL_NODE_BUFFERUSHORT: data_comp_size = 2; nb_comp = 1; comp_type = GL_UNSIGNED_SHORT;    break;
+    case NGL_NODE_BUFFERUSVEC2: data_comp_size = 2; nb_comp = 2; comp_type = GL_UNSIGNED_SHORT;    break;
+    case NGL_NODE_BUFFERUSVEC3: data_comp_size = 2; nb_comp = 3; comp_type = GL_UNSIGNED_SHORT;    break;
+    case NGL_NODE_BUFFERUSVEC4: data_comp_size = 2; nb_comp = 4; comp_type = GL_UNSIGNED_SHORT;    break;
+    case NGL_NODE_BUFFERFLOAT:  data_comp_size = 4; nb_comp = 1; comp_type = GL_FLOAT;             break;
+    case NGL_NODE_BUFFERVEC2:   data_comp_size = 4; nb_comp = 2; comp_type = GL_FLOAT;             break;
+    case NGL_NODE_BUFFERVEC3:   data_comp_size = 4; nb_comp = 3; comp_type = GL_FLOAT;             break;
+    case NGL_NODE_BUFFERVEC4:   data_comp_size = 4; nb_comp = 4; comp_type = GL_FLOAT;             break;
     default:
         ngli_assert(0);
     }
+
+    s->data_comp = nb_comp;
+    s->type = comp_type;
 
     if (!s->data_stride)
         s->data_stride = s->data_comp * data_comp_size;
@@ -98,65 +125,41 @@ static void buffer_uninit(struct ngl_node *node)
     s->data = NULL;
 }
 
-const struct node_class ngli_bufferfloat_class = {
-    .id        = NGL_NODE_BUFFERFLOAT,
-    .name      = "BufferFloat",
-    .init      = buffer_init,
-    .uninit    = buffer_uninit,
-    .priv_size = sizeof(struct buffer),
-    .params    = buffer_params,
+#define DEFINE_BUFFER_CLASS(class_id, class_name, type)     \
+const struct node_class ngli_buffer##type##_class = {       \
+    .id        = class_id,                                  \
+    .name      = class_name,                                \
+    .init      = buffer_init,                               \
+    .uninit    = buffer_uninit,                             \
+    .priv_size = sizeof(struct buffer),                     \
+    .params    = buffer_params,                             \
 };
 
-const struct node_class ngli_bufferubyte_class = {
-    .id        = NGL_NODE_BUFFERUBYTE,
-    .name      = "BufferUByte",
-    .init      = buffer_init,
-    .uninit    = buffer_uninit,
-    .priv_size = sizeof(struct buffer),
-    .params    = buffer_params,
-};
-
-const struct node_class ngli_bufferuint_class = {
-    .id        = NGL_NODE_BUFFERUINT,
-    .name      = "BufferUInt",
-    .init      = buffer_init,
-    .uninit    = buffer_uninit,
-    .priv_size = sizeof(struct buffer),
-    .params    = buffer_params,
-};
-
-const struct node_class ngli_bufferushort_class = {
-    .id        = NGL_NODE_BUFFERUSHORT,
-    .name      = "BufferUShort",
-    .init      = buffer_init,
-    .uninit    = buffer_uninit,
-    .priv_size = sizeof(struct buffer),
-    .params    = buffer_params,
-};
-
-const struct node_class ngli_buffervec2_class = {
-    .id        = NGL_NODE_BUFFERVEC2,
-    .name      = "BufferVec2",
-    .init      = buffer_init,
-    .uninit    = buffer_uninit,
-    .priv_size = sizeof(struct buffer),
-    .params    = buffer_params,
-};
-
-const struct node_class ngli_buffervec3_class = {
-    .id        = NGL_NODE_BUFFERVEC3,
-    .name      = "BufferVec3",
-    .init      = buffer_init,
-    .uninit    = buffer_uninit,
-    .priv_size = sizeof(struct buffer),
-    .params    = buffer_params,
-};
-
-const struct node_class ngli_buffervec4_class = {
-    .id        = NGL_NODE_BUFFERVEC4,
-    .name      = "BufferVec4",
-    .init      = buffer_init,
-    .uninit    = buffer_uninit,
-    .priv_size = sizeof(struct buffer),
-    .params    = buffer_params,
-};
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBYTE,    "BufferByte",    byte)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC2,   "BufferBVec2",   bvec2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC3,   "BufferBVec3",   bvec3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC4,   "BufferBVec4",   bvec4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERINT,     "BufferInt",     int)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC2,   "BufferIVec2",   ivec2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC3,   "BufferIVec3",   ivec3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC4,   "BufferIVec4",   ivec4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSHORT,   "BufferShort",   short)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC2,   "BufferSVec2",   svec2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC3,   "BufferSVec3",   svec3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC4,   "BufferSVec4",   svec4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBYTE,   "BufferUByte",   ubyte)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC2,  "BufferUBVec2",  ubvec2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC3,  "BufferUBVec3",  ubvec3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC4,  "BufferUBVec4",  ubvec4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUINT,    "BufferUInt",    uint)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC2,  "BufferUIVec2",  uivec2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC3,  "BufferUIVec3",  uivec3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC4,  "BufferUIVec4",  uivec4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSHORT,  "BufferUShort",  ushort)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC2,  "BufferUSVec2",  usvec2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC3,  "BufferUSVec3",  usvec3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC4,  "BufferUSVec4",  usvec4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERFLOAT,   "BufferFloat",   float)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC2,    "BufferVec2",    vec2)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC3,    "BufferVec3",    vec3)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC4,    "BufferVec4",    vec4)

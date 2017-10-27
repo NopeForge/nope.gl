@@ -36,10 +36,31 @@
     action(NGL_NODE_ANIMKEYFRAMEVEC3,       ngli_animkeyframevec3_class)        \
     action(NGL_NODE_ANIMKEYFRAMEVEC4,       ngli_animkeyframevec4_class)        \
     action(NGL_NODE_ANIMKEYFRAMEBUFFER,     ngli_animkeyframebuffer_class)      \
-    action(NGL_NODE_BUFFERFLOAT,            ngli_bufferfloat_class)             \
+    action(NGL_NODE_BUFFERBYTE,             ngli_bufferbyte_class)              \
+    action(NGL_NODE_BUFFERBVEC2,            ngli_bufferbvec2_class)             \
+    action(NGL_NODE_BUFFERBVEC3,            ngli_bufferbvec3_class)             \
+    action(NGL_NODE_BUFFERBVEC4,            ngli_bufferbvec4_class)             \
+    action(NGL_NODE_BUFFERINT,              ngli_bufferint_class)               \
+    action(NGL_NODE_BUFFERIVEC2,            ngli_bufferivec2_class)             \
+    action(NGL_NODE_BUFFERIVEC3,            ngli_bufferivec3_class)             \
+    action(NGL_NODE_BUFFERIVEC4,            ngli_bufferivec4_class)             \
+    action(NGL_NODE_BUFFERSHORT,            ngli_buffershort_class)             \
+    action(NGL_NODE_BUFFERSVEC2,            ngli_buffersvec2_class)             \
+    action(NGL_NODE_BUFFERSVEC3,            ngli_buffersvec3_class)             \
+    action(NGL_NODE_BUFFERSVEC4,            ngli_buffersvec4_class)             \
     action(NGL_NODE_BUFFERUBYTE,            ngli_bufferubyte_class)             \
+    action(NGL_NODE_BUFFERUBVEC2,           ngli_bufferubvec2_class)            \
+    action(NGL_NODE_BUFFERUBVEC3,           ngli_bufferubvec3_class)            \
+    action(NGL_NODE_BUFFERUBVEC4,           ngli_bufferubvec4_class)            \
     action(NGL_NODE_BUFFERUINT,             ngli_bufferuint_class)              \
+    action(NGL_NODE_BUFFERUIVEC2,           ngli_bufferuivec2_class)            \
+    action(NGL_NODE_BUFFERUIVEC3,           ngli_bufferuivec3_class)            \
+    action(NGL_NODE_BUFFERUIVEC4,           ngli_bufferuivec4_class)            \
     action(NGL_NODE_BUFFERUSHORT,           ngli_bufferushort_class)            \
+    action(NGL_NODE_BUFFERUSVEC2,           ngli_bufferusvec2_class)            \
+    action(NGL_NODE_BUFFERUSVEC3,           ngli_bufferusvec3_class)            \
+    action(NGL_NODE_BUFFERUSVEC4,           ngli_bufferusvec4_class)            \
+    action(NGL_NODE_BUFFERFLOAT,            ngli_bufferfloat_class)             \
     action(NGL_NODE_BUFFERVEC2,             ngli_buffervec2_class)              \
     action(NGL_NODE_BUFFERVEC3,             ngli_buffervec3_class)              \
     action(NGL_NODE_BUFFERVEC4,             ngli_buffervec4_class)              \

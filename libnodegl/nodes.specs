@@ -80,7 +80,95 @@
         - [easing, string]
         - [easing_args, doubleList]
 
-- BufferFloat:
+- BufferByte:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferBVec2:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferBVec3:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferBVec4:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferInt:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferIVec2:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferIVec3:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferIVec4:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferShort:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferSVec2:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferSVec3:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferSVec4:
     optional:
         - [count, int]
         - [data, data]
@@ -96,6 +184,30 @@
         - [target, int]
         - [usage, int]
 
+- BufferUBVec2:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferUBVec3:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferUBVec4:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
 - BufferUInt:
     optional:
         - [count, int]
@@ -104,7 +216,63 @@
         - [target, int]
         - [usage, int]
 
+- BufferUIVec2:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferUIVec3:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferUIVec4:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
 - BufferUShort:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferUSVec2:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferUSVec3:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferUSVec4:
+    optional:
+        - [count, int]
+        - [data, data]
+        - [stride, int]
+        - [target, int]
+        - [usage, int]
+
+- BufferFloat:
     optional:
         - [count, int]
         - [data, data]
