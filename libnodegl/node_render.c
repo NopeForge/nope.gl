@@ -293,14 +293,16 @@ static int render_init(struct ngl_node *node)
             if (ret < 0)
                 return ret;
 
+            struct textureprograminfo *info = &s->textureprograminfos[i];
+
             snprintf(name, sizeof(name), "%s_sampler", entry->key);
-            s->textureprograminfos[i].sampler_id = ngli_glGetUniformLocation(gl, program->program_id, name);
+            info->sampler_id = ngli_glGetUniformLocation(gl, program->program_id, name);
 
             snprintf(name, sizeof(name), "%s_coord_matrix", entry->key);
-            s->textureprograminfos[i].coordinates_mvp_id = ngli_glGetUniformLocation(gl, program->program_id, name);
+            info->coordinates_mvp_id = ngli_glGetUniformLocation(gl, program->program_id, name);
 
             snprintf(name, sizeof(name), "%s_dimensions", entry->key);
-            s->textureprograminfos[i].dimensions_id = ngli_glGetUniformLocation(gl, program->program_id, name);
+            info->dimensions_id = ngli_glGetUniformLocation(gl, program->program_id, name);
             i++;
         }
     }
