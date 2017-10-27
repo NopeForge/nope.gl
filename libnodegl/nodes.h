@@ -264,7 +264,9 @@ struct texture {
 };
 
 struct textureprograminfo {
+    int sampling_mode_id;
     int sampler_id;
+    int external_sampler_id;
     int coord_matrix_id;
     int dimensions_id;
 };
@@ -275,6 +277,7 @@ struct render {
 
     struct hmap *textures;
     struct textureprograminfo *textureprograminfos;
+    int disable_1st_texture_unit;
 
     struct hmap *uniforms;
     GLint *uniform_ids;

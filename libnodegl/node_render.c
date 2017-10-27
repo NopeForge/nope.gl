@@ -73,6 +73,10 @@ static inline void bind_texture(const struct glfunctions *gl, GLenum target, GLi
     ngli_glUniform1i(gl, uniform_location, idx);
 }
 
+#define SAMPLING_MODE_NONE         0
+#define SAMPLING_MODE_2D           1
+#define SAMPLING_MODE_EXTERNAL_OES 2
+
 static int update_uniforms(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -106,20 +110,52 @@ static int update_uniforms(struct ngl_node *node)
 
     if (s->textures) {
         int i = 0;
+        int texture_index = 0;
         const struct hmap_entry *entry = NULL;
+
+        if (s->disable_1st_texture_unit) {
+            ngli_glActiveTexture(gl, GL_TEXTURE0);
+            ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+#ifdef TARGET_ANDROID
+            ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
+#endif
+            texture_index = 1;
+        }
+
         while ((entry = ngli_hmap_next(s->textures, entry))) {
             struct ngl_node *tnode = entry->data;
             struct texture *texture = tnode->priv_data;
             struct textureprograminfo *info = &s->textureprograminfos[i];
 
-            if (info->sampler_id >= 0) {
-                const int sampler_id = info->sampler_id;
-                bind_texture(gl, texture->target, sampler_id, texture->id, i);
+            int sampling_mode = SAMPLING_MODE_NONE;
+            switch (texture->target) {
+            case GL_TEXTURE_2D:
+                if (info->sampler_id >= 0) {
+                    sampling_mode = SAMPLING_MODE_2D;
+                    bind_texture(gl, texture->target, info->sampler_id, texture->id, texture_index);
+                }
+
+                if (info->external_sampler_id >= 0)
+                    ngli_glUniform1i(gl, info->external_sampler_id, 0);
+                break;
+#ifdef TARGET_ANDROID
+            case GL_TEXTURE_EXTERNAL_OES:
+                if (info->sampler_id >= 0)
+                    ngli_glUniform1i(gl, info->sampler_id, 0);
+
+                if (info->external_sampler_id >= 0) {
+                    sampling_mode = SAMPLING_MODE_EXTERNAL_OES;
+                    bind_texture(gl, texture->target, info->external_sampler_id, texture->id, texture_index);
+                }
+                break;
+#endif
             }
 
-            if (info->coord_matrix_id >= 0) {
+            if (info->sampling_mode_id >= 0)
+                ngli_glUniform1i(gl, info->sampling_mode_id, sampling_mode);
+
+            if (info->coord_matrix_id >= 0)
                 ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
-            }
 
             if (info->dimensions_id >= 0) {
                 const float dimensions[2] = { texture->width, texture->height };
@@ -127,6 +163,7 @@ static int update_uniforms(struct ngl_node *node)
             }
 
             i++;
+            texture_index++;
         }
     }
 
@@ -300,11 +337,30 @@ static int render_init(struct ngl_node *node)
             info->suffix##_id = ngli_glGetUniformLocation(gl, program->program_id, name);  \
 } while (0)
 
+            GET_TEXTURE_UNIFORM_LOCATION(sampling_mode);
             GET_TEXTURE_UNIFORM_LOCATION(sampler);
+            GET_TEXTURE_UNIFORM_LOCATION(external_sampler);
             GET_TEXTURE_UNIFORM_LOCATION(coord_matrix);
             GET_TEXTURE_UNIFORM_LOCATION(dimensions);
 
 #undef GET_TEXTURE_UNIFORM_LOCATION
+
+            if (info->sampler_id < 0 &&
+                info->external_sampler_id < 0) {
+                LOG(WARNING, "no sampler found for texture %s", entry->key);
+            }
+
+            if (info->sampler_id >= 0 &&
+                info->external_sampler_id >= 0)
+                s->disable_1st_texture_unit = 1;
+
+            struct texture *texture = tnode->priv_data;
+            texture->direct_rendering = texture->direct_rendering &&
+                                        info->external_sampler_id >= 0;
+            LOG(VERBOSE,
+                "direct rendering %s available for texture %s",
+                texture->direct_rendering ? "is" : "is not",
+                entry->key);
 
             i++;
         }
