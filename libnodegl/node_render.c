@@ -110,20 +110,20 @@ static int update_uniforms(struct ngl_node *node)
         while ((entry = ngli_hmap_next(s->textures, entry))) {
             struct ngl_node *tnode = entry->data;
             struct texture *texture = tnode->priv_data;
-            struct textureprograminfo *textureprograminfo = &s->textureprograminfos[i];
+            struct textureprograminfo *info = &s->textureprograminfos[i];
 
-            if (textureprograminfo->sampler_id >= 0) {
-                const int sampler_id = textureprograminfo->sampler_id;
+            if (info->sampler_id >= 0) {
+                const int sampler_id = info->sampler_id;
                 bind_texture(gl, texture->target, sampler_id, texture->id, i);
             }
 
-            if (textureprograminfo->coord_matrix_id >= 0) {
-                ngli_glUniformMatrix4fv(gl, textureprograminfo->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
+            if (info->coord_matrix_id >= 0) {
+                ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
             }
 
-            if (textureprograminfo->dimensions_id >= 0) {
+            if (info->dimensions_id >= 0) {
                 const float dimensions[2] = { texture->width, texture->height };
-                ngli_glUniform2fv(gl, textureprograminfo->dimensions_id, 1, dimensions);
+                ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
             }
 
             i++;
