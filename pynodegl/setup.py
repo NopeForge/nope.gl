@@ -111,12 +111,14 @@ class BuildExtCommand(build_ext):
                     construct_args.append('_Node %s' % field_name)
 
             opt_fields = fields.get('optional', [])
-            if node != '_Node':
-                opt_fields += specs[0]['_Node']['optional']
 
+            optional_args = ['self']
+            optional_varnames = []
             for field in opt_fields:
                 field_name, field_type = field
                 construct_args.append('%s=None' % field_name)
+                optional_args.append('%s=None' % field_name)
+                optional_varnames.append(field_name)
                 is_list = field_type.endswith('List')
                 is_dict = field_type.endswith('Dict')
                 optset_data = {
@@ -136,13 +138,18 @@ class BuildExtCommand(build_ext):
                     extra_args += '''
             self.set_%(var)s(%(arg)s)''' % optset_data
 
+            construct_args.append('*args')
+            construct_args.append('**kwargs')
+
             class_data = {
                 'class_name': node,
                 'struct_name': _get_struct_name(node),
                 'construct_args': ', '.join(construct_args),
                 'construct_cargs': ', '.join(construct_cargs),
+                'optional_args': ', '.join(optional_args),
+                'optional_varnames': ', '.join(optional_varnames),
                 'special_inits': special_inits,
-                'extra_args': extra_args,
+                'extra_args': extra_args if extra_args != '' else ' pass',
             }
 
             class_str = '''
@@ -151,7 +158,10 @@ cdef class %(class_name)s(_Node):
         self.ctx = ngl_node_create(%(construct_cargs)s)
         if self.ctx is NULL:
             raise MemoryError()
-%(extra_args)s
+        _Node._init_params(self, *args, **kwargs)
+        self._init_params(%(optional_varnames)s)
+
+    def _init_params(%(optional_args)s):%(extra_args)s
 ''' % class_data
 
             if node == '_Node':
@@ -195,7 +205,10 @@ cdef class _Node:
             if ret < 0:
                 return ret
         return 0
-'''
+
+    def _init_params(%(optional_args)s):
+%(extra_args)s
+''' % class_data
 
                 for field_type in 'NodeList', 'doubleList':
                     base_field_type = field_type[:-len('List')]
