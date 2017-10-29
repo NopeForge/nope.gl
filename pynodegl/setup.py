@@ -90,6 +90,14 @@ class BuildExtCommand(build_ext):
             if not fields:
                 fields = {}
 
+            if isinstance(fields, str):
+                opt_fields = []
+                parent_node = fields
+                fields = {}
+            else:
+                opt_fields = fields.get('optional', [])
+                parent_node = '_Node'
+
             for field in fields.get('constructors', []):
                 field_name, field_type = field
                 assert not field_type.endswith('List')
@@ -109,8 +117,6 @@ class BuildExtCommand(build_ext):
                 else:
                     construct_cargs.append('%s.ctx' % field_name)
                     construct_args.append('_Node %s' % field_name)
-
-            opt_fields = fields.get('optional', [])
 
             optional_args = ['self']
             optional_varnames = []
@@ -143,6 +149,7 @@ class BuildExtCommand(build_ext):
 
             class_data = {
                 'class_name': node,
+                'parent_node': parent_node,
                 'struct_name': _get_struct_name(node),
                 'construct_args': ', '.join(construct_args),
                 'construct_cargs': ', '.join(construct_cargs),
@@ -153,14 +160,19 @@ class BuildExtCommand(build_ext):
             }
 
             class_str = '''
-cdef class %(class_name)s(_Node):
+cdef class %(class_name)s(%(parent_node)s):
+''' % class_data
+            if not node.startswith('_') or node == '_Node':
+                class_str += '''
     def __cinit__(%(construct_args)s):%(special_inits)s
         self.ctx = ngl_node_create(%(construct_cargs)s)
         if self.ctx is NULL:
             raise MemoryError()
-        _Node._init_params(self, *args, **kwargs)
+        %(parent_node)s._init_params(self, *args, **kwargs)
         self._init_params(%(optional_varnames)s)
+''' % class_data
 
+            class_str += '''
     def _init_params(%(optional_args)s):%(extra_args)s
 ''' % class_data
 

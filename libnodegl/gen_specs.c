@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include "hmap.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "nodes_register.h"
@@ -84,12 +85,36 @@ int main(void)
         NODE_MAP_TYPE2CLASS(CLASS_COMMALIST)
     };
 
+    struct hmap *params_map = ngli_hmap_create();
+    if (!params_map)
+        return -1;
+
     for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
         const struct node_class *c = node_classes[i];
         if (c) {
             const struct node_param *p = &c->params[0];
-            print_node_params(c->name, p);
+
+            if (c->params_id) {
+                void *mapped_param = ngli_hmap_get(params_map, c->params_id);
+                char *pname = ngli_asprintf("_%s", c->params_id);
+                if (!pname) {
+                    free(pname);
+                    return -1;
+                }
+                if (mapped_param) {
+                    ngli_assert(mapped_param == p);
+                    printf("- %s: %s\n\n", c->name, pname);
+                } else {
+                    print_node_params(pname, p);
+                    ngli_hmap_set(params_map, c->params_id, (void *)p);
+                }
+                free(pname);
+            } else {
+                print_node_params(c->name, p);
+            }
         }
     }
+
+    ngli_hmap_freep(&params_map);
     return 0;
 }

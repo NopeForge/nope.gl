@@ -8,21 +8,15 @@
         - [ranges, NodeList]
         - [name, string]
 
-- AnimatedBufferFloat:
+- _AnimatedBuffer:
     optional:
         - [animkf, NodeList]
 
-- AnimatedBufferVec2:
-    optional:
-        - [animkf, NodeList]
+- AnimatedBufferVec2: _AnimatedBuffer
 
-- AnimatedBufferVec3:
-    optional:
-        - [animkf, NodeList]
+- AnimatedBufferVec3: _AnimatedBuffer
 
-- AnimatedBufferVec4:
-    optional:
-        - [animkf, NodeList]
+- AnimatedBufferVec4: _AnimatedBuffer
 
 - AnimationFloat:
     optional:
@@ -80,7 +74,7 @@
         - [easing, string]
         - [easing_args, doubleList]
 
-- BufferByte:
+- _Buffer:
     optional:
         - [count, int]
         - [data, data]
@@ -88,221 +82,59 @@
         - [target, int]
         - [usage, int]
 
-- BufferBVec2:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferBVec2: _Buffer
 
-- BufferBVec3:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferBVec3: _Buffer
 
-- BufferBVec4:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferBVec4: _Buffer
 
-- BufferInt:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferInt: _Buffer
 
-- BufferIVec2:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferIVec2: _Buffer
 
-- BufferIVec3:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferIVec3: _Buffer
 
-- BufferIVec4:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferIVec4: _Buffer
 
-- BufferShort:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferShort: _Buffer
 
-- BufferSVec2:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferSVec2: _Buffer
 
-- BufferSVec3:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferSVec3: _Buffer
 
-- BufferSVec4:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferSVec4: _Buffer
 
-- BufferUByte:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUByte: _Buffer
 
-- BufferUBVec2:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUBVec2: _Buffer
 
-- BufferUBVec3:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUBVec3: _Buffer
 
-- BufferUBVec4:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUBVec4: _Buffer
 
-- BufferUInt:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUInt: _Buffer
 
-- BufferUIVec2:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUIVec2: _Buffer
 
-- BufferUIVec3:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUIVec3: _Buffer
 
-- BufferUIVec4:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUIVec4: _Buffer
 
-- BufferUShort:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUShort: _Buffer
 
-- BufferUSVec2:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUSVec2: _Buffer
 
-- BufferUSVec3:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUSVec3: _Buffer
 
-- BufferUSVec4:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferUSVec4: _Buffer
 
-- BufferFloat:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferFloat: _Buffer
 
-- BufferVec2:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferVec2: _Buffer
 
-- BufferVec3:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferVec3: _Buffer
 
-- BufferVec4:
-    optional:
-        - [count, int]
-        - [data, data]
-        - [stride, int]
-        - [target, int]
-        - [usage, int]
+- BufferVec4: _Buffer
 
 - Camera:
     constructors:
