@@ -52,8 +52,6 @@ class BuildExtCommand(build_ext):
 
         specs = yaml.load(open(specs))
 
-        _get_struct_name = lambda name: 'ngl_%s' % name.lower()
-
         def _get_vec_init_code(n, vecname, cvecname):
             return '''
         cdef float[%(n)d] %(cvecname)s
@@ -79,7 +77,6 @@ class BuildExtCommand(build_ext):
         for item in specs:
             node = item.keys()[0]
             fields = item[node]
-            sname = _get_struct_name(node)
 
             type_id = 'NGL_NODE_%s' % node.upper()
             construct_args = ['self']
@@ -150,7 +147,6 @@ class BuildExtCommand(build_ext):
             class_data = {
                 'class_name': node,
                 'parent_node': parent_node,
-                'struct_name': _get_struct_name(node),
                 'construct_args': ', '.join(construct_args),
                 'construct_cargs': ', '.join(construct_cargs),
                 'optional_args': ', '.join(optional_args),
