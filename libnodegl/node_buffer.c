@@ -81,7 +81,7 @@ static int buffer_init(struct ngl_node *node)
     }
 
     s->data_comp = nb_comp;
-    s->type = comp_type;
+    s->comp_type = comp_type;
 
     if (!s->data_stride)
         s->data_stride = s->data_comp * data_comp_size;

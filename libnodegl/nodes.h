@@ -181,7 +181,7 @@ struct buffer {
     int current_kf;
 
     GLuint buffer_id;
-    GLenum type;
+    GLenum comp_type;
 };
 
 struct uniform {
