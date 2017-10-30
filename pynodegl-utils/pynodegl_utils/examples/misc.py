@@ -27,6 +27,7 @@ from pynodegl import (
         Texture2D,
         Translate,
         Triangle,
+        UniformInt,
         UniformFloat,
         UniformVec4,
 )
@@ -153,61 +154,6 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
     media = cfg.medias[0]
     cfg.duration = media.duration
 
-    freq_line = 2                           # skip the 2 audio channels
-    freq_line += (10 - freq_precision) * 2  # 2x10 lines of FFT
-
-    fft1, fft2 = freq_line + 0.5, freq_line + 1 + 0.5
-
-    frag_data = '''
-#version 100
-precision mediump float;
-
-uniform sampler2D tex0_sampler;
-uniform sampler2D tex1_sampler;
-varying vec2 var_tex0_coord;
-
-float wave(float sample, float y, float yoff)
-{
-    float s = (sample + 1.0) / 2.0; // [-1;1] -> [0;1]
-    float v = yoff + s/4.0;         // [0;1] -> [off;off+0.25]
-    return smoothstep(v-0.005, v, y)
-         - smoothstep(v, v+0.005, y);
-}
-
-float freq(float power, float y, float yoff)
-{
-    float p = sqrt(power);
-    float v = clamp(p, 0.0, 1.0) / 4.0; // [0;+oo] -> [0;0.25]
-    float a = yoff + 0.25;
-    float b = a - v;
-    return step(y, a) * (1.0 - step(y, b)); // y <= a && y > b
-}
-
-void main()
-{
-    float x = var_tex0_coord.x;
-    float y = var_tex0_coord.y;
-    vec4 video_pix = texture2D(tex1_sampler, var_tex0_coord);
-    vec2 sample_id_ch_1 = vec2(x,      0.5 / 22.);
-    vec2 sample_id_ch_2 = vec2(x,      1.5 / 22.);
-    vec2  power_id_ch_1 = vec2(x, %(fft1)f / 22.);
-    vec2  power_id_ch_2 = vec2(x, %(fft2)f / 22.);
-    float sample_ch_1 = texture2D(tex0_sampler, sample_id_ch_1).x;
-    float sample_ch_2 = texture2D(tex0_sampler, sample_id_ch_2).x;
-    float  power_ch_1 = texture2D(tex0_sampler,  power_id_ch_1).x;
-    float  power_ch_2 = texture2D(tex0_sampler,  power_id_ch_2).x;
-    float wave1 = wave(sample_ch_1, y, 0.0);
-    float wave2 = wave(sample_ch_2, y, 0.25);
-    float freq1 = freq(power_ch_1, y, 0.5);
-    float freq2 = freq(power_ch_2, y, 0.75);
-    vec3 audio_pix = vec3(0.0, 1.0, 0.5) * wave2
-                   + vec3(0.5, 1.0, 0.0) * wave1
-                   + vec3(1.0, 0.5, 0.0) * freq1
-                   + vec3(1.0, 0.0, 0.5) * freq2;
-    gl_FragColor = mix(video_pix, vec4(audio_pix, 1.0), %(overlay)f);
-}
-''' % {'fft1': fft1, 'fft2': fft2, 'overlay': overlay}
-
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
     audio_m = Media(media.filename, audio_tex=1)
@@ -216,9 +162,11 @@ void main()
     video_m = Media(media.filename)
     video_tex = Texture2D(data_src=video_m)
 
-    p = Program(fragment=frag_data)
+    p = Program(fragment=get_shader('audiotex'))
     render = Render(q, p)
     render.update_textures(tex0=audio_tex, tex1=video_tex)
+    render.update_uniforms(overlay=UniformFloat(overlay))
+    render.update_uniforms(freq_precision=UniformInt(freq_precision))
     return render
 
 @scene(particules={'type': 'range', 'range': [1,1024]})
