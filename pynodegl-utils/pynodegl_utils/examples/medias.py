@@ -26,55 +26,6 @@ from pynodegl_utils.misc import scene, get_shader
 
 from OpenGL import GL
 
-pgbar_shader = '''
-#version 100
-precision mediump float;
-
-uniform float time;
-uniform float ar;
-uniform sampler2D tex0_sampler;
-varying vec2 var_tex0_coord;
-
-void main()
-{
-    float pad    = 2.0 / 100.;
-    float padw   = pad;
-    float padh   = pad * ar;
-    float height = 3.0 / 100. * ar;
-    float thick  = 0.3 / 100.;
-    float thickw = thick;
-    float thickh = thick * ar;
-
-    float x = var_tex0_coord.x;
-    float y = var_tex0_coord.y;
-    vec4 video_pix = texture2D(tex0_sampler, var_tex0_coord);
-
-    float bar_width = 1. - padw*2. - thickw*2.;
-
-    float t = time*bar_width + padw+thickw;
-
-    if (x < t && x > padw+thickw &&
-        y < 1.-padh-thickh && y > 1.-padh-height) {
-        vec4 color = vec4(1,0,0,1);
-        gl_FragColor = mix(video_pix, color, 0.7);
-    } else {
-        gl_FragColor = video_pix;
-    }
-
-    if (y < 1.-padh-thickh && y > 1.-padh-height &&
-        ((x > padw && x < padw+thickw) ||
-         (x > 1.-padw-thickw && x < 1.-padw))) {
-        gl_FragColor = vec4(1);
-    }
-
-    if (x < 1.-padw-thickw && x > padw+thickw &&
-        ((y < 1.-padh-height && y > 1.-padh-height-thickh) ||
-         (y < 1.-padh && y > 1. - padh-thickh))) {
-        gl_FragColor = vec4(1);
-    }
-}
-'''
-
 @scene(uv_corner_x={'type': 'range', 'range': [0,1], 'unit_base': 100},
        uv_corner_y={'type': 'range', 'range': [0,1], 'unit_base': 100},
        uv_width={'type': 'range', 'range': [0,1], 'unit_base': 100},
@@ -93,7 +44,7 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
     render.update_textures(tex0=t)
 
     if progress_bar:
-        p.set_fragment(pgbar_shader)
+        p.set_fragment(get_shader('progress-bar'))
         time_animkf = [AnimKeyFrameFloat(0, 0),
                        AnimKeyFrameFloat(cfg.duration, 1)]
         time = UniformFloat(anim=AnimationFloat(time_animkf))
