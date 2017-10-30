@@ -38,6 +38,13 @@ def scene(**widgets_specs):
 
     return real_decorator
 
+
+def get_shader(name, shader_path=None):
+    if shader_path is None:
+        shader_path = os.path.join(os.path.dirname(__file__), 'examples', 'shaders')
+    return open(os.path.join(shader_path, name + '.glsl')).read()
+
+
 class NGLMedia:
 
     @property
