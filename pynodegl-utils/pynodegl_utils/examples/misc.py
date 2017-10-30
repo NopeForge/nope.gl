@@ -58,21 +58,11 @@ def buffer(cfg):
 
 @scene(size={'type': 'range', 'range': [0,1.5], 'unit_base': 1000})
 def triangle(cfg, size=0.5):
-    frag_data = '''
-#version 100
-precision mediump float;
-varying vec2 var_uvcoord;
-void main(void)
-{
-    vec2 c = var_uvcoord;
-    gl_FragColor = vec4(c.y-c.x, c.x, 1.0-c.y, 1.0);
-}'''
-
     b = size * math.sqrt(3) / 2.0
     c = size * 1/2.
 
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
-    p = Program(fragment=frag_data)
+    p = Program(fragment=get_shader('triangle'))
     node = Render(triangle, p)
     animkf = [AnimKeyFrameFloat(0, 0),
               AnimKeyFrameFloat(cfg.duration, -360*2)]
