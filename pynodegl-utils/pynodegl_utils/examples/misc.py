@@ -11,12 +11,14 @@ from pynodegl import (
         AnimationFloat,
         AnimationVec3,
         BufferFloat,
-        BufferUBVec3,
+        BufferUBVec4,
         BufferVec2,
         BufferVec3,
         Camera,
+        Circle,
         Compute,
         ComputeProgram,
+        GLBlendState,
         Geometry,
         Group,
         Media,
@@ -35,27 +37,31 @@ from pynodegl import (
 from pynodegl_utils.misc import scene, get_shader
 
 
-@scene()
-def buffer(cfg):
+@scene(bgcolor={'type': 'color'})
+def buffer(cfg, bgcolor=(.6, 0, 0, 1)):
     # Credits: https://icons8.com/icon/40514/dove
-    icon = open(os.path.join(os.path.dirname(__file__), 'data', 'icons8-dove.ppm'))
-    header = icon.readline().rstrip()
-    w, h = (int(x) for x in icon.readline().rstrip().split())
-    depth = int(icon.readline().rstrip())
-    assert header == 'P6'
-    assert w, h == (80, 80)
-    assert depth == 255
+    icon = open(os.path.join(os.path.dirname(__file__), 'data', 'icons8-dove.raw'))
+    w, h = (96, 96)
     icon_data = icon.read()
-    assert len(icon_data) == w * h * 3
+    assert len(icon_data) == w * h * 4
 
     array_data = array.array('B', icon_data)
-    img_buf = BufferUBVec3(data=array_data)
+    img_buf = BufferUBVec4(data=array_data)
     img_tex = Texture2D(data_src=img_buf, width=w, height=h)
-    quad = Quad((-.5, -.5, 0), (1, 0, 0), (0, 1, 0))
+    quad = Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
     prog = Program()
-    render = Render(quad, prog)
+    render = Render(quad, prog, name='dove')
     render.update_textures(tex0=img_tex)
-    return render
+    render.add_glstates(GLBlendState(GL.GL_TRUE,
+                        GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA,
+                        GL.GL_ONE, GL.GL_ZERO))
+
+    prog_bg = Program(fragment=get_shader('color'))
+    shape_bg = Circle(radius=.6, npoints=256)
+    render_bg = Render(shape_bg, prog_bg, name='background')
+    render_bg.update_uniforms(color=UniformVec4(value=bgcolor))
+
+    return Group(children=(render_bg, render))
 
 @scene(size={'type': 'range', 'range': [0,1.5], 'unit_base': 1000})
 def triangle(cfg, size=0.5):
