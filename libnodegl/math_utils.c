@@ -232,7 +232,7 @@ void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up)
     dst[15] =  1.0;
 }
 
-static void mat4_identity(float *dst)
+void ngli_mat4_identity(float *dst)
 {
     static const float id[4*4] = {
         1.0f, 0.0f, 0.0f, 0.0f,
@@ -250,7 +250,7 @@ void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, floa
     const float s = sin(r);
     const float z = far - near;
 
-    mat4_identity(dst);
+    ngli_mat4_identity(dst);
 
     if (z == 0 || s == 0 || aspect == 0) {
         return;
