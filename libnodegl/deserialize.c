@@ -208,7 +208,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 return -1;
             for (int i = 0; i < size; i++) {
                 unsigned int value;
-                ret = sscanf(cur, ",%02x", &value);
+                ret = sscanf(cur, ",%02x%n", &value, &consumed);
                 if (ret != 1) {
                     free(data);
                     return -1;
