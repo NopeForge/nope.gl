@@ -166,7 +166,7 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
     else
         ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, s->width, s->height, s->format, s->type, frame->data);
 
-    switch(s->min_filter) {
+    switch (s->min_filter) {
     case GL_NEAREST_MIPMAP_NEAREST:
     case GL_NEAREST_MIPMAP_LINEAR:
     case GL_LINEAR_MIPMAP_NEAREST:
@@ -374,7 +374,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
 
     CVPixelBufferUnlockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
 
-    switch(s->min_filter) {
+    switch (s->min_filter) {
     case GL_NEAREST_MIPMAP_NEAREST:
     case GL_NEAREST_MIPMAP_LINEAR:
     case GL_LINEAR_MIPMAP_NEAREST:
@@ -552,7 +552,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
-        switch(s->min_filter) {
+        switch (s->min_filter) {
         case GL_NEAREST_MIPMAP_NEAREST:
         case GL_NEAREST_MIPMAP_LINEAR:
         case GL_LINEAR_MIPMAP_NEAREST:
@@ -643,7 +643,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
-        switch(s->min_filter) {
+        switch (s->min_filter) {
         case GL_NEAREST_MIPMAP_NEAREST:
         case GL_NEAREST_MIPMAP_LINEAR:
         case GL_LINEAR_MIPMAP_NEAREST:
@@ -692,7 +692,7 @@ static int hwupload_upload_frame(struct ngl_node *node,
 {
     int ret = 0;
 
-    switch(config->format) {
+    switch (config->format) {
     case HWUPLOAD_FMT_COMMON:
         ret = upload_common_frame(node, config, frame);
         break;
