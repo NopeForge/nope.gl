@@ -95,29 +95,12 @@ def animated(cfg, rotate=True, scale=True, translate=True):
 
     return node
 
-animated_frag_data = """
-#version 100
-precision mediump float;
-uniform mat4 matrix;
-uniform sampler2D tex0_sampler;
-varying vec2 var_tex0_coord;
-
-void main(void)
-{
-    vec2 coords = var_tex0_coord * 2.0 - 1.0;
-    coords = (matrix * vec4(coords.xy, 1.0, 1.0)).xy;
-    coords = (coords + 1.0) / 2.0;
-
-    gl_FragColor = texture2D(tex0_sampler, coords);
-}
-"""
-
 @scene()
 def animated_uniform(cfg):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
     t = Texture2D(data_src=m)
-    p = Program(fragment=animated_frag_data)
+    p = Program(fragment=get_shader('matrix-transform'))
     ts = Render(q, p)
     ts.update_textures(tex0=t)
 
