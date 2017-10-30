@@ -117,8 +117,8 @@ static int update_uniforms(struct ngl_node *node)
                 bind_texture(gl, texture->target, sampler_id, texture->id, i);
             }
 
-            if (textureprograminfo->coordinates_mvp_id >= 0) {
-                ngli_glUniformMatrix4fv(gl, textureprograminfo->coordinates_mvp_id, 1, GL_FALSE, texture->coordinates_matrix);
+            if (textureprograminfo->coord_matrix_id >= 0) {
+                ngli_glUniformMatrix4fv(gl, textureprograminfo->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
             }
 
             if (textureprograminfo->dimensions_id >= 0) {
@@ -299,7 +299,7 @@ static int render_init(struct ngl_node *node)
             info->sampler_id = ngli_glGetUniformLocation(gl, program->program_id, name);
 
             snprintf(name, sizeof(name), "%s_coord_matrix", entry->key);
-            info->coordinates_mvp_id = ngli_glGetUniformLocation(gl, program->program_id, name);
+            info->coord_matrix_id = ngli_glGetUniformLocation(gl, program->program_id, name);
 
             snprintf(name, sizeof(name), "%s_dimensions", entry->key);
             info->dimensions_id = ngli_glGetUniformLocation(gl, program->program_id, name);
