@@ -13,10 +13,11 @@ from pynodegl import (
         RenderToTexture,
         Rotate,
         Texture2D,
+        UniformFloat,
         UniformVec3,
 )
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import scene, get_shader
 
 def _get_cube_quads():
             # corner             width        height      color
@@ -31,6 +32,7 @@ def _get_cube_side(texture, program, corner, width, height, color):
     ts = Render(Quad(corner, width, height), program)
     ts.update_textures(tex0=texture)
     ts.update_uniforms(blend_color=UniformVec3(value=color))
+    ts.update_uniforms(mix_factor=UniformFloat(value=0.2))
     return ts
 
 @scene()
@@ -38,17 +40,7 @@ def rotating_cube(cfg):
     cube = Group(name="cube")
     cube.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
-    frag_data = """
-#version 100
-precision mediump float;
-uniform sampler2D tex0_sampler;
-varying vec2 var_tex0_coord;
-uniform vec3 blend_color;
-void main(void)
-{
-    vec4 t = texture2D(tex0_sampler, var_tex0_coord);
-    gl_FragColor = vec4(mix(t.rgb, blend_color, 0.2), 1.0);
-}"""
+    frag_data = get_shader('tex-tint')
     p = Program(fragment=frag_data)
 
     t = Texture2D(data_src=Media(cfg.medias[0].filename))
