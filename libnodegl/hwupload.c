@@ -136,7 +136,12 @@ static int init_common(struct ngl_node *node, struct hwupload_config *config)
 {
     struct texture *s = node->priv_data;
 
+    if (s->upload_fmt == config->format)
+        return 0;
+
     s->upload_fmt = config->format;
+
+    ngli_mat4_identity(s->coordinates_matrix);
 
     return 0;
 }
@@ -339,7 +344,12 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
 {
     struct texture *s = node->priv_data;
 
+    if (s->upload_fmt == config->format)
+        return 0;
+
     s->upload_fmt = config->format;
+
+    ngli_mat4_identity(s->coordinates_matrix);
 
     return 0;
 }
@@ -419,6 +429,8 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         return 0;
 
     s->upload_fmt = config->format;
+
+    ngli_mat4_identity(s->coordinates_matrix);
 
     if (s->upload_fmt == HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
         struct texture *t;
