@@ -33,7 +33,7 @@ from OpenGL import GL
        scale={'type': 'bool'},
        translate={'type': 'bool'})
 def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=True):
-    cfg.duration = 5
+    cfg.duration = 5.0
 
     sz = 1/3.
     q = Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
