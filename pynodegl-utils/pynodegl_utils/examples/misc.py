@@ -47,21 +47,11 @@ def buffer(cfg):
     icon_data = icon.read()
     assert len(icon_data) == w * h * 3
 
-    frag_data = '''#version 100
-precision mediump float;
-uniform sampler2D tex0_sampler;
-varying vec2 var_tex0_coord;
-
-void main(void) {
-    vec3 c = texture2D(tex0_sampler, var_tex0_coord).rgb;
-    gl_FragColor = vec4(c, 1.0);
-}'''
-
     array_data = array.array('B', icon_data)
     img_buf = BufferUBVec3(data=array_data)
     img_tex = Texture2D(data_src=img_buf, width=w, height=h)
     quad = Quad((-.5, -.5, 0), (1, 0, 0), (0, 1, 0))
-    prog = Program(fragment=frag_data)
+    prog = Program()
     render = Render(quad, prog)
     render.update_textures(tex0=img_tex)
     return render
