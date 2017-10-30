@@ -171,6 +171,8 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
 
 @scene(particules={'type': 'range', 'range': [1,1024]})
 def particules(cfg, particules=32):
+    random.seed(0)
+
     compute_data_version = "310 es" if cfg.glbackend == "gles" else "430"
     compute_data = '''
 #version %s
