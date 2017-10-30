@@ -71,7 +71,7 @@ def triangle(cfg, size=0.5):
 
 @scene(n={'type': 'range', 'range': [2,10]})
 def fibo(cfg, n=8):
-    cfg.duration = 5
+    cfg.duration = 5.0
 
     p = Program(fragment=get_shader('color'))
 
