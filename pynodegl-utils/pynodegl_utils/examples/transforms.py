@@ -202,16 +202,6 @@ def animated_camera(cfg, rotate=False):
 
 @scene(dim={'type': 'range', 'range': [1, 100]})
 def animated_buffer(cfg, dim=50):
-    frag_data = '''#version 100
-precision mediump float;
-uniform sampler2D tex0_sampler;
-varying vec2 var_tex0_coord;
-
-void main(void) {
-    vec3 c = texture2D(tex0_sampler, var_tex0_coord).rgb;
-    gl_FragColor = vec4(c, 1.0);
-}'''
-
     cfg.duration = 5.
 
     random.seed(0)
@@ -226,7 +216,7 @@ void main(void) {
     random_tex = Texture2D(data_src=random_buffer, width=dim, height=dim)
 
     quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    prog = Program(fragment=frag_data)
+    prog = Program()
     render = Render(quad, prog)
     render.update_textures(tex0=random_tex)
     return render
