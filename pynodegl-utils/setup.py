@@ -31,5 +31,8 @@ setup(name='pynodegl-utils',
           'console_scripts': [
               'ngl-viewer = pynodegl_utils.viewer:run',
           ],
+      },
+      package_data={
+          '': ['examples/data/*'],
       }
 )
