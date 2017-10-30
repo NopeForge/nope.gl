@@ -18,7 +18,7 @@ from pynodegl import (
         Triangle,
 )
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import scene, get_shader
 
 from OpenGL import GL
 
@@ -83,20 +83,6 @@ def load_model(fp):
     return indexed_vertices, indexed_uvs, indexed_normals
 
 
-fragment = """
-#version 100
-precision highp float;
-uniform mat3 ngl_normal_matrix;
-uniform sampler2D tex0_sampler;
-varying vec3 var_normal;
-varying vec2 var_tex0_coord;
-void main() {
-    vec4 color = texture2D(tex0_sampler, var_tex0_coord);
-    gl_FragColor= vec4(vec3(0.5 + color.rgb * var_normal), 1.0);
-}
-"""
-
-
 @scene(model={'type': 'model', 'filter': 'Object files (*.obj)'})
 def centered_model_media(cfg, n=0.5, model=None):
 
@@ -113,7 +99,7 @@ def centered_model_media(cfg, n=0.5, model=None):
     q = Geometry(vertices, texcoords, normals)
     m = Media(cfg.medias[0].filename)
     t = Texture2D(data_src=m)
-    p = Program(fragment=fragment)
+    p = Program(fragment=get_shader('tex-tint-normals'))
     render = Render(q, p)
     render.update_textures(tex0=t)
     render.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
