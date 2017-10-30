@@ -1,6 +1,11 @@
+import array
+import random
+
 from pynodegl import (
+        AnimKeyFrameBuffer,
         AnimKeyFrameFloat,
         AnimKeyFrameVec3,
+        AnimatedBufferVec3,
         AnimationFloat,
         AnimationVec3,
         Camera,
@@ -194,3 +199,34 @@ def animated_camera(cfg, rotate=False):
     camera.set_fov_anim(AnimationFloat(fov_animkf))
 
     return camera
+
+@scene(dim={'type': 'range', 'range': [1, 100]})
+def animated_buffer(cfg, dim=50):
+    frag_data = '''#version 100
+precision mediump float;
+uniform sampler2D tex0_sampler;
+varying vec2 var_tex0_coord;
+
+void main(void) {
+    vec3 c = texture2D(tex0_sampler, var_tex0_coord).rgb;
+    gl_FragColor = vec4(c, 1.0);
+}'''
+
+    cfg.duration = 5.
+
+    random.seed(0)
+    get_rand = lambda: array.array('f', [random.random() for i in range(dim ** 2 * 3)])
+    nb_kf = int(cfg.duration)
+    buffers = [get_rand() for i in range(nb_kf)]
+    random_animkf = []
+    time_scale = cfg.duration / float(nb_kf)
+    for i, buf in enumerate(buffers + [buffers[0]]):
+        random_animkf.append(AnimKeyFrameBuffer(i*time_scale, buf))
+    random_buffer = AnimatedBufferVec3(animkf=random_animkf)
+    random_tex = Texture2D(data_src=random_buffer, width=dim, height=dim)
+
+    quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    prog = Program(fragment=frag_data)
+    render = Render(quad, prog)
+    render.update_textures(tex0=random_tex)
+    return render
