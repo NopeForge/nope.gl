@@ -15,21 +15,13 @@ from pynodegl import (
         UniformVec4,
 )
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import scene, get_shader
 
 
 @scene(square_color={'type': 'color'},
        circle_color={'type': 'color'})
 def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0, 1.0, 1.0)):
     cfg.duration = 5
-
-    frag = '''#version 100
-precision mediump float;
-uniform vec4 color;
-void main(void)
-{
-    gl_FragColor = color;
-}'''
 
     def sqxf(t): # square x coordinates clockwise starting top-left
         if t < 1/4.: return t*4
@@ -77,7 +69,7 @@ void main(void)
 
     geom = Geometry(vertices)
     geom.set_draw_mode(GL.GL_TRIANGLE_FAN)
-    p = Program(fragment=frag)
+    p = Program(fragment=get_shader('color'))
     render = Render(geom, p)
     render.update_uniforms(color=ucolor)
     return render
@@ -86,13 +78,6 @@ void main(void)
 @scene(npoints={'type': 'range', 'range': [3, 100]})
 def urchin(cfg, npoints=25):
     cfg.duration = 5
-
-    frag = '''#version 100
-precision mediump float;
-void main(void)
-{
-    gl_FragColor = vec4(.9, .1, .3, 1.0);
-}'''
 
     random.seed(0)
 
@@ -130,6 +115,7 @@ void main(void)
 
     geom = Geometry(vertices)
     geom.set_draw_mode(GL.GL_LINE_STRIP)
-    p = Program(fragment=frag)
+    p = Program(fragment=get_shader('color'))
     render = Render(geom, p)
+    render.update_uniforms(color=UniformVec4(value=(.9, .1, .3, 1)))
     return render

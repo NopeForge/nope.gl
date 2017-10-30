@@ -19,9 +19,10 @@ from pynodegl import (
         Scale,
         Texture2D,
         UniformFloat,
+        UniformVec4,
 )
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import scene, get_shader
 
 from OpenGL import GL
 
@@ -100,14 +101,6 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
         render.update_uniforms(time=time, ar=ar)
     return render
 
-frag_data='''
-#version 100
-void main(void)
-{
-    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-}
-'''
-
 @scene()
 def centered_masked_media(cfg):
     cfg.duration = 2
@@ -118,8 +111,9 @@ def centered_masked_media(cfg):
     g = Group()
 
     q = Quad((-0.2, -0.2, 0), (0.4, 0.0, 0.0), (0.0, 0.4, 0.0))
-    p = Program(fragment=frag_data)
+    p = Program(fragment=get_shader('color'))
     node = Render(q, p)
+    node.update_uniforms(color=UniformVec4(value=(0,0,0,1)))
     node.add_glstates(GLStencilState(GL.GL_TRUE,
                                      0xFF,
                                      GL.GL_ALWAYS,

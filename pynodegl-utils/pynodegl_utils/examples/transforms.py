@@ -24,18 +24,9 @@ from pynodegl import (
         UniformVec4,
 )
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import scene, get_shader
 
 from OpenGL import GL
-
-frag_data = """
-#version 100
-precision mediump float;
-uniform vec4 blend_color;
-void main(void)
-{
-    gl_FragColor = blend_color;
-}"""
 
 @scene(color={'type': 'color'},
        rotate={'type': 'bool'},
@@ -46,10 +37,10 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
 
     sz = 1/3.
     q = Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
-    p = Program(fragment=frag_data)
+    p = Program(fragment=get_shader('color'))
     node = Render(q, p)
     ucolor = UniformVec4(value=color)
-    node.update_uniforms(blend_color=ucolor)
+    node.update_uniforms(color=ucolor)
 
     coords = [(-1, 1), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 

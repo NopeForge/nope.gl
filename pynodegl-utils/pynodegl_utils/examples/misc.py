@@ -31,7 +31,7 @@ from pynodegl import (
         UniformVec4,
 )
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import scene, get_shader
 
 
 @scene()
@@ -81,17 +81,9 @@ void main(void)
 
 @scene(n={'type': 'range', 'range': [2,10]})
 def fibo(cfg, n=8):
-    frag_data = '''
-#version 100
-precision mediump float;
-uniform vec4 color;
-void main(void) {
-    gl_FragColor = color;
-}'''
-
     cfg.duration = 5
 
-    p = Program(fragment=frag_data)
+    p = Program(fragment=get_shader('color'))
 
     fib = [0, 1, 1]
     for i in range(2, n):
@@ -370,8 +362,9 @@ void main(void)
     gm.set_draw_mode(GL.GL_POINTS)
 
     m = Media(cfg.medias[0].filename, initial_seek=5)
-    p = Program(fragment=fragment_data)
+    p = Program(fragment=get_shader('color'))
     r = Render(gm, p)
+    r.update_uniforms(color=UniformVec4(value=(0, .6, .8, 1)))
 
     g = Group()
     g.add_children(c, r)
