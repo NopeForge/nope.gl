@@ -87,7 +87,7 @@ def load_model(fp):
 
 
 @scene(model={'type': 'file', 'filter': 'Object files (*.obj)'})
-def centered_model_media(cfg, n=0.5, model=None):
+def obj(cfg, n=0.5, model=None):
 
     if model is None:
         model = os.path.join(os.path.dirname(__file__), 'data', 'model.obj')
