@@ -2,7 +2,7 @@ import array
 
 from pynodegl import (
         AnimKeyFrameFloat,
-        AnimationFloat,
+        AnimatedFloat,
         BufferVec3,
         Geometry,
         Group,
@@ -60,7 +60,7 @@ def _get_func(name, flags=0):
                 if not eval('draw_' + ext):
                     continue
 
-            anim = AnimationFloat([AnimKeyFrameFloat(-1,-1),
+            anim = AnimatedFloat([AnimKeyFrameFloat(-1,-1),
                                    AnimKeyFrameFloat( 1, 1, interp)])
 
             vertices_data = array.array('f')

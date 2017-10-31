@@ -6,8 +6,8 @@ from pynodegl import (
         AnimKeyFrameFloat,
         AnimKeyFrameVec3,
         AnimatedBufferVec3,
-        AnimationFloat,
-        AnimationVec3,
+        AnimatedFloat,
+        AnimatedVec3,
         Camera,
         GLState,
         Group,
@@ -47,13 +47,13 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
     if rotate:
         animkf = (AnimKeyFrameFloat(0,            0),
                   AnimKeyFrameFloat(cfg.duration, 360))
-        node = Rotate(node, anim=AnimationFloat(animkf))
+        node = Rotate(node, anim=AnimatedFloat(animkf))
 
     if scale:
         animkf = (AnimKeyFrameVec3(0,              (1, 1, 1)),
                   AnimKeyFrameVec3(cfg.duration/2, (2, 2, 2)),
                   AnimKeyFrameVec3(cfg.duration,   (1, 1, 1)))
-        node = Scale(node, anim=AnimationVec3(animkf))
+        node = Scale(node, anim=AnimatedVec3(animkf))
 
     if translate:
         animkf = []
@@ -62,7 +62,7 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
             pos = (xy[0] * .5, xy[1] * .5, 0)
             t = i * tscale
             animkf.append(AnimKeyFrameVec3(t, pos))
-        node = Translate(node, anim=AnimationVec3(animkf))
+        node = Translate(node, anim=AnimatedVec3(animkf))
 
     return node
 
@@ -80,18 +80,18 @@ def animated(cfg, rotate=True, scale=True, translate=True):
     if rotate:
         animkf = [AnimKeyFrameFloat(0, 0),
                   AnimKeyFrameFloat(cfg.duration, 360, "exp_in")]
-        node = Rotate(node, anim=AnimationFloat(animkf))
+        node = Rotate(node, anim=AnimatedFloat(animkf))
 
     if scale:
         animkf = [AnimKeyFrameVec3(0, (16/9., 0.5, 1.0)),
                   AnimKeyFrameVec3(cfg.duration, (4/3.,  1.0, 0.5), "exp_out")]
-        node = Scale(node, anim=AnimationVec3(animkf))
+        node = Scale(node, anim=AnimatedVec3(animkf))
 
     if translate:
         animkf = [AnimKeyFrameVec3(0,              (-0.5,  0.5, -0.7)),
                   AnimKeyFrameVec3(cfg.duration/2, ( 0.5, -0.5,  0.7), "circular_in"),
                   AnimKeyFrameVec3(cfg.duration,   (-0.5, -0.3, -0.5), "sinus_in_out", easing_args=(0, .7))]
-        node = Translate(node, anim=AnimationVec3(animkf))
+        node = Translate(node, anim=AnimatedVec3(animkf))
 
     return node
 
@@ -106,11 +106,11 @@ def animated_uniform(cfg):
 
     scale_animkf = [AnimKeyFrameVec3(0, (1,1,1)),
                     AnimKeyFrameVec3(cfg.duration, (0.1,0.1,0.1), "quartic_out")]
-    s = Scale(Identity(), anim=AnimationVec3(scale_animkf))
+    s = Scale(Identity(), anim=AnimatedVec3(scale_animkf))
 
     rotate_animkf = [AnimKeyFrameFloat(0, 0),
                      AnimKeyFrameFloat(cfg.duration, 360, "exp_out")]
-    r = Rotate(s, axis=(0, 0, 1), anim=AnimationFloat(rotate_animkf))
+    r = Rotate(s, axis=(0, 0, 1), anim=AnimatedFloat(rotate_animkf))
 
     u = UniformMat4(transform=r)
     ts.update_uniforms(matrix=u)
@@ -159,18 +159,18 @@ def animated_camera(cfg, rotate=False):
 
     tr_animkf = [AnimKeyFrameVec3(0,  (0.0, 0.0, 0.0)),
                  AnimKeyFrameVec3(10, (0.0, 0.0, 3.0), "exp_out")]
-    node = Translate(Identity(), anim=AnimationVec3(tr_animkf))
+    node = Translate(Identity(), anim=AnimatedVec3(tr_animkf))
 
     if rotate:
         rot_animkf = [AnimKeyFrameFloat(0, 0),
                       AnimKeyFrameFloat(cfg.duration, 360, "exp_out")]
-        node = Rotate(node, axis=(0, 1, 0), anim=AnimationFloat(rot_animkf))
+        node = Rotate(node, axis=(0, 1, 0), anim=AnimatedFloat(rot_animkf))
 
     camera.set_eye_transform(node)
 
     fov_animkf = [AnimKeyFrameFloat(0.5, 60.0),
                   AnimKeyFrameFloat(cfg.duration, 45.0, "exp_out")]
-    camera.set_fov_anim(AnimationFloat(fov_animkf))
+    camera.set_fov_anim(AnimatedFloat(fov_animkf))
 
     return camera
 

@@ -41,28 +41,28 @@
 static const struct node_param uniformfloat_params[] = {
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar)},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATIONFLOAT, -1}},
+               .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1}},
     {NULL}
 };
 
 static const struct node_param uniformvec2_params[] = {
     {"value",  PARAM_TYPE_VEC2, OFFSET(vector)},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATIONVEC2, -1}},
+               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC2, -1}},
     {NULL}
 };
 
 static const struct node_param uniformvec3_params[] = {
     {"value",  PARAM_TYPE_VEC3, OFFSET(vector)},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATIONVEC3, -1}},
+               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1}},
     {NULL}
 };
 
 static const struct node_param uniformvec4_params[] = {
     {"value",  PARAM_TYPE_VEC4, OFFSET(vector)},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATIONVEC4, -1}},
+               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC4, -1}},
     {NULL}
 };
 

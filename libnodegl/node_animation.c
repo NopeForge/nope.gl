@@ -25,25 +25,25 @@
 #include "nodes.h"
 
 #define OFFSET(x) offsetof(struct animation, x)
-static const struct node_param animationfloat_params[] = {
+static const struct node_param animatedfloat_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1}},
     {NULL}
 };
 
-static const struct node_param animationvec2_params[] = {
+static const struct node_param animatedvec2_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC2, -1}},
     {NULL}
 };
 
-static const struct node_param animationvec3_params[] = {
+static const struct node_param animatedvec3_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1}},
     {NULL}
 };
 
-static const struct node_param animationvec4_params[] = {
+static const struct node_param animatedvec4_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC4, -1}},
     {NULL}
@@ -113,12 +113,12 @@ void ngl_anim_evaluate(struct ngl_node *node, float *dst, double t)
         }
     }
 
-    const int len = node->class->id - NGL_NODE_ANIMATIONFLOAT + 1;
+    const int len = node->class->id - NGL_NODE_ANIMATEDFLOAT + 1;
     animation_update(s, t, len, dst, &s->eval_current_kf);
 }
 
 #define UPDATE_FUNC(type, len)                                          \
-static void animation##type##_update(struct ngl_node *node, double t)   \
+static void animated##type##_update(struct ngl_node *node, double t)   \
 {                                                                       \
     struct animation *s = node->priv_data;                              \
     animation_update(s, t, len, s->values, &s->current_kf);             \
@@ -129,34 +129,34 @@ UPDATE_FUNC(vec2,   2);
 UPDATE_FUNC(vec3,   3);
 UPDATE_FUNC(vec4,   4);
 
-const struct node_class ngli_animationfloat_class = {
-    .id        = NGL_NODE_ANIMATIONFLOAT,
-    .name      = "AnimationFloat",
-    .update    = animationfloat_update,
+const struct node_class ngli_animatedfloat_class = {
+    .id        = NGL_NODE_ANIMATEDFLOAT,
+    .name      = "AnimatedFloat",
+    .update    = animatedfloat_update,
     .priv_size = sizeof(struct animation),
-    .params    = animationfloat_params,
+    .params    = animatedfloat_params,
 };
 
-const struct node_class ngli_animationvec2_class = {
-    .id        = NGL_NODE_ANIMATIONVEC2,
-    .name      = "AnimationVec2",
-    .update    = animationvec2_update,
+const struct node_class ngli_animatedvec2_class = {
+    .id        = NGL_NODE_ANIMATEDVEC2,
+    .name      = "AnimatedVec2",
+    .update    = animatedvec2_update,
     .priv_size = sizeof(struct animation),
-    .params    = animationvec2_params,
+    .params    = animatedvec2_params,
 };
 
-const struct node_class ngli_animationvec3_class = {
-    .id        = NGL_NODE_ANIMATIONVEC3,
-    .name      = "AnimationVec3",
-    .update    = animationvec3_update,
+const struct node_class ngli_animatedvec3_class = {
+    .id        = NGL_NODE_ANIMATEDVEC3,
+    .name      = "AnimatedVec3",
+    .update    = animatedvec3_update,
     .priv_size = sizeof(struct animation),
-    .params    = animationvec3_params,
+    .params    = animatedvec3_params,
 };
 
-const struct node_class ngli_animationvec4_class = {
-    .id        = NGL_NODE_ANIMATIONVEC4,
-    .name      = "AnimationVec4",
-    .update    = animationvec4_update,
+const struct node_class ngli_animatedvec4_class = {
+    .id        = NGL_NODE_ANIMATEDVEC4,
+    .name      = "AnimatedVec4",
+    .update    = animatedvec4_update,
     .priv_size = sizeof(struct animation),
-    .params    = animationvec4_params,
+    .params    = animatedvec4_params,
 };

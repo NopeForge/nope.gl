@@ -70,7 +70,7 @@ static struct ngl_node *node_create(const struct node_class *class)
     /* We depend on the monotically incrementing by 1 property of these fields */
     ngli_assert(NGL_NODE_UNIFORMVEC4      - NGL_NODE_UNIFORMFLOAT       == 3);
     ngli_assert(NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3);
-    ngli_assert(NGL_NODE_ANIMATIONVEC4    - NGL_NODE_ANIMATIONFLOAT     == 3);
+    ngli_assert(NGL_NODE_ANIMATEDVEC4     - NGL_NODE_ANIMATEDFLOAT      == 3);
 
     node->class = class;
     node->last_update_time = -1.;

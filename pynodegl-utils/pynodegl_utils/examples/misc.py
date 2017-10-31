@@ -8,8 +8,8 @@ from OpenGL import GL
 from pynodegl import (
         AnimKeyFrameFloat,
         AnimKeyFrameVec3,
-        AnimationFloat,
-        AnimationVec3,
+        AnimatedFloat,
+        AnimatedVec3,
         BufferFloat,
         BufferUBVec4,
         BufferVec2,
@@ -73,7 +73,7 @@ def triangle(cfg, size=0.5):
     node = Render(triangle, p)
     animkf = [AnimKeyFrameFloat(0, 0),
               AnimKeyFrameFloat(cfg.duration, -360*2)]
-    node = Rotate(node, anim=AnimationFloat(animkf))
+    node = Rotate(node, anim=AnimatedFloat(animkf))
     return node
 
 @scene(n={'type': 'range', 'range': [2,10]})
@@ -105,7 +105,7 @@ def fibo(cfg, n=8):
         animkf = [AnimKeyFrameFloat(0,               90),
                   AnimKeyFrameFloat(cfg.duration/2, -90, "exp_in_out"),
                   AnimKeyFrameFloat(cfg.duration,    90, "exp_in_out")]
-        rot = Rotate(new_g, anchor=orig, anim=AnimationFloat(animkf))
+        rot = Rotate(new_g, anchor=orig, anim=AnimatedFloat(animkf))
         if g:
             g.add_children(rot)
         else:
@@ -149,7 +149,7 @@ def cropboard(cfg, dim=15):
             starty = random.uniform(-2, 2)
             trn_animkf = [AnimKeyFrameVec3(0, (startx, starty, 0)),
                           AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0), "exp_out")]
-            trn = Translate(render, anim=AnimationVec3(trn_animkf))
+            trn = Translate(render, anim=AnimatedVec3(trn_animkf))
             tqs.append(trn)
 
     return Group(children=tqs)
@@ -215,7 +215,7 @@ def particules(cfg, particules=32):
 
     animkf = [AnimKeyFrameFloat(0, 0),
               AnimKeyFrameFloat(cfg.duration, 1)]
-    utime = UniformFloat(anim=AnimationFloat(animkf))
+    utime = UniformFloat(anim=AnimatedFloat(animkf))
     uduration = UniformFloat(cfg.duration)
 
     cp = ComputeProgram(compute_data)

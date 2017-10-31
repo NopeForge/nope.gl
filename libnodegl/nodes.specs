@@ -18,19 +18,19 @@
 
 - AnimatedBufferVec4: _AnimatedBuffer
 
-- AnimationFloat:
+- AnimatedFloat:
     optional:
         - [keyframes, NodeList]
 
-- AnimationVec2:
+- AnimatedVec2:
     optional:
         - [keyframes, NodeList]
 
-- AnimationVec3:
+- AnimatedVec3:
     optional:
         - [keyframes, NodeList]
 
-- AnimationVec4:
+- AnimatedVec4:
     optional:
         - [keyframes, NodeList]
 

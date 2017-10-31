@@ -2,7 +2,7 @@ from OpenGL import GL
 
 from pynodegl import (
         AnimKeyFrameFloat,
-        AnimationFloat,
+        AnimatedFloat,
         Camera,
         GLState,
         Group,
@@ -49,7 +49,7 @@ def rotating_cube(cfg):
     cube.add_children(*children)
 
     for i in range(3):
-        rot_animkf = AnimationFloat([AnimKeyFrameFloat(0, 0),
+        rot_animkf = AnimatedFloat([AnimKeyFrameFloat(0, 0),
                                      AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
         axis = [int(i == x) for x in range(3)]
         cube = Rotate(cube, axis=axis, anim=rot_animkf)

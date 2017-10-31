@@ -8,7 +8,7 @@ from pynodegl import (
         AnimKeyFrameVec4,
         AnimatedBufferVec3,
         AnimKeyFrameBuffer,
-        AnimationVec4,
+        AnimatedVec4,
         Geometry,
         Program,
         Render,
@@ -65,7 +65,7 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
             AnimKeyFrameVec4(cfg.duration/2., circle_color, interp),
             AnimKeyFrameVec4(cfg.duration,    square_color, interp),
     ]
-    ucolor = UniformVec4(anim=AnimationVec4(color_animkf))
+    ucolor = UniformVec4(anim=AnimatedVec4(color_animkf))
 
     geom = Geometry(vertices)
     geom.set_draw_mode(GL.GL_TRIANGLE_FAN)

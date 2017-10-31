@@ -249,8 +249,8 @@ cdef class _Node:
         return ret
 ''' % field_data
 
-            elif node.startswith('Animation'):
-                n = ['Float', 'Vec2', 'Vec3', 'Vec4'].index(node[len('Animation'):]) + 1
+            elif node in ['AnimatedFloat', 'AnimatedVec2', 'AnimatedVec3', 'AnimatedVec4']:
+                n = ['Float', 'Vec2', 'Vec3', 'Vec4'].index(node[len('Animated'):]) + 1
                 if n == 1:
                     retstr = 'vec[0]'
                 else:

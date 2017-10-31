@@ -31,7 +31,7 @@
 static const struct node_param translate_params[] = {
     {"child",  PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
     {"vector", PARAM_TYPE_VEC3, OFFSET(vector)},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .node_types=(const int[]){NGL_NODE_ANIMATIONVEC3, -1}},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1}},
     {NULL}
 };
 

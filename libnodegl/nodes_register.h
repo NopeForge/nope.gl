@@ -27,10 +27,10 @@
     action(NGL_NODE_ANIMATEDBUFFERVEC2,     ngli_animatedbuffervec2_class)      \
     action(NGL_NODE_ANIMATEDBUFFERVEC3,     ngli_animatedbuffervec3_class)      \
     action(NGL_NODE_ANIMATEDBUFFERVEC4,     ngli_animatedbuffervec4_class)      \
-    action(NGL_NODE_ANIMATIONFLOAT,         ngli_animationfloat_class)          \
-    action(NGL_NODE_ANIMATIONVEC2,          ngli_animationvec2_class)           \
-    action(NGL_NODE_ANIMATIONVEC3,          ngli_animationvec3_class)           \
-    action(NGL_NODE_ANIMATIONVEC4,          ngli_animationvec4_class)           \
+    action(NGL_NODE_ANIMATEDFLOAT,          ngli_animatedfloat_class)           \
+    action(NGL_NODE_ANIMATEDVEC2,           ngli_animatedvec2_class)            \
+    action(NGL_NODE_ANIMATEDVEC3,           ngli_animatedvec3_class)            \
+    action(NGL_NODE_ANIMATEDVEC4,           ngli_animatedvec4_class)            \
     action(NGL_NODE_ANIMKEYFRAMEFLOAT,      ngli_animkeyframefloat_class)       \
     action(NGL_NODE_ANIMKEYFRAMEVEC2,       ngli_animkeyframevec2_class)        \
     action(NGL_NODE_ANIMKEYFRAMEVEC3,       ngli_animkeyframevec3_class)        \

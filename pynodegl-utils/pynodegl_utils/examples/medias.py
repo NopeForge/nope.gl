@@ -4,8 +4,8 @@ import math
 from pynodegl import (
         AnimKeyFrameFloat,
         AnimKeyFrameVec3,
-        AnimationFloat,
-        AnimationVec3,
+        AnimatedFloat,
+        AnimatedVec3,
         Circle,
         GLColorState,
         GLState,
@@ -47,7 +47,7 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
         p.set_fragment(get_shader('progress-bar'))
         time_animkf = [AnimKeyFrameFloat(0, 0),
                        AnimKeyFrameFloat(cfg.duration, 1)]
-        time = UniformFloat(anim=AnimationFloat(time_animkf))
+        time = UniformFloat(anim=AnimatedFloat(time_animkf))
         ar = UniformFloat(cfg.aspect_ratio)
         render.update_uniforms(time=time, ar=ar)
     return render
@@ -78,11 +78,11 @@ def centered_masked_media(cfg):
 
     scale_animkf = [AnimKeyFrameVec3(0, (0.1,  0.1, 1.0)),
                     AnimKeyFrameVec3(10, (10., 10.0,  3), "exp_out")]
-    node = Scale(node, anim=AnimationVec3(scale_animkf))
+    node = Scale(node, anim=AnimatedVec3(scale_animkf))
 
     rotate_animkf = [AnimKeyFrameFloat(0, 0),
                      AnimKeyFrameFloat(cfg.duration, 360, "exp_out")]
-    node = Rotate(node, anim=AnimationFloat(rotate_animkf))
+    node = Rotate(node, anim=AnimatedFloat(rotate_animkf))
 
     g.add_children(node)
 
@@ -125,7 +125,7 @@ def playback_speed(cfg, speed=1.0):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     time_animkf = [AnimKeyFrameFloat(0, 0),
                    AnimKeyFrameFloat(cfg.duration, cfg.duration * speed)]
-    m = Media(cfg.medias[0].filename, initial_seek=5, time_anim=AnimationFloat(time_animkf))
+    m = Media(cfg.medias[0].filename, initial_seek=5, time_anim=AnimatedFloat(time_animkf))
     t = Texture2D(data_src=m)
     p = Program()
     render = Render(q, p)

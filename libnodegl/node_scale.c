@@ -33,7 +33,7 @@ static const struct node_param scale_params[] = {
     {"factors", PARAM_TYPE_VEC3, OFFSET(factors)},
     {"anchor",  PARAM_TYPE_VEC3, OFFSET(anchor)},
     {"anim",    PARAM_TYPE_NODE, OFFSET(anim),
-                .node_types=(const int[]){NGL_NODE_ANIMATIONVEC3, -1}},
+                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1}},
     {NULL}
 };
 

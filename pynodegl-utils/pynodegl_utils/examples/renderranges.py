@@ -1,6 +1,6 @@
 from pynodegl import (
         AnimKeyFrameFloat,
-        AnimationFloat,
+        AnimatedFloat,
         Group,
         Media,
         Program,
@@ -111,7 +111,7 @@ def simple_transition(cfg, transition_start=1, transition_duration=4):
 
     delta_animkf = [AnimKeyFrameFloat(transition_start, 1.0),
                     AnimKeyFrameFloat(transition_start + transition_duration, 0.0)]
-    delta = UniformFloat(value=1.0, anim=AnimationFloat(delta_animkf))
+    delta = UniformFloat(value=1.0, anim=AnimatedFloat(delta_animkf))
 
     render1_2 = Render(q, p1_2, name="transition")
     render1_2.update_textures(tex0=t1, tex1=t2)

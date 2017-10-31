@@ -3,7 +3,7 @@ import array
 
 from pynodegl import (
         AnimKeyFrameFloat,
-        AnimationFloat,
+        AnimatedFloat,
         BufferVec2,
         BufferVec3,
         Camera,
@@ -106,7 +106,7 @@ def centered_model_media(cfg, n=0.5, model=None):
 
     animkf = [AnimKeyFrameFloat(0, 0),
               AnimKeyFrameFloat(cfg.duration, 360*2)]
-    rot = Rotate(render, name="roty", axis=(0, 1, 0), anim=AnimationFloat(animkf))
+    rot = Rotate(render, name="roty", axis=(0, 1, 0), anim=AnimatedFloat(animkf))
 
     camera = Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)

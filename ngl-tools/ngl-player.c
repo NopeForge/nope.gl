@@ -77,7 +77,7 @@ static struct ngl_node *get_scene(const char *filename)
         ngl_node_create(NGL_NODE_ANIMKEYFRAMEFLOAT, g_info.duration, 1.0),
     };
 
-    struct ngl_node *time_anim = ngl_node_create(NGL_NODE_ANIMATIONFLOAT);
+    struct ngl_node *time_anim = ngl_node_create(NGL_NODE_ANIMATEDFLOAT);
 
     ngl_node_param_add(time_anim, "keyframes", 2, time_animkf);
 
