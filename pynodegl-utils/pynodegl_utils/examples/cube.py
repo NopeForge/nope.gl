@@ -50,7 +50,7 @@ def rotating_cube(cfg):
 
     for i in range(3):
         rot_animkf = AnimatedFloat([AnimKeyFrameFloat(0, 0),
-                                     AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
+                                    AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
         axis = [int(i == x) for x in range(3)]
         cube = Rotate(cube, axis=axis, anim=rot_animkf)
 

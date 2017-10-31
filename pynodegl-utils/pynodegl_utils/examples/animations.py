@@ -61,7 +61,7 @@ def _get_func(name, flags=0):
                     continue
 
             anim = AnimatedFloat([AnimKeyFrameFloat(-1,-1),
-                                   AnimKeyFrameFloat( 1, 1, interp)])
+                                  AnimKeyFrameFloat( 1, 1, interp)])
 
             vertices_data = array.array('f')
             for i in range(nb_points + 1):
