@@ -186,7 +186,7 @@ def animated_buffer(cfg, dim=50):
     time_scale = cfg.duration / float(nb_kf)
     for i, buf in enumerate(buffers + [buffers[0]]):
         random_animkf.append(AnimKeyFrameBuffer(i*time_scale, buf))
-    random_buffer = AnimatedBufferVec3(animkf=random_animkf)
+    random_buffer = AnimatedBufferVec3(keyframes=random_animkf)
     random_tex = Texture2D(data_src=random_buffer, width=dim, height=dim)
 
     quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))

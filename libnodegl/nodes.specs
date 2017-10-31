@@ -10,7 +10,7 @@
 
 - _AnimatedBuffer:
     optional:
-        - [animkf, NodeList]
+        - [keyframes, NodeList]
 
 - AnimatedBufferVec2: _AnimatedBuffer
 
