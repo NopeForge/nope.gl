@@ -83,7 +83,7 @@ def load_model(fp):
     return indexed_vertices, indexed_uvs, indexed_normals
 
 
-@scene(model={'type': 'model', 'filter': 'Object files (*.obj)'})
+@scene(model={'type': 'file', 'filter': 'Object files (*.obj)'})
 def centered_model_media(cfg, n=0.5, model=None):
 
     if model is None:

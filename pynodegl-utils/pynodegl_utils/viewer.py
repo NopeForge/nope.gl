@@ -588,7 +588,7 @@ class _Toolbar(QtWidgets.QWidget):
                 chkbox.stateChanged.connect(checkbox_toggle_cb)
                 widgets.append(chkbox)
 
-            elif widget_specs['type'] == 'model':
+            elif widget_specs['type'] == 'file':
                 dialog_btn = QtWidgets.QPushButton('Open file')
                 label = QtWidgets.QLabel(self._get_label_text(name, default_value))
                 widgets.append(label)
