@@ -37,9 +37,7 @@ static const char default_fragment_shader[] =
     "varying vec2 var_tex0_coord;"                                                      "\n"
     "void main(void)"                                                                   "\n"
     "{"                                                                                 "\n"
-    "    vec4 t;"                                                                       "\n"
-    "    t = texture2D(tex0_sampler, var_tex0_coord);"                                  "\n"
-    "    gl_FragColor = vec4(t.rgb, 1.0);"                                              "\n"
+    "    gl_FragColor = texture2D(tex0_sampler, var_tex0_coord);"                       "\n"
     "}";
 
 static const char default_vertex_shader[] =
