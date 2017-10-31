@@ -26,7 +26,7 @@ from pynodegl_utils.misc import scene, get_shader
 from OpenGL import GL
 
 
-def load_model(fp):
+def _load_model(fp):
     index = 0
 
     vertices = []
@@ -93,7 +93,7 @@ def obj(cfg, n=0.5, model=None):
         model = os.path.join(os.path.dirname(__file__), 'data', 'model.obj')
 
     with open(model) as fp:
-        vertices_data, uvs_data, normals_data = load_model(fp)
+        vertices_data, uvs_data, normals_data = _load_model(fp)
 
     vertices = BufferVec3(data=vertices_data)
     texcoords = BufferVec2(data=uvs_data)
