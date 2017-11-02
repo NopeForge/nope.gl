@@ -8,8 +8,10 @@ from OpenGL import GL
 from pynodegl import (
         AnimKeyFrameFloat,
         AnimKeyFrameVec3,
+        AnimKeyFrameVec4,
         AnimatedFloat,
         AnimatedVec3,
+        AnimatedVec4,
         BufferFloat,
         BufferUBVec4,
         BufferVec2,
@@ -37,8 +39,14 @@ from pynodegl import (
 from pynodegl_utils.misc import scene, get_shader
 
 
-@scene(bgcolor={'type': 'color'})
-def buffer(cfg, bgcolor=(.6, 0, 0, 1)):
+@scene(bgcolor1={'type': 'color'},
+       bgcolor2={'type': 'color'},
+       bilinear_filtering={'type': 'bool'})
+def buffer_dove(cfg,
+                bgcolor1=(.6,0,0,1), bgcolor2=(.8,.8,0,1),
+                bilinear_filtering=True):
+    cfg.duration = 3.
+
     # Credits: https://icons8.com/icon/40514/dove
     icon = open(os.path.join(os.path.dirname(__file__), 'data', 'icons8-dove.raw'))
     w, h = (96, 96)
@@ -48,6 +56,8 @@ def buffer(cfg, bgcolor=(.6, 0, 0, 1)):
     array_data = array.array('B', icon_data)
     img_buf = BufferUBVec4(data=array_data)
     img_tex = Texture2D(data_src=img_buf, width=w, height=h)
+    if bilinear_filtering:
+        img_tex.set_mag_filter(GL.GL_LINEAR)
     quad = Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
     prog = Program()
     render = Render(quad, prog, name='dove')
@@ -59,7 +69,14 @@ def buffer(cfg, bgcolor=(.6, 0, 0, 1)):
     prog_bg = Program(fragment=get_shader('color'))
     shape_bg = Circle(radius=.6, npoints=256)
     render_bg = Render(shape_bg, prog_bg, name='background')
-    render_bg.update_uniforms(color=UniformVec4(value=bgcolor))
+    color_animkf = [AnimKeyFrameVec4(0,                bgcolor1),
+                    AnimKeyFrameVec4(cfg.duration/2.0, bgcolor2),
+                    AnimKeyFrameVec4(cfg.duration,     bgcolor1)]
+    ucolor = UniformVec4(anim=AnimatedVec4(color_animkf))
+    render_bg.update_uniforms(color=ucolor)
+
+    rot_animkf = [AnimKeyFrameFloat(0, 0),
+                  AnimKeyFrameFloat(cfg.duration, 360)]
 
     return Group(children=(render_bg, render))
 
