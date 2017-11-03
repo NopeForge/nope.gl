@@ -804,7 +804,7 @@ class _ScriptsManager(QtCore.QObject):
             return True
 
         modpath = os.path.realpath(os.path.dirname(mod.__file__))
-        if modpath == self._pysysdir:
+        if modpath.startswith(self._pysysdir):
             return True
 
         modname = mod.__name__
