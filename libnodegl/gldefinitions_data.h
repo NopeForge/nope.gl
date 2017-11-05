@@ -77,6 +77,7 @@ static const struct gldefinition {
     {"glGetUniformLocation", offsetof(struct glfunctions, GetUniformLocation), M},
     {"glLinkProgram", offsetof(struct glfunctions, LinkProgram), M},
     {"glMemoryBarrier", offsetof(struct glfunctions, MemoryBarrier), 0},
+    {"glPolygonMode", offsetof(struct glfunctions, PolygonMode), M},
     {"glReadPixels", offsetof(struct glfunctions, ReadPixels), M},
     {"glReleaseShaderCompiler", offsetof(struct glfunctions, ReleaseShaderCompiler), M},
     {"glRenderbufferStorage", offsetof(struct glfunctions, RenderbufferStorage), M},

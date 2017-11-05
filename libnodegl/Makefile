@@ -72,6 +72,7 @@ LIB_OBJS = api.o                    \
            node_geometry.o          \
            node_glblendstate.o      \
            node_glcolorstate.o      \
+           node_glpolygonmodestate.o\
            node_glstencilstate.o    \
            node_glstate.o           \
            node_group.o             \

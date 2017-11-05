@@ -535,6 +535,9 @@ void ngli_honor_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node *
                           glstate->rgba[0][1],
                           glstate->rgba[0][2],
                           glstate->rgba[0][3]);
+        } else if (glstate_node->class->id == NGL_NODE_GLPOLYGONMODESTATE) {
+            ngli_glGetIntegerv(gl, GL_POLYGON_MODE, (GLint *)&glstate->mode[1]);
+            ngli_glPolygonMode(gl, GL_FRONT_AND_BACK, glstate->mode[0]);
         } else if (glstate_node->class->id == NGL_NODE_GLSTENCILSTATE) {
             ngli_glGetIntegerv(gl, glstate->capability, (GLint *)&glstate->enabled[1]);
             if (glstate->enabled[0]) {
@@ -588,6 +591,8 @@ void ngli_restore_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node
                           glstate->rgba[1][1],
                           glstate->rgba[1][2],
                           glstate->rgba[1][3]);
+        } else if (glstate_node->class->id == NGL_NODE_GLPOLYGONMODESTATE) {
+            ngli_glPolygonMode(gl, GL_FRONT_AND_BACK, glstate->mode[1]);
         } else if (glstate_node->class->id == NGL_NODE_GLSTENCILSTATE) {
             if (glstate->enabled[1]) {
                 ngli_glEnable(gl, glstate->capability);

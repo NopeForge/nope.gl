@@ -208,6 +208,10 @@
         - [blue, int]
         - [alpha, int]
 
+- GLPolygonModeState:
+    constructors:
+        - [mode, int]
+
 - GLState:
     constructors:
         - [capability, int]

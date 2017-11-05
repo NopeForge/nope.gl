@@ -108,6 +108,9 @@ struct glstate {
     GLenum op_sfail[2];
     GLenum op_dpfail[2];
     GLenum op_dppass[2];
+
+    /* Polygon mode */
+    GLenum mode[2];
 };
 
 struct camera {

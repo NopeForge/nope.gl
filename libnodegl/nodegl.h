@@ -105,6 +105,7 @@ struct ngl_node;
 #define NGL_NODE_GEOMETRY               NGLI_FOURCC('G','e','o','m')
 #define NGL_NODE_GLBLENDSTATE           NGLI_FOURCC('B','l','d','S')
 #define NGL_NODE_GLCOLORSTATE           NGLI_FOURCC('C','l','r','S')
+#define NGL_NODE_GLPOLYGONMODESTATE     NGLI_FOURCC('G','L','p','S')
 #define NGL_NODE_GLSTATE                NGLI_FOURCC('G','L','x','S')
 #define NGL_NODE_GLSTENCILSTATE         NGLI_FOURCC('S','t','l','S')
 #define NGL_NODE_GROUP                  NGLI_FOURCC('G','r','p',' ')

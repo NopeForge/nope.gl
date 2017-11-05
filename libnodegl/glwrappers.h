@@ -438,6 +438,12 @@ static inline void ngli_glMemoryBarrier(const struct glfunctions *gl, GLbitfield
     check_error_code(gl, "glMemoryBarrier");
 }
 
+static inline void ngli_glPolygonMode(const struct glfunctions *gl, GLenum face, GLenum mode)
+{
+    gl->PolygonMode(face, mode);
+    check_error_code(gl, "glPolygonMode");
+}
+
 static inline void ngli_glReadPixels(const struct glfunctions *gl, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void * pixels)
 {
     gl->ReadPixels(x, y, width, height, format, type, pixels);

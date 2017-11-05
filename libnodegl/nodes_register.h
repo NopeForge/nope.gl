@@ -72,6 +72,7 @@
     action(NGL_NODE_GEOMETRY,               ngli_geometry_class)                \
     action(NGL_NODE_GLBLENDSTATE,           ngli_glblendstate_class)            \
     action(NGL_NODE_GLCOLORSTATE,           ngli_glcolorstate_class)            \
+    action(NGL_NODE_GLPOLYGONMODESTATE,     ngli_glpolygonmodestate_class)      \
     action(NGL_NODE_GLSTATE,                ngli_glstate_class)                 \
     action(NGL_NODE_GLSTENCILSTATE,         ngli_glstencilstate_class)          \
     action(NGL_NODE_GROUP,                  ngli_group_class)                   \

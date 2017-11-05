@@ -174,6 +174,9 @@ cmds = [
     'glStencilMaskSeparate',
     'glStencilOp',
     'glStencilOpSeparate',
+
+    # Polygon
+    'glPolygonMode',
 ] + cmds_optional
 
 def get_proto_elems(xml_node):
