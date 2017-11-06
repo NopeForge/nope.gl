@@ -48,6 +48,19 @@ static const float get_angle(struct rotate *s, double t)
     return anim->values[0];
 }
 
+static int rotate_init(struct ngl_node *node)
+{
+    struct rotate *s = node->priv_data;
+    static const float zero_axis[3] = { 0.0, 0.0, 0.0 };
+
+    if (!memcmp(s->axis, zero_axis, sizeof(s->axis))) {
+        LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
+        return -1;
+    }
+
+    return 0;
+}
+
 static void rotate_update(struct ngl_node *node, double t)
 {
     struct rotate *s = node->priv_data;
@@ -115,6 +128,7 @@ static void rotate_draw(struct ngl_node *node)
 const struct node_class ngli_rotate_class = {
     .id        = NGL_NODE_ROTATE,
     .name      = "Rotate",
+    .init      = rotate_init,
     .update    = rotate_update,
     .draw      = rotate_draw,
     .priv_size = sizeof(struct rotate),
