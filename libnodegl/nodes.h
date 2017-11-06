@@ -156,7 +156,7 @@ struct geometry {
 
     /* geometry params */
     struct ngl_node *vertices_buffer;
-    struct ngl_node *texcoords_buffer;
+    struct ngl_node *uvcoords_buffer;
     struct ngl_node *normals_buffer;
     struct ngl_node *indices_buffer;
 

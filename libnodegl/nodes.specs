@@ -184,7 +184,7 @@
     constructors:
         - [vertices, Node]
     optional:
-        - [texcoords, Node]
+        - [uvcoords, Node]
         - [normals, Node]
         - [indices, Node]
         - [draw_mode, int]

@@ -76,12 +76,12 @@ static int quad_init(struct ngl_node *node)
     if (!s->vertices_buffer)
         return -1;
 
-    s->texcoords_buffer = ngli_geometry_generate_buffer(node->ctx,
-                                                        NGL_NODE_BUFFERVEC2,
-                                                        NB_VERTICES,
-                                                        sizeof(uvs),
-                                                        (void *)uvs);
-    if (!s->texcoords_buffer)
+    s->uvcoords_buffer = ngli_geometry_generate_buffer(node->ctx,
+                                                       NGL_NODE_BUFFERVEC2,
+                                                       NB_VERTICES,
+                                                       sizeof(uvs),
+                                                       (void *)uvs);
+    if (!s->uvcoords_buffer)
         return -1;
 
     float normals[3 * NB_VERTICES];
@@ -124,7 +124,7 @@ static void quad_uninit(struct ngl_node *node)
     struct geometry *s = node->priv_data;
 
     NODE_UNREFP(s->vertices_buffer);
-    NODE_UNREFP(s->texcoords_buffer);
+    NODE_UNREFP(s->uvcoords_buffer);
     NODE_UNREFP(s->normals_buffer);
     NODE_UNREFP(s->indices_buffer);
 }

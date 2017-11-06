@@ -205,8 +205,8 @@ static int update_vertex_attribs(struct ngl_node *node)
         }
     }
 
-    if (geometry->texcoords_buffer) {
-        struct buffer *buffer = geometry->texcoords_buffer->priv_data;
+    if (geometry->uvcoords_buffer) {
+        struct buffer *buffer = geometry->uvcoords_buffer->priv_data;
         if (program->uvcoord_location_id >= 0) {
             ngli_glEnableVertexAttribArray(gl, program->uvcoord_location_id);
             ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);

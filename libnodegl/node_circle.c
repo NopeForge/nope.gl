@@ -46,10 +46,10 @@ static int circle_init(struct ngl_node *node)
     }
 
     float *vertices  = calloc(s->npoints, sizeof(*vertices)  * 3);
-    float *texcoords = calloc(s->npoints, sizeof(*texcoords) * 2);
+    float *uvcoords  = calloc(s->npoints, sizeof(*uvcoords)  * 2);
     float *normals   = calloc(s->npoints, sizeof(*normals)   * 3);
 
-    if (!vertices || !texcoords || !normals)
+    if (!vertices || !uvcoords || !normals)
         goto end;
 
     const float step = 2.f * M_PI / s->npoints;
@@ -59,8 +59,8 @@ static int circle_init(struct ngl_node *node)
         const float y = cos(angle) * s->radius;
         vertices[i*3 + 0] = x;
         vertices[i*3 + 1] = y;
-        texcoords[i*2 + 0] = (x + 1.f) / 2.f;
-        texcoords[i*2 + 1] = (1.f - y) / 2.f;
+        uvcoords[i*2 + 0] = (x + 1.f) / 2.f;
+        uvcoords[i*2 + 1] = (1.f - y) / 2.f;
     }
 
     static const float center[3] = {0};
@@ -74,11 +74,11 @@ static int circle_init(struct ngl_node *node)
                                                        s->npoints * sizeof(*vertices) * 3,
                                                        vertices);
 
-    s->texcoords_buffer = ngli_geometry_generate_buffer(node->ctx,
-                                                        NGL_NODE_BUFFERVEC2,
-                                                        s->npoints,
-                                                        s->npoints * sizeof(*texcoords) * 2,
-                                                        texcoords);
+    s->uvcoords_buffer = ngli_geometry_generate_buffer(node->ctx,
+                                                       NGL_NODE_BUFFERVEC2,
+                                                       s->npoints,
+                                                       s->npoints * sizeof(*uvcoords) * 2,
+                                                       uvcoords);
 
     s->normals_buffer = ngli_geometry_generate_buffer(node->ctx,
                                                       NGL_NODE_BUFFERVEC3,
@@ -88,7 +88,7 @@ static int circle_init(struct ngl_node *node)
 
     s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx, s->npoints);
 
-    if (!s->vertices_buffer || !s->texcoords_buffer || !s->indices_buffer || !s->normals_buffer)
+    if (!s->vertices_buffer || !s->uvcoords_buffer || !s->indices_buffer || !s->normals_buffer)
         goto end;
 
     s->draw_mode = GL_TRIANGLE_FAN;
@@ -97,7 +97,7 @@ static int circle_init(struct ngl_node *node)
 
 end:
     free(vertices);
-    free(texcoords);
+    free(uvcoords);
     free(normals);
     return ret;
 }
@@ -114,7 +114,7 @@ static void circle_uninit(struct ngl_node *node)
     struct geometry *s = node->priv_data;
 
     NODE_UNREFP(s->vertices_buffer);
-    NODE_UNREFP(s->texcoords_buffer);
+    NODE_UNREFP(s->uvcoords_buffer);
     NODE_UNREFP(s->normals_buffer);
     NODE_UNREFP(s->indices_buffer);
 }

@@ -89,7 +89,7 @@ static const struct node_param geometry_params[] = {
     {"vertices",  PARAM_TYPE_NODE, OFFSET(vertices_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
                   .flags=PARAM_FLAG_CONSTRUCTOR | PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
-    {"texcoords", PARAM_TYPE_NODE, OFFSET(texcoords_buffer),
+    {"uvcoords",  PARAM_TYPE_NODE, OFFSET(uvcoords_buffer),
                   .node_types=TEXCOORDS_TYPES_LIST,
                   .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
     {"normals",   PARAM_TYPE_NODE, OFFSET(normals_buffer),
@@ -112,15 +112,15 @@ static int geometry_init(struct ngl_node *node)
 
     struct buffer *vertices = s->vertices_buffer->priv_data;
 
-    if (s->texcoords_buffer) {
-        int ret = ngli_node_init(s->texcoords_buffer);
+    if (s->uvcoords_buffer) {
+        int ret = ngli_node_init(s->uvcoords_buffer);
         if (ret < 0)
             return ret;
 
-        struct buffer *b = s->texcoords_buffer->priv_data;
+        struct buffer *b = s->uvcoords_buffer->priv_data;
         if (b->count != vertices->count) {
             LOG(ERROR,
-                "texcoords count (%d) does not match vertices count (%d)",
+                "uvcoords count (%d) does not match vertices count (%d)",
                 b->count,
                 vertices->count);
             return -1;
@@ -161,8 +161,8 @@ static void geometry_update(struct ngl_node *node, double t)
     struct geometry *s = node->priv_data;
 
     ngli_node_update(s->vertices_buffer, t);
-    if (s->texcoords_buffer)
-        ngli_node_update(s->texcoords_buffer, t);
+    if (s->uvcoords_buffer)
+        ngli_node_update(s->uvcoords_buffer, t);
     if (s->normals_buffer)
         ngli_node_update(s->normals_buffer, t);
 }
