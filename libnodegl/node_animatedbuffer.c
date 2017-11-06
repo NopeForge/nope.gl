@@ -97,6 +97,7 @@ static int animatedbuffer_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
+    double prev_time = 0;
 
     s->data_comp = node->class->id - NGL_NODE_ANIMATEDBUFFERFLOAT + 1;
     s->data_stride = s->data_comp * sizeof(float);
@@ -105,6 +106,13 @@ static int animatedbuffer_init(struct ngl_node *node)
         const struct animkeyframe *kf = s->animkf[i]->priv_data;
         const int data_count = kf->data_size / s->data_stride;
         const int data_pad   = kf->data_size % s->data_stride;
+
+        if (kf->time < prev_time) {
+            LOG(ERROR, "key frames must be positive and monotically increasing: %g < %g",
+                kf->time, prev_time);
+            return -1;
+        }
+        prev_time = kf->time;
 
         if (s->count && s->count != data_count) {
             static const char *types[] = {"float", "vec2", "vec3", "vec4"};

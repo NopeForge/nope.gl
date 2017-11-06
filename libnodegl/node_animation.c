@@ -117,6 +117,25 @@ void ngl_anim_evaluate(struct ngl_node *node, float *dst, double t)
     animation_update(s, t, len, dst, &s->eval_current_kf);
 }
 
+static int animation_init(struct ngl_node *node)
+{
+    struct animation *s = node->priv_data;
+    double prev_time = 0;
+
+    for (int i = 0; i < s->nb_animkf; i++) {
+        const struct animkeyframe *kf = s->animkf[i]->priv_data;
+
+        if (kf->time < prev_time) {
+            LOG(ERROR, "key frames must be positive and monotically increasing: %g < %g",
+                kf->time, prev_time);
+            return -1;
+        }
+        prev_time = kf->time;
+    }
+
+    return 0;
+}
+
 #define UPDATE_FUNC(type, len)                                          \
 static void animated##type##_update(struct ngl_node *node, double t)   \
 {                                                                       \
@@ -132,6 +151,7 @@ UPDATE_FUNC(vec4,   4);
 const struct node_class ngli_animatedfloat_class = {
     .id        = NGL_NODE_ANIMATEDFLOAT,
     .name      = "AnimatedFloat",
+    .init      = animation_init,
     .update    = animatedfloat_update,
     .priv_size = sizeof(struct animation),
     .params    = animatedfloat_params,
@@ -140,6 +160,7 @@ const struct node_class ngli_animatedfloat_class = {
 const struct node_class ngli_animatedvec2_class = {
     .id        = NGL_NODE_ANIMATEDVEC2,
     .name      = "AnimatedVec2",
+    .init      = animation_init,
     .update    = animatedvec2_update,
     .priv_size = sizeof(struct animation),
     .params    = animatedvec2_params,
@@ -148,6 +169,7 @@ const struct node_class ngli_animatedvec2_class = {
 const struct node_class ngli_animatedvec3_class = {
     .id        = NGL_NODE_ANIMATEDVEC3,
     .name      = "AnimatedVec3",
+    .init      = animation_init,
     .update    = animatedvec3_update,
     .priv_size = sizeof(struct animation),
     .params    = animatedvec3_params,
@@ -156,6 +178,7 @@ const struct node_class ngli_animatedvec3_class = {
 const struct node_class ngli_animatedvec4_class = {
     .id        = NGL_NODE_ANIMATEDVEC4,
     .name      = "AnimatedVec4",
+    .init      = animation_init,
     .update    = animatedvec4_update,
     .priv_size = sizeof(struct animation),
     .params    = animatedvec4_params,
