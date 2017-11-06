@@ -80,7 +80,11 @@ static int rtt_init(struct ngl_node *node)
         ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s->renderbuffer_id);
     }
 
-    ngli_assert(ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        LOG(ERROR, "framebuffer %u is not complete", s->framebuffer_id);
+        return -1;
+    }
+
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
 
     /* flip vertically the color and depth textures so the coordinates match
@@ -127,7 +131,10 @@ static void rtt_draw(struct ngl_node *node)
 
     ngli_node_draw(s->child);
 
-    ngli_assert(ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+    if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        LOG(ERROR, "framebuffer %u is not complete", s->framebuffer_id);
+        return;
+    }
 
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
