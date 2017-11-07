@@ -259,8 +259,8 @@
 - Render:
     constructors:
         - [geometry, Node]
-        - [program, Node]
     optional:
+        - [program, Node]
         - [textures, NodeDict]
         - [uniforms, NodeDict]
         - [attributes, NodeDict]

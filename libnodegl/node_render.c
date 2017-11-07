@@ -55,7 +55,7 @@
 static const struct node_param render_params[] = {
     {"geometry", PARAM_TYPE_NODE, OFFSET(geometry), .flags=PARAM_FLAG_CONSTRUCTOR,
                  .node_types=GEOMETRY_TYPES_LIST},
-    {"program",  PARAM_TYPE_NODE, OFFSET(program), .flags=PARAM_FLAG_CONSTRUCTOR,
+    {"program",  PARAM_TYPE_NODE, OFFSET(program),
                  .node_types=(const int[]){NGL_NODE_PROGRAM, -1}},
     {"textures", PARAM_TYPE_NODEDICT, OFFSET(textures),
                  .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1}},
@@ -251,15 +251,23 @@ static int render_init(struct ngl_node *node)
     const struct glfunctions *gl = &glcontext->funcs;
 
     struct render *s = node->priv_data;
-    struct program *program = s->program->priv_data;
 
     ret = ngli_node_init(s->geometry);
     if (ret < 0)
         return ret;
 
+    if (!s->program) {
+        s->program = ngl_node_create(NGL_NODE_PROGRAM);
+        if (!s->program)
+            return -1;
+        ngli_node_attach_ctx(s->program, ctx);
+    }
+
     ret = ngli_node_init(s->program);
     if (ret < 0)
         return ret;
+
+    struct program *program = s->program->priv_data;
 
     int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
     if (nb_uniforms > 0) {
