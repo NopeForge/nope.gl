@@ -213,6 +213,7 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
                     node->name, node->class->name, par->key);
                 return -1;
             }
+            ngl_node_unrefp(dstp);
             ngl_node_ref(node);
             LOG(VERBOSE, "set %s to %s", par->key, node->name);
             memcpy(dstp, &node, sizeof(node));
