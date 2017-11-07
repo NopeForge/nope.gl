@@ -162,13 +162,16 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             void *data = va_arg(*ap, void *);
             LOG(VERBOSE, "set %s to %p (of size %d)", par->key, data, size);
             uint8_t **dst = (uint8_t **)dstp;
+
+            free(*dst);
+            *dst = NULL;
             if (data && size) {
                 *dst = malloc(size);
                 if (!*dst)
                     return -1;
                 memcpy(*dst, data, size);
             } else {
-                *dst = NULL;
+                size = 0;
             }
             memcpy(dstp + sizeof(void *), &size, sizeof(size));
             break;
