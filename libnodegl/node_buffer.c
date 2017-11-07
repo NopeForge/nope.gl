@@ -120,9 +120,6 @@ static void buffer_uninit(struct ngl_node *node)
     struct buffer *s = node->priv_data;
 
     ngli_glDeleteBuffers(gl, 1, &s->buffer_id);
-
-    free(s->data);
-    s->data = NULL;
 }
 
 #define DEFINE_BUFFER_CLASS(class_id, class_name, type)     \

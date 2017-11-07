@@ -395,6 +395,11 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 free(s);
                 break;
             }
+            case PARAM_TYPE_DATA: {
+                uint8_t *data = *(uint8_t **)parp;
+                free(data);
+                break;
+            }
             case PARAM_TYPE_NODE: {
                 uint8_t *node_p = base_ptr + par->offset;
                 struct ngl_node *node = *(struct ngl_node **)node_p;
