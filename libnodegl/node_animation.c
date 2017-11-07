@@ -21,6 +21,7 @@
 
 #include <stddef.h>
 #include <string.h>
+#include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 
