@@ -65,14 +65,9 @@ struct ngl_node {
     int state;
 
     double last_update_time;
-    int drawme;
 
     struct ngl_node **glstates;
     int nb_glstates;
-
-    struct ngl_node **ranges;
-    int nb_ranges;
-    int current_range;
 
     int is_active;
     double active_time;
@@ -437,6 +432,7 @@ struct node_class {
     int id;
     const char *name;
     int (*init)(struct ngl_node *node);
+    void (*visit)(struct ngl_node *node, const struct ngl_node *from, double t);
     void (*prefetch)(struct ngl_node *node);
     void (*update)(struct ngl_node *node, double t);
     void (*draw)(struct ngl_node *node);
@@ -451,6 +447,7 @@ struct node_class {
 void ngli_node_print_specs(void);
 
 int ngli_node_init(struct ngl_node *node);
+void ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t);
 void ngli_node_prefetch(struct ngl_node *node);
 void ngli_node_check_resources(struct ngl_node *node, double t);
 void ngli_node_update(struct ngl_node *node, double t);

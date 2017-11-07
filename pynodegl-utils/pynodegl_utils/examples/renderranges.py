@@ -5,6 +5,7 @@ from pynodegl import (
         Media,
         Program,
         Quad,
+        TimeRangeFilter,
         Render,
         RenderRangeContinuous,
         RenderRangeNoRender,
@@ -37,12 +38,13 @@ def queued_medias(cfg, overlap_time=1., dim=3):
             render.set_name('render #%d' % video_id)
             render.update_textures(tex0=t)
 
+            rf = TimeRangeFilter(render)
             if start:
-                render.add_ranges(RenderRangeNoRender(0))
-            render.add_ranges(RenderRangeContinuous(start),
+                rf.add_ranges(RenderRangeNoRender(0))
+            rf.add_ranges(RenderRangeContinuous(start),
                           RenderRangeNoRender(start + cfg.duration/nb_videos + overlap_time))
 
-            tqs.append(render)
+            tqs.append(rf)
 
     return Group(children=tqs)
 
@@ -63,6 +65,9 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     render2 = Render(q, p, name="render #2")
     render2.update_textures(tex0=t2)
 
+    rf1 = TimeRangeFilter(render1)
+    rf2 = TimeRangeFilter(render2)
+
     t = 0
     rr1 = []
     rr2 = []
@@ -75,11 +80,11 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
 
         t += 2 * segment_time
 
-    render1.add_ranges(*rr1)
-    render2.add_ranges(*rr2)
+    rf1.add_ranges(*rr1)
+    rf2.add_ranges(*rr2)
 
     g = Group()
-    g.add_children(render1, render2)
+    g.add_children(rf1, rf2)
     if fast:
         g.add_children(t1, t2)
     return g
@@ -130,11 +135,11 @@ def simple_transition(cfg, transition_start=1, transition_duration=4):
     rr1_2.append(RenderRangeContinuous(transition_start))
     rr1_2.append(RenderRangeNoRender(transition_start + transition_duration))
 
-    render1.add_ranges(*rr1)
-    render2.add_ranges(*rr2)
-    render1_2.add_ranges(*rr1_2)
+    rf1 = TimeRangeFilter(render1, ranges=rr1)
+    rf2 = TimeRangeFilter(render2, ranges=rr2)
+    rf1_2 = TimeRangeFilter(render1_2, ranges=rr1_2)
 
     g = Group()
-    g.add_children(render1, render1_2, render2)
+    g.add_children(rf1, rf1_2, rf2)
 
     return g

@@ -120,6 +120,7 @@ struct ngl_node;
 #define NGL_NODE_ROTATE                 NGLI_FOURCC('T','R','o','t')
 #define NGL_NODE_SCALE                  NGLI_FOURCC('T','s','c','l')
 #define NGL_NODE_TEXTURE2D              NGLI_FOURCC('T','e','x','2')
+#define NGL_NODE_TIMERANGEFILTER        NGLI_FOURCC('T','R','F','l')
 #define NGL_NODE_TRANSLATE              NGLI_FOURCC('T','m','o','v')
 #define NGL_NODE_TRIANGLE               NGLI_FOURCC('T','r','g','l')
 #define NGL_NODE_UNIFORMINT             NGLI_FOURCC('U','n','i','1')

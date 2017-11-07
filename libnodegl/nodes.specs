@@ -5,7 +5,6 @@
 - _Node:
     optional:
         - [glstates, NodeList]
-        - [ranges, NodeList]
         - [name, string]
 
 - _AnimatedBuffer:
@@ -316,6 +315,12 @@
         - [data_src, Node]
         - [access, int]
         - [direct_rendering, int]
+
+- TimeRangeFilter:
+    constructors:
+        - [child, Node]
+    optional:
+        - [ranges, NodeList]
 
 - Translate:
     constructors:

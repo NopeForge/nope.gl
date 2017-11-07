@@ -37,7 +37,6 @@
 #define OFFSET(x) offsetof(struct ngl_node, x)
 const struct node_param ngli_base_node_params[] = {
     {"glstates", PARAM_TYPE_NODELIST, OFFSET(glstates), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED},
-    {"ranges",   PARAM_TYPE_NODELIST, OFFSET(ranges),   .flags=PARAM_FLAG_DOT_DISPLAY_PACKED},
     {"name",     PARAM_TYPE_STR,      OFFSET(name)},
     {NULL}
 };
@@ -167,15 +166,6 @@ struct ngl_node *ngl_node_create(int type, ...)
     LOG(VERBOSE, "CREATED %s @ %p", node->name, node);
 
     return node;
-}
-
-static int compare_range(const void *p1, const void *p2)
-{
-    const struct ngl_node *n1 = *(const struct ngl_node **)p1;
-    const struct ngl_node *n2 = *(const struct ngl_node **)p2;
-    const struct renderrange *r1 = n1->priv_data;
-    const struct renderrange *r2 = n2->priv_data;
-    return r1->start_time > r2->start_time;
 }
 
 void ngli_node_release(struct ngl_node *node)
@@ -338,10 +328,6 @@ int ngli_node_init(struct ngl_node *node)
         if (ret < 0)
             return ret;
     }
-    // Sort the ranges by start time. We also skip the ngli_node_init as, for
-    // now, render ranges don't have any
-    // TODO: merge successive continuous and norender ones?
-    qsort(node->ranges, node->nb_ranges, sizeof(*node->ranges), compare_range);
 
     for (int i = 0; i < node->nb_glstates; i++) {
         int ret = ngli_node_init(node->glstates[i]);
@@ -354,131 +340,20 @@ int ngli_node_init(struct ngl_node *node)
     return 0;
 }
 
-static int get_rr_id(const struct ngl_node *node, int start, double t)
+void ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t)
 {
-    int ret = -1;
-
-    for (int i = start; i < node->nb_ranges; i++) {
-        const struct renderrange *rr = node->ranges[i]->priv_data;
-        if (rr->start_time > t)
-            break;
-        ret = i;
-    }
-    return ret;
-}
-
-static int update_rr_state(struct ngl_node *node, double t)
-{
-    if (!node->nb_ranges)
-        return -1;
-
-    int rr_id = get_rr_id(node, node->current_range, t);
-    if (rr_id < 0) {
-        // range not found, probably backward in time so look from the
-        // start
-        // TODO: look for rr using bsearch?
-        rr_id = get_rr_id(node, 0, t);
-    }
-
-    if (rr_id >= 0) {
-        if (node->current_range != rr_id) {
-            // We leave our current render range, so we reset the "Once" flag
-            // for next time we may come in again (seek back)
-            struct ngl_node *cur_rr = node->ranges[node->current_range];
-            if (cur_rr->class->id == NGL_NODE_RENDERRANGEONCE) {
-                struct renderrange *rro = cur_rr->priv_data;
-                rro->updated = 0;
-            }
-        }
-
-        node->current_range = rr_id;
-    }
-
-    return rr_id;
-}
-
-#define PREFETCH_TIME 1.0
-#define MAX_IDLE_TIME (PREFETCH_TIME + 3.0)
-
-// TODO: render once
-static void check_activity(struct ngl_node *node, double t, int parent_is_active)
-{
-    int is_active = parent_is_active;
-
     int ret = ngli_node_init(node);
     if (ret < 0)
         return;
 
-    /*
-     * The life of the parent takes over the life of its children: if the
-     * parent is dead, the children are likely dead as well. However, a living
-     * children from a dead parent can be revealed by another living branch.
-     */
-    if (parent_is_active) {
-        const int rr_id = update_rr_state(node, t);
-
-        if (rr_id >= 0) {
-            struct ngl_node *rr = node->ranges[rr_id];
-
-            node->current_range = rr_id;
-
-            if (rr->class->id == NGL_NODE_RENDERRANGENORENDER) {
-                is_active = 0;
-
-                if (rr_id < node->nb_ranges - 1) {
-                    // We assume here the next range requires the node started
-                    // as the current one doesn't.
-                    const struct renderrange *next = node->ranges[rr_id + 1]->priv_data;
-                    const double next_use_in = next->start_time - t;
-
-                    if (next_use_in < PREFETCH_TIME) {
-                        // The node will actually be needed soon, so we need to
-                        // start it if necessary.
-                        is_active = 1;
-                    } else if (next_use_in < MAX_IDLE_TIME && node->state == STATE_READY) {
-                        // The node will be needed in a slight amount of time;
-                        // a bit longer than a prefetch period so we don't need
-                        // to start it, but in the case where it's actually
-                        // already active it's not worth releasing it to start
-                        // it again soon after, so we keep it active.
-                        is_active = 1;
-                    }
-                }
-            }
-        }
-    }
-
-    /*
-     * If a node is inactive and is already in a dead state, there is no need
-     * to check for resources below as we can assume they were already released
-     * as well (unless they're shared with another branch) by
-     * honor_release_prefetch().
-     *
-     * On the other hand, we cannot do the same if the node is active, because
-     * we have to mark every node below for activity to prevent an early
-     * release from another branch.
-     */
-    if (!is_active && node->state == STATE_IDLE)
+    if (node->class->visit) {
+        node->class->visit(node, from, t);
         return;
-
-    if (node->active_time != t) {
-        // If we never passed through this node for that given time, the new
-        // active state takes over to replace the one from a previous update.
-        node->is_active = is_active;
-        node->active_time = t;
-    } else {
-        // This is not the first time we come across that node, so if it's
-        // needed in that part of the branch we mark it as active so it doesn't
-        // get released.
-        node->is_active |= is_active;
     }
 
-    /*
-     * Now we check activity for all the children
-     *
-     * Note: this is currently only needed for private options as the base node
-     * doesn't contain anything worth prefetching or releasing.
-     */
+    node->is_active = from ? from->is_active : 1;
+    node->active_time = t;
+
     uint8_t *base_ptr = node->priv_data;
     const struct node_param *par = node->class->params;
 
@@ -488,7 +363,7 @@ static void check_activity(struct ngl_node *node, double t, int parent_is_active
                 uint8_t *child_p = base_ptr + par->offset;
                 struct ngl_node *child = *(struct ngl_node **)child_p;
                 if (child)
-                    check_activity(child, t, node->is_active);
+                    ngli_node_visit(child, node, t);
                 break;
             }
             case PARAM_TYPE_NODELIST: {
@@ -497,7 +372,7 @@ static void check_activity(struct ngl_node *node, double t, int parent_is_active
                 struct ngl_node **elems = *(struct ngl_node ***)elems_p;
                 const int nb_elems = *(int *)nb_elems_p;
                 for (int i = 0; i < nb_elems; i++)
-                    check_activity(elems[i], t, node->is_active);
+                    ngli_node_visit(elems[i], node, t);
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
@@ -506,7 +381,7 @@ static void check_activity(struct ngl_node *node, double t, int parent_is_active
                     break;
                 const struct hmap_entry *entry = NULL;
                 while ((entry = ngli_hmap_next(hmap, entry)))
-                    check_activity(entry->data, t, node->is_active);
+                    ngli_node_visit(entry->data, node, t);
                 break;
             }
         }
@@ -561,7 +436,7 @@ static void honor_release_prefetch(struct ngl_node *node, double t)
 
 void ngli_node_check_resources(struct ngl_node *node, double t)
 {
-    check_activity(node, t, 1);
+    ngli_node_visit(node, NULL, t);
     honor_release_prefetch(node, t);
 }
 
@@ -587,24 +462,6 @@ void ngli_node_update(struct ngl_node *node, double t)
     if (ret < 0)
         return;
     if (node->class->update) {
-        node->drawme = 0;
-
-        const int rr_id = update_rr_state(node, t);
-        if (rr_id >= 0) {
-            struct ngl_node *rr = node->ranges[rr_id];
-
-            if (rr->class->id == NGL_NODE_RENDERRANGENORENDER)
-                return;
-
-            if (rr->class->id == NGL_NODE_RENDERRANGEONCE) {
-                struct renderrange *rro = rr->priv_data;
-                if (rro->updated)
-                    return;
-                t = rro->render_time;
-                rro->updated = 1;
-            }
-        }
-
         if (node->last_update_time != t) {
             // Sometimes the node might not be prefetched by the node_check_prefetch()
             // crawling: this could happen when the node was for instance instantiated
@@ -618,7 +475,6 @@ void ngli_node_update(struct ngl_node *node, double t)
             LOG(VERBOSE, "%s already updated for t=%g, skip it", node->name, t);
         }
         node->last_update_time = t;
-        node->drawme = 1;
     }
 }
 
@@ -738,11 +594,6 @@ void ngli_restore_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node
 
 void ngli_node_draw(struct ngl_node *node)
 {
-    if (!node->drawme) {
-        LOG(VERBOSE, "%s @ %p not marked for drawing, skip it", node->name, node);
-        return;
-    }
-
     if (node->class->draw) {
         LOG(VERBOSE, "DRAW %s @ %p", node->name, node);
 
