@@ -397,42 +397,6 @@ static int update_rr_state(struct ngl_node *node, double t)
     return rr_id;
 }
 
-static void node_update(struct ngl_node *node, double t)
-{
-    node->drawme = 0;
-
-    const int rr_id = update_rr_state(node, t);
-    if (rr_id >= 0) {
-        struct ngl_node *rr = node->ranges[rr_id];
-
-        if (rr->class->id == NGL_NODE_RENDERRANGENORENDER)
-            return;
-
-        if (rr->class->id == NGL_NODE_RENDERRANGEONCE) {
-            struct renderrange *rro = rr->priv_data;
-            if (rro->updated)
-                return;
-            t = rro->render_time;
-            rro->updated = 1;
-        }
-    }
-
-    if (node->last_update_time != t) {
-        // Sometimes the node might not be prefetched by the node_check_prefetch()
-        // crawling: this could happen when the node was for instance instantiated
-        // internally and not through the options. So just to be safe, we
-        // "prefetch" it now (a bit late for sure).
-        ngli_node_prefetch(node);
-
-        LOG(VERBOSE, "UPDATE %s @ %p with t=%g", node->name, node, t);
-        node->class->update(node, t);
-    } else {
-        LOG(VERBOSE, "%s already updated for t=%g, skip it", node->name, t);
-    }
-    node->last_update_time = t;
-    node->drawme = 1;
-}
-
 #define PREFETCH_TIME 1.0
 #define MAX_IDLE_TIME (PREFETCH_TIME + 3.0)
 
@@ -622,8 +586,40 @@ void ngli_node_update(struct ngl_node *node, double t)
     int ret = ngli_node_init(node);
     if (ret < 0)
         return;
-    if (node->class->update)
-        node_update(node, t);
+    if (node->class->update) {
+        node->drawme = 0;
+
+        const int rr_id = update_rr_state(node, t);
+        if (rr_id >= 0) {
+            struct ngl_node *rr = node->ranges[rr_id];
+
+            if (rr->class->id == NGL_NODE_RENDERRANGENORENDER)
+                return;
+
+            if (rr->class->id == NGL_NODE_RENDERRANGEONCE) {
+                struct renderrange *rro = rr->priv_data;
+                if (rro->updated)
+                    return;
+                t = rro->render_time;
+                rro->updated = 1;
+            }
+        }
+
+        if (node->last_update_time != t) {
+            // Sometimes the node might not be prefetched by the node_check_prefetch()
+            // crawling: this could happen when the node was for instance instantiated
+            // internally and not through the options. So just to be safe, we
+            // "prefetch" it now (a bit late for sure).
+            ngli_node_prefetch(node);
+
+            LOG(VERBOSE, "UPDATE %s @ %p with t=%g", node->name, node, t);
+            node->class->update(node, t);
+        } else {
+            LOG(VERBOSE, "%s already updated for t=%g, skip it", node->name, t);
+        }
+        node->last_update_time = t;
+        node->drawme = 1;
+    }
 }
 
 void ngli_honor_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node **glstates)
