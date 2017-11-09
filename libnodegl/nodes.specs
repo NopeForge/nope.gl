@@ -264,19 +264,6 @@
         - [uniforms, NodeDict]
         - [attributes, NodeDict]
 
-- RenderRangeContinuous:
-    constructors:
-        - [start_time, double]
-
-- RenderRangeNoRender:
-    constructors:
-        - [start_time, double]
-
-- RenderRangeOnce:
-    constructors:
-        - [start_time, double]
-        - [render_time, double]
-
 - RenderToTexture:
     constructors:
         - [child, Node]
@@ -321,6 +308,19 @@
         - [child, Node]
     optional:
         - [ranges, NodeList]
+
+- TimeRangeModeCont:
+    constructors:
+        - [start_time, double]
+
+- TimeRangeModeNoop:
+    constructors:
+        - [start_time, double]
+
+- TimeRangeModeOnce:
+    constructors:
+        - [start_time, double]
+        - [render_time, double]
 
 - Translate:
     constructors:

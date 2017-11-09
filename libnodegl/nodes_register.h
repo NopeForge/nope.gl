@@ -80,14 +80,14 @@
     action(NGL_NODE_PROGRAM,                ngli_program_class)                 \
     action(NGL_NODE_QUAD,                   ngli_quad_class)                    \
     action(NGL_NODE_RENDER,                 ngli_render_class)                  \
-    action(NGL_NODE_RENDERRANGECONTINUOUS,  ngli_renderrangecontinuous_class)   \
-    action(NGL_NODE_RENDERRANGENORENDER,    ngli_renderrangenorender_class)     \
-    action(NGL_NODE_RENDERRANGEONCE,        ngli_renderrangeonce_class)         \
     action(NGL_NODE_RENDERTOTEXTURE,        ngli_rtt_class)                     \
     action(NGL_NODE_ROTATE,                 ngli_rotate_class)                  \
     action(NGL_NODE_SCALE,                  ngli_scale_class)                   \
     action(NGL_NODE_TEXTURE2D,              ngli_texture2d_class)               \
     action(NGL_NODE_TIMERANGEFILTER,        ngli_timerangefilter_class)         \
+    action(NGL_NODE_TIMERANGEMODECONT,      ngli_timerangemodecont_class)       \
+    action(NGL_NODE_TIMERANGEMODENOOP,      ngli_timerangemodenoop_class)       \
+    action(NGL_NODE_TIMERANGEMODEONCE,      ngli_timerangemodeonce_class)       \
     action(NGL_NODE_TRANSLATE,              ngli_translate_class)               \
     action(NGL_NODE_TRIANGLE,               ngli_triangle_class)                \
     action(NGL_NODE_UNIFORMINT,             ngli_uniformint_class)              \

@@ -5,12 +5,11 @@ from pynodegl import (
         Media,
         Program,
         Quad,
-        TimeRangeFilter,
         Render,
-        RenderRangeContinuous,
-        RenderRangeNoRender,
-        RenderRangeOnce,
         Texture2D,
+        TimeRangeFilter,
+        TimeRangeModeCont,
+        TimeRangeModeNoop,
         UniformFloat,
 )
 
@@ -40,9 +39,9 @@ def queued_medias(cfg, overlap_time=1., dim=3):
 
             rf = TimeRangeFilter(render)
             if start:
-                rf.add_ranges(RenderRangeNoRender(0))
-            rf.add_ranges(RenderRangeContinuous(start),
-                          RenderRangeNoRender(start + cfg.duration/nb_videos + overlap_time))
+                rf.add_ranges(TimeRangeModeNoop(0))
+            rf.add_ranges(TimeRangeModeCont(start),
+                          TimeRangeModeNoop(start + cfg.duration/nb_videos + overlap_time))
 
             tqs.append(rf)
 
@@ -72,11 +71,11 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     rr1 = []
     rr2 = []
     while t < cfg.duration:
-        rr1.append(RenderRangeContinuous(t))
-        rr1.append(RenderRangeNoRender(t + segment_time))
+        rr1.append(TimeRangeModeCont(t))
+        rr1.append(TimeRangeModeNoop(t + segment_time))
 
-        rr2.append(RenderRangeNoRender(t))
-        rr2.append(RenderRangeContinuous(t + segment_time))
+        rr2.append(TimeRangeModeNoop(t))
+        rr2.append(TimeRangeModeCont(t + segment_time))
 
         t += 2 * segment_time
 
@@ -126,14 +125,14 @@ def simple_transition(cfg, transition_start=1, transition_duration=4):
     rr2 = []
     rr1_2 = []
 
-    rr1.append(RenderRangeNoRender(transition_start))
+    rr1.append(TimeRangeModeNoop(transition_start))
 
-    rr2.append(RenderRangeNoRender(0))
-    rr2.append(RenderRangeContinuous(transition_start + transition_duration))
+    rr2.append(TimeRangeModeNoop(0))
+    rr2.append(TimeRangeModeCont(transition_start + transition_duration))
 
-    rr1_2.append(RenderRangeNoRender(0))
-    rr1_2.append(RenderRangeContinuous(transition_start))
-    rr1_2.append(RenderRangeNoRender(transition_start + transition_duration))
+    rr1_2.append(TimeRangeModeNoop(0))
+    rr1_2.append(TimeRangeModeCont(transition_start))
+    rr1_2.append(TimeRangeModeNoop(transition_start + transition_duration))
 
     rf1 = TimeRangeFilter(render1, ranges=rr1)
     rf2 = TimeRangeFilter(render2, ranges=rr2)

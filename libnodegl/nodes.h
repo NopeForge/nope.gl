@@ -323,7 +323,7 @@ struct media {
 #endif
 };
 
-struct renderrange {
+struct timerangemode {
     double start_time;
     double render_time;
     int updated;

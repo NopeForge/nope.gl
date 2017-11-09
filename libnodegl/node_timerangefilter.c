@@ -34,9 +34,9 @@ struct timerangefilter {
     int drawme;
 };
 
-#define RANGES_TYPES_LIST (const int[]){NGL_NODE_RENDERRANGEONCE,           \
-                                        NGL_NODE_RENDERRANGENORENDER,       \
-                                        NGL_NODE_RENDERRANGECONTINUOUS,     \
+#define RANGES_TYPES_LIST (const int[]){NGL_NODE_TIMERANGEMODEONCE,     \
+                                        NGL_NODE_TIMERANGEMODENOOP,     \
+                                        NGL_NODE_TIMERANGEMODECONT,     \
                                         -1}
 
 #define OFFSET(x) offsetof(struct timerangefilter, x)
@@ -52,8 +52,8 @@ static int compare_range(const void *p1, const void *p2)
 {
     const struct ngl_node *n1 = *(const struct ngl_node **)p1;
     const struct ngl_node *n2 = *(const struct ngl_node **)p2;
-    const struct renderrange *r1 = n1->priv_data;
-    const struct renderrange *r2 = n2->priv_data;
+    const struct timerangemode *r1 = n1->priv_data;
+    const struct timerangemode *r2 = n2->priv_data;
     return r1->start_time > r2->start_time;
 }
 
@@ -74,7 +74,7 @@ static int get_rr_id(const struct timerangefilter *s, int start, double t)
     int ret = -1;
 
     for (int i = start; i < s->nb_ranges; i++) {
-        const struct renderrange *rr = s->ranges[i]->priv_data;
+        const struct timerangemode *rr = s->ranges[i]->priv_data;
         if (rr->start_time > t)
             break;
         ret = i;
@@ -100,8 +100,8 @@ static int update_rr_state(struct timerangefilter *s, double t)
             // We leave our current render range, so we reset the "Once" flag
             // for next time we may come in again (seek back)
             struct ngl_node *cur_rr = s->ranges[s->current_range];
-            if (cur_rr->class->id == NGL_NODE_RENDERRANGEONCE) {
-                struct renderrange *rro = cur_rr->priv_data;
+            if (cur_rr->class->id == NGL_NODE_TIMERANGEMODEONCE) {
+                struct timerangemode *rro = cur_rr->priv_data;
                 rro->updated = 0;
             }
         }
@@ -134,13 +134,13 @@ static void timerangefilter_visit(struct ngl_node *node, const struct ngl_node *
 
             s->current_range = rr_id;
 
-            if (rr->class->id == NGL_NODE_RENDERRANGENORENDER) {
+            if (rr->class->id == NGL_NODE_TIMERANGEMODENOOP) {
                 is_active = 0;
 
                 if (rr_id < s->nb_ranges - 1) {
                     // We assume here the next range requires the node started
                     // as the current one doesn't.
-                    const struct renderrange *next = s->ranges[rr_id + 1]->priv_data;
+                    const struct timerangemode *next = s->ranges[rr_id + 1]->priv_data;
                     const double next_use_in = next->start_time - t;
 
                     if (next_use_in < PREFETCH_TIME) {
@@ -198,11 +198,11 @@ static void timerangefilter_update(struct ngl_node *node, double t)
     if (rr_id >= 0) {
         struct ngl_node *rr = s->ranges[rr_id];
 
-        if (rr->class->id == NGL_NODE_RENDERRANGENORENDER)
+        if (rr->class->id == NGL_NODE_TIMERANGEMODENOOP)
             return;
 
-        if (rr->class->id == NGL_NODE_RENDERRANGEONCE) {
-            struct renderrange *rro = rr->priv_data;
+        if (rr->class->id == NGL_NODE_TIMERANGEMODEONCE) {
+            struct timerangemode *rro = rr->priv_data;
             if (rro->updated)
                 return;
             t = rro->render_time;

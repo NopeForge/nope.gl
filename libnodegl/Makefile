@@ -80,12 +80,12 @@ LIB_OBJS = api.o                    \
            node_program.o           \
            node_quad.o              \
            node_render.o            \
-           node_renderrange.o       \
            node_rotate.o            \
            node_rtt.o               \
            node_scale.o             \
            node_texture2d.o         \
            node_timerangefilter.o   \
+           node_timerangemodes.o    \
            node_translate.o         \
            node_triangle.o          \
            node_uniform.o           \
