@@ -30,6 +30,8 @@ struct timerangefilter {
     struct ngl_node **ranges;
     int nb_ranges;
     int current_range;
+    double prefetch_time;
+    double max_idle_time;
 
     int drawme;
 };
@@ -45,6 +47,8 @@ static const struct node_param timerangefilter_params[] = {
     {"ranges", PARAM_TYPE_NODELIST, OFFSET(ranges),
                .node_types=RANGES_TYPES_LIST,
                .flags=PARAM_FLAG_DOT_DISPLAY_PACKED},
+    {"prefetch_time", PARAM_TYPE_DBL, OFFSET(prefetch_time), {.dbl=1.0}},
+    {"max_idle_time", PARAM_TYPE_DBL, OFFSET(max_idle_time), {.dbl=4.0}},
     {NULL}
 };
 
@@ -60,6 +64,16 @@ static int compare_range(const void *p1, const void *p2)
 static int timerangefilter_init(struct ngl_node *node)
 {
     struct timerangefilter *s = node->priv_data;
+
+    if (s->prefetch_time < 0) {
+        LOG(ERROR, "prefetch time must be positive");
+        return -1;
+    }
+
+    if (s->max_idle_time <= s->prefetch_time) {
+        LOG(ERROR, "max idle time must be superior to prefetch time");
+        return -1;
+    }
 
     // Sort the ranges by start time. We also skip the ngli_node_init as, for
     // now, render ranges don't have any
@@ -112,9 +126,6 @@ static int update_rr_state(struct timerangefilter *s, double t)
     return rr_id;
 }
 
-#define PREFETCH_TIME 1.0
-#define MAX_IDLE_TIME (PREFETCH_TIME + 3.0)
-
 // TODO: render once
 static void timerangefilter_visit(struct ngl_node *node, const struct ngl_node *from, double t)
 {
@@ -143,11 +154,11 @@ static void timerangefilter_visit(struct ngl_node *node, const struct ngl_node *
                     const struct timerangemode *next = s->ranges[rr_id + 1]->priv_data;
                     const double next_use_in = next->start_time - t;
 
-                    if (next_use_in < PREFETCH_TIME) {
+                    if (next_use_in < s->prefetch_time) {
                         // The node will actually be needed soon, so we need to
                         // start it if necessary.
                         is_active = 1;
-                    } else if (next_use_in < MAX_IDLE_TIME && node->state == STATE_READY) {
+                    } else if (next_use_in < s->max_idle_time && node->state == STATE_READY) {
                         // The node will be needed in a slight amount of time;
                         // a bit longer than a prefetch period so we don't need
                         // to start it, but in the case where it's actually
