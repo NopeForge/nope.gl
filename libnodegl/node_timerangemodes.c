@@ -44,13 +44,13 @@ static const struct node_param once_params[] = {
 static char *timerangemode_info_str_continous(const struct ngl_node *node)
 {
     const struct timerangemode *s = node->priv_data;
-    return ngli_asprintf("continuous at %g", s->start_time);
+    return ngli_asprintf("cont at %g", s->start_time);
 }
 
 static char *timerangemode_info_str_norender(const struct ngl_node *node)
 {
     const struct timerangemode *s = node->priv_data;
-    return ngli_asprintf("norender at %g", s->start_time);
+    return ngli_asprintf("noop at %g", s->start_time);
 }
 
 static char *timerangemode_info_str_once(const struct ngl_node *node)
