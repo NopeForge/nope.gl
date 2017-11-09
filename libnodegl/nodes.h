@@ -123,6 +123,8 @@ struct camera {
 
     struct ngl_node *fov_anim;
 
+    float ground[3];
+
     int pipe_fd;
     int pipe_width, pipe_height;
     uint8_t *pipe_buf;

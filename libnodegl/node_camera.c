@@ -52,6 +52,11 @@ static int camera_init(struct ngl_node *node)
 {
     struct camera *s = node->priv_data;
 
+    ngli_vec3_norm(s->up, s->up);
+    ngli_vec3_sub(s->ground, s->eye, s->center);
+    ngli_vec3_norm(s->ground, s->ground);
+    ngli_vec3_cross(s->ground, s->ground, s->up);
+
     if (s->pipe_fd) {
         s->pipe_buf = calloc(4 /* RGBA */, s->pipe_width * s->pipe_height);
         if (!s->pipe_buf)
@@ -113,6 +118,12 @@ static void camera_update(struct ngl_node *node, double t)
     APPLY_TRANSFORM(eye);
     APPLY_TRANSFORM(center);
     APPLY_TRANSFORM(up);
+
+    if ((s->eye_transform || s->center_transform) && !s->up_transform) {
+        ngli_vec3_sub(up, s->center, s->eye);
+        ngli_vec3_norm(up, up);
+        ngli_vec3_cross(up, up, s->ground);
+    }
 
     ngli_mat4_look_at(
         view,
