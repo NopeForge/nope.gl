@@ -19,7 +19,6 @@
  * under the License.
  */
 
-#include <stdlib.h>
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -52,18 +51,21 @@ static const struct node_param timerangefilter_params[] = {
     {NULL}
 };
 
-static int compare_range(const void *p1, const void *p2)
-{
-    const struct ngl_node *n1 = *(const struct ngl_node **)p1;
-    const struct ngl_node *n2 = *(const struct ngl_node **)p2;
-    const struct timerangemode *r1 = n1->priv_data;
-    const struct timerangemode *r2 = n2->priv_data;
-    return r1->start_time > r2->start_time;
-}
-
 static int timerangefilter_init(struct ngl_node *node)
 {
     struct timerangefilter *s = node->priv_data;
+
+    double prev_start_time = 0;
+    for (int i = 0; i < s->nb_ranges; i++) {
+        const struct timerangemode *trm = s->ranges[i]->priv_data;
+
+        if (trm->start_time < prev_start_time) {
+            LOG(ERROR, "Time ranges must be positive and monotically increasing: %g < %g",
+                trm->start_time, prev_start_time);
+            return -1;
+        }
+        prev_start_time = trm->start_time;
+    }
 
     if (s->prefetch_time < 0) {
         LOG(ERROR, "prefetch time must be positive");
@@ -74,11 +76,6 @@ static int timerangefilter_init(struct ngl_node *node)
         LOG(ERROR, "max idle time must be superior to prefetch time");
         return -1;
     }
-
-    // Sort the ranges by start time. We also skip the ngli_node_init as, for
-    // now, render ranges don't have any
-    // TODO: merge successive continuous and norender ones?
-    qsort(s->ranges, s->nb_ranges, sizeof(*s->ranges), compare_range);
 
     return 0;
 }
