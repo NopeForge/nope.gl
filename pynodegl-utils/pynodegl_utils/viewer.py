@@ -330,7 +330,7 @@ class _GraphView(QtWidgets.QWidget):
         self._get_scene_func = get_scene_func
 
         self._graph_btn = QtWidgets.QPushButton("Update Graph")
-        self._save_btn = QtWidgets.QPushButton("Save to file")
+        self._save_btn = QtWidgets.QPushButton("Save image")
         self._auto_chkbox = QtWidgets.QCheckBox("Automatically update")
         self._graph_lbl = QtWidgets.QLabel()
         img_area = QtWidgets.QScrollArea()
