@@ -73,7 +73,7 @@ static struct ngl_node *node_create(const struct node_class *class)
 
     node->class = class;
     node->last_update_time = -1.;
-    node->active_time = -1.;
+    node->visit_time = -1.;
 
     node->refcount = 1;
 
@@ -352,7 +352,7 @@ void ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double 
     }
 
     node->is_active = from ? from->is_active : 1;
-    node->active_time = t;
+    node->visit_time = t;
 
     uint8_t *base_ptr = node->priv_data;
     const struct node_param *par = node->class->params;
@@ -394,7 +394,7 @@ static void honor_release_prefetch(struct ngl_node *node, double t)
     uint8_t *base_ptr = node->priv_data;
     const struct node_param *par = node->class->params;
 
-    if (node->active_time != t)
+    if (node->visit_time != t)
         return;
 
     while (par && par->key) {

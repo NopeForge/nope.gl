@@ -70,7 +70,7 @@ struct ngl_node {
     int nb_glstates;
 
     int is_active;
-    double active_time;
+    double visit_time;
 
     char *name;
 

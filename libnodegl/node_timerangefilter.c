@@ -181,11 +181,11 @@ static void timerangefilter_visit(struct ngl_node *node, const struct ngl_node *
     if (!is_active && node->state == STATE_IDLE)
         return;
 
-    if (node->active_time != t) {
+    if (node->visit_time != t) {
         // If we never passed through this node for that given time, the new
         // active state takes over to replace the one from a previous update.
         node->is_active = is_active;
-        node->active_time = t;
+        node->visit_time = t;
     } else {
         // This is not the first time we come across that node, so if it's
         // needed in that part of the branch we mark it as active so it doesn't
