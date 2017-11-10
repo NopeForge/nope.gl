@@ -27,8 +27,8 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct glstate, x)
-static const struct node_param glcolorstate_params[] = {
+#define OFFSET(x) offsetof(struct configcolormask, x)
+static const struct node_param configcolormask_params[] = {
     {"enabled", PARAM_TYPE_INT, OFFSET(enabled[0]), {.i64=GL_TRUE}, .flags=PARAM_FLAG_CONSTRUCTOR},
     {"red",     PARAM_TYPE_INT, OFFSET(rgba[0][0]), {.i64=GL_TRUE}},
     {"green",   PARAM_TYPE_INT, OFFSET(rgba[0][1]), {.i64=GL_TRUE}},
@@ -37,24 +37,24 @@ static const struct node_param glcolorstate_params[] = {
     {NULL}
 };
 
-static char *glcolorstate_info_str(const struct ngl_node *node)
+static char *configcolormask_info_str(const struct ngl_node *node)
 {
-    const struct glstate *s = node->priv_data;
+    const struct configcolormask *s = node->priv_data;
 
-    return ngli_asprintf("COLOR_WRITEMASK red=%d, green=%d, blue=%d, alpha=%d",
+    return ngli_asprintf("COLORMASK red=%d, green=%d, blue=%d, alpha=%d",
                          s->rgba[0][1], s->rgba[0][1], s->rgba[0][2], s->rgba[0][3]);
 }
 
-static int glcolorstate_init(struct ngl_node *node)
+static int configcolormask_init(struct ngl_node *node)
 {
     return 0;
 }
 
-const struct node_class ngli_glcolorstate_class = {
-    .id        = NGL_NODE_GLCOLORSTATE,
-    .name      = "GLColorState",
-    .info_str  = glcolorstate_info_str,
-    .init      = glcolorstate_init,
-    .priv_size = sizeof(struct glstate),
-    .params    = glcolorstate_params,
+const struct node_class ngli_configcolormask_class = {
+    .id        = NGL_NODE_CONFIGCOLORMASK,
+    .name      = "ConfigColorMask",
+    .info_str  = configcolormask_info_str,
+    .init      = configcolormask_init,
+    .priv_size = sizeof(struct configcolormask),
+    .params    = configcolormask_params,
 };

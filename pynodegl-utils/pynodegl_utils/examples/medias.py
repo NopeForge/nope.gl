@@ -6,10 +6,10 @@ from pynodegl import (
         AnimKeyFrameVec3,
         AnimatedFloat,
         AnimatedVec3,
+        ConfigColorMask,
+        ConfigStencil,
         Circle,
-        GLColorState,
-        GLState,
-        GLStencilState,
+        GraphicConfig,
         Group,
         Media,
         Program,
@@ -62,16 +62,6 @@ def centered_masked_media(cfg):
     p = Program(fragment=get_shader('color'))
     node = Render(q, p)
     node.update_uniforms(color=UniformVec4(value=(0,0,0,1)))
-    node.add_glstates(GLStencilState(GL.GL_TRUE,
-                                     0xFF,
-                                     GL.GL_ALWAYS,
-                                     1,
-                                     0xFF,
-                                     GL.GL_KEEP,
-                                     GL.GL_KEEP,
-                                     GL.GL_REPLACE),
-                      GLColorState(GL.GL_TRUE, 0, 0, 0, 0))
-
 
     scale_animkf = [AnimKeyFrameVec3(0, (0.1,  0.1, 1.0)),
                     AnimKeyFrameVec3(10, (10., 10.0,  3), "exp_out")]
@@ -81,6 +71,17 @@ def centered_masked_media(cfg):
                      AnimKeyFrameFloat(cfg.duration, 360, "exp_out")]
     node = Rotate(node, anim=AnimatedFloat(rotate_animkf))
 
+    node = GraphicConfig(node,
+                         stencil=ConfigStencil(GL.GL_TRUE,
+                                               0xFF,
+                                               GL.GL_ALWAYS,
+                                               1,
+                                               0xFF,
+                                               GL.GL_KEEP,
+                                               GL.GL_KEEP,
+                                               GL.GL_REPLACE),
+                         colormask=ConfigColorMask(GL.GL_TRUE, 0, 0, 0, 0))
+
     g.add_children(node)
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
@@ -89,15 +90,15 @@ def centered_masked_media(cfg):
     p = Program()
     node = Render(q, p)
     node.update_textures(tex0=t)
-    node.add_glstates(GLStencilState(GL.GL_TRUE,
-                                     0x00,
-                                     GL.GL_EQUAL,
-                                     1,
-                                     0xFF,
-                                     GL.GL_KEEP,
-                                     GL.GL_KEEP,
-                                     GL.GL_KEEP),
-                      GLColorState(GL.GL_TRUE, 1, 1, 1, 1))
+    node = GraphicConfig(node,
+                         stencil=ConfigStencil(GL.GL_TRUE,
+                                               0x00,
+                                               GL.GL_EQUAL,
+                                               1,
+                                               0xFF,
+                                               GL.GL_KEEP,
+                                               GL.GL_KEEP,
+                                               GL.GL_KEEP))
 
     g.add_children(node)
     return g

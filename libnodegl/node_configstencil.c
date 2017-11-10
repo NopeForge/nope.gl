@@ -27,8 +27,8 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct glstate, x)
-static const struct node_param glstencilstate_params[] = {
+#define OFFSET(x) offsetof(struct configstencil, x)
+static const struct node_param configstencil_params[] = {
     {"enabled",    PARAM_TYPE_INT, OFFSET(enabled[0]),    {.i64=GL_FALSE}, .flags=PARAM_FLAG_CONSTRUCTOR},
     {"writemask",  PARAM_TYPE_INT, OFFSET(writemask[0]),  {.i64=0xFF}},
     {"func",       PARAM_TYPE_INT, OFFSET(func[0]),       {.i64=GL_ALWAYS}},
@@ -40,10 +40,10 @@ static const struct node_param glstencilstate_params[] = {
     {NULL}
 };
 
-static char *glstencilstate_info_str(const struct ngl_node *node)
+static char *configstencil_info_str(const struct ngl_node *node)
 {
     char *info_str;
-    const struct glstate *s = node->priv_data;
+    const struct configstencil *s = node->priv_data;
     if (s->enabled[0]) {
         info_str = ngli_asprintf("STENCIL_TEST enabled");
     } else {
@@ -52,20 +52,20 @@ static char *glstencilstate_info_str(const struct ngl_node *node)
     return info_str;
 }
 
-static int glstencilstate_init(struct ngl_node *node)
+static int configstencil_init(struct ngl_node *node)
 {
-    struct glstate *s = node->priv_data;
+    struct configstencil *s = node->priv_data;
 
     s->capability = GL_STENCIL_TEST;
 
     return 0;
 }
 
-const struct node_class ngli_glstencilstate_class = {
-    .id        = NGL_NODE_GLSTENCILSTATE,
-    .name      = "GLStencilState",
-    .info_str  = glstencilstate_info_str,
-    .init      = glstencilstate_init,
-    .priv_size = sizeof(struct glstate),
-    .params    = glstencilstate_params,
+const struct node_class ngli_configstencil_class = {
+    .id        = NGL_NODE_CONFIGSTENCIL,
+    .name      = "ConfigStencil",
+    .info_str  = configstencil_info_str,
+    .init      = configstencil_init,
+    .priv_size = sizeof(struct configstencil),
+    .params    = configstencil_params,
 };

@@ -4,7 +4,8 @@ from pynodegl import (
         AnimKeyFrameFloat,
         AnimatedFloat,
         Camera,
-        GLState,
+        ConfigDepth,
+        GraphicConfig,
         Group,
         Media,
         Program,
@@ -38,7 +39,6 @@ def _get_cube_side(texture, program, corner, width, height, color):
 @scene()
 def rotating_cube(cfg):
     cube = Group(name="cube")
-    cube.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
     frag_data = get_shader('tex-tint')
     p = Program(fragment=frag_data)
@@ -54,7 +54,9 @@ def rotating_cube(cfg):
         axis = [int(i == x) for x in range(3)]
         cube = Rotate(cube, axis=axis, anim=rot_animkf)
 
-    camera = Camera(cube)
+    state = GraphicConfig(cube, depth=ConfigDepth(GL.GL_TRUE))
+
+    camera = Camera(state)
     camera.set_eye(0.0, 0.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)

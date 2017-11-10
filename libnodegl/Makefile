@@ -68,13 +68,14 @@ LIB_OBJS = api.o                    \
            node_circle.o            \
            node_compute.o           \
            node_computeprogram.o    \
+           node_configblend.o       \
+           node_configcolormask.o   \
+           node_configdepth.o       \
+           node_configpolygonmode.o \
+           node_configstencil.o     \
            node_fps.o               \
            node_geometry.o          \
-           node_glblendstate.o      \
-           node_glcolorstate.o      \
-           node_glpolygonmodestate.o\
-           node_glstencilstate.o    \
-           node_glstate.o           \
+           node_graphicconfig.o     \
            node_group.o             \
            node_identity.o          \
            node_media.o             \

@@ -9,7 +9,8 @@ from pynodegl import (
         AnimatedFloat,
         AnimatedVec3,
         Camera,
-        GLState,
+        ConfigDepth,
+        GraphicConfig,
         Group,
         Identity,
         Media,
@@ -120,7 +121,6 @@ def animated_uniform(cfg):
 @scene(rotate={'type': 'bool'})
 def animated_camera(cfg, rotate=False):
     g = Group()
-    g.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = Media(cfg.medias[0].filename)
@@ -151,6 +151,8 @@ def animated_camera(cfg, rotate=False):
     node.update_textures(tex0=t)
     g.add_children(node)
 
+
+    g = GraphicConfig(g, depth=ConfigDepth(GL.GL_TRUE))
     camera = Camera(g)
     camera.set_eye(0, 0, 2)
     camera.set_center(0.0, 0.0, 0.0)

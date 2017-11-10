@@ -26,24 +26,33 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct glstate, x)
-static const struct node_param glstate_params[] = {
-    {"capability", PARAM_TYPE_INT, OFFSET(capability), {.i64=GL_NONE}, .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"enabled",    PARAM_TYPE_INT, OFFSET(enabled[0]), {.i64=GL_FALSE}, .flags=PARAM_FLAG_CONSTRUCTOR},
+#define OFFSET(x) offsetof(struct configdepth, x)
+static const struct node_param configdepth_params[] = {
+    {"enabled", PARAM_TYPE_INT, OFFSET(enabled[0]), {.i64=GL_FALSE}, .flags=PARAM_FLAG_CONSTRUCTOR},
     {NULL}
 };
 
-static char *glstate_info_str(const struct ngl_node *node)
+static char *configdepth_info_str(const struct ngl_node *node)
 {
-    const struct glstate *s = node->priv_data;
-    return ngli_asprintf("0x%x enabled=%s",
-                         s->capability, s->enabled[0] ? "yes" : "no");
+    const struct configdepth *s = node->priv_data;
+    return ngli_asprintf("DEPTH_TEST enabled=%s",
+                         s->enabled[0] ? "yes" : "no");
 }
 
-const struct node_class ngli_glstate_class = {
-    .id        = NGL_NODE_GLSTATE,
-    .name      = "GLState",
-    .info_str  = glstate_info_str,
-    .priv_size = sizeof(struct glstate),
-    .params    = glstate_params,
+static int configdepth_init(struct ngl_node *node)
+{
+    struct configdepth *s = node->priv_data;
+
+    s->capability = GL_DEPTH_TEST;
+
+    return 0;
+}
+
+const struct node_class ngli_configdepth_class = {
+    .id        = NGL_NODE_CONFIGDEPTH,
+    .name      = "ConfigDepth",
+    .init      = configdepth_init,
+    .info_str  = configdepth_info_str,
+    .priv_size = sizeof(struct configdepth),
+    .params    = configdepth_params,
 };

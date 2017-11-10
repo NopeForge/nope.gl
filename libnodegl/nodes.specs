@@ -4,7 +4,6 @@
 
 - _Node:
     optional:
-        - [glstates, NodeList]
         - [name, string]
 
 - _AnimatedBuffer:
@@ -188,7 +187,17 @@
         - [indices, Node]
         - [draw_mode, int]
 
-- GLBlendState:
+- GraphicConfig:
+    constructors:
+        - [child, Node]
+    optional:
+        - [blend, Node]
+        - [colormask, Node]
+        - [depth, Node]
+        - [polygonmode, Node]
+        - [stencil, Node]
+
+- ConfigBlend:
     constructors:
         - [enabled, int]
     optional:
@@ -199,7 +208,7 @@
         - [mode_rgb, int]
         - [mode_alpha, int]
 
-- GLColorState:
+- ConfigColorMask:
     constructors:
         - [enabled, int]
     optional:
@@ -208,16 +217,15 @@
         - [blue, int]
         - [alpha, int]
 
-- GLPolygonModeState:
+- ConfigPolygonMode:
     constructors:
         - [mode, int]
 
-- GLState:
+- ConfigDepth:
     constructors:
-        - [capability, int]
         - [enabled, int]
 
-- GLStencilState:
+- ConfigStencil:
     constructors:
         - [enabled, int]
     optional:

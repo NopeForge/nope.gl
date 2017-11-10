@@ -1,6 +1,6 @@
 from pynodegl import (
-        GLBlendState,
-        GLState,
+        ConfigBlend,
+        GraphicConfig,
         Group,
         Media,
         Program,
@@ -37,26 +37,28 @@ def blending_test(cfg):
     p = Program(fragment=fragment)
     ts = Render(q, p)
     ts.update_uniforms(color=ucolor)
-    ts.add_glstates(GLBlendState(GL.GL_TRUE,
-                                 GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA,
-                                 GL.GL_ONE, GL.GL_ZERO))
-    g.add_children(ts)
+    s = GraphicConfig(ts, blend=ConfigBlend(GL.GL_TRUE,
+                                            GL.GL_SRC_ALPHA,
+                                            GL.GL_ONE_MINUS_SRC_ALPHA,
+                                            GL.GL_ONE,
+                                            GL.GL_ZERO))
+    g.add_children(s)
 
     q = Quad((-1.0, 0.0, 0), (1.1, 0, 0), (0, 1, 0))
     p = Program(fragment=fragment)
     ts = Render(q, p)
     ts.update_uniforms(color=ucolor)
-    ts.add_glstates(GLBlendState(GL.GL_TRUE,
-                                 GL.GL_ONE, GL.GL_ONE_MINUS_SRC_ALPHA,
-                                 GL.GL_ONE, GL.GL_ZERO))
-    g.add_children(ts)
+    s = GraphicConfig(ts, blend=ConfigBlend(GL.GL_TRUE,
+                                            GL.GL_ONE,
+                                            GL.GL_ONE_MINUS_SRC_ALPHA,
+                                            GL.GL_ONE,
+                                            GL.GL_ZERO))
+    g.add_children(s)
 
     q = Quad((-0.125, -0.125, 0), (0.25, 0, 0), (0, 0.25, 0))
     p = Program(fragment=fragment)
     ts = Render(q, p)
     ts.update_uniforms(color=ucolor)
-    ts.add_glstates(GLBlendState(GL.GL_FALSE))
-
     g2.add_children(g, ts)
 
     return g2

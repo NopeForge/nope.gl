@@ -26,22 +26,22 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct glstate, x)
-static const struct node_param glpolygonmodestate_params[] = {
+#define OFFSET(x) offsetof(struct configpolygonmode, x)
+static const struct node_param configpolygonmode_params[] = {
     {"mode", PARAM_TYPE_INT, OFFSET(mode[0]), {.i64=GL_FILL}, .flags=PARAM_FLAG_CONSTRUCTOR},
     {NULL}
 };
 
-static char *glpolygonmodestate_info_str(const struct ngl_node *node)
+static char *configpolygonmode_info_str(const struct ngl_node *node)
 {
-    const struct glstate *s = node->priv_data;
+    const struct configpolygonmode *s = node->priv_data;
     return ngli_asprintf("face=0x%x mode=0x%x", GL_FRONT_AND_BACK, s->mode[0]);
 }
 
-const struct node_class ngli_glpolygonmodestate_class = {
-    .id        = NGL_NODE_GLPOLYGONMODESTATE,
-    .name      = "GLPolygonModeState",
-    .info_str  = glpolygonmodestate_info_str,
-    .priv_size = sizeof(struct glstate),
-    .params    = glpolygonmodestate_params,
+const struct node_class ngli_configpolygonmode_class = {
+    .id        = NGL_NODE_CONFIGPOLYGONMODE,
+    .name      = "ConfigPolygonMode",
+    .info_str  = configpolygonmode_info_str,
+    .priv_size = sizeof(struct configpolygonmode),
+    .params    = configpolygonmode_params,
 };

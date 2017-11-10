@@ -63,9 +63,6 @@ struct ngl_node {
 
     double last_update_time;
 
-    struct ngl_node **glstates;
-    int nb_glstates;
-
     int is_active;
     double visit_time;
 
@@ -79,35 +76,56 @@ struct ngl_node {
                                            NGL_NODE_SCALE,     \
                                            -1}
 
-struct glstate {
+struct graphicconfig {
+    struct ngl_node *child;
+
+    struct ngl_node *blend;
+    struct ngl_node *colormask;
+    struct ngl_node *depth;
+    struct ngl_node *polygonmode;
+    struct ngl_node *stencil;
+};
+
+struct configblend {
     GLenum capability;
     int enabled[2];
 
-    /* Blending */
     GLenum src_rgb[2];
     GLenum dst_rgb[2];
     GLenum src_alpha[2];
     GLenum dst_alpha[2];
-
     GLenum mode_rgb[2];
     GLenum mode_alpha[2];
+};
 
-    /* Color */
+struct configcolormask {
+    GLenum capability;
+    int enabled[2];
+
     GLint rgba[2][4];
+};
 
-    /* Stencil */
+struct configdepth {
+    GLenum capability;
+    int enabled[2];
+};
+
+struct configpolygonmode {
+    GLenum capability;
+    GLenum mode[2];
+};
+
+struct configstencil {
+    GLenum capability;
+    int enabled[2];
+
     GLuint writemask[2];
-
     GLenum func[2];
     GLint  func_ref[2];
     GLuint func_mask[2];
-
     GLenum op_sfail[2];
     GLenum op_dpfail[2];
     GLenum op_dppass[2];
-
-    /* Polygon mode */
-    GLenum mode[2];
 };
 
 struct camera {
@@ -462,9 +480,5 @@ int ngli_is_default_name(const char *class_name, const char *str);
 struct ngl_node *ngli_node_create_noconstructor(int type);
 const struct node_param *ngli_node_param_find(const struct ngl_node *node, const char *key,
                                               uint8_t **base_ptrp);
-
-
-void ngli_honor_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node **glstates);
-void ngli_restore_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node **glstates);
 
 #endif

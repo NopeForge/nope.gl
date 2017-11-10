@@ -9,8 +9,9 @@ from pynodegl import (
         BufferVec2,
         BufferVec3,
         Camera,
+        ConfigDepth,
         Geometry,
-        GLState,
+        GraphicConfig,
         Media,
         Program,
         Quad,
@@ -105,7 +106,7 @@ def obj(cfg, n=0.5, model=None):
     p = Program(fragment=get_shader('tex-tint-normals'))
     render = Render(q, p)
     render.update_textures(tex0=t)
-    render.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
+    render = GraphicConfig(render, depth=ConfigDepth(GL.GL_TRUE))
 
     animkf = [AnimKeyFrameFloat(0, 0),
               AnimKeyFrameFloat(cfg.duration, 360*2)]
@@ -153,7 +154,7 @@ def stl(cfg, stl=None, scale=.8):
     g = Geometry(vertices=vertices, normals=normals)
     p = Program(fragment=get_shader('colored-normals'))
     solid = Render(g, p, name=solid_name)
-    solid.add_glstates(GLState(GL.GL_DEPTH_TEST, GL.GL_TRUE))
+    solid = GraphicConfig(solid, depth=ConfigDepth(GL.GL_TRUE))
 
     solid = Scale(solid, [scale] * 3)
 
