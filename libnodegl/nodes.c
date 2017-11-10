@@ -340,16 +340,14 @@ int ngli_node_init(struct ngl_node *node)
     return 0;
 }
 
-void ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t)
+int ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t)
 {
     int ret = ngli_node_init(node);
     if (ret < 0)
-        return;
+        return ret;
 
-    if (node->class->visit) {
-        node->class->visit(node, from, t);
-        return;
-    }
+    if (node->class->visit)
+        return node->class->visit(node, from, t);
 
     node->is_active = from ? from->is_active : 1;
     node->visit_time = t;
@@ -362,8 +360,11 @@ void ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double 
             case PARAM_TYPE_NODE: {
                 uint8_t *child_p = base_ptr + par->offset;
                 struct ngl_node *child = *(struct ngl_node **)child_p;
-                if (child)
-                    ngli_node_visit(child, node, t);
+                if (child) {
+                    ret = ngli_node_visit(child, node, t);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
             case PARAM_TYPE_NODELIST: {
@@ -371,8 +372,11 @@ void ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double 
                 uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
                 struct ngl_node **elems = *(struct ngl_node ***)elems_p;
                 const int nb_elems = *(int *)nb_elems_p;
-                for (int i = 0; i < nb_elems; i++)
-                    ngli_node_visit(elems[i], node, t);
+                for (int i = 0; i < nb_elems; i++) {
+                    ret = ngli_node_visit(elems[i], node, t);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
@@ -380,30 +384,38 @@ void ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double 
                 if (!hmap)
                     break;
                 const struct hmap_entry *entry = NULL;
-                while ((entry = ngli_hmap_next(hmap, entry)))
-                    ngli_node_visit(entry->data, node, t);
+                while ((entry = ngli_hmap_next(hmap, entry))) {
+                    ret = ngli_node_visit(entry->data, node, t);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
         }
         par++;
     }
+
+    return 0;
 }
 
-static void honor_release_prefetch(struct ngl_node *node, double t)
+static int honor_release_prefetch(struct ngl_node *node, double t)
 {
     uint8_t *base_ptr = node->priv_data;
     const struct node_param *par = node->class->params;
 
     if (node->visit_time != t)
-        return;
+        return 0;
 
     while (par && par->key) {
         switch (par->type) {
             case PARAM_TYPE_NODE: {
                 uint8_t *child_p = base_ptr + par->offset;
                 struct ngl_node *child = *(struct ngl_node **)child_p;
-                if (child)
-                    honor_release_prefetch(child, t);
+                if (child) {
+                    int ret = honor_release_prefetch(child, t);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
             case PARAM_TYPE_NODELIST: {
@@ -411,8 +423,11 @@ static void honor_release_prefetch(struct ngl_node *node, double t)
                 uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
                 struct ngl_node **elems = *(struct ngl_node ***)elems_p;
                 const int nb_elems = *(int *)nb_elems_p;
-                for (int i = 0; i < nb_elems; i++)
-                    honor_release_prefetch(elems[i], t);
+                for (int i = 0; i < nb_elems; i++) {
+                    int ret = honor_release_prefetch(elems[i], t);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
@@ -420,8 +435,11 @@ static void honor_release_prefetch(struct ngl_node *node, double t)
                 if (!hmap)
                     break;
                 const struct hmap_entry *entry = NULL;
-                while ((entry = ngli_hmap_next(hmap, entry)))
-                    honor_release_prefetch(entry->data, t);
+                while ((entry = ngli_hmap_next(hmap, entry))) {
+                    int ret = honor_release_prefetch(entry->data, t);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
         }
@@ -429,38 +447,44 @@ static void honor_release_prefetch(struct ngl_node *node, double t)
     }
 
     if (node->is_active)
-        ngli_node_prefetch(node);
-    else
-        ngli_node_release(node);
+        return ngli_node_prefetch(node);
+
+    ngli_node_release(node);
+    return 0;
 }
 
-void ngli_node_check_resources(struct ngl_node *node, double t)
+int ngli_node_check_resources(struct ngl_node *node, double t)
 {
-    ngli_node_visit(node, NULL, t);
-    honor_release_prefetch(node, t);
+    int ret = ngli_node_visit(node, NULL, t);
+    if (ret < 0)
+        return ret;
+
+    return honor_release_prefetch(node, t);
 }
 
-void ngli_node_prefetch(struct ngl_node *node)
+int ngli_node_prefetch(struct ngl_node *node)
 {
     if (node->state == STATE_READY)
-        return;
+        return 0;
 
     int ret = ngli_node_init(node);
     if (ret < 0)
-        return;
+        return ret;
 
     if (node->class->prefetch) {
         LOG(DEBUG, "PREFETCH %s @ %p", node->name, node);
         node->class->prefetch(node);
     }
     node->state = STATE_READY;
+
+    return 0;
 }
 
-void ngli_node_update(struct ngl_node *node, double t)
+int ngli_node_update(struct ngl_node *node, double t)
 {
     int ret = ngli_node_init(node);
     if (ret < 0)
-        return;
+        return ret;
     if (node->class->update) {
         if (node->last_update_time != t) {
             // Sometimes the node might not be prefetched by the node_check_prefetch()
@@ -476,6 +500,8 @@ void ngli_node_update(struct ngl_node *node, double t)
         }
         node->last_update_time = t;
     }
+
+    return 0;
 }
 
 void ngli_honor_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node **glstates)

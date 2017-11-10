@@ -118,16 +118,23 @@ int ngl_draw(struct ngl_ctx *s, double t)
 
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    ngli_node_check_resources(scene, t);
-    ngli_node_update(scene, t);
+    int ret = ngli_node_check_resources(scene, t);
+    if (ret < 0)
+        goto end;
+
+    ret = ngli_node_update(scene, t);
+    if (ret < 0)
+        goto end;
+
     ngli_node_draw(scene);
 
+end:
     ngli_restore_glstates(s, s->nb_glstates, s->glstates);
 
     if (ngli_glcontext_check_gl_error(glcontext))
-        return -1;
+        ret = -1;
 
-    return 0;
+    return ret;
 }
 
 void ngl_free(struct ngl_ctx **ss)

@@ -124,7 +124,7 @@ static int update_rr_state(struct timerangefilter *s, double t)
 }
 
 // TODO: render once
-static void timerangefilter_visit(struct ngl_node *node, const struct ngl_node *from, double t)
+static int timerangefilter_visit(struct ngl_node *node, const struct ngl_node *from, double t)
 {
     struct timerangefilter *s = node->priv_data;
 
@@ -179,7 +179,7 @@ static void timerangefilter_visit(struct ngl_node *node, const struct ngl_node *
      * release from another branch.
      */
     if (!is_active && node->state == STATE_IDLE)
-        return;
+        return 0;
 
     if (node->visit_time != t) {
         // If we never passed through this node for that given time, the new
