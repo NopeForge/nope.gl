@@ -577,10 +577,12 @@ void ngli_restore_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node
         if (stnode->class->id == NGL_NODE_GLBLENDSTATE) {
             if (st->enabled[1]) {
                 ngli_glEnable(gl, st->capability);
-                ngli_glBlendFuncSeparate(gl, st->src_rgb[1], st->dst_rgb[1], st->src_alpha[1], st->dst_alpha[1]);
-                ngli_glBlendEquationSeparate(gl, st->mode_rgb[1], st->mode_alpha[1]);
             } else {
                 ngli_glDisable(gl, st->capability);
+            }
+            if (st->enabled[0]) {
+                ngli_glBlendFuncSeparate(gl, st->src_rgb[1], st->dst_rgb[1], st->src_alpha[1], st->dst_alpha[1]);
+                ngli_glBlendEquationSeparate(gl, st->mode_rgb[1], st->mode_alpha[1]);
             }
         } else if (stnode->class->id == NGL_NODE_GLCOLORSTATE) {
             ngli_glColorMask(gl, st->rgba[1][0], st->rgba[1][1], st->rgba[1][2], st->rgba[1][3]);
@@ -589,11 +591,13 @@ void ngli_restore_glstates(struct ngl_ctx *ctx, int nb_glstates, struct ngl_node
         } else if (stnode->class->id == NGL_NODE_GLSTENCILSTATE) {
             if (st->enabled[1]) {
                 ngli_glEnable(gl, st->capability);
+            } else {
+                ngli_glDisable(gl, st->capability);
+            }
+            if (st->enabled[0]) {
                 ngli_glStencilMask(gl, st->writemask[1]);
                 ngli_glStencilFunc(gl, st->func[1], st->func_ref[1], st->func_mask[1]);
                 ngli_glStencilOp(gl, st->op_sfail[1], st->op_dpfail[1], st->op_dppass[1]);
-            } else {
-                ngli_glDisable(gl, st->capability);
             }
         } else {
             if (st->enabled[0] != st->enabled[1]) {
