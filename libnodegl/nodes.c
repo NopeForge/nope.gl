@@ -398,7 +398,7 @@ int ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t
     return 0;
 }
 
-static int honor_release_prefetch(struct ngl_node *node, double t)
+int ngli_node_honor_release_prefetch(struct ngl_node *node, double t)
 {
     uint8_t *base_ptr = node->priv_data;
     const struct node_param *par = node->class->params;
@@ -412,7 +412,7 @@ static int honor_release_prefetch(struct ngl_node *node, double t)
                 uint8_t *child_p = base_ptr + par->offset;
                 struct ngl_node *child = *(struct ngl_node **)child_p;
                 if (child) {
-                    int ret = honor_release_prefetch(child, t);
+                    int ret = ngli_node_honor_release_prefetch(child, t);
                     if (ret < 0)
                         return ret;
                 }
@@ -424,7 +424,7 @@ static int honor_release_prefetch(struct ngl_node *node, double t)
                 struct ngl_node **elems = *(struct ngl_node ***)elems_p;
                 const int nb_elems = *(int *)nb_elems_p;
                 for (int i = 0; i < nb_elems; i++) {
-                    int ret = honor_release_prefetch(elems[i], t);
+                    int ret = ngli_node_honor_release_prefetch(elems[i], t);
                     if (ret < 0)
                         return ret;
                 }
@@ -436,7 +436,7 @@ static int honor_release_prefetch(struct ngl_node *node, double t)
                     break;
                 const struct hmap_entry *entry = NULL;
                 while ((entry = ngli_hmap_next(hmap, entry))) {
-                    int ret = honor_release_prefetch(entry->data, t);
+                    int ret = ngli_node_honor_release_prefetch(entry->data, t);
                     if (ret < 0)
                         return ret;
                 }
@@ -451,15 +451,6 @@ static int honor_release_prefetch(struct ngl_node *node, double t)
 
     ngli_node_release(node);
     return 0;
-}
-
-int ngli_node_check_resources(struct ngl_node *node, double t)
-{
-    int ret = ngli_node_visit(node, NULL, t);
-    if (ret < 0)
-        return ret;
-
-    return honor_release_prefetch(node, t);
 }
 
 int ngli_node_prefetch(struct ngl_node *node)
