@@ -57,6 +57,11 @@ static int camera_init(struct ngl_node *node)
     ngli_vec3_norm(s->ground, s->ground);
     ngli_vec3_cross(s->ground, s->ground, s->up);
 
+    if (!s->ground[0] && !s->ground[1] && !s->ground[2]) {
+        LOG(ERROR, "view and up are collinear");
+        return -1;
+    }
+
     if (s->pipe_fd) {
         s->pipe_buf = calloc(4 /* RGBA */, s->pipe_width * s->pipe_height);
         if (!s->pipe_buf)
