@@ -120,7 +120,7 @@ int ngl_draw(struct ngl_ctx *s, double t)
 
     int ret = ngli_node_visit(scene, NULL, t);
     if (ret < 0)
-        return ret;
+        goto end;
 
     ret = ngli_node_honor_release_prefetch(scene, t);
     if (ret < 0)
