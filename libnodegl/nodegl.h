@@ -164,7 +164,6 @@ struct ngl_ctx;
 
 struct ngl_ctx *ngl_create(void);
 int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *handle, int platform, int api);
-int ngl_set_glstates(struct ngl_ctx *s, int nb_glstates, struct ngl_node **glstates);
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene);
 int ngl_draw(struct ngl_ctx *s, double t);
 void ngl_free(struct ngl_ctx **ss);

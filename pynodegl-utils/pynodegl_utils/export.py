@@ -54,7 +54,7 @@ class Exporter(QtCore.QObject):
 
     progressed = QtCore.pyqtSignal(int)
 
-    def export(self, scene, filename, w, h, duration, fps, glstates=None, extra_enc_args=None):
+    def export(self, scene, filename, w, h, duration, fps, extra_enc_args=None):
 
         fd_r, fd_w = os.pipe()
 
@@ -90,7 +90,6 @@ class Exporter(QtCore.QObject):
         # node.gl context
         ngl_viewer = ngl.Viewer()
         ngl_viewer.set_scene(camera)
-        ngl_viewer.set_glstates(*glstates if glstates else [])
         ngl_viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
         GL.glViewport(0, 0, w, h)
 

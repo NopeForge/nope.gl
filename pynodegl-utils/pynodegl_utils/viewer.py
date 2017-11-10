@@ -109,7 +109,6 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
 
     def set_scene(self, scene, cfg):
         self.makeCurrent()
-        self._viewer.set_glstates(*cfg.glstates)
         self._viewer.set_scene(scene)
         self.doneCurrent()
         self.update()
@@ -203,7 +202,6 @@ class _ExportView(QtWidgets.QWidget):
             exporter.progressed.connect(self._pgbar.setValue)
             exporter.export(scene, ofile, width, height,
                             cfg.duration, fps,
-                            cfg.glstates,
                             extra_enc_args)
 
             self._pgbar.hide()

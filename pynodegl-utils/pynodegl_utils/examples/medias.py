@@ -55,9 +55,6 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
 @scene()
 def centered_masked_media(cfg):
     cfg.duration = 2
-    cfg.glstates = [
-        GLState(GL.GL_STENCIL_TEST, GL.GL_TRUE),
-    ]
 
     g = Group()
 

@@ -50,9 +50,6 @@ enum {
 struct ngl_ctx {
     struct glcontext *glcontext;
     struct ngl_node *scene;
-
-    struct ngl_node **glstates;
-    int nb_glstates;
 };
 
 struct ngl_node {
