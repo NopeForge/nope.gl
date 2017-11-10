@@ -58,7 +58,11 @@ static int rtt_init(struct ngl_node *node)
         ret = ngli_node_init(s->depth_texture);
         if (ret < 0)
             return ret;
-        ngli_assert(s->width == depth_texture->width && s->height == depth_texture->height);
+        if (s->width != depth_texture->width || s->height != depth_texture->height) {
+            LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
+                s->width, s->height, depth_texture->width, depth_texture->height);
+            return -1;
+        }
     }
 
     GLuint framebuffer_id = 0;
