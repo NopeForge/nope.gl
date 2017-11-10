@@ -464,7 +464,9 @@ int ngli_node_prefetch(struct ngl_node *node)
 
     if (node->class->prefetch) {
         LOG(DEBUG, "PREFETCH %s @ %p", node->name, node);
-        node->class->prefetch(node);
+        ret = node->class->prefetch(node);
+        if (ret < 0)
+            return ret;
     }
     node->state = STATE_READY;
 
@@ -482,10 +484,14 @@ int ngli_node_update(struct ngl_node *node, double t)
             // crawling: this could happen when the node was for instance instantiated
             // internally and not through the options. So just to be safe, we
             // "prefetch" it now (a bit late for sure).
-            ngli_node_prefetch(node);
+            ret = ngli_node_prefetch(node);
+            if (ret < 0)
+                return ret;
 
             LOG(VERBOSE, "UPDATE %s @ %p with t=%g", node->name, node, t);
-            node->class->update(node, t);
+            ret = node->class->update(node, t);
+            if (ret < 0)
+                return ret;
         } else {
             LOG(VERBOSE, "%s already updated for t=%g, skip it", node->name, t);
         }

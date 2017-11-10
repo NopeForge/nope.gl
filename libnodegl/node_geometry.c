@@ -156,15 +156,27 @@ static int geometry_init(struct ngl_node *node)
     return 0;
 }
 
-static void geometry_update(struct ngl_node *node, double t)
+static int geometry_update(struct ngl_node *node, double t)
 {
     struct geometry *s = node->priv_data;
 
-    ngli_node_update(s->vertices_buffer, t);
-    if (s->uvcoords_buffer)
-        ngli_node_update(s->uvcoords_buffer, t);
-    if (s->normals_buffer)
-        ngli_node_update(s->normals_buffer, t);
+    int ret = ngli_node_update(s->vertices_buffer, t);
+    if (ret < 0)
+        return ret;
+
+    if (s->uvcoords_buffer) {
+        ret = ngli_node_update(s->uvcoords_buffer, t);
+        if (ret < 0)
+            return ret;
+    }
+
+    if (s->normals_buffer) {
+        ret = ngli_node_update(s->normals_buffer, t);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
 }
 
 const struct node_class ngli_geometry_class = {

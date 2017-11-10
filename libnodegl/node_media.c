@@ -146,10 +146,11 @@ static int media_init(struct ngl_node *node)
     return 0;
 }
 
-static void media_prefetch(struct ngl_node *node)
+static int media_prefetch(struct ngl_node *node)
 {
     struct media *s = node->priv_data;
     sxplayer_start(s->player);
+    return 0;
 }
 
 static const char * const pix_fmt_names[] = {
@@ -159,20 +160,22 @@ static const char * const pix_fmt_names[] = {
     [SXPLAYER_PIXFMT_MEDIACODEC] = "mediacodec",
 };
 
-static void media_update(struct ngl_node *node, double t)
+static int media_update(struct ngl_node *node, double t)
 {
     struct media *s = node->priv_data;
 
     if (s->anim) {
         struct ngl_node *anim_node = s->anim;
         struct animation *anim = anim_node->priv_data;
-        ngli_node_update(anim_node, t);
+        int ret = ngli_node_update(anim_node, t);
+        if (ret < 0)
+            return ret;
         t = anim->values[0]; // FIXME we currently loose double precision
     }
 
     t = t - s->start;
     if (t < 0)
-        return;
+        return 0;
 
     sxplayer_release_frame(s->frame);
     LOG(VERBOSE, "get frame from %s at t=%f", node->name, t);
@@ -185,17 +188,18 @@ static void media_update(struct ngl_node *node, double t)
             if (frame->pix_fmt != SXPLAYER_SMPFMT_FLT) {
                 LOG(ERROR, "Unexpected %s (%d) sxplayer frame",
                     pix_fmt_str ? pix_fmt_str : "unknown", frame->pix_fmt);
-                return;
+                return -1;
             }
             pix_fmt_str = "audio";
         } else if (!pix_fmt_str) {
             LOG(ERROR, "Invalid pixel format %d in sxplayer frame", frame->pix_fmt);
-            return;
+            return -1;
         }
         LOG(VERBOSE, "got frame %dx%d %s with ts=%f", frame->width, frame->height,
             pix_fmt_str, frame->ts);
     }
     s->frame = frame;
+    return 0;
 }
 
 static void media_release(struct ngl_node *node)

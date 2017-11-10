@@ -36,7 +36,7 @@ static const struct node_param group_params[] = {
     {NULL}
 };
 
-static void group_update(struct ngl_node *node, double t)
+static int group_update(struct ngl_node *node, double t)
 {
     struct group *s = node->priv_data;
 
@@ -44,8 +44,12 @@ static void group_update(struct ngl_node *node, double t)
         struct ngl_node *child = s->children[i];
         memcpy(child->modelview_matrix, node->modelview_matrix, sizeof(node->modelview_matrix));
         memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
-        ngli_node_update(child, t);
+        int ret = ngli_node_update(child, t);
+        if (ret < 0)
+            return ret;
     }
+
+    return 0;
 }
 
 static void group_draw(struct ngl_node *node)

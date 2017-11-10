@@ -65,13 +65,13 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
 
 #define MIX(x, y, a) ((x)*(1.-(a)) + (y)*(a))
 
-static inline void animation_update(const struct animation *s, double t, int len,
-                                    float *dst, int *cache)
+static inline int animation_update(const struct animation *s, double t, int len,
+                                   float *dst, int *cache)
 {
     struct ngl_node **animkf = s->animkf;
     const int nb_animkf = s->nb_animkf;
     if (!nb_animkf)
-        return;
+        return 0;
     int kf_id = get_kf_id(animkf, nb_animkf, *cache, t);
     if (kf_id < 0)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
@@ -97,25 +97,26 @@ static inline void animation_update(const struct animation *s, double t, int len
         else
             memcpy(dst, kf->value, len * sizeof(*dst));
     }
+    return 0;
 }
 
-void ngl_anim_evaluate(struct ngl_node *node, float *dst, double t)
+int ngl_anim_evaluate(struct ngl_node *node, float *dst, double t)
 {
     struct animation *s = node->priv_data;
     if (!s->nb_animkf)
-        return;
+        return -1;
 
     struct animkeyframe *kf0 = s->animkf[0]->priv_data;
     if (!kf0->function) {
         for (int i = 0; i < s->nb_animkf; i++) {
             int ret = s->animkf[i]->class->init(s->animkf[i]);
             if (ret < 0)
-                return;
+                return ret;
         }
     }
 
     const int len = node->class->id - NGL_NODE_ANIMATEDFLOAT + 1;
-    animation_update(s, t, len, dst, &s->eval_current_kf);
+    return animation_update(s, t, len, dst, &s->eval_current_kf);
 }
 
 static int animation_init(struct ngl_node *node)
@@ -138,10 +139,10 @@ static int animation_init(struct ngl_node *node)
 }
 
 #define UPDATE_FUNC(type, len)                                          \
-static void animated##type##_update(struct ngl_node *node, double t)   \
+static int animated##type##_update(struct ngl_node *node, double t)     \
 {                                                                       \
     struct animation *s = node->priv_data;                              \
-    animation_update(s, t, len, s->values, &s->current_kf);             \
+    return animation_update(s, t, len, s->values, &s->current_kf);      \
 }
 
 UPDATE_FUNC(float,  1);

@@ -281,32 +281,38 @@ static void compute_uninit(struct ngl_node *node)
     free(s->buffer_ids);
 }
 
-static void compute_update(struct ngl_node *node, double t)
+static int compute_update(struct ngl_node *node, double t)
 {
     struct compute *s = node->priv_data;
 
     if (s->textures) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->textures, entry))) {
-            ngli_node_update(entry->data, t);
+            int ret = ngli_node_update(entry->data, t);
+            if (ret < 0)
+                return ret;
         }
     }
 
     if (s->uniforms) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-            ngli_node_update(entry->data, t);
+            int ret = ngli_node_update(entry->data, t);
+            if (ret < 0)
+                return ret;
         }
     }
 
     if (s->buffers) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->buffers, entry))) {
-           ngli_node_update(entry->data, t);
+            int ret = ngli_node_update(entry->data, t);
+            if (ret < 0)
+                return ret;
         }
     }
 
-    ngli_node_update(s->program, t);
+    return ngli_node_update(s->program, t);
 }
 
 static void compute_draw(struct ngl_node *node)

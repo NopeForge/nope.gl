@@ -77,23 +77,26 @@ static const struct node_param uniformmat4_params[] = {
     {NULL}
 };
 
-static inline void uniform_update(struct uniform *s, double t, int len)
+static inline int uniform_update(struct uniform *s, double t, int len)
 {
     if (s->anim) {
         struct ngl_node *anim_node = s->anim;
         struct animation *anim = anim_node->priv_data;
-        ngli_node_update(anim_node, t);
+        int ret = ngli_node_update(anim_node, t);
+        if (ret < 0)
+            return ret;
         if (len == 1)
             s->scalar = anim->values[0];
         else
             memcpy(s->vector, anim->values, len * sizeof(*s->vector));
     }
+    return 0;
 }
 
 #define UPDATE_FUNC(type, len)                                          \
-static void uniform##type##_update(struct ngl_node *node, double t)     \
+static int uniform##type##_update(struct ngl_node *node, double t)      \
 {                                                                       \
-    uniform_update(node->priv_data, t, len);                            \
+    return uniform_update(node->priv_data, t, len);                     \
 }
 
 UPDATE_FUNC(float,  1);
@@ -101,14 +104,17 @@ UPDATE_FUNC(vec2,   2);
 UPDATE_FUNC(vec3,   3);
 UPDATE_FUNC(vec4,   4);
 
-static void uniform_mat_update(struct ngl_node *node, double t)
+static int uniform_mat_update(struct ngl_node *node, double t)
 {
     struct uniform *s = node->priv_data;
     if (s->transform) {
-        ngli_node_update(s->transform, t);
+        int ret = ngli_node_update(s->transform, t);
+        if (ret < 0)
+            return ret;
         const float *matrix = ngli_get_last_transformation_matrix(s->transform);
         memcpy(s->matrix, matrix, sizeof(s->matrix));
     }
+    return 0;
 }
 
 const struct node_class ngli_uniformfloat_class = {

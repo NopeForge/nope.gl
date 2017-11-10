@@ -43,11 +43,13 @@ static const float *get_factors(struct scale *s, double t)
         return s->factors;
     struct ngl_node *anim_node = s->anim;
     struct animation *anim = anim_node->priv_data;
-    ngli_node_update(anim_node, t);
+    int ret = ngli_node_update(anim_node, t);
+    if (ret < 0)
+        return s->factors;
     return anim->values;
 }
 
-static void scale_update(struct ngl_node *node, double t)
+static int scale_update(struct ngl_node *node, double t)
 {
     struct scale *s = node->priv_data;
     struct ngl_node *child = s->child;
@@ -82,7 +84,7 @@ static void scale_update(struct ngl_node *node, double t)
     }
 
     memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
-    ngli_node_update(child, t);
+    return ngli_node_update(child, t);
 }
 
 static void scale_draw(struct ngl_node *node)

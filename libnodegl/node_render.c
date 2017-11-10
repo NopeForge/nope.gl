@@ -400,27 +400,33 @@ static void render_uninit(struct ngl_node *node)
     free(s->attribute_ids);
 }
 
-static void render_update(struct ngl_node *node, double t)
+static int render_update(struct ngl_node *node, double t)
 {
     struct render *s = node->priv_data;
 
-    ngli_node_update(s->geometry, t);
+    int ret = ngli_node_update(s->geometry, t);
+    if (ret < 0)
+        return ret;
 
     if (s->textures) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->textures, entry))) {
-            ngli_node_update(entry->data, t);
+            ret = ngli_node_update(entry->data, t);
+            if (ret < 0)
+                return ret;
         }
     }
 
     if (s->uniforms) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-            ngli_node_update(entry->data, t);
+            ret = ngli_node_update(entry->data, t);
+            if (ret < 0)
+                return ret;
         }
     }
 
-    ngli_node_update(s->program, t);
+    return ngli_node_update(s->program, t);
 }
 
 static void render_draw(struct ngl_node *node)

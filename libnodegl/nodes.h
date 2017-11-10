@@ -438,8 +438,8 @@ struct node_class {
     const char *name;
     int (*init)(struct ngl_node *node);
     int (*visit)(struct ngl_node *node, const struct ngl_node *from, double t);
-    void (*prefetch)(struct ngl_node *node);
-    void (*update)(struct ngl_node *node, double t);
+    int (*prefetch)(struct ngl_node *node);
+    int (*update)(struct ngl_node *node, double t);
     void (*draw)(struct ngl_node *node);
     void (*release)(struct ngl_node *node);
     void (*uninit)(struct ngl_node *node);

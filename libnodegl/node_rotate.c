@@ -44,7 +44,9 @@ static const float get_angle(struct rotate *s, double t)
         return s->angle;
     struct ngl_node *anim_node = s->anim;
     struct animation *anim = anim_node->priv_data;
-    ngli_node_update(anim_node, t);
+    int ret = ngli_node_update(anim_node, t);
+    if (ret < 0)
+        return s->angle;
     return anim->values[0];
 }
 
@@ -61,7 +63,7 @@ static int rotate_init(struct ngl_node *node)
     return 0;
 }
 
-static void rotate_update(struct ngl_node *node, double t)
+static int rotate_update(struct ngl_node *node, double t)
 {
     struct rotate *s = node->priv_data;
     struct ngl_node *child = s->child;
@@ -116,7 +118,7 @@ static void rotate_update(struct ngl_node *node, double t)
     }
 
     memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
-    ngli_node_update(child, t);
+    return ngli_node_update(child, t);
 }
 
 static void rotate_draw(struct ngl_node *node)

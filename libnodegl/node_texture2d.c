@@ -218,14 +218,17 @@ static int texture2d_init(struct ngl_node *node)
     return 0;
 }
 
-static void texture2d_prefetch(struct ngl_node *node)
+static int texture2d_prefetch(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
 
-    texture2d_init(node);
+    int ret = texture2d_init(node);
+    if (ret < 0)
+        return ret;
 
     if (s->data_src)
-        ngli_node_prefetch(s->data_src);
+        return ngli_node_prefetch(s->data_src);
+    return 0;
 }
 
 static void handle_fps_frame(struct ngl_node *node)
@@ -277,14 +280,16 @@ static void handle_buffer_frame(struct ngl_node *node)
     ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 }
 
-static void texture2d_update(struct ngl_node *node, double t)
+static int texture2d_update(struct ngl_node *node, double t)
 {
     struct texture *s = node->priv_data;
 
     if (!s->data_src)
-        return;
+        return 0;
 
-    ngli_node_update(s->data_src, t);
+    int ret = ngli_node_update(s->data_src, t);
+    if (ret < 0)
+        return ret;
 
     switch (s->data_src->class->id) {
         case NGL_NODE_FPS:
@@ -297,10 +302,14 @@ static void texture2d_update(struct ngl_node *node, double t)
         case NGL_NODE_ANIMATEDBUFFERVEC2:
         case NGL_NODE_ANIMATEDBUFFERVEC3:
         case NGL_NODE_ANIMATEDBUFFERVEC4:
-            ngli_node_update(s->data_src, t);
+            ret = ngli_node_update(s->data_src, t);
+            if (ret < 0)
+                return ret;
             handle_buffer_frame(node);
             break;
     }
+
+    return 0;
 }
 
 static void texture2d_uninit(struct ngl_node *node)

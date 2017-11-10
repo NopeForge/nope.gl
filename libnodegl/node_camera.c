@@ -96,7 +96,7 @@ static int camera_init(struct ngl_node *node)
     return 0;
 }
 
-static void camera_update(struct ngl_node *node, double t)
+static int camera_update(struct ngl_node *node, double t)
 {
     struct camera *s = node->priv_data;
     struct ngl_node *child = s->child;
@@ -113,7 +113,9 @@ static void camera_update(struct ngl_node *node, double t)
 #define APPLY_TRANSFORM(what) do {                                          \
     memcpy(what, s->what, sizeof(s->what));                                 \
     if (s->what##_transform) {                                              \
-        ngli_node_update(s->what##_transform, t);                           \
+        int ret = ngli_node_update(s->what##_transform, t);                 \
+        if (ret < 0)                                                        \
+            return ret;                                                     \
         matrix = ngli_get_last_transformation_matrix(s->what##_transform);  \
         if (matrix)                                                         \
             ngli_mat4_mul_vec4(what, matrix, what);                         \
@@ -140,7 +142,9 @@ static void camera_update(struct ngl_node *node, double t)
     if (s->fov_anim) {
         struct ngl_node *anim_node = s->fov_anim;
         struct animation *anim = anim_node->priv_data;
-        ngli_node_update(anim_node, t);
+        int ret = ngli_node_update(anim_node, t);
+        if (ret < 0)
+            return ret;
         s->perspective[0] = anim->values[0];
     }
 
@@ -158,7 +162,7 @@ static void camera_update(struct ngl_node *node, double t)
     memcpy(child->modelview_matrix, view, sizeof(view));
     memcpy(child->projection_matrix, perspective, sizeof(perspective));
 
-    ngli_node_update(child, t);
+    return ngli_node_update(child, t);
 }
 
 static void camera_draw(struct ngl_node *node)

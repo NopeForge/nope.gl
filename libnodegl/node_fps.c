@@ -247,8 +247,9 @@ static void register_time(struct fps_measuring *m, int64_t t)
     m->count = NGLI_MIN(m->count + 1, m->nb);
 }
 
-static void fps_update(struct ngl_node *node, double t)
+static int fps_update(struct ngl_node *node, double t)
 {
+    int ret;
     struct fps *s = node->priv_data;
     struct ngl_node *child = s->child;
 
@@ -257,13 +258,14 @@ static void fps_update(struct ngl_node *node, double t)
 
     if (s->m_update.nb) {
         int64_t update_start = ngli_gettime();
-        ngli_node_update(child, t);
+        ret = ngli_node_update(child, t);
         int64_t update_end = ngli_gettime();
         register_time(&s->m_update, update_end - update_start);
         print_report(node, 0);
     } else {
-        ngli_node_update(child, t);
+        ret = ngli_node_update(child, t);
     }
+    return ret;
 }
 
 static void fps_draw(struct ngl_node *node)

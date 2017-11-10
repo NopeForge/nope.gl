@@ -109,11 +109,13 @@ static int rtt_init(struct ngl_node *node)
     return 0;
 }
 
-static void rtt_update(struct ngl_node *node, double t)
+static int rtt_update(struct ngl_node *node, double t)
 {
     struct rtt *s = node->priv_data;
-    ngli_node_update(s->child, t);
-    ngli_node_update(s->color_texture, t);
+    int ret = ngli_node_update(s->child, t);
+    if (ret < 0)
+        return ret;
+    return ngli_node_update(s->color_texture, t);
 }
 
 static void rtt_draw(struct ngl_node *node)

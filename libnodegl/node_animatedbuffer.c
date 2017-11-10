@@ -48,7 +48,7 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
 
 #define MIX(x, y, a) ((x)*(1.-(a)) + (y)*(a))
 
-static void animatedbuffer_update(struct ngl_node *node, double t)
+static int animatedbuffer_update(struct ngl_node *node, double t)
 {
     struct buffer *s = node->priv_data;
     struct ngl_node **animkf = s->animkf;
@@ -56,7 +56,7 @@ static void animatedbuffer_update(struct ngl_node *node, double t)
     float *dst = (float *)s->data;
 
     if (!nb_animkf)
-        return;
+        return 0;
     int kf_id = get_kf_id(animkf, nb_animkf, s->current_kf, t);
     if (kf_id < 0)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
@@ -89,6 +89,7 @@ static void animatedbuffer_update(struct ngl_node *node, double t)
     ngli_glBindBuffer(gl, s->target, s->buffer_id);
     ngli_glBufferSubData(gl, s->target, 0, s->data_size, s->data);
     ngli_glBindBuffer(gl, s->target, 0);
+    return 0;
 }
 
 static int animatedbuffer_init(struct ngl_node *node)

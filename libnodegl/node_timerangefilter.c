@@ -196,7 +196,7 @@ static int timerangefilter_visit(struct ngl_node *node, const struct ngl_node *f
     return ngli_node_visit(s->child, node, t);
 }
 
-static void timerangefilter_update(struct ngl_node *node, double t)
+static int timerangefilter_update(struct ngl_node *node, double t)
 {
     struct timerangefilter *s = node->priv_data;
 
@@ -207,19 +207,19 @@ static void timerangefilter_update(struct ngl_node *node, double t)
         struct ngl_node *rr = s->ranges[rr_id];
 
         if (rr->class->id == NGL_NODE_TIMERANGEMODENOOP)
-            return;
+            return 0;
 
         if (rr->class->id == NGL_NODE_TIMERANGEMODEONCE) {
             struct timerangemode *rro = rr->priv_data;
             if (rro->updated)
-                return;
+                return 0;
             t = rro->render_time;
             rro->updated = 1;
         }
     }
 
     s->drawme = 1;
-    ngli_node_update(s->child, t);
+    return ngli_node_update(s->child, t);
 }
 
 static void timerangefilter_draw(struct ngl_node *node)
