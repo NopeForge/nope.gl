@@ -99,7 +99,13 @@ static void honor_config(struct ngl_node *node)
         struct configdepth *c = s->depth->priv_data;
         ngli_glGetIntegerv(gl, c->capability, (GLint *)&c->enabled[1]);
         if (c->enabled[0]) {
+            GLboolean writemask;
+            ngli_glGetBooleanv(gl, GL_DEPTH_WRITEMASK , &writemask);
+            c->writemask[1] = writemask;
+            ngli_glGetIntegerv(gl, GL_DEPTH_FUNC, (GLint *)&c->func[1]);
             ngli_glEnable(gl, c->capability);
+            ngli_glDepthMask(gl, c->writemask[0]);
+            ngli_glDepthFunc(gl, c->func[0]);
         } else {
             ngli_glDisable(gl, c->capability);
         }
@@ -164,6 +170,11 @@ static void restore_config(struct ngl_node *node)
             ngli_glEnable(gl, c->capability);
         } else {
             ngli_glDisable(gl, c->capability);
+        }
+
+        if (c->enabled[0]) {
+            ngli_glDepthMask(gl, c->writemask[1]);
+            ngli_glDepthFunc(gl, c->func[1]);
         }
     }
 

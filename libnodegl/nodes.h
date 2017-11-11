@@ -108,6 +108,9 @@ struct configcolormask {
 struct configdepth {
     GLenum capability;
     int enabled[2];
+
+    GLint writemask[2];
+    GLenum func[2];
 };
 
 struct configpolygonmode {

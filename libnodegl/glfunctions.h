@@ -44,6 +44,8 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*DeleteShader)(GLuint shader);
     NGLI_GL_APIENTRY void (*DeleteTextures)(GLsizei n, const GLuint * textures);
     NGLI_GL_APIENTRY void (*DeleteVertexArrays)(GLsizei n, const GLuint * arrays);
+    NGLI_GL_APIENTRY void (*DepthFunc)(GLenum func);
+    NGLI_GL_APIENTRY void (*DepthMask)(GLboolean flag);
     NGLI_GL_APIENTRY void (*DetachShader)(GLuint program, GLuint shader);
     NGLI_GL_APIENTRY void (*Disable)(GLenum cap);
     NGLI_GL_APIENTRY void (*DispatchCompute)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);

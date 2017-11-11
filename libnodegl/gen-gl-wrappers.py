@@ -72,6 +72,10 @@ cmds = [
     # Color
     'glColorMask',
 
+    # Depth
+    'glDepthFunc',
+    'glDepthMask',
+
     # Clear
     'glClear',
     'glClearColor',

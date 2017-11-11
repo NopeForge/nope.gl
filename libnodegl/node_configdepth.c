@@ -28,15 +28,19 @@
 
 #define OFFSET(x) offsetof(struct configdepth, x)
 static const struct node_param configdepth_params[] = {
-    {"enabled", PARAM_TYPE_INT, OFFSET(enabled[0]), {.i64=GL_FALSE}, .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"enabled",   PARAM_TYPE_INT, OFFSET(enabled[0]),   {.i64=GL_FALSE}, .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"writemask", PARAM_TYPE_INT, OFFSET(writemask[0]), {.i64=GL_TRUE}},
+    {"func",      PARAM_TYPE_INT, OFFSET(func[0]),      {.i64=GL_LESS}},
     {NULL}
 };
 
 static char *configdepth_info_str(const struct ngl_node *node)
 {
     const struct configdepth *s = node->priv_data;
-    return ngli_asprintf("DEPTH_TEST enabled=%s",
-                         s->enabled[0] ? "yes" : "no");
+    return ngli_asprintf("DEPTH_TEST enabled=%s writemask=0x%x func=0x%x",
+                         s->enabled[0] ? "yes" : "no",
+                         s->writemask[0],
+                         s->func[0]);
 }
 
 static int configdepth_init(struct ngl_node *node)

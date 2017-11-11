@@ -224,6 +224,9 @@
 - ConfigDepth:
     constructors:
         - [enabled, int]
+    optional:
+        - [writemask, int]
+        - [func, int]
 
 - ConfigStencil:
     constructors:

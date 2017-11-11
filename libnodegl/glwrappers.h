@@ -227,6 +227,18 @@ static inline void ngli_glDeleteVertexArrays(const struct glfunctions *gl, GLsiz
     check_error_code(gl, "glDeleteVertexArrays");
 }
 
+static inline void ngli_glDepthFunc(const struct glfunctions *gl, GLenum func)
+{
+    gl->DepthFunc(func);
+    check_error_code(gl, "glDepthFunc");
+}
+
+static inline void ngli_glDepthMask(const struct glfunctions *gl, GLboolean flag)
+{
+    gl->DepthMask(flag);
+    check_error_code(gl, "glDepthMask");
+}
+
 static inline void ngli_glDetachShader(const struct glfunctions *gl, GLuint program, GLuint shader)
 {
     gl->DetachShader(program, shader);
