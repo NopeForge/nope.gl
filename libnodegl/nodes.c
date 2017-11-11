@@ -168,7 +168,7 @@ struct ngl_node *ngl_node_create(int type, ...)
     return node;
 }
 
-void ngli_node_release(struct ngl_node *node)
+static void node_release(struct ngl_node *node)
 {
     if (node->state == STATE_IDLE)
         return;
@@ -226,7 +226,7 @@ static void node_uninit(struct ngl_node *node)
         return;
 
     ngli_assert(node->ctx);
-    ngli_node_release(node);
+    node_release(node);
 
     if (node->class->uninit) {
         LOG(VERBOSE, "UNINIT %s @ %p", node->name, node);
@@ -398,6 +398,8 @@ int ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t
     return 0;
 }
 
+static int node_prefetch(struct ngl_node *node);
+
 int ngli_node_honor_release_prefetch(struct ngl_node *node, double t)
 {
     uint8_t *base_ptr = node->priv_data;
@@ -447,13 +449,13 @@ int ngli_node_honor_release_prefetch(struct ngl_node *node, double t)
     }
 
     if (node->is_active)
-        return ngli_node_prefetch(node);
+        return node_prefetch(node);
 
-    ngli_node_release(node);
+    node_release(node);
     return 0;
 }
 
-int ngli_node_prefetch(struct ngl_node *node)
+static int node_prefetch(struct ngl_node *node)
 {
     if (node->state == STATE_READY)
         return 0;
@@ -484,7 +486,7 @@ int ngli_node_update(struct ngl_node *node, double t)
             // crawling: this could happen when the node was for instance instantiated
             // internally and not through the options. So just to be safe, we
             // "prefetch" it now (a bit late for sure).
-            ret = ngli_node_prefetch(node);
+            ret = node_prefetch(node);
             if (ret < 0)
                 return ret;
 
