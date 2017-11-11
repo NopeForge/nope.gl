@@ -31,41 +31,45 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-#define DATA_SRC_TYPES_LIST (const int[]){NGL_NODE_MEDIA,                   \
-                                          NGL_NODE_FPS,                     \
-                                          NGL_NODE_ANIMATEDBUFFERFLOAT,     \
-                                          NGL_NODE_ANIMATEDBUFFERVEC2,      \
-                                          NGL_NODE_ANIMATEDBUFFERVEC3,      \
-                                          NGL_NODE_ANIMATEDBUFFERVEC4,      \
-                                          NGL_NODE_BUFFERBYTE,              \
-                                          NGL_NODE_BUFFERBVEC2,             \
-                                          NGL_NODE_BUFFERBVEC3,             \
-                                          NGL_NODE_BUFFERBVEC4,             \
-                                          NGL_NODE_BUFFERINT,               \
-                                          NGL_NODE_BUFFERIVEC2,             \
-                                          NGL_NODE_BUFFERIVEC3,             \
-                                          NGL_NODE_BUFFERIVEC4,             \
-                                          NGL_NODE_BUFFERSHORT,             \
-                                          NGL_NODE_BUFFERSVEC2,             \
-                                          NGL_NODE_BUFFERSVEC3,             \
-                                          NGL_NODE_BUFFERSVEC4,             \
-                                          NGL_NODE_BUFFERUBYTE,             \
-                                          NGL_NODE_BUFFERUBVEC2,            \
-                                          NGL_NODE_BUFFERUBVEC3,            \
-                                          NGL_NODE_BUFFERUBVEC4,            \
-                                          NGL_NODE_BUFFERUINT,              \
-                                          NGL_NODE_BUFFERUIVEC2,            \
-                                          NGL_NODE_BUFFERUIVEC3,            \
-                                          NGL_NODE_BUFFERUIVEC4,            \
-                                          NGL_NODE_BUFFERUSHORT,            \
-                                          NGL_NODE_BUFFERUSVEC2,            \
-                                          NGL_NODE_BUFFERUSVEC3,            \
-                                          NGL_NODE_BUFFERUSVEC4,            \
-                                          NGL_NODE_BUFFERFLOAT,             \
-                                          NGL_NODE_BUFFERVEC2,              \
-                                          NGL_NODE_BUFFERVEC3,              \
-                                          NGL_NODE_BUFFERVEC4,              \
-                                          -1}
+#define BUFFER_NODES                \
+    NGL_NODE_ANIMATEDBUFFERFLOAT,   \
+    NGL_NODE_ANIMATEDBUFFERVEC2,    \
+    NGL_NODE_ANIMATEDBUFFERVEC3,    \
+    NGL_NODE_ANIMATEDBUFFERVEC4,    \
+    NGL_NODE_BUFFERBYTE,            \
+    NGL_NODE_BUFFERBVEC2,           \
+    NGL_NODE_BUFFERBVEC3,           \
+    NGL_NODE_BUFFERBVEC4,           \
+    NGL_NODE_BUFFERINT,             \
+    NGL_NODE_BUFFERIVEC2,           \
+    NGL_NODE_BUFFERIVEC3,           \
+    NGL_NODE_BUFFERIVEC4,           \
+    NGL_NODE_BUFFERSHORT,           \
+    NGL_NODE_BUFFERSVEC2,           \
+    NGL_NODE_BUFFERSVEC3,           \
+    NGL_NODE_BUFFERSVEC4,           \
+    NGL_NODE_BUFFERUBYTE,           \
+    NGL_NODE_BUFFERUBVEC2,          \
+    NGL_NODE_BUFFERUBVEC3,          \
+    NGL_NODE_BUFFERUBVEC4,          \
+    NGL_NODE_BUFFERUINT,            \
+    NGL_NODE_BUFFERUIVEC2,          \
+    NGL_NODE_BUFFERUIVEC3,          \
+    NGL_NODE_BUFFERUIVEC4,          \
+    NGL_NODE_BUFFERUSHORT,          \
+    NGL_NODE_BUFFERUSVEC2,          \
+    NGL_NODE_BUFFERUSVEC3,          \
+    NGL_NODE_BUFFERUSVEC4,          \
+    NGL_NODE_BUFFERFLOAT,           \
+    NGL_NODE_BUFFERVEC2,            \
+    NGL_NODE_BUFFERVEC3,            \
+    NGL_NODE_BUFFERVEC4,            \
+
+
+#define DATA_SRC_TYPES_LIST_2D (const int[]){NGL_NODE_MEDIA,                   \
+                                             NGL_NODE_FPS,                     \
+                                             BUFFER_NODES                      \
+                                             -1}
 
 #define OFFSET(x) offsetof(struct texture, x)
 static const struct node_param texture2d_params[] = {
@@ -78,7 +82,7 @@ static const struct node_param texture2d_params[] = {
     {"mag_filter", PARAM_TYPE_INT, OFFSET(mag_filter), {.i64=GL_NEAREST}},
     {"wrap_s", PARAM_TYPE_INT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}},
     {"wrap_t", PARAM_TYPE_INT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}},
-    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST},
+    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_2D},
     {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
     {"direct_rendering", PARAM_TYPE_INT, OFFSET(direct_rendering), {.i64=-1}},
     {"immutable", PARAM_TYPE_INT, OFFSET(immutable), {.i64=0}},
