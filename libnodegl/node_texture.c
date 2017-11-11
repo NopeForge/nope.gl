@@ -71,6 +71,10 @@
                                              BUFFER_NODES                      \
                                              -1}
 
+#define DATA_SRC_TYPES_LIST_3D (const int[]){BUFFER_NODES                      \
+                                             -1}
+
+
 #define OFFSET(x) offsetof(struct texture, x)
 static const struct node_param texture2d_params[] = {
     {"format", PARAM_TYPE_INT, OFFSET(format), {.i64=GL_RGBA}},
@@ -85,6 +89,24 @@ static const struct node_param texture2d_params[] = {
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_2D},
     {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
     {"direct_rendering", PARAM_TYPE_INT, OFFSET(direct_rendering), {.i64=-1}},
+    {"immutable", PARAM_TYPE_INT, OFFSET(immutable), {.i64=0}},
+    {NULL}
+};
+
+static const struct node_param texture3d_params[] = {
+    {"format", PARAM_TYPE_INT, OFFSET(format), {.i64=GL_RGBA}},
+    {"internal_format", PARAM_TYPE_INT, OFFSET(internal_format), {.i64=GL_RGBA}},
+    {"type", PARAM_TYPE_INT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}},
+    {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0}},
+    {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0}},
+    {"depth", PARAM_TYPE_INT, OFFSET(depth), {.i64=0}},
+    {"min_filter", PARAM_TYPE_INT, OFFSET(min_filter), {.i64=GL_NEAREST}},
+    {"mag_filter", PARAM_TYPE_INT, OFFSET(mag_filter), {.i64=GL_NEAREST}},
+    {"wrap_s", PARAM_TYPE_INT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}},
+    {"wrap_t", PARAM_TYPE_INT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}},
+    {"wrap_r", PARAM_TYPE_INT, OFFSET(wrap_r), {.i64=GL_CLAMP_TO_EDGE}},
+    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D},
+    {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
     {"immutable", PARAM_TYPE_INT, OFFSET(immutable), {.i64=0}},
     {NULL}
 };
@@ -174,7 +196,72 @@ GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext, GLenu
     return format;
 }
 
-int ngli_texture_update_local_texture(struct ngl_node *node, int width, int height, const uint8_t *data)
+static void tex_image(const struct glfunctions *gl, const struct texture *s,
+                      const uint8_t *data)
+{
+    switch (s->local_target) {
+        case GL_TEXTURE_2D:
+            if (s->width && s->height)
+                ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format,
+                                  s->width, s->height, 0,
+                                  s->format, s->type, data);
+            break;
+        case GL_TEXTURE_3D:
+            if (s->width && s->height && s->depth)
+                ngli_glTexImage3D(gl, GL_TEXTURE_3D, 0, s->internal_format,
+                                  s->width, s->height, s->depth, 0,
+                                  s->format, s->type, data);
+            break;
+    }
+}
+
+static void tex_sub_image(const struct glfunctions *gl, const struct texture *s,
+                          const uint8_t *data)
+{
+    switch (s->local_target) {
+        case GL_TEXTURE_2D:
+            if (s->width && s->height)
+                ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0,
+                                     0, 0, /* x/y offsets */
+                                     s->width, s->height,
+                                     s->format, s->type, data);
+            break;
+        case GL_TEXTURE_3D:
+            if (s->width && s->height && s->depth)
+                ngli_glTexSubImage3D(gl, GL_TEXTURE_3D, 0,
+                                     0, 0, 0, /* x/y/z offsets */
+                                     s->width, s->height, s->depth,
+                                     s->format, s->type, data);
+            break;
+    }
+}
+
+static void tex_storage(const struct glfunctions *gl, const struct texture *s,
+                        GLenum internal_format)
+{
+    switch (s->local_target) {
+        case GL_TEXTURE_2D:
+            ngli_glTexStorage2D(gl, s->local_target, 1, internal_format, s->width, s->height);
+            break;
+        case GL_TEXTURE_3D:
+            ngli_glTexStorage3D(gl, s->local_target, 1, internal_format, s->width, s->height, s->depth);
+            break;
+    }
+}
+
+static void tex_set_params(const struct glfunctions *gl, const struct texture *s)
+{
+    ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MIN_FILTER, s->min_filter);
+    ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+    ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_S, s->wrap_s);
+    ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_T, s->wrap_t);
+    if (s->local_target == GL_TEXTURE_3D)
+        ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_R, s->wrap_r);
+}
+
+int ngli_texture_update_local_texture(struct ngl_node *node,
+                                      int width, int height, int depth,
+                                      const uint8_t *data)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -183,13 +270,14 @@ int ngli_texture_update_local_texture(struct ngl_node *node, int width, int heig
     struct texture *s = node->priv_data;
     int ret = 0;
 
-    if (!width || !height)
+    if (!width || !height || (node->class->id == NGL_NODE_TEXTURE3D && !depth))
         return ret;
 
-    int update_dimensions = !s->local_id || s->width != width || s->height != height;
+    int update_dimensions = !s->local_id || s->width != width || s->height != height || s->depth != depth;
 
     s->width = width;
     s->height = height;
+    s->depth = depth;
 
     if (s->immutable) {
         if (update_dimensions) {
@@ -199,70 +287,36 @@ int ngli_texture_update_local_texture(struct ngl_node *node, int width, int heig
                 ngli_glDeleteTextures(gl, 1, &s->local_id);
             }
 
-            s->local_target = GL_TEXTURE_2D;
             ngli_glGenTextures(gl, 1, &s->local_id);
             ngli_glBindTexture(gl, s->local_target, s->local_id);
-            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MIN_FILTER, s->min_filter);
-            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_S, s->wrap_s);
-            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_T, s->wrap_t);
+            tex_set_params(gl, s);
 
             GLenum format = ngli_texture_get_sized_internal_format(glcontext,
                                                                    s->internal_format,
                                                                    s->type);
-            ngli_glTexStorage2D(gl, s->local_target, 1, format, s->width, s->height);
+            tex_storage(gl, s, format);
         } else {
             ngli_glBindTexture(gl, s->local_target, s->local_id);
         }
 
         if (data) {
-            ngli_glTexSubImage2D(gl,
-                                 s->local_target,
-                                 0,
-                                 0,
-                                 0,
-                                 s->width,
-                                 s->height,
-                                 s->format,
-                                 s->type,
-                                 data);
+            tex_sub_image(gl, s, data);
         }
     } else {
         if (!s->local_id) {
             ret = 1;
 
-            s->local_target = GL_TEXTURE_2D;
             ngli_glGenTextures(gl, 1, &s->local_id);
             ngli_glBindTexture(gl, s->local_target, s->local_id);
-            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MIN_FILTER, s->min_filter);
-            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_S, s->wrap_s);
-            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_T, s->wrap_t);
+            tex_set_params(gl, s);
         }
 
         ngli_glBindTexture(gl, s->local_target, s->local_id);
         if (update_dimensions) {
-            ngli_glTexImage2D(gl, s->local_target,
-                              0,
-                              s->internal_format,
-                              s->width,
-                              s->height,
-                              0,
-                              s->format,
-                              s->type,
-                              data);
+            tex_image(gl, s, data);
         } else {
             if (data) {
-                ngli_glTexSubImage2D(gl,
-                                     s->local_target,
-                                     0,
-                                     0,
-                                     0,
-                                     s->width,
-                                     s->height,
-                                     s->format,
-                                     s->type,
-                                     data);
+                tex_sub_image(gl, s, data);
             }
         }
     }
@@ -279,12 +333,11 @@ int ngli_texture_update_local_texture(struct ngl_node *node, int width, int heig
     ngli_glBindTexture(gl, s->local_target, 0);
 
     s->id = s->local_id;
-    s->target = s->local_target;
 
     return ret;
 }
 
-static int texture2d_prefetch(struct ngl_node *node)
+static int texture_prefetch(struct ngl_node *node, GLenum local_target)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -295,7 +348,7 @@ static int texture2d_prefetch(struct ngl_node *node)
         return -1;
     }
 
-    s->target = GL_TEXTURE_2D;
+    s->target = s->local_target = local_target;
 
     ngli_mat4_identity(s->coordinates_matrix);
 
@@ -357,6 +410,8 @@ static int texture2d_prefetch(struct ngl_node *node)
         case NGL_NODE_BUFFERVEC3:
         case NGL_NODE_BUFFERVEC4: {
             struct buffer *buffer = s->data_src->priv_data;
+
+            if (local_target == GL_TEXTURE_2D) {
             if (buffer->count != s->width * s->height) {
                 LOG(ERROR, "dimensions (%dx%d) do not match buffer count (%d),"
                     " assuming %dx1", s->width, s->height,
@@ -364,6 +419,16 @@ static int texture2d_prefetch(struct ngl_node *node)
                 s->width = buffer->count;
                 s->height = 1;
             }
+            } else if (local_target == GL_TEXTURE_3D) {
+                if (buffer->count != s->width * s->height * s->depth) {
+                    LOG(ERROR, "dimensions (%dx%dx%d) do not match buffer count (%d),"
+                        " assuming %dx1x1", s->width, s->height, s->depth,
+                        buffer->count, buffer->count);
+                    s->width = buffer->count;
+                    s->height = s->depth = 1;
+                }
+            }
+
             data = buffer->data;
             s->type = buffer->comp_type;
             switch (buffer->data_comp) {
@@ -380,10 +445,19 @@ static int texture2d_prefetch(struct ngl_node *node)
         }
     }
 
-    ngli_texture_update_local_texture(node, s->width, s->height, data);
+    ngli_texture_update_local_texture(node, s->width, s->height, s->depth, data);
 
     return 0;
 }
+
+#define TEXTURE_PREFETCH(dim)                               \
+static int texture##dim##d_prefetch(struct ngl_node *node)  \
+{                                                           \
+    return texture_prefetch(node, GL_TEXTURE_##dim##D);     \
+}
+
+TEXTURE_PREFETCH(2)
+TEXTURE_PREFETCH(3)
 
 static void handle_fps_frame(struct ngl_node *node)
 {
@@ -393,7 +467,7 @@ static void handle_fps_frame(struct ngl_node *node)
     const int height = fps->data_h;
     const uint8_t *data = fps->data_buf;
 
-    ngli_texture_update_local_texture(node, width, height, data);
+    ngli_texture_update_local_texture(node, width, height, 0, data);
 }
 
 static void handle_media_frame(struct ngl_node *node)
@@ -415,10 +489,10 @@ static void handle_buffer_frame(struct ngl_node *node)
     struct buffer *buffer = s->data_src->priv_data;
     const uint8_t *data = buffer->data;
 
-    ngli_texture_update_local_texture(node, s->width, s->height, data);
+    ngli_texture_update_local_texture(node, s->width, s->height, s->depth, data);
 }
 
-static int texture2d_update(struct ngl_node *node, double t)
+static int texture_update(struct ngl_node *node, double t)
 {
     struct texture *s = node->priv_data;
 
@@ -450,7 +524,7 @@ static int texture2d_update(struct ngl_node *node, double t)
     return 0;
 }
 
-static void texture2d_release(struct ngl_node *node)
+static void texture_release(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -464,12 +538,35 @@ static void texture2d_release(struct ngl_node *node)
     s->id = s->local_id = 0;
 }
 
+static int texture3d_init(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+
+    if (!glcontext->has_texture3d_compatibility) {
+        LOG(ERROR, "context does not support 3D textures");
+        return -1;
+    }
+    return 0;
+}
+
 const struct node_class ngli_texture2d_class = {
     .id        = NGL_NODE_TEXTURE2D,
     .name      = "Texture2D",
     .prefetch  = texture2d_prefetch,
-    .update    = texture2d_update,
-    .release   = texture2d_release,
+    .update    = texture_update,
+    .release   = texture_release,
     .priv_size = sizeof(struct texture),
     .params    = texture2d_params,
+};
+
+const struct node_class ngli_texture3d_class = {
+    .id        = NGL_NODE_TEXTURE3D,
+    .name      = "Texture3D",
+    .init      = texture3d_init,
+    .prefetch  = texture3d_prefetch,
+    .update    = texture_update,
+    .release   = texture_release,
+    .priv_size = sizeof(struct texture),
+    .params    = texture3d_params,
 };

@@ -51,6 +51,10 @@
                                           NGL_NODE_TRIANGLE,        \
                                           -1}
 
+#define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE2D,       \
+                                          NGL_NODE_TEXTURE3D,       \
+                                          -1}
+
 #define BUFFERS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,   \
                                          NGL_NODE_BUFFERVEC2,    \
                                          NGL_NODE_BUFFERVEC3,    \
@@ -72,7 +76,7 @@ static const struct node_param render_params[] = {
     {"program",  PARAM_TYPE_NODE, OFFSET(program),
                  .node_types=(const int[]){NGL_NODE_PROGRAM, -1}},
     {"textures", PARAM_TYPE_NODEDICT, OFFSET(textures),
-                 .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1}},
+                 .node_types=TEXTURES_TYPES_LIST},
     {"uniforms", PARAM_TYPE_NODEDICT, OFFSET(uniforms),
                  .node_types=UNIFORMS_TYPES_LIST},
     {"attributes", PARAM_TYPE_NODEDICT, OFFSET(attributes),
@@ -154,6 +158,9 @@ static int update_uniforms(struct ngl_node *node)
                 if (info->external_sampler_id >= 0)
                     ngli_glUniform1i(gl, info->external_sampler_id, 0);
                 break;
+            case GL_TEXTURE_3D:
+                bind_texture(gl, texture->target, info->sampler_id, texture->id, texture_index);
+                break;
 #ifdef TARGET_ANDROID
             case GL_TEXTURE_EXTERNAL_OES:
                 if (info->sampler_id >= 0)
@@ -174,8 +181,11 @@ static int update_uniforms(struct ngl_node *node)
                 ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
 
             if (info->dimensions_id >= 0) {
-                const float dimensions[2] = {texture->width, texture->height};
-                ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
+                const float dimensions[3] = {texture->width, texture->height, texture->depth};
+                if (texture->target == GL_TEXTURE_3D)
+                    ngli_glUniform3fv(gl, info->dimensions_id, 1, dimensions);
+                else
+                    ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
             }
 
             i++;

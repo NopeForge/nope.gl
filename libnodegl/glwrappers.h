@@ -528,6 +528,12 @@ static inline void ngli_glTexImage2D(const struct glfunctions *gl, GLenum target
     check_error_code(gl, "glTexImage2D");
 }
 
+static inline void ngli_glTexImage3D(const struct glfunctions *gl, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void * pixels)
+{
+    gl->TexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
+    check_error_code(gl, "glTexImage3D");
+}
+
 static inline void ngli_glTexParameteri(const struct glfunctions *gl, GLenum target, GLenum pname, GLint param)
 {
     gl->TexParameteri(target, pname, param);
@@ -540,10 +546,22 @@ static inline void ngli_glTexStorage2D(const struct glfunctions *gl, GLenum targ
     check_error_code(gl, "glTexStorage2D");
 }
 
+static inline void ngli_glTexStorage3D(const struct glfunctions *gl, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
+{
+    gl->TexStorage3D(target, levels, internalformat, width, height, depth);
+    check_error_code(gl, "glTexStorage3D");
+}
+
 static inline void ngli_glTexSubImage2D(const struct glfunctions *gl, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void * pixels)
 {
     gl->TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
     check_error_code(gl, "glTexSubImage2D");
+}
+
+static inline void ngli_glTexSubImage3D(const struct glfunctions *gl, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void * pixels)
+{
+    gl->TexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+    check_error_code(gl, "glTexSubImage3D");
 }
 
 static inline void ngli_glUniform1f(const struct glfunctions *gl, GLint location, GLfloat v0)

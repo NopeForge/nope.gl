@@ -180,7 +180,7 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
     s->type                  = config->gl_type;
     s->coordinates_matrix[0] = config->xscale;
 
-    ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, frame->data);
+    ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, 0, frame->data);
 
     return 0;
 }
@@ -188,7 +188,7 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
 static int update_texture_dimensions(struct ngl_node *node, struct hwupload_config *config)
 {
-    return ngli_texture_update_local_texture(node, config->width, config->height, NULL);
+    return ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
 }
 #endif
 
@@ -431,7 +431,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
     s->type                  = config->gl_type;
     s->coordinates_matrix[0] = config->xscale;
 
-    ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, data);
+    ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, 0, data);
 
     CVPixelBufferUnlockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
 
@@ -622,7 +622,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         s->type                  = config->gl_type;
         s->coordinates_matrix[0] = 1.0;
 
-        int ret = ngli_texture_update_local_texture(node, config->width, config->height, NULL);
+        int ret = ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
         if (ret < 0)
             return ret;
 

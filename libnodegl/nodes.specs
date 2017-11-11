@@ -320,6 +320,23 @@
         - [direct_rendering, int]
         - [immutable, int]
 
+- Texture3D:
+    optional:
+        - [format, int]
+        - [internal_format, int]
+        - [type, int]
+        - [width, int]
+        - [height, int]
+        - [depth, int]
+        - [min_filter, int]
+        - [mag_filter, int]
+        - [wrap_s, int]
+        - [wrap_t, int]
+        - [wrap_r, int]
+        - [data_src, Node]
+        - [access, int]
+        - [immutable, int]
+
 - TimeRangeFilter:
     constructors:
         - [child, Node]

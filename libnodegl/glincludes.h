@@ -136,6 +136,8 @@
 # define GL_INVALID_INDEX                      0xFFFFFFFFU
 # define GL_POLYGON_MODE                       0x0B40
 # define GL_FILL                               0x1B02
+# define GL_TEXTURE_3D                         0x806F
+# define GL_TEXTURE_WRAP_R                     0x8072
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES

@@ -253,10 +253,12 @@ struct texture {
     GLint type;
     int width;
     int height;
+    int depth;
     GLint min_filter;
     GLint mag_filter;
     GLint wrap_s;
     GLint wrap_t;
+    GLint wrap_r;
     struct ngl_node *data_src;
     GLenum access;
     int direct_rendering;
@@ -288,8 +290,7 @@ GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext,
                                               GLenum type);
 
 int ngli_texture_update_local_texture(struct ngl_node *node,
-                                      int width,
-                                      int height,
+                                      int width, int height, int depth,
                                       const uint8_t *data);
 
 struct textureprograminfo {

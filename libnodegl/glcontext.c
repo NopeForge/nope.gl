@@ -195,6 +195,7 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
             glcontext->has_vao_compatibility = 1;
 
         glcontext->has_polygonmode_compatibility = 1;
+        glcontext->has_texture3d_compatibility = 1;
 
         ngli_glGetIntegerv(gl, GL_NUM_EXTENSIONS, &nb_extensions);
         for (i = 0; i < nb_extensions; i++) {
@@ -248,6 +249,7 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
 
         if (glcontext->major_version >= 3) {
             glcontext->has_texture_storage_compatibility = 1;
+            glcontext->has_texture3d_compatibility = 1;
             if (glcontext->minor_version >= 1) {
                 glcontext->has_cs_compatibility = 1;
                 glcontext->has_ssbo_compatibility = 1;
