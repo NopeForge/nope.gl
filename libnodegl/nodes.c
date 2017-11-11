@@ -398,7 +398,25 @@ int ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t
     return 0;
 }
 
-static int node_prefetch(struct ngl_node *node);
+static int node_prefetch(struct ngl_node *node)
+{
+    if (node->state == STATE_READY)
+        return 0;
+
+    int ret = ngli_node_init(node);
+    if (ret < 0)
+        return ret;
+
+    if (node->class->prefetch) {
+        LOG(DEBUG, "PREFETCH %s @ %p", node->name, node);
+        ret = node->class->prefetch(node);
+        if (ret < 0)
+            return ret;
+    }
+    node->state = STATE_READY;
+
+    return 0;
+}
 
 int ngli_node_honor_release_prefetch(struct ngl_node *node, double t)
 {
@@ -452,26 +470,6 @@ int ngli_node_honor_release_prefetch(struct ngl_node *node, double t)
         return node_prefetch(node);
 
     node_release(node);
-    return 0;
-}
-
-static int node_prefetch(struct ngl_node *node)
-{
-    if (node->state == STATE_READY)
-        return 0;
-
-    int ret = ngli_node_init(node);
-    if (ret < 0)
-        return ret;
-
-    if (node->class->prefetch) {
-        LOG(DEBUG, "PREFETCH %s @ %p", node->name, node);
-        ret = node->class->prefetch(node);
-        if (ret < 0)
-            return ret;
-    }
-    node->state = STATE_READY;
-
     return 0;
 }
 
