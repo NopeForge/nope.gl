@@ -220,15 +220,7 @@ static int texture2d_init(struct ngl_node *node)
 
 static int texture2d_prefetch(struct ngl_node *node)
 {
-    struct texture *s = node->priv_data;
-
-    int ret = texture2d_init(node);
-    if (ret < 0)
-        return ret;
-
-    if (s->data_src)
-        return ngli_node_prefetch(s->data_src);
-    return 0;
+    return texture2d_init(node);
 }
 
 static void handle_fps_frame(struct ngl_node *node)
@@ -328,11 +320,6 @@ static void texture2d_uninit(struct ngl_node *node)
 
 static void texture2d_release(struct ngl_node *node)
 {
-    struct texture *s = node->priv_data;
-
-    if (s->data_src)
-        ngli_node_release(s->data_src);
-
     texture2d_uninit(node);
 }
 
