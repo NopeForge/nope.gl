@@ -84,7 +84,7 @@ static const struct node_param texture2d_params[] = {
     {NULL}
 };
 
-static int texture_init_2D(struct ngl_node *node, const uint8_t *data)
+static int texture_alloc(struct ngl_node *node, const uint8_t *data)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -213,7 +213,7 @@ static int texture2d_init(struct ngl_node *node)
         }
     }
 
-    texture_init_2D(node, data);
+    texture_alloc(node, data);
 
     return 0;
 }
