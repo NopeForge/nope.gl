@@ -5,7 +5,7 @@ def get_gl_format(renderable='gl', version=None):
 
     if renderable == 'gl':
         gl_format.setRenderableType(QtGui.QSurfaceFormat.OpenGL)
-        major_version, minor_version = (3, 3) if version is None else version
+        major_version, minor_version = (4, 1) if version is None else version
         gl_format.setVersion(major_version, minor_version)
         gl_format.setProfile(QtGui.QSurfaceFormat.CoreProfile)
     elif renderable == 'gles':
