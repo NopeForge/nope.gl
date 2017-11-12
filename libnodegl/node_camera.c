@@ -101,9 +101,9 @@ static int camera_update(struct ngl_node *node, double t)
     struct camera *s = node->priv_data;
     struct ngl_node *child = s->child;
 
-    NGLI_ALIGNED_VEC(eye)    = { 0.0f, 0.0f, 0.0f, 1.0f };
-    NGLI_ALIGNED_VEC(center) = { 0.0f, 0.0f, 0.0f, 1.0f };
-    NGLI_ALIGNED_VEC(up)     = { 0.0f, 0.0f, 0.0f, 1.0f };
+    NGLI_ALIGNED_VEC(eye)    = {0.0f, 0.0f, 0.0f, 1.0f};
+    NGLI_ALIGNED_VEC(center) = {0.0f, 0.0f, 0.0f, 1.0f};
+    NGLI_ALIGNED_VEC(up)     = {0.0f, 0.0f, 0.0f, 1.0f};
 
     float perspective[4*4];
     float view[4*4];

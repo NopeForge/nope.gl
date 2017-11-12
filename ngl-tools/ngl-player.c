@@ -56,9 +56,9 @@ static const char *pgbar_shader = \
 
 static struct ngl_node *get_scene(const char *filename)
 {
-    static const float corner[3] = { -1.0, -1.0, 0.0 };
-    static const float width[3]  = {  2.0,  0.0, 0.0 };
-    static const float height[3] = {  0.0,  2.0, 0.0 };
+    static const float corner[3] = {-1.0, -1.0, 0.0};
+    static const float width[3]  = { 2.0,  0.0, 0.0};
+    static const float height[3] = { 0.0,  2.0, 0.0};
 
     struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA, filename);
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);

@@ -53,7 +53,7 @@ static const float get_angle(struct rotate *s, double t)
 static int rotate_init(struct ngl_node *node)
 {
     struct rotate *s = node->priv_data;
-    static const float zero_axis[3] = { 0.0, 0.0, 0.0 };
+    static const float zero_axis[3] = {0.0, 0.0, 0.0};
 
     if (!memcmp(s->axis, zero_axis, sizeof(s->axis))) {
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
@@ -94,7 +94,7 @@ static int rotate_update(struct ngl_node *node, double t)
         1.0f,
     };
 
-    static const float zero_anchor[3] = { 0.0, 0.0, 0.0 };
+    static const float zero_anchor[3] = {0.0, 0.0, 0.0};
     int translate = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
     if (translate) {
         float *a = s->anchor;

@@ -35,14 +35,14 @@ struct jni_android_looper_fields {
 };
 
 static const struct JniField android_looper_mapping[] = {
-    { "android/os/Looper", NULL, NULL, NGLI_JNI_CLASS, offsetof(struct jni_android_looper_fields, looper_class), 1 },
-        { "android/os/Looper", "prepare", "()V", NGLI_JNI_STATIC_METHOD, offsetof(struct jni_android_looper_fields, prepare_id), 1 },
-        { "android/os/Looper", "myLooper", "()Landroid/os/Looper;", NGLI_JNI_STATIC_METHOD, offsetof(struct jni_android_looper_fields, my_looper_id), 1 },
-        { "android/os/Looper", "getMainLooper", "()Landroid/os/Looper;", NGLI_JNI_STATIC_METHOD, offsetof(struct jni_android_looper_fields, get_main_looper_id), 1 },
-        { "android/os/Looper", "loop", "()V", NGLI_JNI_STATIC_METHOD, offsetof(struct jni_android_looper_fields, loop_id), 1 },
-        { "android/os/Looper", "quit", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_looper_fields, quit_id), 1 },
+    {"android/os/Looper", NULL, NULL, NGLI_JNI_CLASS, offsetof(struct jni_android_looper_fields, looper_class), 1},
+        {"android/os/Looper", "prepare", "()V", NGLI_JNI_STATIC_METHOD, offsetof(struct jni_android_looper_fields, prepare_id), 1},
+        {"android/os/Looper", "myLooper", "()Landroid/os/Looper;", NGLI_JNI_STATIC_METHOD, offsetof(struct jni_android_looper_fields, my_looper_id), 1},
+        {"android/os/Looper", "getMainLooper", "()Landroid/os/Looper;", NGLI_JNI_STATIC_METHOD, offsetof(struct jni_android_looper_fields, get_main_looper_id), 1},
+        {"android/os/Looper", "loop", "()V", NGLI_JNI_STATIC_METHOD, offsetof(struct jni_android_looper_fields, loop_id), 1},
+        {"android/os/Looper", "quit", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_looper_fields, quit_id), 1},
 
-    { NULL }
+    {NULL}
 };
 
 struct android_looper {

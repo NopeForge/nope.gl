@@ -233,9 +233,9 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     struct texture *s = node->priv_data, *t;
     struct media *media = s->data_src->priv_data;
 
-    static const float corner[3] = { -1.0, -1.0, 0.0 };
-    static const float width[3]  = {  2.0,  0.0, 0.0 };
-    static const float height[3] = {  0.0,  2.0, 0.0 };
+    static const float corner[3] = {-1.0, -1.0, 0.0};
+    static const float width[3]  = { 2.0,  0.0, 0.0};
+    static const float height[3] = { 0.0,  2.0, 0.0};
 
     if (s->upload_fmt == config->format)
         return 0;
@@ -486,9 +486,9 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
     if (s->upload_fmt == HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
         struct texture *t;
 
-        static const float corner[3] = { -1.0, -1.0, 0.0 };
-        static const float width[3]  = {  2.0,  0.0, 0.0 };
-        static const float height[3] = {  0.0,  2.0, 0.0 };
+        static const float corner[3] = {-1.0, -1.0, 0.0};
+        static const float width[3]  = { 2.0,  0.0, 0.0};
+        static const float height[3] = { 0.0,  2.0, 0.0};
 
         s->quad = ngl_node_create(NGL_NODE_QUAD);
         if (!s->quad)
@@ -572,7 +572,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
 
     struct texture *s = node->priv_data;
 
-    CVOpenGLESTextureRef textures[2] = { 0 };
+    CVOpenGLESTextureRef textures[2] = {0};
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(glcontext);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
 
@@ -794,7 +794,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *fra
     if (!frame)
         return 0;
 
-    struct hwupload_config config = { 0 };
+    struct hwupload_config config = {0};
     int ret = get_config_from_frame(node, frame, &config);
     if (ret < 0)
         return ret;

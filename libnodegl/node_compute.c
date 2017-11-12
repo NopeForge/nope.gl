@@ -90,7 +90,7 @@ static int update_uniforms(struct ngl_node *node)
             }
 
             if (textureprograminfo->dimensions_id >= 0) {
-                const float dimensions[2] = { texture->width, texture->height };
+                const float dimensions[2] = {texture->width, texture->height};
                 ngli_glUniform2fv(gl, textureprograminfo->dimensions_id, 1, dimensions);
             }
 
@@ -242,7 +242,7 @@ static int compute_init(struct ngl_node *node)
             if (ret < 0)
                 return ret;
 
-            static const GLenum props[] = { GL_BUFFER_BINDING };
+            static const GLenum props[] = {GL_BUFFER_BINDING};
             GLsizei nb_props = 1;
             GLint params = 0;
             GLsizei nb_params = 1;

@@ -158,7 +158,7 @@ static int update_uniforms(struct ngl_node *node)
                 ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
 
             if (info->dimensions_id >= 0) {
-                const float dimensions[2] = { texture->width, texture->height };
+                const float dimensions[2] = {texture->width, texture->height};
                 ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
             }
 

@@ -46,7 +46,7 @@ static jclass surface_listener_new(struct android_surface *surface)
     jmethodID set_native_ptr_id = NULL;
 
     static const JNINativeMethod methods[] = {
-        {"nativeOnFrameAvailable", "(J)V", (void *)&native_on_frame_available },
+        {"nativeOnFrameAvailable", "(J)V", (void *)&native_on_frame_available},
     };
 
     env = ngli_jni_get_env();
@@ -112,23 +112,23 @@ struct jni_android_surface_fields {
 };
 
 static const struct JniField jfields_mapping[] = {
-    { "android/view/Surface", NULL, NULL, NGLI_JNI_CLASS, offsetof(struct jni_android_surface_fields, surface_class), 1 },
-        { "android/view/Surface", "<init>", "(Landroid/graphics/SurfaceTexture;)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_init_id), 1 },
-        { "android/view/Surface", "release", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_release_id), 1 },
+    {"android/view/Surface", NULL, NULL, NGLI_JNI_CLASS, offsetof(struct jni_android_surface_fields, surface_class), 1},
+        {"android/view/Surface", "<init>", "(Landroid/graphics/SurfaceTexture;)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_init_id), 1},
+        {"android/view/Surface", "release", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_release_id), 1},
 
-    { "android/graphics/SurfaceTexture", NULL, NULL, NGLI_JNI_CLASS, offsetof(struct jni_android_surface_fields, surface_texture_class), 1 },
-        { "android/graphics/SurfaceTexture", "<init>", "(I)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_texture_init_id), 1 },
-        { "android/graphics/SurfaceTexture", "<init>", "(IZ)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_texture_init2_id), 0 },
-        { "android/graphics/SurfaceTexture", "attachToGLContext", "(I)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, attach_to_gl_context_id), 1 },
-        { "android/graphics/SurfaceTexture", "detachFromGLContext", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, detach_from_gl_context_id), 1 },
-        { "android/graphics/SurfaceTexture", "updateTexImage", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, update_tex_image_id), 1 },
-        { "android/graphics/SurfaceTexture", "getTransformMatrix", "([F)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, get_transform_matrix_id), 1 },
-        { "android/graphics/SurfaceTexture", "setDefaultBufferSize", "(II)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, set_default_buffer_size_id), 1 },
-        { "android/graphics/SurfaceTexture", "setOnFrameAvailableListener", "(Landroid/graphics/SurfaceTexture$OnFrameAvailableListener;)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, set_on_frame_available_listener_id), 1 },
-        { "android/graphics/SurfaceTexture", "setOnFrameAvailableListener", "(Landroid/graphics/SurfaceTexture$OnFrameAvailableListener;Landroid/os/Handler;)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, set_on_frame_available_listener2_id), 0 },
-        { "android/graphics/SurfaceTexture", "release", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_texture_release_id), 1 },
+    {"android/graphics/SurfaceTexture", NULL, NULL, NGLI_JNI_CLASS, offsetof(struct jni_android_surface_fields, surface_texture_class), 1},
+        {"android/graphics/SurfaceTexture", "<init>", "(I)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_texture_init_id), 1},
+        {"android/graphics/SurfaceTexture", "<init>", "(IZ)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_texture_init2_id), 0},
+        {"android/graphics/SurfaceTexture", "attachToGLContext", "(I)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, attach_to_gl_context_id), 1},
+        {"android/graphics/SurfaceTexture", "detachFromGLContext", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, detach_from_gl_context_id), 1},
+        {"android/graphics/SurfaceTexture", "updateTexImage", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, update_tex_image_id), 1},
+        {"android/graphics/SurfaceTexture", "getTransformMatrix", "([F)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, get_transform_matrix_id), 1},
+        {"android/graphics/SurfaceTexture", "setDefaultBufferSize", "(II)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, set_default_buffer_size_id), 1},
+        {"android/graphics/SurfaceTexture", "setOnFrameAvailableListener", "(Landroid/graphics/SurfaceTexture$OnFrameAvailableListener;)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, set_on_frame_available_listener_id), 1},
+        {"android/graphics/SurfaceTexture", "setOnFrameAvailableListener", "(Landroid/graphics/SurfaceTexture$OnFrameAvailableListener;Landroid/os/Handler;)V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, set_on_frame_available_listener2_id), 0},
+        {"android/graphics/SurfaceTexture", "release", "()V", NGLI_JNI_METHOD, offsetof(struct jni_android_surface_fields, surface_texture_release_id), 1},
 
-    { NULL }
+    {NULL}
 };
 
 struct android_surface {
