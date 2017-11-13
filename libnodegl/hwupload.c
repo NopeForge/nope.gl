@@ -286,10 +286,11 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     t->external_id     = s->local_id;
     t->external_target = s->local_target;
 
-    s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->program);
+    s->render = ngl_node_create(NGL_NODE_RENDER, s->quad);
     if (!s->render)
         return -1;
 
+    ngl_node_param_set(s->render, "program", s->program);
     ngl_node_param_set(s->render, "textures", "tex0", s->textures[0]);
 
     s->rtt = ngl_node_create(NGL_NODE_RENDERTOTEXTURE, s->render, s->target_texture);
@@ -546,10 +547,11 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         t->external_id     = s->local_id;
         t->external_target = GL_TEXTURE_2D;
 
-        s->render = ngl_node_create(NGL_NODE_RENDER, s->quad, s->program);
+        s->render = ngl_node_create(NGL_NODE_RENDER, s->quad);
         if (!s->render)
             return -1;
 
+        ngl_node_param_set(s->render, "program", s->program);
         ngl_node_param_set(s->render, "textures", "tex0", s->textures[0]);
         ngl_node_param_set(s->render, "textures", "tex1", s->textures[1]);
 
