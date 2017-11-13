@@ -96,8 +96,7 @@ static int rtt_init(struct ngl_node *node)
     texture->coordinates_matrix[5] = -1.0f;
     texture->coordinates_matrix[13] = 1.0f;
 
-    if (s->depth_texture) {
-        struct texture *depth_texture = s->depth_texture->priv_data;
+    if (depth_texture) {
         depth_texture->coordinates_matrix[5] = -1.0f;
         depth_texture->coordinates_matrix[13] = 1.0f;
     }
