@@ -49,6 +49,9 @@ cmds_optional = [
     'glGetProgramResourceLocation',
     'glGetProgramResourceIndex',
     'glGetProgramResourceiv',
+
+    # Polygon
+    'glPolygonMode',
 ]
 
 cmds = [
@@ -179,8 +182,6 @@ cmds = [
     'glStencilOp',
     'glStencilOpSeparate',
 
-    # Polygon
-    'glPolygonMode',
 ] + cmds_optional
 
 def get_proto_elems(xml_node):

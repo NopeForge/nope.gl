@@ -192,6 +192,8 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         if (glcontext->major_version >= 4)
             glcontext->has_vao_compatibility = 1;
 
+        glcontext->has_polygonmode_compatibility = 1;
+
         ngli_glGetIntegerv(gl, GL_NUM_EXTENSIONS, &nb_extensions);
         for (i = 0; i < nb_extensions; i++) {
             const char *extension = (const char *)ngli_glGetStringi(gl, GL_EXTENSIONS, i);

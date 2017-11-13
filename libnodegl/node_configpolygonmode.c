@@ -22,6 +22,8 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "utils.h"
@@ -32,6 +34,19 @@ static const struct node_param configpolygonmode_params[] = {
     {NULL}
 };
 
+static int configpolygonmode_init(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+
+    if (!glcontext->has_polygonmode_compatibility) {
+        LOG(ERROR, "context does not support PolygonMode");
+        return -1;
+    }
+
+    return 0;
+}
+
 static char *configpolygonmode_info_str(const struct ngl_node *node)
 {
     const struct configpolygonmode *s = node->priv_data;
@@ -41,6 +56,7 @@ static char *configpolygonmode_info_str(const struct ngl_node *node)
 const struct node_class ngli_configpolygonmode_class = {
     .id        = NGL_NODE_CONFIGPOLYGONMODE,
     .name      = "ConfigPolygonMode",
+    .init      = configpolygonmode_init,
     .info_str  = configpolygonmode_info_str,
     .priv_size = sizeof(struct configpolygonmode),
     .params    = configpolygonmode_params,

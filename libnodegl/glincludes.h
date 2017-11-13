@@ -73,6 +73,8 @@
 # define GL_DYNAMIC_READ                       0x88E9
 # define GL_DYNAMIC_COPY                       0x88EA
 # define GL_INVALID_INDEX                      0xFFFFFFFFU
+# define GL_POLYGON_MODE                       0x0B40
+# define GL_FILL                               0x1B02
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES
