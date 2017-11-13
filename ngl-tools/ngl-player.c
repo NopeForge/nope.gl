@@ -64,7 +64,7 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     struct ngl_node *quad    = ngl_node_create(NGL_NODE_QUAD);
     struct ngl_node *program = ngl_node_create(NGL_NODE_PROGRAM);
-    struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER, quad, program);
+    struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER, quad);
 
     struct ngl_node *uniforms[3] = {
         ngl_node_create(NGL_NODE_UNIFORMFLOAT),
@@ -91,6 +91,7 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_param_set(uniforms[1], "value", g_info.width / (double)g_info.height);
     ngl_node_param_set(uniforms[2], "value", 0.0);
 
+    ngl_node_param_set(render, "program", program);
     ngl_node_param_set(render, "textures", "tex0",    texture);
     ngl_node_param_set(render, "uniforms", "time",    uniforms[0]);
     ngl_node_param_set(render, "uniforms", "ar",      uniforms[1]);
