@@ -19,6 +19,8 @@
  * under the License.
  */
 
+#include <stddef.h>
+
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
