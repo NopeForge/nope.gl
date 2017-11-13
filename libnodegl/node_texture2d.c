@@ -118,14 +118,7 @@ static int texture2d_init(struct ngl_node *node)
 
     s->target = GL_TEXTURE_2D;
 
-    static const float coordinates_matrix[] = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f,
-    };
-
-    memcpy(s->coordinates_matrix, coordinates_matrix, sizeof(s->coordinates_matrix));
+    ngli_mat4_identity(s->coordinates_matrix);
 
     if (s->external_id) {
         s->id = s->external_id;
