@@ -6,6 +6,7 @@ uniform float overlay;
 uniform sampler2D tex0_sampler;
 uniform sampler2D tex1_sampler;
 varying vec2 var_tex0_coord;
+varying vec2 var_tex1_coord;
 
 float wave(float sample, float y, float yoff)
 {
@@ -32,7 +33,7 @@ void main()
     float fft2 = float(freq_line) + 1.5;
     float x = var_tex0_coord.x;
     float y = var_tex0_coord.y;
-    vec4 video_pix = texture2D(tex1_sampler, var_tex0_coord);
+    vec4 video_pix = texture2D(tex1_sampler, var_tex1_coord);
     vec2 sample_id_ch_1 = vec2(x,  0.5 / 22.);
     vec2 sample_id_ch_2 = vec2(x,  1.5 / 22.);
     vec2  power_id_ch_1 = vec2(x, fft1 / 22.);

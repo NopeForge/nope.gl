@@ -188,7 +188,8 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
     video_m = Media(media.filename)
     video_tex = Texture2D(data_src=video_m)
 
-    p = Program(fragment=get_shader('audiotex'))
+    p = Program(vertex=get_shader('audiotex-vert'),
+                fragment=get_shader('audiotex'))
     render = Render(q, p)
     render.update_textures(tex0=audio_tex, tex1=video_tex)
     render.update_uniforms(overlay=UniformFloat(overlay))
