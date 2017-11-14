@@ -145,7 +145,7 @@ static int texture2d_init(struct ngl_node *node)
             struct media *media = s->data_src->priv_data;
             if (media->audio_tex) {
                 s->format = GL_RED;
-                s->internal_format = GL_R32F;
+                s->internal_format = GL_RED;
                 s->type = GL_FLOAT;
             }
             break;

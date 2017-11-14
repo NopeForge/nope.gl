@@ -84,7 +84,7 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
     case SXPLAYER_SMPFMT_FLT:
         config->format = HWUPLOAD_FMT_COMMON;
         config->gl_format = GL_RED;
-        config->gl_internal_format = GL_R32F;
+        config->gl_internal_format = GL_RED;
         config->gl_type = GL_FLOAT;
         break;
 #if defined(TARGET_ANDROID)
