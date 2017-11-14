@@ -196,7 +196,7 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
     render.update_uniforms(freq_precision=UniformInt(freq_precision))
     return render
 
-@scene(particules={'type': 'range', 'range': [1,1024]})
+@scene(particules={'type': 'range', 'range': [1,1023]})
 def particules(cfg, particules=32):
     random.seed(0)
 
@@ -206,7 +206,7 @@ def particules(cfg, particules=32):
 
     cfg.duration = 6
 
-    x = 1024
+    x = 64
     p = x * particules
 
     positions = array.array('f')
@@ -241,7 +241,7 @@ def particules(cfg, particules=32):
 
     cp = ComputeProgram(compute_data)
 
-    c = Compute(1024, particules, 1, cp)
+    c = Compute(x, particules, 1, cp)
     c.update_uniforms(
         time=utime,
         duration=uduration,

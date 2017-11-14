@@ -44,7 +44,7 @@ float bounce(float t)
 void main(void)
 {
     uint i = gl_GlobalInvocationID.x +
-             gl_GlobalInvocationID.y * 1024U;
+             gl_GlobalInvocationID.y * 64U;
 
     vec3 iposition = ipositions[i];
     vec2 ivelocity = ivelocities[i];
