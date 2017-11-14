@@ -5,6 +5,7 @@ uniform float time;
 uniform float ar;
 uniform sampler2D tex0_sampler;
 varying vec2 var_tex0_coord;
+varying vec2 var_uvcoord;
 
 void main()
 {
@@ -16,8 +17,8 @@ void main()
     float thickw = thick;
     float thickh = thick * ar;
 
-    float x = var_tex0_coord.x;
-    float y = var_tex0_coord.y;
+    float x = var_uvcoord.x;
+    float y = var_uvcoord.y;
     vec4 video_pix = texture2D(tex0_sampler, var_tex0_coord);
 
     float bar_width = 1. - padw*2. - thickw*2.;
