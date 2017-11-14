@@ -30,3 +30,8 @@ tests: tests_serial
 	@for f in data/*.ngl; do \
 		ngl-render $$f -t 3:2:5 -t 0:1:60 -t 7:3:15; \
 	done
+
+clean:
+	$(RM) -r data
+
+.PHONY: clean tests tests_serial all
