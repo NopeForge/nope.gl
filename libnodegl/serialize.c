@@ -89,9 +89,9 @@ static void serialize_options(struct hmap *nlist,
             case PARAM_TYPE_DBL: {
                 const double v = *(double *)(priv + p->offset);
                 if (constructor)
-                    ngli_bstr_print(b, " %a", v);
+                    ngli_bstr_print(b, " %" FLOAT_FMT, v);
                 else if (v != p->def_value.dbl)
-                    ngli_bstr_print(b, " %s:%a", p->key, v);
+                    ngli_bstr_print(b, " %s:%" FLOAT_FMT, p->key, v);
                 break;
             }
             case PARAM_TYPE_STR: {
@@ -129,25 +129,25 @@ static void serialize_options(struct hmap *nlist,
             case PARAM_TYPE_VEC2: {
                 const float *v = (float *)(priv + p->offset);
                 if (constructor)
-                    ngli_bstr_print(b, " %a,%a", v[0], v[1]);
+                    ngli_bstr_print(b, " %" FLOAT_FMT ",%" FLOAT_FMT, v[0], v[1]);
                 else if (memcmp(v, p->def_value.vec, 2 * sizeof(*v)))
-                    ngli_bstr_print(b, " %s:%a,%a", p->key, v[0], v[1]);
+                    ngli_bstr_print(b, " %s:%" FLOAT_FMT ",%" FLOAT_FMT, p->key, v[0], v[1]);
                 break;
             }
             case PARAM_TYPE_VEC3: {
                 const float *v = (float *)(priv + p->offset);
                 if (constructor)
-                    ngli_bstr_print(b, " %a,%a,%a", v[0], v[1], v[2]);
+                    ngli_bstr_print(b, " %" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT, v[0], v[1], v[2]);
                 else if (memcmp(v, p->def_value.vec, 3 * sizeof(*v)))
-                    ngli_bstr_print(b, " %s:%a,%a,%a", p->key, v[0], v[1], v[2]);
+                    ngli_bstr_print(b, " %s:%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT, p->key, v[0], v[1], v[2]);
                 break;
             }
             case PARAM_TYPE_VEC4: {
                 const float *v = (float *)(priv + p->offset);
                 if (constructor)
-                    ngli_bstr_print(b, " %a,%a,%a,%a", v[0], v[1], v[2], v[3]);
+                    ngli_bstr_print(b, " %" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT, v[0], v[1], v[2], v[3]);
                 else if (memcmp(v, p->def_value.vec, 4 * sizeof(*v)))
-                    ngli_bstr_print(b, " %s:%a,%a,%a,%a", p->key, v[0], v[1], v[2], v[3]);
+                    ngli_bstr_print(b, " %s:%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT, p->key, v[0], v[1], v[2], v[3]);
                 break;
             }
             case PARAM_TYPE_MAT4: {
@@ -160,7 +160,7 @@ static void serialize_options(struct hmap *nlist,
                     break;
                 for (int i = 0; i < 4; i++)
                     ngli_bstr_print(b,
-                                    "%a,%a,%a,%a%s",
+                                    "%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT "%s",
                                     m[0 + i * 4],
                                     m[1 + i * 4],
                                     m[2 + i * 4],
@@ -202,7 +202,7 @@ static void serialize_options(struct hmap *nlist,
                 if (nb_elems) {
                     ngli_bstr_print(b, " ");
                     for (int i = 0; i < nb_elems; i++)
-                        ngli_bstr_print(b, "%s%a", i ? "," : "", elems[i]);
+                        ngli_bstr_print(b, "%s%" FLOAT_FMT, i ? "," : "", elems[i]);
                 }
                 break;
             }

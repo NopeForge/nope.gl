@@ -228,7 +228,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
 
         case PARAM_TYPE_VEC2: {
             float v[2];
-            n = sscanf(str, "%a,%a%n", v, v+1, &len);
+            n = sscanf(str, "%" FLOAT_FMT ",%" FLOAT_FMT "%n", v, v+1, &len);
             if (n != 2)
                 return -1;
             ngli_params_vset(base_ptr, par, v);
@@ -236,7 +236,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         }
         case PARAM_TYPE_VEC3: {
             float v[3];
-            n = sscanf(str, "%a,%a,%a%n", v, v+1, v+2, &len);
+            n = sscanf(str, "%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT "%n", v, v+1, v+2, &len);
             if (n != 3)
                 return -1;
             ngli_params_vset(base_ptr, par, v);
@@ -244,7 +244,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         }
         case PARAM_TYPE_VEC4: {
             float v[4];
-            n = sscanf(str, "%a,%a,%a,%a%n", v, v+1, v+2, v+3, &len);
+            n = sscanf(str, "%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT "%n", v, v+1, v+2, v+3, &len);
             if (n != 4)
                 return -1;
             ngli_params_vset(base_ptr, par, v);
@@ -253,7 +253,11 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         case PARAM_TYPE_MAT4: {
             float m[16];
             n = sscanf(str,
-                       "%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a,%a%n",
+                        "%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT
+                       ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT
+                       ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT
+                       ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT
+                       "%n",
                        m,    m+ 1, m+ 2, m+ 3,
                        m+ 4, m+ 5, m+ 6, m+ 7,
                        m+ 8, m+ 9, m+10, m+11,
