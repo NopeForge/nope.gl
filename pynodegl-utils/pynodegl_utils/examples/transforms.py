@@ -119,7 +119,7 @@ def animated_uniform(cfg):
     return ts
 
 @scene(rotate={'type': 'bool'})
-def animated_camera(cfg, rotate=False):
+def animated_camera(cfg, rotate=True):
     g = Group()
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
