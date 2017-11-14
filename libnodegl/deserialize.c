@@ -207,18 +207,18 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             if (!data)
                 return -1;
             for (int i = 0; i < size; i++) {
-                unsigned int value;
-                ret = sscanf(cur, ",%02x%n", &value, &consumed);
-                if (ret != 1) {
+                if (cur > end - 3 || *cur != ',') {
                     free(data);
                     return -1;
                 }
-                data[i] = value;
-                if (cur > end - consumed) {
-                    free(data);
-                    return -1;
-                }
-                cur += consumed;
+                static const uint8_t hexm[256] = {
+                    ['0'] =  0, ['1'] =  1, ['2'] =  2, ['3'] =  3,
+                    ['4'] =  4, ['5'] =  5, ['6'] =  6, ['7'] =  7,
+                    ['8'] =  8, ['9'] =  9, ['a'] = 10, ['b'] = 11,
+                    ['c'] = 12, ['d'] = 13, ['e'] = 14, ['f'] = 15,
+                };
+                data[i] = hexm[(uint8_t)cur[1]]<<4 | hexm[(uint8_t)cur[2]];
+                cur += 3;
             }
             ngli_params_vset(base_ptr, par, size, data);
             free(data);
