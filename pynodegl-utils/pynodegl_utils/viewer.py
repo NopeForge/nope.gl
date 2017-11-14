@@ -776,12 +776,12 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.clear_scripts()
         self._update_err_buf(err_str)
 
-    def _construct_current_scene(self, cfg_dict):
+    def _construct_current_scene(self, cfg_dict, glbackend):
         ar = cfg_dict['aspect_ratio']
 
         scene_cfg = NGLSceneCfg(medias=self._medias)
         scene_cfg.aspect_ratio = ar[0] / float(ar[1])
-        scene_cfg.glbackend = self._glbackend
+        scene_cfg.glbackend = glbackend
 
         scene = cfg_dict['func'](scene_cfg, **cfg_dict['extra_args'])
         scene.set_name(cfg_dict['name'])
@@ -800,15 +800,16 @@ class _MainWindow(QtWidgets.QSplitter):
 
         return scene, scene_cfg
 
-    def _get_scene(self):
+    def _get_scene(self, glbackend=None):
         cfg_dict = self._scene_toolbar.get_scene_cfg()
         scene = None
         cfg = None
+        glbackend = self._glbackend if glbackend is None else glbackend
         if not cfg_dict:
             return None, None
         try:
             self._scripts_mgr.start_hooking()
-            scene, cfg = self._construct_current_scene(cfg_dict)
+            scene, cfg = self._construct_current_scene(cfg_dict, glbackend)
         except:
             self._update_err_buf(traceback.format_exc())
         else:
@@ -817,12 +818,87 @@ class _MainWindow(QtWidgets.QSplitter):
             self._scripts_mgr.end_hooking()
             return scene, cfg
 
-    def __init__(self, module_pkgname, assets_dir, glbackend):
+    def _get_hook(self, name):
+        if not self._hooksdir:
+            return None
+        hook = os.path.join(self._hooksdir, 'hook.' + name)
+        if not os.path.exists(hook):
+            return
+        return hook
+
+    def _get_hook_output(self, name):
+        hook = self._get_hook(name)
+        if not hook:
+            return None
+        return subprocess.check_output([hook]).rstrip()
+
+    @QtCore.pyqtSlot()
+    def _scene_changed_hook(self):
+
+        def filename_escape(filename):
+            s = ''
+            for c in filename:
+                cval = ord(c)
+                if cval >= ord('!') and cval <= '~' and cval != '%':
+                    s += c
+                else:
+                    s += '%%%02x' % (cval & 0xff)
+            return s
+
+        # Bail out immediately if there is no script to run when a scene change
+        # occurs
+        hook_scene_change = self._get_hook('scene_change')
+        if not hook_scene_change:
+            return
+
+        # The OpenGL backend can be different when using hooks: the scene might
+        # be rendered on a remote device different from the one constructing
+        # the scene graph
+        glbackend = self._get_hook_output('get_gl_backend')
+        scene, cfg = self._get_scene(glbackend)
+        if not scene:
+            return
+
+        # The serialized scene is associated with a bunch of assets which we
+        # need to sync. Similarly, the remote assets directory might be
+        # different from the one in local, so we need to fix up the scene
+        # appropriately.
+        serialized_scene = scene.serialize()
+        hook_sync = self._get_hook('media_sync')
+        if hook_sync:
+            remotedir = self._get_hook_output('get_assets_dir')
+            for media in cfg.medias:
+                if remotedir:
+                    localfile = media.filename
+                    remotefile = os.path.join(remotedir, os.path.basename(localfile))
+                    serialized_scene = serialized_scene.replace(
+                            filename_escape(localfile),
+                            filename_escape(remotefile))
+                subprocess.call([hook_sync, localfile, remotefile])
+
+        # The serialized scene is then stored in a file which is then
+        # communicated with additional parameters to the user
+        local_scene = '/tmp/ngl_scene.ngl'
+        remote_scene = os.path.join(remotedir, os.path.basename(local_scene))
+        open(local_scene, 'w').write(serialized_scene)
+        args = [hook_scene_change, local_scene, remote_scene,
+                'duration=%f' % cfg.duration,
+                'framerate=%d' % _GLView.RENDERING_FPS,
+                'aspect_ratio=%f' % cfg.aspect_ratio]
+        try:
+            subprocess.call(args)
+        except OSError, e:
+            QtWidgets.QMessageBox.critical(self, 'Hook error',
+                                          'Error while executing hook (%s): %s' % (hook_scene_change, e.strerror),
+                                           QtWidgets.QMessageBox.Ok)
+
+    def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Node.gl viewer")
 
         self._glbackend = glbackend
         self._scripts_mgr = ScriptsManager(module_pkgname)
+        self._hooksdir = hooksdir
 
         medias = None
         if assets_dir:
@@ -860,6 +936,7 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(serial_view.scene_changed)
+        self._scene_toolbar.sceneChanged.connect(self._scene_changed_hook)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
         self._scene_toolbar.samplesChanged.connect(gl_view._set_samples)
 
@@ -892,11 +969,13 @@ def run():
                         help='set the assets directory to be used by the scene functions')
     parser.add_argument('--gl-backend', dest='glbackend', choices=('gl', 'gles'), default='gl',
                         help='select the GL rendering backend')
+    parser.add_argument('--hooks-dir', dest='hooksdir',
+                        help='set the directory path containing event hooks')
     pargs = parser.parse_args(sys.argv[1:])
 
     QtGui.QSurfaceFormat.setDefaultFormat(get_gl_format(renderable=pargs.glbackend))
 
     app = QtWidgets.QApplication(sys.argv)
-    window = _MainWindow(pargs.module, pargs.assets_dir, pargs.glbackend)
+    window = _MainWindow(pargs.module, pargs.assets_dir, pargs.glbackend, pargs.hooksdir)
     window.show()
     app.exec_()
