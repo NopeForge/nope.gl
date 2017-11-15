@@ -48,6 +48,14 @@
                                           NGL_NODE_BUFFERVEC2,       \
                                           NGL_NODE_BUFFERVEC3,       \
                                           NGL_NODE_BUFFERVEC4,       \
+                                          NGL_NODE_BUFFERINT,        \
+                                          NGL_NODE_BUFFERIVEC2,      \
+                                          NGL_NODE_BUFFERIVEC3,      \
+                                          NGL_NODE_BUFFERIVEC4,      \
+                                          NGL_NODE_BUFFERUINT,       \
+                                          NGL_NODE_BUFFERUIVEC2,     \
+                                          NGL_NODE_BUFFERUIVEC3,     \
+                                          NGL_NODE_BUFFERUIVEC4,     \
                                           -1}
 
 #define OFFSET(x) offsetof(struct compute, x)
