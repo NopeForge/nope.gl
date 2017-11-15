@@ -51,6 +51,20 @@
                                           NGL_NODE_TRIANGLE,        \
                                           -1}
 
+#define BUFFERS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,   \
+                                         NGL_NODE_BUFFERVEC2,    \
+                                         NGL_NODE_BUFFERVEC3,    \
+                                         NGL_NODE_BUFFERVEC4,    \
+                                         NGL_NODE_BUFFERINT,     \
+                                         NGL_NODE_BUFFERIVEC2,   \
+                                         NGL_NODE_BUFFERIVEC3,   \
+                                         NGL_NODE_BUFFERIVEC4,   \
+                                         NGL_NODE_BUFFERUINT,    \
+                                         NGL_NODE_BUFFERUIVEC2,  \
+                                         NGL_NODE_BUFFERUIVEC3,  \
+                                         NGL_NODE_BUFFERUIVEC4,  \
+                                         -1}
+
 #define OFFSET(x) offsetof(struct render, x)
 static const struct node_param render_params[] = {
     {"geometry", PARAM_TYPE_NODE, OFFSET(geometry), .flags=PARAM_FLAG_CONSTRUCTOR,
@@ -63,6 +77,8 @@ static const struct node_param render_params[] = {
                  .node_types=UNIFORMS_TYPES_LIST},
     {"attributes", PARAM_TYPE_NODEDICT, OFFSET(attributes),
                  .node_types=ATTRIBUTES_TYPES_LIST},
+    {"buffers",  PARAM_TYPE_NODEDICT, OFFSET(buffers),
+                 .node_types=BUFFERS_TYPES_LIST},
     {NULL}
 };
 
@@ -242,6 +258,28 @@ static int update_vertex_attribs(struct ngl_node *node)
     return 0;
 }
 
+static int update_buffers(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    struct render *s = node->priv_data;
+
+    if (glcontext->has_ssbo_compatibility && s->buffers) {
+        int i = 0;
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->buffers, entry))) {
+            const struct ngl_node *bnode = entry->data;
+            const struct buffer *b = bnode->priv_data;
+            ngli_glBindBufferBase(gl, GL_SHADER_STORAGE_BUFFER, s->buffer_ids[i], b->buffer_id);
+            i++;
+        }
+    }
+
+    return 0;
+}
+
 static int render_init(struct ngl_node *node)
 {
     int ret;
@@ -374,6 +412,48 @@ static int render_init(struct ngl_node *node)
         }
     }
 
+    int nb_buffers = s->buffers ? ngli_hmap_count(s->buffers) : 0;
+    if (glcontext->has_ssbo_compatibility && nb_buffers > 0) {
+        s->buffer_ids = calloc(nb_buffers, sizeof(*s->buffer_ids));
+        if (!s->buffer_ids)
+            return -1;
+
+        int i = 0;
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->buffers, entry))) {
+            struct ngl_node *unode = entry->data;
+            ret = ngli_node_init(unode);
+            if (ret < 0)
+                return ret;
+
+            static const GLenum props[] = {GL_BUFFER_BINDING};
+            GLsizei nb_props = 1;
+            GLint params = 0;
+            GLsizei nb_params = 1;
+            GLsizei nb_params_ret = 0;
+
+            GLuint index = ngli_glGetProgramResourceIndex(gl,
+                                                          program->program_id,
+                                                          GL_SHADER_STORAGE_BLOCK,
+                                                          entry->key);
+
+            if (index != GL_INVALID_INDEX)
+                ngli_glGetProgramResourceiv(gl,
+                                            program->program_id,
+                                            GL_SHADER_STORAGE_BLOCK,
+                                            index,
+                                            nb_props,
+                                            props,
+                                            nb_params,
+                                            &nb_params_ret,
+                                            &params);
+
+            s->buffer_ids[i] = params;
+            i++;
+        }
+    }
+
+
     if (glcontext->has_vao_compatibility) {
         ngli_glGenVertexArrays(gl, 1, &s->vao_id);
         ngli_glBindVertexArray(gl, s->vao_id);
@@ -398,10 +478,13 @@ static void render_uninit(struct ngl_node *node)
     free(s->textureprograminfos);
     free(s->uniform_ids);
     free(s->attribute_ids);
+    free(s->buffer_ids);
 }
 
 static int render_update(struct ngl_node *node, double t)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
     struct render *s = node->priv_data;
 
     int ret = ngli_node_update(s->geometry, t);
@@ -426,6 +509,15 @@ static int render_update(struct ngl_node *node, double t)
         }
     }
 
+    if (glcontext->has_ssbo_compatibility && s->buffers) {
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->buffers, entry))) {
+            int ret = ngli_node_update(entry->data, t);
+            if (ret < 0)
+                return ret;
+        }
+    }
+
     return ngli_node_update(s->program, t);
 }
 
@@ -445,6 +537,7 @@ static void render_draw(struct ngl_node *node)
     }
 
     update_uniforms(node);
+    update_buffers(node);
 
     if (!glcontext->has_vao_compatibility) {
         update_vertex_attribs(node);

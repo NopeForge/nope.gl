@@ -278,6 +278,7 @@
         - [textures, NodeDict]
         - [uniforms, NodeDict]
         - [attributes, NodeDict]
+        - [buffers, NodeDict]
 
 - RenderToTexture:
     constructors:

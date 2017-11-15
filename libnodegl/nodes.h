@@ -303,6 +303,9 @@ struct render {
     struct hmap *attributes;
     GLint *attribute_ids;
 
+    struct hmap *buffers;
+    GLint *buffer_ids;
+
     GLuint vao_id;
 };
 
