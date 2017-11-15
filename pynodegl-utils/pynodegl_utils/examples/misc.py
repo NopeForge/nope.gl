@@ -143,6 +143,7 @@ def fibo(cfg, n=8):
 
 @scene(dim={'type': 'range', 'range': [1,50]})
 def cropboard(cfg, dim=15):
+    random.seed(0)
     cfg.duration = 10
 
     kw = kh = 1. / dim
