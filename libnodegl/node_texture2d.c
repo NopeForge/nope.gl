@@ -112,7 +112,7 @@ static int texture_alloc(struct ngl_node *node, const uint8_t *data)
     return 0;
 }
 
-static int texture2d_init(struct ngl_node *node)
+static int texture2d_prefetch(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
 
@@ -204,11 +204,6 @@ static int texture2d_init(struct ngl_node *node)
     return 0;
 }
 
-static int texture2d_prefetch(struct ngl_node *node)
-{
-    return texture2d_init(node);
-}
-
 static void handle_fps_frame(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -290,7 +285,7 @@ static int texture2d_update(struct ngl_node *node, double t)
     return 0;
 }
 
-static void texture2d_uninit(struct ngl_node *node)
+static void texture2d_release(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -304,19 +299,12 @@ static void texture2d_uninit(struct ngl_node *node)
     s->id = s->local_id = 0;
 }
 
-static void texture2d_release(struct ngl_node *node)
-{
-    texture2d_uninit(node);
-}
-
 const struct node_class ngli_texture2d_class = {
     .id        = NGL_NODE_TEXTURE2D,
     .name      = "Texture2D",
-    .init      = texture2d_init,
     .prefetch  = texture2d_prefetch,
     .update    = texture2d_update,
     .release   = texture2d_release,
-    .uninit    = texture2d_uninit,
     .priv_size = sizeof(struct texture),
     .params    = texture2d_params,
 };
