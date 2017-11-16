@@ -141,15 +141,8 @@ static int texture2d_init(struct ngl_node *node)
             s->internal_format = GL_RED;
             s->type = GL_UNSIGNED_BYTE;
             break;
-        case NGL_NODE_MEDIA: {
-            struct media *media = s->data_src->priv_data;
-            if (media->audio_tex) {
-                s->format = GL_RED;
-                s->internal_format = GL_RED;
-                s->type = GL_FLOAT;
-            }
+        case NGL_NODE_MEDIA:
             break;
-        }
         case NGL_NODE_ANIMATEDBUFFERFLOAT:
         case NGL_NODE_ANIMATEDBUFFERVEC2:
         case NGL_NODE_ANIMATEDBUFFERVEC3:
