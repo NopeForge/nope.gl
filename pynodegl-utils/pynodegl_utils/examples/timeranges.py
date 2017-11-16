@@ -13,7 +13,7 @@ from pynodegl import (
         UniformFloat,
 )
 
-from pynodegl_utils.misc import scene, get_shader
+from pynodegl_utils.misc import scene, get_frag, get_vert
 
 @scene(overlap_time={'type': 'range', 'range': [0,5], 'unit_base': 10},
        dim={'type': 'range', 'range': [1,10]})
@@ -95,8 +95,8 @@ def simple_transition(cfg, transition_start=1, transition_duration=4):
 
     cfg.duration = transition_start*2 + transition_duration
 
-    vertex = get_shader('tex-mix-vertex')
-    fragment = get_shader('tex-mix')
+    vertex = get_vert('tex-mix')
+    fragment = get_frag('tex-mix')
 
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p = Program()

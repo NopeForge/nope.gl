@@ -39,10 +39,22 @@ def scene(**widgets_specs):
     return real_decorator
 
 
-def get_shader(name, shader_path=None):
+def get_shader(filename, shader_path=None):
     if shader_path is None:
         shader_path = os.path.join(os.path.dirname(__file__), 'examples', 'shaders')
-    return open(os.path.join(shader_path, name + '.glsl')).read()
+    return open(os.path.join(shader_path, filename)).read()
+
+
+def get_frag(name, shader_path=None):
+    return get_shader(name + '.frag', shader_path)
+
+
+def get_vert(name, shader_path=None):
+    return get_shader(name + '.vert', shader_path)
+
+
+def get_comp(name, shader_path=None):
+    return get_shader(name + '.comp', shader_path)
 
 
 class NGLMedia:

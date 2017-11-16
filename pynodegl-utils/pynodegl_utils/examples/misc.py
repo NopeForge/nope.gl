@@ -37,7 +37,7 @@ from pynodegl import (
         UniformVec4,
 )
 
-from pynodegl_utils.misc import scene, get_shader
+from pynodegl_utils.misc import scene, get_frag, get_vert, get_comp
 
 
 @scene(bgcolor1={'type': 'color'},
@@ -69,7 +69,7 @@ def buffer_dove(cfg,
                                                      GL.GL_ONE,
                                                      GL.GL_ZERO))
 
-    prog_bg = Program(fragment=get_shader('color'))
+    prog_bg = Program(fragment=get_frag('color'))
     shape_bg = Circle(radius=.6, npoints=256)
     render_bg = Render(shape_bg, prog_bg, name='background')
     color_animkf = [AnimKeyFrameVec4(0,                bgcolor1),
@@ -89,7 +89,7 @@ def triangle(cfg, size=0.5):
     c = size * 1/2.
 
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
-    p = Program(fragment=get_shader('triangle'))
+    p = Program(fragment=get_frag('triangle'))
     node = Render(triangle, p)
     animkf = [AnimKeyFrameFloat(0, 0),
               AnimKeyFrameFloat(cfg.duration, -360*2)]
@@ -100,7 +100,7 @@ def triangle(cfg, size=0.5):
 def fibo(cfg, n=8):
     cfg.duration = 5.0
 
-    p = Program(fragment=get_shader('color'))
+    p = Program(fragment=get_frag('color'))
 
     fib = [0, 1, 1]
     for i in range(2, n):
@@ -189,8 +189,8 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
     video_m = Media(media.filename)
     video_tex = Texture2D(data_src=video_m)
 
-    p = Program(vertex=get_shader('audiotex-vert'),
-                fragment=get_shader('audiotex'))
+    p = Program(vertex=get_vert('audiotex'),
+                fragment=get_frag('audiotex'))
     render = Render(q, p)
     render.update_textures(tex0=audio_tex, tex1=video_tex)
     render.update_uniforms(overlay=UniformFloat(overlay))
@@ -203,7 +203,7 @@ def particules(cfg, particules=32):
 
     compute_data_version = "310 es" if cfg.glbackend == "gles" else "430"
     compute_data = '#version %s\n' % compute_data_version
-    compute_data += get_shader('particules')
+    compute_data += get_comp('particules')
 
     cfg.duration = 6
 
@@ -257,7 +257,7 @@ def particules(cfg, particules=32):
     gm.set_draw_mode(GL.GL_POINTS)
 
     m = Media(cfg.medias[0].filename, initial_seek=5)
-    p = Program(fragment=get_shader('color'))
+    p = Program(fragment=get_frag('color'))
     r = Render(gm, p)
     r.update_uniforms(color=UniformVec4(value=(0, .6, .8, 1)))
 

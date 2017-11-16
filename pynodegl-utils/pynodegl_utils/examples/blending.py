@@ -11,11 +11,11 @@ from pynodegl import (
         UniformVec4,
 )
 
-from pynodegl_utils.misc import scene, get_shader
+from pynodegl_utils.misc import scene, get_frag
 
 from OpenGL import GL
 
-fragment = get_shader('color')
+fragment = get_frag('color')
 
 @scene()
 def blending_test(cfg):

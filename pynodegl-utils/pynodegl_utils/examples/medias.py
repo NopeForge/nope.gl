@@ -22,7 +22,7 @@ from pynodegl import (
         UniformVec4,
 )
 
-from pynodegl_utils.misc import scene, get_shader
+from pynodegl_utils.misc import scene, get_frag
 
 from OpenGL import GL
 
@@ -44,7 +44,7 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
     render.update_textures(tex0=t)
 
     if progress_bar:
-        p.set_fragment(get_shader('progress-bar'))
+        p.set_fragment(get_frag('progress-bar'))
         time_animkf = [AnimKeyFrameFloat(0, 0),
                        AnimKeyFrameFloat(cfg.duration, 1)]
         time = UniformFloat(anim=AnimatedFloat(time_animkf))
@@ -59,7 +59,7 @@ def centered_masked_media(cfg):
     g = Group()
 
     q = Quad((-0.2, -0.2, 0), (0.4, 0.0, 0.0), (0.0, 0.4, 0.0))
-    p = Program(fragment=get_shader('color'))
+    p = Program(fragment=get_frag('color'))
     node = Render(q, p)
     node.update_uniforms(color=UniformVec4(value=(0,0,0,1)))
 

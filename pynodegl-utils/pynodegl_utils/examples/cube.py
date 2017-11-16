@@ -18,7 +18,7 @@ from pynodegl import (
         UniformVec3,
 )
 
-from pynodegl_utils.misc import scene, get_shader
+from pynodegl_utils.misc import scene, get_frag
 
 def _get_cube_quads():
             # corner             width        height      color
@@ -40,7 +40,7 @@ def _get_cube_side(texture, program, corner, width, height, color):
 def rotating_cube(cfg):
     cube = Group(name="cube")
 
-    frag_data = get_shader('tex-tint')
+    frag_data = get_frag('tex-tint')
     p = Program(fragment=frag_data)
 
     t = Texture2D(data_src=Media(cfg.medias[0].filename))

@@ -11,11 +11,11 @@ from pynodegl import (
         UniformVec4,
 )
 
-from pynodegl_utils.misc import scene, get_shader
+from pynodegl_utils.misc import scene, get_frag
 
 from OpenGL import GL
 
-_frag_data = get_shader('color')
+_frag_data = get_frag('color')
 
 _colors = [
     (1, 0, 0, 1),
