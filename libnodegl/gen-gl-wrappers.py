@@ -29,6 +29,7 @@ cmds_optional = [
     'glBlitFramebuffer',
 
     # Texture
+    'glTexStorage2D',
     'glBindImageTexture',
 
     # Vertex Arrays

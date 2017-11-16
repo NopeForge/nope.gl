@@ -158,38 +158,16 @@ static int init_common(struct ngl_node *node, struct hwupload_config *config)
 
 static int upload_common_frame(struct ngl_node *node, struct hwupload_config *config, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
     struct texture *s = node->priv_data;
-
-    int dimension_changed = s->width != (config->linesize >> 2) || s->height != config->height;
 
     s->id                    = s->local_id;
     s->target                = s->local_target;
     s->format                = config->gl_format;
     s->internal_format       = config->gl_internal_format;
     s->type                  = config->gl_type;
-    s->width                 = config->linesize >> 2;
-    s->height                = config->height;
     s->coordinates_matrix[0] = config->xscale;
 
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-    if (dimension_changed)
-        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, frame->data);
-    else
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, s->width, s->height, s->format, s->type, frame->data);
-
-    switch (s->min_filter) {
-    case GL_NEAREST_MIPMAP_NEAREST:
-    case GL_NEAREST_MIPMAP_LINEAR:
-    case GL_LINEAR_MIPMAP_NEAREST:
-    case GL_LINEAR_MIPMAP_LINEAR:
-        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-        break;
-    }
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+    ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, frame->data);
 
     return 0;
 }
@@ -197,22 +175,7 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
 static int update_texture_dimensions(struct ngl_node *node, struct hwupload_config *config)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
-    struct texture *s = node->priv_data;
-
-    if (s->width != config->width || s->height != config->height) {
-        s->width = config->width;
-        s->height = config->height;
-
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, NULL);
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-    }
-
-    return 0;
+    return ngli_texture_update_local_texture(node, config->width, config->height, NULL);
 }
 #endif
 
@@ -334,6 +297,13 @@ static int upload_mc_frame(struct ngl_node *node, struct hwupload_config *config
     if (ret < 0)
         return ret;
 
+    if (ret) {
+        ngli_hwupload_uninit(node);
+        ret = init_mc(node, config);
+        if (ret < 0)
+            return ret;
+    }
+
     ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
 
     struct texture *t = s->textures[0]->priv_data;
@@ -431,32 +401,14 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
 
     uint8_t *data = CVPixelBufferGetBaseAddress(cvpixbuf);
 
-    int dimension_changed = s->width != (config->linesize >> 2) || s->height != config->height;
-
     s->format                = config->gl_format;
     s->internal_format       = config->gl_internal_format;
     s->type                  = config->gl_type;
-    s->width                 = config->linesize >> 2;
-    s->height                = config->height;
     s->coordinates_matrix[0] = config->xscale;
 
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-    if (dimension_changed)
-        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, data);
-    else
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, s->width, s->height, s->format, s->type, data);
+    ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, data);
 
     CVPixelBufferUnlockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
-
-    switch (s->min_filter) {
-    case GL_NEAREST_MIPMAP_NEAREST:
-    case GL_NEAREST_MIPMAP_LINEAR:
-    case GL_LINEAR_MIPMAP_NEAREST:
-    case GL_LINEAR_MIPMAP_LINEAR:
-        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-        break;
-    }
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
     return 0;
 }
@@ -643,11 +595,18 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         s->format                = config->gl_format;
         s->internal_format       = config->gl_internal_format;
         s->type                  = config->gl_type;
-        s->width                 = config->width;
-        s->height                = config->height;
         s->coordinates_matrix[0] = 1.0;
 
-        update_texture_dimensions(node, config);
+        int ret = ngli_texture_update_local_texture(node, config->width, config->height, NULL);
+        if (ret < 0)
+            return ret;
+
+        if (ret) {
+            ngli_hwupload_uninit(node);
+            ret = init_vt(node, config);
+            if (ret < 0)
+                return ret;
+        }
 
         for (int i = 0; i < 2; i++) {
             int width;
@@ -705,7 +664,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
             ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         }
 
-        int ret = ngli_node_visit(s->rtt, NULL, 0.0);
+        ret = ngli_node_visit(s->rtt, NULL, 0.0);
         if (ret < 0) {
             CFRelease(textures[0]);
             CFRelease(textures[1]);

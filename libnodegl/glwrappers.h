@@ -534,6 +534,12 @@ static inline void ngli_glTexParameteri(const struct glfunctions *gl, GLenum tar
     check_error_code(gl, "glTexParameteri");
 }
 
+static inline void ngli_glTexStorage2D(const struct glfunctions *gl, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
+{
+    gl->TexStorage2D(target, levels, internalformat, width, height);
+    check_error_code(gl, "glTexStorage2D");
+}
+
 static inline void ngli_glTexSubImage2D(const struct glfunctions *gl, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void * pixels)
 {
     gl->TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);

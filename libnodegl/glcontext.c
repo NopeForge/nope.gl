@@ -207,6 +207,8 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
                 glcontext->has_cs_compatibility = 1;
             } else if (!strcmp(extension, "GL_ARB_shader_storage_buffer_object")) {
                 glcontext->has_ssbo_compatibility = 1;
+            } else if (!strcmp(extension, "GL_ARB_texture_storage")) {
+                glcontext->has_texture_storage_compatibility = 1;
             }
         }
 
@@ -243,6 +245,7 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
 
         if (glcontext->major_version >= 3) {
+            glcontext->has_texture_storage_compatibility = 1;
             if (glcontext->minor_version >= 1) {
                 glcontext->has_cs_compatibility = 1;
                 glcontext->has_ssbo_compatibility = 1;

@@ -94,6 +94,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*StencilOpSeparate)(GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass);
     NGLI_GL_APIENTRY void (*TexImage2D)(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void * pixels);
     NGLI_GL_APIENTRY void (*TexParameteri)(GLenum target, GLenum pname, GLint param);
+    NGLI_GL_APIENTRY void (*TexStorage2D)(GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height);
     NGLI_GL_APIENTRY void (*TexSubImage2D)(GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void * pixels);
     NGLI_GL_APIENTRY void (*Uniform1f)(GLint location, GLfloat v0);
     NGLI_GL_APIENTRY void (*Uniform1fv)(GLint location, GLsizei count, const GLfloat * value);

@@ -81,6 +81,7 @@ static const struct node_param texture2d_params[] = {
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST},
     {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
     {"direct_rendering", PARAM_TYPE_INT, OFFSET(direct_rendering), {.i64=-1}},
+    {"immutable", PARAM_TYPE_INT, OFFSET(immutable), {.i64=0}},
     {NULL}
 };
 
@@ -169,32 +170,114 @@ GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext, GLenu
     return format;
 }
 
-static int texture_alloc(struct ngl_node *node, const uint8_t *data)
+int ngli_texture_update_local_texture(struct ngl_node *node, int width, int height, const uint8_t *data)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
     struct texture *s = node->priv_data;
+    int ret = 0;
 
-    if (s->local_id)
-        return 0;
+    if (!width || !height)
+        return ret;
 
-    ngli_glGenTextures(gl, 1, &s->id);
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
-    if (s->width && s->height) {
-        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, s->width, s->height, 0, s->format, s->type, data);
+    int update_dimensions = !s->local_id || s->width != width || s->height != height;
+
+    s->width = width;
+    s->height = height;
+
+    if (s->immutable) {
+        if (update_dimensions) {
+            ret = 1;
+
+            if (s->local_id) {
+                ngli_glDeleteTextures(gl, 1, &s->local_id);
+            }
+
+            s->local_target = GL_TEXTURE_2D;
+            ngli_glGenTextures(gl, 1, &s->local_id);
+            ngli_glBindTexture(gl, s->local_target, s->local_id);
+            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MIN_FILTER, s->min_filter);
+            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_S, s->wrap_s);
+            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_T, s->wrap_t);
+
+            GLenum format = ngli_texture_get_sized_internal_format(glcontext,
+                                                                   s->internal_format,
+                                                                   s->type);
+            ngli_glTexStorage2D(gl, s->local_target, 1, format, s->width, s->height);
+        } else {
+            ngli_glBindTexture(gl, s->local_target, s->local_id);
+        }
+
+        if (data) {
+            ngli_glTexSubImage2D(gl,
+                                 s->local_target,
+                                 0,
+                                 0,
+                                 0,
+                                 s->width,
+                                 s->height,
+                                 s->format,
+                                 s->type,
+                                 data);
+        }
+    } else {
+        if (!s->local_id) {
+            ret = 1;
+
+            s->local_target = GL_TEXTURE_2D;
+            ngli_glGenTextures(gl, 1, &s->local_id);
+            ngli_glBindTexture(gl, s->local_target, s->local_id);
+            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MIN_FILTER, s->min_filter);
+            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_S, s->wrap_s);
+            ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_T, s->wrap_t);
+        }
+
+        ngli_glBindTexture(gl, s->local_target, s->local_id);
+        if (update_dimensions) {
+            ngli_glTexImage2D(gl, s->local_target,
+                              0,
+                              s->internal_format,
+                              s->width,
+                              s->height,
+                              0,
+                              s->format,
+                              s->type,
+                              data);
+        } else {
+            if (data) {
+                ngli_glTexSubImage2D(gl,
+                                     s->local_target,
+                                     0,
+                                     0,
+                                     0,
+                                     s->width,
+                                     s->height,
+                                     s->format,
+                                     s->type,
+                                     data);
+            }
+        }
     }
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
-    s->local_id = s->id;
-    s->local_target = GL_TEXTURE_2D;
+    switch (s->min_filter) {
+    case GL_NEAREST_MIPMAP_NEAREST:
+    case GL_NEAREST_MIPMAP_LINEAR:
+    case GL_LINEAR_MIPMAP_NEAREST:
+    case GL_LINEAR_MIPMAP_LINEAR:
+        ngli_glGenerateMipmap(gl, s->local_target);
+        break;
+    }
 
-    return 0;
+    ngli_glBindTexture(gl, s->local_target, 0);
+
+    s->id = s->local_id;
+    s->target = s->local_target;
+
+    return ret;
 }
 
 static int texture2d_prefetch(struct ngl_node *node)
@@ -202,6 +285,11 @@ static int texture2d_prefetch(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
     struct texture *s = node->priv_data;
+
+    if (!glcontext->has_texture_storage_compatibility && s->immutable) {
+        LOG(ERROR, "context does not support texture storage");
+        return -1;
+    }
 
     s->target = GL_TEXTURE_2D;
 
@@ -288,29 +376,20 @@ static int texture2d_prefetch(struct ngl_node *node)
         }
     }
 
-    texture_alloc(node, data);
+    ngli_texture_update_local_texture(node, s->width, s->height, data);
 
     return 0;
 }
 
 static void handle_fps_frame(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
     struct texture *s = node->priv_data;
     struct fps *fps = s->data_src->priv_data;
     const int width = fps->data_w;
     const int height = fps->data_h;
     const uint8_t *data = fps->data_buf;
 
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-    if (s->width == width && s->height == height)
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, width, height, s->format, s->type, data);
-    else
-        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format, width, height, 0, s->format, s->type, data);
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+    ngli_texture_update_local_texture(node, width, height, data);
 }
 
 static void handle_media_frame(struct ngl_node *node)
@@ -328,18 +407,11 @@ static void handle_media_frame(struct ngl_node *node)
 
 static void handle_buffer_frame(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
     struct texture *s = node->priv_data;
     struct buffer *buffer = s->data_src->priv_data;
     const uint8_t *data = buffer->data;
 
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-    if (buffer->count)
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, s->width, s->height, s->format, s->type, data);
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+    ngli_texture_update_local_texture(node, s->width, s->height, data);
 }
 
 static int texture2d_update(struct ngl_node *node, double t)

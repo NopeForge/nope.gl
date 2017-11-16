@@ -259,6 +259,7 @@ struct texture {
     struct ngl_node *data_src;
     GLenum access;
     int direct_rendering;
+    int immutable;
 
     GLuint external_id;
     GLenum external_target;
@@ -284,6 +285,11 @@ struct texture {
 GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext,
                                               GLenum internal_format,
                                               GLenum type);
+
+int ngli_texture_update_local_texture(struct ngl_node *node,
+                                      int width,
+                                      int height,
+                                      const uint8_t *data);
 
 struct textureprograminfo {
     int sampling_mode_id;

@@ -93,6 +93,7 @@ static const struct gldefinition {
     {"glStencilOpSeparate", offsetof(struct glfunctions, StencilOpSeparate), M},
     {"glTexImage2D", offsetof(struct glfunctions, TexImage2D), M},
     {"glTexParameteri", offsetof(struct glfunctions, TexParameteri), M},
+    {"glTexStorage2D", offsetof(struct glfunctions, TexStorage2D), 0},
     {"glTexSubImage2D", offsetof(struct glfunctions, TexSubImage2D), M},
     {"glUniform1f", offsetof(struct glfunctions, Uniform1f), M},
     {"glUniform1fv", offsetof(struct glfunctions, Uniform1fv), M},

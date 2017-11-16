@@ -318,6 +318,7 @@
         - [data_src, Node]
         - [access, int]
         - [direct_rendering, int]
+        - [immutable, int]
 
 - TimeRangeFilter:
     constructors:
