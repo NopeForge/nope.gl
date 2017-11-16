@@ -37,7 +37,7 @@ static const struct node_param rtt_params[] = {
     {NULL}
 };
 
-static int rtt_init(struct ngl_node *node)
+static int rtt_prefetch(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -47,17 +47,11 @@ static int rtt_init(struct ngl_node *node)
     struct texture *texture = s->color_texture->priv_data;
     struct texture *depth_texture = NULL;
 
-    int ret = ngli_node_init(s->color_texture);
-    if (ret < 0)
-        return ret;
     s->width = texture->width;
     s->height = texture->height;
 
     if (s->depth_texture) {
         depth_texture = s->depth_texture->priv_data;
-        ret = ngli_node_init(s->depth_texture);
-        if (ret < 0)
-            return ret;
         if (s->width != depth_texture->width || s->height != depth_texture->height) {
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
                 s->width, s->height, depth_texture->width, depth_texture->height);
@@ -100,10 +94,6 @@ static int rtt_init(struct ngl_node *node)
         depth_texture->coordinates_matrix[5] = -1.0f;
         depth_texture->coordinates_matrix[13] = 1.0f;
     }
-
-    ret = ngli_node_init(s->child);
-    if (ret < 0)
-        return ret;
 
     return 0;
 }
@@ -166,7 +156,7 @@ static void rtt_draw(struct ngl_node *node)
 
 }
 
-static void rtt_uninit(struct ngl_node *node)
+static void rtt_release(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
@@ -188,10 +178,10 @@ static void rtt_uninit(struct ngl_node *node)
 const struct node_class ngli_rtt_class = {
     .id        = NGL_NODE_RENDERTOTEXTURE,
     .name      = "RenderToTexture",
-    .init      = rtt_init,
+    .prefetch  = rtt_prefetch,
     .update    = rtt_update,
     .draw      = rtt_draw,
-    .uninit    = rtt_uninit,
+    .release   = rtt_release,
     .priv_size = sizeof(struct rtt),
     .params    = rtt_params,
 };

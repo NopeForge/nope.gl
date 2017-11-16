@@ -298,7 +298,6 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
         return -1;
 
     ngli_node_attach_ctx(s->rtt, node->ctx);
-    ngli_node_init(s->rtt);
 
     return 0;
 }
@@ -334,6 +333,14 @@ static int upload_mc_frame(struct ngl_node *node, struct hwupload_config *config
 
     struct texture *t = s->textures[0]->priv_data;
     ngli_mat4_mul(t->coordinates_matrix, flip_matrix, matrix);
+
+    ret = ngli_node_visit(s->rtt, NULL, 0.0);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_node_honor_release_prefetch(s->rtt, 0.0);
+    if (ret < 0)
+        return ret;
 
     ret = ngli_node_update(s->rtt, 0.0);
     if (ret < 0)
@@ -560,7 +567,6 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
             return -1;
 
         ngli_node_attach_ctx(s->rtt, node->ctx);
-        ngli_node_init(s->rtt);
     }
 
     return 0;
@@ -694,7 +700,21 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
             ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         }
 
-        int ret = ngli_node_update(s->rtt, 0.0);
+        int ret = ngli_node_visit(s->rtt, NULL, 0.0);
+        if (ret < 0) {
+            CFRelease(textures[0]);
+            CFRelease(textures[1]);
+            return ret;
+        }
+
+        ret = ngli_node_honor_release_prefetch(s->rtt, 0.0);
+        if (ret < 0) {
+            CFRelease(textures[0]);
+            CFRelease(textures[1]);
+            return ret;
+        }
+
+        ret = ngli_node_update(s->rtt, 0.0);
         if (ret < 0) {
             CFRelease(textures[0]);
             CFRelease(textures[1]);
