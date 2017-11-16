@@ -95,7 +95,7 @@ def simple_transition(cfg, transition_start=1, transition_duration=4):
 
     cfg.duration = transition_start*2 + transition_duration
 
-    vertex = get_vert('tex-mix')
+    vertex = get_vert('dual-tex')
     fragment = get_frag('tex-mix')
 
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
