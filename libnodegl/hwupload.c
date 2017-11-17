@@ -331,7 +331,7 @@ static int upload_mc_frame(struct ngl_node *node, struct hwupload_config *config
 
 static int init_mc_dr(struct ngl_node *node, struct hwupload_config *config)
 {
-    struct texture *s = node->priv_data, *t;
+    struct texture *s = node->priv_data;
     struct media *media = s->data_src->priv_data;
 
     s->id = media->android_texture_id;
@@ -342,8 +342,6 @@ static int init_mc_dr(struct ngl_node *node, struct hwupload_config *config)
 
 static int upload_mc_frame_dr(struct ngl_node *node, struct hwupload_config *config, struct sxplayer_frame *frame)
 {
-    int ret;
-
     struct texture *s = node->priv_data;
 
     struct media *media = s->data_src->priv_data;
