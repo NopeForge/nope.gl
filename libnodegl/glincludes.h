@@ -32,7 +32,10 @@
 # elif TARGET_OS_MAC
 #  include <OpenGL/gl3.h>
 #  include <OpenGL/glext.h>
+#  define GL_LUMINANCE                         0x1909
+#  define GL_LUMINANCE_ALPHA                   0x190A
 #  define NGL_CS_COMPAT_INCLUDES 1
+#  define NGL_OGL3_COMPAT_INCLUDES 1
 # endif
 #endif
 
@@ -48,21 +51,79 @@
 # define GL_GLEXT_PROTOTYPES
 # include <GL/glcorearb.h>
 # include <GL/glext.h>
+# define NGL_OGL3_COMPAT_INCLUDES 1
 #endif
 
 #if _WIN32
 # include <GL/gl.h>
 # include <GL/glcorearb.h>
 # include <GL/glext.h>
+# define NGL_OGL3_COMPAT_INCLUDES 1
+#endif
+
+#if NGL_OGL3_COMPAT_INCLUDES
+# define GL_LUMINANCE                          0x1909
+# define GL_LUMINANCE_ALPHA                    0x190A
 #endif
 
 #if NGL_GLES2_COMPAT_INCLUDES
 # define GL_MAJOR_VERSION                      0x821B
 # define GL_MINOR_VERSION                      0x821C
 # define GL_NUM_EXTENSIONS                     0x821D
-# define GL_RED                                GL_LUMINANCE
-# define GL_RG                                 GL_LUMINANCE_ALPHA
+# define GL_HALF_FLOAT                         0x140B
+# define GL_RED                                0x1903
+# define GL_RED_INTEGER                        0x8D94
+# define GL_RG                                 0x8227
+# define GL_RG_INTEGER                         0x8228
+# define GL_RGB_INTEGER                        0x8D98
+# define GL_RGBA_INTEGER                       0x8D99
+# define GL_R8                                 0x8229
+# define GL_RG8                                0x822B
+# define GL_R16F                               0x822D
 # define GL_R32F                               0x822E
+# define GL_RG16F                              0x822F
+# define GL_RG32F                              0x8230
+# define GL_R8I                                0x8231
+# define GL_R8UI                               0x8232
+# define GL_R16I                               0x8233
+# define GL_R16UI                              0x8234
+# define GL_R32I                               0x8235
+# define GL_R32UI                              0x8236
+# define GL_RG8I                               0x8237
+# define GL_RG8UI                              0x8238
+# define GL_RG16I                              0x8239
+# define GL_RG16UI                             0x823A
+# define GL_RG32I                              0x823B
+# define GL_RG32UI                             0x823C
+# define GL_RGB8                               0x8051
+# define GL_RGBA8                              0x8058
+# define GL_RGBA32UI                           0x8D70
+# define GL_RGB32UI                            0x8D71
+# define GL_RGBA16UI                           0x8D76
+# define GL_RGB16UI                            0x8D77
+# define GL_RGBA8UI                            0x8D7C
+# define GL_RGB8UI                             0x8D7D
+# define GL_RGBA32I                            0x8D82
+# define GL_RGB32I                             0x8D83
+# define GL_RGBA16I                            0x8D88
+# define GL_RGB16I                             0x8D89
+# define GL_RGBA8I                             0x8D8E
+# define GL_RGB8I                              0x8D8F
+# define GL_R8_SNORM                           0x8F94
+# define GL_RG8_SNORM                          0x8F95
+# define GL_RGB8_SNORM                         0x8F96
+# define GL_RGBA8_SNORM                        0x8F97
+# define GL_RGBA32F                            0x8814
+# define GL_RGB32F                             0x8815
+# define GL_RGBA16F                            0x881A
+# define GL_RGB16F                             0x881B
+# define GL_DEPTH_COMPONENT24                  0x81A6
+# define GL_DEPTH_COMPONENT32F                 0x8CAC
+# define GL_DEPTH32F_STENCIL8                  0x8CAD
+# define GL_FLOAT_32_UNSIGNED_INT_24_8_REV     0x8DAD
+# define GL_DEPTH_STENCIL                      0x84F9
+# define GL_UNSIGNED_INT_24_8                  0x84FA
+# define GL_DEPTH24_STENCIL8                   0x88F0
 # define GL_READ_ONLY                          0x88B8
 # define GL_WRITE_ONLY                         0x88B9
 # define GL_READ_WRITE                         0x88BA

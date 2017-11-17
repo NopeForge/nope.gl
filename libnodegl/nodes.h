@@ -281,6 +281,10 @@ struct texture {
 #endif
 };
 
+GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext,
+                                              GLenum internal_format,
+                                              GLenum type);
+
 struct textureprograminfo {
     int sampling_mode_id;
     int sampler_id;

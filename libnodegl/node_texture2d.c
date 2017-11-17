@@ -84,6 +84,91 @@ static const struct node_param texture2d_params[] = {
     {NULL}
 };
 
+GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext, GLenum internal_format, GLenum type)
+{
+    if (glcontext->es && glcontext->major_version == 2)
+        return internal_format;
+
+    GLenum format = 0;
+    switch (internal_format) {
+    case GL_RED:
+        if      (type == GL_UNSIGNED_BYTE)  format = GL_R8;
+        else if (type == GL_BYTE)           format = GL_R8_SNORM;
+        else if (type == GL_HALF_FLOAT)     format = GL_R16F;
+        else if (type == GL_FLOAT)          format = GL_R32F;
+        break;
+    case GL_RED_INTEGER:
+        if      (type == GL_UNSIGNED_BYTE)  format = GL_R8UI;
+        else if (type == GL_UNSIGNED_SHORT) format = GL_R16UI;
+        else if (type == GL_UNSIGNED_INT)   format = GL_R32UI;
+        else if (type == GL_BYTE)           format = GL_R8I;
+        else if (type == GL_SHORT)          format = GL_R16I;
+        else if (type == GL_INT)            format = GL_R32I;
+        break;
+    case GL_RG:
+        if      (type == GL_UNSIGNED_BYTE)  format = GL_RG8;
+        else if (type == GL_BYTE)           format = GL_RG8_SNORM;
+        else if (type == GL_HALF_FLOAT)     format = GL_RG16F;
+        else if (type == GL_FLOAT)          format = GL_RG32F;
+        break;
+    case GL_RG_INTEGER:
+        if      (type == GL_UNSIGNED_BYTE)  format = GL_RG8UI;
+        else if (type == GL_UNSIGNED_SHORT) format = GL_RG16UI;
+        else if (type == GL_UNSIGNED_INT)   format = GL_RG32UI;
+        else if (type == GL_BYTE)           format = GL_RG8I;
+        else if (type == GL_SHORT)          format = GL_RG16I;
+        else if (type == GL_INT)            format = GL_RG32I;
+        break;
+    case GL_RGB:
+        if      (type == GL_UNSIGNED_BYTE)  format = GL_RGB8;
+        else if (type == GL_BYTE)           format = GL_RGB8_SNORM;
+        else if (type == GL_HALF_FLOAT)     format = GL_RGB16F;
+        else if (type == GL_FLOAT)          format = GL_RGB32F;
+        break;
+    case GL_RGB_INTEGER:
+        if      (type == GL_UNSIGNED_BYTE)  format = GL_RGB8UI;
+        else if (type == GL_UNSIGNED_SHORT) format = GL_RGB16UI;
+        else if (type == GL_UNSIGNED_INT)   format = GL_RGB32UI;
+        else if (type == GL_BYTE)           format = GL_RGB8I;
+        else if (type == GL_SHORT)          format = GL_RGB16I;
+        else if (type == GL_INT)            format = GL_RGB32I;
+        break;
+    case GL_RGBA:
+        if      (type == GL_UNSIGNED_BYTE)  format = GL_RGBA8;
+        else if (type == GL_BYTE)           format = GL_RGBA8_SNORM;
+        else if (type == GL_HALF_FLOAT)     format = GL_RGBA16F;
+        else if (type == GL_FLOAT)          format = GL_RGBA32F;
+        break;
+    case GL_RGBA_INTEGER:
+        if      (type == GL_UNSIGNED_BYTE)  format = GL_RGBA8UI;
+        else if (type == GL_UNSIGNED_SHORT) format = GL_RGBA16UI;
+        else if (type == GL_UNSIGNED_INT)   format = GL_RGBA32UI;
+        else if (type == GL_BYTE)           format = GL_RGBA8I;
+        else if (type == GL_SHORT)          format = GL_RGBA16I;
+        else if (type == GL_INT)            format = GL_RGBA32I;
+        break;
+    case GL_DEPTH_COMPONENT:
+        if      (type == GL_UNSIGNED_SHORT) format = GL_DEPTH_COMPONENT16;
+        else if (type == GL_UNSIGNED_INT)   format = GL_DEPTH_COMPONENT24;
+        else if (type == GL_FLOAT)          format = GL_DEPTH_COMPONENT32F;
+        break;
+    case GL_DEPTH_STENCIL:
+        if      (type == GL_UNSIGNED_INT_24_8)               format = GL_DEPTH24_STENCIL8;
+        else if (type == GL_FLOAT_32_UNSIGNED_INT_24_8_REV)  format = GL_DEPTH32F_STENCIL8;
+        break;
+    }
+
+    if (!format) {
+        LOG(WARNING,
+            "could not deduce sized internal format from format (0x%x) and type (0x%x)",
+            internal_format,
+            type);
+        format = internal_format;
+    }
+
+    return format;
+}
+
 static int texture_alloc(struct ngl_node *node, const uint8_t *data)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -114,6 +199,8 @@ static int texture_alloc(struct ngl_node *node, const uint8_t *data)
 
 static int texture2d_prefetch(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
     struct texture *s = node->priv_data;
 
     s->target = GL_TEXTURE_2D;
@@ -137,8 +224,10 @@ static int texture2d_prefetch(struct ngl_node *node)
 
         switch (s->data_src->class->id) {
         case NGL_NODE_FPS:
-            s->format = GL_RED;
-            s->internal_format = GL_RED;
+            s->format = glcontext->gl_1comp;
+            s->internal_format = ngli_texture_get_sized_internal_format(glcontext,
+                                                                        glcontext->gl_1comp,
+                                                                        GL_UNSIGNED_BYTE);
             s->type = GL_UNSIGNED_BYTE;
             break;
         case NGL_NODE_MEDIA:

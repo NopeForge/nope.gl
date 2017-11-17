@@ -63,6 +63,9 @@ struct hwupload_config {
 
 static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *frame, struct hwupload_config *config)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+
     config->width = frame->width;
     config->height = frame->height;
     config->linesize = frame->linesize;
@@ -83,8 +86,10 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
         break;
     case SXPLAYER_SMPFMT_FLT:
         config->format = HWUPLOAD_FMT_COMMON;
-        config->gl_format = GL_RED;
-        config->gl_internal_format = GL_RED;
+        config->gl_format = glcontext->gl_1comp;
+        config->gl_internal_format = ngli_texture_get_sized_internal_format(glcontext,
+                                                                            config->gl_format,
+                                                                            GL_FLOAT);
         config->gl_type = GL_FLOAT;
         break;
 #if defined(TARGET_ANDROID)

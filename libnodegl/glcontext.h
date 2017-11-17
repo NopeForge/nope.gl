@@ -48,6 +48,9 @@ struct glcontext {
     int max_texture_image_units;
     int max_compute_work_group_counts[3];
 
+    GLenum gl_1comp;
+    GLenum gl_2comp;
+
     struct glfunctions funcs;
 };
 
