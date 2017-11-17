@@ -23,6 +23,7 @@
 
 import os
 import sys
+import time
 import inspect
 import subprocess
 import traceback
@@ -40,6 +41,14 @@ from OpenGL import GL
 
 ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
 SAMPLES = [0, 2, 4, 8]
+FRAME_RATES = [
+        (15, 1),
+        (24000, 1001), (24, 1),
+        (25, 1),
+        (30000, 1001), (30, 1),
+        (50, 1),
+        (60000, 1001), (60, 1),
+]
 
 class _SerialView(QtWidgets.QWidget):
 
@@ -343,10 +352,19 @@ class _GraphView(QtWidgets.QWidget):
 
 class _GLView(QtWidgets.QWidget):
 
-    RENDERING_FPS = 60
+    REFRESH_RATE = 60
+    SLIDER_TIMEBASE = 1000
+    SLIDER_TIMESCALE = 1. / SLIDER_TIMEBASE
+    TIMEBASE = 1000000000 # nanoseconds
+    TIMESCALE = 1. / TIMEBASE
+
+    def _reset_clock(self):
+        frame_ts = self._frame_index * self.TIMEBASE * self._framerate[1] / self._framerate[0]
+        self._clock_off = int(time.time() * self.TIMEBASE) - frame_ts
 
     def _set_action(self, action):
         if action == 'play':
+            self._reset_clock()
             self._timer.start()
             self._action_btn.setText(u'❙❙')
         elif action == 'pause':
@@ -354,43 +372,55 @@ class _GLView(QtWidgets.QWidget):
             self._action_btn.setText(u'►')
         self._current_action = action
 
-    @QtCore.pyqtSlot()
-    def _slider_clicked(self):
+    @QtCore.pyqtSlot(int)
+    def _slider_moved(self, value): # only user move
+        if not self._scene_duration:
+            return
         self._set_action('pause')
+        self._frame_index = int(value * self.SLIDER_TIMESCALE * self._framerate[0] / self._framerate[1])
+        self._reset_clock()
+        self._refresh()
 
     @QtCore.pyqtSlot()
     def _toggle_playback(self):
         self._set_action('play' if self._current_action == 'pause' else 'pause')
 
-    def _update_tick(self, value):
-        self._tick = value
-        t = self._tick * 1./self.RENDERING_FPS
-        if t > self._scene_duration:
-            self._tick = 0
-        cur_time = '%02d:%02d' % divmod(t, 60)
-        duration = '%02d:%02d' % divmod(self._scene_duration, 60)
-        self._time_lbl.setText('%s / %s (%d @ %dHz)' % (cur_time, duration, self._tick, self.RENDERING_FPS))
-        self._slider.setValue(self._tick)
-
-    @QtCore.pyqtSlot(int)
-    def _slider_value_changed(self, value):
-        if self._gl_widget:
-            self._gl_widget.set_time(value * 1./self.RENDERING_FPS)
-        self._update_tick(value)
+    @QtCore.pyqtSlot()
+    def _update_tick(self):
+        now = time.time()
+        now_int = int(now * self.TIMEBASE)
+        media_time = now_int - self._clock_off
+        if self._clock_off < 0 or media_time * self.TIMESCALE > self._scene_duration:
+            self._clock_off = now_int
+            media_time = 0
+        self._frame_index = media_time * self._framerate[0] / (self._framerate[1] * self.TIMEBASE)
+        self._refresh()
 
     @QtCore.pyqtSlot()
-    def _increment_time(self):
-        self._update_tick(self._tick + 1)
+    def _refresh(self):
+        rendering_fps = self._framerate[0] / float(self._framerate[1])
+        t = self._frame_index * 1. / rendering_fps
+        if self._gl_widget:
+            self._gl_widget.set_time(t)
+        cur_time = '%02d:%02d' % divmod(t, 60)
+        duration = '%02d:%02d' % divmod(self._scene_duration, 60)
+        self._time_lbl.setText('%s / %s (%d @ %.4gHz)' % (cur_time, duration, self._frame_index, rendering_fps))
+        self._slider.setValue(t * self.SLIDER_TIMEBASE)
+
+    def _step_frame_index(self, n):
+        self._set_action('pause')
+        self._frame_index += n
+        if self._frame_index < 0:
+            self._frame_index = 0
+        self._refresh()
 
     @QtCore.pyqtSlot()
     def _step_fw(self):
-        self._set_action('pause')
-        self._update_tick(self._tick + 1)
+        self._step_frame_index(1)
 
     @QtCore.pyqtSlot()
     def _step_bw(self):
-        self._set_action('pause')
-        self._update_tick(self._tick - 1)
+        self._step_frame_index(-1)
 
     @QtCore.pyqtSlot()
     def _screenshot(self):
@@ -402,6 +432,10 @@ class _GLView(QtWidgets.QWidget):
     @QtCore.pyqtSlot(tuple)
     def set_aspect_ratio(self, ar):
         self._gl_widget.set_aspect_ratio(ar)
+
+    @QtCore.pyqtSlot(tuple)
+    def set_frame_rate(self, fr):
+        self._framerate = fr
 
     @QtCore.pyqtSlot(int)
     def _set_samples(self, samples):
@@ -417,21 +451,24 @@ class _GLView(QtWidgets.QWidget):
         if scene:
             self._gl_widget.set_scene(scene, cfg)
             self._scene_duration = cfg.duration
-            self._slider.setRange(0, self._scene_duration * self.RENDERING_FPS)
-            self._update_tick(self._tick)
+            self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
+            self._refresh()
 
-    def __init__(self, get_scene_func, default_ar, default_samples):
+    def __init__(self, get_scene_func, default_ar, default_fr, default_samples):
         super(_GLView, self).__init__()
 
         self._default_ar = default_ar
+        self._framerate = default_fr
         self._default_samples = default_samples
 
         self._get_scene_func = get_scene_func
 
+        self._frame_index = 0
+        self._clock_off = -1
         self._scene_duration = 0
 
         self._timer = QtCore.QTimer()
-        self._timer.setInterval(1000.0 / self.RENDERING_FPS) # in milliseconds
+        self._timer.setInterval(1000.0 / self.REFRESH_RATE) # in milliseconds
 
         self._gl_widget = _GLWidget(self, default_ar, default_samples)
 
@@ -461,14 +498,14 @@ class _GLView(QtWidgets.QWidget):
         self._gl_layout.addWidget(self._slider)
         self._gl_layout.addLayout(toolbar)
 
-        self._update_tick(0)
+        self._frame_index = 0
+        self._refresh()
 
-        self._timer.timeout.connect(self._increment_time)
+        self._timer.timeout.connect(self._update_tick)
         self._action_btn.clicked.connect(self._toggle_playback)
         fw_btn.clicked.connect(self._step_fw)
         bw_btn.clicked.connect(self._step_bw)
-        self._slider.sliderPressed.connect(self._slider_clicked)
-        self._slider.valueChanged.connect(self._slider_value_changed)
+        self._slider.sliderMoved.connect(self._slider_moved)
         screenshot_btn.clicked.connect(self._screenshot)
 
 
@@ -479,6 +516,7 @@ class _Toolbar(QtWidgets.QWidget):
     scene_changed = QtCore.pyqtSignal(name='sceneChanged')
     aspect_ratio_changed = QtCore.pyqtSignal(tuple, name='aspectRatioChanged')
     samples_changed = QtCore.pyqtSignal(int, name='samplesChanged')
+    frame_rate_changed = QtCore.pyqtSignal(tuple, name='frameRateChanged')
 
     def _del_scene_opts_widget(self):
         if self._scene_opts_widget:
@@ -605,6 +643,7 @@ class _Toolbar(QtWidgets.QWidget):
                 'name': scene_name,
                 'func': scene_func,
                 'aspect_ratio': ASPECT_RATIOS[self._ar_cbbox.currentIndex()],
+                'framerate': FRAME_RATES[self._fr_cbbox.currentIndex()],
                 'extra_args': self._scene_extra_args,
                 'has_fps': self._fps_chkbox.isChecked(),
         }
@@ -687,6 +726,12 @@ class _Toolbar(QtWidgets.QWidget):
         self._load_current_scene()
 
     @QtCore.pyqtSlot()
+    def _set_frame_rate(self):
+        fr = FRAME_RATES[self._fr_cbbox.currentIndex()]
+        self.frameRateChanged.emit(fr)
+        self._load_current_scene()
+
+    @QtCore.pyqtSlot()
     def _set_samples(self):
         samples = SAMPLES[self._samples_cbbox.currentIndex()]
 
@@ -697,7 +742,7 @@ class _Toolbar(QtWidgets.QWidget):
         self.samplesChanged.emit(samples)
         self._load_current_scene()
 
-    def __init__(self, default_ar, default_samples):
+    def __init__(self, default_ar, default_fr, default_samples):
         super(_Toolbar, self).__init__()
 
         self._scene_opts_widget = None
@@ -733,6 +778,16 @@ class _Toolbar(QtWidgets.QWidget):
         samples_hbox.addWidget(samples_lbl)
         samples_hbox.addWidget(self._samples_cbbox)
 
+        self._fr_cbbox = QtWidgets.QComboBox()
+        for fr in FRAME_RATES:
+            self._fr_cbbox.addItem('%.4g FPS' % (fr[0] / float(fr[1])))
+        self._fr_cbbox.setCurrentIndex(FRAME_RATES.index(default_fr))
+        self._set_frame_rate()
+        fr_lbl = QtWidgets.QLabel('Frame rate:')
+        fr_hbox = QtWidgets.QHBoxLayout()
+        fr_hbox.addWidget(fr_lbl)
+        fr_hbox.addWidget(self._fr_cbbox)
+
         self._loglevel_cbbox = QtWidgets.QComboBox()
         for level in self.LOG_LEVELS:
             self._loglevel_cbbox.addItem(level.title())
@@ -749,6 +804,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
         self._scene_toolbar_layout.addLayout(ar_hbox)
         self._scene_toolbar_layout.addLayout(samples_hbox)
+        self._scene_toolbar_layout.addLayout(fr_hbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
         self._scene_toolbar_layout.addWidget(self.reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
@@ -758,6 +814,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._fps_chkbox.stateChanged.connect(self._fps_chkbox_changed)
         self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
         self._samples_cbbox.currentIndexChanged.connect(self._set_samples)
+        self._fr_cbbox.currentIndexChanged.connect(self._set_frame_rate)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
 
 
@@ -778,9 +835,11 @@ class _MainWindow(QtWidgets.QSplitter):
 
     def _construct_current_scene(self, cfg_dict, glbackend):
         ar = cfg_dict['aspect_ratio']
+        fr = cfg_dict['framerate']
 
         scene_cfg = NGLSceneCfg(medias=self._medias)
         scene_cfg.aspect_ratio = ar
+        scene_cfg.framerate = fr
         scene_cfg.glbackend = glbackend
 
         scene = cfg_dict['func'](scene_cfg, **cfg_dict['extra_args'])
@@ -881,7 +940,7 @@ class _MainWindow(QtWidgets.QSplitter):
         open(local_scene, 'w').write(serialized_scene)
         args = [hook_scene_change, local_scene,
                 'duration=%f' % cfg.duration,
-                'framerate=%d/%d' % (_GLView.RENDERING_FPS, 1),
+                'framerate=%d/%d' % cfg.framerate,
                 'aspect_ratio=%d/%d' % cfg.aspect_ratio]
         try:
             subprocess.call(args)
@@ -916,10 +975,11 @@ class _MainWindow(QtWidgets.QSplitter):
 
         default_ar = ASPECT_RATIOS[0]
         default_samples = SAMPLES[0]
+        default_fr = (60, 1)
 
         get_scene_func = self._get_scene
 
-        gl_view = _GLView(get_scene_func, default_ar, default_samples)
+        gl_view = _GLView(get_scene_func, default_ar, default_fr, default_samples)
         graph_view = _GraphView(get_scene_func)
         export_view = _ExportView(self, get_scene_func)
         serial_view = _SerialView(get_scene_func)
@@ -930,13 +990,14 @@ class _MainWindow(QtWidgets.QSplitter):
         tabs.addTab(export_view, "Export")
         tabs.addTab(serial_view, "Serialization")
 
-        self._scene_toolbar = _Toolbar(default_ar, default_samples)
+        self._scene_toolbar = _Toolbar(default_ar, default_fr, default_samples)
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(serial_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(self._scene_changed_hook)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
         self._scene_toolbar.samplesChanged.connect(gl_view._set_samples)
+        self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
 
         self._errbuf = QtWidgets.QTextEdit()
         self._errbuf.hide()

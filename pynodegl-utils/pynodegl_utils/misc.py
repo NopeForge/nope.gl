@@ -97,6 +97,7 @@ class NGLMedia:
 class NGLSceneCfg:
 
     LOOP_DURATION = 30.0
+    FRAME_RATE = (60, 1)
     DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
 
     def __init__(self, medias=None):
@@ -104,7 +105,8 @@ class NGLSceneCfg:
             media_file = self.DEFAULT_MEDIA_FILE
             if not os.path.exists(self.DEFAULT_MEDIA_FILE):
                 ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
-                                       'testsrc2=d=%d:r=%d' % (int(math.ceil(self.LOOP_DURATION)), 60),
+                                       'testsrc2=d=%d:r=%d/%d' % (int(math.ceil(self.LOOP_DURATION)),
+                                                                  self.FRAME_RATE[0], self.FRAME_RATE[1]),
                                        media_file])
                 if ret:
                     raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
@@ -113,4 +115,5 @@ class NGLSceneCfg:
         self.medias = medias
         self.duration = self.LOOP_DURATION
         self.aspect_ratio = (16, 9)
+        self.framerate = self.FRAME_RATE
         self.glbackend = 'gl'
