@@ -218,6 +218,8 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
                                      &glcontext->max_compute_work_group_counts[i]);
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
+        glcontext->es = 1;
+
         const char *gl_version = (const char *)ngli_glGetString(gl, GL_VERSION);
         if (gl_version) {
             int ret = sscanf(gl_version,

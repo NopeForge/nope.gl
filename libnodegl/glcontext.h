@@ -39,6 +39,7 @@ struct glcontext {
     int loaded;
     int major_version;
     int minor_version;
+    int es;
     int has_polygonmode_compatibility;
     int has_es2_compatibility;
     int has_vao_compatibility;
