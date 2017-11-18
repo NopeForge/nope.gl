@@ -193,7 +193,8 @@ void ngli_android_looper_free(struct android_looper **looper)
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(looper);
+        free(*looper);
+        *looper = NULL;
         return;
     }
     if ((*looper)->looper) {
@@ -203,5 +204,6 @@ void ngli_android_looper_free(struct android_looper **looper)
 
     ngli_jni_reset_jfields(env, &(*looper)->jfields, android_looper_mapping, 1);
 
-    free(looper);
+    free(*looper);
+    *looper = NULL;
 }
