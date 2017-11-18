@@ -27,6 +27,7 @@
 #include "android_utils.h"
 #include "jni_utils.h"
 #include "log.h"
+#include "android_handlerthread.h"
 #include "android_surface.h"
 
 
@@ -142,7 +143,7 @@ struct android_surface {
     int on_frame_available;
 };
 
-struct android_surface *ngli_android_surface_new(int tex_id)
+struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
 {
     JNIEnv *env = NULL;
     jobject listener = NULL;
@@ -201,10 +202,20 @@ struct android_surface *ngli_android_surface_new(int tex_id)
             goto fail;
         }
 
-        (*env)->CallVoidMethod(env,
-                               ret->surface_texture,
-                               ret->jfields.set_on_frame_available_listener_id,
-                               listener);
+        if (ret->jfields.set_on_frame_available_listener2_id) {
+            (*env)->CallVoidMethod(env,
+                                   ret->surface_texture,
+                                   ret->jfields.set_on_frame_available_listener2_id,
+                                   listener,
+                                   handler);
+        } else {
+            (*env)->CallVoidMethod(env,
+                                   ret->surface_texture,
+                                   ret->jfields.set_on_frame_available_listener_id,
+                                   listener);
+        }
+
+
         if (ngli_jni_exception_check(env, 1) < 0) {
             goto fail;
         }

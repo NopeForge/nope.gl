@@ -26,6 +26,7 @@
 #include <sxplayer.h>
 
 #ifdef TARGET_ANDROID
+#include "android_handlerthread.h"
 #include "android_surface.h"
 #endif
 
@@ -356,6 +357,7 @@ struct media {
     GLuint android_texture_id;
     GLenum android_texture_target;
     struct android_surface *android_surface;
+    struct android_handlerthread *android_handlerthread;
 #endif
 };
 

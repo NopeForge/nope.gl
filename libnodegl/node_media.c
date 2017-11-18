@@ -138,7 +138,15 @@ static int media_init(struct ngl_node *node)
     ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
     s->android_texture_target = GL_TEXTURE_EXTERNAL_OES;
 
-    s->android_surface = ngli_android_surface_new(s->android_texture_id);
+    s->android_handlerthread = ngli_android_handlerthread_new();
+    if (!s->android_handlerthread)
+        return -1;
+
+    void *handler = ngli_android_handlerthread_get_native_handler(s->android_handlerthread);
+    if (!handler)
+        return -1;
+
+    s->android_surface = ngli_android_surface_new(s->android_texture_id, handler);
     if (!s->android_surface)
         return -1;
 
@@ -228,6 +236,7 @@ static void media_uninit(struct ngl_node *node)
 
     ngli_android_surface_free(&s->android_surface);
     ngli_glDeleteTextures(gl, 1, &s->android_texture_id);
+    ngli_android_handlerthread_free(&s->android_handlerthread);
 #endif
 }
 
