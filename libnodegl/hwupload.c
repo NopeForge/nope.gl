@@ -694,7 +694,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
             ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         }
 
-        ret = ngli_node_update(s->rtt, 0.0);
+        int ret = ngli_node_update(s->rtt, 0.0);
         if (ret < 0) {
             CFRelease(textures[0]);
             CFRelease(textures[1]);
