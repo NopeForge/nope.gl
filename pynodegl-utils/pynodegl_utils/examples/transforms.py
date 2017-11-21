@@ -157,7 +157,7 @@ def animated_camera(cfg, rotate=True):
     camera.set_eye(0, 0, 2)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
-    camera.set_perspective(45.0, cfg.aspect_ratio, 0.1, 10.0)
+    camera.set_perspective(45.0, cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]), 0.1, 10.0)
 
     tr_animkf = [AnimKeyFrameVec3(0,  (0.0, 0.0, 0.0)),
                  AnimKeyFrameVec3(10, (0.0, 0.0, 3.0), "exp_out")]

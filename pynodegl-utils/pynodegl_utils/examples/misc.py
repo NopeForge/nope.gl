@@ -138,7 +138,7 @@ def fibo(cfg, n=8):
 
     root.set_eye(0.0, 0.0, 2.0)
     root.set_up(0.0, 1.0, 0.0)
-    root.set_perspective(45.0, cfg.aspect_ratio, 1.0, 10.0)
+    root.set_perspective(45.0, cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]), 1.0, 10.0)
     return root
 
 @scene(dim={'type': 'range', 'range': [1,50]})

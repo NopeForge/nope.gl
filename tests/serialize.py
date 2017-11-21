@@ -27,7 +27,7 @@ def serialize(dirname):
         scenes.append((module_name, scene_funcs))
 
     scene_cfg = NGLSceneCfg()
-    scene_cfg.aspect_ratio = 16 / 9.
+    scene_cfg.aspect_ratio = (16, 9)
 
     try:
         os.makedirs(dirname)

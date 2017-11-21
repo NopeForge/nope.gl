@@ -780,7 +780,7 @@ class _MainWindow(QtWidgets.QSplitter):
         ar = cfg_dict['aspect_ratio']
 
         scene_cfg = NGLSceneCfg(medias=self._medias)
-        scene_cfg.aspect_ratio = ar[0] / float(ar[1])
+        scene_cfg.aspect_ratio = ar
         scene_cfg.glbackend = glbackend
 
         scene = cfg_dict['func'](scene_cfg, **cfg_dict['extra_args'])
@@ -884,7 +884,7 @@ class _MainWindow(QtWidgets.QSplitter):
         args = [hook_scene_change, local_scene, remote_scene,
                 'duration=%f' % cfg.duration,
                 'framerate=%d' % _GLView.RENDERING_FPS,
-                'aspect_ratio=%f' % cfg.aspect_ratio]
+                'aspect_ratio=%f' % (cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]))]
         try:
             subprocess.call(args)
         except OSError, e:
