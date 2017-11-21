@@ -139,7 +139,13 @@ static int media_init(struct ngl_node *node)
     s->android_texture_target = GL_TEXTURE_EXTERNAL_OES;
 
     s->android_surface = ngli_android_surface_new(s->android_texture_id);
+    if (!s->android_surface)
+        return -1;
+
     void *android_surface = ngli_android_surface_get_surface(s->android_surface);
+    if (!android_surface)
+        return -1;
+
     sxplayer_set_option(s->player, "opaque", &android_surface);
 #endif
 
