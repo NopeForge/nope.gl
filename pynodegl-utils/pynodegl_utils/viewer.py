@@ -883,8 +883,8 @@ class _MainWindow(QtWidgets.QSplitter):
         open(local_scene, 'w').write(serialized_scene)
         args = [hook_scene_change, local_scene, remote_scene,
                 'duration=%f' % cfg.duration,
-                'framerate=%d' % _GLView.RENDERING_FPS,
-                'aspect_ratio=%f' % (cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]))]
+                'framerate=%d/%d' % (_GLView.RENDERING_FPS, 1),
+                'aspect_ratio=%d/%d' % cfg.aspect_ratio]
         try:
             subprocess.call(args)
         except OSError, e:
