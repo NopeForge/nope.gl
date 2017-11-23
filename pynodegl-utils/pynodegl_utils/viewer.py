@@ -143,16 +143,16 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
     def resizeGL(self, screen_width, screen_height):
         screen_width = int(screen_width * self.devicePixelRatioF())
         screen_height = int(screen_height * self.devicePixelRatioF())
-        aspect = self._aspect_ratio[0] / float(self._aspect_ratio[1])
+        aspect = self._aspect_ratio
         self.view_width = screen_width
-        self.view_height = int(screen_width / aspect)
+        self.view_height = screen_width * aspect[1] / aspect[0]
 
         if self.view_height > screen_height:
             self.view_height = screen_height
-            self.view_width = int(screen_height * aspect)
+            self.view_width = screen_height * aspect[0] / aspect[1]
 
-        self.view_x = int((screen_width - self.view_width) / 2.0)
-        self.view_y = int((screen_height - self.view_height) / 2.0)
+        self.view_x = (screen_width - self.view_width) // 2
+        self.view_y = (screen_height - self.view_height) // 2
 
     def initializeGL(self):
         api = ngl.GLAPI_OPENGL3
