@@ -865,16 +865,15 @@ class _MainWindow(QtWidgets.QSplitter):
         # appropriately.
         serialized_scene = scene.serialize()
         hook_sync = self._get_hook('media_sync')
-        if hook_sync:
-            remotedir = self._get_hook_output('get_assets_dir')
+        remotedir = self._get_hook_output('get_assets_dir')
+        if hook_sync and remotedir:
             for media in cfg.medias:
-                if remotedir:
-                    localfile = media.filename
-                    remotefile = os.path.join(remotedir, os.path.basename(localfile))
-                    serialized_scene = serialized_scene.replace(
-                            filename_escape(localfile),
-                            filename_escape(remotefile))
-                subprocess.call([hook_sync, localfile, remotefile])
+                localfile = media.filename
+                remotefile = os.path.join(remotedir, os.path.basename(localfile))
+                serialized_scene = serialized_scene.replace(
+                        filename_escape(localfile),
+                        filename_escape(remotefile))
+                ret = subprocess.call([hook_sync, localfile, remotefile])
 
         # The serialized scene is then stored in a file which is then
         # communicated with additional parameters to the user
