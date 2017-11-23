@@ -879,9 +879,8 @@ class _MainWindow(QtWidgets.QSplitter):
         # The serialized scene is then stored in a file which is then
         # communicated with additional parameters to the user
         local_scene = '/tmp/ngl_scene.ngl'
-        remote_scene = os.path.join(remotedir, os.path.basename(local_scene))
         open(local_scene, 'w').write(serialized_scene)
-        args = [hook_scene_change, local_scene, remote_scene,
+        args = [hook_scene_change, local_scene,
                 'duration=%f' % cfg.duration,
                 'framerate=%d/%d' % (_GLView.RENDERING_FPS, 1),
                 'aspect_ratio=%d/%d' % cfg.aspect_ratio]
