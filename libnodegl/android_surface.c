@@ -79,7 +79,7 @@ static jclass surface_listener_new(struct android_surface *surface)
         goto done;
     }
 
-    (*env)->CallVoidMethod(env, listener, set_native_ptr_id, surface);
+    (*env)->CallVoidMethod(env, listener, set_native_ptr_id, (jlong)surface);
     if (ngli_jni_exception_check(env, 1) < 0) {
         goto done;
     }
