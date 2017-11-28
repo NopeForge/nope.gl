@@ -28,6 +28,25 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+#ifdef TARGET_ANDROID
+static const char default_fragment_shader[] =
+    "#version 100"                                                                      "\n"
+    "#extension GL_OES_EGL_image_external : require"                                    "\n"
+    ""                                                                                  "\n"
+    "precision highp float;"                                                            "\n"
+    "uniform int tex0_sampling_mode;"                                                   "\n"
+    "uniform sampler2D tex0_sampler;"                                                   "\n"
+    "uniform samplerExternalOES tex0_external_sampler;"                                 "\n"
+    "varying vec2 var_uvcoord;"                                                         "\n"
+    "varying vec2 var_tex0_coord;"                                                      "\n"
+    "void main(void)"                                                                   "\n"
+    "{"                                                                                 "\n"
+    "    if (tex0_sampling_mode == 1)"                                                  "\n"
+    "        gl_FragColor = texture2D(tex0_sampler, var_tex0_coord);"                   "\n"
+    "    else if (tex0_sampling_mode == 2)"                                             "\n"
+    "        gl_FragColor = texture2D(tex0_external_sampler, var_tex0_coord);"          "\n"
+    "}";
+#else
 static const char default_fragment_shader[] =
     "#version 100"                                                                      "\n"
     ""                                                                                  "\n"
@@ -39,6 +58,7 @@ static const char default_fragment_shader[] =
     "{"                                                                                 "\n"
     "    gl_FragColor = texture2D(tex0_sampler, var_tex0_coord);"                       "\n"
     "}";
+#endif
 
 static const char default_vertex_shader[] =
     "#version 100"                                                                      "\n"
