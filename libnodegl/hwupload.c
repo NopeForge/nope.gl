@@ -344,6 +344,10 @@ static int upload_mc_frame(struct ngl_node *node, struct hwupload_config *config
 
 static int init_mc_dr(struct ngl_node *node, struct hwupload_config *config)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
     struct texture *s = node->priv_data;
     struct media *media = s->data_src->priv_data;
 
@@ -354,6 +358,11 @@ static int init_mc_dr(struct ngl_node *node, struct hwupload_config *config)
 
     s->id = media->android_texture_id;
     s->target = media->android_texture_target;
+
+    ngli_glBindTexture(gl, s->target, s->id);
+    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, s->min_filter);
+    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+    ngli_glBindTexture(gl, s->target, 0);
 
     return 0;
 }
