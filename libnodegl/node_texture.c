@@ -315,10 +315,8 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
 
         if (update_dimensions) {
             tex_image(gl, s, data);
-        } else {
-            if (data) {
-                tex_sub_image(gl, s, data);
-            }
+        } else if (data) {
+            tex_sub_image(gl, s, data);
         }
     }
 
