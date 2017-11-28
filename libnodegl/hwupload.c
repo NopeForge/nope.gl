@@ -335,7 +335,7 @@ static int init_mc_dr(struct ngl_node *node, struct hwupload_config *config)
     struct media *media = s->data_src->priv_data;
 
     s->id = media->android_texture_id;
-    s->target = GL_TEXTURE_EXTERNAL_OES;
+    s->target = media->android_texture_target;
 
     return 0;
 }
