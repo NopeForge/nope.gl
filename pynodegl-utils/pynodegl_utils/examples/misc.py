@@ -13,6 +13,7 @@ from pynodegl import (
         AnimatedVec3,
         AnimatedVec4,
         BufferFloat,
+        BufferUBVec3,
         BufferUBVec4,
         BufferVec2,
         BufferVec3,
@@ -30,6 +31,7 @@ from pynodegl import (
         Render,
         Rotate,
         Texture2D,
+        Texture3D,
         Translate,
         Triangle,
         UniformInt,
@@ -39,6 +41,43 @@ from pynodegl import (
 
 from pynodegl_utils.misc import scene, get_frag, get_vert, get_comp
 
+
+@scene(xsplit={'type': 'range', 'range': [0, 1], 'unit_base': 100},
+       trilinear={'type': 'bool'})
+def lut3d(cfg, xsplit=.3, trilinear=True):
+    level = 6
+    level2, level3 = level**2, level**3
+
+    # Generated with `ffmpeg -f lavfi -i haldclutsrc=6,curves=vintage -f
+    # rawvideo -frames:v 1 lut3d.raw`
+    lut3d_file = open(os.path.join(os.path.dirname(__file__), 'data', 'lut3d.raw'))
+    lut3d_data = lut3d_file.read()
+    w, h = (level3, level3)
+    assert len(lut3d_data) == w * h * 3
+
+    array_data = array.array('B', lut3d_data)
+    lut3d_buf = BufferUBVec3(data=array_data)
+    lut3d_tex = Texture3D(data_src=lut3d_buf,
+                          width=level2, height=level2, depth=level2)
+    if trilinear:
+        lut3d_tex.set_min_filter(GL.GL_LINEAR)
+        lut3d_tex.set_mag_filter(GL.GL_LINEAR)
+
+    video = Media(cfg.medias[0].filename)
+    video_tex = Texture2D(data_src=video)
+
+    shader_version = '300 es' if cfg.glbackend == 'gles' else '420'
+    shader_header = '#version %s\n' % shader_version
+    prog = Program(fragment=shader_header + get_frag('lut3d'),
+                   vertex=shader_header + get_vert('lut3d'))
+
+    quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render = Render(quad, prog)
+    render.update_textures(tex0=video_tex)
+    render.update_textures(lut3d=lut3d_tex)
+    render.update_uniforms(xsplit=UniformFloat(value=xsplit))
+
+    return render
 
 @scene(bgcolor1={'type': 'color'},
        bgcolor2={'type': 'color'},
