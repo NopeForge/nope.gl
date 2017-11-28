@@ -412,13 +412,13 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
             struct buffer *buffer = s->data_src->priv_data;
 
             if (local_target == GL_TEXTURE_2D) {
-            if (buffer->count != s->width * s->height) {
-                LOG(ERROR, "dimensions (%dx%d) do not match buffer count (%d),"
-                    " assuming %dx1", s->width, s->height,
-                    buffer->count, buffer->count);
-                s->width = buffer->count;
-                s->height = 1;
-            }
+                if (buffer->count != s->width * s->height) {
+                    LOG(ERROR, "dimensions (%dx%d) do not match buffer count (%d),"
+                        " assuming %dx1", s->width, s->height,
+                        buffer->count, buffer->count);
+                    s->width = buffer->count;
+                    s->height = 1;
+                }
             } else if (local_target == GL_TEXTURE_3D) {
                 if (buffer->count != s->width * s->height * s->depth) {
                     LOG(ERROR, "dimensions (%dx%dx%d) do not match buffer count (%d),"
