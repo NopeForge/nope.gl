@@ -189,6 +189,8 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         ngli_glGetIntegerv(gl, GL_MAJOR_VERSION, &glcontext->major_version);
         ngli_glGetIntegerv(gl, GL_MINOR_VERSION, &glcontext->minor_version);
 
+        ngli_assert(glcontext->major_version >= 3);
+
         if (glcontext->major_version >= 4)
             glcontext->has_vao_compatibility = 1;
 
