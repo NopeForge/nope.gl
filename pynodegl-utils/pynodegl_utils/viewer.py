@@ -780,7 +780,7 @@ class _Toolbar(QtWidgets.QWidget):
 
         self._fr_cbbox = QtWidgets.QComboBox()
         for fr in FRAME_RATES:
-            self._fr_cbbox.addItem('%.4g FPS' % (fr[0] / float(fr[1])))
+            self._fr_cbbox.addItem('%.5g FPS' % (fr[0] / float(fr[1])))
         self._fr_cbbox.setCurrentIndex(FRAME_RATES.index(default_fr))
         self._set_frame_rate()
         fr_lbl = QtWidgets.QLabel('Frame rate:')
