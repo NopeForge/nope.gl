@@ -309,9 +309,10 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
             ngli_glGenTextures(gl, 1, &s->local_id);
             ngli_glBindTexture(gl, s->local_target, s->local_id);
             tex_set_params(gl, s);
+        } else {
+            ngli_glBindTexture(gl, s->local_target, s->local_id);
         }
 
-        ngli_glBindTexture(gl, s->local_target, s->local_id);
         if (update_dimensions) {
             tex_image(gl, s, data);
         } else {
