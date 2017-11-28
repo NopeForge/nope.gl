@@ -95,6 +95,19 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
 #if defined(TARGET_ANDROID)
     case SXPLAYER_PIXFMT_MEDIACODEC: {
         struct texture *s = node->priv_data;
+
+        if (s->direct_rendering) {
+            if (s->min_filter != GL_NEAREST && s->min_filter != GL_LINEAR) {
+                LOG(WARNING,
+                    "External textures only support nearest and linear filtering: disabling direct rendering");
+                s->direct_rendering = 0;
+            } else if (s->wrap_s != GL_CLAMP_TO_EDGE || s->wrap_t != GL_CLAMP_TO_EDGE) {
+                LOG(WARNING,
+                    "External textures only support clamp to edge wrapping: disabling direct rendering");
+                s->direct_rendering = 0;
+            }
+        }
+
         if (s->direct_rendering)
             config->format = HWUPLOAD_FMT_MEDIACODEC_DR;
         else
