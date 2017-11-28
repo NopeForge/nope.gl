@@ -904,49 +904,50 @@ class _MainWindow(QtWidgets.QSplitter):
                     s += '%%%02x' % (cval & 0xff)
             return s
 
-        # Bail out immediately if there is no script to run when a scene change
-        # occurs
-        hook_scene_change = self._get_hook('scene_change')
-        if not hook_scene_change:
-            return
-
-        # The OpenGL backend can be different when using hooks: the scene might
-        # be rendered on a remote device different from the one constructing
-        # the scene graph
-        glbackend = self._get_hook_output('get_gl_backend')
-        scene, cfg = self._get_scene(glbackend)
-        if not scene:
-            return
-
-        # The serialized scene is associated with a bunch of assets which we
-        # need to sync. Similarly, the remote assets directory might be
-        # different from the one in local, so we need to fix up the scene
-        # appropriately.
-        serialized_scene = scene.serialize()
-        hook_sync = self._get_hook('media_sync')
-        remotedir = self._get_hook_output('get_assets_dir')
-        if hook_sync and remotedir:
-            for media in cfg.medias:
-                localfile = media.filename
-                remotefile = os.path.join(remotedir, os.path.basename(localfile))
-                serialized_scene = serialized_scene.replace(
-                        filename_escape(localfile),
-                        filename_escape(remotefile))
-                ret = subprocess.call([hook_sync, localfile, remotefile])
-
-        # The serialized scene is then stored in a file which is then
-        # communicated with additional parameters to the user
-        local_scene = '/tmp/ngl_scene.ngl'
-        open(local_scene, 'w').write(serialized_scene)
-        args = [hook_scene_change, local_scene,
-                'duration=%f' % cfg.duration,
-                'framerate=%d/%d' % cfg.framerate,
-                'aspect_ratio=%d/%d' % cfg.aspect_ratio]
         try:
-            subprocess.call(args)
-        except OSError, e:
+            # Bail out immediately if there is no script to run when a scene change
+            # occurs
+            hook_scene_change = self._get_hook('scene_change')
+            if not hook_scene_change:
+                return
+
+            # The OpenGL backend can be different when using hooks: the scene might
+            # be rendered on a remote device different from the one constructing
+            # the scene graph
+            glbackend = self._get_hook_output('get_gl_backend')
+            scene, cfg = self._get_scene(glbackend)
+            if not scene:
+                return
+
+            # The serialized scene is associated with a bunch of assets which we
+            # need to sync. Similarly, the remote assets directory might be
+            # different from the one in local, so we need to fix up the scene
+            # appropriately.
+            serialized_scene = scene.serialize()
+            hook_sync = self._get_hook('media_sync')
+            remotedir = self._get_hook_output('get_assets_dir')
+            if hook_sync and remotedir:
+                for media in cfg.medias:
+                    localfile = media.filename
+                    remotefile = os.path.join(remotedir, os.path.basename(localfile))
+                    serialized_scene = serialized_scene.replace(
+                            filename_escape(localfile),
+                            filename_escape(remotefile))
+                    subprocess.check_call([hook_sync, localfile, remotefile])
+
+            # The serialized scene is then stored in a file which is then
+            # communicated with additional parameters to the user
+            local_scene = '/tmp/ngl_scene.ngl'
+            open(local_scene, 'w').write(serialized_scene)
+            args = [hook_scene_change, local_scene,
+                    'duration=%f' % cfg.duration,
+                    'framerate=%d/%d' % cfg.framerate,
+                    'aspect_ratio=%d/%d' % cfg.aspect_ratio]
+            subprocess.check_call(args)
+
+        except subprocess.CalledProcessError, e:
             QtWidgets.QMessageBox.critical(self, 'Hook error',
-                                          'Error while executing hook (%s): %s' % (hook_scene_change, e.strerror),
+                                          'Error (%d) while executing %s' % (e.returncode, ' '.join(e.cmd)),
                                            QtWidgets.QMessageBox.Ok)
 
     def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
