@@ -66,7 +66,7 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
     video = Media(cfg.medias[0].filename)
     video_tex = Texture2D(data_src=video)
 
-    shader_version = '300 es' if cfg.glbackend == 'gles' else '130'
+    shader_version = '300 es' if cfg.glbackend == 'gles' else '330'
     shader_header = '#version %s\n' % shader_version
     prog = Program(fragment=shader_header + get_frag('lut3d'),
                    vertex=shader_header + get_vert('lut3d'))
