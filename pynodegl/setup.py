@@ -160,7 +160,8 @@ cdef class %(class_name)s(%(parent_node)s):
 ''' % class_data
             if not node.startswith('_') or node == '_Node':
                 class_str += '''
-    def __cinit__(%(construct_args)s):%(special_inits)s
+    def __init__(%(construct_args)s):%(special_inits)s
+        assert self.ctx is NULL
         self.ctx = ngl_node_create(%(construct_cargs)s)
         if self.ctx is NULL:
             raise MemoryError()
