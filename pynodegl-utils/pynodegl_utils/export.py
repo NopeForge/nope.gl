@@ -34,7 +34,7 @@ class _ReaderThread(_PipeThread):
         self._extra_enc_args = extra_enc_args if extra_enc_args else []
 
     def run_with_except(self):
-        cmd = ['ffmpeg', '-r', str(self.fps),
+        cmd = ['ffmpeg', '-r', '%d/%d' % self.fps,
                '-nostats', '-nostdin',
                '-f', 'rawvideo',
                '-video_size', '%dx%d' % (self.w, self.h),
@@ -94,9 +94,9 @@ class Exporter(QtCore.QObject):
         GL.glViewport(0, 0, w, h)
 
         # Draw every frame
-        nb_frame = int(fps * duration)
+        nb_frame = int(duration * fps[0] / fps[1])
         for i in range(nb_frame):
-            time = i / float(fps)
+            time = i * fps[1] / float(fps[0])
             # FIXME: due to the nature of Python threads, another widget can
             # make another GL context current once the GIL is released, thus we
             # need to make sure this rendering context is the current one
@@ -142,7 +142,7 @@ def test_export():
 
     exporter = Exporter()
     exporter.progressed.connect(print_progress)
-    exporter.export(scene, filename, 320, 240, duration, 60)
+    exporter.export(scene, filename, 320, 240, duration, (60, 1))
 
 if __name__ == '__main__':
     test_export()

@@ -196,7 +196,6 @@ class _ExportView(QtWidgets.QWidget):
             ofile  = self._ofile_text.text()
             width  = self._spinbox_width.value()
             height = self._spinbox_height.value()
-            fps    = self._spinbox_fps.value()
 
             extra_enc_args = []
             encoder_id = self._encoders_cbox.currentIndex()
@@ -210,7 +209,7 @@ class _ExportView(QtWidgets.QWidget):
             exporter = Exporter()
             exporter.progressed.connect(self._pgbar.setValue)
             exporter.export(scene, ofile, width, height,
-                            cfg.duration, fps,
+                            cfg.duration, cfg.framerate,
                             extra_enc_args)
 
             self._pgbar.hide()
@@ -247,10 +246,6 @@ class _ExportView(QtWidgets.QWidget):
         self._spinbox_height.setRange(1, 0xffff)
         self._spinbox_height.setValue(600)
 
-        self._spinbox_fps = QtWidgets.QSpinBox()
-        self._spinbox_fps.setRange(1, 1000)
-        self._spinbox_fps.setValue(60)
-
         self._encoders_cbox = QtWidgets.QComboBox()
         self._encoders_cbox.addItems(self._get_encoders_list())
 
@@ -265,7 +260,6 @@ class _ExportView(QtWidgets.QWidget):
         form.addRow('Filename:', file_box)
         form.addRow('Width:',    self._spinbox_width)
         form.addRow('Height:',   self._spinbox_height)
-        form.addRow('FPS:',      self._spinbox_fps)
         form.addRow('Encoder:',  self._encoders_cbox)
         form.addRow('Extra encoder arguments:', self._encopts_text)
         form.addRow(self._export_btn)
