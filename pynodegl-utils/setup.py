@@ -33,6 +33,11 @@ setup(name='pynodegl-utils',
           ],
       },
       package_data={
-          '': ['examples/data/*', 'examples/shaders/*.glsl'],
+          '': [
+              'examples/data/*',
+              'examples/shaders/*.frag',
+              'examples/shaders/*.comp',
+              'examples/shaders/*.vert',
+          ],
       }
 )
