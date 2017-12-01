@@ -98,7 +98,7 @@ class NGLSceneCfg:
 
     LOOP_DURATION = 30.0
     FRAME_RATE = (60, 1)
-    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mkv'
+    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mp4'
 
     def __init__(self, medias=None):
         if medias is None:
