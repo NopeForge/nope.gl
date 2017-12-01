@@ -119,36 +119,6 @@ class ScriptsManager(QtCore.QObject):
             if fp:
                 fp.close()
 
-    def _reload_unsafe(self, initial_import):
-
-        modules_to_reload = self._modules_to_reload.copy()
-        for i, module in enumerate(modules_to_reload):
-            reload(module)
-
-        if initial_import:
-            if self._module_is_script:
-                self._module = self._load_script(self._module_pkgname)
-            else:
-                self._module = importlib.import_module(self._module_pkgname)
-            self._queue_watch_path(self._module.__file__)
-
-        scripts = []
-        if self._module_is_script:
-            if not initial_import:
-                self._module = self._load_script(self._module_pkgname) # reload
-            self._queue_watch_path(self._module_pkgname)
-            scripts.append((self._module.__name__, self._module))
-        else:
-            for module in pkgutil.iter_modules(self._module.__path__):
-                module_finder, module_name, ispkg = module
-                script = importlib.import_module('.' + module_name, self._module_pkgname)
-                if not initial_import:
-                    reload(script)
-                self._queue_watch_path(script.__file__)
-                scripts.append((module_name, script))
-
-        self.scripts_changed.emit(scripts)
-
     def _import_hook(self, name, globals={}, locals={}, fromlist=[], level=-1):
         ret = self._builtin_import(name, globals, locals, fromlist, level)
         if not self._mod_is_blacklisted(ret):
@@ -164,7 +134,33 @@ class ScriptsManager(QtCore.QObject):
     def _reload_scripts(self, initial_import=False):
         self.start_hooking()
         try:
-            self._reload_unsafe(initial_import)
+            modules_to_reload = self._modules_to_reload.copy()
+            for i, module in enumerate(modules_to_reload):
+                reload(module)
+
+            if initial_import:
+                if self._module_is_script:
+                    self._module = self._load_script(self._module_pkgname)
+                else:
+                    self._module = importlib.import_module(self._module_pkgname)
+                self._queue_watch_path(self._module.__file__)
+
+            scripts = []
+            if self._module_is_script:
+                if not initial_import:
+                    self._module = self._load_script(self._module_pkgname) # reload
+                self._queue_watch_path(self._module_pkgname)
+                scripts.append((self._module.__name__, self._module))
+            else:
+                for module in pkgutil.iter_modules(self._module.__path__):
+                    module_finder, module_name, ispkg = module
+                    script = importlib.import_module('.' + module_name, self._module_pkgname)
+                    if not initial_import:
+                        reload(script)
+                    self._queue_watch_path(script.__file__)
+                    scripts.append((module_name, script))
+
+            self.scripts_changed.emit(scripts)
         except:
             self.error.emit(traceback.format_exc())
         self.end_hooking()
