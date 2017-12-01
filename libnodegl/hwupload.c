@@ -40,16 +40,6 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-enum {
-    HWUPLOAD_FMT_NONE,
-    HWUPLOAD_FMT_COMMON,
-    HWUPLOAD_FMT_MEDIACODEC,
-    HWUPLOAD_FMT_MEDIACODEC_DR,
-    HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA,
-    HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA,
-    HWUPLOAD_FMT_VIDEOTOOLBOX_NV12,
-};
-
 struct hwupload_config {
     int format;
     int width;
@@ -71,19 +61,19 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
 
     switch (frame->pix_fmt) {
     case SXPLAYER_PIXFMT_RGBA:
-        config->format = HWUPLOAD_FMT_COMMON;
+        config->format = NGLI_HWUPLOAD_FMT_COMMON;
         config->gl_format = GL_RGBA;
         config->gl_internal_format = GL_RGBA;
         config->gl_type = GL_UNSIGNED_BYTE;
         break;
     case SXPLAYER_PIXFMT_BGRA:
-        config->format = HWUPLOAD_FMT_COMMON;
+        config->format = NGLI_HWUPLOAD_FMT_COMMON;
         config->gl_format = GL_BGRA;
         config->gl_internal_format = GL_RGBA;
         config->gl_type = GL_UNSIGNED_BYTE;
         break;
     case SXPLAYER_SMPFMT_FLT:
-        config->format = HWUPLOAD_FMT_COMMON;
+        config->format = NGLI_HWUPLOAD_FMT_COMMON;
         config->gl_format = glcontext->gl_1comp;
         config->gl_internal_format = ngli_texture_get_sized_internal_format(glcontext,
                                                                             config->gl_format,
@@ -107,9 +97,9 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
         }
 
         if (s->direct_rendering)
-            config->format = HWUPLOAD_FMT_MEDIACODEC_DR;
+            config->format = NGLI_HWUPLOAD_FMT_MEDIACODEC_DR;
         else
-            config->format = HWUPLOAD_FMT_MEDIACODEC;
+            config->format = NGLI_HWUPLOAD_FMT_MEDIACODEC;
         break;
     }
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
@@ -123,18 +113,25 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
 
         switch (cvformat) {
         case kCVPixelFormatType_32BGRA:
-            config->format = HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA;
+            config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA;
             config->gl_format = GL_BGRA;
             break;
         case kCVPixelFormatType_32RGBA:
-            config->format = HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA;
+            config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA;
             config->gl_format = GL_RGBA;
             break;
 #if defined(TARGET_IPHONE)
-        case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-            config->format = HWUPLOAD_FMT_VIDEOTOOLBOX_NV12;
+        case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
+            struct texture *s = node->priv_data;
+
+            if (s->direct_rendering) {
+                config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR;
+            } else {
+                config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12;
+            }
             config->gl_format = GL_BGRA;
             break;
+        }
 #endif
         default:
             ngli_assert(0);
@@ -462,7 +459,7 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
 {
     struct texture *s = node->priv_data;
 
-    if (config->format == HWUPLOAD_FMT_VIDEOTOOLBOX_NV12)
+    if (config->format == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12)
         update_texture_dimensions(node, config);
 
     if (s->upload_fmt == config->format)
@@ -472,7 +469,7 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
 
     ngli_mat4_identity(s->coordinates_matrix);
 
-    if (s->upload_fmt == HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
+    if (s->upload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
         struct texture *t;
 
         static const float corner[3] = {-1.0, -1.0, 0.0};
@@ -566,8 +563,8 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
 
     switch (s->upload_fmt) {
-    case HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
-    case HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA: {
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA: {
         s->format                = config->gl_format;
         s->internal_format       = config->gl_internal_format;
         s->type                  = config->gl_type;
@@ -593,11 +590,11 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
             return -1;
         }
 
-        if (s->texture)
-            CFRelease(s->texture);
+        if (s->ios_textures[0])
+            CFRelease(s->ios_textures[0]);
 
-        s->texture = textures[0];
-        s->id = CVOpenGLESTextureGetName(s->texture);
+        s->ios_textures[0] = textures[0];
+        s->id = CVOpenGLESTextureGetName(s->ios_textures[0]);
 
         ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
@@ -615,7 +612,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         break;
     }
-    case HWUPLOAD_FMT_VIDEOTOOLBOX_NV12: {
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12: {
         s->format                = config->gl_format;
         s->internal_format       = config->gl_internal_format;
         s->type                  = config->gl_type;
@@ -733,6 +730,100 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         break;
     }
+    default:
+        ngli_assert(0);
+    }
+
+    return 0;
+}
+
+static int init_vt_nv12_dr(struct ngl_node *node, struct hwupload_config *config)
+{
+    struct texture *s = node->priv_data;
+
+    if (s->upload_fmt == config->format)
+        return 0;
+
+    s->upload_fmt = config->format;
+
+    return 0;
+}
+
+static int upload_vt_frame_nv12_dr(struct ngl_node *node, struct hwupload_config *config, struct sxplayer_frame *frame)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    struct texture *s = node->priv_data;
+
+    CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(glcontext);
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+
+    s->format                = config->gl_format;
+    s->internal_format       = config->gl_internal_format;
+    s->type                  = config->gl_type;
+    s->width                 = config->width;
+    s->height                = config->height;
+    s->coordinates_matrix[0] = 1.0;
+
+    for (int i = 0; i < 2; i++) {
+        int width;
+        int height;
+        GLenum format;
+        GLenum internal_format;
+        GLenum type = GL_UNSIGNED_BYTE;
+
+        switch (i) {
+        case 0:
+            width = s->width;
+            height = s->height;
+            format = GL_LUMINANCE;
+            internal_format = GL_LUMINANCE;
+            break;
+        case 1:
+            width = (s->width + 1) >> 1;
+            height = (s->height + 1) >> 1;
+            format = GL_LUMINANCE_ALPHA;
+            internal_format = GL_LUMINANCE_ALPHA;
+            break;
+        default:
+            ngli_assert(0);
+        }
+
+        if (s->ios_textures[i])
+            CFRelease(s->ios_textures[i]);
+
+        CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                                    *texture_cache,
+                                                                    cvpixbuf,
+                                                                    NULL,
+                                                                    GL_TEXTURE_2D,
+                                                                    internal_format,
+                                                                    width,
+                                                                    height,
+                                                                    format,
+                                                                    type,
+                                                                    i,
+                                                                    &(s->ios_textures[i]));
+        if (err != noErr) {
+            LOG(ERROR, "Could not create CoreVideo texture from image: %d", err);
+            for (int j = 0; j < 2; j++) {
+                if (s->ios_textures[j]) {
+                    CFRelease(s->ios_textures[j]);
+                    s->ios_textures[j] = NULL;
+                }
+            }
+            return -1;
+        }
+
+        GLint id = CVOpenGLESTextureGetName(s->ios_textures[i]);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
     }
 
     return 0;
@@ -744,22 +835,27 @@ static int hwupload_init(struct ngl_node *node, struct hwupload_config *config)
     int ret = 0;
 
     switch (config->format) {
-    case HWUPLOAD_FMT_COMMON:
+    case NGLI_HWUPLOAD_FMT_COMMON:
         ret = init_common(node, config);
         break;
 #if defined(TARGET_ANDROID)
-    case HWUPLOAD_FMT_MEDIACODEC:
+    case NGLI_HWUPLOAD_FMT_MEDIACODEC:
         ret = init_mc(node, config);
         break;
-    case HWUPLOAD_FMT_MEDIACODEC_DR:
+    case NGLI_HWUPLOAD_FMT_MEDIACODEC_DR:
         ret = init_mc_dr(node, config);
         break;
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
-    case HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
-    case HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA:
-    case HWUPLOAD_FMT_VIDEOTOOLBOX_NV12:
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA:
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12:
         ret = init_vt(node, config);
         break;
+# if defined(TARGET_IPHONE)
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR:
+        ret = init_vt_nv12_dr(node, config);
+        break;
+# endif
 #endif
     default:
         ngli_assert(0);
@@ -775,22 +871,27 @@ static int hwupload_upload_frame(struct ngl_node *node,
     int ret = 0;
 
     switch (config->format) {
-    case HWUPLOAD_FMT_COMMON:
+    case NGLI_HWUPLOAD_FMT_COMMON:
         ret = upload_common_frame(node, config, frame);
         break;
 #if defined(TARGET_ANDROID)
-    case HWUPLOAD_FMT_MEDIACODEC:
+    case NGLI_HWUPLOAD_FMT_MEDIACODEC:
         ret = upload_mc_frame(node, config, frame);
         break;
-    case HWUPLOAD_FMT_MEDIACODEC_DR:
+    case NGLI_HWUPLOAD_FMT_MEDIACODEC_DR:
         ret = upload_mc_frame_dr(node, config, frame);
         break;
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
-    case HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
-    case HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA:
-    case HWUPLOAD_FMT_VIDEOTOOLBOX_NV12:
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA:
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12:
         ret = upload_vt_frame(node, config, frame);
         break;
+# if defined(TARGET_IPHONE)
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR:
+        ret = upload_vt_frame_nv12_dr(node, config, frame);
+        break;
+# endif
 #endif
     default:
         ngli_assert(0);
@@ -820,7 +921,7 @@ void ngli_hwupload_uninit(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
 
-    s->upload_fmt = HWUPLOAD_FMT_NONE;
+    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
 
     if (s->rtt)
         ngli_node_detach_ctx(s->rtt);
@@ -835,7 +936,9 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     ngl_node_unrefp(&s->rtt);
 
 #if defined(TARGET_IPHONE)
-    if (s->texture)
-        CFRelease(s->texture);
+    if (s->ios_textures[0])
+        CFRelease(s->ios_textures[0]);
+    if (s->ios_textures[1])
+        CFRelease(s->ios_textures[1]);
 #endif
 }

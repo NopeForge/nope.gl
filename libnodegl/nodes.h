@@ -229,6 +229,17 @@ struct computeprogram {
     GLuint program_id;
 };
 
+enum hwupload_fmt {
+    NGLI_HWUPLOAD_FMT_NONE,
+    NGLI_HWUPLOAD_FMT_COMMON,
+    NGLI_HWUPLOAD_FMT_MEDIACODEC,
+    NGLI_HWUPLOAD_FMT_MEDIACODEC_DR,
+    NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA,
+    NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA,
+    NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12,
+    NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR,
+};
+
 struct texture {
     GLenum target;
     GLint format;
@@ -255,7 +266,7 @@ struct texture {
     GLuint local_id;
     GLenum local_target;
 
-    int upload_fmt;
+    enum hwupload_fmt upload_fmt;
     struct ngl_node *quad;
     struct ngl_node *program;
     struct ngl_node *render;
@@ -264,7 +275,7 @@ struct texture {
     struct ngl_node *rtt;
 
 #ifdef TARGET_IPHONE
-    CVOpenGLESTextureRef texture;
+    CVOpenGLESTextureRef ios_textures[2];
 #endif
 
     double data_src_ts;
@@ -290,6 +301,9 @@ struct textureprograminfo {
     int sampler_id;
 #if defined(TARGET_ANDROID)
     int external_sampler_id;
+#elif defined(TARGET_IPHONE)
+    int y_sampler_id;
+    int uv_sampler_id;
 #endif
     int coord_matrix_id;
     int dimensions_id;

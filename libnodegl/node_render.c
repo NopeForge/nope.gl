@@ -100,6 +100,7 @@ static const struct node_param render_params[] = {
 #define SAMPLING_MODE_NONE         0
 #define SAMPLING_MODE_2D           1
 #define SAMPLING_MODE_EXTERNAL_OES 2
+#define SAMPLING_MODE_NV12         3
 
 
 #ifdef TARGET_ANDROID
@@ -144,6 +145,50 @@ static void update_external_sampler(const struct glfunctions *gl,
         *sampling_mode = SAMPLING_MODE_EXTERNAL_OES;
         ngli_glBindTexture(gl, texture->target, texture->id);
         ngli_glUniform1i(gl, info->external_sampler_id, *unit_index);
+    }
+}
+#elif TARGET_IPHONE
+static void update_sampler2D(const struct glfunctions *gl,
+                             struct render *s,
+                             struct texture *texture,
+                             struct textureprograminfo *info,
+                             int *unit_index,
+                             int *sampling_mode)
+{
+    if (texture->upload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR) {
+        *sampling_mode = SAMPLING_MODE_NV12;
+
+        if (info->sampler_id >= 0)
+            ngli_glUniform1i(gl, info->sampler_id, 0);
+
+        if (info->y_sampler_id >= 0) {
+            GLint id = CVOpenGLESTextureGetName(texture->ios_textures[0]);
+            ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
+            ngli_glBindTexture(gl, texture->target, id);
+            ngli_glUniform1i(gl, info->y_sampler_id, *unit_index);
+        }
+
+        if (info->uv_sampler_id >= 0) {
+            if (info->y_sampler_id >= 0)
+                *unit_index = *unit_index + 1;
+
+            GLint id = CVOpenGLESTextureGetName(texture->ios_textures[1]);
+            ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
+            ngli_glBindTexture(gl, texture->target, id);
+            ngli_glUniform1i(gl, info->uv_sampler_id, *unit_index);
+        }
+    } else if (info->sampler_id >= 0) {
+        *sampling_mode = SAMPLING_MODE_2D;
+
+        ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
+        ngli_glBindTexture(gl, texture->target, texture->id);
+        ngli_glUniform1i(gl, info->sampler_id, *unit_index);
+
+        if (info->y_sampler_id >= 0)
+            ngli_glUniform1i(gl, info->y_sampler_id, 0);
+
+        if (info->uv_sampler_id >= 0)
+            ngli_glUniform1i(gl, info->uv_sampler_id, 0);
     }
 }
 #else
@@ -588,6 +633,9 @@ static int render_init(struct ngl_node *node)
             GET_TEXTURE_UNIFORM_LOCATION(sampler);
 #if defined(TARGET_ANDROID)
             GET_TEXTURE_UNIFORM_LOCATION(external_sampler);
+#elif defined(TARGET_IPHONE)
+            GET_TEXTURE_UNIFORM_LOCATION(y_sampler);
+            GET_TEXTURE_UNIFORM_LOCATION(uv_sampler);
 #endif
             GET_TEXTURE_UNIFORM_LOCATION(coord_matrix);
             GET_TEXTURE_UNIFORM_LOCATION(dimensions);
@@ -612,6 +660,25 @@ static int render_init(struct ngl_node *node)
                 "direct rendering %s available for texture %s",
                 texture->direct_rendering ? "is" : "is not",
                 entry->key);
+#elif TARGET_IPHONE
+            if (info->sampler_id < 0 &&
+                (info->y_sampler_id < 0 || info->uv_sampler_id < 0)) {
+                LOG(WARNING, "no sampler found for texture %s", entry->key);
+            }
+
+            if (info->sampler_id >= 0 &&
+                (info->y_sampler_id >= 0 || info->uv_sampler_id >= 0))
+                s->disable_1st_texture_unit = 1;
+
+            struct texture *texture = tnode->priv_data;
+            texture->direct_rendering = texture->direct_rendering &&
+                                        (info->y_sampler_id >= 0 ||
+                                        info->uv_sampler_id >= 0);
+            LOG(VERBOSE,
+                "nv12 direct rendering %s available for texture %s",
+                texture->direct_rendering ? "is" : "is not",
+                entry->key);
+
 #else
             if (info->sampler_id < 0) {
                 LOG(WARNING, "no sampler found for texture %s", entry->key);
