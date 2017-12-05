@@ -42,6 +42,10 @@ static const struct node_param media_params[] = {
     {"time_anim", PARAM_TYPE_NODE, OFFSET(anim),
                     .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1}},
     {"audio_tex", PARAM_TYPE_INT, OFFSET(audio_tex)},
+    {"max_nb_packets", PARAM_TYPE_INT, OFFSET(max_nb_packets), {.i64=0}},
+    {"max_nb_frames",  PARAM_TYPE_INT, OFFSET(max_nb_frames),  {.i64=0}},
+    {"max_nb_sink",    PARAM_TYPE_INT, OFFSET(max_nb_sink),    {.i64=0}},
+    {"max_pixels",     PARAM_TYPE_INT, OFFSET(max_pixels),     {.i64=0}},
     {NULL}
 };
 
@@ -109,9 +113,11 @@ static int media_init(struct ngl_node *node)
         }
     }
 
-    sxplayer_set_option(s->player, "max_nb_packets", 1);
-    sxplayer_set_option(s->player, "max_nb_frames", 1);
-    sxplayer_set_option(s->player, "max_nb_sink", 1);
+    if (s->max_nb_packets) sxplayer_set_option(s->player, "max_nb_packets", s->max_nb_packets);
+    if (s->max_nb_frames)  sxplayer_set_option(s->player, "max_nb_frames",  s->max_nb_frames);
+    if (s->max_nb_sink)    sxplayer_set_option(s->player, "max_nb_sink",    s->max_nb_sink);
+    if (s->max_pixels)     sxplayer_set_option(s->player, "max_pixels",     s->max_pixels);
+
     sxplayer_set_option(s->player, "sw_pix_fmt", SXPLAYER_PIXFMT_RGBA);
     sxplayer_set_option(s->player, "skip", s->initial_seek);
 #if defined(TARGET_IPHONE)

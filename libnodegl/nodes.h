@@ -348,6 +348,10 @@ struct media {
     const char *sxplayer_min_level_str;
     struct ngl_node *anim;
     int audio_tex;
+    int max_nb_packets;
+    int max_nb_frames;
+    int max_nb_sink;
+    int max_pixels;
 
     int sxplayer_min_level;
 

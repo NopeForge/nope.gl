@@ -255,6 +255,10 @@
         - [sxplayer_min_level, string]
         - [time_anim, Node]
         - [audio_tex, int]
+        - [max_nb_packets, int]
+        - [max_nb_frames, int]
+        - [max_nb_sink, int]
+        - [max_pixels, int]
 
 - Program:
     optional:
