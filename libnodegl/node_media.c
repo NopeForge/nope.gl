@@ -42,9 +42,9 @@ static const struct node_param media_params[] = {
     {"time_anim", PARAM_TYPE_NODE, OFFSET(anim),
                     .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1}},
     {"audio_tex", PARAM_TYPE_INT, OFFSET(audio_tex)},
-    {"max_nb_packets", PARAM_TYPE_INT, OFFSET(max_nb_packets), {.i64=0}},
-    {"max_nb_frames",  PARAM_TYPE_INT, OFFSET(max_nb_frames),  {.i64=0}},
-    {"max_nb_sink",    PARAM_TYPE_INT, OFFSET(max_nb_sink),    {.i64=0}},
+    {"max_nb_packets", PARAM_TYPE_INT, OFFSET(max_nb_packets), {.i64=1}},
+    {"max_nb_frames",  PARAM_TYPE_INT, OFFSET(max_nb_frames),  {.i64=1}},
+    {"max_nb_sink",    PARAM_TYPE_INT, OFFSET(max_nb_sink),    {.i64=1}},
     {"max_pixels",     PARAM_TYPE_INT, OFFSET(max_pixels),     {.i64=0}},
     {NULL}
 };
