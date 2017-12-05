@@ -20,6 +20,7 @@
  */
 
 #include <stddef.h>
+#include <string.h>
 
 #include "log.h"
 #include "nodegl.h"
@@ -221,7 +222,12 @@ static int timerangefilter_update(struct ngl_node *node, double t)
     }
 
     s->drawme = 1;
-    return ngli_node_update(s->child, t);
+
+    struct ngl_node *child = s->child;
+    memcpy(child->modelview_matrix, node->modelview_matrix, sizeof(node->modelview_matrix));
+    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
+
+    return ngli_node_update(child, t);
 }
 
 static void timerangefilter_draw(struct ngl_node *node)
