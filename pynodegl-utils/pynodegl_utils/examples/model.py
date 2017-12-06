@@ -1,4 +1,4 @@
-import os
+import os.path as op
 import array
 
 from pynodegl import (
@@ -91,7 +91,7 @@ def _load_model(fp):
 def obj(cfg, n=0.5, model=None):
 
     if model is None:
-        model = os.path.join(os.path.dirname(__file__), 'data', 'model.obj')
+        model = op.join(op.dirname(__file__), 'data', 'model.obj')
 
     with open(model) as fp:
         vertices_data, uvs_data, normals_data = _load_model(fp)
@@ -127,7 +127,7 @@ def stl(cfg, stl=None, scale=.8):
 
     if stl is None:
         # generated with: echo 'sphere($fn=15);'>sphere.scad; openscad sphere.scad -o sphere.stl
-        stl = os.path.join(os.path.dirname(__file__), 'data', 'sphere.stl')
+        stl = op.join(op.dirname(__file__), 'data', 'sphere.stl')
 
     normals_data  = array.array('f')
     vertices_data = array.array('f')

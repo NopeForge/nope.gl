@@ -1,4 +1,4 @@
-import os
+import os.path as op
 import array
 import math
 import random
@@ -50,7 +50,7 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
 
     # Generated with `ffmpeg -f lavfi -i haldclutsrc=6,curves=vintage -f
     # rawvideo -frames:v 1 lut3d.raw`
-    lut3d_file = open(os.path.join(os.path.dirname(__file__), 'data', 'lut3d.raw'))
+    lut3d_file = open(op.join(op.dirname(__file__), 'data', 'lut3d.raw'))
     lut3d_data = lut3d_file.read()
     w, h = (level3, level3)
     assert len(lut3d_data) == w * h * 3
@@ -88,7 +88,7 @@ def buffer_dove(cfg,
     cfg.duration = 3.
 
     # Credits: https://icons8.com/icon/40514/dove
-    icon = open(os.path.join(os.path.dirname(__file__), 'data', 'icons8-dove.raw'))
+    icon = open(op.join(op.dirname(__file__), 'data', 'icons8-dove.raw'))
     w, h = (96, 96)
     icon_data = icon.read()
     assert len(icon_data) == w * h * 4

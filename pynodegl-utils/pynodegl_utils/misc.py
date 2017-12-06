@@ -1,4 +1,4 @@
-import os
+import os.path as op
 import math
 import inspect
 import json
@@ -41,8 +41,8 @@ def scene(**widgets_specs):
 
 def get_shader(filename, shader_path=None):
     if shader_path is None:
-        shader_path = os.path.join(os.path.dirname(__file__), 'examples', 'shaders')
-    return open(os.path.join(shader_path, filename)).read()
+        shader_path = op.join(op.dirname(__file__), 'examples', 'shaders')
+    return open(op.join(shader_path, filename)).read()
 
 
 def get_frag(name, shader_path=None):
@@ -103,7 +103,7 @@ class NGLSceneCfg:
     def __init__(self, medias=None):
         if medias is None:
             media_file = self.DEFAULT_MEDIA_FILE
-            if not os.path.exists(self.DEFAULT_MEDIA_FILE):
+            if not op.exists(self.DEFAULT_MEDIA_FILE):
                 ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
                                        'testsrc2=d=%d:r=%d/%d' % (int(math.ceil(self.LOOP_DURATION)),
                                                                   self.FRAME_RATE[0], self.FRAME_RATE[1]),

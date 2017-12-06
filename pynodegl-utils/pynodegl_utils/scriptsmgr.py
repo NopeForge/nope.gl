@@ -21,7 +21,7 @@
 # under the License.
 #
 
-import os
+import os.path as op
 import imp
 import importlib
 import pkgutil
@@ -50,13 +50,13 @@ class ScriptsManager(QtCore.QObject):
         self._module_is_script = module_pkgname.endswith('.py')
         self._module_pkgname = module_pkgname
         if self._module_is_script:
-            self._module_pkgname = os.path.realpath(self._module_pkgname)
+            self._module_pkgname = op.realpath(self._module_pkgname)
         self._builtin_import = __builtin__.__import__
         self._builtin_open = __builtin__.open
         self._dirs_to_watch = set()
         self._files_to_watch = set()
         self._modules_to_reload = set()
-        self._pysysdir = os.path.realpath(distutils.sysconfig.get_python_lib(standard_lib=True))
+        self._pysysdir = op.realpath(distutils.sysconfig.get_python_lib(standard_lib=True))
 
         self._event_handler = FileSystemEventHandler()
         self._event_handler.on_any_event = self._on_any_event
@@ -67,7 +67,7 @@ class ScriptsManager(QtCore.QObject):
         if not hasattr(mod, '__file__'):
             return True
 
-        modpath = os.path.realpath(os.path.dirname(mod.__file__))
+        modpath = op.realpath(op.dirname(mod.__file__))
         if modpath.startswith(self._pysysdir):
             return True
 
@@ -103,14 +103,14 @@ class ScriptsManager(QtCore.QObject):
             self._observer.schedule(self._event_handler, path)
 
     def _queue_watch_path(self, path):
-        self._dirs_to_watch.update([os.path.dirname(path)])
+        self._dirs_to_watch.update([op.dirname(path)])
         if path.endswith('.pyc'):
             path = path[:-1]
         self._files_to_watch.update([path])
 
     def _load_script(self, path):
-        dname = os.path.dirname(path)
-        fname = os.path.basename(path)
+        dname = op.dirname(path)
+        fname = op.basename(path)
         name = fname[:-3]
         fp, pathname, description = imp.find_module(name, [dname])
         try:

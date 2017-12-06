@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import os.path as op
 import math
 import importlib
 import inspect
@@ -39,10 +40,10 @@ def serialize(dirname):
             random.seed(0x67891234)
             scene = scene_func(scene_cfg)
             data = scene.serialize()
-            fname = os.path.join(dirname, '%s_%s.ngl' % (module_name, scene_name))
+            fname = op.join(dirname, '%s_%s.ngl' % (module_name, scene_name))
             print(fname)
             open(fname, 'w').write(data)
 
 if __name__ == '__main__':
     import sys
-    serialize(os.path.join(sys.argv[1]))
+    serialize(op.join(sys.argv[1]))

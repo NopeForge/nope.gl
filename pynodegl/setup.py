@@ -338,8 +338,8 @@ cdef class _Node:
         return content
 
     def run(self):
-        import os
-        specs_file = os.path.join(lib_cfg.data_root_dir, 'nodegl', 'nodes.specs')
+        import os.path as op
+        specs_file = op.join(lib_cfg.data_root_dir, 'nodegl', 'nodes.specs')
         content = self._gen_definitions_pyx(specs_file)
         open('nodes_def.pyx', 'w').write(content)
         build_ext.run(self)

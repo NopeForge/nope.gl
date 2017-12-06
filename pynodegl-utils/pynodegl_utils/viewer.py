@@ -22,6 +22,7 @@
 #
 
 import os
+import os.path as op
 import sys
 import time
 import inspect
@@ -557,7 +558,7 @@ class _Toolbar(QtWidgets.QWidget):
             filenames = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', files_filter)
             if not filenames[0]:
                 return
-            label.setText(self._get_label_text(id_name, os.path.basename(filenames[0])))
+            label.setText(self._get_label_text(id_name, op.basename(filenames[0])))
             self._scene_extra_args[id_name] = filenames[0]
             self._load_current_scene(load_widgets=False)
 
@@ -874,8 +875,8 @@ class _MainWindow(QtWidgets.QSplitter):
     def _get_hook(self, name):
         if not self._hooksdir:
             return None
-        hook = os.path.join(self._hooksdir, 'hook.' + name)
-        if not os.path.exists(hook):
+        hook = op.join(self._hooksdir, 'hook.' + name)
+        if not op.exists(hook):
             return
         return hook
 
@@ -923,7 +924,7 @@ class _MainWindow(QtWidgets.QSplitter):
             if hook_sync and remotedir:
                 for media in cfg.medias:
                     localfile = media.filename
-                    remotefile = os.path.join(remotedir, os.path.basename(localfile))
+                    remotefile = op.join(remotedir, op.basename(localfile))
                     serialized_scene = serialized_scene.replace(
                             filename_escape(localfile),
                             filename_escape(remotefile))
@@ -957,8 +958,8 @@ class _MainWindow(QtWidgets.QSplitter):
             medias = []
             for f in sorted(os.listdir(assets_dir)):
                 ext = f.rsplit('.', 1)[-1].lower()
-                path = os.path.join(assets_dir, f)
-                if os.path.isfile(path) and ext in ('mp4', 'mkv', 'avi', 'webm', 'mov'):
+                path = op.join(assets_dir, f)
+                if op.isfile(path) and ext in ('mp4', 'mkv', 'avi', 'webm', 'mov'):
                     try:
                         media = NGLMedia(path)
                     except:
