@@ -26,7 +26,7 @@ import imp
 import importlib
 import pkgutil
 import traceback
-import distutils
+import distutils.sysconfig
 import __builtin__
 
 from watchdog.observers import Observer
