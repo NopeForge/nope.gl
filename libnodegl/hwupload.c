@@ -55,7 +55,6 @@ struct hwupload_config {
     int width;
     int height;
     int linesize;
-    float xscale;
     GLint gl_format;
     GLint gl_internal_format;
     GLint gl_type;
@@ -69,7 +68,6 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
     config->width = frame->width;
     config->height = frame->height;
     config->linesize = frame->linesize;
-    config->xscale = config->width ? (config->linesize >> 2) / (float)config->width : 1.0;
 
     switch (frame->pix_fmt) {
     case SXPLAYER_PIXFMT_RGBA:
@@ -122,8 +120,6 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
         config->width = CVPixelBufferGetWidth(cvpixbuf);
         config->height = CVPixelBufferGetHeight(cvpixbuf);
         config->linesize = CVPixelBufferGetBytesPerRow(cvpixbuf);
-        if (config->width)
-            config->xscale = (config->linesize >> 2) / (float)config->width;
 
         switch (cvformat) {
         case kCVPixelFormatType_32BGRA:
@@ -178,7 +174,8 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
     s->format                = config->gl_format;
     s->internal_format       = config->gl_internal_format;
     s->type                  = config->gl_type;
-    s->coordinates_matrix[0] = config->xscale;
+    const int linesize       = config->linesize >> 2;
+    s->coordinates_matrix[0] = linesize ? config->width / (float)linesize : 1.0;
 
     ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, 0, frame->data);
 
@@ -429,7 +426,8 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
     s->format                = config->gl_format;
     s->internal_format       = config->gl_internal_format;
     s->type                  = config->gl_type;
-    s->coordinates_matrix[0] = config->xscale;
+    const int linesize       = config->linesize >> 2;
+    s->coordinates_matrix[0] = linesize ? config->width / (float)linesize : 1.0;
 
     ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, 0, data);
 
