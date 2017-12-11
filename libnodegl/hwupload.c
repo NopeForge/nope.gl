@@ -572,9 +572,9 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         s->format                = config->gl_format;
         s->internal_format       = config->gl_internal_format;
         s->type                  = config->gl_type;
-        s->width                 = config->linesize >> 2;
+        s->width                 = config->width;
         s->height                = config->height;
-        s->coordinates_matrix[0] = config->xscale;
+        s->coordinates_matrix[0] = 1.0;
 
         CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                                                     *texture_cache,
