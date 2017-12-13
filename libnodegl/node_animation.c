@@ -28,25 +28,29 @@
 #define OFFSET(x) offsetof(struct animation, x)
 static const struct node_param animatedfloat_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1}},
+                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1},
+                  .desc=NGLI_DOCSTRING("float key frames to interpolate from")},
     {NULL}
 };
 
 static const struct node_param animatedvec2_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC2, -1}},
+                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC2, -1},
+                  .desc=NGLI_DOCSTRING("vec2 key frames to interpolate from")},
     {NULL}
 };
 
 static const struct node_param animatedvec3_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1}},
+                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC3, -1},
+                  .desc=NGLI_DOCSTRING("vec3 key frames to interpolate from")},
     {NULL}
 };
 
 static const struct node_param animatedvec4_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
-                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC4, -1}},
+                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC4, -1},
+                  .desc=NGLI_DOCSTRING("vec4 key frames to interpolate from")},
     {NULL}
 };
 

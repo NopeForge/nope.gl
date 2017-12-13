@@ -4,7 +4,7 @@ libnodegl
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameBuffer`) |  | 
+`keyframes` |  | `NodeList` (`AnimKeyFrameBuffer`) | key frame buffers to interpolate from | 
 
 
 **Source**: [node_animatedbuffer.c](/libnodegl/node_animatedbuffer.c)
@@ -19,7 +19,7 @@ List of `AnimatedBuffer*` nodes:
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameFloat`) |  | 
+`keyframes` |  | `NodeList` (`AnimKeyFrameFloat`) | float key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -28,7 +28,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameVec2`) |  | 
+`keyframes` |  | `NodeList` (`AnimKeyFrameVec2`) | vec2 key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -37,7 +37,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameVec3`) |  | 
+`keyframes` |  | `NodeList` (`AnimKeyFrameVec3`) | vec3 key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -46,7 +46,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameVec4`) |  | 
+`keyframes` |  | `NodeList` (`AnimKeyFrameVec4`) | vec4 key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -55,10 +55,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` |  | `0`
-`value` | ✓ | `double` |  | `0`
-`easing` |  | `string` |  | 
-`easing_args` |  | `doubleList` |  | 
+`time` | ✓ | `double` | the time key point in seconds | `0`
+`value` | ✓ | `double` | the value at time `time` | `0`
+`easing` |  | `string` | a string identifying the interpolation | 
+`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -67,10 +67,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` |  | `0`
-`value` | ✓ | `vec2` |  | (`0`,`0`)
-`easing` |  | `string` |  | 
-`easing_args` |  | `doubleList` |  | 
+`time` | ✓ | `double` | the time key point in seconds | `0`
+`value` | ✓ | `double` | the value at time `time` | `0`
+`easing` |  | `string` | a string identifying the interpolation | 
+`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -79,10 +79,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` |  | `0`
-`value` | ✓ | `vec3` |  | (`0`,`0`,`0`)
-`easing` |  | `string` |  | 
-`easing_args` |  | `doubleList` |  | 
+`time` | ✓ | `double` | the time key point in seconds | `0`
+`value` | ✓ | `double` | the value at time `time` | `0`
+`easing` |  | `string` | a string identifying the interpolation | 
+`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -91,10 +91,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` |  | `0`
-`value` | ✓ | `vec4` |  | (`0`,`0`,`0`,`0`)
-`easing` |  | `string` |  | 
-`easing_args` |  | `doubleList` |  | 
+`time` | ✓ | `double` | the time key point in seconds | `0`
+`value` | ✓ | `double` | the value at time `time` | `0`
+`easing` |  | `string` | a string identifying the interpolation | 
+`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -103,10 +103,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` |  | `0`
-`data` |  | `data` |  | 
-`easing` |  | `string` |  | 
-`easing_args` |  | `doubleList` |  | 
+`time` | ✓ | `double` | the time key point in seconds | `0`
+`data` | ✓ | `data` | the data at time `time` | 
+`easing` |  | `string` | a string identifying the interpolation | 
+`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
