@@ -328,16 +328,16 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`filename` | ✓ | `string` |  | 
-`start` |  | `double` |  | `0`
-`initial_seek` |  | `double` |  | `0`
-`sxplayer_min_level` |  | `string` |  | 
-`time_anim` |  | `Node` (`AnimatedFloat`) |  | 
-`audio_tex` |  | `int` |  | `0`
-`max_nb_packets` |  | `int` |  | `1`
-`max_nb_frames` |  | `int` |  | `1`
-`max_nb_sink` |  | `int` |  | `1`
-`max_pixels` |  | `int` |  | `0`
+`filename` | ✓ | `string` | path to input media file | 
+`start` |  | `double` | update time offseting, updates before this time will do nothing | `0`
+`initial_seek` |  | `double` | initial seek in the media | `0`
+`sxplayer_min_level` |  | `string` | sxplayer min logging level | 
+`time_anim` |  | `Node` (`AnimatedFloat`) | time remapping animation (must use a `linear` interpolation) | 
+`audio_tex` |  | `int` | load the audio and expose it as a stereo waves and frequencies buffer | `0`
+`max_nb_packets` |  | `int` | maximum number of packets in sxplayer demuxing queue | `1`
+`max_nb_frames` |  | `int` | maximum number of frames in sxplayer decoding queue | `1`
+`max_nb_sink` |  | `int` | maximum number of frames in sxplayer filtering queue | `1`
+`max_pixels` |  | `int` | maximum number of pixels per frame | `0`
 
 
 **Source**: [node_media.c](/libnodegl/node_media.c)

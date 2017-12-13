@@ -35,17 +35,27 @@
 
 #define OFFSET(x) offsetof(struct media, x)
 static const struct node_param media_params[] = {
-    {"filename", PARAM_TYPE_STR, OFFSET(filename), {.str=NULL}, PARAM_FLAG_CONSTRUCTOR},
-    {"start",    PARAM_TYPE_DBL, OFFSET(start)},
-    {"initial_seek", PARAM_TYPE_DBL, OFFSET(initial_seek)},
-    {"sxplayer_min_level", PARAM_TYPE_STR, OFFSET(sxplayer_min_level_str), {.str="warning"}},
+    {"filename", PARAM_TYPE_STR, OFFSET(filename), {.str=NULL}, PARAM_FLAG_CONSTRUCTOR,
+                 .desc=NGLI_DOCSTRING("path to input media file")},
+    {"start",    PARAM_TYPE_DBL, OFFSET(start),
+                 .desc=NGLI_DOCSTRING("update time offseting, updates before this time will do nothing")},
+    {"initial_seek", PARAM_TYPE_DBL, OFFSET(initial_seek),
+                     .desc=NGLI_DOCSTRING("initial seek in the media")},
+    {"sxplayer_min_level", PARAM_TYPE_STR, OFFSET(sxplayer_min_level_str), {.str="warning"},
+                           .desc=NGLI_DOCSTRING("sxplayer min logging level")},
     {"time_anim", PARAM_TYPE_NODE, OFFSET(anim),
-                    .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1}},
-    {"audio_tex", PARAM_TYPE_INT, OFFSET(audio_tex)},
-    {"max_nb_packets", PARAM_TYPE_INT, OFFSET(max_nb_packets), {.i64=1}},
-    {"max_nb_frames",  PARAM_TYPE_INT, OFFSET(max_nb_frames),  {.i64=1}},
-    {"max_nb_sink",    PARAM_TYPE_INT, OFFSET(max_nb_sink),    {.i64=1}},
-    {"max_pixels",     PARAM_TYPE_INT, OFFSET(max_pixels),     {.i64=0}},
+                  .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
+                  .desc=NGLI_DOCSTRING("time remapping animation (must use a `linear` interpolation)")},
+    {"audio_tex", PARAM_TYPE_INT, OFFSET(audio_tex),
+                  .desc=NGLI_DOCSTRING("load the audio and expose it as a stereo waves and frequencies buffer")},
+    {"max_nb_packets", PARAM_TYPE_INT, OFFSET(max_nb_packets), {.i64=1},
+                       .desc=NGLI_DOCSTRING("maximum number of packets in sxplayer demuxing queue")},
+    {"max_nb_frames",  PARAM_TYPE_INT, OFFSET(max_nb_frames),  {.i64=1},
+                       .desc=NGLI_DOCSTRING("maximum number of frames in sxplayer decoding queue")},
+    {"max_nb_sink",    PARAM_TYPE_INT, OFFSET(max_nb_sink),    {.i64=1},
+                       .desc=NGLI_DOCSTRING("maximum number of frames in sxplayer filtering queue")},
+    {"max_pixels",     PARAM_TYPE_INT, OFFSET(max_pixels),     {.i64=0},
+                       .desc=NGLI_DOCSTRING("maximum number of pixels per frame")},
     {NULL}
 };
 
