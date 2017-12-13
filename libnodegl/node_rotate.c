@@ -30,11 +30,17 @@
 
 #define OFFSET(x) offsetof(struct rotate, x)
 static const struct node_param rotate_params[] = {
-    {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"angle",  PARAM_TYPE_DBL,  OFFSET(angle)},
-    {"axis",   PARAM_TYPE_VEC3, OFFSET(axis),   {.vec={0.0, 0.0, 1.0}}},
-    {"anchor", PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}}},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1}},
+    {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
+              .desc=NGLI_DOCSTRING("scene to rotate")},
+    {"angle",  PARAM_TYPE_DBL,  OFFSET(angle),
+               .desc=NGLI_DOCSTRING("rotation angle in degrees")},
+    {"axis",   PARAM_TYPE_VEC3, OFFSET(axis),   {.vec={0.0, 0.0, 1.0}},
+               .desc=NGLI_DOCSTRING("rotation axis")},
+    {"anchor", PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}},
+               .desc=NGLI_DOCSTRING("vector to the center point of the rotation")},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
+               .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
+               .desc=NGLI_DOCSTRING("`angle` animation")},
     {NULL}
 };
 

@@ -29,9 +29,13 @@
 
 #define OFFSET(x) offsetof(struct translate, x)
 static const struct node_param translate_params[] = {
-    {"child",  PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"vector", PARAM_TYPE_VEC3, OFFSET(vector)},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim), .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1}},
+    {"child",  PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
+               .desc=NGLI_DOCSTRING("scene to translate")},
+    {"vector", PARAM_TYPE_VEC3, OFFSET(vector),
+               .desc=NGLI_DOCSTRING("translation vector")},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
+               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
+               .desc=NGLI_DOCSTRING("`vector` animation")},
     {NULL}
 };
 

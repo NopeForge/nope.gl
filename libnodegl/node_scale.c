@@ -29,11 +29,15 @@
 
 #define OFFSET(x) offsetof(struct scale, x)
 static const struct node_param scale_params[] = {
-    {"child",   PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"factors", PARAM_TYPE_VEC3, OFFSET(factors)},
-    {"anchor",  PARAM_TYPE_VEC3, OFFSET(anchor)},
+    {"child",   PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
+                .desc=NGLI_DOCSTRING("scene to scale")},
+    {"factors", PARAM_TYPE_VEC3, OFFSET(factors),
+                .desc=NGLI_DOCSTRING("scaling factors (how much to scale on each axis)")},
+    {"anchor",  PARAM_TYPE_VEC3, OFFSET(anchor),
+                .desc=NGLI_DOCSTRING("vector to the center point of the scale")},
     {"anim",    PARAM_TYPE_NODE, OFFSET(anim),
-                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1}},
+                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
+                .desc=NGLI_DOCSTRING("`factors` animation")},
     {NULL}
 };
 

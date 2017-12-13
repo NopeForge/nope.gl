@@ -395,11 +395,11 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` |  | 
-`angle` |  | `double` |  | `0`
-`axis` |  | `vec3` |  | (`0`,`0`,`1`)
-`anchor` |  | `vec3` |  | (`0`,`0`,`0`)
-`anim` |  | `Node` (`AnimatedFloat`) |  | 
+`child` | ✓ | `Node` | scene to rotate | 
+`angle` |  | `double` | rotation angle in degrees | `0`
+`axis` |  | `vec3` | rotation axis | (`0`,`0`,`1`)
+`anchor` |  | `vec3` | vector to the center point of the rotation | (`0`,`0`,`0`)
+`anim` |  | `Node` (`AnimatedFloat`) | `angle` animation | 
 
 
 **Source**: [node_rotate.c](/libnodegl/node_rotate.c)
@@ -408,10 +408,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` |  | 
-`factors` |  | `vec3` |  | (`0`,`0`,`0`)
-`anchor` |  | `vec3` |  | (`0`,`0`,`0`)
-`anim` |  | `Node` (`AnimatedVec3`) |  | 
+`child` | ✓ | `Node` | scene to scale | 
+`factors` |  | `vec3` | scaling factors (how much to scale on each axis) | (`0`,`0`,`0`)
+`anchor` |  | `vec3` | vector to the center point of the scale | (`0`,`0`,`0`)
+`anim` |  | `Node` (`AnimatedVec3`) | `factors` animation | 
 
 
 **Source**: [node_scale.c](/libnodegl/node_scale.c)
@@ -503,9 +503,9 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` |  | 
-`vector` |  | `vec3` |  | (`0`,`0`,`0`)
-`anim` |  | `Node` (`AnimatedVec3`) |  | 
+`child` | ✓ | `Node` | scene to translate | 
+`vector` |  | `vec3` | translation vector | (`0`,`0`,`0`)
+`anim` |  | `Node` (`AnimatedVec3`) | `vector` animation | 
 
 
 **Source**: [node_translate.c](/libnodegl/node_translate.c)
