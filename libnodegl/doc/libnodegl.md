@@ -178,8 +178,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`radius` |  | `double` |  | `1`
-`npoints` |  | `int` |  | `16`
+`radius` |  | `double` | circle radius | `1`
+`npoints` |  | `int` | number of points | `16`
 
 
 **Source**: [node_circle.c](/libnodegl/node_circle.c)
