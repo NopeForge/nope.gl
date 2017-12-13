@@ -463,10 +463,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` |  | 
-`ranges` |  | `NodeList` (`TimeRangeModeOnce`, `TimeRangeModeNoop`, `TimeRangeModeCont`) |  | 
-`prefetch_time` |  | `double` |  | `1`
-`max_idle_time` |  | `double` |  | `4`
+`child` | ✓ | `Node` | time filtered scene | 
+`ranges` |  | `NodeList` (`TimeRangeModeOnce`, `TimeRangeModeNoop`, `TimeRangeModeCont`) | key frame time filtering events | 
+`prefetch_time` |  | `double` | `child` is prefetched `prefetch_time` seconds in advance | `1`
+`max_idle_time` |  | `double` | `child` will not be released if it is required in the next incoming `max_idle_time` seconds | `4`
 
 
 **Source**: [node_timerangefilter.c](/libnodegl/node_timerangefilter.c)
@@ -475,7 +475,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`start_time` | ✓ | `double` |  | `0`
+`start_time` | ✓ | `double` | starting time for the scene to be drawn | `0`
 
 
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
@@ -484,7 +484,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`start_time` | ✓ | `double` |  | `0`
+`start_time` | ✓ | `double` | starting time for the scene to stop being drawn | `0`
 
 
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
@@ -493,8 +493,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`start_time` | ✓ | `double` |  | `0`
-`render_time` | ✓ | `double` |  | `0`
+`start_time` | ✓ | `double` | starting time for the scene to be drawn once | `0`
+`render_time` | ✓ | `double` | chosen time to draw | `0`
 
 
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)

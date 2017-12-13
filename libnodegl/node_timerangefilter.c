@@ -45,12 +45,16 @@ struct timerangefilter {
 
 #define OFFSET(x) offsetof(struct timerangefilter, x)
 static const struct node_param timerangefilter_params[] = {
-    {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
+              .desc=NGLI_DOCSTRING("time filtered scene")},
     {"ranges", PARAM_TYPE_NODELIST, OFFSET(ranges),
                .node_types=RANGES_TYPES_LIST,
-               .flags=PARAM_FLAG_DOT_DISPLAY_PACKED},
-    {"prefetch_time", PARAM_TYPE_DBL, OFFSET(prefetch_time), {.dbl=1.0}},
-    {"max_idle_time", PARAM_TYPE_DBL, OFFSET(max_idle_time), {.dbl=4.0}},
+               .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+               .desc=NGLI_DOCSTRING("key frame time filtering events")},
+    {"prefetch_time", PARAM_TYPE_DBL, OFFSET(prefetch_time), {.dbl=1.0},
+                      .desc=NGLI_DOCSTRING("`child` is prefetched `prefetch_time` seconds in advance")},
+    {"max_idle_time", PARAM_TYPE_DBL, OFFSET(max_idle_time), {.dbl=4.0},
+                      .desc=NGLI_DOCSTRING("`child` will not be released if it is required in the next incoming `max_idle_time` seconds")},
     {NULL}
 };
 
