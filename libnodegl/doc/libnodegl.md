@@ -346,8 +346,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`vertex` |  | `string` |  | 
-`fragment` |  | `string` |  | 
+`vertex` |  | `string` | vertex shader | 
+`fragment` |  | `string` | fragment shader | 
 
 
 **Source**: [node_program.c](/libnodegl/node_program.c)

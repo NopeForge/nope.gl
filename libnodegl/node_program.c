@@ -87,8 +87,10 @@ static const char default_vertex_shader[] =
 
 #define OFFSET(x) offsetof(struct program, x)
 static const struct node_param program_params[] = {
-    {"vertex",   PARAM_TYPE_STR, OFFSET(vertex),   {.str=default_vertex_shader}},
-    {"fragment", PARAM_TYPE_STR, OFFSET(fragment), {.str=default_fragment_shader}},
+    {"vertex",   PARAM_TYPE_STR, OFFSET(vertex),   {.str=default_vertex_shader},
+                 .desc=NGLI_DOCSTRING("vertex shader")},
+    {"fragment", PARAM_TYPE_STR, OFFSET(fragment), {.str=default_fragment_shader},
+                 .desc=NGLI_DOCSTRING("fragment shader")},
     {NULL}
 };
 
