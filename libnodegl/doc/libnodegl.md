@@ -115,9 +115,9 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`count` |  | `int` |  | `0`
-`data` |  | `data` |  | 
-`stride` |  | `int` |  | `0`
+`count` |  | `int` | number of elements | `0`
+`data` |  | `data` | buffer of `count` elements | 
+`stride` |  | `int` | stride of 1 element, in bytes | `0`
 `target` |  | `int` |  | `34962`
 `usage` |  | `int` |  | `35044`
 

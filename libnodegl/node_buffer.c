@@ -27,9 +27,12 @@
 
 #define OFFSET(x) offsetof(struct buffer, x)
 static const struct node_param buffer_params[] = {
-    {"count",  PARAM_TYPE_INT,  OFFSET(count)},
-    {"data",   PARAM_TYPE_DATA, OFFSET(data)},
-    {"stride", PARAM_TYPE_INT,  OFFSET(data_stride)},
+    {"count",  PARAM_TYPE_INT,  OFFSET(count),
+               .desc=NGLI_DOCSTRING("number of elements")},
+    {"data",   PARAM_TYPE_DATA, OFFSET(data),
+               .desc=NGLI_DOCSTRING("buffer of `count` elements")},
+    {"stride", PARAM_TYPE_INT,  OFFSET(data_stride),
+               .desc=NGLI_DOCSTRING("stride of 1 element, in bytes")},
     {"target", PARAM_TYPE_INT,  OFFSET(target), {.i64=GL_ARRAY_BUFFER}},
     {"usage",  PARAM_TYPE_INT,  OFFSET(usage),  {.i64=GL_STATIC_DRAW}},
     {NULL}
