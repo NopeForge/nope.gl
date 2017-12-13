@@ -158,18 +158,18 @@ List of `Buffer*` nodes:
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` |  | 
-`eye` |  | `vec3` |  | (`0`,`0`,`0`)
-`center` |  | `vec3` |  | (`0`,`0`,`-1`)
-`up` |  | `vec3` |  | (`0`,`1`,`0`)
-`perspective` |  | `vec4` |  | (`0`,`0`,`0`,`0`)
-`eye_transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) |  | 
-`center_transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) |  | 
-`up_transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) |  | 
-`fov_anim` |  | `Node` (`AnimatedFloat`) |  | 
-`pipe_fd` |  | `int` |  | `0`
-`pipe_width` |  | `int` |  | `0`
-`pipe_height` |  | `int` |  | `0`
+`child` | ✓ | `Node` | scene to observe through the lens of the camera | 
+`eye` |  | `vec3` | eye position | (`0`,`0`,`0`)
+`center` |  | `vec3` | center position | (`0`,`0`,`-1`)
+`up` |  | `vec3` | up vector | (`0`,`1`,`0`)
+`perspective` |  | `vec4` | the 4 following values: *fov*, *aspect*, *near clipping plane*, *far clipping plane* | (`0`,`0`,`0`,`0`)
+`eye_transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) | `eye` transformation chain | 
+`center_transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) | `center` transformation chain | 
+`up_transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) | `up` transformation chain | 
+`fov_anim` |  | `Node` (`AnimatedFloat`) | field of view animation (first field of `perspective`) | 
+`pipe_fd` |  | `int` | pipe file descriptor where the rendered raw RGBA buffer is written | `0`
+`pipe_width` |  | `int` | width (in pixels) of the raw image buffer when using `pipe_fd` | `0`
+`pipe_height` |  | `int` | height (in pixels) of the raw image buffer when using `pipe_fd` | `0`
 
 
 **Source**: [node_camera.c](/libnodegl/node_camera.c)
