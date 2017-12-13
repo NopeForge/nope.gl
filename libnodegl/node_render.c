@@ -569,4 +569,5 @@ const struct node_class ngli_render_class = {
     .draw      = render_draw,
     .priv_size = sizeof(struct render),
     .params    = render_params,
+    .file      = __FILE__,
 };

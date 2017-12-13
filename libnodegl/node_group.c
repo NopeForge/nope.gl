@@ -66,4 +66,5 @@ const struct node_class ngli_group_class = {
     .draw      = group_draw,
     .priv_size = sizeof(struct group),
     .params    = group_params,
+    .file      = __FILE__,
 };

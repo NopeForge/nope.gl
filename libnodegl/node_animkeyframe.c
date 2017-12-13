@@ -461,6 +461,7 @@ const struct node_class ngli_animkeyframefloat_class = {
     .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframefloat_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_animkeyframevec2_class = {
@@ -470,6 +471,7 @@ const struct node_class ngli_animkeyframevec2_class = {
     .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframevec2_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_animkeyframevec3_class = {
@@ -479,6 +481,7 @@ const struct node_class ngli_animkeyframevec3_class = {
     .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframevec3_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_animkeyframevec4_class = {
@@ -488,6 +491,7 @@ const struct node_class ngli_animkeyframevec4_class = {
     .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframevec4_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_animkeyframebuffer_class = {
@@ -497,4 +501,5 @@ const struct node_class ngli_animkeyframebuffer_class = {
     .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframebuffer_params,
+    .file      = __FILE__,
 };

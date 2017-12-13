@@ -354,4 +354,5 @@ const struct node_class ngli_compute_class = {
     .draw      = compute_draw,
     .priv_size = sizeof(struct compute),
     .params    = compute_params,
+    .file      = __FILE__,
 };

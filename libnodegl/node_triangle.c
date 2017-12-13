@@ -113,4 +113,5 @@ const struct node_class ngli_triangle_class = {
     .uninit    = triangle_uninit,
     .priv_size = sizeof(struct geometry),
     .params    = triangle_params,
+    .file      = __FILE__,
 };

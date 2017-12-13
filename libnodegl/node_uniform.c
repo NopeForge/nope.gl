@@ -123,6 +123,7 @@ const struct node_class ngli_uniformfloat_class = {
     .update    = uniformfloat_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformfloat_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_uniformvec2_class = {
@@ -131,6 +132,7 @@ const struct node_class ngli_uniformvec2_class = {
     .update    = uniformvec2_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec2_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_uniformvec3_class = {
@@ -139,6 +141,7 @@ const struct node_class ngli_uniformvec3_class = {
     .update    = uniformvec3_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec3_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_uniformvec4_class = {
@@ -147,6 +150,7 @@ const struct node_class ngli_uniformvec4_class = {
     .update    = uniformvec4_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec4_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_uniformint_class = {
@@ -154,6 +158,7 @@ const struct node_class ngli_uniformint_class = {
     .name      = "UniformInt",
     .priv_size = sizeof(struct uniform),
     .params    = uniformint_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_uniformmat4_class = {
@@ -162,4 +167,5 @@ const struct node_class ngli_uniformmat4_class = {
     .update    = uniform_mat_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformmat4_params,
+    .file      = __FILE__,
 };

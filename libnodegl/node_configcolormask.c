@@ -57,4 +57,5 @@ const struct node_class ngli_configcolormask_class = {
     .init      = configcolormask_init,
     .priv_size = sizeof(struct configcolormask),
     .params    = configcolormask_params,
+    .file      = __FILE__,
 };

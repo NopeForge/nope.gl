@@ -128,4 +128,5 @@ const struct node_class ngli_configblend_class = {
     .init      = configblend_init,
     .priv_size = sizeof(struct configblend),
     .params    = configblend_params,
+    .file      = __FILE__,
 };

@@ -184,4 +184,5 @@ const struct node_class ngli_rtt_class = {
     .release   = rtt_release,
     .priv_size = sizeof(struct rtt),
     .params    = rtt_params,
+    .file      = __FILE__,
 };

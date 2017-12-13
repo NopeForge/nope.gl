@@ -157,6 +157,7 @@ const struct node_class ngli_animatedfloat_class = {
     .update    = animatedfloat_update,
     .priv_size = sizeof(struct animation),
     .params    = animatedfloat_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_animatedvec2_class = {
@@ -166,6 +167,7 @@ const struct node_class ngli_animatedvec2_class = {
     .update    = animatedvec2_update,
     .priv_size = sizeof(struct animation),
     .params    = animatedvec2_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_animatedvec3_class = {
@@ -175,6 +177,7 @@ const struct node_class ngli_animatedvec3_class = {
     .update    = animatedvec3_update,
     .priv_size = sizeof(struct animation),
     .params    = animatedvec3_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_animatedvec4_class = {
@@ -184,4 +187,5 @@ const struct node_class ngli_animatedvec4_class = {
     .update    = animatedvec4_update,
     .priv_size = sizeof(struct animation),
     .params    = animatedvec4_params,
+    .file      = __FILE__,
 };

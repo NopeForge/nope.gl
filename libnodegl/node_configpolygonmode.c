@@ -60,4 +60,5 @@ const struct node_class ngli_configpolygonmode_class = {
     .info_str  = configpolygonmode_info_str,
     .priv_size = sizeof(struct configpolygonmode),
     .params    = configpolygonmode_params,
+    .file      = __FILE__,
 };

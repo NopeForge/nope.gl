@@ -557,6 +557,7 @@ const struct node_class ngli_texture2d_class = {
     .release   = texture_release,
     .priv_size = sizeof(struct texture),
     .params    = texture2d_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_texture3d_class = {
@@ -568,4 +569,5 @@ const struct node_class ngli_texture3d_class = {
     .release   = texture_release,
     .priv_size = sizeof(struct texture),
     .params    = texture3d_params,
+    .file      = __FILE__,
 };

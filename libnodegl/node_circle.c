@@ -126,4 +126,5 @@ const struct node_class ngli_circle_class = {
     .uninit    = circle_uninit,
     .priv_size = sizeof(struct geometry),
     .params    = circle_params,
+    .file      = __FILE__,
 };

@@ -136,4 +136,5 @@ const struct node_class ngli_quad_class = {
     .uninit    = quad_uninit,
     .priv_size = sizeof(struct geometry),
     .params    = quad_params,
+    .file      = __FILE__,
 };

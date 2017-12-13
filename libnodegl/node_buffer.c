@@ -131,6 +131,7 @@ const struct node_class ngli_buffer##type##_class = {       \
     .priv_size = sizeof(struct buffer),                     \
     .params    = buffer_params,                             \
     .params_id = "Buffer",                                  \
+    .file      = __FILE__,                                  \
 };
 
 DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBYTE,    "BufferByte",    byte)

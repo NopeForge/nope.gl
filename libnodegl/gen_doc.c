@@ -145,8 +145,8 @@ static void print_node_params(const char *name, const struct node_param *p)
 
 static void print_source(const char *cfile)
 {
-    if (cfile)
-        printf("**Source**: [%s](/libnodegl/%s)\n\n", cfile, cfile);
+    ngli_assert(cfile);
+    printf("**Source**: [%s](/libnodegl/%s)\n\n", cfile, cfile);
 }
 
 int main(void)

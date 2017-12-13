@@ -7,6 +7,8 @@ Parameter | Ctor. | Type | Description | Default
 `keyframes` |  | `NodeList` (`AnimKeyFrameBuffer`) |  | 
 
 
+**Source**: [node_animatedbuffer.c](/libnodegl/node_animatedbuffer.c)
+
 List of `AnimatedBuffer*` nodes:
 
 - `AnimatedBufferFloat`
@@ -20,12 +22,16 @@ Parameter | Ctor. | Type | Description | Default
 `keyframes` |  | `NodeList` (`AnimKeyFrameFloat`) |  | 
 
 
+**Source**: [node_animation.c](/libnodegl/node_animation.c)
+
 ## AnimatedVec2
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `keyframes` |  | `NodeList` (`AnimKeyFrameVec2`) |  | 
 
+
+**Source**: [node_animation.c](/libnodegl/node_animation.c)
 
 ## AnimatedVec3
 
@@ -34,12 +40,16 @@ Parameter | Ctor. | Type | Description | Default
 `keyframes` |  | `NodeList` (`AnimKeyFrameVec3`) |  | 
 
 
+**Source**: [node_animation.c](/libnodegl/node_animation.c)
+
 ## AnimatedVec4
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `keyframes` |  | `NodeList` (`AnimKeyFrameVec4`) |  | 
 
+
+**Source**: [node_animation.c](/libnodegl/node_animation.c)
 
 ## AnimKeyFrameFloat
 
@@ -51,6 +61,8 @@ Parameter | Ctor. | Type | Description | Default
 `easing_args` |  | `doubleList` |  | 
 
 
+**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+
 ## AnimKeyFrameVec2
 
 Parameter | Ctor. | Type | Description | Default
@@ -60,6 +72,8 @@ Parameter | Ctor. | Type | Description | Default
 `easing` |  | `string` |  | 
 `easing_args` |  | `doubleList` |  | 
 
+
+**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
 
 ## AnimKeyFrameVec3
 
@@ -71,6 +85,8 @@ Parameter | Ctor. | Type | Description | Default
 `easing_args` |  | `doubleList` |  | 
 
 
+**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+
 ## AnimKeyFrameVec4
 
 Parameter | Ctor. | Type | Description | Default
@@ -80,6 +96,8 @@ Parameter | Ctor. | Type | Description | Default
 `easing` |  | `string` |  | 
 `easing_args` |  | `doubleList` |  | 
 
+
+**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
 
 ## AnimKeyFrameBuffer
 
@@ -91,6 +109,8 @@ Parameter | Ctor. | Type | Description | Default
 `easing_args` |  | `doubleList` |  | 
 
 
+**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+
 ## Buffer*
 
 Parameter | Ctor. | Type | Description | Default
@@ -101,6 +121,8 @@ Parameter | Ctor. | Type | Description | Default
 `target` |  | `int` |  | `34962`
 `usage` |  | `int` |  | `35044`
 
+
+**Source**: [node_buffer.c](/libnodegl/node_buffer.c)
 
 List of `Buffer*` nodes:
 
@@ -150,6 +172,8 @@ Parameter | Ctor. | Type | Description | Default
 `pipe_height` |  | `int` |  | `0`
 
 
+**Source**: [node_camera.c](/libnodegl/node_camera.c)
+
 ## Circle
 
 Parameter | Ctor. | Type | Description | Default
@@ -157,6 +181,8 @@ Parameter | Ctor. | Type | Description | Default
 `radius` |  | `double` |  | `1`
 `npoints` |  | `int` |  | `16`
 
+
+**Source**: [node_circle.c](/libnodegl/node_circle.c)
 
 ## Compute
 
@@ -171,12 +197,16 @@ Parameter | Ctor. | Type | Description | Default
 `buffers` |  | `NodeDict` (`BufferFloat`, `BufferVec2`, `BufferVec3`, `BufferVec4`, `BufferInt`, `BufferIVec2`, `BufferIVec3`, `BufferIVec4`, `BufferUInt`, `BufferUIVec2`, `BufferUIVec3`, `BufferUIVec4`) |  | 
 
 
+**Source**: [node_compute.c](/libnodegl/node_compute.c)
+
 ## ComputeProgram
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `compute` | ✓ | `string` |  | 
 
+
+**Source**: [node_computeprogram.c](/libnodegl/node_computeprogram.c)
 
 ## FPS
 
@@ -187,6 +217,8 @@ Parameter | Ctor. | Type | Description | Default
 `measure_draw` |  | `int` |  | `60`
 `create_databuf` |  | `int` |  | `0`
 
+
+**Source**: [node_fps.c](/libnodegl/node_fps.c)
 
 ## Geometry
 
@@ -199,6 +231,8 @@ Parameter | Ctor. | Type | Description | Default
 `draw_mode` |  | `int` |  | `4`
 
 
+**Source**: [node_geometry.c](/libnodegl/node_geometry.c)
+
 ## GraphicConfig
 
 Parameter | Ctor. | Type | Description | Default
@@ -210,6 +244,8 @@ Parameter | Ctor. | Type | Description | Default
 `polygonmode` |  | `Node` (`ConfigPolygonMode`) |  | 
 `stencil` |  | `Node` (`ConfigStencil`) |  | 
 
+
+**Source**: [node_graphicconfig.c](/libnodegl/node_graphicconfig.c)
 
 ## ConfigBlend
 
@@ -224,6 +260,8 @@ Parameter | Ctor. | Type | Description | Default
 `mode_alpha` |  | `int` |  | `32774`
 
 
+**Source**: [node_configblend.c](/libnodegl/node_configblend.c)
+
 ## ConfigColorMask
 
 Parameter | Ctor. | Type | Description | Default
@@ -235,12 +273,16 @@ Parameter | Ctor. | Type | Description | Default
 `alpha` |  | `int` |  | `1`
 
 
+**Source**: [node_configcolormask.c](/libnodegl/node_configcolormask.c)
+
 ## ConfigPolygonMode
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `mode` | ✓ | `int` |  | `6914`
 
+
+**Source**: [node_configpolygonmode.c](/libnodegl/node_configpolygonmode.c)
 
 ## ConfigDepth
 
@@ -250,6 +292,8 @@ Parameter | Ctor. | Type | Description | Default
 `writemask` |  | `int` |  | `1`
 `func` |  | `int` |  | `513`
 
+
+**Source**: [node_configdepth.c](/libnodegl/node_configdepth.c)
 
 ## ConfigStencil
 
@@ -265,6 +309,8 @@ Parameter | Ctor. | Type | Description | Default
 `op_dppass` |  | `int` |  | `7680`
 
 
+**Source**: [node_configstencil.c](/libnodegl/node_configstencil.c)
+
 ## Group
 
 Parameter | Ctor. | Type | Description | Default
@@ -272,7 +318,11 @@ Parameter | Ctor. | Type | Description | Default
 `children` |  | `NodeList` |  | 
 
 
+**Source**: [node_group.c](/libnodegl/node_group.c)
+
 ## Identity
+
+**Source**: [node_identity.c](/libnodegl/node_identity.c)
 
 ## Media
 
@@ -290,6 +340,8 @@ Parameter | Ctor. | Type | Description | Default
 `max_pixels` |  | `int` |  | `0`
 
 
+**Source**: [node_media.c](/libnodegl/node_media.c)
+
 ## Program
 
 Parameter | Ctor. | Type | Description | Default
@@ -297,6 +349,8 @@ Parameter | Ctor. | Type | Description | Default
 `vertex` |  | `string` |  | 
 `fragment` |  | `string` |  | 
 
+
+**Source**: [node_program.c](/libnodegl/node_program.c)
 
 ## Quad
 
@@ -310,6 +364,8 @@ Parameter | Ctor. | Type | Description | Default
 `uv_height` |  | `vec2` |  | (`0`,`1`)
 
 
+**Source**: [node_quad.c](/libnodegl/node_quad.c)
+
 ## Render
 
 Parameter | Ctor. | Type | Description | Default
@@ -322,6 +378,8 @@ Parameter | Ctor. | Type | Description | Default
 `buffers` |  | `NodeDict` (`BufferFloat`, `BufferVec2`, `BufferVec3`, `BufferVec4`, `BufferInt`, `BufferIVec2`, `BufferIVec3`, `BufferIVec4`, `BufferUInt`, `BufferUIVec2`, `BufferUIVec3`, `BufferUIVec4`) |  | 
 
 
+**Source**: [node_render.c](/libnodegl/node_render.c)
+
 ## RenderToTexture
 
 Parameter | Ctor. | Type | Description | Default
@@ -330,6 +388,8 @@ Parameter | Ctor. | Type | Description | Default
 `color_texture` | ✓ | `Node` (`Texture2D`) |  | 
 `depth_texture` |  | `Node` (`Texture2D`) |  | 
 
+
+**Source**: [node_rtt.c](/libnodegl/node_rtt.c)
 
 ## Rotate
 
@@ -342,6 +402,8 @@ Parameter | Ctor. | Type | Description | Default
 `anim` |  | `Node` (`AnimatedFloat`) |  | 
 
 
+**Source**: [node_rotate.c](/libnodegl/node_rotate.c)
+
 ## Scale
 
 Parameter | Ctor. | Type | Description | Default
@@ -351,6 +413,8 @@ Parameter | Ctor. | Type | Description | Default
 `anchor` |  | `vec3` |  | (`0`,`0`,`0`)
 `anim` |  | `Node` (`AnimatedVec3`) |  | 
 
+
+**Source**: [node_scale.c](/libnodegl/node_scale.c)
 
 ## Texture2D
 
@@ -370,6 +434,8 @@ Parameter | Ctor. | Type | Description | Default
 `direct_rendering` |  | `int` |  | `-1`
 `immutable` |  | `int` |  | `0`
 
+
+**Source**: [node_texture.c](/libnodegl/node_texture.c)
 
 ## Texture3D
 
@@ -391,6 +457,8 @@ Parameter | Ctor. | Type | Description | Default
 `immutable` |  | `int` |  | `0`
 
 
+**Source**: [node_texture.c](/libnodegl/node_texture.c)
+
 ## TimeRangeFilter
 
 Parameter | Ctor. | Type | Description | Default
@@ -401,6 +469,8 @@ Parameter | Ctor. | Type | Description | Default
 `max_idle_time` |  | `double` |  | `4`
 
 
+**Source**: [node_timerangefilter.c](/libnodegl/node_timerangefilter.c)
+
 ## TimeRangeModeCont
 
 Parameter | Ctor. | Type | Description | Default
@@ -408,12 +478,16 @@ Parameter | Ctor. | Type | Description | Default
 `start_time` | ✓ | `double` |  | `0`
 
 
+**Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
+
 ## TimeRangeModeNoop
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `start_time` | ✓ | `double` |  | `0`
 
+
+**Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
 
 ## TimeRangeModeOnce
 
@@ -423,6 +497,8 @@ Parameter | Ctor. | Type | Description | Default
 `render_time` | ✓ | `double` |  | `0`
 
 
+**Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
+
 ## Translate
 
 Parameter | Ctor. | Type | Description | Default
@@ -431,6 +507,8 @@ Parameter | Ctor. | Type | Description | Default
 `vector` |  | `vec3` |  | (`0`,`0`,`0`)
 `anim` |  | `Node` (`AnimatedVec3`) |  | 
 
+
+**Source**: [node_translate.c](/libnodegl/node_translate.c)
 
 ## Triangle
 
@@ -444,12 +522,16 @@ Parameter | Ctor. | Type | Description | Default
 `uv_edge2` |  | `vec2` |  | (`1`,`1`)
 
 
+**Source**: [node_triangle.c](/libnodegl/node_triangle.c)
+
 ## UniformInt
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `value` |  | `int` |  | `0`
 
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
 
 ## UniformMat4
 
@@ -459,6 +541,8 @@ Parameter | Ctor. | Type | Description | Default
 `transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) |  | 
 
 
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
 ## UniformFloat
 
 Parameter | Ctor. | Type | Description | Default
@@ -466,6 +550,8 @@ Parameter | Ctor. | Type | Description | Default
 `value` |  | `double` |  | `0`
 `anim` |  | `Node` (`AnimatedFloat`) |  | 
 
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
 
 ## UniformVec2
 
@@ -475,6 +561,8 @@ Parameter | Ctor. | Type | Description | Default
 `anim` |  | `Node` (`AnimatedVec2`) |  | 
 
 
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
 ## UniformVec3
 
 Parameter | Ctor. | Type | Description | Default
@@ -483,6 +571,8 @@ Parameter | Ctor. | Type | Description | Default
 `anim` |  | `Node` (`AnimatedVec3`) |  | 
 
 
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
 ## UniformVec4
 
 Parameter | Ctor. | Type | Description | Default
@@ -490,4 +580,6 @@ Parameter | Ctor. | Type | Description | Default
 `value` |  | `vec4` |  | (`0`,`0`,`0`,`0`)
 `anim` |  | `Node` (`AnimatedVec4`) |  | 
 
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
 

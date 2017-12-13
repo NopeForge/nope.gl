@@ -309,4 +309,5 @@ const struct node_class ngli_fps_class = {
     .uninit    = fps_uninit,
     .priv_size = sizeof(struct fps),
     .params    = fps_params,
+    .file      = __FILE__,
 };

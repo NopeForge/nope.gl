@@ -76,4 +76,5 @@ const struct node_class ngli_translate_class = {
     .draw      = translate_draw,
     .priv_size = sizeof(struct translate),
     .params    = translate_params,
+    .file      = __FILE__,
 };

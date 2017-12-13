@@ -65,6 +65,7 @@ const struct node_class ngli_timerangemodecont_class = {
     .info_str  = timerangemode_info_str_continous,
     .priv_size = sizeof(struct timerangemode),
     .params    = continuous_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_timerangemodenoop_class = {
@@ -73,6 +74,7 @@ const struct node_class ngli_timerangemodenoop_class = {
     .info_str  = timerangemode_info_str_norender,
     .priv_size = sizeof(struct timerangemode),
     .params    = norender_params,
+    .file      = __FILE__,
 };
 
 const struct node_class ngli_timerangemodeonce_class = {
@@ -81,4 +83,5 @@ const struct node_class ngli_timerangemodeonce_class = {
     .name      = "TimeRangeModeOnce",
     .priv_size = sizeof(struct timerangemode),
     .params    = once_params,
+    .file      = __FILE__,
 };

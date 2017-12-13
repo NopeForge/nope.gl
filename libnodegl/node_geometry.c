@@ -186,4 +186,5 @@ const struct node_class ngli_geometry_class = {
     .update    = geometry_update,
     .priv_size = sizeof(struct geometry),
     .params    = geometry_params,
+    .file      = __FILE__,
 };

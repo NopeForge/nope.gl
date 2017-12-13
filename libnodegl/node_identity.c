@@ -25,4 +25,5 @@
 const struct node_class ngli_identity_class = {
     .id        = NGL_NODE_IDENTITY,
     .name      = "Identity",
+    .file      = __FILE__,
 };

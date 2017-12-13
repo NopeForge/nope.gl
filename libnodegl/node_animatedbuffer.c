@@ -173,6 +173,7 @@ const struct node_class ngli_animatedbufferfloat_class = {
     .priv_size = sizeof(struct buffer),
     .params    = animatedbuffer_params,
     .params_id = "AnimatedBuffer",
+    .file      = __FILE__,
 };
 const struct node_class ngli_animatedbuffervec2_class = {
     .id        = NGL_NODE_ANIMATEDBUFFERVEC2,
@@ -183,6 +184,7 @@ const struct node_class ngli_animatedbuffervec2_class = {
     .priv_size = sizeof(struct buffer),
     .params    = animatedbuffer_params,
     .params_id = "AnimatedBuffer",
+    .file      = __FILE__,
 };
 const struct node_class ngli_animatedbuffervec3_class = {
     .id        = NGL_NODE_ANIMATEDBUFFERVEC3,
@@ -193,6 +195,7 @@ const struct node_class ngli_animatedbuffervec3_class = {
     .priv_size = sizeof(struct buffer),
     .params    = animatedbuffer_params,
     .params_id = "AnimatedBuffer",
+    .file      = __FILE__,
 };
 const struct node_class ngli_animatedbuffervec4_class = {
     .id        = NGL_NODE_ANIMATEDBUFFERVEC4,
@@ -203,4 +206,5 @@ const struct node_class ngli_animatedbuffervec4_class = {
     .priv_size = sizeof(struct buffer),
     .params    = animatedbuffer_params,
     .params_id = "AnimatedBuffer",
+    .file      = __FILE__,
 };

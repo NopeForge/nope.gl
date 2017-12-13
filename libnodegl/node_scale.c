@@ -100,4 +100,5 @@ const struct node_class ngli_scale_class = {
     .draw      = scale_draw,
     .priv_size = sizeof(struct scale),
     .params    = scale_params,
+    .file      = __FILE__,
 };

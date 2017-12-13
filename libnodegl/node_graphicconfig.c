@@ -215,4 +215,5 @@ const struct node_class ngli_graphicconfig_class = {
     .draw      = graphicconfig_draw,
     .priv_size = sizeof(struct graphicconfig),
     .params    = graphicconfig_params,
+    .file      = __FILE__,
 };

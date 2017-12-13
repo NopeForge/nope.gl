@@ -256,4 +256,5 @@ const struct node_class ngli_media_class = {
     .uninit    = media_uninit,
     .priv_size = sizeof(struct media),
     .params    = media_params,
+    .file      = __FILE__,
 };

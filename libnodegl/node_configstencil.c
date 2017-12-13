@@ -68,4 +68,5 @@ const struct node_class ngli_configstencil_class = {
     .init      = configstencil_init,
     .priv_size = sizeof(struct configstencil),
     .params    = configstencil_params,
+    .file      = __FILE__,
 };

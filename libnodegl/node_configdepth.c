@@ -59,4 +59,5 @@ const struct node_class ngli_configdepth_class = {
     .info_str  = configdepth_info_str,
     .priv_size = sizeof(struct configdepth),
     .params    = configdepth_params,
+    .file      = __FILE__,
 };

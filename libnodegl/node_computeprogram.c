@@ -140,4 +140,5 @@ const struct node_class ngli_computeprogram_class = {
     .uninit    = computeprogram_uninit,
     .priv_size = sizeof(struct computeprogram),
     .params    = computeprogram_params,
+    .file      = __FILE__,
 };

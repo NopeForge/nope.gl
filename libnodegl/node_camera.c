@@ -237,4 +237,5 @@ const struct node_class ngli_camera_class = {
     .uninit    = camera_uninit,
     .priv_size = sizeof(struct camera),
     .params    = camera_params,
+    .file      = __FILE__,
 };

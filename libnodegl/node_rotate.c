@@ -135,4 +135,5 @@ const struct node_class ngli_rotate_class = {
     .draw      = rotate_draw,
     .priv_size = sizeof(struct rotate),
     .params    = rotate_params,
+    .file      = __FILE__,
 };
