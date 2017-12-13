@@ -212,10 +212,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` |  | 
-`measure_update` |  | `int` |  | `60`
-`measure_draw` |  | `int` |  | `60`
-`create_databuf` |  | `int` |  | `0`
+`child` | ✓ | `Node` | scene to benchmark | 
+`measure_update` |  | `int` | window size of update measures | `60`
+`measure_draw` |  | `int` | window size of draw measures | `60`
+`create_databuf` |  | `int` | create a data buffer to be used as source for a texture | `0`
 
 
 **Source**: [node_fps.c](/libnodegl/node_fps.c)

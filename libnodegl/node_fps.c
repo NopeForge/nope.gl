@@ -30,10 +30,14 @@
 
 #define OFFSET(x) offsetof(struct fps, x)
 static const struct node_param fps_params[] = {
-    {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"measure_update", PARAM_TYPE_INT, OFFSET(m_update.nb), {.i64=60}},
-    {"measure_draw",   PARAM_TYPE_INT, OFFSET(m_draw.nb),   {.i64=60}},
-    {"create_databuf", PARAM_TYPE_INT, OFFSET(create_databuf)},
+    {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
+              .desc=NGLI_DOCSTRING("scene to benchmark")},
+    {"measure_update", PARAM_TYPE_INT, OFFSET(m_update.nb), {.i64=60},
+                       .desc=NGLI_DOCSTRING("window size of update measures")},
+    {"measure_draw",   PARAM_TYPE_INT, OFFSET(m_draw.nb),   {.i64=60},
+                       .desc=NGLI_DOCSTRING("window size of draw measures")},
+    {"create_databuf", PARAM_TYPE_INT, OFFSET(create_databuf),
+                       .desc=NGLI_DOCSTRING("create a data buffer to be used as source for a texture")},
     {NULL}
 };
 
