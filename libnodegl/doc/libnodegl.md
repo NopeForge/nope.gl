@@ -315,7 +315,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`children` |  | `NodeList` |  | 
+`children` |  | `NodeList` | a set of scenes | 
 
 
 **Source**: [node_group.c](/libnodegl/node_group.c)

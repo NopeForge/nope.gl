@@ -32,7 +32,8 @@ struct group {
 
 #define OFFSET(x) offsetof(struct group, x)
 static const struct node_param group_params[] = {
-    {"children", PARAM_TYPE_NODELIST, OFFSET(children)},
+    {"children", PARAM_TYPE_NODELIST, OFFSET(children),
+                 .desc=NGLI_DOCSTRING("a set of scenes")},
     {NULL}
 };
 
