@@ -59,6 +59,7 @@ struct node_param {
     } def_value;
     int flags;
     const int *node_types;
+    const char *desc;
 };
 
 const struct node_param *ngli_params_find(const struct node_param *params, const char *key);

@@ -198,6 +198,19 @@ updatespecs: gen_specs$(EXESUF)
 
 
 #
+# Doc generation
+#
+gen_doc$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(LIB_CFLAGS)
+gen_doc$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(LIB_LDLIBS)
+gen_doc$(EXESUF): gen_doc.o $(LIB_OBJS)
+gen_doc$(EXESUF):
+	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
+
+updatedoc: gen_doc$(EXESUF)
+	./gen_doc$(EXESUF) > doc/libnodegl.md
+
+
+#
 # OpenGL function wrappers
 #
 gen-gl-wrappers: gl.xml
@@ -232,6 +245,7 @@ clean:
 	$(RM) $(LIB_BASENAME).so $(LIB_BASENAME).dylib $(LIB_BASENAME).a $(LIB_BASENAME).dll
 	$(RM) $(LIB_OBJS) $(LIB_DEPS)
 	$(RM) gen_specs.o gen_specs$(EXESUF)
+	$(RM) gen_doc.o gen_doc$(EXESUF)
 	$(RM) $(LIB_PCNAME)
 	$(RM) $(LD_SYM_FILE)
 	$(RM) $(TESTPROGS)

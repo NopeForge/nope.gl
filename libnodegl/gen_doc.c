@@ -1,0 +1,195 @@
+/*
+ * Copyright 2017 GoPro Inc.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+#include "hmap.h"
+#include "nodegl.h"
+#include "nodes.h"
+#include "nodes_register.h"
+
+#define CLASS_LIST(type_name, class) extern const struct node_class class;
+NODE_MAP_TYPE2CLASS(CLASS_LIST)
+
+extern const struct node_param ngli_base_node_params[];
+
+static const char *param_type_strings[] = {
+    [PARAM_TYPE_INT]      = "int",
+    [PARAM_TYPE_I64]      = "i64",
+    [PARAM_TYPE_DBL]      = "double",
+    [PARAM_TYPE_STR]      = "string",
+    [PARAM_TYPE_DATA]     = "data",
+    [PARAM_TYPE_VEC2]     = "vec2",
+    [PARAM_TYPE_VEC3]     = "vec3",
+    [PARAM_TYPE_VEC4]     = "vec4",
+    [PARAM_TYPE_MAT4]     = "mat4",
+    [PARAM_TYPE_NODE]     = "Node",
+    [PARAM_TYPE_NODELIST] = "NodeList",
+    [PARAM_TYPE_DBLLIST]  = "doubleList",
+    [PARAM_TYPE_NODEDICT] = "NodeDict",
+};
+
+#define TYPE2CLASS(type_name, class)            \
+    case type_name: {                           \
+        extern const struct node_class class;   \
+        return &class;                          \
+    }                                           \
+
+static const struct node_class *get_node_class(int type)
+{
+    switch (type) {
+        NODE_MAP_TYPE2CLASS(TYPE2CLASS)
+    }
+    return NULL;
+}
+
+static char *get_type_str(const struct node_param *p)
+{
+    struct bstr *b = ngli_bstr_create();
+    if (!b)
+        return NULL;
+
+    ngli_bstr_print(b, "`%s`", param_type_strings[p->type]);
+    if (p->node_types) {
+        ngli_bstr_print(b, " (");
+        for (int i = 0; p->node_types[i] != -1; i++) {
+            const struct node_class *class = get_node_class(p->node_types[i]);
+            ngli_bstr_print(b, "%s`%s`", i ? ", " : "", class->name);
+        }
+        ngli_bstr_print(b, ")");
+    }
+
+    char *type = ngli_bstr_strdup(b);
+    ngli_bstr_freep(&b);
+    return type;
+}
+
+static char *get_default_str(const struct node_param *p)
+{
+    struct bstr *b = ngli_bstr_create();
+    if (!b)
+        return NULL;
+
+    switch (p->type) {
+        case PARAM_TYPE_DBL:
+            ngli_bstr_print(b, "`%g`", p->def_value.dbl);
+            break;
+        case PARAM_TYPE_INT:
+            ngli_bstr_print(b, "`%d`", (int)p->def_value.i64);
+            break;
+        case PARAM_TYPE_I64:
+            ngli_bstr_print(b, "`%" PRId64 "`", p->def_value.i64);
+            break;
+        case PARAM_TYPE_VEC2: {
+            const float *v = p->def_value.vec;
+            ngli_bstr_print(b, "(`%g`,`%g`)", v[0], v[1]);
+            break;
+        }
+        case PARAM_TYPE_VEC3: {
+            const float *v = p->def_value.vec;
+            ngli_bstr_print(b, "(`%g`,`%g`,`%g`)", v[0], v[1], v[2]);
+            break;
+        }
+        case PARAM_TYPE_VEC4: {
+            const float *v = p->def_value.vec;
+            ngli_bstr_print(b, "(`%g`,`%g`,`%g`,`%g`)", v[0], v[1], v[2], v[3]);
+            break;
+        }
+    }
+
+    char *def = ngli_bstr_strdup(b);
+    ngli_bstr_freep(&b);
+    return def;
+}
+
+static void print_node_params(const char *name, const struct node_param *p)
+{
+    printf("## %s\n\n", name);
+    if (!p)
+        return;
+    printf("Parameter | Ctor. | Type | Description | Default\n");
+    printf("--------- | :---: | ---- | ----------- | :-----:\n");
+    while (p->key) {
+        char *type = get_type_str(p);
+        char *def = get_default_str(p);
+
+        if (type && def)
+            printf("`%s` | %s | %s | %s | %s\n",
+                   p->key, (p->flags & PARAM_FLAG_CONSTRUCTOR) ? "✓" : "",
+                   type, p->desc ? p->desc : "", def);
+
+        free(def);
+        free(type);
+        p++;
+    }
+    printf("\n\n");
+}
+
+#define CLASS_COMMALIST(type_name, class) &class,
+
+static void print_source(const char *cfile)
+{
+    if (cfile)
+        printf("**Source**: [%s](/libnodegl/%s)\n\n", cfile, cfile);
+}
+
+int main(void)
+{
+    printf("libnodegl\n");
+    printf("=========\n");
+
+    static const struct node_class *node_classes[] = {
+        NODE_MAP_TYPE2CLASS(CLASS_COMMALIST)
+    };
+
+    struct hmap *params_map = ngli_hmap_create();
+    if (!params_map)
+        return -1;
+
+    for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
+        const struct node_class *c = node_classes[i];
+        const struct node_param *p = &c->params[0];
+
+        if (c->params_id) {
+            void *mapped_param = ngli_hmap_get(params_map, c->params_id);
+            char *pname = ngli_asprintf("%s*", c->params_id);
+            if (!pname) {
+                ngli_hmap_freep(&params_map);
+                return -1;
+            }
+            if (mapped_param) {
+                ngli_assert(mapped_param == p);
+                printf("- `%s`\n", c->name);
+            } else {
+                print_node_params(pname, p);
+                ngli_hmap_set(params_map, c->params_id, (void *)p);
+                print_source(c->file);
+                printf("List of `%s*` nodes:\n\n", c->params_id);
+                printf("- `%s`\n", c->name);
+            }
+            free(pname);
+        } else {
+            print_node_params(c->name, p);
+            print_source(c->file);
+        }
+    }
+
+    ngli_hmap_freep(&params_map);
+    return 0;
+}

@@ -485,6 +485,7 @@ struct node_class {
     size_t priv_size;
     const struct node_param *params;
     const char *params_id;
+    const char *file;
 };
 
 void ngli_node_print_specs(void);
