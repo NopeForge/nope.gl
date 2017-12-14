@@ -364,22 +364,37 @@ int ngl_anim_evaluate(struct ngl_node *anim, float *dst, double t);
  */
 
 /**
- * TODO
+ * Set a Java virtual machine that will be used to retrieve the JNI
+ * environment.
+ *
+ * @param vm    pointer to the Java virtual machine
+ *
+ * @return 0 on success, < 0 on error
  */
 int ngl_jni_set_java_vm(void *vm);
 
 /**
- * TODO
+ * Get the Java virtual machine pointer that has been set with
+ * ngl_jni_set_java_vm().
+ *
+ * @return a pointer to the Java virtual machine or NULL if none has been set
  */
 void *ngl_jni_get_java_vm(void);
 
 /**
- * TODO
+ * Set the Android application context.
+ *
+ * @param application_context   JNI global reference of the Android application
+ *                              context
  */
 int ngl_android_set_application_context(void *application_context);
 
 /**
- * TODO
+ * Get the Android application context that has been set with
+ * ngl_android_set_application_context().
+ *
+ * @return a pointer to the JNI global reference of the Android application
+ *         context or NULL if none has been set
  */
 void *ngl_android_get_application_context(void);
 
