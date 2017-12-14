@@ -35,8 +35,8 @@
 #include <stdarg.h>
 #include <stdint.h>
 
-/*
- * Logging
+/**
+ * Logging levels
  */
 enum {
     NGL_LOG_VERBOSE,
@@ -46,16 +46,49 @@ enum {
     NGL_LOG_ERROR,
 };
 
+/**
+ * Logging callback prototype.
+ *
+ * @param arg       forwarded opaque user argument
+ * @param level     log level (any of NGL_LOG_*)
+ * @param filename  source filename from where the message originates
+ * @param ln        line in the source filename
+ * @param fn        calling function name
+ * @param fmt       printf format string
+ * @param vl        variable argument list object associated with the fmt format string
+ */
 typedef void (*ngl_log_callback_type)(void *arg, int level, const char *filename,
                                       int ln, const char *fn, const char *fmt, va_list vl);
 
+/**
+ * Set a global custom logging callback.
+ *
+ * @param arg       opaque user argument to be forwarded to the callback
+ *                  (typically a user context)
+ * @param callback  callback function to be called when logging a message
+ */
 void ngl_log_set_callback(void *arg, ngl_log_callback_type callback);
+
+/**
+ * Set the minimum global logging level.
+ *
+ * No message with its level inferior to the specified level will be logged
+ * (with or without the callback set).
+ *
+ * @param level log level (any of NGL_LOG_*)
+ */
 void ngl_log_set_min_level(int level);
 
-/* Nodes */
+/**
+ * Opaque structure identifying a node
+ */
 struct ngl_node;
 
 #define NGLI_FOURCC(a,b,c,d) (((uint32_t)(a))<<24 | (b)<<16 | (c)<<8 | (d))
+
+/**
+ * Node FOURCC identifiers
+ */
 #define NGL_NODE_ANIMATEDBUFFERFLOAT    NGLI_FOURCC('A','B','f','1')
 #define NGL_NODE_ANIMATEDBUFFERVEC2     NGLI_FOURCC('A','B','f','2')
 #define NGL_NODE_ANIMATEDBUFFERVEC3     NGLI_FOURCC('A','B','f','3')
@@ -133,18 +166,111 @@ struct ngl_node;
 #define NGL_NODE_UNIFORMVEC3            NGLI_FOURCC('U','n','f','3')
 #define NGL_NODE_UNIFORMVEC4            NGLI_FOURCC('U','n','f','4')
 
+/**
+ * Allocate a node.
+ *
+ * This function does not perform any OpenGL operation.
+ *
+ * The reference counter of the allocated node is set to 1.
+ *
+ * Must be destroyed using ngl_node_unrefp().
+ *
+ * @param type  identify the node (any of NGL_NODE_*)
+ * @param ...   variable arguments specific to the node type, refer to the
+ *              constructors in the reference documentation for the expected
+ *              parameters
+ *
+ * @return a new allocated node or NULL on error
+ */
 struct ngl_node *ngl_node_create(int type, ...);
+
+/**
+ * Increment the reference counter of a given node by 1.
+ *
+ * This function is NOT thread-safe.
+ *
+ * This function does not perform any OpenGL operation.
+ *
+ * @param node  pointer to the node to reference count
+ *
+ * @return node with its reference counter incremented.
+ */
 struct ngl_node *ngl_node_ref(struct ngl_node *node);
+
+/**
+ * Decrement the reference counter of a given node by 1, and destroy its
+ * content if the reference counter reaches 0. The passed node pointer will
+ * also be set to NULL.
+ *
+ * @warning Make sure to call this function from the OpenGL context for its
+ *          destruction to prevent memory leaks (or worse).
+ *
+ * @param nodep  pointer to the pointer to the target node
+ */
 void ngl_node_unrefp(struct ngl_node **nodep);
 
+/**
+ * Add entries to a list-based parameter of an allocated node.
+ *
+ * If the type of the parameter is node based, the reference counter of the
+ * passed nodes will be incremented.
+ *
+ * @param node      pointer to the target node
+ * @param key       string identifying the parameter
+ * @param nb_elems  number of elements to append
+ * @param elems     pointer to an array of values in parameter type
+ *
+ * @return 0 on success, < 0 on error
+ */
 int ngl_node_param_add(struct ngl_node *node, const char *key,
                        int nb_elems, void *elems);
+
+/**
+ * Set a parameter value of an allocated node.
+ *
+ * If the type of the parameter is node based, the reference counter of the
+ * passed node will be incremented.
+ *
+ * @param node      pointer to the target node
+ * @param key       string identifying the parameter
+ * @param ...       the value in parameter type
+ *
+ * @return 0 on success, < 0 on error
+ */
 int ngl_node_param_set(struct ngl_node *node, const char *key, ...);
+
+/**
+ * Serialize in Graphviz format (.dot) a node graph.
+ *
+ * Must be destroyed using free().
+ *
+ * @return an allocated string in dot format or NULL on error
+ */
 char *ngl_node_dot(const struct ngl_node *node);
+
+/**
+ * Serialize in node.gl format (.ngl).
+ *
+ * Must be destroyed using free().
+ *
+ * @return an allocated string in node.gl format or NULL on error
+ */
 char *ngl_node_serialize(const struct ngl_node *node);
+
+/**
+ * De-serialize a scene.
+ *
+ * @param s  string in node.gl serialized format.
+ *
+ * Must be destroyed using ngl_node_unrefp().
+ *
+ * @return a pointer to the de-serialized node graph or NULL on error
+ */
 struct ngl_node *ngl_node_deserialize(const char *s);
 
-/* GL context */
+/**
+ * OpenGL platforms identifiers
+ */
 enum {
     NGL_GLPLATFORM_AUTO,
     NGL_GLPLATFORM_GLX,
@@ -154,30 +280,107 @@ enum {
     NGL_GLPLATFORM_WGL,
 };
 
-/* GL API version */
+/**
+ * OpenGL API versions
+ */
 enum {
     NGL_GLAPI_AUTO,
     NGL_GLAPI_OPENGL3,
     NGL_GLAPI_OPENGLES2,
 };
 
-/* Main context */
+/**
+ * Opaque structure identifying a node.gl context
+ */
 struct ngl_ctx;
 
+/**
+ * Allocate a new node.gl context.
+ *
+ * Must be destroyed using ngl_free().
+ *
+ * This function does not perform any OpenGL operation.
+ *
+ * @return a pointer to the context, or NULL on error
+ */
 struct ngl_ctx *ngl_create(void);
+
+/**
+ * TODO
+ */
 int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *handle, int platform, int api);
+
+/**
+ * Associate a scene with a node.gl context.
+ *
+ * The reference counter of the root node will be incremented and all its node
+ * will be associated with the specified node.gl context.
+ *
+ * The nodes can be associated with only one node.gl context.
+ *
+ * If any scene was previously associated with the context, it is detached from
+ * it and its reference counter decremented.
+ *
+ * @param s      pointer to the configured node.gl context
+ * @param scene  pointer to the scene
+ *
+ * @return 0 on success, < 0 on error
+ */
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene);
+
+/**
+ * Draw at the specified time.
+ *
+ * @param s     pointer to the configured node.gl context
+ * @param t     target draw time in seconds
+ *
+ * @return 0 on success, < 0 on error
+ */
 int ngl_draw(struct ngl_ctx *s, double t);
+
+/**
+ * Destroy a node.gl context. The passed context pointer will also be set to
+ * NULL.
+ *
+ * @param ss    pointer to the pointer to the node.gl context
+ */
 void ngl_free(struct ngl_ctx **ss);
 
-/* Android */
+/**
+ * Evaluate an animation at a given time t.
+ *
+ * @param anim  the animation node can be any of AnimatedFloat, AnimatedVec2,
+ *              AnimatedVec3, or AnimatedVec4
+ * @param dst   pointer to the destination for the interpolated value(s), needs
+ *              to hold enough space depending on the type of anim
+ * @param t     the target time at which to interpolate the value(s)
+ *
+ * @return 0 on success, < 0 on error
+ */
+int ngl_anim_evaluate(struct ngl_node *anim, float *dst, double t);
+
+/**
+ * Android
+ */
+
+/**
+ * TODO
+ */
 int ngl_jni_set_java_vm(void *vm);
+
+/**
+ * TODO
+ */
 void *ngl_jni_get_java_vm(void);
 
+/**
+ * TODO
+ */
 int ngl_android_set_application_context(void *application_context);
-void *ngl_android_get_application_context(void);
 
-/* Animation */
-int ngl_anim_evaluate(struct ngl_node *anim, float *dst, double t);
+/**
+ * TODO
+ */
+void *ngl_android_get_application_context(void);
 
 #endif
