@@ -133,7 +133,7 @@ static char *get_default_str(const struct node_param *p)
 
 static void print_node_params(const char *name, const struct node_param *p)
 {
-    printf("## %s\n\n", name);
+    printf("\n## %s\n\n", name);
     if (!p)
         return;
     printf("Parameter | Ctor. | Type | Description | Default\n");
