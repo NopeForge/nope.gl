@@ -1,0 +1,28 @@
+digraph {
+    node[style=filled,fontsize=10]
+    edge[fontsize=10,arrowsize=0.5]
+
+    node[color=cadetblue2]
+    libnodegl
+    pynodegl
+
+    node[color=hotpink2]
+    cython [label="Cython"]
+    cc [label="C compiler"]
+
+    node[color=lawngreen]
+    specs [label="nodes.specs"]
+    c [label="pynodegl.c"]
+    pyx [label="nodes_def.pyx"]
+
+    node[color=gold]
+    mod [label="pynodegl.so"]
+
+    libnodegl -> specs [label="write"]
+    pynodegl -> specs [label="read"]
+    pynodegl -> pyx [label="write"]
+    cython -> pyx [label="read"]
+    cython -> c [label="write"]
+    cc -> c [label="read"]
+    cc -> mod [label="write"]
+}
