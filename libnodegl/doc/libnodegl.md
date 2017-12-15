@@ -68,7 +68,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | `double` | the time key point in seconds | `0`
-`value` | ✓ | `double` | the value at time `time` | `0`
+`value` | ✓ | `vec2` | the value at time `time` | (`0`,`0`)
 `easing` |  | `string` | a string identifying the interpolation | 
 `easing_args` |  | `doubleList` | a list of arguments some easings may use | 
 
@@ -80,7 +80,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | `double` | the time key point in seconds | `0`
-`value` | ✓ | `double` | the value at time `time` | `0`
+`value` | ✓ | `vec3` | the value at time `time` | (`0`,`0`,`0`)
 `easing` |  | `string` | a string identifying the interpolation | 
 `easing_args` |  | `doubleList` | a list of arguments some easings may use | 
 
@@ -92,7 +92,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | `double` | the time key point in seconds | `0`
-`value` | ✓ | `double` | the value at time `time` | `0`
+`value` | ✓ | `vec4` | the value at time `time` | (`0`,`0`,`0`,`0`)
 `easing` |  | `string` | a string identifying the interpolation | 
 `easing_args` |  | `doubleList` | a list of arguments some easings may use | 
 
@@ -104,7 +104,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | `double` | the time key point in seconds | `0`
-`data` | ✓ | `data` | the data at time `time` | 
+`data` |  | `data` | the data at time `time` | 
 `easing` |  | `string` | a string identifying the interpolation | 
 `easing_args` |  | `doubleList` | a list of arguments some easings may use | 
 

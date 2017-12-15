@@ -35,13 +35,13 @@
 
 #define OFFSET(x) offsetof(struct animkeyframe, x)
 
-#define ANIMKEYFRAME_PARAMS(id, value_data_key, value_data_type, value_data_field)              \
+#define ANIMKEYFRAME_PARAMS(id, value_data_key, value_data_type, value_data_field, value_data_flags) \
 static const struct node_param animkeyframe##id##_params[] = {                                  \
     {"time",          PARAM_TYPE_DBL, OFFSET(time),                                             \
                       .flags=PARAM_FLAG_CONSTRUCTOR,                                            \
                       .desc=NGLI_DOCSTRING("the time key point in seconds")},                   \
     {#value_data_key, value_data_type, OFFSET(value_data_field),                                \
-                      .flags=PARAM_FLAG_CONSTRUCTOR,                                            \
+                      .flags=value_data_flags,                                                  \
                       .desc=NGLI_DOCSTRING("the " #value_data_key " at time `time`")},          \
     {"easing",        PARAM_TYPE_STR,  OFFSET(easing), {.str="linear"},                         \
                       .desc=NGLI_DOCSTRING("a string identifying the interpolation")},          \
@@ -50,11 +50,11 @@ static const struct node_param animkeyframe##id##_params[] = {                  
     {NULL}                                                                                      \
 }
 
-ANIMKEYFRAME_PARAMS(float, value, PARAM_TYPE_DBL, scalar);
-ANIMKEYFRAME_PARAMS(vec2,  value, PARAM_TYPE_DBL, value);
-ANIMKEYFRAME_PARAMS(vec3,  value, PARAM_TYPE_DBL, value);
-ANIMKEYFRAME_PARAMS(vec4,  value, PARAM_TYPE_DBL, value);
-ANIMKEYFRAME_PARAMS(buffer, data, PARAM_TYPE_DATA, data);
+ANIMKEYFRAME_PARAMS(float, value, PARAM_TYPE_DBL, scalar, PARAM_FLAG_CONSTRUCTOR);
+ANIMKEYFRAME_PARAMS(vec2,  value, PARAM_TYPE_VEC2, value, PARAM_FLAG_CONSTRUCTOR);
+ANIMKEYFRAME_PARAMS(vec3,  value, PARAM_TYPE_VEC3, value, PARAM_FLAG_CONSTRUCTOR);
+ANIMKEYFRAME_PARAMS(vec4,  value, PARAM_TYPE_VEC4, value, PARAM_FLAG_CONSTRUCTOR);
+ANIMKEYFRAME_PARAMS(buffer, data, PARAM_TYPE_DATA, data, 0);
 
 #ifdef __ANDROID__
 #define log2(x)  (log(x) / log(2))
