@@ -1,0 +1,38 @@
+digraph {
+    splines=line
+
+    node[style=filled,fontsize=9]
+    edge[fontsize=8,arrowsize=0.5]
+
+    node[color=lightblue]
+    libnodegl
+    ngl_tools[label="ngl-tools"]
+    pynodegl
+    pynodegl_utils[label="pynodegl-utils"]
+
+    node[color=gray]
+    cython[label="Cython"]
+    ffmpeg[label="FFmpeg"]
+    glfw3[label="GLFW3"]
+    graphviz[label="Graphviz"]
+    pyopengl[label="PyOpenGL"]
+    pyqt5[label="PyQt5"]
+    python[label="Python"]
+    sxplayer
+    watchdog
+
+    sxplayer -> ffmpeg
+    libnodegl -> sxplayer
+    ngl_tools -> libnodegl
+    ngl_tools -> glfw3
+    ngl_tools -> python[style=dashed,label="(ngl-python)"]
+    pynodegl -> libnodegl
+    pynodegl -> python
+    pynodegl -> cython
+    pynodegl_utils -> python
+    pynodegl_utils -> pynodegl
+    pynodegl_utils -> graphviz[style=dashed]
+    pynodegl_utils -> pyqt5
+    pynodegl_utils -> pyopengl
+    pynodegl_utils -> watchdog
+}
