@@ -69,6 +69,8 @@ static struct ngl_node *node_create(const struct node_class *class)
     ngli_assert(NGL_NODE_UNIFORMVEC4      - NGL_NODE_UNIFORMFLOAT       == 3);
     ngli_assert(NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3);
     ngli_assert(NGL_NODE_ANIMATEDVEC4     - NGL_NODE_ANIMATEDFLOAT      == 3);
+    ngli_assert(PARAM_TYPE_VEC4           - PARAM_TYPE_VEC2             == 2);
+
 
     node->class = class;
     node->last_update_time = -1.;
