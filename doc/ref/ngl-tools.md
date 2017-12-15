@@ -1,0 +1,57 @@
+NGL tools
+=========
+
+The [ngl-tools][ngl-tools] is a set of small C programs making use of
+`libnodegl`.
+
+[ngl-tools]: /ngl-tools
+
+
+## ngl-player
+
+`ngl-player` is a basic real time video player. If you are looking into
+testing or diagnose video playback and seeking issues, this tool is likely a
+good start.
+
+**Usage**: `ngl-player <media>`
+
+![ngl-player](img/ngl-player.png)
+
+**Source**: [ngl-tools/ngl-player.c](/ngl-tools/ngl-player.c)
+
+
+## ngl-render
+
+`ngl-render` is a rendering test tool. It takes a serialized scene as input
+(`input.ngl`) and render the specified time ranges (by default, in a hidden
+window).
+
+**Usage**: `ngl-render [-o out.raw] [-s WxH] [-w] [-d] [-z swapinterval]
+-t start:duration:freq [-t start:duration:freq ...] input.ngl`
+
+Option                      | Description
+--------------------------- | ---------------------------
+`-o <out.raw>`              | specify the raw output file
+`-s <WxH>`                  | specify the output dimensions in `WxH` format
+`-w`                        | if specified, the rendering window will be shown
+`-d`                        | enable debugging (of the tool)
+`-z <swapinterval>`         | specify the OpenGL swapping interval (useful in combination with `-w`); `0` (the default) means non capped while `1` corresponds to the vsync
+`-t <start:duration:freq>`  | specify a time range to render in `start:duration:freq` format. All three values are floats.  `start` is the start time of the range (in seconds), `duration` is the duration of the range (also in seconds), and `freq` is the refresh frame rate.
+
+**Source**: [ngl-tools/ngl-render.c](/ngl-tools/ngl-render.c)
+
+
+## ngl-python
+
+`ngl-python` is a `node.gl` Python scene loader. It uses the C API of Python to
+execute a demo script (in order to get the scene) and render it using the
+`libnodegl` C API.
+
+**Note**: it is only available if the Python headers are present on the system
+at build time.
+
+**Usage**: `ngl-python <module> <scene_func>`
+
+**Example**: `ngl-python pynodegl_utils.examples.misc fibo`
+
+**Source**: [ngl-tools/ngl-python.c](/ngl-tools/ngl-python.c)
