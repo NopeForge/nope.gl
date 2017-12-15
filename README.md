@@ -5,93 +5,70 @@ node.gl
 graph-based scenes. It is designed to run on both desktop (Linux, OSX, Windows)
 and mobile (Android, iOS).
 
-The `node.gl` project is split in 3 parts:
+![node.gl logo](/doc/nodegl.png)
 
-- `libnodegl`: the core of the project, an `OpenGL` engine in `C`
-- `ngl-tools`: a set of program tools using `libnodegl`
-- `pynodegl`: a Python binding for `libnodegl` (with the help of `Cython`)
-- `pynodegl-utils`: various Python utilities and examples such as a Qt5 viewer
-
-*Warning:* note that `node.gl` is still highly experimental. This means the ABI
+**Warning:** note that `node.gl` is still highly experimental. This means the ABI
 and API can change at any time.
 
 [gopro]: https://gopro.com/
 
-## Dependencies
 
-- `libnodegl` requires a standard C toolchain (C compiler, linker, GNU/Make).
-  It also depends on [sxplayer library][sxplayer] for media (video and images)
-  playback. [Graphviz][graphviz] is optional but can be used to render and
-  preview graphs obtained from the API.
-- `ngl-tools` needs [GLFW3][glfw3] and `libnodegl` installed.
-- `pynodegl` needs [Python][python] and [Cython][cython], and `libnodegl`
-  installed.
-- `pynodegl-utils` needs [Python][python] and `pynodegl`. The viewer depends on
-  `PyQt5` (which is the main reason why this package is separated from the
-  `pynodegl` package). It is also recommended to install [Graphviz][graphviz]
-  in order to render graph in the viewer.
+## 📜 License
 
-[sxplayer]: https://github.com/stupeflix/sxplayer
-[graphviz]: http://www.graphviz.org/
-[python]: https://www.python.org/
-[cython]: http://cython.org/
-[glfw3]: http://www.glfw.org/
-
-## Installation of `libnodegl` (the core library)
-
-### Build
-
-`make` is enough to build `libnodegl.a`.
-
-If you prefer a dynamic library, you can use the variable `SHARED`, such as
-`make SHARED=yes`.
-
-If you need symbol debugging, you can use `make DEBUG=yes`.
-
-Make allow options to be combinable, so `make SHARED=yes DEBUG=yes` is valid.
-
-Additionally, `PYTHON` and `PKG_CONFIG` which respectively allows to customize
-`python` and `pkg-config` executable paths.
-
-### Installation
-
-`make install` will install the library in `PREFIX`, which you can override,
-for example using `make install PREFIX=/tmp/local`.
-
-You can check the installed version of `libnodegl` using `pkg-config
---modversion libnodegl`
-
-## Installation of `ngl-tools`
-
-The `node.gl` tools located in the `ngl-tools/` directory are to be built and
-installed exactly the same way as `libnodegl`.
-
-## Installation of `pynodegl` (the Python binding)
-
-`pip install ./pynodegl`
-
-## Installation of `pynodegl-utils` (the Python utilities and examples)
-
-```
-pip install -r ./pynodegl-utils/requirements.txt
-pip install ./pynodegl-utils
-```
-
-## License
-
-`node.gl` is licensed under the Apache License, Version 2.0. Read the `LICENSE`
-and `NOTICE` files for details.
+`node.gl` is licensed under the Apache License, Version 2.0. Read the
+[LICENSE][license] and [NOTICE][notice] files for details.
 
 **Warning**: `pynodegl-utils` has an optional dependency on PyQt5 which is
 licensed under the GPL and thus restrict the `pynodegl-utils` module
 distribution.
 
-## Using the API
+[license]: /LICENSE
+[notice]: /NOTICE
 
-All the API is defined in the installed header `nodegl.h`. You can consult the
-nodes parameters in the `nodes.specs` file installed in the data root dir
-(usually something along the lines `/usr/share/nodegl/nodes.specs`).
+## 📚 Documentation
 
-## Contributing
+### 📁 Project
 
-See `DEVELOPERS.md` file.
+- [Developer guidelines][proj-developers] if you are interested in
+  contributing.
+- [Project architecture and organization][proj-archi]
+
+### 🛠 Tutorial
+
+The [starter tutorial][tuto-start] is a must read before anything else if you
+are new to the project.
+
+### 💡 How-to guides
+
+Following are how-to guides on various specific usages:
+
+- [Installation][howto-install]
+- [Using the C API][howto-c-api]
+- [Writing a new node][howto-write-new-node] (for core developers only)
+
+### ⚙️ Discussions and explanations
+
+- [How the Python binding is created][expl-pynodegl]
+- [What happens in a draw call?][expl-draw-call]
+- [Technical choices][expl-techchoices]
+
+### 🗜 Reference documentation
+
+- [libnodegl][ref-libnodegl]
+- [pynodegl][ref-pynodegl]
+- [pynodegl-utils][ref-pynodegl-utils]
+- [ngl-tools][ref-ngl-tools]
+
+[proj-archi]:            /doc/project/architecture.md
+[proj-developers]:       /doc/project/developers.md
+[tuto-start]:            /doc/tuto/start.md
+[howto-install]:         /doc/howto/installation.md
+[howto-c-api]:           /doc/howto/c-api.md
+[howto-write-new-node]:  /doc/howto/write-new-node.md
+[expl-pynodegl]:         /doc/expl/pynodegl.md
+[expl-draw-call]:        /doc/expl/draw-call.md
+[expl-techchoices]:      /doc/expl/techchoices.md
+[ref-libnodegl]:         /libnodegl/doc/libnodegl.md
+[ref-pynodegl]:          /doc/ref/pynodegl.md
+[ref-pynodegl-utils]:    /doc/ref/pynodegl-utils.md
+[ref-ngl-tools]:         /doc/ref/ngl-tools.md
