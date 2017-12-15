@@ -51,7 +51,16 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
     if (!s->glcontext)
         return -1;
 
-    return ngli_glcontext_load_extensions(s->glcontext);
+    int ret = ngli_glcontext_load_extensions(s->glcontext);
+    if (ret < 0)
+        return ret;
+
+    const struct glfunctions *gl = &s->glcontext->funcs;
+    s->glstate = ngli_glstate_create(gl);
+    if (!s->glstate)
+        return -1;
+
+    return 0;
 }
 
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
@@ -122,6 +131,7 @@ void ngl_free(struct ngl_ctx **ss)
         ngl_node_unrefp(&s->scene);
     }
     ngli_glcontext_freep(&s->glcontext);
+    ngli_glstate_freep(&s->glstate);
     free(*ss);
     *ss = NULL;
 }

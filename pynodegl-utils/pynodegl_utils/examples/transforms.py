@@ -9,7 +9,6 @@ from pynodegl import (
         AnimatedFloat,
         AnimatedVec3,
         Camera,
-        ConfigDepth,
         GraphicConfig,
         Group,
         Identity,
@@ -152,7 +151,7 @@ def animated_camera(cfg, rotate=True):
     g.add_children(node)
 
 
-    g = GraphicConfig(g, depth=ConfigDepth(GL.GL_TRUE))
+    g = GraphicConfig(g, depth_test=GL.GL_TRUE)
     camera = Camera(g)
     camera.set_eye(0, 0, 2)
     camera.set_center(0.0, 0.0, 0.0)

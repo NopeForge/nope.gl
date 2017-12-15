@@ -1,5 +1,4 @@
 from pynodegl import (
-        ConfigBlend,
         GraphicConfig,
         Group,
         Media,
@@ -37,22 +36,24 @@ def blending_test(cfg):
     p = Program(fragment=fragment)
     ts = Render(q, p)
     ts.update_uniforms(color=ucolor)
-    s = GraphicConfig(ts, blend=ConfigBlend(GL.GL_TRUE,
-                                            GL.GL_SRC_ALPHA,
-                                            GL.GL_ONE_MINUS_SRC_ALPHA,
-                                            GL.GL_ONE,
-                                            GL.GL_ZERO))
+    s = GraphicConfig(ts,
+                      blend=GL.GL_TRUE,
+                      blend_dst_factor='src_alpha',
+                      blend_src_factor='one_minus_src_alpha',
+                      blend_dst_factor_a='one',
+                      blend_src_factor_a='zero')
     g.add_children(s)
 
     q = Quad((-1.0, 0.0, 0), (1.1, 0, 0), (0, 1, 0))
     p = Program(fragment=fragment)
     ts = Render(q, p)
     ts.update_uniforms(color=ucolor)
-    s = GraphicConfig(ts, blend=ConfigBlend(GL.GL_TRUE,
-                                            GL.GL_ONE,
-                                            GL.GL_ONE_MINUS_SRC_ALPHA,
-                                            GL.GL_ONE,
-                                            GL.GL_ZERO))
+    s = GraphicConfig(ts,
+                      blend=GL.GL_TRUE,
+                      blend_dst_factor='one',
+                      blend_src_factor='one_minus_src_alpha',
+                      blend_dst_factor_a='one',
+                      blend_src_factor_a='zero')
     g.add_children(s)
 
     q = Quad((-0.125, -0.125, 0), (0.25, 0, 0), (0, 0.25, 0))

@@ -71,11 +71,6 @@
     action(NGL_NODE_FPS,                    ngli_fps_class)                     \
     action(NGL_NODE_GEOMETRY,               ngli_geometry_class)                \
     action(NGL_NODE_GRAPHICCONFIG,          ngli_graphicconfig_class)           \
-    action(NGL_NODE_CONFIGBLEND,            ngli_configblend_class)             \
-    action(NGL_NODE_CONFIGCOLORMASK,        ngli_configcolormask_class)         \
-    action(NGL_NODE_CONFIGPOLYGONMODE,      ngli_configpolygonmode_class )      \
-    action(NGL_NODE_CONFIGDEPTH,            ngli_configdepth_class)             \
-    action(NGL_NODE_CONFIGSTENCIL,          ngli_configstencil_class)           \
     action(NGL_NODE_GROUP,                  ngli_group_class)                   \
     action(NGL_NODE_IDENTITY,               ngli_identity_class)                \
     action(NGL_NODE_MEDIA,                  ngli_media_class)                   \

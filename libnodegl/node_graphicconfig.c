@@ -28,22 +28,144 @@
 #include "nodes.h"
 #include "utils.h"
 
+static const struct param_choices blend_factor_choices = {
+    .name = "blend_factor",
+    .consts = {
+        {"zero",                GL_ZERO,                .desc=NGLI_DOCSTRING("`0`")},
+        {"one",                 GL_ONE,                 .desc=NGLI_DOCSTRING("`1`")},
+        {"src_color",           GL_SRC_COLOR,           .desc=NGLI_DOCSTRING("`src_color`")},
+        {"one_minus_src_color", GL_ONE_MINUS_SRC_COLOR, .desc=NGLI_DOCSTRING("`1 - src_color`")},
+        {"dst_color",           GL_DST_COLOR,           .desc=NGLI_DOCSTRING("`dst_color`")},
+        {"one_minus_dst_color", GL_ONE_MINUS_DST_COLOR, .desc=NGLI_DOCSTRING("`1 - dst_color`")},
+        {"src_alpha",           GL_SRC_ALPHA,           .desc=NGLI_DOCSTRING("`src_alpha`")},
+        {"one_minus_src_alpha", GL_ONE_MINUS_SRC_ALPHA, .desc=NGLI_DOCSTRING("`1 - src_alpha`")},
+        {"dst_alpha",           GL_DST_ALPHA,           .desc=NGLI_DOCSTRING("`dst_alpha`")},
+        {"one_minus_dst_alpha", GL_ONE_MINUS_DST_ALPHA, .desc=NGLI_DOCSTRING("`1 - dst_alpha`")},
+        {NULL}
+    }
+};
+
+static const struct param_choices blend_op_choices = {
+    .name = "blend_operation",
+    .consts = {
+        {"add",    GL_FUNC_ADD,              .desc=NGLI_DOCSTRING("`src + dst`")},
+        {"sub",    GL_FUNC_SUBTRACT,         .desc=NGLI_DOCSTRING("`src - dst`")},
+        {"revsub", GL_FUNC_REVERSE_SUBTRACT, .desc=NGLI_DOCSTRING("`dst - src`")},
+        {"min",    GL_MIN,                   .desc=NGLI_DOCSTRING("`min(src, dst)`")},
+        {"max",    GL_MAX,                   .desc=NGLI_DOCSTRING("`max(src, dst)`")},
+        {NULL}
+    }
+};
+
+static const struct param_choices component_choices = {
+    .name = "component",
+    .consts = {
+        {"r", 1<<0, .desc=NGLI_DOCSTRING("red")},
+        {"g", 1<<1, .desc=NGLI_DOCSTRING("green")},
+        {"b", 1<<2, .desc=NGLI_DOCSTRING("blue")},
+        {"a", 1<<3, .desc=NGLI_DOCSTRING("alpha")},
+        {NULL}
+    }
+};
+
+static const struct param_choices func_choices = {
+    .name = "function",
+    .consts = {
+        {"never",    GL_NEVER,    .desc=NGLI_DOCSTRING("`f(a,b) = 0`")},
+        {"less",     GL_LESS,     .desc=NGLI_DOCSTRING("`f(a,b) = a < b`")},
+        {"equal",    GL_EQUAL,    .desc=NGLI_DOCSTRING("`f(a,b) = a == b`")},
+        {"lequal",   GL_LEQUAL,   .desc=NGLI_DOCSTRING("`f(a,b) = a ≤ b`")},
+        {"greater",  GL_GREATER,  .desc=NGLI_DOCSTRING("`f(a,b) = a > b`")},
+        {"notequal", GL_NOTEQUAL, .desc=NGLI_DOCSTRING("`f(a,b) = a ≠ b`")},
+        {"gequal",   GL_GEQUAL,   .desc=NGLI_DOCSTRING("`f(a,b) = a ≥ b`")},
+        {"always",   GL_ALWAYS,   .desc=NGLI_DOCSTRING("`f(a,b) = 1`")},
+        {NULL}
+    }
+};
+
+static const struct param_choices stencil_op_choices = {
+    .name = "stencil_operation",
+    .consts = {
+        {"keep",        GL_KEEP,      .desc=NGLI_DOCSTRING("keeps the current value")},
+        {"zero",        GL_ZERO,      .desc=NGLI_DOCSTRING("sets the stencil buffer value to 0")},
+        {"replace",     GL_REPLACE,   .desc=NGLI_DOCSTRING("sets the stencil buffer value to ref, as specified by the stencil function")},
+        {"incr",        GL_INCR,      .desc=NGLI_DOCSTRING("increments the current stencil buffer value and clamps it")},
+        {"incr_wrap",   GL_INCR_WRAP, .desc=NGLI_DOCSTRING("increments the current stencil buffer value and wraps it")},
+        {"decr",        GL_DECR,      .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and clamps it")},
+        {"decr_wrap",   GL_DECR_WRAP, .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and wraps it")},
+        {"decr_invert", GL_INVERT,    .desc=NGLI_DOCSTRING("bitwise inverts the current stencil buffer value")},
+        {NULL}
+    }
+};
+
 #define OFFSET(x) offsetof(struct graphicconfig, x)
-#define ADD_PARAM(name, NAME) \
-    {#name, PARAM_TYPE_NODE, OFFSET(name), .node_types=(const int[]){NGL_NODE_CONFIG##NAME, -1}}
 static const struct node_param graphicconfig_params[] = {
-    {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR},
-    ADD_PARAM(blend, BLEND),
-    ADD_PARAM(colormask, COLORMASK),
-    ADD_PARAM(depth, DEPTH),
-    ADD_PARAM(polygonmode, POLYGONMODE),
-    ADD_PARAM(stencil, STENCIL),
+    {"child",              PARAM_TYPE_NODE,   OFFSET(child),              .flags=PARAM_FLAG_CONSTRUCTOR},
+    {"blend",              PARAM_TYPE_INT,    OFFSET(blend),              {.i64=GL_FALSE}},
+    {"blend_dst_factor",   PARAM_TYPE_SELECT, OFFSET(blend_dst_factor),   {.i64=GL_ONE},
+                           .choices=&blend_factor_choices},
+    {"blend_src_factor",   PARAM_TYPE_SELECT, OFFSET(blend_src_factor),   {.i64=GL_ZERO},
+                           .choices=&blend_factor_choices},
+    {"blend_dst_factor_a", PARAM_TYPE_SELECT, OFFSET(blend_dst_factor_a), {.i64=GL_ONE},
+                           .choices=&blend_factor_choices},
+    {"blend_src_factor_a", PARAM_TYPE_SELECT, OFFSET(blend_src_factor_a), {.i64=GL_ZERO},
+                           .choices=&blend_factor_choices},
+    {"blend_op",           PARAM_TYPE_SELECT, OFFSET(blend_op),           {.i64=GL_FUNC_ADD},
+                           .choices=&blend_op_choices},
+    {"blend_op_a",         PARAM_TYPE_SELECT, OFFSET(blend_op_a),         {.i64=GL_FUNC_ADD},
+                           .choices=&blend_op_choices},
+    {"color_write_mask",   PARAM_TYPE_FLAGS,  OFFSET(color_write_mask),   {.i64=0xF},
+                           .choices=&component_choices},
+    {"depth_test",         PARAM_TYPE_INT,    OFFSET(depth_test),         {.i64=GL_FALSE}},
+    {"depth_write_mask",   PARAM_TYPE_INT,    OFFSET(depth_write_mask),   {.i64=GL_TRUE}},
+    {"depth_func",         PARAM_TYPE_SELECT, OFFSET(depth_func),         {.i64=GL_LESS},
+                           .desc=NGLI_DOCSTRING("passes if `<function>(depth, stored_depth)`"),
+                           .choices=&func_choices},
+    {"stencil_test",       PARAM_TYPE_INT,    OFFSET(stencil_test),       {.i64=GL_FALSE}},
+    {"stencil_write_mask", PARAM_TYPE_INT,    OFFSET(stencil_write_mask), {.i64=0xFF}},
+    {"stencil_func",       PARAM_TYPE_SELECT, OFFSET(stencil_func),       {.i64=GL_ALWAYS},
+                           .desc=NGLI_DOCSTRING("passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)`"),
+                           .choices=&func_choices},
+    {"stencil_ref",        PARAM_TYPE_INT,    OFFSET(stencil_ref),        {.i64=0}},
+    {"stencil_read_mask",  PARAM_TYPE_INT,    OFFSET(stencil_read_mask),  {.i64=0xFF}},
+    {"stencil_fail",       PARAM_TYPE_SELECT, OFFSET(stencil_fail),       {.i64=GL_KEEP},
+                           .choices=&stencil_op_choices},
+    {"stencil_depth_fail", PARAM_TYPE_SELECT, OFFSET(stencil_depth_fail), {.i64=GL_KEEP},
+                           .choices=&stencil_op_choices},
+    {"stencil_depth_pass", PARAM_TYPE_SELECT, OFFSET(stencil_depth_pass), {.i64=GL_KEEP},
+                           .choices=&stencil_op_choices},
     {NULL}
 };
+
+#define COPY_PARAM(name) s->states[0].name = s->name
 
 static int graphicconfig_init(struct ngl_node *node)
 {
     struct graphicconfig *s = node->priv_data;
+
+    COPY_PARAM(blend);
+    COPY_PARAM(blend_dst_factor);
+    COPY_PARAM(blend_src_factor);
+    COPY_PARAM(blend_dst_factor_a);
+    COPY_PARAM(blend_src_factor_a);
+    COPY_PARAM(blend_op);
+    COPY_PARAM(blend_op_a);
+
+    for (int i = 0; i < 4; i++)
+        s->states[0].color_write_mask[i] = s->color_write_mask >> i & 1;
+
+    COPY_PARAM(depth_test);
+    COPY_PARAM(depth_write_mask);
+    COPY_PARAM(depth_func);
+
+    COPY_PARAM(stencil_test);
+    COPY_PARAM(stencil_write_mask);
+    COPY_PARAM(stencil_func);
+    COPY_PARAM(stencil_ref);
+    COPY_PARAM(stencil_read_mask);
+    COPY_PARAM(stencil_fail);
+    COPY_PARAM(stencil_depth_fail);
+    COPY_PARAM(stencil_depth_pass);
 
     return ngli_node_init(s->child);
 }
@@ -58,153 +180,29 @@ static int graphicconfig_update(struct ngl_node *node, double t)
     return ngli_node_update(child, t);
 }
 
-static void honor_config(struct ngl_node *node)
+static void honor_config(struct ngl_node *node, int restore)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
     struct graphicconfig *s = node->priv_data;
+    struct glstate *prev = restore ? &s->states[0] : &s->states[1];
+    struct glstate *next = restore ? &s->states[1] : &s->states[0];
 
-    if (s->blend) {
-        struct configblend *c = s->blend->priv_data;
-        ngli_glGetIntegerv(gl, c->capability, (GLint *)&c->enabled[1]);
-        if (c->enabled[0]) {
-            ngli_glGetIntegerv(gl, GL_BLEND_SRC_RGB, (GLint *)&c->src_rgb[1]);
-            ngli_glGetIntegerv(gl, GL_BLEND_DST_RGB, (GLint *)&c->dst_rgb[1]);
-            ngli_glGetIntegerv(gl, GL_BLEND_SRC_ALPHA, (GLint *)&c->src_alpha[1]);
-            ngli_glGetIntegerv(gl, GL_BLEND_DST_ALPHA, (GLint *)&c->dst_alpha[1]);
-            ngli_glGetIntegerv(gl, GL_BLEND_EQUATION_RGB, (GLint *)&c->mode_rgb[1]);
-            ngli_glGetIntegerv(gl, GL_BLEND_EQUATION_ALPHA, (GLint *)&c->mode_alpha[1]);
-            ngli_glEnable(gl, c->capability);
-            ngli_glBlendFuncSeparate(gl, c->src_rgb[0], c->dst_rgb[0], c->src_alpha[0], c->dst_alpha[0]);
-            ngli_glBlendEquationSeparate(gl, c->mode_rgb[0], c->mode_alpha[0]);
-        } else {
-            ngli_glDisable(gl, c->capability);
-        }
-    }
+    *prev = *ctx->glstate;
+    *ctx->glstate = *next;
 
-    if (s->colormask) {
-        struct configcolormask *c = s->colormask->priv_data;
-        GLboolean rgba[4];
-        ngli_glGetBooleanv(gl, GL_COLOR_WRITEMASK, rgba);
-        c->rgba[1][0] = rgba[0];
-        c->rgba[1][1] = rgba[1];
-        c->rgba[1][2] = rgba[2];
-        c->rgba[1][3] = rgba[3];
-        ngli_glColorMask(gl, c->rgba[0][0], c->rgba[0][1], c->rgba[0][2], c->rgba[0][3]);
-    }
-
-    if (s->depth) {
-        struct configdepth *c = s->depth->priv_data;
-        ngli_glGetIntegerv(gl, c->capability, (GLint *)&c->enabled[1]);
-        if (c->enabled[0]) {
-            GLboolean writemask;
-            ngli_glGetBooleanv(gl, GL_DEPTH_WRITEMASK , &writemask);
-            c->writemask[1] = writemask;
-            ngli_glGetIntegerv(gl, GL_DEPTH_FUNC, (GLint *)&c->func[1]);
-            ngli_glEnable(gl, c->capability);
-            ngli_glDepthMask(gl, c->writemask[0]);
-            ngli_glDepthFunc(gl, c->func[0]);
-        } else {
-            ngli_glDisable(gl, c->capability);
-        }
-    }
-
-    if (s->polygonmode) {
-        struct configpolygonmode *c = s->polygonmode->priv_data;
-        ngli_glGetIntegerv(gl, GL_POLYGON_MODE, (GLint *)&c->mode[1]);
-        ngli_glPolygonMode(gl, GL_FRONT_AND_BACK, c->mode[0]);
-    }
-
-    if (s->stencil) {
-        struct configstencil *c = s->stencil->priv_data;
-        ngli_glGetIntegerv(gl, c->capability, (GLint *)&c->enabled[1]);
-        if (c->enabled[0]) {
-            ngli_glGetIntegerv(gl, GL_STENCIL_WRITEMASK, (GLint *)&c->writemask[1]);
-            ngli_glGetIntegerv(gl, GL_STENCIL_FUNC, (GLint *)&c->func[1]);
-            ngli_glGetIntegerv(gl, GL_STENCIL_REF, (GLint *)&c->func_ref[1]);
-            ngli_glGetIntegerv(gl, GL_STENCIL_VALUE_MASK, (GLint *)&c->func_mask[1]);
-            ngli_glGetIntegerv(gl, GL_STENCIL_FAIL, (GLint *)&c->op_sfail[1]);
-            ngli_glGetIntegerv(gl, GL_STENCIL_PASS_DEPTH_FAIL, (GLint *)&c->op_dpfail[1]);
-            ngli_glGetIntegerv(gl, GL_STENCIL_PASS_DEPTH_PASS, (GLint *)&c->op_dppass[1]);
-            ngli_glEnable(gl, c->capability);
-            ngli_glStencilMask(gl, c->writemask[0]);
-            ngli_glStencilFunc(gl, c->func[0], c->func_ref[0], c->func_mask[0]);
-            ngli_glStencilOp(gl, c->op_sfail[0], c->op_dpfail[0], c->op_dppass[0]);
-        } else {
-            ngli_glDisable(gl, c->capability);
-        }
-    }
-}
-
-static void restore_config(struct ngl_node *node)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-
-    struct graphicconfig *s = node->priv_data;
-
-    if (s->blend) {
-        struct configblend *c = s->blend->priv_data;
-        if (c->enabled[1]) {
-            ngli_glEnable(gl, c->capability);
-        } else {
-            ngli_glDisable(gl, c->capability);
-        }
-        if (c->enabled[0]) {
-            ngli_glBlendFuncSeparate(gl, c->src_rgb[1], c->dst_rgb[1], c->src_alpha[1], c->dst_alpha[1]);
-            ngli_glBlendEquationSeparate(gl, c->mode_rgb[1], c->mode_alpha[1]);
-        }
-    }
-
-    if (s->colormask) {
-        struct configcolormask *c = s->colormask->priv_data;
-        ngli_glColorMask(gl, c->rgba[1][0], c->rgba[1][1], c->rgba[1][2], c->rgba[1][3]);
-    }
-
-    if (s->depth) {
-        struct configdepth *c = s->depth->priv_data;
-        if (c->enabled[1]) {
-            ngli_glEnable(gl, c->capability);
-        } else {
-            ngli_glDisable(gl, c->capability);
-        }
-
-        if (c->enabled[0]) {
-            ngli_glDepthMask(gl, c->writemask[1]);
-            ngli_glDepthFunc(gl, c->func[1]);
-        }
-    }
-
-    if (s->polygonmode) {
-        struct configpolygonmode *c = s->polygonmode->priv_data;
-        ngli_glPolygonMode(gl, GL_FRONT_AND_BACK, c->mode[1]);
-    }
-
-    if (s->stencil) {
-        struct configstencil *c = s->stencil->priv_data;
-        if (c->enabled[1]) {
-            ngli_glEnable(gl, c->capability);
-        } else {
-            ngli_glDisable(gl, c->capability);
-        }
-        if (c->enabled[0]) {
-            ngli_glStencilMask(gl, c->writemask[1]);
-            ngli_glStencilFunc(gl, c->func[1], c->func_ref[1], c->func_mask[1]);
-            ngli_glStencilOp(gl, c->op_sfail[1], c->op_dpfail[1], c->op_dppass[1]);
-        }
-    }
+    ngli_glstate_honor_state(gl, next, prev);
 }
 
 static void graphicconfig_draw(struct ngl_node *node)
 {
     struct graphicconfig *s = node->priv_data;
 
-    honor_config(node);
+    honor_config(node, 0);
     ngli_node_draw(s->child);
-    restore_config(node);
+    honor_config(node, 1);
 }
 
 const struct node_class ngli_graphicconfig_class = {

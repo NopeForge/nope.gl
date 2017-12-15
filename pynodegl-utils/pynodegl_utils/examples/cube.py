@@ -4,7 +4,6 @@ from pynodegl import (
         AnimKeyFrameFloat,
         AnimatedFloat,
         Camera,
-        ConfigDepth,
         GraphicConfig,
         Group,
         Media,
@@ -54,9 +53,9 @@ def rotating_cube(cfg):
         axis = [int(i == x) for x in range(3)]
         cube = Rotate(cube, axis=axis, anim=rot_animkf)
 
-    state = GraphicConfig(cube, depth=ConfigDepth(GL.GL_TRUE))
+    config = GraphicConfig(cube, depth_test=GL.GL_TRUE)
 
-    camera = Camera(state)
+    camera = Camera(config)
     camera.set_eye(0.0, 0.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)

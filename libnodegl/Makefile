@@ -56,6 +56,7 @@ LIB_OBJS = api.o                    \
            deserialize.o            \
            dot.o                    \
            glcontext.o              \
+           glstate.o                \
            hmap.o                   \
            hwupload.o               \
            log.o                    \
@@ -68,11 +69,6 @@ LIB_OBJS = api.o                    \
            node_circle.o            \
            node_compute.o           \
            node_computeprogram.o    \
-           node_configblend.o       \
-           node_configcolormask.o   \
-           node_configdepth.o       \
-           node_configpolygonmode.o \
-           node_configstencil.o     \
            node_fps.o               \
            node_geometry.o          \
            node_graphicconfig.o     \

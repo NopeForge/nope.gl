@@ -6,8 +6,6 @@ from pynodegl import (
         AnimKeyFrameVec3,
         AnimatedFloat,
         AnimatedVec3,
-        ConfigColorMask,
-        ConfigStencil,
         Circle,
         GraphicConfig,
         Group,
@@ -72,15 +70,15 @@ def centered_masked_media(cfg):
     node = Rotate(node, anim=AnimatedFloat(rotate_animkf))
 
     node = GraphicConfig(node,
-                         stencil=ConfigStencil(GL.GL_TRUE,
-                                               0xFF,
-                                               GL.GL_ALWAYS,
-                                               1,
-                                               0xFF,
-                                               GL.GL_KEEP,
-                                               GL.GL_KEEP,
-                                               GL.GL_REPLACE),
-                         colormask=ConfigColorMask(GL.GL_TRUE, 0, 0, 0, 0))
+                         color_write_mask='',
+                         stencil_test=GL.GL_TRUE,
+                         stencil_write_mask=0xFF,
+                         stencil_func='always',
+                         stencil_ref=1,
+                         stencil_read_mask=0xFF,
+                         stencil_fail='keep',
+                         stencil_depth_fail='keep',
+                         stencil_depth_pass='replace')
 
     g.add_children(node)
 
@@ -90,15 +88,16 @@ def centered_masked_media(cfg):
     p = Program()
     node = Render(q, p)
     node.update_textures(tex0=t)
+
     node = GraphicConfig(node,
-                         stencil=ConfigStencil(GL.GL_TRUE,
-                                               0x00,
-                                               GL.GL_EQUAL,
-                                               1,
-                                               0xFF,
-                                               GL.GL_KEEP,
-                                               GL.GL_KEEP,
-                                               GL.GL_KEEP))
+                         stencil_test=GL.GL_TRUE,
+                         stencil_write_mask=0x00,
+                         stencil_func='equal',
+                         stencil_ref=1,
+                         stencil_read_mask=0xFF,
+                         stencil_fail='keep',
+                         stencil_depth_fail='keep',
+                         stencil_depth_pass='replace')
 
     g.add_children(node)
     return g

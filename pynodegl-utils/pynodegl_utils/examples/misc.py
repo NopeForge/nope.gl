@@ -21,7 +21,6 @@ from pynodegl import (
         Circle,
         Compute,
         ComputeProgram,
-        ConfigBlend,
         GraphicConfig,
         Geometry,
         Group,
@@ -102,11 +101,12 @@ def buffer_dove(cfg,
     prog = Program()
     render = Render(quad, prog, name='dove')
     render.update_textures(tex0=img_tex)
-    render = GraphicConfig(render, blend=ConfigBlend(GL.GL_TRUE,
-                                                     GL.GL_SRC_ALPHA,
-                                                     GL.GL_ONE_MINUS_SRC_ALPHA,
-                                                     GL.GL_ONE,
-                                                     GL.GL_ZERO))
+    render = GraphicConfig(render,
+                           blend=GL.GL_TRUE,
+                           blend_dst_factor='src_alpha',
+                           blend_src_factor='one_minus_src_alpha',
+                           blend_dst_factor_a='one',
+                           blend_src_factor_a='zero')
 
     prog_bg = Program(fragment=get_frag('color'))
     shape_bg = Circle(radius=.6, npoints=256)

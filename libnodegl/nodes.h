@@ -36,6 +36,7 @@
 
 #include "glincludes.h"
 #include "glcontext.h"
+#include "glstate.h"
 #include "hmap.h"
 #include "params.h"
 
@@ -50,6 +51,7 @@ enum {
 
 struct ngl_ctx {
     struct glcontext *glcontext;
+    struct glstate *glstate;
     struct ngl_node *scene;
 };
 
@@ -81,56 +83,30 @@ struct ngl_node {
 struct graphicconfig {
     struct ngl_node *child;
 
-    struct ngl_node *blend;
-    struct ngl_node *colormask;
-    struct ngl_node *depth;
-    struct ngl_node *polygonmode;
-    struct ngl_node *stencil;
-};
+    int blend;
+    int blend_dst_factor;
+    int blend_src_factor;
+    int blend_dst_factor_a;
+    int blend_src_factor_a;
+    int blend_op;
+    int blend_op_a;
 
-struct configblend {
-    GLenum capability;
-    int enabled[2];
+    int color_write_mask;
 
-    GLenum src_rgb[2];
-    GLenum dst_rgb[2];
-    GLenum src_alpha[2];
-    GLenum dst_alpha[2];
-    GLenum mode_rgb[2];
-    GLenum mode_alpha[2];
-};
+    int depth_test;
+    int depth_write_mask;
+    int depth_func;
 
-struct configcolormask {
-    GLenum capability;
-    int enabled[2];
+    int stencil_test;
+    int stencil_write_mask;
+    int stencil_func;
+    int stencil_ref;
+    int stencil_read_mask;
+    int stencil_fail;
+    int stencil_depth_fail;
+    int stencil_depth_pass;
 
-    GLint rgba[2][4];
-};
-
-struct configdepth {
-    GLenum capability;
-    int enabled[2];
-
-    GLint writemask[2];
-    GLenum func[2];
-};
-
-struct configpolygonmode {
-    GLenum capability;
-    GLenum mode[2];
-};
-
-struct configstencil {
-    GLenum capability;
-    int enabled[2];
-
-    GLuint writemask[2];
-    GLenum func[2];
-    GLint  func_ref[2];
-    GLuint func_mask[2];
-    GLenum op_sfail[2];
-    GLenum op_dpfail[2];
-    GLenum op_dppass[2];
+    struct glstate states[2];
 };
 
 struct camera {

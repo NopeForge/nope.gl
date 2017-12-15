@@ -256,83 +256,28 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `child` | ✓ | `Node` |  | 
-`blend` |  | `Node` ([ConfigBlend](#configblend)) |  | 
-`colormask` |  | `Node` ([ConfigColorMask](#configcolormask)) |  | 
-`depth` |  | `Node` ([ConfigDepth](#configdepth)) |  | 
-`polygonmode` |  | `Node` ([ConfigPolygonMode](#configpolygonmode)) |  | 
-`stencil` |  | `Node` ([ConfigStencil](#configstencil)) |  | 
+`blend` |  | `int` |  | `0`
+`blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `one`
+`blend_src_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `zero`
+`blend_dst_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `one`
+`blend_src_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `zero`
+`blend_op` |  | [`blend_operation`](#blend_operation-choices) |  | `add`
+`blend_op_a` |  | [`blend_operation`](#blend_operation-choices) |  | `add`
+`color_write_mask` |  | [`component`](#component-choices) |  | `r+g+b+a`
+`depth_test` |  | `int` |  | `0`
+`depth_write_mask` |  | `int` |  | `1`
+`depth_func` |  | [`function`](#function-choices) | passes if `<function>(depth, stored_depth)` | `less`
+`stencil_test` |  | `int` |  | `0`
+`stencil_write_mask` |  | `int` |  | `255`
+`stencil_func` |  | [`function`](#function-choices) | passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)` | `always`
+`stencil_ref` |  | `int` |  | `0`
+`stencil_read_mask` |  | `int` |  | `255`
+`stencil_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `keep`
+`stencil_depth_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `keep`
+`stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) |  | `keep`
 
 
 **Source**: [node_graphicconfig.c](/libnodegl/node_graphicconfig.c)
-
-
-## ConfigBlend
-
-Parameter | Ctor. | Type | Description | Default
---------- | :---: | ---- | ----------- | :-----:
-`enabled` | ✓ | `int` |  | `0`
-`src_rgb` |  | `int` |  | `1`
-`dst_rgb` |  | `int` |  | `0`
-`src_alpha` |  | `int` |  | `1`
-`dst_alpha` |  | `int` |  | `0`
-`mode_rgb` |  | `int` |  | `32774`
-`mode_alpha` |  | `int` |  | `32774`
-
-
-**Source**: [node_configblend.c](/libnodegl/node_configblend.c)
-
-
-## ConfigColorMask
-
-Parameter | Ctor. | Type | Description | Default
---------- | :---: | ---- | ----------- | :-----:
-`enabled` | ✓ | `int` |  | `1`
-`red` |  | `int` |  | `1`
-`green` |  | `int` |  | `1`
-`blue` |  | `int` |  | `1`
-`alpha` |  | `int` |  | `1`
-
-
-**Source**: [node_configcolormask.c](/libnodegl/node_configcolormask.c)
-
-
-## ConfigPolygonMode
-
-Parameter | Ctor. | Type | Description | Default
---------- | :---: | ---- | ----------- | :-----:
-`mode` | ✓ | `int` |  | `6914`
-
-
-**Source**: [node_configpolygonmode.c](/libnodegl/node_configpolygonmode.c)
-
-
-## ConfigDepth
-
-Parameter | Ctor. | Type | Description | Default
---------- | :---: | ---- | ----------- | :-----:
-`enabled` | ✓ | `int` |  | `0`
-`writemask` |  | `int` |  | `1`
-`func` |  | `int` |  | `513`
-
-
-**Source**: [node_configdepth.c](/libnodegl/node_configdepth.c)
-
-
-## ConfigStencil
-
-Parameter | Ctor. | Type | Description | Default
---------- | :---: | ---- | ----------- | :-----:
-`enabled` | ✓ | `int` |  | `0`
-`writemask` |  | `int` |  | `255`
-`func` |  | `int` |  | `519`
-`func_ref` |  | `int` |  | `0`
-`func_mask` |  | `int` |  | `255`
-`op_sfail` |  | `int` |  | `7680`
-`op_dpfail` |  | `int` |  | `7680`
-`op_dppass` |  | `int` |  | `7680`
-
-
-**Source**: [node_configstencil.c](/libnodegl/node_configstencil.c)
 
 
 ## Group
@@ -642,6 +587,66 @@ Parameter | Ctor. | Type | Description | Default
 
 Constants for choices parameters
 ================================
+
+## blend_factor choices
+
+Constant | Description
+-------- | -----------
+`zero` | `0`
+`one` | `1`
+`src_color` | `src_color`
+`one_minus_src_color` | `1 - src_color`
+`dst_color` | `dst_color`
+`one_minus_dst_color` | `1 - dst_color`
+`src_alpha` | `src_alpha`
+`one_minus_src_alpha` | `1 - src_alpha`
+`dst_alpha` | `dst_alpha`
+`one_minus_dst_alpha` | `1 - dst_alpha`
+
+## blend_operation choices
+
+Constant | Description
+-------- | -----------
+`add` | `src + dst`
+`sub` | `src - dst`
+`revsub` | `dst - src`
+`min` | `min(src, dst)`
+`max` | `max(src, dst)`
+
+## component choices
+
+Constant | Description
+-------- | -----------
+`r` | red
+`g` | green
+`b` | blue
+`a` | alpha
+
+## function choices
+
+Constant | Description
+-------- | -----------
+`never` | `f(a,b) = 0`
+`less` | `f(a,b) = a < b`
+`equal` | `f(a,b) = a == b`
+`lequal` | `f(a,b) = a ≤ b`
+`greater` | `f(a,b) = a > b`
+`notequal` | `f(a,b) = a ≠ b`
+`gequal` | `f(a,b) = a ≥ b`
+`always` | `f(a,b) = 1`
+
+## stencil_operation choices
+
+Constant | Description
+-------- | -----------
+`keep` | keeps the current value
+`zero` | sets the stencil buffer value to 0
+`replace` | sets the stencil buffer value to ref, as specified by the stencil function
+`incr` | increments the current stencil buffer value and clamps it
+`incr_wrap` | increments the current stencil buffer value and wraps it
+`decr` | decrements the current stencil buffer value and clamps it
+`decr_wrap` | decrements the current stencil buffer value and wraps it
+`decr_invert` | bitwise inverts the current stencil buffer value
 
 ## min_filter choices
 
