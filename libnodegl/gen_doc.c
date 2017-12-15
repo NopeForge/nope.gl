@@ -59,6 +59,18 @@ static const struct node_class *get_node_class(int type)
     return NULL;
 }
 
+#define LOWER(c) (((c) >= 'A' && (c) <= 'Z') ? (c) ^ 0x20 : (c))
+
+static void print_node_type(struct bstr *b, const struct node_class *class)
+{
+    const char *class_ref = class->params_id ? class->params_id : class->name;
+
+    ngli_bstr_print(b, "[%s](#", class->name);
+    for (int i = 0; class_ref[i]; i++)
+        ngli_bstr_print(b, "%c", LOWER(class_ref[i]));
+    ngli_bstr_print(b, ")");
+}
+
 static char *get_type_str(const struct node_param *p)
 {
     struct bstr *b = ngli_bstr_create();
@@ -69,8 +81,9 @@ static char *get_type_str(const struct node_param *p)
     if (p->node_types) {
         ngli_bstr_print(b, " (");
         for (int i = 0; p->node_types[i] != -1; i++) {
-            const struct node_class *class = get_node_class(p->node_types[i]);
-            ngli_bstr_print(b, "%s`%s`", i ? ", " : "", class->name);
+            if (i)
+                ngli_bstr_print(b, ", ");
+            print_node_type(b, get_node_class(p->node_types[i]));
         }
         ngli_bstr_print(b, ")");
     }

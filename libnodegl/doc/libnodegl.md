@@ -4,7 +4,7 @@ libnodegl
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameBuffer`) | key frame buffers to interpolate from | 
+`keyframes` |  | `NodeList` ([AnimKeyFrameBuffer](#animkeyframebuffer)) | key frame buffers to interpolate from | 
 
 
 **Source**: [node_animatedbuffer.c](/libnodegl/node_animatedbuffer.c)
@@ -19,7 +19,7 @@ List of `AnimatedBuffer*` nodes:
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameFloat`) | float key frames to interpolate from | 
+`keyframes` |  | `NodeList` ([AnimKeyFrameFloat](#animkeyframefloat)) | float key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -28,7 +28,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameVec2`) | vec2 key frames to interpolate from | 
+`keyframes` |  | `NodeList` ([AnimKeyFrameVec2](#animkeyframevec2)) | vec2 key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -37,7 +37,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameVec3`) | vec3 key frames to interpolate from | 
+`keyframes` |  | `NodeList` ([AnimKeyFrameVec3](#animkeyframevec3)) | vec3 key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -46,7 +46,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` (`AnimKeyFrameVec4`) | vec4 key frames to interpolate from | 
+`keyframes` |  | `NodeList` ([AnimKeyFrameVec4](#animkeyframevec4)) | vec4 key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -163,10 +163,10 @@ Parameter | Ctor. | Type | Description | Default
 `center` |  | `vec3` | center position | (`0`,`0`,`-1`)
 `up` |  | `vec3` | up vector | (`0`,`1`,`0`)
 `perspective` |  | `vec4` | the 4 following values: *fov*, *aspect*, *near clipping plane*, *far clipping plane* | (`0`,`0`,`0`,`0`)
-`eye_transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) | `eye` transformation chain | 
-`center_transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) | `center` transformation chain | 
-`up_transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) | `up` transformation chain | 
-`fov_anim` |  | `Node` (`AnimatedFloat`) | field of view animation (first field of `perspective`) | 
+`eye_transform` |  | `Node` ([Rotate](#rotate), [Translate](#translate), [Scale](#scale)) | `eye` transformation chain | 
+`center_transform` |  | `Node` ([Rotate](#rotate), [Translate](#translate), [Scale](#scale)) | `center` transformation chain | 
+`up_transform` |  | `Node` ([Rotate](#rotate), [Translate](#translate), [Scale](#scale)) | `up` transformation chain | 
+`fov_anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
 `pipe_fd` |  | `int` | pipe file descriptor where the rendered raw RGBA buffer is written | `0`
 `pipe_width` |  | `int` | width (in pixels) of the raw image buffer when using `pipe_fd` | `0`
 `pipe_height` |  | `int` | height (in pixels) of the raw image buffer when using `pipe_fd` | `0`
@@ -191,10 +191,10 @@ Parameter | Ctor. | Type | Description | Default
 `nb_group_x` | ✓ | `int` |  | `0`
 `nb_group_y` | ✓ | `int` |  | `0`
 `nb_group_z` | ✓ | `int` |  | `0`
-`program` | ✓ | `Node` (`ComputeProgram`) |  | 
-`textures` |  | `NodeDict` (`Texture2D`) |  | 
-`uniforms` |  | `NodeDict` (`UniformFloat`, `UniformVec2`, `UniformVec3`, `UniformVec4`, `UniformInt`, `UniformMat4`) |  | 
-`buffers` |  | `NodeDict` (`BufferFloat`, `BufferVec2`, `BufferVec3`, `BufferVec4`, `BufferInt`, `BufferIVec2`, `BufferIVec3`, `BufferIVec4`, `BufferUInt`, `BufferUIVec2`, `BufferUIVec3`, `BufferUIVec4`) |  | 
+`program` | ✓ | `Node` ([ComputeProgram](#computeprogram)) |  | 
+`textures` |  | `NodeDict` ([Texture2D](#texture2d)) |  | 
+`uniforms` |  | `NodeDict` ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
+`buffers` |  | `NodeDict` ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
 
 
 **Source**: [node_compute.c](/libnodegl/node_compute.c)
@@ -224,10 +224,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`vertices` | ✓ | `Node` (`BufferVec3`, `AnimatedBufferVec3`) |  | 
-`uvcoords` |  | `Node` (`BufferFloat`, `BufferVec2`, `BufferVec3`, `AnimatedBufferFloat`, `AnimatedBufferVec2`, `AnimatedBufferVec3`) |  | 
-`normals` |  | `Node` (`BufferVec3`, `AnimatedBufferVec3`) |  | 
-`indices` |  | `Node` (`BufferUByte`, `BufferUInt`, `BufferUShort`) |  | 
+`vertices` | ✓ | `Node` ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
+`uvcoords` |  | `Node` ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
+`normals` |  | `Node` ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
+`indices` |  | `Node` ([BufferUByte](#buffer), [BufferUInt](#buffer), [BufferUShort](#buffer)) |  | 
 `draw_mode` |  | `int` |  | `4`
 
 
@@ -238,11 +238,11 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `child` | ✓ | `Node` |  | 
-`blend` |  | `Node` (`ConfigBlend`) |  | 
-`colormask` |  | `Node` (`ConfigColorMask`) |  | 
-`depth` |  | `Node` (`ConfigDepth`) |  | 
-`polygonmode` |  | `Node` (`ConfigPolygonMode`) |  | 
-`stencil` |  | `Node` (`ConfigStencil`) |  | 
+`blend` |  | `Node` ([ConfigBlend](#configblend)) |  | 
+`colormask` |  | `Node` ([ConfigColorMask](#configcolormask)) |  | 
+`depth` |  | `Node` ([ConfigDepth](#configdepth)) |  | 
+`polygonmode` |  | `Node` ([ConfigPolygonMode](#configpolygonmode)) |  | 
+`stencil` |  | `Node` ([ConfigStencil](#configstencil)) |  | 
 
 
 **Source**: [node_graphicconfig.c](/libnodegl/node_graphicconfig.c)
@@ -332,7 +332,7 @@ Parameter | Ctor. | Type | Description | Default
 `start` |  | `double` | update time offseting, updates before this time will do nothing | `0`
 `initial_seek` |  | `double` | initial seek in the media | `0`
 `sxplayer_min_level` |  | `string` | sxplayer min logging level | 
-`time_anim` |  | `Node` (`AnimatedFloat`) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) | time remapping animation (must use a `linear` interpolation) | 
 `audio_tex` |  | `int` | load the audio and expose it as a stereo waves and frequencies buffer | `0`
 `max_nb_packets` |  | `int` | maximum number of packets in sxplayer demuxing queue | `1`
 `max_nb_frames` |  | `int` | maximum number of frames in sxplayer decoding queue | `1`
@@ -370,12 +370,12 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`geometry` | ✓ | `Node` (`Circle`, `Geometry`, `Quad`, `Triangle`) |  | 
-`program` |  | `Node` (`Program`) |  | 
-`textures` |  | `NodeDict` (`Texture2D`, `Texture3D`) |  | 
-`uniforms` |  | `NodeDict` (`UniformFloat`, `UniformVec2`, `UniformVec3`, `UniformVec4`, `UniformInt`, `UniformMat4`) |  | 
-`attributes` |  | `NodeDict` (`BufferFloat`, `BufferVec2`, `BufferVec3`, `BufferVec4`) |  | 
-`buffers` |  | `NodeDict` (`BufferFloat`, `BufferVec2`, `BufferVec3`, `BufferVec4`, `BufferInt`, `BufferIVec2`, `BufferIVec3`, `BufferIVec4`, `BufferUInt`, `BufferUIVec2`, `BufferUIVec3`, `BufferUIVec4`) |  | 
+`geometry` | ✓ | `Node` ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) |  | 
+`program` |  | `Node` ([Program](#program)) |  | 
+`textures` |  | `NodeDict` ([Texture2D](#texture2d), [Texture3D](#texture3d)) |  | 
+`uniforms` |  | `NodeDict` ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
+`attributes` |  | `NodeDict` ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
+`buffers` |  | `NodeDict` ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
 
 
 **Source**: [node_render.c](/libnodegl/node_render.c)
@@ -385,8 +385,8 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `child` | ✓ | `Node` |  | 
-`color_texture` | ✓ | `Node` (`Texture2D`) |  | 
-`depth_texture` |  | `Node` (`Texture2D`) |  | 
+`color_texture` | ✓ | `Node` ([Texture2D](#texture2d)) |  | 
+`depth_texture` |  | `Node` ([Texture2D](#texture2d)) |  | 
 
 
 **Source**: [node_rtt.c](/libnodegl/node_rtt.c)
@@ -399,7 +399,7 @@ Parameter | Ctor. | Type | Description | Default
 `angle` |  | `double` | rotation angle in degrees | `0`
 `axis` |  | `vec3` | rotation axis | (`0`,`0`,`1`)
 `anchor` |  | `vec3` | vector to the center point of the rotation | (`0`,`0`,`0`)
-`anim` |  | `Node` (`AnimatedFloat`) | `angle` animation | 
+`anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) | `angle` animation | 
 
 
 **Source**: [node_rotate.c](/libnodegl/node_rotate.c)
@@ -411,7 +411,7 @@ Parameter | Ctor. | Type | Description | Default
 `child` | ✓ | `Node` | scene to scale | 
 `factors` |  | `vec3` | scaling factors (how much to scale on each axis) | (`0`,`0`,`0`)
 `anchor` |  | `vec3` | vector to the center point of the scale | (`0`,`0`,`0`)
-`anim` |  | `Node` (`AnimatedVec3`) | `factors` animation | 
+`anim` |  | `Node` ([AnimatedVec3](#animatedvec3)) | `factors` animation | 
 
 
 **Source**: [node_scale.c](/libnodegl/node_scale.c)
@@ -429,7 +429,7 @@ Parameter | Ctor. | Type | Description | Default
 `mag_filter` |  | `int` |  | `9728`
 `wrap_s` |  | `int` |  | `33071`
 `wrap_t` |  | `int` |  | `33071`
-`data_src` |  | `Node` (`Media`, `FPS`, `AnimatedBufferFloat`, `AnimatedBufferVec2`, `AnimatedBufferVec3`, `AnimatedBufferVec4`, `BufferByte`, `BufferBVec2`, `BufferBVec3`, `BufferBVec4`, `BufferInt`, `BufferIVec2`, `BufferIVec3`, `BufferIVec4`, `BufferShort`, `BufferSVec2`, `BufferSVec3`, `BufferSVec4`, `BufferUByte`, `BufferUBVec2`, `BufferUBVec3`, `BufferUBVec4`, `BufferUInt`, `BufferUIVec2`, `BufferUIVec3`, `BufferUIVec4`, `BufferUShort`, `BufferUSVec2`, `BufferUSVec3`, `BufferUSVec4`, `BufferFloat`, `BufferVec2`, `BufferVec3`, `BufferVec4`) |  | 
+`data_src` |  | `Node` ([Media](#media), [FPS](#fps), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
 `access` |  | `int` |  | `35002`
 `direct_rendering` |  | `int` |  | `-1`
 `immutable` |  | `int` |  | `0`
@@ -452,7 +452,7 @@ Parameter | Ctor. | Type | Description | Default
 `wrap_s` |  | `int` |  | `33071`
 `wrap_t` |  | `int` |  | `33071`
 `wrap_r` |  | `int` |  | `33071`
-`data_src` |  | `Node` (`AnimatedBufferFloat`, `AnimatedBufferVec2`, `AnimatedBufferVec3`, `AnimatedBufferVec4`, `BufferByte`, `BufferBVec2`, `BufferBVec3`, `BufferBVec4`, `BufferInt`, `BufferIVec2`, `BufferIVec3`, `BufferIVec4`, `BufferShort`, `BufferSVec2`, `BufferSVec3`, `BufferSVec4`, `BufferUByte`, `BufferUBVec2`, `BufferUBVec3`, `BufferUBVec4`, `BufferUInt`, `BufferUIVec2`, `BufferUIVec3`, `BufferUIVec4`, `BufferUShort`, `BufferUSVec2`, `BufferUSVec3`, `BufferUSVec4`, `BufferFloat`, `BufferVec2`, `BufferVec3`, `BufferVec4`) |  | 
+`data_src` |  | `Node` ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
 `access` |  | `int` |  | `35002`
 `immutable` |  | `int` |  | `0`
 
@@ -464,7 +464,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `child` | ✓ | `Node` | time filtered scene | 
-`ranges` |  | `NodeList` (`TimeRangeModeOnce`, `TimeRangeModeNoop`, `TimeRangeModeCont`) | key frame time filtering events | 
+`ranges` |  | `NodeList` ([TimeRangeModeOnce](#timerangemodeonce), [TimeRangeModeNoop](#timerangemodenoop), [TimeRangeModeCont](#timerangemodecont)) | key frame time filtering events | 
 `prefetch_time` |  | `double` | `child` is prefetched `prefetch_time` seconds in advance | `1`
 `max_idle_time` |  | `double` | `child` will not be released if it is required in the next incoming `max_idle_time` seconds | `4`
 
@@ -505,7 +505,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `child` | ✓ | `Node` | scene to translate | 
 `vector` |  | `vec3` | translation vector | (`0`,`0`,`0`)
-`anim` |  | `Node` (`AnimatedVec3`) | `vector` animation | 
+`anim` |  | `Node` ([AnimatedVec3](#animatedvec3)) | `vector` animation | 
 
 
 **Source**: [node_translate.c](/libnodegl/node_translate.c)
@@ -538,7 +538,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `value` |  | `mat4` |  | 
-`transform` |  | `Node` (`Rotate`, `Translate`, `Scale`) |  | 
+`transform` |  | `Node` ([Rotate](#rotate), [Translate](#translate), [Scale](#scale)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -548,7 +548,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `value` |  | `double` |  | `0`
-`anim` |  | `Node` (`AnimatedFloat`) |  | 
+`anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -558,7 +558,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `value` |  | `vec2` |  | (`0`,`0`)
-`anim` |  | `Node` (`AnimatedVec2`) |  | 
+`anim` |  | `Node` ([AnimatedVec2](#animatedvec2)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -568,7 +568,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `value` |  | `vec3` |  | (`0`,`0`,`0`)
-`anim` |  | `Node` (`AnimatedVec3`) |  | 
+`anim` |  | `Node` ([AnimatedVec3](#animatedvec3)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -578,7 +578,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `value` |  | `vec4` |  | (`0`,`0`,`0`,`0`)
-`anim` |  | `Node` (`AnimatedVec4`) |  | 
+`anim` |  | `Node` ([AnimatedVec4](#animatedvec4)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
