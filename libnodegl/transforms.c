@@ -30,6 +30,9 @@ const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
         if (id == NGL_NODE_ROTATE) {
             const struct rotate *rotate = node->priv_data;
             node = rotate->child;
+        } else if (id == NGL_NODE_TRANSFORM) {
+            const struct transform *transform = node->priv_data;
+            node = transform->child;
         } else if (id == NGL_NODE_TRANSLATE) {
             const struct translate *translate = node->priv_data;
             node = translate->child;

@@ -88,6 +88,7 @@ LIB_OBJS = api.o                    \
            node_texture.o           \
            node_timerangefilter.o   \
            node_timerangemodes.o    \
+           node_transform.o         \
            node_translate.o         \
            node_triangle.o          \
            node_uniform.o           \

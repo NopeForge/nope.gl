@@ -538,6 +538,17 @@ Parameter | Ctor. | Type | Description | Default
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
 
 
+## Transform
+
+Parameter | Ctor. | Type | Description | Default
+--------- | :---: | ---- | ----------- | :-----:
+`child` | ✓ | `Node` | scene to apply the transform to | 
+`matrix` |  | `mat4` | transformation matrix | 
+
+
+**Source**: [node_transform.c](/libnodegl/node_transform.c)
+
+
 ## Translate
 
 Parameter | Ctor. | Type | Description | Default

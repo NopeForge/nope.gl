@@ -157,6 +157,7 @@ struct ngl_node;
 #define NGL_NODE_TIMERANGEMODECONT      NGLI_FOURCC('T','R','M','C')
 #define NGL_NODE_TIMERANGEMODENOOP      NGLI_FOURCC('T','R','M','N')
 #define NGL_NODE_TIMERANGEMODEONCE      NGLI_FOURCC('T','R','M','1')
+#define NGL_NODE_TRANSFORM              NGLI_FOURCC('T','r','f','m')
 #define NGL_NODE_TRANSLATE              NGLI_FOURCC('T','m','o','v')
 #define NGL_NODE_TRIANGLE               NGLI_FOURCC('T','r','g','l')
 #define NGL_NODE_UNIFORMINT             NGLI_FOURCC('U','n','i','1')

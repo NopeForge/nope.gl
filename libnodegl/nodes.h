@@ -73,6 +73,7 @@ struct ngl_node {
 };
 
 #define TRANSFORM_TYPES_LIST (const int[]){NGL_NODE_ROTATE,    \
+                                           NGL_NODE_TRANSFORM, \
                                            NGL_NODE_TRANSLATE, \
                                            NGL_NODE_SCALE,     \
                                            -1}
@@ -378,6 +379,11 @@ struct rotate {
     float axis[3];
     float anchor[3];
     struct ngl_node *anim;
+};
+
+struct transform {
+    struct ngl_node *child;
+    NGLI_ALIGNED_MAT(matrix);
 };
 
 struct translate {

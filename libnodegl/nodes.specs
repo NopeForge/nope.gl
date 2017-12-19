@@ -362,6 +362,12 @@
         - [start_time, double]
         - [render_time, double]
 
+- Transform:
+    constructors:
+        - [child, Node]
+    optional:
+        - [matrix, mat4]
+
 - Translate:
     constructors:
         - [child, Node]
