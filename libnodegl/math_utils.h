@@ -40,6 +40,11 @@ float ngli_mat3_determinant(const float *m);
 void ngli_mat3_adjugate(float *dst, const float* m);
 void ngli_mat3_inverse(float *dst, const float *m);
 
+#define NGLI_MAT4_IDENTITY {1.0f, 0.0f, 0.0f, 0.0f, \
+                            0.0f, 1.0f, 0.0f, 0.0f, \
+                            0.0f, 0.0f, 1.0f, 0.0f, \
+                            0.0f, 0.0f, 0.0f, 1.0f} \
+
 void ngli_mat4_identity(float *dst);
 void ngli_mat4_mul_c(float *dst, const float *m1, const float *m2);
 void ngli_mat4_mul_vec4_c(float *dst, const float *m, const float *v);

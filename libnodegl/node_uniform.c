@@ -30,13 +30,6 @@
 #include "nodes.h"
 #include "transforms.h"
 
-#define IDENTITY {           \
-    1.0f, 0.0f, 0.0f, 0.0f,  \
-    0.0f, 1.0f, 0.0f, 0.0f,  \
-    0.0f, 0.0f, 1.0f, 0.0f,  \
-    0.0f, 0.0f, 0.0f, 1.0f   \
-}
-
 #define OFFSET(x) offsetof(struct uniform, x)
 static const struct node_param uniformfloat_params[] = {
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar)},
@@ -72,7 +65,7 @@ static const struct node_param uniformint_params[] = {
 };
 
 static const struct node_param uniformmat4_params[] = {
-    {"value",     PARAM_TYPE_MAT4, OFFSET(matrix), {.mat=IDENTITY}},
+    {"value",     PARAM_TYPE_MAT4, OFFSET(matrix), {.mat=NGLI_MAT4_IDENTITY}},
     {"transform", PARAM_TYPE_NODE, OFFSET(transform), .node_types=TRANSFORM_TYPES_LIST},
     {NULL}
 };
