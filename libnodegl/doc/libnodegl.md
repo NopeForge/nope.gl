@@ -175,9 +175,9 @@ Parameter | Ctor. | Type | Description | Default
 `center` |  | `vec3` | center position | (`0`,`0`,`-1`)
 `up` |  | `vec3` | up vector | (`0`,`1`,`0`)
 `perspective` |  | `vec4` | the 4 following values: *fov*, *aspect*, *near clipping plane*, *far clipping plane* | (`0`,`0`,`0`,`0`)
-`eye_transform` |  | `Node` ([Rotate](#rotate), [Translate](#translate), [Scale](#scale)) | `eye` transformation chain | 
-`center_transform` |  | `Node` ([Rotate](#rotate), [Translate](#translate), [Scale](#scale)) | `center` transformation chain | 
-`up_transform` |  | `Node` ([Rotate](#rotate), [Translate](#translate), [Scale](#scale)) | `up` transformation chain | 
+`eye_transform` |  | `Node` ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `eye` transformation chain | 
+`center_transform` |  | `Node` ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `center` transformation chain | 
+`up_transform` |  | `Node` ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `up` transformation chain | 
 `fov_anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
 `pipe_fd` |  | `int` | pipe file descriptor where the rendered raw RGBA buffer is written | `0`
 `pipe_width` |  | `int` | width (in pixels) of the raw image buffer when using `pipe_fd` | `0`
@@ -591,7 +591,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `value` |  | `mat4` |  | 
-`transform` |  | `Node` ([Rotate](#rotate), [Translate](#translate), [Scale](#scale)) |  | 
+`transform` |  | `Node` ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
