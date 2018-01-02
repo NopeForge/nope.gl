@@ -28,6 +28,7 @@ from pynodegl import (
         Quad,
         Render,
         Rotate,
+        Scale,
         Texture2D,
         Texture3D,
         Translate,
@@ -302,3 +303,89 @@ def particules(cfg, particules=32):
     g.add_children(c, r)
 
     return Camera(g)
+
+
+@scene()
+def blending_and_stencil(cfg):
+    cfg.duration = 5
+    random.seed(0)
+    fragment = get_frag('color')
+
+    main_group = Group()
+
+    quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    program = Program(fragment=fragment)
+    render = Render(quad, program)
+    render.update_uniforms(color=UniformVec4(value=(0.2, 0.6, 1, 1)))
+    config = GraphicConfig(render,
+                           stencil_test=True,
+                           stencil_write_mask=0xFF,
+                           stencil_func='always',
+                           stencil_ref=1,
+                           stencil_read_mask=0xFF,
+                           stencil_fail='replace',
+                           stencil_depth_fail='replace',
+                           stencil_depth_pass='replace')
+    main_group.add_children(config)
+
+    circle = Circle(npoints=256)
+    program = Program(fragment=fragment)
+    render = Render(circle, program)
+    render.update_uniforms(color=UniformVec4(value=(1, 0.8, 0, 1)))
+
+    scale = Scale(render, (0.15, 0.15, 0.0))
+    translate = Translate(scale, (0.4, 0.3, 0))
+    main_group.add_children(translate)
+
+    cloud_group = Group()
+
+    centers = [
+        (-1.0, 0.85, 0.4),
+        (-0.5, 2.0,  1.0),
+        (   0, 0.85, 0.4),
+        ( 1.0, 1.55, 0.8),
+        ( 0.6, 0.65, 0.075),
+        ( 0.5, 1.80, 1.25),
+    ]
+
+    for center in centers:
+        circle = Circle(npoints=256)
+        program = Program(fragment=fragment)
+        render = Render(circle, program)
+        render.update_uniforms(color=UniformVec4(value=(1, 1, 1, 0.4)))
+
+        factor = random.random() * 0.4 + center[2]
+        keyframe = cfg.duration * (random.random() * 0.4 + 0.2)
+        animkf = (AnimKeyFrameVec3(0,            (factor,       factor,       0)),
+                  AnimKeyFrameVec3(keyframe,     (factor + 0.1, factor + 0.1, 0)),
+                  AnimKeyFrameVec3(cfg.duration, (factor,       factor,       0)))
+        scale = Scale(render, anim=AnimatedVec3(animkf))
+
+        x = random.random() * 2.0 - 1.0
+        y = random.random() * 0.2 + 1.0
+        translate = Translate(scale, vector=(center[0], center[1], 0))
+        cloud_group.add_children(translate)
+
+    config = GraphicConfig(cloud_group,
+                           blend=True,
+                           blend_dst_factor='src_alpha',
+                           blend_src_factor='one_minus_src_alpha',
+                           blend_dst_factor_a='one',
+                           blend_src_factor_a='zero',
+                           stencil_test=True,
+                           stencil_write_mask=0x0,
+                           stencil_func='equal',
+                           stencil_ref=1,
+                           stencil_read_mask=0xFF,
+                           stencil_fail='keep',
+                           stencil_depth_fail='keep',
+                           stencil_depth_pass='keep')
+    main_group.add_children(config)
+
+    camera = Camera(main_group)
+    camera.set_eye(0.0, 0.0, 2.0)
+    camera.set_center(0.0, 0.0, 0.0)
+    camera.set_up(0.0, 1.0, 0.0)
+    camera.set_perspective(45.0, cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]), 1.0, 10.0)
+
+    return camera
