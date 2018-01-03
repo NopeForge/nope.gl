@@ -175,6 +175,8 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         case PARAM_TYPE_STR: {
             len = strcspn(str, " \n");
             char *s = malloc(len + 1);
+            if (!s)
+                return -1;
             char *sstart = s;
             for (int i = 0; i < len; i++) {
                 if (str[i] == '%' && i + 2 < len) {
