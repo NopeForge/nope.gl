@@ -35,6 +35,8 @@ char *ngli_strdup(const char *s)
     if (s) {
         size_t len = strlen(s);
         r = malloc(len + 1);
+        if (!r)
+            return NULL;
         strcpy(r, s);
         r[len] = 0;
     }
