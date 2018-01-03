@@ -31,6 +31,38 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+static const struct param_choices minfilter_choices = {
+    .name = "min_filter",
+    .consts = {
+        {"nearest",                GL_NEAREST,                .desc=NGLI_DOCSTRING("nearest filtering")},
+        {"linear",                 GL_LINEAR,                 .desc=NGLI_DOCSTRING("linear filtering")},
+        {"nearest_mipmap_nearest", GL_NEAREST_MIPMAP_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering, nearest mipmap filtering")},
+        {"linear_mipmap_nearest",  GL_LINEAR_MIPMAP_NEAREST,  .desc=NGLI_DOCSTRING("linear filtering, nearest mipmap filtering")},
+        {"nearest_mipmap_linear",  GL_NEAREST_MIPMAP_LINEAR,  .desc=NGLI_DOCSTRING("nearest filtering, linear mipmap filtering")},
+        {"linear_mipmap_linear",   GL_LINEAR_MIPMAP_LINEAR,   .desc=NGLI_DOCSTRING("linear filtering, linear mipmap filtering")},
+        {NULL}
+    }
+};
+
+static const struct param_choices magfilter_choices = {
+    .name = "mag_filter",
+    .consts = {
+        {"nearest", GL_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering")},
+        {"linear",  GL_LINEAR,  .desc=NGLI_DOCSTRING("linear filtering")},
+        {NULL}
+    }
+};
+
+static const struct param_choices wrap_choices = {
+    .name = "wrap",
+    .consts = {
+        {"clamp_to_edge",   GL_CLAMP_TO_EDGE,   .desc=NGLI_DOCSTRING("clamp to edge wrapping")},
+        {"mirrored_repeat", GL_MIRRORED_REPEAT, .desc=NGLI_DOCSTRING("mirrored repeat wrapping")},
+        {"repeat",          GL_REPEAT,          .desc=NGLI_DOCSTRING("repeat pattern wrapping")},
+        {NULL}
+    }
+};
+
 #define BUFFER_NODES                \
     NGL_NODE_ANIMATEDBUFFERFLOAT,   \
     NGL_NODE_ANIMATEDBUFFERVEC2,    \
@@ -82,10 +114,10 @@ static const struct node_param texture2d_params[] = {
     {"type", PARAM_TYPE_INT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}},
     {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0}},
     {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0}},
-    {"min_filter", PARAM_TYPE_INT, OFFSET(min_filter), {.i64=GL_NEAREST}},
-    {"mag_filter", PARAM_TYPE_INT, OFFSET(mag_filter), {.i64=GL_NEAREST}},
-    {"wrap_s", PARAM_TYPE_INT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}},
-    {"wrap_t", PARAM_TYPE_INT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}},
+    {"min_filter", PARAM_TYPE_SELECT, OFFSET(min_filter), {.i64=GL_NEAREST}, .choices=&minfilter_choices},
+    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(mag_filter), {.i64=GL_NEAREST}, .choices=&magfilter_choices},
+    {"wrap_s", PARAM_TYPE_SELECT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
+    {"wrap_t", PARAM_TYPE_SELECT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_2D},
     {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
     {"direct_rendering", PARAM_TYPE_INT, OFFSET(direct_rendering), {.i64=-1}},
@@ -100,11 +132,11 @@ static const struct node_param texture3d_params[] = {
     {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0}},
     {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0}},
     {"depth", PARAM_TYPE_INT, OFFSET(depth), {.i64=0}},
-    {"min_filter", PARAM_TYPE_INT, OFFSET(min_filter), {.i64=GL_NEAREST}},
-    {"mag_filter", PARAM_TYPE_INT, OFFSET(mag_filter), {.i64=GL_NEAREST}},
-    {"wrap_s", PARAM_TYPE_INT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}},
-    {"wrap_t", PARAM_TYPE_INT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}},
-    {"wrap_r", PARAM_TYPE_INT, OFFSET(wrap_r), {.i64=GL_CLAMP_TO_EDGE}},
+    {"min_filter", PARAM_TYPE_SELECT, OFFSET(min_filter), {.i64=GL_NEAREST}, .choices=&minfilter_choices},
+    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(mag_filter), {.i64=GL_NEAREST}, .choices=&magfilter_choices},
+    {"wrap_s", PARAM_TYPE_SELECT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
+    {"wrap_t", PARAM_TYPE_SELECT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
+    {"wrap_r", PARAM_TYPE_SELECT, OFFSET(wrap_r), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D},
     {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
     {"immutable", PARAM_TYPE_INT, OFFSET(immutable), {.i64=0}},

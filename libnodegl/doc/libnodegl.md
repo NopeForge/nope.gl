@@ -458,10 +458,10 @@ Parameter | Ctor. | Type | Description | Default
 `type` |  | `int` |  | `5121`
 `width` |  | `int` |  | `0`
 `height` |  | `int` |  | `0`
-`min_filter` |  | `int` |  | `9728`
-`mag_filter` |  | `int` |  | `9728`
-`wrap_s` |  | `int` |  | `33071`
-`wrap_t` |  | `int` |  | `33071`
+`min_filter` |  | [`min_filter`](#min_filter-choices) |  | `nearest`
+`mag_filter` |  | [`mag_filter`](#mag_filter-choices) |  | `nearest`
+`wrap_s` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
+`wrap_t` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `data_src` |  | `Node` ([Media](#media), [FPS](#fps), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
 `access` |  | `int` |  | `35002`
 `direct_rendering` |  | `int` |  | `-1`
@@ -481,11 +481,11 @@ Parameter | Ctor. | Type | Description | Default
 `width` |  | `int` |  | `0`
 `height` |  | `int` |  | `0`
 `depth` |  | `int` |  | `0`
-`min_filter` |  | `int` |  | `9728`
-`mag_filter` |  | `int` |  | `9728`
-`wrap_s` |  | `int` |  | `33071`
-`wrap_t` |  | `int` |  | `33071`
-`wrap_r` |  | `int` |  | `33071`
+`min_filter` |  | [`min_filter`](#min_filter-choices) |  | `nearest`
+`mag_filter` |  | [`mag_filter`](#mag_filter-choices) |  | `nearest`
+`wrap_s` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
+`wrap_t` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
+`wrap_r` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `data_src` |  | `Node` ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
 `access` |  | `int` |  | `35002`
 `immutable` |  | `int` |  | `0`
@@ -642,3 +642,29 @@ Parameter | Ctor. | Type | Description | Default
 
 Constants for choices parameters
 ================================
+
+## min_filter choices
+
+Constant | Description
+-------- | -----------
+`nearest` | nearest filtering
+`linear` | linear filtering
+`nearest_mipmap_nearest` | nearest filtering, nearest mipmap filtering
+`linear_mipmap_nearest` | linear filtering, nearest mipmap filtering
+`nearest_mipmap_linear` | nearest filtering, linear mipmap filtering
+`linear_mipmap_linear` | linear filtering, linear mipmap filtering
+
+## mag_filter choices
+
+Constant | Description
+-------- | -----------
+`nearest` | nearest filtering
+`linear` | linear filtering
+
+## wrap choices
+
+Constant | Description
+-------- | -----------
+`clamp_to_edge` | clamp to edge wrapping
+`mirrored_repeat` | mirrored repeat wrapping
+`repeat` | repeat pattern wrapping

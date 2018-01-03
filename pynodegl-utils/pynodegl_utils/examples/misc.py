@@ -60,8 +60,8 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
     lut3d_tex = Texture3D(data_src=lut3d_buf,
                           width=level2, height=level2, depth=level2)
     if trilinear:
-        lut3d_tex.set_min_filter(GL.GL_LINEAR)
-        lut3d_tex.set_mag_filter(GL.GL_LINEAR)
+        lut3d_tex.set_min_filter('linear')
+        lut3d_tex.set_mag_filter('linear')
 
     video = Media(cfg.medias[0].filename)
     video_tex = Texture2D(data_src=video)
@@ -97,7 +97,7 @@ def buffer_dove(cfg,
     img_buf = BufferUBVec4(data=array_data)
     img_tex = Texture2D(data_src=img_buf, width=w, height=h)
     if bilinear_filtering:
-        img_tex.set_mag_filter(GL.GL_LINEAR)
+        img_tex.set_mag_filter('linear')
     quad = Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
     prog = Program()
     render = Render(quad, prog, name='dove')
