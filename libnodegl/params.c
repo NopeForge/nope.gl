@@ -41,12 +41,38 @@ const struct node_param *ngli_params_find(const struct node_param *params, const
     return NULL;
 }
 
+int ngli_params_get_select_val(const struct param_const *consts, const char *s, int *dst)
+{
+    for (int i = 0; consts[i].key; i++) {
+        if (!strcmp(consts[i].key, s)) {
+            *dst = consts[i].value;
+            return 0;
+        }
+    }
+    return -1;
+}
+
+const char *ngli_params_get_select_str(const struct param_const *consts, int val)
+{
+    for (int i = 0; consts[i].key; i++)
+        if (consts[i].value == val)
+            return consts[i].key;
+    return NULL;
+}
+
 void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct node_param *par)
 {
     switch (par->type) {
         case PARAM_TYPE_DBL: {
             const double v = *(double *)(base_ptr + par->offset);
             ngli_bstr_print(b, "%g", v);
+            break;
+        }
+        case PARAM_TYPE_SELECT: {
+            const int v = *(int *)(base_ptr + par->offset);
+            const char *s = ngli_params_get_select_str(par->choices->consts, v);
+            ngli_assert(s);
+            ngli_bstr_print(b, "%s", s);
             break;
         }
         case PARAM_TYPE_INT: {
@@ -130,6 +156,18 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
     uint8_t *dstp = base_ptr + par->offset;
 
     switch (par->type) {
+        case PARAM_TYPE_SELECT: {
+            int v;
+            const char *s = va_arg(*ap, const char *);
+            int ret = ngli_params_get_select_val(par->choices->consts, s, &v);
+            if (ret < 0) {
+                LOG(ERROR, "unrecognized constant \"%s\" for option %s", s, par->key);
+                return ret;
+            }
+            LOG(VERBOSE, "set %s to %s (%d)", par->key, s, v);
+            memcpy(dstp, &v, sizeof(v));
+            break;
+        }
         case PARAM_TYPE_INT: {
             int v = va_arg(*ap, int);
             LOG(VERBOSE, "set %s to %d", par->key, v);
@@ -295,6 +333,13 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
 
         if (!(par->flags & PARAM_FLAG_CONSTRUCTOR)) {
             switch (par->type) {
+                case PARAM_TYPE_SELECT: {
+                    const int v = (int)par->def_value.i64;
+                    const char *s = ngli_params_get_select_str(par->choices->consts, v);
+                    ngli_assert(s);
+                    ngli_params_vset(base_ptr, par, s);
+                    break;
+                }
                 case PARAM_TYPE_INT:
                 case PARAM_TYPE_I64:
                     ngli_params_vset(base_ptr, par, par->def_value.i64);

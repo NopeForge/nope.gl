@@ -43,6 +43,7 @@ static const char *param_type_strings[] = {
     [PARAM_TYPE_NODELIST] = "NodeList",
     [PARAM_TYPE_DBLLIST]  = "doubleList",
     [PARAM_TYPE_NODEDICT] = "NodeDict",
+    [PARAM_TYPE_SELECT]   = "select",
 };
 
 static void print_param(const struct node_param *p)

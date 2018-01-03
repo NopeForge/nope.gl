@@ -640,3 +640,5 @@ Parameter | Ctor. | Type | Description | Default
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
 
+Constants for choices parameters
+================================

@@ -199,6 +199,7 @@ static const size_t opt_sizes[] = {
     [PARAM_TYPE_NODELIST] = sizeof(struct ngl_node **) + sizeof(int),
     [PARAM_TYPE_DBLLIST]  = sizeof(double *)           + sizeof(int),
     [PARAM_TYPE_NODEDICT] = sizeof(struct hmap *),
+    [PARAM_TYPE_SELECT]   = sizeof(int),
 };
 
 /*

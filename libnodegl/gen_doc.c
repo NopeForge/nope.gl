@@ -77,7 +77,11 @@ static char *get_type_str(const struct node_param *p)
     if (!b)
         return NULL;
 
-    ngli_bstr_print(b, "`%s`", param_type_strings[p->type]);
+    if (p->choices) {
+        ngli_bstr_print(b, "[`%s`](#%s-choices)", p->choices->name, p->choices->name);
+    } else {
+        ngli_bstr_print(b, "`%s`", param_type_strings[p->type]);
+    }
     if (p->node_types) {
         ngli_bstr_print(b, " (");
         for (int i = 0; p->node_types[i] != -1; i++) {
@@ -100,6 +104,13 @@ static char *get_default_str(const struct node_param *p)
         return NULL;
 
     switch (p->type) {
+        case PARAM_TYPE_SELECT: {
+            const int v = (int)p->def_value.i64;
+            const char *s = ngli_params_get_select_str(p->choices->consts, v);
+            ngli_assert(s);
+            ngli_bstr_print(b, "`%s`", s);
+            break;
+        }
         case PARAM_TYPE_DBL:
             ngli_bstr_print(b, "`%g`", p->def_value.dbl);
             break;
@@ -154,6 +165,18 @@ static void print_node_params(const char *name, const struct node_param *p)
     printf("\n\n");
 }
 
+static void print_choices(const struct param_choices *choices)
+{
+    printf("\n## %s choices\n\n", choices->name);
+    const struct param_const *consts = choices->consts;
+    printf("Constant | Description\n");
+    printf("-------- | -----------\n");
+    for (int i = 0; consts[i].key; i++) {
+        const struct param_const *c = &consts[i];
+        printf("`%s` | %s\n", c->key, c->desc ? c->desc : "");
+    }
+}
+
 #define CLASS_COMMALIST(type_name, class) &class,
 
 static void print_source(const char *cfile)
@@ -204,5 +227,32 @@ int main(void)
     }
 
     ngli_hmap_freep(&params_map);
+
+    printf("Constants for choices parameters\n");
+    printf("================================\n");
+
+    struct hmap *choices_map = ngli_hmap_create();
+    if (!choices_map)
+        return -1;
+
+    for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
+        const struct node_class *c = node_classes[i];
+        const struct node_param *p = c->params;
+
+        if (p) {
+            while (p->key) {
+                if (p->choices) {
+                    void *mapped_choices = ngli_hmap_get(choices_map, p->choices->name);
+                    if (!mapped_choices) {
+                        print_choices(p->choices);
+                        ngli_hmap_set(choices_map, p->choices->name, (void *)p->choices);
+                    }
+                }
+                p++;
+            }
+        }
+    }
+
+    ngli_hmap_freep(&choices_map);
     return 0;
 }

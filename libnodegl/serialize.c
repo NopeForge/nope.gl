@@ -70,6 +70,16 @@ static void serialize_options(struct hmap *nlist,
     while (p && p->key) {
         const int constructor = p->flags & PARAM_FLAG_CONSTRUCTOR;
         switch (p->type) {
+            case PARAM_TYPE_SELECT: {
+                const int v = *(int *)(priv + p->offset);
+                const char *s = ngli_params_get_select_str(p->choices->consts, v);
+                ngli_assert(s);
+                if (constructor)
+                    ngli_bstr_print(b, " %s", s);
+                else if (v != p->def_value.i64)
+                    ngli_bstr_print(b, " %s:%s", p->key, s);
+                break;
+            }
             case PARAM_TYPE_INT: {
                 const int v = *(int *)(priv + p->offset);
                 if (constructor)
