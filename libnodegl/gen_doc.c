@@ -28,22 +28,7 @@
 NODE_MAP_TYPE2CLASS(CLASS_LIST)
 
 extern const struct node_param ngli_base_node_params[];
-
-static const char *param_type_strings[] = {
-    [PARAM_TYPE_INT]      = "int",
-    [PARAM_TYPE_I64]      = "i64",
-    [PARAM_TYPE_DBL]      = "double",
-    [PARAM_TYPE_STR]      = "string",
-    [PARAM_TYPE_DATA]     = "data",
-    [PARAM_TYPE_VEC2]     = "vec2",
-    [PARAM_TYPE_VEC3]     = "vec3",
-    [PARAM_TYPE_VEC4]     = "vec4",
-    [PARAM_TYPE_MAT4]     = "mat4",
-    [PARAM_TYPE_NODE]     = "Node",
-    [PARAM_TYPE_NODELIST] = "NodeList",
-    [PARAM_TYPE_DBLLIST]  = "doubleList",
-    [PARAM_TYPE_NODEDICT] = "NodeDict",
-};
+extern const struct param_specs ngli_params_specs[];
 
 #define TYPE2CLASS(type_name, class)            \
     case type_name: {                           \
@@ -80,7 +65,7 @@ static char *get_type_str(const struct node_param *p)
     if (p->choices) {
         ngli_bstr_print(b, "[`%s`](#%s-choices)", p->choices->name, p->choices->name);
     } else {
-        ngli_bstr_print(b, "`%s`", param_type_strings[p->type]);
+        ngli_bstr_print(b, "`%s`", ngli_params_specs[p->type].name);
     }
     if (p->node_types) {
         ngli_bstr_print(b, " (");

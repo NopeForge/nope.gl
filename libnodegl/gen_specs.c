@@ -28,29 +28,12 @@
 NODE_MAP_TYPE2CLASS(CLASS_LIST)
 
 extern const struct node_param ngli_base_node_params[];
-
-static const char *param_type_strings[] = {
-    [PARAM_TYPE_INT]      = "int",
-    [PARAM_TYPE_I64]      = "i64",
-    [PARAM_TYPE_DBL]      = "double",
-    [PARAM_TYPE_STR]      = "string",
-    [PARAM_TYPE_DATA]     = "data",
-    [PARAM_TYPE_VEC2]     = "vec2",
-    [PARAM_TYPE_VEC3]     = "vec3",
-    [PARAM_TYPE_VEC4]     = "vec4",
-    [PARAM_TYPE_MAT4]     = "mat4",
-    [PARAM_TYPE_NODE]     = "Node",
-    [PARAM_TYPE_NODELIST] = "NodeList",
-    [PARAM_TYPE_DBLLIST]  = "doubleList",
-    [PARAM_TYPE_NODEDICT] = "NodeDict",
-    [PARAM_TYPE_SELECT]   = "select",
-    [PARAM_TYPE_FLAGS]    = "flags",
-};
+extern const struct param_specs ngli_params_specs[];
 
 static void print_param(const struct node_param *p)
 {
     printf("        - [%s, %s]\n",
-           p->key, param_type_strings[p->type]);
+           p->key, ngli_params_specs[p->type].name);
 }
 
 static void print_node_params(const char *name, const struct node_param *p)

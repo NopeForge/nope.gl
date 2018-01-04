@@ -30,6 +30,69 @@
 #include "params.h"
 #include "utils.h"
 
+const struct param_specs ngli_params_specs[] = {
+    [PARAM_TYPE_INT] = {
+        .name = "int",
+        .size = sizeof(int),
+    },
+    [PARAM_TYPE_I64] = {
+        .name = "i64",
+        .size = sizeof(int64_t),
+    },
+    [PARAM_TYPE_DBL] = {
+        .name = "double",
+        .size = sizeof(double),
+    },
+    [PARAM_TYPE_STR] = {
+        .name = "string",
+        .size = sizeof(char *),
+    },
+    [PARAM_TYPE_DATA] = {
+        .name = "data",
+        .size = sizeof(void *) + sizeof(int),
+    },
+    [PARAM_TYPE_VEC2] = {
+        .name = "vec2",
+        .size = sizeof(float[2]),
+    },
+    [PARAM_TYPE_VEC3] = {
+        .name = "vec3",
+        .size = sizeof(float[3]),
+    },
+    [PARAM_TYPE_VEC4] = {
+        .name = "vec4",
+        .size = sizeof(float[4]),
+    },
+    [PARAM_TYPE_MAT4] = {
+        .name = "mat4",
+        .size = sizeof(float[4*4]),
+    },
+    [PARAM_TYPE_NODE] = {
+        .name = "Node",
+        .size = sizeof(struct ngl_node *),
+    },
+    [PARAM_TYPE_NODELIST] = {
+        .name = "NodeList",
+        .size = sizeof(struct ngl_node **) + sizeof(int),
+    },
+    [PARAM_TYPE_DBLLIST] = {
+        .name = "doubleList",
+        .size = sizeof(double *) + sizeof(int),
+    },
+    [PARAM_TYPE_NODEDICT] = {
+        .name = "NodeDict",
+        .size = sizeof(struct hmap *),
+    },
+    [PARAM_TYPE_SELECT] = {
+        .name = "select",
+        .size = sizeof(int),
+    },
+    [PARAM_TYPE_FLAGS] = {
+        .name = "flags",
+        .size = sizeof(int),
+    },
+};
+
 const struct node_param *ngli_params_find(const struct node_param *params, const char *key)
 {
     if (!params)

@@ -34,6 +34,8 @@
 #include "utils.h"
 #include "nodes_register.h"
 
+extern const struct param_specs ngli_params_specs[];
+
 #define OFFSET(x) offsetof(struct ngl_node, x)
 const struct node_param ngli_base_node_params[] = {
     {"name",     PARAM_TYPE_STR,      OFFSET(name)},
@@ -185,24 +187,6 @@ static void node_release(struct ngl_node *node)
     node->state = STATE_IDLE;
 }
 
-static const size_t opt_sizes[] = {
-    [PARAM_TYPE_INT]      = sizeof(int),
-    [PARAM_TYPE_I64]      = sizeof(int64_t),
-    [PARAM_TYPE_DBL]      = sizeof(double),
-    [PARAM_TYPE_STR]      = sizeof(char *),
-    [PARAM_TYPE_DATA]     = sizeof(void *)             + sizeof(int),
-    [PARAM_TYPE_VEC2]     = sizeof(float[2]),
-    [PARAM_TYPE_VEC3]     = sizeof(float[3]),
-    [PARAM_TYPE_VEC4]     = sizeof(float[4]),
-    [PARAM_TYPE_MAT4]     = sizeof(float[4*4]),
-    [PARAM_TYPE_NODE]     = sizeof(struct ngl_node *),
-    [PARAM_TYPE_NODELIST] = sizeof(struct ngl_node **) + sizeof(int),
-    [PARAM_TYPE_DBLLIST]  = sizeof(double *)           + sizeof(int),
-    [PARAM_TYPE_NODEDICT] = sizeof(struct hmap *),
-    [PARAM_TYPE_SELECT]   = sizeof(int),
-    [PARAM_TYPE_FLAGS]    = sizeof(int),
-};
-
 /*
  * Reset every field of the private data which is not a parameter. This allows
  * the init() to always be called in a clean state.
@@ -217,7 +201,7 @@ static void reset_non_params(struct ngl_node *node)
         size_t offset = par->offset;
         if (offset != cur_offset)
             memset(base_ptr + cur_offset, 0, offset - cur_offset);
-        cur_offset = offset + opt_sizes[par->type];
+        cur_offset = offset + ngli_params_specs[par->type].size;
         par++;
     }
     memset(base_ptr + cur_offset, 0, node->class->priv_size - cur_offset);

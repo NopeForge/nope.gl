@@ -44,6 +44,12 @@ enum {
     PARAM_TYPE_FLAGS,
 };
 
+struct param_specs {
+    const char *name;
+    size_t size;
+    const char *desc;
+};
+
 struct param_const {
     const char *key;
     int value;
