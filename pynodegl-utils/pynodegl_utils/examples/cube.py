@@ -68,9 +68,9 @@ def scene_with_framebuffer(cfg):
     g = Group()
 
     d = Texture2D()
-    d.set_format(GL.GL_DEPTH_COMPONENT)
-    d.set_internal_format(GL.GL_DEPTH_COMPONENT)
-    d.set_type(GL.GL_UNSIGNED_SHORT)
+    d.set_format("depth_component")
+    d.set_internal_format("depth_component")
+    d.set_type("unsigned_short")
     d.set_width(640)
     d.set_height(480)
 

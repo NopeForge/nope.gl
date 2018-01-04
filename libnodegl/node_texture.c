@@ -63,6 +63,68 @@ static const struct param_choices wrap_choices = {
     }
 };
 
+static const struct param_choices format_choices = {
+    .name = "format",
+    .consts = {
+        {"red",             GL_RED,             .desc=NGLI_DOCSTRING("red")},
+        {"red_integer",     GL_RED_INTEGER,     .desc=NGLI_DOCSTRING("red integer")},
+        {"rg",              GL_RG,              .desc=NGLI_DOCSTRING("rg")},
+        {"rg_integer",      GL_RG_INTEGER,      .desc=NGLI_DOCSTRING("rg integer")},
+        {"rgb",             GL_RGB,             .desc=NGLI_DOCSTRING("rgb")},
+        {"rgb_integer",     GL_RGB_INTEGER,     .desc=NGLI_DOCSTRING("rgb integer")},
+        {"rgba",            GL_RGBA,            .desc=NGLI_DOCSTRING("rgba")},
+        {"rgba_integer",    GL_RGBA_INTEGER,    .desc=NGLI_DOCSTRING("rgba integer")},
+        {"bgra",            GL_BGRA,            .desc=NGLI_DOCSTRING("bgra")},
+        {"depth_component", GL_DEPTH_COMPONENT, .desc=NGLI_DOCSTRING("depth component")},
+        {"depth_stencil",   GL_DEPTH_STENCIL,   .desc=NGLI_DOCSTRING("depth stencil")},
+        {"alpha",           GL_ALPHA,           .desc=NGLI_DOCSTRING("alpha (OpenGLES only)")},
+        {"luminance",       GL_LUMINANCE,       .desc=NGLI_DOCSTRING("luminance (OpenGLES only)")},
+        {"luminance_alpha", GL_LUMINANCE_ALPHA, .desc=NGLI_DOCSTRING("luminance alpha (OpenGLES only)")},
+        {NULL}
+    }
+};
+
+static const struct param_choices internal_format_choices = {
+    .name = "internal_format",
+    .consts = {
+        {"red",             GL_RED,             .desc=NGLI_DOCSTRING("red")},
+        {"rg",              GL_RG,              .desc=NGLI_DOCSTRING("rg")},
+        {"rgb",             GL_RGB,             .desc=NGLI_DOCSTRING("rgb")},
+        {"rgba",            GL_RGBA,            .desc=NGLI_DOCSTRING("rgba")},
+        {"depth_component", GL_DEPTH_COMPONENT, .desc=NGLI_DOCSTRING("depth component")},
+        {"depth_stencil",   GL_DEPTH_STENCIL,   .desc=NGLI_DOCSTRING("depth stencil")},
+        {"alpha",           GL_ALPHA,           .desc=NGLI_DOCSTRING("alpha (OpenGLES only)")},
+        {"luminance",       GL_LUMINANCE,       .desc=NGLI_DOCSTRING("luminance (OpenGLES only)")},
+        {"luminance_alpha", GL_LUMINANCE_ALPHA, .desc=NGLI_DOCSTRING("luminance alpha (OpenGLES only)")},
+        {NULL}
+    }
+};
+
+static const struct param_choices type_choices = {
+    .name = "type",
+    .consts = {
+        {"byte",           GL_BYTE,           .desc=NGLI_DOCSTRING("byte")},
+        {"unsigned_byte",  GL_UNSIGNED_BYTE,  .desc=NGLI_DOCSTRING("unsigned byte")},
+        {"short",          GL_SHORT,          .desc=NGLI_DOCSTRING("short")},
+        {"unsigned_short", GL_UNSIGNED_SHORT, .desc=NGLI_DOCSTRING("unsigned short")},
+        {"int",            GL_INT,            .desc=NGLI_DOCSTRING("integer")},
+        {"unsigned_int",   GL_UNSIGNED_INT,   .desc=NGLI_DOCSTRING("unsigned integer")},
+        {"half_float",     GL_HALF_FLOAT,     .desc=NGLI_DOCSTRING("half float")},
+        {"float",          GL_FLOAT,          .desc=NGLI_DOCSTRING("float")},
+        {NULL}
+    }
+};
+
+static const struct param_choices access_choices = {
+    .name = "access",
+    .consts = {
+        {"read_only",  GL_READ_ONLY,  .desc=NGLI_DOCSTRING("read only")},
+        {"write_only", GL_WRITE_ONLY, .desc=NGLI_DOCSTRING("write only")},
+        {"read_write", GL_READ_WRITE, .desc=NGLI_DOCSTRING("read-write")},
+        {NULL}
+    }
+};
+
 #define BUFFER_NODES                \
     NGL_NODE_ANIMATEDBUFFERFLOAT,   \
     NGL_NODE_ANIMATEDBUFFERVEC2,    \
@@ -109,9 +171,9 @@ static const struct param_choices wrap_choices = {
 
 #define OFFSET(x) offsetof(struct texture, x)
 static const struct node_param texture2d_params[] = {
-    {"format", PARAM_TYPE_INT, OFFSET(format), {.i64=GL_RGBA}},
-    {"internal_format", PARAM_TYPE_INT, OFFSET(internal_format), {.i64=GL_RGBA}},
-    {"type", PARAM_TYPE_INT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}},
+    {"format", PARAM_TYPE_SELECT, OFFSET(format), {.i64=GL_RGBA}, .choices=&format_choices},
+    {"internal_format", PARAM_TYPE_SELECT, OFFSET(internal_format), {.i64=GL_RGBA}, .choices=&internal_format_choices},
+    {"type", PARAM_TYPE_SELECT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}, .choices=&type_choices},
     {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0}},
     {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0}},
     {"min_filter", PARAM_TYPE_SELECT, OFFSET(min_filter), {.i64=GL_NEAREST}, .choices=&minfilter_choices},
@@ -119,16 +181,16 @@ static const struct node_param texture2d_params[] = {
     {"wrap_s", PARAM_TYPE_SELECT, OFFSET(wrap_s), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
     {"wrap_t", PARAM_TYPE_SELECT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_2D},
-    {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
+    {"access", PARAM_TYPE_SELECT, OFFSET(access), {.i64=GL_READ_WRITE}, .choices=&access_choices},
     {"direct_rendering", PARAM_TYPE_INT, OFFSET(direct_rendering), {.i64=-1}},
     {"immutable", PARAM_TYPE_INT, OFFSET(immutable), {.i64=0}},
     {NULL}
 };
 
 static const struct node_param texture3d_params[] = {
-    {"format", PARAM_TYPE_INT, OFFSET(format), {.i64=GL_RGBA}},
-    {"internal_format", PARAM_TYPE_INT, OFFSET(internal_format), {.i64=GL_RGBA}},
-    {"type", PARAM_TYPE_INT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}},
+    {"format", PARAM_TYPE_SELECT, OFFSET(format), {.i64=GL_RGBA}, .choices=&format_choices},
+    {"internal_format", PARAM_TYPE_SELECT, OFFSET(internal_format), {.i64=GL_RGBA}, .choices=&internal_format_choices},
+    {"type", PARAM_TYPE_SELECT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}, .choices=&type_choices},
     {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0}},
     {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0}},
     {"depth", PARAM_TYPE_INT, OFFSET(depth), {.i64=0}},
@@ -138,7 +200,7 @@ static const struct node_param texture3d_params[] = {
     {"wrap_t", PARAM_TYPE_SELECT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
     {"wrap_r", PARAM_TYPE_SELECT, OFFSET(wrap_r), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D},
-    {"access", PARAM_TYPE_INT, OFFSET(access), {.i64=GL_READ_WRITE}},
+    {"access", PARAM_TYPE_SELECT, OFFSET(access), {.i64=GL_READ_WRITE}, .choices=&access_choices},
     {"immutable", PARAM_TYPE_INT, OFFSET(immutable), {.i64=0}},
     {NULL}
 };

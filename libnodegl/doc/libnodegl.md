@@ -398,9 +398,9 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`format` |  | `int` |  | `6408`
-`internal_format` |  | `int` |  | `6408`
-`type` |  | `int` |  | `5121`
+`format` |  | [`format`](#format-choices) |  | `rgba`
+`internal_format` |  | [`internal_format`](#internal_format-choices) |  | `rgba`
+`type` |  | [`type`](#type-choices) |  | `unsigned_byte`
 `width` |  | `int` |  | `0`
 `height` |  | `int` |  | `0`
 `min_filter` |  | [`min_filter`](#min_filter-choices) |  | `nearest`
@@ -408,7 +408,7 @@ Parameter | Ctor. | Type | Description | Default
 `wrap_s` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `data_src` |  | `Node` ([Media](#media), [FPS](#fps), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
-`access` |  | `int` |  | `35002`
+`access` |  | [`access`](#access-choices) |  | `read_write`
 `direct_rendering` |  | `int` |  | `-1`
 `immutable` |  | `int` |  | `0`
 
@@ -420,9 +420,9 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`format` |  | `int` |  | `6408`
-`internal_format` |  | `int` |  | `6408`
-`type` |  | `int` |  | `5121`
+`format` |  | [`format`](#format-choices) |  | `rgba`
+`internal_format` |  | [`internal_format`](#internal_format-choices) |  | `rgba`
+`type` |  | [`type`](#type-choices) |  | `unsigned_byte`
 `width` |  | `int` |  | `0`
 `height` |  | `int` |  | `0`
 `depth` |  | `int` |  | `0`
@@ -432,7 +432,7 @@ Parameter | Ctor. | Type | Description | Default
 `wrap_t` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `wrap_r` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `data_src` |  | `Node` ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
-`access` |  | `int` |  | `35002`
+`access` |  | [`access`](#access-choices) |  | `read_write`
 `immutable` |  | `int` |  | `0`
 
 
@@ -682,6 +682,52 @@ Constant | Description
 `decr_wrap` | decrements the current stencil buffer value and wraps it
 `decr_invert` | bitwise inverts the current stencil buffer value
 
+## format choices
+
+Constant | Description
+-------- | -----------
+`red` | red
+`red_integer` | red integer
+`rg` | rg
+`rg_integer` | rg integer
+`rgb` | rgb
+`rgb_integer` | rgb integer
+`rgba` | rgba
+`rgba_integer` | rgba integer
+`bgra` | bgra
+`depth_component` | depth component
+`depth_stencil` | depth stencil
+`alpha` | alpha (OpenGLES only)
+`luminance` | luminance (OpenGLES only)
+`luminance_alpha` | luminance alpha (OpenGLES only)
+
+## internal_format choices
+
+Constant | Description
+-------- | -----------
+`red` | red
+`rg` | rg
+`rgb` | rgb
+`rgba` | rgba
+`depth_component` | depth component
+`depth_stencil` | depth stencil
+`alpha` | alpha (OpenGLES only)
+`luminance` | luminance (OpenGLES only)
+`luminance_alpha` | luminance alpha (OpenGLES only)
+
+## type choices
+
+Constant | Description
+-------- | -----------
+`byte` | byte
+`unsigned_byte` | unsigned byte
+`short` | short
+`unsigned_short` | unsigned short
+`int` | integer
+`unsigned_int` | unsigned integer
+`half_float` | half float
+`float` | float
+
 ## min_filter choices
 
 Constant | Description
@@ -707,3 +753,11 @@ Constant | Description
 `clamp_to_edge` | clamp to edge wrapping
 `mirrored_repeat` | mirrored repeat wrapping
 `repeat` | repeat pattern wrapping
+
+## access choices
+
+Constant | Description
+-------- | -----------
+`read_only` | read only
+`write_only` | write only
+`read_write` | read-write

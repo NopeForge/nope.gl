@@ -281,9 +281,9 @@
 
 - Texture2D:
     optional:
-        - [format, int]
-        - [internal_format, int]
-        - [type, int]
+        - [format, select]
+        - [internal_format, select]
+        - [type, select]
         - [width, int]
         - [height, int]
         - [min_filter, select]
@@ -291,15 +291,15 @@
         - [wrap_s, select]
         - [wrap_t, select]
         - [data_src, Node]
-        - [access, int]
+        - [access, select]
         - [direct_rendering, int]
         - [immutable, int]
 
 - Texture3D:
     optional:
-        - [format, int]
-        - [internal_format, int]
-        - [type, int]
+        - [format, select]
+        - [internal_format, select]
+        - [type, select]
         - [width, int]
         - [height, int]
         - [depth, int]
@@ -309,7 +309,7 @@
         - [wrap_t, select]
         - [wrap_r, select]
         - [data_src, Node]
-        - [access, int]
+        - [access, select]
         - [immutable, int]
 
 - TimeRangeFilter:
