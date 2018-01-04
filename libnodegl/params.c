@@ -22,6 +22,7 @@
 #include <string.h>
 #include <inttypes.h>
 
+#include "bstr.h"
 #include "log.h"
 #include "hmap.h"
 #include "nodegl.h"
@@ -60,6 +61,55 @@ const char *ngli_params_get_select_str(const struct param_const *consts, int val
     return NULL;
 }
 
+/* The first separator (`+`) is used as default separator because `|` can not
+ * be used due to markdown table formatting, and ` ` will cause parsing issue
+ * in the serialization.
+ */
+#define FLAGS_SEP "+| "
+
+int ngli_params_get_flags_val(const struct param_const *consts, const char *s, int *dst)
+{
+    *dst = 0;
+    if (!strcmp(s, "0"))
+        return 0;
+    while (*s) {
+        int i;
+        const size_t len = strcspn(s, FLAGS_SEP);
+        for (i = 0; consts[i].key; i++) {
+            if (!strncmp(consts[i].key, s, len)) {
+                *dst |= consts[i].value;
+                break;
+            }
+        }
+        if (!consts[i].key) {
+            LOG(ERROR, "unrecognized \"%.*s\" flag", (int)len, s);
+            return -1;
+        }
+        s += len;
+        while (*s && strchr(FLAGS_SEP, *s))
+            s++;
+    }
+    return 0;
+}
+
+char *ngli_params_get_flags_str(const struct param_const *consts, int val)
+{
+    if (!val)
+        return ngli_strdup("0");
+
+    struct bstr *b = ngli_bstr_create();
+    if (!b)
+        return NULL;
+
+    for (int i = 0; consts[i].key; i++)
+        if (val & consts[i].value)
+            ngli_bstr_print(b, "%.1s%s", *ngli_bstr_strptr(b) ? FLAGS_SEP : "", consts[i].key);
+
+    char *ret = ngli_bstr_strdup(b);
+    ngli_bstr_freep(&b);
+    return ret;
+}
+
 void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct node_param *par)
 {
     switch (par->type) {
@@ -73,6 +123,16 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             const char *s = ngli_params_get_select_str(par->choices->consts, v);
             ngli_assert(s);
             ngli_bstr_print(b, "%s", s);
+            break;
+        }
+        case PARAM_TYPE_FLAGS: {
+            const int v = *(int *)(base_ptr + par->offset);
+            char *s = ngli_params_get_flags_str(par->choices->consts, v);
+            if (!s)
+                break;
+            ngli_assert(*s);
+            ngli_bstr_print(b, "%s", s);
+            free(s);
             break;
         }
         case PARAM_TYPE_INT: {
@@ -162,6 +222,18 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             int ret = ngli_params_get_select_val(par->choices->consts, s, &v);
             if (ret < 0) {
                 LOG(ERROR, "unrecognized constant \"%s\" for option %s", s, par->key);
+                return ret;
+            }
+            LOG(VERBOSE, "set %s to %s (%d)", par->key, s, v);
+            memcpy(dstp, &v, sizeof(v));
+            break;
+        }
+        case PARAM_TYPE_FLAGS: {
+            int v;
+            const char *s = va_arg(*ap, const char *);
+            int ret = ngli_params_get_flags_val(par->choices->consts, s, &v);
+            if (ret < 0) {
+                LOG(ERROR, "unrecognized flags \"%s\" for option %s", s, par->key);
                 return ret;
             }
             LOG(VERBOSE, "set %s to %s (%d)", par->key, s, v);
@@ -338,6 +410,16 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                     const char *s = ngli_params_get_select_str(par->choices->consts, v);
                     ngli_assert(s);
                     ngli_params_vset(base_ptr, par, s);
+                    break;
+                }
+                case PARAM_TYPE_FLAGS: {
+                    const int v = (int)par->def_value.i64;
+                    char *s = ngli_params_get_flags_str(par->choices->consts, v);
+                    if (!s)
+                        return -1;
+                    ngli_assert(*s);
+                    ngli_params_vset(base_ptr, par, s);
+                    free(s);
                     break;
                 }
                 case PARAM_TYPE_INT:

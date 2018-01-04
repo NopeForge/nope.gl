@@ -111,6 +111,16 @@ static char *get_default_str(const struct node_param *p)
             ngli_bstr_print(b, "`%s`", s);
             break;
         }
+        case PARAM_TYPE_FLAGS: {
+            const int v = (int)p->def_value.i64;
+            char *s = ngli_params_get_flags_str(p->choices->consts, v);
+            if (!s)
+                return NULL;
+            ngli_assert(*s);
+            ngli_bstr_print(b, "`%s`", s);
+            free(s);
+            break;
+        }
         case PARAM_TYPE_DBL:
             ngli_bstr_print(b, "`%g`", p->def_value.dbl);
             break;

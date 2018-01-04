@@ -172,6 +172,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         CASE_LITERAL(PARAM_TYPE_I64, int64_t, "%"SCNd64)
         CASE_LITERAL(PARAM_TYPE_DBL, double,  "%la")
 
+        case PARAM_TYPE_FLAGS:
         case PARAM_TYPE_SELECT: {
             len = strcspn(str, " \n");
             char *s = malloc(len + 1);
@@ -180,7 +181,8 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             memcpy(s, str, len);
             s[len] = 0;
             int v;
-            int ret = ngli_params_get_select_val(par->choices->consts, s, &v);
+            int ret = par->type == PARAM_TYPE_SELECT ? ngli_params_get_select_val(par->choices->consts, s, &v)
+                                                     : ngli_params_get_flags_val(par->choices->consts, s, &v);
             free(s);
             if (ret < 0)
                 return ret;

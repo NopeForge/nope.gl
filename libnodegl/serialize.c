@@ -80,6 +80,21 @@ static void serialize_options(struct hmap *nlist,
                     ngli_bstr_print(b, " %s:%s", p->key, s);
                 break;
             }
+            case PARAM_TYPE_FLAGS: {
+                const int v = *(int *)(priv + p->offset);
+                char *s = ngli_params_get_flags_str(p->choices->consts, v);
+                if (!s) {
+                    LOG(ERROR, "unable to allocate param flags string");
+                    return; // XXX: code return
+                }
+                ngli_assert(*s);
+                if (constructor)
+                    ngli_bstr_print(b, " %s", s);
+                else if (v != p->def_value.i64)
+                    ngli_bstr_print(b, " %s:%s", p->key, s);
+                free(s);
+                break;
+            }
             case PARAM_TYPE_INT: {
                 const int v = *(int *)(priv + p->offset);
                 if (constructor)
