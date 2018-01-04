@@ -245,7 +245,7 @@ Parameter | Ctor. | Type | Description | Default
 `uvcoords` |  | `Node` ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
 `normals` |  | `Node` ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
 `indices` |  | `Node` ([BufferUByte](#buffer), [BufferUInt](#buffer), [BufferUShort](#buffer)) |  | 
-`draw_mode` |  | `int` |  | `4`
+`draw_mode` |  | [`draw_mode`](#draw_mode-choices) |  | `triangles`
 
 
 **Source**: [node_geometry.c](/libnodegl/node_geometry.c)
@@ -587,6 +587,18 @@ Parameter | Ctor. | Type | Description | Default
 
 Constants for choices parameters
 ================================
+
+## draw_mode choices
+
+Constant | Description
+-------- | -----------
+`points` | points
+`line_strip` | line strip
+`line_loop` | line loop
+`lines` | lines
+`triangle_strip` | triangle strip
+`triangle_fan` | triangle fan
+`triangles` | triangles
 
 ## blend_factor choices
 

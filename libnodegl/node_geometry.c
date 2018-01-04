@@ -76,6 +76,20 @@ struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int 
     return node;
 }
 
+static const struct param_choices draw_mode_choices = {
+    .name = "draw_mode",
+    .consts = {
+        {"points",         GL_POINTS,         .desc=NGLI_DOCSTRING("points")},
+        {"line_strip",     GL_LINE_STRIP,     .desc=NGLI_DOCSTRING("line strip")},
+        {"line_loop",      GL_LINE_LOOP,      .desc=NGLI_DOCSTRING("line loop")},
+        {"lines",          GL_LINES,          .desc=NGLI_DOCSTRING("lines")},
+        {"triangle_strip", GL_TRIANGLE_STRIP, .desc=NGLI_DOCSTRING("triangle strip")},
+        {"triangle_fan",   GL_TRIANGLE_FAN,   .desc=NGLI_DOCSTRING("triangle fan")},
+        {"triangles",      GL_TRIANGLES,      .desc=NGLI_DOCSTRING("triangles")},
+        {NULL}
+    }
+};
+
 #define TEXCOORDS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,            \
                                            NGL_NODE_BUFFERVEC2,             \
                                            NGL_NODE_BUFFERVEC3,             \
@@ -98,7 +112,8 @@ static const struct node_param geometry_params[] = {
     {"indices",   PARAM_TYPE_NODE, OFFSET(indices_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERUBYTE, NGL_NODE_BUFFERUINT, NGL_NODE_BUFFERUSHORT, -1},
                   .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
-    {"draw_mode", PARAM_TYPE_INT, OFFSET(draw_mode), {.i64=GL_TRIANGLES}},
+    {"draw_mode", PARAM_TYPE_SELECT, OFFSET(draw_mode), {.i64=GL_TRIANGLES},
+                  .choices=&draw_mode_choices},
     {NULL}
 };
 

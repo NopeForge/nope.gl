@@ -293,7 +293,7 @@ def particules(cfg, particules=32):
     )
 
     gm = Geometry(opositions)
-    gm.set_draw_mode(GL.GL_POINTS)
+    gm.set_draw_mode('points')
 
     m = Media(cfg.medias[0].filename, initial_seek=5)
     p = Program(fragment=get_frag('color'))
