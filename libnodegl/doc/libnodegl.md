@@ -129,8 +129,8 @@ Parameter | Ctor. | Type | Description | Default
 `count` |  | `int` | number of elements | `0`
 `data` |  | `data` | buffer of `count` elements | 
 `stride` |  | `int` | stride of 1 element, in bytes | `0`
-`target` |  | `int` |  | `34962`
-`usage` |  | `int` |  | `35044`
+`target` |  | [`buffer_target`](#buffer_target-choices) | target to which the buffer will be bound | `array_buffer`
+`usage` |  | [`buffer_usage`](#buffer_usage-choices) | buffer usage hint | `static_draw`
 
 
 **Source**: [node_buffer.c](/libnodegl/node_buffer.c)
@@ -587,6 +587,28 @@ Parameter | Ctor. | Type | Description | Default
 
 Constants for choices parameters
 ================================
+
+## buffer_target choices
+
+Constant | Description
+-------- | -----------
+`array_buffer` | vertex attributes
+`element_array_buffer` | vertex array indices
+`shader_storage_buffer` | read-write storage for shaders
+
+## buffer_usage choices
+
+Constant | Description
+-------- | -----------
+`stream_draw` | modified once by the application and used at most a few times as a source for drawing
+`stream_read` | modified once by reading data from the graphic pipeline and used at most a few times to return the data to the application
+`stream_copy` | modified once by reading data from the graphic pipeline and used at most a few times as a source for drawing
+`static_draw` | modified once by the application and used many times as a source for drawing
+`static_read` | modified once by reading data from the graphic pipeline and used many times to return the data to the application
+`static_copy` | modified once by reading data from the graphic pipeline and used at most a few times a source for drawing
+`dynamic_draw` | modified repeatedly by the application and used many times as a source for drawing
+`dynamic_read` | modified repeatedly by reading data from the graphic pipeline and used many times to return data to the application
+`dynamic_copy` | modified repeatedly by reading data from the graphic pipeline and used many times as a source for drawing
 
 ## draw_mode choices
 

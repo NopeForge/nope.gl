@@ -77,8 +77,8 @@
         - [count, int]
         - [data, data]
         - [stride, int]
-        - [target, int]
-        - [usage, int]
+        - [target, select]
+        - [usage, select]
 
 - BufferBVec2: _Buffer
 
