@@ -91,7 +91,6 @@ int main(void)
 
     for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
         const struct node_class *c = node_classes[i];
-        if (c) {
             const struct node_param *p = &c->params[0];
 
             if (c->params_id) {
@@ -112,7 +111,6 @@ int main(void)
             } else {
                 print_node_params(c->name, p);
             }
-        }
     }
 
     ngli_hmap_freep(&params_map);
