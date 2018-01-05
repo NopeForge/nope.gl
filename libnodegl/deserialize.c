@@ -91,6 +91,7 @@ static int parse_##type##s(const char *s, type **valsp, int *nb_valsp)      \
     return consumed;                                                        \
 }
 
+DECLARE_PARSE_LIST_FUNC(float,  "%" FLOAT_FMT)
 DECLARE_PARSE_LIST_FUNC(double, "%l" FLOAT_FMT)
 DECLARE_PARSE_LIST_FUNC(int,    "%x")
 
@@ -246,46 +247,31 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             break;
         }
 
-        case PARAM_TYPE_VEC2: {
-            float v[2];
-            n = sscanf(str, "%" FLOAT_FMT ",%" FLOAT_FMT "%n", v, v+1, &len);
-            if (n != 2)
-                return -1;
-            ngli_params_vset(base_ptr, par, v);
-            break;
-        }
-        case PARAM_TYPE_VEC3: {
-            float v[3];
-            n = sscanf(str, "%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT "%n", v, v+1, v+2, &len);
-            if (n != 3)
-                return -1;
-            ngli_params_vset(base_ptr, par, v);
-            break;
-        }
+        case PARAM_TYPE_VEC2:
+        case PARAM_TYPE_VEC3:
         case PARAM_TYPE_VEC4: {
-            float v[4];
-            n = sscanf(str, "%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT "%n", v, v+1, v+2, v+3, &len);
-            if (n != 4)
+            const int n = par->type - PARAM_TYPE_VEC2 + 2;
+            float *v = NULL;
+            int nb_flts;
+            len = parse_floats(str, &v, &nb_flts);
+            if (len < 0 || nb_flts != n) {
+                free(v);
                 return -1;
+            }
             ngli_params_vset(base_ptr, par, v);
+            free(v);
             break;
         }
         case PARAM_TYPE_MAT4: {
-            float m[16];
-            n = sscanf(str,
-                        "%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT
-                       ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT
-                       ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT
-                       ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT
-                       "%n",
-                       m,    m+ 1, m+ 2, m+ 3,
-                       m+ 4, m+ 5, m+ 6, m+ 7,
-                       m+ 8, m+ 9, m+10, m+11,
-                       m+12, m+13, m+14, m+15,
-                       &len);
-            if (n != 16)
+            float *m = NULL;
+            int nb_flts;
+            len = parse_floats(str, &m, &nb_flts);
+            if (len < 0 || nb_flts != 16) {
+                free(m);
                 return -1;
+            }
             ngli_params_vset(base_ptr, par, m);
+            free(m);
             break;
         }
         case PARAM_TYPE_NODE: {
