@@ -26,7 +26,6 @@ from pynodegl import (
 
 from pynodegl_utils.misc import scene, get_frag
 
-from OpenGL import GL
 
 @scene(color={'type': 'color'},
        rotate={'type': 'bool'},
@@ -151,7 +150,7 @@ def animated_camera(cfg, rotate=True):
     g.add_children(node)
 
 
-    g = GraphicConfig(g, depth_test=GL.GL_TRUE)
+    g = GraphicConfig(g, depth_test=True)
     camera = Camera(g)
     camera.set_eye(0, 0, 2)
     camera.set_center(0.0, 0.0, 0.0)

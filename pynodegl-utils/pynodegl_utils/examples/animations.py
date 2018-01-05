@@ -13,7 +13,6 @@ from pynodegl import (
 
 from pynodegl_utils.misc import scene, get_frag
 
-from OpenGL import GL
 
 _frag_data = get_frag('color')
 

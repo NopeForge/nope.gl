@@ -1,4 +1,3 @@
-from OpenGL import GL
 
 from pynodegl import (
         AnimKeyFrameFloat,
@@ -53,7 +52,7 @@ def rotating_cube(cfg):
         axis = [int(i == x) for x in range(3)]
         cube = Rotate(cube, axis=axis, anim=rot_animkf)
 
-    config = GraphicConfig(cube, depth_test=GL.GL_TRUE)
+    config = GraphicConfig(cube, depth_test=True)
 
     camera = Camera(config)
     camera.set_eye(0.0, 0.0, 2.0)

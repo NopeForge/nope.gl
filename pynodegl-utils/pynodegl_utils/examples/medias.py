@@ -22,7 +22,6 @@ from pynodegl import (
 
 from pynodegl_utils.misc import scene, get_frag
 
-from OpenGL import GL
 
 @scene(uv_corner_x={'type': 'range', 'range': [0,1], 'unit_base': 100},
        uv_corner_y={'type': 'range', 'range': [0,1], 'unit_base': 100},
@@ -71,7 +70,7 @@ def centered_masked_media(cfg):
 
     node = GraphicConfig(node,
                          color_write_mask='',
-                         stencil_test=GL.GL_TRUE,
+                         stencil_test=True,
                          stencil_write_mask=0xFF,
                          stencil_func='always',
                          stencil_ref=1,
@@ -90,7 +89,7 @@ def centered_masked_media(cfg):
     node.update_textures(tex0=t)
 
     node = GraphicConfig(node,
-                         stencil_test=GL.GL_TRUE,
+                         stencil_test=True,
                          stencil_write_mask=0x00,
                          stencil_func='equal',
                          stencil_ref=1,

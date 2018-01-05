@@ -3,7 +3,6 @@ import array
 import math
 import random
 
-from OpenGL import GL
 
 from pynodegl import (
         AnimKeyFrameFloat,
@@ -102,7 +101,7 @@ def buffer_dove(cfg,
     render = Render(quad, prog, name='dove')
     render.update_textures(tex0=img_tex)
     render = GraphicConfig(render,
-                           blend=GL.GL_TRUE,
+                           blend=True,
                            blend_dst_factor='src_alpha',
                            blend_src_factor='one_minus_src_alpha',
                            blend_dst_factor_a='one',

@@ -12,7 +12,6 @@ from pynodegl import (
 
 from pynodegl_utils.misc import scene, get_frag
 
-from OpenGL import GL
 
 fragment = get_frag('color')
 
@@ -37,7 +36,7 @@ def blending_test(cfg):
     ts = Render(q, p)
     ts.update_uniforms(color=ucolor)
     s = GraphicConfig(ts,
-                      blend=GL.GL_TRUE,
+                      blend=True,
                       blend_dst_factor='src_alpha',
                       blend_src_factor='one_minus_src_alpha',
                       blend_dst_factor_a='one',
@@ -49,7 +48,7 @@ def blending_test(cfg):
     ts = Render(q, p)
     ts.update_uniforms(color=ucolor)
     s = GraphicConfig(ts,
-                      blend=GL.GL_TRUE,
+                      blend=True,
                       blend_dst_factor='one',
                       blend_src_factor='one_minus_src_alpha',
                       blend_dst_factor_a='one',

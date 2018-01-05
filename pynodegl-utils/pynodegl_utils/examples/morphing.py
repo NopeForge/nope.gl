@@ -2,7 +2,6 @@ import array
 import math
 import random
 
-from OpenGL import GL
 
 from pynodegl import (
         AnimKeyFrameVec4,
