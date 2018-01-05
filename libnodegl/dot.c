@@ -28,7 +28,7 @@
 #include "nodes.h"
 
 #define LB "<br align=\"left\"/>"
-#define HSLFMT "\"%f 0.6 0.9\""
+#define HSLFMT "\"0.%u 0.6 0.9\""
 
 extern const struct node_param ngli_base_node_params[];
 
@@ -59,10 +59,11 @@ static int list_check_links(struct hmap *links, const void *a, const void *b)
     return 0;
 }
 
-static float get_hue(const char *name)
+static unsigned get_hue(const char *name)
 {
     const uint32_t hash = ngli_crc32(name);
-    return (double)hash / (double)0xffffffff;
+    const double hue = (double)hash / (double)0xffffffff;
+    return (unsigned)(hue * 1000);
 }
 
 static int vec_is_set(uint8_t *base_ptr, const struct node_param *par)
