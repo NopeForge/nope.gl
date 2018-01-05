@@ -61,6 +61,18 @@ static const char *get_node_id(const struct hmap *nlist,
     return val;
 }
 
+static void print_floats(struct bstr *b, int n, const float *f)
+{
+    for (int i = 0; i < n; i++)
+        ngli_bstr_print(b, "%s%" FLOAT_FMT, i ? "," : "", f[i]);
+}
+
+static void print_doubles(struct bstr *b, int n, const double *f)
+{
+    for (int i = 0; i < n; i++)
+        ngli_bstr_print(b, "%s%" FLOAT_FMT, i ? "," : "", f[i]);
+}
+
 static void serialize_options(struct hmap *nlist,
                               struct bstr *b,
                               const struct ngl_node *node,
@@ -113,10 +125,13 @@ static void serialize_options(struct hmap *nlist,
             }
             case PARAM_TYPE_DBL: {
                 const double v = *(double *)(priv + p->offset);
-                if (constructor)
-                    ngli_bstr_print(b, " %" FLOAT_FMT, v);
-                else if (v != p->def_value.dbl)
-                    ngli_bstr_print(b, " %s:%" FLOAT_FMT, p->key, v);
+                if (constructor) {
+                    ngli_bstr_print(b, " ");
+                    print_doubles(b, 1, &v);
+                } else if (v != p->def_value.dbl) {
+                    ngli_bstr_print(b, " %s:", p->key);
+                    print_doubles(b, 1, &v);
+                }
                 break;
             }
             case PARAM_TYPE_STR: {
@@ -151,46 +166,29 @@ static void serialize_options(struct hmap *nlist,
                 }
                 break;
             }
-            case PARAM_TYPE_VEC2: {
-                const float *v = (float *)(priv + p->offset);
-                if (constructor)
-                    ngli_bstr_print(b, " %" FLOAT_FMT ",%" FLOAT_FMT, v[0], v[1]);
-                else if (memcmp(v, p->def_value.vec, 2 * sizeof(*v)))
-                    ngli_bstr_print(b, " %s:%" FLOAT_FMT ",%" FLOAT_FMT, p->key, v[0], v[1]);
-                break;
-            }
-            case PARAM_TYPE_VEC3: {
-                const float *v = (float *)(priv + p->offset);
-                if (constructor)
-                    ngli_bstr_print(b, " %" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT, v[0], v[1], v[2]);
-                else if (memcmp(v, p->def_value.vec, 3 * sizeof(*v)))
-                    ngli_bstr_print(b, " %s:%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT, p->key, v[0], v[1], v[2]);
-                break;
-            }
+            case PARAM_TYPE_VEC2:
+            case PARAM_TYPE_VEC3:
             case PARAM_TYPE_VEC4: {
                 const float *v = (float *)(priv + p->offset);
-                if (constructor)
-                    ngli_bstr_print(b, " %" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT, v[0], v[1], v[2], v[3]);
-                else if (memcmp(v, p->def_value.vec, 4 * sizeof(*v)))
-                    ngli_bstr_print(b, " %s:%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT, p->key, v[0], v[1], v[2], v[3]);
+                const int n = p->type - PARAM_TYPE_VEC2 + 2;
+                if (constructor) {
+                    ngli_bstr_print(b, " ");
+                    print_floats(b, n, v);
+                } else if (memcmp(v, p->def_value.vec, n * sizeof(*v))) {
+                    ngli_bstr_print(b, " %s:", p->key);
+                    print_floats(b, n, v);
+                }
                 break;
             }
             case PARAM_TYPE_MAT4: {
                 const float *m = (float *)(priv + p->offset);
-                if (constructor)
+                if (constructor) {
                     ngli_bstr_print(b, " ");
-                else if (memcmp(m, p->def_value.mat, 16 * sizeof(*m)))
+                    print_floats(b, 16, m);
+                } else if (memcmp(m, p->def_value.mat, 16 * sizeof(*m))) {
                     ngli_bstr_print(b, " %s:", p->key);
-                else
-                    break;
-                for (int i = 0; i < 4; i++)
-                    ngli_bstr_print(b,
-                                    "%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT ",%" FLOAT_FMT "%s",
-                                    m[0 + i * 4],
-                                    m[1 + i * 4],
-                                    m[2 + i * 4],
-                                    m[3 + i * 4],
-                                    i != 3 ? "," : "");
+                    print_floats(b, 16, m);
+                }
                 break;
             }
             case PARAM_TYPE_NODE: {
@@ -226,8 +224,7 @@ static void serialize_options(struct hmap *nlist,
                 const int nb_elems = *(int *)nb_elems_p;
                 if (nb_elems) {
                     ngli_bstr_print(b, " ");
-                    for (int i = 0; i < nb_elems; i++)
-                        ngli_bstr_print(b, "%s%" FLOAT_FMT, i ? "," : "", elems[i]);
+                    print_doubles(b, nb_elems, elems);
                 }
                 break;
             }
