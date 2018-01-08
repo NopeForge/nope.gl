@@ -139,10 +139,10 @@ static void serialize_options(struct hmap *nlist,
                 const double v = *(double *)(priv + p->offset);
                 if (constructor) {
                     ngli_bstr_print(b, " ");
-                    print_doubles(b, 1, &v);
+                    print_double(b, v);
                 } else if (v != p->def_value.dbl) {
                     ngli_bstr_print(b, " %s:", p->key);
-                    print_doubles(b, 1, &v);
+                    print_double(b, v);
                 }
                 break;
             }
