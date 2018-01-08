@@ -67,8 +67,32 @@ static int parse_##name(const char *s, type *valp)      \
 DECLARE_FMT_PARSE_FUNC(int,     int,    "%d")
 DECLARE_FMT_PARSE_FUNC(int,     hexint, "%x")
 DECLARE_FMT_PARSE_FUNC(int64_t, i64,    "%"SCNd64)
-DECLARE_FMT_PARSE_FUNC(float,   float,  "%"FLOAT_FMT)
-DECLARE_FMT_PARSE_FUNC(double,  double, "%l"FLOAT_FMT)
+
+#define DECLARE_FLT_PARSE_FUNC(type, nbit, shift_exp)                       \
+static int parse_##type(const char *s, type *valp)                          \
+{                                                                           \
+    int len, consumed = 0;                                                  \
+    union { uint##nbit##_t i; type f; } u = {.i = 0};                       \
+                                                                            \
+    if (*s == '-') {                                                        \
+        u.i = 1ULL << (nbit - 1);                                           \
+        consumed++;                                                         \
+    }                                                                       \
+                                                                            \
+    uint##nbit##_t exp, mant;                                               \
+    int n = sscanf(s + consumed, "%" SCNx##nbit "z%" SCNx##nbit "%n",       \
+                   &exp, &mant, &len);                                      \
+    if (n != 2)                                                             \
+        return -1;                                                          \
+                                                                            \
+    u.i |= exp<<shift_exp | mant;                                           \
+                                                                            \
+    *valp = u.f;                                                            \
+    return len + consumed;                                                  \
+}
+
+DECLARE_FLT_PARSE_FUNC(float,  32, 23)
+DECLARE_FLT_PARSE_FUNC(double, 64, 52)
 
 #define DECLARE_PARSE_LIST_FUNC(type, parse_func)                           \
 static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \

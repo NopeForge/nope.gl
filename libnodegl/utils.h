@@ -86,14 +86,6 @@
                          NGLI_ARG_VEC4((v)+4*3)
 
 
-#if 1
-/* Because of crappy libc such as bionic (Android), we can not use %a to
- * serialize floats */
-# define FLOAT_FMT "f"
-#else
-# define FLOAT_FMT "a"
-#endif
-
 char *ngli_strdup(const char *s);
 int64_t ngli_gettime(void);
 char *ngli_asprintf(const char *fmt, ...) ngli_printf_format(1, 2);

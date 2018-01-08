@@ -61,16 +61,36 @@ static const char *get_node_id(const struct hmap *nlist,
     return val;
 }
 
+#define DECLARE_FLT_PRINT_FUNC(type, nbit, shift_exp)                   \
+static void print_##type(struct bstr *b, type f)                        \
+{                                                                       \
+    const union { uint##nbit##_t i; type f; } u = {.f = f};             \
+    const uint##nbit##_t v = u.i;                                       \
+    const int sign = v >> (nbit - 1);                                   \
+    const uint##nbit##_t exp_mask = (1 << (nbit - shift_exp - 1)) - 1;  \
+    const uint##nbit##_t exp  = v >> shift_exp & exp_mask;              \
+    const uint##nbit##_t mant = v & ((1ULL << shift_exp) - 1);          \
+    ngli_bstr_print(b, "%s%" PRIX##nbit "z%" PRIX##nbit,                \
+                    sign ? "-" : "", exp, mant);                        \
+}
+
+DECLARE_FLT_PRINT_FUNC(float,  32, 23)
+DECLARE_FLT_PRINT_FUNC(double, 64, 52)
+
 static void print_floats(struct bstr *b, int n, const float *f)
 {
-    for (int i = 0; i < n; i++)
-        ngli_bstr_print(b, "%s%" FLOAT_FMT, i ? "," : "", f[i]);
+    for (int i = 0; i < n; i++) {
+        ngli_bstr_print(b, "%s", i ? "," : "");
+        print_float(b, f[i]);
+    }
 }
 
 static void print_doubles(struct bstr *b, int n, const double *f)
 {
-    for (int i = 0; i < n; i++)
-        ngli_bstr_print(b, "%s%" FLOAT_FMT, i ? "," : "", f[i]);
+    for (int i = 0; i < n; i++) {
+        ngli_bstr_print(b, "%s", i ? "," : "");
+        print_double(b, f[i]);
+    }
 }
 
 static void serialize_options(struct hmap *nlist,
