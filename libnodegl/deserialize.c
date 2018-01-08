@@ -44,16 +44,16 @@ static int register_node(struct serial_ctx *sctx,
     return 0;
 }
 
-#define CASE_LITERAL(param_type, type, parse_func) \
-case param_type: {                          \
-    type v;                                 \
-    len = parse_func(str, &v);              \
-    if (len < 0)                            \
-        return -1;                          \
-    int ret = ngli_params_vset(base_ptr, par, v);   \
-    if (ret < 0)                                    \
-        return ret;                                 \
-    break;                                  \
+#define CASE_LITERAL(param_type, type, parse_func)      \
+case param_type: {                                      \
+    type v;                                             \
+    len = parse_func(str, &v);                          \
+    if (len < 0)                                        \
+        return -1;                                      \
+    int ret = ngli_params_vset(base_ptr, par, v);       \
+    if (ret < 0)                                        \
+        return ret;                                     \
+    break;                                              \
 }
 
 #define DECLARE_FMT_PARSE_FUNC(type, name, fmt)         \
