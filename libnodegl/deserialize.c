@@ -50,7 +50,7 @@ case param_type: {                          \
     len = parse_func(str, &v);              \
     if (len < 0)                            \
         return -1;                          \
-    memcpy(dstp, &v, sizeof(v));            \
+    ngli_params_vset(base_ptr, par, v);     \
     break;                                  \
 }
 
@@ -206,7 +206,6 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                        const struct node_param *par, const char *str)
 {
     int n, len = -1;
-    uint8_t *dstp = base_ptr + par->offset;
 
     switch (par->type) {
         CASE_LITERAL(PARAM_TYPE_INT, int,     parse_int)
@@ -221,13 +220,10 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 return -1;
             memcpy(s, str, len);
             s[len] = 0;
-            int v;
-            int ret = par->type == PARAM_TYPE_SELECT ? ngli_params_get_select_val(par->choices->consts, s, &v)
-                                                     : ngli_params_get_flags_val(par->choices->consts, s, &v);
+            int ret = ngli_params_vset(base_ptr, par, s);
             free(s);
             if (ret < 0)
                 return ret;
-            memcpy(dstp, &v, sizeof(v));
             break;
         }
 
