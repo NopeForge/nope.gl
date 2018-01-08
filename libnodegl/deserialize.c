@@ -44,26 +44,42 @@ static int register_node(struct serial_ctx *sctx,
     return 0;
 }
 
-#define CASE_LITERAL(param_type, type, fmt) \
+#define CASE_LITERAL(param_type, type, parse_func) \
 case param_type: {                          \
     type v;                                 \
-    n = sscanf(str, fmt "%n", &v, &len);    \
-    if (n != 1)                             \
+    len = parse_func(str, &v);              \
+    if (len < 0)                            \
         return -1;                          \
     memcpy(dstp, &v, sizeof(v));            \
     break;                                  \
 }
 
-#define DECLARE_PARSE_LIST_FUNC(type, fmt)                                  \
-static int parse_##type##s(const char *s, type **valsp, int *nb_valsp)      \
+#define DECLARE_FMT_PARSE_FUNC(type, name, fmt)         \
+static int parse_##name(const char *s, type *valp)      \
+{                                                       \
+    int len;                                            \
+    int n = sscanf(s, fmt "%n", valp, &len);            \
+    if (n != 1)                                         \
+        return -1;                                      \
+    return len;                                         \
+}
+
+DECLARE_FMT_PARSE_FUNC(int,     int,    "%d")
+DECLARE_FMT_PARSE_FUNC(int,     hexint, "%x")
+DECLARE_FMT_PARSE_FUNC(int64_t, i64,    "%"SCNd64)
+DECLARE_FMT_PARSE_FUNC(float,   float,  "%"FLOAT_FMT)
+DECLARE_FMT_PARSE_FUNC(double,  double, "%l"FLOAT_FMT)
+
+#define DECLARE_PARSE_LIST_FUNC(type, parse_func)                           \
+static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \
 {                                                                           \
     type *vals = NULL;                                                      \
     int nb_vals = 0, consumed = 0, len;                                     \
                                                                             \
     for (;;) {                                                              \
         type v;                                                             \
-        int n = sscanf(s, fmt "%n", &v, &len);                              \
-        if (n != 1) {                                                       \
+        len = parse_func(s, &v);                                            \
+        if (len < 0) {                                                      \
             consumed = -1;                                                  \
             break;                                                          \
         }                                                                   \
@@ -91,9 +107,9 @@ static int parse_##type##s(const char *s, type **valsp, int *nb_valsp)      \
     return consumed;                                                        \
 }
 
-DECLARE_PARSE_LIST_FUNC(float,  "%" FLOAT_FMT)
-DECLARE_PARSE_LIST_FUNC(double, "%l" FLOAT_FMT)
-DECLARE_PARSE_LIST_FUNC(int,    "%x")
+DECLARE_PARSE_LIST_FUNC(float,  parse_float)
+DECLARE_PARSE_LIST_FUNC(double, parse_double)
+DECLARE_PARSE_LIST_FUNC(int,    parse_hexint)
 
 #define FREE_KVS(count, keys, vals) do {                                    \
     for (int k = 0; k < (count); k++)                                       \
@@ -169,9 +185,9 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
     uint8_t *dstp = base_ptr + par->offset;
 
     switch (par->type) {
-        CASE_LITERAL(PARAM_TYPE_INT, int,     "%d")
-        CASE_LITERAL(PARAM_TYPE_I64, int64_t, "%"SCNd64)
-        CASE_LITERAL(PARAM_TYPE_DBL, double,  "%l" FLOAT_FMT)
+        CASE_LITERAL(PARAM_TYPE_INT, int,     parse_int)
+        CASE_LITERAL(PARAM_TYPE_I64, int64_t, parse_i64)
+        CASE_LITERAL(PARAM_TYPE_DBL, double,  parse_double)
 
         case PARAM_TYPE_FLAGS:
         case PARAM_TYPE_SELECT: {
@@ -276,8 +292,8 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         }
         case PARAM_TYPE_NODE: {
             int node_id;
-            n = sscanf(str, "%x%n", &node_id, &len);
-            if (n != 1 || node_id < 0 || node_id >= sctx->nb_nodes)
+            len = parse_hexint(str, &node_id);
+            if (len < 0 || node_id < 0 || node_id >= sctx->nb_nodes)
                 return -1;
             struct ngl_node *node = sctx->nodes[node_id];
             n = ngli_params_vset(base_ptr, par, node);
@@ -287,7 +303,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         }
         case PARAM_TYPE_NODELIST: {
             int *node_ids, nb_node_ids;
-            len = parse_ints(str, &node_ids, &nb_node_ids);
+            len = parse_hexints(str, &node_ids, &nb_node_ids);
             if (len < 0)
                 return -1;
             for (int i = 0; i < nb_node_ids; i++) {
