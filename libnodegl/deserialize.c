@@ -161,7 +161,7 @@ static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
             break;
         }
 
-        char **new_keys = realloc(keys, (nb_vals +1) * sizeof(*new_keys));
+        char **new_keys = realloc(keys, (nb_vals + 1) * sizeof(*new_keys));
         if (!new_keys) {
             consumed = -1;
             break;
