@@ -25,6 +25,7 @@
 PREFIX     ?= /usr/local
 SHARED     ?= no
 DEBUG      ?= no
+SMALL      ?= no
 PKG_CONFIG ?= pkg-config
 PYTHON     ?= python
 TARGET_OS  ?= $(shell uname -s)
@@ -41,6 +42,9 @@ PROJECT_CFLAGS := $(CFLAGS) -Wall -O2 -Werror=missing-prototypes \
 
 ifeq ($(DEBUG),yes)
 	PROJECT_CFLAGS += -g
+endif
+ifeq ($(SMALL),yes)
+	PROJECT_CFLAGS += -DCONFIG_SMALL
 endif
 PROJECT_LDLIBS := $(LDLIBS)
 
