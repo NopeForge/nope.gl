@@ -50,7 +50,9 @@ case param_type: {                          \
     len = parse_func(str, &v);              \
     if (len < 0)                            \
         return -1;                          \
-    ngli_params_vset(base_ptr, par, v);     \
+    int ret = ngli_params_vset(base_ptr, par, v);   \
+    if (ret < 0)                                    \
+        return ret;                                 \
     break;                                  \
 }
 
@@ -205,7 +207,7 @@ static inline int hexv(char c)
 static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                        const struct node_param *par, const char *str)
 {
-    int n, len = -1;
+    int len = -1;
 
     switch (par->type) {
         CASE_LITERAL(PARAM_TYPE_INT, int,     parse_int)
@@ -243,8 +245,10 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 }
             }
             *s = 0;
-            ngli_params_vset(base_ptr, par, sstart);
+            int ret = ngli_params_vset(base_ptr, par, sstart);
             free(sstart);
+            if (ret < 0)
+                return ret;
             break;
         }
         case PARAM_TYPE_DATA: {
@@ -277,8 +281,10 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 data[i] = hexm[(uint8_t)cur[1]]<<4 | hexm[(uint8_t)cur[2]];
                 cur += 3;
             }
-            ngli_params_vset(base_ptr, par, size, data);
+            ret = ngli_params_vset(base_ptr, par, size, data);
             free(data);
+            if (ret < 0)
+                return ret;
             len = cur - str;
             break;
         }
@@ -294,8 +300,10 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 free(v);
                 return -1;
             }
-            ngli_params_vset(base_ptr, par, v);
+            int ret = ngli_params_vset(base_ptr, par, v);
             free(v);
+            if (ret < 0)
+                return ret;
             break;
         }
         case PARAM_TYPE_MAT4: {
@@ -306,8 +314,10 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 free(m);
                 return -1;
             }
-            ngli_params_vset(base_ptr, par, m);
+            int ret = ngli_params_vset(base_ptr, par, m);
             free(m);
+            if (ret < 0)
+                return ret;
             break;
         }
         case PARAM_TYPE_NODE: {
@@ -316,9 +326,9 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             if (len < 0 || node_id < 0 || node_id >= sctx->nb_nodes)
                 return -1;
             struct ngl_node *node = sctx->nodes[node_id];
-            n = ngli_params_vset(base_ptr, par, node);
-            if (n < 0)
-                return n;
+            int ret = ngli_params_vset(base_ptr, par, node);
+            if (ret < 0)
+                return ret;
             break;
         }
         case PARAM_TYPE_NODELIST: {
@@ -333,7 +343,11 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                     return -1;
                 }
                 struct ngl_node *node = sctx->nodes[node_id];
-                ngli_params_add(base_ptr, par, 1, &node);
+                int ret = ngli_params_add(base_ptr, par, 1, &node);
+                if (ret < 0) {
+                    free(node_ids);
+                    return ret;
+                }
             }
             free(node_ids);
             break;
@@ -344,8 +358,10 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             len = parse_doubles(str, &dbls, &nb_dbls);
             if (len < 0)
                 return -1;
-            ngli_params_add(base_ptr, par, nb_dbls, dbls);
+            int ret = ngli_params_add(base_ptr, par, nb_dbls, dbls);
             free(dbls);
+            if (ret < 0)
+                return ret;
             break;
         }
         case PARAM_TYPE_NODEDICT: {
@@ -362,7 +378,11 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                     return -1;
                 }
                 struct ngl_node *node = sctx->nodes[node_id];
-                ngli_params_vset(base_ptr, par, key, node);
+                int ret = ngli_params_vset(base_ptr, par, key, node);
+                if (ret < 0) {
+                    FREE_KVS(nb_nodes, node_keys, node_ids);
+                    return ret;
+                }
             }
             FREE_KVS(nb_nodes, node_keys, node_ids);
             break;
