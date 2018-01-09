@@ -221,8 +221,6 @@
     constructors:
         - [filename, string]
     optional:
-        - [start, double]
-        - [initial_seek, double]
         - [sxplayer_min_level, string]
         - [time_anim, Node]
         - [audio_tex, int]

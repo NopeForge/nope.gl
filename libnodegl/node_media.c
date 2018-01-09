@@ -37,10 +37,6 @@
 static const struct node_param media_params[] = {
     {"filename", PARAM_TYPE_STR, OFFSET(filename), {.str=NULL}, PARAM_FLAG_CONSTRUCTOR,
                  .desc=NGLI_DOCSTRING("path to input media file")},
-    {"start",    PARAM_TYPE_DBL, OFFSET(start),
-                 .desc=NGLI_DOCSTRING("update time offseting, updates before this time will do nothing")},
-    {"initial_seek", PARAM_TYPE_DBL, OFFSET(initial_seek),
-                     .desc=NGLI_DOCSTRING("initial seek in the media")},
     {"sxplayer_min_level", PARAM_TYPE_STR, OFFSET(sxplayer_min_level_str), {.str="warning"},
                            .desc=NGLI_DOCSTRING("sxplayer min logging level")},
     {"time_anim", PARAM_TYPE_NODE, OFFSET(anim),
@@ -91,7 +87,6 @@ static int media_init(struct ngl_node *node)
 {
     int i;
     struct media *s = node->priv_data;
-    LOG(VERBOSE, "media '%s' @ %f", s->filename, s->start);
 
     s->player = sxplayer_create(s->filename);
     if (!s->player)
@@ -110,16 +105,25 @@ static int media_init(struct ngl_node *node)
         return -1;
     }
 
-    // Sanity check for time animation keyframe
     struct ngl_node *anim_node = s->anim;
     if (anim_node) {
         struct animation *anim = anim_node->priv_data;
+
+        // Sanity check for time animation keyframe
         for (i = 0; i < anim->nb_animkf; i++) {
             const struct animkeyframe *kf = anim->animkf[i]->priv_data;
             if (strcmp(kf->easing, "linear")) {
                 LOG(ERROR, "Only linear interpolation is allowed for time remapping");
                 return -1;
             }
+        }
+
+        // Set the media time boundaries using the time remapping animation
+        if (anim->nb_animkf) {
+            const struct animkeyframe *kf0 = anim->animkf[0]->priv_data;
+            const double initial_seek = kf0->scalar;
+
+            sxplayer_set_option(s->player, "skip", initial_seek);
         }
     }
 
@@ -129,7 +133,6 @@ static int media_init(struct ngl_node *node)
     if (s->max_pixels)     sxplayer_set_option(s->player, "max_pixels",     s->max_pixels);
 
     sxplayer_set_option(s->player, "sw_pix_fmt", SXPLAYER_PIXFMT_RGBA);
-    sxplayer_set_option(s->player, "skip", s->initial_seek);
 #if defined(TARGET_IPHONE)
     sxplayer_set_option(s->player, "vt_pix_fmt", "nv12");
 #endif
@@ -193,23 +196,40 @@ static const char * const pix_fmt_names[] = {
 static int media_update(struct ngl_node *node, double t)
 {
     struct media *s = node->priv_data;
+    struct ngl_node *anim_node = s->anim;
+    double media_time = t;
 
-    if (s->anim) {
-        struct ngl_node *anim_node = s->anim;
+    if (anim_node) {
         struct animation *anim = anim_node->priv_data;
-        int ret = ngli_node_update(anim_node, t);
-        if (ret < 0)
-            return ret;
-        t = anim->scalar;
+
+        if (anim->nb_animkf >= 1) {
+            const struct animkeyframe *kf0 = anim->animkf[0]->priv_data;
+            const double initial_seek = kf0->scalar;
+
+            if (anim->nb_animkf == 1) {
+                media_time = t - kf0->time;
+            } else {
+                int ret = ngli_node_update(anim_node, t);
+                if (ret < 0)
+                    return ret;
+                media_time = anim->scalar;
+            }
+
+            LOG(VERBOSE, "remapped time f(%g)=%g (%g without initial seek)",
+                t, media_time, media_time - initial_seek);
+            if (media_time < initial_seek) {
+                LOG(ERROR, "invalid remapped time %g", media_time);
+                return -1;
+            }
+
+            media_time -= initial_seek;
+        }
     }
 
-    t = t - s->start;
-    if (t < 0)
-        return 0;
-
     sxplayer_release_frame(s->frame);
-    LOG(VERBOSE, "get frame from %s at t=%f", node->name, t);
-    struct sxplayer_frame *frame = sxplayer_get_frame(s->player, t);
+
+    LOG(VERBOSE, "get frame from %s at t=%g", node->name, media_time);
+    struct sxplayer_frame *frame = sxplayer_get_frame(s->player, media_time);
     if (frame) {
         const char *pix_fmt_str = frame->pix_fmt >= 0 &&
                                   frame->pix_fmt < NGLI_ARRAY_NB(pix_fmt_names) ? pix_fmt_names[frame->pix_fmt]

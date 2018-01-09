@@ -300,8 +300,6 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `filename` | ✓ | `string` | path to input media file | 
-`start` |  | `double` | update time offseting, updates before this time will do nothing | `0`
-`initial_seek` |  | `double` | initial seek in the media | `0`
 `sxplayer_min_level` |  | `string` | sxplayer min logging level | 
 `time_anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) | time remapping animation (must use a `linear` interpolation) | 
 `audio_tex` |  | `int` | load the audio and expose it as a stereo waves and frequencies buffer | `0`

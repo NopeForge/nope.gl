@@ -26,7 +26,8 @@ def queued_medias(cfg, overlap_time=1., dim=3):
         for x in range(dim):
             video_id = y*dim + x
             start = video_id * cfg.duration / nb_videos
-            m = Media(cfg.medias[video_id % len(cfg.medias)].filename, start=start)
+            animkf = [AnimKeyFrameFloat(start, 0)]
+            m = Media(cfg.medias[video_id % len(cfg.medias)].filename, time_anim=AnimatedFloat(animkf))
             m.set_name('media #%d' % video_id)
 
             corner = (-1. + x*qw, 1. - (y+1)*qh, 0)
@@ -103,7 +104,10 @@ def simple_transition(cfg, transition_start=1, transition_duration=4):
     p1_2 = Program(vertex=vertex, fragment=fragment)
 
     m1 = Media(cfg.medias[0].filename, name="media #1")
-    m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name="media #2", start=transition_start)
+    m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name="media #2")
+
+    animkf_m2 = [AnimKeyFrameFloat(transition_start, 0)]
+    m2.set_time_anim(AnimatedFloat(animkf_m2))
 
     t1 = Texture2D(data_src=m1, name="texture #1")
     t2 = Texture2D(data_src=m2, name="texture #2")

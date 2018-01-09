@@ -320,8 +320,6 @@ struct compute {
 
 struct media {
     const char *filename;
-    double start;
-    double initial_seek;
     const char *sxplayer_min_level_str;
     struct ngl_node *anim;
     int audio_tex;

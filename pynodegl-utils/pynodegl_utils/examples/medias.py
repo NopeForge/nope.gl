@@ -57,12 +57,15 @@ def media_in_circle(cfg, npoints=64, radius=0.5):
 
 @scene(speed={'type': 'range', 'range': [0.01,2], 'unit_base': 1000})
 def playback_speed(cfg, speed=1.0):
-    cfg.duration = cfg.medias[0].duration / speed
+    media_duration = cfg.medias[0].duration
+    initial_seek = 5
+    rush_duration = media_duration - initial_seek
+    cfg.duration = rush_duration / speed
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    time_animkf = [AnimKeyFrameFloat(0, 0),
-                   AnimKeyFrameFloat(cfg.duration, cfg.duration * speed)]
-    m = Media(cfg.medias[0].filename, initial_seek=5, time_anim=AnimatedFloat(time_animkf))
+    time_animkf = [AnimKeyFrameFloat(0, initial_seek),
+                   AnimKeyFrameFloat(cfg.duration, media_duration)]
+    m = Media(cfg.medias[0].filename, time_anim=AnimatedFloat(time_animkf))
     t = Texture2D(data_src=m)
     p = Program()
     render = Render(q, p)
