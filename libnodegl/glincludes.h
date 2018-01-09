@@ -32,8 +32,6 @@
 # elif TARGET_OS_MAC
 #  include <OpenGL/gl3.h>
 #  include <OpenGL/glext.h>
-#  define GL_LUMINANCE                         0x1909
-#  define GL_LUMINANCE_ALPHA                   0x190A
 #  define NGL_CS_COMPAT_INCLUDES 1
 #  define NGL_OGL3_COMPAT_INCLUDES 1
 # endif
