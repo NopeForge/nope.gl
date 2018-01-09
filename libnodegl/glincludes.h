@@ -136,6 +136,8 @@
 # define GL_FILL                               0x1B02
 # define GL_TEXTURE_3D                         0x806F
 # define GL_TEXTURE_WRAP_R                     0x8072
+# define GL_MIN                                0x8007
+# define GL_MAX                                0x8008
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES
