@@ -200,7 +200,7 @@ static int media_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
-        t = anim->values[0]; // FIXME we currently loose double precision
+        t = anim->scalar;
     }
 
     t = t - s->start;

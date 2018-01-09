@@ -44,7 +44,7 @@ static const struct node_param rotate_params[] = {
     {NULL}
 };
 
-static const float get_angle(struct rotate *s, double t)
+static const double get_angle(struct rotate *s, double t)
 {
     if (!s->anim)
         return s->angle;
@@ -53,7 +53,7 @@ static const float get_angle(struct rotate *s, double t)
     int ret = ngli_node_update(anim_node, t);
     if (ret < 0)
         return s->angle;
-    return anim->values[0];
+    return anim->scalar;
 }
 
 static int rotate_init(struct ngl_node *node)
@@ -73,7 +73,7 @@ static int rotate_update(struct ngl_node *node, double t)
 {
     struct rotate *s = node->priv_data;
     struct ngl_node *child = s->child;
-    float angle = get_angle(s, t) * (2.0f * M_PI / 360.0f);
+    const double angle = get_angle(s, t) * (2.0f * M_PI / 360.0f);
     float cos_theta = cos(angle);
     float sin_theta = sin(angle);
     float axis[3];

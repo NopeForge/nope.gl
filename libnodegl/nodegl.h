@@ -373,11 +373,13 @@ void ngl_free(struct ngl_ctx **ss);
  *              AnimatedVec3, or AnimatedVec4
  * @param dst   pointer to the destination for the interpolated value(s), needs
  *              to hold enough space depending on the type of anim
+ *              (AnimatedFloat is double[1], AnimatedVec2 is float[2],
+ *              AnimatedVec3 is float[3], AnimatedVec4 is float[4])
  * @param t     the target time at which to interpolate the value(s)
  *
  * @return 0 on success, < 0 on error
  */
-int ngl_anim_evaluate(struct ngl_node *anim, float *dst, double t);
+int ngl_anim_evaluate(struct ngl_node *anim, void *dst, double t);
 
 /**
  * Android

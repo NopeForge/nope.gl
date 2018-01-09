@@ -79,7 +79,7 @@ static inline int uniform_update(struct uniform *s, double t, int len)
         if (ret < 0)
             return ret;
         if (len == 1)
-            s->scalar = anim->values[0];
+            s->scalar = anim->scalar;
         else
             memcpy(s->vector, anim->values, len * sizeof(*s->vector));
     }

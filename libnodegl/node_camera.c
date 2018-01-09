@@ -164,7 +164,7 @@ static int camera_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
-        s->perspective[0] = anim->values[0];
+        s->perspective[0] = anim->scalar;
     }
 
     ngli_mat4_perspective(

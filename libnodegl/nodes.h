@@ -384,6 +384,7 @@ struct animation {
     int current_kf;
     int eval_current_kf;
     float values[4];
+    double scalar;
 };
 
 struct animkeyframe {

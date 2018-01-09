@@ -256,12 +256,13 @@ cdef class _Node:
                     retstr = 'vec[0]'
                 else:
                     retstr = '(%s)' % ', '.join('vec[%d]' % x for x in range(n))
+                float_type = 'double' if node == 'AnimatedFloat' else 'float'
                 class_str += '''
     def evaluate(self, t):
-        cdef float[%d] vec
+        cdef %s[%d] vec
         ngl_anim_evaluate(self.ctx, vec, t)
         return %s
-''' % (n, retstr)
+''' % (float_type, n, retstr)
 
             for field in fields.get('optional', []):
                 field_name, field_type = field

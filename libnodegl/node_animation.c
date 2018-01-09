@@ -70,7 +70,7 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
 #define MIX(x, y, a) ((x)*(1.-(a)) + (y)*(a))
 
 static inline int animation_update(const struct animation *s, double t, int len,
-                                   float *dst, int *cache)
+                                   void *dst, int *cache)
 {
     struct ngl_node **animkf = s->animkf;
     const int nb_animkf = s->nb_animkf;
@@ -88,23 +88,23 @@ static inline int animation_update(const struct animation *s, double t, int len,
         const double ratio = kf1->function(tnorm, kf1->nb_args, kf1->args);
         *cache = kf_id;
         if (len == 1)
-            dst[0] = MIX(kf0->scalar, kf1->scalar, ratio);
+            ((double *)dst)[0] = MIX(kf0->scalar, kf1->scalar, ratio);
         else
             for (int i = 0; i < len; i++)
-                dst[i] = MIX(kf0->value[i], kf1->value[i], ratio);
+                ((float *)dst)[i] = MIX(kf0->value[i], kf1->value[i], ratio);
     } else {
         const struct animkeyframe *kf0 = animkf[            0]->priv_data;
         const struct animkeyframe *kfn = animkf[nb_animkf - 1]->priv_data;
         const struct animkeyframe *kf  = t <= kf0->time ? kf0 : kfn;
         if (len == 1)
-            dst[0] = kf->scalar;
+            memcpy(dst, &kf->scalar, sizeof(double));
         else
-            memcpy(dst, kf->value, len * sizeof(*dst));
+            memcpy(dst, kf->value, len * sizeof(float));
     }
     return 0;
 }
 
-int ngl_anim_evaluate(struct ngl_node *node, float *dst, double t)
+int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 {
     struct animation *s = node->priv_data;
     if (!s->nb_animkf)
@@ -142,6 +142,12 @@ static int animation_init(struct ngl_node *node)
     return 0;
 }
 
+static int animatedfloat_update(struct ngl_node *node, double t)
+{
+    struct animation *s = node->priv_data;
+    return animation_update(s, t, 1, &s->scalar, &s->current_kf);
+}
+
 #define UPDATE_FUNC(type, len)                                          \
 static int animated##type##_update(struct ngl_node *node, double t)     \
 {                                                                       \
@@ -149,7 +155,6 @@ static int animated##type##_update(struct ngl_node *node, double t)     \
     return animation_update(s, t, len, s->values, &s->current_kf);      \
 }
 
-UPDATE_FUNC(float,  1);
 UPDATE_FUNC(vec2,   2);
 UPDATE_FUNC(vec3,   3);
 UPDATE_FUNC(vec4,   4);
