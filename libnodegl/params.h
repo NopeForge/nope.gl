@@ -64,6 +64,7 @@ struct param_choices {
 #define PARAM_FLAG_CONSTRUCTOR (1<<0)
 #define PARAM_FLAG_DOT_DISPLAY_PACKED (1<<1)
 #define PARAM_FLAG_DOT_DISPLAY_FIELDNAME (1<<2)
+#define PARAM_FLAG_USER_SET (1<<3)
 struct node_param {
     const char *key;
     int type;

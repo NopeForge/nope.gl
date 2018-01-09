@@ -202,6 +202,8 @@ static void reset_non_params(struct ngl_node *node)
         if (offset != cur_offset)
             memset(base_ptr + cur_offset, 0, offset - cur_offset);
         cur_offset = offset + ngli_params_specs[par->type].size;
+        if (par->flags & PARAM_FLAG_USER_SET)
+            cur_offset += sizeof(int);
         par++;
     }
     memset(base_ptr + cur_offset, 0, node->class->priv_size - cur_offset);
