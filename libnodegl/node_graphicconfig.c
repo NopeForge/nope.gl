@@ -101,74 +101,60 @@ static const struct param_choices stencil_op_choices = {
 #define OFFSET(x) offsetof(struct graphicconfig, x)
 static const struct node_param graphicconfig_params[] = {
     {"child",              PARAM_TYPE_NODE,   OFFSET(child),              .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"blend",              PARAM_TYPE_INT,    OFFSET(blend),              {.i64=GL_FALSE}},
+    {"blend",              PARAM_TYPE_INT,    OFFSET(blend),              {.i64=GL_FALSE},
+                           .flags=PARAM_FLAG_USER_SET},
     {"blend_dst_factor",   PARAM_TYPE_SELECT, OFFSET(blend_dst_factor),   {.i64=GL_ONE},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&blend_factor_choices},
     {"blend_src_factor",   PARAM_TYPE_SELECT, OFFSET(blend_src_factor),   {.i64=GL_ZERO},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&blend_factor_choices},
     {"blend_dst_factor_a", PARAM_TYPE_SELECT, OFFSET(blend_dst_factor_a), {.i64=GL_ONE},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&blend_factor_choices},
     {"blend_src_factor_a", PARAM_TYPE_SELECT, OFFSET(blend_src_factor_a), {.i64=GL_ZERO},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&blend_factor_choices},
     {"blend_op",           PARAM_TYPE_SELECT, OFFSET(blend_op),           {.i64=GL_FUNC_ADD},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&blend_op_choices},
     {"blend_op_a",         PARAM_TYPE_SELECT, OFFSET(blend_op_a),         {.i64=GL_FUNC_ADD},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&blend_op_choices},
     {"color_write_mask",   PARAM_TYPE_FLAGS,  OFFSET(color_write_mask),   {.i64=0xF},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&component_choices},
-    {"depth_test",         PARAM_TYPE_INT,    OFFSET(depth_test),         {.i64=GL_FALSE}},
-    {"depth_write_mask",   PARAM_TYPE_INT,    OFFSET(depth_write_mask),   {.i64=GL_TRUE}},
+    {"depth_test",         PARAM_TYPE_INT,    OFFSET(depth_test),         {.i64=GL_FALSE},
+                           .flags=PARAM_FLAG_USER_SET},
+    {"depth_write_mask",   PARAM_TYPE_INT,    OFFSET(depth_write_mask),   {.i64=GL_TRUE},
+                           .flags=PARAM_FLAG_USER_SET},
     {"depth_func",         PARAM_TYPE_SELECT, OFFSET(depth_func),         {.i64=GL_LESS},
+                           .flags=PARAM_FLAG_USER_SET,
                            .desc=NGLI_DOCSTRING("passes if `<function>(depth, stored_depth)`"),
                            .choices=&func_choices},
-    {"stencil_test",       PARAM_TYPE_INT,    OFFSET(stencil_test),       {.i64=GL_FALSE}},
-    {"stencil_write_mask", PARAM_TYPE_INT,    OFFSET(stencil_write_mask), {.i64=0xFF}},
+    {"stencil_test",       PARAM_TYPE_INT,    OFFSET(stencil_test),       {.i64=GL_FALSE},
+                           .flags=PARAM_FLAG_USER_SET},
+    {"stencil_write_mask", PARAM_TYPE_INT,    OFFSET(stencil_write_mask), {.i64=0xFF},
+                           .flags=PARAM_FLAG_USER_SET},
     {"stencil_func",       PARAM_TYPE_SELECT, OFFSET(stencil_func),       {.i64=GL_ALWAYS},
+                           .flags=PARAM_FLAG_USER_SET,
                            .desc=NGLI_DOCSTRING("passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)`"),
                            .choices=&func_choices},
-    {"stencil_ref",        PARAM_TYPE_INT,    OFFSET(stencil_ref),        {.i64=0}},
-    {"stencil_read_mask",  PARAM_TYPE_INT,    OFFSET(stencil_read_mask),  {.i64=0xFF}},
+    {"stencil_ref",        PARAM_TYPE_INT,    OFFSET(stencil_ref),        {.i64=0},
+                           .flags=PARAM_FLAG_USER_SET},
+    {"stencil_read_mask",  PARAM_TYPE_INT,    OFFSET(stencil_read_mask),  {.i64=0xFF},
+                           .flags=PARAM_FLAG_USER_SET},
     {"stencil_fail",       PARAM_TYPE_SELECT, OFFSET(stencil_fail),       {.i64=GL_KEEP},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&stencil_op_choices},
     {"stencil_depth_fail", PARAM_TYPE_SELECT, OFFSET(stencil_depth_fail), {.i64=GL_KEEP},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&stencil_op_choices},
     {"stencil_depth_pass", PARAM_TYPE_SELECT, OFFSET(stencil_depth_pass), {.i64=GL_KEEP},
+                           .flags=PARAM_FLAG_USER_SET,
                            .choices=&stencil_op_choices},
     {NULL}
 };
-
-#define COPY_PARAM(name) s->states[0].name = s->name
-
-static int graphicconfig_init(struct ngl_node *node)
-{
-    struct graphicconfig *s = node->priv_data;
-
-    COPY_PARAM(blend);
-    COPY_PARAM(blend_dst_factor);
-    COPY_PARAM(blend_src_factor);
-    COPY_PARAM(blend_dst_factor_a);
-    COPY_PARAM(blend_src_factor_a);
-    COPY_PARAM(blend_op);
-    COPY_PARAM(blend_op_a);
-
-    for (int i = 0; i < 4; i++)
-        s->states[0].color_write_mask[i] = s->color_write_mask >> i & 1;
-
-    COPY_PARAM(depth_test);
-    COPY_PARAM(depth_write_mask);
-    COPY_PARAM(depth_func);
-
-    COPY_PARAM(stencil_test);
-    COPY_PARAM(stencil_write_mask);
-    COPY_PARAM(stencil_func);
-    COPY_PARAM(stencil_ref);
-    COPY_PARAM(stencil_read_mask);
-    COPY_PARAM(stencil_fail);
-    COPY_PARAM(stencil_depth_fail);
-    COPY_PARAM(stencil_depth_pass);
-
-    return ngli_node_init(s->child);
-}
 
 static int graphicconfig_update(struct ngl_node *node, double t)
 {
@@ -180,6 +166,12 @@ static int graphicconfig_update(struct ngl_node *node, double t)
     return ngli_node_update(child, t);
 }
 
+#define COPY_PARAM(name) do {        \
+    if (s->name##_set) {             \
+        next->name = s->name;        \
+    }                                \
+} while (0)                          \
+
 static void honor_config(struct ngl_node *node, int restore)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -189,6 +181,36 @@ static void honor_config(struct ngl_node *node, int restore)
     struct graphicconfig *s = node->priv_data;
     struct glstate *prev = restore ? &s->states[0] : &s->states[1];
     struct glstate *next = restore ? &s->states[1] : &s->states[0];
+
+    if (!restore) {
+        *next = *ctx->glstate;
+
+        COPY_PARAM(blend);
+        COPY_PARAM(blend_dst_factor);
+        COPY_PARAM(blend_src_factor);
+        COPY_PARAM(blend_dst_factor_a);
+        COPY_PARAM(blend_src_factor_a);
+        COPY_PARAM(blend_op);
+        COPY_PARAM(blend_op_a);
+
+        if (s->color_write_mask_set) {
+            for (int i = 0; i < 4; i++)
+                next->color_write_mask[i] = s->color_write_mask >> i & 1;
+        }
+
+        COPY_PARAM(depth_test);
+        COPY_PARAM(depth_write_mask);
+        COPY_PARAM(depth_func);
+
+        COPY_PARAM(stencil_test);
+        COPY_PARAM(stencil_write_mask);
+        COPY_PARAM(stencil_func);
+        COPY_PARAM(stencil_ref);
+        COPY_PARAM(stencil_read_mask);
+        COPY_PARAM(stencil_fail);
+        COPY_PARAM(stencil_depth_fail);
+        COPY_PARAM(stencil_depth_pass);
+    }
 
     *prev = *ctx->glstate;
     *ctx->glstate = *next;
@@ -208,7 +230,6 @@ static void graphicconfig_draw(struct ngl_node *node)
 const struct node_class ngli_graphicconfig_class = {
     .id        = NGL_NODE_GRAPHICCONFIG,
     .name      = "GraphicConfig",
-    .init      = graphicconfig_init,
     .update    = graphicconfig_update,
     .draw      = graphicconfig_draw,
     .priv_size = sizeof(struct graphicconfig),
