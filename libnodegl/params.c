@@ -424,13 +424,8 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
                 return ret;
             break;
         }
-    }
 
-    if (par->flags & PARAM_FLAG_USER_SET) {
-        dstp += ngli_params_specs[par->type].size;
-        *(int *)dstp = 1;
     }
-
     return 0;
 }
 
@@ -521,11 +516,6 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                     ngli_params_vset(base_ptr, par, 0, par->def_value.p);
                     break;
             }
-
-            if (par->flags & PARAM_FLAG_USER_SET) {
-                uint8_t *dstp = base_ptr + par->offset + ngli_params_specs[par->type].size;
-                *(int *)dstp = 0;
-            }
         }
     }
     return 0;
@@ -587,12 +577,6 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
             LOG(ERROR, "parameter %s is not a list", par->key);
             return -1;
     }
-
-    if (par->flags & PARAM_FLAG_USER_SET) {
-        uint8_t *dstp = base_ptr + par->offset + ngli_params_specs[par->type].size;
-        *(int *)dstp = 1;
-    }
-
     return 0;
 }
 
