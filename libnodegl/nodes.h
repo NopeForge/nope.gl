@@ -84,46 +84,27 @@ struct graphicconfig {
     struct ngl_node *child;
 
     int blend;
-    int blend_set;
     int blend_dst_factor;
-    int blend_dst_factor_set;
     int blend_src_factor;
-    int blend_src_factor_set;
     int blend_dst_factor_a;
-    int blend_dst_factor_a_set;
     int blend_src_factor_a;
-    int blend_src_factor_a_set;
     int blend_op;
-    int blend_op_set;
     int blend_op_a;
-    int blend_op_a_set;
 
     int color_write_mask;
-    int color_write_mask_set;
 
     int depth_test;
-    int depth_test_set;
     int depth_write_mask;
-    int depth_write_mask_set;
     int depth_func;
-    int depth_func_set;
 
     int stencil_test;
-    int stencil_test_set;
     int stencil_write_mask;
-    int stencil_write_mask_set;
     int stencil_func;
-    int stencil_func_set;
     int stencil_ref;
-    int stencil_ref_set;
     int stencil_read_mask;
-    int stencil_read_mask_set;
     int stencil_fail;
-    int stencil_fail_set;
     int stencil_depth_fail;
-    int stencil_depth_fail_set;
     int stencil_depth_pass;
-    int stencil_depth_pass_set;
 
     struct glstate states[2];
 };

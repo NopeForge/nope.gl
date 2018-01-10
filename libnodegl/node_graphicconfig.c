@@ -31,6 +31,7 @@
 static const struct param_choices blend_factor_choices = {
     .name = "blend_factor",
     .consts = {
+        {"unset",               -1,                     .desc=NGLI_DOCSTRING("unset")},
         {"zero",                GL_ZERO,                .desc=NGLI_DOCSTRING("`0`")},
         {"one",                 GL_ONE,                 .desc=NGLI_DOCSTRING("`1`")},
         {"src_color",           GL_SRC_COLOR,           .desc=NGLI_DOCSTRING("`src_color`")},
@@ -48,6 +49,7 @@ static const struct param_choices blend_factor_choices = {
 static const struct param_choices blend_op_choices = {
     .name = "blend_operation",
     .consts = {
+        {"unset",  -1,                       .desc=NGLI_DOCSTRING("unset")},
         {"add",    GL_FUNC_ADD,              .desc=NGLI_DOCSTRING("`src + dst`")},
         {"sub",    GL_FUNC_SUBTRACT,         .desc=NGLI_DOCSTRING("`src - dst`")},
         {"revsub", GL_FUNC_REVERSE_SUBTRACT, .desc=NGLI_DOCSTRING("`dst - src`")},
@@ -71,6 +73,7 @@ static const struct param_choices component_choices = {
 static const struct param_choices func_choices = {
     .name = "function",
     .consts = {
+        {"unset",    -1,          .desc=NGLI_DOCSTRING("unset")},
         {"never",    GL_NEVER,    .desc=NGLI_DOCSTRING("`f(a,b) = 0`")},
         {"less",     GL_LESS,     .desc=NGLI_DOCSTRING("`f(a,b) = a < b`")},
         {"equal",    GL_EQUAL,    .desc=NGLI_DOCSTRING("`f(a,b) = a == b`")},
@@ -86,6 +89,7 @@ static const struct param_choices func_choices = {
 static const struct param_choices stencil_op_choices = {
     .name = "stencil_operation",
     .consts = {
+        {"unset",       -1,           .desc=NGLI_DOCSTRING("unset")},
         {"keep",        GL_KEEP,      .desc=NGLI_DOCSTRING("keeps the current value")},
         {"zero",        GL_ZERO,      .desc=NGLI_DOCSTRING("sets the stencil buffer value to 0")},
         {"replace",     GL_REPLACE,   .desc=NGLI_DOCSTRING("sets the stencil buffer value to ref, as specified by the stencil function")},
@@ -101,57 +105,38 @@ static const struct param_choices stencil_op_choices = {
 #define OFFSET(x) offsetof(struct graphicconfig, x)
 static const struct node_param graphicconfig_params[] = {
     {"child",              PARAM_TYPE_NODE,   OFFSET(child),              .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"blend",              PARAM_TYPE_INT,    OFFSET(blend),              {.i64=GL_FALSE},
-                           .flags=PARAM_FLAG_USER_SET},
-    {"blend_dst_factor",   PARAM_TYPE_SELECT, OFFSET(blend_dst_factor),   {.i64=GL_ONE},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"blend",              PARAM_TYPE_INT,    OFFSET(blend),              {.i64=-1}},
+    {"blend_dst_factor",   PARAM_TYPE_SELECT, OFFSET(blend_dst_factor),   {.i64=-1},
                            .choices=&blend_factor_choices},
-    {"blend_src_factor",   PARAM_TYPE_SELECT, OFFSET(blend_src_factor),   {.i64=GL_ZERO},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"blend_src_factor",   PARAM_TYPE_SELECT, OFFSET(blend_src_factor),   {.i64=-1},
                            .choices=&blend_factor_choices},
-    {"blend_dst_factor_a", PARAM_TYPE_SELECT, OFFSET(blend_dst_factor_a), {.i64=GL_ONE},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"blend_dst_factor_a", PARAM_TYPE_SELECT, OFFSET(blend_dst_factor_a), {.i64=-1},
                            .choices=&blend_factor_choices},
-    {"blend_src_factor_a", PARAM_TYPE_SELECT, OFFSET(blend_src_factor_a), {.i64=GL_ZERO},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"blend_src_factor_a", PARAM_TYPE_SELECT, OFFSET(blend_src_factor_a), {.i64=-1},
                            .choices=&blend_factor_choices},
-    {"blend_op",           PARAM_TYPE_SELECT, OFFSET(blend_op),           {.i64=GL_FUNC_ADD},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"blend_op",           PARAM_TYPE_SELECT, OFFSET(blend_op),           {.i64=-1},
                            .choices=&blend_op_choices},
-    {"blend_op_a",         PARAM_TYPE_SELECT, OFFSET(blend_op_a),         {.i64=GL_FUNC_ADD},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"blend_op_a",         PARAM_TYPE_SELECT, OFFSET(blend_op_a),         {.i64=-1},
                            .choices=&blend_op_choices},
-    {"color_write_mask",   PARAM_TYPE_FLAGS,  OFFSET(color_write_mask),   {.i64=0xF},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"color_write_mask",   PARAM_TYPE_FLAGS,  OFFSET(color_write_mask),   {.i64=-1},
                            .choices=&component_choices},
-    {"depth_test",         PARAM_TYPE_INT,    OFFSET(depth_test),         {.i64=GL_FALSE},
-                           .flags=PARAM_FLAG_USER_SET},
-    {"depth_write_mask",   PARAM_TYPE_INT,    OFFSET(depth_write_mask),   {.i64=GL_TRUE},
-                           .flags=PARAM_FLAG_USER_SET},
-    {"depth_func",         PARAM_TYPE_SELECT, OFFSET(depth_func),         {.i64=GL_LESS},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"depth_test",         PARAM_TYPE_INT,    OFFSET(depth_test),         {.i64=-1}},
+    {"depth_write_mask",   PARAM_TYPE_INT,    OFFSET(depth_write_mask),   {.i64=-1}},
+    {"depth_func",         PARAM_TYPE_SELECT, OFFSET(depth_func),         {.i64=-1},
                            .desc=NGLI_DOCSTRING("passes if `<function>(depth, stored_depth)`"),
                            .choices=&func_choices},
-    {"stencil_test",       PARAM_TYPE_INT,    OFFSET(stencil_test),       {.i64=GL_FALSE},
-                           .flags=PARAM_FLAG_USER_SET},
-    {"stencil_write_mask", PARAM_TYPE_INT,    OFFSET(stencil_write_mask), {.i64=0xFF},
-                           .flags=PARAM_FLAG_USER_SET},
-    {"stencil_func",       PARAM_TYPE_SELECT, OFFSET(stencil_func),       {.i64=GL_ALWAYS},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"stencil_test",       PARAM_TYPE_INT,    OFFSET(stencil_test),       {.i64=-1}},
+    {"stencil_write_mask", PARAM_TYPE_INT,    OFFSET(stencil_write_mask), {.i64=-1}},
+    {"stencil_func",       PARAM_TYPE_SELECT, OFFSET(stencil_func),       {.i64=-1},
                            .desc=NGLI_DOCSTRING("passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)`"),
                            .choices=&func_choices},
-    {"stencil_ref",        PARAM_TYPE_INT,    OFFSET(stencil_ref),        {.i64=0},
-                           .flags=PARAM_FLAG_USER_SET},
-    {"stencil_read_mask",  PARAM_TYPE_INT,    OFFSET(stencil_read_mask),  {.i64=0xFF},
-                           .flags=PARAM_FLAG_USER_SET},
-    {"stencil_fail",       PARAM_TYPE_SELECT, OFFSET(stencil_fail),       {.i64=GL_KEEP},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"stencil_ref",        PARAM_TYPE_INT,    OFFSET(stencil_ref),        {.i64=-1}},
+    {"stencil_read_mask",  PARAM_TYPE_INT,    OFFSET(stencil_read_mask),  {.i64=-1}},
+    {"stencil_fail",       PARAM_TYPE_SELECT, OFFSET(stencil_fail),       {.i64=-1},
                            .choices=&stencil_op_choices},
-    {"stencil_depth_fail", PARAM_TYPE_SELECT, OFFSET(stencil_depth_fail), {.i64=GL_KEEP},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"stencil_depth_fail", PARAM_TYPE_SELECT, OFFSET(stencil_depth_fail), {.i64=-1},
                            .choices=&stencil_op_choices},
-    {"stencil_depth_pass", PARAM_TYPE_SELECT, OFFSET(stencil_depth_pass), {.i64=GL_KEEP},
-                           .flags=PARAM_FLAG_USER_SET,
+    {"stencil_depth_pass", PARAM_TYPE_SELECT, OFFSET(stencil_depth_pass), {.i64=-1},
                            .choices=&stencil_op_choices},
     {NULL}
 };
@@ -167,7 +152,7 @@ static int graphicconfig_update(struct ngl_node *node, double t)
 }
 
 #define COPY_PARAM(name) do {        \
-    if (s->name##_set) {             \
+    if (s->name != -1) {             \
         next->name = s->name;        \
     }                                \
 } while (0)                          \
@@ -193,7 +178,7 @@ static void honor_config(struct ngl_node *node, int restore)
         COPY_PARAM(blend_op);
         COPY_PARAM(blend_op_a);
 
-        if (s->color_write_mask_set) {
+        if (s->color_write_mask != -1) {
             for (int i = 0; i < 4; i++)
                 next->color_write_mask[i] = s->color_write_mask >> i & 1;
         }
