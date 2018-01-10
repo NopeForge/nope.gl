@@ -10,6 +10,9 @@ from pynodegl import (
         Quad,
         Render,
         Texture2D,
+        TimeRangeFilter,
+        TimeRangeModeCont,
+        TimeRangeModeNoop,
         UniformFloat,
 )
 
@@ -71,3 +74,40 @@ def playback_speed(cfg, speed=1.0):
     render = Render(q, p)
     render.update_textures(tex0=t)
     return render
+
+
+@scene()
+def time_remapping(cfg):
+    media_seek = 10
+    noop_duration = 1
+    prefetch_duration = 2
+    freeze_duration = 1
+    playback_duration = 5
+
+    range_start = noop_duration + prefetch_duration
+    play_start  = range_start   + freeze_duration
+    play_stop   = play_start    + playback_duration
+    range_stop  = play_stop     + freeze_duration
+    duration    = range_stop    + noop_duration
+
+    cfg.duration = duration
+
+    media_animkf = [
+        AnimKeyFrameFloat(play_start, media_seek),
+        AnimKeyFrameFloat(play_stop,  media_seek + playback_duration),
+    ]
+
+    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    m = Media(cfg.medias[0].filename, time_anim=AnimatedFloat(media_animkf))
+    t = Texture2D(data_src=m)
+    r = Render(q)
+    r.update_textures(tex0=t)
+
+    time_ranges = [
+        TimeRangeModeNoop(0),
+        TimeRangeModeCont(range_start),
+        TimeRangeModeNoop(range_stop),
+    ]
+    rf = TimeRangeFilter(r, ranges=time_ranges, prefetch_time=prefetch_duration)
+
+    return rf
