@@ -109,13 +109,20 @@ static int media_init(struct ngl_node *node)
     if (anim_node) {
         struct animation *anim = anim_node->priv_data;
 
-        // Sanity check for time animation keyframe
+        // Sanity checks for time animation keyframe
+        double prev_media_time = 0;
         for (i = 0; i < anim->nb_animkf; i++) {
             const struct animkeyframe *kf = anim->animkf[i]->priv_data;
             if (strcmp(kf->easing, "linear")) {
                 LOG(ERROR, "Only linear interpolation is allowed for time remapping");
                 return -1;
             }
+            if (kf->scalar < prev_media_time) {
+                LOG(ERROR, "Media times must be positive and monotically increasing: %g < %g",
+                    kf->scalar, prev_media_time);
+                return -1;
+            }
+            prev_media_time = kf->scalar;
         }
 
         // Set the media time boundaries using the time remapping animation
