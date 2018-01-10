@@ -135,11 +135,17 @@ int ngli_params_get_flags_val(const struct param_const *consts, const char *s, i
     *dst = 0;
     if (!strcmp(s, "0"))
         return 0;
+    if (!strcmp(s, "unset")) {
+        *dst = -1;
+        return 0;
+    }
     while (*s) {
         int i;
         const size_t len = strcspn(s, FLAGS_SEP);
         for (i = 0; consts[i].key; i++) {
             if (!strncmp(consts[i].key, s, len)) {
+                /* -1 is a reserved value and means that the mask is unset */
+                ngli_assert(consts[i].value != -1);
                 *dst |= consts[i].value;
                 break;
             }
@@ -159,6 +165,9 @@ char *ngli_params_get_flags_str(const struct param_const *consts, int val)
 {
     if (!val)
         return ngli_strdup("0");
+
+    if (val == -1)
+        return ngli_strdup("unset");
 
     struct bstr *b = ngli_bstr_create();
     if (!b)
