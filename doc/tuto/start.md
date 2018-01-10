@@ -153,6 +153,10 @@ node orchestrating the render of the `Texture2D` (identified by "*tex0*") in the
 assume you are comfortable with the basis. If not, you may want to look at [the
 book of shaders][book-of-shaders] or any beginner resource of your choice.
 
+You may want to refer to the [vertex and fragment shader
+parameters][expl-shaders] documetation to know which parameters are exposed by
+`node.gl`.
+
 We are now going to pimp a little our scene by adding a program shader. No need
 to close `ngl-viewer` as it is supporting live code editing. The scene will be
 reconstructed after every change in your sources.
@@ -234,6 +238,7 @@ void main(void)
 ![my reddish demo](img/ngl-viewer-reddish-scene.png)
 
 [book-of-shaders]: http://thebookofshaders.com/
+[expl-shaders]: /doc/expl/shaders.md
 
 ### Introducing uniforms
 

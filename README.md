@@ -51,6 +51,7 @@ Following are how-to guides on various specific usages:
 - [How the Python binding is created][expl-pynodegl]
 - [What happens in a draw call?][expl-draw-call]
 - [Technical choices][expl-techchoices]
+- [Fragment and vertex shader parameters][expl-shaders]
 
 ### 🗜 Reference documentation
 
@@ -67,6 +68,7 @@ Following are how-to guides on various specific usages:
 [howto-write-new-node]:  /doc/howto/write-new-node.md
 [expl-pynodegl]:         /doc/expl/pynodegl.md
 [expl-draw-call]:        /doc/expl/draw-call.md
+[expl-shaders]:          /doc/expl/shaders.md
 [expl-techchoices]:      /doc/expl/techchoices.md
 [ref-libnodegl]:         /libnodegl/doc/libnodegl.md
 [ref-pynodegl]:          /doc/ref/pynodegl.md
