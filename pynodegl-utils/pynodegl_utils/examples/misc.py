@@ -27,6 +27,7 @@ from pynodegl import (
         Program,
         Quad,
         Render,
+        RenderToTexture,
         Rotate,
         Scale,
         Texture2D,
@@ -35,6 +36,7 @@ from pynodegl import (
         Triangle,
         UniformInt,
         UniformFloat,
+        UniformVec3,
         UniformVec4,
 )
 
@@ -389,3 +391,80 @@ def blending_and_stencil(cfg):
     camera.set_perspective(45.0, cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]), 1.0, 10.0)
 
     return camera
+
+
+def _get_cube_quads():
+            # corner             width        height      color
+    return (((-0.5, -0.5,  0.5), ( 1, 0,  0), (0, 1,  0), (1, 1, 0)), # front
+            (( 0.5, -0.5, -0.5), (-1, 0,  0), (0, 1,  0), (0, 0, 1)), # back
+            ((-0.5, -0.5, -0.5), ( 0, 0,  1), (0, 1,  0), (0, 1, 0)), # left
+            (( 0.5, -0.5,  0.5), ( 0, 0, -1), (0, 1,  0), (0, 1, 1)), # right
+            ((-0.5, -0.5, -0.5), ( 1, 0,  0), (0, 0,  1), (1, 0, 0)), # bottom
+            ((-0.5,  0.5,  0.5), ( 1, 0,  0), (0, 0, -1), (1, 0, 1))) # top
+
+
+def _get_cube_side(texture, program, corner, width, height, color):
+    render = Render(Quad(corner, width, height), program)
+    render.update_textures(tex0=texture)
+    render.update_uniforms(blend_color=UniformVec3(value=color))
+    render.update_uniforms(mix_factor=UniformFloat(value=0.2))
+    return render
+
+
+@scene(display_depth_buffer={'type': 'bool'})
+def cube(cfg, display_depth_buffer=False):
+    cube = Group(name="cube")
+
+    frag_data = get_frag('tex-tint')
+    program = Program(fragment=frag_data)
+
+    texture = Texture2D(data_src=Media(cfg.medias[0].filename))
+    cube_quads_info = _get_cube_quads()
+    children = [_get_cube_side(texture, program, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
+    cube.add_children(*children)
+
+    for i in range(3):
+        rot_animkf = AnimatedFloat([AnimKeyFrameFloat(0,            0),
+                                    AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
+        axis = [int(i == x) for x in range(3)]
+        cube = Rotate(cube, axis=axis, anim=rot_animkf)
+
+    config = GraphicConfig(cube, depth_test=True)
+
+    camera = Camera(config)
+    camera.set_eye(0.0, 0.0, 2.0)
+    camera.set_center(0.0, 0.0, 0.0)
+    camera.set_up(0.0, 1.0, 0.0)
+    camera.set_perspective(45.0, cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]), 1.0, 10.0)
+
+    if not display_depth_buffer:
+        return camera
+    else:
+        group = Group()
+
+        depth_texture = Texture2D()
+        depth_texture.set_format("depth_component")
+        depth_texture.set_internal_format("depth_component")
+        depth_texture.set_type("unsigned_short")
+        depth_texture.set_width(640)
+        depth_texture.set_height(480)
+
+        texture = Texture2D()
+        texture.set_width(640)
+        texture.set_height(480)
+        rtt = RenderToTexture(camera, texture)
+        rtt.set_depth_texture(depth_texture)
+
+        quad = Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
+        program = Program()
+        render = Render(quad, program)
+        render.update_textures(tex0=texture)
+        group.add_children(rtt, render)
+
+        quad = Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
+        program = Program()
+        render = Render(quad, program)
+        render.update_textures(tex0=depth_texture)
+        group.add_children(rtt, render)
+
+        return group
