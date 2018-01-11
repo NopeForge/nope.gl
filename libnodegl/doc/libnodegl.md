@@ -256,25 +256,25 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `child` | ✓ | `Node` |  | 
-`blend` |  | `int` |  | `0`
-`blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `one`
-`blend_src_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `zero`
-`blend_dst_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `one`
-`blend_src_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `zero`
-`blend_op` |  | [`blend_operation`](#blend_operation-choices) |  | `add`
-`blend_op_a` |  | [`blend_operation`](#blend_operation-choices) |  | `add`
-`color_write_mask` |  | [`component`](#component-choices) |  | `r+g+b+a`
-`depth_test` |  | `int` |  | `0`
-`depth_write_mask` |  | `int` |  | `1`
-`depth_func` |  | [`function`](#function-choices) | passes if `<function>(depth, stored_depth)` | `less`
-`stencil_test` |  | `int` |  | `0`
-`stencil_write_mask` |  | `int` |  | `255`
-`stencil_func` |  | [`function`](#function-choices) | passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)` | `always`
-`stencil_ref` |  | `int` |  | `0`
-`stencil_read_mask` |  | `int` |  | `255`
-`stencil_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `keep`
-`stencil_depth_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `keep`
-`stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) |  | `keep`
+`blend` |  | `int` |  | `-1`
+`blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
+`blend_src_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
+`blend_dst_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
+`blend_src_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
+`blend_op` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
+`blend_op_a` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
+`color_write_mask` |  | [`component`](#component-choices) |  | `unset`
+`depth_test` |  | `int` |  | `-1`
+`depth_write_mask` |  | `int` |  | `-1`
+`depth_func` |  | [`function`](#function-choices) | passes if `<function>(depth, stored_depth)` | `unset`
+`stencil_test` |  | `int` |  | `-1`
+`stencil_write_mask` |  | `int` |  | `-1`
+`stencil_func` |  | [`function`](#function-choices) | passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)` | `unset`
+`stencil_ref` |  | `int` |  | `-1`
+`stencil_read_mask` |  | `int` |  | `-1`
+`stencil_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `unset`
+`stencil_depth_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `unset`
+`stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) |  | `unset`
 
 
 **Source**: [node_graphicconfig.c](/libnodegl/node_graphicconfig.c)
@@ -626,6 +626,7 @@ Constant | Description
 
 Constant | Description
 -------- | -----------
+`unset` | unset
 `zero` | `0`
 `one` | `1`
 `src_color` | `src_color`
@@ -641,6 +642,7 @@ Constant | Description
 
 Constant | Description
 -------- | -----------
+`unset` | unset
 `add` | `src + dst`
 `sub` | `src - dst`
 `revsub` | `dst - src`
@@ -660,6 +662,7 @@ Constant | Description
 
 Constant | Description
 -------- | -----------
+`unset` | unset
 `never` | `f(a,b) = 0`
 `less` | `f(a,b) = a < b`
 `equal` | `f(a,b) = a == b`
@@ -673,6 +676,7 @@ Constant | Description
 
 Constant | Description
 -------- | -----------
+`unset` | unset
 `keep` | keeps the current value
 `zero` | sets the stencil buffer value to 0
 `replace` | sets the stencil buffer value to ref, as specified by the stencil function
