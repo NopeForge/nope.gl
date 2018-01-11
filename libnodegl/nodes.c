@@ -339,8 +339,11 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
      * release from another branch.
      */
     if (!is_active && node->state == STATE_IDLE) {
+        LOG(VERBOSE, "%s remains inactive for t=%f", node->name, t);
         return 0;
     }
+
+    static const char * const state_str[2] = {"inactive", "active"};
 
     if (node->visit_time != t) {
         /*
@@ -349,12 +352,17 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
          */
         node->is_active = is_active;
         node->visit_time = t;
+        LOG(VERBOSE, "%s visited at t=%f is %s", node->name, t,
+            state_str[is_active]);
     } else {
         /*
          * This is not the first time we come across that node, so if it's
          * needed in that part of the branch we mark it as active so it doesn't
          * get released.
          */
+        LOG(VERBOSE, "%s visited another time at t=%f is %s|%s=%s",
+            node->name, t, state_str[node->is_active], state_str[is_active],
+            state_str[node->is_active | is_active]);
         node->is_active |= is_active;
     }
 
