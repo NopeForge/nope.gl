@@ -65,35 +65,6 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
 
     return node
 
-@scene(rotate={'type': 'bool'},
-       scale={'type': 'bool'},
-       translate={'type': 'bool'})
-def animated(cfg, rotate=True, scale=True, translate=True):
-    q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(cfg.medias[0].filename)
-    t = Texture2D(data_src=m)
-    p = Program()
-    node = Render(q, p)
-    node.update_textures(tex0=t)
-
-    if rotate:
-        animkf = [AnimKeyFrameFloat(0, 0),
-                  AnimKeyFrameFloat(cfg.duration, 360, "exp_in")]
-        node = Rotate(node, anim=AnimatedFloat(animkf))
-
-    if scale:
-        animkf = [AnimKeyFrameVec3(0, (16/9., 0.5, 1.0)),
-                  AnimKeyFrameVec3(cfg.duration, (4/3.,  1.0, 0.5), "exp_out")]
-        node = Scale(node, anim=AnimatedVec3(animkf))
-
-    if translate:
-        animkf = [AnimKeyFrameVec3(0,              (-0.5,  0.5, -0.7)),
-                  AnimKeyFrameVec3(cfg.duration/2, ( 0.5, -0.5,  0.7), "circular_in"),
-                  AnimKeyFrameVec3(cfg.duration,   (-0.5, -0.3, -0.5), "sinus_in_out", easing_args=(0, .7))]
-        node = Translate(node, anim=AnimatedVec3(animkf))
-
-    return node
-
 @scene()
 def animated_uniform(cfg):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
