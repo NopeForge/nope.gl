@@ -3,21 +3,14 @@ import math
 
 from pynodegl import (
         AnimKeyFrameFloat,
-        AnimKeyFrameVec3,
         AnimatedFloat,
-        AnimatedVec3,
         Circle,
-        GraphicConfig,
-        Group,
         Media,
         Program,
         Quad,
         Render,
-        Rotate,
-        Scale,
         Texture2D,
         UniformFloat,
-        UniformVec4,
 )
 
 from pynodegl_utils.misc import scene, get_frag
@@ -48,58 +41,6 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
         ar = UniformFloat(cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]))
         render.update_uniforms(time=time, ar=ar)
     return render
-
-@scene()
-def centered_masked_media(cfg):
-    cfg.duration = 2
-
-    g = Group()
-
-    q = Quad((-0.2, -0.2, 0), (0.4, 0.0, 0.0), (0.0, 0.4, 0.0))
-    p = Program(fragment=get_frag('color'))
-    node = Render(q, p)
-    node.update_uniforms(color=UniformVec4(value=(0,0,0,1)))
-
-    scale_animkf = [AnimKeyFrameVec3(0, (0.1,  0.1, 1.0)),
-                    AnimKeyFrameVec3(10, (10., 10.0,  3), "exp_out")]
-    node = Scale(node, anim=AnimatedVec3(scale_animkf))
-
-    rotate_animkf = [AnimKeyFrameFloat(0, 0),
-                     AnimKeyFrameFloat(cfg.duration, 360, "exp_out")]
-    node = Rotate(node, anim=AnimatedFloat(rotate_animkf))
-
-    node = GraphicConfig(node,
-                         color_write_mask='',
-                         stencil_test=True,
-                         stencil_write_mask=0xFF,
-                         stencil_func='always',
-                         stencil_ref=1,
-                         stencil_read_mask=0xFF,
-                         stencil_fail='keep',
-                         stencil_depth_fail='keep',
-                         stencil_depth_pass='replace')
-
-    g.add_children(node)
-
-    q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(cfg.medias[0].filename)
-    t = Texture2D(data_src=m)
-    p = Program()
-    node = Render(q, p)
-    node.update_textures(tex0=t)
-
-    node = GraphicConfig(node,
-                         stencil_test=True,
-                         stencil_write_mask=0x00,
-                         stencil_func='equal',
-                         stencil_ref=1,
-                         stencil_read_mask=0xFF,
-                         stencil_fail='keep',
-                         stencil_depth_fail='keep',
-                         stencil_depth_pass='replace')
-
-    g.add_children(node)
-    return g
 
 
 @scene(npoints={'type': 'range', 'range': [3, 300]},
