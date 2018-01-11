@@ -98,7 +98,7 @@ int ngl_draw(struct ngl_ctx *s, double t)
 
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    int ret = ngli_node_visit(scene, NULL, t);
+    int ret = ngli_node_visit(scene, 1, t);
     if (ret < 0)
         goto end;
 

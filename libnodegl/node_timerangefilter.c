@@ -131,16 +131,16 @@ static int update_rr_state(struct timerangefilter *s, double t)
 }
 
 // TODO: render once
-static int timerangefilter_visit(struct ngl_node *node, const struct ngl_node *from, double t)
+static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
 {
     struct timerangefilter *s = node->priv_data;
+    struct ngl_node *child = s->child;
 
     /*
      * The life of the parent takes over the life of its children: if the
      * parent is dead, the children are likely dead as well. However, a living
      * children from a dead parent can be revealed by another living branch.
      */
-    int is_active = from ? from->is_active : 1;
     if (is_active) {
         const int rr_id = update_rr_state(s, t);
 
@@ -162,7 +162,7 @@ static int timerangefilter_visit(struct ngl_node *node, const struct ngl_node *f
                         // The node will actually be needed soon, so we need to
                         // start it if necessary.
                         is_active = 1;
-                    } else if (next_use_in < s->max_idle_time && node->state == STATE_READY) {
+                    } else if (next_use_in < s->max_idle_time && child->state == STATE_READY) {
                         // The node will be needed in a slight amount of time;
                         // a bit longer than a prefetch period so we don't need
                         // to start it, but in the case where it's actually
@@ -175,32 +175,7 @@ static int timerangefilter_visit(struct ngl_node *node, const struct ngl_node *f
         }
     }
 
-    /*
-     * If a node is inactive and is already in a dead state, there is no need
-     * to check for resources below as we can assume they were already released
-     * as well (unless they're shared with another branch) by
-     * honor_release_prefetch().
-     *
-     * On the other hand, we cannot do the same if the node is active, because
-     * we have to mark every node below for activity to prevent an early
-     * release from another branch.
-     */
-    if (!is_active && node->state == STATE_IDLE)
-        return 0;
-
-    if (node->visit_time != t) {
-        // If we never passed through this node for that given time, the new
-        // active state takes over to replace the one from a previous update.
-        node->is_active = is_active;
-        node->visit_time = t;
-    } else {
-        // This is not the first time we come across that node, so if it's
-        // needed in that part of the branch we mark it as active so it doesn't
-        // get released.
-        node->is_active |= is_active;
-    }
-
-    return ngli_node_visit(s->child, node, t);
+    return ngli_node_visit(child, is_active, t);
 }
 
 static int timerangefilter_update(struct ngl_node *node, double t)

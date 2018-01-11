@@ -322,17 +322,44 @@ int ngli_node_init(struct ngl_node *node)
     return 0;
 }
 
-int ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t)
+int ngli_node_visit(struct ngl_node *node, int is_active, double t)
 {
     int ret = ngli_node_init(node);
     if (ret < 0)
         return ret;
 
-    if (node->class->visit)
-        return node->class->visit(node, from, t);
+    /*
+     * If a node is inactive and is already in a dead state, there is no need
+     * to check for resources below as we can assume they were already released
+     * as well (unless they're shared with another branch) by
+     * honor_release_prefetch().
+     *
+     * On the other hand, we cannot do the same if the node is active, because
+     * we have to mark every node below for activity to prevent an early
+     * release from another branch.
+     */
+    if (!is_active && node->state == STATE_IDLE) {
+        return 0;
+    }
 
-    node->is_active = from ? from->is_active : 1;
-    node->visit_time = t;
+    if (node->visit_time != t) {
+        /*
+         * If we never passed through this node for that given time, the new
+         * active state takes over to replace the one from a previous update.
+         */
+        node->is_active = is_active;
+        node->visit_time = t;
+    } else {
+        /*
+         * This is not the first time we come across that node, so if it's
+         * needed in that part of the branch we mark it as active so it doesn't
+         * get released.
+         */
+        node->is_active |= is_active;
+    }
+
+    if (node->class->visit)
+        return node->class->visit(node, is_active, t);
 
     uint8_t *base_ptr = node->priv_data;
     const struct node_param *par = node->class->params;
@@ -343,7 +370,7 @@ int ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t
                 uint8_t *child_p = base_ptr + par->offset;
                 struct ngl_node *child = *(struct ngl_node **)child_p;
                 if (child) {
-                    ret = ngli_node_visit(child, node, t);
+                    ret = ngli_node_visit(child, is_active, t);
                     if (ret < 0)
                         return ret;
                 }
@@ -355,7 +382,7 @@ int ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t
                 struct ngl_node **elems = *(struct ngl_node ***)elems_p;
                 const int nb_elems = *(int *)nb_elems_p;
                 for (int i = 0; i < nb_elems; i++) {
-                    ret = ngli_node_visit(elems[i], node, t);
+                    ret = ngli_node_visit(elems[i], is_active, t);
                     if (ret < 0)
                         return ret;
                 }
@@ -367,7 +394,7 @@ int ngli_node_visit(struct ngl_node *node, const struct ngl_node *from, double t
                     break;
                 const struct hmap_entry *entry = NULL;
                 while ((entry = ngli_hmap_next(hmap, entry))) {
-                    ret = ngli_node_visit(entry->data, node, t);
+                    ret = ngli_node_visit(entry->data, is_active, t);
                     if (ret < 0)
                         return ret;
                 }
