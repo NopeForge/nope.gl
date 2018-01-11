@@ -185,6 +185,7 @@ static void node_release(struct ngl_node *node)
         node->class->release(node);
     }
     node->state = STATE_IDLE;
+    node->last_update_time = -1.;
 }
 
 /*
