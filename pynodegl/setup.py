@@ -102,6 +102,9 @@ class BuildExtCommand(build_ext):
                 if field_type in ('int', 'float', 'double'):
                     construct_cargs.append(field_name)
                     construct_args.append('%s %s' % (field_type, field_name))
+                elif field_type == 'bool':
+                    construct_cargs.append('bint')
+                    construct_args.append('bint %s' % field_name)
                 elif field_type in ('select', 'flags', 'string'):
                     construct_cargs.append(field_name)
                     construct_args.append('const char *%s' % field_name)
@@ -324,6 +327,8 @@ cdef class _Node:
                     elif field_type == 'Node':
                         ctype = '_Node'
                         cparam += '.ctx'
+                    elif field_type == 'bool':
+                        ctype = 'bint'
                     field_data = {
                         'field_name': field_name,
                         'field_type': ctype,

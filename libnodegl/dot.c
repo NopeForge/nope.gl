@@ -86,6 +86,7 @@ static int should_print_par(uint8_t *priv, const struct node_param *par)
             const double v = *(double *)(priv + par->offset);
             return v != par->def_value.dbl;
         }
+        case PARAM_TYPE_BOOL:
         case PARAM_TYPE_FLAGS:
         case PARAM_TYPE_SELECT:
         case PARAM_TYPE_INT: {

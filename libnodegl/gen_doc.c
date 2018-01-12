@@ -109,6 +109,12 @@ static char *get_default_str(const struct node_param *p)
         case PARAM_TYPE_DBL:
             ngli_bstr_print(b, "`%g`", p->def_value.dbl);
             break;
+        case PARAM_TYPE_BOOL:
+            if (p->def_value.i64 < 0)
+                ngli_bstr_print(b, "`unset`");
+            else
+                ngli_bstr_print(b, "`%d`", (int)p->def_value.i64);
+            break;
         case PARAM_TYPE_INT:
             ngli_bstr_print(b, "`%d`", (int)p->def_value.i64);
             break;

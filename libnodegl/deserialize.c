@@ -70,6 +70,16 @@ DECLARE_FMT_PARSE_FUNC(int,     int,    "%d")
 DECLARE_FMT_PARSE_FUNC(int,     hexint, "%x")
 DECLARE_FMT_PARSE_FUNC(int64_t, i64,    "%"SCNd64)
 
+static int parse_bool(const char *s, int *valp)
+{
+    int ret = parse_int(s, valp);
+    if (ret < 0)
+        return ret;
+    if (*valp != -1)
+        *valp = !!*valp;
+    return 0;
+}
+
 #define DECLARE_FLT_PARSE_FUNC(type, nbit, shift_exp)                       \
 static int parse_##type(const char *s, type *valp)                          \
 {                                                                           \
@@ -211,6 +221,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
 
     switch (par->type) {
         CASE_LITERAL(PARAM_TYPE_INT, int,     parse_int)
+        CASE_LITERAL(PARAM_TYPE_BOOL,int,     parse_bool)
         CASE_LITERAL(PARAM_TYPE_I64, int64_t, parse_i64)
         CASE_LITERAL(PARAM_TYPE_DBL, double,  parse_double)
 

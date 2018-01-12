@@ -28,6 +28,7 @@
 
 enum {
     PARAM_TYPE_INT,
+    PARAM_TYPE_BOOL,
     PARAM_TYPE_I64,
     PARAM_TYPE_DBL,
     PARAM_TYPE_STR,

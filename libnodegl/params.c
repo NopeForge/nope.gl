@@ -35,6 +35,10 @@ const struct param_specs ngli_params_specs[] = {
         .name = "int",
         .size = sizeof(int),
     },
+    [PARAM_TYPE_BOOL] = {
+        .name = "bool",
+        .size = sizeof(int),
+    },
     [PARAM_TYPE_I64] = {
         .name = "i64",
         .size = sizeof(int64_t),
@@ -207,6 +211,14 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             free(s);
             break;
         }
+        case PARAM_TYPE_BOOL: {
+            const int v = *(int *)(base_ptr + par->offset);
+            if (v == -1)
+                ngli_bstr_print(b, "unset");
+            else
+                ngli_bstr_print(b, "%d", v);
+            break;
+        }
         case PARAM_TYPE_INT: {
             const int v = *(int *)(base_ptr + par->offset);
             ngli_bstr_print(b, "%d", v);
@@ -312,8 +324,11 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             memcpy(dstp, &v, sizeof(v));
             break;
         }
+        case PARAM_TYPE_BOOL:
         case PARAM_TYPE_INT: {
             int v = va_arg(*ap, int);
+            if (par->type == PARAM_TYPE_BOOL && v != -1)
+                v = !!v;
             LOG(VERBOSE, "set %s to %d", par->key, v);
             memcpy(dstp, &v, sizeof(v));
             break;
@@ -494,6 +509,7 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                     free(s);
                     break;
                 }
+                case PARAM_TYPE_BOOL:
                 case PARAM_TYPE_INT:
                 case PARAM_TYPE_I64:
                     ngli_params_vset(base_ptr, par, par->def_value.i64);

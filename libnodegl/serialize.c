@@ -119,6 +119,7 @@ static void serialize_options(struct hmap *nlist,
                 free(s);
                 break;
             }
+            case PARAM_TYPE_BOOL:
             case PARAM_TYPE_INT: {
                 const int v = *(int *)(priv + p->offset);
                 if (constructor)
