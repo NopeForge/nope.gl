@@ -34,66 +34,82 @@ const struct param_specs ngli_params_specs[] = {
     [PARAM_TYPE_INT] = {
         .name = "int",
         .size = sizeof(int),
+        .desc = NGLI_DOCSTRING("Integer"),
     },
     [PARAM_TYPE_BOOL] = {
         .name = "bool",
         .size = sizeof(int),
+        .desc = NGLI_DOCSTRING("Boolean (map to `int` in C)"),
     },
     [PARAM_TYPE_I64] = {
         .name = "i64",
         .size = sizeof(int64_t),
+        .desc = NGLI_DOCSTRING("64-bit integer"),
     },
     [PARAM_TYPE_DBL] = {
         .name = "double",
         .size = sizeof(double),
+        .desc = NGLI_DOCSTRING("Double-precision float"),
     },
     [PARAM_TYPE_STR] = {
         .name = "string",
         .size = sizeof(char *),
+        .desc = NGLI_DOCSTRING("String"),
     },
     [PARAM_TYPE_DATA] = {
         .name = "data",
         .size = sizeof(void *) + sizeof(int),
+        .desc = NGLI_DOCSTRING("Agnostic data buffer"),
     },
     [PARAM_TYPE_VEC2] = {
         .name = "vec2",
         .size = sizeof(float[2]),
+        .desc = NGLI_DOCSTRING("2 single-precision floats"),
     },
     [PARAM_TYPE_VEC3] = {
         .name = "vec3",
         .size = sizeof(float[3]),
+        .desc = NGLI_DOCSTRING("3 single-precision floats"),
     },
     [PARAM_TYPE_VEC4] = {
         .name = "vec4",
         .size = sizeof(float[4]),
+        .desc = NGLI_DOCSTRING("4 single-precision floats"),
     },
     [PARAM_TYPE_MAT4] = {
         .name = "mat4",
         .size = sizeof(float[4*4]),
+        .desc = NGLI_DOCSTRING("4x4 single-precision floats"),
     },
     [PARAM_TYPE_NODE] = {
         .name = "Node",
         .size = sizeof(struct ngl_node *),
+        .desc = NGLI_DOCSTRING("node.gl Node"),
     },
     [PARAM_TYPE_NODELIST] = {
         .name = "NodeList",
         .size = sizeof(struct ngl_node **) + sizeof(int),
+        .desc = NGLI_DOCSTRING("List of node.gl Node"),
     },
     [PARAM_TYPE_DBLLIST] = {
         .name = "doubleList",
         .size = sizeof(double *) + sizeof(int),
+        .desc = NGLI_DOCSTRING("List of double-precision floats"),
     },
     [PARAM_TYPE_NODEDICT] = {
         .name = "NodeDict",
         .size = sizeof(struct hmap *),
+        .desc = NGLI_DOCSTRING("Dictionary mapping arbitrary string identifiers to node.gl Nodes"),
     },
     [PARAM_TYPE_SELECT] = {
         .name = "select",
         .size = sizeof(int),
+        .desc = NGLI_DOCSTRING("Selection of one constant (expressed as a string)"),
     },
     [PARAM_TYPE_FLAGS] = {
         .name = "flags",
         .size = sizeof(int),
+        .desc = NGLI_DOCSTRING("Combination of constants (expressed as strings), using `+` as separator. Can be empty for none."),
     },
 };
 

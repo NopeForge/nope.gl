@@ -43,6 +43,7 @@ enum {
     PARAM_TYPE_NODEDICT,
     PARAM_TYPE_SELECT,
     PARAM_TYPE_FLAGS,
+    NB_PARAMS
 };
 
 struct param_specs {

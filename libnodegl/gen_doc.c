@@ -65,7 +65,7 @@ static char *get_type_str(const struct node_param *p)
     if (p->choices) {
         ngli_bstr_print(b, "[`%s`](#%s-choices)", p->choices->name, p->choices->name);
     } else {
-        ngli_bstr_print(b, "`%s`", ngli_params_specs[p->type].name);
+        ngli_bstr_print(b, "[`%s`](#parameter-types)", ngli_params_specs[p->type].name);
     }
     if (p->node_types) {
         ngli_bstr_print(b, " (");
@@ -228,6 +228,18 @@ int main(void)
     }
 
     ngli_hmap_freep(&params_map);
+
+    printf("Parameter types\n");
+    printf("===============\n");
+    printf("\n");
+    printf("Type | Description\n");
+    printf("---- | -----------\n");
+    for (int i = 0; i < NB_PARAMS; i++) {
+        const struct param_specs *ps = &ngli_params_specs[i];
+        ngli_assert(ps->name && ps->desc);
+        printf("`%s` | %s\n", ps->name, ps->desc);
+    }
+    printf("\n");
 
     printf("Constants for choices parameters\n");
     printf("================================\n");

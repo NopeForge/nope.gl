@@ -5,7 +5,7 @@ libnodegl
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` ([AnimKeyFrameBuffer](#animkeyframebuffer)) | key frame buffers to interpolate from | 
+`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameBuffer](#animkeyframebuffer)) | key frame buffers to interpolate from | 
 
 
 **Source**: [node_animatedbuffer.c](/libnodegl/node_animatedbuffer.c)
@@ -21,7 +21,7 @@ List of `AnimatedBuffer*` nodes:
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` ([AnimKeyFrameFloat](#animkeyframefloat)) | float key frames to interpolate from | 
+`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | float key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -31,7 +31,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` ([AnimKeyFrameVec2](#animkeyframevec2)) | vec2 key frames to interpolate from | 
+`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameVec2](#animkeyframevec2)) | vec2 key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -41,7 +41,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` ([AnimKeyFrameVec3](#animkeyframevec3)) | vec3 key frames to interpolate from | 
+`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameVec3](#animkeyframevec3)) | vec3 key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -51,7 +51,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`keyframes` |  | `NodeList` ([AnimKeyFrameVec4](#animkeyframevec4)) | vec4 key frames to interpolate from | 
+`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameVec4](#animkeyframevec4)) | vec4 key frames to interpolate from | 
 
 
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
@@ -61,10 +61,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` | the time key point in seconds | `0`
-`value` | ✓ | `double` | the value at time `time` | `0`
-`easing` |  | `string` | a string identifying the interpolation | 
-`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
+`time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
+`value` | ✓ | [`double`](#parameter-types) | the value at time `time` | `0`
+`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -74,10 +74,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` | the time key point in seconds | `0`
-`value` | ✓ | `vec2` | the value at time `time` | (`0`,`0`)
-`easing` |  | `string` | a string identifying the interpolation | 
-`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
+`time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
+`value` | ✓ | [`vec2`](#parameter-types) | the value at time `time` | (`0`,`0`)
+`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -87,10 +87,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` | the time key point in seconds | `0`
-`value` | ✓ | `vec3` | the value at time `time` | (`0`,`0`,`0`)
-`easing` |  | `string` | a string identifying the interpolation | 
-`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
+`time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
+`value` | ✓ | [`vec3`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`)
+`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -100,10 +100,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` | the time key point in seconds | `0`
-`value` | ✓ | `vec4` | the value at time `time` | (`0`,`0`,`0`,`0`)
-`easing` |  | `string` | a string identifying the interpolation | 
-`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
+`time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
+`value` | ✓ | [`vec4`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`,`0`)
+`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -113,10 +113,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`time` | ✓ | `double` | the time key point in seconds | `0`
-`data` |  | `data` | the data at time `time` | 
-`easing` |  | `string` | a string identifying the interpolation | 
-`easing_args` |  | `doubleList` | a list of arguments some easings may use | 
+`time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
+`data` |  | [`data`](#parameter-types) | the data at time `time` | 
+`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -126,9 +126,9 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`count` |  | `int` | number of elements | `0`
-`data` |  | `data` | buffer of `count` elements | 
-`stride` |  | `int` | stride of 1 element, in bytes | `0`
+`count` |  | [`int`](#parameter-types) | number of elements | `0`
+`data` |  | [`data`](#parameter-types) | buffer of `count` elements | 
+`stride` |  | [`int`](#parameter-types) | stride of 1 element, in bytes | `0`
 `target` |  | [`buffer_target`](#buffer_target-choices) | target to which the buffer will be bound | `array_buffer`
 `usage` |  | [`buffer_usage`](#buffer_usage-choices) | buffer usage hint | `static_draw`
 
@@ -170,18 +170,18 @@ List of `Buffer*` nodes:
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` | scene to observe through the lens of the camera | 
-`eye` |  | `vec3` | eye position | (`0`,`0`,`0`)
-`center` |  | `vec3` | center position | (`0`,`0`,`-1`)
-`up` |  | `vec3` | up vector | (`0`,`1`,`0`)
-`perspective` |  | `vec4` | the 4 following values: *fov*, *aspect*, *near clipping plane*, *far clipping plane* | (`0`,`0`,`0`,`0`)
-`eye_transform` |  | `Node` ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `eye` transformation chain | 
-`center_transform` |  | `Node` ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `center` transformation chain | 
-`up_transform` |  | `Node` ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `up` transformation chain | 
-`fov_anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
-`pipe_fd` |  | `int` | pipe file descriptor where the rendered raw RGBA buffer is written | `0`
-`pipe_width` |  | `int` | width (in pixels) of the raw image buffer when using `pipe_fd` | `0`
-`pipe_height` |  | `int` | height (in pixels) of the raw image buffer when using `pipe_fd` | `0`
+`child` | ✓ | [`Node`](#parameter-types) | scene to observe through the lens of the camera | 
+`eye` |  | [`vec3`](#parameter-types) | eye position | (`0`,`0`,`0`)
+`center` |  | [`vec3`](#parameter-types) | center position | (`0`,`0`,`-1`)
+`up` |  | [`vec3`](#parameter-types) | up vector | (`0`,`1`,`0`)
+`perspective` |  | [`vec4`](#parameter-types) | the 4 following values: *fov*, *aspect*, *near clipping plane*, *far clipping plane* | (`0`,`0`,`0`,`0`)
+`eye_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `eye` transformation chain | 
+`center_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `center` transformation chain | 
+`up_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `up` transformation chain | 
+`fov_anim` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
+`pipe_fd` |  | [`int`](#parameter-types) | pipe file descriptor where the rendered raw RGBA buffer is written | `0`
+`pipe_width` |  | [`int`](#parameter-types) | width (in pixels) of the raw image buffer when using `pipe_fd` | `0`
+`pipe_height` |  | [`int`](#parameter-types) | height (in pixels) of the raw image buffer when using `pipe_fd` | `0`
 
 
 **Source**: [node_camera.c](/libnodegl/node_camera.c)
@@ -191,8 +191,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`radius` |  | `double` | circle radius | `1`
-`npoints` |  | `int` | number of points | `16`
+`radius` |  | [`double`](#parameter-types) | circle radius | `1`
+`npoints` |  | [`int`](#parameter-types) | number of points | `16`
 
 
 **Source**: [node_circle.c](/libnodegl/node_circle.c)
@@ -202,13 +202,13 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`nb_group_x` | ✓ | `int` |  | `0`
-`nb_group_y` | ✓ | `int` |  | `0`
-`nb_group_z` | ✓ | `int` |  | `0`
-`program` | ✓ | `Node` ([ComputeProgram](#computeprogram)) |  | 
-`textures` |  | `NodeDict` ([Texture2D](#texture2d)) |  | 
-`uniforms` |  | `NodeDict` ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
-`buffers` |  | `NodeDict` ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
+`nb_group_x` | ✓ | [`int`](#parameter-types) |  | `0`
+`nb_group_y` | ✓ | [`int`](#parameter-types) |  | `0`
+`nb_group_z` | ✓ | [`int`](#parameter-types) |  | `0`
+`program` | ✓ | [`Node`](#parameter-types) ([ComputeProgram](#computeprogram)) |  | 
+`textures` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d)) |  | 
+`uniforms` |  | [`NodeDict`](#parameter-types) ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
+`buffers` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
 
 
 **Source**: [node_compute.c](/libnodegl/node_compute.c)
@@ -218,7 +218,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`compute` | ✓ | `string` |  | 
+`compute` | ✓ | [`string`](#parameter-types) |  | 
 
 
 **Source**: [node_computeprogram.c](/libnodegl/node_computeprogram.c)
@@ -228,10 +228,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` | scene to benchmark | 
-`measure_update` |  | `int` | window size of update measures | `60`
-`measure_draw` |  | `int` | window size of draw measures | `60`
-`create_databuf` |  | `bool` | create a data buffer to be used as source for a texture | `0`
+`child` | ✓ | [`Node`](#parameter-types) | scene to benchmark | 
+`measure_update` |  | [`int`](#parameter-types) | window size of update measures | `60`
+`measure_draw` |  | [`int`](#parameter-types) | window size of draw measures | `60`
+`create_databuf` |  | [`bool`](#parameter-types) | create a data buffer to be used as source for a texture | `0`
 
 
 **Source**: [node_fps.c](/libnodegl/node_fps.c)
@@ -241,10 +241,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`vertices` | ✓ | `Node` ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
-`uvcoords` |  | `Node` ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
-`normals` |  | `Node` ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
-`indices` |  | `Node` ([BufferUByte](#buffer), [BufferUInt](#buffer), [BufferUShort](#buffer)) |  | 
+`vertices` | ✓ | [`Node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
+`uvcoords` |  | [`Node`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
+`normals` |  | [`Node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
+`indices` |  | [`Node`](#parameter-types) ([BufferUByte](#buffer), [BufferUInt](#buffer), [BufferUShort](#buffer)) |  | 
 `draw_mode` |  | [`draw_mode`](#draw_mode-choices) |  | `triangles`
 
 
@@ -255,8 +255,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` |  | 
-`blend` |  | `bool` |  | `unset`
+`child` | ✓ | [`Node`](#parameter-types) |  | 
+`blend` |  | [`bool`](#parameter-types) |  | `unset`
 `blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
 `blend_src_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
 `blend_dst_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
@@ -264,14 +264,14 @@ Parameter | Ctor. | Type | Description | Default
 `blend_op` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
 `blend_op_a` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
 `color_write_mask` |  | [`component`](#component-choices) |  | `unset`
-`depth_test` |  | `bool` |  | `unset`
-`depth_write_mask` |  | `bool` |  | `unset`
+`depth_test` |  | [`bool`](#parameter-types) |  | `unset`
+`depth_write_mask` |  | [`bool`](#parameter-types) |  | `unset`
 `depth_func` |  | [`function`](#function-choices) | passes if `<function>(depth, stored_depth)` | `unset`
-`stencil_test` |  | `bool` |  | `unset`
-`stencil_write_mask` |  | `int` |  | `-1`
+`stencil_test` |  | [`bool`](#parameter-types) |  | `unset`
+`stencil_write_mask` |  | [`int`](#parameter-types) |  | `-1`
 `stencil_func` |  | [`function`](#function-choices) | passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)` | `unset`
-`stencil_ref` |  | `int` |  | `-1`
-`stencil_read_mask` |  | `int` |  | `-1`
+`stencil_ref` |  | [`int`](#parameter-types) |  | `-1`
+`stencil_read_mask` |  | [`int`](#parameter-types) |  | `-1`
 `stencil_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `unset`
 `stencil_depth_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `unset`
 `stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) |  | `unset`
@@ -284,7 +284,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`children` |  | `NodeList` | a set of scenes | 
+`children` |  | [`NodeList`](#parameter-types) | a set of scenes | 
 
 
 **Source**: [node_group.c](/libnodegl/node_group.c)
@@ -299,14 +299,14 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`filename` | ✓ | `string` | path to input media file | 
-`sxplayer_min_level` |  | `string` | sxplayer min logging level | 
-`time_anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) | time remapping animation (must use a `linear` interpolation) | 
-`audio_tex` |  | `bool` | load the audio and expose it as a stereo waves and frequencies buffer | `0`
-`max_nb_packets` |  | `int` | maximum number of packets in sxplayer demuxing queue | `1`
-`max_nb_frames` |  | `int` | maximum number of frames in sxplayer decoding queue | `1`
-`max_nb_sink` |  | `int` | maximum number of frames in sxplayer filtering queue | `1`
-`max_pixels` |  | `int` | maximum number of pixels per frame | `0`
+`filename` | ✓ | [`string`](#parameter-types) | path to input media file | 
+`sxplayer_min_level` |  | [`string`](#parameter-types) | sxplayer min logging level | 
+`time_anim` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | time remapping animation (must use a `linear` interpolation) | 
+`audio_tex` |  | [`bool`](#parameter-types) | load the audio and expose it as a stereo waves and frequencies buffer | `0`
+`max_nb_packets` |  | [`int`](#parameter-types) | maximum number of packets in sxplayer demuxing queue | `1`
+`max_nb_frames` |  | [`int`](#parameter-types) | maximum number of frames in sxplayer decoding queue | `1`
+`max_nb_sink` |  | [`int`](#parameter-types) | maximum number of frames in sxplayer filtering queue | `1`
+`max_pixels` |  | [`int`](#parameter-types) | maximum number of pixels per frame | `0`
 
 
 **Source**: [node_media.c](/libnodegl/node_media.c)
@@ -316,8 +316,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`vertex` |  | `string` | vertex shader | 
-`fragment` |  | `string` | fragment shader | 
+`vertex` |  | [`string`](#parameter-types) | vertex shader | 
+`fragment` |  | [`string`](#parameter-types) | fragment shader | 
 
 
 **Source**: [node_program.c](/libnodegl/node_program.c)
@@ -327,12 +327,12 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`corner` |  | `vec3` |  | (`-0.5`,`-0.5`,`0`)
-`width` |  | `vec3` |  | (`1`,`0`,`0`)
-`height` |  | `vec3` |  | (`0`,`1`,`0`)
-`uv_corner` |  | `vec2` |  | (`0`,`0`)
-`uv_width` |  | `vec2` |  | (`1`,`0`)
-`uv_height` |  | `vec2` |  | (`0`,`1`)
+`corner` |  | [`vec3`](#parameter-types) |  | (`-0.5`,`-0.5`,`0`)
+`width` |  | [`vec3`](#parameter-types) |  | (`1`,`0`,`0`)
+`height` |  | [`vec3`](#parameter-types) |  | (`0`,`1`,`0`)
+`uv_corner` |  | [`vec2`](#parameter-types) |  | (`0`,`0`)
+`uv_width` |  | [`vec2`](#parameter-types) |  | (`1`,`0`)
+`uv_height` |  | [`vec2`](#parameter-types) |  | (`0`,`1`)
 
 
 **Source**: [node_quad.c](/libnodegl/node_quad.c)
@@ -342,12 +342,12 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`geometry` | ✓ | `Node` ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) |  | 
-`program` |  | `Node` ([Program](#program)) |  | 
-`textures` |  | `NodeDict` ([Texture2D](#texture2d), [Texture3D](#texture3d)) |  | 
-`uniforms` |  | `NodeDict` ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
-`attributes` |  | `NodeDict` ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
-`buffers` |  | `NodeDict` ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
+`geometry` | ✓ | [`Node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) |  | 
+`program` |  | [`Node`](#parameter-types) ([Program](#program)) |  | 
+`textures` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d)) |  | 
+`uniforms` |  | [`NodeDict`](#parameter-types) ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
+`attributes` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
+`buffers` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
 
 
 **Source**: [node_render.c](/libnodegl/node_render.c)
@@ -357,9 +357,9 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` |  | 
-`color_texture` | ✓ | `Node` ([Texture2D](#texture2d)) |  | 
-`depth_texture` |  | `Node` ([Texture2D](#texture2d)) |  | 
+`child` | ✓ | [`Node`](#parameter-types) |  | 
+`color_texture` | ✓ | [`Node`](#parameter-types) ([Texture2D](#texture2d)) |  | 
+`depth_texture` |  | [`Node`](#parameter-types) ([Texture2D](#texture2d)) |  | 
 
 
 **Source**: [node_rtt.c](/libnodegl/node_rtt.c)
@@ -369,11 +369,11 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` | scene to rotate | 
-`angle` |  | `double` | rotation angle in degrees | `0`
-`axis` |  | `vec3` | rotation axis | (`0`,`0`,`1`)
-`anchor` |  | `vec3` | vector to the center point of the rotation | (`0`,`0`,`0`)
-`anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) | `angle` animation | 
+`child` | ✓ | [`Node`](#parameter-types) | scene to rotate | 
+`angle` |  | [`double`](#parameter-types) | rotation angle in degrees | `0`
+`axis` |  | [`vec3`](#parameter-types) | rotation axis | (`0`,`0`,`1`)
+`anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | `angle` animation | 
 
 
 **Source**: [node_rotate.c](/libnodegl/node_rotate.c)
@@ -383,10 +383,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` | scene to scale | 
-`factors` |  | `vec3` | scaling factors (how much to scale on each axis) | (`0`,`0`,`0`)
-`anchor` |  | `vec3` | vector to the center point of the scale | (`0`,`0`,`0`)
-`anim` |  | `Node` ([AnimatedVec3](#animatedvec3)) | `factors` animation | 
+`child` | ✓ | [`Node`](#parameter-types) | scene to scale | 
+`factors` |  | [`vec3`](#parameter-types) | scaling factors (how much to scale on each axis) | (`0`,`0`,`0`)
+`anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the scale | (`0`,`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) | `factors` animation | 
 
 
 **Source**: [node_scale.c](/libnodegl/node_scale.c)
@@ -399,16 +399,16 @@ Parameter | Ctor. | Type | Description | Default
 `format` |  | [`format`](#format-choices) |  | `rgba`
 `internal_format` |  | [`internal_format`](#internal_format-choices) |  | `rgba`
 `type` |  | [`type`](#type-choices) |  | `unsigned_byte`
-`width` |  | `int` |  | `0`
-`height` |  | `int` |  | `0`
+`width` |  | [`int`](#parameter-types) |  | `0`
+`height` |  | [`int`](#parameter-types) |  | `0`
 `min_filter` |  | [`min_filter`](#min_filter-choices) |  | `nearest`
 `mag_filter` |  | [`mag_filter`](#mag_filter-choices) |  | `nearest`
 `wrap_s` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
-`data_src` |  | `Node` ([Media](#media), [FPS](#fps), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
+`data_src` |  | [`Node`](#parameter-types) ([Media](#media), [FPS](#fps), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
 `access` |  | [`access`](#access-choices) |  | `read_write`
-`direct_rendering` |  | `bool` |  | `unset`
-`immutable` |  | `bool` |  | `0`
+`direct_rendering` |  | [`bool`](#parameter-types) |  | `unset`
+`immutable` |  | [`bool`](#parameter-types) |  | `0`
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
@@ -421,17 +421,17 @@ Parameter | Ctor. | Type | Description | Default
 `format` |  | [`format`](#format-choices) |  | `rgba`
 `internal_format` |  | [`internal_format`](#internal_format-choices) |  | `rgba`
 `type` |  | [`type`](#type-choices) |  | `unsigned_byte`
-`width` |  | `int` |  | `0`
-`height` |  | `int` |  | `0`
-`depth` |  | `int` |  | `0`
+`width` |  | [`int`](#parameter-types) |  | `0`
+`height` |  | [`int`](#parameter-types) |  | `0`
+`depth` |  | [`int`](#parameter-types) |  | `0`
 `min_filter` |  | [`min_filter`](#min_filter-choices) |  | `nearest`
 `mag_filter` |  | [`mag_filter`](#mag_filter-choices) |  | `nearest`
 `wrap_s` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `wrap_r` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
-`data_src` |  | `Node` ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
+`data_src` |  | [`Node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
 `access` |  | [`access`](#access-choices) |  | `read_write`
-`immutable` |  | `bool` |  | `0`
+`immutable` |  | [`bool`](#parameter-types) |  | `0`
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
@@ -441,10 +441,10 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` | time filtered scene | 
-`ranges` |  | `NodeList` ([TimeRangeModeOnce](#timerangemodeonce), [TimeRangeModeNoop](#timerangemodenoop), [TimeRangeModeCont](#timerangemodecont)) | key frame time filtering events | 
-`prefetch_time` |  | `double` | `child` is prefetched `prefetch_time` seconds in advance | `1`
-`max_idle_time` |  | `double` | `child` will not be released if it is required in the next incoming `max_idle_time` seconds | `4`
+`child` | ✓ | [`Node`](#parameter-types) | time filtered scene | 
+`ranges` |  | [`NodeList`](#parameter-types) ([TimeRangeModeOnce](#timerangemodeonce), [TimeRangeModeNoop](#timerangemodenoop), [TimeRangeModeCont](#timerangemodecont)) | key frame time filtering events | 
+`prefetch_time` |  | [`double`](#parameter-types) | `child` is prefetched `prefetch_time` seconds in advance | `1`
+`max_idle_time` |  | [`double`](#parameter-types) | `child` will not be released if it is required in the next incoming `max_idle_time` seconds | `4`
 
 
 **Source**: [node_timerangefilter.c](/libnodegl/node_timerangefilter.c)
@@ -454,7 +454,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`start_time` | ✓ | `double` | starting time for the scene to be drawn | `0`
+`start_time` | ✓ | [`double`](#parameter-types) | starting time for the scene to be drawn | `0`
 
 
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
@@ -464,7 +464,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`start_time` | ✓ | `double` | starting time for the scene to stop being drawn | `0`
+`start_time` | ✓ | [`double`](#parameter-types) | starting time for the scene to stop being drawn | `0`
 
 
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
@@ -474,8 +474,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`start_time` | ✓ | `double` | starting time for the scene to be drawn once | `0`
-`render_time` | ✓ | `double` | chosen time to draw | `0`
+`start_time` | ✓ | [`double`](#parameter-types) | starting time for the scene to be drawn once | `0`
+`render_time` | ✓ | [`double`](#parameter-types) | chosen time to draw | `0`
 
 
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
@@ -485,8 +485,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` | scene to apply the transform to | 
-`matrix` |  | `mat4` | transformation matrix | 
+`child` | ✓ | [`Node`](#parameter-types) | scene to apply the transform to | 
+`matrix` |  | [`mat4`](#parameter-types) | transformation matrix | 
 
 
 **Source**: [node_transform.c](/libnodegl/node_transform.c)
@@ -496,9 +496,9 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | `Node` | scene to translate | 
-`vector` |  | `vec3` | translation vector | (`0`,`0`,`0`)
-`anim` |  | `Node` ([AnimatedVec3](#animatedvec3)) | `vector` animation | 
+`child` | ✓ | [`Node`](#parameter-types) | scene to translate | 
+`vector` |  | [`vec3`](#parameter-types) | translation vector | (`0`,`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) | `vector` animation | 
 
 
 **Source**: [node_translate.c](/libnodegl/node_translate.c)
@@ -508,12 +508,12 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`edge0` | ✓ | `vec3` |  | (`0`,`0`,`0`)
-`edge1` | ✓ | `vec3` |  | (`0`,`0`,`0`)
-`edge2` | ✓ | `vec3` |  | (`0`,`0`,`0`)
-`uv_edge0` |  | `vec2` |  | (`0`,`0`)
-`uv_edge1` |  | `vec2` |  | (`0`,`1`)
-`uv_edge2` |  | `vec2` |  | (`1`,`1`)
+`edge0` | ✓ | [`vec3`](#parameter-types) |  | (`0`,`0`,`0`)
+`edge1` | ✓ | [`vec3`](#parameter-types) |  | (`0`,`0`,`0`)
+`edge2` | ✓ | [`vec3`](#parameter-types) |  | (`0`,`0`,`0`)
+`uv_edge0` |  | [`vec2`](#parameter-types) |  | (`0`,`0`)
+`uv_edge1` |  | [`vec2`](#parameter-types) |  | (`0`,`1`)
+`uv_edge2` |  | [`vec2`](#parameter-types) |  | (`1`,`1`)
 
 
 **Source**: [node_triangle.c](/libnodegl/node_triangle.c)
@@ -523,7 +523,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | `int` |  | `0`
+`value` |  | [`int`](#parameter-types) |  | `0`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -533,8 +533,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | `mat4` |  | 
-`transform` |  | `Node` ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) |  | 
+`value` |  | [`mat4`](#parameter-types) |  | 
+`transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -544,8 +544,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | `double` |  | `0`
-`anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) |  | 
+`value` |  | [`double`](#parameter-types) |  | `0`
+`anim` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -555,8 +555,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | `vec2` |  | (`0`,`0`)
-`anim` |  | `Node` ([AnimatedVec2](#animatedvec2)) |  | 
+`value` |  | [`vec2`](#parameter-types) |  | (`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedVec2](#animatedvec2)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -566,8 +566,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | `vec3` |  | (`0`,`0`,`0`)
-`anim` |  | `Node` ([AnimatedVec3](#animatedvec3)) |  | 
+`value` |  | [`vec3`](#parameter-types) |  | (`0`,`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -577,11 +577,33 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | `vec4` |  | (`0`,`0`,`0`,`0`)
-`anim` |  | `Node` ([AnimatedVec4](#animatedvec4)) |  | 
+`value` |  | [`vec4`](#parameter-types) |  | (`0`,`0`,`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedVec4](#animatedvec4)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
+Parameter types
+===============
+
+Type | Description
+---- | -----------
+`int` | Integer
+`bool` | Boolean (map to `int` in C)
+`i64` | 64-bit integer
+`double` | Double-precision float
+`string` | String
+`data` | Agnostic data buffer
+`vec2` | 2 single-precision floats
+`vec3` | 3 single-precision floats
+`vec4` | 4 single-precision floats
+`mat4` | 4x4 single-precision floats
+`Node` | node.gl Node
+`NodeList` | List of node.gl Node
+`doubleList` | List of double-precision floats
+`NodeDict` | Dictionary mapping arbitrary string identifiers to node.gl Nodes
+`select` | Selection of one constant (expressed as a string)
+`flags` | Combination of constants (expressed as strings), using `+` as separator. Can be empty for none.
 
 Constants for choices parameters
 ================================
