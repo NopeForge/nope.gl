@@ -176,7 +176,7 @@
     optional:
         - [measure_update, int]
         - [measure_draw, int]
-        - [create_databuf, int]
+        - [create_databuf, bool]
 
 - Geometry:
     constructors:
@@ -191,7 +191,7 @@
     constructors:
         - [child, Node]
     optional:
-        - [blend, int]
+        - [blend, bool]
         - [blend_dst_factor, select]
         - [blend_src_factor, select]
         - [blend_dst_factor_a, select]
@@ -199,10 +199,10 @@
         - [blend_op, select]
         - [blend_op_a, select]
         - [color_write_mask, flags]
-        - [depth_test, int]
-        - [depth_write_mask, int]
+        - [depth_test, bool]
+        - [depth_write_mask, bool]
         - [depth_func, select]
-        - [stencil_test, int]
+        - [stencil_test, bool]
         - [stencil_write_mask, int]
         - [stencil_func, select]
         - [stencil_ref, int]
@@ -223,7 +223,7 @@
     optional:
         - [sxplayer_min_level, string]
         - [time_anim, Node]
-        - [audio_tex, int]
+        - [audio_tex, bool]
         - [max_nb_packets, int]
         - [max_nb_frames, int]
         - [max_nb_sink, int]
@@ -290,8 +290,8 @@
         - [wrap_t, select]
         - [data_src, Node]
         - [access, select]
-        - [direct_rendering, int]
-        - [immutable, int]
+        - [direct_rendering, bool]
+        - [immutable, bool]
 
 - Texture3D:
     optional:
@@ -308,7 +308,7 @@
         - [wrap_r, select]
         - [data_src, Node]
         - [access, select]
-        - [immutable, int]
+        - [immutable, bool]
 
 - TimeRangeFilter:
     constructors:

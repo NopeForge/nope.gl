@@ -36,7 +36,7 @@ static const struct node_param fps_params[] = {
                        .desc=NGLI_DOCSTRING("window size of update measures")},
     {"measure_draw",   PARAM_TYPE_INT, OFFSET(m_draw.nb),   {.i64=60},
                        .desc=NGLI_DOCSTRING("window size of draw measures")},
-    {"create_databuf", PARAM_TYPE_INT, OFFSET(create_databuf),
+    {"create_databuf", PARAM_TYPE_BOOL, OFFSET(create_databuf),
                        .desc=NGLI_DOCSTRING("create a data buffer to be used as source for a texture")},
     {NULL}
 };

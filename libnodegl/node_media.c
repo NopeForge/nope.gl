@@ -42,7 +42,7 @@ static const struct node_param media_params[] = {
     {"time_anim", PARAM_TYPE_NODE, OFFSET(anim),
                   .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
                   .desc=NGLI_DOCSTRING("time remapping animation (must use a `linear` interpolation)")},
-    {"audio_tex", PARAM_TYPE_INT, OFFSET(audio_tex),
+    {"audio_tex", PARAM_TYPE_BOOL, OFFSET(audio_tex),
                   .desc=NGLI_DOCSTRING("load the audio and expose it as a stereo waves and frequencies buffer")},
     {"max_nb_packets", PARAM_TYPE_INT, OFFSET(max_nb_packets), {.i64=1},
                        .desc=NGLI_DOCSTRING("maximum number of packets in sxplayer demuxing queue")},

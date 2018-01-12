@@ -182,8 +182,8 @@ static const struct node_param texture2d_params[] = {
     {"wrap_t", PARAM_TYPE_SELECT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_2D},
     {"access", PARAM_TYPE_SELECT, OFFSET(access), {.i64=GL_READ_WRITE}, .choices=&access_choices},
-    {"direct_rendering", PARAM_TYPE_INT, OFFSET(direct_rendering), {.i64=-1}},
-    {"immutable", PARAM_TYPE_INT, OFFSET(immutable), {.i64=0}},
+    {"direct_rendering", PARAM_TYPE_BOOL, OFFSET(direct_rendering), {.i64=-1}},
+    {"immutable", PARAM_TYPE_BOOL, OFFSET(immutable), {.i64=0}},
     {NULL}
 };
 
@@ -201,7 +201,7 @@ static const struct node_param texture3d_params[] = {
     {"wrap_r", PARAM_TYPE_SELECT, OFFSET(wrap_r), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices},
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D},
     {"access", PARAM_TYPE_SELECT, OFFSET(access), {.i64=GL_READ_WRITE}, .choices=&access_choices},
-    {"immutable", PARAM_TYPE_INT, OFFSET(immutable), {.i64=0}},
+    {"immutable", PARAM_TYPE_BOOL, OFFSET(immutable), {.i64=0}},
     {NULL}
 };
 

@@ -231,7 +231,7 @@ Parameter | Ctor. | Type | Description | Default
 `child` | ✓ | `Node` | scene to benchmark | 
 `measure_update` |  | `int` | window size of update measures | `60`
 `measure_draw` |  | `int` | window size of draw measures | `60`
-`create_databuf` |  | `int` | create a data buffer to be used as source for a texture | `0`
+`create_databuf` |  | `bool` | create a data buffer to be used as source for a texture | `0`
 
 
 **Source**: [node_fps.c](/libnodegl/node_fps.c)
@@ -256,7 +256,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `child` | ✓ | `Node` |  | 
-`blend` |  | `int` |  | `-1`
+`blend` |  | `bool` |  | `unset`
 `blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
 `blend_src_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
 `blend_dst_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
@@ -264,10 +264,10 @@ Parameter | Ctor. | Type | Description | Default
 `blend_op` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
 `blend_op_a` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
 `color_write_mask` |  | [`component`](#component-choices) |  | `unset`
-`depth_test` |  | `int` |  | `-1`
-`depth_write_mask` |  | `int` |  | `-1`
+`depth_test` |  | `bool` |  | `unset`
+`depth_write_mask` |  | `bool` |  | `unset`
 `depth_func` |  | [`function`](#function-choices) | passes if `<function>(depth, stored_depth)` | `unset`
-`stencil_test` |  | `int` |  | `-1`
+`stencil_test` |  | `bool` |  | `unset`
 `stencil_write_mask` |  | `int` |  | `-1`
 `stencil_func` |  | [`function`](#function-choices) | passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)` | `unset`
 `stencil_ref` |  | `int` |  | `-1`
@@ -302,7 +302,7 @@ Parameter | Ctor. | Type | Description | Default
 `filename` | ✓ | `string` | path to input media file | 
 `sxplayer_min_level` |  | `string` | sxplayer min logging level | 
 `time_anim` |  | `Node` ([AnimatedFloat](#animatedfloat)) | time remapping animation (must use a `linear` interpolation) | 
-`audio_tex` |  | `int` | load the audio and expose it as a stereo waves and frequencies buffer | `0`
+`audio_tex` |  | `bool` | load the audio and expose it as a stereo waves and frequencies buffer | `0`
 `max_nb_packets` |  | `int` | maximum number of packets in sxplayer demuxing queue | `1`
 `max_nb_frames` |  | `int` | maximum number of frames in sxplayer decoding queue | `1`
 `max_nb_sink` |  | `int` | maximum number of frames in sxplayer filtering queue | `1`
@@ -407,8 +407,8 @@ Parameter | Ctor. | Type | Description | Default
 `wrap_t` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `data_src` |  | `Node` ([Media](#media), [FPS](#fps), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
 `access` |  | [`access`](#access-choices) |  | `read_write`
-`direct_rendering` |  | `int` |  | `-1`
-`immutable` |  | `int` |  | `0`
+`direct_rendering` |  | `bool` |  | `unset`
+`immutable` |  | `bool` |  | `0`
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
@@ -431,7 +431,7 @@ Parameter | Ctor. | Type | Description | Default
 `wrap_r` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
 `data_src` |  | `Node` ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
 `access` |  | [`access`](#access-choices) |  | `read_write`
-`immutable` |  | `int` |  | `0`
+`immutable` |  | `bool` |  | `0`
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
