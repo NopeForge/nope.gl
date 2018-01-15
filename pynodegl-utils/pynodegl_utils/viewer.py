@@ -755,6 +755,11 @@ class _Toolbar(QtWidgets.QWidget):
         self.samplesChanged.emit(samples)
         self._load_current_scene()
 
+    def emit_state(self):
+        self._set_aspect_ratio()
+        self._set_samples()
+        self._set_frame_rate()
+
     def __init__(self, config):
         super(_Toolbar, self).__init__()
 
@@ -777,7 +782,6 @@ class _Toolbar(QtWidgets.QWidget):
         for ar in ASPECT_RATIOS:
             self._ar_cbbox.addItem('%d:%d' % ar)
         self._ar_cbbox.setCurrentIndex(ASPECT_RATIOS.index(default_ar))
-        self._set_aspect_ratio()
         ar_lbl = QtWidgets.QLabel('Aspect ratio:')
         ar_hbox = QtWidgets.QHBoxLayout()
         ar_hbox.addWidget(ar_lbl)
@@ -798,7 +802,6 @@ class _Toolbar(QtWidgets.QWidget):
         for fr in FRAME_RATES:
             self._fr_cbbox.addItem('%.5g FPS' % (fr[0] / float(fr[1])))
         self._fr_cbbox.setCurrentIndex(FRAME_RATES.index(default_fr))
-        self._set_frame_rate()
         fr_lbl = QtWidgets.QLabel('Frame rate:')
         fr_hbox = QtWidgets.QHBoxLayout()
         fr_hbox.addWidget(fr_lbl)
@@ -1070,6 +1073,7 @@ class _MainWindow(QtWidgets.QSplitter):
         if prev_pkgname == module_pkgname:
             self._scene_toolbar.load_scene_from_name(prev_module, prev_scene)
 
+        self._scene_toolbar.emit_state()
 
 def run():
     import argparse
