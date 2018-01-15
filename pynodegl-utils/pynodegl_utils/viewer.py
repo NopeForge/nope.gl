@@ -71,8 +71,8 @@ class _SerialView(QtWidgets.QWidget):
             return
         self._text.setPlainText(scene.serialize())
 
-    @QtCore.pyqtSlot()
-    def scene_changed(self):
+    @QtCore.pyqtSlot(str, str)
+    def scene_changed(self, module_name, scene_name):
         if self._auto_chkbox.isChecked():
             self._update_graph()
 
@@ -307,8 +307,8 @@ class _GraphView(QtWidgets.QWidget):
         self._graph_lbl.setPixmap(pixmap)
         self._graph_lbl.adjustSize()
 
-    @QtCore.pyqtSlot()
-    def scene_changed(self):
+    @QtCore.pyqtSlot(str, str)
+    def scene_changed(self, module_name, scene_name):
         if self._auto_chkbox.isChecked():
             self._update_graph()
 
@@ -440,8 +440,8 @@ class _GLView(QtWidgets.QWidget):
         self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
         self._gl_widget = gl_widget
 
-    @QtCore.pyqtSlot()
-    def scene_changed(self):
+    @QtCore.pyqtSlot(str, str)
+    def scene_changed(self, module_name, scene_name):
         scene, cfg = self._get_scene_func()
         if scene:
             self._gl_widget.set_scene(scene, cfg)
@@ -508,7 +508,7 @@ class _Toolbar(QtWidgets.QWidget):
 
     LOG_LEVELS = ('verbose', 'debug', 'info', 'warning', 'error')
 
-    scene_changed = QtCore.pyqtSignal(name='sceneChanged')
+    scene_changed = QtCore.pyqtSignal(str, str, name='sceneChanged')
     aspect_ratio_changed = QtCore.pyqtSignal(tuple, name='aspectRatioChanged')
     samples_changed = QtCore.pyqtSignal(int, name='samplesChanged')
     frame_rate_changed = QtCore.pyqtSignal(tuple, name='frameRateChanged')
@@ -652,7 +652,7 @@ class _Toolbar(QtWidgets.QWidget):
             self._del_scene_opts_widget()
             scene_opts_widget = self._get_opts_widget_from_specs(scene_func.widgets_specs)
             self._set_scene_opts_widget(scene_opts_widget)
-        self.sceneChanged.emit()
+        self.sceneChanged.emit(module_name, scene_name)
 
     def clear_scripts(self):
         self._scn_mdl.clear()
@@ -886,8 +886,8 @@ class _MainWindow(QtWidgets.QSplitter):
             return None
         return subprocess.check_output([hook]).rstrip()
 
-    @QtCore.pyqtSlot()
-    def _scene_changed_hook(self):
+    @QtCore.pyqtSlot(str, str)
+    def _scene_changed_hook(self, module_name, scene_name):
 
         def filename_escape(filename):
             s = ''
