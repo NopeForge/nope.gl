@@ -664,7 +664,7 @@ class _Toolbar(QtWidgets.QWidget):
             for scene_name, scene_func in scene_funcs:
                 scene_data = (module_name, scene_name, scene_func)
                 qitem_func = QtGui.QStandardItem(scene_name)
-                qitem_script.appendRow([qitem_func])
+                qitem_script.appendRow(qitem_func)
                 qitem_func.setData(scene_data)
             self._scn_mdl.appendRow(qitem_script)
             index = self._scn_mdl.indexFromItem(qitem_script)
