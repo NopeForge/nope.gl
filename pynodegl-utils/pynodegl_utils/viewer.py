@@ -35,6 +35,7 @@ from misc import NGLMedia, NGLSceneCfg
 from export import Exporter
 from gl import get_gl_format
 from scriptsmgr import ScriptsManager
+from config import Config
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from OpenGL import GL
@@ -449,12 +450,12 @@ class _GLView(QtWidgets.QWidget):
             self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
             self._refresh()
 
-    def __init__(self, get_scene_func, default_ar, default_fr, default_samples):
+    def __init__(self, get_scene_func, config):
         super(_GLView, self).__init__()
 
-        self._default_ar = default_ar
-        self._framerate = default_fr
-        self._default_samples = default_samples
+        self._default_ar = config.get('aspect_ratio')
+        self._framerate = config.get('framerate')
+        self._default_samples = config.get('samples')
 
         self._get_scene_func = get_scene_func
 
@@ -465,7 +466,7 @@ class _GLView(QtWidgets.QWidget):
         self._timer = QtCore.QTimer()
         self._timer.setInterval(1000.0 / self.REFRESH_RATE) # in milliseconds
 
-        self._gl_widget = _GLWidget(self, default_ar, default_samples)
+        self._gl_widget = _GLWidget(self, self._default_ar, self._default_samples)
 
         self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
 
@@ -635,13 +636,30 @@ class _Toolbar(QtWidgets.QWidget):
             return None
         module_name, scene_name, scene_func = self._current_scene_data
         return {
+                'module': module_name,
                 'name': scene_name,
                 'func': scene_func,
                 'aspect_ratio': ASPECT_RATIOS[self._ar_cbbox.currentIndex()],
                 'framerate': FRAME_RATES[self._fr_cbbox.currentIndex()],
+                'samples': SAMPLES[self._samples_cbbox.currentIndex()],
                 'extra_args': self._scene_extra_args,
                 'has_fps': self._fps_chkbox.isChecked(),
         }
+
+    def load_scene_from_name(self, module_name, scene_name):
+
+        def get_func_info(module_item, func_name):
+            nb_funcs = module_item.rowCount()
+            for i in range(nb_funcs):
+                func_item = module_item.child(i)
+                if func_item.text() == scene_name:
+                    return func_item.data()
+            return None
+
+        module_items = self._scn_mdl.findItems(module_name)
+        if module_items:
+            self._current_scene_data = get_func_info(module_items[0], scene_name)
+            self._load_current_scene()
 
     def _load_current_scene(self, load_widgets=True):
         if not self._current_scene_data:
@@ -737,7 +755,7 @@ class _Toolbar(QtWidgets.QWidget):
         self.samplesChanged.emit(samples)
         self._load_current_scene()
 
-    def __init__(self, default_ar, default_fr, default_samples):
+    def __init__(self, config):
         super(_Toolbar, self).__init__()
 
         self._scene_opts_widget = None
@@ -754,6 +772,7 @@ class _Toolbar(QtWidgets.QWidget):
 
         self._fps_chkbox = QtWidgets.QCheckBox('Show FPS')
 
+        default_ar = config.get('aspect_ratio')
         self._ar_cbbox = QtWidgets.QComboBox()
         for ar in ASPECT_RATIOS:
             self._ar_cbbox.addItem('%d:%d' % ar)
@@ -764,6 +783,7 @@ class _Toolbar(QtWidgets.QWidget):
         ar_hbox.addWidget(ar_lbl)
         ar_hbox.addWidget(self._ar_cbbox)
 
+        default_samples = config.get('samples')
         self._samples_cbbox = QtWidgets.QComboBox()
         for samples in SAMPLES:
             self._samples_cbbox.addItem('%dx' % samples if samples else 'Disabled')
@@ -773,6 +793,7 @@ class _Toolbar(QtWidgets.QWidget):
         samples_hbox.addWidget(samples_lbl)
         samples_hbox.addWidget(self._samples_cbbox)
 
+        default_fr = config.get('framerate')
         self._fr_cbbox = QtWidgets.QComboBox()
         for fr in FRAME_RATES:
             self._fr_cbbox.addItem('%.5g FPS' % (fr[0] / float(fr[1])))
@@ -945,6 +966,20 @@ class _MainWindow(QtWidgets.QSplitter):
                                           'Error (%d) while executing %s' % (e.returncode, ' '.join(e.cmd)),
                                            QtWidgets.QMessageBox.Ok)
 
+    def _emit_geometry(self):
+        geometry = (self.x(), self.y(), self.width(), self.height())
+        self._config.geometry_changed(geometry)
+
+    @QtCore.pyqtSlot(QtGui.QResizeEvent)
+    def resizeEvent(self, resize_event):
+        super(_MainWindow, self).resizeEvent(resize_event)
+        self._emit_geometry()
+
+    @QtCore.pyqtSlot(QtGui.QMoveEvent)
+    def moveEvent(self, move_event):
+        super(_MainWindow, self).moveEvent(move_event)
+        self._emit_geometry()
+
     def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Node.gl viewer")
@@ -969,13 +1004,23 @@ class _MainWindow(QtWidgets.QSplitter):
 
         self._medias = medias
 
-        default_ar = ASPECT_RATIOS[0]
-        default_samples = SAMPLES[0]
-        default_fr = (60, 1)
+        config_defaults = {
+            'aspect_ratio': ASPECT_RATIOS[0],
+            'samples': SAMPLES[0],
+            'framerate': (60, 1),
+        }
 
         get_scene_func = self._get_scene
 
-        gl_view = _GLView(get_scene_func, default_ar, default_fr, default_samples)
+        self._config = Config(config_defaults, module_pkgname)
+
+        # Apply previous geometry (position + dimensions)
+        rect = self._config.get('geometry')
+        if rect:
+            geometry = QtCore.QRect(*rect)
+            self.setGeometry(geometry)
+
+        gl_view = _GLView(get_scene_func, self._config)
         graph_view = _GraphView(get_scene_func)
         export_view = _ExportView(self, get_scene_func)
         serial_view = _SerialView(get_scene_func)
@@ -986,14 +1031,18 @@ class _MainWindow(QtWidgets.QSplitter):
         tabs.addTab(export_view, "Export")
         tabs.addTab(serial_view, "Serialization")
 
-        self._scene_toolbar = _Toolbar(default_ar, default_fr, default_samples)
+        self._scene_toolbar = _Toolbar(self._config)
         self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(serial_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(self._scene_changed_hook)
+        self._scene_toolbar.sceneChanged.connect(self._config.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
+        self._scene_toolbar.aspectRatioChanged.connect(self._config.set_aspect_ratio)
         self._scene_toolbar.samplesChanged.connect(gl_view._set_samples)
+        self._scene_toolbar.samplesChanged.connect(self._config._set_samples)
         self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
+        self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
 
         self._errbuf = QtWidgets.QTextEdit()
         self._errbuf.hide()
@@ -1012,6 +1061,14 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scripts_mgr.error.connect(self._all_scripts_err)
         self._scripts_mgr.scriptsChanged.connect(self._scene_toolbar.on_scripts_changed)
         self._scripts_mgr.start()
+
+        # Load the previous scene if the current and previously loaded
+        # module packages match
+        prev_pkgname = self._config.get('pkg')
+        prev_module = self._config.get('module')
+        prev_scene = self._config.get('scene')
+        if prev_pkgname == module_pkgname:
+            self._scene_toolbar.load_scene_from_name(prev_module, prev_scene)
 
 
 def run():
