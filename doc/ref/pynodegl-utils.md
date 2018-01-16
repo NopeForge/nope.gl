@@ -169,6 +169,27 @@ $ android/hook.get_gl_backend
 gles
 ```
 
+### hook.get_system
+
+`hook.get_system` does not take any argument. It must print on `stdout` a
+string identifying the operating system.
+
+Accepted values are:
+
+- `Linux`
+- `Android`
+- `Darwin`
+- `iOS`
+
+This hook is not mandatory.
+
+**Example**:
+
+```shell
+$ android/hook.get_system
+Android
+```
+
 ### hook.media_sync
 
 `hook.media_sync` takes 2 arguments:

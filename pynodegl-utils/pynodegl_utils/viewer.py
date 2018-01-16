@@ -852,7 +852,7 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.clear_scripts()
         self._update_err_buf(err_str)
 
-    def _construct_current_scene(self, cfg_dict, glbackend):
+    def _construct_current_scene(self, cfg_dict, glbackend, system):
         ar = cfg_dict['aspect_ratio']
         fr = cfg_dict['framerate']
 
@@ -860,6 +860,8 @@ class _MainWindow(QtWidgets.QSplitter):
         scene_cfg.aspect_ratio = ar
         scene_cfg.framerate = fr
         scene_cfg.glbackend = glbackend
+        if system:
+            scene_cfg.system = system
 
         scene = cfg_dict['func'](scene_cfg, **cfg_dict['extra_args'])
         scene.set_name(cfg_dict['name'])
@@ -878,7 +880,7 @@ class _MainWindow(QtWidgets.QSplitter):
 
         return scene, scene_cfg
 
-    def _get_scene(self, glbackend=None):
+    def _get_scene(self, glbackend=None, system=None):
         cfg_dict = self._scene_toolbar.get_scene_cfg()
         scene = None
         cfg = None
@@ -887,7 +889,7 @@ class _MainWindow(QtWidgets.QSplitter):
             return None, None
         try:
             self._scripts_mgr.start_hooking()
-            scene, cfg = self._construct_current_scene(cfg_dict, glbackend)
+            scene, cfg = self._construct_current_scene(cfg_dict, glbackend, system)
         except:
             self._update_err_buf(traceback.format_exc())
         else:
@@ -934,7 +936,8 @@ class _MainWindow(QtWidgets.QSplitter):
             # be rendered on a remote device different from the one constructing
             # the scene graph
             glbackend = self._get_hook_output('get_gl_backend')
-            scene, cfg = self._get_scene(glbackend)
+            system = self._get_hook_output('get_system')
+            scene, cfg = self._get_scene(glbackend, system)
             if not scene:
                 return
 

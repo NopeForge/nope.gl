@@ -1,4 +1,5 @@
 import os.path as op
+import platform
 import math
 import inspect
 import json
@@ -117,3 +118,4 @@ class NGLSceneCfg:
         self.aspect_ratio = (16, 9)
         self.framerate = self.FRAME_RATE
         self.glbackend = 'gl'
+        self.system = platform.system()
