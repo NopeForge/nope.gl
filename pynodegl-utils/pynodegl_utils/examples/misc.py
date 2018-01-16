@@ -14,6 +14,7 @@ from pynodegl import (
         BufferFloat,
         BufferUBVec3,
         BufferUBVec4,
+        BufferUIVec4,
         BufferVec2,
         BufferVec3,
         Camera,
@@ -468,3 +469,50 @@ def cube(cfg, display_depth_buffer=False):
         group.add_children(rtt, render)
 
         return group
+
+
+@scene()
+def histogram(cfg):
+    cfg.duration = cfg.medias[0].duration
+    g = Group()
+
+    m = Media(cfg.medias[0].filename)
+    t = Texture2D(data_src=m)
+    h = BufferUIVec4(256 + 1)
+
+    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    r = Render(q)
+    r.update_textures(tex0=t)
+    proxy_size = 128
+    proxy = Texture2D(width=proxy_size, height=proxy_size, immutable=1)
+    rtt = RenderToTexture(r, proxy)
+    g.add_children(rtt)
+
+    shader_version = '310 es' if cfg.glbackend == 'gles' else '430'
+    shader_header = '#version %s\n' % shader_version
+    if cfg.glbackend == 'gles' and cfg.system == 'Android':
+        shader_header += '#extension GL_ANDROID_extension_pack_es31a: require\n'
+
+    compute_program = ComputeProgram(shader_header + get_comp('histogram-clear'))
+    compute = Compute(256, 1, 1, compute_program, name='histogram-clear')
+    compute.update_buffers(histogram_buffer=h)
+    g.add_children(compute)
+
+    local_size = 8
+    group_size = proxy_size / local_size
+    compute_shader = get_comp('histogram-exec') % {'local_size': local_size}
+    compute_program = ComputeProgram(shader_header + compute_shader)
+    compute = Compute(group_size, group_size, 1, compute_program, name='histogram-exec')
+    compute.update_buffers(histogram=h)
+    compute.update_textures(source=proxy)
+    g.add_children(compute)
+
+    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    p = Program(vertex=shader_header + get_vert('histogram-display'),
+                fragment=shader_header + get_frag('histogram-display'))
+    render = Render(q, p)
+    render.update_textures(tex0=t)
+    render.update_buffers(histogram_buffer=h)
+    g.add_children(render)
+
+    return g
