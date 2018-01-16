@@ -77,7 +77,7 @@ static int parse_bool(const char *s, int *valp)
         return ret;
     if (*valp != -1)
         *valp = !!*valp;
-    return 0;
+    return ret;
 }
 
 #define DECLARE_FLT_PARSE_FUNC(type, nbit, shift_exp)                       \
