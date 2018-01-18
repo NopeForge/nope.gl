@@ -18,7 +18,7 @@ out vec4 frag_color;
 void main()
 {
     vec4 img  = texture(tex0_sampler, var_tex0_coord);
-    uint x = uint(var_uvcoord.x * 255.0);
+    uint x = clamp(uint(var_uvcoord.x * 255.0 + 0.5), 0U, 255U);
     vec3 rgb = vec3(histr[x], histg[x], histb[x]) / float(maximum);
     float y = var_uvcoord.y;
     vec3 ymax = vec3(1.0/3.0, 2.0/3.0, 1.0);
