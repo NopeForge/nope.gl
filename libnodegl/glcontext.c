@@ -194,7 +194,6 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         if (glcontext->major_version >= 4)
             glcontext->has_vao_compatibility = 1;
 
-        glcontext->has_polygonmode_compatibility = 1;
         glcontext->has_texture3d_compatibility = 1;
 
         ngli_glGetIntegerv(gl, GL_NUM_EXTENSIONS, &nb_extensions);
@@ -202,9 +201,7 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
             const char *extension = (const char *)ngli_glGetStringi(gl, GL_EXTENSIONS, i);
             if (!extension)
                 break;
-            if (!strcmp(extension, "GL_ARB_ES2_compatibility")) {
-                glcontext->has_es2_compatibility = 1;
-            } else if (!strcmp(extension, "GL_ARB_vertex_array_object")) {
+            if (!strcmp(extension, "GL_ARB_vertex_array_object")) {
                 glcontext->has_vao_compatibility = 1;
             } else if (!strcmp(extension, "GL_ARB_compute_shader")) {
                 glcontext->has_cs_compatibility = 1;
@@ -244,7 +241,6 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         }
 
         const char *gl_extensions = (const char *)ngli_glGetString(gl, GL_EXTENSIONS);
-        glcontext->has_es2_compatibility = 1;
         glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
 
         if (glcontext->major_version >= 3) {
