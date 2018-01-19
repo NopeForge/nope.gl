@@ -6,6 +6,7 @@ from PyQt5 import QtGui, QtCore
 from OpenGL import GL
 
 from gl import get_gl_format
+from com import query_inplace
 
 class _PipeThread(QtCore.QThread):
 
@@ -54,15 +55,20 @@ class Exporter(QtCore.QObject):
 
     progressed = QtCore.pyqtSignal(int)
 
-    def export(self, scene, filename, w, h, duration, fps, samples=1, extra_enc_args=None):
+    def __init__(self, get_scene_func):
+        super(Exporter, self).__init__()
+        self._get_scene_func = get_scene_func
 
+    def export(self, filename, w, h, extra_enc_args=None):
         fd_r, fd_w = os.pipe()
 
-        from pynodegl import Camera
-        camera = scene if isinstance(scene, Camera) else Camera(scene)
-        camera.set_pipe_fd(fd_w)
-        camera.set_pipe_width(w)
-        camera.set_pipe_height(h)
+        cfg = self._get_scene_func(pipe=(fd_w, w, h))
+        if not cfg:
+            return None
+
+        fps = cfg['framerate']
+        duration = cfg['duration']
+        samples = cfg['samples']
 
         reader = _ReaderThread(fd_r, fd_w, w, h, fps, filename, extra_enc_args)
         reader.start()
@@ -89,7 +95,7 @@ class Exporter(QtCore.QObject):
 
         # node.gl context
         ngl_viewer = ngl.Viewer()
-        ngl_viewer.set_scene(camera)
+        ngl_viewer.set_scene_from_string(cfg['scene'])
         ngl_viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
         GL.glViewport(0, 0, w, h)
 
@@ -113,16 +119,27 @@ class Exporter(QtCore.QObject):
 
         reader.wait()
 
+        return cfg
+
 
 def test_export():
     import sys
 
-    def _get_scene(duration):
+    def _get_scene(**cfg_overrides):
         from examples import misc
-        from misc import NGLSceneCfg
-        cfg = NGLSceneCfg(medias=[])
-        cfg.duration = duration
-        return misc.triangle(cfg)
+
+        cfg = {
+            'pkg': 'pynodegl_utils.examples',
+            'scene': ('misc', 'triangle'),
+            'duration': 5,
+        }
+        cfg.update(cfg_overrides)
+
+        ret = query_inplace(query='scene', **cfg)
+        if 'error' in ret:
+            print ret['error']
+            return None
+        return ret
 
     def print_progress(progress):
         sys.stdout.write('\r%d%%' % progress)
@@ -136,13 +153,11 @@ def test_export():
     QtGui.QSurfaceFormat.setDefaultFormat(get_gl_format())
 
     filename = sys.argv[1]
-    duration = 5
-    scene = _get_scene(duration)
     app = QtGui.QGuiApplication(sys.argv)
 
-    exporter = Exporter()
+    exporter = Exporter(_get_scene)
     exporter.progressed.connect(print_progress)
-    exporter.export(scene, filename, 320, 240, duration, (60, 1))
+    exporter.export(filename, 320, 240)
 
 if __name__ == '__main__':
     test_export()

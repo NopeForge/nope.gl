@@ -8,8 +8,34 @@ import subprocess
 
 def scene(**widgets_specs):
     def real_decorator(scene_func):
-        def func_wrapper(*func_args, **func_kwargs):
-            return scene_func(*func_args, **func_kwargs)
+        def func_wrapper(idict=None, **extra_args):
+
+            if idict is None:
+                idict = {}
+
+            fields = (
+                'aspect_ratio',
+                'duration',
+                'framerate',
+                'glbackend',
+                'samples',
+                'system',
+            )
+
+            scene_cfg = NGLSceneCfg(idict.get('medias'))
+            for field in fields:
+                if field in idict:
+                    setattr(scene_cfg, field, idict[field])
+
+            scene = scene_func(scene_cfg, **extra_args)
+
+            odict = {}
+            for field in fields:
+                odict[field] = getattr(scene_cfg, field)
+            odict['medias'] = scene_cfg.medias
+            odict['scene'] = scene
+
+            return odict
 
         final_specs = []
 

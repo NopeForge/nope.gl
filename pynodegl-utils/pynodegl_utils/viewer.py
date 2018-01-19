@@ -25,17 +25,17 @@ import os
 import os.path as op
 import sys
 import time
-import inspect
 import subprocess
 import traceback
 
 import pynodegl as ngl
 
-from misc import NGLMedia, NGLSceneCfg
+from misc import NGLMedia
 from export import Exporter
 from gl import get_gl_format
 from scriptsmgr import ScriptsManager
 from config import Config
+from com import query_subproc
 
 from PyQt5 import QtGui, QtCore, QtWidgets
 from OpenGL import GL
@@ -64,13 +64,13 @@ class _SerialView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def _update_graph(self):
-        scene, _ = self._get_scene_func()
-        if not scene:
+        cfg = self._get_scene_func()
+        if not cfg:
             QtWidgets.QMessageBox.critical(self, 'No scene',
                                            "You didn't select any scene to graph.",
                                            QtWidgets.QMessageBox.Ok)
             return
-        self._text.setPlainText(scene.serialize())
+        self._text.setPlainText(cfg['scene'])
 
     @QtCore.pyqtSlot(str, str)
     def scene_changed(self, module_name, scene_name):
@@ -118,9 +118,9 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self._time = t
         self.update()
 
-    def set_scene(self, scene, cfg):
+    def set_scene(self, scene):
         self.makeCurrent()
-        self._viewer.set_scene(scene)
+        self._viewer.set_scene_from_string(scene)
         self.doneCurrent()
         self.update()
 
@@ -183,32 +183,24 @@ class _ExportView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def _export(self):
-        scene, cfg = self._get_scene_func()
-        if scene is not None:
-            ofile  = self._ofile_text.text()
-            width  = self._spinbox_width.value()
-            height = self._spinbox_height.value()
+        ofile  = self._ofile_text.text()
+        width  = self._spinbox_width.value()
+        height = self._spinbox_height.value()
 
-            extra_enc_args = []
-            encoder_id = self._encoders_cbox.currentIndex()
-            if encoder_id:
-                extra_enc_args += ['-c:v', self._encoders_cbox.itemText(encoder_id)]
-            extra_enc_args += self._encopts_text.text().split()
+        extra_enc_args = []
+        encoder_id = self._encoders_cbox.currentIndex()
+        if encoder_id:
+            extra_enc_args += ['-c:v', self._encoders_cbox.itemText(encoder_id)]
+        extra_enc_args += self._encopts_text.text().split()
 
-            self._pgbar.setValue(0)
-            self._pgbar.show()
-
-            exporter = Exporter()
-            exporter.progressed.connect(self._pgbar.setValue)
-            exporter.export(scene, ofile, width, height,
-                            cfg.duration, cfg.framerate,
-                            cfg.samples, extra_enc_args)
-
-            self._pgbar.hide()
-        else:
-            QtWidgets.QMessageBox.critical(self, 'No scene',
+        self._pgbar.setValue(0)
+        self._pgbar.show()
+        cfg = self._exporter.export(ofile, width, height, extra_enc_args)
+        if not cfg:
+            QtWidgets.QMessageBox.critical(self, 'Error',
                                            "You didn't select any scene to export.",
                                            QtWidgets.QMessageBox.Ok)
+        self._pgbar.hide()
 
     @QtCore.pyqtSlot()
     def _select_ofile(self):
@@ -220,7 +212,6 @@ class _ExportView(QtWidgets.QWidget):
     def __init__(self, parent, get_scene_func):
         super(_ExportView, self).__init__()
 
-        self._get_scene_func = get_scene_func
         self.parent = parent
 
         self._ofile_text = QtWidgets.QLineEdit('/tmp/ngl-export.mp4')
@@ -257,6 +248,9 @@ class _ExportView(QtWidgets.QWidget):
         form.addRow(self._export_btn)
         form.addRow(self._pgbar)
 
+        self._exporter = Exporter(get_scene_func)
+        self._exporter.progressed.connect(self._pgbar.setValue)
+
         ofile_btn.clicked.connect(self._select_ofile)
         self._export_btn.clicked.connect(self._export)
 
@@ -276,15 +270,15 @@ class _GraphView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def _update_graph(self):
-        scene, _ = self._get_scene_func()
-        if not scene:
+        cfg = self._get_scene_func(fmt='dot')
+        if not cfg:
             QtWidgets.QMessageBox.critical(self, 'No scene',
                                            "You didn't select any scene to graph.",
                                            QtWidgets.QMessageBox.Ok)
             return
 
         dotfile = '/tmp/ngl_scene.dot'
-        open(dotfile, 'w').write(scene.dot())
+        open(dotfile, 'w').write(cfg['scene'])
         try:
             data = subprocess.check_output(['dot', '-Tpng', dotfile])
         except OSError, e:
@@ -437,10 +431,10 @@ class _GLView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(str, str)
     def scene_changed(self, module_name, scene_name):
-        scene, cfg = self._get_scene_func()
-        if scene:
-            self._gl_widget.set_scene(scene, cfg)
-            self._scene_duration = cfg.duration
+        cfg = self._get_scene_func()
+        if cfg:
+            self._gl_widget.set_scene(cfg['scene'])
+            self._scene_duration = cfg['duration']
             self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
             self._refresh()
 
@@ -626,13 +620,8 @@ class _Toolbar(QtWidgets.QWidget):
         return groupbox
 
     def get_scene_cfg(self):
-        if not self._current_scene_data:
-            return None
-        module_name, scene_name, scene_func = self._current_scene_data
         return {
-                'module': module_name,
-                'name': scene_name,
-                'func': scene_func,
+                'scene': self._current_scene_data,
                 'aspect_ratio': ASPECT_RATIOS[self._ar_cbbox.currentIndex()],
                 'framerate': FRAME_RATES[self._fr_cbbox.currentIndex()],
                 'samples': SAMPLES[self._samples_cbbox.currentIndex()],
@@ -658,11 +647,11 @@ class _Toolbar(QtWidgets.QWidget):
     def _load_current_scene(self, load_widgets=True):
         if not self._current_scene_data:
             return
-        module_name, scene_name, scene_func = self._current_scene_data
+        module_name, scene_name, widgets_specs = self._current_scene_data
         if load_widgets:
             self._scene_extra_args = {}
             self._del_scene_opts_widget()
-            scene_opts_widget = self._get_opts_widget_from_specs(scene_func.widgets_specs)
+            scene_opts_widget = self._get_opts_widget_from_specs(widgets_specs)
             self._set_scene_opts_widget(scene_opts_widget)
         self.sceneChanged.emit(module_name, scene_name)
 
@@ -671,10 +660,10 @@ class _Toolbar(QtWidgets.QWidget):
 
     def _reload_scene_view(self, scenes):
         self._scn_mdl.clear()
-        for module_name, scene_funcs in scenes:
+        for module_name, sub_scenes in scenes:
             qitem_script = QtGui.QStandardItem(module_name)
-            for scene_name, scene_func in scene_funcs:
-                scene_data = (module_name, scene_name, scene_func)
+            for scene_name, widgets_specs in sub_scenes:
+                scene_data = (module_name, scene_name, widgets_specs)
                 qitem_func = QtGui.QStandardItem(scene_name)
                 qitem_script.appendRow(qitem_func)
                 qitem_func.setData(scene_data)
@@ -690,28 +679,8 @@ class _Toolbar(QtWidgets.QWidget):
             self._load_current_scene()
 
     @QtCore.pyqtSlot(list)
-    def on_scripts_changed(self, scripts):
+    def on_scripts_changed(self, scenes):
         found_current_scene = False
-        scenes = []
-
-        for module_name, script in scripts:
-            all_funcs = inspect.getmembers(script, inspect.isfunction)
-            scene_funcs = filter(lambda f: hasattr(f[1], 'iam_a_ngl_scene_func'), all_funcs)
-            if not scene_funcs:
-                continue
-            scenes.append((module_name, scene_funcs))
-
-            # found back the current scene in the module if needed
-            if not found_current_scene and self._current_scene_data:
-                cur_module_name, cur_scene_name, cur_scene_func = self._current_scene_data
-                if module_name == cur_module_name:
-                    matches = filter(lambda f: f[0] == cur_scene_name, scene_funcs)
-                    if matches:
-                        assert len(matches) == 1
-                        scene_name, scene_func = matches[0]
-                        self._current_scene_data = (cur_module_name, scene_name, scene_func)
-                        found_current_scene = True
-
         self._reload_scene_view(scenes)
         self._load_current_scene()
 
@@ -836,53 +805,23 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.clear_scripts()
         self._update_err_buf(err_str)
 
-    def _construct_current_scene(self, cfg_dict, glbackend, system):
-        ar = cfg_dict['aspect_ratio']
-        fr = cfg_dict['framerate']
-        samples = cfg_dict['samples']
+    def _get_scene(self, **cfg_overrides):
+        cfg = self._scene_toolbar.get_scene_cfg()
+        cfg['scene'] = (cfg['scene'][0], cfg['scene'][1]) # XXX
+        cfg['glbackend'] = self._glbackend
+        cfg['pkg'] = self._module_pkgname
+        cfg['medias'] = self._medias
+        cfg.update(cfg_overrides)
 
-        scene_cfg = NGLSceneCfg(medias=self._medias)
-        scene_cfg.aspect_ratio = ar
-        scene_cfg.framerate = fr
-        scene_cfg.samples = samples
-        scene_cfg.glbackend = glbackend
-        if system:
-            scene_cfg.system = system
-
-        scene = cfg_dict['func'](scene_cfg, **cfg_dict['extra_args'])
-        scene.set_name(cfg_dict['name'])
-
-        if cfg_dict['has_fps']:
-            from pynodegl import FPS, Quad, Program, Texture2D, Render, Group
-            fps = FPS(scene, create_databuf=1)
-            q = Quad((0, 15/16., 0), (1., 0, 0), (0, 1/16., 0))
-            p = Program()
-            t = Texture2D(data_src=fps)
-            render = Render(q, p)
-            render.update_textures(tex0=t)
-            g = Group()
-            g.add_children(fps, render)
-            scene = g
-
-        return scene, scene_cfg
-
-    def _get_scene(self, glbackend=None, system=None):
-        cfg_dict = self._scene_toolbar.get_scene_cfg()
-        scene = None
-        cfg = None
-        glbackend = self._glbackend if glbackend is None else glbackend
-        if not cfg_dict:
-            return None, None
-        try:
-            self._scripts_mgr.start_hooking()
-            scene, cfg = self._construct_current_scene(cfg_dict, glbackend, system)
-        except:
-            self._update_err_buf(traceback.format_exc())
+        ret = query_subproc(query='scene', **cfg)
+        if 'error' in ret:
+            self._update_err_buf(ret['error'])
+            return None
         else:
             self._update_err_buf(None)
-        finally:
-            self._scripts_mgr.end_hooking()
-            return scene, cfg
+            self._scripts_mgr.set_filelist(ret['filelist'])
+
+        return ret
 
     def _get_hook(self, name):
         if not self._hooksdir:
@@ -923,19 +862,19 @@ class _MainWindow(QtWidgets.QSplitter):
             # the scene graph
             glbackend = self._get_hook_output('get_gl_backend')
             system = self._get_hook_output('get_system')
-            scene, cfg = self._get_scene(glbackend, system)
-            if not scene:
+            cfg = self._get_scene(glbackend=glbackend, system=system)
+            if not cfg:
                 return
 
             # The serialized scene is associated with a bunch of assets which we
             # need to sync. Similarly, the remote assets directory might be
             # different from the one in local, so we need to fix up the scene
             # appropriately.
-            serialized_scene = scene.serialize()
+            serialized_scene = cfg['scene']
             hook_sync = self._get_hook('media_sync')
             remotedir = self._get_hook_output('get_assets_dir')
             if hook_sync and remotedir:
-                for media in cfg.medias:
+                for media in cfg['medias']:
                     localfile = media.filename
                     remotefile = op.join(remotedir, op.basename(localfile))
                     serialized_scene = serialized_scene.replace(
@@ -948,9 +887,9 @@ class _MainWindow(QtWidgets.QSplitter):
             local_scene = '/tmp/ngl_scene.ngl'
             open(local_scene, 'w').write(serialized_scene)
             args = [hook_scene_change, local_scene,
-                    'duration=%f' % cfg.duration,
-                    'framerate=%d/%d' % cfg.framerate,
-                    'aspect_ratio=%d/%d' % cfg.aspect_ratio]
+                    'duration=%f' % cfg['duration'],
+                    'framerate=%d/%d' % cfg['framerate'],
+                    'aspect_ratio=%d/%d' % cfg['aspect_ratio']]
             subprocess.check_call(args)
 
         except subprocess.CalledProcessError, e:
@@ -976,6 +915,7 @@ class _MainWindow(QtWidgets.QSplitter):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self.setWindowTitle("Node.gl viewer")
 
+        self._module_pkgname = module_pkgname
         self._glbackend = glbackend
         self._scripts_mgr = ScriptsManager(module_pkgname)
         self._hooksdir = hooksdir

@@ -2,47 +2,38 @@
 
 import os
 import os.path as op
-import math
-import importlib
-import inspect
-import pkgutil
-import random
-import subprocess
 
-def serialize(dirname):
-    from pynodegl_utils import examples
-    from pynodegl_utils.misc import NGLMedia, NGLSceneCfg
+from pynodegl_utils.com import query_subproc, query_inplace
 
-    scripts = []
-    for module in pkgutil.iter_modules(examples.__path__):
-        module_finder, module_name, ispkg = module
-        script = importlib.import_module('.' + module_name, 'pynodegl_utils.examples')
-        scripts.append((module_name, script))
 
-    scenes = []
-    for module_name, script in scripts:
-        all_funcs = inspect.getmembers(script, inspect.isfunction)
-        scene_funcs = filter(lambda f: hasattr(f[1], 'iam_a_ngl_scene_func'), all_funcs)
-        if not scene_funcs:
-            continue
-        scenes.append((module_name, scene_funcs))
-
-    scene_cfg = NGLSceneCfg()
-    scene_cfg.aspect_ratio = (16, 9)
+def serialize(dirname, subproc=False):
+    module_pkg = 'pynodegl_utils.examples'
+    if subproc:
+        ret = query_subproc(query='list', pkg=module_pkg)
+    else:
+        ret = query_inplace(query='list', pkg=module_pkg)
+    assert 'error' not in ret
+    scenes = ret['scenes']
 
     try:
         os.makedirs(dirname)
     except OSError:
         pass
-    for module_name, scene_funcs in scenes:
-        scene_cfg.duration = 30.0
-        for scene_name, scene_func in scene_funcs:
-            random.seed(0x67891234)
-            scene = scene_func(scene_cfg)
-            data = scene.serialize()
+
+    for module_name, sub_scenes in scenes:
+        for scene_name, widgets_specs in sub_scenes:
+            cfg = {
+                'pkg': module_pkg,
+                'scene': (module_name, scene_name),
+            }
+            if subproc:
+                ret = query_subproc(query='scene', **cfg)
+            else:
+                ret = query_inplace(query='scene', **cfg)
+            assert 'error' not in ret
             fname = op.join(dirname, '%s_%s.ngl' % (module_name, scene_name))
             print(fname)
-            open(fname, 'w').write(data)
+            open(fname, 'w').write(ret['scene'])
 
 if __name__ == '__main__':
     import sys

@@ -29,7 +29,6 @@
 #include "common.h"
 #include "player.h"
 
-static PyObject *g_pyscene;
 
 static int check_error(void)
 {
@@ -53,8 +52,9 @@ static int check_error(void)
 
 static struct ngl_node *get_scene(const char *modname, const char *func_name, double *duration)
 {
+    PyObject *pyscene = NULL;
     PyObject *mod = NULL, *utils = NULL;
-    PyObject *scene_cfg_class = NULL, *scene_cfg = NULL;
+    PyObject *ret_pydict = NULL;
     PyObject *scene_func = NULL, *cptr = NULL, *pyduration = NULL;
     struct ngl_node *scene = NULL;
 
@@ -62,30 +62,29 @@ static struct ngl_node *get_scene(const char *modname, const char *func_name, do
 
     if (!(mod             = PyImport_ImportModule(modname))                     ||
         !(utils           = PyImport_ImportModule("pynodegl_utils.misc"))       ||
-        !(scene_cfg_class = PyObject_GetAttrString(utils, "NGLSceneCfg"))       ||
-        !(scene_cfg       = PyObject_CallObject(scene_cfg_class, NULL))         ||
         !(scene_func      = PyObject_GetAttrString(mod, func_name))             ||
-        !(g_pyscene       = PyObject_CallFunction(scene_func, "O", scene_cfg))  ||
-        !(cptr            = PyObject_GetAttrString(g_pyscene, "cptr"))          ||
-        !(pyduration      = PyObject_GetAttrString(scene_cfg, "duration")))
+        !(ret_pydict      = PyObject_CallFunctionObjArgs(scene_func, NULL))     ||
+        !(pyscene         = PyDict_GetItemString(ret_pydict, "scene"))          ||
+        !(cptr            = PyObject_GetAttrString(pyscene, "cptr"))            ||
+        !(pyduration      = PyDict_GetItemString(ret_pydict, "duration"))) {
         goto end;
+    }
 
     *duration = PyFloat_AsDouble(pyduration);
     if (PyErr_Occurred())
         goto end;
 
     scene = PyLong_AsVoidPtr(cptr);
+    ngl_node_ref(scene);
 
 end:
     check_error();
 
     Py_XDECREF(mod);
     Py_XDECREF(utils);
-    Py_XDECREF(scene_cfg_class);
-    Py_XDECREF(scene_cfg);
     Py_XDECREF(scene_func);
+    Py_XDECREF(ret_pydict);
     Py_XDECREF(cptr);
-    Py_XDECREF(pyduration);
 
     Py_Finalize();
     return scene;
