@@ -32,6 +32,10 @@
     optional:
         - [keyframes, NodeList]
 
+- AnimatedQuat:
+    optional:
+        - [keyframes, NodeList]
+
 - AnimKeyFrameFloat:
     constructors:
         - [time, double]
@@ -60,6 +64,15 @@
     constructors:
         - [time, double]
         - [value, vec4]
+    optional:
+        - [easing, string]
+        - [easing_args, doubleList]
+
+- AnimKeyFrameQuat:
+    constructors:
+        - [time, double]
+        - [quat, vec4]
+        - [slerp, double]
     optional:
         - [easing, string]
         - [easing_args, doubleList]
@@ -379,6 +392,11 @@
         - [anim, Node]
 
 - UniformVec4:
+    optional:
+        - [value, vec4]
+        - [anim, Node]
+
+- UniformQuat:
     optional:
         - [value, vec4]
         - [anim, Node]

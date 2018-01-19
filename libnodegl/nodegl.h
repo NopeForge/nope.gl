@@ -97,11 +97,13 @@ struct ngl_node;
 #define NGL_NODE_ANIMATEDVEC2           NGLI_FOURCC('A','n','m','2')
 #define NGL_NODE_ANIMATEDVEC3           NGLI_FOURCC('A','n','m','3')
 #define NGL_NODE_ANIMATEDVEC4           NGLI_FOURCC('A','n','m','4')
+#define NGL_NODE_ANIMATEDQUAT           NGLI_FOURCC('A','n','m','Q')
 #define NGL_NODE_ANIMKEYFRAMEBUFFER     NGLI_FOURCC('A','K','F','B')
 #define NGL_NODE_ANIMKEYFRAMEFLOAT      NGLI_FOURCC('A','K','F','1')
 #define NGL_NODE_ANIMKEYFRAMEVEC2       NGLI_FOURCC('A','K','F','2')
 #define NGL_NODE_ANIMKEYFRAMEVEC3       NGLI_FOURCC('A','K','F','3')
 #define NGL_NODE_ANIMKEYFRAMEVEC4       NGLI_FOURCC('A','K','F','4')
+#define NGL_NODE_ANIMKEYFRAMEQUAT       NGLI_FOURCC('A','K','F','Q')
 #define NGL_NODE_BUFFERBYTE             NGLI_FOURCC('B','s','b','1')
 #define NGL_NODE_BUFFERBVEC2            NGLI_FOURCC('B','s','b','2')
 #define NGL_NODE_BUFFERBVEC3            NGLI_FOURCC('B','s','b','3')
@@ -161,6 +163,7 @@ struct ngl_node;
 #define NGL_NODE_UNIFORMVEC2            NGLI_FOURCC('U','n','f','2')
 #define NGL_NODE_UNIFORMVEC3            NGLI_FOURCC('U','n','f','3')
 #define NGL_NODE_UNIFORMVEC4            NGLI_FOURCC('U','n','f','4')
+#define NGL_NODE_UNIFORMQUAT            NGLI_FOURCC('U','n','Q','t')
 
 /**
  * Allocate a node.

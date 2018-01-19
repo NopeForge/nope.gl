@@ -31,12 +31,13 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_UNIFORMFLOAT,   \
-                                          NGL_NODE_UNIFORMVEC2,    \
-                                          NGL_NODE_UNIFORMVEC3,    \
-                                          NGL_NODE_UNIFORMVEC4,    \
-                                          NGL_NODE_UNIFORMINT,     \
-                                          NGL_NODE_UNIFORMMAT4,    \
+#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_UNIFORMFLOAT,      \
+                                          NGL_NODE_UNIFORMVEC2,       \
+                                          NGL_NODE_UNIFORMVEC3,       \
+                                          NGL_NODE_UNIFORMVEC4,       \
+                                          NGL_NODE_UNIFORMQUAT,       \
+                                          NGL_NODE_UNIFORMINT,        \
+                                          NGL_NODE_UNIFORMMAT4,       \
                                           -1}
 
 #define ATTRIBUTES_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,   \
@@ -119,6 +120,7 @@ static int update_uniforms(struct ngl_node *node)
             case NGL_NODE_UNIFORMVEC3:   ngli_glUniform3fv(gl, uid, 1, u->vector);                 break;
             case NGL_NODE_UNIFORMVEC4:   ngli_glUniform4fv(gl, uid, 1, u->vector);                 break;
             case NGL_NODE_UNIFORMINT:    ngli_glUniform1i (gl, uid,    u->ival);                   break;
+            case NGL_NODE_UNIFORMQUAT:   ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix); break;
             case NGL_NODE_UNIFORMMAT4:   ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix); break;
             default:
                 LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
@@ -490,6 +492,7 @@ static void render_uninit(struct ngl_node *node)
     free(s->attribute_ids);
     free(s->buffer_ids);
 }
+
 
 static int render_update(struct ngl_node *node, double t)
 {

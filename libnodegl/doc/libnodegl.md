@@ -57,6 +57,16 @@ Parameter | Ctor. | Type | Description | Default
 **Source**: [node_animation.c](/libnodegl/node_animation.c)
 
 
+## AnimatedQuat
+
+Parameter | Ctor. | Type | Description | Default
+--------- | :---: | ---- | ----------- | :-----:
+`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameQuat](#animkeyframequat)) | quaternion key frames to interpolate from | 
+
+
+**Source**: [node_animation.c](/libnodegl/node_animation.c)
+
+
 ## AnimKeyFrameFloat
 
 Parameter | Ctor. | Type | Description | Default
@@ -102,6 +112,20 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `value` | ✓ | [`vec4`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`,`0`)
+`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
+
+
+**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+
+
+## AnimKeyFrameQuat
+
+Parameter | Ctor. | Type | Description | Default
+--------- | :---: | ---- | ----------- | :-----:
+`time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
+`quat` | ✓ | [`vec4`](#parameter-types) | the quaternion at time `time` | (`0`,`0`,`0`,`0`)
+`slerp` | ✓ | [`double`](#parameter-types) | the slerp value at time `time` | `0`
 `easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
@@ -207,7 +231,7 @@ Parameter | Ctor. | Type | Description | Default
 `nb_group_z` | ✓ | [`int`](#parameter-types) |  | `0`
 `program` | ✓ | [`Node`](#parameter-types) ([ComputeProgram](#computeprogram)) |  | 
 `textures` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d)) |  | 
-`uniforms` |  | [`NodeDict`](#parameter-types) ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
+`uniforms` |  | [`NodeDict`](#parameter-types) ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
 `buffers` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
 
 
@@ -345,7 +369,7 @@ Parameter | Ctor. | Type | Description | Default
 `geometry` | ✓ | [`Node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) |  | 
 `program` |  | [`Node`](#parameter-types) ([Program](#program)) |  | 
 `textures` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d)) |  | 
-`uniforms` |  | [`NodeDict`](#parameter-types) ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
+`uniforms` |  | [`NodeDict`](#parameter-types) ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
 `attributes` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
 `buffers` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
 
@@ -579,6 +603,17 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `value` |  | [`vec4`](#parameter-types) |  | (`0`,`0`,`0`,`0`)
 `anim` |  | [`Node`](#parameter-types) ([AnimatedVec4](#animatedvec4)) |  | 
+
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
+
+## UniformQuat
+
+Parameter | Ctor. | Type | Description | Default
+--------- | :---: | ---- | ----------- | :-----:
+`value` |  | [`vec4`](#parameter-types) |  | (`0`,`0`,`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedQuat](#animatedquat)) |  | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)

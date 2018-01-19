@@ -8,9 +8,11 @@ from pynodegl import (
         AnimKeyFrameFloat,
         AnimKeyFrameVec3,
         AnimKeyFrameVec4,
+        AnimKeyFrameQuat,
         AnimatedFloat,
         AnimatedVec3,
         AnimatedVec4,
+        AnimatedQuat,
         BufferFloat,
         BufferUBVec3,
         BufferUBVec4,
@@ -39,6 +41,7 @@ from pynodegl import (
         UniformFloat,
         UniformVec3,
         UniformVec4,
+        UniformQuat,
 )
 
 from pynodegl_utils.misc import scene, get_frag, get_vert, get_comp
@@ -516,3 +519,39 @@ def histogram(cfg):
     g.add_children(render)
 
     return g
+
+
+@scene()
+def quaternion(cfg):
+    cfg.duration = 10.
+    step = cfg.duration / 5.
+    x = math.sqrt(0.5)
+    quat_animkf = [
+        AnimKeyFrameQuat(0 * step, (0, 0, 0, 1), 0),
+        AnimKeyFrameQuat(1 * step, (0, 0,-x, x), 1),
+        AnimKeyFrameQuat(1 * step, (0, 0,-x, x), 0),
+        AnimKeyFrameQuat(2 * step, (0, 1, 0, 0), 1),
+        AnimKeyFrameQuat(2 * step, (0, 1, 0, 0), 0),
+        AnimKeyFrameQuat(3 * step, (1, 0, 0, 0), 1),
+        AnimKeyFrameQuat(3 * step, (1, 0, 0, 0), 0),
+        AnimKeyFrameQuat(4 * step, (x, 0, 0, x), 1),
+        AnimKeyFrameQuat(4 * step, (x, 0, 0, x), 0),
+        AnimKeyFrameQuat(5 * step, (0, 0, 0, 1), 1),
+    ]
+    quat = UniformQuat(anim=AnimatedQuat(quat_animkf))
+
+    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    m = Media(cfg.medias[0].filename)
+    t = Texture2D(data_src=m)
+    p = Program(vertex=get_vert('uniform-mat4'))
+    render = Render(q, p)
+    render.update_textures(tex0=t)
+    render.update_uniforms(transformation_matrix=quat)
+
+    camera = Camera(render)
+    camera.set_eye(0.0, 0.0, 4.0)
+    camera.set_center(0.0, 0.0, 0.0)
+    camera.set_up(0.0, 1.0, 0.0)
+    camera.set_perspective(45.0, cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]), 1.0, 10.0)
+
+    return camera

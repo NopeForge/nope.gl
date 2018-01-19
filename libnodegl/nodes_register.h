@@ -31,10 +31,12 @@
     action(NGL_NODE_ANIMATEDVEC2,           ngli_animatedvec2_class)            \
     action(NGL_NODE_ANIMATEDVEC3,           ngli_animatedvec3_class)            \
     action(NGL_NODE_ANIMATEDVEC4,           ngli_animatedvec4_class)            \
+    action(NGL_NODE_ANIMATEDQUAT,           ngli_animatedquat_class)            \
     action(NGL_NODE_ANIMKEYFRAMEFLOAT,      ngli_animkeyframefloat_class)       \
     action(NGL_NODE_ANIMKEYFRAMEVEC2,       ngli_animkeyframevec2_class)        \
     action(NGL_NODE_ANIMKEYFRAMEVEC3,       ngli_animkeyframevec3_class)        \
     action(NGL_NODE_ANIMKEYFRAMEVEC4,       ngli_animkeyframevec4_class)        \
+    action(NGL_NODE_ANIMKEYFRAMEQUAT,       ngli_animkeyframequat_class)        \
     action(NGL_NODE_ANIMKEYFRAMEBUFFER,     ngli_animkeyframebuffer_class)      \
     action(NGL_NODE_BUFFERBYTE,             ngli_bufferbyte_class)              \
     action(NGL_NODE_BUFFERBVEC2,            ngli_bufferbvec2_class)             \
@@ -95,5 +97,6 @@
     action(NGL_NODE_UNIFORMVEC2,            ngli_uniformvec2_class)             \
     action(NGL_NODE_UNIFORMVEC3,            ngli_uniformvec3_class)             \
     action(NGL_NODE_UNIFORMVEC4,            ngli_uniformvec4_class)             \
+    action(NGL_NODE_UNIFORMQUAT,            ngli_uniformquat_class)             \
 
 #endif

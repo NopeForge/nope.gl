@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "log.h"
+#include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
 
@@ -51,6 +52,13 @@ static const struct node_param animatedvec4_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEVEC4, -1},
                   .desc=NGLI_DOCSTRING("vec4 key frames to interpolate from")},
+    {NULL}
+};
+
+static const struct node_param animatedquat_params[] = {
+    {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEQUAT, -1},
+                  .desc=NGLI_DOCSTRING("quaternion key frames to interpolate from")},
     {NULL}
 };
 
@@ -87,18 +95,24 @@ static inline int animation_update(const struct animation *s, double t, int len,
         const double tnorm = (t - t0) / (t1 - t0);
         const double ratio = kf1->function(tnorm, kf1->nb_args, kf1->args);
         *cache = kf_id;
-        if (len == 1)
+        if (len == 1) { /* scalar */
             ((double *)dst)[0] = MIX(kf0->scalar, kf1->scalar, ratio);
-        else
+        } else if (len == 5) { /* quaternion */
+            double slerp = MIX(kf0->scalar, kf1->scalar, ratio);
+            ngli_quat_slerp(dst, kf0->value, kf1->value, slerp);
+        } else { /* vector */
             for (int i = 0; i < len; i++)
                 ((float *)dst)[i] = MIX(kf0->value[i], kf1->value[i], ratio);
+        }
     } else {
         const struct animkeyframe *kf0 = animkf[            0]->priv_data;
         const struct animkeyframe *kfn = animkf[nb_animkf - 1]->priv_data;
         const struct animkeyframe *kf  = t <= kf0->time ? kf0 : kfn;
-        if (len == 1)
+        if (len == 1) /* scalar */
             memcpy(dst, &kf->scalar, sizeof(double));
-        else
+        else if (len == 5) /* quaternion */
+            memcpy(dst, kf->value, 4 * sizeof(float));
+        else /* vector */
             memcpy(dst, kf->value, len * sizeof(float));
     }
     return 0;
@@ -158,6 +172,7 @@ static int animated##type##_update(struct ngl_node *node, double t)     \
 UPDATE_FUNC(vec2,   2);
 UPDATE_FUNC(vec3,   3);
 UPDATE_FUNC(vec4,   4);
+UPDATE_FUNC(quat,   5); /* quaternion (4) + slerp (1) */
 
 const struct node_class ngli_animatedfloat_class = {
     .id        = NGL_NODE_ANIMATEDFLOAT,
@@ -196,5 +211,15 @@ const struct node_class ngli_animatedvec4_class = {
     .update    = animatedvec4_update,
     .priv_size = sizeof(struct animation),
     .params    = animatedvec4_params,
+    .file      = __FILE__,
+};
+
+const struct node_class ngli_animatedquat_class = {
+    .id        = NGL_NODE_ANIMATEDQUAT,
+    .name      = "AnimatedQuat",
+    .init      = animation_init,
+    .update    = animatedquat_update,
+    .priv_size = sizeof(struct animation),
+    .params    = animatedquat_params,
     .file      = __FILE__,
 };

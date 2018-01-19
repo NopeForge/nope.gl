@@ -59,6 +59,13 @@ static const struct node_param uniformvec4_params[] = {
     {NULL}
 };
 
+static const struct node_param uniformquat_params[] = {
+    {"value",  PARAM_TYPE_VEC4, OFFSET(vector)},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
+               .node_types=(const int[]){NGL_NODE_ANIMATEDQUAT, -1}},
+    {NULL}
+};
+
 static const struct node_param uniformint_params[] = {
     {"value",  PARAM_TYPE_INT, OFFSET(ival)},
     {NULL}
@@ -96,6 +103,16 @@ UPDATE_FUNC(float,  1);
 UPDATE_FUNC(vec2,   2);
 UPDATE_FUNC(vec3,   3);
 UPDATE_FUNC(vec4,   4);
+
+static int uniformquat_update(struct ngl_node *node, double t)
+{
+    struct uniform *s = node->priv_data;
+    int ret = uniform_update(node->priv_data, t, 4);
+    if (ret < 0)
+        return ret;
+    ngli_mat4_rotation_from_quat(s->matrix, s->vector);
+    return ret;
+}
 
 static int uniform_mat_update(struct ngl_node *node, double t)
 {
@@ -143,6 +160,15 @@ const struct node_class ngli_uniformvec4_class = {
     .update    = uniformvec4_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformvec4_params,
+    .file      = __FILE__,
+};
+
+const struct node_class ngli_uniformquat_class = {
+    .id        = NGL_NODE_UNIFORMQUAT,
+    .name      = "UniformQuat",
+    .update    = uniformquat_update,
+    .priv_size = sizeof(struct uniform),
+    .params    = uniformquat_params,
     .file      = __FILE__,
 };
 

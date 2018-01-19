@@ -56,6 +56,23 @@ ANIMKEYFRAME_PARAMS(vec3,  value, PARAM_TYPE_VEC3, value, PARAM_FLAG_CONSTRUCTOR
 ANIMKEYFRAME_PARAMS(vec4,  value, PARAM_TYPE_VEC4, value, PARAM_FLAG_CONSTRUCTOR);
 ANIMKEYFRAME_PARAMS(buffer, data, PARAM_TYPE_DATA, data, 0);
 
+static const struct node_param animkeyframequat_params[] = {
+    {"time",          PARAM_TYPE_DBL, OFFSET(time),
+                      .flags=PARAM_FLAG_CONSTRUCTOR,
+                      .desc=NGLI_DOCSTRING("the time key point in seconds")},
+    {"quat",          PARAM_TYPE_VEC4, OFFSET(value),
+                      .flags=PARAM_FLAG_CONSTRUCTOR,
+                      .desc=NGLI_DOCSTRING("the quaternion at time `time`")},
+    {"slerp",         PARAM_TYPE_DBL, OFFSET(scalar),
+                      .flags=PARAM_FLAG_CONSTRUCTOR,
+                      .desc=NGLI_DOCSTRING("the slerp value at time `time`")},
+    {"easing",        PARAM_TYPE_STR,  OFFSET(easing), {.str="linear"},
+                      .desc=NGLI_DOCSTRING("a string identifying the interpolation")},
+    {"easing_args",   PARAM_TYPE_DBLLIST, OFFSET(args),
+                      .desc=NGLI_DOCSTRING("a list of arguments some easings may use")},
+    {NULL}
+};
+
 #ifdef __ANDROID__
 #define log2(x)  (log(x) / log(2))
 #endif
@@ -388,6 +405,10 @@ static int animkeyframe_init(struct ngl_node *node)
         LOG(VERBOSE, "%s of type %s starting at (%f,%f,%f,%f) for t=%f",
             node->class->name, easings[easing_id].name,
             s->value[0], s->value[1], s->value[2], s->value[3], s->time);
+    else if (node->class->id == NGL_NODE_ANIMKEYFRAMEQUAT)
+        LOG(VERBOSE, "%s of type %s starting at (%f,%f,%f,%f) with slerp=%f for t=%f",
+            node->class->name, easings[easing_id].name,
+            s->value[0], s->value[1], s->value[2], s->value[3], s->scalar, s->time);
     else if (node->class->id == NGL_NODE_ANIMKEYFRAMEFLOAT)
         LOG(VERBOSE, "%s of type %s starting at %f for t=%f",
             node->class->name, easings[easing_id].name,
@@ -424,6 +445,9 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
 
     if (node->class->id == NGL_NODE_ANIMKEYFRAMEBUFFER) {
         ngli_bstr_print(b, "with data size of %dB", s->data_size);
+    } else if (node->class->id == NGL_NODE_ANIMKEYFRAMEQUAT) {
+        ngli_bstr_print(b, "with quat=(%g,%g,%g,%g) slerp=%g",
+                        NGLI_ARG_VEC4(s->value), s->scalar);
     } else {
         ngli_bstr_print(b, "with v=");
         const struct node_param *val_par = ngli_params_find(params, "value");
@@ -483,5 +507,15 @@ const struct node_class ngli_animkeyframebuffer_class = {
     .info_str  = animkeyframe_info_str,
     .priv_size = sizeof(struct animkeyframe),
     .params    = animkeyframebuffer_params,
+    .file      = __FILE__,
+};
+
+const struct node_class ngli_animkeyframequat_class = {
+    .id        = NGL_NODE_ANIMKEYFRAMEQUAT,
+    .name      = "AnimKeyFrameQuat",
+    .init      = animkeyframe_init,
+    .info_str  = animkeyframe_info_str,
+    .priv_size = sizeof(struct animkeyframe),
+    .params    = animkeyframequat_params,
     .file      = __FILE__,
 };
