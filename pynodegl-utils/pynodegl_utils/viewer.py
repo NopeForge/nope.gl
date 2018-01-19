@@ -124,9 +124,6 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.doneCurrent()
         self.update()
 
-    def get_aspect_ratio(self):
-        return self._aspect_ratio
-
     def set_aspect_ratio(self, aspect_ratio):
         self._aspect_ratio = aspect_ratio
         # XXX: self.resize(self.size()) doesn't seem to have any effect as it
@@ -145,6 +142,9 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self._time = 0
         self._aspect_ratio = aspect_ratio
         self._samples = samples
+        gl_format = QtGui.QSurfaceFormat.defaultFormat()
+        gl_format.setSamples(samples)
+        self.setFormat(gl_format)
         self.resizeGL(self.width(), self.height())
 
     def paintGL(self):
@@ -427,6 +427,7 @@ class _GLView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(tuple)
     def set_aspect_ratio(self, ar):
+        self._ar = ar
         self._gl_widget.set_aspect_ratio(ar)
 
     @QtCore.pyqtSlot(tuple)
@@ -435,9 +436,9 @@ class _GLView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(int)
     def _set_samples(self, samples):
-        gl_widget = _GLWidget(self, self._default_ar, self._default_samples)
+        self._samples = samples
+        gl_widget = _GLWidget(self, self._ar, self._samples)
         gl_widget.set_time(self._gl_widget.get_time())
-        gl_widget.set_aspect_ratio(self._gl_widget.get_aspect_ratio())
         self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
         self._gl_widget = gl_widget
 
@@ -453,9 +454,9 @@ class _GLView(QtWidgets.QWidget):
     def __init__(self, get_scene_func, config):
         super(_GLView, self).__init__()
 
-        self._default_ar = config.get('aspect_ratio')
+        self._ar = config.get('aspect_ratio')
         self._framerate = config.get('framerate')
-        self._default_samples = config.get('samples')
+        self._samples = config.get('samples')
 
         self._get_scene_func = get_scene_func
 
@@ -466,7 +467,7 @@ class _GLView(QtWidgets.QWidget):
         self._timer = QtCore.QTimer()
         self._timer.setInterval(1000.0 / self.REFRESH_RATE) # in milliseconds
 
-        self._gl_widget = _GLWidget(self, self._default_ar, self._default_samples)
+        self._gl_widget = _GLWidget(self, self._ar, self._samples)
 
         self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
 
@@ -747,18 +748,8 @@ class _Toolbar(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def _set_samples(self):
         samples = SAMPLES[self._samples_cbbox.currentIndex()]
-
-        gl_format = QtGui.QSurfaceFormat.defaultFormat()
-        gl_format.setSamples(samples)
-        QtGui.QSurfaceFormat.setDefaultFormat(gl_format)
-
         self.samplesChanged.emit(samples)
         self._load_current_scene()
-
-    def emit_state(self):
-        self._set_aspect_ratio()
-        self._set_samples()
-        self._set_frame_rate()
 
     def __init__(self, config):
         super(_Toolbar, self).__init__()
@@ -1076,7 +1067,6 @@ class _MainWindow(QtWidgets.QSplitter):
         if prev_pkgname == module_pkgname:
             self._scene_toolbar.load_scene_from_name(prev_module, prev_scene)
 
-        self._scene_toolbar.emit_state()
 
 def run():
     import argparse
