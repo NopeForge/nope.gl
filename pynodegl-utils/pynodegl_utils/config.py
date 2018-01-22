@@ -67,7 +67,7 @@ class Config(QtCore.QObject):
         self._set_cfg('framerate', fr)
 
     @QtCore.pyqtSlot(int)
-    def _set_samples(self, samples):
+    def set_samples(self, samples):
         self._set_cfg('samples', samples)
 
     def geometry_changed(self, geometry):

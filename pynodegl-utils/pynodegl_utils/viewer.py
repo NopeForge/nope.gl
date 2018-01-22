@@ -435,7 +435,7 @@ class _GLView(QtWidgets.QWidget):
         self._framerate = fr
 
     @QtCore.pyqtSlot(int)
-    def _set_samples(self, samples):
+    def set_samples(self, samples):
         self._samples = samples
         gl_widget = _GLWidget(self, self._ar, self._samples)
         gl_widget.set_time(self._gl_widget.get_time())
@@ -1036,8 +1036,8 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.sceneChanged.connect(self._config.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
         self._scene_toolbar.aspectRatioChanged.connect(self._config.set_aspect_ratio)
-        self._scene_toolbar.samplesChanged.connect(gl_view._set_samples)
-        self._scene_toolbar.samplesChanged.connect(self._config._set_samples)
+        self._scene_toolbar.samplesChanged.connect(gl_view.set_samples)
+        self._scene_toolbar.samplesChanged.connect(self._config.set_samples)
         self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
         self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
 
