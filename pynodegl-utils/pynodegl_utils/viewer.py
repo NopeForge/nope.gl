@@ -124,16 +124,6 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.doneCurrent()
         self.update()
 
-    def set_aspect_ratio(self, aspect_ratio):
-        self._aspect_ratio = aspect_ratio
-        # XXX: self.resize(self.size()) doesn't seem to have any effect as it
-        # doesn't call resizeGL() callback, so we do something a bit more
-        # clumsy
-        self.makeCurrent()
-        self.resizeGL(self.width(), self.height())
-        self.doneCurrent()
-        self.update()
-
     def __init__(self, parent, aspect_ratio, samples):
         super(_GLWidget, self).__init__(parent)
 
@@ -425,10 +415,16 @@ class _GLView(QtWidgets.QWidget):
             return
         self._gl_widget.grabFramebuffer().save(filenames[0])
 
+    def _recreate_gl_widget(self):
+        gl_widget = _GLWidget(self, self._ar, self._samples)
+        gl_widget.set_time(self._gl_widget.get_time())
+        self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
+        self._gl_widget = gl_widget
+
     @QtCore.pyqtSlot(tuple)
     def set_aspect_ratio(self, ar):
         self._ar = ar
-        self._gl_widget.set_aspect_ratio(ar)
+        self._recreate_gl_widget()
 
     @QtCore.pyqtSlot(tuple)
     def set_frame_rate(self, fr):
@@ -437,10 +433,7 @@ class _GLView(QtWidgets.QWidget):
     @QtCore.pyqtSlot(int)
     def set_samples(self, samples):
         self._samples = samples
-        gl_widget = _GLWidget(self, self._ar, self._samples)
-        gl_widget.set_time(self._gl_widget.get_time())
-        self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
-        self._gl_widget = gl_widget
+        self._recreate_gl_widget()
 
     @QtCore.pyqtSlot(str, str)
     def scene_changed(self, module_name, scene_name):
