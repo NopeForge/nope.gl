@@ -84,10 +84,10 @@ struct graphicconfig {
     struct ngl_node *child;
 
     int blend;
-    int blend_dst_factor;
     int blend_src_factor;
-    int blend_dst_factor_a;
+    int blend_dst_factor;
     int blend_src_factor_a;
+    int blend_dst_factor_a;
     int blend_op;
     int blend_op_a;
 
