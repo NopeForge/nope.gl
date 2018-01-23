@@ -54,7 +54,7 @@ class Exporter(QtCore.QObject):
 
     progressed = QtCore.pyqtSignal(int)
 
-    def export(self, scene, filename, w, h, duration, fps, extra_enc_args=None):
+    def export(self, scene, filename, w, h, duration, fps, samples=1, extra_enc_args=None):
 
         fd_r, fd_w = os.pipe()
 
@@ -81,7 +81,7 @@ class Exporter(QtCore.QObject):
 
         # Framebuffer
         fbo_format = QtGui.QOpenGLFramebufferObjectFormat()
-        fbo_format.setSamples(QtGui.QSurfaceFormat.defaultFormat().samples())
+        fbo_format.setSamples(samples)
         fbo_format.setAttachment(QtGui.QOpenGLFramebufferObject.CombinedDepthStencil)
         fbo = QtGui.QOpenGLFramebufferObject(w, h, fbo_format)
         assert fbo.isValid() == True

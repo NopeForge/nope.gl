@@ -117,5 +117,6 @@ class NGLSceneCfg:
         self.duration = self.LOOP_DURATION
         self.aspect_ratio = (16, 9)
         self.framerate = self.FRAME_RATE
+        self.samples = 1
         self.glbackend = 'gl'
         self.system = platform.system()

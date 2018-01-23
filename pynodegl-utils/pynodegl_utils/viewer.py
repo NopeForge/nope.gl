@@ -202,7 +202,7 @@ class _ExportView(QtWidgets.QWidget):
             exporter.progressed.connect(self._pgbar.setValue)
             exporter.export(scene, ofile, width, height,
                             cfg.duration, cfg.framerate,
-                            extra_enc_args)
+                            cfg.samples, extra_enc_args)
 
             self._pgbar.hide()
         else:
@@ -839,10 +839,12 @@ class _MainWindow(QtWidgets.QSplitter):
     def _construct_current_scene(self, cfg_dict, glbackend, system):
         ar = cfg_dict['aspect_ratio']
         fr = cfg_dict['framerate']
+        samples = cfg_dict['samples']
 
         scene_cfg = NGLSceneCfg(medias=self._medias)
         scene_cfg.aspect_ratio = ar
         scene_cfg.framerate = fr
+        scene_cfg.samples = samples
         scene_cfg.glbackend = glbackend
         if system:
             scene_cfg.system = system
