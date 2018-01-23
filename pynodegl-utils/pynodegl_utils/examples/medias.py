@@ -4,7 +4,6 @@ import math
 from pynodegl import (
         AnimKeyFrameFloat,
         AnimatedFloat,
-        Circle,
         Media,
         Program,
         Quad,
@@ -43,18 +42,6 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
         time = UniformFloat(anim=AnimatedFloat(time_animkf))
         ar = UniformFloat(cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]))
         render.update_uniforms(time=time, ar=ar)
-    return render
-
-
-@scene(npoints={'type': 'range', 'range': [3, 300]},
-       radius={'type': 'range', 'range': [0.01, 5], 'unit_base': 100})
-def media_in_circle(cfg, npoints=64, radius=0.5):
-    circle = Circle(npoints=npoints, radius=radius)
-    m = Media(cfg.medias[0].filename)
-    t = Texture2D(data_src=m)
-    p = Program()
-    render = Render(circle, p)
-    render.update_textures(tex0=t)
     return render
 
 
