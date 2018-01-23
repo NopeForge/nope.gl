@@ -106,10 +106,10 @@ def buffer_dove(cfg,
     render.update_textures(tex0=img_tex)
     render = GraphicConfig(render,
                            blend=True,
-                           blend_dst_factor='src_alpha',
-                           blend_src_factor='one_minus_src_alpha',
-                           blend_dst_factor_a='one',
-                           blend_src_factor_a='zero')
+                           blend_src_factor='src_alpha',
+                           blend_dst_factor='one_minus_src_alpha',
+                           blend_src_factor_a='one',
+                           blend_dst_factor_a='zero')
 
     prog_bg = Program(fragment=get_frag('color'))
     shape_bg = Circle(radius=.6, npoints=256)
@@ -371,10 +371,10 @@ def blending_and_stencil(cfg):
 
     config = GraphicConfig(cloud_group,
                            blend=True,
-                           blend_dst_factor='src_alpha',
-                           blend_src_factor='one_minus_src_alpha',
-                           blend_dst_factor_a='one',
-                           blend_src_factor_a='zero',
+                           blend_src_factor='src_alpha',
+                           blend_dst_factor='one_minus_src_alpha',
+                           blend_src_factor_a='one',
+                           blend_dst_factor_a='zero',
                            stencil_test=True,
                            stencil_write_mask=0x0,
                            stencil_func='equal',
