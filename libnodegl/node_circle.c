@@ -46,49 +46,59 @@ static int circle_init(struct ngl_node *node)
         LOG(ERROR, "invalid number of points (%d < 3)", s->npoints);
         return -1;
     }
+    const int nb_vertices = s->npoints + 2;
 
-    float *vertices  = calloc(s->npoints, sizeof(*vertices)  * 3);
-    float *uvcoords  = calloc(s->npoints, sizeof(*uvcoords)  * 2);
-    float *normals   = calloc(s->npoints, sizeof(*normals)   * 3);
+    float *vertices  = calloc(nb_vertices, sizeof(*vertices)  * 3);
+    float *uvcoords  = calloc(nb_vertices, sizeof(*uvcoords)  * 2);
+    float *normals   = calloc(nb_vertices, sizeof(*normals)   * 3);
 
     if (!vertices || !uvcoords || !normals)
         goto end;
 
-    const float step = 2.f * M_PI / s->npoints;
-    for (int i = 0; i < s->npoints; i++) {
-        const float angle = i * step;
-        const float x = sin(angle) * s->radius;
-        const float y = cos(angle) * s->radius;
+
+    int i;
+    const double step = 2.0 * M_PI / s->npoints;
+
+    uvcoords[0] = 0.5;
+    uvcoords[1] = 0.5;
+    for (i = 1; i < (nb_vertices - 1); i++) {
+        const double angle = (i - 1) * step;
+        const double x = sin(angle) * s->radius;
+        const double y = cos(angle) * s->radius;
         vertices[i*3 + 0] = x;
         vertices[i*3 + 1] = y;
-        uvcoords[i*2 + 0] = (x + 1.f) / 2.f;
-        uvcoords[i*2 + 1] = (1.f - y) / 2.f;
+        uvcoords[i*2 + 0] = (x + 1.0) / 2.0;
+        uvcoords[i*2 + 1] = (1.0 - y) / 2.0;
     }
+    vertices[i*3 + 0] = vertices[3 + 0];
+    vertices[i*3 + 1] = vertices[3 + 1];
+    uvcoords[i*2 + 0] = uvcoords[2 + 0];
+    uvcoords[i*2 + 1] = uvcoords[2 + 1];
 
     static const float center[3] = {0};
     ngli_vec3_normalvec(normals, (float *)center, vertices, vertices + 3);
-    for (int i = 1; i < s->npoints; i++)
+    for (int i = 1; i < nb_vertices; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
     s->vertices_buffer = ngli_geometry_generate_buffer(node->ctx,
                                                        NGL_NODE_BUFFERVEC3,
-                                                       s->npoints,
-                                                       s->npoints * sizeof(*vertices) * 3,
+                                                       nb_vertices,
+                                                       nb_vertices * sizeof(*vertices) * 3,
                                                        vertices);
 
     s->uvcoords_buffer = ngli_geometry_generate_buffer(node->ctx,
                                                        NGL_NODE_BUFFERVEC2,
-                                                       s->npoints,
-                                                       s->npoints * sizeof(*uvcoords) * 2,
+                                                       nb_vertices,
+                                                       nb_vertices * sizeof(*uvcoords) * 2,
                                                        uvcoords);
 
     s->normals_buffer = ngli_geometry_generate_buffer(node->ctx,
                                                       NGL_NODE_BUFFERVEC3,
-                                                      s->npoints,
-                                                      s->npoints * sizeof(*normals) * 3,
+                                                      nb_vertices,
+                                                      nb_vertices * sizeof(*normals) * 3,
                                                       normals);
 
-    s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx, s->npoints);
+    s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx, nb_vertices);
 
     if (!s->vertices_buffer || !s->uvcoords_buffer || !s->indices_buffer || !s->normals_buffer)
         goto end;
