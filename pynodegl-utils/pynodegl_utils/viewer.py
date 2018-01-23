@@ -502,13 +502,11 @@ class _Toolbar(QtWidgets.QWidget):
     samples_changed = QtCore.pyqtSignal(int, name='samplesChanged')
     frame_rate_changed = QtCore.pyqtSignal(tuple, name='frameRateChanged')
 
-    def _del_scene_opts_widget(self):
+    def _replace_scene_opts_widget(self, widget):
         if self._scene_opts_widget:
             self._scene_toolbar_layout.removeWidget(self._scene_opts_widget)
             self._scene_opts_widget.deleteLater()
             self._scene_opts_widget = None
-
-    def _set_scene_opts_widget(self, widget):
         if widget:
             self._scene_toolbar_layout.addWidget(widget)
             self._scene_opts_widget = widget
@@ -650,9 +648,8 @@ class _Toolbar(QtWidgets.QWidget):
         module_name, scene_name, widgets_specs = self._current_scene_data
         if load_widgets:
             self._scene_extra_args = {}
-            self._del_scene_opts_widget()
             scene_opts_widget = self._get_opts_widget_from_specs(widgets_specs)
-            self._set_scene_opts_widget(scene_opts_widget)
+            self._replace_scene_opts_widget(scene_opts_widget)
         self.sceneChanged.emit(module_name, scene_name)
 
     def clear_scripts(self):
