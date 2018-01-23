@@ -78,10 +78,10 @@ void ngli_glstate_honor_state(const struct glfunctions *gl,
         next->blend_dst_factor_a != prev->blend_dst_factor_a ||
         next->blend_src_factor_a != prev->blend_src_factor_a) {
         ngli_glBlendFuncSeparate(gl,
-                                 next->blend_dst_factor,
                                  next->blend_src_factor,
-                                 next->blend_dst_factor_a,
-                                 next->blend_src_factor_a);
+                                 next->blend_dst_factor,
+                                 next->blend_src_factor_a,
+                                 next->blend_dst_factor_a);
     }
 
     if (next->blend_op   != prev->blend_op ||
