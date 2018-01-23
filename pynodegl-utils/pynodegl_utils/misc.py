@@ -4,7 +4,7 @@ import math
 import inspect
 import json
 import subprocess
-import traceback
+
 
 def scene(**widgets_specs):
     def real_decorator(scene_func):
