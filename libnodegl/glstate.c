@@ -33,10 +33,10 @@ struct glstate *ngli_glstate_create(const struct glfunctions *gl)
 
     /* Blend */
     ngli_glGetIntegerv(gl, GL_BLEND,                   (GLint *)&state->blend);
-    ngli_glGetIntegerv(gl, GL_BLEND_SRC_RGB,           (GLint *)&state->blend_dst_factor);
-    ngli_glGetIntegerv(gl, GL_BLEND_DST_RGB,           (GLint *)&state->blend_src_factor);
-    ngli_glGetIntegerv(gl, GL_BLEND_SRC_ALPHA,         (GLint *)&state->blend_dst_factor_a);
-    ngli_glGetIntegerv(gl, GL_BLEND_DST_ALPHA,         (GLint *)&state->blend_src_factor_a);
+    ngli_glGetIntegerv(gl, GL_BLEND_SRC_RGB,           (GLint *)&state->blend_src_factor);
+    ngli_glGetIntegerv(gl, GL_BLEND_DST_RGB,           (GLint *)&state->blend_dst_factor);
+    ngli_glGetIntegerv(gl, GL_BLEND_SRC_ALPHA,         (GLint *)&state->blend_src_factor_a);
+    ngli_glGetIntegerv(gl, GL_BLEND_DST_ALPHA,         (GLint *)&state->blend_dst_factor_a);
     ngli_glGetIntegerv(gl, GL_BLEND_EQUATION_RGB,      (GLint *)&state->blend_op);
     ngli_glGetIntegerv(gl, GL_BLEND_EQUATION_ALPHA,    (GLint *)&state->blend_op_a);
 
