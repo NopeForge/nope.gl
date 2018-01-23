@@ -257,10 +257,10 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `child` | ✓ | [`Node`](#parameter-types) |  | 
 `blend` |  | [`bool`](#parameter-types) |  | `unset`
-`blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
 `blend_src_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
-`blend_dst_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
+`blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
 `blend_src_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
+`blend_dst_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
 `blend_op` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
 `blend_op_a` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
 `color_write_mask` |  | [`component`](#component-choices) |  | `unset`

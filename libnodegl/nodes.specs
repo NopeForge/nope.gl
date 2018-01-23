@@ -192,10 +192,10 @@
         - [child, Node]
     optional:
         - [blend, bool]
-        - [blend_dst_factor, select]
         - [blend_src_factor, select]
-        - [blend_dst_factor_a, select]
+        - [blend_dst_factor, select]
         - [blend_src_factor_a, select]
+        - [blend_dst_factor_a, select]
         - [blend_op, select]
         - [blend_op_a, select]
         - [color_write_mask, flags]
