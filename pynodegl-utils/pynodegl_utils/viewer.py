@@ -791,7 +791,7 @@ class _MainWindow(QtWidgets.QSplitter):
 
     def _update_err_buf(self, err_str):
         if err_str:
-            self._errbuf.setText(err_str)
+            self._errbuf.setPlainText(err_str)
             self._errbuf.show()
             sys.stderr.write(err_str)
         else:
@@ -973,7 +973,7 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
         self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
 
-        self._errbuf = QtWidgets.QTextEdit()
+        self._errbuf = QtWidgets.QPlainTextEdit()
         self._errbuf.hide()
 
         tabs_and_errbuf = QtWidgets.QVBoxLayout()
