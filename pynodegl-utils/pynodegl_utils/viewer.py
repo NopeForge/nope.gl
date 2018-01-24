@@ -94,6 +94,8 @@ class _SerialView(QtWidgets.QWidget):
         self._auto_chkbox = QtWidgets.QCheckBox("Automatically update")
         self._graph_lbl = QtWidgets.QLabel()
         self._text = QtWidgets.QPlainTextEdit()
+        self._text.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
+        self._text.setReadOnly(True)
 
         hbox = QtWidgets.QHBoxLayout()
         hbox.addWidget(self._buffer_btn)
@@ -974,6 +976,8 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
 
         self._errbuf = QtWidgets.QPlainTextEdit()
+        self._errbuf.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
+        self._errbuf.setReadOnly(True)
         self._errbuf.hide()
 
         tabs_and_errbuf = QtWidgets.QVBoxLayout()
