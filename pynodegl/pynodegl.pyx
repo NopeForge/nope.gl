@@ -20,6 +20,7 @@ cdef extern from "nodegl.h":
     int ngl_node_param_set(ngl_node *node, const char *key, ...)
     char *ngl_node_dot(const ngl_node *node)
     char *ngl_node_serialize(const ngl_node *node)
+    ngl_node *ngl_node_deserialize(const char *s)
 
     int ngl_anim_evaluate(ngl_node *anim, void *dst, double t)
 
@@ -75,6 +76,12 @@ cdef class Viewer:
 
     def set_scene(self, _Node scene):
         return ngl_set_scene(self.ctx, scene.ctx)
+
+    def set_scene_from_string(self, s):
+        cdef ngl_node *scene = ngl_node_deserialize(s);
+        ret = ngl_set_scene(self.ctx, scene)
+        ngl_node_unrefp(&scene)
+        return ret
 
     def draw(self, double t):
         with nogil:
