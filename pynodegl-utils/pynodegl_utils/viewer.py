@@ -30,7 +30,7 @@ import traceback
 
 import pynodegl as ngl
 
-from misc import NGLMedia
+from misc import Media
 from export import Exporter
 from gl import get_gl_format
 from scriptsmgr import ScriptsManager
@@ -925,7 +925,7 @@ class _MainWindow(QtWidgets.QSplitter):
                 path = op.join(assets_dir, f)
                 if op.isfile(path) and ext in ('mp4', 'mkv', 'avi', 'webm', 'mov'):
                     try:
-                        media = NGLMedia(path)
+                        media = Media(path)
                     except:
                         pass
                     else:

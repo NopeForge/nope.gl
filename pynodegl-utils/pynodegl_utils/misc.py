@@ -84,7 +84,7 @@ def get_comp(name, shader_path=None):
     return get_shader(name + '.comp', shader_path)
 
 
-class NGLMedia:
+class Media:
 
     @property
     def filename(self):
@@ -137,7 +137,7 @@ class SceneCfg:
                                        media_file])
                 if ret:
                     raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
-            medias = [NGLMedia(media_file)]
+            medias = [Media(media_file)]
 
         self.medias = medias
         self.duration = self.LOOP_DURATION
