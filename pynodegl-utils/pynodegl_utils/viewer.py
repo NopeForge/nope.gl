@@ -839,6 +839,8 @@ class _MainWindow(QtWidgets.QSplitter):
     @QtCore.pyqtSlot(str, str)
     def _scene_changed_hook(self, module_name, scene_name):
 
+        self.setWindowTitle('%s - %s.%s' % (self._win_title_base, module_name, scene_name))
+
         def filename_escape(filename):
             s = ''
             for c in filename:
@@ -912,7 +914,8 @@ class _MainWindow(QtWidgets.QSplitter):
 
     def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
-        self.setWindowTitle("Node.gl viewer")
+        self._win_title_base = 'Node.gl viewer'
+        self.setWindowTitle(self._win_title_base)
 
         self._module_pkgname = module_pkgname
         self._glbackend = glbackend
