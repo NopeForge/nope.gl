@@ -25,8 +25,8 @@ def my_scene(cfg):
 ```
 
 The first argument of the scene function is always a `cfg` argument is of type
-`NGLSceneCfg` and can be read and written by the scene function. Extra optional
-arguments to the scene function are allowed.
+`pynodegl_utils.SceneCfg` and can be read and written by the scene function.
+Extra optional arguments to the scene function are allowed.
 
 Every scene must return a valid `pynodegl` node object.
 

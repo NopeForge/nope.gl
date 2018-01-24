@@ -22,7 +22,7 @@ def scene(**widgets_specs):
                 'system',
             )
 
-            scene_cfg = NGLSceneCfg(idict.get('medias'))
+            scene_cfg = SceneCfg(idict.get('medias'))
             for field in fields:
                 if field in idict:
                     setattr(scene_cfg, field, idict[field])
@@ -121,7 +121,7 @@ class NGLMedia:
         self._filename = filename
         self._set_media_dimensions()
 
-class NGLSceneCfg:
+class SceneCfg:
 
     LOOP_DURATION = 30.0
     FRAME_RATE = (60, 1)
