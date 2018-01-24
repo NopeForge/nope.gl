@@ -15,10 +15,8 @@ def serialize(dirname, subproc=False):
     assert 'error' not in ret
     scenes = ret['scenes']
 
-    try:
+    if not op.exists(dirname):
         os.makedirs(dirname)
-    except OSError:
-        pass
 
     for module_name, sub_scenes in scenes:
         for scene_name, widgets_specs in sub_scenes:
