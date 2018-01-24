@@ -15,5 +15,5 @@ void main(void)
     histg[i] = 0U;
     histb[i] = 0U;
     hista[i] = 0U;
-    maximum  = 0U;
+    maximum  = 1U;
 }
