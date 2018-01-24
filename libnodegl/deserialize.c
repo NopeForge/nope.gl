@@ -267,7 +267,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             int consumed = 0;
             const char *cur = str;
             const char *end = str + strlen(str);
-            int ret = sscanf(str, "%d%n", &size, &consumed);
+            int ret = sscanf(str, "%d,%n", &size, &consumed);
             if (ret != 1)
                 return -1;
             if (!size)
@@ -279,7 +279,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             if (!data)
                 return -1;
             for (int i = 0; i < size; i++) {
-                if (cur > end - 3 || *cur != ',') {
+                if (cur > end - 2) {
                     free(data);
                     return -1;
                 }
@@ -289,8 +289,8 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                     ['8'] =  8, ['9'] =  9, ['a'] = 10, ['b'] = 11,
                     ['c'] = 12, ['d'] = 13, ['e'] = 14, ['f'] = 15,
                 };
-                data[i] = hexm[(uint8_t)cur[1]]<<4 | hexm[(uint8_t)cur[2]];
-                cur += 3;
+                data[i] = hexm[(uint8_t)cur[0]]<<4 | hexm[(uint8_t)cur[1]];
+                cur += 2;
             }
             ret = ngli_params_vset(base_ptr, par, size, data);
             free(data);

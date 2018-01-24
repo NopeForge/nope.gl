@@ -171,11 +171,11 @@ static void serialize_options(struct hmap *nlist,
                 if (!data || !size)
                     break;
                 if (!constructor)
-                    ngli_bstr_print(b, " %s:%d", p->key, size);
+                    ngli_bstr_print(b, " %s:%d,", p->key, size);
                 else
-                    ngli_bstr_print(b, " %d", size);
+                    ngli_bstr_print(b, " %d,", size);
                 for (int i = 0; i < size; i++) {
-                    ngli_bstr_print(b, ",%02x", data[i]);
+                    ngli_bstr_print(b, "%02x", data[i]);
                 }
                 break;
             }
