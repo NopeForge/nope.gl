@@ -8,48 +8,6 @@ from OpenGL import GL
 from gl import get_gl_format
 from com import query_inplace
 
-class _PipeThread(QtCore.QThread):
-
-    def __init__(self, fd, unused_fd, w, h, fps):
-        super(_PipeThread, self).__init__()
-        self.fd = fd
-        self.unused_fd = unused_fd
-        self.w, self.h, self.fps = w, h, fps
-
-    def run(self):
-        try:
-            ret = self.run_with_except()
-        except:
-            raise
-        finally:
-            # very important in order to prevent deadlock if one thread fails
-            # one way or another
-            os.close(self.fd)
-
-
-class _ReaderThread(_PipeThread):
-
-    def __init__(self, fd, unused_fd, w, h, fps, filename, extra_enc_args):
-        super(_ReaderThread, self).__init__(fd, unused_fd, w, h, fps)
-        self._filename = filename
-        self._extra_enc_args = extra_enc_args if extra_enc_args else []
-
-    def run_with_except(self):
-        cmd = ['ffmpeg', '-r', '%d/%d' % self.fps,
-               '-nostats', '-nostdin',
-               '-f', 'rawvideo',
-               '-video_size', '%dx%d' % (self.w, self.h),
-               '-pixel_format', 'rgba',
-               '-i', 'pipe:%d' % self.fd] + \
-                self._extra_enc_args + \
-               ['-y', self._filename]
-
-        #print 'Executing: ' + ' '.join(cmd)
-
-        # Closing the unused file descriptor of the pipe is mandatory between
-        # the fork() and the exec() of ffmpeg in order to prevent deadlocks
-        return subprocess.call(cmd, preexec_fn=lambda: os.close(self.unused_fd))
-
 
 class Exporter(QtCore.QObject):
 
@@ -70,8 +28,24 @@ class Exporter(QtCore.QObject):
         duration = cfg['duration']
         samples = cfg['samples']
 
-        reader = _ReaderThread(fd_r, fd_w, w, h, fps, filename, extra_enc_args)
-        reader.start()
+        cmd = ['ffmpeg', '-r', '%d/%d' % fps,
+               '-nostats', '-nostdin',
+               '-f', 'rawvideo',
+               '-video_size', '%dx%d' % (w, h),
+               '-pixel_format', 'rgba',
+               '-i', 'pipe:%d' % fd_r]
+        if extra_enc_args:
+            cmd += extra_enc_args
+        cmd += ['-y', filename]
+
+        def close_unused_child_fd():
+            os.close(fd_w)
+
+        def close_unused_parent_fd():
+            os.close(fd_r)
+
+        reader = subprocess.Popen(cmd, preexec_fn=close_unused_child_fd, close_fds=False)
+        close_unused_parent_fd()
 
         # GL context
         glctx = QtGui.QOpenGLContext()
