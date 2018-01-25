@@ -33,6 +33,15 @@ void ngli_vec3_cross(float *dst, float *v1, float *v2);
 float ngli_vec3_dot(float *v1, float *v2);
 void ngli_vec3_normalvec(float *dst, float *a, float *b, float *c);
 
+void ngli_vec4_neg(float *dst, const float *v);
+float ngli_vec4_dot(const float *v1, const float *v2);
+float ngli_vec4_length(const float *v);
+void ngli_vec4_add(float *dst, const float *v1, const float *v2);
+void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c);
+void ngli_vec4_norm(float *dst, const float *v);
+void ngli_vec4_scale(float *dst, const float *v, float s);
+void ngli_vec4_sub(float *dst, const float *v1, const float *v2);
+
 void ngli_mat3_from_mat4(float *dst, const float *m);
 void ngli_mat3_mul_scalar(float *dst, const float *m, const float s);
 void ngli_mat3_transpose(float *dst, const float *m);
@@ -50,6 +59,7 @@ void ngli_mat4_mul_c(float *dst, const float *m1, const float *m2);
 void ngli_mat4_mul_vec4_c(float *dst, const float *m, const float *v);
 void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up);
 void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, float far);
+void ngli_mat4_rotation_from_quat(float *dst, const float *quat);
 
 /* Arch specific versions */
 
@@ -63,5 +73,7 @@ void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, floa
 
 void ngli_mat4_mul_aarch64(float *dst, const float *m1, const float *m2);
 void ngli_mat4_mul_vec4_aarch64(float *dst, const float *m, const float *v);
+
+void ngli_quat_slerp(float *dst, const float *q1, const float *q2, float t);
 
 #endif

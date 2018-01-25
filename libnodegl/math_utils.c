@@ -25,6 +25,8 @@
 
 #include "math_utils.h"
 
+static const float zvec[4];
+
 float ngli_vec3_length(float *v)
 {
     return sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
@@ -78,6 +80,74 @@ void ngli_vec3_normalvec(float *dst, float *a, float *b, float *c)
     ngli_vec3_sub(e, c, a);
     ngli_vec3_cross(dst, d, e);
     ngli_vec3_norm(dst, dst);
+}
+
+float ngli_vec4_length(const float *v)
+{
+    return sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2] + v[3]*v[3]);
+}
+
+void ngli_vec4_norm(float *dst, const float *v)
+{
+    if (!memcmp(v, zvec, 4 * sizeof(*v))) {
+        memcpy(dst, zvec, 4 * sizeof(*v));
+        return;
+    }
+
+    const float l = 1.0f / ngli_vec4_length(v);
+
+    dst[0] = v[0] * l;
+    dst[1] = v[1] * l;
+    dst[2] = v[2] * l;
+    dst[3] = v[3] * l;
+}
+
+void ngli_vec4_add(float *dst, const float *v1, const float *v2)
+{
+    dst[0] = v1[0] + v2[0];
+    dst[1] = v1[1] + v2[1];
+    dst[2] = v1[2] + v2[2];
+    dst[3] = v1[3] + v2[3];
+}
+
+void ngli_vec4_sub(float *dst, const float *v1, const float *v2)
+{
+    dst[0] = v1[0] - v2[0];
+    dst[1] = v1[1] - v2[1];
+    dst[2] = v1[2] - v2[2];
+    dst[3] = v1[3] - v2[3];
+}
+
+void ngli_vec4_neg(float *dst, const float *v)
+{
+    dst[0] = -v[0];
+    dst[1] = -v[1];
+    dst[2] = -v[2];
+    dst[3] = -v[3];
+}
+
+void ngli_vec4_scale(float *dst, const float *v, float s)
+{
+    dst[0] = v[0] * s;
+    dst[1] = v[1] * s;
+    dst[2] = v[2] * s;
+    dst[3] = v[3] * s;
+}
+
+float ngli_vec4_dot(const float *v1, const float *v2)
+{
+    return v1[0]*v2[0]
+         + v1[1]*v2[1]
+         + v1[2]*v2[2]
+         + v1[3]*v2[3];
+}
+
+void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c)
+{
+    dst[0] = v1[0] + c*(v2[0] - v1[0]);
+    dst[1] = v1[1] + c*(v2[1] - v1[1]);
+    dst[2] = v1[2] + c*(v2[2] - v1[2]);
+    dst[3] = v1[3] + c*(v2[3] - v1[3]);
 }
 
 void ngli_mat3_from_mat4(float *dst, const float *m)
@@ -264,4 +334,88 @@ void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, floa
     dst[11] = -1;
     dst[14] = -2 * near * far / z;
     dst[15] =  0;
+}
+
+void ngli_mat4_rotation_from_quat(float *dst, const float *q)
+{
+    float tmp[4];
+    const float *tmpp = q;
+
+    float length = ngli_vec4_length(q);
+    if (length > 1.0) {
+        ngli_vec4_norm(tmp, q);
+        tmpp = tmp;
+    }
+
+    const float x2  = tmpp[0] + tmpp[0];
+    const float y2  = tmpp[1] + tmpp[1];
+    const float z2  = tmpp[2] + tmpp[2];
+
+    const float yy2 = tmpp[1] * y2;
+    const float xy2 = tmpp[0] * y2;
+    const float xz2 = tmpp[0] * z2;
+    const float yz2 = tmpp[1] * z2;
+    const float zz2 = tmpp[2] * z2;
+    const float wz2 = tmpp[3] * z2;
+    const float wy2 = tmpp[3] * y2;
+    const float wx2 = tmpp[3] * x2;
+    const float xx2 = tmpp[0] * x2;
+
+    dst[ 0] = -yy2 - zz2 + 1.0f;
+    dst[ 1] =  xy2 + wz2;
+    dst[ 2] =  xz2 - wy2;
+    dst[ 3] =  0.0f;
+    dst[ 4] =  xy2 - wz2;
+    dst[ 5] = -xx2 - zz2 + 1.0f;
+    dst[ 6] =  yz2 + wx2;
+    dst[ 7] =  0.0f;
+    dst[ 8] =  xz2 + wy2;
+    dst[ 9] =  yz2 - wx2;
+    dst[10] = -xx2 - yy2 + 1.0f;
+    dst[11] =  0.0f;
+    dst[12] =  0.0f;
+    dst[13] =  0.0f;
+    dst[14] =  0.0f;
+    dst[15] =  1.0f;
+}
+
+#define COS_ALPHA_THRESHOLD 0.9995f
+
+void ngli_quat_slerp(float *dst, const float *q1, const float *q2, float t)
+{
+    float tmp_q1[4];
+    const float *tmp_q1p = q1;
+
+    float cos_alpha = ngli_vec4_dot(q1, q2);
+
+    if (cos_alpha < 0.0f) {
+        cos_alpha = -cos_alpha;
+        ngli_vec4_neg(tmp_q1, q1);
+        tmp_q1p = tmp_q1;
+    }
+
+    if (cos_alpha > COS_ALPHA_THRESHOLD) {
+        ngli_vec4_lerp(dst, tmp_q1p, q2, t);
+        ngli_vec4_norm(dst, dst);
+        return;
+    }
+
+    if (cos_alpha < -1.0f)
+        cos_alpha = -1.0f;
+    else if (cos_alpha > 1.0f)
+        cos_alpha = 1.0f;
+
+    const float alpha = acosf(cos_alpha);
+    const float theta = alpha * t;
+
+    float tmp[4];
+    ngli_vec4_scale(tmp, tmp_q1p, cos_alpha);
+    ngli_vec4_sub(tmp, q2, tmp);
+    ngli_vec4_norm(tmp, tmp);
+
+    float tmp1[4];
+    float tmp2[4];
+    ngli_vec4_scale(tmp1, tmp_q1p, cos(theta));
+    ngli_vec4_scale(tmp2, tmp, sin(theta));
+    ngli_vec4_add(dst, tmp1, tmp2);
 }
