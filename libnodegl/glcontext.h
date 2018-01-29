@@ -25,6 +25,19 @@
 #include "glfunctions.h"
 #include "glwrappers.h"
 
+#define NGLI_FEATURE_VERTEX_ARRAY_OBJECT          (1 << 0)
+#define NGLI_FEATURE_TEXTURE_3D                   (1 << 1)
+#define NGLI_FEATURE_TEXTURE_STORAGE              (1 << 2)
+#define NGLI_FEATURE_COMPUTE_SHADER               (1 << 3)
+#define NGLI_FEATURE_PROGRAM_INTERFACE_QUERY      (1 << 4)
+#define NGLI_FEATURE_SHADER_IMAGE_LOAD_STORE      (1 << 5)
+#define NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT (1 << 6)
+
+#define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
+                                         NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \
+                                         NGLI_FEATURE_SHADER_IMAGE_LOAD_STORE  | \
+                                         NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT)
+
 struct glcontext_class;
 
 struct glcontext {
@@ -40,17 +53,16 @@ struct glcontext {
     int major_version;
     int minor_version;
     int es;
-    int has_vao_compatibility;
-    int has_cs_compatibility;
-    int has_ssbo_compatibility;
-    int has_texture_storage_compatibility;
-    int has_texture3d_compatibility;
+
+    /* GL features */
+    int features;
     int max_texture_image_units;
     int max_compute_work_group_counts[3];
 
     GLenum gl_1comp;
     GLenum gl_2comp;
 
+    /* GL functions */
     struct glfunctions funcs;
 };
 

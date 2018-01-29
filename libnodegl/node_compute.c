@@ -159,13 +159,8 @@ static int compute_init(struct ngl_node *node)
     struct compute *s = node->priv_data;
     struct computeprogram *program = s->program->priv_data;
 
-    if (!glcontext->has_cs_compatibility) {
+    if (!(glcontext->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
         LOG(ERROR, "Context does not support compute shaders");
-        return -1;
-    }
-
-    if (!glcontext->has_ssbo_compatibility) {
-        LOG(ERROR, "Context does not support storage buffer objets");
         return -1;
     }
 

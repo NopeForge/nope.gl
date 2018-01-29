@@ -163,12 +163,9 @@ struct glcontext *ngli_glcontext_new_shared(struct glcontext *other)
     return glcontext;
 }
 
-int ngli_glcontext_load_extensions(struct glcontext *glcontext)
+static int glcontext_load_functions(struct glcontext *glcontext)
 {
     const struct glfunctions *gl = &glcontext->funcs;
-
-    if (glcontext->loaded)
-        return 0;
 
     for (int i = 0; i < NGLI_ARRAY_NB(gldefinitions); i++) {
         void *func;
@@ -183,102 +180,283 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
         *(void **)((uint8_t *)gl + gldefinition->offset) = func;
     }
 
-    if (glcontext->api == NGL_GLAPI_OPENGL3) {
-        GLint i, nb_extensions;
+    return 0;
+}
 
+static int glcontext_probe_version(struct glcontext *glcontext)
+{
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    if (glcontext->api == NGL_GLAPI_OPENGL3) {
         ngli_glGetIntegerv(gl, GL_MAJOR_VERSION, &glcontext->major_version);
         ngli_glGetIntegerv(gl, GL_MINOR_VERSION, &glcontext->minor_version);
 
-        ngli_assert(glcontext->major_version >= 3);
-
-        if (glcontext->major_version >= 4)
-            glcontext->has_vao_compatibility = 1;
-
-        glcontext->has_texture3d_compatibility = 1;
-
-        ngli_glGetIntegerv(gl, GL_NUM_EXTENSIONS, &nb_extensions);
-        for (i = 0; i < nb_extensions; i++) {
-            const char *extension = (const char *)ngli_glGetStringi(gl, GL_EXTENSIONS, i);
-            if (!extension)
-                break;
-            if (!strcmp(extension, "GL_ARB_vertex_array_object")) {
-                glcontext->has_vao_compatibility = 1;
-            } else if (!strcmp(extension, "GL_ARB_compute_shader")) {
-                glcontext->has_cs_compatibility = 1;
-            } else if (!strcmp(extension, "GL_ARB_shader_storage_buffer_object")) {
-                glcontext->has_ssbo_compatibility = 1;
-            } else if (!strcmp(extension, "GL_ARB_texture_storage")) {
-                glcontext->has_texture_storage_compatibility = 1;
-            }
+        if (glcontext->major_version < 3) {
+            LOG(ERROR, "node.gl only supports OpenGL >= 3.0");
+            return -1;
         }
-
-        if (glcontext->has_cs_compatibility) {
-            for (int i = 0; i < NGLI_ARRAY_NB(glcontext->max_compute_work_group_counts); i++)
-                ngli_glGetIntegeri_v(gl,
-                                     GL_MAX_COMPUTE_WORK_GROUP_COUNT,
-                                     i,
-                                     &glcontext->max_compute_work_group_counts[i]);
-        }
-
-        glcontext->gl_1comp = GL_RED;
-        glcontext->gl_2comp = GL_RG;
     } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
         glcontext->es = 1;
 
         const char *gl_version = (const char *)ngli_glGetString(gl, GL_VERSION);
-        if (gl_version) {
-            int ret = sscanf(gl_version,
-                             "OpenGL ES %d.%d",
-                             &glcontext->major_version,
-                             &glcontext->minor_version);
-            if (ret != 2)
-                LOG(ERROR, "Could not parse OpenGL ES version (%s)", gl_version);
-        }
-        if (!glcontext->major_version) {
-            LOG(ERROR, "Could not detect OpenGL ES version, falling back to 2.0");
-            glcontext->major_version = 2;
-            glcontext->minor_version = 0;
+        if (!gl_version) {
+            LOG(ERROR, "could not get OpenGL ES version");
+            return -1;
         }
 
-        const char *gl_extensions = (const char *)ngli_glGetString(gl, GL_EXTENSIONS);
-        glcontext->has_vao_compatibility = ngli_glcontext_check_extension("GL_OES_vertex_array_object", gl_extensions);
-
-        if (glcontext->major_version >= 3) {
-            glcontext->has_texture_storage_compatibility = 1;
-            glcontext->has_texture3d_compatibility = 1;
-            if (glcontext->minor_version >= 1) {
-                glcontext->has_cs_compatibility = 1;
-                glcontext->has_ssbo_compatibility = 1;
-                for (int i = 0; i < NGLI_ARRAY_NB(glcontext->max_compute_work_group_counts); i++)
-                    ngli_glGetIntegeri_v(gl,
-                                         GL_MAX_COMPUTE_WORK_GROUP_COUNT,
-                                         i,
-                                         &glcontext->max_compute_work_group_counts[i]);
-            }
-            glcontext->gl_1comp = GL_RED;
-            glcontext->gl_2comp = GL_RG;
-        } else {
-            glcontext->gl_1comp = GL_LUMINANCE;
-            glcontext->gl_2comp = GL_LUMINANCE_ALPHA;
+        int ret = sscanf(gl_version,
+                         "OpenGL ES %d.%d",
+                         &glcontext->major_version,
+                         &glcontext->minor_version);
+        if (ret != 2) {
+            LOG(ERROR, "could not parse OpenGL ES version (%s)", gl_version);
+            return -1;
         }
-    }
 
-    ngli_glGetIntegerv(gl, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
-
-    if (glcontext->has_vao_compatibility) {
-        glcontext->has_vao_compatibility =
-            gl->GenVertexArrays != NULL &&
-            gl->BindVertexArray != NULL &&
-            gl->DeleteVertexArrays != NULL;
-        if (!glcontext->has_vao_compatibility)
-            LOG(WARNING, "OpenGL driver claims VAO support but we could not load related functions");
-
+        if (glcontext->major_version < 2) {
+            LOG(ERROR, "node.gl only supports OpenGL ES >= 2.0");
+            return -1;
+        }
+    } else {
+        ngli_assert(0);
     }
 
     LOG(INFO, "OpenGL%s%d.%d",
         glcontext->api == NGL_GLAPI_OPENGLES2 ? " ES " : " ",
         glcontext->major_version,
         glcontext->minor_version);
+
+    return 0;
+}
+
+#define OFFSET(x) offsetof(struct glfunctions, x)
+static const struct glfeature {
+    const char *name;
+    int flag;
+    size_t offset;
+    int8_t maj_version;
+    int8_t min_version;
+    int8_t maj_es_version;
+    int8_t min_es_version;
+    const char **extensions;
+    const char **es_extensions;
+    const size_t *funcs_offsets;
+} glfeatures[] = {
+    {
+        .name           = "vertex_array_object",
+        .flag           = NGLI_FEATURE_VERTEX_ARRAY_OBJECT,
+        .maj_version    = 3,
+        .min_version    = 0,
+        .maj_es_version = 3,
+        .min_es_version = 0,
+        .extensions     = (const char*[]){"GL_ARB_vertex_array_object", NULL},
+        .es_extensions  = (const char*[]){"GL_OES_vertex_array_object", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(GenVertexArrays),
+                                           OFFSET(BindVertexArray),
+                                           OFFSET(DeleteVertexArrays),
+                                           -1}
+    }, {
+        .name           = "texture3d",
+        .flag           = NGLI_FEATURE_TEXTURE_3D,
+        .maj_version    = 2,
+        .min_version    = 0,
+        .maj_es_version = 3,
+        .min_es_version = 0,
+        .funcs_offsets  = (const size_t[]){OFFSET(TexImage3D),
+                                           OFFSET(TexSubImage3D),
+                                           -1}
+    }, {
+        .name           = "texture_storage",
+        .flag           = NGLI_FEATURE_TEXTURE_STORAGE,
+        .maj_version    = 4,
+        .min_version    = 2,
+        .maj_es_version = 3,
+        .min_es_version = 1,
+        .funcs_offsets  = (const size_t[]){OFFSET(TexStorage2D),
+                                           OFFSET(TexStorage3D),
+                                           -1}
+    }, {
+        .name           = "compute_shader",
+        .flag           = NGLI_FEATURE_COMPUTE_SHADER,
+        .maj_version    = 4,
+        .min_version    = 3,
+        .maj_es_version = 3,
+        .min_es_version = 1,
+        .extensions     = (const char*[]){"GL_ARB_compute_shader", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(DispatchCompute),
+                                           OFFSET(MemoryBarrier),
+                                           -1}
+    }, {
+        .name           = "program_interface_query",
+        .flag           = NGLI_FEATURE_PROGRAM_INTERFACE_QUERY,
+        .maj_version    = 4,
+        .min_version    = 3,
+        .maj_es_version = 3,
+        .min_es_version = 1,
+        .extensions     = (const char*[]){"GL_ARB_program_interface_query", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(GetProgramResourceIndex),
+                                           OFFSET(GetProgramResourceiv),
+                                           OFFSET(GetProgramResourceLocation),
+                                           -1}
+    }, {
+        .name           = "shader_image_load_store",
+        .flag           = NGLI_FEATURE_SHADER_IMAGE_LOAD_STORE,
+        .maj_version    = 4,
+        .min_version    = 2,
+        .maj_es_version = 3,
+        .min_es_version = 1,
+        .extensions     = (const char*[]){"GL_ARB_shader_image_load_store", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(BindImageTexture),
+                                           -1}
+    }, {
+        .name           = "shader_storage_buffer_object",
+        .flag           = NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT,
+        .maj_version    = 4,
+        .min_version    = 3,
+        .maj_es_version = 3,
+        .min_es_version = 1,
+        .extensions     = (const char*[]){"GL_ARB_shader_storage_buffer_object", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(TexStorage2D),
+                                           OFFSET(TexStorage3D),
+                                           -1}
+    },
+};
+
+static int glcontext_check_extension(const char *extension,
+                                     const struct glfunctions *gl)
+{
+    GLint nb_extensions;
+    ngli_glGetIntegerv(gl, GL_NUM_EXTENSIONS, &nb_extensions);
+
+    for (GLint i = 0; i < nb_extensions; i++) {
+        const char *tmp = (const char *)ngli_glGetStringi(gl, GL_EXTENSIONS, i);
+        if (!tmp)
+            break;
+        if (!strcmp(extension, tmp))
+            return 1;
+    }
+
+    return 0;
+}
+
+static int glcontext_check_extensions(struct glcontext *glcontext,
+                                      const char **extensions)
+{
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    if (!extensions || !*extensions)
+        return 0;
+
+    if (glcontext->es) {
+        const char *gl_extensions = (const char *)ngli_glGetString(gl, GL_EXTENSIONS);
+        while (*extensions) {
+            if (!ngli_glcontext_check_extension(*extensions, gl_extensions))
+                return 0;
+
+            extensions++;
+        }
+    } else {
+        while (*extensions) {
+            if (!glcontext_check_extension(*extensions, gl))
+                return 0;
+
+            extensions++;
+        }
+    }
+
+    return 1;
+}
+
+static int glcontext_check_functions(struct glcontext *glcontext,
+                                     const size_t *funcs_offsets)
+{
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    if (!funcs_offsets)
+        return 1;
+
+    while (*funcs_offsets != -1) {
+        void *func_ptr = *(void **)((uint8_t *)gl + *funcs_offsets);
+        if (!func_ptr)
+            return 0;
+        funcs_offsets++;
+    }
+
+    return 1;
+}
+
+static int glcontext_probe_extensions(struct glcontext *glcontext)
+{
+    const int es = glcontext->es;
+
+    for (int i = 0; i < NGLI_ARRAY_NB(glfeatures); i++) {
+        const struct glfeature *glfeature = &glfeatures[i];
+
+        int maj_version = es ? glfeature->maj_es_version : glfeature->maj_version;
+        int min_version = es ? glfeature->min_es_version : glfeature->min_version;
+
+        if (!(glcontext->major_version >= maj_version &&
+              glcontext->minor_version >= min_version)) {
+            const char **extensions = es ? glfeature->es_extensions : glfeature->extensions;
+            if (!glcontext_check_extensions(glcontext, extensions))
+                continue;
+        }
+
+        if (!glcontext_check_functions(glcontext, glfeature->funcs_offsets))
+            continue;
+
+        LOG(INFO, "driver supports %s feature", glfeature->name);
+        glcontext->features |= glfeature->flag;
+    }
+
+    return 0;
+}
+
+static int glcontext_probe_settings(struct glcontext *glcontext)
+{
+    const int es = glcontext->es;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    if (es && glcontext->major_version == 2 && glcontext->minor_version == 0) {
+        glcontext->gl_1comp = GL_LUMINANCE;
+        glcontext->gl_2comp = GL_LUMINANCE_ALPHA;
+    } else {
+        glcontext->gl_1comp = GL_RED;
+        glcontext->gl_2comp = GL_RG;
+    }
+
+    ngli_glGetIntegerv(gl, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
+
+    if (glcontext->features & NGLI_FEATURE_COMPUTE_SHADER) {
+        for (int i = 0; i < NGLI_ARRAY_NB(glcontext->max_compute_work_group_counts); i++) {
+            ngli_glGetIntegeri_v(gl, GL_MAX_COMPUTE_WORK_GROUP_COUNT,
+                                 i, &glcontext->max_compute_work_group_counts[i]);
+        }
+    }
+
+    return 0;
+}
+
+int ngli_glcontext_load_extensions(struct glcontext *glcontext)
+{
+    if (glcontext->loaded)
+        return 0;
+
+    int ret = glcontext_load_functions(glcontext);
+    if (ret < 0)
+        return ret;
+
+    ret = glcontext_probe_version(glcontext);
+    if (ret < 0)
+        return ret;
+
+    ret = glcontext_probe_extensions(glcontext);
+    if (ret < 0)
+        return ret;
+
+    ret = glcontext_probe_settings(glcontext);
+    if (ret < 0)
+        return ret;
 
     glcontext->loaded = 1;
 

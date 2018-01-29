@@ -278,7 +278,8 @@ static int update_buffers(struct ngl_node *node)
 
     struct render *s = node->priv_data;
 
-    if (glcontext->has_ssbo_compatibility && s->buffers) {
+    if (s->buffers &&
+        glcontext->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
         int i = 0;
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->buffers, entry))) {
@@ -427,7 +428,8 @@ static int render_init(struct ngl_node *node)
     }
 
     int nb_buffers = s->buffers ? ngli_hmap_count(s->buffers) : 0;
-    if (glcontext->has_ssbo_compatibility && nb_buffers > 0) {
+    if (nb_buffers > 0 &&
+        glcontext->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
         s->buffer_ids = calloc(nb_buffers, sizeof(*s->buffer_ids));
         if (!s->buffer_ids)
             return -1;
@@ -468,7 +470,7 @@ static int render_init(struct ngl_node *node)
     }
 
 
-    if (glcontext->has_vao_compatibility) {
+    if (glcontext->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glGenVertexArrays(gl, 1, &s->vao_id);
         ngli_glBindVertexArray(gl, s->vao_id);
         update_vertex_attribs(node);
@@ -485,7 +487,7 @@ static void render_uninit(struct ngl_node *node)
 
     struct render *s = node->priv_data;
 
-    if (glcontext->has_vao_compatibility) {
+    if (glcontext->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
     }
 
@@ -524,7 +526,8 @@ static int render_update(struct ngl_node *node, double t)
         }
     }
 
-    if (glcontext->has_ssbo_compatibility && s->buffers) {
+    if (s->buffers &&
+        glcontext->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->buffers, entry))) {
             int ret = ngli_node_update(entry->data, t);
@@ -547,16 +550,14 @@ static void render_draw(struct ngl_node *node)
     const struct program *program = s->program->priv_data;
     ngli_glUseProgram(gl, program->program_id);
 
-    if (glcontext->has_vao_compatibility) {
+    if (glcontext->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glBindVertexArray(gl, s->vao_id);
+    } else {
+        update_vertex_attribs(node);
     }
 
     update_uniforms(node);
     update_buffers(node);
-
-    if (!glcontext->has_vao_compatibility) {
-        update_vertex_attribs(node);
-    }
 
     const struct geometry *geometry = s->geometry->priv_data;
     const struct buffer *indices_buffer = geometry->indices_buffer->priv_data;
