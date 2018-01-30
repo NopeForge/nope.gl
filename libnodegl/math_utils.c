@@ -41,8 +41,8 @@ void ngli_vec3_sub(float *dst, float *v1, float *v2)
 
 void ngli_vec3_norm(float *dst, float *v)
 {
-    if (!v[0] && !v[1] && !v[2]) {
-        dst[0] = dst[1] = dst[2] = 0;
+    if (!memcmp(v, zvec, 3 * sizeof(*v))) {
+        memcpy(dst, zvec, 3 * sizeof(*v));
         return;
     }
 
