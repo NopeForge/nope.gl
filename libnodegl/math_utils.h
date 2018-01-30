@@ -43,7 +43,7 @@ void ngli_vec4_scale(float *dst, const float *v, float s);
 void ngli_vec4_sub(float *dst, const float *v1, const float *v2);
 
 void ngli_mat3_from_mat4(float *dst, const float *m);
-void ngli_mat3_mul_scalar(float *dst, const float *m, const float s);
+void ngli_mat3_mul_scalar(float *dst, const float *m, float s);
 void ngli_mat3_transpose(float *dst, const float *m);
 float ngli_mat3_determinant(const float *m);
 void ngli_mat3_adjugate(float *dst, const float* m);

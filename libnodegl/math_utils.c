@@ -157,7 +157,7 @@ void ngli_mat3_from_mat4(float *dst, const float *m)
     memcpy(dst + 6, m + 8, 3 * sizeof(*m));
 }
 
-void ngli_mat3_mul_scalar(float *dst, const float *m, const float s)
+void ngli_mat3_mul_scalar(float *dst, const float *m, float s)
 {
     float tmp[3*3];
 
