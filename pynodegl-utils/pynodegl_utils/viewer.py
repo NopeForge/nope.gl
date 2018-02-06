@@ -42,7 +42,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from OpenGL import GL
 
 
-ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1)]
+ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1), (9, 16)]
 SAMPLES = [0, 2, 4, 8]
 FRAME_RATES = [
         (8, 1), (12, 1), (15, 1),
