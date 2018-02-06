@@ -23,6 +23,7 @@
 
 import os
 import os.path as op
+import platform
 import sys
 import time
 import subprocess
@@ -810,6 +811,7 @@ class _MainWindow(QtWidgets.QSplitter):
         cfg['glbackend'] = self._glbackend
         cfg['pkg'] = self._module_pkgname
         cfg['medias'] = self._medias
+        cfg['system'] = platform.system()
         cfg.update(cfg_overrides)
 
         ret = query_subproc(query='scene', **cfg)
