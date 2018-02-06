@@ -21,6 +21,7 @@
 # under the License.
 #
 
+import hashlib
 import os
 import os.path as op
 import platform
@@ -853,6 +854,16 @@ class _MainWindow(QtWidgets.QSplitter):
                     s += '%%%02x' % (cval & 0xff)
             return s
 
+        def get_remotefile(filename, remotedir):
+            statinfo = os.stat(filename)
+            sha256 = hashlib.sha256()
+            sha256.update(filename)
+            sha256.update(str(statinfo.st_size))
+            sha256.update(str(statinfo.st_mtime))
+            digest = sha256.hexdigest()
+            _, ext = op.splitext(filename)
+            return op.join(remotedir, digest + ext)
+
         try:
             # Bail out immediately if there is no script to run when a scene change
             # occurs
@@ -879,7 +890,7 @@ class _MainWindow(QtWidgets.QSplitter):
             if hook_sync and remotedir:
                 for media in cfg['medias']:
                     localfile = media.filename
-                    remotefile = op.join(remotedir, op.basename(localfile))
+                    remotefile = get_remotefile(media.filename, remotedir)
                     serialized_scene = serialized_scene.replace(
                             filename_escape(localfile),
                             filename_escape(remotefile))
