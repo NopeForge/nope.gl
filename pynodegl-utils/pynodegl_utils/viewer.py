@@ -417,6 +417,7 @@ class _GLView(QtWidgets.QWidget):
         gl_widget = _GLWidget(self, self._ar, self._samples)
         gl_widget.set_time(self._gl_widget.get_time())
         self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
+        self._gl_widget.setParent(None)
         self._gl_widget = gl_widget
 
     @QtCore.pyqtSlot(tuple)
