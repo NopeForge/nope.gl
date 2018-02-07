@@ -175,7 +175,8 @@ def query_inplace(**idict):
             scene = camera
 
         # Prepare output data
-        odict['scene'] = scene.dot() if idict.get('fmt') == 'dot' else scene.serialize()
+        odict['scene'] = scene.serialize()
+        odict['scene_dot'] = scene.dot()
 
     elif idict['query'] == 'list':
 

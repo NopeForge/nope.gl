@@ -66,7 +66,8 @@ class _SerialView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def _update_graph(self):
-        cfg = self._get_scene_func()
+        if not cfg:
+            cfg = self._get_scene_func()
         if not cfg:
             QtWidgets.QMessageBox.critical(self, 'No scene',
                                            "You didn't select any scene to graph.",
@@ -74,10 +75,10 @@ class _SerialView(QtWidgets.QWidget):
             return
         self._text.setPlainText(cfg['scene'])
 
-    @QtCore.pyqtSlot(str, str)
-    def scene_changed(self, module_name, scene_name):
+    @QtCore.pyqtSlot(dict)
+    def scene_changed(self, cfg):
         if self._auto_chkbox.isChecked():
-            self._update_graph()
+            self._update_graph(cfg)
 
     @QtCore.pyqtSlot(int)
     def _auto_check_changed(self, state):
@@ -273,8 +274,9 @@ class _GraphView(QtWidgets.QWidget):
         img.save(filenames[0])
 
     @QtCore.pyqtSlot()
-    def _update_graph(self):
-        cfg = self._get_scene_func(fmt='dot')
+    def _update_graph(self, cfg=None):
+        if not cfg:
+            cfg = self._get_scene_func()
         if not cfg:
             QtWidgets.QMessageBox.critical(self, 'No scene',
                                            "You didn't select any scene to graph.",
@@ -282,7 +284,7 @@ class _GraphView(QtWidgets.QWidget):
             return
 
         dotfile = '/tmp/ngl_scene.dot'
-        open(dotfile, 'w').write(cfg['scene'])
+        open(dotfile, 'w').write(cfg['scene_dot'])
         try:
             data = subprocess.check_output(['dot', '-Tpng', dotfile])
         except OSError, e:
@@ -296,10 +298,10 @@ class _GraphView(QtWidgets.QWidget):
         self._graph_lbl.setPixmap(pixmap)
         self._graph_lbl.adjustSize()
 
-    @QtCore.pyqtSlot(str, str)
-    def scene_changed(self, module_name, scene_name):
+    @QtCore.pyqtSlot(dict)
+    def scene_changed(self, cfg):
         if self._auto_chkbox.isChecked():
-            self._update_graph()
+            self._update_graph(cfg)
 
     @QtCore.pyqtSlot(int)
     def _auto_check_changed(self, state):
@@ -434,14 +436,14 @@ class _GLView(QtWidgets.QWidget):
         self._samples = samples
         self._recreate_gl_widget()
 
-    @QtCore.pyqtSlot(str, str)
-    def scene_changed(self, module_name, scene_name):
-        cfg = self._get_scene_func()
-        if cfg:
-            self._gl_widget.set_scene(cfg['scene'])
-            self._scene_duration = cfg['duration']
-            self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
-            self._refresh()
+    @QtCore.pyqtSlot(dict)
+    def scene_changed(self, cfg):
+        if self._ar != cfg['aspect_ratio']:
+            self.set_aspect_ratio(cfg['aspect_ratio'])
+        self._gl_widget.set_scene(cfg['scene'])
+        self._scene_duration = cfg['duration']
+        self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
+        self._refresh()
 
     def __init__(self, get_scene_func, config):
         super(_GLView, self).__init__()
@@ -686,6 +688,16 @@ class _Toolbar(QtWidgets.QWidget):
         self._reload_scene_view(scenes)
         self._load_current_scene()
 
+    @QtCore.pyqtSlot(dict)
+    def on_scene_changed(self, cfg):
+        try:
+            index = ASPECT_RATIOS.index(cfg['aspect_ratio'])
+            self._ar_cbbox.blockSignals(True)
+            self._ar_cbbox.setCurrentIndex(index)
+            self._ar_cbbox.blockSignals(False)
+        except ValueError:
+            pass
+
     @QtCore.pyqtSlot()
     def _fps_chkbox_changed(self):
         self._load_current_scene()
@@ -794,6 +806,8 @@ class _Toolbar(QtWidgets.QWidget):
 
 class _MainWindow(QtWidgets.QSplitter):
 
+    scene_changed = QtCore.pyqtSignal(dict, name='sceneChanged')
+
     def _update_err_buf(self, err_str):
         if err_str:
             self._errbuf.setPlainText(err_str)
@@ -839,6 +853,12 @@ class _MainWindow(QtWidgets.QSplitter):
         if not hook:
             return None
         return subprocess.check_output([hook]).rstrip()
+
+    @QtCore.pyqtSlot(str, str)
+    def _scene_changed(self, module_name, scene_name):
+        cfg = self._get_scene()
+        if cfg:
+            self.sceneChanged.emit(cfg)
 
     @QtCore.pyqtSlot(str, str)
     def _scene_changed_hook(self, module_name, scene_name):
@@ -980,9 +1000,7 @@ class _MainWindow(QtWidgets.QSplitter):
         tabs.addTab(serial_view, "Serialization")
 
         self._scene_toolbar = _Toolbar(self._config)
-        self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
-        self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
-        self._scene_toolbar.sceneChanged.connect(serial_view.scene_changed)
+        self._scene_toolbar.sceneChanged.connect(self._scene_changed)
         self._scene_toolbar.sceneChanged.connect(self._scene_changed_hook)
         self._scene_toolbar.sceneChanged.connect(self._config.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
@@ -991,6 +1009,11 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.samplesChanged.connect(self._config.set_samples)
         self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
         self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
+
+        self.sceneChanged.connect(gl_view.scene_changed)
+        self.sceneChanged.connect(graph_view.scene_changed)
+        self.sceneChanged.connect(serial_view.scene_changed)
+        self.sceneChanged.connect(self._scene_toolbar.on_scene_changed)
 
         self._errbuf = QtWidgets.QPlainTextEdit()
         self._errbuf.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
