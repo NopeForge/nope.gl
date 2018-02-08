@@ -310,7 +310,9 @@ static int render_init(struct ngl_node *node)
         s->program = ngl_node_create(NGL_NODE_PROGRAM);
         if (!s->program)
             return -1;
-        ngli_node_attach_ctx(s->program, ctx);
+        ret = ngli_node_attach_ctx(s->program, ctx);
+        if (ret < 0)
+            return ret;
     }
 
     ret = ngli_node_init(s->program);
