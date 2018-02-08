@@ -30,7 +30,6 @@ setup(name='pynodegl-utils',
       entry_points={
           'console_scripts': [
               'ngl-viewer = pynodegl_utils.viewer:run',
-              'ngl-com = pynodegl_utils.com:run',
           ],
       },
       package_data={

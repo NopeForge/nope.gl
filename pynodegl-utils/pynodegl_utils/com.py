@@ -94,7 +94,7 @@ def query_subproc(**idict):
         os.close(ifilesd[0])
         os.close(ofilesd[1])
 
-    cmd = ['ngl-com', str(ifilesd[0]), str(ofilesd[1])]
+    cmd = [sys.executable, '-m', 'pynodegl_utils.com', str(ifilesd[0]), str(ofilesd[1])]
     ret = subprocess.Popen(cmd, preexec_fn=close_unused_child_fds)
     close_unused_parent_fds()
 
@@ -245,3 +245,7 @@ def run():
     odata = pickle.dumps(odict)
     os.write(fd_w, odata)
     os.close(fd_w)
+
+
+if __name__ == '__main__':
+    run()
