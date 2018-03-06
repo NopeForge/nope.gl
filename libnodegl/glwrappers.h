@@ -251,6 +251,12 @@ static inline void ngli_glDisable(const struct glfunctions *gl, GLenum cap)
     check_error_code(gl, "glDisable");
 }
 
+static inline void ngli_glDisableVertexAttribArray(const struct glfunctions *gl, GLuint index)
+{
+    gl->DisableVertexAttribArray(index);
+    check_error_code(gl, "glDisableVertexAttribArray");
+}
+
 static inline void ngli_glDispatchCompute(const struct glfunctions *gl, GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
 {
     gl->DispatchCompute(num_groups_x, num_groups_y, num_groups_z);

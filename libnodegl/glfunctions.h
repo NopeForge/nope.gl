@@ -48,6 +48,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*DepthMask)(GLboolean flag);
     NGLI_GL_APIENTRY void (*DetachShader)(GLuint program, GLuint shader);
     NGLI_GL_APIENTRY void (*Disable)(GLenum cap);
+    NGLI_GL_APIENTRY void (*DisableVertexAttribArray)(GLuint index);
     NGLI_GL_APIENTRY void (*DispatchCompute)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
     NGLI_GL_APIENTRY void (*DrawElements)(GLenum mode, GLsizei count, GLenum type, const void * indices);
     NGLI_GL_APIENTRY void (*Enable)(GLenum cap);

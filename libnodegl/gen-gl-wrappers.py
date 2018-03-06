@@ -154,6 +154,7 @@ cmds = [
     'glGetAttribLocation',
     'glBindAttribLocation',
     'glEnableVertexAttribArray',
+    'glDisableVertexAttribArray',
     'glVertexAttribPointer',
 
     # Shader Uniforms

@@ -270,6 +270,47 @@ static int update_vertex_attribs(struct ngl_node *node)
     return 0;
 }
 
+static int disable_vertex_attribs(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    struct render *s = node->priv_data;
+    struct geometry *geometry = s->geometry->priv_data;
+    struct program *program = s->program->priv_data;
+
+    if (geometry->vertices_buffer) {
+        if (program->position_location_id >= 0) {
+            ngli_glDisableVertexAttribArray(gl, program->position_location_id);
+        }
+    }
+
+    if (geometry->uvcoords_buffer) {
+        if (program->uvcoord_location_id >= 0) {
+            ngli_glDisableVertexAttribArray(gl, program->uvcoord_location_id);
+        }
+    }
+
+    if (geometry->normals_buffer) {
+        if (program->normal_location_id >= 0) {
+            ngli_glDisableVertexAttribArray(gl, program->normal_location_id);
+        }
+    }
+
+    if (s->attributes) {
+        int nb_attributes = ngli_hmap_count(s->attributes);
+        for (int i = 0; i < nb_attributes; i++) {
+            if (s->attribute_ids[i] < 0)
+                continue;
+
+            ngli_glDisableVertexAttribArray(gl, s->attribute_ids[i]);
+        }
+    }
+
+    return 0;
+}
+
 static int update_buffers(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -564,6 +605,10 @@ static void render_draw(struct ngl_node *node)
 
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_buffer->buffer_id);
     ngli_glDrawElements(gl, geometry->draw_mode, indices_buffer->count, indices_buffer->comp_type, 0);
+
+    if (!(glcontext->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)) {
+        disable_vertex_attribs(node);
+    }
 }
 
 const struct node_class ngli_render_class = {

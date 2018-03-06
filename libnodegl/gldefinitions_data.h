@@ -47,6 +47,7 @@ static const struct gldefinition {
     {"glDepthMask", offsetof(struct glfunctions, DepthMask), M},
     {"glDetachShader", offsetof(struct glfunctions, DetachShader), M},
     {"glDisable", offsetof(struct glfunctions, Disable), M},
+    {"glDisableVertexAttribArray", offsetof(struct glfunctions, DisableVertexAttribArray), M},
     {"glDispatchCompute", offsetof(struct glfunctions, DispatchCompute), 0},
     {"glDrawElements", offsetof(struct glfunctions, DrawElements), M},
     {"glEnable", offsetof(struct glfunctions, Enable), M},
