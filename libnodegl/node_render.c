@@ -259,10 +259,10 @@ static int update_vertex_attribs(struct ngl_node *node)
                 continue;
 
             struct ngl_node *anode = entry->data;
-            struct buffer *b = anode->priv_data;
+            struct buffer *buffer = anode->priv_data;
             ngli_glEnableVertexAttribArray(gl, s->attribute_ids[i]);
-            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, b->buffer_id);
-            ngli_glVertexAttribPointer(gl, s->attribute_ids[i], b->data_comp, GL_FLOAT, GL_FALSE, b->data_stride, NULL);
+            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
+            ngli_glVertexAttribPointer(gl, s->attribute_ids[i], buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
             i++;
         }
     }
@@ -325,8 +325,8 @@ static int update_buffers(struct ngl_node *node)
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->buffers, entry))) {
             const struct ngl_node *bnode = entry->data;
-            const struct buffer *b = bnode->priv_data;
-            ngli_glBindBufferBase(gl, GL_SHADER_STORAGE_BUFFER, s->buffer_ids[i], b->buffer_id);
+            const struct buffer *buffer = bnode->priv_data;
+            ngli_glBindBufferBase(gl, GL_SHADER_STORAGE_BUFFER, s->buffer_ids[i], buffer->buffer_id);
             i++;
         }
     }
