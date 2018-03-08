@@ -168,6 +168,7 @@ struct buffer {
     int data_size;          // total buffer data size in bytes
     int data_comp;          // number of components per element
     int data_stride;        // stride of 1 element, in bytes
+    GLenum data_comp_type;  // type of a single component: integer, float, ...
     GLenum usage;
 
     /* animatedbuffer */
@@ -176,7 +177,6 @@ struct buffer {
     int current_kf;
 
     GLuint buffer_id;
-    GLenum comp_type;
 };
 
 struct uniform {

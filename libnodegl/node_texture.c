@@ -524,7 +524,7 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
             }
 
             data = buffer->data;
-            s->type = buffer->comp_type;
+            s->type = buffer->data_comp_type;
             switch (buffer->data_comp) {
             case 1: s->internal_format = s->format = GL_RED;  break;
             case 2: s->internal_format = s->format = GL_RG;   break;
