@@ -40,6 +40,9 @@ struct ngl_node *ngli_geometry_generate_buffer(struct ngl_ctx *ctx, int type, in
     if (!node)
         return NULL;
 
+    struct buffer *buffer = node->priv_data;
+    buffer->generate_gl_buffer = 1;
+
     if (data)
         ngl_node_param_set(node, "data", size, data);
 
@@ -121,18 +124,21 @@ static int geometry_init(struct ngl_node *node)
 {
     struct geometry *s = node->priv_data;
 
+    struct buffer *vertices = s->vertices_buffer->priv_data;
+    vertices->generate_gl_buffer = 1;
+
     int ret = ngli_node_init(s->vertices_buffer);
     if (ret < 0)
         return ret;
 
-    struct buffer *vertices = s->vertices_buffer->priv_data;
-
     if (s->uvcoords_buffer) {
+        struct buffer *b = s->uvcoords_buffer->priv_data;
+        b->generate_gl_buffer = 1;
+
         int ret = ngli_node_init(s->uvcoords_buffer);
         if (ret < 0)
             return ret;
 
-        struct buffer *b = s->uvcoords_buffer->priv_data;
         if (b->count != vertices->count) {
             LOG(ERROR,
                 "uvcoords count (%d) does not match vertices count (%d)",
@@ -143,11 +149,13 @@ static int geometry_init(struct ngl_node *node)
     }
 
     if (s->normals_buffer) {
+        struct buffer *b = s->normals_buffer->priv_data;
+        b->generate_gl_buffer = 1;
+
         int ret = ngli_node_init(s->normals_buffer);
         if (ret < 0)
             return ret;
 
-        struct buffer *b = s->normals_buffer->priv_data;
         if (b->count != vertices->count) {
             LOG(ERROR,
                 "normals count (%d) does not match vertices count (%d)",
@@ -158,6 +166,9 @@ static int geometry_init(struct ngl_node *node)
     }
 
     if (s->indices_buffer) {
+        struct buffer *b = s->indices_buffer->priv_data;
+        b->generate_gl_buffer = 1;
+
         int ret = ngli_node_init(s->indices_buffer);
         if (ret < 0)
             return ret;

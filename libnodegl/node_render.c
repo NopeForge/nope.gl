@@ -393,10 +393,12 @@ static int render_init(struct ngl_node *node)
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->attributes, entry))) {
             struct ngl_node *anode = entry->data;
+            struct buffer *buffer = anode->priv_data;
+            buffer->generate_gl_buffer = 1;
+
             ret = ngli_node_init(anode);
             if (ret < 0)
                 return ret;
-            struct buffer *buffer = anode->priv_data;
             if (buffer->count != vertices->count) {
                 LOG(ERROR,
                     "attribute buffer %s count (%d) does not match vertices count (%d)",
@@ -479,6 +481,9 @@ static int render_init(struct ngl_node *node)
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->buffers, entry))) {
             struct ngl_node *unode = entry->data;
+            struct buffer *buffer = unode->priv_data;
+            buffer->generate_gl_buffer = 1;
+
             ret = ngli_node_init(unode);
             if (ret < 0)
                 return ret;
