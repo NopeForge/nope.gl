@@ -258,6 +258,8 @@ struct texture {
 #ifdef TARGET_IPHONE
     CVOpenGLESTextureRef texture;
 #endif
+
+    double data_src_ts;
 };
 
 GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext,
@@ -274,6 +276,7 @@ struct textureprograminfo {
     int external_sampler_id;
     int coord_matrix_id;
     int dimensions_id;
+    int ts_id;
 };
 
 struct render {

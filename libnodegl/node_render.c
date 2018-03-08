@@ -190,6 +190,9 @@ static int update_uniforms(struct ngl_node *node)
                     ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
             }
 
+            if (info->ts_id >= 0)
+                ngli_glUniform1f(gl, info->ts_id, texture->data_src_ts);
+
             i++;
             texture_index++;
         }
@@ -446,6 +449,7 @@ static int render_init(struct ngl_node *node)
             GET_TEXTURE_UNIFORM_LOCATION(external_sampler);
             GET_TEXTURE_UNIFORM_LOCATION(coord_matrix);
             GET_TEXTURE_UNIFORM_LOCATION(dimensions);
+            GET_TEXTURE_UNIFORM_LOCATION(ts);
 
 #undef GET_TEXTURE_UNIFORM_LOCATION
 

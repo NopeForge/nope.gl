@@ -570,9 +570,12 @@ static void handle_media_frame(struct ngl_node *node)
     struct media *media = s->data_src->priv_data;
 
     if (media->frame) {
-        ngli_hwupload_upload_frame(node, media->frame);
+        struct sxplayer_frame *frame = media->frame;
 
-        sxplayer_release_frame(media->frame);
+        s->data_src_ts = frame->ts;
+        ngli_hwupload_upload_frame(node, frame);
+
+        sxplayer_release_frame(frame);
         media->frame = NULL;
     }
 }
