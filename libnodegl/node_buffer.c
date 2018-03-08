@@ -25,16 +25,6 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-static const struct param_choices target_choices = {
-    .name = "buffer_target",
-    .consts = {
-        {"array_buffer",          GL_ARRAY_BUFFER,          .desc=NGLI_DOCSTRING("vertex attributes")},
-        {"element_array_buffer",  GL_ELEMENT_ARRAY_BUFFER,  .desc=NGLI_DOCSTRING("vertex array indices")},
-        {"shader_storage_buffer", GL_SHADER_STORAGE_BUFFER, .desc=NGLI_DOCSTRING("read-write storage for shaders")},
-        {NULL}
-    }
-};
-
 static const struct param_choices usage_choices = {
     .name = "buffer_usage",
     .consts = {
@@ -68,9 +58,6 @@ static const struct node_param buffer_params[] = {
                .desc=NGLI_DOCSTRING("buffer of `count` elements")},
     {"stride", PARAM_TYPE_INT,    OFFSET(data_stride),
                .desc=NGLI_DOCSTRING("stride of 1 element, in bytes")},
-    {"target", PARAM_TYPE_SELECT, OFFSET(target), {.i64=GL_ARRAY_BUFFER},
-               .desc=NGLI_DOCSTRING("target to which the buffer will be bound"),
-               .choices=&target_choices},
     {"usage",  PARAM_TYPE_SELECT, OFFSET(usage),  {.i64=GL_STATIC_DRAW},
                .desc=NGLI_DOCSTRING("buffer usage hint"),
                .choices=&usage_choices},
@@ -146,9 +133,9 @@ static int buffer_init(struct ngl_node *node)
     }
 
     ngli_glGenBuffers(gl, 1, &s->buffer_id);
-    ngli_glBindBuffer(gl, s->target, s->buffer_id);
-    ngli_glBufferData(gl, s->target, s->data_size, s->data, s->usage);
-    ngli_glBindBuffer(gl, s->target, 0);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, s->data_size, s->data, s->usage);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
 
     return 0;
 }

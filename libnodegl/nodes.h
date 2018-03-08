@@ -168,7 +168,6 @@ struct buffer {
     int data_size;          // total buffer data size in bytes
     int data_comp;          // number of components per element
     int data_stride;        // stride of 1 element, in bytes
-    GLenum target;
     GLenum usage;
 
     /* animatedbuffer */

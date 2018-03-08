@@ -153,7 +153,6 @@ Parameter | Ctor. | Type | Description | Default
 `count` |  | [`int`](#parameter-types) | number of elements | `0`
 `data` |  | [`data`](#parameter-types) | buffer of `count` elements | 
 `stride` |  | [`int`](#parameter-types) | stride of 1 element, in bytes | `0`
-`target` |  | [`buffer_target`](#buffer_target-choices) | target to which the buffer will be bound | `array_buffer`
 `usage` |  | [`buffer_usage`](#buffer_usage-choices) | buffer usage hint | `static_draw`
 
 
@@ -642,14 +641,6 @@ Type | Description
 
 Constants for choices parameters
 ================================
-
-## buffer_target choices
-
-Constant | Description
--------- | -----------
-`array_buffer` | vertex attributes
-`element_array_buffer` | vertex array indices
-`shader_storage_buffer` | read-write storage for shaders
 
 ## buffer_usage choices
 

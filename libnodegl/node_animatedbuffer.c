@@ -87,9 +87,9 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
     struct glcontext *glcontext = ctx->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    ngli_glBindBuffer(gl, s->target, s->buffer_id);
-    ngli_glBufferSubData(gl, s->target, 0, s->data_size, s->data);
-    ngli_glBindBuffer(gl, s->target, 0);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
+    ngli_glBufferSubData(gl, GL_ARRAY_BUFFER, 0, s->data_size, s->data);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
     return 0;
 }
 
@@ -137,16 +137,15 @@ static int animatedbuffer_init(struct ngl_node *node)
     if (!s->data)
         return -1;
 
-    s->target = GL_ARRAY_BUFFER;
     s->usage  = GL_DYNAMIC_DRAW;
     s->comp_type = GL_FLOAT;
 
     s->data_size = s->count * s->data_stride;
 
     ngli_glGenBuffers(gl, 1, &s->buffer_id);
-    ngli_glBindBuffer(gl, s->target, s->buffer_id);
-    ngli_glBufferData(gl, s->target, s->data_size, s->data, s->usage);
-    ngli_glBindBuffer(gl, s->target, 0);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, s->data_size, s->data, s->usage);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
 
     return 0;
 }
