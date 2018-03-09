@@ -185,7 +185,6 @@ struct uniform {
     float vector[4];
     float matrix[4*4];
     int ival;
-    int type;
     struct ngl_node *anim;
     struct ngl_node *transform;
 };
