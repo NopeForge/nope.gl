@@ -190,10 +190,6 @@ struct uniform {
     struct ngl_node *transform;
 };
 
-struct attribute {
-    const char *name;
-};
-
 struct rtt {
     struct ngl_node *child;
     struct ngl_node *color_texture;
