@@ -416,7 +416,6 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
 
     (*env)->CallVoidMethod(env, surface->surface_texture, surface->jfields.update_tex_image_id);
     if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
-        pthread_mutex_unlock(&surface->lock);
         goto fail;
     }
 
