@@ -691,7 +691,6 @@ class _Toolbar(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(list)
     def on_scripts_changed(self, scenes):
-        found_current_scene = False
         self._reload_scene_view(scenes)
         self._load_current_scene()
 
