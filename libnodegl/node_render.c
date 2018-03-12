@@ -31,7 +31,11 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_UNIFORMFLOAT,      \
+#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,       \
+                                          NGL_NODE_BUFFERVEC2,        \
+                                          NGL_NODE_BUFFERVEC3,        \
+                                          NGL_NODE_BUFFERVEC4,        \
+                                          NGL_NODE_UNIFORMFLOAT,      \
                                           NGL_NODE_UNIFORMVEC2,       \
                                           NGL_NODE_UNIFORMVEC3,       \
                                           NGL_NODE_UNIFORMVEC4,       \
@@ -112,30 +116,63 @@ static int update_uniforms(struct ngl_node *node)
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->uniforms, entry))) {
             const struct ngl_node *unode = entry->data;
-            const struct uniform *u = unode->priv_data;
             const GLint uid = s->uniform_ids[i];
             switch (unode->class->id) {
-            case NGL_NODE_UNIFORMFLOAT:
+            case NGL_NODE_UNIFORMFLOAT: {
+                const struct uniform *u = unode->priv_data;
                 ngli_glUniform1f(gl, uid, u->scalar);
                 break;
-            case NGL_NODE_UNIFORMVEC2:
+            }
+            case NGL_NODE_UNIFORMVEC2: {
+                const struct uniform *u = unode->priv_data;
                 ngli_glUniform2fv(gl, uid, 1, u->vector);
                 break;
-            case NGL_NODE_UNIFORMVEC3:
+            }
+            case NGL_NODE_UNIFORMVEC3: {
+                const struct uniform *u = unode->priv_data;
                 ngli_glUniform3fv(gl, uid, 1, u->vector);
                 break;
-            case NGL_NODE_UNIFORMVEC4:
+            }
+            case NGL_NODE_UNIFORMVEC4: {
+                const struct uniform *u = unode->priv_data;
                 ngli_glUniform4fv(gl, uid, 1, u->vector);
                 break;
-            case NGL_NODE_UNIFORMINT:
+            }
+            case NGL_NODE_UNIFORMINT: {
+                const struct uniform *u = unode->priv_data;
                 ngli_glUniform1i(gl, uid, u->ival);
                 break;
-            case NGL_NODE_UNIFORMQUAT:
+            }
+            case NGL_NODE_UNIFORMQUAT: {
+                const struct uniform *u = unode->priv_data;
                 ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
                 break;
-            case NGL_NODE_UNIFORMMAT4:
+            }
+            case NGL_NODE_UNIFORMMAT4: {
+                const struct uniform *u = unode->priv_data;
                 ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
                 break;
+            }
+            case NGL_NODE_BUFFERFLOAT: {
+                const struct buffer *buffer = unode->priv_data;
+                ngli_glUniform1fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
+                break;
+            }
+            case NGL_NODE_BUFFERVEC2: {
+                const struct buffer *buffer = unode->priv_data;
+                ngli_glUniform2fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
+                break;
+            }
+            case NGL_NODE_BUFFERVEC3: {
+                const struct buffer *buffer = unode->priv_data;
+                ngli_glUniform3fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
+                break;
+            }
+            case NGL_NODE_BUFFERVEC4: {
+                const struct buffer *buffer = unode->priv_data;
+                ngli_glUniform4fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
+                break;
+            }
             default:
                 LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
                 break;
