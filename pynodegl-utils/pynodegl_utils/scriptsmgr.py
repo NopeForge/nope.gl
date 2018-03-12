@@ -68,7 +68,7 @@ class ScriptsManager(QtCore.QObject):
 
     @QtCore.pyqtSlot(list)
     def set_filelist(self, filelist):
-        self._files_to_watch = set(filelist)
+        self._files_to_watch = set(op.realpath(f) for f in filelist)
         self._dirs_to_watch = set(op.dirname(f) for f in self._files_to_watch)
 
         self._observer.unschedule_all()
