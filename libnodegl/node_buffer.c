@@ -19,8 +19,12 @@
  * under the License.
  */
 
+#include <fcntl.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -56,6 +60,8 @@ static const struct node_param buffer_params[] = {
                .desc=NGLI_DOCSTRING("number of elements")},
     {"data",   PARAM_TYPE_DATA,   OFFSET(data),
                .desc=NGLI_DOCSTRING("buffer of `count` elements")},
+    {"filename", PARAM_TYPE_STR,  OFFSET(filename),
+               .desc=NGLI_DOCSTRING("filename from which the buffer will be read, cannot be used with `data`")},
     {"stride", PARAM_TYPE_INT,    OFFSET(data_stride),
                .desc=NGLI_DOCSTRING("stride of 1 element, in bytes")},
     {"usage",  PARAM_TYPE_SELECT, OFFSET(usage),  {.i64=GL_STATIC_DRAW},
@@ -63,6 +69,82 @@ static const struct node_param buffer_params[] = {
                .choices=&usage_choices},
     {NULL}
 };
+
+static int buffer_init_from_data(struct ngl_node *node)
+{
+    struct buffer *s = node->priv_data;
+
+    s->count = s->count ? s->count : s->data_size / s->data_stride;
+    if (s->data_size != s->count * s->data_stride) {
+        LOG(ERROR,
+            "element count (%d) and data stride (%d) does not match data size (%d)",
+            s->count,
+            s->data_stride,
+            s->data_size);
+        return -1;
+    }
+
+    return 0;
+}
+
+static int buffer_init_from_filename(struct ngl_node *node)
+{
+    struct buffer *s = node->priv_data;
+
+    s->fd = open(s->filename, O_RDONLY);
+    if (s->fd < 0) {
+        LOG(ERROR, "could not open '%s'", s->filename);
+        return -1;
+    }
+
+    off_t filesize = lseek(s->fd, 0, SEEK_END);
+    off_t ret      = lseek(s->fd, 0, SEEK_SET);
+    if (filesize < 0 || ret < 0) {
+        LOG(ERROR, "could not seek in '%s'", s->filename);
+        return -1;
+    }
+    s->data_size = filesize;
+    s->count = s->count ? s->count : s->data_size / s->data_stride;
+
+    if (s->data_size != s->count * s->data_stride) {
+        LOG(ERROR,
+            "element count (%d) and data stride (%d) does not match data size (%d)",
+            s->count,
+            s->data_stride,
+            s->data_size);
+        return -1;
+    }
+
+    s->data = calloc(s->count, s->data_stride);
+    if (!s->data)
+        return -1;
+
+    ssize_t n = read(s->fd, s->data, s->data_size);
+    if (n < 0) {
+        LOG(ERROR, "could not read '%s': %zd", s->filename, n);
+        return -1;
+    }
+
+    if (n != s->data_size) {
+        LOG(ERROR, "read %zd bytes does not match expected size of %d bytes", n, s->data_size);
+        return -1;
+    }
+
+    return 0;
+}
+
+static int buffer_init_from_count(struct ngl_node *node)
+{
+    struct buffer *s = node->priv_data;
+
+    s->count = s->count ? s->count : 1;
+    s->data_size = s->count * s->data_stride;
+    s->data = calloc(s->count, s->data_stride);
+    if (!s->data)
+        return -1;
+
+    return 0;
+}
 
 static int buffer_init(struct ngl_node *node)
 {
@@ -72,6 +154,13 @@ static int buffer_init(struct ngl_node *node)
 
     struct buffer *s = node->priv_data;
 
+    if (s->data && s->filename) {
+        LOG(ERROR,
+            "data and filename option cannot be set at the same time");
+        return -1;
+    }
+
+    int ret;
     int data_comp_size;
     int nb_comp;
     GLenum comp_type;
@@ -115,22 +204,14 @@ static int buffer_init(struct ngl_node *node)
     if (!s->data_stride)
         s->data_stride = s->data_comp * data_comp_size;
 
-    if (s->data) {
-        s->count = s->count ? s->count : s->data_size / s->data_stride;
-        if (s->data_size != s->count * s->data_stride) {
-            LOG(ERROR,
-                "Element count (%d) does not match data size (%d)",
-                s->count,
-                s->data_size);
-            return -1;
-        }
-    } else {
-        s->count = s->count ? s->count : 1;
-        s->data_size = s->count * s->data_stride;
-        s->data = calloc(s->count, s->data_stride);
-        if (!s->data)
-            return -1;
-    }
+    if (s->data)
+        ret = buffer_init_from_data(node);
+    else if (s->filename)
+        ret = buffer_init_from_filename(node);
+    else
+        ret = buffer_init_from_count(node);
+    if (ret < 0)
+        return ret;
 
     if (s->generate_gl_buffer) {
         ngli_glGenBuffers(gl, 1, &s->buffer_id);
@@ -149,6 +230,13 @@ static void buffer_uninit(struct ngl_node *node)
     const struct glfunctions *gl = &glcontext->funcs;
 
     struct buffer *s = node->priv_data;
+
+    if (s->filename && s->fd) {
+        int ret = close(s->fd);
+        if (ret < 0) {
+            LOG(ERROR, "could not properly close '%s'", s->filename);
+        }
+    }
 
     ngli_glDeleteBuffers(gl, 1, &s->buffer_id);
 }

@@ -166,6 +166,7 @@ struct buffer {
     int count;              // number of elements
     uint8_t *data;          // buffer of <count> elements
     int data_size;          // total buffer data size in bytes
+    char *filename;         // filename from which the data will be read
     int data_comp;          // number of components per element
     int data_stride;        // stride of 1 element, in bytes
     GLenum data_comp_type;  // type of a single component: integer, float, ...
@@ -175,6 +176,8 @@ struct buffer {
     struct ngl_node **animkf;
     int nb_animkf;
     int current_kf;
+
+    int fd;
 
     /* private option that must be set before calling ngl_node_init() to enable
      * the generation of a GL buffer feed with the buffer data; mandatory for

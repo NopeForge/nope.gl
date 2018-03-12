@@ -93,13 +93,11 @@ def buffer_dove(cfg,
     cfg.duration = 3.
 
     # Credits: https://icons8.com/icon/40514/dove
-    icon = open(op.join(op.dirname(__file__), 'data', 'icons8-dove.raw'))
+    icon_filename = op.join(op.dirname(__file__), 'data', 'icons8-dove.raw')
     w, h = (96, 96)
-    icon_data = icon.read()
-    assert len(icon_data) == w * h * 4
 
-    array_data = array.array('B', icon_data)
-    img_buf = BufferUBVec4(data=array_data)
+    img_buf = BufferUBVec4(filename=icon_filename)
+
     img_tex = Texture2D(data_src=img_buf, width=w, height=h)
     if bilinear_filtering:
         img_tex.set_mag_filter('linear')

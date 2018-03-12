@@ -89,6 +89,7 @@
     optional:
         - [count, int]
         - [data, data]
+        - [filename, string]
         - [stride, int]
         - [usage, select]
 
