@@ -668,6 +668,13 @@ class _Toolbar(QtWidgets.QWidget):
             qitem_script = QtGui.QStandardItem(module_name)
             for scene_name, widgets_specs in sub_scenes:
                 scene_data = (module_name, scene_name, widgets_specs)
+
+                # update cached widget specs if module and scene match
+                if self._current_scene_data:
+                    cur_module_name, cur_scene_name, _ = self._current_scene_data
+                    if module_name == cur_module_name and scene_name == cur_scene_name:
+                        self._current_scene_data = scene_data
+
                 qitem_func = QtGui.QStandardItem(scene_name)
                 qitem_script.appendRow(qitem_func)
                 qitem_func.setData(scene_data)
