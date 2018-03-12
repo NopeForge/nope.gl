@@ -65,7 +65,7 @@ class _SerialView(QtWidgets.QWidget):
         open(filenames[0], 'w').write(data)
 
     @QtCore.pyqtSlot()
-    def _update_graph(self):
+    def _update_graph(self, cfg=None):
         if not cfg:
             cfg = self._get_scene_func()
         if not cfg:
