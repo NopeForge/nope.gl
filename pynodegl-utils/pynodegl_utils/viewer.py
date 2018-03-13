@@ -123,6 +123,14 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self._time = t
         self.update()
 
+    def reset_viewer(self):
+        self.makeCurrent()
+        del self._viewer
+        self._viewer = ngl.Viewer()
+        self.initializeGL()
+        self.doneCurrent()
+        self.update()
+
     def set_scene(self, scene):
         self.makeCurrent()
         self._viewer.set_scene_from_string(scene)
@@ -401,6 +409,11 @@ class _GLView(QtWidgets.QWidget):
         self._refresh()
 
     @QtCore.pyqtSlot()
+    def _stop(self):
+        self._set_action('pause')
+        self._gl_widget.reset_viewer()
+
+    @QtCore.pyqtSlot()
     def _step_fw(self):
         self._step_frame_index(1)
 
@@ -465,6 +478,7 @@ class _GLView(QtWidgets.QWidget):
 
         self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
 
+        stop_btn = QtWidgets.QPushButton('◾')
         self._action_btn = QtWidgets.QPushButton()
         self._set_action('pause')
 
@@ -476,6 +490,7 @@ class _GLView(QtWidgets.QWidget):
         screenshot_btn = QtWidgets.QPushButton('Screenshot')
 
         toolbar = QtWidgets.QHBoxLayout()
+        toolbar.addWidget(stop_btn)
         toolbar.addWidget(bw_btn)
         toolbar.addWidget(self._action_btn)
         toolbar.addWidget(fw_btn)
@@ -493,6 +508,8 @@ class _GLView(QtWidgets.QWidget):
         self._refresh()
 
         self._timer.timeout.connect(self._update_tick)
+
+        stop_btn.clicked.connect(self._stop)
         self._action_btn.clicked.connect(self._toggle_playback)
         fw_btn.clicked.connect(self._step_fw)
         bw_btn.clicked.connect(self._step_bw)
