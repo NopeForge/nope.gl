@@ -15,8 +15,9 @@ from pynodegl import (
 
 from pynodegl_utils.misc import scene, get_frag, get_vert
 
-@scene(overlap_time={'type': 'range', 'range': [0,5], 'unit_base': 10},
-       dim={'type': 'range', 'range': [1,10]})
+
+@scene(overlap_time={'type': 'range', 'range': [0, 5], 'unit_base': 10},
+       dim={'type': 'range', 'range': [1, 10]})
 def queued_medias(cfg, overlap_time=1., dim=3):
     qw = qh = 2. / dim
     nb_videos = dim * dim
@@ -48,8 +49,9 @@ def queued_medias(cfg, overlap_time=1., dim=3):
 
     return Group(children=tqs)
 
+
 @scene(fast={'type': 'bool'},
-       segment_time={'type': 'range', 'range': [0,10], 'unit_base': 10})
+       segment_time={'type': 'range', 'range': [0, 10], 'unit_base': 10})
 def parallel_playback(cfg, fast=True, segment_time=2.):
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p = Program()

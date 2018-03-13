@@ -53,6 +53,7 @@ FRAME_RATES = [
         (60000, 1001), (60, 1),
 ]
 
+
 class _SerialView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
@@ -340,7 +341,7 @@ class _GLView(QtWidgets.QWidget):
     REFRESH_RATE = 60
     SLIDER_TIMEBASE = 1000
     SLIDER_TIMESCALE = 1. / SLIDER_TIMEBASE
-    TIMEBASE = 1000000000 # nanoseconds
+    TIMEBASE = 1000000000  # nanoseconds
     TIMESCALE = 1. / TIMEBASE
 
     def _reset_clock(self):
@@ -358,7 +359,7 @@ class _GLView(QtWidgets.QWidget):
         self._current_action = action
 
     @QtCore.pyqtSlot(int)
-    def _slider_moved(self, value): # only user move
+    def _slider_moved(self, value):  # only user move
         if not self._scene_duration:
             return
         self._set_action('pause')
@@ -458,7 +459,7 @@ class _GLView(QtWidgets.QWidget):
         self._scene_duration = 0
 
         self._timer = QtCore.QTimer()
-        self._timer.setInterval(1000.0 / self.REFRESH_RATE) # in milliseconds
+        self._timer.setInterval(1000.0 / self.REFRESH_RATE)  # in milliseconds
 
         self._gl_widget = _GLWidget(self, self._ar, self._samples)
 
@@ -827,7 +828,7 @@ class _MainWindow(QtWidgets.QSplitter):
 
     def _get_scene(self, **cfg_overrides):
         cfg = self._scene_toolbar.get_scene_cfg()
-        cfg['scene'] = (cfg['scene'][0], cfg['scene'][1]) # XXX
+        cfg['scene'] = (cfg['scene'][0], cfg['scene'][1])  # XXX
         cfg['glbackend'] = self._glbackend
         cfg['pkg'] = self._module_pkgname
         cfg['medias'] = self._medias
@@ -933,7 +934,7 @@ class _MainWindow(QtWidgets.QSplitter):
 
         except subprocess.CalledProcessError, e:
             QtWidgets.QMessageBox.critical(self, 'Hook error',
-                                          'Error (%d) while executing %s' % (e.returncode, ' '.join(e.cmd)),
+                                           'Error (%d) while executing %s' % (e.returncode, ' '.join(e.cmd)),
                                            QtWidgets.QMessageBox.Ok)
 
     def _emit_geometry(self):
@@ -1034,7 +1035,7 @@ class _MainWindow(QtWidgets.QSplitter):
         self.addWidget(tabs_and_errbuf_widget)
         self.setStretchFactor(1, 1)
 
-        self._scene_toolbar.reload_btn.clicked.connect(self._scripts_mgr.reload) # TODO: drop
+        self._scene_toolbar.reload_btn.clicked.connect(self._scripts_mgr.reload)  # TODO: drop
         self._scripts_mgr.error.connect(self._all_scripts_err)
         self._scripts_mgr.scriptsChanged.connect(self._scene_toolbar.on_scripts_changed)
         self._scripts_mgr.start()

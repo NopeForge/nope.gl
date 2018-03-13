@@ -23,6 +23,7 @@ _colors = [
     (1, 1, 0, 1),
 ]
 
+
 def _get_func(name, flags=0):
 
     widgets = {

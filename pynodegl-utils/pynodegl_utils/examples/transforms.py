@@ -31,7 +31,7 @@ from pynodegl_utils.misc import scene, get_frag
        rotate={'type': 'bool'},
        scale={'type': 'bool'},
        translate={'type': 'bool'})
-def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=True):
+def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, translate=True):
     cfg.duration = 5.0
 
     sz = 1/3.
@@ -65,6 +65,7 @@ def animated_square(cfg, color=(1,0.66,0,1), rotate=True, scale=True, translate=
 
     return node
 
+
 @scene()
 def animated_uniform(cfg):
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
@@ -74,8 +75,8 @@ def animated_uniform(cfg):
     ts = Render(q, p)
     ts.update_textures(tex0=t)
 
-    scale_animkf = [AnimKeyFrameVec3(0, (1,1,1)),
-                    AnimKeyFrameVec3(cfg.duration, (0.1,0.1,0.1), "quartic_out")]
+    scale_animkf = [AnimKeyFrameVec3(0, (1, 1, 1)),
+                    AnimKeyFrameVec3(cfg.duration, (0.1, 0.1, 0.1), "quartic_out")]
     s = Scale(Identity(), anim=AnimatedVec3(scale_animkf))
 
     rotate_animkf = [AnimKeyFrameFloat(0, 0),
@@ -86,6 +87,7 @@ def animated_uniform(cfg):
     ts.update_uniforms(matrix=u)
 
     return ts
+
 
 @scene(rotate={'type': 'bool'})
 def animated_camera(cfg, rotate=True):
@@ -120,7 +122,6 @@ def animated_camera(cfg, rotate=True):
     node.update_textures(tex0=t)
     g.add_children(node)
 
-
     g = GraphicConfig(g, depth_test=True)
     camera = Camera(g)
     camera.set_eye(0, 0, 2)
@@ -144,6 +145,7 @@ def animated_camera(cfg, rotate=True):
     camera.set_fov_anim(AnimatedFloat(fov_animkf))
 
     return camera
+
 
 @scene(dim={'type': 'range', 'range': [1, 100]})
 def animated_buffer(cfg, dim=50):

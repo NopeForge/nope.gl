@@ -83,11 +83,12 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
 
     return render
 
+
 @scene(bgcolor1={'type': 'color'},
        bgcolor2={'type': 'color'},
        bilinear_filtering={'type': 'bool'})
 def buffer_dove(cfg,
-                bgcolor1=(.6,0,0,1), bgcolor2=(.8,.8,0,1),
+                bgcolor1=(.6, 0, 0, 1), bgcolor2=(.8, .8, 0, 1),
                 bilinear_filtering=True):
     cfg.duration = 3.
 
@@ -124,7 +125,8 @@ def buffer_dove(cfg,
 
     return Group(children=(render_bg, render))
 
-@scene(size={'type': 'range', 'range': [0,1.5], 'unit_base': 1000})
+
+@scene(size={'type': 'range', 'range': [0, 1.5], 'unit_base': 1000})
 def triangle(cfg, size=0.5):
     b = size * math.sqrt(3) / 2.0
     c = size * 1/2.
@@ -137,7 +139,8 @@ def triangle(cfg, size=0.5):
     node = Rotate(node, anim=AnimatedFloat(animkf))
     return node
 
-@scene(n={'type': 'range', 'range': [2,10]})
+
+@scene(n={'type': 'range', 'range': [2, 10]})
 def fibo(cfg, n=8):
     cfg.duration = 5.0
 
@@ -148,7 +151,7 @@ def fibo(cfg, n=8):
         fib.append(fib[i] + fib[i-1])
     fib = fib[::-1]
 
-    shift = 1/3. # XXX: what's the exact math here?
+    shift = 1/3.  # XXX: what's the exact math here?
     shape_scale = 1. / ((2.-shift) * sum(fib))
 
     orig = (-shift, -shift, 0)
@@ -182,7 +185,8 @@ def fibo(cfg, n=8):
     root.set_perspective(45.0, cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]), 1.0, 10.0)
     return root
 
-@scene(dim={'type': 'range', 'range': [1,50]})
+
+@scene(dim={'type': 'range', 'range': [1, 50]})
 def cropboard(cfg, dim=15):
     random.seed(0)
     cfg.duration = 10
@@ -216,7 +220,8 @@ def cropboard(cfg, dim=15):
 
     return Group(children=tqs)
 
-@scene(freq_precision={'type': 'range', 'range': [1,10]},
+
+@scene(freq_precision={'type': 'range', 'range': [1, 10]},
        overlay={'type': 'range', 'unit_base': 100})
 def audiotex(cfg, freq_precision=7, overlay=0.6):
     media = cfg.medias[0]
@@ -238,7 +243,8 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
     render.update_uniforms(freq_precision=UniformInt(freq_precision))
     return render
 
-@scene(particules={'type': 'range', 'range': [1,1023]})
+
+@scene(particules={'type': 'range', 'range': [1, 1023]})
 def particules(cfg, particules=32):
     random.seed(0)
 
@@ -393,12 +399,12 @@ def blending_and_stencil(cfg):
 
 def _get_cube_quads():
             # corner             width        height      color
-    return (((-0.5, -0.5,  0.5), ( 1, 0,  0), (0, 1,  0), (1, 1, 0)), # front
-            (( 0.5, -0.5, -0.5), (-1, 0,  0), (0, 1,  0), (0, 0, 1)), # back
-            ((-0.5, -0.5, -0.5), ( 0, 0,  1), (0, 1,  0), (0, 1, 0)), # left
-            (( 0.5, -0.5,  0.5), ( 0, 0, -1), (0, 1,  0), (0, 1, 1)), # right
-            ((-0.5, -0.5, -0.5), ( 1, 0,  0), (0, 0,  1), (1, 0, 0)), # bottom
-            ((-0.5,  0.5,  0.5), ( 1, 0,  0), (0, 0, -1), (1, 0, 1))) # top
+    return (((-0.5, -0.5,  0.5), ( 1, 0,  0), (0, 1,  0), (1, 1, 0)),  # front
+            (( 0.5, -0.5, -0.5), (-1, 0,  0), (0, 1,  0), (0, 0, 1)),  # back
+            ((-0.5, -0.5, -0.5), ( 0, 0,  1), (0, 1,  0), (0, 1, 0)),  # left
+            (( 0.5, -0.5,  0.5), ( 0, 0, -1), (0, 1,  0), (0, 1, 1)),  # right
+            ((-0.5, -0.5, -0.5), ( 1, 0,  0), (0, 0,  1), (1, 0, 0)),  # bottom
+            ((-0.5,  0.5,  0.5), ( 1, 0,  0), (0, 0, -1), (1, 0, 1)))  # top
 
 
 def _get_cube_side(texture, program, corner, width, height, color):

@@ -93,6 +93,6 @@ class Config(QtCore.QObject):
             self._needs_saving = True
 
         self._config_timer = QtCore.QTimer()
-        self._config_timer.setInterval(1000) # every second
+        self._config_timer.setInterval(1000)  # every second
         self._config_timer.timeout.connect(self._check_config)
         self._config_timer.start()

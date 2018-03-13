@@ -1,5 +1,6 @@
 from PyQt5 import QtGui
 
+
 def get_gl_format(renderable='gl', version=None):
     gl_format = QtGui.QSurfaceFormat()
 

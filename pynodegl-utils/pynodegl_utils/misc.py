@@ -120,6 +120,7 @@ class Media:
         self._filename = filename
         self._set_media_dimensions()
 
+
 class SceneCfg:
 
     LOOP_DURATION = 30.0

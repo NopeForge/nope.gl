@@ -22,20 +22,20 @@ from pynodegl_utils.misc import scene, get_frag
 def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0, 1.0, 1.0)):
     cfg.duration = 5
 
-    def sqxf(t): # square x coordinates clockwise starting top-left
+    def sqxf(t):  # square x coordinates clockwise starting top-left
         if t < 1/4.: return t*4
         if t < 1/2.: return 1
         if t < 3/4.: return 1.-(t-.5)*4
         return 0
 
-    def sqyf(t): # square y coordinates clockwise starting top-left
+    def sqyf(t):  # square y coordinates clockwise starting top-left
         if t < 1/4.: return 1
         if t < 1/2.: return 1.-(t-.25)*4
         if t < 3/4.: return 0
         return (t-.75)*4
 
-    n = 1024 # number of vertices
-    s = 1.25 # shapes scale
+    n = 1024  # number of vertices
+    s = 1.25  # shapes scale
     interp = 'exp_in_out'
 
     square_vertices = array.array('f')

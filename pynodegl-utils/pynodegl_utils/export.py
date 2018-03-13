@@ -131,5 +131,6 @@ def test_export():
     exporter.progressed.connect(print_progress)
     exporter.export(filename, 320, 240)
 
+
 if __name__ == '__main__':
     test_export()

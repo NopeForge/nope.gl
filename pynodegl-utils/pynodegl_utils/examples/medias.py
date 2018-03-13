@@ -15,10 +15,10 @@ from pynodegl import (
 from pynodegl_utils.misc import scene, get_frag
 
 
-@scene(uv_corner_x={'type': 'range', 'range': [0,1], 'unit_base': 100},
-       uv_corner_y={'type': 'range', 'range': [0,1], 'unit_base': 100},
-       uv_width={'type': 'range', 'range': [0,1], 'unit_base': 100},
-       uv_height={'type': 'range', 'range': [0,1], 'unit_base': 100},
+@scene(uv_corner_x={'type': 'range', 'range': [0, 1], 'unit_base': 100},
+       uv_corner_y={'type': 'range', 'range': [0, 1], 'unit_base': 100},
+       uv_width={'type': 'range', 'range': [0, 1], 'unit_base': 100},
+       uv_height={'type': 'range', 'range': [0, 1], 'unit_base': 100},
        progress_bar={'type': 'bool'})
 def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, progress_bar=True):
 
@@ -42,7 +42,7 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
     return render
 
 
-@scene(speed={'type': 'range', 'range': [0.01,2], 'unit_base': 1000})
+@scene(speed={'type': 'range', 'range': [0.01, 2], 'unit_base': 1000})
 def playback_speed(cfg, speed=1.0):
     media_duration = cfg.medias[0].duration
     initial_seek = 5
