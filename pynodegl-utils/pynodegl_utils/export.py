@@ -49,13 +49,13 @@ class Exporter(QtCore.QObject):
 
         # GL context
         glctx = QtGui.QOpenGLContext()
-        assert glctx.create() == True
-        assert glctx.isValid() == True
+        assert glctx.create() is True
+        assert glctx.isValid() is True
 
         # Offscreen Surface
         surface = QtGui.QOffscreenSurface()
         surface.create()
-        assert surface.isValid() == True
+        assert surface.isValid() is True
 
         glctx.makeCurrent(surface)
 
@@ -64,7 +64,7 @@ class Exporter(QtCore.QObject):
         fbo_format.setSamples(samples)
         fbo_format.setAttachment(QtGui.QOpenGLFramebufferObject.CombinedDepthStencil)
         fbo = QtGui.QOpenGLFramebufferObject(w, h, fbo_format)
-        assert fbo.isValid() == True
+        assert fbo.isValid() is True
         fbo.bind()
 
         # node.gl context
