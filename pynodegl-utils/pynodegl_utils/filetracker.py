@@ -56,12 +56,12 @@ class FileTracker:
                 path = mod.__file__
                 if path.endswith('.pyc'):
                     path = path[:-1]
-                self.filelist.update([path])
+                self.filelist.update([op.realpath(path)])
         return ret
 
     def _open_hook(self, name, mode="r", buffering=-1):
         ret = self._builtin_open(name, mode, buffering)
-        self.filelist.update([name])
+        self.filelist.update([op.realpath(name)])
         return ret
 
     def start_hooking(self):
