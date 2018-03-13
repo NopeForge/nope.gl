@@ -678,7 +678,6 @@ class _Toolbar(QtWidgets.QWidget):
                 qitem_script.appendRow(qitem_func)
                 qitem_func.setData(scene_data)
             self._scn_mdl.appendRow(qitem_script)
-            index = self._scn_mdl.indexFromItem(qitem_script)
         self._scn_view.expandAll()
 
     @QtCore.pyqtSlot(QtCore.QModelIndex)

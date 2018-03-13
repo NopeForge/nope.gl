@@ -122,9 +122,6 @@ def buffer_dove(cfg,
     ucolor = UniformVec4(anim=AnimatedVec4(color_animkf))
     render_bg.update_uniforms(color=ucolor)
 
-    rot_animkf = [AnimKeyFrameFloat(0, 0),
-                  AnimKeyFrameFloat(cfg.duration, 360)]
-
     return Group(children=(render_bg, render))
 
 @scene(size={'type': 'range', 'range': [0,1.5], 'unit_base': 1000})
@@ -366,8 +363,6 @@ def blending_and_stencil(cfg):
                   AnimKeyFrameVec3(cfg.duration, (factor,       factor,       0)))
         scale = Scale(render, anim=AnimatedVec3(animkf))
 
-        x = random.random() * 2.0 - 1.0
-        y = random.random() * 0.2 + 1.0
         translate = Translate(scale, vector=(center[0], center[1], 0))
         cloud_group.add_children(translate)
 
@@ -422,7 +417,6 @@ def cube(cfg, display_depth_buffer=False):
     program = Program(fragment=frag_data)
 
     texture = Texture2D(data_src=Media(cfg.medias[0].filename))
-    cube_quads_info = _get_cube_quads()
     children = [_get_cube_side(texture, program, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)
 
