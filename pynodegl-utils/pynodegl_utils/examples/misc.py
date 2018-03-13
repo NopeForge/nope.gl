@@ -13,7 +13,6 @@ from pynodegl import (
         AnimatedVec3,
         AnimatedVec4,
         AnimatedQuat,
-        BufferFloat,
         BufferUBVec3,
         BufferUBVec4,
         BufferUIVec4,

@@ -100,8 +100,6 @@ def test_export():
     import sys
 
     def _get_scene(**cfg_overrides):
-        from examples import misc
-
         cfg = {
             'pkg': 'pynodegl_utils.examples',
             'scene': ('misc', 'triangle'),

@@ -1,6 +1,3 @@
-import array
-import math
-
 from pynodegl import (
         AnimKeyFrameFloat,
         AnimatedFloat,

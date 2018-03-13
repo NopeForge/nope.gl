@@ -28,7 +28,6 @@ import platform
 import sys
 import time
 import subprocess
-import traceback
 
 import pynodegl as ngl
 

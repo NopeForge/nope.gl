@@ -3,9 +3,7 @@ import array
 
 from pynodegl import (
         AnimKeyFrameFloat,
-        AnimKeyFrameVec3,
         AnimatedFloat,
-        AnimatedVec3,
         BufferVec2,
         BufferVec3,
         Camera,
@@ -13,12 +11,10 @@ from pynodegl import (
         GraphicConfig,
         Media,
         Program,
-        Quad,
         Render,
         Rotate,
         Texture2D,
         Scale,
-        Triangle,
 )
 
 from pynodegl_utils.misc import scene, get_frag
