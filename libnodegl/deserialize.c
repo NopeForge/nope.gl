@@ -56,19 +56,26 @@ case param_type: {                                      \
     break;                                              \
 }
 
-#define DECLARE_FMT_PARSE_FUNC(type, name, fmt)         \
-static int parse_##name(const char *s, type *valp)      \
-{                                                       \
-    int len;                                            \
-    int n = sscanf(s, fmt "%n", valp, &len);            \
-    if (n != 1)                                         \
-        return -1;                                      \
-    return len;                                         \
+static int parse_int(const char *s, int *valp)
+{
+    char *endptr = NULL;
+    *valp = (int)strtol(s, &endptr, 10);
+    return (int)(endptr - s);
 }
 
-DECLARE_FMT_PARSE_FUNC(int,     int,    "%d")
-DECLARE_FMT_PARSE_FUNC(int,     hexint, "%x")
-DECLARE_FMT_PARSE_FUNC(int64_t, i64,    "%"SCNd64)
+static int parse_hexint(const char *s, int *valp)
+{
+    char *endptr = NULL;
+    *valp = (int)strtol(s, &endptr, 16);
+    return (int)(endptr - s);
+}
+
+static int64_t parse_i64(const char *s, int64_t *valp)
+{
+    char *endptr = NULL;
+    *valp = strtoll(s, &endptr, 10);
+    return (int)(endptr - s);
+}
 
 static int parse_bool(const char *s, int *valp)
 {
