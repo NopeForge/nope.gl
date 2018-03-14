@@ -90,7 +90,7 @@ static int parse_bool(const char *s, int *valp)
 #define DECLARE_FLT_PARSE_FUNC(type, nbit, shift_exp)                       \
 static int parse_##type(const char *s, type *valp)                          \
 {                                                                           \
-    int len, consumed = 0;                                                  \
+    int consumed = 0;                                                       \
     union { uint##nbit##_t i; type f; } u = {.i = 0};                       \
                                                                             \
     if (*s == '-') {                                                        \
@@ -98,16 +98,18 @@ static int parse_##type(const char *s, type *valp)                          \
         consumed++;                                                         \
     }                                                                       \
                                                                             \
-    uint##nbit##_t exp, mant;                                               \
-    int n = sscanf(s + consumed, "%" SCNx##nbit "z%" SCNx##nbit "%n",       \
-                   &exp, &mant, &len);                                      \
-    if (n != 2)                                                             \
+    char *endptr = NULL;                                                    \
+    uint##nbit##_t exp = nbit == 64 ? strtoull(s + consumed, &endptr, 16)   \
+                                    : strtoul(s + consumed, &endptr, 16);   \
+    if (*endptr++ != 'z')                                                   \
         return -1;                                                          \
+    uint##nbit##_t mant = nbit == 64 ? strtoull(endptr, &endptr, 16)        \
+                                     : strtoul(endptr, &endptr, 16);        \
                                                                             \
     u.i |= exp<<shift_exp | mant;                                           \
                                                                             \
     *valp = u.f;                                                            \
-    return len + consumed;                                                  \
+    return (int)(endptr - s);                                               \
 }
 
 DECLARE_FLT_PARSE_FUNC(float,  32, 23)
