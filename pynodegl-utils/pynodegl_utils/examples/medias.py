@@ -37,7 +37,7 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
         time_animkf = [AnimKeyFrameFloat(0, 0),
                        AnimKeyFrameFloat(cfg.duration, 1)]
         time = UniformFloat(anim=AnimatedFloat(time_animkf))
-        ar = UniformFloat(cfg.aspect_ratio[0] / float(cfg.aspect_ratio[1]))
+        ar = UniformFloat(cfg.aspect_ratio_float)
         render.update_uniforms(time=time, ar=ar)
     return render
 

@@ -146,3 +146,7 @@ class SceneCfg:
         self.samples = 0
         self.glbackend = 'gl'
         self.system = platform.system()
+
+    @property
+    def aspect_ratio_float(self):
+        return self.aspect_ratio[0] / float(self.aspect_ratio[1])
