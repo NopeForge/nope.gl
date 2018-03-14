@@ -174,7 +174,7 @@ static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
     for (;;) {
         char key[63 + 1];
         int val;
-        int n = sscanf(s, "%63[^=]=%x" "%n", key, &val, &len);
+        int n = sscanf(s, "%63[^=]=%x%n", key, &val, &len);
         if (n != 2) {
             consumed = -1;
             break;
