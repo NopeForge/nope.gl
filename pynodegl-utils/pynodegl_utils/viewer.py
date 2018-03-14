@@ -504,7 +504,6 @@ class _GLView(QtWidgets.QWidget):
         self._gl_layout.addWidget(self._slider)
         self._gl_layout.addLayout(toolbar)
 
-        self._frame_index = 0
         self._refresh()
 
         self._timer.timeout.connect(self._update_tick)
