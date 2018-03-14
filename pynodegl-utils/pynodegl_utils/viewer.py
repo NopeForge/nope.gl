@@ -137,7 +137,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.doneCurrent()
         self.update()
 
-    def __init__(self, parent, aspect_ratio, samples):
+    def __init__(self, parent, aspect_ratio, samples, clear_color):
         super(_GLWidget, self).__init__(parent)
 
         self.setMinimumSize(640, 360)
@@ -145,6 +145,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self._time = 0
         self._aspect_ratio = aspect_ratio
         self._samples = samples
+        self._clear_color = clear_color
         gl_format = QtGui.QSurfaceFormat.defaultFormat()
         gl_format.setSamples(samples)
         self.setFormat(gl_format)
@@ -172,7 +173,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         api = ngl.GLAPI_OPENGL3
         if self.context().isOpenGLES():
             api = ngl.GLAPI_OPENGLES2
-        GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+        GL.glClearColor(*self._clear_color)
         self._viewer.configure(ngl.GLPLATFORM_AUTO, api)
 
 
@@ -429,7 +430,7 @@ class _GLView(QtWidgets.QWidget):
         self._gl_widget.grabFramebuffer().save(filenames[0])
 
     def _recreate_gl_widget(self):
-        gl_widget = _GLWidget(self, self._ar, self._samples)
+        gl_widget = _GLWidget(self, self._ar, self._samples, self._clear_color)
         gl_widget.set_time(self._gl_widget.get_time())
         self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
         self._gl_widget.setParent(None)
@@ -449,6 +450,11 @@ class _GLView(QtWidgets.QWidget):
         self._samples = samples
         self._recreate_gl_widget()
 
+    @QtCore.pyqtSlot(tuple)
+    def set_clear_color(self, color):
+        self._clear_color = color
+        self._recreate_gl_widget()
+
     @QtCore.pyqtSlot(dict)
     def scene_changed(self, cfg):
         if self._ar != cfg['aspect_ratio']:
@@ -464,6 +470,7 @@ class _GLView(QtWidgets.QWidget):
         self._ar = config.get('aspect_ratio')
         self._framerate = config.get('framerate')
         self._samples = config.get('samples')
+        self._clear_color = config.get('clear_color')
 
         self._get_scene_func = get_scene_func
 
@@ -474,7 +481,7 @@ class _GLView(QtWidgets.QWidget):
         self._timer = QtCore.QTimer()
         self._timer.setInterval(1000.0 / self.REFRESH_RATE)  # in milliseconds
 
-        self._gl_widget = _GLWidget(self, self._ar, self._samples)
+        self._gl_widget = _GLWidget(self, self._ar, self._samples, self._clear_color)
 
         self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
 
@@ -524,6 +531,7 @@ class _Toolbar(QtWidgets.QWidget):
     aspect_ratio_changed = QtCore.pyqtSignal(tuple, name='aspectRatioChanged')
     samples_changed = QtCore.pyqtSignal(int, name='samplesChanged')
     frame_rate_changed = QtCore.pyqtSignal(tuple, name='frameRateChanged')
+    clear_color_changed = QtCore.pyqtSignal(tuple, name='clearColorChanged')
 
     def _replace_scene_opts_widget(self, widget):
         if self._scene_opts_widget:
@@ -748,6 +756,14 @@ class _Toolbar(QtWidgets.QWidget):
         self.samplesChanged.emit(samples)
         self._load_current_scene()
 
+    @QtCore.pyqtSlot()
+    def _set_clear_color(self):
+        color = QtWidgets.QColorDialog.getColor()
+        color_name = color.name()
+        self._clearcolor_btn.setStyleSheet('background-color: %s;' % color_name)
+        self.clearColorChanged.emit(color.getRgbF())
+        self._load_current_scene()
+
     def __init__(self, config):
         super(_Toolbar, self).__init__()
 
@@ -805,6 +821,20 @@ class _Toolbar(QtWidgets.QWidget):
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
+        # TODO: factor out widget (see _get_opts_widget_from_specs)
+        default_clearcolor = config.get('clear_color')
+        self._clearcolor_btn = QtWidgets.QPushButton()
+        color = QtGui.QColor()
+        color.setRgbF(*default_clearcolor)
+        color_name = color.name()
+        self._clearcolor_btn.setStyleSheet('background-color: %s;' % color_name)
+        self._clearcolor_btn.pressed.connect(self._set_clear_color)
+
+        clearcolor_lbl = QtWidgets.QLabel('Clear color:')
+        clearcolor_hbox = QtWidgets.QHBoxLayout()
+        clearcolor_hbox.addWidget(clearcolor_lbl)
+        clearcolor_hbox.addWidget(self._clearcolor_btn)
+
         self.reload_btn = QtWidgets.QPushButton('Force scripts reload')
 
         self._scene_toolbar_layout = QtWidgets.QVBoxLayout(self)
@@ -813,6 +843,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._scene_toolbar_layout.addLayout(samples_hbox)
         self._scene_toolbar_layout.addLayout(fr_hbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
+        self._scene_toolbar_layout.addLayout(clearcolor_hbox)
         self._scene_toolbar_layout.addWidget(self.reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
 
@@ -997,6 +1028,7 @@ class _MainWindow(QtWidgets.QSplitter):
             'aspect_ratio': ASPECT_RATIOS[0],
             'samples': SAMPLES[0],
             'framerate': (60, 1),
+            'clear_color': (0.0, 0.0, 0.0, 1.0),
         }
 
         get_scene_func = self._get_scene
@@ -1030,6 +1062,8 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.samplesChanged.connect(self._config.set_samples)
         self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
         self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
+        self._scene_toolbar.clearColorChanged.connect(gl_view.set_clear_color)
+        self._scene_toolbar.clearColorChanged.connect(self._config.set_clear_color)
 
         self.sceneChanged.connect(gl_view.scene_changed)
         self.sceneChanged.connect(graph_view.scene_changed)

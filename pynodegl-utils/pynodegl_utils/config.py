@@ -70,6 +70,10 @@ class Config(QtCore.QObject):
     def set_samples(self, samples):
         self._set_cfg('samples', samples)
 
+    @QtCore.pyqtSlot(tuple)
+    def set_clear_color(self, color):
+        self._set_cfg('clear_color', color)
+
     def geometry_changed(self, geometry):
         self._set_cfg('geometry', geometry)
 
