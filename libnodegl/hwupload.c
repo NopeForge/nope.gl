@@ -454,7 +454,7 @@ const char fragment_shader_hwupload_nv12_data[] =
     "    yuv.x = texture2D(tex0_sampler, var_tex0_coord).r;"                       "\n"
     "    yuv.yz = texture2D(tex1_sampler, var_tex0_coord).ra - vec2(0.5, 0.5);"    "\n"
     "    rgb = conv * yuv;"                                                        "\n"
-    "    gl_FragColor = vec4(rgb, 1);"                                             "\n"
+    "    gl_FragColor = vec4(rgb, 1.0);"                                           "\n"
     "}";
 
 static int init_vt(struct ngl_node *node, struct hwupload_config *config)
