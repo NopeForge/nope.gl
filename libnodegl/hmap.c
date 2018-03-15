@@ -117,6 +117,57 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
         }
     }
 
+    /* Resize check before addition  */
+    if (hm->count * 3 / 4 >= hm->size) {
+        struct hmap old_hm = *hm;
+
+        struct bucket *new_buckets = calloc(hm->size << 1, sizeof(*new_buckets));
+        if (new_buckets) {
+            hm->buckets = new_buckets;
+            hm->count = 0;
+            hm->size <<= 1;
+
+            if (old_hm.count) {
+                /* Transfer all entries to the new map */
+                const struct hmap_entry *e = NULL;
+                while ((e = ngli_hmap_next(&old_hm, e))) {
+                    const uint32_t new_id = get_hash(e->key, hm->size);
+                    struct bucket *b = &hm->buckets[new_id];
+                    struct hmap_entry *entries =
+                        realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
+                    if (!entries) {
+                        /* Unable to allocate more, free the incomplete buckets
+                         * and restore the previous hashmap state */
+                        for (int j = 0; j < hm->size; j++)
+                            free(hm->buckets[j].entries);
+                        free(hm->buckets);
+                        *hm = old_hm;
+                        return -1;
+                    }
+                    b->entries = entries;
+                    struct hmap_entry *new_e = &entries[b->nb_entries++];
+                    memcpy(new_e, e, sizeof(*e));
+                    hm->count++;
+                }
+
+                /* Destroy previous indexes in the old buckets */
+                for (int j = 0; j < old_hm.size; j++) {
+                    struct bucket *b = &old_hm.buckets[j];
+                    free(b->entries);
+                    old_hm.count -= b->nb_entries;
+                    if (old_hm.count == 0)
+                        break;
+                }
+            }
+
+            free(old_hm.buckets);
+
+            /* Fix the bucket position for the entry to add */
+            const uint32_t fixed_id = get_hash(key, hm->size);
+            b = &hm->buckets[fixed_id];
+        }
+    }
+
     /* Add */
     char *new_key = ngli_strdup(key);
     if (!new_key)
