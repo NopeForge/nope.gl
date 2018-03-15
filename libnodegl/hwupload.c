@@ -439,6 +439,8 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
 
 #if defined(TARGET_IPHONE)
 const char fragment_shader_hwupload_nv12_data[] =
+    "#version 100"                                                                 "\n"
+    ""                                                                             "\n"
     "precision mediump float;"                                                     "\n"
     "uniform sampler2D tex0_sampler;"                                              "\n"
     "uniform sampler2D tex1_sampler;"                                              "\n"
