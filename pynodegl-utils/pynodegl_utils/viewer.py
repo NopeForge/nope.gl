@@ -28,6 +28,7 @@ import platform
 import sys
 import time
 import subprocess
+from fractions import Fraction
 
 import pynodegl as ngl
 
@@ -719,10 +720,17 @@ class _Toolbar(QtWidgets.QWidget):
     @QtCore.pyqtSlot(dict)
     def on_scene_changed(self, cfg):
         try:
-            index = ASPECT_RATIOS.index(cfg['aspect_ratio'])
-            self._ar_cbbox.blockSignals(True)
-            self._ar_cbbox.setCurrentIndex(index)
-            self._ar_cbbox.blockSignals(False)
+            cfg_ar = Fraction(*cfg['aspect_ratio'])
+            cfg_ar = (cfg_ar.numerator, cfg_ar.denominator)
+            ar = Fraction(*ASPECT_RATIOS[self._ar_cbbox.currentIndex()])
+            ar = (ar.numerator, ar.denominator)
+            if ar != cfg_ar:
+                self._far_lbl2.setText('%d:%d' % cfg_ar)
+                self._far_lbl.setVisible(True)
+                self._far_lbl2.setVisible(True)
+            else:
+                self._far_lbl.setVisible(False)
+                self._far_lbl2.setVisible(False)
         except ValueError:
             pass
 
@@ -790,6 +798,16 @@ class _Toolbar(QtWidgets.QWidget):
         ar_hbox.addWidget(ar_lbl)
         ar_hbox.addWidget(self._ar_cbbox)
 
+        self._far_lbl = QtWidgets.QLabel('Forced aspect ratio:')
+        self._far_lbl.setStyleSheet("color: red;");
+        self._far_lbl.setVisible(False)
+        self._far_lbl2 = QtWidgets.QLabel('1:1')
+        self._far_lbl2.setStyleSheet("color: red;");
+        self._far_lbl2.setVisible(False)
+        far_hbox = QtWidgets.QHBoxLayout()
+        far_hbox.addWidget(self._far_lbl)
+        far_hbox.addWidget(self._far_lbl2)
+
         default_samples = config.get('samples')
         self._samples_cbbox = QtWidgets.QComboBox()
         for samples in SAMPLES:
@@ -839,6 +857,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._scene_toolbar_layout = QtWidgets.QVBoxLayout(self)
         self._scene_toolbar_layout.addWidget(self._fps_chkbox)
         self._scene_toolbar_layout.addLayout(ar_hbox)
+        self._scene_toolbar_layout.addLayout(far_hbox)
         self._scene_toolbar_layout.addLayout(samples_hbox)
         self._scene_toolbar_layout.addLayout(fr_hbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
