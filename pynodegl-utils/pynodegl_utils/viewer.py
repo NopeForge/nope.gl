@@ -283,9 +283,8 @@ class _GraphView(QtWidgets.QWidget):
         img.save(filenames[0])
 
     @QtCore.pyqtSlot()
-    def _update_graph(self, cfg=None):
-        if not cfg:
-            cfg = self._get_scene_func()
+    def _update_graph(self):
+        cfg = self._get_scene_func(fmt='dot')
         if not cfg:
             QtWidgets.QMessageBox.critical(self, 'No scene',
                                            "You didn't select any scene to graph.",
@@ -293,7 +292,7 @@ class _GraphView(QtWidgets.QWidget):
             return
 
         dotfile = '/tmp/ngl_scene.dot'
-        open(dotfile, 'w').write(cfg['scene_dot'])
+        open(dotfile, 'w').write(cfg['scene'])
         try:
             data = subprocess.check_output(['dot', '-Tpng', dotfile])
         except OSError, e:
@@ -310,7 +309,7 @@ class _GraphView(QtWidgets.QWidget):
     @QtCore.pyqtSlot(dict)
     def scene_changed(self, cfg):
         if self._auto_chkbox.isChecked():
-            self._update_graph(cfg)
+            self._update_graph()
 
     @QtCore.pyqtSlot(int)
     def _auto_check_changed(self, state):
