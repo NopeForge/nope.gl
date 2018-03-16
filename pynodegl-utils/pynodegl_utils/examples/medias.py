@@ -22,11 +22,13 @@ from pynodegl_utils.misc import scene, get_frag
        progress_bar={'type': 'bool'})
 def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, progress_bar=True):
 
-    cfg.duration = cfg.medias[0].duration
+    m0 = cfg.medias[0]
+    cfg.duration = m0.duration
+    cfg.aspect_ratio = (m0.width, m0.height)
 
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0),
              (uv_corner_x, uv_corner_y), (uv_width, 0), (0, uv_height))
-    m = Media(cfg.medias[0].filename)
+    m = Media(m0.filename)
     t = Texture2D(data_src=m)
     p = Program()
     render = Render(q, p)
