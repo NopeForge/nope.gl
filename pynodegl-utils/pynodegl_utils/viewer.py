@@ -66,9 +66,8 @@ class _SerialView(QtWidgets.QWidget):
         open(filenames[0], 'w').write(data)
 
     @QtCore.pyqtSlot()
-    def _update_graph(self, cfg=None):
-        if not cfg:
-            cfg = self._get_scene_func()
+    def _update_graph(self):
+        cfg = self._get_scene_func()
         if not cfg:
             QtWidgets.QMessageBox.critical(self, 'No scene',
                                            "You didn't select any scene to graph.",
@@ -76,10 +75,10 @@ class _SerialView(QtWidgets.QWidget):
             return
         self._text.setPlainText(cfg['scene'])
 
-    @QtCore.pyqtSlot(dict)
-    def scene_changed(self, cfg):
+    @QtCore.pyqtSlot(str, str)
+    def scene_changed(self, module_name, scene_name):
         if self._auto_chkbox.isChecked():
-            self._update_graph(cfg)
+            self._update_graph()
 
     @QtCore.pyqtSlot(int)
     def _auto_check_changed(self, state):
@@ -307,8 +306,8 @@ class _GraphView(QtWidgets.QWidget):
         self._graph_lbl.setPixmap(pixmap)
         self._graph_lbl.adjustSize()
 
-    @QtCore.pyqtSlot(dict)
-    def scene_changed(self, cfg):
+    @QtCore.pyqtSlot(str, str)
+    def scene_changed(self, module_name, scene_name):
         if self._auto_chkbox.isChecked():
             self._update_graph()
 
@@ -455,14 +454,16 @@ class _GLView(QtWidgets.QWidget):
         self._clear_color = color
         self._recreate_gl_widget()
 
-    @QtCore.pyqtSlot(dict)
-    def scene_changed(self, cfg):
-        if self._ar != cfg['aspect_ratio']:
-            self.set_aspect_ratio(cfg['aspect_ratio'])
-        self._gl_widget.set_scene(cfg['scene'])
-        self._scene_duration = cfg['duration']
-        self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
-        self._refresh()
+    @QtCore.pyqtSlot(str, str)
+    def scene_changed(self, module_name, scene_name):
+        cfg = self._get_scene_func()
+        if cfg:
+            if Fraction(*cfg['aspect_ratio']) != Fraction(*self._ar):
+                self.set_aspect_ratio(cfg['aspect_ratio'])
+            self._gl_widget.set_scene(cfg['scene'])
+            self._scene_duration = cfg['duration']
+            self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
+            self._refresh()
 
     def __init__(self, get_scene_func, config):
         super(_GLView, self).__init__()
@@ -717,8 +718,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._reload_scene_view(scenes)
         self._load_current_scene()
 
-    @QtCore.pyqtSlot(dict)
-    def on_scene_changed(self, cfg):
+    def set_cfg(self, cfg):
         try:
             cfg_ar = Fraction(*cfg['aspect_ratio'])
             cfg_ar = (cfg_ar.numerator, cfg_ar.denominator)
@@ -876,8 +876,6 @@ class _Toolbar(QtWidgets.QWidget):
 
 class _MainWindow(QtWidgets.QSplitter):
 
-    scene_changed = QtCore.pyqtSignal(dict, name='sceneChanged')
-
     def _update_err_buf(self, err_str):
         if err_str:
             self._errbuf.setPlainText(err_str)
@@ -908,6 +906,8 @@ class _MainWindow(QtWidgets.QSplitter):
             self._update_err_buf(None)
             self._scripts_mgr.set_filelist(ret['filelist'])
 
+        self._scene_toolbar.set_cfg(ret)
+
         return ret
 
     def _get_hook(self, name):
@@ -923,12 +923,6 @@ class _MainWindow(QtWidgets.QSplitter):
         if not hook:
             return None
         return subprocess.check_output([hook]).rstrip()
-
-    @QtCore.pyqtSlot(str, str)
-    def _scene_changed(self, module_name, scene_name):
-        cfg = self._get_scene()
-        if cfg:
-            self.sceneChanged.emit(cfg)
 
     @QtCore.pyqtSlot(str, str)
     def _scene_changed_hook(self, module_name, scene_name):
@@ -1071,7 +1065,9 @@ class _MainWindow(QtWidgets.QSplitter):
         tabs.addTab(serial_view, "Serialization")
 
         self._scene_toolbar = _Toolbar(self._config)
-        self._scene_toolbar.sceneChanged.connect(self._scene_changed)
+        self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
+        self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
+        self._scene_toolbar.sceneChanged.connect(serial_view.scene_changed)
         self._scene_toolbar.sceneChanged.connect(self._scene_changed_hook)
         self._scene_toolbar.sceneChanged.connect(self._config.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
@@ -1082,11 +1078,6 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
         self._scene_toolbar.clearColorChanged.connect(gl_view.set_clear_color)
         self._scene_toolbar.clearColorChanged.connect(self._config.set_clear_color)
-
-        self.sceneChanged.connect(gl_view.scene_changed)
-        self.sceneChanged.connect(graph_view.scene_changed)
-        self.sceneChanged.connect(serial_view.scene_changed)
-        self.sceneChanged.connect(self._scene_toolbar.on_scene_changed)
 
         self._errbuf = QtWidgets.QPlainTextEdit()
         self._errbuf.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
