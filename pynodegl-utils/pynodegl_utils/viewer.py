@@ -65,53 +65,31 @@ class _SerialView(QtWidgets.QWidget):
             return
         open(filenames[0], 'w').write(data)
 
-    @QtCore.pyqtSlot()
-    def _update_graph(self):
+    def refresh(self):
         cfg = self._get_scene_func()
         if not cfg:
-            QtWidgets.QMessageBox.critical(self, 'No scene',
-                                           "You didn't select any scene to graph.",
-                                           QtWidgets.QMessageBox.Ok)
             return
         self._text.setPlainText(cfg['scene'])
-
-    @QtCore.pyqtSlot(str, str)
-    def scene_changed(self, module_name, scene_name):
-        if self._auto_chkbox.isChecked():
-            self._update_graph()
-
-    @QtCore.pyqtSlot(int)
-    def _auto_check_changed(self, state):
-        if state:
-            self._buffer_btn.setEnabled(False)
-        else:
-            self._buffer_btn.setEnabled(True)
 
     def __init__(self, get_scene_func):
         super(_SerialView, self).__init__()
 
         self._get_scene_func = get_scene_func
 
-        self._buffer_btn = QtWidgets.QPushButton("Update buffer")
         self._save_btn = QtWidgets.QPushButton("Save to file")
-        self._auto_chkbox = QtWidgets.QCheckBox("Automatically update")
         self._graph_lbl = QtWidgets.QLabel()
         self._text = QtWidgets.QPlainTextEdit()
         self._text.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
         self._text.setReadOnly(True)
 
         hbox = QtWidgets.QHBoxLayout()
-        hbox.addWidget(self._buffer_btn)
         hbox.addWidget(self._save_btn)
 
         serial_layout = QtWidgets.QVBoxLayout(self)
-        serial_layout.addWidget(self._auto_chkbox)
         serial_layout.addLayout(hbox)
         serial_layout.addWidget(self._text)
 
-        self._buffer_btn.clicked.connect(self._update_graph)
         self._save_btn.clicked.connect(self._save_to_file)
-        self._auto_chkbox.stateChanged.connect(self._auto_check_changed)
 
 
 class _GLWidget(QtWidgets.QOpenGLWidget):
@@ -282,13 +260,9 @@ class _GraphView(QtWidgets.QWidget):
             return
         img.save(filenames[0])
 
-    @QtCore.pyqtSlot()
-    def _update_graph(self):
+    def refresh(self):
         cfg = self._get_scene_func(fmt='dot')
         if not cfg:
-            QtWidgets.QMessageBox.critical(self, 'No scene',
-                                           "You didn't select any scene to graph.",
-                                           QtWidgets.QMessageBox.Ok)
             return
 
         dotfile = '/tmp/ngl_scene.dot'
@@ -306,42 +280,24 @@ class _GraphView(QtWidgets.QWidget):
         self._graph_lbl.setPixmap(pixmap)
         self._graph_lbl.adjustSize()
 
-    @QtCore.pyqtSlot(str, str)
-    def scene_changed(self, module_name, scene_name):
-        if self._auto_chkbox.isChecked():
-            self._update_graph()
-
-    @QtCore.pyqtSlot(int)
-    def _auto_check_changed(self, state):
-        if state:
-            self._graph_btn.setEnabled(False)
-        else:
-            self._graph_btn.setEnabled(True)
-
     def __init__(self, get_scene_func):
         super(_GraphView, self).__init__()
 
         self._get_scene_func = get_scene_func
 
-        self._graph_btn = QtWidgets.QPushButton("Update Graph")
         self._save_btn = QtWidgets.QPushButton("Save image")
-        self._auto_chkbox = QtWidgets.QCheckBox("Automatically update")
         self._graph_lbl = QtWidgets.QLabel()
         img_area = QtWidgets.QScrollArea()
         img_area.setWidget(self._graph_lbl)
 
         hbox = QtWidgets.QHBoxLayout()
-        hbox.addWidget(self._graph_btn)
         hbox.addWidget(self._save_btn)
 
         graph_layout = QtWidgets.QVBoxLayout(self)
-        graph_layout.addWidget(self._auto_chkbox)
         graph_layout.addLayout(hbox)
         graph_layout.addWidget(img_area)
 
-        self._graph_btn.clicked.connect(self._update_graph)
         self._save_btn.clicked.connect(self._save_to_file)
-        self._auto_chkbox.stateChanged.connect(self._auto_check_changed)
 
 
 class _GLView(QtWidgets.QWidget):
@@ -454,8 +410,7 @@ class _GLView(QtWidgets.QWidget):
         self._clear_color = color
         self._recreate_gl_widget()
 
-    @QtCore.pyqtSlot(str, str)
-    def scene_changed(self, module_name, scene_name):
+    def refresh(self):
         cfg = self._get_scene_func()
         if cfg:
             if Fraction(*cfg['aspect_ratio']) != Fraction(*self._ar):
@@ -925,6 +880,10 @@ class _MainWindow(QtWidgets.QSplitter):
         return subprocess.check_output([hook]).rstrip()
 
     @QtCore.pyqtSlot(str, str)
+    def _scene_changed(self, module_name, scene_name):
+        self._currentTabChanged(self._tab_widget.currentIndex())
+
+    @QtCore.pyqtSlot(str, str)
     def _scene_changed_hook(self, module_name, scene_name):
 
         self.setWindowTitle('%s - %s.%s' % (self._win_title_base, module_name, scene_name))
@@ -1010,6 +969,12 @@ class _MainWindow(QtWidgets.QSplitter):
         super(_MainWindow, self).moveEvent(move_event)
         self._emit_geometry()
 
+    @QtCore.pyqtSlot(int)
+    def _currentTabChanged(self, index):
+        view = self._tabs[index][1]
+        if hasattr(view, 'refresh'):
+            view.refresh()
+
     def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self._win_title_base = 'Node.gl viewer'
@@ -1058,16 +1023,20 @@ class _MainWindow(QtWidgets.QSplitter):
         export_view = _ExportView(self, get_scene_func)
         serial_view = _SerialView(get_scene_func)
 
-        tabs = QtWidgets.QTabWidget()
-        tabs.addTab(gl_view, "GL view")
-        tabs.addTab(graph_view, "Graph view")
-        tabs.addTab(export_view, "Export")
-        tabs.addTab(serial_view, "Serialization")
+        self._tabs = [
+            ('GL view', gl_view),
+            ('Graph view', graph_view),
+            ('Export', export_view),
+            ('Serialization', serial_view),
+        ]
+
+        self._tab_widget = QtWidgets.QTabWidget()
+        for tab_name, tab_view in self._tabs:
+            self._tab_widget.addTab(tab_view, tab_name)
+        self._tab_widget.currentChanged.connect(self._currentTabChanged)
 
         self._scene_toolbar = _Toolbar(self._config)
-        self._scene_toolbar.sceneChanged.connect(gl_view.scene_changed)
-        self._scene_toolbar.sceneChanged.connect(graph_view.scene_changed)
-        self._scene_toolbar.sceneChanged.connect(serial_view.scene_changed)
+        self._scene_toolbar.sceneChanged.connect(self._scene_changed)
         self._scene_toolbar.sceneChanged.connect(self._scene_changed_hook)
         self._scene_toolbar.sceneChanged.connect(self._config.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
@@ -1085,7 +1054,7 @@ class _MainWindow(QtWidgets.QSplitter):
         self._errbuf.hide()
 
         tabs_and_errbuf = QtWidgets.QVBoxLayout()
-        tabs_and_errbuf.addWidget(tabs)
+        tabs_and_errbuf.addWidget(self._tab_widget)
         tabs_and_errbuf.addWidget(self._errbuf)
         tabs_and_errbuf_widget = QtWidgets.QWidget()
         tabs_and_errbuf_widget.setLayout(tabs_and_errbuf)
