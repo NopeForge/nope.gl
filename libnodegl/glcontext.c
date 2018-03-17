@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "bstr.h"
 #include "glcontext.h"
 #include "log.h"
 #include "nodegl.h"
@@ -388,6 +389,10 @@ static int glcontext_check_functions(struct glcontext *glcontext,
 static int glcontext_probe_extensions(struct glcontext *glcontext)
 {
     const int es = glcontext->es;
+    struct bstr *features_str = ngli_bstr_create();
+
+    if (!features_str)
+        return -1;
 
     for (int i = 0; i < NGLI_ARRAY_NB(glfeatures); i++) {
         const struct glfeature *glfeature = &glfeatures[i];
@@ -405,9 +410,12 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
         if (!glcontext_check_functions(glcontext, glfeature->funcs_offsets))
             continue;
 
-        LOG(INFO, "driver supports %s feature", glfeature->name);
+        ngli_bstr_print(features_str, " %s", glfeature->name);
         glcontext->features |= glfeature->flag;
     }
+
+    LOG(INFO, "OpenGL%s features:%s", es ? " ES" : "", ngli_bstr_strptr(features_str));
+    ngli_bstr_freep(&features_str);
 
     return 0;
 }
