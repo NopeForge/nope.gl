@@ -39,7 +39,7 @@ from scriptsmgr import ScriptsManager
 from config import Config
 from com import query_subproc
 
-from PyQt5 import QtGui, QtCore, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg
 from OpenGL import GL
 
 
@@ -251,34 +251,38 @@ class _GraphView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def _save_to_file(self):
-        pixmap = self._graph_lbl.pixmap()
-        if not pixmap:
-            return
-        img = pixmap.toImage()
         filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
         if not filenames[0]:
             return
+        rect_size = self._scene.sceneRect().size()
+        img_size = QtCore.QSize(int(rect_size.width()), int(rect_size.height()))
+        img = QtGui.QImage(img_size, QtGui.QImage.Format_ARGB32_Premultiplied)
+        painter = QtGui.QPainter(img)
+        self._scene.render(painter)
         img.save(filenames[0])
+        painter.end()
 
     def refresh(self):
         cfg = self._get_scene_func(fmt='dot')
         if not cfg:
             return
 
-        dotfile = '/tmp/ngl_scene.dot'
+        basename = '/tmp/ngl_scene.'
+        dotfile = basename + 'dot'
+        svgfile = basename + 'svg'
         open(dotfile, 'w').write(cfg['scene'])
         try:
-            data = subprocess.check_output(['dot', '-Tpng', dotfile])
+            subprocess.call(['dot', '-Tsvg', dotfile, '-o' + svgfile])
         except OSError, e:
             QtWidgets.QMessageBox.critical(self, 'Graphviz error',
                                           'Error while executing dot (Graphviz): %s' % e.strerror,
                                            QtWidgets.QMessageBox.Ok)
             return
 
-        pixmap = QtGui.QPixmap()
-        pixmap.loadFromData(data)
-        self._graph_lbl.setPixmap(pixmap)
-        self._graph_lbl.adjustSize()
+        item = QtSvg.QGraphicsSvgItem(svgfile)
+        self._scene.clear()
+        self._scene.addItem(item)
+        self._scene.setSceneRect(item.boundingRect())
 
     def __init__(self, get_scene_func):
         super(_GraphView, self).__init__()
@@ -286,16 +290,17 @@ class _GraphView(QtWidgets.QWidget):
         self._get_scene_func = get_scene_func
 
         self._save_btn = QtWidgets.QPushButton("Save image")
-        self._graph_lbl = QtWidgets.QLabel()
-        img_area = QtWidgets.QScrollArea()
-        img_area.setWidget(self._graph_lbl)
+
+        self._scene = QtWidgets.QGraphicsScene()
+        self._view = QtWidgets.QGraphicsView()
+        self._view.setScene(self._scene)
 
         hbox = QtWidgets.QHBoxLayout()
         hbox.addWidget(self._save_btn)
 
         graph_layout = QtWidgets.QVBoxLayout(self)
         graph_layout.addLayout(hbox)
-        graph_layout.addWidget(img_area)
+        graph_layout.addWidget(self._view)
 
         self._save_btn.clicked.connect(self._save_to_file)
 
