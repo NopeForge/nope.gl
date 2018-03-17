@@ -247,6 +247,19 @@ class _ExportView(QtWidgets.QWidget):
         self._export_btn.clicked.connect(self._export)
 
 
+class _SVGGraphView(QtWidgets.QGraphicsView):
+
+    def wheelEvent(self, event):
+        factor = 1.25
+        if event.angleDelta().y() < 0:
+            factor = 1.0 / factor
+        self.scale(factor, factor)
+
+    def __init__(self):
+        super(_SVGGraphView, self).__init__()
+        self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
+
+
 class _GraphView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
@@ -292,7 +305,7 @@ class _GraphView(QtWidgets.QWidget):
         self._save_btn = QtWidgets.QPushButton("Save image")
 
         self._scene = QtWidgets.QGraphicsScene()
-        self._view = QtWidgets.QGraphicsView()
+        self._view = _SVGGraphView()
         self._view.setScene(self._scene)
 
         hbox = QtWidgets.QHBoxLayout()
