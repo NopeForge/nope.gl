@@ -420,13 +420,14 @@ class _GLView(QtWidgets.QWidget):
 
     def refresh(self):
         cfg = self._get_scene_func()
-        if cfg:
-            if Fraction(*cfg['aspect_ratio']) != Fraction(*self._ar):
-                self.set_aspect_ratio(cfg['aspect_ratio'])
-            self._gl_widget.set_scene(cfg['scene'])
-            self._scene_duration = cfg['duration']
-            self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
-            self._refresh()
+        if not cfg:
+            return
+        if Fraction(*cfg['aspect_ratio']) != Fraction(*self._ar):
+            self.set_aspect_ratio(cfg['aspect_ratio'])
+        self._gl_widget.set_scene(cfg['scene'])
+        self._scene_duration = cfg['duration']
+        self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
+        self._refresh()
 
     def __init__(self, get_scene_func, config):
         super(_GLView, self).__init__()
