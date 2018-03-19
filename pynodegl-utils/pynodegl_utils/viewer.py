@@ -476,12 +476,11 @@ class _GLView(QtWidgets.QWidget):
         toolbar.addWidget(self._action_btn)
         toolbar.addWidget(fw_btn)
         toolbar.addWidget(self._time_lbl)
-        toolbar.setStretchFactor(self._time_lbl, 1)
+        toolbar.addStretch()
         toolbar.addWidget(screenshot_btn)
 
         self._gl_layout = QtWidgets.QVBoxLayout(self)
-        self._gl_layout.addWidget(self._gl_widget)
-        self._gl_layout.setStretchFactor(self._gl_widget, 1)
+        self._gl_layout.addWidget(self._gl_widget, stretch=1)
         self._gl_layout.addWidget(self._slider)
         self._gl_layout.addLayout(toolbar)
 
