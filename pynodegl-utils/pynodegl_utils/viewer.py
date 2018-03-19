@@ -83,11 +83,12 @@ class _SerialView(QtWidgets.QWidget):
         self._text.setReadOnly(True)
 
         hbox = QtWidgets.QHBoxLayout()
+        hbox.addStretch()
         hbox.addWidget(self._save_btn)
 
         serial_layout = QtWidgets.QVBoxLayout(self)
-        serial_layout.addLayout(hbox)
         serial_layout.addWidget(self._text)
+        serial_layout.addLayout(hbox)
 
         self._save_btn.clicked.connect(self._save_to_file)
 
@@ -309,11 +310,12 @@ class _GraphView(QtWidgets.QWidget):
         self._view.setScene(self._scene)
 
         hbox = QtWidgets.QHBoxLayout()
+        hbox.addStretch()
         hbox.addWidget(self._save_btn)
 
         graph_layout = QtWidgets.QVBoxLayout(self)
-        graph_layout.addLayout(hbox)
         graph_layout.addWidget(self._view)
+        graph_layout.addLayout(hbox)
 
         self._save_btn.clicked.connect(self._save_to_file)
 
