@@ -898,12 +898,11 @@ class _MainWindow(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot(str, str)
     def _scene_changed(self, module_name, scene_name):
+        self.setWindowTitle('%s - %s.%s' % (self._win_title_base, module_name, scene_name))
         self._currentTabChanged(self._tab_widget.currentIndex())
 
     @QtCore.pyqtSlot(str, str)
     def _scene_changed_hook(self, module_name, scene_name):
-
-        self.setWindowTitle('%s - %s.%s' % (self._win_title_base, module_name, scene_name))
 
         def filename_escape(filename):
             s = ''
