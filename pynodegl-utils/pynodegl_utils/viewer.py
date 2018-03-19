@@ -324,10 +324,10 @@ class _GLView(QtWidgets.QWidget):
         if action == 'play':
             self._reset_clock()
             self._timer.start()
-            self._action_btn.setText(u'❙❙')
+            self._action_btn.setText(u'▮▮')
         elif action == 'pause':
             self._timer.stop()
-            self._action_btn.setText(u'►')
+            self._action_btn.setText(u'▶')
         self._current_action = action
 
     @QtCore.pyqtSlot(int)
@@ -450,12 +450,15 @@ class _GLView(QtWidgets.QWidget):
 
         self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
 
-        stop_btn = QtWidgets.QPushButton('◾')
-        self._action_btn = QtWidgets.QPushButton()
+        stop_btn = QtWidgets.QToolButton()
+        stop_btn.setText(u'◾')
+        self._action_btn = QtWidgets.QToolButton()
         self._set_action('pause')
 
-        fw_btn = QtWidgets.QPushButton('>')
-        bw_btn = QtWidgets.QPushButton('<')
+        fw_btn = QtWidgets.QToolButton()
+        fw_btn.setText('>')
+        bw_btn = QtWidgets.QToolButton()
+        bw_btn.setText('<')
 
         self._time_lbl = QtWidgets.QLabel()
 
