@@ -462,7 +462,8 @@ class _GLView(QtWidgets.QWidget):
 
         self._time_lbl = QtWidgets.QLabel()
 
-        screenshot_btn = QtWidgets.QPushButton('Screenshot')
+        screenshot_btn = QtWidgets.QToolButton()
+        screenshot_btn.setText(u'📷')
 
         toolbar = QtWidgets.QHBoxLayout()
         toolbar.addWidget(stop_btn)
