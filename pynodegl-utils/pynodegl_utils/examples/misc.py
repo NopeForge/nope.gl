@@ -324,7 +324,7 @@ def blending_and_stencil(cfg):
     main_group = Group()
 
     quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = Render(quad, program)
+    render = Render(quad, program, name='sky')
     render.update_uniforms(color=UniformVec4(value=(0.2, 0.6, 1, 1)))
     config = GraphicConfig(render,
                            stencil_test=True,
@@ -337,14 +337,14 @@ def blending_and_stencil(cfg):
                            stencil_depth_pass='replace')
     main_group.add_children(config)
 
-    render = Render(circle, program)
+    render = Render(circle, program, name='sun')
     render.update_uniforms(color=UniformVec4(value=(1, 0.8, 0, 1)))
 
     scale = Scale(render, (0.15, 0.15, 0.0))
     translate = Translate(scale, (0.4, 0.3, 0))
     main_group.add_children(translate)
 
-    cloud_group = Group()
+    cloud_group = Group(name='clouds')
 
     centers = [
         (-1.0, 0.85, 0.4),
