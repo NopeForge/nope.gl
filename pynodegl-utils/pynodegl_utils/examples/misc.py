@@ -317,10 +317,13 @@ def blending_and_stencil(cfg):
     random.seed(0)
     fragment = get_frag('color')
 
+    program = Program(fragment=fragment)
+    circle = Circle(npoints=256)
+    cloud_color = UniformVec4(value=(1, 1, 1, 0.4))
+
     main_group = Group()
 
     quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    program = Program(fragment=fragment)
     render = Render(quad, program)
     render.update_uniforms(color=UniformVec4(value=(0.2, 0.6, 1, 1)))
     config = GraphicConfig(render,
@@ -334,8 +337,6 @@ def blending_and_stencil(cfg):
                            stencil_depth_pass='replace')
     main_group.add_children(config)
 
-    circle = Circle(npoints=256)
-    program = Program(fragment=fragment)
     render = Render(circle, program)
     render.update_uniforms(color=UniformVec4(value=(1, 0.8, 0, 1)))
 
@@ -355,10 +356,8 @@ def blending_and_stencil(cfg):
     ]
 
     for center in centers:
-        circle = Circle(npoints=256)
-        program = Program(fragment=fragment)
         render = Render(circle, program)
-        render.update_uniforms(color=UniformVec4(value=(1, 1, 1, 0.4)))
+        render.update_uniforms(color=cloud_color)
 
         factor = random.random() * 0.4 + center[2]
         keyframe = cfg.duration * (random.random() * 0.4 + 0.2)
