@@ -131,6 +131,12 @@ static int media_init(struct ngl_node *node)
             const double initial_seek = kf0->scalar;
 
             sxplayer_set_option(s->player, "skip", initial_seek);
+
+            if (anim->nb_animkf > 1) {
+                const struct animkeyframe *kfn = anim->animkf[anim->nb_animkf - 1]->priv_data;
+                const double last_time = kfn->scalar;
+                sxplayer_set_option(s->player, "trim_duration", last_time - initial_seek);
+            }
         }
     }
 
