@@ -74,6 +74,10 @@ class Config(QtCore.QObject):
     def set_clear_color(self, color):
         self._set_cfg('clear_color', color)
 
+    @QtCore.pyqtSlot(str)
+    def set_log_level(self, level):
+        self._set_cfg('log_level', level)
+
     def geometry_changed(self, geometry):
         self._set_cfg('geometry', geometry)
 

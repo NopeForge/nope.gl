@@ -506,6 +506,7 @@ class _Toolbar(QtWidgets.QWidget):
     aspect_ratio_changed = QtCore.pyqtSignal(tuple, name='aspectRatioChanged')
     samples_changed = QtCore.pyqtSignal(int, name='samplesChanged')
     frame_rate_changed = QtCore.pyqtSignal(tuple, name='frameRateChanged')
+    log_level_changed = QtCore.pyqtSignal(str, name='logLevelChanged')
     clear_color_changed = QtCore.pyqtSignal(tuple, name='clearColorChanged')
 
     def _replace_scene_opts_widget(self, widget):
@@ -718,6 +719,7 @@ class _Toolbar(QtWidgets.QWidget):
         level_str = self.LOG_LEVELS[level_id]
         ngl_level = eval('ngl.LOG_%s' % level_str.upper())
         ngl.log_set_min_level(ngl_level)
+        self.logLevelChanged.emit(level_str)
 
     @QtCore.pyqtSlot()
     def _set_aspect_ratio(self):
@@ -802,10 +804,11 @@ class _Toolbar(QtWidgets.QWidget):
         fr_hbox.addWidget(fr_lbl)
         fr_hbox.addWidget(self._fr_cbbox)
 
+        default_loglevel = config.get('log_level')
         self._loglevel_cbbox = QtWidgets.QComboBox()
         for level in self.LOG_LEVELS:
             self._loglevel_cbbox.addItem(level.title())
-        self._loglevel_cbbox.setCurrentIndex(self.LOG_LEVELS.index('info'))
+        self._loglevel_cbbox.setCurrentIndex(self.LOG_LEVELS.index(default_loglevel))
         self._set_loglevel()
         loglevel_lbl = QtWidgets.QLabel('Min log level:')
         loglevel_hbox = QtWidgets.QHBoxLayout()
@@ -1023,6 +1026,7 @@ class _MainWindow(QtWidgets.QSplitter):
             'aspect_ratio': ASPECT_RATIOS[0],
             'samples': SAMPLES[0],
             'framerate': (60, 1),
+            'log_level': 'info',
             'clear_color': (0.0, 0.0, 0.0, 1.0),
         }
 
@@ -1063,6 +1067,7 @@ class _MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.samplesChanged.connect(self._config.set_samples)
         self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
         self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
+        self._scene_toolbar.logLevelChanged.connect(self._config.set_log_level)
         self._scene_toolbar.clearColorChanged.connect(gl_view.set_clear_color)
         self._scene_toolbar.clearColorChanged.connect(self._config.set_clear_color)
 
