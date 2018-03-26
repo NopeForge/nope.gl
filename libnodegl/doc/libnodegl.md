@@ -639,6 +639,7 @@ Type | Description
 `NodeDict` | Dictionary mapping arbitrary string identifiers to node.gl Nodes
 `select` | Selection of one constant (expressed as a string)
 `flags` | Combination of constants (expressed as strings), using `+` as separator. Can be empty for none.
+`rational` | Rational number (expressed as 2 integers, respectively as numerator and denominator)
 
 Constants for choices parameters
 ================================

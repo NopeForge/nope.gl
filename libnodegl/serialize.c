@@ -147,6 +147,14 @@ static void serialize_options(struct hmap *nlist,
                 }
                 break;
             }
+            case PARAM_TYPE_RATIONAL: {
+                const int *r = (int *)(priv + p->offset);
+                if (constructor)
+                    ngli_bstr_print(b, " %d/%d", r[0], r[1]);
+                else if (memcmp(r, p->def_value.r, sizeof(p->def_value.r)))
+                    ngli_bstr_print(b, " %s:%d/%d", p->key, r[0], r[1]);
+                break;
+            }
             case PARAM_TYPE_STR: {
                 const char *s = *(char **)(priv + p->offset);
                 if (!s || (p->def_value.str && !strcmp(s, p->def_value.str)))

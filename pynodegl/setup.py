@@ -374,6 +374,19 @@ cdef class %(class_name)s(%(parent_node)s):
 
 ''' % field_data
 
+                # Set method for rationals
+                elif field_type == 'rational':
+                    field_data = {
+                        'field_name': field_name,
+                    }
+                    class_str += '''
+    def set_%(field_name)s(self, tuple %(field_name)s):
+        return ngl_node_param_set(self.ctx,
+                                  "%(field_name)s",
+                                  <int>%(field_name)s[0],
+                                  <int>%(field_name)s[1]);
+''' % field_data
+
                 # Set method
                 else:
                     ctype = field_type

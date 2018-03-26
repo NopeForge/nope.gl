@@ -43,6 +43,7 @@ enum {
     PARAM_TYPE_NODEDICT,
     PARAM_TYPE_SELECT,
     PARAM_TYPE_FLAGS,
+    PARAM_TYPE_RATIONAL,
     NB_PARAMS
 };
 
@@ -77,6 +78,7 @@ struct node_param {
         void *p;
         float vec[4];
         float mat[4*4];
+        int r[2];
     } def_value;
     int flags;
     const int *node_types;

@@ -225,6 +225,17 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         CASE_LITERAL(PARAM_TYPE_I64, int64_t, parse_i64)
         CASE_LITERAL(PARAM_TYPE_DBL, double,  parse_double)
 
+        case PARAM_TYPE_RATIONAL: {
+            int r[2] = {0};
+            int ret = sscanf(str, "%d/%d%n", &r[0], &r[1], &len);
+            if (ret != 2)
+                return -1;
+            ret = ngli_params_vset(base_ptr, par, r[0], r[1]);
+            if (ret < 0)
+                return ret;
+            break;
+        }
+
         case PARAM_TYPE_FLAGS:
         case PARAM_TYPE_SELECT: {
             len = strcspn(str, " \n");

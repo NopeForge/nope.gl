@@ -111,6 +111,11 @@ const struct param_specs ngli_params_specs[] = {
         .size = sizeof(int),
         .desc = NGLI_DOCSTRING("Combination of constants (expressed as strings), using `+` as separator. Can be empty for none."),
     },
+    [PARAM_TYPE_RATIONAL] = {
+        .name = "rational",
+        .size = sizeof(int[2]),
+        .desc = NGLI_DOCSTRING("Rational number (expressed as 2 integers, respectively as numerator and denominator)"),
+    },
 };
 
 const struct node_param *ngli_params_find(const struct node_param *params, const char *key)
@@ -291,6 +296,11 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
                 ngli_bstr_print(b, "%s%g", i ? "," : "", elems[i]);
             break;
         }
+        case PARAM_TYPE_RATIONAL: {
+            const int *r = (int *)(base_ptr + par->offset);
+            ngli_bstr_print(b, "%d/%d", r[0], r[1]);
+            break;
+        }
     }
 }
 
@@ -455,6 +465,14 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
                 return ret;
             break;
         }
+        case PARAM_TYPE_RATIONAL: {
+            const int num = va_arg(*ap, int);
+            const int den = va_arg(*ap, int);
+            LOG(VERBOSE, "set %s to %d/%d", par->key, num, den);
+            memcpy(dstp, &num, sizeof(num));
+            memcpy(dstp + sizeof(num), &den, sizeof(den));
+            break;
+        }
 
     }
     return 0;
@@ -546,6 +564,9 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                     break;
                 case PARAM_TYPE_DATA:
                     ngli_params_vset(base_ptr, par, 0, par->def_value.p);
+                    break;
+                case PARAM_TYPE_RATIONAL:
+                    ngli_params_vset(base_ptr, par, par->def_value.r[0], par->def_value.r[1]);
                     break;
             }
         }
