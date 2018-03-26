@@ -235,10 +235,13 @@ static void serialize_options(struct hmap *nlist,
                 uint8_t *nb_elems_p = priv + p->offset + sizeof(double *);
                 const double *elems = *(double **)elems_p;
                 const int nb_elems = *(int *)nb_elems_p;
-                if (nb_elems) {
+                if (!nb_elems)
+                    break;
+                if (constructor)
                     ngli_bstr_print(b, " ");
-                    print_doubles(b, nb_elems, elems);
-                }
+                else
+                    ngli_bstr_print(b, " %s:", p->key);
+                print_doubles(b, nb_elems, elems);
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
