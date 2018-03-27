@@ -273,6 +273,12 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
                                       int width, int height, int depth,
                                       const uint8_t *data);
 
+struct uniformprograminfo {
+    GLint id;
+    GLint size;
+    GLenum type;
+};
+
 struct textureprograminfo {
     int sampling_mode_id;
     int sampler_id;
@@ -291,7 +297,7 @@ struct render {
     int disable_1st_texture_unit;
 
     struct hmap *uniforms;
-    GLint *uniform_ids;
+    struct uniformprograminfo *uniform_ids;
 
     struct hmap *attributes;
     GLint *attribute_ids;

@@ -329,6 +329,12 @@ static inline void ngli_glGenerateMipmap(const struct glfunctions *gl, GLenum ta
     check_error_code(gl, "glGenerateMipmap");
 }
 
+static inline void ngli_glGetActiveUniform(const struct glfunctions *gl, GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name)
+{
+    gl->GetActiveUniform(program, index, bufSize, length, size, type, name);
+    check_error_code(gl, "glGetActiveUniform");
+}
+
 static inline void ngli_glGetAttachedShaders(const struct glfunctions *gl, GLuint program, GLsizei maxCount, GLsizei * count, GLuint * shaders)
 {
     gl->GetAttachedShaders(program, maxCount, count, shaders);

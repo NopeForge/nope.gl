@@ -61,6 +61,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*GenTextures)(GLsizei n, GLuint * textures);
     NGLI_GL_APIENTRY void (*GenVertexArrays)(GLsizei n, GLuint * arrays);
     NGLI_GL_APIENTRY void (*GenerateMipmap)(GLenum target);
+    NGLI_GL_APIENTRY void (*GetActiveUniform)(GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name);
     NGLI_GL_APIENTRY void (*GetAttachedShaders)(GLuint program, GLsizei maxCount, GLsizei * count, GLuint * shaders);
     NGLI_GL_APIENTRY GLint (*GetAttribLocation)(GLuint program, const GLchar * name);
     NGLI_GL_APIENTRY void (*GetBooleanv)(GLenum pname, GLboolean * data);
