@@ -69,7 +69,8 @@ class BuildExtCommand(build_ext):
         for item in specs:
             node = item.keys()[0]
             fields = item[node]
-            nodes_decls.append('cdef int NGL_NODE_%s' % node.upper())
+            if not node.startswith('_'):
+                nodes_decls.append('cdef int NGL_NODE_%s' % node.upper())
         nodes_decls.append(None)
 
         content += '\n'.join(('    %s' % d) if d else '' for d in nodes_decls) + '\n'
