@@ -96,7 +96,7 @@ def buffer_dove(cfg,
     icon_filename = op.join(op.dirname(__file__), 'data', 'icons8-dove.raw')
     w, h = (96, 96)
 
-    img_buf = BufferUBVec4(filename=icon_filename)
+    img_buf = BufferUBVec4(filename=icon_filename, name='icon raw buffer')
 
     img_tex = Texture2D(data_src=img_buf, width=w, height=h)
     if bilinear_filtering:
