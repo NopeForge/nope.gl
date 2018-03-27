@@ -145,8 +145,13 @@ class BuildExtCommand(build_ext):
                     extra_args += '''
             self.set_%(var)s(%(arg)s)''' % optset_data
 
-            construct_args.append('*args')
-            construct_args.append('**kwargs')
+            # Until the end of the inheritance node tree (the _Node), there is
+            # no need to forward remaining unrecognized parameters
+            if node != '_Node':
+                va_args = ('*args', '**kwargs')
+                construct_args += va_args
+                optional_args += va_args
+                optional_varnames += va_args
 
             class_data = {
                 'class_name': node,
@@ -156,13 +161,47 @@ class BuildExtCommand(build_ext):
                 'optional_args': ', '.join(optional_args),
                 'optional_varnames': ', '.join(optional_varnames),
                 'special_inits': special_inits,
-                'extra_args': extra_args if extra_args != '' else ' pass',
+                'extra_args': extra_args,
             }
 
             class_str = '''
 cdef class %(class_name)s(%(parent_node)s):
 ''' % class_data
-            if not node.startswith('_') or node == '_Node':
+
+            # This case is for nodes such as Buffer* or AnimatedBuffer* that
+            # share a common set of parameters (respectively defined in _Buffer
+            # and _AnimatedBuffer). These classes will inherit all the
+            # parameters and their initializers from their parent class but
+            # still need to be identified individually by instantiating a
+            # specific C node (with ngl_node_create()).
+            if parent_node != '_Node':
+                class_str += '''
+    def __init__(%(construct_args)s):%(special_inits)s
+        assert self.ctx is NULL
+        self.ctx = ngl_node_create(%(construct_cargs)s)
+        if self.ctx is NULL:
+            raise MemoryError()
+        self._init_params(%(optional_varnames)s)
+''' % class_data
+
+            # Nodes starting with a _ (such as _Buffer or _AnimatedBuffer) are
+            # intermediate fake nodes sharing the common set of parameters of
+            # their children. These nodes do not instantiate a C node, they are
+            # only meant to prevent duplication of all the parameter functions
+            # for their children. The non-handled parameters provided in their
+            # parameter init function need to be forwarded to their parent
+            # (_Node).
+            elif node.startswith('_') and node != '_Node':
+                class_str += '''
+    def _init_params(%(optional_args)s):%(extra_args)s
+        %(parent_node)s._init_params(self, *args, **kwargs)
+''' % class_data
+
+            # Case for all the remaining nodes The __init__ function includes
+            # argument pre-processing for standard C node instantiation, the C
+            # node instantiation itself, and the forward of unhandled
+            # parameters to the parent (_Node).
+            else:
                 class_str += '''
     def __init__(%(construct_args)s):%(special_inits)s
         assert self.ctx is NULL
@@ -170,11 +209,7 @@ cdef class %(class_name)s(%(parent_node)s):
         if self.ctx is NULL:
             raise MemoryError()
         %(parent_node)s._init_params(self, *args, **kwargs)
-        self._init_params(%(optional_varnames)s)
-''' % class_data
-
-            class_str += '''
-    def _init_params(%(optional_args)s):%(extra_args)s
+%(extra_args)s
 ''' % class_data
 
             if node == '_Node':
