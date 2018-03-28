@@ -29,6 +29,33 @@ from PyQt5 import QtCore
 
 class Config(QtCore.QObject):
 
+    CHOICES = {
+        'aspect_ratio': [
+            (16, 9),
+            (16, 10),
+            (4, 3),
+            (1, 1),
+            (9, 16),
+        ],
+        'samples': [0, 2, 4, 8],
+        'framerate': [
+            (8, 1), (12, 1), (15, 1),
+            (24000, 1001), (24, 1),
+            (25, 1),
+            (30000, 1001), (30, 1),
+            (50, 1),
+            (60000, 1001), (60, 1),
+        ],
+        'log_level': [
+            'verbose',
+            'debug',
+            'info',
+            'warning',
+            'error',
+        ],
+    }
+
+
     def _get_config_filepath(self):
         config_basedir = os.environ.get('XDG_DATA_HOME', op.expanduser('~/.local/share'))
         config_dir = op.join(config_basedir, 'node.gl')
@@ -87,10 +114,17 @@ class Config(QtCore.QObject):
         self._set_cfg('module', module_name)
         self._set_cfg('scene',  scene_name)
 
-    def __init__(self, cfg_defaults, module_pkgname):
+    def __init__(self, module_pkgname):
         super(Config, self).__init__()
 
-        self._cfg = cfg_defaults.copy()
+        self._cfg = {
+            'aspect_ratio': (16, 9),
+            'samples': 0,
+            'framerate': (60, 1),
+            'log_level': 'info',
+            'clear_color': (0.0, 0.0, 0.0, 1.0),
+        }
+
         self._module_pkgname = module_pkgname
         self._needs_saving = False
 

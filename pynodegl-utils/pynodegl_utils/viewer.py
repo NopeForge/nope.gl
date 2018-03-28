@@ -43,18 +43,6 @@ from PyQt5 import QtGui, QtCore, QtWidgets, QtSvg
 from OpenGL import GL
 
 
-ASPECT_RATIOS = [(16, 9), (16, 10), (4, 3), (1, 1), (9, 16)]
-SAMPLES = [0, 2, 4, 8]
-FRAME_RATES = [
-        (8, 1), (12, 1), (15, 1),
-        (24000, 1001), (24, 1),
-        (25, 1),
-        (30000, 1001), (30, 1),
-        (50, 1),
-        (60000, 1001), (60, 1),
-]
-
-
 class _SerialView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
@@ -500,8 +488,6 @@ class _GLView(QtWidgets.QWidget):
 
 class _Toolbar(QtWidgets.QWidget):
 
-    LOG_LEVELS = ('verbose', 'debug', 'info', 'warning', 'error')
-
     scene_changed = QtCore.pyqtSignal(str, str, name='sceneChanged')
     aspect_ratio_changed = QtCore.pyqtSignal(tuple, name='aspectRatioChanged')
     samples_changed = QtCore.pyqtSignal(int, name='samplesChanged')
@@ -625,11 +611,12 @@ class _Toolbar(QtWidgets.QWidget):
         return groupbox
 
     def get_scene_cfg(self):
+        choices = Config.CHOICES
         return {
                 'scene': self._current_scene_data,
-                'aspect_ratio': ASPECT_RATIOS[self._ar_cbbox.currentIndex()],
-                'framerate': FRAME_RATES[self._fr_cbbox.currentIndex()],
-                'samples': SAMPLES[self._samples_cbbox.currentIndex()],
+                'aspect_ratio': choices['aspect_ratio'][self._ar_cbbox.currentIndex()],
+                'framerate': choices['framerate'][self._fr_cbbox.currentIndex()],
+                'samples': choices['samples'][self._samples_cbbox.currentIndex()],
                 'extra_args': self._scene_extra_args,
                 'has_fps': self._fps_chkbox.isChecked(),
         }
@@ -697,7 +684,7 @@ class _Toolbar(QtWidgets.QWidget):
         try:
             cfg_ar = Fraction(*cfg['aspect_ratio'])
             cfg_ar = (cfg_ar.numerator, cfg_ar.denominator)
-            ar = Fraction(*ASPECT_RATIOS[self._ar_cbbox.currentIndex()])
+            ar = Fraction(*Config.CHOICES['aspect_ratio'][self._ar_cbbox.currentIndex()])
             ar = (ar.numerator, ar.denominator)
             if ar != cfg_ar:
                 self._far_lbl2.setText('%d:%d' % cfg_ar)
@@ -716,26 +703,26 @@ class _Toolbar(QtWidgets.QWidget):
     @QtCore.pyqtSlot()
     def _set_loglevel(self):
         level_id = self._loglevel_cbbox.currentIndex()
-        level_str = self.LOG_LEVELS[level_id]
+        level_str = Config.CHOICES['log_level'][level_id]
         ngl_level = eval('ngl.LOG_%s' % level_str.upper())
         ngl.log_set_min_level(ngl_level)
         self.logLevelChanged.emit(level_str)
 
     @QtCore.pyqtSlot()
     def _set_aspect_ratio(self):
-        ar = ASPECT_RATIOS[self._ar_cbbox.currentIndex()]
+        ar = Config.CHOICES['aspect_ratio'][self._ar_cbbox.currentIndex()]
         self.aspectRatioChanged.emit(ar)
         self._load_current_scene()
 
     @QtCore.pyqtSlot()
     def _set_frame_rate(self):
-        fr = FRAME_RATES[self._fr_cbbox.currentIndex()]
+        fr = Config.CHOICES['framerate'][self._fr_cbbox.currentIndex()]
         self.frameRateChanged.emit(fr)
         self._load_current_scene()
 
     @QtCore.pyqtSlot()
     def _set_samples(self):
-        samples = SAMPLES[self._samples_cbbox.currentIndex()]
+        samples = Config.CHOICES['samples'][self._samples_cbbox.currentIndex()]
         self.samplesChanged.emit(samples)
         self._load_current_scene()
 
@@ -764,11 +751,12 @@ class _Toolbar(QtWidgets.QWidget):
 
         self._fps_chkbox = QtWidgets.QCheckBox('Show FPS')
 
+        all_ar = config.CHOICES['aspect_ratio']
         default_ar = config.get('aspect_ratio')
         self._ar_cbbox = QtWidgets.QComboBox()
-        for ar in ASPECT_RATIOS:
+        for ar in all_ar:
             self._ar_cbbox.addItem('%d:%d' % ar)
-        self._ar_cbbox.setCurrentIndex(ASPECT_RATIOS.index(default_ar))
+        self._ar_cbbox.setCurrentIndex(all_ar.index(default_ar))
         ar_lbl = QtWidgets.QLabel('Aspect ratio:')
         ar_hbox = QtWidgets.QHBoxLayout()
         ar_hbox.addWidget(ar_lbl)
@@ -784,31 +772,34 @@ class _Toolbar(QtWidgets.QWidget):
         far_hbox.addWidget(self._far_lbl)
         far_hbox.addWidget(self._far_lbl2)
 
+        all_samples = config.CHOICES['samples']
         default_samples = config.get('samples')
         self._samples_cbbox = QtWidgets.QComboBox()
-        for samples in SAMPLES:
+        for samples in all_samples:
             self._samples_cbbox.addItem('%dx' % samples if samples else 'Disabled')
-        self._samples_cbbox.setCurrentIndex(SAMPLES.index(default_samples))
+        self._samples_cbbox.setCurrentIndex(all_samples.index(default_samples))
         samples_lbl = QtWidgets.QLabel('MSAA:')
         samples_hbox = QtWidgets.QHBoxLayout()
         samples_hbox.addWidget(samples_lbl)
         samples_hbox.addWidget(self._samples_cbbox)
 
+        all_fr = config.CHOICES['framerate']
         default_fr = config.get('framerate')
         self._fr_cbbox = QtWidgets.QComboBox()
-        for fr in FRAME_RATES:
+        for fr in all_fr:
             self._fr_cbbox.addItem('%.5g FPS' % (fr[0] / float(fr[1])))
-        self._fr_cbbox.setCurrentIndex(FRAME_RATES.index(default_fr))
+        self._fr_cbbox.setCurrentIndex(all_fr.index(default_fr))
         fr_lbl = QtWidgets.QLabel('Frame rate:')
         fr_hbox = QtWidgets.QHBoxLayout()
         fr_hbox.addWidget(fr_lbl)
         fr_hbox.addWidget(self._fr_cbbox)
 
+        all_loglevels = config.CHOICES['log_level']
         default_loglevel = config.get('log_level')
         self._loglevel_cbbox = QtWidgets.QComboBox()
-        for level in self.LOG_LEVELS:
+        for level in all_loglevels:
             self._loglevel_cbbox.addItem(level.title())
-        self._loglevel_cbbox.setCurrentIndex(self.LOG_LEVELS.index(default_loglevel))
+        self._loglevel_cbbox.setCurrentIndex(all_loglevels.index(default_loglevel))
         self._set_loglevel()
         loglevel_lbl = QtWidgets.QLabel('Min log level:')
         loglevel_hbox = QtWidgets.QHBoxLayout()
@@ -1024,17 +1015,9 @@ class _MainWindow(QtWidgets.QSplitter):
 
         self._medias = medias
 
-        config_defaults = {
-            'aspect_ratio': ASPECT_RATIOS[0],
-            'samples': SAMPLES[0],
-            'framerate': (60, 1),
-            'log_level': 'info',
-            'clear_color': (0.0, 0.0, 0.0, 1.0),
-        }
-
         get_scene_func = self._get_scene
 
-        self._config = Config(config_defaults, module_pkgname)
+        self._config = Config(module_pkgname)
 
         # Apply previous geometry (position + dimensions)
         rect = self._config.get('geometry')
