@@ -868,6 +868,8 @@ class _MainWindow(QtWidgets.QSplitter):
 
     def _get_scene(self, **cfg_overrides):
         cfg = self._scene_toolbar.get_scene_cfg()
+        if cfg['scene'] is None:
+            return None
         cfg['scene'] = (cfg['scene'][0], cfg['scene'][1])  # XXX
         cfg['glbackend'] = self._glbackend
         cfg['pkg'] = self._module_pkgname
