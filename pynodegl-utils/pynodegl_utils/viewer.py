@@ -775,10 +775,10 @@ class _Toolbar(QtWidgets.QWidget):
         ar_hbox.addWidget(self._ar_cbbox)
 
         self._far_lbl = QtWidgets.QLabel('Forced aspect ratio:')
-        self._far_lbl.setStyleSheet("color: red;");
+        self._far_lbl.setStyleSheet("color: red;")
         self._far_lbl.setVisible(False)
         self._far_lbl2 = QtWidgets.QLabel('1:1')
-        self._far_lbl2.setStyleSheet("color: red;");
+        self._far_lbl2.setStyleSheet("color: red;")
         self._far_lbl2.setVisible(False)
         far_hbox = QtWidgets.QHBoxLayout()
         far_hbox.addWidget(self._far_lbl)
