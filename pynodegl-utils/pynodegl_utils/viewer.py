@@ -700,29 +700,28 @@ class _Toolbar(QtWidgets.QWidget):
     def _fps_chkbox_changed(self):
         self._load_current_scene()
 
-    @QtCore.pyqtSlot()
-    def _set_loglevel(self):
-        level_id = self._loglevel_cbbox.currentIndex()
-        level_str = Config.CHOICES['log_level'][level_id]
+    @QtCore.pyqtSlot(int)
+    def _set_loglevel(self, index):
+        level_str = Config.CHOICES['log_level'][index]
         ngl_level = eval('ngl.LOG_%s' % level_str.upper())
         ngl.log_set_min_level(ngl_level)
         self.logLevelChanged.emit(level_str)
 
-    @QtCore.pyqtSlot()
-    def _set_aspect_ratio(self):
-        ar = Config.CHOICES['aspect_ratio'][self._ar_cbbox.currentIndex()]
+    @QtCore.pyqtSlot(int)
+    def _set_aspect_ratio(self, index):
+        ar = Config.CHOICES['aspect_ratio'][index]
         self.aspectRatioChanged.emit(ar)
         self._load_current_scene()
 
-    @QtCore.pyqtSlot()
-    def _set_frame_rate(self):
-        fr = Config.CHOICES['framerate'][self._fr_cbbox.currentIndex()]
+    @QtCore.pyqtSlot(int)
+    def _set_frame_rate(self, index):
+        fr = Config.CHOICES['framerate'][index]
         self.frameRateChanged.emit(fr)
         self._load_current_scene()
 
-    @QtCore.pyqtSlot()
-    def _set_samples(self):
-        samples = Config.CHOICES['samples'][self._samples_cbbox.currentIndex()]
+    @QtCore.pyqtSlot(int)
+    def _set_samples(self, index):
+        samples = Config.CHOICES['samples'][index]
         self.samplesChanged.emit(samples)
         self._load_current_scene()
 
@@ -799,8 +798,9 @@ class _Toolbar(QtWidgets.QWidget):
         self._loglevel_cbbox = QtWidgets.QComboBox()
         for level in all_loglevels:
             self._loglevel_cbbox.addItem(level.title())
-        self._loglevel_cbbox.setCurrentIndex(all_loglevels.index(default_loglevel))
-        self._set_loglevel()
+        log_level_idx = all_loglevels.index(default_loglevel)
+        self._loglevel_cbbox.setCurrentIndex(log_level_idx)
+        self._set_loglevel(log_level_idx)
         loglevel_lbl = QtWidgets.QLabel('Min log level:')
         loglevel_hbox = QtWidgets.QHBoxLayout()
         loglevel_hbox.addWidget(loglevel_lbl)
