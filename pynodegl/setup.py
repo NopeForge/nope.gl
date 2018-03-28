@@ -24,6 +24,7 @@
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 
+
 class LibNodeGLConfig:
 
     PKG_LIB_NAME = 'libnodegl'
@@ -43,12 +44,14 @@ class LibNodeGLConfig:
         self.library_dirs = [f[2:] for f in flags if f.startswith('-L')]
         self.libraries    = [f[2:] for f in flags if f.startswith('-l')]
 
-lib_cfg = LibNodeGLConfig()
+
+_LIB_CFG = LibNodeGLConfig()
+
 
 class BuildExtCommand(build_ext):
 
     def _gen_definitions_pyx(self, specs):
-        import yaml # must NOT be on top of this file
+        import yaml  # must NOT be on top of this file
 
         specs = yaml.load(open(specs))
 
@@ -398,14 +401,15 @@ cdef class %(class_name)s(%(parent_node)s):
 
     def run(self):
         import os.path as op
-        specs_file = op.join(lib_cfg.data_root_dir, 'nodegl', 'nodes.specs')
+        specs_file = op.join(_LIB_CFG.data_root_dir, 'nodegl', 'nodes.specs')
         content = self._gen_definitions_pyx(specs_file)
         open('nodes_def.pyx', 'w').write(content)
         build_ext.run(self)
 
+
 setup(
     name='pynodegl',
-    version=lib_cfg.version,
+    version=_LIB_CFG.version,
     setup_requires=[
         'setuptools>=18.0',
         'cython',
@@ -415,8 +419,8 @@ setup(
         'build_ext': BuildExtCommand,
     },
     ext_modules=[Extension("pynodegl",
-                 sources=['pynodegl.pyx'],
-                 include_dirs=lib_cfg.include_dirs,
-                 libraries=lib_cfg.libraries,
-                 library_dirs=lib_cfg.library_dirs)]
+                           sources=['pynodegl.pyx'],
+                           include_dirs=_LIB_CFG.include_dirs,
+                           libraries=_LIB_CFG.libraries,
+                           library_dirs=_LIB_CFG.library_dirs)]
 )
