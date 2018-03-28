@@ -63,8 +63,9 @@ class BuildExtCommand(build_ext):
         content = 'from libc.stdlib cimport free\n'
         content += 'from libc.stdint cimport uintptr_t\n'
         content += 'from cpython cimport array\n'
-        content += 'cdef extern from "nodegl.h":\n'
 
+        # Map C nodes identifiers (NGL_NODE_*)
+        content += 'cdef extern from "nodegl.h":\n'
         nodes_decls = []
         for item in specs:
             node = item.keys()[0]
@@ -72,7 +73,6 @@ class BuildExtCommand(build_ext):
             if not node.startswith('_'):
                 nodes_decls.append('cdef int NGL_NODE_%s' % node.upper())
         nodes_decls.append(None)
-
         content += '\n'.join(('    %s' % d) if d else '' for d in nodes_decls) + '\n'
 
         for item in specs:
@@ -85,9 +85,9 @@ class BuildExtCommand(build_ext):
             special_inits = ''
             extra_args = ''
 
+            # Grab inheritance and fields information about the node
             if not fields:
                 fields = {}
-
             if isinstance(fields, str):
                 opt_fields = []
                 parent_node = fields
@@ -96,6 +96,9 @@ class BuildExtCommand(build_ext):
                 opt_fields = fields.get('optional', [])
                 parent_node = '_Node'
 
+            # Prepare the transformation of the constructor arguments from
+            # Python object to C types which will be passed to the C
+            # constructor function (ngl_node_create()).
             for field in fields.get('constructors', []):
                 field_name, field_type = field
                 assert not field_type.endswith('List')
@@ -119,6 +122,8 @@ class BuildExtCommand(build_ext):
                     construct_cargs.append('%s.ctx' % field_name)
                     construct_args.append('_Node %s' % field_name)
 
+            # For every optional arguments user-specified (not None), we will
+            # call the corresponding set/add/update method.
             optional_args = ['self']
             optional_varnames = []
             for field in opt_fields:
@@ -146,7 +151,7 @@ class BuildExtCommand(build_ext):
             self.set_%(var)s(%(arg)s)''' % optset_data
 
             # Until the end of the inheritance node tree (the _Node), there is
-            # no need to forward remaining unrecognized parameters
+            # no need to forward remaining unrecognized parameters.
             if node != '_Node':
                 va_args = ('*args', '**kwargs')
                 construct_args += va_args
@@ -210,6 +215,8 @@ cdef class _Node:
 %(extra_args)s
 ''' % class_data
 
+                # Declare growing list helpers functions to _Node, to be used
+                # by other nodes for their specific list-based parameters.
                 for field_type in 'NodeList', 'doubleList':
                     base_field_type = field_type[:-len('List')]
                     citem_type = {
@@ -289,6 +296,8 @@ cdef class %(class_name)s(%(parent_node)s):
 %(extra_args)s
 ''' % class_data
 
+            # Animated classes need a specific evaluate method that could not
+            # be created through the parameters system.
             if node in ['AnimatedFloat', 'AnimatedVec2', 'AnimatedVec3', 'AnimatedVec4']:
                 n = ['Float', 'Vec2', 'Vec3', 'Vec4'].index(node[len('Animated'):]) + 1
                 if n == 1:
@@ -303,9 +312,13 @@ cdef class %(class_name)s(%(parent_node)s):
         return %s
 ''' % (float_type, n, retstr)
 
+            # Declare a set, add or update method for every optional field of
+            # the node. The constructor parameters can not be changed so we
+            # only handle the optional ones.
             for field in fields.get('optional', []):
                 field_name, field_type = field
 
+                # Add method
                 if field_type.endswith('List'):
                     field_name, field_type = field
                     field_data = {
@@ -317,6 +330,7 @@ cdef class %(class_name)s(%(parent_node)s):
         return self._add_%(field_type)s("%(field_name)s", *%(field_name)s)
 ''' % field_data
 
+                # Update method
                 elif field_type.endswith('Dict'):
                     field_type = field_type[:-len('Dict')]
                     assert field_type == 'Node'
@@ -328,6 +342,7 @@ cdef class %(class_name)s(%(parent_node)s):
         return self._update_dict("%(field_name)s", arg, **kwargs)
 ''' % field_data
 
+                # Set method for vectors and matrices
                 elif field_type.startswith('vec') or field_type == 'mat4':
                     n = int(field_type[3:]) if field_type.startswith('vec') else 16
                     cparam = field_name + '_c'
@@ -341,6 +356,7 @@ cdef class %(class_name)s(%(parent_node)s):
         return ngl_node_param_set(self.ctx, "%(field_name)s", %(cparam)s)
 ''' % field_data
 
+                # Set method for data
                 elif field_type == 'data':
                     field_data = {
                         'field_name': field_name,
@@ -355,6 +371,7 @@ cdef class %(class_name)s(%(parent_node)s):
 
 ''' % field_data
 
+                # Set method
                 else:
                     ctype = field_type
                     cparam = field_name
