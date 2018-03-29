@@ -9,33 +9,10 @@ import subprocess
 def scene(**widgets_specs):
     def real_decorator(scene_func):
         def func_wrapper(idict=None, **extra_args):
-
-            if idict is None:
-                idict = {}
-
-            fields = (
-                'aspect_ratio',
-                'duration',
-                'framerate',
-                'glbackend',
-                'samples',
-                'system',
-                'files',
-            )
-
-            scene_cfg = SceneCfg(idict.get('medias'))
-            for field in fields:
-                if field in idict:
-                    setattr(scene_cfg, field, idict[field])
-
+            scene_cfg = SceneCfg(**idict)
             scene = scene_func(scene_cfg, **extra_args)
-
-            odict = {}
-            for field in fields:
-                odict[field] = getattr(scene_cfg, field)
-            odict['medias'] = scene_cfg.medias
+            odict = scene_cfg.as_dict()
             odict['scene'] = scene
-
             return odict
 
         final_specs = []
@@ -133,31 +110,40 @@ class Media:
 
 class SceneCfg:
 
-    LOOP_DURATION = 30.0
-    FRAME_RATE = (60, 1)
     DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mp4'
+    _DEFAULT_FIELDS = {
+        'aspect_ratio': (16, 9),
+        'duration': 30.0,
+        'framerate': (60, 1),
+        'glbackend': 'gl',
+        'samples': 0,
+        'system': platform.system(),
+        'files': [],
+        'medias': None,
+    }
 
-    def __init__(self, medias=None):
-        if medias is None:
+    def __init__(self, **kwargs):
+        for field, def_val in self._DEFAULT_FIELDS.iteritems():
+            val = kwargs.get(field, def_val)
+            setattr(self, field, val)
+
+        if self.medias is None:
             media_file = self.DEFAULT_MEDIA_FILE
             if not op.exists(self.DEFAULT_MEDIA_FILE):
                 ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
-                                       'testsrc2=d=%d:r=%d/%d' % (int(math.ceil(self.LOOP_DURATION)),
-                                                                  self.FRAME_RATE[0], self.FRAME_RATE[1]),
+                                       'testsrc2=d=%d:r=%d/%d' % (int(math.ceil(self.duration)),
+                                                                  self.framerate[0], self.framerate[1]),
                                        media_file])
                 if ret:
                     raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
-            medias = [Media(media_file)]
-
-        self.medias = medias
-        self.duration = self.LOOP_DURATION
-        self.aspect_ratio = (16, 9)
-        self.framerate = self.FRAME_RATE
-        self.samples = 0
-        self.glbackend = 'gl'
-        self.system = platform.system()
-        self.files = []
+            self.medias = [Media(media_file)]
 
     @property
     def aspect_ratio_float(self):
         return self.aspect_ratio[0] / float(self.aspect_ratio[1])
+
+    def as_dict(self):
+        odict = {}
+        for field in self._DEFAULT_FIELDS.keys():
+            odict[field] = getattr(self, field)
+        return odict
