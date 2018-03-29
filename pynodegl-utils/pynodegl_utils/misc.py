@@ -110,7 +110,7 @@ class Media:
 
 class SceneCfg:
 
-    DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mp4'
+    _DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mp4'
     _DEFAULT_FIELDS = {
         'aspect_ratio': (16, 9),
         'duration': 30.0,
@@ -128,8 +128,8 @@ class SceneCfg:
             setattr(self, field, val)
 
         if self.medias is None:
-            media_file = self.DEFAULT_MEDIA_FILE
-            if not op.exists(self.DEFAULT_MEDIA_FILE):
+            media_file = self._DEFAULT_MEDIA_FILE
+            if not op.exists(self._DEFAULT_MEDIA_FILE):
                 ret = subprocess.call(['ffmpeg', '-nostdin', '-nostats', '-f', 'lavfi', '-i',
                                        'testsrc2=d=%d:r=%d/%d' % (int(math.ceil(self.duration)),
                                                                   self.framerate[0], self.framerate[1]),
