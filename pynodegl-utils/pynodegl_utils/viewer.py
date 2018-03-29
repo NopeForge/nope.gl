@@ -948,8 +948,8 @@ class _MainWindow(QtWidgets.QSplitter):
             # different from the one in local, so we need to fix up the scene
             # appropriately.
             serialized_scene = cfg['scene']
-            hook_sync = self._get_hook('media_sync')
-            remotedir = self._get_hook_output('get_assets_dir')
+            hook_sync = self._get_hook('sync')
+            remotedir = self._get_hook_output('get_remote_dir')
             if hook_sync and remotedir:
                 filelist = [m.filename for m in cfg['medias']] + cfg['files']
                 for localfile in filelist:

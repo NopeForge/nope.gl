@@ -138,19 +138,19 @@ synchronization with another device.
 Following are the hook script or programs that will be executed and their
 expected behaviour.
 
-### hook.get_assets_dir
+### hook.get_remote_dir
 
-`hook.get_assets_dir` does not take any argument. It must print on `stdout` the
-remote path where the assets are supposed to be synchronized.
+`hook.get_remote_dir` does not take any argument. It must print on `stdout` the
+remote path where the scene files are supposed to be synchronized.
 
 This hook is not mandatory.
 
-See also `hook.media_sync`.
+See also `hook.sync`.
 
 **Example**:
 
 ```shell
-$ android/hook.get_assets_dir
+$ android/hook.get_remote_dir
 /sdcard/nodegl_data
 ```
 
@@ -190,23 +190,23 @@ $ android/hook.get_system
 Android
 ```
 
-### hook.media_sync
+### hook.sync
 
-`hook.media_sync` takes 2 arguments:
+`hook.sync` takes 2 arguments:
 
-1. `localfile`: the path to the local asset file
-2. `remotefile`: the path to the remote asset file
+1. `localfile`: the path to the local file
+2. `remotefile`: the path to the remote file
 
-It is called for every asset.
+It is called for every file to sync (typically media files).
 
 This hook is not mandatory.
 
-See also `hook.get_assets_dir`.
+See also `hook.get_remote_dir`.
 
 **Example**:
 
 ```shell
-$ android/hook.media_sync /tmp/ngl-media.mp4 /sdcard/nodegl_data
+$ android/hook.sync /tmp/ngl-media.mp4 /sdcard/nodegl_data
 /tmp/ngl-media.mp4: 1 file pushed. 14.3 MB/s (1564947 bytes in 0.105s)
 ```
 
