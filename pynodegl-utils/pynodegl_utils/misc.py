@@ -120,6 +120,7 @@ class SceneCfg:
         'system': platform.system(),
         'files': [],
         'medias': None,
+        'clear_color': (0.0, 0.0, 0.0, 1.0),
     }
 
     def __init__(self, **kwargs):

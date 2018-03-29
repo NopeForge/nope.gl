@@ -623,6 +623,7 @@ class _Toolbar(QtWidgets.QWidget):
                 'samples': choices['samples'][self._samples_cbbox.currentIndex()],
                 'extra_args': self._scene_extra_args,
                 'has_fps': self._fps_chkbox.isChecked(),
+                'clear_color': self._clear_color,
         }
 
     def load_scene_from_name(self, module_name, scene_name):
@@ -729,11 +730,15 @@ class _Toolbar(QtWidgets.QWidget):
         self.samplesChanged.emit(samples)
         self._load_current_scene()
 
+    def _set_widget_clear_color(self, color):
+        color_name = color.name()
+        self._clearcolor_btn.setStyleSheet('background-color: %s;' % color_name)
+        self._clear_color = color.getRgbF()
+
     @QtCore.pyqtSlot()
     def _set_clear_color(self):
         color = QtWidgets.QColorDialog.getColor()
-        color_name = color.name()
-        self._clearcolor_btn.setStyleSheet('background-color: %s;' % color_name)
+        self._set_widget_clear_color(color)
         self.clearColorChanged.emit(color.getRgbF())
         self._load_current_scene()
 
@@ -814,8 +819,7 @@ class _Toolbar(QtWidgets.QWidget):
         self._clearcolor_btn = QtWidgets.QPushButton()
         color = QtGui.QColor()
         color.setRgbF(*default_clearcolor)
-        color_name = color.name()
-        self._clearcolor_btn.setStyleSheet('background-color: %s;' % color_name)
+        self._set_widget_clear_color(color)
         self._clearcolor_btn.pressed.connect(self._set_clear_color)
 
         clearcolor_lbl = QtWidgets.QLabel('Clear color:')
@@ -923,6 +927,13 @@ class _MainWindow(QtWidgets.QSplitter):
             _, ext = op.splitext(filename)
             return op.join(remotedir, digest + ext)
 
+        def uint_clear_color(vec4_color):
+            uint_color = 0
+            for i, comp in enumerate(vec4_color):
+                comp_val = int(round(comp*0xff)) & 0xff
+                uint_color |= comp_val << (24 - i*8)
+            return uint_color
+
         try:
             # Bail out immediately if there is no script to run when a scene change
             # occurs
@@ -962,7 +973,8 @@ class _MainWindow(QtWidgets.QSplitter):
             args = [hook_scene_change, local_scene,
                     'duration=%f' % cfg['duration'],
                     'framerate=%d/%d' % cfg['framerate'],
-                    'aspect_ratio=%d/%d' % cfg['aspect_ratio']]
+                    'aspect_ratio=%d/%d' % cfg['aspect_ratio'],
+                    'clear_color=%08X' % uint_clear_color(cfg['clear_color'])]
             subprocess.check_call(args)
 
         except subprocess.CalledProcessError, e:
