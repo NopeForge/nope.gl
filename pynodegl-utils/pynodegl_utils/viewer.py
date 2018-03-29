@@ -810,7 +810,6 @@ class _Toolbar(QtWidgets.QWidget):
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
-        # TODO: factor out widget (see _get_opts_widget_from_specs)
         default_clearcolor = config.get('clear_color')
         self._clearcolor_btn = QtWidgets.QPushButton()
         color = QtGui.QColor()
