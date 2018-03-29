@@ -94,6 +94,7 @@ def buffer_dove(cfg,
 
     # Credits: https://icons8.com/icon/40514/dove
     icon_filename = op.join(op.dirname(__file__), 'data', 'icons8-dove.raw')
+    cfg.files.append(icon_filename)
     w, h = (96, 96)
 
     img_buf = BufferUBVec4(filename=icon_filename, name='icon raw buffer')
