@@ -20,6 +20,7 @@ def scene(**widgets_specs):
                 'glbackend',
                 'samples',
                 'system',
+                'files',
             )
 
             scene_cfg = SceneCfg(idict.get('medias'))
@@ -155,6 +156,7 @@ class SceneCfg:
         self.samples = 0
         self.glbackend = 'gl'
         self.system = platform.system()
+        self.files = []
 
     @property
     def aspect_ratio_float(self):

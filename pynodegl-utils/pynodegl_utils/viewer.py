@@ -951,9 +951,9 @@ class _MainWindow(QtWidgets.QSplitter):
             hook_sync = self._get_hook('media_sync')
             remotedir = self._get_hook_output('get_assets_dir')
             if hook_sync and remotedir:
-                for media in cfg['medias']:
-                    localfile = media.filename
-                    remotefile = get_remotefile(media.filename, remotedir)
+                filelist = [m.filename for m in cfg['medias']] + cfg['files']
+                for localfile in filelist:
+                    remotefile = get_remotefile(localfile, remotedir)
                     serialized_scene = serialized_scene.replace(
                             filename_escape(localfile),
                             filename_escape(remotefile))
