@@ -615,10 +615,10 @@ class _Toolbar(QtWidgets.QWidget):
         groupbox.setLayout(vbox)
         return groupbox
 
-    def get_scene_cfg(self):
+    def get_cfg(self):
         choices = Config.CHOICES
         return {
-                'scene': self._current_scene_data,
+                'scene': self._current_scene_data[:2] if self._current_scene_data else None,
                 'aspect_ratio': choices['aspect_ratio'][self._ar_cbbox.currentIndex()],
                 'framerate': choices['framerate'][self._fr_cbbox.currentIndex()],
                 'samples': choices['samples'][self._samples_cbbox.currentIndex()],
@@ -863,10 +863,9 @@ class _MainWindow(QtWidgets.QSplitter):
         self._update_err_buf(err_str)
 
     def _get_scene(self, **cfg_overrides):
-        cfg = self._scene_toolbar.get_scene_cfg()
+        cfg = self._scene_toolbar.get_cfg()
         if cfg['scene'] is None:
             return None
-        cfg['scene'] = (cfg['scene'][0], cfg['scene'][1])  # XXX
         cfg['glbackend'] = self._glbackend
         cfg['pkg'] = self._module_pkgname
         cfg['medias'] = self._medias
