@@ -50,17 +50,13 @@ from pynodegl_utils.misc import scene, get_frag, get_vert, get_comp
        trilinear={'type': 'bool'})
 def lut3d(cfg, xsplit=.3, trilinear=True):
     level = 6
-    level2, level3 = level**2, level**3
+    level2 = level**2
 
     # Generated with `ffmpeg -f lavfi -i haldclutsrc=6,curves=vintage -f
     # rawvideo -frames:v 1 lut3d.raw`
-    lut3d_file = open(op.join(op.dirname(__file__), 'data', 'lut3d.raw'))
-    lut3d_data = lut3d_file.read()
-    w, h = (level3, level3)
-    assert len(lut3d_data) == w * h * 3
-
-    array_data = array.array('B', lut3d_data)
-    lut3d_buf = BufferUBVec3(data=array_data)
+    lut3d_filename = op.join(op.dirname(__file__), 'data', 'lut3d.raw')
+    cfg.files.append(lut3d_filename)
+    lut3d_buf = BufferUBVec3(filename=lut3d_filename)
     lut3d_tex = Texture3D(data_src=lut3d_buf,
                           width=level2, height=level2, depth=level2)
     if trilinear:
