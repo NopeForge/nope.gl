@@ -998,9 +998,13 @@ class _MainWindow(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot(int)
     def _currentTabChanged(self, index):
-        view = self._tabs[index][1]
-        if hasattr(view, 'enter'):
-            view.enter()
+        next_view = self._tabs[index][1]
+        prev_view = self._tabs[self._last_tab_index][1]
+        if index != self._last_tab_index and hasattr(prev_view, 'leave'):
+            prev_view.leave()
+        if hasattr(next_view, 'enter'):
+            next_view.enter()
+        self._last_tab_index = index
 
     def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
@@ -1049,6 +1053,7 @@ class _MainWindow(QtWidgets.QSplitter):
             ('Export', export_view),
             ('Serialization', serial_view),
         ]
+        self._last_tab_index = -1
 
         self._tab_widget = QtWidgets.QTabWidget()
         for tab_name, tab_view in self._tabs:
