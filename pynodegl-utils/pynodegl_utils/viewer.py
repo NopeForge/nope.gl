@@ -52,7 +52,7 @@ class _SerialView(QtWidgets.QWidget):
             return
         open(filenames[0], 'w').write(data)
 
-    def refresh(self):
+    def enter(self):
         cfg = self._get_scene_func()
         if not cfg:
             return
@@ -263,7 +263,7 @@ class _GraphView(QtWidgets.QWidget):
         img.save(filenames[0])
         painter.end()
 
-    def refresh(self):
+    def enter(self):
         cfg = self._get_scene_func(fmt='dot')
         if not cfg:
             return
@@ -417,7 +417,7 @@ class _GLView(QtWidgets.QWidget):
         self._clear_color = color
         self._recreate_gl_widget()
 
-    def refresh(self):
+    def enter(self):
         cfg = self._get_scene_func()
         if not cfg:
             return
@@ -999,8 +999,8 @@ class _MainWindow(QtWidgets.QSplitter):
     @QtCore.pyqtSlot(int)
     def _currentTabChanged(self, index):
         view = self._tabs[index][1]
-        if hasattr(view, 'refresh'):
-            view.refresh()
+        if hasattr(view, 'enter'):
+            view.enter()
 
     def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
         super(_MainWindow, self).__init__(QtCore.Qt.Horizontal)
