@@ -29,8 +29,6 @@
 
 #include <nodegl.h>
 
-#include <GLFW/glfw3.h>
-
 #include "common.h"
 
 static struct ngl_node *get_scene(const char *filename)

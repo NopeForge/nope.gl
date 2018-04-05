@@ -24,8 +24,6 @@
 #include <nodegl.h>
 #include <sxplayer.h>
 
-#include <GLFW/glfw3.h>
-
 #include "common.h"
 #include "player.h"
 
