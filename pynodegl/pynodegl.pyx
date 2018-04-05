@@ -58,6 +58,13 @@ LOG_INFO    = NGL_LOG_INFO
 LOG_WARNING = NGL_LOG_WARNING
 LOG_ERROR   = NGL_LOG_ERROR
 
+cdef _ret_pystr(char *s):
+    try:
+        pystr = <bytes>s
+    finally:
+        free(s)
+    return pystr
+
 include "nodes_def.pyx"
 
 def log_set_min_level(int level):

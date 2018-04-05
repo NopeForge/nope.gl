@@ -174,13 +174,6 @@ class BuildExtCommand(build_ext):
 
             if node == '_Node':
                 class_str = '''
-cdef _ret_pystr(char *s):
-    try:
-        pystr = <bytes>s
-    finally:
-        free(s)
-    return pystr
-
 cdef class _Node:
     cdef ngl_node *ctx
 
