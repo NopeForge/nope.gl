@@ -121,13 +121,27 @@ static int update_uniforms(struct ngl_node *node)
             if (uid < 0)
                 continue;
             switch (unode->class->id) {
-            case NGL_NODE_UNIFORMFLOAT:  ngli_glUniform1f (gl, uid,    u->scalar);                 break;
-            case NGL_NODE_UNIFORMVEC2:   ngli_glUniform2fv(gl, uid, 1, u->vector);                 break;
-            case NGL_NODE_UNIFORMVEC3:   ngli_glUniform3fv(gl, uid, 1, u->vector);                 break;
-            case NGL_NODE_UNIFORMVEC4:   ngli_glUniform4fv(gl, uid, 1, u->vector);                 break;
-            case NGL_NODE_UNIFORMINT:    ngli_glUniform1i (gl, uid,    u->ival);                   break;
-            case NGL_NODE_UNIFORMQUAT:   ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix); break;
-            case NGL_NODE_UNIFORMMAT4:   ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix); break;
+            case NGL_NODE_UNIFORMFLOAT:
+                ngli_glUniform1f(gl, uid, u->scalar);
+                break;
+            case NGL_NODE_UNIFORMVEC2:
+                ngli_glUniform2fv(gl, uid, 1, u->vector);
+                break;
+            case NGL_NODE_UNIFORMVEC3:
+                ngli_glUniform3fv(gl, uid, 1, u->vector);
+                break;
+            case NGL_NODE_UNIFORMVEC4:
+                ngli_glUniform4fv(gl, uid, 1, u->vector);
+                break;
+            case NGL_NODE_UNIFORMINT:
+                ngli_glUniform1i(gl, uid, u->ival);
+                break;
+            case NGL_NODE_UNIFORMQUAT:
+                ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
+                break;
+            case NGL_NODE_UNIFORMMAT4:
+                ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
+                break;
             default:
                 LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
                 break;
