@@ -293,7 +293,6 @@
 - Texture2D:
     optional:
         - [format, select]
-        - [internal_format, select]
         - [type, select]
         - [width, int]
         - [height, int]
@@ -309,7 +308,6 @@
 - Texture3D:
     optional:
         - [format, select]
-        - [internal_format, select]
         - [type, select]
         - [width, int]
         - [height, int]

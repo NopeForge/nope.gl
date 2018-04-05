@@ -421,7 +421,6 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `format` |  | [`format`](#format-choices) |  | `rgba`
-`internal_format` |  | [`internal_format`](#internal_format-choices) |  | `rgba`
 `type` |  | [`type`](#type-choices) |  | `unsigned_byte`
 `width` |  | [`int`](#parameter-types) |  | `0`
 `height` |  | [`int`](#parameter-types) |  | `0`
@@ -443,7 +442,6 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `format` |  | [`format`](#format-choices) |  | `rgba`
-`internal_format` |  | [`internal_format`](#internal_format-choices) |  | `rgba`
 `type` |  | [`type`](#type-choices) |  | `unsigned_byte`
 `width` |  | [`int`](#parameter-types) |  | `0`
 `height` |  | [`int`](#parameter-types) |  | `0`
@@ -747,20 +745,6 @@ Constant | Description
 `rgba` | rgba
 `rgba_integer` | rgba integer
 `bgra` | bgra
-`depth_component` | depth component
-`depth_stencil` | depth stencil
-`alpha` | alpha (OpenGLES only)
-`luminance` | luminance (OpenGLES only)
-`luminance_alpha` | luminance alpha (OpenGLES only)
-
-## internal_format choices
-
-Constant | Description
--------- | -----------
-`red` | red
-`rg` | rg
-`rgb` | rgb
-`rgba` | rgba
 `depth_component` | depth component
 `depth_stencil` | depth stencil
 `alpha` | alpha (OpenGLES only)

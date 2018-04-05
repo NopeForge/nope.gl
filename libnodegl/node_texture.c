@@ -84,22 +84,6 @@ static const struct param_choices format_choices = {
     }
 };
 
-static const struct param_choices internal_format_choices = {
-    .name = "internal_format",
-    .consts = {
-        {"red",             GL_RED,             .desc=NGLI_DOCSTRING("red")},
-        {"rg",              GL_RG,              .desc=NGLI_DOCSTRING("rg")},
-        {"rgb",             GL_RGB,             .desc=NGLI_DOCSTRING("rgb")},
-        {"rgba",            GL_RGBA,            .desc=NGLI_DOCSTRING("rgba")},
-        {"depth_component", GL_DEPTH_COMPONENT, .desc=NGLI_DOCSTRING("depth component")},
-        {"depth_stencil",   GL_DEPTH_STENCIL,   .desc=NGLI_DOCSTRING("depth stencil")},
-        {"alpha",           GL_ALPHA,           .desc=NGLI_DOCSTRING("alpha (OpenGLES only)")},
-        {"luminance",       GL_LUMINANCE,       .desc=NGLI_DOCSTRING("luminance (OpenGLES only)")},
-        {"luminance_alpha", GL_LUMINANCE_ALPHA, .desc=NGLI_DOCSTRING("luminance alpha (OpenGLES only)")},
-        {NULL}
-    }
-};
-
 static const struct param_choices type_choices = {
     .name = "type",
     .consts = {
@@ -172,7 +156,6 @@ static const struct param_choices access_choices = {
 #define OFFSET(x) offsetof(struct texture, x)
 static const struct node_param texture2d_params[] = {
     {"format", PARAM_TYPE_SELECT, OFFSET(format), {.i64=GL_RGBA}, .choices=&format_choices},
-    {"internal_format", PARAM_TYPE_SELECT, OFFSET(internal_format), {.i64=GL_RGBA}, .choices=&internal_format_choices},
     {"type", PARAM_TYPE_SELECT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}, .choices=&type_choices},
     {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0}},
     {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0}},
@@ -189,7 +172,6 @@ static const struct node_param texture2d_params[] = {
 
 static const struct node_param texture3d_params[] = {
     {"format", PARAM_TYPE_SELECT, OFFSET(format), {.i64=GL_RGBA}, .choices=&format_choices},
-    {"internal_format", PARAM_TYPE_SELECT, OFFSET(internal_format), {.i64=GL_RGBA}, .choices=&internal_format_choices},
     {"type", PARAM_TYPE_SELECT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}, .choices=&type_choices},
     {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0}},
     {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0}},
@@ -330,15 +312,14 @@ static void tex_sub_image(const struct glfunctions *gl, const struct texture *s,
     }
 }
 
-static void tex_storage(const struct glfunctions *gl, const struct texture *s,
-                        GLenum internal_format)
+static void tex_storage(const struct glfunctions *gl, const struct texture *s)
 {
     switch (s->local_target) {
         case GL_TEXTURE_2D:
-            ngli_glTexStorage2D(gl, s->local_target, 1, internal_format, s->width, s->height);
+            ngli_glTexStorage2D(gl, s->local_target, 1, s->internal_format, s->width, s->height);
             break;
         case GL_TEXTURE_3D:
-            ngli_glTexStorage3D(gl, s->local_target, 1, internal_format, s->width, s->height, s->depth);
+            ngli_glTexStorage3D(gl, s->local_target, 1, s->internal_format, s->width, s->height, s->depth);
             break;
     }
 }
@@ -385,10 +366,10 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
             ngli_glBindTexture(gl, s->local_target, s->local_id);
             tex_set_params(gl, s);
 
-            GLenum format = ngli_texture_get_sized_internal_format(glcontext,
-                                                                   s->internal_format,
-                                                                   s->type);
-            tex_storage(gl, s, format);
+            s->internal_format = ngli_texture_get_sized_internal_format(glcontext,
+                                                                        s->format,
+                                                                        s->type);
+            tex_storage(gl, s);
         } else {
             ngli_glBindTexture(gl, s->local_target, s->local_id);
         }
@@ -408,6 +389,9 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
         }
 
         if (update_dimensions) {
+            s->internal_format = ngli_texture_get_sized_internal_format(glcontext,
+                                                                        s->format,
+                                                                        s->type);
             tex_image(gl, s, data);
         } else if (data) {
             tex_sub_image(gl, s, data);

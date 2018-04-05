@@ -89,7 +89,7 @@ static int update_uniforms(struct ngl_node *node)
 
             if (textureprograminfo->sampler_id >= 0) {
                 GLenum format = ngli_texture_get_sized_internal_format(glcontext,
-                                                                       texture->internal_format,
+                                                                       texture->format,
                                                                        texture->type);
 
                 ngli_glBindImageTexture(gl,

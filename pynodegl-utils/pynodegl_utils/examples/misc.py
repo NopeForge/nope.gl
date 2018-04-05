@@ -441,7 +441,6 @@ def cube(cfg, display_depth_buffer=False):
 
         depth_texture = Texture2D()
         depth_texture.set_format("depth_component")
-        depth_texture.set_internal_format("depth_component")
         depth_texture.set_type("unsigned_short")
         depth_texture.set_width(640)
         depth_texture.set_height(480)
