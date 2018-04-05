@@ -238,14 +238,17 @@ class _ExportView(QtWidgets.QWidget):
 class _SVGGraphView(QtWidgets.QGraphicsView):
 
     def wheelEvent(self, event):
-        factor = 1.25
-        if event.angleDelta().y() < 0:
-            factor = 1.0 / factor
-        self.scale(factor, factor)
+        y_degrees = event.angleDelta().y() / 8.0
+        self._zoom_level += y_degrees / 15.0  # in the most common mouse step unit
+        m = QtGui.QTransform()
+        factor = 1.25 ** self._zoom_level
+        m.scale(factor, factor)
+        self.setTransform(m)
 
     def __init__(self):
         super(_SVGGraphView, self).__init__()
         self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
+        self._zoom_level = 0
 
 
 class _GraphView(QtWidgets.QWidget):
