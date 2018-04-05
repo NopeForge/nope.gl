@@ -117,6 +117,8 @@ static int update_uniforms(struct ngl_node *node)
         while ((entry = ngli_hmap_next(s->uniforms, entry))) {
             const struct ngl_node *unode = entry->data;
             const GLint uid = s->uniform_ids[i].id;
+            if (uid < 0)
+                continue;
             switch (unode->class->id) {
             case NGL_NODE_UNIFORMFLOAT: {
                 const struct uniform *u = unode->priv_data;

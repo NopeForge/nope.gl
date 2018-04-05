@@ -118,6 +118,8 @@ static int update_uniforms(struct ngl_node *node)
             const struct ngl_node *unode = entry->data;
             const struct uniform *u = unode->priv_data;
             const GLint uid = s->uniform_ids[i];
+            if (uid < 0)
+                continue;
             switch (unode->class->id) {
             case NGL_NODE_UNIFORMFLOAT:  ngli_glUniform1f (gl, uid,    u->scalar);                 break;
             case NGL_NODE_UNIFORMVEC2:   ngli_glUniform2fv(gl, uid, 1, u->vector);                 break;
