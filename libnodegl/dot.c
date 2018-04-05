@@ -29,6 +29,7 @@
 
 #define LB "<br align=\"left\"/>"
 #define HSLFMT "\"0.%u 0.6 0.9\""
+#define INACTIVE_COLOR "\"#333333\""
 
 extern const struct node_param ngli_base_node_params[];
 
@@ -147,14 +148,18 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
     if (!ngli_is_default_name(node->class->name, node->name) && *node->name)
         ngli_bstr_print(b, "<i>%s</i><br/>", node->name);
     print_custom_priv_options(b, node);
-    ngli_bstr_print(b, ">,color="HSLFMT"]\n", get_hue(node->class->name));
+    if (!node->ctx || node->is_active)
+        ngli_bstr_print(b, ">,color="HSLFMT"]\n", get_hue(node->class->name));
+    else
+        ngli_bstr_print(b, ">,color="INACTIVE_COLOR"]\n");
 
     print_decls(b, node, ngli_base_node_params, (uint8_t *)node, decls);
     print_decls(b, node, node->class->params, node->priv_data, decls);
 }
 
 static void print_packed_decls(struct bstr *b, const char *name,
-                               struct ngl_node **children, int nb_children)
+                               struct ngl_node **children, int nb_children,
+                               int is_active)
 {
     ngli_bstr_print(b, "    %s_%p[label=<<b>%s</b> (x%d)", name, children, name, nb_children);
     for (int i = 0; i < nb_children; i++) {
@@ -163,7 +168,11 @@ static void print_packed_decls(struct bstr *b, const char *name,
         ngli_bstr_print(b, LB "- %s", info_str ? info_str : "?");
         free(info_str);
     }
-    ngli_bstr_print(b, LB ">,shape=box,color="HSLFMT"]\n", get_hue(name));
+    ngli_bstr_print(b, LB ">,shape=box,color=");
+    if (is_active)
+        ngli_bstr_print(b, HSLFMT"]\n", get_hue(name));
+    else
+        ngli_bstr_print(b, INACTIVE_COLOR "]\n");
 }
 
 static void print_decls(struct bstr *b, const struct ngl_node *node,
@@ -185,7 +194,7 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                 if (nb_children && (p->flags & PARAM_FLAG_DOT_DISPLAY_PACKED)) {
                     if (list_check_decls(decls, children))
                         break;
-                    print_packed_decls(b, p->key, children, nb_children);
+                    print_packed_decls(b, p->key, children, nb_children, !node->ctx || node->is_active);
                     break;
                 }
 
@@ -329,4 +338,12 @@ end:
     ngli_hmap_freep(&decls);
     ngli_hmap_freep(&links);
     return graph;
+}
+
+char *ngl_dot(struct ngl_ctx *s, double t)
+{
+    int ret = ngli_prepare_draw(s, t);
+    if (ret < 0)
+        return NULL;
+    return ngl_node_dot(s->scene);
 }

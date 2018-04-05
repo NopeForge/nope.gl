@@ -244,6 +244,8 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...);
  * Must be destroyed using free().
  *
  * @return an allocated string in dot format or NULL on error
+ *
+ * @see ngl_dot()
  */
 char *ngl_node_dot(const struct ngl_node *node);
 
@@ -360,6 +362,18 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene);
  * @return 0 on success, < 0 on error
  */
 int ngl_draw(struct ngl_ctx *s, double t);
+
+/**
+ * Serialize the current scene in Graphviz format (.dot) a node graph at the
+ * specified time. Non active nodes will be grayed.
+ *
+ * Must be destroyed using free().
+ *
+ * @return an allocated string in dot format or NULL on error
+ *
+ * @see ngl_node_dot()
+ */
+char *ngl_dot(struct ngl_ctx *s, double t);
 
 /**
  * Destroy a node.gl context. The passed context pointer will also be set to

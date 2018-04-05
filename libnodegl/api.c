@@ -78,7 +78,7 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
     return 0;
 }
 
-int ngl_draw(struct ngl_ctx *s, double t)
+int ngli_prepare_draw(struct ngl_ctx *s, double t)
 {
     struct glcontext *glcontext = s->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
@@ -94,28 +94,37 @@ int ngl_draw(struct ngl_ctx *s, double t)
         return -1;
     }
 
-    LOG(DEBUG, "draw scene %s @ t=%f", scene->name, t);
+    LOG(DEBUG, "prepare scene %s @ t=%f", scene->name, t);
 
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     int ret = ngli_node_visit(scene, 1, t);
     if (ret < 0)
-        goto end;
+        return ret;
 
     ret = ngli_node_honor_release_prefetch(scene, t);
     if (ret < 0)
-        goto end;
+        return ret;
 
     ret = ngli_node_update(scene, t);
     if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+int ngl_draw(struct ngl_ctx *s, double t)
+{
+    int ret = ngli_prepare_draw(s, t);
+    if (ret < 0)
         goto end;
 
-    ngli_node_draw(scene);
+    LOG(DEBUG, "draw scene %s @ t=%f", s->scene->name, t);
+    ngli_node_draw(s->scene);
 
 end:
-    if (ngli_glcontext_check_gl_error(glcontext))
+    if (ret == 0 && ngli_glcontext_check_gl_error(s->glcontext))
         ret = -1;
-
     return ret;
 }
 

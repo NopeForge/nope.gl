@@ -485,6 +485,7 @@ int ngli_node_init(struct ngl_node *node);
 int ngli_node_visit(struct ngl_node *node, int is_active, double t);
 int ngli_node_honor_release_prefetch(struct ngl_node *node, double t);
 int ngli_node_update(struct ngl_node *node, double t);
+int ngli_prepare_draw(struct ngl_ctx *s, double t);
 void ngli_node_draw(struct ngl_node *node);
 
 int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
