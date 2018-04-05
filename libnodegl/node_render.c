@@ -321,7 +321,6 @@ static int update_vertex_attribs(struct ngl_node *node)
         while ((entry = ngli_hmap_next(s->attributes, entry))) {
             if (s->attribute_ids[i] < 0)
                 continue;
-
             struct ngl_node *anode = entry->data;
             struct buffer *buffer = anode->priv_data;
             ngli_glEnableVertexAttribArray(gl, s->attribute_ids[i]);
