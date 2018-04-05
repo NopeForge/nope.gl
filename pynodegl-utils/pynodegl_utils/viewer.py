@@ -530,8 +530,9 @@ class _Toolbar(QtWidgets.QWidget):
 
         @QtCore.pyqtSlot()
         def pick_color():
-            color = QtWidgets.QColorDialog.getColor()
+            color = QtWidgets.QColorDialog.getColor(initial=color_btn._color_hack)
             color_btn.setStyleSheet('background-color: %s;' % color.name())
+            color_btn._color_hack = color
             label.setText(self._get_label_text(id_name, color.name()))
             self._scene_extra_args[id_name] = color.getRgbF()
             self._load_current_scene(load_widgets=False)
@@ -590,6 +591,7 @@ class _Toolbar(QtWidgets.QWidget):
                 widgets.append(label)
                 pick_color_cb = self._craft_pick_color_cb(name, label, color_btn)
                 color_btn.pressed.connect(pick_color_cb)
+                color_btn._color_hack = color
                 widgets.append(color_btn)
 
             elif widget_specs['type'] == 'bool':
@@ -740,7 +742,9 @@ class _Toolbar(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def _set_clear_color(self):
-        color = QtWidgets.QColorDialog.getColor()
+        initial_color = QtGui.QColor()
+        initial_color.setRgbF(*self._clear_color)
+        color = QtWidgets.QColorDialog.getColor(initial=initial_color)
         self._set_widget_clear_color(color)
         self.clearColorChanged.emit(color.getRgbF())
         self._load_current_scene()
