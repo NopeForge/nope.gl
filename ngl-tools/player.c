@@ -41,6 +41,23 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
             p->paused ^= 1;
             p->clock_off = gettime() - p->frame_ts;
             break;
+        case GLFW_KEY_F: {
+            p->fullscreen ^= 1;
+            int *wi = p->win_info_backup;
+            if (p->fullscreen) {
+                glfwGetWindowPos(p->window, &wi[0], &wi[1]);
+                glfwGetWindowSize(p->window, &wi[2], &wi[3]);
+
+                GLFWmonitor *monitor = glfwGetPrimaryMonitor();
+                const GLFWvidmode *mode = glfwGetVideoMode(monitor);
+                glfwSetWindowMonitor(p->window, monitor, 0, 0,
+                                     mode->width, mode->height, 0);
+            } else {
+                glfwSetWindowMonitor(p->window, NULL,
+                                     wi[0], wi[1], wi[2], wi[3], 0);
+            }
+            break;
+        }
         default:
             break;
         }
