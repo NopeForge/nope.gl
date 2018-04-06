@@ -9,6 +9,8 @@ import subprocess
 def scene(**widgets_specs):
     def real_decorator(scene_func):
         def func_wrapper(idict=None, **extra_args):
+            if idict is None:
+                idict = {}
             scene_cfg = SceneCfg(**idict)
             scene = scene_func(scene_cfg, **extra_args)
             odict = scene_cfg.as_dict()
