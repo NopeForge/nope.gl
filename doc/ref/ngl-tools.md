@@ -55,3 +55,15 @@ at build time.
 **Example**: `ngl-python pynodegl_utils.examples.misc fibo`
 
 **Source**: [ngl-tools/ngl-python.c](/ngl-tools/ngl-python.c)
+
+
+## Player keyboard controls
+
+`ngl-player` and `ngl-python` are both scene players supporting the following
+keyboard controls:
+
+Key           | Action
+------------- | ------
+`ESC` or `q`  | quit the application
+`SPACE`       | toggle the pause/playback
+`f`           | toggle windowed/fullscreen
