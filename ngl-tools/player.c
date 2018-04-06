@@ -78,8 +78,7 @@ static void update_time(int64_t seek_at)
 
     if (!p->paused) {
         const int64_t now = gettime();
-
-        if (p->clock_off < 0)
+        if (p->clock_off < 0 || now - p->clock_off > p->duration)
             p->clock_off = now;
 
         p->frame_ts = now - p->clock_off;
