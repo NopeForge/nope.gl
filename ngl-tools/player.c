@@ -99,8 +99,7 @@ static void mouse_button_callback(GLFWwindow *window, int button, int action, in
         glfwGetCursorPos(window, &xpos, &ypos);
 
         const double pos = clipd(xpos - p->view.x, 0.0, p->view.width);
-        const double seek_at = p->duration * pos / p->view.width;
-        const int64_t seek_at64 = seek_at * 1000000;
+        const int64_t seek_at64 = p->duration * pos / p->view.width;
 
         p->lasthover = gettime();
         update_time(seek_at64);
@@ -134,7 +133,7 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     p->lasthover = -1;
     p->width = width;
     p->height = height;
-    p->duration = duration;
+    p->duration = duration * 1000000;
 
     glfwSetInputMode(p->window, GLFW_STICKY_KEYS, GL_TRUE);
     glfwSetKeyCallback(p->window, key_callback);

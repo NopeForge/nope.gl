@@ -38,7 +38,7 @@ struct player {
     } view;
 
     int width, height;
-    double duration;
+    int64_t duration;
 
     struct ngl_ctx *ngl;
     int64_t clock_off;
