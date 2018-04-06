@@ -272,7 +272,6 @@ static int compute_init(struct ngl_node *node)
         }
     }
 
-
     int nb_buffers = s->buffers ? ngli_hmap_count(s->buffers) : 0;
     if (nb_buffers > 0) {
         s->buffer_ids = calloc(nb_buffers, sizeof(*s->buffer_ids));
