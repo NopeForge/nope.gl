@@ -111,15 +111,13 @@ static int update_uniforms(struct ngl_node *node)
         }
     }
 
-    if (s->uniforms) {
-        int i = 0;
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-            const struct ngl_node *unode = entry->data;
-            const struct uniform *u = unode->priv_data;
-            const GLint uid = s->uniform_ids[i].id;
+        for (int i = 0; i < s->nb_uniform_ids; i++) {
+            struct uniformprograminfo *info = &s->uniform_ids[i];
+            const GLint uid = info->id;
             if (uid < 0)
                 continue;
+            const struct ngl_node *unode = ngli_hmap_get(s->uniforms, info->name);
+            const struct uniform *u = unode->priv_data;
             switch (unode->class->id) {
             case NGL_NODE_UNIFORMFLOAT:
                 ngli_glUniform1f(gl, uid, u->scalar);
@@ -145,7 +143,7 @@ static int update_uniforms(struct ngl_node *node)
                 else
                     LOG(ERROR,
                         "quaternion uniform '%s' must be declared as vec4 or mat4 in the shader",
-                        entry->key);
+                        info->name);
                 break;
             }
             case NGL_NODE_UNIFORMMAT4:
@@ -155,9 +153,7 @@ static int update_uniforms(struct ngl_node *node)
                 LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
                 break;
             }
-            i++;
         }
-    }
 
     if (s->buffers) {
         int i = 0;
@@ -247,28 +243,30 @@ static int compute_init(struct ngl_node *node)
         if (!s->uniform_ids)
             return -1;
 
-        int i = 0;
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-            struct ngl_node *unode = entry->data;
+        int nb_active_uniforms = -1;
+        glGetProgramiv(program->program_id, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
+        for (int i = 0; i < nb_active_uniforms; i++) {
+            struct uniformprograminfo info = {0};
+            ngli_glGetActiveUniform(gl,
+                                    program->program_id,
+                                    i,
+                                    sizeof(info.name),
+                                    NULL,
+                                    &info.size,
+                                    &info.type,
+                                    info.name);
+
+            struct ngl_node *unode = ngli_hmap_get(s->uniforms, info.name);
+            if (!unode)
+                continue;
+
             ret = ngli_node_init(unode);
             if (ret < 0)
                 return ret;
-            struct uniformprograminfo *info = &s->uniform_ids[i];
-            info->id = ngli_glGetUniformLocation(gl,
-                                                 program->program_id,
-                                                 entry->key);
-            if (info->id >= 0) {
-                ngli_glGetActiveUniform(gl,
-                                        program->program_id,
-                                        info->id,
-                                        0,
-                                        NULL,
-                                        &info->size,
-                                        &info->type,
-                                        NULL);
-            }
-            i++;
+
+            struct uniformprograminfo *infop = &s->uniform_ids[s->nb_uniform_ids++];
+            info.id = ngli_glGetUniformLocation(gl, program->program_id, info.name);
+            *infop = info;
         }
     }
 

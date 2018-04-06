@@ -277,6 +277,7 @@ struct uniformprograminfo {
     GLint id;
     GLint size;
     GLenum type;
+    char name[64];
 };
 
 struct textureprograminfo {
@@ -298,6 +299,7 @@ struct render {
 
     struct hmap *uniforms;
     struct uniformprograminfo *uniform_ids;
+    int nb_uniform_ids;
 
     struct hmap *attributes;
     GLint *attribute_ids;
@@ -320,6 +322,7 @@ struct compute {
 
     struct hmap *uniforms;
     struct uniformprograminfo *uniform_ids;
+    int nb_uniform_ids;
 
     struct hmap *attributes;
     GLint *attribute_ids;
