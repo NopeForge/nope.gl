@@ -111,81 +111,81 @@ static int update_uniforms(struct ngl_node *node)
     struct render *s = node->priv_data;
     struct program *program = s->program->priv_data;
 
-        for (int i = 0; i < s->nb_uniform_ids; i++) {
-            struct uniformprograminfo *info = &s->uniform_ids[i];
-            const GLint uid = info->id;
-            if (uid < 0)
-                continue;
-            const struct ngl_node *unode = ngli_hmap_get(s->uniforms, info->name);
-            switch (unode->class->id) {
-            case NGL_NODE_UNIFORMFLOAT: {
-                const struct uniform *u = unode->priv_data;
-                ngli_glUniform1f(gl, uid, u->scalar);
-                break;
-            }
-            case NGL_NODE_UNIFORMVEC2: {
-                const struct uniform *u = unode->priv_data;
-                ngli_glUniform2fv(gl, uid, 1, u->vector);
-                break;
-            }
-            case NGL_NODE_UNIFORMVEC3: {
-                const struct uniform *u = unode->priv_data;
-                ngli_glUniform3fv(gl, uid, 1, u->vector);
-                break;
-            }
-            case NGL_NODE_UNIFORMVEC4: {
-                const struct uniform *u = unode->priv_data;
-                ngli_glUniform4fv(gl, uid, 1, u->vector);
-                break;
-            }
-            case NGL_NODE_UNIFORMINT: {
-                const struct uniform *u = unode->priv_data;
-                ngli_glUniform1i(gl, uid, u->ival);
-                break;
-            }
-            case NGL_NODE_UNIFORMQUAT: {
-                const struct uniform *u = unode->priv_data;
-                GLenum type = s->uniform_ids[i].type;
-                if (type == GL_FLOAT_MAT4)
-                    ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
-                else if (type == GL_FLOAT_VEC4)
-                    ngli_glUniform4fv(gl, uid, 1, u->vector);
-                else
-                    LOG(ERROR,
-                        "quaternion uniform '%s' must be declared as vec4 or mat4 in the shader",
-                        info->name);
-                break;
-            }
-            case NGL_NODE_UNIFORMMAT4: {
-                const struct uniform *u = unode->priv_data;
-                ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
-                break;
-            }
-            case NGL_NODE_BUFFERFLOAT: {
-                const struct buffer *buffer = unode->priv_data;
-                ngli_glUniform1fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
-                break;
-            }
-            case NGL_NODE_BUFFERVEC2: {
-                const struct buffer *buffer = unode->priv_data;
-                ngli_glUniform2fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
-                break;
-            }
-            case NGL_NODE_BUFFERVEC3: {
-                const struct buffer *buffer = unode->priv_data;
-                ngli_glUniform3fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
-                break;
-            }
-            case NGL_NODE_BUFFERVEC4: {
-                const struct buffer *buffer = unode->priv_data;
-                ngli_glUniform4fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
-                break;
-            }
-            default:
-                LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
-                break;
-            }
+    for (int i = 0; i < s->nb_uniform_ids; i++) {
+        struct uniformprograminfo *info = &s->uniform_ids[i];
+        const GLint uid = info->id;
+        if (uid < 0)
+            continue;
+        const struct ngl_node *unode = ngli_hmap_get(s->uniforms, info->name);
+        switch (unode->class->id) {
+        case NGL_NODE_UNIFORMFLOAT: {
+            const struct uniform *u = unode->priv_data;
+            ngli_glUniform1f(gl, uid, u->scalar);
+            break;
         }
+        case NGL_NODE_UNIFORMVEC2: {
+            const struct uniform *u = unode->priv_data;
+            ngli_glUniform2fv(gl, uid, 1, u->vector);
+            break;
+        }
+        case NGL_NODE_UNIFORMVEC3: {
+            const struct uniform *u = unode->priv_data;
+            ngli_glUniform3fv(gl, uid, 1, u->vector);
+            break;
+        }
+        case NGL_NODE_UNIFORMVEC4: {
+            const struct uniform *u = unode->priv_data;
+            ngli_glUniform4fv(gl, uid, 1, u->vector);
+            break;
+        }
+        case NGL_NODE_UNIFORMINT: {
+            const struct uniform *u = unode->priv_data;
+            ngli_glUniform1i(gl, uid, u->ival);
+            break;
+        }
+        case NGL_NODE_UNIFORMQUAT: {
+            const struct uniform *u = unode->priv_data;
+            GLenum type = s->uniform_ids[i].type;
+            if (type == GL_FLOAT_MAT4)
+                ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
+            else if (type == GL_FLOAT_VEC4)
+                ngli_glUniform4fv(gl, uid, 1, u->vector);
+            else
+                LOG(ERROR,
+                    "quaternion uniform '%s' must be declared as vec4 or mat4 in the shader",
+                    info->name);
+            break;
+        }
+        case NGL_NODE_UNIFORMMAT4: {
+            const struct uniform *u = unode->priv_data;
+            ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
+            break;
+        }
+        case NGL_NODE_BUFFERFLOAT: {
+            const struct buffer *buffer = unode->priv_data;
+            ngli_glUniform1fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
+            break;
+        }
+        case NGL_NODE_BUFFERVEC2: {
+            const struct buffer *buffer = unode->priv_data;
+            ngli_glUniform2fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
+            break;
+        }
+        case NGL_NODE_BUFFERVEC3: {
+            const struct buffer *buffer = unode->priv_data;
+            ngli_glUniform3fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
+            break;
+        }
+        case NGL_NODE_BUFFERVEC4: {
+            const struct buffer *buffer = unode->priv_data;
+            ngli_glUniform4fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
+            break;
+        }
+        default:
+            LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
+            break;
+        }
+    }
 
     if (s->textures) {
         int i = 0;
