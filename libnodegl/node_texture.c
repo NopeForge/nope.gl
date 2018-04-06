@@ -189,8 +189,11 @@ static const struct node_param texture3d_params[] = {
 
 GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext, GLenum internal_format, GLenum type)
 {
-    if (glcontext->es && glcontext->major_version == 2)
+    if (glcontext->es && glcontext->major_version == 2) {
+        if (internal_format == GL_BGRA)
+            return GL_RGBA;
         return internal_format;
+    }
 
     GLenum format = 0;
     switch (internal_format) {
@@ -237,6 +240,7 @@ GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext, GLenu
         else if (type == GL_INT)            format = GL_RGB32I;
         break;
     case GL_RGBA:
+    case GL_BGRA:
         if      (type == GL_UNSIGNED_BYTE)  format = GL_RGBA8;
         else if (type == GL_BYTE)           format = GL_RGBA8_SNORM;
         else if (type == GL_HALF_FLOAT)     format = GL_RGBA16F;
