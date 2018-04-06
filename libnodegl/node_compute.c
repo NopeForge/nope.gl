@@ -117,7 +117,7 @@ static int update_uniforms(struct ngl_node *node)
         while ((entry = ngli_hmap_next(s->uniforms, entry))) {
             const struct ngl_node *unode = entry->data;
             const struct uniform *u = unode->priv_data;
-            const GLint uid = s->uniform_ids[i];
+            const GLint uid = s->uniform_ids[i].id;
             if (uid < 0)
                 continue;
             switch (unode->class->id) {
@@ -136,9 +136,18 @@ static int update_uniforms(struct ngl_node *node)
             case NGL_NODE_UNIFORMINT:
                 ngli_glUniform1i(gl, uid, u->ival);
                 break;
-            case NGL_NODE_UNIFORMQUAT:
-                ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
+            case NGL_NODE_UNIFORMQUAT: {
+                GLenum type = s->uniform_ids[i].type;
+                if (type == GL_FLOAT_MAT4)
+                    ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
+                else if (type == GL_FLOAT_VEC4)
+                    ngli_glUniform4fv(gl, uid, 1, u->vector);
+                else
+                    LOG(ERROR,
+                        "quaternion uniform '%s' must be declared as vec4 or mat4 in the shader",
+                        entry->key);
                 break;
+            }
             case NGL_NODE_UNIFORMMAT4:
                 ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
                 break;
@@ -245,9 +254,20 @@ static int compute_init(struct ngl_node *node)
             ret = ngli_node_init(unode);
             if (ret < 0)
                 return ret;
-            s->uniform_ids[i] = ngli_glGetUniformLocation(gl,
-                                                          program->program_id,
-                                                          entry->key);
+            struct uniformprograminfo *info = &s->uniform_ids[i];
+            info->id = ngli_glGetUniformLocation(gl,
+                                                 program->program_id,
+                                                 entry->key);
+            if (info->id >= 0) {
+                ngli_glGetActiveUniform(gl,
+                                        program->program_id,
+                                        info->id,
+                                        0,
+                                        NULL,
+                                        &info->size,
+                                        &info->type,
+                                        NULL);
+            }
             i++;
         }
     }

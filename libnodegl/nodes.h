@@ -319,7 +319,7 @@ struct compute {
     struct textureprograminfo *textureprograminfos;
 
     struct hmap *uniforms;
-    GLint *uniform_ids;
+    struct uniformprograminfo *uniform_ids;
 
     struct hmap *attributes;
     GLint *attribute_ids;
