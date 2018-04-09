@@ -72,6 +72,7 @@ class Exporter(QtCore.QObject):
         ngl_viewer.set_scene_from_string(cfg['scene'])
         ngl_viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
         GL.glViewport(0, 0, w, h)
+        GL.glClearColor(*cfg['clear_color'])
 
         # Draw every frame
         nb_frame = int(duration * fps[0] / fps[1])
