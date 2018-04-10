@@ -154,10 +154,12 @@ static void print_node_params(const char *name, const struct node_param *p)
         char *type = get_type_str(p);
         char *def = get_default_str(p);
 
-        if (type && def)
+        if (type && def) {
+            ngli_assert(p->desc);
             printf("`%s` | %s | %s | %s | %s\n",
                    p->key, (p->flags & PARAM_FLAG_CONSTRUCTOR) ? "✓" : "",
-                   type, p->desc ? p->desc : "", def);
+                   type, p->desc, def);
+        }
 
         free(def);
         free(type);
@@ -174,7 +176,8 @@ static void print_choices(const struct param_choices *choices)
     printf("-------- | -----------\n");
     for (int i = 0; consts[i].key; i++) {
         const struct param_const *c = &consts[i];
-        printf("`%s` | %s\n", c->key, c->desc ? c->desc : "");
+        ngli_assert(c->desc);
+        printf("`%s` | %s\n", c->key, c->desc);
     }
 }
 
