@@ -29,11 +29,17 @@
 
 #define OFFSET(x) offsetof(struct rtt, x)
 static const struct node_param rtt_params[] = {
-    {"child",         PARAM_TYPE_NODE, OFFSET(child),   .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"color_texture", PARAM_TYPE_NODE, OFFSET(color_texture), .flags=PARAM_FLAG_CONSTRUCTOR,
-                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1}},
-    {"depth_texture", PARAM_TYPE_NODE, OFFSET(depth_texture), .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
-                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1}},
+    {"child",         PARAM_TYPE_NODE, OFFSET(child),
+                      .flags=PARAM_FLAG_CONSTRUCTOR,
+                      .desc=NGLI_DOCSTRING("scene to be rasterized to `color_texture` and optionally to `depth_texture`")},
+    {"color_texture", PARAM_TYPE_NODE, OFFSET(color_texture),
+                      .flags=PARAM_FLAG_CONSTRUCTOR,
+                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1},
+                      .desc=NGLI_DOCSTRING("destination color texture")},
+    {"depth_texture", PARAM_TYPE_NODE, OFFSET(depth_texture),
+                      .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
+                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1},
+                      .desc=NGLI_DOCSTRING("destination depth texture")},
     {NULL}
 };
 

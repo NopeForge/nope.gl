@@ -77,17 +77,23 @@
 #define OFFSET(x) offsetof(struct render, x)
 static const struct node_param render_params[] = {
     {"geometry", PARAM_TYPE_NODE, OFFSET(geometry), .flags=PARAM_FLAG_CONSTRUCTOR,
-                 .node_types=GEOMETRY_TYPES_LIST},
+                 .node_types=GEOMETRY_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("geometry to be rasterized")},
     {"program",  PARAM_TYPE_NODE, OFFSET(program),
-                 .node_types=(const int[]){NGL_NODE_PROGRAM, -1}},
+                 .node_types=(const int[]){NGL_NODE_PROGRAM, -1},
+                 .desc=NGLI_DOCSTRING("program to be executed")},
     {"textures", PARAM_TYPE_NODEDICT, OFFSET(textures),
-                 .node_types=TEXTURES_TYPES_LIST},
+                 .node_types=TEXTURES_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("textures made accessible to the `program`")},
     {"uniforms", PARAM_TYPE_NODEDICT, OFFSET(uniforms),
-                 .node_types=UNIFORMS_TYPES_LIST},
+                 .node_types=UNIFORMS_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("uniforms made accessible to the `program`")},
     {"attributes", PARAM_TYPE_NODEDICT, OFFSET(attributes),
-                 .node_types=ATTRIBUTES_TYPES_LIST},
+                 .node_types=ATTRIBUTES_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("extra vertex attributes made accessible to the `program`")},
     {"buffers",  PARAM_TYPE_NODEDICT, OFFSET(buffers),
-                 .node_types=BUFFERS_TYPES_LIST},
+                 .node_types=BUFFERS_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("buffers made accessible to the `program`")},
     {NULL}
 };
 

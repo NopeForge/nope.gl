@@ -226,13 +226,13 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`nb_group_x` | ✓ | [`int`](#parameter-types) |  | `0`
-`nb_group_y` | ✓ | [`int`](#parameter-types) |  | `0`
-`nb_group_z` | ✓ | [`int`](#parameter-types) |  | `0`
-`program` | ✓ | [`Node`](#parameter-types) ([ComputeProgram](#computeprogram)) |  | 
-`textures` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d)) |  | 
-`uniforms` |  | [`NodeDict`](#parameter-types) ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
-`buffers` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
+`nb_group_x` | ✓ | [`int`](#parameter-types) | number of work groups to be executed in the x dimension | `0`
+`nb_group_y` | ✓ | [`int`](#parameter-types) | number of work groups to be executed in the y dimension | `0`
+`nb_group_z` | ✓ | [`int`](#parameter-types) | number of work groups to be executed in the z dimension | `0`
+`program` | ✓ | [`Node`](#parameter-types) ([ComputeProgram](#computeprogram)) | compute program to be executed | 
+`textures` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d)) | input and output textures made accessible to the compute `program` | 
+`uniforms` |  | [`NodeDict`](#parameter-types) ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) | uniforms made accessible to the compute `program` | 
+`buffers` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) | input and output buffers made accessible to the compute `program` | 
 
 
 **Source**: [node_compute.c](/libnodegl/node_compute.c)
@@ -242,7 +242,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`compute` | ✓ | [`string`](#parameter-types) |  | 
+`compute` | ✓ | [`string`](#parameter-types) | compute shader | 
 
 
 **Source**: [node_computeprogram.c](/libnodegl/node_computeprogram.c)
@@ -265,11 +265,11 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`vertices` | ✓ | [`Node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
-`uvcoords` |  | [`Node`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
-`normals` |  | [`Node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) |  | 
-`indices` |  | [`Node`](#parameter-types) ([BufferUByte](#buffer), [BufferUInt](#buffer), [BufferUShort](#buffer)) |  | 
-`draw_mode` |  | [`draw_mode`](#draw_mode-choices) |  | `triangles`
+`vertices` | ✓ | [`Node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) | vertice coordinates defining the geometry | 
+`uvcoords` |  | [`Node`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer)) | coordinates used for UV mapping of each `vertices` | 
+`normals` |  | [`Node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) | normal vectors of each `vertices` | 
+`indices` |  | [`Node`](#parameter-types) ([BufferUByte](#buffer), [BufferUInt](#buffer), [BufferUShort](#buffer)) | indices defining the drawing order of the `vertices`, auto-generated if not set | 
+`draw_mode` |  | [`draw_mode`](#draw_mode-choices) | drawing mode | `triangles`
 
 
 **Source**: [node_geometry.c](/libnodegl/node_geometry.c)
@@ -279,26 +279,26 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | [`Node`](#parameter-types) |  | 
-`blend` |  | [`bool`](#parameter-types) |  | `unset`
-`blend_src_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
-`blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
-`blend_src_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
-`blend_dst_factor_a` |  | [`blend_factor`](#blend_factor-choices) |  | `unset`
-`blend_op` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
-`blend_op_a` |  | [`blend_operation`](#blend_operation-choices) |  | `unset`
-`color_write_mask` |  | [`component`](#component-choices) |  | `unset`
-`depth_test` |  | [`bool`](#parameter-types) |  | `unset`
-`depth_write_mask` |  | [`bool`](#parameter-types) |  | `unset`
+`child` | ✓ | [`Node`](#parameter-types) | scene to which the graphic configuration will be applied | 
+`blend` |  | [`bool`](#parameter-types) | enable blending | `unset`
+`blend_src_factor` |  | [`blend_factor`](#blend_factor-choices) | blend source factor | `unset`
+`blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) | blend destination factor | `unset`
+`blend_src_factor_a` |  | [`blend_factor`](#blend_factor-choices) | alpha blend source factor | `unset`
+`blend_dst_factor_a` |  | [`blend_factor`](#blend_factor-choices) | alpha blend destination factor | `unset`
+`blend_op` |  | [`blend_operation`](#blend_operation-choices) | blend operation | `unset`
+`blend_op_a` |  | [`blend_operation`](#blend_operation-choices) | alpha blend operation | `unset`
+`color_write_mask` |  | [`component`](#component-choices) | color write mask | `unset`
+`depth_test` |  | [`bool`](#parameter-types) | enable depth testing | `unset`
+`depth_write_mask` |  | [`bool`](#parameter-types) | depth write mask | `unset`
 `depth_func` |  | [`function`](#function-choices) | passes if `<function>(depth, stored_depth)` | `unset`
-`stencil_test` |  | [`bool`](#parameter-types) |  | `unset`
-`stencil_write_mask` |  | [`int`](#parameter-types) |  | `-1`
+`stencil_test` |  | [`bool`](#parameter-types) | enable stencil testing | `unset`
+`stencil_write_mask` |  | [`int`](#parameter-types) | stencil write mask | `-1`
 `stencil_func` |  | [`function`](#function-choices) | passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)` | `unset`
-`stencil_ref` |  | [`int`](#parameter-types) |  | `-1`
-`stencil_read_mask` |  | [`int`](#parameter-types) |  | `-1`
-`stencil_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `unset`
-`stencil_depth_fail` |  | [`stencil_operation`](#stencil_operation-choices) |  | `unset`
-`stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) |  | `unset`
+`stencil_ref` |  | [`int`](#parameter-types) | stencil reference value to compare against | `-1`
+`stencil_read_mask` |  | [`int`](#parameter-types) | stencil read mask | `-1`
+`stencil_fail` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil test fails | `unset`
+`stencil_depth_fail` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if depth test fails | `unset`
+`stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil and depth test pass | `unset`
 
 
 **Source**: [node_graphicconfig.c](/libnodegl/node_graphicconfig.c)
@@ -351,12 +351,12 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`corner` |  | [`vec3`](#parameter-types) |  | (`-0.5`,`-0.5`,`0`)
-`width` |  | [`vec3`](#parameter-types) |  | (`1`,`0`,`0`)
-`height` |  | [`vec3`](#parameter-types) |  | (`0`,`1`,`0`)
-`uv_corner` |  | [`vec2`](#parameter-types) |  | (`0`,`0`)
-`uv_width` |  | [`vec2`](#parameter-types) |  | (`1`,`0`)
-`uv_height` |  | [`vec2`](#parameter-types) |  | (`0`,`1`)
+`corner` |  | [`vec3`](#parameter-types) | origin coordinates of `width` and `height` vectors | (`-0.5`,`-0.5`,`0`)
+`width` |  | [`vec3`](#parameter-types) | width vector | (`1`,`0`,`0`)
+`height` |  | [`vec3`](#parameter-types) | height vector | (`0`,`1`,`0`)
+`uv_corner` |  | [`vec2`](#parameter-types) | origin coordinates of `uv_width` and `uv_height` vectors | (`0`,`0`)
+`uv_width` |  | [`vec2`](#parameter-types) | UV coordinates width vector | (`1`,`0`)
+`uv_height` |  | [`vec2`](#parameter-types) | UV coordinates height vector | (`0`,`1`)
 
 
 **Source**: [node_quad.c](/libnodegl/node_quad.c)
@@ -366,12 +366,12 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`geometry` | ✓ | [`Node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) |  | 
-`program` |  | [`Node`](#parameter-types) ([Program](#program)) |  | 
-`textures` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d)) |  | 
-`uniforms` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) |  | 
-`attributes` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
-`buffers` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) |  | 
+`geometry` | ✓ | [`Node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
+`program` |  | [`Node`](#parameter-types) ([Program](#program)) | program to be executed | 
+`textures` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d)) | textures made accessible to the `program` | 
+`uniforms` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) | uniforms made accessible to the `program` | 
+`attributes` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | extra vertex attributes made accessible to the `program` | 
+`buffers` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) | buffers made accessible to the `program` | 
 
 
 **Source**: [node_render.c](/libnodegl/node_render.c)
@@ -381,9 +381,9 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | [`Node`](#parameter-types) |  | 
-`color_texture` | ✓ | [`Node`](#parameter-types) ([Texture2D](#texture2d)) |  | 
-`depth_texture` |  | [`Node`](#parameter-types) ([Texture2D](#texture2d)) |  | 
+`child` | ✓ | [`Node`](#parameter-types) | scene to be rasterized to `color_texture` and optionally to `depth_texture` | 
+`color_texture` | ✓ | [`Node`](#parameter-types) ([Texture2D](#texture2d)) | destination color texture | 
+`depth_texture` |  | [`Node`](#parameter-types) ([Texture2D](#texture2d)) | destination depth texture | 
 
 
 **Source**: [node_rtt.c](/libnodegl/node_rtt.c)
@@ -420,18 +420,18 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`format` |  | [`format`](#format-choices) |  | `rgba`
-`type` |  | [`type`](#type-choices) |  | `unsigned_byte`
-`width` |  | [`int`](#parameter-types) |  | `0`
-`height` |  | [`int`](#parameter-types) |  | `0`
-`min_filter` |  | [`min_filter`](#min_filter-choices) |  | `nearest`
-`mag_filter` |  | [`mag_filter`](#mag_filter-choices) |  | `nearest`
-`wrap_s` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
-`wrap_t` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
-`data_src` |  | [`Node`](#parameter-types) ([Media](#media), [FPS](#fps), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
-`access` |  | [`access`](#access-choices) |  | `read_write`
-`direct_rendering` |  | [`bool`](#parameter-types) |  | `unset`
-`immutable` |  | [`bool`](#parameter-types) |  | `0`
+`format` |  | [`format`](#format-choices) | format of the pixel data | `rgba`
+`type` |  | [`type`](#type-choices) | data type of the pixel data | `unsigned_byte`
+`width` |  | [`int`](#parameter-types) | width of the texture | `0`
+`height` |  | [`int`](#parameter-types) | height of the texture | `0`
+`min_filter` |  | [`min_filter`](#min_filter-choices) | texture minifying function | `nearest`
+`mag_filter` |  | [`mag_filter`](#mag_filter-choices) | texture magnification function | `nearest`
+`wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
+`wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
+`data_src` |  | [`Node`](#parameter-types) ([Media](#media), [FPS](#fps), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | data source | 
+`access` |  | [`access`](#access-choices) | texture access (only honored by the `Compute` node) | `read_write`
+`direct_rendering` |  | [`bool`](#parameter-types) | whether direct rendering is enabled or not for media playback | `unset`
+`immutable` |  | [`bool`](#parameter-types) | whether the texture is immutable or not | `0`
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
@@ -441,19 +441,19 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`format` |  | [`format`](#format-choices) |  | `rgba`
-`type` |  | [`type`](#type-choices) |  | `unsigned_byte`
-`width` |  | [`int`](#parameter-types) |  | `0`
-`height` |  | [`int`](#parameter-types) |  | `0`
-`depth` |  | [`int`](#parameter-types) |  | `0`
-`min_filter` |  | [`min_filter`](#min_filter-choices) |  | `nearest`
-`mag_filter` |  | [`mag_filter`](#mag_filter-choices) |  | `nearest`
-`wrap_s` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
-`wrap_t` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
-`wrap_r` |  | [`wrap`](#wrap-choices) |  | `clamp_to_edge`
-`data_src` |  | [`Node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) |  | 
-`access` |  | [`access`](#access-choices) |  | `read_write`
-`immutable` |  | [`bool`](#parameter-types) |  | `0`
+`format` |  | [`format`](#format-choices) | format of the pixel data | `rgba`
+`type` |  | [`type`](#type-choices) | data type of the pixel data | `unsigned_byte`
+`width` |  | [`int`](#parameter-types) | width of the texture | `0`
+`height` |  | [`int`](#parameter-types) | height of the texture | `0`
+`depth` |  | [`int`](#parameter-types) | depth of the texture | `0`
+`min_filter` |  | [`min_filter`](#min_filter-choices) | texture minifying function | `nearest`
+`mag_filter` |  | [`mag_filter`](#mag_filter-choices) | texture magnification function | `nearest`
+`wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
+`wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
+`wrap_r` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the r dimension (depth) | `clamp_to_edge`
+`data_src` |  | [`Node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | data source | 
+`access` |  | [`access`](#access-choices) | whether direct rendering is enabled or not for media playback | `read_write`
+`immutable` |  | [`bool`](#parameter-types) | whether the texture is immutable or not | `0`
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
@@ -530,12 +530,12 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`edge0` | ✓ | [`vec3`](#parameter-types) |  | (`0`,`0`,`0`)
-`edge1` | ✓ | [`vec3`](#parameter-types) |  | (`0`,`0`,`0`)
-`edge2` | ✓ | [`vec3`](#parameter-types) |  | (`0`,`0`,`0`)
-`uv_edge0` |  | [`vec2`](#parameter-types) |  | (`0`,`0`)
-`uv_edge1` |  | [`vec2`](#parameter-types) |  | (`0`,`1`)
-`uv_edge2` |  | [`vec2`](#parameter-types) |  | (`1`,`1`)
+`edge0` | ✓ | [`vec3`](#parameter-types) | first edge coordinate of the triangle | (`0`,`0`,`0`)
+`edge1` | ✓ | [`vec3`](#parameter-types) | second edge coordinate of the triangle | (`0`,`0`,`0`)
+`edge2` | ✓ | [`vec3`](#parameter-types) | third edge coordinate of the triangle | (`0`,`0`,`0`)
+`uv_edge0` |  | [`vec2`](#parameter-types) | UV coordinate associated with `edge0` | (`0`,`0`)
+`uv_edge1` |  | [`vec2`](#parameter-types) | UV coordinate associated with `edge1` | (`0`,`1`)
+`uv_edge2` |  | [`vec2`](#parameter-types) | UV coordinate associated with `edge2` | (`1`,`1`)
 
 
 **Source**: [node_triangle.c](/libnodegl/node_triangle.c)
@@ -545,7 +545,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | [`int`](#parameter-types) |  | `0`
+`value` |  | [`int`](#parameter-types) | value exposed to the shader | `0`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -555,8 +555,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | [`mat4`](#parameter-types) |  | 
-`transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) |  | 
+`value` |  | [`mat4`](#parameter-types) | value exposed to the shader | 
+`transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `value` transformation chain | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -566,8 +566,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | [`double`](#parameter-types) |  | `0`
-`anim` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) |  | 
+`value` |  | [`double`](#parameter-types) | value exposed to the shader | `0`
+`anim` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | `value` animation | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -577,8 +577,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | [`vec2`](#parameter-types) |  | (`0`,`0`)
-`anim` |  | [`Node`](#parameter-types) ([AnimatedVec2](#animatedvec2)) |  | 
+`value` |  | [`vec2`](#parameter-types) | value exposed to the shader | (`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedVec2](#animatedvec2)) | `value` animation | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -588,8 +588,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | [`vec3`](#parameter-types) |  | (`0`,`0`,`0`)
-`anim` |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) |  | 
+`value` |  | [`vec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) | `value` animation | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -599,8 +599,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | [`vec4`](#parameter-types) |  | (`0`,`0`,`0`,`0`)
-`anim` |  | [`Node`](#parameter-types) ([AnimatedVec4](#animatedvec4)) |  | 
+`value` |  | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedVec4](#animatedvec4)) | `value` animation | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -610,8 +610,8 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`value` |  | [`vec4`](#parameter-types) |  | (`0`,`0`,`0`,`0`)
-`anim` |  | [`Node`](#parameter-types) ([AnimatedQuat](#animatedquat)) |  | 
+`value` |  | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+`anim` |  | [`Node`](#parameter-types) ([AnimatedQuat](#animatedquat)) | `value` animation | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)

@@ -61,13 +61,20 @@
 
 #define OFFSET(x) offsetof(struct compute, x)
 static const struct node_param compute_params[] = {
-    {"nb_group_x", PARAM_TYPE_INT,      OFFSET(nb_group_x), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"nb_group_y", PARAM_TYPE_INT,      OFFSET(nb_group_y), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"nb_group_z", PARAM_TYPE_INT,      OFFSET(nb_group_z), .flags=PARAM_FLAG_CONSTRUCTOR},
-    {"program",    PARAM_TYPE_NODE,     OFFSET(program),    .flags=PARAM_FLAG_CONSTRUCTOR, .node_types=PROGRAMS_TYPES_LIST},
-    {"textures",   PARAM_TYPE_NODEDICT, OFFSET(textures),   .node_types=TEXTURES_TYPES_LIST},
-    {"uniforms",   PARAM_TYPE_NODEDICT, OFFSET(uniforms),   .node_types=UNIFORMS_TYPES_LIST},
-    {"buffers",    PARAM_TYPE_NODEDICT, OFFSET(buffers),    .node_types=BUFFERS_TYPES_LIST},
+    {"nb_group_x", PARAM_TYPE_INT,      OFFSET(nb_group_x), .flags=PARAM_FLAG_CONSTRUCTOR,
+                   .desc=NGLI_DOCSTRING("number of work groups to be executed in the x dimension")},
+    {"nb_group_y", PARAM_TYPE_INT,      OFFSET(nb_group_y), .flags=PARAM_FLAG_CONSTRUCTOR,
+                   .desc=NGLI_DOCSTRING("number of work groups to be executed in the y dimension")},
+    {"nb_group_z", PARAM_TYPE_INT,      OFFSET(nb_group_z), .flags=PARAM_FLAG_CONSTRUCTOR,
+                   .desc=NGLI_DOCSTRING("number of work groups to be executed in the z dimension")},
+    {"program",    PARAM_TYPE_NODE,     OFFSET(program),    .flags=PARAM_FLAG_CONSTRUCTOR, .node_types=PROGRAMS_TYPES_LIST,
+                   .desc=NGLI_DOCSTRING("compute program to be executed")},
+    {"textures",   PARAM_TYPE_NODEDICT, OFFSET(textures),   .node_types=TEXTURES_TYPES_LIST,
+                   .desc=NGLI_DOCSTRING("input and output textures made accessible to the compute `program`")},
+    {"uniforms",   PARAM_TYPE_NODEDICT, OFFSET(uniforms),   .node_types=UNIFORMS_TYPES_LIST,
+                   .desc=NGLI_DOCSTRING("uniforms made accessible to the compute `program`")},
+    {"buffers",    PARAM_TYPE_NODEDICT, OFFSET(buffers),    .node_types=BUFFERS_TYPES_LIST,
+                   .desc=NGLI_DOCSTRING("input and output buffers made accessible to the compute `program`")},
     {NULL}
 };
 

@@ -105,18 +105,23 @@ static const struct param_choices draw_mode_choices = {
 static const struct node_param geometry_params[] = {
     {"vertices",  PARAM_TYPE_NODE, OFFSET(vertices_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
-                  .flags=PARAM_FLAG_CONSTRUCTOR | PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
+                  .flags=PARAM_FLAG_CONSTRUCTOR | PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
+                  .desc=NGLI_DOCSTRING("vertice coordinates defining the geometry")},
     {"uvcoords",  PARAM_TYPE_NODE, OFFSET(uvcoords_buffer),
                   .node_types=TEXCOORDS_TYPES_LIST,
-                  .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
+                  .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
+                  .desc=NGLI_DOCSTRING("coordinates used for UV mapping of each `vertices`")},
     {"normals",   PARAM_TYPE_NODE, OFFSET(normals_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
-                  .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
+                  .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
+                  .desc=NGLI_DOCSTRING("normal vectors of each `vertices`")},
     {"indices",   PARAM_TYPE_NODE, OFFSET(indices_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERUBYTE, NGL_NODE_BUFFERUINT, NGL_NODE_BUFFERUSHORT, -1},
-                  .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME},
+                  .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
+                  .desc=NGLI_DOCSTRING("indices defining the drawing order of the `vertices`, auto-generated if not set")},
     {"draw_mode", PARAM_TYPE_SELECT, OFFSET(draw_mode), {.i64=GL_TRIANGLES},
-                  .choices=&draw_mode_choices},
+                  .choices=&draw_mode_choices,
+                  .desc=NGLI_DOCSTRING("drawing mode")},
     {NULL}
 };
 
