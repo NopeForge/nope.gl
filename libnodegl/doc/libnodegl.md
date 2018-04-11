@@ -124,8 +124,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
-`quat` | ✓ | [`vec4`](#parameter-types) | the quaternion at time `time` | (`0`,`0`,`0`,`0`)
-`slerp` | ✓ | [`double`](#parameter-types) | the slerp value at time `time` | `0`
+`quat` | ✓ | [`vec4`](#parameter-types) | the quat at time `time` | (`0`,`0`,`0`,`0`)
 `easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 

@@ -98,8 +98,7 @@ static inline int animation_update(const struct animation *s, double t, int len,
         if (len == 1) { /* scalar */
             ((double *)dst)[0] = MIX(kf0->scalar, kf1->scalar, ratio);
         } else if (len == 5) { /* quaternion */
-            double slerp = MIX(kf0->scalar, kf1->scalar, ratio);
-            ngli_quat_slerp(dst, kf0->value, kf1->value, slerp);
+            ngli_quat_slerp(dst, kf0->value, kf1->value, ratio);
         } else { /* vector */
             for (int i = 0; i < len; i++)
                 ((float *)dst)[i] = MIX(kf0->value[i], kf1->value[i], ratio);

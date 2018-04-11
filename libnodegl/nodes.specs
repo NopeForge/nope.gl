@@ -72,7 +72,6 @@
     constructors:
         - [time, double]
         - [quat, vec4]
-        - [slerp, double]
     optional:
         - [easing, string]
         - [easing_args, doubleList]

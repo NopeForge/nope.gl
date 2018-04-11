@@ -519,16 +519,12 @@ def quaternion(cfg):
     step = cfg.duration / 5.
     x = math.sqrt(0.5)
     quat_animkf = [
-        AnimKeyFrameQuat(0 * step, (0, 0, 0, 1), 0),
-        AnimKeyFrameQuat(1 * step, (0, 0,-x, x), 1),
-        AnimKeyFrameQuat(1 * step, (0, 0,-x, x), 0),
-        AnimKeyFrameQuat(2 * step, (0, 1, 0, 0), 1),
-        AnimKeyFrameQuat(2 * step, (0, 1, 0, 0), 0),
-        AnimKeyFrameQuat(3 * step, (1, 0, 0, 0), 1),
-        AnimKeyFrameQuat(3 * step, (1, 0, 0, 0), 0),
-        AnimKeyFrameQuat(4 * step, (x, 0, 0, x), 1),
-        AnimKeyFrameQuat(4 * step, (x, 0, 0, x), 0),
-        AnimKeyFrameQuat(5 * step, (0, 0, 0, 1), 1),
+        AnimKeyFrameQuat(0 * step, (0, 0, 0, 1)),
+        AnimKeyFrameQuat(1 * step, (0, 0,-x, x)),
+        AnimKeyFrameQuat(2 * step, (0, 1, 0, 0)),
+        AnimKeyFrameQuat(3 * step, (1, 0, 0, 0)),
+        AnimKeyFrameQuat(4 * step, (x, 0, 0, x)),
+        AnimKeyFrameQuat(5 * step, (0, 0, 0, 1)),
     ]
     quat = UniformQuat(anim=AnimatedQuat(quat_animkf))
 
