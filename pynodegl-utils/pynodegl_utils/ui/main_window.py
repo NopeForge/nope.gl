@@ -161,14 +161,16 @@ class MainWindow(QtWidgets.QSplitter):
         cfg['medias'] = self._medias
         cfg.update(cfg_overrides)
 
+        self._scripts_mgr.pause()
         ret = query_subproc(query='scene', **cfg)
         if 'error' in ret:
+            self._scripts_mgr.resume()
             self._update_err_buf(ret['error'])
             return None
-        else:
-            self._update_err_buf(None)
-            self._scripts_mgr.set_filelist(ret['filelist'])
 
+        self._update_err_buf(None)
+        self._scripts_mgr.set_filelist(ret['filelist'])
+        self._scripts_mgr.resume()
         self._scene_toolbar.set_cfg(ret)
 
         return ret

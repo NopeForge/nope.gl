@@ -54,13 +54,26 @@ class ScriptsManager(QtCore.QObject):
     def start(self):
         self.reload()
 
+    def resume(self):
+        self._observer.unschedule_all()
+        for path in self._dirs_to_watch:
+            self._observer.schedule(self._event_handler, path)
+
+    def pause(self):
+        self._observer.unschedule_all()
+
     @QtCore.pyqtSlot()
     def reload(self):
+        self.pause()
         odict = query_subproc(query='list', pkg=self._module_pkgname)
         if 'error' in odict:
+            self.resume()
             self.error.emit(odict['error'])
             return
+        self.error.emit(None)
+
         self.set_filelist(odict['filelist'])
+        self.resume()
 
         scripts = odict['scenes']
         self.scripts_changed.emit(scripts)
@@ -81,7 +94,3 @@ class ScriptsManager(QtCore.QObject):
     def set_filelist(self, filelist):
         self._files_to_watch = set(filelist)
         self._dirs_to_watch = set(op.dirname(f) for f in self._files_to_watch)
-
-        self._observer.unschedule_all()
-        for path in self._dirs_to_watch:
-            self._observer.schedule(self._event_handler, path)
