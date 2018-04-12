@@ -263,6 +263,9 @@ static int compute_init(struct ngl_node *node)
                                     &info.type,
                                     info.name);
 
+            /* Remove [0] suffix from names of uniform arrays */
+            info.name[strcspn(info.name, "[")] = 0;
+
             struct ngl_node *unode = ngli_hmap_get(s->uniforms, info.name);
             if (!unode)
                 continue;
