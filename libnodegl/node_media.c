@@ -220,22 +220,19 @@ static int media_update(struct ngl_node *node, double t)
             const double initial_seek = kf0->scalar;
 
             if (anim->nb_animkf == 1) {
-                media_time = t - kf0->time;
+                media_time = NGLI_MAX(0, t - kf0->time);
             } else {
                 int ret = ngli_node_update(anim_node, t);
                 if (ret < 0)
                     return ret;
-                media_time = anim->scalar;
+                media_time = anim->scalar - initial_seek;
             }
 
-            LOG(VERBOSE, "remapped time f(%g)=%g (%g without initial seek)",
-                t, media_time, media_time - initial_seek);
-            if (media_time < initial_seek) {
+            LOG(VERBOSE, "remapped time f(%g)=%g", t, media_time);
+            if (media_time < 0) {
                 LOG(ERROR, "invalid remapped time %g", media_time);
                 return -1;
             }
-
-            media_time -= initial_seek;
         }
     }
 
