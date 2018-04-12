@@ -55,6 +55,30 @@ class Config(QtCore.QObject):
         ],
     }
 
+    def __init__(self, module_pkgname):
+        super(Config, self).__init__()
+
+        self._cfg = {
+            'aspect_ratio': (16, 9),
+            'samples': 0,
+            'framerate': (60, 1),
+            'log_level': 'info',
+            'clear_color': (0.0, 0.0, 0.0, 1.0),
+        }
+
+        self._module_pkgname = module_pkgname
+        self._needs_saving = False
+
+        config_filepath = self._get_config_filepath()
+        if op.exists(config_filepath):
+            self._cfg.update(json.load(open(config_filepath, 'r')))
+        else:
+            self._needs_saving = True
+
+        self._config_timer = QtCore.QTimer()
+        self._config_timer.setInterval(1000)  # every second
+        self._config_timer.timeout.connect(self._check_config)
+        self._config_timer.start()
 
     def _get_config_filepath(self):
         config_basedir = os.environ.get('XDG_DATA_HOME', op.expanduser('~/.local/share'))
@@ -113,28 +137,3 @@ class Config(QtCore.QObject):
         self._set_cfg('pkg', self._module_pkgname)
         self._set_cfg('module', module_name)
         self._set_cfg('scene',  scene_name)
-
-    def __init__(self, module_pkgname):
-        super(Config, self).__init__()
-
-        self._cfg = {
-            'aspect_ratio': (16, 9),
-            'samples': 0,
-            'framerate': (60, 1),
-            'log_level': 'info',
-            'clear_color': (0.0, 0.0, 0.0, 1.0),
-        }
-
-        self._module_pkgname = module_pkgname
-        self._needs_saving = False
-
-        config_filepath = self._get_config_filepath()
-        if op.exists(config_filepath):
-            self._cfg.update(json.load(open(config_filepath, 'r')))
-        else:
-            self._needs_saving = True
-
-        self._config_timer = QtCore.QTimer()
-        self._config_timer.setInterval(1000)  # every second
-        self._config_timer.timeout.connect(self._check_config)
-        self._config_timer.start()

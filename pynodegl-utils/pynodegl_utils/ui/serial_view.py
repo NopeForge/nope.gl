@@ -26,20 +26,6 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class SerialView(QtWidgets.QWidget):
 
-    @QtCore.pyqtSlot()
-    def _save_to_file(self):
-        data = self._text.toPlainText()
-        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
-        if not filenames[0]:
-            return
-        open(filenames[0], 'w').write(data)
-
-    def enter(self):
-        cfg = self._get_scene_func()
-        if not cfg:
-            return
-        self._text.setPlainText(cfg['scene'])
-
     def __init__(self, get_scene_func):
         super(SerialView, self).__init__()
 
@@ -60,3 +46,17 @@ class SerialView(QtWidgets.QWidget):
         serial_layout.addLayout(hbox)
 
         self._save_btn.clicked.connect(self._save_to_file)
+
+    @QtCore.pyqtSlot()
+    def _save_to_file(self):
+        data = self._text.toPlainText()
+        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
+        if not filenames[0]:
+            return
+        open(filenames[0], 'w').write(data)
+
+    def enter(self):
+        cfg = self._get_scene_func()
+        if not cfg:
+            return
+        self._text.setPlainText(cfg['scene'])

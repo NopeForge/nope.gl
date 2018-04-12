@@ -39,6 +39,112 @@ class Toolbar(QtWidgets.QWidget):
     log_level_changed = QtCore.pyqtSignal(str, name='logLevelChanged')
     clear_color_changed = QtCore.pyqtSignal(tuple, name='clearColorChanged')
 
+    def __init__(self, config):
+        super(Toolbar, self).__init__()
+
+        self._scene_opts_widget = None
+        self._scene_extra_args = {}
+
+        self._scn_view = QtWidgets.QTreeView()
+        self._scn_view.setHeaderHidden(True)
+        self._scn_view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self._scn_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self._scn_mdl = QtGui.QStandardItemModel()
+        self._scn_view.setModel(self._scn_mdl)
+
+        self._current_scene_data = None
+
+        self._fps_chkbox = QtWidgets.QCheckBox('Show FPS')
+
+        all_ar = config.CHOICES['aspect_ratio']
+        default_ar = config.get('aspect_ratio')
+        self._ar_cbbox = QtWidgets.QComboBox()
+        for ar in all_ar:
+            self._ar_cbbox.addItem('%d:%d' % ar)
+        self._ar_cbbox.setCurrentIndex(all_ar.index(default_ar))
+        ar_lbl = QtWidgets.QLabel('Aspect ratio:')
+        ar_hbox = QtWidgets.QHBoxLayout()
+        ar_hbox.addWidget(ar_lbl)
+        ar_hbox.addWidget(self._ar_cbbox)
+
+        self._far_lbl = QtWidgets.QLabel('Forced aspect ratio:')
+        self._far_lbl.setStyleSheet("color: red;")
+        self._far_lbl.setVisible(False)
+        self._far_lbl2 = QtWidgets.QLabel('1:1')
+        self._far_lbl2.setStyleSheet("color: red;")
+        self._far_lbl2.setVisible(False)
+        far_hbox = QtWidgets.QHBoxLayout()
+        far_hbox.addWidget(self._far_lbl)
+        far_hbox.addWidget(self._far_lbl2)
+
+        all_samples = config.CHOICES['samples']
+        default_samples = config.get('samples')
+        self._samples_cbbox = QtWidgets.QComboBox()
+        for samples in all_samples:
+            self._samples_cbbox.addItem('%dx' % samples if samples else 'Disabled')
+        self._samples_cbbox.setCurrentIndex(all_samples.index(default_samples))
+        samples_lbl = QtWidgets.QLabel('MSAA:')
+        samples_hbox = QtWidgets.QHBoxLayout()
+        samples_hbox.addWidget(samples_lbl)
+        samples_hbox.addWidget(self._samples_cbbox)
+
+        all_fr = config.CHOICES['framerate']
+        default_fr = config.get('framerate')
+        self._fr_cbbox = QtWidgets.QComboBox()
+        for fr in all_fr:
+            self._fr_cbbox.addItem('%.5g FPS' % (fr[0] / float(fr[1])))
+        self._fr_cbbox.setCurrentIndex(all_fr.index(default_fr))
+        fr_lbl = QtWidgets.QLabel('Frame rate:')
+        fr_hbox = QtWidgets.QHBoxLayout()
+        fr_hbox.addWidget(fr_lbl)
+        fr_hbox.addWidget(self._fr_cbbox)
+
+        all_loglevels = config.CHOICES['log_level']
+        default_loglevel = config.get('log_level')
+        self._loglevel_cbbox = QtWidgets.QComboBox()
+        for level in all_loglevels:
+            self._loglevel_cbbox.addItem(level.title())
+        log_level_idx = all_loglevels.index(default_loglevel)
+        self._loglevel_cbbox.setCurrentIndex(log_level_idx)
+        self._set_loglevel(log_level_idx)
+        loglevel_lbl = QtWidgets.QLabel('Min log level:')
+        loglevel_hbox = QtWidgets.QHBoxLayout()
+        loglevel_hbox.addWidget(loglevel_lbl)
+        loglevel_hbox.addWidget(self._loglevel_cbbox)
+
+        default_clearcolor = config.get('clear_color')
+        self._clearcolor_btn = QtWidgets.QPushButton()
+        color = QtGui.QColor()
+        color.setRgbF(*default_clearcolor)
+        self._set_widget_clear_color(color)
+        self._clearcolor_btn.pressed.connect(self._set_clear_color)
+
+        clearcolor_lbl = QtWidgets.QLabel('Clear color:')
+        clearcolor_hbox = QtWidgets.QHBoxLayout()
+        clearcolor_hbox.addWidget(clearcolor_lbl)
+        clearcolor_hbox.addWidget(self._clearcolor_btn)
+
+        self.reload_btn = QtWidgets.QPushButton('Force scripts reload')
+
+        self._scene_toolbar_layout = QtWidgets.QVBoxLayout(self)
+        self._scene_toolbar_layout.addWidget(self._fps_chkbox)
+        self._scene_toolbar_layout.addLayout(ar_hbox)
+        self._scene_toolbar_layout.addLayout(far_hbox)
+        self._scene_toolbar_layout.addLayout(samples_hbox)
+        self._scene_toolbar_layout.addLayout(fr_hbox)
+        self._scene_toolbar_layout.addLayout(loglevel_hbox)
+        self._scene_toolbar_layout.addLayout(clearcolor_hbox)
+        self._scene_toolbar_layout.addWidget(self.reload_btn)
+        self._scene_toolbar_layout.addWidget(self._scn_view)
+
+        self._scn_view.clicked.connect(self._scn_view_selected)
+        self._scn_view.activated.connect(self._scn_view_selected)
+        self._fps_chkbox.stateChanged.connect(self._fps_chkbox_changed)
+        self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
+        self._samples_cbbox.currentIndexChanged.connect(self._set_samples)
+        self._fr_cbbox.currentIndexChanged.connect(self._set_frame_rate)
+        self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
+
     def _replace_scene_opts_widget(self, widget):
         if self._scene_opts_widget:
             self._scene_toolbar_layout.removeWidget(self._scene_opts_widget)
@@ -290,109 +396,3 @@ class Toolbar(QtWidgets.QWidget):
         self._set_widget_clear_color(color)
         self.clearColorChanged.emit(color.getRgbF())
         self._load_current_scene()
-
-    def __init__(self, config):
-        super(Toolbar, self).__init__()
-
-        self._scene_opts_widget = None
-        self._scene_extra_args = {}
-
-        self._scn_view = QtWidgets.QTreeView()
-        self._scn_view.setHeaderHidden(True)
-        self._scn_view.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
-        self._scn_view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
-        self._scn_mdl = QtGui.QStandardItemModel()
-        self._scn_view.setModel(self._scn_mdl)
-
-        self._current_scene_data = None
-
-        self._fps_chkbox = QtWidgets.QCheckBox('Show FPS')
-
-        all_ar = config.CHOICES['aspect_ratio']
-        default_ar = config.get('aspect_ratio')
-        self._ar_cbbox = QtWidgets.QComboBox()
-        for ar in all_ar:
-            self._ar_cbbox.addItem('%d:%d' % ar)
-        self._ar_cbbox.setCurrentIndex(all_ar.index(default_ar))
-        ar_lbl = QtWidgets.QLabel('Aspect ratio:')
-        ar_hbox = QtWidgets.QHBoxLayout()
-        ar_hbox.addWidget(ar_lbl)
-        ar_hbox.addWidget(self._ar_cbbox)
-
-        self._far_lbl = QtWidgets.QLabel('Forced aspect ratio:')
-        self._far_lbl.setStyleSheet("color: red;")
-        self._far_lbl.setVisible(False)
-        self._far_lbl2 = QtWidgets.QLabel('1:1')
-        self._far_lbl2.setStyleSheet("color: red;")
-        self._far_lbl2.setVisible(False)
-        far_hbox = QtWidgets.QHBoxLayout()
-        far_hbox.addWidget(self._far_lbl)
-        far_hbox.addWidget(self._far_lbl2)
-
-        all_samples = config.CHOICES['samples']
-        default_samples = config.get('samples')
-        self._samples_cbbox = QtWidgets.QComboBox()
-        for samples in all_samples:
-            self._samples_cbbox.addItem('%dx' % samples if samples else 'Disabled')
-        self._samples_cbbox.setCurrentIndex(all_samples.index(default_samples))
-        samples_lbl = QtWidgets.QLabel('MSAA:')
-        samples_hbox = QtWidgets.QHBoxLayout()
-        samples_hbox.addWidget(samples_lbl)
-        samples_hbox.addWidget(self._samples_cbbox)
-
-        all_fr = config.CHOICES['framerate']
-        default_fr = config.get('framerate')
-        self._fr_cbbox = QtWidgets.QComboBox()
-        for fr in all_fr:
-            self._fr_cbbox.addItem('%.5g FPS' % (fr[0] / float(fr[1])))
-        self._fr_cbbox.setCurrentIndex(all_fr.index(default_fr))
-        fr_lbl = QtWidgets.QLabel('Frame rate:')
-        fr_hbox = QtWidgets.QHBoxLayout()
-        fr_hbox.addWidget(fr_lbl)
-        fr_hbox.addWidget(self._fr_cbbox)
-
-        all_loglevels = config.CHOICES['log_level']
-        default_loglevel = config.get('log_level')
-        self._loglevel_cbbox = QtWidgets.QComboBox()
-        for level in all_loglevels:
-            self._loglevel_cbbox.addItem(level.title())
-        log_level_idx = all_loglevels.index(default_loglevel)
-        self._loglevel_cbbox.setCurrentIndex(log_level_idx)
-        self._set_loglevel(log_level_idx)
-        loglevel_lbl = QtWidgets.QLabel('Min log level:')
-        loglevel_hbox = QtWidgets.QHBoxLayout()
-        loglevel_hbox.addWidget(loglevel_lbl)
-        loglevel_hbox.addWidget(self._loglevel_cbbox)
-
-        default_clearcolor = config.get('clear_color')
-        self._clearcolor_btn = QtWidgets.QPushButton()
-        color = QtGui.QColor()
-        color.setRgbF(*default_clearcolor)
-        self._set_widget_clear_color(color)
-        self._clearcolor_btn.pressed.connect(self._set_clear_color)
-
-        clearcolor_lbl = QtWidgets.QLabel('Clear color:')
-        clearcolor_hbox = QtWidgets.QHBoxLayout()
-        clearcolor_hbox.addWidget(clearcolor_lbl)
-        clearcolor_hbox.addWidget(self._clearcolor_btn)
-
-        self.reload_btn = QtWidgets.QPushButton('Force scripts reload')
-
-        self._scene_toolbar_layout = QtWidgets.QVBoxLayout(self)
-        self._scene_toolbar_layout.addWidget(self._fps_chkbox)
-        self._scene_toolbar_layout.addLayout(ar_hbox)
-        self._scene_toolbar_layout.addLayout(far_hbox)
-        self._scene_toolbar_layout.addLayout(samples_hbox)
-        self._scene_toolbar_layout.addLayout(fr_hbox)
-        self._scene_toolbar_layout.addLayout(loglevel_hbox)
-        self._scene_toolbar_layout.addLayout(clearcolor_hbox)
-        self._scene_toolbar_layout.addWidget(self.reload_btn)
-        self._scene_toolbar_layout.addWidget(self._scn_view)
-
-        self._scn_view.clicked.connect(self._scn_view_selected)
-        self._scn_view.activated.connect(self._scn_view_selected)
-        self._fps_chkbox.stateChanged.connect(self._fps_chkbox_changed)
-        self._ar_cbbox.currentIndexChanged.connect(self._set_aspect_ratio)
-        self._samples_cbbox.currentIndexChanged.connect(self._set_samples)
-        self._fr_cbbox.currentIndexChanged.connect(self._set_frame_rate)
-        self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)

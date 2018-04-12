@@ -29,50 +29,6 @@ from pynodegl_utils.export import Exporter
 
 class ExportView(QtWidgets.QWidget):
 
-    def _get_encoders_list(self):
-        encoders = ['']
-        stdout = subprocess.check_output(['ffmpeg', '-v', '0', '-encoders'])
-        list_started = False
-        for line in stdout.splitlines():
-            line = line.lstrip()
-            if not list_started:
-                if line.startswith('------'):
-                    list_started = True
-                continue
-            caps, encoder, desc = line.split(None, 2)
-            if caps[0] != 'V':
-                continue
-            encoders.append(encoder)
-        return encoders
-
-    @QtCore.pyqtSlot()
-    def _export(self):
-        ofile = self._ofile_text.text()
-        width = self._spinbox_width.value()
-        height = self._spinbox_height.value()
-
-        extra_enc_args = []
-        encoder_id = self._encoders_cbox.currentIndex()
-        if encoder_id:
-            extra_enc_args += ['-c:v', self._encoders_cbox.itemText(encoder_id)]
-        extra_enc_args += self._encopts_text.text().split()
-
-        self._pgbar.setValue(0)
-        self._pgbar.show()
-        cfg = self._exporter.export(ofile, width, height, extra_enc_args)
-        if not cfg:
-            QtWidgets.QMessageBox.critical(self, 'Error',
-                                           "You didn't select any scene to export.",
-                                           QtWidgets.QMessageBox.Ok)
-        self._pgbar.hide()
-
-    @QtCore.pyqtSlot()
-    def _select_ofile(self):
-        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
-        if not filenames[0]:
-            return
-        self._ofile_text.setText(filenames[0])
-
     def __init__(self, parent, get_scene_func):
         super(ExportView, self).__init__()
 
@@ -117,3 +73,47 @@ class ExportView(QtWidgets.QWidget):
 
         ofile_btn.clicked.connect(self._select_ofile)
         self._export_btn.clicked.connect(self._export)
+
+    def _get_encoders_list(self):
+        encoders = ['']
+        stdout = subprocess.check_output(['ffmpeg', '-v', '0', '-encoders'])
+        list_started = False
+        for line in stdout.splitlines():
+            line = line.lstrip()
+            if not list_started:
+                if line.startswith('------'):
+                    list_started = True
+                continue
+            caps, encoder, desc = line.split(None, 2)
+            if caps[0] != 'V':
+                continue
+            encoders.append(encoder)
+        return encoders
+
+    @QtCore.pyqtSlot()
+    def _export(self):
+        ofile = self._ofile_text.text()
+        width = self._spinbox_width.value()
+        height = self._spinbox_height.value()
+
+        extra_enc_args = []
+        encoder_id = self._encoders_cbox.currentIndex()
+        if encoder_id:
+            extra_enc_args += ['-c:v', self._encoders_cbox.itemText(encoder_id)]
+        extra_enc_args += self._encopts_text.text().split()
+
+        self._pgbar.setValue(0)
+        self._pgbar.show()
+        cfg = self._exporter.export(ofile, width, height, extra_enc_args)
+        if not cfg:
+            QtWidgets.QMessageBox.critical(self, 'Error',
+                                           "You didn't select any scene to export.",
+                                           QtWidgets.QMessageBox.Ok)
+        self._pgbar.hide()
+
+    @QtCore.pyqtSlot()
+    def _select_ofile(self):
+        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
+        if not filenames[0]:
+            return
+        self._ofile_text.setText(filenames[0])

@@ -32,6 +32,20 @@ import pynodegl as ngl
 
 class _GLWidget(QtWidgets.QOpenGLWidget):
 
+    def __init__(self, parent, aspect_ratio, samples, clear_color):
+        super(_GLWidget, self).__init__(parent)
+
+        self.setMinimumSize(640, 360)
+        self._viewer = ngl.Viewer()
+        self._time = 0
+        self._aspect_ratio = aspect_ratio
+        self._samples = samples
+        self._clear_color = clear_color
+        gl_format = QtGui.QSurfaceFormat.defaultFormat()
+        gl_format.setSamples(samples)
+        self.setFormat(gl_format)
+        self.resizeGL(self.width(), self.height())
+
     def get_time(self):
         return self._time
 
@@ -52,20 +66,6 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self._viewer.set_scene_from_string(scene)
         self.doneCurrent()
         self.update()
-
-    def __init__(self, parent, aspect_ratio, samples, clear_color):
-        super(_GLWidget, self).__init__(parent)
-
-        self.setMinimumSize(640, 360)
-        self._viewer = ngl.Viewer()
-        self._time = 0
-        self._aspect_ratio = aspect_ratio
-        self._samples = samples
-        self._clear_color = clear_color
-        gl_format = QtGui.QSurfaceFormat.defaultFormat()
-        gl_format.setSamples(samples)
-        self.setFormat(gl_format)
-        self.resizeGL(self.width(), self.height())
 
     def paintGL(self):
         GL.glViewport(self.view_x, self.view_y, self.view_width, self.view_height)
@@ -94,6 +94,34 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
 
 
 class GLView(QtWidgets.QWidget):
+
+    def __init__(self, get_scene_func, config):
+        super(GLView, self).__init__()
+
+        self._ar = config.get('aspect_ratio')
+        self._samples = config.get('samples')
+        self._clear_color = config.get('clear_color')
+
+        self._get_scene_func = get_scene_func
+
+        self._gl_widget = _GLWidget(self, self._ar, self._samples, self._clear_color)
+        self._seekbar = Seekbar(config.get('framerate'))
+
+        screenshot_btn = QtWidgets.QToolButton()
+        screenshot_btn.setText(u'📷')
+
+        toolbar = QtWidgets.QHBoxLayout()
+        toolbar.addWidget(self._seekbar)
+        toolbar.addWidget(screenshot_btn)
+
+        self._gl_layout = QtWidgets.QVBoxLayout(self)
+        self._gl_layout.addWidget(self._gl_widget, stretch=1)
+        self._gl_layout.addLayout(toolbar)
+
+        screenshot_btn.clicked.connect(self._screenshot)
+
+        self._seekbar.timeChanged.connect(self._time_changed)
+        self._seekbar.stopped.connect(self._gl_widget.reset_viewer)
 
     @QtCore.pyqtSlot()
     def _screenshot(self):
@@ -143,31 +171,3 @@ class GLView(QtWidgets.QWidget):
     @QtCore.pyqtSlot(float)
     def _time_changed(self, t):
         self._gl_widget.set_time(t)
-
-    def __init__(self, get_scene_func, config):
-        super(GLView, self).__init__()
-
-        self._ar = config.get('aspect_ratio')
-        self._samples = config.get('samples')
-        self._clear_color = config.get('clear_color')
-
-        self._get_scene_func = get_scene_func
-
-        self._gl_widget = _GLWidget(self, self._ar, self._samples, self._clear_color)
-        self._seekbar = Seekbar(config.get('framerate'))
-
-        screenshot_btn = QtWidgets.QToolButton()
-        screenshot_btn.setText(u'📷')
-
-        toolbar = QtWidgets.QHBoxLayout()
-        toolbar.addWidget(self._seekbar)
-        toolbar.addWidget(screenshot_btn)
-
-        self._gl_layout = QtWidgets.QVBoxLayout(self)
-        self._gl_layout.addWidget(self._gl_widget, stretch=1)
-        self._gl_layout.addLayout(toolbar)
-
-        screenshot_btn.clicked.connect(self._screenshot)
-
-        self._seekbar.timeChanged.connect(self._time_changed)
-        self._seekbar.stopped.connect(self._gl_widget.reset_viewer)

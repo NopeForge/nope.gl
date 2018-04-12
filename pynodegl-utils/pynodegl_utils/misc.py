@@ -65,6 +65,22 @@ def get_comp(name, shader_path=None):
 
 class Media:
 
+    def __init__(self, filename):
+        self._filename = filename
+        self._set_media_dimensions()
+
+    def _set_media_dimensions(self):
+        data = subprocess.check_output(['ffprobe', '-v', '0',
+                                        '-select_streams', 'v:0',
+                                        '-of', 'json',
+                                        '-show_streams', '-show_format',
+                                        self._filename])
+        data = json.loads(data)
+        st = data['streams'][0]
+        self._dimensions = (st['width'], st['height'])
+        self._duration = float(data['format']['duration'])
+        self._framerate = tuple(int(x) for x in st['avg_frame_rate'].split('/'))
+
     @property
     def filename(self):
         return self._filename
@@ -92,22 +108,6 @@ class Media:
     @property
     def framerate_float(self):
         return self._framerate[0] / float(self._framerate[1])
-
-    def _set_media_dimensions(self):
-        data = subprocess.check_output(['ffprobe', '-v', '0',
-                                        '-select_streams', 'v:0',
-                                        '-of', 'json',
-                                        '-show_streams', '-show_format',
-                                        self._filename])
-        data = json.loads(data)
-        st = data['streams'][0]
-        self._dimensions = (st['width'], st['height'])
-        self._duration = float(data['format']['duration'])
-        self._framerate = tuple(int(x) for x in st['avg_frame_rate'].split('/'))
-
-    def __init__(self, filename):
-        self._filename = filename
-        self._set_media_dimensions()
 
 
 class SceneCfg:

@@ -31,6 +31,11 @@ import pynodegl as ngl
 
 class _SVGGraphView(QtWidgets.QGraphicsView):
 
+    def __init__(self):
+        super(_SVGGraphView, self).__init__()
+        self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
+        self._zoom_level = 0
+
     def wheelEvent(self, event):
         y_degrees = event.angleDelta().y() / 8.0
         self._zoom_level += y_degrees / 15.0  # in the most common mouse step unit
@@ -39,13 +44,39 @@ class _SVGGraphView(QtWidgets.QGraphicsView):
         m.scale(factor, factor)
         self.setTransform(m)
 
-    def __init__(self):
-        super(_SVGGraphView, self).__init__()
-        self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
-        self._zoom_level = 0
-
 
 class GraphView(QtWidgets.QWidget):
+
+    def __init__(self, get_scene_func, config):
+        super(GraphView, self).__init__()
+
+        self._get_scene_func = get_scene_func
+        self._samples = config.get('samples')
+        self._viewer = None
+
+        self._save_btn = QtWidgets.QPushButton("Save image")
+
+        self._scene = QtWidgets.QGraphicsScene()
+        self._view = _SVGGraphView()
+        self._view.setScene(self._scene)
+
+        self._seek_chkbox = QtWidgets.QCheckBox('Show graph at a given time')
+        self._seekbar = Seekbar(config.get('framerate'), stop_button=False)
+        self._seekbar.setEnabled(False)
+
+        hbox = QtWidgets.QHBoxLayout()
+        hbox.addStretch()
+        hbox.addWidget(self._save_btn)
+
+        graph_layout = QtWidgets.QVBoxLayout(self)
+        graph_layout.addWidget(self._seek_chkbox)
+        graph_layout.addWidget(self._seekbar)
+        graph_layout.addWidget(self._view)
+        graph_layout.addLayout(hbox)
+
+        self._save_btn.clicked.connect(self._save_to_file)
+        self._seek_chkbox.stateChanged.connect(self._seek_check_changed)
+        self._seekbar.timeChanged.connect(self._time_changed)
 
     @QtCore.pyqtSlot()
     def _save_to_file(self):
@@ -170,34 +201,3 @@ class GraphView(QtWidgets.QWidget):
         self._glctx.doneCurrent()
         if dot_scene:
             self._update_graph(dot_scene)
-
-    def __init__(self, get_scene_func, config):
-        super(GraphView, self).__init__()
-
-        self._get_scene_func = get_scene_func
-        self._samples = config.get('samples')
-        self._viewer = None
-
-        self._save_btn = QtWidgets.QPushButton("Save image")
-
-        self._scene = QtWidgets.QGraphicsScene()
-        self._view = _SVGGraphView()
-        self._view.setScene(self._scene)
-
-        self._seek_chkbox = QtWidgets.QCheckBox('Show graph at a given time')
-        self._seekbar = Seekbar(config.get('framerate'), stop_button=False)
-        self._seekbar.setEnabled(False)
-
-        hbox = QtWidgets.QHBoxLayout()
-        hbox.addStretch()
-        hbox.addWidget(self._save_btn)
-
-        graph_layout = QtWidgets.QVBoxLayout(self)
-        graph_layout.addWidget(self._seek_chkbox)
-        graph_layout.addWidget(self._seekbar)
-        graph_layout.addWidget(self._view)
-        graph_layout.addLayout(hbox)
-
-        self._save_btn.clicked.connect(self._save_to_file)
-        self._seek_chkbox.stateChanged.connect(self._seek_check_changed)
-        self._seekbar.timeChanged.connect(self._time_changed)

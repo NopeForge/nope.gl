@@ -42,6 +42,103 @@ from pynodegl_utils.ui.toolbar import Toolbar
 
 class MainWindow(QtWidgets.QSplitter):
 
+    def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
+        super(MainWindow, self).__init__(QtCore.Qt.Horizontal)
+        self._win_title_base = 'Node.gl viewer'
+        self.setWindowTitle(self._win_title_base)
+
+        self._module_pkgname = module_pkgname
+        self._glbackend = glbackend
+        self._scripts_mgr = ScriptsManager(module_pkgname)
+        self._hooksdir = hooksdir
+
+        medias = None
+        if assets_dir:
+            medias = []
+            for f in sorted(os.listdir(assets_dir)):
+                ext = f.rsplit('.', 1)[-1].lower()
+                path = op.join(assets_dir, f)
+                if op.isfile(path) and ext in ('mp4', 'mkv', 'avi', 'webm', 'mov'):
+                    try:
+                        media = Media(path)
+                    except:
+                        pass
+                    else:
+                        medias.append(media)
+
+        self._medias = medias
+
+        get_scene_func = self._get_scene
+
+        self._config = Config(module_pkgname)
+
+        # Apply previous geometry (position + dimensions)
+        rect = self._config.get('geometry')
+        if rect:
+            geometry = QtCore.QRect(*rect)
+            self.setGeometry(geometry)
+
+        gl_view = GLView(get_scene_func, self._config)
+        graph_view = GraphView(get_scene_func, self._config)
+        export_view = ExportView(self, get_scene_func)
+        serial_view = SerialView(get_scene_func)
+
+        self._tabs = [
+            ('GL view', gl_view),
+            ('Graph view', graph_view),
+            ('Export', export_view),
+            ('Serialization', serial_view),
+        ]
+        self._last_tab_index = -1
+
+        self._tab_widget = QtWidgets.QTabWidget()
+        for tab_name, tab_view in self._tabs:
+            self._tab_widget.addTab(tab_view, tab_name)
+        self._tab_widget.currentChanged.connect(self._currentTabChanged)
+
+        self._scene_toolbar = Toolbar(self._config)
+        self._scene_toolbar.sceneChanged.connect(self._scene_changed)
+        self._scene_toolbar.sceneChanged.connect(self._scene_changed_hook)
+        self._scene_toolbar.sceneChanged.connect(self._config.scene_changed)
+        self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
+        self._scene_toolbar.aspectRatioChanged.connect(self._config.set_aspect_ratio)
+        self._scene_toolbar.samplesChanged.connect(gl_view.set_samples)
+        self._scene_toolbar.samplesChanged.connect(self._config.set_samples)
+        self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
+        self._scene_toolbar.frameRateChanged.connect(graph_view.set_frame_rate)
+        self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
+        self._scene_toolbar.logLevelChanged.connect(self._config.set_log_level)
+        self._scene_toolbar.clearColorChanged.connect(gl_view.set_clear_color)
+        self._scene_toolbar.clearColorChanged.connect(self._config.set_clear_color)
+
+        self._errbuf = QtWidgets.QPlainTextEdit()
+        self._errbuf.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
+        self._errbuf.setReadOnly(True)
+        self._errbuf.hide()
+
+        tabs_and_errbuf = QtWidgets.QVBoxLayout()
+        tabs_and_errbuf.addWidget(self._tab_widget)
+        tabs_and_errbuf.addWidget(self._errbuf)
+        tabs_and_errbuf_widget = QtWidgets.QWidget()
+        tabs_and_errbuf_widget.setLayout(tabs_and_errbuf)
+
+        self.addWidget(self._scene_toolbar)
+        self.addWidget(tabs_and_errbuf_widget)
+        self.setStretchFactor(1, 1)
+
+        self._scene_toolbar.reload_btn.clicked.connect(self._scripts_mgr.reload)  # TODO: drop
+        self._scripts_mgr.error.connect(self._all_scripts_err)
+        self._scripts_mgr.scriptsChanged.connect(self._scene_toolbar.on_scripts_changed)
+        self._scripts_mgr.start()
+
+        # Load the previous scene if the current and previously loaded
+        # module packages match
+        prev_pkgname = self._config.get('pkg')
+        prev_module = self._config.get('module')
+        prev_scene = self._config.get('scene')
+        if prev_pkgname == module_pkgname:
+            self._scene_toolbar.load_scene_from_name(prev_module, prev_scene)
+
     def _update_err_buf(self, err_str):
         if err_str:
             self._errbuf.setPlainText(err_str)
@@ -196,100 +293,3 @@ class MainWindow(QtWidgets.QSplitter):
         if hasattr(next_view, 'enter'):
             next_view.enter()
         self._last_tab_index = index
-
-    def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
-        super(MainWindow, self).__init__(QtCore.Qt.Horizontal)
-        self._win_title_base = 'Node.gl viewer'
-        self.setWindowTitle(self._win_title_base)
-
-        self._module_pkgname = module_pkgname
-        self._glbackend = glbackend
-        self._scripts_mgr = ScriptsManager(module_pkgname)
-        self._hooksdir = hooksdir
-
-        medias = None
-        if assets_dir:
-            medias = []
-            for f in sorted(os.listdir(assets_dir)):
-                ext = f.rsplit('.', 1)[-1].lower()
-                path = op.join(assets_dir, f)
-                if op.isfile(path) and ext in ('mp4', 'mkv', 'avi', 'webm', 'mov'):
-                    try:
-                        media = Media(path)
-                    except:
-                        pass
-                    else:
-                        medias.append(media)
-
-        self._medias = medias
-
-        get_scene_func = self._get_scene
-
-        self._config = Config(module_pkgname)
-
-        # Apply previous geometry (position + dimensions)
-        rect = self._config.get('geometry')
-        if rect:
-            geometry = QtCore.QRect(*rect)
-            self.setGeometry(geometry)
-
-        gl_view = GLView(get_scene_func, self._config)
-        graph_view = GraphView(get_scene_func, self._config)
-        export_view = ExportView(self, get_scene_func)
-        serial_view = SerialView(get_scene_func)
-
-        self._tabs = [
-            ('GL view', gl_view),
-            ('Graph view', graph_view),
-            ('Export', export_view),
-            ('Serialization', serial_view),
-        ]
-        self._last_tab_index = -1
-
-        self._tab_widget = QtWidgets.QTabWidget()
-        for tab_name, tab_view in self._tabs:
-            self._tab_widget.addTab(tab_view, tab_name)
-        self._tab_widget.currentChanged.connect(self._currentTabChanged)
-
-        self._scene_toolbar = Toolbar(self._config)
-        self._scene_toolbar.sceneChanged.connect(self._scene_changed)
-        self._scene_toolbar.sceneChanged.connect(self._scene_changed_hook)
-        self._scene_toolbar.sceneChanged.connect(self._config.scene_changed)
-        self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
-        self._scene_toolbar.aspectRatioChanged.connect(self._config.set_aspect_ratio)
-        self._scene_toolbar.samplesChanged.connect(gl_view.set_samples)
-        self._scene_toolbar.samplesChanged.connect(self._config.set_samples)
-        self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
-        self._scene_toolbar.frameRateChanged.connect(graph_view.set_frame_rate)
-        self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
-        self._scene_toolbar.logLevelChanged.connect(self._config.set_log_level)
-        self._scene_toolbar.clearColorChanged.connect(gl_view.set_clear_color)
-        self._scene_toolbar.clearColorChanged.connect(self._config.set_clear_color)
-
-        self._errbuf = QtWidgets.QPlainTextEdit()
-        self._errbuf.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
-        self._errbuf.setReadOnly(True)
-        self._errbuf.hide()
-
-        tabs_and_errbuf = QtWidgets.QVBoxLayout()
-        tabs_and_errbuf.addWidget(self._tab_widget)
-        tabs_and_errbuf.addWidget(self._errbuf)
-        tabs_and_errbuf_widget = QtWidgets.QWidget()
-        tabs_and_errbuf_widget.setLayout(tabs_and_errbuf)
-
-        self.addWidget(self._scene_toolbar)
-        self.addWidget(tabs_and_errbuf_widget)
-        self.setStretchFactor(1, 1)
-
-        self._scene_toolbar.reload_btn.clicked.connect(self._scripts_mgr.reload)  # TODO: drop
-        self._scripts_mgr.error.connect(self._all_scripts_err)
-        self._scripts_mgr.scriptsChanged.connect(self._scene_toolbar.on_scripts_changed)
-        self._scripts_mgr.start()
-
-        # Load the previous scene if the current and previously loaded
-        # module packages match
-        prev_pkgname = self._config.get('pkg')
-        prev_module = self._config.get('module')
-        prev_scene = self._config.get('scene')
-        if prev_pkgname == module_pkgname:
-            self._scene_toolbar.load_scene_from_name(prev_module, prev_scene)

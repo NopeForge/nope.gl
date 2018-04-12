@@ -37,6 +37,49 @@ class Seekbar(QtWidgets.QWidget):
     TIMEBASE = 1000000000  # nanoseconds
     TIMESCALE = 1. / TIMEBASE
 
+    def __init__(self, framerate, stop_button=True):
+        super(Seekbar, self).__init__()
+
+        self._timer = QtCore.QTimer()
+        self._timer.setInterval(1000.0 / self.REFRESH_RATE)  # in milliseconds
+
+        self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
+        self._time_lbl = QtWidgets.QLabel()
+
+        stop_btn = QtWidgets.QToolButton()
+        stop_btn.setText(u'◾')
+        self._action_btn = QtWidgets.QToolButton()
+        self._set_action('pause')
+
+        fw_btn = QtWidgets.QToolButton()
+        fw_btn.setText('>')
+        bw_btn = QtWidgets.QToolButton()
+        bw_btn.setText('<')
+
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        if stop_button:
+            layout.addWidget(stop_btn)
+        layout.addWidget(bw_btn)
+        layout.addWidget(self._action_btn)
+        layout.addWidget(fw_btn)
+        layout.addWidget(self._slider)
+        layout.addWidget(self._time_lbl)
+
+        self._frame_index = 0
+        self._clock_off = -1
+        self._scene_duration = 0
+        self.set_framerate(framerate)
+
+        self._slider.sliderMoved.connect(self._slider_moved)
+
+        stop_btn.clicked.connect(self._stop)
+        self._action_btn.clicked.connect(self._toggle_playback)
+        fw_btn.clicked.connect(self._step_fw)
+        bw_btn.clicked.connect(self._step_bw)
+
+        self._timer.timeout.connect(self._update_tick)
+
     def _reset_clock(self):
         frame_ts = self._frame_index * self.TIMEBASE * self._framerate[1] / self._framerate[0]
         self._clock_off = int(time.time() * self.TIMEBASE) - frame_ts
@@ -122,46 +165,3 @@ class Seekbar(QtWidgets.QWidget):
 
     def get_frame_index(self):
         return self._frame_index
-
-    def __init__(self, framerate, stop_button=True):
-        super(Seekbar, self).__init__()
-
-        self._timer = QtCore.QTimer()
-        self._timer.setInterval(1000.0 / self.REFRESH_RATE)  # in milliseconds
-
-        self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-        self._time_lbl = QtWidgets.QLabel()
-
-        stop_btn = QtWidgets.QToolButton()
-        stop_btn.setText(u'◾')
-        self._action_btn = QtWidgets.QToolButton()
-        self._set_action('pause')
-
-        fw_btn = QtWidgets.QToolButton()
-        fw_btn.setText('>')
-        bw_btn = QtWidgets.QToolButton()
-        bw_btn.setText('<')
-
-        layout = QtWidgets.QHBoxLayout(self)
-        layout.setContentsMargins(0, 0, 0, 0)
-        if stop_button:
-            layout.addWidget(stop_btn)
-        layout.addWidget(bw_btn)
-        layout.addWidget(self._action_btn)
-        layout.addWidget(fw_btn)
-        layout.addWidget(self._slider)
-        layout.addWidget(self._time_lbl)
-
-        self._frame_index = 0
-        self._clock_off = -1
-        self._scene_duration = 0
-        self.set_framerate(framerate)
-
-        self._slider.sliderMoved.connect(self._slider_moved)
-
-        stop_btn.clicked.connect(self._stop)
-        self._action_btn.clicked.connect(self._toggle_playback)
-        fw_btn.clicked.connect(self._step_fw)
-        bw_btn.clicked.connect(self._step_bw)
-
-        self._timer.timeout.connect(self._update_tick)
