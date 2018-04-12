@@ -52,6 +52,7 @@ Following are how-to guides on various specific usages:
 - [What happens in a draw call?][expl-draw-call]
 - [Technical choices][expl-techchoices]
 - [Fragment and vertex shader parameters][expl-shaders]
+- [Media (video) time remapping][expl-time-remap]
 
 ### 🗜 Reference documentation
 
@@ -70,6 +71,7 @@ Following are how-to guides on various specific usages:
 [expl-draw-call]:        /doc/expl/draw-call.md
 [expl-shaders]:          /doc/expl/shaders.md
 [expl-techchoices]:      /doc/expl/techchoices.md
+[expl-time-remap]:       /doc/expl/media-time-remapping.md
 [ref-libnodegl]:         /libnodegl/doc/libnodegl.md
 [ref-pynodegl]:          /doc/ref/pynodegl.md
 [ref-pynodegl-utils]:    /doc/ref/pynodegl-utils.md
