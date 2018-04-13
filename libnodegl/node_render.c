@@ -224,7 +224,8 @@ static int update_uniforms(struct ngl_node *node)
                     ngli_glUniform1i(gl, info->external_sampler_id, 0);
                 break;
             case GL_TEXTURE_3D:
-                bind_texture(gl, texture->target, info->sampler_id, texture->id, texture_index);
+                if (info->sampler_id >= 0)
+                    bind_texture(gl, texture->target, info->sampler_id, texture->id, texture_index);
                 break;
 #ifdef TARGET_ANDROID
             case GL_TEXTURE_EXTERNAL_OES:
