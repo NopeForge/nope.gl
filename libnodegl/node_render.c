@@ -97,13 +97,6 @@ static const struct node_param render_params[] = {
     {NULL}
 };
 
-static inline void bind_texture(const struct glfunctions *gl, GLenum target, GLint uniform_location, GLuint texture_id, int idx)
-{
-    ngli_glActiveTexture(gl, GL_TEXTURE0 + idx);
-    ngli_glBindTexture(gl, target, texture_id);
-    ngli_glUniform1i(gl, uniform_location, idx);
-}
-
 #define SAMPLING_MODE_NONE         0
 #define SAMPLING_MODE_2D           1
 #define SAMPLING_MODE_EXTERNAL_OES 2
@@ -215,26 +208,43 @@ static int update_uniforms(struct ngl_node *node)
             int sampling_mode = SAMPLING_MODE_NONE;
             switch (texture->target) {
             case GL_TEXTURE_2D:
+                if (info->sampler_id >= 0 || info->external_sampler_id >= 0)
+                    ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
+
                 if (info->sampler_id >= 0) {
                     sampling_mode = SAMPLING_MODE_2D;
-                    bind_texture(gl, texture->target, info->sampler_id, texture->id, texture_index);
+                    ngli_glBindTexture(gl, texture->target, texture->id);
+                    ngli_glUniform1i(gl, info->sampler_id, texture_index);
                 }
 
-                if (info->external_sampler_id >= 0)
+#ifdef TARGET_ANDROID
+                if (info->external_sampler_id >= 0) {
+                    ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
                     ngli_glUniform1i(gl, info->external_sampler_id, 0);
+                }
+#endif
                 break;
             case GL_TEXTURE_3D:
-                if (info->sampler_id >= 0)
-                    bind_texture(gl, texture->target, info->sampler_id, texture->id, texture_index);
+                if (info->sampler_id >= 0) {
+                    ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
+                    ngli_glBindTexture(gl, texture->target, texture->id);
+                    ngli_glUniform1i(gl, info->sampler_id, texture_index);
+                }
                 break;
 #ifdef TARGET_ANDROID
             case GL_TEXTURE_EXTERNAL_OES:
-                if (info->sampler_id >= 0)
+                if (info->sampler_id >= 0 || info->external_sampler_id >= 0)
+                    ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
+
+                if (info->sampler_id >= 0) {
+                    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
                     ngli_glUniform1i(gl, info->sampler_id, 0);
+                }
 
                 if (info->external_sampler_id >= 0) {
                     sampling_mode = SAMPLING_MODE_EXTERNAL_OES;
-                    bind_texture(gl, texture->target, info->external_sampler_id, texture->id, texture_index);
+                    ngli_glBindTexture(gl, texture->target, texture->id);
+                    ngli_glUniform1i(gl, info->external_sampler_id, texture_index);
                 }
                 break;
 #endif
