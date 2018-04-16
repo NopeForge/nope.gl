@@ -80,7 +80,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         gl_view = GLView(get_scene_func, self._config)
         graph_view = GraphView(get_scene_func, self._config)
-        export_view = ExportView(self, get_scene_func)
+        export_view = ExportView(get_scene_func)
         serial_view = SerialView(get_scene_func)
 
         self._tabs = [

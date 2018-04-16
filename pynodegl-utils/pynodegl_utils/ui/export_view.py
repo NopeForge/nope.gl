@@ -29,10 +29,8 @@ from pynodegl_utils.export import Exporter
 
 class ExportView(QtWidgets.QWidget):
 
-    def __init__(self, parent, get_scene_func):
+    def __init__(self, get_scene_func):
         super(ExportView, self).__init__()
-
-        self.parent = parent
 
         self._ofile_text = QtWidgets.QLineEdit('/tmp/ngl-export.mp4')
         ofile_btn = QtWidgets.QPushButton('Browse')
