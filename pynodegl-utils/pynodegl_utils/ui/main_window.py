@@ -82,7 +82,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         gl_view = GLView(get_scene_func, self._config)
         graph_view = GraphView(get_scene_func, self._config)
-        export_view = ExportView(get_scene_func)
+        export_view = ExportView(get_scene_func, self._config)
         serial_view = SerialView(get_scene_func)
 
         self._tabs = [
@@ -108,6 +108,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.samplesChanged.connect(self._config.set_samples)
         self._scene_toolbar.frameRateChanged.connect(gl_view.set_frame_rate)
         self._scene_toolbar.frameRateChanged.connect(graph_view.set_frame_rate)
+        self._scene_toolbar.frameRateChanged.connect(export_view.set_frame_rate)
         self._scene_toolbar.frameRateChanged.connect(self._config.set_frame_rate)
         self._scene_toolbar.logLevelChanged.connect(self._config.set_log_level)
         self._scene_toolbar.clearColorChanged.connect(gl_view.set_clear_color)
