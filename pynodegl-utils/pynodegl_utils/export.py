@@ -24,12 +24,28 @@ class Exporter(QtCore.QThread):
         self._cancelled = False
 
     def run(self):
+        filename, width, height = self._filename, self._width, self._height
+
+        if filename.endswith('gif'):
+            palette_filename = '/tmp/palette.png'
+            pass1_args = ['-vf', 'palettegen']
+            pass2_args = self._extra_enc_args + ['-i', palette_filename, '-lavfi', 'paletteuse']
+            ok = self._export(palette_filename, width, height, pass1_args)
+            if not ok:
+                return
+            ok = self._export(filename, width, height, pass2_args)
+        else:
+            ok = self._export(filename, width, height, self._extra_enc_args)
+        if ok:
+            self.finished.emit()
+
+    def _export(self, filename, width, height, extra_enc_args=None):
         fd_r, fd_w = os.pipe()
 
-        cfg = self._get_scene_func(pipe=(fd_w, self._width, self._height))
+        cfg = self._get_scene_func(pipe=(fd_w, width, height))
         if not cfg:
             self.failed.emit()
-            return
+            return False
 
         fps = cfg['framerate']
         duration = cfg['duration']
@@ -38,12 +54,12 @@ class Exporter(QtCore.QThread):
         cmd = ['ffmpeg', '-r', '%d/%d' % fps,
                '-nostats', '-nostdin',
                '-f', 'rawvideo',
-               '-video_size', '%dx%d' % (self._width, self._height),
+               '-video_size', '%dx%d' % (width, height),
                '-pixel_format', 'rgba',
                '-i', 'pipe:%d' % fd_r]
-        if self._extra_enc_args:
-            cmd += self._extra_enc_args
-        cmd += ['-y', self._filename]
+        if extra_enc_args:
+            cmd += extra_enc_args
+        cmd += ['-y', filename]
 
         def close_unused_child_fd():
             os.close(fd_w)
@@ -70,7 +86,7 @@ class Exporter(QtCore.QThread):
         fbo_format = QtGui.QOpenGLFramebufferObjectFormat()
         fbo_format.setSamples(samples)
         fbo_format.setAttachment(QtGui.QOpenGLFramebufferObject.CombinedDepthStencil)
-        fbo = QtGui.QOpenGLFramebufferObject(self._width, self._height, fbo_format)
+        fbo = QtGui.QOpenGLFramebufferObject(width, height, fbo_format)
         assert fbo.isValid() is True
         fbo.bind()
 
@@ -78,7 +94,7 @@ class Exporter(QtCore.QThread):
         ngl_viewer = ngl.Viewer()
         ngl_viewer.configure(platform=ngl.GLPLATFORM_AUTO, api=ngl.GLAPI_AUTO)
         ngl_viewer.set_scene_from_string(cfg['scene'])
-        ngl_viewer.set_viewport(0, 0, self._width, self._height)
+        ngl_viewer.set_viewport(0, 0, width, height)
         ngl_viewer.set_clearcolor(*cfg['clear_color'])
 
         # Draw every frame
@@ -91,13 +107,13 @@ class Exporter(QtCore.QThread):
             self.progressed.emit(i*100 / nb_frame)
             glctx.swapBuffers(surface)
         self.progressed.emit(100)
-        self.finished.emit()
 
         os.close(fd_w)
         fbo.release()
         glctx.doneCurrent()
 
         reader.wait()
+        return True
 
     def cancel(self):
         self._cancelled = True
