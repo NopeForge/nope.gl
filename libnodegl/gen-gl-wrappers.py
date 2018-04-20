@@ -56,6 +56,9 @@ cmds_optional = [
 
     # Polygon
     'glPolygonMode',
+
+    # Internal format
+    'glGetInternalformativ',
 ]
 
 cmds = [
@@ -129,6 +132,7 @@ cmds = [
     'glGenRenderbuffers',
     'glGetRenderbufferParameteriv',
     'glRenderbufferStorage',
+    'glRenderbufferStorageMultisample',
 
     # Shader
     'glCreateProgram',

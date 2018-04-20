@@ -68,6 +68,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY GLenum (*GetError)();
     NGLI_GL_APIENTRY void (*GetIntegeri_v)(GLenum target, GLuint index, GLint * data);
     NGLI_GL_APIENTRY void (*GetIntegerv)(GLenum pname, GLint * data);
+    NGLI_GL_APIENTRY void (*GetInternalformativ)(GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint * params);
     NGLI_GL_APIENTRY void (*GetProgramInfoLog)(GLuint program, GLsizei bufSize, GLsizei * length, GLchar * infoLog);
     NGLI_GL_APIENTRY GLuint (*GetProgramResourceIndex)(GLuint program, GLenum programInterface, const GLchar * name);
     NGLI_GL_APIENTRY GLint (*GetProgramResourceLocation)(GLuint program, GLenum programInterface, const GLchar * name);
@@ -86,6 +87,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*ReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void * pixels);
     NGLI_GL_APIENTRY void (*ReleaseShaderCompiler)();
     NGLI_GL_APIENTRY void (*RenderbufferStorage)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
+    NGLI_GL_APIENTRY void (*RenderbufferStorageMultisample)(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
     NGLI_GL_APIENTRY void (*ShaderBinary)(GLsizei count, const GLuint * shaders, GLenum binaryformat, const void * binary, GLsizei length);
     NGLI_GL_APIENTRY void (*ShaderSource)(GLuint shader, GLsizei count, const GLchar *const* string, const GLint * length);
     NGLI_GL_APIENTRY void (*StencilFunc)(GLenum func, GLint ref, GLuint mask);

@@ -40,6 +40,8 @@ static const struct node_param rtt_params[] = {
                       .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                       .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1},
                       .desc=NGLI_DOCSTRING("destination depth texture")},
+    {"samples",       PARAM_TYPE_INT, OFFSET(samples),
+                      .desc=NGLI_DOCSTRING("number of samples used for multisampling anti-aliasing")},
     {NULL}
 };
 
@@ -55,6 +57,12 @@ static int rtt_prefetch(struct ngl_node *node)
 
     s->width = texture->width;
     s->height = texture->height;
+
+    if (!(glcontext->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) &&
+        s->samples > 0) {
+        LOG(WARNING, "context does not support the framebuffer object feature, multisample will be disabled");
+        s->samples = 0;
+    }
 
     if (s->depth_texture) {
         depth_texture = s->depth_texture->priv_data;
@@ -74,12 +82,15 @@ static int rtt_prefetch(struct ngl_node *node)
     LOG(VERBOSE, "init rtt with texture %d", texture->id);
     ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->id, 0);
 
+    GLenum depth_format;
     if (depth_texture) {
+        depth_format = depth_texture->internal_format;
         ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture->id, 0);
     } else {
+        depth_format = GL_DEPTH_COMPONENT16;
         ngli_glGenRenderbuffers(gl, 1, &s->renderbuffer_id);
         ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->renderbuffer_id);
-        ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, s->width, s->height);
+        ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, depth_format, s->width, s->height);
         ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
         ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s->renderbuffer_id);
     }
@@ -87,6 +98,44 @@ static int rtt_prefetch(struct ngl_node *node)
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         LOG(ERROR, "framebuffer %u is not complete", s->framebuffer_id);
         return -1;
+    }
+
+    if (s->samples > 0) {
+        if (glcontext->features & NGLI_FEATURE_INTERNALFORMAT_QUERY) {
+            GLint cbuffer_samples;
+            ngli_glGetInternalformativ(gl, GL_RENDERBUFFER, texture->internal_format, GL_SAMPLES, 1, &cbuffer_samples);
+            GLint dbuffer_samples;
+            ngli_glGetInternalformativ(gl, GL_RENDERBUFFER, depth_format, GL_SAMPLES, 1, &dbuffer_samples);
+
+            GLint samples = NGLI_MIN(cbuffer_samples, dbuffer_samples);
+            if (s->samples > samples) {
+                LOG(WARNING,
+                    "requested samples (%d) exceed renderbuffer's maximum supported value (%d)",
+                    s->samples,
+                    samples);
+                s->samples = samples;
+            }
+        }
+
+        ngli_glGenFramebuffers(gl, 1, &s->framebuffer_ms_id);
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_ms_id);
+
+        ngli_glGenRenderbuffers(gl, 1, &s->colorbuffer_ms_id);
+        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->colorbuffer_ms_id);
+        ngli_glRenderbufferStorageMultisample(gl, GL_RENDERBUFFER, s->samples, texture->internal_format, s->width, s->height);
+        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, s->colorbuffer_ms_id);
+
+        ngli_glGenRenderbuffers(gl, 1, &s->depthbuffer_ms_id);
+        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->depthbuffer_ms_id);
+        ngli_glRenderbufferStorageMultisample(gl, GL_RENDERBUFFER, s->samples, depth_format, s->width, s->height);
+        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s->depthbuffer_ms_id);
+
+        if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+            LOG(ERROR, "multisampled framebuffer %u is not complete", s->framebuffer_id);
+            return -1;
+        }
     }
 
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
@@ -124,7 +173,11 @@ static void rtt_draw(struct ngl_node *node)
 
     GLuint framebuffer_id = 0;
     ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
+
+    if (s->samples > 0)
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_ms_id);
+    else
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
 
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
     ngli_glViewport(gl, 0, 0, s->width, s->height);
@@ -135,6 +188,12 @@ static void rtt_draw(struct ngl_node *node)
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         LOG(ERROR, "framebuffer %u is not complete", s->framebuffer_id);
         return;
+    }
+
+    if (s->samples > 0) {
+        ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->framebuffer_ms_id);
+        ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->framebuffer_id);
+        ngli_glBlitFramebuffer(gl, 0, 0, s->width, s->height, 0, 0, s->width, s->height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
     }
 
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
@@ -159,7 +218,6 @@ static void rtt_draw(struct ngl_node *node)
         depth_texture->coordinates_matrix[5] = -1.0f;
         depth_texture->coordinates_matrix[13] = 1.0f;
     }
-
 }
 
 static void rtt_release(struct ngl_node *node)
@@ -178,6 +236,17 @@ static void rtt_release(struct ngl_node *node)
 
     ngli_glDeleteRenderbuffers(gl, 1, &s->renderbuffer_id);
     ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
+
+    if (s->samples > 0) {
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_ms_id);
+        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, 0);
+        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
+
+        ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_ms_id);
+        ngli_glDeleteRenderbuffers(gl, 1, &s->colorbuffer_ms_id);
+        ngli_glDeleteRenderbuffers(gl, 1, &s->depthbuffer_ms_id);
+    }
+
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
 }
 

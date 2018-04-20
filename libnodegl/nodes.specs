@@ -271,6 +271,7 @@
         - [color_texture, Node]
     optional:
         - [depth_texture, Node]
+        - [samples, int]
 
 - Rotate:
     constructors:

@@ -383,6 +383,7 @@ Parameter | Ctor. | Type | Description | Default
 `child` | ✓ | [`Node`](#parameter-types) | scene to be rasterized to `color_texture` and optionally to `depth_texture` | 
 `color_texture` | ✓ | [`Node`](#parameter-types) ([Texture2D](#texture2d)) | destination color texture | 
 `depth_texture` |  | [`Node`](#parameter-types) ([Texture2D](#texture2d)) | destination depth texture | 
+`samples` |  | [`int`](#parameter-types) | number of samples used for multisampling anti-aliasing | `0`
 
 
 **Source**: [node_rtt.c](/libnodegl/node_rtt.c)

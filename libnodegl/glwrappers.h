@@ -373,6 +373,12 @@ static inline void ngli_glGetIntegerv(const struct glfunctions *gl, GLenum pname
     check_error_code(gl, "glGetIntegerv");
 }
 
+static inline void ngli_glGetInternalformativ(const struct glfunctions *gl, GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint * params)
+{
+    gl->GetInternalformativ(target, internalformat, pname, bufSize, params);
+    check_error_code(gl, "glGetInternalformativ");
+}
+
 static inline void ngli_glGetProgramInfoLog(const struct glfunctions *gl, GLuint program, GLsizei bufSize, GLsizei * length, GLchar * infoLog)
 {
     gl->GetProgramInfoLog(program, bufSize, length, infoLog);
@@ -484,6 +490,12 @@ static inline void ngli_glRenderbufferStorage(const struct glfunctions *gl, GLen
 {
     gl->RenderbufferStorage(target, internalformat, width, height);
     check_error_code(gl, "glRenderbufferStorage");
+}
+
+static inline void ngli_glRenderbufferStorageMultisample(const struct glfunctions *gl, GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
+{
+    gl->RenderbufferStorageMultisample(target, samples, internalformat, width, height);
+    check_error_code(gl, "glRenderbufferStorageMultisample");
 }
 
 static inline void ngli_glShaderBinary(const struct glfunctions *gl, GLsizei count, const GLuint * shaders, GLenum binaryformat, const void * binary, GLsizei length)

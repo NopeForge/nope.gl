@@ -199,10 +199,15 @@ struct rtt {
     struct ngl_node *child;
     struct ngl_node *color_texture;
     struct ngl_node *depth_texture;
+    int samples;
     int width;
     int height;
     GLuint framebuffer_id;
     GLuint renderbuffer_id;
+
+    GLuint framebuffer_ms_id;
+    GLuint colorbuffer_ms_id;
+    GLuint depthbuffer_ms_id;
 };
 
 struct program {

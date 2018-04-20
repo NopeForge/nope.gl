@@ -113,5 +113,25 @@ static const struct glfeature {
         .funcs_offsets  = (const size_t[]){OFFSET(TexStorage2D),
                                            OFFSET(TexStorage3D),
                                            -1}
-    },
+    }, {
+        .name           = "framebuffer_object",
+        .flag           = NGLI_FEATURE_FRAMEBUFFER_OBJECT,
+        .maj_version    = 3,
+        .min_version    = 0,
+        .maj_es_version = 3,
+        .min_es_version = 0,
+        .extensions     = (const char*[]){"ARB_framebuffer_object", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(RenderbufferStorageMultisample),
+                                           -1}
+    }, {
+        .name           = "internalformat_query",
+        .flag           = NGLI_FEATURE_INTERNALFORMAT_QUERY,
+        .maj_version    = 4,
+        .min_version    = 2,
+        .maj_es_version = 3,
+        .min_es_version = 0,
+        .extensions     = (const char*[]){"ARB_internalformat_query", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(GetInternalformativ),
+                                           -1}
+    }
 };
