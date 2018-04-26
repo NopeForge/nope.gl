@@ -106,8 +106,8 @@ def buffer_dove(cfg,
                            blend=True,
                            blend_src_factor='src_alpha',
                            blend_dst_factor='one_minus_src_alpha',
-                           blend_src_factor_a='one',
-                           blend_dst_factor_a='zero')
+                           blend_src_factor_a='zero',
+                           blend_dst_factor_a='one')
 
     prog_bg = Program(fragment=get_frag('color'))
     shape_bg = Circle(radius=.6, npoints=256)
