@@ -138,6 +138,10 @@
 # define GL_TEXTURE_WRAP_R                     0x8072
 # define GL_MIN                                0x8007
 # define GL_MAX                                0x8008
+# define GL_DRAW_FRAMEBUFFER_BINDING           0x8CA6
+# define GL_READ_FRAMEBUFFER                   0x8CA8
+# define GL_DRAW_FRAMEBUFFER                   0x8CA9
+# define GL_READ_FRAMEBUFFER_BINDING           0x8CAA
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES
