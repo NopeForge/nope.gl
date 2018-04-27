@@ -66,7 +66,7 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
     video = Media(cfg.medias[0].filename)
     video_tex = Texture2D(data_src=video)
 
-    shader_version = '300 es' if cfg.glbackend == 'gles' else '330'
+    shader_version = '300 es' if cfg.backend == 'gles' else '330'
     shader_header = '#version %s\n' % shader_version
     prog = Program(fragment=shader_header + get_frag('lut3d'),
                    vertex=shader_header + get_vert('lut3d'))
@@ -243,7 +243,7 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
 def particules(cfg, particules=32):
     random.seed(0)
 
-    compute_data_version = "310 es" if cfg.glbackend == "gles" else "430"
+    compute_data_version = "310 es" if cfg.backend == "gles" else "430"
     compute_data = '#version %s\n' % compute_data_version
     compute_data += get_comp('particules')
 
@@ -483,9 +483,9 @@ def histogram(cfg):
     rtt = RenderToTexture(r, proxy)
     g.add_children(rtt)
 
-    shader_version = '310 es' if cfg.glbackend == 'gles' else '430'
+    shader_version = '310 es' if cfg.backend == 'gles' else '430'
     shader_header = '#version %s\n' % shader_version
-    if cfg.glbackend == 'gles' and cfg.system == 'Android':
+    if cfg.backend == 'gles' and cfg.system == 'Android':
         shader_header += '#extension GL_ANDROID_extension_pack_es31a: require\n'
 
     compute_program = ComputeProgram(shader_header + get_comp('histogram-clear'))

@@ -42,13 +42,13 @@ from pynodegl_utils.ui.toolbar import Toolbar
 
 class MainWindow(QtWidgets.QSplitter):
 
-    def __init__(self, module_pkgname, assets_dir, glbackend, hooksdir):
+    def __init__(self, module_pkgname, assets_dir, backend, hooksdir):
         super(MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self._win_title_base = 'Node.gl viewer'
         self.setWindowTitle(self._win_title_base)
 
         self._module_pkgname = module_pkgname
-        self._glbackend = glbackend
+        self._backend = backend
         self._scripts_mgr = ScriptsManager(module_pkgname)
         self._hooksdir = hooksdir
 
@@ -156,7 +156,7 @@ class MainWindow(QtWidgets.QSplitter):
         cfg = self._scene_toolbar.get_cfg()
         if cfg['scene'] is None:
             return None
-        cfg['glbackend'] = self._glbackend
+        cfg['backend'] = self._backend
         cfg['pkg'] = self._module_pkgname
         cfg['medias'] = self._medias
         cfg.update(cfg_overrides)
@@ -231,12 +231,12 @@ class MainWindow(QtWidgets.QSplitter):
             if not hook_scene_change:
                 return
 
-            # The OpenGL backend can be different when using hooks: the scene might
+            # The graphic backend can be different when using hooks: the scene might
             # be rendered on a remote device different from the one constructing
             # the scene graph
-            glbackend = self._get_hook_output('get_gl_backend')
+            backend = self._get_hook_output('get_gl_backend')
             system = self._get_hook_output('get_system')
-            cfg = self._get_scene(glbackend=glbackend, system=system)
+            cfg = self._get_scene(backend=backend, system=system)
             if not cfg:
                 return
 
