@@ -288,7 +288,9 @@ struct uniformprograminfo {
 struct textureprograminfo {
     int sampling_mode_id;
     int sampler_id;
+#if defined(TARGET_ANDROID)
     int external_sampler_id;
+#endif
     int coord_matrix_id;
     int dimensions_id;
     int ts_id;

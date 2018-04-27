@@ -586,13 +586,16 @@ static int render_init(struct ngl_node *node)
 
             GET_TEXTURE_UNIFORM_LOCATION(sampling_mode);
             GET_TEXTURE_UNIFORM_LOCATION(sampler);
+#if defined(TARGET_ANDROID)
             GET_TEXTURE_UNIFORM_LOCATION(external_sampler);
+#endif
             GET_TEXTURE_UNIFORM_LOCATION(coord_matrix);
             GET_TEXTURE_UNIFORM_LOCATION(dimensions);
             GET_TEXTURE_UNIFORM_LOCATION(ts);
 
 #undef GET_TEXTURE_UNIFORM_LOCATION
 
+#if TARGET_ANDROID
             if (info->sampler_id < 0 &&
                 info->external_sampler_id < 0) {
                 LOG(WARNING, "no sampler found for texture %s", entry->key);
@@ -609,6 +612,11 @@ static int render_init(struct ngl_node *node)
                 "direct rendering %s available for texture %s",
                 texture->direct_rendering ? "is" : "is not",
                 entry->key);
+#else
+            if (info->sampler_id < 0) {
+                LOG(WARNING, "no sampler found for texture %s", entry->key);
+            }
+#endif
 
             i++;
         }
