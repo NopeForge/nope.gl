@@ -225,6 +225,73 @@ static void update_sampler3D(const struct glfunctions *gl,
     }
 }
 
+static int update_samplers(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *glcontext = ctx->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+
+    struct render *s = node->priv_data;
+
+    if (s->textures) {
+        int i = 0;
+        int texture_index = 0;
+        const struct hmap_entry *entry = NULL;
+
+        if (s->disable_1st_texture_unit) {
+            ngli_glActiveTexture(gl, GL_TEXTURE0);
+            ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+#ifdef TARGET_ANDROID
+            ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
+#endif
+            texture_index = 1;
+        }
+
+        while ((entry = ngli_hmap_next(s->textures, entry))) {
+            struct ngl_node *tnode = entry->data;
+            struct texture *texture = tnode->priv_data;
+            struct textureprograminfo *info = &s->textureprograminfos[i];
+
+            int sampling_mode = SAMPLING_MODE_NONE;
+            switch (texture->target) {
+            case GL_TEXTURE_2D:
+                update_sampler2D(gl, s, texture, info, &texture_index, &sampling_mode);
+                break;
+            case GL_TEXTURE_3D:
+                update_sampler3D(gl, s, texture, info, &texture_index, &sampling_mode);
+                break;
+#ifdef TARGET_ANDROID
+            case GL_TEXTURE_EXTERNAL_OES:
+                update_external_sampler(gl, s, texture, info, &texture_index, &sampling_mode);
+                break;
+#endif
+            }
+
+            if (info->sampling_mode_id >= 0)
+                ngli_glUniform1i(gl, info->sampling_mode_id, sampling_mode);
+
+            if (info->coord_matrix_id >= 0)
+                ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
+
+            if (info->dimensions_id >= 0) {
+                const float dimensions[3] = {texture->width, texture->height, texture->depth};
+                if (texture->target == GL_TEXTURE_3D)
+                    ngli_glUniform3fv(gl, info->dimensions_id, 1, dimensions);
+                else
+                    ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
+            }
+
+            if (info->ts_id >= 0)
+                ngli_glUniform1f(gl, info->ts_id, texture->data_src_ts);
+
+            i++;
+            texture_index++;
+        }
+    }
+
+    return 0;
+}
+
 static int update_uniforms(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -307,62 +374,6 @@ static int update_uniforms(struct ngl_node *node)
         default:
             LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
             break;
-        }
-    }
-
-    if (s->textures) {
-        int i = 0;
-        int texture_index = 0;
-        const struct hmap_entry *entry = NULL;
-
-        if (s->disable_1st_texture_unit) {
-            ngli_glActiveTexture(gl, GL_TEXTURE0);
-            ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-#ifdef TARGET_ANDROID
-            ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
-#endif
-            texture_index = 1;
-        }
-
-        while ((entry = ngli_hmap_next(s->textures, entry))) {
-            struct ngl_node *tnode = entry->data;
-            struct texture *texture = tnode->priv_data;
-            struct textureprograminfo *info = &s->textureprograminfos[i];
-
-            int sampling_mode = SAMPLING_MODE_NONE;
-            switch (texture->target) {
-            case GL_TEXTURE_2D:
-                update_sampler2D(gl, s, texture, info, &texture_index, &sampling_mode);
-                break;
-            case GL_TEXTURE_3D:
-                update_sampler3D(gl, s, texture, info, &texture_index, &sampling_mode);
-                break;
-#ifdef TARGET_ANDROID
-            case GL_TEXTURE_EXTERNAL_OES:
-                update_external_sampler(gl, s, texture, info, &texture_index, &sampling_mode);
-                break;
-#endif
-            }
-
-            if (info->sampling_mode_id >= 0)
-                ngli_glUniform1i(gl, info->sampling_mode_id, sampling_mode);
-
-            if (info->coord_matrix_id >= 0)
-                ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
-
-            if (info->dimensions_id >= 0) {
-                const float dimensions[3] = {texture->width, texture->height, texture->depth};
-                if (texture->target == GL_TEXTURE_3D)
-                    ngli_glUniform3fv(gl, info->dimensions_id, 1, dimensions);
-                else
-                    ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
-            }
-
-            if (info->ts_id >= 0)
-                ngli_glUniform1f(gl, info->ts_id, texture->data_src_ts);
-
-            i++;
-            texture_index++;
         }
     }
 
@@ -822,6 +833,7 @@ static void render_draw(struct ngl_node *node)
     }
 
     update_uniforms(node);
+    update_samplers(node);
     update_buffers(node);
 
     const struct geometry *geometry = s->geometry->priv_data;
