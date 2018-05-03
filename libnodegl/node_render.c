@@ -667,7 +667,7 @@ static int render_init(struct ngl_node *node)
             struct texture *texture = tnode->priv_data;
             texture->direct_rendering = texture->direct_rendering &&
                                         info->external_sampler_id >= 0;
-            LOG(VERBOSE,
+            LOG(INFO,
                 "direct rendering %s available for texture %s",
                 texture->direct_rendering ? "is" : "is not",
                 entry->key);
@@ -685,7 +685,7 @@ static int render_init(struct ngl_node *node)
             texture->direct_rendering = texture->direct_rendering &&
                                         (info->y_sampler_id >= 0 ||
                                         info->uv_sampler_id >= 0);
-            LOG(VERBOSE,
+            LOG(INFO,
                 "nv12 direct rendering %s available for texture %s",
                 texture->direct_rendering ? "is" : "is not",
                 entry->key);
