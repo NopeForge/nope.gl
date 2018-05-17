@@ -99,21 +99,21 @@ LIB_OBJS_ARCH_aarch64 = asm_aarch64.o
 LIB_OBJS += $(LIB_OBJS_ARCH_$(ARCH))
 
 LIB_EXTRA_OBJS_Linux     = glcontext_x11.o
-LIB_EXTRA_OBJS_Darwin    = glcontext_cgl.o
+LIB_EXTRA_OBJS_Darwin    = glcontext_nsgl.o
 LIB_EXTRA_OBJS_Android   = glcontext_egl.o jni_utils.o android_utils.o android_looper.o android_surface.o android_handler.o android_handlerthread.o
 LIB_EXTRA_OBJS_iPhone    = glcontext_eagl.o
 LIB_EXTRA_OBJS_MinGW-w64 = glcontext_wgl.o
 
 LIB_CFLAGS                 = -fPIC
 LIB_EXTRA_CFLAGS_Linux     = -DHAVE_PLATFORM_GLX
-LIB_EXTRA_CFLAGS_Darwin    = -DHAVE_PLATFORM_CGL
+LIB_EXTRA_CFLAGS_Darwin    = -DHAVE_PLATFORM_NSGL
 LIB_EXTRA_CFLAGS_Android   = -DHAVE_PLATFORM_EGL
 LIB_EXTRA_CFLAGS_iPhone    = -DHAVE_PLATFORM_EAGL
 LIB_EXTRA_CFLAGS_MinGW-w64 = -DHAVE_PLATFORM_WGL
 
 LIB_LDLIBS                 = -lm
 LIB_EXTRA_LDLIBS_Linux     =
-LIB_EXTRA_LDLIBS_Darwin    = -framework OpenGL -framework CoreVideo -framework CoreFoundation
+LIB_EXTRA_LDLIBS_Darwin    = -framework OpenGL -framework CoreVideo -framework CoreFoundation -framework AppKit
 LIB_EXTRA_LDLIBS_Android   = -legl -lpthread
 LIB_EXTRA_LDLIBS_iPhone    = -framework CoreMedia
 LIB_EXTRA_LDLIBS_MinGW-w64 = -lopengl32

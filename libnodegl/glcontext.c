@@ -41,8 +41,8 @@ extern const struct glcontext_class ngli_glcontext_x11_class;
 extern const struct glcontext_class ngli_glcontext_egl_class;
 #endif
 
-#ifdef HAVE_PLATFORM_CGL
-extern const struct glcontext_class ngli_glcontext_cgl_class;
+#ifdef HAVE_PLATFORM_NSGL
+extern const struct glcontext_class ngli_glcontext_nsgl_class;
 #endif
 
 #ifdef HAVE_PLATFORM_EAGL
@@ -60,8 +60,8 @@ static const struct glcontext_class *glcontext_class_map[] = {
 #ifdef HAVE_PLATFORM_EGL
     [NGL_GLPLATFORM_EGL] = &ngli_glcontext_egl_class,
 #endif
-#ifdef HAVE_PLATFORM_CGL
-    [NGL_GLPLATFORM_CGL] = &ngli_glcontext_cgl_class,
+#ifdef HAVE_PLATFORM_NSGL
+    [NGL_GLPLATFORM_NSGL] = &ngli_glcontext_nsgl_class,
 #endif
 #ifdef HAVE_PLATFORM_EAGL
     [NGL_GLPLATFORM_EAGL] = &ngli_glcontext_eagl_class,
@@ -81,7 +81,7 @@ static int glcontext_choose_platform(int platform)
 #elif defined(TARGET_IPHONE)
     return NGL_GLPLATFORM_EAGL;
 #elif defined(TARGET_DARWIN)
-    return NGL_GLPLATFORM_CGL;
+    return NGL_GLPLATFORM_NSGL;
 #elif defined(TARGET_ANDROID)
     return NGL_GLPLATFORM_EGL;
 #elif defined(TARGET_MINGW_W64)
