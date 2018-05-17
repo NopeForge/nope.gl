@@ -68,7 +68,7 @@ It typically looks like this:
 ```c
     glXMakeCurrent(...);
 
-    struct ngl_config config = {0};
+    struct ngl_config config = {.wrapped = 1};
     int ret = ngl_set_configure(ctx, &config);
     if (ret < 0)
         return ret;

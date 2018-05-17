@@ -310,6 +310,9 @@ struct ngl_config {
     int  api;      /* OpenGL API level (any of NGL_GLAPI_*) which defines the
                       minimum OpenGL API to be used. NGL_GLAPI_AUTO can be used
                       to choose it automatically */
+
+    int wrapped;   /* Whether the current OpenGL context should be wrapped or a new
+                      one should be created */
 };
 
 /**

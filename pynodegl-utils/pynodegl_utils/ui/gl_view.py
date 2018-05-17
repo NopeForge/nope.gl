@@ -95,7 +95,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         if self.context().isOpenGLES():
             api = ngl.GLAPI_OPENGLES
         self._viewer = ngl.Viewer()
-        self._viewer.configure(platform=ngl.GLPLATFORM_AUTO, api=api)
+        self._viewer.configure(platform=ngl.GLPLATFORM_AUTO, api=api, wrapped=1)
         self._viewer.set_clearcolor(*self._clear_color)
         if self._scene:
             self._viewer.set_scene_from_string(self._scene)

@@ -157,7 +157,7 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     glfwSetWindowSizeCallback(p->window, size_callback);
     glfwSetCursorPosCallback(p->window, cursor_pos_callback);
 
-    struct ngl_config config = {0};
+    struct ngl_config config = {.wrapped = 1};
 
     p->ngl = ngl_create();
     if (!p->ngl)

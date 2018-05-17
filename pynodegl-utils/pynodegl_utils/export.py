@@ -92,7 +92,7 @@ class Exporter(QtCore.QThread):
 
         # node.gl context
         ngl_viewer = ngl.Viewer()
-        ngl_viewer.configure(platform=ngl.GLPLATFORM_AUTO, api=ngl.GLAPI_AUTO)
+        ngl_viewer.configure(platform=ngl.GLPLATFORM_AUTO, api=ngl.GLAPI_AUTO, wrapped=1)
         ngl_viewer.set_scene_from_string(cfg['scene'])
         ngl_viewer.set_viewport(0, 0, width, height)
         ngl_viewer.set_clearcolor(*cfg['clear_color'])
