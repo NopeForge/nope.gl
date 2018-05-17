@@ -120,10 +120,9 @@ static int glcontext_x11_create(struct glcontext *glcontext, void *other)
                                                         attribs);
     } else if (glcontext->api == NGL_GLAPI_OPENGL) {
         int attribs[] = {
-            GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
-            GLX_CONTEXT_MINOR_VERSION_ARB, 0,
-            GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_FORWARD_COMPATIBLE_BIT_ARB,
-            GLX_CONTEXT_FLAGS_ARB, 0,
+            GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
+            GLX_CONTEXT_MINOR_VERSION_ARB, 1,
+            GLX_CONTEXT_PROFILE_MASK_ARB, GLX_CONTEXT_CORE_PROFILE_BIT_ARB,
             None
         };
 
