@@ -154,6 +154,12 @@ static int glcontext_x11_make_current(struct glcontext *glcontext, int current)
     return ret - 1;
 }
 
+static void glcontext_x11_swap_buffers(struct glcontext *glcontext)
+{
+    struct glcontext_x11 *glcontext_x11 = glcontext->priv_data;
+    glXSwapBuffers(glcontext_x11->display, glcontext_x11->window);
+}
+
 static void *glcontext_x11_get_display(struct glcontext *glcontext)
 {
     struct glcontext_x11 *glcontext_x11 = glcontext->priv_data;
@@ -182,6 +188,7 @@ const struct glcontext_class ngli_glcontext_x11_class = {
     .uninit = glcontext_x11_uninit,
     .create = glcontext_x11_create,
     .make_current = glcontext_x11_make_current,
+    .swap_buffers = glcontext_x11_swap_buffers,
     .get_display = glcontext_x11_get_display,
     .get_window = glcontext_x11_get_window,
     .get_handle = glcontext_x11_get_handle,
