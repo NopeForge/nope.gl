@@ -160,10 +160,16 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     struct ngl_config config = {0};
 
     p->ngl = ngl_create();
-    ngl_configure(p->ngl, &config);
+    if (!p->ngl)
+        return -1;
+
+    int ret = ngl_configure(p->ngl, &config);
+    if (ret < 0)
+        return ret;
+
     ngl_set_viewport(p->ngl, 0, 0, p->width, p->height);
 
-    int ret = ngl_set_scene(p->ngl, scene);
+    ret = ngl_set_scene(p->ngl, scene);
     if (ret < 0)
         return ret;
 
