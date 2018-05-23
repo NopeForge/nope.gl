@@ -51,8 +51,8 @@ static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *
         None
     };
 
-    glcontext_x11->display = display ? *(Display **)display  : glXGetCurrentDisplay();
-    glcontext_x11->window  = window  ? *(Window *)window     : glXGetCurrentDrawable();
+    glcontext_x11->display = display ? *(Display **)display : glXGetCurrentDisplay();
+    glcontext_x11->window  = window  ? *(Window *)window    : glXGetCurrentDrawable();
     if (!glcontext_x11->display || !glcontext_x11->window)
         return -1;
 
