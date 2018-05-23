@@ -162,6 +162,8 @@ int ngli_prepare_draw(struct ngl_ctx *s, double t)
 
 int ngl_draw(struct ngl_ctx *s, double t)
 {
+    struct glcontext *glcontext = s->glcontext;
+
     int ret = ngli_prepare_draw(s, t);
     if (ret < 0)
         goto end;
@@ -170,8 +172,12 @@ int ngl_draw(struct ngl_ctx *s, double t)
     ngli_node_draw(s->scene);
 
 end:
-    if (ret == 0 && ngli_glcontext_check_gl_error(s->glcontext))
+    if (ret == 0 && ngli_glcontext_check_gl_error(glcontext))
         ret = -1;
+
+    if (!glcontext->wrapped)
+        ngli_glcontext_swap_buffers(glcontext);
+
     return ret;
 }
 
