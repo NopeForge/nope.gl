@@ -42,12 +42,13 @@ static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *
 
     int attribs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT,
-        GLX_RED_SIZE, 1,
-        GLX_GREEN_SIZE, 1,
-        GLX_BLUE_SIZE, 1,
-        GLX_DEPTH_SIZE, 16,
+        GLX_RED_SIZE, 8,
+        GLX_GREEN_SIZE, 8,
+        GLX_BLUE_SIZE, 8,
+        GLX_DEPTH_SIZE, 24,
+        GLX_STENCIL_SIZE, 8,
         GLX_DOUBLEBUFFER, True,
-        0, 0,
+        None
     };
 
     glcontext_x11->display = display ? *(Display **)display  : glXGetCurrentDisplay();
