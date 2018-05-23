@@ -138,10 +138,7 @@ void ngl_free(struct ngl_ctx **ss)
     if (!s)
         return;
 
-    if (s->scene) {
-        ngli_node_detach_ctx(s->scene);
-        ngl_node_unrefp(&s->scene);
-    }
+    ngl_set_scene(s, NULL);
     ngli_glcontext_freep(&s->glcontext);
     ngli_glstate_freep(&s->glstate);
     free(*ss);
