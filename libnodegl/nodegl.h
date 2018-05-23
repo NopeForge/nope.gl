@@ -346,6 +346,8 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
  * If any scene was previously associated with the context, it is detached from
  * it and its reference counter decremented.
  *
+ * To only detach the currently associated scene, scene=NULL can be used.
+ *
  * @param s      pointer to the configured node.gl context
  * @param scene  pointer to the scene
  *

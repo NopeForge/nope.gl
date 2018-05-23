@@ -70,6 +70,9 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
         ngl_node_unrefp(&s->scene);
     }
 
+    if (!scene)
+        return 0;
+
     int ret = ngli_node_attach_ctx(scene, s);
     if (ret < 0)
         return ret;
