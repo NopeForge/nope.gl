@@ -209,9 +209,7 @@ static int timerangefilter_update(struct ngl_node *node, double t)
     s->drawme = 1;
 
     struct ngl_node *child = s->child;
-    memcpy(child->modelview_matrix, node->modelview_matrix, sizeof(node->modelview_matrix));
-    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
-
+    ngli_node_transfer_matrices(child, node);
     return ngli_node_update(child, t);
 }
 

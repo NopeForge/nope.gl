@@ -43,8 +43,7 @@ static int group_update(struct ngl_node *node, double t)
 
     for (int i = 0; i < s->nb_children; i++) {
         struct ngl_node *child = s->children[i];
-        memcpy(child->modelview_matrix, node->modelview_matrix, sizeof(node->modelview_matrix));
-        memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
+        ngli_node_transfer_matrices(child, node);
         int ret = ngli_node_update(child, t);
         if (ret < 0)
             return ret;
