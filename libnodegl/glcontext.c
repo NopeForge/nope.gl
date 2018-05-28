@@ -128,9 +128,9 @@ struct glcontext *ngli_glcontext_new_wrapped(void *display, void *window, void *
 
     if (api == NGL_GLAPI_AUTO) {
 #if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
-        api = NGL_GLAPI_OPENGLES2;
+        api = NGL_GLAPI_OPENGLES;
 #else
-        api = NGL_GLAPI_OPENGL3;
+        api = NGL_GLAPI_OPENGL;
 #endif
     }
 
@@ -189,7 +189,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
 {
     const struct glfunctions *gl = &glcontext->funcs;
 
-    if (glcontext->api == NGL_GLAPI_OPENGL3) {
+    if (glcontext->api == NGL_GLAPI_OPENGL) {
         ngli_glGetIntegerv(gl, GL_MAJOR_VERSION, &glcontext->major_version);
         ngli_glGetIntegerv(gl, GL_MINOR_VERSION, &glcontext->minor_version);
 
@@ -197,7 +197,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
             LOG(ERROR, "node.gl only supports OpenGL >= 3.0");
             return -1;
         }
-    } else if (glcontext->api == NGL_GLAPI_OPENGLES2) {
+    } else if (glcontext->api == NGL_GLAPI_OPENGLES) {
         glcontext->es = 1;
 
         const char *gl_version = (const char *)ngli_glGetString(gl, GL_VERSION);
@@ -224,7 +224,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
     }
 
     LOG(INFO, "OpenGL%s%d.%d",
-        glcontext->api == NGL_GLAPI_OPENGLES2 ? " ES " : " ",
+        glcontext->api == NGL_GLAPI_OPENGLES ? " ES " : " ",
         glcontext->major_version,
         glcontext->minor_version);
 

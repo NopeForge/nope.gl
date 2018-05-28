@@ -286,8 +286,8 @@ enum {
  */
 enum {
     NGL_GLAPI_AUTO,
-    NGL_GLAPI_OPENGL3,
-    NGL_GLAPI_OPENGLES2,
+    NGL_GLAPI_OPENGL,
+    NGL_GLAPI_OPENGLES,
 };
 
 /**

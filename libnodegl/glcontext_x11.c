@@ -96,7 +96,7 @@ static int glcontext_x11_create(struct glcontext *glcontext, struct glcontext *o
     if (!ngli_glcontext_check_extension("GLX_ARB_create_context", glx_extensions))
         return -1;
 
-    if (glcontext->api == NGL_GLAPI_OPENGLES2) {
+    if (glcontext->api == NGL_GLAPI_OPENGLES) {
         if (!ngli_glcontext_check_extension("GLX_EXT_create_context_es2_profile", glx_extensions))
             return -1;
 
@@ -113,7 +113,7 @@ static int glcontext_x11_create(struct glcontext *glcontext, struct glcontext *o
                                                         other_x11->handle,
                                                         1,
                                                         attribs);
-    } else if (glcontext->api == NGL_GLAPI_OPENGL3) {
+    } else if (glcontext->api == NGL_GLAPI_OPENGL) {
         int attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
             GLX_CONTEXT_MINOR_VERSION_ARB, 0,
