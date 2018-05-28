@@ -1,4 +1,5 @@
 from libc.stdlib cimport calloc
+from libc.string cimport memset
 
 cdef extern from "nodegl.h":
     cdef int NGL_LOG_VERBOSE
@@ -36,8 +37,15 @@ cdef extern from "nodegl.h":
 
     cdef struct ngl_ctx
 
+    cdef struct ngl_config:
+        void *display
+        void *window
+        void *handle
+        int  platform
+        int  api
+
     ngl_ctx *ngl_create()
-    int ngl_set_glcontext(ngl_ctx *s, void *display, void *window, void *handle, int platform, int api)
+    int ngl_configure(ngl_ctx *s, ngl_config *config)
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
     int ngl_set_viewport(ngl_ctx *s, int x, int y, int width, int height)
     int ngl_set_clearcolor(ngl_ctx *s, double r, double g, double b, double a)
@@ -81,8 +89,12 @@ cdef class Viewer:
         if self.ctx is NULL:
             raise MemoryError()
 
-    def configure(self, int platform, int api):
-        return ngl_set_glcontext(self.ctx, NULL, NULL, NULL, platform, api)
+    def configure(self, **kwargs):
+        cdef ngl_config config
+        memset(&config, 0, sizeof(config));
+        config.platform = kwargs.get('platform', GLPLATFORM_AUTO)
+        config.api = kwargs.get('api', GLAPI_AUTO)
+        return ngl_configure(self.ctx, &config)
 
     def set_scene(self, _Node scene):
         return ngl_set_scene(self.ctx, scene.ctx)

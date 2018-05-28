@@ -61,16 +61,15 @@ side. `node.gl` supports OpenGL ≥ 3.0 and OpenGLES ≥ 2.0.
 
 To associate the OpenGL context with the `node.gl` context, you have to make
 sure to actually make it current. It's generally done through a
-*glXMakeCurrent()*-like function, and then call `ngl_set_glcontext()`.
+*glXMakeCurrent()*-like function, and then call `ngl_configure()`.
 
 It typically looks like this:
 
 ```c
     glXMakeCurrent(...);
 
-    int ret = ngl_set_glcontext(ctx, NULL, NULL, NULL,
-                                NGL_GLPLATFORM_AUTO,
-                                NGL_GLAPI_AUTO);
+    struct ngl_config config = {0};
+    int ret = ngl_set_configure(ctx, &config);
     if (ret < 0)
         return ret;
 ```

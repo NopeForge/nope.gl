@@ -179,8 +179,10 @@ int main(int argc, char *argv[])
         ngl_node_param_set(scene, "pipe_height", height);
     }
 
+    struct ngl_config config = {0};
+
     ctx = ngl_create();
-    ngl_set_glcontext(ctx, NULL, NULL, NULL, NGL_GLPLATFORM_AUTO, NGL_GLAPI_AUTO);
+    ngl_configure(ctx, &config);
     ngl_set_viewport(ctx, 0, 0, width, height);
 
     ret = ngl_set_scene(ctx, scene);

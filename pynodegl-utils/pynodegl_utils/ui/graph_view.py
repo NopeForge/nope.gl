@@ -147,7 +147,7 @@ class GraphView(QtWidgets.QWidget):
 
         # node.gl context
         ngl_viewer = ngl.Viewer()
-        ngl_viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
+        ngl_viewer.configure(platform=ngl.GLPLATFORM_AUTO, api=ngl.GLAPI_AUTO)
 
         glctx.doneCurrent()
 

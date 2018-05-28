@@ -291,6 +291,28 @@ enum {
 };
 
 /**
+ * node.gl configuration
+ */
+struct ngl_config {
+    void *display; /* pointer to a native display handle or NULL to
+                      automatically get the current window */
+
+    void *window;  /* pointer to a native window handle or NULL to
+                      automatically get the current window */
+
+    void *handle;  /* pointer to a native OpenGL context handle or NULL to
+                      automatically get the currently bound OpenGL context */
+
+    int  platform; /* OpenGL platform (any of NGL_GLPLATFORM_*). It must be
+                      compatible with the system on which the code is executed.
+                      NGL_GLPLATFORM_AUTO can be used to auto-detect it */
+
+    int  api;      /* OpenGL API level (any of NGL_GLAPI_*) which defines the
+                      minimum OpenGL API to be used. NGL_GLAPI_AUTO can be used
+                      to choose it automatically */
+};
+
+/**
  * Opaque structure identifying a node.gl context
  */
 struct ngl_ctx;
@@ -307,33 +329,16 @@ struct ngl_ctx;
 struct ngl_ctx *ngl_create(void);
 
 /**
- * Associate a native OpenGL context with a node.gl context and load the
- * required OpenGL functions and extensions.
- *
- * The supplied OpenGL context must be bound before calling this function.
- *
- * The OpenGL context is currently used to load dynamically OpenGL functions
- * and extensions as well as some native helpers depending on the system.
+ * Configure the node.gl context.
  *
  * This function must be called before any ngl_draw() call.
  *
  * @param s        pointer to a node.gl context
- * @param display  pointer to a native display handle or NULL to
- *                 automatically get the current display
- * @param window   pointer to a native window handle or NULL to
- *                 automatically get the current window
- * @param handle   pointer to a native OpenGL context handle or NULL to
- *                 automatically get the currently bound OpenGL context
- * @param platform OpenGL platform (any of NGL_GLPLATFORM_*). It must be
- *                 compatible with the system on which the code is executed.
- *                 NGL_GLPLATFORM_AUTO can be used to auto-detect it
- * @param api      OpenGL API level (any of NGL_GLAPI_*) which defines the
- *                 minimum OpenGL API to be used. NGL_GLAPI_AUTO can be used
- *                 to choose it automatically
+ * @param config   pointer to a node.gl configuration structure
  *
  * @return 0 on success, < 0 on error
  */
-int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *handle, int platform, int api);
+int ngl_configure(struct ngl_ctx *s, struct ngl_config *config);
 
 /**
  * Set viewport.

@@ -157,8 +157,10 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     glfwSetWindowSizeCallback(p->window, size_callback);
     glfwSetCursorPosCallback(p->window, cursor_pos_callback);
 
+    struct ngl_config config = {0};
+
     p->ngl = ngl_create();
-    ngl_set_glcontext(p->ngl, NULL, NULL, NULL, NGL_GLPLATFORM_AUTO, NGL_GLAPI_AUTO);
+    ngl_configure(p->ngl, &config);
     ngl_set_viewport(p->ngl, 0, 0, p->width, p->height);
 
     int ret = ngl_set_scene(p->ngl, scene);

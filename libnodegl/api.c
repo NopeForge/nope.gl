@@ -21,6 +21,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #if defined(TARGET_ANDROID)
 #include <jni.h>
@@ -45,14 +46,20 @@ struct ngl_ctx *ngl_create(void)
     return s;
 }
 
-int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *handle, int platform, int api)
+int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (s->configured) {
         LOG(ERROR, "Context is already configured");
         return -1;
     }
 
-    s->glcontext = ngli_glcontext_new_wrapped(display, window, handle, platform, api);
+    memcpy(&s->config, config, sizeof(s->config));
+
+    s->glcontext = ngli_glcontext_new_wrapped(config->display,
+                                              config->window,
+                                              config->handle,
+                                              config->platform,
+                                              config->api);
     if (!s->glcontext)
         return -1;
 

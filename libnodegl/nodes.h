@@ -38,6 +38,7 @@
 #include "glcontext.h"
 #include "glstate.h"
 #include "hmap.h"
+#include "nodegl.h"
 #include "params.h"
 
 struct node_class;
@@ -54,6 +55,7 @@ struct ngl_ctx {
     struct glcontext *glcontext;
     struct glstate *glstate;
     struct ngl_node *scene;
+    struct ngl_config config;
 };
 
 struct ngl_node {
