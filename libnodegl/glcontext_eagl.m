@@ -71,7 +71,7 @@ static void glcontext_eagl_uninit(struct glcontext *glcontext)
         CFRelease(glcontext_eagl->texture_cache);
 }
 
-static int glcontext_eagl_create(struct glcontext *glcontext, struct glcontext *other)
+static int glcontext_eagl_create(struct glcontext *glcontext, void *other)
 {
     return 0;
 }

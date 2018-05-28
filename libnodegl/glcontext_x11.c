@@ -52,10 +52,14 @@ static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *
 
     glcontext_x11->display = display ? *(Display **)display  : glXGetCurrentDisplay();
     glcontext_x11->window  = window  ? *(Window *)window     : glXGetCurrentDrawable();
-    glcontext_x11->handle  = handle  ? *(GLXContext *)handle : glXGetCurrentContext();
-
-    if (!glcontext_x11->display || !glcontext_x11->window || !glcontext_x11->handle)
+    if (!glcontext_x11->display || !glcontext_x11->window)
         return -1;
+
+    if (glcontext->wrapped) {
+        glcontext_x11->handle  = handle  ? *(GLXContext *)handle : glXGetCurrentContext();
+        if (!glcontext_x11->handle)
+            return -1;
+    }
 
     glcontext_x11->fbconfigs = glXChooseFBConfig(glcontext_x11->display,
                                                  DefaultScreen(glcontext_x11->display),
@@ -78,10 +82,9 @@ static void glcontext_x11_uninit(struct glcontext *glcontext)
         glXDestroyContext(glcontext_x11->display, glcontext_x11->handle);
 }
 
-static int glcontext_x11_create(struct glcontext *glcontext, struct glcontext *other)
+static int glcontext_x11_create(struct glcontext *glcontext, void *other)
 {
     struct glcontext_x11 *glcontext_x11 = glcontext->priv_data;
-    struct glcontext_x11 *other_x11 = other->priv_data;
 
     glXCreateContextAttribsFunc glXCreateContextAttribs =
         (glXCreateContextAttribsFunc)glXGetProcAddress((const GLubyte *)"glXCreateContextAttribsARB");
@@ -95,6 +98,8 @@ static int glcontext_x11_create(struct glcontext *glcontext, struct glcontext *o
     const char *glx_extensions = glXQueryExtensionsString(display, screen);
     if (!ngli_glcontext_check_extension("GLX_ARB_create_context", glx_extensions))
         return -1;
+
+    GLXContext shared_context = other ? *(GLXContext *)other : NULL;
 
     if (glcontext->api == NGL_GLAPI_OPENGLES) {
         if (!ngli_glcontext_check_extension("GLX_EXT_create_context_es2_profile", glx_extensions))
@@ -110,7 +115,7 @@ static int glcontext_x11_create(struct glcontext *glcontext, struct glcontext *o
 
         glcontext_x11->handle = glXCreateContextAttribs(display,
                                                         fbconfigs[0],
-                                                        other_x11->handle,
+                                                        shared_context,
                                                         1,
                                                         attribs);
     } else if (glcontext->api == NGL_GLAPI_OPENGL) {
@@ -124,7 +129,7 @@ static int glcontext_x11_create(struct glcontext *glcontext, struct glcontext *o
 
         glcontext_x11->handle = glXCreateContextAttribs(display,
                                                         fbconfigs[0],
-                                                        other_x11->handle,
+                                                        shared_context,
                                                         1,
                                                         attribs);
     }

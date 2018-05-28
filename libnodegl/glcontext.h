@@ -24,6 +24,7 @@
 
 #include "glfunctions.h"
 #include "glwrappers.h"
+#include "nodegl.h"
 
 #define NGLI_FEATURE_VERTEX_ARRAY_OBJECT          (1 << 0)
 #define NGLI_FEATURE_TEXTURE_3D                   (1 << 1)
@@ -70,7 +71,7 @@ struct glcontext {
 
 struct glcontext_class {
     int (*init)(struct glcontext *glcontext, void *display, void *window, void *handle);
-    int (*create)(struct glcontext *glcontext, struct glcontext *other);
+    int (*create)(struct glcontext *glcontext, void *other);
     int (*make_current)(struct glcontext *glcontext, int current);
     void (*swap_buffers)(struct glcontext *glcontext);
     void* (*get_display)(struct glcontext *glcontext);
@@ -82,8 +83,7 @@ struct glcontext_class {
     size_t priv_size;
 };
 
-struct glcontext *ngli_glcontext_new_wrapped(void *display, void *window, void *handle, int platform, int api);
-struct glcontext *ngli_glcontext_new_shared(struct glcontext *other);
+struct glcontext *ngli_glcontext_new(struct ngl_config *config);
 int ngli_glcontext_load_extensions(struct glcontext *glcontext);
 int ngli_glcontext_make_current(struct glcontext *glcontext, int current);
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext);

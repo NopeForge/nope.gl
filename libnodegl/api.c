@@ -55,11 +55,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 
     memcpy(&s->config, config, sizeof(s->config));
 
-    s->glcontext = ngli_glcontext_new_wrapped(config->display,
-                                              config->window,
-                                              config->handle,
-                                              config->platform,
-                                              config->api);
+    s->glcontext = ngli_glcontext_new(&s->config);
     if (!s->glcontext)
         return -1;
 

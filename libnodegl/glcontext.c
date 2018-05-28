@@ -71,9 +71,50 @@ static const struct glcontext_class *glcontext_class_map[] = {
 #endif
 };
 
-static struct glcontext *glcontext_new(void *display, void *window, void *handle, int platform, int api)
+static int glcontext_choose_platform(int platform)
+{
+    if (platform != NGL_GLPLATFORM_AUTO)
+        return platform;
+
+#if defined(TARGET_LINUX)
+    return NGL_GLPLATFORM_GLX;
+#elif defined(TARGET_IPHONE)
+    return NGL_GLPLATFORM_EAGL;
+#elif defined(TARGET_DARWIN)
+    return NGL_GLPLATFORM_CGL;
+#elif defined(TARGET_ANDROID)
+    return NGL_GLPLATFORM_EGL;
+#elif defined(TARGET_MINGW_W64)
+    return NGL_GLPLATFORM_WGL;
+#else
+    LOG(ERROR, "Can not determine which GL platform to use");
+    return -1;
+#endif
+}
+
+static int glcontext_choose_api(int api)
+{
+    if (api != NGL_GLAPI_AUTO)
+        return api;
+
+#if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
+    return NGL_GLAPI_OPENGLES;
+#else
+    return NGL_GLAPI_OPENGL;
+#endif
+}
+
+struct glcontext *ngli_glcontext_new(struct ngl_config *config)
 {
     struct glcontext *glcontext = NULL;
+
+    int platform = glcontext_choose_platform(config->platform);
+    if (platform < 0)
+        return NULL;
+
+    int api = glcontext_choose_api(config->api);
+    if (api < 0)
+        return NULL;
 
     if (platform < 0 || platform >= NGLI_ARRAY_NB(glcontext_class_map))
         return NULL;
@@ -92,77 +133,27 @@ static struct glcontext *glcontext_new(void *display, void *window, void *handle
 
     glcontext->platform = platform;
     glcontext->api = api;
+    glcontext->wrapped = 1;
 
     if (glcontext->class->init) {
-        int ret = glcontext->class->init(glcontext, display, window, handle);
+        void *handle = glcontext->wrapped ? config->handle : NULL;
+        int ret = glcontext->class->init(glcontext, config->display, config->window, handle);
         if (ret < 0)
             goto fail;
+    }
+
+    if (!glcontext->wrapped) {
+        if (glcontext->class->create) {
+            int ret = glcontext->class->create(glcontext, config->handle);
+            if (ret < 0)
+                goto fail;
+        }
     }
 
     return glcontext;
 fail:
     ngli_glcontext_freep(&glcontext);
     return NULL;
-}
-
-struct glcontext *ngli_glcontext_new_wrapped(void *display, void *window, void *handle, int platform, int api)
-{
-    struct glcontext *glcontext;
-
-    if (platform == NGL_GLPLATFORM_AUTO) {
-#if defined(TARGET_LINUX)
-        platform = NGL_GLPLATFORM_GLX;
-#elif defined(TARGET_IPHONE)
-        platform = NGL_GLPLATFORM_EAGL;
-#elif defined(TARGET_DARWIN)
-        platform = NGL_GLPLATFORM_CGL;
-#elif defined(TARGET_ANDROID)
-        platform = NGL_GLPLATFORM_EGL;
-#elif defined(TARGET_MINGW_W64)
-        platform = NGL_GLPLATFORM_WGL;
-#else
-        LOG(ERROR, "Can not determine which GL platform to use");
-        return NULL;
-#endif
-    }
-
-    if (api == NGL_GLAPI_AUTO) {
-#if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
-        api = NGL_GLAPI_OPENGLES;
-#else
-        api = NGL_GLAPI_OPENGL;
-#endif
-    }
-
-    glcontext = glcontext_new(display, window, handle, platform, api);
-    if (!glcontext)
-        return NULL;
-
-    glcontext->wrapped = 1;
-
-    return glcontext;
-}
-
-struct glcontext *ngli_glcontext_new_shared(struct glcontext *other)
-{
-    struct glcontext *glcontext;
-
-    if (!other)
-        return NULL;
-
-    void *display = other->class->get_display(other);
-    void *window  = other->class->get_window(other);
-    void *handle  = other->class->get_handle(other);
-
-    glcontext = glcontext_new(display, window, handle, other->platform, other->api);
-
-    if (glcontext->class->create) {
-        int ret = glcontext->class->create(glcontext, other);
-        if (ret < 0)
-            ngli_glcontext_freep(&glcontext);
-    }
-
-    return glcontext;
 }
 
 static int glcontext_load_functions(struct glcontext *glcontext)

@@ -57,12 +57,11 @@ static void glcontext_egl_uninit(struct glcontext *glcontext)
     }
 }
 
-static int glcontext_egl_create(struct glcontext *glcontext, struct glcontext *other)
+static int glcontext_egl_create(struct glcontext *glcontext, void *other)
 {
     int ret;
     EGLint error;
     struct glcontext_egl *glcontext_egl = glcontext->priv_data;
-    struct glcontext_egl *other_egl = other->priv_data;
 
     const EGLint config_attribs[] = {
         EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
@@ -82,8 +81,8 @@ static int glcontext_egl_create(struct glcontext *glcontext, struct glcontext *o
     EGLint width;
     EGLint height;
 
-    if (!eglQuerySurface(other_egl->display, other_egl->surface, EGL_WIDTH, &width) ||
-        !eglQuerySurface(other_egl->display, other_egl->surface, EGL_HEIGHT, &height)) {
+    if (!eglQuerySurface(glcontext_egl->display, glcontext_egl->surface, EGL_WIDTH, &width) ||
+        !eglQuerySurface(glcontext_egl->display, glcontext_egl->surface, EGL_HEIGHT, &height)) {
         return -1;
     }
 
@@ -108,7 +107,9 @@ static int glcontext_egl_create(struct glcontext *glcontext, struct glcontext *o
         return -1;
     }
 
-    glcontext_egl->handle = eglCreateContext(glcontext_egl->display, config, other_egl->handle, ctx_attribs);
+    EGLContext shared_context = other ? *(EGLContext *)other : NULL;
+
+    glcontext_egl->handle = eglCreateContext(glcontext_egl->display, config, shared_context, ctx_attribs);
     if ((error = eglGetError()) != EGL_SUCCESS){
         return -1;
     }
