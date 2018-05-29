@@ -182,7 +182,17 @@ int main(int argc, char *argv[])
     struct ngl_config config = {0};
 
     ctx = ngl_create();
-    ngl_configure(ctx, &config);
+    if (!ctx) {
+        ngl_node_unrefp(&scene);
+        goto end;
+    }
+
+    ret = ngl_configure(ctx, &config);
+    if (ret < 0) {
+        ngl_node_unrefp(&scene);
+        goto end;
+    }
+
     ngl_set_viewport(ctx, 0, 0, width, height);
 
     ret = ngl_set_scene(ctx, scene);
