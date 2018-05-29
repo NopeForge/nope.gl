@@ -69,6 +69,19 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
     return 0;
 }
 
+int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height)
+{
+    if (!s->configured) {
+        LOG(ERROR, "Context must be configured before setting viewport");
+        return -1;
+    }
+
+    const struct glcontext *glcontext = s->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+    ngli_glViewport(gl, x, y, width, height);
+    return 0;
+}
+
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
     if (!s->configured) {

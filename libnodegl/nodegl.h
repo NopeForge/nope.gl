@@ -336,6 +336,20 @@ struct ngl_ctx *ngl_create(void);
 int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *handle, int platform, int api);
 
 /**
+ * Set viewport.
+ *
+ * @param s        pointer to the configured node.gl context
+ * @param x, y     the lower left corner of the viewport rectangle, in pixels
+ * @param width    width in pixels
+ * @param height   height in pixels
+ *
+ * @note node.gl context must to be configured before calling this function.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height);
+
+/**
  * Associate a scene with a node.gl context.
  *
  * The reference counter of the root node will be incremented and all its node
