@@ -129,7 +129,11 @@ class GLView(QtWidgets.QWidget):
         screenshot_btn.clicked.connect(self._screenshot)
 
         self._seekbar.timeChanged.connect(self._time_changed)
-        self._seekbar.stopped.connect(self._gl_widget.reset_viewer)
+        self._seekbar.stopped.connect(self._stopped)
+
+    @QtCore.pyqtSlot()
+    def _stopped(self):
+        self._gl_widget.reset_viewer()
 
     @QtCore.pyqtSlot()
     def _screenshot(self):
