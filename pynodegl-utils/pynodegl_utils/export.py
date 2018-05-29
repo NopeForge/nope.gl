@@ -69,8 +69,8 @@ class Exporter(QtCore.QObject):
 
         # node.gl context
         ngl_viewer = ngl.Viewer()
-        ngl_viewer.set_scene_from_string(cfg['scene'])
         ngl_viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
+        ngl_viewer.set_scene_from_string(cfg['scene'])
         GL.glViewport(0, 0, w, h)
         GL.glClearColor(*cfg['clear_color'])
 
