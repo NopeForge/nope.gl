@@ -36,7 +36,8 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         super(_GLWidget, self).__init__(parent)
 
         self.setMinimumSize(640, 360)
-        self._viewer = ngl.Viewer()
+        self._viewer = None
+        self._scene = None
         self._time = 0
         self._aspect_ratio = aspect_ratio
         self._samples = samples
@@ -62,6 +63,9 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.update()
 
     def set_scene(self, scene):
+        if not self._viewer:
+            self._scene = scene
+            return
         self.makeCurrent()
         self._viewer.set_scene_from_string(scene)
         self.doneCurrent()
@@ -89,8 +93,11 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         api = ngl.GLAPI_OPENGL3
         if self.context().isOpenGLES():
             api = ngl.GLAPI_OPENGLES2
-        GL.glClearColor(*self._clear_color)
+        self._viewer = ngl.Viewer()
         self._viewer.configure(ngl.GLPLATFORM_AUTO, api)
+        GL.glClearColor(*self._clear_color)
+        if self._scene:
+            self._viewer.set_scene_from_string(self._scene)
 
 
 class GLView(QtWidgets.QWidget):
