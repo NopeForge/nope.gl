@@ -56,14 +56,16 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
     def reset_viewer(self):
         self.makeCurrent()
         del self._viewer
-        self._viewer = ngl.Viewer()
+        self._viewer = None
+        del self._scene
+        self._scene = None
         self.initializeGL()
         self.doneCurrent()
         self.update()
 
     def set_scene(self, scene):
+        self._scene = scene
         if not self._viewer:
-            self._scene = scene
             return
         self.makeCurrent()
         self._viewer.set_scene_from_string(scene)
