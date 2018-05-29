@@ -27,12 +27,17 @@
 #include <Cocoa/Cocoa.h>
 
 #include "glcontext.h"
+#include "log.h"
 #include "nodegl.h"
 
 struct glcontext_nsgl {
     NSOpenGLContext *handle;
     NSView *view;
     CFBundleRef framework;
+
+    GLuint framebuffer;
+    GLuint colorbuffer;
+    GLuint depthbuffer;
 };
 
 static int glcontext_nsgl_init(struct glcontext *glcontext, void *display, void *window, void *handle)
@@ -82,7 +87,32 @@ static int glcontext_nsgl_create(struct glcontext *glcontext, void *other)
     if (!glcontext_nsgl->handle)
         return -1;
 
-    [glcontext_nsgl->handle setView:glcontext_nsgl->view];
+    if (glcontext->offscreen) {
+        ngli_glcontext_make_current(glcontext, 1);
+
+        glGenFramebuffers(1, &glcontext_nsgl->framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_nsgl->framebuffer);
+
+        glGenRenderbuffers(1, &glcontext_nsgl->colorbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, glcontext->width, glcontext->height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
+
+        glGenRenderbuffers(1, &glcontext_nsgl->depthbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, glcontext->width, glcontext->height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
+
+        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
+        if(status != GL_FRAMEBUFFER_COMPLETE) {
+            LOG(ERROR, "Framebuffer is not complete: %x", status);
+            return -1;
+        }
+
+        glViewport(0, 0, glcontext->width, glcontext->height);
+    } else {
+        [glcontext_nsgl->handle setView:glcontext_nsgl->view];
+    }
 
     return 0;
 }
@@ -93,6 +123,9 @@ static int glcontext_nsgl_make_current(struct glcontext *glcontext, int current)
 
     if (current) {
         [glcontext_nsgl->handle makeCurrentContext];
+        if (glcontext->offscreen) {
+            glBindFramebuffer(GL_FRAMEBUFFER, glcontext_nsgl->framebuffer);
+        }
     } else {
         [NSOpenGLContext clearCurrentContext];
     }
@@ -130,6 +163,15 @@ static void *glcontext_nsgl_get_proc_address(struct glcontext *glcontext, const 
 static void glcontext_nsgl_uninit(struct glcontext *glcontext)
 {
     struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+
+    if (glcontext_nsgl->framebuffer > 0)
+        glDeleteFramebuffers(1, &glcontext_nsgl->framebuffer);
+
+    if (glcontext_nsgl->colorbuffer > 0)
+        glDeleteRenderbuffers(1, &glcontext_nsgl->colorbuffer);
+
+    if (glcontext_nsgl->depthbuffer > 0)
+        glDeleteRenderbuffers(1, &glcontext_nsgl->depthbuffer);
 
     if (glcontext_nsgl->framework)
         CFRelease(glcontext_nsgl->framework);
