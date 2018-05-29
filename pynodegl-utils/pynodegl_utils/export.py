@@ -120,6 +120,7 @@ def test_export():
 
     def print_progress(progress):
         sys.stdout.write('\r%d%%' % progress)
+        sys.stdout.flush()
         if progress == 100:
             sys.stdout.write('\n')
 
