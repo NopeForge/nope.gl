@@ -71,6 +71,11 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
 
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
+    if (!s->configured) {
+        LOG(ERROR, "Context must be configured before setting a scene");
+        return -1;
+    }
+
     if (s->scene) {
         ngli_node_detach_ctx(s->scene);
         ngl_node_unrefp(&s->scene);

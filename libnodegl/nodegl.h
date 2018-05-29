@@ -351,6 +351,8 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
  * @param s      pointer to the configured node.gl context
  * @param scene  pointer to the scene
  *
+ * @note node.gl context must to be configured before calling this function.
+ *
  * @return 0 on success, < 0 on error
  */
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene);
