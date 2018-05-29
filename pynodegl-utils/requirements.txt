@@ -1,3 +1,2 @@
 pynodegl
-PyOpenGL
 watchdog
