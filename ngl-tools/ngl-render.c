@@ -181,7 +181,7 @@ int main(int argc, char *argv[])
 
     ctx = ngl_create();
     ngl_set_glcontext(ctx, NULL, NULL, NULL, NGL_GLPLATFORM_AUTO, NGL_GLAPI_AUTO);
-    glViewport(0, 0, width, height);
+    ngl_set_viewport(ctx, 0, 0, width, height);
 
     ret = ngl_set_scene(ctx, scene);
     ngl_node_unrefp(&scene);
