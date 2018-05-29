@@ -47,6 +47,11 @@ struct ngl_ctx *ngl_create(void)
 
 int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *handle, int platform, int api)
 {
+    if (s->configured) {
+        LOG(ERROR, "Context is already configured");
+        return -1;
+    }
+
     s->glcontext = ngli_glcontext_new_wrapped(display, window, handle, platform, api);
     if (!s->glcontext)
         return -1;
@@ -60,6 +65,7 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
     if (!s->glstate)
         return -1;
 
+    s->configured = 1;
     return 0;
 }
 
