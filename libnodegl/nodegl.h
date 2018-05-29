@@ -350,6 +350,21 @@ int ngl_set_glcontext(struct ngl_ctx *s, void *display, void *window, void *hand
 int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height);
 
 /**
+ * Set clear color.
+ *
+ * @param s        pointer to the configured node.gl context
+ * @param r        normalized red component
+ * @param g        normalized green component
+ * @param b        normalized blue component
+ * @param a        normalized alpha component
+ *
+ * @note node.gl context must to be configured before calling this function.
+ *
+ * @return 0 on success, < 0 on error
+ */
+int ngl_set_clearcolor(struct ngl_ctx *s, double r, double g, double b, double a);
+
+/**
  * Associate a scene with a node.gl context.
  *
  * The reference counter of the root node will be incremented and all its node

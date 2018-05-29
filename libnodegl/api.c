@@ -82,6 +82,19 @@ int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height)
     return 0;
 }
 
+int ngl_set_clearcolor(struct ngl_ctx *s, double r, double g, double b, double a)
+{
+    if (!s->configured) {
+        LOG(ERROR, "Context must be configured before setting clear color");
+        return -1;
+    }
+
+    const struct glcontext *glcontext = s->glcontext;
+    const struct glfunctions *gl = &glcontext->funcs;
+    ngli_glClearColor(gl, r, g, b, a);
+    return 0;
+}
+
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
     if (!s->configured) {
