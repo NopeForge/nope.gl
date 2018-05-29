@@ -3,7 +3,6 @@ import subprocess
 
 import pynodegl as ngl
 from PyQt5 import QtGui, QtCore
-from OpenGL import GL
 
 from gl import get_gl_format
 from com import query_inplace
@@ -71,8 +70,8 @@ class Exporter(QtCore.QObject):
         ngl_viewer = ngl.Viewer()
         ngl_viewer.configure(ngl.GLPLATFORM_AUTO, ngl.GLAPI_AUTO)
         ngl_viewer.set_scene_from_string(cfg['scene'])
-        GL.glViewport(0, 0, w, h)
-        GL.glClearColor(*cfg['clear_color'])
+        ngl_viewer.set_viewport(0, 0, w, h)
+        ngl_viewer.set_clearcolor(*cfg['clear_color'])
 
         # Draw every frame
         nb_frame = int(duration * fps[0] / fps[1])

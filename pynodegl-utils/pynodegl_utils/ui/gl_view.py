@@ -23,7 +23,6 @@
 
 from fractions import Fraction
 from PyQt5 import QtCore, QtGui, QtWidgets
-from OpenGL import GL
 
 from seekbar import Seekbar
 
@@ -72,7 +71,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
         self.update()
 
     def paintGL(self):
-        GL.glViewport(self.view_x, self.view_y, self.view_width, self.view_height)
+        self._viewer.set_viewport(self.view_x, self.view_y, self.view_width, self.view_height)
         self._viewer.draw(self._time)
 
     def resizeGL(self, screen_width, screen_height):
@@ -95,7 +94,7 @@ class _GLWidget(QtWidgets.QOpenGLWidget):
             api = ngl.GLAPI_OPENGLES2
         self._viewer = ngl.Viewer()
         self._viewer.configure(ngl.GLPLATFORM_AUTO, api)
-        GL.glClearColor(*self._clear_color)
+        self._viewer.set_clearcolor(*self._clear_color)
         if self._scene:
             self._viewer.set_scene_from_string(self._scene)
 
