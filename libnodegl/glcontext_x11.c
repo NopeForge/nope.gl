@@ -25,6 +25,7 @@
 
 #include "glcontext.h"
 #include "nodegl.h"
+#include "utils.h"
 
 struct glcontext_x11 {
     Display *display;
@@ -76,8 +77,15 @@ static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *
         GLX_DEPTH_SIZE, 24,
         GLX_STENCIL_SIZE, 8,
         GLX_DOUBLEBUFFER, True,
+        GLX_SAMPLE_BUFFERS, 0,
+        GLX_SAMPLES, 0,
         None
     };
+
+    if (glcontext->samples > 0) {
+        attribs[NGLI_ARRAY_NB(attribs) - 4] = 1;
+        attribs[NGLI_ARRAY_NB(attribs) - 2] = glcontext->samples;
+    }
 
     glcontext_x11->fbconfigs = glXChooseFBConfig(glcontext_x11->display,
                                                  DefaultScreen(glcontext_x11->display),
