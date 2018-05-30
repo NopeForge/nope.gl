@@ -25,6 +25,7 @@
 #include "glcontext.h"
 #include "log.h"
 #include "nodegl.h"
+#include "utils.h"
 
 struct glcontext_egl {
     EGLDisplay display;
@@ -100,7 +101,7 @@ static int glcontext_egl_create(struct glcontext *glcontext, void *other)
     int ret;
     struct glcontext_egl *glcontext_egl = glcontext->priv_data;
 
-    const EGLint config_attribs[] = {
+    EGLint config_attribs[] = {
         EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
         EGL_RED_SIZE,   8,
         EGL_GREEN_SIZE, 8,
@@ -108,9 +109,15 @@ static int glcontext_egl_create(struct glcontext *glcontext, void *other)
         EGL_ALPHA_SIZE, 8,
         EGL_DEPTH_SIZE, 16,
         EGL_STENCIL_SIZE, 8,
-        EGL_NONE, EGL_NONE,
+        EGL_SAMPLE_BUFFERS, 0,
+        EGL_SAMPLES, 0,
         EGL_NONE
     };
+
+    if (glcontext->samples > 0) {
+        config_attribs[NGLI_ARRAY_NB(config_attribs) - 4] = 1;
+        config_attribs[NGLI_ARRAY_NB(config_attribs) - 2] = glcontext->samples;
+    }
 
     const EGLint ctx_attribs[] = {
         EGL_CONTEXT_CLIENT_VERSION, 2,
