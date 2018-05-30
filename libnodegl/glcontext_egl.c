@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <EGL/egl.h>
+#include <EGL/eglext.h>
 
 #include "glcontext.h"
 #include "log.h"
@@ -36,6 +37,7 @@ struct glcontext_egl {
     EGLContext handle;
     int own_handle;
     EGLConfig config;
+    EGLBoolean (*PresentationTimeANDROID)(EGLDisplay dpy, EGLSurface sur, khronos_stime_nanoseconds_t time);
 };
 
 static int glcontext_egl_init(struct glcontext *glcontext, void *display, void *window, void *handle)
@@ -52,6 +54,11 @@ static int glcontext_egl_init(struct glcontext *glcontext, void *display, void *
                 glcontext_egl->display,
                 glcontext_egl->surface,
                 glcontext_egl->handle);
+            return -1;
+        }
+        glcontext_egl->PresentationTimeANDROID = ngli_glcontext_get_proc_address(glcontext, "eglPresentationTimeANDROID");
+        if (!glcontext_egl->PresentationTimeANDROID) {
+            LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
             return -1;
         }
     } else {
@@ -76,6 +83,7 @@ static int glcontext_egl_init(struct glcontext *glcontext, void *display, void *
             }
         }
     }
+
 
     return 0;
 }
@@ -129,6 +137,12 @@ static int glcontext_egl_create(struct glcontext *glcontext, void *other)
     ret = eglInitialize (glcontext_egl->display, &egl_major, &egl_minor);
     if (!ret) {
         LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
+        return -1;
+    }
+
+    glcontext_egl->PresentationTimeANDROID = ngli_glcontext_get_proc_address(glcontext, "eglPresentationTimeANDROID");
+    if (!glcontext_egl->PresentationTimeANDROID) {
+        LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
         return -1;
     }
 
@@ -193,6 +207,14 @@ static void glcontext_egl_swap_buffers(struct glcontext *glcontext)
     eglSwapBuffers(glcontext_egl->display, glcontext_egl->surface);
 }
 
+static void glcontext_egl_set_surface_pts(struct glcontext *glcontext, double t)
+{
+    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
+
+    EGLnsecsANDROID pts = t * 1000000000LL;
+    glcontext_egl->PresentationTimeANDROID(glcontext_egl->display, glcontext_egl->surface, pts);
+}
+
 static void *glcontext_egl_get_display(struct glcontext *glcontext)
 {
     struct glcontext_egl *glcontext_egl = glcontext->priv_data;
@@ -222,6 +244,7 @@ const struct glcontext_class ngli_glcontext_egl_class = {
     .create = glcontext_egl_create,
     .make_current = glcontext_egl_make_current,
     .swap_buffers = glcontext_egl_swap_buffers,
+    .set_surface_pts = glcontext_egl_set_surface_pts,
     .get_display = glcontext_egl_get_display,
     .get_window = glcontext_egl_get_window,
     .get_handle = glcontext_egl_get_handle,

@@ -79,6 +79,7 @@ struct glcontext_class {
     int (*create)(struct glcontext *glcontext, void *other);
     int (*make_current)(struct glcontext *glcontext, int current);
     void (*swap_buffers)(struct glcontext *glcontext);
+    void (*set_surface_pts)(struct glcontext *glcontext, double t);
     void* (*get_display)(struct glcontext *glcontext);
     void* (*get_window)(struct glcontext *glcontext);
     void* (*get_handle)(struct glcontext *glcontext);
@@ -92,6 +93,7 @@ struct glcontext *ngli_glcontext_new(struct ngl_config *config);
 int ngli_glcontext_load_extensions(struct glcontext *glcontext);
 int ngli_glcontext_make_current(struct glcontext *glcontext, int current);
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext);
+void ngli_glcontext_set_surface_pts(struct glcontext *glcontext, double t);
 void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *name);
 void *ngli_glcontext_get_handle(struct glcontext *glcontext);
 void *ngli_glcontext_get_texture_cache(struct glcontext *glcontext);

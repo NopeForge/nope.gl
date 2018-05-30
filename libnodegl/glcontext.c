@@ -396,6 +396,12 @@ void ngli_glcontext_swap_buffers(struct glcontext *glcontext)
         glcontext->class->swap_buffers(glcontext);
 }
 
+void ngli_glcontext_set_surface_pts(struct glcontext *glcontext, double t)
+{
+    if (glcontext->class->set_surface_pts)
+        return glcontext->class->set_surface_pts(glcontext, t);
+}
+
 void ngli_glcontext_freep(struct glcontext **glcontextp)
 {
     struct glcontext *glcontext;
