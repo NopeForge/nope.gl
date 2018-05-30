@@ -319,6 +319,8 @@ struct ngl_config {
     int width;     /* Graphic context width, mandatory for offscreen rendering */
 
     int height;    /* Graphic context height, mandatory for offscreen rendering */
+
+    int samples;   /* Number of samples used for multisample anti-aliasing */
 };
 
 /**

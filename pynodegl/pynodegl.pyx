@@ -47,6 +47,7 @@ cdef extern from "nodegl.h":
         int  offscreen
         int  width
         int  height
+        int  samples
 
     ngl_ctx *ngl_create()
     int ngl_configure(ngl_ctx *s, ngl_config *config)
@@ -102,6 +103,7 @@ cdef class Viewer:
         config.offscreen = kwargs.get('offscreen', 0)
         config.width = kwargs.get('width', 0)
         config.height = kwargs.get('height', 0)
+        config.samples = kwargs.get('samples', 0)
         return ngl_configure(self.ctx, &config)
 
     def set_scene(self, _Node scene):
