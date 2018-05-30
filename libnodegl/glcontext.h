@@ -54,6 +54,7 @@ struct glcontext {
     int width;
     int height;
     int samples;
+    int set_surface_pts;
     void *priv_data;
 
     /* GL api */

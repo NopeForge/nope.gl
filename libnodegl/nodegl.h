@@ -321,6 +321,8 @@ struct ngl_config {
     int height;    /* Graphic context height, mandatory for offscreen rendering */
 
     int samples;   /* Number of samples used for multisample anti-aliasing */
+
+    int set_surface_pts; /* Whether pts should be set to the surface or not (Android only) */
 };
 
 /**

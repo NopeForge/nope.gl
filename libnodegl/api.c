@@ -175,6 +175,9 @@ end:
     if (ret == 0 && ngli_glcontext_check_gl_error(glcontext))
         ret = -1;
 
+    if (glcontext->set_surface_pts)
+        ngli_glcontext_set_surface_pts(glcontext, t);
+
     if (!glcontext->wrapped)
         ngli_glcontext_swap_buffers(glcontext);
 

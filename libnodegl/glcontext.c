@@ -138,6 +138,7 @@ struct glcontext *ngli_glcontext_new(struct ngl_config *config)
     glcontext->width = config->width;
     glcontext->height = config->height;
     glcontext->samples = config->samples;
+    glcontext->set_surface_pts = config->set_surface_pts;
 
     if (glcontext->offscreen && (glcontext->width <= 0 || glcontext->height <= 0)) {
         LOG(ERROR,
