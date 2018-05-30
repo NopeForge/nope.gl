@@ -75,8 +75,14 @@ static int glcontext_nsgl_create(struct glcontext *glcontext, void *other)
         NSOpenGLPFADepthSize, 24,
         NSOpenGLPFAStencilSize, 8,
         NSOpenGLPFASampleBuffers, 0,
+        NSOpenGLPFASamples, 0,
         0,
     };
+
+    if (!glcontext->offscreen && glcontext->samples > 0) {
+        pixelAttrs[NGLI_ARRAY_NB(pixelAttrs) - 4] = 1;
+        pixelAttrs[NGLI_ARRAY_NB(pixelAttrs) - 2] = glcontext->samples;
+    }
 
     NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttrs];
     if (!pixelFormat)
@@ -93,19 +99,31 @@ static int glcontext_nsgl_create(struct glcontext *glcontext, void *other)
         glGenFramebuffers(1, &glcontext_nsgl->framebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, glcontext_nsgl->framebuffer);
 
-        glGenRenderbuffers(1, &glcontext_nsgl->colorbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, glcontext->width, glcontext->height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
+        if (glcontext->samples > 0) {
+            glGenRenderbuffers(1, &glcontext_nsgl->colorbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_RGBA8, glcontext->width, glcontext->height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
 
-        glGenRenderbuffers(1, &glcontext_nsgl->depthbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, glcontext->width, glcontext->height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
+            glGenRenderbuffers(1, &glcontext_nsgl->depthbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_DEPTH24_STENCIL8, glcontext->width, glcontext->height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
+        } else {
+            glGenRenderbuffers(1, &glcontext_nsgl->colorbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, glcontext->width, glcontext->height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
+
+            glGenRenderbuffers(1, &glcontext_nsgl->depthbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, glcontext->width, glcontext->height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
+        }
 
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
         if(status != GL_FRAMEBUFFER_COMPLETE) {
-            LOG(ERROR, "Framebuffer is not complete: %x", status);
+            LOG(ERROR, "framebuffer is not complete: 0x%x", status);
             return -1;
         }
 
