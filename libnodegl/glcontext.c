@@ -134,9 +134,17 @@ struct glcontext *ngli_glcontext_new(struct ngl_config *config)
     glcontext->platform = platform;
     glcontext->api = api;
     glcontext->wrapped = config->wrapped;
-    glcontext->offscreen = 0;
-    glcontext->width = 0;
-    glcontext->height = 0;
+    glcontext->offscreen = config->offscreen;
+    glcontext->width = config->width;
+    glcontext->height = config->height;
+
+    if (glcontext->offscreen && (glcontext->width <= 0 || glcontext->height <= 0)) {
+        LOG(ERROR,
+            "could not initialize offscreen rendering with invalid dimensions (%dx%d)",
+            glcontext->width,
+            glcontext->height);
+        goto fail;
+    }
 
     if (glcontext->class->init) {
         void *handle = glcontext->wrapped ? config->handle : NULL;

@@ -313,6 +313,12 @@ struct ngl_config {
 
     int wrapped;   /* Whether the current OpenGL context should be wrapped or a new
                       one should be created */
+
+    int offscreen; /* Whether the rendering should happen offscreen or not */
+
+    int width;     /* Graphic context width, mandatory for offscreen rendering */
+
+    int height;    /* Graphic context height, mandatory for offscreen rendering */
 };
 
 /**

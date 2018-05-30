@@ -44,6 +44,9 @@ cdef extern from "nodegl.h":
         int  platform
         int  api
         int  wrapped
+        int  offscreen
+        int  width
+        int  height
 
     ngl_ctx *ngl_create()
     int ngl_configure(ngl_ctx *s, ngl_config *config)
@@ -96,6 +99,9 @@ cdef class Viewer:
         config.platform = kwargs.get('platform', GLPLATFORM_AUTO)
         config.api = kwargs.get('api', GLAPI_AUTO)
         config.wrapped = kwargs.get('wrapped', 0)
+        config.offscreen = kwargs.get('offscreen', 0)
+        config.width = kwargs.get('width', 0)
+        config.height = kwargs.get('height', 0)
         return ngl_configure(self.ctx, &config)
 
     def set_scene(self, _Node scene):
