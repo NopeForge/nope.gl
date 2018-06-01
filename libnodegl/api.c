@@ -130,8 +130,8 @@ int ngli_prepare_draw(struct ngl_ctx *s, double t)
     struct glcontext *glcontext = s->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
 
-    if (!glcontext->loaded) {
-        LOG(ERROR, "glcontext not loaded");
+    if (!s->configured) {
+        LOG(ERROR, "context must be configured before drawing");
         return -1;
     }
 
