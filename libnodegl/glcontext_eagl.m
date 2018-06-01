@@ -177,7 +177,6 @@ static int glcontext_eagl_safe_create(struct glcontext *glcontext, void *other)
     glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
     [glcontext_eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:glcontext_eagl->layer];
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
-
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &glcontext_eagl->width);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &glcontext_eagl->height);
 

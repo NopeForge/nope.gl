@@ -65,11 +65,13 @@ static int glcontext_egl_init(struct glcontext *glcontext, void *display, void *
             }
         }
 
-        if (window) {
-            glcontext_egl->window = *(EGLNativeWindowType *)window;
-            if (!glcontext_egl->window) {
-                LOG(ERROR, "could not retrieve EGL native window");
-                return -1;
+        if (!glcontext->offscreen) {
+            if (window) {
+                glcontext_egl->window = *(EGLNativeWindowType *)window;
+                if (!glcontext_egl->window) {
+                    LOG(ERROR, "could not retrieve EGL native window");
+                    return -1;
+                }
             }
         }
     }
@@ -142,10 +144,23 @@ static int glcontext_egl_create(struct glcontext *glcontext, void *other)
     }
 
     glcontext_egl->own_surface = 1;
-    glcontext_egl->surface = eglCreateWindowSurface(glcontext_egl->display, config, glcontext_egl->window, NULL);
-    if (!glcontext_egl->surface) {
-        LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
-        return -1;
+    if (glcontext->offscreen) {
+        const EGLint attribs[] = {
+            EGL_WIDTH, glcontext->width,
+            EGL_HEIGHT, glcontext->height,
+            EGL_NONE
+        };
+
+        glcontext_egl->surface = eglCreatePbufferSurface(glcontext_egl->display, config, attribs);
+        if (!glcontext_egl->surface) {
+            LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
+            return -1;
+        }
+    } else {
+        glcontext_egl->surface = eglCreateWindowSurface(glcontext_egl->display, config, glcontext_egl->window, NULL);
+        if (!glcontext_egl->surface) {
+            LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
+        }
     }
 
     return 0;
