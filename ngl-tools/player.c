@@ -35,7 +35,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
         switch(key) {
         case GLFW_KEY_ESCAPE:
         case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(p->window, GL_TRUE);
+            glfwSetWindowShouldClose(window, GL_TRUE);
             break;
         case GLFW_KEY_SPACE:
             p->paused ^= 1;
@@ -45,15 +45,15 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
             p->fullscreen ^= 1;
             int *wi = p->win_info_backup;
             if (p->fullscreen) {
-                glfwGetWindowPos(p->window, &wi[0], &wi[1]);
-                glfwGetWindowSize(p->window, &wi[2], &wi[3]);
+                glfwGetWindowPos(window, &wi[0], &wi[1]);
+                glfwGetWindowSize(window, &wi[2], &wi[3]);
 
                 GLFWmonitor *monitor = glfwGetPrimaryMonitor();
                 const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-                glfwSetWindowMonitor(p->window, monitor, 0, 0,
+                glfwSetWindowMonitor(window, monitor, 0, 0,
                                      mode->width, mode->height, 0);
             } else {
-                glfwSetWindowMonitor(p->window, NULL,
+                glfwSetWindowMonitor(window, NULL,
                                      wi[0], wi[1], wi[2], wi[3], 0);
             }
             break;
