@@ -291,6 +291,68 @@ static int glcontext_eagl_create(struct glcontext *glcontext, uintptr_t other)
     return 0;
 }
 
+static int glcontext_eagl_safe_resize(struct glcontext *glcontext, int width, int height)
+{
+    if (![NSThread isMainThread]) {
+        __block int ret;
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            ret = glcontext_eagl_safe_resize(glcontext, width, height);
+        });
+
+        return ret;
+    }
+
+    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+
+    ngli_glcontext_make_current(glcontext, 1);
+
+    glBindRenderbuffer (GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
+    if (!glcontext->offscreen)
+        [glcontext_eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:glcontext_eagl->layer];
+    else
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &glcontext_eagl->width);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &glcontext_eagl->height);
+
+    if (glcontext->samples > 0) {
+        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer_ms);
+        glcontext_eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_RGBA8, glcontext_eagl->width, glcontext_eagl->height);
+
+        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
+        glcontext_eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_DEPTH24_STENCIL8_OES, glcontext_eagl->width, glcontext_eagl->height);
+    } else {
+        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, glcontext_eagl->width, glcontext_eagl->height);
+    }
+
+    ngli_glcontext_make_current(glcontext, 0);
+
+    glcontext->width = glcontext_eagl->width;
+    glcontext->height = glcontext_eagl->height;
+
+    return 0;
+}
+
+static int glcontext_eagl_resize(struct glcontext *glcontext, int width, int height)
+{
+    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+
+    int ret = glcontext_eagl_safe_resize(glcontext, width, height);
+    if (ret < 0)
+        return ret;
+
+    ngli_glcontext_make_current(glcontext, 1);
+
+    if (glcontext->samples > 0)
+        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer_ms);
+    else
+        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer);
+    glViewport(0, 0, glcontext_eagl->width, glcontext_eagl->height);
+
+    return 0;
+}
+
 static int glcontext_eagl_make_current(struct glcontext *glcontext, int current)
 {
     int ret;
@@ -347,6 +409,7 @@ const struct glcontext_class ngli_glcontext_eagl_class = {
     .init = glcontext_eagl_init,
     .uninit = glcontext_eagl_uninit,
     .create = glcontext_eagl_create,
+    .resize = glcontext_eagl_resize,
     .make_current = glcontext_eagl_make_current,
     .swap_buffers = glcontext_eagl_swap_buffers,
     .get_texture_cache = glcontext_eagl_get_texture_cache,
