@@ -20,7 +20,10 @@
  */
 
 #include <CoreVideo/CoreVideo.h>
+#include <UIKit/UIKit.h>
 #include <OpenGLES/EAGL.h>
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
 
 #include "glcontext.h"
 #include "log.h"
@@ -28,15 +31,50 @@
 
 struct glcontext_eagl {
     EAGLContext *handle;
+    UIView *view;
+    CAEAGLLayer *layer;
     CFBundleRef framework;
     CVOpenGLESTextureCacheRef texture_cache;
+    int width;
+    int height;
+    GLuint framebuffer;
+    GLuint colorbuffer;
+    GLuint depthbuffer;
 };
+
+static int glcontext_eagl_setup_layer(struct glcontext *glcontext)
+{
+    if (![NSThread isMainThread]) {
+        __block int ret;
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            ret = glcontext_eagl_setup_layer(glcontext);
+        });
+
+        return ret;
+    }
+
+    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+
+    glcontext_eagl->layer = (CAEAGLLayer *)[glcontext_eagl->view layer];
+    if (!glcontext_eagl->layer)
+        return -1;
+
+    NSDictionary *properties = [NSDictionary dictionaryWithObjectsAndKeys:
+        [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
+        kEAGLColorFormatRGBA8, kEAGLDrawablePropertyColorFormat,
+        nil
+    ];
+
+    [glcontext_eagl->layer setOpaque:YES];
+    [glcontext_eagl->layer setDrawableProperties:properties];
+
+    return 0;
+}
 
 static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void *window, void *handle)
 {
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
-
-    glcontext_eagl->handle = handle ? (EAGLContext *)handle : [EAGLContext currentContext];
 
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
     if (!framework)
@@ -46,15 +84,29 @@ static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void 
     if (!glcontext_eagl->framework)
         return -1;
 
-    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
-                                                NULL,
-                                                glcontext_eagl->handle,
-                                                NULL,
-                                                &glcontext_eagl->texture_cache);
+    if (glcontext->wrapped) {
+        glcontext_eagl->handle = handle ? (EAGLContext *)handle : [EAGLContext currentContext];
+        if (!glcontext_eagl->handle)
+            return -1;
 
-    if (err != noErr) {
-        LOG(ERROR, "Could not create CoreVideo texture cache: %d", err);
-        return -1;
+        CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
+                                                    NULL,
+                                                    glcontext_eagl->handle,
+                                                    NULL,
+                                                    &glcontext_eagl->texture_cache);
+        if (err != noErr) {
+            LOG(ERROR, "Could not create CoreVideo texture cache: 0x%x", err);
+            return -1;
+        }
+    } else  {
+        if (window)
+            glcontext_eagl->view = *(UIView **)window;
+        if (!glcontext_eagl->view)
+            return -1;
+
+        int ret = glcontext_eagl_setup_layer(glcontext);
+        if (ret < 0)
+            return ret;
     }
 
     return 0;
@@ -64,15 +116,101 @@ static void glcontext_eagl_uninit(struct glcontext *glcontext)
 {
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
 
+    if (glcontext_eagl->framebuffer > 0)
+        glDeleteFramebuffers(1, &glcontext_eagl->framebuffer);
+
+    if (glcontext_eagl->colorbuffer > 0)
+        glDeleteRenderbuffers(1, &glcontext_eagl->colorbuffer);
+
+    if (glcontext_eagl->depthbuffer > 0)
+        glDeleteRenderbuffers(1, &glcontext_eagl->depthbuffer);
+
     if (glcontext_eagl->framework)
         CFRelease(glcontext_eagl->framework);
 
     if (glcontext_eagl->texture_cache)
         CFRelease(glcontext_eagl->texture_cache);
+
+    if (glcontext->wrapped) {
+        if (glcontext_eagl->handle)
+            CFRelease(glcontext_eagl->handle);
+    }
+}
+
+static int glcontext_eagl_safe_create(struct glcontext *glcontext, void *other)
+{
+    if (![NSThread isMainThread]) {
+        __block int ret;
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            ret = glcontext_eagl_safe_create(glcontext, other);
+        });
+
+        return ret;
+    }
+
+    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+
+    glcontext_eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    if (!glcontext_eagl->handle) {
+        glcontext_eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        if (!glcontext_eagl->handle)
+            return -1;
+    }
+
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
+                                                NULL,
+                                                glcontext_eagl->handle,
+                                                NULL,
+                                                &glcontext_eagl->texture_cache);
+    if (err != noErr) {
+        LOG(ERROR, "could not create CoreVideo texture cache: 0x%x", err);
+        return -1;
+    }
+
+    ngli_glcontext_make_current(glcontext, 1);
+
+    glGenFramebuffers(1, &glcontext_eagl->framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer);
+
+    glGenRenderbuffers(1, &glcontext_eagl->colorbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
+    [glcontext_eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:glcontext_eagl->layer];
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
+
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &glcontext_eagl->width);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &glcontext_eagl->height);
+
+    glGenRenderbuffers(1, &glcontext_eagl->depthbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, glcontext_eagl->width, glcontext_eagl->height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
+
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+        LOG(ERROR, "framebuffer is not complete: 0x%x", status);
+        return -1;
+    }
+
+    ngli_glcontext_make_current(glcontext, 0);
+
+    return 0;
 }
 
 static int glcontext_eagl_create(struct glcontext *glcontext, void *other)
 {
+    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+
+    int ret = glcontext_eagl_safe_create(glcontext, other);
+    if (ret < 0)
+        return ret;
+
+    ngli_glcontext_make_current(glcontext, 1);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer);
+    glViewport(0, 0, glcontext_eagl->width, glcontext_eagl->height);
+
     return 0;
 }
 
