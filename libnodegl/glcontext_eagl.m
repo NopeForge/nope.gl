@@ -228,6 +228,13 @@ static int glcontext_eagl_make_current(struct glcontext *glcontext, int current)
     return ret;
 }
 
+static void glcontext_eagl_swap_buffers(struct glcontext *glcontext)
+{
+    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
+    [glcontext_eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
+}
+
 static void *glcontext_eagl_get_display(struct glcontext *glcontext)
 {
     return NULL;
@@ -270,6 +277,7 @@ const struct glcontext_class ngli_glcontext_eagl_class = {
     .uninit = glcontext_eagl_uninit,
     .create = glcontext_eagl_create,
     .make_current = glcontext_eagl_make_current,
+    .swap_buffers = glcontext_eagl_swap_buffers,
     .get_display = glcontext_eagl_get_display,
     .get_window = glcontext_eagl_get_window,
     .get_handle = glcontext_eagl_get_handle,
