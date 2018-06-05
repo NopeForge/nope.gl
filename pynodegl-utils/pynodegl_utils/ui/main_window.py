@@ -42,6 +42,8 @@ from pynodegl_utils.ui.toolbar import Toolbar
 
 class MainWindow(QtWidgets.QSplitter):
 
+    error = QtCore.pyqtSignal(str)
+
     def __init__(self, module_pkgname, assets_dir, backend, hooksdir):
         super(MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self._win_title_base = 'Node.gl viewer'
@@ -131,6 +133,8 @@ class MainWindow(QtWidgets.QSplitter):
         self._scripts_mgr.scriptsChanged.connect(self._scene_toolbar.on_scripts_changed)
         self._scripts_mgr.start()
 
+        self.error.connect(self._scene_err)
+
         # Load the previous scene if the current and previously loaded
         # module packages match
         prev_pkgname = self._config.get('pkg')
@@ -139,7 +143,8 @@ class MainWindow(QtWidgets.QSplitter):
         if prev_pkgname == module_pkgname:
             self._scene_toolbar.load_scene_from_name(prev_module, prev_scene)
 
-    def _update_err_buf(self, err_str):
+    @QtCore.pyqtSlot(str)
+    def _scene_err(self, err_str):
         if err_str:
             self._errbuf.setPlainText(err_str)
             self._errbuf.show()
@@ -150,7 +155,7 @@ class MainWindow(QtWidgets.QSplitter):
     @QtCore.pyqtSlot(str)
     def _all_scripts_err(self, err_str):
         self._scene_toolbar.clear_scripts()
-        self._update_err_buf(err_str)
+        self._scene_err(err_str)
 
     def _get_scene(self, **cfg_overrides):
         cfg = self._scene_toolbar.get_cfg()
@@ -165,10 +170,10 @@ class MainWindow(QtWidgets.QSplitter):
         ret = query_subproc(query='scene', **cfg)
         if 'error' in ret:
             self._scripts_mgr.resume()
-            self._update_err_buf(ret['error'])
+            self.error.emit(ret['error'])
             return None
 
-        self._update_err_buf(None)
+        self.error.emit(None)
         self._scripts_mgr.set_filelist(ret['filelist'])
         self._scripts_mgr.resume()
         self._scene_toolbar.set_cfg(ret)
