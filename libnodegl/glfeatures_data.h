@@ -133,5 +133,12 @@ static const struct glfeature {
         .extensions     = (const char*[]){"ARB_internalformat_query", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(GetInternalformativ),
                                            -1}
+    }, {
+        .name           = "packed_depth_stencil",
+        .flag           = NGLI_FEATURE_PACKED_DEPTH_STENCIL,
+        .maj_version    = 3,
+        .min_version    = 0,
+        .maj_es_version = 3,
+        .min_es_version = 0,
     }
 };
