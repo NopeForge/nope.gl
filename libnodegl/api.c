@@ -53,7 +53,8 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return -1;
     }
 
-    memcpy(&s->config, config, sizeof(s->config));
+    if (config)
+        memcpy(&s->config, config, sizeof(s->config));
 
     s->glcontext = ngli_glcontext_new(&s->config);
     if (!s->glcontext)

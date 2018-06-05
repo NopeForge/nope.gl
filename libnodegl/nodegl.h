@@ -334,7 +334,7 @@ struct ngl_ctx *ngl_create(void);
  * This function must be called before any ngl_draw() call.
  *
  * @param s        pointer to a node.gl context
- * @param config   pointer to a node.gl configuration structure
+ * @param config   pointer to a node.gl configuration structure (can be NULL)
  *
  * @return 0 on success, < 0 on error
  */
