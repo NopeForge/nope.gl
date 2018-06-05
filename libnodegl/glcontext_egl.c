@@ -159,7 +159,7 @@ static int glcontext_egl_make_current(struct glcontext *glcontext, int current)
     if (current) {
         ret = eglMakeCurrent(glcontext_egl->display, glcontext_egl->surface, glcontext_egl->surface, glcontext_egl->handle);
     } else {
-        ret = eglMakeCurrent(glcontext_egl->display, EGL_NO_SURFACE, EGL_NO_SURFACE, glcontext_egl->handle);
+        ret = eglMakeCurrent(glcontext_egl->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     }
 
     return ret - 1;
