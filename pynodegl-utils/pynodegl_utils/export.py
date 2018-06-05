@@ -8,20 +8,27 @@ from gl import get_gl_format
 from com import query_inplace
 
 
-class Exporter(QtCore.QObject):
+class Exporter(QtCore.QThread):
 
     progressed = QtCore.pyqtSignal(int)
+    failed = QtCore.pyqtSignal()
 
-    def __init__(self, get_scene_func):
+    def __init__(self, get_scene_func, filename, w, h, extra_enc_args=None):
         super(Exporter, self).__init__()
         self._get_scene_func = get_scene_func
+        self._filename = filename
+        self._width = w
+        self._height = h
+        self._extra_enc_args = extra_enc_args
+        self._cancelled = False
 
-    def export(self, filename, w, h, extra_enc_args=None):
+    def run(self):
         fd_r, fd_w = os.pipe()
 
-        cfg = self._get_scene_func(pipe=(fd_w, w, h))
+        cfg = self._get_scene_func(pipe=(fd_w, self._width, self._height))
         if not cfg:
-            return None
+            self.failed.emit()
+            return
 
         fps = cfg['framerate']
         duration = cfg['duration']
@@ -30,12 +37,12 @@ class Exporter(QtCore.QObject):
         cmd = ['ffmpeg', '-r', '%d/%d' % fps,
                '-nostats', '-nostdin',
                '-f', 'rawvideo',
-               '-video_size', '%dx%d' % (w, h),
+               '-video_size', '%dx%d' % (self._width, self._height),
                '-pixel_format', 'rgba',
                '-i', 'pipe:%d' % fd_r]
-        if extra_enc_args:
-            cmd += extra_enc_args
-        cmd += ['-y', filename]
+        if self._extra_enc_args:
+            cmd += self._extra_enc_args
+        cmd += ['-y', self._filename]
 
         def close_unused_child_fd():
             os.close(fd_w)
@@ -62,7 +69,7 @@ class Exporter(QtCore.QObject):
         fbo_format = QtGui.QOpenGLFramebufferObjectFormat()
         fbo_format.setSamples(samples)
         fbo_format.setAttachment(QtGui.QOpenGLFramebufferObject.CombinedDepthStencil)
-        fbo = QtGui.QOpenGLFramebufferObject(w, h, fbo_format)
+        fbo = QtGui.QOpenGLFramebufferObject(self._width, self._height, fbo_format)
         assert fbo.isValid() is True
         fbo.bind()
 
@@ -70,18 +77,15 @@ class Exporter(QtCore.QObject):
         ngl_viewer = ngl.Viewer()
         ngl_viewer.configure(platform=ngl.GLPLATFORM_AUTO, api=ngl.GLAPI_AUTO)
         ngl_viewer.set_scene_from_string(cfg['scene'])
-        ngl_viewer.set_viewport(0, 0, w, h)
+        ngl_viewer.set_viewport(0, 0, self._width, self._height)
         ngl_viewer.set_clearcolor(*cfg['clear_color'])
 
         # Draw every frame
         nb_frame = int(duration * fps[0] / fps[1])
         for i in range(nb_frame):
+            if self._cancelled:
+                break
             time = i * fps[1] / float(fps[0])
-            # FIXME: due to the nature of Python threads, another widget can
-            # make another GL context current once the GIL is released, thus we
-            # need to make sure this rendering context is the current one
-            # before each draw call.
-            glctx.makeCurrent(surface)
             ngl_viewer.draw(time)
             self.progressed.emit(i*100 / nb_frame)
             glctx.swapBuffers(surface)
@@ -93,7 +97,8 @@ class Exporter(QtCore.QObject):
 
         reader.wait()
 
-        return cfg
+    def cancel(self):
+        self._cancelled = True
 
 
 def test_export():
@@ -127,9 +132,10 @@ def test_export():
     filename = sys.argv[1]
     app = QtGui.QGuiApplication(sys.argv)
 
-    exporter = Exporter(_get_scene)
+    exporter = Exporter(_get_scene, filename, 320, 240)
     exporter.progressed.connect(print_progress)
-    exporter.export(filename, 320, 240)
+    exporter.start()
+    exporter.wait()
 
 
 if __name__ == '__main__':

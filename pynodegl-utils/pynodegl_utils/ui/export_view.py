@@ -32,6 +32,8 @@ class ExportView(QtWidgets.QWidget):
     def __init__(self, get_scene_func):
         super(ExportView, self).__init__()
 
+        self._get_scene_func = get_scene_func
+
         self._ofile_text = QtWidgets.QLineEdit('/tmp/ngl-export.mp4')
         ofile_btn = QtWidgets.QPushButton('Browse')
 
@@ -51,39 +53,57 @@ class ExportView(QtWidgets.QWidget):
 
         self._export_btn = QtWidgets.QPushButton('Export')
 
-        self._pgbar = QtWidgets.QProgressBar()
-        self._pgbar.hide()
-
         form = QtWidgets.QFormLayout(self)
         form.addRow('Filename:', file_box)
         form.addRow('Width:',    self._spinbox_width)
         form.addRow('Height:',   self._spinbox_height)
         form.addRow('Extra encoder arguments:', self._encopts_text)
         form.addRow(self._export_btn)
-        form.addRow(self._pgbar)
-
-        self._exporter = Exporter(get_scene_func)
-        self._exporter.progressed.connect(self._pgbar.setValue)
 
         ofile_btn.clicked.connect(self._select_ofile)
         self._export_btn.clicked.connect(self._export)
+
+    @QtCore.pyqtSlot(int)
+    def _progress(self, value):
+        self._pgd.setValue(value)
+        if value == 100:
+            self._pgd.close()
+            self._exporter.wait()
+
+    @QtCore.pyqtSlot()
+    def _cancel(self):
+        # Exporter.cancel() gracefuly stops the exporter thread and triggers a
+        # progress callback with a value of 100
+        self._exporter.cancel()
+
+    @QtCore.pyqtSlot()
+    def _fail(self):
+        self._pgd.close()
+        self._exporter.wait()
+
+        QtWidgets.QMessageBox.critical(self,
+                                       'Error',
+                                       "You didn't select any scene to export.",
+                                       QtWidgets.QMessageBox.Ok)
 
     @QtCore.pyqtSlot()
     def _export(self):
         ofile = self._ofile_text.text()
         width = self._spinbox_width.value()
         height = self._spinbox_height.value()
-
         extra_enc_args = self._encopts_text.text().split()
 
-        self._pgbar.setValue(0)
-        self._pgbar.show()
-        cfg = self._exporter.export(ofile, width, height, extra_enc_args)
-        if not cfg:
-            QtWidgets.QMessageBox.critical(self, 'Error',
-                                           "You didn't select any scene to export.",
-                                           QtWidgets.QMessageBox.Ok)
-        self._pgbar.hide()
+        self._pgd = QtWidgets.QProgressDialog('Exporting to %s' % ofile, 'Stop', 0, 100, self)
+        self._pgd.setWindowModality(QtCore.Qt.WindowModal)
+        self._pgd.setMinimumDuration(100)
+
+        self._exporter = Exporter(self._get_scene_func, ofile, width, height, extra_enc_args)
+
+        self._pgd.canceled.connect(self._cancel)
+        self._exporter.progressed.connect(self._progress)
+        self._exporter.failed.connect(self._fail)
+
+        self._exporter.start()
 
     @QtCore.pyqtSlot()
     def _select_ofile(self):
