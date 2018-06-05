@@ -763,6 +763,7 @@ Constant | Description
 `unsigned_int` | unsigned integer
 `half_float` | half float
 `float` | float
+`unsigned_int_24_8` | pair of two unsigned integers (24 bits and 8 bits)
 
 ## min_filter choices
 

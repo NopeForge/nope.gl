@@ -95,6 +95,7 @@ static const struct param_choices type_choices = {
         {"unsigned_int",   GL_UNSIGNED_INT,   .desc=NGLI_DOCSTRING("unsigned integer")},
         {"half_float",     GL_HALF_FLOAT,     .desc=NGLI_DOCSTRING("half float")},
         {"float",          GL_FLOAT,          .desc=NGLI_DOCSTRING("float")},
+        {"unsigned_int_24_8", GL_UNSIGNED_INT_24_8, .desc=NGLI_DOCSTRING("pair of two unsigned integers (24 bits and 8 bits)")},
         {NULL}
     }
 };
