@@ -142,6 +142,7 @@
 # define GL_READ_FRAMEBUFFER                   0x8CA8
 # define GL_DRAW_FRAMEBUFFER                   0x8CA9
 # define GL_READ_FRAMEBUFFER_BINDING           0x8CAA
+# define GL_DEPTH_STENCIL_ATTACHMENT           0x821A
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES
