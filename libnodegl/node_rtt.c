@@ -39,11 +39,28 @@ static const struct node_param rtt_params[] = {
     {"depth_texture", PARAM_TYPE_NODE, OFFSET(depth_texture),
                       .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                       .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1},
-                      .desc=NGLI_DOCSTRING("destination depth texture")},
+                      .desc=NGLI_DOCSTRING("destination depth (and potentially combined stencil) texture")},
     {"samples",       PARAM_TYPE_INT, OFFSET(samples),
                       .desc=NGLI_DOCSTRING("number of samples used for multisampling anti-aliasing")},
     {NULL}
 };
+
+static GLenum get_depth_attachment(GLenum format)
+{
+    switch (format) {
+    case GL_DEPTH_COMPONENT:
+    case GL_DEPTH_COMPONENT16:
+    case GL_DEPTH_COMPONENT24:
+    case GL_DEPTH_COMPONENT32F:
+        return GL_DEPTH_ATTACHMENT;
+    case GL_DEPTH_STENCIL:
+    case GL_DEPTH24_STENCIL8:
+    case GL_DEPTH32F_STENCIL8:
+        return GL_DEPTH_STENCIL_ATTACHMENT;
+    default:
+        return GL_INVALID_ENUM;
+    }
+}
 
 static int rtt_prefetch(struct ngl_node *node)
 {
@@ -61,6 +78,12 @@ static int rtt_prefetch(struct ngl_node *node)
     if (!(glcontext->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) &&
         s->samples > 0) {
         LOG(WARNING, "context does not support the framebuffer object feature, multisample will be disabled");
+        s->samples = 0;
+    }
+
+    if (!(glcontext->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL) &&
+        s->samples > 0) {
+        LOG(WARNING, "context does not support packed depth stencil feature, multisample anti-aliasing will be disabled");
         s->samples = 0;
     }
 
@@ -82,17 +105,40 @@ static int rtt_prefetch(struct ngl_node *node)
     LOG(VERBOSE, "init rtt with texture %d", texture->id);
     ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture->id, 0);
 
-    GLenum depth_format;
+    GLenum depth_format = 0;
+    GLenum depth_attachment = 0;
+    int packed_depth_stencil = glcontext->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL;
+
     if (depth_texture) {
         depth_format = depth_texture->internal_format;
-        ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depth_texture->id, 0);
+        depth_attachment = get_depth_attachment(depth_format);
+        if (!packed_depth_stencil && depth_attachment == GL_DEPTH_STENCIL_ATTACHMENT) {
+            LOG(ERROR, "context does not support packed depth stencil feature");
+            return -1;
+        }
+        ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, depth_attachment, GL_TEXTURE_2D, depth_texture->id, 0);
     } else {
-        depth_format = GL_DEPTH_COMPONENT16;
-        ngli_glGenRenderbuffers(gl, 1, &s->renderbuffer_id);
-        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->renderbuffer_id);
-        ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, depth_format, s->width, s->height);
-        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s->renderbuffer_id);
+        if (packed_depth_stencil) {
+            depth_format = GL_DEPTH24_STENCIL8;
+            depth_attachment = GL_DEPTH_STENCIL_ATTACHMENT;
+            ngli_glGenRenderbuffers(gl, 1, &s->renderbuffer_id);
+            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->renderbuffer_id);
+            ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, depth_format, s->width, s->height);
+            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, depth_attachment, GL_RENDERBUFFER, s->renderbuffer_id);
+        } else {
+            ngli_glGenRenderbuffers(gl, 1, &s->renderbuffer_id);
+            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->renderbuffer_id);
+            ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, s->width, s->height);
+            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s->renderbuffer_id);
+
+            ngli_glGenRenderbuffers(gl, 1, &s->stencilbuffer_id);
+            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->stencilbuffer_id);
+            ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_STENCIL_INDEX8, s->width, s->height);
+            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, s->stencilbuffer_id);
+        }
     }
 
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -130,7 +176,7 @@ static int rtt_prefetch(struct ngl_node *node)
         ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->depthbuffer_ms_id);
         ngli_glRenderbufferStorageMultisample(gl, GL_RENDERBUFFER, s->samples, depth_format, s->width, s->height);
         ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s->depthbuffer_ms_id);
+        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, depth_attachment, GL_RENDERBUFFER, s->depthbuffer_ms_id);
 
         if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             LOG(ERROR, "multisampled framebuffer %u is not complete", s->framebuffer_id);
@@ -235,6 +281,7 @@ static void rtt_release(struct ngl_node *node)
     ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
 
     ngli_glDeleteRenderbuffers(gl, 1, &s->renderbuffer_id);
+    ngli_glDeleteRenderbuffers(gl, 1, &s->stencilbuffer_id);
     ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
 
     if (s->samples > 0) {
