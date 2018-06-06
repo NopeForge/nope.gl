@@ -12,6 +12,7 @@ class Exporter(QtCore.QThread):
 
     progressed = QtCore.pyqtSignal(int)
     failed = QtCore.pyqtSignal()
+    finished = QtCore.pyqtSignal()
 
     def __init__(self, get_scene_func, filename, w, h, extra_enc_args=None):
         super(Exporter, self).__init__()
@@ -90,6 +91,7 @@ class Exporter(QtCore.QThread):
             self.progressed.emit(i*100 / nb_frame)
             glctx.swapBuffers(surface)
         self.progressed.emit(100)
+        self.finished.emit()
 
         os.close(fd_w)
         fbo.release()

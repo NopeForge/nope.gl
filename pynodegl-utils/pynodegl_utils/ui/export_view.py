@@ -66,25 +66,25 @@ class ExportView(QtWidgets.QWidget):
     @QtCore.pyqtSlot(int)
     def _progress(self, value):
         self._pgd.setValue(value)
-        if value == 100:
-            self._pgd.close()
-            self._exporter.wait()
 
     @QtCore.pyqtSlot()
     def _cancel(self):
-        # Exporter.cancel() gracefuly stops the exporter thread and triggers a
-        # progress callback with a value of 100
+        # Exporter.cancel() gracefuly stops the exporter thread and fires a
+        # finished signal
         self._exporter.cancel()
 
     @QtCore.pyqtSlot()
     def _fail(self):
-        self._pgd.close()
-        self._exporter.wait()
-
+        self._finish()
         QtWidgets.QMessageBox.critical(self,
                                        'Error',
                                        "You didn't select any scene to export.",
                                        QtWidgets.QMessageBox.Ok)
+
+    @QtCore.pyqtSlot()
+    def _finish(self):
+        self._pgd.close()
+        self._exporter.wait()
 
     @QtCore.pyqtSlot()
     def _export(self):
@@ -102,6 +102,7 @@ class ExportView(QtWidgets.QWidget):
         self._pgd.canceled.connect(self._cancel)
         self._exporter.progressed.connect(self._progress)
         self._exporter.failed.connect(self._fail)
+        self._exporter.finished.connect(self._finish)
 
         self._exporter.start()
 
