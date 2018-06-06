@@ -103,6 +103,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.sceneChanged.connect(self._scene_changed_hook)
         self._scene_toolbar.sceneChanged.connect(self._config.scene_changed)
         self._scene_toolbar.aspectRatioChanged.connect(gl_view.set_aspect_ratio)
+        self._scene_toolbar.aspectRatioChanged.connect(export_view.set_aspect_ratio)
         self._scene_toolbar.aspectRatioChanged.connect(self._config.set_aspect_ratio)
         self._scene_toolbar.samplesChanged.connect(gl_view.set_samples)
         self._scene_toolbar.samplesChanged.connect(self._config.set_samples)

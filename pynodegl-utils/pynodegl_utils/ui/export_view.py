@@ -35,6 +35,7 @@ class ExportView(QtWidgets.QWidget):
 
         self._get_scene_func = get_scene_func
         self._framerate = config.get('framerate')
+        self._aspect_ratio = config.get('aspect_ratio')
 
         self._ofile_text = QtWidgets.QLineEdit('/tmp/ngl-export.mp4')
         ofile_btn = QtWidgets.QPushButton('Browse')
@@ -70,6 +71,8 @@ class ExportView(QtWidgets.QWidget):
         ofile_btn.clicked.connect(self._select_ofile)
         self._export_btn.clicked.connect(self._export)
         self._ofile_text.textChanged.connect(self._check_settings)
+        self._spinbox_width.valueChanged.connect(self._check_settings)
+        self._spinbox_height.valueChanged.connect(self._check_settings)
 
     def enter(self):
         self._check_settings()
@@ -86,6 +89,11 @@ class ExportView(QtWidgets.QWidget):
                 gif_framerates = ', '.join('%s' % x for x in gif_recommended_framerate)
                 warnings.append('It is recommended to use one of these frame rate when exporting to GIF: {}'.format(gif_framerates))
 
+        width = self._spinbox_width.value()
+        height = self._spinbox_height.value()
+        if Fraction(width, height) != Fraction(*self._aspect_ratio):
+            warnings.append('width/height does not match specified aspect ratio {}'.format(self._aspect_ratio))
+
         if warnings:
             self._warning_label.setText('\n'.join('⚠ ' + w for w in warnings))
             self._warning_label.show()
@@ -95,6 +103,11 @@ class ExportView(QtWidgets.QWidget):
     @QtCore.pyqtSlot(tuple)
     def set_frame_rate(self, fr):
         self._framerate = fr
+        self._check_settings()
+
+    @QtCore.pyqtSlot(tuple)
+    def set_aspect_ratio(self, ar):
+        self._aspect_ratio = ar
         self._check_settings()
 
     @QtCore.pyqtSlot(int)
