@@ -157,8 +157,9 @@ def query_inplace(**idict):
         if idict.get('has_fps'):
             buf_size = (64*8, 3*8)
             bratio = buf_size[0] / float(buf_size[1])
+            ar = odict['aspect_ratio']
             fps_w = 2.
-            fps_h = 2. / bratio
+            fps_h = 2. / bratio * ar[0] / float(ar[1])
             fps = FPS(scene, create_databuf=1)
             q = Quad((-1, 1. - fps_h, 0), (fps_w, 0, 0), (0, fps_h, 0))
             t = Texture2D(data_src=fps)
