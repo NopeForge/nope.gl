@@ -46,11 +46,30 @@ struct ngl_ctx *ngl_create(void)
     return s;
 }
 
+static int reconfigure(struct ngl_ctx *s, struct ngl_config *config)
+{
+    int width = 0;
+    int height = 0;
+    if (config) {
+        width = config->width;
+        height = config->height;
+    }
+
+    int ret = ngli_glcontext_resize(s->glcontext, width, height);
+    if (ret < 0)
+        return ret;
+
+    struct ngl_config *current_config = &s->config;
+    current_config->width = width;
+    current_config->height = height;
+
+    return 0;
+}
+
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (s->configured) {
-        LOG(ERROR, "Context is already configured");
-        return -1;
+        return reconfigure(s, config);
     }
 
     if (config)
