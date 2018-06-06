@@ -160,7 +160,7 @@ def query_inplace(**idict):
             ar = odict['aspect_ratio']
             fps_w = 2.
             fps_h = 2. / bratio * ar[0] / float(ar[1])
-            fps = FPS(scene, create_databuf=1)
+            fps = FPS(scene, create_databuf=1, refresh_rate=(1, 8))
             q = Quad((-1, 1. - fps_h, 0), (fps_w, 0, 0), (0, fps_h, 0))
             t = Texture2D(data_src=fps)
             render = Render(q)
