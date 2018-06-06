@@ -77,7 +77,7 @@ static int rtt_prefetch(struct ngl_node *node)
 
     if (!(glcontext->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) &&
         s->samples > 0) {
-        LOG(WARNING, "context does not support the framebuffer object feature, multisample will be disabled");
+        LOG(WARNING, "context does not support the framebuffer object feature, multisample anti-aliasing will be disabled");
         s->samples = 0;
     }
 
