@@ -155,12 +155,16 @@ def query_inplace(**idict):
 
         # Make extra adjustments to the scene according to user options
         if idict.get('has_fps'):
+            fr = odict['framerate']
+            measure_window = fr[0] / fr[1]  # 1-second measurement window
             buf_size = (64*8, 3*8)
             bratio = buf_size[0] / float(buf_size[1])
             ar = odict['aspect_ratio']
             fps_w = 2.
             fps_h = 2. / bratio * ar[0] / float(ar[1])
-            fps = FPS(scene, create_databuf=1, refresh_rate=(1, 8))
+            fps = FPS(scene, create_databuf=1, refresh_rate=(1, 8),
+                      measure_update=measure_window,
+                      measure_draw=measure_window)
             q = Quad((-1, 1. - fps_h, 0), (fps_w, 0, 0), (0, fps_h, 0))
             t = Texture2D(data_src=fps)
             render = Render(q)
