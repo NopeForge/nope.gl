@@ -37,7 +37,7 @@ class ExportView(QtWidgets.QWidget):
         self._framerate = config.get('framerate')
         self._aspect_ratio = config.get('aspect_ratio')
 
-        self._ofile_text = QtWidgets.QLineEdit('/tmp/ngl-export.mp4')
+        self._ofile_text = QtWidgets.QLineEdit(config.get('export_filename'))
         ofile_btn = QtWidgets.QPushButton('Browse')
 
         file_box = QtWidgets.QHBoxLayout()
@@ -46,13 +46,14 @@ class ExportView(QtWidgets.QWidget):
 
         self._spinbox_width = QtWidgets.QSpinBox()
         self._spinbox_width.setRange(1, 0xffff)
-        self._spinbox_width.setValue(800)
+        self._spinbox_width.setValue(config.get('export_width'))
 
         self._spinbox_height = QtWidgets.QSpinBox()
         self._spinbox_height.setRange(1, 0xffff)
-        self._spinbox_height.setValue(600)
+        self._spinbox_height.setValue(config.get('export_height'))
 
         self._encopts_text = QtWidgets.QLineEdit()
+        self._encopts_text.setText(config.get('export_extra_enc_args'))
 
         self._export_btn = QtWidgets.QPushButton('Export')
 
@@ -71,8 +72,12 @@ class ExportView(QtWidgets.QWidget):
         ofile_btn.clicked.connect(self._select_ofile)
         self._export_btn.clicked.connect(self._export)
         self._ofile_text.textChanged.connect(self._check_settings)
+        self._ofile_text.textChanged.connect(config.set_export_filename)
         self._spinbox_width.valueChanged.connect(self._check_settings)
+        self._spinbox_width.valueChanged.connect(config.set_export_width)
         self._spinbox_height.valueChanged.connect(self._check_settings)
+        self._spinbox_height.valueChanged.connect(config.set_export_height)
+        self._encopts_text.textChanged.connect(config.set_export_extra_enc_args)
 
     def enter(self):
         self._check_settings()

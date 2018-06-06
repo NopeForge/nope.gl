@@ -64,6 +64,12 @@ class Config(QtCore.QObject):
             'framerate': (60, 1),
             'log_level': 'info',
             'clear_color': (0.0, 0.0, 0.0, 1.0),
+
+            # Export
+            'export_width': 1280,
+            'export_height': 720,
+            'export_filename': '/tmp/ngl-export.mp4',
+            'export_extra_enc_args': '',
         }
 
         self._module_pkgname = module_pkgname
@@ -108,6 +114,22 @@ class Config(QtCore.QObject):
     def _set_cfg(self, key, value):
         self._cfg[key] = value
         self._needs_saving = True
+
+    @QtCore.pyqtSlot(int)
+    def set_export_width(self, export_width):
+        self._set_cfg('export_width', export_width)
+
+    @QtCore.pyqtSlot(int)
+    def set_export_height(self, export_height):
+        self._set_cfg('export_height', export_height)
+
+    @QtCore.pyqtSlot(str)
+    def set_export_filename(self, filename):
+        self._set_cfg('export_filename', filename)
+
+    @QtCore.pyqtSlot(str)
+    def set_export_extra_enc_args(self, extra_enc_args):
+        self._set_cfg('export_extra_enc_args', extra_enc_args)
 
     @QtCore.pyqtSlot(tuple)
     def set_aspect_ratio(self, ar):
