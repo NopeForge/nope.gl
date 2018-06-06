@@ -135,16 +135,14 @@ int ngli_prepare_draw(struct ngl_ctx *s, double t)
         return -1;
     }
 
+    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
     struct ngl_node *scene = s->scene;
     if (!scene) {
-        LOG(ERROR, "scene is not set, can not draw");
-        return -1;
+        return 0;
     }
 
     LOG(DEBUG, "prepare scene %s @ t=%f", scene->name, t);
-
-    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
     int ret = ngli_node_visit(scene, 1, t);
     if (ret < 0)
         return ret;
@@ -168,9 +166,10 @@ int ngl_draw(struct ngl_ctx *s, double t)
     if (ret < 0)
         goto end;
 
-    LOG(DEBUG, "draw scene %s @ t=%f", s->scene->name, t);
-    ngli_node_draw(s->scene);
-
+    if (s->scene) {
+        LOG(DEBUG, "draw scene %s @ t=%f", s->scene->name, t);
+        ngli_node_draw(s->scene);
+    }
 end:
     if (ret == 0 && ngli_glcontext_check_gl_error(glcontext))
         ret = -1;

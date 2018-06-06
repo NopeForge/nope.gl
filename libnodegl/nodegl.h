@@ -410,6 +410,8 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene);
  * @param s     pointer to the configured node.gl context
  * @param t     target draw time in seconds
  *
+ * @note ngl_draw() will only perform a clear if no scene is set.
+ *
  * @return 0 on success, < 0 on error
  */
 int ngl_draw(struct ngl_ctx *s, double t);
