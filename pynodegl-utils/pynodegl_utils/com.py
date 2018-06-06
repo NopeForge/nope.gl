@@ -155,11 +155,14 @@ def query_inplace(**idict):
 
         # Make extra adjustments to the scene according to user options
         if idict.get('has_fps'):
+            buf_size = (64*8, 3*8)
+            bratio = buf_size[0] / float(buf_size[1])
+            fps_w = 2.
+            fps_h = 2. / bratio
             fps = FPS(scene, create_databuf=1)
-            q = Quad((0, 15/16., 0), (1., 0, 0), (0, 1/16., 0))
-            p = Program()
+            q = Quad((-1, 1. - fps_h, 0), (fps_w, 0, 0), (0, fps_h, 0))
             t = Texture2D(data_src=fps)
-            render = Render(q, p)
+            render = Render(q)
             render.update_textures(tex0=t)
             g = Group()
             g.add_children(fps, render)
