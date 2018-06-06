@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <inttypes.h>
 #include <string.h>
+#include <math.h>
 
 #include "nodegl.h"
 #include "nodes.h"
@@ -38,6 +39,8 @@ static const struct node_param fps_params[] = {
                        .desc=NGLI_DOCSTRING("window size of draw measures")},
     {"create_databuf", PARAM_TYPE_BOOL, OFFSET(create_databuf),
                        .desc=NGLI_DOCSTRING("create a data buffer to be used as source for a texture")},
+    {"refresh_rate",   PARAM_TYPE_RATIONAL, OFFSET(refresh_rate),
+                       .desc=NGLI_DOCSTRING("refresh data buffer every `update_rate` second")},
     {NULL}
 };
 
@@ -207,6 +210,10 @@ static int fps_init(struct ngl_node *node)
         alloc_measures(&s->m_total)  < 0)
         return -1;
 
+    if (s->refresh_rate[1])
+        s->refresh_rate_interval = s->refresh_rate[0] / (double)s->refresh_rate[1];
+    s->last_refresh_time = -1;
+
     return 0;
 }
 
@@ -215,6 +222,10 @@ static const char * const ops[] = {"update", "draw", "total"};
 static void print_report(struct ngl_node *node, int op)
 {
     struct fps *s = node->priv_data;
+
+    if (!s->need_refresh)
+        return;
+
     const struct fps_measuring *m = &s->m_update + op;
     const int64_t t = m->total_times / m->count;
     const double fps = 1000000. / t;
@@ -256,6 +267,10 @@ static int fps_update(struct ngl_node *node, double t)
     int ret;
     struct fps *s = node->priv_data;
     struct ngl_node *child = s->child;
+
+    s->need_refresh = fabs(t - s->last_refresh_time) >= s->refresh_rate_interval;
+    if (s->need_refresh)
+        s->last_refresh_time = t;
 
     ngli_node_transfer_matrices(child, node);
 

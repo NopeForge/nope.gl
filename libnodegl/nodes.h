@@ -450,8 +450,12 @@ struct fps {
     struct fps_measuring m_draw;
     struct fps_measuring m_total;
     int create_databuf;
+    int refresh_rate[2];
     uint8_t *data_buf;
     int data_w, data_h;
+    double refresh_rate_interval;
+    double last_refresh_time;
+    int need_refresh;
 };
 
 /**

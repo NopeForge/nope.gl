@@ -255,6 +255,7 @@ Parameter | Ctor. | Type | Description | Default
 `measure_update` |  | [`int`](#parameter-types) | window size of update measures | `60`
 `measure_draw` |  | [`int`](#parameter-types) | window size of draw measures | `60`
 `create_databuf` |  | [`bool`](#parameter-types) | create a data buffer to be used as source for a texture | `0`
+`refresh_rate` |  | [`rational`](#parameter-types) | refresh data buffer every `update_rate` second | 
 
 
 **Source**: [node_fps.c](/libnodegl/node_fps.c)

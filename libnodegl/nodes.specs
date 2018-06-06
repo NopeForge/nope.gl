@@ -189,6 +189,7 @@
         - [measure_update, int]
         - [measure_draw, int]
         - [create_databuf, bool]
+        - [refresh_rate, rational]
 
 - Geometry:
     constructors:
