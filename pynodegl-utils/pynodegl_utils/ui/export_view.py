@@ -56,6 +56,9 @@ class ExportView(QtWidgets.QWidget):
         self._encopts_text.setText(config.get('export_extra_enc_args'))
 
         self._export_btn = QtWidgets.QPushButton('Export')
+        btn_hbox = QtWidgets.QHBoxLayout()
+        btn_hbox.addStretch()
+        btn_hbox.addWidget(self._export_btn)
 
         self._warning_label = QtWidgets.QLabel()
         self._warning_label.setStyleSheet('color: red')
@@ -67,7 +70,7 @@ class ExportView(QtWidgets.QWidget):
         form.addRow('Height:',   self._spinbox_height)
         form.addRow('Extra encoder arguments:', self._encopts_text)
         form.addRow(self._warning_label)
-        form.addRow(self._export_btn)
+        form.addRow(btn_hbox)
 
         ofile_btn.clicked.connect(self._select_ofile)
         self._export_btn.clicked.connect(self._export)
