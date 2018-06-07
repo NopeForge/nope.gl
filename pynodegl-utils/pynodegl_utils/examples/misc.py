@@ -125,12 +125,15 @@ def buffer_dove(cfg,
 def triangle(cfg, size=0.5):
     b = size * math.sqrt(3) / 2.0
     c = size * 1/2.
+    cfg.duration = 3.
 
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
     p = Program(fragment=get_frag('triangle'))
     node = Render(triangle, p)
     animkf = [AnimKeyFrameFloat(0, 0),
-              AnimKeyFrameFloat(cfg.duration, -360*2)]
+              AnimKeyFrameFloat(  cfg.duration/3.,   -360/3., 'exp_in_out'),
+              AnimKeyFrameFloat(2*cfg.duration/3., -2*360/3., 'exp_in_out'),
+              AnimKeyFrameFloat(  cfg.duration,      -360,    'exp_in_out')]
     node = Rotate(node, anim=AnimatedFloat(animkf))
     return node
 
