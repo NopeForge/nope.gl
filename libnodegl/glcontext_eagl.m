@@ -99,14 +99,16 @@ static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void 
             return -1;
         }
     } else  {
-        if (window)
-            glcontext_eagl->view = *(UIView **)window;
-        if (!glcontext_eagl->view)
-            return -1;
+        if (!glcontext->offscreen) {
+            if (window)
+                glcontext_eagl->view = *(UIView **)window;
+            if (!glcontext_eagl->view)
+                return -1;
 
-        int ret = glcontext_eagl_setup_layer(glcontext);
-        if (ret < 0)
-            return ret;
+            int ret = glcontext_eagl_setup_layer(glcontext);
+            if (ret < 0)
+                return ret;
+        }
     }
 
     return 0;
@@ -175,7 +177,10 @@ static int glcontext_eagl_safe_create(struct glcontext *glcontext, void *other)
 
     glGenRenderbuffers(1, &glcontext_eagl->colorbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
-    [glcontext_eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:glcontext_eagl->layer];
+    if (!glcontext->offscreen)
+        [glcontext_eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:glcontext_eagl->layer];
+    else
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, glcontext->width, glcontext->height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &glcontext_eagl->width);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &glcontext_eagl->height);
@@ -230,8 +235,11 @@ static int glcontext_eagl_make_current(struct glcontext *glcontext, int current)
 static void glcontext_eagl_swap_buffers(struct glcontext *glcontext)
 {
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
-    glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
-    [glcontext_eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
+
+    if (!glcontext->offscreen) {
+        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
+        [glcontext_eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
+    }
 }
 
 static void *glcontext_eagl_get_display(struct glcontext *glcontext)
