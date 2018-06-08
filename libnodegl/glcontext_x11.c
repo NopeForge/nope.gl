@@ -24,6 +24,7 @@
 #include <GL/glx.h>
 
 #include "glcontext.h"
+#include "log.h"
 #include "nodegl.h"
 #include "utils.h"
 
@@ -48,23 +49,33 @@ static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *
         glcontext_x11->display = display ? *(Display **)display  : glXGetCurrentDisplay();
         glcontext_x11->window  = window  ? *(Window *)window     : glXGetCurrentDrawable();
         glcontext_x11->handle  = handle  ? *(GLXContext *)handle : glXGetCurrentContext();
-        if (!glcontext_x11 || !glcontext_x11->window || !glcontext_x11->handle)
+        if (!glcontext_x11 || !glcontext_x11->window || !glcontext_x11->handle) {
+            LOG(ERROR,
+                "could not retrieve GLX display (%p), window (0x%lx) and context (%p)",
+                glcontext_x11->display,
+                glcontext_x11->window,
+                glcontext_x11->handle);
             return -1;
+        }
     } else {
         if (display)
             glcontext_x11->display = *(Display **)display;
         if (!glcontext_x11->display) {
             glcontext_x11->own_display = 1;
             glcontext_x11->display = XOpenDisplay(NULL);
-            if (!glcontext_x11->display)
+            if (!glcontext_x11->display) {
+                LOG(ERROR, "could not retrieve GLX display");
                 return -1;
+            }
         }
 
         if (!glcontext->offscreen) {
             if (window) {
                 glcontext_x11->window  = *(Window *)window;
-                if (!glcontext_x11->window)
+                if (!glcontext_x11->window) {
+                    LOG(ERROR, "could not retrieve GLX window");
                     return -1;
+                }
             }
         }
     }
@@ -91,8 +102,10 @@ static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *
                                                  DefaultScreen(glcontext_x11->display),
                                                  attribs,
                                                  &glcontext_x11->nb_fbconfigs);
-    if (!glcontext_x11->fbconfigs)
+    if (!glcontext_x11->fbconfigs) {
+        LOG(ERROR, "could not choose a valid framebuffer configuration");
         return -1;
+    }
 
     return 0;
 }
@@ -120,23 +133,29 @@ static int glcontext_x11_create(struct glcontext *glcontext, void *other)
 
     glXCreateContextAttribsFunc glXCreateContextAttribs =
         (glXCreateContextAttribsFunc)glXGetProcAddress((const GLubyte *)"glXCreateContextAttribsARB");
-    if (!glXCreateContextAttribs)
+    if (!glXCreateContextAttribs) {
+        LOG(ERROR, "could not retrieve glXCreateContextAttribsARB()");
         return -1;
+    }
 
     Display *display = glcontext_x11->display;
     int screen = DefaultScreen(display);
     GLXFBConfig *fbconfigs = glcontext_x11->fbconfigs;
 
     const char *glx_extensions = glXQueryExtensionsString(display, screen);
-    if (!ngli_glcontext_check_extension("GLX_ARB_create_context", glx_extensions))
+    if (!ngli_glcontext_check_extension("GLX_ARB_create_context", glx_extensions)) {
+        LOG(ERROR, "context does not support GLX_ARB_create_context extension");
         return -1;
+    }
 
     GLXContext shared_context = other ? *(GLXContext *)other : NULL;
 
     glcontext_x11->own_handle = 1;
     if (glcontext->api == NGL_GLAPI_OPENGLES) {
-        if (!ngli_glcontext_check_extension("GLX_EXT_create_context_es2_profile", glx_extensions))
+        if (!ngli_glcontext_check_extension("GLX_EXT_create_context_es2_profile", glx_extensions)) {
+            LOG(ERROR, "context does not support GLX_EXT_create_context_es2_profile extension");
             return -1;
+        }
 
         int attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, 2,
@@ -166,8 +185,10 @@ static int glcontext_x11_create(struct glcontext *glcontext, void *other)
                                                         attribs);
     }
 
-    if (!glcontext_x11->handle)
+    if (!glcontext_x11->handle) {
+        LOG(ERROR, "could not create GLX context");
         return -1;
+    }
 
     if (glcontext->offscreen) {
         int attribs[] = {
@@ -178,8 +199,10 @@ static int glcontext_x11_create(struct glcontext *glcontext, void *other)
 
         glcontext_x11->own_window = 1;
         glcontext_x11->window = glXCreatePbuffer(display, fbconfigs[0], attribs);
-        if (!glcontext_x11->window)
+        if (!glcontext_x11->window) {
+            LOG(ERROR, "could not create offscreen pixel buffer");
             return -1;
+        }
     }
 
     return 0;
