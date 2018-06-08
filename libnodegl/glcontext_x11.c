@@ -49,7 +49,7 @@ static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *
         glcontext_x11->display = display ? *(Display **)display  : glXGetCurrentDisplay();
         glcontext_x11->window  = window  ? *(Window *)window     : glXGetCurrentDrawable();
         glcontext_x11->handle  = handle  ? *(GLXContext *)handle : glXGetCurrentContext();
-        if (!glcontext_x11 || !glcontext_x11->window || !glcontext_x11->handle) {
+        if (!glcontext_x11->display || !glcontext_x11->window || !glcontext_x11->handle) {
             LOG(ERROR,
                 "could not retrieve GLX display (%p), window (0x%lx) and context (%p)",
                 glcontext_x11->display,
