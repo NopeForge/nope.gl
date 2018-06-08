@@ -47,6 +47,9 @@ struct glcontext_class;
 struct glcontext {
     /* GL context */
     const struct glcontext_class *class;
+    void *priv_data;
+
+    /* User options */
     int platform;
     int api;
     int wrapped;
@@ -55,7 +58,6 @@ struct glcontext {
     int height;
     int samples;
     int set_surface_pts;
-    void *priv_data;
 
     /* GL api */
     int major_version;
