@@ -44,12 +44,21 @@ static int glcontext_nsgl_init(struct glcontext *glcontext, void *display, void 
 {
     struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
 
-    glcontext_nsgl->view = window ? *(NSView **)window : nil;
-    glcontext_nsgl->handle = handle ? *(NSOpenGLContext **)handle : [NSOpenGLContext currentContext];
-
-    if (glcontext->wrapped && !glcontext_nsgl->handle) {
-        LOG(ERROR, "could not retrieve NSGL context");
-        return -1;
+    if (glcontext->wrapped) {
+        glcontext_nsgl->handle = handle ? *(NSOpenGLContext **)handle : [NSOpenGLContext currentContext];
+        if (!glcontext_nsgl->handle) {
+            LOG(ERROR, "could not retrieve NSGL context");
+            return -1;
+        }
+    } else {
+        if (!glcontext->offscreen) {
+            if (window)
+                glcontext_nsgl->view = *(NSView **)window;
+            if (!glcontext_nsgl->view) {
+                LOG(ERROR, "could not retrieve NS view");
+                return -1;
+            }
+        }
     }
 
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
