@@ -58,10 +58,8 @@ struct glcontext {
     void *priv_data;
 
     /* GL api */
-    int loaded;
     int major_version;
     int minor_version;
-    int es;
 
     /* GL features */
     int features;

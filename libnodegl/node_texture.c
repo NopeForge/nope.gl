@@ -215,7 +215,7 @@ static const struct node_param texture3d_params[] = {
 
 GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext, GLenum internal_format, GLenum type)
 {
-    if (glcontext->es && glcontext->major_version == 2) {
+    if (glcontext->api == NGL_GLAPI_OPENGLES && glcontext->major_version == 2) {
         if (internal_format == GL_BGRA)
             return GL_RGBA;
         return internal_format;

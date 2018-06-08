@@ -202,8 +202,6 @@ static int glcontext_probe_version(struct glcontext *glcontext)
             return -1;
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGLES) {
-        glcontext->es = 1;
-
         const char *gl_version = (const char *)ngli_glGetString(gl, GL_VERSION);
         if (!gl_version) {
             LOG(ERROR, "could not get OpenGL ES version");
@@ -260,7 +258,7 @@ static int glcontext_check_extensions(struct glcontext *glcontext,
     if (!extensions || !*extensions)
         return 0;
 
-    if (glcontext->es) {
+    if (glcontext->api == NGL_GLAPI_OPENGLES) {
         const char *gl_extensions = (const char *)ngli_glGetString(gl, GL_EXTENSIONS);
         while (*extensions) {
             if (!ngli_glcontext_check_extension(*extensions, gl_extensions))
@@ -268,13 +266,15 @@ static int glcontext_check_extensions(struct glcontext *glcontext,
 
             extensions++;
         }
-    } else {
+    } else if (glcontext->api == NGL_GLAPI_OPENGL) {
         while (*extensions) {
             if (!glcontext_check_extension(*extensions, gl))
                 return 0;
 
             extensions++;
         }
+    } else {
+        ngli_assert(0);
     }
 
     return 1;
@@ -300,7 +300,7 @@ static int glcontext_check_functions(struct glcontext *glcontext,
 
 static int glcontext_probe_extensions(struct glcontext *glcontext)
 {
-    const int es = glcontext->es;
+    const int es = glcontext->api == NGL_GLAPI_OPENGLES;
     struct bstr *features_str = ngli_bstr_create();
 
     if (!features_str)
@@ -334,7 +334,7 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
 
 static int glcontext_probe_settings(struct glcontext *glcontext)
 {
-    const int es = glcontext->es;
+    const int es = glcontext->api == NGL_GLAPI_OPENGLES;
     const struct glfunctions *gl = &glcontext->funcs;
 
     if (es && glcontext->major_version == 2 && glcontext->minor_version == 0) {
@@ -359,9 +359,6 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
 
 int ngli_glcontext_load_extensions(struct glcontext *glcontext)
 {
-    if (glcontext->loaded)
-        return 0;
-
     int ret = glcontext_load_functions(glcontext);
     if (ret < 0)
         return ret;
@@ -377,8 +374,6 @@ int ngli_glcontext_load_extensions(struct glcontext *glcontext)
     ret = glcontext_probe_settings(glcontext);
     if (ret < 0)
         return ret;
-
-    glcontext->loaded = 1;
 
     return 0;
 }
