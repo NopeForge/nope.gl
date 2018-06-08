@@ -61,8 +61,10 @@ static int glcontext_eagl_setup_layer(struct glcontext *glcontext)
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
 
     glcontext_eagl->layer = (CAEAGLLayer *)[glcontext_eagl->view layer];
-    if (!glcontext_eagl->layer)
+    if (!glcontext_eagl->layer) {
+        LOG(ERROR, "could not retrieve EAGL layer");
         return -1;
+    }
 
     NSDictionary *properties = [NSDictionary dictionaryWithObjectsAndKeys:
         [NSNumber numberWithBool:NO], kEAGLDrawablePropertyRetainedBacking,
@@ -81,17 +83,23 @@ static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void 
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
 
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
-    if (!framework)
+    if (!framework) {
+        LOG(ERROR, "could not retrieve OpenGLES framework");
         return -1;
+    }
 
     glcontext_eagl->framework = (CFBundleRef)CFRetain(framework);
-    if (!glcontext_eagl->framework)
+    if (!glcontext_eagl->framework) {
+        LOG(ERROR, "could not retain OpenGL framework object");
         return -1;
+    }
 
     if (glcontext->wrapped) {
         glcontext_eagl->handle = handle ? (EAGLContext *)handle : [EAGLContext currentContext];
-        if (!glcontext_eagl->handle)
+        if (!glcontext_eagl->handle) {
+            LOG(ERROR, "could not retrieve EAGL context");
             return -1;
+        }
 
         CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
                                                     NULL,
@@ -99,15 +107,17 @@ static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void 
                                                     NULL,
                                                     &glcontext_eagl->texture_cache);
         if (err != noErr) {
-            LOG(ERROR, "Could not create CoreVideo texture cache: 0x%x", err);
+            LOG(ERROR, "could not create CoreVideo texture cache: 0x%x", err);
             return -1;
         }
     } else  {
         if (!glcontext->offscreen) {
             if (window)
                 glcontext_eagl->view = *(UIView **)window;
-            if (!glcontext_eagl->view)
+            if (!glcontext_eagl->view) {
+                LOG(ERROR, "could not retrieve UI view");
                 return -1;
+            }
 
             int ret = glcontext_eagl_setup_layer(glcontext);
             if (ret < 0)
@@ -160,8 +170,10 @@ static int glcontext_eagl_safe_create(struct glcontext *glcontext, void *other)
     glcontext_eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
     if (!glcontext_eagl->handle) {
         glcontext_eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        if (!glcontext_eagl->handle)
+        if (!glcontext_eagl->handle) {
+            LOG(ERROR, "could not create EAGL context");
             return -1;
+        }
         if (glcontext->samples > 0) {
             LOG(WARNING, "multisample anti-aliasing is not supported with OpenGLES 2.0 context");
             glcontext->samples = 0;
@@ -185,8 +197,10 @@ static int glcontext_eagl_safe_create(struct glcontext *glcontext, void *other)
         glcontext_eagl->BlitFramebuffer = ngli_glcontext_get_proc_address(glcontext, "glBlitFramebuffer");
 
         if (!glcontext_eagl->RenderbufferStorageMultisample ||
-            !glcontext_eagl->BlitFramebuffer)
+            !glcontext_eagl->BlitFramebuffer) {
+            LOG(ERROR, "could not retrieve glRenderbufferStorage() and glBlitFramebuffer()");
             return -1;
+        }
 
         glGenFramebuffers(1, &glcontext_eagl->framebuffer);
         glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer);
