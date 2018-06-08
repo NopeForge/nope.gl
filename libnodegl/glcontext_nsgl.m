@@ -47,16 +47,22 @@ static int glcontext_nsgl_init(struct glcontext *glcontext, void *display, void 
     glcontext_nsgl->view = window ? *(NSView **)window : nil;
     glcontext_nsgl->handle = handle ? *(NSOpenGLContext **)handle : [NSOpenGLContext currentContext];
 
-    if (glcontext->wrapped && !glcontext_nsgl->handle)
+    if (glcontext->wrapped && !glcontext_nsgl->handle) {
+        LOG(ERROR, "could not retrieve NSGL context");
         return -1;
+    }
 
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
-    if (!framework)
+    if (!framework) {
+        LOG(ERROR, "could not retrieve OpenGL framework");
         return -1;
+    }
 
     glcontext_nsgl->framework = (CFBundleRef)CFRetain(framework);
-    if (!glcontext_nsgl->framework)
+    if (!glcontext_nsgl->framework) {
+        LOG(ERROR, "could not retain OpenGL framework object");
         return -1;
+    }
 
     return 0;
 }
@@ -85,13 +91,17 @@ static int glcontext_nsgl_create(struct glcontext *glcontext, void *other)
     }
 
     NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttrs];
-    if (!pixelFormat)
+    if (!pixelFormat) {
+        LOG(ERROR, "could not allocate pixel format");
         return -1;
+    }
 
     NSOpenGLContext *shared_context = other ? *(NSOpenGLContext **)other : NULL;
     glcontext_nsgl->handle = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:shared_context];
-    if (!glcontext_nsgl->handle)
+    if (!glcontext_nsgl->handle) {
+        LOG(ERROR, "could not create NSGL context");
         return -1;
+    }
 
     if (glcontext->offscreen) {
         ngli_glcontext_make_current(glcontext, 1);
