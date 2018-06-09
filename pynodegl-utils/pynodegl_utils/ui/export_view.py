@@ -82,6 +82,8 @@ class ExportView(QtWidgets.QWidget):
         self._spinbox_height.valueChanged.connect(config.set_export_height)
         self._encopts_text.textChanged.connect(config.set_export_extra_enc_args)
 
+        self._exporter = None
+
     def enter(self):
         self._check_settings()
 
@@ -140,9 +142,13 @@ class ExportView(QtWidgets.QWidget):
     def _finish(self):
         self._pgd.close()
         self._exporter.wait()
+        self._exporter = None
 
     @QtCore.pyqtSlot()
     def _export(self):
+        if self._exporter:
+            return
+
         ofile = self._ofile_text.text()
         width = self._spinbox_width.value()
         height = self._spinbox_height.value()
