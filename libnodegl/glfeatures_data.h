@@ -140,5 +140,11 @@ static const struct glfeature {
         .min_version    = 0,
         .maj_es_version = 3,
         .min_es_version = 0,
+    }, {
+        .name           = "timer_query",
+        .flag           = NGLI_FEATURE_TIMER_QUERY,
+        .maj_version    = 3,
+        .min_version    = 3,
+        .extensions     = (const char*[]){"ARB_timer_query", NULL},
     }
 };

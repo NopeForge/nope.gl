@@ -14,6 +14,7 @@
 struct glfunctions {
     NGLI_GL_APIENTRY void (*ActiveTexture)(GLenum texture);
     NGLI_GL_APIENTRY void (*AttachShader)(GLuint program, GLuint shader);
+    NGLI_GL_APIENTRY void (*BeginQuery)(GLenum target, GLuint id);
     NGLI_GL_APIENTRY void (*BindAttribLocation)(GLuint program, GLuint index, const GLchar * name);
     NGLI_GL_APIENTRY void (*BindBuffer)(GLenum target, GLuint buffer);
     NGLI_GL_APIENTRY void (*BindBufferBase)(GLenum target, GLuint index, GLuint buffer);
@@ -40,6 +41,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*DeleteBuffers)(GLsizei n, const GLuint * buffers);
     NGLI_GL_APIENTRY void (*DeleteFramebuffers)(GLsizei n, const GLuint * framebuffers);
     NGLI_GL_APIENTRY void (*DeleteProgram)(GLuint program);
+    NGLI_GL_APIENTRY void (*DeleteQueries)(GLsizei n, const GLuint * ids);
     NGLI_GL_APIENTRY void (*DeleteRenderbuffers)(GLsizei n, const GLuint * renderbuffers);
     NGLI_GL_APIENTRY void (*DeleteShader)(GLuint shader);
     NGLI_GL_APIENTRY void (*DeleteTextures)(GLsizei n, const GLuint * textures);
@@ -53,10 +55,12 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*DrawElements)(GLenum mode, GLsizei count, GLenum type, const void * indices);
     NGLI_GL_APIENTRY void (*Enable)(GLenum cap);
     NGLI_GL_APIENTRY void (*EnableVertexAttribArray)(GLuint index);
+    NGLI_GL_APIENTRY void (*EndQuery)(GLenum target);
     NGLI_GL_APIENTRY void (*FramebufferRenderbuffer)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
     NGLI_GL_APIENTRY void (*FramebufferTexture2D)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
     NGLI_GL_APIENTRY void (*GenBuffers)(GLsizei n, GLuint * buffers);
     NGLI_GL_APIENTRY void (*GenFramebuffers)(GLsizei n, GLuint * framebuffers);
+    NGLI_GL_APIENTRY void (*GenQueries)(GLsizei n, GLuint * ids);
     NGLI_GL_APIENTRY void (*GenRenderbuffers)(GLsizei n, GLuint * renderbuffers);
     NGLI_GL_APIENTRY void (*GenTextures)(GLsizei n, GLuint * textures);
     NGLI_GL_APIENTRY void (*GenVertexArrays)(GLsizei n, GLuint * arrays);
@@ -74,6 +78,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY GLint (*GetProgramResourceLocation)(GLuint program, GLenum programInterface, const GLchar * name);
     NGLI_GL_APIENTRY void (*GetProgramResourceiv)(GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum * props, GLsizei bufSize, GLsizei * length, GLint * params);
     NGLI_GL_APIENTRY void (*GetProgramiv)(GLuint program, GLenum pname, GLint * params);
+    NGLI_GL_APIENTRY void (*GetQueryObjectui64v)(GLuint id, GLenum pname, GLuint64 * params);
     NGLI_GL_APIENTRY void (*GetRenderbufferParameteriv)(GLenum target, GLenum pname, GLint * params);
     NGLI_GL_APIENTRY void (*GetShaderInfoLog)(GLuint shader, GLsizei bufSize, GLsizei * length, GLchar * infoLog);
     NGLI_GL_APIENTRY void (*GetShaderSource)(GLuint shader, GLsizei bufSize, GLsizei * length, GLchar * source);

@@ -44,6 +44,12 @@ static inline void ngli_glAttachShader(const struct glfunctions *gl, GLuint prog
     check_error_code(gl, "glAttachShader");
 }
 
+static inline void ngli_glBeginQuery(const struct glfunctions *gl, GLenum target, GLuint id)
+{
+    gl->BeginQuery(target, id);
+    check_error_code(gl, "glBeginQuery");
+}
+
 static inline void ngli_glBindAttribLocation(const struct glfunctions *gl, GLuint program, GLuint index, const GLchar * name)
 {
     gl->BindAttribLocation(program, index, name);
@@ -203,6 +209,12 @@ static inline void ngli_glDeleteProgram(const struct glfunctions *gl, GLuint pro
     check_error_code(gl, "glDeleteProgram");
 }
 
+static inline void ngli_glDeleteQueries(const struct glfunctions *gl, GLsizei n, const GLuint * ids)
+{
+    gl->DeleteQueries(n, ids);
+    check_error_code(gl, "glDeleteQueries");
+}
+
 static inline void ngli_glDeleteRenderbuffers(const struct glfunctions *gl, GLsizei n, const GLuint * renderbuffers)
 {
     gl->DeleteRenderbuffers(n, renderbuffers);
@@ -281,6 +293,12 @@ static inline void ngli_glEnableVertexAttribArray(const struct glfunctions *gl, 
     check_error_code(gl, "glEnableVertexAttribArray");
 }
 
+static inline void ngli_glEndQuery(const struct glfunctions *gl, GLenum target)
+{
+    gl->EndQuery(target);
+    check_error_code(gl, "glEndQuery");
+}
+
 static inline void ngli_glFramebufferRenderbuffer(const struct glfunctions *gl, GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
     gl->FramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
@@ -303,6 +321,12 @@ static inline void ngli_glGenFramebuffers(const struct glfunctions *gl, GLsizei 
 {
     gl->GenFramebuffers(n, framebuffers);
     check_error_code(gl, "glGenFramebuffers");
+}
+
+static inline void ngli_glGenQueries(const struct glfunctions *gl, GLsizei n, GLuint * ids)
+{
+    gl->GenQueries(n, ids);
+    check_error_code(gl, "glGenQueries");
 }
 
 static inline void ngli_glGenRenderbuffers(const struct glfunctions *gl, GLsizei n, GLuint * renderbuffers)
@@ -409,6 +433,12 @@ static inline void ngli_glGetProgramiv(const struct glfunctions *gl, GLuint prog
 {
     gl->GetProgramiv(program, pname, params);
     check_error_code(gl, "glGetProgramiv");
+}
+
+static inline void ngli_glGetQueryObjectui64v(const struct glfunctions *gl, GLuint id, GLenum pname, GLuint64 * params)
+{
+    gl->GetQueryObjectui64v(id, pname, params);
+    check_error_code(gl, "glGetQueryObjectui64v");
 }
 
 static inline void ngli_glGetRenderbufferParameteriv(const struct glfunctions *gl, GLenum target, GLenum pname, GLint * params)

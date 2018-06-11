@@ -36,6 +36,7 @@
 #define NGLI_FEATURE_FRAMEBUFFER_OBJECT           (1 << 7)
 #define NGLI_FEATURE_INTERNALFORMAT_QUERY         (1 << 8)
 #define NGLI_FEATURE_PACKED_DEPTH_STENCIL         (1 << 9)
+#define NGLI_FEATURE_TIMER_QUERY                  (1 << 10)
 
 #define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
                                          NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \

@@ -59,6 +59,13 @@ cmds_optional = [
 
     # Internal format
     'glGetInternalformativ',
+
+    # Query
+    'glBeginQuery',
+    'glEndQuery',
+    'glGenQueries',
+    'glDeleteQueries',
+    'glGetQueryObjectui64v',
 ]
 
 cmds = [
