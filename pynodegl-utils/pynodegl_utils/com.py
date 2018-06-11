@@ -153,6 +153,9 @@ def query_inplace(**idict):
         del odict['scene']
         scene.set_name(scene_name)
 
+        if isinstance(scene, Camera) and 'pipe' in idict and idict.get('has_fps'):
+            scene.set_hflip(True)
+
         # Make extra adjustments to the scene according to user options
         if idict.get('has_fps'):
             fr = odict['framerate']
