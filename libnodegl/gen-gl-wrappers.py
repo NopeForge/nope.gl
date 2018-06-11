@@ -66,6 +66,13 @@ cmds_optional = [
     'glGenQueries',
     'glDeleteQueries',
     'glGetQueryObjectui64v',
+
+    # Query EXT
+    'glBeginQueryEXT',
+    'glEndQueryEXT',
+    'glGenQueriesEXT',
+    'glDeleteQueriesEXT',
+    'glGetQueryObjectui64vEXT',
 ]
 
 cmds = [

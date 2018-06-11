@@ -146,5 +146,17 @@ static const struct glfeature {
         .maj_version    = 3,
         .min_version    = 3,
         .extensions     = (const char*[]){"ARB_timer_query", NULL},
+    }, {
+        .name           = "ext_disjoint_timer_query",
+        .flag           = NGLI_FEATURE_EXT_DISJOINT_TIMER_QUERY,
+        .maj_es_version = 2,
+        .min_es_version = 0,
+        .es_extensions  = (const char*[]){"GL_EXT_disjoint_timer_query", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(BeginQueryEXT),
+                                           OFFSET(EndQueryEXT),
+                                           OFFSET(GenQueriesEXT),
+                                           OFFSET(DeleteQueriesEXT),
+                                           OFFSET(GetQueryObjectui64vEXT),
+                                           -1}
     }
 };
