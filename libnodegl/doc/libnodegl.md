@@ -205,6 +205,7 @@ Parameter | Ctor. | Type | Description | Default
 `pipe_fd` |  | [`int`](#parameter-types) | pipe file descriptor where the rendered raw RGBA buffer is written | `0`
 `pipe_width` |  | [`int`](#parameter-types) | width (in pixels) of the raw image buffer when using `pipe_fd` | `0`
 `pipe_height` |  | [`int`](#parameter-types) | height (in pixels) of the raw image buffer when using `pipe_fd` | `0`
+`hflip` |  | [`bool`](#parameter-types) | horizontal flip | `unset`
 
 
 **Source**: [node_camera.c](/libnodegl/node_camera.c)

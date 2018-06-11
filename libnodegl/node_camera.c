@@ -64,6 +64,8 @@ static const struct node_param camera_params[] = {
                    .desc=NGLI_DOCSTRING("width (in pixels) of the raw image buffer when using `pipe_fd`")},
     {"pipe_height", PARAM_TYPE_INT, OFFSET(pipe_height),
                     .desc=NGLI_DOCSTRING("height (in pixels) of the raw image buffer when using `pipe_fd`")},
+    {"hflip", PARAM_TYPE_BOOL, OFFSET(hflip), {.i64=-1},
+              .desc=NGLI_DOCSTRING("horizontal flip")},
     {NULL}
 };
 
@@ -175,7 +177,7 @@ static int camera_update(struct ngl_node *node, double t)
         s->perspective[3]
     );
 
-    if (s->pipe_fd)
+    if ((s->hflip && s->pipe_fd) || s->hflip == 1)
         perspective[5] = -perspective[5];
 
     memcpy(child->modelview_matrix, view, sizeof(view));
