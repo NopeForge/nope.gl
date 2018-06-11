@@ -244,6 +244,12 @@ static int hud_init(struct ngl_node *node)
         s->glBeginQuery          = ngli_glBeginQuery;
         s->glEndQuery            = ngli_glEndQuery;
         s->glGetQueryObjectui64v = ngli_glGetQueryObjectui64v;
+    } else if (glcontext->features & NGLI_FEATURE_EXT_DISJOINT_TIMER_QUERY) {
+        s->glGenQueries          = ngli_glGenQueriesEXT;
+        s->glDeleteQueries       = ngli_glDeleteQueriesEXT;
+        s->glBeginQuery          = ngli_glBeginQueryEXT;
+        s->glEndQuery            = ngli_glEndQueryEXT;
+        s->glGetQueryObjectui64v = ngli_glGetQueryObjectui64vEXT;
     } else {
         s->glGenQueries          = (void *)noop;
         s->glDeleteQueries       = (void *)noop;
