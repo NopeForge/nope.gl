@@ -147,7 +147,7 @@ static void glcontext_eagl_uninit(struct glcontext *glcontext)
     if (glcontext_eagl->texture_cache)
         CFRelease(glcontext_eagl->texture_cache);
 
-    if (glcontext->wrapped) {
+    if (!glcontext->wrapped) {
         if (glcontext_eagl->handle)
             CFRelease(glcontext_eagl->handle);
     }
