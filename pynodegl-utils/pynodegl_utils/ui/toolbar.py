@@ -38,6 +38,7 @@ class Toolbar(QtWidgets.QWidget):
     frame_rate_changed = QtCore.pyqtSignal(tuple, name='frameRateChanged')
     log_level_changed = QtCore.pyqtSignal(str, name='logLevelChanged')
     clear_color_changed = QtCore.pyqtSignal(tuple, name='clearColorChanged')
+    hud_changed = QtCore.pyqtSignal(bool, name='hudChanged')
 
     def __init__(self, config):
         super(Toolbar, self).__init__()
@@ -55,6 +56,7 @@ class Toolbar(QtWidgets.QWidget):
         self._current_scene_data = None
 
         self._hud_chkbox = QtWidgets.QCheckBox('Enable HUD')
+        self._hud_chkbox.setChecked(config.get('enable_hud'))
 
         all_ar = config.CHOICES['aspect_ratio']
         default_ar = config.get('aspect_ratio')
@@ -354,6 +356,7 @@ class Toolbar(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot()
     def _hud_chkbox_changed(self):
+        self.hudChanged.emit(self._hud_chkbox.isChecked())
         self._load_current_scene()
 
     @QtCore.pyqtSlot(int)

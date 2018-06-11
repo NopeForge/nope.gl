@@ -114,6 +114,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.logLevelChanged.connect(self._config.set_log_level)
         self._scene_toolbar.clearColorChanged.connect(gl_view.set_clear_color)
         self._scene_toolbar.clearColorChanged.connect(self._config.set_clear_color)
+        self._scene_toolbar.hudChanged.connect(self._config.set_hud)
 
         self._errbuf = QtWidgets.QPlainTextEdit()
         self._errbuf.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
