@@ -97,6 +97,11 @@ char *ngli_bstr_strptr(struct bstr *b)
     return b->str;
 }
 
+int ngli_bstr_len(struct bstr *b)
+{
+    return b->len;
+}
+
 void ngli_bstr_freep(struct bstr **bp)
 {
     struct bstr *b = *bp;

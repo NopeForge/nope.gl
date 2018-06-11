@@ -33,6 +33,7 @@ int ngli_bstr_print(struct bstr *b, const char *fmt, ...) ngli_printf_format(2, 
 void ngli_bstr_clear(struct bstr *b);
 char *ngli_bstr_strdup(struct bstr *b);
 char *ngli_bstr_strptr(struct bstr *b);
+int ngli_bstr_len(struct bstr *b);
 void ngli_bstr_freep(struct bstr **bp);
 
 #endif
