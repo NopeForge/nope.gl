@@ -69,10 +69,10 @@ LIB_OBJS = api.o                    \
            node_circle.o            \
            node_compute.o           \
            node_computeprogram.o    \
-           node_fps.o               \
            node_geometry.o          \
            node_graphicconfig.o     \
            node_group.o             \
+           node_hud.o               \
            node_identity.o          \
            node_media.o             \
            node_program.o           \

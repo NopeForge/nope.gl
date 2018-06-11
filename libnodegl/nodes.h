@@ -56,6 +56,7 @@ struct ngl_ctx {
     struct glstate *glstate;
     struct ngl_node *scene;
     struct ngl_config config;
+    int timer_active;
 };
 
 struct ngl_node {
@@ -437,26 +438,47 @@ struct animkeyframe {
     int nb_args;
 };
 
-struct fps_measuring {
-    int nb;
+struct hud_measuring {
     int64_t *times;
     int count;
     int pos;
     int64_t total_times;
 };
 
-struct fps {
+struct hud_data_graph {
+    int64_t *values;
+    int count;
+    int pos;
+    int64_t min;
+    int64_t max;
+};
+
+struct hud {
     struct ngl_node *child;
-    struct fps_measuring m_update;
-    struct fps_measuring m_draw;
-    struct fps_measuring m_total;
-    int create_databuf;
+    int measure_window;
     int refresh_rate[2];
+    char *export_filename;
+    float bg_color[4];
+
+    struct hud_measuring measures[6];
+    struct hud_data_graph graph[6];
+    uint32_t bg_color_u32;
+    int fd_export;
+    struct bstr *csv_line;
     uint8_t *data_buf;
     int data_w, data_h;
     double refresh_rate_interval;
     double last_refresh_time;
     int need_refresh;
+    int64_t graph_min;
+    int64_t graph_max;
+
+    GLuint query;
+    void (*glGenQueries)(const struct glfunctions *gl, GLsizei n, GLuint * ids);
+    void (*glDeleteQueries)(const struct glfunctions *gl, GLsizei n, const GLuint * ids);
+    void (*glBeginQuery)(const struct glfunctions *gl, GLenum target, GLuint id);
+    void (*glEndQuery)(const struct glfunctions *gl, GLenum target);
+    void (*glGetQueryObjectui64v)(const struct glfunctions *gl, GLuint id, GLenum pname, GLuint64 *params);
 };
 
 /**

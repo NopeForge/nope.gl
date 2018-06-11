@@ -146,7 +146,7 @@ static const struct param_choices access_choices = {
 
 
 #define DATA_SRC_TYPES_LIST_2D (const int[]){NGL_NODE_MEDIA,                   \
-                                             NGL_NODE_FPS,                     \
+                                             NGL_NODE_HUD,                     \
                                              BUFFER_NODES                      \
                                              -1}
 
@@ -476,11 +476,8 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
             return ret;
 
         switch (s->data_src->class->id) {
-        case NGL_NODE_FPS:
-            s->format = glcontext->gl_1comp;
-            s->internal_format = ngli_texture_get_sized_internal_format(glcontext,
-                                                                        glcontext->gl_1comp,
-                                                                        GL_UNSIGNED_BYTE);
+        case NGL_NODE_HUD:
+            s->format = s->internal_format = GL_RGBA;
             s->type = GL_UNSIGNED_BYTE;
             break;
         case NGL_NODE_MEDIA:
@@ -567,13 +564,13 @@ static int texture##dim##d_prefetch(struct ngl_node *node)  \
 TEXTURE_PREFETCH(2)
 TEXTURE_PREFETCH(3)
 
-static void handle_fps_frame(struct ngl_node *node)
+static void handle_hud_frame(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
-    struct fps *fps = s->data_src->priv_data;
-    const int width = fps->data_w;
-    const int height = fps->data_h;
-    const uint8_t *data = fps->data_buf;
+    struct hud *hud = s->data_src->priv_data;
+    const int width = hud->data_w;
+    const int height = hud->data_h;
+    const uint8_t *data = hud->data_buf;
 
     ngli_texture_update_local_texture(node, width, height, 0, data);
 }
@@ -615,8 +612,8 @@ static int texture_update(struct ngl_node *node, double t)
         return ret;
 
     switch (s->data_src->class->id) {
-        case NGL_NODE_FPS:
-            handle_fps_frame(node);
+        case NGL_NODE_HUD:
+            handle_hud_frame(node);
             break;
         case NGL_NODE_MEDIA:
             handle_media_frame(node);

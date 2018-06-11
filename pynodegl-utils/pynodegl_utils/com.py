@@ -37,8 +37,9 @@ from pynodegl_utils.filetracker import FileTracker
 
 from pynodegl import (
     Camera,
-    FPS,
+    GraphicConfig,
     Group,
+    HUD,
     Program,
     Quad,
     Render,
@@ -153,27 +154,32 @@ def query_inplace(**idict):
         del odict['scene']
         scene.set_name(scene_name)
 
-        if isinstance(scene, Camera) and 'pipe' in idict and idict.get('has_fps'):
+        if isinstance(scene, Camera) and 'pipe' in idict and idict.get('enable_hud'):
             scene.set_hflip(True)
 
         # Make extra adjustments to the scene according to user options
-        if idict.get('has_fps'):
+        if idict.get('enable_hud'):
             fr = odict['framerate']
-            measure_window = fr[0] / fr[1]  # 1-second measurement window
-            buf_size = (64*8, 3*8)
+            measure_window = fr[0] / (4 * fr[1])  # 1/4-second measurement window
+            buf_size = (64*8, 6*8)
             bratio = buf_size[0] / float(buf_size[1])
             ar = odict['aspect_ratio']
-            fps_w = 2.
-            fps_h = 2. / bratio * ar[0] / float(ar[1])
-            fps = FPS(scene, create_databuf=1, refresh_rate=(1, 8),
-                      measure_update=measure_window,
-                      measure_draw=measure_window)
-            q = Quad((-1, 1. - fps_h, 0), (fps_w, 0, 0), (0, fps_h, 0))
-            t = Texture2D(data_src=fps)
+            hud_w = 2.
+            hud_h = 2. / bratio * ar[0] / float(ar[1])
+            hud = HUD(scene, refresh_rate=(fr[1], fr[0]),
+                      measure_window=measure_window,
+                      bg_color=(0.0, 0.0, 0.0, 0.8))
+            q = Quad((-1, 1. - hud_h, 0), (hud_w, 0, 0), (0, hud_h, 0))
+            t = Texture2D(data_src=hud)
             render = Render(q)
             render.update_textures(tex0=t)
+            render = GraphicConfig(render, blend=True,
+                                   blend_src_factor='src_alpha',
+                                   blend_dst_factor='one_minus_src_alpha',
+                                   blend_src_factor_a='zero',
+                                   blend_dst_factor_a='one')
             g = Group()
-            g.add_children(fps, render)
+            g.add_children(hud, render)
             scene = g
 
         # Pipe mode for data export requires a Camera

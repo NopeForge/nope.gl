@@ -70,10 +70,10 @@
     action(NGL_NODE_CIRCLE,                 ngli_circle_class)                  \
     action(NGL_NODE_COMPUTE,                ngli_compute_class)                 \
     action(NGL_NODE_COMPUTEPROGRAM,         ngli_computeprogram_class)          \
-    action(NGL_NODE_FPS,                    ngli_fps_class)                     \
     action(NGL_NODE_GEOMETRY,               ngli_geometry_class)                \
     action(NGL_NODE_GRAPHICCONFIG,          ngli_graphicconfig_class)           \
     action(NGL_NODE_GROUP,                  ngli_group_class)                   \
+    action(NGL_NODE_HUD,                    ngli_hud_class)                     \
     action(NGL_NODE_IDENTITY,               ngli_identity_class)                \
     action(NGL_NODE_MEDIA,                  ngli_media_class)                   \
     action(NGL_NODE_PROGRAM,                ngli_program_class)                 \

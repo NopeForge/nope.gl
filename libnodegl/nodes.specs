@@ -183,15 +183,6 @@
     constructors:
         - [compute, string]
 
-- FPS:
-    constructors:
-        - [child, Node]
-    optional:
-        - [measure_update, int]
-        - [measure_draw, int]
-        - [create_databuf, bool]
-        - [refresh_rate, rational]
-
 - Geometry:
     constructors:
         - [vertices, Node]
@@ -228,6 +219,15 @@
 - Group:
     optional:
         - [children, NodeList]
+
+- HUD:
+    constructors:
+        - [child, Node]
+    optional:
+        - [measure_window, int]
+        - [refresh_rate, rational]
+        - [export_filename, string]
+        - [bg_color, vec4]
 
 - Identity:
 

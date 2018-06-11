@@ -248,20 +248,6 @@ Parameter | Ctor. | Type | Description | Default
 **Source**: [node_computeprogram.c](/libnodegl/node_computeprogram.c)
 
 
-## FPS
-
-Parameter | Ctor. | Type | Description | Default
---------- | :---: | ---- | ----------- | :-----:
-`child` | ✓ | [`Node`](#parameter-types) | scene to benchmark | 
-`measure_update` |  | [`int`](#parameter-types) | window size of update measures | `60`
-`measure_draw` |  | [`int`](#parameter-types) | window size of draw measures | `60`
-`create_databuf` |  | [`bool`](#parameter-types) | create a data buffer to be used as source for a texture | `0`
-`refresh_rate` |  | [`rational`](#parameter-types) | refresh data buffer every `update_rate` second | 
-
-
-**Source**: [node_fps.c](/libnodegl/node_fps.c)
-
-
 ## Geometry
 
 Parameter | Ctor. | Type | Description | Default
@@ -313,6 +299,20 @@ Parameter | Ctor. | Type | Description | Default
 
 
 **Source**: [node_group.c](/libnodegl/node_group.c)
+
+
+## HUD
+
+Parameter | Ctor. | Type | Description | Default
+--------- | :---: | ---- | ----------- | :-----:
+`child` | ✓ | [`Node`](#parameter-types) | scene to benchmark | 
+`measure_window` |  | [`int`](#parameter-types) | window size for measures | `60`
+`refresh_rate` |  | [`rational`](#parameter-types) | refresh data buffer every `update_rate` second | 
+`export_filename` |  | [`string`](#parameter-types) | path to export file (CSV) | 
+`bg_color` |  | [`vec4`](#parameter-types) | Background buffer color | (`0`,`0`,`0`,`1`)
+
+
+**Source**: [node_hud.c](/libnodegl/node_hud.c)
 
 
 ## Identity
@@ -430,7 +430,7 @@ Parameter | Ctor. | Type | Description | Default
 `mag_filter` |  | [`mag_filter`](#mag_filter-choices) | texture magnification function | `nearest`
 `wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
-`data_src` |  | [`Node`](#parameter-types) ([Media](#media), [FPS](#fps), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | data source | 
+`data_src` |  | [`Node`](#parameter-types) ([Media](#media), [HUD](#hud), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | data source | 
 `access` |  | [`access`](#access-choices) | texture access (only honored by the `Compute` node) | `read_write`
 `direct_rendering` |  | [`bool`](#parameter-types) | whether direct rendering is enabled or not for media playback | `unset`
 `immutable` |  | [`bool`](#parameter-types) | whether the texture is immutable or not | `0`
