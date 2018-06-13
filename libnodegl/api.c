@@ -20,12 +20,12 @@
  */
 
 #include <stdlib.h>
+#include <pthread.h>
 #include <stdio.h>
 #include <string.h>
 
 #if defined(TARGET_ANDROID)
 #include <jni.h>
-#include <pthread.h>
 
 #include "jni_utils.h"
 #endif
@@ -46,10 +46,12 @@ struct ngl_ctx *ngl_create(void)
     return s;
 }
 
-static int reconfigure(struct ngl_ctx *s, struct ngl_config *config)
+static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 {
     if (s->glcontext->wrapped)
         return -1;
+
+    const struct ngl_config *config = arg;
 
     int width = 0;
     int height = 0;
@@ -69,11 +71,9 @@ static int reconfigure(struct ngl_ctx *s, struct ngl_config *config)
     return 0;
 }
 
-int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
+static int cmd_configure(struct ngl_ctx *s, void *arg)
 {
-    if (s->configured) {
-        return reconfigure(s, config);
-    }
+    const struct ngl_config *config = arg;
 
     if (config)
         memcpy(&s->config, config, sizeof(s->config));
@@ -97,48 +97,40 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
     if (!s->glstate)
         return -1;
 
-    s->configured = 1;
     return 0;
 }
 
-int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height)
-{
-    if (!s->configured) {
-        LOG(ERROR, "Context must be configured before setting viewport");
-        return -1;
-    }
+struct viewport {
+    int x, y;
+    int width, height;
+};
 
+static int cmd_set_viewport(struct ngl_ctx *s, void *arg)
+{
+    const struct viewport *v = arg;
     const struct glcontext *glcontext = s->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
-    ngli_glViewport(gl, x, y, width, height);
+    ngli_glViewport(gl, v->x, v->y, v->width, v->height);
     return 0;
 }
 
-int ngl_set_clearcolor(struct ngl_ctx *s, double r, double g, double b, double a)
+static int cmd_set_clearcolor(struct ngl_ctx *s, void *arg)
 {
-    if (!s->configured) {
-        LOG(ERROR, "Context must be configured before setting clear color");
-        return -1;
-    }
-
+    const float *rgba = arg;
     const struct glcontext *glcontext = s->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
-    ngli_glClearColor(gl, r, g, b, a);
+    ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
     return 0;
 }
 
-int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
+static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 {
-    if (!s->configured) {
-        LOG(ERROR, "Context must be configured before setting a scene");
-        return -1;
-    }
-
     if (s->scene) {
         ngli_node_detach_ctx(s->scene);
         ngl_node_unrefp(&s->scene);
     }
 
+    struct ngl_node *scene = arg;
     if (!scene)
         return 0;
 
@@ -150,15 +142,11 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
     return 0;
 }
 
-int ngli_prepare_draw(struct ngl_ctx *s, double t)
+static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 {
+    const double t = *(double *)arg;
     struct glcontext *glcontext = s->glcontext;
     const struct glfunctions *gl = &glcontext->funcs;
-
-    if (!s->configured) {
-        LOG(ERROR, "context must be configured before drawing");
-        return -1;
-    }
 
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -183,11 +171,12 @@ int ngli_prepare_draw(struct ngl_ctx *s, double t)
     return 0;
 }
 
-int ngl_draw(struct ngl_ctx *s, double t)
+static int cmd_draw(struct ngl_ctx *s, void *arg)
 {
+    const double t = *(double *)arg;
     struct glcontext *glcontext = s->glcontext;
 
-    int ret = ngli_prepare_draw(s, t);
+    int ret = cmd_prepare_draw(s, arg);
     if (ret < 0)
         goto end;
 
@@ -208,6 +197,131 @@ end:
     return ret;
 }
 
+static int cmd_stop(struct ngl_ctx *s, void *arg)
+{
+    ngli_glcontext_freep(&s->glcontext);
+    ngli_glstate_freep(&s->glstate);
+    return 0;
+}
+
+static int dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg)
+{
+    if (!s->has_thread)
+        return cmd_func(s, arg);
+
+    pthread_mutex_lock(&s->lock);
+    s->cmd_func = cmd_func;
+    s->cmd_arg = arg;
+    pthread_cond_signal(&s->cond_wkr);
+    while (s->cmd_func)
+        pthread_cond_wait(&s->cond_ctl, &s->lock);
+    pthread_mutex_unlock(&s->lock);
+
+    return s->cmd_ret;
+}
+
+static void *worker_thread(void *arg)
+{
+    struct ngl_ctx *s = arg;
+
+    ngli_thread_set_name("ngl-thread");
+
+    pthread_mutex_lock(&s->lock);
+    for (;;) {
+        while (!s->cmd_func)
+            pthread_cond_wait(&s->cond_wkr, &s->lock);
+        s->cmd_ret = s->cmd_func(s, s->cmd_arg);
+        int need_stop = s->cmd_func == cmd_stop;
+        s->cmd_func = s->cmd_arg = NULL;
+        pthread_cond_signal(&s->cond_ctl);
+
+        if (need_stop)
+            break;
+    }
+    pthread_mutex_unlock(&s->lock);
+
+    return NULL;
+}
+
+int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
+{
+    if (s->configured)
+        return dispatch_cmd(s, cmd_reconfigure, config);
+
+    s->has_thread = !config->wrapped;
+    if (s->has_thread) {
+        int ret;
+        if ((ret = pthread_mutex_init(&s->lock, NULL)) ||
+            (ret = pthread_cond_init(&s->cond_ctl, NULL)) ||
+            (ret = pthread_cond_init(&s->cond_wkr, NULL)) ||
+            (ret = pthread_create(&s->worker_tid, NULL, worker_thread, s))) {
+            pthread_cond_destroy(&s->cond_ctl);
+            pthread_cond_destroy(&s->cond_wkr);
+            pthread_mutex_destroy(&s->lock);
+            return ret;
+        }
+    }
+
+    int ret = dispatch_cmd(s, cmd_configure, config);
+    if (ret < 0)
+        return ret;
+
+    s->configured = 1;
+    return 0;
+}
+
+int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height)
+{
+    if (!s->configured) {
+        LOG(ERROR, "Context must be configured before setting viewport");
+        return -1;
+    }
+
+    struct viewport v = {x, y, width, height};
+    return dispatch_cmd(s, cmd_set_viewport, &v);
+}
+
+int ngl_set_clearcolor(struct ngl_ctx *s, double r, double g, double b, double a)
+{
+    if (!s->configured) {
+        LOG(ERROR, "Context must be configured before setting clear color");
+        return -1;
+    }
+
+    float rgba[4] = {r, g, b, a};
+    return dispatch_cmd(s, cmd_set_clearcolor, rgba);
+}
+
+int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
+{
+    if (!s->configured) {
+        LOG(ERROR, "Context must be configured before setting a scene");
+        return -1;
+    }
+
+    return dispatch_cmd(s, cmd_set_scene, scene);
+}
+
+int ngli_prepare_draw(struct ngl_ctx *s, double t)
+{
+    if (!s->configured) {
+        LOG(ERROR, "Context must be configured before updating");
+        return -1;
+    }
+
+    return dispatch_cmd(s, cmd_prepare_draw, &t);
+}
+
+int ngl_draw(struct ngl_ctx *s, double t)
+{
+    if (!s->configured) {
+        LOG(ERROR, "Context must be configured before drawing");
+        return -1;
+    }
+
+    return dispatch_cmd(s, cmd_draw, &t);
+}
+
 void ngl_free(struct ngl_ctx **ss)
 {
     struct ngl_ctx *s = *ss;
@@ -215,9 +329,17 @@ void ngl_free(struct ngl_ctx **ss)
     if (!s)
         return;
 
-    ngl_set_scene(s, NULL);
-    ngli_glcontext_freep(&s->glcontext);
-    ngli_glstate_freep(&s->glstate);
+    if (s->configured) {
+        ngl_set_scene(s, NULL);
+        dispatch_cmd(s, cmd_stop, NULL);
+
+        if (s->has_thread) {
+            pthread_join(s->worker_tid, NULL);
+            pthread_cond_destroy(&s->cond_ctl);
+            pthread_cond_destroy(&s->cond_wkr);
+            pthread_mutex_destroy(&s->lock);
+        }
+    }
     free(*ss);
     *ss = NULL;
 }

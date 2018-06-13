@@ -24,6 +24,7 @@
 
 #include <stdlib.h>
 #include <sxplayer.h>
+#include <pthread.h>
 
 #ifdef TARGET_ANDROID
 #include "android_handlerthread.h"
@@ -50,13 +51,28 @@ enum {
     STATE_IDLE          = 3, /* post release() */
 };
 
+typedef int (*cmd_func_type)(struct ngl_ctx *s, void *arg);
+
 struct ngl_ctx {
+    /* Controller-only fields */
     int configured;
+    pthread_t worker_tid;
+    int has_thread;
+
+    /* Worker-only fields */
     struct glcontext *glcontext;
     struct glstate *glstate;
     struct ngl_node *scene;
     struct ngl_config config;
     int timer_active;
+
+    /* Shared fields */
+    pthread_mutex_t lock;
+    pthread_cond_t cond_ctl;
+    pthread_cond_t cond_wkr;
+    cmd_func_type cmd_func;
+    void *cmd_arg;
+    int cmd_ret;
 };
 
 struct ngl_node {
