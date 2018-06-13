@@ -30,6 +30,7 @@
 #include <nodegl.h>
 
 #include "common.h"
+#include "wsi.h"
 
 static struct ngl_node *get_scene(const char *filename)
 {
@@ -100,6 +101,8 @@ int main(int argc, char *argv[])
                     break;
                 case 'z':
                     swap_interval = atoi(arg);
+                    /* FIXME: add swap interval support to node.gl */
+                    fprintf(stderr, "[WARNING] Swap interval (%d) is currently not supported by node.gl\n", swap_interval);
                     break;
                 case 't':
                     if (nb_ranges >= sizeof(ranges)/sizeof(*ranges)) {
@@ -151,8 +154,6 @@ int main(int argc, char *argv[])
     if (!show_window)
         glfwHideWindow(window);
 
-    glfwSwapInterval(swap_interval);
-
     int fd = -1;
     struct ngl_ctx *ctx = NULL;
 
@@ -179,13 +180,14 @@ int main(int argc, char *argv[])
         ngl_node_param_set(scene, "pipe_height", height);
     }
 
-    struct ngl_config config = {.wrapped = 1};
-
     ctx = ngl_create();
     if (!ctx) {
         ngl_node_unrefp(&scene);
         goto end;
     }
+
+    struct ngl_config config = {0};
+    wsi_set_ngl_config(&config, window);
 
     ret = ngl_configure(ctx, &config);
     if (ret < 0) {
@@ -220,7 +222,6 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Unable to draw @ t=%g\n", t);
                 goto end;
             }
-            glfwSwapBuffers(window);
             glfwPollEvents();
             k++;
         }

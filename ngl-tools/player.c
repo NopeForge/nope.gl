@@ -24,6 +24,7 @@
 
 #include "common.h"
 #include "player.h"
+#include "wsi.h"
 
 static struct player *g_player;
 
@@ -157,11 +158,12 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     glfwSetWindowSizeCallback(p->window, size_callback);
     glfwSetCursorPosCallback(p->window, cursor_pos_callback);
 
-    struct ngl_config config = {.wrapped = 1};
-
     p->ngl = ngl_create();
     if (!p->ngl)
         return -1;
+
+    struct ngl_config config = {0};
+    wsi_set_ngl_config(&config, p->window);
 
     int ret = ngl_configure(p->ngl, &config);
     if (ret < 0)
@@ -192,7 +194,6 @@ void player_main_loop(void)
     do {
         update_time(-1);
         ngl_draw(p->ngl, p->frame_ts / 1000000.0);
-        glfwSwapBuffers(p->window);
         glfwPollEvents();
     } while (glfwGetKey(p->window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
              glfwWindowShouldClose(p->window) == 0);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 GoPro Inc.
+ * Copyright 2018 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,47 +19,19 @@
  * under the License.
  */
 
-#include <stdio.h>
-#include <sys/time.h>
-
 #include <GLFW/glfw3.h>
+#define GLFW_EXPOSE_NATIVE_COCOA
+#include <GLFW/glfw3native.h>
+#include <nodegl.h>
 
-#include "common.h"
+#include "wsi.h"
 
-int64_t gettime(void)
+int wsi_set_ngl_config(struct ngl_config *config, GLFWwindow *window)
 {
-    struct timeval tv;
+    NSWindow *nswindow = glfwGetCocoaWindow(window);
+    NSView *view = [nswindow contentView];
 
-    gettimeofday(&tv, NULL);
-    return 1000000 * (int64_t)tv.tv_sec + tv.tv_usec;
-}
-
-double clipd(double v, double min, double max)
-{
-    if (v < min) return min;
-    if (v > max) return max;
-    return v;
-}
-
-int init_glfw(void)
-{
-    if (!glfwInit()) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
-        return -1;
-    }
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+    config->window = (uintptr_t)view;
 
     return 0;
-}
-
-GLFWwindow *get_window(const char *title, int width, int height)
-{
-    GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
-    if (!window) {
-        fprintf(stderr, "Failed to create window\n");
-        return NULL;
-    }
-    glfwShowWindow(window);
-    return window;
 }

@@ -37,7 +37,7 @@ ifeq ($(TARGET_OS),MinGW-w64)
 TOOLS_LDLIBS += -lopengl32
 else
 ifeq ($(TARGET_OS),Darwin)
-TOOLS_LDLIBS += -framework OpenGL
+TOOLS_LDLIBS += -framework OpenGL -framework AppKit
 else
 TOOLS_CFLAGS += $(shell $(PKG_CONFIG) --cflags gl)
 TOOLS_LDLIBS += $(shell $(PKG_CONFIG) --libs   gl)
@@ -67,7 +67,11 @@ ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(shell python2-
 ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(shell python2-config --libs)
 ngl-python$(EXESUF): ngl-python.o player.o
 
-$(TOOLS_BINS): common.o
+TOOLS_OBJS_Linux  = wsi_x11.o
+TOOLS_OBJS_Darwin = wsi_cocoa.o
+TOOLS_OBJS = common.o $(TOOLS_OBJS_$(TARGET_OS))
+
+$(TOOLS_BINS): $(TOOLS_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 clean:
