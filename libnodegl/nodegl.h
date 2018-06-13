@@ -294,14 +294,14 @@ enum {
  * node.gl configuration
  */
 struct ngl_config {
-    void *display; /* pointer to a native display handle or NULL to
-                      automatically get the current window */
+    uintptr_t display; /* a native display handle or 0 to automatically get the
+                         current window */
 
-    void *window;  /* pointer to a native window handle or NULL to
-                      automatically get the current window */
+    uintptr_t window;  /* a native window handle or 0 to automatically get the
+                          current window */
 
-    void *handle;  /* pointer to a native OpenGL context handle or NULL to
-                      automatically get the currently bound OpenGL context */
+    uintptr_t handle;  /* a native OpenGL context handle or 0 to automatically
+                          get the currently bound OpenGL context */
 
     int  platform; /* OpenGL platform (any of NGL_GLPLATFORM_*). It must be
                       compatible with the system on which the code is executed.

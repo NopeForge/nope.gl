@@ -149,7 +149,7 @@ struct glcontext *ngli_glcontext_new(struct ngl_config *config)
     }
 
     if (glcontext->class->init) {
-        void *handle = glcontext->wrapped ? config->handle : NULL;
+        uintptr_t handle = glcontext->wrapped ? config->handle : 0;
         int ret = glcontext->class->init(glcontext, config->display, config->window, handle);
         if (ret < 0)
             goto fail;

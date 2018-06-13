@@ -40,12 +40,12 @@ struct glcontext_nsgl {
     GLuint depthbuffer;
 };
 
-static int glcontext_nsgl_init(struct glcontext *glcontext, void *display, void *window, void *handle)
+static int glcontext_nsgl_init(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
     struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
 
     if (glcontext->wrapped) {
-        glcontext_nsgl->handle = handle ? *(NSOpenGLContext **)handle : [NSOpenGLContext currentContext];
+        glcontext_nsgl->handle = handle ? (NSOpenGLContext *)handle : [NSOpenGLContext currentContext];
         if (!glcontext_nsgl->handle) {
             LOG(ERROR, "could not retrieve NSGL context");
             return -1;
@@ -53,7 +53,7 @@ static int glcontext_nsgl_init(struct glcontext *glcontext, void *display, void 
     } else {
         if (!glcontext->offscreen) {
             if (window)
-                glcontext_nsgl->view = *(NSView **)window;
+                glcontext_nsgl->view = (NSView *)window;
             if (!glcontext_nsgl->view) {
                 LOG(ERROR, "could not retrieve NS view");
                 return -1;
@@ -76,7 +76,7 @@ static int glcontext_nsgl_init(struct glcontext *glcontext, void *display, void 
     return 0;
 }
 
-static int glcontext_nsgl_create(struct glcontext *glcontext, void *other)
+static int glcontext_nsgl_create(struct glcontext *glcontext, uintptr_t other)
 {
     struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
 
@@ -105,7 +105,7 @@ static int glcontext_nsgl_create(struct glcontext *glcontext, void *other)
         return -1;
     }
 
-    NSOpenGLContext *shared_context = other ? *(NSOpenGLContext **)other : NULL;
+    NSOpenGLContext *shared_context = other ? (NSOpenGLContext *)other : NULL;
     glcontext_nsgl->handle = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:shared_context];
     if (!glcontext_nsgl->handle) {
         LOG(ERROR, "could not create NSGL context");

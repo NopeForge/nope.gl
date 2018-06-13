@@ -41,14 +41,14 @@ struct glcontext_x11 {
 
 typedef GLXContext (*glXCreateContextAttribsFunc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
-static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *window, void *handle)
+static int glcontext_x11_init(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
     struct glcontext_x11 *glcontext_x11 = glcontext->priv_data;
 
     if (glcontext->wrapped) {
-        glcontext_x11->display = display ? *(Display **)display  : glXGetCurrentDisplay();
-        glcontext_x11->window  = window  ? *(Window *)window     : glXGetCurrentDrawable();
-        glcontext_x11->handle  = handle  ? *(GLXContext *)handle : glXGetCurrentContext();
+        glcontext_x11->display = display ? (Display *)display : glXGetCurrentDisplay();
+        glcontext_x11->window  = window  ? (Window)window     : glXGetCurrentDrawable();
+        glcontext_x11->handle  = handle  ? (GLXContext)handle : glXGetCurrentContext();
         if (!glcontext_x11->display || !glcontext_x11->window || !glcontext_x11->handle) {
             LOG(ERROR,
                 "could not retrieve GLX display (%p), window (0x%lx) and context (%p)",
@@ -59,7 +59,7 @@ static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *
         }
     } else {
         if (display)
-            glcontext_x11->display = *(Display **)display;
+            glcontext_x11->display = (Display *)display;
         if (!glcontext_x11->display) {
             glcontext_x11->own_display = 1;
             glcontext_x11->display = XOpenDisplay(NULL);
@@ -71,7 +71,7 @@ static int glcontext_x11_init(struct glcontext *glcontext, void *display, void *
 
         if (!glcontext->offscreen) {
             if (window) {
-                glcontext_x11->window  = *(Window *)window;
+                glcontext_x11->window  = (Window)window;
                 if (!glcontext_x11->window) {
                     LOG(ERROR, "could not retrieve GLX window");
                     return -1;
@@ -127,7 +127,7 @@ static void glcontext_x11_uninit(struct glcontext *glcontext)
         XCloseDisplay(glcontext_x11->display);
 }
 
-static int glcontext_x11_create(struct glcontext *glcontext, void *other)
+static int glcontext_x11_create(struct glcontext *glcontext, uintptr_t other)
 {
     struct glcontext_x11 *glcontext_x11 = glcontext->priv_data;
 
@@ -148,7 +148,7 @@ static int glcontext_x11_create(struct glcontext *glcontext, void *other)
         return -1;
     }
 
-    GLXContext shared_context = other ? *(GLXContext *)other : NULL;
+    GLXContext shared_context = other ? (GLXContext)other : NULL;
 
     glcontext_x11->own_handle = 1;
     if (glcontext->api == NGL_GLAPI_OPENGLES) {

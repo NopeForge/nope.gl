@@ -40,14 +40,14 @@ struct glcontext_egl {
     EGLBoolean (*PresentationTimeANDROID)(EGLDisplay dpy, EGLSurface sur, khronos_stime_nanoseconds_t time);
 };
 
-static int glcontext_egl_init(struct glcontext *glcontext, void *display, void *window, void *handle)
+static int glcontext_egl_init(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
     struct glcontext_egl *glcontext_egl = glcontext->priv_data;
 
     if (glcontext->wrapped) {
-        glcontext_egl->display = display ? *(EGLDisplay *)display : eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        glcontext_egl->display = display ? (EGLDisplay)display : eglGetDisplay(EGL_DEFAULT_DISPLAY);
         glcontext_egl->surface = eglGetCurrentSurface(EGL_DRAW);
-        glcontext_egl->handle  = handle  ? *(EGLContext *)handle  : eglGetCurrentContext();
+        glcontext_egl->handle  = handle  ? (EGLContext)handle  : eglGetCurrentContext();
         if (!glcontext_egl->display || !glcontext_egl->surface || !glcontext_egl->handle) {
             LOG(ERROR,
                 "could not retrieve EGL display (%p), surface (%p) and context (%p)",
@@ -63,7 +63,7 @@ static int glcontext_egl_init(struct glcontext *glcontext, void *display, void *
         }
     } else {
         if (display)
-            glcontext_egl->display = *(EGLDisplay *)display;
+            glcontext_egl->display = (EGLDisplay)display;
         if (!glcontext_egl->display) {
             glcontext_egl->own_display = 1;
             glcontext_egl->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
@@ -75,7 +75,7 @@ static int glcontext_egl_init(struct glcontext *glcontext, void *display, void *
 
         if (!glcontext->offscreen) {
             if (window) {
-                glcontext_egl->window = *(EGLNativeWindowType *)window;
+                glcontext_egl->window = (EGLNativeWindowType)window;
                 if (!glcontext_egl->window) {
                     LOG(ERROR, "could not retrieve EGL native window");
                     return -1;
@@ -104,7 +104,7 @@ static void glcontext_egl_uninit(struct glcontext *glcontext)
         eglTerminate(glcontext_egl->display);
 }
 
-static int glcontext_egl_create(struct glcontext *glcontext, void *other)
+static int glcontext_egl_create(struct glcontext *glcontext, uintptr_t other)
 {
     int ret;
     struct glcontext_egl *glcontext_egl = glcontext->priv_data;
@@ -155,7 +155,7 @@ static int glcontext_egl_create(struct glcontext *glcontext, void *other)
         return -1;
     }
 
-    EGLContext shared_context = other ? *(EGLContext *)other : NULL;
+    EGLContext shared_context = other ? (EGLContext)other : NULL;
 
     glcontext_egl->own_handle = 1;
     glcontext_egl->handle = eglCreateContext(glcontext_egl->display, config, shared_context, ctx_attribs);

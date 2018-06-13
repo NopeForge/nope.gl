@@ -76,8 +76,8 @@ struct glcontext {
 };
 
 struct glcontext_class {
-    int (*init)(struct glcontext *glcontext, void *display, void *window, void *handle);
-    int (*create)(struct glcontext *glcontext, void *other);
+    int (*init)(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle);
+    int (*create)(struct glcontext *glcontext, uintptr_t other);
     int (*make_current)(struct glcontext *glcontext, int current);
     void (*swap_buffers)(struct glcontext *glcontext);
     void (*set_surface_pts)(struct glcontext *glcontext, double t);

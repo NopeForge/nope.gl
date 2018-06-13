@@ -78,7 +78,7 @@ static int glcontext_eagl_setup_layer(struct glcontext *glcontext)
     return 0;
 }
 
-static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void *window, void *handle)
+static int glcontext_eagl_init(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
 
@@ -113,7 +113,7 @@ static int glcontext_eagl_init(struct glcontext *glcontext, void *display, void 
     } else  {
         if (!glcontext->offscreen) {
             if (window)
-                glcontext_eagl->view = *(UIView **)window;
+                glcontext_eagl->view = (UIView *)window;
             if (!glcontext_eagl->view) {
                 LOG(ERROR, "could not retrieve UI view");
                 return -1;
@@ -153,7 +153,7 @@ static void glcontext_eagl_uninit(struct glcontext *glcontext)
     }
 }
 
-static int glcontext_eagl_safe_create(struct glcontext *glcontext, void *other)
+static int glcontext_eagl_safe_create(struct glcontext *glcontext, uintptr_t other)
 {
     if (![NSThread isMainThread]) {
         __block int ret;
@@ -272,7 +272,7 @@ static int glcontext_eagl_safe_create(struct glcontext *glcontext, void *other)
     return 0;
 }
 
-static int glcontext_eagl_create(struct glcontext *glcontext, void *other)
+static int glcontext_eagl_create(struct glcontext *glcontext, uintptr_t other)
 {
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
 
