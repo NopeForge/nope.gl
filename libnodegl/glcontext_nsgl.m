@@ -154,6 +154,19 @@ static int glcontext_nsgl_create(struct glcontext *glcontext, uintptr_t other)
     return 0;
 }
 
+static int glcontext_nsgl_resize(struct glcontext *glcontext, int width, int height)
+{
+    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+
+    [glcontext_nsgl->handle update];
+
+    NSRect bounds = [glcontext_nsgl->view bounds];
+    glcontext->width = bounds.size.width;
+    glcontext->height = bounds.size.height;
+
+    return 0;
+}
+
 static int glcontext_nsgl_make_current(struct glcontext *glcontext, int current)
 {
     struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
@@ -215,6 +228,7 @@ const struct glcontext_class ngli_glcontext_nsgl_class = {
     .init = glcontext_nsgl_init,
     .create = glcontext_nsgl_create,
     .uninit = glcontext_nsgl_uninit,
+    .resize = glcontext_nsgl_resize,
     .make_current = glcontext_nsgl_make_current,
     .swap_buffers = glcontext_nsgl_swap_buffers,
     .get_proc_address = glcontext_nsgl_get_proc_address,
