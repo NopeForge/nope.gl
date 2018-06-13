@@ -19,6 +19,10 @@
  * under the License.
  */
 
+#define _GNU_SOURCE
+#include <pthread.h>
+#undef _GNU_SOURCE
+
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -90,4 +94,13 @@ uint32_t ngli_crc32(const char *s)
         }
     }
     return ~crc;
+}
+
+void ngli_thread_set_name(const char *name)
+{
+#if defined(__APPLE__)
+    pthread_setname_np(name);
+#elif ((defined(__linux__) && defined(__GLIBC__)) || defined(__ANDROID__))
+    pthread_setname_np(pthread_self(), name);
+#endif
 }
