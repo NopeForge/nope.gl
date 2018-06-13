@@ -390,6 +390,14 @@ int ngli_glcontext_make_current(struct glcontext *glcontext, int current)
     return 0;
 }
 
+int ngli_glcontext_set_swap_interval(struct glcontext *glcontext, int interval)
+{
+    if (glcontext->class->set_swap_interval)
+        return glcontext->class->set_swap_interval(glcontext, interval);
+
+    return 0;
+}
+
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext)
 {
     if (glcontext->class->swap_buffers)

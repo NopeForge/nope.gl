@@ -37,6 +37,12 @@ struct glcontext_x11 {
     int own_handle;
     GLXFBConfig *fbconfigs;
     int nb_fbconfigs;
+    int swap_interval_ext;
+    int swap_interval_mesa;
+    int swap_interval_sgi;
+    void (*glXSwapIntervalEXT)(Display*, GLXDrawable, int);
+    int (*glXSwapIntervalMESA)(int);
+    int (*glXSwapIntervalSGI)(int);
 };
 
 typedef GLXContext (*glXCreateContextAttribsFunc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
@@ -205,6 +211,22 @@ static int glcontext_x11_create(struct glcontext *glcontext, uintptr_t other)
         }
     }
 
+    if (ngli_glcontext_check_extension("GLX_EXT_swap_control", glx_extensions)) {
+        glcontext_x11->glXSwapIntervalEXT = (void *)glXGetProcAddress((const GLubyte *)"glXSwapIntervalEXT");
+        if (glcontext_x11->glXSwapIntervalEXT)
+            glcontext_x11->swap_interval_ext = 1;
+    } else if (ngli_glcontext_check_extension("GLX_MESA_swap_control", glx_extensions)) {
+        glcontext_x11->glXSwapIntervalMESA = (void *)glXGetProcAddress((const GLubyte *)"glXSwapIntervalMESA");
+        if (glcontext_x11->glXSwapIntervalMESA)
+            glcontext_x11->swap_interval_mesa = 1;
+    } else if (ngli_glcontext_check_extension("GLX_SGI_swap_control", glx_extensions)) {
+        glcontext_x11->glXSwapIntervalSGI = (void *)glXGetProcAddress((const GLubyte *)"glXSwapIntervalSGI");
+        if (glcontext_x11->glXSwapIntervalSGI)
+            glcontext_x11->swap_interval_sgi = 1;
+    } else {
+        LOG(WARNING, "context does not support any swap interval extension");
+    }
+
     return 0;
 }
 
@@ -228,6 +250,23 @@ static void glcontext_x11_swap_buffers(struct glcontext *glcontext)
     glXSwapBuffers(glcontext_x11->display, glcontext_x11->window);
 }
 
+static int glcontext_x11_set_swap_interval(struct glcontext *glcontext, int interval)
+{
+    struct glcontext_x11 *x11 = glcontext->priv_data;
+
+    if (x11->swap_interval_ext) {
+        x11->glXSwapIntervalEXT(x11->display, x11->window, interval);
+    } else if (x11->swap_interval_mesa) {
+        x11->glXSwapIntervalMESA(interval);
+    } else if (x11->swap_interval_sgi) {
+        x11->glXSwapIntervalSGI(interval);
+    } else {
+        LOG(WARNING, "context does not support swap interval operation");
+    }
+
+    return 0;
+}
+
 static void *glcontext_x11_get_proc_address(struct glcontext *glcontext, const char *name)
 {
     return glXGetProcAddress((const GLubyte *)name);
@@ -239,6 +278,7 @@ const struct glcontext_class ngli_glcontext_x11_class = {
     .create = glcontext_x11_create,
     .make_current = glcontext_x11_make_current,
     .swap_buffers = glcontext_x11_swap_buffers,
+    .set_swap_interval = glcontext_x11_set_swap_interval,
     .get_proc_address = glcontext_x11_get_proc_address,
     .priv_size = sizeof(struct glcontext_x11),
 };
