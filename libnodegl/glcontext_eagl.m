@@ -322,22 +322,6 @@ static void glcontext_eagl_swap_buffers(struct glcontext *glcontext)
     }
 }
 
-static void *glcontext_eagl_get_display(struct glcontext *glcontext)
-{
-    return NULL;
-}
-
-static void *glcontext_eagl_get_window(struct glcontext *glcontext)
-{
-    return NULL;
-}
-
-static void *glcontext_eagl_get_handle(struct glcontext *glcontext)
-{
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
-    return &glcontext_eagl->handle;
-}
-
 static void *glcontext_eagl_get_texture_cache(struct glcontext *glcontext)
 {
     struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
@@ -365,9 +349,6 @@ const struct glcontext_class ngli_glcontext_eagl_class = {
     .create = glcontext_eagl_create,
     .make_current = glcontext_eagl_make_current,
     .swap_buffers = glcontext_eagl_swap_buffers,
-    .get_display = glcontext_eagl_get_display,
-    .get_window = glcontext_eagl_get_window,
-    .get_handle = glcontext_eagl_get_handle,
     .get_texture_cache = glcontext_eagl_get_texture_cache,
     .get_proc_address = glcontext_eagl_get_proc_address,
     .priv_size = sizeof(struct glcontext_eagl),

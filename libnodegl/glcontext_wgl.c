@@ -78,23 +78,6 @@ static int glcontext_wgl_make_current(struct glcontext *glcontext, int current)
     return ret - 1;
 }
 
-static void *glcontext_wgl_get_display(struct glcontext *glcontext)
-{
-    return NULL;
-}
-
-static void *glcontext_wgl_get_window(struct glcontext *glcontext)
-{
-    struct glcontext_wgl *glcontext_wgl = glcontext->priv_data;
-    return &glcontext_wgl->window;
-}
-
-static void *glcontext_wgl_get_handle(struct glcontext *glcontext)
-{
-    struct glcontext_wgl *glcontext_wgl = glcontext->priv_data;
-    return &glcontext_wgl->handle;
-}
-
 static void *glcontext_wgl_get_proc_address(struct glcontext *glcontext, const char *name)
 {
     struct glcontext_wgl *glcontext_wgl = glcontext->priv_data;
@@ -111,9 +94,6 @@ const struct glcontext_class ngli_glcontext_wgl_class = {
     .uninit = glcontext_wgl_uninit,
     .create = glcontext_wgl_create,
     .make_current = glcontext_wgl_make_current,
-    .get_display = glcontext_wgl_get_display,
-    .get_window = glcontext_wgl_get_window,
-    .get_handle = glcontext_wgl_get_handle,
     .get_proc_address = glcontext_wgl_get_proc_address,
     .priv_size = sizeof(struct glcontext_wgl),
 };

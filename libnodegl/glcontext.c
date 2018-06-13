@@ -427,16 +427,6 @@ void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *n
     return ptr;
 }
 
-void *ngli_glcontext_get_handle(struct glcontext *glcontext)
-{
-    void *handle = NULL;
-
-    if (glcontext->class->get_handle)
-        handle = glcontext->class->get_handle(glcontext);
-
-    return handle;
-}
-
 void *ngli_glcontext_get_texture_cache(struct glcontext *glcontext)
 {
     void *texture_cache = NULL;

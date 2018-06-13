@@ -215,24 +215,6 @@ static void glcontext_egl_set_surface_pts(struct glcontext *glcontext, double t)
     glcontext_egl->PresentationTimeANDROID(glcontext_egl->display, glcontext_egl->surface, pts);
 }
 
-static void *glcontext_egl_get_display(struct glcontext *glcontext)
-{
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
-    return &glcontext_egl->display;
-}
-
-static void *glcontext_egl_get_window(struct glcontext *glcontext)
-{
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
-    return &glcontext_egl->surface;
-}
-
-static void *glcontext_egl_get_handle(struct glcontext *glcontext)
-{
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
-    return &glcontext_egl->handle;
-}
-
 static void *glcontext_egl_get_proc_address(struct glcontext *glcontext, const char *name)
 {
     return eglGetProcAddress(name);
@@ -245,9 +227,6 @@ const struct glcontext_class ngli_glcontext_egl_class = {
     .make_current = glcontext_egl_make_current,
     .swap_buffers = glcontext_egl_swap_buffers,
     .set_surface_pts = glcontext_egl_set_surface_pts,
-    .get_display = glcontext_egl_get_display,
-    .get_window = glcontext_egl_get_window,
-    .get_handle = glcontext_egl_get_handle,
     .get_proc_address = glcontext_egl_get_proc_address,
     .priv_size = sizeof(struct glcontext_egl),
 };

@@ -228,24 +228,6 @@ static void glcontext_x11_swap_buffers(struct glcontext *glcontext)
     glXSwapBuffers(glcontext_x11->display, glcontext_x11->window);
 }
 
-static void *glcontext_x11_get_display(struct glcontext *glcontext)
-{
-    struct glcontext_x11 *glcontext_x11 = glcontext->priv_data;
-    return &glcontext_x11->display;
-}
-
-static void *glcontext_x11_get_window(struct glcontext *glcontext)
-{
-    struct glcontext_x11 *glcontext_x11 = glcontext->priv_data;
-    return &glcontext_x11->window;
-}
-
-static void *glcontext_x11_get_handle(struct glcontext *glcontext)
-{
-    struct glcontext_x11 *glcontext_x11 = glcontext->priv_data;
-    return &glcontext_x11->handle;
-}
-
 static void *glcontext_x11_get_proc_address(struct glcontext *glcontext, const char *name)
 {
     return glXGetProcAddress((const GLubyte *)name);
@@ -257,9 +239,6 @@ const struct glcontext_class ngli_glcontext_x11_class = {
     .create = glcontext_x11_create,
     .make_current = glcontext_x11_make_current,
     .swap_buffers = glcontext_x11_swap_buffers,
-    .get_display = glcontext_x11_get_display,
-    .get_window = glcontext_x11_get_window,
-    .get_handle = glcontext_x11_get_handle,
     .get_proc_address = glcontext_x11_get_proc_address,
     .priv_size = sizeof(struct glcontext_x11),
 };

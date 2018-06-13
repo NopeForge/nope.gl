@@ -176,12 +176,6 @@ static void glcontext_nsgl_swap_buffers(struct glcontext *glcontext)
     [glcontext_nsgl->handle flushBuffer];
 }
 
-static void *glcontext_nsgl_get_handle(struct glcontext *glcontext)
-{
-    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
-    return &glcontext_nsgl->handle;
-}
-
 static void *glcontext_nsgl_get_proc_address(struct glcontext *glcontext, const char *name)
 {
     struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
@@ -223,7 +217,6 @@ const struct glcontext_class ngli_glcontext_nsgl_class = {
     .uninit = glcontext_nsgl_uninit,
     .make_current = glcontext_nsgl_make_current,
     .swap_buffers = glcontext_nsgl_swap_buffers,
-    .get_handle = glcontext_nsgl_get_handle,
     .get_proc_address = glcontext_nsgl_get_proc_address,
     .priv_size = sizeof(struct glcontext_nsgl),
 };
