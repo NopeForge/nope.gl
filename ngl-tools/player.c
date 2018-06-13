@@ -165,9 +165,11 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     if (!p->ngl)
         return -1;
 
-    wsi_set_ngl_config(&p->ngl_config, p->window);
+    int ret = wsi_set_ngl_config(&p->ngl_config, p->window);
+    if (ret < 0)
+        return ret;
 
-    int ret = ngl_configure(p->ngl, &p->ngl_config);
+    ret = ngl_configure(p->ngl, &p->ngl_config);
     if (ret < 0)
         return ret;
 

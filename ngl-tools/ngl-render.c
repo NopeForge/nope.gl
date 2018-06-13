@@ -187,7 +187,11 @@ int main(int argc, char *argv[])
     }
 
     struct ngl_config config = {0};
-    wsi_set_ngl_config(&config, window);
+    ret = wsi_set_ngl_config(&config, window);
+    if (ret < 0) {
+        ngl_node_unrefp(&scene);
+        return ret;
+    }
 
     ret = ngl_configure(ctx, &config);
     if (ret < 0) {
