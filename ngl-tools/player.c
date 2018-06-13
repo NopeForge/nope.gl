@@ -81,6 +81,9 @@ static void size_callback(GLFWwindow *window, int width, int height)
     p->view.x = (width  - p->view.width)  / 2.0;
     p->view.y = (height - p->view.height) / 2.0;
 
+    p->ngl_config.width = p->view.width;
+    p->ngl_config.height = p->view.height;
+    ngl_configure(p->ngl, &p->ngl_config);
     ngl_set_viewport(p->ngl, p->view.x, p->view.y, p->view.width, p->view.height);
 }
 
@@ -162,10 +165,9 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     if (!p->ngl)
         return -1;
 
-    struct ngl_config config = {0};
-    wsi_set_ngl_config(&config, p->window);
+    wsi_set_ngl_config(&p->ngl_config, p->window);
 
-    int ret = ngl_configure(p->ngl, &config);
+    int ret = ngl_configure(p->ngl, &p->ngl_config);
     if (ret < 0)
         return ret;
 

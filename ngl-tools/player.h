@@ -41,6 +41,7 @@ struct player {
     int64_t duration;
 
     struct ngl_ctx *ngl;
+    struct ngl_config ngl_config;
     int64_t clock_off;
     int64_t frame_ts;
     int paused;
