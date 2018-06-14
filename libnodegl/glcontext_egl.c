@@ -207,6 +207,15 @@ static void glcontext_egl_swap_buffers(struct glcontext *glcontext)
     eglSwapBuffers(glcontext_egl->display, glcontext_egl->surface);
 }
 
+static int glcontext_egl_set_swap_interval(struct glcontext *glcontext, int interval)
+{
+    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
+
+    eglSwapInterval(glcontext_egl->display, interval);
+
+    return 0;
+}
+
 static void glcontext_egl_set_surface_pts(struct glcontext *glcontext, double t)
 {
     struct glcontext_egl *glcontext_egl = glcontext->priv_data;
@@ -226,6 +235,7 @@ const struct glcontext_class ngli_glcontext_egl_class = {
     .create = glcontext_egl_create,
     .make_current = glcontext_egl_make_current,
     .swap_buffers = glcontext_egl_swap_buffers,
+    .set_swap_interval = glcontext_egl_set_swap_interval,
     .set_surface_pts = glcontext_egl_set_surface_pts,
     .get_proc_address = glcontext_egl_get_proc_address,
     .priv_size = sizeof(struct glcontext_egl),
