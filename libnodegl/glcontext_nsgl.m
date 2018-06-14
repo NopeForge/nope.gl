@@ -189,6 +189,15 @@ static void glcontext_nsgl_swap_buffers(struct glcontext *glcontext)
     [glcontext_nsgl->handle flushBuffer];
 }
 
+static int glcontext_nsgl_set_swap_interval(struct glcontext *glcontext, int interval)
+{
+    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+
+    [glcontext_nsgl->handle setValues:&interval forParameter:NSOpenGLCPSwapInterval];
+
+    return 0;
+}
+
 static void *glcontext_nsgl_get_proc_address(struct glcontext *glcontext, const char *name)
 {
     struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
@@ -231,6 +240,7 @@ const struct glcontext_class ngli_glcontext_nsgl_class = {
     .resize = glcontext_nsgl_resize,
     .make_current = glcontext_nsgl_make_current,
     .swap_buffers = glcontext_nsgl_swap_buffers,
+    .set_swap_interval = glcontext_nsgl_set_swap_interval,
     .get_proc_address = glcontext_nsgl_get_proc_address,
     .priv_size = sizeof(struct glcontext_nsgl),
 };
