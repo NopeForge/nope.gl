@@ -104,7 +104,7 @@ static int glcontext_choose_api(int api)
 #endif
 }
 
-struct glcontext *ngli_glcontext_new(struct ngl_config *config)
+struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
 {
     struct glcontext *glcontext = NULL;
 
