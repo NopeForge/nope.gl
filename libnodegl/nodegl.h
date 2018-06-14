@@ -314,6 +314,13 @@ struct ngl_config {
     int wrapped;   /* Whether the current OpenGL context should be wrapped or a new
                       one should be created */
 
+    int swap_interval; /* Specifies the minimum number of video frames that are
+                          displayed before a buffer swap will occur. -1 can be
+                          used to use the default system implementation value.
+                          This option is only honored for non-wrapped OpenGL
+                          context and only on Linux, macOS, and Android (iOS
+                          does not provide swap interval control). */
+
     int offscreen; /* Whether the rendering should happen offscreen or not */
 
     int width;     /* Graphic context width, mandatory for offscreen rendering */

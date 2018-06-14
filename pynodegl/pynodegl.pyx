@@ -44,6 +44,7 @@ cdef extern from "nodegl.h":
         int  platform
         int  api
         int  wrapped
+        int  swap_interval
         int  offscreen
         int  width
         int  height
@@ -100,6 +101,7 @@ cdef class Viewer:
         config.platform = kwargs.get('platform', GLPLATFORM_AUTO)
         config.api = kwargs.get('api', GLAPI_AUTO)
         config.wrapped = kwargs.get('wrapped', 0)
+        config.swap_interval = kwargs.get('swap_interval', -1)
         config.offscreen = kwargs.get('offscreen', 0)
         config.width = kwargs.get('width', 0)
         config.height = kwargs.get('height', 0)
