@@ -144,8 +144,10 @@ static const struct node_class *get_node_class(int type)
 struct ngl_node *ngli_node_create_noconstructor(int type)
 {
     const struct node_class *class = get_node_class(type);
-    if (!class)
+    if (!class) {
+        LOG(ERROR, "Unknown node type 0x%x", type);
         return NULL;
+    }
 
     struct ngl_node *node = node_create(class);
     if (!node)

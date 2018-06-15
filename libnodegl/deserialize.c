@@ -439,8 +439,11 @@ static int set_node_params(struct serial_ctx *sctx, char *str,
 
         if (par->flags & PARAM_FLAG_CONSTRUCTOR) {
             int ret = parse_param(sctx, base_ptr, par, str);
-            if (ret < 0)
-                break;
+            if (ret < 0) {
+                LOG(ERROR, "Invalid value specified for parameter %s.%s",
+                    node->class->name, par->key);
+                return -1;
+            }
 
             str += ret;
             if (*str != ' ')
@@ -458,13 +461,19 @@ static int set_node_params(struct serial_ctx *sctx, char *str,
         *eok = 0;
 
         const struct node_param *par = ngli_node_param_find(node, str, &base_ptr);
-        if (!par)
-            break;
+        if (!par) {
+            LOG(ERROR, "Unable to find parameter %s.%s",
+                node->class->name, str);
+            return -1;
+        }
 
         str = eok + 1;
         int ret = parse_param(sctx, base_ptr, par, str);
-        if (ret < 0)
-            break;
+        if (ret < 0) {
+            LOG(ERROR, "Invalid value specified for parameter %s.%s",
+                node->class->name, par->key);
+            return -1;
+        }
 
         str += ret;
         if (*str != ' ')
@@ -523,7 +532,11 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         size_t eol = strcspn(s, "\n");
         s[eol] = 0;
 
-        set_node_params(&sctx, s, node);
+        ret = set_node_params(&sctx, s, node);
+        if (ret < 0) {
+            ngl_node_unrefp(&node);
+            break;
+        }
 
         s += eol + 1;
     }
