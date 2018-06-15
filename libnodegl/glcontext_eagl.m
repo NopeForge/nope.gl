@@ -29,7 +29,7 @@
 #include "log.h"
 #include "nodegl.h"
 
-struct glcontext_eagl {
+struct eagl_priv {
     EAGLContext *handle;
     UIView *view;
     CAEAGLLayer *layer;
@@ -46,22 +46,22 @@ struct glcontext_eagl {
     void (*BlitFramebuffer)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 };
 
-static int glcontext_eagl_setup_layer(struct glcontext *glcontext)
+static int eagl_setup_layer(struct glcontext *ctx)
 {
     if (![NSThread isMainThread]) {
         __block int ret;
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            ret = glcontext_eagl_setup_layer(glcontext);
+            ret = eagl_setup_layer(ctx);
         });
 
         return ret;
     }
 
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
-    glcontext_eagl->layer = (CAEAGLLayer *)[glcontext_eagl->view layer];
-    if (!glcontext_eagl->layer) {
+    eagl->layer = (CAEAGLLayer *)[eagl->view layer];
+    if (!eagl->layer) {
         LOG(ERROR, "could not retrieve EAGL layer");
         return -1;
     }
@@ -72,15 +72,15 @@ static int glcontext_eagl_setup_layer(struct glcontext *glcontext)
         nil
     ];
 
-    [glcontext_eagl->layer setOpaque:YES];
-    [glcontext_eagl->layer setDrawableProperties:properties];
+    [eagl->layer setOpaque:YES];
+    [eagl->layer setDrawableProperties:properties];
 
     return 0;
 }
 
-static int glcontext_eagl_init(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle)
+static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
     if (!framework) {
@@ -88,38 +88,38 @@ static int glcontext_eagl_init(struct glcontext *glcontext, uintptr_t display, u
         return -1;
     }
 
-    glcontext_eagl->framework = (CFBundleRef)CFRetain(framework);
-    if (!glcontext_eagl->framework) {
+    eagl->framework = (CFBundleRef)CFRetain(framework);
+    if (!eagl->framework) {
         LOG(ERROR, "could not retain OpenGL framework object");
         return -1;
     }
 
-    if (glcontext->wrapped) {
-        glcontext_eagl->handle = handle ? (EAGLContext *)handle : [EAGLContext currentContext];
-        if (!glcontext_eagl->handle) {
+    if (ctx->wrapped) {
+        eagl->handle = handle ? (EAGLContext *)handle : [EAGLContext currentContext];
+        if (!eagl->handle) {
             LOG(ERROR, "could not retrieve EAGL context");
             return -1;
         }
 
         CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
                                                     NULL,
-                                                    glcontext_eagl->handle,
+                                                    eagl->handle,
                                                     NULL,
-                                                    &glcontext_eagl->texture_cache);
+                                                    &eagl->texture_cache);
         if (err != noErr) {
             LOG(ERROR, "could not create CoreVideo texture cache: 0x%x", err);
             return -1;
         }
     } else  {
-        if (!glcontext->offscreen) {
+        if (!ctx->offscreen) {
             if (window)
-                glcontext_eagl->view = (UIView *)window;
-            if (!glcontext_eagl->view) {
+                eagl->view = (UIView *)window;
+            if (!eagl->view) {
                 LOG(ERROR, "could not retrieve UI view");
                 return -1;
             }
 
-            int ret = glcontext_eagl_setup_layer(glcontext);
+            int ret = eagl_setup_layer(ctx);
             if (ret < 0)
                 return ret;
         }
@@ -128,92 +128,92 @@ static int glcontext_eagl_init(struct glcontext *glcontext, uintptr_t display, u
     return 0;
 }
 
-static void glcontext_eagl_uninit(struct glcontext *glcontext)
+static void eagl_uninit(struct glcontext *ctx)
 {
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
-    if (glcontext_eagl->framebuffer > 0)
-        glDeleteFramebuffers(1, &glcontext_eagl->framebuffer);
+    if (eagl->framebuffer > 0)
+        glDeleteFramebuffers(1, &eagl->framebuffer);
 
-    if (glcontext_eagl->colorbuffer > 0)
-        glDeleteRenderbuffers(1, &glcontext_eagl->colorbuffer);
+    if (eagl->colorbuffer > 0)
+        glDeleteRenderbuffers(1, &eagl->colorbuffer);
 
-    if (glcontext_eagl->depthbuffer > 0)
-        glDeleteRenderbuffers(1, &glcontext_eagl->depthbuffer);
+    if (eagl->depthbuffer > 0)
+        glDeleteRenderbuffers(1, &eagl->depthbuffer);
 
-    if (glcontext_eagl->framework)
-        CFRelease(glcontext_eagl->framework);
+    if (eagl->framework)
+        CFRelease(eagl->framework);
 
-    if (glcontext_eagl->texture_cache)
-        CFRelease(glcontext_eagl->texture_cache);
+    if (eagl->texture_cache)
+        CFRelease(eagl->texture_cache);
 
-    if (!glcontext->wrapped) {
-        if (glcontext_eagl->handle)
-            CFRelease(glcontext_eagl->handle);
+    if (!ctx->wrapped) {
+        if (eagl->handle)
+            CFRelease(eagl->handle);
     }
 }
 
-static int glcontext_eagl_safe_create(struct glcontext *glcontext, uintptr_t other)
+static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)
 {
     if (![NSThread isMainThread]) {
         __block int ret;
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            ret = glcontext_eagl_safe_create(glcontext, other);
+            ret = eagl_safe_create(ctx, other);
         });
 
         return ret;
     }
 
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
-    glcontext_eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
-    if (!glcontext_eagl->handle) {
-        glcontext_eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        if (!glcontext_eagl->handle) {
+    eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    if (!eagl->handle) {
+        eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        if (!eagl->handle) {
             LOG(ERROR, "could not create EAGL context");
             return -1;
         }
-        if (glcontext->samples > 0) {
+        if (ctx->samples > 0) {
             LOG(WARNING, "multisample anti-aliasing is not supported with OpenGLES 2.0 context");
-            glcontext->samples = 0;
+            ctx->samples = 0;
         }
     }
 
     CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
                                                 NULL,
-                                                glcontext_eagl->handle,
+                                                eagl->handle,
                                                 NULL,
-                                                &glcontext_eagl->texture_cache);
+                                                &eagl->texture_cache);
     if (err != noErr) {
         LOG(ERROR, "could not create CoreVideo texture cache: 0x%x", err);
         return -1;
     }
 
-    ngli_glcontext_make_current(glcontext, 1);
+    ngli_glcontext_make_current(ctx, 1);
 
-    if (glcontext->samples > 0) {
-        glcontext_eagl->RenderbufferStorageMultisample = ngli_glcontext_get_proc_address(glcontext, "glRenderbufferStorageMultisample");
-        glcontext_eagl->BlitFramebuffer = ngli_glcontext_get_proc_address(glcontext, "glBlitFramebuffer");
+    if (ctx->samples > 0) {
+        eagl->RenderbufferStorageMultisample = ngli_glcontext_get_proc_address(ctx, "glRenderbufferStorageMultisample");
+        eagl->BlitFramebuffer = ngli_glcontext_get_proc_address(ctx, "glBlitFramebuffer");
 
-        if (!glcontext_eagl->RenderbufferStorageMultisample ||
-            !glcontext_eagl->BlitFramebuffer) {
+        if (!eagl->RenderbufferStorageMultisample ||
+            !eagl->BlitFramebuffer) {
             LOG(ERROR, "could not retrieve glRenderbufferStorage() and glBlitFramebuffer()");
             return -1;
         }
 
-        glGenFramebuffers(1, &glcontext_eagl->framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer);
+        glGenFramebuffers(1, &eagl->framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer);
 
-        glGenRenderbuffers(1, &glcontext_eagl->colorbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
-        if (!glcontext->offscreen)
-            [glcontext_eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:glcontext_eagl->layer];
+        glGenRenderbuffers(1, &eagl->colorbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
+        if (!ctx->offscreen)
+            [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
         else
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, glcontext->width, glcontext->height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
-        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &glcontext_eagl->width);
-        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &glcontext_eagl->height);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, ctx->width, ctx->height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
+        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
+        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
 
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -221,19 +221,19 @@ static int glcontext_eagl_safe_create(struct glcontext *glcontext, uintptr_t oth
             return -1;
         }
 
-        glGenFramebuffers(1, &glcontext_eagl->framebuffer_ms);
-        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer_ms);
+        glGenFramebuffers(1, &eagl->framebuffer_ms);
+        glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer_ms);
 
-        glGenRenderbuffers(1, &glcontext_eagl->colorbuffer_ms);
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer_ms);
-        glcontext_eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_RGBA8, glcontext_eagl->width, glcontext_eagl->height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_eagl->colorbuffer_ms);
+        glGenRenderbuffers(1, &eagl->colorbuffer_ms);
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer_ms);
+        eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_RGBA8, eagl->width, eagl->height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer_ms);
 
-        glGenRenderbuffers(1, &glcontext_eagl->depthbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
-        glcontext_eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_DEPTH24_STENCIL8_OES, glcontext_eagl->width, glcontext_eagl->height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
+        glGenRenderbuffers(1, &eagl->depthbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->depthbuffer);
+        eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8_OES, eagl->width, eagl->height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
 
         status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -241,24 +241,24 @@ static int glcontext_eagl_safe_create(struct glcontext *glcontext, uintptr_t oth
             return -1;
         }
     } else {
-        glGenFramebuffers(1, &glcontext_eagl->framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer);
+        glGenFramebuffers(1, &eagl->framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer);
 
-        glGenRenderbuffers(1, &glcontext_eagl->colorbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
-        if (!glcontext->offscreen)
-            [glcontext_eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:glcontext_eagl->layer];
+        glGenRenderbuffers(1, &eagl->colorbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
+        if (!ctx->offscreen)
+            [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
         else
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, glcontext->width, glcontext->height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
-        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &glcontext_eagl->width);
-        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &glcontext_eagl->height);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, ctx->width, ctx->height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
+        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
+        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
 
-        glGenRenderbuffers(1, &glcontext_eagl->depthbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, glcontext_eagl->width, glcontext_eagl->height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
+        glGenRenderbuffers(1, &eagl->depthbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->depthbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, eagl->width, eagl->height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
 
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
@@ -267,99 +267,99 @@ static int glcontext_eagl_safe_create(struct glcontext *glcontext, uintptr_t oth
         }
     }
 
-    ngli_glcontext_make_current(glcontext, 0);
+    ngli_glcontext_make_current(ctx, 0);
 
     return 0;
 }
 
-static int glcontext_eagl_create(struct glcontext *glcontext, uintptr_t other)
+static int eagl_create(struct glcontext *ctx, uintptr_t other)
 {
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
-    int ret = glcontext_eagl_safe_create(glcontext, other);
+    int ret = eagl_safe_create(ctx, other);
     if (ret < 0)
         return ret;
 
-    ngli_glcontext_make_current(glcontext, 1);
+    ngli_glcontext_make_current(ctx, 1);
 
-    if (glcontext->samples > 0)
-        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer_ms);
+    if (ctx->samples > 0)
+        glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer_ms);
     else
-        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer);
-    glViewport(0, 0, glcontext_eagl->width, glcontext_eagl->height);
+        glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer);
+    glViewport(0, 0, eagl->width, eagl->height);
 
     return 0;
 }
 
-static int glcontext_eagl_safe_resize(struct glcontext *glcontext, int width, int height)
+static int eagl_safe_resize(struct glcontext *ctx, int width, int height)
 {
     if (![NSThread isMainThread]) {
         __block int ret;
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            ret = glcontext_eagl_safe_resize(glcontext, width, height);
+            ret = eagl_safe_resize(ctx, width, height);
         });
 
         return ret;
     }
 
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
-    ngli_glcontext_make_current(glcontext, 1);
+    ngli_glcontext_make_current(ctx, 1);
 
-    glBindRenderbuffer (GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
-    if (!glcontext->offscreen)
-        [glcontext_eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:glcontext_eagl->layer];
+    glBindRenderbuffer (GL_RENDERBUFFER, eagl->colorbuffer);
+    if (!ctx->offscreen)
+        [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
     else
         glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &glcontext_eagl->width);
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &glcontext_eagl->height);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
 
-    if (glcontext->samples > 0) {
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer_ms);
-        glcontext_eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_RGBA8, glcontext_eagl->width, glcontext_eagl->height);
+    if (ctx->samples > 0) {
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer_ms);
+        eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_RGBA8, eagl->width, eagl->height);
 
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
-        glcontext_eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_DEPTH24_STENCIL8_OES, glcontext_eagl->width, glcontext_eagl->height);
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->depthbuffer);
+        eagl->RenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8_OES, eagl->width, eagl->height);
     } else {
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->depthbuffer);
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, glcontext_eagl->width, glcontext_eagl->height);
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->depthbuffer);
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, eagl->width, eagl->height);
     }
 
-    ngli_glcontext_make_current(glcontext, 0);
+    ngli_glcontext_make_current(ctx, 0);
 
-    glcontext->width = glcontext_eagl->width;
-    glcontext->height = glcontext_eagl->height;
+    ctx->width = eagl->width;
+    ctx->height = eagl->height;
 
     return 0;
 }
 
-static int glcontext_eagl_resize(struct glcontext *glcontext, int width, int height)
+static int eagl_resize(struct glcontext *ctx, int width, int height)
 {
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
-    int ret = glcontext_eagl_safe_resize(glcontext, width, height);
+    int ret = eagl_safe_resize(ctx, width, height);
     if (ret < 0)
         return ret;
 
-    ngli_glcontext_make_current(glcontext, 1);
+    ngli_glcontext_make_current(ctx, 1);
 
-    if (glcontext->samples > 0)
-        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer_ms);
+    if (ctx->samples > 0)
+        glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer_ms);
     else
-        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_eagl->framebuffer);
-    glViewport(0, 0, glcontext_eagl->width, glcontext_eagl->height);
+        glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer);
+    glViewport(0, 0, eagl->width, eagl->height);
 
     return 0;
 }
 
-static int glcontext_eagl_make_current(struct glcontext *glcontext, int current)
+static int eagl_make_current(struct glcontext *ctx, int current)
 {
     int ret;
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
     if (current) {
-        ret = [EAGLContext setCurrentContext:glcontext_eagl->handle];
+        ret = [EAGLContext setCurrentContext:eagl->handle];
     } else {
         ret = [EAGLContext setCurrentContext:nil];
     }
@@ -367,52 +367,52 @@ static int glcontext_eagl_make_current(struct glcontext *glcontext, int current)
     return ret;
 }
 
-static void glcontext_eagl_swap_buffers(struct glcontext *glcontext)
+static void eagl_swap_buffers(struct glcontext *ctx)
 {
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
-    if (glcontext->samples > 0) {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, glcontext_eagl->framebuffer_ms);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glcontext_eagl->framebuffer);
-        glcontext_eagl->BlitFramebuffer(0, 0, glcontext_eagl->width, glcontext_eagl->height, 0, 0, glcontext_eagl->width, glcontext_eagl->height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, glcontext_eagl->framebuffer_ms);
+    if (ctx->samples > 0) {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, eagl->framebuffer_ms);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eagl->framebuffer);
+        eagl->BlitFramebuffer(0, 0, eagl->width, eagl->height, 0, 0, eagl->width, eagl->height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+        glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eagl->framebuffer_ms);
     }
 
-    if (!glcontext->offscreen) {
-        glBindRenderbuffer(GL_RENDERBUFFER, glcontext_eagl->colorbuffer);
-        [glcontext_eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
+    if (!ctx->offscreen) {
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
+        [eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
     }
 }
 
-static void *glcontext_eagl_get_texture_cache(struct glcontext *glcontext)
+static void *eagl_get_texture_cache(struct glcontext *ctx)
 {
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
-    return &glcontext_eagl->texture_cache;
+    struct eagl_priv *eagl = ctx->priv_data;
+    return &eagl->texture_cache;
 }
 
-static void *glcontext_eagl_get_proc_address(struct glcontext *glcontext, const char *name)
+static void *eagl_get_proc_address(struct glcontext *ctx, const char *name)
 {
-    struct glcontext_eagl *glcontext_eagl = glcontext->priv_data;
+    struct eagl_priv *eagl = ctx->priv_data;
 
     CFStringRef symbol_name = CFStringCreateWithCString(kCFAllocatorDefault, name, kCFStringEncodingASCII);
     if (!symbol_name) {
         return NULL;
     }
 
-    void *symbol_address = CFBundleGetFunctionPointerForName(glcontext_eagl->framework, symbol_name);
+    void *symbol_address = CFBundleGetFunctionPointerForName(eagl->framework, symbol_name);
     CFRelease(symbol_name);
 
     return symbol_address;
 }
 
 const struct glcontext_class ngli_glcontext_eagl_class = {
-    .init = glcontext_eagl_init,
-    .uninit = glcontext_eagl_uninit,
-    .create = glcontext_eagl_create,
-    .resize = glcontext_eagl_resize,
-    .make_current = glcontext_eagl_make_current,
-    .swap_buffers = glcontext_eagl_swap_buffers,
-    .get_texture_cache = glcontext_eagl_get_texture_cache,
-    .get_proc_address = glcontext_eagl_get_proc_address,
-    .priv_size = sizeof(struct glcontext_eagl),
+    .init = eagl_init,
+    .uninit = eagl_uninit,
+    .create = eagl_create,
+    .resize = eagl_resize,
+    .make_current = eagl_make_current,
+    .swap_buffers = eagl_swap_buffers,
+    .get_texture_cache = eagl_get_texture_cache,
+    .get_proc_address = eagl_get_proc_address,
+    .priv_size = sizeof(struct eagl_priv),
 };
