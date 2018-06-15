@@ -103,9 +103,7 @@ class GraphView(QtWidgets.QWidget):
         self._seekbar.set_duration(cfg['duration'])
 
         if self._seek_chkbox.isChecked():
-            self._glctx.makeCurrent(self._surface)
             self._viewer.set_scene_from_string(cfg['scene'])
-            self._glctx.doneCurrent()
             self._seekbar.refresh()
         else:
             dot_scene = cfg['scene']
@@ -117,48 +115,12 @@ class GraphView(QtWidgets.QWidget):
     def _disable_timed_scene(self):
         if not self._viewer:
             return
-        self._glctx.makeCurrent(self._surface)
-        self._fbo.release()
         del self._viewer
-        self._glctx.doneCurrent()
-        del self._surface
-        self._fbo = self._viewer = self._surface = None
+        self._viewer = None
 
     def _enable_timed_scene(self):
-
-        # GL context
-        glctx = QtGui.QOpenGLContext()
-        assert glctx.create() is True
-        assert glctx.isValid() is True
-
-        # Offscreen Surface
-        surface = QtGui.QOffscreenSurface()
-        surface.create()
-        assert surface.isValid() is True
-
-        glctx.makeCurrent(surface)
-
-        # Framebuffer
-        fbo_format = QtGui.QOpenGLFramebufferObjectFormat()
-        fbo_format.setAttachment(QtGui.QOpenGLFramebufferObject.CombinedDepthStencil)
-        fbo = QtGui.QOpenGLFramebufferObject(16, 16, fbo_format)
-        assert fbo.isValid() is True
-        fbo.bind()
-
-        # node.gl context
-        ngl_viewer = ngl.Viewer()
-        ngl_viewer.configure(
-            platform=ngl.GLPLATFORM_AUTO,
-            api=ngl.GLAPI_AUTO,
-            wrapped=1,
-        )
-
-        glctx.doneCurrent()
-
-        self._viewer = ngl_viewer
-        self._glctx = glctx
-        self._surface = surface
-        self._fbo = fbo
+        self._viewer = ngl.Viewer()
+        self._viewer.configure(wrapped=0, offscreen=1, width=16, height=16)
 
     def _update_graph(self, dot_scene):
         basename = '/tmp/ngl_scene.'
@@ -200,8 +162,6 @@ class GraphView(QtWidgets.QWidget):
     def _time_changed(self, time):
         if not self._viewer:
             return
-        self._glctx.makeCurrent(self._surface)
         dot_scene = self._viewer.dot(time)
-        self._glctx.doneCurrent()
         if dot_scene:
             self._update_graph(dot_scene)
