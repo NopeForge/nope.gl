@@ -437,21 +437,20 @@ static int set_node_params(struct serial_ctx *sctx, char *str,
     for (int i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
 
-        if (par->flags & PARAM_FLAG_CONSTRUCTOR) {
-            int ret = parse_param(sctx, base_ptr, par, str);
-            if (ret < 0) {
-                LOG(ERROR, "Invalid value specified for parameter %s.%s",
-                    node->class->name, par->key);
-                return -1;
-            }
+        if (!(par->flags & PARAM_FLAG_CONSTRUCTOR))
+            break;
 
-            str += ret;
-            if (*str != ' ')
-                break;
-            str++;
-        } else {
-            break; /* assume all constructors are at the start */
+        int ret = parse_param(sctx, base_ptr, par, str);
+        if (ret < 0) {
+            LOG(ERROR, "Invalid value specified for parameter %s.%s",
+                node->class->name, par->key);
+            return -1;
         }
+
+        str += ret;
+        if (*str != ' ')
+            break;
+        str++;
     }
 
     for (;;) {
