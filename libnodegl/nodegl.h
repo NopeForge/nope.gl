@@ -353,10 +353,10 @@ struct ngl_ctx *ngl_create(void);
  *
  * This function must be called before any ngl_draw() call.
  *
- * If the context has already been configured calling ngl_configure() will hint
- * the rendering backend to update the onscreen surface dimensions either from
- * the new configuration or directly from the window the node.gl context is
- * associated with.
+ * If the context has already been configured and is non-wrapped, calling
+ * ngl_configure() will hint the rendering backend to update the onscreen
+ * surface dimensions either from the new configuration or directly from the
+ * window the node.gl context is associated with.
  *
  * @param s        pointer to a node.gl context
  * @param config   pointer to a node.gl configuration structure (can be NULL)

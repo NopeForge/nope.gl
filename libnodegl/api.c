@@ -48,6 +48,9 @@ struct ngl_ctx *ngl_create(void)
 
 static int reconfigure(struct ngl_ctx *s, struct ngl_config *config)
 {
+    if (s->glcontext->wrapped)
+        return 0;
+
     int width = 0;
     int height = 0;
     if (config) {
