@@ -30,7 +30,7 @@
 #include "log.h"
 #include "nodegl.h"
 
-struct glcontext_nsgl {
+struct nsgl_priv {
     NSOpenGLContext *handle;
     NSView *view;
     CFBundleRef framework;
@@ -40,21 +40,21 @@ struct glcontext_nsgl {
     GLuint depthbuffer;
 };
 
-static int glcontext_nsgl_init(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle)
+static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
-    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+    struct nsgl_priv *nsgl = ctx->priv_data;
 
-    if (glcontext->wrapped) {
-        glcontext_nsgl->handle = handle ? (NSOpenGLContext *)handle : [NSOpenGLContext currentContext];
-        if (!glcontext_nsgl->handle) {
+    if (ctx->wrapped) {
+        nsgl->handle = handle ? (NSOpenGLContext *)handle : [NSOpenGLContext currentContext];
+        if (!nsgl->handle) {
             LOG(ERROR, "could not retrieve NSGL context");
             return -1;
         }
     } else {
-        if (!glcontext->offscreen) {
+        if (!ctx->offscreen) {
             if (window)
-                glcontext_nsgl->view = (NSView *)window;
-            if (!glcontext_nsgl->view) {
+                nsgl->view = (NSView *)window;
+            if (!nsgl->view) {
                 LOG(ERROR, "could not retrieve NS view");
                 return -1;
             }
@@ -67,8 +67,8 @@ static int glcontext_nsgl_init(struct glcontext *glcontext, uintptr_t display, u
         return -1;
     }
 
-    glcontext_nsgl->framework = (CFBundleRef)CFRetain(framework);
-    if (!glcontext_nsgl->framework) {
+    nsgl->framework = (CFBundleRef)CFRetain(framework);
+    if (!nsgl->framework) {
         LOG(ERROR, "could not retain OpenGL framework object");
         return -1;
     }
@@ -76,9 +76,9 @@ static int glcontext_nsgl_init(struct glcontext *glcontext, uintptr_t display, u
     return 0;
 }
 
-static int glcontext_nsgl_create(struct glcontext *glcontext, uintptr_t other)
+static int nsgl_create(struct glcontext *ctx, uintptr_t other)
 {
-    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+    struct nsgl_priv *nsgl = ctx->priv_data;
 
     NSOpenGLPixelFormatAttribute pixelAttrs[] = {
         NSOpenGLPFAAccelerated,
@@ -94,9 +94,9 @@ static int glcontext_nsgl_create(struct glcontext *glcontext, uintptr_t other)
         0,
     };
 
-    if (!glcontext->offscreen && glcontext->samples > 0) {
+    if (!ctx->offscreen && ctx->samples > 0) {
         pixelAttrs[NGLI_ARRAY_NB(pixelAttrs) - 4] = 1;
-        pixelAttrs[NGLI_ARRAY_NB(pixelAttrs) - 2] = glcontext->samples;
+        pixelAttrs[NGLI_ARRAY_NB(pixelAttrs) - 2] = ctx->samples;
     }
 
     NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttrs];
@@ -106,38 +106,38 @@ static int glcontext_nsgl_create(struct glcontext *glcontext, uintptr_t other)
     }
 
     NSOpenGLContext *shared_context = other ? (NSOpenGLContext *)other : NULL;
-    glcontext_nsgl->handle = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:shared_context];
-    if (!glcontext_nsgl->handle) {
+    nsgl->handle = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:shared_context];
+    if (!nsgl->handle) {
         LOG(ERROR, "could not create NSGL context");
         return -1;
     }
 
-    if (glcontext->offscreen) {
-        ngli_glcontext_make_current(glcontext, 1);
+    if (ctx->offscreen) {
+        ngli_glcontext_make_current(ctx, 1);
 
-        glGenFramebuffers(1, &glcontext_nsgl->framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, glcontext_nsgl->framebuffer);
+        glGenFramebuffers(1, &nsgl->framebuffer);
+        glBindFramebuffer(GL_FRAMEBUFFER, nsgl->framebuffer);
 
-        if (glcontext->samples > 0) {
-            glGenRenderbuffers(1, &glcontext_nsgl->colorbuffer);
-            glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
-            glRenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_RGBA8, glcontext->width, glcontext->height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
+        if (ctx->samples > 0) {
+            glGenRenderbuffers(1, &nsgl->colorbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, nsgl->colorbuffer);
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_RGBA8, ctx->width, ctx->height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, nsgl->colorbuffer);
 
-            glGenRenderbuffers(1, &glcontext_nsgl->depthbuffer);
-            glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
-            glRenderbufferStorageMultisample(GL_RENDERBUFFER, glcontext->samples, GL_DEPTH24_STENCIL8, glcontext->width, glcontext->height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
+            glGenRenderbuffers(1, &nsgl->depthbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, nsgl->depthbuffer);
+            glRenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, nsgl->depthbuffer);
         } else {
-            glGenRenderbuffers(1, &glcontext_nsgl->colorbuffer);
-            glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, glcontext->width, glcontext->height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, glcontext_nsgl->colorbuffer);
+            glGenRenderbuffers(1, &nsgl->colorbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, nsgl->colorbuffer);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, ctx->width, ctx->height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, nsgl->colorbuffer);
 
-            glGenRenderbuffers(1, &glcontext_nsgl->depthbuffer);
-            glBindRenderbuffer(GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, glcontext->width, glcontext->height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, glcontext_nsgl->depthbuffer);
+            glGenRenderbuffers(1, &nsgl->depthbuffer);
+            glBindRenderbuffer(GL_RENDERBUFFER, nsgl->depthbuffer);
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, nsgl->depthbuffer);
         }
 
         GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
@@ -146,35 +146,35 @@ static int glcontext_nsgl_create(struct glcontext *glcontext, uintptr_t other)
             return -1;
         }
 
-        glViewport(0, 0, glcontext->width, glcontext->height);
+        glViewport(0, 0, ctx->width, ctx->height);
     } else {
-        [glcontext_nsgl->handle setView:glcontext_nsgl->view];
+        [nsgl->handle setView:nsgl->view];
     }
 
     return 0;
 }
 
-static int glcontext_nsgl_resize(struct glcontext *glcontext, int width, int height)
+static int nsgl_resize(struct glcontext *ctx, int width, int height)
 {
-    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+    struct nsgl_priv *nsgl = ctx->priv_data;
 
-    [glcontext_nsgl->handle update];
+    [nsgl->handle update];
 
-    NSRect bounds = [glcontext_nsgl->view bounds];
-    glcontext->width = bounds.size.width;
-    glcontext->height = bounds.size.height;
+    NSRect bounds = [nsgl->view bounds];
+    ctx->width = bounds.size.width;
+    ctx->height = bounds.size.height;
 
     return 0;
 }
 
-static int glcontext_nsgl_make_current(struct glcontext *glcontext, int current)
+static int nsgl_make_current(struct glcontext *ctx, int current)
 {
-    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+    struct nsgl_priv *nsgl = ctx->priv_data;
 
     if (current) {
-        [glcontext_nsgl->handle makeCurrentContext];
-        if (glcontext->offscreen) {
-            glBindFramebuffer(GL_FRAMEBUFFER, glcontext_nsgl->framebuffer);
+        [nsgl->handle makeCurrentContext];
+        if (ctx->offscreen) {
+            glBindFramebuffer(GL_FRAMEBUFFER, nsgl->framebuffer);
         }
     } else {
         [NSOpenGLContext clearCurrentContext];
@@ -183,64 +183,64 @@ static int glcontext_nsgl_make_current(struct glcontext *glcontext, int current)
     return 0;
 }
 
-static void glcontext_nsgl_swap_buffers(struct glcontext *glcontext)
+static void nsgl_swap_buffers(struct glcontext *ctx)
 {
-    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
-    [glcontext_nsgl->handle flushBuffer];
+    struct nsgl_priv *nsgl = ctx->priv_data;
+    [nsgl->handle flushBuffer];
 }
 
-static int glcontext_nsgl_set_swap_interval(struct glcontext *glcontext, int interval)
+static int nsgl_set_swap_interval(struct glcontext *ctx, int interval)
 {
-    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+    struct nsgl_priv *nsgl = ctx->priv_data;
 
-    [glcontext_nsgl->handle setValues:&interval forParameter:NSOpenGLCPSwapInterval];
+    [nsgl->handle setValues:&interval forParameter:NSOpenGLCPSwapInterval];
 
     return 0;
 }
 
-static void *glcontext_nsgl_get_proc_address(struct glcontext *glcontext, const char *name)
+static void *nsgl_get_proc_address(struct glcontext *ctx, const char *name)
 {
-    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+    struct nsgl_priv *nsgl = ctx->priv_data;
 
     CFStringRef symbol_name = CFStringCreateWithCString(kCFAllocatorDefault, name, kCFStringEncodingASCII);
     if (!symbol_name) {
         return NULL;
     }
 
-    void *symbol_address = CFBundleGetFunctionPointerForName(glcontext_nsgl->framework, symbol_name);
+    void *symbol_address = CFBundleGetFunctionPointerForName(nsgl->framework, symbol_name);
     CFRelease(symbol_name);
 
     return symbol_address;
 }
 
-static void glcontext_nsgl_uninit(struct glcontext *glcontext)
+static void nsgl_uninit(struct glcontext *ctx)
 {
-    struct glcontext_nsgl *glcontext_nsgl = glcontext->priv_data;
+    struct nsgl_priv *nsgl = ctx->priv_data;
 
-    if (glcontext_nsgl->framebuffer > 0)
-        glDeleteFramebuffers(1, &glcontext_nsgl->framebuffer);
+    if (nsgl->framebuffer > 0)
+        glDeleteFramebuffers(1, &nsgl->framebuffer);
 
-    if (glcontext_nsgl->colorbuffer > 0)
-        glDeleteRenderbuffers(1, &glcontext_nsgl->colorbuffer);
+    if (nsgl->colorbuffer > 0)
+        glDeleteRenderbuffers(1, &nsgl->colorbuffer);
 
-    if (glcontext_nsgl->depthbuffer > 0)
-        glDeleteRenderbuffers(1, &glcontext_nsgl->depthbuffer);
+    if (nsgl->depthbuffer > 0)
+        glDeleteRenderbuffers(1, &nsgl->depthbuffer);
 
-    if (glcontext_nsgl->framework)
-        CFRelease(glcontext_nsgl->framework);
+    if (nsgl->framework)
+        CFRelease(nsgl->framework);
 
-    if (!glcontext->wrapped)
-        CFRelease(glcontext_nsgl->handle);
+    if (!ctx->wrapped)
+        CFRelease(nsgl->handle);
 }
 
 const struct glcontext_class ngli_glcontext_nsgl_class = {
-    .init = glcontext_nsgl_init,
-    .create = glcontext_nsgl_create,
-    .uninit = glcontext_nsgl_uninit,
-    .resize = glcontext_nsgl_resize,
-    .make_current = glcontext_nsgl_make_current,
-    .swap_buffers = glcontext_nsgl_swap_buffers,
-    .set_swap_interval = glcontext_nsgl_set_swap_interval,
-    .get_proc_address = glcontext_nsgl_get_proc_address,
-    .priv_size = sizeof(struct glcontext_nsgl),
+    .init = nsgl_init,
+    .create = nsgl_create,
+    .uninit = nsgl_uninit,
+    .resize = nsgl_resize,
+    .make_current = nsgl_make_current,
+    .swap_buffers = nsgl_swap_buffers,
+    .set_swap_interval = nsgl_set_swap_interval,
+    .get_proc_address = nsgl_get_proc_address,
+    .priv_size = sizeof(struct nsgl_priv),
 };
