@@ -21,7 +21,6 @@
 
 #define _GNU_SOURCE
 #include <pthread.h>
-#undef _GNU_SOURCE
 
 #include <stdarg.h>
 #include <stdint.h>
