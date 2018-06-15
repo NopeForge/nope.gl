@@ -63,7 +63,9 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
         lut3d_tex.set_min_filter('linear')
         lut3d_tex.set_mag_filter('linear')
 
-    video = Media(cfg.medias[0].filename)
+    m0 = cfg.medias[0]
+    cfg.aspect_ratio = (m0.width, m0.height)
+    video = Media(m0.filename)
     video_tex = Texture2D(data_src=video)
 
     shader_version = '300 es' if cfg.backend == 'gles' else '330'
@@ -92,6 +94,7 @@ def buffer_dove(cfg,
     icon_filename = op.join(op.dirname(__file__), 'data', 'icons8-dove.raw')
     cfg.files.append(icon_filename)
     w, h = (96, 96)
+    cfg.aspect_ratio = (w, h)
 
     img_buf = BufferUBVec4(filename=icon_filename, name='icon raw buffer')
 
@@ -126,6 +129,7 @@ def triangle(cfg, size=0.5):
     b = size * math.sqrt(3) / 2.0
     c = size * 1/2.
     cfg.duration = 3.
+    cfg.aspect_ratio = (1, 1)
 
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
     p = Program(fragment=get_frag('triangle'))
@@ -141,6 +145,7 @@ def triangle(cfg, size=0.5):
 @scene(n={'type': 'range', 'range': [2, 10]})
 def fibo(cfg, n=8):
     cfg.duration = 5.0
+    cfg.aspect_ratio = (1, 1)
 
     p = Program(fragment=get_frag('color'))
 
@@ -176,25 +181,22 @@ def fibo(cfg, n=8):
         new_g.add_children(render)
         orig = (orig[0] + w, orig[1] + w, 0)
 
-    root = Camera(root)
-
-    root.set_eye(0.0, 0.0, 2.0)
-    root.set_up(0.0, 1.0, 0.0)
-    root.set_perspective(45.0, cfg.aspect_ratio_float, 1.0, 10.0)
     return root
 
 
 @scene(dim={'type': 'range', 'range': [1, 50]})
 def cropboard(cfg, dim=15):
+    m0 = cfg.medias[0]
     random.seed(0)
     cfg.duration = 10
+    cfg.aspect_ratio = (m0.width, m0.height)
 
     kw = kh = 1. / dim
     qw = qh = 2. / dim
     tqs = []
 
     p = Program()
-    m = Media(cfg.medias[0].filename)
+    m = Media(m0.filename)
     t = Texture2D(data_src=m)
 
     for y in range(dim):
@@ -224,6 +226,7 @@ def cropboard(cfg, dim=15):
 def audiotex(cfg, freq_precision=7, overlay=0.6):
     media = cfg.medias[0]
     cfg.duration = media.duration
+    cfg.aspect_ratio = (media.width, media.height)
 
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
@@ -471,7 +474,9 @@ def cube(cfg, display_depth_buffer=False):
 
 @scene()
 def histogram(cfg):
-    cfg.duration = cfg.medias[0].duration
+    m0 = cfg.medias[0]
+    cfg.duration = m0.duration
+    cfg.aspect_ratio = (m0.width, m0.height)
     g = Group()
 
     m = Media(cfg.medias[0].filename)

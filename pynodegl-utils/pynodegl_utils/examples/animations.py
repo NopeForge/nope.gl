@@ -50,6 +50,7 @@ def _get_func(name, flags=0):
                  draw_in_out=True, draw_out_in=True):
 
         g = Group()
+        cfg.aspect_ratio = (1, 1)
         program = Program(fragment=_frag_data)
 
         for idx, ext in enumerate(versions):

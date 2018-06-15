@@ -46,15 +46,17 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
 
 @scene(speed={'type': 'range', 'range': [0.01, 2], 'unit_base': 1000})
 def playback_speed(cfg, speed=1.0):
-    media_duration = cfg.medias[0].duration
+    m0 = cfg.medias[0]
+    media_duration = m0.duration
     initial_seek = 5
     rush_duration = media_duration - initial_seek
     cfg.duration = rush_duration / speed
+    cfg.aspect_ratio = (m0.width, m0.height)
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     time_animkf = [AnimKeyFrameFloat(0, initial_seek),
                    AnimKeyFrameFloat(cfg.duration, media_duration)]
-    m = Media(cfg.medias[0].filename, time_anim=AnimatedFloat(time_animkf))
+    m = Media(m0.filename, time_anim=AnimatedFloat(time_animkf))
     t = Texture2D(data_src=m)
     p = Program()
     render = Render(q, p)
@@ -64,6 +66,8 @@ def playback_speed(cfg, speed=1.0):
 
 @scene()
 def time_remapping(cfg):
+    m0 = cfg.medias[0]
+
     media_seek = 10
     noop_duration = 1
     prefetch_duration = 2
@@ -77,6 +81,7 @@ def time_remapping(cfg):
     duration    = range_stop    + noop_duration
 
     cfg.duration = duration
+    cfg.aspect_ratio = (m0.width, m0.height)
 
     media_animkf = [
         AnimKeyFrameFloat(play_start, media_seek),
@@ -84,7 +89,7 @@ def time_remapping(cfg):
     ]
 
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    m = Media(cfg.medias[0].filename, time_anim=AnimatedFloat(media_animkf))
+    m = Media(m0.filename, time_anim=AnimatedFloat(media_animkf))
     t = Texture2D(data_src=m)
     r = Render(q)
     r.update_textures(tex0=t)

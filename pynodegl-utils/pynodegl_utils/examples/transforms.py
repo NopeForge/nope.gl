@@ -33,6 +33,7 @@ from pynodegl_utils.misc import scene, get_frag
        translate={'type': 'bool'})
 def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, translate=True):
     cfg.duration = 5.0
+    cfg.aspect_ratio = (1, 1)
 
     sz = 1/3.
     q = Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
@@ -68,8 +69,11 @@ def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, transla
 
 @scene()
 def animated_uniform(cfg):
+    m0 = cfg.medias[0]
+    cfg.aspect_ratio = (m0.width, m0.height)
+
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    m = Media(cfg.medias[0].filename)
+    m = Media(m0.filename)
     t = Texture2D(data_src=m)
     p = Program(fragment=get_frag('matrix-transform'))
     ts = Render(q, p)

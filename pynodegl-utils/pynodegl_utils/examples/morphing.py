@@ -21,6 +21,7 @@ from pynodegl_utils.misc import scene, get_frag
        circle_color={'type': 'color'})
 def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0, 1.0, 1.0)):
     cfg.duration = 5
+    cfg.aspect_ratio = (1, 1)
 
     def sqxf(t):  # square x coordinates clockwise starting top-left
         if t < 1/4.: return t*4
@@ -77,6 +78,7 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
 @scene(npoints={'type': 'range', 'range': [3, 100]})
 def urchin(cfg, npoints=25):
     cfg.duration = 5
+    cfg.aspect_ratio = (1, 1)
 
     random.seed(0)
 
