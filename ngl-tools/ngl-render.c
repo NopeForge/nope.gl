@@ -101,8 +101,6 @@ int main(int argc, char *argv[])
                     break;
                 case 'z':
                     swap_interval = atoi(arg);
-                    /* FIXME: add swap interval support to node.gl */
-                    fprintf(stderr, "[WARNING] Swap interval (%d) is currently not supported by node.gl\n", swap_interval);
                     break;
                 case 't':
                     if (nb_ranges >= sizeof(ranges)/sizeof(*ranges)) {
@@ -192,6 +190,7 @@ int main(int argc, char *argv[])
         ngl_node_unrefp(&scene);
         return ret;
     }
+    config.swap_interval = swap_interval;
 
     ret = ngl_configure(ctx, &config);
     if (ret < 0) {
