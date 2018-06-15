@@ -494,8 +494,8 @@ static void hud_draw(struct ngl_node *node)
 
     const struct hud_measuring *cpu_up = &s->measures[OP_UPDATE_CPU];
     const struct hud_measuring *gpu_up = &s->measures[OP_UPDATE_GPU];
-    const int last_cpu_up_pos = (cpu_up->pos - 1 + s->measure_window) % s->measure_window;
-    const int last_gpu_up_pos = (gpu_up->pos - 1 + s->measure_window) % s->measure_window;
+    const int last_cpu_up_pos = (cpu_up->pos ? cpu_up->pos : s->measure_window) - 1;
+    const int last_gpu_up_pos = (gpu_up->pos ? gpu_up->pos : s->measure_window) - 1;
     const int64_t cpu_tupdate = cpu_up->times[last_cpu_up_pos];
     const int64_t gpu_tupdate = gpu_up->times[last_gpu_up_pos];
     register_time(s, OP_TOTAL_CPU, cpu_tdraw + cpu_tupdate);
