@@ -31,16 +31,23 @@
 struct serial_ctx {
     struct ngl_node **nodes;
     int nb_nodes;
+    int nb_allocated_nodes;
 };
 
 static int register_node(struct serial_ctx *sctx,
                          const struct ngl_node *node)
 {
-    struct ngl_node **new_nodes = realloc(sctx->nodes, (sctx->nb_nodes + 1) * sizeof(*new_nodes));
-    if (!new_nodes)
-        return -1;
-    new_nodes[sctx->nb_nodes++] = (struct ngl_node *)node;
-    sctx->nodes = new_nodes;
+    if (sctx->nb_nodes == sctx->nb_allocated_nodes) {
+        if (!sctx->nb_allocated_nodes)
+            sctx->nb_allocated_nodes = 16;
+        else
+            sctx->nb_allocated_nodes *= 2;
+        struct ngl_node **new_nodes = realloc(sctx->nodes, sctx->nb_allocated_nodes * sizeof(*new_nodes));
+        if (!new_nodes)
+            return -1;
+        sctx->nodes = new_nodes;
+    }
+    sctx->nodes[sctx->nb_nodes++] = (struct ngl_node *)node;
     return 0;
 }
 
