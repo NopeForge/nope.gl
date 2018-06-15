@@ -28,7 +28,7 @@
 #include "nodegl.h"
 #include "utils.h"
 
-struct glcontext_egl {
+struct egl_priv {
     EGLDisplay display;
     int own_display;
     EGLNativeWindowType window;
@@ -40,43 +40,43 @@ struct glcontext_egl {
     EGLBoolean (*PresentationTimeANDROID)(EGLDisplay dpy, EGLSurface sur, khronos_stime_nanoseconds_t time);
 };
 
-static int glcontext_egl_init(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle)
+static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
+    struct egl_priv *egl = ctx->priv_data;
 
-    if (glcontext->wrapped) {
-        glcontext_egl->display = display ? (EGLDisplay)display : eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        glcontext_egl->surface = eglGetCurrentSurface(EGL_DRAW);
-        glcontext_egl->handle  = handle  ? (EGLContext)handle  : eglGetCurrentContext();
-        if (!glcontext_egl->display || !glcontext_egl->surface || !glcontext_egl->handle) {
+    if (ctx->wrapped) {
+        egl->display = display ? (EGLDisplay)display : eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        egl->surface = eglGetCurrentSurface(EGL_DRAW);
+        egl->handle  = handle  ? (EGLContext)handle  : eglGetCurrentContext();
+        if (!egl->display || !egl->surface || !egl->handle) {
             LOG(ERROR,
                 "could not retrieve EGL display (%p), surface (%p) and context (%p)",
-                glcontext_egl->display,
-                glcontext_egl->surface,
-                glcontext_egl->handle);
+                egl->display,
+                egl->surface,
+                egl->handle);
             return -1;
         }
-        glcontext_egl->PresentationTimeANDROID = ngli_glcontext_get_proc_address(glcontext, "eglPresentationTimeANDROID");
-        if (!glcontext_egl->PresentationTimeANDROID) {
+        egl->PresentationTimeANDROID = ngli_glcontext_get_proc_address(ctx, "eglPresentationTimeANDROID");
+        if (!egl->PresentationTimeANDROID) {
             LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
             return -1;
         }
     } else {
         if (display)
-            glcontext_egl->display = (EGLDisplay)display;
-        if (!glcontext_egl->display) {
-            glcontext_egl->own_display = 1;
-            glcontext_egl->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-            if (!glcontext_egl->display) {
+            egl->display = (EGLDisplay)display;
+        if (!egl->display) {
+            egl->own_display = 1;
+            egl->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+            if (!egl->display) {
                 LOG(ERROR, "could not retrieve EGL display");
                 return -1;
             }
         }
 
-        if (!glcontext->offscreen) {
+        if (!ctx->offscreen) {
             if (window) {
-                glcontext_egl->window = (EGLNativeWindowType)window;
-                if (!glcontext_egl->window) {
+                egl->window = (EGLNativeWindowType)window;
+                if (!egl->window) {
                     LOG(ERROR, "could not retrieve EGL native window");
                     return -1;
                 }
@@ -88,26 +88,26 @@ static int glcontext_egl_init(struct glcontext *glcontext, uintptr_t display, ui
     return 0;
 }
 
-static void glcontext_egl_uninit(struct glcontext *glcontext)
+static void egl_uninit(struct glcontext *ctx)
 {
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
+    struct egl_priv *egl = ctx->priv_data;
 
-    ngli_glcontext_make_current(glcontext, 0);
+    ngli_glcontext_make_current(ctx, 0);
 
-    if (glcontext_egl->own_surface)
-        eglDestroySurface(glcontext_egl->display, glcontext_egl->surface);
+    if (egl->own_surface)
+        eglDestroySurface(egl->display, egl->surface);
 
-    if (glcontext_egl->own_handle)
-        eglDestroyContext(glcontext_egl->display, glcontext_egl->handle);
+    if (egl->own_handle)
+        eglDestroyContext(egl->display, egl->handle);
 
-    if (glcontext_egl->own_display)
-        eglTerminate(glcontext_egl->display);
+    if (egl->own_display)
+        eglTerminate(egl->display);
 }
 
-static int glcontext_egl_create(struct glcontext *glcontext, uintptr_t other)
+static int egl_create(struct glcontext *ctx, uintptr_t other)
 {
     int ret;
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
+    struct egl_priv *egl = ctx->priv_data;
 
     EGLint config_attribs[] = {
         EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
@@ -122,9 +122,9 @@ static int glcontext_egl_create(struct glcontext *glcontext, uintptr_t other)
         EGL_NONE
     };
 
-    if (glcontext->samples > 0) {
+    if (ctx->samples > 0) {
         config_attribs[NGLI_ARRAY_NB(config_attribs) - 4] = 1;
-        config_attribs[NGLI_ARRAY_NB(config_attribs) - 2] = glcontext->samples;
+        config_attribs[NGLI_ARRAY_NB(config_attribs) - 2] = ctx->samples;
     }
 
     const EGLint ctx_attribs[] = {
@@ -134,14 +134,14 @@ static int glcontext_egl_create(struct glcontext *glcontext, uintptr_t other)
 
     EGLint egl_minor;
     EGLint egl_major;
-    ret = eglInitialize (glcontext_egl->display, &egl_major, &egl_minor);
+    ret = eglInitialize (egl->display, &egl_major, &egl_minor);
     if (!ret) {
         LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
         return -1;
     }
 
-    glcontext_egl->PresentationTimeANDROID = ngli_glcontext_get_proc_address(glcontext, "eglPresentationTimeANDROID");
-    if (!glcontext_egl->PresentationTimeANDROID) {
+    egl->PresentationTimeANDROID = ngli_glcontext_get_proc_address(ctx, "eglPresentationTimeANDROID");
+    if (!egl->PresentationTimeANDROID) {
         LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
         return -1;
     }
@@ -149,7 +149,7 @@ static int glcontext_egl_create(struct glcontext *glcontext, uintptr_t other)
     EGLContext config;
     EGLint nb_configs;
 
-    ret = eglChooseConfig(glcontext_egl->display, config_attribs, &config, 1, &nb_configs);
+    ret = eglChooseConfig(egl->display, config_attribs, &config, 1, &nb_configs);
     if (!ret || !nb_configs) {
         LOG(ERROR, "could not choose a valid EGL configuration: 0x%x", eglGetError());
         return -1;
@@ -157,29 +157,29 @@ static int glcontext_egl_create(struct glcontext *glcontext, uintptr_t other)
 
     EGLContext shared_context = other ? (EGLContext)other : NULL;
 
-    glcontext_egl->own_handle = 1;
-    glcontext_egl->handle = eglCreateContext(glcontext_egl->display, config, shared_context, ctx_attribs);
-    if (!glcontext_egl->handle) {
+    egl->own_handle = 1;
+    egl->handle = eglCreateContext(egl->display, config, shared_context, ctx_attribs);
+    if (!egl->handle) {
         LOG(ERROR, "could not create EGL context: 0x%x", eglGetError());
         return -1;
     }
 
-    glcontext_egl->own_surface = 1;
-    if (glcontext->offscreen) {
+    egl->own_surface = 1;
+    if (ctx->offscreen) {
         const EGLint attribs[] = {
-            EGL_WIDTH, glcontext->width,
-            EGL_HEIGHT, glcontext->height,
+            EGL_WIDTH, ctx->width,
+            EGL_HEIGHT, ctx->height,
             EGL_NONE
         };
 
-        glcontext_egl->surface = eglCreatePbufferSurface(glcontext_egl->display, config, attribs);
-        if (!glcontext_egl->surface) {
+        egl->surface = eglCreatePbufferSurface(egl->display, config, attribs);
+        if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
             return -1;
         }
     } else {
-        glcontext_egl->surface = eglCreateWindowSurface(glcontext_egl->display, config, glcontext_egl->window, NULL);
-        if (!glcontext_egl->surface) {
+        egl->surface = eglCreateWindowSurface(egl->display, config, egl->window, NULL);
+        if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
         }
     }
@@ -187,56 +187,56 @@ static int glcontext_egl_create(struct glcontext *glcontext, uintptr_t other)
     return 0;
 }
 
-static int glcontext_egl_make_current(struct glcontext *glcontext, int current)
+static int egl_make_current(struct glcontext *ctx, int current)
 {
     int ret;
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
+    struct egl_priv *egl = ctx->priv_data;
 
     if (current) {
-        ret = eglMakeCurrent(glcontext_egl->display, glcontext_egl->surface, glcontext_egl->surface, glcontext_egl->handle);
+        ret = eglMakeCurrent(egl->display, egl->surface, egl->surface, egl->handle);
     } else {
-        ret = eglMakeCurrent(glcontext_egl->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+        ret = eglMakeCurrent(egl->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     }
 
     return ret - 1;
 }
 
-static void glcontext_egl_swap_buffers(struct glcontext *glcontext)
+static void egl_swap_buffers(struct glcontext *ctx)
 {
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
-    eglSwapBuffers(glcontext_egl->display, glcontext_egl->surface);
+    struct egl_priv *egl = ctx->priv_data;
+    eglSwapBuffers(egl->display, egl->surface);
 }
 
-static int glcontext_egl_set_swap_interval(struct glcontext *glcontext, int interval)
+static int egl_set_swap_interval(struct glcontext *ctx, int interval)
 {
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
+    struct egl_priv *egl = ctx->priv_data;
 
-    eglSwapInterval(glcontext_egl->display, interval);
+    eglSwapInterval(egl->display, interval);
 
     return 0;
 }
 
-static void glcontext_egl_set_surface_pts(struct glcontext *glcontext, double t)
+static void egl_set_surface_pts(struct glcontext *ctx, double t)
 {
-    struct glcontext_egl *glcontext_egl = glcontext->priv_data;
+    struct egl_priv *egl = ctx->priv_data;
 
     EGLnsecsANDROID pts = t * 1000000000LL;
-    glcontext_egl->PresentationTimeANDROID(glcontext_egl->display, glcontext_egl->surface, pts);
+    egl->PresentationTimeANDROID(egl->display, egl->surface, pts);
 }
 
-static void *glcontext_egl_get_proc_address(struct glcontext *glcontext, const char *name)
+static void *egl_get_proc_address(struct glcontext *ctx, const char *name)
 {
     return eglGetProcAddress(name);
 }
 
 const struct glcontext_class ngli_glcontext_egl_class = {
-    .init = glcontext_egl_init,
-    .uninit = glcontext_egl_uninit,
-    .create = glcontext_egl_create,
-    .make_current = glcontext_egl_make_current,
-    .swap_buffers = glcontext_egl_swap_buffers,
-    .set_swap_interval = glcontext_egl_set_swap_interval,
-    .set_surface_pts = glcontext_egl_set_surface_pts,
-    .get_proc_address = glcontext_egl_get_proc_address,
-    .priv_size = sizeof(struct glcontext_egl),
+    .init = egl_init,
+    .uninit = egl_uninit,
+    .create = egl_create,
+    .make_current = egl_make_current,
+    .swap_buffers = egl_swap_buffers,
+    .set_swap_interval = egl_set_swap_interval,
+    .set_surface_pts = egl_set_surface_pts,
+    .get_proc_address = egl_get_proc_address,
+    .priv_size = sizeof(struct egl_priv),
 };
