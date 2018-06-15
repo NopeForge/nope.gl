@@ -311,6 +311,9 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
 
 char *ngl_node_dot(const struct ngl_node *node)
 {
+    if (!node)
+        return NULL;
+
     char *graph = NULL;
     struct hmap *decls = ngli_hmap_create();
     struct hmap *links = ngli_hmap_create();
