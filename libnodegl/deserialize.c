@@ -282,6 +282,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 return ret;
             break;
         }
+
         case PARAM_TYPE_DATA: {
             int size = 0;
             int consumed = 0;
@@ -337,6 +338,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 return ret;
             break;
         }
+
         case PARAM_TYPE_MAT4: {
             float *m = NULL;
             int nb_flts;
@@ -351,6 +353,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 return ret;
             break;
         }
+
         case PARAM_TYPE_NODE: {
             int node_id;
             len = parse_hexint(str, &node_id);
@@ -362,6 +365,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 return ret;
             break;
         }
+
         case PARAM_TYPE_NODELIST: {
             int *node_ids, nb_node_ids;
             len = parse_hexints(str, &node_ids, &nb_node_ids);
@@ -383,6 +387,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             free(node_ids);
             break;
         }
+
         case PARAM_TYPE_DBLLIST: {
             double *dbls;
             int nb_dbls;
@@ -395,6 +400,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 return ret;
             break;
         }
+
         case PARAM_TYPE_NODEDICT: {
             char **node_keys;
             int *node_ids, nb_nodes;
@@ -418,6 +424,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             FREE_KVS(nb_nodes, node_keys, node_ids);
             break;
         }
+
         default:
             LOG(ERROR, "Cannot deserialize %s: "
                 "unsupported parameter type", par->key);
