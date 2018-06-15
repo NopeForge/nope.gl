@@ -19,6 +19,8 @@
  * under the License.
  */
 
+#define _POSIX_C_SOURCE 200809L // posix_memalign()
+
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
