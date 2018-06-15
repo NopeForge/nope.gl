@@ -224,8 +224,8 @@ TESTS = asm             \
         utils           \
 
 TESTPROGS = $(addprefix test_,$(TESTS))
-$(TESTPROGS): CFLAGS = $(PROJECT_CFLAGS)
-$(TESTPROGS): LDLIBS = $(PROJECT_LDLIBS)
+$(TESTPROGS): CFLAGS = $(PROJECT_CFLAGS) $(LIB_CFLAGS)
+$(TESTPROGS): LDLIBS = $(PROJECT_LDLIBS) $(LIB_LDLIBS)
 
 testprogs: $(TESTPROGS)
 
