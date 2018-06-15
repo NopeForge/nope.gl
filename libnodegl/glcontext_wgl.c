@@ -34,12 +34,12 @@ struct wgl_priv {
     HMODULE module;
 };
 
-static int wgl_init(struct glcontext *ctx, void *display, void *window, void *handle)
+static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
     struct wgl_priv *wgl = ctx->priv_data;
 
-    wgl->handle = handle ? *(HGLRC *)handle : wglGetCurrentContext();
-    wgl->window = window ? *(HDC *)window   : wglGetCurrentDC();
+    wgl->handle = handle ? (HGLRC)handle : wglGetCurrentContext();
+    wgl->window = window ? (HDC)window   : wglGetCurrentDC();
 
     if (!wgl->window || !wgl->handle)
         return -1;
@@ -59,7 +59,7 @@ static void wgl_uninit(struct glcontext *ctx)
         FreeLibrary(wgl->module);
 }
 
-static int wgl_create(struct glcontext *ctx, struct glcontext *other)
+static int wgl_create(struct glcontext *ctx, uintptr_t other)
 {
     return -1;
 }
