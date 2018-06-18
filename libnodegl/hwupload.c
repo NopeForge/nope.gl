@@ -581,7 +581,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
                                                                     0,
                                                                     &textures[0]);
         if (err != noErr) {
-            LOG(ERROR, "Could not create CoreVideo texture from image: %d", err);
+            LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
             s->id = s->local_id;
             return -1;
         }
@@ -662,7 +662,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
                                                                         i,
                                                                         &textures[i]);
             if (err != noErr) {
-                LOG(ERROR, "Could not create CoreVideo texture from image: %d", err);
+                LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
                 for (int j = 0; j < 2; j++) {
                     if (textures[j])
                         CFRelease(textures[j]);
@@ -803,7 +803,7 @@ static int upload_vt_frame_nv12_dr(struct ngl_node *node, struct hwupload_config
                                                                     i,
                                                                     &(s->ios_textures[i]));
         if (err != noErr) {
-            LOG(ERROR, "Could not create CoreVideo texture from image: %d", err);
+            LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
             for (int j = 0; j < 2; j++) {
                 if (s->ios_textures[j]) {
                     CFRelease(s->ios_textures[j]);

@@ -271,7 +271,7 @@ static void serialize_options(struct hmap *nlist,
                 break;
             }
             default:
-                LOG(ERROR, "Cannot serialize %s: unsupported parameter type", p->key);
+                LOG(ERROR, "cannot serialize %s: unsupported parameter type", p->key);
         }
         p++;
     }

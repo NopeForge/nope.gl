@@ -67,7 +67,7 @@ static int timerangefilter_init(struct ngl_node *node)
         const struct timerangemode *trm = s->ranges[i]->priv_data;
 
         if (trm->start_time < prev_start_time) {
-            LOG(ERROR, "Time ranges must be positive and monotically increasing: %g < %g",
+            LOG(ERROR, "time ranges must be positive and monotically increasing: %g < %g",
                 trm->start_time, prev_start_time);
             return -1;
         }

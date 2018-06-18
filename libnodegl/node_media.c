@@ -114,11 +114,11 @@ static int media_init(struct ngl_node *node)
         for (i = 0; i < anim->nb_animkf; i++) {
             const struct animkeyframe *kf = anim->animkf[i]->priv_data;
             if (kf->easing != EASING_LINEAR) {
-                LOG(ERROR, "Only linear interpolation is allowed for time remapping");
+                LOG(ERROR, "only linear interpolation is allowed for time remapping");
                 return -1;
             }
             if (kf->scalar < prev_media_time) {
-                LOG(ERROR, "Media times must be positive and monotically increasing: %g < %g",
+                LOG(ERROR, "media times must be positive and monotically increasing: %g < %g",
                     kf->scalar, prev_media_time);
                 return -1;
             }
@@ -246,13 +246,13 @@ static int media_update(struct ngl_node *node, double t)
                                                                                 : NULL;
         if (s->audio_tex) {
             if (frame->pix_fmt != SXPLAYER_SMPFMT_FLT) {
-                LOG(ERROR, "Unexpected %s (%d) sxplayer frame",
+                LOG(ERROR, "unexpected %s (%d) sxplayer frame",
                     pix_fmt_str ? pix_fmt_str : "unknown", frame->pix_fmt);
                 return -1;
             }
             pix_fmt_str = "audio";
         } else if (!pix_fmt_str) {
-            LOG(ERROR, "Invalid pixel format %d in sxplayer frame", frame->pix_fmt);
+            LOG(ERROR, "invalid pixel format %d in sxplayer frame", frame->pix_fmt);
             return -1;
         }
         LOG(VERBOSE, "got frame %dx%d %s with ts=%f", frame->width, frame->height,

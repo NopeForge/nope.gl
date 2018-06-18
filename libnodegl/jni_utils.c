@@ -57,7 +57,7 @@ JNIEnv *ngli_jni_get_env(void)
     }
 
     if (!java_vm) {
-        LOG(ERROR, "No Java virtual machine has been registered");
+        LOG(ERROR, "no Java virtual machine has been registered");
         goto done;
     }
 
@@ -71,7 +71,7 @@ JNIEnv *ngli_jni_get_env(void)
     switch(ret) {
     case JNI_EDETACHED:
         if ((*java_vm)->AttachCurrentThread(java_vm, &env, NULL) != 0) {
-            LOG(ERROR, "Failed to attach the JNI environment to the current thread");
+            LOG(ERROR, "failed to attach the JNI environment to the current thread");
             env = NULL;
         } else {
             pthread_setspecific(current_env, env);
@@ -80,10 +80,10 @@ JNIEnv *ngli_jni_get_env(void)
     case JNI_OK:
         break;
     case JNI_EVERSION:
-        LOG(ERROR, "The specified JNI version is not supported");
+        LOG(ERROR, "the specified JNI version is not supported");
         break;
     default:
-        LOG(ERROR, "Failed to get the JNI environment attached to this thread");
+        LOG(ERROR, "failed to get the JNI environment attached to this thread");
         break;
     }
 
@@ -158,7 +158,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     exception_class = (*env)->GetObjectClass(env, exception);
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
-        LOG(ERROR, "Could not find Throwable class");
+        LOG(ERROR, "could not find Throwable class");
         ret = -1;
         goto done;
     }
@@ -166,7 +166,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     class_class = (*env)->GetObjectClass(env, exception_class);
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
-        LOG(ERROR, "Could not find Throwable class's class");
+        LOG(ERROR, "could not find Throwable class's class");
         ret = -1;
         goto done;
     }
@@ -174,7 +174,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     get_name_id = (*env)->GetMethodID(env, class_class, "getName", "()Ljava/lang/String;");
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
-        LOG(ERROR, "Could not find method Class.getName()");
+        LOG(ERROR, "could not find method Class.getName()");
         ret = -1;
         goto done;
     }
@@ -196,7 +196,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     get_message_id = (*env)->GetMethodID(env, exception_class, "getMessage", "()Ljava/lang/String;");
     if ((*env)->ExceptionCheck(env)) {
         (*env)->ExceptionClear(env);
-        LOG(ERROR, "Could not find method java/lang/Throwable.getMessage()");
+        LOG(ERROR, "could not find method java/lang/Throwable.getMessage()");
         ret = -1;
         goto done;
     }
@@ -222,7 +222,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     } else if (!name && message) {
         ngli_bstr_print(bstr, "Exception: %s", message);
     } else {
-        LOG(WARNING, "Could not retrieve exception name and message");
+        LOG(WARNING, "could not retrieve exception name and message");
         ngli_bstr_print(bstr, "Exception occurred");
     }
 
@@ -352,7 +352,7 @@ int ngli_jni_init_jfields(JNIEnv *env, void *jfields, const struct JniField *jfi
                 break;
             }
             default:
-                LOG(ERROR, "Unknown JNI field type");
+                LOG(ERROR, "unknown JNI field type");
                 ret = -1;
                 goto done;
             }
@@ -409,7 +409,7 @@ int ngli_jni_reset_jfields(JNIEnv *env, void *jfields, const struct JniField *jf
             break;
         }
         default:
-            LOG(ERROR, "Unknown JNI field type");
+            LOG(ERROR, "unknown JNI field type");
         }
     }
 

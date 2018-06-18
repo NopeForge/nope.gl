@@ -87,7 +87,7 @@ static int glcontext_choose_platform(int platform)
 #elif defined(TARGET_MINGW_W64)
     return NGL_GLPLATFORM_WGL;
 #else
-    LOG(ERROR, "Can not determine which GL platform to use");
+    LOG(ERROR, "can not determine which GL platform to use");
     return -1;
 #endif
 }

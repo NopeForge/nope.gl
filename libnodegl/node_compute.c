@@ -188,7 +188,7 @@ static int compute_init(struct ngl_node *node)
     struct computeprogram *program = s->program->priv_data;
 
     if (!(glcontext->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
-        LOG(ERROR, "Context does not support compute shaders");
+        LOG(ERROR, "context does not support compute shaders");
         return -1;
     }
 
@@ -196,7 +196,7 @@ static int compute_init(struct ngl_node *node)
         s->nb_group_y > glcontext->max_compute_work_group_counts[1] ||
         s->nb_group_z > glcontext->max_compute_work_group_counts[2]) {
         LOG(ERROR,
-            "Compute work group size (%d, %d, %d) exceeds driver limit (%d, %d, %d)",
+            "compute work group size (%d, %d, %d) exceeds driver limit (%d, %d, %d)",
             s->nb_group_x,
             s->nb_group_y,
             s->nb_group_z,
@@ -212,7 +212,7 @@ static int compute_init(struct ngl_node *node)
 
     int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
     if (nb_textures > glcontext->max_texture_image_units) {
-        LOG(ERROR, "Attached textures count (%d) exceeds driver limit (%d)",
+        LOG(ERROR, "attached textures count (%d) exceeds driver limit (%d)",
             nb_textures, glcontext->max_texture_image_units);
         return -1;
     }

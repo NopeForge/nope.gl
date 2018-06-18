@@ -41,7 +41,7 @@ struct ngl_ctx *ngl_create(void)
     if (!s)
         return NULL;
 
-    LOG(INFO, "Context create in node.gl v%d.%d.%d",
+    LOG(INFO, "context create in node.gl v%d.%d.%d",
         NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
     return s;
 }
@@ -273,7 +273,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height)
 {
     if (!s->configured) {
-        LOG(ERROR, "Context must be configured before setting viewport");
+        LOG(ERROR, "context must be configured before setting viewport");
         return -1;
     }
 
@@ -284,7 +284,7 @@ int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height)
 int ngl_set_clearcolor(struct ngl_ctx *s, double r, double g, double b, double a)
 {
     if (!s->configured) {
-        LOG(ERROR, "Context must be configured before setting clear color");
+        LOG(ERROR, "context must be configured before setting clear color");
         return -1;
     }
 
@@ -295,7 +295,7 @@ int ngl_set_clearcolor(struct ngl_ctx *s, double r, double g, double b, double a
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
     if (!s->configured) {
-        LOG(ERROR, "Context must be configured before setting a scene");
+        LOG(ERROR, "context must be configured before setting a scene");
         return -1;
     }
 
@@ -305,7 +305,7 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 int ngli_prepare_draw(struct ngl_ctx *s, double t)
 {
     if (!s->configured) {
-        LOG(ERROR, "Context must be configured before updating");
+        LOG(ERROR, "context must be configured before updating");
         return -1;
     }
 
@@ -315,7 +315,7 @@ int ngli_prepare_draw(struct ngl_ctx *s, double t)
 int ngl_draw(struct ngl_ctx *s, double t)
 {
     if (!s->configured) {
-        LOG(ERROR, "Context must be configured before drawing");
+        LOG(ERROR, "context must be configured before drawing");
         return -1;
     }
 
@@ -357,7 +357,7 @@ int ngl_jni_set_java_vm(void *vm)
         java_vm = vm;
     } else if (java_vm != vm) {
         ret = -1;
-        LOG(ERROR, "A Java virtual machine has already been set");
+        LOG(ERROR, "a Java virtual machine has already been set");
     }
     pthread_mutex_unlock(&lock);
 

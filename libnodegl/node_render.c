@@ -613,7 +613,7 @@ static int render_init(struct ngl_node *node)
 
     int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
     if (nb_textures > glcontext->max_texture_image_units) {
-        LOG(ERROR, "Attached textures count (%d) exceeds driver limit (%d)",
+        LOG(ERROR, "attached textures count (%d) exceeds driver limit (%d)",
             nb_textures, glcontext->max_texture_image_units);
         return -1;
     }

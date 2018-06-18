@@ -433,7 +433,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         }
 
         default:
-            LOG(ERROR, "Cannot deserialize %s: "
+            LOG(ERROR, "cannot deserialize %s: "
                 "unsupported parameter type", par->key);
     }
     return len;
@@ -456,7 +456,7 @@ static int set_node_params(struct serial_ctx *sctx, char *str,
 
         int ret = parse_param(sctx, base_ptr, par, str);
         if (ret < 0) {
-            LOG(ERROR, "Invalid value specified for parameter %s.%s",
+            LOG(ERROR, "invalid value specified for parameter %s.%s",
                 node->class->name, par->key);
             return -1;
         }
@@ -475,7 +475,7 @@ static int set_node_params(struct serial_ctx *sctx, char *str,
 
         const struct node_param *par = ngli_node_param_find(node, str, &base_ptr);
         if (!par) {
-            LOG(ERROR, "Unable to find parameter %s.%s",
+            LOG(ERROR, "unable to find parameter %s.%s",
                 node->class->name, str);
             return -1;
         }
@@ -483,7 +483,7 @@ static int set_node_params(struct serial_ctx *sctx, char *str,
         str = eok + 1;
         int ret = parse_param(sctx, base_ptr, par, str);
         if (ret < 0) {
-            LOG(ERROR, "Invalid value specified for parameter %s.%s",
+            LOG(ERROR, "invalid value specified for parameter %s.%s",
                 node->class->name, par->key);
             return -1;
         }
@@ -512,11 +512,11 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     int major, minor, micro;
     int n = sscanf(s, "# Node.GL v%d.%d.%d", &major, &minor, &micro);
     if (n != 3) {
-        LOG(ERROR, "Invalid serialized scene");
+        LOG(ERROR, "invalid serialized scene");
         goto end;
     }
     if (NODEGL_VERSION_INT != NODEGL_GET_VERSION(major, minor, micro)) {
-        LOG(ERROR, "Mismatching version: %d.%d.%d != %d.%d.%d",
+        LOG(ERROR, "mismatching version: %d.%d.%d != %d.%d.%d",
             major, minor, micro,
             NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
         goto end;

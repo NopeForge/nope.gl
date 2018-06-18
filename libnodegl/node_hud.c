@@ -296,7 +296,7 @@ static int hud_init(struct ngl_node *node)
     if (s->export_filename) {
         s->fd_export = open(s->export_filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
         if (s->fd_export == -1) {
-            LOG(ERROR, "Unable to open \"%s\" for writing", s->export_filename);
+            LOG(ERROR, "unable to open \"%s\" for writing", s->export_filename);
             return -1;
         }
 
@@ -311,7 +311,7 @@ static int hud_init(struct ngl_node *node)
         const int len = ngli_bstr_len(s->csv_line);
         ssize_t n = write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
         if (n != len) {
-            LOG(ERROR, "Unable to write CSV header");
+            LOG(ERROR, "unable to write CSV header");
             return -1;
         }
     }

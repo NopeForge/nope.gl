@@ -411,7 +411,7 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
     pthread_mutex_unlock(&surface->lock);
 
     if (!ret) {
-        LOG(WARNING, "No frame available");
+        LOG(WARNING, "no frame available");
     }
 
     (*env)->CallVoidMethod(env, surface->surface_texture, surface->jfields.update_tex_image_id);

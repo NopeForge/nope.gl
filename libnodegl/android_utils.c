@@ -43,7 +43,7 @@ jclass ngli_android_find_application_class(JNIEnv *env, const char *name)
 
     application_context = ngl_android_get_application_context();
     if (!application_context) {
-        LOG(ERROR, "No application context has been registered");
+        LOG(ERROR, "no application context has been registered");
         return NULL;
     }
 
