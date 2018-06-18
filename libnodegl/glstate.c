@@ -25,7 +25,7 @@
 #include "glincludes.h"
 #include "glstate.h"
 
-struct glstate *ngli_glstate_create(const struct glfunctions *gl)
+struct glstate *ngli_glstate_create(const struct glcontext *gl)
 {
     struct glstate *state = calloc(1, sizeof(*state));
     if (!state)
@@ -61,7 +61,7 @@ struct glstate *ngli_glstate_create(const struct glfunctions *gl)
     return state;
 }
 
-void ngli_glstate_honor_state(const struct glfunctions *gl,
+void ngli_glstate_honor_state(const struct glcontext *gl,
                               const struct glstate *next,
                               const struct glstate *prev)
 {

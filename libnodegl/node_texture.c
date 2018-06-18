@@ -213,9 +213,9 @@ static const struct node_param texture3d_params[] = {
     {NULL}
 };
 
-GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext, GLenum internal_format, GLenum type)
+GLenum ngli_texture_get_sized_internal_format(struct glcontext *gl, GLenum internal_format, GLenum type)
 {
-    if (glcontext->api == NGL_GLAPI_OPENGLES && glcontext->major_version == 2) {
+    if (gl->api == NGL_GLAPI_OPENGLES && gl->major_version == 2) {
         if (internal_format == GL_BGRA)
             return GL_RGBA;
         return internal_format;
@@ -302,7 +302,7 @@ GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext, GLenu
     return format;
 }
 
-static void tex_image(const struct glfunctions *gl, const struct texture *s,
+static void tex_image(const struct glcontext *gl, const struct texture *s,
                       const uint8_t *data)
 {
     switch (s->local_target) {
@@ -321,7 +321,7 @@ static void tex_image(const struct glfunctions *gl, const struct texture *s,
     }
 }
 
-static void tex_sub_image(const struct glfunctions *gl, const struct texture *s,
+static void tex_sub_image(const struct glcontext *gl, const struct texture *s,
                           const uint8_t *data)
 {
     switch (s->local_target) {
@@ -342,7 +342,7 @@ static void tex_sub_image(const struct glfunctions *gl, const struct texture *s,
     }
 }
 
-static void tex_storage(const struct glfunctions *gl, const struct texture *s)
+static void tex_storage(const struct glcontext *gl, const struct texture *s)
 {
     switch (s->local_target) {
         case GL_TEXTURE_2D:
@@ -354,7 +354,7 @@ static void tex_storage(const struct glfunctions *gl, const struct texture *s)
     }
 }
 
-static void tex_set_params(const struct glfunctions *gl, const struct texture *s)
+static void tex_set_params(const struct glcontext *gl, const struct texture *s)
 {
     ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MIN_FILTER, s->min_filter);
     ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
@@ -369,8 +369,7 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
                                       const uint8_t *data)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
     int ret = 0;
@@ -396,7 +395,7 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
             ngli_glBindTexture(gl, s->local_target, s->local_id);
             tex_set_params(gl, s);
 
-            s->internal_format = ngli_texture_get_sized_internal_format(glcontext,
+            s->internal_format = ngli_texture_get_sized_internal_format(gl,
                                                                         s->format,
                                                                         s->type);
             tex_storage(gl, s);
@@ -419,7 +418,7 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
         }
 
         if (update_dimensions) {
-            s->internal_format = ngli_texture_get_sized_internal_format(glcontext,
+            s->internal_format = ngli_texture_get_sized_internal_format(gl,
                                                                         s->format,
                                                                         s->type);
             tex_image(gl, s, data);
@@ -447,11 +446,11 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
 static int texture_prefetch(struct ngl_node *node, GLenum local_target)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
+    struct glcontext *gl = ctx->glcontext;
     struct texture *s = node->priv_data;
 
     if (s->immutable &&
-        !(glcontext->features & NGLI_FEATURE_TEXTURE_STORAGE)) {
+        !(gl->features & NGLI_FEATURE_TEXTURE_STORAGE)) {
         LOG(ERROR, "context does not support texture storage");
         return -1;
     }
@@ -635,8 +634,7 @@ static int texture_update(struct ngl_node *node, double t)
 static void texture_release(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
 
@@ -649,9 +647,9 @@ static void texture_release(struct ngl_node *node)
 static int texture3d_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
+    struct glcontext *gl = ctx->glcontext;
 
-    if (!(glcontext->features & NGLI_FEATURE_TEXTURE_3D)) {
+    if (!(gl->features & NGLI_FEATURE_TEXTURE_3D)) {
         LOG(ERROR, "context does not support 3D textures");
         return -1;
     }

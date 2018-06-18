@@ -23,7 +23,6 @@
 #define GLCONTEXT_H
 
 #include "glfunctions.h"
-#include "glwrappers.h"
 #include "nodegl.h"
 
 #define NGLI_FEATURE_VERTEX_ARRAY_OBJECT          (1 << 0)
@@ -103,5 +102,7 @@ void *ngli_glcontext_get_texture_cache(struct glcontext *glcontext);
 void ngli_glcontext_freep(struct glcontext **glcontext);
 int ngli_glcontext_check_extension(const char *extension, const char *extensions);
 int ngli_glcontext_check_gl_error(struct glcontext *glcontext);
+
+#include "glwrappers.h"
 
 #endif /* GLCONTEXT_H */

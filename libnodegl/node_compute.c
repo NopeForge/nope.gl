@@ -81,8 +81,7 @@ static const struct node_param compute_params[] = {
 static int update_uniforms(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct compute *s = node->priv_data;
 
@@ -95,7 +94,7 @@ static int update_uniforms(struct ngl_node *node)
             struct textureprograminfo *textureprograminfo = &s->textureprograminfos[i];
 
             if (textureprograminfo->sampler_id >= 0) {
-                GLenum format = ngli_texture_get_sized_internal_format(glcontext,
+                GLenum format = ngli_texture_get_sized_internal_format(gl,
                                                                        texture->format,
                                                                        texture->type);
 
@@ -181,28 +180,27 @@ static int compute_init(struct ngl_node *node)
     int ret;
 
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct compute *s = node->priv_data;
     struct computeprogram *program = s->program->priv_data;
 
-    if (!(glcontext->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
+    if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
         LOG(ERROR, "context does not support compute shaders");
         return -1;
     }
 
-    if (s->nb_group_x > glcontext->max_compute_work_group_counts[0] ||
-        s->nb_group_y > glcontext->max_compute_work_group_counts[1] ||
-        s->nb_group_z > glcontext->max_compute_work_group_counts[2]) {
+    if (s->nb_group_x > gl->max_compute_work_group_counts[0] ||
+        s->nb_group_y > gl->max_compute_work_group_counts[1] ||
+        s->nb_group_z > gl->max_compute_work_group_counts[2]) {
         LOG(ERROR,
             "compute work group size (%d, %d, %d) exceeds driver limit (%d, %d, %d)",
             s->nb_group_x,
             s->nb_group_y,
             s->nb_group_z,
-            glcontext->max_compute_work_group_counts[0],
-            glcontext->max_compute_work_group_counts[1],
-            glcontext->max_compute_work_group_counts[2]);
+            gl->max_compute_work_group_counts[0],
+            gl->max_compute_work_group_counts[1],
+            gl->max_compute_work_group_counts[2]);
         return -1;
     }
 
@@ -211,9 +209,9 @@ static int compute_init(struct ngl_node *node)
         return ret;
 
     int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
-    if (nb_textures > glcontext->max_texture_image_units) {
+    if (nb_textures > gl->max_texture_image_units) {
         LOG(ERROR, "attached textures count (%d) exceeds driver limit (%d)",
-            nb_textures, glcontext->max_texture_image_units);
+            nb_textures, gl->max_texture_image_units);
         return -1;
     }
 
@@ -373,8 +371,7 @@ static int compute_update(struct ngl_node *node, double t)
 static void compute_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct compute *s = node->priv_data;
     const struct computeprogram *program = s->program->priv_data;

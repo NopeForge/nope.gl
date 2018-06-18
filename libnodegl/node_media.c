@@ -158,8 +158,7 @@ static int media_init(struct ngl_node *node)
 
 #ifdef __ANDROID__
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     ngli_glGenTextures(gl, 1, &s->android_texture_id);
     s->android_texture_target = GL_TEXTURE_EXTERNAL_OES;
@@ -277,8 +276,7 @@ static void media_uninit(struct ngl_node *node)
 
 #ifdef __ANDROID__
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     ngli_android_surface_free(&s->android_surface);
     ngli_glDeleteTextures(gl, 1, &s->android_texture_id);

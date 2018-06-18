@@ -2,7 +2,7 @@
 
 #include <stddef.h>
 
-#include "glfunctions.h"
+#include "glcontext.h"
 
 #define M (1 << 0)
 

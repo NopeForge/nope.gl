@@ -530,11 +530,11 @@ struct hud {
     int64_t graph_max;
 
     GLuint query;
-    void (*glGenQueries)(const struct glfunctions *gl, GLsizei n, GLuint * ids);
-    void (*glDeleteQueries)(const struct glfunctions *gl, GLsizei n, const GLuint * ids);
-    void (*glBeginQuery)(const struct glfunctions *gl, GLenum target, GLuint id);
-    void (*glEndQuery)(const struct glfunctions *gl, GLenum target);
-    void (*glGetQueryObjectui64v)(const struct glfunctions *gl, GLuint id, GLenum pname, GLuint64 *params);
+    void (*glGenQueries)(const struct glcontext *gl, GLsizei n, GLuint * ids);
+    void (*glDeleteQueries)(const struct glcontext *gl, GLsizei n, const GLuint * ids);
+    void (*glBeginQuery)(const struct glcontext *gl, GLenum target, GLuint id);
+    void (*glEndQuery)(const struct glcontext *gl, GLenum target);
+    void (*glGetQueryObjectui64v)(const struct glcontext *gl, GLuint id, GLenum pname, GLuint64 *params);
 };
 
 /**

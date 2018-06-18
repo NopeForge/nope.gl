@@ -92,8 +92,7 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     if (ret < 0)
         return ret;
 
-    const struct glfunctions *gl = &s->glcontext->funcs;
-    s->glstate = ngli_glstate_create(gl);
+    s->glstate = ngli_glstate_create(s->glcontext);
     if (!s->glstate)
         return -1;
 
@@ -108,18 +107,14 @@ struct viewport {
 static int cmd_set_viewport(struct ngl_ctx *s, void *arg)
 {
     const struct viewport *v = arg;
-    const struct glcontext *glcontext = s->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-    ngli_glViewport(gl, v->x, v->y, v->width, v->height);
+    ngli_glViewport(s->glcontext, v->x, v->y, v->width, v->height);
     return 0;
 }
 
 static int cmd_set_clearcolor(struct ngl_ctx *s, void *arg)
 {
     const float *rgba = arg;
-    const struct glcontext *glcontext = s->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
-    ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
+    ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
     return 0;
 }
 
@@ -145,8 +140,7 @@ static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
-    struct glcontext *glcontext = s->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    const struct glcontext *gl = s->glcontext;
 
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -174,7 +168,7 @@ static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 static int cmd_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
-    struct glcontext *glcontext = s->glcontext;
+    struct glcontext *gl = s->glcontext;
 
     int ret = cmd_prepare_draw(s, arg);
     if (ret < 0)
@@ -185,14 +179,14 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
         ngli_node_draw(s->scene);
     }
 end:
-    if (ret == 0 && ngli_glcontext_check_gl_error(glcontext))
+    if (ret == 0 && ngli_glcontext_check_gl_error(gl))
         ret = -1;
 
-    if (glcontext->set_surface_pts)
-        ngli_glcontext_set_surface_pts(glcontext, t);
+    if (gl->set_surface_pts)
+        ngli_glcontext_set_surface_pts(gl, t);
 
-    if (!glcontext->wrapped)
-        ngli_glcontext_swap_buffers(glcontext);
+    if (!gl->wrapped)
+        ngli_glcontext_swap_buffers(gl);
 
     return ret;
 }

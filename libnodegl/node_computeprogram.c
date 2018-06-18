@@ -36,7 +36,7 @@ static const struct node_param computeprogram_params[] = {
 };
 
 #define DEFINE_GET_INFO_LOG_FUNCTION(func, name)                                      \
-static void get_##func##_info_log(const struct glfunctions *gl, GLuint id,            \
+static void get_##func##_info_log(const struct glcontext *gl, GLuint id,              \
                                   char **info_logp, int *info_log_lengthp)            \
 {                                                                                     \
     ngli_glGet##name##iv(gl, id, GL_INFO_LOG_LENGTH, info_log_lengthp);               \
@@ -62,8 +62,7 @@ DEFINE_GET_INFO_LOG_FUNCTION(program, Program)
 static GLuint load_shader(struct ngl_node *node, const char *compute_shader_data)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     char *info_log = NULL;
     int info_log_length = 0;
@@ -126,8 +125,7 @@ static int computeprogram_init(struct ngl_node *node)
 static void computeprogram_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct computeprogram *s = node->priv_data;
 

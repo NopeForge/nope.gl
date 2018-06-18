@@ -191,18 +191,16 @@ static int glcontext_load_functions(struct glcontext *glcontext)
 
 static int glcontext_probe_version(struct glcontext *glcontext)
 {
-    const struct glfunctions *gl = &glcontext->funcs;
-
     if (glcontext->api == NGL_GLAPI_OPENGL) {
-        ngli_glGetIntegerv(gl, GL_MAJOR_VERSION, &glcontext->major_version);
-        ngli_glGetIntegerv(gl, GL_MINOR_VERSION, &glcontext->minor_version);
+        ngli_glGetIntegerv(glcontext, GL_MAJOR_VERSION, &glcontext->major_version);
+        ngli_glGetIntegerv(glcontext, GL_MINOR_VERSION, &glcontext->minor_version);
 
         if (glcontext->major_version < 3) {
             LOG(ERROR, "node.gl only supports OpenGL >= 3.0");
             return -1;
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGLES) {
-        const char *gl_version = (const char *)ngli_glGetString(gl, GL_VERSION);
+        const char *gl_version = (const char *)ngli_glGetString(glcontext, GL_VERSION);
         if (!gl_version) {
             LOG(ERROR, "could not get OpenGL ES version");
             return -1;
@@ -234,13 +232,13 @@ static int glcontext_probe_version(struct glcontext *glcontext)
 }
 
 static int glcontext_check_extension(const char *extension,
-                                     const struct glfunctions *gl)
+                                     const struct glcontext *glcontext)
 {
     GLint nb_extensions;
-    ngli_glGetIntegerv(gl, GL_NUM_EXTENSIONS, &nb_extensions);
+    ngli_glGetIntegerv(glcontext, GL_NUM_EXTENSIONS, &nb_extensions);
 
     for (GLint i = 0; i < nb_extensions; i++) {
-        const char *tmp = (const char *)ngli_glGetStringi(gl, GL_EXTENSIONS, i);
+        const char *tmp = (const char *)ngli_glGetStringi(glcontext, GL_EXTENSIONS, i);
         if (!tmp)
             break;
         if (!strcmp(extension, tmp))
@@ -253,13 +251,11 @@ static int glcontext_check_extension(const char *extension,
 static int glcontext_check_extensions(struct glcontext *glcontext,
                                       const char **extensions)
 {
-    const struct glfunctions *gl = &glcontext->funcs;
-
     if (!extensions || !*extensions)
         return 0;
 
     if (glcontext->api == NGL_GLAPI_OPENGLES) {
-        const char *gl_extensions = (const char *)ngli_glGetString(gl, GL_EXTENSIONS);
+        const char *gl_extensions = (const char *)ngli_glGetString(glcontext, GL_EXTENSIONS);
         while (*extensions) {
             if (!ngli_glcontext_check_extension(*extensions, gl_extensions))
                 return 0;
@@ -268,7 +264,7 @@ static int glcontext_check_extensions(struct glcontext *glcontext,
         }
     } else if (glcontext->api == NGL_GLAPI_OPENGL) {
         while (*extensions) {
-            if (!glcontext_check_extension(*extensions, gl))
+            if (!glcontext_check_extension(*extensions, glcontext))
                 return 0;
 
             extensions++;
@@ -339,7 +335,6 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
 static int glcontext_probe_settings(struct glcontext *glcontext)
 {
     const int es = glcontext->api == NGL_GLAPI_OPENGLES;
-    const struct glfunctions *gl = &glcontext->funcs;
 
     if (es && glcontext->major_version == 2 && glcontext->minor_version == 0) {
         glcontext->gl_1comp = GL_LUMINANCE;
@@ -349,11 +344,11 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
         glcontext->gl_2comp = GL_RG;
     }
 
-    ngli_glGetIntegerv(gl, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
+    ngli_glGetIntegerv(glcontext, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
 
     if (glcontext->features & NGLI_FEATURE_COMPUTE_SHADER) {
         for (int i = 0; i < NGLI_ARRAY_NB(glcontext->max_compute_work_group_counts); i++) {
-            ngli_glGetIntegeri_v(gl, GL_MAX_COMPUTE_WORK_GROUP_COUNT,
+            ngli_glGetIntegeri_v(glcontext, GL_MAX_COMPUTE_WORK_GROUP_COUNT,
                                  i, &glcontext->max_compute_work_group_counts[i]);
         }
     }
@@ -490,9 +485,7 @@ int ngli_glcontext_check_extension(const char *extension, const char *extensions
 
 int ngli_glcontext_check_gl_error(struct glcontext *glcontext)
 {
-    const struct glfunctions *gl = &glcontext->funcs;
-
-    const GLenum error = ngli_glGetError(gl);
+    const GLenum error = ngli_glGetError(glcontext);
     const char *errorstr = NULL;
 
     if (!error)

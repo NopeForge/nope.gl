@@ -226,25 +226,24 @@ static void reset_buf(struct hud *s)
         p = set_color(p, s->bg_color_u32);
 }
 
-static void noop(const struct glfunctions *gl, ...)
+static void noop(const struct glcontext *gl, ...)
 {
 }
 
 static int hud_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct hud *s = node->priv_data;
 
-    if (glcontext->features & NGLI_FEATURE_TIMER_QUERY) {
+    if (gl->features & NGLI_FEATURE_TIMER_QUERY) {
         s->glGenQueries          = ngli_glGenQueries;
         s->glDeleteQueries       = ngli_glDeleteQueries;
         s->glBeginQuery          = ngli_glBeginQuery;
         s->glEndQuery            = ngli_glEndQuery;
         s->glGetQueryObjectui64v = ngli_glGetQueryObjectui64v;
-    } else if (glcontext->features & NGLI_FEATURE_EXT_DISJOINT_TIMER_QUERY) {
+    } else if (gl->features & NGLI_FEATURE_EXT_DISJOINT_TIMER_QUERY) {
         s->glGenQueries          = ngli_glGenQueriesEXT;
         s->glDeleteQueries       = ngli_glDeleteQueriesEXT;
         s->glBeginQuery          = ngli_glBeginQueryEXT;
@@ -434,8 +433,7 @@ static int hud_update(struct ngl_node *node, double t)
     ngli_node_transfer_matrices(child, node);
 
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     int timer_active = ctx->timer_active;
     if (timer_active) {
@@ -468,8 +466,7 @@ static void hud_draw(struct ngl_node *node)
     struct hud *s = node->priv_data;
 
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     int timer_active = ctx->timer_active;
     if (!timer_active) {
@@ -545,8 +542,7 @@ static void hud_uninit(struct ngl_node *node)
     }
 
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     s->glDeleteQueries(gl, 1, &s->query);
 

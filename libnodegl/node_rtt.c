@@ -65,8 +65,7 @@ static GLenum get_depth_attachment(GLenum format)
 static int rtt_prefetch(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct rtt *s = node->priv_data;
     struct texture *texture = s->color_texture->priv_data;
@@ -75,13 +74,13 @@ static int rtt_prefetch(struct ngl_node *node)
     s->width = texture->width;
     s->height = texture->height;
 
-    if (!(glcontext->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) &&
+    if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) &&
         s->samples > 0) {
         LOG(WARNING, "context does not support the framebuffer object feature, multisample anti-aliasing will be disabled");
         s->samples = 0;
     }
 
-    if (!(glcontext->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL) &&
+    if (!(gl->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL) &&
         s->samples > 0) {
         LOG(WARNING, "context does not support packed depth stencil feature, multisample anti-aliasing will be disabled");
         s->samples = 0;
@@ -107,7 +106,7 @@ static int rtt_prefetch(struct ngl_node *node)
 
     GLenum depth_format = 0;
     GLenum depth_attachment = 0;
-    int packed_depth_stencil = glcontext->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL;
+    int packed_depth_stencil = gl->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL;
 
     if (depth_texture) {
         depth_format = depth_texture->internal_format;
@@ -147,7 +146,7 @@ static int rtt_prefetch(struct ngl_node *node)
     }
 
     if (s->samples > 0) {
-        if (glcontext->features & NGLI_FEATURE_INTERNALFORMAT_QUERY) {
+        if (gl->features & NGLI_FEATURE_INTERNALFORMAT_QUERY) {
             GLint cbuffer_samples;
             ngli_glGetInternalformativ(gl, GL_RENDERBUFFER, texture->internal_format, GL_SAMPLES, 1, &cbuffer_samples);
             GLint dbuffer_samples;
@@ -211,8 +210,7 @@ static int rtt_update(struct ngl_node *node, double t)
 static void rtt_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     GLint viewport[4];
     struct rtt *s = node->priv_data;
@@ -269,8 +267,7 @@ static void rtt_draw(struct ngl_node *node)
 static void rtt_release(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct rtt *s = node->priv_data;
 

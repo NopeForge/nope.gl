@@ -149,8 +149,7 @@ static int buffer_init_from_count(struct ngl_node *node)
 static int buffer_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct buffer *s = node->priv_data;
 
@@ -226,8 +225,7 @@ static int buffer_init(struct ngl_node *node)
 static void buffer_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct buffer *s = node->priv_data;
 

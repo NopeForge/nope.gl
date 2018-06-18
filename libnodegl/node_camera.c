@@ -90,8 +90,7 @@ static int camera_init(struct ngl_node *node)
 
 #if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
         struct ngl_ctx *ctx = node->ctx;
-        struct glcontext *glcontext = ctx->glcontext;
-        const struct glfunctions *gl = &glcontext->funcs;
+        struct glcontext *gl = ctx->glcontext;
 
         ngli_glGenTextures(gl, 1, &s->texture_id);
         ngli_glBindTexture(gl, GL_TEXTURE_2D, s->texture_id);
@@ -189,8 +188,7 @@ static int camera_update(struct ngl_node *node, double t)
 static void camera_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct camera *s = node->priv_data;
     ngli_node_draw(s->child);
@@ -237,8 +235,7 @@ static void camera_uninit(struct ngl_node *node)
 
 #if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
         struct ngl_ctx *ctx = node->ctx;
-        struct glcontext *glcontext = ctx->glcontext;
-        const struct glfunctions *gl = &glcontext->funcs;
+        struct glcontext *gl = ctx->glcontext;
 
         ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
         ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);

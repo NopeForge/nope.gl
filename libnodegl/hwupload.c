@@ -53,7 +53,7 @@ struct hwupload_config {
 static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *frame, struct hwupload_config *config)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
+    struct glcontext *gl = ctx->glcontext;
 
     config->width = frame->width;
     config->height = frame->height;
@@ -74,8 +74,8 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
         break;
     case SXPLAYER_SMPFMT_FLT:
         config->format = NGLI_HWUPLOAD_FMT_COMMON;
-        config->gl_format = glcontext->gl_1comp;
-        config->gl_internal_format = ngli_texture_get_sized_internal_format(glcontext,
+        config->gl_format = gl->gl_1comp;
+        config->gl_internal_format = ngli_texture_get_sized_internal_format(gl,
                                                                             config->gl_format,
                                                                             GL_FLOAT);
         config->gl_type = GL_FLOAT;
@@ -339,8 +339,7 @@ static int upload_mc_frame(struct ngl_node *node, struct hwupload_config *config
 static int init_mc_dr(struct ngl_node *node, struct hwupload_config *config)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
     struct media *media = s->data_src->priv_data;
@@ -549,13 +548,12 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
 static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
 
     CVOpenGLESTextureRef textures[2] = {0};
-    CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(glcontext);
+    CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
 
     switch (s->upload_fmt) {
@@ -748,12 +746,11 @@ static int init_vt_nv12_dr(struct ngl_node *node, struct hwupload_config *config
 static int upload_vt_frame_nv12_dr(struct ngl_node *node, struct hwupload_config *config, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *glcontext = ctx->glcontext;
-    const struct glfunctions *gl = &glcontext->funcs;
+    struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
 
-    CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(glcontext);
+    CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
 
     s->format                = config->gl_format;

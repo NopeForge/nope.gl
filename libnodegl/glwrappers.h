@@ -3,8 +3,6 @@
 #ifndef NGL_GL_H
 #define NGL_GL_H
 
-#include "glfunctions.h"
-
 static const char * const errors_str[] = {
     [GL_INVALID_ENUM]                   = "GL_INVALID_ENUM",
     [GL_INVALID_VALUE]                  = "GL_INVALID_VALUE",
@@ -17,10 +15,10 @@ static const char * const errors_str[] = {
 #include "utils.h"
 #include "log.h"
 
-static inline void check_error_code(const struct glfunctions *gl,
+static inline void check_error_code(const struct glcontext *gl,
                                     const char *glfuncname)
 {
-    const GLenum error = gl->GetError();
+    const GLenum error = gl->funcs.GetError();
     if (!error)
         return;
     if (error < NGLI_ARRAY_NB(errors_str) && errors_str[error])
@@ -32,751 +30,751 @@ static inline void check_error_code(const struct glfunctions *gl,
 # define check_error_code(gl, glfuncname) do { } while (0)
 #endif
 
-static inline void ngli_glActiveTexture(const struct glfunctions *gl, GLenum texture)
+static inline void ngli_glActiveTexture(const struct glcontext *gl, GLenum texture)
 {
-    gl->ActiveTexture(texture);
+    gl->funcs.ActiveTexture(texture);
     check_error_code(gl, "glActiveTexture");
 }
 
-static inline void ngli_glAttachShader(const struct glfunctions *gl, GLuint program, GLuint shader)
+static inline void ngli_glAttachShader(const struct glcontext *gl, GLuint program, GLuint shader)
 {
-    gl->AttachShader(program, shader);
+    gl->funcs.AttachShader(program, shader);
     check_error_code(gl, "glAttachShader");
 }
 
-static inline void ngli_glBeginQuery(const struct glfunctions *gl, GLenum target, GLuint id)
+static inline void ngli_glBeginQuery(const struct glcontext *gl, GLenum target, GLuint id)
 {
-    gl->BeginQuery(target, id);
+    gl->funcs.BeginQuery(target, id);
     check_error_code(gl, "glBeginQuery");
 }
 
-static inline void ngli_glBeginQueryEXT(const struct glfunctions *gl, GLenum target, GLuint id)
+static inline void ngli_glBeginQueryEXT(const struct glcontext *gl, GLenum target, GLuint id)
 {
-    gl->BeginQueryEXT(target, id);
+    gl->funcs.BeginQueryEXT(target, id);
     check_error_code(gl, "glBeginQueryEXT");
 }
 
-static inline void ngli_glBindAttribLocation(const struct glfunctions *gl, GLuint program, GLuint index, const GLchar * name)
+static inline void ngli_glBindAttribLocation(const struct glcontext *gl, GLuint program, GLuint index, const GLchar * name)
 {
-    gl->BindAttribLocation(program, index, name);
+    gl->funcs.BindAttribLocation(program, index, name);
     check_error_code(gl, "glBindAttribLocation");
 }
 
-static inline void ngli_glBindBuffer(const struct glfunctions *gl, GLenum target, GLuint buffer)
+static inline void ngli_glBindBuffer(const struct glcontext *gl, GLenum target, GLuint buffer)
 {
-    gl->BindBuffer(target, buffer);
+    gl->funcs.BindBuffer(target, buffer);
     check_error_code(gl, "glBindBuffer");
 }
 
-static inline void ngli_glBindBufferBase(const struct glfunctions *gl, GLenum target, GLuint index, GLuint buffer)
+static inline void ngli_glBindBufferBase(const struct glcontext *gl, GLenum target, GLuint index, GLuint buffer)
 {
-    gl->BindBufferBase(target, index, buffer);
+    gl->funcs.BindBufferBase(target, index, buffer);
     check_error_code(gl, "glBindBufferBase");
 }
 
-static inline void ngli_glBindFramebuffer(const struct glfunctions *gl, GLenum target, GLuint framebuffer)
+static inline void ngli_glBindFramebuffer(const struct glcontext *gl, GLenum target, GLuint framebuffer)
 {
-    gl->BindFramebuffer(target, framebuffer);
+    gl->funcs.BindFramebuffer(target, framebuffer);
     check_error_code(gl, "glBindFramebuffer");
 }
 
-static inline void ngli_glBindImageTexture(const struct glfunctions *gl, GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format)
+static inline void ngli_glBindImageTexture(const struct glcontext *gl, GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format)
 {
-    gl->BindImageTexture(unit, texture, level, layered, layer, access, format);
+    gl->funcs.BindImageTexture(unit, texture, level, layered, layer, access, format);
     check_error_code(gl, "glBindImageTexture");
 }
 
-static inline void ngli_glBindRenderbuffer(const struct glfunctions *gl, GLenum target, GLuint renderbuffer)
+static inline void ngli_glBindRenderbuffer(const struct glcontext *gl, GLenum target, GLuint renderbuffer)
 {
-    gl->BindRenderbuffer(target, renderbuffer);
+    gl->funcs.BindRenderbuffer(target, renderbuffer);
     check_error_code(gl, "glBindRenderbuffer");
 }
 
-static inline void ngli_glBindTexture(const struct glfunctions *gl, GLenum target, GLuint texture)
+static inline void ngli_glBindTexture(const struct glcontext *gl, GLenum target, GLuint texture)
 {
-    gl->BindTexture(target, texture);
+    gl->funcs.BindTexture(target, texture);
     check_error_code(gl, "glBindTexture");
 }
 
-static inline void ngli_glBindVertexArray(const struct glfunctions *gl, GLuint array)
+static inline void ngli_glBindVertexArray(const struct glcontext *gl, GLuint array)
 {
-    gl->BindVertexArray(array);
+    gl->funcs.BindVertexArray(array);
     check_error_code(gl, "glBindVertexArray");
 }
 
-static inline void ngli_glBlendColor(const struct glfunctions *gl, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+static inline void ngli_glBlendColor(const struct glcontext *gl, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 {
-    gl->BlendColor(red, green, blue, alpha);
+    gl->funcs.BlendColor(red, green, blue, alpha);
     check_error_code(gl, "glBlendColor");
 }
 
-static inline void ngli_glBlendEquation(const struct glfunctions *gl, GLenum mode)
+static inline void ngli_glBlendEquation(const struct glcontext *gl, GLenum mode)
 {
-    gl->BlendEquation(mode);
+    gl->funcs.BlendEquation(mode);
     check_error_code(gl, "glBlendEquation");
 }
 
-static inline void ngli_glBlendEquationSeparate(const struct glfunctions *gl, GLenum modeRGB, GLenum modeAlpha)
+static inline void ngli_glBlendEquationSeparate(const struct glcontext *gl, GLenum modeRGB, GLenum modeAlpha)
 {
-    gl->BlendEquationSeparate(modeRGB, modeAlpha);
+    gl->funcs.BlendEquationSeparate(modeRGB, modeAlpha);
     check_error_code(gl, "glBlendEquationSeparate");
 }
 
-static inline void ngli_glBlendFunc(const struct glfunctions *gl, GLenum sfactor, GLenum dfactor)
+static inline void ngli_glBlendFunc(const struct glcontext *gl, GLenum sfactor, GLenum dfactor)
 {
-    gl->BlendFunc(sfactor, dfactor);
+    gl->funcs.BlendFunc(sfactor, dfactor);
     check_error_code(gl, "glBlendFunc");
 }
 
-static inline void ngli_glBlendFuncSeparate(const struct glfunctions *gl, GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha)
+static inline void ngli_glBlendFuncSeparate(const struct glcontext *gl, GLenum sfactorRGB, GLenum dfactorRGB, GLenum sfactorAlpha, GLenum dfactorAlpha)
 {
-    gl->BlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
+    gl->funcs.BlendFuncSeparate(sfactorRGB, dfactorRGB, sfactorAlpha, dfactorAlpha);
     check_error_code(gl, "glBlendFuncSeparate");
 }
 
-static inline void ngli_glBlitFramebuffer(const struct glfunctions *gl, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)
+static inline void ngli_glBlitFramebuffer(const struct glcontext *gl, GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter)
 {
-    gl->BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
+    gl->funcs.BlitFramebuffer(srcX0, srcY0, srcX1, srcY1, dstX0, dstY0, dstX1, dstY1, mask, filter);
     check_error_code(gl, "glBlitFramebuffer");
 }
 
-static inline void ngli_glBufferData(const struct glfunctions *gl, GLenum target, GLsizeiptr size, const void * data, GLenum usage)
+static inline void ngli_glBufferData(const struct glcontext *gl, GLenum target, GLsizeiptr size, const void * data, GLenum usage)
 {
-    gl->BufferData(target, size, data, usage);
+    gl->funcs.BufferData(target, size, data, usage);
     check_error_code(gl, "glBufferData");
 }
 
-static inline void ngli_glBufferSubData(const struct glfunctions *gl, GLenum target, GLintptr offset, GLsizeiptr size, const void * data)
+static inline void ngli_glBufferSubData(const struct glcontext *gl, GLenum target, GLintptr offset, GLsizeiptr size, const void * data)
 {
-    gl->BufferSubData(target, offset, size, data);
+    gl->funcs.BufferSubData(target, offset, size, data);
     check_error_code(gl, "glBufferSubData");
 }
 
-static inline GLenum ngli_glCheckFramebufferStatus(const struct glfunctions *gl, GLenum target)
+static inline GLenum ngli_glCheckFramebufferStatus(const struct glcontext *gl, GLenum target)
 {
-    GLenum ret = gl->CheckFramebufferStatus(target);
+    GLenum ret = gl->funcs.CheckFramebufferStatus(target);
     check_error_code(gl, "glCheckFramebufferStatus");
     return ret;
 }
 
-static inline void ngli_glClear(const struct glfunctions *gl, GLbitfield mask)
+static inline void ngli_glClear(const struct glcontext *gl, GLbitfield mask)
 {
-    gl->Clear(mask);
+    gl->funcs.Clear(mask);
     check_error_code(gl, "glClear");
 }
 
-static inline void ngli_glClearColor(const struct glfunctions *gl, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+static inline void ngli_glClearColor(const struct glcontext *gl, GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 {
-    gl->ClearColor(red, green, blue, alpha);
+    gl->funcs.ClearColor(red, green, blue, alpha);
     check_error_code(gl, "glClearColor");
 }
 
-static inline void ngli_glColorMask(const struct glfunctions *gl, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
+static inline void ngli_glColorMask(const struct glcontext *gl, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
-    gl->ColorMask(red, green, blue, alpha);
+    gl->funcs.ColorMask(red, green, blue, alpha);
     check_error_code(gl, "glColorMask");
 }
 
-static inline void ngli_glCompileShader(const struct glfunctions *gl, GLuint shader)
+static inline void ngli_glCompileShader(const struct glcontext *gl, GLuint shader)
 {
-    gl->CompileShader(shader);
+    gl->funcs.CompileShader(shader);
     check_error_code(gl, "glCompileShader");
 }
 
-static inline GLuint ngli_glCreateProgram(const struct glfunctions *gl)
+static inline GLuint ngli_glCreateProgram(const struct glcontext *gl)
 {
-    GLuint ret = gl->CreateProgram();
+    GLuint ret = gl->funcs.CreateProgram();
     check_error_code(gl, "glCreateProgram");
     return ret;
 }
 
-static inline GLuint ngli_glCreateShader(const struct glfunctions *gl, GLenum type)
+static inline GLuint ngli_glCreateShader(const struct glcontext *gl, GLenum type)
 {
-    GLuint ret = gl->CreateShader(type);
+    GLuint ret = gl->funcs.CreateShader(type);
     check_error_code(gl, "glCreateShader");
     return ret;
 }
 
-static inline void ngli_glDeleteBuffers(const struct glfunctions *gl, GLsizei n, const GLuint * buffers)
+static inline void ngli_glDeleteBuffers(const struct glcontext *gl, GLsizei n, const GLuint * buffers)
 {
-    gl->DeleteBuffers(n, buffers);
+    gl->funcs.DeleteBuffers(n, buffers);
     check_error_code(gl, "glDeleteBuffers");
 }
 
-static inline void ngli_glDeleteFramebuffers(const struct glfunctions *gl, GLsizei n, const GLuint * framebuffers)
+static inline void ngli_glDeleteFramebuffers(const struct glcontext *gl, GLsizei n, const GLuint * framebuffers)
 {
-    gl->DeleteFramebuffers(n, framebuffers);
+    gl->funcs.DeleteFramebuffers(n, framebuffers);
     check_error_code(gl, "glDeleteFramebuffers");
 }
 
-static inline void ngli_glDeleteProgram(const struct glfunctions *gl, GLuint program)
+static inline void ngli_glDeleteProgram(const struct glcontext *gl, GLuint program)
 {
-    gl->DeleteProgram(program);
+    gl->funcs.DeleteProgram(program);
     check_error_code(gl, "glDeleteProgram");
 }
 
-static inline void ngli_glDeleteQueries(const struct glfunctions *gl, GLsizei n, const GLuint * ids)
+static inline void ngli_glDeleteQueries(const struct glcontext *gl, GLsizei n, const GLuint * ids)
 {
-    gl->DeleteQueries(n, ids);
+    gl->funcs.DeleteQueries(n, ids);
     check_error_code(gl, "glDeleteQueries");
 }
 
-static inline void ngli_glDeleteQueriesEXT(const struct glfunctions *gl, GLsizei n, const GLuint * ids)
+static inline void ngli_glDeleteQueriesEXT(const struct glcontext *gl, GLsizei n, const GLuint * ids)
 {
-    gl->DeleteQueriesEXT(n, ids);
+    gl->funcs.DeleteQueriesEXT(n, ids);
     check_error_code(gl, "glDeleteQueriesEXT");
 }
 
-static inline void ngli_glDeleteRenderbuffers(const struct glfunctions *gl, GLsizei n, const GLuint * renderbuffers)
+static inline void ngli_glDeleteRenderbuffers(const struct glcontext *gl, GLsizei n, const GLuint * renderbuffers)
 {
-    gl->DeleteRenderbuffers(n, renderbuffers);
+    gl->funcs.DeleteRenderbuffers(n, renderbuffers);
     check_error_code(gl, "glDeleteRenderbuffers");
 }
 
-static inline void ngli_glDeleteShader(const struct glfunctions *gl, GLuint shader)
+static inline void ngli_glDeleteShader(const struct glcontext *gl, GLuint shader)
 {
-    gl->DeleteShader(shader);
+    gl->funcs.DeleteShader(shader);
     check_error_code(gl, "glDeleteShader");
 }
 
-static inline void ngli_glDeleteTextures(const struct glfunctions *gl, GLsizei n, const GLuint * textures)
+static inline void ngli_glDeleteTextures(const struct glcontext *gl, GLsizei n, const GLuint * textures)
 {
-    gl->DeleteTextures(n, textures);
+    gl->funcs.DeleteTextures(n, textures);
     check_error_code(gl, "glDeleteTextures");
 }
 
-static inline void ngli_glDeleteVertexArrays(const struct glfunctions *gl, GLsizei n, const GLuint * arrays)
+static inline void ngli_glDeleteVertexArrays(const struct glcontext *gl, GLsizei n, const GLuint * arrays)
 {
-    gl->DeleteVertexArrays(n, arrays);
+    gl->funcs.DeleteVertexArrays(n, arrays);
     check_error_code(gl, "glDeleteVertexArrays");
 }
 
-static inline void ngli_glDepthFunc(const struct glfunctions *gl, GLenum func)
+static inline void ngli_glDepthFunc(const struct glcontext *gl, GLenum func)
 {
-    gl->DepthFunc(func);
+    gl->funcs.DepthFunc(func);
     check_error_code(gl, "glDepthFunc");
 }
 
-static inline void ngli_glDepthMask(const struct glfunctions *gl, GLboolean flag)
+static inline void ngli_glDepthMask(const struct glcontext *gl, GLboolean flag)
 {
-    gl->DepthMask(flag);
+    gl->funcs.DepthMask(flag);
     check_error_code(gl, "glDepthMask");
 }
 
-static inline void ngli_glDetachShader(const struct glfunctions *gl, GLuint program, GLuint shader)
+static inline void ngli_glDetachShader(const struct glcontext *gl, GLuint program, GLuint shader)
 {
-    gl->DetachShader(program, shader);
+    gl->funcs.DetachShader(program, shader);
     check_error_code(gl, "glDetachShader");
 }
 
-static inline void ngli_glDisable(const struct glfunctions *gl, GLenum cap)
+static inline void ngli_glDisable(const struct glcontext *gl, GLenum cap)
 {
-    gl->Disable(cap);
+    gl->funcs.Disable(cap);
     check_error_code(gl, "glDisable");
 }
 
-static inline void ngli_glDisableVertexAttribArray(const struct glfunctions *gl, GLuint index)
+static inline void ngli_glDisableVertexAttribArray(const struct glcontext *gl, GLuint index)
 {
-    gl->DisableVertexAttribArray(index);
+    gl->funcs.DisableVertexAttribArray(index);
     check_error_code(gl, "glDisableVertexAttribArray");
 }
 
-static inline void ngli_glDispatchCompute(const struct glfunctions *gl, GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
+static inline void ngli_glDispatchCompute(const struct glcontext *gl, GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z)
 {
-    gl->DispatchCompute(num_groups_x, num_groups_y, num_groups_z);
+    gl->funcs.DispatchCompute(num_groups_x, num_groups_y, num_groups_z);
     check_error_code(gl, "glDispatchCompute");
 }
 
-static inline void ngli_glDrawElements(const struct glfunctions *gl, GLenum mode, GLsizei count, GLenum type, const void * indices)
+static inline void ngli_glDrawElements(const struct glcontext *gl, GLenum mode, GLsizei count, GLenum type, const void * indices)
 {
-    gl->DrawElements(mode, count, type, indices);
+    gl->funcs.DrawElements(mode, count, type, indices);
     check_error_code(gl, "glDrawElements");
 }
 
-static inline void ngli_glEnable(const struct glfunctions *gl, GLenum cap)
+static inline void ngli_glEnable(const struct glcontext *gl, GLenum cap)
 {
-    gl->Enable(cap);
+    gl->funcs.Enable(cap);
     check_error_code(gl, "glEnable");
 }
 
-static inline void ngli_glEnableVertexAttribArray(const struct glfunctions *gl, GLuint index)
+static inline void ngli_glEnableVertexAttribArray(const struct glcontext *gl, GLuint index)
 {
-    gl->EnableVertexAttribArray(index);
+    gl->funcs.EnableVertexAttribArray(index);
     check_error_code(gl, "glEnableVertexAttribArray");
 }
 
-static inline void ngli_glEndQuery(const struct glfunctions *gl, GLenum target)
+static inline void ngli_glEndQuery(const struct glcontext *gl, GLenum target)
 {
-    gl->EndQuery(target);
+    gl->funcs.EndQuery(target);
     check_error_code(gl, "glEndQuery");
 }
 
-static inline void ngli_glEndQueryEXT(const struct glfunctions *gl, GLenum target)
+static inline void ngli_glEndQueryEXT(const struct glcontext *gl, GLenum target)
 {
-    gl->EndQueryEXT(target);
+    gl->funcs.EndQueryEXT(target);
     check_error_code(gl, "glEndQueryEXT");
 }
 
-static inline void ngli_glFramebufferRenderbuffer(const struct glfunctions *gl, GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
+static inline void ngli_glFramebufferRenderbuffer(const struct glcontext *gl, GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
-    gl->FramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
+    gl->funcs.FramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);
     check_error_code(gl, "glFramebufferRenderbuffer");
 }
 
-static inline void ngli_glFramebufferTexture2D(const struct glfunctions *gl, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
+static inline void ngli_glFramebufferTexture2D(const struct glcontext *gl, GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level)
 {
-    gl->FramebufferTexture2D(target, attachment, textarget, texture, level);
+    gl->funcs.FramebufferTexture2D(target, attachment, textarget, texture, level);
     check_error_code(gl, "glFramebufferTexture2D");
 }
 
-static inline void ngli_glGenBuffers(const struct glfunctions *gl, GLsizei n, GLuint * buffers)
+static inline void ngli_glGenBuffers(const struct glcontext *gl, GLsizei n, GLuint * buffers)
 {
-    gl->GenBuffers(n, buffers);
+    gl->funcs.GenBuffers(n, buffers);
     check_error_code(gl, "glGenBuffers");
 }
 
-static inline void ngli_glGenFramebuffers(const struct glfunctions *gl, GLsizei n, GLuint * framebuffers)
+static inline void ngli_glGenFramebuffers(const struct glcontext *gl, GLsizei n, GLuint * framebuffers)
 {
-    gl->GenFramebuffers(n, framebuffers);
+    gl->funcs.GenFramebuffers(n, framebuffers);
     check_error_code(gl, "glGenFramebuffers");
 }
 
-static inline void ngli_glGenQueries(const struct glfunctions *gl, GLsizei n, GLuint * ids)
+static inline void ngli_glGenQueries(const struct glcontext *gl, GLsizei n, GLuint * ids)
 {
-    gl->GenQueries(n, ids);
+    gl->funcs.GenQueries(n, ids);
     check_error_code(gl, "glGenQueries");
 }
 
-static inline void ngli_glGenQueriesEXT(const struct glfunctions *gl, GLsizei n, GLuint * ids)
+static inline void ngli_glGenQueriesEXT(const struct glcontext *gl, GLsizei n, GLuint * ids)
 {
-    gl->GenQueriesEXT(n, ids);
+    gl->funcs.GenQueriesEXT(n, ids);
     check_error_code(gl, "glGenQueriesEXT");
 }
 
-static inline void ngli_glGenRenderbuffers(const struct glfunctions *gl, GLsizei n, GLuint * renderbuffers)
+static inline void ngli_glGenRenderbuffers(const struct glcontext *gl, GLsizei n, GLuint * renderbuffers)
 {
-    gl->GenRenderbuffers(n, renderbuffers);
+    gl->funcs.GenRenderbuffers(n, renderbuffers);
     check_error_code(gl, "glGenRenderbuffers");
 }
 
-static inline void ngli_glGenTextures(const struct glfunctions *gl, GLsizei n, GLuint * textures)
+static inline void ngli_glGenTextures(const struct glcontext *gl, GLsizei n, GLuint * textures)
 {
-    gl->GenTextures(n, textures);
+    gl->funcs.GenTextures(n, textures);
     check_error_code(gl, "glGenTextures");
 }
 
-static inline void ngli_glGenVertexArrays(const struct glfunctions *gl, GLsizei n, GLuint * arrays)
+static inline void ngli_glGenVertexArrays(const struct glcontext *gl, GLsizei n, GLuint * arrays)
 {
-    gl->GenVertexArrays(n, arrays);
+    gl->funcs.GenVertexArrays(n, arrays);
     check_error_code(gl, "glGenVertexArrays");
 }
 
-static inline void ngli_glGenerateMipmap(const struct glfunctions *gl, GLenum target)
+static inline void ngli_glGenerateMipmap(const struct glcontext *gl, GLenum target)
 {
-    gl->GenerateMipmap(target);
+    gl->funcs.GenerateMipmap(target);
     check_error_code(gl, "glGenerateMipmap");
 }
 
-static inline void ngli_glGetActiveUniform(const struct glfunctions *gl, GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name)
+static inline void ngli_glGetActiveUniform(const struct glcontext *gl, GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name)
 {
-    gl->GetActiveUniform(program, index, bufSize, length, size, type, name);
+    gl->funcs.GetActiveUniform(program, index, bufSize, length, size, type, name);
     check_error_code(gl, "glGetActiveUniform");
 }
 
-static inline void ngli_glGetAttachedShaders(const struct glfunctions *gl, GLuint program, GLsizei maxCount, GLsizei * count, GLuint * shaders)
+static inline void ngli_glGetAttachedShaders(const struct glcontext *gl, GLuint program, GLsizei maxCount, GLsizei * count, GLuint * shaders)
 {
-    gl->GetAttachedShaders(program, maxCount, count, shaders);
+    gl->funcs.GetAttachedShaders(program, maxCount, count, shaders);
     check_error_code(gl, "glGetAttachedShaders");
 }
 
-static inline GLint ngli_glGetAttribLocation(const struct glfunctions *gl, GLuint program, const GLchar * name)
+static inline GLint ngli_glGetAttribLocation(const struct glcontext *gl, GLuint program, const GLchar * name)
 {
-    GLint ret = gl->GetAttribLocation(program, name);
+    GLint ret = gl->funcs.GetAttribLocation(program, name);
     check_error_code(gl, "glGetAttribLocation");
     return ret;
 }
 
-static inline void ngli_glGetBooleanv(const struct glfunctions *gl, GLenum pname, GLboolean * data)
+static inline void ngli_glGetBooleanv(const struct glcontext *gl, GLenum pname, GLboolean * data)
 {
-    gl->GetBooleanv(pname, data);
+    gl->funcs.GetBooleanv(pname, data);
     check_error_code(gl, "glGetBooleanv");
 }
 
-static inline GLenum ngli_glGetError(const struct glfunctions *gl)
+static inline GLenum ngli_glGetError(const struct glcontext *gl)
 {
-    GLenum ret = gl->GetError();
+    GLenum ret = gl->funcs.GetError();
     check_error_code(gl, "glGetError");
     return ret;
 }
 
-static inline void ngli_glGetIntegeri_v(const struct glfunctions *gl, GLenum target, GLuint index, GLint * data)
+static inline void ngli_glGetIntegeri_v(const struct glcontext *gl, GLenum target, GLuint index, GLint * data)
 {
-    gl->GetIntegeri_v(target, index, data);
+    gl->funcs.GetIntegeri_v(target, index, data);
     check_error_code(gl, "glGetIntegeri_v");
 }
 
-static inline void ngli_glGetIntegerv(const struct glfunctions *gl, GLenum pname, GLint * data)
+static inline void ngli_glGetIntegerv(const struct glcontext *gl, GLenum pname, GLint * data)
 {
-    gl->GetIntegerv(pname, data);
+    gl->funcs.GetIntegerv(pname, data);
     check_error_code(gl, "glGetIntegerv");
 }
 
-static inline void ngli_glGetInternalformativ(const struct glfunctions *gl, GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint * params)
+static inline void ngli_glGetInternalformativ(const struct glcontext *gl, GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint * params)
 {
-    gl->GetInternalformativ(target, internalformat, pname, bufSize, params);
+    gl->funcs.GetInternalformativ(target, internalformat, pname, bufSize, params);
     check_error_code(gl, "glGetInternalformativ");
 }
 
-static inline void ngli_glGetProgramInfoLog(const struct glfunctions *gl, GLuint program, GLsizei bufSize, GLsizei * length, GLchar * infoLog)
+static inline void ngli_glGetProgramInfoLog(const struct glcontext *gl, GLuint program, GLsizei bufSize, GLsizei * length, GLchar * infoLog)
 {
-    gl->GetProgramInfoLog(program, bufSize, length, infoLog);
+    gl->funcs.GetProgramInfoLog(program, bufSize, length, infoLog);
     check_error_code(gl, "glGetProgramInfoLog");
 }
 
-static inline GLuint ngli_glGetProgramResourceIndex(const struct glfunctions *gl, GLuint program, GLenum programInterface, const GLchar * name)
+static inline GLuint ngli_glGetProgramResourceIndex(const struct glcontext *gl, GLuint program, GLenum programInterface, const GLchar * name)
 {
-    GLuint ret = gl->GetProgramResourceIndex(program, programInterface, name);
+    GLuint ret = gl->funcs.GetProgramResourceIndex(program, programInterface, name);
     check_error_code(gl, "glGetProgramResourceIndex");
     return ret;
 }
 
-static inline GLint ngli_glGetProgramResourceLocation(const struct glfunctions *gl, GLuint program, GLenum programInterface, const GLchar * name)
+static inline GLint ngli_glGetProgramResourceLocation(const struct glcontext *gl, GLuint program, GLenum programInterface, const GLchar * name)
 {
-    GLint ret = gl->GetProgramResourceLocation(program, programInterface, name);
+    GLint ret = gl->funcs.GetProgramResourceLocation(program, programInterface, name);
     check_error_code(gl, "glGetProgramResourceLocation");
     return ret;
 }
 
-static inline void ngli_glGetProgramResourceiv(const struct glfunctions *gl, GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum * props, GLsizei bufSize, GLsizei * length, GLint * params)
+static inline void ngli_glGetProgramResourceiv(const struct glcontext *gl, GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum * props, GLsizei bufSize, GLsizei * length, GLint * params)
 {
-    gl->GetProgramResourceiv(program, programInterface, index, propCount, props, bufSize, length, params);
+    gl->funcs.GetProgramResourceiv(program, programInterface, index, propCount, props, bufSize, length, params);
     check_error_code(gl, "glGetProgramResourceiv");
 }
 
-static inline void ngli_glGetProgramiv(const struct glfunctions *gl, GLuint program, GLenum pname, GLint * params)
+static inline void ngli_glGetProgramiv(const struct glcontext *gl, GLuint program, GLenum pname, GLint * params)
 {
-    gl->GetProgramiv(program, pname, params);
+    gl->funcs.GetProgramiv(program, pname, params);
     check_error_code(gl, "glGetProgramiv");
 }
 
-static inline void ngli_glGetQueryObjectui64v(const struct glfunctions *gl, GLuint id, GLenum pname, GLuint64 * params)
+static inline void ngli_glGetQueryObjectui64v(const struct glcontext *gl, GLuint id, GLenum pname, GLuint64 * params)
 {
-    gl->GetQueryObjectui64v(id, pname, params);
+    gl->funcs.GetQueryObjectui64v(id, pname, params);
     check_error_code(gl, "glGetQueryObjectui64v");
 }
 
-static inline void ngli_glGetQueryObjectui64vEXT(const struct glfunctions *gl, GLuint id, GLenum pname, GLuint64 * params)
+static inline void ngli_glGetQueryObjectui64vEXT(const struct glcontext *gl, GLuint id, GLenum pname, GLuint64 * params)
 {
-    gl->GetQueryObjectui64vEXT(id, pname, params);
+    gl->funcs.GetQueryObjectui64vEXT(id, pname, params);
     check_error_code(gl, "glGetQueryObjectui64vEXT");
 }
 
-static inline void ngli_glGetRenderbufferParameteriv(const struct glfunctions *gl, GLenum target, GLenum pname, GLint * params)
+static inline void ngli_glGetRenderbufferParameteriv(const struct glcontext *gl, GLenum target, GLenum pname, GLint * params)
 {
-    gl->GetRenderbufferParameteriv(target, pname, params);
+    gl->funcs.GetRenderbufferParameteriv(target, pname, params);
     check_error_code(gl, "glGetRenderbufferParameteriv");
 }
 
-static inline void ngli_glGetShaderInfoLog(const struct glfunctions *gl, GLuint shader, GLsizei bufSize, GLsizei * length, GLchar * infoLog)
+static inline void ngli_glGetShaderInfoLog(const struct glcontext *gl, GLuint shader, GLsizei bufSize, GLsizei * length, GLchar * infoLog)
 {
-    gl->GetShaderInfoLog(shader, bufSize, length, infoLog);
+    gl->funcs.GetShaderInfoLog(shader, bufSize, length, infoLog);
     check_error_code(gl, "glGetShaderInfoLog");
 }
 
-static inline void ngli_glGetShaderSource(const struct glfunctions *gl, GLuint shader, GLsizei bufSize, GLsizei * length, GLchar * source)
+static inline void ngli_glGetShaderSource(const struct glcontext *gl, GLuint shader, GLsizei bufSize, GLsizei * length, GLchar * source)
 {
-    gl->GetShaderSource(shader, bufSize, length, source);
+    gl->funcs.GetShaderSource(shader, bufSize, length, source);
     check_error_code(gl, "glGetShaderSource");
 }
 
-static inline void ngli_glGetShaderiv(const struct glfunctions *gl, GLuint shader, GLenum pname, GLint * params)
+static inline void ngli_glGetShaderiv(const struct glcontext *gl, GLuint shader, GLenum pname, GLint * params)
 {
-    gl->GetShaderiv(shader, pname, params);
+    gl->funcs.GetShaderiv(shader, pname, params);
     check_error_code(gl, "glGetShaderiv");
 }
 
-static inline const GLubyte * ngli_glGetString(const struct glfunctions *gl, GLenum name)
+static inline const GLubyte * ngli_glGetString(const struct glcontext *gl, GLenum name)
 {
-    const GLubyte * ret = gl->GetString(name);
+    const GLubyte * ret = gl->funcs.GetString(name);
     check_error_code(gl, "glGetString");
     return ret;
 }
 
-static inline const GLubyte * ngli_glGetStringi(const struct glfunctions *gl, GLenum name, GLuint index)
+static inline const GLubyte * ngli_glGetStringi(const struct glcontext *gl, GLenum name, GLuint index)
 {
-    const GLubyte * ret = gl->GetStringi(name, index);
+    const GLubyte * ret = gl->funcs.GetStringi(name, index);
     check_error_code(gl, "glGetStringi");
     return ret;
 }
 
-static inline GLint ngli_glGetUniformLocation(const struct glfunctions *gl, GLuint program, const GLchar * name)
+static inline GLint ngli_glGetUniformLocation(const struct glcontext *gl, GLuint program, const GLchar * name)
 {
-    GLint ret = gl->GetUniformLocation(program, name);
+    GLint ret = gl->funcs.GetUniformLocation(program, name);
     check_error_code(gl, "glGetUniformLocation");
     return ret;
 }
 
-static inline void ngli_glLinkProgram(const struct glfunctions *gl, GLuint program)
+static inline void ngli_glLinkProgram(const struct glcontext *gl, GLuint program)
 {
-    gl->LinkProgram(program);
+    gl->funcs.LinkProgram(program);
     check_error_code(gl, "glLinkProgram");
 }
 
-static inline void ngli_glMemoryBarrier(const struct glfunctions *gl, GLbitfield barriers)
+static inline void ngli_glMemoryBarrier(const struct glcontext *gl, GLbitfield barriers)
 {
-    gl->MemoryBarrier(barriers);
+    gl->funcs.MemoryBarrier(barriers);
     check_error_code(gl, "glMemoryBarrier");
 }
 
-static inline void ngli_glPolygonMode(const struct glfunctions *gl, GLenum face, GLenum mode)
+static inline void ngli_glPolygonMode(const struct glcontext *gl, GLenum face, GLenum mode)
 {
-    gl->PolygonMode(face, mode);
+    gl->funcs.PolygonMode(face, mode);
     check_error_code(gl, "glPolygonMode");
 }
 
-static inline void ngli_glReadPixels(const struct glfunctions *gl, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void * pixels)
+static inline void ngli_glReadPixels(const struct glcontext *gl, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void * pixels)
 {
-    gl->ReadPixels(x, y, width, height, format, type, pixels);
+    gl->funcs.ReadPixels(x, y, width, height, format, type, pixels);
     check_error_code(gl, "glReadPixels");
 }
 
-static inline void ngli_glReleaseShaderCompiler(const struct glfunctions *gl)
+static inline void ngli_glReleaseShaderCompiler(const struct glcontext *gl)
 {
-    gl->ReleaseShaderCompiler();
+    gl->funcs.ReleaseShaderCompiler();
     check_error_code(gl, "glReleaseShaderCompiler");
 }
 
-static inline void ngli_glRenderbufferStorage(const struct glfunctions *gl, GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
+static inline void ngli_glRenderbufferStorage(const struct glcontext *gl, GLenum target, GLenum internalformat, GLsizei width, GLsizei height)
 {
-    gl->RenderbufferStorage(target, internalformat, width, height);
+    gl->funcs.RenderbufferStorage(target, internalformat, width, height);
     check_error_code(gl, "glRenderbufferStorage");
 }
 
-static inline void ngli_glRenderbufferStorageMultisample(const struct glfunctions *gl, GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
+static inline void ngli_glRenderbufferStorageMultisample(const struct glcontext *gl, GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height)
 {
-    gl->RenderbufferStorageMultisample(target, samples, internalformat, width, height);
+    gl->funcs.RenderbufferStorageMultisample(target, samples, internalformat, width, height);
     check_error_code(gl, "glRenderbufferStorageMultisample");
 }
 
-static inline void ngli_glShaderBinary(const struct glfunctions *gl, GLsizei count, const GLuint * shaders, GLenum binaryformat, const void * binary, GLsizei length)
+static inline void ngli_glShaderBinary(const struct glcontext *gl, GLsizei count, const GLuint * shaders, GLenum binaryformat, const void * binary, GLsizei length)
 {
-    gl->ShaderBinary(count, shaders, binaryformat, binary, length);
+    gl->funcs.ShaderBinary(count, shaders, binaryformat, binary, length);
     check_error_code(gl, "glShaderBinary");
 }
 
-static inline void ngli_glShaderSource(const struct glfunctions *gl, GLuint shader, GLsizei count, const GLchar *const* string, const GLint * length)
+static inline void ngli_glShaderSource(const struct glcontext *gl, GLuint shader, GLsizei count, const GLchar *const* string, const GLint * length)
 {
-    gl->ShaderSource(shader, count, string, length);
+    gl->funcs.ShaderSource(shader, count, string, length);
     check_error_code(gl, "glShaderSource");
 }
 
-static inline void ngli_glStencilFunc(const struct glfunctions *gl, GLenum func, GLint ref, GLuint mask)
+static inline void ngli_glStencilFunc(const struct glcontext *gl, GLenum func, GLint ref, GLuint mask)
 {
-    gl->StencilFunc(func, ref, mask);
+    gl->funcs.StencilFunc(func, ref, mask);
     check_error_code(gl, "glStencilFunc");
 }
 
-static inline void ngli_glStencilFuncSeparate(const struct glfunctions *gl, GLenum face, GLenum func, GLint ref, GLuint mask)
+static inline void ngli_glStencilFuncSeparate(const struct glcontext *gl, GLenum face, GLenum func, GLint ref, GLuint mask)
 {
-    gl->StencilFuncSeparate(face, func, ref, mask);
+    gl->funcs.StencilFuncSeparate(face, func, ref, mask);
     check_error_code(gl, "glStencilFuncSeparate");
 }
 
-static inline void ngli_glStencilMask(const struct glfunctions *gl, GLuint mask)
+static inline void ngli_glStencilMask(const struct glcontext *gl, GLuint mask)
 {
-    gl->StencilMask(mask);
+    gl->funcs.StencilMask(mask);
     check_error_code(gl, "glStencilMask");
 }
 
-static inline void ngli_glStencilMaskSeparate(const struct glfunctions *gl, GLenum face, GLuint mask)
+static inline void ngli_glStencilMaskSeparate(const struct glcontext *gl, GLenum face, GLuint mask)
 {
-    gl->StencilMaskSeparate(face, mask);
+    gl->funcs.StencilMaskSeparate(face, mask);
     check_error_code(gl, "glStencilMaskSeparate");
 }
 
-static inline void ngli_glStencilOp(const struct glfunctions *gl, GLenum fail, GLenum zfail, GLenum zpass)
+static inline void ngli_glStencilOp(const struct glcontext *gl, GLenum fail, GLenum zfail, GLenum zpass)
 {
-    gl->StencilOp(fail, zfail, zpass);
+    gl->funcs.StencilOp(fail, zfail, zpass);
     check_error_code(gl, "glStencilOp");
 }
 
-static inline void ngli_glStencilOpSeparate(const struct glfunctions *gl, GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)
+static inline void ngli_glStencilOpSeparate(const struct glcontext *gl, GLenum face, GLenum sfail, GLenum dpfail, GLenum dppass)
 {
-    gl->StencilOpSeparate(face, sfail, dpfail, dppass);
+    gl->funcs.StencilOpSeparate(face, sfail, dpfail, dppass);
     check_error_code(gl, "glStencilOpSeparate");
 }
 
-static inline void ngli_glTexImage2D(const struct glfunctions *gl, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void * pixels)
+static inline void ngli_glTexImage2D(const struct glcontext *gl, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void * pixels)
 {
-    gl->TexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+    gl->funcs.TexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
     check_error_code(gl, "glTexImage2D");
 }
 
-static inline void ngli_glTexImage3D(const struct glfunctions *gl, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void * pixels)
+static inline void ngli_glTexImage3D(const struct glcontext *gl, GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLsizei depth, GLint border, GLenum format, GLenum type, const void * pixels)
 {
-    gl->TexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
+    gl->funcs.TexImage3D(target, level, internalformat, width, height, depth, border, format, type, pixels);
     check_error_code(gl, "glTexImage3D");
 }
 
-static inline void ngli_glTexParameteri(const struct glfunctions *gl, GLenum target, GLenum pname, GLint param)
+static inline void ngli_glTexParameteri(const struct glcontext *gl, GLenum target, GLenum pname, GLint param)
 {
-    gl->TexParameteri(target, pname, param);
+    gl->funcs.TexParameteri(target, pname, param);
     check_error_code(gl, "glTexParameteri");
 }
 
-static inline void ngli_glTexStorage2D(const struct glfunctions *gl, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
+static inline void ngli_glTexStorage2D(const struct glcontext *gl, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height)
 {
-    gl->TexStorage2D(target, levels, internalformat, width, height);
+    gl->funcs.TexStorage2D(target, levels, internalformat, width, height);
     check_error_code(gl, "glTexStorage2D");
 }
 
-static inline void ngli_glTexStorage3D(const struct glfunctions *gl, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
+static inline void ngli_glTexStorage3D(const struct glcontext *gl, GLenum target, GLsizei levels, GLenum internalformat, GLsizei width, GLsizei height, GLsizei depth)
 {
-    gl->TexStorage3D(target, levels, internalformat, width, height, depth);
+    gl->funcs.TexStorage3D(target, levels, internalformat, width, height, depth);
     check_error_code(gl, "glTexStorage3D");
 }
 
-static inline void ngli_glTexSubImage2D(const struct glfunctions *gl, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void * pixels)
+static inline void ngli_glTexSubImage2D(const struct glcontext *gl, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void * pixels)
 {
-    gl->TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
+    gl->funcs.TexSubImage2D(target, level, xoffset, yoffset, width, height, format, type, pixels);
     check_error_code(gl, "glTexSubImage2D");
 }
 
-static inline void ngli_glTexSubImage3D(const struct glfunctions *gl, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void * pixels)
+static inline void ngli_glTexSubImage3D(const struct glcontext *gl, GLenum target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void * pixels)
 {
-    gl->TexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
+    gl->funcs.TexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, pixels);
     check_error_code(gl, "glTexSubImage3D");
 }
 
-static inline void ngli_glUniform1f(const struct glfunctions *gl, GLint location, GLfloat v0)
+static inline void ngli_glUniform1f(const struct glcontext *gl, GLint location, GLfloat v0)
 {
-    gl->Uniform1f(location, v0);
+    gl->funcs.Uniform1f(location, v0);
     check_error_code(gl, "glUniform1f");
 }
 
-static inline void ngli_glUniform1fv(const struct glfunctions *gl, GLint location, GLsizei count, const GLfloat * value)
+static inline void ngli_glUniform1fv(const struct glcontext *gl, GLint location, GLsizei count, const GLfloat * value)
 {
-    gl->Uniform1fv(location, count, value);
+    gl->funcs.Uniform1fv(location, count, value);
     check_error_code(gl, "glUniform1fv");
 }
 
-static inline void ngli_glUniform1i(const struct glfunctions *gl, GLint location, GLint v0)
+static inline void ngli_glUniform1i(const struct glcontext *gl, GLint location, GLint v0)
 {
-    gl->Uniform1i(location, v0);
+    gl->funcs.Uniform1i(location, v0);
     check_error_code(gl, "glUniform1i");
 }
 
-static inline void ngli_glUniform1iv(const struct glfunctions *gl, GLint location, GLsizei count, const GLint * value)
+static inline void ngli_glUniform1iv(const struct glcontext *gl, GLint location, GLsizei count, const GLint * value)
 {
-    gl->Uniform1iv(location, count, value);
+    gl->funcs.Uniform1iv(location, count, value);
     check_error_code(gl, "glUniform1iv");
 }
 
-static inline void ngli_glUniform2f(const struct glfunctions *gl, GLint location, GLfloat v0, GLfloat v1)
+static inline void ngli_glUniform2f(const struct glcontext *gl, GLint location, GLfloat v0, GLfloat v1)
 {
-    gl->Uniform2f(location, v0, v1);
+    gl->funcs.Uniform2f(location, v0, v1);
     check_error_code(gl, "glUniform2f");
 }
 
-static inline void ngli_glUniform2fv(const struct glfunctions *gl, GLint location, GLsizei count, const GLfloat * value)
+static inline void ngli_glUniform2fv(const struct glcontext *gl, GLint location, GLsizei count, const GLfloat * value)
 {
-    gl->Uniform2fv(location, count, value);
+    gl->funcs.Uniform2fv(location, count, value);
     check_error_code(gl, "glUniform2fv");
 }
 
-static inline void ngli_glUniform2i(const struct glfunctions *gl, GLint location, GLint v0, GLint v1)
+static inline void ngli_glUniform2i(const struct glcontext *gl, GLint location, GLint v0, GLint v1)
 {
-    gl->Uniform2i(location, v0, v1);
+    gl->funcs.Uniform2i(location, v0, v1);
     check_error_code(gl, "glUniform2i");
 }
 
-static inline void ngli_glUniform2iv(const struct glfunctions *gl, GLint location, GLsizei count, const GLint * value)
+static inline void ngli_glUniform2iv(const struct glcontext *gl, GLint location, GLsizei count, const GLint * value)
 {
-    gl->Uniform2iv(location, count, value);
+    gl->funcs.Uniform2iv(location, count, value);
     check_error_code(gl, "glUniform2iv");
 }
 
-static inline void ngli_glUniform3f(const struct glfunctions *gl, GLint location, GLfloat v0, GLfloat v1, GLfloat v2)
+static inline void ngli_glUniform3f(const struct glcontext *gl, GLint location, GLfloat v0, GLfloat v1, GLfloat v2)
 {
-    gl->Uniform3f(location, v0, v1, v2);
+    gl->funcs.Uniform3f(location, v0, v1, v2);
     check_error_code(gl, "glUniform3f");
 }
 
-static inline void ngli_glUniform3fv(const struct glfunctions *gl, GLint location, GLsizei count, const GLfloat * value)
+static inline void ngli_glUniform3fv(const struct glcontext *gl, GLint location, GLsizei count, const GLfloat * value)
 {
-    gl->Uniform3fv(location, count, value);
+    gl->funcs.Uniform3fv(location, count, value);
     check_error_code(gl, "glUniform3fv");
 }
 
-static inline void ngli_glUniform3i(const struct glfunctions *gl, GLint location, GLint v0, GLint v1, GLint v2)
+static inline void ngli_glUniform3i(const struct glcontext *gl, GLint location, GLint v0, GLint v1, GLint v2)
 {
-    gl->Uniform3i(location, v0, v1, v2);
+    gl->funcs.Uniform3i(location, v0, v1, v2);
     check_error_code(gl, "glUniform3i");
 }
 
-static inline void ngli_glUniform3iv(const struct glfunctions *gl, GLint location, GLsizei count, const GLint * value)
+static inline void ngli_glUniform3iv(const struct glcontext *gl, GLint location, GLsizei count, const GLint * value)
 {
-    gl->Uniform3iv(location, count, value);
+    gl->funcs.Uniform3iv(location, count, value);
     check_error_code(gl, "glUniform3iv");
 }
 
-static inline void ngli_glUniform4f(const struct glfunctions *gl, GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
+static inline void ngli_glUniform4f(const struct glcontext *gl, GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
 {
-    gl->Uniform4f(location, v0, v1, v2, v3);
+    gl->funcs.Uniform4f(location, v0, v1, v2, v3);
     check_error_code(gl, "glUniform4f");
 }
 
-static inline void ngli_glUniform4fv(const struct glfunctions *gl, GLint location, GLsizei count, const GLfloat * value)
+static inline void ngli_glUniform4fv(const struct glcontext *gl, GLint location, GLsizei count, const GLfloat * value)
 {
-    gl->Uniform4fv(location, count, value);
+    gl->funcs.Uniform4fv(location, count, value);
     check_error_code(gl, "glUniform4fv");
 }
 
-static inline void ngli_glUniform4i(const struct glfunctions *gl, GLint location, GLint v0, GLint v1, GLint v2, GLint v3)
+static inline void ngli_glUniform4i(const struct glcontext *gl, GLint location, GLint v0, GLint v1, GLint v2, GLint v3)
 {
-    gl->Uniform4i(location, v0, v1, v2, v3);
+    gl->funcs.Uniform4i(location, v0, v1, v2, v3);
     check_error_code(gl, "glUniform4i");
 }
 
-static inline void ngli_glUniform4iv(const struct glfunctions *gl, GLint location, GLsizei count, const GLint * value)
+static inline void ngli_glUniform4iv(const struct glcontext *gl, GLint location, GLsizei count, const GLint * value)
 {
-    gl->Uniform4iv(location, count, value);
+    gl->funcs.Uniform4iv(location, count, value);
     check_error_code(gl, "glUniform4iv");
 }
 
-static inline void ngli_glUniformMatrix2fv(const struct glfunctions *gl, GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)
+static inline void ngli_glUniformMatrix2fv(const struct glcontext *gl, GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)
 {
-    gl->UniformMatrix2fv(location, count, transpose, value);
+    gl->funcs.UniformMatrix2fv(location, count, transpose, value);
     check_error_code(gl, "glUniformMatrix2fv");
 }
 
-static inline void ngli_glUniformMatrix3fv(const struct glfunctions *gl, GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)
+static inline void ngli_glUniformMatrix3fv(const struct glcontext *gl, GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)
 {
-    gl->UniformMatrix3fv(location, count, transpose, value);
+    gl->funcs.UniformMatrix3fv(location, count, transpose, value);
     check_error_code(gl, "glUniformMatrix3fv");
 }
 
-static inline void ngli_glUniformMatrix4fv(const struct glfunctions *gl, GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)
+static inline void ngli_glUniformMatrix4fv(const struct glcontext *gl, GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)
 {
-    gl->UniformMatrix4fv(location, count, transpose, value);
+    gl->funcs.UniformMatrix4fv(location, count, transpose, value);
     check_error_code(gl, "glUniformMatrix4fv");
 }
 
-static inline void ngli_glUseProgram(const struct glfunctions *gl, GLuint program)
+static inline void ngli_glUseProgram(const struct glcontext *gl, GLuint program)
 {
-    gl->UseProgram(program);
+    gl->funcs.UseProgram(program);
     check_error_code(gl, "glUseProgram");
 }
 
-static inline void ngli_glVertexAttribPointer(const struct glfunctions *gl, GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void * pointer)
+static inline void ngli_glVertexAttribPointer(const struct glcontext *gl, GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void * pointer)
 {
-    gl->VertexAttribPointer(index, size, type, normalized, stride, pointer);
+    gl->funcs.VertexAttribPointer(index, size, type, normalized, stride, pointer);
     check_error_code(gl, "glVertexAttribPointer");
 }
 
-static inline void ngli_glViewport(const struct glfunctions *gl, GLint x, GLint y, GLsizei width, GLsizei height)
+static inline void ngli_glViewport(const struct glcontext *gl, GLint x, GLint y, GLsizei width, GLsizei height)
 {
-    gl->Viewport(x, y, width, height);
+    gl->funcs.Viewport(x, y, width, height);
     check_error_code(gl, "glViewport");
 }
 

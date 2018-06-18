@@ -47,9 +47,9 @@ struct glstate {
     GLenum stencil_depth_pass;
 };
 
-struct glstate *ngli_glstate_create(const struct glfunctions *gl);
+struct glstate *ngli_glstate_create(const struct glcontext *gl);
 
-void ngli_glstate_honor_state(const struct glfunctions *gl,
+void ngli_glstate_honor_state(const struct glcontext *gl,
                               const struct glstate *next,
                               const struct glstate *prev);
 

@@ -225,8 +225,6 @@ def gen(gl_xml):
 #ifndef NGL_GL_H
 #define NGL_GL_H
 
-#include "glfunctions.h"
-
 static const char * const errors_str[] = {
     [GL_INVALID_ENUM]                   = "GL_INVALID_ENUM",
     [GL_INVALID_VALUE]                  = "GL_INVALID_VALUE",
@@ -239,10 +237,10 @@ static const char * const errors_str[] = {
 #include "utils.h"
 #include "log.h"
 
-static inline void check_error_code(const struct glfunctions *gl,
+static inline void check_error_code(const struct glcontext *gl,
                                     const char *glfuncname)
 {
-    const GLenum error = gl->GetError();
+    const GLenum error = gl->funcs.GetError();
     if (!error)
         return;
     if (error < NGLI_ARRAY_NB(errors_str) && errors_str[error])
@@ -273,7 +271,7 @@ struct glfunctions {
     gldefinitions = do_not_edit + '''
 #include <stddef.h>
 
-#include "glfunctions.h"
+#include "glcontext.h"
 
 #define M (1 << 0)
 
@@ -309,7 +307,7 @@ static const struct gldefinition {
             func_args_specs.append(' '.join(get_proto_elems(param)))
             func_args.append(param.find('name').text)
 
-        wrapper_args_specs = ['const struct glfunctions *gl'] + func_args_specs
+        wrapper_args_specs = ['const struct glcontext *gl'] + func_args_specs
 
         data = {
                 'func_ret': funcret,
@@ -328,7 +326,7 @@ static const struct gldefinition {
         glwrappers    += '''
 static inline %(func_ret)s ngli_%(func_name)s(%(wrapper_args_specs)s)
 {
-    %(ret_assign)sgl->%(func_name_nogl)s(%(func_args)s);
+    %(ret_assign)sgl->funcs.%(func_name_nogl)s(%(func_args)s);
     check_error_code(gl, "%(func_name)s");
 %(ret_call)s}
 ''' % data
