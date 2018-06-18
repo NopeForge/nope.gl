@@ -37,13 +37,13 @@ struct x11_priv {
     int own_handle;
     GLXFBConfig *fbconfigs;
     int nb_fbconfigs;
-    GLXContext (*glXCreateContextAttribs)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+    GLXContext (*CreateContextAttribs)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
     int swap_interval_ext;
     int swap_interval_mesa;
     int swap_interval_sgi;
-    void (*glXSwapIntervalEXT)(Display*, GLXDrawable, int);
-    int (*glXSwapIntervalMESA)(int);
-    int (*glXSwapIntervalSGI)(int);
+    void (*SwapIntervalEXT)(Display*, GLXDrawable, int);
+    int (*SwapIntervalMESA)(int);
+    int (*SwapIntervalSGI)(int);
 };
 
 
@@ -137,8 +137,8 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
 {
     struct x11_priv *x11 = ctx->priv_data;
 
-    x11->glXCreateContextAttribs = (void *)glXGetProcAddress((const GLubyte *)"glXCreateContextAttribsARB");
-    if (!x11->glXCreateContextAttribs) {
+    x11->CreateContextAttribs = (void *)glXGetProcAddress((const GLubyte *)"glXCreateContextAttribsARB");
+    if (!x11->CreateContextAttribs) {
         LOG(ERROR, "could not retrieve glXCreateContextAttribsARB()");
         return -1;
     }
@@ -170,11 +170,11 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
             None
         };
 
-        x11->handle = x11->glXCreateContextAttribs(display,
-                                                   fbconfigs[0],
-                                                   shared_context,
-                                                   1,
-                                                   attribs);
+        x11->handle = x11->CreateContextAttribs(display,
+                                                fbconfigs[0],
+                                                shared_context,
+                                                1,
+                                                attribs);
     } else if (ctx->api == NGL_GLAPI_OPENGL) {
         int attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
@@ -183,11 +183,11 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
             None
         };
 
-        x11->handle = x11->glXCreateContextAttribs(display,
-                                                   fbconfigs[0],
-                                                   shared_context,
-                                                   1,
-                                                   attribs);
+        x11->handle = x11->CreateContextAttribs(display,
+                                                fbconfigs[0],
+                                                shared_context,
+                                                1,
+                                                attribs);
     }
 
     if (!x11->handle) {
@@ -211,16 +211,16 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
     }
 
     if (ngli_glcontext_check_extension("GLX_EXT_swap_control", glx_extensions)) {
-        x11->glXSwapIntervalEXT = (void *)glXGetProcAddress((const GLubyte *)"glXSwapIntervalEXT");
-        if (x11->glXSwapIntervalEXT)
+        x11->SwapIntervalEXT = (void *)glXGetProcAddress((const GLubyte *)"glXSwapIntervalEXT");
+        if (x11->SwapIntervalEXT)
             x11->swap_interval_ext = 1;
     } else if (ngli_glcontext_check_extension("GLX_MESA_swap_control", glx_extensions)) {
-        x11->glXSwapIntervalMESA = (void *)glXGetProcAddress((const GLubyte *)"glXSwapIntervalMESA");
-        if (x11->glXSwapIntervalMESA)
+        x11->SwapIntervalMESA = (void *)glXGetProcAddress((const GLubyte *)"glXSwapIntervalMESA");
+        if (x11->SwapIntervalMESA)
             x11->swap_interval_mesa = 1;
     } else if (ngli_glcontext_check_extension("GLX_SGI_swap_control", glx_extensions)) {
-        x11->glXSwapIntervalSGI = (void *)glXGetProcAddress((const GLubyte *)"glXSwapIntervalSGI");
-        if (x11->glXSwapIntervalSGI)
+        x11->SwapIntervalSGI = (void *)glXGetProcAddress((const GLubyte *)"glXSwapIntervalSGI");
+        if (x11->SwapIntervalSGI)
             x11->swap_interval_sgi = 1;
     } else {
         LOG(WARNING, "context does not support any swap interval extension");
@@ -254,11 +254,11 @@ static int x11_set_swap_interval(struct glcontext *ctx, int interval)
     struct x11_priv *x11 = ctx->priv_data;
 
     if (x11->swap_interval_ext) {
-        x11->glXSwapIntervalEXT(x11->display, x11->window, interval);
+        x11->SwapIntervalEXT(x11->display, x11->window, interval);
     } else if (x11->swap_interval_mesa) {
-        x11->glXSwapIntervalMESA(interval);
+        x11->SwapIntervalMESA(interval);
     } else if (x11->swap_interval_sgi) {
-        x11->glXSwapIntervalSGI(interval);
+        x11->SwapIntervalSGI(interval);
     } else {
         LOG(WARNING, "context does not support swap interval operation");
     }
