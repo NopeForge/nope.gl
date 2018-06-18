@@ -429,6 +429,46 @@ struct scale {
     struct ngl_node *anim;
 };
 
+enum easing_id {
+    EASING_LINEAR,
+    EASING_QUADRATIC_IN,
+    EASING_QUADRATIC_OUT,
+    EASING_QUADRATIC_IN_OUT,
+    EASING_QUADRATIC_OUT_IN,
+    EASING_CUBIC_IN,
+    EASING_CUBIC_OUT,
+    EASING_CUBIC_IN_OUT,
+    EASING_CUBIC_OUT_IN,
+    EASING_QUARTIC_IN,
+    EASING_QUARTIC_OUT,
+    EASING_QUARTIC_IN_OUT,
+    EASING_QUARTIC_OUT_IN,
+    EASING_QUINTIC_IN,
+    EASING_QUINTIC_OUT,
+    EASING_QUINTIC_IN_OUT,
+    EASING_QUINTIC_OUT_IN,
+    EASING_SINUS_IN,
+    EASING_SINUS_OUT,
+    EASING_SINUS_IN_OUT,
+    EASING_SINUS_OUT_IN,
+    EASING_EXP_IN,
+    EASING_EXP_OUT,
+    EASING_EXP_IN_OUT,
+    EASING_EXP_OUT_IN,
+    EASING_CIRCULAR_IN,
+    EASING_CIRCULAR_OUT,
+    EASING_CIRCULAR_IN_OUT,
+    EASING_CIRCULAR_OUT_IN,
+    EASING_BOUNCE_IN,
+    EASING_BOUNCE_OUT,
+    EASING_ELASTIC_IN,
+    EASING_ELASTIC_OUT,
+    EASING_BACK_IN,
+    EASING_BACK_OUT,
+    EASING_BACK_IN_OUT,
+    EASING_BACK_OUT_IN,
+};
+
 typedef double easing_type;
 typedef easing_type (*easing_function)(easing_type, int, const easing_type *);
 
@@ -447,7 +487,7 @@ struct animkeyframe {
     double scalar;
     uint8_t *data;
     int data_size;
-    const char *easing;
+    int easing;
     easing_function function;
     easing_function resolution;
     double *args;

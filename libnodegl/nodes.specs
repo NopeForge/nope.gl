@@ -41,7 +41,7 @@
         - [time, double]
         - [value, double]
     optional:
-        - [easing, string]
+        - [easing, select]
         - [easing_args, doubleList]
 
 - AnimKeyFrameVec2:
@@ -49,7 +49,7 @@
         - [time, double]
         - [value, vec2]
     optional:
-        - [easing, string]
+        - [easing, select]
         - [easing_args, doubleList]
 
 - AnimKeyFrameVec3:
@@ -57,7 +57,7 @@
         - [time, double]
         - [value, vec3]
     optional:
-        - [easing, string]
+        - [easing, select]
         - [easing_args, doubleList]
 
 - AnimKeyFrameVec4:
@@ -65,7 +65,7 @@
         - [time, double]
         - [value, vec4]
     optional:
-        - [easing, string]
+        - [easing, select]
         - [easing_args, doubleList]
 
 - AnimKeyFrameQuat:
@@ -73,7 +73,7 @@
         - [time, double]
         - [quat, vec4]
     optional:
-        - [easing, string]
+        - [easing, select]
         - [easing_args, doubleList]
 
 - AnimKeyFrameBuffer:
@@ -81,7 +81,7 @@
         - [time, double]
     optional:
         - [data, data]
-        - [easing, string]
+        - [easing, select]
         - [easing_args, doubleList]
 
 - _Buffer:

@@ -73,7 +73,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `value` | ✓ | [`double`](#parameter-types) | the value at time `time` | `0`
-`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
@@ -86,7 +86,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `value` | ✓ | [`vec2`](#parameter-types) | the value at time `time` | (`0`,`0`)
-`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
@@ -99,7 +99,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `value` | ✓ | [`vec3`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`)
-`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
@@ -112,7 +112,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `value` | ✓ | [`vec4`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`,`0`)
-`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
@@ -125,7 +125,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `quat` | ✓ | [`vec4`](#parameter-types) | the quat at time `time` | (`0`,`0`,`0`,`0`)
-`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
@@ -138,7 +138,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `data` |  | [`data`](#parameter-types) | the data at time `time` | 
-`easing` |  | [`string`](#parameter-types) | a string identifying the interpolation | 
+`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 
 
@@ -643,6 +643,48 @@ Type | Description
 
 Constants for choices parameters
 ================================
+
+## easing choices
+
+Constant | Description
+-------- | -----------
+`linear` | `linear(x)=x`
+`quadratic_in` | `quadratic(x)=x²`
+`quadratic_out` | `quadratic_out(x)=1-quadratic(1-x)`
+`quadratic_in_out` | `quadratic_in_out(x)=quadratic(2x)/2` if `x<½` else `1-quadratic(2*(1-x))/2`
+`quadratic_out_in` | `quadratic_out_in(x)=(1-quadratic(1-2x))/2` if `x<½` else `(1+quadratic(2x-1))/2`
+`cubic_in` | `cubic(x)=x³`
+`cubic_out` | `cubic_out(x)=1-cubic(1-x)`
+`cubic_in_out` | `cubic_in_out(x)=cubic(2x)/2` if `x<½` else `1-cubic(2*(1-x))/2`
+`cubic_out_in` | `cubic_out_in(x)=(1-cubic(1-2x))/2` if `x<½` else `(1+cubic(2x-1))/2`
+`quartic_in` | `quartic(x)=x⁴`
+`quartic_out` | `quartic_out(x)=1-quartic(1-x)`
+`quartic_in_out` | `quartic_in_out(x)=quartic(2x)/2` if `x<½` else `1-quartic(2*(1-x))/2`
+`quartic_out_in` | `quartic_out_in(x)=(1-quartic(1-2x))/2` if `x<½` else `(1+quartic(2x-1))/2`
+`quintic_in` | `quintic(x)=x⁵`
+`quintic_out` | `quintic(x)=1-quintic(1-x)`
+`quintic_in_out` | `quintic_in_out(x)=quintic(2x)/2` if `x<½` else `1-quintic(2*(1-x))/2`
+`quintic_out_in` | `quintic_out_in(x)=(1-quintic(1-2x))/2` if `x<½` else `(1+quintic(2x-1))/2`
+`sinus_in` | `sinus(x)=1-cos(x*π/2)`
+`sinus_out` | `sinus_out(x)=1-sinus(1-x)`
+`sinus_in_out` | `sinus_in_out(x)=sinus(2x)/2` if `x<½` else `1-sinus(2*(1-x))/2`
+`sinus_out_in` | `sinus_out_in(x)=(1-sinus(1-2x))/2` if `x<½` else `(1+sinus(2x-1))/2`
+`exp_in` | `exp(x,a=1024)=(pow(a,x)-1)/(a-1)`
+`exp_out` | `exp_out(x,a=1024)=1-exp(1-x,a)`
+`exp_in_out` | `exp_in_out(x,a=1024)=exp(2x,a)/2` if `x<½` else `1-exp(2*(1-x),a)/2`
+`exp_out_in` | `exp_out_in(x,a=1024)=(1-exp(1-2x,a))/2` if `x<½` else `(1+exp(2x-1,a))/2`
+`circular_in` | `circular(x)=1-√(1-x²)`
+`circular_out` | `circular_out(x)=1-circular(1-x)`
+`circular_in_out` | `circular_in_out(x)=circular(2x)/2` if `x<½` else `1-circular(2*(1-x))/2`
+`circular_out_in` | `circular_out_in(x)=(1-circular(1-2x))/2` if `x<½` else `(1+circular(2x-1))/2`
+`bounce_in` | bouncing from right to left 4 times
+`bounce_out` | diagonally mirrored version of `bounce_in()`
+`elastic_in` | elastic effect from weak to strong
+`elastic_out` | mirrored `elastic_in` effect
+`back_in` | mirrored `back_out` effect
+`back_out` | overstep target value and smoothly converge back to it
+`back_in_out` | combination of `back_in` then `back_out`
+`back_out_in` | combination of `back_out` then `back_in`
 
 ## buffer_usage choices
 
