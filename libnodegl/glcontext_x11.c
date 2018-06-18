@@ -37,6 +37,7 @@ struct x11_priv {
     int own_handle;
     GLXFBConfig *fbconfigs;
     int nb_fbconfigs;
+    GLXContext (*glXCreateContextAttribs)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
     int swap_interval_ext;
     int swap_interval_mesa;
     int swap_interval_sgi;
@@ -45,7 +46,6 @@ struct x11_priv {
     int (*glXSwapIntervalSGI)(int);
 };
 
-typedef GLXContext (*glXCreateContextAttribsFunc)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
 
 static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
@@ -137,9 +137,8 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
 {
     struct x11_priv *x11 = ctx->priv_data;
 
-    glXCreateContextAttribsFunc glXCreateContextAttribs =
-        (glXCreateContextAttribsFunc)glXGetProcAddress((const GLubyte *)"glXCreateContextAttribsARB");
-    if (!glXCreateContextAttribs) {
+    x11->glXCreateContextAttribs = (void *)glXGetProcAddress((const GLubyte *)"glXCreateContextAttribsARB");
+    if (!x11->glXCreateContextAttribs) {
         LOG(ERROR, "could not retrieve glXCreateContextAttribsARB()");
         return -1;
     }
@@ -171,11 +170,11 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
             None
         };
 
-        x11->handle = glXCreateContextAttribs(display,
-                                              fbconfigs[0],
-                                              shared_context,
-                                              1,
-                                              attribs);
+        x11->handle = x11->glXCreateContextAttribs(display,
+                                                   fbconfigs[0],
+                                                   shared_context,
+                                                   1,
+                                                   attribs);
     } else if (ctx->api == NGL_GLAPI_OPENGL) {
         int attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
@@ -184,11 +183,11 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
             None
         };
 
-        x11->handle = glXCreateContextAttribs(display,
-                                              fbconfigs[0],
-                                              shared_context,
-                                              1,
-                                              attribs);
+        x11->handle = x11->glXCreateContextAttribs(display,
+                                                   fbconfigs[0],
+                                                   shared_context,
+                                                   1,
+                                                   attribs);
     }
 
     if (!x11->handle) {
