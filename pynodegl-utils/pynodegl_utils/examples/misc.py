@@ -13,6 +13,7 @@ from pynodegl import (
         AnimatedVec3,
         AnimatedVec4,
         AnimatedQuat,
+        BufferFloat,
         BufferUBVec3,
         BufferUBVec4,
         BufferUIVec4,
@@ -551,3 +552,73 @@ def quaternion(cfg):
     camera.set_perspective(45.0, cfg.aspect_ratio_float, 1.0, 10.0)
 
     return camera
+
+
+@scene(ndim={'type': 'range', 'range': [1,8]},
+       nb_layers={'type': 'range', 'range': [1,10]},
+       ref_color={'type': 'color'},
+       nb_mountains={'type': 'range', 'range': [3, 15]})
+def mountain(cfg, ndim=3, nb_layers=7,
+             ref_color=(0.5, .75, .75, 1.0), nb_mountains=6):
+    random.seed(0)
+    random_dim = 1 << ndim
+    cfg.aspect_ratio = (16, 9)
+    cfg.duration = nb_mountains ** 2
+
+    def get_rand():
+        return array.array('f', [random.uniform(0, 1) for x in range(random_dim)])
+
+    black, white = (0, 0, 0, 1), (1, 1, 1, 1)
+    quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+
+    prog = Program(fragment=get_frag('mountain'))
+    hscale = 1/2.
+    mountains = []
+    for i in range(nb_mountains):
+        yoffset = (nb_mountains-i-1)/float(nb_mountains-1) * (1.0 - hscale)
+
+        if i < nb_mountains/2:
+            c0, c1 = ref_color, white
+            x = (i + 1) / float(nb_mountains/2 + 1)
+        else:
+            c0, c1 = black, ref_color
+            x = (i - nb_mountains/2) / float((nb_mountains-1)/2)
+        mcolor = [x*a + (1.0-x)*b for a, b in zip(c0, c1)]
+
+        random_buf = BufferFloat(data=get_rand())
+        random_tex = Texture2D(data_src=random_buf, width=random_dim, height=1)
+
+        utime_animkf = [AnimKeyFrameFloat(0, 0),
+                        AnimKeyFrameFloat(cfg.duration, i+1)]
+        utime = UniformFloat(anim=AnimatedFloat(utime_animkf))
+
+        uyoffset_animkf = [AnimKeyFrameFloat(0, yoffset/2.),
+                           AnimKeyFrameFloat(cfg.duration/2.0, yoffset),
+                           AnimKeyFrameFloat(cfg.duration, yoffset/2.)]
+        uyoffset = UniformFloat(anim=AnimatedFloat(uyoffset_animkf))
+
+        render = Render(quad, prog)
+        render.update_textures(tex0=random_tex)
+        render.update_uniforms(dim=UniformInt(random_dim))
+        render.update_uniforms(nb_layers=UniformInt(nb_layers))
+        render.update_uniforms(time=utime)
+        render.update_uniforms(lacunarity=UniformFloat(2.0))
+        render.update_uniforms(gain=UniformFloat(0.5))
+        render.update_uniforms(mcolor=UniformVec4(mcolor))
+        render.update_uniforms(yoffset=uyoffset)
+        render.update_uniforms(hscale=UniformFloat(hscale))
+
+        mountains.append(render)
+
+    prog = Program(fragment=get_frag('color'))
+    sky = Render(quad, prog)
+    sky.update_uniforms(color=UniformVec4(white))
+
+    group = Group(children=[sky] + mountains)
+    blend = GraphicConfig(group,
+                          blend=True,
+                          blend_src_factor='src_alpha',
+                          blend_dst_factor='one_minus_src_alpha',
+                          blend_src_factor_a='zero',
+                          blend_dst_factor_a='one')
+    return blend
