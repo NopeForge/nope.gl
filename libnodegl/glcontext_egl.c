@@ -29,9 +29,10 @@
 #include "utils.h"
 
 struct egl_priv {
+    EGLNativeDisplayType native_display;
+    EGLNativeWindowType native_window;
     EGLDisplay display;
     int own_display;
-    EGLNativeWindowType window;
     EGLSurface surface;
     int own_surface;
     EGLContext handle;
@@ -62,20 +63,12 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             return -1;
         }
     } else {
-        if (display)
-            egl->display = (EGLDisplay)display;
-        if (!egl->display) {
-            egl->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-            if (!egl->display) {
-                LOG(ERROR, "could not retrieve EGL display");
-                return -1;
-            }
-        }
+        egl->native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
 
         if (!ctx->offscreen) {
             if (window) {
-                egl->window = (EGLNativeWindowType)window;
-                if (!egl->window) {
+                egl->native_window = (EGLNativeWindowType)window;
+                if (!egl->native_window) {
                     LOG(ERROR, "could not retrieve EGL native window");
                     return -1;
                 }
@@ -131,6 +124,12 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
         EGL_NONE
     };
 
+    egl->display = eglGetDisplay(egl->native_display);
+    if (!egl->display) {
+        LOG(ERROR, "could not retrieve EGL display");
+        return -1;
+    }
+
     EGLint egl_minor;
     EGLint egl_major;
     ret = eglInitialize (egl->display, &egl_major, &egl_minor);
@@ -177,7 +176,7 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
             return -1;
         }
     } else {
-        egl->surface = eglCreateWindowSurface(egl->display, config, egl->window, NULL);
+        egl->surface = eglCreateWindowSurface(egl->display, config, egl->native_window, NULL);
         if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
         }
