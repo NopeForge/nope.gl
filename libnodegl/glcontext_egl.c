@@ -28,6 +28,8 @@
 #include "nodegl.h"
 #include "utils.h"
 
+#define EGL_PLATFORM_X11 0x31D5
+
 struct egl_priv {
     EGLNativeDisplayType native_display;
     EGLNativeWindowType native_window;
@@ -39,6 +41,7 @@ struct egl_priv {
     int own_handle;
     EGLConfig config;
     EGLBoolean (*PresentationTimeANDROID)(EGLDisplay dpy, EGLSurface sur, khronos_stime_nanoseconds_t time);
+    EGLDisplay (*GetPlatformDisplay)(EGLenum platform, void *native_display, const EGLint *attrib_list);
 };
 
 static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
@@ -58,6 +61,29 @@ static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
 
     return 0;
 }
+
+#if TARGET_LINUX
+static int egl_probe_platform_x11_ext(struct egl_priv *egl)
+{
+    char const *extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
+    if (!extensions)
+        return 0;
+
+    if (ngli_glcontext_check_extension("EGL_KHR_platform_x11", extensions) ||
+        ngli_glcontext_check_extension("EGL_EXT_platform_x11", extensions)) {
+        egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplay");
+        if (!egl->GetPlatformDisplay)
+            egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplayEXT");
+        if (!egl->GetPlatformDisplay) {
+            LOG(ERROR, "could not retrieve eglGetPlatformDisplay()");
+            return -1;
+        }
+        return 1;
+    }
+
+    return 0;
+}
+#endif
 
 static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
@@ -112,10 +138,51 @@ static void egl_uninit(struct glcontext *ctx)
         eglTerminate(egl->display);
 }
 
+static EGLDisplay egl_get_display(struct egl_priv *egl)
+{
+#if TARGET_ANDROID
+    return eglGetDisplay(egl->native_display);
+#elif TARGET_LINUX
+    /* XXX: only X11 is supported for now */
+    int ret = egl_probe_platform_x11_ext(egl);
+    if (ret <= 0)
+        return EGL_NO_DISPLAY;
+    return egl->GetPlatformDisplay(EGL_PLATFORM_X11, egl->native_display, NULL);
+#else
+    return EGL_NO_DISPLAY;
+#endif
+}
+
 static int egl_create(struct glcontext *ctx, uintptr_t other)
 {
     int ret;
     struct egl_priv *egl = ctx->priv_data;
+
+    egl->display = egl_get_display(egl);
+    if (!egl->display) {
+        LOG(ERROR, "could not retrieve EGL display");
+        return -1;
+    }
+
+    EGLint egl_minor;
+    EGLint egl_major;
+    ret = eglInitialize(egl->display, &egl_major, &egl_minor);
+    if (!ret) {
+        LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
+        return -1;
+    }
+    egl->own_display = 1;
+
+    if (egl_major < 1 || egl_minor < 4) {
+        LOG(ERROR, "unsupported EGL version %d.%d, only 1.4+ is supported", egl_major, egl_minor);
+        return -1;
+    }
+
+    int api = ctx->api == NGL_GLAPI_OPENGL ? EGL_OPENGL_API : EGL_OPENGL_ES_API;
+    if (!eglBindAPI(api)) {
+        LOG(ERROR, "could not bind OpenGL%s API", ctx->api == NGL_GLAPI_OPENGL ? "" : "ES");
+        return -1;
+    }
 
     EGLint config_attribs[] = {
         EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
@@ -130,34 +197,17 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
         EGL_NONE
     };
 
+    if (ctx->api == NGL_GLAPI_OPENGL) {
+        config_attribs[1] = EGL_OPENGL_BIT;
+    }
+
     if (ctx->samples > 0) {
         config_attribs[NGLI_ARRAY_NB(config_attribs) - 4] = 1;
         config_attribs[NGLI_ARRAY_NB(config_attribs) - 2] = ctx->samples;
     }
 
-    const EGLint ctx_attribs[] = {
-        EGL_CONTEXT_CLIENT_VERSION, 2,
-        EGL_NONE
-    };
-
-    egl->display = eglGetDisplay(egl->native_display);
-    if (!egl->display) {
-        LOG(ERROR, "could not retrieve EGL display");
-        return -1;
-    }
-
-    EGLint egl_minor;
-    EGLint egl_major;
-    ret = eglInitialize (egl->display, &egl_major, &egl_minor);
-    if (!ret) {
-        LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
-        return -1;
-    }
-    egl->own_display = 1;
-
     EGLContext config;
     EGLint nb_configs;
-
     ret = eglChooseConfig(egl->display, config_attribs, &config, 1, &nb_configs);
     if (!ret || !nb_configs) {
         LOG(ERROR, "could not choose a valid EGL configuration: 0x%x", eglGetError());
@@ -166,7 +216,24 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
 
     EGLContext shared_context = other ? (EGLContext)other : NULL;
 
-    egl->handle = eglCreateContext(egl->display, config, shared_context, ctx_attribs);
+    if (ctx->api == NGL_GLAPI_OPENGL) {
+        static const EGLint ctx_attribs[] = {
+            EGL_CONTEXT_MAJOR_VERSION_KHR, 4,
+            EGL_CONTEXT_MINOR_VERSION_KHR, 1,
+            EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR,
+            EGL_NONE
+        };
+
+        egl->handle = eglCreateContext(egl->display, config, shared_context, ctx_attribs);
+    } else {
+        static const EGLint ctx_attribs[] = {
+            EGL_CONTEXT_CLIENT_VERSION, 2,
+            EGL_NONE
+        };
+
+        egl->handle = eglCreateContext(egl->display, config, shared_context, ctx_attribs);
+    }
+
     if (!egl->handle) {
         LOG(ERROR, "could not create EGL context: 0x%x", eglGetError());
         return -1;

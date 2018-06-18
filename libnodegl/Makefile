@@ -98,14 +98,14 @@ LIB_OBJS_ARCH_aarch64 = asm_aarch64.o
 
 LIB_OBJS += $(LIB_OBJS_ARCH_$(ARCH))
 
-LIB_EXTRA_OBJS_Linux     = glcontext_x11.o
+LIB_EXTRA_OBJS_Linux     = glcontext_x11.o glcontext_egl.o
 LIB_EXTRA_OBJS_Darwin    = glcontext_nsgl.o
 LIB_EXTRA_OBJS_Android   = glcontext_egl.o jni_utils.o android_utils.o android_looper.o android_surface.o android_handler.o android_handlerthread.o
 LIB_EXTRA_OBJS_iPhone    = glcontext_eagl.o
 LIB_EXTRA_OBJS_MinGW-w64 = glcontext_wgl.o
 
 LIB_CFLAGS                 = -fPIC
-LIB_EXTRA_CFLAGS_Linux     = -DHAVE_PLATFORM_GLX
+LIB_EXTRA_CFLAGS_Linux     = -DHAVE_PLATFORM_GLX -DHAVE_PLATFORM_EGL
 LIB_EXTRA_CFLAGS_Darwin    = -DHAVE_PLATFORM_NSGL
 LIB_EXTRA_CFLAGS_Android   = -DHAVE_PLATFORM_EGL
 LIB_EXTRA_CFLAGS_iPhone    = -DHAVE_PLATFORM_EAGL
@@ -119,7 +119,7 @@ LIB_EXTRA_LDLIBS_iPhone    = -framework CoreMedia
 LIB_EXTRA_LDLIBS_MinGW-w64 = -lopengl32
 
 LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 9.2.0"
-LIB_EXTRA_PKG_CONFIG_LIBS_Linux   = x11 gl
+LIB_EXTRA_PKG_CONFIG_LIBS_Linux   = x11 gl egl
 LIB_EXTRA_PKG_CONFIG_LIBS_Darwin  =
 LIB_EXTRA_PKG_CONFIG_LIBS_Android = libavcodec
 LIB_EXTRA_PKG_CONFIG_LIBS_iPhone  =
