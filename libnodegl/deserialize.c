@@ -507,7 +507,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         return NULL;
 
     char *sstart = s;
-    char *end = s + strlen(s);
+    char *send = s + strlen(s);
 
     int major, minor, micro;
     int n = sscanf(s, "# Node.GL v%d.%d.%d", &major, &minor, &micro);
@@ -525,7 +525,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     if (*s == '\n')
         s++;
 
-    while (s < end - 4) {
+    while (s < send - 4) {
         const int type = NGLI_FOURCC(s[0], s[1], s[2], s[3]);
         s += 4;
         if (*s == ' ')
