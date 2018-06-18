@@ -124,6 +124,9 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
     if (hm->count * 3 / 4 >= hm->size) {
         struct hmap old_hm = *hm;
 
+        if (hm->size >= sizeof(int)*8 - 2)
+            return -1;
+
         struct bucket *new_buckets = calloc(hm->size << 1, sizeof(*new_buckets));
         if (new_buckets) {
             hm->buckets = new_buckets;
