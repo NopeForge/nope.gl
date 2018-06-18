@@ -65,7 +65,6 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         if (display)
             egl->display = (EGLDisplay)display;
         if (!egl->display) {
-            egl->own_display = 1;
             egl->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
             if (!egl->display) {
                 LOG(ERROR, "could not retrieve EGL display");
@@ -139,6 +138,7 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
         LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
         return -1;
     }
+    egl->own_display = 1;
 
     egl->PresentationTimeANDROID = ngli_glcontext_get_proc_address(ctx, "eglPresentationTimeANDROID");
     if (!egl->PresentationTimeANDROID) {
@@ -157,14 +157,13 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
 
     EGLContext shared_context = other ? (EGLContext)other : NULL;
 
-    egl->own_handle = 1;
     egl->handle = eglCreateContext(egl->display, config, shared_context, ctx_attribs);
     if (!egl->handle) {
         LOG(ERROR, "could not create EGL context: 0x%x", eglGetError());
         return -1;
     }
+    egl->own_handle = 1;
 
-    egl->own_surface = 1;
     if (ctx->offscreen) {
         const EGLint attribs[] = {
             EGL_WIDTH, ctx->width,
@@ -183,6 +182,7 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
         }
     }
+    egl->own_surface = 1;
 
     return 0;
 }
