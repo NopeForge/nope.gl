@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-#define HMAP_SIZE 3
+#define HMAP_SIZE_NBIT 1
 #include "hmap.c"
 #include "utils.h"
 

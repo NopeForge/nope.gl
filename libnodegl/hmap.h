@@ -22,8 +22,8 @@
 #ifndef HMAP_H
 #define HMAP_H
 
-#ifndef HMAP_SIZE
-#define HMAP_SIZE 128
+#ifndef HMAP_SIZE_NBIT
+#define HMAP_SIZE_NBIT 7
 #endif
 
 struct hmap;

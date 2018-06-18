@@ -34,6 +34,7 @@ struct bucket {
 struct hmap {
     struct bucket *buckets;
     int size;
+    uint32_t mask;
     int count; // total number of entries
     user_free_func_type user_free_func;
     void *user_arg;
@@ -58,7 +59,8 @@ struct hmap *ngli_hmap_create(void)
     struct hmap *hm = calloc(1, sizeof(*hm));
     if (!hm)
         return NULL;
-    hm->size = HMAP_SIZE;
+    hm->size = 1 << HMAP_SIZE_NBIT;
+    hm->mask = hm->size - 1;
     hm->buckets = calloc(hm->size, sizeof(*hm->buckets));
     if (!hm->buckets) {
         free(hm);
@@ -78,7 +80,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
         return -1;
 
     const uint32_t hash = get_hash(key);
-    const int id = hash % hm->size;
+    const int id = hash & hm->mask;
     struct bucket *b = &hm->buckets[id];
 
     /* Delete */
@@ -127,12 +129,13 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
             hm->buckets = new_buckets;
             hm->count = 0;
             hm->size <<= 1;
+            hm->mask = hm->size - 1;
 
             if (old_hm.count) {
                 /* Transfer all entries to the new map */
                 const struct hmap_entry *e = NULL;
                 while ((e = ngli_hmap_next(&old_hm, e))) {
-                    const int new_id = get_hash(e->key) % hm->size;
+                    const int new_id = get_hash(e->key) & hm->mask;
                     struct bucket *b = &hm->buckets[new_id];
                     struct hmap_entry *entries =
                         realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
@@ -164,7 +167,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
             free(old_hm.buckets);
 
             /* Fix the bucket position for the entry to add */
-            b = &hm->buckets[hash % hm->size];
+            b = &hm->buckets[hash & hm->mask];
         }
     }
 
@@ -207,7 +210,7 @@ const struct hmap_entry *ngli_hmap_next(const struct hmap *hm,
     if (!prev)
         return get_first_entry(hm, 0);
 
-    const int id = get_hash(prev->key) % hm->size;
+    const int id = get_hash(prev->key) & hm->mask;
     const struct bucket *b = &hm->buckets[id];
     const int entry_id = prev - b->entries;
 
@@ -222,7 +225,7 @@ const struct hmap_entry *ngli_hmap_next(const struct hmap *hm,
 
 void *ngli_hmap_get(const struct hmap *hm, const char *key)
 {
-    const int id = get_hash(key) % hm->size;
+    const int id = get_hash(key) & hm->mask;
     const struct bucket *b = &hm->buckets[id];
 
     for (int i = 0; i < b->nb_entries; i++) {
