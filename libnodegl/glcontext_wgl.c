@@ -38,8 +38,8 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 {
     struct wgl_priv *wgl = ctx->priv_data;
 
-    wgl->handle = handle ? (HGLRC)handle : wglGetCurrentContext();
-    wgl->window = window ? (HDC)window   : wglGetCurrentDC();
+    wgl->handle = wglGetCurrentContext();
+    wgl->window = wglGetCurrentDC();
 
     if (!wgl->window || !wgl->handle)
         return -1;

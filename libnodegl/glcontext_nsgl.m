@@ -45,7 +45,7 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
     struct nsgl_priv *nsgl = ctx->priv_data;
 
     if (ctx->wrapped) {
-        nsgl->handle = handle ? (NSOpenGLContext *)handle : [NSOpenGLContext currentContext];
+        nsgl->handle = [NSOpenGLContext currentContext];
         if (!nsgl->handle) {
             LOG(ERROR, "could not retrieve NSGL context");
             return -1;

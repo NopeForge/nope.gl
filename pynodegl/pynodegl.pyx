@@ -38,12 +38,12 @@ cdef extern from "nodegl.h":
     cdef struct ngl_ctx
 
     cdef struct ngl_config:
-        void *display
-        void *window
-        void *handle
         int  platform
         int  api
         int  wrapped
+        void *display
+        void *window
+        void *handle
         int  swap_interval
         int  offscreen
         int  width

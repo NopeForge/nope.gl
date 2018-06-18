@@ -294,15 +294,6 @@ enum {
  * node.gl configuration
  */
 struct ngl_config {
-    uintptr_t display; /* a native display handle or 0 to automatically get the
-                         current window */
-
-    uintptr_t window;  /* a native window handle or 0 to automatically get the
-                          current window */
-
-    uintptr_t handle;  /* a native OpenGL context handle or 0 to automatically
-                          get the currently bound OpenGL context */
-
     int  platform; /* OpenGL platform (any of NGL_GLPLATFORM_*). It must be
                       compatible with the system on which the code is executed.
                       NGL_GLPLATFORM_AUTO can be used to auto-detect it */
@@ -313,6 +304,12 @@ struct ngl_config {
 
     int wrapped;   /* Whether the current OpenGL context should be wrapped or a new
                       one should be created */
+
+    uintptr_t display; /* A native display handle, ignored in wrapped mode */
+
+    uintptr_t window;  /* A native window handle, ignored in wrapped mode */
+
+    uintptr_t handle;  /* A native OpenGL context handle, ignored in wrapped mode */
 
     int swap_interval; /* Specifies the minimum number of video frames that are
                           displayed before a buffer swap will occur. -1 can be

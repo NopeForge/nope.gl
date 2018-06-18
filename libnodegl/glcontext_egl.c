@@ -45,9 +45,9 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     struct egl_priv *egl = ctx->priv_data;
 
     if (ctx->wrapped) {
-        egl->display = display ? (EGLDisplay)display : eglGetDisplay(EGL_DEFAULT_DISPLAY);
+        egl->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
         egl->surface = eglGetCurrentSurface(EGL_DRAW);
-        egl->handle  = handle  ? (EGLContext)handle  : eglGetCurrentContext();
+        egl->handle  = eglGetCurrentContext();
         if (!egl->display || !egl->surface || !egl->handle) {
             LOG(ERROR,
                 "could not retrieve EGL display (%p), surface (%p) and context (%p)",

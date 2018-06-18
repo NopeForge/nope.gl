@@ -95,7 +95,7 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
     }
 
     if (ctx->wrapped) {
-        eagl->handle = handle ? (EAGLContext *)handle : [EAGLContext currentContext];
+        eagl->handle = [EAGLContext currentContext];
         if (!eagl->handle) {
             LOG(ERROR, "could not retrieve EAGL context");
             return -1;

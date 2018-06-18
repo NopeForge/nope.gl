@@ -52,9 +52,9 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     struct x11_priv *x11 = ctx->priv_data;
 
     if (ctx->wrapped) {
-        x11->display = display ? (Display *)display : glXGetCurrentDisplay();
-        x11->window  = window  ? (Window)window     : glXGetCurrentDrawable();
-        x11->handle  = handle  ? (GLXContext)handle : glXGetCurrentContext();
+        x11->display = glXGetCurrentDisplay();
+        x11->window  = glXGetCurrentDrawable();
+        x11->handle  = glXGetCurrentContext();
         if (!x11->display || !x11->window || !x11->handle) {
             LOG(ERROR,
                 "could not retrieve GLX display (%p), window (0x%lx) and context (%p)",
