@@ -507,8 +507,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         return NULL;
 
     char *sstart = s;
-    size_t len = strlen(str);
-    char *end = s + len;
+    char *end = s + strlen(s);
 
     int major, minor, micro;
     int n = sscanf(s, "# Node.GL v%d.%d.%d", &major, &minor, &micro);
