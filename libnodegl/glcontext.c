@@ -483,7 +483,7 @@ int ngli_glcontext_check_extension(const char *extension, const char *extensions
     return 0;
 }
 
-int ngli_glcontext_check_gl_error(struct glcontext *glcontext)
+int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char *context)
 {
     const GLenum error = ngli_glGetError(glcontext);
     const char *errorstr = NULL;
@@ -510,9 +510,9 @@ int ngli_glcontext_check_gl_error(struct glcontext *glcontext)
     }
 
     if (errorstr)
-        LOG(ERROR, "GL error: %s", errorstr);
+        LOG(ERROR, "GL error in %s: %s", context, errorstr);
     else
-        LOG(ERROR, "GL error: %04x", error);
+        LOG(ERROR, "GL error in %s: %04x", context, error);
 
     return error;
 }

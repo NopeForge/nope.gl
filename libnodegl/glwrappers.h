@@ -3,29 +3,8 @@
 #ifndef NGL_GL_H
 #define NGL_GL_H
 
-static const char * const errors_str[] = {
-    [GL_INVALID_ENUM]                   = "GL_INVALID_ENUM",
-    [GL_INVALID_VALUE]                  = "GL_INVALID_VALUE",
-    [GL_INVALID_OPERATION]              = "GL_INVALID_OPERATION",
-    [GL_INVALID_FRAMEBUFFER_OPERATION]  = "GL_INVALID_FRAMEBUFFER_OPERATION",
-    [GL_OUT_OF_MEMORY]                  = "GL_OUT_OF_MEMORY",
-};
-
 #ifdef DEBUG_GL
-#include "utils.h"
-#include "log.h"
-
-static inline void check_error_code(const struct glcontext *gl,
-                                    const char *glfuncname)
-{
-    const GLenum error = gl->funcs.GetError();
-    if (!error)
-        return;
-    if (error < NGLI_ARRAY_NB(errors_str) && errors_str[error])
-        LOG(ERROR, "GL error in %s: %s", glfuncname, errors_str[error]);
-    else
-        LOG(ERROR, "GL error in %s: %04x", glfuncname, error);
-}
+# define check_error_code ngli_glcontext_check_gl_error
 #else
 # define check_error_code(gl, glfuncname) do { } while (0)
 #endif

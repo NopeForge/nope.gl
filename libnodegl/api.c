@@ -179,7 +179,7 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
         ngli_node_draw(s->scene);
     }
 end:
-    if (ret == 0 && ngli_glcontext_check_gl_error(gl))
+    if (ret == 0 && ngli_glcontext_check_gl_error(gl, __FUNCTION__))
         ret = -1;
 
     if (gl->set_surface_pts)
