@@ -67,12 +67,12 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         if (display)
             x11->display = (Display *)display;
         if (!x11->display) {
-            x11->own_display = 1;
             x11->display = XOpenDisplay(NULL);
             if (!x11->display) {
                 LOG(ERROR, "could not retrieve GLX display");
                 return -1;
             }
+            x11->own_display = 1;
         }
 
         if (!ctx->offscreen) {
@@ -155,7 +155,6 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
 
     GLXContext shared_context = other ? (GLXContext)other : NULL;
 
-    x11->own_handle = 1;
     if (ctx->api == NGL_GLAPI_OPENGLES) {
         if (!ngli_glcontext_check_extension("GLX_EXT_create_context_es2_profile", glx_extensions)) {
             LOG(ERROR, "context does not support GLX_EXT_create_context_es2_profile extension");
@@ -189,6 +188,7 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
                                                 1,
                                                 attribs);
     }
+    x11->own_handle = 1;
 
     if (!x11->handle) {
         LOG(ERROR, "could not create GLX context");
@@ -202,12 +202,12 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
             None
         };
 
-        x11->own_window = 1;
         x11->window = glXCreatePbuffer(display, fbconfigs[0], attribs);
         if (!x11->window) {
             LOG(ERROR, "could not create offscreen pixel buffer");
             return -1;
         }
+        x11->own_window = 1;
     }
 
     if (ngli_glcontext_check_extension("GLX_EXT_swap_control", glx_extensions)) {
