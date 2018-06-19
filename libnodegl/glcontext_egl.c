@@ -41,6 +41,24 @@ struct egl_priv {
     EGLBoolean (*PresentationTimeANDROID)(EGLDisplay dpy, EGLSurface sur, khronos_stime_nanoseconds_t time);
 };
 
+static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
+{
+    char const *extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
+    if (!extensions)
+        return 0;
+
+    if (ngli_glcontext_check_extension("EGL_ANDROID_presentation_time", extensions)) {
+        egl->PresentationTimeANDROID = (void *)eglGetProcAddress("eglPresentationTimeANDROID");
+        if (!egl->PresentationTimeANDROID) {
+            LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
+            return -1;
+        }
+        return 1;
+    }
+
+    return 0;
+}
+
 static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
     struct egl_priv *egl = ctx->priv_data;
@@ -57,11 +75,10 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
                 egl->handle);
             return -1;
         }
-        egl->PresentationTimeANDROID = ngli_glcontext_get_proc_address(ctx, "eglPresentationTimeANDROID");
-        if (!egl->PresentationTimeANDROID) {
-            LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
-            return -1;
-        }
+
+        int ret = egl_probe_android_presentation_time_ext(egl);
+        if (ret < 0)
+            return ret;
     } else {
         egl->native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
 
@@ -75,7 +92,6 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             }
         }
     }
-
 
     return 0;
 }
@@ -139,12 +155,6 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
     }
     egl->own_display = 1;
 
-    egl->PresentationTimeANDROID = ngli_glcontext_get_proc_address(ctx, "eglPresentationTimeANDROID");
-    if (!egl->PresentationTimeANDROID) {
-        LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
-        return -1;
-    }
-
     EGLContext config;
     EGLint nb_configs;
 
@@ -183,6 +193,10 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
     }
     egl->own_surface = 1;
 
+    ret = egl_probe_android_presentation_time_ext(egl);
+    if (ret < 0)
+        return ret;
+
     return 0;
 }
 
@@ -219,8 +233,10 @@ static void egl_set_surface_pts(struct glcontext *ctx, double t)
 {
     struct egl_priv *egl = ctx->priv_data;
 
-    EGLnsecsANDROID pts = t * 1000000000LL;
-    egl->PresentationTimeANDROID(egl->display, egl->surface, pts);
+    if (egl->PresentationTimeANDROID) {
+        EGLnsecsANDROID pts = t * 1000000000LL;
+        egl->PresentationTimeANDROID(egl->display, egl->surface, pts);
+    }
 }
 
 static void *egl_get_proc_address(struct glcontext *ctx, const char *name)
