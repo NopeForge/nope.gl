@@ -65,6 +65,7 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
         lut3d_tex.set_mag_filter('linear')
 
     m0 = cfg.medias[0]
+    cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
     video = Media(m0.filename)
     video_tex = Texture2D(data_src=video)
