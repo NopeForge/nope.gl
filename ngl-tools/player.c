@@ -36,7 +36,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
         switch(key) {
         case GLFW_KEY_ESCAPE:
         case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, GL_TRUE);
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
             break;
         case GLFW_KEY_SPACE:
             p->paused ^= 1;
@@ -155,7 +155,7 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     p->height = height;
     p->duration = duration * 1000000;
 
-    glfwSetInputMode(p->window, GLFW_STICKY_KEYS, GL_TRUE);
+    glfwSetInputMode(p->window, GLFW_STICKY_KEYS, GLFW_TRUE);
     glfwSetKeyCallback(p->window, key_callback);
     glfwSetMouseButtonCallback(p->window, mouse_button_callback);
     glfwSetWindowSizeCallback(p->window, size_callback);
