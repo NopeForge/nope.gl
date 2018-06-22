@@ -310,13 +310,14 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
     for (int i = 0; i < NGLI_ARRAY_NB(glfeatures); i++) {
         const struct glfeature *glfeature = &glfeatures[i];
 
-        int version = es ? glfeature->es_version : glfeature->version;
+        const char **extensions = es ? glfeature->es_extensions : glfeature->extensions;
+        ngli_assert(!extensions || *extensions);
 
-        if (!version)
+        int version = es ? glfeature->es_version : glfeature->version;
+        if (!version && !extensions)
             continue;
 
-        if (glcontext->version < version) {
-            const char **extensions = es ? glfeature->es_extensions : glfeature->extensions;
+        if (!version || glcontext->version < version) {
             if (!glcontext_check_extensions(glcontext, extensions))
                 continue;
         }
