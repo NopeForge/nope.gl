@@ -61,8 +61,7 @@ struct glcontext {
     int set_surface_pts;
 
     /* GL api */
-    int major_version;
-    int minor_version;
+    int version;
 
     /* GL features */
     int features;

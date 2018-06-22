@@ -191,11 +191,14 @@ static int glcontext_load_functions(struct glcontext *glcontext)
 
 static int glcontext_probe_version(struct glcontext *glcontext)
 {
-    if (glcontext->api == NGL_GLAPI_OPENGL) {
-        ngli_glGetIntegerv(glcontext, GL_MAJOR_VERSION, &glcontext->major_version);
-        ngli_glGetIntegerv(glcontext, GL_MINOR_VERSION, &glcontext->minor_version);
+    GLint major_version;
+    GLint minor_version;
 
-        if (glcontext->major_version < 3) {
+    if (glcontext->api == NGL_GLAPI_OPENGL) {
+        ngli_glGetIntegerv(glcontext, GL_MAJOR_VERSION, &major_version);
+        ngli_glGetIntegerv(glcontext, GL_MINOR_VERSION, &minor_version);
+
+        if (major_version < 3) {
             LOG(ERROR, "node.gl only supports OpenGL >= 3.0");
             return -1;
         }
@@ -208,14 +211,14 @@ static int glcontext_probe_version(struct glcontext *glcontext)
 
         int ret = sscanf(gl_version,
                          "OpenGL ES %d.%d",
-                         &glcontext->major_version,
-                         &glcontext->minor_version);
+                         &major_version,
+                         &minor_version);
         if (ret != 2) {
             LOG(ERROR, "could not parse OpenGL ES version (%s)", gl_version);
             return -1;
         }
 
-        if (glcontext->major_version < 2) {
+        if (major_version < 2) {
             LOG(ERROR, "node.gl only supports OpenGL ES >= 2.0");
             return -1;
         }
@@ -225,8 +228,10 @@ static int glcontext_probe_version(struct glcontext *glcontext)
 
     LOG(INFO, "OpenGL%s%d.%d",
         glcontext->api == NGL_GLAPI_OPENGLES ? " ES " : " ",
-        glcontext->major_version,
-        glcontext->minor_version);
+        major_version,
+        minor_version);
+
+    glcontext->version = major_version * 100 + minor_version * 10;
 
     return 0;
 }
@@ -305,15 +310,12 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
     for (int i = 0; i < NGLI_ARRAY_NB(glfeatures); i++) {
         const struct glfeature *glfeature = &glfeatures[i];
 
-        int maj_version = es ? glfeature->maj_es_version : glfeature->maj_version;
-        int min_version = es ? glfeature->min_es_version : glfeature->min_version;
+        int version = es ? glfeature->es_version : glfeature->version;
 
-        if (!maj_version && !min_version)
+        if (!version)
             continue;
 
-        if (!(glcontext->major_version >  maj_version ||
-             (glcontext->major_version == maj_version &&
-              glcontext->minor_version >= min_version))) {
+        if (glcontext->version < version) {
             const char **extensions = es ? glfeature->es_extensions : glfeature->extensions;
             if (!glcontext_check_extensions(glcontext, extensions))
                 continue;
@@ -336,7 +338,7 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
 {
     const int es = glcontext->api == NGL_GLAPI_OPENGLES;
 
-    if (es && glcontext->major_version == 2 && glcontext->minor_version == 0) {
+    if (es && glcontext->version < 300) {
         glcontext->gl_1comp = GL_LUMINANCE;
         glcontext->gl_2comp = GL_LUMINANCE_ALPHA;
     } else {
