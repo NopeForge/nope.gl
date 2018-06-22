@@ -303,7 +303,15 @@ static const struct gldefinition {
 
         glfunctions   += '    NGLI_GL_APIENTRY %(func_ret)s (*%(func_name_nogl)s)(%(func_args_specs)s);\n' % data
         gldefinitions += '    {"%(func_name)s", offsetof(struct glfunctions, %(func_name_nogl)s), %(flags)s},\n' % data
-        glwrappers    += '''
+        if funcname == 'glGetError':
+            glwrappers += '''
+static inline GLenum ngli_glGetError(const struct glcontext *gl)
+{
+    return gl->funcs.GetError();
+}
+'''
+        else:
+            glwrappers    += '''
 static inline %(func_ret)s ngli_%(func_name)s(%(wrapper_args_specs)s)
 {
     %(ret_assign)sgl->funcs.%(func_name_nogl)s(%(func_args)s);

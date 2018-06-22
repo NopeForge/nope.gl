@@ -380,9 +380,7 @@ static inline void ngli_glGetBooleanv(const struct glcontext *gl, GLenum pname, 
 
 static inline GLenum ngli_glGetError(const struct glcontext *gl)
 {
-    GLenum ret = gl->funcs.GetError();
-    check_error_code(gl, "glGetError");
-    return ret;
+    return gl->funcs.GetError();
 }
 
 static inline void ngli_glGetIntegeri_v(const struct glcontext *gl, GLenum target, GLuint index, GLint * data)
