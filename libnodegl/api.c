@@ -90,6 +90,13 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     return 0;
 }
 
+static int cmd_make_current(struct ngl_ctx *s, void *arg)
+{
+    const int current = *(int *)arg;
+    ngli_glcontext_make_current(s->glcontext, current);
+    return 0;
+}
+
 struct viewport {
     int x, y;
     int width, height;
@@ -228,6 +235,39 @@ static void *worker_thread(void *arg)
     return NULL;
 }
 
+#if TARGET_IPHONE
+#define MAKE_CURRENT &(int[]){1}
+#define DONE_CURRENT &(int[]){0}
+static int reconfigure_ios(struct ngl_ctx *s, struct ngl_config *config)
+{
+    if (!s->has_thread)
+        return cmd_reconfigure(s, config);
+
+    int ret = dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
+    if (ret < 0)
+        return ret;
+
+    cmd_make_current(s, MAKE_CURRENT);
+    ret = cmd_reconfigure(s, config);
+    cmd_make_current(s, DONE_CURRENT);
+
+    int ret_dispatch = dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
+    return ret ? ret : ret_dispatch;
+}
+
+static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
+{
+    if (!s->has_thread)
+        return cmd_configure(s, config);
+
+    int ret = cmd_configure(s, config);
+    cmd_make_current(s, DONE_CURRENT);
+
+    int ret_dispatch = dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
+    return ret ? ret : ret_dispatch;
+}
+#endif
+
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (!config) {
@@ -236,7 +276,11 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
     }
 
     if (s->configured)
+#if TARGET_IPHONE
+        return reconfigure_ios(s, config);
+#else
         return dispatch_cmd(s, cmd_reconfigure, config);
+#endif
 
     s->has_thread = !config->wrapped;
     if (s->has_thread) {
@@ -252,7 +296,11 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         }
     }
 
+#if TARGET_IPHONE
+    int ret = configure_ios(s, config);
+#else
     int ret = dispatch_cmd(s, cmd_configure, config);
+#endif
     if (ret < 0)
         return ret;
 
