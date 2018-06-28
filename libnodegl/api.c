@@ -53,20 +53,13 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 
     const struct ngl_config *config = arg;
 
-    int width = 0;
-    int height = 0;
-    if (config) {
-        width = config->width;
-        height = config->height;
-    }
-
-    int ret = ngli_glcontext_resize(s->glcontext, width, height);
+    int ret = ngli_glcontext_resize(s->glcontext, config->width, config->height);
     if (ret < 0)
         return ret;
 
     struct ngl_config *current_config = &s->config;
-    current_config->width = width;
-    current_config->height = height;
+    current_config->width = config->width;
+    current_config->height = config->height;
 
     return 0;
 }
@@ -74,9 +67,7 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 static int cmd_configure(struct ngl_ctx *s, void *arg)
 {
     const struct ngl_config *config = arg;
-
-    if (config)
-        memcpy(&s->config, config, sizeof(s->config));
+    memcpy(&s->config, config, sizeof(s->config));
 
     s->glcontext = ngli_glcontext_new(&s->config);
     if (!s->glcontext)
@@ -239,6 +230,11 @@ static void *worker_thread(void *arg)
 
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
+    if (!config) {
+        LOG(ERROR, "context configuration cannot be NULL");
+        return -1;
+    }
+
     if (s->configured)
         return dispatch_cmd(s, cmd_reconfigure, config);
 

@@ -356,7 +356,7 @@ struct ngl_ctx *ngl_create(void);
  * window the node.gl context is associated with.
  *
  * @param s        pointer to a node.gl context
- * @param config   pointer to a node.gl configuration structure (can be NULL)
+ * @param config   pointer to a node.gl configuration structure (cannot be NULL)
  *
  * @return 0 on success, < 0 on error
  */
