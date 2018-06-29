@@ -46,6 +46,7 @@ struct egl_priv {
 
 static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
 {
+#if TARGET_ANDROID
     char const *extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
     if (!extensions)
         return 0;
@@ -58,6 +59,7 @@ static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
         }
         return 1;
     }
+#endif
 
     return 0;
 }
@@ -298,12 +300,14 @@ static int egl_set_swap_interval(struct glcontext *ctx, int interval)
 
 static void egl_set_surface_pts(struct glcontext *ctx, double t)
 {
+#if TARGET_ANDROID
     struct egl_priv *egl = ctx->priv_data;
 
     if (egl->PresentationTimeANDROID) {
         EGLnsecsANDROID pts = t * 1000000000LL;
         egl->PresentationTimeANDROID(egl->display, egl->surface, pts);
     }
+#endif
 }
 
 static void *egl_get_proc_address(struct glcontext *ctx, const char *name)
