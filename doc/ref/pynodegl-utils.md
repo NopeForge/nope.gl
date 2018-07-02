@@ -221,6 +221,7 @@ $ android/hook.sync /tmp/ngl-media.mp4 /sdcard/nodegl_data
   - `aspect_ratio`: expressed as a fraction in format `num/den` where `num` and `den` are `int`
   - `framerate`: expressed as a fraction in format `num/den` where `num` and `den` are `int`
   - `clear_color`: expressed as a 32-bit hexadecimal following the `RRGGBBAA` format
+  - `samples`: number of samples used for multisample anti-aliasing expressed as an integer
 
 This hook is mandatory if anything is expected to happen when using hooks.
 
@@ -229,5 +230,5 @@ This hook is mandatory if anything is expected to happen when using hooks.
 A call from `ngl-viewer` to this hook will look like this:
 
 ```shell
-hook.scene_change /tmp/ngl_scene.ngl duration=5 framerate=60000/1001 aspect_ratio=16/9 clear_color=4A646BFF
+hook.scene_change /tmp/ngl_scene.ngl duration=5 framerate=60000/1001 aspect_ratio=16/9 clear_color=4A646BFF samples=4
 ```

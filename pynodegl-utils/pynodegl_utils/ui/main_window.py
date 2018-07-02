@@ -272,7 +272,8 @@ class MainWindow(QtWidgets.QSplitter):
                     'duration=%f' % cfg['duration'],
                     'framerate=%d/%d' % cfg['framerate'],
                     'aspect_ratio=%d/%d' % cfg['aspect_ratio'],
-                    'clear_color=%08X' % uint_clear_color(cfg['clear_color'])]
+                    'clear_color=%08X' % uint_clear_color(cfg['clear_color']),
+                    'samples=%d' % cfg['samples']]
             subprocess.check_call(args)
 
         except subprocess.CalledProcessError, e:
