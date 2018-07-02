@@ -261,10 +261,11 @@ static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
         return cmd_configure(s, config);
 
     int ret = cmd_configure(s, config);
+    if (ret < 0)
+        return ret;
     cmd_make_current(s, DONE_CURRENT);
 
-    int ret_dispatch = dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
-    return ret ? ret : ret_dispatch;
+    return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
 }
 #endif
 
