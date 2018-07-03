@@ -71,14 +71,14 @@ For example, the following scene script:
     color_buffer = BufferVec4()
     geometry = Geometry()
     render = Render(geometry)
-    render.update_attributes(center_buffer=center_buffer, color_buffer=buffer)
+    render.update_attributes(center=center_buffer, color=color_buffer)
 ```
 
 Gives the following shader parameter:
 
 ```glsl
-    in vec3 center_buffer;
-    in vec4 color_buffer;
+    in vec3 center;
+    in vec4 color;
 ```
 
 ## Uniform parameters
