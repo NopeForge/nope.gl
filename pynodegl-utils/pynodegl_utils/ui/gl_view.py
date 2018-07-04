@@ -21,84 +21,79 @@
 # under the License.
 #
 
-from fractions import Fraction
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QEvent
 
 from seekbar import Seekbar
 
-import pynodegl as ngl
+from pynodegl_utils import player
+from pynodegl_utils import export
 
 
-class _GLWidget(QtWidgets.QOpenGLWidget):
+class _GLWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, aspect_ratio, samples, clear_color):
+    on_player_available = QtCore.pyqtSignal(name='onPlayerAvailable')
+
+    def __init__(self, parent, config):
         super(_GLWidget, self).__init__(parent)
 
+        self.setAttribute(Qt.WA_DontCreateNativeAncestors)
+        self.setAttribute(Qt.WA_NativeWindow)
+        self.setAttribute(Qt.WA_PaintOnScreen)
         self.setMinimumSize(640, 360)
-        self._viewer = None
-        self._scene = None
-        self._time = 0
-        self._aspect_ratio = aspect_ratio
-        self._samples = samples
-        self._clear_color = clear_color
-        gl_format = QtGui.QSurfaceFormat.defaultFormat()
-        gl_format.setSamples(samples)
-        self.setFormat(gl_format)
-        self.resizeGL(self.width(), self.height())
 
-    def get_time(self):
-        return self._time
+        self._player = None
+        self._last_frame_time = 0.0
+        self._config = config
 
-    def set_time(self, t):
-        self._time = t
-        self.update()
+    def paintEngine(self):
+        return None
 
-    def reset_viewer(self):
-        self.makeCurrent()
-        del self._viewer
-        self._viewer = None
-        del self._scene
-        self._scene = None
-        self.initializeGL()
-        self.doneCurrent()
-        self.update()
-
-    def set_scene(self, scene):
-        self._scene = scene
-        if not self._viewer:
+    def resizeEvent(self, event):
+        if not self._player:
             return
-        self.makeCurrent()
-        self._viewer.set_scene_from_string(scene)
-        self.doneCurrent()
-        self.update()
 
-    def paintGL(self):
-        self._viewer.set_viewport(self.view_x, self.view_y, self.view_width, self.view_height)
-        self._viewer.draw(self._time)
+        size = event.size()
+        width = int(size.width() * self.devicePixelRatioF())
+        height = int(size.height() * self.devicePixelRatioF())
+        self._player.resize(width, height)
 
-    def resizeGL(self, screen_width, screen_height):
-        screen_width = int(screen_width * self.devicePixelRatioF())
-        screen_height = int(screen_height * self.devicePixelRatioF())
-        aspect = self._aspect_ratio
-        self.view_width = screen_width
-        self.view_height = screen_width * aspect[1] / aspect[0]
+        super(_GLWidget, self).resizeEvent(event)
 
-        if self.view_height > screen_height:
-            self.view_height = screen_height
-            self.view_width = screen_height * aspect[0] / aspect[1]
+    def event(self, event):
+        if event.type() == QEvent.UpdateRequest:
+            if not self._player:
+                self._player = player.Player(
+                    self.winId(),
+                    self.width(),
+                    self.height(),
+                    self._config,
+                )
+                self._player.start()
+                self._player.onFrame.connect(self._set_last_frame_time)
+                self.onPlayerAvailable.emit()
+            return super(_GLWidget, self).event(event)
+        elif event.type() == QEvent.Paint:
+            self._player.draw()
+            return super(_GLWidget, self).event(event)
+        elif event.type() == QEvent.Close:
+            if self._player:
+                self._player.stop()
+                self._player.wait()
+            return super(_GLWidget, self).event(event)
+        else:
+            return super(_GLWidget, self).event(event)
 
-        self.view_x = (screen_width - self.view_width) // 2
-        self.view_y = (screen_height - self.view_height) // 2
+    @QtCore.pyqtSlot(int, float)
+    def _set_last_frame_time(self, frame_index, frame_time):
+        self._last_frame_time = frame_time
 
-    def initializeGL(self):
-        api = ngl.GLAPI_OPENGL
-        if self.context().isOpenGLES():
-            api = ngl.GLAPI_OPENGLES
-        self._viewer = ngl.Viewer()
-        self._viewer.configure(platform=ngl.GLPLATFORM_AUTO, api=api, wrapped=1)
-        self._viewer.set_clearcolor(*self._clear_color)
-        if self._scene:
-            self._viewer.set_scene_from_string(self._scene)
+    def get_last_frame_time(self):
+        return self._last_frame_time
+
+    def get_player(self):
+        return self._player
 
 
 class GLView(QtWidgets.QWidget):
@@ -106,14 +101,12 @@ class GLView(QtWidgets.QWidget):
     def __init__(self, get_scene_func, config):
         super(GLView, self).__init__()
 
-        self._ar = config.get('aspect_ratio')
-        self._samples = config.get('samples')
-        self._clear_color = config.get('clear_color')
-
         self._get_scene_func = get_scene_func
+        self._cfg = None
 
-        self._gl_widget = _GLWidget(self, self._ar, self._samples, self._clear_color)
-        self._seekbar = Seekbar(config.get('framerate'))
+        self._seekbar = Seekbar(config)
+        self._gl_widget = _GLWidget(self, config)
+        self._gl_widget.onPlayerAvailable.connect(self._connect_seekbar)
 
         screenshot_btn = QtWidgets.QToolButton()
         screenshot_btn.setText(u'📷')
@@ -128,58 +121,85 @@ class GLView(QtWidgets.QWidget):
 
         screenshot_btn.clicked.connect(self._screenshot)
 
-        self._seekbar.timeChanged.connect(self._time_changed)
-        self._seekbar.stopped.connect(self._stopped)
-
     @QtCore.pyqtSlot()
-    def _stopped(self):
-        self._gl_widget.reset_viewer()
+    def _connect_seekbar(self):
+        player = self._gl_widget.get_player()
+        player.set_scene(self._cfg)
+
+        player.onPlay.connect(self._seekbar.set_play_state)
+        player.onPause.connect(self._seekbar.set_pause_state)
+        player.onSceneMetadata.connect(self._seekbar.set_scene_metadata)
+        player.onFrame.connect(self._seekbar.set_frame_time)
+
+        self._seekbar.seek.connect(player.seek)
+        self._seekbar.play.connect(player.play)
+        self._seekbar.pause.connect(player.pause)
+        self._seekbar.step.connect(player.step)
+        self._seekbar.stop.connect(player.reset_scene)
 
     @QtCore.pyqtSlot()
     def _screenshot(self):
         filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Save screenshot file')
         if not filenames[0]:
             return
-        self._gl_widget.grabFramebuffer().save(filenames[0])
-
-    def _recreate_gl_widget(self):
-        gl_widget = _GLWidget(self, self._ar, self._samples, self._clear_color)
-        gl_widget.set_time(self._gl_widget.get_time())
-        self._gl_layout.replaceWidget(self._gl_widget, gl_widget)
-        self._gl_widget.setParent(None)
-        self._gl_widget = gl_widget
+        exporter = export.Exporter(
+            self._get_scene_func,
+            filenames[0],
+            self._gl_widget.width(),
+            self._gl_widget.height(),
+            ['-frames:v', '1'],
+            self._gl_widget.get_last_frame_time()
+        )
+        exporter.start()
+        exporter.wait()
 
     @QtCore.pyqtSlot(tuple)
     def set_aspect_ratio(self, ar):
-        self._ar = ar
-        self._recreate_gl_widget()
+        player = self._gl_widget.get_player()
+        if not player:
+            return
+        player.set_aspect_ratio(ar)
 
     @QtCore.pyqtSlot(tuple)
     def set_frame_rate(self, fr):
-        self._seekbar.set_framerate(fr)
+        player = self._gl_widget.get_player()
+        if not player:
+            return
+        player.set_framerate(fr)
 
     @QtCore.pyqtSlot(int)
     def set_samples(self, samples):
-        self._samples = samples
-        self._recreate_gl_widget()
+        player = self._gl_widget.get_player()
+        if not player:
+            return
+        player.set_samples(samples)
 
     @QtCore.pyqtSlot(tuple)
     def set_clear_color(self, color):
-        self._clear_color = color
-        self._recreate_gl_widget()
+        player = self._gl_widget.get_player()
+        if not player:
+            return
+        player.set_clear_color(color)
 
     def enter(self):
-        cfg = self._get_scene_func()
-        if not cfg:
+        self._cfg = self._get_scene_func()
+        if not self._cfg:
             return
-        if Fraction(*cfg['aspect_ratio']) != Fraction(*self._ar):
-            self.set_aspect_ratio(cfg['aspect_ratio'])
-        self._gl_widget.set_scene(cfg['scene'])
-        self._seekbar.set_duration(cfg['duration'])
+
+        player = self._gl_widget.get_player()
+        if not player:
+            return
+        player.set_scene(self._cfg)
+
+        self._gl_widget.update()
 
     def leave(self):
-        self._seekbar.pause()
+        player = self._gl_widget.get_player()
+        if not player:
+            return
+        player.pause()
 
-    @QtCore.pyqtSlot(float)
-    def _time_changed(self, t):
-        self._gl_widget.set_time(t)
+    def closeEvent(self, close_event):
+        self._gl_widget.close()
+        self._seekbar.close()
+        super(GLView, self).closeEvent(close_event)

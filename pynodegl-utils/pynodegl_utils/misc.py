@@ -4,6 +4,7 @@ import math
 import inspect
 import json
 import subprocess
+import pynodegl as ngl
 
 
 def scene(**widgets_specs):
@@ -161,3 +162,12 @@ def get_viewport(width, height, aspect_ratio):
     view_x = (width - view_width) // 2
     view_y = (height - view_height) // 2
     return (view_x, view_y, view_width, view_height)
+
+
+def get_backend_api(backend):
+    backend_map = {
+        'auto': ngl.GLAPI_AUTO,
+        'gl': ngl.GLAPI_OPENGL,
+        'gles': ngl.GLAPI_OPENGLES,
+    }
+    return backend_map[backend]

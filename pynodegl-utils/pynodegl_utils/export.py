@@ -5,6 +5,7 @@ import pynodegl as ngl
 from PyQt5 import QtGui, QtCore
 
 from com import query_inplace
+from misc import get_backend_api, get_viewport
 
 
 class Exporter(QtCore.QThread):
@@ -74,7 +75,7 @@ class Exporter(QtCore.QThread):
         ngl_viewer = ngl.Viewer()
         ngl_viewer.configure(
             platform=ngl.GLPLATFORM_AUTO,
-            api=ngl.GLAPI_AUTO,
+            api=get_backend_api(cfg['backend']),
             wrapped=0,
             offscreen=1,
             width=width,

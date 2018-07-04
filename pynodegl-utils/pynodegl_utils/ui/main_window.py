@@ -86,7 +86,7 @@ class MainWindow(QtWidgets.QSplitter):
         serial_view = SerialView(get_scene_func)
 
         self._tabs = [
-            ('GL view', gl_view),
+            ('Player view', gl_view),
             ('Graph view', graph_view),
             ('Export', export_view),
             ('Serialization', serial_view),
@@ -294,6 +294,12 @@ class MainWindow(QtWidgets.QSplitter):
     def moveEvent(self, move_event):
         super(MainWindow, self).moveEvent(move_event)
         self._emit_geometry()
+
+    @QtCore.pyqtSlot(QtGui.QCloseEvent)
+    def closeEvent(self, close_event):
+        for name, widget in self._tabs:
+            widget.close()
+        super(MainWindow, self).closeEvent(close_event)
 
     @QtCore.pyqtSlot(int)
     def _currentTabChanged(self, index):

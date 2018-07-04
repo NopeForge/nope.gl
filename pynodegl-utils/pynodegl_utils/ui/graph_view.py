@@ -26,6 +26,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets, QtSvg
 
 from seekbar import Seekbar
 
+from pynodegl_utils import player
+from pynodegl_utils import backend
+
 import pynodegl as ngl
 
 
@@ -51,6 +54,8 @@ class GraphView(QtWidgets.QWidget):
         super(GraphView, self).__init__()
 
         self._get_scene_func = get_scene_func
+        self._framerate = config.get('framerate')
+        self._duration = 0.0
         self._samples = config.get('samples')
         self._viewer = None
 
@@ -61,7 +66,7 @@ class GraphView(QtWidgets.QWidget):
         self._view.setScene(self._scene)
 
         self._seek_chkbox = QtWidgets.QCheckBox('Show graph at a given time')
-        self._seekbar = Seekbar(config.get('framerate'), stop_button=False)
+        self._seekbar = Seekbar(config, stop_button=False)
         self._seekbar.setEnabled(False)
 
         hbox = QtWidgets.QHBoxLayout()
@@ -76,7 +81,49 @@ class GraphView(QtWidgets.QWidget):
 
         self._save_btn.clicked.connect(self._save_to_file)
         self._seek_chkbox.stateChanged.connect(self._seek_check_changed)
-        self._seekbar.timeChanged.connect(self._time_changed)
+
+        self._seekbar.play.connect(self._play)
+        self._seekbar.pause.connect(self._pause)
+        self._seekbar.seek.connect(self._seek)
+        self._seekbar.step.connect(self._step)
+
+        self._timer = QtCore.QTimer()
+        self._timer.timeout.connect(self._update)
+
+        self._clock = player.Clock(self._framerate, 0.0)
+
+    @QtCore.pyqtSlot()
+    def _play(self):
+        self._timer.start()
+        self._clock.start()
+        self._seekbar.set_play_state()
+
+    @QtCore.pyqtSlot()
+    def _pause(self):
+        self._timer.stop()
+        self._clock.stop()
+        self._seekbar.set_pause_state()
+
+    @QtCore.pyqtSlot(float)
+    def _seek(self, time):
+        self._clock.set_playback_time(time)
+        self._update()
+
+    @QtCore.pyqtSlot(int)
+    def _step(self, step):
+        self._clock.step_playback_index(step)
+        self._pause()
+        self._update()
+
+    @QtCore.pyqtSlot()
+    def _update(self):
+        if not self._viewer:
+            return
+        frame_index, frame_time = self._clock.get_playback_time_info()
+        dot_scene = self._viewer.dot(frame_time)
+        if dot_scene:
+            self._update_graph(dot_scene)
+            self._seekbar.set_frame_time(frame_index, frame_time)
 
     @QtCore.pyqtSlot()
     def _save_to_file(self):
@@ -100,27 +147,41 @@ class GraphView(QtWidgets.QWidget):
         if not cfg:
             return
 
-        self._seekbar.set_duration(cfg['duration'])
+        self._seekbar.set_scene_metadata(cfg)
 
         if self._seek_chkbox.isChecked():
+            self._init_viewer(cfg['backend'])
+            self._framerate = cfg['framerate']
+            self._duration = cfg['duration']
             self._viewer.set_scene_from_string(cfg['scene'])
-            self._seekbar.refresh()
+            self._clock.configure(self._framerate, self._duration)
+            self._timer.setInterval(self._framerate[1] * 1000 / self._framerate[0])  # in milliseconds
+            self._update()
         else:
+            self._reset_viewer()
             dot_scene = cfg['scene']
             self._update_graph(dot_scene)
 
     def leave(self):
-        self._seekbar.pause()
+        self._pause()
 
-    def _disable_timed_scene(self):
+    def _reset_viewer(self):
         if not self._viewer:
             return
         del self._viewer
         self._viewer = None
 
-    def _enable_timed_scene(self):
+    def _init_viewer(self, rendering_backend):
+        if self._viewer:
+            return
         self._viewer = ngl.Viewer()
-        self._viewer.configure(wrapped=0, offscreen=1, width=16, height=16)
+        self._viewer.configure(
+            api=backend.get_backend_api(rendering_backend),
+            wrapped=0,
+            offscreen=1,
+            width=16,
+            height=16
+        )
 
     def _update_graph(self, dot_scene):
         basename = '/tmp/ngl_scene.'
@@ -142,26 +203,18 @@ class GraphView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(tuple)
     def set_frame_rate(self, fr):
-        self._seekbar.set_framerate(fr)
+        self._framerate = fr
+        self._seekbar.set_scene_metadata({'framerate': self._framerate, 'duration': self._duration})
 
     @QtCore.pyqtSlot(int)
     def set_samples(self, samples):
         self._samples = samples
+        self._seekbar.set_scene_metadata({'framerate': self._framerate, 'duration': self._duration})
 
     @QtCore.pyqtSlot(int)
     def _seek_check_changed(self, state):
         if state:
             self._seekbar.setEnabled(True)
-            self._enable_timed_scene()
         else:
-            self._seekbar.pause()
             self._seekbar.setEnabled(False)
-            self._disable_timed_scene()
         self.enter()
-
-    def _time_changed(self, time):
-        if not self._viewer:
-            return
-        dot_scene = self._viewer.dot(time)
-        if dot_scene:
-            self._update_graph(dot_scene)

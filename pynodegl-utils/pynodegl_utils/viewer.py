@@ -24,7 +24,6 @@
 import sys
 
 from PyQt5 import QtGui, QtWidgets
-from gl import get_gl_format
 
 from ui.main_window import MainWindow
 
@@ -42,8 +41,6 @@ def run():
     parser.add_argument('--hooks-dir', dest='hooksdir',
                         help='set the directory path containing event hooks')
     pargs = parser.parse_args(sys.argv[1:])
-
-    QtGui.QSurfaceFormat.setDefaultFormat(get_gl_format(renderable=pargs.backend))
 
     app = QtWidgets.QApplication(sys.argv)
     window = MainWindow(pargs.module, pargs.assets_dir, pargs.backend, pargs.hooksdir)
