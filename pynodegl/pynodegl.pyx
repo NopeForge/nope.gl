@@ -113,7 +113,7 @@ cdef class Viewer:
         return ngl_configure(self.ctx, &config)
 
     def set_scene(self, _Node scene):
-        return ngl_set_scene(self.ctx, scene.ctx)
+        return ngl_set_scene(self.ctx, NULL if scene is None else scene.ctx)
 
     def set_viewport(self, int x, int y, int width, int height):
         return ngl_set_viewport(self.ctx, x, y, width, height)
