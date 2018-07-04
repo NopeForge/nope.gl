@@ -1,5 +1,6 @@
 from libc.stdlib cimport calloc
 from libc.string cimport memset
+from libc.stdint cimport uintptr_t
 
 cdef extern from "nodegl.h":
     cdef int NGL_LOG_VERBOSE
@@ -41,9 +42,9 @@ cdef extern from "nodegl.h":
         int  platform
         int  api
         int  wrapped
-        void *display
-        void *window
-        void *handle
+        uintptr_t display
+        uintptr_t window
+        uintptr_t handle
         int  swap_interval
         int  offscreen
         int  width
@@ -101,6 +102,9 @@ cdef class Viewer:
         config.platform = kwargs.get('platform', GLPLATFORM_AUTO)
         config.api = kwargs.get('api', GLAPI_AUTO)
         config.wrapped = kwargs.get('wrapped', 0)
+        config.display = kwargs.get('display', 0)
+        config.window = kwargs.get('window', 0)
+        config.handle = kwargs.get('handle', 0)
         config.swap_interval = kwargs.get('swap_interval', -1)
         config.offscreen = kwargs.get('offscreen', 0)
         config.width = kwargs.get('width', 0)
