@@ -1,5 +1,7 @@
-uniform sampler2D tex0_sampler;
-uniform sampler3D lut3d_sampler;
+precision mediump float;
+
+uniform mediump sampler2D tex0_sampler;
+uniform mediump sampler3D lut3d_sampler;
 uniform float xsplit;
 
 in vec2 var_tex0_coord;
