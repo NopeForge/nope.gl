@@ -150,3 +150,14 @@ class SceneCfg:
         for field in self._DEFAULT_FIELDS.keys():
             odict[field] = getattr(self, field)
         return odict
+
+
+def get_viewport(width, height, aspect_ratio):
+    view_width = width
+    view_height = width * aspect_ratio[1] / aspect_ratio[0]
+    if view_height > height:
+        view_height = height
+        view_width = height * aspect_ratio[0] / aspect_ratio[1]
+    view_x = (width - view_width) // 2
+    view_y = (height - view_height) // 2
+    return (view_x, view_y, view_width, view_height)
