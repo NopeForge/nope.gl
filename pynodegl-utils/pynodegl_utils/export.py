@@ -13,13 +13,14 @@ class Exporter(QtCore.QThread):
     failed = QtCore.pyqtSignal()
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, get_scene_func, filename, w, h, extra_enc_args=None):
+    def __init__(self, get_scene_func, filename, w, h, extra_enc_args=None, time=None):
         super(Exporter, self).__init__()
         self._get_scene_func = get_scene_func
         self._filename = filename
         self._width = w
         self._height = h
         self._extra_enc_args = extra_enc_args
+        self._time = time
         self._cancelled = False
 
     def run(self):
@@ -84,15 +85,19 @@ class Exporter(QtCore.QThread):
         ngl_viewer.set_viewport(0, 0, width, height)
         ngl_viewer.set_clearcolor(*cfg['clear_color'])
 
-        # Draw every frame
-        nb_frame = int(duration * fps[0] / fps[1])
-        for i in range(nb_frame):
-            if self._cancelled:
-                break
-            time = i * fps[1] / float(fps[0])
-            ngl_viewer.draw(time)
-            self.progressed.emit(i*100 / nb_frame)
-        self.progressed.emit(100)
+        if self._time is not None:
+            ngl_viewer.draw(self._time)
+            self.progressed.emit(100)
+        else:
+            # Draw every frame
+            nb_frame = int(duration * fps[0] / fps[1])
+            for i in range(nb_frame):
+                if self._cancelled:
+                    break
+                time = i * fps[1] / float(fps[0])
+                ngl_viewer.draw(time)
+                self.progressed.emit(i*100 / nb_frame)
+            self.progressed.emit(100)
 
         os.close(fd_w)
         reader.wait()
