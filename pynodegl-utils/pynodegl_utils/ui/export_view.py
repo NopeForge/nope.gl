@@ -99,11 +99,6 @@ class ExportView(QtWidgets.QWidget):
                 gif_framerates = ', '.join('%s' % x for x in gif_recommended_framerate)
                 warnings.append('It is recommended to use one of these frame rate when exporting to GIF: {}'.format(gif_framerates))
 
-        width = self._spinbox_width.value()
-        height = self._spinbox_height.value()
-        if Fraction(width, height) != Fraction(*self._aspect_ratio):
-            warnings.append('width/height does not match specified aspect ratio {}'.format(self._aspect_ratio))
-
         if warnings:
             self._warning_label.setText('\n'.join('⚠ ' + w for w in warnings))
             self._warning_label.show()
