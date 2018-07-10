@@ -242,8 +242,8 @@ class Player(QtCore.QThread):
         self._duration = cfg['duration']
         self._clear_color = cfg['clear_color']
         self._aspect_ratio = cfg['aspect_ratio']
-        self._samples = cfg['samples']
-        if self._backend != cfg['backend']:
+        if self._samples != cfg['samples'] or self._backend != cfg['backend']:
+            self._samples = cfg['samples']
             self._backend = cfg['backend']
             self._init_viewer()
         self._viewer.set_scene_from_string(self._scene)
