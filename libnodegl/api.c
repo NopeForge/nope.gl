@@ -90,12 +90,14 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     return 0;
 }
 
+#if TARGET_IPHONE
 static int cmd_make_current(struct ngl_ctx *s, void *arg)
 {
     const int current = *(int *)arg;
     ngli_glcontext_make_current(s->glcontext, current);
     return 0;
 }
+#endif
 
 struct viewport {
     int x, y;
