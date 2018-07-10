@@ -27,7 +27,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets, QtSvg
 from seekbar import Seekbar
 
 from pynodegl_utils import player
-from pynodegl_utils import backend
+from pynodegl_utils import misc
 
 import pynodegl as ngl
 
@@ -176,7 +176,7 @@ class GraphView(QtWidgets.QWidget):
             return
         self._viewer = ngl.Viewer()
         self._viewer.configure(
-            api=backend.get_backend_api(rendering_backend),
+            api=misc.get_backend_api(rendering_backend),
             wrapped=0,
             offscreen=1,
             width=16,
