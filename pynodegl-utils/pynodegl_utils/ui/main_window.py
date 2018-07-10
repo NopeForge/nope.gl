@@ -44,13 +44,12 @@ class MainWindow(QtWidgets.QSplitter):
 
     error = QtCore.pyqtSignal(str)
 
-    def __init__(self, module_pkgname, assets_dir, backend, hooksdir):
+    def __init__(self, module_pkgname, assets_dir, hooksdir):
         super(MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self._win_title_base = 'Node.gl viewer'
         self.setWindowTitle(self._win_title_base)
 
         self._module_pkgname = module_pkgname
-        self._backend = backend
         self._scripts_mgr = ScriptsManager(module_pkgname)
         self._hooksdir = hooksdir
 
@@ -114,6 +113,9 @@ class MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.logLevelChanged.connect(self._config.set_log_level)
         self._scene_toolbar.clearColorChanged.connect(gl_view.set_clear_color)
         self._scene_toolbar.clearColorChanged.connect(self._config.set_clear_color)
+        self._scene_toolbar.backendChanged.connect(gl_view.set_backend)
+        self._scene_toolbar.backendChanged.connect(self._config.set_backend)
+
         self._scene_toolbar.hudChanged.connect(self._config.set_hud)
 
         self._errbuf = QtWidgets.QPlainTextEdit()
@@ -164,7 +166,6 @@ class MainWindow(QtWidgets.QSplitter):
         cfg = self._scene_toolbar.get_cfg()
         if cfg['scene'] is None:
             return None
-        cfg['backend'] = self._backend
         cfg['pkg'] = self._module_pkgname
         cfg['medias'] = self._medias
         cfg.update(cfg_overrides)

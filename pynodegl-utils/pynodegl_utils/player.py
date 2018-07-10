@@ -106,7 +106,6 @@ class Player(QtCore.QThread):
         self._window = window
         self._width = width
         self._height = height
-        self._backend = 'auto'
 
         self._scene = None
         self._framerate = config.get('framerate')
@@ -114,6 +113,7 @@ class Player(QtCore.QThread):
         self._clear_color = config.get('clear_color')
         self._aspect_ratio = config.get('aspect_ratio')
         self._samples = config.get('samples')
+        self._backend = config.get('backend')
 
         self._viewer = None
         self._events = []
@@ -287,4 +287,12 @@ class Player(QtCore.QThread):
         self._framerate = framerate
         self._clock.configure(self._framerate, self._duration)
         self.onSceneMetadata.emit({'framerate': self._framerate, 'duration': self._duration})
+        return False
+
+    def set_backend(self, backend):
+        self._push_event(lambda: self._set_backend(backend))
+
+    def _set_backend(self, backend):
+        self._backend = backend
+        self._init_viewer()
         return False

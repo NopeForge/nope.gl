@@ -53,6 +53,10 @@ class Config(QtCore.QObject):
             'warning',
             'error',
         ],
+        'backend': [
+            'gl',
+            'gles',
+        ],
     }
 
     def __init__(self, module_pkgname):
@@ -65,6 +69,7 @@ class Config(QtCore.QObject):
             'log_level': 'info',
             'clear_color': (0.0, 0.0, 0.0, 1.0),
             'enable_hud': False,
+            'backend': 'gl',
 
             # Export
             'export_width': 1280,
@@ -155,6 +160,10 @@ class Config(QtCore.QObject):
     @QtCore.pyqtSlot(bool)
     def set_hud(self, hud):
         self._set_cfg('enable_hud', hud)
+
+    @QtCore.pyqtSlot(str)
+    def set_backend(self, backend):
+        self._set_cfg('backend', backend)
 
     def geometry_changed(self, geometry):
         self._set_cfg('geometry', geometry)

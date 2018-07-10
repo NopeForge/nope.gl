@@ -38,6 +38,7 @@ class Toolbar(QtWidgets.QWidget):
     frame_rate_changed = QtCore.pyqtSignal(tuple, name='frameRateChanged')
     log_level_changed = QtCore.pyqtSignal(str, name='logLevelChanged')
     clear_color_changed = QtCore.pyqtSignal(tuple, name='clearColorChanged')
+    backend_changed = QtCore.pyqtSignal(str, name='backendChanged')
     hud_changed = QtCore.pyqtSignal(bool, name='hudChanged')
 
     def __init__(self, config):
@@ -114,6 +115,22 @@ class Toolbar(QtWidgets.QWidget):
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
+        backend_names = {
+            'gl': 'OpenGL',
+            'gles': 'OpenGL ES',
+        }
+        all_backends = config.CHOICES['backend']
+        default_backend = config.get('backend')
+        self._backend_cbbox = QtWidgets.QComboBox()
+        for backend in all_backends:
+            self._backend_cbbox.addItem(backend_names[backend])
+        backend_idx = all_backends.index(default_backend)
+        self._backend_cbbox.setCurrentIndex(backend_idx)
+        backend_lbl = QtWidgets.QLabel('Backend:')
+        backend_hbox = QtWidgets.QHBoxLayout()
+        backend_hbox.addWidget(backend_lbl)
+        backend_hbox.addWidget(self._backend_cbbox)
+
         default_clearcolor = config.get('clear_color')
         self._clearcolor_btn = QtWidgets.QPushButton()
         color = QtGui.QColor()
@@ -135,6 +152,7 @@ class Toolbar(QtWidgets.QWidget):
         self._scene_toolbar_layout.addLayout(samples_hbox)
         self._scene_toolbar_layout.addLayout(fr_hbox)
         self._scene_toolbar_layout.addLayout(loglevel_hbox)
+        self._scene_toolbar_layout.addLayout(backend_hbox)
         self._scene_toolbar_layout.addLayout(clearcolor_hbox)
         self._scene_toolbar_layout.addWidget(self.reload_btn)
         self._scene_toolbar_layout.addWidget(self._scn_view)
@@ -146,6 +164,7 @@ class Toolbar(QtWidgets.QWidget):
         self._samples_cbbox.currentIndexChanged.connect(self._set_samples)
         self._fr_cbbox.currentIndexChanged.connect(self._set_frame_rate)
         self._loglevel_cbbox.currentIndexChanged.connect(self._set_loglevel)
+        self._backend_cbbox.currentIndexChanged.connect(self._set_backend)
 
     def _replace_scene_opts_widget(self, widget):
         if self._scene_opts_widget:
@@ -277,6 +296,7 @@ class Toolbar(QtWidgets.QWidget):
                 'extra_args': self._scene_extra_args,
                 'enable_hud': self._hud_chkbox.isChecked(),
                 'clear_color': self._clear_color,
+                'backend': choices['backend'][self._backend_cbbox.currentIndex()],
         }
 
     def load_scene_from_name(self, module_name, scene_name):
@@ -398,4 +418,10 @@ class Toolbar(QtWidgets.QWidget):
             return
         self._set_widget_clear_color(color)
         self.clearColorChanged.emit(color.getRgbF())
+        self._load_current_scene()
+
+    @QtCore.pyqtSlot(int)
+    def _set_backend(self, index):
+        backend = Config.CHOICES['backend'][index]
+        self.backendChanged.emit(backend)
         self._load_current_scene()

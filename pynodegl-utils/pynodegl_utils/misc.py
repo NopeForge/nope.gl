@@ -166,7 +166,6 @@ def get_viewport(width, height, aspect_ratio):
 
 def get_backend_api(backend):
     backend_map = {
-        'auto': ngl.GLAPI_AUTO,
         'gl': ngl.GLAPI_OPENGL,
         'gles': ngl.GLAPI_OPENGLES,
     }

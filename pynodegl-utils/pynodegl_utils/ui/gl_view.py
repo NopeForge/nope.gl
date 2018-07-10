@@ -181,6 +181,13 @@ class GLView(QtWidgets.QWidget):
             return
         player.set_clear_color(color)
 
+    @QtCore.pyqtSlot(str)
+    def set_backend(self, backend):
+        player = self._gl_widget.get_player()
+        if not player:
+            return
+        player.set_backend(backend)
+
     def enter(self):
         self._cfg = self._get_scene_func()
         if not self._cfg:
