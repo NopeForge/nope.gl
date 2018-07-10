@@ -180,9 +180,9 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
         return -1;
     }
 
-    int api = ctx->api == NGL_GLAPI_OPENGL ? EGL_OPENGL_API : EGL_OPENGL_ES_API;
+    int api = ctx->backend == NGL_BACKEND_OPENGL ? EGL_OPENGL_API : EGL_OPENGL_ES_API;
     if (!eglBindAPI(api)) {
-        LOG(ERROR, "could not bind OpenGL%s API", ctx->api == NGL_GLAPI_OPENGL ? "" : "ES");
+        LOG(ERROR, "could not bind OpenGL%s API", ctx->backend == NGL_BACKEND_OPENGL ? "" : "ES");
         return -1;
     }
 
@@ -199,7 +199,7 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
         EGL_NONE
     };
 
-    if (ctx->api == NGL_GLAPI_OPENGL) {
+    if (ctx->backend == NGL_BACKEND_OPENGL) {
         config_attribs[1] = EGL_OPENGL_BIT;
     }
 
@@ -218,7 +218,7 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
 
     EGLContext shared_context = other ? (EGLContext)other : NULL;
 
-    if (ctx->api == NGL_GLAPI_OPENGL) {
+    if (ctx->backend == NGL_BACKEND_OPENGL) {
         static const EGLint ctx_attribs[] = {
             EGL_CONTEXT_MAJOR_VERSION_KHR, 4,
             EGL_CONTEXT_MINOR_VERSION_KHR, 1,

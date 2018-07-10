@@ -92,15 +92,15 @@ static int glcontext_choose_platform(int platform)
 #endif
 }
 
-static int glcontext_choose_api(int api)
+static int glcontext_choose_backend(int backend)
 {
-    if (api != NGL_GLAPI_AUTO)
-        return api;
+    if (backend != NGL_BACKEND_AUTO)
+        return backend;
 
 #if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
-    return NGL_GLAPI_OPENGLES;
+    return NGL_BACKEND_OPENGLES;
 #else
-    return NGL_GLAPI_OPENGL;
+    return NGL_BACKEND_OPENGL;
 #endif
 }
 
@@ -112,8 +112,8 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     if (platform < 0)
         return NULL;
 
-    int api = glcontext_choose_api(config->api);
-    if (api < 0)
+    int backend = glcontext_choose_backend(config->backend);
+    if (backend < 0)
         return NULL;
 
     if (platform < 0 || platform >= NGLI_ARRAY_NB(glcontext_class_map))
@@ -132,7 +132,7 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     }
 
     glcontext->platform = platform;
-    glcontext->api = api;
+    glcontext->backend = backend;
     glcontext->wrapped = config->wrapped;
     glcontext->offscreen = config->offscreen;
     glcontext->width = config->width;
@@ -194,7 +194,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
     GLint major_version;
     GLint minor_version;
 
-    if (glcontext->api == NGL_GLAPI_OPENGL) {
+    if (glcontext->backend == NGL_BACKEND_OPENGL) {
         ngli_glGetIntegerv(glcontext, GL_MAJOR_VERSION, &major_version);
         ngli_glGetIntegerv(glcontext, GL_MINOR_VERSION, &minor_version);
 
@@ -202,7 +202,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
             LOG(ERROR, "node.gl only supports OpenGL >= 3.0");
             return -1;
         }
-    } else if (glcontext->api == NGL_GLAPI_OPENGLES) {
+    } else if (glcontext->backend == NGL_BACKEND_OPENGLES) {
         const char *gl_version = (const char *)ngli_glGetString(glcontext, GL_VERSION);
         if (!gl_version) {
             LOG(ERROR, "could not get OpenGL ES version");
@@ -227,7 +227,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
     }
 
     LOG(INFO, "OpenGL%s%d.%d",
-        glcontext->api == NGL_GLAPI_OPENGLES ? " ES " : " ",
+        glcontext->backend == NGL_BACKEND_OPENGLES ? " ES " : " ",
         major_version,
         minor_version);
 
@@ -259,7 +259,7 @@ static int glcontext_check_extensions(struct glcontext *glcontext,
     if (!extensions || !*extensions)
         return 0;
 
-    if (glcontext->api == NGL_GLAPI_OPENGLES) {
+    if (glcontext->backend == NGL_BACKEND_OPENGLES) {
         const char *gl_extensions = (const char *)ngli_glGetString(glcontext, GL_EXTENSIONS);
         while (*extensions) {
             if (!ngli_glcontext_check_extension(*extensions, gl_extensions))
@@ -267,7 +267,7 @@ static int glcontext_check_extensions(struct glcontext *glcontext,
 
             extensions++;
         }
-    } else if (glcontext->api == NGL_GLAPI_OPENGL) {
+    } else if (glcontext->backend == NGL_BACKEND_OPENGL) {
         while (*extensions) {
             if (!glcontext_check_extension(*extensions, glcontext))
                 return 0;
@@ -301,7 +301,7 @@ static int glcontext_check_functions(struct glcontext *glcontext,
 
 static int glcontext_probe_extensions(struct glcontext *glcontext)
 {
-    const int es = glcontext->api == NGL_GLAPI_OPENGLES;
+    const int es = glcontext->backend == NGL_BACKEND_OPENGLES;
     struct bstr *features_str = ngli_bstr_create();
 
     if (!features_str)
@@ -337,7 +337,7 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
 
 static int glcontext_probe_settings(struct glcontext *glcontext)
 {
-    const int es = glcontext->api == NGL_GLAPI_OPENGLES;
+    const int es = glcontext->backend == NGL_BACKEND_OPENGLES;
 
     if (es && glcontext->version < 300) {
         glcontext->gl_1comp = GL_LUMINANCE;

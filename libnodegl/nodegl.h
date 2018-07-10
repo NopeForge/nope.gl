@@ -282,12 +282,12 @@ enum {
 };
 
 /**
- * OpenGL API versions
+ * Rendering backends
  */
 enum {
-    NGL_GLAPI_AUTO,
-    NGL_GLAPI_OPENGL,
-    NGL_GLAPI_OPENGLES,
+    NGL_BACKEND_AUTO,
+    NGL_BACKEND_OPENGL,
+    NGL_BACKEND_OPENGLES,
 };
 
 /**
@@ -298,9 +298,7 @@ struct ngl_config {
                       compatible with the system on which the code is executed.
                       NGL_GLPLATFORM_AUTO can be used to auto-detect it */
 
-    int  api;      /* OpenGL API level (any of NGL_GLAPI_*) which defines the
-                      minimum OpenGL API to be used. NGL_GLAPI_AUTO can be used
-                      to choose it automatically */
+    int backend;   /* Rendering backend (any of NGL_BACKEND_*) */
 
     int wrapped;   /* Whether the current OpenGL context should be wrapped or a new
                       one should be created */

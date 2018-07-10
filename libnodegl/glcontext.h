@@ -52,7 +52,7 @@ struct glcontext {
 
     /* User options */
     int platform;
-    int api;
+    int backend;
     int wrapped;
     int offscreen;
     int width;

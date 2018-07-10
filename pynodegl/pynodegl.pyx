@@ -33,15 +33,15 @@ cdef extern from "nodegl.h":
     cdef int NGL_GLPLATFORM_EAGL
     cdef int NGL_GLPLATFORM_WGL
 
-    cdef int NGL_GLAPI_AUTO
-    cdef int NGL_GLAPI_OPENGL
-    cdef int NGL_GLAPI_OPENGLES
+    cdef int NGL_BACKEND_AUTO
+    cdef int NGL_BACKEND_OPENGL
+    cdef int NGL_BACKEND_OPENGLES
 
     cdef struct ngl_ctx
 
     cdef struct ngl_config:
         int  platform
-        int  api
+        int  backend
         int  wrapped
         uintptr_t display
         uintptr_t window
@@ -68,9 +68,9 @@ GLPLATFORM_NSGL = NGL_GLPLATFORM_NSGL
 GLPLATFORM_EAGL = NGL_GLPLATFORM_EAGL
 GLPLATFORM_WGL  = NGL_GLPLATFORM_WGL
 
-GLAPI_AUTO      = NGL_GLAPI_AUTO
-GLAPI_OPENGL    = NGL_GLAPI_OPENGL
-GLAPI_OPENGLES  = NGL_GLAPI_OPENGLES
+BACKEND_AUTO      = NGL_BACKEND_AUTO
+BACKEND_OPENGL    = NGL_BACKEND_OPENGL
+BACKEND_OPENGLES  = NGL_BACKEND_OPENGLES
 
 LOG_VERBOSE = NGL_LOG_VERBOSE
 LOG_DEBUG   = NGL_LOG_DEBUG
@@ -102,7 +102,7 @@ cdef class Viewer:
         cdef ngl_config config
         memset(&config, 0, sizeof(config));
         config.platform = kwargs.get('platform', GLPLATFORM_AUTO)
-        config.api = kwargs.get('api', GLAPI_AUTO)
+        config.backend = kwargs.get('backend', BACKEND_AUTO)
         config.wrapped = kwargs.get('wrapped', 0)
         config.display = kwargs.get('display', 0)
         config.window = kwargs.get('window', 0)

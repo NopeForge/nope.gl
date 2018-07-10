@@ -155,7 +155,7 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
 
     GLXContext shared_context = other ? (GLXContext)other : NULL;
 
-    if (ctx->api == NGL_GLAPI_OPENGLES) {
+    if (ctx->backend == NGL_BACKEND_OPENGLES) {
         if (!ngli_glcontext_check_extension("GLX_EXT_create_context_es2_profile", glx_extensions)) {
             LOG(ERROR, "context does not support GLX_EXT_create_context_es2_profile extension");
             return -1;
@@ -174,7 +174,7 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
                                                 shared_context,
                                                 1,
                                                 attribs);
-    } else if (ctx->api == NGL_GLAPI_OPENGL) {
+    } else if (ctx->backend == NGL_BACKEND_OPENGL) {
         int attribs[] = {
             GLX_CONTEXT_MAJOR_VERSION_ARB, 4,
             GLX_CONTEXT_MINOR_VERSION_ARB, 1,
