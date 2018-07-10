@@ -38,7 +38,7 @@ static void native_on_frame_available(JNIEnv *env, jobject object, jlong surface
     ngli_android_surface_signal_frame(surface);
 }
 
-static jclass surface_listener_new(struct android_surface *surface)
+static jobject surface_listener_new(struct android_surface *surface)
 {
     JNIEnv *env = NULL;
     jobject listener = NULL;
