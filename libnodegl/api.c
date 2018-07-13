@@ -61,6 +61,12 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
     current_config->width = config->width;
     current_config->height = config->height;
 
+    const int *viewport = config->viewport;
+    if (viewport[2] > 0 && viewport[3] > 0) {
+        ngli_glViewport(s->glcontext, viewport[0], viewport[1], viewport[2], viewport[3]);
+        memcpy(current_config->viewport, config->viewport, sizeof(config->viewport));
+    }
+
     return 0;
 }
 
@@ -87,6 +93,10 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     if (!s->glstate)
         return -1;
 
+    const int *viewport = config->viewport;
+    if (viewport[2] > 0 && viewport[3] > 0)
+        ngli_glViewport(s->glcontext, viewport[0], viewport[1], viewport[2], viewport[3]);
+
     return 0;
 }
 
@@ -98,18 +108,6 @@ static int cmd_make_current(struct ngl_ctx *s, void *arg)
     return 0;
 }
 #endif
-
-struct viewport {
-    int x, y;
-    int width, height;
-};
-
-static int cmd_set_viewport(struct ngl_ctx *s, void *arg)
-{
-    const struct viewport *v = arg;
-    ngli_glViewport(s->glcontext, v->x, v->y, v->width, v->height);
-    return 0;
-}
 
 static int cmd_set_clearcolor(struct ngl_ctx *s, void *arg)
 {
@@ -309,17 +307,6 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 
     s->configured = 1;
     return 0;
-}
-
-int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height)
-{
-    if (!s->configured) {
-        LOG(ERROR, "context must be configured before setting viewport");
-        return -1;
-    }
-
-    struct viewport v = {x, y, width, height};
-    return dispatch_cmd(s, cmd_set_viewport, &v);
 }
 
 int ngl_set_clearcolor(struct ngl_ctx *s, double r, double g, double b, double a)

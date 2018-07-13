@@ -50,12 +50,12 @@ cdef extern from "nodegl.h":
         int  offscreen
         int  width
         int  height
+        int  viewport[4]
         int  samples
 
     ngl_ctx *ngl_create()
     int ngl_configure(ngl_ctx *s, ngl_config *config)
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
-    int ngl_set_viewport(ngl_ctx *s, int x, int y, int width, int height)
     int ngl_set_clearcolor(ngl_ctx *s, double r, double g, double b, double a)
     int ngl_draw(ngl_ctx *s, double t) nogil
     char *ngl_dot(ngl_ctx *s, double t) nogil
@@ -111,14 +111,14 @@ cdef class Viewer:
         config.offscreen = kwargs.get('offscreen', 0)
         config.width = kwargs.get('width', 0)
         config.height = kwargs.get('height', 0)
+        viewport = kwargs.get('viewport', (0, 0, 0, 0))
+        for i in range(4):
+            config.viewport[i] = viewport[i]
         config.samples = kwargs.get('samples', 0)
         return ngl_configure(self.ctx, &config)
 
     def set_scene(self, _Node scene):
         return ngl_set_scene(self.ctx, NULL if scene is None else scene.ctx)
-
-    def set_viewport(self, int x, int y, int width, int height):
-        return ngl_set_viewport(self.ctx, x, y, width, height)
 
     def set_clearcolor(self, double r, double g, double b, double a):
         return ngl_set_clearcolor(self.ctx, r, g, b, a)

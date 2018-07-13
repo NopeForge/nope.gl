@@ -119,10 +119,10 @@ class Player(QtCore.QThread):
         self._events = []
         self._wait_first_frame = True
         self._clock = Clock(self._framerate, self._duration)
-        self._init_viewer()
-
-    def _init_viewer(self):
         self._viewer = ngl.Viewer()
+        self._configure_viewer()
+
+    def _configure_viewer(self):
         self._viewer.configure(
             platform=ngl.GLPLATFORM_AUTO,
             backend=misc.get_backend(self._backend),
@@ -130,11 +130,11 @@ class Player(QtCore.QThread):
             window=self._window,
             width=self._width,
             height=self._height,
+            viewport=misc.get_viewport(self._width, self._height, self._aspect_ratio),
             swap_interval=1,
             samples=self._samples,
         )
         self._viewer.set_clearcolor(*self._clear_color)
-        self._resize(self._width, self._height)
 
     def _render(self):
         frame_index, frame_time = self._clock.get_playback_time_info()
@@ -224,8 +224,7 @@ class Player(QtCore.QThread):
     def _resize(self, width, height):
         self._width = width
         self._height = height
-        self._viewer.configure()
-        self._viewer.set_viewport(*misc.get_viewport(width, height, self._aspect_ratio))
+        self._configure_viewer()
         return False
 
     def set_scene(self, cfg):
@@ -245,9 +244,9 @@ class Player(QtCore.QThread):
         if self._samples != cfg['samples'] or self._backend != cfg['backend']:
             self._samples = cfg['samples']
             self._backend = cfg['backend']
-            self._init_viewer()
+            self._viewer = ngl.Viewer()
         self._viewer.set_scene_from_string(self._scene)
-        self._resize(self._width, self._height)
+        self._configure_viewer()
         self._set_clear_color(self._clear_color)
         self._clock.configure(self._framerate, self._duration)
         self.onSceneMetadata.emit({'framerate': self._framerate, 'duration': self._duration})
@@ -269,7 +268,8 @@ class Player(QtCore.QThread):
 
     def _set_samples(self, samples):
         self._samples = samples
-        self._init_viewer()
+        self._viewer = ngl.Viewer()
+        self._configure_viewer()
         return False
 
     def set_clear_color(self, color):
@@ -294,5 +294,6 @@ class Player(QtCore.QThread):
 
     def _set_backend(self, backend):
         self._backend = backend
-        self._init_viewer()
+        self._viewer = ngl.Viewer()
+        self._configure_viewer()
         return False

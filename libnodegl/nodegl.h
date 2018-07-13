@@ -322,6 +322,8 @@ struct ngl_config {
 
     int height;    /* Graphic context height, mandatory for offscreen rendering */
 
+    int viewport[4]; /* Viewport defined as x, y, width and height */
+
     int samples;   /* Number of samples used for multisample anti-aliasing */
 
     int set_surface_pts; /* Whether pts should be set to the surface or not (Android only) */
@@ -359,20 +361,6 @@ struct ngl_ctx *ngl_create(void);
  * @return 0 on success, < 0 on error
  */
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config);
-
-/**
- * Set viewport.
- *
- * @param s        pointer to the configured node.gl context
- * @param x, y     the lower left corner of the viewport rectangle, in pixels
- * @param width    width in pixels
- * @param height   height in pixels
- *
- * @note node.gl context must to be configured before calling this function.
- *
- * @return 0 on success, < 0 on error
- */
-int ngl_set_viewport(struct ngl_ctx *s, int x, int y, int width, int height);
 
 /**
  * Set clear color.

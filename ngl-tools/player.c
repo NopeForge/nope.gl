@@ -83,8 +83,11 @@ static void size_callback(GLFWwindow *window, int width, int height)
 
     p->ngl_config.width = p->view.width;
     p->ngl_config.height = p->view.height;
+    p->ngl_config.viewport[0] = p->view.x;
+    p->ngl_config.viewport[1] = p->view.y;
+    p->ngl_config.viewport[2] = p->view.width;
+    p->ngl_config.viewport[3] = p->view.height;
     ngl_configure(p->ngl, &p->ngl_config);
-    ngl_set_viewport(p->ngl, p->view.x, p->view.y, p->view.width, p->view.height);
 }
 
 static void update_time(int64_t seek_at)
@@ -169,12 +172,14 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     if (ret < 0)
         return ret;
     p->ngl_config.swap_interval = -1;
+    p->ngl_config.viewport[0] = 0;
+    p->ngl_config.viewport[0] = 0;
+    p->ngl_config.viewport[0] = p->width;
+    p->ngl_config.viewport[0] = p->height;
 
     ret = ngl_configure(p->ngl, &p->ngl_config);
     if (ret < 0)
         return ret;
-
-    ngl_set_viewport(p->ngl, 0, 0, p->width, p->height);
 
     ret = ngl_set_scene(p->ngl, scene);
     if (ret < 0)

@@ -184,7 +184,11 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-    struct ngl_config config = {0};
+    struct ngl_config config = {
+        .width = width,
+        .height = height,
+        .viewport = {0, 0, width, height},
+    };
     ret = wsi_set_ngl_config(&config, window);
     if (ret < 0) {
         ngl_node_unrefp(&scene);
@@ -197,8 +201,6 @@ int main(int argc, char *argv[])
         ngl_node_unrefp(&scene);
         goto end;
     }
-
-    ngl_set_viewport(ctx, 0, 0, width, height);
 
     ret = ngl_set_scene(ctx, scene);
     ngl_node_unrefp(&scene);
