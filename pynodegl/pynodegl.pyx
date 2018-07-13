@@ -52,6 +52,7 @@ cdef extern from "nodegl.h":
         int  height
         int  viewport[4]
         int  samples
+        int  set_surface_pts
 
     ngl_ctx *ngl_create()
     int ngl_configure(ngl_ctx *s, ngl_config *config)
@@ -115,6 +116,7 @@ cdef class Viewer:
         for i in range(4):
             config.viewport[i] = viewport[i]
         config.samples = kwargs.get('samples', 0)
+        config.set_surface_pts = kwargs.get('set_surface_pts', 0)
         return ngl_configure(self.ctx, &config)
 
     def set_scene(self, _Node scene):
