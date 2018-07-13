@@ -82,9 +82,9 @@ class Exporter(QtCore.QThread):
             height=height,
             viewport=get_viewport(width, height, cfg['aspect_ratio']),
             samples=samples,
+            clear_color=cfg['clear_color'],
         )
         ngl_viewer.set_scene_from_string(cfg['scene'])
-        ngl_viewer.set_clearcolor(*cfg['clear_color'])
 
         if self._time is not None:
             ngl_viewer.draw(self._time)

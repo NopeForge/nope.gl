@@ -53,11 +53,11 @@ cdef extern from "nodegl.h":
         int  viewport[4]
         int  samples
         int  set_surface_pts
+        float clear_color[4]
 
     ngl_ctx *ngl_create()
     int ngl_configure(ngl_ctx *s, ngl_config *config)
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
-    int ngl_set_clearcolor(ngl_ctx *s, double r, double g, double b, double a)
     int ngl_draw(ngl_ctx *s, double t) nogil
     char *ngl_dot(ngl_ctx *s, double t) nogil
     void ngl_free(ngl_ctx **ss)
@@ -117,13 +117,13 @@ cdef class Viewer:
             config.viewport[i] = viewport[i]
         config.samples = kwargs.get('samples', 0)
         config.set_surface_pts = kwargs.get('set_surface_pts', 0)
+        clear_color = kwargs.get('clear_color', (0.0, 0.0, 0.0, 1.0))
+        for i in range(4):
+            config.clear_color[i] = clear_color[i]
         return ngl_configure(self.ctx, &config)
 
     def set_scene(self, _Node scene):
         return ngl_set_scene(self.ctx, NULL if scene is None else scene.ctx)
-
-    def set_clearcolor(self, double r, double g, double b, double a):
-        return ngl_set_clearcolor(self.ctx, r, g, b, a)
 
     def set_scene_from_string(self, s):
         cdef ngl_node *scene = ngl_node_deserialize(s);

@@ -327,6 +327,8 @@ struct ngl_config {
     int samples;   /* Number of samples used for multisample anti-aliasing */
 
     int set_surface_pts; /* Whether pts should be set to the surface or not (Android only) */
+
+    float clear_color[4]; /* Clear color (red, green, blue, alpha) */
 };
 
 /**
@@ -361,21 +363,6 @@ struct ngl_ctx *ngl_create(void);
  * @return 0 on success, < 0 on error
  */
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config);
-
-/**
- * Set clear color.
- *
- * @param s        pointer to the configured node.gl context
- * @param r        normalized red component
- * @param g        normalized green component
- * @param b        normalized blue component
- * @param a        normalized alpha component
- *
- * @note node.gl context must to be configured before calling this function.
- *
- * @return 0 on success, < 0 on error
- */
-int ngl_set_clearcolor(struct ngl_ctx *s, double r, double g, double b, double a);
 
 /**
  * Associate a scene with a node.gl context.

@@ -133,8 +133,8 @@ class Player(QtCore.QThread):
             viewport=misc.get_viewport(self._width, self._height, self._aspect_ratio),
             swap_interval=1,
             samples=self._samples,
+            clear_color=self._clear_color,
         )
-        self._viewer.set_clearcolor(*self._clear_color)
 
     def _render(self):
         frame_index, frame_time = self._clock.get_playback_time_info()
@@ -247,7 +247,6 @@ class Player(QtCore.QThread):
             self._viewer = ngl.Viewer()
         self._viewer.set_scene_from_string(self._scene)
         self._configure_viewer()
-        self._set_clear_color(self._clear_color)
         self._clock.configure(self._framerate, self._duration)
         self.onSceneMetadata.emit({'framerate': self._framerate, 'duration': self._duration})
         return False
@@ -277,7 +276,7 @@ class Player(QtCore.QThread):
 
     def _set_clear_color(self, clear_color):
         self._clear_color = clear_color
-        self._viewer.set_clearcolor(*self._clear_color)
+        self._configure_viewer()
         return False
 
     def set_framerate(self, framerate):

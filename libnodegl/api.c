@@ -67,6 +67,10 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
         memcpy(current_config->viewport, config->viewport, sizeof(config->viewport));
     }
 
+    const float *rgba = config->clear_color;
+    ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
+    memcpy(current_config->clear_color, config->clear_color, sizeof(config->clear_color));
+
     return 0;
 }
 
@@ -97,6 +101,9 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     if (viewport[2] > 0 && viewport[3] > 0)
         ngli_glViewport(s->glcontext, viewport[0], viewport[1], viewport[2], viewport[3]);
 
+    const float *rgba = config->clear_color;
+    ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
+
     return 0;
 }
 
@@ -108,13 +115,6 @@ static int cmd_make_current(struct ngl_ctx *s, void *arg)
     return 0;
 }
 #endif
-
-static int cmd_set_clearcolor(struct ngl_ctx *s, void *arg)
-{
-    const float *rgba = arg;
-    ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
-    return 0;
-}
 
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 {
@@ -307,17 +307,6 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 
     s->configured = 1;
     return 0;
-}
-
-int ngl_set_clearcolor(struct ngl_ctx *s, double r, double g, double b, double a)
-{
-    if (!s->configured) {
-        LOG(ERROR, "context must be configured before setting clear color");
-        return -1;
-    }
-
-    float rgba[4] = {r, g, b, a};
-    return dispatch_cmd(s, cmd_set_clearcolor, rgba);
 }
 
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
