@@ -45,16 +45,11 @@ struct hwupload_config {
     int width;
     int height;
     int linesize;
-    GLint gl_format;
-    GLint gl_internal_format;
-    GLint gl_type;
+    int data_format;
 };
 
 static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *frame, struct hwupload_config *config)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
     config->width = frame->width;
     config->height = frame->height;
     config->linesize = frame->linesize;
@@ -62,18 +57,15 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
     switch (frame->pix_fmt) {
     case SXPLAYER_PIXFMT_RGBA:
         config->format = NGLI_HWUPLOAD_FMT_COMMON;
-        config->gl_format = GL_RGBA;
-        config->gl_type = GL_UNSIGNED_BYTE;
+        config->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
         break;
     case SXPLAYER_PIXFMT_BGRA:
         config->format = NGLI_HWUPLOAD_FMT_COMMON;
-        config->gl_format = GL_BGRA;
-        config->gl_type = GL_UNSIGNED_BYTE;
+        config->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
         break;
     case SXPLAYER_SMPFMT_FLT:
         config->format = NGLI_HWUPLOAD_FMT_COMMON;
-        config->gl_format = gl->gl_1comp;
-        config->gl_type = GL_FLOAT;
+        config->data_format = NGLI_FORMAT_R32_SFLOAT;
         break;
 #if defined(TARGET_ANDROID)
     case SXPLAYER_PIXFMT_MEDIACODEC: {
@@ -91,10 +83,13 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
             }
         }
 
-        if (s->direct_rendering)
+        if (s->direct_rendering) {
             config->format = NGLI_HWUPLOAD_FMT_MEDIACODEC_DR;
-        else
+            config->data_format = NGLI_FORMAT_UNDEFINED;
+        } else {
             config->format = NGLI_HWUPLOAD_FMT_MEDIACODEC;
+            config->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
+        }
         break;
     }
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
@@ -109,11 +104,11 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
         switch (cvformat) {
         case kCVPixelFormatType_32BGRA:
             config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA;
-            config->gl_format = GL_BGRA;
+            config->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
             break;
         case kCVPixelFormatType_32RGBA:
             config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA;
-            config->gl_format = GL_RGBA;
+            config->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
             break;
 #if defined(TARGET_IPHONE)
         case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
@@ -121,17 +116,17 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
 
             if (s->direct_rendering) {
                 config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR;
+                config->data_format = NGLI_FORMAT_UNDEFINED;
             } else {
                 config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12;
+                config->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
             }
-            config->gl_format = GL_BGRA;
             break;
         }
 #endif
         default:
             ngli_assert(0);
         };
-        config->gl_type = GL_UNSIGNED_BYTE;
         break;
     }
 #endif
@@ -139,21 +134,28 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
         ngli_assert(0);
     }
 
-    config->gl_internal_format = ngli_texture_get_sized_internal_format(gl,
-                                                                        config->gl_format,
-                                                                        config->gl_type);
-
     return 0;
 }
 
 static int init_common(struct ngl_node *node, struct hwupload_config *config)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
     struct texture *s = node->priv_data;
 
     if (s->upload_fmt == config->format)
         return 0;
 
     s->upload_fmt = config->format;
+    s->data_format = config->data_format;
+
+    int ret = ngli_format_get_gl_format_type(gl,
+                                             s->data_format,
+                                             &s->format,
+                                             &s->internal_format,
+                                             &s->type);
+    if (ret < 0)
+        return ret;
 
     ngli_mat4_identity(s->coordinates_matrix);
 
@@ -166,9 +168,6 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
 
     s->id                    = s->local_id;
     s->target                = s->local_target;
-    s->format                = config->gl_format;
-    s->internal_format       = config->gl_internal_format;
-    s->type                  = config->gl_type;
     const int linesize       = config->linesize >> 2;
     s->coordinates_matrix[0] = linesize ? config->width / (float)linesize : 1.0;
 
@@ -201,6 +200,9 @@ static const char fragment_shader_hwupload_oes_data[] = ""
 
 static int init_mc(struct ngl_node *node, struct hwupload_config *config)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
     int ret;
 
     struct texture *s = node->priv_data, *t;
@@ -214,6 +216,15 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
         return 0;
 
     s->upload_fmt = config->format;
+    s->data_format = config->data_format;
+
+    ret = ngli_format_get_gl_format_type(gl,
+                                         s->data_format,
+                                         &s->format,
+                                         &s->internal_format,
+                                         &s->type);
+    if (ret < 0)
+        return ret;
 
     ret = update_texture_dimensions(node, config);
     if (ret < 0)
@@ -238,18 +249,29 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
         return -1;
 
     t = s->textures[0]->priv_data;
+    t->data_format = NGLI_FORMAT_UNDEFINED;
     t->width       = s->width;
     t->height      = s->height;
     t->external_id = media->android_texture_id;
     t->external_target = GL_TEXTURE_EXTERNAL_OES;
+
+    ret = ngli_format_get_gl_format_type(gl,
+                                         t->data_format,
+                                         &t->format,
+                                         &t->internal_format,
+                                         &t->type);
+    if (ret < 0)
+        return ret;
 
     s->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     if (!s->target_texture)
         return -1;
 
     t = s->target_texture->priv_data;
+    t->data_format     = s->data_format;
     t->format          = s->format;
     t->internal_format = s->internal_format;
+    t->type            = s->type;
     t->width           = s->width;
     t->height          = s->height;
     t->min_filter      = s->min_filter;
@@ -346,6 +368,15 @@ static int init_mc_dr(struct ngl_node *node, struct hwupload_config *config)
         return 0;
 
     s->upload_fmt = config->format;
+    s->data_format = config->data_format;
+
+    int ret = ngli_format_get_gl_format_type(gl,
+                                             s->data_format,
+                                             &s->format,
+                                             &s->internal_format,
+                                             &s->type);
+    if (ret < 0)
+        return ret;
 
     s->id = media->android_texture_id;
     s->target = media->android_texture_target;
@@ -392,12 +423,24 @@ static int upload_mc_frame_dr(struct ngl_node *node, struct hwupload_config *con
 #if defined(TARGET_DARWIN)
 static int init_vt(struct ngl_node *node, struct hwupload_config *config)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
     struct texture *s = node->priv_data;
 
     if (s->upload_fmt == config->format)
         return 0;
 
     s->upload_fmt = config->format;
+    s->data_format = config->data_format;
+
+    int ret = ngli_format_get_gl_format_type(gl,
+                                             s->data_format,
+                                             &s->format,
+                                             &s->internal_format,
+                                             &s->type);
+    if (ret < 0)
+        return ret;
 
     ngli_mat4_identity(s->coordinates_matrix);
 
@@ -413,9 +456,6 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
 
     uint8_t *data = CVPixelBufferGetBaseAddress(cvpixbuf);
 
-    s->format                = config->gl_format;
-    s->internal_format       = config->gl_internal_format;
-    s->type                  = config->gl_type;
     const int linesize       = config->linesize >> 2;
     s->coordinates_matrix[0] = linesize ? config->width / (float)linesize : 1.0;
 
@@ -428,28 +468,31 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
 #endif
 
 #if defined(TARGET_IPHONE)
-const char fragment_shader_hwupload_nv12_data[] =
-    "#version 100"                                                                 "\n"
-    ""                                                                             "\n"
-    "precision mediump float;"                                                     "\n"
-    "uniform sampler2D tex0_sampler;"                                              "\n"
-    "uniform sampler2D tex1_sampler;"                                              "\n"
-    "varying vec2 var_tex0_coord;"                                                 "\n"
-    "const mat4 conv = mat4("                                                      "\n"
-    "    1.164,     1.164,    1.164,   0.0,"                                       "\n"
-    "    0.0,      -0.213,    2.112,   0.0,"                                       "\n"
-    "    1.787,    -0.531,    0.0,     0.0,"                                       "\n"
-    "   -0.96625,   0.29925, -1.12875, 1.0);"                                      "\n"
-    "void main(void)"                                                              "\n"
-    "{"                                                                            "\n"
-    "    vec3 yuv;"                                                                "\n"
-    "    yuv.x = texture2D(tex0_sampler, var_tex0_coord).r;"                       "\n"
-    "    yuv.yz = texture2D(tex1_sampler, var_tex0_coord).ra;"                     "\n"
-    "    gl_FragColor = conv * vec4(yuv, 1.0);"                                    "\n"
-    "}";
+#define FRAGMENT_SHADER_HWUPLOAD_NV12_DATA                                              \
+    "#version 100"                                                                 "\n" \
+    ""                                                                             "\n" \
+    "precision mediump float;"                                                     "\n" \
+    "uniform sampler2D tex0_sampler;"                                              "\n" \
+    "uniform sampler2D tex1_sampler;"                                              "\n" \
+    "varying vec2 var_tex0_coord;"                                                 "\n" \
+    "const mat4 conv = mat4("                                                      "\n" \
+    "    1.164,     1.164,    1.164,   0.0,"                                       "\n" \
+    "    0.0,      -0.213,    2.112,   0.0,"                                       "\n" \
+    "    1.787,    -0.531,    0.0,     0.0,"                                       "\n" \
+    "   -0.96625,   0.29925, -1.12875, 1.0);"                                      "\n" \
+    "void main(void)"                                                              "\n" \
+    "{"                                                                            "\n" \
+    "    vec3 yuv;"                                                                "\n" \
+    "    yuv.x = texture2D(tex0_sampler, var_tex0_coord).r;"                       "\n" \
+    "    yuv.yz = texture2D(tex1_sampler, var_tex0_coord).%s;"                     "\n" \
+    "    gl_FragColor = conv * vec4(yuv, 1.0);"                                    "\n" \
+    "}"
 
 static int init_vt(struct ngl_node *node, struct hwupload_config *config)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
     struct texture *s = node->priv_data;
 
     if (config->format == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12)
@@ -459,6 +502,15 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         return 0;
 
     s->upload_fmt = config->format;
+    s->data_format = config->data_format;
+
+    int ret = ngli_format_get_gl_format_type(gl,
+                                             s->data_format,
+                                             &s->format,
+                                             &s->internal_format,
+                                             &s->type);
+    if (ret < 0)
+        return ret;
 
     ngli_mat4_identity(s->coordinates_matrix);
 
@@ -481,41 +533,60 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         if (!s->program)
             return -1;
 
-        ngl_node_param_set(s->program, "fragment", fragment_shader_hwupload_nv12_data);
+        const char *uv = gl->version < 300 ? "ra": "rg";
+        char *fragment_shader = ngli_asprintf(FRAGMENT_SHADER_HWUPLOAD_NV12_DATA, uv);
+        if (!fragment_shader)
+            return -1;
+        ngl_node_param_set(s->program, "fragment", fragment_shader);
+        free(fragment_shader);
 
         s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE2D);
         if (!s->textures[0])
             return -1;
 
         t = s->textures[0]->priv_data;
-        s->format          = GL_LUMINANCE;
-        s->internal_format = GL_LUMINANCE;
-        s->type            = GL_UNSIGNED_BYTE;
+        t->data_format     = NGLI_FORMAT_R8_UNORM;
         t->width           = s->width;
         t->height          = s->height;
         t->external_id     = UINT_MAX;
         t->external_target = GL_TEXTURE_2D;
+
+        ret = ngli_format_get_gl_format_type(gl,
+                                             t->data_format,
+                                             &t->format,
+                                             &t->internal_format,
+                                             &t->type);
+        if (ret < 0)
+            return ret;
 
         s->textures[1] = ngl_node_create(NGL_NODE_TEXTURE2D);
         if (!s->textures[1])
             return -1;
 
         t = s->textures[1]->priv_data;
-        s->format          = GL_LUMINANCE_ALPHA;
-        s->internal_format = GL_LUMINANCE_ALPHA;
-        s->type            = GL_UNSIGNED_BYTE;
+        t->data_format     = NGLI_FORMAT_R8G8_UNORM;
         t->width           = (s->width + 1) >> 1;
         t->height          = (s->height + 1) >> 1;
         t->external_id     = UINT_MAX;
         t->external_target = GL_TEXTURE_2D;
+
+        int ret = ngli_format_get_gl_format_type(gl,
+                                                 t->data_format,
+                                                 &t->format,
+                                                 &t->internal_format,
+                                                 &t->type);
+        if (ret < 0)
+            return ret;
 
         s->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
         if (!s->target_texture)
             return -1;
 
         t = s->target_texture->priv_data;
+        t->data_format     = s->data_format;
         t->format          = s->format;
         t->internal_format = s->internal_format;
+        t->type            = s->type;
         t->width           = s->width;
         t->height          = s->height;
         t->min_filter      = s->min_filter;
@@ -557,9 +628,6 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
     switch (s->upload_fmt) {
     case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
     case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA: {
-        s->format                = config->gl_format;
-        s->internal_format       = config->gl_internal_format;
-        s->type                  = config->gl_type;
         s->width                 = config->width;
         s->height                = config->height;
         s->coordinates_matrix[0] = 1.0;
@@ -605,9 +673,6 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         break;
     }
     case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12: {
-        s->format                = config->gl_format;
-        s->internal_format       = config->gl_internal_format;
-        s->type                  = config->gl_type;
         s->coordinates_matrix[0] = 1.0;
 
         int ret = ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
@@ -622,24 +687,16 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
         }
 
         for (int i = 0; i < 2; i++) {
-            int width;
-            int height;
-            GLenum format;
-            GLenum internal_format;
-            GLenum type = GL_UNSIGNED_BYTE;
+            struct texture *t = s->textures[i]->priv_data;
 
             switch (i) {
             case 0:
-                width = s->width;
-                height = s->height;
-                format = GL_LUMINANCE;
-                internal_format = GL_LUMINANCE;
+                t->width = s->width;
+                t->height = s->height;
                 break;
             case 1:
-                width = (s->width + 1) >> 1;
-                height = (s->height + 1) >> 1;
-                format = GL_LUMINANCE_ALPHA;
-                internal_format = GL_LUMINANCE_ALPHA;
+                t->width = (s->width + 1) >> 1;
+                t->height = (s->height + 1) >> 1;
                 break;
             default:
                 ngli_assert(0);
@@ -650,11 +707,11 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
                                                                         cvpixbuf,
                                                                         NULL,
                                                                         GL_TEXTURE_2D,
-                                                                        internal_format,
-                                                                        width,
-                                                                        height,
-                                                                        format,
-                                                                        type,
+                                                                        t->internal_format,
+                                                                        t->width,
+                                                                        t->height,
+                                                                        t->format,
+                                                                        t->type,
                                                                         i,
                                                                         &textures[i]);
             if (err != noErr) {
@@ -665,8 +722,6 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
                 }
                 return -1;
             }
-
-            struct texture *t = s->textures[i]->priv_data;
 
             t->id = t->external_id = CVOpenGLESTextureGetName(textures[i]);
             ngli_glBindTexture(gl, GL_TEXTURE_2D, t->id);
@@ -731,12 +786,24 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
 
 static int init_vt_nv12_dr(struct ngl_node *node, struct hwupload_config *config)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
     struct texture *s = node->priv_data;
 
     if (s->upload_fmt == config->format)
         return 0;
 
     s->upload_fmt = config->format;
+    s->data_format = config->data_format;
+
+    int ret = ngli_format_get_gl_format_type(gl,
+                                             s->data_format,
+                                             &s->format,
+                                             &s->internal_format,
+                                             &s->type);
+    if (ret < 0)
+        return ret;
 
     return 0;
 }
@@ -751,9 +818,6 @@ static int upload_vt_frame_nv12_dr(struct ngl_node *node, struct hwupload_config
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
 
-    s->format                = config->gl_format;
-    s->internal_format       = config->gl_internal_format;
-    s->type                  = config->gl_type;
     s->width                 = config->width;
     s->height                = config->height;
     s->coordinates_matrix[0] = 1.0;
@@ -761,26 +825,29 @@ static int upload_vt_frame_nv12_dr(struct ngl_node *node, struct hwupload_config
     for (int i = 0; i < 2; i++) {
         int width;
         int height;
-        GLenum format;
-        GLenum internal_format;
-        GLenum type = GL_UNSIGNED_BYTE;
+        int data_format;
+        GLint format;
+        GLint internal_format;
+        GLenum type;
 
         switch (i) {
         case 0:
             width = s->width;
             height = s->height;
-            format = GL_LUMINANCE;
-            internal_format = GL_LUMINANCE;
+            data_format = NGLI_FORMAT_R8_UNORM;
             break;
         case 1:
             width = (s->width + 1) >> 1;
             height = (s->height + 1) >> 1;
-            format = GL_LUMINANCE_ALPHA;
-            internal_format = GL_LUMINANCE_ALPHA;
+            data_format = NGLI_FORMAT_R8G8_UNORM;
             break;
         default:
             ngli_assert(0);
         }
+
+        int ret = ngli_format_get_gl_format_type(gl, data_format, &format, &internal_format, &type);
+        if (ret < 0)
+            return ret;
 
         if (s->ios_textures[i])
             CFRelease(s->ios_textures[i]);

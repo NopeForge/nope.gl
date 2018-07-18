@@ -422,8 +422,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`format` |  | [`format`](#format-choices) | format of the pixel data | `rgba`
-`type` |  | [`type`](#type-choices) | data type of the pixel data | `unsigned_byte`
+`format` |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
 `width` |  | [`int`](#parameter-types) | width of the texture | `0`
 `height` |  | [`int`](#parameter-types) | height of the texture | `0`
 `min_filter` |  | [`min_filter`](#min_filter-choices) | texture minifying function | `nearest`
@@ -442,8 +441,7 @@ Parameter | Ctor. | Type | Description | Default
 
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
-`format` |  | [`format`](#format-choices) | format of the pixel data | `rgba`
-`type` |  | [`type`](#type-choices) | data type of the pixel data | `unsigned_byte`
+`format` |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
 `width` |  | [`int`](#parameter-types) | width of the texture | `0`
 `height` |  | [`int`](#parameter-types) | height of the texture | `0`
 `depth` |  | [`int`](#parameter-types) | depth of the texture | `0`
@@ -778,34 +776,66 @@ Constant | Description
 
 Constant | Description
 -------- | -----------
-`red` | red
-`red_integer` | red integer
-`rg` | rg
-`rg_integer` | rg integer
-`rgb` | rgb
-`rgb_integer` | rgb integer
-`rgba` | rgba
-`rgba_integer` | rgba integer
-`bgra` | bgra
-`depth_component` | depth component
-`depth_stencil` | depth stencil
-`alpha` | alpha (OpenGLES only)
-`luminance` | luminance (OpenGLES only)
-`luminance_alpha` | luminance alpha (OpenGLES only)
-
-## type choices
-
-Constant | Description
--------- | -----------
-`byte` | byte
-`unsigned_byte` | unsigned byte
-`short` | short
-`unsigned_short` | unsigned short
-`int` | integer
-`unsigned_int` | unsigned integer
-`half_float` | half float
-`float` | float
-`unsigned_int_24_8` | pair of two unsigned integers (24 bits and 8 bits)
+`undefined` | undefined
+`r8_unorm` | 8-bit unsigned normalized R component
+`r8_snorm` | 8-bit signed normalized R component
+`r8_uint` | 8-bit unsigned integer R component
+`r8_sint` | 8-bit signed integer R component
+`r8g8_unorm` | 8-bit unsigned normalized RG components
+`r8g8_snorm` | 8-bit signed normalized RG components
+`r8g8_uint` | 8-bit unsigned integer RG components
+`r8g8_sint` | 8-bit signed normalized RG components
+`r8g8b8_unorm` | 8-bit unsigned normalized RGB components
+`r8g8b8_snorm` | 8-bit signed normalized RGB components
+`r8g8b8_uint` | 8-bit unsigned integer RGB components
+`r8g8b8_sint` | 8-bit signed integer RGB components
+`r8g8b8_srgb` | 8-bit unsigned normalized sRGB components
+`r8g8b8a8_unorm` | 8-bit unsigned normalized RGBA components
+`r8g8b8a8_snorm` | 8-bit signed normalized RGBA components
+`r8g8b8a8_uint` | 8-bit unsigned integer RGBA components
+`r8g8b8a8_sint` | 8-bit signed integer RGBA components
+`r8g8b8a8_srgb` | 8-bit unsigned normalized RGBA components
+`b8g8r8a8_unorm` | 8-bit unsigned normalized BGRA components
+`b8g8r8a8_snorm` | 8-bit signed normalized BGRA components
+`b8g8r8a8_uint` | 8-bit unsigned integer BGRA components
+`b8g8r8a8_sint` | 8-bit signed integer BGRA components
+`r16_unorm` | 16-bit unsigned normalized R component
+`r16_snorm` | 16-bit signed normalized R component
+`r16_uint` | 16-bit unsigned integer R component
+`r16_sint` | 16-bit signed integer R component
+`r16_sfloat` | 16-bit signed float R component
+`r16g16_unorm` | 16-bit unsigned normalized RG components
+`r16g16_snorm` | 16-bit signed normalized RG components
+`r16g16_uint` | 16-bit unsigned integer RG components
+`r16g16_sint` | 16-bit signed integer RG components
+`r16g16_sfloat` | 16-bit signed float RG components
+`r16g16b16_unorm` | 16-bit unsigned normalized RGB components
+`r16g16b16_snorm` | 16-bit signed normalized RGB components
+`r16g16b16_uint` | 16-bit unsigned integer RGB components
+`r16g16b16_sint` | 16-bit signed integer RGB components
+`r16g16b16_sfloat` | 16-bit signed float RGB components
+`r16g16b16a16_unorm` | 16-bit unsigned normalized RGBA components
+`r16g16b16a16_snorm` | 16-bit signed normalized RGBA components
+`r16g16b16a16_uint` | 16-bit unsigned integer RGBA components
+`r16g16b16a16_sint` | 16-bit signed integer RGBA components
+`r16g16b16a16_sfloat` | 16-bit signed float RGBA components
+`r32_uint` | 32-bit unsigned integer R component
+`r32_sint` | 32-bit signed integer R component
+`r32_sfloat` | 32-bit signed float R component
+`r32g32_uint` | 32-bit unsigned integer RG components
+`r32g32_sint` | 32-bit signed integer RG components
+`r32g32_sfloat` | 32-bit signed float RG components
+`r32g32b32_uint` | 32-bit unsigned integer RGB components
+`r32g32b32_sint` | 32-bit signed integer RGB components
+`r32g32b32_sfloat` | 32-bit signed float RGB components
+`r32g32b32a32_uint` | 32-bit unsigned integer RGBA components
+`r32g32b32a32_sint` | 32-bit signed integer RGBA components
+`r32g32b32a32_sfloat` | 32-bit signed float RGBA components
+`d16_unorm` | 16-bit unsigned normalized depth component
+`d24_unorm` | 32-bit packed format that has 24-bit unsigned normalized depth component + 8-bit of unused data
+`d32_sfloat` | 32-bit signed float depth component
+`d24_unorm_s8_uint` | 32-bit packed format that has 24-bit unsigned normalized depth component + 8-bit unsigned integer stencil component
+`d32_sfloat_s8_uint` | 64-bit packed format that has 32-bit signed float depth component + 8-bit unsigned integer stencil component + 24-bit of unused data
 
 ## min_filter choices
 

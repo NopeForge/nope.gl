@@ -295,7 +295,6 @@
 - Texture2D:
     optional:
         - [format, select]
-        - [type, select]
         - [width, int]
         - [height, int]
         - [min_filter, select]
@@ -309,7 +308,6 @@
 - Texture3D:
     optional:
         - [format, select]
-        - [type, select]
         - [width, int]
         - [height, int]
         - [depth, int]

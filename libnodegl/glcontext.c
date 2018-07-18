@@ -337,16 +337,6 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
 
 static int glcontext_probe_settings(struct glcontext *glcontext)
 {
-    const int es = glcontext->backend == NGL_BACKEND_OPENGLES;
-
-    if (es && glcontext->version < 300) {
-        glcontext->gl_1comp = GL_LUMINANCE;
-        glcontext->gl_2comp = GL_LUMINANCE_ALPHA;
-    } else {
-        glcontext->gl_1comp = GL_RED;
-        glcontext->gl_2comp = GL_RG;
-    }
-
     ngli_glGetIntegerv(glcontext, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
 
     if (glcontext->features & NGLI_FEATURE_COMPUTE_SHADER) {

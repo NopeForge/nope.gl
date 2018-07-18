@@ -41,6 +41,7 @@
 #include "hmap.h"
 #include "nodegl.h"
 #include "params.h"
+#include "formats_register.h"
 
 struct node_class;
 
@@ -190,8 +191,8 @@ struct buffer {
     char *filename;         // filename from which the data will be read
     int data_comp;          // number of components per element
     int data_stride;        // stride of 1 element, in bytes
-    GLenum data_comp_type;  // type of a single component: integer, float, ...
     GLenum usage;
+    int data_format;        // any of NGLI_FORMAT_*
 
     /* animatedbuffer */
     struct ngl_node **animkf;
@@ -262,11 +263,21 @@ enum hwupload_fmt {
     NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR,
 };
 
+#define DECLARE_FORMAT(format, name, doc) format,
+
+enum {
+    NGLI_FORMATS(DECLARE_FORMAT)
+};
+
+int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
+                                   GLint *format, GLint *internal_format, GLenum *type);
+
 struct texture {
+    int data_format;
     GLenum target;
     GLint format;
     GLint internal_format;
-    GLint type;
+    GLenum type;
     int width;
     int height;
     int depth;
@@ -302,10 +313,6 @@ struct texture {
 
     double data_src_ts;
 };
-
-GLenum ngli_texture_get_sized_internal_format(struct glcontext *glcontext,
-                                              GLenum internal_format,
-                                              GLenum type);
 
 int ngli_texture_update_local_texture(struct ngl_node *node,
                                       int width, int height, int depth,

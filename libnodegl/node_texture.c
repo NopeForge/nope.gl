@@ -63,49 +63,23 @@ static const struct param_choices wrap_choices = {
     }
 };
 
-static const struct param_choices format_choices = {
-    .name = "format",
-    .consts = {
-        {"red",             GL_RED,             .desc=NGLI_DOCSTRING("red")},
-        {"red_integer",     GL_RED_INTEGER,     .desc=NGLI_DOCSTRING("red integer")},
-        {"rg",              GL_RG,              .desc=NGLI_DOCSTRING("rg")},
-        {"rg_integer",      GL_RG_INTEGER,      .desc=NGLI_DOCSTRING("rg integer")},
-        {"rgb",             GL_RGB,             .desc=NGLI_DOCSTRING("rgb")},
-        {"rgb_integer",     GL_RGB_INTEGER,     .desc=NGLI_DOCSTRING("rgb integer")},
-        {"rgba",            GL_RGBA,            .desc=NGLI_DOCSTRING("rgba")},
-        {"rgba_integer",    GL_RGBA_INTEGER,    .desc=NGLI_DOCSTRING("rgba integer")},
-        {"bgra",            GL_BGRA,            .desc=NGLI_DOCSTRING("bgra")},
-        {"depth_component", GL_DEPTH_COMPONENT, .desc=NGLI_DOCSTRING("depth component")},
-        {"depth_stencil",   GL_DEPTH_STENCIL,   .desc=NGLI_DOCSTRING("depth stencil")},
-        {"alpha",           GL_ALPHA,           .desc=NGLI_DOCSTRING("alpha (OpenGLES only)")},
-        {"luminance",       GL_LUMINANCE,       .desc=NGLI_DOCSTRING("luminance (OpenGLES only)")},
-        {"luminance_alpha", GL_LUMINANCE_ALPHA, .desc=NGLI_DOCSTRING("luminance alpha (OpenGLES only)")},
-        {NULL}
-    }
-};
-
-static const struct param_choices type_choices = {
-    .name = "type",
-    .consts = {
-        {"byte",           GL_BYTE,           .desc=NGLI_DOCSTRING("byte")},
-        {"unsigned_byte",  GL_UNSIGNED_BYTE,  .desc=NGLI_DOCSTRING("unsigned byte")},
-        {"short",          GL_SHORT,          .desc=NGLI_DOCSTRING("short")},
-        {"unsigned_short", GL_UNSIGNED_SHORT, .desc=NGLI_DOCSTRING("unsigned short")},
-        {"int",            GL_INT,            .desc=NGLI_DOCSTRING("integer")},
-        {"unsigned_int",   GL_UNSIGNED_INT,   .desc=NGLI_DOCSTRING("unsigned integer")},
-        {"half_float",     GL_HALF_FLOAT,     .desc=NGLI_DOCSTRING("half float")},
-        {"float",          GL_FLOAT,          .desc=NGLI_DOCSTRING("float")},
-        {"unsigned_int_24_8", GL_UNSIGNED_INT_24_8, .desc=NGLI_DOCSTRING("pair of two unsigned integers (24 bits and 8 bits)")},
-        {NULL}
-    }
-};
-
 static const struct param_choices access_choices = {
     .name = "access",
     .consts = {
         {"read_only",  GL_READ_ONLY,  .desc=NGLI_DOCSTRING("read only")},
         {"write_only", GL_WRITE_ONLY, .desc=NGLI_DOCSTRING("write only")},
         {"read_write", GL_READ_WRITE, .desc=NGLI_DOCSTRING("read-write")},
+        {NULL}
+    }
+};
+
+#define DECLARE_FORMAT_PARAM(format, name, doc) \
+    {name, format, .desc=NGLI_DOCSTRING(doc)},
+
+static const struct param_choices format_choices = {
+    .name = "format",
+    .consts = {
+        NGLI_FORMATS(DECLARE_FORMAT_PARAM)
         {NULL}
     }
 };
@@ -156,10 +130,8 @@ static const struct param_choices access_choices = {
 
 #define OFFSET(x) offsetof(struct texture, x)
 static const struct node_param texture2d_params[] = {
-    {"format", PARAM_TYPE_SELECT, OFFSET(format), {.i64=GL_RGBA}, .choices=&format_choices,
+    {"format", PARAM_TYPE_SELECT, OFFSET(data_format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM}, .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"type", PARAM_TYPE_SELECT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}, .choices=&type_choices,
-             .desc=NGLI_DOCSTRING("data type of the pixel data")},
     {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
     {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0},
@@ -182,10 +154,8 @@ static const struct node_param texture2d_params[] = {
 };
 
 static const struct node_param texture3d_params[] = {
-    {"format", PARAM_TYPE_SELECT, OFFSET(format), {.i64=GL_RGBA}, .choices=&format_choices,
+    {"format", PARAM_TYPE_SELECT, OFFSET(data_format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM}, .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
-    {"type", PARAM_TYPE_SELECT, OFFSET(type), {.i64=GL_UNSIGNED_BYTE}, .choices=&type_choices,
-             .desc=NGLI_DOCSTRING("data type of the pixel data")},
     {"width", PARAM_TYPE_INT, OFFSET(width), {.i64=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
     {"height", PARAM_TYPE_INT, OFFSET(height), {.i64=0},
@@ -209,93 +179,103 @@ static const struct node_param texture3d_params[] = {
     {NULL}
 };
 
-GLenum ngli_texture_get_sized_internal_format(struct glcontext *gl, GLenum internal_format, GLenum type)
+int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
+                                   GLint *formatp, GLint *internal_formatp, GLenum *typep)
 {
+    static const struct entry {
+        GLint format;
+        GLint internal_format;
+        GLenum type;
+    } format_map[] = {
+        [NGLI_FORMAT_UNDEFINED]            = {0,                  0,                     0},
+        [NGLI_FORMAT_R8_UNORM]             = {GL_RED,             GL_R8,                 GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_R8_SNORM]             = {GL_RED,             GL_R8_SNORM,           GL_BYTE},
+        [NGLI_FORMAT_R8_UINT]              = {GL_RED_INTEGER,     GL_R8UI,               GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_R8_SINT]              = {GL_RED_INTEGER,     GL_R8I,                GL_BYTE},
+        [NGLI_FORMAT_R8G8_UNORM]           = {GL_RG,              GL_RG8,                GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_R8G8_SNORM]           = {GL_RG,              GL_RG8_SNORM,          GL_BYTE},
+        [NGLI_FORMAT_R8G8_UINT]            = {GL_RG_INTEGER,      GL_RG8UI,              GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_R8G8_SINT]            = {GL_RG_INTEGER,      GL_RG8I,               GL_BYTE},
+        [NGLI_FORMAT_R8G8B8_UNORM]         = {GL_RGB,             GL_RGB8,               GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_R8G8B8_SNORM]         = {GL_RGB,             GL_RGB8_SNORM,         GL_BYTE},
+        [NGLI_FORMAT_R8G8B8_UINT]          = {GL_RGB_INTEGER,     GL_RGB8UI,             GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_R8G8B8_SINT]          = {GL_RGB_INTEGER,     GL_RGB8I,              GL_BYTE},
+        [NGLI_FORMAT_R8G8B8_SRGB]          = {GL_RGB,             GL_SRGB8,              GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_R8G8B8A8_UNORM]       = {GL_RGBA,            GL_RGBA8,              GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_R8G8B8A8_SNORM]       = {GL_RGBA,            GL_RGBA8_SNORM,        GL_BYTE},
+        [NGLI_FORMAT_R8G8B8A8_UINT]        = {GL_RGBA_INTEGER,    GL_RGBA8UI,            GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_R8G8B8A8_SINT]        = {GL_RGBA_INTEGER,    GL_RGBA8I,             GL_BYTE},
+        [NGLI_FORMAT_R8G8B8A8_SRGB]        = {GL_RGBA,            GL_SRGB8_ALPHA8,       GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_B8G8R8A8_UNORM]       = {GL_BGRA,            GL_RGBA8,              GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_B8G8R8A8_SNORM]       = {GL_BGRA,            GL_RGBA8_SNORM,        GL_BYTE},
+        [NGLI_FORMAT_B8G8R8A8_UINT]        = {GL_BGRA_INTEGER,    GL_RGBA8UI,            GL_UNSIGNED_BYTE},
+        [NGLI_FORMAT_B8G8R8A8_SINT]        = {GL_BGRA_INTEGER,    GL_RGBA8I,             GL_BYTE},
+        [NGLI_FORMAT_R16_UNORM]            = {GL_RED,             GL_R16,                GL_UNSIGNED_SHORT},
+        [NGLI_FORMAT_R16_SNORM]            = {GL_RED,             GL_R16_SNORM,          GL_SHORT},
+        [NGLI_FORMAT_R16_UINT]             = {GL_RED_INTEGER,     GL_R16UI,              GL_UNSIGNED_SHORT},
+        [NGLI_FORMAT_R16_SINT]             = {GL_RED_INTEGER,     GL_R16I,               GL_SHORT},
+        [NGLI_FORMAT_R16_SFLOAT]           = {GL_RED,             GL_R16F,               GL_HALF_FLOAT},
+        [NGLI_FORMAT_R16G16_UNORM]         = {GL_RG,              GL_RG16,               GL_UNSIGNED_SHORT},
+        [NGLI_FORMAT_R16G16_SNORM]         = {GL_RG,              GL_RG16_SNORM,         GL_SHORT},
+        [NGLI_FORMAT_R16G16_UINT]          = {GL_RG_INTEGER,      GL_RG16UI,             GL_UNSIGNED_SHORT},
+        [NGLI_FORMAT_R16G16_SINT]          = {GL_RG_INTEGER,      GL_RG16I,              GL_SHORT},
+        [NGLI_FORMAT_R16G16_SFLOAT]        = {GL_RG,              GL_RG16F,              GL_HALF_FLOAT},
+        [NGLI_FORMAT_R16G16B16_UNORM]      = {GL_RGB,             GL_RGB16,              GL_UNSIGNED_SHORT},
+        [NGLI_FORMAT_R16G16B16_SNORM]      = {GL_RGB,             GL_RGB16_SNORM,        GL_SHORT},
+        [NGLI_FORMAT_R16G16B16_UINT]       = {GL_RGB_INTEGER,     GL_RGB16UI,            GL_UNSIGNED_SHORT},
+        [NGLI_FORMAT_R16G16B16_SINT]       = {GL_RGB_INTEGER,     GL_RGB16I,             GL_SHORT},
+        [NGLI_FORMAT_R16G16B16_SFLOAT]     = {GL_RGB,             GL_RGB16F,             GL_HALF_FLOAT},
+        [NGLI_FORMAT_R16G16B16A16_UNORM]   = {GL_RGBA,            GL_RGBA16,             GL_UNSIGNED_SHORT},
+        [NGLI_FORMAT_R16G16B16A16_SNORM]   = {GL_RGBA,            GL_RGBA16_SNORM,       GL_SHORT},
+        [NGLI_FORMAT_R16G16B16A16_UINT]    = {GL_RGBA_INTEGER,    GL_RGBA16UI,           GL_UNSIGNED_SHORT},
+        [NGLI_FORMAT_R16G16B16A16_SINT]    = {GL_RGBA_INTEGER,    GL_RGBA16I,            GL_SHORT},
+        [NGLI_FORMAT_R16G16B16A16_SFLOAT]  = {GL_RGBA,            GL_RGBA16F,            GL_HALF_FLOAT},
+        [NGLI_FORMAT_R32_UINT]             = {GL_RED_INTEGER,     GL_R32UI,              GL_UNSIGNED_INT},
+        [NGLI_FORMAT_R32_SINT]             = {GL_RED_INTEGER,     GL_R32I,               GL_INT},
+        [NGLI_FORMAT_R32_SFLOAT]           = {GL_RED,             GL_R32F,               GL_FLOAT},
+        [NGLI_FORMAT_R32G32_UINT]          = {GL_RG_INTEGER,      GL_RG32UI,             GL_UNSIGNED_INT},
+        [NGLI_FORMAT_R32G32_SINT]          = {GL_RG_INTEGER,      GL_RG32I,              GL_INT},
+        [NGLI_FORMAT_R32G32_SFLOAT]        = {GL_RG,              GL_RG32F,              GL_FLOAT},
+        [NGLI_FORMAT_R32G32B32_UINT]       = {GL_RGB_INTEGER,     GL_RGB32UI,            GL_UNSIGNED_INT},
+        [NGLI_FORMAT_R32G32B32_SINT]       = {GL_RGB_INTEGER,     GL_RGB32I,             GL_INT},
+        [NGLI_FORMAT_R32G32B32_SFLOAT]     = {GL_RGB,             GL_RGB32F,             GL_FLOAT},
+        [NGLI_FORMAT_R32G32B32A32_UINT]    = {GL_RGBA_INTEGER,    GL_RGBA32UI,           GL_UNSIGNED_INT},
+        [NGLI_FORMAT_R32G32B32A32_SINT]    = {GL_RGBA_INTEGER,    GL_RGBA32I,            GL_INT},
+        [NGLI_FORMAT_R32G32B32A32_SFLOAT]  = {GL_RGBA,            GL_RGBA32F,            GL_FLOAT},
+        [NGLI_FORMAT_D16_UNORM]            = {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT16,  GL_UNSIGNED_SHORT},
+        [NGLI_FORMAT_X8_D24_UNORM_PACK32]  = {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT24,  GL_UNSIGNED_INT},
+        [NGLI_FORMAT_D32_SFLOAT]           = {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT32F, GL_FLOAT},
+        [NGLI_FORMAT_D24_UNORM_S8_UINT]    = {GL_DEPTH_STENCIL,   GL_DEPTH24_STENCIL8,   GL_UNSIGNED_INT_24_8},
+        [NGLI_FORMAT_D32_SFLOAT_S8_UINT]   = {GL_DEPTH_STENCIL,   GL_DEPTH32F_STENCIL8,  GL_FLOAT_32_UNSIGNED_INT_24_8_REV},
+    };
+
+    ngli_assert(data_format >= 0 && data_format < NGLI_ARRAY_NB(format_map));
+    const struct entry *entry = &format_map[data_format];
+
+    ngli_assert(data_format == NGLI_FORMAT_UNDEFINED ||
+               (entry->format && entry->internal_format && entry->type));
+
+    GLint format = entry->format;
+    GLint internal_format;
+
     if (gl->backend == NGL_BACKEND_OPENGLES && gl->version < 300) {
-        if (internal_format == GL_BGRA)
-            return GL_RGBA;
-        return internal_format;
+        if (format == GL_RED)
+            format = GL_LUMINANCE;
+        else if (format == GL_RG)
+            format = GL_LUMINANCE_ALPHA;
+        internal_format = format == GL_BGRA ? GL_RGBA : format;
+    } else {
+        internal_format = entry->internal_format;
     }
 
-    GLenum format = 0;
-    switch (internal_format) {
-    case GL_RED:
-        if      (type == GL_UNSIGNED_BYTE)  format = GL_R8;
-        else if (type == GL_BYTE)           format = GL_R8_SNORM;
-        else if (type == GL_HALF_FLOAT)     format = GL_R16F;
-        else if (type == GL_FLOAT)          format = GL_R32F;
-        break;
-    case GL_RED_INTEGER:
-        if      (type == GL_UNSIGNED_BYTE)  format = GL_R8UI;
-        else if (type == GL_UNSIGNED_SHORT) format = GL_R16UI;
-        else if (type == GL_UNSIGNED_INT)   format = GL_R32UI;
-        else if (type == GL_BYTE)           format = GL_R8I;
-        else if (type == GL_SHORT)          format = GL_R16I;
-        else if (type == GL_INT)            format = GL_R32I;
-        break;
-    case GL_RG:
-        if      (type == GL_UNSIGNED_BYTE)  format = GL_RG8;
-        else if (type == GL_BYTE)           format = GL_RG8_SNORM;
-        else if (type == GL_HALF_FLOAT)     format = GL_RG16F;
-        else if (type == GL_FLOAT)          format = GL_RG32F;
-        break;
-    case GL_RG_INTEGER:
-        if      (type == GL_UNSIGNED_BYTE)  format = GL_RG8UI;
-        else if (type == GL_UNSIGNED_SHORT) format = GL_RG16UI;
-        else if (type == GL_UNSIGNED_INT)   format = GL_RG32UI;
-        else if (type == GL_BYTE)           format = GL_RG8I;
-        else if (type == GL_SHORT)          format = GL_RG16I;
-        else if (type == GL_INT)            format = GL_RG32I;
-        break;
-    case GL_RGB:
-        if      (type == GL_UNSIGNED_BYTE)  format = GL_RGB8;
-        else if (type == GL_BYTE)           format = GL_RGB8_SNORM;
-        else if (type == GL_HALF_FLOAT)     format = GL_RGB16F;
-        else if (type == GL_FLOAT)          format = GL_RGB32F;
-        break;
-    case GL_RGB_INTEGER:
-        if      (type == GL_UNSIGNED_BYTE)  format = GL_RGB8UI;
-        else if (type == GL_UNSIGNED_SHORT) format = GL_RGB16UI;
-        else if (type == GL_UNSIGNED_INT)   format = GL_RGB32UI;
-        else if (type == GL_BYTE)           format = GL_RGB8I;
-        else if (type == GL_SHORT)          format = GL_RGB16I;
-        else if (type == GL_INT)            format = GL_RGB32I;
-        break;
-    case GL_RGBA:
-    case GL_BGRA:
-        if      (type == GL_UNSIGNED_BYTE)  format = GL_RGBA8;
-        else if (type == GL_BYTE)           format = GL_RGBA8_SNORM;
-        else if (type == GL_HALF_FLOAT)     format = GL_RGBA16F;
-        else if (type == GL_FLOAT)          format = GL_RGBA32F;
-        break;
-    case GL_RGBA_INTEGER:
-        if      (type == GL_UNSIGNED_BYTE)  format = GL_RGBA8UI;
-        else if (type == GL_UNSIGNED_SHORT) format = GL_RGBA16UI;
-        else if (type == GL_UNSIGNED_INT)   format = GL_RGBA32UI;
-        else if (type == GL_BYTE)           format = GL_RGBA8I;
-        else if (type == GL_SHORT)          format = GL_RGBA16I;
-        else if (type == GL_INT)            format = GL_RGBA32I;
-        break;
-    case GL_DEPTH_COMPONENT:
-        if      (type == GL_UNSIGNED_SHORT) format = GL_DEPTH_COMPONENT16;
-        else if (type == GL_UNSIGNED_INT)   format = GL_DEPTH_COMPONENT24;
-        else if (type == GL_FLOAT)          format = GL_DEPTH_COMPONENT32F;
-        break;
-    case GL_DEPTH_STENCIL:
-        if      (type == GL_UNSIGNED_INT_24_8)               format = GL_DEPTH24_STENCIL8;
-        else if (type == GL_FLOAT_32_UNSIGNED_INT_24_8_REV)  format = GL_DEPTH32F_STENCIL8;
-        break;
-    }
+    if (formatp)
+        *formatp = format;
+    if (internal_formatp)
+        *internal_formatp = internal_format;
+    if (typep)
+        *typep = entry->type;
 
-    if (!format) {
-        LOG(WARNING,
-            "could not deduce sized internal format from format (0x%x) and type (0x%x)",
-            internal_format,
-            type);
-        format = internal_format;
-    }
-
-    return format;
+    return 0;
 }
 
 static void tex_image(const struct glcontext *gl, const struct texture *s,
@@ -462,8 +442,7 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
 
         switch (s->data_src->class->id) {
         case NGL_NODE_HUD:
-            s->format = s->internal_format = GL_RGBA;
-            s->type = GL_UNSIGNED_BYTE;
+            s->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
             break;
         case NGL_NODE_MEDIA:
             break;
@@ -518,23 +497,23 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
                     s->height = s->depth = 1;
                 }
             }
-
             data = buffer->data;
-            s->type = buffer->data_comp_type;
-            switch (buffer->data_comp) {
-            case 1: s->format = GL_RED;  break;
-            case 2: s->format = GL_RG;   break;
-            case 3: s->format = GL_RGB;  break;
-            case 4: s->format = GL_RGBA; break;
-            default: ngli_assert(0);
-            }
+            s->data_format = buffer->data_format;
             break;
         }
         default:
             ngli_assert(0);
         }
     }
-    s->internal_format = ngli_texture_get_sized_internal_format(gl, s->format, s->type);
+
+    int ret = ngli_format_get_gl_format_type(gl,
+                                             s->data_format,
+                                             &s->format,
+                                             &s->internal_format,
+                                             &s->type);
+    if (ret < 0)
+        return ret;
+
     ngli_texture_update_local_texture(node, s->width, s->height, s->depth, data);
 
     return 0;
