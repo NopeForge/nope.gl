@@ -94,10 +94,6 @@ static int update_uniforms(struct ngl_node *node)
             struct textureprograminfo *textureprograminfo = &s->textureprograminfos[i];
 
             if (textureprograminfo->sampler_id >= 0) {
-                GLenum format = ngli_texture_get_sized_internal_format(gl,
-                                                                       texture->format,
-                                                                       texture->type);
-
                 ngli_glBindImageTexture(gl,
                                         textureprograminfo->sampler_id,
                                         texture->id,
@@ -105,7 +101,7 @@ static int update_uniforms(struct ngl_node *node)
                                         GL_FALSE,
                                         0,
                                         texture->access,
-                                        format);
+                                        texture->internal_format);
             }
 
             if (textureprograminfo->dimensions_id >= 0) {

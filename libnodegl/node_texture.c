@@ -390,10 +390,6 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
             ngli_glGenTextures(gl, 1, &s->local_id);
             ngli_glBindTexture(gl, s->local_target, s->local_id);
             tex_set_params(gl, s);
-
-            s->internal_format = ngli_texture_get_sized_internal_format(gl,
-                                                                        s->format,
-                                                                        s->type);
             tex_storage(gl, s);
         } else {
             ngli_glBindTexture(gl, s->local_target, s->local_id);
@@ -414,9 +410,6 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
         }
 
         if (update_dimensions) {
-            s->internal_format = ngli_texture_get_sized_internal_format(gl,
-                                                                        s->format,
-                                                                        s->type);
             tex_image(gl, s, data);
         } else if (data) {
             tex_sub_image(gl, s, data);
@@ -529,10 +522,10 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
             data = buffer->data;
             s->type = buffer->data_comp_type;
             switch (buffer->data_comp) {
-            case 1: s->internal_format = s->format = GL_RED;  break;
-            case 2: s->internal_format = s->format = GL_RG;   break;
-            case 3: s->internal_format = s->format = GL_RGB;  break;
-            case 4: s->internal_format = s->format = GL_RGBA; break;
+            case 1: s->format = GL_RED;  break;
+            case 2: s->format = GL_RG;   break;
+            case 3: s->format = GL_RGB;  break;
+            case 4: s->format = GL_RGBA; break;
             default: ngli_assert(0);
             }
             break;
@@ -541,7 +534,7 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
             ngli_assert(0);
         }
     }
-
+    s->internal_format = ngli_texture_get_sized_internal_format(gl, s->format, s->type);
     ngli_texture_update_local_texture(node, s->width, s->height, s->depth, data);
 
     return 0;

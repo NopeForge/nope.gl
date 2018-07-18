@@ -63,21 +63,16 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
     case SXPLAYER_PIXFMT_RGBA:
         config->format = NGLI_HWUPLOAD_FMT_COMMON;
         config->gl_format = GL_RGBA;
-        config->gl_internal_format = GL_RGBA;
         config->gl_type = GL_UNSIGNED_BYTE;
         break;
     case SXPLAYER_PIXFMT_BGRA:
         config->format = NGLI_HWUPLOAD_FMT_COMMON;
         config->gl_format = GL_BGRA;
-        config->gl_internal_format = GL_RGBA;
         config->gl_type = GL_UNSIGNED_BYTE;
         break;
     case SXPLAYER_SMPFMT_FLT:
         config->format = NGLI_HWUPLOAD_FMT_COMMON;
         config->gl_format = gl->gl_1comp;
-        config->gl_internal_format = ngli_texture_get_sized_internal_format(gl,
-                                                                            config->gl_format,
-                                                                            GL_FLOAT);
         config->gl_type = GL_FLOAT;
         break;
 #if defined(TARGET_ANDROID)
@@ -136,7 +131,6 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
         default:
             ngli_assert(0);
         };
-        config->gl_internal_format = GL_RGBA;
         config->gl_type = GL_UNSIGNED_BYTE;
         break;
     }
@@ -144,6 +138,10 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
     default:
         ngli_assert(0);
     }
+
+    config->gl_internal_format = ngli_texture_get_sized_internal_format(gl,
+                                                                        config->gl_format,
+                                                                        config->gl_type);
 
     return 0;
 }
