@@ -489,7 +489,7 @@ def histogram(cfg):
     r = Render(q)
     r.update_textures(tex0=t)
     proxy_size = 128
-    proxy = Texture2D(width=proxy_size, height=proxy_size, immutable=1)
+    proxy = Texture2D(width=proxy_size, height=proxy_size)
     rtt = RenderToTexture(r, proxy)
     g.add_children(rtt)
 

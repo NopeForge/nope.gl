@@ -305,7 +305,6 @@
         - [data_src, Node]
         - [access, select]
         - [direct_rendering, bool]
-        - [immutable, bool]
 
 - Texture3D:
     optional:
@@ -321,7 +320,6 @@
         - [wrap_r, select]
         - [data_src, Node]
         - [access, select]
-        - [immutable, bool]
 
 - TimeRangeFilter:
     constructors:

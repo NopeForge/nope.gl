@@ -178,8 +178,6 @@ static const struct node_param texture2d_params[] = {
                .desc=NGLI_DOCSTRING("texture access (only honored by the `Compute` node)")},
     {"direct_rendering", PARAM_TYPE_BOOL, OFFSET(direct_rendering), {.i64=-1},
                          .desc=NGLI_DOCSTRING("whether direct rendering is enabled or not for media playback")},
-    {"immutable", PARAM_TYPE_BOOL, OFFSET(immutable), {.i64=0},
-                  .desc=NGLI_DOCSTRING("whether the texture is immutable or not")},
     {NULL}
 };
 
@@ -208,8 +206,6 @@ static const struct node_param texture3d_params[] = {
                  .desc=NGLI_DOCSTRING("data source")},
     {"access", PARAM_TYPE_SELECT, OFFSET(access), {.i64=GL_READ_WRITE}, .choices=&access_choices,
                .desc=NGLI_DOCSTRING("whether direct rendering is enabled or not for media playback")},
-    {"immutable", PARAM_TYPE_BOOL, OFFSET(immutable), {.i64=0},
-                  .desc=NGLI_DOCSTRING("whether the texture is immutable or not")},
     {NULL}
 };
 
@@ -449,11 +445,8 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
     struct glcontext *gl = ctx->glcontext;
     struct texture *s = node->priv_data;
 
-    if (s->immutable &&
-        !(gl->features & NGLI_FEATURE_TEXTURE_STORAGE)) {
-        LOG(ERROR, "context does not support texture storage");
-        return -1;
-    }
+    if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE)
+        s->immutable = 1;
 
     s->target = s->local_target = local_target;
 
