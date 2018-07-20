@@ -76,7 +76,7 @@ $(TOOLS_BINS): $(TOOLS_OBJS)
 
 clean:
 	$(RM) $(TOOLS_BINS)
-	$(RM) ngl-*.o common.o player.o
+	$(RM) ngl-*.o common.o player.o wsi_*.o
 
 install: $(TOOLS_BINS)
 	install -d $(DESTDIR)$(PREFIX)/bin
