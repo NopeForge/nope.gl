@@ -33,6 +33,14 @@
 #include "gldefinitions_data.h"
 #include "glfeatures_data.h"
 
+enum {
+    GLPLATFORM_GLX,
+    GLPLATFORM_EGL,
+    GLPLATFORM_NSGL,
+    GLPLATFORM_EAGL,
+    GLPLATFORM_WGL,
+};
+
 #ifdef HAVE_GLPLATFORM_GLX
 extern const struct glcontext_class ngli_glcontext_x11_class;
 #endif
@@ -55,20 +63,28 @@ extern const struct glcontext_class ngli_glcontext_wgl_class;
 
 static const struct glcontext_class *glcontext_class_map[] = {
 #ifdef HAVE_GLPLATFORM_GLX
-    [NGL_PLATFORM_XLIB]    = &ngli_glcontext_x11_class,
+    [GLPLATFORM_GLX] = &ngli_glcontext_x11_class,
 #endif
 #ifdef HAVE_GLPLATFORM_EGL
-    [NGL_PLATFORM_ANDROID] = &ngli_glcontext_egl_class,
+    [GLPLATFORM_EGL] = &ngli_glcontext_egl_class,
 #endif
 #ifdef HAVE_GLPLATFORM_NSGL
-    [NGL_PLATFORM_MACOS]   = &ngli_glcontext_nsgl_class,
+    [GLPLATFORM_NSGL] = &ngli_glcontext_nsgl_class,
 #endif
 #ifdef HAVE_GLPLATFORM_EAGL
-    [NGL_PLATFORM_IOS]     = &ngli_glcontext_eagl_class,
+    [GLPLATFORM_EAGL] = &ngli_glcontext_eagl_class,
 #endif
 #ifdef HAVE_GLPLATFORM_WGL
-    [NGL_PLATFORM_WINDOWS] = &ngli_glcontext_wgl_class,
+    [GLPLATFORM_WGL] = &ngli_glcontext_wgl_class,
 #endif
+};
+
+static const int platform_to_glplatform[] = {
+    [NGL_PLATFORM_XLIB]    = GLPLATFORM_GLX,
+    [NGL_PLATFORM_ANDROID] = GLPLATFORM_EGL,
+    [NGL_PLATFORM_MACOS]   = GLPLATFORM_NSGL,
+    [NGL_PLATFORM_IOS]     = GLPLATFORM_EAGL,
+    [NGL_PLATFORM_WINDOWS] = GLPLATFORM_WGL,
 };
 
 static int glcontext_choose_platform(int platform)
@@ -108,24 +124,26 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
 {
     struct glcontext *glcontext = NULL;
 
-    int platform = glcontext_choose_platform(config->platform);
-    if (platform < 0)
+    glcontext = calloc(1, sizeof(*glcontext));
+    if (!glcontext)
         return NULL;
 
     int backend = glcontext_choose_backend(config->backend);
     if (backend < 0)
         return NULL;
 
-    if (platform < 0 || platform >= NGLI_ARRAY_NB(glcontext_class_map))
+    const int platform = glcontext_choose_platform(config->platform);
+    if (platform < 0 || platform >= NGLI_ARRAY_NB(platform_to_glplatform))
         return NULL;
 
-    glcontext = calloc(1, sizeof(*glcontext));
-    if (!glcontext)
+    const int glplatform = platform_to_glplatform[platform];
+    if (glplatform < 0 || glplatform >= NGLI_ARRAY_NB(glcontext_class_map))
         return NULL;
 
-    glcontext->class = glcontext_class_map[platform];
+    glcontext->class = glcontext_class_map[glplatform];
     if (!glcontext->class)
         return NULL;
+
     if (glcontext->class->priv_size) {
         glcontext->priv_data = calloc(1, glcontext->class->priv_size);
         if (!glcontext->priv_data) {
