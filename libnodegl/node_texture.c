@@ -175,7 +175,7 @@ static const struct node_param texture3d_params[] = {
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D,
                  .desc=NGLI_DOCSTRING("data source")},
     {"access", PARAM_TYPE_SELECT, OFFSET(access), {.i64=GL_READ_WRITE}, .choices=&access_choices,
-               .desc=NGLI_DOCSTRING("whether direct rendering is enabled or not for media playback")},
+               .desc=NGLI_DOCSTRING("texture access (only honored by the `Compute` node)")},
     {NULL}
 };
 
