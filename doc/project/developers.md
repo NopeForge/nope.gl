@@ -15,7 +15,7 @@ DO
 DO NOT
 ------
 
-- **DO NOT** reorder public enum such as `NGL_GLPLATFORM_*` as it breaks ABI
+- **DO NOT** reorder public enum such as `NGL_PLATFORM_*` as it breaks ABI
 - **DO NOT** insert a value in the middle of a public enum as it breaks ABI
 - **DO NOT** remove or change a public prototype as it breaks API and ABI
 - **DO NOT** add ANY external dependency without previous discussion

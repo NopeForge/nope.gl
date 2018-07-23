@@ -26,12 +26,12 @@ cdef extern from "nodegl.h":
 
     int ngl_anim_evaluate(ngl_node *anim, void *dst, double t)
 
-    cdef int NGL_GLPLATFORM_AUTO
-    cdef int NGL_GLPLATFORM_GLX
-    cdef int NGL_GLPLATFORM_EGL
-    cdef int NGL_GLPLATFORM_NSGL
-    cdef int NGL_GLPLATFORM_EAGL
-    cdef int NGL_GLPLATFORM_WGL
+    cdef int NGL_PLATFORM_AUTO
+    cdef int NGL_PLATFORM_XLIB
+    cdef int NGL_PLATFORM_ANDROID
+    cdef int NGL_PLATFORM_MACOS
+    cdef int NGL_PLATFORM_IOS
+    cdef int NGL_PLATFORM_WINDOWS
 
     cdef int NGL_BACKEND_AUTO
     cdef int NGL_BACKEND_OPENGL
@@ -62,12 +62,12 @@ cdef extern from "nodegl.h":
     char *ngl_dot(ngl_ctx *s, double t) nogil
     void ngl_free(ngl_ctx **ss)
 
-GLPLATFORM_AUTO = NGL_GLPLATFORM_AUTO
-GLPLATFORM_GLX  = NGL_GLPLATFORM_GLX
-GLPLATFORM_EGL  = NGL_GLPLATFORM_EGL
-GLPLATFORM_NSGL = NGL_GLPLATFORM_NSGL
-GLPLATFORM_EAGL = NGL_GLPLATFORM_EAGL
-GLPLATFORM_WGL  = NGL_GLPLATFORM_WGL
+PLATFORM_AUTO    = NGL_PLATFORM_AUTO
+PLATFORM_XLIB    = NGL_PLATFORM_XLIB
+PLATFORM_ANDROID = NGL_PLATFORM_ANDROID
+PLATFORM_MACOS   = NGL_PLATFORM_MACOS
+PLATFORM_IOS     = NGL_PLATFORM_IOS
+PLATFORM_WINDOWS = NGL_PLATFORM_WINDOWS
 
 BACKEND_AUTO      = NGL_BACKEND_AUTO
 BACKEND_OPENGL    = NGL_BACKEND_OPENGL
@@ -102,7 +102,7 @@ cdef class Viewer:
     def configure(self, **kwargs):
         cdef ngl_config config
         memset(&config, 0, sizeof(config));
-        config.platform = kwargs.get('platform', GLPLATFORM_AUTO)
+        config.platform = kwargs.get('platform', PLATFORM_AUTO)
         config.backend = kwargs.get('backend', BACKEND_AUTO)
         config.wrapped = kwargs.get('wrapped', 0)
         config.display = kwargs.get('display', 0)

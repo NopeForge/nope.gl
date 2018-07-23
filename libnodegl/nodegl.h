@@ -270,15 +270,15 @@ char *ngl_node_serialize(const struct ngl_node *node);
 struct ngl_node *ngl_node_deserialize(const char *s);
 
 /**
- * OpenGL platforms identifiers
+ * Platform-specific identifiers
  */
 enum {
-    NGL_GLPLATFORM_AUTO,
-    NGL_GLPLATFORM_GLX,
-    NGL_GLPLATFORM_EGL,
-    NGL_GLPLATFORM_NSGL,
-    NGL_GLPLATFORM_EAGL,
-    NGL_GLPLATFORM_WGL,
+    NGL_PLATFORM_AUTO,
+    NGL_PLATFORM_XLIB,
+    NGL_PLATFORM_ANDROID,
+    NGL_PLATFORM_MACOS,
+    NGL_PLATFORM_IOS,
+    NGL_PLATFORM_WINDOWS,
 };
 
 /**
@@ -294,9 +294,7 @@ enum {
  * node.gl configuration
  */
 struct ngl_config {
-    int  platform; /* OpenGL platform (any of NGL_GLPLATFORM_*). It must be
-                      compatible with the system on which the code is executed.
-                      NGL_GLPLATFORM_AUTO can be used to auto-detect it */
+    int platform;  /* Platform-specific identifier (any of NGL_PLATFORM_*) */
 
     int backend;   /* Rendering backend (any of NGL_BACKEND_*) */
 

@@ -33,59 +33,59 @@
 #include "gldefinitions_data.h"
 #include "glfeatures_data.h"
 
-#ifdef HAVE_PLATFORM_GLX
+#ifdef HAVE_GLPLATFORM_GLX
 extern const struct glcontext_class ngli_glcontext_x11_class;
 #endif
 
-#ifdef HAVE_PLATFORM_EGL
+#ifdef HAVE_GLPLATFORM_EGL
 extern const struct glcontext_class ngli_glcontext_egl_class;
 #endif
 
-#ifdef HAVE_PLATFORM_NSGL
+#ifdef HAVE_GLPLATFORM_NSGL
 extern const struct glcontext_class ngli_glcontext_nsgl_class;
 #endif
 
-#ifdef HAVE_PLATFORM_EAGL
+#ifdef HAVE_GLPLATFORM_EAGL
 extern const struct glcontext_class ngli_glcontext_eagl_class;
 #endif
 
-#ifdef HAVE_PLATFORM_WGL
+#ifdef HAVE_GLPLATFORM_WGL
 extern const struct glcontext_class ngli_glcontext_wgl_class;
 #endif
 
 static const struct glcontext_class *glcontext_class_map[] = {
-#ifdef HAVE_PLATFORM_GLX
-    [NGL_GLPLATFORM_GLX] = &ngli_glcontext_x11_class,
+#ifdef HAVE_GLPLATFORM_GLX
+    [NGL_PLATFORM_XLIB]    = &ngli_glcontext_x11_class,
 #endif
-#ifdef HAVE_PLATFORM_EGL
-    [NGL_GLPLATFORM_EGL] = &ngli_glcontext_egl_class,
+#ifdef HAVE_GLPLATFORM_EGL
+    [NGL_PLATFORM_ANDROID] = &ngli_glcontext_egl_class,
 #endif
-#ifdef HAVE_PLATFORM_NSGL
-    [NGL_GLPLATFORM_NSGL] = &ngli_glcontext_nsgl_class,
+#ifdef HAVE_GLPLATFORM_NSGL
+    [NGL_PLATFORM_MACOS]   = &ngli_glcontext_nsgl_class,
 #endif
-#ifdef HAVE_PLATFORM_EAGL
-    [NGL_GLPLATFORM_EAGL] = &ngli_glcontext_eagl_class,
+#ifdef HAVE_GLPLATFORM_EAGL
+    [NGL_PLATFORM_IOS]     = &ngli_glcontext_eagl_class,
 #endif
-#ifdef HAVE_PLATFORM_WGL
-    [NGL_GLPLATFORM_WGL] = &ngli_glcontext_wgl_class,
+#ifdef HAVE_GLPLATFORM_WGL
+    [NGL_PLATFORM_WINDOWS] = &ngli_glcontext_wgl_class,
 #endif
 };
 
 static int glcontext_choose_platform(int platform)
 {
-    if (platform != NGL_GLPLATFORM_AUTO)
+    if (platform != NGL_PLATFORM_AUTO)
         return platform;
 
 #if defined(TARGET_LINUX)
-    return NGL_GLPLATFORM_GLX;
+    return NGL_PLATFORM_XLIB;
 #elif defined(TARGET_IPHONE)
-    return NGL_GLPLATFORM_EAGL;
+    return NGL_PLATFORM_IOS;
 #elif defined(TARGET_DARWIN)
-    return NGL_GLPLATFORM_NSGL;
+    return NGL_PLATFORM_MACOS;
 #elif defined(TARGET_ANDROID)
-    return NGL_GLPLATFORM_EGL;
+    return NGL_PLATFORM_ANDROID;
 #elif defined(TARGET_MINGW_W64)
-    return NGL_GLPLATFORM_WGL;
+    return NGL_PLATFORM_WINDOWS;
 #else
     LOG(ERROR, "can not determine which GL platform to use");
     return -1;

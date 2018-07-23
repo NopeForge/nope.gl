@@ -74,7 +74,7 @@ class Exporter(QtCore.QThread):
         # node.gl context
         ngl_viewer = ngl.Viewer()
         ngl_viewer.configure(
-            platform=ngl.GLPLATFORM_AUTO,
+            platform=ngl.PLATFORM_AUTO,
             backend=get_backend(cfg['backend']),
             wrapped=0,
             offscreen=1,
