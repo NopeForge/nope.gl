@@ -124,6 +124,8 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
         return NULL;
 
     glcontext->class = glcontext_class_map[platform];
+    if (!glcontext->class)
+        return NULL;
     if (glcontext->class->priv_size) {
         glcontext->priv_data = calloc(1, glcontext->class->priv_size);
         if (!glcontext->priv_data) {
