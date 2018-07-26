@@ -250,6 +250,9 @@ struct computeprogram {
     const char *compute;
 
     GLuint program_id;
+
+    struct uniformprograminfo *active_uniforms;
+    int nb_active_uniforms;
 };
 
 enum hwupload_fmt {

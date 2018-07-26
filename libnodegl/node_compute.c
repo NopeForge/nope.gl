@@ -244,23 +244,9 @@ static int compute_init(struct ngl_node *node)
         if (!s->uniform_ids)
             return -1;
 
-        int nb_active_uniforms = -1;
-        glGetProgramiv(program->program_id, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
-        for (int i = 0; i < nb_active_uniforms; i++) {
-            struct uniformprograminfo info = {0};
-            ngli_glGetActiveUniform(gl,
-                                    program->program_id,
-                                    i,
-                                    sizeof(info.name),
-                                    NULL,
-                                    &info.size,
-                                    &info.type,
-                                    info.name);
-
-            /* Remove [0] suffix from names of uniform arrays */
-            info.name[strcspn(info.name, "[")] = 0;
-
-            struct ngl_node *unode = ngli_hmap_get(s->uniforms, info.name);
+        for (int i = 0; i < program->nb_active_uniforms; i++) {
+            struct uniformprograminfo *active_uniform = &program->active_uniforms[i];
+            struct ngl_node *unode = ngli_hmap_get(s->uniforms, active_uniform->name);
             if (!unode)
                 continue;
 
@@ -269,8 +255,7 @@ static int compute_init(struct ngl_node *node)
                 return ret;
 
             struct uniformprograminfo *infop = &s->uniform_ids[s->nb_uniform_ids++];
-            info.id = ngli_glGetUniformLocation(gl, program->program_id, info.name);
-            *infop = info;
+            *infop = *active_uniform;
         }
     }
 
