@@ -97,12 +97,6 @@ static const struct node_param render_params[] = {
     {NULL}
 };
 
-#define SAMPLING_MODE_NONE         0
-#define SAMPLING_MODE_2D           1
-#define SAMPLING_MODE_EXTERNAL_OES 2
-#define SAMPLING_MODE_NV12         3
-
-
 #ifdef TARGET_ANDROID
 static void update_sampler2D(const struct glcontext *gl,
                              struct render *s,
@@ -115,7 +109,7 @@ static void update_sampler2D(const struct glcontext *gl,
         ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
 
     if (info->sampler_id >= 0) {
-        *sampling_mode = SAMPLING_MODE_2D;
+        *sampling_mode = NGLI_SAMPLING_MODE_2D;
         ngli_glBindTexture(gl, texture->target, texture->id);
         ngli_glUniform1i(gl, info->sampler_id, *unit_index);
     }
@@ -142,7 +136,7 @@ static void update_external_sampler(const struct glcontext *gl,
     }
 
     if (info->external_sampler_id >= 0) {
-        *sampling_mode = SAMPLING_MODE_EXTERNAL_OES;
+        *sampling_mode = NGLI_SAMPLING_MODE_EXTERNAL_OES;
         ngli_glBindTexture(gl, texture->target, texture->id);
         ngli_glUniform1i(gl, info->external_sampler_id, *unit_index);
     }
@@ -156,7 +150,7 @@ static void update_sampler2D(const struct glcontext *gl,
                              int *sampling_mode)
 {
     if (texture->upload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR) {
-        *sampling_mode = SAMPLING_MODE_NV12;
+        *sampling_mode = NGLI_SAMPLING_MODE_NV12;
 
         if (info->sampler_id >= 0)
             ngli_glUniform1i(gl, info->sampler_id, 0);
@@ -178,7 +172,7 @@ static void update_sampler2D(const struct glcontext *gl,
             ngli_glUniform1i(gl, info->uv_sampler_id, *unit_index);
         }
     } else if (info->sampler_id >= 0) {
-        *sampling_mode = SAMPLING_MODE_2D;
+        *sampling_mode = NGLI_SAMPLING_MODE_2D;
 
         ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
         ngli_glBindTexture(gl, texture->target, texture->id);
@@ -200,7 +194,7 @@ static void update_sampler2D(const struct glcontext *gl,
                              int *sampling_mode)
 {
     if (info->sampler_id) {
-        *sampling_mode = SAMPLING_MODE_2D;
+        *sampling_mode = NGLI_SAMPLING_MODE_2D;
 
         ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
         ngli_glBindTexture(gl, texture->target, texture->id);
@@ -217,7 +211,7 @@ static void update_sampler3D(const struct glcontext *gl,
                              int *sampling_mode)
 {
     if (info->sampler_id) {
-        *sampling_mode = SAMPLING_MODE_2D;
+        *sampling_mode = NGLI_SAMPLING_MODE_2D;
 
         ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
         ngli_glBindTexture(gl, texture->target, texture->id);
@@ -251,7 +245,7 @@ static int update_samplers(struct ngl_node *node)
             struct texture *texture = tnode->priv_data;
             struct textureprograminfo *info = &s->textureprograminfos[i];
 
-            int sampling_mode = SAMPLING_MODE_NONE;
+            int sampling_mode = NGLI_SAMPLING_MODE_NONE;
             switch (texture->target) {
             case GL_TEXTURE_2D:
                 update_sampler2D(gl, s, texture, info, &texture_index, &sampling_mode);

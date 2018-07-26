@@ -178,6 +178,7 @@ cmds = [
 
     # Shader Uniforms
     'glGetUniformLocation',
+    'glGetUniformiv',
     'glUniform1f',
     'glUniform1fv',
     'glUniform1i',

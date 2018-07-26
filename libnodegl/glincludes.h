@@ -62,9 +62,12 @@
 #if NGL_OGL3_COMPAT_INCLUDES
 # define GL_LUMINANCE                          0x1909
 # define GL_LUMINANCE_ALPHA                    0x190A
+# define GL_SAMPLER_EXTERNAL_OES               0x8D66
 #endif
 
 #if NGL_GLES2_COMPAT_INCLUDES
+# define GL_SAMPLER_3D                         0x8B5F
+# define GL_SAMPLER_EXTERNAL_OES               0x8D66
 # define GL_MAJOR_VERSION                      0x821B
 # define GL_MINOR_VERSION                      0x821C
 # define GL_NUM_EXTENSIONS                     0x821D
@@ -184,6 +187,7 @@
 # define GL_TRANSFORM_FEEDBACK_BARRIER_BIT     0x00000800
 # define GL_ATOMIC_COUNTER_BARRIER_BIT         0x00001000
 # define GL_ALL_BARRIER_BITS                   0xFFFFFFFF
+# define GL_IMAGE_2D                           0x904D
 #endif
 
 #endif /* GLINCLUDES_H */

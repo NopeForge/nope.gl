@@ -91,6 +91,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY const GLubyte * (*GetString)(GLenum name);
     NGLI_GL_APIENTRY const GLubyte * (*GetStringi)(GLenum name, GLuint index);
     NGLI_GL_APIENTRY GLint (*GetUniformLocation)(GLuint program, const GLchar * name);
+    NGLI_GL_APIENTRY void (*GetUniformiv)(GLuint program, GLint location, GLint * params);
     NGLI_GL_APIENTRY void (*LinkProgram)(GLuint program);
     NGLI_GL_APIENTRY void (*MemoryBarrier)(GLbitfield barriers);
     NGLI_GL_APIENTRY void (*PolygonMode)(GLenum face, GLenum mode);

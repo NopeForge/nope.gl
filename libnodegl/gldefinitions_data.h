@@ -92,6 +92,7 @@ static const struct gldefinition {
     {"glGetString", offsetof(struct glfunctions, GetString), M},
     {"glGetStringi", offsetof(struct glfunctions, GetStringi), M},
     {"glGetUniformLocation", offsetof(struct glfunctions, GetUniformLocation), M},
+    {"glGetUniformiv", offsetof(struct glfunctions, GetUniformiv), M},
     {"glLinkProgram", offsetof(struct glfunctions, LinkProgram), M},
     {"glMemoryBarrier", offsetof(struct glfunctions, MemoryBarrier), 0},
     {"glPolygonMode", offsetof(struct glfunctions, PolygonMode), 0},

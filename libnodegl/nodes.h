@@ -328,8 +328,17 @@ struct uniformprograminfo {
     char name[64];
 };
 
+
+#define NGLI_SAMPLING_MODE_NONE         0
+#define NGLI_SAMPLING_MODE_2D           1
+#define NGLI_SAMPLING_MODE_EXTERNAL_OES 2
+#define NGLI_SAMPLING_MODE_NV12         3
+
 struct textureprograminfo {
+    char name[64];
     int sampling_mode_id;
+    int sampler_value;
+    int sampler_type;
     int sampler_id;
 #if defined(TARGET_ANDROID)
     int external_sampler_id;
@@ -372,6 +381,10 @@ struct compute {
 
     struct hmap *textures;
     struct textureprograminfo *textureprograminfos;
+    int nb_textureprograminfos;
+
+    uint64_t used_texture_units;
+    int disabled_texture_unit;
 
     struct hmap *uniforms;
     struct uniformprograminfo *uniform_ids;

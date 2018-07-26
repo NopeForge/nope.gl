@@ -490,6 +490,12 @@ static inline GLint ngli_glGetUniformLocation(const struct glcontext *gl, GLuint
     return ret;
 }
 
+static inline void ngli_glGetUniformiv(const struct glcontext *gl, GLuint program, GLint location, GLint * params)
+{
+    gl->funcs.GetUniformiv(program, location, params);
+    check_error_code(gl, "glGetUniformiv");
+}
+
 static inline void ngli_glLinkProgram(const struct glcontext *gl, GLuint program)
 {
     gl->funcs.LinkProgram(program);
