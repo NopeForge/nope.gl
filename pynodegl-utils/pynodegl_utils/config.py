@@ -25,7 +25,7 @@ import os
 import os.path as op
 import tempfile
 import json
-from PyQt5 import QtCore
+from PySide2 import QtCore
 
 
 class Config(QtCore.QObject):
@@ -102,7 +102,7 @@ class Config(QtCore.QObject):
         config_dir = op.join(config_basedir, 'node.gl')
         return op.join(config_dir, 'viewer.json')
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _check_config(self):
         if not self._needs_saving:
             return
@@ -126,62 +126,62 @@ class Config(QtCore.QObject):
         self._cfg[key] = value
         self._needs_saving = True
 
-    @QtCore.pyqtSlot(list)
+    @QtCore.Slot(list)
     def set_medias_list(self, medias_list):
         self._set_cfg('medias_list', medias_list)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def set_medias_last_dir(self, last_dir):
         self._set_cfg('medias_last_dir', last_dir)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def set_export_width(self, export_width):
         self._set_cfg('export_width', export_width)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def set_export_height(self, export_height):
         self._set_cfg('export_height', export_height)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def set_export_filename(self, filename):
         self._set_cfg('export_filename', filename)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def set_export_extra_enc_args(self, extra_enc_args):
         self._set_cfg('export_extra_enc_args', extra_enc_args)
 
-    @QtCore.pyqtSlot(tuple)
+    @QtCore.Slot(tuple)
     def set_aspect_ratio(self, ar):
         self._set_cfg('aspect_ratio', ar)
 
-    @QtCore.pyqtSlot(tuple)
+    @QtCore.Slot(tuple)
     def set_frame_rate(self, fr):
         self._set_cfg('framerate', fr)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def set_samples(self, samples):
         self._set_cfg('samples', samples)
 
-    @QtCore.pyqtSlot(tuple)
+    @QtCore.Slot(tuple)
     def set_clear_color(self, color):
         self._set_cfg('clear_color', color)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def set_log_level(self, level):
         self._set_cfg('log_level', level)
 
-    @QtCore.pyqtSlot(bool)
+    @QtCore.Slot(bool)
     def set_hud(self, hud):
         self._set_cfg('enable_hud', hud)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def set_backend(self, backend):
         self._set_cfg('backend', backend)
 
     def geometry_changed(self, geometry):
         self._set_cfg('geometry', geometry)
 
-    @QtCore.pyqtSlot(str, str)
+    @QtCore.Slot(str, str)
     def scene_changed(self, module_name, scene_name):
         self._set_cfg('pkg', self._module_pkgname)
         self._set_cfg('module', module_name)

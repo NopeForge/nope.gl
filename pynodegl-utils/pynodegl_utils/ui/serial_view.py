@@ -21,7 +21,7 @@
 # under the License.
 #
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class SerialView(QtWidgets.QWidget):
@@ -47,7 +47,7 @@ class SerialView(QtWidgets.QWidget):
 
         self._save_btn.clicked.connect(self._save_to_file)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _save_to_file(self):
         data = self._text.toPlainText()
         filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')

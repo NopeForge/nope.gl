@@ -25,7 +25,7 @@ import tempfile
 import subprocess
 
 import pynodegl as ngl
-from PyQt5 import QtGui, QtCore
+from PySide2 import QtGui, QtCore
 
 from .com import query_inplace
 from .misc import get_backend, get_viewport
@@ -33,9 +33,9 @@ from .misc import get_backend, get_viewport
 
 class Exporter(QtCore.QThread):
 
-    progressed = QtCore.pyqtSignal(int)
-    failed = QtCore.pyqtSignal()
-    finished = QtCore.pyqtSignal()
+    progressed = QtCore.Signal(int)
+    failed = QtCore.Signal()
+    finished = QtCore.Signal()
 
     def __init__(self, get_scene_func, filename, w, h, extra_enc_args=None, time=None):
         super(Exporter, self).__init__()

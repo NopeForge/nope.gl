@@ -2,7 +2,7 @@ pynodegl-utils
 ==============
 
 [pynodegl-utils][pynodegl-utils] provides various utilities around `node.gl`
-and its Python binding. Its core tool is the PyQt5 viewer with all its
+and its Python binding. Its core tool is the Qt viewer with all its
 peripheral features such as the exporter or the tooling for easing the
 creation of `node.gl` scene graphs.
 

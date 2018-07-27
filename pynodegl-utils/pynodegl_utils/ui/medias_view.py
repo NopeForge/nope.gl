@@ -23,7 +23,7 @@
 
 import os.path as op
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 from pynodegl_utils.misc import Media
 
@@ -92,13 +92,13 @@ class MediasView(QtWidgets.QWidget):
             medias.append(item.data())
         return medias
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _list_add(self):
         last_dir = self._config.get('medias_last_dir')
         filenames = QtWidgets.QFileDialog.getOpenFileNames(self, 'Open media files', last_dir, '')
         self._add_medias(*filenames[0])
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _list_rm(self):
         selection_model = self._view.selectionModel()
         while True:
@@ -108,7 +108,7 @@ class MediasView(QtWidgets.QWidget):
             self._model.removeRow(indexes[0].row())
         self._update_cfg()
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _list_moveup(self):
         selection_model = self._view.selectionModel()
         indexes = selection_model.selectedIndexes()
@@ -121,7 +121,7 @@ class MediasView(QtWidgets.QWidget):
             selection_model.select(self._model.indexFromItem(row[0]), QtCore.QItemSelectionModel.Select)
         self._update_cfg()
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _list_movedown(self):
         selection_model = self._view.selectionModel()
         indexes = selection_model.selectedIndexes()

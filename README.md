@@ -18,10 +18,6 @@ and API can change at any time.
 `node.gl` is licensed under the Apache License, Version 2.0. Read the
 [LICENSE][license] and [NOTICE][notice] files for details.
 
-**Warning**: `pynodegl-utils` has an optional dependency on PyQt5 which is
-licensed under the GPL and thus restrict the `pynodegl-utils` module
-distribution.
-
 [license]: /LICENSE
 [notice]: /NOTICE
 

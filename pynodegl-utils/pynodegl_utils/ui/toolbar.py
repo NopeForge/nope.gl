@@ -23,7 +23,7 @@
 
 import os.path as op
 from fractions import Fraction
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 import pynodegl as ngl
 
@@ -32,14 +32,14 @@ from pynodegl_utils.config import Config
 
 class Toolbar(QtWidgets.QWidget):
 
-    sceneChanged = QtCore.pyqtSignal(str, str)
-    aspectRatioChanged = QtCore.pyqtSignal(tuple)
-    samplesChanged = QtCore.pyqtSignal(int)
-    frameRateChanged = QtCore.pyqtSignal(tuple)
-    logLevelChanged = QtCore.pyqtSignal(str)
-    clearColorChanged = QtCore.pyqtSignal(tuple)
-    backendChanged = QtCore.pyqtSignal(str)
-    hudChanged = QtCore.pyqtSignal(bool)
+    sceneChanged = QtCore.Signal(str, str)
+    aspectRatioChanged = QtCore.Signal(tuple)
+    samplesChanged = QtCore.Signal(int)
+    frameRateChanged = QtCore.Signal(tuple)
+    logLevelChanged = QtCore.Signal(str)
+    clearColorChanged = QtCore.Signal(tuple)
+    backendChanged = QtCore.Signal(str)
+    hudChanged = QtCore.Signal(bool)
 
     def __init__(self, config):
         super(Toolbar, self).__init__()
@@ -176,7 +176,7 @@ class Toolbar(QtWidgets.QWidget):
             self._scene_opts_widget = widget
             widget.show()
 
-    @QtCore.pyqtSlot(str, object)
+    @QtCore.Slot(str, object)
     def _widget_scene_reload(self, name, value):
         self._scene_extra_args[name] = value
         self._load_current_scene(load_widgets=False)
@@ -259,14 +259,14 @@ class Toolbar(QtWidgets.QWidget):
             self._scn_mdl.appendRow(qitem_script)
         self._scn_view.expandAll()
 
-    @QtCore.pyqtSlot(QtCore.QModelIndex)
+    @QtCore.Slot(QtCore.QModelIndex)
     def _scn_view_selected(self, index):
         data = self._scn_mdl.itemFromIndex(index).data()
         if data:
             self._current_scene_data = data
             self._load_current_scene()
 
-    @QtCore.pyqtSlot(list)
+    @QtCore.Slot(list)
     def on_scripts_changed(self, scenes):
         self._reload_scene_view(scenes)
         self._load_current_scene()
@@ -287,31 +287,31 @@ class Toolbar(QtWidgets.QWidget):
         except ValueError:
             pass
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _hud_chkbox_changed(self):
         self.hudChanged.emit(self._hud_chkbox.isChecked())
         self._load_current_scene()
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def _set_loglevel(self, index):
         level_str = Config.CHOICES['log_level'][index]
         ngl_level = eval('ngl.LOG_%s' % level_str.upper())
         ngl.log_set_min_level(ngl_level)
         self.logLevelChanged.emit(level_str)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def _set_aspect_ratio(self, index):
         ar = Config.CHOICES['aspect_ratio'][index]
         self.aspectRatioChanged.emit(ar)
         self._load_current_scene()
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def _set_frame_rate(self, index):
         fr = Config.CHOICES['framerate'][index]
         self.frameRateChanged.emit(fr)
         self._load_current_scene()
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def _set_samples(self, index):
         samples = Config.CHOICES['samples'][index]
         self.samplesChanged.emit(samples)
@@ -322,7 +322,7 @@ class Toolbar(QtWidgets.QWidget):
         self._clearcolor_btn.setStyleSheet('background-color: %s;' % color_name)
         self._clear_color = color.getRgbF()
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _set_clear_color(self):
         initial_color = QtGui.QColor()
         initial_color.setRgbF(*self._clear_color)
@@ -333,7 +333,7 @@ class Toolbar(QtWidgets.QWidget):
         self.clearColorChanged.emit(color.getRgbF())
         self._load_current_scene()
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def _set_backend(self, index):
         backend = Config.CHOICES['backend'][index]
         self.backendChanged.emit(backend)

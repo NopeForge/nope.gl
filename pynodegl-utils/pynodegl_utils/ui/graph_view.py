@@ -24,7 +24,7 @@
 import os.path as op
 import tempfile
 import subprocess
-from PyQt5 import QtCore, QtGui, QtWidgets, QtSvg
+from PySide2 import QtCore, QtGui, QtWidgets, QtSvg
 
 from .seekbar import Seekbar
 
@@ -94,30 +94,30 @@ class GraphView(QtWidgets.QWidget):
 
         self._clock = player.Clock(self._framerate, 0.0)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _play(self):
         self._timer.start()
         self._clock.start()
         self._seekbar.set_play_state()
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _pause(self):
         self._timer.stop()
         self._clock.stop()
         self._seekbar.set_pause_state()
 
-    @QtCore.pyqtSlot(float)
+    @QtCore.Slot(float)
     def _seek(self, time):
         self._clock.set_playback_time(time)
         self._update()
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def _step(self, step):
         self._clock.step_playback_index(step)
         self._pause()
         self._update()
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _update(self):
         if not self._viewer:
             return
@@ -127,7 +127,7 @@ class GraphView(QtWidgets.QWidget):
             self._update_graph(dot_scene)
             self._seekbar.set_frame_time(frame_index, frame_time)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _save_to_file(self):
         filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
         if not filenames[0]:
@@ -202,17 +202,17 @@ class GraphView(QtWidgets.QWidget):
         self._scene.addItem(item)
         self._scene.setSceneRect(item.boundingRect())
 
-    @QtCore.pyqtSlot(tuple)
+    @QtCore.Slot(tuple)
     def set_frame_rate(self, fr):
         self._framerate = fr
         self._seekbar.set_scene_metadata({'framerate': self._framerate, 'duration': self._duration})
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def set_samples(self, samples):
         self._samples = samples
         self._seekbar.set_scene_metadata({'framerate': self._framerate, 'duration': self._duration})
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def _seek_check_changed(self, state):
         if state:
             self._seekbar.setEnabled(True)

@@ -21,9 +21,9 @@
 # under the License.
 #
 
-from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QEvent
+from PySide2 import QtCore, QtWidgets
+from PySide2.QtCore import Qt
+from PySide2.QtCore import QEvent
 
 from .seekbar import Seekbar
 
@@ -33,7 +33,7 @@ from pynodegl_utils import export
 
 class _GLWidget(QtWidgets.QWidget):
 
-    onPlayerAvailable = QtCore.pyqtSignal()
+    onPlayerAvailable = QtCore.Signal()
 
     def __init__(self, parent, config):
         super(_GLWidget, self).__init__(parent)
@@ -81,7 +81,7 @@ class _GLWidget(QtWidgets.QWidget):
                 self._player.wait()
         return super(_GLWidget, self).event(event)
 
-    @QtCore.pyqtSlot(int, float)
+    @QtCore.Slot(int, float)
     def _set_last_frame_time(self, frame_index, frame_time):
         self._last_frame_time = frame_time
 
@@ -117,7 +117,7 @@ class GLView(QtWidgets.QWidget):
 
         screenshot_btn.clicked.connect(self._screenshot)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _connect_seekbar(self):
         player = self._gl_widget.get_player()
         player.set_scene(self._cfg)
@@ -133,7 +133,7 @@ class GLView(QtWidgets.QWidget):
         self._seekbar.step.connect(player.step)
         self._seekbar.stop.connect(player.reset_scene)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _screenshot(self):
         filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Save screenshot file')
         if not filenames[0]:
@@ -149,35 +149,35 @@ class GLView(QtWidgets.QWidget):
         exporter.start()
         exporter.wait()
 
-    @QtCore.pyqtSlot(tuple)
+    @QtCore.Slot(tuple)
     def set_aspect_ratio(self, ar):
         player = self._gl_widget.get_player()
         if not player:
             return
         player.set_aspect_ratio(ar)
 
-    @QtCore.pyqtSlot(tuple)
+    @QtCore.Slot(tuple)
     def set_frame_rate(self, fr):
         player = self._gl_widget.get_player()
         if not player:
             return
         player.set_framerate(fr)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def set_samples(self, samples):
         player = self._gl_widget.get_player()
         if not player:
             return
         player.set_samples(samples)
 
-    @QtCore.pyqtSlot(tuple)
+    @QtCore.Slot(tuple)
     def set_clear_color(self, color):
         player = self._gl_widget.get_player()
         if not player:
             return
         player.set_clear_color(color)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def set_backend(self, backend):
         player = self._gl_widget.get_player()
         if not player:

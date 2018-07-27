@@ -1,2 +1,3 @@
 pynodegl
+pyside2
 watchdog

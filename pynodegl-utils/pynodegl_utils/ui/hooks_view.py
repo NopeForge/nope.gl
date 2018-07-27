@@ -22,7 +22,7 @@
 #
 
 from collections import OrderedDict
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class HooksView(QtWidgets.QWidget):
@@ -62,7 +62,7 @@ class HooksView(QtWidgets.QWidget):
         self._references = {}
         self._refresh()
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _refresh(self):
         self._data_cache.update(self.get_data_from_model())
 
@@ -152,7 +152,7 @@ if __name__ == '__main__':
             layout.addWidget(action_btn)
             self.setLayout(layout)
 
-        @QtCore.pyqtSlot()
+        @QtCore.Slot()
         def _do_action(self):
             data = self._hooks_view.get_data_from_model()
             for id_, data_row in data.items():

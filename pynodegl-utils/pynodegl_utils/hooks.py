@@ -28,7 +28,7 @@ import tempfile
 import subprocess
 import time
 
-from PyQt5 import QtCore
+from PySide2 import QtCore
 
 
 class HooksCaller:
@@ -116,11 +116,11 @@ class HooksCaller:
 
 class _HooksThread(QtCore.QThread):
 
-    uploadingFile = QtCore.pyqtSignal(str, int, int, str)
-    buildingScene = QtCore.pyqtSignal(str, str, str)
-    sendingScene = QtCore.pyqtSignal(str, str)
-    done = QtCore.pyqtSignal(str, str, float)
-    error = QtCore.pyqtSignal(str, str)
+    uploadingFile = QtCore.Signal(str, int, int, str)
+    buildingScene = QtCore.Signal(str, str, str)
+    sendingScene = QtCore.Signal(str, str)
+    done = QtCore.Signal(str, str, float)
+    error = QtCore.Signal(str, str)
 
     def __init__(self, get_scene_func, hooks_caller, session_id, backend, system, module_name, scene_name):
         super(_HooksThread, self).__init__()
@@ -223,22 +223,22 @@ class HooksController(QtCore.QObject):
             hook_thread.error.connect(self._hooks_error)
             hook_thread.start()
 
-    @QtCore.pyqtSlot(str, int, int, str)
+    @QtCore.Slot(str, int, int, str)
     def _hooks_uploading(self, session_id, i, n, filename):
         self._hooks_view.update_status(session_id, 'Uploading [%d/%d]: %s...' % (i, n, filename))
 
-    @QtCore.pyqtSlot(str, str, str)
+    @QtCore.Slot(str, str, str)
     def _hooks_building_scene(self, session_id, backend, system):
         self._hooks_view.update_status(session_id, 'Building %s scene in %s...' % (system, backend))
 
-    @QtCore.pyqtSlot(str, str)
+    @QtCore.Slot(str, str)
     def _hooks_sending_scene(self, session_id, scene):
         self._hooks_view.update_status(session_id, 'Sending scene %s...' % scene)
 
-    @QtCore.pyqtSlot(str, str, float)
+    @QtCore.Slot(str, str, float)
     def _hooks_done(self, session_id, scene, t):
         self._hooks_view.update_status(session_id, 'Submitted %s in %f' % (scene, t))
 
-    @QtCore.pyqtSlot(str, str)
+    @QtCore.Slot(str, str)
     def _hooks_error(self, session_id, err):
         self._hooks_view.update_status(session_id, err)

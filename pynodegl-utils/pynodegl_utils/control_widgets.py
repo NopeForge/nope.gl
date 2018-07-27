@@ -22,12 +22,12 @@
 #
 
 import os.path as op
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class _ControlWidget(QtWidgets.QWidget):
 
-    needSceneReload = QtCore.pyqtSignal(str, object)
+    needSceneReload = QtCore.Signal(str, object)
 
     def __init__(self, name):
         super(_ControlWidget, self).__init__()
@@ -57,7 +57,7 @@ class Slider(_ControlWidget):
         self.layout.addWidget(self._label)
         self.layout.addWidget(slider)
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def _slider_value_changed(self, value):
         real_value = value if self._unit_base == 1 else value / float(self._unit_base)
         self._label.setText(self.get_label_text(real_value))
@@ -88,7 +88,7 @@ class VectorWidget(_ControlWidget):
         self.layout.addWidget(label)
         self.layout.addLayout(hlayout)
 
-    @QtCore.pyqtSlot(float)
+    @QtCore.Slot(float)
     def _spin_value_changed(self, value):
         self.signal_change(tuple(spin.value() for spin in self._spinboxes))
 
@@ -108,7 +108,7 @@ class ColorPicker(_ControlWidget):
         self.layout.addWidget(self._label)
         self.layout.addWidget(self._color_btn)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _pick_color(self):
         color = QtWidgets.QColorDialog.getColor(initial=self._qcolor)
         if not color.isValid():
@@ -128,7 +128,7 @@ class Checkbox(_ControlWidget):
         self._chkbox.stateChanged.connect(self._checkbox_toggle)
         self.layout.addWidget(self._chkbox)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _checkbox_toggle(self):
         self.signal_change(self._chkbox.isChecked())
 
@@ -144,7 +144,7 @@ class FilePicker(_ControlWidget):
         self.layout.addWidget(self._label)
         self.layout.addWidget(dialog_btn)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _choose_filename(self):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', self._filter)
         if not filename[0]:
@@ -166,7 +166,7 @@ class ComboBox(_ControlWidget):
         self.layout.addWidget(label)
         self.layout.addWidget(combobox)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def _combobox_select(self, text):
         self.signal_change(text)
 
@@ -186,6 +186,6 @@ class TextInput(_ControlWidget):
         self.layout.addWidget(self._text)
         self.layout.addWidget(submit_btn)
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _submit_text(self):
         self.signal_change(self._text.toPlainText())

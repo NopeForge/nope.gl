@@ -27,7 +27,7 @@ from threading import Timer
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from PyQt5 import QtCore
+from PySide2 import QtCore
 
 from .com import query_subproc
 
@@ -36,8 +36,8 @@ MIN_RELOAD_INTERVAL = 0.0015
 
 class ScriptsManager(QtCore.QObject):
 
-    scriptsChanged = QtCore.pyqtSignal(list)
-    error = QtCore.pyqtSignal(str)
+    scriptsChanged = QtCore.Signal(list)
+    error = QtCore.Signal(str)
 
     def __init__(self, module_pkgname):
         super(ScriptsManager, self).__init__()
@@ -64,7 +64,7 @@ class ScriptsManager(QtCore.QObject):
     def pause(self):
         self._observer.unschedule_all()
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def reload(self):
         self.pause()
         odict = query_subproc(query='list', pkg=self._module_pkgname)
@@ -96,12 +96,12 @@ class ScriptsManager(QtCore.QObject):
     def _update_dirs_to_watch(self):
         self._dirs_to_watch = set(op.dirname(f) for f in self._files_to_watch)
 
-    @QtCore.pyqtSlot(list)
+    @QtCore.Slot(list)
     def update_filelist(self, filelist):
         self._files_to_watch.update(filelist)
         self._update_dirs_to_watch()
 
-    @QtCore.pyqtSlot(list)
+    @QtCore.Slot(list)
     def set_filelist(self, filelist):
         self._files_to_watch = set(filelist)
         self._update_dirs_to_watch()

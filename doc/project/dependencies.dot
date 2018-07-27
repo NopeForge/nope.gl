@@ -15,7 +15,7 @@ digraph {
     ffmpeg[label="FFmpeg"]
     glfw3[label="GLFW3"]
     graphviz[label="Graphviz"]
-    pyqt5[label="PyQt5"]
+    pyside2[label="PySide2"]
     python[label="Python"]
     sxplayer
     watchdog
@@ -31,6 +31,6 @@ digraph {
     pynodegl_utils -> python
     pynodegl_utils -> pynodegl
     pynodegl_utils -> graphviz[style=dashed]
-    pynodegl_utils -> pyqt5
+    pynodegl_utils -> pyside2
     pynodegl_utils -> watchdog
 }

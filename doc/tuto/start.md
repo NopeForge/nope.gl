@@ -25,7 +25,7 @@ for building and running the complete **node.gl** stack:
 - **Python 2.x** (you will need the package with the build headers as well,
   typically named with a `-dev` suffix on Debian based systems)
 - **pip2**
-- **Qt5** and its Python 2 binding: **PyQt5**
+- **Qt5** and its Python 2 binding: **PySide2**
 - **Graphviz**
 - **GLFW3**
 
