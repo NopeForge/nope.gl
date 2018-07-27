@@ -360,7 +360,10 @@ struct render {
 
     struct hmap *textures;
     struct textureprograminfo *textureprograminfos;
-    int disable_1st_texture_unit;
+    int nb_textureprograminfos;
+
+    uint64_t used_texture_units;
+    int disabled_texture_unit;
 
     struct hmap *uniforms;
     struct uniformprograminfo *uniform_ids;
