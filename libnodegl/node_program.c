@@ -204,6 +204,31 @@ static int program_init(struct ngl_node *node)
     s->projection_matrix_location_id = ngli_glGetUniformLocation(gl, s->program_id, "ngl_projection_matrix");
     s->normal_matrix_location_id     = ngli_glGetUniformLocation(gl, s->program_id, "ngl_normal_matrix");
 
+    ngli_glGetProgramiv(gl, s->program_id, GL_ACTIVE_UNIFORMS, &s->nb_active_uniforms);
+    if (s->nb_active_uniforms) {
+        s->active_uniforms = calloc(s->nb_active_uniforms, sizeof(*s->active_uniforms));
+        if (!s->active_uniforms)
+            return -1;
+        for (int i = 0; i < s->nb_active_uniforms; i++) {
+            struct uniformprograminfo *info = &s->active_uniforms[i];
+            ngli_glGetActiveUniform(gl,
+                                    s->program_id,
+                                    i,
+                                    sizeof(info->name),
+                                    NULL,
+                                    &info->size,
+                                    &info->type,
+                                    info->name);
+
+            /* Remove [0] suffix from names of uniform arrays */
+            info->name[strcspn(info->name, "[")] = 0;
+
+            info->id = ngli_glGetUniformLocation(gl,
+                                                 s->program_id,
+                                                 info->name);
+        }
+    }
+
     return 0;
 }
 
@@ -214,6 +239,7 @@ static void program_uninit(struct ngl_node *node)
 
     struct program *s = node->priv_data;
 
+    free(s->active_uniforms);
     ngli_glDeleteProgram(gl, s->program_id);
 }
 

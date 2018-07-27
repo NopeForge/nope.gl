@@ -244,6 +244,9 @@ struct program {
     GLint modelview_matrix_location_id;
     GLint projection_matrix_location_id;
     GLint normal_matrix_location_id;
+
+    struct uniformprograminfo *active_uniforms;
+    int nb_active_uniforms;
 };
 
 struct computeprogram {
