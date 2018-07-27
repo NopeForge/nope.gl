@@ -208,10 +208,17 @@ static int update_uniforms(struct ngl_node *node)
                                             texture->access,
                                             texture->internal_format);
                 }
+
+                if (info->coord_matrix_id >= 0)
+                    ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
+
                 if (info->dimensions_id >= 0) {
                     const float dimensions[2] = {texture->width, texture->height};
                     ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
                 }
+
+                if (info->ts_id >= 0)
+                    ngli_glUniform1f(gl, info->ts_id, texture->data_src_ts);
             } else {
                 int texture_index = acquire_next_available_texture_unit(&used_texture_units);
                 if (texture_index < 0) {
@@ -390,6 +397,12 @@ static int compute_init(struct ngl_node *node)
         if (!s->textureprograminfos)
             return -1;
 
+#define GET_TEXTURE_UNIFORM_LOCATION(basename, suffix) do {                                    \
+                char name[128];                                                                \
+                snprintf(name, sizeof(name), "%s_" #suffix, basename);                         \
+                info->suffix##_id = ngli_glGetUniformLocation(gl, program->program_id, name);  \
+} while (0)
+
         for (int i = 0; i < program->nb_active_uniforms; i++) {
             struct uniformprograminfo *active_uniform = &program->active_uniforms[i];
 
@@ -407,9 +420,11 @@ static int compute_init(struct ngl_node *node)
                 snprintf(info->name, sizeof(info->name), "%s", active_uniform->name);
                 info->sampler_id = active_uniform->id;
                 info->sampler_type = active_uniform->type;
-                char name[128];
-                snprintf(name, sizeof(name), "%s_dimensions", active_uniform->name);
-                info->dimensions_id = ngli_glGetUniformLocation(gl, program->program_id, name);
+
+                GET_TEXTURE_UNIFORM_LOCATION(active_uniform->name, coord_matrix);
+                GET_TEXTURE_UNIFORM_LOCATION(active_uniform->name, dimensions);
+                GET_TEXTURE_UNIFORM_LOCATION(active_uniform->name, ts);
+
                 ngli_glGetUniformiv(gl, program->program_id, info->sampler_id, &info->sampler_value);
                 if (info->sampler_value >= max_nb_textures) {
                     LOG(ERROR, "maximum number (%d) of texture unit reached", max_nb_textures);
@@ -441,25 +456,17 @@ static int compute_init(struct ngl_node *node)
                 snprintf(info->name, sizeof(info->name), "%s", key);
                 info->sampler_type = active_uniform->type;
 
-#define GET_TEXTURE_UNIFORM_LOCATION(suffix) do {                                              \
-                char name[128];                                                                \
-                snprintf(name, sizeof(name), "%s_" #suffix, key);                              \
-                info->suffix##_id = ngli_glGetUniformLocation(gl, program->program_id, name);  \
-} while (0)
-
-                GET_TEXTURE_UNIFORM_LOCATION(sampling_mode);
-                GET_TEXTURE_UNIFORM_LOCATION(sampler);
+                GET_TEXTURE_UNIFORM_LOCATION(key, sampling_mode);
+                GET_TEXTURE_UNIFORM_LOCATION(key, sampler);
 #if defined(TARGET_ANDROID)
-                GET_TEXTURE_UNIFORM_LOCATION(external_sampler);
+                GET_TEXTURE_UNIFORM_LOCATION(key, external_sampler);
 #elif defined(TARGET_IPHONE)
-                GET_TEXTURE_UNIFORM_LOCATION(y_sampler);
-                GET_TEXTURE_UNIFORM_LOCATION(uv_sampler);
+                GET_TEXTURE_UNIFORM_LOCATION(key, y_sampler);
+                GET_TEXTURE_UNIFORM_LOCATION(key, uv_sampler);
 #endif
-                GET_TEXTURE_UNIFORM_LOCATION(coord_matrix);
-                GET_TEXTURE_UNIFORM_LOCATION(dimensions);
-                GET_TEXTURE_UNIFORM_LOCATION(ts);
-
-#undef GET_TEXTURE_UNIFORM_LOCATION
+                GET_TEXTURE_UNIFORM_LOCATION(key, coord_matrix);
+                GET_TEXTURE_UNIFORM_LOCATION(key, dimensions);
+                GET_TEXTURE_UNIFORM_LOCATION(key, ts);
 
 #if TARGET_ANDROID
                 if (info->sampler_id < 0 &&
@@ -490,6 +497,7 @@ static int compute_init(struct ngl_node *node)
 #endif
             }
         }
+#undef GET_TEXTURE_UNIFORM_LOCATION
     }
 
     int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
