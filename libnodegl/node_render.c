@@ -108,15 +108,15 @@ static void update_sampler2D(const struct glcontext *gl,
     if (info->sampler_id >= 0 || info->external_sampler_id >= 0)
         ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
 
+    if (info->external_sampler_id >= 0) {
+        ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
+        ngli_glUniform1i(gl, info->external_sampler_id, 0);
+    }
+
     if (info->sampler_id >= 0) {
         *sampling_mode = NGLI_SAMPLING_MODE_2D;
         ngli_glBindTexture(gl, texture->target, texture->id);
         ngli_glUniform1i(gl, info->sampler_id, *unit_index);
-    }
-
-    if (info->external_sampler_id >= 0) {
-        ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
-        ngli_glUniform1i(gl, info->external_sampler_id, 0);
     }
 }
 
