@@ -400,6 +400,8 @@ static int compute_init(struct ngl_node *node)
                 ret = ngli_node_init(tnode);
                 if (ret < 0)
                     return ret;
+                struct texture *texture = tnode->priv_data;
+                texture->direct_rendering = 0;
 
                 struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos++];
                 snprintf(info->name, sizeof(info->name), "%s", active_uniform->name);
