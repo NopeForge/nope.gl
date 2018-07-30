@@ -25,6 +25,7 @@
 #include <limits.h>
 
 #include "glincludes.h"
+#include "hmap.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
