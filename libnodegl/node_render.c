@@ -45,6 +45,9 @@
                                           NGL_NODE_UNIFORMMAT4,       \
                                           -1}
 
+#define PROGRAMS_TYPES_LIST (const int[]){NGL_NODE_PROGRAM,         \
+                                          -1}
+
 #define ATTRIBUTES_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,   \
                                             NGL_NODE_BUFFERVEC2,    \
                                             NGL_NODE_BUFFERVEC3,    \
@@ -81,7 +84,7 @@ static const struct node_param render_params[] = {
                  .node_types=GEOMETRY_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("geometry to be rasterized")},
     {"program",  PARAM_TYPE_NODE, OFFSET(program),
-                 .node_types=(const int[]){NGL_NODE_PROGRAM, -1},
+                 .node_types=PROGRAMS_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("program to be executed")},
     {"textures", PARAM_TYPE_NODEDICT, OFFSET(textures),
                  .node_types=TEXTURES_TYPES_LIST,
