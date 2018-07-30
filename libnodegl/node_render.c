@@ -127,11 +127,18 @@ static int update_geometry_uniforms(struct ngl_node *node)
     return 0;
 }
 
-static int update_vertex_attribs(struct ngl_node *node)
+static void update_vertex_attrib(struct ngl_node *node, struct buffer *buffer, int location)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
+    ngli_glEnableVertexAttribArray(gl, location);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
+    ngli_glVertexAttribPointer(gl, location, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+}
+
+static int update_vertex_attribs(struct ngl_node *node)
+{
     struct render *s = node->priv_data;
     struct geometry *geometry = s->geometry->priv_data;
     struct program *program = s->pipeline.program->priv_data;
@@ -139,27 +146,21 @@ static int update_vertex_attribs(struct ngl_node *node)
     if (geometry->vertices_buffer) {
         struct buffer *buffer = geometry->vertices_buffer->priv_data;
         if (program->position_location_id >= 0) {
-            ngli_glEnableVertexAttribArray(gl, program->position_location_id);
-            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-            ngli_glVertexAttribPointer(gl, program->position_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+            update_vertex_attrib(node, buffer, program->position_location_id);
         }
     }
 
     if (geometry->uvcoords_buffer) {
         struct buffer *buffer = geometry->uvcoords_buffer->priv_data;
         if (program->uvcoord_location_id >= 0) {
-            ngli_glEnableVertexAttribArray(gl, program->uvcoord_location_id);
-            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-            ngli_glVertexAttribPointer(gl, program->uvcoord_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+            update_vertex_attrib(node, buffer, program->uvcoord_location_id);
         }
     }
 
     if (geometry->normals_buffer) {
         struct buffer *buffer = geometry->normals_buffer->priv_data;
         if (program->normal_location_id >= 0) {
-            ngli_glEnableVertexAttribArray(gl, program->normal_location_id);
-            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-            ngli_glVertexAttribPointer(gl, program->normal_location_id, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+            update_vertex_attrib(node, buffer, program->normal_location_id);
         }
     }
 
@@ -171,9 +172,7 @@ static int update_vertex_attribs(struct ngl_node *node)
                 continue;
             struct ngl_node *anode = entry->data;
             struct buffer *buffer = anode->priv_data;
-            ngli_glEnableVertexAttribArray(gl, s->attribute_ids[i]);
-            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-            ngli_glVertexAttribPointer(gl, s->attribute_ids[i], buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+            update_vertex_attrib(node, buffer, s->attribute_ids[i]);
             i++;
         }
     }
