@@ -164,17 +164,14 @@ static int update_vertex_attribs(struct ngl_node *node)
         }
     }
 
-    if (s->attributes) {
-        int i = 0;
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->attributes, entry))) {
-            if (s->attribute_ids[i] < 0)
-                continue;
-            struct ngl_node *anode = entry->data;
-            struct buffer *buffer = anode->priv_data;
-            update_vertex_attrib(node, buffer, s->attribute_ids[i]);
-            i++;
-        }
+    for (int i = 0; i < s->nb_attribute_ids; i++) {
+        struct attributeprograminfo *info = &s->attribute_ids[i];
+        const GLint aid = info->id;
+        if (aid < 0)
+            continue;
+        const struct ngl_node *anode = ngli_hmap_get(s->attributes, info->name);
+        struct buffer *buffer = anode->priv_data;
+        update_vertex_attrib(node, buffer, aid);
     }
 
     return 0;
@@ -207,14 +204,12 @@ static int disable_vertex_attribs(struct ngl_node *node)
         }
     }
 
-    if (s->attributes) {
-        int nb_attributes = ngli_hmap_count(s->attributes);
-        for (int i = 0; i < nb_attributes; i++) {
-            if (s->attribute_ids[i] < 0)
-                continue;
-
-            ngli_glDisableVertexAttribArray(gl, s->attribute_ids[i]);
-        }
+    for (int i = 0; i < s->nb_attribute_ids; i++) {
+        struct attributeprograminfo *info = &s->attribute_ids[i];
+        const GLint aid = info->id;
+        if (aid < 0)
+            continue;
+        ngli_glDisableVertexAttribArray(gl, aid);
     }
 
     return 0;
@@ -250,10 +245,11 @@ static int render_init(struct ngl_node *node)
         if (!s->attribute_ids)
             return -1;
 
-        int i = 0;
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->attributes, entry))) {
-            struct ngl_node *anode = entry->data;
+        for (int i = 0; i < program->nb_active_attributes; i++) {
+            struct attributeprograminfo *active_attribute = &program->active_attributes[i];
+            struct ngl_node *anode = ngli_hmap_get(s->attributes, active_attribute->name);
+            if (!anode)
+                continue;
             struct buffer *buffer = anode->priv_data;
             buffer->generate_gl_buffer = 1;
 
@@ -263,13 +259,14 @@ static int render_init(struct ngl_node *node)
             if (buffer->count != vertices->count) {
                 LOG(ERROR,
                     "attribute buffer %s count (%d) does not match vertices count (%d)",
-                    entry->key,
+                    active_attribute->name,
                     buffer->count,
                     vertices->count);
                 return -1;
             }
-            s->attribute_ids[i] = ngli_glGetAttribLocation(gl, program->info.program_id, entry->key);
-            i++;
+
+            struct attributeprograminfo *infop = &s->attribute_ids[s->nb_attribute_ids++];
+            *infop = *active_attribute;
         }
     }
 

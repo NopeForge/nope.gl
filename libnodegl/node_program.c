@@ -229,6 +229,28 @@ static int program_init(struct ngl_node *node)
         }
     }
 
+    ngli_glGetProgramiv(gl, s->info.program_id, GL_ACTIVE_ATTRIBUTES, &s->nb_active_attributes);
+    if (s->nb_active_attributes) {
+        s->active_attributes = calloc(s->nb_active_attributes, sizeof(*s->active_attributes));
+        if (!s->active_attributes)
+            return -1;
+        for (int i = 0; i < s->nb_active_attributes; i++) {
+            struct attributeprograminfo *info = &s->active_attributes[i];
+            ngli_glGetActiveAttrib(gl,
+                                   s->info.program_id,
+                                   i,
+                                   sizeof(info->name),
+                                   NULL,
+                                   &info->size,
+                                   &info->type,
+                                   info->name);
+
+            info->id = ngli_glGetAttribLocation(gl,
+                                                s->info.program_id,
+                                                info->name);
+        }
+    }
+
     return 0;
 }
 
@@ -240,6 +262,7 @@ static void program_uninit(struct ngl_node *node)
     struct program *s = node->priv_data;
 
     free(s->info.active_uniforms);
+    free(s->active_attributes);
     ngli_glDeleteProgram(gl, s->info.program_id);
 }
 

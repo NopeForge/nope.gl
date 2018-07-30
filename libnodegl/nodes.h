@@ -250,6 +250,9 @@ struct program {
     GLint modelview_matrix_location_id;
     GLint projection_matrix_location_id;
     GLint normal_matrix_location_id;
+
+    struct attributeprograminfo *active_attributes;
+    int nb_active_attributes;
 };
 
 struct computeprogram {
@@ -331,6 +334,12 @@ struct uniformprograminfo {
     char name[64];
 };
 
+struct attributeprograminfo {
+    GLint id;
+    GLint size;
+    GLenum type;
+    char name[64];
+};
 
 #define NGLI_SAMPLING_MODE_NONE         0
 #define NGLI_SAMPLING_MODE_2D           1
@@ -378,7 +387,8 @@ struct render {
     struct pipeline pipeline;
 
     struct hmap *attributes;
-    GLint *attribute_ids;
+    struct attributeprograminfo *attribute_ids;
+    int nb_attribute_ids;
 
     GLuint vao_id;
 };

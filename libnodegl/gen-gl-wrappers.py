@@ -174,6 +174,7 @@ cmds = [
     'glEnableVertexAttribArray',
     'glDisableVertexAttribArray',
     'glVertexAttribPointer',
+    'glGetActiveAttrib',
     'glGetActiveUniform',
 
     # Shader Uniforms

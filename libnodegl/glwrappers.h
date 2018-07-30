@@ -353,6 +353,12 @@ static inline void ngli_glGenerateMipmap(const struct glcontext *gl, GLenum targ
     check_error_code(gl, "glGenerateMipmap");
 }
 
+static inline void ngli_glGetActiveAttrib(const struct glcontext *gl, GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name)
+{
+    gl->funcs.GetActiveAttrib(program, index, bufSize, length, size, type, name);
+    check_error_code(gl, "glGetActiveAttrib");
+}
+
 static inline void ngli_glGetActiveUniform(const struct glcontext *gl, GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name)
 {
     gl->funcs.GetActiveUniform(program, index, bufSize, length, size, type, name);

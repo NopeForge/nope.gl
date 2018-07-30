@@ -70,6 +70,7 @@ static const struct gldefinition {
     {"glGenTextures", offsetof(struct glfunctions, GenTextures), M},
     {"glGenVertexArrays", offsetof(struct glfunctions, GenVertexArrays), 0},
     {"glGenerateMipmap", offsetof(struct glfunctions, GenerateMipmap), M},
+    {"glGetActiveAttrib", offsetof(struct glfunctions, GetActiveAttrib), M},
     {"glGetActiveUniform", offsetof(struct glfunctions, GetActiveUniform), M},
     {"glGetAttachedShaders", offsetof(struct glfunctions, GetAttachedShaders), M},
     {"glGetAttribLocation", offsetof(struct glfunctions, GetAttribLocation), M},
