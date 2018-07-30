@@ -379,7 +379,6 @@ static int compute_init(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
 
     struct compute *s = node->priv_data;
-    struct computeprogram *program = s->program->priv_data;
 
     if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
         LOG(ERROR, "context does not support compute shaders");
@@ -403,6 +402,29 @@ static int compute_init(struct ngl_node *node)
     ret = ngli_node_init(s->program);
     if (ret < 0)
         return ret;
+
+    struct computeprogram *program = s->program->priv_data;
+
+    int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
+    if (nb_uniforms > 0) {
+        s->uniform_ids = calloc(nb_uniforms, sizeof(*s->uniform_ids));
+        if (!s->uniform_ids)
+            return -1;
+
+        for (int i = 0; i < program->nb_active_uniforms; i++) {
+            struct uniformprograminfo *active_uniform = &program->active_uniforms[i];
+            struct ngl_node *unode = ngli_hmap_get(s->uniforms, active_uniform->name);
+            if (!unode)
+                continue;
+
+            ret = ngli_node_init(unode);
+            if (ret < 0)
+                return ret;
+
+            struct uniformprograminfo *infop = &s->uniform_ids[s->nb_uniform_ids++];
+            *infop = *active_uniform;
+        }
+    }
 
     s->disabled_texture_unit = -1;
 
@@ -520,27 +542,6 @@ static int compute_init(struct ngl_node *node)
             }
         }
 #undef GET_TEXTURE_UNIFORM_LOCATION
-    }
-
-    int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
-    if (nb_uniforms > 0) {
-        s->uniform_ids = calloc(nb_uniforms, sizeof(*s->uniform_ids));
-        if (!s->uniform_ids)
-            return -1;
-
-        for (int i = 0; i < program->nb_active_uniforms; i++) {
-            struct uniformprograminfo *active_uniform = &program->active_uniforms[i];
-            struct ngl_node *unode = ngli_hmap_get(s->uniforms, active_uniform->name);
-            if (!unode)
-                continue;
-
-            ret = ngli_node_init(unode);
-            if (ret < 0)
-                return ret;
-
-            struct uniformprograminfo *infop = &s->uniform_ids[s->nb_uniform_ids++];
-            *infop = *active_uniform;
-        }
     }
 
     int nb_buffers = s->buffers ? ngli_hmap_count(s->buffers) : 0;
