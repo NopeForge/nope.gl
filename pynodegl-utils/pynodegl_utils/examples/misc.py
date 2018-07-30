@@ -19,6 +19,7 @@ from pynodegl import (
         BufferUIVec4,
         BufferVec2,
         BufferVec3,
+        BufferVec4,
         Camera,
         Circle,
         Compute,
@@ -133,9 +134,15 @@ def triangle(cfg, size=0.5):
     cfg.duration = 3.
     cfg.aspect_ratio = (1, 1)
 
+    colors_data = array.array('f', [0.0, 0.0, 1.0, 1.0,
+                                    0.0, 1.0, 0.0, 1.0,
+                                    1.0, 0.0, 0.0, 1.0])
+    colors_buffer = BufferVec4(data=colors_data)
+
     triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
-    p = Program(fragment=get_frag('triangle'))
+    p = Program(fragment=get_frag('triangle'), vertex=get_vert('triangle'))
     node = Render(triangle, p)
+    node.update_attributes(edge_color=colors_buffer)
     animkf = [AnimKeyFrameFloat(0, 0),
               AnimKeyFrameFloat(  cfg.duration/3.,   -360/3., 'exp_in_out'),
               AnimKeyFrameFloat(2*cfg.duration/3., -2*360/3., 'exp_in_out'),
