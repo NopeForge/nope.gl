@@ -32,34 +32,34 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE2D,      \
+#define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE2D,       \
                                           -1}
 
-#define PROGRAMS_TYPES_LIST (const int[]){NGL_NODE_COMPUTEPROGRAM, \
+#define PROGRAMS_TYPES_LIST (const int[]){NGL_NODE_COMPUTEPROGRAM,  \
                                           -1}
 
-#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_UNIFORMFLOAT,   \
-                                          NGL_NODE_UNIFORMVEC2,    \
-                                          NGL_NODE_UNIFORMVEC3,    \
-                                          NGL_NODE_UNIFORMVEC4,    \
-                                          NGL_NODE_UNIFORMQUAT,    \
-                                          NGL_NODE_UNIFORMINT,     \
-                                          NGL_NODE_UNIFORMMAT4,    \
+#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_UNIFORMFLOAT,    \
+                                          NGL_NODE_UNIFORMVEC2,     \
+                                          NGL_NODE_UNIFORMVEC3,     \
+                                          NGL_NODE_UNIFORMVEC4,     \
+                                          NGL_NODE_UNIFORMQUAT,     \
+                                          NGL_NODE_UNIFORMINT,      \
+                                          NGL_NODE_UNIFORMMAT4,     \
                                           -1}
 
-#define BUFFERS_TYPES_LIST (const int[]) {NGL_NODE_BUFFERFLOAT,      \
-                                          NGL_NODE_BUFFERVEC2,       \
-                                          NGL_NODE_BUFFERVEC3,       \
-                                          NGL_NODE_BUFFERVEC4,       \
-                                          NGL_NODE_BUFFERINT,        \
-                                          NGL_NODE_BUFFERIVEC2,      \
-                                          NGL_NODE_BUFFERIVEC3,      \
-                                          NGL_NODE_BUFFERIVEC4,      \
-                                          NGL_NODE_BUFFERUINT,       \
-                                          NGL_NODE_BUFFERUIVEC2,     \
-                                          NGL_NODE_BUFFERUIVEC3,     \
-                                          NGL_NODE_BUFFERUIVEC4,     \
-                                          -1}
+#define BUFFERS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,      \
+                                         NGL_NODE_BUFFERVEC2,       \
+                                         NGL_NODE_BUFFERVEC3,       \
+                                         NGL_NODE_BUFFERVEC4,       \
+                                         NGL_NODE_BUFFERINT,        \
+                                         NGL_NODE_BUFFERIVEC2,      \
+                                         NGL_NODE_BUFFERIVEC3,      \
+                                         NGL_NODE_BUFFERIVEC4,      \
+                                         NGL_NODE_BUFFERUINT,       \
+                                         NGL_NODE_BUFFERUIVEC2,     \
+                                         NGL_NODE_BUFFERUIVEC3,     \
+                                         NGL_NODE_BUFFERUIVEC4,     \
+                                         -1}
 
 #define OFFSET(x) offsetof(struct compute, x)
 static const struct node_param compute_params[] = {
@@ -199,6 +199,7 @@ static int update_uniforms(struct ngl_node *node)
                     "image at location=%d will use texture_unit=%d",
                     info->sampler_id,
                     info->sampler_value);
+
                 if (info->sampler_id >= 0) {
                     ngli_glBindImageTexture(gl,
                                             info->sampler_value,

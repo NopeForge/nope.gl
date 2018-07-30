@@ -32,20 +32,24 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,       \
-                                          NGL_NODE_BUFFERVEC2,        \
-                                          NGL_NODE_BUFFERVEC3,        \
-                                          NGL_NODE_BUFFERVEC4,        \
-                                          NGL_NODE_UNIFORMFLOAT,      \
-                                          NGL_NODE_UNIFORMVEC2,       \
-                                          NGL_NODE_UNIFORMVEC3,       \
-                                          NGL_NODE_UNIFORMVEC4,       \
-                                          NGL_NODE_UNIFORMQUAT,       \
-                                          NGL_NODE_UNIFORMINT,        \
-                                          NGL_NODE_UNIFORMMAT4,       \
+#define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE2D,       \
+                                          NGL_NODE_TEXTURE3D,       \
                                           -1}
 
 #define PROGRAMS_TYPES_LIST (const int[]){NGL_NODE_PROGRAM,         \
+                                          -1}
+
+#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,     \
+                                          NGL_NODE_BUFFERVEC2,      \
+                                          NGL_NODE_BUFFERVEC3,      \
+                                          NGL_NODE_BUFFERVEC4,      \
+                                          NGL_NODE_UNIFORMFLOAT,    \
+                                          NGL_NODE_UNIFORMVEC2,     \
+                                          NGL_NODE_UNIFORMVEC3,     \
+                                          NGL_NODE_UNIFORMVEC4,     \
+                                          NGL_NODE_UNIFORMQUAT,     \
+                                          NGL_NODE_UNIFORMINT,      \
+                                          NGL_NODE_UNIFORMMAT4,     \
                                           -1}
 
 #define ATTRIBUTES_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,   \
@@ -60,22 +64,18 @@
                                           NGL_NODE_TRIANGLE,        \
                                           -1}
 
-#define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE2D,       \
-                                          NGL_NODE_TEXTURE3D,       \
-                                          -1}
-
-#define BUFFERS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,   \
-                                         NGL_NODE_BUFFERVEC2,    \
-                                         NGL_NODE_BUFFERVEC3,    \
-                                         NGL_NODE_BUFFERVEC4,    \
-                                         NGL_NODE_BUFFERINT,     \
-                                         NGL_NODE_BUFFERIVEC2,   \
-                                         NGL_NODE_BUFFERIVEC3,   \
-                                         NGL_NODE_BUFFERIVEC4,   \
-                                         NGL_NODE_BUFFERUINT,    \
-                                         NGL_NODE_BUFFERUIVEC2,  \
-                                         NGL_NODE_BUFFERUIVEC3,  \
-                                         NGL_NODE_BUFFERUIVEC4,  \
+#define BUFFERS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,      \
+                                         NGL_NODE_BUFFERVEC2,       \
+                                         NGL_NODE_BUFFERVEC3,       \
+                                         NGL_NODE_BUFFERVEC4,       \
+                                         NGL_NODE_BUFFERINT,        \
+                                         NGL_NODE_BUFFERIVEC2,      \
+                                         NGL_NODE_BUFFERIVEC3,      \
+                                         NGL_NODE_BUFFERIVEC4,      \
+                                         NGL_NODE_BUFFERUINT,       \
+                                         NGL_NODE_BUFFERUIVEC2,     \
+                                         NGL_NODE_BUFFERUIVEC3,     \
+                                         NGL_NODE_BUFFERUIVEC4,     \
                                          -1}
 
 #define OFFSET(x) offsetof(struct render, x)
