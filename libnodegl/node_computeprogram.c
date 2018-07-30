@@ -117,19 +117,19 @@ static int computeprogram_init(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct computeprogram *s = node->priv_data;
 
-    s->program_id = load_shader(node, s->compute);
-    if (!s->program_id)
+    s->info.program_id = load_shader(node, s->compute);
+    if (!s->info.program_id)
         return -1;
 
-    ngli_glGetProgramiv(gl, s->program_id, GL_ACTIVE_UNIFORMS, &s->nb_active_uniforms);
-    if (s->nb_active_uniforms) {
-        s->active_uniforms = calloc(s->nb_active_uniforms, sizeof(*s->active_uniforms));
-        if (!s->active_uniforms)
+    ngli_glGetProgramiv(gl, s->info.program_id, GL_ACTIVE_UNIFORMS, &s->info.nb_active_uniforms);
+    if (s->info.nb_active_uniforms) {
+        s->info.active_uniforms = calloc(s->info.nb_active_uniforms, sizeof(*s->info.active_uniforms));
+        if (!s->info.active_uniforms)
             return -1;
-        for (int i = 0; i < s->nb_active_uniforms; i++) {
-            struct uniformprograminfo *info = &s->active_uniforms[i];
+        for (int i = 0; i < s->info.nb_active_uniforms; i++) {
+            struct uniformprograminfo *info = &s->info.active_uniforms[i];
             ngli_glGetActiveUniform(gl,
-                                    s->program_id,
+                                    s->info.program_id,
                                     i,
                                     sizeof(info->name),
                                     NULL,
@@ -141,7 +141,7 @@ static int computeprogram_init(struct ngl_node *node)
             info->name[strcspn(info->name, "[")] = 0;
 
             info->id = ngli_glGetUniformLocation(gl,
-                                                 s->program_id,
+                                                 s->info.program_id,
                                                  info->name);
         }
     }
@@ -156,8 +156,8 @@ static void computeprogram_uninit(struct ngl_node *node)
 
     struct computeprogram *s = node->priv_data;
 
-    free(s->active_uniforms);
-    ngli_glDeleteProgram(gl, s->program_id);
+    free(s->info.active_uniforms);
+    ngli_glDeleteProgram(gl, s->info.program_id);
 }
 
 const struct node_class ngli_computeprogram_class = {

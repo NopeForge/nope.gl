@@ -193,26 +193,26 @@ static int program_init(struct ngl_node *node)
 
     struct program *s = node->priv_data;
 
-    s->program_id = load_program(node, s->vertex, s->fragment);
-    if (!s->program_id)
+    s->info.program_id = load_program(node, s->vertex, s->fragment);
+    if (!s->info.program_id)
         return -1;
 
-    s->position_location_id          = ngli_glGetAttribLocation(gl, s->program_id,  "ngl_position");
-    s->uvcoord_location_id           = ngli_glGetAttribLocation(gl, s->program_id,  "ngl_uvcoord");
-    s->normal_location_id            = ngli_glGetAttribLocation(gl, s->program_id,  "ngl_normal");
-    s->modelview_matrix_location_id  = ngli_glGetUniformLocation(gl, s->program_id, "ngl_modelview_matrix");
-    s->projection_matrix_location_id = ngli_glGetUniformLocation(gl, s->program_id, "ngl_projection_matrix");
-    s->normal_matrix_location_id     = ngli_glGetUniformLocation(gl, s->program_id, "ngl_normal_matrix");
+    s->position_location_id          = ngli_glGetAttribLocation(gl, s->info.program_id,  "ngl_position");
+    s->uvcoord_location_id           = ngli_glGetAttribLocation(gl, s->info.program_id,  "ngl_uvcoord");
+    s->normal_location_id            = ngli_glGetAttribLocation(gl, s->info.program_id,  "ngl_normal");
+    s->modelview_matrix_location_id  = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_modelview_matrix");
+    s->projection_matrix_location_id = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_projection_matrix");
+    s->normal_matrix_location_id     = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_normal_matrix");
 
-    ngli_glGetProgramiv(gl, s->program_id, GL_ACTIVE_UNIFORMS, &s->nb_active_uniforms);
-    if (s->nb_active_uniforms) {
-        s->active_uniforms = calloc(s->nb_active_uniforms, sizeof(*s->active_uniforms));
-        if (!s->active_uniforms)
+    ngli_glGetProgramiv(gl, s->info.program_id, GL_ACTIVE_UNIFORMS, &s->info.nb_active_uniforms);
+    if (s->info.nb_active_uniforms) {
+        s->info.active_uniforms = calloc(s->info.nb_active_uniforms, sizeof(*s->info.active_uniforms));
+        if (!s->info.active_uniforms)
             return -1;
-        for (int i = 0; i < s->nb_active_uniforms; i++) {
-            struct uniformprograminfo *info = &s->active_uniforms[i];
+        for (int i = 0; i < s->info.nb_active_uniforms; i++) {
+            struct uniformprograminfo *info = &s->info.active_uniforms[i];
             ngli_glGetActiveUniform(gl,
-                                    s->program_id,
+                                    s->info.program_id,
                                     i,
                                     sizeof(info->name),
                                     NULL,
@@ -224,7 +224,7 @@ static int program_init(struct ngl_node *node)
             info->name[strcspn(info->name, "[")] = 0;
 
             info->id = ngli_glGetUniformLocation(gl,
-                                                 s->program_id,
+                                                 s->info.program_id,
                                                  info->name);
         }
     }
@@ -239,8 +239,8 @@ static void program_uninit(struct ngl_node *node)
 
     struct program *s = node->priv_data;
 
-    free(s->active_uniforms);
-    ngli_glDeleteProgram(gl, s->program_id);
+    free(s->info.active_uniforms);
+    ngli_glDeleteProgram(gl, s->info.program_id);
 }
 
 const struct node_class ngli_program_class = {

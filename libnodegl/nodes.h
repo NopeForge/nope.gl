@@ -233,29 +233,29 @@ struct rtt {
     GLuint depthbuffer_ms_id;
 };
 
+struct program_info {
+    GLuint program_id;
+    struct uniformprograminfo *active_uniforms;
+    int nb_active_uniforms;
+};
+
 struct program {
     const char *vertex;
     const char *fragment;
 
-    GLuint program_id;
+    struct program_info info;
     GLint position_location_id;
     GLint uvcoord_location_id;
     GLint normal_location_id;
     GLint modelview_matrix_location_id;
     GLint projection_matrix_location_id;
     GLint normal_matrix_location_id;
-
-    struct uniformprograminfo *active_uniforms;
-    int nb_active_uniforms;
 };
 
 struct computeprogram {
     const char *compute;
 
-    GLuint program_id;
-
-    struct uniformprograminfo *active_uniforms;
-    int nb_active_uniforms;
+    struct program_info info;
 };
 
 enum hwupload_fmt {
@@ -354,8 +354,7 @@ struct textureprograminfo {
     int ts_id;
 };
 
-struct render {
-    struct ngl_node *geometry;
+struct pipeline {
     struct ngl_node *program;
 
     struct hmap *textures;
@@ -369,11 +368,17 @@ struct render {
     struct uniformprograminfo *uniform_ids;
     int nb_uniform_ids;
 
-    struct hmap *attributes;
-    GLint *attribute_ids;
-
     struct hmap *buffers;
     GLint *buffer_ids;
+};
+
+struct render {
+    struct ngl_node *geometry;
+
+    struct pipeline pipeline;
+
+    struct hmap *attributes;
+    GLint *attribute_ids;
 
     GLuint vao_id;
 };
@@ -383,25 +388,13 @@ struct compute {
     int nb_group_y;
     int nb_group_z;
 
-    struct ngl_node *program;
-
-    struct hmap *textures;
-    struct textureprograminfo *textureprograminfos;
-    int nb_textureprograminfos;
-
-    uint64_t used_texture_units;
-    int disabled_texture_unit;
-
-    struct hmap *uniforms;
-    struct uniformprograminfo *uniform_ids;
-    int nb_uniform_ids;
-
-    struct hmap *attributes;
-    GLint *attribute_ids;
-
-    struct hmap *buffers;
-    GLint *buffer_ids;
+    struct pipeline pipeline;
 };
+
+int ngli_pipeline_init(struct ngl_node *node);
+void ngli_pipeline_uninit(struct ngl_node *node);
+int ngli_pipeline_update(struct ngl_node *node, double t);
+int ngli_pipeline_upload_data(struct ngl_node *node);
 
 struct media {
     const char *filename;

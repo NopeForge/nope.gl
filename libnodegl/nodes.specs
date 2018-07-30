@@ -264,8 +264,8 @@
         - [program, Node]
         - [textures, NodeDict]
         - [uniforms, NodeDict]
-        - [attributes, NodeDict]
         - [buffers, NodeDict]
+        - [attributes, NodeDict]
 
 - RenderToTexture:
     constructors:
