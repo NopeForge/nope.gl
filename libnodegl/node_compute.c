@@ -169,7 +169,7 @@ static void update_sampler3D(const struct glcontext *gl,
     }
 }
 
-static int update_uniforms(struct ngl_node *node)
+static int update_images_and_samplers(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -281,6 +281,16 @@ static int update_uniforms(struct ngl_node *node)
         }
     }
 
+    return 0;
+}
+
+static int update_uniforms(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
+    struct compute *s = node->priv_data;
+
     for (int i = 0; i < s->nb_uniform_ids; i++) {
         struct uniformprograminfo *info = &s->uniform_ids[i];
         const GLint uid = info->id;
@@ -324,6 +334,16 @@ static int update_uniforms(struct ngl_node *node)
             break;
         }
     }
+
+    return 0;
+}
+
+static int update_buffers(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
+    struct compute *s = node->priv_data;
 
     if (s->buffers) {
         int i = 0;
@@ -624,6 +644,8 @@ static void compute_draw(struct ngl_node *node)
     ngli_glUseProgram(gl, program->program_id);
 
     update_uniforms(node);
+    update_images_and_samplers(node);
+    update_buffers(node);
 
     ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
     ngli_glDispatchCompute(gl, s->nb_group_x, s->nb_group_y, s->nb_group_z);
