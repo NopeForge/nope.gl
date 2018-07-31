@@ -773,12 +773,17 @@ static int render_init(struct ngl_node *node)
 #elif TARGET_IPHONE
                 if (info->sampler_id < 0 &&
                     (info->y_sampler_id < 0 || info->uv_sampler_id < 0)) {
-                    LOG(WARNING, "no sampler found for texture %s", entry->key);
+                    LOG(WARNING, "no sampler found for texture %s", key);
                 }
 
                 if (info->sampler_id >= 0 &&
-                    (info->y_sampler_id >= 0 || info->uv_sampler_id >= 0))
-                    s->disable_1st_texture_unit = 1;
+                    (info->y_sampler_id >= 0 || info->uv_sampler_id >= 0)) {
+                    s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
+                    if (s->disabled_texture_unit < 0) {
+                        LOG(ERROR, "no texture unit available");
+                        return -1;
+                    }
+                }
 
                 struct texture *texture = tnode->priv_data;
                 texture->direct_rendering = texture->direct_rendering &&
