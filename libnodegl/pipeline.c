@@ -467,7 +467,7 @@ int ngli_pipeline_init(struct ngl_node *node)
     }
 
     if (nb_textures > 0) {
-        s->textureprograminfos = calloc(nb_textures, sizeof(*s->textureprograminfos));
+        s->textureprograminfos = calloc(program->nb_active_uniforms, sizeof(*s->textureprograminfos));
         if (!s->textureprograminfos)
             return -1;
 
@@ -490,7 +490,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 struct texture *texture = tnode->priv_data;
                 texture->direct_rendering = 0;
 
-                struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos++];
+                struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
                 snprintf(info->name, sizeof(info->name), "%s", active_uniform->name);
                 info->sampler_id = active_uniform->id;
                 info->sampler_type = active_uniform->type;
@@ -509,6 +509,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                     return -1;
                 }
                 s->used_texture_units |= 1 << info->sampler_value;
+                s->nb_textureprograminfos++;
             } else if (active_uniform->type == GL_SAMPLER_2D ||
                        active_uniform->type == GL_SAMPLER_3D ||
                        active_uniform->type == GL_SAMPLER_EXTERNAL_OES) {
@@ -526,7 +527,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 if (ret < 0)
                     return ret;
 
-                struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos++];
+                struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
                 snprintf(info->name, sizeof(info->name), "%s", key);
                 info->sampler_type = active_uniform->type;
 
@@ -592,6 +593,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                     LOG(WARNING, "no sampler found for texture %s", key);
                 }
 #endif
+                s->nb_textureprograminfos++;
             }
         }
 #undef GET_TEXTURE_UNIFORM_LOCATION
