@@ -241,17 +241,6 @@ static int update_images_and_samplers(struct ngl_node *node)
                                             texture->access,
                                             texture->internal_format);
                 }
-
-                if (info->coord_matrix_id >= 0)
-                    ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
-
-                if (info->dimensions_id >= 0) {
-                    const float dimensions[2] = {texture->width, texture->height};
-                    ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
-                }
-
-                if (info->ts_id >= 0)
-                    ngli_glUniform1f(gl, info->ts_id, texture->data_src_ts);
             } else {
                 int texture_index = acquire_next_available_texture_unit(&used_texture_units);
                 if (texture_index < 0) {
@@ -294,21 +283,21 @@ static int update_images_and_samplers(struct ngl_node *node)
 
                 if (info->sampling_mode_id >= 0)
                     ngli_glUniform1i(gl, info->sampling_mode_id, sampling_mode);
-
-                if (info->coord_matrix_id >= 0)
-                    ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
-
-                if (info->dimensions_id >= 0) {
-                    const float dimensions[3] = {texture->width, texture->height, texture->depth};
-                    if (texture->target == GL_TEXTURE_3D)
-                        ngli_glUniform3fv(gl, info->dimensions_id, 1, dimensions);
-                    else
-                        ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
-                }
-
-                if (info->ts_id >= 0)
-                    ngli_glUniform1f(gl, info->ts_id, texture->data_src_ts);
             }
+
+            if (info->coord_matrix_id >= 0)
+                ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
+
+            if (info->dimensions_id >= 0) {
+                const float dimensions[3] = {texture->width, texture->height, texture->depth};
+                if (texture->target == GL_TEXTURE_3D)
+                    ngli_glUniform3fv(gl, info->dimensions_id, 1, dimensions);
+                else
+                    ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
+            }
+
+            if (info->ts_id >= 0)
+                ngli_glUniform1f(gl, info->ts_id, texture->data_src_ts);
         }
     }
 
