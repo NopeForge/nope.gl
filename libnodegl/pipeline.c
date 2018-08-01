@@ -173,7 +173,7 @@ static void update_sampler2D(const struct glcontext *gl,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
-    if (info->sampler_id) {
+    if (info->sampler_id >= 0) {
         *sampling_mode = NGLI_SAMPLING_MODE_2D;
 
         ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
@@ -191,7 +191,7 @@ static void update_sampler3D(const struct glcontext *gl,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
-    if (info->sampler_id) {
+    if (info->sampler_id >= 0) {
         *sampling_mode = NGLI_SAMPLING_MODE_2D;
 
         ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
