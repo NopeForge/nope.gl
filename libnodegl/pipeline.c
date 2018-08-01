@@ -73,131 +73,142 @@ static int acquire_next_available_texture_unit(uint64_t *used_texture_units)
     return -1;
 }
 
-#ifdef TARGET_ANDROID
-static void update_sampler2D(const struct glcontext *gl,
-                             struct pipeline *s,
-                             struct texture *texture,
-                             struct textureprograminfo *info,
-                             int *unit_index,
-                             uint64_t *used_texture_units,
-                             int *sampling_mode)
+static int update_default_sampler(const struct glcontext *gl,
+                                  struct pipeline *s,
+                                  struct texture *texture,
+                                  struct textureprograminfo *info,
+                                  uint64_t *used_texture_units,
+                                  int *sampling_mode)
 {
-    if (info->sampler_id >= 0 || info->external_sampler_id >= 0)
-        ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
+    ngli_assert(info->sampler_id >= 0);
 
-    if (info->external_sampler_id >= 0) {
-        ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
-        ngli_glUniform1i(gl, info->external_sampler_id, s->disabled_texture_unit);
+    int texture_index = acquire_next_available_texture_unit(used_texture_units);
+    if (texture_index < 0) {
+        LOG(ERROR, "no texture unit available");
+        return -1;
     }
 
-    if (info->sampler_id >= 0) {
-        *sampling_mode = NGLI_SAMPLING_MODE_2D;
-        ngli_glBindTexture(gl, texture->target, texture->id);
-        ngli_glUniform1i(gl, info->sampler_id, *unit_index);
-    }
+    *sampling_mode = NGLI_SAMPLING_MODE_2D;
+
+    ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
+    ngli_glBindTexture(gl, texture->target, texture->id);
+    ngli_glUniform1i(gl, info->sampler_id, texture_index);
+    return 0;
 }
 
-static void update_external_sampler(const struct glcontext *gl,
-                                    struct pipeline *s,
-                                    struct texture *texture,
-                                    struct textureprograminfo *info,
-                                    int *unit_index,
-                                    uint64_t *used_texture_units,
-                                    int *sampling_mode)
+#ifdef TARGET_ANDROID
+static int update_sampler2D(const struct glcontext *gl,
+                            struct pipeline *s,
+                            struct texture *texture,
+                            struct textureprograminfo *info,
+                            uint64_t *used_texture_units,
+                            int *sampling_mode)
 {
-    if (info->sampler_id >= 0 || info->external_sampler_id >= 0)
-        ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
+    if (texture->target == GL_TEXTURE_EXTERNAL_OES) {
+        ngli_assert(info->external_sampler_id >= 0);
 
-    if (info->sampler_id >= 0) {
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-        ngli_glUniform1i(gl, info->sampler_id, s->disabled_texture_unit);
-    }
-
-    if (info->external_sampler_id >= 0) {
         *sampling_mode = NGLI_SAMPLING_MODE_EXTERNAL_OES;
+
+        if (info->sampler_id >= 0)
+            ngli_glUniform1i(gl, info->sampler_id, s->disabled_texture_unit);
+
+        int texture_index = acquire_next_available_texture_unit(used_texture_units);
+        if (texture_index < 0) {
+            LOG(ERROR, "no texture unit available");
+            return -1;
+        }
+
+        ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
         ngli_glBindTexture(gl, texture->target, texture->id);
-        ngli_glUniform1i(gl, info->external_sampler_id, *unit_index);
+        ngli_glUniform1i(gl, info->external_sampler_id, texture_index);
+
+    } else if (info->sampler_id >= 0) {
+
+        int ret = update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
+
+        if (info->external_sampler_id >= 0) {
+            ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
+            ngli_glUniform1i(gl, info->external_sampler_id, s->disabled_texture_unit);
+        }
+
+        return ret;
     }
+    return 0;
 }
 #elif TARGET_IPHONE
-static void update_sampler2D(const struct glcontext *gl,
+static int update_sampler2D(const struct glcontext *gl,
                              struct pipeline *s,
                              struct texture *texture,
                              struct textureprograminfo *info,
-                             int *unit_index,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
     if (texture->upload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR) {
+        ngli_assert(info->y_sampler_id >= 0 || info->uv_sampler_id >= 0);
+
         *sampling_mode = NGLI_SAMPLING_MODE_NV12;
 
         if (info->sampler_id >= 0)
             ngli_glUniform1i(gl, info->sampler_id, s->disabled_texture_unit);
 
         if (info->y_sampler_id >= 0) {
+            int texture_index = acquire_next_available_texture_unit(used_texture_units);
+            if (texture_index < 0) {
+                LOG(ERROR, "no texture unit available");
+                return -1;
+            }
+
             GLint id = CVOpenGLESTextureGetName(texture->ios_textures[0]);
-            ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
+            ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
             ngli_glBindTexture(gl, texture->target, id);
-            ngli_glUniform1i(gl, info->y_sampler_id, *unit_index);
+            ngli_glUniform1i(gl, info->y_sampler_id, texture_index);
         }
 
         if (info->uv_sampler_id >= 0) {
-            if (info->y_sampler_id >= 0)
-                *unit_index = acquire_next_available_texture_unit(used_texture_units);
+            int texture_index = acquire_next_available_texture_unit(used_texture_units);
+            if (texture_index < 0) {
+                LOG(ERROR, "no texture unit available");
+                return -1;
+            }
 
             GLint id = CVOpenGLESTextureGetName(texture->ios_textures[1]);
-            ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
+            ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
             ngli_glBindTexture(gl, texture->target, id);
-            ngli_glUniform1i(gl, info->uv_sampler_id, *unit_index);
+            ngli_glUniform1i(gl, info->uv_sampler_id, texture_index);
         }
     } else if (info->sampler_id >= 0) {
-        *sampling_mode = NGLI_SAMPLING_MODE_2D;
-
-        ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
-        ngli_glBindTexture(gl, texture->target, texture->id);
-        ngli_glUniform1i(gl, info->sampler_id, *unit_index);
+        int ret = update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
 
         if (info->y_sampler_id >= 0)
             ngli_glUniform1i(gl, info->y_sampler_id, s->disabled_texture_unit);
 
         if (info->uv_sampler_id >= 0)
             ngli_glUniform1i(gl, info->uv_sampler_id, s->disabled_texture_unit);
+
+        return ret;
     }
+    return 0;
 }
 #else
-static void update_sampler2D(const struct glcontext *gl,
+static int update_sampler2D(const struct glcontext *gl,
                              struct pipeline *s,
                              struct texture *texture,
                              struct textureprograminfo *info,
-                             int *unit_index,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
-    if (info->sampler_id >= 0) {
-        *sampling_mode = NGLI_SAMPLING_MODE_2D;
-
-        ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
-        ngli_glBindTexture(gl, texture->target, texture->id);
-        ngli_glUniform1i(gl, info->sampler_id, *unit_index);
-    }
+    return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
 }
 #endif
 
-static void update_sampler3D(const struct glcontext *gl,
+static int update_sampler3D(const struct glcontext *gl,
                              struct pipeline *s,
                              struct texture *texture,
                              struct textureprograminfo *info,
-                             int *unit_index,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
-    if (info->sampler_id >= 0) {
-        *sampling_mode = NGLI_SAMPLING_MODE_2D;
-
-        ngli_glActiveTexture(gl, GL_TEXTURE0 + *unit_index);
-        ngli_glBindTexture(gl, texture->target, texture->id);
-        ngli_glUniform1i(gl, info->sampler_id, *unit_index);
-    }
+    return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
 }
 
 static int update_images_and_samplers(struct ngl_node *node)
@@ -242,43 +253,17 @@ static int update_images_and_samplers(struct ngl_node *node)
                                             texture->internal_format);
                 }
             } else {
-                int texture_index = acquire_next_available_texture_unit(&used_texture_units);
-                if (texture_index < 0) {
-                    LOG(ERROR, "no texture unit available");
-                    return -1;
-                }
-                LOG(VERBOSE,
-                    "sampler at location=%d will use texture_unit=%d",
-                    info->sampler_id,
-                    texture_index);
                 int sampling_mode = NGLI_SAMPLING_MODE_NONE;
                 switch (texture->target) {
                 case GL_TEXTURE_2D:
-                    if (info->sampler_type != GL_SAMPLER_2D) {
-                        LOG(ERROR, "sampler type (0x%x) does not match texture target (0x%x)",
-                            info->sampler_type, texture->target);
-                        return -1;
-                    }
-                    update_sampler2D(gl, s, texture, info, &texture_index, &used_texture_units, &sampling_mode);
-                    break;
-                case GL_TEXTURE_3D:
-                    if (info->sampler_type != GL_SAMPLER_3D) {
-                        LOG(ERROR, "sampler type (0x%x) does not match texture target (0x%x)",
-                            info->sampler_type, texture->target);
-                        return -1;
-                    }
-                    update_sampler3D(gl, s, texture, info, &texture_index, &used_texture_units, &sampling_mode);
-                    break;
 #ifdef TARGET_ANDROID
                 case GL_TEXTURE_EXTERNAL_OES:
-                    if (info->sampler_type != GL_SAMPLER_EXTERNAL_OES) {
-                        LOG(ERROR, "sampler type (0x%x) does not match texture target (0x%x)",
-                            info->sampler_type, texture->target);
-                        return -1;
-                    }
-                    update_external_sampler(gl, s, texture, info, &texture_index, &used_texture_units, &sampling_mode);
-                    break;
 #endif
+                    update_sampler2D(gl, s, texture, info, &used_texture_units, &sampling_mode);
+                    break;
+                case GL_TEXTURE_3D:
+                    update_sampler3D(gl, s, texture, info, &used_texture_units, &sampling_mode);
+                    break;
                 }
 
                 if (info->sampling_mode_id >= 0)
