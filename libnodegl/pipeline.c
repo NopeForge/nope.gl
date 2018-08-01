@@ -132,7 +132,7 @@ static void update_sampler2D(const struct glcontext *gl,
         *sampling_mode = NGLI_SAMPLING_MODE_NV12;
 
         if (info->sampler_id >= 0)
-            ngli_glUniform1i(gl, info->sampler_id, 0);
+            ngli_glUniform1i(gl, info->sampler_id, s->disabled_texture_unit);
 
         if (info->y_sampler_id >= 0) {
             GLint id = CVOpenGLESTextureGetName(texture->ios_textures[0]);
