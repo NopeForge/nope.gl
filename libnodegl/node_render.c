@@ -248,9 +248,9 @@ static int update_images_and_samplers(struct ngl_node *node)
 
         if (s->disabled_texture_unit >= 0) {
             ngli_glActiveTexture(gl, GL_TEXTURE0 + s->disabled_texture_unit);
-            ngli_glBindTexture(gl, GL_TEXTURE_2D, s->disabled_texture_unit);
+            ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 #ifdef TARGET_ANDROID
-            ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, s->disabled_texture_unit);
+            ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
 #endif
         }
 
