@@ -242,6 +242,7 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     if (!s->program)
         return -1;
 
+    ngl_node_param_set(s->program, "name", "mc-read-oes");
     ngl_node_param_set(s->program, "fragment", fragment_shader_hwupload_oes_data);
 
     s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE2D);
@@ -532,6 +533,8 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         s->program = ngl_node_create(NGL_NODE_PROGRAM);
         if (!s->program)
             return -1;
+
+        ngl_node_param_set(s->program, "name", "vt-read-nv12");
 
         const char *uv = gl->version < 300 ? "ra": "rg";
         char *fragment_shader = ngli_asprintf(FRAGMENT_SHADER_HWUPLOAD_NV12_DATA, uv);
