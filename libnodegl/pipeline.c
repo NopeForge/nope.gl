@@ -197,7 +197,9 @@ static int update_sampler2D(const struct glcontext *gl,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
-    return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
+    if (info->sampler_id >= 0)
+        return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
+    return 0;
 }
 #endif
 
@@ -208,7 +210,9 @@ static int update_sampler3D(const struct glcontext *gl,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
-    return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
+    if (info->sampler_id >= 0)
+        return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
+    return 0;
 }
 
 static int update_images_and_samplers(struct ngl_node *node)
