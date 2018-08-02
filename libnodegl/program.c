@@ -22,9 +22,52 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "glincludes.h"
 #include "log.h"
 #include "nodes.h"
 #include "program.h"
+
+int ngli_program_check_status(const struct glcontext *gl, GLuint id, GLenum status)
+{
+    char *info_log = NULL;
+    int info_log_length = 0;
+
+    void (*get_info)(const struct glcontext *gl, GLuint id, GLenum pname, GLint *params);
+    void (*get_log)(const struct glcontext *gl, GLuint id, GLsizei bufSize, GLsizei *length, GLchar *infoLog);
+    const char *type_str;
+
+    if (status == GL_COMPILE_STATUS) {
+        type_str = "compile";
+        get_info = ngli_glGetShaderiv;
+        get_log  = ngli_glGetShaderInfoLog;
+    } else if (status == GL_LINK_STATUS) {
+        type_str = "link";
+        get_info = ngli_glGetProgramiv;
+        get_log  = ngli_glGetProgramInfoLog;
+    } else {
+        ngli_assert(0);
+    }
+
+    GLint result = GL_FALSE;
+    get_info(gl, id, status, &result);
+    if (result == GL_TRUE)
+        return 0;
+
+    get_info(gl, id, GL_INFO_LOG_LENGTH, &info_log_length);
+    if (!info_log_length)
+        return -1;
+
+    info_log = malloc(info_log_length);
+    if (!info_log)
+        return -1;
+
+    get_log(gl, id, info_log_length, NULL, info_log);
+    while (info_log_length && strchr(" \r\n", info_log[info_log_length - 1]))
+        info_log[--info_log_length] = 0;
+
+    LOG(ERROR, "could not %s shader: %s", type_str, info_log);
+    return -1;
+}
 
 static void free_pinfo(void *user_arg, void *data)
 {

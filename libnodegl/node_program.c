@@ -95,39 +95,10 @@ static const struct node_param program_params[] = {
     {NULL}
 };
 
-#define DEFINE_GET_INFO_LOG_FUNCTION(func, name)                                      \
-static void get_##func##_info_log(const struct glcontext *gl, GLuint id,              \
-                                  char **info_logp, int *info_log_lengthp)            \
-{                                                                                     \
-    ngli_glGet##name##iv(gl, id, GL_INFO_LOG_LENGTH, info_log_lengthp);               \
-    if (!*info_log_lengthp) {                                                         \
-        *info_logp = NULL;                                                            \
-        return;                                                                       \
-    }                                                                                 \
-                                                                                      \
-    *info_logp = malloc(*info_log_lengthp);                                           \
-    if (!*info_logp) {                                                                \
-        *info_log_lengthp = 0;                                                        \
-        return;                                                                       \
-    }                                                                                 \
-                                                                                      \
-    ngli_glGet##name##InfoLog(gl, id, *info_log_lengthp, NULL, *info_logp);           \
-    while (*info_log_lengthp && strchr(" \r\n", (*info_logp)[*info_log_lengthp - 1])) \
-        (*info_logp)[--*info_log_lengthp] = 0;                                        \
-}                                                                                     \
-
-DEFINE_GET_INFO_LOG_FUNCTION(shader, Shader)
-DEFINE_GET_INFO_LOG_FUNCTION(program, Program)
-
 static GLuint load_program(struct ngl_node *node, const char *vertex, const char *fragment)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
-    char *info_log = NULL;
-    int info_log_length = 0;
-
-    GLint result = GL_FALSE;
 
     GLuint program = ngli_glCreateProgram(gl);
     GLuint vertex_shader = ngli_glCreateShader(gl, GL_VERTEX_SHADER);
@@ -135,31 +106,19 @@ static GLuint load_program(struct ngl_node *node, const char *vertex, const char
 
     ngli_glShaderSource(gl, vertex_shader, 1, &vertex, NULL);
     ngli_glCompileShader(gl, vertex_shader);
-
-    ngli_glGetShaderiv(gl, vertex_shader, GL_COMPILE_STATUS, &result);
-    if (!result) {
-        get_shader_info_log(gl, vertex_shader, &info_log, &info_log_length);
+    if (ngli_program_check_status(gl, vertex_shader, GL_COMPILE_STATUS) < 0)
         goto fail;
-    }
 
     ngli_glShaderSource(gl, fragment_shader, 1, &fragment, NULL);
     ngli_glCompileShader(gl, fragment_shader);
-
-    ngli_glGetShaderiv(gl, fragment_shader, GL_COMPILE_STATUS, &result);
-    if (!result) {
-        get_shader_info_log(gl, fragment_shader, &info_log, &info_log_length);
+    if (ngli_program_check_status(gl, fragment_shader, GL_COMPILE_STATUS) < 0)
         goto fail;
-    }
 
     ngli_glAttachShader(gl, program, vertex_shader);
     ngli_glAttachShader(gl, program, fragment_shader);
     ngli_glLinkProgram(gl, program);
-
-    ngli_glGetProgramiv(gl, program, GL_LINK_STATUS, &result);
-    if (!result) {
-        get_program_info_log(gl, program, &info_log, &info_log_length);
+    if (ngli_program_check_status(gl, program, GL_LINK_STATUS) < 0)
         goto fail;
-    }
 
     ngli_glDeleteShader(gl, vertex_shader);
     ngli_glDeleteShader(gl, fragment_shader);
@@ -167,11 +126,6 @@ static GLuint load_program(struct ngl_node *node, const char *vertex, const char
     return program;
 
 fail:
-    if (info_log) {
-        LOG(ERROR, "could not compile or link shader: %s", info_log);
-        free(info_log);
-    }
-
     if (vertex_shader) {
         ngli_glDeleteShader(gl, vertex_shader);
     }
