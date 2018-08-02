@@ -55,6 +55,7 @@ static int acquire_next_available_texture_unit(uint64_t *used_texture_units)
             return i;
         }
     }
+    LOG(ERROR, "no texture unit available");
     return -1;
 }
 
@@ -68,10 +69,8 @@ static int update_default_sampler(const struct glcontext *gl,
     ngli_assert(info->sampler_id >= 0);
 
     int texture_index = acquire_next_available_texture_unit(used_texture_units);
-    if (texture_index < 0) {
-        LOG(ERROR, "no texture unit available");
+    if (texture_index < 0)
         return -1;
-    }
 
     *sampling_mode = NGLI_SAMPLING_MODE_2D;
 
@@ -98,10 +97,8 @@ static int update_sampler2D(const struct glcontext *gl,
             ngli_glUniform1i(gl, info->sampler_id, s->disabled_texture_unit);
 
         int texture_index = acquire_next_available_texture_unit(used_texture_units);
-        if (texture_index < 0) {
-            LOG(ERROR, "no texture unit available");
+        if (texture_index < 0)
             return -1;
-        }
 
         ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
         ngli_glBindTexture(gl, texture->target, texture->id);
@@ -138,10 +135,8 @@ static int update_sampler2D(const struct glcontext *gl,
 
         if (info->y_sampler_id >= 0) {
             int texture_index = acquire_next_available_texture_unit(used_texture_units);
-            if (texture_index < 0) {
-                LOG(ERROR, "no texture unit available");
+            if (texture_index < 0)
                 return -1;
-            }
 
             GLint id = CVOpenGLESTextureGetName(texture->ios_textures[0]);
             ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
@@ -151,10 +146,8 @@ static int update_sampler2D(const struct glcontext *gl,
 
         if (info->uv_sampler_id >= 0) {
             int texture_index = acquire_next_available_texture_unit(used_texture_units);
-            if (texture_index < 0) {
-                LOG(ERROR, "no texture unit available");
+            if (texture_index < 0)
                 return -1;
-            }
 
             GLint id = CVOpenGLESTextureGetName(texture->ios_textures[1]);
             ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
@@ -515,10 +508,8 @@ int ngli_pipeline_init(struct ngl_node *node)
             if (info->sampler_id >= 0 &&
                 info->external_sampler_id >= 0) {
                 s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
-                if (s->disabled_texture_unit < 0) {
-                    LOG(ERROR, "no texture unit available");
+                if (s->disabled_texture_unit < 0)
                     return -1;
-                }
             }
 
             texture->direct_rendering = texture->direct_rendering &&
@@ -536,10 +527,8 @@ int ngli_pipeline_init(struct ngl_node *node)
             if (info->sampler_id >= 0 &&
                 (info->y_sampler_id >= 0 || info->uv_sampler_id >= 0)) {
                 s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
-                if (s->disabled_texture_unit < 0) {
-                    LOG(ERROR, "no texture unit available");
+                if (s->disabled_texture_unit < 0)
                     return -1;
-                }
             }
 
             texture->direct_rendering = texture->direct_rendering &&
