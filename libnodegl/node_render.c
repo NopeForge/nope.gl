@@ -234,7 +234,9 @@ static int render_init(struct ngl_node *node)
             return ret;
     }
 
-    ngli_pipeline_init(node);
+    ret = ngli_pipeline_init(node);
+    if (ret < 0)
+        return ret;
 
     int nb_attributes = s->attributes ? ngli_hmap_count(s->attributes) : 0;
     if (nb_attributes > 0) {
