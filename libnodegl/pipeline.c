@@ -76,7 +76,7 @@ static int acquire_next_available_texture_unit(uint64_t *used_texture_units)
 static int update_default_sampler(const struct glcontext *gl,
                                   struct pipeline *s,
                                   struct texture *texture,
-                                  struct textureprograminfo *info,
+                                  const struct textureprograminfo *info,
                                   uint64_t *used_texture_units,
                                   int *sampling_mode)
 {
@@ -100,7 +100,7 @@ static int update_default_sampler(const struct glcontext *gl,
 static int update_sampler2D(const struct glcontext *gl,
                             struct pipeline *s,
                             struct texture *texture,
-                            struct textureprograminfo *info,
+                            const struct textureprograminfo *info,
                             uint64_t *used_texture_units,
                             int *sampling_mode)
 {
@@ -139,7 +139,7 @@ static int update_sampler2D(const struct glcontext *gl,
 static int update_sampler2D(const struct glcontext *gl,
                              struct pipeline *s,
                              struct texture *texture,
-                             struct textureprograminfo *info,
+                             const struct textureprograminfo *info,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
@@ -193,7 +193,7 @@ static int update_sampler2D(const struct glcontext *gl,
 static int update_sampler2D(const struct glcontext *gl,
                              struct pipeline *s,
                              struct texture *texture,
-                             struct textureprograminfo *info,
+                             const struct textureprograminfo *info,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
@@ -204,7 +204,7 @@ static int update_sampler2D(const struct glcontext *gl,
 static int update_sampler3D(const struct glcontext *gl,
                              struct pipeline *s,
                              struct texture *texture,
-                             struct textureprograminfo *info,
+                             const struct textureprograminfo *info,
                              uint64_t *used_texture_units,
                              int *sampling_mode)
 {
@@ -230,7 +230,7 @@ static int update_images_and_samplers(struct ngl_node *node)
         }
 
         for (int i = 0; i < s->nb_textureprograminfos; i++) {
-            struct textureprograminfo *info = &s->textureprograminfos[i];
+            const struct textureprograminfo *info = &s->textureprograminfos[i];
             const struct ngl_node *tnode = ngli_hmap_get(s->textures, info->name);
             if (!tnode)
                 continue;
