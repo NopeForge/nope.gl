@@ -396,16 +396,21 @@ static int update_buffers(struct ngl_node *node)
     return 0;
 }
 
-static int remove_suffix(char *dst, size_t dst_size, const char *src, const char *suffix)
+static struct uniformprograminfo *get_uniform_info(struct hmap *uniforms,
+                                                   const char *basename,
+                                                   const char *suffix)
 {
-    size_t suffix_len = strlen(suffix);
-    size_t suffix_pos = strlen(src) - suffix_len;
-    if (suffix_pos <= 0 || suffix_pos >= INT_MAX)
-        return -1;
-    if (strcmp(src + suffix_pos, suffix))
-        return -1;
-    snprintf(dst, dst_size, "%.*s", (int)suffix_pos, src);
-    return 0;
+    char name[128];
+    snprintf(name, sizeof(name), "%s%s", basename, suffix);
+    return ngli_hmap_get(uniforms, name);
+}
+
+static int get_uniform_location(struct hmap *uniforms,
+                                const char *basename,
+                                const char *suffix)
+{
+    struct uniformprograminfo *active_uniform = get_uniform_info(uniforms, basename, suffix);
+    return active_uniform ? active_uniform->id : -1;
 }
 
 int ngli_pipeline_init(struct ngl_node *node)
@@ -426,12 +431,15 @@ int ngli_pipeline_init(struct ngl_node *node)
         if (!s->uniform_ids)
             return -1;
 
-        for (int i = 0; i < program->nb_active_uniforms; i++) {
-            struct uniformprograminfo *active_uniform = &program->active_uniforms[i];
-            struct ngl_node *unode = ngli_hmap_get(s->uniforms, active_uniform->name);
-            if (!unode)
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->uniforms, entry))) {
+            struct uniformprograminfo *active_uniform =
+                ngli_hmap_get(program->active_uniforms, entry->key);
+            if (!active_uniform) {
                 continue;
+            }
 
+            struct ngl_node *unode = entry->data;
             ret = ngli_node_init(unode);
             if (ret < 0)
                 return ret;
@@ -452,39 +460,50 @@ int ngli_pipeline_init(struct ngl_node *node)
     }
 
     if (nb_textures > 0) {
-        s->textureprograminfos = calloc(program->nb_active_uniforms, sizeof(*s->textureprograminfos));
+        s->textureprograminfos = calloc(nb_textures, sizeof(*s->textureprograminfos));
         if (!s->textureprograminfos)
             return -1;
 
-#define GET_TEXTURE_UNIFORM_LOCATION(basename, suffix) do {                                    \
-                char name[128];                                                                \
-                snprintf(name, sizeof(name), "%s_" #suffix, basename);                         \
-                info->suffix##_id = ngli_glGetUniformLocation(gl, program->program_id, name);  \
-} while (0)
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->textures, entry))) {
+            const char *key = entry->key;
+            struct ngl_node *tnode = entry->data;
+            int ret = ngli_node_init(tnode);
+            if (ret < 0)
+                return ret;
 
-        for (int i = 0; i < program->nb_active_uniforms; i++) {
-            struct uniformprograminfo *active_uniform = &program->active_uniforms[i];
+            struct texture *texture = tnode->priv_data;
 
-            if (active_uniform->type == GL_IMAGE_2D) {
-                struct ngl_node *tnode = ngli_hmap_get(s->textures, active_uniform->name);
-                if (!tnode)
-                    return -1;
-                ret = ngli_node_init(tnode);
-                if (ret < 0)
-                    return ret;
-                struct texture *texture = tnode->priv_data;
+            struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
+            snprintf(info->name, sizeof(info->name), "%s", entry->key);
+
+            const struct uniformprograminfo *sampler = get_uniform_info(program->active_uniforms, entry->key, "");
+            if (!sampler) // Allow _sampler suffix
+                sampler = get_uniform_info(program->active_uniforms, entry->key, "_sampler");
+            if (sampler) {
+                info->sampler_value = sampler->binding;
+                info->sampler_type  = sampler->type;
+                info->sampler_id    = sampler->id;
+            } else {
+                info->sampler_value =
+                info->sampler_type  =
+                info->sampler_id    = -1;
+            }
+
+            info->sampling_mode_id    = get_uniform_location(program->active_uniforms, entry->key, "_sampling_mode");
+            info->coord_matrix_id     = get_uniform_location(program->active_uniforms, entry->key, "_coord_matrix");
+            info->dimensions_id       = get_uniform_location(program->active_uniforms, entry->key, "_dimensions");
+            info->ts_id               = get_uniform_location(program->active_uniforms, entry->key, "_ts");
+
+#if defined(TARGET_ANDROID)
+            info->external_sampler_id = get_uniform_location(program->active_uniforms, entry->key, "_external_sampler");
+#elif defined(TARGET_IPHONE)
+            info->y_sampler_id        = get_uniform_location(program->active_uniforms, entry->key, "_y_sampler");
+            info->uv_sampler_id       = get_uniform_location(program->active_uniforms, entry->key, "_uv_sampler");
+#endif
+
+            if (info->sampler_type == GL_IMAGE_2D) {
                 texture->direct_rendering = 0;
-
-                struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
-                snprintf(info->name, sizeof(info->name), "%s", active_uniform->name);
-                info->sampler_id = active_uniform->id;
-                info->sampler_type = active_uniform->type;
-
-                GET_TEXTURE_UNIFORM_LOCATION(active_uniform->name, coord_matrix);
-                GET_TEXTURE_UNIFORM_LOCATION(active_uniform->name, dimensions);
-                GET_TEXTURE_UNIFORM_LOCATION(active_uniform->name, ts);
-
-                ngli_glGetUniformiv(gl, program->program_id, info->sampler_id, &info->sampler_value);
                 if (info->sampler_value >= max_nb_textures) {
                     LOG(ERROR, "maximum number (%d) of texture unit reached", max_nb_textures);
                     return -1;
@@ -494,39 +513,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                     return -1;
                 }
                 s->used_texture_units |= 1 << info->sampler_value;
-                s->nb_textureprograminfos++;
-            } else if (active_uniform->type == GL_SAMPLER_2D ||
-                       active_uniform->type == GL_SAMPLER_3D ||
-                       active_uniform->type == GL_SAMPLER_EXTERNAL_OES) {
-                char key[64];
-                const char *suffix = active_uniform->type == GL_SAMPLER_EXTERNAL_OES ? "_external_sampler"
-                                                                                     : "_sampler";
-                ret = remove_suffix(key, sizeof(key), active_uniform->name, suffix);
-                if (ret < 0)
-                    continue;
-
-                struct ngl_node *tnode = ngli_hmap_get(s->textures, key);
-                if (!tnode)
-                    return -1;
-                ret = ngli_node_init(tnode);
-                if (ret < 0)
-                    return ret;
-
-                struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
-                snprintf(info->name, sizeof(info->name), "%s", key);
-                info->sampler_type = active_uniform->type;
-
-                GET_TEXTURE_UNIFORM_LOCATION(key, sampling_mode);
-                GET_TEXTURE_UNIFORM_LOCATION(key, sampler);
-#if defined(TARGET_ANDROID)
-                GET_TEXTURE_UNIFORM_LOCATION(key, external_sampler);
-#elif defined(TARGET_IPHONE)
-                GET_TEXTURE_UNIFORM_LOCATION(key, y_sampler);
-                GET_TEXTURE_UNIFORM_LOCATION(key, uv_sampler);
-#endif
-                GET_TEXTURE_UNIFORM_LOCATION(key, coord_matrix);
-                GET_TEXTURE_UNIFORM_LOCATION(key, dimensions);
-                GET_TEXTURE_UNIFORM_LOCATION(key, ts);
+            }
 
 #if TARGET_ANDROID
                 if (info->sampler_id < 0 &&
@@ -543,7 +530,6 @@ int ngli_pipeline_init(struct ngl_node *node)
                     }
                 }
 
-                struct texture *texture = tnode->priv_data;
                 texture->direct_rendering = texture->direct_rendering &&
                                             info->external_sampler_id >= 0;
                 LOG(INFO,
@@ -565,7 +551,6 @@ int ngli_pipeline_init(struct ngl_node *node)
                     }
                 }
 
-                struct texture *texture = tnode->priv_data;
                 texture->direct_rendering = texture->direct_rendering &&
                                             (info->y_sampler_id >= 0 ||
                                             info->uv_sampler_id >= 0);
@@ -579,9 +564,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 }
 #endif
                 s->nb_textureprograminfos++;
-            }
         }
-#undef GET_TEXTURE_UNIFORM_LOCATION
     }
 
     int nb_buffers = s->buffers ? ngli_hmap_count(s->buffers) : 0;

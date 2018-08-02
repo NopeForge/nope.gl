@@ -186,6 +186,11 @@ fail:
     return 0;
 }
 
+static void free_pinfo(void *user_arg, void *data)
+{
+    free(data);
+}
+
 static int program_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -197,6 +202,16 @@ static int program_init(struct ngl_node *node)
     if (!s->info.program_id)
         return -1;
 
+    s->info.active_uniforms = ngli_hmap_create();
+    if (!s->info.active_uniforms)
+        return -1;
+    ngli_hmap_set_free(s->info.active_uniforms, free_pinfo, NULL);
+
+    s->active_attributes = ngli_hmap_create();
+    if (!s->active_attributes)
+        return -1;
+    ngli_hmap_set_free(s->active_attributes, free_pinfo, NULL);
+
     s->position_location_id          = ngli_glGetAttribLocation(gl, s->info.program_id,  "ngl_position");
     s->uvcoord_location_id           = ngli_glGetAttribLocation(gl, s->info.program_id,  "ngl_uvcoord");
     s->normal_location_id            = ngli_glGetAttribLocation(gl, s->info.program_id,  "ngl_normal");
@@ -204,51 +219,66 @@ static int program_init(struct ngl_node *node)
     s->projection_matrix_location_id = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_projection_matrix");
     s->normal_matrix_location_id     = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_normal_matrix");
 
-    ngli_glGetProgramiv(gl, s->info.program_id, GL_ACTIVE_UNIFORMS, &s->info.nb_active_uniforms);
-    if (s->info.nb_active_uniforms) {
-        s->info.active_uniforms = calloc(s->info.nb_active_uniforms, sizeof(*s->info.active_uniforms));
-        if (!s->info.active_uniforms)
+    int nb_active_uniforms;
+    ngli_glGetProgramiv(gl, s->info.program_id, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
+    for (int i = 0; i < nb_active_uniforms; i++) {
+        struct uniformprograminfo *info = malloc(sizeof(*info));
+        if (!info)
             return -1;
-        for (int i = 0; i < s->info.nb_active_uniforms; i++) {
-            struct uniformprograminfo *info = &s->info.active_uniforms[i];
-            ngli_glGetActiveUniform(gl,
-                                    s->info.program_id,
-                                    i,
-                                    sizeof(info->name),
-                                    NULL,
-                                    &info->size,
-                                    &info->type,
-                                    info->name);
+        ngli_glGetActiveUniform(gl,
+                                s->info.program_id,
+                                i,
+                                sizeof(info->name),
+                                NULL,
+                                &info->size,
+                                &info->type,
+                                info->name);
 
-            /* Remove [0] suffix from names of uniform arrays */
-            info->name[strcspn(info->name, "[")] = 0;
+        /* Remove [0] suffix from names of uniform arrays */
+        info->name[strcspn(info->name, "[")] = 0;
 
-            info->id = ngli_glGetUniformLocation(gl,
-                                                 s->info.program_id,
-                                                 info->name);
+        info->id = ngli_glGetUniformLocation(gl,
+                                             s->info.program_id,
+                                             info->name);
+
+        if (info->type == GL_IMAGE_2D) {
+            ngli_glGetUniformiv(gl, s->info.program_id, info->id, &info->binding);
+        } else {
+            info->binding = -1;
         }
+
+        LOG(DEBUG, "%s.uniform[%d/%d]: %s location:%d size=%d type=0x%x binding=%d", node->name,
+            i + 1, nb_active_uniforms, info->name, info->id, info->size, info->type, info->binding);
+
+        int ret = ngli_hmap_set(s->info.active_uniforms, info->name, info);
+        if (ret < 0)
+            return ret;
     }
 
-    ngli_glGetProgramiv(gl, s->info.program_id, GL_ACTIVE_ATTRIBUTES, &s->nb_active_attributes);
-    if (s->nb_active_attributes) {
-        s->active_attributes = calloc(s->nb_active_attributes, sizeof(*s->active_attributes));
-        if (!s->active_attributes)
+    int nb_active_attributes;
+    ngli_glGetProgramiv(gl, s->info.program_id, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
+    for (int i = 0; i < nb_active_attributes; i++) {
+        struct attributeprograminfo *info = malloc(sizeof(*info));
+        if (!info)
             return -1;
-        for (int i = 0; i < s->nb_active_attributes; i++) {
-            struct attributeprograminfo *info = &s->active_attributes[i];
-            ngli_glGetActiveAttrib(gl,
-                                   s->info.program_id,
-                                   i,
-                                   sizeof(info->name),
-                                   NULL,
-                                   &info->size,
-                                   &info->type,
-                                   info->name);
+        ngli_glGetActiveAttrib(gl,
+                               s->info.program_id,
+                               i,
+                               sizeof(info->name),
+                               NULL,
+                               &info->size,
+                               &info->type,
+                               info->name);
 
-            info->id = ngli_glGetAttribLocation(gl,
-                                                s->info.program_id,
-                                                info->name);
-        }
+        info->id = ngli_glGetAttribLocation(gl,
+                                            s->info.program_id,
+                                            info->name);
+        LOG(DEBUG, "%s.attribute[%d/%d]: %s location:%d size=%d type=0x%x", node->name,
+            i + 1, nb_active_attributes, info->name, info->id, info->size, info->type);
+
+        int ret = ngli_hmap_set(s->active_attributes, info->name, info);
+        if (ret < 0)
+            return ret;
     }
 
     return 0;
@@ -261,8 +291,8 @@ static void program_uninit(struct ngl_node *node)
 
     struct program *s = node->priv_data;
 
-    free(s->info.active_uniforms);
-    free(s->active_attributes);
+    ngli_hmap_freep(&s->info.active_uniforms);
+    ngli_hmap_freep(&s->active_attributes);
     ngli_glDeleteProgram(gl, s->info.program_id);
 }
 

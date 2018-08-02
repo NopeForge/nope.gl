@@ -235,8 +235,7 @@ struct rtt {
 
 struct program_info {
     GLuint program_id;
-    struct uniformprograminfo *active_uniforms;
-    int nb_active_uniforms;
+    struct hmap *active_uniforms;
 };
 
 struct program {
@@ -251,8 +250,7 @@ struct program {
     GLint projection_matrix_location_id;
     GLint normal_matrix_location_id;
 
-    struct attributeprograminfo *active_attributes;
-    int nb_active_attributes;
+    struct hmap *active_attributes;
 };
 
 struct computeprogram {
@@ -332,6 +330,7 @@ struct uniformprograminfo {
     GLint size;
     GLenum type;
     char name[64];
+    int binding;
 };
 
 struct attributeprograminfo {

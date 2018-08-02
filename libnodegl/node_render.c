@@ -245,11 +245,15 @@ static int render_init(struct ngl_node *node)
         if (!s->attribute_ids)
             return -1;
 
-        for (int i = 0; i < program->nb_active_attributes; i++) {
-            struct attributeprograminfo *active_attribute = &program->active_attributes[i];
-            struct ngl_node *anode = ngli_hmap_get(s->attributes, active_attribute->name);
-            if (!anode)
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->attributes, entry))) {
+            struct attributeprograminfo *active_attribute =
+                ngli_hmap_get(program->active_attributes, entry->key);
+            if (!active_attribute) {
                 continue;
+            }
+
+            struct ngl_node *anode = entry->data;
             struct buffer *buffer = anode->priv_data;
             buffer->generate_gl_buffer = 1;
 
