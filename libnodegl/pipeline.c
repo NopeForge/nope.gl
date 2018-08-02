@@ -436,6 +436,8 @@ int ngli_pipeline_init(struct ngl_node *node)
             struct uniformprograminfo *active_uniform =
                 ngli_hmap_get(program->active_uniforms, entry->key);
             if (!active_uniform) {
+                LOG(WARNING, "uniform %s attached to %s not found in %s",
+                    entry->key, node->name, s->program->name);
                 continue;
             }
 

@@ -250,6 +250,8 @@ static int render_init(struct ngl_node *node)
             struct attributeprograminfo *active_attribute =
                 ngli_hmap_get(program->active_attributes, entry->key);
             if (!active_attribute) {
+                LOG(WARNING, "attribute %s attached to %s not found in %s",
+                    entry->key, node->name, s->pipeline.program->name);
                 continue;
             }
 
