@@ -518,54 +518,54 @@ int ngli_pipeline_init(struct ngl_node *node)
             }
 
 #if TARGET_ANDROID
-                if (info->sampler_id < 0 &&
-                    info->external_sampler_id < 0) {
-                    LOG(WARNING, "no sampler found for texture %s", key);
-                }
+            if (info->sampler_id < 0 &&
+                info->external_sampler_id < 0) {
+                LOG(WARNING, "no sampler found for texture %s", key);
+            }
 
-                if (info->sampler_id >= 0 &&
-                    info->external_sampler_id >= 0) {
-                    s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
-                    if (s->disabled_texture_unit < 0) {
-                        LOG(ERROR, "no texture unit available");
-                        return -1;
-                    }
+            if (info->sampler_id >= 0 &&
+                info->external_sampler_id >= 0) {
+                s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
+                if (s->disabled_texture_unit < 0) {
+                    LOG(ERROR, "no texture unit available");
+                    return -1;
                 }
+            }
 
-                texture->direct_rendering = texture->direct_rendering &&
-                                            info->external_sampler_id >= 0;
-                LOG(INFO,
-                    "direct rendering %s available for texture %s",
-                    texture->direct_rendering ? "is" : "is not",
-                    key);
+            texture->direct_rendering = texture->direct_rendering &&
+                                        info->external_sampler_id >= 0;
+            LOG(INFO,
+                "direct rendering %s available for texture %s",
+                texture->direct_rendering ? "is" : "is not",
+                key);
 #elif TARGET_IPHONE
-                if (info->sampler_id < 0 &&
-                    (info->y_sampler_id < 0 || info->uv_sampler_id < 0)) {
-                    LOG(WARNING, "no sampler found for texture %s", key);
-                }
+            if (info->sampler_id < 0 &&
+                (info->y_sampler_id < 0 || info->uv_sampler_id < 0)) {
+                LOG(WARNING, "no sampler found for texture %s", key);
+            }
 
-                if (info->sampler_id >= 0 &&
-                    (info->y_sampler_id >= 0 || info->uv_sampler_id >= 0)) {
-                    s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
-                    if (s->disabled_texture_unit < 0) {
-                        LOG(ERROR, "no texture unit available");
-                        return -1;
-                    }
+            if (info->sampler_id >= 0 &&
+                (info->y_sampler_id >= 0 || info->uv_sampler_id >= 0)) {
+                s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
+                if (s->disabled_texture_unit < 0) {
+                    LOG(ERROR, "no texture unit available");
+                    return -1;
                 }
+            }
 
-                texture->direct_rendering = texture->direct_rendering &&
-                                            (info->y_sampler_id >= 0 ||
-                                            info->uv_sampler_id >= 0);
-                LOG(INFO,
-                    "nv12 direct rendering %s available for texture %s",
-                    texture->direct_rendering ? "is" : "is not",
-                    key);
+            texture->direct_rendering = texture->direct_rendering &&
+                                        (info->y_sampler_id >= 0 ||
+                                        info->uv_sampler_id >= 0);
+            LOG(INFO,
+                "nv12 direct rendering %s available for texture %s",
+                texture->direct_rendering ? "is" : "is not",
+                key);
 #else
-                if (info->sampler_id < 0) {
-                    LOG(WARNING, "no sampler found for texture %s", key);
-                }
+            if (info->sampler_id < 0) {
+                LOG(WARNING, "no sampler found for texture %s", key);
+            }
 #endif
-                s->nb_textureprograminfos++;
+            s->nb_textureprograminfos++;
         }
     }
 
