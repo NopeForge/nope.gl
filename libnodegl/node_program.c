@@ -46,6 +46,8 @@ static const char default_fragment_shader[] =
     "        gl_FragColor = texture2D(tex0_sampler, var_tex0_coord);"                   "\n"
     "    else if (tex0_sampling_mode == 2)"                                             "\n"
     "        gl_FragColor = texture2D(tex0_external_sampler, var_tex0_coord);"          "\n"
+    "    else"                                                                          "\n"
+    "        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);"                                  "\n"
     "}";
 #else
 static const char default_fragment_shader[] =
