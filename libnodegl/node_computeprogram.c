@@ -59,13 +59,10 @@ static GLuint load_shader(struct ngl_node *node, const char *compute_shader_data
     return program;
 
 fail:
-    if (compute_shader) {
+    if (compute_shader)
         ngli_glDeleteShader(gl, compute_shader);
-    }
-
-    if (program) {
+    if (program)
         ngli_glDeleteProgram(gl, program);
-    }
 
     return 0;
 }

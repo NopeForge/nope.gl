@@ -126,17 +126,12 @@ static GLuint load_program(struct ngl_node *node, const char *vertex, const char
     return program;
 
 fail:
-    if (vertex_shader) {
+    if (vertex_shader)
         ngli_glDeleteShader(gl, vertex_shader);
-    }
-
-    if (fragment_shader) {
+    if (fragment_shader)
         ngli_glDeleteShader(gl, fragment_shader);
-    }
-
-    if (program) {
+    if (program)
         ngli_glDeleteProgram(gl, program);
-    }
 
     return 0;
 }
