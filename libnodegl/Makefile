@@ -91,6 +91,7 @@ LIB_OBJS = api.o                    \
            nodes.o                  \
            params.o                 \
            pipeline.o               \
+           program.o                \
            serialize.o              \
            transforms.o             \
            utils.o                  \

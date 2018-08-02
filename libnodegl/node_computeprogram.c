@@ -27,6 +27,7 @@
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "program.h"
 
 #define OFFSET(x) offsetof(struct computeprogram, x)
 static const struct node_param computeprogram_params[] = {
@@ -111,11 +112,6 @@ fail:
     return 0;
 }
 
-static void free_pinfo(void *user_arg, void *data)
-{
-    free(data);
-}
-
 static int computeprogram_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -126,46 +122,9 @@ static int computeprogram_init(struct ngl_node *node)
     if (!s->info.program_id)
         return -1;
 
-    s->info.active_uniforms = ngli_hmap_create();
+    s->info.active_uniforms = ngli_program_probe_uniforms(node->name, gl, s->info.program_id);
     if (!s->info.active_uniforms)
         return -1;
-    ngli_hmap_set_free(s->info.active_uniforms, free_pinfo, NULL);
-
-    int nb_active_uniforms;
-    ngli_glGetProgramiv(gl, s->info.program_id, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
-    for (int i = 0; i < nb_active_uniforms; i++) {
-        struct uniformprograminfo *info = malloc(sizeof(*info));
-        if (!info)
-            return -1;
-        ngli_glGetActiveUniform(gl,
-                                s->info.program_id,
-                                i,
-                                sizeof(info->name),
-                                NULL,
-                                &info->size,
-                                &info->type,
-                                info->name);
-
-        /* Remove [0] suffix from names of uniform arrays */
-        info->name[strcspn(info->name, "[")] = 0;
-
-        info->id = ngli_glGetUniformLocation(gl,
-                                             s->info.program_id,
-                                             info->name);
-
-        if (info->type == GL_IMAGE_2D) {
-            ngli_glGetUniformiv(gl, s->info.program_id, info->id, &info->binding);
-        } else {
-            info->binding = -1;
-        }
-
-        LOG(DEBUG, "%s.uniform[%d/%d]: %s location:%d size=%d type=0x%x binding=%d", node->name,
-            i + 1, nb_active_uniforms, info->name, info->id, info->size, info->type, info->binding);
-
-        int ret = ngli_hmap_set(s->info.active_uniforms, info->name, info);
-        if (ret < 0)
-            return ret;
-    }
 
     return 0;
 }
