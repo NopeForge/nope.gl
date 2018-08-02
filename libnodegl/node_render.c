@@ -127,6 +127,27 @@ static int update_geometry_uniforms(struct ngl_node *node)
     return 0;
 }
 
+#define GEOMETRY_OFFSET(x) offsetof(struct geometry, x)
+static const struct {
+    const char *const_name;
+    int offset;
+} attrib_const_map[] = {
+    {"ngl_position", GEOMETRY_OFFSET(vertices_buffer)},
+    {"ngl_uvcoord",  GEOMETRY_OFFSET(uvcoords_buffer)},
+    {"ngl_normal",   GEOMETRY_OFFSET(normals_buffer)},
+};
+
+static struct buffer *get_vertex_buffer(struct geometry *geometry, int const_map_id)
+{
+    const int offset = attrib_const_map[const_map_id].offset;
+    const uint8_t *buffer_node_p = ((uint8_t *)geometry) + offset;
+    const struct ngl_node *buffer_node = *(struct ngl_node **)buffer_node_p;
+    if (!buffer_node)
+        return NULL;
+    struct buffer *buffer = buffer_node->priv_data;
+    return buffer;
+}
+
 static void update_vertex_attrib(struct ngl_node *node, struct buffer *buffer, int location)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -141,27 +162,11 @@ static int update_vertex_attribs(struct ngl_node *node)
 {
     struct render *s = node->priv_data;
     struct geometry *geometry = s->geometry->priv_data;
-    struct program *program = s->pipeline.program->priv_data;
 
-    if (geometry->vertices_buffer) {
-        struct buffer *buffer = geometry->vertices_buffer->priv_data;
-        if (program->position_location_id >= 0) {
-            update_vertex_attrib(node, buffer, program->position_location_id);
-        }
-    }
-
-    if (geometry->uvcoords_buffer) {
-        struct buffer *buffer = geometry->uvcoords_buffer->priv_data;
-        if (program->uvcoord_location_id >= 0) {
-            update_vertex_attrib(node, buffer, program->uvcoord_location_id);
-        }
-    }
-
-    if (geometry->normals_buffer) {
-        struct buffer *buffer = geometry->normals_buffer->priv_data;
-        if (program->normal_location_id >= 0) {
-            update_vertex_attrib(node, buffer, program->normal_location_id);
-        }
+    for (int i = 0; i < NGLI_ARRAY_NB(s->builtin_attr_locations); i++) {
+        const int location = s->builtin_attr_locations[i];
+        if (location >= 0)
+            update_vertex_attrib(node, get_vertex_buffer(geometry, i), location);
     }
 
     for (int i = 0; i < s->nb_attribute_ids; i++) {
@@ -183,25 +188,11 @@ static int disable_vertex_attribs(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
 
     struct render *s = node->priv_data;
-    struct geometry *geometry = s->geometry->priv_data;
-    struct program *program = s->pipeline.program->priv_data;
 
-    if (geometry->vertices_buffer) {
-        if (program->position_location_id >= 0) {
-            ngli_glDisableVertexAttribArray(gl, program->position_location_id);
-        }
-    }
-
-    if (geometry->uvcoords_buffer) {
-        if (program->uvcoord_location_id >= 0) {
-            ngli_glDisableVertexAttribArray(gl, program->uvcoord_location_id);
-        }
-    }
-
-    if (geometry->normals_buffer) {
-        if (program->normal_location_id >= 0) {
-            ngli_glDisableVertexAttribArray(gl, program->normal_location_id);
-        }
+    for (int i = 0; i < NGLI_ARRAY_NB(s->builtin_attr_locations); i++) {
+        const int location = s->builtin_attr_locations[i];
+        if (location >= 0)
+            ngli_glDisableVertexAttribArray(gl, location);
     }
 
     for (int i = 0; i < s->nb_attribute_ids; i++) {
@@ -238,9 +229,20 @@ static int render_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
+    /* Builtin vertex attributes */
+    struct program *program = s->pipeline.program->priv_data;
+    struct geometry *geometry = s->geometry->priv_data;
+    ngli_assert(NGLI_ARRAY_NB(s->builtin_attr_locations) == NGLI_ARRAY_NB(attrib_const_map));
+    for (int i = 0; i < NGLI_ARRAY_NB(attrib_const_map); i++) {
+        struct buffer *buffer = get_vertex_buffer(geometry, i);
+        const char *const_name = attrib_const_map[i].const_name;
+        const struct attributeprograminfo *attr = ngli_hmap_get(program->active_attributes, const_name);
+        s->builtin_attr_locations[i] = buffer && attr ? attr->id : -1;
+    }
+
+    /* User vertex attributes */
     int nb_attributes = s->attributes ? ngli_hmap_count(s->attributes) : 0;
     if (nb_attributes > 0) {
-        struct program *program = s->pipeline.program->priv_data;
         struct geometry *geometry = s->geometry->priv_data;
         struct buffer *vertices = geometry->vertices_buffer->priv_data;
         s->attribute_ids = calloc(nb_attributes, sizeof(*s->attribute_ids));

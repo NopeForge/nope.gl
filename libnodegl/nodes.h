@@ -243,9 +243,6 @@ struct program {
     const char *fragment;
 
     struct program_info info;
-    GLint position_location_id;
-    GLint uvcoord_location_id;
-    GLint normal_location_id;
     GLint modelview_matrix_location_id;
     GLint projection_matrix_location_id;
     GLint normal_matrix_location_id;
@@ -388,6 +385,8 @@ struct render {
     struct hmap *attributes;
     struct attributeprograminfo *attribute_ids;
     int nb_attribute_ids;
+
+    int builtin_attr_locations[3];
 
     GLuint vao_id;
 };

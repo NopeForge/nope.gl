@@ -147,9 +147,6 @@ static int program_init(struct ngl_node *node)
     if (!s->info.program_id)
         return -1;
 
-    s->position_location_id          = ngli_glGetAttribLocation(gl, s->info.program_id,  "ngl_position");
-    s->uvcoord_location_id           = ngli_glGetAttribLocation(gl, s->info.program_id,  "ngl_uvcoord");
-    s->normal_location_id            = ngli_glGetAttribLocation(gl, s->info.program_id,  "ngl_normal");
     s->modelview_matrix_location_id  = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_modelview_matrix");
     s->projection_matrix_location_id = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_projection_matrix");
     s->normal_matrix_location_id     = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_normal_matrix");
