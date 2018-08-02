@@ -106,22 +106,21 @@ static int update_geometry_uniforms(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct render *s = node->priv_data;
-    struct program *program = s->pipeline.program->priv_data;
 
-    if (program->modelview_matrix_location_id >= 0) {
-        ngli_glUniformMatrix4fv(gl, program->modelview_matrix_location_id, 1, GL_FALSE, node->modelview_matrix);
+    if (s->modelview_matrix_location_id >= 0) {
+        ngli_glUniformMatrix4fv(gl, s->modelview_matrix_location_id, 1, GL_FALSE, node->modelview_matrix);
     }
 
-    if (program->projection_matrix_location_id >= 0) {
-        ngli_glUniformMatrix4fv(gl, program->projection_matrix_location_id, 1, GL_FALSE, node->projection_matrix);
+    if (s->projection_matrix_location_id >= 0) {
+        ngli_glUniformMatrix4fv(gl, s->projection_matrix_location_id, 1, GL_FALSE, node->projection_matrix);
     }
 
-    if (program->normal_matrix_location_id >= 0) {
+    if (s->normal_matrix_location_id >= 0) {
         float normal_matrix[3*3];
         ngli_mat3_from_mat4(normal_matrix, node->modelview_matrix);
         ngli_mat3_inverse(normal_matrix, normal_matrix);
         ngli_mat3_transpose(normal_matrix, normal_matrix);
-        ngli_glUniformMatrix3fv(gl, program->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
+        ngli_glUniformMatrix3fv(gl, s->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
     }
 
     return 0;
@@ -206,6 +205,12 @@ static int disable_vertex_attribs(struct ngl_node *node)
     return 0;
 }
 
+static int get_uniform_location(struct hmap *uniforms, const char *name)
+{
+    const struct uniformprograminfo *info = ngli_hmap_get(uniforms, name);
+    return info ? info->id : -1;
+}
+
 static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -229,8 +234,15 @@ static int render_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    /* Builtin vertex attributes */
     struct program *program = s->pipeline.program->priv_data;
+    struct hmap *uniforms = program->info.active_uniforms;
+
+    /* Builtin uniforms */
+    s->modelview_matrix_location_id  = get_uniform_location(uniforms, "ngl_modelview_matrix");
+    s->projection_matrix_location_id = get_uniform_location(uniforms, "ngl_projection_matrix");
+    s->normal_matrix_location_id     = get_uniform_location(uniforms, "ngl_normal_matrix");
+
+    /* Builtin vertex attributes */
     struct geometry *geometry = s->geometry->priv_data;
     ngli_assert(NGLI_ARRAY_NB(s->builtin_attr_locations) == NGLI_ARRAY_NB(attrib_const_map));
     for (int i = 0; i < NGLI_ARRAY_NB(attrib_const_map); i++) {

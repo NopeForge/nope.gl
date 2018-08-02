@@ -147,10 +147,6 @@ static int program_init(struct ngl_node *node)
     if (!s->info.program_id)
         return -1;
 
-    s->modelview_matrix_location_id  = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_modelview_matrix");
-    s->projection_matrix_location_id = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_projection_matrix");
-    s->normal_matrix_location_id     = ngli_glGetUniformLocation(gl, s->info.program_id, "ngl_normal_matrix");
-
     s->info.active_uniforms = ngli_program_probe_uniforms(node->name, gl, s->info.program_id);
     s->active_attributes    = ngli_program_probe_attributes(node->name, gl, s->info.program_id);
     if (!s->info.active_uniforms || !s->active_attributes)
