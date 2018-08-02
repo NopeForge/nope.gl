@@ -143,13 +143,13 @@ static int program_init(struct ngl_node *node)
 
     struct program *s = node->priv_data;
 
-    s->info.program_id = load_program(node, s->vertex, s->fragment);
-    if (!s->info.program_id)
+    s->program_id = load_program(node, s->vertex, s->fragment);
+    if (!s->program_id)
         return -1;
 
-    s->info.active_uniforms = ngli_program_probe_uniforms(node->name, gl, s->info.program_id);
-    s->active_attributes    = ngli_program_probe_attributes(node->name, gl, s->info.program_id);
-    if (!s->info.active_uniforms || !s->active_attributes)
+    s->active_uniforms = ngli_program_probe_uniforms(node->name, gl, s->program_id);
+    s->active_attributes = ngli_program_probe_attributes(node->name, gl, s->program_id);
+    if (!s->active_uniforms || !s->active_attributes)
         return -1;
 
     return 0;
@@ -162,9 +162,9 @@ static void program_uninit(struct ngl_node *node)
 
     struct program *s = node->priv_data;
 
-    ngli_hmap_freep(&s->info.active_uniforms);
+    ngli_hmap_freep(&s->active_uniforms);
     ngli_hmap_freep(&s->active_attributes);
-    ngli_glDeleteProgram(gl, s->info.program_id);
+    ngli_glDeleteProgram(gl, s->program_id);
 }
 
 const struct node_class ngli_program_class = {

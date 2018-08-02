@@ -29,7 +29,7 @@
 #include "nodes.h"
 #include "program.h"
 
-#define OFFSET(x) offsetof(struct computeprogram, x)
+#define OFFSET(x) offsetof(struct program, x)
 static const struct node_param computeprogram_params[] = {
     {"compute", PARAM_TYPE_STR, OFFSET(compute), .flags=PARAM_FLAG_CONSTRUCTOR,
                 .desc=NGLI_DOCSTRING("compute shader")},
@@ -71,14 +71,14 @@ static int computeprogram_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct computeprogram *s = node->priv_data;
+    struct program *s = node->priv_data;
 
-    s->info.program_id = load_shader(node, s->compute);
-    if (!s->info.program_id)
+    s->program_id = load_shader(node, s->compute);
+    if (!s->program_id)
         return -1;
 
-    s->info.active_uniforms = ngli_program_probe_uniforms(node->name, gl, s->info.program_id);
-    if (!s->info.active_uniforms)
+    s->active_uniforms = ngli_program_probe_uniforms(node->name, gl, s->program_id);
+    if (!s->active_uniforms)
         return -1;
 
     return 0;
@@ -88,11 +88,10 @@ static void computeprogram_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
+    struct program *s = node->priv_data;
 
-    struct computeprogram *s = node->priv_data;
-
-    ngli_hmap_freep(&s->info.active_uniforms);
-    ngli_glDeleteProgram(gl, s->info.program_id);
+    ngli_hmap_freep(&s->active_uniforms);
+    ngli_glDeleteProgram(gl, s->program_id);
 }
 
 const struct node_class ngli_computeprogram_class = {
@@ -100,7 +99,7 @@ const struct node_class ngli_computeprogram_class = {
     .name      = "ComputeProgram",
     .init      = computeprogram_init,
     .uninit    = computeprogram_uninit,
-    .priv_size = sizeof(struct computeprogram),
+    .priv_size = sizeof(struct program),
     .params    = computeprogram_params,
     .file      = __FILE__,
 };

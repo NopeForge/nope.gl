@@ -235,7 +235,7 @@ static int render_init(struct ngl_node *node)
         return ret;
 
     struct program *program = s->pipeline.program->priv_data;
-    struct hmap *uniforms = program->info.active_uniforms;
+    struct hmap *uniforms = program->active_uniforms;
 
     /* Builtin uniforms */
     s->modelview_matrix_location_id  = get_uniform_location(uniforms, "ngl_modelview_matrix");
@@ -336,7 +336,7 @@ static void render_draw(struct ngl_node *node)
     struct render *s = node->priv_data;
 
     const struct program *program = s->pipeline.program->priv_data;
-    ngli_glUseProgram(gl, program->info.program_id);
+    ngli_glUseProgram(gl, program->program_id);
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glBindVertexArray(gl, s->vao_id);

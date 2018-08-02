@@ -126,8 +126,8 @@ static void compute_draw(struct ngl_node *node)
 
     struct compute *s = node->priv_data;
 
-    const struct computeprogram *program = s->pipeline.program->priv_data;
-    ngli_glUseProgram(gl, program->info.program_id);
+    const struct program *program = s->pipeline.program->priv_data;
+    ngli_glUseProgram(gl, program->program_id);
 
     ngli_pipeline_upload_data(node);
 

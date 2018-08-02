@@ -32,21 +32,6 @@
 #include "nodes.h"
 #include "utils.h"
 
-static struct program_info *get_program_info(struct ngl_node *program_node)
-{
-    struct program_info *ret = NULL;
-    if (program_node->class->id == NGL_NODE_PROGRAM) {
-        struct program *program = program_node->priv_data;
-        ret = &program->info;
-    } else if (program_node->class->id == NGL_NODE_COMPUTEPROGRAM) {
-        struct computeprogram *program = program_node->priv_data;
-        ret = &program->info;
-    } else {
-        ngli_assert(0);
-    }
-    return ret;
-}
-
 static struct pipeline *get_pipeline(struct ngl_node *node)
 {
     struct pipeline *ret = NULL;
@@ -427,7 +412,7 @@ int ngli_pipeline_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    struct program_info *program = get_program_info(s->program);
+    struct program *program = s->program->priv_data;
 
     int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
     if (nb_uniforms > 0) {

@@ -233,24 +233,14 @@ struct rtt {
     GLuint depthbuffer_ms_id;
 };
 
-struct program_info {
-    GLuint program_id;
-    struct hmap *active_uniforms;
-};
-
 struct program {
     const char *vertex;
     const char *fragment;
-
-    struct program_info info;
-
-    struct hmap *active_attributes;
-};
-
-struct computeprogram {
     const char *compute;
 
-    struct program_info info;
+    GLuint program_id;
+    struct hmap *active_uniforms;
+    struct hmap *active_attributes;
 };
 
 enum hwupload_fmt {
