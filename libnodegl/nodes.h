@@ -362,8 +362,8 @@ struct pipeline {
     int disabled_texture_unit;
 
     struct hmap *uniforms;
-    struct nodeprograminfopair *uniform_ids; // (uniform, uniformprograminfo)
-    int nb_uniform_ids;
+    struct nodeprograminfopair *uniform_pairs; // (uniform, uniformprograminfo)
+    int nb_uniform_pairs;
 
     struct hmap *buffers;
     GLint *buffer_ids;

@@ -278,8 +278,8 @@ static int update_uniforms(struct ngl_node *node)
 
     struct pipeline *s = get_pipeline(node);
 
-    for (int i = 0; i < s->nb_uniform_ids; i++) {
-        const struct nodeprograminfopair *pair = &s->uniform_ids[i];
+    for (int i = 0; i < s->nb_uniform_pairs; i++) {
+        const struct nodeprograminfopair *pair = &s->uniform_pairs[i];
         const struct uniformprograminfo *info = pair->program_info;
         const GLint uid = info->id;
         if (uid < 0)
@@ -409,8 +409,8 @@ int ngli_pipeline_init(struct ngl_node *node)
 
     int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
     if (nb_uniforms > 0) {
-        s->uniform_ids = calloc(nb_uniforms, sizeof(*s->uniform_ids));
-        if (!s->uniform_ids)
+        s->uniform_pairs = calloc(nb_uniforms, sizeof(*s->uniform_pairs));
+        if (!s->uniform_pairs)
             return -1;
 
         const struct hmap_entry *entry = NULL;
@@ -432,7 +432,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 .node = unode,
                 .program_info = (void *)active_uniform,
             };
-            s->uniform_ids[s->nb_uniform_ids++] = pair;
+            s->uniform_pairs[s->nb_uniform_pairs++] = pair;
         }
     }
 
@@ -603,7 +603,7 @@ void ngli_pipeline_uninit(struct ngl_node *node)
     struct pipeline *s = get_pipeline(node);
 
     free(s->textureprograminfos);
-    free(s->uniform_ids);
+    free(s->uniform_pairs);
     free(s->buffer_ids);
 }
 
