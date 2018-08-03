@@ -26,12 +26,12 @@
 #include <sxplayer.h>
 #include <pthread.h>
 
-#ifdef TARGET_ANDROID
+#if defined(TARGET_ANDROID)
 #include "android_handlerthread.h"
 #include "android_surface.h"
 #endif
 
-#ifdef TARGET_IPHONE
+#if defined(TARGET_IPHONE)
 #include <CoreVideo/CoreVideo.h>
 #endif
 
@@ -298,7 +298,7 @@ struct texture {
     struct ngl_node *target_texture;
     struct ngl_node *rtt;
 
-#ifdef TARGET_IPHONE
+#if defined(TARGET_IPHONE)
     CVOpenGLESTextureRef ios_textures[2];
 #endif
 
@@ -409,7 +409,7 @@ struct media {
     struct sxplayer_ctx *player;
     struct sxplayer_frame *frame;
 
-#ifdef TARGET_ANDROID
+#if defined(TARGET_ANDROID)
     GLuint android_texture_id;
     GLenum android_texture_target;
     struct android_surface *android_surface;

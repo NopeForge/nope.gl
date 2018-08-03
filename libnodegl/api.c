@@ -105,7 +105,7 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     return 0;
 }
 
-#if TARGET_IPHONE
+#if defined(TARGET_IPHONE)
 static int cmd_make_current(struct ngl_ctx *s, void *arg)
 {
     const int current = *(int *)arg;
@@ -232,7 +232,7 @@ static void *worker_thread(void *arg)
     return NULL;
 }
 
-#if TARGET_IPHONE
+#if defined(TARGET_IPHONE)
 #define MAKE_CURRENT &(int[]){1}
 #define DONE_CURRENT &(int[]){0}
 static int reconfigure_ios(struct ngl_ctx *s, struct ngl_config *config)
@@ -274,7 +274,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
     }
 
     if (s->configured)
-#if TARGET_IPHONE
+#if defined(TARGET_IPHONE)
         return reconfigure_ios(s, config);
 #else
         return dispatch_cmd(s, cmd_reconfigure, config);
@@ -294,7 +294,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         }
     }
 
-#if TARGET_IPHONE
+#if defined(TARGET_IPHONE)
     int ret = configure_ios(s, config);
 #else
     int ret = dispatch_cmd(s, cmd_configure, config);

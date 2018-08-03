@@ -80,7 +80,7 @@ static int update_default_sampler(const struct glcontext *gl,
     return 0;
 }
 
-#ifdef TARGET_ANDROID
+#if defined(TARGET_ANDROID)
 static int update_sampler2D(const struct glcontext *gl,
                             struct pipeline *s,
                             struct texture *texture,
@@ -117,7 +117,7 @@ static int update_sampler2D(const struct glcontext *gl,
     }
     return 0;
 }
-#elif TARGET_IPHONE
+#elif defined(TARGET_IPHONE)
 static int update_sampler2D(const struct glcontext *gl,
                              struct pipeline *s,
                              struct texture *texture,
@@ -206,7 +206,7 @@ static int update_images_and_samplers(struct ngl_node *node)
         if (s->disabled_texture_unit >= 0) {
             ngli_glActiveTexture(gl, GL_TEXTURE0 + s->disabled_texture_unit);
             ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-#ifdef TARGET_ANDROID
+#if defined(TARGET_ANDROID)
             ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
 #endif
         }
@@ -238,7 +238,7 @@ static int update_images_and_samplers(struct ngl_node *node)
                 int sampling_mode = NGLI_SAMPLING_MODE_NONE;
                 switch (texture->target) {
                 case GL_TEXTURE_2D:
-#ifdef TARGET_ANDROID
+#if defined(TARGET_ANDROID)
                 case GL_TEXTURE_EXTERNAL_OES:
 #endif
                     update_sampler2D(gl, s, texture, info, &used_texture_units, &sampling_mode);
@@ -499,7 +499,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 s->used_texture_units |= 1 << info->sampler_value;
             }
 
-#if TARGET_ANDROID
+#if defined(TARGET_ANDROID)
             if (info->sampler_id < 0 &&
                 info->external_sampler_id < 0) {
                 LOG(WARNING, "no sampler found for texture %s", key);
@@ -518,7 +518,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 "direct rendering %s available for texture %s",
                 texture->direct_rendering ? "is" : "is not",
                 key);
-#elif TARGET_IPHONE
+#elif defined(TARGET_IPHONE)
             if (info->sampler_id < 0 &&
                 (info->y_sampler_id < 0 || info->uv_sampler_id < 0)) {
                 LOG(WARNING, "no sampler found for texture %s", key);

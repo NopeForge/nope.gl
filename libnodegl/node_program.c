@@ -29,7 +29,7 @@
 #include "nodes.h"
 #include "program.h"
 
-#ifdef TARGET_ANDROID
+#if defined(TARGET_ANDROID)
 static const char default_fragment_shader[] =
     "#version 100"                                                                      "\n"
     "#extension GL_OES_EGL_image_external : require"                                    "\n"

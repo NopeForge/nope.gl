@@ -46,7 +46,7 @@ struct egl_priv {
 
 static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
 {
-#if TARGET_ANDROID
+#if defined(TARGET_ANDROID)
     char const *extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
     if (!extensions)
         return 0;
@@ -64,7 +64,7 @@ static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
     return 0;
 }
 
-#if TARGET_LINUX
+#if defined(TARGET_LINUX)
 static int egl_probe_platform_x11_ext(struct egl_priv *egl)
 {
     char const *extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
@@ -142,9 +142,9 @@ static void egl_uninit(struct glcontext *ctx)
 
 static EGLDisplay egl_get_display(struct egl_priv *egl)
 {
-#if TARGET_ANDROID
+#if defined(TARGET_ANDROID)
     return eglGetDisplay(egl->native_display);
-#elif TARGET_LINUX
+#elif defined(TARGET_LINUX)
     /* XXX: only X11 is supported for now */
     int ret = egl_probe_platform_x11_ext(egl);
     if (ret <= 0)
@@ -300,7 +300,7 @@ static int egl_set_swap_interval(struct glcontext *ctx, int interval)
 
 static void egl_set_surface_pts(struct glcontext *ctx, double t)
 {
-#if TARGET_ANDROID
+#if defined(TARGET_ANDROID)
     struct egl_priv *egl = ctx->priv_data;
 
     if (egl->PresentationTimeANDROID) {
