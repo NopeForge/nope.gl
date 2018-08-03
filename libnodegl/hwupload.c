@@ -286,6 +286,7 @@ static int init_mc(struct ngl_node *node, struct hwupload_config *config)
     if (!s->render)
         return -1;
 
+    ngl_node_param_set(s->render, "name", "mc-rtt-render");
     ngl_node_param_set(s->render, "program", s->program);
     ngl_node_param_set(s->render, "textures", "tex0", s->textures[0]);
 
@@ -603,6 +604,7 @@ static int init_vt(struct ngl_node *node, struct hwupload_config *config)
         if (!s->render)
             return -1;
 
+        ngl_node_param_set(s->render, "name", "vt-nv12-render");
         ngl_node_param_set(s->render, "program", s->program);
         ngl_node_param_set(s->render, "textures", "tex0", s->textures[0]);
         ngl_node_param_set(s->render, "textures", "tex1", s->textures[1]);
