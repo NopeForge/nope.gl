@@ -169,7 +169,7 @@ static int update_vertex_attribs(struct ngl_node *node)
     }
 
     for (int i = 0; i < s->nb_attribute_ids; i++) {
-        struct attributeprograminfo *info = &s->attribute_ids[i];
+        const struct attributeprograminfo *info = &s->attribute_ids[i];
         const GLint aid = info->id;
         if (aid < 0)
             continue;
@@ -195,7 +195,7 @@ static int disable_vertex_attribs(struct ngl_node *node)
     }
 
     for (int i = 0; i < s->nb_attribute_ids; i++) {
-        struct attributeprograminfo *info = &s->attribute_ids[i];
+        const struct attributeprograminfo *info = &s->attribute_ids[i];
         const GLint aid = info->id;
         if (aid < 0)
             continue;
@@ -263,7 +263,7 @@ static int render_init(struct ngl_node *node)
 
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->attributes, entry))) {
-            struct attributeprograminfo *active_attribute =
+            const struct attributeprograminfo *active_attribute =
                 ngli_hmap_get(program->active_attributes, entry->key);
             if (!active_attribute) {
                 LOG(WARNING, "attribute %s attached to %s not found in %s",
