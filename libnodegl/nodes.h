@@ -330,7 +330,6 @@ struct attributeprograminfo {
 #define NGLI_SAMPLING_MODE_NV12         3
 
 struct textureprograminfo {
-    char name[64];
     int sampling_mode_id;
     int sampler_value;
     int sampler_type;

@@ -465,7 +465,6 @@ int ngli_pipeline_init(struct ngl_node *node)
             struct texture *texture = tnode->priv_data;
 
             struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
-            snprintf(info->name, sizeof(info->name), "%s", entry->key);
 
             const struct uniformprograminfo *sampler = get_uniform_info(program->active_uniforms, entry->key, "");
             if (!sampler) // Allow _sampler suffix
