@@ -394,6 +394,36 @@ static int get_uniform_location(struct hmap *uniforms,
     return active_uniform ? active_uniform->id : -1;
 }
 
+static void load_textureprograminfo(struct textureprograminfo *info,
+                                    struct hmap *active_uniforms,
+                                    const char *tex_key)
+{
+    const struct uniformprograminfo *sampler = get_uniform_info(active_uniforms, tex_key, "");
+    if (!sampler) // Allow _sampler suffix
+        sampler = get_uniform_info(active_uniforms, tex_key, "_sampler");
+    if (sampler) {
+        info->sampler_value = sampler->binding;
+        info->sampler_type  = sampler->type;
+        info->sampler_id    = sampler->id;
+    } else {
+        info->sampler_value =
+        info->sampler_type  =
+        info->sampler_id    = -1;
+    }
+
+    info->sampling_mode_id    = get_uniform_location(active_uniforms, tex_key, "_sampling_mode");
+    info->coord_matrix_id     = get_uniform_location(active_uniforms, tex_key, "_coord_matrix");
+    info->dimensions_id       = get_uniform_location(active_uniforms, tex_key, "_dimensions");
+    info->ts_id               = get_uniform_location(active_uniforms, tex_key, "_ts");
+
+#if defined(TARGET_ANDROID)
+    info->external_sampler_id = get_uniform_location(active_uniforms, tex_key, "_external_sampler");
+#elif defined(TARGET_IPHONE)
+    info->y_sampler_id        = get_uniform_location(active_uniforms, tex_key, "_y_sampler");
+    info->uv_sampler_id       = get_uniform_location(active_uniforms, tex_key, "_uv_sampler");
+#endif
+}
+
 int ngli_pipeline_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -466,30 +496,7 @@ int ngli_pipeline_init(struct ngl_node *node)
 
             struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
 
-            const struct uniformprograminfo *sampler = get_uniform_info(program->active_uniforms, entry->key, "");
-            if (!sampler) // Allow _sampler suffix
-                sampler = get_uniform_info(program->active_uniforms, entry->key, "_sampler");
-            if (sampler) {
-                info->sampler_value = sampler->binding;
-                info->sampler_type  = sampler->type;
-                info->sampler_id    = sampler->id;
-            } else {
-                info->sampler_value =
-                info->sampler_type  =
-                info->sampler_id    = -1;
-            }
-
-            info->sampling_mode_id    = get_uniform_location(program->active_uniforms, entry->key, "_sampling_mode");
-            info->coord_matrix_id     = get_uniform_location(program->active_uniforms, entry->key, "_coord_matrix");
-            info->dimensions_id       = get_uniform_location(program->active_uniforms, entry->key, "_dimensions");
-            info->ts_id               = get_uniform_location(program->active_uniforms, entry->key, "_ts");
-
-#if defined(TARGET_ANDROID)
-            info->external_sampler_id = get_uniform_location(program->active_uniforms, entry->key, "_external_sampler");
-#elif defined(TARGET_IPHONE)
-            info->y_sampler_id        = get_uniform_location(program->active_uniforms, entry->key, "_y_sampler");
-            info->uv_sampler_id       = get_uniform_location(program->active_uniforms, entry->key, "_uv_sampler");
-#endif
+            load_textureprograminfo(info, program->active_uniforms, key);
 
             if (info->sampler_type == GL_IMAGE_2D) {
                 texture->direct_rendering = 0;
