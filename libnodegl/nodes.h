@@ -346,6 +346,11 @@ struct textureprograminfo {
     int ts_id;
 };
 
+struct nodeprograminfopair {
+    const struct ngl_node *node;
+    void *program_info;
+};
+
 struct pipeline {
     struct ngl_node *program;
 
@@ -370,7 +375,7 @@ struct render {
     struct pipeline pipeline;
 
     struct hmap *attributes;
-    struct attributeprograminfo *attribute_ids;
+    struct nodeprograminfopair *attribute_ids; // (attribute, attributeprograminfo)
     int nb_attribute_ids;
 
     int builtin_attr_locations[3];

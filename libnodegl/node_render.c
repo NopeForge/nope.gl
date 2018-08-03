@@ -169,12 +169,12 @@ static int update_vertex_attribs(struct ngl_node *node)
     }
 
     for (int i = 0; i < s->nb_attribute_ids; i++) {
-        const struct attributeprograminfo *info = &s->attribute_ids[i];
+        const struct nodeprograminfopair *pair = &s->attribute_ids[i];
+        const struct attributeprograminfo *info = pair->program_info;
         const GLint aid = info->id;
         if (aid < 0)
             continue;
-        const struct ngl_node *anode = ngli_hmap_get(s->attributes, info->name);
-        struct buffer *buffer = anode->priv_data;
+        struct buffer *buffer = pair->node->priv_data;
         update_vertex_attrib(node, buffer, aid);
     }
 
@@ -195,7 +195,8 @@ static int disable_vertex_attribs(struct ngl_node *node)
     }
 
     for (int i = 0; i < s->nb_attribute_ids; i++) {
-        const struct attributeprograminfo *info = &s->attribute_ids[i];
+        const struct nodeprograminfopair *pair = &s->attribute_ids[i];
+        const struct attributeprograminfo *info = pair->program_info;
         const GLint aid = info->id;
         if (aid < 0)
             continue;
@@ -287,8 +288,11 @@ static int render_init(struct ngl_node *node)
                 return -1;
             }
 
-            struct attributeprograminfo *infop = &s->attribute_ids[s->nb_attribute_ids++];
-            *infop = *active_attribute;
+            struct nodeprograminfopair pair = {
+                .node = anode,
+                .program_info = (void *)active_attribute,
+            };
+            s->attribute_ids[s->nb_attribute_ids++] = pair;
         }
     }
 
