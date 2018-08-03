@@ -375,8 +375,8 @@ struct render {
     struct pipeline pipeline;
 
     struct hmap *attributes;
-    struct nodeprograminfopair *attribute_ids; // (attribute, attributeprograminfo)
-    int nb_attribute_ids;
+    struct nodeprograminfopair *attribute_pairs; // (attribute, attributeprograminfo)
+    int nb_attribute_pairs;
 
     int builtin_attr_locations[3];
     GLint modelview_matrix_location_id;

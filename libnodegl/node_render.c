@@ -168,8 +168,8 @@ static int update_vertex_attribs(struct ngl_node *node)
             update_vertex_attrib(node, get_vertex_buffer(geometry, i), location);
     }
 
-    for (int i = 0; i < s->nb_attribute_ids; i++) {
-        const struct nodeprograminfopair *pair = &s->attribute_ids[i];
+    for (int i = 0; i < s->nb_attribute_pairs; i++) {
+        const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
         const GLint aid = info->id;
         if (aid < 0)
@@ -194,8 +194,8 @@ static int disable_vertex_attribs(struct ngl_node *node)
             ngli_glDisableVertexAttribArray(gl, location);
     }
 
-    for (int i = 0; i < s->nb_attribute_ids; i++) {
-        const struct nodeprograminfopair *pair = &s->attribute_ids[i];
+    for (int i = 0; i < s->nb_attribute_pairs; i++) {
+        const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
         const GLint aid = info->id;
         if (aid < 0)
@@ -258,8 +258,8 @@ static int render_init(struct ngl_node *node)
     if (nb_attributes > 0) {
         struct geometry *geometry = s->geometry->priv_data;
         struct buffer *vertices = geometry->vertices_buffer->priv_data;
-        s->attribute_ids = calloc(nb_attributes, sizeof(*s->attribute_ids));
-        if (!s->attribute_ids)
+        s->attribute_pairs = calloc(nb_attributes, sizeof(*s->attribute_pairs));
+        if (!s->attribute_pairs)
             return -1;
 
         const struct hmap_entry *entry = NULL;
@@ -292,7 +292,7 @@ static int render_init(struct ngl_node *node)
                 .node = anode,
                 .program_info = (void *)active_attribute,
             };
-            s->attribute_ids[s->nb_attribute_ids++] = pair;
+            s->attribute_pairs[s->nb_attribute_pairs++] = pair;
         }
     }
 
@@ -318,7 +318,7 @@ static void render_uninit(struct ngl_node *node)
 
     ngli_pipeline_uninit(node);
 
-    free(s->attribute_ids);
+    free(s->attribute_pairs);
 }
 
 static int render_update(struct ngl_node *node, double t)
