@@ -279,11 +279,12 @@ static int update_uniforms(struct ngl_node *node)
     struct pipeline *s = get_pipeline(node);
 
     for (int i = 0; i < s->nb_uniform_ids; i++) {
-        const struct uniformprograminfo *info = &s->uniform_ids[i];
+        const struct nodeprograminfopair *pair = &s->uniform_ids[i];
+        const struct uniformprograminfo *info = pair->program_info;
         const GLint uid = info->id;
         if (uid < 0)
             continue;
-        const struct ngl_node *unode = ngli_hmap_get(s->uniforms, info->name);
+        const struct ngl_node *unode = pair->node;
         switch (unode->class->id) {
         case NGL_NODE_UNIFORMFLOAT: {
             const struct uniform *u = unode->priv_data;
@@ -312,10 +313,9 @@ static int update_uniforms(struct ngl_node *node)
         }
         case NGL_NODE_UNIFORMQUAT: {
             const struct uniform *u = unode->priv_data;
-            GLenum type = s->uniform_ids[i].type;
-            if (type == GL_FLOAT_MAT4)
+            if (info->type == GL_FLOAT_MAT4)
                 ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
-            else if (type == GL_FLOAT_VEC4)
+            else if (info->type == GL_FLOAT_VEC4)
                 ngli_glUniform4fv(gl, uid, 1, u->vector);
             else
                 LOG(ERROR,
@@ -428,8 +428,11 @@ int ngli_pipeline_init(struct ngl_node *node)
             if (ret < 0)
                 return ret;
 
-            struct uniformprograminfo *infop = &s->uniform_ids[s->nb_uniform_ids++];
-            *infop = *active_uniform;
+            struct nodeprograminfopair pair = {
+                .node = unode,
+                .program_info = (void *)active_uniform,
+            };
+            s->uniform_ids[s->nb_uniform_ids++] = pair;
         }
     }
 
