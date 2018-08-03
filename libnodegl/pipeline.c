@@ -279,7 +279,7 @@ static int update_uniforms(struct ngl_node *node)
     struct pipeline *s = get_pipeline(node);
 
     for (int i = 0; i < s->nb_uniform_ids; i++) {
-        struct uniformprograminfo *info = &s->uniform_ids[i];
+        const struct uniformprograminfo *info = &s->uniform_ids[i];
         const GLint uid = info->id;
         if (uid < 0)
             continue;
@@ -391,7 +391,7 @@ static int get_uniform_location(struct hmap *uniforms,
                                 const char *basename,
                                 const char *suffix)
 {
-    struct uniformprograminfo *active_uniform = get_uniform_info(uniforms, basename, suffix);
+    const struct uniformprograminfo *active_uniform = get_uniform_info(uniforms, basename, suffix);
     return active_uniform ? active_uniform->id : -1;
 }
 
@@ -415,7 +415,7 @@ int ngli_pipeline_init(struct ngl_node *node)
 
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-            struct uniformprograminfo *active_uniform =
+            const struct uniformprograminfo *active_uniform =
                 ngli_hmap_get(program->active_uniforms, entry->key);
             if (!active_uniform) {
                 LOG(WARNING, "uniform %s attached to %s not found in %s",
