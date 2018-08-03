@@ -179,8 +179,8 @@ def fibo(cfg, n=8):
 
         new_g = Group()
         animkf = [AnimKeyFrameFloat(0,               90),
-                  AnimKeyFrameFloat(cfg.duration/2, -90, "exp_in_out"),
-                  AnimKeyFrameFloat(cfg.duration,    90, "exp_in_out")]
+                  AnimKeyFrameFloat(cfg.duration/2, -90, 'exp_in_out'),
+                  AnimKeyFrameFloat(cfg.duration,    90, 'exp_in_out')]
         rot = Rotate(new_g, anchor=orig, anim=AnimatedFloat(animkf))
         if g:
             g.add_children(rot)
@@ -223,7 +223,7 @@ def cropboard(cfg, dim=15):
             startx = random.uniform(-2, 2)
             starty = random.uniform(-2, 2)
             trn_animkf = [AnimKeyFrameVec3(0, (startx, starty, 0)),
-                          AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0), "exp_out")]
+                          AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0), 'exp_out')]
             trn = Translate(render, anim=AnimatedVec3(trn_animkf))
             tqs.append(trn)
 
@@ -258,7 +258,7 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
 def particules(cfg, particules=32):
     random.seed(0)
 
-    compute_data_version = "310 es" if cfg.backend == "gles" else "430"
+    compute_data_version = '310 es' if cfg.backend == 'gles' else '430'
     compute_data = '#version %s\n' % compute_data_version
     compute_data += get_comp('particules')
 
@@ -426,7 +426,7 @@ def _get_cube_side(texture, program, corner, width, height, color):
 
 @scene(display_depth_buffer={'type': 'bool'})
 def cube(cfg, display_depth_buffer=False):
-    cube = Group(name="cube")
+    cube = Group(name='cube')
 
     frag_data = get_frag('tex-tint')
     program = Program(fragment=frag_data)
@@ -455,7 +455,7 @@ def cube(cfg, display_depth_buffer=False):
         group = Group()
 
         depth_texture = Texture2D()
-        depth_texture.set_format("d16_unorm")
+        depth_texture.set_format('d16_unorm')
         depth_texture.set_width(640)
         depth_texture.set_height(480)
 

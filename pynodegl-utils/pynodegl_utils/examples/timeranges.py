@@ -56,15 +56,15 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p = Program()
 
-    m1 = Media(cfg.medias[0].filename, name="media #1")
-    m2 = Media(cfg.medias[0].filename, name="media #2")
+    m1 = Media(cfg.medias[0].filename, name='media #1')
+    m2 = Media(cfg.medias[0].filename, name='media #2')
 
-    t1 = Texture2D(data_src=m1, name="texture #1")
-    t2 = Texture2D(data_src=m2, name="texture #2")
+    t1 = Texture2D(data_src=m1, name='texture #1')
+    t2 = Texture2D(data_src=m2, name='texture #2')
 
-    render1 = Render(q, p, name="render #1")
+    render1 = Render(q, p, name='render #1')
     render1.update_textures(tex0=t1)
-    render2 = Render(q, p, name="render #2")
+    render2 = Render(q, p, name='render #2')
     render2.update_textures(tex0=t2)
 
     rf1 = TimeRangeFilter(render1)
@@ -105,25 +105,25 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
     p = Program()
     p1_2 = Program(vertex=vertex, fragment=fragment)
 
-    m1 = Media(cfg.medias[0].filename, name="media #1")
-    m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name="media #2")
+    m1 = Media(cfg.medias[0].filename, name='media #1')
+    m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name='media #2')
 
     animkf_m2 = [AnimKeyFrameFloat(transition_start, 0)]
     m2.set_time_anim(AnimatedFloat(animkf_m2))
 
-    t1 = Texture2D(data_src=m1, name="texture #1")
-    t2 = Texture2D(data_src=m2, name="texture #2")
+    t1 = Texture2D(data_src=m1, name='texture #1')
+    t2 = Texture2D(data_src=m2, name='texture #2')
 
-    render1 = Render(q, p, name="render #1")
+    render1 = Render(q, p, name='render #1')
     render1.update_textures(tex0=t1)
-    render2 = Render(q, p, name="render #2")
+    render2 = Render(q, p, name='render #2')
     render2.update_textures(tex0=t2)
 
     delta_animkf = [AnimKeyFrameFloat(transition_start, 1.0),
                     AnimKeyFrameFloat(transition_start + transition_duration, 0.0)]
     delta = UniformFloat(value=1.0, anim=AnimatedFloat(delta_animkf))
 
-    render1_2 = Render(q, p1_2, name="transition")
+    render1_2 = Render(q, p1_2, name='transition')
     render1_2.update_textures(tex0=t1, tex1=t2)
     render1_2.update_uniforms(delta=delta)
 

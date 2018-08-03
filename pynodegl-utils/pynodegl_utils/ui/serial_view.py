@@ -31,7 +31,7 @@ class SerialView(QtWidgets.QWidget):
 
         self._get_scene_func = get_scene_func
 
-        self._save_btn = QtWidgets.QPushButton("Save to file")
+        self._save_btn = QtWidgets.QPushButton('Save to file')
         self._graph_lbl = QtWidgets.QLabel()
         self._text = QtWidgets.QPlainTextEdit()
         self._text.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))

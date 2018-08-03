@@ -60,7 +60,7 @@ class FileTracker:
                 self.filelist.update([op.realpath(path)])
         return ret
 
-    def _open_hook(self, name, mode="r", buffering=-1):
+    def _open_hook(self, name, mode='r', buffering=-1):
         ret = self._builtin_open(name, mode, buffering)
         self.filelist.update([op.realpath(name)])
         return ret

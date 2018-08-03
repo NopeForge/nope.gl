@@ -139,7 +139,7 @@ class SceneCfg:
                                                                   self.framerate[0], self.framerate[1]),
                                        media_file])
                 if ret:
-                    raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
+                    raise Exception('Unable to create a media file using ffmpeg (ret=%d)' % ret)
             self.medias = [Media(media_file)]
 
     @property

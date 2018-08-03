@@ -59,7 +59,7 @@ class GraphView(QtWidgets.QWidget):
         self._samples = config.get('samples')
         self._viewer = None
 
-        self._save_btn = QtWidgets.QPushButton("Save image")
+        self._save_btn = QtWidgets.QPushButton('Save image')
 
         self._scene = QtWidgets.QGraphicsScene()
         self._view = _SVGGraphView()

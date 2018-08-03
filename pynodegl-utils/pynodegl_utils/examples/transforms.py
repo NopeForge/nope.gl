@@ -80,11 +80,11 @@ def animated_uniform(cfg):
     ts.update_textures(tex0=t)
 
     scale_animkf = [AnimKeyFrameVec3(0, (1, 1, 1)),
-                    AnimKeyFrameVec3(cfg.duration, (0.1, 0.1, 0.1), "quartic_out")]
+                    AnimKeyFrameVec3(cfg.duration, (0.1, 0.1, 0.1), 'quartic_out')]
     s = Scale(Identity(), anim=AnimatedVec3(scale_animkf))
 
     rotate_animkf = [AnimKeyFrameFloat(0, 0),
-                     AnimKeyFrameFloat(cfg.duration, 360, "exp_out")]
+                     AnimKeyFrameFloat(cfg.duration, 360, 'exp_out')]
     r = Rotate(s, axis=(0, 0, 1), anim=AnimatedFloat(rotate_animkf))
 
     u = UniformMat4(transform=r)
@@ -134,18 +134,18 @@ def animated_camera(cfg, rotate=True):
     camera.set_perspective(45.0, cfg.aspect_ratio_float, 0.1, 10.0)
 
     tr_animkf = [AnimKeyFrameVec3(0,  (0.0, 0.0, 0.0)),
-                 AnimKeyFrameVec3(10, (0.0, 0.0, 3.0), "exp_out")]
+                 AnimKeyFrameVec3(10, (0.0, 0.0, 3.0), 'exp_out')]
     node = Translate(Identity(), anim=AnimatedVec3(tr_animkf))
 
     if rotate:
         rot_animkf = [AnimKeyFrameFloat(0, 0),
-                      AnimKeyFrameFloat(cfg.duration, 360, "exp_out")]
+                      AnimKeyFrameFloat(cfg.duration, 360, 'exp_out')]
         node = Rotate(node, axis=(0, 1, 0), anim=AnimatedFloat(rot_animkf))
 
     camera.set_eye_transform(node)
 
     fov_animkf = [AnimKeyFrameFloat(0.5, 60.0),
-                  AnimKeyFrameFloat(cfg.duration, 45.0, "exp_out")]
+                  AnimKeyFrameFloat(cfg.duration, 45.0, 'exp_out')]
     camera.set_fov_anim(AnimatedFloat(fov_animkf))
 
     return camera
