@@ -211,11 +211,10 @@ static int update_images_and_samplers(struct ngl_node *node)
 #endif
         }
 
-        for (int i = 0; i < s->nb_textureprograminfos; i++) {
-            const struct textureprograminfo *info = &s->textureprograminfos[i];
-            const struct ngl_node *tnode = ngli_hmap_get(s->textures, info->name);
-            if (!tnode)
-                continue;
+        for (int i = 0; i < s->nb_texture_pairs; i++) {
+            const struct nodeprograminfopair *pair = &s->texture_pairs[i];
+            const struct textureprograminfo *info = pair->program_info;
+            const struct ngl_node *tnode = pair->node;
             struct texture *texture = tnode->priv_data;
 
             if (info->sampler_type == GL_IMAGE_2D) {
@@ -451,6 +450,10 @@ int ngli_pipeline_init(struct ngl_node *node)
         if (!s->textureprograminfos)
             return -1;
 
+        s->texture_pairs = calloc(nb_textures, sizeof(*s->texture_pairs));
+        if (!s->texture_pairs)
+            return -1;
+
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->textures, entry))) {
             const char *key = entry->key;
@@ -547,6 +550,12 @@ int ngli_pipeline_init(struct ngl_node *node)
             }
 #endif
             s->nb_textureprograminfos++;
+
+            struct nodeprograminfopair pair = {
+                .node = tnode,
+                .program_info = (void *)info,
+            };
+            s->texture_pairs[s->nb_texture_pairs++] = pair;
         }
     }
 
@@ -603,6 +612,7 @@ void ngli_pipeline_uninit(struct ngl_node *node)
     struct pipeline *s = get_pipeline(node);
 
     free(s->textureprograminfos);
+    free(s->texture_pairs);
     free(s->uniform_pairs);
     free(s->buffer_ids);
 }

@@ -357,6 +357,8 @@ struct pipeline {
     struct hmap *textures;
     struct textureprograminfo *textureprograminfos;
     int nb_textureprograminfos;
+    struct nodeprograminfopair *texture_pairs; // (texture, textureprograminfo)
+    int nb_texture_pairs;
 
     uint64_t used_texture_units;
     int disabled_texture_unit;
