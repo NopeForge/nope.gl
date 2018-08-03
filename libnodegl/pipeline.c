@@ -512,48 +512,27 @@ int ngli_pipeline_init(struct ngl_node *node)
             }
 
 #if defined(TARGET_ANDROID)
-            if (info->sampler_id < 0 &&
-                info->external_sampler_id < 0) {
-                LOG(WARNING, "no sampler found for texture %s", key);
-            }
-
-            if (info->sampler_id >= 0 &&
-                info->external_sampler_id >= 0) {
-                s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
-                if (s->disabled_texture_unit < 0)
-                    return -1;
-            }
-
-            texture->direct_rendering = texture->direct_rendering &&
-                                        info->external_sampler_id >= 0;
-            LOG(INFO,
-                "direct rendering %s available for texture %s",
-                texture->direct_rendering ? "is" : "is not",
-                key);
+            const int has_aux_sampler = info->external_sampler_id >= 0;
 #elif defined(TARGET_IPHONE)
-            if (info->sampler_id < 0 &&
-                (info->y_sampler_id < 0 || info->uv_sampler_id < 0)) {
-                LOG(WARNING, "no sampler found for texture %s", key);
-            }
+            const int has_aux_sampler = (info->y_sampler_id >= 0 || info->uv_sampler_id >= 0);
+#else
+            const int has_aux_sampler = 0;
+#endif
 
-            if (info->sampler_id >= 0 &&
-                (info->y_sampler_id >= 0 || info->uv_sampler_id >= 0)) {
+            if (info->sampler_id < 0 && !has_aux_sampler)
+                LOG(WARNING, "no sampler found for texture %s", key);
+
+            if (info->sampler_id >= 0 && has_aux_sampler) {
                 s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
                 if (s->disabled_texture_unit < 0)
                     return -1;
             }
 
-            texture->direct_rendering = texture->direct_rendering &&
-                                        (info->y_sampler_id >= 0 ||
-                                        info->uv_sampler_id >= 0);
-            LOG(INFO,
-                "nv12 direct rendering %s available for texture %s",
+#if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
+            texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
+            LOG(INFO, "direct rendering %s available for texture %s",
                 texture->direct_rendering ? "is" : "is not",
                 key);
-#else
-            if (info->sampler_id < 0) {
-                LOG(WARNING, "no sampler found for texture %s", key);
-            }
 #endif
             s->nb_textureprograminfos++;
 
