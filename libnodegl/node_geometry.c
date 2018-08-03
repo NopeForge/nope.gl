@@ -79,8 +79,8 @@ struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int 
     return node;
 }
 
-static const struct param_choices draw_mode_choices = {
-    .name = "draw_mode",
+static const struct param_choices topology_choices = {
+    .name = "topology",
     .consts = {
         {"points",         GL_POINTS,         .desc=NGLI_DOCSTRING("points")},
         {"line_strip",     GL_LINE_STRIP,     .desc=NGLI_DOCSTRING("line strip")},
@@ -119,9 +119,9 @@ static const struct node_param geometry_params[] = {
                   .node_types=(const int[]){NGL_NODE_BUFFERUBYTE, NGL_NODE_BUFFERUINT, NGL_NODE_BUFFERUSHORT, -1},
                   .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                   .desc=NGLI_DOCSTRING("indices defining the drawing order of the `vertices`, auto-generated if not set")},
-    {"draw_mode", PARAM_TYPE_SELECT, OFFSET(draw_mode), {.i64=GL_TRIANGLES},
-                  .choices=&draw_mode_choices,
-                  .desc=NGLI_DOCSTRING("drawing mode")},
+    {"topology",  PARAM_TYPE_SELECT, OFFSET(topology), {.i64=GL_TRIANGLES},
+                  .choices=&topology_choices,
+                  .desc=NGLI_DOCSTRING("primitive topology")},
     {NULL}
 };
 

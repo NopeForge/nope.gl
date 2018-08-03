@@ -103,7 +103,7 @@ static int circle_init(struct ngl_node *node)
     if (!s->vertices_buffer || !s->uvcoords_buffer || !s->indices_buffer || !s->normals_buffer)
         goto end;
 
-    s->draw_mode = GL_TRIANGLE_FAN;
+    s->topology = GL_TRIANGLE_FAN;
 
     ret = 0;
 

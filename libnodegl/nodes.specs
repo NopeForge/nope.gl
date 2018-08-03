@@ -190,7 +190,7 @@
         - [uvcoords, Node]
         - [normals, Node]
         - [indices, Node]
-        - [draw_mode, select]
+        - [topology, select]
 
 - GraphicConfig:
     constructors:

@@ -112,7 +112,7 @@ static int quad_init(struct ngl_node *node)
     if (!s->indices_buffer)
         return -1;
 
-    s->draw_mode = GL_TRIANGLE_FAN;
+    s->topology = GL_TRIANGLE_FAN;
 
     return 0;
 }

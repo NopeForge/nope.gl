@@ -68,7 +68,7 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
     ucolor = UniformVec4(anim=AnimatedVec4(color_animkf))
 
     geom = Geometry(vertices)
-    geom.set_draw_mode('triangle_fan')
+    geom.set_topology('triangle_fan')
     p = Program(fragment=get_frag('color'))
     render = Render(geom, p)
     render.update_uniforms(color=ucolor)
@@ -115,7 +115,7 @@ def urchin(cfg, npoints=25):
     vertices = AnimatedBufferVec3(animkf)
 
     geom = Geometry(vertices)
-    geom.set_draw_mode('line_strip')
+    geom.set_topology('line_strip')
     p = Program(fragment=get_frag('color'))
     render = Render(geom, p)
     render.update_uniforms(color=UniformVec4(value=(.9, .1, .3, 1)))

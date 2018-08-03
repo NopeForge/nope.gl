@@ -90,7 +90,7 @@ static int triangle_init(struct ngl_node *node)
     if (!s->indices_buffer)
         return -1;
 
-    s->draw_mode = GL_TRIANGLES;
+    s->topology = GL_TRIANGLES;
 
     return 0;
 }

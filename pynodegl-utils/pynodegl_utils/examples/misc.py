@@ -311,7 +311,7 @@ def particules(cfg, particules=32):
     )
 
     gm = Geometry(opositions)
-    gm.set_draw_mode('points')
+    gm.set_topology('points')
 
     p = Program(fragment=get_frag('color'))
     r = Render(gm, p)

@@ -71,7 +71,7 @@ def _get_func(name, flags=0):
                 vertices_data.extend([x, y, 0])
 
             vertices = BufferVec3(data=vertices_data)
-            geometry = Geometry(vertices, draw_mode='line_strip')
+            geometry = Geometry(vertices, topology='line_strip')
             render = Render(geometry, program)
             render.update_uniforms(color=UniformVec4(_colors[idx]))
 

@@ -178,7 +178,7 @@ struct geometry {
     struct ngl_node *normals_buffer;
     struct ngl_node *indices_buffer;
 
-    GLenum draw_mode;
+    GLenum topology;
 };
 
 struct ngl_node *ngli_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data);

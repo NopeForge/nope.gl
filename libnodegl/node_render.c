@@ -355,7 +355,7 @@ static void render_draw(struct ngl_node *node)
     ngli_format_get_gl_format_type(gl, indices_buffer->data_format, NULL, NULL, &indices_type);
 
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_buffer->buffer_id);
-    ngli_glDrawElements(gl, geometry->draw_mode, indices_buffer->count, indices_type, 0);
+    ngli_glDrawElements(gl, geometry->topology, indices_buffer->count, indices_type, 0);
 
     if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)) {
         disable_vertex_attribs(node);
