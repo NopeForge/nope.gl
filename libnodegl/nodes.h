@@ -343,8 +343,9 @@ struct textureprograminfo {
     int ts_id;
 };
 
+#define MAX_ID_LEN 128
 struct nodeprograminfopair {
-    char name[64];
+    char name[MAX_ID_LEN];
     const struct ngl_node *node;
     void *program_info;
 };

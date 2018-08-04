@@ -381,7 +381,7 @@ static struct uniformprograminfo *get_uniform_info(struct hmap *uniforms,
                                                    const char *basename,
                                                    const char *suffix)
 {
-    char name[128];
+    char name[MAX_ID_LEN];
     snprintf(name, sizeof(name), "%s%s", basename, suffix);
     return ngli_hmap_get(uniforms, name);
 }

@@ -84,7 +84,7 @@ struct hmap *ngli_program_probe_uniforms(const char *node_name, struct glcontext
     int nb_active_uniforms;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
     for (int i = 0; i < nb_active_uniforms; i++) {
-        char name[64];
+        char name[MAX_ID_LEN];
         struct uniformprograminfo *info = malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&umap);
@@ -126,7 +126,7 @@ struct hmap *ngli_program_probe_attributes(const char *node_name, struct glconte
     int nb_active_attributes;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
     for (int i = 0; i < nb_active_attributes; i++) {
-        char name[64];
+        char name[MAX_ID_LEN];
         struct attributeprograminfo *info = malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&amap);
