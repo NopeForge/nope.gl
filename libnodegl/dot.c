@@ -248,9 +248,11 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 }
 
                 for (int i = 0; i < nb_children; i++) {
+                    char numlbl[64];
+                    snprintf(numlbl, sizeof(numlbl), "[label=\"#%d\"]", i);
                     const struct ngl_node *child = children[i];
 
-                    print_link(b, node, child, label);
+                    print_link(b, node, child, numlbl);
                     print_all_links(b, child, links);
                 }
                 break;
