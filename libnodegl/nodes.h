@@ -313,7 +313,6 @@ struct uniformprograminfo {
     GLint id;
     GLint size;
     GLenum type;
-    char name[64];
     int binding;
 };
 
@@ -321,7 +320,6 @@ struct attributeprograminfo {
     GLint id;
     GLint size;
     GLenum type;
-    char name[64];
 };
 
 #define NGLI_SAMPLING_MODE_NONE         0
@@ -346,6 +344,7 @@ struct textureprograminfo {
 };
 
 struct nodeprograminfopair {
+    char name[64];
     const struct ngl_node *node;
     void *program_info;
 };

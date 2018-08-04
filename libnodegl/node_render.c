@@ -282,7 +282,7 @@ static int render_init(struct ngl_node *node)
             if (buffer->count != vertices->count) {
                 LOG(ERROR,
                     "attribute buffer %s count (%d) does not match vertices count (%d)",
-                    active_attribute->name,
+                    entry->key,
                     buffer->count,
                     vertices->count);
                 return -1;
@@ -292,6 +292,7 @@ static int render_init(struct ngl_node *node)
                 .node = anode,
                 .program_info = (void *)active_attribute,
             };
+            snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
             s->attribute_pairs[s->nb_attribute_pairs++] = pair;
         }
     }

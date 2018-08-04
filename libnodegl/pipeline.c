@@ -319,7 +319,7 @@ static int update_uniforms(struct ngl_node *node)
             else
                 LOG(ERROR,
                     "quaternion uniform '%s' must be declared as vec4 or mat4 in the shader",
-                    info->name);
+                    pair->name);
             break;
         }
         case NGL_NODE_UNIFORMMAT4: {
@@ -461,6 +461,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 .node = unode,
                 .program_info = (void *)active_uniform,
             };
+            snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
             s->uniform_pairs[s->nb_uniform_pairs++] = pair;
         }
     }
@@ -539,6 +540,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 .node = tnode,
                 .program_info = (void *)info,
             };
+            snprintf(pair.name, sizeof(pair.name), "%s", key);
             s->texture_pairs[s->nb_texture_pairs++] = pair;
         }
     }

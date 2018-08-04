@@ -84,17 +84,18 @@ struct hmap *ngli_program_probe_uniforms(const char *node_name, struct glcontext
     int nb_active_uniforms;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
     for (int i = 0; i < nb_active_uniforms; i++) {
+        char name[64];
         struct uniformprograminfo *info = malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&umap);
             return NULL;
         }
-        ngli_glGetActiveUniform(gl, pid, i, sizeof(info->name), NULL,
-                                &info->size, &info->type, info->name);
+        ngli_glGetActiveUniform(gl, pid, i, sizeof(name), NULL,
+                                &info->size, &info->type, name);
 
         /* Remove [0] suffix from names of uniform arrays */
-        info->name[strcspn(info->name, "[")] = 0;
-        info->id = ngli_glGetUniformLocation(gl, pid, info->name);
+        name[strcspn(name, "[")] = 0;
+        info->id = ngli_glGetUniformLocation(gl, pid, name);
 
         if (info->type == GL_IMAGE_2D) {
             ngli_glGetUniformiv(gl, pid, info->id, &info->binding);
@@ -103,9 +104,9 @@ struct hmap *ngli_program_probe_uniforms(const char *node_name, struct glcontext
         }
 
         LOG(DEBUG, "%s.uniform[%d/%d]: %s location:%d size=%d type=0x%x binding=%d", node_name,
-            i + 1, nb_active_uniforms, info->name, info->id, info->size, info->type, info->binding);
+            i + 1, nb_active_uniforms, name, info->id, info->size, info->type, info->binding);
 
-        int ret = ngli_hmap_set(umap, info->name, info);
+        int ret = ngli_hmap_set(umap, name, info);
         if (ret < 0) {
             ngli_hmap_freep(&umap);
             return NULL;
@@ -125,19 +126,20 @@ struct hmap *ngli_program_probe_attributes(const char *node_name, struct glconte
     int nb_active_attributes;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
     for (int i = 0; i < nb_active_attributes; i++) {
+        char name[64];
         struct attributeprograminfo *info = malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&amap);
             return NULL;
         }
-        ngli_glGetActiveAttrib(gl, pid, i, sizeof(info->name), NULL,
-                               &info->size, &info->type, info->name);
+        ngli_glGetActiveAttrib(gl, pid, i, sizeof(name), NULL,
+                               &info->size, &info->type, name);
 
-        info->id = ngli_glGetAttribLocation(gl, pid, info->name);
+        info->id = ngli_glGetAttribLocation(gl, pid, name);
         LOG(DEBUG, "%s.attribute[%d/%d]: %s location:%d size=%d type=0x%x", node_name,
-            i + 1, nb_active_attributes, info->name, info->id, info->size, info->type);
+            i + 1, nb_active_attributes, name, info->id, info->size, info->type);
 
-        int ret = ngli_hmap_set(amap, info->name, info);
+        int ret = ngli_hmap_set(amap, name, info);
         if (ret < 0) {
             ngli_hmap_freep(&amap);
             return NULL;
