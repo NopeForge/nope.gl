@@ -275,9 +275,9 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                     }
 
                     print_link(b, node, child, key);
-                    print_all_links(b, child, links);
-
                     free(key);
+
+                    print_all_links(b, child, links);
                 }
                 break;
             }
