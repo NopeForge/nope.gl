@@ -546,6 +546,7 @@ int ngli_pipeline_init(struct ngl_node *node)
             s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
             if (s->disabled_texture_unit < 0)
                 return -1;
+            LOG(DEBUG, "using texture unit %d for disabled textures", s->disabled_texture_unit);
         }
     }
 
