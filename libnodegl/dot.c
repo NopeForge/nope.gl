@@ -44,22 +44,6 @@ static int list_check_decls(struct hmap *decls, const void *id)
     return ngli_hmap_set(decls, key, "");
 }
 
-static int list_check_links(struct hmap *links, const void *a, const void *b)
-{
-    int ret;
-    char key1[64], key2[64];
-    if ((ret = snprintf(key1, sizeof(key1), "%p %p", a, b)) < 0 ||
-        (ret = snprintf(key2, sizeof(key2), "%p %p", b, a)) < 0)
-        return ret;
-
-    if (ngli_hmap_get(links, key1) || ngli_hmap_get(links, key2))
-        return 1;
-    if ((ret = ngli_hmap_set(links, key1, "")) < 0 ||
-        (ret = ngli_hmap_set(links, key2, "")) < 0)
-        return ret;
-    return 0;
-}
-
 static unsigned get_hue(const char *name)
 {
     const uint32_t hash = ngli_crc32(name);
@@ -230,6 +214,9 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
 
 static void print_all_links(struct bstr *b, const struct ngl_node *node, struct hmap *links)
 {
+    if (list_check_decls(links, node))
+        return;
+
     print_links(b, node, ngli_base_node_params, (uint8_t *)node, links);
     print_links(b, node, node->class->params, node->priv_data, links);
 }
@@ -245,8 +232,6 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
             case PARAM_TYPE_NODE: {
                 const struct ngl_node *child = *(struct ngl_node **)(priv + p->offset);
                 if (child) {
-                    if (list_check_links(links, node, child))
-                        break;
                     print_link(b, node, child, label);
                     print_all_links(b, child, links);
                 }
@@ -257,8 +242,6 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 const int nb_children = *(int *)(priv + p->offset + sizeof(struct ngl_node **));
 
                 if (nb_children && (p->flags & PARAM_FLAG_DOT_DISPLAY_PACKED)) {
-                    if (list_check_links(links, node, children))
-                        break;
                     ngli_bstr_print(b, "    %s_%p -> %s_%p%s\n",
                                     node->class->name, node, p->key, children, label);
                     break;
@@ -267,8 +250,6 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 for (int i = 0; i < nb_children; i++) {
                     const struct ngl_node *child = children[i];
 
-                    if (list_check_links(links, node, child))
-                        continue;
                     print_link(b, node, child, label);
                     print_all_links(b, child, links);
                 }
@@ -282,9 +263,6 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 while ((entry = ngli_hmap_next(hmap, entry))) {
                     char *key;
                     const struct ngl_node *child = entry->data;
-
-                    if (list_check_links(links, node, child))
-                        continue;
 
                     if (p->flags & PARAM_FLAG_DOT_DISPLAY_FIELDNAME)
                         key = ngli_asprintf("[label=\"%s:%s\"]", p->key, entry->key);
