@@ -228,6 +228,8 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
     while (p && p->key) {
         char *label = ngli_asprintf("[label=\"%s\"]",
                                     (p->flags & PARAM_FLAG_DOT_DISPLAY_FIELDNAME) ? p->key : "");
+        if (!label)
+            return;
         switch (p->type) {
             case PARAM_TYPE_NODE: {
                 const struct ngl_node *child = *(struct ngl_node **)(priv + p->offset);
