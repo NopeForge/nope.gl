@@ -33,15 +33,15 @@
 
 extern const struct node_param ngli_base_node_params[];
 
-static int list_check_decls(struct hmap *decls, const void *id)
+static int visited(struct hmap *ptr_set, const void *id)
 {
     char key[32];
     int ret = snprintf(key, sizeof(key), "%p", id);
     if (ret < 0)
         return ret;
-    if (ngli_hmap_get(decls, key))
+    if (ngli_hmap_get(ptr_set, key))
         return 1;
-    return ngli_hmap_set(decls, key, "");
+    return ngli_hmap_set(ptr_set, key, "");
 }
 
 static unsigned get_hue(const char *name)
@@ -124,7 +124,7 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
 
 static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct hmap *decls)
 {
-    if (list_check_decls(decls, node))
+    if (visited(decls, node))
         return;
 
     ngli_bstr_print(b, "    %s_%p[label=<<b>%s</b><br/>",
@@ -176,7 +176,7 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                 const int nb_children = *(int *)(priv + p->offset + sizeof(struct ngl_node **));
 
                 if (nb_children && (p->flags & PARAM_FLAG_DOT_DISPLAY_PACKED)) {
-                    if (list_check_decls(decls, children))
+                    if (visited(decls, children))
                         break;
                     print_packed_decls(b, p->key, children, nb_children, !node->ctx || node->is_active);
                     break;
@@ -214,7 +214,7 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
 
 static void print_all_links(struct bstr *b, const struct ngl_node *node, struct hmap *links)
 {
-    if (list_check_decls(links, node))
+    if (visited(links, node))
         return;
 
     print_links(b, node, ngli_base_node_params, (uint8_t *)node, links);
