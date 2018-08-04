@@ -485,6 +485,7 @@ int ngli_pipeline_init(struct ngl_node *node)
         if (!s->texture_pairs)
             return -1;
 
+        int need_disabled_texture_unit = 0;
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->textures, entry))) {
             const char *key = entry->key;
@@ -523,11 +524,8 @@ int ngli_pipeline_init(struct ngl_node *node)
             if (info->sampler_id < 0 && !has_aux_sampler)
                 LOG(WARNING, "no sampler found for texture %s", key);
 
-            if (info->sampler_id >= 0 && has_aux_sampler) {
-                s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
-                if (s->disabled_texture_unit < 0)
-                    return -1;
-            }
+            if (info->sampler_id >= 0 && has_aux_sampler)
+                need_disabled_texture_unit = 1;
 
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
             texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
@@ -542,6 +540,12 @@ int ngli_pipeline_init(struct ngl_node *node)
             };
             snprintf(pair.name, sizeof(pair.name), "%s", key);
             s->texture_pairs[s->nb_texture_pairs++] = pair;
+        }
+
+        if (need_disabled_texture_unit) {
+            s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
+            if (s->disabled_texture_unit < 0)
+                return -1;
         }
     }
 
