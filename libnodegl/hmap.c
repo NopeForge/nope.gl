@@ -40,14 +40,6 @@ struct hmap {
     void *user_arg;
 };
 
-static uint32_t get_hash(const char *key)
-{
-    uint32_t hash = 0;
-    while (*key)
-        hash = (hash<<5) ^ (hash>>27) ^ *key++;
-    return hash;
-}
-
 void ngli_hmap_set_free(struct hmap *hm, user_free_func_type user_free_func, void *user_arg)
 {
     hm->user_free_func = user_free_func;
@@ -79,7 +71,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
     if (!key)
         return -1;
 
-    const uint32_t hash = get_hash(key);
+    const uint32_t hash = ngli_crc32(key);
     const int id = hash & hm->mask;
     struct bucket *b = &hm->buckets[id];
 
@@ -138,7 +130,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                 /* Transfer all entries to the new map */
                 const struct hmap_entry *e = NULL;
                 while ((e = ngli_hmap_next(&old_hm, e))) {
-                    const int new_id = get_hash(e->key) & hm->mask;
+                    const int new_id = ngli_crc32(e->key) & hm->mask;
                     struct bucket *b = &hm->buckets[new_id];
                     struct hmap_entry *entries =
                         realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
@@ -213,7 +205,7 @@ const struct hmap_entry *ngli_hmap_next(const struct hmap *hm,
     if (!prev)
         return get_first_entry(hm, 0);
 
-    const int id = get_hash(prev->key) & hm->mask;
+    const int id = ngli_crc32(prev->key) & hm->mask;
     const struct bucket *b = &hm->buckets[id];
     const int entry_id = prev - b->entries;
 
@@ -228,7 +220,7 @@ const struct hmap_entry *ngli_hmap_next(const struct hmap *hm,
 
 void *ngli_hmap_get(const struct hmap *hm, const char *key)
 {
-    const int id = get_hash(key) & hm->mask;
+    const int id = ngli_crc32(key) & hm->mask;
     const struct bucket *b = &hm->buckets[id];
 
     for (int i = 0; i < b->nb_entries; i++) {
