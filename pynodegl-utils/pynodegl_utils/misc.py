@@ -12,6 +12,8 @@ def scene(**widgets_specs):
         def func_wrapper(idict=None, **extra_args):
             if idict is None:
                 idict = {}
+            elif isinstance(idict, SceneCfg):
+                idict = idict.as_dict()
             scene_cfg = SceneCfg(**idict)
             scene = scene_func(scene_cfg, **extra_args)
             odict = scene_cfg.as_dict()
