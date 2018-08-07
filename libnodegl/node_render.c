@@ -136,17 +136,6 @@ static const struct {
     {"ngl_normal",   GEOMETRY_OFFSET(normals_buffer)},
 };
 
-static struct buffer *get_vertex_buffer(struct geometry *geometry, int const_map_id)
-{
-    const int offset = attrib_const_map[const_map_id].offset;
-    const uint8_t *buffer_node_p = ((uint8_t *)geometry) + offset;
-    const struct ngl_node *buffer_node = *(struct ngl_node **)buffer_node_p;
-    if (!buffer_node)
-        return NULL;
-    struct buffer *buffer = buffer_node->priv_data;
-    return buffer;
-}
-
 static void update_vertex_attrib(struct ngl_node *node, struct buffer *buffer, int location)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -160,13 +149,6 @@ static void update_vertex_attrib(struct ngl_node *node, struct buffer *buffer, i
 static int update_vertex_attribs(struct ngl_node *node)
 {
     struct render *s = node->priv_data;
-    struct geometry *geometry = s->geometry->priv_data;
-
-    for (int i = 0; i < NGLI_ARRAY_NB(s->builtin_attr_locations); i++) {
-        const int location = s->builtin_attr_locations[i];
-        if (location >= 0)
-            update_vertex_attrib(node, get_vertex_buffer(geometry, i), location);
-    }
 
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
@@ -188,12 +170,6 @@ static int disable_vertex_attribs(struct ngl_node *node)
 
     struct render *s = node->priv_data;
 
-    for (int i = 0; i < NGLI_ARRAY_NB(s->builtin_attr_locations); i++) {
-        const int location = s->builtin_attr_locations[i];
-        if (location >= 0)
-            ngli_glDisableVertexAttribArray(gl, location);
-    }
-
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
@@ -210,6 +186,26 @@ static int get_uniform_location(struct hmap *uniforms, const char *name)
 {
     const struct uniformprograminfo *info = ngli_hmap_get(uniforms, name);
     return info ? info->id : -1;
+}
+
+static int pair_node_to_attribinfo(struct render *s, const char *name,
+                                   struct ngl_node *anode)
+{
+    const struct ngl_node *pnode = s->pipeline.program;
+    const struct program *program = pnode->priv_data;
+
+    const struct attributeprograminfo *active_attribute =
+        ngli_hmap_get(program->active_attributes, name);
+    if (!active_attribute)
+        return 1;
+
+    struct nodeprograminfopair pair = {
+        .node = anode,
+        .program_info = (void *)active_attribute,
+    };
+    snprintf(pair.name, sizeof(pair.name), "%s", name);
+    s->attribute_pairs[s->nb_attribute_pairs++] = pair;
+    return 0;
 }
 
 static int render_init(struct ngl_node *node)
@@ -235,7 +231,8 @@ static int render_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    struct program *program = s->pipeline.program->priv_data;
+    struct ngl_node *pnode = s->pipeline.program;
+    struct program *program = pnode->priv_data;
     struct hmap *uniforms = program->active_uniforms;
 
     /* Builtin uniforms */
@@ -243,35 +240,32 @@ static int render_init(struct ngl_node *node)
     s->projection_matrix_location_id = get_uniform_location(uniforms, "ngl_projection_matrix");
     s->normal_matrix_location_id     = get_uniform_location(uniforms, "ngl_normal_matrix");
 
+    /* User and builtin attribute pairs */
+    const int max_nb_attributes = NGLI_ARRAY_NB(attrib_const_map)
+                                + (s->attributes ? ngli_hmap_count(s->attributes) : 0);
+    s->attribute_pairs = calloc(max_nb_attributes, sizeof(*s->attribute_pairs));
+    if (!s->attribute_pairs)
+        return -1;
+
     /* Builtin vertex attributes */
     struct geometry *geometry = s->geometry->priv_data;
-    ngli_assert(NGLI_ARRAY_NB(s->builtin_attr_locations) == NGLI_ARRAY_NB(attrib_const_map));
     for (int i = 0; i < NGLI_ARRAY_NB(attrib_const_map); i++) {
-        struct buffer *buffer = get_vertex_buffer(geometry, i);
+        const int offset = attrib_const_map[i].offset;
         const char *const_name = attrib_const_map[i].const_name;
-        const struct attributeprograminfo *attr = ngli_hmap_get(program->active_attributes, const_name);
-        s->builtin_attr_locations[i] = buffer && attr ? attr->id : -1;
+        uint8_t *buffer_node_p = ((uint8_t *)geometry) + offset;
+        struct ngl_node *anode = *(struct ngl_node **)buffer_node_p;
+
+        ret = pair_node_to_attribinfo(s, const_name, anode);
+        if (ret < 0)
+            return ret;
     }
 
     /* User vertex attributes */
-    int nb_attributes = s->attributes ? ngli_hmap_count(s->attributes) : 0;
-    if (nb_attributes > 0) {
-        struct geometry *geometry = s->geometry->priv_data;
+    if (s->attributes) {
         struct buffer *vertices = geometry->vertices_buffer->priv_data;
-        s->attribute_pairs = calloc(nb_attributes, sizeof(*s->attribute_pairs));
-        if (!s->attribute_pairs)
-            return -1;
 
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->attributes, entry))) {
-            const struct attributeprograminfo *active_attribute =
-                ngli_hmap_get(program->active_attributes, entry->key);
-            if (!active_attribute) {
-                LOG(WARNING, "attribute %s attached to %s not found in %s",
-                    entry->key, node->name, s->pipeline.program->name);
-                continue;
-            }
-
             struct ngl_node *anode = entry->data;
             struct buffer *buffer = anode->priv_data;
             buffer->generate_gl_buffer = 1;
@@ -288,12 +282,13 @@ static int render_init(struct ngl_node *node)
                 return -1;
             }
 
-            struct nodeprograminfopair pair = {
-                .node = anode,
-                .program_info = (void *)active_attribute,
-            };
-            snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
-            s->attribute_pairs[s->nb_attribute_pairs++] = pair;
+            ret = pair_node_to_attribinfo(s, entry->key, anode);
+            if (ret < 0)
+                return ret;
+
+            if (ret == 1)
+                LOG(WARNING, "attribute %s attached to %s not found in %s",
+                    entry->key, node->name, pnode->name);
         }
     }
 

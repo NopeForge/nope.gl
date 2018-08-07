@@ -379,7 +379,6 @@ struct render {
     struct nodeprograminfopair *attribute_pairs; // (attribute, attributeprograminfo)
     int nb_attribute_pairs;
 
-    int builtin_attr_locations[3];
     GLint modelview_matrix_location_id;
     GLint projection_matrix_location_id;
     GLint normal_matrix_location_id;
