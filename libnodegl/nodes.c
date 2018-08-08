@@ -323,8 +323,10 @@ int ngli_node_init(struct ngl_node *node)
     if (node->class->init) {
         LOG(VERBOSE, "INIT %s @ %p", node->name, node);
         int ret = node->class->init(node);
-        if (ret < 0)
+        if (ret < 0) {
+            LOG(ERROR, "initializing node %s failed: %d", node->name, ret);
             return ret;
+        }
     }
 
     node->state = STATE_INITIALIZED;
@@ -437,8 +439,10 @@ static int node_prefetch(struct ngl_node *node)
     if (node->class->prefetch) {
         LOG(DEBUG, "PREFETCH %s @ %p", node->name, node);
         ret = node->class->prefetch(node);
-        if (ret < 0)
+        if (ret < 0) {
+            LOG(ERROR, "prefetching node %s failed: %d", node->name, ret);
             return ret;
+        }
     }
     node->state = STATE_READY;
 
