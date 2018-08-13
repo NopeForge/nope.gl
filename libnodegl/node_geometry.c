@@ -63,12 +63,12 @@ fail:
 
 struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int count)
 {
-    int size = count * sizeof(GLushort);
-    uint8_t *data = calloc(count, sizeof(GLushort));
+    int size = count * sizeof(short);
+    uint8_t *data = calloc(count, sizeof(short));
     if (!data)
         return NULL;
 
-    SET_INDICES(GLushort, count, data);
+    SET_INDICES(short, count, data);
 
     struct ngl_node *node = ngli_geometry_generate_buffer(ctx,
                                                           NGL_NODE_BUFFERUSHORT,
