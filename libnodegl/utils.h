@@ -46,10 +46,10 @@
 #define NGLI_ARRAY_NB(x) ((int)(sizeof(x)/sizeof(*(x))))
 #define NGLI_SWAP(type, a, b) do { type tmp_swap = b; b = a; a = tmp_swap; } while (0)
 
-#define NGLI_ALIGN 16
+#define NGLI_ALIGN_VAL 16
 
-#define NGLI_ALIGNED_VEC(vname) float __attribute__ ((aligned (NGLI_ALIGN))) vname[4]
-#define NGLI_ALIGNED_MAT(mname) float __attribute__ ((aligned (NGLI_ALIGN))) mname[4*4]
+#define NGLI_ALIGNED_VEC(vname) float __attribute__ ((aligned (NGLI_ALIGN_VAL))) vname[4]
+#define NGLI_ALIGNED_MAT(mname) float __attribute__ ((aligned (NGLI_ALIGN_VAL))) mname[4*4]
 
 #ifdef CONFIG_SMALL
 #define NGLI_DOCSTRING(s) (NULL)

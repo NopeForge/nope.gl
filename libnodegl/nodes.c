@@ -47,7 +47,7 @@ const struct node_param ngli_base_node_params[] = {
 static void *aligned_allocz(size_t size)
 {
     void *ptr = NULL;
-    if (posix_memalign(&ptr, NGLI_ALIGN, size))
+    if (posix_memalign(&ptr, NGLI_ALIGN_VAL, size))
         return NULL;
     memset(ptr, 0, size);
     return ptr;
@@ -58,7 +58,7 @@ static void *aligned_allocz(size_t size)
 static struct ngl_node *node_create(const struct node_class *class)
 {
     struct ngl_node *node;
-    const size_t node_size = ALIGN(sizeof(*node), NGLI_ALIGN);
+    const size_t node_size = ALIGN(sizeof(*node), NGLI_ALIGN_VAL);
 
     node = aligned_allocz(node_size + class->priv_size);
     if (!node)
@@ -66,8 +66,8 @@ static struct ngl_node *node_create(const struct node_class *class)
     node->priv_data = ((uint8_t *)node) + node_size;
 
     /* Make sure the node and its private data are properly aligned */
-    ngli_assert((((uintptr_t)node)            & ~(NGLI_ALIGN - 1)) == (uintptr_t)node);
-    ngli_assert((((uintptr_t)node->priv_data) & ~(NGLI_ALIGN - 1)) == (uintptr_t)node->priv_data);
+    ngli_assert((((uintptr_t)node)            & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node);
+    ngli_assert((((uintptr_t)node->priv_data) & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node->priv_data);
 
     /* We depend on the monotically incrementing by 1 property of these fields */
     ngli_assert(NGL_NODE_UNIFORMVEC4      - NGL_NODE_UNIFORMFLOAT       == 3);
