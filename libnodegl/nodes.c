@@ -53,12 +53,10 @@ static void *aligned_allocz(size_t size)
     return ptr;
 }
 
-#define ALIGN(v, a) (((v) + (a) - 1) & ~((a) - 1))
-
 static struct ngl_node *node_create(const struct node_class *class)
 {
     struct ngl_node *node;
-    const size_t node_size = ALIGN(sizeof(*node), NGLI_ALIGN_VAL);
+    const size_t node_size = NGLI_ALIGN(sizeof(*node), NGLI_ALIGN_VAL);
 
     node = aligned_allocz(node_size + class->priv_size);
     if (!node)
