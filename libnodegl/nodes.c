@@ -53,7 +53,7 @@ static void *aligned_allocz(size_t size)
     return ptr;
 }
 
-#define ALIGN(v, a) ((v) + (((v) + (a) - 1) & ~((v) - 1)))
+#define ALIGN(v, a) (((v) + (a) - 1) & ~((a) - 1))
 
 static struct ngl_node *node_create(const struct node_class *class)
 {
