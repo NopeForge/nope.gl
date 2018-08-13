@@ -59,14 +59,14 @@ static int quad_init(struct ngl_node *node)
 {
     struct geometry *s = node->priv_data;
 
-    const GLfloat vertices[] = {
+    const float vertices[] = {
         C(0),               C(1),               C(2),
         C(0) + W(0),        C(1) + W(1),        C(2) + W(2),
         C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2),
         C(0) + H(0),        C(1) + H(1),        C(2) + H(2),
     };
 
-    const GLfloat uvs[] = {
+    const float uvs[] = {
         UV_C(0),                     1.0f - UV_C(1),
         UV_C(0) + UV_W(0),           1.0f - UV_C(1) - UV_W(1),
         UV_C(0) + UV_H(0) + UV_W(0), 1.0f - UV_C(1) - UV_H(1) - UV_W(1),
@@ -91,9 +91,9 @@ static int quad_init(struct ngl_node *node)
 
     float normals[3 * NB_VERTICES];
     ngli_vec3_normalvec(normals,
-                        (GLfloat *)s->triangle_edges,
-                        (GLfloat *)s->triangle_edges + 3,
-                        (GLfloat *)s->triangle_edges + 6);
+                        s->triangle_edges,
+                        s->triangle_edges + 3,
+                        s->triangle_edges + 6);
 
     for (int i = 1; i < NB_VERTICES; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
