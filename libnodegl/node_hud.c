@@ -210,6 +210,8 @@ static const struct {
     [OP_TOTAL_GPU]  = {"total  GPU", 0xF43D3DFF, 'n'},
 };
 
+NGLI_STATIC_ASSERT(hud_nb_ops, NGLI_ARRAY_NB(ops) == NB_OPS);
+
 static inline uint8_t *set_color(uint8_t *p, uint32_t rgba)
 {
     p[0] = rgba >> 24;
@@ -259,7 +261,6 @@ static int hud_init(struct ngl_node *node)
 
     s->glGenQueries(gl, 1, &s->query);
 
-    ngli_assert(NGLI_ARRAY_NB(ops) == NB_OPS);
     ngli_assert(NGLI_ARRAY_NB(ops) == NGLI_ARRAY_NB(s->measures));
     ngli_assert(NGLI_ARRAY_NB(ops) == NGLI_ARRAY_NB(s->graph));
 

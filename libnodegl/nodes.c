@@ -36,6 +36,12 @@
 #include "utils.h"
 #include "nodes_register.h"
 
+/* We depend on the monotically incrementing by 1 property of these fields */
+NGLI_STATIC_ASSERT(node_uniform_vec_flt, NGL_NODE_UNIFORMVEC4      - NGL_NODE_UNIFORMFLOAT       == 3);
+NGLI_STATIC_ASSERT(node_animkf_vec_flt,  NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3);
+NGLI_STATIC_ASSERT(node_anim_vec_flt,    NGL_NODE_ANIMATEDVEC4     - NGL_NODE_ANIMATEDFLOAT      == 3);
+NGLI_STATIC_ASSERT(param_vec,            PARAM_TYPE_VEC4           - PARAM_TYPE_VEC2             == 2);
+
 extern const struct param_specs ngli_params_specs[];
 
 #define OFFSET(x) offsetof(struct ngl_node, x)
@@ -66,13 +72,6 @@ static struct ngl_node *node_create(const struct node_class *class)
     /* Make sure the node and its private data are properly aligned */
     ngli_assert((((uintptr_t)node)            & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node);
     ngli_assert((((uintptr_t)node->priv_data) & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node->priv_data);
-
-    /* We depend on the monotically incrementing by 1 property of these fields */
-    ngli_assert(NGL_NODE_UNIFORMVEC4      - NGL_NODE_UNIFORMFLOAT       == 3);
-    ngli_assert(NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3);
-    ngli_assert(NGL_NODE_ANIMATEDVEC4     - NGL_NODE_ANIMATEDFLOAT      == 3);
-    ngli_assert(PARAM_TYPE_VEC4           - PARAM_TYPE_VEC2             == 2);
-
 
     node->class = class;
     node->last_update_time = -1.;
