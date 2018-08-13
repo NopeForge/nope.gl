@@ -254,6 +254,8 @@ static int render_init(struct ngl_node *node)
         const char *const_name = attrib_const_map[i].const_name;
         uint8_t *buffer_node_p = ((uint8_t *)geometry) + offset;
         struct ngl_node *anode = *(struct ngl_node **)buffer_node_p;
+        if (!anode)
+            continue;
 
         ret = pair_node_to_attribinfo(s, const_name, anode);
         if (ret < 0)
