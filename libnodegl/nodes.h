@@ -360,7 +360,7 @@ struct pipeline {
     int nb_texture_pairs;
 
     uint64_t used_texture_units;
-    int disabled_texture_unit;
+    int disabled_texture_unit[2]; /* 2D, OES */
 
     struct hmap *uniforms;
     struct nodeprograminfopair *uniform_pairs; // (uniform, uniformprograminfo)

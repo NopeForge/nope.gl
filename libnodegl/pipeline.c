@@ -80,6 +80,42 @@ static int update_default_sampler(const struct glcontext *gl,
     return 0;
 }
 
+#if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
+static const struct {
+    const char *name;
+    GLenum type;
+} tex_specs[] = {
+    [0] = {"2D",  GL_TEXTURE_2D},
+#if defined(TARGET_ANDROID)
+    [1] = {"OES", GL_TEXTURE_EXTERNAL_OES},
+#endif
+};
+
+static int get_disabled_texture_unit(const struct glcontext *gl,
+                                     struct pipeline *s,
+                                     uint64_t *used_texture_units,
+                                     int type_index)
+{
+    int tex_unit = s->disabled_texture_unit[type_index];
+    if (tex_unit >= 0)
+        return tex_unit;
+
+    tex_unit = acquire_next_available_texture_unit(used_texture_units);
+    if (tex_unit < 0)
+        return -1;
+
+    LOG(DEBUG, "using texture unit %d for disabled %s textures",
+        tex_unit, tex_specs[type_index].name);
+    s->disabled_texture_unit[type_index] = tex_unit;
+
+    ngli_glActiveTexture(gl, GL_TEXTURE0 + tex_unit);
+    for (int i = 0; i < NGLI_ARRAY_NB(tex_specs); i++)
+        ngli_glBindTexture(gl, tex_specs[i].type, 0);
+
+    return tex_unit;
+}
+#endif
+
 #if defined(TARGET_ANDROID)
 static int update_sampler2D(const struct glcontext *gl,
                             struct pipeline *s,
@@ -93,8 +129,12 @@ static int update_sampler2D(const struct glcontext *gl,
 
         *sampling_mode = NGLI_SAMPLING_MODE_EXTERNAL_OES;
 
-        if (info->sampler_id >= 0)
-            ngli_glUniform1i(gl, info->sampler_id, s->disabled_texture_unit);
+        if (info->sampler_id >= 0) {
+            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 0);
+            if (disabled_texture_unit < 0)
+                return -1;
+            ngli_glUniform1i(gl, info->sampler_id, disabled_texture_unit);
+        }
 
         int texture_index = acquire_next_available_texture_unit(used_texture_units);
         if (texture_index < 0)
@@ -106,14 +146,14 @@ static int update_sampler2D(const struct glcontext *gl,
 
     } else if (info->sampler_id >= 0) {
 
-        int ret = update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
-
         if (info->external_sampler_id >= 0) {
-            ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
-            ngli_glUniform1i(gl, info->external_sampler_id, s->disabled_texture_unit);
+            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 1);
+            if (disabled_texture_unit < 0)
+                return -1;
+            ngli_glUniform1i(gl, info->external_sampler_id, disabled_texture_unit);
         }
 
-        return ret;
+        return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
     }
     return 0;
 }
@@ -130,8 +170,12 @@ static int update_sampler2D(const struct glcontext *gl,
 
         *sampling_mode = NGLI_SAMPLING_MODE_NV12;
 
-        if (info->sampler_id >= 0)
-            ngli_glUniform1i(gl, info->sampler_id, s->disabled_texture_unit);
+        if (info->sampler_id >= 0) {
+            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 0);
+            if (disabled_texture_unit < 0)
+                return -1;
+            ngli_glUniform1i(gl, info->sampler_id, disabled_texture_unit);
+        }
 
         if (info->y_sampler_id >= 0) {
             int texture_index = acquire_next_available_texture_unit(used_texture_units);
@@ -155,15 +199,22 @@ static int update_sampler2D(const struct glcontext *gl,
             ngli_glUniform1i(gl, info->uv_sampler_id, texture_index);
         }
     } else if (info->sampler_id >= 0) {
-        int ret = update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
 
-        if (info->y_sampler_id >= 0)
-            ngli_glUniform1i(gl, info->y_sampler_id, s->disabled_texture_unit);
+        if (info->y_sampler_id >= 0) {
+            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 0);
+            if (disabled_texture_unit < 0)
+                return -1;
+            ngli_glUniform1i(gl, info->y_sampler_id, disabled_texture_unit);
+        }
 
-        if (info->uv_sampler_id >= 0)
-            ngli_glUniform1i(gl, info->uv_sampler_id, s->disabled_texture_unit);
+        if (info->uv_sampler_id >= 0) {
+            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 0);
+            if (disabled_texture_unit < 0)
+                return -1;
+            ngli_glUniform1i(gl, info->uv_sampler_id, disabled_texture_unit);
+        }
 
-        return ret;
+        return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
     }
     return 0;
 }
@@ -203,13 +254,8 @@ static int update_images_and_samplers(struct ngl_node *node)
     if (s->textures) {
         uint64_t used_texture_units = s->used_texture_units;
 
-        if (s->disabled_texture_unit >= 0) {
-            ngli_glActiveTexture(gl, GL_TEXTURE0 + s->disabled_texture_unit);
-            ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-#if defined(TARGET_ANDROID)
-            ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
-#endif
-        }
+        for (int i = 0; i < NGLI_ARRAY_NB(s->disabled_texture_unit); i++)
+            s->disabled_texture_unit[i] = -1;
 
         for (int i = 0; i < s->nb_texture_pairs; i++) {
             const struct nodeprograminfopair *pair = &s->texture_pairs[i];
@@ -466,8 +512,6 @@ int ngli_pipeline_init(struct ngl_node *node)
         }
     }
 
-    s->disabled_texture_unit = -1;
-
     int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
     int max_nb_textures = NGLI_MIN(gl->max_texture_image_units, sizeof(s->used_texture_units) * 8);
     if (nb_textures > max_nb_textures) {
@@ -485,7 +529,6 @@ int ngli_pipeline_init(struct ngl_node *node)
         if (!s->texture_pairs)
             return -1;
 
-        int need_disabled_texture_unit = 0;
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->textures, entry))) {
             const char *key = entry->key;
@@ -524,9 +567,6 @@ int ngli_pipeline_init(struct ngl_node *node)
             if (info->sampler_id < 0 && !has_aux_sampler)
                 LOG(WARNING, "no sampler found for texture %s", key);
 
-            if (info->sampler_id >= 0 && has_aux_sampler)
-                need_disabled_texture_unit = 1;
-
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
             texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
             LOG(INFO, "direct rendering for texture %s.%s: %s",
@@ -540,13 +580,6 @@ int ngli_pipeline_init(struct ngl_node *node)
             };
             snprintf(pair.name, sizeof(pair.name), "%s", key);
             s->texture_pairs[s->nb_texture_pairs++] = pair;
-        }
-
-        if (need_disabled_texture_unit) {
-            s->disabled_texture_unit = acquire_next_available_texture_unit(&s->used_texture_units);
-            if (s->disabled_texture_unit < 0)
-                return -1;
-            LOG(DEBUG, "using texture unit %d for disabled textures", s->disabled_texture_unit);
         }
     }
 
