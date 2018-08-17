@@ -124,9 +124,17 @@ class MainWindow(QtWidgets.QSplitter):
         self._errbuf.setReadOnly(True)
         self._errbuf.hide()
 
+        self._hooks_lbl = QtWidgets.QLabel()
+        self._hooks_layout = QtWidgets.QHBoxLayout()
+        self._hooks_layout.addWidget(self._hooks_lbl)
+        self._hooks_widget = QtWidgets.QWidget()
+        self._hooks_widget.setLayout(self._hooks_layout)
+        self._hooks_widget.hide()
+
         tabs_and_errbuf = QtWidgets.QVBoxLayout()
         tabs_and_errbuf.addWidget(self._tab_widget)
         tabs_and_errbuf.addWidget(self._errbuf)
+        tabs_and_errbuf.addWidget(self._hooks_widget)
         tabs_and_errbuf_widget = QtWidgets.QWidget()
         tabs_and_errbuf_widget.setLayout(tabs_and_errbuf)
 
@@ -148,6 +156,25 @@ class MainWindow(QtWidgets.QSplitter):
         prev_scene = self._config.get('scene')
         if prev_pkgname == module_pkgname:
             self._scene_toolbar.load_scene_from_name(prev_module, prev_scene)
+
+    @QtCore.pyqtSlot(int, int, str)
+    def _hooks_uploading(self, i, n, filename):
+        self._hooks_widget.show()
+        self._hooks_lbl.setText('Uploading [%d/%d]: %s...' % (i, n, filename))
+
+    @QtCore.pyqtSlot(str, str)
+    def _hooks_building_scene(self, backend, system):
+        self._hooks_widget.show()
+        self._hooks_lbl.setText('Building %s scene in %s...' % (system, backend))
+
+    @QtCore.pyqtSlot()
+    def _hooks_sending_scene(self):
+        self._hooks_widget.show()
+        self._hooks_lbl.setText('Sending scene...')
+
+    @QtCore.pyqtSlot()
+    def _hooks_done(self):
+        self._hooks_widget.hide()
 
     @QtCore.pyqtSlot(str)
     def _scene_err(self, err_str):
@@ -195,6 +222,10 @@ class MainWindow(QtWidgets.QSplitter):
         if self._hooks:
             self._hooks.wait()
         self._hooks = Hooks(self._get_scene, self._hooksdir)
+        self._hooks.uploadingFileNotif.connect(self._hooks_uploading)
+        self._hooks.buildingSceneNotif.connect(self._hooks_building_scene)
+        self._hooks.sendingSceneNotif.connect(self._hooks_sending_scene)
+        self._hooks.finished.connect(self._hooks_done)
         self._hooks.error.connect(self._hooks_error)
         self._hooks.start()
 

@@ -31,6 +31,9 @@ from PyQt5 import QtCore
 
 class Hooks(QtCore.QThread):
 
+    uploading_file_notif = QtCore.pyqtSignal(int, int, str, name='uploadingFileNotif')
+    building_scene_notif = QtCore.pyqtSignal(str, str, name='buildingSceneNotif')
+    sending_scene_notif = QtCore.pyqtSignal(name='sendingSceneNotif')
     error = QtCore.pyqtSignal(str)
 
     def __init__(self, get_scene_func, hooksdir):
@@ -96,6 +99,7 @@ class Hooks(QtCore.QThread):
             # the scene graph
             backend = self._get_hook_output('get_gl_backend')
             system = self._get_hook_output('get_system')
+            self.buildingSceneNotif.emit(backend, system)
             cfg = self._get_scene_func(backend=backend, system=system)
             if not cfg:
                 return
@@ -109,11 +113,12 @@ class Hooks(QtCore.QThread):
             remotedir = self._get_hook_output('get_remote_dir')
             if hook_sync and remotedir:
                 filelist = [m.filename for m in cfg['medias']] + cfg['files']
-                for localfile in filelist:
+                for i, localfile in enumerate(filelist, 1):
                     remotefile = get_remotefile(localfile, remotedir)
                     serialized_scene = serialized_scene.replace(
                             filename_escape(localfile),
                             filename_escape(remotefile))
+                    self.uploadingFileNotif.emit(i, len(filelist), localfile)
                     subprocess.check_call([hook_sync, localfile, remotefile])
 
             # The serialized scene is then stored in a file which is then
@@ -126,6 +131,7 @@ class Hooks(QtCore.QThread):
                     'aspect_ratio=%d/%d' % cfg['aspect_ratio'],
                     'clear_color=%08X' % uint_clear_color(cfg['clear_color']),
                     'samples=%d' % cfg['samples']]
+            self.sendingSceneNotif.emit()
             subprocess.check_call(args)
 
         except subprocess.CalledProcessError, e:
