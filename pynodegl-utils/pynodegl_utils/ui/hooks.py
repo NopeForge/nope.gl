@@ -136,3 +136,5 @@ class Hooks(QtCore.QThread):
 
         except subprocess.CalledProcessError, e:
             self.error.emit('Error (%d) while executing %s' % (e.returncode, ' '.join(e.cmd)))
+        except Exception, e:
+            self.error.emit('Error executing hooks: %s' % str(e))
