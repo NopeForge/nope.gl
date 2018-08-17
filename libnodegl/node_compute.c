@@ -129,7 +129,10 @@ static void compute_draw(struct ngl_node *node)
     const struct program *program = s->pipeline.program->priv_data;
     ngli_glUseProgram(gl, program->program_id);
 
-    ngli_pipeline_upload_data(node);
+    int ret = ngli_pipeline_upload_data(node);
+    if (ret < 0) {
+        LOG(ERROR, "pipeline upload data error");
+    }
 
     ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
     ngli_glDispatchCompute(gl, s->nb_group_x, s->nb_group_y, s->nb_group_z);

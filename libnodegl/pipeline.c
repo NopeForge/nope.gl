@@ -680,8 +680,12 @@ int ngli_pipeline_update(struct ngl_node *node, double t)
 
 int ngli_pipeline_upload_data(struct ngl_node *node)
 {
-    update_uniforms(node);
-    update_images_and_samplers(node);
-    update_buffers(node);
+    int ret;
+
+    if ((ret = update_uniforms(node)) < 0 ||
+        (ret = update_images_and_samplers(node)) < 0 ||
+        (ret = update_buffers(node)) < 0)
+        return ret;
+
     return 0;
 }

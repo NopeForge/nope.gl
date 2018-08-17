@@ -348,7 +348,10 @@ static void render_draw(struct ngl_node *node)
 
     update_geometry_uniforms(node);
 
-    ngli_pipeline_upload_data(node);
+    int ret = ngli_pipeline_upload_data(node);
+    if (ret < 0) {
+        LOG(ERROR, "pipeline upload data error");
+    }
 
     const struct geometry *geometry = s->geometry->priv_data;
     const struct buffer *indices_buffer = geometry->indices_buffer->priv_data;
