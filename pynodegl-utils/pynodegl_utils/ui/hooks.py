@@ -29,12 +29,17 @@ import subprocess
 from PyQt5 import QtCore
 
 
-class Hooks(QtCore.QObject):
+class Hooks(QtCore.QThread):
+
+    error = QtCore.pyqtSignal(str)
 
     def __init__(self, get_scene_func, hooksdir):
         super(Hooks, self).__init__()
         self._hooksdir = hooksdir
         self._get_scene_func = get_scene_func
+
+    def __del__(self):
+        self.wait()
 
     def _get_hook(self, name):
         if not self._hooksdir:
@@ -50,7 +55,7 @@ class Hooks(QtCore.QObject):
             return None
         return subprocess.check_output([hook]).rstrip()
 
-    def submit(self, module_name, scene_name):
+    def run(self):
 
         def filename_escape(filename):
             s = ''
@@ -124,6 +129,4 @@ class Hooks(QtCore.QObject):
             subprocess.check_call(args)
 
         except subprocess.CalledProcessError, e:
-            QtWidgets.QMessageBox.critical(self, 'Hook error',
-                                           'Error (%d) while executing %s' % (e.returncode, ' '.join(e.cmd)),
-                                           QtWidgets.QMessageBox.Ok)
+            self.error.emit('Error (%d) while executing %s' % (e.returncode, ' '.join(e.cmd)))

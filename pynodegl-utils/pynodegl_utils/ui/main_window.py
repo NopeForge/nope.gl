@@ -51,6 +51,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         self._module_pkgname = module_pkgname
         self._scripts_mgr = ScriptsManager(module_pkgname)
+        self._hooksdir = hooksdir
 
         medias = None
         if assets_dir:
@@ -70,7 +71,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         get_scene_func = self._get_scene
 
-        self._hooks = Hooks(get_scene_func, hooksdir)
+        self._hooks = None
         self._config = Config(module_pkgname)
 
         # Apply previous geometry (position + dimensions)
@@ -191,7 +192,15 @@ class MainWindow(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot(str, str)
     def _scene_changed_hook(self, module_name, scene_name):
-        self._hooks.submit(module_name, scene_name)
+        if self._hooks:
+            self._hooks.wait()
+        self._hooks = Hooks(self._get_scene, self._hooksdir)
+        self._hooks.error.connect(self._hooks_error)
+        self._hooks.start()
+
+    @QtCore.pyqtSlot(str)
+    def _hooks_error(self, err):
+        QtWidgets.QMessageBox.critical(self, 'Hook error', err, QtWidgets.QMessageBox.Ok)
 
     def _emit_geometry(self):
         geometry = (self.x(), self.y(), self.width(), self.height())
