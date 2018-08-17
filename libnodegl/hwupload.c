@@ -193,8 +193,7 @@ static const char fragment_shader_hwupload_oes_data[] = ""
     "varying vec2 var_tex0_coord;"                                                      "\n"
     "void main(void)"                                                                   "\n"
     "{"                                                                                 "\n"
-    "    vec4 t;"                                                                       "\n"
-    "    t  = texture2D(tex0_external_sampler, var_tex0_coord);"                        "\n"
+    "    vec4 t = texture2D(tex0_external_sampler, var_tex0_coord);"                    "\n"
     "    gl_FragColor = vec4(t.rgb, 1.0);"                                              "\n"
     "}";
 
