@@ -171,7 +171,7 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
     const int linesize       = config->linesize >> 2;
     s->coordinates_matrix[0] = linesize ? config->width / (float)linesize : 1.0;
 
-    ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, 0, frame->data);
+    ngli_texture_update_local_texture(node, linesize, config->height, 0, frame->data);
 
     return 0;
 }
