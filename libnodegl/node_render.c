@@ -147,8 +147,6 @@ static int update_vertex_attribs(struct ngl_node *node)
         const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
         const GLint aid = info->id;
-        if (aid < 0)
-            continue;
         struct buffer *buffer = pair->node->priv_data;
         ngli_glEnableVertexAttribArray(gl, aid);
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
@@ -169,8 +167,6 @@ static int disable_vertex_attribs(struct ngl_node *node)
         const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
         const GLint aid = info->id;
-        if (aid < 0)
-            continue;
         ngli_glDisableVertexAttribArray(gl, aid);
     }
 
@@ -193,6 +189,9 @@ static int pair_node_to_attribinfo(struct render *s, const char *name,
         ngli_hmap_get(program->active_attributes, name);
     if (!active_attribute)
         return 1;
+
+    if (active_attribute->id < 0)
+        return 0;
 
     struct nodeprograminfopair pair = {
         .node = anode,
