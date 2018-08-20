@@ -24,7 +24,7 @@
 #include <string.h>
 #include <sxplayer.h>
 
-#ifdef __ANDROID__
+#if defined(TARGET_ANDROID)
 #include <libavcodec/mediacodec.h>
 #endif
 
@@ -156,7 +156,7 @@ static int media_init(struct ngl_node *node)
         return 0;
     }
 
-#ifdef __ANDROID__
+#if defined(TARGET_ANDROID)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
@@ -274,7 +274,7 @@ static void media_uninit(struct ngl_node *node)
     struct media *s = node->priv_data;
     sxplayer_free(&s->player);
 
-#ifdef __ANDROID__
+#if defined(TARGET_ANDROID)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
