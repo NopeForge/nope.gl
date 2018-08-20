@@ -136,18 +136,11 @@ static const struct {
     {"ngl_normal",   GEOMETRY_OFFSET(normals_buffer)},
 };
 
-static void update_vertex_attrib(struct ngl_node *node, struct buffer *buffer, int location)
+static int update_vertex_attribs(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
-    ngli_glEnableVertexAttribArray(gl, location);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
-    ngli_glVertexAttribPointer(gl, location, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
-}
-
-static int update_vertex_attribs(struct ngl_node *node)
-{
     struct render *s = node->priv_data;
 
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
@@ -157,7 +150,9 @@ static int update_vertex_attribs(struct ngl_node *node)
         if (aid < 0)
             continue;
         struct buffer *buffer = pair->node->priv_data;
-        update_vertex_attrib(node, buffer, aid);
+        ngli_glEnableVertexAttribArray(gl, aid);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
+        ngli_glVertexAttribPointer(gl, aid, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
     }
 
     return 0;
