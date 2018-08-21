@@ -196,11 +196,15 @@ static void camera_draw(struct ngl_node *node)
     if (s->pipe_fd) {
 #if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
         GLint multisampling = 0;
+        GLint sample_buffers = 0;
+        GLint samples = 0;
         GLuint framebuffer_read_id;
         GLuint framebuffer_draw_id;
 
-        ngli_glGetIntegerv(gl, GL_MULTISAMPLE, &multisampling);
+        ngli_glGetIntegerv(gl, GL_SAMPLE_BUFFERS, &sample_buffers);
+        ngli_glGetIntegerv(gl, GL_SAMPLES, &samples);
 
+        multisampling = sample_buffers > 0 && samples > 0;
         if (multisampling) {
             ngli_glGetIntegerv(gl, GL_READ_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_read_id);
             ngli_glGetIntegerv(gl, GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_draw_id);
