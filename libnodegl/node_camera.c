@@ -92,21 +92,17 @@ static int camera_init(struct ngl_node *node)
         struct ngl_ctx *ctx = node->ctx;
         struct glcontext *gl = ctx->glcontext;
 
-        ngli_glGenTextures(gl, 1, &s->texture_id);
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->texture_id);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, GL_RGBA, s->pipe_width, s->pipe_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-
         GLuint framebuffer_id;
         ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
 
         ngli_glGenFramebuffers(gl, 1, &s->framebuffer_id);
         ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
-        ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->texture_id, 0);
+
+        ngli_glGenRenderbuffers(gl, 1, &s->colorbuffer_id);
+        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->colorbuffer_id);
+        ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_RGBA8, s->pipe_width, s->pipe_height);
+        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, s->colorbuffer_id);
         ngli_assert(ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
 
         ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
@@ -241,11 +237,8 @@ static void camera_uninit(struct ngl_node *node)
         struct ngl_ctx *ctx = node->ctx;
         struct glcontext *gl = ctx->glcontext;
 
-        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
-        ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-
         ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
-        ngli_glDeleteTextures(gl, 1, &s->texture_id);
+        ngli_glDeleteRenderbuffers(gl, 1, &s->colorbuffer_id);
 #endif
     }
 }

@@ -151,7 +151,7 @@ struct camera {
     uint8_t *pipe_buf;
 
     GLuint framebuffer_id;
-    GLuint texture_id;
+    GLuint colorbuffer_id;
 };
 
 struct geometry {
