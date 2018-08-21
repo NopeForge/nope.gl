@@ -92,20 +92,28 @@ static int camera_init(struct ngl_node *node)
         struct ngl_ctx *ctx = node->ctx;
         struct glcontext *gl = ctx->glcontext;
 
-        GLuint framebuffer_id;
-        ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
+        int sample_buffers;
+        ngli_glGetIntegerv(gl, GL_SAMPLE_BUFFERS, &sample_buffers);
+        if (sample_buffers > 0) {
+            ngli_glGetIntegerv(gl, GL_SAMPLES, &s->samples);
+        }
 
-        ngli_glGenFramebuffers(gl, 1, &s->framebuffer_id);
-        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
+        if (s->samples > 0) {
+            GLuint framebuffer_id;
+            ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
 
-        ngli_glGenRenderbuffers(gl, 1, &s->colorbuffer_id);
-        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->colorbuffer_id);
-        ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_RGBA8, s->pipe_width, s->pipe_height);
-        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, s->colorbuffer_id);
-        ngli_assert(ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+            ngli_glGenFramebuffers(gl, 1, &s->framebuffer_id);
+            ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
 
-        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
+            ngli_glGenRenderbuffers(gl, 1, &s->colorbuffer_id);
+            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->colorbuffer_id);
+            ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_RGBA8, s->pipe_width, s->pipe_height);
+            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, s->colorbuffer_id);
+            ngli_assert(ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
+
+            ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
+        }
 #endif
     }
 
@@ -191,17 +199,10 @@ static void camera_draw(struct ngl_node *node)
 
     if (s->pipe_fd) {
 #if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
-        GLint multisampling = 0;
-        GLint sample_buffers = 0;
-        GLint samples = 0;
         GLuint framebuffer_read_id;
         GLuint framebuffer_draw_id;
 
-        ngli_glGetIntegerv(gl, GL_SAMPLE_BUFFERS, &sample_buffers);
-        ngli_glGetIntegerv(gl, GL_SAMPLES, &samples);
-
-        multisampling = sample_buffers > 0 && samples > 0;
-        if (multisampling) {
+        if (s->samples > 0) {
             ngli_glGetIntegerv(gl, GL_READ_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_read_id);
             ngli_glGetIntegerv(gl, GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_draw_id);
 
@@ -218,7 +219,7 @@ static void camera_draw(struct ngl_node *node)
         write(s->pipe_fd, s->pipe_buf, s->pipe_width * s->pipe_height * 4);
 
 #if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
-        if (multisampling) {
+        if (s->samples > 0) {
             ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, framebuffer_read_id);
             ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, framebuffer_draw_id);
         }

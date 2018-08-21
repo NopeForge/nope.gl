@@ -150,6 +150,7 @@ struct camera {
     int hflip;
     uint8_t *pipe_buf;
 
+    int samples;
     GLuint framebuffer_id;
     GLuint colorbuffer_id;
 };
