@@ -373,6 +373,8 @@ Parameter | Ctor. | Type | Description | Default
 `uniforms` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) | uniforms made accessible to the `program` | 
 `buffers` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer)) | buffers made accessible to the `program` | 
 `attributes` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | extra vertex attributes made accessible to the `program` | 
+`instance_attributes` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | per instance extra vertex attributes made accessible to the `program` | 
+`nb_instances` |  | [`int`](#parameter-types) | number of instances to draw | `0`
 
 
 **Source**: [node_render.c](/libnodegl/node_render.c)

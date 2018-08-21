@@ -269,6 +269,12 @@ static inline void ngli_glDrawElements(const struct glcontext *gl, GLenum mode, 
     check_error_code(gl, "glDrawElements");
 }
 
+static inline void ngli_glDrawElementsInstanced(const struct glcontext *gl, GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount)
+{
+    gl->funcs.DrawElementsInstanced(mode, count, type, indices, instancecount);
+    check_error_code(gl, "glDrawElementsInstanced");
+}
+
 static inline void ngli_glEnable(const struct glcontext *gl, GLenum cap)
 {
     gl->funcs.Enable(cap);
@@ -752,6 +758,12 @@ static inline void ngli_glUseProgram(const struct glcontext *gl, GLuint program)
 {
     gl->funcs.UseProgram(program);
     check_error_code(gl, "glUseProgram");
+}
+
+static inline void ngli_glVertexAttribDivisor(const struct glcontext *gl, GLuint index, GLuint divisor)
+{
+    gl->funcs.VertexAttribDivisor(index, divisor);
+    check_error_code(gl, "glVertexAttribDivisor");
 }
 
 static inline void ngli_glVertexAttribPointer(const struct glcontext *gl, GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void * pointer)

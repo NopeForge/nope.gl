@@ -98,6 +98,11 @@ static const struct node_param render_params[] = {
     {"attributes", PARAM_TYPE_NODEDICT, OFFSET(attributes),
                  .node_types=ATTRIBUTES_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("extra vertex attributes made accessible to the `program`")},
+    {"instance_attributes", PARAM_TYPE_NODEDICT, OFFSET(instance_attributes),
+                 .node_types=ATTRIBUTES_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("per instance extra vertex attributes made accessible to the `program`")},
+    {"nb_instances", PARAM_TYPE_INT, OFFSET(nb_instances),
+                 .desc=NGLI_DOCSTRING("number of instances to draw")},
     {NULL}
 };
 
@@ -151,6 +156,9 @@ static int update_vertex_attribs(struct ngl_node *node)
         ngli_glEnableVertexAttribArray(gl, aid);
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer_id);
         ngli_glVertexAttribPointer(gl, aid, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+
+        if (i >= s->first_instance_attribute_index)
+            ngli_glVertexAttribDivisor(gl, aid, 1);
     }
 
     return 0;
@@ -202,6 +210,58 @@ static int pair_node_to_attribinfo(struct render *s, const char *name,
     return 0;
 }
 
+static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attributes,
+                                    int per_instance)
+{
+    if (!attributes)
+        return 0;
+
+    struct render *s = node->priv_data;
+
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(attributes, entry))) {
+        struct ngl_node *anode = entry->data;
+        struct buffer *buffer = anode->priv_data;
+        buffer->generate_gl_buffer = 1;
+
+        int ret = ngli_node_init(anode);
+        if (ret < 0)
+            return ret;
+        if (per_instance) {
+            if (buffer->count != s->nb_instances) {
+                LOG(ERROR,
+                    "attribute buffer %s count (%d) does not match instance count (%d)",
+                    entry->key,
+                    buffer->count,
+                    s->nb_instances);
+                return -1;
+            }
+        } else {
+            struct geometry *geometry = s->geometry->priv_data;
+            struct buffer *vertices = geometry->vertices_buffer->priv_data;
+            if (buffer->count != vertices->count) {
+                LOG(ERROR,
+                    "attribute buffer %s count (%d) does not match vertices count (%d)",
+                    entry->key,
+                    buffer->count,
+                    vertices->count);
+                return -1;
+            }
+        }
+
+        ret = pair_node_to_attribinfo(s, entry->key, anode);
+        if (ret < 0)
+            return ret;
+
+        if (ret == 1) {
+            const struct ngl_node *pnode = s->pipeline.program;
+            LOG(WARNING, "attribute %s attached to %s not found in %s",
+                entry->key, node->name, pnode->name);
+        }
+    }
+    return 0;
+}
+
 static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -229,6 +289,17 @@ static int render_init(struct ngl_node *node)
     struct program *program = pnode->priv_data;
     struct hmap *uniforms = program->active_uniforms;
 
+    /* Instancing checks */
+    if (s->nb_instances && !(gl->features & NGLI_FEATURE_DRAW_INSTANCED)) {
+        LOG(ERROR, "context does not support instanced draws");
+        return -1;
+    }
+
+    if (s->instance_attributes && !(gl->features & NGLI_FEATURE_INSTANCED_ARRAY)) {
+        LOG(ERROR, "context does not support instanced arrays");
+        return -1;
+    }
+
     /* Builtin uniforms */
     s->modelview_matrix_location_id  = get_uniform_location(uniforms, "ngl_modelview_matrix");
     s->projection_matrix_location_id = get_uniform_location(uniforms, "ngl_projection_matrix");
@@ -236,7 +307,8 @@ static int render_init(struct ngl_node *node)
 
     /* User and builtin attribute pairs */
     const int max_nb_attributes = NGLI_ARRAY_NB(attrib_const_map)
-                                + (s->attributes ? ngli_hmap_count(s->attributes) : 0);
+                                + (s->attributes ? ngli_hmap_count(s->attributes) : 0)
+                                + (s->instance_attributes ? ngli_hmap_count(s->instance_attributes) : 0);
     s->attribute_pairs = calloc(max_nb_attributes, sizeof(*s->attribute_pairs));
     if (!s->attribute_pairs)
         return -1;
@@ -257,36 +329,15 @@ static int render_init(struct ngl_node *node)
     }
 
     /* User vertex attributes */
-    if (s->attributes) {
-        struct buffer *vertices = geometry->vertices_buffer->priv_data;
+    ret = pair_nodes_to_attribinfo(node, s->attributes, 0);
+    if (ret < 0)
+        return ret;
 
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->attributes, entry))) {
-            struct ngl_node *anode = entry->data;
-            struct buffer *buffer = anode->priv_data;
-            buffer->generate_gl_buffer = 1;
-
-            ret = ngli_node_init(anode);
-            if (ret < 0)
-                return ret;
-            if (buffer->count != vertices->count) {
-                LOG(ERROR,
-                    "attribute buffer %s count (%d) does not match vertices count (%d)",
-                    entry->key,
-                    buffer->count,
-                    vertices->count);
-                return -1;
-            }
-
-            ret = pair_node_to_attribinfo(s, entry->key, anode);
-            if (ret < 0)
-                return ret;
-
-            if (ret == 1)
-                LOG(WARNING, "attribute %s attached to %s not found in %s",
-                    entry->key, node->name, pnode->name);
-        }
-    }
+    /* User per instance vertex attributes */
+    s->first_instance_attribute_index = s->nb_attribute_pairs;
+    ret = pair_nodes_to_attribinfo(node, s->instance_attributes, 1);
+    if (ret < 0)
+        return ret;
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glGenVertexArrays(gl, 1, &s->vao_id);
@@ -354,7 +405,11 @@ static void render_draw(struct ngl_node *node)
     ngli_format_get_gl_format_type(gl, indices_buffer->data_format, NULL, NULL, &indices_type);
 
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_buffer->buffer_id);
-    ngli_glDrawElements(gl, geometry->topology, indices_buffer->count, indices_type, 0);
+    if (s->nb_instances > 0) {
+        ngli_glDrawElementsInstanced(gl, geometry->topology, indices_buffer->count, indices_type, 0, s->nb_instances);
+    } else {
+        ngli_glDrawElements(gl, geometry->topology, indices_buffer->count, indices_type, 0);
+    }
 
     if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)) {
         disable_vertex_attribs(node);

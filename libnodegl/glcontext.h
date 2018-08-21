@@ -37,6 +37,8 @@
 #define NGLI_FEATURE_PACKED_DEPTH_STENCIL         (1 << 9)
 #define NGLI_FEATURE_TIMER_QUERY                  (1 << 10)
 #define NGLI_FEATURE_EXT_DISJOINT_TIMER_QUERY     (1 << 11)
+#define NGLI_FEATURE_DRAW_INSTANCED               (1 << 12)
+#define NGLI_FEATURE_INSTANCED_ARRAY              (1 << 13)
 
 #define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
                                          NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \

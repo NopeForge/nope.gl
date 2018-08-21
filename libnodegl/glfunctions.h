@@ -55,6 +55,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*DisableVertexAttribArray)(GLuint index);
     NGLI_GL_APIENTRY void (*DispatchCompute)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
     NGLI_GL_APIENTRY void (*DrawElements)(GLenum mode, GLsizei count, GLenum type, const void * indices);
+    NGLI_GL_APIENTRY void (*DrawElementsInstanced)(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
     NGLI_GL_APIENTRY void (*Enable)(GLenum cap);
     NGLI_GL_APIENTRY void (*EnableVertexAttribArray)(GLuint index);
     NGLI_GL_APIENTRY void (*EndQuery)(GLenum target);
@@ -135,6 +136,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*UniformMatrix3fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
     NGLI_GL_APIENTRY void (*UniformMatrix4fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
     NGLI_GL_APIENTRY void (*UseProgram)(GLuint program);
+    NGLI_GL_APIENTRY void (*VertexAttribDivisor)(GLuint index, GLuint divisor);
     NGLI_GL_APIENTRY void (*VertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void * pointer);
     NGLI_GL_APIENTRY void (*Viewport)(GLint x, GLint y, GLsizei width, GLsizei height);
 };

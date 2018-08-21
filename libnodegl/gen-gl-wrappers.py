@@ -73,6 +73,10 @@ cmds_optional = [
     'glGenQueriesEXT',
     'glDeleteQueriesEXT',
     'glGetQueryObjectui64vEXT',
+
+    # Instancing
+    'glDrawElementsInstanced',
+    'glVertexAttribDivisor',
 ]
 
 cmds = [

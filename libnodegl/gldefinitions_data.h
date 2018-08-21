@@ -56,6 +56,7 @@ static const struct gldefinition {
     {"glDisableVertexAttribArray", offsetof(struct glfunctions, DisableVertexAttribArray), M},
     {"glDispatchCompute", offsetof(struct glfunctions, DispatchCompute), 0},
     {"glDrawElements", offsetof(struct glfunctions, DrawElements), M},
+    {"glDrawElementsInstanced", offsetof(struct glfunctions, DrawElementsInstanced), 0},
     {"glEnable", offsetof(struct glfunctions, Enable), M},
     {"glEnableVertexAttribArray", offsetof(struct glfunctions, EnableVertexAttribArray), M},
     {"glEndQuery", offsetof(struct glfunctions, EndQuery), 0},
@@ -136,6 +137,7 @@ static const struct gldefinition {
     {"glUniformMatrix3fv", offsetof(struct glfunctions, UniformMatrix3fv), M},
     {"glUniformMatrix4fv", offsetof(struct glfunctions, UniformMatrix4fv), M},
     {"glUseProgram", offsetof(struct glfunctions, UseProgram), M},
+    {"glVertexAttribDivisor", offsetof(struct glfunctions, VertexAttribDivisor), 0},
     {"glVertexAttribPointer", offsetof(struct glfunctions, VertexAttribPointer), M},
     {"glViewport", offsetof(struct glfunctions, Viewport), M},
 };

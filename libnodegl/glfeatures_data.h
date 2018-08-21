@@ -133,5 +133,20 @@ static const struct glfeature {
                                            OFFSET(DeleteQueriesEXT),
                                            OFFSET(GetQueryObjectui64vEXT),
                                            -1}
+    }, {
+        .name           = "draw_instanced",
+        .flag           = NGLI_FEATURE_DRAW_INSTANCED,
+        .version        = 310,
+        .es_version     = 300,
+        .funcs_offsets  = (const size_t[]){OFFSET(DrawElementsInstanced),
+                                           -1}
+
+    }, {
+        .name           = "instanced_array",
+        .flag           = NGLI_FEATURE_INSTANCED_ARRAY,
+        .version        = 330,
+        .es_version     = 300,
+        .funcs_offsets  = (const size_t[]){OFFSET(VertexAttribDivisor),
+                                           -1}
     }
 };

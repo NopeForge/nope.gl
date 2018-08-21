@@ -266,6 +266,8 @@
         - [uniforms, NodeDict]
         - [buffers, NodeDict]
         - [attributes, NodeDict]
+        - [instance_attributes, NodeDict]
+        - [nb_instances, int]
 
 - RenderToTexture:
     constructors:
