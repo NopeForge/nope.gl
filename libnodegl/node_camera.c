@@ -240,7 +240,7 @@ static void camera_uninit(struct ngl_node *node)
         ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
         ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
 
-        ngli_glDeleteRenderbuffers(gl, 1, &s->framebuffer_id);
+        ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
         ngli_glDeleteTextures(gl, 1, &s->texture_id);
 #endif
     }
