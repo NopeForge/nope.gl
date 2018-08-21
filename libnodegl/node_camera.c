@@ -71,6 +71,9 @@ static const struct node_param camera_params[] = {
 
 static int camera_init(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
     struct camera *s = node->priv_data;
 
     ngli_vec3_norm(s->up, s->up);
@@ -88,10 +91,6 @@ static int camera_init(struct ngl_node *node)
         if (!s->pipe_buf)
             return -1;
 
-#if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
-        struct ngl_ctx *ctx = node->ctx;
-        struct glcontext *gl = ctx->glcontext;
-
         int sample_buffers;
         ngli_glGetIntegerv(gl, GL_SAMPLE_BUFFERS, &sample_buffers);
         if (sample_buffers > 0) {
@@ -99,6 +98,11 @@ static int camera_init(struct ngl_node *node)
         }
 
         if (s->samples > 0) {
+            if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT)) {
+                LOG(ERROR, "could not read pixels from anti-aliased framebuffer as framebuffer blitting is not supported");
+                return -1;
+            }
+
             GLuint framebuffer_id;
             ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
 
@@ -114,7 +118,6 @@ static int camera_init(struct ngl_node *node)
 
             ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
         }
-#endif
     }
 
     return 0;
@@ -198,7 +201,6 @@ static void camera_draw(struct ngl_node *node)
     ngli_node_draw(s->child);
 
     if (s->pipe_fd) {
-#if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
         GLuint framebuffer_read_id;
         GLuint framebuffer_draw_id;
 
@@ -212,35 +214,28 @@ static void camera_draw(struct ngl_node *node)
 
             ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->framebuffer_id);
         }
-#endif
 
         LOG(DEBUG, "write %dx%d buffer to FD=%d", s->pipe_width, s->pipe_height, s->pipe_fd);
         ngli_glReadPixels(gl, 0, 0, s->pipe_width, s->pipe_height, GL_RGBA, GL_UNSIGNED_BYTE, s->pipe_buf);
         write(s->pipe_fd, s->pipe_buf, s->pipe_width * s->pipe_height * 4);
 
-#if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
         if (s->samples > 0) {
             ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, framebuffer_read_id);
             ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, framebuffer_draw_id);
         }
-#endif
     }
-
 }
 
 static void camera_uninit(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
     struct camera *s = node->priv_data;
     if (s->pipe_fd) {
         free(s->pipe_buf);
-
-#if defined(TARGET_DARWIN) || defined(TARGET_LINUX)
-        struct ngl_ctx *ctx = node->ctx;
-        struct glcontext *gl = ctx->glcontext;
-
         ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
         ngli_glDeleteRenderbuffers(gl, 1, &s->colorbuffer_id);
-#endif
     }
 }
 
