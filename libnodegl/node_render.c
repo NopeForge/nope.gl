@@ -365,6 +365,14 @@ static int render_update(struct ngl_node *node, double t)
     if (ret < 0)
         return ret;
 
+    for (int i = 0; i < s->nb_attribute_pairs; i++) {
+        struct nodeprograminfopair *pair = &s->attribute_pairs[i];
+        struct ngl_node *bnode = (struct ngl_node *)pair->node;
+        int ret = ngli_node_update(bnode, t);
+        if (ret < 0)
+            return ret;
+    }
+
     return ngli_pipeline_update(node, t);
 }
 
