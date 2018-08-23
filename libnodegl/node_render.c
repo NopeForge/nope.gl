@@ -60,6 +60,7 @@
                                             NGL_NODE_BUFFERVEC2,    \
                                             NGL_NODE_BUFFERVEC3,    \
                                             NGL_NODE_BUFFERVEC4,    \
+                                            NGL_NODE_BUFFERMAT4,    \
                                             -1}
 
 #define GEOMETRY_TYPES_LIST (const int[]){NGL_NODE_CIRCLE,          \
@@ -131,16 +132,27 @@ static void update_vertex_attribs_from_pairs(struct glcontext *gl,
     const struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
     for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
         const struct nodeprograminfopair *pair = &pairs[i];
+        const struct ngl_node *node = pair->node;
         const struct attributeprograminfo *info = pair->program_info;
         const GLint index = info->location;
         struct buffer_priv *buffer = pair->node->priv_data;
 
         ngli_glEnableVertexAttribArray(gl, index);
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer.id);
-        ngli_glVertexAttribPointer(gl, index, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
 
-        if (is_instance_attrib)
-            ngli_glVertexAttribDivisor(gl, index, 1);
+        /* TODO: check that attribute type is mat4 */
+        const int nb_attribs = node->class->id == NGL_NODE_BUFFERMAT4 ? 4 : 1;
+        const int data_comp = buffer->data_comp / nb_attribs;
+        const uintptr_t data_stride = buffer->data_stride / nb_attribs;
+        for (int j = 0; j < nb_attribs; j++) {
+            ngli_glEnableVertexAttribArray(gl, index + j);
+            ngli_glVertexAttribPointer(gl, index + j, data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, (void *)(j * data_stride));
+        }
+
+        if (is_instance_attrib) {
+            for (int j = 0; j < nb_attribs; j++)
+                ngli_glVertexAttribDivisor(gl, index + j, 1);
+        }
     }
 }
 
@@ -162,9 +174,13 @@ static void disable_vertex_attribs_from_pairs(struct glcontext *gl,
     for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
         const struct nodeprograminfopair *pair = &pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
-        ngli_glDisableVertexAttribArray(gl, info->location);
-        if (gl->features & NGLI_FEATURE_INSTANCED_ARRAY)
-            ngli_glVertexAttribDivisor(gl, info->location, 0);
+        const struct ngl_node *node = pair->node;
+        const int nb_attribs = node->class->id == NGL_NODE_BUFFERMAT4 ? 4 : 1;
+        for (int i = 0; i < nb_attribs; i++) {
+            ngli_glDisableVertexAttribArray(gl, info->location + i);
+            if (gl->features & NGLI_FEATURE_INSTANCED_ARRAY)
+                ngli_glVertexAttribDivisor(gl, info->location + i, 0);
+        }
     }
 }
 
