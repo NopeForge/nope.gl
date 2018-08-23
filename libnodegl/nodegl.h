@@ -132,6 +132,7 @@ struct ngl_node;
 #define NGL_NODE_BUFFERVEC2             NGLI_FOURCC('B','f','v','2')
 #define NGL_NODE_BUFFERVEC3             NGLI_FOURCC('B','f','v','3')
 #define NGL_NODE_BUFFERVEC4             NGLI_FOURCC('B','f','v','4')
+#define NGL_NODE_BUFFERMAT4             NGLI_FOURCC('B','f','m','4')
 #define NGL_NODE_CAMERA                 NGLI_FOURCC('C','m','r','a')
 #define NGL_NODE_CIRCLE                 NGLI_FOURCC('C','r','c','l')
 #define NGL_NODE_COMPUTE                NGLI_FOURCC('C','p','t',' ')

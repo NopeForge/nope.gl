@@ -125,7 +125,8 @@ enum {
     NGL_NODE_BUFFERFLOAT,           \
     NGL_NODE_BUFFERVEC2,            \
     NGL_NODE_BUFFERVEC3,            \
-    NGL_NODE_BUFFERVEC4
+    NGL_NODE_BUFFERVEC4,            \
+    NGL_NODE_BUFFERMAT4
 
 static const struct {
     const char *label;

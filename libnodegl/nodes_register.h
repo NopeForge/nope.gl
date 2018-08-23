@@ -66,6 +66,7 @@
     action(NGL_NODE_BUFFERVEC2,             ngli_buffervec2_class)              \
     action(NGL_NODE_BUFFERVEC3,             ngli_buffervec3_class)              \
     action(NGL_NODE_BUFFERVEC4,             ngli_buffervec4_class)              \
+    action(NGL_NODE_BUFFERMAT4,             ngli_buffermat4_class)              \
     action(NGL_NODE_CAMERA,                 ngli_camera_class)                  \
     action(NGL_NODE_CIRCLE,                 ngli_circle_class)                  \
     action(NGL_NODE_COMPUTE,                ngli_compute_class)                 \

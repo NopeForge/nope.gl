@@ -161,6 +161,8 @@
 
 - BufferVec4: _Buffer
 
+- BufferMat4: _Buffer
+
 - Camera:
     constructors:
         - [child, Node]

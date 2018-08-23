@@ -199,6 +199,7 @@ List of `Buffer*` nodes:
 - `BufferVec2`
 - `BufferVec3`
 - `BufferVec4`
+- `BufferMat4`
 
 ## Camera
 
