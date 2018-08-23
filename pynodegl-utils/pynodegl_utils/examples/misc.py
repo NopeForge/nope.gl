@@ -258,9 +258,11 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
 def particules(cfg, particules=32):
     random.seed(0)
 
-    compute_data_version = '310 es' if cfg.backend == 'gles' else '430'
-    compute_data = '#version %s\n' % compute_data_version
-    compute_data += get_comp('particules')
+    shader_version = '310 es' if cfg.backend == 'gles' else '430'
+    shader_header = '#version %s\n' % shader_version
+    compute_shader = shader_header + get_comp('particules')
+    vertex_shader = shader_header + get_vert('particules')
+    fragment_shader = shader_header + get_frag('particules')
 
     cfg.duration = 6
 
@@ -297,7 +299,7 @@ def particules(cfg, particules=32):
     utime = UniformFloat(anim=AnimatedFloat(animkf))
     uduration = UniformFloat(cfg.duration)
 
-    cp = ComputeProgram(compute_data)
+    cp = ComputeProgram(compute_shader)
 
     c = Compute(x, particules, 1, cp)
     c.update_uniforms(
@@ -310,12 +312,26 @@ def particules(cfg, particules=32):
         opositions_buffer=opositions,
     )
 
-    gm = Geometry(opositions)
-    gm.set_topology('points')
+    quad_width = 0.01
+    quad = Quad(
+        corner=(-quad_width/2, -quad_width/2, 0),
+        width=(quad_width, 0, 0),
+        height=(0, quad_width, 0)
+    )
+    p = Program(
+        vertex=vertex_shader,
+        fragment=fragment_shader,
+    )
+    r = Render(quad, p, nb_instances=particules)
+    r.update_uniforms(color=UniformVec4(value=(0, .6, .8, .9)))
+    r.update_buffers(positions_buffer=opositions)
 
-    p = Program(fragment=get_frag('color'))
-    r = Render(gm, p)
-    r.update_uniforms(color=UniformVec4(value=(0, .6, .8, 1)))
+    r = GraphicConfig(r,
+                      blend=True,
+                      blend_src_factor='src_alpha',
+                      blend_dst_factor='one_minus_src_alpha',
+                      blend_src_factor_a='zero',
+                      blend_dst_factor_a='one')
 
     g = Group()
     g.add_children(c, r)
