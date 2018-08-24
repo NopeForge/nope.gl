@@ -419,6 +419,12 @@ static inline void ngli_glGetProgramInfoLog(const struct glcontext *gl, GLuint p
     check_error_code(gl, "glGetProgramInfoLog");
 }
 
+static inline void ngli_glGetProgramInterfaceiv(const struct glcontext *gl, GLuint program, GLenum programInterface, GLenum pname, GLint * params)
+{
+    gl->funcs.GetProgramInterfaceiv(program, programInterface, pname, params);
+    check_error_code(gl, "glGetProgramInterfaceiv");
+}
+
 static inline GLuint ngli_glGetProgramResourceIndex(const struct glcontext *gl, GLuint program, GLenum programInterface, const GLchar * name)
 {
     GLuint ret = gl->funcs.GetProgramResourceIndex(program, programInterface, name);
@@ -431,6 +437,12 @@ static inline GLint ngli_glGetProgramResourceLocation(const struct glcontext *gl
     GLint ret = gl->funcs.GetProgramResourceLocation(program, programInterface, name);
     check_error_code(gl, "glGetProgramResourceLocation");
     return ret;
+}
+
+static inline void ngli_glGetProgramResourceName(const struct glcontext *gl, GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei * length, GLchar * name)
+{
+    gl->funcs.GetProgramResourceName(program, programInterface, index, bufSize, length, name);
+    check_error_code(gl, "glGetProgramResourceName");
 }
 
 static inline void ngli_glGetProgramResourceiv(const struct glcontext *gl, GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum * props, GLsizei bufSize, GLsizei * length, GLint * params)

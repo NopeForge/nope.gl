@@ -242,6 +242,7 @@ struct program {
     GLuint program_id;
     struct hmap *active_uniforms;
     struct hmap *active_attributes;
+    struct hmap *active_buffer_blocks;
 };
 
 enum hwupload_fmt {
@@ -323,6 +324,10 @@ struct attributeprograminfo {
     GLenum type;
 };
 
+struct bufferprograminfo {
+    GLint binding;
+};
+
 #define NGLI_SAMPLING_MODE_NONE         0
 #define NGLI_SAMPLING_MODE_2D           1
 #define NGLI_SAMPLING_MODE_EXTERNAL_OES 2
@@ -368,7 +373,8 @@ struct pipeline {
     int nb_uniform_pairs;
 
     struct hmap *buffers;
-    GLint *buffer_ids;
+    struct nodeprograminfopair *buffer_pairs; // (buffer, uniformprograminfo)
+    int nb_buffer_pairs;
 };
 
 struct render {

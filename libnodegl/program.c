@@ -148,3 +148,45 @@ struct hmap *ngli_program_probe_attributes(const char *node_name, struct glconte
 
     return amap;
 }
+
+struct hmap *ngli_program_probe_buffer_blocks(const char *node_name, struct glcontext *gl, GLuint pid)
+{
+    struct hmap *bmap = ngli_hmap_create();
+    if (!bmap)
+        return NULL;
+    ngli_hmap_set_free(bmap, free_pinfo, NULL);
+
+    if (!((gl->features & NGLI_FEATURE_PROGRAM_INTERFACE_QUERY) &&
+          (gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT)))
+        return bmap;
+
+    int nb_active_buffers;
+    ngli_glGetProgramInterfaceiv(gl, pid, GL_SHADER_STORAGE_BLOCK,
+                                 GL_ACTIVE_RESOURCES, &nb_active_buffers);
+    for (int i = 0; i < nb_active_buffers; i++) {
+        char name[MAX_ID_LEN] = {0};
+        struct bufferprograminfo *info = malloc(sizeof(*info));
+        if (!info) {
+            ngli_hmap_freep(&bmap);
+            return NULL;
+        }
+
+        ngli_glGetProgramResourceName(gl, pid, GL_SHADER_STORAGE_BLOCK, i, sizeof(name), NULL, name);
+        GLuint block_index = ngli_glGetProgramResourceIndex(gl, pid, GL_SHADER_STORAGE_BLOCK, name);
+
+        static const GLenum props[] = {GL_BUFFER_BINDING};
+        ngli_glGetProgramResourceiv(gl, pid, GL_SHADER_STORAGE_BLOCK, block_index,
+                                    NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
+
+        LOG(DEBUG, "%s.ssbo[%d/%d]: %s binding:%d",
+            node_name, i + 1, nb_active_buffers, name, info->binding);
+
+        int ret = ngli_hmap_set(bmap, name, info);
+        if (ret < 0) {
+            ngli_hmap_freep(&bmap);
+            return NULL;
+        }
+    }
+
+    return bmap;
+}

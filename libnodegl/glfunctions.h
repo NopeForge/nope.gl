@@ -80,8 +80,10 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*GetIntegerv)(GLenum pname, GLint * data);
     NGLI_GL_APIENTRY void (*GetInternalformativ)(GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint * params);
     NGLI_GL_APIENTRY void (*GetProgramInfoLog)(GLuint program, GLsizei bufSize, GLsizei * length, GLchar * infoLog);
+    NGLI_GL_APIENTRY void (*GetProgramInterfaceiv)(GLuint program, GLenum programInterface, GLenum pname, GLint * params);
     NGLI_GL_APIENTRY GLuint (*GetProgramResourceIndex)(GLuint program, GLenum programInterface, const GLchar * name);
     NGLI_GL_APIENTRY GLint (*GetProgramResourceLocation)(GLuint program, GLenum programInterface, const GLchar * name);
+    NGLI_GL_APIENTRY void (*GetProgramResourceName)(GLuint program, GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei * length, GLchar * name);
     NGLI_GL_APIENTRY void (*GetProgramResourceiv)(GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum * props, GLsizei bufSize, GLsizei * length, GLint * params);
     NGLI_GL_APIENTRY void (*GetProgramiv)(GLuint program, GLenum pname, GLint * params);
     NGLI_GL_APIENTRY void (*GetQueryObjectui64v)(GLuint id, GLenum pname, GLuint64 * params);

@@ -79,6 +79,8 @@ static const struct glfeature {
         .funcs_offsets  = (const size_t[]){OFFSET(GetProgramResourceIndex),
                                            OFFSET(GetProgramResourceiv),
                                            OFFSET(GetProgramResourceLocation),
+                                           OFFSET(GetProgramInterfaceiv),
+                                           OFFSET(GetProgramResourceName),
                                            -1}
     }, {
         .name           = "shader_image_load_store",

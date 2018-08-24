@@ -78,7 +78,8 @@ static int computeprogram_init(struct ngl_node *node)
         return -1;
 
     s->active_uniforms = ngli_program_probe_uniforms(node->name, gl, s->program_id);
-    if (!s->active_uniforms)
+    s->active_buffer_blocks = ngli_program_probe_buffer_blocks(node->name, gl, s->program_id);
+    if (!s->active_uniforms || !s->active_buffer_blocks)
         return -1;
 
     return 0;
@@ -91,6 +92,7 @@ static void computeprogram_uninit(struct ngl_node *node)
     struct program *s = node->priv_data;
 
     ngli_hmap_freep(&s->active_uniforms);
+    ngli_hmap_freep(&s->active_buffer_blocks);
     ngli_glDeleteProgram(gl, s->program_id);
 }
 

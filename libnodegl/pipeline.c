@@ -408,16 +408,12 @@ static int update_buffers(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct pipeline *s = get_pipeline(node);
 
-    if (s->buffers &&
-        gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
-        int i = 0;
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->buffers, entry))) {
-            const struct ngl_node *bnode = entry->data;
-            const struct buffer *buffer = bnode->priv_data;
-            ngli_glBindBufferBase(gl, GL_SHADER_STORAGE_BUFFER, s->buffer_ids[i], buffer->buffer_id);
-            i++;
-        }
+    for (int i = 0; i < s->nb_buffer_pairs; i++) {
+        const struct nodeprograminfopair *pair = &s->buffer_pairs[i];
+        const struct ngl_node *bnode = pair->node;
+        const struct buffer *buffer = bnode->priv_data;
+        const struct bufferprograminfo *info = pair->program_info;
+        ngli_glBindBufferBase(gl, GL_SHADER_STORAGE_BUFFER, info->binding, buffer->buffer_id);
     }
 
     return 0;
@@ -586,45 +582,33 @@ int ngli_pipeline_init(struct ngl_node *node)
     int nb_buffers = s->buffers ? ngli_hmap_count(s->buffers) : 0;
     if (nb_buffers > 0 &&
         gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
-        s->buffer_ids = calloc(nb_buffers, sizeof(*s->buffer_ids));
-        if (!s->buffer_ids)
+        s->buffer_pairs = calloc(nb_buffers, sizeof(*s->buffer_pairs));
+        if (!s->buffer_pairs)
             return -1;
 
-        int i = 0;
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->buffers, entry))) {
-            struct ngl_node *unode = entry->data;
-            struct buffer *buffer = unode->priv_data;
-            buffer->generate_gl_buffer = 1;
+            const struct bufferprograminfo *info =
+                ngli_hmap_get(program->active_buffer_blocks, entry->key);
+            if (!info) {
+                LOG(WARNING, "buffer %s attached to %s not found in %s",
+                    entry->key, node->name, s->program->name);
+                continue;
+            }
 
-            ret = ngli_node_init(unode);
+            struct ngl_node *bnode = entry->data;
+            struct buffer *buffer = bnode->priv_data;
+            buffer->generate_gl_buffer = 1;
+            ret = ngli_node_init(bnode);
             if (ret < 0)
                 return ret;
 
-            static const GLenum props[] = {GL_BUFFER_BINDING};
-            GLsizei nb_props = 1;
-            GLint params = 0;
-            GLsizei nb_params = 1;
-            GLsizei nb_params_ret = 0;
-
-            GLuint index = ngli_glGetProgramResourceIndex(gl,
-                                                          program->program_id,
-                                                          GL_SHADER_STORAGE_BLOCK,
-                                                          entry->key);
-
-            if (index != GL_INVALID_INDEX)
-                ngli_glGetProgramResourceiv(gl,
-                                            program->program_id,
-                                            GL_SHADER_STORAGE_BLOCK,
-                                            index,
-                                            nb_props,
-                                            props,
-                                            nb_params,
-                                            &nb_params_ret,
-                                            &params);
-
-            s->buffer_ids[i] = params;
-            i++;
+            struct nodeprograminfopair pair = {
+                .node = bnode,
+                .program_info = (void *)info,
+            };
+            snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
+            s->buffer_pairs[s->nb_buffer_pairs++] = pair;
         }
     }
 
@@ -638,7 +622,7 @@ void ngli_pipeline_uninit(struct ngl_node *node)
     free(s->textureprograminfos);
     free(s->texture_pairs);
     free(s->uniform_pairs);
-    free(s->buffer_ids);
+    free(s->buffer_pairs);
 }
 
 int ngli_pipeline_update(struct ngl_node *node, double t)

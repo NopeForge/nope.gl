@@ -53,6 +53,8 @@ cmds_optional = [
     'glGetProgramResourceLocation',
     'glGetProgramResourceIndex',
     'glGetProgramResourceiv',
+    'glGetProgramInterfaceiv',
+    'glGetProgramResourceName',
 
     # Polygon
     'glPolygonMode',
