@@ -150,5 +150,16 @@ static const struct glfeature {
         .es_version     = 300,
         .funcs_offsets  = (const size_t[]){OFFSET(VertexAttribDivisor),
                                            -1}
+    }, {
+        .name           = "uniform_buffer_object",
+        .flag           = NGLI_FEATURE_UNIFORM_BUFFER_OBJECT,
+        .version        = 310,
+        .es_version     = 300,
+        .extensions     = (const char*[]){"GL_ARB_uniform_buffer_object", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(GetUniformBlockIndex),
+                                           OFFSET(UniformBlockBinding),
+                                           OFFSET(GetActiveUniformBlockName),
+                                           OFFSET(GetActiveUniformBlockiv),
+                                           -1}
     }
 };

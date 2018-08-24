@@ -156,10 +156,41 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_name, struct glco
         return NULL;
     ngli_hmap_set_free(bmap, free_pinfo, NULL);
 
+    if (!(gl->features & NGLI_FEATURE_UNIFORM_BUFFER_OBJECT))
+        return bmap;
+
+    /* Uniform Buffers */
+    int nb_active_uniform_buffers;
+    ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
+    for (int i = 0; i < nb_active_uniform_buffers; i++) {
+        char name[MAX_ID_LEN] = {0};
+        struct bufferprograminfo *info = malloc(sizeof(*info));
+        if (!info) {
+            ngli_hmap_freep(&bmap);
+            return NULL;
+        }
+        info->type = GL_UNIFORM_BUFFER;
+
+        ngli_glGetActiveUniformBlockName(gl, pid, i, sizeof(name), NULL, name);
+        GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
+        ngli_glGetActiveUniformBlockiv(gl, pid, block_index, GL_UNIFORM_BLOCK_BINDING, &info->binding);
+        ngli_glUniformBlockBinding(gl, pid, block_index, info->binding);
+
+        LOG(DEBUG, "%s.ubo[%d/%d]: %s binding:%d",
+            node_name, i + 1, nb_active_uniform_buffers, name, info->binding);
+
+        int ret = ngli_hmap_set(bmap, name, info);
+        if (ret < 0) {
+            ngli_hmap_freep(&bmap);
+            return NULL;
+        }
+    }
+
     if (!((gl->features & NGLI_FEATURE_PROGRAM_INTERFACE_QUERY) &&
           (gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT)))
         return bmap;
 
+    /* Shader Storage Buffers */
     int nb_active_buffers;
     ngli_glGetProgramInterfaceiv(gl, pid, GL_SHADER_STORAGE_BLOCK,
                                  GL_ACTIVE_RESOURCES, &nb_active_buffers);
@@ -170,6 +201,7 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_name, struct glco
             ngli_hmap_freep(&bmap);
             return NULL;
         }
+        info->type = GL_SHADER_STORAGE_BUFFER;
 
         ngli_glGetProgramResourceName(gl, pid, GL_SHADER_STORAGE_BLOCK, i, sizeof(name), NULL, name);
         GLuint block_index = ngli_glGetProgramResourceIndex(gl, pid, GL_SHADER_STORAGE_BLOCK, name);

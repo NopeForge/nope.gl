@@ -371,6 +371,18 @@ static inline void ngli_glGetActiveUniform(const struct glcontext *gl, GLuint pr
     check_error_code(gl, "glGetActiveUniform");
 }
 
+static inline void ngli_glGetActiveUniformBlockName(const struct glcontext *gl, GLuint program, GLuint uniformBlockIndex, GLsizei bufSize, GLsizei * length, GLchar * uniformBlockName)
+{
+    gl->funcs.GetActiveUniformBlockName(program, uniformBlockIndex, bufSize, length, uniformBlockName);
+    check_error_code(gl, "glGetActiveUniformBlockName");
+}
+
+static inline void ngli_glGetActiveUniformBlockiv(const struct glcontext *gl, GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint * params)
+{
+    gl->funcs.GetActiveUniformBlockiv(program, uniformBlockIndex, pname, params);
+    check_error_code(gl, "glGetActiveUniformBlockiv");
+}
+
 static inline void ngli_glGetAttachedShaders(const struct glcontext *gl, GLuint program, GLsizei maxCount, GLsizei * count, GLuint * shaders)
 {
     gl->funcs.GetAttachedShaders(program, maxCount, count, shaders);
@@ -504,6 +516,13 @@ static inline const GLubyte * ngli_glGetStringi(const struct glcontext *gl, GLen
 {
     const GLubyte * ret = gl->funcs.GetStringi(name, index);
     check_error_code(gl, "glGetStringi");
+    return ret;
+}
+
+static inline GLuint ngli_glGetUniformBlockIndex(const struct glcontext *gl, GLuint program, const GLchar * uniformBlockName)
+{
+    GLuint ret = gl->funcs.GetUniformBlockIndex(program, uniformBlockName);
+    check_error_code(gl, "glGetUniformBlockIndex");
     return ret;
 }
 
@@ -746,6 +765,12 @@ static inline void ngli_glUniform4iv(const struct glcontext *gl, GLint location,
 {
     gl->funcs.Uniform4iv(location, count, value);
     check_error_code(gl, "glUniform4iv");
+}
+
+static inline void ngli_glUniformBlockBinding(const struct glcontext *gl, GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
+{
+    gl->funcs.UniformBlockBinding(program, uniformBlockIndex, uniformBlockBinding);
+    check_error_code(gl, "glUniformBlockBinding");
 }
 
 static inline void ngli_glUniformMatrix2fv(const struct glcontext *gl, GLint location, GLsizei count, GLboolean transpose, const GLfloat * value)

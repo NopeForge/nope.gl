@@ -79,6 +79,12 @@ cmds_optional = [
     # Instancing
     'glDrawElementsInstanced',
     'glVertexAttribDivisor',
+
+    # Uniform Block Object
+    'glGetUniformBlockIndex',
+    'glUniformBlockBinding',
+    'glGetActiveUniformBlockName',
+    'glGetActiveUniformBlockiv',
 ]
 
 cmds = [

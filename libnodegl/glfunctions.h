@@ -72,6 +72,8 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*GenerateMipmap)(GLenum target);
     NGLI_GL_APIENTRY void (*GetActiveAttrib)(GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name);
     NGLI_GL_APIENTRY void (*GetActiveUniform)(GLuint program, GLuint index, GLsizei bufSize, GLsizei * length, GLint * size, GLenum * type, GLchar * name);
+    NGLI_GL_APIENTRY void (*GetActiveUniformBlockName)(GLuint program, GLuint uniformBlockIndex, GLsizei bufSize, GLsizei * length, GLchar * uniformBlockName);
+    NGLI_GL_APIENTRY void (*GetActiveUniformBlockiv)(GLuint program, GLuint uniformBlockIndex, GLenum pname, GLint * params);
     NGLI_GL_APIENTRY void (*GetAttachedShaders)(GLuint program, GLsizei maxCount, GLsizei * count, GLuint * shaders);
     NGLI_GL_APIENTRY GLint (*GetAttribLocation)(GLuint program, const GLchar * name);
     NGLI_GL_APIENTRY void (*GetBooleanv)(GLenum pname, GLboolean * data);
@@ -94,6 +96,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*GetShaderiv)(GLuint shader, GLenum pname, GLint * params);
     NGLI_GL_APIENTRY const GLubyte * (*GetString)(GLenum name);
     NGLI_GL_APIENTRY const GLubyte * (*GetStringi)(GLenum name, GLuint index);
+    NGLI_GL_APIENTRY GLuint (*GetUniformBlockIndex)(GLuint program, const GLchar * uniformBlockName);
     NGLI_GL_APIENTRY GLint (*GetUniformLocation)(GLuint program, const GLchar * name);
     NGLI_GL_APIENTRY void (*GetUniformiv)(GLuint program, GLint location, GLint * params);
     NGLI_GL_APIENTRY void (*LinkProgram)(GLuint program);
@@ -134,6 +137,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*Uniform4fv)(GLint location, GLsizei count, const GLfloat * value);
     NGLI_GL_APIENTRY void (*Uniform4i)(GLint location, GLint v0, GLint v1, GLint v2, GLint v3);
     NGLI_GL_APIENTRY void (*Uniform4iv)(GLint location, GLsizei count, const GLint * value);
+    NGLI_GL_APIENTRY void (*UniformBlockBinding)(GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding);
     NGLI_GL_APIENTRY void (*UniformMatrix2fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
     NGLI_GL_APIENTRY void (*UniformMatrix3fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);
     NGLI_GL_APIENTRY void (*UniformMatrix4fv)(GLint location, GLsizei count, GLboolean transpose, const GLfloat * value);

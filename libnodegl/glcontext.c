@@ -368,6 +368,10 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
 {
     ngli_glGetIntegerv(glcontext, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
 
+    if (glcontext->features & NGLI_FEATURE_UNIFORM_BUFFER_OBJECT) {
+        ngli_glGetIntegerv(glcontext, GL_MAX_UNIFORM_BLOCK_SIZE, &glcontext->max_uniform_block_size);
+    }
+
     if (glcontext->features & NGLI_FEATURE_COMPUTE_SHADER) {
         for (int i = 0; i < NGLI_ARRAY_NB(glcontext->max_compute_work_group_counts); i++) {
             ngli_glGetIntegeri_v(glcontext, GL_MAX_COMPUTE_WORK_GROUP_COUNT,

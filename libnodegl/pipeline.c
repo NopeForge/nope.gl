@@ -413,7 +413,7 @@ static int update_buffers(struct ngl_node *node)
         const struct ngl_node *bnode = pair->node;
         const struct buffer *buffer = bnode->priv_data;
         const struct bufferprograminfo *info = pair->program_info;
-        ngli_glBindBufferBase(gl, GL_SHADER_STORAGE_BUFFER, info->binding, buffer->buffer_id);
+        ngli_glBindBufferBase(gl, info->type, info->binding, buffer->buffer_id);
     }
 
     return 0;
@@ -602,6 +602,13 @@ int ngli_pipeline_init(struct ngl_node *node)
             ret = ngli_node_init(bnode);
             if (ret < 0)
                 return ret;
+
+            if (info->type == GL_UNIFORM_BUFFER &&
+                buffer->data_size > gl->max_uniform_block_size) {
+                LOG(ERROR, "buffer %s size (%d) exceeds max uniform block size (%d)",
+                    bnode->name, buffer->data_size, gl->max_uniform_block_size);
+                return -1;
+            }
 
             struct nodeprograminfopair pair = {
                 .node = bnode,

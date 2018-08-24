@@ -161,6 +161,10 @@
 # define GL_READ_FRAMEBUFFER_BINDING           0x8CAA
 # define GL_DEPTH_STENCIL_ATTACHMENT           0x821A
 # define GL_ACTIVE_RESOURCES                   0x92F5
+# define GL_ACTIVE_UNIFORM_BLOCKS              0x8A36
+# define GL_UNIFORM_BUFFER                     0x8A11
+# define GL_UNIFORM_BLOCK_BINDING              0x8A3F
+# define GL_MAX_UNIFORM_BLOCK_SIZE             0x8A30
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES

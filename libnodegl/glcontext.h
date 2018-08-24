@@ -39,6 +39,7 @@
 #define NGLI_FEATURE_EXT_DISJOINT_TIMER_QUERY     (1 << 11)
 #define NGLI_FEATURE_DRAW_INSTANCED               (1 << 12)
 #define NGLI_FEATURE_INSTANCED_ARRAY              (1 << 13)
+#define NGLI_FEATURE_UNIFORM_BUFFER_OBJECT        (1 << 14)
 
 #define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
                                          NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \
@@ -69,6 +70,7 @@ struct glcontext {
     int features;
     int max_texture_image_units;
     int max_compute_work_group_counts[3];
+    int max_uniform_block_size;
 
     /* GL functions */
     struct glfunctions funcs;

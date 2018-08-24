@@ -326,6 +326,7 @@ struct attributeprograminfo {
 
 struct bufferprograminfo {
     GLint binding;
+    GLenum type;
 };
 
 #define NGLI_SAMPLING_MODE_NONE         0
