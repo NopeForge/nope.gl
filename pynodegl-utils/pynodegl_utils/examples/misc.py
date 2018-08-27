@@ -204,30 +204,44 @@ def cropboard(cfg, dim=15):
     qw = qh = 2. / dim
     tqs = []
 
-    p = Program()
+    p = Program(vertex=get_vert('cropboard'))
     m = Media(m0.filename)
     t = Texture2D(data_src=m)
 
+    uv_offset_buffer = array.array('f')
+    translate_a_buffer = array.array('f')
+    translate_b_buffer = array.array('f')
+
+    q = Quad(corner=(0, 0, 0),
+             width=(qw, 0, 0),
+             height=(0, qh, 0),
+             uv_corner=(0, 0),
+             uv_width=(kw, 0),
+             uv_height=(0, kh))
+
     for y in range(dim):
         for x in range(dim):
-            corner = (-1. + x*qw, 1. - (y+1.)*qh, 0)
-            q = Quad(corner, (qw, 0, 0), (0, qh, 0))
+            uv_offset = [x*kw, (y+1.)*kh - 1.]
+            src = [random.uniform(-2, 2), random.uniform(-2, 2)]
+            dst = [x*qw - 1., 1. - (y+1.)*qh]
 
-            q.set_uv_corner(x*kw, 1. - (y+1.)*kh)
-            q.set_uv_width(kw, 0)
-            q.set_uv_height(0, kh)
+            uv_offset_buffer.extend(uv_offset)
+            translate_a_buffer.extend(src)
+            translate_b_buffer.extend(dst)
 
-            render = Render(q, p)
-            render.update_textures(tex0=t)
+    utime_animkf = [AnimKeyFrameFloat(0, 0),
+                    AnimKeyFrameFloat(cfg.duration*2/3., 1, 'exp_out')]
+    utime = UniformFloat(anim=AnimatedFloat(utime_animkf))
 
-            startx = random.uniform(-2, 2)
-            starty = random.uniform(-2, 2)
-            trn_animkf = [AnimKeyFrameVec3(0, (startx, starty, 0)),
-                          AnimKeyFrameVec3(cfg.duration*2/3., (0, 0, 0), 'exp_out')]
-            trn = Translate(render, anim=AnimatedVec3(trn_animkf))
-            tqs.append(trn)
-
-    return Group(children=tqs)
+    render = Render(q, p, nb_instances=dim**2)
+    render.update_textures(tex0=t)
+    render.update_uniforms(time=utime)
+    render.update_instance_attributes(
+        uv_offset=BufferVec2(data=uv_offset_buffer),
+        translate_a=BufferVec2(data=translate_a_buffer),
+        translate_b=BufferVec2(data=translate_b_buffer),
+    )
+    return render
 
 
 @scene(freq_precision={'type': 'range', 'range': [1, 10]},
