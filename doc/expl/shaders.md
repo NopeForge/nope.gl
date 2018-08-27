@@ -110,16 +110,24 @@ using names derived from their respective dict parameters keys.
 For example, the following scene script:
 
 ```python
-    histogram_buffer = BufferUIVec4()
+    histogram_buffer = BufferVec4(256)
     render = Render(geometry)
     render.update_buffers(histogram=histogram_buffer)
 ```
 
-Gives the following shader parameters:
+Gives the following shader parameters as SSBO:
 
 ```glsl
-    layout (...) buffer histogram {
-        ...
+    layout (std430, binding=0) buffer histogram {
+        vec4 data[];
+    };
+```
+
+Or gives the following shader parameters as UBO:
+
+```glsl
+    layout (std140, binding=0) uniform histogram {
+        vec4 data[256];
     };
 ```
 
