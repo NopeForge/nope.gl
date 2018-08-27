@@ -73,7 +73,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `value` | ✓ | [`double`](#parameter-types) | the value at time `time` | `0`
-`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
+`easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 `easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
 `easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
@@ -88,7 +88,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `value` | ✓ | [`vec2`](#parameter-types) | the value at time `time` | (`0`,`0`)
-`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
+`easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 `easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
 `easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
@@ -103,7 +103,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `value` | ✓ | [`vec3`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`)
-`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
+`easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 `easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
 `easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
@@ -118,7 +118,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `value` | ✓ | [`vec4`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`,`0`)
-`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
+`easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 `easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
 `easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
@@ -133,7 +133,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `quat` | ✓ | [`vec4`](#parameter-types) | the quat at time `time` | (`0`,`0`,`0`,`0`)
-`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
+`easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 `easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
 `easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
@@ -148,7 +148,7 @@ Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `time` | ✓ | [`double`](#parameter-types) | the time key point in seconds | `0`
 `data` |  | [`data`](#parameter-types) | the data at time `time` | 
-`easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
+`easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
 `easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
 `easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
