@@ -202,7 +202,6 @@ def cropboard(cfg, dim=15):
 
     kw = kh = 1. / dim
     qw = qh = 2. / dim
-    tqs = []
 
     p = Program(vertex=get_vert('cropboard'))
     m = Media(m0.filename)
