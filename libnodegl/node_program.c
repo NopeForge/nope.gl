@@ -75,7 +75,6 @@ static const char default_vertex_shader[] =
     "uniform mat3 ngl_normal_matrix;"                                                   "\n"
 
     "uniform mat4 tex0_coord_matrix;"                                                   "\n"
-    "uniform vec2 tex0_dimensions;"                                                     "\n"
 
     "varying vec2 var_uvcoord;"                                                         "\n"
     "varying vec3 var_normal;"                                                          "\n"

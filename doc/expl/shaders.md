@@ -142,7 +142,6 @@ uniform mat4 ngl_projection_matrix;
 uniform mat3 ngl_normal_matrix;
 
 uniform mat4 tex0_coord_matrix;
-uniform vec2 tex0_dimensions;
 
 varying vec2 var_uvcoord;
 varying vec3 var_normal;
