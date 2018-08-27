@@ -79,24 +79,24 @@ static const struct param_choices easing_choices = {
 
 #define OFFSET(x) offsetof(struct animkeyframe, x)
 
-#define ANIMKEYFRAME_PARAMS(id, value_data_key, value_data_type, value_data_field, value_data_flags) \
-static const struct node_param animkeyframe##id##_params[] = {                                  \
-    {"time",          PARAM_TYPE_DBL, OFFSET(time),                                             \
-                      .flags=PARAM_FLAG_CONSTRUCTOR,                                            \
-                      .desc=NGLI_DOCSTRING("the time key point in seconds")},                   \
-    {#value_data_key, value_data_type, OFFSET(value_data_field),                                \
-                      .flags=value_data_flags,                                                  \
-                      .desc=NGLI_DOCSTRING("the " #value_data_key " at time `time`")},          \
-    {"easing",        PARAM_TYPE_SELECT,  OFFSET(easing), {.i64=EASING_LINEAR},                 \
-                      .choices=&easing_choices,                                                 \
-                      .desc=NGLI_DOCSTRING("easing interpolation from previous key frame")},    \
-    {"easing_args",   PARAM_TYPE_DBLLIST, OFFSET(args),                                         \
-                      .desc=NGLI_DOCSTRING("a list of arguments some easings may use")},        \
-    {"easing_start_offset",  PARAM_TYPE_DBL, OFFSET(offsets[0]), {.dbl=0},                             \
-                             .desc=NGLI_DOCSTRING("starting offset of the truncation of the easing")}, \
-    {"easing_end_offset",    PARAM_TYPE_DBL, OFFSET(offsets[1]), {.dbl=1},                             \
-                             .desc=NGLI_DOCSTRING("ending offset of the truncation of the easing")},   \
-    {NULL}                                                                                      \
+#define ANIMKEYFRAME_PARAMS(id, value_data_key, value_data_type, value_data_field, value_data_flags)    \
+static const struct node_param animkeyframe##id##_params[] = {                                          \
+    {"time",                 PARAM_TYPE_DBL, OFFSET(time),                                              \
+                             .flags=PARAM_FLAG_CONSTRUCTOR,                                             \
+                             .desc=NGLI_DOCSTRING("the time key point in seconds")},                    \
+    {#value_data_key,        value_data_type, OFFSET(value_data_field),                                 \
+                             .flags=value_data_flags,                                                   \
+                             .desc=NGLI_DOCSTRING("the " #value_data_key " at time `time`")},           \
+    {"easing",               PARAM_TYPE_SELECT,  OFFSET(easing), {.i64=EASING_LINEAR},                  \
+                             .choices=&easing_choices,                                                  \
+                             .desc=NGLI_DOCSTRING("easing interpolation from previous key frame")},     \
+    {"easing_args",          PARAM_TYPE_DBLLIST, OFFSET(args),                                          \
+                             .desc=NGLI_DOCSTRING("a list of arguments some easings may use")},         \
+    {"easing_start_offset",  PARAM_TYPE_DBL, OFFSET(offsets[0]), {.dbl=0},                              \
+                             .desc=NGLI_DOCSTRING("starting offset of the truncation of the easing")},  \
+    {"easing_end_offset",    PARAM_TYPE_DBL, OFFSET(offsets[1]), {.dbl=1},                              \
+                             .desc=NGLI_DOCSTRING("ending offset of the truncation of the easing")},    \
+    {NULL}                                                                                              \
 }
 
 ANIMKEYFRAME_PARAMS(float, value, PARAM_TYPE_DBL, scalar, PARAM_FLAG_CONSTRUCTOR);
