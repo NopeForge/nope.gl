@@ -66,8 +66,14 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
         const struct animkeyframe *kf1 = animkf[kf_id + 1]->priv_data;
         const double t0 = kf0->time;
         const double t1 = kf1->time;
-        const double tnorm = (t - t0) / (t1 - t0);
-        const double ratio = kf1->function(tnorm, kf1->nb_args, kf1->args);
+
+        double tnorm = (t - t0) / (t1 - t0);
+        if (kf1->scale_boundaries)
+            tnorm = (kf1->offsets[1] - kf1->offsets[0]) * tnorm + kf1->offsets[0];
+        double ratio = kf1->function(tnorm, kf1->nb_args, kf1->args);
+        if (kf1->scale_boundaries)
+            ratio = (ratio - kf1->boundaries[0]) / (kf1->boundaries[1] - kf1->boundaries[0]);
+
         s->current_kf = kf_id;
 
         const float *d1 = (const float *)kf0->data;

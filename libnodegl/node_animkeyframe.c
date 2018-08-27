@@ -92,6 +92,10 @@ static const struct node_param animkeyframe##id##_params[] = {                  
                       .desc=NGLI_DOCSTRING("easing interpolation")},                            \
     {"easing_args",   PARAM_TYPE_DBLLIST, OFFSET(args),                                         \
                       .desc=NGLI_DOCSTRING("a list of arguments some easings may use")},        \
+    {"easing_start_offset",  PARAM_TYPE_DBL, OFFSET(offsets[0]), {.dbl=0},                             \
+                             .desc=NGLI_DOCSTRING("starting offset of the truncation of the easing")}, \
+    {"easing_end_offset",    PARAM_TYPE_DBL, OFFSET(offsets[1]), {.dbl=1},                             \
+                             .desc=NGLI_DOCSTRING("ending offset of the truncation of the easing")},   \
     {NULL}                                                                                      \
 }
 
@@ -429,6 +433,13 @@ static int animkeyframe_init(struct ngl_node *node)
 
     s->function   = easings[easing_id].function;
     s->resolution = easings[easing_id].resolution;
+
+    if (s->offsets[0] || s->offsets[1] != 1.0) {
+        s->scale_boundaries = 1;
+        s->boundaries[0] = s->function(s->offsets[0], s->nb_args, s->args);
+        s->boundaries[1] = s->function(s->offsets[1], s->nb_args, s->args);
+    }
+
     return 0;
 }
 
@@ -449,6 +460,10 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
         ngli_bstr_print(b, "(args: ");
         ngli_params_bstr_print_val(b, node->priv_data, easing_args_par);
         ngli_bstr_print(b, ") ");
+    }
+
+    if (s->offsets[0] || s->offsets[1] != 1.0) { // can not use scale_boundaries yet (not initialized)
+        ngli_bstr_print(b, "on (%g,%g) ", s->offsets[0], s->offsets[1]);
     }
 
     if (node->class->id == NGL_NODE_ANIMKEYFRAMEBUFFER) {

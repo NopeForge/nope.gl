@@ -29,6 +29,8 @@ def _get_func(name, flags=0):
     widgets = {
             'nb_points': {'type': 'range', 'range': [2, 200]},
             'zoom': {'type': 'range', 'range': [0.1, 2], 'unit_base': 100},
+            'offset_start': {'type': 'range', 'range': [0, 1], 'unit_base': 100},
+            'offset_end': {'type': 'range', 'range': [0, 1], 'unit_base': 100},
     }
 
     versions = []
@@ -46,6 +48,7 @@ def _get_func(name, flags=0):
 
     @scene(**widgets)
     def ret_func(cfg, nb_points=100, zoom=1,
+                 offset_start=0, offset_end=1,
                  draw_in=True, draw_out=True,
                  draw_in_out=True, draw_out_in=True):
 
@@ -62,7 +65,9 @@ def _get_func(name, flags=0):
                     continue
 
             anim = AnimatedFloat([AnimKeyFrameFloat(-1,-1),
-                                  AnimKeyFrameFloat( 1, 1, interp)])
+                                  AnimKeyFrameFloat( 1, 1, interp,
+                                                    easing_start_offset=offset_start,
+                                                    easing_end_offset=offset_end)])
 
             vertices_data = array.array('f')
             for i in range(nb_points + 1):

@@ -75,6 +75,8 @@ Parameter | Ctor. | Type | Description | Default
 `value` | ✓ | [`double`](#parameter-types) | the value at time `time` | `0`
 `easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -88,6 +90,8 @@ Parameter | Ctor. | Type | Description | Default
 `value` | ✓ | [`vec2`](#parameter-types) | the value at time `time` | (`0`,`0`)
 `easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -101,6 +105,8 @@ Parameter | Ctor. | Type | Description | Default
 `value` | ✓ | [`vec3`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`)
 `easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -114,6 +120,8 @@ Parameter | Ctor. | Type | Description | Default
 `value` | ✓ | [`vec4`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`,`0`)
 `easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -127,6 +135,8 @@ Parameter | Ctor. | Type | Description | Default
 `quat` | ✓ | [`vec4`](#parameter-types) | the quat at time `time` | (`0`,`0`,`0`,`0`)
 `easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -140,6 +150,8 @@ Parameter | Ctor. | Type | Description | Default
 `data` |  | [`data`](#parameter-types) | the data at time `time` | 
 `easing` |  | [`easing`](#easing-choices) | easing interpolation | `linear`
 `easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)

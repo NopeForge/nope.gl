@@ -530,6 +530,9 @@ struct animkeyframe {
     easing_function resolution;
     double *args;
     int nb_args;
+    double offsets[2];
+    int scale_boundaries;
+    double boundaries[2];
 };
 
 struct hud_measuring {

@@ -43,6 +43,8 @@
     optional:
         - [easing, select]
         - [easing_args, doubleList]
+        - [easing_start_offset, double]
+        - [easing_end_offset, double]
 
 - AnimKeyFrameVec2:
     constructors:
@@ -51,6 +53,8 @@
     optional:
         - [easing, select]
         - [easing_args, doubleList]
+        - [easing_start_offset, double]
+        - [easing_end_offset, double]
 
 - AnimKeyFrameVec3:
     constructors:
@@ -59,6 +63,8 @@
     optional:
         - [easing, select]
         - [easing_args, doubleList]
+        - [easing_start_offset, double]
+        - [easing_end_offset, double]
 
 - AnimKeyFrameVec4:
     constructors:
@@ -67,6 +73,8 @@
     optional:
         - [easing, select]
         - [easing_args, doubleList]
+        - [easing_start_offset, double]
+        - [easing_end_offset, double]
 
 - AnimKeyFrameQuat:
     constructors:
@@ -75,6 +83,8 @@
     optional:
         - [easing, select]
         - [easing_args, doubleList]
+        - [easing_start_offset, double]
+        - [easing_end_offset, double]
 
 - AnimKeyFrameBuffer:
     constructors:
@@ -83,6 +93,8 @@
         - [data, data]
         - [easing, select]
         - [easing_args, doubleList]
+        - [easing_start_offset, double]
+        - [easing_end_offset, double]
 
 - _Buffer:
     optional:
