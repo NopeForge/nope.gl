@@ -193,6 +193,7 @@
 # define GL_ATOMIC_COUNTER_BARRIER_BIT         0x00001000
 # define GL_ALL_BARRIER_BITS                   0xFFFFFFFF
 # define GL_IMAGE_2D                           0x904D
+# define GL_ACTIVE_RESOURCES                   0x92F5
 #endif
 
 #endif /* GLINCLUDES_H */
