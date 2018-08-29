@@ -58,6 +58,7 @@ void ngli_mat4_identity(float *dst);
 void ngli_mat4_mul_c(float *dst, const float *m1, const float *m2);
 void ngli_mat4_mul_vec4_c(float *dst, const float *m, const float *v);
 void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up);
+void ngli_mat4_orthographic(float *dst, float left, float right, float bottom, float top, float near, float far);
 void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, float far);
 void ngli_mat4_rotation_from_quat(float *dst, const float *quat);
 

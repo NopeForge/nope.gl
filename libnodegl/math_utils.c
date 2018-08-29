@@ -314,6 +314,30 @@ void ngli_mat4_identity(float *dst)
     memcpy(dst, id, sizeof(id));
 }
 
+void ngli_mat4_orthographic(float *dst, float left, float right,
+                            float bottom, float top, float near, float far)
+{
+    const float dx = right - left;
+    const float dy = top - bottom;
+    const float dz = far - near;
+
+    ngli_mat4_identity(dst);
+
+    if (dx == 0 || dy == 0 || dz == 0)
+        return;
+
+    const float tx = -(right + left) / dx;
+    const float ty = -(top + bottom) / dy;
+    const float tz = -(far + near)   / dz;
+
+    dst[0 ] =  2 / dx;
+    dst[5 ] =  2 / dy;
+    dst[10] = -2 / dz;
+    dst[12] = tx;
+    dst[13] = ty;
+    dst[14] = tz;
+}
+
 void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, float far)
 {
     const float r = fov / 2 * M_PI / 180.0f;
