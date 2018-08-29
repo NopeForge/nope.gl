@@ -201,6 +201,7 @@ static int rtt_prefetch(struct ngl_node *node)
 static int rtt_update(struct ngl_node *node, double t)
 {
     struct rtt *s = node->priv_data;
+    ngli_node_transfer_matrices(s->child, node);
     int ret = ngli_node_update(s->child, t);
     if (ret < 0)
         return ret;
