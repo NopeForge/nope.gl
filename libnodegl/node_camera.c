@@ -41,8 +41,10 @@ static const struct node_param camera_params[] = {
                .desc=NGLI_DOCSTRING("center position")},
     {"up", PARAM_TYPE_VEC3,  OFFSET(up), {.vec={0.0f, 1.0f, 0.0f}},
            .desc=NGLI_DOCSTRING("up vector")},
-    {"perspective", PARAM_TYPE_VEC4,  OFFSET(perspective),
-                    .desc=NGLI_DOCSTRING("the 4 following values: *fov*, *aspect*, *near clipping plane*, *far clipping plane*")},
+    {"perspective", PARAM_TYPE_VEC2,  OFFSET(perspective),
+                    .desc=NGLI_DOCSTRING("the 2 following values: *fov*, *aspect*")},
+    {"clipping", PARAM_TYPE_VEC2, OFFSET(clipping),
+                 .desc=NGLI_DOCSTRING("the 2 following values: *near clipping plane*, *far clipping plane*")},
     {"eye_transform", PARAM_TYPE_NODE, OFFSET(eye_transform),
                      .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                      .node_types=TRANSFORM_TYPES_LIST,
@@ -179,8 +181,8 @@ static int camera_update(struct ngl_node *node, double t)
         perspective,
         s->perspective[0],
         s->perspective[1],
-        s->perspective[2],
-        s->perspective[3]
+        s->clipping[0],
+        s->clipping[1]
     );
 
     if ((s->hflip && s->pipe_fd) || s->hflip == 1)

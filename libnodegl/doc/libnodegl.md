@@ -209,7 +209,8 @@ Parameter | Ctor. | Type | Description | Default
 `eye` |  | [`vec3`](#parameter-types) | eye position | (`0`,`0`,`0`)
 `center` |  | [`vec3`](#parameter-types) | center position | (`0`,`0`,`-1`)
 `up` |  | [`vec3`](#parameter-types) | up vector | (`0`,`1`,`0`)
-`perspective` |  | [`vec4`](#parameter-types) | the 4 following values: *fov*, *aspect*, *near clipping plane*, *far clipping plane* | (`0`,`0`,`0`,`0`)
+`perspective` |  | [`vec2`](#parameter-types) | the 2 following values: *fov*, *aspect* | (`0`,`0`)
+`clipping` |  | [`vec2`](#parameter-types) | the 2 following values: *near clipping plane*, *far clipping plane* | (`0`,`0`)
 `eye_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `eye` transformation chain | 
 `center_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `center` transformation chain | 
 `up_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `up` transformation chain | 

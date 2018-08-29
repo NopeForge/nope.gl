@@ -430,7 +430,8 @@ def blending_and_stencil(cfg):
     camera.set_eye(0.0, 0.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
-    camera.set_perspective(45.0, cfg.aspect_ratio_float, 1.0, 10.0)
+    camera.set_perspective(45.0, cfg.aspect_ratio_float)
+    camera.set_clipping(1.0, 10.0)
 
     return camera
 
@@ -476,7 +477,8 @@ def cube(cfg, display_depth_buffer=False):
     camera.set_eye(0.0, 0.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
-    camera.set_perspective(45.0, cfg.aspect_ratio_float, 1.0, 10.0)
+    camera.set_perspective(45.0, cfg.aspect_ratio_float)
+    camera.set_clipping(1.0, 10.0)
 
     if not display_depth_buffer:
         return camera
@@ -585,7 +587,8 @@ def quaternion(cfg):
     camera.set_eye(0.0, 0.0, 4.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
-    camera.set_perspective(45.0, cfg.aspect_ratio_float, 1.0, 10.0)
+    camera.set_perspective(45.0, cfg.aspect_ratio_float)
+    camera.set_clipping(1.0, 10.0)
 
     return camera
 
