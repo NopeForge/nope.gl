@@ -430,7 +430,7 @@ def blending_and_stencil(cfg):
     camera.set_eye(0.0, 0.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
-    camera.set_perspective(45.0, cfg.aspect_ratio_float)
+    camera.set_orthographic(-cfg.aspect_ratio_float, cfg.aspect_ratio_float, -1.0, 1.0)
     camera.set_clipping(1.0, 10.0)
 
     return camera
