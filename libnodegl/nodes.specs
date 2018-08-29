@@ -166,6 +166,7 @@
         - [center, vec3]
         - [up, vec3]
         - [perspective, vec2]
+        - [orthographic, vec4]
         - [clipping, vec2]
         - [eye_transform, Node]
         - [center_transform, Node]

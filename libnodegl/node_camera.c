@@ -43,6 +43,8 @@ static const struct node_param camera_params[] = {
            .desc=NGLI_DOCSTRING("up vector")},
     {"perspective", PARAM_TYPE_VEC2,  OFFSET(perspective),
                     .desc=NGLI_DOCSTRING("the 2 following values: *fov*, *aspect*")},
+    {"orthographic", PARAM_TYPE_VEC4, OFFSET(orthographic),
+                     .desc=NGLI_DOCSTRING("the 4 following values: *left*, *right*, *bottom*, *top*")},
     {"clipping", PARAM_TYPE_VEC2, OFFSET(clipping),
                  .desc=NGLI_DOCSTRING("the 2 following values: *near clipping plane*, *far clipping plane*")},
     {"eye_transform", PARAM_TYPE_NODE, OFFSET(eye_transform),
@@ -177,13 +179,24 @@ static int camera_update(struct ngl_node *node, double t)
         s->perspective[0] = anim->scalar;
     }
 
-    ngli_mat4_perspective(
-        perspective,
-        s->perspective[0],
-        s->perspective[1],
-        s->clipping[0],
-        s->clipping[1]
-    );
+    static const float zvec[4] = {0};
+    if (memcmp(s->perspective, zvec, sizeof(s->perspective))) {
+        ngli_mat4_perspective(perspective,
+                              s->perspective[0],
+                              s->perspective[1],
+                              s->clipping[0],
+                              s->clipping[1]);
+    } else if (memcmp(s->orthographic, zvec, sizeof(s->orthographic))) {
+        ngli_mat4_orthographic(perspective,
+                               s->orthographic[0],
+                               s->orthographic[1],
+                               s->orthographic[2],
+                               s->orthographic[3],
+                               s->clipping[0],
+                               s->clipping[1]);
+    } else {
+        ngli_mat4_identity(perspective);
+    }
 
     if ((s->hflip && s->pipe_fd) || s->hflip == 1)
         perspective[5] = -perspective[5];

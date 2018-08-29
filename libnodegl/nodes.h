@@ -136,6 +136,7 @@ struct camera {
     float center[3];
     float up[3];
     float perspective[2];
+    float orthographic[4];
     float clipping[2];
 
     struct ngl_node *eye_transform;
