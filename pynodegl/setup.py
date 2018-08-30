@@ -123,6 +123,9 @@ class BuildExtCommand(build_ext):
                     construct_cargs.append(cparam)
                     construct_args.append(field_name)
                 else:
+                    special_inits += '''
+        assert %s is not None
+'''  % field_name
                     construct_cargs.append('%s.ctx' % field_name)
                     construct_args.append('_Node %s' % field_name)
 
