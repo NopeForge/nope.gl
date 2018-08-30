@@ -321,9 +321,19 @@ static void tex_sub_image(const struct glcontext *gl, const struct texture *s,
 static void tex_storage(const struct glcontext *gl, const struct texture *s)
 {
     switch (s->local_target) {
-        case GL_TEXTURE_2D:
-            ngli_glTexStorage2D(gl, s->local_target, 1, s->internal_format, s->width, s->height);
+        case GL_TEXTURE_2D: {
+            int mipmap_levels = 1;
+            if ((s->width >= 0 && s->height >= 0)           &&
+                (s->min_filter == GL_NEAREST_MIPMAP_NEAREST ||
+                 s->min_filter == GL_NEAREST_MIPMAP_LINEAR  ||
+                 s->min_filter == GL_LINEAR_MIPMAP_NEAREST  ||
+                 s->min_filter == GL_LINEAR_MIPMAP_LINEAR)) {
+                 while ((s->width | s->height) >> mipmap_levels)
+                     mipmap_levels += 1;
+            }
+            ngli_glTexStorage2D(gl, s->local_target, mipmap_levels, s->internal_format, s->width, s->height);
             break;
+        }
         case GL_TEXTURE_3D:
             ngli_glTexStorage3D(gl, s->local_target, 1, s->internal_format, s->width, s->height, s->depth);
             break;
