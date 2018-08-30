@@ -99,6 +99,7 @@ struct ngl_node {
                                            NGL_NODE_TRANSFORM, \
                                            NGL_NODE_TRANSLATE, \
                                            NGL_NODE_SCALE,     \
+                                           NGL_NODE_IDENTITY,  \
                                            -1}
 
 struct graphicconfig {

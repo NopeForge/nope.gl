@@ -212,9 +212,9 @@ Parameter | Ctor. | Type | Description | Default
 `perspective` |  | [`vec2`](#parameter-types) | the 2 following values: *fov*, *aspect* | (`0`,`0`)
 `orthographic` |  | [`vec4`](#parameter-types) | the 4 following values: *left*, *right*, *bottom*, *top* | (`0`,`0`,`0`,`0`)
 `clipping` |  | [`vec2`](#parameter-types) | the 2 following values: *near clipping plane*, *far clipping plane* | (`0`,`0`)
-`eye_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `eye` transformation chain | 
-`center_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `center` transformation chain | 
-`up_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `up` transformation chain | 
+`eye_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `eye` transformation chain | 
+`center_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `center` transformation chain | 
+`up_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `up` transformation chain | 
 `fov_anim` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
 `pipe_fd` |  | [`int`](#parameter-types) | pipe file descriptor where the rendered raw RGBA buffer is written | `0`
 `pipe_width` |  | [`int`](#parameter-types) | width (in pixels) of the raw image buffer when using `pipe_fd` | `0`
@@ -570,7 +570,7 @@ Parameter | Ctor. | Type | Description | Default
 Parameter | Ctor. | Type | Description | Default
 --------- | :---: | ---- | ----------- | :-----:
 `value` |  | [`mat4`](#parameter-types) | value exposed to the shader | 
-`transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale)) | `value` transformation chain | 
+`transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `value` transformation chain | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
