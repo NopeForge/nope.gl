@@ -175,7 +175,6 @@
         - [pipe_fd, int]
         - [pipe_width, int]
         - [pipe_height, int]
-        - [hflip, bool]
 
 - Circle:
     optional:

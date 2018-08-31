@@ -68,8 +68,6 @@ static const struct node_param camera_params[] = {
                    .desc=NGLI_DOCSTRING("width (in pixels) of the raw image buffer when using `pipe_fd`")},
     {"pipe_height", PARAM_TYPE_INT, OFFSET(pipe_height),
                     .desc=NGLI_DOCSTRING("height (in pixels) of the raw image buffer when using `pipe_fd`")},
-    {"hflip", PARAM_TYPE_BOOL, OFFSET(hflip), {.i64=-1},
-              .desc=NGLI_DOCSTRING("horizontal flip")},
     {NULL}
 };
 
@@ -198,9 +196,6 @@ static int camera_update(struct ngl_node *node, double t)
         ngli_mat4_identity(perspective);
     }
 
-    if ((s->hflip && s->pipe_fd) || s->hflip == 1)
-        perspective[5] = -perspective[5];
-
     memcpy(child->modelview_matrix, view, sizeof(view));
     memcpy(child->projection_matrix, perspective, sizeof(perspective));
 
@@ -232,7 +227,13 @@ static void camera_draw(struct ngl_node *node)
 
         LOG(DEBUG, "write %dx%d buffer to FD=%d", s->pipe_width, s->pipe_height, s->pipe_fd);
         ngli_glReadPixels(gl, 0, 0, s->pipe_width, s->pipe_height, GL_RGBA, GL_UNSIGNED_BYTE, s->pipe_buf);
-        write(s->pipe_fd, s->pipe_buf, s->pipe_width * s->pipe_height * 4);
+
+        const int linesize = s->pipe_width * 4;
+        for (int i = 0; i < s->pipe_height; i++) {
+            const int line = s->pipe_height - i - 1;
+            const uint8_t *linedata = s->pipe_buf + line * linesize;
+            write(s->pipe_fd, linedata, linesize);
+        }
 
         if (s->samples > 0) {
             ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, framebuffer_read_id);

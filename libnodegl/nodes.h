@@ -150,7 +150,6 @@ struct camera {
 
     int pipe_fd;
     int pipe_width, pipe_height;
-    int hflip;
     uint8_t *pipe_buf;
 
     int samples;
