@@ -41,7 +41,7 @@ void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
 
     /* Depth */
     ngli_glGetIntegerv(gl, GL_DEPTH_TEST,              (GLint *)&state->depth_test);
-    ngli_glGetBooleanv(gl, GL_DEPTH_WRITEMASK ,        &state->depth_write_mask);
+    ngli_glGetBooleanv(gl, GL_DEPTH_WRITEMASK,         &state->depth_write_mask);
     ngli_glGetIntegerv(gl, GL_DEPTH_FUNC,              (GLint *)&state->depth_func);
 
     /* Stencil */
