@@ -102,6 +102,15 @@ static const struct param_choices stencil_op_choices = {
     }
 };
 
+static const struct param_choices cull_face_choices = {
+    .name = "cull_face",
+    .consts = {
+        {"front",  1<<0, .desc=NGLI_DOCSTRING("cull front-facing facets")},
+        {"back",   1<<1, .desc=NGLI_DOCSTRING("cull back-facing facets")},
+        {NULL}
+    }
+};
+
 #define OFFSET(x) offsetof(struct graphicconfig, x)
 static const struct node_param graphicconfig_params[] = {
     {"child",              PARAM_TYPE_NODE,   OFFSET(child),              .flags=PARAM_FLAG_CONSTRUCTOR,
@@ -156,6 +165,11 @@ static const struct node_param graphicconfig_params[] = {
     {"stencil_depth_pass", PARAM_TYPE_SELECT, OFFSET(stencil_depth_pass), {.i64=-1},
                            .choices=&stencil_op_choices,
                            .desc=NGLI_DOCSTRING("operation to execute if stencil and depth test pass")},
+    {"cull_face",          PARAM_TYPE_BOOL,   OFFSET(cull_face),          {.i64=-1},
+                           .desc=NGLI_DOCSTRING("enable face culling")},
+    {"cull_face_mode",     PARAM_TYPE_FLAGS,  OFFSET(cull_face_mode),     {.i64=-1},
+                           .choices=&cull_face_choices,
+                           .desc=NGLI_DOCSTRING("face culling mode")},
     {NULL}
 };
 
@@ -211,6 +225,12 @@ static void honor_config(struct ngl_node *node, int restore)
         COPY_PARAM(stencil_fail);
         COPY_PARAM(stencil_depth_fail);
         COPY_PARAM(stencil_depth_pass);
+
+        COPY_PARAM(cull_face);
+        if (s->cull_face_mode != -1)
+            next->cull_face_mode = s->cull_face_mode == (1<<0) ? GL_FRONT
+                                 : s->cull_face_mode == (1<<1) ? GL_BACK
+                                 : GL_FRONT_AND_BACK;
     }
 
     *prev = ctx->glstate;

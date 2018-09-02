@@ -228,6 +228,8 @@
         - [stencil_fail, select]
         - [stencil_depth_fail, select]
         - [stencil_depth_pass, select]
+        - [cull_face, bool]
+        - [cull_face_mode, flags]
 
 - Group:
     optional:

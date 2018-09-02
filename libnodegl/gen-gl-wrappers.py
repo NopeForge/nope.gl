@@ -220,6 +220,9 @@ cmds = [
     'glStencilOp',
     'glStencilOpSeparate',
 
+    # Face Culling
+    'glCullFace',
+
 ] + cmds_optional
 
 def get_proto_elems(xml_node):

@@ -53,6 +53,10 @@ void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
     ngli_glGetIntegerv(gl, GL_STENCIL_FAIL,            (GLint *)&state->stencil_fail);
     ngli_glGetIntegerv(gl, GL_STENCIL_PASS_DEPTH_FAIL, (GLint *)&state->stencil_depth_fail);
     ngli_glGetIntegerv(gl, GL_STENCIL_PASS_DEPTH_PASS, (GLint *)&state->stencil_depth_pass);
+
+    /* Face Culling */
+    ngli_glGetBooleanv(gl, GL_CULL_FACE,               &state->cull_face);
+    ngli_glGetIntegerv(gl, GL_CULL_FACE_MODE,          (GLint *)&state->cull_face_mode);
 }
 
 void ngli_glstate_honor_state(const struct glcontext *gl,
@@ -138,5 +142,17 @@ void ngli_glstate_honor_state(const struct glcontext *gl,
                          next->stencil_fail,
                          next->stencil_depth_fail,
                          next->stencil_depth_pass);
+    }
+
+    /* Face Culling */
+    if (next->cull_face != prev->cull_face) {
+        if (next->cull_face)
+            ngli_glEnable(gl, GL_CULL_FACE);
+        else
+            ngli_glDisable(gl, GL_CULL_FACE);
+    }
+
+    if (next->cull_face_mode != prev->cull_face_mode) {
+        ngli_glCullFace(gl, next->cull_face_mode);
     }
 }

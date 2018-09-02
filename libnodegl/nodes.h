@@ -128,6 +128,9 @@ struct graphicconfig {
     int stencil_depth_fail;
     int stencil_depth_pass;
 
+    int cull_face;
+    int cull_face_mode;
+
     struct glstate states[2];
 };
 

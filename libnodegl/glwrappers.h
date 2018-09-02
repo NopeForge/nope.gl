@@ -173,6 +173,12 @@ static inline GLuint ngli_glCreateShader(const struct glcontext *gl, GLenum type
     return ret;
 }
 
+static inline void ngli_glCullFace(const struct glcontext *gl, GLenum mode)
+{
+    gl->funcs.CullFace(mode);
+    check_error_code(gl, "glCullFace");
+}
+
 static inline void ngli_glDeleteBuffers(const struct glcontext *gl, GLsizei n, const GLuint * buffers)
 {
     gl->funcs.DeleteBuffers(n, buffers);

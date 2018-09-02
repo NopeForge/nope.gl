@@ -45,6 +45,9 @@ struct glstate {
     GLenum stencil_fail;
     GLenum stencil_depth_fail;
     GLenum stencil_depth_pass;
+
+    GLboolean cull_face;
+    GLenum cull_face_mode;
 };
 
 void ngli_glstate_probe(const struct glcontext *gl,

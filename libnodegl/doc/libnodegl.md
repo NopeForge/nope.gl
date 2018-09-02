@@ -299,6 +299,8 @@ Parameter | Ctor. | Type | Description | Default
 `stencil_fail` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil test fails | `unset`
 `stencil_depth_fail` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if depth test fails | `unset`
 `stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil and depth test pass | `unset`
+`cull_face` |  | [`bool`](#parameter-types) | enable face culling | `unset`
+`cull_face_mode` |  | [`cull_face`](#cull_face-choices) | face culling mode | `unset`
 
 
 **Source**: [node_graphicconfig.c](/libnodegl/node_graphicconfig.c)
@@ -786,6 +788,13 @@ Constant | Description
 `decr` | decrements the current stencil buffer value and clamps it
 `decr_wrap` | decrements the current stencil buffer value and wraps it
 `decr_invert` | bitwise inverts the current stencil buffer value
+
+## cull_face choices
+
+Constant | Description
+-------- | -----------
+`front` | cull front-facing facets
+`back` | cull back-facing facets
 
 ## format choices
 
