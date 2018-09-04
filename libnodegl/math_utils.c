@@ -430,6 +430,18 @@ void ngli_mat4_rotation_from_quat(float *dst, const float *q)
     dst[15] =  1.0f;
 }
 
+void ngli_mat4_translate(float *dst, float x, float y, float z)
+{
+    memset(dst, 0, 4 * 4 * sizeof(*dst));
+    dst[ 0] = 1.0f;
+    dst[ 5] = 1.0f;
+    dst[10] = 1.0f;
+    dst[12] = x;
+    dst[13] = y;
+    dst[14] = z;
+    dst[15] = 1.0f;
+}
+
 #define COS_ALPHA_THRESHOLD 0.9995f
 
 void ngli_quat_slerp(float *dst, const float *q1, const float *q2, float t)
