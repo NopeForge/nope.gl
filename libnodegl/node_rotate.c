@@ -73,52 +73,23 @@ static int rotate_update(struct ngl_node *node, double t)
 {
     struct rotate *s = node->priv_data;
     struct ngl_node *child = s->child;
-    const double angle = get_angle(s, t) * (2.0f * M_PI / 360.0f);
-    float cos_theta = cos(angle);
-    float sin_theta = sin(angle);
     float axis[3];
     ngli_vec3_norm(axis, s->axis);
-    const NGLI_ALIGNED_MAT(rotm) = {
-        cos_theta + axis[0] * axis[0] * (1 - cos_theta),
-        axis[0] * axis[1] * (1 - cos_theta) + axis[2] * sin_theta,
-        axis[0] * axis[2] * (1 - cos_theta) - axis[1] * sin_theta,
-        0.0,
 
-        axis[0] * axis[1] * (1 - cos_theta) - axis[2] * sin_theta,
-        cos_theta + axis[1] * axis[1] * (1 - cos_theta),
-        axis[1] * axis[2] * (1 - cos_theta) + axis[0] * sin_theta,
-        0.0f,
-
-        axis[0] * axis[2] * (1 - cos_theta) + axis[1] * sin_theta,
-        axis[1] * axis[2] * (1 - cos_theta) - axis[0] * sin_theta,
-        cos_theta + axis[2] * axis[2] * (1 - cos_theta),
-        0.0f,
-
-        0.0f,
-        0.0f,
-        0.0f,
-        1.0f,
-    };
+    NGLI_ALIGNED_MAT(rotm);
+    const double angle = get_angle(s, t) * (2.0f * M_PI / 360.0f);
+    ngli_mat4_rotate(rotm, angle, axis);
 
     static const float zero_anchor[3] = {0.0, 0.0, 0.0};
     int translate = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
     if (translate) {
         float *a = s->anchor;
-        const NGLI_ALIGNED_MAT(transm) = {
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            a[0], a[1], a[2], 1.0f,
-        };
+        NGLI_ALIGNED_MAT(transm);
+        ngli_mat4_translate(transm, a[0], a[1], a[2]);
         ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, transm);
         ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, rotm);
-        const NGLI_ALIGNED_MAT(itransm) = {
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-           -a[0],-a[1],-a[2], 1.0f,
-        };
-        ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, itransm);
+        ngli_mat4_translate(transm, -a[0], -a[1], -a[2]);
+        ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, transm);
     } else {
         ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, rotm);
     }
