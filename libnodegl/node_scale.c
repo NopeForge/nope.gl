@@ -58,31 +58,18 @@ static int scale_update(struct ngl_node *node, double t)
     struct scale *s = node->priv_data;
     struct ngl_node *child = s->child;
     const float *f = get_factors(s, t);
-    const NGLI_ALIGNED_MAT(sm) = {
-        f[0], 0.0f, 0.0f, 0.0f,
-        0.0f, f[1], 0.0f, 0.0f,
-        0.0f, 0.0f, f[2], 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f,
-    };
+    NGLI_ALIGNED_MAT(sm);
+    ngli_mat4_scale(sm, f[0], f[1], f[2]);
     static const float zero_anchor[3] = { 0.0, 0.0, 0.0 };
     const int translate = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
     if (translate) {
         const float *a = s->anchor;
-        const NGLI_ALIGNED_MAT(tm) = {
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-            a[0], a[1], a[2], 1.0f,
-        };
+        NGLI_ALIGNED_MAT(tm);
+        ngli_mat4_translate(tm, a[0], a[1], a[2]);
         ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, tm);
         ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, sm);
-        const NGLI_ALIGNED_MAT(itm) = {
-            1.0f, 0.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f,
-           -a[0],-a[1],-a[2], 1.0f,
-        };
-        ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, itm);
+        ngli_mat4_translate(tm, -a[0], -a[1], -a[2]);
+        ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, tm);
     } else {
         ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, sm);
     }
