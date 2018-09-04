@@ -360,6 +360,33 @@ void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, floa
     dst[15] =  0;
 }
 
+void ngli_mat4_rotate(float *dst, float angle, float *axis)
+{
+    const float a = cos(angle);
+    const float b = sin(angle);
+    const float c = 1.0f - a;
+
+    dst[ 0] = a + axis[0] * axis[0] * c;
+    dst[ 1] = axis[0] * axis[1] * c + axis[2] * b;
+    dst[ 2] = axis[0] * axis[2] * c - axis[1] * b;
+    dst[ 3] = 0.0f;
+
+    dst[ 4] = axis[0] * axis[1] * c - axis[2] * b;
+    dst[ 5] = a + axis[1] * axis[1] * c;
+    dst[ 6] = axis[1] * axis[2] * c + axis[0] * b;
+    dst[ 7] = 0.0f;
+
+    dst[ 8] = axis[0] * axis[2] * c + axis[1] * b;
+    dst[ 9] = axis[1] * axis[2] * c - axis[0] * b;
+    dst[10] = a + axis[2] * axis[2] * c;
+    dst[11] = 0.0f;
+
+    dst[12] = 0.0f;
+    dst[13] = 0.0f;
+    dst[14] = 0.0f;
+    dst[15] = 1.0f;
+}
+
 void ngli_mat4_rotation_from_quat(float *dst, const float *q)
 {
     float tmp[4];
