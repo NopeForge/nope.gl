@@ -442,6 +442,15 @@ void ngli_mat4_translate(float *dst, float x, float y, float z)
     dst[15] = 1.0f;
 }
 
+void ngli_mat4_scale(float *dst, float x, float y, float z)
+{
+    memset(dst, 0, 4 * 4 * sizeof(*dst));
+    dst[ 0] =  x;
+    dst[ 5] =  y;
+    dst[10] =  z;
+    dst[15] =  1.0f;
+}
+
 #define COS_ALPHA_THRESHOLD 0.9995f
 
 void ngli_quat_slerp(float *dst, const float *q1, const float *q2, float t)

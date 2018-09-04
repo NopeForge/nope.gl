@@ -63,6 +63,7 @@ void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, floa
 void ngli_mat4_rotate(float *dst, float angle, float *axis);
 void ngli_mat4_rotation_from_quat(float *dst, const float *quat);
 void ngli_mat4_translate(float *dst, float x, float y, float z);
+void ngli_mat4_scale(float *dst, float x, float y, float z);
 
 /* Arch specific versions */
 
