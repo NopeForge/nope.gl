@@ -56,12 +56,8 @@ static int translate_update(struct ngl_node *node, double t)
     struct translate *s = node->priv_data;
     struct ngl_node *child = s->child;
     const float *vec = get_vector(s, t);
-    const NGLI_ALIGNED_MAT(tm) = {
-        1.0f,   0.0f,   0.0f,   0.0f,
-        0.0f,   1.0f,   0.0f,   0.0f,
-        0.0f,   0.0f,   1.0f,   0.0f,
-        vec[0], vec[1], vec[2], 1.0f,
-    };
+    NGLI_ALIGNED_MAT(tm);
+    ngli_mat4_translate(tm, vec[0], vec[1], vec[2]);
     ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, tm);
     memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
     return ngli_node_update(child, t);
