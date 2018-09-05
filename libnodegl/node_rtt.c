@@ -204,6 +204,13 @@ static int rtt_update(struct ngl_node *node, double t)
     int ret = ngli_node_update(s->child, t);
     if (ret < 0)
         return ret;
+
+    if (s->depth_texture) {
+        ret = ngli_node_update(s->depth_texture, t);
+        if (ret < 0)
+            return ret;
+    }
+
     return ngli_node_update(s->color_texture, t);
 }
 
