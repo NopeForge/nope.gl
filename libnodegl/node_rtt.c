@@ -21,11 +21,14 @@
 
 #include <stddef.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "utils.h"
+
+#define DEFAULT_CLEAR_COLOR {-1.0f, -1.0f, -1.0f, -1.0f}
 
 #define OFFSET(x) offsetof(struct rtt, x)
 static const struct node_param rtt_params[] = {
@@ -42,6 +45,8 @@ static const struct node_param rtt_params[] = {
                       .desc=NGLI_DOCSTRING("destination depth (and potentially combined stencil) texture")},
     {"samples",       PARAM_TYPE_INT, OFFSET(samples),
                       .desc=NGLI_DOCSTRING("number of samples used for multisampling anti-aliasing")},
+    {"clear_color",   PARAM_TYPE_VEC4, OFFSET(clear_color), {.vec=DEFAULT_CLEAR_COLOR},
+                      .desc=NGLI_DOCSTRING("color used to clear the `color_texture`")},
     {NULL}
 };
 
@@ -60,6 +65,16 @@ static GLenum get_depth_attachment(GLenum format)
     default:
         return GL_INVALID_ENUM;
     }
+}
+
+static int rtt_init(struct ngl_node *node)
+{
+    struct rtt *s = node->priv_data;
+
+    float clear_color[4] = DEFAULT_CLEAR_COLOR;
+    s->use_clear_color = memcmp(s->clear_color, clear_color, sizeof(s->clear_color));
+
+    return 0;
 }
 
 static int rtt_prefetch(struct ngl_node *node)
@@ -232,6 +247,12 @@ static void rtt_draw(struct ngl_node *node)
 
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
     ngli_glViewport(gl, 0, 0, s->width, s->height);
+
+    if (s->use_clear_color) {
+        float *rgba = s->clear_color;
+        ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
+    }
+
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     ngli_node_transfer_matrices(s->child, node);
@@ -240,6 +261,12 @@ static void rtt_draw(struct ngl_node *node)
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         LOG(ERROR, "framebuffer %u is not complete", s->framebuffer_id);
         return;
+    }
+
+    if (s->use_clear_color) {
+        struct ngl_config *config = &ctx->config;
+        float *rgba = config->clear_color;
+        ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 
     if (s->samples > 0) {
@@ -305,6 +332,7 @@ static void rtt_release(struct ngl_node *node)
 const struct node_class ngli_rtt_class = {
     .id        = NGL_NODE_RENDERTOTEXTURE,
     .name      = "RenderToTexture",
+    .init      = rtt_init,
     .prefetch  = rtt_prefetch,
     .update    = rtt_update,
     .draw      = rtt_draw,

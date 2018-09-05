@@ -234,8 +234,12 @@ struct rtt {
     struct ngl_node *color_texture;
     struct ngl_node *depth_texture;
     int samples;
+    float clear_color[4];
+
+    int use_clear_color;
     int width;
     int height;
+
     GLuint framebuffer_id;
     GLuint renderbuffer_id;
     GLuint stencilbuffer_id;

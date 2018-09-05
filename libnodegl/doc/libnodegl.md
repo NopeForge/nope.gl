@@ -403,6 +403,7 @@ Parameter | Ctor. | Type | Description | Default
 `color_texture` | ✓ | [`Node`](#parameter-types) ([Texture2D](#texture2d)) | destination color texture | 
 `depth_texture` |  | [`Node`](#parameter-types) ([Texture2D](#texture2d)) | destination depth (and potentially combined stencil) texture | 
 `samples` |  | [`int`](#parameter-types) | number of samples used for multisampling anti-aliasing | `0`
+`clear_color` |  | [`vec4`](#parameter-types) | color used to clear the `color_texture` | (`-1`,`-1`,`-1`,`-1`)
 
 
 **Source**: [node_rtt.c](/libnodegl/node_rtt.c)
