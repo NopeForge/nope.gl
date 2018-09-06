@@ -88,6 +88,10 @@ static int camera_init(struct ngl_node *node)
         return -1;
     }
 
+    static const float zvec[4] = {0};
+    s->use_perspective = memcmp(s->perspective, zvec, sizeof(s->perspective));
+    s->use_orthographic = memcmp(s->orthographic, zvec, sizeof(s->orthographic));
+
     if (s->pipe_fd) {
         s->pipe_buf = calloc(4 /* RGBA */, s->pipe_width * s->pipe_height);
         if (!s->pipe_buf)
@@ -177,14 +181,13 @@ static int camera_update(struct ngl_node *node, double t)
         s->perspective[0] = anim->scalar;
     }
 
-    static const float zvec[4] = {0};
-    if (memcmp(s->perspective, zvec, sizeof(s->perspective))) {
+    if (s->use_perspective) {
         ngli_mat4_perspective(perspective,
                               s->perspective[0],
                               s->perspective[1],
                               s->clipping[0],
                               s->clipping[1]);
-    } else if (memcmp(s->orthographic, zvec, sizeof(s->orthographic))) {
+    } else if (s->use_orthographic) {
         ngli_mat4_orthographic(perspective,
                                s->orthographic[0],
                                s->orthographic[1],

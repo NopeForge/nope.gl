@@ -149,6 +149,9 @@ struct camera {
 
     struct ngl_node *fov_anim;
 
+    int use_perspective;
+    int use_orthographic;
+
     float ground[3];
 
     int pipe_fd;
