@@ -138,9 +138,6 @@ static int camera_update(struct ngl_node *node, double t)
     NGLI_ALIGNED_VEC(center) = {0.0f, 0.0f, 0.0f, 1.0f};
     NGLI_ALIGNED_VEC(up)     = {0.0f, 0.0f, 0.0f, 1.0f};
 
-    float perspective[4*4];
-    float view[4*4];
-
     const float *matrix;
 
 #define APPLY_TRANSFORM(what) do {                                          \
@@ -149,6 +146,7 @@ static int camera_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(s->what##_transform, t);                 \
         if (ret < 0)                                                        \
             return ret;                                                     \
+        ngli_node_draw(s->what##_transform);                                \
         matrix = ngli_get_last_transformation_matrix(s->what##_transform);  \
         if (matrix)                                                         \
             ngli_mat4_mul_vec4(what, matrix, what);                         \
@@ -165,12 +163,7 @@ static int camera_update(struct ngl_node *node, double t)
         ngli_vec3_cross(up, up, s->ground);
     }
 
-    ngli_mat4_look_at(
-        view,
-        eye,
-        center,
-        up
-    );
+    ngli_mat4_look_at(s->modelview_matrix, eye, center, up);
 
     if (s->fov_anim) {
         struct ngl_node *anim_node = s->fov_anim;
@@ -182,13 +175,13 @@ static int camera_update(struct ngl_node *node, double t)
     }
 
     if (s->use_perspective) {
-        ngli_mat4_perspective(perspective,
+        ngli_mat4_perspective(s->projection_matrix,
                               s->perspective[0],
                               s->perspective[1],
                               s->clipping[0],
                               s->clipping[1]);
     } else if (s->use_orthographic) {
-        ngli_mat4_orthographic(perspective,
+        ngli_mat4_orthographic(s->projection_matrix,
                                s->orthographic[0],
                                s->orthographic[1],
                                s->orthographic[2],
@@ -196,11 +189,8 @@ static int camera_update(struct ngl_node *node, double t)
                                s->clipping[0],
                                s->clipping[1]);
     } else {
-        ngli_mat4_identity(perspective);
+        ngli_mat4_identity(s->projection_matrix);
     }
-
-    memcpy(child->modelview_matrix, view, sizeof(view));
-    memcpy(child->projection_matrix, perspective, sizeof(perspective));
 
     return ngli_node_update(child, t);
 }
@@ -211,6 +201,11 @@ static void camera_draw(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
 
     struct camera *s = node->priv_data;
+    struct ngl_node *child = s->child;
+
+    memcpy(child->modelview_matrix, s->modelview_matrix, sizeof(s->modelview_matrix));
+    memcpy(child->projection_matrix, s->projection_matrix, sizeof(s->projection_matrix));
+
     ngli_node_draw(s->child);
 
     if (s->pipe_fd) {

@@ -209,7 +209,6 @@ static int timerangefilter_update(struct ngl_node *node, double t)
     s->drawme = 1;
 
     struct ngl_node *child = s->child;
-    ngli_node_transfer_matrices(child, node);
     return ngli_node_update(child, t);
 }
 
@@ -222,7 +221,9 @@ static void timerangefilter_draw(struct ngl_node *node)
         return;
     }
 
-    ngli_node_draw(s->child);
+    struct ngl_node *child = s->child;
+    ngli_node_transfer_matrices(child, node);
+    ngli_node_draw(child);
 }
 
 const struct node_class ngli_timerangefilter_class = {

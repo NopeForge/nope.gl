@@ -75,29 +75,27 @@ static int rotate_update(struct ngl_node *node, double t)
     float axis[3];
     ngli_vec3_norm(axis, s->axis);
 
-    NGLI_ALIGNED_MAT(rotm);
     const double angle = get_angle(s, t) * (2.0f * M_PI / 360.0f);
-    ngli_mat4_rotate(rotm, angle, axis);
+    ngli_mat4_rotate(s->matrix, angle, axis);
 
     if (s->use_anchor) {
         float *a = s->anchor;
         NGLI_ALIGNED_MAT(transm);
         ngli_mat4_translate(transm, a[0], a[1], a[2]);
-        ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, transm);
-        ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, rotm);
+        ngli_mat4_mul(s->matrix, transm, s->matrix);
         ngli_mat4_translate(transm, -a[0], -a[1], -a[2]);
-        ngli_mat4_mul(child->modelview_matrix, child->modelview_matrix, transm);
-    } else {
-        ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, rotm);
+        ngli_mat4_mul(s->matrix, s->matrix, transm);
     }
 
-    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
     return ngli_node_update(child, t);
 }
 
 static void rotate_draw(struct ngl_node *node)
 {
     struct rotate *s = node->priv_data;
+    struct ngl_node *child = s->child;
+    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
+    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
     ngli_node_draw(s->child);
 }
 

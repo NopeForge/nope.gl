@@ -134,6 +134,7 @@ static int uniform_mat_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(s->transform, t);
         if (ret < 0)
             return ret;
+        ngli_node_draw(s->transform);
         const float *matrix = ngli_get_last_transformation_matrix(s->transform);
         memcpy(s->matrix, matrix, sizeof(s->matrix));
     }

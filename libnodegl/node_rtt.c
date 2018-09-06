@@ -201,7 +201,6 @@ static int rtt_prefetch(struct ngl_node *node)
 static int rtt_update(struct ngl_node *node, double t)
 {
     struct rtt *s = node->priv_data;
-    ngli_node_transfer_matrices(s->child, node);
     int ret = ngli_node_update(s->child, t);
     if (ret < 0)
         return ret;
@@ -228,6 +227,7 @@ static void rtt_draw(struct ngl_node *node)
     ngli_glViewport(gl, 0, 0, s->width, s->height);
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    ngli_node_transfer_matrices(s->child, node);
     ngli_node_draw(s->child);
 
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {

@@ -154,6 +154,9 @@ struct camera {
 
     float ground[3];
 
+    NGLI_ALIGNED_MAT(modelview_matrix);
+    NGLI_ALIGNED_MAT(projection_matrix);
+
     int pipe_fd;
     int pipe_width, pipe_height;
     uint8_t *pipe_buf;
@@ -456,6 +459,7 @@ struct rotate {
     float anchor[3];
     struct ngl_node *anim;
     int use_anchor;
+    NGLI_ALIGNED_MAT(matrix);
 };
 
 struct transform {
@@ -467,6 +471,7 @@ struct translate {
     struct ngl_node *child;
     float vector[3];
     struct ngl_node *anim;
+    NGLI_ALIGNED_MAT(matrix);
 };
 
 struct scale {
@@ -475,6 +480,7 @@ struct scale {
     float anchor[3];
     struct ngl_node *anim;
     int use_anchor;
+    NGLI_ALIGNED_MAT(matrix);
 };
 
 enum easing_id {

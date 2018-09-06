@@ -43,7 +43,6 @@ static int group_update(struct ngl_node *node, double t)
 
     for (int i = 0; i < s->nb_children; i++) {
         struct ngl_node *child = s->children[i];
-        ngli_node_transfer_matrices(child, node);
         int ret = ngli_node_update(child, t);
         if (ret < 0)
             return ret;
@@ -55,8 +54,11 @@ static int group_update(struct ngl_node *node, double t)
 static void group_draw(struct ngl_node *node)
 {
     struct group *s = node->priv_data;
-    for (int i = 0; i < s->nb_children; i++)
-        ngli_node_draw(s->children[i]);
+    for (int i = 0; i < s->nb_children; i++) {
+        struct ngl_node *child = s->children[i];
+        ngli_node_transfer_matrices(child, node);
+        ngli_node_draw(child);
+    }
 }
 
 const struct node_class ngli_group_class = {

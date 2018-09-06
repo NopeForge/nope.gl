@@ -40,16 +40,16 @@ static int transform_update(struct ngl_node *node, double t)
 {
     struct transform *s = node->priv_data;
     struct ngl_node *child = s->child;
-
-    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
-    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
     return ngli_node_update(child, t);
 }
 
 static void transform_draw(struct ngl_node *node)
 {
     struct transform *s = node->priv_data;
-    ngli_node_draw(s->child);
+    struct ngl_node *child = s->child;
+    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
+    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
+    ngli_node_draw(child);
 }
 
 const struct node_class ngli_transform_class = {

@@ -178,7 +178,6 @@ static int graphicconfig_update(struct ngl_node *node, double t)
     struct graphicconfig *s = node->priv_data;
     struct ngl_node *child = s->child;
 
-    ngli_node_transfer_matrices(child, node);
     return ngli_node_update(child, t);
 }
 
@@ -242,9 +241,11 @@ static void honor_config(struct ngl_node *node, int restore)
 static void graphicconfig_draw(struct ngl_node *node)
 {
     struct graphicconfig *s = node->priv_data;
+    struct ngl_node *child = s->child;
 
     honor_config(node, 0);
-    ngli_node_draw(s->child);
+    ngli_node_transfer_matrices(child, node);
+    ngli_node_draw(child);
     honor_config(node, 1);
 }
 

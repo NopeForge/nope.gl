@@ -431,8 +431,6 @@ static int hud_update(struct ngl_node *node, double t)
     if (s->need_refresh)
         s->last_refresh_time = t;
 
-    ngli_node_transfer_matrices(child, node);
-
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
@@ -476,6 +474,7 @@ static void hud_draw(struct ngl_node *node)
     }
 
     const int64_t draw_start = ngli_gettime();
+    ngli_node_transfer_matrices(s->child, node);
     ngli_node_draw(s->child);
     const int64_t draw_end = ngli_gettime();
 
