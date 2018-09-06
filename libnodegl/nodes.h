@@ -452,6 +452,7 @@ struct rotate {
     float axis[3];
     float anchor[3];
     struct ngl_node *anim;
+    int use_anchor;
 };
 
 struct transform {
