@@ -471,6 +471,7 @@ struct scale {
     float factors[3];
     float anchor[3];
     struct ngl_node *anim;
+    int use_anchor;
 };
 
 enum easing_id {

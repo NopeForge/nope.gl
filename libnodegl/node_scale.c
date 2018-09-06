@@ -53,6 +53,14 @@ static const float *get_factors(struct scale *s, double t)
     return anim->values;
 }
 
+static int scale_init(struct ngl_node *node)
+{
+    struct scale *s = node->priv_data;
+    static const float zero_anchor[3] = {0};
+    s->use_anchor = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
+    return 0;
+}
+
 static int scale_update(struct ngl_node *node, double t)
 {
     struct scale *s = node->priv_data;
@@ -60,9 +68,7 @@ static int scale_update(struct ngl_node *node, double t)
     const float *f = get_factors(s, t);
     NGLI_ALIGNED_MAT(sm);
     ngli_mat4_scale(sm, f[0], f[1], f[2]);
-    static const float zero_anchor[3] = { 0.0, 0.0, 0.0 };
-    const int translate = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
-    if (translate) {
+    if (s->use_anchor) {
         const float *a = s->anchor;
         NGLI_ALIGNED_MAT(tm);
         ngli_mat4_translate(tm, a[0], a[1], a[2]);
@@ -87,6 +93,7 @@ static void scale_draw(struct ngl_node *node)
 const struct node_class ngli_scale_class = {
     .id        = NGL_NODE_SCALE,
     .name      = "Scale",
+    .init      = scale_init,
     .update    = scale_update,
     .draw      = scale_draw,
     .priv_size = sizeof(struct scale),
