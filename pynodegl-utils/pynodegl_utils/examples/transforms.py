@@ -105,26 +105,17 @@ def animated_camera(cfg, rotate=True):
     node.update_textures(tex0=t)
     g.add_children(node)
 
-    z = -1
-    q = Quad((-1.1, 0.3, z), (1, 0, 0), (0, 1, 0))
-    node = Render(q, p)
-    node.update_textures(tex0=t)
-    g.add_children(node)
+    translate = Translate(node, vector=(-0.6, 0.8, -1))
+    g.add_children(translate)
 
-    q = Quad((0.1, 0.3, z), (1, 0, 0), (0, 1, 0))
-    node = Render(q, p)
-    node.update_textures(tex0=t)
-    g.add_children(node)
+    translate = Translate(node, vector=(0.6, 0.8, -1))
+    g.add_children(translate)
 
-    q = Quad((-1.1, -1.0, z), (1, 0, 0), (0, 1, 0))
-    node = Render(q, p)
-    node.update_textures(tex0=t)
-    g.add_children(node)
+    translate = Translate(node, vector=(-0.6, -0.5, -1))
+    g.add_children(translate)
 
-    q = Quad((0.1, -1.0, z), (1, 0, 0), (0, 1, 0))
-    node = Render(q, p)
-    node.update_textures(tex0=t)
-    g.add_children(node)
+    translate = Translate(node, vector=(0.6, -0.5, -1))
+    g.add_children(translate)
 
     g = GraphicConfig(g, depth_test=True)
     camera = Camera(g)
