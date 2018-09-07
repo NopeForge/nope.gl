@@ -152,6 +152,10 @@ struct camera {
     int use_perspective;
     int use_orthographic;
 
+    const float *eye_transform_matrix;
+    const float *center_transform_matrix;
+    const float *up_transform_matrix;
+
     float ground[3];
 
     NGLI_ALIGNED_MAT(modelview_matrix);

@@ -92,6 +92,10 @@ static int camera_init(struct ngl_node *node)
     s->use_perspective = memcmp(s->perspective, zvec, sizeof(s->perspective));
     s->use_orthographic = memcmp(s->orthographic, zvec, sizeof(s->orthographic));
 
+    s->eye_transform_matrix    = ngli_get_last_transformation_matrix(s->eye_transform);
+    s->center_transform_matrix = ngli_get_last_transformation_matrix(s->center_transform);
+    s->up_transform_matrix     = ngli_get_last_transformation_matrix(s->up_transform);
+
     if (s->pipe_fd) {
         s->pipe_buf = calloc(4 /* RGBA */, s->pipe_width * s->pipe_height);
         if (!s->pipe_buf)
@@ -138,8 +142,6 @@ static int camera_update(struct ngl_node *node, double t)
     NGLI_ALIGNED_VEC(center) = {0.0f, 0.0f, 0.0f, 1.0f};
     NGLI_ALIGNED_VEC(up)     = {0.0f, 0.0f, 0.0f, 1.0f};
 
-    const float *matrix;
-
 #define APPLY_TRANSFORM(what) do {                                          \
     memcpy(what, s->what, sizeof(s->what));                                 \
     if (s->what##_transform) {                                              \
@@ -147,7 +149,7 @@ static int camera_update(struct ngl_node *node, double t)
         if (ret < 0)                                                        \
             return ret;                                                     \
         ngli_node_draw(s->what##_transform);                                \
-        matrix = ngli_get_last_transformation_matrix(s->what##_transform);  \
+        const float *matrix = s->what##_transform_matrix;                   \
         if (matrix)                                                         \
             ngli_mat4_mul_vec4(what, matrix, what);                         \
     }                                                                       \
