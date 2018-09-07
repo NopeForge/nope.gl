@@ -231,6 +231,7 @@ struct uniform {
     int ival;
     struct ngl_node *anim;
     struct ngl_node *transform;
+    const float *transform_matrix;
 };
 
 struct rtt {

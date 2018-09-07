@@ -127,6 +127,13 @@ static int uniformquat_update(struct ngl_node *node, double t)
     return ret;
 }
 
+static int uniform_mat_init(struct ngl_node *node)
+{
+    struct uniform *s = node->priv_data;
+    s->transform_matrix = ngli_get_last_transformation_matrix(s->transform);
+    return 0;
+}
+
 static int uniform_mat_update(struct ngl_node *node, double t)
 {
     struct uniform *s = node->priv_data;
@@ -135,8 +142,8 @@ static int uniform_mat_update(struct ngl_node *node, double t)
         if (ret < 0)
             return ret;
         ngli_node_draw(s->transform);
-        const float *matrix = ngli_get_last_transformation_matrix(s->transform);
-        memcpy(s->matrix, matrix, sizeof(s->matrix));
+        if (s->transform_matrix)
+            memcpy(s->matrix, s->transform_matrix, sizeof(s->matrix));
     }
     return 0;
 }
@@ -197,6 +204,7 @@ const struct node_class ngli_uniformint_class = {
 const struct node_class ngli_uniformmat4_class = {
     .id        = NGL_NODE_UNIFORMMAT4,
     .name      = "UniformMat4",
+    .init      = uniform_mat_init,
     .update    = uniform_mat_update,
     .priv_size = sizeof(struct uniform),
     .params    = uniformmat4_params,
