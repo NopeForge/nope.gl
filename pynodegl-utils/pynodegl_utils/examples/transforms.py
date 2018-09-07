@@ -9,6 +9,7 @@ from pynodegl import (
         AnimatedFloat,
         AnimatedVec3,
         Camera,
+        Circle,
         GraphicConfig,
         Group,
         Identity,
@@ -163,3 +164,46 @@ def animated_buffer(cfg, dim=50):
     render = Render(quad, prog)
     render.update_textures(tex0=random_tex)
     return render
+
+
+@scene()
+def animated_circles(cfg):
+    group = Group()
+
+    cfg.duration = 5.
+    cfg.aspect_ratio = (1, 1)
+    radius = 0.2
+    n = 10
+    step = 360. / n
+
+    shape = Circle(radius=radius, npoints=128)
+    prog = Program(fragment=get_frag('color'))
+    render = Render(shape, prog)
+    render.update_uniforms(color=UniformVec4([1.0] * 4))
+
+    for i in range(n):
+        mid_time = cfg.duration / 2.0
+        start_time = mid_time / (i + 2)
+        end_time = cfg.duration - start_time
+
+        scale_animkf = [
+                AnimKeyFrameVec3(start_time, (0, 0, 0)),
+                AnimKeyFrameVec3(mid_time, (1.0, 1.0, 1.0), 'exp_out'),
+                AnimKeyFrameVec3(end_time, (0, 0, 0), 'exp_in'),
+        ]
+
+        angle = i * step
+        rotate_animkf = [
+                AnimKeyFrameFloat(start_time, 0),
+                AnimKeyFrameFloat(mid_time, angle, 'exp_out'),
+                AnimKeyFrameFloat(end_time, 0, 'exp_in'),
+        ]
+
+        tnode = render
+        tnode = Scale(tnode, anim=AnimatedVec3(scale_animkf))
+        tnode = Translate(tnode, vector=(1 - radius, 0, 0))
+        tnode = Rotate(tnode, anim=AnimatedFloat(rotate_animkf))
+
+        group.add_children(tnode)
+
+    return group
