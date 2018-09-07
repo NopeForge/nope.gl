@@ -387,7 +387,7 @@ void ngli_mat4_rotate(float *dst, float angle, float *axis)
     dst[15] = 1.0f;
 }
 
-void ngli_mat4_rotation_from_quat(float *dst, const float *q)
+void ngli_mat4_rotate_from_quat(float *dst, const float *q)
 {
     float tmp[4];
     const float *tmpp = q;
