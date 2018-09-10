@@ -65,6 +65,7 @@ static int rotate_init(struct ngl_node *node)
         return -1;
     }
     s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
+    ngli_vec3_norm(s->normed_axis, s->axis);
     return 0;
 }
 
@@ -72,11 +73,9 @@ static int rotate_update(struct ngl_node *node, double t)
 {
     struct rotate *s = node->priv_data;
     struct ngl_node *child = s->child;
-    float axis[3];
-    ngli_vec3_norm(axis, s->axis);
 
     const double angle = get_angle(s, t) * (2.0f * M_PI / 360.0f);
-    ngli_mat4_rotate(s->matrix, angle, axis);
+    ngli_mat4_rotate(s->matrix, angle, s->normed_axis);
 
     if (s->use_anchor) {
         const float *a = s->anchor;
