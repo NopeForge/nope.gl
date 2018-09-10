@@ -31,6 +31,7 @@ struct hmap;
 struct hmap_entry {
     char *key;
     void *data;
+    int bucket_id;
 };
 
 typedef void (*user_free_func_type)(void *user_arg, void *data);

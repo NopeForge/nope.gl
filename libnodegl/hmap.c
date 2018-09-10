@@ -72,7 +72,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
         return -1;
 
     const uint32_t hash = ngli_crc32(key);
-    const int id = hash & hm->mask;
+    int id = hash & hm->mask;
     struct bucket *b = &hm->buckets[id];
 
     /* Delete */
@@ -145,7 +145,9 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                     }
                     b->entries = entries;
                     struct hmap_entry *new_e = &entries[b->nb_entries++];
-                    memcpy(new_e, e, sizeof(*e));
+                    new_e->key = e->key;
+                    new_e->data = e->data;
+                    new_e->bucket_id = new_id;
                     hm->count++;
                 }
 
@@ -162,7 +164,8 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
             free(old_hm.buckets);
 
             /* Fix the bucket position for the entry to add */
-            b = &hm->buckets[hash & hm->mask];
+            id = hash & hm->mask;
+            b = &hm->buckets[id];
         }
     }
 
@@ -180,6 +183,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
     struct hmap_entry *e = &entries[b->nb_entries++];
     e->key = new_key;
     e->data = data;
+    e->bucket_id = id;
     hm->count++;
 
     return 0;
@@ -205,7 +209,7 @@ const struct hmap_entry *ngli_hmap_next(const struct hmap *hm,
     if (!prev)
         return get_first_entry(hm, 0);
 
-    const int id = ngli_crc32(prev->key) & hm->mask;
+    const int id = prev->bucket_id;
     const struct bucket *b = &hm->buckets[id];
     const int entry_id = prev - b->entries;
 
