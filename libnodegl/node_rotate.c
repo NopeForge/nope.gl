@@ -79,7 +79,7 @@ static int rotate_update(struct ngl_node *node, double t)
     ngli_mat4_rotate(s->matrix, angle, axis);
 
     if (s->use_anchor) {
-        float *a = s->anchor;
+        const float *a = s->anchor;
         NGLI_ALIGNED_MAT(transm);
         ngli_mat4_translate(transm, a[0], a[1], a[2]);
         ngli_mat4_mul(s->matrix, transm, s->matrix);
