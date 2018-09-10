@@ -60,6 +60,9 @@ class BuildExtCommand(build_ext):
             return '''
         cdef float[%(n)d] %(cvecname)s
         cdef int %(vecname)s_i
+        if len(%(vecname)s) != %(n)d:
+            raise TypeError("%%s parameter is expected to be vec%%d but got %%d values" %% (
+                            "%(vecname)s", %(n)d, len(%(vecname)s)))
         for %(vecname)s_i in range(%(n)d):
             %(cvecname)s[%(vecname)s_i] = %(vecname)s[%(vecname)s_i]
 ''' % {'n': n, 'vecname': vecname, 'cvecname': cvecname}
