@@ -202,12 +202,12 @@ cdef class _Node:
         data_dict = {}
         if arg is not None:
             if not isinstance(arg, dict):
-                raise TypeError(field_name + " must be of type dict")
+                raise TypeError("%%s must be of type dict" %% field_name)
             data_dict.update(arg)
         data_dict.update(**kwargs)
         for key, val in data_dict.iteritems():
             if not isinstance(key, str) or (val is not None and not isinstance(val, _Node)):
-                raise TypeError("update_" + field_name + "() takes a dictionary of <string, Node>")
+                raise TypeError("update_%%s() takes a dictionary of <string, Node>" %% field_name)
             node = (<_Node>val).ctx if val is not None else NULL
             ret = ngl_node_param_set(self.ctx, field_name, <const char *>key, node)
             if ret < 0:
@@ -237,8 +237,9 @@ cdef class _Node:
                     class_str += '''
     def _add_%(field_type)s(self, field_name, *elems):
         if hasattr(elems[0], '__iter__'):
-            raise Exception("add_" + field_name + "() takes elements as "
-                            "positional arguments, not list")
+            raise Exception("add_%%s() takes elements as "
+                            "positional arguments, not list" %%
+                            field_name)
         cdef int nb_elems = len(elems)
         elems_c = <%(citem_type)s*>calloc(len(elems), sizeof(%(citem_type)s))
         if elems_c is NULL:
