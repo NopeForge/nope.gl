@@ -27,10 +27,11 @@
 #include "nodegl.h"
 #include "nodes.h"
 #include "math_utils.h"
+#include "transforms.h"
 
 #define OFFSET(x) offsetof(struct rotate, x)
 static const struct node_param rotate_params[] = {
-    {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
+    {"child", PARAM_TYPE_NODE, OFFSET(trf.child), .flags=PARAM_FLAG_CONSTRUCTOR,
               .desc=NGLI_DOCSTRING("scene to rotate")},
     {"angle",  PARAM_TYPE_DBL,  OFFSET(angle),
                .desc=NGLI_DOCSTRING("rotation angle in degrees")},
@@ -72,8 +73,9 @@ static int rotate_init(struct ngl_node *node)
 static int rotate_update(struct ngl_node *node, double t)
 {
     struct rotate *s = node->priv_data;
-    struct ngl_node *child = s->child;
-    float *matrix = s->matrix;
+    struct transform *trf = &s->trf;
+    struct ngl_node *child = trf->child;
+    float *matrix = trf->matrix;
 
     const double angle = get_angle(s, t) * (2.0f * M_PI / 360.0f);
     ngli_mat4_rotate(matrix, angle, s->normed_axis);
@@ -90,21 +92,14 @@ static int rotate_update(struct ngl_node *node, double t)
     return ngli_node_update(child, t);
 }
 
-static void rotate_draw(struct ngl_node *node)
-{
-    struct rotate *s = node->priv_data;
-    struct ngl_node *child = s->child;
-    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
-    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
-    ngli_node_draw(child);
-}
+NGLI_STATIC_ASSERT(trf_on_top_of_rotate, OFFSET(trf) == 0);
 
 const struct node_class ngli_rotate_class = {
     .id        = NGL_NODE_ROTATE,
     .name      = "Rotate",
     .init      = rotate_init,
     .update    = rotate_update,
-    .draw      = rotate_draw,
+    .draw      = ngli_transform_draw,
     .priv_size = sizeof(struct rotate),
     .params    = rotate_params,
     .file      = __FILE__,

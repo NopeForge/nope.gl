@@ -21,15 +21,15 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "math_utils.h"
+#include "transforms.h"
 
 #define OFFSET(x) offsetof(struct translate, x)
 static const struct node_param translate_params[] = {
-    {"child",  PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
+    {"child",  PARAM_TYPE_NODE, OFFSET(trf.child), .flags=PARAM_FLAG_CONSTRUCTOR,
                .desc=NGLI_DOCSTRING("scene to translate")},
     {"vector", PARAM_TYPE_VEC3, OFFSET(vector),
                .desc=NGLI_DOCSTRING("translation vector")},
@@ -54,26 +54,20 @@ static const float *get_vector(struct translate *s, double t)
 static int translate_update(struct ngl_node *node, double t)
 {
     struct translate *s = node->priv_data;
-    struct ngl_node *child = s->child;
+    struct transform *trf = &s->trf;
+    struct ngl_node *child = trf->child;
     const float *vec = get_vector(s, t);
-    ngli_mat4_translate(s->matrix, vec[0], vec[1], vec[2]);
+    ngli_mat4_translate(trf->matrix, vec[0], vec[1], vec[2]);
     return ngli_node_update(child, t);
 }
 
-static void translate_draw(struct ngl_node *node)
-{
-    struct translate *s = node->priv_data;
-    struct ngl_node *child = s->child;
-    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
-    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
-    ngli_node_draw(child);
-}
+NGLI_STATIC_ASSERT(trf_on_top_of_translate, OFFSET(trf) == 0);
 
 const struct node_class ngli_translate_class = {
     .id        = NGL_NODE_TRANSLATE,
     .name      = "Translate",
     .update    = translate_update,
-    .draw      = translate_draw,
+    .draw      = ngli_transform_draw,
     .priv_size = sizeof(struct translate),
     .params    = translate_params,
     .file      = __FILE__,

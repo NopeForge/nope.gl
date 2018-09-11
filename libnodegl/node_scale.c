@@ -26,10 +26,11 @@
 #include "nodegl.h"
 #include "nodes.h"
 #include "math_utils.h"
+#include "transforms.h"
 
 #define OFFSET(x) offsetof(struct scale, x)
 static const struct node_param scale_params[] = {
-    {"child",   PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
+    {"child",   PARAM_TYPE_NODE, OFFSET(trf.child), .flags=PARAM_FLAG_CONSTRUCTOR,
                 .desc=NGLI_DOCSTRING("scene to scale")},
     {"factors", PARAM_TYPE_VEC3, OFFSET(factors),
                 .desc=NGLI_DOCSTRING("scaling factors (how much to scale on each axis)")},
@@ -64,8 +65,9 @@ static int scale_init(struct ngl_node *node)
 static int scale_update(struct ngl_node *node, double t)
 {
     struct scale *s = node->priv_data;
-    struct ngl_node *child = s->child;
-    float *matrix = s->matrix;
+    struct transform *trf = &s->trf;
+    struct ngl_node *child = trf->child;
+    float *matrix = trf->matrix;
 
     const float *f = get_factors(s, t);
     ngli_mat4_scale(matrix, f[0], f[1], f[2]);
@@ -82,21 +84,14 @@ static int scale_update(struct ngl_node *node, double t)
     return ngli_node_update(child, t);
 }
 
-static void scale_draw(struct ngl_node *node)
-{
-    struct scale *s = node->priv_data;
-    struct ngl_node *child = s->child;
-    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
-    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
-    ngli_node_draw(child);
-}
+NGLI_STATIC_ASSERT(trf_on_top_of_scale, OFFSET(trf) == 0);
 
 const struct node_class ngli_scale_class = {
     .id        = NGL_NODE_SCALE,
     .name      = "Scale",
     .init      = scale_init,
     .update    = scale_update,
-    .draw      = scale_draw,
+    .draw      = ngli_transform_draw,
     .priv_size = sizeof(struct scale),
     .params    = scale_params,
     .file      = __FILE__,

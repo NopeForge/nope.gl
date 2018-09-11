@@ -461,36 +461,33 @@ struct timerangemode {
     int updated;
 };
 
-struct rotate {
+struct transform {
     struct ngl_node *child;
+    NGLI_ALIGNED_MAT(matrix);
+};
+
+struct rotate {
+    struct transform trf;
     double angle;
     float axis[3];
     float normed_axis[3];
     float anchor[3];
     struct ngl_node *anim;
     int use_anchor;
-    NGLI_ALIGNED_MAT(matrix);
-};
-
-struct transform {
-    struct ngl_node *child;
-    NGLI_ALIGNED_MAT(matrix);
 };
 
 struct translate {
-    struct ngl_node *child;
+    struct transform trf;
     float vector[3];
     struct ngl_node *anim;
-    NGLI_ALIGNED_MAT(matrix);
 };
 
 struct scale {
-    struct ngl_node *child;
+    struct transform trf;
     float factors[3];
     float anchor[3];
     struct ngl_node *anim;
     int use_anchor;
-    NGLI_ALIGNED_MAT(matrix);
 };
 
 enum easing_id {

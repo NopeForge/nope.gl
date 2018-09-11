@@ -19,34 +19,42 @@
  * under the License.
  */
 
+#include <string.h>
 #include "log.h"
 #include "nodegl.h"
+#include "math_utils.h"
 #include "transforms.h"
 
 const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
 {
     while (node) {
         const int id = node->class->id;
-        if (id == NGL_NODE_ROTATE) {
-            const struct rotate *rotate = node->priv_data;
-            node = rotate->child;
-        } else if (id == NGL_NODE_TRANSFORM) {
-            const struct transform *transform = node->priv_data;
-            node = transform->child;
-        } else if (id == NGL_NODE_TRANSLATE) {
-            const struct translate *translate = node->priv_data;
-            node = translate->child;
-        } else if (id == NGL_NODE_SCALE) {
-            const struct scale *scale = node->priv_data;
-            node = scale->child;
-        } else if (id == NGL_NODE_IDENTITY) {
-            return node->modelview_matrix;
-        } else {
-            LOG(ERROR, "%s (%s) is not an allowed type for a camera transformation",
-                node->name, node->class->name);
-            break;
+        switch (id) {
+            case NGL_NODE_ROTATE:
+            case NGL_NODE_SCALE:
+            case NGL_NODE_TRANSFORM:
+            case NGL_NODE_TRANSLATE: {
+                const struct transform *trf = node->priv_data;
+                node = trf->child;
+                break;
+            }
+            case NGL_NODE_IDENTITY:
+                return node->modelview_matrix;
+            default:
+                LOG(ERROR, "%s (%s) is not an allowed type for a camera transformation",
+                    node->name, node->class->name);
+                break;
         }
     }
 
     return NULL;
+}
+
+void ngli_transform_draw(struct ngl_node *node)
+{
+    struct transform *s = node->priv_data;
+    struct ngl_node *child = s->child;
+    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
+    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
+    ngli_node_draw(child);
 }

@@ -21,11 +21,11 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include <string.h>
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "math_utils.h"
+#include "transforms.h"
 
 #define OFFSET(x) offsetof(struct transform, x)
 static const struct node_param transform_params[] = {
@@ -43,20 +43,11 @@ static int transform_update(struct ngl_node *node, double t)
     return ngli_node_update(child, t);
 }
 
-static void transform_draw(struct ngl_node *node)
-{
-    struct transform *s = node->priv_data;
-    struct ngl_node *child = s->child;
-    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
-    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
-    ngli_node_draw(child);
-}
-
 const struct node_class ngli_transform_class = {
     .id        = NGL_NODE_TRANSFORM,
     .name      = "Transform",
     .update    = transform_update,
-    .draw      = transform_draw,
+    .draw      = ngli_transform_draw,
     .priv_size = sizeof(struct transform),
     .params    = transform_params,
     .file      = __FILE__,
