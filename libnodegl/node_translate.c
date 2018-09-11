@@ -66,7 +66,7 @@ static void translate_draw(struct ngl_node *node)
     struct ngl_node *child = s->child;
     ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
     memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
-    ngli_node_draw(s->child);
+    ngli_node_draw(child);
 }
 
 const struct node_class ngli_translate_class = {
