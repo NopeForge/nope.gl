@@ -244,7 +244,6 @@ static void graphicconfig_draw(struct ngl_node *node)
     struct ngl_node *child = s->child;
 
     honor_config(node, 0);
-    ngli_node_transfer_matrices(child, node);
     ngli_node_draw(child);
     honor_config(node, 1);
 }

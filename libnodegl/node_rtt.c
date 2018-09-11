@@ -255,7 +255,6 @@ static void rtt_draw(struct ngl_node *node)
 
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    ngli_node_transfer_matrices(s->child, node);
     ngli_node_draw(s->child);
 
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {

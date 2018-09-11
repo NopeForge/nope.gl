@@ -136,12 +136,17 @@ static int uniform_mat_init(struct ngl_node *node)
 
 static int uniform_mat_update(struct ngl_node *node, double t)
 {
+    struct ngl_ctx *ctx = node->ctx;
     struct uniform *s = node->priv_data;
     if (s->transform) {
         int ret = ngli_node_update(s->transform, t);
         if (ret < 0)
             return ret;
+        static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
+        if (!ngli_darray_push(&ctx->modelview_matrix_stack, id_matrix))
+            return -1;
         ngli_node_draw(s->transform);
+        ngli_darray_pop(&ctx->modelview_matrix_stack);
         if (s->transform_matrix)
             memcpy(s->matrix, s->transform_matrix, sizeof(s->matrix));
     }

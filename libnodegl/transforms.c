@@ -38,8 +38,10 @@ const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
                 node = trf->child;
                 break;
             }
-            case NGL_NODE_IDENTITY:
-                return node->modelview_matrix;
+            case NGL_NODE_IDENTITY: {
+                const struct identity *identity = node->priv_data;
+                return identity->modelview_matrix;
+            }
             default:
                 LOG(ERROR, "%s (%s) is not an allowed type for a camera transformation",
                     node->name, node->class->name);
@@ -52,9 +54,18 @@ const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
 
 void ngli_transform_draw(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
     struct transform *s = node->priv_data;
     struct ngl_node *child = s->child;
-    ngli_mat4_mul(child->modelview_matrix, node->modelview_matrix, s->matrix);
-    memcpy(child->projection_matrix, node->projection_matrix, sizeof(node->projection_matrix));
+
+    float *prev_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
+    ngli_assert(prev_matrix);
+
+    float *next_matrix = ngli_darray_push(&ctx->modelview_matrix_stack, NULL);
+    if (!next_matrix)
+        return;
+
+    ngli_mat4_mul(next_matrix, prev_matrix, s->matrix);
     ngli_node_draw(child);
+    ngli_darray_pop(&ctx->modelview_matrix_stack);
 }

@@ -25,6 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "darray.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -141,12 +142,14 @@ static int camera_init(struct ngl_node *node)
 
 static int camera_update(struct ngl_node *node, double t)
 {
+    struct ngl_ctx *ctx = node->ctx;
     struct camera *s = node->priv_data;
     struct ngl_node *child = s->child;
 
     NGLI_ALIGNED_VEC(eye)    = {0.0f, 0.0f, 0.0f, 1.0f};
     NGLI_ALIGNED_VEC(center) = {0.0f, 0.0f, 0.0f, 1.0f};
     NGLI_ALIGNED_VEC(up)     = {0.0f, 0.0f, 0.0f, 1.0f};
+    static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
 
 #define APPLY_TRANSFORM(what) do {                                          \
     memcpy(what, s->what, sizeof(s->what));                                 \
@@ -154,7 +157,10 @@ static int camera_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(s->what##_transform, t);                 \
         if (ret < 0)                                                        \
             return ret;                                                     \
+        if (!ngli_darray_push(&ctx->modelview_matrix_stack, id_matrix))     \
+            return -1;                                                      \
         ngli_node_draw(s->what##_transform);                                \
+        ngli_darray_pop(&ctx->modelview_matrix_stack);                      \
         const float *matrix = s->what##_transform_matrix;                   \
         if (matrix)                                                         \
             ngli_mat4_mul_vec4(what, matrix, what);                         \
@@ -209,12 +215,15 @@ static void camera_draw(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
 
     struct camera *s = node->priv_data;
-    struct ngl_node *child = s->child;
 
-    memcpy(child->modelview_matrix, s->modelview_matrix, sizeof(s->modelview_matrix));
-    memcpy(child->projection_matrix, s->projection_matrix, sizeof(s->projection_matrix));
+    if (!ngli_darray_push(&ctx->modelview_matrix_stack, s->modelview_matrix) ||
+        !ngli_darray_push(&ctx->projection_matrix_stack, s->projection_matrix))
+        return;
 
     ngli_node_draw(s->child);
+
+    ngli_darray_pop(&ctx->modelview_matrix_stack);
+    ngli_darray_pop(&ctx->projection_matrix_stack);
 
     if (s->pipe_fd) {
         GLuint framebuffer_read_id;

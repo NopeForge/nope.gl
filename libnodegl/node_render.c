@@ -112,17 +112,20 @@ static int update_geometry_uniforms(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render *s = node->priv_data;
 
+    const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
+    const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
+
     if (s->modelview_matrix_location_id >= 0) {
-        ngli_glUniformMatrix4fv(gl, s->modelview_matrix_location_id, 1, GL_FALSE, node->modelview_matrix);
+        ngli_glUniformMatrix4fv(gl, s->modelview_matrix_location_id, 1, GL_FALSE, modelview_matrix);
     }
 
     if (s->projection_matrix_location_id >= 0) {
-        ngli_glUniformMatrix4fv(gl, s->projection_matrix_location_id, 1, GL_FALSE, node->projection_matrix);
+        ngli_glUniformMatrix4fv(gl, s->projection_matrix_location_id, 1, GL_FALSE, projection_matrix);
     }
 
     if (s->normal_matrix_location_id >= 0) {
         float normal_matrix[3*3];
-        ngli_mat3_from_mat4(normal_matrix, node->modelview_matrix);
+        ngli_mat3_from_mat4(normal_matrix, modelview_matrix);
         ngli_mat3_inverse(normal_matrix, normal_matrix);
         ngli_mat3_transpose(normal_matrix, normal_matrix);
         ngli_glUniformMatrix3fv(gl, s->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);

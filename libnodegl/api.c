@@ -30,7 +30,9 @@
 #include "jni_utils.h"
 #endif
 
+#include "darray.h"
 #include "log.h"
+#include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "glcontext.h"
@@ -41,9 +43,21 @@ struct ngl_ctx *ngl_create(void)
     if (!s)
         return NULL;
 
+    ngli_darray_init(&s->modelview_matrix_stack, 4 * 4 * sizeof(float), 1);
+    ngli_darray_init(&s->projection_matrix_stack, 4 * 4 * sizeof(float), 1);
+
+    static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
+    if (!ngli_darray_push(&s->modelview_matrix_stack, id_matrix) ||
+        !ngli_darray_push(&s->projection_matrix_stack, id_matrix))
+        goto fail;
+
     LOG(INFO, "context create in node.gl v%d.%d.%d",
         NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
     return s;
+
+fail:
+    ngl_free(&s);
+    return NULL;
 }
 
 static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
@@ -354,6 +368,8 @@ void ngl_free(struct ngl_ctx **ss)
             pthread_mutex_destroy(&s->lock);
         }
     }
+    ngli_darray_reset(&s->modelview_matrix_stack);
+    ngli_darray_reset(&s->projection_matrix_stack);
     free(*ss);
     *ss = NULL;
 }

@@ -474,7 +474,6 @@ static void hud_draw(struct ngl_node *node)
     }
 
     const int64_t draw_start = ngli_gettime();
-    ngli_node_transfer_matrices(s->child, node);
     ngli_node_draw(s->child);
     const int64_t draw_end = ngli_gettime();
 

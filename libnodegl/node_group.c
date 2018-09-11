@@ -56,7 +56,6 @@ static void group_draw(struct ngl_node *node)
     struct group *s = node->priv_data;
     for (int i = 0; i < s->nb_children; i++) {
         struct ngl_node *child = s->children[i];
-        ngli_node_transfer_matrices(child, node);
         ngli_node_draw(child);
     }
 }

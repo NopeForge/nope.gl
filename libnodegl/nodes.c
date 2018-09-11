@@ -81,23 +81,7 @@ static struct ngl_node *node_create(const struct node_class *class)
 
     node->state = STATE_UNINITIALIZED;
 
-    node->modelview_matrix[ 0] =
-    node->modelview_matrix[ 5] =
-    node->modelview_matrix[10] =
-    node->modelview_matrix[15] = 1.f;
-
-    node->projection_matrix[ 0] =
-    node->projection_matrix[ 5] =
-    node->projection_matrix[10] =
-    node->projection_matrix[15] = 1.f;
-
     return node;
-}
-
-void ngli_node_transfer_matrices(struct ngl_node *dst, const struct ngl_node *src)
-{
-    memcpy(dst->modelview_matrix, src->modelview_matrix, sizeof(src->modelview_matrix));
-    memcpy(dst->projection_matrix, src->projection_matrix, sizeof(src->projection_matrix));
 }
 
 #define DEF_NAME_CHR(c) (((c) >= 'A' && (c) <= 'Z') ? (c) ^ 0x20 : (c))
