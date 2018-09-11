@@ -65,17 +65,18 @@ static int scale_update(struct ngl_node *node, double t)
 {
     struct scale *s = node->priv_data;
     struct ngl_node *child = s->child;
+    float *matrix = s->matrix;
 
     const float *f = get_factors(s, t);
-    ngli_mat4_scale(s->matrix, f[0], f[1], f[2]);
+    ngli_mat4_scale(matrix, f[0], f[1], f[2]);
 
     if (s->use_anchor) {
         const float *a = s->anchor;
         NGLI_ALIGNED_MAT(tm);
         ngli_mat4_translate(tm, a[0], a[1], a[2]);
-        ngli_mat4_mul(s->matrix, tm, s->matrix);
+        ngli_mat4_mul(matrix, tm, matrix);
         ngli_mat4_translate(tm, -a[0], -a[1], -a[2]);
-        ngli_mat4_mul(s->matrix, s->matrix, tm);
+        ngli_mat4_mul(matrix, matrix, tm);
     }
 
     return ngli_node_update(child, t);
