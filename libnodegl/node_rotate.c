@@ -73,17 +73,18 @@ static int rotate_update(struct ngl_node *node, double t)
 {
     struct rotate *s = node->priv_data;
     struct ngl_node *child = s->child;
+    float *matrix = s->matrix;
 
     const double angle = get_angle(s, t) * (2.0f * M_PI / 360.0f);
-    ngli_mat4_rotate(s->matrix, angle, s->normed_axis);
+    ngli_mat4_rotate(matrix, angle, s->normed_axis);
 
     if (s->use_anchor) {
         const float *a = s->anchor;
         NGLI_ALIGNED_MAT(transm);
         ngli_mat4_translate(transm, a[0], a[1], a[2]);
-        ngli_mat4_mul(s->matrix, transm, s->matrix);
+        ngli_mat4_mul(matrix, transm, matrix);
         ngli_mat4_translate(transm, -a[0], -a[1], -a[2]);
-        ngli_mat4_mul(s->matrix, s->matrix, transm);
+        ngli_mat4_mul(matrix, matrix, transm);
     }
 
     return ngli_node_update(child, t);
