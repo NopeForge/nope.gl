@@ -545,7 +545,7 @@ def histogram(cfg):
     compute_shader = get_comp('histogram-exec') % {'local_size': local_size}
     compute_program = ComputeProgram(shader_header + compute_shader)
     compute = Compute(group_size, group_size, 1, compute_program, name='histogram-exec')
-    compute.update_buffers(histogram=h)
+    compute.update_buffers(histogram_buffer=h)
     compute.update_textures(source=proxy)
     g.add_children(compute)
 
