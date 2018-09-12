@@ -92,6 +92,12 @@ static int camera_init(struct ngl_node *node)
     s->use_perspective = memcmp(s->perspective, zvec, sizeof(s->perspective));
     s->use_orthographic = memcmp(s->orthographic, zvec, sizeof(s->orthographic));
 
+    if ((s->use_perspective || s->use_orthographic) &&
+        !memcmp(s->clipping, zvec, sizeof(s->clipping))) {
+        LOG(ERROR, "clipping must be set when perspective or orthographic is used");
+        return -1;
+    }
+
     s->eye_transform_matrix    = ngli_get_last_transformation_matrix(s->eye_transform);
     s->center_transform_matrix = ngli_get_last_transformation_matrix(s->center_transform);
     s->up_transform_matrix     = ngli_get_last_transformation_matrix(s->up_transform);
