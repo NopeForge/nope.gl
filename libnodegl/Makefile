@@ -53,6 +53,7 @@ LIB_PCNAME   = $(LIB_BASENAME).pc
 
 LIB_OBJS = api.o                    \
            bstr.o                   \
+           darray.o                 \
            deserialize.o            \
            dot.o                    \
            glcontext.o              \
@@ -222,6 +223,7 @@ gl.xml:
 # Tests
 #
 TESTS = asm             \
+        darray          \
         hmap            \
         utils           \
 
@@ -233,6 +235,7 @@ testprogs: $(TESTPROGS)
 
 test_asm: LDLIBS = $(PROJECT_LDLIBS) -lm
 test_asm: test_asm.o math_utils.o $(LIB_OBJS_ARCH_$(ARCH))
+test_darray: test_darray.o darray.o
 test_hmap: test_hmap.o utils.o
 test_utils: test_utils.o utils.o
 
