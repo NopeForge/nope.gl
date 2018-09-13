@@ -23,33 +23,15 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "darray.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "params.h"
 
 struct serial_ctx {
-    struct ngl_node **nodes;
-    int nb_nodes;
-    int nb_allocated_nodes;
+    struct darray nodes;
 };
-
-static int register_node(struct serial_ctx *sctx,
-                         const struct ngl_node *node)
-{
-    if (sctx->nb_nodes == sctx->nb_allocated_nodes) {
-        if (!sctx->nb_allocated_nodes)
-            sctx->nb_allocated_nodes = 16;
-        else
-            sctx->nb_allocated_nodes *= 2;
-        struct ngl_node **new_nodes = realloc(sctx->nodes, sctx->nb_allocated_nodes * sizeof(*new_nodes));
-        if (!new_nodes)
-            return -1;
-        sctx->nodes = new_nodes;
-    }
-    sctx->nodes[sctx->nb_nodes++] = (struct ngl_node *)node;
-    return 0;
-}
 
 #define CASE_LITERAL(param_type, type, parse_func)      \
 case param_type: {                                      \
@@ -364,10 +346,12 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
         case PARAM_TYPE_NODE: {
             int node_id;
             len = parse_hexint(str, &node_id);
-            if (len < 0 || node_id < 0 || node_id >= sctx->nb_nodes)
+            if (len < 0)
                 return -1;
-            struct ngl_node *node = sctx->nodes[node_id];
-            int ret = ngli_params_vset(base_ptr, par, node);
+            struct ngl_node **nodep = ngli_darray_get(&sctx->nodes, node_id);
+            if (!nodep)
+                return -1;
+            int ret = ngli_params_vset(base_ptr, par, *nodep);
             if (ret < 0)
                 return ret;
             break;
@@ -379,13 +363,12 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             if (len < 0)
                 return -1;
             for (int i = 0; i < nb_node_ids; i++) {
-                const int node_id = node_ids[i];
-                if (node_id < 0 || node_id >= sctx->nb_nodes) {
+                struct ngl_node **nodep = ngli_darray_get(&sctx->nodes, node_ids[i]);
+                if (!nodep) {
                     free(node_ids);
                     return -1;
                 }
-                struct ngl_node *node = sctx->nodes[node_id];
-                int ret = ngli_params_add(base_ptr, par, 1, &node);
+                int ret = ngli_params_add(base_ptr, par, 1, nodep);
                 if (ret < 0) {
                     free(node_ids);
                     return ret;
@@ -416,13 +399,12 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 return -1;
             for (int i = 0; i < nb_nodes; i++) {
                 const char *key = node_keys[i];
-                const int node_id = node_ids[i];
-                if (node_id < 0 || node_id >= sctx->nb_nodes) {
+                struct ngl_node **nodep = ngli_darray_get(&sctx->nodes, node_ids[i]);
+                if (!nodep) {
                     FREE_KVS(nb_nodes, node_keys, node_ids);
                     return -1;
                 }
-                struct ngl_node *node = sctx->nodes[node_id];
-                int ret = ngli_params_vset(base_ptr, par, key, node);
+                int ret = ngli_params_vset(base_ptr, par, key, *nodep);
                 if (ret < 0) {
                     FREE_KVS(nb_nodes, node_keys, node_ids);
                     return ret;
@@ -502,6 +484,8 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     struct ngl_node *node = NULL;
     struct serial_ctx sctx = {0};
 
+    ngli_darray_init(&sctx.nodes, sizeof(struct ngl_node *), 0);
+
     char *s = ngli_strdup(str);
     if (!s)
         return NULL;
@@ -535,8 +519,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         if (!node)
             break;
 
-        int ret = register_node(&sctx, node);
-        if (ret < 0) {
+        if (!ngli_darray_push(&sctx.nodes, &node)) {
             ngl_node_unrefp(&node);
             break;
         }
@@ -544,7 +527,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         size_t eol = strcspn(s, "\n");
         s[eol] = 0;
 
-        ret = set_node_params(&sctx, s, node);
+        int ret = set_node_params(&sctx, s, node);
         if (ret < 0) {
             ngl_node_unrefp(&node);
             break;
@@ -556,9 +539,12 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     if (node)
         ngl_node_ref(node);
 
-    for (int i = 0; i < sctx.nb_nodes; i++)
-        ngl_node_unrefp(&sctx.nodes[i]);
-    free(sctx.nodes);
+    int nb_nodes = ngli_darray_size(&sctx.nodes);
+    for (int i = 0; i < nb_nodes; i++) {
+        struct ngl_node **nodep = ngli_darray_get(&sctx.nodes, i);
+        ngl_node_unrefp(nodep);
+    }
+    ngli_darray_reset(&sctx.nodes);
 
 end:
     free(sstart);
