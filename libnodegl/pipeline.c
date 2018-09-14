@@ -50,8 +50,8 @@ static struct pipeline *get_pipeline(struct ngl_node *node)
 static int acquire_next_available_texture_unit(uint64_t *used_texture_units)
 {
     for (int i = 0; i < sizeof(*used_texture_units) * 8; i++) {
-        if (!(*used_texture_units & (1 << i))) {
-            *used_texture_units |= (1 << i);
+        if (!(*used_texture_units & (1ULL << i))) {
+            *used_texture_units |= (1ULL << i);
             return i;
         }
     }
@@ -545,11 +545,11 @@ int ngli_pipeline_init(struct ngl_node *node)
                     LOG(ERROR, "maximum number (%d) of texture unit reached", max_nb_textures);
                     return -1;
                 }
-                if (s->used_texture_units & (1 << info->sampler_value)) {
+                if (s->used_texture_units & (1ULL << info->sampler_value)) {
                     LOG(ERROR, "texture unit %d is already used by another image", info->sampler_value);
                     return -1;
                 }
-                s->used_texture_units |= 1 << info->sampler_value;
+                s->used_texture_units |= 1ULL << info->sampler_value;
             }
 
 #if defined(TARGET_ANDROID)
