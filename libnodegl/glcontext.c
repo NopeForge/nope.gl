@@ -131,12 +131,6 @@ static int glcontext_choose_backend(int backend)
 
 struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
 {
-    struct glcontext *glcontext = NULL;
-
-    glcontext = calloc(1, sizeof(*glcontext));
-    if (!glcontext)
-        return NULL;
-
     int backend = glcontext_choose_backend(config->backend);
     if (backend < 0)
         return NULL;
@@ -149,9 +143,10 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     if (glplatform < 0 || glplatform >= NGLI_ARRAY_NB(glcontext_class_map))
         return NULL;
 
-    glcontext->class = glcontext_class_map[glplatform];
-    if (!glcontext->class)
+    struct glcontext *glcontext = calloc(1, sizeof(*glcontext));
+    if (!glcontext)
         return NULL;
+    glcontext->class = glcontext_class_map[glplatform];
 
     if (glcontext->class->priv_size) {
         glcontext->priv_data = calloc(1, glcontext->class->priv_size);
