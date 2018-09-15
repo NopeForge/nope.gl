@@ -274,6 +274,22 @@ static void rtt_draw(struct ngl_node *node)
         ngli_glBlitFramebuffer(gl, 0, 0, s->width, s->height, 0, 0, s->width, s->height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
     }
 
+    if (gl->features & NGLI_FEATURE_INVALIDATE_SUBDATA) {
+        GLenum attachments[3] = {0};
+        int nb_attachments = 0;
+        if (s->renderbuffer_id > 0) {
+            if (gl->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL)
+                attachments[nb_attachments++] = GL_DEPTH_STENCIL_ATTACHMENT;
+            else
+                attachments[nb_attachments++] = GL_DEPTH_ATTACHMENT;
+        }
+        if (s->stencilbuffer_id > 0) {
+            attachments[nb_attachments++] = GL_STENCIL_ATTACHMENT;
+        }
+        if (nb_attachments)
+            ngli_glInvalidateFramebuffer(gl, GL_FRAMEBUFFER, nb_attachments, attachments);
+    }
+
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
 
