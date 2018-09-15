@@ -271,7 +271,7 @@ static void rtt_draw(struct ngl_node *node)
     if (s->samples > 0) {
         ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->framebuffer_ms_id);
         ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->framebuffer_id);
-        ngli_glBlitFramebuffer(gl, 0, 0, s->width, s->height, 0, 0, s->width, s->height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+        ngli_glBlitFramebuffer(gl, 0, 0, s->width, s->height, 0, 0, s->width, s->height, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
     }
 
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
