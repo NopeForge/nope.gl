@@ -253,7 +253,7 @@ static void rtt_draw(struct ngl_node *node)
         ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 
-    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     ngli_node_draw(s->child);
 
