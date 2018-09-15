@@ -161,5 +161,13 @@ static const struct glfeature {
                                            OFFSET(GetActiveUniformBlockName),
                                            OFFSET(GetActiveUniformBlockiv),
                                            -1}
+    }, {
+        .name           = "invalidate_subdata",
+        .flag           = NGLI_FEATURE_INVALIDATE_SUBDATA,
+        .version        = 430,
+        .es_version     = 300,
+        .extensions     = (const char*[]){"GL_ARB_invalidate_subdata"},
+        .funcs_offsets  = (const size_t[]){OFFSET(InvalidateFramebuffer),
+                                           -1}
     }
 };

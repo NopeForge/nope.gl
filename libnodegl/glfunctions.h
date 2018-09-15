@@ -100,6 +100,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY GLuint (*GetUniformBlockIndex)(GLuint program, const GLchar * uniformBlockName);
     NGLI_GL_APIENTRY GLint (*GetUniformLocation)(GLuint program, const GLchar * name);
     NGLI_GL_APIENTRY void (*GetUniformiv)(GLuint program, GLint location, GLint * params);
+    NGLI_GL_APIENTRY void (*InvalidateFramebuffer)(GLenum target, GLsizei numAttachments, const GLenum * attachments);
     NGLI_GL_APIENTRY void (*LinkProgram)(GLuint program);
     NGLI_GL_APIENTRY void (*MemoryBarrier)(GLbitfield barriers);
     NGLI_GL_APIENTRY void (*PolygonMode)(GLenum face, GLenum mode);

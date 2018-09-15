@@ -545,6 +545,12 @@ static inline void ngli_glGetUniformiv(const struct glcontext *gl, GLuint progra
     check_error_code(gl, "glGetUniformiv");
 }
 
+static inline void ngli_glInvalidateFramebuffer(const struct glcontext *gl, GLenum target, GLsizei numAttachments, const GLenum * attachments)
+{
+    gl->funcs.InvalidateFramebuffer(target, numAttachments, attachments);
+    check_error_code(gl, "glInvalidateFramebuffer");
+}
+
 static inline void ngli_glLinkProgram(const struct glcontext *gl, GLuint program)
 {
     gl->funcs.LinkProgram(program);

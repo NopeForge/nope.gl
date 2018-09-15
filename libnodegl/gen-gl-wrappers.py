@@ -27,6 +27,7 @@ from xml.etree import ElementTree as ET
 cmds_optional = [
     # Framebuffer
     'glBlitFramebuffer',
+    'glInvalidateFramebuffer',
 
     # Texture
     'glTexImage3D',
