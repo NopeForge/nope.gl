@@ -404,6 +404,7 @@ Parameter | Ctor. | Type | Description | Default
 `depth_texture` |  | [`Node`](#parameter-types) ([Texture2D](#texture2d)) | destination depth (and potentially combined stencil) texture | 
 `samples` |  | [`int`](#parameter-types) | number of samples used for multisampling anti-aliasing | `0`
 `clear_color` |  | [`vec4`](#parameter-types) | color used to clear the `color_texture` | (`-1`,`-1`,`-1`,`-1`)
+`features` |  | [`framebuffer_features`](#framebuffer_features-choices) | framebuffer feature mask | `0`
 
 
 **Source**: [node_rtt.c](/libnodegl/node_rtt.c)
@@ -796,6 +797,13 @@ Constant | Description
 -------- | -----------
 `front` | cull front-facing facets
 `back` | cull back-facing facets
+
+## framebuffer_features choices
+
+Constant | Description
+-------- | -----------
+`depth` | depth
+`stencil` | stencil
 
 ## format choices
 

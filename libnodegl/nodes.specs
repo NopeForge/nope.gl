@@ -296,6 +296,7 @@
         - [depth_texture, Node]
         - [samples, int]
         - [clear_color, vec4]
+        - [features, flags]
 
 - Rotate:
     constructors:

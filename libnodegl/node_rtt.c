@@ -29,6 +29,17 @@
 #include "utils.h"
 
 #define DEFAULT_CLEAR_COLOR {-1.0f, -1.0f, -1.0f, -1.0f}
+#define FEATURE_DEPTH       (1 << 0)
+#define FEATURE_STENCIL     (1 << 1)
+
+static const struct param_choices feature_choices = {
+    .name = "framebuffer_features",
+    .consts = {
+        {"depth",   FEATURE_DEPTH,   .desc=NGLI_DOCSTRING("depth")},
+        {"stencil", FEATURE_STENCIL, .desc=NGLI_DOCSTRING("stencil")},
+        {NULL}
+    }
+};
 
 #define OFFSET(x) offsetof(struct rtt, x)
 static const struct node_param rtt_params[] = {
@@ -47,6 +58,9 @@ static const struct node_param rtt_params[] = {
                       .desc=NGLI_DOCSTRING("number of samples used for multisampling anti-aliasing")},
     {"clear_color",   PARAM_TYPE_VEC4, OFFSET(clear_color), {.vec=DEFAULT_CLEAR_COLOR},
                       .desc=NGLI_DOCSTRING("color used to clear the `color_texture`")},
+    {"features",      PARAM_TYPE_FLAGS, OFFSET(features),
+                      .choices=&feature_choices,
+                      .desc=NGLI_DOCSTRING("framebuffer feature mask")},
     {NULL}
 };
 
@@ -144,16 +158,32 @@ static int rtt_prefetch(struct ngl_node *node)
             LOG(ERROR, "context does not support packed depth stencil feature");
             return -1;
         }
+        s->features |= FEATURE_DEPTH;
+        s->features |= depth_attachment == GL_DEPTH_STENCIL_ATTACHMENT ? FEATURE_STENCIL : 0;
         ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, depth_attachment, GL_TEXTURE_2D, depth_texture->id, 0);
     } else {
-        if (packed_depth_stencil) {
-            depth_format = GL_DEPTH24_STENCIL8;
-            depth_attachment = GL_DEPTH_STENCIL_ATTACHMENT;
-            s->depthbuffer_id = create_renderbuffer(gl, depth_attachment, depth_format, s->width, s->height, 0);
-        } else {
-            s->depthbuffer_id = create_renderbuffer(gl, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT16, s->width, s->height, 0);
-            s->stencilbuffer_id = create_renderbuffer(gl, GL_STENCIL_ATTACHMENT, GL_STENCIL_INDEX8, s->width, s->height, 0);
+        int stencil_format = 0;
+        int stencil_attachment = 0;
+        if (s->features & FEATURE_STENCIL) {
+            if (packed_depth_stencil) {
+                depth_format = GL_DEPTH24_STENCIL8;
+                depth_attachment = GL_DEPTH_STENCIL_ATTACHMENT;
+            } else {
+                depth_format = GL_DEPTH_COMPONENT16;
+                depth_attachment = GL_DEPTH_ATTACHMENT;
+                stencil_format = GL_STENCIL_INDEX8;
+                stencil_attachment = GL_STENCIL_ATTACHMENT;
+            }
+        } else if (s->features & FEATURE_DEPTH) {
+            depth_format = GL_DEPTH_COMPONENT16;
+            depth_attachment = GL_DEPTH_ATTACHMENT;
         }
+
+        if (depth_format == GL_DEPTH24_STENCIL8 ||
+            depth_format == GL_DEPTH_COMPONENT16)
+            s->depthbuffer_id = create_renderbuffer(gl, depth_attachment, depth_format, s->width, s->height, 0);
+        if (stencil_format == GL_STENCIL_INDEX8)
+            s->stencilbuffer_id = create_renderbuffer(gl, stencil_attachment, stencil_format, s->width, s->height, 0);
     }
 
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
@@ -182,7 +212,8 @@ static int rtt_prefetch(struct ngl_node *node)
         ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_ms_id);
 
         s->colorbuffer_ms_id = create_renderbuffer(gl, GL_COLOR_ATTACHMENT0, texture->internal_format, s->width, s->height, s->samples);
-        s->depthbuffer_ms_id = create_renderbuffer(gl, depth_attachment, depth_format, s->width, s->height, s->samples);
+        if (s->features & (FEATURE_DEPTH | FEATURE_STENCIL))
+            s->depthbuffer_ms_id = create_renderbuffer(gl, depth_attachment, depth_format, s->width, s->height, s->samples);
 
         if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             LOG(ERROR, "multisampled framebuffer %u is not complete", s->framebuffer_id);
