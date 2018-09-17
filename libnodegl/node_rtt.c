@@ -67,6 +67,20 @@ static GLenum get_depth_attachment(GLenum format)
     }
 }
 
+static GLuint create_renderbuffer(struct glcontext *gl, GLenum attachment, GLenum format, int width, int height, int samples)
+{
+    GLuint id = 0;
+    ngli_glGenRenderbuffers(gl, 1, &id);
+    ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, id);
+    if (samples > 0)
+        ngli_glRenderbufferStorageMultisample(gl, GL_RENDERBUFFER, samples, format, width, height);
+    else
+        ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, format, width, height);
+    ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+    ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, id);
+    return id;
+}
+
 static int rtt_init(struct ngl_node *node)
 {
     struct rtt *s = node->priv_data;
@@ -135,23 +149,10 @@ static int rtt_prefetch(struct ngl_node *node)
         if (packed_depth_stencil) {
             depth_format = GL_DEPTH24_STENCIL8;
             depth_attachment = GL_DEPTH_STENCIL_ATTACHMENT;
-            ngli_glGenRenderbuffers(gl, 1, &s->renderbuffer_id);
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->renderbuffer_id);
-            ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, depth_format, s->width, s->height);
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, depth_attachment, GL_RENDERBUFFER, s->renderbuffer_id);
+            s->renderbuffer_id = create_renderbuffer(gl, depth_attachment, depth_format, s->width, s->height, 0);
         } else {
-            ngli_glGenRenderbuffers(gl, 1, &s->renderbuffer_id);
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->renderbuffer_id);
-            ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, s->width, s->height);
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, s->renderbuffer_id);
-
-            ngli_glGenRenderbuffers(gl, 1, &s->stencilbuffer_id);
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->stencilbuffer_id);
-            ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_STENCIL_INDEX8, s->width, s->height);
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, s->stencilbuffer_id);
+            s->renderbuffer_id = create_renderbuffer(gl, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT16, s->width, s->height, 0);
+            s->stencilbuffer_id = create_renderbuffer(gl, GL_STENCIL_ATTACHMENT, GL_STENCIL_INDEX8, s->width, s->height, 0);
         }
     }
 
@@ -180,17 +181,8 @@ static int rtt_prefetch(struct ngl_node *node)
         ngli_glGenFramebuffers(gl, 1, &s->framebuffer_ms_id);
         ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_ms_id);
 
-        ngli_glGenRenderbuffers(gl, 1, &s->colorbuffer_ms_id);
-        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->colorbuffer_ms_id);
-        ngli_glRenderbufferStorageMultisample(gl, GL_RENDERBUFFER, s->samples, texture->internal_format, s->width, s->height);
-        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, s->colorbuffer_ms_id);
-
-        ngli_glGenRenderbuffers(gl, 1, &s->depthbuffer_ms_id);
-        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->depthbuffer_ms_id);
-        ngli_glRenderbufferStorageMultisample(gl, GL_RENDERBUFFER, s->samples, depth_format, s->width, s->height);
-        ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, depth_attachment, GL_RENDERBUFFER, s->depthbuffer_ms_id);
+        s->colorbuffer_ms_id = create_renderbuffer(gl, GL_COLOR_ATTACHMENT0, texture->internal_format, s->width, s->height, s->samples);
+        s->depthbuffer_ms_id = create_renderbuffer(gl, depth_attachment, depth_format, s->width, s->height, s->samples);
 
         if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             LOG(ERROR, "multisampled framebuffer %u is not complete", s->framebuffer_id);
