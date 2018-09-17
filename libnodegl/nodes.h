@@ -247,7 +247,7 @@ struct rtt {
     int height;
 
     GLuint framebuffer_id;
-    GLuint renderbuffer_id;
+    GLuint depthbuffer_id;
     GLuint stencilbuffer_id;
 
     GLuint framebuffer_ms_id;

@@ -149,9 +149,9 @@ static int rtt_prefetch(struct ngl_node *node)
         if (packed_depth_stencil) {
             depth_format = GL_DEPTH24_STENCIL8;
             depth_attachment = GL_DEPTH_STENCIL_ATTACHMENT;
-            s->renderbuffer_id = create_renderbuffer(gl, depth_attachment, depth_format, s->width, s->height, 0);
+            s->depthbuffer_id = create_renderbuffer(gl, depth_attachment, depth_format, s->width, s->height, 0);
         } else {
-            s->renderbuffer_id = create_renderbuffer(gl, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT16, s->width, s->height, 0);
+            s->depthbuffer_id = create_renderbuffer(gl, GL_DEPTH_ATTACHMENT, GL_DEPTH_COMPONENT16, s->width, s->height, 0);
             s->stencilbuffer_id = create_renderbuffer(gl, GL_STENCIL_ATTACHMENT, GL_STENCIL_INDEX8, s->width, s->height, 0);
         }
     }
@@ -269,7 +269,7 @@ static void rtt_draw(struct ngl_node *node)
     if (gl->features & NGLI_FEATURE_INVALIDATE_SUBDATA) {
         GLenum attachments[3] = {0};
         int nb_attachments = 0;
-        if (s->renderbuffer_id > 0) {
+        if (s->depthbuffer_id > 0) {
             if (gl->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL)
                 attachments[nb_attachments++] = GL_DEPTH_STENCIL_ATTACHMENT;
             else
@@ -319,7 +319,7 @@ static void rtt_release(struct ngl_node *node)
     ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
     ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
 
-    ngli_glDeleteRenderbuffers(gl, 1, &s->renderbuffer_id);
+    ngli_glDeleteRenderbuffers(gl, 1, &s->depthbuffer_id);
     ngli_glDeleteRenderbuffers(gl, 1, &s->stencilbuffer_id);
     ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
 
