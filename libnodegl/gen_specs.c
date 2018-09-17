@@ -87,11 +87,11 @@ int main(void)
             }
             if (mapped_param) {
                 ngli_assert(mapped_param == p);
-                printf("- %s: %s\n\n", c->name, pname);
             } else {
                 print_node_params(pname, p);
                 ngli_hmap_set(params_map, c->params_id, (void *)p);
             }
+            printf("- %s: %s\n\n", c->name, pname);
             free(pname);
         } else {
             print_node_params(c->name, p);

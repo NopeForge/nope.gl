@@ -10,6 +10,8 @@
     optional:
         - [keyframes, NodeList]
 
+- AnimatedBufferFloat: _AnimatedBuffer
+
 - AnimatedBufferVec2: _AnimatedBuffer
 
 - AnimatedBufferVec3: _AnimatedBuffer
@@ -103,6 +105,8 @@
         - [filename, string]
         - [stride, int]
         - [usage, select]
+
+- BufferByte: _Buffer
 
 - BufferBVec2: _Buffer
 
