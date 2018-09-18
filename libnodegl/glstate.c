@@ -24,6 +24,7 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "glstate.h"
+#include "nodes.h"
 
 void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
 {
@@ -59,10 +60,13 @@ void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
     ngli_glGetIntegerv(gl, GL_CULL_FACE_MODE,          (GLint *)&state->cull_face_mode);
 }
 
-void ngli_glstate_honor_state(const struct glcontext *gl,
-                              const struct glstate *next,
-                              const struct glstate *prev)
+int ngli_glstate_honor_state(const struct glcontext *gl,
+                             const struct glstate *next,
+                             const struct glstate *prev)
 {
+    if (!memcmp(prev, next, sizeof(*prev)))
+        return 0;
+
     /* Blend */
     if (next->blend != prev->blend) {
         if (next->blend)
@@ -155,4 +159,15 @@ void ngli_glstate_honor_state(const struct glcontext *gl,
     if (next->cull_face_mode != prev->cull_face_mode) {
         ngli_glCullFace(gl, next->cull_face_mode);
     }
+
+    return 1;
+}
+
+void ngli_honor_pending_glstate(struct ngl_ctx *ctx)
+{
+    struct glcontext *gl = ctx->glcontext;
+
+    int ret = ngli_glstate_honor_state(gl, &ctx->pending_glstate, &ctx->current_glstate);
+    if (ret > 0)
+        ctx->current_glstate = ctx->pending_glstate;
 }

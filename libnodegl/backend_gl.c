@@ -373,7 +373,8 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
             return ret;
     }
 
-    ngli_glstate_probe(s->glcontext, &s->glstate);
+    ngli_glstate_probe(s->glcontext, &s->current_glstate);
+    s->pending_glstate = s->current_glstate;
 
     const int *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0)
@@ -403,6 +404,8 @@ static int gl_post_draw(struct ngl_ctx *s, double t)
 {
     struct glcontext *gl = s->glcontext;
     struct ngl_config *config = &s->config;
+
+    ngli_honor_pending_glstate(s);
 
     if (s->capture_func)
         s->capture_func(s);

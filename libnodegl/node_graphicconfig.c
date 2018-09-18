@@ -183,20 +183,20 @@ static int graphicconfig_update(struct ngl_node *node, double t)
 
 #define COPY_PARAM(name) do {        \
     if (s->name != -1) {             \
-        next->name = s->name;        \
+        pending->name = s->name;     \
     }                                \
 } while (0)                          \
 
 static void honor_config(struct ngl_node *node, int restore)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct graphicconfig_priv *s = node->priv_data;
-    struct glstate *prev = restore ? &s->states[0] : &s->states[1];
-    struct glstate *next = restore ? &s->states[1] : &s->states[0];
 
-    if (!restore) {
-        *next = ctx->glstate;
+    if (restore) {
+        ctx->pending_glstate = s->state;
+    } else {
+        struct glstate *pending = &ctx->pending_glstate;
+        s->state = *pending;
 
         COPY_PARAM(blend);
         COPY_PARAM(blend_dst_factor);
@@ -208,7 +208,7 @@ static void honor_config(struct ngl_node *node, int restore)
 
         if (s->color_write_mask != -1) {
             for (int i = 0; i < 4; i++)
-                next->color_write_mask[i] = s->color_write_mask >> i & 1;
+                pending->color_write_mask[i] = s->color_write_mask >> i & 1;
         }
 
         COPY_PARAM(depth_test);
@@ -226,15 +226,10 @@ static void honor_config(struct ngl_node *node, int restore)
 
         COPY_PARAM(cull_face);
         if (s->cull_face_mode != -1)
-            next->cull_face_mode = s->cull_face_mode == (1<<0) ? GL_FRONT
-                                 : s->cull_face_mode == (1<<1) ? GL_BACK
-                                 : GL_FRONT_AND_BACK;
+            pending->cull_face_mode = s->cull_face_mode == (1<<0) ? GL_FRONT
+                                    : s->cull_face_mode == (1<<1) ? GL_BACK
+                                    : GL_FRONT_AND_BACK;
     }
-
-    *prev = ctx->glstate;
-    ctx->glstate = *next;
-
-    ngli_glstate_honor_state(gl, next, prev);
 }
 
 static void graphicconfig_draw(struct ngl_node *node)

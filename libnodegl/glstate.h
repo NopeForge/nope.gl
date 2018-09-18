@@ -22,6 +22,9 @@
 #ifndef GLSTATE_H
 #define GLSTATE_H
 
+#include "glcontext.h"
+#include "glincludes.h"
+
 struct glstate {
     GLenum blend;
     GLenum blend_dst_factor;
@@ -53,8 +56,10 @@ struct glstate {
 void ngli_glstate_probe(const struct glcontext *gl,
                         struct glstate *glstate);
 
-void ngli_glstate_honor_state(const struct glcontext *gl,
-                              const struct glstate *next,
-                              const struct glstate *prev);
+int ngli_glstate_honor_state(const struct glcontext *gl,
+                             const struct glstate *next,
+                             const struct glstate *prev);
+
+void ngli_honor_pending_glstate(struct ngl_ctx *ctx);
 
 #endif

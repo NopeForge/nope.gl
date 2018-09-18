@@ -510,6 +510,8 @@ static void render_draw(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
+    ngli_honor_pending_glstate(ctx);
+
     const struct program_priv *program = s->pipeline.program->priv_data;
     ngli_glUseProgram(gl, program->program_id);
 

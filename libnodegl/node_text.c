@@ -301,6 +301,8 @@ static void text_draw(struct ngl_node *node)
     const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
 
+    ngli_honor_pending_glstate(ctx);
+
     ngli_glUseProgram(gl, s->program_id);
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
         ngli_glBindVertexArray(gl, s->vao_id);
