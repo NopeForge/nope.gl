@@ -217,14 +217,13 @@ int main(void)
             }
             if (mapped_param) {
                 ngli_assert(mapped_param == p);
-                printf("- `%s`\n", c->name);
             } else {
                 print_node_params(pname, p);
                 ngli_hmap_set(params_map, c->params_id, (void *)p);
                 print_source(c->file);
                 printf("List of `%s*` nodes:\n\n", c->params_id);
-                printf("- `%s`\n", c->name);
             }
+            printf("- `%s`\n", c->name);
             free(pname);
         } else {
             print_node_params(c->name, p);
