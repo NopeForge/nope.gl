@@ -208,7 +208,7 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
         config_attribs[NGLI_ARRAY_NB(config_attribs) - 2] = ctx->samples;
     }
 
-    EGLContext config;
+    EGLConfig config;
     EGLint nb_configs;
     ret = eglChooseConfig(egl->display, config_attribs, &config, 1, &nb_configs);
     if (!ret || !nb_configs) {
