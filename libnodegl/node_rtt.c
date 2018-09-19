@@ -257,7 +257,6 @@ static void rtt_draw(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
-    GLint viewport[4];
     struct rtt *s = node->priv_data;
 
     GLuint framebuffer_id = 0;
@@ -268,6 +267,7 @@ static void rtt_draw(struct ngl_node *node)
     else
         ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
 
+    GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
     ngli_glViewport(gl, 0, 0, s->width, s->height);
 
