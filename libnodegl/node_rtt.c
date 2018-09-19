@@ -280,11 +280,6 @@ static void rtt_draw(struct ngl_node *node)
 
     ngli_node_draw(s->child);
 
-    if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        LOG(ERROR, "framebuffer %u is not complete", s->framebuffer_id);
-        return;
-    }
-
     if (s->use_clear_color) {
         struct ngl_config *config = &ctx->config;
         float *rgba = config->clear_color;
