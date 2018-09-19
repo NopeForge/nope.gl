@@ -365,7 +365,10 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
     uint8_t *base_ptr = node->priv_data;
     const struct node_param *par = node->class->params;
 
-    while (par && par->key) {
+    if (!par)
+        return 0;
+
+    while (par->key) {
         switch (par->type) {
             case PARAM_TYPE_NODE: {
                 uint8_t *child_p = base_ptr + par->offset;
@@ -438,7 +441,8 @@ int ngli_node_honor_release_prefetch(struct ngl_node *node, double t)
     if (node->visit_time != t)
         return 0;
 
-    while (par && par->key) {
+    if (par) {
+    while (par->key) {
         switch (par->type) {
             case PARAM_TYPE_NODE: {
                 uint8_t *child_p = base_ptr + par->offset;
@@ -476,6 +480,7 @@ int ngli_node_honor_release_prefetch(struct ngl_node *node, double t)
             }
         }
         par++;
+    }
     }
 
     if (node->is_active)
