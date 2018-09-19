@@ -442,45 +442,45 @@ int ngli_node_honor_release_prefetch(struct ngl_node *node, double t)
         return 0;
 
     if (par) {
-    while (par->key) {
-        switch (par->type) {
-            case PARAM_TYPE_NODE: {
-                uint8_t *child_p = base_ptr + par->offset;
-                struct ngl_node *child = *(struct ngl_node **)child_p;
-                if (child) {
-                    int ret = ngli_node_honor_release_prefetch(child, t);
-                    if (ret < 0)
-                        return ret;
-                }
-                break;
-            }
-            case PARAM_TYPE_NODELIST: {
-                uint8_t *elems_p = base_ptr + par->offset;
-                uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
-                struct ngl_node **elems = *(struct ngl_node ***)elems_p;
-                const int nb_elems = *(int *)nb_elems_p;
-                for (int i = 0; i < nb_elems; i++) {
-                    int ret = ngli_node_honor_release_prefetch(elems[i], t);
-                    if (ret < 0)
-                        return ret;
-                }
-                break;
-            }
-            case PARAM_TYPE_NODEDICT: {
-                struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
-                if (!hmap)
+        while (par->key) {
+            switch (par->type) {
+                case PARAM_TYPE_NODE: {
+                    uint8_t *child_p = base_ptr + par->offset;
+                    struct ngl_node *child = *(struct ngl_node **)child_p;
+                    if (child) {
+                        int ret = ngli_node_honor_release_prefetch(child, t);
+                        if (ret < 0)
+                            return ret;
+                    }
                     break;
-                const struct hmap_entry *entry = NULL;
-                while ((entry = ngli_hmap_next(hmap, entry))) {
-                    int ret = ngli_node_honor_release_prefetch(entry->data, t);
-                    if (ret < 0)
-                        return ret;
                 }
-                break;
+                case PARAM_TYPE_NODELIST: {
+                    uint8_t *elems_p = base_ptr + par->offset;
+                    uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
+                    struct ngl_node **elems = *(struct ngl_node ***)elems_p;
+                    const int nb_elems = *(int *)nb_elems_p;
+                    for (int i = 0; i < nb_elems; i++) {
+                        int ret = ngli_node_honor_release_prefetch(elems[i], t);
+                        if (ret < 0)
+                            return ret;
+                    }
+                    break;
+                }
+                case PARAM_TYPE_NODEDICT: {
+                    struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
+                    if (!hmap)
+                        break;
+                    const struct hmap_entry *entry = NULL;
+                    while ((entry = ngli_hmap_next(hmap, entry))) {
+                        int ret = ngli_node_honor_release_prefetch(entry->data, t);
+                        if (ret < 0)
+                            return ret;
+                    }
+                    break;
+                }
             }
+            par++;
         }
-        par++;
-    }
     }
 
     if (node->is_active)
