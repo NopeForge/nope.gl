@@ -45,6 +45,7 @@ struct ngl_ctx *ngl_create(void)
 
     ngli_darray_init(&s->modelview_matrix_stack, 4 * 4 * sizeof(float), 1);
     ngli_darray_init(&s->projection_matrix_stack, 4 * 4 * sizeof(float), 1);
+    ngli_darray_init(&s->activitycheck_nodes, sizeof(struct ngl_node *), 0);
 
     static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
     if (!ngli_darray_push(&s->modelview_matrix_stack, id_matrix) ||
@@ -160,11 +161,13 @@ static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
     }
 
     LOG(DEBUG, "prepare scene %s @ t=%f", scene->name, t);
+
+    s->activitycheck_nodes.size = 0;
     int ret = ngli_node_visit(scene, 1, t);
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_honor_release_prefetch(scene, t);
+    ret = ngli_node_honor_release_prefetch(&s->activitycheck_nodes);
     if (ret < 0)
         return ret;
 
@@ -370,6 +373,7 @@ void ngl_free(struct ngl_ctx **ss)
     }
     ngli_darray_reset(&s->modelview_matrix_stack);
     ngli_darray_reset(&s->projection_matrix_stack);
+    ngli_darray_reset(&s->activitycheck_nodes);
     free(*ss);
     *ss = NULL;
 }

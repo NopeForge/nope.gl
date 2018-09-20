@@ -69,6 +69,7 @@ struct ngl_ctx {
     int timer_active;
     struct darray modelview_matrix_stack;
     struct darray projection_matrix_stack;
+    struct darray activitycheck_nodes;
 
     /* Shared fields */
     pthread_mutex_t lock;
@@ -664,7 +665,7 @@ void ngli_node_print_specs(void);
 
 int ngli_node_init(struct ngl_node *node);
 int ngli_node_visit(struct ngl_node *node, int is_active, double t);
-int ngli_node_honor_release_prefetch(struct ngl_node *node, double t);
+int ngli_node_honor_release_prefetch(struct darray *nodes_array);
 int ngli_node_update(struct ngl_node *node, double t);
 int ngli_prepare_draw(struct ngl_ctx *s, double t);
 void ngli_node_draw(struct ngl_node *node);

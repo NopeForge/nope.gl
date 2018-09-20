@@ -315,6 +315,15 @@ int ngli_node_init(struct ngl_node *node)
     return 0;
 }
 
+static inline int end_of_visit(struct ngl_node *node, int queue_node)
+{
+    if (!queue_node)
+        return 0;
+    if (!ngli_darray_push(&node->ctx->activitycheck_nodes, &node))
+        return -1;
+    return 0;
+}
+
 int ngli_node_visit(struct ngl_node *node, int is_active, double t)
 {
     int ret = ngli_node_init(node);
@@ -337,8 +346,9 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
     }
 
     static const char * const state_str[2] = {"inactive", "active"};
+    const int queue_node = node->visit_time != t;
 
-    if (node->visit_time != t) {
+    if (queue_node) {
         /*
          * If we never passed through this node for that given time, the new
          * active state takes over to replace the one from a previous update.
@@ -359,14 +369,18 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
         node->is_active |= is_active;
     }
 
-    if (node->class->visit)
-        return node->class->visit(node, is_active, t);
+    if (node->class->visit) {
+        ret = node->class->visit(node, is_active, t);
+        if (ret < 0)
+            return ret;
+        return end_of_visit(node, queue_node);
+    }
 
     uint8_t *base_ptr = node->priv_data;
     const struct node_param *par = node->class->params;
 
     if (!par)
-        return 0;
+        return end_of_visit(node, queue_node);
 
     while (par->key) {
         switch (par->type) {
@@ -408,7 +422,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
         par++;
     }
 
-    return 0;
+    return end_of_visit(node, queue_node);
 }
 
 static int node_prefetch(struct ngl_node *node)
@@ -433,60 +447,20 @@ static int node_prefetch(struct ngl_node *node)
     return 0;
 }
 
-int ngli_node_honor_release_prefetch(struct ngl_node *node, double t)
+int ngli_node_honor_release_prefetch(struct darray *nodes_array)
 {
-    uint8_t *base_ptr = node->priv_data;
-    const struct node_param *par = node->class->params;
+    struct ngl_node **nodes = (struct ngl_node **)nodes_array->data;
+    for (int i = 0; i < nodes_array->size; i++) {
+        struct ngl_node *node = nodes[i];
 
-    if (node->visit_time != t)
-        return 0;
-
-    if (par) {
-        while (par->key) {
-            switch (par->type) {
-                case PARAM_TYPE_NODE: {
-                    uint8_t *child_p = base_ptr + par->offset;
-                    struct ngl_node *child = *(struct ngl_node **)child_p;
-                    if (child) {
-                        int ret = ngli_node_honor_release_prefetch(child, t);
-                        if (ret < 0)
-                            return ret;
-                    }
-                    break;
-                }
-                case PARAM_TYPE_NODELIST: {
-                    uint8_t *elems_p = base_ptr + par->offset;
-                    uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
-                    struct ngl_node **elems = *(struct ngl_node ***)elems_p;
-                    const int nb_elems = *(int *)nb_elems_p;
-                    for (int i = 0; i < nb_elems; i++) {
-                        int ret = ngli_node_honor_release_prefetch(elems[i], t);
-                        if (ret < 0)
-                            return ret;
-                    }
-                    break;
-                }
-                case PARAM_TYPE_NODEDICT: {
-                    struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
-                    if (!hmap)
-                        break;
-                    const struct hmap_entry *entry = NULL;
-                    while ((entry = ngli_hmap_next(hmap, entry))) {
-                        int ret = ngli_node_honor_release_prefetch(entry->data, t);
-                        if (ret < 0)
-                            return ret;
-                    }
-                    break;
-                }
-            }
-            par++;
+        if (node->is_active) {
+            int ret = node_prefetch(node);
+            if (ret < 0)
+                return ret;
+        } else {
+            node_release(node);
         }
     }
-
-    if (node->is_active)
-        return node_prefetch(node);
-
-    node_release(node);
     return 0;
 }
 
