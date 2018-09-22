@@ -164,9 +164,6 @@ struct ngl_node *ngl_node_create(int type, ...)
 
 static void node_release(struct ngl_node *node)
 {
-    if (node->state == STATE_IDLE)
-        return;
-
     if (node->state != STATE_READY)
         return;
 
@@ -294,9 +291,6 @@ void ngli_node_detach_ctx(struct ngl_node *node)
 
 int ngli_node_init(struct ngl_node *node)
 {
-    if (node->state == STATE_INITIALIZED)
-        return 0;
-
     if (node->state != STATE_UNINITIALIZED)
         return 0;
 
