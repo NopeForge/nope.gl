@@ -202,6 +202,7 @@ static void node_uninit(struct ngl_node *node)
         return;
 
     ngli_assert(node->ctx);
+    ngli_darray_reset(&node->children);
     node_release(node);
 
     if (node->class->uninit) {
@@ -289,10 +290,56 @@ void ngli_node_detach_ctx(struct ngl_node *node)
     ngli_assert(ret == 0);
 }
 
+static int track_children(struct ngl_node *node)
+{
+    uint8_t *base_ptr = node->priv_data;
+    const struct node_param *par = node->class->params;
+
+    if (!par)
+        return 0;
+
+    while (par->key) {
+        switch (par->type) {
+            case PARAM_TYPE_NODE: {
+                uint8_t *child_p = base_ptr + par->offset;
+                struct ngl_node *child = *(struct ngl_node **)child_p;
+                if (child && !ngli_darray_push(&node->children, &child))
+                    return -1;
+                break;
+            }
+            case PARAM_TYPE_NODELIST: {
+                uint8_t *elems_p = base_ptr + par->offset;
+                uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
+                struct ngl_node **elems = *(struct ngl_node ***)elems_p;
+                const int nb_elems = *(int *)nb_elems_p;
+                for (int i = 0; i < nb_elems; i++)
+                    if (!ngli_darray_push(&node->children, &elems[i]))
+                        return -1;
+                break;
+            }
+            case PARAM_TYPE_NODEDICT: {
+                struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
+                if (!hmap)
+                    break;
+                const struct hmap_entry *entry = NULL;
+                while ((entry = ngli_hmap_next(hmap, entry)))
+                    if (!ngli_darray_push(&node->children, &entry->data))
+                        return -1;
+                break;
+            }
+        }
+        par++;
+    }
+
+    return 0;
+}
+
 int ngli_node_init(struct ngl_node *node)
 {
     if (node->state != STATE_UNINITIALIZED)
         return 0;
+
+    ngli_darray_init(&node->children, sizeof(struct ngl_node *), 0);
 
     ngli_assert(node->ctx);
     if (node->class->init) {
@@ -303,6 +350,11 @@ int ngli_node_init(struct ngl_node *node)
             return ret;
         }
     }
+
+    int ret = track_children(node);
+    if (ret < 0)
+        return ret;
+
 
     node->state = STATE_INITIALIZED;
 
@@ -370,50 +422,13 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
         return end_of_visit(node, queue_node);
     }
 
-    uint8_t *base_ptr = node->priv_data;
-    const struct node_param *par = node->class->params;
-
-    if (!par)
-        return end_of_visit(node, queue_node);
-
-    while (par->key) {
-        switch (par->type) {
-            case PARAM_TYPE_NODE: {
-                uint8_t *child_p = base_ptr + par->offset;
-                struct ngl_node *child = *(struct ngl_node **)child_p;
-                if (child) {
-                    ret = ngli_node_visit(child, is_active, t);
-                    if (ret < 0)
-                        return ret;
-                }
-                break;
-            }
-            case PARAM_TYPE_NODELIST: {
-                uint8_t *elems_p = base_ptr + par->offset;
-                uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
-                struct ngl_node **elems = *(struct ngl_node ***)elems_p;
-                const int nb_elems = *(int *)nb_elems_p;
-                for (int i = 0; i < nb_elems; i++) {
-                    ret = ngli_node_visit(elems[i], is_active, t);
-                    if (ret < 0)
-                        return ret;
-                }
-                break;
-            }
-            case PARAM_TYPE_NODEDICT: {
-                struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
-                if (!hmap)
-                    break;
-                const struct hmap_entry *entry = NULL;
-                while ((entry = ngli_hmap_next(hmap, entry))) {
-                    ret = ngli_node_visit(entry->data, is_active, t);
-                    if (ret < 0)
-                        return ret;
-                }
-                break;
-            }
-        }
-        par++;
+    struct darray *children_array = &node->children;
+    struct ngl_node **children = (struct ngl_node **)children_array->data;
+    for (int i = 0; i < children_array->size; i++) {
+        struct ngl_node *child = children[i];
+        ret = ngli_node_visit(child, is_active, t);
+        if (ret < 0)
+            return ret;
     }
 
     return end_of_visit(node, queue_node);

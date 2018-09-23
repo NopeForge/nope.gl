@@ -92,6 +92,8 @@ struct ngl_node {
     int is_active;
     double visit_time;
 
+    struct darray children;
+
     char *name;
 
     void *priv_data;
