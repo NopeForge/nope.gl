@@ -276,6 +276,10 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
     if ((ret = node_set_children_ctx(node->priv_data, node->class->params, ctx)) < 0 ||
         (ret = node_set_children_ctx((uint8_t *)node, ngli_base_node_params, ctx)) < 0)
         return ret;
+
+    if (node->ctx)
+        return ngli_node_init(node);
+
     return 0;
 }
 

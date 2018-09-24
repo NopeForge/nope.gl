@@ -141,8 +141,10 @@ static int cmd_set_scene(struct ngl_ctx *s, void *arg)
         return 0;
 
     int ret = ngli_node_attach_ctx(scene, s);
-    if (ret < 0)
+    if (ret < 0) {
+        ngli_node_detach_ctx(scene);
         return ret;
+    }
 
     s->scene = ngl_node_ref(scene);
     return 0;
