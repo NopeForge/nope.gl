@@ -89,21 +89,12 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
         memcpy(dst, kf->data, s->data_size);
     }
 
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
-    ngli_glBufferSubData(gl, GL_ARRAY_BUFFER, 0, s->data_size, s->data);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
-
     return 0;
 }
 
 static int animatedbuffer_init(struct ngl_node *node)
 {
     struct buffer *s = node->priv_data;
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     double prev_time = 0;
 
     int nb_comp;
@@ -118,6 +109,8 @@ static int animatedbuffer_init(struct ngl_node *node)
         ngli_assert(0);
     }
 
+    s->dynamic = 1;
+    s->usage = GL_DYNAMIC_DRAW;
     s->data_comp = nb_comp;
     s->data_format = format;
     s->data_stride = s->data_comp * sizeof(float);
@@ -156,24 +149,12 @@ static int animatedbuffer_init(struct ngl_node *node)
         return -1;
     s->data_size = s->count * s->data_stride;
 
-    s->usage  = GL_DYNAMIC_DRAW;
-
-    ngli_glGenBuffers(gl, 1, &s->buffer_id);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, s->data_size, s->data, s->usage);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
-
     return 0;
 }
 
 static void animatedbuffer_uninit(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
     struct buffer *s = node->priv_data;
-
-    ngli_glDeleteBuffers(gl, 1, &s->buffer_id);
 
     free(s->data);
     s->data = NULL;

@@ -24,6 +24,7 @@
 #include <string.h>
 #include <limits.h>
 
+#include "buffer.h"
 #include "glincludes.h"
 #include "hmap.h"
 #include "log.h"
@@ -332,6 +333,17 @@ static int render_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
+    /* Allocate buffers */
+    ret = ngli_buffer_allocate(geometry->indices_buffer);
+    if (ret < 0)
+        return ret;
+    for (int i = 0; i < s->nb_attribute_pairs; i++) {
+        struct nodeprograminfopair *pair = &s->attribute_pairs[i];
+        ret = ngli_buffer_allocate((struct ngl_node *)pair->node);
+        if (ret < 0)
+            return ret;
+    }
+
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glGenVertexArrays(gl, 1, &s->vao_id);
         ngli_glBindVertexArray(gl, s->vao_id);
@@ -354,6 +366,14 @@ static void render_uninit(struct ngl_node *node)
 
     ngli_pipeline_uninit(node);
 
+    struct geometry *geometry = s->geometry->priv_data;
+    ngli_buffer_free(geometry->indices_buffer);
+
+    for (int i = 0; i < s->nb_attribute_pairs; i++) {
+        struct nodeprograminfopair *pair = &s->attribute_pairs[i];
+        ngli_buffer_free((struct ngl_node *)pair->node);
+    }
+
     free(s->attribute_pairs);
 }
 
@@ -371,6 +391,7 @@ static int render_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(bnode, t);
         if (ret < 0)
             return ret;
+        ngli_buffer_upload(bnode);
     }
 
     return ngli_pipeline_update(node, t);

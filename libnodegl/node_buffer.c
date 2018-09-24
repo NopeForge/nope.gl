@@ -148,9 +148,6 @@ static int buffer_init_from_count(struct ngl_node *node)
 
 static int buffer_init(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
     struct buffer *s = node->priv_data;
 
     if (s->data && s->filename) {
@@ -212,19 +209,11 @@ static int buffer_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ngli_glGenBuffers(gl, 1, &s->buffer_id);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, s->data_size, s->data, s->usage);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
-
     return 0;
 }
 
 static void buffer_uninit(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
     struct buffer *s = node->priv_data;
 
     if (s->filename && s->fd) {
@@ -233,8 +222,6 @@ static void buffer_uninit(struct ngl_node *node)
             LOG(ERROR, "could not properly close '%s'", s->filename);
         }
     }
-
-    ngli_glDeleteBuffers(gl, 1, &s->buffer_id);
 }
 
 #define DEFINE_BUFFER_CLASS(class_id, class_name, type)     \

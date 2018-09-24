@@ -221,8 +221,11 @@ struct buffer {
     int current_kf;
 
     int fd;
+    int dynamic;
 
     GLuint buffer_id;
+    int buffer_refcount;
+    double buffer_last_upload_time;
 };
 
 struct uniform {

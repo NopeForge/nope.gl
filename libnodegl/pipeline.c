@@ -24,6 +24,7 @@
 #include <string.h>
 #include <limits.h>
 
+#include "buffer.h"
 #include "glincludes.h"
 #include "hmap.h"
 #include "log.h"
@@ -585,6 +586,10 @@ int ngli_pipeline_init(struct ngl_node *node)
             struct ngl_node *bnode = entry->data;
             struct buffer *buffer = bnode->priv_data;
 
+            int ret = ngli_buffer_allocate(bnode);
+            if (ret < 0)
+                return ret;
+
             if (info->type == GL_UNIFORM_BUFFER &&
                 buffer->data_size > gl->max_uniform_block_size) {
                 LOG(ERROR, "buffer %s size (%d) exceeds max uniform block size (%d)",
@@ -611,6 +616,10 @@ void ngli_pipeline_uninit(struct ngl_node *node)
     free(s->textureprograminfos);
     free(s->texture_pairs);
     free(s->uniform_pairs);
+    for (int i = 0; i < s->nb_buffer_pairs; i++) {
+        struct nodeprograminfopair *pair = &s->buffer_pairs[i];
+        ngli_buffer_free((struct ngl_node *)pair->node);
+    }
     free(s->buffer_pairs);
 }
 
@@ -645,6 +654,7 @@ int ngli_pipeline_update(struct ngl_node *node, double t)
             int ret = ngli_node_update(entry->data, t);
             if (ret < 0)
                 return ret;
+            ngli_buffer_upload(entry->data);
         }
     }
 
