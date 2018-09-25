@@ -212,12 +212,10 @@ static int buffer_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    if (s->generate_gl_buffer) {
-        ngli_glGenBuffers(gl, 1, &s->buffer_id);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
-        ngli_glBufferData(gl, GL_ARRAY_BUFFER, s->data_size, s->data, s->usage);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
-    }
+    ngli_glGenBuffers(gl, 1, &s->buffer_id);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, s->data_size, s->data, s->usage);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
 
     return 0;
 }

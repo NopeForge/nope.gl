@@ -598,7 +598,6 @@ int ngli_pipeline_init(struct ngl_node *node)
 
             struct ngl_node *bnode = entry->data;
             struct buffer *buffer = bnode->priv_data;
-            buffer->generate_gl_buffer = 1;
             ret = ngli_node_init(bnode);
             if (ret < 0)
                 return ret;

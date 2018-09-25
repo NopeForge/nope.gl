@@ -221,10 +221,6 @@ struct buffer {
 
     int fd;
 
-    /* private option that must be set before calling ngl_node_init() to enable
-     * the generation of a GL buffer feed with the buffer data; mandatory for
-     * buffers used as geometry, attributes or shader storage buffer objects */
-    int generate_gl_buffer;
     GLuint buffer_id;
 };
 

@@ -92,11 +92,9 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
-    if (s->generate_gl_buffer) {
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
-        ngli_glBufferSubData(gl, GL_ARRAY_BUFFER, 0, s->data_size, s->data);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
-    }
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
+    ngli_glBufferSubData(gl, GL_ARRAY_BUFFER, 0, s->data_size, s->data);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
 
     return 0;
 }
@@ -160,12 +158,10 @@ static int animatedbuffer_init(struct ngl_node *node)
 
     s->usage  = GL_DYNAMIC_DRAW;
 
-    if (s->generate_gl_buffer) {
-        ngli_glGenBuffers(gl, 1, &s->buffer_id);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
-        ngli_glBufferData(gl, GL_ARRAY_BUFFER, s->data_size, s->data, s->usage);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
-    }
+    ngli_glGenBuffers(gl, 1, &s->buffer_id);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->buffer_id);
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, s->data_size, s->data, s->usage);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, 0);
 
     return 0;
 }

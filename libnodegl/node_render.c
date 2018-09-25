@@ -223,7 +223,6 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attribut
     while ((entry = ngli_hmap_next(attributes, entry))) {
         struct ngl_node *anode = entry->data;
         struct buffer *buffer = anode->priv_data;
-        buffer->generate_gl_buffer = 1;
 
         int ret = ngli_node_init(anode);
         if (ret < 0)
