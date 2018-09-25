@@ -176,9 +176,7 @@ static int disable_vertex_attribs(struct ngl_node *node)
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
-        const GLint aid = info->id;
-
-        ngli_glDisableVertexAttribArray(gl, aid);
+        ngli_glDisableVertexAttribArray(gl, info->id);
     }
 
     return 0;
