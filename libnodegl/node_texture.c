@@ -446,10 +446,6 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
     const uint8_t *data = NULL;
 
     if (s->data_src) {
-        int ret = ngli_node_init(s->data_src);
-        if (ret < 0)
-            return ret;
-
         switch (s->data_src->class->id) {
         case NGL_NODE_HUD:
             s->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;

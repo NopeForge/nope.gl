@@ -471,11 +471,6 @@ int ngli_pipeline_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct pipeline *s = get_pipeline(node);
-
-    int ret = ngli_node_init(s->program);
-    if (ret < 0)
-        return ret;
-
     struct program *program = s->program->priv_data;
 
     int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
@@ -494,13 +489,8 @@ int ngli_pipeline_init(struct ngl_node *node)
                 continue;
             }
 
-            struct ngl_node *unode = entry->data;
-            ret = ngli_node_init(unode);
-            if (ret < 0)
-                return ret;
-
             struct nodeprograminfopair pair = {
-                .node = unode,
+                .node = entry->data,
                 .program_info = (void *)active_uniform,
             };
             snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
@@ -529,10 +519,6 @@ int ngli_pipeline_init(struct ngl_node *node)
         while ((entry = ngli_hmap_next(s->textures, entry))) {
             const char *key = entry->key;
             struct ngl_node *tnode = entry->data;
-            int ret = ngli_node_init(tnode);
-            if (ret < 0)
-                return ret;
-
             struct texture *texture = tnode->priv_data;
 
             struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
@@ -598,9 +584,6 @@ int ngli_pipeline_init(struct ngl_node *node)
 
             struct ngl_node *bnode = entry->data;
             struct buffer *buffer = bnode->priv_data;
-            ret = ngli_node_init(bnode);
-            if (ret < 0)
-                return ret;
 
             if (info->type == GL_UNIFORM_BUFFER &&
                 buffer->data_size > gl->max_uniform_block_size) {

@@ -224,9 +224,6 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attribut
         struct ngl_node *anode = entry->data;
         struct buffer *buffer = anode->priv_data;
 
-        int ret = ngli_node_init(anode);
-        if (ret < 0)
-            return ret;
         if (per_instance) {
             if (buffer->count != s->nb_instances) {
                 LOG(ERROR,
@@ -249,7 +246,7 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attribut
             }
         }
 
-        ret = pair_node_to_attribinfo(s, entry->key, anode);
+        int ret = pair_node_to_attribinfo(s, entry->key, anode);
         if (ret < 0)
             return ret;
 
@@ -268,20 +265,16 @@ static int render_init(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render *s = node->priv_data;
 
-    int ret = ngli_node_init(s->geometry);
-    if (ret < 0)
-        return ret;
-
     if (!s->pipeline.program) {
         s->pipeline.program = ngl_node_create(NGL_NODE_PROGRAM);
         if (!s->pipeline.program)
             return -1;
-        ret = ngli_node_attach_ctx(s->pipeline.program, ctx);
+        int ret = ngli_node_attach_ctx(s->pipeline.program, ctx);
         if (ret < 0)
             return ret;
     }
 
-    ret = ngli_pipeline_init(node);
+    int ret = ngli_pipeline_init(node);
     if (ret < 0)
         return ret;
 
