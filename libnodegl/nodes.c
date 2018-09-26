@@ -413,14 +413,14 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
         if (ret < 0)
             return ret;
     } else {
-    struct darray *children_array = &node->children;
-    struct ngl_node **children = (struct ngl_node **)children_array->data;
-    for (int i = 0; i < children_array->size; i++) {
-        struct ngl_node *child = children[i];
-        int ret = ngli_node_visit(child, is_active, t);
-        if (ret < 0)
-            return ret;
-    }
+        struct darray *children_array = &node->children;
+        struct ngl_node **children = (struct ngl_node **)children_array->data;
+        for (int i = 0; i < children_array->size; i++) {
+            struct ngl_node *child = children[i];
+            int ret = ngli_node_visit(child, is_active, t);
+            if (ret < 0)
+                return ret;
+        }
     }
 
     if (queue_node && !ngli_darray_push(&node->ctx->activitycheck_nodes, &node))
