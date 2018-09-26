@@ -471,10 +471,10 @@ int ngli_node_update(struct ngl_node *node, double t)
             int ret = node->class->update(node, t);
             if (ret < 0)
                 return ret;
+            node->last_update_time = t;
         } else {
             TRACE("%s already updated for t=%g, skip it", node->name, t);
         }
-        node->last_update_time = t;
     }
 
     return 0;
