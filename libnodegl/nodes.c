@@ -265,10 +265,11 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
             return -1;
         }
     } else {
-        if (node->state > STATE_UNINITIALIZED) {
+        if (node->state > STATE_UNINITIALIZED && node->ctx_refcount-- == 1) {
             node_uninit(node);
             node->ctx = NULL;
         }
+        ngli_assert(node->ctx_refcount >= 0);
     }
 
     if ((ret = node_set_children_ctx(node->priv_data, node->class->params, ctx)) < 0 ||
@@ -282,6 +283,7 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
             node->ctx = NULL;
             return ret;
         }
+        node->ctx_refcount++;
     }
 
     return 0;

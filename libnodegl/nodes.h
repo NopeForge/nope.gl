@@ -85,6 +85,7 @@ struct ngl_node {
     struct ngl_ctx *ctx;
 
     int refcount;
+    int ctx_refcount;
     int state;
 
     double last_update_time;
