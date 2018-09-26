@@ -255,6 +255,8 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
     return 0;
 }
 
+static int node_init(struct ngl_node *node);
+
 static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 {
     int ret;
@@ -278,7 +280,7 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 
     if (ctx) {
         node->ctx = ctx;
-        ret = ngli_node_init(node);
+        ret = node_init(node);
         if (ret < 0) {
             node->ctx = NULL;
             return ret;
@@ -344,7 +346,7 @@ static int track_children(struct ngl_node *node)
     return 0;
 }
 
-int ngli_node_init(struct ngl_node *node)
+static int node_init(struct ngl_node *node)
 {
     if (node->state != STATE_UNINITIALIZED)
         return 0;
@@ -382,7 +384,7 @@ static inline int end_of_visit(struct ngl_node *node, int queue_node)
 
 int ngli_node_visit(struct ngl_node *node, int is_active, double t)
 {
-    int ret = ngli_node_init(node);
+    int ret = node_init(node);
     if (ret < 0)
         return ret;
 
@@ -442,7 +444,7 @@ static int node_prefetch(struct ngl_node *node)
     if (node->state == STATE_READY)
         return 0;
 
-    int ret = ngli_node_init(node);
+    int ret = node_init(node);
     if (ret < 0)
         return ret;
 
@@ -478,7 +480,7 @@ int ngli_node_honor_release_prefetch(struct darray *nodes_array)
 
 int ngli_node_update(struct ngl_node *node, double t)
 {
-    int ret = ngli_node_init(node);
+    int ret = node_init(node);
     if (ret < 0)
         return ret;
     if (node->class->update) {
