@@ -279,7 +279,10 @@ static int node_init(struct ngl_node *node)
         return ret;
 
 
-    node->state = STATE_INITIALIZED;
+    if (node->class->prefetch)
+        node->state = STATE_INITIALIZED;
+    else
+        node->state = STATE_READY;
 
     return 0;
 }
@@ -382,10 +385,6 @@ static inline int end_of_visit(struct ngl_node *node, int queue_node)
 
 int ngli_node_visit(struct ngl_node *node, int is_active, double t)
 {
-    int ret = node_init(node);
-    if (ret < 0)
-        return ret;
-
     /*
      * If a node is inactive and is already in a dead state, there is no need
      * to check for resources below as we can assume they were already released
@@ -419,7 +418,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
     }
 
     if (node->class->visit) {
-        ret = node->class->visit(node, is_active, t);
+        int ret = node->class->visit(node, is_active, t);
         if (ret < 0)
             return ret;
         return end_of_visit(node, queue_node);
@@ -429,7 +428,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
     struct ngl_node **children = (struct ngl_node **)children_array->data;
     for (int i = 0; i < children_array->size; i++) {
         struct ngl_node *child = children[i];
-        ret = ngli_node_visit(child, is_active, t);
+        int ret = ngli_node_visit(child, is_active, t);
         if (ret < 0)
             return ret;
     }
@@ -442,13 +441,9 @@ static int node_prefetch(struct ngl_node *node)
     if (node->state == STATE_READY)
         return 0;
 
-    int ret = node_init(node);
-    if (ret < 0)
-        return ret;
-
     if (node->class->prefetch) {
         LOG(DEBUG, "PREFETCH %s @ %p", node->name, node);
-        ret = node->class->prefetch(node);
+        int ret = node->class->prefetch(node);
         if (ret < 0) {
             LOG(ERROR, "prefetching node %s failed: %d", node->name, ret);
             return ret;
@@ -478,21 +473,11 @@ int ngli_node_honor_release_prefetch(struct darray *nodes_array)
 
 int ngli_node_update(struct ngl_node *node, double t)
 {
-    int ret = node_init(node);
-    if (ret < 0)
-        return ret;
+    ngli_assert(node->state == STATE_READY);
     if (node->class->update) {
         if (node->last_update_time != t) {
-            // Sometimes the node might not be prefetched by the node_check_prefetch()
-            // crawling: this could happen when the node was for instance instantiated
-            // internally and not through the options. So just to be safe, we
-            // "prefetch" it now (a bit late for sure).
-            ret = node_prefetch(node);
-            if (ret < 0)
-                return ret;
-
             LOG(VERBOSE, "UPDATE %s @ %p with t=%g", node->name, node, t);
-            ret = node->class->update(node, t);
+            int ret = node->class->update(node, t);
             if (ret < 0)
                 return ret;
         } else {
