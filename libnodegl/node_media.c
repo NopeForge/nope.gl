@@ -227,7 +227,7 @@ static int media_update(struct ngl_node *node, double t)
                 media_time = anim->scalar - initial_seek;
             }
 
-            LOG(VERBOSE, "remapped time f(%g)=%g", t, media_time);
+            TRACE("remapped time f(%g)=%g", t, media_time);
             if (media_time < 0) {
                 LOG(ERROR, "invalid remapped time %g", media_time);
                 return -1;
@@ -237,7 +237,7 @@ static int media_update(struct ngl_node *node, double t)
 
     sxplayer_release_frame(s->frame);
 
-    LOG(VERBOSE, "get frame from %s at t=%g", node->name, media_time);
+    TRACE("get frame from %s at t=%g", node->name, media_time);
     struct sxplayer_frame *frame = sxplayer_get_frame(s->player, media_time);
     if (frame) {
         const char *pix_fmt_str = frame->pix_fmt >= 0 &&
@@ -254,8 +254,8 @@ static int media_update(struct ngl_node *node, double t)
             LOG(ERROR, "invalid pixel format %d in sxplayer frame", frame->pix_fmt);
             return -1;
         }
-        LOG(VERBOSE, "got frame %dx%d %s with ts=%f", frame->width, frame->height,
-            pix_fmt_str, frame->ts);
+        TRACE("got frame %dx%d %s with ts=%f", frame->width, frame->height,
+              pix_fmt_str, frame->ts);
     }
     s->frame = frame;
     return 0;

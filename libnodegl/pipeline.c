@@ -105,8 +105,8 @@ static int get_disabled_texture_unit(const struct glcontext *gl,
     if (tex_unit < 0)
         return -1;
 
-    LOG(DEBUG, "using texture unit %d for disabled %s textures",
-        tex_unit, tex_specs[type_index].name);
+    TRACE("using texture unit %d for disabled %s textures",
+          tex_unit, tex_specs[type_index].name);
     s->disabled_texture_unit[type_index] = tex_unit;
 
     ngli_glActiveTexture(gl, GL_TEXTURE0 + tex_unit);
@@ -265,10 +265,9 @@ static int update_images_and_samplers(struct ngl_node *node)
             struct texture *texture = tnode->priv_data;
 
             if (info->sampler_type == GL_IMAGE_2D) {
-                LOG(VERBOSE,
-                    "image at location=%d will use texture_unit=%d",
-                    info->sampler_id,
-                    info->sampler_value);
+                TRACE("image at location=%d will use texture_unit=%d",
+                      info->sampler_id,
+                      info->sampler_value);
 
                 if (info->sampler_id >= 0) {
                     ngli_glBindImageTexture(gl,

@@ -22,10 +22,15 @@
 include ../common.mak
 
 DEBUG_GL ?= no
+LOGTRACE ?= no
 WGET     ?= wget
 
 ifeq ($(DEBUG_GL),yes)
 	PROJECT_CFLAGS += -DDEBUG_GL
+endif
+
+ifeq ($(LOGTRACE),yes)
+	PROJECT_CFLAGS += -DLOGTRACE
 endif
 
 LD_SYM_FILE   = $(LIB_BASENAME).symexport

@@ -169,7 +169,7 @@ static void node_release(struct ngl_node *node)
 
     ngli_assert(node->ctx);
     if (node->class->release) {
-        LOG(DEBUG, "RELEASE %s @ %p", node->name, node);
+        TRACE("RELEASE %s @ %p", node->name, node);
         node->class->release(node);
     }
     node->state = STATE_IDLE;
@@ -433,7 +433,7 @@ static int node_prefetch(struct ngl_node *node)
         return 0;
 
     if (node->class->prefetch) {
-        LOG(DEBUG, "PREFETCH %s @ %p", node->name, node);
+        TRACE("PREFETCH %s @ %p", node->name, node);
         int ret = node->class->prefetch(node);
         if (ret < 0) {
             LOG(ERROR, "prefetching node %s failed: %d", node->name, ret);
@@ -467,12 +467,12 @@ int ngli_node_update(struct ngl_node *node, double t)
     ngli_assert(node->state == STATE_READY);
     if (node->class->update) {
         if (node->last_update_time != t) {
-            LOG(VERBOSE, "UPDATE %s @ %p with t=%g", node->name, node, t);
+            TRACE("UPDATE %s @ %p with t=%g", node->name, node, t);
             int ret = node->class->update(node, t);
             if (ret < 0)
                 return ret;
         } else {
-            LOG(VERBOSE, "%s already updated for t=%g, skip it", node->name, t);
+            TRACE("%s already updated for t=%g, skip it", node->name, t);
         }
         node->last_update_time = t;
     }
@@ -483,7 +483,7 @@ int ngli_node_update(struct ngl_node *node, double t)
 void ngli_node_draw(struct ngl_node *node)
 {
     if (node->class->draw) {
-        LOG(VERBOSE, "DRAW %s @ %p", node->name, node);
+        TRACE("DRAW %s @ %p", node->name, node);
         node->class->draw(node);
     }
 }

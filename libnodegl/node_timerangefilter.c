@@ -159,15 +159,15 @@ static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
                     const double next_use_in = next->start_time - t;
 
                     if (next_use_in < s->prefetch_time) {
-                        LOG(VERBOSE, "next use of %s in %g (< %g), mark as active",
-                            child->name, next_use_in, s->prefetch_time);
+                        TRACE("next use of %s in %g (< %g), mark as active",
+                              child->name, next_use_in, s->prefetch_time);
 
                         // The node will actually be needed soon, so we need to
                         // start it if necessary.
                         is_active = 1;
                     } else if (next_use_in < s->max_idle_time && child->state == STATE_READY) {
-                        LOG(VERBOSE, "%s not currently needed by will be soon %g (< %g), keep as active",
-                            child->name, next_use_in, s->max_idle_time);
+                        TRACE("%s not currently needed by will be soon %g (< %g), keep as active",
+                              child->name, next_use_in, s->max_idle_time);
 
                         // The node will be needed in a slight amount of time;
                         // a bit longer than a prefetch period so we don't need
@@ -217,7 +217,7 @@ static void timerangefilter_draw(struct ngl_node *node)
     struct timerangefilter *s = node->priv_data;
 
     if (!s->drawme) {
-        LOG(VERBOSE, "%s @ %p not marked for drawing, skip it", node->name, node);
+        TRACE("%s @ %p not marked for drawing, skip it", node->name, node);
         return;
     }
 

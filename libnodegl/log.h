@@ -27,6 +27,12 @@
 
 #define LOG(log_level, ...) ngli_log_print(NGL_LOG_##log_level, __FILE__, __LINE__, __FUNCTION__, __VA_ARGS__)
 
+#ifdef LOGTRACE
+# define TRACE(...) LOG(VERBOSE, __VA_ARGS__)
+#else
+# define TRACE(...) do { if (0) LOG(VERBOSE, __VA_ARGS__); } while (0)
+#endif
+
 void ngli_log_print(int log_level, const char *filename,
                     int ln, const char *fn, const char *fmt, ...) ngli_printf_format(5, 6);
 

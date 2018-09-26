@@ -246,7 +246,7 @@ static void camera_draw(struct ngl_node *node)
             ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->framebuffer_id);
         }
 
-        LOG(DEBUG, "write %dx%d buffer to FD=%d", s->pipe_width, s->pipe_height, s->pipe_fd);
+        TRACE("write %dx%d buffer to FD=%d", s->pipe_width, s->pipe_height, s->pipe_fd);
         ngli_glReadPixels(gl, 0, 0, s->pipe_width, s->pipe_height, GL_RGBA, GL_UNSIGNED_BYTE, s->pipe_buf);
 
         const int linesize = s->pipe_width * 4;
