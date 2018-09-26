@@ -84,14 +84,14 @@ struct ngl_node {
     const struct node_class *class;
     struct ngl_ctx *ctx;
 
-    int refcount;
-    int ctx_refcount;
     int state;
+    int is_active;
 
+    double visit_time;
     double last_update_time;
 
-    int is_active;
-    double visit_time;
+    int refcount;
+    int ctx_refcount;
 
     struct darray children;
 
