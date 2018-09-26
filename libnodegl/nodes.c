@@ -260,13 +260,9 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
     int ret;
 
     if (ctx) {
-        if (node->ctx) {
-            if (node->ctx != ctx) {
-                LOG(ERROR, "\"%s\" is associated with another rendering context", node->name);
-                return -1;
-            }
-        } else {
-            node->ctx = ctx;
+        if (node->ctx && node->ctx != ctx) {
+            LOG(ERROR, "\"%s\" is associated with another rendering context", node->name);
+            return -1;
         }
     } else {
         node_uninit(node);
@@ -277,8 +273,10 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
         (ret = node_set_children_ctx((uint8_t *)node, ngli_base_node_params, ctx)) < 0)
         return ret;
 
-    if (node->ctx)
+    if (ctx) {
+        node->ctx = ctx;
         return ngli_node_init(node);
+    }
 
     return 0;
 }
