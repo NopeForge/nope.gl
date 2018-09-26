@@ -278,7 +278,6 @@ static int node_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-
     if (node->class->prefetch)
         node->state = STATE_INITIALIZED;
     else
@@ -386,9 +385,8 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
      * we have to mark every node below for activity to prevent an early
      * release from another branch.
      */
-    if (!is_active && node->state == STATE_IDLE) {
+    if (!is_active && node->state == STATE_IDLE)
         return 0;
-    }
 
     const int queue_node = node->visit_time != t;
 
