@@ -374,15 +374,6 @@ void ngli_node_detach_ctx(struct ngl_node *node)
     ngli_assert(ret == 0);
 }
 
-static inline int end_of_visit(struct ngl_node *node, int queue_node)
-{
-    if (!queue_node)
-        return 0;
-    if (!ngli_darray_push(&node->ctx->activitycheck_nodes, &node))
-        return -1;
-    return 0;
-}
-
 int ngli_node_visit(struct ngl_node *node, int is_active, double t)
 {
     /*
@@ -421,9 +412,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
         int ret = node->class->visit(node, is_active, t);
         if (ret < 0)
             return ret;
-        return end_of_visit(node, queue_node);
-    }
-
+    } else {
     struct darray *children_array = &node->children;
     struct ngl_node **children = (struct ngl_node **)children_array->data;
     for (int i = 0; i < children_array->size; i++) {
@@ -432,8 +421,12 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
         if (ret < 0)
             return ret;
     }
+    }
 
-    return end_of_visit(node, queue_node);
+    if (queue_node && !ngli_darray_push(&node->ctx->activitycheck_nodes, &node))
+        return -1;
+
+    return 0;
 }
 
 static int node_prefetch(struct ngl_node *node)
