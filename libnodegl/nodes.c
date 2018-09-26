@@ -537,10 +537,14 @@ int ngl_node_param_add(struct ngl_node *node, const char *key,
     if (!par)
         return -1;
 
+    if (node->ctx && !(par->flags & PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
+        LOG(ERROR, "%s.%s can not be live extended", node->name, key);
+        return -1;
+    }
+
     ret = ngli_params_add(base_ptr, par, nb_elems, elems);
     if (ret < 0)
         LOG(ERROR, "unable to add elements to %s.%s", node->name, key);
-    node_uninit(node); // need a reinit after changing options
     return ret;
 }
 
@@ -554,12 +558,16 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
     if (!par)
         return -1;
 
+    if (node->ctx && !(par->flags & PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
+        LOG(ERROR, "%s.%s can not be live changed", node->name, key);
+        return -1;
+    }
+
     va_start(ap, key);
     ret = ngli_params_set(base_ptr, par, &ap);
     if (ret < 0)
         LOG(ERROR, "unable to set %s.%s", node->name, key);
     va_end(ap);
-    node_uninit(node); // need a reinit after changing options
     return ret;
 }
 
