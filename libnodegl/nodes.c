@@ -275,7 +275,11 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 
     if (ctx) {
         node->ctx = ctx;
-        return ngli_node_init(node);
+        ret = ngli_node_init(node);
+        if (ret < 0) {
+            node->ctx = NULL;
+            return ret;
+        }
     }
 
     return 0;
