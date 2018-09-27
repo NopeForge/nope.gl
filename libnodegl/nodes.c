@@ -265,8 +265,10 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
             return -1;
         }
     } else {
-        node_uninit(node);
-        node->ctx = NULL;
+        if (node->state > STATE_UNINITIALIZED) {
+            node_uninit(node);
+            node->ctx = NULL;
+        }
     }
 
     if ((ret = node_set_children_ctx(node->priv_data, node->class->params, ctx)) < 0 ||
