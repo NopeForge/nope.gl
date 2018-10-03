@@ -130,7 +130,6 @@ static int update_rr_state(struct timerangefilter *s, double t)
     return rr_id;
 }
 
-// TODO: render once
 static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
 {
     struct timerangefilter *s = node->priv_data;
