@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include <float.h>
 #include <stddef.h>
 #include <string.h>
 #include "log.h"
@@ -95,7 +96,7 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
 static int animatedbuffer_init(struct ngl_node *node)
 {
     struct buffer *s = node->priv_data;
-    double prev_time = 0;
+    double prev_time = -DBL_MAX;
 
     int nb_comp;
     int format;
@@ -121,7 +122,7 @@ static int animatedbuffer_init(struct ngl_node *node)
         const int data_pad   = kf->data_size % s->data_stride;
 
         if (kf->time < prev_time) {
-            LOG(ERROR, "key frames must be positive and monotically increasing: %g < %g",
+            LOG(ERROR, "key frames must be monotically increasing: %g < %g",
                 kf->time, prev_time);
             return -1;
         }
