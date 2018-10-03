@@ -40,7 +40,7 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
 
     for (int i = start; i < nb_animkf; i++) {
         const struct animkeyframe *kf = animkf[i]->priv_data;
-        if (kf->time >= t)
+        if (kf->time > t)
             break;
         ret = i;
     }
@@ -84,7 +84,7 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
     } else {
         const struct animkeyframe *kf0 = animkf[            0]->priv_data;
         const struct animkeyframe *kfn = animkf[nb_animkf - 1]->priv_data;
-        const struct animkeyframe *kf  = t <= kf0->time ? kf0 : kfn;
+        const struct animkeyframe *kf  = t < kf0->time ? kf0 : kfn;
 
         memcpy(dst, kf->data, s->data_size);
     }
