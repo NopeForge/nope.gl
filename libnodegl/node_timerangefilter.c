@@ -177,6 +177,14 @@ static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
                         is_active = 1;
                     }
                 }
+            } else if (rr->class->id == NGL_NODE_TIMERANGEMODEONCE) {
+                // If the child of the current once range is inactive, meaning
+                // it has been previously released, we need to force an update
+                // otherwise the child will stay uninitialized.
+                if (!child->is_active) {
+                    struct timerangemode *rro = rr->priv_data;
+                    rro->updated = 0;
+                }
             }
         }
     }
