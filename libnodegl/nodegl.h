@@ -201,9 +201,6 @@ struct ngl_node *ngl_node_ref(struct ngl_node *node);
  * content if the reference counter reaches 0. The passed node pointer will
  * also be set to NULL.
  *
- * @warning Make sure to call this function from the OpenGL context for its
- *          destruction to prevent memory leaks (or worse).
- *
  * @param nodep  pointer to the pointer to the target node
  */
 void ngl_node_unrefp(struct ngl_node **nodep);
