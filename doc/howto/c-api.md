@@ -219,5 +219,5 @@ context!):
 
 ```c
     ngl_node_unrefp(&scene);
-    ngl_free(&ctx);
+    ngl_freep(&ctx);
 ```

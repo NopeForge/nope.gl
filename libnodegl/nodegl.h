@@ -334,7 +334,7 @@ struct ngl_ctx;
 /**
  * Allocate a new node.gl context.
  *
- * Must be destroyed using ngl_free().
+ * Must be destroyed using ngl_freep().
  *
  * This function does not perform any OpenGL operation.
  *
@@ -411,7 +411,7 @@ char *ngl_dot(struct ngl_ctx *s, double t);
  *
  * @param ss    pointer to the pointer to the node.gl context
  */
-void ngl_free(struct ngl_ctx **ss);
+void ngl_freep(struct ngl_ctx **ss);
 
 /**
  * Evaluate an animation at a given time t.

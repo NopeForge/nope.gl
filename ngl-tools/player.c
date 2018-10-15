@@ -192,7 +192,7 @@ void player_uninit(void)
 {
     struct player *p = g_player;
 
-    ngl_free(&p->ngl);
+    ngl_freep(&p->ngl);
     glfwDestroyWindow(p->window);
     glfwTerminate();
 }

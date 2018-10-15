@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
     }
 
 end:
-    ngl_free(&ctx);
+    ngl_freep(&ctx);
 
     if (fd != -1)
         close(fd);

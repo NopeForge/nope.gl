@@ -60,7 +60,7 @@ cdef extern from "nodegl.h":
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
     int ngl_draw(ngl_ctx *s, double t) nogil
     char *ngl_dot(ngl_ctx *s, double t) nogil
-    void ngl_free(ngl_ctx **ss)
+    void ngl_freep(ngl_ctx **ss)
 
 PLATFORM_AUTO    = NGL_PLATFORM_AUTO
 PLATFORM_XLIB    = NGL_PLATFORM_XLIB
@@ -142,4 +142,4 @@ cdef class Viewer:
         return _ret_pystr(s) if s else None
 
     def __dealloc__(self):
-        ngl_free(&self.ctx)
+        ngl_freep(&self.ctx)

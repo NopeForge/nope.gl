@@ -57,7 +57,7 @@ struct ngl_ctx *ngl_create(void)
     return s;
 
 fail:
-    ngl_free(&s);
+    ngl_freep(&s);
     return NULL;
 }
 
@@ -355,7 +355,7 @@ int ngl_draw(struct ngl_ctx *s, double t)
     return dispatch_cmd(s, cmd_draw, &t);
 }
 
-void ngl_free(struct ngl_ctx **ss)
+void ngl_freep(struct ngl_ctx **ss)
 {
     struct ngl_ctx *s = *ss;
 
