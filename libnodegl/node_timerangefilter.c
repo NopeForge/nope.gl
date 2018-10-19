@@ -19,6 +19,7 @@
  * under the License.
  */
 
+#include <float.h>
 #include <stddef.h>
 #include <string.h>
 
@@ -62,12 +63,12 @@ static int timerangefilter_init(struct ngl_node *node)
 {
     struct timerangefilter *s = node->priv_data;
 
-    double prev_start_time = 0;
+    double prev_start_time = -DBL_MAX;
     for (int i = 0; i < s->nb_ranges; i++) {
         const struct timerangemode *trm = s->ranges[i]->priv_data;
 
         if (trm->start_time < prev_start_time) {
-            LOG(ERROR, "time ranges must be positive and monotically increasing: %g < %g",
+            LOG(ERROR, "time ranges must be monotically increasing: %g < %g",
                 trm->start_time, prev_start_time);
             return -1;
         }
