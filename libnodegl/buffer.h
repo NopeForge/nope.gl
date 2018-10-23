@@ -22,10 +22,25 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include "nodes.h"
+#include "glcontext.h"
 
-int ngli_buffer_allocate(struct ngl_node *node);
-void ngli_buffer_upload(struct ngl_node *node);
-void ngli_buffer_free(struct ngl_node *node);
+struct graphic_buffer {
+    GLuint id;
+    int size;
+    int usage;
+};
+
+int ngli_graphic_buffer_allocate(struct glcontext *gl,
+                                 struct graphic_buffer *buffer,
+                                 int size,
+                                 int usage);
+
+int ngli_graphic_buffer_upload(struct glcontext *gl,
+                               struct graphic_buffer *buffer,
+                               void *data,
+                               int size);
+
+void ngli_graphic_buffer_free(struct glcontext *gl,
+                              struct graphic_buffer *buffer);
 
 #endif

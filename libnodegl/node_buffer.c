@@ -25,6 +25,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+#include "buffer.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -69,6 +71,53 @@ static const struct node_param buffer_params[] = {
                .choices=&usage_choices},
     {NULL}
 };
+
+int ngli_buffer_ref(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
+    struct buffer *s = node->priv_data;
+
+    if (s->graphic_buffer_refcount++ == 0) {
+        int ret = ngli_graphic_buffer_allocate(gl, &s->graphic_buffer, s->data_size, s->usage);
+        if (ret < 0)
+            return ret;
+
+        ret = ngli_graphic_buffer_upload(gl, &s->graphic_buffer, s->data, s->data_size);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
+}
+
+void ngli_buffer_unref(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
+    struct buffer *s = node->priv_data;
+
+    ngli_assert(s->graphic_buffer_refcount);
+    if (s->graphic_buffer_refcount-- == 1)
+        ngli_graphic_buffer_free(gl, &s->graphic_buffer);
+}
+
+int ngli_buffer_upload(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
+    struct buffer *s = node->priv_data;
+
+    if (s->dynamic && s->graphic_buffer_last_upload_time != node->last_update_time) {
+        ngli_graphic_buffer_upload(gl, &s->graphic_buffer, s->data, s->data_size);
+        s->graphic_buffer_last_upload_time = node->last_update_time;
+    }
+
+    return 0;
+}
 
 static int buffer_init_from_data(struct ngl_node *node)
 {

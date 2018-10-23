@@ -43,6 +43,7 @@
 #include "params.h"
 #include "formats_register.h"
 #include "darray.h"
+#include "buffer.h"
 
 struct node_class;
 
@@ -222,10 +223,14 @@ struct buffer {
     int fd;
     int dynamic;
 
-    GLuint buffer_id;
-    int buffer_refcount;
-    double buffer_last_upload_time;
+    struct graphic_buffer graphic_buffer;
+    int graphic_buffer_refcount;
+    double graphic_buffer_last_upload_time;
 };
+
+int ngli_buffer_ref(struct ngl_node *node);
+void ngli_buffer_unref(struct ngl_node *node);
+int ngli_buffer_upload(struct ngl_node *node);
 
 struct uniform {
     double scalar;
@@ -404,6 +409,8 @@ struct render {
     struct nodeprograminfopair *attribute_pairs; // (attribute, attributeprograminfo)
     int nb_attribute_pairs;
     int first_instance_attribute_index;
+
+    int has_indices_buffer_ref;
 
     GLint modelview_matrix_location;
     GLint projection_matrix_location;
