@@ -46,6 +46,7 @@ cmds_optional = [
 
     #  Buffers
     'glBindBufferBase',
+    'glBindBufferRange',
 
     # Compute shaders
     'glDispatchCompute',

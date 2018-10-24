@@ -20,6 +20,7 @@ static const struct gldefinition {
     {"glBindAttribLocation", offsetof(struct glfunctions, BindAttribLocation), M},
     {"glBindBuffer", offsetof(struct glfunctions, BindBuffer), M},
     {"glBindBufferBase", offsetof(struct glfunctions, BindBufferBase), 0},
+    {"glBindBufferRange", offsetof(struct glfunctions, BindBufferRange), 0},
     {"glBindFramebuffer", offsetof(struct glfunctions, BindFramebuffer), M},
     {"glBindImageTexture", offsetof(struct glfunctions, BindImageTexture), 0},
     {"glBindRenderbuffer", offsetof(struct glfunctions, BindRenderbuffer), M},

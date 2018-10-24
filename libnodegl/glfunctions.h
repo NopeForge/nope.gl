@@ -19,6 +19,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*BindAttribLocation)(GLuint program, GLuint index, const GLchar * name);
     NGLI_GL_APIENTRY void (*BindBuffer)(GLenum target, GLuint buffer);
     NGLI_GL_APIENTRY void (*BindBufferBase)(GLenum target, GLuint index, GLuint buffer);
+    NGLI_GL_APIENTRY void (*BindBufferRange)(GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size);
     NGLI_GL_APIENTRY void (*BindFramebuffer)(GLenum target, GLuint framebuffer);
     NGLI_GL_APIENTRY void (*BindImageTexture)(GLuint unit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format);
     NGLI_GL_APIENTRY void (*BindRenderbuffer)(GLenum target, GLuint renderbuffer);

@@ -50,6 +50,12 @@ static inline void ngli_glBindBufferBase(const struct glcontext *gl, GLenum targ
     check_error_code(gl, "glBindBufferBase");
 }
 
+static inline void ngli_glBindBufferRange(const struct glcontext *gl, GLenum target, GLuint index, GLuint buffer, GLintptr offset, GLsizeiptr size)
+{
+    gl->funcs.BindBufferRange(target, index, buffer, offset, size);
+    check_error_code(gl, "glBindBufferRange");
+}
+
 static inline void ngli_glBindFramebuffer(const struct glcontext *gl, GLenum target, GLuint framebuffer)
 {
     gl->funcs.BindFramebuffer(target, framebuffer);
