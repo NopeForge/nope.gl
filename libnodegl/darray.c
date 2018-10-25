@@ -19,13 +19,10 @@
  * under the License.
  */
 
-
-#define _POSIX_C_SOURCE 200809L // posix_memalign()
-
-#include <stdlib.h>
 #include <string.h>
 
 #include "darray.h"
+#include "memory.h"
 #include "utils.h"
 
 static int reserve_non_aligned(struct darray *darray, int capacity)
@@ -33,7 +30,7 @@ static int reserve_non_aligned(struct darray *darray, int capacity)
     if (capacity < darray->capacity)
         return 0;
 
-    void *ptr = realloc(darray->data, capacity * darray->element_size);
+    void *ptr = ngli_realloc(darray->data, capacity * darray->element_size);
     if (!ptr)
         return -1;
     darray->data = ptr;
@@ -46,12 +43,12 @@ static int reserve_aligned(struct darray *darray, int capacity)
     if (capacity < darray->capacity)
         return 0;
 
-    void *ptr;
-    if (posix_memalign(&ptr, NGLI_ALIGN_VAL, capacity * darray->element_size))
+    void *ptr = ngli_malloc_aligned(capacity * darray->element_size);
+    if (!ptr)
         return -1;
     if (darray->data) {
         memcpy(ptr, darray->data, darray->capacity * darray->element_size);
-        free(darray->data);
+        ngli_free_aligned(darray->data);
     }
     darray->data = ptr;
     darray->capacity = capacity;
@@ -64,7 +61,13 @@ void ngli_darray_init(struct darray *darray, int element_size, int aligned)
     darray->size = 0;
     darray->capacity = 0;
     darray->element_size = element_size;
-    darray->reserve = aligned ? reserve_aligned : reserve_non_aligned;
+    if (aligned) {
+        darray->reserve = reserve_aligned;
+        darray->release = ngli_free_aligned;
+    } else {
+        darray->reserve = reserve_non_aligned;
+        darray->release = ngli_free;
+    }
 }
 
 void *ngli_darray_push(struct darray *darray, const void *element)
@@ -111,6 +114,6 @@ void *ngli_darray_get(struct darray *darray, int index)
 
 void ngli_darray_reset(struct darray *darray)
 {
-    free(darray->data);
+    darray->release(darray->data);
     memset(darray, 0, sizeof(*darray));
 }

@@ -19,26 +19,17 @@
  * under the License.
  */
 
-#ifndef DARRAY_H
-#define DARRAY_H
+#ifndef MEMORY_H
+#define MEMORY_H
 
-#include <stdint.h>
+#include <stddef.h>
 
-struct darray {
-    uint8_t *data;
-    int size;
-    int capacity;
-    int element_size;
-    int (*reserve)(struct darray *darray, int capacity);
-    void (*release)(void *ptr);
-};
+void *ngli_malloc(size_t size);
+void *ngli_malloc_aligned(size_t size);
 
-void ngli_darray_init(struct darray *darray, int element_size, int aligned);
-void *ngli_darray_push(struct darray *darray, const void *element);
-void *ngli_darray_pop(struct darray *darray);
-void *ngli_darray_tail(struct darray *darray);
-void *ngli_darray_get(struct darray *darray, int index);
-int ngli_darray_size(struct darray *darray);
-void ngli_darray_reset(struct darray *darray);
+void *ngli_realloc(void *ptr, size_t size);
+
+void ngli_free(void *ptr);
+void ngli_free_aligned(void *ptr);
 
 #endif

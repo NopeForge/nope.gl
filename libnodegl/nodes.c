@@ -19,8 +19,6 @@
  * under the License.
  */
 
-#define _POSIX_C_SOURCE 200809L // posix_memalign()
-
 #include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -32,6 +30,7 @@
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "memory.h"
 #include "params.h"
 #include "utils.h"
 #include "nodes_register.h"
@@ -52,8 +51,8 @@ const struct node_param ngli_base_node_params[] = {
 
 static void *aligned_allocz(size_t size)
 {
-    void *ptr = NULL;
-    if (posix_memalign(&ptr, NGLI_ALIGN_VAL, size))
+    void *ptr = ngli_malloc_aligned(size);
+    if (!ptr)
         return NULL;
     memset(ptr, 0, size);
     return ptr;
@@ -566,7 +565,7 @@ void ngl_node_unrefp(struct ngl_node **nodep)
         ngli_assert(!node->ctx);
         ngli_params_free((uint8_t *)node, ngli_base_node_params);
         ngli_params_free(node->priv_data, node->class->params);
-        free(node);
+        ngli_free_aligned(node);
     }
     *nodep = NULL;
 }

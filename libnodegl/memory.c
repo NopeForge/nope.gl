@@ -19,26 +19,37 @@
  * under the License.
  */
 
-#ifndef DARRAY_H
-#define DARRAY_H
+#define _POSIX_C_SOURCE 200809L // posix_memalign()
 
-#include <stdint.h>
+#include <stdlib.h>
 
-struct darray {
-    uint8_t *data;
-    int size;
-    int capacity;
-    int element_size;
-    int (*reserve)(struct darray *darray, int capacity);
-    void (*release)(void *ptr);
-};
+#include "memory.h"
+#include "utils.h"
 
-void ngli_darray_init(struct darray *darray, int element_size, int aligned);
-void *ngli_darray_push(struct darray *darray, const void *element);
-void *ngli_darray_pop(struct darray *darray);
-void *ngli_darray_tail(struct darray *darray);
-void *ngli_darray_get(struct darray *darray, int index);
-int ngli_darray_size(struct darray *darray);
-void ngli_darray_reset(struct darray *darray);
+void *ngli_malloc(size_t size)
+{
+    return malloc(size);
+}
 
-#endif
+void *ngli_malloc_aligned(size_t size)
+{
+    void *ptr;
+    if (posix_memalign(&ptr, NGLI_ALIGN_VAL, size))
+        ptr = NULL;
+    return ptr;
+}
+
+void *ngli_realloc(void *ptr, size_t size)
+{
+    return realloc(ptr, size);
+}
+
+void ngli_free(void *ptr)
+{
+    free(ptr);
+}
+
+void ngli_free_aligned(void *ptr)
+{
+    free(ptr);
+}
