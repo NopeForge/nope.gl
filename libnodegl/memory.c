@@ -19,7 +19,9 @@
  * under the License.
  */
 
+#ifndef TARGET_MINGW_W64
 #define _POSIX_C_SOURCE 200809L // posix_memalign()
+#endif
 
 #include <stdlib.h>
 
@@ -34,8 +36,12 @@ void *ngli_malloc(size_t size)
 void *ngli_malloc_aligned(size_t size)
 {
     void *ptr;
+#ifdef TARGET_MINGW_W64
+    ptr = _aligned_malloc(size, NGLI_ALIGN_VAL);
+#else
     if (posix_memalign(&ptr, NGLI_ALIGN_VAL, size))
         ptr = NULL;
+#endif
     return ptr;
 }
 
@@ -51,5 +57,9 @@ void ngli_free(void *ptr)
 
 void ngli_free_aligned(void *ptr)
 {
+#ifdef TARGET_MINGW_W64
+    _aligned_free(ptr);
+#else
     free(ptr);
+#endif
 }
