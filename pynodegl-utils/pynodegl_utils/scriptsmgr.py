@@ -57,6 +57,8 @@ class ScriptsManager(QtCore.QObject):
     def resume(self):
         self._observer.unschedule_all()
         for path in self._dirs_to_watch:
+            if path == '':
+                path = '.'
             self._observer.schedule(self._event_handler, path)
 
     def pause(self):
