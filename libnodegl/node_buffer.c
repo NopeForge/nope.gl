@@ -216,10 +216,16 @@ static void buffer_uninit(struct ngl_node *node)
 {
     struct buffer *s = node->priv_data;
 
-    if (s->filename && s->fd) {
-        int ret = close(s->fd);
-        if (ret < 0) {
-            LOG(ERROR, "could not properly close '%s'", s->filename);
+    if (s->filename) {
+        free(s->data);
+        s->data = NULL;
+        s->data_size = 0;
+
+        if (s->fd) {
+            int ret = close(s->fd);
+            if (ret < 0) {
+                LOG(ERROR, "could not properly close '%s'", s->filename);
+            }
         }
     }
 }
