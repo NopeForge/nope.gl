@@ -210,6 +210,7 @@ static void node_uninit(struct ngl_node *node)
     }
     reset_non_params(node);
     node->state = STATE_UNINITIALIZED;
+    node->visit_time = -1.;
 }
 
 static int track_children(struct ngl_node *node)
