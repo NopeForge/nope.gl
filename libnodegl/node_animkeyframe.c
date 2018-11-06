@@ -33,42 +33,28 @@
 #include "params.h"
 #include "utils.h"
 
+#define CONSTS_4_IN_OUT(name, caps_name, formula, args, argsval)                                                                                                \
+        {name "_in",     EASING_##caps_name##_IN,                                                                                                               \
+                         .desc=NGLI_DOCSTRING("`" name "(x" argsval ")=" formula "`")},                                                                         \
+        {name "_out",    EASING_##caps_name##_OUT,                                                                                                              \
+                         .desc=NGLI_DOCSTRING("`" name "_out(x" argsval ")=1-" name "(1-x" args ")`")},                                                         \
+        {name "_in_out", EASING_##caps_name##_IN_OUT,                                                                                                           \
+                         .desc=NGLI_DOCSTRING("`" name "_in_out(x" argsval ")=" name "(2x" args ")/2` if `x<½` else `1-" name "(2*(1-x)" args ")/2`")},         \
+        {name "_out_in", EASING_##caps_name##_OUT_IN,                                                                                                           \
+                         .desc=NGLI_DOCSTRING("`" name "_out_in(x" argsval ")=(1-" name "(1-2x" args "))/2` if `x<½` else `(1+" name "(2x-1" args "))/2`")}     \
+
 static const struct param_choices easing_choices = {
     .name = "easing",
     .consts = {
         {"linear",           EASING_LINEAR,           .desc=NGLI_DOCSTRING("`linear(x)=x`")},
-        {"quadratic_in",     EASING_QUADRATIC_IN,     .desc=NGLI_DOCSTRING("`quadratic(x)=x²`")},
-        {"quadratic_out",    EASING_QUADRATIC_OUT,    .desc=NGLI_DOCSTRING("`quadratic_out(x)=1-quadratic(1-x)`")},
-        {"quadratic_in_out", EASING_QUADRATIC_IN_OUT, .desc=NGLI_DOCSTRING("`quadratic_in_out(x)=quadratic(2x)/2` if `x<½` else `1-quadratic(2*(1-x))/2`")},
-        {"quadratic_out_in", EASING_QUADRATIC_OUT_IN, .desc=NGLI_DOCSTRING("`quadratic_out_in(x)=(1-quadratic(1-2x))/2` if `x<½` else `(1+quadratic(2x-1))/2`")},
-        {"cubic_in",         EASING_CUBIC_IN,         .desc=NGLI_DOCSTRING("`cubic(x)=x³`")},
-        {"cubic_out",        EASING_CUBIC_OUT,        .desc=NGLI_DOCSTRING("`cubic_out(x)=1-cubic(1-x)`")},
-        {"cubic_in_out",     EASING_CUBIC_IN_OUT,     .desc=NGLI_DOCSTRING("`cubic_in_out(x)=cubic(2x)/2` if `x<½` else `1-cubic(2*(1-x))/2`")},
-        {"cubic_out_in",     EASING_CUBIC_OUT_IN,     .desc=NGLI_DOCSTRING("`cubic_out_in(x)=(1-cubic(1-2x))/2` if `x<½` else `(1+cubic(2x-1))/2`")},
-        {"quartic_in",       EASING_QUARTIC_IN,       .desc=NGLI_DOCSTRING("`quartic(x)=x⁴`")},
-        {"quartic_out",      EASING_QUARTIC_OUT,      .desc=NGLI_DOCSTRING("`quartic_out(x)=1-quartic(1-x)`")},
-        {"quartic_in_out",   EASING_QUARTIC_IN_OUT,   .desc=NGLI_DOCSTRING("`quartic_in_out(x)=quartic(2x)/2` if `x<½` else `1-quartic(2*(1-x))/2`")},
-        {"quartic_out_in",   EASING_QUARTIC_OUT_IN,   .desc=NGLI_DOCSTRING("`quartic_out_in(x)=(1-quartic(1-2x))/2` if `x<½` else `(1+quartic(2x-1))/2`")},
-        {"quintic_in",       EASING_QUINTIC_IN,       .desc=NGLI_DOCSTRING("`quintic(x)=x⁵`")},
-        {"quintic_out",      EASING_QUINTIC_OUT,      .desc=NGLI_DOCSTRING("`quintic(x)=1-quintic(1-x)`")},
-        {"quintic_in_out",   EASING_QUINTIC_IN_OUT,   .desc=NGLI_DOCSTRING("`quintic_in_out(x)=quintic(2x)/2` if `x<½` else `1-quintic(2*(1-x))/2`")},
-        {"quintic_out_in",   EASING_QUINTIC_OUT_IN,   .desc=NGLI_DOCSTRING("`quintic_out_in(x)=(1-quintic(1-2x))/2` if `x<½` else `(1+quintic(2x-1))/2`")},
-        {"power_in",         EASING_POWER_IN,         .desc=NGLI_DOCSTRING("`power(x,a=1)=x^a`")},
-        {"power_out",        EASING_POWER_OUT,        .desc=NGLI_DOCSTRING("`power_out(x,a=1)=1-power(1-x,a)`")},
-        {"power_in_out",     EASING_POWER_IN_OUT,     .desc=NGLI_DOCSTRING("`power_in_out(x,a=1)=power(2x,a)/2` if `x<½` else `1-power(2*(1-x),a)/2`")},
-        {"power_out_in",     EASING_POWER_OUT_IN,     .desc=NGLI_DOCSTRING("`power_out_in(x,a=1)=(1-power(1-2x,a))/2` if `x<½` else `(1+power(2x-1,a))/2`")},
-        {"sinus_in",         EASING_SINUS_IN,         .desc=NGLI_DOCSTRING("`sinus(x)=1-cos(x*π/2)`")},
-        {"sinus_out",        EASING_SINUS_OUT,        .desc=NGLI_DOCSTRING("`sinus_out(x)=1-sinus(1-x)`")},
-        {"sinus_in_out",     EASING_SINUS_IN_OUT,     .desc=NGLI_DOCSTRING("`sinus_in_out(x)=sinus(2x)/2` if `x<½` else `1-sinus(2*(1-x))/2`")},
-        {"sinus_out_in",     EASING_SINUS_OUT_IN,     .desc=NGLI_DOCSTRING("`sinus_out_in(x)=(1-sinus(1-2x))/2` if `x<½` else `(1+sinus(2x-1))/2`")},
-        {"exp_in",           EASING_EXP_IN,           .desc=NGLI_DOCSTRING("`exp(x,a=1024)=(pow(a,x)-1)/(a-1)`")},
-        {"exp_out",          EASING_EXP_OUT,          .desc=NGLI_DOCSTRING("`exp_out(x,a=1024)=1-exp(1-x,a)`")},
-        {"exp_in_out",       EASING_EXP_IN_OUT,       .desc=NGLI_DOCSTRING("`exp_in_out(x,a=1024)=exp(2x,a)/2` if `x<½` else `1-exp(2*(1-x),a)/2`")},
-        {"exp_out_in",       EASING_EXP_OUT_IN,       .desc=NGLI_DOCSTRING("`exp_out_in(x,a=1024)=(1-exp(1-2x,a))/2` if `x<½` else `(1+exp(2x-1,a))/2`")},
-        {"circular_in",      EASING_CIRCULAR_IN,      .desc=NGLI_DOCSTRING("`circular(x)=1-√(1-x²)`")},
-        {"circular_out",     EASING_CIRCULAR_OUT,     .desc=NGLI_DOCSTRING("`circular_out(x)=1-circular(1-x)`")},
-        {"circular_in_out",  EASING_CIRCULAR_IN_OUT,  .desc=NGLI_DOCSTRING("`circular_in_out(x)=circular(2x)/2` if `x<½` else `1-circular(2*(1-x))/2`")},
-        {"circular_out_in",  EASING_CIRCULAR_OUT_IN,  .desc=NGLI_DOCSTRING("`circular_out_in(x)=(1-circular(1-2x))/2` if `x<½` else `(1+circular(2x-1))/2`")},
+        CONSTS_4_IN_OUT("quadratic", QUADRATIC, "x²",                 "",   ""),
+        CONSTS_4_IN_OUT("cubic",     CUBIC,     "x³",                 "",   ""),
+        CONSTS_4_IN_OUT("quartic",   QUARTIC,   "x⁴",                 "",   ""),
+        CONSTS_4_IN_OUT("quintic",   QUINTIC,   "x⁵",                 "",   ""),
+        CONSTS_4_IN_OUT("power",     POWER,     "x^a",                ",a", ",a=1"),
+        CONSTS_4_IN_OUT("sinus",     SINUS,     "1-cos(x*π/2)",       "",   ""),
+        CONSTS_4_IN_OUT("exp",       EXP,       "(pow(a,x)-1)/(a-1)", ",a", ",a=1024"),
+        CONSTS_4_IN_OUT("circular",  CIRCULAR,  "1-√(1-x²)",          "",   ""),
         {"bounce_in",        EASING_BOUNCE_IN,        .desc=NGLI_DOCSTRING("bouncing from right to left 4 times")},
         {"bounce_out",       EASING_BOUNCE_OUT,       .desc=NGLI_DOCSTRING("diagonally mirrored version of `bounce_in()`")},
         {"elastic_in",       EASING_ELASTIC_IN,       .desc=NGLI_DOCSTRING("elastic effect from weak to strong")},

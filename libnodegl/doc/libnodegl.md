@@ -677,7 +677,7 @@ Constant | Description
 `quartic_in_out` | `quartic_in_out(x)=quartic(2x)/2` if `x<½` else `1-quartic(2*(1-x))/2`
 `quartic_out_in` | `quartic_out_in(x)=(1-quartic(1-2x))/2` if `x<½` else `(1+quartic(2x-1))/2`
 `quintic_in` | `quintic(x)=x⁵`
-`quintic_out` | `quintic(x)=1-quintic(1-x)`
+`quintic_out` | `quintic_out(x)=1-quintic(1-x)`
 `quintic_in_out` | `quintic_in_out(x)=quintic(2x)/2` if `x<½` else `1-quintic(2*(1-x))/2`
 `quintic_out_in` | `quintic_out_in(x)=(1-quintic(1-2x))/2` if `x<½` else `(1+quintic(2x-1))/2`
 `power_in` | `power(x,a=1)=x^a`
