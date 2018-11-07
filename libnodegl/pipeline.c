@@ -472,7 +472,7 @@ int ngli_pipeline_init(struct ngl_node *node)
 
 #if defined(TARGET_ANDROID)
             const int has_aux_sampler = info->external_sampler_location >= 0;
-#elif defined(TARGET_IPHONE)
+#elif defined(TARGET_IPHONE) || defined(HAVE_VAAPI_X11)
             const int has_aux_sampler = (info->y_sampler_location >= 0 || info->uv_sampler_location >= 0);
 #else
             const int has_aux_sampler = 0;
@@ -481,7 +481,7 @@ int ngli_pipeline_init(struct ngl_node *node)
             if (info->sampler_location < 0 && !has_aux_sampler)
                 LOG(WARNING, "no sampler found for texture %s", key);
 
-#if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
+#if defined(TARGET_ANDROID) || defined(TARGET_IPHONE) || defined(HAVE_VAAPI_X11)
             texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
             LOG(INFO, "direct rendering for texture %s.%s: %s",
                 node->label, key, texture->direct_rendering ? "yes" : "no");

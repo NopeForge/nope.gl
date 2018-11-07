@@ -185,6 +185,9 @@ static int media_init(struct ngl_node *node)
         return -1;
 
     sxplayer_set_option(s->player, "opaque", &android_surface);
+#elif defined(HAVE_VAAPI_X11)
+    struct ngl_ctx *ctx = node->ctx;
+    sxplayer_set_option(s->player, "opaque", &ctx->va_display);
 #endif
 
     return 0;
@@ -202,6 +205,7 @@ static const char * const pix_fmt_names[] = {
     [SXPLAYER_PIXFMT_BGRA]       = "bgra",
     [SXPLAYER_PIXFMT_VT]         = "vt",
     [SXPLAYER_PIXFMT_MEDIACODEC] = "mediacodec",
+    [SXPLAYER_PIXFMT_VAAPI]      = "vaapi",
 };
 
 static int media_update(struct ngl_node *node, double t)

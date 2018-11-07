@@ -26,6 +26,11 @@
 #include <sxplayer.h>
 #include <pthread.h>
 
+#if defined(HAVE_VAAPI_X11)
+#include <X11/Xlib.h>
+#include <va/va_x11.h>
+#endif
+
 #if defined(TARGET_ANDROID)
 #include "android_handlerthread.h"
 #include "android_surface.h"
@@ -73,6 +78,11 @@ struct ngl_ctx {
     struct darray modelview_matrix_stack;
     struct darray projection_matrix_stack;
     struct darray activitycheck_nodes;
+#if defined(HAVE_VAAPI_X11)
+    Display *x11_display;
+    VADisplay va_display;
+    int va_version;
+#endif
 
     /* Shared fields */
     pthread_mutex_t lock;

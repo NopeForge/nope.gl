@@ -36,6 +36,7 @@ extern const struct hwupload_class ngli_hwupload_common_class;
 extern const struct hwupload_class ngli_hwupload_mc_class;
 extern const struct hwupload_class ngli_hwupload_vt_darwin_class;
 extern const struct hwupload_class ngli_hwupload_vt_ios_class;
+extern const struct hwupload_class ngli_hwupload_vaapi_class;
 
 static const struct hwupload_class *hwupload_class_map[] = {
     [SXPLAYER_PIXFMT_RGBA]        = &ngli_hwupload_common_class,
@@ -47,6 +48,8 @@ static const struct hwupload_class *hwupload_class_map[] = {
     [SXPLAYER_PIXFMT_VT]          = &ngli_hwupload_vt_darwin_class,
 #elif defined(TARGET_IPHONE)
     [SXPLAYER_PIXFMT_VT]          = &ngli_hwupload_vt_ios_class,
+#elif defined(HAVE_VAAPI_X11)
+    [SXPLAYER_PIXFMT_VAAPI]       = &ngli_hwupload_vaapi_class,
 #endif
 };
 

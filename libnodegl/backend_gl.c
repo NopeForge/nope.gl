@@ -21,9 +21,14 @@
 
 #include <string.h>
 
+#include "log.h"
 #include "nodes.h"
 #include "backend.h"
 #include "glcontext.h"
+
+#if defined(HAVE_VAAPI_X11)
+#include "vaapi.h"
+#endif
 
 static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
 {
@@ -68,6 +73,12 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
     const float *rgba = config->clear_color;
     ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
 
+#if defined(HAVE_VAAPI_X11)
+    int ret = ngli_vaapi_init(s);
+    if (ret < 0)
+        LOG(WARNING, "could not initialize vaapi");
+#endif
+
     return 0;
 }
 
@@ -97,6 +108,9 @@ static int gl_post_draw(struct ngl_ctx *s, double t)
 
 static void gl_destroy(struct ngl_ctx *s)
 {
+#if defined(HAVE_VAAPI_X11)
+    ngli_vaapi_reset(s);
+#endif
     ngli_glcontext_freep(&s->glcontext);
 }
 

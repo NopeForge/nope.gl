@@ -1,0 +1,309 @@
+#include <stddef.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sxplayer.h>
+
+#include <va/va_x11.h>
+#include <va/va_drmcommon.h>
+
+#include "egl.h"
+#include "glincludes.h"
+#include "hwconv.h"
+#include "hwupload.h"
+#include "log.h"
+#include "nodegl.h"
+#include "nodes.h"
+
+struct hwupload_vaapi {
+    struct sxplayer_frame *frame;
+    struct hwconv hwconv;
+
+    GLuint textures[2];
+    EGLImageKHR egl_images[2];
+
+    VADRMPRIMESurfaceDescriptor surface_descriptor;
+    int surface_acquired;
+};
+
+static int vaapi_common_init(struct ngl_node *node, struct sxplayer_frame *frame)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
+
+    if (!(gl->features & (NGLI_FEATURE_OES_EGL_IMAGE |
+                          NGLI_FEATURE_EGL_IMAGE_BASE_KHR |
+                          NGLI_FEATURE_EGL_EXT_IMAGE_DMA_BUF_IMPORT))) {
+        LOG(ERROR, "context does not support required extensions for vaapi");
+        return -1;
+    }
+
+    for (int i = 0; i < 2; i++) {
+        ngli_glGenTextures(gl, 1, &vaapi->textures[i]);
+        ngli_glBindTexture(gl, s->target, vaapi->textures[i]);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, s->min_filter);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, s->wrap_s);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, s->wrap_t);
+    }
+
+    return 0;
+}
+
+static void vaapi_common_uninit(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
+
+    for (int i = 0; i < 2; i++)
+        ngli_glDeleteTextures(gl, 1, &vaapi->textures[i]);
+
+    if (vaapi->surface_acquired) {
+        for (int i = 0; i < 2; i++) {
+            if (vaapi->egl_images[i]) {
+                ngli_eglDestroyImageKHR(gl, vaapi->egl_images[i]);
+                vaapi->egl_images[i] = NULL;
+            }
+        }
+        for (int i = 0; i < vaapi->surface_descriptor.num_objects; i++) {
+            close(vaapi->surface_descriptor.objects[i].fd);
+        }
+        vaapi->surface_acquired = 0;
+    }
+
+    ngli_hwconv_reset(&vaapi->hwconv);
+
+    sxplayer_release_frame(vaapi->frame);
+    vaapi->frame = NULL;
+}
+
+static int vaapi_common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
+
+    sxplayer_release_frame(vaapi->frame);
+    vaapi->frame = frame;
+
+    if (vaapi->surface_acquired) {
+        for (int i = 0; i < 2; i++) {
+            if (vaapi->egl_images[i]) {
+                ngli_eglDestroyImageKHR(gl, vaapi->egl_images[i]);
+                vaapi->egl_images[i] = NULL;
+            }
+        }
+        for (int i = 0; i < vaapi->surface_descriptor.num_objects; i++) {
+            close(vaapi->surface_descriptor.objects[i].fd);
+        }
+        vaapi->surface_acquired = 0;
+    }
+
+    VASurfaceID surface_id = (VASurfaceID)(intptr_t)frame->data;
+    VAStatus status = vaExportSurfaceHandle(ctx->va_display,
+                                            surface_id,
+                                            VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME_2,
+                                            VA_EXPORT_SURFACE_READ_ONLY |
+                                            VA_EXPORT_SURFACE_SEPARATE_LAYERS,
+                                            &vaapi->surface_descriptor);
+    if (status != VA_STATUS_SUCCESS) {
+        LOG(ERROR, "failed to export vaapi surface handle: 0x%x", status);
+        return -1;
+    }
+    vaapi->surface_acquired = 1;
+
+    if (vaapi->surface_descriptor.fourcc != VA_FOURCC_NV12 &&
+        vaapi->surface_descriptor.fourcc != VA_FOURCC_P010 &&
+        vaapi->surface_descriptor.fourcc != VA_FOURCC_P016) {
+        LOG(ERROR, "unsupported vaapi surface format: 0x%x", vaapi->surface_descriptor.fourcc);
+        return -1;
+    }
+
+    for (int i = 0; i < vaapi->surface_descriptor.num_layers; i++) {
+        int attribs[32] = {EGL_NONE};
+        int nb_attribs = 0;
+
+#define ADD_ATTRIB(name, value) do {                          \
+    ngli_assert(nb_attribs + 3 < NGLI_ARRAY_NB(attribs));     \
+    attribs[nb_attribs++] = (name);                           \
+    attribs[nb_attribs++] = (value);                          \
+    attribs[nb_attribs] = EGL_NONE;                           \
+} while(0)
+
+#define ADD_PLANE_ATTRIBS(plane) do {                                                \
+    uint32_t object_index = vaapi->surface_descriptor.layers[i].object_index[plane]; \
+    ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _FD_EXT,                                \
+               vaapi->surface_descriptor.objects[object_index].fd);                  \
+    ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _OFFSET_EXT,                            \
+               vaapi->surface_descriptor.layers[i].offset[plane]);                   \
+    ADD_ATTRIB(EGL_DMA_BUF_PLANE ## plane ## _PITCH_EXT,                             \
+               vaapi->surface_descriptor.layers[i].pitch[plane]);                    \
+} while (0)
+
+        ADD_ATTRIB(EGL_LINUX_DRM_FOURCC_EXT, vaapi->surface_descriptor.layers[i].drm_format);
+        ADD_ATTRIB(EGL_WIDTH,  i == 0 ? frame->width : frame->width / 2);
+        ADD_ATTRIB(EGL_HEIGHT, i == 0 ? frame->height : frame->height / 2);
+
+        ADD_PLANE_ATTRIBS(0);
+        if (vaapi->surface_descriptor.layers[i].num_planes > 1)
+            ADD_PLANE_ATTRIBS(1);
+        if (vaapi->surface_descriptor.layers[i].num_planes > 2)
+            ADD_PLANE_ATTRIBS(2);
+        if (vaapi->surface_descriptor.layers[i].num_planes > 3)
+            ADD_PLANE_ATTRIBS(3);
+
+        vaapi->egl_images[i] = ngli_eglCreateImageKHR(gl,
+                                                      EGL_NO_CONTEXT,
+                                                      EGL_LINUX_DMA_BUF_EXT,
+                                                      NULL,
+                                                      attribs);
+        if (!vaapi->egl_images[i]) {
+            LOG(ERROR, "failed to create egl image");
+            return -1;
+        }
+
+        ngli_glBindTexture(gl, s->target, vaapi->textures[i]);
+        ngli_glEGLImageTargetTexture2DOES(gl, GL_TEXTURE_2D, vaapi->egl_images[i]);
+    }
+
+    return 0;
+}
+
+static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
+
+    int ret = vaapi_common_init(node, frame);
+    if (ret < 0)
+        return ret;
+
+    s->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
+    ret = ngli_format_get_gl_texture_format(gl, s->data_format,
+                                            &s->format, &s->internal_format, &s->type);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_hwconv_init(&vaapi->hwconv, gl, s->id, s->data_format,
+                           s->width, s->height, NGLI_TEXTURE_LAYOUT_NV12);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
+
+    int ret = vaapi_common_map_frame(node, frame);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
+    if (ret < 0)
+        return ret;
+
+    if (ret) {
+        ngli_hwconv_reset(&vaapi->hwconv);
+        ret = ngli_hwconv_init(&vaapi->hwconv, gl, s->id, s->data_format,
+                                s->width, s->height, NGLI_TEXTURE_LAYOUT_NV12);
+        if (ret < 0)
+            return ret;
+    }
+
+    const struct texture_plane planes[] = {
+        {.id = vaapi->textures[0], .target = GL_TEXTURE_2D},
+        {.id = vaapi->textures[1], .target = GL_TEXTURE_2D}
+    };
+
+    ret = ngli_hwconv_convert(&vaapi->hwconv, planes, NULL);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+static int vaapi_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
+{
+    struct texture_priv *s = node->priv_data;
+
+    int ret = vaapi_common_init(node, frame);
+    if (ret < 0)
+        return ret;
+
+    s->layout = NGLI_TEXTURE_LAYOUT_NV12;
+    for (int i = 0; i < 2; i++) {
+        s->planes[i].id = 0;
+        s->planes[i].target = GL_TEXTURE_2D;
+    }
+
+    return 0;
+}
+
+static int vaapi_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+{
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
+
+    int ret = vaapi_common_map_frame(node, frame);
+    if (ret < 0)
+        return ret;
+
+    for (int i = 0; i < 2; i++)
+        s->planes[i].id = vaapi->textures[i];
+
+    return 0;
+}
+
+static const struct hwmap_class hwmap_vaapi_class = {
+    .name      = "vaapi (dma buf → egl image)",
+    .flags     = HWMAP_FLAG_FRAME_OWNER,
+    .priv_size = sizeof(struct hwupload_vaapi),
+    .init      = vaapi_init,
+    .map_frame = vaapi_map_frame,
+    .uninit    = vaapi_common_uninit,
+};
+
+static const struct hwmap_class hwmap_vaapi_dr_class = {
+    .name      = "vaapi (dma buf → egl image → rgba)",
+    .flags     = HWMAP_FLAG_FRAME_OWNER,
+    .priv_size = sizeof(struct hwupload_vaapi),
+    .init      = vaapi_dr_init,
+    .map_frame = vaapi_dr_map_frame,
+    .uninit    = vaapi_common_uninit,
+};
+
+static const struct hwmap_class *vaapi_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
+{
+    struct texture_priv *s = node->priv_data;
+
+    if (s->direct_rendering &&
+        s->min_filter != GL_NEAREST &&
+        s->min_filter != GL_LINEAR) {
+        LOG(WARNING,
+            "vaapi direct rendering only support nearest and linear filtering: "
+            "disabling direct rendering");
+        s->direct_rendering = 0;
+    }
+
+    return s->direct_rendering ? &hwmap_vaapi_dr_class : &hwmap_vaapi_class;
+}
+
+const struct hwupload_class ngli_hwupload_vaapi_class = {
+    .get_hwmap = vaapi_get_hwmap,
+};

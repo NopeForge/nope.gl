@@ -137,11 +137,25 @@ LIB_EXTRA_LDLIBS_Android   = -legl
 LIB_EXTRA_LDLIBS_iPhone    = -framework CoreMedia
 LIB_EXTRA_LDLIBS_MinGW-w64 = -lopengl32 -lgdi32
 
-LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 9.2.0"
+LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 9.3.1"
 LIB_EXTRA_PKG_CONFIG_LIBS_Linux   = x11 gl egl
 LIB_EXTRA_PKG_CONFIG_LIBS_Darwin  =
 LIB_EXTRA_PKG_CONFIG_LIBS_Android = libavcodec
 LIB_EXTRA_PKG_CONFIG_LIBS_iPhone  =
+
+VAAPI_PKG_CONFIG_LIBS = "libva-x11 >= 1.1.0" "libva-drm >= 1.1.0"
+
+ifeq ($(TARGET_OS),Linux)
+	ENABLE_VAAPI_X11 ?= $(shell $(PKG_CONFIG) --exists $(VAAPI_PKG_CONFIG_LIBS) && echo yes || echo no)
+else
+	ENABLE_VAAPI_X11 = no
+endif
+
+ifeq ($(ENABLE_VAAPI_X11),yes)
+	PROJECT_CFLAGS += -DHAVE_VAAPI_X11
+	LIB_EXTRA_OBJS_Linux += hwupload_vaapi.o vaapi.o
+	LIB_PKG_CONFIG_LIBS += $(VAAPI_PKG_CONFIG_LIBS)
+endif
 
 LIB_OBJS   += $(LIB_EXTRA_OBJS_$(TARGET_OS))
 LIB_CFLAGS += $(LIB_EXTRA_CFLAGS_$(TARGET_OS))
