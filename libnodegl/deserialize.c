@@ -29,10 +29,6 @@
 #include "nodes.h"
 #include "params.h"
 
-struct serial_ctx {
-    struct darray nodes;
-};
-
 #define CASE_LITERAL(param_type, type, parse_func)      \
 case param_type: {                                      \
     type v;                                             \
@@ -212,7 +208,7 @@ static inline int hexv(char c)
     return 0;
 }
 
-static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
+static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                        const struct node_param *par, const char *str)
 {
     int len = -1;
@@ -348,7 +344,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             len = parse_hexint(str, &node_id);
             if (len < 0)
                 return -1;
-            struct ngl_node **nodep = ngli_darray_get(&sctx->nodes, node_id);
+            struct ngl_node **nodep = ngli_darray_get(nodes_array, node_id);
             if (!nodep)
                 return -1;
             int ret = ngli_params_vset(base_ptr, par, *nodep);
@@ -363,7 +359,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
             if (len < 0)
                 return -1;
             for (int i = 0; i < nb_node_ids; i++) {
-                struct ngl_node **nodep = ngli_darray_get(&sctx->nodes, node_ids[i]);
+                struct ngl_node **nodep = ngli_darray_get(nodes_array, node_ids[i]);
                 if (!nodep) {
                     free(node_ids);
                     return -1;
@@ -399,7 +395,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
                 return -1;
             for (int i = 0; i < nb_nodes; i++) {
                 const char *key = node_keys[i];
-                struct ngl_node **nodep = ngli_darray_get(&sctx->nodes, node_ids[i]);
+                struct ngl_node **nodep = ngli_darray_get(nodes_array, node_ids[i]);
                 if (!nodep) {
                     FREE_KVS(nb_nodes, node_keys, node_ids);
                     return -1;
@@ -421,7 +417,7 @@ static int parse_param(struct serial_ctx *sctx, uint8_t *base_ptr,
     return len;
 }
 
-static int set_node_params(struct serial_ctx *sctx, char *str,
+static int set_node_params(struct darray *nodes_array, char *str,
                            const struct ngl_node *node)
 {
     uint8_t *base_ptr = node->priv_data;
@@ -436,7 +432,7 @@ static int set_node_params(struct serial_ctx *sctx, char *str,
         if (!(par->flags & PARAM_FLAG_CONSTRUCTOR))
             break;
 
-        int ret = parse_param(sctx, base_ptr, par, str);
+        int ret = parse_param(nodes_array, base_ptr, par, str);
         if (ret < 0) {
             LOG(ERROR, "invalid value specified for parameter %s.%s",
                 node->class->name, par->key);
@@ -463,7 +459,7 @@ static int set_node_params(struct serial_ctx *sctx, char *str,
         }
 
         str = eok + 1;
-        int ret = parse_param(sctx, base_ptr, par, str);
+        int ret = parse_param(nodes_array, base_ptr, par, str);
         if (ret < 0) {
             LOG(ERROR, "invalid value specified for parameter %s.%s",
                 node->class->name, par->key);
@@ -482,10 +478,9 @@ static int set_node_params(struct serial_ctx *sctx, char *str,
 struct ngl_node *ngl_node_deserialize(const char *str)
 {
     struct ngl_node *node = NULL;
-    struct serial_ctx sctx = {0};
-    struct darray *nodes_array = &sctx.nodes;
+    struct darray nodes_array;
 
-    ngli_darray_init(nodes_array, sizeof(struct ngl_node *), 0);
+    ngli_darray_init(&nodes_array, sizeof(struct ngl_node *), 0);
 
     char *s = ngli_strdup(str);
     if (!s)
@@ -520,7 +515,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         if (!node)
             break;
 
-        if (!ngli_darray_push(nodes_array, &node)) {
+        if (!ngli_darray_push(&nodes_array, &node)) {
             ngl_node_unrefp(&node);
             break;
         }
@@ -528,7 +523,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         size_t eol = strcspn(s, "\n");
         s[eol] = 0;
 
-        int ret = set_node_params(&sctx, s, node);
+        int ret = set_node_params(&nodes_array, s, node);
         if (ret < 0) {
             ngl_node_unrefp(&node);
             break;
@@ -540,12 +535,12 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     if (node)
         ngl_node_ref(node);
 
-    struct ngl_node **nodes = ngli_darray_data(nodes_array);
-    for (int i = 0; i < ngli_darray_count(nodes_array); i++)
+    struct ngl_node **nodes = ngli_darray_data(&nodes_array);
+    for (int i = 0; i < ngli_darray_count(&nodes_array); i++)
         ngl_node_unrefp(&nodes[i]);
 
 end:
-    ngli_darray_reset(nodes_array);
+    ngli_darray_reset(&nodes_array);
     free(sstart);
     return node;
 }
