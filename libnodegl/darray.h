@@ -45,4 +45,9 @@ static inline int ngli_darray_count(struct darray *darray)
     return darray->count;
 }
 
+static inline void *ngli_darray_data(struct darray *darray)
+{
+    return (void *)darray->data;
+}
+
 #endif
