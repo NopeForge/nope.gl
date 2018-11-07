@@ -337,7 +337,7 @@ static int upload_mc_frame(struct ngl_node *node, struct hwupload_config *config
     struct texture *t = s->textures[0]->priv_data;
     ngli_mat4_mul(t->coordinates_matrix, flip_matrix, matrix);
 
-    node->ctx->activitycheck_nodes.size = 0;
+    node->ctx->activitycheck_nodes.count = 0;
     ret = ngli_node_visit(s->rtt, 1, 0.0);
     if (ret < 0)
         return ret;
@@ -737,7 +737,7 @@ static int upload_vt_frame(struct ngl_node *node, struct hwupload_config *config
             ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         }
 
-        ctx->activitycheck_nodes.size = 0;
+        ctx->activitycheck_nodes.count = 0;
         ret = ngli_node_visit(s->rtt, 1, 0.0);
         if (ret < 0) {
             CFRelease(textures[0]);

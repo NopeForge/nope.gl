@@ -26,7 +26,7 @@
 
 struct darray {
     uint8_t *data;
-    int size;
+    int count;
     int capacity;
     int element_size;
     int (*reserve)(struct darray *darray, int capacity);
@@ -42,7 +42,7 @@ void ngli_darray_reset(struct darray *darray);
 
 static inline int ngli_darray_count(struct darray *darray)
 {
-    return darray->size;
+    return darray->count;
 }
 
 #endif

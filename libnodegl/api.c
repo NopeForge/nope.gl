@@ -164,7 +164,7 @@ static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 
     LOG(DEBUG, "prepare scene %s @ t=%f", scene->name, t);
 
-    s->activitycheck_nodes.size = 0;
+    s->activitycheck_nodes.count = 0;
     int ret = ngli_node_visit(scene, 1, t);
     if (ret < 0)
         return ret;

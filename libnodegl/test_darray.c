@@ -27,18 +27,18 @@ int main(void)
     struct darray darray = {0};
     ngli_darray_init(&darray, sizeof(int), 0);
 
-    int size = ngli_darray_count(&darray);
-    ngli_assert(size == 0);
+    int count = ngli_darray_count(&darray);
+    ngli_assert(count == 0);
 
     int *element = ngli_darray_push(&darray, NULL);
     *element = 0xFF;
-    size = ngli_darray_count(&darray);
-    ngli_assert(size == 1);
+    count = ngli_darray_count(&darray);
+    ngli_assert(count == 1);
 
     element = ngli_darray_push(&darray, NULL);
     *element = 0xFFFF;
-    size = ngli_darray_count(&darray);
-    ngli_assert(size == 2);
+    count = ngli_darray_count(&darray);
+    ngli_assert(count == 2);
 
     element = ngli_darray_tail(&darray);
     ngli_assert(*element == 0xFFFF);
@@ -52,8 +52,8 @@ int main(void)
     element = ngli_darray_pop(&darray);
     ngli_assert(element == NULL);
 
-    size = ngli_darray_count(&darray);
-    ngli_assert(size == 0);
+    count = ngli_darray_count(&darray);
+    ngli_assert(count == 0);
 
     ngli_darray_reset(&darray);
 
