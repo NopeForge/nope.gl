@@ -543,9 +543,9 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     struct ngl_node **nodes = ngli_darray_data(nodes_array);
     for (int i = 0; i < ngli_darray_count(nodes_array); i++)
         ngl_node_unrefp(&nodes[i]);
-    ngli_darray_reset(nodes_array);
 
 end:
+    ngli_darray_reset(nodes_array);
     free(sstart);
     return node;
 }
