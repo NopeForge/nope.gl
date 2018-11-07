@@ -483,8 +483,9 @@ struct ngl_node *ngl_node_deserialize(const char *str)
 {
     struct ngl_node *node = NULL;
     struct serial_ctx sctx = {0};
+    struct darray *nodes_array = &sctx.nodes;
 
-    ngli_darray_init(&sctx.nodes, sizeof(struct ngl_node *), 0);
+    ngli_darray_init(nodes_array, sizeof(struct ngl_node *), 0);
 
     char *s = ngli_strdup(str);
     if (!s)
@@ -519,7 +520,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         if (!node)
             break;
 
-        if (!ngli_darray_push(&sctx.nodes, &node)) {
+        if (!ngli_darray_push(nodes_array, &node)) {
             ngl_node_unrefp(&node);
             break;
         }
@@ -539,12 +540,10 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     if (node)
         ngl_node_ref(node);
 
-    int nb_nodes = ngli_darray_count(&sctx.nodes);
-    for (int i = 0; i < nb_nodes; i++) {
-        struct ngl_node **nodep = ngli_darray_get(&sctx.nodes, i);
-        ngl_node_unrefp(nodep);
-    }
-    ngli_darray_reset(&sctx.nodes);
+    struct ngl_node **nodes = ngli_darray_data(nodes_array);
+    for (int i = 0; i < ngli_darray_count(nodes_array); i++)
+        ngl_node_unrefp(&nodes[i]);
+    ngli_darray_reset(nodes_array);
 
 end:
     free(sstart);
