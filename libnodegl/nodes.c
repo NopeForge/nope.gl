@@ -411,7 +411,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
             return ret;
     } else {
         struct darray *children_array = &node->children;
-        struct ngl_node **children = (struct ngl_node **)children_array->data;
+        struct ngl_node **children = ngli_darray_data(children_array);
         for (int i = 0; i < ngli_darray_count(children_array); i++) {
             struct ngl_node *child = children[i];
             int ret = ngli_node_visit(child, is_active, t);
@@ -446,7 +446,7 @@ static int node_prefetch(struct ngl_node *node)
 
 int ngli_node_honor_release_prefetch(struct darray *nodes_array)
 {
-    struct ngl_node **nodes = (struct ngl_node **)nodes_array->data;
+    struct ngl_node **nodes = ngli_darray_data(nodes_array);
     for (int i = 0; i < ngli_darray_count(nodes_array); i++) {
         struct ngl_node *node = nodes[i];
 
