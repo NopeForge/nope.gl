@@ -539,7 +539,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
     if (node)
         ngl_node_ref(node);
 
-    int nb_nodes = ngli_darray_size(&sctx.nodes);
+    int nb_nodes = ngli_darray_count(&sctx.nodes);
     for (int i = 0; i < nb_nodes; i++) {
         struct ngl_node **nodep = ngli_darray_get(&sctx.nodes, i);
         ngl_node_unrefp(nodep);

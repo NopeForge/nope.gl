@@ -100,7 +100,7 @@ void *ngli_darray_pop(struct darray *darray)
     return element;
 }
 
-int ngli_darray_size(struct darray *darray)
+int ngli_darray_count(struct darray *darray)
 {
     return darray->size;
 }
