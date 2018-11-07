@@ -100,11 +100,6 @@ void *ngli_darray_pop(struct darray *darray)
     return element;
 }
 
-int ngli_darray_count(struct darray *darray)
-{
-    return darray->size;
-}
-
 void *ngli_darray_get(struct darray *darray, int index)
 {
     if (index < 0 || index >= darray->size)

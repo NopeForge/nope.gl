@@ -38,7 +38,11 @@ void *ngli_darray_push(struct darray *darray, const void *element);
 void *ngli_darray_pop(struct darray *darray);
 void *ngli_darray_tail(struct darray *darray);
 void *ngli_darray_get(struct darray *darray, int index);
-int ngli_darray_count(struct darray *darray);
 void ngli_darray_reset(struct darray *darray);
+
+static inline int ngli_darray_count(struct darray *darray)
+{
+    return darray->size;
+}
 
 #endif
