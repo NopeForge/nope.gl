@@ -26,6 +26,14 @@
 
 #include "nodegl.h"
 
+struct hwupload_config {
+    int format;
+    int width;
+    int height;
+    int linesize;
+    int data_format;
+};
+
 int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *frame);
 void ngli_hwupload_uninit(struct ngl_node *node);
 
