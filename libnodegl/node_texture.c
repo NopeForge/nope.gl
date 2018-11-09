@@ -418,6 +418,7 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
     ngli_glBindTexture(gl, s->local_target, 0);
 
     s->id = s->local_id;
+    s->target = s->local_target;
 
     return ret;
 }
