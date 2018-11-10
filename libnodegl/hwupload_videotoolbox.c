@@ -142,20 +142,20 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
         return 0;
 
     s->upload_fmt = config->format;
-    s->data_format = config->data_format;
-
-    int ret = ngli_format_get_gl_format_type(gl,
-                                             s->data_format,
-                                             &s->format,
-                                             &s->internal_format,
-                                             &s->type);
-    if (ret < 0)
-        return ret;
 
     ngli_mat4_identity(s->coordinates_matrix);
 
     if (s->upload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
-        int ret = ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
+        s->data_format = config->data_format;
+        int ret = ngli_format_get_gl_format_type(gl,
+                                                 s->data_format,
+                                                 &s->format,
+                                                 &s->internal_format,
+                                                 &s->type);
+        if (ret < 0)
+            return ret;
+
+        ret = ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
         if (ret < 0)
             return ret;
 
@@ -189,11 +189,15 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
             return -1;
 
         struct texture *t = s->textures[0]->priv_data;
+        t->externally_managed = 1;
         t->data_format     = NGLI_FORMAT_R8_UNORM;
         t->width           = s->width;
         t->height          = s->height;
-        t->external_id     = UINT_MAX;
-        t->external_target = GL_TEXTURE_2D;
+        ngli_mat4_identity(t->coordinates_matrix);
+
+        t->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+        t->planes[0].id = 0;
+        t->planes[0].target = GL_TEXTURE_2D;
 
         ret = ngli_format_get_gl_format_type(gl,
                                              t->data_format,
@@ -208,17 +212,21 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
             return -1;
 
         t = s->textures[1]->priv_data;
+        t->externally_managed = 1;
         t->data_format     = NGLI_FORMAT_R8G8_UNORM;
         t->width           = (s->width + 1) >> 1;
         t->height          = (s->height + 1) >> 1;
-        t->external_id     = UINT_MAX;
-        t->external_target = GL_TEXTURE_2D;
+        ngli_mat4_identity(t->coordinates_matrix);
 
-        int ret = ngli_format_get_gl_format_type(gl,
-                                                 t->data_format,
-                                                 &t->format,
-                                                 &t->internal_format,
-                                                 &t->type);
+        t->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+        t->planes[0].id = 0;
+        t->planes[0].target = GL_TEXTURE_2D;
+
+        ret = ngli_format_get_gl_format_type(gl,
+                                             t->data_format,
+                                             &t->format,
+                                             &t->internal_format,
+                                             &t->type);
         if (ret < 0)
             return ret;
 
@@ -227,6 +235,7 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
             return -1;
 
         t = s->target_texture->priv_data;
+        t->externally_managed = 1;
         t->data_format     = s->data_format;
         t->format          = s->format;
         t->internal_format = s->internal_format;
@@ -237,8 +246,9 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
         t->mag_filter      = s->mag_filter;
         t->wrap_s          = s->wrap_s;
         t->wrap_t          = s->wrap_t;
-        t->external_id     = s->local_id;
-        t->external_target = GL_TEXTURE_2D;
+        t->id              = s->id;
+        t->target          = GL_TEXTURE_2D;
+        ngli_mat4_identity(t->coordinates_matrix);
 
         s->render = ngl_node_create(NGL_NODE_RENDER, s->quad);
         if (!s->render)
@@ -293,16 +303,15 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
                                                                     &textures[0]);
         if (err != noErr) {
             LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
-            s->id = s->local_id;
             return -1;
         }
 
         NGLI_CFRELEASE(s->ios_textures[0]);
 
         s->ios_textures[0] = textures[0];
-        s->id = CVOpenGLESTextureGetName(s->ios_textures[0]);
+        GLint id = CVOpenGLESTextureGetName(s->ios_textures[0]);
 
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
@@ -316,6 +325,10 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
             break;
         }
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+
+        s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+        s->planes[0].id = id;
+        s->planes[0].target = GL_TEXTURE_2D;
         break;
     }
     case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12: {
@@ -327,7 +340,7 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
 
         if (ret) {
             ngli_hwupload_uninit(node);
-            ret = init_vt(node, config);
+            ret = ngli_hwupload_vt_init(node, config);
             if (ret < 0)
                 return ret;
         }
@@ -367,13 +380,16 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
                 return -1;
             }
 
-            t->id = t->external_id = CVOpenGLESTextureGetName(textures[i]);
-            ngli_glBindTexture(gl, GL_TEXTURE_2D, t->id);
+            GLint id = CVOpenGLESTextureGetName(textures[i]);
+            ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
             ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, t->min_filter);
             ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, t->mag_filter);
             ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, t->wrap_s);
             ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, t->wrap_t);
             ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+
+            t->planes[0].id = id;
+            t->planes[0].target = GL_TEXTURE_2D;
         }
 
         ctx->activitycheck_nodes.count = 0;
@@ -432,24 +448,17 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
 int ngli_hwupload_vt_dr_init(struct ngl_node *node,
                              struct hwupload_config *config)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
 
     if (s->upload_fmt == config->format)
         return 0;
 
     s->upload_fmt = config->format;
-    s->data_format = config->data_format;
-
-    int ret = ngli_format_get_gl_format_type(gl,
-                                             s->data_format,
-                                             &s->format,
-                                             &s->internal_format,
-                                             &s->type);
-    if (ret < 0)
-        return ret;
+    s->layout = NGLI_TEXTURE_LAYOUT_NV12;
+    for (int i = 0; i < 2; i++) {
+        s->planes[i].id = 0;
+        s->planes[i].target = GL_TEXTURE_2D;
+    }
 
     return 0;
 }
@@ -525,6 +534,9 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+
+        s->planes[i].id = id;
+        s->planes[i].target = GL_TEXTURE_2D;
     }
 
     return 0;

@@ -101,8 +101,6 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
 {
     struct texture *s = node->priv_data;
 
-    s->id                    = s->local_id;
-    s->target                = s->local_target;
     const int linesize       = config->linesize >> 2;
     s->coordinates_matrix[0] = linesize ? config->width / (float)linesize : 1.0;
 

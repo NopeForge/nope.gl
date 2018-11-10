@@ -60,36 +60,12 @@ static int acquire_next_available_texture_unit(uint64_t *used_texture_units)
     return -1;
 }
 
-static int update_default_sampler(const struct glcontext *gl,
-                                  struct pipeline *s,
-                                  struct texture *texture,
-                                  const struct textureprograminfo *info,
-                                  uint64_t *used_texture_units,
-                                  int *sampling_mode)
-{
-    ngli_assert(info->sampler_id >= 0);
-
-    int texture_index = acquire_next_available_texture_unit(used_texture_units);
-    if (texture_index < 0)
-        return -1;
-
-    *sampling_mode = NGLI_SAMPLING_MODE_2D;
-
-    ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
-    ngli_glBindTexture(gl, texture->target, texture->id);
-    ngli_glUniform1i(gl, info->sampler_id, texture_index);
-    return 0;
-}
-
-#if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
 static const struct {
     const char *name;
     GLenum type;
 } tex_specs[] = {
     [0] = {"2D",  GL_TEXTURE_2D},
-#if defined(TARGET_ANDROID)
     [1] = {"OES", GL_TEXTURE_EXTERNAL_OES},
-#endif
 };
 
 static int get_disabled_texture_unit(const struct glcontext *gl,
@@ -110,138 +86,99 @@ static int get_disabled_texture_unit(const struct glcontext *gl,
     s->disabled_texture_unit[type_index] = tex_unit;
 
     ngli_glActiveTexture(gl, GL_TEXTURE0 + tex_unit);
-    for (int i = 0; i < NGLI_ARRAY_NB(tex_specs); i++)
-        ngli_glBindTexture(gl, tex_specs[i].type, 0);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+    if (gl->features & NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE)
+        ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
 
     return tex_unit;
 }
-#endif
 
-#if defined(TARGET_ANDROID)
-static int update_sampler2D(const struct glcontext *gl,
-                            struct pipeline *s,
-                            struct texture *texture,
-                            const struct textureprograminfo *info,
-                            uint64_t *used_texture_units,
-                            int *sampling_mode)
+static int bind_texture_plane(const struct glcontext *gl,
+                              struct texture *texture,
+                              uint64_t *used_texture_units,
+                              int index,
+                              int location)
 {
-    if (texture->target == GL_TEXTURE_EXTERNAL_OES) {
-        ngli_assert(info->external_sampler_id >= 0);
+    GLuint id = texture->planes[index].id;
+    GLenum target = texture->planes[index].target;
+    int texture_index = acquire_next_available_texture_unit(used_texture_units);
+    if (texture_index < 0)
+        return -1;
+    ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
+    ngli_glBindTexture(gl, target, id);
+    ngli_glUniform1i(gl, location, texture_index);
+    return 0;
+}
 
-        *sampling_mode = NGLI_SAMPLING_MODE_EXTERNAL_OES;
+static int update_sampler(const struct glcontext *gl,
+                          struct pipeline *s,
+                          struct texture *texture,
+                          const struct textureprograminfo *info,
+                          uint64_t *used_texture_units,
+                          int *sampling_mode)
+{
+    struct {
+        int id;
+        int type_index;
+        int bound;
+    } samplers[] = {
+        { info->sampler_id,          0, 0 },
+        { info->y_sampler_id,        0, 0 },
+        { info->uv_sampler_id,       0, 0 },
+        { info->external_sampler_id, 1, 0 },
+    };
 
+    *sampling_mode = NGLI_SAMPLING_MODE_NONE;
+    if (texture->layout == NGLI_TEXTURE_LAYOUT_DEFAULT) {
         if (info->sampler_id >= 0) {
-            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 0);
-            if (disabled_texture_unit < 0)
-                return -1;
-            ngli_glUniform1i(gl, info->sampler_id, disabled_texture_unit);
+            if (info->sampler_type == GL_IMAGE_2D) {
+                GLuint id = texture->planes[0].id;
+                GLuint unit = info->sampler_value;
+                ngli_glBindImageTexture(gl, unit, id, 0, GL_FALSE, 0, texture->access, texture->internal_format);
+            } else {
+                int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->sampler_id);
+                if (ret < 0)
+                    return ret;
+                *sampling_mode = NGLI_SAMPLING_MODE_2D;
+            }
+            samplers[0].bound = 1;
         }
-
-        int texture_index = acquire_next_available_texture_unit(used_texture_units);
-        if (texture_index < 0)
-            return -1;
-
-        ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
-        ngli_glBindTexture(gl, texture->target, texture->id);
-        ngli_glUniform1i(gl, info->external_sampler_id, texture_index);
-
-    } else if (info->sampler_id >= 0) {
-
+    } else if (texture->layout == NGLI_TEXTURE_LAYOUT_NV12) {
+        if (info->y_sampler_id >= 0) {
+            int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->y_sampler_id);
+            if (ret < 0)
+                return ret;
+            samplers[1].bound = 1;
+            *sampling_mode = NGLI_SAMPLING_MODE_NV12;
+        }
+        if (info->uv_sampler_id >= 0) {
+            int ret = bind_texture_plane(gl, texture, used_texture_units, 1, info->uv_sampler_id);
+            if (ret < 0)
+                return ret;
+            samplers[2].bound = 1;
+            *sampling_mode = NGLI_SAMPLING_MODE_NV12;
+        }
+    } else if (texture->layout == NGLI_TEXTURE_LAYOUT_MEDIACODEC) {
         if (info->external_sampler_id >= 0) {
-            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 1);
-            if (disabled_texture_unit < 0)
-                return -1;
-            ngli_glUniform1i(gl, info->external_sampler_id, disabled_texture_unit);
+            int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->external_sampler_id);
+            if (ret < 0)
+                return ret;
+            samplers[3].bound = 1;
+            *sampling_mode = NGLI_SAMPLING_MODE_EXTERNAL_OES;
         }
-
-        return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
     }
-    return 0;
-}
-#elif defined(TARGET_IPHONE)
-static int update_sampler2D(const struct glcontext *gl,
-                             struct pipeline *s,
-                             struct texture *texture,
-                             const struct textureprograminfo *info,
-                             uint64_t *used_texture_units,
-                             int *sampling_mode)
-{
-    if (texture->upload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR) {
-        ngli_assert(info->y_sampler_id >= 0 || info->uv_sampler_id >= 0);
 
-        *sampling_mode = NGLI_SAMPLING_MODE_NV12;
-
-        if (info->sampler_id >= 0) {
-            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 0);
-            if (disabled_texture_unit < 0)
-                return -1;
-            ngli_glUniform1i(gl, info->sampler_id, disabled_texture_unit);
-        }
-
-        if (info->y_sampler_id >= 0) {
-            int texture_index = acquire_next_available_texture_unit(used_texture_units);
-            if (texture_index < 0)
-                return -1;
-
-            GLint id = CVOpenGLESTextureGetName(texture->ios_textures[0]);
-            ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
-            ngli_glBindTexture(gl, texture->target, id);
-            ngli_glUniform1i(gl, info->y_sampler_id, texture_index);
-        }
-
-        if (info->uv_sampler_id >= 0) {
-            int texture_index = acquire_next_available_texture_unit(used_texture_units);
-            if (texture_index < 0)
-                return -1;
-
-            GLint id = CVOpenGLESTextureGetName(texture->ios_textures[1]);
-            ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
-            ngli_glBindTexture(gl, texture->target, id);
-            ngli_glUniform1i(gl, info->uv_sampler_id, texture_index);
-        }
-    } else if (info->sampler_id >= 0) {
-
-        if (info->y_sampler_id >= 0) {
-            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 0);
-            if (disabled_texture_unit < 0)
-                return -1;
-            ngli_glUniform1i(gl, info->y_sampler_id, disabled_texture_unit);
-        }
-
-        if (info->uv_sampler_id >= 0) {
-            int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, 0);
-            if (disabled_texture_unit < 0)
-                return -1;
-            ngli_glUniform1i(gl, info->uv_sampler_id, disabled_texture_unit);
-        }
-
-        return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
+    for (int i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
+        if (samplers[i].id < 0)
+            continue;
+        if (samplers[i].bound)
+            continue;
+        int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, samplers[i].type_index);
+        if (disabled_texture_unit < 0)
+            return -1;
+        ngli_glUniform1i(gl, samplers[i].id, disabled_texture_unit);
     }
-    return 0;
-}
-#else
-static int update_sampler2D(const struct glcontext *gl,
-                             struct pipeline *s,
-                             struct texture *texture,
-                             const struct textureprograminfo *info,
-                             uint64_t *used_texture_units,
-                             int *sampling_mode)
-{
-    if (info->sampler_id >= 0)
-        return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
-    return 0;
-}
-#endif
 
-static int update_sampler3D(const struct glcontext *gl,
-                             struct pipeline *s,
-                             struct texture *texture,
-                             const struct textureprograminfo *info,
-                             uint64_t *used_texture_units,
-                             int *sampling_mode)
-{
-    if (info->sampler_id >= 0)
-        return update_default_sampler(gl, s, texture, info, used_texture_units, sampling_mode);
     return 0;
 }
 
@@ -264,38 +201,11 @@ static int update_images_and_samplers(struct ngl_node *node)
             const struct ngl_node *tnode = pair->node;
             struct texture *texture = tnode->priv_data;
 
-            if (info->sampler_type == GL_IMAGE_2D) {
-                TRACE("image at location=%d will use texture_unit=%d",
-                      info->sampler_id,
-                      info->sampler_value);
+            int sampling_mode;
+            update_sampler(gl, s, texture, info, &used_texture_units, &sampling_mode);
 
-                if (info->sampler_id >= 0) {
-                    ngli_glBindImageTexture(gl,
-                                            info->sampler_value,
-                                            texture->id,
-                                            0,
-                                            GL_FALSE,
-                                            0,
-                                            texture->access,
-                                            texture->internal_format);
-                }
-            } else {
-                int sampling_mode = NGLI_SAMPLING_MODE_NONE;
-                switch (texture->target) {
-                case GL_TEXTURE_2D:
-#if defined(TARGET_ANDROID)
-                case GL_TEXTURE_EXTERNAL_OES:
-#endif
-                    update_sampler2D(gl, s, texture, info, &used_texture_units, &sampling_mode);
-                    break;
-                case GL_TEXTURE_3D:
-                    update_sampler3D(gl, s, texture, info, &used_texture_units, &sampling_mode);
-                    break;
-                }
-
-                if (info->sampling_mode_id >= 0)
-                    ngli_glUniform1i(gl, info->sampling_mode_id, sampling_mode);
-            }
+            if (info->sampling_mode_id >= 0)
+                ngli_glUniform1i(gl, info->sampling_mode_id, sampling_mode);
 
             if (info->coord_matrix_id >= 0)
                 ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
@@ -441,12 +351,9 @@ static const struct texture_uniform_map {
     {"_coord_matrix",     (const GLenum[]){GL_FLOAT_MAT4, 0},                             OFFSET(coord_matrix_id),     SIZE_MAX,                SIZE_MAX},
     {"_dimensions",       (const GLenum[]){GL_FLOAT_VEC2, GL_FLOAT_VEC3, 0},              OFFSET(dimensions_id),       OFFSET(dimensions_type), SIZE_MAX},
     {"_ts",               (const GLenum[]){GL_FLOAT, 0},                                  OFFSET(ts_id),               SIZE_MAX,                SIZE_MAX},
-#if defined(TARGET_ANDROID)
     {"_external_sampler", (const GLenum[]){GL_SAMPLER_EXTERNAL_OES, 0},                   OFFSET(external_sampler_id), SIZE_MAX,                SIZE_MAX},
-#elif defined(TARGET_IPHONE)
     {"_y_sampler",        (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(y_sampler_id),        SIZE_MAX,                SIZE_MAX},
     {"_uv_sampler",       (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(uv_sampler_id),       SIZE_MAX,                SIZE_MAX},
-#endif
 };
 
 static int is_allowed_type(const GLenum *allowed_types, GLenum type)

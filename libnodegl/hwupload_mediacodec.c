@@ -111,25 +111,22 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
         return -1;
 
     struct texture *t = s->textures[0]->priv_data;
+    t->externally_managed = 1;
     t->data_format = NGLI_FORMAT_UNDEFINED;
     t->width       = s->width;
     t->height      = s->height;
-    t->external_id = media->android_texture_id;
-    t->external_target = GL_TEXTURE_EXTERNAL_OES;
+    ngli_mat4_identity(t->coordinates_matrix);
 
-    ret = ngli_format_get_gl_format_type(gl,
-                                         t->data_format,
-                                         &t->format,
-                                         &t->internal_format,
-                                         &t->type);
-    if (ret < 0)
-        return ret;
+    t->layout = NGLI_TEXTURE_LAYOUT_MEDIACODEC;
+    t->planes[0].id = media->android_texture_id;
+    t->planes[0].target = media->android_texture_target;
 
     s->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
     if (!s->target_texture)
         return -1;
 
     t = s->target_texture->priv_data;
+    t->externally_managed = 1;
     t->data_format     = s->data_format;
     t->format          = s->format;
     t->internal_format = s->internal_format;
@@ -140,8 +137,9 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
     t->mag_filter      = s->mag_filter;
     t->wrap_s          = s->wrap_s;
     t->wrap_t          = s->wrap_t;
-    t->external_id     = s->local_id;
-    t->external_target = s->local_target;
+    t->id              = s->id;
+    t->target          = s->target;
+    ngli_mat4_identity(t->coordinates_matrix);
 
     s->render = ngl_node_create(NGL_NODE_RENDER, s->quad);
     if (!s->render)
@@ -234,24 +232,18 @@ int ngli_hwupload_mc_dr_init(struct ngl_node *node,
     if (s->upload_fmt == config->format)
         return 0;
 
+    GLint id = media->android_texture_id;
+    GLenum target = media->android_texture_target;
+
+    ngli_glBindTexture(gl, target, id);
+    ngli_glTexParameteri(gl, target, GL_TEXTURE_MIN_FILTER, s->min_filter);
+    ngli_glTexParameteri(gl, target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+    ngli_glBindTexture(gl, target, 0);
+
     s->upload_fmt = config->format;
-    s->data_format = config->data_format;
-
-    int ret = ngli_format_get_gl_format_type(gl,
-                                             s->data_format,
-                                             &s->format,
-                                             &s->internal_format,
-                                             &s->type);
-    if (ret < 0)
-        return ret;
-
-    s->id = media->android_texture_id;
-    s->target = media->android_texture_target;
-
-    ngli_glBindTexture(gl, s->target, s->id);
-    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, s->min_filter);
-    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-    ngli_glBindTexture(gl, s->target, 0);
+    s->layout = NGLI_TEXTURE_LAYOUT_MEDIACODEC;
+    s->planes[0].id = id;
+    s->planes[0].target = target;
 
     return 0;
 }

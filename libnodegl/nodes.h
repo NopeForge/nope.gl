@@ -290,6 +290,18 @@ enum {
 int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
                                    GLint *format, GLint *internal_format, GLenum *type);
 
+enum texture_layout {
+    NGLI_TEXTURE_LAYOUT_NONE,
+    NGLI_TEXTURE_LAYOUT_DEFAULT,
+    NGLI_TEXTURE_LAYOUT_NV12,
+    NGLI_TEXTURE_LAYOUT_MEDIACODEC,
+};
+
+struct texture_plane {
+    GLuint id;
+    GLenum target;
+};
+
 struct texture {
     int data_format;
     GLenum target;
@@ -309,13 +321,13 @@ struct texture {
     int direct_rendering;
     int immutable;
 
-    GLuint external_id;
-    GLenum external_target;
+    int externally_managed;
 
     NGLI_ALIGNED_MAT(coordinates_matrix);
     GLuint id;
-    GLuint local_id;
-    GLenum local_target;
+
+    enum texture_layout layout;
+    struct texture_plane planes[4];
 
     enum hwupload_fmt upload_fmt;
     struct ngl_node *quad;
@@ -364,12 +376,9 @@ struct textureprograminfo {
     int sampler_value;
     int sampler_type;
     int sampler_id;
-#if defined(TARGET_ANDROID)
     int external_sampler_id;
-#elif defined(TARGET_IPHONE)
     int y_sampler_id;
     int uv_sampler_id;
-#endif
     int coord_matrix_id;
     int dimensions_id;
     int dimensions_type;

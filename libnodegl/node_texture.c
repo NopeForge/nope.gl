@@ -281,7 +281,7 @@ int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
 static void tex_image(const struct glcontext *gl, const struct texture *s,
                       const uint8_t *data)
 {
-    switch (s->local_target) {
+    switch (s->target) {
         case GL_TEXTURE_2D:
             if (s->width && s->height)
                 ngli_glTexImage2D(gl, GL_TEXTURE_2D, 0, s->internal_format,
@@ -300,7 +300,7 @@ static void tex_image(const struct glcontext *gl, const struct texture *s,
 static void tex_sub_image(const struct glcontext *gl, const struct texture *s,
                           const uint8_t *data)
 {
-    switch (s->local_target) {
+    switch (s->target) {
         case GL_TEXTURE_2D:
             if (s->width && s->height)
                 ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0,
@@ -320,7 +320,7 @@ static void tex_sub_image(const struct glcontext *gl, const struct texture *s,
 
 static void tex_storage(const struct glcontext *gl, const struct texture *s)
 {
-    switch (s->local_target) {
+    switch (s->target) {
         case GL_TEXTURE_2D: {
             int mipmap_levels = 1;
             if ((s->width >= 0 && s->height >= 0)           &&
@@ -331,23 +331,23 @@ static void tex_storage(const struct glcontext *gl, const struct texture *s)
                  while ((s->width | s->height) >> mipmap_levels)
                      mipmap_levels += 1;
             }
-            ngli_glTexStorage2D(gl, s->local_target, mipmap_levels, s->internal_format, s->width, s->height);
+            ngli_glTexStorage2D(gl, s->target, mipmap_levels, s->internal_format, s->width, s->height);
             break;
         }
         case GL_TEXTURE_3D:
-            ngli_glTexStorage3D(gl, s->local_target, 1, s->internal_format, s->width, s->height, s->depth);
+            ngli_glTexStorage3D(gl, s->target, 1, s->internal_format, s->width, s->height, s->depth);
             break;
     }
 }
 
 static void tex_set_params(const struct glcontext *gl, const struct texture *s)
 {
-    ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MIN_FILTER, s->min_filter);
-    ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-    ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_S, s->wrap_s);
-    ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_T, s->wrap_t);
-    if (s->local_target == GL_TEXTURE_3D)
-        ngli_glTexParameteri(gl, s->local_target, GL_TEXTURE_WRAP_R, s->wrap_r);
+    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, s->min_filter);
+    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, s->wrap_s);
+    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, s->wrap_t);
+    if (s->target == GL_TEXTURE_3D)
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_R, s->wrap_r);
 }
 
 int ngli_texture_update_local_texture(struct ngl_node *node,
@@ -363,7 +363,7 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
     if (!width || !height || (node->class->id == NGL_NODE_TEXTURE3D && !depth))
         return ret;
 
-    int update_dimensions = !s->local_id || s->width != width || s->height != height || s->depth != depth;
+    int update_dimensions = !s->id || s->width != width || s->height != height || s->depth != depth;
 
     s->width = width;
     s->height = height;
@@ -373,30 +373,30 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
         if (update_dimensions) {
             ret = 1;
 
-            if (s->local_id) {
-                ngli_glDeleteTextures(gl, 1, &s->local_id);
+            if (s->id) {
+                ngli_glDeleteTextures(gl, 1, &s->id);
             }
 
-            ngli_glGenTextures(gl, 1, &s->local_id);
-            ngli_glBindTexture(gl, s->local_target, s->local_id);
+            ngli_glGenTextures(gl, 1, &s->id);
+            ngli_glBindTexture(gl, s->target, s->id);
             tex_set_params(gl, s);
             tex_storage(gl, s);
         } else {
-            ngli_glBindTexture(gl, s->local_target, s->local_id);
+            ngli_glBindTexture(gl, s->target, s->id);
         }
 
         if (data) {
             tex_sub_image(gl, s, data);
         }
     } else {
-        if (!s->local_id) {
+        if (!s->id) {
             ret = 1;
 
-            ngli_glGenTextures(gl, 1, &s->local_id);
-            ngli_glBindTexture(gl, s->local_target, s->local_id);
+            ngli_glGenTextures(gl, 1, &s->id);
+            ngli_glBindTexture(gl, s->target, s->id);
             tex_set_params(gl, s);
         } else {
-            ngli_glBindTexture(gl, s->local_target, s->local_id);
+            ngli_glBindTexture(gl, s->target, s->id);
         }
 
         if (update_dimensions) {
@@ -411,14 +411,15 @@ int ngli_texture_update_local_texture(struct ngl_node *node,
     case GL_NEAREST_MIPMAP_LINEAR:
     case GL_LINEAR_MIPMAP_NEAREST:
     case GL_LINEAR_MIPMAP_LINEAR:
-        ngli_glGenerateMipmap(gl, s->local_target);
+        ngli_glGenerateMipmap(gl, s->target);
         break;
     }
 
-    ngli_glBindTexture(gl, s->local_target, 0);
+    ngli_glBindTexture(gl, s->target, 0);
 
-    s->id = s->local_id;
-    s->target = s->local_target;
+    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+    s->planes[0].id = s->id;
+    s->planes[0].target = s->target;
 
     return ret;
 }
@@ -429,20 +430,14 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
     struct glcontext *gl = ctx->glcontext;
     struct texture *s = node->priv_data;
 
+    if (s->externally_managed)
+        return 0;
+
+    s->target = local_target;
     if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE)
         s->immutable = 1;
 
-    s->target = s->local_target = local_target;
-
     ngli_mat4_identity(s->coordinates_matrix);
-
-    if (s->external_id) {
-        s->id = s->external_id;
-        s->target = s->external_target;
-    }
-
-    if (s->id)
-        return 0;
 
     const uint8_t *data = NULL;
 
@@ -575,6 +570,9 @@ static int texture_update(struct ngl_node *node, double t)
 {
     struct texture *s = node->priv_data;
 
+    if (s->externally_managed)
+        return 0;
+
     if (!s->data_src)
         return 0;
 
@@ -610,10 +608,16 @@ static void texture_release(struct ngl_node *node)
 
     struct texture *s = node->priv_data;
 
+    if (s->externally_managed)
+        return;
+
     ngli_hwupload_uninit(node);
 
-    ngli_glDeleteTextures(gl, 1, &s->local_id);
-    s->id = s->local_id = 0;
+    ngli_glDeleteTextures(gl, 1, &s->id);
+    s->id = 0;
+
+    s->layout = NGLI_TEXTURE_LAYOUT_NONE;
+    memset(&s->planes, 0, sizeof(s->planes));
 }
 
 static int texture3d_init(struct ngl_node *node)
