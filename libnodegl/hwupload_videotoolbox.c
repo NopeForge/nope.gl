@@ -132,12 +132,6 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
 
     struct texture *s = node->priv_data;
 
-    if (config->format == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
-        int ret = ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
-        if (ret < 0)
-            return ret;
-    }
-
     if (s->upload_fmt == config->format)
         return 0;
 
@@ -156,6 +150,10 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
 
     if (s->upload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
         struct texture *t;
+
+        int ret = ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
+        if (ret < 0)
+            return ret;
 
         static const float corner[3] = {-1.0, -1.0, 0.0};
         static const float width[3]  = { 2.0,  0.0, 0.0};
