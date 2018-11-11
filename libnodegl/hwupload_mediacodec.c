@@ -66,9 +66,7 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
-    int ret;
-
-    struct texture *s = node->priv_data, *t;
+    struct texture *s = node->priv_data;
     struct media *media = s->data_src->priv_data;
 
     static const float corner[3] = {-1.0, -1.0, 0.0};
@@ -81,11 +79,11 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
     s->upload_fmt = config->format;
     s->data_format = config->data_format;
 
-    ret = ngli_format_get_gl_format_type(gl,
-                                         s->data_format,
-                                         &s->format,
-                                         &s->internal_format,
-                                         &s->type);
+    int ret = ngli_format_get_gl_format_type(gl,
+                                             s->data_format,
+                                             &s->format,
+                                             &s->internal_format,
+                                             &s->type);
     if (ret < 0)
         return ret;
 
@@ -112,7 +110,7 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
     if (!s->textures[0])
         return -1;
 
-    t = s->textures[0]->priv_data;
+    struct texture *t = s->textures[0]->priv_data;
     t->data_format = NGLI_FORMAT_UNDEFINED;
     t->width       = s->width;
     t->height      = s->height;

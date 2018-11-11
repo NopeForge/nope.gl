@@ -149,8 +149,6 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
     ngli_mat4_identity(s->coordinates_matrix);
 
     if (s->upload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
-        struct texture *t;
-
         int ret = ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
         if (ret < 0)
             return ret;
@@ -184,7 +182,7 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
         if (!s->textures[0])
             return -1;
 
-        t = s->textures[0]->priv_data;
+        struct texture *t = s->textures[0]->priv_data;
         t->data_format     = NGLI_FORMAT_R8_UNORM;
         t->width           = s->width;
         t->height          = s->height;
