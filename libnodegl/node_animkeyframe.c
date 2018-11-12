@@ -110,12 +110,12 @@ ANIMKEYFRAME_PARAMS(buffer, data, PARAM_TYPE_DATA, data, 0);
 #define log2(x)  (log(x) / log(2))
 #endif
 
-#define TRANSFORM_IN(function) function(x)
-#define TRANSFORM_OUT(function) (1.0 - function(1.0 - x))
-#define TRANSFORM_IN_OUT(function) (x < 0.5 ? function(2.0 * x) / 2.0 \
-                                            : 1.0 - function(2.0 * (1.0 - x)) / 2.0)
-#define TRANSFORM_OUT_IN(function) (x < 0.5 ? (1.0 - function(1.0 - 2.0 * x)) / 2.0 \
-                                            : (1.0 + function(2.0 * x - 1.0)) / 2.0)
+#define TRANSFORM_IN(function) function(x, args_nb, args)
+#define TRANSFORM_OUT(function) (1.0 - function(1.0 - x, args_nb, args))
+#define TRANSFORM_IN_OUT(function) (x < 0.5 ? function(2.0 * x, args_nb, args) / 2.0 \
+                                            : 1.0 - function(2.0 * (1.0 - x), args_nb, args) / 2.0)
+#define TRANSFORM_OUT_IN(function) (x < 0.5 ? (1.0 - function(1.0 - 2.0 * x, args_nb, args)) / 2.0 \
+                                            : (1.0 + function(2.0 * x - 1.0, args_nb, args)) / 2.0)
 
 #define DECLARE_EASING(base_name, name, transform)                            \
 static easing_type name(easing_type x, int args_nb, const easing_type *args)  \
@@ -124,7 +124,7 @@ static easing_type name(easing_type x, int args_nb, const easing_type *args)  \
 }
 
 #define DECLARE_HELPER(base_name, formula)                              \
-static inline easing_type base_name##_helper(easing_type x)             \
+static inline easing_type base_name##_helper(easing_type x, int args_nb, const easing_type *args) \
 {                                                                       \
     return formula;                                                     \
 }
