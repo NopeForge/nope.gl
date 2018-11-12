@@ -53,6 +53,10 @@ static const struct param_choices easing_choices = {
         {"quintic_out",      EASING_QUINTIC_OUT,      .desc=NGLI_DOCSTRING("`quintic(x)=1-quintic(1-x)`")},
         {"quintic_in_out",   EASING_QUINTIC_IN_OUT,   .desc=NGLI_DOCSTRING("`quintic_in_out(x)=quintic(2x)/2` if `x<½` else `1-quintic(2*(1-x))/2`")},
         {"quintic_out_in",   EASING_QUINTIC_OUT_IN,   .desc=NGLI_DOCSTRING("`quintic_out_in(x)=(1-quintic(1-2x))/2` if `x<½` else `(1+quintic(2x-1))/2`")},
+        {"power_in",         EASING_POWER_IN,         .desc=NGLI_DOCSTRING("`power(x,a=1)=x^a`")},
+        {"power_out",        EASING_POWER_OUT,        .desc=NGLI_DOCSTRING("`power_out(x,a=1)=1-power(1-x,a)`")},
+        {"power_in_out",     EASING_POWER_IN_OUT,     .desc=NGLI_DOCSTRING("`power_in_out(x,a=1)=power(2x,a)/2` if `x<½` else `1-power(2*(1-x),a)/2`")},
+        {"power_out_in",     EASING_POWER_OUT_IN,     .desc=NGLI_DOCSTRING("`power_out_in(x,a=1)=(1-power(1-2x,a))/2` if `x<½` else `(1+power(2x-1,a))/2`")},
         {"sinus_in",         EASING_SINUS_IN,         .desc=NGLI_DOCSTRING("`sinus(x)=1-cos(x*π/2)`")},
         {"sinus_out",        EASING_SINUS_OUT,        .desc=NGLI_DOCSTRING("`sinus_out(x)=1-sinus(1-x)`")},
         {"sinus_in_out",     EASING_SINUS_IN_OUT,     .desc=NGLI_DOCSTRING("`sinus_in_out(x)=sinus(2x)/2` if `x<½` else `1-sinus(2*(1-x))/2`")},
@@ -160,6 +164,8 @@ DECLARE_EASINGS_WITH_RESOLUTIONS(quadratic, x * x ,             sqrt(x))
 DECLARE_EASINGS_WITH_RESOLUTIONS(cubic,     x * x * x,          pow(x, 1.0 / 3.0))
 DECLARE_EASINGS_WITH_RESOLUTIONS(quartic,   x * x * x * x,      pow(x, 1.0 / 4.0))
 DECLARE_EASINGS_WITH_RESOLUTIONS(quintic,   x * x * x * x * x,  pow(x, 1.0 / 5.0))
+
+DECLARE_EASINGS_WITH_RESOLUTIONS(power, pow(x, DEFAULT_PARAMETER(0, 1.0)), pow(x, 1.0 / DEFAULT_PARAMETER(0, 1.0)))
 
 DECLARE_EASINGS_WITH_RESOLUTIONS(sinus, 1.0 - cos(x * M_PI / 2.0), acos(1.0 - x) / M_PI * 2.0)
 DECLARE_EASINGS_WITH_RESOLUTIONS(circular, 1.0 - sqrt(1.0 - x * x), sqrt(x*(2.0 - x)))
@@ -375,6 +381,10 @@ static const struct {
     [EASING_QUINTIC_OUT]      = {quintic_out,            quintic_out_resolution},
     [EASING_QUINTIC_IN_OUT]   = {quintic_in_out,         quintic_in_out_resolution},
     [EASING_QUINTIC_OUT_IN]   = {quintic_out_in,         quintic_out_in_resolution},
+    [EASING_POWER_IN]         = {power_in,               power_in_resolution},
+    [EASING_POWER_OUT]        = {power_out,              power_out_resolution},
+    [EASING_POWER_IN_OUT]     = {power_in_out,           power_in_out_resolution},
+    [EASING_POWER_OUT_IN]     = {power_out_in,           power_out_in_resolution},
     [EASING_SINUS_IN]         = {sinus_in,               sinus_in_resolution},
     [EASING_SINUS_OUT]        = {sinus_out,              sinus_out_resolution},
     [EASING_SINUS_IN_OUT]     = {sinus_in_out,           sinus_in_out_resolution},

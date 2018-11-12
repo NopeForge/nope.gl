@@ -680,6 +680,10 @@ Constant | Description
 `quintic_out` | `quintic(x)=1-quintic(1-x)`
 `quintic_in_out` | `quintic_in_out(x)=quintic(2x)/2` if `x<½` else `1-quintic(2*(1-x))/2`
 `quintic_out_in` | `quintic_out_in(x)=(1-quintic(1-2x))/2` if `x<½` else `(1+quintic(2x-1))/2`
+`power_in` | `power(x,a=1)=x^a`
+`power_out` | `power_out(x,a=1)=1-power(1-x,a)`
+`power_in_out` | `power_in_out(x,a=1)=power(2x,a)/2` if `x<½` else `1-power(2*(1-x),a)/2`
+`power_out_in` | `power_out_in(x,a=1)=(1-power(1-2x,a))/2` if `x<½` else `(1+power(2x-1,a))/2`
 `sinus_in` | `sinus(x)=1-cos(x*π/2)`
 `sinus_out` | `sinus_out(x)=1-sinus(1-x)`
 `sinus_in_out` | `sinus_in_out(x)=sinus(2x)/2` if `x<½` else `1-sinus(2*(1-x))/2`
