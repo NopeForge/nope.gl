@@ -130,7 +130,7 @@ DECLARE_EASING(base_name##suffix, base_name##_out_in##suffix,   TRANSFORM_OUT_IN
 DECLARE_EASINGS(base_name,            , direct_function)                                    \
 DECLARE_EASINGS(base_name, _resolution, resolution_function)
 
-#define DEFAULT_PARAMETER(index, default_value) args_nb > index ? args[index] : default_value
+#define DEFAULT_PARAMETER(index, default_value) (args_nb > index ? args[index] : default_value)
 
 
 /* Linear */
