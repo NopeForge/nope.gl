@@ -20,7 +20,7 @@ class Exporter(QtCore.QThread):
         self._filename = filename
         self._width = w
         self._height = h
-        self._extra_enc_args = extra_enc_args
+        self._extra_enc_args = extra_enc_args if extra_enc_args is not None else []
         self._time = time
         self._cancelled = False
 
