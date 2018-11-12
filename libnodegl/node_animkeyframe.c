@@ -123,10 +123,10 @@ static easing_type name(easing_type x, int args_nb, const easing_type *args)  \
     return transform(base_name##_helper);                                     \
 }
 
-#define DECLARE_HELPER(base_name, formula)                              \
+#define DECLARE_HELPER(base_name, formula)                                                        \
 static inline easing_type base_name##_helper(easing_type x, int args_nb, const easing_type *args) \
-{                                                                       \
-    return formula;                                                     \
+{                                                                                                 \
+    return formula;                                                                               \
 }
 
 #define DECLARE_EASINGS(base_name, suffix, formula) \
