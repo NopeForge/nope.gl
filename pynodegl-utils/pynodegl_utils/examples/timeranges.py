@@ -19,6 +19,7 @@ from pynodegl_utils.misc import scene, get_frag, get_vert
 @scene(overlap_time={'type': 'range', 'range': [0, 5], 'unit_base': 10},
        dim={'type': 'range', 'range': [1, 10]})
 def queued_medias(cfg, overlap_time=1., dim=3):
+    '''Queue of medias, mainly used as a demonstration for the prefetch/release mechanism'''
     qw = qh = 2. / dim
     nb_videos = dim * dim
     tqs = []
@@ -53,6 +54,14 @@ def queued_medias(cfg, overlap_time=1., dim=3):
 @scene(fast={'type': 'bool'},
        segment_time={'type': 'range', 'range': [0, 10], 'unit_base': 10})
 def parallel_playback(cfg, fast=True, segment_time=2.):
+    '''
+    Parallel media playback, flipping between the two sources.
+
+    The fast version makes sure the textures continue to be updated even though
+    they are not displayed. On the other hand, the slow version will update the
+    textures only when needed to be displayed, causing potential seek in the
+    underlying media, and thus undesired delays.
+    '''
     q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p = Program()
 
@@ -95,6 +104,7 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
 @scene(transition_start={'type': 'range', 'range': [0, 30]},
        transition_duration={'type': 'range', 'range': [0, 30]})
 def simple_transition(cfg, transition_start=2, transition_duration=4):
+    '''Fading transition between two medias'''
 
     cfg.duration = transition_start*2 + transition_duration
 

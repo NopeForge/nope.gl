@@ -20,6 +20,7 @@ from pynodegl_utils.misc import scene, get_frag
 @scene(square_color={'type': 'color'},
        circle_color={'type': 'color'})
 def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0, 1.0, 1.0)):
+    '''Morphing of a square (composed of many vertices) into a circle'''
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
 
@@ -77,6 +78,7 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
 
 @scene(npoints={'type': 'range', 'range': [3, 100]})
 def urchin(cfg, npoints=25):
+    '''Urchin with animated vertices'''
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
 

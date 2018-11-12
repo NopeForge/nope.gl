@@ -82,6 +82,7 @@ def _load_model(fp):
 
 @scene(model={'type': 'file', 'filter': 'Object files (*.obj)'})
 def obj(cfg, n=0.5, model=None):
+    '''Load and display a cube object (generated with Blender)'''
 
     if model is None:
         model = op.join(op.dirname(__file__), 'data', 'model.obj')
@@ -118,6 +119,7 @@ def obj(cfg, n=0.5, model=None):
 @scene(stl={'type': 'file', 'filter': 'STL files (*.stl)'},
        scale={'type': 'range', 'range': [0.01, 10], 'unit_base': 100})
 def stl(cfg, stl=None, scale=.8):
+    '''Load and display a sphere generated with OpenSCAD'''
 
     if stl is None:
         # generated with: echo 'sphere($fn=15);'>sphere.scad; openscad sphere.scad -o sphere.stl

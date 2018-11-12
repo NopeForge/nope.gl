@@ -33,6 +33,7 @@ from pynodegl_utils.misc import scene, get_frag
        scale={'type': 'bool'},
        translate={'type': 'bool'})
 def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, translate=True):
+    '''Animated Translate/Scale/Rotate on a square'''
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
@@ -70,6 +71,7 @@ def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, transla
 
 @scene()
 def animated_uniform(cfg):
+    '''Uniform mat4 animated with a transform chain'''
     m0 = cfg.medias[0]
     cfg.aspect_ratio = (m0.width, m0.height)
 
@@ -96,6 +98,7 @@ def animated_uniform(cfg):
 
 @scene(rotate={'type': 'bool'})
 def animated_camera(cfg, rotate=True):
+    '''Animated camera around a scene'''
     g = Group()
 
     q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
@@ -146,6 +149,7 @@ def animated_camera(cfg, rotate=True):
 
 @scene(dim={'type': 'range', 'range': [1, 100]})
 def animated_buffer(cfg, dim=50):
+    '''Transform a random buffer content using animations'''
     cfg.duration = 5.
 
     random.seed(0)
@@ -168,6 +172,7 @@ def animated_buffer(cfg, dim=50):
 
 @scene()
 def animated_circles(cfg):
+    '''Simple cyclic circles animation'''
     group = Group()
 
     cfg.duration = 5.

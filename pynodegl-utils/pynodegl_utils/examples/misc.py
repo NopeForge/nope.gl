@@ -51,6 +51,7 @@ from pynodegl_utils.misc import scene, get_frag, get_vert, get_comp
 @scene(xsplit={'type': 'range', 'range': [0, 1], 'unit_base': 100},
        trilinear={'type': 'bool'})
 def lut3d(cfg, xsplit=.3, trilinear=True):
+    '''Lookup Table 3D using a Texture3D'''
     level = 6
     level2 = level**2
 
@@ -91,6 +92,7 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
 def buffer_dove(cfg,
                 bgcolor1=(.6, 0, 0, 1), bgcolor2=(.8, .8, 0, 1),
                 bilinear_filtering=True):
+    '''Blending of a Render using a Buffer as data source'''
     cfg.duration = 3.
 
     # Credits: https://icons8.com/icon/40514/dove
@@ -129,6 +131,7 @@ def buffer_dove(cfg,
 
 @scene(size={'type': 'range', 'range': [0, 1.5], 'unit_base': 1000})
 def triangle(cfg, size=0.5):
+    '''Rotating triangle with edge coloring specified in a vertex attribute'''
     b = size * math.sqrt(3) / 2.0
     c = size * 1/2.
     cfg.duration = 3.
@@ -153,6 +156,7 @@ def triangle(cfg, size=0.5):
 
 @scene(n={'type': 'range', 'range': [2, 10]})
 def fibo(cfg, n=8):
+    '''Fibonacci with a recursive tree (nodes inherit transforms)'''
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
@@ -195,6 +199,7 @@ def fibo(cfg, n=8):
 
 @scene(dim={'type': 'range', 'range': [1, 50]})
 def cropboard(cfg, dim=15):
+    '''Divided media using instancing draw and UV coords offsetting from a buffer'''
     m0 = cfg.medias[0]
     random.seed(0)
     cfg.duration = 10
@@ -246,6 +251,7 @@ def cropboard(cfg, dim=15):
 @scene(freq_precision={'type': 'range', 'range': [1, 10]},
        overlay={'type': 'range', 'unit_base': 100})
 def audiotex(cfg, freq_precision=7, overlay=0.6):
+    '''FFT/Waves audio texture of the audio stream blended on top of the video stream'''
     media = cfg.medias[0]
     cfg.duration = media.duration
     cfg.aspect_ratio = (media.width, media.height)
@@ -269,6 +275,7 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
 
 @scene(particules={'type': 'range', 'range': [1, 1023]})
 def particules(cfg, particules=32):
+    '''Particules demo using compute shaders and instancing'''
     random.seed(0)
 
     shader_version = '310 es' if cfg.backend == 'gles' else '430'
@@ -354,6 +361,7 @@ def particules(cfg, particules=32):
 
 @scene()
 def blending_and_stencil(cfg):
+    '''Scene using blending and stencil graphic features'''
     cfg.duration = 5
     random.seed(0)
     fragment = get_frag('color')
@@ -456,6 +464,10 @@ def _get_cube_side(texture, program, corner, width, height, color):
 
 @scene(display_depth_buffer={'type': 'bool'})
 def cube(cfg, display_depth_buffer=False):
+    '''
+    Cube with a common media Texture but a different color tainting on each side.
+    Also includes a depth map visualization.
+    '''
     cube = Group(name='cube')
 
     frag_data = get_frag('tex-tint')
@@ -513,6 +525,7 @@ def cube(cfg, display_depth_buffer=False):
 
 @scene()
 def histogram(cfg):
+    '''Histogram using compute shaders'''
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -562,6 +575,7 @@ def histogram(cfg):
 
 @scene()
 def quaternion(cfg):
+    '''Animated quaternion used to rotate a plane'''
     cfg.duration = 10.
     step = cfg.duration / 5.
     x = math.sqrt(0.5)
@@ -599,6 +613,7 @@ def quaternion(cfg):
        nb_mountains={'type': 'range', 'range': [3, 15]})
 def mountain(cfg, ndim=3, nb_layers=7,
              ref_color=(0.5, .75, .75, 1.0), nb_mountains=6):
+    '''Mountain generated with a stack of noise shaders using Textures as random source'''
     random.seed(0)
     random_dim = 1 << ndim
     cfg.aspect_ratio = (16, 9)

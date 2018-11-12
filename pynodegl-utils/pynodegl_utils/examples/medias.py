@@ -21,7 +21,7 @@ from pynodegl_utils.misc import scene, get_frag
        uv_height={'type': 'range', 'range': [0, 1], 'unit_base': 100},
        progress_bar={'type': 'bool'})
 def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, progress_bar=True):
-
+    '''A simple centered media with an optional progress bar in the shader'''
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -46,6 +46,7 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
 
 @scene(speed={'type': 'range', 'range': [0.01, 2], 'unit_base': 1000})
 def playback_speed(cfg, speed=1.0):
+    '''Adjust media playback speed using animation keyframes'''
     m0 = cfg.medias[0]
     media_duration = m0.duration
     initial_seek = 5
@@ -66,6 +67,14 @@ def playback_speed(cfg, speed=1.0):
 
 @scene()
 def time_remapping(cfg):
+    '''
+    Time remapping in the following order:
+    - nothing displayed for a while (but media prefetch happening in background)
+    - first frame displayed for a while
+    - normal playback
+    - last frame displayed for a while (even though the media is closed)
+    - nothing again until the end
+    '''
     m0 = cfg.medias[0]
 
     media_seek = 10
