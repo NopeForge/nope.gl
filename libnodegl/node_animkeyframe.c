@@ -159,75 +159,17 @@ DECLARE_EASINGS_WITH_RESOLUTIONS(circular, 1.0 - sqrt(1.0 - x * x), sqrt(x*(2.0 
 
 /* Exponential */
 
-static inline easing_type exp_helper(easing_type x, easing_type exp_base)
+static inline easing_type exp_func(easing_type x, easing_type exp_base)
 {
     return (pow(exp_base, x) - 1.0) / (exp_base - 1.0);
 }
 
-static inline easing_type exp_resolution_helper(easing_type x, easing_type exp_base)
+static inline easing_type exp_resolution_func(easing_type x, easing_type exp_base)
 {
     return log2(x * (exp_base - 1.0) + 1.0) / log2(exp_base);
 }
 
-static easing_type exp_in(easing_type t, int args_nb, const easing_type *args)
-{
-    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
-    return exp_helper(t, exp_base);
-}
-
-static easing_type exp_in_resolution(easing_type v, int args_nb, const easing_type *args)
-{
-    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
-    return exp_resolution_helper(v, exp_base);
-}
-
-static easing_type exp_out(easing_type t, int args_nb, const easing_type *args)
-{
-    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
-    return 1.0 - exp_helper(1.0 - t, exp_base);
-}
-
-static easing_type exp_out_resolution(easing_type v, int args_nb, const easing_type *args)
-{
-    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
-    return 1.0 - exp_resolution_helper(1.0 - v, exp_base);
-}
-
-static easing_type exp_in_out(easing_type t, int args_nb, const easing_type *args)
-{
-    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
-    if (t < 0.5)
-        return exp_helper(2.0 * t, exp_base) / 2.0;
-    else
-        return 1.0 - exp_helper(2.0 * (1.0 - t), exp_base) / 2.0;
-}
-
-static easing_type exp_in_out_resolution(easing_type v, int args_nb, const easing_type *args)
-{
-    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
-    if (v < 0.5)
-        return exp_resolution_helper(2.0 * v, exp_base) / 2.0;
-    else
-        return 1.0 - exp_resolution_helper(2.0 * (1.0 - v), exp_base) / 2.0;
-}
-
-static easing_type exp_out_in(easing_type t, int args_nb, const easing_type *args)
-{
-    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
-    if (t < 0.5)
-        return (1.0 - exp_helper(1.0 - 2.0 * t, exp_base)) / 2.0;
-    else
-        return (1.0 + exp_helper(2.0 * t - 1.0, exp_base)) / 2.0;
-}
-
-static easing_type exp_out_in_resolution(easing_type v, int args_nb, const easing_type *args)
-{
-    const easing_type exp_base = DEFAULT_PARAMETER(0, 1024.0);
-    if (v < 0.5)
-        return (1.0 - exp_resolution_helper(1.0 - 2.0 * v, exp_base)) / 2.0;
-    else
-        return (1.0 + exp_resolution_helper(2.0 * v - 1.0, exp_base)) / 2.0;
-}
+DECLARE_EASINGS_WITH_RESOLUTIONS(exp, exp_func(x, DEFAULT_PARAMETER(0, 1024.0)), exp_resolution_func(x, DEFAULT_PARAMETER(0, 1024.0)))
 
 
 /* Bounce */
