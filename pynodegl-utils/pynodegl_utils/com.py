@@ -218,7 +218,7 @@ def query_inplace(**idict):
                 scene_name, func_wrapper = func
                 if not hasattr(func_wrapper, 'iam_a_ngl_scene_func'):
                     continue
-                sub_scenes.append((scene_name, func_wrapper.widgets_specs))
+                sub_scenes.append((scene_name, func_wrapper.__doc__, func_wrapper.widgets_specs))
             if sub_scenes:
                 scenes.append((module_name, sub_scenes))
 

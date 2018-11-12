@@ -331,7 +331,7 @@ class Toolbar(QtWidgets.QWidget):
         self._scn_mdl.clear()
         for module_name, sub_scenes in scenes:
             qitem_script = QtGui.QStandardItem(module_name)
-            for scene_name, widgets_specs in sub_scenes:
+            for scene_name, scene_doc, widgets_specs in sub_scenes:
                 scene_data = (module_name, scene_name, widgets_specs)
 
                 # update cached widget specs if module and scene match
@@ -341,6 +341,8 @@ class Toolbar(QtWidgets.QWidget):
                         self._current_scene_data = scene_data
 
                 qitem_func = QtGui.QStandardItem(scene_name)
+                if scene_doc:
+                    qitem_func.setToolTip(scene_doc.strip())
                 qitem_script.appendRow(qitem_func)
                 qitem_func.setData(scene_data)
             self._scn_mdl.appendRow(qitem_script)

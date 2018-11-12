@@ -43,6 +43,9 @@ def scene(**widgets_specs):
         # Flag the scene as a scene function so it's registered in the UI.
         func_wrapper.iam_a_ngl_scene_func = True
 
+        # Inherit doc from original function
+        func_wrapper.__doc__ = scene_func.__doc__
+
         return func_wrapper
 
     return real_decorator
