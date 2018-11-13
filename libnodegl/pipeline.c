@@ -302,10 +302,10 @@ static int update_images_and_samplers(struct ngl_node *node)
 
             if (info->dimensions_id >= 0) {
                 const float dimensions[3] = {texture->width, texture->height, texture->depth};
-                if (texture->target == GL_TEXTURE_3D)
-                    ngli_glUniform3fv(gl, info->dimensions_id, 1, dimensions);
-                else
+                if (info->dimensions_type == GL_FLOAT_VEC2)
                     ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
+                else if (info->dimensions_type == GL_FLOAT_VEC3)
+                    ngli_glUniform3fv(gl, info->dimensions_id, 1, dimensions);
             }
 
             if (info->ts_id >= 0)
@@ -455,8 +455,16 @@ static void load_textureprograminfo(struct textureprograminfo *info,
 
     info->sampling_mode_id    = get_uniform_location(active_uniforms, tex_key, "_sampling_mode");
     info->coord_matrix_id     = get_uniform_location(active_uniforms, tex_key, "_coord_matrix");
-    info->dimensions_id       = get_uniform_location(active_uniforms, tex_key, "_dimensions");
     info->ts_id               = get_uniform_location(active_uniforms, tex_key, "_ts");
+
+    const struct uniformprograminfo *dimensions = get_uniform_info(active_uniforms, tex_key, "_dimensions");
+    if (dimensions) {
+        info->dimensions_id = dimensions->id;
+        info->dimensions_type = dimensions->type;
+    } else {
+        info->dimensions_id =
+        info->dimensions_type = -1;
+    }
 
 #if defined(TARGET_ANDROID)
     info->external_sampler_id = get_uniform_location(active_uniforms, tex_key, "_external_sampler");

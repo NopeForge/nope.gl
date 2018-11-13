@@ -372,6 +372,7 @@ struct textureprograminfo {
 #endif
     int coord_matrix_id;
     int dimensions_id;
+    int dimensions_type;
     int ts_id;
 };
 
