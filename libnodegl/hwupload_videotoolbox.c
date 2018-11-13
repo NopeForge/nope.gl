@@ -13,6 +13,12 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+#define NGLI_CFRELEASE(ref) do { \
+    if (ref) {                   \
+        CFRelease(ref);          \
+        ref = NULL;              \
+    }                            \
+} while (0)
 
 int ngli_hwupload_vt_get_config_from_frame(struct ngl_node *node,
                                            struct sxplayer_frame *frame,
@@ -291,8 +297,7 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
             return -1;
         }
 
-        if (s->ios_textures[0])
-            CFRelease(s->ios_textures[0]);
+        NGLI_CFRELEASE(s->ios_textures[0]);
 
         s->ios_textures[0] = textures[0];
         s->id = CVOpenGLESTextureGetName(s->ios_textures[0]);
@@ -357,10 +362,8 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
                                                                         &textures[i]);
             if (err != noErr) {
                 LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
-                for (int j = 0; j < 2; j++) {
-                    if (textures[j])
-                        CFRelease(textures[j]);
-                }
+                NGLI_CFRELEASE(textures[0]);
+                NGLI_CFRELEASE(textures[1]);
                 return -1;
             }
 
@@ -376,29 +379,29 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
         ctx->activitycheck_nodes.count = 0;
         ret = ngli_node_visit(s->rtt, 1, 0.0);
         if (ret < 0) {
-            CFRelease(textures[0]);
-            CFRelease(textures[1]);
+            NGLI_CFRELEASE(textures[0]);
+            NGLI_CFRELEASE(textures[1]);
             return ret;
         }
 
         ret = ngli_node_honor_release_prefetch(&ctx->activitycheck_nodes);
         if (ret < 0) {
-            CFRelease(textures[0]);
-            CFRelease(textures[1]);
+            NGLI_CFRELEASE(textures[0]);
+            NGLI_CFRELEASE(textures[1]);
             return ret;
         }
 
         ret = ngli_node_update(s->rtt, 0.0);
         if (ret < 0) {
-            CFRelease(textures[0]);
-            CFRelease(textures[1]);
+            NGLI_CFRELEASE(textures[0]);
+            NGLI_CFRELEASE(textures[1]);
             return ret;
         }
 
         ngli_node_draw(s->rtt);
 
-        CFRelease(textures[0]);
-        CFRelease(textures[1]);
+        NGLI_CFRELEASE(textures[0]);
+        NGLI_CFRELEASE(textures[1]);
 
         struct texture *t = s->target_texture->priv_data;
         memcpy(s->coordinates_matrix, t->coordinates_matrix, sizeof(s->coordinates_matrix));
@@ -494,8 +497,7 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
         if (ret < 0)
             return ret;
 
-        if (s->ios_textures[i])
-            CFRelease(s->ios_textures[i]);
+        NGLI_CFRELEASE(s->ios_textures[i]);
 
         CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                                                     *texture_cache,
@@ -511,12 +513,8 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
                                                                     &(s->ios_textures[i]));
         if (err != noErr) {
             LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
-            for (int j = 0; j < 2; j++) {
-                if (s->ios_textures[j]) {
-                    CFRelease(s->ios_textures[j]);
-                    s->ios_textures[j] = NULL;
-                }
-            }
+            NGLI_CFRELEASE(s->ios_textures[0]);
+            NGLI_CFRELEASE(s->ios_textures[1]);
             return -1;
         }
 

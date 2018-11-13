@@ -217,9 +217,13 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     ngl_node_unrefp(&s->rtt);
 
 #if defined(TARGET_IPHONE)
-    if (s->ios_textures[0])
+    if (s->ios_textures[0]) {
         CFRelease(s->ios_textures[0]);
-    if (s->ios_textures[1])
+        s->ios_textures[0] = NULL;
+    }
+    if (s->ios_textures[1]) {
         CFRelease(s->ios_textures[1]);
+        s->ios_textures[1] = NULL;
+    }
 #endif
 }
