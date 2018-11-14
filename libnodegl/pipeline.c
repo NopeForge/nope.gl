@@ -428,50 +428,63 @@ static struct uniformprograminfo *get_uniform_info(struct hmap *uniforms,
     return ngli_hmap_get(uniforms, name);
 }
 
-static int get_uniform_location(struct hmap *uniforms,
-                                const char *basename,
-                                const char *suffix)
+#define OFFSET(x) offsetof(struct textureprograminfo, x)
+static const struct texture_uniform_map {
+    const char *suffix;
+    const GLenum *allowed_types;
+    size_t location_offset;
+    size_t type_offset;
+    size_t binding_offset;
+} texture_uniform_maps[] = {
+    {"",                  (const GLenum[]){GL_SAMPLER_2D, GL_SAMPLER_3D, GL_IMAGE_2D, 0}, OFFSET(sampler_id),          OFFSET(sampler_type),    OFFSET(sampler_value)},
+    {"_sampling_mode",    (const GLenum[]){GL_INT, 0},                                    OFFSET(sampling_mode_id),    SIZE_MAX,                SIZE_MAX},
+    {"_coord_matrix",     (const GLenum[]){GL_FLOAT_MAT4, 0},                             OFFSET(coord_matrix_id),     SIZE_MAX,                SIZE_MAX},
+    {"_dimensions",       (const GLenum[]){GL_FLOAT_VEC2, GL_FLOAT_VEC3, 0},              OFFSET(dimensions_id),       OFFSET(dimensions_type), SIZE_MAX},
+    {"_ts",               (const GLenum[]){GL_FLOAT, 0},                                  OFFSET(ts_id),               SIZE_MAX,                SIZE_MAX},
+#if defined(TARGET_ANDROID)
+    {"_external_sampler", (const GLenum[]){GL_SAMPLER_EXTERNAL_OES, 0},                   OFFSET(external_sampler_id), SIZE_MAX,                SIZE_MAX},
+#elif defined(TARGET_IPHONE)
+    {"_y_sampler",        (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(y_sampler_id),        SIZE_MAX,                SIZE_MAX},
+    {"_uv_sampler",       (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(uv_sampler_id),       SIZE_MAX,                SIZE_MAX},
+#endif
+};
+
+static int is_allowed_type(const GLenum *allowed_types, GLenum type)
 {
-    const struct uniformprograminfo *active_uniform = get_uniform_info(uniforms, basename, suffix);
-    return active_uniform ? active_uniform->id : -1;
+    for (int i = 0; allowed_types[i]; i++)
+        if (allowed_types[i] == type)
+            return 1;
+    return 0;
 }
 
-static void load_textureprograminfo(struct textureprograminfo *info,
-                                    struct hmap *active_uniforms,
-                                    const char *tex_key)
+static int load_textureprograminfo(struct textureprograminfo *info,
+                                   struct hmap *active_uniforms,
+                                   const char *tex_key)
 {
-    const struct uniformprograminfo *sampler = get_uniform_info(active_uniforms, tex_key, "");
-    if (!sampler) // Allow _sampler suffix
-        sampler = get_uniform_info(active_uniforms, tex_key, "_sampler");
-    if (sampler) {
-        info->sampler_value = sampler->binding;
-        info->sampler_type  = sampler->type;
-        info->sampler_id    = sampler->id;
-    } else {
-        info->sampler_value =
-        info->sampler_type  =
-        info->sampler_id    = -1;
+    for (int i = 0; i < NGLI_ARRAY_NB(texture_uniform_maps); i++) {
+        const struct texture_uniform_map *map = &texture_uniform_maps[i];
+        const char *suffix = map->suffix;
+        const struct uniformprograminfo *uniform = get_uniform_info(active_uniforms, tex_key, suffix);
+        if (!uniform && !strcmp(map->suffix, "")) { // Allow _sampler suffix
+            suffix = "_sampler";
+            uniform = get_uniform_info(active_uniforms, tex_key, suffix);
+        }
+        if (uniform && !is_allowed_type(map->allowed_types, uniform->type)) {
+            LOG(ERROR, "invalid type 0x%x found for texture uniform %s%s",
+                uniform->type, tex_key, suffix);
+            return -1;
+        }
+
+#define SET_INFO_FIELD(dst, src) do {                                                \
+    if (map->dst##_offset != SIZE_MAX)                                               \
+        *(int *)((uint8_t *)info + map->dst##_offset) = uniform ? uniform->src : -1; \
+} while (0)
+
+        SET_INFO_FIELD(location, id);
+        SET_INFO_FIELD(type, type);
+        SET_INFO_FIELD(binding, binding);
     }
-
-    info->sampling_mode_id    = get_uniform_location(active_uniforms, tex_key, "_sampling_mode");
-    info->coord_matrix_id     = get_uniform_location(active_uniforms, tex_key, "_coord_matrix");
-    info->ts_id               = get_uniform_location(active_uniforms, tex_key, "_ts");
-
-    const struct uniformprograminfo *dimensions = get_uniform_info(active_uniforms, tex_key, "_dimensions");
-    if (dimensions) {
-        info->dimensions_id = dimensions->id;
-        info->dimensions_type = dimensions->type;
-    } else {
-        info->dimensions_id =
-        info->dimensions_type = -1;
-    }
-
-#if defined(TARGET_ANDROID)
-    info->external_sampler_id = get_uniform_location(active_uniforms, tex_key, "_external_sampler");
-#elif defined(TARGET_IPHONE)
-    info->y_sampler_id        = get_uniform_location(active_uniforms, tex_key, "_y_sampler");
-    info->uv_sampler_id       = get_uniform_location(active_uniforms, tex_key, "_uv_sampler");
-#endif
+    return 0;
 }
 
 int ngli_pipeline_init(struct ngl_node *node)
@@ -531,7 +544,9 @@ int ngli_pipeline_init(struct ngl_node *node)
 
             struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
 
-            load_textureprograminfo(info, program->active_uniforms, key);
+            int ret = load_textureprograminfo(info, program->active_uniforms, key);
+            if (ret < 0)
+                return ret;
 
             if (info->sampler_type == GL_IMAGE_2D) {
                 texture->direct_rendering = 0;
