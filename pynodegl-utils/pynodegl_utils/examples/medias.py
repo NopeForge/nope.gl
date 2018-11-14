@@ -1,17 +1,4 @@
-from pynodegl import (
-        AnimKeyFrameFloat,
-        AnimatedFloat,
-        Media,
-        Program,
-        Quad,
-        Render,
-        Texture2D,
-        TimeRangeFilter,
-        TimeRangeModeCont,
-        TimeRangeModeNoop,
-        UniformFloat,
-)
-
+import pynodegl as ngl
 from pynodegl_utils.misc import scene, get_frag
 
 
@@ -26,20 +13,20 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
-    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0),
-             (uv_corner_x, uv_corner_y), (uv_width, 0), (0, uv_height))
-    m = Media(m0.filename)
-    t = Texture2D(data_src=m)
-    p = Program()
-    render = Render(q, p)
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0),
+                 (uv_corner_x, uv_corner_y), (uv_width, 0), (0, uv_height))
+    m = ngl.Media(m0.filename)
+    t = ngl.Texture2D(data_src=m)
+    p = ngl.Program()
+    render = ngl.Render(q, p)
     render.update_textures(tex0=t)
 
     if progress_bar:
         p.set_fragment(get_frag('progress-bar'))
-        time_animkf = [AnimKeyFrameFloat(0, 0),
-                       AnimKeyFrameFloat(cfg.duration, 1)]
-        time = UniformFloat(anim=AnimatedFloat(time_animkf))
-        ar = UniformFloat(cfg.aspect_ratio_float)
+        time_animkf = [ngl.AnimKeyFrameFloat(0, 0),
+                       ngl.AnimKeyFrameFloat(cfg.duration, 1)]
+        time = ngl.UniformFloat(anim=ngl.AnimatedFloat(time_animkf))
+        ar = ngl.UniformFloat(cfg.aspect_ratio_float)
         render.update_uniforms(time=time, ar=ar)
     return render
 
@@ -54,13 +41,13 @@ def playback_speed(cfg, speed=1.0):
     cfg.duration = rush_duration / speed
     cfg.aspect_ratio = (m0.width, m0.height)
 
-    q = Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    time_animkf = [AnimKeyFrameFloat(0, initial_seek),
-                   AnimKeyFrameFloat(cfg.duration, media_duration)]
-    m = Media(m0.filename, time_anim=AnimatedFloat(time_animkf))
-    t = Texture2D(data_src=m)
-    p = Program()
-    render = Render(q, p)
+    q = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
+    time_animkf = [ngl.AnimKeyFrameFloat(0, initial_seek),
+                   ngl.AnimKeyFrameFloat(cfg.duration, media_duration)]
+    m = ngl.Media(m0.filename, time_anim=ngl.AnimatedFloat(time_animkf))
+    t = ngl.Texture2D(data_src=m)
+    p = ngl.Program()
+    render = ngl.Render(q, p)
     render.update_textures(tex0=t)
     return render
 
@@ -93,21 +80,21 @@ def time_remapping(cfg):
     cfg.aspect_ratio = (m0.width, m0.height)
 
     media_animkf = [
-        AnimKeyFrameFloat(play_start, media_seek),
-        AnimKeyFrameFloat(play_stop,  media_seek + playback_duration),
+        ngl.AnimKeyFrameFloat(play_start, media_seek),
+        ngl.AnimKeyFrameFloat(play_stop,  media_seek + playback_duration),
     ]
 
-    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    m = Media(m0.filename, time_anim=AnimatedFloat(media_animkf))
-    t = Texture2D(data_src=m)
-    r = Render(q)
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    m = ngl.Media(m0.filename, time_anim=ngl.AnimatedFloat(media_animkf))
+    t = ngl.Texture2D(data_src=m)
+    r = ngl.Render(q)
     r.update_textures(tex0=t)
 
     time_ranges = [
-        TimeRangeModeNoop(0),
-        TimeRangeModeCont(range_start),
-        TimeRangeModeNoop(range_stop),
+        ngl.TimeRangeModeNoop(0),
+        ngl.TimeRangeModeCont(range_start),
+        ngl.TimeRangeModeNoop(range_stop),
     ]
-    rf = TimeRangeFilter(r, ranges=time_ranges, prefetch_time=prefetch_duration)
+    rf = ngl.TimeRangeFilter(r, ranges=time_ranges, prefetch_time=prefetch_duration)
 
     return rf

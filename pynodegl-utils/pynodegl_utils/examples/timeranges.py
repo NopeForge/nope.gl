@@ -1,18 +1,4 @@
-from pynodegl import (
-        AnimKeyFrameFloat,
-        AnimatedFloat,
-        Group,
-        Media,
-        Program,
-        Quad,
-        Render,
-        Texture2D,
-        TimeRangeFilter,
-        TimeRangeModeCont,
-        TimeRangeModeNoop,
-        UniformFloat,
-)
-
+import pynodegl as ngl
 from pynodegl_utils.misc import scene, get_frag, get_vert
 
 
@@ -23,32 +9,32 @@ def queued_medias(cfg, overlap_time=1., dim=3):
     qw = qh = 2. / dim
     nb_videos = dim * dim
     tqs = []
-    p = Program()
+    p = ngl.Program()
     for y in range(dim):
         for x in range(dim):
             video_id = y*dim + x
             start = video_id * cfg.duration / nb_videos
-            animkf = [AnimKeyFrameFloat(start, 0)]
-            m = Media(cfg.medias[video_id % len(cfg.medias)].filename, time_anim=AnimatedFloat(animkf))
+            animkf = [ngl.AnimKeyFrameFloat(start, 0)]
+            m = ngl.Media(cfg.medias[video_id % len(cfg.medias)].filename, time_anim=ngl.AnimatedFloat(animkf))
             m.set_name('media #%d' % video_id)
 
             corner = (-1. + x*qw, 1. - (y+1)*qh, 0)
-            q = Quad(corner, (qw, 0, 0), (0, qh, 0))
-            t = Texture2D(data_src=m)
+            q = ngl.Quad(corner, (qw, 0, 0), (0, qh, 0))
+            t = ngl.Texture2D(data_src=m)
 
-            render = Render(q, p)
+            render = ngl.Render(q, p)
             render.set_name('render #%d' % video_id)
             render.update_textures(tex0=t)
 
-            rf = TimeRangeFilter(render)
+            rf = ngl.TimeRangeFilter(render)
             if start:
-                rf.add_ranges(TimeRangeModeNoop(0))
-            rf.add_ranges(TimeRangeModeCont(start),
-                          TimeRangeModeNoop(start + cfg.duration/nb_videos + overlap_time))
+                rf.add_ranges(ngl.TimeRangeModeNoop(0))
+            rf.add_ranges(ngl.TimeRangeModeCont(start),
+                          ngl.TimeRangeModeNoop(start + cfg.duration/nb_videos + overlap_time))
 
             tqs.append(rf)
 
-    return Group(children=tqs)
+    return ngl.Group(children=tqs)
 
 
 @scene(fast={'type': 'bool'},
@@ -62,39 +48,39 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     textures only when needed to be displayed, causing potential seek in the
     underlying media, and thus undesired delays.
     '''
-    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    p = Program()
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    p = ngl.Program()
 
-    m1 = Media(cfg.medias[0].filename, name='media #1')
-    m2 = Media(cfg.medias[0].filename, name='media #2')
+    m1 = ngl.Media(cfg.medias[0].filename, name='media #1')
+    m2 = ngl.Media(cfg.medias[0].filename, name='media #2')
 
-    t1 = Texture2D(data_src=m1, name='texture #1')
-    t2 = Texture2D(data_src=m2, name='texture #2')
+    t1 = ngl.Texture2D(data_src=m1, name='texture #1')
+    t2 = ngl.Texture2D(data_src=m2, name='texture #2')
 
-    render1 = Render(q, p, name='render #1')
+    render1 = ngl.Render(q, p, name='render #1')
     render1.update_textures(tex0=t1)
-    render2 = Render(q, p, name='render #2')
+    render2 = ngl.Render(q, p, name='render #2')
     render2.update_textures(tex0=t2)
 
-    rf1 = TimeRangeFilter(render1)
-    rf2 = TimeRangeFilter(render2)
+    rf1 = ngl.TimeRangeFilter(render1)
+    rf2 = ngl.TimeRangeFilter(render2)
 
     t = 0
     rr1 = []
     rr2 = []
     while t < cfg.duration:
-        rr1.append(TimeRangeModeCont(t))
-        rr1.append(TimeRangeModeNoop(t + segment_time))
+        rr1.append(ngl.TimeRangeModeCont(t))
+        rr1.append(ngl.TimeRangeModeNoop(t + segment_time))
 
-        rr2.append(TimeRangeModeNoop(t))
-        rr2.append(TimeRangeModeCont(t + segment_time))
+        rr2.append(ngl.TimeRangeModeNoop(t))
+        rr2.append(ngl.TimeRangeModeCont(t + segment_time))
 
         t += 2 * segment_time
 
     rf1.add_ranges(*rr1)
     rf2.add_ranges(*rr2)
 
-    g = Group()
+    g = ngl.Group()
     g.add_children(rf1, rf2)
     if fast:
         g.add_children(t1, t2)
@@ -111,29 +97,29 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
     vertex = get_vert('dual-tex')
     fragment = get_frag('tex-mix')
 
-    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    p = Program()
-    p1_2 = Program(vertex=vertex, fragment=fragment)
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    p = ngl.Program()
+    p1_2 = ngl.Program(vertex=vertex, fragment=fragment)
 
-    m1 = Media(cfg.medias[0].filename, name='media #1')
-    m2 = Media(cfg.medias[1 % len(cfg.medias)].filename, name='media #2')
+    m1 = ngl.Media(cfg.medias[0].filename, name='media #1')
+    m2 = ngl.Media(cfg.medias[1 % len(cfg.medias)].filename, name='media #2')
 
-    animkf_m2 = [AnimKeyFrameFloat(transition_start, 0)]
-    m2.set_time_anim(AnimatedFloat(animkf_m2))
+    animkf_m2 = [ngl.AnimKeyFrameFloat(transition_start, 0)]
+    m2.set_time_anim(ngl.AnimatedFloat(animkf_m2))
 
-    t1 = Texture2D(data_src=m1, name='texture #1')
-    t2 = Texture2D(data_src=m2, name='texture #2')
+    t1 = ngl.Texture2D(data_src=m1, name='texture #1')
+    t2 = ngl.Texture2D(data_src=m2, name='texture #2')
 
-    render1 = Render(q, p, name='render #1')
+    render1 = ngl.Render(q, p, name='render #1')
     render1.update_textures(tex0=t1)
-    render2 = Render(q, p, name='render #2')
+    render2 = ngl.Render(q, p, name='render #2')
     render2.update_textures(tex0=t2)
 
-    delta_animkf = [AnimKeyFrameFloat(transition_start, 1.0),
-                    AnimKeyFrameFloat(transition_start + transition_duration, 0.0)]
-    delta = UniformFloat(value=1.0, anim=AnimatedFloat(delta_animkf))
+    delta_animkf = [ngl.AnimKeyFrameFloat(transition_start, 1.0),
+                    ngl.AnimKeyFrameFloat(transition_start + transition_duration, 0.0)]
+    delta = ngl.UniformFloat(value=1.0, anim=ngl.AnimatedFloat(delta_animkf))
 
-    render1_2 = Render(q, p1_2, name='transition')
+    render1_2 = ngl.Render(q, p1_2, name='transition')
     render1_2.update_textures(tex0=t1, tex1=t2)
     render1_2.update_uniforms(delta=delta)
 
@@ -141,20 +127,20 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
     rr2 = []
     rr1_2 = []
 
-    rr1.append(TimeRangeModeNoop(transition_start))
+    rr1.append(ngl.TimeRangeModeNoop(transition_start))
 
-    rr2.append(TimeRangeModeNoop(0))
-    rr2.append(TimeRangeModeCont(transition_start + transition_duration))
+    rr2.append(ngl.TimeRangeModeNoop(0))
+    rr2.append(ngl.TimeRangeModeCont(transition_start + transition_duration))
 
-    rr1_2.append(TimeRangeModeNoop(0))
-    rr1_2.append(TimeRangeModeCont(transition_start))
-    rr1_2.append(TimeRangeModeNoop(transition_start + transition_duration))
+    rr1_2.append(ngl.TimeRangeModeNoop(0))
+    rr1_2.append(ngl.TimeRangeModeCont(transition_start))
+    rr1_2.append(ngl.TimeRangeModeNoop(transition_start + transition_duration))
 
-    rf1 = TimeRangeFilter(render1, ranges=rr1)
-    rf2 = TimeRangeFilter(render2, ranges=rr2)
-    rf1_2 = TimeRangeFilter(render1_2, ranges=rr1_2)
+    rf1 = ngl.TimeRangeFilter(render1, ranges=rr1)
+    rf2 = ngl.TimeRangeFilter(render2, ranges=rr2)
+    rf1_2 = ngl.TimeRangeFilter(render1_2, ranges=rr1_2)
 
-    g = Group()
+    g = ngl.Group()
     g.add_children(rf1, rf1_2, rf2)
 
     return g

@@ -1,19 +1,7 @@
 import array
 import math
 import random
-
-
-from pynodegl import (
-        AnimKeyFrameVec4,
-        AnimatedBufferVec3,
-        AnimKeyFrameBuffer,
-        AnimatedVec4,
-        Geometry,
-        Program,
-        Render,
-        UniformVec4,
-)
-
+import pynodegl as ngl
 from pynodegl_utils.misc import scene, get_frag
 
 
@@ -55,23 +43,23 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
         circle_vertices.extend([x, y, 0])
 
     vertices_animkf = [
-            AnimKeyFrameBuffer(0,               square_vertices),
-            AnimKeyFrameBuffer(cfg.duration/2., circle_vertices, interp),
-            AnimKeyFrameBuffer(cfg.duration,    square_vertices, interp),
+            ngl.AnimKeyFrameBuffer(0,               square_vertices),
+            ngl.AnimKeyFrameBuffer(cfg.duration/2., circle_vertices, interp),
+            ngl.AnimKeyFrameBuffer(cfg.duration,    square_vertices, interp),
     ]
-    vertices = AnimatedBufferVec3(vertices_animkf)
+    vertices = ngl.AnimatedBufferVec3(vertices_animkf)
 
     color_animkf = [
-            AnimKeyFrameVec4(0,               square_color),
-            AnimKeyFrameVec4(cfg.duration/2., circle_color, interp),
-            AnimKeyFrameVec4(cfg.duration,    square_color, interp),
+            ngl.AnimKeyFrameVec4(0,               square_color),
+            ngl.AnimKeyFrameVec4(cfg.duration/2., circle_color, interp),
+            ngl.AnimKeyFrameVec4(cfg.duration,    square_color, interp),
     ]
-    ucolor = UniformVec4(anim=AnimatedVec4(color_animkf))
+    ucolor = ngl.UniformVec4(anim=ngl.AnimatedVec4(color_animkf))
 
-    geom = Geometry(vertices)
+    geom = ngl.Geometry(vertices)
     geom.set_topology('triangle_fan')
-    p = Program(fragment=get_frag('color'))
-    render = Render(geom, p)
+    p = ngl.Program(fragment=get_frag('color'))
+    render = ngl.Render(geom, p)
     render.update_uniforms(color=ucolor)
     return render
 
@@ -112,13 +100,13 @@ def urchin(cfg, npoints=25):
 
     animkf = []
     for i, v in enumerate(vdata + [vdata[0]]):
-        animkf.append(AnimKeyFrameBuffer(i*cfg.duration/float(k), v))
+        animkf.append(ngl.AnimKeyFrameBuffer(i*cfg.duration/float(k), v))
 
-    vertices = AnimatedBufferVec3(animkf)
+    vertices = ngl.AnimatedBufferVec3(animkf)
 
-    geom = Geometry(vertices)
+    geom = ngl.Geometry(vertices)
     geom.set_topology('line_strip')
-    p = Program(fragment=get_frag('color'))
-    render = Render(geom, p)
-    render.update_uniforms(color=UniformVec4(value=(.9, .1, .3, 1)))
+    p = ngl.Program(fragment=get_frag('color'))
+    render = ngl.Render(geom, p)
+    render.update_uniforms(color=ngl.UniformVec4(value=(.9, .1, .3, 1)))
     return render

@@ -2,49 +2,7 @@ import os.path as op
 import array
 import math
 import random
-
-
-from pynodegl import (
-        AnimKeyFrameFloat,
-        AnimKeyFrameVec3,
-        AnimKeyFrameVec4,
-        AnimKeyFrameQuat,
-        AnimatedFloat,
-        AnimatedVec3,
-        AnimatedVec4,
-        AnimatedQuat,
-        BufferFloat,
-        BufferUBVec3,
-        BufferUBVec4,
-        BufferUIVec4,
-        BufferVec2,
-        BufferVec3,
-        BufferVec4,
-        Camera,
-        Circle,
-        Compute,
-        ComputeProgram,
-        GraphicConfig,
-        Geometry,
-        Group,
-        Media,
-        Program,
-        Quad,
-        Render,
-        RenderToTexture,
-        Rotate,
-        Scale,
-        Texture2D,
-        Texture3D,
-        Translate,
-        Triangle,
-        UniformInt,
-        UniformFloat,
-        UniformVec3,
-        UniformVec4,
-        UniformQuat,
-)
-
+import pynodegl as ngl
 from pynodegl_utils.misc import scene, get_frag, get_vert, get_comp
 
 
@@ -59,9 +17,9 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
     # rawvideo -frames:v 1 lut3d.raw`
     lut3d_filename = op.join(op.dirname(__file__), 'data', 'lut3d.raw')
     cfg.files.append(lut3d_filename)
-    lut3d_buf = BufferUBVec3(filename=lut3d_filename)
-    lut3d_tex = Texture3D(data_src=lut3d_buf,
-                          width=level2, height=level2, depth=level2)
+    lut3d_buf = ngl.BufferUBVec3(filename=lut3d_filename)
+    lut3d_tex = ngl.Texture3D(data_src=lut3d_buf,
+                              width=level2, height=level2, depth=level2)
     if trilinear:
         lut3d_tex.set_min_filter('linear')
         lut3d_tex.set_mag_filter('linear')
@@ -69,19 +27,19 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
-    video = Media(m0.filename)
-    video_tex = Texture2D(data_src=video)
+    video = ngl.Media(m0.filename)
+    video_tex = ngl.Texture2D(data_src=video)
 
     shader_version = '300 es' if cfg.backend == 'gles' else '330'
     shader_header = '#version %s\n' % shader_version
-    prog = Program(fragment=shader_header + get_frag('lut3d'),
-                   vertex=shader_header + get_vert('lut3d'))
+    prog = ngl.Program(fragment=shader_header + get_frag('lut3d'),
+                       vertex=shader_header + get_vert('lut3d'))
 
-    quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = Render(quad, prog)
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render = ngl.Render(quad, prog)
     render.update_textures(tex0=video_tex)
     render.update_textures(lut3d=lut3d_tex)
-    render.update_uniforms(xsplit=UniformFloat(value=xsplit))
+    render.update_uniforms(xsplit=ngl.UniformFloat(value=xsplit))
 
     return render
 
@@ -101,32 +59,32 @@ def buffer_dove(cfg,
     w, h = (96, 96)
     cfg.aspect_ratio = (w, h)
 
-    img_buf = BufferUBVec4(filename=icon_filename, name='icon raw buffer')
+    img_buf = ngl.BufferUBVec4(filename=icon_filename, name='icon raw buffer')
 
-    img_tex = Texture2D(data_src=img_buf, width=w, height=h)
+    img_tex = ngl.Texture2D(data_src=img_buf, width=w, height=h)
     if bilinear_filtering:
         img_tex.set_mag_filter('linear')
-    quad = Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
-    prog = Program()
-    render = Render(quad, prog, name='dove')
+    quad = ngl.Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
+    prog = ngl.Program()
+    render = ngl.Render(quad, prog, name='dove')
     render.update_textures(tex0=img_tex)
-    render = GraphicConfig(render,
-                           blend=True,
-                           blend_src_factor='src_alpha',
-                           blend_dst_factor='one_minus_src_alpha',
-                           blend_src_factor_a='zero',
-                           blend_dst_factor_a='one')
+    render = ngl.GraphicConfig(render,
+                               blend=True,
+                               blend_src_factor='src_alpha',
+                               blend_dst_factor='one_minus_src_alpha',
+                               blend_src_factor_a='zero',
+                               blend_dst_factor_a='one')
 
-    prog_bg = Program(fragment=get_frag('color'))
-    shape_bg = Circle(radius=.6, npoints=256)
-    render_bg = Render(shape_bg, prog_bg, name='background')
-    color_animkf = [AnimKeyFrameVec4(0,                bgcolor1),
-                    AnimKeyFrameVec4(cfg.duration/2.0, bgcolor2),
-                    AnimKeyFrameVec4(cfg.duration,     bgcolor1)]
-    ucolor = UniformVec4(anim=AnimatedVec4(color_animkf))
+    prog_bg = ngl.Program(fragment=get_frag('color'))
+    shape_bg = ngl.Circle(radius=.6, npoints=256)
+    render_bg = ngl.Render(shape_bg, prog_bg, name='background')
+    color_animkf = [ngl.AnimKeyFrameVec4(0,                bgcolor1),
+                    ngl.AnimKeyFrameVec4(cfg.duration/2.0, bgcolor2),
+                    ngl.AnimKeyFrameVec4(cfg.duration,     bgcolor1)]
+    ucolor = ngl.UniformVec4(anim=ngl.AnimatedVec4(color_animkf))
     render_bg.update_uniforms(color=ucolor)
 
-    return Group(children=(render_bg, render))
+    return ngl.Group(children=(render_bg, render))
 
 
 @scene(size={'type': 'range', 'range': [0, 1.5], 'unit_base': 1000})
@@ -140,17 +98,17 @@ def triangle(cfg, size=0.5):
     colors_data = array.array('f', [0.0, 0.0, 1.0, 1.0,
                                     0.0, 1.0, 0.0, 1.0,
                                     1.0, 0.0, 0.0, 1.0])
-    colors_buffer = BufferVec4(data=colors_data)
+    colors_buffer = ngl.BufferVec4(data=colors_data)
 
-    triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
-    p = Program(fragment=get_frag('triangle'), vertex=get_vert('triangle'))
-    node = Render(triangle, p)
+    triangle = ngl.Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
+    p = ngl.Program(fragment=get_frag('triangle'), vertex=get_vert('triangle'))
+    node = ngl.Render(triangle, p)
     node.update_attributes(edge_color=colors_buffer)
-    animkf = [AnimKeyFrameFloat(0, 0),
-              AnimKeyFrameFloat(  cfg.duration/3.,   -360/3., 'exp_in_out'),
-              AnimKeyFrameFloat(2*cfg.duration/3., -2*360/3., 'exp_in_out'),
-              AnimKeyFrameFloat(  cfg.duration,      -360,    'exp_in_out')]
-    node = Rotate(node, anim=AnimatedFloat(animkf))
+    animkf = [ngl.AnimKeyFrameFloat(0, 0),
+              ngl.AnimKeyFrameFloat(  cfg.duration/3.,   -360/3., 'exp_in_out'),
+              ngl.AnimKeyFrameFloat(2*cfg.duration/3., -2*360/3., 'exp_in_out'),
+              ngl.AnimKeyFrameFloat(  cfg.duration,      -360,    'exp_in_out')]
+    node = ngl.Rotate(node, anim=ngl.AnimatedFloat(animkf))
     return node
 
 
@@ -160,7 +118,7 @@ def fibo(cfg, n=8):
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
-    p = Program(fragment=get_frag('color'))
+    p = ngl.Program(fragment=get_frag('color'))
 
     fib = [0, 1, 1]
     for i in range(2, n):
@@ -177,15 +135,15 @@ def fibo(cfg, n=8):
         w = x * shape_scale
         gray = 1. - i/float(n)
         color = [gray, gray, gray, 1]
-        q = Quad(orig, (w, 0, 0), (0, w, 0))
-        render = Render(q, p)
-        render.update_uniforms(color=UniformVec4(value=color))
+        q = ngl.Quad(orig, (w, 0, 0), (0, w, 0))
+        render = ngl.Render(q, p)
+        render.update_uniforms(color=ngl.UniformVec4(value=color))
 
-        new_g = Group()
-        animkf = [AnimKeyFrameFloat(0,               90),
-                  AnimKeyFrameFloat(cfg.duration/2, -90, 'exp_in_out'),
-                  AnimKeyFrameFloat(cfg.duration,    90, 'exp_in_out')]
-        rot = Rotate(new_g, anchor=orig, anim=AnimatedFloat(animkf))
+        new_g = ngl.Group()
+        animkf = [ngl.AnimKeyFrameFloat(0,               90),
+                  ngl.AnimKeyFrameFloat(cfg.duration/2, -90, 'exp_in_out'),
+                  ngl.AnimKeyFrameFloat(cfg.duration,    90, 'exp_in_out')]
+        rot = ngl.Rotate(new_g, anchor=orig, anim=ngl.AnimatedFloat(animkf))
         if g:
             g.add_children(rot)
         else:
@@ -208,15 +166,15 @@ def cropboard(cfg, dim=15):
     kw = kh = 1. / dim
     qw = qh = 2. / dim
 
-    p = Program(vertex=get_vert('cropboard'))
-    m = Media(m0.filename)
-    t = Texture2D(data_src=m)
+    p = ngl.Program(vertex=get_vert('cropboard'))
+    m = ngl.Media(m0.filename)
+    t = ngl.Texture2D(data_src=m)
 
     uv_offset_buffer = array.array('f')
     translate_a_buffer = array.array('f')
     translate_b_buffer = array.array('f')
 
-    q = Quad(corner=(0, 0, 0),
+    q = ngl.Quad(corner=(0, 0, 0),
              width=(qw, 0, 0),
              height=(0, qh, 0),
              uv_corner=(0, 0),
@@ -233,17 +191,17 @@ def cropboard(cfg, dim=15):
             translate_a_buffer.extend(src)
             translate_b_buffer.extend(dst)
 
-    utime_animkf = [AnimKeyFrameFloat(0, 0),
-                    AnimKeyFrameFloat(cfg.duration*2/3., 1, 'exp_out')]
-    utime = UniformFloat(anim=AnimatedFloat(utime_animkf))
+    utime_animkf = [ngl.AnimKeyFrameFloat(0, 0),
+                    ngl.AnimKeyFrameFloat(cfg.duration*2/3., 1, 'exp_out')]
+    utime = ngl.UniformFloat(anim=ngl.AnimatedFloat(utime_animkf))
 
-    render = Render(q, p, nb_instances=dim**2)
+    render = ngl.Render(q, p, nb_instances=dim**2)
     render.update_textures(tex0=t)
     render.update_uniforms(time=utime)
     render.update_instance_attributes(
-        uv_offset=BufferVec2(data=uv_offset_buffer),
-        translate_a=BufferVec2(data=translate_a_buffer),
-        translate_b=BufferVec2(data=translate_b_buffer),
+        uv_offset=ngl.BufferVec2(data=uv_offset_buffer),
+        translate_a=ngl.BufferVec2(data=translate_a_buffer),
+        translate_b=ngl.BufferVec2(data=translate_b_buffer),
     )
     return render
 
@@ -256,20 +214,20 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
     cfg.duration = media.duration
     cfg.aspect_ratio = (media.width, media.height)
 
-    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
-    audio_m = Media(media.filename, audio_tex=1)
-    audio_tex = Texture2D(data_src=audio_m)
+    audio_m = ngl.Media(media.filename, audio_tex=1)
+    audio_tex = ngl.Texture2D(data_src=audio_m)
 
-    video_m = Media(media.filename)
-    video_tex = Texture2D(data_src=video_m)
+    video_m = ngl.Media(media.filename)
+    video_tex = ngl.Texture2D(data_src=video_m)
 
-    p = Program(vertex=get_vert('dual-tex'),
-                fragment=get_frag('audiotex'))
-    render = Render(q, p)
+    p = ngl.Program(vertex=get_vert('dual-tex'),
+                    fragment=get_frag('audiotex'))
+    render = ngl.Render(q, p)
     render.update_textures(tex0=audio_tex, tex1=video_tex)
-    render.update_uniforms(overlay=UniformFloat(overlay))
-    render.update_uniforms(freq_precision=UniformInt(freq_precision))
+    render.update_uniforms(overlay=ngl.UniformFloat(overlay))
+    render.update_uniforms(freq_precision=ngl.UniformInt(freq_precision))
     return render
 
 
@@ -305,23 +263,23 @@ def particules(cfg, particules=32):
             random.uniform(-0.05, 0.05),
         ])
 
-    ipositions = BufferVec3()
+    ipositions = ngl.BufferVec3()
     ipositions.set_data(positions)
     ipositions.set_stride(4 * 4)
-    ivelocities = BufferVec2()
+    ivelocities = ngl.BufferVec2()
     ivelocities.set_data(velocities)
 
-    opositions = BufferVec3(p)
+    opositions = ngl.BufferVec3(p)
     opositions.set_stride(4 * 4)
 
-    animkf = [AnimKeyFrameFloat(0, 0),
-              AnimKeyFrameFloat(cfg.duration, 1)]
-    utime = UniformFloat(anim=AnimatedFloat(animkf))
-    uduration = UniformFloat(cfg.duration)
+    animkf = [ngl.AnimKeyFrameFloat(0, 0),
+              ngl.AnimKeyFrameFloat(cfg.duration, 1)]
+    utime = ngl.UniformFloat(anim=ngl.AnimatedFloat(animkf))
+    uduration = ngl.UniformFloat(cfg.duration)
 
-    cp = ComputeProgram(compute_shader)
+    cp = ngl.ComputeProgram(compute_shader)
 
-    c = Compute(x, particules, 1, cp)
+    c = ngl.Compute(x, particules, 1, cp)
     c.update_uniforms(
         time=utime,
         duration=uduration,
@@ -333,30 +291,30 @@ def particules(cfg, particules=32):
     )
 
     quad_width = 0.01
-    quad = Quad(
+    quad = ngl.Quad(
         corner=(-quad_width/2, -quad_width/2, 0),
         width=(quad_width, 0, 0),
         height=(0, quad_width, 0)
     )
-    p = Program(
+    p = ngl.Program(
         vertex=vertex_shader,
         fragment=fragment_shader,
     )
-    r = Render(quad, p, nb_instances=particules)
-    r.update_uniforms(color=UniformVec4(value=(0, .6, .8, .9)))
+    r = ngl.Render(quad, p, nb_instances=particules)
+    r.update_uniforms(color=ngl.UniformVec4(value=(0, .6, .8, .9)))
     r.update_buffers(positions_buffer=opositions)
 
-    r = GraphicConfig(r,
-                      blend=True,
-                      blend_src_factor='src_alpha',
-                      blend_dst_factor='one_minus_src_alpha',
-                      blend_src_factor_a='zero',
-                      blend_dst_factor_a='one')
+    r = ngl.GraphicConfig(r,
+                          blend=True,
+                          blend_src_factor='src_alpha',
+                          blend_dst_factor='one_minus_src_alpha',
+                          blend_src_factor_a='zero',
+                          blend_dst_factor_a='one')
 
-    g = Group()
+    g = ngl.Group()
     g.add_children(c, r)
 
-    return Camera(g)
+    return ngl.Camera(g)
 
 
 @scene()
@@ -366,34 +324,34 @@ def blending_and_stencil(cfg):
     random.seed(0)
     fragment = get_frag('color')
 
-    program = Program(fragment=fragment)
-    circle = Circle(npoints=256)
-    cloud_color = UniformVec4(value=(1, 1, 1, 0.4))
+    program = ngl.Program(fragment=fragment)
+    circle = ngl.Circle(npoints=256)
+    cloud_color = ngl.UniformVec4(value=(1, 1, 1, 0.4))
 
-    main_group = Group()
+    main_group = ngl.Group()
 
-    quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = Render(quad, program, name='sky')
-    render.update_uniforms(color=UniformVec4(value=(0.2, 0.6, 1, 1)))
-    config = GraphicConfig(render,
-                           stencil_test=True,
-                           stencil_write_mask=0xFF,
-                           stencil_func='always',
-                           stencil_ref=1,
-                           stencil_read_mask=0xFF,
-                           stencil_fail='replace',
-                           stencil_depth_fail='replace',
-                           stencil_depth_pass='replace')
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render = ngl.Render(quad, program, name='sky')
+    render.update_uniforms(color=ngl.UniformVec4(value=(0.2, 0.6, 1, 1)))
+    config = ngl.GraphicConfig(render,
+                               stencil_test=True,
+                               stencil_write_mask=0xFF,
+                               stencil_func='always',
+                               stencil_ref=1,
+                               stencil_read_mask=0xFF,
+                               stencil_fail='replace',
+                               stencil_depth_fail='replace',
+                               stencil_depth_pass='replace')
     main_group.add_children(config)
 
-    render = Render(circle, program, name='sun')
-    render.update_uniforms(color=UniformVec4(value=(1, 0.8, 0, 1)))
+    render = ngl.Render(circle, program, name='sun')
+    render.update_uniforms(color=ngl.UniformVec4(value=(1, 0.8, 0, 1)))
 
-    scale = Scale(render, (0.15, 0.15, 0.0))
-    translate = Translate(scale, (0.4, 0.3, 0))
+    scale = ngl.Scale(render, (0.15, 0.15, 0.0))
+    translate = ngl.Translate(scale, (0.4, 0.3, 0))
     main_group.add_children(translate)
 
-    cloud_group = Group(name='clouds')
+    cloud_group = ngl.Group(name='clouds')
 
     centers = [
         (-1.0, 0.85, 0.4),
@@ -405,36 +363,36 @@ def blending_and_stencil(cfg):
     ]
 
     for center in centers:
-        render = Render(circle, program)
+        render = ngl.Render(circle, program)
         render.update_uniforms(color=cloud_color)
 
         factor = random.random() * 0.4 + center[2]
         keyframe = cfg.duration * (random.random() * 0.4 + 0.2)
-        animkf = (AnimKeyFrameVec3(0,            (factor,       factor,       0)),
-                  AnimKeyFrameVec3(keyframe,     (factor + 0.1, factor + 0.1, 0)),
-                  AnimKeyFrameVec3(cfg.duration, (factor,       factor,       0)))
-        scale = Scale(render, anim=AnimatedVec3(animkf))
+        animkf = (ngl.AnimKeyFrameVec3(0,            (factor,       factor,       0)),
+                  ngl.AnimKeyFrameVec3(keyframe,     (factor + 0.1, factor + 0.1, 0)),
+                  ngl.AnimKeyFrameVec3(cfg.duration, (factor,       factor,       0)))
+        scale = ngl.Scale(render, anim=ngl.AnimatedVec3(animkf))
 
-        translate = Translate(scale, vector=(center[0], center[1], 0))
+        translate = ngl.Translate(scale, vector=(center[0], center[1], 0))
         cloud_group.add_children(translate)
 
-    config = GraphicConfig(cloud_group,
-                           blend=True,
-                           blend_src_factor='src_alpha',
-                           blend_dst_factor='one_minus_src_alpha',
-                           blend_src_factor_a='zero',
-                           blend_dst_factor_a='one',
-                           stencil_test=True,
-                           stencil_write_mask=0x0,
-                           stencil_func='equal',
-                           stencil_ref=1,
-                           stencil_read_mask=0xFF,
-                           stencil_fail='keep',
-                           stencil_depth_fail='keep',
-                           stencil_depth_pass='keep')
+    config = ngl.GraphicConfig(cloud_group,
+                               blend=True,
+                               blend_src_factor='src_alpha',
+                               blend_dst_factor='one_minus_src_alpha',
+                               blend_src_factor_a='zero',
+                               blend_dst_factor_a='one',
+                               stencil_test=True,
+                               stencil_write_mask=0x0,
+                               stencil_func='equal',
+                               stencil_ref=1,
+                               stencil_read_mask=0xFF,
+                               stencil_fail='keep',
+                               stencil_depth_fail='keep',
+                               stencil_depth_pass='keep')
     main_group.add_children(config)
 
-    camera = Camera(main_group)
+    camera = ngl.Camera(main_group)
     camera.set_eye(0.0, 0.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
@@ -455,10 +413,10 @@ def _get_cube_quads():
 
 
 def _get_cube_side(texture, program, corner, width, height, color):
-    render = Render(Quad(corner, width, height), program)
+    render = ngl.Render(ngl.Quad(corner, width, height), program)
     render.update_textures(tex0=texture)
-    render.update_uniforms(blend_color=UniformVec3(value=color))
-    render.update_uniforms(mix_factor=UniformFloat(value=0.2))
+    render.update_uniforms(blend_color=ngl.UniformVec3(value=color))
+    render.update_uniforms(mix_factor=ngl.UniformFloat(value=0.2))
     return render
 
 
@@ -468,24 +426,24 @@ def cube(cfg, display_depth_buffer=False):
     Cube with a common media Texture but a different color tainting on each side.
     Also includes a depth map visualization.
     '''
-    cube = Group(name='cube')
+    cube = ngl.Group(name='cube')
 
     frag_data = get_frag('tex-tint')
-    program = Program(fragment=frag_data)
+    program = ngl.Program(fragment=frag_data)
 
-    texture = Texture2D(data_src=Media(cfg.medias[0].filename))
+    texture = ngl.Texture2D(data_src=ngl.Media(cfg.medias[0].filename))
     children = [_get_cube_side(texture, program, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
     cube.add_children(*children)
 
     for i in range(3):
-        rot_animkf = AnimatedFloat([AnimKeyFrameFloat(0,            0),
-                                    AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
+        rot_animkf = ngl.AnimatedFloat([ngl.AnimKeyFrameFloat(0,            0),
+                                        ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
         axis = [int(i == x) for x in range(3)]
-        cube = Rotate(cube, axis=axis, anim=rot_animkf)
+        cube = ngl.Rotate(cube, axis=axis, anim=rot_animkf)
 
-    config = GraphicConfig(cube, depth_test=True)
+    config = ngl.GraphicConfig(cube, depth_test=True)
 
-    camera = Camera(config)
+    camera = ngl.Camera(config)
     camera.set_eye(0.0, 0.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
@@ -495,28 +453,28 @@ def cube(cfg, display_depth_buffer=False):
     if not display_depth_buffer:
         return camera
     else:
-        group = Group()
+        group = ngl.Group()
 
-        depth_texture = Texture2D()
+        depth_texture = ngl.Texture2D()
         depth_texture.set_format('d16_unorm')
         depth_texture.set_width(640)
         depth_texture.set_height(480)
 
-        texture = Texture2D()
+        texture = ngl.Texture2D()
         texture.set_width(640)
         texture.set_height(480)
-        rtt = RenderToTexture(camera, texture)
+        rtt = ngl.RenderToTexture(camera, texture)
         rtt.set_depth_texture(depth_texture)
 
-        quad = Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
-        program = Program()
-        render = Render(quad, program)
+        quad = ngl.Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
+        program = ngl.Program()
+        render = ngl.Render(quad, program)
         render.update_textures(tex0=texture)
         group.add_children(rtt, render)
 
-        quad = Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
-        program = Program()
-        render = Render(quad, program)
+        quad = ngl.Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
+        program = ngl.Program()
+        render = ngl.Render(quad, program)
         render.update_textures(tex0=depth_texture)
         group.add_children(rtt, render)
 
@@ -529,18 +487,18 @@ def histogram(cfg):
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
-    g = Group()
+    g = ngl.Group()
 
-    m = Media(cfg.medias[0].filename)
-    t = Texture2D(data_src=m)
-    h = BufferUIVec4(256 + 1)
+    m = ngl.Media(cfg.medias[0].filename)
+    t = ngl.Texture2D(data_src=m)
+    h = ngl.BufferUIVec4(256 + 1)
 
-    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    r = Render(q)
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    r = ngl.Render(q)
     r.update_textures(tex0=t)
     proxy_size = 128
-    proxy = Texture2D(width=proxy_size, height=proxy_size)
-    rtt = RenderToTexture(r, proxy)
+    proxy = ngl.Texture2D(width=proxy_size, height=proxy_size)
+    rtt = ngl.RenderToTexture(r, proxy)
     g.add_children(rtt)
 
     shader_version = '310 es' if cfg.backend == 'gles' else '430'
@@ -548,24 +506,24 @@ def histogram(cfg):
     if cfg.backend == 'gles' and cfg.system == 'Android':
         shader_header += '#extension GL_ANDROID_extension_pack_es31a: require\n'
 
-    compute_program = ComputeProgram(shader_header + get_comp('histogram-clear'))
-    compute = Compute(256, 1, 1, compute_program, name='histogram-clear')
+    compute_program = ngl.ComputeProgram(shader_header + get_comp('histogram-clear'))
+    compute = ngl.Compute(256, 1, 1, compute_program, name='histogram-clear')
     compute.update_buffers(histogram_buffer=h)
     g.add_children(compute)
 
     local_size = 8
     group_size = proxy_size / local_size
     compute_shader = get_comp('histogram-exec') % {'local_size': local_size}
-    compute_program = ComputeProgram(shader_header + compute_shader)
-    compute = Compute(group_size, group_size, 1, compute_program, name='histogram-exec')
+    compute_program = ngl.ComputeProgram(shader_header + compute_shader)
+    compute = ngl.Compute(group_size, group_size, 1, compute_program, name='histogram-exec')
     compute.update_buffers(histogram_buffer=h)
     compute.update_textures(source=proxy)
     g.add_children(compute)
 
-    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    p = Program(vertex=shader_header + get_vert('histogram-display'),
-                fragment=shader_header + get_frag('histogram-display'))
-    render = Render(q, p)
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    p = ngl.Program(vertex=shader_header + get_vert('histogram-display'),
+                    fragment=shader_header + get_frag('histogram-display'))
+    render = ngl.Render(q, p)
     render.update_textures(tex0=t)
     render.update_buffers(histogram_buffer=h)
     g.add_children(render)
@@ -580,24 +538,24 @@ def quaternion(cfg):
     step = cfg.duration / 5.
     x = math.sqrt(0.5)
     quat_animkf = [
-        AnimKeyFrameQuat(0 * step, (0, 0, 0, 1)),
-        AnimKeyFrameQuat(1 * step, (0, 0,-x, x)),
-        AnimKeyFrameQuat(2 * step, (0, 1, 0, 0)),
-        AnimKeyFrameQuat(3 * step, (1, 0, 0, 0)),
-        AnimKeyFrameQuat(4 * step, (x, 0, 0, x)),
-        AnimKeyFrameQuat(5 * step, (0, 0, 0, 1)),
+        ngl.AnimKeyFrameQuat(0 * step, (0, 0, 0, 1)),
+        ngl.AnimKeyFrameQuat(1 * step, (0, 0,-x, x)),
+        ngl.AnimKeyFrameQuat(2 * step, (0, 1, 0, 0)),
+        ngl.AnimKeyFrameQuat(3 * step, (1, 0, 0, 0)),
+        ngl.AnimKeyFrameQuat(4 * step, (x, 0, 0, x)),
+        ngl.AnimKeyFrameQuat(5 * step, (0, 0, 0, 1)),
     ]
-    quat = UniformQuat(anim=AnimatedQuat(quat_animkf))
+    quat = ngl.UniformQuat(anim=ngl.AnimatedQuat(quat_animkf))
 
-    q = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    m = Media(cfg.medias[0].filename)
-    t = Texture2D(data_src=m)
-    p = Program(vertex=get_vert('uniform-mat4'))
-    render = Render(q, p)
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    m = ngl.Media(cfg.medias[0].filename)
+    t = ngl.Texture2D(data_src=m)
+    p = ngl.Program(vertex=get_vert('uniform-mat4'))
+    render = ngl.Render(q, p)
     render.update_textures(tex0=t)
     render.update_uniforms(transformation_matrix=quat)
 
-    camera = Camera(render)
+    camera = ngl.Camera(render)
     camera.set_eye(0.0, 0.0, 4.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
@@ -623,9 +581,9 @@ def mountain(cfg, ndim=3, nb_layers=7,
         return array.array('f', [random.uniform(0, 1) for x in range(random_dim)])
 
     black, white = (0, 0, 0, 1), (1, 1, 1, 1)
-    quad = Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
-    prog = Program(fragment=get_frag('mountain'))
+    prog = ngl.Program(fragment=get_frag('mountain'))
     hscale = 1/2.
     mountains = []
     for i in range(nb_mountains):
@@ -639,40 +597,40 @@ def mountain(cfg, ndim=3, nb_layers=7,
             x = (i - nb_mountains/2) / float((nb_mountains-1)/2)
         mcolor = [x*a + (1.0-x)*b for a, b in zip(c0, c1)]
 
-        random_buf = BufferFloat(data=get_rand())
-        random_tex = Texture2D(data_src=random_buf, width=random_dim, height=1)
+        random_buf = ngl.BufferFloat(data=get_rand())
+        random_tex = ngl.Texture2D(data_src=random_buf, width=random_dim, height=1)
 
-        utime_animkf = [AnimKeyFrameFloat(0, 0),
-                        AnimKeyFrameFloat(cfg.duration, i+1)]
-        utime = UniformFloat(anim=AnimatedFloat(utime_animkf))
+        utime_animkf = [ngl.AnimKeyFrameFloat(0, 0),
+                        ngl.AnimKeyFrameFloat(cfg.duration, i+1)]
+        utime = ngl.UniformFloat(anim=ngl.AnimatedFloat(utime_animkf))
 
-        uyoffset_animkf = [AnimKeyFrameFloat(0, yoffset/2.),
-                           AnimKeyFrameFloat(cfg.duration/2.0, yoffset),
-                           AnimKeyFrameFloat(cfg.duration, yoffset/2.)]
-        uyoffset = UniformFloat(anim=AnimatedFloat(uyoffset_animkf))
+        uyoffset_animkf = [ngl.AnimKeyFrameFloat(0, yoffset/2.),
+                           ngl.AnimKeyFrameFloat(cfg.duration/2.0, yoffset),
+                           ngl.AnimKeyFrameFloat(cfg.duration, yoffset/2.)]
+        uyoffset = ngl.UniformFloat(anim=ngl.AnimatedFloat(uyoffset_animkf))
 
-        render = Render(quad, prog)
+        render = ngl.Render(quad, prog)
         render.update_textures(tex0=random_tex)
-        render.update_uniforms(dim=UniformInt(random_dim))
-        render.update_uniforms(nb_layers=UniformInt(nb_layers))
+        render.update_uniforms(dim=ngl.UniformInt(random_dim))
+        render.update_uniforms(nb_layers=ngl.UniformInt(nb_layers))
         render.update_uniforms(time=utime)
-        render.update_uniforms(lacunarity=UniformFloat(2.0))
-        render.update_uniforms(gain=UniformFloat(0.5))
-        render.update_uniforms(mcolor=UniformVec4(mcolor))
+        render.update_uniforms(lacunarity=ngl.UniformFloat(2.0))
+        render.update_uniforms(gain=ngl.UniformFloat(0.5))
+        render.update_uniforms(mcolor=ngl.UniformVec4(mcolor))
         render.update_uniforms(yoffset=uyoffset)
-        render.update_uniforms(hscale=UniformFloat(hscale))
+        render.update_uniforms(hscale=ngl.UniformFloat(hscale))
 
         mountains.append(render)
 
-    prog = Program(fragment=get_frag('color'))
-    sky = Render(quad, prog)
-    sky.update_uniforms(color=UniformVec4(white))
+    prog = ngl.Program(fragment=get_frag('color'))
+    sky = ngl.Render(quad, prog)
+    sky.update_uniforms(color=ngl.UniformVec4(white))
 
-    group = Group(children=[sky] + mountains)
-    blend = GraphicConfig(group,
-                          blend=True,
-                          blend_src_factor='src_alpha',
-                          blend_dst_factor='one_minus_src_alpha',
-                          blend_src_factor_a='zero',
-                          blend_dst_factor_a='one')
+    group = ngl.Group(children=[sky] + mountains)
+    blend = ngl.GraphicConfig(group,
+                              blend=True,
+                              blend_src_factor='src_alpha',
+                              blend_dst_factor='one_minus_src_alpha',
+                              blend_src_factor_a='zero',
+                              blend_dst_factor_a='one')
     return blend

@@ -1,22 +1,6 @@
 import os.path as op
 import array
-
-from pynodegl import (
-        AnimKeyFrameFloat,
-        AnimatedFloat,
-        BufferVec2,
-        BufferVec3,
-        Camera,
-        Geometry,
-        GraphicConfig,
-        Media,
-        Program,
-        Render,
-        Rotate,
-        Texture2D,
-        Scale,
-)
-
+import pynodegl as ngl
 from pynodegl_utils.misc import scene, get_frag
 
 
@@ -90,23 +74,23 @@ def obj(cfg, n=0.5, model=None):
     with open(model) as fp:
         vertices_data, uvs_data, normals_data = _load_model(fp)
 
-    vertices = BufferVec3(data=vertices_data)
-    texcoords = BufferVec2(data=uvs_data)
-    normals = BufferVec3(data=normals_data)
+    vertices = ngl.BufferVec3(data=vertices_data)
+    texcoords = ngl.BufferVec2(data=uvs_data)
+    normals = ngl.BufferVec3(data=normals_data)
 
-    q = Geometry(vertices, texcoords, normals)
-    m = Media(cfg.medias[0].filename)
-    t = Texture2D(data_src=m)
-    p = Program(fragment=get_frag('tex-tint-normals'))
-    render = Render(q, p)
+    q = ngl.Geometry(vertices, texcoords, normals)
+    m = ngl.Media(cfg.medias[0].filename)
+    t = ngl.Texture2D(data_src=m)
+    p = ngl.Program(fragment=get_frag('tex-tint-normals'))
+    render = ngl.Render(q, p)
     render.update_textures(tex0=t)
-    render = GraphicConfig(render, depth_test=True)
+    render = ngl.GraphicConfig(render, depth_test=True)
 
-    animkf = [AnimKeyFrameFloat(0, 0),
-              AnimKeyFrameFloat(cfg.duration, 360*2)]
-    rot = Rotate(render, name='roty', axis=(0, 1, 0), anim=AnimatedFloat(animkf))
+    animkf = [ngl.AnimKeyFrameFloat(0, 0),
+              ngl.AnimKeyFrameFloat(cfg.duration, 360*2)]
+    rot = ngl.Rotate(render, name='roty', axis=(0, 1, 0), anim=ngl.AnimatedFloat(animkf))
 
-    camera = Camera(rot)
+    camera = ngl.Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
@@ -144,23 +128,23 @@ def stl(cfg, stl=None, scale=.8):
                 normals_data.extend(normal)
                 vertices_data.extend(vertex)
 
-    vertices = BufferVec3(data=vertices_data)
-    normals  = BufferVec3(data=normals_data)
+    vertices = ngl.BufferVec3(data=vertices_data)
+    normals  = ngl.BufferVec3(data=normals_data)
 
-    g = Geometry(vertices=vertices, normals=normals)
-    p = Program(fragment=get_frag('colored-normals'))
-    solid = Render(g, p, name=solid_name)
-    solid = GraphicConfig(solid, depth_test=True)
+    g = ngl.Geometry(vertices=vertices, normals=normals)
+    p = ngl.Program(fragment=get_frag('colored-normals'))
+    solid = ngl.Render(g, p, name=solid_name)
+    solid = ngl.GraphicConfig(solid, depth_test=True)
 
-    solid = Scale(solid, [scale] * 3)
+    solid = ngl.Scale(solid, [scale] * 3)
 
     for i in range(3):
-        rot_animkf = AnimatedFloat([AnimKeyFrameFloat(0, 0),
-                                    AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
+        rot_animkf = ngl.AnimatedFloat([ngl.AnimKeyFrameFloat(0, 0),
+                                        ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
         axis = [int(i == x) for x in range(3)]
-        solid = Rotate(solid, axis=axis, anim=rot_animkf)
+        solid = ngl.Rotate(solid, axis=axis, anim=rot_animkf)
 
-    camera = Camera(solid)
+    camera = ngl.Camera(solid)
     camera.set_eye(2.0, 2.0, 2.0)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)

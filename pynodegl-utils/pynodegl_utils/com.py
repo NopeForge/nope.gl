@@ -32,19 +32,8 @@ import subprocess
 import sys
 import traceback
 import threading
-
+import pynodegl as ngl
 from pynodegl_utils.filetracker import FileTracker
-
-from pynodegl import (
-    Camera,
-    GraphicConfig,
-    Group,
-    HUD,
-    Program,
-    Quad,
-    Render,
-    Texture2D,
-)
 
 
 IPC_READ_BUFSIZE = 4096
@@ -163,26 +152,26 @@ def query_inplace(**idict):
             ar = odict['aspect_ratio']
             hud_w = 2.
             hud_h = 2. / bratio * ar[0] / float(ar[1])
-            hud = HUD(scene, refresh_rate=(fr[1], fr[0]),
-                      measure_window=measure_window,
-                      bg_color=(0.0, 0.0, 0.0, 0.8))
-            q = Quad((-1, 1. - hud_h, 0), (hud_w, 0, 0), (0, hud_h, 0))
-            t = Texture2D(data_src=hud)
-            render = Render(q)
+            hud = ngl.HUD(scene, refresh_rate=(fr[1], fr[0]),
+                          measure_window=measure_window,
+                          bg_color=(0.0, 0.0, 0.0, 0.8))
+            q = ngl.Quad((-1, 1. - hud_h, 0), (hud_w, 0, 0), (0, hud_h, 0))
+            t = ngl.Texture2D(data_src=hud)
+            render = ngl.Render(q)
             render.update_textures(tex0=t)
-            render = GraphicConfig(render, blend=True,
-                                   blend_src_factor='src_alpha',
-                                   blend_dst_factor='one_minus_src_alpha',
-                                   blend_src_factor_a='zero',
-                                   blend_dst_factor_a='one')
-            g = Group()
+            render = ngl.GraphicConfig(render, blend=True,
+                                       blend_src_factor='src_alpha',
+                                       blend_dst_factor='one_minus_src_alpha',
+                                       blend_src_factor_a='zero',
+                                       blend_dst_factor_a='one')
+            g = ngl.Group()
             g.add_children(hud, render)
             scene = g
 
         # Pipe mode for data export requires a Camera
         if 'pipe' in idict:
             pipe_fd, pipe_w, pipe_h = idict['pipe']
-            camera = scene if isinstance(scene, Camera) else Camera(scene)
+            camera = scene if isinstance(scene, ngl.Camera) else ngl.Camera(scene)
             camera.set_pipe_fd(pipe_fd)
             camera.set_pipe_width(pipe_w)
             camera.set_pipe_height(pipe_h)

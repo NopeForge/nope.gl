@@ -18,9 +18,9 @@ Each key frame associates a `node.gl` time to a media time: `f(t) = Tm` with
 ### Example:
 
 ```python
-anim = AnimatedFloat([
-    AnimKeyFrameFloat(5, 4),
-    AnimKeyFrameFloat(7, 10),
+anim = ngl.AnimatedFloat([
+    ngl.AnimKeyFrameFloat(5, 4),
+    ngl.AnimKeyFrameFloat(7, 10),
 ])
 ```
 
@@ -62,10 +62,10 @@ time ranges, such as:
 
 
 ```python
-timefilter = TimeRangeFilter(my_render, ranges=[
-    TimeRangeModeNoop(0),
-    TimeRangeModeCont(2),
-    TimeRangeModeNoop(9),
+timefilter = ngl.TimeRangeFilter(my_render, ranges=[
+    ngl.TimeRangeModeNoop(0),
+    ngl.TimeRangeModeCont(2),
+    ngl.TimeRangeModeNoop(9),
 ])
 ```
 
@@ -79,17 +79,7 @@ In this case, `my_render` will be visible between `t=2` and `t=9`.
 Associated code:
 
 ```python
-from pynodegl import (
-    AnimKeyFrameFloat,
-    AnimatedFloat,
-    Media,
-    Quad,
-    Render,
-    Texture2D,
-    TimeRangeFilter,
-    TimeRangeModeCont,
-    TimeRangeModeNoop,
-)
+import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
@@ -98,22 +88,22 @@ def media_time_remapping(cfg):
 
     # Time remapping
     animkf = [
-        AnimKeyFrameFloat(5, 4),
-        AnimKeyFrameFloat(7, 10),
+        ngl.AnimKeyFrameFloat(5, 4),
+        ngl.AnimKeyFrameFloat(7, 10),
     ]
 
     # Basic media playback tree
-    q = Quad()
-    m = Media(cfg.medias[0].filename, time_anim=AnimatedFloat(animkf))
-    t = Texture2D(data_src=m)
-    r = Render(q)
+    q = ngl.Quad()
+    m = ngl.Media(cfg.medias[0].filename, time_anim=ngl.AnimatedFloat(animkf))
+    t = ngl.Texture2D(data_src=m)
+    r = ngl.Render(q)
     r.update_textures(tex0=t)
 
     # Time range filter
-    tf = TimeRangeFilter(r, ranges=[
-        TimeRangeModeNoop(0),
-        TimeRangeModeCont(2),
-        TimeRangeModeNoop(9),
+    tf = ngl.TimeRangeFilter(r, ranges=[
+        ngl.TimeRangeModeNoop(0),
+        ngl.TimeRangeModeCont(2),
+        ngl.TimeRangeModeNoop(9),
     ])
 
     return tf

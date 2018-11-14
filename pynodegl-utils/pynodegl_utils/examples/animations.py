@@ -1,16 +1,5 @@
 import array
-
-from pynodegl import (
-        AnimKeyFrameFloat,
-        AnimatedFloat,
-        BufferVec3,
-        Geometry,
-        Group,
-        Render,
-        Program,
-        UniformVec4,
-)
-
+import pynodegl as ngl
 from pynodegl_utils.misc import scene, get_frag
 
 
@@ -52,9 +41,9 @@ def _get_func(name, flags=0):
                  draw_in=True, draw_out=True,
                  draw_in_out=True, draw_out_in=True):
 
-        g = Group()
+        g = ngl.Group()
         cfg.aspect_ratio = (1, 1)
-        program = Program(fragment=_frag_data)
+        program = ngl.Program(fragment=_frag_data)
 
         for idx, ext in enumerate(versions):
 
@@ -64,10 +53,10 @@ def _get_func(name, flags=0):
                 if not eval('draw_' + ext):
                     continue
 
-            anim = AnimatedFloat([AnimKeyFrameFloat(-1,-1),
-                                  AnimKeyFrameFloat( 1, 1, interp,
-                                                    easing_start_offset=offset_start,
-                                                    easing_end_offset=offset_end)])
+            anim = ngl.AnimatedFloat([ngl.AnimKeyFrameFloat(-1,-1),
+                                      ngl.AnimKeyFrameFloat( 1, 1, interp,
+                                                            easing_start_offset=offset_start,
+                                                            easing_end_offset=offset_end)])
 
             vertices_data = array.array('f')
             for i in range(nb_points + 1):
@@ -75,10 +64,10 @@ def _get_func(name, flags=0):
                 y = anim.evaluate(x * 1/zoom) * zoom
                 vertices_data.extend([x, y, 0])
 
-            vertices = BufferVec3(data=vertices_data)
-            geometry = Geometry(vertices, topology='line_strip')
-            render = Render(geometry, program)
-            render.update_uniforms(color=UniformVec4(_colors[idx]))
+            vertices = ngl.BufferVec3(data=vertices_data)
+            geometry = ngl.Geometry(vertices, topology='line_strip')
+            render = ngl.Render(geometry, program)
+            render.update_uniforms(color=ngl.UniformVec4(_colors[idx]))
 
             g.add_children(render)
         return g

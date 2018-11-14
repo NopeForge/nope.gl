@@ -123,15 +123,15 @@ demo.
 Edit a script such as `~/mydemo.py` and add the following:
 
 ```python
+import pynodegl as ngl
 from pynodegl_utils.misc import scene
-from pynodegl import Render, Quad, Texture2D, Media
 
 @scene()
 def test_demo(cfg):
-    geometry = Quad()
-    media = Media(cfg.medias[0].filename)
-    texture = Texture2D(data_src=media)
-    render = Render(geometry)
+    geometry = ngl.Quad()
+    media = ngl.Media(cfg.medias[0].filename)
+    texture = ngl.Texture2D(data_src=media)
+    render = ngl.Render(geometry)
     render.update_textures(tex0=texture)
     return render
 ```
@@ -193,25 +193,19 @@ becomes:
 
 ```python
 import os.path as op
+import pynodegl as ngl
 from pynodegl_utils.misc import scene
-from pynodegl import (
-        Media,
-        Program,
-        Quad,
-        Render,
-        Texture2D,
-        UniformVec4,
-)
+
 
 @scene()
 def test_demo(cfg):
     frag = open(op.join(op.dirname(__file__), 'mydemo.frag')).read()
-    geometry = Quad()
-    media = Media(cfg.medias[0].filename)
-    texture = Texture2D(data_src=media)
-    prog = Program(fragment=frag)
-    ucolor = UniformVec4(value=(1,0,0,1))
-    render = Render(geometry, prog)
+    geometry = ngl.Quad()
+    media = ngl.Media(cfg.medias[0].filename)
+    texture = ngl.Texture2D(data_src=media)
+    prog = ngl.Program(fragment=frag)
+    ucolor = ngl.UniformVec4(value=(1,0,0,1))
+    render = ngl.Render(geometry, prog)
     render.update_textures(tex0=texture)
     render.update_uniforms(color=ucolor)
     return render
@@ -253,7 +247,7 @@ Setting up an uniform identified by "*color*" for our red color looks like
 this:
 
 ```python
-    ucolor = UniformVec4(value=(1,0,0,1))
+    ucolor = ngl.UniformVec4(value=(1,0,0,1))
     render.update_uniforms(color=ucolor)
 ```
 
@@ -277,7 +271,7 @@ in the UI. For that, we can adjust the `@scene()` decorator and the
 @scene(color={'type': 'color'})
 def test_demo(cfg, color=(1,0,0,1)):
     ...
-    ucolor = UniformVec4(value=color)
+    ucolor = ngl.UniformVec4(value=color)
     ...
 ```
 
@@ -305,15 +299,15 @@ long, but it can be changed directly in your function. We want to associate
 `duration=0` with `mixval=0` and `duration=30` with `mixval=1`:
 
 ```python
-    mixval_animkf = [AnimKeyFrameFloat(0, 0),
-                     AnimKeyFrameFloat(cfg.duration, 1)]
-    mixval_anim = AnimatedFloat(keyframes=mixval_animkf)
+    mixval_animkf = [ngl.AnimKeyFrameFloat(0, 0),
+                     ngl.AnimKeyFrameFloat(cfg.duration, 1)]
+    mixval_anim = ngl.AnimatedFloat(keyframes=mixval_animkf)
 ```
 
 And then create an uniform that will use this animation:
 
 ```python
-    umixval = UniformFloat(anim=mixval_anim)
+    umixval = ngl.UniformFloat(anim=mixval_anim)
     render.update_uniforms(mixval=umixval)
 ```
 
@@ -362,11 +356,11 @@ def test_demo(cfg, color=(1,0,0,1)):
 And create the translation with our previous `Render` as child:
 
 ```python
-    translate_animkf = [AnimKeyFrameVec3(0, (-1, 0, 0)),
-                        AnimKeyFrameVec3(cfg.duration/2., (1, 0, 0)),
-                        AnimKeyFrameVec3(cfg.duration, (-1, 0, 0))]
-    translate_anim = AnimatedVec3(keyframes=translate_animkf)
-    translate = Translate(render, anim=translate_anim)
+    translate_animkf = [ngl.AnimKeyFrameVec3(0, (-1, 0, 0)),
+                        ngl.AnimKeyFrameVec3(cfg.duration/2., (1, 0, 0)),
+                        ngl.AnimKeyFrameVec3(cfg.duration, (-1, 0, 0))]
+    translate_anim = ngl.AnimatedVec3(keyframes=translate_animkf)
+    translate = ngl.Translate(render, anim=translate_anim)
     return translate
 ```
 
@@ -376,21 +370,9 @@ At this point, our demo code looks like this:
 
 ```python
 import os.path as op
+import pynodegl as ngl
 from pynodegl_utils.misc import scene
-from pynodegl import (
-        AnimKeyFrameFloat,
-        AnimKeyFrameVec3,
-        AnimatedFloat,
-        AnimatedVec3,
-        Media,
-        Program,
-        Quad,
-        Render,
-        Texture2D,
-        Translate,
-        UniformFloat,
-        UniformVec4,
-)
+
 
 @scene(color={'type': 'color'})
 def test_demo(cfg, color=(1,0,0,1)):
@@ -398,28 +380,28 @@ def test_demo(cfg, color=(1,0,0,1)):
 
     # Render branch for my video
     frag = open(op.join(op.dirname(__file__), 'mydemo.frag')).read()
-    geometry = Quad()
-    media = Media(cfg.medias[0].filename)
-    texture = Texture2D(data_src=media)
-    prog = Program(fragment=frag)
-    render = Render(geometry, prog)
+    geometry = ngl.Quad()
+    media = ngl.Media(cfg.medias[0].filename)
+    texture = ngl.Texture2D(data_src=media)
+    prog = ngl.Program(fragment=frag)
+    render = ngl.Render(geometry, prog)
     render.update_textures(tex0=texture)
 
     # Animated mixing color
-    mixval_animkf = [AnimKeyFrameFloat(0, 0),
-                     AnimKeyFrameFloat(cfg.duration, 1)]
-    mixval_anim = AnimatedFloat(keyframes=mixval_animkf)
-    umixval = UniformFloat(anim=mixval_anim)
-    ucolor = UniformVec4(color)
+    mixval_animkf = [ngl.AnimKeyFrameFloat(0, 0),
+                     ngl.AnimKeyFrameFloat(cfg.duration, 1)]
+    mixval_anim = ngl.AnimatedFloat(keyframes=mixval_animkf)
+    umixval = ngl.UniformFloat(anim=mixval_anim)
+    ucolor = ngl.UniformVec4(color)
     render.update_uniforms(color=ucolor)
     render.update_uniforms(mixval=umixval)
 
     # Translation
-    translate_animkf = [AnimKeyFrameVec3(0, (-1, 0, 0)),
-                        AnimKeyFrameVec3(cfg.duration/2., (1, 0, 0)),
-                        AnimKeyFrameVec3(cfg.duration, (-1, 0, 0))]
-    translate_anim = AnimatedVec3(keyframes=translate_animkf)
-    translate = Translate(render, anim=translate_anim)
+    translate_animkf = [ngl.AnimKeyFrameVec3(0, (-1, 0, 0)),
+                        ngl.AnimKeyFrameVec3(cfg.duration/2., (1, 0, 0)),
+                        ngl.AnimKeyFrameVec3(cfg.duration, (-1, 0, 0))]
+    translate_anim = ngl.AnimatedVec3(keyframes=translate_animkf)
+    translate = ngl.Translate(render, anim=translate_anim)
 
     return translate
 ```
@@ -438,6 +420,7 @@ We will start with the current new scene template:
 ```python
 import math
 import random
+import pynodegl as ngl
 from pynodegl_utils.misc import scene, get_frag
 
 ...
@@ -453,32 +436,32 @@ def test_timeranges(cfg):
     sz = 1/3.
     b = sz * math.sqrt(3) / 3.0
     c = sz * .5
-    triangle = Triangle((-b, -c, 0), (b, -c, 0), (0, sz*.5, 0))
-    square = Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
-    circle = Circle(radius=sz/2., npoints=64)
+    triangle = ngl.Triangle((-b, -c, 0), (b, -c, 0), (0, sz*.5, 0))
+    square = ngl.Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
+    circle = ngl.Circle(radius=sz/2., npoints=64)
 
     # Renders for each shape, sharing a common program for coloring
-    prog = Program(fragment=get_frag('color'))
+    prog = ngl.Program(fragment=get_frag('color'))
     renders = [
-            Render(triangle, prog),
-            Render(square, prog),
-            Render(circle, prog),
+            ngl.Render(triangle, prog),
+            ngl.Render(square, prog),
+            ngl.Render(circle, prog),
     ]
 
     # Associate a different color for each shape
     for r in renders:
         color = [random.random() for i in range(3)] + [1]
-        r.update_uniforms(color=UniformVec4(value=color))
+        r.update_uniforms(color=ngl.UniformVec4(value=color))
 
     # Move them in different places
     translates = [
-            Translate(renders[0], (-.5, 0, 0)),
-            Translate(renders[1], (  0, 0, 0)),
-            Translate(renders[2], ( .5, 0, 0)),
+            ngl.Translate(renders[0], (-.5, 0, 0)),
+            ngl.Translate(renders[1], (  0, 0, 0)),
+            ngl.Translate(renders[2], ( .5, 0, 0)),
     ]
 
     # final group holding every render
-    return Group(translates)
+    return ngl.Group(translates)
 ```
 
 This template is using nodes we already met, with the introduction of the
@@ -502,8 +485,8 @@ holds time key frames. If we want a branch to be hidden, then drawn, then
 hidden again, we will need 3 `TimeRangeMode*` entries, such as:
 
 ```python
-    ranges = [TimeRangeModeNoop(0), TimeRangeModeCont(1), TimeRangeModeNoop(4)]
-    node = TimeRangeFilter(child, ranges)
+    ranges = [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(1), ngl.TimeRangeModeNoop(4)]
+    node = ngl.TimeRangeFilter(child, ranges)
 ```
 
 Here, `child` will be hidden at `t=0` ("*Noop*" as in "*No operation*"), then
@@ -515,12 +498,12 @@ disappear rhythmically:
 
 ```python
     ranges = [
-        [TimeRangeModeNoop(0), TimeRangeModeCont(1), TimeRangeModeNoop(4)],
-        [TimeRangeModeNoop(0), TimeRangeModeCont(2), TimeRangeModeNoop(5)],
-        [TimeRangeModeNoop(0), TimeRangeModeCont(3), TimeRangeModeNoop(6)],
+        [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(1), ngl.TimeRangeModeNoop(4)],
+        [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(2), ngl.TimeRangeModeNoop(5)],
+        [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(3), ngl.TimeRangeModeNoop(6)],
     ]
-    range_filters = [TimeRangeFilter(translates[i], r) for i, r in enumerate(ranges)]
-    return Group(range_filters)
+    range_filters = [ngl.TimeRangeFilter(translates[i], r) for i, r in enumerate(ranges)]
+    return ngl.Group(range_filters)
 ```
 
 ![3 basic shapes with time ranges](img/timeranges.gif)
