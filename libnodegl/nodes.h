@@ -304,10 +304,6 @@ struct texture_plane {
 
 struct texture {
     int data_format;
-    GLenum target;
-    GLint format;
-    GLint internal_format;
-    GLenum type;
     int width;
     int height;
     int depth;
@@ -323,8 +319,12 @@ struct texture {
 
     int externally_managed;
 
-    NGLI_ALIGNED_MAT(coordinates_matrix);
     GLuint id;
+    GLenum target;
+    GLint format;
+    GLint internal_format;
+    GLenum type;
+    NGLI_ALIGNED_MAT(coordinates_matrix);
 
     enum texture_layout layout;
     struct texture_plane planes[4];
