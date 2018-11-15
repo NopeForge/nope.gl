@@ -202,7 +202,9 @@ static int update_images_and_samplers(struct ngl_node *node)
             struct texture *texture = tnode->priv_data;
 
             int sampling_mode;
-            update_sampler(gl, s, texture, info, &used_texture_units, &sampling_mode);
+            int ret = update_sampler(gl, s, texture, info, &used_texture_units, &sampling_mode);
+            if (ret < 0)
+                return ret;
 
             if (info->sampling_mode_id >= 0)
                 ngli_glUniform1i(gl, info->sampling_mode_id, sampling_mode);
