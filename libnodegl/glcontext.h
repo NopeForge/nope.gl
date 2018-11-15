@@ -41,6 +41,7 @@
 #define NGLI_FEATURE_INSTANCED_ARRAY              (1 << 13)
 #define NGLI_FEATURE_UNIFORM_BUFFER_OBJECT        (1 << 14)
 #define NGLI_FEATURE_INVALIDATE_SUBDATA           (1 << 15)
+#define NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE       (1 << 16)
 
 #define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
                                          NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \

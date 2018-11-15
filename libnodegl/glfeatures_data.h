@@ -169,5 +169,11 @@ static const struct glfeature {
         .extensions     = (const char*[]){"GL_ARB_invalidate_subdata"},
         .funcs_offsets  = (const size_t[]){OFFSET(InvalidateFramebuffer),
                                            -1}
+    }, {
+        .name           = "oes_egl_external_image",
+        .flag           = NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE,
+        .es_extensions  = (const char*[]){"GL_OES_EGL_image_external",
+                                          "GL_OES_EGL_image_external_essl3",
+                                          NULL}
     }
 };
