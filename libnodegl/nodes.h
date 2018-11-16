@@ -329,7 +329,7 @@ struct texture {
     enum texture_layout layout;
     struct texture_plane planes[4];
 
-    enum hwupload_fmt upload_fmt;
+    enum hwupload_fmt hwupload_fmt;
     void *hwupload_priv_data;
 
     double data_src_ts;

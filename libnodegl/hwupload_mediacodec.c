@@ -82,14 +82,14 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
     static const float width[3]  = { 2.0,  0.0, 0.0};
     static const float height[3] = { 0.0,  2.0, 0.0};
 
-    if (s->upload_fmt == config->format)
+    if (s->hwupload_fmt == config->format)
         return 0;
 
     struct hwupload_mc *mc = calloc(1, sizeof(*mc));
     if (!mc)
         return -1;
 
-    s->upload_fmt = config->format;
+    s->hwupload_fmt = config->format;
     s->hwupload_priv_data = mc;
 
     s->data_format = config->data_format;
@@ -238,7 +238,7 @@ int ngli_hwupload_mc_upload(struct ngl_node *node,
 void ngli_hwupload_mc_uninit(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
-    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
 
     struct hwupload_mc *mc = s->hwupload_priv_data;
     if (!mc)
@@ -267,7 +267,7 @@ int ngli_hwupload_mc_dr_init(struct ngl_node *node,
     struct texture *s = node->priv_data;
     struct media *media = s->data_src->priv_data;
 
-    if (s->upload_fmt == config->format)
+    if (s->hwupload_fmt == config->format)
         return 0;
 
     GLint id = media->android_texture_id;
@@ -278,7 +278,7 @@ int ngli_hwupload_mc_dr_init(struct ngl_node *node,
     ngli_glTexParameteri(gl, target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
     ngli_glBindTexture(gl, target, 0);
 
-    s->upload_fmt = config->format;
+    s->hwupload_fmt = config->format;
     s->layout = NGLI_TEXTURE_LAYOUT_MEDIACODEC;
     s->planes[0].id = id;
     s->planes[0].target = target;
@@ -321,5 +321,5 @@ int ngli_hwupload_mc_dr_upload(struct ngl_node *node,
 void ngli_hwupload_mc_dr_uninit(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
-    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
 }

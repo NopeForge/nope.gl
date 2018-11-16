@@ -70,10 +70,10 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
 
     struct texture *s = node->priv_data;
 
-    if (s->upload_fmt == config->format)
+    if (s->hwupload_fmt == config->format)
         return 0;
 
-    s->upload_fmt = config->format;
+    s->hwupload_fmt = config->format;
     s->data_format = config->data_format;
 
     int ret = ngli_format_get_gl_format_type(gl,
@@ -113,7 +113,7 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
 void ngli_hwupload_vt_uninit(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
-    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
 }
 #elif defined(TARGET_IPHONE)
 struct hwupload_vt {
@@ -154,18 +154,18 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
 
     struct texture *s = node->priv_data;
 
-    if (s->upload_fmt == config->format)
+    if (s->hwupload_fmt == config->format)
         return 0;
 
     struct hwupload_vt *vt = calloc(1, sizeof(*vt));
     if (!vt)
         return -1;
-    s->upload_fmt = config->format;
+    s->hwupload_fmt = config->format;
     s->hwupload_priv_data = vt;
 
     ngli_mat4_identity(s->coordinates_matrix);
 
-    if (s->upload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
+    if (s->hwupload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
         s->data_format = config->data_format;
         int ret = ngli_format_get_gl_format_type(gl,
                                                  s->data_format,
@@ -303,7 +303,7 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
 
-    switch (s->upload_fmt) {
+    switch (s->hwupload_fmt) {
     case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
     case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA: {
         s->width                 = config->width;
@@ -469,7 +469,7 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
 void ngli_hwupload_vt_uninit(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
-    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
 
     struct hwupload_vt *vt = s->hwupload_priv_data;
     if (!vt)
@@ -499,13 +499,13 @@ int ngli_hwupload_vt_dr_init(struct ngl_node *node,
 {
     struct texture *s = node->priv_data;
 
-    if (s->upload_fmt == config->format)
+    if (s->hwupload_fmt == config->format)
         return 0;
 
     struct hwupload_vt *vt = calloc(1, sizeof(*vt));
     if (!vt)
         return -1;
-    s->upload_fmt = config->format;
+    s->hwupload_fmt = config->format;
     s->hwupload_priv_data = vt;
 
     s->layout = NGLI_TEXTURE_LAYOUT_NV12;
@@ -600,7 +600,7 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
 void ngli_hwupload_vt_dr_uninit(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
-    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
 
     struct hwupload_vt *vt = s->hwupload_priv_data;
     if (!vt)

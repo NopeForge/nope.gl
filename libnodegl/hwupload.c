@@ -78,10 +78,10 @@ static int init_common(struct ngl_node *node, struct hwupload_config *config)
     struct glcontext *gl = ctx->glcontext;
     struct texture *s = node->priv_data;
 
-    if (s->upload_fmt == config->format)
+    if (s->hwupload_fmt == config->format)
         return 0;
 
-    s->upload_fmt = config->format;
+    s->hwupload_fmt = config->format;
     s->data_format = config->data_format;
 
     int ret = ngli_format_get_gl_format_type(gl,
@@ -112,7 +112,7 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
 static void uninit_common(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
-    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
 }
 
 static int hwupload_init(struct ngl_node *node, struct hwupload_config *config)
@@ -206,10 +206,10 @@ void ngli_hwupload_uninit(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
 
-    if (s->upload_fmt == NGLI_HWUPLOAD_FMT_NONE)
+    if (s->hwupload_fmt == NGLI_HWUPLOAD_FMT_NONE)
         return;
 
-    switch (s->upload_fmt) {
+    switch (s->hwupload_fmt) {
     case NGLI_HWUPLOAD_FMT_COMMON:
         uninit_common(node);
         break;
@@ -235,5 +235,5 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     default:
         ngli_assert(0);
     }
-    ngli_assert(s->upload_fmt == NGLI_HWUPLOAD_FMT_NONE);
+    ngli_assert(s->hwupload_fmt == NGLI_HWUPLOAD_FMT_NONE);
 }
