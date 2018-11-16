@@ -109,7 +109,23 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
 
     return 0;
 }
+
+void ngli_hwupload_vt_uninit(struct ngl_node *node)
+{
+    struct texture *s = node->priv_data;
+    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+}
 #elif defined(TARGET_IPHONE)
+struct hwupload_vt {
+    struct ngl_node *quad;
+    struct ngl_node *program;
+    struct ngl_node *render;
+    struct ngl_node *textures[2];
+    struct ngl_node *target_texture;
+    struct ngl_node *rtt;
+    CVOpenGLESTextureRef ios_textures[2];
+};
+
 #define FRAGMENT_SHADER_HWUPLOAD_NV12_DATA                                              \
     "#version 100"                                                                 "\n" \
     ""                                                                             "\n" \
@@ -141,7 +157,11 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
     if (s->upload_fmt == config->format)
         return 0;
 
+    struct hwupload_vt *vt = calloc(1, sizeof(*vt));
+    if (!vt)
+        return -1;
     s->upload_fmt = config->format;
+    s->hwupload_priv_data = vt;
 
     ngli_mat4_identity(s->coordinates_matrix);
 
@@ -163,32 +183,32 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
         static const float width[3]  = { 2.0,  0.0, 0.0};
         static const float height[3] = { 0.0,  2.0, 0.0};
 
-        s->quad = ngl_node_create(NGL_NODE_QUAD);
-        if (!s->quad)
+        vt->quad = ngl_node_create(NGL_NODE_QUAD);
+        if (!vt->quad)
             return -1;
 
-        ngl_node_param_set(s->quad, "corner", corner);
-        ngl_node_param_set(s->quad, "width", width);
-        ngl_node_param_set(s->quad, "height", height);
+        ngl_node_param_set(vt->quad, "corner", corner);
+        ngl_node_param_set(vt->quad, "width", width);
+        ngl_node_param_set(vt->quad, "height", height);
 
-        s->program = ngl_node_create(NGL_NODE_PROGRAM);
-        if (!s->program)
+        vt->program = ngl_node_create(NGL_NODE_PROGRAM);
+        if (!vt->program)
             return -1;
 
-        ngl_node_param_set(s->program, "name", "vt-read-nv12");
+        ngl_node_param_set(vt->program, "name", "vt-read-nv12");
 
         const char *uv = gl->version < 300 ? "ra": "rg";
         char *fragment_shader = ngli_asprintf(FRAGMENT_SHADER_HWUPLOAD_NV12_DATA, uv);
         if (!fragment_shader)
             return -1;
-        ngl_node_param_set(s->program, "fragment", fragment_shader);
+        ngl_node_param_set(vt->program, "fragment", fragment_shader);
         free(fragment_shader);
 
-        s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE2D);
-        if (!s->textures[0])
+        vt->textures[0] = ngl_node_create(NGL_NODE_TEXTURE2D);
+        if (!vt->textures[0])
             return -1;
 
-        struct texture *t = s->textures[0]->priv_data;
+        struct texture *t = vt->textures[0]->priv_data;
         t->externally_managed = 1;
         t->data_format     = NGLI_FORMAT_R8_UNORM;
         t->width           = s->width;
@@ -207,11 +227,11 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
         if (ret < 0)
             return ret;
 
-        s->textures[1] = ngl_node_create(NGL_NODE_TEXTURE2D);
-        if (!s->textures[1])
+        vt->textures[1] = ngl_node_create(NGL_NODE_TEXTURE2D);
+        if (!vt->textures[1])
             return -1;
 
-        t = s->textures[1]->priv_data;
+        t = vt->textures[1]->priv_data;
         t->externally_managed = 1;
         t->data_format     = NGLI_FORMAT_R8G8_UNORM;
         t->width           = (s->width + 1) >> 1;
@@ -230,11 +250,11 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
         if (ret < 0)
             return ret;
 
-        s->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
-        if (!s->target_texture)
+        vt->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
+        if (!vt->target_texture)
             return -1;
 
-        t = s->target_texture->priv_data;
+        t = vt->target_texture->priv_data;
         t->externally_managed = 1;
         t->data_format     = s->data_format;
         t->format          = s->format;
@@ -250,20 +270,20 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
         t->target          = GL_TEXTURE_2D;
         ngli_mat4_identity(t->coordinates_matrix);
 
-        s->render = ngl_node_create(NGL_NODE_RENDER, s->quad);
-        if (!s->render)
+        vt->render = ngl_node_create(NGL_NODE_RENDER, vt->quad);
+        if (!vt->render)
             return -1;
 
-        ngl_node_param_set(s->render, "name", "vt-nv12-render");
-        ngl_node_param_set(s->render, "program", s->program);
-        ngl_node_param_set(s->render, "textures", "tex0", s->textures[0]);
-        ngl_node_param_set(s->render, "textures", "tex1", s->textures[1]);
+        ngl_node_param_set(vt->render, "name", "vt-nv12-render");
+        ngl_node_param_set(vt->render, "program", vt->program);
+        ngl_node_param_set(vt->render, "textures", "tex0", vt->textures[0]);
+        ngl_node_param_set(vt->render, "textures", "tex1", vt->textures[1]);
 
-        s->rtt = ngl_node_create(NGL_NODE_RENDERTOTEXTURE, s->render, s->target_texture);
-        if (!s->rtt)
+        vt->rtt = ngl_node_create(NGL_NODE_RENDERTOTEXTURE, vt->render, vt->target_texture);
+        if (!vt->rtt)
             return -1;
 
-        ngli_node_attach_ctx(s->rtt, node->ctx);
+        ngli_node_attach_ctx(vt->rtt, node->ctx);
     }
 
     return 0;
@@ -277,6 +297,7 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
     struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
+    struct hwupload_vt *vt = s->hwupload_priv_data;
 
     CVOpenGLESTextureRef textures[2] = {0};
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
@@ -306,10 +327,10 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
             return -1;
         }
 
-        NGLI_CFRELEASE(s->ios_textures[0]);
+        NGLI_CFRELEASE(vt->ios_textures[0]);
 
-        s->ios_textures[0] = textures[0];
-        GLint id = CVOpenGLESTextureGetName(s->ios_textures[0]);
+        vt->ios_textures[0] = textures[0];
+        GLint id = CVOpenGLESTextureGetName(vt->ios_textures[0]);
 
         ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
@@ -346,7 +367,7 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
         }
 
         for (int i = 0; i < 2; i++) {
-            struct texture *t = s->textures[i]->priv_data;
+            struct texture *t = vt->textures[i]->priv_data;
 
             switch (i) {
             case 0:
@@ -393,7 +414,7 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
         }
 
         ctx->activitycheck_nodes.count = 0;
-        ret = ngli_node_visit(s->rtt, 1, 0.0);
+        ret = ngli_node_visit(vt->rtt, 1, 0.0);
         if (ret < 0) {
             NGLI_CFRELEASE(textures[0]);
             NGLI_CFRELEASE(textures[1]);
@@ -407,19 +428,19 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
             return ret;
         }
 
-        ret = ngli_node_update(s->rtt, 0.0);
+        ret = ngli_node_update(vt->rtt, 0.0);
         if (ret < 0) {
             NGLI_CFRELEASE(textures[0]);
             NGLI_CFRELEASE(textures[1]);
             return ret;
         }
 
-        ngli_node_draw(s->rtt);
+        ngli_node_draw(vt->rtt);
 
         NGLI_CFRELEASE(textures[0]);
         NGLI_CFRELEASE(textures[1]);
 
-        struct texture *t = s->target_texture->priv_data;
+        struct texture *t = vt->target_texture->priv_data;
         memcpy(s->coordinates_matrix, t->coordinates_matrix, sizeof(s->coordinates_matrix));
 
         ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
@@ -445,6 +466,34 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
     return 0;
 }
 
+void ngli_hwupload_vt_uninit(struct ngl_node *node)
+{
+    struct texture *s = node->priv_data;
+    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+
+    struct hwupload_vt *vt = s->hwupload_priv_data;
+    if (!vt)
+        return;
+
+    if (vt->rtt)
+        ngli_node_detach_ctx(vt->rtt);
+
+    ngl_node_unrefp(&vt->quad);
+    ngl_node_unrefp(&vt->program);
+    ngl_node_unrefp(&vt->render);
+    ngl_node_unrefp(&vt->textures[0]);
+    ngl_node_unrefp(&vt->textures[1]);
+    ngl_node_unrefp(&vt->target_texture);
+    ngl_node_unrefp(&vt->rtt);
+
+    NGLI_CFRELEASE(vt->ios_textures[0]);
+    NGLI_CFRELEASE(vt->ios_textures[1]);
+
+    free(s->hwupload_priv_data);
+    s->hwupload_priv_data = NULL;
+}
+
+
 int ngli_hwupload_vt_dr_init(struct ngl_node *node,
                              struct hwupload_config *config)
 {
@@ -453,7 +502,12 @@ int ngli_hwupload_vt_dr_init(struct ngl_node *node,
     if (s->upload_fmt == config->format)
         return 0;
 
+    struct hwupload_vt *vt = calloc(1, sizeof(*vt));
+    if (!vt)
+        return -1;
     s->upload_fmt = config->format;
+    s->hwupload_priv_data = vt;
+
     s->layout = NGLI_TEXTURE_LAYOUT_NV12;
     for (int i = 0; i < 2; i++) {
         s->planes[i].id = 0;
@@ -471,6 +525,7 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
     struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
+    struct hwupload_vt *vt = s->hwupload_priv_data;
 
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
@@ -506,7 +561,7 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
         if (ret < 0)
             return ret;
 
-        NGLI_CFRELEASE(s->ios_textures[i]);
+        NGLI_CFRELEASE(vt->ios_textures[i]);
 
         CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                                                     *texture_cache,
@@ -519,15 +574,15 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
                                                                     format,
                                                                     type,
                                                                     i,
-                                                                    &(s->ios_textures[i]));
+                                                                    &(vt->ios_textures[i]));
         if (err != noErr) {
             LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
-            NGLI_CFRELEASE(s->ios_textures[0]);
-            NGLI_CFRELEASE(s->ios_textures[1]);
+            NGLI_CFRELEASE(vt->ios_textures[0]);
+            NGLI_CFRELEASE(vt->ios_textures[1]);
             return -1;
         }
 
-        GLint id = CVOpenGLESTextureGetName(s->ios_textures[i]);
+        GLint id = CVOpenGLESTextureGetName(vt->ios_textures[i]);
         ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
@@ -540,5 +595,21 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
     }
 
     return 0;
+}
+
+void ngli_hwupload_vt_dr_uninit(struct ngl_node *node)
+{
+    struct texture *s = node->priv_data;
+    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+
+    struct hwupload_vt *vt = s->hwupload_priv_data;
+    if (!vt)
+        return;
+
+    NGLI_CFRELEASE(vt->ios_textures[0]);
+    NGLI_CFRELEASE(vt->ios_textures[1]);
+
+    free(s->hwupload_priv_data);
+    s->hwupload_priv_data = NULL;
 }
 #endif

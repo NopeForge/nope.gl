@@ -109,6 +109,12 @@ static int upload_common_frame(struct ngl_node *node, struct hwupload_config *co
     return 0;
 }
 
+static void uninit_common(struct ngl_node *node)
+{
+    struct texture *s = node->priv_data;
+    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+}
+
 static int hwupload_init(struct ngl_node *node, struct hwupload_config *config)
 {
     int ret = 0;
@@ -200,28 +206,34 @@ void ngli_hwupload_uninit(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
 
-    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+    if (s->upload_fmt == NGLI_HWUPLOAD_FMT_NONE)
+        return;
 
-    if (s->rtt)
-        ngli_node_detach_ctx(s->rtt);
-
-    ngl_node_unrefp(&s->quad);
-    ngl_node_unrefp(&s->program);
-    ngl_node_unrefp(&s->render);
-    ngl_node_unrefp(&s->textures[0]);
-    ngl_node_unrefp(&s->textures[1]);
-    ngl_node_unrefp(&s->textures[2]);
-    ngl_node_unrefp(&s->target_texture);
-    ngl_node_unrefp(&s->rtt);
-
-#if defined(TARGET_IPHONE)
-    if (s->ios_textures[0]) {
-        CFRelease(s->ios_textures[0]);
-        s->ios_textures[0] = NULL;
-    }
-    if (s->ios_textures[1]) {
-        CFRelease(s->ios_textures[1]);
-        s->ios_textures[1] = NULL;
-    }
+    switch (s->upload_fmt) {
+    case NGLI_HWUPLOAD_FMT_COMMON:
+        uninit_common(node);
+        break;
+#if defined(TARGET_ANDROID)
+    case NGLI_HWUPLOAD_FMT_MEDIACODEC:
+        ngli_hwupload_mc_uninit(node);
+        break;
+    case NGLI_HWUPLOAD_FMT_MEDIACODEC_DR:
+        ngli_hwupload_mc_dr_uninit(node);
+        break;
+#elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA:
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12:
+        ngli_hwupload_vt_uninit(node);
+        break;
+# if defined(TARGET_IPHONE)
+    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR:
+        ngli_hwupload_vt_dr_uninit(node);
+        break;
+# endif
 #endif
+    default:
+        ngli_assert(0);
+    }
+    ngli_assert(s->upload_fmt == NGLI_HWUPLOAD_FMT_NONE);
 }

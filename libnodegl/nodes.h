@@ -330,16 +330,7 @@ struct texture {
     struct texture_plane planes[4];
 
     enum hwupload_fmt upload_fmt;
-    struct ngl_node *quad;
-    struct ngl_node *program;
-    struct ngl_node *render;
-    struct ngl_node *textures[3];
-    struct ngl_node *target_texture;
-    struct ngl_node *rtt;
-
-#if defined(TARGET_IPHONE)
-    CVOpenGLESTextureRef ios_textures[2];
-#endif
+    void *hwupload_priv_data;
 
     double data_src_ts;
 };

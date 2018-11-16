@@ -38,11 +38,15 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
                             struct hwupload_config *config,
                             struct sxplayer_frame *frame);
 
+void ngli_hwupload_vt_uninit(struct ngl_node *node);
+
 int ngli_hwupload_vt_dr_init(struct ngl_node *node,
                              struct hwupload_config *config);
 
 int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
                                struct hwupload_config *config,
                                struct sxplayer_frame *frame);
+
+void ngli_hwupload_vt_dr_uninit(struct ngl_node *node);
 
 #endif

@@ -14,6 +14,15 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+struct hwupload_mc {
+    struct ngl_node *quad;
+    struct ngl_node *program;
+    struct ngl_node *render;
+    struct ngl_node *texture;
+    struct ngl_node *target_texture;
+    struct ngl_node *rtt;
+};
+
 int ngli_hwupload_mc_get_config_from_frame(struct ngl_node *node,
                                            struct sxplayer_frame *frame,
                                            struct hwupload_config *config)
@@ -76,9 +85,14 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
     if (s->upload_fmt == config->format)
         return 0;
 
-    s->upload_fmt = config->format;
-    s->data_format = config->data_format;
+    struct hwupload_mc *mc = calloc(1, sizeof(*mc));
+    if (!mc)
+        return -1;
 
+    s->upload_fmt = config->format;
+    s->hwupload_priv_data = mc;
+
+    s->data_format = config->data_format;
     int ret = ngli_format_get_gl_format_type(gl,
                                              s->data_format,
                                              &s->format,
@@ -91,26 +105,26 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
     if (ret < 0)
         return ret;
 
-    s->quad = ngl_node_create(NGL_NODE_QUAD);
-    if (!s->quad)
+    mc->quad = ngl_node_create(NGL_NODE_QUAD);
+    if (!mc->quad)
         return -1;
 
-    ngl_node_param_set(s->quad, "corner", corner);
-    ngl_node_param_set(s->quad, "width", width);
-    ngl_node_param_set(s->quad, "height", height);
+    ngl_node_param_set(mc->quad, "corner", corner);
+    ngl_node_param_set(mc->quad, "width", width);
+    ngl_node_param_set(mc->quad, "height", height);
 
-    s->program = ngl_node_create(NGL_NODE_PROGRAM);
-    if (!s->program)
+    mc->program = ngl_node_create(NGL_NODE_PROGRAM);
+    if (!mc->program)
         return -1;
 
-    ngl_node_param_set(s->program, "name", "mc-read-oes");
-    ngl_node_param_set(s->program, "fragment", fragment_shader_hwupload_oes_data);
+    ngl_node_param_set(mc->program, "name", "mc-read-oes");
+    ngl_node_param_set(mc->program, "fragment", fragment_shader_hwupload_oes_data);
 
-    s->textures[0] = ngl_node_create(NGL_NODE_TEXTURE2D);
-    if (!s->textures[0])
+    mc->texture = ngl_node_create(NGL_NODE_TEXTURE2D);
+    if (!mc->texture)
         return -1;
 
-    struct texture *t = s->textures[0]->priv_data;
+    struct texture *t = mc->texture->priv_data;
     t->externally_managed = 1;
     t->data_format = NGLI_FORMAT_UNDEFINED;
     t->width       = s->width;
@@ -121,11 +135,11 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
     t->planes[0].id = media->android_texture_id;
     t->planes[0].target = media->android_texture_target;
 
-    s->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
-    if (!s->target_texture)
+    mc->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
+    if (!mc->target_texture)
         return -1;
 
-    t = s->target_texture->priv_data;
+    t = mc->target_texture->priv_data;
     t->externally_managed = 1;
     t->data_format     = s->data_format;
     t->format          = s->format;
@@ -141,19 +155,19 @@ int ngli_hwupload_mc_init(struct ngl_node *node,
     t->target          = s->target;
     ngli_mat4_identity(t->coordinates_matrix);
 
-    s->render = ngl_node_create(NGL_NODE_RENDER, s->quad);
-    if (!s->render)
+    mc->render = ngl_node_create(NGL_NODE_RENDER, mc->quad);
+    if (!mc->render)
         return -1;
 
-    ngl_node_param_set(s->render, "name", "mc-rtt-render");
-    ngl_node_param_set(s->render, "program", s->program);
-    ngl_node_param_set(s->render, "textures", "tex0", s->textures[0]);
+    ngl_node_param_set(mc->render, "name", "mc-rtt-render");
+    ngl_node_param_set(mc->render, "program", mc->program);
+    ngl_node_param_set(mc->render, "textures", "tex0", mc->texture);
 
-    s->rtt = ngl_node_create(NGL_NODE_RENDERTOTEXTURE, s->render, s->target_texture);
-    if (!s->rtt)
+    mc->rtt = ngl_node_create(NGL_NODE_RENDERTOTEXTURE, mc->render, mc->target_texture);
+    if (!mc->rtt)
         return -1;
 
-    ngli_node_attach_ctx(s->rtt, node->ctx);
+    ngli_node_attach_ctx(mc->rtt, node->ctx);
 
     return 0;
 }
@@ -165,6 +179,7 @@ int ngli_hwupload_mc_upload(struct ngl_node *node,
     int ret;
 
     struct texture *s = node->priv_data;
+    struct hwupload_mc *mc = s->hwupload_priv_data;
 
     struct media *media = s->data_src->priv_data;
     AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
@@ -196,11 +211,11 @@ int ngli_hwupload_mc_upload(struct ngl_node *node,
 
     ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
 
-    struct texture *t = s->textures[0]->priv_data;
+    struct texture *t = mc->texture->priv_data;
     ngli_mat4_mul(t->coordinates_matrix, flip_matrix, matrix);
 
     node->ctx->activitycheck_nodes.count = 0;
-    ret = ngli_node_visit(s->rtt, 1, 0.0);
+    ret = ngli_node_visit(mc->rtt, 1, 0.0);
     if (ret < 0)
         return ret;
 
@@ -208,16 +223,39 @@ int ngli_hwupload_mc_upload(struct ngl_node *node,
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_update(s->rtt, 0.0);
+    ret = ngli_node_update(mc->rtt, 0.0);
     if (ret < 0)
         return ret;
 
-    ngli_node_draw(s->rtt);
+    ngli_node_draw(mc->rtt);
 
-    t = s->target_texture->priv_data;
+    t = mc->target_texture->priv_data;
     memcpy(s->coordinates_matrix, t->coordinates_matrix, sizeof(s->coordinates_matrix));
 
     return 0;
+}
+
+void ngli_hwupload_mc_uninit(struct ngl_node *node)
+{
+    struct texture *s = node->priv_data;
+    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+
+    struct hwupload_mc *mc = s->hwupload_priv_data;
+    if (!mc)
+        return;
+
+    if (mc->rtt)
+        ngli_node_detach_ctx(mc->rtt);
+
+    ngl_node_unrefp(&mc->quad);
+    ngl_node_unrefp(&mc->program);
+    ngl_node_unrefp(&mc->render);
+    ngl_node_unrefp(&mc->texture);
+    ngl_node_unrefp(&mc->target_texture);
+    ngl_node_unrefp(&mc->rtt);
+
+    free(s->hwupload_priv_data);
+    s->hwupload_priv_data = NULL;
 }
 
 int ngli_hwupload_mc_dr_init(struct ngl_node *node,
@@ -278,4 +316,10 @@ int ngli_hwupload_mc_dr_upload(struct ngl_node *node,
     ngli_mat4_mul(s->coordinates_matrix, flip_matrix, matrix);
 
     return 0;
+}
+
+void ngli_hwupload_mc_dr_uninit(struct ngl_node *node)
+{
+    struct texture *s = node->priv_data;
+    s->upload_fmt = NGLI_HWUPLOAD_FMT_NONE;
 }
