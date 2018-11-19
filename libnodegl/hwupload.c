@@ -31,6 +31,7 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+#include "hwupload_common.h"
 #if defined(TARGET_ANDROID)
 #include "hwupload_mediacodec.h"
 #elif defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
@@ -39,22 +40,11 @@
 
 static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *frame, struct hwupload_config *config)
 {
-    config->width = frame->width;
-    config->height = frame->height;
-    config->linesize = frame->linesize;
-
     switch (frame->pix_fmt) {
     case SXPLAYER_PIXFMT_RGBA:
-        config->format = NGLI_HWUPLOAD_FMT_COMMON;
-        config->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
-        break;
     case SXPLAYER_PIXFMT_BGRA:
-        config->format = NGLI_HWUPLOAD_FMT_COMMON;
-        config->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
-        break;
     case SXPLAYER_SMPFMT_FLT:
-        config->format = NGLI_HWUPLOAD_FMT_COMMON;
-        config->data_format = NGLI_FORMAT_R32_SFLOAT;
+        ngli_hwupload_common_get_config_from_frame(node, frame, config);
         break;
 #if defined(TARGET_ANDROID)
     case SXPLAYER_PIXFMT_MEDIACODEC:
@@ -72,56 +62,13 @@ static int get_config_from_frame(struct ngl_node *node, struct sxplayer_frame *f
     return 0;
 }
 
-static int init_common(struct ngl_node *node, struct hwupload_config *config)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
-
-    if (s->hwupload_fmt == config->format)
-        return 0;
-
-    s->hwupload_fmt = config->format;
-    s->data_format = config->data_format;
-
-    int ret = ngli_format_get_gl_format_type(gl,
-                                             s->data_format,
-                                             &s->format,
-                                             &s->internal_format,
-                                             &s->type);
-    if (ret < 0)
-        return ret;
-
-    ngli_mat4_identity(s->coordinates_matrix);
-
-    return 0;
-}
-
-static int upload_common_frame(struct ngl_node *node, struct hwupload_config *config, struct sxplayer_frame *frame)
-{
-    struct texture *s = node->priv_data;
-
-    const int linesize       = config->linesize >> 2;
-    s->coordinates_matrix[0] = linesize ? config->width / (float)linesize : 1.0;
-
-    ngli_texture_update_local_texture(node, linesize, config->height, 0, frame->data);
-
-    return 0;
-}
-
-static void uninit_common(struct ngl_node *node)
-{
-    struct texture *s = node->priv_data;
-    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
-}
-
 static int hwupload_init(struct ngl_node *node, struct hwupload_config *config)
 {
     int ret = 0;
 
     switch (config->format) {
     case NGLI_HWUPLOAD_FMT_COMMON:
-        ret = init_common(node, config);
+        ret = ngli_hwupload_common_init(node, config);
         break;
 #if defined(TARGET_ANDROID)
     case NGLI_HWUPLOAD_FMT_MEDIACODEC:
@@ -157,7 +104,7 @@ static int hwupload_upload_frame(struct ngl_node *node,
 
     switch (config->format) {
     case NGLI_HWUPLOAD_FMT_COMMON:
-        ret = upload_common_frame(node, config, frame);
+        ret = ngli_hwupload_common_upload(node, config, frame);
         break;
 #if defined(TARGET_ANDROID)
     case NGLI_HWUPLOAD_FMT_MEDIACODEC:
@@ -211,7 +158,7 @@ void ngli_hwupload_uninit(struct ngl_node *node)
 
     switch (s->hwupload_fmt) {
     case NGLI_HWUPLOAD_FMT_COMMON:
-        uninit_common(node);
+        ngli_hwupload_common_uninit(node);
         break;
 #if defined(TARGET_ANDROID)
     case NGLI_HWUPLOAD_FMT_MEDIACODEC:

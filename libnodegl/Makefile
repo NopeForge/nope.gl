@@ -66,6 +66,7 @@ LIB_OBJS = api.o                    \
            glstate.o                \
            hmap.o                   \
            hwupload.o               \
+           hwupload_common.o        \
            log.o                    \
            math_utils.o             \
            memory.o                 \
