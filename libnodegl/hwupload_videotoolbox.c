@@ -67,15 +67,11 @@ static int vt_init(struct ngl_node *node, struct sxplayer_frame * frame)
     if (s->data_format < 0)
         return -1;
 
-    int ret = ngli_format_get_gl_format_type(gl,
-                                             s->data_format,
-                                             &s->format,
-                                             &s->internal_format,
-                                             &s->type);
-    if (ret < 0)
-        return ret;
-
-    return 0;
+    return ngli_format_get_gl_format_type(gl,
+                                          s->data_format,
+                                          &s->format,
+                                          &s->internal_format,
+                                          &s->type);
 }
 
 static int vt_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
