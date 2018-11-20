@@ -108,4 +108,5 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     free(s->hwupload_priv_data);
     s->hwupload_priv_data = NULL;
     s->hwupload_map_class = NULL;
+    ngli_mat4_identity(s->coordinates_matrix);
 }

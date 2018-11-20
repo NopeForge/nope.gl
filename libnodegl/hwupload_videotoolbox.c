@@ -75,8 +75,6 @@ static int vt_init(struct ngl_node *node, struct sxplayer_frame * frame)
     if (ret < 0)
         return ret;
 
-    ngli_mat4_identity(s->coordinates_matrix);
-
     return 0;
 }
 
@@ -152,8 +150,6 @@ static int vt_init(struct ngl_node *node, struct sxplayer_frame *frame)
 
     struct texture *s = node->priv_data;
     struct hwupload_vt *vt = s->hwupload_priv_data;
-
-    ngli_mat4_identity(s->coordinates_matrix);
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);

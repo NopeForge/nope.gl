@@ -64,8 +64,6 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ngli_mat4_identity(s->coordinates_matrix);
-
     return 0;
 }
 
