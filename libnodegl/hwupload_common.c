@@ -27,46 +27,34 @@
 #include "android_surface.h"
 #include "glincludes.h"
 #include "hwupload.h"
-#include "hwupload_common.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
 
-int ngli_hwupload_common_get_config_from_frame(struct ngl_node *node,
-                                               struct sxplayer_frame *frame,
-                                               struct hwupload_config *config)
+static int common_get_data_format(int pix_fmt)
 {
-    config->format = NGLI_HWUPLOAD_FMT_COMMON;
-    config->width = frame->width;
-    config->height = frame->height;
-    config->linesize = frame->linesize;
-
-    switch (frame->pix_fmt) {
+    switch (pix_fmt) {
     case SXPLAYER_PIXFMT_RGBA:
+        return NGLI_FORMAT_R8G8B8A8_UNORM;
     case SXPLAYER_PIXFMT_BGRA:
+        return NGLI_FORMAT_B8G8R8A8_UNORM;
     case SXPLAYER_SMPFMT_FLT:
-        config->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
-        break;
+        return NGLI_FORMAT_R32_SFLOAT;
     default:
-        ngli_assert(0);
+        return -1;
     }
-
-    return 0;
 }
 
-int ngli_hwupload_common_init(struct ngl_node *node,
-                              struct hwupload_config *config)
+static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct texture *s = node->priv_data;
 
-    if (s->hwupload_fmt == config->format)
-        return 0;
-
-    s->hwupload_fmt = config->format;
-    s->data_format = config->data_format;
+    s->data_format = common_get_data_format(frame->pix_fmt);
+    if (s->data_format < 0)
+        return -1;
 
     int ret = ngli_format_get_gl_format_type(gl,
                                              s->data_format,
@@ -81,22 +69,29 @@ int ngli_hwupload_common_init(struct ngl_node *node,
     return 0;
 }
 
-int ngli_hwupload_common_upload(struct ngl_node *node,
-                                struct hwupload_config *config,
-                                struct sxplayer_frame *frame)
+static int common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture *s = node->priv_data;
 
-    const int linesize       = config->linesize >> 2;
-    s->coordinates_matrix[0] = linesize ? config->width / (float)linesize : 1.0;
+    const int linesize       = frame->linesize >> 2;
+    s->coordinates_matrix[0] = linesize ? frame->width / (float)linesize : 1.0;
 
-    ngli_texture_update_local_texture(node, linesize, config->height, 0, frame->data);
+    ngli_texture_update_local_texture(node, linesize, frame->height, 0, frame->data);
 
     return 0;
 }
 
-void ngli_hwupload_common_uninit(struct ngl_node *node)
+static const struct hwmap_class hwmap_common_class = {
+    .name      = "default",
+    .init      = common_init,
+    .map_frame = common_map_frame,
+};
+
+static const struct hwmap_class *common_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture *s = node->priv_data;
-    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+    return &hwmap_common_class;
 }
+
+const struct hwupload_class ngli_hwupload_common_class = {
+    .get_hwmap = common_get_hwmap,
+};

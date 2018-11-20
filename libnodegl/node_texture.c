@@ -543,18 +543,9 @@ static void handle_hud_frame(struct ngl_node *node)
 
 static void handle_media_frame(struct ngl_node *node)
 {
-    struct texture *s = node->priv_data;
-    struct media *media = s->data_src->priv_data;
-
-    if (media->frame) {
-        struct sxplayer_frame *frame = media->frame;
-
-        s->data_src_ts = frame->ts;
-        ngli_hwupload_upload_frame(node, frame);
-
-        sxplayer_release_frame(frame);
-        media->frame = NULL;
-    }
+    int ret = ngli_hwupload_upload_frame(node);
+    if (ret < 0)
+        LOG(ERROR, "could not map media frame");
 }
 
 static void handle_buffer_frame(struct ngl_node *node)

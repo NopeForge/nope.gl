@@ -28,7 +28,6 @@
 
 #include "glincludes.h"
 #include "hwupload.h"
-#include "hwupload_videotoolbox.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
@@ -41,61 +40,32 @@
     }                            \
 } while (0)
 
-int ngli_hwupload_vt_get_config_from_frame(struct ngl_node *node,
-                                           struct sxplayer_frame *frame,
-                                           struct hwupload_config *config)
+#if defined(TARGET_DARWIN)
+static int vt_get_data_format(struct sxplayer_frame *frame)
 {
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    config->width = CVPixelBufferGetWidth(cvpixbuf);
-    config->height = CVPixelBufferGetHeight(cvpixbuf);
-    config->linesize = CVPixelBufferGetBytesPerRow(cvpixbuf);
-
     switch (cvformat) {
     case kCVPixelFormatType_32BGRA:
-        config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA;
-        config->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
-        break;
+        return NGLI_FORMAT_B8G8R8A8_UNORM;
     case kCVPixelFormatType_32RGBA:
-        config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA;
-        config->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
-        break;
-#if defined(TARGET_IPHONE)
-    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
-        struct texture *s = node->priv_data;
-
-        if (s->direct_rendering) {
-            config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR;
-            config->data_format = NGLI_FORMAT_UNDEFINED;
-        } else {
-            config->format = NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12;
-            config->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
-        }
-        break;
-    }
-#endif
+        return NGLI_FORMAT_R8G8B8A8_UNORM;
     default:
-        ngli_assert(0);
+        return -1;
     }
-
-    return 0;
 }
 
-#if defined(TARGET_DARWIN)
-int ngli_hwupload_vt_init(struct ngl_node *node,
-                          struct hwupload_config *config)
+static int vt_init(struct ngl_node *node, struct sxplayer_frame * frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
 
-    if (s->hwupload_fmt == config->format)
-        return 0;
-
-    s->hwupload_fmt = config->format;
-    s->data_format = config->data_format;
+    s->data_format = vt_get_data_format(frame);
+    if (s->data_format < 0)
+        return -1;
 
     int ret = ngli_format_get_gl_format_type(gl,
                                              s->data_format,
@@ -110,9 +80,7 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
     return 0;
 }
 
-int ngli_hwupload_vt_upload(struct ngl_node *node,
-                            struct hwupload_config *config,
-                            struct sxplayer_frame *frame)
+static int vt_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture *s = node->priv_data;
 
@@ -120,22 +88,32 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
     CVPixelBufferLockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
 
     uint8_t *data = CVPixelBufferGetBaseAddress(cvpixbuf);
+    const int width = CVPixelBufferGetWidth(cvpixbuf);
+    const int height = CVPixelBufferGetHeight(cvpixbuf);
+    const int linesize = CVPixelBufferGetBytesPerRow(cvpixbuf) >> 2;
+    s->coordinates_matrix[0] = linesize ? width / (float)linesize : 1.0;
 
-    const int linesize       = config->linesize >> 2;
-    s->coordinates_matrix[0] = linesize ? config->width / (float)linesize : 1.0;
-
-    ngli_texture_update_local_texture(node, config->linesize >> 2, config->height, 0, data);
+    ngli_texture_update_local_texture(node, linesize, height, 0, data);
 
     CVPixelBufferUnlockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
 
     return 0;
 }
 
-void ngli_hwupload_vt_uninit(struct ngl_node *node)
+static const struct hwmap_class hwmap_vt_class = {
+    .name      = "videotoolbox (copy)",
+    .init      = vt_init,
+    .map_frame = vt_map_frame,
+};
+
+static const struct hwmap_class *vt_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture *s = node->priv_data;
-    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
+    return &hwmap_vt_class;
 }
+
+const struct hwupload_class ngli_hwupload_vt_class = {
+    .get_hwmap = vt_get_hwmap,
+};
 #elif defined(TARGET_IPHONE)
 struct hwupload_vt {
     struct ngl_node *quad;
@@ -167,27 +145,21 @@ struct hwupload_vt {
     "    gl_FragColor = conv * vec4(yuv, 1.0);"                                    "\n" \
     "}"
 
-int ngli_hwupload_vt_init(struct ngl_node *node,
-                          struct hwupload_config *config)
+static int vt_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
-
-    if (s->hwupload_fmt == config->format)
-        return 0;
-
-    struct hwupload_vt *vt = calloc(1, sizeof(*vt));
-    if (!vt)
-        return -1;
-    s->hwupload_fmt = config->format;
-    s->hwupload_priv_data = vt;
+    struct hwupload_vt *vt = s->hwupload_priv_data;
 
     ngli_mat4_identity(s->coordinates_matrix);
 
-    if (s->hwupload_fmt == NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12) {
-        s->data_format = config->data_format;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
+
+    if (cvformat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) {
+        s->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
         int ret = ngli_format_get_gl_format_type(gl,
                                                  s->data_format,
                                                  &s->format,
@@ -196,7 +168,10 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
         if (ret < 0)
             return ret;
 
-        ret = ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
+        int frame_width = CVPixelBufferGetWidth(cvpixbuf);
+        int frame_height = CVPixelBufferGetHeight(cvpixbuf);
+
+        ret = ngli_texture_update_local_texture(node, frame_width, frame_height, 0, NULL);
         if (ret < 0)
             return ret;
 
@@ -310,9 +285,27 @@ int ngli_hwupload_vt_init(struct ngl_node *node,
     return 0;
 }
 
-int ngli_hwupload_vt_upload(struct ngl_node *node,
-                            struct hwupload_config *config,
-                            struct sxplayer_frame *frame)
+static void vt_uninit(struct ngl_node *node)
+{
+    struct texture *s = node->priv_data;
+    struct hwupload_vt *vt = s->hwupload_priv_data;
+
+    if (vt->rtt)
+        ngli_node_detach_ctx(vt->rtt);
+
+    ngl_node_unrefp(&vt->quad);
+    ngl_node_unrefp(&vt->program);
+    ngl_node_unrefp(&vt->render);
+    ngl_node_unrefp(&vt->textures[0]);
+    ngl_node_unrefp(&vt->textures[1]);
+    ngl_node_unrefp(&vt->target_texture);
+    ngl_node_unrefp(&vt->rtt);
+
+    NGLI_CFRELEASE(vt->ios_textures[0]);
+    NGLI_CFRELEASE(vt->ios_textures[1]);
+}
+
+static int vt_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -323,12 +316,13 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
     CVOpenGLESTextureRef textures[2] = {0};
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    switch (s->hwupload_fmt) {
-    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA:
-    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA: {
-        s->width                 = config->width;
-        s->height                = config->height;
+    switch (cvformat) {
+    case kCVPixelFormatType_32BGRA:
+    case kCVPixelFormatType_32RGBA: {
+        s->width                 = CVPixelBufferGetWidth(cvpixbuf);
+        s->height                = CVPixelBufferGetHeight(cvpixbuf);
         s->coordinates_matrix[0] = 1.0;
 
         CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
@@ -373,16 +367,18 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
         s->planes[0].target = GL_TEXTURE_2D;
         break;
     }
-    case NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12: {
+    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
+        int width                = CVPixelBufferGetWidth(cvpixbuf);
+        int height               = CVPixelBufferGetHeight(cvpixbuf);
         s->coordinates_matrix[0] = 1.0;
 
-        int ret = ngli_texture_update_local_texture(node, config->width, config->height, 0, NULL);
+        int ret = ngli_texture_update_local_texture(node, width, height, 0, NULL);
         if (ret < 0)
             return ret;
 
         if (ret) {
-            ngli_hwupload_uninit(node);
-            ret = ngli_hwupload_vt_init(node, config);
+            vt_uninit(node);
+            ret = vt_init(node, frame);
             if (ret < 0)
                 return ret;
         }
@@ -487,47 +483,9 @@ int ngli_hwupload_vt_upload(struct ngl_node *node,
     return 0;
 }
 
-void ngli_hwupload_vt_uninit(struct ngl_node *node)
+static int vt_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture *s = node->priv_data;
-    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
-
-    struct hwupload_vt *vt = s->hwupload_priv_data;
-    if (!vt)
-        return;
-
-    if (vt->rtt)
-        ngli_node_detach_ctx(vt->rtt);
-
-    ngl_node_unrefp(&vt->quad);
-    ngl_node_unrefp(&vt->program);
-    ngl_node_unrefp(&vt->render);
-    ngl_node_unrefp(&vt->textures[0]);
-    ngl_node_unrefp(&vt->textures[1]);
-    ngl_node_unrefp(&vt->target_texture);
-    ngl_node_unrefp(&vt->rtt);
-
-    NGLI_CFRELEASE(vt->ios_textures[0]);
-    NGLI_CFRELEASE(vt->ios_textures[1]);
-
-    free(s->hwupload_priv_data);
-    s->hwupload_priv_data = NULL;
-}
-
-
-int ngli_hwupload_vt_dr_init(struct ngl_node *node,
-                             struct hwupload_config *config)
-{
-    struct texture *s = node->priv_data;
-
-    if (s->hwupload_fmt == config->format)
-        return 0;
-
-    struct hwupload_vt *vt = calloc(1, sizeof(*vt));
-    if (!vt)
-        return -1;
-    s->hwupload_fmt = config->format;
-    s->hwupload_priv_data = vt;
 
     s->layout = NGLI_TEXTURE_LAYOUT_NV12;
     for (int i = 0; i < 2; i++) {
@@ -538,9 +496,7 @@ int ngli_hwupload_vt_dr_init(struct ngl_node *node,
     return 0;
 }
 
-int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
-                               struct hwupload_config *config,
-                               struct sxplayer_frame *frame)
+static int vt_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -551,8 +507,8 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
 
-    s->width                 = config->width;
-    s->height                = config->height;
+    s->width                 = CVPixelBufferGetWidth(cvpixbuf);
+    s->height                = CVPixelBufferGetHeight(cvpixbuf);
     s->coordinates_matrix[0] = 1.0;
 
     for (int i = 0; i < 2; i++) {
@@ -618,19 +574,54 @@ int ngli_hwupload_vt_dr_upload(struct ngl_node *node,
     return 0;
 }
 
-void ngli_hwupload_vt_dr_uninit(struct ngl_node *node)
+static void vt_dr_uninit(struct ngl_node *node)
 {
     struct texture *s = node->priv_data;
-    s->hwupload_fmt = NGLI_HWUPLOAD_FMT_NONE;
-
     struct hwupload_vt *vt = s->hwupload_priv_data;
-    if (!vt)
-        return;
 
     NGLI_CFRELEASE(vt->ios_textures[0]);
     NGLI_CFRELEASE(vt->ios_textures[1]);
-
-    free(s->hwupload_priv_data);
-    s->hwupload_priv_data = NULL;
 }
+
+static const struct hwmap_class hwmap_vt_class = {
+    .name      = "videotoolbox (nv12 → rgba)",
+    .priv_size = sizeof(struct hwupload_vt),
+    .init      = vt_init,
+    .map_frame = vt_map_frame,
+    .uninit    = vt_uninit,
+};
+
+static const struct hwmap_class hwmap_vt_dr_class = {
+    .name      = "videotoolbox (zero-copy)",
+    .priv_size = sizeof(struct hwupload_vt),
+    .init      = vt_dr_init,
+    .map_frame = vt_dr_map_frame,
+    .uninit    = vt_dr_uninit,
+};
+
+static const struct hwmap_class *vt_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
+{
+    struct texture *s = node->priv_data;
+
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
+
+    switch (cvformat) {
+    case kCVPixelFormatType_32BGRA:
+        return &hwmap_vt_class;
+    case kCVPixelFormatType_32RGBA:
+        return &hwmap_vt_class;
+    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+        if (s->direct_rendering)
+            return &hwmap_vt_dr_class;
+        else
+            return &hwmap_vt_class;
+    default:
+        return NULL;
+    }
+}
+
+const struct hwupload_class ngli_hwupload_vt_class = {
+    .get_hwmap = vt_get_hwmap,
+};
 #endif

@@ -22,19 +22,27 @@
 #ifndef HWUPLOAD_H
 #define HWUPLOAD_H
 
+#include <stdlib.h>
 #include <sxplayer.h>
 
 #include "nodegl.h"
 
-struct hwupload_config {
-    int format;
-    int width;
-    int height;
-    int linesize;
-    int data_format;
+#define HWMAP_FLAG_FRAME_OWNER (1 << 0)
+
+struct hwmap_class {
+    const char *name;
+    int flags;
+    size_t priv_size;
+    int (*init)(struct ngl_node *node, struct sxplayer_frame *frame);
+    int (*map_frame)(struct ngl_node *node, struct sxplayer_frame *frame);
+    void (*uninit)(struct ngl_node *node);
 };
 
-int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *frame);
+struct hwupload_class {
+    const struct hwmap_class *(*get_hwmap)(struct ngl_node *node, struct sxplayer_frame *frame);
+};
+
+int ngli_hwupload_upload_frame(struct ngl_node *node);
 void ngli_hwupload_uninit(struct ngl_node *node);
 
 #endif /* HWUPLOAD_H */

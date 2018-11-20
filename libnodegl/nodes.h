@@ -270,17 +270,6 @@ struct program {
     struct hmap *active_buffer_blocks;
 };
 
-enum hwupload_fmt {
-    NGLI_HWUPLOAD_FMT_NONE,
-    NGLI_HWUPLOAD_FMT_COMMON,
-    NGLI_HWUPLOAD_FMT_MEDIACODEC,
-    NGLI_HWUPLOAD_FMT_MEDIACODEC_DR,
-    NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_BGRA,
-    NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_RGBA,
-    NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12,
-    NGLI_HWUPLOAD_FMT_VIDEOTOOLBOX_NV12_DR,
-};
-
 #define DECLARE_FORMAT(format, name, doc) format,
 
 enum {
@@ -329,7 +318,7 @@ struct texture {
     enum texture_layout layout;
     struct texture_plane planes[4];
 
-    enum hwupload_fmt hwupload_fmt;
+    const struct hwmap_class *hwupload_map_class;
     void *hwupload_priv_data;
 
     double data_src_ts;
