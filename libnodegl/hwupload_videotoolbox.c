@@ -150,7 +150,8 @@ static int vt_init(struct ngl_node *node, struct sxplayer_frame *frame)
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    if (cvformat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) {
+    ngli_assert(cvformat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
+
         s->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
         int ret = ngli_format_get_gl_format_type(gl,
                                                  s->data_format,
@@ -272,7 +273,6 @@ static int vt_init(struct ngl_node *node, struct sxplayer_frame *frame)
             return -1;
 
         ngli_node_attach_ctx(vt->rtt, node->ctx);
-    }
 
     return 0;
 }
@@ -310,56 +310,8 @@ static int vt_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    switch (cvformat) {
-    case kCVPixelFormatType_32BGRA:
-    case kCVPixelFormatType_32RGBA: {
-        s->width                 = CVPixelBufferGetWidth(cvpixbuf);
-        s->height                = CVPixelBufferGetHeight(cvpixbuf);
-        s->coordinates_matrix[0] = 1.0;
+    ngli_assert(cvformat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
 
-        CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                                                    *texture_cache,
-                                                                    cvpixbuf,
-                                                                    NULL,
-                                                                    GL_TEXTURE_2D,
-                                                                    s->internal_format,
-                                                                    s->width,
-                                                                    s->height,
-                                                                    s->format,
-                                                                    s->type,
-                                                                    0,
-                                                                    &textures[0]);
-        if (err != noErr) {
-            LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
-            return -1;
-        }
-
-        NGLI_CFRELEASE(vt->ios_textures[0]);
-
-        vt->ios_textures[0] = textures[0];
-        GLint id = CVOpenGLESTextureGetName(vt->ios_textures[0]);
-
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
-        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
-        switch (s->min_filter) {
-        case GL_NEAREST_MIPMAP_NEAREST:
-        case GL_NEAREST_MIPMAP_LINEAR:
-        case GL_LINEAR_MIPMAP_NEAREST:
-        case GL_LINEAR_MIPMAP_LINEAR:
-            ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-            break;
-        }
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-
-        s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
-        s->planes[0].id = id;
-        s->planes[0].target = GL_TEXTURE_2D;
-        break;
-    }
-    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
         int width                = CVPixelBufferGetWidth(cvpixbuf);
         int height               = CVPixelBufferGetHeight(cvpixbuf);
         s->coordinates_matrix[0] = 1.0;
@@ -466,11 +418,6 @@ static int vt_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
             break;
         }
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-        break;
-    }
-    default:
-        ngli_assert(0);
-    }
 
     return 0;
 }
@@ -479,10 +426,25 @@ static int vt_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture *s = node->priv_data;
 
-    s->layout = NGLI_TEXTURE_LAYOUT_NV12;
-    for (int i = 0; i < 2; i++) {
-        s->planes[i].id = 0;
-        s->planes[i].target = GL_TEXTURE_2D;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
+
+    switch (cvformat) {
+    case kCVPixelFormatType_32BGRA:
+    case kCVPixelFormatType_32RGBA:
+        s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+        s->planes[0].id = 0;
+        s->planes[0].target = GL_TEXTURE_2D;
+        break;
+    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+        s->layout = NGLI_TEXTURE_LAYOUT_NV12;
+        for (int i = 0; i < 2; i++) {
+            s->planes[i].id = 0;
+            s->planes[i].target = GL_TEXTURE_2D;
+        }
+        break;
+    default:
+        return -1;
     }
 
     return 0;
@@ -498,11 +460,76 @@ static int vt_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
     s->width                 = CVPixelBufferGetWidth(cvpixbuf);
     s->height                = CVPixelBufferGetHeight(cvpixbuf);
     s->coordinates_matrix[0] = 1.0;
 
+    switch (cvformat) {
+    case kCVPixelFormatType_32BGRA:
+    case kCVPixelFormatType_32RGBA: {
+        int data_format;
+        GLint format;
+        GLint internal_format;
+        GLenum type;
+
+        switch (cvformat) {
+        case kCVPixelFormatType_32BGRA:
+            data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
+            break;
+        case kCVPixelFormatType_32RGBA:
+            data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
+            break;
+        default:
+            ngli_assert(0);
+        }
+
+        int ret = ngli_format_get_gl_format_type(gl, data_format, &format, &internal_format, &type);
+        if (ret < 0)
+            return ret;
+
+        NGLI_CFRELEASE(vt->ios_textures[0]);
+
+        CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                                    *texture_cache,
+                                                                    cvpixbuf,
+                                                                    NULL,
+                                                                    GL_TEXTURE_2D,
+                                                                    internal_format,
+                                                                    s->width,
+                                                                    s->height,
+                                                                    format,
+                                                                    type,
+                                                                    0,
+                                                                    &vt->ios_textures[0]);
+        if (err != noErr) {
+            LOG(ERROR, "could not create CoreVideo texture from image: %d", err);
+            return -1;
+        }
+
+        GLint id = CVOpenGLESTextureGetName(vt->ios_textures[0]);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
+        ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
+        switch (s->min_filter) {
+        case GL_NEAREST_MIPMAP_NEAREST:
+        case GL_NEAREST_MIPMAP_LINEAR:
+        case GL_LINEAR_MIPMAP_NEAREST:
+        case GL_LINEAR_MIPMAP_LINEAR:
+            ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
+            break;
+        }
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+
+        s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+        s->planes[0].id = id;
+        s->planes[0].target = GL_TEXTURE_2D;
+        break;
+    }
+    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
     for (int i = 0; i < 2; i++) {
         int width;
         int height;
@@ -562,6 +589,11 @@ static int vt_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         s->planes[i].id = id;
         s->planes[i].target = GL_TEXTURE_2D;
     }
+    break;
+    }
+    default:
+        ngli_assert(0);
+    }
 
     return 0;
 }
@@ -600,9 +632,9 @@ static const struct hwmap_class *vt_get_hwmap(struct ngl_node *node, struct sxpl
 
     switch (cvformat) {
     case kCVPixelFormatType_32BGRA:
-        return &hwmap_vt_class;
+        return &hwmap_vt_dr_class;
     case kCVPixelFormatType_32RGBA:
-        return &hwmap_vt_class;
+        return &hwmap_vt_dr_class;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         if (s->direct_rendering)
             return &hwmap_vt_dr_class;
