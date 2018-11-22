@@ -29,16 +29,6 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-static const double get_angle(struct rotate *s, double t)
-{
-    struct ngl_node *anim_node = s->anim;
-    struct animation *anim = anim_node->priv_data;
-    int ret = ngli_node_update(anim_node, t);
-    if (ret < 0)
-        return s->angle;
-    return anim->scalar;
-}
-
 static void update_trf_matrix(struct ngl_node *node, double deg_angle)
 {
     struct rotate *s = node->priv_data;
@@ -90,8 +80,12 @@ static int rotate_update(struct ngl_node *node, double t)
     struct transform *trf = &s->trf;
     struct ngl_node *child = trf->child;
     if (s->anim) {
-        const double angle = get_angle(s, t);
-        update_trf_matrix(node, angle);
+        struct ngl_node *anim_node = s->anim;
+        struct animation *anim = anim_node->priv_data;
+        int ret = ngli_node_update(anim_node, t);
+        if (ret < 0)
+            return ret;
+        update_trf_matrix(node, anim->scalar);
     }
     return ngli_node_update(child, t);
 }
