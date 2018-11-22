@@ -54,21 +54,8 @@ Allocating the context can be made at any time using `ngl_create()`:
     struct ngl_ctx *ctx = ngl_create();
     if (!ctx)
         return -1;
-```
 
-At this point, you need to provide and manage a valid OpenGL context on your
-side. `node.gl` supports OpenGL ≥ 3.0 and OpenGLES ≥ 2.0.
-
-To associate the OpenGL context with the `node.gl` context, you have to make
-sure to actually make it current. It's generally done through a
-*glXMakeCurrent()*-like function, and then call `ngl_configure()`.
-
-It typically looks like this:
-
-```c
-    glXMakeCurrent(...);
-
-    struct ngl_config config = {.wrapped = 1};
+    struct ngl_config config = {...};
     int ret = ngl_set_configure(ctx, &config);
     if (ret < 0)
         return ret;

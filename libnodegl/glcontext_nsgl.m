@@ -44,13 +44,7 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
 
-    if (ctx->wrapped) {
-        nsgl->handle = [NSOpenGLContext currentContext];
-        if (!nsgl->handle) {
-            LOG(ERROR, "could not retrieve NSGL context");
-            return -1;
-        }
-    } else {
+        /* TODO: re-indent */
         if (!ctx->offscreen) {
             if (window)
                 nsgl->view = (NSView *)window;
@@ -59,7 +53,6 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
                 return -1;
             }
         }
-    }
 
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
     if (!framework) {
@@ -229,7 +222,7 @@ static void nsgl_uninit(struct glcontext *ctx)
     if (nsgl->framework)
         CFRelease(nsgl->framework);
 
-    if (!ctx->wrapped)
+    if (nsgl->handle)
         CFRelease(nsgl->handle);
 }
 

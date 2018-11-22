@@ -51,19 +51,7 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 {
     struct x11_priv *x11 = ctx->priv_data;
 
-    if (ctx->wrapped) {
-        x11->display = glXGetCurrentDisplay();
-        x11->window  = glXGetCurrentDrawable();
-        x11->handle  = glXGetCurrentContext();
-        if (!x11->display || !x11->window || !x11->handle) {
-            LOG(ERROR,
-                "could not retrieve GLX display (%p), window (0x%lx) and context (%p)",
-                x11->display,
-                x11->window,
-                x11->handle);
-            return -1;
-        }
-    } else {
+        /* TODO: re-indent */
         if (display)
             x11->display = (Display *)display;
         if (!x11->display) {
@@ -84,7 +72,6 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
                 }
             }
         }
-    }
 
     int attribs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT,

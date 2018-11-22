@@ -125,7 +125,6 @@ class Player(QtCore.QThread):
         self._viewer.configure(
             platform=ngl.PLATFORM_AUTO,
             backend=misc.get_backend(self._backend),
-            wrapped=0,
             window=self._window,
             width=self._width,
             height=self._height,

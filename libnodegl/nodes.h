@@ -59,7 +59,6 @@ struct ngl_ctx {
     /* Controller-only fields */
     int configured;
     pthread_t worker_tid;
-    int has_thread;
 
     /* Worker-only fields */
     struct glcontext *glcontext;

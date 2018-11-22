@@ -63,9 +63,6 @@ fail:
 
 static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 {
-    if (s->glcontext->wrapped)
-        return -1;
-
     const struct ngl_config *config = arg;
 
     int ret = ngli_glcontext_resize(s->glcontext, config->width, config->height);
@@ -98,11 +95,9 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     if (!s->glcontext)
         return -1;
 
-    if (!s->glcontext->wrapped) {
-        ngli_glcontext_make_current(s->glcontext, 1);
-        if (s->config.swap_interval >= 0)
-            ngli_glcontext_set_swap_interval(s->glcontext, s->config.swap_interval);
-    }
+    ngli_glcontext_make_current(s->glcontext, 1);
+    if (s->config.swap_interval >= 0)
+        ngli_glcontext_set_swap_interval(s->glcontext, s->config.swap_interval);
 
     int ret = ngli_glcontext_load_extensions(s->glcontext);
     if (ret < 0)
@@ -200,8 +195,7 @@ end:
     if (gl->set_surface_pts)
         ngli_glcontext_set_surface_pts(gl, t);
 
-    if (!gl->wrapped)
-        ngli_glcontext_swap_buffers(gl);
+    ngli_glcontext_swap_buffers(gl);
 
     return ret;
 }
@@ -214,9 +208,6 @@ static int cmd_stop(struct ngl_ctx *s, void *arg)
 
 static int dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg)
 {
-    if (!s->has_thread)
-        return cmd_func(s, arg);
-
     pthread_mutex_lock(&s->lock);
     s->cmd_func = cmd_func;
     s->cmd_arg = arg;
@@ -256,9 +247,6 @@ static void *worker_thread(void *arg)
 #define DONE_CURRENT &(int[]){0}
 static int reconfigure_ios(struct ngl_ctx *s, struct ngl_config *config)
 {
-    if (!s->has_thread)
-        return cmd_reconfigure(s, config);
-
     int ret = dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
     if (ret < 0)
         return ret;
@@ -273,9 +261,6 @@ static int reconfigure_ios(struct ngl_ctx *s, struct ngl_config *config)
 
 static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
 {
-    if (!s->has_thread)
-        return cmd_configure(s, config);
-
     int ret = cmd_configure(s, config);
     if (ret < 0)
         return ret;
@@ -299,8 +284,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return dispatch_cmd(s, cmd_reconfigure, config);
 #endif
 
-    s->has_thread = !config->wrapped;
-    if (s->has_thread) {
+        /* TODO: re-indent */
         int ret;
         if ((ret = pthread_mutex_init(&s->lock, NULL)) ||
             (ret = pthread_cond_init(&s->cond_ctl, NULL)) ||
@@ -311,12 +295,11 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
             pthread_mutex_destroy(&s->lock);
             return ret;
         }
-    }
 
 #if defined(TARGET_IPHONE)
-    int ret = configure_ios(s, config);
+    ret = configure_ios(s, config);
 #else
-    int ret = dispatch_cmd(s, cmd_configure, config);
+    ret = dispatch_cmd(s, cmd_configure, config);
 #endif
     if (ret < 0)
         return ret;
@@ -366,12 +349,11 @@ void ngl_freep(struct ngl_ctx **ss)
         ngl_set_scene(s, NULL);
         dispatch_cmd(s, cmd_stop, NULL);
 
-        if (s->has_thread) {
+            /* TODO: re-indent */
             pthread_join(s->worker_tid, NULL);
             pthread_cond_destroy(&s->cond_ctl);
             pthread_cond_destroy(&s->cond_wkr);
             pthread_mutex_destroy(&s->lock);
-        }
     }
     ngli_darray_reset(&s->modelview_matrix_stack);
     ngli_darray_reset(&s->projection_matrix_stack);

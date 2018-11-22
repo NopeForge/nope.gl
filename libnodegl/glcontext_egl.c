@@ -91,23 +91,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 {
     struct egl_priv *egl = ctx->priv_data;
 
-    if (ctx->wrapped) {
-        egl->display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
-        egl->surface = eglGetCurrentSurface(EGL_DRAW);
-        egl->handle  = eglGetCurrentContext();
-        if (!egl->display || !egl->surface || !egl->handle) {
-            LOG(ERROR,
-                "could not retrieve EGL display (%p), surface (%p) and context (%p)",
-                egl->display,
-                egl->surface,
-                egl->handle);
-            return -1;
-        }
-
-        int ret = egl_probe_android_presentation_time_ext(egl);
-        if (ret < 0)
-            return ret;
-    } else {
+        /* TODO: re-indent */
         egl->native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
 
         if (!ctx->offscreen) {
@@ -119,7 +103,6 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
                 }
             }
         }
-    }
 
     return 0;
 }

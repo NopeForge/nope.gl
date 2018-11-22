@@ -295,21 +295,18 @@ struct ngl_config {
 
     int backend;   /* Rendering backend (any of NGL_BACKEND_*) */
 
-    int wrapped;   /* Whether the current OpenGL context should be wrapped or a new
-                      one should be created */
+    uintptr_t display; /* A native display handle */
 
-    uintptr_t display; /* A native display handle, ignored in wrapped mode */
+    uintptr_t window;  /* A native window handle */
 
-    uintptr_t window;  /* A native window handle, ignored in wrapped mode */
-
-    uintptr_t handle;  /* A native OpenGL context handle, ignored in wrapped mode */
+    uintptr_t handle;  /* A native OpenGL context handle */
 
     int swap_interval; /* Specifies the minimum number of video frames that are
                           displayed before a buffer swap will occur. -1 can be
                           used to use the default system implementation value.
-                          This option is only honored for non-wrapped OpenGL
-                          context and only on Linux, macOS, and Android (iOS
-                          does not provide swap interval control). */
+                          This option is only honored on Linux, macOS, and
+                          Android (iOS does not provide swap interval control).
+                          */
 
     int offscreen; /* Whether the rendering should happen offscreen or not */
 
@@ -347,10 +344,10 @@ struct ngl_ctx *ngl_create(void);
  *
  * This function must be called before any ngl_draw() call.
  *
- * If the context has already been configured and is non-wrapped, calling
- * ngl_configure() will hint the rendering backend to update the onscreen
- * surface dimensions either from the new configuration or directly from the
- * window the node.gl context is associated with.
+ * If the context has already been configured, calling ngl_configure() will
+ * hint the rendering backend to update the onscreen surface dimensions either
+ * from the new configuration or directly from the window the node.gl context
+ * is associated with.
  *
  * @param s        pointer to a node.gl context
  * @param config   pointer to a node.gl configuration structure (cannot be NULL)

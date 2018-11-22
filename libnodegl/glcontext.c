@@ -157,7 +157,6 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
 
     glcontext->platform = platform;
     glcontext->backend = backend;
-    glcontext->wrapped = config->wrapped;
     glcontext->offscreen = config->offscreen;
     glcontext->width = config->width;
     glcontext->height = config->height;
@@ -173,19 +172,17 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     }
 
     if (glcontext->class->init) {
-        uintptr_t handle = glcontext->wrapped ? config->handle : 0;
-        int ret = glcontext->class->init(glcontext, config->display, config->window, handle);
+        int ret = glcontext->class->init(glcontext, config->display, config->window, 0);
         if (ret < 0)
             goto fail;
     }
 
-    if (!glcontext->wrapped) {
+        /* TODO: re-indent */
         if (glcontext->class->create) {
             int ret = glcontext->class->create(glcontext, config->handle);
             if (ret < 0)
                 goto fail;
         }
-    }
 
     return glcontext;
 fail:
@@ -430,11 +427,6 @@ int ngli_glcontext_resize(struct glcontext *glcontext, int width, int height)
 {
     if (glcontext->offscreen) {
         LOG(ERROR, "offscreen rendering does not support resize operation");
-        return -1;
-    }
-
-    if (glcontext->wrapped) {
-        LOG(ERROR, "wrapped context does not support resize operation");
         return -1;
     }
 

@@ -42,7 +42,6 @@ cdef extern from "nodegl.h":
     cdef struct ngl_config:
         int  platform
         int  backend
-        int  wrapped
         uintptr_t display
         uintptr_t window
         uintptr_t handle
@@ -104,7 +103,6 @@ cdef class Viewer:
         memset(&config, 0, sizeof(config));
         config.platform = kwargs.get('platform', PLATFORM_AUTO)
         config.backend = kwargs.get('backend', BACKEND_AUTO)
-        config.wrapped = kwargs.get('wrapped', 0)
         config.display = kwargs.get('display', 0)
         config.window = kwargs.get('window', 0)
         config.handle = kwargs.get('handle', 0)

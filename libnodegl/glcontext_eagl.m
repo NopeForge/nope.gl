@@ -96,23 +96,7 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         return -1;
     }
 
-    if (ctx->wrapped) {
-        eagl->handle = [EAGLContext currentContext];
-        if (!eagl->handle) {
-            LOG(ERROR, "could not retrieve EAGL context");
-            return -1;
-        }
-
-        CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
-                                                    NULL,
-                                                    eagl->handle,
-                                                    NULL,
-                                                    &eagl->texture_cache);
-        if (err != noErr) {
-            LOG(ERROR, "could not create CoreVideo texture cache: 0x%x", err);
-            return -1;
-        }
-    } else  {
+        /* TODO: re-indent */
         if (ctx->offscreen) {
             if (window) {
                 CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)window;
@@ -130,7 +114,6 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             if (ret < 0)
                 return ret;
         }
-    }
 
     return 0;
 }
@@ -160,10 +143,9 @@ static void eagl_uninit(struct glcontext *ctx)
     if (eagl->texture_cache)
         CFRelease(eagl->texture_cache);
 
-    if (!ctx->wrapped) {
+        /* TODO: re-indent */
         if (eagl->handle)
             CFRelease(eagl->handle);
-    }
 }
 
 static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)

@@ -177,7 +177,6 @@ class GraphView(QtWidgets.QWidget):
         self._viewer = ngl.Viewer()
         self._viewer.configure(
             backend=misc.get_backend(rendering_backend),
-            wrapped=0,
             offscreen=1,
             width=16,
             height=16
