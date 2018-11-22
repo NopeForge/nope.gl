@@ -45,8 +45,6 @@ static const struct node_param translate_params[] = {
 
 static const float *get_vector(struct translate *s, double t)
 {
-    if (!s->anim)
-        return s->vector;
     struct ngl_node *anim_node = s->anim;
     struct animation *anim = anim_node->priv_data;
     int ret = ngli_node_update(anim_node, t);
@@ -73,13 +71,23 @@ static int update_vector(struct ngl_node *node)
     return 0;
 }
 
+static int translate_init(struct ngl_node *node)
+{
+    struct translate *s = node->priv_data;
+    if (!s->anim)
+        update_trf_matrix(node, s->vector);
+    return 0;
+}
+
 static int translate_update(struct ngl_node *node, double t)
 {
     struct translate *s = node->priv_data;
     struct transform *trf = &s->trf;
     struct ngl_node *child = trf->child;
-    const float *vec = get_vector(s, t);
-    update_trf_matrix(node, vec);
+    if (s->anim) {
+        const float *vec = get_vector(s, t);
+        update_trf_matrix(node, vec);
+    }
     return ngli_node_update(child, t);
 }
 
@@ -88,6 +96,7 @@ NGLI_STATIC_ASSERT(trf_on_top_of_translate, OFFSET(trf) == 0);
 const struct node_class ngli_translate_class = {
     .id        = NGL_NODE_TRANSLATE,
     .name      = "Translate",
+    .init      = translate_init,
     .update    = translate_update,
     .draw      = ngli_transform_draw,
     .priv_size = sizeof(struct translate),
