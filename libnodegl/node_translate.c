@@ -27,22 +27,6 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-static int update_vector(struct ngl_node *node);
-
-#define OFFSET(x) offsetof(struct translate, x)
-static const struct node_param translate_params[] = {
-    {"child",  PARAM_TYPE_NODE, OFFSET(trf.child), .flags=PARAM_FLAG_CONSTRUCTOR,
-               .desc=NGLI_DOCSTRING("scene to translate")},
-    {"vector", PARAM_TYPE_VEC3, OFFSET(vector),
-               .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
-               .update_func=update_vector,
-               .desc=NGLI_DOCSTRING("translation vector")},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
-               .desc=NGLI_DOCSTRING("`vector` animation")},
-    {NULL}
-};
-
 static const float *get_vector(struct translate *s, double t)
 {
     struct ngl_node *anim_node = s->anim;
@@ -90,6 +74,21 @@ static int translate_update(struct ngl_node *node, double t)
     }
     return ngli_node_update(child, t);
 }
+
+#define OFFSET(x) offsetof(struct translate, x)
+static const struct node_param translate_params[] = {
+    {"child",  PARAM_TYPE_NODE, OFFSET(trf.child),
+               .flags=PARAM_FLAG_CONSTRUCTOR,
+               .desc=NGLI_DOCSTRING("scene to translate")},
+    {"vector", PARAM_TYPE_VEC3, OFFSET(vector),
+               .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=update_vector,
+               .desc=NGLI_DOCSTRING("translation vector")},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
+               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
+               .desc=NGLI_DOCSTRING("`vector` animation")},
+    {NULL}
+};
 
 NGLI_STATIC_ASSERT(trf_on_top_of_translate, OFFSET(trf) == 0);
 
