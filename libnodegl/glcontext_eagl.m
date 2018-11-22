@@ -34,6 +34,8 @@ struct eagl_priv {
     UIView *view;
     CAEAGLLayer *layer;
     CFBundleRef framework;
+    CVPixelBufferRef pixel_buffer;
+    CVOpenGLESTextureRef texture;
     CVOpenGLESTextureCacheRef texture_cache;
     int width;
     int height;
@@ -111,7 +113,12 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             return -1;
         }
     } else  {
-        if (!ctx->offscreen) {
+        if (ctx->offscreen) {
+            if (window) {
+                CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)window;
+                eagl->pixel_buffer = (CVPixelBufferRef)CFRetain(pixel_buffer);
+            }
+        } else {
             if (window)
                 eagl->view = (UIView *)window;
             if (!eagl->view) {
@@ -143,6 +150,12 @@ static void eagl_uninit(struct glcontext *ctx)
 
     if (eagl->framework)
         CFRelease(eagl->framework);
+
+    if (eagl->pixel_buffer)
+        CFRelease(eagl->pixel_buffer);
+
+    if (eagl->texture)
+        CFRelease(eagl->texture);
 
     if (eagl->texture_cache)
         CFRelease(eagl->texture_cache);
@@ -206,6 +219,33 @@ static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)
     glGenFramebuffers(1, &eagl->framebuffer);
     glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer);
 
+    if (eagl->pixel_buffer) {
+        eagl->width = CVPixelBufferGetWidth(eagl->pixel_buffer);
+        eagl->height = CVPixelBufferGetHeight(eagl->pixel_buffer);
+        err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
+                                                           eagl->texture_cache,
+                                                           eagl->pixel_buffer,
+                                                           NULL,
+                                                           GL_TEXTURE_2D,
+                                                           GL_RGBA,
+                                                           eagl->width,
+                                                           eagl->height,
+                                                           GL_BGRA,
+                                                           GL_UNSIGNED_BYTE,
+                                                           0,
+                                                           &eagl->texture);
+        if (err != noErr) {
+            LOG(ERROR, "could not create CoreVideo texture from CVPixelBuffer: 0x%x", err);
+            return -1;
+        }
+
+        GLuint id = CVOpenGLESTextureGetName(eagl->texture);
+        glBindTexture(GL_TEXTURE_2D, id);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
+    } else {
     glGenRenderbuffers(1, &eagl->colorbuffer);
     glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
     if (!ctx->offscreen)
@@ -215,6 +255,7 @@ static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
+    }
 
     if (!ctx->samples) {
         glGenRenderbuffers(1, &eagl->depthbuffer);
@@ -363,7 +404,11 @@ static void eagl_swap_buffers(struct glcontext *ctx)
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, eagl->framebuffer_ms);
     }
 
-    if (!ctx->offscreen) {
+    if (ctx->offscreen) {
+        if (eagl->pixel_buffer) {
+            glFinish();
+        }
+    } else {
         glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
         [eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
     }
