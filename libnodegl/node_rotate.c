@@ -39,23 +39,6 @@ static const double get_angle(struct rotate *s, double t)
     return anim->scalar;
 }
 
-static void update_trf_matrix(struct ngl_node *node, double angle);
-
-static int rotate_init(struct ngl_node *node)
-{
-    struct rotate *s = node->priv_data;
-    static const float zvec[3] = {0};
-    if (!memcmp(s->axis, zvec, sizeof(s->axis))) {
-        LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
-        return -1;
-    }
-    s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
-    ngli_vec3_norm(s->normed_axis, s->axis);
-    if (!s->anim)
-        update_trf_matrix(node, s->angle);
-    return 0;
-}
-
 static void update_trf_matrix(struct ngl_node *node, double deg_angle)
 {
     struct rotate *s = node->priv_data;
@@ -73,6 +56,21 @@ static void update_trf_matrix(struct ngl_node *node, double deg_angle)
         ngli_mat4_translate(transm, -a[0], -a[1], -a[2]);
         ngli_mat4_mul(matrix, matrix, transm);
     }
+}
+
+static int rotate_init(struct ngl_node *node)
+{
+    struct rotate *s = node->priv_data;
+    static const float zvec[3] = {0};
+    if (!memcmp(s->axis, zvec, sizeof(s->axis))) {
+        LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
+        return -1;
+    }
+    s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
+    ngli_vec3_norm(s->normed_axis, s->axis);
+    if (!s->anim)
+        update_trf_matrix(node, s->angle);
+    return 0;
 }
 
 static int update_angle(struct ngl_node *node)
