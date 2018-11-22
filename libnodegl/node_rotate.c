@@ -29,11 +29,15 @@
 #include "math_utils.h"
 #include "transforms.h"
 
+static int update_angle(struct ngl_node *node);
+
 #define OFFSET(x) offsetof(struct rotate, x)
 static const struct node_param rotate_params[] = {
     {"child", PARAM_TYPE_NODE, OFFSET(trf.child), .flags=PARAM_FLAG_CONSTRUCTOR,
               .desc=NGLI_DOCSTRING("scene to rotate")},
     {"angle",  PARAM_TYPE_DBL,  OFFSET(angle),
+               .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=update_angle,
                .desc=NGLI_DOCSTRING("rotation angle in degrees")},
     {"axis",   PARAM_TYPE_VEC3, OFFSET(axis),   {.vec={0.0, 0.0, 1.0}},
                .desc=NGLI_DOCSTRING("rotation axis")},
@@ -70,14 +74,13 @@ static int rotate_init(struct ngl_node *node)
     return 0;
 }
 
-static int rotate_update(struct ngl_node *node, double t)
+static void update_trf_matrix(struct ngl_node *node, double deg_angle)
 {
     struct rotate *s = node->priv_data;
     struct transform *trf = &s->trf;
-    struct ngl_node *child = trf->child;
     float *matrix = trf->matrix;
 
-    const double angle = get_angle(s, t) * (2.0f * M_PI / 360.0f);
+    const double angle = deg_angle * (2.0f * M_PI / 360.0f);
     ngli_mat4_rotate(matrix, angle, s->normed_axis);
 
     if (s->use_anchor) {
@@ -88,7 +91,26 @@ static int rotate_update(struct ngl_node *node, double t)
         ngli_mat4_translate(transm, -a[0], -a[1], -a[2]);
         ngli_mat4_mul(matrix, matrix, transm);
     }
+}
 
+static int update_angle(struct ngl_node *node)
+{
+    struct rotate *s = node->priv_data;
+    if (s->anim) {
+        LOG(ERROR, "updating angle while the animation is set is undefined behaviour");
+        return -1;
+    }
+    update_trf_matrix(node, s->angle);
+    return 0;
+}
+
+static int rotate_update(struct ngl_node *node, double t)
+{
+    struct rotate *s = node->priv_data;
+    struct transform *trf = &s->trf;
+    struct ngl_node *child = trf->child;
+    const double angle = get_angle(s, t);
+    update_trf_matrix(node, angle);
     return ngli_node_update(child, t);
 }
 

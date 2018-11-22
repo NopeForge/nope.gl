@@ -415,7 +415,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `child` | ✓ |  | [`Node`](#parameter-types) | scene to rotate | 
-`angle` |  |  | [`double`](#parameter-types) | rotation angle in degrees | `0`
+`angle` |  | ✓ | [`double`](#parameter-types) | rotation angle in degrees | `0`
 `axis` |  |  | [`vec3`](#parameter-types) | rotation axis | (`0`,`0`,`1`)
 `anchor` |  |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
 `anim` |  |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | `angle` animation | 
