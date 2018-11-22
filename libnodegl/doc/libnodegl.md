@@ -525,7 +525,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `child` | ✓ |  | [`Node`](#parameter-types) | scene to apply the transform to | 
-`matrix` |  |  | [`mat4`](#parameter-types) | transformation matrix | 
+`matrix` |  | ✓ | [`mat4`](#parameter-types) | transformation matrix | 
 
 
 **Source**: [node_transform.c](/libnodegl/node_transform.c)

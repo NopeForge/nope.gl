@@ -32,6 +32,7 @@ static const struct node_param transform_params[] = {
     {"child",  PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
                .desc=NGLI_DOCSTRING("scene to apply the transform to")},
     {"matrix", PARAM_TYPE_MAT4, OFFSET(matrix), {.mat=NGLI_MAT4_IDENTITY},
+               .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .desc=NGLI_DOCSTRING("transformation matrix")},
     {NULL}
 };
