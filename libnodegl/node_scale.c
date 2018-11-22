@@ -28,24 +28,6 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-static int update_factors(struct ngl_node *node);
-
-#define OFFSET(x) offsetof(struct scale, x)
-static const struct node_param scale_params[] = {
-    {"child",   PARAM_TYPE_NODE, OFFSET(trf.child), .flags=PARAM_FLAG_CONSTRUCTOR,
-                .desc=NGLI_DOCSTRING("scene to scale")},
-    {"factors", PARAM_TYPE_VEC3, OFFSET(factors),
-                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
-                .update_func=update_factors,
-                .desc=NGLI_DOCSTRING("scaling factors (how much to scale on each axis)")},
-    {"anchor",  PARAM_TYPE_VEC3, OFFSET(anchor),
-                .desc=NGLI_DOCSTRING("vector to the center point of the scale")},
-    {"anim",    PARAM_TYPE_NODE, OFFSET(anim),
-                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
-                .desc=NGLI_DOCSTRING("`factors` animation")},
-    {NULL}
-};
-
 static const float *get_factors(struct scale *s, double t)
 {
     struct ngl_node *anim_node = s->anim;
@@ -108,6 +90,23 @@ static int scale_update(struct ngl_node *node, double t)
     }
     return ngli_node_update(child, t);
 }
+
+#define OFFSET(x) offsetof(struct scale, x)
+static const struct node_param scale_params[] = {
+    {"child",   PARAM_TYPE_NODE, OFFSET(trf.child),
+                .flags=PARAM_FLAG_CONSTRUCTOR,
+                .desc=NGLI_DOCSTRING("scene to scale")},
+    {"factors", PARAM_TYPE_VEC3, OFFSET(factors),
+                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                .update_func=update_factors,
+                .desc=NGLI_DOCSTRING("scaling factors (how much to scale on each axis)")},
+    {"anchor",  PARAM_TYPE_VEC3, OFFSET(anchor),
+                .desc=NGLI_DOCSTRING("vector to the center point of the scale")},
+    {"anim",    PARAM_TYPE_NODE, OFFSET(anim),
+                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
+                .desc=NGLI_DOCSTRING("`factors` animation")},
+    {NULL}
+};
 
 NGLI_STATIC_ASSERT(trf_on_top_of_scale, OFFSET(trf) == 0);
 
