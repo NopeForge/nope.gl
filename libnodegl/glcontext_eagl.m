@@ -203,34 +203,34 @@ static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)
         }
     }
 
-        glGenFramebuffers(1, &eagl->framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer);
+    glGenFramebuffers(1, &eagl->framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer);
 
-        glGenRenderbuffers(1, &eagl->colorbuffer);
-        glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
-        if (!ctx->offscreen)
-            [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
-        else
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, ctx->width, ctx->height);
-        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
-        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
-        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
+    glGenRenderbuffers(1, &eagl->colorbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
+    if (!ctx->offscreen)
+        [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
+    else
+        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, ctx->width, ctx->height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
 
-        if (!ctx->samples) {
+    if (!ctx->samples) {
         glGenRenderbuffers(1, &eagl->depthbuffer);
         glBindRenderbuffer(GL_RENDERBUFFER, eagl->depthbuffer);
         glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, eagl->width, eagl->height);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
         glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
-        }
+    }
 
-        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-        if (status != GL_FRAMEBUFFER_COMPLETE) {
-            LOG(ERROR, "framebuffer is not complete: 0x%x", status);
-            return -1;
-        }
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+        LOG(ERROR, "framebuffer is not complete: 0x%x", status);
+        return -1;
+    }
 
-        if (ctx->samples > 0) {
+    if (ctx->samples > 0) {
         glGenFramebuffers(1, &eagl->framebuffer_ms);
         glBindFramebuffer(GL_FRAMEBUFFER, eagl->framebuffer_ms);
 
@@ -250,7 +250,7 @@ static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)
             LOG(ERROR, "framebuffer is not complete: 0x%x", status);
             return -1;
         }
-        }
+    }
 
     ngli_glcontext_make_current(ctx, 0);
 
