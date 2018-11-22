@@ -29,26 +29,6 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-static int update_angle(struct ngl_node *node);
-
-#define OFFSET(x) offsetof(struct rotate, x)
-static const struct node_param rotate_params[] = {
-    {"child", PARAM_TYPE_NODE, OFFSET(trf.child), .flags=PARAM_FLAG_CONSTRUCTOR,
-              .desc=NGLI_DOCSTRING("scene to rotate")},
-    {"angle",  PARAM_TYPE_DBL,  OFFSET(angle),
-               .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
-               .update_func=update_angle,
-               .desc=NGLI_DOCSTRING("rotation angle in degrees")},
-    {"axis",   PARAM_TYPE_VEC3, OFFSET(axis),   {.vec={0.0, 0.0, 1.0}},
-               .desc=NGLI_DOCSTRING("rotation axis")},
-    {"anchor", PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}},
-               .desc=NGLI_DOCSTRING("vector to the center point of the rotation")},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
-               .desc=NGLI_DOCSTRING("`angle` animation")},
-    {NULL}
-};
-
 static const double get_angle(struct rotate *s, double t)
 {
     struct ngl_node *anim_node = s->anim;
@@ -117,6 +97,25 @@ static int rotate_update(struct ngl_node *node, double t)
     }
     return ngli_node_update(child, t);
 }
+
+#define OFFSET(x) offsetof(struct rotate, x)
+static const struct node_param rotate_params[] = {
+    {"child",  PARAM_TYPE_NODE, OFFSET(trf.child),
+               .flags=PARAM_FLAG_CONSTRUCTOR,
+               .desc=NGLI_DOCSTRING("scene to rotate")},
+    {"angle",  PARAM_TYPE_DBL,  OFFSET(angle),
+               .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=update_angle,
+               .desc=NGLI_DOCSTRING("rotation angle in degrees")},
+    {"axis",   PARAM_TYPE_VEC3, OFFSET(axis),   {.vec={0.0, 0.0, 1.0}},
+               .desc=NGLI_DOCSTRING("rotation axis")},
+    {"anchor", PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}},
+               .desc=NGLI_DOCSTRING("vector to the center point of the rotation")},
+    {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
+               .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
+               .desc=NGLI_DOCSTRING("`angle` animation")},
+    {NULL}
+};
 
 NGLI_STATIC_ASSERT(trf_on_top_of_rotate, OFFSET(trf) == 0);
 
