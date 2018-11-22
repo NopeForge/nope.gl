@@ -28,11 +28,15 @@
 #include "math_utils.h"
 #include "transforms.h"
 
+static int update_factors(struct ngl_node *node);
+
 #define OFFSET(x) offsetof(struct scale, x)
 static const struct node_param scale_params[] = {
     {"child",   PARAM_TYPE_NODE, OFFSET(trf.child), .flags=PARAM_FLAG_CONSTRUCTOR,
                 .desc=NGLI_DOCSTRING("scene to scale")},
     {"factors", PARAM_TYPE_VEC3, OFFSET(factors),
+                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                .update_func=update_factors,
                 .desc=NGLI_DOCSTRING("scaling factors (how much to scale on each axis)")},
     {"anchor",  PARAM_TYPE_VEC3, OFFSET(anchor),
                 .desc=NGLI_DOCSTRING("vector to the center point of the scale")},
@@ -62,14 +66,12 @@ static int scale_init(struct ngl_node *node)
     return 0;
 }
 
-static int scale_update(struct ngl_node *node, double t)
+static void update_trf_matrix(struct ngl_node *node, const float *f)
 {
     struct scale *s = node->priv_data;
     struct transform *trf = &s->trf;
-    struct ngl_node *child = trf->child;
     float *matrix = trf->matrix;
 
-    const float *f = get_factors(s, t);
     ngli_mat4_scale(matrix, f[0], f[1], f[2]);
 
     if (s->use_anchor) {
@@ -80,7 +82,26 @@ static int scale_update(struct ngl_node *node, double t)
         ngli_mat4_translate(tm, -a[0], -a[1], -a[2]);
         ngli_mat4_mul(matrix, matrix, tm);
     }
+}
 
+static int update_factors(struct ngl_node *node)
+{
+    struct scale *s = node->priv_data;
+    if (s->anim) {
+        LOG(ERROR, "updating factors while the animation is set is undefined behaviour");
+        return -1;
+    }
+    update_trf_matrix(node, s->factors);
+    return 0;
+}
+
+static int scale_update(struct ngl_node *node, double t)
+{
+    struct scale *s = node->priv_data;
+    struct transform *trf = &s->trf;
+    struct ngl_node *child = trf->child;
+    const float *f = get_factors(s, t);
+    update_trf_matrix(node, f);
     return ngli_node_update(child, t);
 }
 
