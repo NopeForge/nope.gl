@@ -51,27 +51,26 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 {
     struct x11_priv *x11 = ctx->priv_data;
 
-        /* TODO: re-indent */
-        if (display)
-            x11->display = (Display *)display;
+    if (display)
+        x11->display = (Display *)display;
+    if (!x11->display) {
+        x11->display = XOpenDisplay(NULL);
         if (!x11->display) {
-            x11->display = XOpenDisplay(NULL);
-            if (!x11->display) {
-                LOG(ERROR, "could not retrieve GLX display");
+            LOG(ERROR, "could not retrieve GLX display");
+            return -1;
+        }
+        x11->own_display = 1;
+    }
+
+    if (!ctx->offscreen) {
+        if (window) {
+            x11->window  = (Window)window;
+            if (!x11->window) {
+                LOG(ERROR, "could not retrieve GLX window");
                 return -1;
             }
-            x11->own_display = 1;
         }
-
-        if (!ctx->offscreen) {
-            if (window) {
-                x11->window  = (Window)window;
-                if (!x11->window) {
-                    LOG(ERROR, "could not retrieve GLX window");
-                    return -1;
-                }
-            }
-        }
+    }
 
     int attribs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT,

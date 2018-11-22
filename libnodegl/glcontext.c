@@ -177,12 +177,11 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
             goto fail;
     }
 
-        /* TODO: re-indent */
-        if (glcontext->class->create) {
-            int ret = glcontext->class->create(glcontext, config->handle);
-            if (ret < 0)
-                goto fail;
-        }
+    if (glcontext->class->create) {
+        int ret = glcontext->class->create(glcontext, config->handle);
+        if (ret < 0)
+            goto fail;
+    }
 
     return glcontext;
 fail:

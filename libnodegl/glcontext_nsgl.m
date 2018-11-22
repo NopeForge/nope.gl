@@ -44,15 +44,14 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
 
-        /* TODO: re-indent */
-        if (!ctx->offscreen) {
-            if (window)
-                nsgl->view = (NSView *)window;
-            if (!nsgl->view) {
-                LOG(ERROR, "could not retrieve NS view");
-                return -1;
-            }
+    if (!ctx->offscreen) {
+        if (window)
+            nsgl->view = (NSView *)window;
+        if (!nsgl->view) {
+            LOG(ERROR, "could not retrieve NS view");
+            return -1;
         }
+    }
 
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
     if (!framework) {

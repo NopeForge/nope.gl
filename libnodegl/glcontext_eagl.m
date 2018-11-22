@@ -96,24 +96,23 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         return -1;
     }
 
-        /* TODO: re-indent */
-        if (ctx->offscreen) {
-            if (window) {
-                CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)window;
-                eagl->pixel_buffer = (CVPixelBufferRef)CFRetain(pixel_buffer);
-            }
-        } else {
-            if (window)
-                eagl->view = (UIView *)window;
-            if (!eagl->view) {
-                LOG(ERROR, "could not retrieve UI view");
-                return -1;
-            }
-
-            int ret = eagl_setup_layer(ctx);
-            if (ret < 0)
-                return ret;
+    if (ctx->offscreen) {
+        if (window) {
+            CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)window;
+            eagl->pixel_buffer = (CVPixelBufferRef)CFRetain(pixel_buffer);
         }
+    } else {
+        if (window)
+            eagl->view = (UIView *)window;
+        if (!eagl->view) {
+            LOG(ERROR, "could not retrieve UI view");
+            return -1;
+        }
+
+        int ret = eagl_setup_layer(ctx);
+        if (ret < 0)
+            return ret;
+    }
 
     return 0;
 }
@@ -143,9 +142,8 @@ static void eagl_uninit(struct glcontext *ctx)
     if (eagl->texture_cache)
         CFRelease(eagl->texture_cache);
 
-        /* TODO: re-indent */
-        if (eagl->handle)
-            CFRelease(eagl->handle);
+    if (eagl->handle)
+        CFRelease(eagl->handle);
 }
 
 static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)

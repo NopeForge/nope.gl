@@ -91,18 +91,17 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 {
     struct egl_priv *egl = ctx->priv_data;
 
-        /* TODO: re-indent */
-        egl->native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
+    egl->native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
 
-        if (!ctx->offscreen) {
-            if (window) {
-                egl->native_window = (EGLNativeWindowType)window;
-                if (!egl->native_window) {
-                    LOG(ERROR, "could not retrieve EGL native window");
-                    return -1;
-                }
+    if (!ctx->offscreen) {
+        if (window) {
+            egl->native_window = (EGLNativeWindowType)window;
+            if (!egl->native_window) {
+                LOG(ERROR, "could not retrieve EGL native window");
+                return -1;
             }
         }
+    }
 
     return 0;
 }

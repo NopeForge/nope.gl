@@ -284,17 +284,16 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return dispatch_cmd(s, cmd_reconfigure, config);
 #endif
 
-        /* TODO: re-indent */
-        int ret;
-        if ((ret = pthread_mutex_init(&s->lock, NULL)) ||
-            (ret = pthread_cond_init(&s->cond_ctl, NULL)) ||
-            (ret = pthread_cond_init(&s->cond_wkr, NULL)) ||
-            (ret = pthread_create(&s->worker_tid, NULL, worker_thread, s))) {
-            pthread_cond_destroy(&s->cond_ctl);
-            pthread_cond_destroy(&s->cond_wkr);
-            pthread_mutex_destroy(&s->lock);
-            return ret;
-        }
+    int ret;
+    if ((ret = pthread_mutex_init(&s->lock, NULL)) ||
+        (ret = pthread_cond_init(&s->cond_ctl, NULL)) ||
+        (ret = pthread_cond_init(&s->cond_wkr, NULL)) ||
+        (ret = pthread_create(&s->worker_tid, NULL, worker_thread, s))) {
+        pthread_cond_destroy(&s->cond_ctl);
+        pthread_cond_destroy(&s->cond_wkr);
+        pthread_mutex_destroy(&s->lock);
+        return ret;
+    }
 
 #if defined(TARGET_IPHONE)
     ret = configure_ios(s, config);
@@ -348,12 +347,10 @@ void ngl_freep(struct ngl_ctx **ss)
     if (s->configured) {
         ngl_set_scene(s, NULL);
         dispatch_cmd(s, cmd_stop, NULL);
-
-            /* TODO: re-indent */
-            pthread_join(s->worker_tid, NULL);
-            pthread_cond_destroy(&s->cond_ctl);
-            pthread_cond_destroy(&s->cond_wkr);
-            pthread_mutex_destroy(&s->lock);
+        pthread_join(s->worker_tid, NULL);
+        pthread_cond_destroy(&s->cond_ctl);
+        pthread_cond_destroy(&s->cond_wkr);
+        pthread_mutex_destroy(&s->lock);
     }
     ngli_darray_reset(&s->modelview_matrix_stack);
     ngli_darray_reset(&s->projection_matrix_stack);
