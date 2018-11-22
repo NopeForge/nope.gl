@@ -28,16 +28,6 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-static const float *get_factors(struct scale *s, double t)
-{
-    struct ngl_node *anim_node = s->anim;
-    struct animation *anim = anim_node->priv_data;
-    int ret = ngli_node_update(anim_node, t);
-    if (ret < 0)
-        return s->factors;
-    return anim->values;
-}
-
 static void update_trf_matrix(struct ngl_node *node, const float *f)
 {
     struct scale *s = node->priv_data;
@@ -83,8 +73,12 @@ static int scale_update(struct ngl_node *node, double t)
     struct transform *trf = &s->trf;
     struct ngl_node *child = trf->child;
     if (s->anim) {
-        const float *f = get_factors(s, t);
-        update_trf_matrix(node, f);
+        struct ngl_node *anim_node = s->anim;
+        struct animation *anim = anim_node->priv_data;
+        int ret = ngli_node_update(anim_node, t);
+        if (ret < 0)
+            return ret;
+        update_trf_matrix(node, anim->values);
     }
     return ngli_node_update(child, t);
 }
