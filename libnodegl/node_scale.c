@@ -38,18 +38,6 @@ static const float *get_factors(struct scale *s, double t)
     return anim->values;
 }
 
-static void update_trf_matrix(struct ngl_node *node, const float *f);
-
-static int scale_init(struct ngl_node *node)
-{
-    struct scale *s = node->priv_data;
-    static const float zero_anchor[3] = {0};
-    s->use_anchor = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
-    if (!s->anim)
-        update_trf_matrix(node, s->factors);
-    return 0;
-}
-
 static void update_trf_matrix(struct ngl_node *node, const float *f)
 {
     struct scale *s = node->priv_data;
@@ -66,6 +54,16 @@ static void update_trf_matrix(struct ngl_node *node, const float *f)
         ngli_mat4_translate(tm, -a[0], -a[1], -a[2]);
         ngli_mat4_mul(matrix, matrix, tm);
     }
+}
+
+static int scale_init(struct ngl_node *node)
+{
+    struct scale *s = node->priv_data;
+    static const float zero_anchor[3] = {0};
+    s->use_anchor = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
+    if (!s->anim)
+        update_trf_matrix(node, s->factors);
+    return 0;
 }
 
 static int update_factors(struct ngl_node *node)
