@@ -422,3 +422,9 @@
         - [value, vec4]
         - [anim, Node]
 
+- UserSwitch:
+    constructors:
+        - [child, Node]
+    optional:
+        - [enabled, bool]
+

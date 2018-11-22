@@ -635,6 +635,17 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
 
+
+## UserSwitch
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`child` | ✓ |  | [`Node`](#parameter-types) | scene to be rendered or not | 
+`enabled` |  | ✓ | [`bool`](#parameter-types) | set if the scene should be rendered | `1`
+
+
+**Source**: [node_userswitch.c](/libnodegl/node_userswitch.c)
+
 Parameter types
 ===============
 
