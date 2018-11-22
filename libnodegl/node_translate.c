@@ -27,16 +27,6 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-static const float *get_vector(struct translate *s, double t)
-{
-    struct ngl_node *anim_node = s->anim;
-    struct animation *anim = anim_node->priv_data;
-    int ret = ngli_node_update(anim_node, t);
-    if (ret < 0)
-        return s->vector;
-    return anim->values;
-}
-
 static void update_trf_matrix(struct ngl_node *node, const float *vec)
 {
     struct translate *s = node->priv_data;
@@ -69,8 +59,12 @@ static int translate_update(struct ngl_node *node, double t)
     struct transform *trf = &s->trf;
     struct ngl_node *child = trf->child;
     if (s->anim) {
-        const float *vec = get_vector(s, t);
-        update_trf_matrix(node, vec);
+        struct ngl_node *anim_node = s->anim;
+        struct animation *anim = anim_node->priv_data;
+        int ret = ngli_node_update(anim_node, t);
+        if (ret < 0)
+            return ret;
+        update_trf_matrix(node, anim->values);
     }
     return ngli_node_update(child, t);
 }
