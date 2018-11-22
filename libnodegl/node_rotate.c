@@ -51,8 +51,6 @@ static const struct node_param rotate_params[] = {
 
 static const double get_angle(struct rotate *s, double t)
 {
-    if (!s->anim)
-        return s->angle;
     struct ngl_node *anim_node = s->anim;
     struct animation *anim = anim_node->priv_data;
     int ret = ngli_node_update(anim_node, t);
@@ -60,6 +58,8 @@ static const double get_angle(struct rotate *s, double t)
         return s->angle;
     return anim->scalar;
 }
+
+static void update_trf_matrix(struct ngl_node *node, double angle);
 
 static int rotate_init(struct ngl_node *node)
 {
@@ -71,6 +71,8 @@ static int rotate_init(struct ngl_node *node)
     }
     s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
     ngli_vec3_norm(s->normed_axis, s->axis);
+    if (!s->anim)
+        update_trf_matrix(node, s->angle);
     return 0;
 }
 
@@ -109,8 +111,10 @@ static int rotate_update(struct ngl_node *node, double t)
     struct rotate *s = node->priv_data;
     struct transform *trf = &s->trf;
     struct ngl_node *child = trf->child;
-    const double angle = get_angle(s, t);
-    update_trf_matrix(node, angle);
+    if (s->anim) {
+        const double angle = get_angle(s, t);
+        update_trf_matrix(node, angle);
+    }
     return ngli_node_update(child, t);
 }
 
