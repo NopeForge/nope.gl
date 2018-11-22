@@ -27,11 +27,15 @@
 #include "math_utils.h"
 #include "transforms.h"
 
+static int update_vector(struct ngl_node *node);
+
 #define OFFSET(x) offsetof(struct translate, x)
 static const struct node_param translate_params[] = {
     {"child",  PARAM_TYPE_NODE, OFFSET(trf.child), .flags=PARAM_FLAG_CONSTRUCTOR,
                .desc=NGLI_DOCSTRING("scene to translate")},
     {"vector", PARAM_TYPE_VEC3, OFFSET(vector),
+               .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=update_vector,
                .desc=NGLI_DOCSTRING("translation vector")},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
@@ -51,13 +55,31 @@ static const float *get_vector(struct translate *s, double t)
     return anim->values;
 }
 
+static void update_trf_matrix(struct ngl_node *node, const float *vec)
+{
+    struct translate *s = node->priv_data;
+    struct transform *trf = &s->trf;
+    ngli_mat4_translate(trf->matrix, vec[0], vec[1], vec[2]);
+}
+
+static int update_vector(struct ngl_node *node)
+{
+    struct translate *s = node->priv_data;
+    if (s->anim) {
+        LOG(ERROR, "updating vector while the animation is set is undefined behaviour");
+        return -1;
+    }
+    update_trf_matrix(node, s->vector);
+    return 0;
+}
+
 static int translate_update(struct ngl_node *node, double t)
 {
     struct translate *s = node->priv_data;
     struct transform *trf = &s->trf;
     struct ngl_node *child = trf->child;
     const float *vec = get_vector(s, t);
-    ngli_mat4_translate(trf->matrix, vec[0], vec[1], vec[2]);
+    update_trf_matrix(node, vec);
     return ngli_node_update(child, t);
 }
 

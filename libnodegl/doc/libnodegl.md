@@ -536,7 +536,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `child` | ✓ |  | [`Node`](#parameter-types) | scene to translate | 
-`vector` |  |  | [`vec3`](#parameter-types) | translation vector | (`0`,`0`,`0`)
+`vector` |  | ✓ | [`vec3`](#parameter-types) | translation vector | (`0`,`0`,`0`)
 `anim` |  |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) | `vector` animation | 
 
 
