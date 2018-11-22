@@ -48,8 +48,6 @@ static const struct node_param scale_params[] = {
 
 static const float *get_factors(struct scale *s, double t)
 {
-    if (!s->anim)
-        return s->factors;
     struct ngl_node *anim_node = s->anim;
     struct animation *anim = anim_node->priv_data;
     int ret = ngli_node_update(anim_node, t);
@@ -58,11 +56,15 @@ static const float *get_factors(struct scale *s, double t)
     return anim->values;
 }
 
+static void update_trf_matrix(struct ngl_node *node, const float *f);
+
 static int scale_init(struct ngl_node *node)
 {
     struct scale *s = node->priv_data;
     static const float zero_anchor[3] = {0};
     s->use_anchor = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
+    if (!s->anim)
+        update_trf_matrix(node, s->factors);
     return 0;
 }
 
@@ -100,8 +102,10 @@ static int scale_update(struct ngl_node *node, double t)
     struct scale *s = node->priv_data;
     struct transform *trf = &s->trf;
     struct ngl_node *child = trf->child;
-    const float *f = get_factors(s, t);
-    update_trf_matrix(node, f);
+    if (s->anim) {
+        const float *f = get_factors(s, t);
+        update_trf_matrix(node, f);
+    }
     return ngli_node_update(child, t);
 }
 
