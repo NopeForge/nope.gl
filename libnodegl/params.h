@@ -85,6 +85,7 @@ struct node_param {
     const int *node_types;
     const char *desc;
     const struct param_choices *choices;
+    int (*update_func)(struct ngl_node *node);
 };
 
 int ngli_params_get_select_val(const struct param_const *consts, const char *s, int *dst);
