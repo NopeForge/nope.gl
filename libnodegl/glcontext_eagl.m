@@ -246,15 +246,15 @@ static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)
         glBindTexture(GL_TEXTURE_2D, 0);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, id, 0);
     } else {
-    glGenRenderbuffers(1, &eagl->colorbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
-    if (!ctx->offscreen)
-        [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
-    else
-        glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, ctx->width, ctx->height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
+        glGenRenderbuffers(1, &eagl->colorbuffer);
+        glBindRenderbuffer(GL_RENDERBUFFER, eagl->colorbuffer);
+        if (!ctx->offscreen)
+            [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
+        else
+            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, ctx->width, ctx->height);
+        glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
+        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
+        glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
     }
 
     if (!ctx->samples) {
