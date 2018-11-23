@@ -59,14 +59,14 @@ def buffer_dove(cfg,
     w, h = (96, 96)
     cfg.aspect_ratio = (w, h)
 
-    img_buf = ngl.BufferUBVec4(filename=icon_filename, name='icon raw buffer')
+    img_buf = ngl.BufferUBVec4(filename=icon_filename, label='icon raw buffer')
 
     img_tex = ngl.Texture2D(data_src=img_buf, width=w, height=h)
     if bilinear_filtering:
         img_tex.set_mag_filter('linear')
     quad = ngl.Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
     prog = ngl.Program()
-    render = ngl.Render(quad, prog, name='dove')
+    render = ngl.Render(quad, prog, label='dove')
     render.update_textures(tex0=img_tex)
     render = ngl.GraphicConfig(render,
                                blend=True,
@@ -77,7 +77,7 @@ def buffer_dove(cfg,
 
     prog_bg = ngl.Program(fragment=get_frag('color'))
     shape_bg = ngl.Circle(radius=.6, npoints=256)
-    render_bg = ngl.Render(shape_bg, prog_bg, name='background')
+    render_bg = ngl.Render(shape_bg, prog_bg, label='background')
     color_animkf = [ngl.AnimKeyFrameVec4(0,                bgcolor1),
                     ngl.AnimKeyFrameVec4(cfg.duration/2.0, bgcolor2),
                     ngl.AnimKeyFrameVec4(cfg.duration,     bgcolor1)]
@@ -331,7 +331,7 @@ def blending_and_stencil(cfg):
     main_group = ngl.Group()
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program, name='sky')
+    render = ngl.Render(quad, program, label='sky')
     render.update_uniforms(color=ngl.UniformVec4(value=(0.2, 0.6, 1, 1)))
     config = ngl.GraphicConfig(render,
                                stencil_test=True,
@@ -344,14 +344,14 @@ def blending_and_stencil(cfg):
                                stencil_depth_pass='replace')
     main_group.add_children(config)
 
-    render = ngl.Render(circle, program, name='sun')
+    render = ngl.Render(circle, program, label='sun')
     render.update_uniforms(color=ngl.UniformVec4(value=(1, 0.8, 0, 1)))
 
     scale = ngl.Scale(render, (0.15, 0.15, 0.0))
     translate = ngl.Translate(scale, (0.4, 0.3, 0))
     main_group.add_children(translate)
 
-    cloud_group = ngl.Group(name='clouds')
+    cloud_group = ngl.Group(label='clouds')
 
     centers = [
         (-1.0, 0.85, 0.4),
@@ -426,7 +426,7 @@ def cube(cfg, display_depth_buffer=False):
     Cube with a common media Texture but a different color tainting on each side.
     Also includes a depth map visualization.
     '''
-    cube = ngl.Group(name='cube')
+    cube = ngl.Group(label='cube')
 
     frag_data = get_frag('tex-tint')
     program = ngl.Program(fragment=frag_data)
@@ -507,7 +507,7 @@ def histogram(cfg):
         shader_header += '#extension GL_ANDROID_extension_pack_es31a: require\n'
 
     compute_program = ngl.ComputeProgram(shader_header + get_comp('histogram-clear'))
-    compute = ngl.Compute(256, 1, 1, compute_program, name='histogram-clear')
+    compute = ngl.Compute(256, 1, 1, compute_program, label='histogram-clear')
     compute.update_buffers(histogram_buffer=h)
     g.add_children(compute)
 
@@ -515,7 +515,7 @@ def histogram(cfg):
     group_size = proxy_size / local_size
     compute_shader = get_comp('histogram-exec') % {'local_size': local_size}
     compute_program = ngl.ComputeProgram(shader_header + compute_shader)
-    compute = ngl.Compute(group_size, group_size, 1, compute_program, name='histogram-exec')
+    compute = ngl.Compute(group_size, group_size, 1, compute_program, label='histogram-exec')
     compute.update_buffers(histogram_buffer=h)
     compute.update_textures(source=proxy)
     g.add_children(compute)

@@ -414,7 +414,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 ngli_hmap_get(program->active_uniforms, entry->key);
             if (!active_uniform) {
                 LOG(WARNING, "uniform %s attached to %s not found in %s",
-                    entry->key, node->name, s->program->name);
+                    entry->key, node->label, s->program->label);
                 continue;
             }
 
@@ -483,7 +483,7 @@ int ngli_pipeline_init(struct ngl_node *node)
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)
             texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
             LOG(INFO, "direct rendering for texture %s.%s: %s",
-                node->name, key, texture->direct_rendering ? "yes" : "no");
+                node->label, key, texture->direct_rendering ? "yes" : "no");
 #endif
             s->nb_textureprograminfos++;
 
@@ -509,7 +509,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 ngli_hmap_get(program->active_buffer_blocks, entry->key);
             if (!info) {
                 LOG(WARNING, "buffer %s attached to %s not found in %s",
-                    entry->key, node->name, s->program->name);
+                    entry->key, node->label, s->program->label);
                 continue;
             }
 
@@ -519,7 +519,7 @@ int ngli_pipeline_init(struct ngl_node *node)
             if (info->type == GL_UNIFORM_BUFFER &&
                 buffer->data_size > gl->max_uniform_block_size) {
                 LOG(ERROR, "buffer %s size (%d) exceeds max uniform block size (%d)",
-                    bnode->name, buffer->data_size, gl->max_uniform_block_size);
+                    bnode->label, buffer->data_size, gl->max_uniform_block_size);
                 return -1;
             }
 

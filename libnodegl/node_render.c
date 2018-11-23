@@ -257,7 +257,7 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attribut
         if (ret == 1) {
             const struct ngl_node *pnode = s->pipeline.program;
             LOG(WARNING, "attribute %s attached to %s not found in %s",
-                entry->key, node->name, pnode->name);
+                entry->key, node->label, pnode->label);
         }
     }
     return 0;

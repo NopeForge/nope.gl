@@ -106,9 +106,9 @@ static int program_init(struct ngl_node *node)
     if (!s->program_id)
         return -1;
 
-    s->active_uniforms = ngli_program_probe_uniforms(node->name, gl, s->program_id);
-    s->active_attributes = ngli_program_probe_attributes(node->name, gl, s->program_id);
-    s->active_buffer_blocks = ngli_program_probe_buffer_blocks(node->name, gl, s->program_id);
+    s->active_uniforms = ngli_program_probe_uniforms(node->label, gl, s->program_id);
+    s->active_attributes = ngli_program_probe_attributes(node->label, gl, s->program_id);
+    s->active_buffer_blocks = ngli_program_probe_buffer_blocks(node->label, gl, s->program_id);
     if (!s->active_uniforms || !s->active_attributes || !s->active_buffer_blocks)
         return -1;
 

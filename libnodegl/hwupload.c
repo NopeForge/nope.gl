@@ -93,7 +93,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
         }
         s->hwupload_map_class = hwmap_class;
 
-        LOG(DEBUG, "mapping texture '%s' with method: %s", node->name, hwmap_class->name);
+        LOG(DEBUG, "mapping texture '%s' with method: %s", node->label, hwmap_class->name);
     }
 
     int ret = hwmap_class->map_frame(node, frame);

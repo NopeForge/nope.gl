@@ -112,7 +112,7 @@ static void free_pinfo(void *user_arg, void *data)
     free(data);
 }
 
-struct hmap *ngli_program_probe_uniforms(const char *node_name, struct glcontext *gl, GLuint pid)
+struct hmap *ngli_program_probe_uniforms(const char *node_label, struct glcontext *gl, GLuint pid)
 {
     struct hmap *umap = ngli_hmap_create();
     if (!umap)
@@ -141,7 +141,7 @@ struct hmap *ngli_program_probe_uniforms(const char *node_name, struct glcontext
             info->binding = -1;
         }
 
-        LOG(DEBUG, "%s.uniform[%d/%d]: %s location:%d size=%d type=0x%x binding=%d", node_name,
+        LOG(DEBUG, "%s.uniform[%d/%d]: %s location:%d size=%d type=0x%x binding=%d", node_label,
             i + 1, nb_active_uniforms, name, info->location, info->size, info->type, info->binding);
 
         int ret = ngli_hmap_set(umap, name, info);
@@ -154,7 +154,7 @@ struct hmap *ngli_program_probe_uniforms(const char *node_name, struct glcontext
     return umap;
 }
 
-struct hmap *ngli_program_probe_attributes(const char *node_name, struct glcontext *gl, GLuint pid)
+struct hmap *ngli_program_probe_attributes(const char *node_label, struct glcontext *gl, GLuint pid)
 {
     struct hmap *amap = ngli_hmap_create();
     if (!amap)
@@ -174,7 +174,7 @@ struct hmap *ngli_program_probe_attributes(const char *node_name, struct glconte
                                &info->size, &info->type, name);
 
         info->location = ngli_glGetAttribLocation(gl, pid, name);
-        LOG(DEBUG, "%s.attribute[%d/%d]: %s location:%d size=%d type=0x%x", node_name,
+        LOG(DEBUG, "%s.attribute[%d/%d]: %s location:%d size=%d type=0x%x", node_label,
             i + 1, nb_active_attributes, name, info->location, info->size, info->type);
 
         int ret = ngli_hmap_set(amap, name, info);
@@ -187,7 +187,7 @@ struct hmap *ngli_program_probe_attributes(const char *node_name, struct glconte
     return amap;
 }
 
-struct hmap *ngli_program_probe_buffer_blocks(const char *node_name, struct glcontext *gl, GLuint pid)
+struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glcontext *gl, GLuint pid)
 {
     struct hmap *bmap = ngli_hmap_create();
     if (!bmap)
@@ -215,7 +215,7 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_name, struct glco
         ngli_glUniformBlockBinding(gl, pid, block_index, info->binding);
 
         LOG(DEBUG, "%s.ubo[%d/%d]: %s binding:%d",
-            node_name, i + 1, nb_active_uniform_buffers, name, info->binding);
+            node_label, i + 1, nb_active_uniform_buffers, name, info->binding);
 
         int ret = ngli_hmap_set(bmap, name, info);
         if (ret < 0) {
@@ -249,7 +249,7 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_name, struct glco
                                     NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
 
         LOG(DEBUG, "%s.ssbo[%d/%d]: %s binding:%d",
-            node_name, i + 1, nb_active_buffers, name, info->binding);
+            node_label, i + 1, nb_active_buffers, name, info->binding);
 
         int ret = ngli_hmap_set(bmap, name, info);
         if (ret < 0) {

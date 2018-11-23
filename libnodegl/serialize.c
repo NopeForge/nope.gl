@@ -159,8 +159,8 @@ static void serialize_options(struct hmap *nlist,
                 const char *s = *(char **)(priv + p->offset);
                 if (!s || (p->def_value.str && !strcmp(s, p->def_value.str)))
                     break;
-                if (!strcmp(p->key, "name") &&
-                    ngli_is_default_name(node->class->name, s))
+                if (!strcmp(p->key, "label") &&
+                    ngli_is_default_label(node->class->name, s))
                     break;
                 if (!constructor)
                     ngli_bstr_print(b, " %s:", p->key);

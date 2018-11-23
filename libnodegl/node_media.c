@@ -237,7 +237,7 @@ static int media_update(struct ngl_node *node, double t)
 
     sxplayer_release_frame(s->frame);
 
-    TRACE("get frame from %s at t=%g", node->name, media_time);
+    TRACE("get frame from %s at t=%g", node->label, media_time);
     struct sxplayer_frame *frame = sxplayer_get_frame(s->player, media_time);
     if (frame) {
         const char *pix_fmt_str = frame->pix_fmt >= 0 &&

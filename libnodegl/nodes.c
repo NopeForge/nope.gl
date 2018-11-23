@@ -45,7 +45,7 @@ extern const struct param_specs ngli_params_specs[];
 
 #define OFFSET(x) offsetof(struct ngl_node, x)
 const struct node_param ngli_base_node_params[] = {
-    {"name",     PARAM_TYPE_STR,      OFFSET(name)},
+    {"label",     PARAM_TYPE_STR,      OFFSET(label)},
     {NULL}
 };
 
@@ -85,17 +85,17 @@ static struct ngl_node *node_create(const struct node_class *class)
 
 #define DEF_NAME_CHR(c) (((c) >= 'A' && (c) <= 'Z') ? (c) ^ 0x20 : (c))
 
-char *ngli_node_default_name(const char *class_name)
+char *ngli_node_default_label(const char *class_name)
 {
-    char *name = ngli_strdup(class_name);
-    if (!name)
+    char *label = ngli_strdup(class_name);
+    if (!label)
         return NULL;
-    for (int i = 0; name[i]; i++)
-        name[i] = DEF_NAME_CHR(name[i]);
-    return name;
+    for (int i = 0; label[i]; i++)
+        label[i] = DEF_NAME_CHR(label[i]);
+    return label;
 }
 
-int ngli_is_default_name(const char *class_name, const char *str)
+int ngli_is_default_label(const char *class_name, const char *str)
 {
     const size_t len = strlen(class_name);
     if (len != strlen(str))
@@ -136,8 +136,8 @@ struct ngl_node *ngli_node_create_noconstructor(int type)
     ngli_params_set_defaults((uint8_t *)node, ngli_base_node_params);
     ngli_params_set_defaults(node->priv_data, node->class->params);
 
-    node->name = ngli_node_default_name(node->class->name);
-    if (!node->name) {
+    node->label = ngli_node_default_label(node->class->name);
+    if (!node->label) {
         ngl_node_unrefp(&node);
         return NULL;
     }
@@ -156,7 +156,7 @@ struct ngl_node *ngl_node_create(int type, ...)
     ngli_params_set_constructors(node->priv_data, node->class->params, &ap);
     va_end(ap);
 
-    LOG(VERBOSE, "CREATED %s @ %p", node->name, node);
+    LOG(VERBOSE, "CREATED %s @ %p", node->label, node);
 
     return node;
 }
@@ -168,7 +168,7 @@ static void node_release(struct ngl_node *node)
 
     ngli_assert(node->ctx);
     if (node->class->release) {
-        TRACE("RELEASE %s @ %p", node->name, node);
+        TRACE("RELEASE %s @ %p", node->label, node);
         node->class->release(node);
     }
     node->state = STATE_IDLE;
@@ -205,7 +205,7 @@ static void node_uninit(struct ngl_node *node)
     node_release(node);
 
     if (node->class->uninit) {
-        LOG(VERBOSE, "UNINIT %s @ %p", node->name, node);
+        LOG(VERBOSE, "UNINIT %s @ %p", node->label, node);
         node->class->uninit(node);
     }
     reset_non_params(node);
@@ -266,10 +266,10 @@ static int node_init(struct ngl_node *node)
 
     ngli_assert(node->ctx);
     if (node->class->init) {
-        LOG(VERBOSE, "INIT %s @ %p", node->name, node);
+        LOG(VERBOSE, "INIT %s @ %p", node->label, node);
         int ret = node->class->init(node);
         if (ret < 0) {
-            LOG(ERROR, "initializing node %s failed: %d", node->name, ret);
+            LOG(ERROR, "initializing node %s failed: %d", node->label, ret);
             return ret;
         }
     }
@@ -334,7 +334,7 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 
     if (ctx) {
         if (node->ctx && node->ctx != ctx) {
-            LOG(ERROR, "\"%s\" is associated with another rendering context", node->name);
+            LOG(ERROR, "\"%s\" is associated with another rendering context", node->label);
             return -1;
         }
     } else {
@@ -433,10 +433,10 @@ static int node_prefetch(struct ngl_node *node)
         return 0;
 
     if (node->class->prefetch) {
-        TRACE("PREFETCH %s @ %p", node->name, node);
+        TRACE("PREFETCH %s @ %p", node->label, node);
         int ret = node->class->prefetch(node);
         if (ret < 0) {
-            LOG(ERROR, "prefetching node %s failed: %d", node->name, ret);
+            LOG(ERROR, "prefetching node %s failed: %d", node->label, ret);
             return ret;
         }
     }
@@ -467,13 +467,13 @@ int ngli_node_update(struct ngl_node *node, double t)
     ngli_assert(node->state == STATE_READY);
     if (node->class->update) {
         if (node->last_update_time != t) {
-            TRACE("UPDATE %s @ %p with t=%g", node->name, node, t);
+            TRACE("UPDATE %s @ %p with t=%g", node->label, node, t);
             int ret = node->class->update(node, t);
             if (ret < 0)
                 return ret;
             node->last_update_time = t;
         } else {
-            TRACE("%s already updated for t=%g, skip it", node->name, t);
+            TRACE("%s already updated for t=%g, skip it", node->label, t);
         }
     }
 
@@ -483,7 +483,7 @@ int ngli_node_update(struct ngl_node *node, double t)
 void ngli_node_draw(struct ngl_node *node)
 {
     if (node->class->draw) {
-        TRACE("DRAW %s @ %p", node->name, node);
+        TRACE("DRAW %s @ %p", node->label, node);
         node->class->draw(node);
     }
 }
@@ -514,13 +514,13 @@ int ngl_node_param_add(struct ngl_node *node, const char *key,
         return -1;
 
     if (node->ctx && !(par->flags & PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
-        LOG(ERROR, "%s.%s can not be live extended", node->name, key);
+        LOG(ERROR, "%s.%s can not be live extended", node->label, key);
         return -1;
     }
 
     ret = ngli_params_add(base_ptr, par, nb_elems, elems);
     if (ret < 0) {
-        LOG(ERROR, "unable to add elements to %s.%s", node->name, key);
+        LOG(ERROR, "unable to add elements to %s.%s", node->label, key);
         return ret;
     }
 
@@ -541,7 +541,7 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
         return -1;
 
     if (node->ctx && !(par->flags & PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
-        LOG(ERROR, "%s.%s can not be live changed", node->name, key);
+        LOG(ERROR, "%s.%s can not be live changed", node->label, key);
         return -1;
     }
 
@@ -549,7 +549,7 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
     ret = ngli_params_set(base_ptr, par, &ap);
     va_end(ap);
     if (ret < 0) {
-        LOG(ERROR, "unable to set %s.%s", node->name, key);
+        LOG(ERROR, "unable to set %s.%s", node->label, key);
         return ret;
     }
 
@@ -574,7 +574,7 @@ void ngl_node_unrefp(struct ngl_node **nodep)
         return;
     delete = node->refcount-- == 1;
     if (delete) {
-        LOG(VERBOSE, "DELETE %s @ %p", node->name, node);
+        LOG(VERBOSE, "DELETE %s @ %p", node->label, node);
         ngli_assert(!node->ctx);
         ngli_params_free((uint8_t *)node, ngli_base_node_params);
         ngli_params_free(node->priv_data, node->class->params);

@@ -16,14 +16,14 @@ def queued_medias(cfg, overlap_time=1., dim=3):
             start = video_id * cfg.duration / nb_videos
             animkf = [ngl.AnimKeyFrameFloat(start, 0)]
             m = ngl.Media(cfg.medias[video_id % len(cfg.medias)].filename, time_anim=ngl.AnimatedFloat(animkf))
-            m.set_name('media #%d' % video_id)
+            m.set_label('media #%d' % video_id)
 
             corner = (-1. + x*qw, 1. - (y+1)*qh, 0)
             q = ngl.Quad(corner, (qw, 0, 0), (0, qh, 0))
             t = ngl.Texture2D(data_src=m)
 
             render = ngl.Render(q, p)
-            render.set_name('render #%d' % video_id)
+            render.set_label('render #%d' % video_id)
             render.update_textures(tex0=t)
 
             rf = ngl.TimeRangeFilter(render)
@@ -51,15 +51,15 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p = ngl.Program()
 
-    m1 = ngl.Media(cfg.medias[0].filename, name='media #1')
-    m2 = ngl.Media(cfg.medias[0].filename, name='media #2')
+    m1 = ngl.Media(cfg.medias[0].filename, label='media #1')
+    m2 = ngl.Media(cfg.medias[0].filename, label='media #2')
 
-    t1 = ngl.Texture2D(data_src=m1, name='texture #1')
-    t2 = ngl.Texture2D(data_src=m2, name='texture #2')
+    t1 = ngl.Texture2D(data_src=m1, label='texture #1')
+    t2 = ngl.Texture2D(data_src=m2, label='texture #2')
 
-    render1 = ngl.Render(q, p, name='render #1')
+    render1 = ngl.Render(q, p, label='render #1')
     render1.update_textures(tex0=t1)
-    render2 = ngl.Render(q, p, name='render #2')
+    render2 = ngl.Render(q, p, label='render #2')
     render2.update_textures(tex0=t2)
 
     rf1 = ngl.TimeRangeFilter(render1)
@@ -101,25 +101,25 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
     p = ngl.Program()
     p1_2 = ngl.Program(vertex=vertex, fragment=fragment)
 
-    m1 = ngl.Media(cfg.medias[0].filename, name='media #1')
-    m2 = ngl.Media(cfg.medias[1 % len(cfg.medias)].filename, name='media #2')
+    m1 = ngl.Media(cfg.medias[0].filename, label='media #1')
+    m2 = ngl.Media(cfg.medias[1 % len(cfg.medias)].filename, label='media #2')
 
     animkf_m2 = [ngl.AnimKeyFrameFloat(transition_start, 0)]
     m2.set_time_anim(ngl.AnimatedFloat(animkf_m2))
 
-    t1 = ngl.Texture2D(data_src=m1, name='texture #1')
-    t2 = ngl.Texture2D(data_src=m2, name='texture #2')
+    t1 = ngl.Texture2D(data_src=m1, label='texture #1')
+    t2 = ngl.Texture2D(data_src=m2, label='texture #2')
 
-    render1 = ngl.Render(q, p, name='render #1')
+    render1 = ngl.Render(q, p, label='render #1')
     render1.update_textures(tex0=t1)
-    render2 = ngl.Render(q, p, name='render #2')
+    render2 = ngl.Render(q, p, label='render #2')
     render2.update_textures(tex0=t2)
 
     delta_animkf = [ngl.AnimKeyFrameFloat(transition_start, 1.0),
                     ngl.AnimKeyFrameFloat(transition_start + transition_duration, 0.0)]
     delta = ngl.UniformFloat(value=1.0, anim=ngl.AnimatedFloat(delta_animkf))
 
-    render1_2 = ngl.Render(q, p1_2, name='transition')
+    render1_2 = ngl.Render(q, p1_2, label='transition')
     render1_2.update_textures(tex0=t1, tex1=t2)
     render1_2.update_uniforms(delta=delta)
 

@@ -141,7 +141,7 @@ def query_inplace(**idict):
         odict = func(idict, **idict.get('extra_args', {}))
         scene = odict['scene']
         del odict['scene']
-        scene.set_name(scene_name)
+        scene.set_label(scene_name)
 
         # Make extra adjustments to the scene according to user options
         if idict.get('enable_hud'):

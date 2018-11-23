@@ -157,7 +157,7 @@ static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
         return 0;
     }
 
-    LOG(DEBUG, "prepare scene %s @ t=%f", scene->name, t);
+    LOG(DEBUG, "prepare scene %s @ t=%f", scene->label, t);
 
     s->activitycheck_nodes.count = 0;
     int ret = ngli_node_visit(scene, 1, t);
@@ -185,7 +185,7 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
         goto end;
 
     if (s->scene) {
-        LOG(DEBUG, "draw scene %s @ t=%f", s->scene->name, t);
+        LOG(DEBUG, "draw scene %s @ t=%f", s->scene->label, t);
         ngli_node_draw(s->scene);
     }
 end:

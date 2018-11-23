@@ -44,7 +44,7 @@ const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
             }
             default:
                 LOG(ERROR, "%s (%s) is not an allowed type for a camera transformation",
-                    node->name, node->class->name);
+                    node->label, node->class->name);
                 break;
         }
     }

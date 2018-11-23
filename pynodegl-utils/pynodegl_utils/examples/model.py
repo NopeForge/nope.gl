@@ -88,7 +88,7 @@ def obj(cfg, n=0.5, model=None):
 
     animkf = [ngl.AnimKeyFrameFloat(0, 0),
               ngl.AnimKeyFrameFloat(cfg.duration, 360*2)]
-    rot = ngl.Rotate(render, name='roty', axis=(0, 1, 0), anim=ngl.AnimatedFloat(animkf))
+    rot = ngl.Rotate(render, label='roty', axis=(0, 1, 0), anim=ngl.AnimatedFloat(animkf))
 
     camera = ngl.Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)
@@ -111,14 +111,14 @@ def stl(cfg, stl=None, scale=.8):
 
     normals_data  = array.array('f')
     vertices_data = array.array('f')
-    solid_name = None
+    solid_label = None
     normal = None
 
     with open(stl) as fp:
         for line in fp.readlines():
             line = line.strip()
             if line.startswith('solid'):
-                solid_name = line.split(None, 1)[1]
+                solid_label = line.split(None, 1)[1]
             elif line.startswith('facet normal'):
                 _, _, normal = line.split(None, 2)
                 normal = [float(f) for f in normal.split()]
@@ -133,7 +133,7 @@ def stl(cfg, stl=None, scale=.8):
 
     g = ngl.Geometry(vertices=vertices, normals=normals)
     p = ngl.Program(fragment=get_frag('colored-normals'))
-    solid = ngl.Render(g, p, name=solid_name)
+    solid = ngl.Render(g, p, label=solid_label)
     solid = ngl.GraphicConfig(solid, depth_test=True)
 
     solid = ngl.Scale(solid, [scale] * 3)
