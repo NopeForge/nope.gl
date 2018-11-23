@@ -34,11 +34,8 @@ struct egl_priv {
     EGLNativeDisplayType native_display;
     EGLNativeWindowType native_window;
     EGLDisplay display;
-    int own_display;
     EGLSurface surface;
-    int own_surface;
     EGLContext handle;
-    int own_handle;
     EGLConfig config;
     EGLBoolean (*PresentationTimeANDROID)(EGLDisplay dpy, EGLSurface sur, khronos_stime_nanoseconds_t time);
     EGLDisplay (*GetPlatformDisplay)(EGLenum platform, void *native_display, const EGLint *attrib_list);
@@ -132,7 +129,6 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
         return -1;
     }
-    egl->own_display = 1;
 
     if (egl_major < 1 || egl_minor < 4) {
         LOG(ERROR, "unsupported EGL version %d.%d, only 1.4+ is supported", egl_major, egl_minor);
@@ -199,7 +195,6 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         LOG(ERROR, "could not create EGL context: 0x%x", eglGetError());
         return -1;
     }
-    egl->own_handle = 1;
 
     if (ctx->offscreen) {
         const EGLint attribs[] = {
@@ -219,7 +214,6 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
         }
     }
-    egl->own_surface = 1;
 
     ret = egl_probe_android_presentation_time_ext(egl);
     if (ret < 0)
@@ -234,13 +228,13 @@ static void egl_uninit(struct glcontext *ctx)
 
     ngli_glcontext_make_current(ctx, 0);
 
-    if (egl->own_surface)
+    if (egl->surface)
         eglDestroySurface(egl->display, egl->surface);
 
-    if (egl->own_handle)
+    if (egl->handle)
         eglDestroyContext(egl->display, egl->handle);
 
-    if (egl->own_display)
+    if (egl->display)
         eglTerminate(egl->display);
 }
 
