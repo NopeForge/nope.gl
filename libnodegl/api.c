@@ -270,6 +270,15 @@ static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
 }
 #endif
 
+static void stop_thread(struct ngl_ctx *s)
+{
+    dispatch_cmd(s, cmd_stop, NULL);
+    pthread_join(s->worker_tid, NULL);
+    pthread_cond_destroy(&s->cond_ctl);
+    pthread_cond_destroy(&s->cond_wkr);
+    pthread_mutex_destroy(&s->lock);
+}
+
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (!config) {
@@ -300,8 +309,10 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 #else
     ret = dispatch_cmd(s, cmd_configure, config);
 #endif
-    if (ret < 0)
+    if (ret < 0) {
+        stop_thread(s);
         return ret;
+    }
 
     s->configured = 1;
     return 0;
@@ -346,11 +357,7 @@ void ngl_freep(struct ngl_ctx **ss)
 
     if (s->configured) {
         ngl_set_scene(s, NULL);
-        dispatch_cmd(s, cmd_stop, NULL);
-        pthread_join(s->worker_tid, NULL);
-        pthread_cond_destroy(&s->cond_ctl);
-        pthread_cond_destroy(&s->cond_wkr);
-        pthread_mutex_destroy(&s->lock);
+        stop_thread(s);
     }
     ngli_darray_reset(&s->modelview_matrix_stack);
     ngli_darray_reset(&s->projection_matrix_stack);
