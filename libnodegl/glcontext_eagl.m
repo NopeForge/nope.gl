@@ -48,6 +48,8 @@ struct eagl_priv {
     void (*BlitFramebuffer)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 };
 
+static int eagl_create(struct glcontext *ctx, uintptr_t other);
+
 static int eagl_setup_layer(struct glcontext *ctx)
 {
     if (![NSThread isMainThread]) {
@@ -114,7 +116,7 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             return ret;
     }
 
-    return 0;
+    return eagl_create(ctx, handle);
 }
 
 static void eagl_uninit(struct glcontext *ctx)
@@ -418,7 +420,6 @@ static void *eagl_get_proc_address(struct glcontext *ctx, const char *name)
 const struct glcontext_class ngli_glcontext_eagl_class = {
     .init = eagl_init,
     .uninit = eagl_uninit,
-    .create = eagl_create,
     .resize = eagl_resize,
     .make_current = eagl_make_current,
     .swap_buffers = eagl_swap_buffers,

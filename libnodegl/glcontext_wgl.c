@@ -48,7 +48,7 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     if (!wgl->module)
         return -1;
 
-    return 0;
+    return -1;
 }
 
 static void wgl_uninit(struct glcontext *ctx)
@@ -57,11 +57,6 @@ static void wgl_uninit(struct glcontext *ctx)
 
     if (wgl->module)
         FreeLibrary(wgl->module);
-}
-
-static int wgl_create(struct glcontext *ctx, uintptr_t other)
-{
-    return -1;
 }
 
 static int wgl_make_current(struct glcontext *ctx, int current)
@@ -92,7 +87,6 @@ static void *wgl_get_proc_address(struct glcontext *ctx, const char *name)
 const struct glcontext_class ngli_glcontext_wgl_class = {
     .init = wgl_init,
     .uninit = wgl_uninit,
-    .create = wgl_create,
     .make_current = wgl_make_current,
     .get_proc_address = wgl_get_proc_address,
     .priv_size = sizeof(struct wgl_priv),

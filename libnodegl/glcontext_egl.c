@@ -87,6 +87,8 @@ static int egl_probe_platform_x11_ext(struct egl_priv *egl)
 }
 #endif
 
+static int egl_create(struct glcontext *ctx, uintptr_t other);
+
 static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
     struct egl_priv *egl = ctx->priv_data;
@@ -103,7 +105,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         }
     }
 
-    return 0;
+    return egl_create(ctx, handle);
 }
 
 static void egl_uninit(struct glcontext *ctx)
@@ -300,7 +302,6 @@ static void *egl_get_proc_address(struct glcontext *ctx, const char *name)
 const struct glcontext_class ngli_glcontext_egl_class = {
     .init = egl_init,
     .uninit = egl_uninit,
-    .create = egl_create,
     .make_current = egl_make_current,
     .swap_buffers = egl_swap_buffers,
     .set_swap_interval = egl_set_swap_interval,

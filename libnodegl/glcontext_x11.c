@@ -46,6 +46,7 @@ struct x11_priv {
     int (*SwapIntervalSGI)(int);
 };
 
+static int x11_create(struct glcontext *ctx, uintptr_t other);
 
 static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
@@ -100,7 +101,7 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         return -1;
     }
 
-    return 0;
+    return x11_create(ctx, handle);
 }
 
 static void x11_uninit(struct glcontext *ctx)
@@ -261,7 +262,6 @@ static void *x11_get_proc_address(struct glcontext *ctx, const char *name)
 const struct glcontext_class ngli_glcontext_x11_class = {
     .init = x11_init,
     .uninit = x11_uninit,
-    .create = x11_create,
     .make_current = x11_make_current,
     .swap_buffers = x11_swap_buffers,
     .set_swap_interval = x11_set_swap_interval,

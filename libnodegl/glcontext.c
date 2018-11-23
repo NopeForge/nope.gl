@@ -172,13 +172,7 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     }
 
     if (glcontext->class->init) {
-        int ret = glcontext->class->init(glcontext, config->display, config->window, 0);
-        if (ret < 0)
-            goto fail;
-    }
-
-    if (glcontext->class->create) {
-        int ret = glcontext->class->create(glcontext, config->handle);
+        int ret = glcontext->class->init(glcontext, config->display, config->window, config->handle);
         if (ret < 0)
             goto fail;
     }

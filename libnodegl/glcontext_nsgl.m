@@ -40,6 +40,8 @@ struct nsgl_priv {
     GLuint depthbuffer;
 };
 
+static int nsgl_create(struct glcontext *ctx, uintptr_t other);
+
 static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
@@ -65,7 +67,7 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         return -1;
     }
 
-    return 0;
+    return nsgl_create(ctx, handle);
 }
 
 static int nsgl_create(struct glcontext *ctx, uintptr_t other)
@@ -227,7 +229,6 @@ static void nsgl_uninit(struct glcontext *ctx)
 
 const struct glcontext_class ngli_glcontext_nsgl_class = {
     .init = nsgl_init,
-    .create = nsgl_create,
     .uninit = nsgl_uninit,
     .resize = nsgl_resize,
     .make_current = nsgl_make_current,
