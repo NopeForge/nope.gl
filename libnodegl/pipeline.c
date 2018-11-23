@@ -139,7 +139,7 @@ static int update_sampler(const struct glcontext *gl,
                 int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->sampler_id);
                 if (ret < 0)
                     return ret;
-                *sampling_mode = NGLI_SAMPLING_MODE_2D;
+                *sampling_mode = NGLI_SAMPLING_MODE_DEFAULT;
             }
             samplers[0].bound = 1;
         }

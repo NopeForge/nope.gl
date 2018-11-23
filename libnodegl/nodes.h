@@ -346,7 +346,7 @@ struct bufferprograminfo {
 };
 
 #define NGLI_SAMPLING_MODE_NONE         0
-#define NGLI_SAMPLING_MODE_2D           1
+#define NGLI_SAMPLING_MODE_DEFAULT      1
 #define NGLI_SAMPLING_MODE_EXTERNAL_OES 2
 #define NGLI_SAMPLING_MODE_NV12         3
 
