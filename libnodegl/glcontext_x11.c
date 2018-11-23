@@ -46,9 +46,7 @@ struct x11_priv {
     int (*SwapIntervalSGI)(int);
 };
 
-static int x11_create(struct glcontext *ctx, uintptr_t other);
-
-static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
+static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
 {
     struct x11_priv *x11 = ctx->priv_data;
 
@@ -101,41 +99,16 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         return -1;
     }
 
-    return x11_create(ctx, handle);
-}
-
-static void x11_uninit(struct glcontext *ctx)
-{
-    struct x11_priv *x11 = ctx->priv_data;
-
-    if (x11->fbconfigs)
-        XFree(x11->fbconfigs);
-
-    if (x11->own_handle)
-        glXDestroyContext(x11->display, x11->handle);
-
-    if (x11->own_window)
-        glXDestroyPbuffer(x11->display, x11->window);
-
-    if (x11->own_display)
-        XCloseDisplay(x11->display);
-}
-
-static int x11_create(struct glcontext *ctx, uintptr_t other)
-{
-    struct x11_priv *x11 = ctx->priv_data;
-
     x11->CreateContextAttribs = (void *)glXGetProcAddress((const GLubyte *)"glXCreateContextAttribsARB");
     if (!x11->CreateContextAttribs) {
         LOG(ERROR, "could not retrieve glXCreateContextAttribsARB()");
         return -1;
     }
 
-    Display *display = x11->display;
-    int screen = DefaultScreen(display);
+    int screen = DefaultScreen(x11->display);
     GLXFBConfig *fbconfigs = x11->fbconfigs;
 
-    const char *glx_extensions = glXQueryExtensionsString(display, screen);
+    const char *glx_extensions = glXQueryExtensionsString(x11->display, screen);
     if (!ngli_glcontext_check_extension("GLX_ARB_create_context", glx_extensions)) {
         LOG(ERROR, "context does not support GLX_ARB_create_context extension");
         return -1;
@@ -157,7 +130,7 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
             None
         };
 
-        x11->handle = x11->CreateContextAttribs(display,
+        x11->handle = x11->CreateContextAttribs(x11->display,
                                                 fbconfigs[0],
                                                 shared_context,
                                                 1,
@@ -170,7 +143,7 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
             None
         };
 
-        x11->handle = x11->CreateContextAttribs(display,
+        x11->handle = x11->CreateContextAttribs(x11->display,
                                                 fbconfigs[0],
                                                 shared_context,
                                                 1,
@@ -190,7 +163,7 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
             None
         };
 
-        x11->window = glXCreatePbuffer(display, fbconfigs[0], attribs);
+        x11->window = glXCreatePbuffer(x11->display, fbconfigs[0], attribs);
         if (!x11->window) {
             LOG(ERROR, "could not create offscreen pixel buffer");
             return -1;
@@ -215,6 +188,23 @@ static int x11_create(struct glcontext *ctx, uintptr_t other)
     }
 
     return 0;
+}
+
+static void x11_uninit(struct glcontext *ctx)
+{
+    struct x11_priv *x11 = ctx->priv_data;
+
+    if (x11->fbconfigs)
+        XFree(x11->fbconfigs);
+
+    if (x11->own_handle)
+        glXDestroyContext(x11->display, x11->handle);
+
+    if (x11->own_window)
+        glXDestroyPbuffer(x11->display, x11->window);
+
+    if (x11->own_display)
+        XCloseDisplay(x11->display);
 }
 
 static int x11_make_current(struct glcontext *ctx, int current)
