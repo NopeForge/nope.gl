@@ -40,9 +40,7 @@ struct nsgl_priv {
     GLuint depthbuffer;
 };
 
-static int nsgl_create(struct glcontext *ctx, uintptr_t other);
-
-static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
+static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
 
@@ -66,13 +64,6 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         LOG(ERROR, "could not retain OpenGL framework object");
         return -1;
     }
-
-    return nsgl_create(ctx, handle);
-}
-
-static int nsgl_create(struct glcontext *ctx, uintptr_t other)
-{
-    struct nsgl_priv *nsgl = ctx->priv_data;
 
     NSOpenGLPixelFormatAttribute pixelAttrs[] = {
         NSOpenGLPFAAccelerated,
