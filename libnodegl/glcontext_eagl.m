@@ -48,8 +48,6 @@ struct eagl_priv {
     void (*BlitFramebuffer)(GLint srcX0, GLint srcY0, GLint srcX1, GLint srcY1, GLint dstX0, GLint dstY0, GLint dstX1, GLint dstY1, GLbitfield mask, GLenum filter);
 };
 
-static int eagl_create(struct glcontext *ctx, uintptr_t other);
-
 static int eagl_setup_layer(struct glcontext *ctx)
 {
     if (![NSThread isMainThread]) {
@@ -80,72 +78,6 @@ static int eagl_setup_layer(struct glcontext *ctx)
     [eagl->layer setDrawableProperties:properties];
 
     return 0;
-}
-
-static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
-{
-    struct eagl_priv *eagl = ctx->priv_data;
-
-    CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
-    if (!framework) {
-        LOG(ERROR, "could not retrieve OpenGLES framework");
-        return -1;
-    }
-
-    eagl->framework = (CFBundleRef)CFRetain(framework);
-    if (!eagl->framework) {
-        LOG(ERROR, "could not retain OpenGL framework object");
-        return -1;
-    }
-
-    if (ctx->offscreen) {
-        if (window) {
-            CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)window;
-            eagl->pixel_buffer = (CVPixelBufferRef)CFRetain(pixel_buffer);
-        }
-    } else {
-        if (window)
-            eagl->view = (UIView *)window;
-        if (!eagl->view) {
-            LOG(ERROR, "could not retrieve UI view");
-            return -1;
-        }
-
-        int ret = eagl_setup_layer(ctx);
-        if (ret < 0)
-            return ret;
-    }
-
-    return eagl_create(ctx, handle);
-}
-
-static void eagl_uninit(struct glcontext *ctx)
-{
-    struct eagl_priv *eagl = ctx->priv_data;
-
-    if (eagl->framebuffer > 0)
-        glDeleteFramebuffers(1, &eagl->framebuffer);
-
-    if (eagl->colorbuffer > 0)
-        glDeleteRenderbuffers(1, &eagl->colorbuffer);
-
-    if (eagl->depthbuffer > 0)
-        glDeleteRenderbuffers(1, &eagl->depthbuffer);
-
-    if (eagl->framework)
-        CFRelease(eagl->framework);
-
-    if (eagl->pixel_buffer)
-        CFRelease(eagl->pixel_buffer);
-
-    if (eagl->texture)
-        CFRelease(eagl->texture);
-
-    if (eagl->texture_cache)
-        CFRelease(eagl->texture_cache);
-
-    if (eagl->handle)
-        CFRelease(eagl->handle);
 }
 
 static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)
@@ -280,9 +212,39 @@ static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)
     return 0;
 }
 
-static int eagl_create(struct glcontext *ctx, uintptr_t other)
+static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
 {
     struct eagl_priv *eagl = ctx->priv_data;
+
+    CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
+    if (!framework) {
+        LOG(ERROR, "could not retrieve OpenGLES framework");
+        return -1;
+    }
+
+    eagl->framework = (CFBundleRef)CFRetain(framework);
+    if (!eagl->framework) {
+        LOG(ERROR, "could not retain OpenGL framework object");
+        return -1;
+    }
+
+    if (ctx->offscreen) {
+        if (window) {
+            CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)window;
+            eagl->pixel_buffer = (CVPixelBufferRef)CFRetain(pixel_buffer);
+        }
+    } else {
+        if (window)
+            eagl->view = (UIView *)window;
+        if (!eagl->view) {
+            LOG(ERROR, "could not retrieve UI view");
+            return -1;
+        }
+
+        int ret = eagl_setup_layer(ctx);
+        if (ret < 0)
+            return ret;
+    }
 
     int ret = eagl_safe_create(ctx, other);
     if (ret < 0)
@@ -297,6 +259,35 @@ static int eagl_create(struct glcontext *ctx, uintptr_t other)
     glViewport(0, 0, eagl->width, eagl->height);
 
     return 0;
+}
+
+static void eagl_uninit(struct glcontext *ctx)
+{
+    struct eagl_priv *eagl = ctx->priv_data;
+
+    if (eagl->framebuffer > 0)
+        glDeleteFramebuffers(1, &eagl->framebuffer);
+
+    if (eagl->colorbuffer > 0)
+        glDeleteRenderbuffers(1, &eagl->colorbuffer);
+
+    if (eagl->depthbuffer > 0)
+        glDeleteRenderbuffers(1, &eagl->depthbuffer);
+
+    if (eagl->framework)
+        CFRelease(eagl->framework);
+
+    if (eagl->pixel_buffer)
+        CFRelease(eagl->pixel_buffer);
+
+    if (eagl->texture)
+        CFRelease(eagl->texture);
+
+    if (eagl->texture_cache)
+        CFRelease(eagl->texture_cache);
+
+    if (eagl->handle)
+        CFRelease(eagl->handle);
 }
 
 static int eagl_safe_resize(struct glcontext *ctx, int width, int height)
