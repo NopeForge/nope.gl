@@ -40,71 +40,6 @@
     }                            \
 } while (0)
 
-#if defined(TARGET_DARWIN)
-static int vt_get_data_format(struct sxplayer_frame *frame)
-{
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
-    OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
-
-    switch (cvformat) {
-    case kCVPixelFormatType_32BGRA:
-        return NGLI_FORMAT_B8G8R8A8_UNORM;
-    case kCVPixelFormatType_32RGBA:
-        return NGLI_FORMAT_R8G8B8A8_UNORM;
-    default:
-        return -1;
-    }
-}
-
-static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
-    struct texture *s = node->priv_data;
-
-    s->data_format = vt_get_data_format(frame);
-    if (s->data_format < 0)
-        return -1;
-
-    return ngli_format_get_gl_format_type(gl,
-                                          s->data_format,
-                                          &s->format,
-                                          &s->internal_format,
-                                          &s->type);
-}
-
-static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    struct texture *s = node->priv_data;
-
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
-    CVPixelBufferLockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
-
-    uint8_t *data = CVPixelBufferGetBaseAddress(cvpixbuf);
-    const int width = CVPixelBufferGetWidth(cvpixbuf);
-    const int height = CVPixelBufferGetHeight(cvpixbuf);
-    const int linesize = CVPixelBufferGetBytesPerRow(cvpixbuf) >> 2;
-    s->coordinates_matrix[0] = linesize ? width / (float)linesize : 1.0;
-
-    ngli_texture_update_local_texture(node, linesize, height, 0, data);
-
-    CVPixelBufferUnlockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
-
-    return 0;
-}
-
-static const struct hwmap_class hwmap_vt_darwin_class = {
-    .name      = "videotoolbox (copy)",
-    .init      = vt_darwin_init,
-    .map_frame = vt_darwin_map_frame,
-};
-
-static const struct hwmap_class *vt_darwin_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    return &hwmap_vt_darwin_class;
-}
-#elif defined(TARGET_IPHONE)
 struct hwupload_vt_ios {
     struct ngl_node *quad;
     struct ngl_node *program;
@@ -640,12 +575,7 @@ static const struct hwmap_class *vt_ios_get_hwmap(struct ngl_node *node, struct 
         return NULL;
     }
 }
-#endif
 
-const struct hwupload_class ngli_hwupload_vt_class = {
-#if defined(TARGET_DARWIN)
-    .get_hwmap = vt_darwin_get_hwmap,
-#else
+const struct hwupload_class ngli_hwupload_vt_ios_class = {
     .get_hwmap = vt_ios_get_hwmap,
-#endif
 };
