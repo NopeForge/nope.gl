@@ -87,43 +87,6 @@ static int egl_probe_platform_x11_ext(struct egl_priv *egl)
 }
 #endif
 
-static int egl_create(struct glcontext *ctx, uintptr_t other);
-
-static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t handle)
-{
-    struct egl_priv *egl = ctx->priv_data;
-
-    egl->native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
-
-    if (!ctx->offscreen) {
-        if (window) {
-            egl->native_window = (EGLNativeWindowType)window;
-            if (!egl->native_window) {
-                LOG(ERROR, "could not retrieve EGL native window");
-                return -1;
-            }
-        }
-    }
-
-    return egl_create(ctx, handle);
-}
-
-static void egl_uninit(struct glcontext *ctx)
-{
-    struct egl_priv *egl = ctx->priv_data;
-
-    ngli_glcontext_make_current(ctx, 0);
-
-    if (egl->own_surface)
-        eglDestroySurface(egl->display, egl->surface);
-
-    if (egl->own_handle)
-        eglDestroyContext(egl->display, egl->handle);
-
-    if (egl->own_display)
-        eglTerminate(egl->display);
-}
-
 static EGLDisplay egl_get_display(struct egl_priv *egl)
 {
 #if defined(TARGET_ANDROID)
@@ -139,11 +102,23 @@ static EGLDisplay egl_get_display(struct egl_priv *egl)
 #endif
 }
 
-static int egl_create(struct glcontext *ctx, uintptr_t other)
+static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
 {
-    int ret;
     struct egl_priv *egl = ctx->priv_data;
 
+    egl->native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
+
+    if (!ctx->offscreen) {
+        if (window) {
+            egl->native_window = (EGLNativeWindowType)window;
+            if (!egl->native_window) {
+                LOG(ERROR, "could not retrieve EGL native window");
+                return -1;
+            }
+        }
+    }
+
+    int ret;
     egl->display = egl_get_display(egl);
     if (!egl->display) {
         LOG(ERROR, "could not retrieve EGL display");
@@ -251,6 +226,22 @@ static int egl_create(struct glcontext *ctx, uintptr_t other)
         return ret;
 
     return 0;
+}
+
+static void egl_uninit(struct glcontext *ctx)
+{
+    struct egl_priv *egl = ctx->priv_data;
+
+    ngli_glcontext_make_current(ctx, 0);
+
+    if (egl->own_surface)
+        eglDestroySurface(egl->display, egl->surface);
+
+    if (egl->own_handle)
+        eglDestroyContext(egl->display, egl->handle);
+
+    if (egl->own_display)
+        eglTerminate(egl->display);
 }
 
 static int egl_make_current(struct glcontext *ctx, int current)
