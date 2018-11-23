@@ -34,7 +34,6 @@ struct x11_priv {
     Window window;
     int own_window;
     GLXContext handle;
-    int own_handle;
     GLXFBConfig *fbconfigs;
     int nb_fbconfigs;
     GLXContext (*CreateContextAttribs)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
@@ -149,7 +148,6 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
                                                 1,
                                                 attribs);
     }
-    x11->own_handle = 1;
 
     if (!x11->handle) {
         LOG(ERROR, "could not create GLX context");
@@ -197,7 +195,7 @@ static void x11_uninit(struct glcontext *ctx)
     if (x11->fbconfigs)
         XFree(x11->fbconfigs);
 
-    if (x11->own_handle)
+    if (x11->handle)
         glXDestroyContext(x11->display, x11->handle);
 
     if (x11->own_window)
