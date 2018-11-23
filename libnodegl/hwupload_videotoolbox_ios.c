@@ -203,7 +203,9 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (!vt->rtt)
         return -1;
 
-    ngli_node_attach_ctx(vt->rtt, node->ctx);
+    ret = ngli_node_attach_ctx(vt->rtt, node->ctx);
+    if (ret < 0)
+        return ret;
 
     return 0;
 }

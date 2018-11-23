@@ -144,7 +144,9 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (!mc->rtt)
         return -1;
 
-    ngli_node_attach_ctx(mc->rtt, node->ctx);
+    ret = ngli_node_attach_ctx(mc->rtt, node->ctx);
+    if (ret < 0)
+        return ret;
 
     return 0;
 }
