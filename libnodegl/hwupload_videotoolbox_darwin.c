@@ -79,7 +79,7 @@ static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     const int linesize = CVPixelBufferGetBytesPerRow(cvpixbuf) >> 2;
     s->coordinates_matrix[0] = linesize ? width / (float)linesize : 1.0;
 
-    ngli_texture_update_local_texture(node, linesize, height, 0, data);
+    ngli_texture_update_data(node, linesize, height, 0, data);
 
     CVPixelBufferUnlockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);
 

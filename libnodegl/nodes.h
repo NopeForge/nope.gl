@@ -323,9 +323,9 @@ struct texture {
     double data_src_ts;
 };
 
-int ngli_texture_update_local_texture(struct ngl_node *node,
-                                      int width, int height, int depth,
-                                      const uint8_t *data);
+int ngli_texture_update_data(struct ngl_node *node,
+                             int width, int height, int depth,
+                             const uint8_t *data);
 
 struct uniformprograminfo {
     GLint id;

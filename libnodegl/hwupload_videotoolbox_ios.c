@@ -95,7 +95,7 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     int frame_width = CVPixelBufferGetWidth(cvpixbuf);
     int frame_height = CVPixelBufferGetHeight(cvpixbuf);
 
-    ret = ngli_texture_update_local_texture(node, frame_width, frame_height, 0, NULL);
+    ret = ngli_texture_update_data(node, frame_width, frame_height, 0, NULL);
     if (ret < 0)
         return ret;
 
@@ -247,7 +247,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     int height               = CVPixelBufferGetHeight(cvpixbuf);
     s->coordinates_matrix[0] = 1.0;
 
-    int ret = ngli_texture_update_local_texture(node, width, height, 0, NULL);
+    int ret = ngli_texture_update_data(node, width, height, 0, NULL);
     if (ret < 0)
         return ret;
 
