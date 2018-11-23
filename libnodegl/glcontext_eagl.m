@@ -80,13 +80,13 @@ static int eagl_setup_layer(struct glcontext *ctx)
     return 0;
 }
 
-static int eagl_safe_create(struct glcontext *ctx, uintptr_t other)
+static int eagl_setup_context(struct glcontext *ctx, uintptr_t other)
 {
     if (![NSThread isMainThread]) {
         __block int ret;
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            ret = eagl_safe_create(ctx, other);
+            ret = eagl_setup_context(ctx, other);
         });
 
         return ret;
@@ -246,7 +246,7 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             return ret;
     }
 
-    int ret = eagl_safe_create(ctx, other);
+    int ret = eagl_setup_context(ctx, other);
     if (ret < 0)
         return ret;
 
