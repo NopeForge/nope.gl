@@ -142,15 +142,14 @@ int main(int argc, char *argv[])
     printf("%s -> %s %dx%d\n", input, output ? output : "-", width, height);
 
     if (show_window) {
-        // TODO: reindent
-    if (init_glfw() < 0)
-        return EXIT_FAILURE;
+        if (init_glfw() < 0)
+            return EXIT_FAILURE;
 
-    window = get_window("ngl-render", width, height);
-    if (!window) {
-        glfwTerminate();
-        return EXIT_FAILURE;
-    }
+        window = get_window("ngl-render", width, height);
+        if (!window) {
+            glfwTerminate();
+            return EXIT_FAILURE;
+        }
     }
 
     int fd = -1;
@@ -192,13 +191,12 @@ int main(int argc, char *argv[])
         .offscreen = !show_window,
     };
     if (show_window) {
-        // TODO: reindent
-    ret = wsi_set_ngl_config(&config, window);
-    if (ret < 0) {
-        ngl_node_unrefp(&scene);
-        return ret;
-    }
-    config.swap_interval = swap_interval;
+        ret = wsi_set_ngl_config(&config, window);
+        if (ret < 0) {
+            ngl_node_unrefp(&scene);
+            return ret;
+        }
+        config.swap_interval = swap_interval;
     }
 
     ret = ngl_configure(ctx, &config);
