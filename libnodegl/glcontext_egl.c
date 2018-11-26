@@ -102,7 +102,6 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     struct egl_priv *egl = ctx->priv_data;
     EGLNativeDisplayType native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
 
-    int ret;
     egl->display = egl_get_display(egl, native_display);
     if (!egl->display) {
         LOG(ERROR, "could not retrieve EGL display");
@@ -111,7 +110,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     EGLint egl_minor;
     EGLint egl_major;
-    ret = eglInitialize(egl->display, &egl_major, &egl_minor);
+    int ret = eglInitialize(egl->display, &egl_major, &egl_minor);
     if (!ret) {
         LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
         return -1;
