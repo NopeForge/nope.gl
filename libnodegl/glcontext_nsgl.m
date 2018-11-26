@@ -124,8 +124,7 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 
         glViewport(0, 0, ctx->width, ctx->height);
     } else {
-        if (window)
-            nsgl->view = (NSView *)window;
+        nsgl->view = (NSView *)window;
         if (!nsgl->view) {
             LOG(ERROR, "could not retrieve NS view");
             return -1;
