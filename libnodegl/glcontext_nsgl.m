@@ -44,15 +44,6 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
 
-    if (!ctx->offscreen) {
-        if (window)
-            nsgl->view = (NSView *)window;
-        if (!nsgl->view) {
-            LOG(ERROR, "could not retrieve NS view");
-            return -1;
-        }
-    }
-
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
     if (!framework) {
         LOG(ERROR, "could not retrieve OpenGL framework");
@@ -133,6 +124,12 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 
         glViewport(0, 0, ctx->width, ctx->height);
     } else {
+        if (window)
+            nsgl->view = (NSView *)window;
+        if (!nsgl->view) {
+            LOG(ERROR, "could not retrieve NS view");
+            return -1;
+        }
         [nsgl->handle setView:nsgl->view];
     }
 
