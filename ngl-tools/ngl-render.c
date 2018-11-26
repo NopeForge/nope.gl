@@ -79,6 +79,7 @@ int main(int argc, char *argv[])
     int show_window = 0;
     int swap_interval = 0;
     int debug = 0;
+    GLFWwindow *window = NULL;
 
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-d")) {
@@ -140,17 +141,17 @@ int main(int argc, char *argv[])
 
     printf("%s -> %s %dx%d\n", input, output ? output : "-", width, height);
 
+    if (show_window) {
+        // TODO: reindent
     if (init_glfw() < 0)
         return EXIT_FAILURE;
 
-    GLFWwindow *window = get_window("ngl-render", width, height);
+    window = get_window("ngl-render", width, height);
     if (!window) {
         glfwTerminate();
         return EXIT_FAILURE;
     }
-
-    if (!show_window)
-        glfwHideWindow(window);
+    }
 
     int fd = -1;
     struct ngl_ctx *ctx = NULL;
@@ -188,13 +189,17 @@ int main(int argc, char *argv[])
         .width = width,
         .height = height,
         .viewport = {0, 0, width, height},
+        .offscreen = !show_window,
     };
+    if (show_window) {
+        // TODO: reindent
     ret = wsi_set_ngl_config(&config, window);
     if (ret < 0) {
         ngl_node_unrefp(&scene);
         return ret;
     }
     config.swap_interval = swap_interval;
+    }
 
     ret = ngl_configure(ctx, &config);
     if (ret < 0) {
@@ -227,7 +232,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Unable to draw @ t=%g\n", t);
                 goto end;
             }
-            glfwPollEvents();
+            if (show_window)
+                glfwPollEvents();
             k++;
         }
 
@@ -241,8 +247,10 @@ end:
     if (fd != -1)
         close(fd);
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
+    if (show_window) {
+        glfwDestroyWindow(window);
+        glfwTerminate();
+    }
 
     return ret;
 }
