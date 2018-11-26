@@ -234,8 +234,7 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             eagl->pixel_buffer = (CVPixelBufferRef)CFRetain(pixel_buffer);
         }
     } else {
-        if (window)
-            eagl->view = (UIView *)window;
+        eagl->view = (UIView *)window;
         if (!eagl->view) {
             LOG(ERROR, "could not retrieve UI view");
             return -1;
