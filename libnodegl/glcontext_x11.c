@@ -157,12 +157,10 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         }
         x11->own_window = 1;
     } else {
-        if (window) {
-            x11->window = (Window)window;
-            if (!x11->window) {
-                LOG(ERROR, "could not retrieve GLX window");
-                return -1;
-            }
+        x11->window = (Window)window;
+        if (!x11->window) {
+            LOG(ERROR, "could not retrieve GLX window");
+            return -1;
         }
     }
 
