@@ -105,16 +105,6 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     egl->native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
 
-    if (!ctx->offscreen) {
-        if (window) {
-            egl->native_window = (EGLNativeWindowType)window;
-            if (!egl->native_window) {
-                LOG(ERROR, "could not retrieve EGL native window");
-                return -1;
-            }
-        }
-    }
-
     int ret;
     egl->display = egl_get_display(egl);
     if (!egl->display) {
@@ -209,6 +199,13 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             return -1;
         }
     } else {
+        if (window) {
+            egl->native_window = (EGLNativeWindowType)window;
+            if (!egl->native_window) {
+                LOG(ERROR, "could not retrieve EGL native window");
+                return -1;
+            }
+        }
         egl->surface = eglCreateWindowSurface(egl->display, config, egl->native_window, NULL);
         if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
