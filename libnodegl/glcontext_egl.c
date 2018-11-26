@@ -31,8 +31,6 @@
 #define EGL_PLATFORM_X11 0x31D5
 
 struct egl_priv {
-    EGLNativeDisplayType native_display;
-    EGLNativeWindowType native_window;
     EGLDisplay display;
     EGLSurface surface;
     EGLContext handle;
@@ -84,16 +82,16 @@ static int egl_probe_platform_x11_ext(struct egl_priv *egl)
 }
 #endif
 
-static EGLDisplay egl_get_display(struct egl_priv *egl)
+static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType native_display)
 {
 #if defined(TARGET_ANDROID)
-    return eglGetDisplay(egl->native_display);
+    return eglGetDisplay(native_display);
 #elif defined(TARGET_LINUX)
     /* XXX: only X11 is supported for now */
     int ret = egl_probe_platform_x11_ext(egl);
     if (ret <= 0)
         return EGL_NO_DISPLAY;
-    return egl->GetPlatformDisplay(EGL_PLATFORM_X11, egl->native_display, NULL);
+    return egl->GetPlatformDisplay(EGL_PLATFORM_X11, native_display, NULL);
 #else
     return EGL_NO_DISPLAY;
 #endif
@@ -102,11 +100,10 @@ static EGLDisplay egl_get_display(struct egl_priv *egl)
 static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
 {
     struct egl_priv *egl = ctx->priv_data;
-
-    egl->native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
+    EGLNativeDisplayType native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
 
     int ret;
-    egl->display = egl_get_display(egl);
+    egl->display = egl_get_display(egl, native_display);
     if (!egl->display) {
         LOG(ERROR, "could not retrieve EGL display");
         return -1;
@@ -199,12 +196,12 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             return -1;
         }
     } else {
-        egl->native_window = (EGLNativeWindowType)window;
-        if (!egl->native_window) {
+        EGLNativeWindowType native_window = (EGLNativeWindowType)window;
+        if (!native_window) {
             LOG(ERROR, "could not retrieve EGL native window");
             return -1;
         }
-        egl->surface = eglCreateWindowSurface(egl->display, config, egl->native_window, NULL);
+        egl->surface = eglCreateWindowSurface(egl->display, config, native_window, NULL);
         if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
         }
