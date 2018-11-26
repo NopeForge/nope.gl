@@ -59,16 +59,6 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         x11->own_display = 1;
     }
 
-    if (!ctx->offscreen) {
-        if (window) {
-            x11->window  = (Window)window;
-            if (!x11->window) {
-                LOG(ERROR, "could not retrieve GLX window");
-                return -1;
-            }
-        }
-    }
-
     int attribs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT,
         GLX_RED_SIZE, 8,
@@ -166,6 +156,14 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             return -1;
         }
         x11->own_window = 1;
+    } else {
+        if (window) {
+            x11->window = (Window)window;
+            if (!x11->window) {
+                LOG(ERROR, "could not retrieve GLX window");
+                return -1;
+            }
+        }
     }
 
     if (ngli_glcontext_check_extension("GLX_EXT_swap_control", glx_extensions)) {
