@@ -199,12 +199,10 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             return -1;
         }
     } else {
-        if (window) {
-            egl->native_window = (EGLNativeWindowType)window;
-            if (!egl->native_window) {
-                LOG(ERROR, "could not retrieve EGL native window");
-                return -1;
-            }
+        egl->native_window = (EGLNativeWindowType)window;
+        if (!egl->native_window) {
+            LOG(ERROR, "could not retrieve EGL native window");
+            return -1;
         }
         egl->surface = eglCreateWindowSurface(egl->display, config, egl->native_window, NULL);
         if (!egl->surface) {
