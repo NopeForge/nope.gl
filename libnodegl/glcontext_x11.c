@@ -49,8 +49,7 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 {
     struct x11_priv *x11 = ctx->priv_data;
 
-    if (display)
-        x11->display = (Display *)display;
+    x11->display = (Display *)display;
     if (!x11->display) {
         x11->display = XOpenDisplay(NULL);
         if (!x11->display) {
