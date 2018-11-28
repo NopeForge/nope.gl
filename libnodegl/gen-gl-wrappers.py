@@ -125,6 +125,7 @@ cmds = [
     'glBlendFuncSeparate',
 
     # Draw
+    'glDrawArrays',
     'glDrawElements',
 
     # Texture

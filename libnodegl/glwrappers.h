@@ -269,6 +269,12 @@ static inline void ngli_glDispatchCompute(const struct glcontext *gl, GLuint num
     check_error_code(gl, "glDispatchCompute");
 }
 
+static inline void ngli_glDrawArrays(const struct glcontext *gl, GLenum mode, GLint first, GLsizei count)
+{
+    gl->funcs.DrawArrays(mode, first, count);
+    check_error_code(gl, "glDrawArrays");
+}
+
 static inline void ngli_glDrawElements(const struct glcontext *gl, GLenum mode, GLsizei count, GLenum type, const void * indices)
 {
     gl->funcs.DrawElements(mode, count, type, indices);
