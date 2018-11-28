@@ -33,27 +33,40 @@
 #include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "program.h"
 
 struct hwupload_mc {
-    struct ngl_node *quad;
-    struct ngl_node *program;
-    struct ngl_node *render;
-    struct ngl_node *texture;
-    struct ngl_node *target_texture;
-    struct ngl_node *rtt;
+    GLuint framebuffer;
+    GLuint vao;
+    GLuint program;
+    GLuint vertices;
+    GLint position_location;
+    GLint texture_location;
+    GLint texture_matrix_location;
 };
 
-static const char fragment_shader_hwupload_oes_data[] = ""
+static const char oes_copy_vertex_data[] =
+    "#version 100"                                                                      "\n"
+    "precision highp float;"                                                            "\n"
+    "attribute vec4 position;"                                                          "\n"
+    "uniform mat4 tex_coord_matrix;"                                                    "\n"
+    "varying vec2 tex_coord;"                                                           "\n"
+    "void main()"                                                                       "\n"
+    "{"                                                                                 "\n"
+    "    gl_Position = vec4(position.xy, 0.0, 1.0);"                                    "\n"
+    "    tex_coord = (tex_coord_matrix * vec4(position.zw, 0.0, 1.0)).xy;"              "\n"
+    "}";
+
+static const char oes_copy_fragment_data[] = ""
     "#version 100"                                                                      "\n"
     "#extension GL_OES_EGL_image_external : require"                                    "\n"
-    ""                                                                                  "\n"
     "precision mediump float;"                                                          "\n"
-    "uniform samplerExternalOES tex0_external_sampler;"                                 "\n"
-    "varying vec2 var_tex0_coord;"                                                      "\n"
+    "uniform samplerExternalOES tex;"                                                   "\n"
+    "varying vec2 tex_coord;"                                                           "\n"
     "void main(void)"                                                                   "\n"
     "{"                                                                                 "\n"
-    "    vec4 t = texture2D(tex0_external_sampler, var_tex0_coord);"                    "\n"
-    "    gl_FragColor = vec4(t.rgb, 1.0);"                                              "\n"
+    "    vec4 color = texture2D(tex, tex_coord);"                                       "\n"
+    "    gl_FragColor = vec4(color.rgb, 1.0);"                                          "\n"
     "}";
 
 static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
@@ -62,12 +75,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
-    struct media *media = s->data_src->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
-
-    static const float corner[3] = {-1.0, -1.0, 0.0};
-    static const float width[3]  = { 2.0,  0.0, 0.0};
-    static const float height[3] = { 0.0,  2.0, 0.0};
 
     s->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
     int ret = ngli_format_get_gl_format_type(gl,
@@ -82,94 +90,82 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    mc->quad = ngl_node_create(NGL_NODE_QUAD);
-    if (!mc->quad)
-        return -1;
+    GLuint framebuffer;
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer);
 
-    ngl_node_param_set(mc->quad, "corner", corner);
-    ngl_node_param_set(mc->quad, "width", width);
-    ngl_node_param_set(mc->quad, "height", height);
+    ngli_glGenFramebuffers(gl, 1, &mc->framebuffer);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, mc->framebuffer);
+    ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->id, 0);
+    if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        LOG(ERROR, "framebuffer %u is not complete", mc->framebuffer);
+        goto fail;
+    }
 
-    mc->program = ngl_node_create(NGL_NODE_PROGRAM);
+    mc->program = ngli_program_load(gl, oes_copy_vertex_data, oes_copy_fragment_data);
     if (!mc->program)
-        return -1;
+        goto fail;
+    ngli_glUseProgram(gl, mc->program);
 
-    ngl_node_param_set(mc->program, "name", "mc-read-oes");
-    ngl_node_param_set(mc->program, "fragment", fragment_shader_hwupload_oes_data);
+    mc->position_location = ngli_glGetAttribLocation(gl, mc->program, "position");
+    if (mc->position_location < 0)
+        goto fail;
 
-    mc->texture = ngl_node_create(NGL_NODE_TEXTURE2D);
-    if (!mc->texture)
-        return -1;
+    mc->texture_location = ngli_glGetUniformLocation(gl, mc->program, "tex");
+    if (mc->texture_location < 0)
+        goto fail;
+    ngli_glUniform1i(gl, mc->texture_location, 0);
 
-    struct texture *t = mc->texture->priv_data;
-    t->externally_managed = 1;
-    t->data_format = NGLI_FORMAT_UNDEFINED;
-    t->width       = s->width;
-    t->height      = s->height;
-    ngli_mat4_identity(t->coordinates_matrix);
+    mc->texture_matrix_location = ngli_glGetUniformLocation(gl, mc->program, "tex_coord_matrix");
+    if (mc->texture_matrix_location < 0)
+        goto fail;
 
-    t->layout = NGLI_TEXTURE_LAYOUT_MEDIACODEC;
-    t->planes[0].id = media->android_texture_id;
-    t->planes[0].target = media->android_texture_target;
+    static const float vertices[] = {
+        -1.0f, -1.0f, 0.0f, 1.0f,
+         1.0f, -1.0f, 1.0f, 1.0f,
+         1.0f,  1.0f, 1.0f, 0.0f,
+        -1.0f,  1.0f, 0.0f, 0.0f,
+    };
+    ngli_glGenBuffers(gl, 1, &mc->vertices);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, mc->vertices);
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    mc->target_texture = ngl_node_create(NGL_NODE_TEXTURE2D);
-    if (!mc->target_texture)
-        return -1;
+    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
+        ngli_glGenVertexArrays(gl, 1, &mc->vao);
+        ngli_glBindVertexArray(gl, mc->vao);
 
-    t = mc->target_texture->priv_data;
-    t->externally_managed = 1;
-    t->data_format     = s->data_format;
-    t->format          = s->format;
-    t->internal_format = s->internal_format;
-    t->type            = s->type;
-    t->width           = s->width;
-    t->height          = s->height;
-    t->min_filter      = s->min_filter;
-    t->mag_filter      = s->mag_filter;
-    t->wrap_s          = s->wrap_s;
-    t->wrap_t          = s->wrap_t;
-    t->id              = s->id;
-    t->target          = s->target;
-    ngli_mat4_identity(t->coordinates_matrix);
+        ngli_glEnableVertexAttribArray(gl, mc->position_location);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, mc->vertices);
+        ngli_glVertexAttribPointer(gl, mc->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
 
-    mc->render = ngl_node_create(NGL_NODE_RENDER, mc->quad);
-    if (!mc->render)
-        return -1;
+        ngli_glBindVertexArray(gl, 0);
+    }
 
-    ngl_node_param_set(mc->render, "name", "mc-rtt-render");
-    ngl_node_param_set(mc->render, "program", mc->program);
-    ngl_node_param_set(mc->render, "textures", "tex0", mc->texture);
-
-    mc->rtt = ngl_node_create(NGL_NODE_RENDERTOTEXTURE, mc->render, mc->target_texture);
-    if (!mc->rtt)
-        return -1;
-
-    ret = ngli_node_attach_ctx(mc->rtt, node->ctx);
-    if (ret < 0)
-        return ret;
-
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer);
     return 0;
+fail:
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer);
+    return -1;
 }
 
 static void mc_uninit(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
     struct texture *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
-    if (mc->rtt)
-        ngli_node_detach_ctx(mc->rtt);
-
-    ngl_node_unrefp(&mc->quad);
-    ngl_node_unrefp(&mc->program);
-    ngl_node_unrefp(&mc->render);
-    ngl_node_unrefp(&mc->texture);
-    ngl_node_unrefp(&mc->target_texture);
-    ngl_node_unrefp(&mc->rtt);
+    ngli_glDeleteFramebuffers(gl, 1, &mc->framebuffer);
+    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
+        ngli_glDeleteVertexArrays(gl, 1, &mc->vao);
+    ngli_glDeleteProgram(gl, mc->program);
+    ngli_glDeleteBuffers(gl, 1, &mc->vertices);
 }
 
 static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    int ret;
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
@@ -184,14 +180,7 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    NGLI_ALIGNED_MAT(flip_matrix) = {
-        1.0f,  0.0f, 0.0f, 0.0f,
-        0.0f, -1.0f, 0.0f, 0.0f,
-        0.0f,  0.0f, 1.0f, 0.0f,
-        0.0f,  1.0f, 0.0f, 1.0f,
-    };
-
-    ret = ngli_texture_update_data(node, frame->width, frame->height, 0, NULL);
+    int ret = ngli_texture_update_data(node, frame->width, frame->height, 0, NULL);
     if (ret < 0)
         return ret;
 
@@ -204,26 +193,34 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
     ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
 
-    struct texture *t = mc->texture->priv_data;
-    ngli_mat4_mul(t->coordinates_matrix, flip_matrix, matrix);
+    GLuint framebuffer;
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, mc->framebuffer);
 
-    node->ctx->activitycheck_nodes.count = 0;
-    ret = ngli_node_visit(mc->rtt, 1, 0.0);
-    if (ret < 0)
-        return ret;
+    GLint viewport[4];
+    ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
+    ngli_glViewport(gl, 0, 0, frame->width, frame->height);
+    ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
 
-    ret = ngli_node_honor_release_prefetch(&node->ctx->activitycheck_nodes);
-    if (ret < 0)
-        return ret;
+    ngli_glUseProgram(gl, mc->program);
+    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
+        ngli_glBindVertexArray(gl, mc->vao);
+    } else {
+        ngli_glEnableVertexAttribArray(gl, mc->position_location);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, mc->vertices);
+        ngli_glVertexAttribPointer(gl, mc->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
 
-    ret = ngli_node_update(mc->rtt, 0.0);
-    if (ret < 0)
-        return ret;
+    }
+    ngli_glActiveTexture(gl, GL_TEXTURE0);
+    ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, media->android_texture_id);
+    ngli_glUniformMatrix4fv(gl, mc->texture_matrix_location, 1, GL_FALSE, matrix);
+    ngli_glDrawArrays(gl, GL_TRIANGLE_FAN, 0, 4);
+    if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)) {
+        ngli_glDisableVertexAttribArray(gl, mc->position_location);
+    }
 
-    ngli_node_draw(mc->rtt);
-
-    t = mc->target_texture->priv_data;
-    memcpy(s->coordinates_matrix, t->coordinates_matrix, sizeof(s->coordinates_matrix));
+    ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer);
 
     return 0;
 }
