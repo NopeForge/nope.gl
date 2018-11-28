@@ -203,6 +203,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         egl->surface = eglCreateWindowSurface(egl->display, config, native_window, NULL);
         if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
+            return -1;
         }
     }
 
