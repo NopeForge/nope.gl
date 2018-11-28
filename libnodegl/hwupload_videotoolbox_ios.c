@@ -337,20 +337,16 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     struct texture *t = vt->target_texture->priv_data;
     memcpy(s->coordinates_matrix, t->coordinates_matrix, sizeof(s->coordinates_matrix));
 
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
     switch (s->min_filter) {
     case GL_NEAREST_MIPMAP_NEAREST:
     case GL_NEAREST_MIPMAP_LINEAR:
     case GL_LINEAR_MIPMAP_NEAREST:
     case GL_LINEAR_MIPMAP_LINEAR:
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
         ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         break;
     }
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
     return 0;
 }
