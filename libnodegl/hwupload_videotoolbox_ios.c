@@ -247,7 +247,6 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
     int width                = CVPixelBufferGetWidth(cvpixbuf);
     int height               = CVPixelBufferGetHeight(cvpixbuf);
-    s->coordinates_matrix[0] = 1.0;
 
     int ret = ngli_texture_update_data(node, width, height, 0, NULL);
     if (ret < 0)
@@ -393,7 +392,6 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
 
     s->width                 = CVPixelBufferGetWidth(cvpixbuf);
     s->height                = CVPixelBufferGetHeight(cvpixbuf);
-    s->coordinates_matrix[0] = 1.0;
 
     switch (cvformat) {
     case kCVPixelFormatType_32BGRA:
