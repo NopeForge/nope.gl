@@ -370,9 +370,9 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA: {
         int data_format;
-        GLint format;
-        GLint internal_format;
-        GLenum type;
+        GLint gl_format;
+        GLint gl_internal_format;
+        GLenum gl_type;
 
         switch (cvformat) {
         case kCVPixelFormatType_32BGRA:
@@ -385,7 +385,7 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
             ngli_assert(0);
         }
 
-        int ret = ngli_format_get_gl_format_type(gl, data_format, &format, &internal_format, &type);
+        int ret = ngli_format_get_gl_format_type(gl, data_format, &gl_format, &gl_internal_format, &gl_type);
         if (ret < 0)
             return ret;
 
@@ -396,11 +396,11 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
                                                                     cvpixbuf,
                                                                     NULL,
                                                                     GL_TEXTURE_2D,
-                                                                    internal_format,
+                                                                    gl_internal_format,
                                                                     s->width,
                                                                     s->height,
-                                                                    format,
-                                                                    type,
+                                                                    gl_format,
+                                                                    gl_type,
                                                                     0,
                                                                     &vt->ios_textures[0]);
         if (err != noErr) {
@@ -434,9 +434,9 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
             int width;
             int height;
             int data_format;
-            GLint format;
-            GLint internal_format;
-            GLenum type;
+            GLint gl_format;
+            GLint gl_internal_format;
+            GLenum gl_type;
 
             switch (i) {
             case 0:
@@ -453,7 +453,7 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
                 ngli_assert(0);
             }
 
-            int ret = ngli_format_get_gl_format_type(gl, data_format, &format, &internal_format, &type);
+            int ret = ngli_format_get_gl_format_type(gl, data_format, &gl_format, &gl_internal_format, &gl_type);
             if (ret < 0)
                 return ret;
 
@@ -464,11 +464,11 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
                                                                         cvpixbuf,
                                                                         NULL,
                                                                         GL_TEXTURE_2D,
-                                                                        internal_format,
+                                                                        gl_internal_format,
                                                                         width,
                                                                         height,
-                                                                        format,
-                                                                        type,
+                                                                        gl_format,
+                                                                        gl_type,
                                                                         i,
                                                                         &(vt->ios_textures[i]));
             if (err != noErr) {
