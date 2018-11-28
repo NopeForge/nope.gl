@@ -27,6 +27,44 @@
 #include "nodes.h"
 #include "program.h"
 
+unsigned ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment)
+{
+    GLuint program = ngli_glCreateProgram(gl);
+    GLuint vertex_shader = ngli_glCreateShader(gl, GL_VERTEX_SHADER);
+    GLuint fragment_shader = ngli_glCreateShader(gl, GL_FRAGMENT_SHADER);
+
+    ngli_glShaderSource(gl, vertex_shader, 1, &vertex, NULL);
+    ngli_glCompileShader(gl, vertex_shader);
+    if (ngli_program_check_status(gl, vertex_shader, GL_COMPILE_STATUS) < 0)
+        goto fail;
+
+    ngli_glShaderSource(gl, fragment_shader, 1, &fragment, NULL);
+    ngli_glCompileShader(gl, fragment_shader);
+    if (ngli_program_check_status(gl, fragment_shader, GL_COMPILE_STATUS) < 0)
+        goto fail;
+
+    ngli_glAttachShader(gl, program, vertex_shader);
+    ngli_glAttachShader(gl, program, fragment_shader);
+    ngli_glLinkProgram(gl, program);
+    if (ngli_program_check_status(gl, program, GL_LINK_STATUS) < 0)
+        goto fail;
+
+    ngli_glDeleteShader(gl, vertex_shader);
+    ngli_glDeleteShader(gl, fragment_shader);
+
+    return program;
+
+fail:
+    if (vertex_shader)
+        ngli_glDeleteShader(gl, vertex_shader);
+    if (fragment_shader)
+        ngli_glDeleteShader(gl, fragment_shader);
+    if (program)
+        ngli_glDeleteProgram(gl, program);
+
+    return 0;
+}
+
 int ngli_program_check_status(const struct glcontext *gl, GLuint id, GLenum status)
 {
     char *info_log = NULL;

@@ -25,6 +25,7 @@
 #include "hmap.h"
 #include "glcontext.h"
 
+unsigned ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment);
 int ngli_program_check_status(const struct glcontext *gl, GLuint id, GLenum status);
 struct hmap *ngli_program_probe_uniforms(const char *node_name, struct glcontext *gl, GLuint pid);
 struct hmap *ngli_program_probe_attributes(const char *node_name, struct glcontext *gl, GLuint pid);

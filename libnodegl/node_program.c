@@ -96,47 +96,6 @@ static const struct node_param program_params[] = {
     {NULL}
 };
 
-static GLuint load_program(struct ngl_node *node, const char *vertex, const char *fragment)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
-    GLuint program = ngli_glCreateProgram(gl);
-    GLuint vertex_shader = ngli_glCreateShader(gl, GL_VERTEX_SHADER);
-    GLuint fragment_shader = ngli_glCreateShader(gl, GL_FRAGMENT_SHADER);
-
-    ngli_glShaderSource(gl, vertex_shader, 1, &vertex, NULL);
-    ngli_glCompileShader(gl, vertex_shader);
-    if (ngli_program_check_status(gl, vertex_shader, GL_COMPILE_STATUS) < 0)
-        goto fail;
-
-    ngli_glShaderSource(gl, fragment_shader, 1, &fragment, NULL);
-    ngli_glCompileShader(gl, fragment_shader);
-    if (ngli_program_check_status(gl, fragment_shader, GL_COMPILE_STATUS) < 0)
-        goto fail;
-
-    ngli_glAttachShader(gl, program, vertex_shader);
-    ngli_glAttachShader(gl, program, fragment_shader);
-    ngli_glLinkProgram(gl, program);
-    if (ngli_program_check_status(gl, program, GL_LINK_STATUS) < 0)
-        goto fail;
-
-    ngli_glDeleteShader(gl, vertex_shader);
-    ngli_glDeleteShader(gl, fragment_shader);
-
-    return program;
-
-fail:
-    if (vertex_shader)
-        ngli_glDeleteShader(gl, vertex_shader);
-    if (fragment_shader)
-        ngli_glDeleteShader(gl, fragment_shader);
-    if (program)
-        ngli_glDeleteProgram(gl, program);
-
-    return 0;
-}
-
 static int program_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -144,7 +103,7 @@ static int program_init(struct ngl_node *node)
 
     struct program *s = node->priv_data;
 
-    s->program_id = load_program(node, s->vertex, s->fragment);
+    s->program_id = ngli_program_load(gl, s->vertex, s->fragment);
     if (!s->program_id)
         return -1;
 
