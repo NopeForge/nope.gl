@@ -208,8 +208,8 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
     ngli_assert(cvformat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
 
-    int width                = CVPixelBufferGetWidth(cvpixbuf);
-    int height               = CVPixelBufferGetHeight(cvpixbuf);
+    int width  = CVPixelBufferGetWidth(cvpixbuf);
+    int height = CVPixelBufferGetHeight(cvpixbuf);
 
     int ret = ngli_texture_update_data(node, width, height, 0, NULL);
     if (ret < 0)
@@ -363,8 +363,8 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    s->width                 = CVPixelBufferGetWidth(cvpixbuf);
-    s->height                = CVPixelBufferGetHeight(cvpixbuf);
+    s->width  = CVPixelBufferGetWidth(cvpixbuf);
+    s->height = CVPixelBufferGetHeight(cvpixbuf);
 
     switch (cvformat) {
     case kCVPixelFormatType_32BGRA:
