@@ -430,9 +430,6 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
     struct glcontext *gl = ctx->glcontext;
     struct texture *s = node->priv_data;
 
-    if (s->externally_managed)
-        return 0;
-
     s->target = local_target;
     if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE)
         s->immutable = 1;
@@ -561,9 +558,6 @@ static int texture_update(struct ngl_node *node, double t)
 {
     struct texture *s = node->priv_data;
 
-    if (s->externally_managed)
-        return 0;
-
     if (!s->data_src)
         return 0;
 
@@ -598,9 +592,6 @@ static void texture_release(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
 
     struct texture *s = node->priv_data;
-
-    if (s->externally_managed)
-        return;
 
     ngli_hwupload_uninit(node);
 

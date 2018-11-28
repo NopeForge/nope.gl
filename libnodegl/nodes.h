@@ -305,8 +305,6 @@ struct texture {
     int direct_rendering;
     int immutable;
 
-    int externally_managed;
-
     GLuint id;
     GLenum target;
     GLint format;
