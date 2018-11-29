@@ -127,7 +127,7 @@ LIB_EXTRA_LDLIBS_Linux     =
 LIB_EXTRA_LDLIBS_Darwin    = -framework OpenGL -framework CoreVideo -framework CoreFoundation -framework AppKit
 LIB_EXTRA_LDLIBS_Android   = -legl
 LIB_EXTRA_LDLIBS_iPhone    = -framework CoreMedia
-LIB_EXTRA_LDLIBS_MinGW-w64 = -lopengl32
+LIB_EXTRA_LDLIBS_MinGW-w64 = -lopengl32 -lgdi32
 
 LIB_PKG_CONFIG_LIBS               = "libsxplayer >= 9.2.0"
 LIB_EXTRA_PKG_CONFIG_LIBS_Linux   = x11 gl egl
