@@ -19,7 +19,7 @@ def serialize(dirname, subproc=False):
         os.makedirs(dirname)
 
     for module_name, sub_scenes in scenes:
-        for scene_name, widgets_specs in sub_scenes:
+        for scene_name, scene_doc, widgets_specs in sub_scenes:
             cfg = {
                 'pkg': module_pkg,
                 'scene': (module_name, scene_name),
