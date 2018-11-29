@@ -284,6 +284,7 @@ endif # mingw-w64
 
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/lib/$(LIB_NAME)
+	$(RM) $(DESTDIR)$(PREFIX)/bin/$(LIB_NAME)
 	$(RM) $(DESTDIR)$(PREFIX)/lib/pkgconfig/$(LIB_PCNAME)
 	$(RM) $(DESTDIR)$(PREFIX)/include/nodegl.h
 	$(RM) -r $(DESTDIR)$(PREFIX)/share/nodegl
