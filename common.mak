@@ -22,7 +22,6 @@
 #
 # User configuration
 #
-PREFIX     ?= /usr/local
 SHARED     ?= no
 DEBUG      ?= no
 SMALL      ?= no
@@ -30,6 +29,13 @@ PKG_CONFIG ?= pkg-config
 PYTHON     ?= python
 TARGET_OS  ?= $(shell uname -s)
 ARCH       ?= $(shell uname -m)
+
+ifeq ($(OS),Windows_NT)
+	TARGET_OS   = MinGW-w64
+	PREFIX     ?= C:/msys64/usr/local
+else
+	PREFIX     ?= /usr/local
+endif
 
 define capitalize
 $(shell echo $1 | tr a-z- A-Z_)
