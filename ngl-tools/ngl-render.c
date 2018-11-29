@@ -162,7 +162,11 @@ int main(int argc, char *argv[])
     }
 
     if (output) {
-        fd = open(output, O_WRONLY|O_CREAT|O_TRUNC, 0644);
+        int flags = O_WRONLY|O_CREAT|O_TRUNC;
+#ifdef O_BINARY
+        flags |= O_BINARY;
+#endif
+        fd = open(output, flags, 0644);
         if (fd == -1) {
             fprintf(stderr, "Unable to open %s\n", output);
             ret = EXIT_FAILURE;
