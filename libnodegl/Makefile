@@ -271,9 +271,11 @@ install: $(LIB_NAME) $(LIB_PCNAME)
 	install -d $(DESTDIR)$(PREFIX)/share/nodegl/java/org
 	install -d $(DESTDIR)$(PREFIX)/share/nodegl/java/org/nodegl
 ifeq ($(TARGET_OS),MinGW-w64)
+ifeq ($(SHARED),yes)
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/bin
-endif
+endif # shared
+endif # mingw-w64
 	install -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/lib
 	install -m 644 $(LIB_PCNAME) $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	install -m 644 nodegl.h $(DESTDIR)$(PREFIX)/include/nodegl.h
