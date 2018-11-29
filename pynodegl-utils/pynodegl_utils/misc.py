@@ -1,4 +1,5 @@
 import os.path as op
+import tempfile
 import platform
 import math
 import inspect
@@ -118,7 +119,7 @@ class Media:
 
 class SceneCfg:
 
-    _DEFAULT_MEDIA_FILE = '/tmp/ngl-media.mp4'
+    _DEFAULT_MEDIA_FILE = op.join(tempfile.gettempdir(), 'ngl-media.mp4')
     _DEFAULT_FIELDS = {
         'aspect_ratio': (16, 9),
         'duration': 30.0,

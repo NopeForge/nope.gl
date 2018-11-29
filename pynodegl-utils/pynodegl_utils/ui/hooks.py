@@ -24,6 +24,7 @@
 import hashlib
 import os
 import os.path as op
+import tempfile
 import subprocess
 
 from PyQt5 import QtCore
@@ -123,7 +124,7 @@ class Hooks(QtCore.QThread):
 
             # The serialized scene is then stored in a file which is then
             # communicated with additional parameters to the user
-            local_scene = '/tmp/ngl_scene.ngl'
+            local_scene = op.join(tempfile.gettempdir(), 'ngl_scene.ngl')
             open(local_scene, 'w').write(serialized_scene)
             args = [hook_scene_change, local_scene,
                     'duration=%f' % cfg['duration'],

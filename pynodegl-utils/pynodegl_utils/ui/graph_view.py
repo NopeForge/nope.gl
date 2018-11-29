@@ -21,6 +21,8 @@
 # under the License.
 #
 
+import os.path as op
+import tempfile
 import subprocess
 from PyQt5 import QtCore, QtGui, QtWidgets, QtSvg
 
@@ -183,7 +185,7 @@ class GraphView(QtWidgets.QWidget):
         )
 
     def _update_graph(self, dot_scene):
-        basename = '/tmp/ngl_scene.'
+        basename = op.join(tempfile.gettempdir(), 'ngl_scene.')
         dotfile = basename + 'dot'
         svgfile = basename + 'svg'
         open(dotfile, 'w').write(dot_scene)

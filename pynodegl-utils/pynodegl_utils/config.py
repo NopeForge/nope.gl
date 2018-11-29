@@ -23,6 +23,7 @@
 
 import os
 import os.path as op
+import tempfile
 import json
 from PyQt5 import QtCore
 
@@ -74,7 +75,7 @@ class Config(QtCore.QObject):
             # Export
             'export_width': 1280,
             'export_height': 720,
-            'export_filename': '/tmp/ngl-export.mp4',
+            'export_filename': op.join(tempfile.gettempdir(), 'ngl-export.mp4'),
             'export_extra_enc_args': '',
         }
 
