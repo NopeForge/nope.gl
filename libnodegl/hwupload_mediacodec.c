@@ -36,10 +36,10 @@
 #include "program.h"
 
 struct hwupload_mc {
-    GLuint framebuffer;
-    GLuint vao;
-    GLuint program;
-    GLuint vertices;
+    GLuint framebuffer_id;
+    GLuint vao_id;
+    GLuint program_id;
+    GLuint vertices_id;
     GLint position_location;
     GLint texture_location;
     GLint texture_matrix_location;
@@ -90,32 +90,32 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    GLuint framebuffer;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer);
+    GLuint framebuffer_id;
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
 
-    ngli_glGenFramebuffers(gl, 1, &mc->framebuffer);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, mc->framebuffer);
+    ngli_glGenFramebuffers(gl, 1, &mc->framebuffer_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, mc->framebuffer_id);
     ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->id, 0);
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        LOG(ERROR, "framebuffer %u is not complete", mc->framebuffer);
+        LOG(ERROR, "framebuffer %u is not complete", mc->framebuffer_id);
         goto fail;
     }
 
-    mc->program = ngli_program_load(gl, oes_copy_vertex_data, oes_copy_fragment_data);
-    if (!mc->program)
+    mc->program_id = ngli_program_load(gl, oes_copy_vertex_data, oes_copy_fragment_data);
+    if (!mc->program_id)
         goto fail;
-    ngli_glUseProgram(gl, mc->program);
+    ngli_glUseProgram(gl, mc->program_id);
 
-    mc->position_location = ngli_glGetAttribLocation(gl, mc->program, "position");
+    mc->position_location = ngli_glGetAttribLocation(gl, mc->program_id, "position");
     if (mc->position_location < 0)
         goto fail;
 
-    mc->texture_location = ngli_glGetUniformLocation(gl, mc->program, "tex");
+    mc->texture_location = ngli_glGetUniformLocation(gl, mc->program_id, "tex");
     if (mc->texture_location < 0)
         goto fail;
     ngli_glUniform1i(gl, mc->texture_location, 0);
 
-    mc->texture_matrix_location = ngli_glGetUniformLocation(gl, mc->program, "tex_coord_matrix");
+    mc->texture_matrix_location = ngli_glGetUniformLocation(gl, mc->program_id, "tex_coord_matrix");
     if (mc->texture_matrix_location < 0)
         goto fail;
 
@@ -125,25 +125,25 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
          1.0f,  1.0f, 1.0f, 0.0f,
         -1.0f,  1.0f, 0.0f, 0.0f,
     };
-    ngli_glGenBuffers(gl, 1, &mc->vertices);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, mc->vertices);
+    ngli_glGenBuffers(gl, 1, &mc->vertices_id);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, mc->vertices_id);
     ngli_glBufferData(gl, GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
-        ngli_glGenVertexArrays(gl, 1, &mc->vao);
-        ngli_glBindVertexArray(gl, mc->vao);
+        ngli_glGenVertexArrays(gl, 1, &mc->vao_id);
+        ngli_glBindVertexArray(gl, mc->vao_id);
 
         ngli_glEnableVertexAttribArray(gl, mc->position_location);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, mc->vertices);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, mc->vertices_id);
         ngli_glVertexAttribPointer(gl, mc->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
 
         ngli_glBindVertexArray(gl, 0);
     }
 
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
     return 0;
 fail:
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
     return -1;
 }
 
@@ -155,11 +155,11 @@ static void mc_uninit(struct ngl_node *node)
     struct texture *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
-    ngli_glDeleteFramebuffers(gl, 1, &mc->framebuffer);
+    ngli_glDeleteFramebuffers(gl, 1, &mc->framebuffer_id);
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
-        ngli_glDeleteVertexArrays(gl, 1, &mc->vao);
-    ngli_glDeleteProgram(gl, mc->program);
-    ngli_glDeleteBuffers(gl, 1, &mc->vertices);
+        ngli_glDeleteVertexArrays(gl, 1, &mc->vao_id);
+    ngli_glDeleteProgram(gl, mc->program_id);
+    ngli_glDeleteBuffers(gl, 1, &mc->vertices_id);
 }
 
 static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
@@ -193,21 +193,21 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
     ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
 
-    GLuint framebuffer;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, mc->framebuffer);
+    GLuint framebuffer_id;
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, mc->framebuffer_id);
 
     GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
     ngli_glViewport(gl, 0, 0, frame->width, frame->height);
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
 
-    ngli_glUseProgram(gl, mc->program);
+    ngli_glUseProgram(gl, mc->program_id);
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
-        ngli_glBindVertexArray(gl, mc->vao);
+        ngli_glBindVertexArray(gl, mc->vao_id);
     } else {
         ngli_glEnableVertexAttribArray(gl, mc->position_location);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, mc->vertices);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, mc->vertices_id);
         ngli_glVertexAttribPointer(gl, mc->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
 
     }
@@ -220,7 +220,7 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     }
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
 
     return 0;
 }

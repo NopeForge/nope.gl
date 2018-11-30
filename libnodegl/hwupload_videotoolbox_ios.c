@@ -42,10 +42,10 @@
 } while (0)
 
 struct hwupload_vt_ios {
-    GLuint framebuffer;
-    GLuint vao;
-    GLuint program;
-    GLuint vertices;
+    GLuint framebuffer_id;
+    GLuint vao_id;
+    GLuint program_id;
+    GLuint vertices_id;
     GLint position_location;
     GLint texture_locations[2];
     CVOpenGLESTextureRef ios_textures[2];
@@ -111,14 +111,14 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    GLuint framebuffer;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer);
+    GLuint framebuffer_id;
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
 
-    ngli_glGenFramebuffers(gl, 1, &vt->framebuffer);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, vt->framebuffer);
+    ngli_glGenFramebuffers(gl, 1, &vt->framebuffer_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, vt->framebuffer_id);
     ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->id, 0);
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        LOG(ERROR, "framebuffer %u is not complete", vt->framebuffer);
+        LOG(ERROR, "framebuffer %u is not complete", vt->framebuffer_id);
         goto fail;
     }
 
@@ -127,22 +127,22 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (!nv12_to_rgba_fragment_data)
         return -1;
 
-    vt->program = ngli_program_load(gl, nv12_to_rgba_vertex_data, nv12_to_rgba_fragment_data);
+    vt->program_id = ngli_program_load(gl, nv12_to_rgba_vertex_data, nv12_to_rgba_fragment_data);
     free(nv12_to_rgba_fragment_data);
-    if (!vt->program)
+    if (!vt->program_id)
         goto fail;
-    ngli_glUseProgram(gl, vt->program);
+    ngli_glUseProgram(gl, vt->program_id);
 
-    vt->position_location = ngli_glGetAttribLocation(gl, vt->program, "position");
+    vt->position_location = ngli_glGetAttribLocation(gl, vt->program_id, "position");
     if (vt->position_location < 0)
         goto fail;
 
-    vt->texture_locations[0] = ngli_glGetUniformLocation(gl, vt->program, "tex0");
+    vt->texture_locations[0] = ngli_glGetUniformLocation(gl, vt->program_id, "tex0");
     if (vt->texture_locations[0] < 0)
         goto fail;
     ngli_glUniform1i(gl, vt->texture_locations[0], 0);
 
-    vt->texture_locations[1] = ngli_glGetUniformLocation(gl, vt->program, "tex1");
+    vt->texture_locations[1] = ngli_glGetUniformLocation(gl, vt->program_id, "tex1");
     if (vt->texture_locations[1] < 0)
         goto fail;
     ngli_glUniform1i(gl, vt->texture_locations[1], 1);
@@ -153,25 +153,25 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
          1.0f,  1.0f, 1.0f, 1.0f,
         -1.0f,  1.0f, 0.0f, 1.0f,
     };
-    ngli_glGenBuffers(gl, 1, &vt->vertices);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices);
+    ngli_glGenBuffers(gl, 1, &vt->vertices_id);
+    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices_id);
     ngli_glBufferData(gl, GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
-        ngli_glGenVertexArrays(gl, 1, &vt->vao);
-        ngli_glBindVertexArray(gl, vt->vao);
+        ngli_glGenVertexArrays(gl, 1, &vt->vao_id);
+        ngli_glBindVertexArray(gl, vt->vao_id);
 
         ngli_glEnableVertexAttribArray(gl, vt->position_location);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices_id);
         ngli_glVertexAttribPointer(gl, vt->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
 
         ngli_glBindVertexArray(gl, 0);
     }
 
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
     return 0;
 fail:
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
     return -1;
 }
 
@@ -183,11 +183,11 @@ static void vt_ios_uninit(struct ngl_node *node)
     struct texture *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
-    ngli_glDeleteFramebuffers(gl, 1, &vt->framebuffer);
+    ngli_glDeleteFramebuffers(gl, 1, &vt->framebuffer_id);
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
-        ngli_glDeleteVertexArrays(gl, 1, &vt->vao);
-    ngli_glDeleteProgram(gl, vt->program);
-    ngli_glDeleteBuffers(gl, 1, &vt->vertices);
+        ngli_glDeleteVertexArrays(gl, 1, &vt->vao_id);
+    ngli_glDeleteProgram(gl, vt->program_id);
+    ngli_glDeleteBuffers(gl, 1, &vt->vertices_id);
 
     NGLI_CFRELEASE(vt->ios_textures[0]);
     NGLI_CFRELEASE(vt->ios_textures[1]);
@@ -277,21 +277,21 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
     }
 
-    GLuint framebuffer;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, vt->framebuffer);
+    GLuint framebuffer_id;
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, vt->framebuffer_id);
 
     GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
     ngli_glViewport(gl, 0, 0, frame->width, frame->height);
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
 
-    ngli_glUseProgram(gl, vt->program);
+    ngli_glUseProgram(gl, vt->program_id);
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
-        ngli_glBindVertexArray(gl, vt->vao);
+        ngli_glBindVertexArray(gl, vt->vao_id);
     } else {
         ngli_glEnableVertexAttribArray(gl, vt->position_location);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices_id);
         ngli_glVertexAttribPointer(gl, vt->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
     }
     for (int i = 0; i < 2; i++) {
@@ -304,7 +304,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     }
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
 
     NGLI_CFRELEASE(textures[0]);
     NGLI_CFRELEASE(textures[1]);
