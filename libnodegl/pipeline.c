@@ -122,21 +122,21 @@ static int update_sampler(const struct glcontext *gl,
         int type_index;
         int bound;
     } samplers[] = {
-        { info->sampler_id,          0, 0 },
-        { info->y_sampler_id,        0, 0 },
-        { info->uv_sampler_id,       0, 0 },
-        { info->external_sampler_id, 1, 0 },
+        { info->sampler_location,          0, 0 },
+        { info->y_sampler_location,        0, 0 },
+        { info->uv_sampler_location,       0, 0 },
+        { info->external_sampler_location, 1, 0 },
     };
 
     *sampling_mode = NGLI_SAMPLING_MODE_NONE;
     if (texture->layout == NGLI_TEXTURE_LAYOUT_DEFAULT) {
-        if (info->sampler_id >= 0) {
+        if (info->sampler_location >= 0) {
             if (info->sampler_type == GL_IMAGE_2D) {
                 GLuint id = texture->planes[0].id;
                 GLuint unit = info->sampler_value;
                 ngli_glBindImageTexture(gl, unit, id, 0, GL_FALSE, 0, texture->access, texture->internal_format);
             } else {
-                int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->sampler_id);
+                int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->sampler_location);
                 if (ret < 0)
                     return ret;
                 *sampling_mode = NGLI_SAMPLING_MODE_DEFAULT;
@@ -144,23 +144,23 @@ static int update_sampler(const struct glcontext *gl,
             samplers[0].bound = 1;
         }
     } else if (texture->layout == NGLI_TEXTURE_LAYOUT_NV12) {
-        if (info->y_sampler_id >= 0) {
-            int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->y_sampler_id);
+        if (info->y_sampler_location >= 0) {
+            int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->y_sampler_location);
             if (ret < 0)
                 return ret;
             samplers[1].bound = 1;
             *sampling_mode = NGLI_SAMPLING_MODE_NV12;
         }
-        if (info->uv_sampler_id >= 0) {
-            int ret = bind_texture_plane(gl, texture, used_texture_units, 1, info->uv_sampler_id);
+        if (info->uv_sampler_location >= 0) {
+            int ret = bind_texture_plane(gl, texture, used_texture_units, 1, info->uv_sampler_location);
             if (ret < 0)
                 return ret;
             samplers[2].bound = 1;
             *sampling_mode = NGLI_SAMPLING_MODE_NV12;
         }
     } else if (texture->layout == NGLI_TEXTURE_LAYOUT_MEDIACODEC) {
-        if (info->external_sampler_id >= 0) {
-            int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->external_sampler_id);
+        if (info->external_sampler_location >= 0) {
+            int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->external_sampler_location);
             if (ret < 0)
                 return ret;
             samplers[3].bound = 1;
@@ -206,22 +206,22 @@ static int update_images_and_samplers(struct ngl_node *node)
             if (ret < 0)
                 return ret;
 
-            if (info->sampling_mode_id >= 0)
-                ngli_glUniform1i(gl, info->sampling_mode_id, sampling_mode);
+            if (info->sampling_mode_location >= 0)
+                ngli_glUniform1i(gl, info->sampling_mode_location, sampling_mode);
 
-            if (info->coord_matrix_id >= 0)
-                ngli_glUniformMatrix4fv(gl, info->coord_matrix_id, 1, GL_FALSE, texture->coordinates_matrix);
+            if (info->coord_matrix_location >= 0)
+                ngli_glUniformMatrix4fv(gl, info->coord_matrix_location, 1, GL_FALSE, texture->coordinates_matrix);
 
-            if (info->dimensions_id >= 0) {
+            if (info->dimensions_location >= 0) {
                 const float dimensions[3] = {texture->width, texture->height, texture->depth};
                 if (info->dimensions_type == GL_FLOAT_VEC2)
-                    ngli_glUniform2fv(gl, info->dimensions_id, 1, dimensions);
+                    ngli_glUniform2fv(gl, info->dimensions_location, 1, dimensions);
                 else if (info->dimensions_type == GL_FLOAT_VEC3)
-                    ngli_glUniform3fv(gl, info->dimensions_id, 1, dimensions);
+                    ngli_glUniform3fv(gl, info->dimensions_location, 1, dimensions);
             }
 
-            if (info->ts_id >= 0)
-                ngli_glUniform1f(gl, info->ts_id, texture->data_src_ts);
+            if (info->ts_location >= 0)
+                ngli_glUniform1f(gl, info->ts_location, texture->data_src_ts);
         }
     }
 
@@ -238,7 +238,7 @@ static int update_uniforms(struct ngl_node *node)
     for (int i = 0; i < s->nb_uniform_pairs; i++) {
         const struct nodeprograminfopair *pair = &s->uniform_pairs[i];
         const struct uniformprograminfo *info = pair->program_info;
-        const GLint uid = info->id;
+        const GLint uid = info->location;
         if (uid < 0)
             continue;
         const struct ngl_node *unode = pair->node;
@@ -348,14 +348,14 @@ static const struct texture_uniform_map {
     size_t type_offset;
     size_t binding_offset;
 } texture_uniform_maps[] = {
-    {"",                  (const GLenum[]){GL_SAMPLER_2D, GL_SAMPLER_3D, GL_IMAGE_2D, 0}, OFFSET(sampler_id),          OFFSET(sampler_type),    OFFSET(sampler_value)},
-    {"_sampling_mode",    (const GLenum[]){GL_INT, 0},                                    OFFSET(sampling_mode_id),    SIZE_MAX,                SIZE_MAX},
-    {"_coord_matrix",     (const GLenum[]){GL_FLOAT_MAT4, 0},                             OFFSET(coord_matrix_id),     SIZE_MAX,                SIZE_MAX},
-    {"_dimensions",       (const GLenum[]){GL_FLOAT_VEC2, GL_FLOAT_VEC3, 0},              OFFSET(dimensions_id),       OFFSET(dimensions_type), SIZE_MAX},
-    {"_ts",               (const GLenum[]){GL_FLOAT, 0},                                  OFFSET(ts_id),               SIZE_MAX,                SIZE_MAX},
-    {"_external_sampler", (const GLenum[]){GL_SAMPLER_EXTERNAL_OES, 0},                   OFFSET(external_sampler_id), SIZE_MAX,                SIZE_MAX},
-    {"_y_sampler",        (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(y_sampler_id),        SIZE_MAX,                SIZE_MAX},
-    {"_uv_sampler",       (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(uv_sampler_id),       SIZE_MAX,                SIZE_MAX},
+    {"",                  (const GLenum[]){GL_SAMPLER_2D, GL_SAMPLER_3D, GL_IMAGE_2D, 0}, OFFSET(sampler_location),          OFFSET(sampler_type),    OFFSET(sampler_value)},
+    {"_sampling_mode",    (const GLenum[]){GL_INT, 0},                                    OFFSET(sampling_mode_location),    SIZE_MAX,                SIZE_MAX},
+    {"_coord_matrix",     (const GLenum[]){GL_FLOAT_MAT4, 0},                             OFFSET(coord_matrix_location),     SIZE_MAX,                SIZE_MAX},
+    {"_dimensions",       (const GLenum[]){GL_FLOAT_VEC2, GL_FLOAT_VEC3, 0},              OFFSET(dimensions_location),       OFFSET(dimensions_type), SIZE_MAX},
+    {"_ts",               (const GLenum[]){GL_FLOAT, 0},                                  OFFSET(ts_location),               SIZE_MAX,                SIZE_MAX},
+    {"_external_sampler", (const GLenum[]){GL_SAMPLER_EXTERNAL_OES, 0},                   OFFSET(external_sampler_location), SIZE_MAX,                SIZE_MAX},
+    {"_y_sampler",        (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(y_sampler_location),        SIZE_MAX,                SIZE_MAX},
+    {"_uv_sampler",       (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(uv_sampler_location),       SIZE_MAX,                SIZE_MAX},
 };
 
 static int is_allowed_type(const GLenum *allowed_types, GLenum type)
@@ -389,7 +389,7 @@ static int load_textureprograminfo(struct textureprograminfo *info,
         *(int *)((uint8_t *)info + map->dst##_offset) = uniform ? uniform->src : -1; \
 } while (0)
 
-        SET_INFO_FIELD(location, id);
+        SET_INFO_FIELD(location, location);
         SET_INFO_FIELD(type, type);
         SET_INFO_FIELD(binding, binding);
     }
@@ -471,14 +471,14 @@ int ngli_pipeline_init(struct ngl_node *node)
             }
 
 #if defined(TARGET_ANDROID)
-            const int has_aux_sampler = info->external_sampler_id >= 0;
+            const int has_aux_sampler = info->external_sampler_location >= 0;
 #elif defined(TARGET_IPHONE)
-            const int has_aux_sampler = (info->y_sampler_id >= 0 || info->uv_sampler_id >= 0);
+            const int has_aux_sampler = (info->y_sampler_location >= 0 || info->uv_sampler_location >= 0);
 #else
             const int has_aux_sampler = 0;
 #endif
 
-            if (info->sampler_id < 0 && !has_aux_sampler)
+            if (info->sampler_location < 0 && !has_aux_sampler)
                 LOG(WARNING, "no sampler found for texture %s", key);
 
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE)

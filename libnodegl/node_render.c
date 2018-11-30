@@ -116,20 +116,20 @@ static int update_geometry_uniforms(struct ngl_node *node)
     const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
 
-    if (s->modelview_matrix_location_id >= 0) {
-        ngli_glUniformMatrix4fv(gl, s->modelview_matrix_location_id, 1, GL_FALSE, modelview_matrix);
+    if (s->modelview_matrix_location >= 0) {
+        ngli_glUniformMatrix4fv(gl, s->modelview_matrix_location, 1, GL_FALSE, modelview_matrix);
     }
 
-    if (s->projection_matrix_location_id >= 0) {
-        ngli_glUniformMatrix4fv(gl, s->projection_matrix_location_id, 1, GL_FALSE, projection_matrix);
+    if (s->projection_matrix_location >= 0) {
+        ngli_glUniformMatrix4fv(gl, s->projection_matrix_location, 1, GL_FALSE, projection_matrix);
     }
 
-    if (s->normal_matrix_location_id >= 0) {
+    if (s->normal_matrix_location >= 0) {
         float normal_matrix[3*3];
         ngli_mat3_from_mat4(normal_matrix, modelview_matrix);
         ngli_mat3_inverse(normal_matrix, normal_matrix);
         ngli_mat3_transpose(normal_matrix, normal_matrix);
-        ngli_glUniformMatrix3fv(gl, s->normal_matrix_location_id, 1, GL_FALSE, normal_matrix);
+        ngli_glUniformMatrix3fv(gl, s->normal_matrix_location, 1, GL_FALSE, normal_matrix);
     }
 
     return 0;
@@ -154,7 +154,7 @@ static int update_vertex_attribs(struct ngl_node *node)
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
-        const GLint aid = info->id;
+        const GLint aid = info->location;
         struct buffer *buffer = pair->node->priv_data;
 
         ngli_glEnableVertexAttribArray(gl, aid);
@@ -177,7 +177,7 @@ static int disable_vertex_attribs(struct ngl_node *node)
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
-        ngli_glDisableVertexAttribArray(gl, info->id);
+        ngli_glDisableVertexAttribArray(gl, info->location);
     }
 
     return 0;
@@ -186,7 +186,7 @@ static int disable_vertex_attribs(struct ngl_node *node)
 static int get_uniform_location(struct hmap *uniforms, const char *name)
 {
     const struct uniformprograminfo *info = ngli_hmap_get(uniforms, name);
-    return info ? info->id : -1;
+    return info ? info->location : -1;
 }
 
 static int pair_node_to_attribinfo(struct render *s, const char *name,
@@ -200,7 +200,7 @@ static int pair_node_to_attribinfo(struct render *s, const char *name,
     if (!active_attribute)
         return 1;
 
-    if (active_attribute->id < 0)
+    if (active_attribute->location < 0)
         return 0;
 
     struct nodeprograminfopair pair = {
@@ -295,9 +295,9 @@ static int render_init(struct ngl_node *node)
     }
 
     /* Builtin uniforms */
-    s->modelview_matrix_location_id  = get_uniform_location(uniforms, "ngl_modelview_matrix");
-    s->projection_matrix_location_id = get_uniform_location(uniforms, "ngl_projection_matrix");
-    s->normal_matrix_location_id     = get_uniform_location(uniforms, "ngl_normal_matrix");
+    s->modelview_matrix_location  = get_uniform_location(uniforms, "ngl_modelview_matrix");
+    s->projection_matrix_location = get_uniform_location(uniforms, "ngl_projection_matrix");
+    s->normal_matrix_location     = get_uniform_location(uniforms, "ngl_normal_matrix");
 
     /* User and builtin attribute pairs */
     const int max_nb_attributes = NGLI_ARRAY_NB(attrib_const_map)

@@ -327,14 +327,14 @@ int ngli_texture_update_data(struct ngl_node *node,
                              const uint8_t *data);
 
 struct uniformprograminfo {
-    GLint id;
+    GLint location;
     GLint size;
     GLenum type;
     int binding;
 };
 
 struct attributeprograminfo {
-    GLint id;
+    GLint location;
     GLint size;
     GLenum type;
 };
@@ -350,17 +350,17 @@ struct bufferprograminfo {
 #define NGLI_SAMPLING_MODE_NV12         3
 
 struct textureprograminfo {
-    int sampling_mode_id;
+    int sampling_mode_location;
     int sampler_value;
     int sampler_type;
-    int sampler_id;
-    int external_sampler_id;
-    int y_sampler_id;
-    int uv_sampler_id;
-    int coord_matrix_id;
-    int dimensions_id;
+    int sampler_location;
+    int external_sampler_location;
+    int y_sampler_location;
+    int uv_sampler_location;
+    int coord_matrix_location;
+    int dimensions_location;
     int dimensions_type;
-    int ts_id;
+    int ts_location;
 };
 
 #define MAX_ID_LEN 128
@@ -405,9 +405,9 @@ struct render {
     int nb_attribute_pairs;
     int first_instance_attribute_index;
 
-    GLint modelview_matrix_location_id;
-    GLint projection_matrix_location_id;
-    GLint normal_matrix_location_id;
+    GLint modelview_matrix_location;
+    GLint projection_matrix_location;
+    GLint normal_matrix_location;
 
     GLuint vao_id;
 };

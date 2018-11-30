@@ -133,16 +133,16 @@ struct hmap *ngli_program_probe_uniforms(const char *node_name, struct glcontext
 
         /* Remove [0] suffix from names of uniform arrays */
         name[strcspn(name, "[")] = 0;
-        info->id = ngli_glGetUniformLocation(gl, pid, name);
+        info->location = ngli_glGetUniformLocation(gl, pid, name);
 
         if (info->type == GL_IMAGE_2D) {
-            ngli_glGetUniformiv(gl, pid, info->id, &info->binding);
+            ngli_glGetUniformiv(gl, pid, info->location, &info->binding);
         } else {
             info->binding = -1;
         }
 
         LOG(DEBUG, "%s.uniform[%d/%d]: %s location:%d size=%d type=0x%x binding=%d", node_name,
-            i + 1, nb_active_uniforms, name, info->id, info->size, info->type, info->binding);
+            i + 1, nb_active_uniforms, name, info->location, info->size, info->type, info->binding);
 
         int ret = ngli_hmap_set(umap, name, info);
         if (ret < 0) {
@@ -173,9 +173,9 @@ struct hmap *ngli_program_probe_attributes(const char *node_name, struct glconte
         ngli_glGetActiveAttrib(gl, pid, i, sizeof(name), NULL,
                                &info->size, &info->type, name);
 
-        info->id = ngli_glGetAttribLocation(gl, pid, name);
+        info->location = ngli_glGetAttribLocation(gl, pid, name);
         LOG(DEBUG, "%s.attribute[%d/%d]: %s location:%d size=%d type=0x%x", node_name,
-            i + 1, nb_active_attributes, name, info->id, info->size, info->type);
+            i + 1, nb_active_attributes, name, info->location, info->size, info->type);
 
         int ret = ngli_hmap_set(amap, name, info);
         if (ret < 0) {
