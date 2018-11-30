@@ -384,14 +384,14 @@ static int load_textureprograminfo(struct textureprograminfo *info,
             return -1;
         }
 
-#define SET_INFO_FIELD(dst, src) do {                                                \
-    if (map->dst##_offset != SIZE_MAX)                                               \
-        *(int *)((uint8_t *)info + map->dst##_offset) = uniform ? uniform->src : -1; \
+#define SET_INFO_FIELD(field) do {                                                       \
+    if (map->field##_offset != SIZE_MAX)                                                 \
+        *(int *)((uint8_t *)info + map->field##_offset) = uniform ? uniform->field : -1; \
 } while (0)
 
-        SET_INFO_FIELD(location, location);
-        SET_INFO_FIELD(type, type);
-        SET_INFO_FIELD(binding, binding);
+        SET_INFO_FIELD(location);
+        SET_INFO_FIELD(type);
+        SET_INFO_FIELD(binding);
     }
     return 0;
 }
