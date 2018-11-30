@@ -61,6 +61,8 @@ static const struct node_param rtt_params[] = {
     {"features",      PARAM_TYPE_FLAGS, OFFSET(features),
                       .choices=&feature_choices,
                       .desc=NGLI_DOCSTRING("framebuffer feature mask")},
+    {"vflip",         PARAM_TYPE_BOOL, OFFSET(vflip), {.i64=1},
+                      .desc=NGLI_DOCSTRING("apply a vertical flip to `color_texture` and `depth_texture` transformation matrices to match the `node.gl` uv coordinates system")},
     {NULL}
 };
 
@@ -223,6 +225,7 @@ static int rtt_prefetch(struct ngl_node *node)
 
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
 
+    if (s->vflip) {
     /* flip vertically the color and depth textures so the coordinates match
      * how the uv coordinates system works */
     texture->coordinates_matrix[5] = -1.0f;
@@ -231,6 +234,7 @@ static int rtt_prefetch(struct ngl_node *node)
     if (depth_texture) {
         depth_texture->coordinates_matrix[5] = -1.0f;
         depth_texture->coordinates_matrix[13] = 1.0f;
+    }
     }
 
     return 0;
@@ -322,6 +326,7 @@ static void rtt_draw(struct ngl_node *node)
         break;
     }
 
+    if (s->vflip) {
     texture->coordinates_matrix[5] = -1.0f;
     texture->coordinates_matrix[13] = 1.0f;
 
@@ -329,6 +334,7 @@ static void rtt_draw(struct ngl_node *node)
         struct texture *depth_texture = s->depth_texture->priv_data;
         depth_texture->coordinates_matrix[5] = -1.0f;
         depth_texture->coordinates_matrix[13] = 1.0f;
+    }
     }
 }
 

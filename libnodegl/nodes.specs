@@ -297,6 +297,7 @@
         - [samples, int]
         - [clear_color, vec4]
         - [features, flags]
+        - [vflip, bool]
 
 - Rotate:
     constructors:

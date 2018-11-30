@@ -244,6 +244,7 @@ struct rtt {
     int samples;
     float clear_color[4];
     int features;
+    int vflip;
 
     int use_clear_color;
     int width;

@@ -405,6 +405,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `samples` |  |  | [`int`](#parameter-types) | number of samples used for multisampling anti-aliasing | `0`
 `clear_color` |  |  | [`vec4`](#parameter-types) | color used to clear the `color_texture` | (`-1`,`-1`,`-1`,`-1`)
 `features` |  |  | [`framebuffer_features`](#framebuffer_features-choices) | framebuffer feature mask | `0`
+`vflip` |  |  | [`bool`](#parameter-types) | apply a vertical flip to `color_texture` and `depth_texture` transformation matrices to match the `node.gl` uv coordinates system | `1`
 
 
 **Source**: [node_rtt.c](/libnodegl/node_rtt.c)
