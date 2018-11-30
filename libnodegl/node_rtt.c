@@ -226,15 +226,15 @@ static int rtt_prefetch(struct ngl_node *node)
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
 
     if (s->vflip) {
-    /* flip vertically the color and depth textures so the coordinates match
-     * how the uv coordinates system works */
-    texture->coordinates_matrix[5] = -1.0f;
-    texture->coordinates_matrix[13] = 1.0f;
+        /* flip vertically the color and depth textures so the coordinates
+         * match how the uv coordinates system works */
+        texture->coordinates_matrix[5] = -1.0f;
+        texture->coordinates_matrix[13] = 1.0f;
 
-    if (depth_texture) {
-        depth_texture->coordinates_matrix[5] = -1.0f;
-        depth_texture->coordinates_matrix[13] = 1.0f;
-    }
+        if (depth_texture) {
+            depth_texture->coordinates_matrix[5] = -1.0f;
+            depth_texture->coordinates_matrix[13] = 1.0f;
+        }
     }
 
     return 0;
@@ -327,14 +327,14 @@ static void rtt_draw(struct ngl_node *node)
     }
 
     if (s->vflip) {
-    texture->coordinates_matrix[5] = -1.0f;
-    texture->coordinates_matrix[13] = 1.0f;
+        texture->coordinates_matrix[5] = -1.0f;
+        texture->coordinates_matrix[13] = 1.0f;
 
-    if (s->depth_texture) {
-        struct texture *depth_texture = s->depth_texture->priv_data;
-        depth_texture->coordinates_matrix[5] = -1.0f;
-        depth_texture->coordinates_matrix[13] = 1.0f;
-    }
+        if (s->depth_texture) {
+            struct texture *depth_texture = s->depth_texture->priv_data;
+            depth_texture->coordinates_matrix[5] = -1.0f;
+            depth_texture->coordinates_matrix[13] = 1.0f;
+        }
     }
 }
 
