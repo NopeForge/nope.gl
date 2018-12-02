@@ -345,27 +345,12 @@ static void rtt_release(struct ngl_node *node)
 
     struct rtt *s = node->priv_data;
 
-    GLuint framebuffer_id = 0;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
-    ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, 0, 0);
-    ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-
+    ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
     ngli_glDeleteRenderbuffers(gl, 1, &s->depthbuffer_id);
     ngli_glDeleteRenderbuffers(gl, 1, &s->stencilbuffer_id);
-    ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
-
-    if (s->samples > 0) {
-        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_ms_id);
-        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, 0);
-        ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, 0);
-
-        ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_ms_id);
-        ngli_glDeleteRenderbuffers(gl, 1, &s->colorbuffer_ms_id);
-        ngli_glDeleteRenderbuffers(gl, 1, &s->depthbuffer_ms_id);
-    }
-
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
+    ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_ms_id);
+    ngli_glDeleteRenderbuffers(gl, 1, &s->colorbuffer_ms_id);
+    ngli_glDeleteRenderbuffers(gl, 1, &s->depthbuffer_ms_id);
 }
 
 const struct node_class ngli_rtt_class = {
