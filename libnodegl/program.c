@@ -27,7 +27,7 @@
 #include "nodes.h"
 #include "program.h"
 
-unsigned ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment)
+GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment)
 {
     GLuint program = ngli_glCreateProgram(gl);
     GLuint vertex_shader = ngli_glCreateShader(gl, GL_VERTEX_SHADER);
