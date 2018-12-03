@@ -212,6 +212,10 @@ static const struct {
 
 NGLI_STATIC_ASSERT(hud_nb_latency, NGLI_ARRAY_NB(latency_specs) == NB_LATENCY);
 
+struct rect {
+    int x, y, w, h;
+};
+
 static inline uint8_t *set_color(uint8_t *p, uint32_t rgba)
 {
     p[0] = rgba >> 24;
@@ -361,26 +365,28 @@ static int clip(int x, int min, int max)
     return x;
 }
 
-static void update_graph(struct hud *s, int op, float scale)
+static void draw_line_graph(struct hud *s,
+                            const struct hud_data_graph *d,
+                            const struct rect *rect,
+                            int64_t graph_min, int64_t graph_max,
+                            const uint32_t c)
 {
-    struct hud_data_graph *d = &s->graph[op];
-    const uint32_t c = latency_specs[op].color;
+    const int64_t graph_h = graph_max - graph_min;
+    const float vscale = (float)rect->h / graph_h;
     const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
     int prev_y;
 
     for (int k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
+        const int h = (v - graph_min) * vscale;
+        const int y = clip(rect->h - 1 - h, 0, rect->h - 1);
+        uint8_t *p = s->data_buf + get_pixel_pos(s, rect->x + k, rect->y + y);
 
-        const int h = (v - s->graph_min) * scale;
-        const int y = clip(s->data_h - 1 - h, 0, s->data_h - 1);
-        const int x = DATA_NBCHAR_W*FONT_W;
-
-        uint8_t *p = s->data_buf + get_pixel_pos(s, x + k, y);
         set_color(p, c);
         if (k) {
             const int sign = prev_y < y ? 1 : -1;
             const int column_h = abs(prev_y - y);
-            uint8_t *p = s->data_buf + get_pixel_pos(s, x + k, prev_y);
+            uint8_t *p = s->data_buf + get_pixel_pos(s, rect->x + k, rect->y + prev_y);
             for (int z = 0; z < column_h; z++) {
                 set_color(p, c);
                 p += sign * s->data_w * 4;
@@ -529,10 +535,11 @@ static void hud_draw(struct ngl_node *node)
         }
 
         const int64_t graph_h = s->graph_max - s->graph_min;
+        struct rect graph_rect = {.x=DATA_NBCHAR_W*FONT_W, .y=0, .w=s->graph[0].nb_values, .h=s->data_h};
         if (graph_h) {
-            const float scale = (float)s->data_h / graph_h;
             for (int i = 0; i < NB_LATENCY; i++)
-                update_graph(s, i, scale);
+                draw_line_graph(s, &s->graph[i], &graph_rect,
+                                s->graph_min, s->graph_max, latency_specs[i].color);
         }
     }
 }
