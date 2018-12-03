@@ -201,7 +201,7 @@ static const struct {
     const char *label;
     const uint32_t color;
     char unit;
-} ops[] = {
+} latency_specs[] = {
     [LATENCY_UPDATE_CPU] = {"update CPU", 0xF43DF4FF, 'u'},
     [LATENCY_UPDATE_GPU] = {"update GPU", 0x3D3DF4FF, 'n'},
     [LATENCY_DRAW_CPU]   = {"draw   CPU", 0x3DF4F4FF, 'u'},
@@ -210,7 +210,7 @@ static const struct {
     [LATENCY_TOTAL_GPU]  = {"total  GPU", 0xF43D3DFF, 'n'},
 };
 
-NGLI_STATIC_ASSERT(hud_nb_ops, NGLI_ARRAY_NB(ops) == NB_LATENCY);
+NGLI_STATIC_ASSERT(hud_nb_latency, NGLI_ARRAY_NB(latency_specs) == NB_LATENCY);
 
 static inline uint8_t *set_color(uint8_t *p, uint32_t rgba)
 {
@@ -305,7 +305,7 @@ static int hud_init(struct ngl_node *node)
             return -1;
 
         for (int i = 0; i < NB_LATENCY; i++)
-            ngli_bstr_print(s->csv_line, "%s%s", i ? "," : "", ops[i].label);
+            ngli_bstr_print(s->csv_line, "%s%s", i ? "," : "", latency_specs[i].label);
         ngli_bstr_print(s->csv_line, "\n");
 
         const int len = ngli_bstr_len(s->csv_line);
@@ -358,7 +358,7 @@ static int clip(int x, int min, int max)
 static void update_graph(struct hud *s, int op, float scale)
 {
     struct hud_data_graph *d = &s->graph[op];
-    const uint32_t c = ops[op].color;
+    const uint32_t c = latency_specs[op].color;
     const int start = (d->pos - d->count + DATA_GRAPH_W) % DATA_GRAPH_W;
     int prev_y;
 
@@ -388,15 +388,15 @@ static int64_t report_op(struct hud *s, int op)
 {
     /* Get the average measure of the specified operation */
     const struct hud_measuring *m = &s->measures[op];
-    const int64_t t = m->total_times / m->count / (ops[op].unit == 'u' ? 1 : 1000);
-    const uint32_t c = ops[op].color;
+    const int64_t t = m->total_times / m->count / (latency_specs[op].unit == 'u' ? 1 : 1000);
+    const uint32_t c = latency_specs[op].color;
 
     /* Register a point for the final graph */
     register_graph_value(&s->graph[op], t);
 
     /* Print the text line to the picture buffer */
     char buf[DATA_NBCHAR_W+1];
-    snprintf(buf, sizeof(buf), "%s %5" PRId64 "usec", ops[op].label, t);
+    snprintf(buf, sizeof(buf), "%s %5" PRId64 "usec", latency_specs[op].label, t);
     uint8_t *line = s->data_buf + op * FONT_H * DATA_W * 4;
     for (int i = 0; buf[i]; i++) {
         uint8_t *p = line + i * FONT_W * 4;
