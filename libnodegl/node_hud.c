@@ -527,19 +527,19 @@ static void hud_draw(struct ngl_node *node)
                 report_op(s, i);
         }
 
-        s->graph_min = s->graph[0].min;
-        s->graph_max = s->graph[0].max;
+        int64_t graph_min = s->graph[0].min;
+        int64_t graph_max = s->graph[0].max;
         for (int i = 1; i < NB_LATENCY; i++) {
-            s->graph_min = NGLI_MIN(s->graph_min, s->graph[i].min);
-            s->graph_max = NGLI_MAX(s->graph_max, s->graph[i].max);
+            graph_min = NGLI_MIN(graph_min, s->graph[i].min);
+            graph_max = NGLI_MAX(graph_max, s->graph[i].max);
         }
 
-        const int64_t graph_h = s->graph_max - s->graph_min;
+        const int64_t graph_h = graph_max - graph_min;
         struct rect graph_rect = {.x=DATA_NBCHAR_W*FONT_W, .y=0, .w=s->graph[0].nb_values, .h=s->data_h};
         if (graph_h) {
             for (int i = 0; i < NB_LATENCY; i++)
                 draw_line_graph(s, &s->graph[i], &graph_rect,
-                                s->graph_min, s->graph_max, latency_specs[i].color);
+                                graph_min, graph_max, latency_specs[i].color);
         }
     }
 }

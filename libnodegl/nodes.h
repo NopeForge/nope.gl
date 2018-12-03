@@ -601,8 +601,6 @@ struct hud {
     double refresh_rate_interval;
     double last_refresh_time;
     int need_refresh;
-    int64_t graph_min;
-    int64_t graph_max;
 
     GLuint query;
     void (*glGenQueries)(const struct glcontext *gl, GLsizei n, GLuint * ids);
