@@ -321,7 +321,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `child` | ✓ |  | [`Node`](#parameter-types) | scene to benchmark | 
-`measure_window` |  |  | [`int`](#parameter-types) | window size for measures | `60`
+`measure_window` |  |  | [`int`](#parameter-types) | window size for latency measures | `60`
 `refresh_rate` |  |  | [`rational`](#parameter-types) | refresh data buffer every `update_rate` second | 
 `export_filename` |  |  | [`string`](#parameter-types) | path to export file (CSV) | 
 `bg_color` |  |  | [`vec4`](#parameter-types) | background buffer color | (`0`,`0`,`0`,`1`)

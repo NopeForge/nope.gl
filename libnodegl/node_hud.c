@@ -38,7 +38,7 @@ static const struct node_param hud_params[] = {
     {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
               .desc=NGLI_DOCSTRING("scene to benchmark")},
     {"measure_window", PARAM_TYPE_INT, OFFSET(measure_window), {.i64=60},
-                       .desc=NGLI_DOCSTRING("window size for measures")},
+                       .desc=NGLI_DOCSTRING("window size for latency measures")},
     {"refresh_rate",   PARAM_TYPE_RATIONAL, OFFSET(refresh_rate),
                        .desc=NGLI_DOCSTRING("refresh data buffer every `update_rate` second")},
     {"export_filename", PARAM_TYPE_STR, OFFSET(export_filename),
