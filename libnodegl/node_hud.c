@@ -390,12 +390,24 @@ static void update_graph(struct hud *s, int op, float scale)
     }
 }
 
+static void print_text(struct hud *s, int x, int y, const char *buf, const uint32_t c)
+{
+    uint8_t *start = s->data_buf + get_pixel_pos(s, x, y);
+    for (int i = 0; buf[i]; i++) {
+        uint8_t *p = start + i * FONT_W * 4;
+        for (int char_y = 0; char_y < FONT_H; char_y++) {
+            for (int m = 0; m < FONT_W; m++)
+                p = (font8[buf[i] & 0x7f][char_y] & (1<<m)) ? set_color(p, c) : p + 4;
+            p += (s->data_w - 8) * 4;
+        }
+    }
+}
+
 static int64_t report_op(struct hud *s, int op)
 {
     /* Get the average measure of the specified operation */
     const struct hud_measuring *m = &s->measures[op];
     const int64_t t = m->total_times / m->count / (latency_specs[op].unit == 'u' ? 1 : 1000);
-    const uint32_t c = latency_specs[op].color;
 
     /* Register a point for the final graph */
     register_graph_value(&s->graph[op], t);
@@ -403,16 +415,7 @@ static int64_t report_op(struct hud *s, int op)
     /* Print the text line to the picture buffer */
     char buf[DATA_NBCHAR_W+1];
     snprintf(buf, sizeof(buf), "%s %5" PRId64 "usec", latency_specs[op].label, t);
-    uint8_t *line = s->data_buf + get_pixel_pos(s, 0, op * FONT_H);
-    for (int i = 0; buf[i]; i++) {
-        uint8_t *p = line + i * FONT_W * 4;
-        for (int char_y = 0; char_y < FONT_H; char_y++) {
-            for (int m = 0; m < FONT_W; m++)
-                p = (font8[buf[i] & 0x7f][char_y] & (1<<m)) ? set_color(p, c)
-                                                            : p + 4;
-            p += (s->data_w - 8) * 4;
-        }
-    }
+    print_text(s, 0, op * FONT_H, buf, latency_specs[op].color);
 
     return t;
 }
