@@ -164,8 +164,6 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
         ngli_glEnableVertexAttribArray(gl, vt->position_location);
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices_id);
         ngli_glVertexAttribPointer(gl, vt->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
-
-        ngli_glBindVertexArray(gl, 0);
     }
 
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
