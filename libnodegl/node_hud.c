@@ -347,6 +347,11 @@ static void register_graph_value(struct hud_data_graph *d, int64_t v)
     }
 }
 
+static inline int get_pixel_pos(struct hud *s, int px, int py)
+{
+    return (py * s->data_w + px) * 4;
+}
+
 static int clip(int x, int min, int max)
 {
     if (x < min)
@@ -370,12 +375,12 @@ static void update_graph(struct hud *s, int op, float scale)
         const int y = clip(s->data_h - 1 - h, 0, s->data_h - 1);
         const int x = DATA_NBCHAR_W*FONT_W;
 
-        uint8_t *p = s->data_buf + y*s->data_w*4 + x*4 + k*4;
+        uint8_t *p = s->data_buf + get_pixel_pos(s, x + k, y);
         set_color(p, c);
         if (k) {
             const int sign = prev_y < y ? 1 : -1;
             const int column_h = abs(prev_y - y);
-            uint8_t *p = s->data_buf + prev_y*s->data_w*4 + x*4 + k*4;
+            uint8_t *p = s->data_buf + get_pixel_pos(s, x + k, prev_y);
             for (int z = 0; z < column_h; z++) {
                 set_color(p, c);
                 p += sign * s->data_w * 4;
@@ -398,7 +403,7 @@ static int64_t report_op(struct hud *s, int op)
     /* Print the text line to the picture buffer */
     char buf[DATA_NBCHAR_W+1];
     snprintf(buf, sizeof(buf), "%s %5" PRId64 "usec", latency_specs[op].label, t);
-    uint8_t *line = s->data_buf + op * FONT_H * s->data_w * 4;
+    uint8_t *line = s->data_buf + get_pixel_pos(s, 0, op * FONT_H);
     for (int i = 0; buf[i]; i++) {
         uint8_t *p = line + i * FONT_W * 4;
         for (int char_y = 0; char_y < FONT_H; char_y++) {
