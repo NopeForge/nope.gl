@@ -90,6 +90,8 @@ struct ngl_node {
     double visit_time;
     double last_update_time;
 
+    int draw_count;
+
     int refcount;
     int ctx_refcount;
 
