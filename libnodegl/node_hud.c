@@ -44,7 +44,7 @@ static const struct node_param hud_params[] = {
     {"export_filename", PARAM_TYPE_STR, OFFSET(export_filename),
                         .desc=NGLI_DOCSTRING("path to export file (CSV)")},
     {"bg_color", PARAM_TYPE_VEC4, OFFSET(bg_color), {.vec={0.0, 0.0, 0.0, 1.0}},
-                 .desc=NGLI_DOCSTRING("Background buffer color")},
+                 .desc=NGLI_DOCSTRING("background buffer color")},
     {NULL}
 };
 

@@ -324,7 +324,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `measure_window` |  |  | [`int`](#parameter-types) | window size for measures | `60`
 `refresh_rate` |  |  | [`rational`](#parameter-types) | refresh data buffer every `update_rate` second | 
 `export_filename` |  |  | [`string`](#parameter-types) | path to export file (CSV) | 
-`bg_color` |  |  | [`vec4`](#parameter-types) | Background buffer color | (`0`,`0`,`0`,`1`)
+`bg_color` |  |  | [`vec4`](#parameter-types) | background buffer color | (`0`,`0`,`0`,`1`)
 
 
 **Source**: [node_hud.c](/libnodegl/node_hud.c)
