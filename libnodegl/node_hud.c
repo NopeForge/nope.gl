@@ -278,7 +278,8 @@ static int hud_init(struct ngl_node *node)
 
     s->measure_window = NGLI_MAX(s->measure_window, 1);
     for (int i = 0; i < NB_LATENCY; i++) {
-        int64_t *values = calloc(DATA_GRAPH_W, sizeof(*values));
+        s->graph[i].nb_values = DATA_GRAPH_W;
+        int64_t *values = calloc(s->graph[i].nb_values, sizeof(*values));
         if (!values)
             return -1;
         s->graph[i].values = values;
@@ -324,13 +325,13 @@ static void register_graph_value(struct hud_data_graph *d, int64_t v)
     const int64_t old_v = d->values[d->pos];
 
     d->values[d->pos] = v;
-    d->pos = (d->pos + 1) % DATA_GRAPH_W;
-    d->count = NGLI_MIN(d->count + 1, DATA_GRAPH_W);
+    d->pos = (d->pos + 1) % d->nb_values;
+    d->count = NGLI_MIN(d->count + 1, d->nb_values);
 
     /* update min */
     if (old_v == d->min) {
         d->min = d->values[0];
-        for (int i = 1; i < DATA_GRAPH_W; i++)
+        for (int i = 1; i < d->nb_values; i++)
             d->min = NGLI_MIN(d->min, d->values[i]);
     } else if (v < d->min) {
         d->min = v;
@@ -339,7 +340,7 @@ static void register_graph_value(struct hud_data_graph *d, int64_t v)
     /* update max */
     if (old_v == d->max) {
         d->max = d->values[0];
-        for (int i = 1; i < DATA_GRAPH_W; i++)
+        for (int i = 1; i < d->nb_values; i++)
             d->max = NGLI_MAX(d->max, d->values[i]);
     } else if (v > d->max) {
         d->max = v;
@@ -359,11 +360,11 @@ static void update_graph(struct hud *s, int op, float scale)
 {
     struct hud_data_graph *d = &s->graph[op];
     const uint32_t c = latency_specs[op].color;
-    const int start = (d->pos - d->count + DATA_GRAPH_W) % DATA_GRAPH_W;
+    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
     int prev_y;
 
     for (int k = 0; k < d->count; k++) {
-        const int64_t v = d->values[(start + k) % DATA_GRAPH_W];
+        const int64_t v = d->values[(start + k) % d->nb_values];
 
         const int h = (v - s->graph_min) * scale;
         const int y = clip(DATA_H - 1 - h, 0, DATA_H - 1);

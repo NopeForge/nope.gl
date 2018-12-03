@@ -577,6 +577,7 @@ struct hud_measuring {
 
 struct hud_data_graph {
     int64_t *values;
+    int nb_values;
     int count;
     int pos;
     int64_t min;
