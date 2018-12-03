@@ -319,9 +319,8 @@ static int hud_init(struct ngl_node *node)
     return 0;
 }
 
-static void register_graph_value(struct hud *s, int op, int64_t v)
+static void register_graph_value(struct hud_data_graph *d, int64_t v)
 {
-    struct hud_data_graph *d = &s->graph[op];
     const int64_t old_v = d->values[d->pos];
 
     d->values[d->pos] = v;
@@ -393,7 +392,7 @@ static int64_t report_op(struct hud *s, int op)
     const uint32_t c = ops[op].color;
 
     /* Register a point for the final graph */
-    register_graph_value(s, op, t);
+    register_graph_value(&s->graph[op], t);
 
     /* Print the text line to the picture buffer */
     char buf[DATA_NBCHAR_W+1];
