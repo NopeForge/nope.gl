@@ -280,6 +280,20 @@ static void draw_elements_instanced(struct glcontext *gl, struct render *render)
     ngli_glDrawElementsInstanced(gl, geometry->topology, indices->count, render->indices_type, 0, render->nb_instances);
 }
 
+static void draw_arrays(struct glcontext *gl, struct render *render)
+{
+    struct geometry *geometry = render->geometry->priv_data;
+    struct buffer *vertices = geometry->vertices_buffer->priv_data;
+    ngli_glDrawArrays(gl, geometry->topology, 0, vertices->count);
+}
+
+static void draw_arrays_instanced(struct glcontext *gl, struct render *render)
+{
+    struct geometry *geometry = render->geometry->priv_data;
+    struct buffer *vertices = geometry->vertices_buffer->priv_data;
+    ngli_glDrawArraysInstanced(gl, geometry->topology, 0, vertices->count, render->nb_instances);
+}
+
 static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -353,13 +367,15 @@ static int render_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_ref(geometry->indices_buffer);
-    if (ret < 0)
-        return ret;
-    s->has_indices_buffer_ref = 1;
+    if (geometry->indices_buffer) {
+        ret = ngli_buffer_ref(geometry->indices_buffer);
+        if (ret < 0)
+            return ret;
+        s->has_indices_buffer_ref = 1;
 
-    struct buffer *indices = geometry->indices_buffer->priv_data;
-    ngli_format_get_gl_format_type(gl, indices->data_format, NULL, NULL, &s->indices_type);
+        struct buffer *indices = geometry->indices_buffer->priv_data;
+        ngli_format_get_gl_format_type(gl, indices->data_format, NULL, NULL, &s->indices_type);
+    }
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glGenVertexArrays(gl, 1, &s->vao_id);
@@ -367,7 +383,10 @@ static int render_init(struct ngl_node *node)
         update_vertex_attribs(node);
     }
 
-    s->draw = s->nb_instances > 0 ? draw_elements_instanced : draw_elements;
+    if (geometry->indices_buffer)
+        s->draw = s->nb_instances > 0 ? draw_elements_instanced : draw_elements;
+    else
+        s->draw = s->nb_instances > 0 ? draw_arrays_instanced : draw_arrays;
 
     return 0;
 }

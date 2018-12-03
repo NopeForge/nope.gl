@@ -85,11 +85,6 @@ static int triangle_init(struct ngl_node *node)
     if (!s->normals_buffer)
         return -1;
 
-    s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx,
-                                                              NB_VERTICES);
-    if (!s->indices_buffer)
-        return -1;
-
     s->topology = GL_TRIANGLES;
 
     return 0;
@@ -109,7 +104,6 @@ static void triangle_uninit(struct ngl_node *node)
     NODE_UNREFP(s->vertices_buffer);
     NODE_UNREFP(s->uvcoords_buffer);
     NODE_UNREFP(s->normals_buffer);
-    NODE_UNREFP(s->indices_buffer);
 }
 
 const struct node_class ngli_triangle_class = {

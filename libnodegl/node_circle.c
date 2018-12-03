@@ -98,9 +98,7 @@ static int circle_init(struct ngl_node *node)
                                                       nb_vertices * sizeof(*normals) * 3,
                                                       normals);
 
-    s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx, nb_vertices);
-
-    if (!s->vertices_buffer || !s->uvcoords_buffer || !s->indices_buffer || !s->normals_buffer)
+    if (!s->vertices_buffer || !s->uvcoords_buffer || !s->normals_buffer)
         goto end;
 
     s->topology = GL_TRIANGLE_FAN;
@@ -128,7 +126,6 @@ static void circle_uninit(struct ngl_node *node)
     NODE_UNREFP(s->vertices_buffer);
     NODE_UNREFP(s->uvcoords_buffer);
     NODE_UNREFP(s->normals_buffer);
-    NODE_UNREFP(s->indices_buffer);
 }
 
 const struct node_class ngli_circle_class = {

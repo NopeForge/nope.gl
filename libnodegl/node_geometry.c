@@ -27,13 +27,6 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-#define SET_INDICES(type, count, data) do {                                    \
-    type *indices = (type *)(data);                                            \
-    for (int i = 0; i < (count); i++) {                                        \
-        indices[i] = i;                                                        \
-    }                                                                          \
-} while (0)
-
 struct ngl_node *ngli_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data)
 {
     struct ngl_node *node = ngl_node_create(type, count);
@@ -52,24 +45,6 @@ fail:
     ngli_node_detach_ctx(node);
     ngl_node_unrefp(&node);
     return NULL;
-}
-
-struct ngl_node *ngli_geometry_generate_indices_buffer(struct ngl_ctx *ctx, int count)
-{
-    int size = count * sizeof(short);
-    uint8_t *data = calloc(count, sizeof(short));
-    if (!data)
-        return NULL;
-
-    SET_INDICES(short, count, data);
-
-    struct ngl_node *node = ngli_geometry_generate_buffer(ctx,
-                                                          NGL_NODE_BUFFERUSHORT,
-                                                          count,
-                                                          size,
-                                                          data);
-    free(data);
-    return node;
 }
 
 static const struct param_choices topology_choices = {
@@ -144,13 +119,6 @@ static int geometry_init(struct ngl_node *node)
                 vertices->count);
             return -1;
         }
-    }
-
-    if (!s->indices_buffer) {
-        s->indices_buffer = ngli_geometry_generate_indices_buffer(node->ctx,
-                                                                  vertices->count);
-        if (!s->indices_buffer)
-            return -1;
     }
 
     return 0;
