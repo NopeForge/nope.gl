@@ -141,6 +141,7 @@ static const struct glfeature {
         .version        = 310,
         .es_version     = 300,
         .funcs_offsets  = (const size_t[]){OFFSET(DrawElementsInstanced),
+                                           OFFSET(DrawArraysInstanced),
                                            -1}
 
     }, {

@@ -281,6 +281,12 @@ static inline void ngli_glDrawArrays(const struct glcontext *gl, GLenum mode, GL
     check_error_code(gl, "glDrawArrays");
 }
 
+static inline void ngli_glDrawArraysInstanced(const struct glcontext *gl, GLenum mode, GLint first, GLsizei count, GLsizei instancecount)
+{
+    gl->funcs.DrawArraysInstanced(mode, first, count, instancecount);
+    check_error_code(gl, "glDrawArraysInstanced");
+}
+
 static inline void ngli_glDrawElements(const struct glcontext *gl, GLenum mode, GLsizei count, GLenum type, const void * indices)
 {
     gl->funcs.DrawElements(mode, count, type, indices);

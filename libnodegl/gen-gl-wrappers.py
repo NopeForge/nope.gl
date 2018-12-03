@@ -79,6 +79,7 @@ cmds_optional = [
     'glGetQueryObjectui64vEXT',
 
     # Instancing
+    'glDrawArraysInstanced',
     'glDrawElementsInstanced',
     'glVertexAttribDivisor',
 
