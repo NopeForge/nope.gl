@@ -417,6 +417,9 @@ struct render {
     GLint normal_matrix_location;
 
     GLuint vao_id;
+    GLenum indices_type;
+
+    void (*draw)(struct glcontext *gl, struct render *render);
 };
 
 struct compute {

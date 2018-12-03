@@ -264,6 +264,22 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attribut
     return 0;
 }
 
+static void draw_elements(struct glcontext *gl, struct render *render)
+{
+    struct geometry *geometry = render->geometry->priv_data;
+    const struct buffer *indices = geometry->indices_buffer->priv_data;
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->graphic_buffer.id);
+    ngli_glDrawElements(gl, geometry->topology, indices->count, render->indices_type, 0);
+}
+
+static void draw_elements_instanced(struct glcontext *gl, struct render *render)
+{
+    struct geometry *geometry = render->geometry->priv_data;
+    struct buffer *indices = geometry->indices_buffer->priv_data;
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->graphic_buffer.id);
+    ngli_glDrawElementsInstanced(gl, geometry->topology, indices->count, render->indices_type, 0, render->nb_instances);
+}
+
 static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -342,11 +358,16 @@ static int render_init(struct ngl_node *node)
         return ret;
     s->has_indices_buffer_ref = 1;
 
+    struct buffer *indices = geometry->indices_buffer->priv_data;
+    ngli_format_get_gl_format_type(gl, indices->data_format, NULL, NULL, &s->indices_type);
+
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glGenVertexArrays(gl, 1, &s->vao_id);
         ngli_glBindVertexArray(gl, s->vao_id);
         update_vertex_attribs(node);
     }
+
+    s->draw = s->nb_instances > 0 ? draw_elements_instanced : draw_elements;
 
     return 0;
 }
@@ -422,18 +443,7 @@ static void render_draw(struct ngl_node *node)
         LOG(ERROR, "pipeline upload data error");
     }
 
-    const struct geometry *geometry = s->geometry->priv_data;
-    const struct buffer *indices_buffer = geometry->indices_buffer->priv_data;
-
-    GLenum indices_type;
-    ngli_format_get_gl_format_type(gl, indices_buffer->data_format, NULL, NULL, &indices_type);
-
-    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices_buffer->graphic_buffer.id);
-    if (s->nb_instances > 0) {
-        ngli_glDrawElementsInstanced(gl, geometry->topology, indices_buffer->count, indices_type, 0, s->nb_instances);
-    } else {
-        ngli_glDrawElements(gl, geometry->topology, indices_buffer->count, indices_type, 0);
-    }
+    s->draw(gl, s);
 
     if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)) {
         disable_vertex_attribs(node);
