@@ -274,7 +274,7 @@ struct program {
     struct hmap *active_buffer_blocks;
 };
 
-#define DECLARE_FORMAT(format, name, doc) format,
+#define DECLARE_FORMAT(format, size, name, doc) format,
 
 enum {
     NGLI_FORMATS(DECLARE_FORMAT)

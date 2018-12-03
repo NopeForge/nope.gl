@@ -73,7 +73,7 @@ static const struct param_choices access_choices = {
     }
 };
 
-#define DECLARE_FORMAT_PARAM(format, name, doc) \
+#define DECLARE_FORMAT_PARAM(format, size, name, doc) \
     {name, format, .desc=NGLI_DOCSTRING(doc)},
 
 static const struct param_choices format_choices = {
