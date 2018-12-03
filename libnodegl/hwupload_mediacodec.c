@@ -73,7 +73,6 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
@@ -149,7 +148,6 @@ static void mc_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
@@ -164,7 +162,6 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
@@ -227,7 +224,6 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
     struct media *media = s->data_src->priv_data;
 
@@ -249,7 +245,6 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture *s = node->priv_data;
-
     struct media *media = s->data_src->priv_data;
     AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 

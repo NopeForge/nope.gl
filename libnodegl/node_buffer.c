@@ -76,7 +76,6 @@ int ngli_buffer_ref(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct buffer *s = node->priv_data;
 
     if (s->graphic_buffer_refcount++ == 0) {
@@ -96,7 +95,6 @@ void ngli_buffer_unref(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct buffer *s = node->priv_data;
 
     ngli_assert(s->graphic_buffer_refcount);
@@ -108,7 +106,6 @@ int ngli_buffer_upload(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct buffer *s = node->priv_data;
 
     if (s->dynamic && s->graphic_buffer_last_upload_time != node->last_update_time) {

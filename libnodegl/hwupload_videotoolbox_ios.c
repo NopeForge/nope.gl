@@ -86,7 +86,6 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
@@ -177,7 +176,6 @@ static void vt_ios_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
@@ -195,7 +193,6 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
@@ -353,7 +350,6 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 

@@ -100,7 +100,6 @@ static int program_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct program *s = node->priv_data;
 
     s->program_id = ngli_program_load(gl, s->vertex, s->fragment);
@@ -120,7 +119,6 @@ static void program_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct program *s = node->priv_data;
 
     ngli_hmap_freep(&s->active_uniforms);

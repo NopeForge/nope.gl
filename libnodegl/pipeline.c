@@ -186,7 +186,6 @@ static int update_images_and_samplers(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct pipeline *s = get_pipeline(node);
 
     if (s->textures) {
@@ -232,7 +231,6 @@ static int update_uniforms(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct pipeline *s = get_pipeline(node);
 
     for (int i = 0; i < s->nb_uniform_pairs; i++) {

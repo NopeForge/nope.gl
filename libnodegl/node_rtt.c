@@ -111,7 +111,6 @@ static int rtt_prefetch(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct rtt *s = node->priv_data;
     struct texture *texture = s->color_texture->priv_data;
     struct texture *depth_texture = NULL;
@@ -260,7 +259,6 @@ static void rtt_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct rtt *s = node->priv_data;
 
     GLuint framebuffer_id = 0;
@@ -342,7 +340,6 @@ static void rtt_release(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct rtt *s = node->priv_data;
 
     ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);

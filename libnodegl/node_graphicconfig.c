@@ -191,7 +191,6 @@ static void honor_config(struct ngl_node *node, int restore)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct graphicconfig *s = node->priv_data;
     struct glstate *prev = restore ? &s->states[0] : &s->states[1];
     struct glstate *next = restore ? &s->states[1] : &s->states[0];

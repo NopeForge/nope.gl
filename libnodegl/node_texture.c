@@ -356,7 +356,6 @@ int ngli_texture_update_data(struct ngl_node *node,
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
     int ret = 0;
 
@@ -590,7 +589,6 @@ static void texture_release(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
 
     ngli_hwupload_uninit(node);

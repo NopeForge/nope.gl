@@ -82,7 +82,6 @@ static int camera_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct camera *s = node->priv_data;
 
     ngli_vec3_norm(s->up, s->up);
@@ -219,7 +218,6 @@ static void camera_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct camera *s = node->priv_data;
 
     if (!ngli_darray_push(&ctx->modelview_matrix_stack, s->modelview_matrix) ||
@@ -267,8 +265,8 @@ static void camera_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct camera *s = node->priv_data;
+
     if (s->pipe_fd) {
         free(s->pipe_buf);
         ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);

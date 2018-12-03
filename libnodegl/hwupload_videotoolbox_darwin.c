@@ -52,7 +52,6 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct texture *s = node->priv_data;
 
     s->data_format = vt_get_data_format(frame);

@@ -194,7 +194,6 @@ static int pair_node_to_attribinfo(struct render *s, const char *name,
 {
     const struct ngl_node *pnode = s->pipeline.program;
     const struct program *program = pnode->priv_data;
-
     const struct attributeprograminfo *active_attribute =
         ngli_hmap_get(program->active_attributes, name);
     if (!active_attribute)
@@ -395,7 +394,6 @@ static void render_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct render *s = node->priv_data;
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
@@ -443,7 +441,6 @@ static void render_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct render *s = node->priv_data;
 
     const struct program *program = s->pipeline.program->priv_data;

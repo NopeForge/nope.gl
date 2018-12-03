@@ -84,7 +84,6 @@ static int compute_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct compute *s = node->priv_data;
 
     if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
@@ -123,7 +122,6 @@ static void compute_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct compute *s = node->priv_data;
 
     const struct program *program = s->pipeline.program->priv_data;
