@@ -224,7 +224,7 @@ static inline uint8_t *set_color(uint8_t *p, uint32_t rgba)
 static void reset_buf(struct hud *s)
 {
     uint8_t *p = s->data_buf;
-    for (int i = 0; i < DATA_W * DATA_H; i++)
+    for (int i = 0; i < s->data_w * s->data_h; i++)
         p = set_color(p, s->bg_color_u32);
 }
 
@@ -367,18 +367,18 @@ static void update_graph(struct hud *s, int op, float scale)
         const int64_t v = d->values[(start + k) % d->nb_values];
 
         const int h = (v - s->graph_min) * scale;
-        const int y = clip(DATA_H - 1 - h, 0, DATA_H - 1);
+        const int y = clip(s->data_h - 1 - h, 0, s->data_h - 1);
         const int x = DATA_NBCHAR_W*FONT_W;
 
-        uint8_t *p = s->data_buf + y*DATA_W*4 + x*4 + k*4;
+        uint8_t *p = s->data_buf + y*s->data_w*4 + x*4 + k*4;
         set_color(p, c);
         if (k) {
             const int sign = prev_y < y ? 1 : -1;
             const int column_h = abs(prev_y - y);
-            uint8_t *p = s->data_buf + prev_y*DATA_W*4 + x*4 + k*4;
+            uint8_t *p = s->data_buf + prev_y*s->data_w*4 + x*4 + k*4;
             for (int z = 0; z < column_h; z++) {
                 set_color(p, c);
-                p += sign * DATA_W * 4;
+                p += sign * s->data_w * 4;
             }
         }
         prev_y = y;
@@ -398,14 +398,14 @@ static int64_t report_op(struct hud *s, int op)
     /* Print the text line to the picture buffer */
     char buf[DATA_NBCHAR_W+1];
     snprintf(buf, sizeof(buf), "%s %5" PRId64 "usec", latency_specs[op].label, t);
-    uint8_t *line = s->data_buf + op * FONT_H * DATA_W * 4;
+    uint8_t *line = s->data_buf + op * FONT_H * s->data_w * 4;
     for (int i = 0; buf[i]; i++) {
         uint8_t *p = line + i * FONT_W * 4;
         for (int char_y = 0; char_y < FONT_H; char_y++) {
             for (int m = 0; m < FONT_W; m++)
                 p = (font8[buf[i] & 0x7f][char_y] & (1<<m)) ? set_color(p, c)
                                                             : p + 4;
-            p += (DATA_W - 8) * 4;
+            p += (s->data_w - 8) * 4;
         }
     }
 
@@ -522,7 +522,7 @@ static void hud_draw(struct ngl_node *node)
 
         const int64_t graph_h = s->graph_max - s->graph_min;
         if (graph_h) {
-            const float scale = (float)DATA_H / graph_h;
+            const float scale = (float)s->data_h / graph_h;
             for (int i = 0; i < NB_LATENCY; i++)
                 update_graph(s, i, scale);
         }
