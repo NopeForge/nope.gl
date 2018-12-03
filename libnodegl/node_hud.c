@@ -261,8 +261,8 @@ static int hud_init(struct ngl_node *node)
 
     s->glGenQueries(gl, 1, &s->query);
 
-    ngli_assert(NGLI_ARRAY_NB(ops) == NGLI_ARRAY_NB(s->measures));
-    ngli_assert(NGLI_ARRAY_NB(ops) == NGLI_ARRAY_NB(s->graph));
+    ngli_assert(NB_LATENCY == NGLI_ARRAY_NB(s->measures));
+    ngli_assert(NB_LATENCY == NGLI_ARRAY_NB(s->graph));
 
     s->bg_color_u32 = ((unsigned)(s->bg_color[0] * 255) & 0xff) << 24 |
                       ((unsigned)(s->bg_color[1] * 255) & 0xff) << 16 |
@@ -277,7 +277,7 @@ static int hud_init(struct ngl_node *node)
     reset_buf(s);
 
     s->measure_window = NGLI_MAX(s->measure_window, 1);
-    for (int i = 0; i < NGLI_ARRAY_NB(ops); i++) {
+    for (int i = 0; i < NB_LATENCY; i++) {
         int64_t *values = calloc(DATA_GRAPH_W, sizeof(*values));
         if (!values)
             return -1;
@@ -304,7 +304,7 @@ static int hud_init(struct ngl_node *node)
         if (!s->csv_line)
             return -1;
 
-        for (int i = 0; i < NGLI_ARRAY_NB(ops); i++)
+        for (int i = 0; i < NB_LATENCY; i++)
             ngli_bstr_print(s->csv_line, "%s%s", i ? "," : "", ops[i].label);
         ngli_bstr_print(s->csv_line, "\n");
 
@@ -500,7 +500,7 @@ static void hud_draw(struct ngl_node *node)
 
         if (s->export_filename) {
             ngli_bstr_clear(s->csv_line);
-            for (int i = 0; i < NGLI_ARRAY_NB(ops); i++) {
+            for (int i = 0; i < NB_LATENCY; i++) {
                 const int64_t t = report_op(s, i);
                 ngli_bstr_print(s->csv_line, "%s%"PRId64, i ? "," : "", t);
             }
@@ -508,13 +508,13 @@ static void hud_draw(struct ngl_node *node)
             const int len = ngli_bstr_len(s->csv_line);
             write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
         } else {
-            for (int i = 0; i < NGLI_ARRAY_NB(ops); i++)
+            for (int i = 0; i < NB_LATENCY; i++)
                 report_op(s, i);
         }
 
         s->graph_min = s->graph[0].min;
         s->graph_max = s->graph[0].max;
-        for (int i = 1; i < NGLI_ARRAY_NB(ops); i++) {
+        for (int i = 1; i < NB_LATENCY; i++) {
             s->graph_min = NGLI_MIN(s->graph_min, s->graph[i].min);
             s->graph_max = NGLI_MAX(s->graph_max, s->graph[i].max);
         }
@@ -522,7 +522,7 @@ static void hud_draw(struct ngl_node *node)
         const int64_t graph_h = s->graph_max - s->graph_min;
         if (graph_h) {
             const float scale = (float)DATA_H / graph_h;
-            for (int i = 0; i < NGLI_ARRAY_NB(ops); i++)
+            for (int i = 0; i < NB_LATENCY; i++)
                 update_graph(s, i, scale);
         }
     }
@@ -533,7 +533,7 @@ static void hud_uninit(struct ngl_node *node)
     struct hud *s = node->priv_data;
 
     free(s->data_buf);
-    for (int i = 0; i < NGLI_ARRAY_NB(s->graph); i++) {
+    for (int i = 0; i < NB_LATENCY; i++) {
         free(s->measures[i].times);
         free(s->graph[i].values);
     }
