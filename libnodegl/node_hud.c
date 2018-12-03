@@ -411,9 +411,8 @@ static int64_t report_op(struct hud *s, int op)
     return t;
 }
 
-static void register_time(struct hud *s, int op, int64_t t)
+static void register_time(struct hud *s, struct hud_measuring *m, int64_t t)
 {
-    struct hud_measuring *m = &s->measures[op];
     m->total_times = m->total_times - m->times[m->pos] + t;
     m->times[m->pos] = t;
     m->pos = (m->pos + 1) % s->measure_window;
@@ -453,8 +452,8 @@ static int hud_update(struct ngl_node *node, double t)
         ctx->timer_active = 0;
     }
 
-    register_time(s, LATENCY_UPDATE_CPU, update_end - update_start);
-    register_time(s, LATENCY_UPDATE_GPU, gpu_tupdate);
+    register_time(s, &s->measures[LATENCY_UPDATE_CPU], update_end - update_start);
+    register_time(s, &s->measures[LATENCY_UPDATE_GPU], gpu_tupdate);
 
     return ret;
 }
@@ -484,8 +483,8 @@ static void hud_draw(struct ngl_node *node)
     }
 
     int64_t cpu_tdraw = draw_end - draw_start;
-    register_time(s, LATENCY_DRAW_CPU, cpu_tdraw);
-    register_time(s, LATENCY_DRAW_GPU, gpu_tdraw);
+    register_time(s, &s->measures[LATENCY_DRAW_CPU], cpu_tdraw);
+    register_time(s, &s->measures[LATENCY_DRAW_GPU], gpu_tdraw);
 
     const struct hud_measuring *cpu_up = &s->measures[LATENCY_UPDATE_CPU];
     const struct hud_measuring *gpu_up = &s->measures[LATENCY_UPDATE_GPU];
@@ -493,8 +492,8 @@ static void hud_draw(struct ngl_node *node)
     const int last_gpu_up_pos = (gpu_up->pos ? gpu_up->pos : s->measure_window) - 1;
     const int64_t cpu_tupdate = cpu_up->times[last_cpu_up_pos];
     const int64_t gpu_tupdate = gpu_up->times[last_gpu_up_pos];
-    register_time(s, LATENCY_TOTAL_CPU, cpu_tdraw + cpu_tupdate);
-    register_time(s, LATENCY_TOTAL_GPU, gpu_tdraw + gpu_tupdate);
+    register_time(s, &s->measures[LATENCY_TOTAL_CPU], cpu_tdraw + cpu_tupdate);
+    register_time(s, &s->measures[LATENCY_TOTAL_GPU], gpu_tdraw + gpu_tupdate);
 
     if (s->need_refresh) {
         reset_buf(s);
