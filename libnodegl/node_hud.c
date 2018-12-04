@@ -417,7 +417,7 @@ static void print_text(struct hud *s, int x, int y, const char *buf, const uint3
     }
 }
 
-static void reset_buf(struct hud *s)
+static void widgets_clear(struct hud *s)
 {
     uint8_t *p = s->data_buf;
     for (int i = 0; i < s->data_w * s->data_h; i++)
@@ -529,7 +529,7 @@ static int hud_init(struct ngl_node *node)
     s->data_buf = calloc(s->data_w * s->data_h, 4);
     if (!s->data_buf)
         return -1;
-    reset_buf(s);
+    widgets_clear(s);
 
     int ret = widget_latency_init(node);
     if (ret < 0)
@@ -581,7 +581,7 @@ static void hud_draw(struct ngl_node *node)
 
     widget_latency_make_stats(node);
     if (s->need_refresh) {
-        reset_buf(s);
+        widgets_clear(s);
 
         if (s->export_filename) {
             ngli_bstr_clear(s->csv_line);
