@@ -496,7 +496,7 @@ static int hud_update(struct ngl_node *node, double t)
     return widget_latency_update(node, t);
 }
 
-static void hud_draw(struct ngl_node *node)
+static void widget_latency_make_stats(struct ngl_node *node)
 {
     struct hud *s = node->priv_data;
 
@@ -532,7 +532,13 @@ static void hud_draw(struct ngl_node *node)
     const int64_t gpu_tupdate = gpu_up->times[last_gpu_up_pos];
     register_time(s, &s->measures[LATENCY_TOTAL_CPU], cpu_tdraw + cpu_tupdate);
     register_time(s, &s->measures[LATENCY_TOTAL_GPU], gpu_tdraw + gpu_tupdate);
+}
 
+static void hud_draw(struct ngl_node *node)
+{
+    struct hud *s = node->priv_data;
+
+    widget_latency_make_stats(node);
     if (s->need_refresh) {
         reset_buf(s);
 
