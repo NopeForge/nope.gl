@@ -425,21 +425,10 @@ static void print_text(struct hud *s, int x, int y, const char *buf, const uint3
     }
 }
 
-static int64_t report_op(struct hud *s, int op)
+static int64_t get_latency_avg(struct hud *s, int id)
 {
-    /* Get the average measure of the specified operation */
-    const struct hud_measuring *m = &s->measures[op];
-    const int64_t t = m->total_times / m->count / (latency_specs[op].unit == 'u' ? 1 : 1000);
-
-    /* Register a point for the final graph */
-    register_graph_value(&s->graph[op], t);
-
-    /* Print the text line to the picture buffer */
-    char buf[DATA_NBCHAR_W+1];
-    snprintf(buf, sizeof(buf), "%s %5" PRId64 "usec", latency_specs[op].label, t);
-    print_text(s, 0, op * FONT_H, buf, latency_specs[op].color);
-
-    return t;
+    const struct hud_measuring *m = &s->measures[id];
+    return m->total_times / m->count / (latency_specs[id].unit == 'u' ? 1 : 1000);
 }
 
 static void register_time(struct hud *s, struct hud_measuring *m, int64_t t)
@@ -539,7 +528,7 @@ static void widget_latency_csv_report(struct ngl_node *node, struct bstr *dst)
     struct hud *s = node->priv_data;
 
     for (int i = 0; i < NB_LATENCY; i++) {
-        const int64_t t = report_op(s, i);
+        const int64_t t = get_latency_avg(s, i);
         ngli_bstr_print(dst, "%s%"PRId64, i ? "," : "", t);
     }
 }
@@ -547,6 +536,15 @@ static void widget_latency_csv_report(struct ngl_node *node, struct bstr *dst)
 static void widget_latency_draw(struct ngl_node *node)
 {
     struct hud *s = node->priv_data;
+
+    char buf[DATA_NBCHAR_W + 1];
+    for (int i = 0; i < NB_LATENCY; i++) {
+        const int64_t t = get_latency_avg(s, i);
+
+        snprintf(buf, sizeof(buf), "%s %5" PRId64 "usec", latency_specs[i].label, t);
+        print_text(s, 0, i * FONT_H, buf, latency_specs[i].color);
+        register_graph_value(&s->graph[i], t);
+    }
 
     int64_t graph_min = s->graph[0].min;
     int64_t graph_max = s->graph[0].max;
@@ -578,9 +576,6 @@ static void hud_draw(struct ngl_node *node)
             ngli_bstr_print(s->csv_line, "\n");
             const int len = ngli_bstr_len(s->csv_line);
             write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
-        } else {
-            for (int i = 0; i < NB_LATENCY; i++)
-                report_op(s, i);
         }
         widget_latency_draw(node);
     }
