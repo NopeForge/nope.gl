@@ -127,27 +127,19 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         return -1;
     }
 
-    EGLint config_attribs[] = {
-        EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
+    const EGLint type = ctx->backend == NGL_BACKEND_OPENGL ? EGL_OPENGL_BIT : EGL_OPENGL_ES2_BIT;
+    const EGLint config_attribs[] = {
+        EGL_RENDERABLE_TYPE, type,
         EGL_RED_SIZE,   8,
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE,  8,
         EGL_ALPHA_SIZE, 8,
         EGL_DEPTH_SIZE, 16,
         EGL_STENCIL_SIZE, 8,
-        EGL_SAMPLE_BUFFERS, 0,
-        EGL_SAMPLES, 0,
+        EGL_SAMPLE_BUFFERS, ctx->samples > 0,
+        EGL_SAMPLES, ctx->samples,
         EGL_NONE
     };
-
-    if (ctx->backend == NGL_BACKEND_OPENGL) {
-        config_attribs[1] = EGL_OPENGL_BIT;
-    }
-
-    if (ctx->samples > 0) {
-        config_attribs[NGLI_ARRAY_NB(config_attribs) - 4] = 1;
-        config_attribs[NGLI_ARRAY_NB(config_attribs) - 2] = ctx->samples;
-    }
 
     EGLConfig config;
     EGLint nb_configs;
