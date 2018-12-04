@@ -590,9 +590,9 @@ struct hud {
     int refresh_rate[2];
     char *export_filename;
     float bg_color[4];
+    int aspect_ratio[2];
 
-    struct hud_measuring measures[6];
-    struct hud_data_graph graph[6];
+    struct darray widgets;
     uint32_t bg_color_u32;
     int fd_export;
     struct bstr *csv_line;
@@ -601,13 +601,6 @@ struct hud {
     double refresh_rate_interval;
     double last_refresh_time;
     int need_refresh;
-
-    GLuint query;
-    void (*glGenQueries)(const struct glcontext *gl, GLsizei n, GLuint * ids);
-    void (*glDeleteQueries)(const struct glcontext *gl, GLsizei n, const GLuint * ids);
-    void (*glBeginQuery)(const struct glcontext *gl, GLenum target, GLuint id);
-    void (*glEndQuery)(const struct glcontext *gl, GLenum target);
-    void (*glGetQueryObjectui64v)(const struct glcontext *gl, GLuint id, GLenum pname, GLuint64 *params);
 };
 
 /**

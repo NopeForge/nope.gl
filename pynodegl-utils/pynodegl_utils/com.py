@@ -147,15 +147,11 @@ def query_inplace(**idict):
         if idict.get('enable_hud'):
             fr = odict['framerate']
             measure_window = fr[0] / (4 * fr[1])  # 1/4-second measurement window
-            buf_size = (64*8, 6*8)
-            bratio = buf_size[0] / float(buf_size[1])
-            ar = odict['aspect_ratio']
-            hud_w = 2.
-            hud_h = 2. / bratio * ar[0] / float(ar[1])
             hud = ngl.HUD(scene, refresh_rate=(fr[1], fr[0]),
                           measure_window=measure_window,
-                          bg_color=(0.0, 0.0, 0.0, 0.8))
-            q = ngl.Quad((-1, 1. - hud_h, 0), (hud_w, 0, 0), (0, hud_h, 0))
+                          bg_color=(0.0, 0.0, 0.0, 0.8),
+                          aspect_ratio=odict['aspect_ratio'])
+            q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
             t = ngl.Texture2D(data_src=hud)
             render = ngl.Render(q)
             render.update_textures(tex0=t)
