@@ -59,7 +59,7 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         x11->own_display = 1;
     }
 
-    int attribs[] = {
+    const int attribs[] = {
         GLX_RENDER_TYPE, GLX_RGBA_BIT,
         GLX_RED_SIZE, 8,
         GLX_GREEN_SIZE, 8,
@@ -68,15 +68,10 @@ static int x11_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         GLX_DEPTH_SIZE, 24,
         GLX_STENCIL_SIZE, 8,
         GLX_DOUBLEBUFFER, True,
-        GLX_SAMPLE_BUFFERS, 0,
-        GLX_SAMPLES, 0,
+        GLX_SAMPLE_BUFFERS, ctx->samples > 0,
+        GLX_SAMPLES, ctx->samples,
         None
     };
-
-    if (ctx->samples > 0) {
-        attribs[NGLI_ARRAY_NB(attribs) - 4] = 1;
-        attribs[NGLI_ARRAY_NB(attribs) - 2] = ctx->samples;
-    }
 
     x11->fbconfigs = glXChooseFBConfig(x11->display,
                                        DefaultScreen(x11->display),
