@@ -534,6 +534,16 @@ static void widget_latency_make_stats(struct ngl_node *node)
     register_time(s, &s->measures[LATENCY_TOTAL_GPU], gpu_tdraw + gpu_tupdate);
 }
 
+static void widget_latency_csv_report(struct ngl_node *node, struct bstr *dst)
+{
+    struct hud *s = node->priv_data;
+
+    for (int i = 0; i < NB_LATENCY; i++) {
+        const int64_t t = report_op(s, i);
+        ngli_bstr_print(dst, "%s%"PRId64, i ? "," : "", t);
+    }
+}
+
 static void hud_draw(struct ngl_node *node)
 {
     struct hud *s = node->priv_data;
@@ -544,10 +554,7 @@ static void hud_draw(struct ngl_node *node)
 
         if (s->export_filename) {
             ngli_bstr_clear(s->csv_line);
-            for (int i = 0; i < NB_LATENCY; i++) {
-                const int64_t t = report_op(s, i);
-                ngli_bstr_print(s->csv_line, "%s%"PRId64, i ? "," : "", t);
-            }
+            widget_latency_csv_report(node, s->csv_line);
             ngli_bstr_print(s->csv_line, "\n");
             const int len = ngli_bstr_len(s->csv_line);
             write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
