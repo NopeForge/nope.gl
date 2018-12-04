@@ -73,6 +73,11 @@ static int computeprogram_init(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct program *s = node->priv_data;
 
+    if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
+        LOG(ERROR, "context does not support compute shaders");
+        return -1;
+    }
+
     s->program_id = load_shader(node, s->compute);
     if (!s->program_id)
         return -1;
