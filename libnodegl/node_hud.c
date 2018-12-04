@@ -236,7 +236,7 @@ static void noop(const struct glcontext *gl, ...)
 {
 }
 
-static int hud_init(struct ngl_node *node)
+static int widget_latency_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -268,18 +268,6 @@ static int hud_init(struct ngl_node *node)
     ngli_assert(NB_LATENCY == NGLI_ARRAY_NB(s->measures));
     ngli_assert(NB_LATENCY == NGLI_ARRAY_NB(s->graph));
 
-    s->bg_color_u32 = ((unsigned)(s->bg_color[0] * 255) & 0xff) << 24 |
-                      ((unsigned)(s->bg_color[1] * 255) & 0xff) << 16 |
-                      ((unsigned)(s->bg_color[2] * 255) & 0xff) <<  8 |
-                      ((unsigned)(s->bg_color[3] * 255) & 0xff);
-
-    s->data_w = DATA_W;
-    s->data_h = DATA_H;
-    s->data_buf = calloc(s->data_w * s->data_h, 4);
-    if (!s->data_buf)
-        return -1;
-    reset_buf(s);
-
     s->measure_window = NGLI_MAX(s->measure_window, 1);
     for (int i = 0; i < NB_LATENCY; i++) {
         s->graph[i].nb_values = DATA_GRAPH_W;
@@ -293,6 +281,29 @@ static int hud_init(struct ngl_node *node)
             return -1;
         s->measures[i].times = times;
     }
+
+    return 0;
+}
+
+static int hud_init(struct ngl_node *node)
+{
+    struct hud *s = node->priv_data;
+
+    s->bg_color_u32 = ((unsigned)(s->bg_color[0] * 255) & 0xff) << 24 |
+                      ((unsigned)(s->bg_color[1] * 255) & 0xff) << 16 |
+                      ((unsigned)(s->bg_color[2] * 255) & 0xff) <<  8 |
+                      ((unsigned)(s->bg_color[3] * 255) & 0xff);
+
+    s->data_w = DATA_W;
+    s->data_h = DATA_H;
+    s->data_buf = calloc(s->data_w * s->data_h, 4);
+    if (!s->data_buf)
+        return -1;
+    reset_buf(s);
+
+    int ret = widget_latency_init(node);
+    if (ret < 0)
+        return ret;
 
     if (s->refresh_rate[1])
         s->refresh_rate_interval = s->refresh_rate[0] / (double)s->refresh_rate[1];
