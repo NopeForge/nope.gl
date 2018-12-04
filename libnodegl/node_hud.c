@@ -544,6 +544,26 @@ static void widget_latency_csv_report(struct ngl_node *node, struct bstr *dst)
     }
 }
 
+static void widget_latency_draw(struct ngl_node *node)
+{
+    struct hud *s = node->priv_data;
+
+    int64_t graph_min = s->graph[0].min;
+    int64_t graph_max = s->graph[0].max;
+    for (int i = 1; i < NB_LATENCY; i++) {
+        graph_min = NGLI_MIN(graph_min, s->graph[i].min);
+        graph_max = NGLI_MAX(graph_max, s->graph[i].max);
+    }
+
+    const int64_t graph_h = graph_max - graph_min;
+    struct rect graph_rect = {.x=DATA_NBCHAR_W*FONT_W, .y=0, .w=s->graph[0].nb_values, .h=s->data_h};
+    if (graph_h) {
+        for (int i = 0; i < NB_LATENCY; i++)
+            draw_line_graph(s, &s->graph[i], &graph_rect,
+                            graph_min, graph_max, latency_specs[i].color);
+    }
+}
+
 static void hud_draw(struct ngl_node *node)
 {
     struct hud *s = node->priv_data;
@@ -562,21 +582,7 @@ static void hud_draw(struct ngl_node *node)
             for (int i = 0; i < NB_LATENCY; i++)
                 report_op(s, i);
         }
-
-        int64_t graph_min = s->graph[0].min;
-        int64_t graph_max = s->graph[0].max;
-        for (int i = 1; i < NB_LATENCY; i++) {
-            graph_min = NGLI_MIN(graph_min, s->graph[i].min);
-            graph_max = NGLI_MAX(graph_max, s->graph[i].max);
-        }
-
-        const int64_t graph_h = graph_max - graph_min;
-        struct rect graph_rect = {.x=DATA_NBCHAR_W*FONT_W, .y=0, .w=s->graph[0].nb_values, .h=s->data_h};
-        if (graph_h) {
-            for (int i = 0; i < NB_LATENCY; i++)
-                draw_line_graph(s, &s->graph[i], &graph_rect,
-                                graph_min, graph_max, latency_specs[i].color);
-        }
+        widget_latency_draw(node);
     }
 }
 
