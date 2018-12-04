@@ -445,15 +445,11 @@ static void register_time(struct hud *s, struct hud_measuring *m, int64_t t)
     m->count = NGLI_MIN(m->count + 1, s->measure_window);
 }
 
-static int hud_update(struct ngl_node *node, double t)
+static int widget_latency_update(struct ngl_node *node, double t)
 {
     int ret;
     struct hud *s = node->priv_data;
     struct ngl_node *child = s->child;
-
-    s->need_refresh = fabs(t - s->last_refresh_time) >= s->refresh_rate_interval;
-    if (s->need_refresh)
-        s->last_refresh_time = t;
 
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -482,6 +478,17 @@ static int hud_update(struct ngl_node *node, double t)
     register_time(s, &s->measures[LATENCY_UPDATE_GPU], gpu_tupdate);
 
     return ret;
+}
+
+static int hud_update(struct ngl_node *node, double t)
+{
+    struct hud *s = node->priv_data;
+
+    s->need_refresh = fabs(t - s->last_refresh_time) >= s->refresh_rate_interval;
+    if (s->need_refresh)
+        s->last_refresh_time = t;
+
+    return widget_latency_update(node, t);
 }
 
 static void hud_draw(struct ngl_node *node)
