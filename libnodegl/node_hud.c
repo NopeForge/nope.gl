@@ -236,6 +236,12 @@ static void noop(const struct glcontext *gl, ...)
 {
 }
 
+static void widget_latency_csv_header(struct ngl_node *node, struct bstr *dst)
+{
+    for (int i = 0; i < NB_LATENCY; i++)
+        ngli_bstr_print(dst, "%s%s", i ? "," : "", latency_specs[i].label);
+}
+
 static int widget_latency_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -320,8 +326,7 @@ static int hud_init(struct ngl_node *node)
         if (!s->csv_line)
             return -1;
 
-        for (int i = 0; i < NB_LATENCY; i++)
-            ngli_bstr_print(s->csv_line, "%s%s", i ? "," : "", latency_specs[i].label);
+        widget_latency_csv_header(node, s->csv_line);
         ngli_bstr_print(s->csv_line, "\n");
 
         const int len = ngli_bstr_len(s->csv_line);
