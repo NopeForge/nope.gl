@@ -567,21 +567,25 @@ static void hud_draw(struct ngl_node *node)
     }
 }
 
-static void hud_uninit(struct ngl_node *node)
+static void widget_latency_uninit(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
     struct hud *s = node->priv_data;
+    struct glcontext *gl = ctx->glcontext;
 
-    free(s->data_buf);
     for (int i = 0; i < NB_LATENCY; i++) {
         free(s->measures[i].times);
         free(s->graph[i].values);
     }
-
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
     s->glDeleteQueries(gl, 1, &s->query);
+}
 
+static void hud_uninit(struct ngl_node *node)
+{
+    struct hud *s = node->priv_data;
+
+    widget_latency_uninit(node);
+    free(s->data_buf);
     if (s->export_filename) {
         close(s->fd_export);
         ngli_bstr_freep(&s->csv_line);
