@@ -56,7 +56,7 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         return -1;
     }
 
-    NSOpenGLPixelFormatAttribute pixelAttrs[] = {
+    const NSOpenGLPixelFormatAttribute pixelAttrs[] = {
         NSOpenGLPFAAccelerated,
         NSOpenGLPFAClosestPolicy,
         NSOpenGLPFADoubleBuffer,
@@ -65,15 +65,10 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         NSOpenGLPFAAlphaSize, 8,
         NSOpenGLPFADepthSize, 24,
         NSOpenGLPFAStencilSize, 8,
-        NSOpenGLPFASampleBuffers, 0,
-        NSOpenGLPFASamples, 0,
+        NSOpenGLPFASampleBuffers, ctx->offscreen ? 0 : (ctx->samples > 0),
+        NSOpenGLPFASamples, ctx->offscreen ? 0 : ctx->samples,
         0,
     };
-
-    if (!ctx->offscreen && ctx->samples > 0) {
-        pixelAttrs[NGLI_ARRAY_NB(pixelAttrs) - 4] = 1;
-        pixelAttrs[NGLI_ARRAY_NB(pixelAttrs) - 2] = ctx->samples;
-    }
 
     NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttrs];
     if (!pixelFormat) {
