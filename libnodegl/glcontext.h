@@ -91,7 +91,6 @@ struct glcontext_class {
 };
 
 struct glcontext *ngli_glcontext_new(const struct ngl_config *config);
-int ngli_glcontext_load_extensions(struct glcontext *glcontext);
 int ngli_glcontext_make_current(struct glcontext *glcontext, int current);
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext);
 int ngli_glcontext_set_swap_interval(struct glcontext *glcontext, int interval);

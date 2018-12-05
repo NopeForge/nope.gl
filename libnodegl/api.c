@@ -96,13 +96,8 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     if (!s->glcontext)
         return -1;
 
-    ngli_glcontext_make_current(s->glcontext, 1);
     if (s->config.swap_interval >= 0)
         ngli_glcontext_set_swap_interval(s->glcontext, s->config.swap_interval);
-
-    int ret = ngli_glcontext_load_extensions(s->glcontext);
-    if (ret < 0)
-        return ret;
 
     ngli_glstate_probe(s->glcontext, &s->glstate);
 

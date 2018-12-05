@@ -130,6 +130,8 @@ static int glcontext_choose_backend(int backend)
 #endif
 }
 
+static int glcontext_load_extensions(struct glcontext *glcontext);
+
 struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
 {
     int backend = glcontext_choose_backend(config->backend);
@@ -178,6 +180,14 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
         if (ret < 0)
             goto fail;
     }
+
+    int ret = ngli_glcontext_make_current(glcontext, 1);
+    if (ret < 0)
+        goto fail;
+
+    ret = glcontext_load_extensions(glcontext);
+    if (ret < 0)
+        goto fail;
 
     return glcontext;
 fail:
@@ -369,7 +379,7 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
     return 0;
 }
 
-int ngli_glcontext_load_extensions(struct glcontext *glcontext)
+static int glcontext_load_extensions(struct glcontext *glcontext)
 {
     int ret = glcontext_load_functions(glcontext);
     if (ret < 0)
