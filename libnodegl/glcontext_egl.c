@@ -369,6 +369,12 @@ static void *egl_get_proc_address(struct glcontext *ctx, const char *name)
     return eglGetProcAddress(name);
 }
 
+static uintptr_t egl_get_handle(struct glcontext *ctx)
+{
+    struct egl_priv *egl = ctx->priv_data;
+    return (uintptr_t)egl->handle;
+}
+
 const struct glcontext_class ngli_glcontext_egl_class = {
     .init = egl_init,
     .init_framebuffer = egl_init_framebuffer,
@@ -378,5 +384,6 @@ const struct glcontext_class ngli_glcontext_egl_class = {
     .set_swap_interval = egl_set_swap_interval,
     .set_surface_pts = egl_set_surface_pts,
     .get_proc_address = egl_get_proc_address,
+    .get_handle = egl_get_handle,
     .priv_size = sizeof(struct egl_priv),
 };

@@ -453,6 +453,16 @@ void *ngli_glcontext_get_texture_cache(struct glcontext *glcontext)
     return texture_cache;
 }
 
+uintptr_t ngli_glcontext_get_handle(struct glcontext *glcontext)
+{
+    uintptr_t handle = 0;
+
+    if (glcontext->class->get_handle)
+        handle = glcontext->class->get_handle(glcontext);
+
+    return handle;
+}
+
 int ngli_glcontext_check_extension(const char *extension, const char *extensions)
 {
     if (!extension || !extensions)

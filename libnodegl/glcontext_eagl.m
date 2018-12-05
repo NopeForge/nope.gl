@@ -344,6 +344,12 @@ static void *eagl_get_proc_address(struct glcontext *ctx, const char *name)
     return symbol_address;
 }
 
+static uintptr_t eagl_get_handle(struct glcontext *ctx)
+{
+    struct eagl_priv *eagl = ctx->priv_data;
+    return (uintptr_t)eagl->handle;
+}
+
 const struct glcontext_class ngli_glcontext_eagl_class = {
     .init = eagl_init,
     .init_framebuffer = eagl_init_framebuffer,
@@ -353,5 +359,6 @@ const struct glcontext_class ngli_glcontext_eagl_class = {
     .swap_buffers = eagl_swap_buffers,
     .get_texture_cache = eagl_get_texture_cache,
     .get_proc_address = eagl_get_proc_address,
+    .get_handle = eagl_get_handle,
     .priv_size = sizeof(struct eagl_priv),
 };
