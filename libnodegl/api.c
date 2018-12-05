@@ -38,11 +38,24 @@
 #include "nodes.h"
 #include "glcontext.h"
 
+static void *worker_thread(void *arg);
+
 struct ngl_ctx *ngl_create(void)
 {
     struct ngl_ctx *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
+
+    if (pthread_mutex_init(&s->lock, NULL) ||
+        pthread_cond_init(&s->cond_ctl, NULL) ||
+        pthread_cond_init(&s->cond_wkr, NULL) ||
+        pthread_create(&s->worker_tid, NULL, worker_thread, s)) {
+        pthread_cond_destroy(&s->cond_ctl);
+        pthread_cond_destroy(&s->cond_wkr);
+        pthread_mutex_destroy(&s->lock);
+        ngli_free(s);
+        return NULL;
+    }
 
     ngli_darray_init(&s->modelview_matrix_stack, 4 * 4 * sizeof(float), 1);
     ngli_darray_init(&s->projection_matrix_stack, 4 * 4 * sizeof(float), 1);
@@ -55,6 +68,7 @@ struct ngl_ctx *ngl_create(void)
 
     LOG(INFO, "context create in node.gl v%d.%d.%d",
         NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
+
     return s;
 
 fail:
@@ -289,24 +303,12 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return dispatch_cmd(s, cmd_reconfigure, config);
 #endif
 
-    int ret;
-    if ((ret = pthread_mutex_init(&s->lock, NULL)) ||
-        (ret = pthread_cond_init(&s->cond_ctl, NULL)) ||
-        (ret = pthread_cond_init(&s->cond_wkr, NULL)) ||
-        (ret = pthread_create(&s->worker_tid, NULL, worker_thread, s))) {
-        pthread_cond_destroy(&s->cond_ctl);
-        pthread_cond_destroy(&s->cond_wkr);
-        pthread_mutex_destroy(&s->lock);
-        return ret;
-    }
-
 #if defined(TARGET_IPHONE)
-    ret = configure_ios(s, config);
+    int ret = configure_ios(s, config);
 #else
-    ret = dispatch_cmd(s, cmd_configure, config);
+    int ret = dispatch_cmd(s, cmd_configure, config);
 #endif
     if (ret < 0) {
-        stop_thread(s);
         return ret;
     }
 
@@ -351,10 +353,10 @@ void ngl_freep(struct ngl_ctx **ss)
     if (!s)
         return;
 
-    if (s->configured) {
+    if (s->configured)
         ngl_set_scene(s, NULL);
-        stop_thread(s);
-    }
+
+    stop_thread(s);
     ngli_darray_reset(&s->modelview_matrix_stack);
     ngli_darray_reset(&s->projection_matrix_stack);
     ngli_darray_reset(&s->activitycheck_nodes);
