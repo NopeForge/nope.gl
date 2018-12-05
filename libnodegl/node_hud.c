@@ -1273,9 +1273,20 @@ static void widgets_draw(struct ngl_node *node)
     }
 }
 
-static void widgets_csv_header(struct ngl_node *node)
+static int widgets_csv_header(struct ngl_node *node)
 {
     struct hud *s = node->priv_data;
+
+    s->fd_export = open(s->export_filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+    if (s->fd_export == -1) {
+        LOG(ERROR, "unable to open \"%s\" for writing", s->export_filename);
+        return -1;
+    }
+
+    s->csv_line = ngli_bstr_create();
+    if (!s->csv_line)
+        return -1;
+
     struct darray *widgets_array = &s->widgets;
     struct widget *widgets = ngli_darray_data(widgets_array);
     for (int i = 0; i < ngli_darray_count(widgets_array); i++) {
@@ -1283,6 +1294,17 @@ static void widgets_csv_header(struct ngl_node *node)
         ngli_bstr_print(s->csv_line, i ? "," : "");
         widget_specs[widget->type].csv_header(node, widget, s->csv_line);
     }
+
+    ngli_bstr_print(s->csv_line, "\n");
+
+    const int len = ngli_bstr_len(s->csv_line);
+    ssize_t n = write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
+    if (n != len) {
+        LOG(ERROR, "unable to write CSV header");
+        return -1;
+    }
+
+    return 0;
 }
 
 static void widgets_csv_report(struct ngl_node *node)
@@ -1342,25 +1364,9 @@ static int hud_init(struct ngl_node *node)
     s->last_refresh_time = -1;
 
     if (s->export_filename) {
-        s->fd_export = open(s->export_filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
-        if (s->fd_export == -1) {
-            LOG(ERROR, "unable to open \"%s\" for writing", s->export_filename);
-            return -1;
-        }
-
-        s->csv_line = ngli_bstr_create();
-        if (!s->csv_line)
-            return -1;
-
-        widgets_csv_header(node);
-        ngli_bstr_print(s->csv_line, "\n");
-
-        const int len = ngli_bstr_len(s->csv_line);
-        ssize_t n = write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
-        if (n != len) {
-            LOG(ERROR, "unable to write CSV header");
-            return -1;
-        }
+        ret = widgets_csv_header(node);
+        if (ret < 0)
+            return ret;
     }
 
     return 0;
