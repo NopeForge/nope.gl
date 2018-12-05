@@ -53,7 +53,6 @@ static const struct node_param hud_params[] = {
 #define FONT_H 8
 #define FONT_W 8
 #define DATA_NBCHAR_W 20
-#define DATA_GRAPH_W 320
 
 static const uint8_t font8[128][8] = {
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
@@ -578,7 +577,7 @@ static const struct widget_spec widget_specs[] = {
     [WIDGET_LATENCY] = {
         .text_cols     = DATA_NBCHAR_W,
         .text_rows     = NB_LATENCY,
-        .graph_w       = DATA_GRAPH_W,
+        .graph_w       = 320,
         .nb_data_graph = NB_LATENCY,
         .priv_size     = sizeof(struct widget_latency),
         .init          = widget_latency_init,
