@@ -1310,6 +1310,9 @@ static int widgets_csv_header(struct ngl_node *node)
 static void widgets_csv_report(struct ngl_node *node)
 {
     struct hud *s = node->priv_data;
+
+    ngli_bstr_clear(s->csv_line);
+
     struct darray *widgets_array = &s->widgets;
     struct widget *widgets = ngli_darray_data(widgets_array);
     for (int i = 0; i < ngli_darray_count(widgets_array); i++) {
@@ -1317,6 +1320,10 @@ static void widgets_csv_report(struct ngl_node *node)
         struct widget *widget = &widgets[i];
         widget_specs[widget->type].csv_report(node, widget, s->csv_line);
     }
+    ngli_bstr_print(s->csv_line, "\n");
+
+    const int len = ngli_bstr_len(s->csv_line);
+    write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
 }
 
 static void free_widget(struct widget *widget)
@@ -1393,13 +1400,8 @@ static void hud_draw(struct ngl_node *node)
     if (s->need_refresh) {
         widgets_clear(s);
 
-        if (s->export_filename) {
-            ngli_bstr_clear(s->csv_line);
+        if (s->export_filename)
             widgets_csv_report(node);
-            ngli_bstr_print(s->csv_line, "\n");
-            const int len = ngli_bstr_len(s->csv_line);
-            write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
-        }
         widgets_draw(node);
     }
 }
