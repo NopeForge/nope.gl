@@ -288,6 +288,8 @@ struct data_graph {
     int pos;
     int64_t min;
     int64_t max;
+    int64_t amin; // all-time min
+    int64_t amax; // all-time max
 };
 
 struct latency_measure {
@@ -680,6 +682,7 @@ static void register_graph_value(struct data_graph *d, int64_t v)
     } else if (v < d->min) {
         d->min = v;
     }
+    d->amin = NGLI_MIN(d->amin, d->min);
 
     /* update max */
     if (old_v == d->max) {
@@ -689,6 +692,7 @@ static void register_graph_value(struct data_graph *d, int64_t v)
     } else if (v > d->max) {
         d->max = v;
     }
+    d->amax = NGLI_MAX(d->amax, d->max);
 }
 
 static int64_t get_latency_avg(const struct widget_latency *priv, int id)
