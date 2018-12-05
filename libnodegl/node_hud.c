@@ -1415,10 +1415,9 @@ static void hud_draw(struct ngl_node *node)
 
     widgets_make_stats(node);
     if (s->need_refresh) {
-        widgets_clear(s);
-
         if (s->export_filename)
             widgets_csv_report(node);
+        widgets_clear(s);
         widgets_draw(node);
     }
 }
