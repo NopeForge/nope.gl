@@ -413,6 +413,8 @@ struct widget_spec {
     void (*uninit)(struct ngl_node *node, struct widget *widget);
 };
 
+/* Widget init */
+
 static void noop(const struct glcontext *gl, ...)
 {
 }
@@ -543,6 +545,8 @@ static int widget_drawcall_init(struct ngl_node *node, struct widget *widget)
     return make_nodes_set(s->child, &priv->nodes, node_types);
 }
 
+/* Widget update */
+
 static void register_time(struct hud *s, struct latency_measure *m, int64_t t)
 {
     m->total_times = m->total_times - m->times[m->pos] + t;
@@ -586,6 +590,8 @@ static int widget_latency_update(struct ngl_node *node, struct widget *widget, d
 
     return ret;
 }
+
+/* Widget make stats */
 
 static void widget_latency_make_stats(struct ngl_node *node, struct widget *widget)
 {
@@ -692,6 +698,8 @@ static void widget_drawcall_make_stats(struct ngl_node *node, struct widget *wid
         priv->nb_draws += nodes[i]->draw_count;
 }
 
+/* Draw utils */
+
 static inline uint8_t *set_color(uint8_t *p, uint32_t rgba)
 {
     p[0] = rgba >> 24;
@@ -797,6 +805,8 @@ static void widgets_clear(struct hud *s)
         }
     }
 }
+
+/* Widget draw */
 
 static void register_graph_value(struct data_graph *d, int64_t v)
 {
@@ -934,6 +944,8 @@ static void widget_drawcall_draw(struct ngl_node *node, struct widget *widget)
     draw_block_graph(s, d, &widget->graph_rect, d->amin, d->amax, color);
 }
 
+/* Widget CSV header */
+
 static void widget_latency_csv_header(struct ngl_node *node, struct widget *widget, struct bstr *dst)
 {
     for (int i = 0; i < NB_LATENCY; i++)
@@ -957,6 +969,8 @@ static void widget_drawcall_csv_header(struct ngl_node *node, struct widget *wid
     const struct drawcall_spec *spec = widget->user_data;
     ngli_bstr_print(dst, "%s", spec->label);
 }
+
+/* Widget CSV report */
 
 static void widget_latency_csv_report(struct ngl_node *node, struct widget *widget, struct bstr *dst)
 {
@@ -988,6 +1002,8 @@ static void widget_drawcall_csv_report(struct ngl_node *node, struct widget *wid
     const struct widget_drawcall *priv = widget->priv_data;
     ngli_bstr_print(dst, "%d", priv->nb_draws);
 }
+
+/* Widget uninit */
 
 static void widget_latency_uninit(struct ngl_node *node, struct widget *widget)
 {
