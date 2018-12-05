@@ -186,6 +186,9 @@ static const uint8_t font8[128][8] = {
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
 };
 
+#define WIDGET_PADDING 4
+#define WIDGET_MARGIN  2
+
 enum {
     LATENCY_UPDATE_CPU,
     LATENCY_UPDATE_GPU,
@@ -590,15 +593,19 @@ static const struct widget_spec widget_specs[] = {
 static inline int get_widget_width(enum widget_type type)
 {
     const struct widget_spec *spec = &widget_specs[type];
+    const int horizontal_layout = !spec->graph_h;
     return spec->graph_w
-         + spec->text_cols * FONT_W;
+         + spec->text_cols * FONT_W
+         + WIDGET_PADDING * (2 + horizontal_layout);
 }
 
 static inline int get_widget_height(enum widget_type type)
 {
     const struct widget_spec *spec = &widget_specs[type];
+    const int vertical_layout = !!spec->graph_h;
     return spec->graph_h
-         + spec->text_rows * FONT_H;
+         + spec->text_rows * FONT_H
+         + WIDGET_PADDING * (2 + vertical_layout);
 }
 
 static int create_widget(struct hud *s, enum widget_type type, const void *user_data, int x, int y)
@@ -621,20 +628,20 @@ static int create_widget(struct hud *s, enum widget_type type, const void *user_
         .rect.y    = y,
         .rect.w    = get_widget_width(type),
         .rect.h    = get_widget_height(type),
-        .text_x    = x,
-        .text_y    = y,
+        .text_x    = x + WIDGET_PADDING,
+        .text_y    = y + WIDGET_PADDING,
         .user_data = user_data,
     };
 
     if (horizontal_layout) {
-        widget.graph_rect.x = x + spec->text_cols * FONT_W;
-        widget.graph_rect.y = y;
+        widget.graph_rect.x = x + spec->text_cols * FONT_W + WIDGET_PADDING * 2;
+        widget.graph_rect.y = y + WIDGET_PADDING;
         widget.graph_rect.w = spec->graph_w;
-        widget.graph_rect.h = widget.rect.h;
+        widget.graph_rect.h = widget.rect.h - WIDGET_PADDING * 2;
     } else {
-        widget.graph_rect.x = x;
-        widget.graph_rect.y = y + spec->text_rows * FONT_H;
-        widget.graph_rect.w = widget.rect.w;
+        widget.graph_rect.x = x + WIDGET_PADDING;
+        widget.graph_rect.y = y + spec->text_rows * FONT_H + WIDGET_PADDING * 2;
+        widget.graph_rect.w = widget.rect.w - WIDGET_PADDING * 2;
         widget.graph_rect.h = spec->graph_h;
     }
 
@@ -667,8 +674,10 @@ static int widgets_init(struct ngl_node *node)
     ngli_darray_init(&s->widgets, sizeof(struct widget), 0);
 
     /* Smallest dimensions possible (in pixels) */
-    const int min_width  = get_widget_width(WIDGET_LATENCY);
-    const int min_height = get_widget_height(WIDGET_LATENCY);
+    const int min_width  = WIDGET_MARGIN * 2
+                         + get_widget_width(WIDGET_LATENCY);
+    const int min_height = WIDGET_MARGIN * 2
+                         + get_widget_height(WIDGET_LATENCY);
 
     /* Compute buffer dimensions according to user specified aspect ratio and
      * minimal dimensions */
@@ -681,7 +690,9 @@ static int widgets_init(struct ngl_node *node)
     }
 
     /* Latency widget in the top-left */
-    int ret = create_widget(s, WIDGET_LATENCY, NULL, 0, 0);
+    const int x_latency = WIDGET_MARGIN;
+    const int y_latency = WIDGET_MARGIN;
+    int ret = create_widget(s, WIDGET_LATENCY, NULL, x_latency, y_latency);
     if (ret < 0)
         return ret;
 
