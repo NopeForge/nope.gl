@@ -190,6 +190,7 @@ static const uint8_t font8[128][8] = {
 
 #define LATENCY_WIDGET_TEXT_LEN     20
 #define MEMORY_WIDGET_TEXT_LEN      25
+#define ACTIVITY_WIDGET_TEXT_LEN    12
 
 enum {
     LATENCY_UPDATE_CPU,
@@ -206,6 +207,13 @@ enum {
     MEMORY_BUFFERS_GPU,
     MEMORY_TEXTURES,
     NB_MEMORY
+};
+
+enum {
+    ACTIVITY_BUFFERS,
+    ACTIVITY_MEDIAS,
+    ACTIVITY_TEXTURES,
+    NB_ACTIVITY
 };
 
 #define BUFFER_NODES        \
@@ -273,12 +281,32 @@ static const struct {
     },
 };
 
+static const struct activity_spec {
+    const char *label;
+    const int *node_types;
+} activity_specs[] = {
+    [ACTIVITY_BUFFERS] = {
+        .label="Buffers",
+        .node_types=(const int[]){BUFFER_NODES, -1},
+    },
+    [ACTIVITY_MEDIAS] = {
+        .label="Medias",
+        .node_types=(const int[]){NGL_NODE_MEDIA, -1},
+    },
+    [ACTIVITY_TEXTURES] = {
+        .label="Textures",
+        .node_types=(const int[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE3D, -1},
+    },
+};
+
 NGLI_STATIC_ASSERT(hud_nb_latency, NGLI_ARRAY_NB(latency_specs) == NB_LATENCY);
 NGLI_STATIC_ASSERT(hud_nb_memory, NGLI_ARRAY_NB(memory_specs) == NB_MEMORY);
+NGLI_STATIC_ASSERT(hud_nb_activity, NGLI_ARRAY_NB(activity_specs) == NB_ACTIVITY);
 
 enum widget_type {
     WIDGET_LATENCY,
     WIDGET_MEMORY,
+    WIDGET_ACTIVITY,
 };
 
 struct data_graph {
@@ -313,6 +341,11 @@ struct widget_latency {
 struct widget_memory {
     struct darray nodes[NB_MEMORY];
     uint64_t sizes[NB_MEMORY];
+};
+
+struct widget_activity {
+    struct darray nodes;
+    int nb_actives;
 };
 
 struct rect {
@@ -454,6 +487,15 @@ static int widget_memory_init(struct ngl_node *node, struct widget *widget)
     return 0;
 }
 
+static int widget_activity_init(struct ngl_node *node, struct widget *widget)
+{
+    struct hud *s = node->priv_data;
+    const struct activity_spec *spec = widget->user_data;
+    struct widget_activity *priv = widget->priv_data;
+    const int *node_types = spec->node_types;
+    return make_nodes_set(s->child, &priv->nodes, node_types);
+}
+
 static void register_time(struct hud *s, struct latency_measure *m, int64_t t)
 {
     m->total_times = m->total_times - m->times[m->pos] + t;
@@ -583,6 +625,16 @@ static void widget_memory_make_stats(struct ngl_node *node, struct widget *widge
     }
 }
 
+static void widget_activity_make_stats(struct ngl_node *node, struct widget *widget)
+{
+    struct widget_activity *priv = widget->priv_data;
+    struct darray *nodes_array = &priv->nodes;
+    struct ngl_node **nodes = ngli_darray_data(nodes_array);
+    priv->nb_actives = 0;
+    for (int i = 0; i < ngli_darray_count(nodes_array); i++)
+        priv->nb_actives += nodes[i]->is_active;
+}
+
 static inline uint8_t *set_color(uint8_t *p, uint32_t rgba)
 {
     p[0] = rgba >> 24;
@@ -604,6 +656,29 @@ static int clip(int x, int min, int max)
     if (x > max)
         return max;
     return x;
+}
+
+static void draw_block_graph(struct hud *s,
+                             const struct data_graph *d,
+                             const struct rect *rect,
+                             int64_t graph_min, int64_t graph_max,
+                             const uint32_t c)
+{
+    const int64_t graph_h = graph_max - graph_min;
+    const float vscale = (float)rect->h / graph_h;
+    const int start = (d->pos - d->count + d->nb_values) % d->nb_values;
+
+    for (int k = 0; k < d->count; k++) {
+        const int64_t v = d->values[(start + k) % d->nb_values];
+        const int h = (v - graph_min) * vscale;
+        const int y = clip(rect->h - h, 0, rect->h);
+        uint8_t *p = s->data_buf + get_pixel_pos(s, rect->x + k, rect->y + y);
+
+        for (int z = 0; z < h; z++) {
+            set_color(p, c);
+            p += s->data_w * 4;
+        }
+    }
 }
 
 static void draw_line_graph(struct hud *s,
@@ -768,6 +843,23 @@ static void widget_memory_draw(struct ngl_node *node, struct widget *widget)
     }
 }
 
+static void widget_activity_draw(struct ngl_node *node, struct widget *widget)
+{
+    struct hud *s = node->priv_data;
+    struct widget_activity *priv = widget->priv_data;
+    const struct activity_spec *spec = widget->user_data;
+    const uint32_t color = 0x3df4f4ff;
+
+    char buf[ACTIVITY_WIDGET_TEXT_LEN + 1];
+    snprintf(buf, sizeof(buf), "%d/%d", priv->nb_actives, priv->nodes.count);
+    print_text(s, widget->text_x, widget->text_y, spec->label, color);
+    print_text(s, widget->text_x, widget->text_y + FONT_H, buf, color);
+
+    struct data_graph *d = &widget->data_graph[0];
+    register_graph_value(d, priv->nb_actives);
+    draw_block_graph(s, d, &widget->graph_rect, d->amin, d->amax, color);
+}
+
 static void widget_latency_csv_header(struct ngl_node *node, struct widget *widget, struct bstr *dst)
 {
     for (int i = 0; i < NB_LATENCY; i++)
@@ -778,6 +870,12 @@ static void widget_memory_csv_header(struct ngl_node *node, struct widget *widge
 {
     for (int i = 0; i < NB_MEMORY; i++)
         ngli_bstr_print(dst, "%s%s memory", i ? "," : "", memory_specs[i].label);
+}
+
+static void widget_activity_csv_header(struct ngl_node *node, struct widget *widget, struct bstr *dst)
+{
+    const struct activity_spec *spec = widget->user_data;
+    ngli_bstr_print(dst, "%s count,%s total", spec->label, spec->label);
 }
 
 static void widget_latency_csv_report(struct ngl_node *node, struct widget *widget, struct bstr *dst)
@@ -799,6 +897,12 @@ static void widget_memory_csv_report(struct ngl_node *node, struct widget *widge
     }
 }
 
+static void widget_activity_csv_report(struct ngl_node *node, struct widget *widget, struct bstr *dst)
+{
+    const struct widget_activity *priv = widget->priv_data;
+    ngli_bstr_print(dst, "%d,%d", priv->nb_actives, priv->nodes.count);
+}
+
 static void widget_latency_uninit(struct ngl_node *node, struct widget *widget)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -815,6 +919,12 @@ static void widget_memory_uninit(struct ngl_node *node, struct widget *widget)
     struct widget_memory *priv = widget->priv_data;
     for (int i = 0; i < NB_MEMORY; i++)
         ngli_darray_reset(&priv->nodes[i]);
+}
+
+static void widget_activity_uninit(struct ngl_node *node, struct widget *widget)
+{
+    struct widget_activity *priv = widget->priv_data;
+    ngli_darray_reset(&priv->nodes);
 }
 
 static const struct widget_spec widget_specs[] = {
@@ -843,6 +953,19 @@ static const struct widget_spec widget_specs[] = {
         .csv_header    = widget_memory_csv_header,
         .csv_report    = widget_memory_csv_report,
         .uninit        = widget_memory_uninit,
+    },
+    [WIDGET_ACTIVITY] = {
+        .text_cols     = ACTIVITY_WIDGET_TEXT_LEN,
+        .text_rows     = 2,
+        .graph_h       = 40,
+        .nb_data_graph = 1,
+        .priv_size     = sizeof(struct widget_activity),
+        .init          = widget_activity_init,
+        .make_stats    = widget_activity_make_stats,
+        .draw          = widget_activity_draw,
+        .csv_header    = widget_activity_csv_header,
+        .csv_report    = widget_activity_csv_report,
+        .uninit        = widget_activity_uninit,
     },
 };
 
@@ -930,13 +1053,17 @@ static int widgets_init(struct ngl_node *node)
     ngli_darray_init(&s->widgets, sizeof(struct widget), 0);
 
     /* Smallest dimensions possible (in pixels) */
-    const int min_width  = WIDGET_MARGIN * 3
-                         + get_widget_width(WIDGET_LATENCY)
-                         + get_widget_width(WIDGET_MEMORY);
-    const int left_height  = WIDGET_MARGIN * 2
-                           + get_widget_height(WIDGET_LATENCY);
+    const int top_width    = WIDGET_MARGIN * 3
+                           + get_widget_width(WIDGET_LATENCY)
+                           + get_widget_width(WIDGET_MEMORY);
+    const int bot_width    = WIDGET_MARGIN * 2
+                           + get_widget_width(WIDGET_ACTIVITY) * NB_ACTIVITY + WIDGET_MARGIN * (NB_ACTIVITY - 1);
+    const int left_height  = WIDGET_MARGIN * 3
+                           + get_widget_height(WIDGET_LATENCY)
+                           + get_widget_height(WIDGET_ACTIVITY);
     const int right_height = WIDGET_MARGIN * 2
                            + get_widget_height(WIDGET_MEMORY);
+    const int min_width    = NGLI_MAX(top_width, bot_width);
     const int min_height   = NGLI_MAX(left_height, right_height);
 
     /* Compute buffer dimensions according to user specified aspect ratio and
@@ -962,6 +1089,16 @@ static int widgets_init(struct ngl_node *node)
     ret = create_widget(s, WIDGET_MEMORY, NULL, x_memory, y_memory);
     if (ret < 0)
         return ret;
+
+    /* Activity nodes counter widgets in the bottom-left */
+    int x_activity = WIDGET_MARGIN;
+    const int y_activity = -get_widget_height(WIDGET_ACTIVITY) - WIDGET_MARGIN;
+    const int x_activity_step = get_widget_width(WIDGET_ACTIVITY) + WIDGET_MARGIN;
+    for (int i = 0; i < NB_ACTIVITY; i++) {
+        if (create_widget(s, WIDGET_ACTIVITY, &activity_specs[i], x_activity, y_activity) < 0)
+            return -1;
+        x_activity += x_activity_step;
+    }
 
     /* Call init on every widget */
     struct darray *widgets_array = &s->widgets;
