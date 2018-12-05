@@ -130,71 +130,6 @@ static int glcontext_choose_backend(int backend)
 #endif
 }
 
-static int glcontext_load_extensions(struct glcontext *glcontext);
-
-struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
-{
-    int backend = glcontext_choose_backend(config->backend);
-    if (backend < 0)
-        return NULL;
-
-    const int platform = glcontext_choose_platform(config->platform);
-    if (platform < 0 || platform >= NGLI_ARRAY_NB(platform_to_glplatform))
-        return NULL;
-
-    const int glplatform = platform_to_glplatform[platform];
-    if (glplatform < 0 || glplatform >= NGLI_ARRAY_NB(glcontext_class_map))
-        return NULL;
-
-    struct glcontext *glcontext = ngli_calloc(1, sizeof(*glcontext));
-    if (!glcontext)
-        return NULL;
-    glcontext->class = glcontext_class_map[glplatform];
-
-    if (glcontext->class->priv_size) {
-        glcontext->priv_data = ngli_calloc(1, glcontext->class->priv_size);
-        if (!glcontext->priv_data) {
-            ngli_free(glcontext);
-            return NULL;
-        }
-    }
-
-    glcontext->platform = platform;
-    glcontext->backend = backend;
-    glcontext->offscreen = config->offscreen;
-    glcontext->width = config->width;
-    glcontext->height = config->height;
-    glcontext->samples = config->samples;
-    glcontext->set_surface_pts = config->set_surface_pts;
-
-    if (glcontext->offscreen && (glcontext->width <= 0 || glcontext->height <= 0)) {
-        LOG(ERROR,
-            "could not initialize offscreen rendering with invalid dimensions (%dx%d)",
-            glcontext->width,
-            glcontext->height);
-        goto fail;
-    }
-
-    if (glcontext->class->init) {
-        int ret = glcontext->class->init(glcontext, config->display, config->window, config->handle);
-        if (ret < 0)
-            goto fail;
-    }
-
-    int ret = ngli_glcontext_make_current(glcontext, 1);
-    if (ret < 0)
-        goto fail;
-
-    ret = glcontext_load_extensions(glcontext);
-    if (ret < 0)
-        goto fail;
-
-    return glcontext;
-fail:
-    ngli_glcontext_freep(&glcontext);
-    return NULL;
-}
-
 static int glcontext_load_functions(struct glcontext *glcontext)
 {
     const struct glfunctions *gl = &glcontext->funcs;
@@ -398,6 +333,69 @@ static int glcontext_load_extensions(struct glcontext *glcontext)
         return ret;
 
     return 0;
+}
+
+struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
+{
+    int backend = glcontext_choose_backend(config->backend);
+    if (backend < 0)
+        return NULL;
+
+    const int platform = glcontext_choose_platform(config->platform);
+    if (platform < 0 || platform >= NGLI_ARRAY_NB(platform_to_glplatform))
+        return NULL;
+
+    const int glplatform = platform_to_glplatform[platform];
+    if (glplatform < 0 || glplatform >= NGLI_ARRAY_NB(glcontext_class_map))
+        return NULL;
+
+    struct glcontext *glcontext = ngli_calloc(1, sizeof(*glcontext));
+    if (!glcontext)
+        return NULL;
+    glcontext->class = glcontext_class_map[glplatform];
+
+    if (glcontext->class->priv_size) {
+        glcontext->priv_data = ngli_calloc(1, glcontext->class->priv_size);
+        if (!glcontext->priv_data) {
+            ngli_free(glcontext);
+            return NULL;
+        }
+    }
+
+    glcontext->platform = platform;
+    glcontext->backend = backend;
+    glcontext->offscreen = config->offscreen;
+    glcontext->width = config->width;
+    glcontext->height = config->height;
+    glcontext->samples = config->samples;
+    glcontext->set_surface_pts = config->set_surface_pts;
+
+    if (glcontext->offscreen && (glcontext->width <= 0 || glcontext->height <= 0)) {
+        LOG(ERROR,
+            "could not initialize offscreen rendering with invalid dimensions (%dx%d)",
+            glcontext->width,
+            glcontext->height);
+        goto fail;
+    }
+
+    if (glcontext->class->init) {
+        int ret = glcontext->class->init(glcontext, config->display, config->window, config->handle);
+        if (ret < 0)
+            goto fail;
+    }
+
+    int ret = ngli_glcontext_make_current(glcontext, 1);
+    if (ret < 0)
+        goto fail;
+
+    ret = glcontext_load_extensions(glcontext);
+    if (ret < 0)
+        goto fail;
+
+    return glcontext;
+fail:
+    ngli_glcontext_freep(&glcontext);
+    return NULL;
 }
 
 int ngli_glcontext_make_current(struct glcontext *glcontext, int current)
