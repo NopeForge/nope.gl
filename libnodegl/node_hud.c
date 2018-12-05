@@ -330,8 +330,8 @@ static const struct drawcall_spec {
     },
 };
 
-NGLI_STATIC_ASSERT(hud_nb_latency, NGLI_ARRAY_NB(latency_specs) == NB_LATENCY);
-NGLI_STATIC_ASSERT(hud_nb_memory, NGLI_ARRAY_NB(memory_specs) == NB_MEMORY);
+NGLI_STATIC_ASSERT(hud_nb_latency,  NGLI_ARRAY_NB(latency_specs)  == NB_LATENCY);
+NGLI_STATIC_ASSERT(hud_nb_memory,   NGLI_ARRAY_NB(memory_specs)   == NB_MEMORY);
 NGLI_STATIC_ASSERT(hud_nb_activity, NGLI_ARRAY_NB(activity_specs) == NB_ACTIVITY);
 NGLI_STATIC_ASSERT(hud_nb_drawcall, NGLI_ARRAY_NB(drawcall_specs) == NB_DRAWCALL);
 
@@ -423,7 +423,6 @@ static int widget_latency_init(struct ngl_node *node, struct widget *widget)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-
     struct hud *s = node->priv_data;
     struct widget_latency *priv = widget->priv_data;
 
@@ -596,7 +595,6 @@ static int widget_latency_update(struct ngl_node *node, struct widget *widget, d
 static void widget_latency_make_stats(struct ngl_node *node, struct widget *widget)
 {
     struct hud *s = node->priv_data;
-
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct widget_latency *priv = widget->priv_data;
@@ -975,7 +973,6 @@ static void widget_drawcall_csv_header(struct ngl_node *node, struct widget *wid
 static void widget_latency_csv_report(struct ngl_node *node, struct widget *widget, struct bstr *dst)
 {
     const struct widget_latency *priv = widget->priv_data;
-
     for (int i = 0; i < NB_LATENCY; i++) {
         const int64_t t = get_latency_avg(priv, i);
         ngli_bstr_print(dst, "%s%"PRId64, i ? "," : "", t);
