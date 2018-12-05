@@ -1300,6 +1300,8 @@ static int widgets_csv_header(struct ngl_node *node)
     if (!s->csv_line)
         return -1;
 
+    ngli_bstr_print(s->csv_line, "time,");
+
     struct darray *widgets_array = &s->widgets;
     struct widget *widgets = ngli_darray_data(widgets_array);
     for (int i = 0; i < ngli_darray_count(widgets_array); i++) {
@@ -1325,6 +1327,8 @@ static void widgets_csv_report(struct ngl_node *node)
     struct hud *s = node->priv_data;
 
     ngli_bstr_clear(s->csv_line);
+    /* Quoting to prevent locale issues with float printing */
+    ngli_bstr_print(s->csv_line, "\"%f\"", s->last_refresh_time);
 
     struct darray *widgets_array = &s->widgets;
     struct widget *widgets = ngli_darray_data(widgets_array);
