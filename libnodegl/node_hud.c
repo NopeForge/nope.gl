@@ -52,7 +52,6 @@ static const struct node_param hud_params[] = {
 
 #define FONT_H 8
 #define FONT_W 8
-#define DATA_NBCHAR_W 20
 
 static const uint8_t font8[128][8] = {
     {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
@@ -187,6 +186,8 @@ static const uint8_t font8[128][8] = {
 
 #define WIDGET_PADDING 4
 #define WIDGET_MARGIN  2
+
+#define LATENCY_WIDGET_TEXT_LEN     20
 
 enum {
     LATENCY_UPDATE_CPU,
@@ -522,7 +523,7 @@ static void widget_latency_draw(struct ngl_node *node, struct widget *widget)
     struct hud *s = node->priv_data;
     struct widget_latency *priv = widget->priv_data;
 
-    char buf[DATA_NBCHAR_W + 1];
+    char buf[LATENCY_WIDGET_TEXT_LEN + 1];
     for (int i = 0; i < NB_LATENCY; i++) {
         const int64_t t = get_latency_avg(priv, i);
 
@@ -575,7 +576,7 @@ static void widget_latency_uninit(struct ngl_node *node, struct widget *widget)
 
 static const struct widget_spec widget_specs[] = {
     [WIDGET_LATENCY] = {
-        .text_cols     = DATA_NBCHAR_W,
+        .text_cols     = LATENCY_WIDGET_TEXT_LEN,
         .text_rows     = NB_LATENCY,
         .graph_w       = 320,
         .nb_data_graph = NB_LATENCY,
