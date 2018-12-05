@@ -215,8 +215,24 @@ enum widget_type {
     WIDGET_LATENCY,
 };
 
+struct data_graph {
+    int64_t *values;
+    int nb_values;
+    int count;
+    int pos;
+    int64_t min;
+    int64_t max;
+};
+
+struct latency_measure {
+    int64_t *times;
+    int count;
+    int pos;
+    int64_t total_times;
+};
+
 struct widget_latency {
-    struct hud_measuring measures[NB_LATENCY];
+    struct latency_measure measures[NB_LATENCY];
 
     GLuint query;
     void (*glGenQueries)(const struct glcontext *gl, GLsizei n, GLuint * ids);
@@ -235,7 +251,7 @@ struct widget {
     struct rect rect;
     int text_x, text_y;
     struct rect graph_rect;
-    struct hud_data_graph *data_graph;
+    struct data_graph *data_graph;
     const void *user_data;
     void *priv_data;
 };
@@ -300,7 +316,7 @@ static int widget_latency_init(struct ngl_node *node, struct widget *widget)
     return 0;
 }
 
-static void register_time(struct hud *s, struct hud_measuring *m, int64_t t)
+static void register_time(struct hud *s, struct latency_measure *m, int64_t t)
 {
     m->total_times = m->total_times - m->times[m->pos] + t;
     m->times[m->pos] = t;
@@ -373,8 +389,8 @@ static void widget_latency_make_stats(struct ngl_node *node, struct widget *widg
     register_time(s, &priv->measures[LATENCY_DRAW_CPU], cpu_tdraw);
     register_time(s, &priv->measures[LATENCY_DRAW_GPU], gpu_tdraw);
 
-    const struct hud_measuring *cpu_up = &priv->measures[LATENCY_UPDATE_CPU];
-    const struct hud_measuring *gpu_up = &priv->measures[LATENCY_UPDATE_GPU];
+    const struct latency_measure *cpu_up = &priv->measures[LATENCY_UPDATE_CPU];
+    const struct latency_measure *gpu_up = &priv->measures[LATENCY_UPDATE_GPU];
     const int last_cpu_up_pos = (cpu_up->pos ? cpu_up->pos : s->measure_window) - 1;
     const int last_gpu_up_pos = (gpu_up->pos ? gpu_up->pos : s->measure_window) - 1;
     const int64_t cpu_tupdate = cpu_up->times[last_cpu_up_pos];
@@ -407,7 +423,7 @@ static int clip(int x, int min, int max)
 }
 
 static void draw_line_graph(struct hud *s,
-                            const struct hud_data_graph *d,
+                            const struct data_graph *d,
                             const struct rect *rect,
                             int64_t graph_min, int64_t graph_max,
                             const uint32_t c)
@@ -466,7 +482,7 @@ static void widgets_clear(struct hud *s)
     }
 }
 
-static void register_graph_value(struct hud_data_graph *d, int64_t v)
+static void register_graph_value(struct data_graph *d, int64_t v)
 {
     const int64_t old_v = d->values[d->pos];
 
@@ -495,7 +511,7 @@ static void register_graph_value(struct hud_data_graph *d, int64_t v)
 
 static int64_t get_latency_avg(const struct widget_latency *priv, int id)
 {
-    const struct hud_measuring *m = &priv->measures[id];
+    const struct latency_measure *m = &priv->measures[id];
     return m->total_times / m->count / (latency_specs[id].unit == 'u' ? 1 : 1000);
 }
 
@@ -634,7 +650,7 @@ static int create_widget(struct hud *s, enum widget_type type, const void *user_
     if (!widgetp->data_graph)
         return -1;
     for (int i = 0; i < spec->nb_data_graph; i++) {
-        struct hud_data_graph *d = &widgetp->data_graph[i];
+        struct data_graph *d = &widgetp->data_graph[i];
         d->nb_values = widgetp->graph_rect.w;
         d->values = calloc(d->nb_values, sizeof(*d->values));
         if (!d->values)

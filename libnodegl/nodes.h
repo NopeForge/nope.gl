@@ -568,22 +568,6 @@ struct animkeyframe {
     double boundaries[2];
 };
 
-struct hud_measuring {
-    int64_t *times;
-    int count;
-    int pos;
-    int64_t total_times;
-};
-
-struct hud_data_graph {
-    int64_t *values;
-    int nb_values;
-    int count;
-    int pos;
-    int64_t min;
-    int64_t max;
-};
-
 struct hud {
     struct ngl_node *child;
     int measure_window;
