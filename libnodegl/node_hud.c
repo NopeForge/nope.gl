@@ -29,6 +29,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include "hmap.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "log.h"
@@ -188,6 +189,7 @@ static const uint8_t font8[128][8] = {
 #define WIDGET_MARGIN  2
 
 #define LATENCY_WIDGET_TEXT_LEN     20
+#define MEMORY_WIDGET_TEXT_LEN      25
 
 enum {
     LATENCY_UPDATE_CPU,
@@ -198,6 +200,43 @@ enum {
     LATENCY_TOTAL_GPU,
     NB_LATENCY
 };
+
+enum {
+    MEMORY_BUFFERS_CPU,
+    MEMORY_BUFFERS_GPU,
+    MEMORY_TEXTURES,
+    NB_MEMORY
+};
+
+#define BUFFER_NODES        \
+    NGL_NODE_BUFFERBYTE,    \
+    NGL_NODE_BUFFERBVEC2,   \
+    NGL_NODE_BUFFERBVEC3,   \
+    NGL_NODE_BUFFERBVEC4,   \
+    NGL_NODE_BUFFERINT,     \
+    NGL_NODE_BUFFERIVEC2,   \
+    NGL_NODE_BUFFERIVEC3,   \
+    NGL_NODE_BUFFERIVEC4,   \
+    NGL_NODE_BUFFERSHORT,   \
+    NGL_NODE_BUFFERSVEC2,   \
+    NGL_NODE_BUFFERSVEC3,   \
+    NGL_NODE_BUFFERSVEC4,   \
+    NGL_NODE_BUFFERUBYTE,   \
+    NGL_NODE_BUFFERUBVEC2,  \
+    NGL_NODE_BUFFERUBVEC3,  \
+    NGL_NODE_BUFFERUBVEC4,  \
+    NGL_NODE_BUFFERUINT,    \
+    NGL_NODE_BUFFERUIVEC2,  \
+    NGL_NODE_BUFFERUIVEC3,  \
+    NGL_NODE_BUFFERUIVEC4,  \
+    NGL_NODE_BUFFERUSHORT,  \
+    NGL_NODE_BUFFERUSVEC2,  \
+    NGL_NODE_BUFFERUSVEC3,  \
+    NGL_NODE_BUFFERUSVEC4,  \
+    NGL_NODE_BUFFERFLOAT,   \
+    NGL_NODE_BUFFERVEC2,    \
+    NGL_NODE_BUFFERVEC3,    \
+    NGL_NODE_BUFFERVEC4
 
 static const struct {
     const char *label;
@@ -212,10 +251,34 @@ static const struct {
     [LATENCY_TOTAL_GPU]  = {"total  GPU", 0xF43D3DFF, 'n'},
 };
 
+static const struct {
+    const char *label;
+    const int *node_types;
+    uint32_t color;
+} memory_specs[] = {
+    [MEMORY_BUFFERS_CPU] = {
+        .label="Buffers CPU",
+        .node_types=(const int[]){BUFFER_NODES, -1},
+        .color=0x7FFF7FFF,
+    },
+    [MEMORY_BUFFERS_GPU] = {
+        .label="Buffers GPU",
+        .node_types=(const int[]){BUFFER_NODES, -1},
+        .color=0x7F7FFFFF,
+    },
+    [MEMORY_TEXTURES] = {
+        .label="Textures",
+        .node_types=(const int[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE3D, -1},
+        .color=0xFF7F7FFF,
+    },
+};
+
 NGLI_STATIC_ASSERT(hud_nb_latency, NGLI_ARRAY_NB(latency_specs) == NB_LATENCY);
+NGLI_STATIC_ASSERT(hud_nb_memory, NGLI_ARRAY_NB(memory_specs) == NB_MEMORY);
 
 enum widget_type {
     WIDGET_LATENCY,
+    WIDGET_MEMORY,
 };
 
 struct data_graph {
@@ -243,6 +306,11 @@ struct widget_latency {
     void (*glBeginQuery)(const struct glcontext *gl, GLenum target, GLuint id);
     void (*glEndQuery)(const struct glcontext *gl, GLenum target);
     void (*glGetQueryObjectui64v)(const struct glcontext *gl, GLuint id, GLenum pname, GLuint64 *params);
+};
+
+struct widget_memory {
+    struct darray nodes[NB_MEMORY];
+    uint64_t sizes[NB_MEMORY];
 };
 
 struct rect {
@@ -316,6 +384,71 @@ static int widget_latency_init(struct ngl_node *node, struct widget *widget)
         priv->measures[i].times = times;
     }
 
+    return 0;
+}
+
+static int track_children_per_types(struct hmap *map, struct ngl_node *node, int node_type)
+{
+    if (node->class->id == node_type) {
+        char key[32];
+        int ret = snprintf(key, sizeof(key), "%p", node);
+        if (ret < 0)
+            return ret;
+        ret = ngli_hmap_set(map, key, node);
+        if (ret < 0)
+            return ret;
+    }
+
+    struct darray *children_array = &node->children;
+    struct ngl_node **children = ngli_darray_data(children_array);
+    for (int i = 0; i < ngli_darray_count(children_array); i++) {
+        int ret = track_children_per_types(map, children[i], node_type);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
+}
+
+static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, const int *node_types)
+{
+    /* construct a set of the nodes of a given type(s) */
+    struct hmap *nodes_set = ngli_hmap_create();
+    if (!nodes_set)
+        return -1;
+    for (int n = 0; node_types[n] != -1; n++) {
+        int ret = track_children_per_types(nodes_set, scene, node_types[n]);
+        if (ret < 0) {
+            ngli_hmap_freep(&nodes_set);
+            return -1;
+        }
+    }
+
+    /* transfer the set content to a list of elements */
+    ngli_darray_init(nodes_list, sizeof(struct ngl_node *), 0);
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(nodes_set, entry))) {
+        if (!ngli_darray_push(nodes_list, &entry->data)) {
+            ngli_hmap_freep(&nodes_set);
+            return -1;
+        }
+    }
+
+    ngli_hmap_freep(&nodes_set);
+    return 0;
+}
+
+static int widget_memory_init(struct ngl_node *node, struct widget *widget)
+{
+    struct hud *s = node->priv_data;
+    struct widget_memory *priv = widget->priv_data;
+
+    for (int i = 0; i < NB_MEMORY; i++) {
+        const int *node_types = memory_specs[i].node_types;
+        int ret = make_nodes_set(s->child, &priv->nodes[i], node_types);
+        if (ret < 0)
+            return ret;
+    }
     return 0;
 }
 
@@ -400,6 +533,52 @@ static void widget_latency_make_stats(struct ngl_node *node, struct widget *widg
     const int64_t gpu_tupdate = gpu_up->times[last_gpu_up_pos];
     register_time(s, &priv->measures[LATENCY_TOTAL_CPU], cpu_tdraw + cpu_tupdate);
     register_time(s, &priv->measures[LATENCY_TOTAL_GPU], gpu_tdraw + gpu_tupdate);
+}
+
+#define FORMAT_SIZE_CASE(format, size, name, doc) case format: return size;
+static int format_byte_per_pixel(int format)
+{
+    switch (format) {
+        NGLI_FORMATS(FORMAT_SIZE_CASE);
+    }
+    return 0;
+}
+
+static void widget_memory_make_stats(struct ngl_node *node, struct widget *widget)
+{
+    struct widget_memory *priv = widget->priv_data;
+
+    struct darray *nodes_buf_array_cpu = &priv->nodes[MEMORY_BUFFERS_CPU];
+    struct ngl_node **nodes_buf_cpu = ngli_darray_data(nodes_buf_array_cpu);
+    priv->sizes[MEMORY_BUFFERS_CPU] = 0;
+    for (int i = 0; i < ngli_darray_count(nodes_buf_array_cpu); i++) {
+        const struct ngl_node *buf_node = nodes_buf_cpu[i];
+        const struct buffer *buffer = buf_node->priv_data;
+        priv->sizes[MEMORY_BUFFERS_CPU] += buffer->data_size;
+    }
+
+    struct darray *nodes_buf_array_gpu = &priv->nodes[MEMORY_BUFFERS_GPU];
+    struct ngl_node **nodes_buf_gpu = ngli_darray_data(nodes_buf_array_gpu);
+    priv->sizes[MEMORY_BUFFERS_GPU] = 0;
+    for (int i = 0; i < ngli_darray_count(nodes_buf_array_gpu); i++) {
+        const struct ngl_node *buf_node = nodes_buf_gpu[i];
+        const struct buffer *buffer = buf_node->priv_data;
+        priv->sizes[MEMORY_BUFFERS_GPU] += buffer->data_size * (buffer->graphic_buffer_refcount > 0);
+    }
+
+    struct darray *nodes_tex_array = &priv->nodes[MEMORY_TEXTURES];
+    struct ngl_node **nodes_tex = ngli_darray_data(nodes_tex_array);
+    priv->sizes[MEMORY_TEXTURES] = 0;
+    for (int i = 0; i < ngli_darray_count(nodes_tex_array); i++) {
+        const struct ngl_node *tex_node = nodes_tex[i];
+        const struct texture *texture = tex_node->priv_data;
+        // FIXME: account for planes/internal textures (hwaccel)?
+        priv->sizes[MEMORY_TEXTURES] += texture->width
+                                      * texture->height
+                                      * NGLI_MAX(texture->depth, 1)
+                                      * format_byte_per_pixel(texture->data_format)
+                                      * tex_node->is_active;
+    }
 }
 
 static inline uint8_t *set_color(uint8_t *p, uint32_t rgba)
@@ -547,10 +726,54 @@ static void widget_latency_draw(struct ngl_node *node, struct widget *widget)
     }
 }
 
+static void widget_memory_draw(struct ngl_node *node, struct widget *widget)
+{
+    struct hud *s = node->priv_data;
+    struct widget_memory *priv = widget->priv_data;
+    char buf[MEMORY_WIDGET_TEXT_LEN + 1];
+
+    for (int i = 0; i < NB_MEMORY; i++) {
+        const uint64_t size = priv->sizes[i];
+        const uint32_t color = memory_specs[i].color;
+        const char *label = memory_specs[i].label;
+
+        if (size < 1024)
+            snprintf(buf, sizeof(buf), "%-12s %"PRIu64, label, size);
+        else if (size < 1024 * 1024)
+            snprintf(buf, sizeof(buf), "%-12s %"PRIu64"K", label, size / 1024);
+        else if (size < 1024 * 1024 * 1024)
+            snprintf(buf, sizeof(buf), "%-12s %"PRIu64"M", label, size / (1024 * 1024));
+        else
+            snprintf(buf, sizeof(buf), "%-12s %"PRIu64"G", label, size / (1024 * 1024 * 1024));
+        print_text(s, widget->text_x, widget->text_y + i * FONT_H, buf, color);
+        register_graph_value(&widget->data_graph[i], size);
+    }
+
+    int64_t graph_min = widget->data_graph[0].min;
+    int64_t graph_max = widget->data_graph[0].max;
+    for (int i = 1; i < NB_MEMORY; i++) {
+        graph_min = NGLI_MIN(graph_min, widget->data_graph[i].min);
+        graph_max = NGLI_MAX(graph_max, widget->data_graph[i].max);
+    }
+
+    const int64_t graph_h = graph_max - graph_min;
+    if (graph_h) {
+        for (int i = 0; i < NB_MEMORY; i++)
+            draw_line_graph(s, &widget->data_graph[i], &widget->graph_rect,
+                            graph_min, graph_max, memory_specs[i].color);
+    }
+}
+
 static void widget_latency_csv_header(struct ngl_node *node, struct widget *widget, struct bstr *dst)
 {
     for (int i = 0; i < NB_LATENCY; i++)
         ngli_bstr_print(dst, "%s%s", i ? "," : "", latency_specs[i].label);
+}
+
+static void widget_memory_csv_header(struct ngl_node *node, struct widget *widget, struct bstr *dst)
+{
+    for (int i = 0; i < NB_MEMORY; i++)
+        ngli_bstr_print(dst, "%s%s memory", i ? "," : "", memory_specs[i].label);
 }
 
 static void widget_latency_csv_report(struct ngl_node *node, struct widget *widget, struct bstr *dst)
@@ -563,6 +786,15 @@ static void widget_latency_csv_report(struct ngl_node *node, struct widget *widg
     }
 }
 
+static void widget_memory_csv_report(struct ngl_node *node, struct widget *widget, struct bstr *dst)
+{
+    const struct widget_memory *priv = widget->priv_data;
+    for (int i = 0; i < NB_MEMORY; i++) {
+        const uint64_t size = priv->sizes[i];
+        ngli_bstr_print(dst, "%s%"PRIu64, i ? "," : "", size);
+    }
+}
+
 static void widget_latency_uninit(struct ngl_node *node, struct widget *widget)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -572,6 +804,13 @@ static void widget_latency_uninit(struct ngl_node *node, struct widget *widget)
     for (int i = 0; i < NB_LATENCY; i++)
         free(priv->measures[i].times);
     priv->glDeleteQueries(gl, 1, &priv->query);
+}
+
+static void widget_memory_uninit(struct ngl_node *node, struct widget *widget)
+{
+    struct widget_memory *priv = widget->priv_data;
+    for (int i = 0; i < NB_MEMORY; i++)
+        ngli_darray_reset(&priv->nodes[i]);
 }
 
 static const struct widget_spec widget_specs[] = {
@@ -587,6 +826,19 @@ static const struct widget_spec widget_specs[] = {
         .csv_header    = widget_latency_csv_header,
         .csv_report    = widget_latency_csv_report,
         .uninit        = widget_latency_uninit,
+    },
+    [WIDGET_MEMORY] = {
+        .text_cols     = MEMORY_WIDGET_TEXT_LEN,
+        .text_rows     = NB_MEMORY,
+        .graph_h       = 50,
+        .nb_data_graph = NB_MEMORY,
+        .priv_size     = sizeof(struct widget_memory),
+        .init          = widget_memory_init,
+        .make_stats    = widget_memory_make_stats,
+        .draw          = widget_memory_draw,
+        .csv_header    = widget_memory_csv_header,
+        .csv_report    = widget_memory_csv_report,
+        .uninit        = widget_memory_uninit,
     },
 };
 
@@ -674,10 +926,14 @@ static int widgets_init(struct ngl_node *node)
     ngli_darray_init(&s->widgets, sizeof(struct widget), 0);
 
     /* Smallest dimensions possible (in pixels) */
-    const int min_width  = WIDGET_MARGIN * 2
-                         + get_widget_width(WIDGET_LATENCY);
-    const int min_height = WIDGET_MARGIN * 2
-                         + get_widget_height(WIDGET_LATENCY);
+    const int min_width  = WIDGET_MARGIN * 3
+                         + get_widget_width(WIDGET_LATENCY)
+                         + get_widget_width(WIDGET_MEMORY);
+    const int left_height  = WIDGET_MARGIN * 2
+                           + get_widget_height(WIDGET_LATENCY);
+    const int right_height = WIDGET_MARGIN * 2
+                           + get_widget_height(WIDGET_MEMORY);
+    const int min_height   = NGLI_MAX(left_height, right_height);
 
     /* Compute buffer dimensions according to user specified aspect ratio and
      * minimal dimensions */
@@ -693,6 +949,13 @@ static int widgets_init(struct ngl_node *node)
     const int x_latency = WIDGET_MARGIN;
     const int y_latency = WIDGET_MARGIN;
     int ret = create_widget(s, WIDGET_LATENCY, NULL, x_latency, y_latency);
+    if (ret < 0)
+        return ret;
+
+    /* Memory widget in the top-right */
+    const int x_memory = -get_widget_width(WIDGET_MEMORY) - WIDGET_MARGIN;
+    const int y_memory = WIDGET_MARGIN;
+    ret = create_widget(s, WIDGET_MEMORY, NULL, x_memory, y_memory);
     if (ret < 0)
         return ret;
 
