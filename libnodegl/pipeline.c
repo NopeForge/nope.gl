@@ -548,7 +548,7 @@ void ngli_pipeline_uninit(struct ngl_node *node)
     free(s->uniform_pairs);
     for (int i = 0; i < s->nb_buffer_pairs; i++) {
         struct nodeprograminfopair *pair = &s->buffer_pairs[i];
-        ngli_buffer_unref((struct ngl_node *)pair->node);
+        ngli_buffer_unref(pair->node);
     }
     free(s->buffer_pairs);
 }

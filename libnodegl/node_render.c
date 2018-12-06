@@ -409,7 +409,7 @@ static void render_uninit(struct ngl_node *node)
 
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         struct nodeprograminfopair *pair = &s->attribute_pairs[i];
-        ngli_buffer_unref((struct ngl_node *)pair->node);
+        ngli_buffer_unref(pair->node);
     }
 
     free(s->attribute_pairs);
@@ -425,7 +425,7 @@ static int render_update(struct ngl_node *node, double t)
 
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         struct nodeprograminfopair *pair = &s->attribute_pairs[i];
-        struct ngl_node *bnode = (struct ngl_node *)pair->node;
+        struct ngl_node *bnode = pair->node;
         int ret = ngli_node_update(bnode, t);
         if (ret < 0)
             return ret;
