@@ -533,13 +533,14 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
         }
         last_offset = par->offset;
 
+        int ret = 0;
         if (!(par->flags & PARAM_FLAG_CONSTRUCTOR)) {
             switch (par->type) {
                 case PARAM_TYPE_SELECT: {
                     const int v = (int)par->def_value.i64;
                     const char *s = ngli_params_get_select_str(par->choices->consts, v);
                     ngli_assert(s);
-                    ngli_params_vset(base_ptr, par, s);
+                    ret = ngli_params_vset(base_ptr, par, s);
                     break;
                 }
                 case PARAM_TYPE_FLAGS: {
@@ -548,37 +549,39 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                     if (!s)
                         return -1;
                     ngli_assert(*s);
-                    ngli_params_vset(base_ptr, par, s);
+                    ret = ngli_params_vset(base_ptr, par, s);
                     ngli_free(s);
                     break;
                 }
                 case PARAM_TYPE_BOOL:
                 case PARAM_TYPE_INT:
                 case PARAM_TYPE_I64:
-                    ngli_params_vset(base_ptr, par, par->def_value.i64);
+                    ret = ngli_params_vset(base_ptr, par, par->def_value.i64);
                     break;
                 case PARAM_TYPE_DBL:
-                    ngli_params_vset(base_ptr, par, par->def_value.dbl);
+                    ret = ngli_params_vset(base_ptr, par, par->def_value.dbl);
                     break;
                 case PARAM_TYPE_STR:
-                    ngli_params_vset(base_ptr, par, par->def_value.str);
+                    ret = ngli_params_vset(base_ptr, par, par->def_value.str);
                     break;
                 case PARAM_TYPE_VEC2:
                 case PARAM_TYPE_VEC3:
                 case PARAM_TYPE_VEC4:
-                    ngli_params_vset(base_ptr, par, par->def_value.vec);
+                    ret = ngli_params_vset(base_ptr, par, par->def_value.vec);
                     break;
                 case PARAM_TYPE_MAT4:
-                    ngli_params_vset(base_ptr, par, par->def_value.mat);
+                    ret = ngli_params_vset(base_ptr, par, par->def_value.mat);
                     break;
                 case PARAM_TYPE_DATA:
-                    ngli_params_vset(base_ptr, par, 0, par->def_value.p);
+                    ret = ngli_params_vset(base_ptr, par, 0, par->def_value.p);
                     break;
                 case PARAM_TYPE_RATIONAL:
-                    ngli_params_vset(base_ptr, par, par->def_value.r[0], par->def_value.r[1]);
+                    ret = ngli_params_vset(base_ptr, par, par->def_value.r[0], par->def_value.r[1]);
                     break;
             }
         }
+        if (ret < 0)
+            return ret;
     }
     return 0;
 }
