@@ -270,6 +270,8 @@ static int node_init(struct ngl_node *node)
         int ret = node->class->init(node);
         if (ret < 0) {
             LOG(ERROR, "initializing node %s failed: %d", node->label, ret);
+            node->state = STATE_INIT_FAILED;
+            node_uninit(node);
             return ret;
         }
     }
