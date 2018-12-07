@@ -23,6 +23,10 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
+#if defined(TARGET_LINUX)
+#include <X11/Xlib.h>
+#endif
+
 #include "fbo.h"
 #include "format.h"
 #include "glcontext.h"
@@ -33,6 +37,8 @@
 #define EGL_PLATFORM_X11 0x31D5
 
 struct egl_priv {
+    EGLNativeDisplayType native_display;
+    int own_native_display;
     EGLDisplay display;
     EGLSurface surface;
     EGLContext handle;
@@ -85,6 +91,26 @@ static int egl_probe_platform_x11_ext(struct egl_priv *egl)
 }
 #endif
 
+
+static int egl_set_native_display(struct egl_priv *egl, uintptr_t native_display)
+{
+    if (native_display) {
+        egl->native_display = (EGLNativeDisplayType)native_display;
+        return 0;
+    }
+#if defined(TARGET_LINUX)
+    egl->native_display = XOpenDisplay(NULL);
+    if (!egl->native_display) {
+        LOG(ERROR, "could not retrieve X11 display");
+        return -1;
+    }
+    egl->own_native_display = 1;
+#else
+    egl->native_display = EGL_DEFAULT_DISPLAY;
+#endif
+    return 0;
+}
+
 static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType native_display)
 {
 #if defined(TARGET_ANDROID)
@@ -103,9 +129,14 @@ static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType nat
 static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
 {
     struct egl_priv *egl = ctx->priv_data;
-    EGLNativeDisplayType native_display = display ? (EGLNativeDisplayType)display : EGL_DEFAULT_DISPLAY;
 
-    egl->display = egl_get_display(egl, native_display);
+    int ret = egl_set_native_display(egl, display);
+    if (ret < 0) {
+        LOG(ERROR, "could not set native display");
+        return -1;
+    }
+
+    egl->display = egl_get_display(egl, egl->native_display);
     if (!egl->display) {
         LOG(ERROR, "could not retrieve EGL display");
         return -1;
@@ -113,7 +144,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     EGLint egl_minor;
     EGLint egl_major;
-    int ret = eglInitialize(egl->display, &egl_major, &egl_minor);
+    ret = eglInitialize(egl->display, &egl_major, &egl_minor);
     if (!ret) {
         LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
         return -1;
@@ -247,6 +278,12 @@ static void egl_uninit(struct glcontext *ctx)
 
     if (egl->display)
         eglTerminate(egl->display);
+
+#if defined(TARGET_LINUX)
+    if (egl->own_native_display) {
+        XCloseDisplay(egl->native_display);
+    }
+#endif
 }
 
 static int egl_make_current(struct glcontext *ctx, int current)
