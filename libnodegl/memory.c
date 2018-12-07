@@ -33,6 +33,11 @@ void *ngli_malloc(size_t size)
     return malloc(size);
 }
 
+void *ngli_calloc(size_t n, size_t size)
+{
+    return calloc(n, size);
+}
+
 void *ngli_malloc_aligned(size_t size)
 {
     void *ptr;

@@ -25,6 +25,7 @@
 #include <stddef.h>
 
 void *ngli_malloc(size_t size);
+void *ngli_calloc(size_t n, size_t size);
 void *ngli_malloc_aligned(size_t size);
 
 void *ngli_realloc(void *ptr, size_t size);
