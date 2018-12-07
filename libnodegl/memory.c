@@ -24,22 +24,64 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "memory.h"
 #include "utils.h"
 
+#ifdef DEBUG_MEM
+static int failure_requested(void)
+{
+    static int alloc_counter;
+
+    const char *mem_politic = getenv("NGL_MEM_ALLOC_FAIL");
+    if (!mem_politic)
+        return 0;
+    if (!strcmp(mem_politic, "count")) {
+        alloc_counter++;
+        fprintf(stderr, "MEMCOUNTER: %d\n", alloc_counter);
+        return 0;
+    }
+    char *endptr = NULL;
+    long int n = strtol(mem_politic, &endptr, 0);
+    int should_fail = 0;
+    const int r = rand();
+    if (endptr && *endptr == '%') {
+        should_fail = r % 100 < n;
+    } else if (alloc_counter == n) {
+        should_fail = 1;
+    }
+    if (should_fail)
+        fprintf(stderr, "WARNING: next alloc (%d) will fail\n", alloc_counter);
+    alloc_counter++;
+    return should_fail;
+}
+#else
+static inline int failure_requested(void)
+{
+    return 0;
+}
+#endif
+
 void *ngli_malloc(size_t size)
 {
+    if (failure_requested())
+        return NULL;
     return malloc(size);
 }
 
 void *ngli_calloc(size_t n, size_t size)
 {
+    if (failure_requested())
+        return NULL;
     return calloc(n, size);
 }
 
 void *ngli_malloc_aligned(size_t size)
 {
+    if (failure_requested())
+        return NULL;
+
     void *ptr;
 #ifdef TARGET_MINGW_W64
     ptr = _aligned_malloc(size, NGLI_ALIGN_VAL);
@@ -52,6 +94,8 @@ void *ngli_malloc_aligned(size_t size)
 
 void *ngli_realloc(void *ptr, size_t size)
 {
+    if (failure_requested())
+        return NULL;
     return realloc(ptr, size);
 }
 

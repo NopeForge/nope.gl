@@ -33,6 +33,10 @@ ifeq ($(LOGTRACE),yes)
 	PROJECT_CFLAGS += -DLOGTRACE
 endif
 
+ifeq ($(DEBUG_MEM),yes)
+	PROJECT_CFLAGS += -DDEBUG_MEM
+endif
+
 LD_SYM_FILE   = $(LIB_BASENAME).symexport
 LD_SYM_OPTION = --version-script
 LD_SYM_DATA   = "{\n\tglobal: ngl_*;\n\tlocal: *;\n};\n"
