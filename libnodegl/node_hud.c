@@ -30,6 +30,7 @@
 #include <unistd.h>
 
 #include "hmap.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "log.h"
@@ -452,7 +453,7 @@ static int widget_latency_init(struct ngl_node *node, struct widget *widget)
 
     s->measure_window = NGLI_MAX(s->measure_window, 1);
     for (int i = 0; i < NB_LATENCY; i++) {
-        int64_t *times = calloc(s->measure_window, sizeof(*times));
+        int64_t *times = ngli_calloc(s->measure_window, sizeof(*times));
         if (!times)
             return -1;
         priv->measures[i].times = times;
@@ -1009,7 +1010,7 @@ static void widget_latency_uninit(struct ngl_node *node, struct widget *widget)
     struct widget_latency *priv = widget->priv_data;
 
     for (int i = 0; i < NB_LATENCY; i++)
-        free(priv->measures[i].times);
+        ngli_free(priv->measures[i].times);
     priv->glDeleteQueries(gl, 1, &priv->query);
 }
 
@@ -1146,17 +1147,17 @@ static int create_widget(struct hud *s, enum widget_type type, const void *user_
     if (!widgetp)
         return -1;
 
-    widgetp->priv_data = calloc(1, spec->priv_size);
+    widgetp->priv_data = ngli_calloc(1, spec->priv_size);
     if (!widgetp->priv_data)
         return -1;
 
-    widgetp->data_graph = calloc(spec->nb_data_graph, sizeof(*widgetp->data_graph));
+    widgetp->data_graph = ngli_calloc(spec->nb_data_graph, sizeof(*widgetp->data_graph));
     if (!widgetp->data_graph)
         return -1;
     for (int i = 0; i < spec->nb_data_graph; i++) {
         struct data_graph *d = &widgetp->data_graph[i];
         d->nb_values = widgetp->graph_rect.w;
-        d->values = calloc(d->nb_values, sizeof(*d->values));
+        d->values = ngli_calloc(d->nb_values, sizeof(*d->values));
         if (!d->values)
             return -1;
     }
@@ -1345,10 +1346,10 @@ static void widgets_csv_report(struct ngl_node *node)
 
 static void free_widget(struct widget *widget)
 {
-    free(widget->priv_data);
+    ngli_free(widget->priv_data);
     for (int i = 0; i < widget_specs[widget->type].nb_data_graph; i++)
-        free(widget->data_graph[i].values);
-    free(widget->data_graph);
+        ngli_free(widget->data_graph[i].values);
+    ngli_free(widget->data_graph);
 }
 
 static void widgets_uninit(struct ngl_node *node)
@@ -1377,7 +1378,7 @@ static int hud_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    s->data_buf = calloc(s->data_w * s->data_h, 4);
+    s->data_buf = ngli_calloc(s->data_w * s->data_h, 4);
     if (!s->data_buf)
         return -1;
 
@@ -1427,7 +1428,7 @@ static void hud_uninit(struct ngl_node *node)
     struct hud *s = node->priv_data;
 
     widgets_uninit(node);
-    free(s->data_buf);
+    ngli_free(s->data_buf);
     if (s->export_filename) {
         close(s->fd_export);
         ngli_bstr_freep(&s->csv_line);

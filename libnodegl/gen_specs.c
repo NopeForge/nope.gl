@@ -20,6 +20,7 @@
  */
 
 #include "hmap.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "nodes_register.h"
@@ -82,7 +83,7 @@ int main(void)
             void *mapped_param = ngli_hmap_get(params_map, c->params_id);
             char *pname = ngli_asprintf("_%s", c->params_id);
             if (!pname) {
-                free(pname);
+                ngli_free(pname);
                 return -1;
             }
             if (mapped_param) {
@@ -92,7 +93,7 @@ int main(void)
                 ngli_hmap_set(params_map, c->params_id, (void *)p);
             }
             printf("- %s: %s\n\n", c->name, pname);
-            free(pname);
+            ngli_free(pname);
         } else {
             print_node_params(c->name, p);
         }

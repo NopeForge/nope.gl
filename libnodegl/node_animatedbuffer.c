@@ -23,6 +23,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "log.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 
@@ -145,7 +146,7 @@ static int animatedbuffer_init(struct ngl_node *node)
     if (!s->count)
         return -1;
 
-    s->data = calloc(s->count, s->data_stride);
+    s->data = ngli_calloc(s->count, s->data_stride);
     if (!s->data)
         return -1;
     s->data_size = s->count * s->data_stride;
@@ -157,7 +158,7 @@ static void animatedbuffer_uninit(struct ngl_node *node)
 {
     struct buffer *s = node->priv_data;
 
-    free(s->data);
+    ngli_free(s->data);
     s->data = NULL;
 }
 

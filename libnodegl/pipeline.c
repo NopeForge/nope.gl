@@ -29,6 +29,7 @@
 #include "hmap.h"
 #include "log.h"
 #include "math_utils.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "utils.h"
@@ -404,7 +405,7 @@ int ngli_pipeline_init(struct ngl_node *node)
 
     int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
     if (nb_uniforms > 0) {
-        s->uniform_pairs = calloc(nb_uniforms, sizeof(*s->uniform_pairs));
+        s->uniform_pairs = ngli_calloc(nb_uniforms, sizeof(*s->uniform_pairs));
         if (!s->uniform_pairs)
             return -1;
 
@@ -436,11 +437,11 @@ int ngli_pipeline_init(struct ngl_node *node)
     }
 
     if (nb_textures > 0) {
-        s->textureprograminfos = calloc(nb_textures, sizeof(*s->textureprograminfos));
+        s->textureprograminfos = ngli_calloc(nb_textures, sizeof(*s->textureprograminfos));
         if (!s->textureprograminfos)
             return -1;
 
-        s->texture_pairs = calloc(nb_textures, sizeof(*s->texture_pairs));
+        s->texture_pairs = ngli_calloc(nb_textures, sizeof(*s->texture_pairs));
         if (!s->texture_pairs)
             return -1;
 
@@ -499,7 +500,7 @@ int ngli_pipeline_init(struct ngl_node *node)
     int nb_buffers = s->buffers ? ngli_hmap_count(s->buffers) : 0;
     if (nb_buffers > 0 &&
         gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
-        s->buffer_pairs = calloc(nb_buffers, sizeof(*s->buffer_pairs));
+        s->buffer_pairs = ngli_calloc(nb_buffers, sizeof(*s->buffer_pairs));
         if (!s->buffer_pairs)
             return -1;
 
@@ -543,14 +544,14 @@ void ngli_pipeline_uninit(struct ngl_node *node)
 {
     struct pipeline *s = get_pipeline(node);
 
-    free(s->textureprograminfos);
-    free(s->texture_pairs);
-    free(s->uniform_pairs);
+    ngli_free(s->textureprograminfos);
+    ngli_free(s->texture_pairs);
+    ngli_free(s->uniform_pairs);
     for (int i = 0; i < s->nb_buffer_pairs; i++) {
         struct nodeprograminfopair *pair = &s->buffer_pairs[i];
         ngli_buffer_unref(pair->node);
     }
-    free(s->buffer_pairs);
+    ngli_free(s->buffer_pairs);
 }
 
 int ngli_pipeline_update(struct ngl_node *node, double t)

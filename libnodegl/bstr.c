@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include "bstr.h"
+#include "memory.h"
 
 #define INITIAL_SIZE 1024
 
@@ -34,14 +35,14 @@ struct bstr {
 
 struct bstr *ngli_bstr_create(void)
 {
-    struct bstr *b = calloc(1, sizeof(*b));
+    struct bstr *b = ngli_calloc(1, sizeof(*b));
 
     if (!b)
         return NULL;
     b->bufsize = INITIAL_SIZE;
-    b->str = malloc(b->bufsize);
+    b->str = ngli_malloc(b->bufsize);
     if (!b->str) {
-        free(b);
+        ngli_free(b);
         return NULL;
     }
     b->str[0] = 0;
@@ -107,6 +108,6 @@ void ngli_bstr_freep(struct bstr **bp)
     struct bstr *b = *bp;
     if (!b)
         return;
-    free(b->str);
-    free(b);
+    ngli_free(b->str);
+    ngli_free(b);
 }

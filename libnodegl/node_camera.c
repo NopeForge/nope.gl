@@ -27,6 +27,7 @@
 
 #include "darray.h"
 #include "log.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "math_utils.h"
@@ -109,7 +110,7 @@ static int camera_init(struct ngl_node *node)
     s->up_transform_matrix     = ngli_get_last_transformation_matrix(s->up_transform);
 
     if (s->pipe_fd) {
-        s->pipe_buf = calloc(4 /* RGBA */, s->pipe_width * s->pipe_height);
+        s->pipe_buf = ngli_calloc(4 /* RGBA */, s->pipe_width * s->pipe_height);
         if (!s->pipe_buf)
             return -1;
 
@@ -268,7 +269,7 @@ static void camera_uninit(struct ngl_node *node)
     struct camera *s = node->priv_data;
 
     if (s->pipe_fd) {
-        free(s->pipe_buf);
+        ngli_free(s->pipe_buf);
         ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
         ngli_glDeleteRenderbuffers(gl, 1, &s->colorbuffer_id);
     }

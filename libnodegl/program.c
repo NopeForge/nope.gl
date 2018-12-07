@@ -24,6 +24,7 @@
 
 #include "glincludes.h"
 #include "log.h"
+#include "memory.h"
 #include "nodes.h"
 #include "program.h"
 
@@ -95,7 +96,7 @@ int ngli_program_check_status(const struct glcontext *gl, GLuint id, GLenum stat
     if (!info_log_length)
         return -1;
 
-    info_log = malloc(info_log_length);
+    info_log = ngli_malloc(info_log_length);
     if (!info_log)
         return -1;
 
@@ -109,7 +110,7 @@ int ngli_program_check_status(const struct glcontext *gl, GLuint id, GLenum stat
 
 static void free_pinfo(void *user_arg, void *data)
 {
-    free(data);
+    ngli_free(data);
 }
 
 struct hmap *ngli_program_probe_uniforms(const char *node_label, struct glcontext *gl, GLuint pid)
@@ -123,7 +124,7 @@ struct hmap *ngli_program_probe_uniforms(const char *node_label, struct glcontex
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
     for (int i = 0; i < nb_active_uniforms; i++) {
         char name[MAX_ID_LEN];
-        struct uniformprograminfo *info = malloc(sizeof(*info));
+        struct uniformprograminfo *info = ngli_malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&umap);
             return NULL;
@@ -165,7 +166,7 @@ struct hmap *ngli_program_probe_attributes(const char *node_label, struct glcont
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
     for (int i = 0; i < nb_active_attributes; i++) {
         char name[MAX_ID_LEN];
-        struct attributeprograminfo *info = malloc(sizeof(*info));
+        struct attributeprograminfo *info = ngli_malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&amap);
             return NULL;
@@ -202,7 +203,7 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glc
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
     for (int i = 0; i < nb_active_uniform_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
-        struct bufferprograminfo *info = malloc(sizeof(*info));
+        struct bufferprograminfo *info = ngli_malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&bmap);
             return NULL;
@@ -234,7 +235,7 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glc
                                  GL_ACTIVE_RESOURCES, &nb_active_buffers);
     for (int i = 0; i < nb_active_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
-        struct bufferprograminfo *info = malloc(sizeof(*info));
+        struct bufferprograminfo *info = ngli_malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&bmap);
             return NULL;

@@ -22,6 +22,7 @@
 #include <inttypes.h>
 
 #include "hmap.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "nodes_register.h"
@@ -105,7 +106,7 @@ static char *get_default_str(const struct node_param *p)
                 return NULL;
             ngli_assert(*s);
             ngli_bstr_print(b, "`%s`", s);
-            free(s);
+            ngli_free(s);
             break;
         }
         case PARAM_TYPE_DBL:
@@ -164,8 +165,8 @@ static void print_node_params(const char *name, const struct node_param *p)
                    type, p->desc, def);
         }
 
-        free(def);
-        free(type);
+        ngli_free(def);
+        ngli_free(type);
         p++;
     }
     printf("\n\n");
@@ -225,7 +226,7 @@ int main(void)
                 printf("List of `%s*` nodes:\n\n", c->params_id);
             }
             printf("- `%s`\n", c->name);
-            free(pname);
+            ngli_free(pname);
         } else {
             print_node_params(c->name, p);
             print_source(c->file);

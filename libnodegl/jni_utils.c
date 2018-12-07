@@ -26,6 +26,7 @@
 #include "bstr.h"
 #include "jni_utils.h"
 #include "log.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "utils.h"
 
@@ -230,8 +231,8 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
     ngli_bstr_freep(&bstr);
 done:
 
-    free(name);
-    free(message);
+    ngli_free(name);
+    ngli_free(message);
 
     if (class_class) {
         (*env)->DeleteLocalRef(env, class_class);
@@ -276,7 +277,7 @@ int ngli_jni_exception_check(JNIEnv *env, int log)
     (*env)->DeleteLocalRef(env, exception);
 
     LOG(ERROR, "%s", message);
-    free(message);
+    ngli_free(message);
 
     return -1;
 }

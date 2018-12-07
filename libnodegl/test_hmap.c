@@ -23,6 +23,7 @@
 
 #define HMAP_SIZE_NBIT 1
 #include "hmap.c"
+#include "memory.h"
 #include "utils.h"
 
 #define PRINT_HMAP(...) do {                                    \
@@ -37,7 +38,7 @@
 
 static void free_func(void *arg, void *data)
 {
-    free(data);
+    ngli_free(data);
 }
 
 int main(void)

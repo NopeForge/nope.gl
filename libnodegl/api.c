@@ -33,13 +33,14 @@
 #include "darray.h"
 #include "log.h"
 #include "math_utils.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "glcontext.h"
 
 struct ngl_ctx *ngl_create(void)
 {
-    struct ngl_ctx *s = calloc(1, sizeof(*s));
+    struct ngl_ctx *s = ngli_calloc(1, sizeof(*s));
     if (!s)
         return NULL;
 
@@ -362,7 +363,7 @@ void ngl_freep(struct ngl_ctx **ss)
     ngli_darray_reset(&s->modelview_matrix_stack);
     ngli_darray_reset(&s->projection_matrix_stack);
     ngli_darray_reset(&s->activitycheck_nodes);
-    free(*ss);
+    ngli_free(*ss);
     *ss = NULL;
 }
 

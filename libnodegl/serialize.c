@@ -25,6 +25,7 @@
 #include "bstr.h"
 #include "hmap.h"
 #include "log.h"
+#include "memory.h"
 #include "nodes.h"
 #include "nodegl.h"
 #include "utils.h"
@@ -33,7 +34,7 @@ extern const struct node_param ngli_base_node_params[];
 
 static void free_func(void *arg, void *data)
 {
-    free(data);
+    ngli_free(data);
 }
 
 static int register_node(struct hmap *nlist,
@@ -48,7 +49,7 @@ static int register_node(struct hmap *nlist,
         return -1;
     ret = ngli_hmap_set(nlist, key, val);
     if (ret < 0)
-        free(val);
+        ngli_free(val);
     return ret;
 }
 
@@ -116,7 +117,7 @@ static void serialize_options(struct hmap *nlist,
                     ngli_bstr_print(b, " %s", s);
                 else if (v != p->def_value.i64)
                     ngli_bstr_print(b, " %s:%s", p->key, s);
-                free(s);
+                ngli_free(s);
                 break;
             }
             case PARAM_TYPE_BOOL:

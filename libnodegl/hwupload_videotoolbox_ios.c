@@ -30,6 +30,7 @@
 #include "hwupload.h"
 #include "log.h"
 #include "math_utils.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "program.h"
@@ -127,7 +128,7 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
         return -1;
 
     vt->program_id = ngli_program_load(gl, nv12_to_rgba_vertex_data, nv12_to_rgba_fragment_data);
-    free(nv12_to_rgba_fragment_data);
+    ngli_free(nv12_to_rgba_fragment_data);
     if (!vt->program_id)
         goto fail;
     ngli_glUseProgram(gl, vt->program_id);

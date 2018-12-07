@@ -24,6 +24,7 @@
 #include "jni_utils.h"
 #include "log.h"
 #include "android_looper.h"
+#include "memory.h"
 
 struct jni_android_looper_fields {
     jclass looper_class;
@@ -54,14 +55,14 @@ struct android_looper *ngli_android_looper_new(void)
 {
     JNIEnv *env = NULL;
 
-    struct android_looper *ret = calloc(1, sizeof(*ret));
+    struct android_looper *ret = ngli_calloc(1, sizeof(*ret));
     if (!ret) {
         return NULL;
     }
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(ret);
+        ngli_free(ret);
         return NULL;
     }
 
@@ -193,7 +194,7 @@ void ngli_android_looper_free(struct android_looper **looper)
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(*looper);
+        ngli_free(*looper);
         *looper = NULL;
         return;
     }
@@ -204,6 +205,6 @@ void ngli_android_looper_free(struct android_looper **looper)
 
     ngli_jni_reset_jfields(env, &(*looper)->jfields, android_looper_mapping, 1);
 
-    free(*looper);
+    ngli_free(*looper);
     *looper = NULL;
 }

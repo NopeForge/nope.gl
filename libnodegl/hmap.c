@@ -24,6 +24,7 @@
 #include <string.h>
 
 #include "hmap.h"
+#include "memory.h"
 #include "utils.h"
 
 struct bucket {
@@ -48,14 +49,14 @@ void ngli_hmap_set_free(struct hmap *hm, user_free_func_type user_free_func, voi
 
 struct hmap *ngli_hmap_create(void)
 {
-    struct hmap *hm = calloc(1, sizeof(*hm));
+    struct hmap *hm = ngli_calloc(1, sizeof(*hm));
     if (!hm)
         return NULL;
     hm->size = 1 << HMAP_SIZE_NBIT;
     hm->mask = hm->size - 1;
-    hm->buckets = calloc(hm->size, sizeof(*hm->buckets));
+    hm->buckets = ngli_calloc(hm->size, sizeof(*hm->buckets));
     if (!hm->buckets) {
-        free(hm);
+        ngli_free(hm);
         return NULL;
     }
     return hm;
@@ -80,13 +81,13 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
         for (int i = 0; i < b->nb_entries; i++) {
             struct hmap_entry *e = &b->entries[i];
             if (!strcmp(e->key, key)) {
-                free(e->key);
+                ngli_free(e->key);
                 if (hm->user_free_func)
                     hm->user_free_func(hm->user_arg, e->data);
                 hm->count--;
                 b->nb_entries--;
                 if (!b->nb_entries) {
-                    free(b->entries);
+                    ngli_free(b->entries);
                 } else {
                     memmove(e, e + 1, (b->nb_entries - i) * sizeof(*b->entries));
                     struct hmap_entry *entries =
@@ -119,7 +120,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
         if (hm->size >= 1 << (sizeof(hm->size)*8 - 2))
             return -1;
 
-        struct bucket *new_buckets = calloc(hm->size << 1, sizeof(*new_buckets));
+        struct bucket *new_buckets = ngli_calloc(hm->size << 1, sizeof(*new_buckets));
         if (new_buckets) {
             hm->buckets = new_buckets;
             hm->count = 0;
@@ -135,11 +136,11 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                     struct hmap_entry *entries =
                         realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
                     if (!entries) {
-                        /* Unable to allocate more, free the incomplete buckets
+                        /* Unable to allocate more, ngli_free the incomplete buckets
                          * and restore the previous hashmap state */
                         for (int j = 0; j < hm->size; j++)
-                            free(hm->buckets[j].entries);
-                        free(hm->buckets);
+                            ngli_free(hm->buckets[j].entries);
+                        ngli_free(hm->buckets);
                         *hm = old_hm;
                         return -1;
                     }
@@ -154,14 +155,14 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                 /* Destroy previous indexes in the old buckets */
                 for (int j = 0; j < old_hm.size; j++) {
                     struct bucket *b = &old_hm.buckets[j];
-                    free(b->entries);
+                    ngli_free(b->entries);
                     old_hm.count -= b->nb_entries;
                     if (old_hm.count == 0)
                         break;
                 }
             }
 
-            free(old_hm.buckets);
+            ngli_free(old_hm.buckets);
 
             /* Fix the bucket position for the entry to add */
             id = hash & hm->mask;
@@ -176,7 +177,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
     struct hmap_entry *entries =
         realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
     if (!entries) {
-        free(new_key);
+        ngli_free(new_key);
         return -1;
     }
     b->entries = entries;
@@ -247,18 +248,18 @@ void ngli_hmap_freep(struct hmap **hmp)
             struct bucket *b = &hm->buckets[j];
             for (int i = 0; i < b->nb_entries; i++) {
                 struct hmap_entry *e = &b->entries[i];
-                free(e->key);
+                ngli_free(e->key);
                 if (hm->user_free_func)
                     hm->user_free_func(hm->user_arg, e->data);
             }
-            free(b->entries);
+            ngli_free(b->entries);
             hm->count -= b->nb_entries;
             if (hm->count == 0)
                 break;
         }
     }
 
-    free(hm->buckets);
-    free(hm);
+    ngli_free(hm->buckets);
+    ngli_free(hm);
     *hmp = NULL;
 }

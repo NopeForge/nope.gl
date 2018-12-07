@@ -26,6 +26,7 @@
 #include "bstr.h"
 #include "glcontext.h"
 #include "log.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "utils.h"
 #include "glincludes.h"
@@ -143,13 +144,13 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     if (glplatform < 0 || glplatform >= NGLI_ARRAY_NB(glcontext_class_map))
         return NULL;
 
-    struct glcontext *glcontext = calloc(1, sizeof(*glcontext));
+    struct glcontext *glcontext = ngli_calloc(1, sizeof(*glcontext));
     if (!glcontext)
         return NULL;
     glcontext->class = glcontext_class_map[glplatform];
 
     if (glcontext->class->priv_size) {
-        glcontext->priv_data = calloc(1, glcontext->class->priv_size);
+        glcontext->priv_data = ngli_calloc(1, glcontext->class->priv_size);
         if (!glcontext->priv_data) {
             goto fail;
         }
@@ -441,8 +442,8 @@ void ngli_glcontext_freep(struct glcontext **glcontextp)
     if (glcontext->class->uninit)
         glcontext->class->uninit(glcontext);
 
-    free(glcontext->priv_data);
-    free(glcontext);
+    ngli_free(glcontext->priv_data);
+    ngli_free(glcontext);
 
     *glcontextp = NULL;
 }

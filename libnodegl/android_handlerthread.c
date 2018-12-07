@@ -25,6 +25,7 @@
 #include "android_looper.h"
 #include "android_handler.h"
 #include "android_handlerthread.h"
+#include "memory.h"
 
 struct android_handlerthread {
     pthread_t tid;
@@ -74,7 +75,7 @@ fail:
 
 struct android_handlerthread *ngli_android_handlerthread_new(void)
 {
-    struct android_handlerthread *thread = calloc(1, sizeof(*thread));
+    struct android_handlerthread *thread = ngli_calloc(1, sizeof(*thread));
     if (!thread)
         return NULL;
 
@@ -86,7 +87,7 @@ struct android_handlerthread *ngli_android_handlerthread_new(void)
         pthread_mutex_unlock(&thread->lock);
         pthread_mutex_destroy(&thread->lock);
         pthread_cond_destroy(&thread->cond);
-        free(thread);
+        ngli_free(thread);
         return NULL;
     }
 
@@ -120,6 +121,6 @@ void ngli_android_handlerthread_free(struct android_handlerthread **threadp)
     pthread_mutex_destroy(&thread->lock);
     pthread_cond_destroy(&thread->cond);
 
-    free(*threadp);
+    ngli_free(*threadp);
     *threadp = NULL;
 }

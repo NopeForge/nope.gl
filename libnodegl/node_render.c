@@ -29,6 +29,7 @@
 #include "hmap.h"
 #include "log.h"
 #include "math_utils.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "utils.h"
@@ -336,7 +337,7 @@ static int render_init(struct ngl_node *node)
     const int max_nb_attributes = NGLI_ARRAY_NB(attrib_const_map)
                                 + (s->attributes ? ngli_hmap_count(s->attributes) : 0)
                                 + (s->instance_attributes ? ngli_hmap_count(s->instance_attributes) : 0);
-    s->attribute_pairs = calloc(max_nb_attributes, sizeof(*s->attribute_pairs));
+    s->attribute_pairs = ngli_calloc(max_nb_attributes, sizeof(*s->attribute_pairs));
     if (!s->attribute_pairs)
         return -1;
 
@@ -412,7 +413,7 @@ static void render_uninit(struct ngl_node *node)
         ngli_buffer_unref(pair->node);
     }
 
-    free(s->attribute_pairs);
+    ngli_free(s->attribute_pairs);
 }
 
 static int render_update(struct ngl_node *node, double t)

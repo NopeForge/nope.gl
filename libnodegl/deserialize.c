@@ -25,6 +25,7 @@
 
 #include "darray.h"
 #include "log.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "params.h"
@@ -128,7 +129,7 @@ static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \
         consumed++;                                                         \
     }                                                                       \
     if (consumed < 0) {                                                     \
-        free(vals);                                                         \
+        ngli_free(vals);                                                    \
         vals = NULL;                                                        \
         nb_vals = 0;                                                        \
     }                                                                       \
@@ -143,9 +144,9 @@ DECLARE_PARSE_LIST_FUNC(int,    parse_hexint)
 
 #define FREE_KVS(count, keys, vals) do {                                    \
     for (int k = 0; k < (count); k++)                                       \
-        free((keys)[k]);                                                    \
-    free(keys);                                                             \
-    free(vals);                                                             \
+        ngli_free((keys)[k]);                                               \
+    ngli_free(keys);                                                        \
+    ngli_free(vals);                                                        \
     keys = NULL;                                                            \
     vals = NULL;                                                            \
 } while (0)
@@ -233,13 +234,13 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
         case PARAM_TYPE_FLAGS:
         case PARAM_TYPE_SELECT: {
             len = strcspn(str, " \n");
-            char *s = malloc(len + 1);
+            char *s = ngli_malloc(len + 1);
             if (!s)
                 return -1;
             memcpy(s, str, len);
             s[len] = 0;
             int ret = ngli_params_vset(base_ptr, par, s);
-            free(s);
+            ngli_free(s);
             if (ret < 0)
                 return ret;
             break;
@@ -247,7 +248,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
 
         case PARAM_TYPE_STR: {
             len = strcspn(str, " \n");
-            char *s = malloc(len + 1);
+            char *s = ngli_malloc(len + 1);
             if (!s)
                 return -1;
             char *sstart = s;
@@ -262,7 +263,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             }
             *s = 0;
             int ret = ngli_params_vset(base_ptr, par, sstart);
-            free(sstart);
+            ngli_free(sstart);
             if (ret < 0)
                 return ret;
             break;
@@ -281,12 +282,12 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             if (cur >= end - consumed)
                 return -1;
             cur += consumed;
-            uint8_t *data = calloc(size, sizeof(*data));
+            uint8_t *data = ngli_calloc(size, sizeof(*data));
             if (!data)
                 return -1;
             for (int i = 0; i < size; i++) {
                 if (cur > end - 2) {
-                    free(data);
+                    ngli_free(data);
                     return -1;
                 }
                 static const uint8_t hexm[256] = {
@@ -299,7 +300,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                 cur += 2;
             }
             ret = ngli_params_vset(base_ptr, par, size, data);
-            free(data);
+            ngli_free(data);
             if (ret < 0)
                 return ret;
             len = cur - str;
@@ -314,11 +315,11 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             int nb_flts;
             len = parse_floats(str, &v, &nb_flts);
             if (len < 0 || nb_flts != n) {
-                free(v);
+                ngli_free(v);
                 return -1;
             }
             int ret = ngli_params_vset(base_ptr, par, v);
-            free(v);
+            ngli_free(v);
             if (ret < 0)
                 return ret;
             break;
@@ -329,11 +330,11 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             int nb_flts;
             len = parse_floats(str, &m, &nb_flts);
             if (len < 0 || nb_flts != 16) {
-                free(m);
+                ngli_free(m);
                 return -1;
             }
             int ret = ngli_params_vset(base_ptr, par, m);
-            free(m);
+            ngli_free(m);
             if (ret < 0)
                 return ret;
             break;
@@ -361,16 +362,16 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             for (int i = 0; i < nb_node_ids; i++) {
                 struct ngl_node **nodep = ngli_darray_get(nodes_array, node_ids[i]);
                 if (!nodep) {
-                    free(node_ids);
+                    ngli_free(node_ids);
                     return -1;
                 }
                 int ret = ngli_params_add(base_ptr, par, 1, nodep);
                 if (ret < 0) {
-                    free(node_ids);
+                    ngli_free(node_ids);
                     return ret;
                 }
             }
-            free(node_ids);
+            ngli_free(node_ids);
             break;
         }
 
@@ -381,7 +382,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             if (len < 0)
                 return -1;
             int ret = ngli_params_add(base_ptr, par, nb_dbls, dbls);
-            free(dbls);
+            ngli_free(dbls);
             if (ret < 0)
                 return ret;
             break;
@@ -541,6 +542,6 @@ struct ngl_node *ngl_node_deserialize(const char *str)
 
 end:
     ngli_darray_reset(&nodes_array);
-    free(sstart);
+    ngli_free(sstart);
     return node;
 }

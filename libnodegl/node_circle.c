@@ -24,6 +24,7 @@
 #include <string.h>
 #include "log.h"
 #include "math_utils.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "utils.h"
@@ -48,9 +49,9 @@ static int circle_init(struct ngl_node *node)
     }
     const int nb_vertices = s->npoints + 2;
 
-    float *vertices  = calloc(nb_vertices, sizeof(*vertices)  * 3);
-    float *uvcoords  = calloc(nb_vertices, sizeof(*uvcoords)  * 2);
-    float *normals   = calloc(nb_vertices, sizeof(*normals)   * 3);
+    float *vertices  = ngli_calloc(nb_vertices, sizeof(*vertices)  * 3);
+    float *uvcoords  = ngli_calloc(nb_vertices, sizeof(*uvcoords)  * 2);
+    float *normals   = ngli_calloc(nb_vertices, sizeof(*normals)   * 3);
 
     if (!vertices || !uvcoords || !normals)
         goto end;
@@ -106,9 +107,9 @@ static int circle_init(struct ngl_node *node)
     ret = 0;
 
 end:
-    free(vertices);
-    free(uvcoords);
-    free(normals);
+    ngli_free(vertices);
+    ngli_free(uvcoords);
+    ngli_free(normals);
     return ret;
 }
 

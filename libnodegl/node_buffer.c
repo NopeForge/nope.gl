@@ -28,6 +28,7 @@
 
 #include "buffer.h"
 #include "log.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 
@@ -161,7 +162,7 @@ static int buffer_init_from_filename(struct ngl_node *node)
         return -1;
     }
 
-    s->data = calloc(s->count, s->data_stride);
+    s->data = ngli_calloc(s->count, s->data_stride);
     if (!s->data)
         return -1;
 
@@ -185,7 +186,7 @@ static int buffer_init_from_count(struct ngl_node *node)
 
     s->count = s->count ? s->count : 1;
     s->data_size = s->count * s->data_stride;
-    s->data = calloc(s->count, s->data_stride);
+    s->data = ngli_calloc(s->count, s->data_stride);
     if (!s->data)
         return -1;
 
@@ -263,7 +264,7 @@ static void buffer_uninit(struct ngl_node *node)
     struct buffer *s = node->priv_data;
 
     if (s->filename) {
-        free(s->data);
+        ngli_free(s->data);
         s->data = NULL;
         s->data_size = 0;
 

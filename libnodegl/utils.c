@@ -30,6 +30,7 @@
 #include <sys/time.h>
 
 #include "log.h"
+#include "memory.h"
 #include "utils.h"
 
 char *ngli_strdup(const char *s)
@@ -37,7 +38,7 @@ char *ngli_strdup(const char *s)
     char *r = NULL;
     if (s) {
         size_t len = strlen(s);
-        r = malloc(len + 1);
+        r = ngli_malloc(len + 1);
         if (!r)
             return NULL;
         strcpy(r, s);
@@ -66,7 +67,7 @@ char *ngli_asprintf(const char *fmt, ...)
     if (len < 0)
         goto end;
 
-    p = malloc(len + 1);
+    p = ngli_malloc(len + 1);
     if (!p)
         goto end;
 
@@ -74,7 +75,7 @@ char *ngli_asprintf(const char *fmt, ...)
     len = vsnprintf(p, len + 1, fmt, va);
     va_end(va);
     if (len < 0) {
-        free(p);
+        ngli_free(p);
         p = NULL;
     }
 

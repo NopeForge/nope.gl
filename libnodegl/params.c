@@ -25,6 +25,7 @@
 #include "bstr.h"
 #include "log.h"
 #include "hmap.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "params.h"
@@ -229,7 +230,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
                 break;
             ngli_assert(*s);
             ngli_bstr_print(b, "%s", s);
-            free(s);
+            ngli_free(s);
             break;
         }
         case PARAM_TYPE_BOOL: {
@@ -375,7 +376,7 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             const char *s = ngli_strdup(va_arg(*ap, const char *));
             if (!s)
                 return -1;
-            free(*(char **)dstp);
+            ngli_free(*(char **)dstp);
             LOG(VERBOSE, "set %s to \"%s\"", par->key, s);
             memcpy(dstp, &s, sizeof(s));
             break;
@@ -386,10 +387,10 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             LOG(VERBOSE, "set %s to %p (of size %d)", par->key, data, size);
             uint8_t **dst = (uint8_t **)dstp;
 
-            free(*dst);
+            ngli_free(*dst);
             *dst = NULL;
             if (data && size) {
-                *dst = malloc(size);
+                *dst = ngli_malloc(size);
                 if (!*dst)
                     return -1;
                 memcpy(*dst, data, size);
@@ -540,7 +541,7 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                         return -1;
                     ngli_assert(*s);
                     ngli_params_vset(base_ptr, par, s);
-                    free(s);
+                    ngli_free(s);
                     break;
                 }
                 case PARAM_TYPE_BOOL:
@@ -645,12 +646,12 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
         switch (par->type) {
             case PARAM_TYPE_STR: {
                 char *s = *(char **)parp;
-                free(s);
+                ngli_free(s);
                 break;
             }
             case PARAM_TYPE_DATA: {
                 uint8_t *data = *(uint8_t **)parp;
-                free(data);
+                ngli_free(data);
                 break;
             }
             case PARAM_TYPE_NODE: {
@@ -667,13 +668,13 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 const int nb_elems = *(int *)nb_elems_p;
                 for (j = 0; j < nb_elems; j++)
                     ngl_node_unrefp(&elems[j]);
-                free(elems);
+                ngli_free(elems);
                 break;
             }
             case PARAM_TYPE_DBLLIST: {
                 uint8_t *elems_p = base_ptr + par->offset;
                 double *elems = *(double **)elems_p;
-                free(elems);
+                ngli_free(elems);
                 break;
             }
             case PARAM_TYPE_NODEDICT: {

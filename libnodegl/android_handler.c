@@ -24,6 +24,7 @@
 #include "jni_utils.h"
 #include "log.h"
 #include "android_handler.h"
+#include "memory.h"
 
 struct jni_android_handler_fields {
     jclass handler_class;
@@ -46,14 +47,14 @@ struct android_handler *ngli_android_handler_new(void)
     JNIEnv *env = NULL;
     jobject handler = NULL;
 
-    struct android_handler *ret = calloc(1, sizeof(*ret));
+    struct android_handler *ret = ngli_calloc(1, sizeof(*ret));
     if (!ret) {
         return NULL;
     }
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(ret);
+        ngli_free(ret);
         return NULL;
     }
 
@@ -105,7 +106,7 @@ void ngli_android_handler_free(struct android_handler **handler)
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(*handler);
+        ngli_free(*handler);
         *handler = NULL;
         return;
     }
@@ -116,6 +117,6 @@ void ngli_android_handler_free(struct android_handler **handler)
 
     ngli_jni_reset_jfields(env, &(*handler)->jfields, android_handler_mapping, 1);
 
-    free(*handler);
+    ngli_free(*handler);
     *handler = NULL;
 }

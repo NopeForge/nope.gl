@@ -27,6 +27,7 @@
 #include "android_utils.h"
 #include "jni_utils.h"
 #include "log.h"
+#include "memory.h"
 #include "android_handlerthread.h"
 #include "android_surface.h"
 
@@ -150,7 +151,7 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
     jobject surface = NULL;
     jobject surface_texture = NULL;
 
-    struct android_surface *ret = calloc(1, sizeof(*ret));
+    struct android_surface *ret = ngli_calloc(1, sizeof(*ret));
     if (!ret) {
         return NULL;
     }
@@ -160,7 +161,7 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(ret);
+        ngli_free(ret);
         return NULL;
     }
 
@@ -262,7 +263,7 @@ void ngli_android_surface_free(struct android_surface **surface)
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(*surface);
+        ngli_free(*surface);
         *surface = NULL;
         return;
     }
@@ -301,7 +302,7 @@ fail:
 
     pthread_mutex_destroy(&(*surface)->lock);
     pthread_cond_destroy(&(*surface)->cond);
-    free(*surface);
+    ngli_free(*surface);
     *surface = NULL;
 }
 
@@ -327,7 +328,7 @@ int ngli_android_surface_attach_to_gl_context(struct android_surface *surface, i
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(surface);
+        ngli_free(surface);
         return -1;
     }
 
@@ -359,7 +360,7 @@ int ngli_android_surface_detach_from_gl_context(struct android_surface *surface)
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(surface);
+        ngli_free(surface);
         return -1;
     }
 
@@ -387,7 +388,7 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
 
     env = ngli_jni_get_env();
     if (!env) {
-        free(surface);
+        ngli_free(surface);
         return -1;
     }
 

@@ -28,6 +28,7 @@
 #include "hwupload.h"
 #include "log.h"
 #include "math_utils.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 
@@ -79,7 +80,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
         ngli_hwupload_uninit(node);
 
         if (hwmap_class->priv_size) {
-            s->hwupload_priv_data = calloc(1, hwmap_class->priv_size);
+            s->hwupload_priv_data = ngli_calloc(1, hwmap_class->priv_size);
             if (!s->hwupload_priv_data) {
                 sxplayer_release_frame(frame);
                 return -1;
@@ -108,7 +109,7 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     if (s->hwupload_map_class && s->hwupload_map_class->uninit) {
         s->hwupload_map_class->uninit(node);
     }
-    free(s->hwupload_priv_data);
+    ngli_free(s->hwupload_priv_data);
     s->hwupload_priv_data = NULL;
     s->hwupload_map_class = NULL;
     ngli_mat4_identity(s->coordinates_matrix);

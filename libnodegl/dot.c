@@ -24,6 +24,7 @@
 
 #include "bstr.h"
 #include "hmap.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 
@@ -150,7 +151,7 @@ static void print_packed_decls(struct bstr *b, const char *label,
         const struct ngl_node *node = children[i];
         char *info_str = node->class->info_str ? node->class->info_str(node) : NULL;
         ngli_bstr_print(b, LB "- %s", info_str ? info_str : "?");
-        free(info_str);
+        ngli_free(info_str);
     }
     ngli_bstr_print(b, LB ">,shape=box,color=");
     if (is_active)
@@ -274,19 +275,19 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                         key = ngli_asprintf("[label=\"%s\"]", entry->key);
 
                     if (!key) {
-                        free(label);
+                        ngli_free(label);
                         return;
                     }
 
                     print_link(b, node, child, key);
-                    free(key);
+                    ngli_free(key);
 
                     print_all_links(b, child, links);
                 }
                 break;
             }
         }
-        free(label);
+        ngli_free(label);
         p++;
     }
 }
