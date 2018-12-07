@@ -147,7 +147,7 @@ def query_inplace(**idict):
         if idict.get('enable_hud'):
             fr = odict['framerate']
             measure_window = fr[0] / (4 * fr[1])  # 1/4-second measurement window
-            hud = ngl.HUD(scene, refresh_rate=(fr[1], fr[0]),
+            hud = ngl.HUD(scene,
                           measure_window=measure_window,
                           bg_color=(0.0, 0.0, 0.0, 0.8),
                           aspect_ratio=odict['aspect_ratio'])
