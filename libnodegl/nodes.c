@@ -133,8 +133,11 @@ struct ngl_node *ngli_node_create_noconstructor(int type)
     if (!node)
         return NULL;
 
-    ngli_params_set_defaults((uint8_t *)node, ngli_base_node_params);
-    ngli_params_set_defaults(node->priv_data, node->class->params);
+    if (ngli_params_set_defaults((uint8_t *)node, ngli_base_node_params) < 0 ||
+        ngli_params_set_defaults(node->priv_data, node->class->params) < 0) {
+        ngl_node_unrefp(&node);
+        return NULL;
+    }
 
     node->label = ngli_node_default_label(node->class->name);
     if (!node->label) {
@@ -153,8 +156,13 @@ struct ngl_node *ngl_node_create(int type, ...)
 
     va_list ap;
     va_start(ap, type);
-    ngli_params_set_constructors(node->priv_data, node->class->params, &ap);
+    int ret = ngli_params_set_constructors(node->priv_data, node->class->params, &ap);
     va_end(ap);
+
+    if (ret < 0) {
+        ngl_node_unrefp(&node);
+        return NULL;
+    }
 
     LOG(VERBOSE, "CREATED %s @ %p", node->label, node);
 
