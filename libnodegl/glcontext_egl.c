@@ -164,6 +164,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     const EGLint type = ctx->backend == NGL_BACKEND_OPENGL ? EGL_OPENGL_BIT : EGL_OPENGL_ES2_BIT;
     const EGLint config_attribs[] = {
         EGL_RENDERABLE_TYPE, type,
+        EGL_SURFACE_TYPE, ctx->offscreen ? EGL_PBUFFER_BIT : EGL_WINDOW_BIT,
         EGL_RED_SIZE,   8,
         EGL_GREEN_SIZE, 8,
         EGL_BLUE_SIZE,  8,
