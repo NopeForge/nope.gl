@@ -27,6 +27,7 @@
 #include <libavcodec/mediacodec.h>
 
 #include "android_surface.h"
+#include "format.h"
 #include "glincludes.h"
 #include "hwupload.h"
 #include "log.h"

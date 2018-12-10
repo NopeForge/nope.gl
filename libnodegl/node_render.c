@@ -25,6 +25,7 @@
 #include <limits.h>
 
 #include "buffer.h"
+#include "format.h"
 #include "glincludes.h"
 #include "hmap.h"
 #include "log.h"

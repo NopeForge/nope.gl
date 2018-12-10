@@ -41,9 +41,9 @@
 #include "hmap.h"
 #include "nodegl.h"
 #include "params.h"
-#include "formats_register.h"
 #include "darray.h"
 #include "buffer.h"
+#include "format.h"
 
 struct node_class;
 
@@ -276,15 +276,6 @@ struct program {
     struct hmap *active_attributes;
     struct hmap *active_buffer_blocks;
 };
-
-#define DECLARE_FORMAT(format, size, name, doc) format,
-
-enum {
-    NGLI_FORMATS(DECLARE_FORMAT)
-};
-
-int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
-                                   GLint *format, GLint *internal_format, GLenum *type);
 
 enum texture_layout {
     NGLI_TEXTURE_LAYOUT_NONE,

@@ -66,6 +66,7 @@ LIB_OBJS = api.o                    \
            darray.o                 \
            deserialize.o            \
            dot.o                    \
+           format.o                 \
            glcontext.o              \
            glstate.o                \
            hmap.o                   \
