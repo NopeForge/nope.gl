@@ -38,44 +38,6 @@
 #include "nodes.h"
 #include "glcontext.h"
 
-static void *worker_thread(void *arg);
-
-struct ngl_ctx *ngl_create(void)
-{
-    struct ngl_ctx *s = ngli_calloc(1, sizeof(*s));
-    if (!s)
-        return NULL;
-
-    if (pthread_mutex_init(&s->lock, NULL) ||
-        pthread_cond_init(&s->cond_ctl, NULL) ||
-        pthread_cond_init(&s->cond_wkr, NULL) ||
-        pthread_create(&s->worker_tid, NULL, worker_thread, s)) {
-        pthread_cond_destroy(&s->cond_ctl);
-        pthread_cond_destroy(&s->cond_wkr);
-        pthread_mutex_destroy(&s->lock);
-        ngli_free(s);
-        return NULL;
-    }
-
-    ngli_darray_init(&s->modelview_matrix_stack, 4 * 4 * sizeof(float), 1);
-    ngli_darray_init(&s->projection_matrix_stack, 4 * 4 * sizeof(float), 1);
-    ngli_darray_init(&s->activitycheck_nodes, sizeof(struct ngl_node *), 0);
-
-    static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
-    if (!ngli_darray_push(&s->modelview_matrix_stack, id_matrix) ||
-        !ngli_darray_push(&s->projection_matrix_stack, id_matrix))
-        goto fail;
-
-    LOG(INFO, "context create in node.gl v%d.%d.%d",
-        NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
-
-    return s;
-
-fail:
-    ngl_freep(&s);
-    return NULL;
-}
-
 static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 {
     const struct ngl_config *config = arg;
@@ -287,6 +249,42 @@ static void stop_thread(struct ngl_ctx *s)
     pthread_cond_destroy(&s->cond_ctl);
     pthread_cond_destroy(&s->cond_wkr);
     pthread_mutex_destroy(&s->lock);
+}
+
+struct ngl_ctx *ngl_create(void)
+{
+    struct ngl_ctx *s = ngli_calloc(1, sizeof(*s));
+    if (!s)
+        return NULL;
+
+    if (pthread_mutex_init(&s->lock, NULL) ||
+        pthread_cond_init(&s->cond_ctl, NULL) ||
+        pthread_cond_init(&s->cond_wkr, NULL) ||
+        pthread_create(&s->worker_tid, NULL, worker_thread, s)) {
+        pthread_cond_destroy(&s->cond_ctl);
+        pthread_cond_destroy(&s->cond_wkr);
+        pthread_mutex_destroy(&s->lock);
+        ngli_free(s);
+        return NULL;
+    }
+
+    ngli_darray_init(&s->modelview_matrix_stack, 4 * 4 * sizeof(float), 1);
+    ngli_darray_init(&s->projection_matrix_stack, 4 * 4 * sizeof(float), 1);
+    ngli_darray_init(&s->activitycheck_nodes, sizeof(struct ngl_node *), 0);
+
+    static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
+    if (!ngli_darray_push(&s->modelview_matrix_stack, id_matrix) ||
+        !ngli_darray_push(&s->projection_matrix_stack, id_matrix))
+        goto fail;
+
+    LOG(INFO, "context create in node.gl v%d.%d.%d",
+        NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
+
+    return s;
+
+fail:
+    ngl_freep(&s);
+    return NULL;
 }
 
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
