@@ -526,7 +526,7 @@ struct ngl_node *ngl_node_deserialize(const char *str)
 
         int ret = set_node_params(&nodes_array, s, node);
         if (ret < 0) {
-            ngl_node_unrefp(&node);
+            node = NULL;
             break;
         }
 
