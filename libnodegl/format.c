@@ -91,6 +91,7 @@ static int get_gl_format_type(struct glcontext *gl, int data_format,
         [NGLI_FORMAT_D32_SFLOAT]           = {GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT32F, GL_FLOAT},
         [NGLI_FORMAT_D24_UNORM_S8_UINT]    = {GL_DEPTH_STENCIL,   GL_DEPTH24_STENCIL8,   GL_UNSIGNED_INT_24_8},
         [NGLI_FORMAT_D32_SFLOAT_S8_UINT]   = {GL_DEPTH_STENCIL,   GL_DEPTH32F_STENCIL8,  GL_FLOAT_32_UNSIGNED_INT_24_8_REV},
+        [NGLI_FORMAT_S8_UINT]              = {GL_STENCIL_INDEX,   GL_STENCIL_INDEX8,     GL_UNSIGNED_BYTE},
     };
 
     ngli_assert(data_format >= 0 && data_format < NGLI_ARRAY_NB(format_map));

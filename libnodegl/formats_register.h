@@ -88,5 +88,6 @@
     action(NGLI_FORMAT_D32_SFLOAT_S8_UINT,    8, "d32_sfloat_s8_uint",   "64-bit packed format that has 32-bit signed "        \
                                                                          "float depth component + 8-bit unsigned integer "     \
                                                                          "stencil component + 24-bit of unused data")          \
+    action(NGLI_FORMAT_S8_UINT,               1, "s8_uint",              "8-bit unsigned integer stencil component")           \
 
 #endif
