@@ -152,7 +152,8 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     if (glcontext->class->priv_size) {
         glcontext->priv_data = ngli_calloc(1, glcontext->class->priv_size);
         if (!glcontext->priv_data) {
-            goto fail;
+            ngli_free(glcontext);
+            return NULL;
         }
     }
 
