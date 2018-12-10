@@ -469,9 +469,11 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
                 ngli_hmap_set_free(*hmapp, node_hmap_free, NULL);
             }
 
-            ret = ngli_hmap_set(*hmapp, name, node ? ngl_node_ref(node) : NULL);
+            ret = ngli_hmap_set(*hmapp, name, node);
             if (ret < 0)
                 return ret;
+            if (node)
+                ngl_node_ref(node);
             break;
         }
         case PARAM_TYPE_RATIONAL: {
