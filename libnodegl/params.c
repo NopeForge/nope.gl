@@ -373,11 +373,19 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             break;
         }
         case PARAM_TYPE_STR: {
-            const char *s = ngli_strdup(va_arg(*ap, const char *));
-            if (!s)
-                return -1;
+            char *s = NULL;
+            const char *arg_str = va_arg(*ap, const char *);
+            if (!arg_str)
+                arg_str = par->def_value.str;
+            if (arg_str) {
+                s = ngli_strdup(arg_str);
+                if (!s)
+                    return -1;
+                LOG(VERBOSE, "set %s to \"%s\"", par->key, s);
+            } else {
+                LOG(VERBOSE, "set %s to NULL", par->key);
+            }
             ngli_free(*(char **)dstp);
-            LOG(VERBOSE, "set %s to \"%s\"", par->key, s);
             memcpy(dstp, &s, sizeof(s));
             break;
         }
