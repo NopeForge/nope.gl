@@ -172,12 +172,10 @@ int main(int argc, char *argv[])
             ret = EXIT_FAILURE;
             goto end;
         }
-        if (ngl_node_param_set(scene, "pipe_fd", fd) < 0) {
-            struct ngl_node *camera = ngl_node_create(NGL_NODE_CAMERA, scene);
-            ngl_node_unrefp(&scene);
-            scene = camera;
-            ngl_node_param_set(scene, "pipe_fd", fd);
-        }
+        struct ngl_node *camera = ngl_node_create(NGL_NODE_CAMERA, scene);
+        ngl_node_unrefp(&scene);
+        scene = camera;
+        ngl_node_param_set(scene, "pipe_fd", fd);
         ngl_node_param_set(scene, "pipe_width", width);
         ngl_node_param_set(scene, "pipe_height", height);
     }
