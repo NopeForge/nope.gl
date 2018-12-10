@@ -255,7 +255,7 @@
     constructors:
         - [filename, string]
     optional:
-        - [sxplayer_min_level, string]
+        - [sxplayer_min_level, select]
         - [time_anim, Node]
         - [audio_tex, bool]
         - [max_nb_packets, int]

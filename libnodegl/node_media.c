@@ -33,11 +33,24 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+static const struct param_choices sxplayer_log_level_choices = {
+    .name = "sxplayer_log_level",
+    .consts = {
+        {"verbose", SXPLAYER_LOG_VERBOSE, .desc=NGLI_DOCSTRING("verbose messages")},
+        {"debug",   SXPLAYER_LOG_DEBUG,   .desc=NGLI_DOCSTRING("debugging messages")},
+        {"info",    SXPLAYER_LOG_INFO,    .desc=NGLI_DOCSTRING("informational messages")},
+        {"warning", SXPLAYER_LOG_WARNING, .desc=NGLI_DOCSTRING("warning messages")},
+        {"error",   SXPLAYER_LOG_ERROR,   .desc=NGLI_DOCSTRING("error messages")},
+        {NULL}
+    }
+};
+
 #define OFFSET(x) offsetof(struct media, x)
 static const struct node_param media_params[] = {
     {"filename", PARAM_TYPE_STR, OFFSET(filename), {.str=NULL}, PARAM_FLAG_CONSTRUCTOR,
                  .desc=NGLI_DOCSTRING("path to input media file")},
-    {"sxplayer_min_level", PARAM_TYPE_STR, OFFSET(sxplayer_min_level_str), {.str="warning"},
+    {"sxplayer_min_level", PARAM_TYPE_SELECT, OFFSET(sxplayer_min_level), {.i64=SXPLAYER_LOG_WARNING},
+                           .choices=&sxplayer_log_level_choices,
                            .desc=NGLI_DOCSTRING("sxplayer min logging level")},
     {"time_anim", PARAM_TYPE_NODE, OFFSET(anim),
                   .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
@@ -55,15 +68,12 @@ static const struct node_param media_params[] = {
     {NULL}
 };
 
-static const struct {
-    const char *str;
-    int ngl_id;
-} log_levels[] = {
-    [SXPLAYER_LOG_VERBOSE] = {"verbose", NGL_LOG_VERBOSE},
-    [SXPLAYER_LOG_DEBUG]   = {"debug",   NGL_LOG_DEBUG},
-    [SXPLAYER_LOG_INFO]    = {"info",    NGL_LOG_INFO},
-    [SXPLAYER_LOG_WARNING] = {"warning", NGL_LOG_WARNING},
-    [SXPLAYER_LOG_ERROR]   = {"error",   NGL_LOG_ERROR},
+static const int log_levels[] = {
+    [SXPLAYER_LOG_VERBOSE] = NGL_LOG_VERBOSE,
+    [SXPLAYER_LOG_DEBUG]   = NGL_LOG_DEBUG,
+    [SXPLAYER_LOG_INFO]    = NGL_LOG_INFO,
+    [SXPLAYER_LOG_WARNING] = NGL_LOG_WARNING,
+    [SXPLAYER_LOG_ERROR]   = NGL_LOG_ERROR,
 };
 
 static void callback_sxplayer_log(void *arg, int level, const char *filename, int ln,
@@ -79,7 +89,7 @@ static void callback_sxplayer_log(void *arg, int level, const char *filename, in
     char buf[512];
     vsnprintf(buf, sizeof(buf), fmt, vl);
     if (buf[0])
-        ngli_log_print(log_levels[level].ngl_id, __FILE__, __LINE__, __FUNCTION__,
+        ngli_log_print(log_levels[level], __FILE__, __LINE__, __FUNCTION__,
                        "[SXPLAYER %s:%d %s] %s", filename, ln, fn, buf);
 }
 
@@ -93,17 +103,6 @@ static int media_init(struct ngl_node *node)
         return -1;
 
     sxplayer_set_log_callback(s->player, s, callback_sxplayer_log);
-
-    for (i = 0; i < NGLI_ARRAY_NB(log_levels); i++) {
-        if (log_levels[i].str && !strcmp(log_levels[i].str, s->sxplayer_min_level_str)) {
-            s->sxplayer_min_level = i;
-            break;
-        }
-    }
-    if (i == NGLI_ARRAY_NB(log_levels)) {
-        LOG(ERROR, "unrecognized sxplayer log level '%s'", s->sxplayer_min_level_str);
-        return -1;
-    }
 
     struct ngl_node *anim_node = s->anim;
     if (anim_node) {
