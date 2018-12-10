@@ -39,8 +39,10 @@ static struct ngl_node *get_scene(const char *filename)
     struct stat st;
 
     int fd = open(filename, O_RDONLY);
-    if (fd == -1)
+    if (fd == -1) {
+        fprintf(stderr, "unable to open %s\n", filename);
         goto end;
+    }
 
     if (fstat(fd, &st) == -1)
         goto end;
