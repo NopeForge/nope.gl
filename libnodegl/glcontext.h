@@ -80,6 +80,7 @@ struct glcontext {
 
 struct glcontext_class {
     int (*init)(struct glcontext *glcontext, uintptr_t display, uintptr_t window, uintptr_t handle);
+    int (*init_framebuffer)(struct glcontext *glcontext);
     int (*resize)(struct glcontext *glcontext, int width, int height);
     int (*make_current)(struct glcontext *glcontext, int current);
     void (*swap_buffers)(struct glcontext *glcontext);
