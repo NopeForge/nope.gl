@@ -257,13 +257,8 @@ struct rtt {
     int width;
     int height;
 
-    GLuint framebuffer_id;
-    GLuint depthbuffer_id;
-    GLuint stencilbuffer_id;
-
-    GLuint framebuffer_ms_id;
-    GLuint colorbuffer_ms_id;
-    GLuint depthbuffer_ms_id;
+    struct fbo fbo;
+    struct fbo fbo_ms;
 };
 
 struct program {
