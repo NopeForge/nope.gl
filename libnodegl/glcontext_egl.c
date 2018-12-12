@@ -23,6 +23,8 @@
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 
+#include "fbo.h"
+#include "format.h"
 #include "glcontext.h"
 #include "log.h"
 #include "nodegl.h"
@@ -37,6 +39,7 @@ struct egl_priv {
     EGLConfig config;
     EGLBoolean (*PresentationTimeANDROID)(EGLDisplay dpy, EGLSurface sur, khronos_stime_nanoseconds_t time);
     EGLDisplay (*GetPlatformDisplay)(EGLenum platform, void *native_display, const EGLint *attrib_list);
+    struct fbo fbo;
 };
 
 static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
@@ -136,8 +139,8 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         EGL_ALPHA_SIZE, 8,
         EGL_DEPTH_SIZE, 16,
         EGL_STENCIL_SIZE, 8,
-        EGL_SAMPLE_BUFFERS, ctx->samples > 0,
-        EGL_SAMPLES, ctx->samples,
+        EGL_SAMPLE_BUFFERS, ctx->offscreen ? 0 : (ctx->samples > 0),
+        EGL_SAMPLES, ctx->offscreen ? 0 : ctx->samples,
         EGL_NONE
     };
 
@@ -176,8 +179,8 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     if (ctx->offscreen) {
         const EGLint attribs[] = {
-            EGL_WIDTH, ctx->width,
-            EGL_HEIGHT, ctx->height,
+            EGL_WIDTH, 1,
+            EGL_HEIGHT, 1,
             EGL_NONE
         };
 
@@ -206,10 +209,34 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     return 0;
 }
 
+static int egl_init_framebuffer(struct glcontext *ctx)
+{
+    struct egl_priv *egl = ctx->priv_data;
+
+    if (!ctx->offscreen)
+        return 0;
+
+    if (!(ctx->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) && ctx->samples > 0) {
+        LOG(WARNING, "context does not support the framebuffer object feature, multisample anti-aliasing will be disabled");
+        ctx->samples = 0;
+    }
+
+    int ret;
+    if ((ret = ngli_fbo_init(&egl->fbo, ctx, ctx->width, ctx->height, ctx->samples))   < 0 ||
+        (ret = ngli_fbo_create_renderbuffer(&egl->fbo, NGLI_FORMAT_R8G8B8A8_UNORM))    < 0 ||
+        (ret = ngli_fbo_create_renderbuffer(&egl->fbo, NGLI_FORMAT_D24_UNORM_S8_UINT)) < 0 ||
+        (ret = ngli_fbo_allocate(&egl->fbo))                                           < 0 ||
+        (ret = ngli_fbo_bind(&egl->fbo))                                               < 0)
+        return ret;
+
+    return 0;
+}
+
 static void egl_uninit(struct glcontext *ctx)
 {
     struct egl_priv *egl = ctx->priv_data;
 
+    ngli_fbo_reset(&egl->fbo);
     ngli_glcontext_make_current(ctx, 0);
 
     if (egl->surface)
@@ -246,7 +273,8 @@ static int egl_set_swap_interval(struct glcontext *ctx, int interval)
 {
     struct egl_priv *egl = ctx->priv_data;
 
-    eglSwapInterval(egl->display, interval);
+    if (!ctx->offscreen)
+        eglSwapInterval(egl->display, interval);
 
     return 0;
 }
@@ -270,6 +298,7 @@ static void *egl_get_proc_address(struct glcontext *ctx, const char *name)
 
 const struct glcontext_class ngli_glcontext_egl_class = {
     .init = egl_init,
+    .init_framebuffer = egl_init_framebuffer,
     .uninit = egl_uninit,
     .make_current = egl_make_current,
     .swap_buffers = egl_swap_buffers,
