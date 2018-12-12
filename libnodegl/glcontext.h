@@ -22,6 +22,7 @@
 #ifndef GLCONTEXT_H
 #define GLCONTEXT_H
 
+#include <stdlib.h>
 #include "glfunctions.h"
 #include "nodegl.h"
 
