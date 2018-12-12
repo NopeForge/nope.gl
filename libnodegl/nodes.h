@@ -44,6 +44,7 @@
 #include "darray.h"
 #include "buffer.h"
 #include "format.h"
+#include "fbo.h"
 
 struct node_class;
 
@@ -174,8 +175,7 @@ struct camera {
     uint8_t *pipe_buf;
 
     int samples;
-    GLuint framebuffer_id;
-    GLuint colorbuffer_id;
+    struct fbo fbo;
 };
 
 struct geometry {

@@ -25,6 +25,8 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "fbo.h"
+#include "format.h"
 #include "darray.h"
 #include "log.h"
 #include "memory.h"
@@ -126,20 +128,12 @@ static int camera_init(struct ngl_node *node)
                 return -1;
             }
 
-            GLuint framebuffer_id;
-            ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
-
-            ngli_glGenFramebuffers(gl, 1, &s->framebuffer_id);
-            ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->framebuffer_id);
-
-            ngli_glGenRenderbuffers(gl, 1, &s->colorbuffer_id);
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, s->colorbuffer_id);
-            ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, GL_RGBA8, s->pipe_width, s->pipe_height);
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, s->colorbuffer_id);
-            ngli_assert(ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE);
-
-            ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
+            int ret;
+            struct fbo *fbo = &s->fbo;
+            if ((ret = ngli_fbo_init(fbo, gl, s->pipe_width, s->pipe_height, 0))      < 0 ||
+                (ret = ngli_fbo_create_renderbuffer(fbo, NGLI_FORMAT_R8G8B8A8_UNORM)) < 0 ||
+                (ret = ngli_fbo_allocate(fbo)                                         < 0))
+                return ret;
         }
     }
 
@@ -239,10 +233,10 @@ static void camera_draw(struct ngl_node *node)
             ngli_glGetIntegerv(gl, GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_draw_id);
 
             ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, framebuffer_draw_id);
-            ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->framebuffer_id);
+            ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->fbo.id);
             ngli_glBlitFramebuffer(gl, 0, 0, s->pipe_width, s->pipe_height, 0, 0, s->pipe_width, s->pipe_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-            ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->framebuffer_id);
+            ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->fbo.id);
         }
 
         TRACE("write %dx%d buffer to FD=%d", s->pipe_width, s->pipe_height, s->pipe_fd);
@@ -264,14 +258,11 @@ static void camera_draw(struct ngl_node *node)
 
 static void camera_uninit(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct camera *s = node->priv_data;
 
     if (s->pipe_fd) {
         ngli_free(s->pipe_buf);
-        ngli_glDeleteFramebuffers(gl, 1, &s->framebuffer_id);
-        ngli_glDeleteRenderbuffers(gl, 1, &s->colorbuffer_id);
+        ngli_fbo_reset(&s->fbo);
     }
 }
 
