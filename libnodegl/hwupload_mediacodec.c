@@ -27,6 +27,7 @@
 #include <libavcodec/mediacodec.h>
 
 #include "android_surface.h"
+#include "fbo.h"
 #include "format.h"
 #include "glincludes.h"
 #include "hwupload.h"
@@ -37,7 +38,7 @@
 #include "program.h"
 
 struct hwupload_mc {
-    GLuint framebuffer_id;
+    struct fbo fbo;
     GLuint vao_id;
     GLuint program_id;
     GLuint vertices_id;
@@ -90,34 +91,28 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    GLuint framebuffer_id;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
-
-    ngli_glGenFramebuffers(gl, 1, &mc->framebuffer_id);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, mc->framebuffer_id);
-    ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->id, 0);
-    if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        LOG(ERROR, "framebuffer %u is not complete", mc->framebuffer_id);
-        goto fail;
-    }
+    if ((ret = ngli_fbo_init(&mc->fbo, gl, frame->width, frame->height, 0)) < 0 ||
+        (ret = ngli_fbo_attach_texture(&mc->fbo, s->data_format, s->id))    < 0 ||
+        (ret = ngli_fbo_allocate(&mc->fbo))                                 < 0)
+        return ret;
 
     mc->program_id = ngli_program_load(gl, oes_copy_vertex_data, oes_copy_fragment_data);
     if (!mc->program_id)
-        goto fail;
+        return -1;
     ngli_glUseProgram(gl, mc->program_id);
 
     mc->position_location = ngli_glGetAttribLocation(gl, mc->program_id, "position");
     if (mc->position_location < 0)
-        goto fail;
+        return -1;
 
     mc->texture_location = ngli_glGetUniformLocation(gl, mc->program_id, "tex");
     if (mc->texture_location < 0)
-        goto fail;
+        return -1;
     ngli_glUniform1i(gl, mc->texture_location, 0);
 
     mc->texture_matrix_location = ngli_glGetUniformLocation(gl, mc->program_id, "tex_coord_matrix");
     if (mc->texture_matrix_location < 0)
-        goto fail;
+        return -1;
 
     static const float vertices[] = {
         -1.0f, -1.0f, 0.0f, 1.0f,
@@ -138,11 +133,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
         ngli_glVertexAttribPointer(gl, mc->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
     }
 
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
     return 0;
-fail:
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
-    return -1;
 }
 
 static void mc_uninit(struct ngl_node *node)
@@ -152,7 +143,8 @@ static void mc_uninit(struct ngl_node *node)
     struct texture *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
-    ngli_glDeleteFramebuffers(gl, 1, &mc->framebuffer_id);
+    ngli_fbo_reset(&mc->fbo);
+
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
         ngli_glDeleteVertexArrays(gl, 1, &mc->vao_id);
     ngli_glDeleteProgram(gl, mc->program_id);
@@ -189,9 +181,7 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
     ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
 
-    GLuint framebuffer_id;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, mc->framebuffer_id);
+    ngli_fbo_bind(&mc->fbo);
 
     GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
@@ -216,7 +206,7 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     }
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
+    ngli_fbo_unbind(&mc->fbo);
 
     return 0;
 }

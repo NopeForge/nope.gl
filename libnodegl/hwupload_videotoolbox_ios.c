@@ -26,6 +26,7 @@
 
 #include <CoreVideo/CoreVideo.h>
 
+#include "fbo.h"
 #include "format.h"
 #include "glincludes.h"
 #include "hwupload.h"
@@ -44,7 +45,7 @@
 } while (0)
 
 struct hwupload_vt_ios {
-    GLuint framebuffer_id;
+    struct fbo fbo;
     GLuint vao_id;
     GLuint program_id;
     GLuint vertices_id;
@@ -112,16 +113,10 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    GLuint framebuffer_id;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
-
-    ngli_glGenFramebuffers(gl, 1, &vt->framebuffer_id);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, vt->framebuffer_id);
-    ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, s->id, 0);
-    if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        LOG(ERROR, "framebuffer %u is not complete", vt->framebuffer_id);
-        goto fail;
-    }
+    if ((ret = ngli_fbo_init(&vt->fbo, gl, frame->width, frame->height, 0)) < 0 ||
+        (ret = ngli_fbo_attach_texture(&vt->fbo, s->data_format, s->id))    < 0 ||
+        (ret = ngli_fbo_allocate(&vt->fbo))                                 < 0)
+        return ret;
 
     const char *uv = gl->version < 300 ? "ra": "rg";
     char *nv12_to_rgba_fragment_data = ngli_asprintf(NV12_TO_RGBA_FRAGMENT_DATA, uv);
@@ -131,21 +126,21 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     vt->program_id = ngli_program_load(gl, nv12_to_rgba_vertex_data, nv12_to_rgba_fragment_data);
     ngli_free(nv12_to_rgba_fragment_data);
     if (!vt->program_id)
-        goto fail;
+        return -1;
     ngli_glUseProgram(gl, vt->program_id);
 
     vt->position_location = ngli_glGetAttribLocation(gl, vt->program_id, "position");
     if (vt->position_location < 0)
-        goto fail;
+        return -1;
 
     vt->texture_locations[0] = ngli_glGetUniformLocation(gl, vt->program_id, "tex0");
     if (vt->texture_locations[0] < 0)
-        goto fail;
+        return -1;
     ngli_glUniform1i(gl, vt->texture_locations[0], 0);
 
     vt->texture_locations[1] = ngli_glGetUniformLocation(gl, vt->program_id, "tex1");
     if (vt->texture_locations[1] < 0)
-        goto fail;
+        return -1;
     ngli_glUniform1i(gl, vt->texture_locations[1], 1);
 
     static const float vertices[] = {
@@ -167,11 +162,7 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
         ngli_glVertexAttribPointer(gl, vt->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
     }
 
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
     return 0;
-fail:
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
-    return -1;
 }
 
 static void vt_ios_uninit(struct ngl_node *node)
@@ -181,7 +172,8 @@ static void vt_ios_uninit(struct ngl_node *node)
     struct texture *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
-    ngli_glDeleteFramebuffers(gl, 1, &vt->framebuffer_id);
+    ngli_fbo_reset(&vt->fbo);
+
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
         ngli_glDeleteVertexArrays(gl, 1, &vt->vao_id);
     ngli_glDeleteProgram(gl, vt->program_id);
@@ -274,9 +266,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
     }
 
-    GLuint framebuffer_id;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_id);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, vt->framebuffer_id);
+    ngli_fbo_bind(&vt->fbo);
 
     GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
@@ -301,7 +291,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     }
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, framebuffer_id);
+    ngli_fbo_unbind(&vt->fbo);
 
     NGLI_CFRELEASE(textures[0]);
     NGLI_CFRELEASE(textures[1]);
