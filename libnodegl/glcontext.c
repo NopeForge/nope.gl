@@ -90,7 +90,7 @@ static const struct glcontext_class *glcontext_class_map[] = {
 };
 
 static const int platform_to_glplatform[] = {
-    [NGL_PLATFORM_XLIB]    = GLPLATFORM_GLX,
+    [NGL_PLATFORM_XLIB]    = GLPLATFORM_EGL,
     [NGL_PLATFORM_ANDROID] = GLPLATFORM_EGL,
     [NGL_PLATFORM_MACOS]   = GLPLATFORM_NSGL,
     [NGL_PLATFORM_IOS]     = GLPLATFORM_EAGL,
