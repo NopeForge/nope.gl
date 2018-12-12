@@ -26,6 +26,8 @@
 #include <CoreFoundation/CFBundle.h>
 #include <Cocoa/Cocoa.h>
 
+#include "fbo.h"
+#include "format.h"
 #include "glcontext.h"
 #include "log.h"
 #include "nodegl.h"
@@ -34,10 +36,7 @@ struct nsgl_priv {
     NSOpenGLContext *handle;
     NSView *view;
     CFBundleRef framework;
-
-    GLuint framebuffer;
-    GLuint colorbuffer;
-    GLuint depthbuffer;
+    struct fbo fbo;
 };
 
 static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
@@ -83,42 +82,7 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         return -1;
     }
 
-    if (ctx->offscreen) {
-        ngli_glcontext_make_current(ctx, 1);
-
-        glGenFramebuffers(1, &nsgl->framebuffer);
-        glBindFramebuffer(GL_FRAMEBUFFER, nsgl->framebuffer);
-
-        if (ctx->samples > 0) {
-            glGenRenderbuffers(1, &nsgl->colorbuffer);
-            glBindRenderbuffer(GL_RENDERBUFFER, nsgl->colorbuffer);
-            glRenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_RGBA8, ctx->width, ctx->height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, nsgl->colorbuffer);
-
-            glGenRenderbuffers(1, &nsgl->depthbuffer);
-            glBindRenderbuffer(GL_RENDERBUFFER, nsgl->depthbuffer);
-            glRenderbufferStorageMultisample(GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, nsgl->depthbuffer);
-        } else {
-            glGenRenderbuffers(1, &nsgl->colorbuffer);
-            glBindRenderbuffer(GL_RENDERBUFFER, nsgl->colorbuffer);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, ctx->width, ctx->height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, nsgl->colorbuffer);
-
-            glGenRenderbuffers(1, &nsgl->depthbuffer);
-            glBindRenderbuffer(GL_RENDERBUFFER, nsgl->depthbuffer);
-            glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, ctx->width, ctx->height);
-            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, nsgl->depthbuffer);
-        }
-
-        GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER) ;
-        if(status != GL_FRAMEBUFFER_COMPLETE) {
-            LOG(ERROR, "framebuffer is not complete: 0x%x", status);
-            return -1;
-        }
-
-        glViewport(0, 0, ctx->width, ctx->height);
-    } else {
+    if (!ctx->offscreen) {
         nsgl->view = (NSView *)window;
         if (!nsgl->view) {
             LOG(ERROR, "could not retrieve NS view");
@@ -129,6 +93,28 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 
     return 0;
 }
+
+static int nsgl_init_framebuffer(struct glcontext *ctx)
+{
+    struct nsgl_priv *nsgl = ctx->priv_data;
+
+    if (!ctx->offscreen)
+        return 0;
+
+    int ret;
+    struct fbo *fbo = &nsgl->fbo;
+    if ((ret = ngli_fbo_init(fbo, ctx, ctx->width, ctx->height, ctx->samples))   < 0 ||
+        (ret = ngli_fbo_create_renderbuffer(fbo, NGLI_FORMAT_R8G8B8A8_UNORM))    < 0 ||
+        (ret = ngli_fbo_create_renderbuffer(fbo, NGLI_FORMAT_D24_UNORM_S8_UINT)) < 0 ||
+        (ret = ngli_fbo_allocate(fbo))                                           < 0 ||
+        (ret = ngli_fbo_bind(fbo))                                               < 0)
+        return ret;
+
+    glViewport(0, 0, ctx->width, ctx->height);
+
+    return 0;
+}
+
 
 static int nsgl_resize(struct glcontext *ctx, int width, int height)
 {
@@ -149,9 +135,6 @@ static int nsgl_make_current(struct glcontext *ctx, int current)
 
     if (current) {
         [nsgl->handle makeCurrentContext];
-        if (ctx->offscreen) {
-            glBindFramebuffer(GL_FRAMEBUFFER, nsgl->framebuffer);
-        }
     } else {
         [NSOpenGLContext clearCurrentContext];
     }
@@ -193,14 +176,7 @@ static void nsgl_uninit(struct glcontext *ctx)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
 
-    if (nsgl->framebuffer > 0)
-        glDeleteFramebuffers(1, &nsgl->framebuffer);
-
-    if (nsgl->colorbuffer > 0)
-        glDeleteRenderbuffers(1, &nsgl->colorbuffer);
-
-    if (nsgl->depthbuffer > 0)
-        glDeleteRenderbuffers(1, &nsgl->depthbuffer);
+    ngli_fbo_reset(&nsgl->fbo);
 
     if (nsgl->framework)
         CFRelease(nsgl->framework);
@@ -211,6 +187,7 @@ static void nsgl_uninit(struct glcontext *ctx)
 
 const struct glcontext_class ngli_glcontext_nsgl_class = {
     .init = nsgl_init,
+    .init_framebuffer = nsgl_init_framebuffer,
     .uninit = nsgl_uninit,
     .resize = nsgl_resize,
     .make_current = nsgl_make_current,
