@@ -184,6 +184,9 @@ static int glcontext_probe_version(struct glcontext *glcontext)
         major_version,
         minor_version);
 
+    const char *renderer = (const char *)ngli_glGetString(glcontext, GL_RENDERER);
+    LOG(INFO, "OpenGL renderer: %s", renderer ? renderer : "unknown");
+
     glcontext->version = major_version * 100 + minor_version * 10;
 
     return 0;
