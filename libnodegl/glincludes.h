@@ -68,6 +68,8 @@
 #endif
 
 #if NGL_GLES2_COMPAT_INCLUDES
+# define GL_STENCIL_INDEX                      0x1901
+# define GL_STENCIL_INDEX8                     0x8D48
 # define GL_SAMPLER_3D                         0x8B5F
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
 # define GL_SAMPLER_EXTERNAL_OES               0x8D66
