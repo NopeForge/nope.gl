@@ -80,11 +80,11 @@ int ngli_buffer_ref(struct ngl_node *node)
     struct buffer *s = node->priv_data;
 
     if (s->graphic_buffer_refcount++ == 0) {
-        int ret = ngli_graphic_buffer_allocate(gl, &s->graphic_buffer, s->data_size, s->usage);
+        int ret = ngli_graphic_buffer_allocate(&s->graphic_buffer, gl, s->data_size, s->usage);
         if (ret < 0)
             return ret;
 
-        ret = ngli_graphic_buffer_upload(gl, &s->graphic_buffer, s->data, s->data_size);
+        ret = ngli_graphic_buffer_upload(&s->graphic_buffer, s->data, s->data_size);
         if (ret < 0)
             return ret;
     }
@@ -94,23 +94,19 @@ int ngli_buffer_ref(struct ngl_node *node)
 
 void ngli_buffer_unref(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct buffer *s = node->priv_data;
 
     ngli_assert(s->graphic_buffer_refcount);
     if (s->graphic_buffer_refcount-- == 1)
-        ngli_graphic_buffer_free(gl, &s->graphic_buffer);
+        ngli_graphic_buffer_free(&s->graphic_buffer);
 }
 
 int ngli_buffer_upload(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct buffer *s = node->priv_data;
 
     if (s->dynamic && s->graphic_buffer_last_upload_time != node->last_update_time) {
-        ngli_graphic_buffer_upload(gl, &s->graphic_buffer, s->data, s->data_size);
+        ngli_graphic_buffer_upload(&s->graphic_buffer, s->data, s->data_size);
         s->graphic_buffer_last_upload_time = node->last_update_time;
     }
 

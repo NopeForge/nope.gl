@@ -25,32 +25,34 @@
 #include "glcontext.h"
 #include "glincludes.h"
 
-int ngli_graphic_buffer_allocate(struct glcontext *gl,
-                                 struct graphic_buffer *buffer,
+int ngli_graphic_buffer_allocate(struct graphic_buffer *buffer,
+                                 struct glcontext *gl,
                                  int size,
                                  int usage)
 {
+    buffer->gl = gl;
+    buffer->size = size;
+    buffer->usage = usage;
     ngli_glGenBuffers(gl, 1, &buffer->id);
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->id);
     ngli_glBufferData(gl, GL_ARRAY_BUFFER, size, NULL, usage);
-    buffer->size = size;
-    buffer->usage = usage;
     return 0;
 }
 
-int ngli_graphic_buffer_upload(struct glcontext *gl,
-                               struct graphic_buffer *buffer,
+int ngli_graphic_buffer_upload(struct graphic_buffer *buffer,
                                void *data,
                                int size)
 {
+    struct glcontext *gl = buffer->gl;
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->id);
     ngli_glBufferSubData(gl, GL_ARRAY_BUFFER, 0, size, data);
     return 0;
 }
 
-void ngli_graphic_buffer_free(struct glcontext *gl,
-                              struct graphic_buffer *buffer)
+void ngli_graphic_buffer_free(struct graphic_buffer *buffer)
 {
-    ngli_glDeleteBuffers(gl, 1, &buffer->id);
+    if (!buffer->gl)
+        return;
+    ngli_glDeleteBuffers(buffer->gl, 1, &buffer->id);
     memset(buffer, 0, sizeof(*buffer));
 }

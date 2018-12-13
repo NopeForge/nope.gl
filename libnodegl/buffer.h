@@ -25,22 +25,21 @@
 #include "glcontext.h"
 
 struct graphic_buffer {
-    GLuint id;
+    struct glcontext *gl;
     int size;
     int usage;
+    GLuint id;
 };
 
-int ngli_graphic_buffer_allocate(struct glcontext *gl,
-                                 struct graphic_buffer *buffer,
+int ngli_graphic_buffer_allocate(struct graphic_buffer *buffer,
+                                 struct glcontext *gl,
                                  int size,
                                  int usage);
 
-int ngli_graphic_buffer_upload(struct glcontext *gl,
-                               struct graphic_buffer *buffer,
+int ngli_graphic_buffer_upload(struct graphic_buffer *buffer,
                                void *data,
                                int size);
 
-void ngli_graphic_buffer_free(struct glcontext *gl,
-                              struct graphic_buffer *buffer);
+void ngli_graphic_buffer_free(struct graphic_buffer *buffer);
 
 #endif
