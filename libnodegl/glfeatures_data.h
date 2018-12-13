@@ -120,6 +120,7 @@ static const struct glfeature {
         .flag           = NGLI_FEATURE_PACKED_DEPTH_STENCIL,
         .version        = 300,
         .es_version     = 300,
+        .es_extensions  = (const char*[]){"GL_OES_packed_depth_stencil", NULL},
     }, {
         .name           = "timer_query",
         .flag           = NGLI_FEATURE_TIMER_QUERY,
