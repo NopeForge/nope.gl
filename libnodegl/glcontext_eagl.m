@@ -271,21 +271,23 @@ static void eagl_uninit(struct glcontext *ctx)
         CFRelease(eagl->handle);
 }
 
-static int eagl_safe_resize(struct glcontext *ctx, int width, int height)
+static int eagl_resize(struct glcontext *ctx, int width, int height)
 {
-    if (![NSThread isMainThread]) {
-        __block int ret;
-
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            ret = eagl_safe_resize(ctx, width, height);
-        });
-
-        return ret;
-    }
-
     struct eagl_priv *eagl = ctx->priv_data;
 
-    ngli_glcontext_make_current(ctx, 1);
+    if (![NSThread isMainThread]) {
+        __block int ret;
+        ngli_glcontext_make_current(ctx, 0);
+
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            ngli_glcontext_make_current(ctx, 1);
+            ret = eagl_resize(ctx, width, height);
+            ngli_glcontext_make_current(ctx, 0);
+        });
+
+        ngli_glcontext_make_current(ctx, 1);
+        return ret;
+    }
 
     glBindRenderbuffer (GL_RENDERBUFFER, eagl->colorbuffer);
     [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
@@ -295,28 +297,11 @@ static int eagl_safe_resize(struct glcontext *ctx, int width, int height)
     ngli_fbo_resize(&eagl->fbo, eagl->width, eagl->height);
     ngli_fbo_resize(&eagl->fbo_ms, eagl->width, eagl->height);
 
-    ngli_glcontext_make_current(ctx, 0);
-
     ctx->width = eagl->width;
     ctx->height = eagl->height;
 
-    return 0;
-}
-
-static int eagl_resize(struct glcontext *ctx, int width, int height)
-{
-    struct eagl_priv *eagl = ctx->priv_data;
-
-    int ret = eagl_safe_resize(ctx, width, height);
-    if (ret < 0)
-        return ret;
-
-    ngli_glcontext_make_current(ctx, 1);
-
-    if (ctx->samples > 0)
-        ngli_fbo_bind(&eagl->fbo_ms);
-    else
-        ngli_fbo_bind(&eagl->fbo);
+    struct fbo *fbo = ctx->samples ? &eagl->fbo_ms : &eagl->fbo;
+    ngli_fbo_bind(fbo);
 
     glViewport(0, 0, eagl->width, eagl->height);
 
