@@ -179,10 +179,10 @@ static int glcontext_probe_version(struct glcontext *glcontext)
         ngli_assert(0);
     }
 
-    LOG(INFO, "OpenGL%s%d.%d",
-        glcontext->backend == NGL_BACKEND_OPENGLES ? " ES " : " ",
+    LOG(INFO, "OpenGL version: %d.%d %s",
         major_version,
-        minor_version);
+        minor_version,
+        glcontext->backend == NGL_BACKEND_OPENGLES ? "ES " : "");
 
     const char *renderer = (const char *)ngli_glGetString(glcontext, GL_RENDERER);
     LOG(INFO, "OpenGL renderer: %s", renderer ? renderer : "unknown");
