@@ -100,7 +100,7 @@ int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
                (entry->format && entry->internal_format && entry->type));
 
     GLint format = entry->format;
-    GLint internal_format;
+    GLint internal_format = entry->internal_format;
 
     if (gl->backend == NGL_BACKEND_OPENGLES && gl->version < 300) {
         if (format == GL_RED)
@@ -108,8 +108,6 @@ int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
         else if (format == GL_RG)
             format = GL_LUMINANCE_ALPHA;
         internal_format = format == GL_BGRA ? GL_RGBA : format;
-    } else {
-        internal_format = entry->internal_format;
     }
 
     if (formatp)
@@ -121,4 +119,3 @@ int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
 
     return 0;
 }
-
