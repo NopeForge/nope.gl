@@ -296,6 +296,23 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
     return 0;
 }
 
+static int glcontext_check_mandatory_extensions(struct glcontext *glcontext)
+{
+    if (glcontext->version >= 300)
+        return 0;
+
+    if (!(glcontext->features & (NGLI_FEATURE_RGB8_RGBA8    |
+                                 NGLI_FEATURE_DEPTH_TEXTURE |
+                                 NGLI_FEATURE_PACKED_DEPTH_STENCIL))) {
+        LOG(ERROR,
+            "OpenGLES 2.0 context does not support mandatory extensions: "
+            "OES_rgb8_rgba8, OES_depth_texture, OES_packed_depth_stencil");
+        return -1;
+    }
+
+    return 0;
+}
+
 static int glcontext_probe_settings(struct glcontext *glcontext)
 {
     ngli_glGetIntegerv(glcontext, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
@@ -325,6 +342,10 @@ static int glcontext_load_extensions(struct glcontext *glcontext)
         return ret;
 
     ret = glcontext_probe_extensions(glcontext);
+    if (ret < 0)
+        return ret;
+
+    ret = glcontext_check_mandatory_extensions(glcontext);
     if (ret < 0)
         return ret;
 
