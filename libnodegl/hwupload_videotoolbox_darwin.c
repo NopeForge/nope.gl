@@ -59,11 +59,11 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
     if (s->data_format < 0)
         return -1;
 
-    return ngli_format_get_gl_format_type(gl,
-                                          s->data_format,
-                                          &s->format,
-                                          &s->internal_format,
-                                          &s->type);
+    return ngli_format_get_gl_texture_format(gl,
+                                             s->data_format,
+                                             &s->format,
+                                             &s->internal_format,
+                                             &s->type);
 }
 
 static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)

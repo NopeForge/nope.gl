@@ -97,11 +97,11 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     ngli_assert(cvformat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
 
     s->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
-    int ret = ngli_format_get_gl_format_type(gl,
-                                             s->data_format,
-                                             &s->format,
-                                             &s->internal_format,
-                                             &s->type);
+    int ret = ngli_format_get_gl_texture_format(gl,
+                                                s->data_format,
+                                                &s->format,
+                                                &s->internal_format,
+                                                &s->type);
     if (ret < 0)
         return ret;
 
@@ -242,7 +242,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
             ngli_assert(0);
         }
 
-        int ret = ngli_format_get_gl_format_type(gl, plane_format, &gl_format, &gl_internal_format, &gl_type);
+        int ret = ngli_format_get_gl_texture_format(gl, plane_format, &gl_format, &gl_internal_format, &gl_type);
         if (ret < 0)
             return ret;
 
@@ -381,7 +381,7 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
             ngli_assert(0);
         }
 
-        int ret = ngli_format_get_gl_format_type(gl, data_format, &gl_format, &gl_internal_format, &gl_type);
+        int ret = ngli_format_get_gl_texture_format(gl, data_format, &gl_format, &gl_internal_format, &gl_type);
         if (ret < 0)
             return ret;
 
@@ -449,7 +449,7 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
                 ngli_assert(0);
             }
 
-            int ret = ngli_format_get_gl_format_type(gl, data_format, &gl_format, &gl_internal_format, &gl_type);
+            int ret = ngli_format_get_gl_texture_format(gl, data_format, &gl_format, &gl_internal_format, &gl_type);
             if (ret < 0)
                 return ret;
 

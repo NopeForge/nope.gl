@@ -32,10 +32,15 @@ enum {
     NGLI_FORMATS(DECLARE_FORMAT)
 };
 
-int ngli_format_get_gl_format_type(struct glcontext *gl,
-                                   int data_format,
-                                   GLint *formatp,
-                                   GLint *internal_formatp,
-                                   GLenum *typep);
+int ngli_format_get_gl_texture_format(struct glcontext *gl,
+                                      int data_format,
+                                      GLint *formatp,
+                                      GLint *internal_formatp,
+                                      GLenum *typep);
+
+int ngli_format_get_gl_renderbuffer_format(struct glcontext *gl,
+                                           int data_format,
+                                           GLint *formatp);
+
 
 #endif

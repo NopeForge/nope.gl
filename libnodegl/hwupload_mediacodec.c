@@ -78,11 +78,11 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
     s->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
-    int ret = ngli_format_get_gl_format_type(gl,
-                                             s->data_format,
-                                             &s->format,
-                                             &s->internal_format,
-                                             &s->type);
+    int ret = ngli_format_get_gl_texture_format(gl,
+                                                s->data_format,
+                                                &s->format,
+                                                &s->internal_format,
+                                                &s->type);
     if (ret < 0)
         return ret;
 

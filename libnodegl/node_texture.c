@@ -406,11 +406,11 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
         }
     }
 
-    int ret = ngli_format_get_gl_format_type(gl,
-                                             s->data_format,
-                                             &s->format,
-                                             &s->internal_format,
-                                             &s->type);
+    int ret = ngli_format_get_gl_texture_format(gl,
+                                                s->data_format,
+                                                &s->format,
+                                                &s->internal_format,
+                                                &s->type);
     if (ret < 0)
         return ret;
 

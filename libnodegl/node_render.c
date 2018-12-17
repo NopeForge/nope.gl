@@ -375,7 +375,7 @@ static int render_init(struct ngl_node *node)
         s->has_indices_buffer_ref = 1;
 
         struct buffer *indices = geometry->indices_buffer->priv_data;
-        ngli_format_get_gl_format_type(gl, indices->data_format, NULL, NULL, &s->indices_type);
+        ngli_format_get_gl_texture_format(gl, indices->data_format, NULL, NULL, &s->indices_type);
     }
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {

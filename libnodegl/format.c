@@ -23,8 +23,8 @@
 #include "glcontext.h"
 #include "nodes.h"
 
-int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
-                                   GLint *formatp, GLint *internal_formatp, GLenum *typep)
+static int get_gl_format_type(struct glcontext *gl, int data_format,
+                              GLint *formatp, GLint *internal_formatp, GLenum *typep)
 {
     static const struct entry {
         GLint format;
@@ -99,8 +99,26 @@ int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
     ngli_assert(data_format == NGLI_FORMAT_UNDEFINED ||
                (entry->format && entry->internal_format && entry->type));
 
-    GLint format = entry->format;
-    GLint internal_format = entry->internal_format;
+    if (formatp)
+        *formatp = entry->format;
+    if (internal_formatp)
+        *internal_formatp = entry->internal_format;
+    if (typep)
+        *typep = entry->type;
+
+    return 0;
+}
+
+int ngli_format_get_gl_texture_format(struct glcontext *gl, int data_format,
+                                      GLint *formatp, GLint *internal_formatp, GLenum *typep)
+{
+    GLint format;
+    GLint internal_format;
+    GLenum type;
+
+    int ret = get_gl_format_type(gl, data_format, &format, &internal_format, &type);
+    if (ret < 0)
+        return ret;
 
     if (gl->backend == NGL_BACKEND_OPENGLES && gl->version < 300) {
         if (format == GL_RED)
@@ -115,7 +133,12 @@ int ngli_format_get_gl_format_type(struct glcontext *gl, int data_format,
     if (internal_formatp)
         *internal_formatp = internal_format;
     if (typep)
-        *typep = entry->type;
+        *typep = type;
 
     return 0;
+}
+
+int ngli_format_get_gl_renderbuffer_format(struct glcontext *gl, int data_format, GLint *formatp)
+{
+    return get_gl_format_type(gl, data_format, NULL, formatp, NULL);
 }
