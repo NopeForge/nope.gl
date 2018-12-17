@@ -106,12 +106,6 @@ static int rtt_prefetch(struct ngl_node *node)
         s->samples = 0;
     }
 
-    if (!(gl->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL) &&
-        s->samples > 0) {
-        LOG(WARNING, "context does not support packed depth stencil feature, multisample anti-aliasing will be disabled");
-        s->samples = 0;
-    }
-
     if (s->depth_texture) {
         depth_texture = s->depth_texture->priv_data;
         if (s->width != depth_texture->width || s->height != depth_texture->height) {
@@ -138,27 +132,13 @@ static int rtt_prefetch(struct ngl_node *node)
         if (ret < 0)
             return ret;
     } else {
-        int stencil_format = NGLI_FORMAT_UNDEFINED;
-
-        if (s->features & FEATURE_STENCIL) {
-            if (s->features & NGLI_FEATURE_PACKED_DEPTH_STENCIL) {
-                depth_format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-            } else {
-                depth_format = NGLI_FORMAT_D16_UNORM;
-                stencil_format = NGLI_FORMAT_S8_UINT;
-            }
-        } else if (s->features & FEATURE_DEPTH) {
+        if (s->features & FEATURE_STENCIL)
+            depth_format = NGLI_FORMAT_D24_UNORM_S8_UINT;
+        else if (s->features & FEATURE_DEPTH)
             depth_format = NGLI_FORMAT_D16_UNORM;
-        }
 
         if (depth_format) {
             ret = ngli_fbo_create_renderbuffer(fbo, depth_format);
-            if (ret < 0)
-                return ret;
-        }
-
-        if (stencil_format) {
-            ret = ngli_fbo_create_renderbuffer(fbo, stencil_format);
             if (ret < 0)
                 return ret;
         }
