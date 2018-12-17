@@ -177,5 +177,11 @@ static const struct glfeature {
         .es_extensions  = (const char*[]){"GL_OES_EGL_image_external",
                                           "GL_OES_EGL_image_external_essl3",
                                           NULL}
+    }, {
+        .name           = "depth_texture",
+        .flag           = NGLI_FEATURE_DEPTH_TEXTURE,
+        .version        = 300,
+        .es_version     = 300,
+        .es_extensions  = (const char*[]){"GL_OES_depth_texture", NULL}
     }
 };
