@@ -183,5 +183,11 @@ static const struct glfeature {
         .version        = 300,
         .es_version     = 300,
         .es_extensions  = (const char*[]){"GL_OES_depth_texture", NULL}
+    }, {
+        .name           = "rgb8_rgba8",
+        .flag           = NGLI_FEATURE_RGB8_RGBA8,
+        .version        = 300,
+        .es_version     = 300,
+        .es_extensions  = (const char*[]){"GL_OES_rgb8_rgba8", NULL}
     }
 };
