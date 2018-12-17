@@ -86,7 +86,7 @@ void *ngli_darray_push(struct darray *darray, const void *element)
     return new_element;
 }
 
-void *ngli_darray_tail(struct darray *darray)
+void *ngli_darray_tail(const struct darray *darray)
 {
     if (darray->count <= 0)
         return NULL;
@@ -100,7 +100,7 @@ void *ngli_darray_pop(struct darray *darray)
     return element;
 }
 
-void *ngli_darray_get(struct darray *darray, int index)
+void *ngli_darray_get(const struct darray *darray, int index)
 {
     if (index < 0 || index >= darray->count)
         return NULL;
