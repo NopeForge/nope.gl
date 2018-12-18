@@ -52,19 +52,19 @@ static int triangle_init(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
 
-    s->vertices_buffer = ngli_geometry_generate_buffer(node->ctx,
-                                                       NGL_NODE_BUFFERVEC3,
-                                                       NB_VERTICES,
-                                                       sizeof(s->triangle_edges),
-                                                       s->triangle_edges);
+    s->vertices_buffer = ngli_node_geometry_generate_buffer(node->ctx,
+                                                            NGL_NODE_BUFFERVEC3,
+                                                            NB_VERTICES,
+                                                            sizeof(s->triangle_edges),
+                                                            s->triangle_edges);
     if (!s->vertices_buffer)
         return -1;
 
-    s->uvcoords_buffer = ngli_geometry_generate_buffer(node->ctx,
-                                                       NGL_NODE_BUFFERVEC2,
-                                                       NB_VERTICES,
-                                                       sizeof(s->triangle_uvs),
-                                                       s->triangle_uvs);
+    s->uvcoords_buffer = ngli_node_geometry_generate_buffer(node->ctx,
+                                                            NGL_NODE_BUFFERVEC2,
+                                                            NB_VERTICES,
+                                                            sizeof(s->triangle_uvs),
+                                                            s->triangle_uvs);
     if (!s->uvcoords_buffer)
         return -1;
 
@@ -77,11 +77,11 @@ static int triangle_init(struct ngl_node *node)
     for (int i = 1; i < NB_VERTICES; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
-    s->normals_buffer = ngli_geometry_generate_buffer(node->ctx,
-                                                      NGL_NODE_BUFFERVEC3,
-                                                      NB_VERTICES,
-                                                      sizeof(normals),
-                                                      normals);
+    s->normals_buffer = ngli_node_geometry_generate_buffer(node->ctx,
+                                                           NGL_NODE_BUFFERVEC3,
+                                                           NB_VERTICES,
+                                                           sizeof(normals),
+                                                           normals);
     if (!s->normals_buffer)
         return -1;
 

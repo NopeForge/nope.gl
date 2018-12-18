@@ -81,23 +81,23 @@ static int circle_init(struct ngl_node *node)
     for (int i = 1; i < nb_vertices; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
-    s->vertices_buffer = ngli_geometry_generate_buffer(node->ctx,
-                                                       NGL_NODE_BUFFERVEC3,
-                                                       nb_vertices,
-                                                       nb_vertices * sizeof(*vertices) * 3,
-                                                       vertices);
+    s->vertices_buffer = ngli_node_geometry_generate_buffer(node->ctx,
+                                                            NGL_NODE_BUFFERVEC3,
+                                                            nb_vertices,
+                                                            nb_vertices * sizeof(*vertices) * 3,
+                                                            vertices);
 
-    s->uvcoords_buffer = ngli_geometry_generate_buffer(node->ctx,
-                                                       NGL_NODE_BUFFERVEC2,
-                                                       nb_vertices,
-                                                       nb_vertices * sizeof(*uvcoords) * 2,
-                                                       uvcoords);
+    s->uvcoords_buffer = ngli_node_geometry_generate_buffer(node->ctx,
+                                                            NGL_NODE_BUFFERVEC2,
+                                                            nb_vertices,
+                                                            nb_vertices * sizeof(*uvcoords) * 2,
+                                                            uvcoords);
 
-    s->normals_buffer = ngli_geometry_generate_buffer(node->ctx,
-                                                      NGL_NODE_BUFFERVEC3,
-                                                      nb_vertices,
-                                                      nb_vertices * sizeof(*normals) * 3,
-                                                      normals);
+    s->normals_buffer = ngli_node_geometry_generate_buffer(node->ctx,
+                                                           NGL_NODE_BUFFERVEC3,
+                                                           nb_vertices,
+                                                           nb_vertices * sizeof(*normals) * 3,
+                                                           normals);
 
     if (!s->vertices_buffer || !s->uvcoords_buffer || !s->normals_buffer)
         goto end;

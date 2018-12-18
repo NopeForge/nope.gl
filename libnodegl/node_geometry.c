@@ -27,7 +27,7 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-struct ngl_node *ngli_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data)
+struct ngl_node *ngli_node_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data)
 {
     struct ngl_node *node = ngl_node_create(type, count);
     if (!node)
