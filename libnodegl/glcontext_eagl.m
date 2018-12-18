@@ -39,8 +39,6 @@ struct eagl_priv {
     CVPixelBufferRef pixel_buffer;
     CVOpenGLESTextureRef texture;
     CVOpenGLESTextureCacheRef texture_cache;
-    int width;
-    int height;
     GLuint colorbuffer;
     struct fbo fbo;
     struct fbo fbo_ms;
@@ -163,16 +161,16 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
         return ret;
 
     if (eagl->pixel_buffer) {
-        eagl->width = CVPixelBufferGetWidth(eagl->pixel_buffer);
-        eagl->height = CVPixelBufferGetHeight(eagl->pixel_buffer);
+        ctx->width = CVPixelBufferGetWidth(eagl->pixel_buffer);
+        ctx->height = CVPixelBufferGetHeight(eagl->pixel_buffer);
         CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
                                                                     eagl->texture_cache,
                                                                     eagl->pixel_buffer,
                                                                     NULL,
                                                                     GL_TEXTURE_2D,
                                                                     GL_RGBA,
-                                                                    eagl->width,
-                                                                    eagl->height,
+                                                                    ctx->width,
+                                                                    ctx->height,
                                                                     GL_BGRA,
                                                                     GL_UNSIGNED_BYTE,
                                                                     0,
@@ -188,7 +186,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
         ngli_glTexParameteri(ctx, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         ngli_glBindTexture(ctx, GL_TEXTURE_2D, 0);
 
-        if ((ret = ngli_fbo_resize(fbo, eagl->width, eagl->height))              < 0 ||
+        if ((ret = ngli_fbo_resize(fbo, ctx->width, ctx->height))                < 0 ||
             (ret = ngli_fbo_attach_texture(fbo, NGLI_FORMAT_B8G8R8A8_UNORM, id)) < 0)
             return ret;
     } else {
@@ -200,13 +198,10 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
             ngli_glGenRenderbuffers(ctx, 1, &eagl->colorbuffer);
             ngli_glBindRenderbuffer (ctx, GL_RENDERBUFFER, eagl->colorbuffer);
             [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
-            ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
-            ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
+            ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &ctx->width);
+            ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &ctx->height);
 
-            ctx->width = eagl->width;
-            ctx->height = eagl->height;
-
-            if ((ret = ngli_fbo_resize(fbo, eagl->width, eagl->height))                                  < 0 ||
+            if ((ret = ngli_fbo_resize(fbo, ctx->width, ctx->height))                                    < 0 ||
                 (ret = ngli_fbo_attach_renderbuffer(fbo, NGLI_FORMAT_B8G8R8A8_UNORM, eagl->colorbuffer)) < 0)
                 return ret;
         }
@@ -223,7 +218,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
         return ret;
 
     if (ctx->samples > 0) {
-        if ((ret = ngli_fbo_init(fbo_ms, ctx, eagl->width, eagl->height, ctx->samples)) < 0 ||
+        if ((ret = ngli_fbo_init(fbo_ms, ctx, ctx->width, ctx->height, ctx->samples))   < 0 ||
             (ret = ngli_fbo_create_renderbuffer(fbo_ms, NGLI_FORMAT_B8G8R8A8_UNORM))    < 0 ||
             (ret = ngli_fbo_create_renderbuffer(fbo_ms, NGLI_FORMAT_D24_UNORM_S8_UINT)) < 0 ||
             (ret = ngli_fbo_allocate(fbo_ms))                                           < 0)
@@ -232,7 +227,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 
     ngli_fbo_bind(ctx->samples ? fbo_ms : fbo);
 
-    glViewport(0, 0, eagl->width, eagl->height);
+    glViewport(0, 0, ctx->width, ctx->height);
 
     return 0;
 }
@@ -283,19 +278,16 @@ static int eagl_resize(struct glcontext *ctx, int width, int height)
 
     glBindRenderbuffer (GL_RENDERBUFFER, eagl->colorbuffer);
     [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &eagl->width);
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &eagl->height);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &ctx->width);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &ctx->height);
 
-    ngli_fbo_resize(&eagl->fbo, eagl->width, eagl->height);
-    ngli_fbo_resize(&eagl->fbo_ms, eagl->width, eagl->height);
-
-    ctx->width = eagl->width;
-    ctx->height = eagl->height;
+    ngli_fbo_resize(&eagl->fbo, ctx->width, ctx->height);
+    ngli_fbo_resize(&eagl->fbo_ms, ctx->width, ctx->height);
 
     struct fbo *fbo = ctx->samples ? &eagl->fbo_ms : &eagl->fbo;
     ngli_fbo_bind(fbo);
 
-    glViewport(0, 0, eagl->width, eagl->height);
+    glViewport(0, 0, ctx->width, ctx->height);
 
     return 0;
 }
