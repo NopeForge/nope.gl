@@ -78,7 +78,66 @@ static int eagl_setup_layer(struct glcontext *ctx)
     return 0;
 }
 
-static int eagl_setup_framebuffer(struct glcontext *ctx)
+static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
+{
+    struct eagl_priv *eagl = ctx->priv_data;
+
+    CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
+    if (!framework) {
+        LOG(ERROR, "could not retrieve OpenGLES framework");
+        return -1;
+    }
+
+    eagl->framework = (CFBundleRef)CFRetain(framework);
+    if (!eagl->framework) {
+        LOG(ERROR, "could not retain OpenGL framework object");
+        return -1;
+    }
+
+    if (ctx->offscreen) {
+        if (window) {
+            CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)window;
+            eagl->pixel_buffer = (CVPixelBufferRef)CFRetain(pixel_buffer);
+        }
+    } else {
+        eagl->view = (UIView *)window;
+        if (!eagl->view) {
+            LOG(ERROR, "could not retrieve UI view");
+            return -1;
+        }
+
+        int ret = eagl_setup_layer(ctx);
+        if (ret < 0)
+            return ret;
+    }
+
+    eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    if (!eagl->handle) {
+        eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        if (!eagl->handle) {
+            LOG(ERROR, "could not create EAGL context");
+            return -1;
+        }
+        if (ctx->samples > 0) {
+            LOG(WARNING, "multisample anti-aliasing is not supported with OpenGLES 2.0 context");
+            ctx->samples = 0;
+        }
+    }
+
+    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
+                                                NULL,
+                                                eagl->handle,
+                                                NULL,
+                                                &eagl->texture_cache);
+    if (err != noErr) {
+        LOG(ERROR, "could not create CoreVideo texture cache: 0x%x", err);
+        return -1;
+    }
+
+    return 0;
+}
+
+static int eagl_init_framebuffer(struct glcontext *ctx)
 {
     struct eagl_priv *eagl = ctx->priv_data;
 
@@ -88,7 +147,7 @@ static int eagl_setup_framebuffer(struct glcontext *ctx)
 
         dispatch_sync(dispatch_get_main_queue(), ^{
             ngli_glcontext_make_current(ctx, 1);
-            ret = eagl_setup_framebuffer(ctx);
+            ret = eagl_init_framebuffer(ctx);
             ngli_glcontext_make_current(ctx, 0);
         });
 
@@ -174,74 +233,6 @@ static int eagl_setup_framebuffer(struct glcontext *ctx)
     ngli_fbo_bind(ctx->samples ? fbo_ms : fbo);
 
     glViewport(0, 0, eagl->width, eagl->height);
-
-    return 0;
-}
-
-static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
-{
-    struct eagl_priv *eagl = ctx->priv_data;
-
-    CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
-    if (!framework) {
-        LOG(ERROR, "could not retrieve OpenGLES framework");
-        return -1;
-    }
-
-    eagl->framework = (CFBundleRef)CFRetain(framework);
-    if (!eagl->framework) {
-        LOG(ERROR, "could not retain OpenGL framework object");
-        return -1;
-    }
-
-    if (ctx->offscreen) {
-        if (window) {
-            CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)window;
-            eagl->pixel_buffer = (CVPixelBufferRef)CFRetain(pixel_buffer);
-        }
-    } else {
-        eagl->view = (UIView *)window;
-        if (!eagl->view) {
-            LOG(ERROR, "could not retrieve UI view");
-            return -1;
-        }
-
-        int ret = eagl_setup_layer(ctx);
-        if (ret < 0)
-            return ret;
-    }
-
-    eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
-    if (!eagl->handle) {
-        eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
-        if (!eagl->handle) {
-            LOG(ERROR, "could not create EAGL context");
-            return -1;
-        }
-        if (ctx->samples > 0) {
-            LOG(WARNING, "multisample anti-aliasing is not supported with OpenGLES 2.0 context");
-            ctx->samples = 0;
-        }
-    }
-
-    CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
-                                                NULL,
-                                                eagl->handle,
-                                                NULL,
-                                                &eagl->texture_cache);
-    if (err != noErr) {
-        LOG(ERROR, "could not create CoreVideo texture cache: 0x%x", err);
-        return -1;
-    }
-
-    return 0;
-}
-
-static int eagl_init_framebuffer(struct glcontext *ctx)
-{
-    int ret = eagl_setup_framebuffer(ctx);
-    if (ret < 0)
-        return ret;
 
     return 0;
 }
