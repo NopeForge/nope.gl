@@ -111,9 +111,6 @@ static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
-    const struct glcontext *gl = s->glcontext;
-
-    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     struct ngl_node *scene = s->scene;
     if (!scene) {
@@ -142,6 +139,8 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
     struct glcontext *gl = s->glcontext;
+
+    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     int ret = cmd_prepare_draw(s, arg);
     if (ret < 0)
