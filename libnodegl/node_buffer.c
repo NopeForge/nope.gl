@@ -108,7 +108,9 @@ int ngli_node_buffer_upload(struct ngl_node *node)
     struct buffer_priv *s = node->priv_data;
 
     if (s->dynamic && s->buffer_last_upload_time != node->last_update_time) {
-        ngli_buffer_upload(&s->buffer, s->data, s->data_size);
+        int ret = ngli_buffer_upload(&s->buffer, s->data, s->data_size);
+        if (ret < 0)
+            return ret;
         s->buffer_last_upload_time = node->last_update_time;
     }
 
