@@ -72,6 +72,7 @@ LIB_OBJS = api.o                    \
            glcontext.o              \
            glstate.o                \
            hmap.o                   \
+           hwconv.o                 \
            hwupload.o               \
            hwupload_common.o        \
            log.o                    \
