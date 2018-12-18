@@ -61,7 +61,7 @@
                                          NGL_NODE_BUFFERUIVEC4,     \
                                          -1}
 
-#define OFFSET(x) offsetof(struct compute, x)
+#define OFFSET(x) offsetof(struct compute_priv, x)
 static const struct node_param compute_params[] = {
     {"nb_group_x", PARAM_TYPE_INT,      OFFSET(nb_group_x), .flags=PARAM_FLAG_CONSTRUCTOR,
                    .desc=NGLI_DOCSTRING("number of work groups to be executed in the x dimension")},
@@ -84,7 +84,7 @@ static int compute_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct compute *s = node->priv_data;
+    struct compute_priv *s = node->priv_data;
 
     if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
         LOG(ERROR, "context does not support compute shaders");
@@ -122,9 +122,9 @@ static void compute_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct compute *s = node->priv_data;
+    struct compute_priv *s = node->priv_data;
 
-    const struct program *program = s->pipeline.program->priv_data;
+    const struct program_priv *program = s->pipeline.program->priv_data;
     ngli_glUseProgram(gl, program->program_id);
 
     int ret = ngli_pipeline_upload_data(node);
@@ -144,7 +144,7 @@ const struct node_class ngli_compute_class = {
     .uninit    = compute_uninit,
     .update    = compute_update,
     .draw      = compute_draw,
-    .priv_size = sizeof(struct compute),
+    .priv_size = sizeof(struct compute_priv),
     .params    = compute_params,
     .file      = __FILE__,
 };

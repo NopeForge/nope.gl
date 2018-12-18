@@ -27,7 +27,7 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-#define OFFSET(x) offsetof(struct animation, x)
+#define OFFSET(x) offsetof(struct animation_priv, x)
 static const struct node_param animatedfloat_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1},
@@ -68,7 +68,7 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
     int ret = -1;
 
     for (int i = start; i < nb_animkf; i++) {
-        const struct animkeyframe *kf = animkf[i]->priv_data;
+        const struct animkeyframe_priv *kf = animkf[i]->priv_data;
         if (kf->time > t)
             break;
         ret = i;
@@ -78,7 +78,7 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
 
 #define MIX(x, y, a) ((x)*(1.-(a)) + (y)*(a))
 
-static inline int animation_update(const struct animation *s, double t, int len,
+static inline int animation_update(const struct animation_priv *s, double t, int len,
                                    void *dst, int *cache)
 {
     struct ngl_node **animkf = s->animkf;
@@ -89,8 +89,8 @@ static inline int animation_update(const struct animation *s, double t, int len,
     if (kf_id < 0)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
     if (kf_id >= 0 && kf_id < nb_animkf - 1) {
-        const struct animkeyframe *kf0 = animkf[kf_id    ]->priv_data;
-        const struct animkeyframe *kf1 = animkf[kf_id + 1]->priv_data;
+        const struct animkeyframe_priv *kf0 = animkf[kf_id    ]->priv_data;
+        const struct animkeyframe_priv *kf1 = animkf[kf_id + 1]->priv_data;
         const double t0 = kf0->time;
         const double t1 = kf1->time;
 
@@ -111,9 +111,9 @@ static inline int animation_update(const struct animation *s, double t, int len,
                 ((float *)dst)[i] = MIX(kf0->value[i], kf1->value[i], ratio);
         }
     } else {
-        const struct animkeyframe *kf0 = animkf[            0]->priv_data;
-        const struct animkeyframe *kfn = animkf[nb_animkf - 1]->priv_data;
-        const struct animkeyframe *kf  = t < kf0->time ? kf0 : kfn;
+        const struct animkeyframe_priv *kf0 = animkf[            0]->priv_data;
+        const struct animkeyframe_priv *kfn = animkf[nb_animkf - 1]->priv_data;
+        const struct animkeyframe_priv *kf  = t < kf0->time ? kf0 : kfn;
         if (len == 1) /* scalar */
             memcpy(dst, &kf->scalar, sizeof(double));
         else if (len == 5) /* quaternion */
@@ -126,11 +126,11 @@ static inline int animation_update(const struct animation *s, double t, int len,
 
 int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 {
-    struct animation *s = node->priv_data;
+    struct animation_priv *s = node->priv_data;
     if (!s->nb_animkf)
         return -1;
 
-    struct animkeyframe *kf0 = s->animkf[0]->priv_data;
+    struct animkeyframe_priv *kf0 = s->animkf[0]->priv_data;
     if (!kf0->function) {
         for (int i = 0; i < s->nb_animkf; i++) {
             int ret = s->animkf[i]->class->init(s->animkf[i]);
@@ -145,11 +145,11 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 
 static int animation_init(struct ngl_node *node)
 {
-    struct animation *s = node->priv_data;
+    struct animation_priv *s = node->priv_data;
     double prev_time = -DBL_MAX;
 
     for (int i = 0; i < s->nb_animkf; i++) {
-        const struct animkeyframe *kf = s->animkf[i]->priv_data;
+        const struct animkeyframe_priv *kf = s->animkf[i]->priv_data;
 
         if (kf->time < prev_time) {
             LOG(ERROR, "key frames must be monotically increasing: %g < %g",
@@ -164,14 +164,14 @@ static int animation_init(struct ngl_node *node)
 
 static int animatedfloat_update(struct ngl_node *node, double t)
 {
-    struct animation *s = node->priv_data;
+    struct animation_priv *s = node->priv_data;
     return animation_update(s, t, 1, &s->scalar, &s->current_kf);
 }
 
 #define UPDATE_FUNC(type, len)                                          \
 static int animated##type##_update(struct ngl_node *node, double t)     \
 {                                                                       \
-    struct animation *s = node->priv_data;                              \
+    struct animation_priv *s = node->priv_data;                         \
     return animation_update(s, t, len, s->values, &s->current_kf);      \
 }
 
@@ -185,7 +185,7 @@ const struct node_class ngli_animatedfloat_class = {
     .name      = "AnimatedFloat",
     .init      = animation_init,
     .update    = animatedfloat_update,
-    .priv_size = sizeof(struct animation),
+    .priv_size = sizeof(struct animation_priv),
     .params    = animatedfloat_params,
     .file      = __FILE__,
 };
@@ -195,7 +195,7 @@ const struct node_class ngli_animatedvec2_class = {
     .name      = "AnimatedVec2",
     .init      = animation_init,
     .update    = animatedvec2_update,
-    .priv_size = sizeof(struct animation),
+    .priv_size = sizeof(struct animation_priv),
     .params    = animatedvec2_params,
     .file      = __FILE__,
 };
@@ -205,7 +205,7 @@ const struct node_class ngli_animatedvec3_class = {
     .name      = "AnimatedVec3",
     .init      = animation_init,
     .update    = animatedvec3_update,
-    .priv_size = sizeof(struct animation),
+    .priv_size = sizeof(struct animation_priv),
     .params    = animatedvec3_params,
     .file      = __FILE__,
 };
@@ -215,7 +215,7 @@ const struct node_class ngli_animatedvec4_class = {
     .name      = "AnimatedVec4",
     .init      = animation_init,
     .update    = animatedvec4_update,
-    .priv_size = sizeof(struct animation),
+    .priv_size = sizeof(struct animation_priv),
     .params    = animatedvec4_params,
     .file      = __FILE__,
 };
@@ -225,7 +225,7 @@ const struct node_class ngli_animatedquat_class = {
     .name      = "AnimatedQuat",
     .init      = animation_init,
     .update    = animatedquat_update,
-    .priv_size = sizeof(struct animation),
+    .priv_size = sizeof(struct animation_priv),
     .params    = animatedquat_params,
     .file      = __FILE__,
 };

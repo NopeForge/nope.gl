@@ -87,7 +87,7 @@ static const char default_vertex_shader[] =
     "    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0, 1)).xy;"            "\n"
     "}";
 
-#define OFFSET(x) offsetof(struct program, x)
+#define OFFSET(x) offsetof(struct program_priv, x)
 static const struct node_param program_params[] = {
     {"vertex",   PARAM_TYPE_STR, OFFSET(vertex),   {.str=default_vertex_shader},
                  .desc=NGLI_DOCSTRING("vertex shader")},
@@ -100,7 +100,7 @@ static int program_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct program *s = node->priv_data;
+    struct program_priv *s = node->priv_data;
 
     s->program_id = ngli_program_load(gl, s->vertex, s->fragment);
     if (!s->program_id)
@@ -119,7 +119,7 @@ static void program_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct program *s = node->priv_data;
+    struct program_priv *s = node->priv_data;
 
     ngli_hmap_freep(&s->active_uniforms);
     ngli_hmap_freep(&s->active_attributes);
@@ -132,7 +132,7 @@ const struct node_class ngli_program_class = {
     .name      = "Program",
     .init      = program_init,
     .uninit    = program_uninit,
-    .priv_size = sizeof(struct program),
+    .priv_size = sizeof(struct program_priv),
     .params    = program_params,
     .file      = __FILE__,
 };

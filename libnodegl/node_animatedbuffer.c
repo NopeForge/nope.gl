@@ -27,7 +27,7 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-#define OFFSET(x) offsetof(struct buffer, x)
+#define OFFSET(x) offsetof(struct buffer_priv, x)
 static const struct node_param animatedbuffer_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf),
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEBUFFER, -1},
@@ -41,7 +41,7 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
     int ret = -1;
 
     for (int i = start; i < nb_animkf; i++) {
-        const struct animkeyframe *kf = animkf[i]->priv_data;
+        const struct animkeyframe_priv *kf = animkf[i]->priv_data;
         if (kf->time > t)
             break;
         ret = i;
@@ -53,7 +53,7 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
 
 static int animatedbuffer_update(struct ngl_node *node, double t)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
     struct ngl_node **animkf = s->animkf;
     const int nb_animkf = s->nb_animkf;
     float *dst = (float *)s->data;
@@ -64,8 +64,8 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
     if (kf_id < 0)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
     if (kf_id >= 0 && kf_id < nb_animkf - 1) {
-        const struct animkeyframe *kf0 = animkf[kf_id    ]->priv_data;
-        const struct animkeyframe *kf1 = animkf[kf_id + 1]->priv_data;
+        const struct animkeyframe_priv *kf0 = animkf[kf_id    ]->priv_data;
+        const struct animkeyframe_priv *kf1 = animkf[kf_id + 1]->priv_data;
         const double t0 = kf0->time;
         const double t1 = kf1->time;
 
@@ -84,9 +84,9 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
             for (int i = 0; i < s->data_comp; i++)
                 dst[k*s->data_comp + i] = MIX(d1[k*s->data_comp + i], d2[k*s->data_comp + i], ratio);
     } else {
-        const struct animkeyframe *kf0 = animkf[            0]->priv_data;
-        const struct animkeyframe *kfn = animkf[nb_animkf - 1]->priv_data;
-        const struct animkeyframe *kf  = t < kf0->time ? kf0 : kfn;
+        const struct animkeyframe_priv *kf0 = animkf[            0]->priv_data;
+        const struct animkeyframe_priv *kfn = animkf[nb_animkf - 1]->priv_data;
+        const struct animkeyframe_priv *kf  = t < kf0->time ? kf0 : kfn;
 
         memcpy(dst, kf->data, s->data_size);
     }
@@ -96,7 +96,7 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
 
 static int animatedbuffer_init(struct ngl_node *node)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
     double prev_time = -DBL_MAX;
 
     int nb_comp;
@@ -118,7 +118,7 @@ static int animatedbuffer_init(struct ngl_node *node)
     s->data_stride = s->data_comp * sizeof(float);
 
     for (int i = 0; i < s->nb_animkf; i++) {
-        const struct animkeyframe *kf = s->animkf[i]->priv_data;
+        const struct animkeyframe_priv *kf = s->animkf[i]->priv_data;
         const int data_count = kf->data_size / s->data_stride;
         const int data_pad   = kf->data_size % s->data_stride;
 
@@ -156,7 +156,7 @@ static int animatedbuffer_init(struct ngl_node *node)
 
 static void animatedbuffer_uninit(struct ngl_node *node)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
     ngli_free(s->data);
     s->data = NULL;
@@ -168,7 +168,7 @@ const struct node_class ngli_animatedbufferfloat_class = {
     .init      = animatedbuffer_init,
     .update    = animatedbuffer_update,
     .uninit    = animatedbuffer_uninit,
-    .priv_size = sizeof(struct buffer),
+    .priv_size = sizeof(struct buffer_priv),
     .params    = animatedbuffer_params,
     .params_id = "AnimatedBuffer",
     .file      = __FILE__,
@@ -179,7 +179,7 @@ const struct node_class ngli_animatedbuffervec2_class = {
     .init      = animatedbuffer_init,
     .update    = animatedbuffer_update,
     .uninit    = animatedbuffer_uninit,
-    .priv_size = sizeof(struct buffer),
+    .priv_size = sizeof(struct buffer_priv),
     .params    = animatedbuffer_params,
     .params_id = "AnimatedBuffer",
     .file      = __FILE__,
@@ -190,7 +190,7 @@ const struct node_class ngli_animatedbuffervec3_class = {
     .init      = animatedbuffer_init,
     .update    = animatedbuffer_update,
     .uninit    = animatedbuffer_uninit,
-    .priv_size = sizeof(struct buffer),
+    .priv_size = sizeof(struct buffer_priv),
     .params    = animatedbuffer_params,
     .params_id = "AnimatedBuffer",
     .file      = __FILE__,
@@ -201,7 +201,7 @@ const struct node_class ngli_animatedbuffervec4_class = {
     .init      = animatedbuffer_init,
     .update    = animatedbuffer_update,
     .uninit    = animatedbuffer_uninit,
-    .priv_size = sizeof(struct buffer),
+    .priv_size = sizeof(struct buffer_priv),
     .params    = animatedbuffer_params,
     .params_id = "AnimatedBuffer",
     .file      = __FILE__,

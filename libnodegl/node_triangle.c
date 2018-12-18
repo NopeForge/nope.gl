@@ -29,7 +29,7 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct geometry, x)
+#define OFFSET(x) offsetof(struct geometry_priv, x)
 static const struct node_param triangle_params[] = {
     {"edge0", PARAM_TYPE_VEC3, OFFSET(triangle_edges[0]), .flags=PARAM_FLAG_CONSTRUCTOR,
               .desc=NGLI_DOCSTRING("first edge coordinate of the triangle")},
@@ -50,7 +50,7 @@ static const struct node_param triangle_params[] = {
 
 static int triangle_init(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
     s->vertices_buffer = ngli_geometry_generate_buffer(node->ctx,
                                                        NGL_NODE_BUFFERVEC3,
@@ -99,7 +99,7 @@ static int triangle_init(struct ngl_node *node)
 
 static void triangle_uninit(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
     NODE_UNREFP(s->vertices_buffer);
     NODE_UNREFP(s->uvcoords_buffer);
@@ -111,7 +111,7 @@ const struct node_class ngli_triangle_class = {
     .name      = "Triangle",
     .init      = triangle_init,
     .uninit    = triangle_uninit,
-    .priv_size = sizeof(struct geometry),
+    .priv_size = sizeof(struct geometry_priv),
     .params    = triangle_params,
     .file      = __FILE__,
 };

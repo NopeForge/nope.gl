@@ -75,7 +75,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
     s->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
@@ -140,7 +140,7 @@ static void mc_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
     ngli_fbo_reset(&mc->fbo);
@@ -155,10 +155,10 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
-    struct media *media = s->data_src->priv_data;
+    struct media_priv *media = s->data_src->priv_data;
     AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 
     NGLI_ALIGNED_MAT(matrix) = {
@@ -215,8 +215,8 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
-    struct media *media = s->data_src->priv_data;
+    struct texture_priv *s = node->priv_data;
+    struct media_priv *media = s->data_src->priv_data;
 
     GLint id = media->android_texture_id;
     GLenum target = media->android_texture_target;
@@ -235,8 +235,8 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 
 static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture *s = node->priv_data;
-    struct media *media = s->data_src->priv_data;
+    struct texture_priv *s = node->priv_data;
+    struct media_priv *media = s->data_src->priv_data;
     AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 
     NGLI_ALIGNED_MAT(matrix) = {
@@ -278,7 +278,7 @@ static const struct hwmap_class hwmap_mc_dr_class = {
 
 static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     if (s->direct_rendering) {
         if (s->min_filter != GL_NEAREST && s->min_filter != GL_LINEAR) {

@@ -51,7 +51,7 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     s->data_format = common_get_data_format(frame->pix_fmt);
     if (s->data_format < 0)
@@ -66,7 +66,7 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
 
 static int common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     const int linesize       = frame->linesize >> 2;
     s->coordinates_matrix[0] = linesize ? frame->width / (float)linesize : 1.0;

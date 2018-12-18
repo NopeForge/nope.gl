@@ -57,7 +57,7 @@ static const struct param_choices usage_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct buffer, x)
+#define OFFSET(x) offsetof(struct buffer_priv, x)
 static const struct node_param buffer_params[] = {
     {"count",  PARAM_TYPE_INT,    OFFSET(count),
                .desc=NGLI_DOCSTRING("number of elements")},
@@ -77,7 +77,7 @@ int ngli_buffer_ref(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
     if (s->graphic_buffer_refcount++ == 0) {
         int ret = ngli_graphic_buffer_allocate(&s->graphic_buffer, gl, s->data_size, s->usage);
@@ -94,7 +94,7 @@ int ngli_buffer_ref(struct ngl_node *node)
 
 void ngli_buffer_unref(struct ngl_node *node)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
     ngli_assert(s->graphic_buffer_refcount);
     if (s->graphic_buffer_refcount-- == 1)
@@ -103,7 +103,7 @@ void ngli_buffer_unref(struct ngl_node *node)
 
 int ngli_buffer_upload(struct ngl_node *node)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
     if (s->dynamic && s->graphic_buffer_last_upload_time != node->last_update_time) {
         ngli_graphic_buffer_upload(&s->graphic_buffer, s->data, s->data_size);
@@ -115,7 +115,7 @@ int ngli_buffer_upload(struct ngl_node *node)
 
 static int buffer_init_from_data(struct ngl_node *node)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
     s->count = s->count ? s->count : s->data_size / s->data_stride;
     if (s->data_size != s->count * s->data_stride) {
@@ -132,7 +132,7 @@ static int buffer_init_from_data(struct ngl_node *node)
 
 static int buffer_init_from_filename(struct ngl_node *node)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
     s->fd = open(s->filename, O_RDONLY);
     if (s->fd < 0) {
@@ -178,7 +178,7 @@ static int buffer_init_from_filename(struct ngl_node *node)
 
 static int buffer_init_from_count(struct ngl_node *node)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
     s->count = s->count ? s->count : 1;
     s->data_size = s->count * s->data_stride;
@@ -191,7 +191,7 @@ static int buffer_init_from_count(struct ngl_node *node)
 
 static int buffer_init(struct ngl_node *node)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
     if (s->data && s->filename) {
         LOG(ERROR,
@@ -257,7 +257,7 @@ static int buffer_init(struct ngl_node *node)
 
 static void buffer_uninit(struct ngl_node *node)
 {
-    struct buffer *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
     if (s->filename) {
         ngli_free(s->data);
@@ -279,7 +279,7 @@ const struct node_class ngli_buffer##type##_class = {       \
     .name      = class_name,                                \
     .init      = buffer_init,                               \
     .uninit    = buffer_uninit,                             \
-    .priv_size = sizeof(struct buffer),                     \
+    .priv_size = sizeof(struct buffer_priv),                \
     .params    = buffer_params,                             \
     .params_id = "Buffer",                                  \
     .file      = __FILE__,                                  \

@@ -53,7 +53,7 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     s->data_format = vt_get_data_format(frame);
     if (s->data_format < 0)
@@ -68,7 +68,7 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
 
 static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     CVPixelBufferLockBaseAddress(cvpixbuf, kCVPixelBufferLock_ReadOnly);

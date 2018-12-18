@@ -89,7 +89,7 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
@@ -169,7 +169,7 @@ static void vt_ios_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
     ngli_fbo_reset(&vt->fbo);
@@ -187,7 +187,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
     CVOpenGLESTextureRef textures[2] = {0};
@@ -312,7 +312,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
 static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
@@ -342,7 +342,7 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
     CVOpenGLESTextureCacheRef *texture_cache = ngli_glcontext_get_texture_cache(gl);
@@ -486,7 +486,7 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
 
 static void vt_ios_dr_uninit(struct ngl_node *node)
 {
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
     NGLI_CFRELEASE(vt->ios_textures[0]);
@@ -511,7 +511,7 @@ static const struct hwmap_class hwmap_vt_ios_dr_class = {
 
 static const struct hwmap_class *vt_ios_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);

@@ -28,7 +28,7 @@
 #include "nodes.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct geometry, x)
+#define OFFSET(x) offsetof(struct geometry_priv, x)
 static const struct node_param quad_params[] = {
     {"corner",    PARAM_TYPE_VEC3, OFFSET(quad_corner),    {.vec={-0.5f, -0.5f}},
                   .desc=NGLI_DOCSTRING("origin coordinates of `width` and `height` vectors")},
@@ -57,7 +57,7 @@ static const struct node_param quad_params[] = {
 
 static int quad_init(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
     const float vertices[] = {
         C(0),               C(1),               C(2),
@@ -120,7 +120,7 @@ static int quad_init(struct ngl_node *node)
 
 static void quad_uninit(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
     NODE_UNREFP(s->vertices_buffer);
     NODE_UNREFP(s->uvcoords_buffer);
@@ -132,7 +132,7 @@ const struct node_class ngli_quad_class = {
     .name      = "Quad",
     .init      = quad_init,
     .uninit    = quad_uninit,
-    .priv_size = sizeof(struct geometry),
+    .priv_size = sizeof(struct geometry_priv),
     .params    = quad_params,
     .file      = __FILE__,
 };

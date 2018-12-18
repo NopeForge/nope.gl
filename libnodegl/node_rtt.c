@@ -43,7 +43,7 @@ static const struct param_choices feature_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct rtt, x)
+#define OFFSET(x) offsetof(struct rtt_priv, x)
 static const struct node_param rtt_params[] = {
     {"child",         PARAM_TYPE_NODE, OFFSET(child),
                       .flags=PARAM_FLAG_CONSTRUCTOR,
@@ -81,7 +81,7 @@ static int has_stencil(int format)
 
 static int rtt_init(struct ngl_node *node)
 {
-    struct rtt *s = node->priv_data;
+    struct rtt_priv *s = node->priv_data;
 
     float clear_color[4] = DEFAULT_CLEAR_COLOR;
     s->use_clear_color = memcmp(s->clear_color, clear_color, sizeof(s->clear_color));
@@ -93,9 +93,9 @@ static int rtt_prefetch(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct rtt *s = node->priv_data;
-    struct texture *texture = s->color_texture->priv_data;
-    struct texture *depth_texture = NULL;
+    struct rtt_priv *s = node->priv_data;
+    struct texture_priv *texture = s->color_texture->priv_data;
+    struct texture_priv *depth_texture = NULL;
 
     s->width = texture->width;
     s->height = texture->height;
@@ -182,7 +182,7 @@ static int rtt_prefetch(struct ngl_node *node)
 
 static int rtt_update(struct ngl_node *node, double t)
 {
-    struct rtt *s = node->priv_data;
+    struct rtt_priv *s = node->priv_data;
     int ret = ngli_node_update(s->child, t);
     if (ret < 0)
         return ret;
@@ -200,7 +200,7 @@ static void rtt_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct rtt *s = node->priv_data;
+    struct rtt_priv *s = node->priv_data;
 
     struct fbo *fbo = s->samples > 0 ? &s->fbo_ms : &s->fbo;
     int ret = ngli_fbo_bind(fbo);
@@ -234,7 +234,7 @@ static void rtt_draw(struct ngl_node *node)
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
 
-    struct texture *texture = s->color_texture->priv_data;
+    struct texture_priv *texture = s->color_texture->priv_data;
     switch(texture->min_filter) {
     case GL_NEAREST_MIPMAP_NEAREST:
     case GL_NEAREST_MIPMAP_LINEAR:
@@ -250,7 +250,7 @@ static void rtt_draw(struct ngl_node *node)
         texture->coordinates_matrix[13] = 1.0f;
 
         if (s->depth_texture) {
-            struct texture *depth_texture = s->depth_texture->priv_data;
+            struct texture_priv *depth_texture = s->depth_texture->priv_data;
             depth_texture->coordinates_matrix[5] = -1.0f;
             depth_texture->coordinates_matrix[13] = 1.0f;
         }
@@ -259,7 +259,7 @@ static void rtt_draw(struct ngl_node *node)
 
 static void rtt_release(struct ngl_node *node)
 {
-    struct rtt *s = node->priv_data;
+    struct rtt_priv *s = node->priv_data;
 
     ngli_fbo_reset(&s->fbo);
     ngli_fbo_reset(&s->fbo_ms);
@@ -273,7 +273,7 @@ const struct node_class ngli_rtt_class = {
     .update    = rtt_update,
     .draw      = rtt_draw,
     .release   = rtt_release,
-    .priv_size = sizeof(struct rtt),
+    .priv_size = sizeof(struct rtt_priv),
     .params    = rtt_params,
     .file      = __FILE__,
 };

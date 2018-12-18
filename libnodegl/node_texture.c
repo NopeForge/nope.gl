@@ -129,7 +129,7 @@ static const struct param_choices format_choices = {
                                              -1}
 
 
-#define OFFSET(x) offsetof(struct texture, x)
+#define OFFSET(x) offsetof(struct texture_priv, x)
 static const struct node_param texture2d_params[] = {
     {"format", PARAM_TYPE_SELECT, OFFSET(data_format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM}, .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
@@ -180,7 +180,7 @@ static const struct node_param texture3d_params[] = {
     {NULL}
 };
 
-static void tex_image(const struct glcontext *gl, const struct texture *s,
+static void tex_image(const struct glcontext *gl, const struct texture_priv *s,
                       const uint8_t *data)
 {
     switch (s->target) {
@@ -199,7 +199,7 @@ static void tex_image(const struct glcontext *gl, const struct texture *s,
     }
 }
 
-static void tex_sub_image(const struct glcontext *gl, const struct texture *s,
+static void tex_sub_image(const struct glcontext *gl, const struct texture_priv *s,
                           const uint8_t *data)
 {
     switch (s->target) {
@@ -220,7 +220,7 @@ static void tex_sub_image(const struct glcontext *gl, const struct texture *s,
     }
 }
 
-static void tex_storage(const struct glcontext *gl, const struct texture *s)
+static void tex_storage(const struct glcontext *gl, const struct texture_priv *s)
 {
     switch (s->target) {
         case GL_TEXTURE_2D: {
@@ -242,7 +242,7 @@ static void tex_storage(const struct glcontext *gl, const struct texture *s)
     }
 }
 
-static void tex_set_params(const struct glcontext *gl, const struct texture *s)
+static void tex_set_params(const struct glcontext *gl, const struct texture_priv *s)
 {
     ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, s->min_filter);
     ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
@@ -258,7 +258,7 @@ int ngli_texture_update_data(struct ngl_node *node,
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     int ret = 0;
 
     if (!width || !height || (node->class->id == NGL_NODE_TEXTURE3D && !depth))
@@ -329,7 +329,7 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     s->target = local_target;
     if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE)
@@ -378,7 +378,7 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
         case NGL_NODE_BUFFERVEC2:
         case NGL_NODE_BUFFERVEC3:
         case NGL_NODE_BUFFERVEC4: {
-            struct buffer *buffer = s->data_src->priv_data;
+            struct buffer_priv *buffer = s->data_src->priv_data;
 
             if (local_target == GL_TEXTURE_2D) {
                 if (buffer->count != s->width * s->height) {
@@ -430,8 +430,8 @@ TEXTURE_PREFETCH(3)
 
 static void handle_hud_frame(struct ngl_node *node)
 {
-    struct texture *s = node->priv_data;
-    struct hud *hud = s->data_src->priv_data;
+    struct texture_priv *s = node->priv_data;
+    struct hud_priv *hud = s->data_src->priv_data;
     const int width = hud->data_w;
     const int height = hud->data_h;
     const uint8_t *data = hud->data_buf;
@@ -448,8 +448,8 @@ static void handle_media_frame(struct ngl_node *node)
 
 static void handle_buffer_frame(struct ngl_node *node)
 {
-    struct texture *s = node->priv_data;
-    struct buffer *buffer = s->data_src->priv_data;
+    struct texture_priv *s = node->priv_data;
+    struct buffer_priv *buffer = s->data_src->priv_data;
     const uint8_t *data = buffer->data;
 
     ngli_texture_update_data(node, s->width, s->height, s->depth, data);
@@ -457,7 +457,7 @@ static void handle_buffer_frame(struct ngl_node *node)
 
 static int texture_update(struct ngl_node *node, double t)
 {
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     if (!s->data_src)
         return 0;
@@ -491,7 +491,7 @@ static void texture_release(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
 
     ngli_hwupload_uninit(node);
 
@@ -520,7 +520,7 @@ const struct node_class ngli_texture2d_class = {
     .prefetch  = texture2d_prefetch,
     .update    = texture_update,
     .release   = texture_release,
-    .priv_size = sizeof(struct texture),
+    .priv_size = sizeof(struct texture_priv),
     .params    = texture2d_params,
     .file      = __FILE__,
 };
@@ -532,7 +532,7 @@ const struct node_class ngli_texture3d_class = {
     .prefetch  = texture3d_prefetch,
     .update    = texture_update,
     .release   = texture_release,
-    .priv_size = sizeof(struct texture),
+    .priv_size = sizeof(struct texture_priv),
     .params    = texture3d_params,
     .file      = __FILE__,
 };

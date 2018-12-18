@@ -81,7 +81,7 @@
                                          NGL_NODE_BUFFERUIVEC4,     \
                                          -1}
 
-#define OFFSET(x) offsetof(struct render, x)
+#define OFFSET(x) offsetof(struct render_priv, x)
 static const struct node_param render_params[] = {
     {"geometry", PARAM_TYPE_NODE, OFFSET(geometry), .flags=PARAM_FLAG_CONSTRUCTOR,
                  .node_types=GEOMETRY_TYPES_LIST,
@@ -113,7 +113,7 @@ static int update_geometry_uniforms(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct render *s = node->priv_data;
+    struct render_priv *s = node->priv_data;
 
     const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
@@ -137,7 +137,7 @@ static int update_geometry_uniforms(struct ngl_node *node)
     return 0;
 }
 
-#define GEOMETRY_OFFSET(x) offsetof(struct geometry, x)
+#define GEOMETRY_OFFSET(x) offsetof(struct geometry_priv, x)
 static const struct {
     const char *const_name;
     int offset;
@@ -151,13 +151,13 @@ static int update_vertex_attribs(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct render *s = node->priv_data;
+    struct render_priv *s = node->priv_data;
 
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
         const GLint aid = info->location;
-        struct buffer *buffer = pair->node->priv_data;
+        struct buffer_priv *buffer = pair->node->priv_data;
 
         ngli_glEnableVertexAttribArray(gl, aid);
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->graphic_buffer.id);
@@ -174,7 +174,7 @@ static int disable_vertex_attribs(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct render *s = node->priv_data;
+    struct render_priv *s = node->priv_data;
 
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
@@ -191,11 +191,11 @@ static int get_uniform_location(struct hmap *uniforms, const char *name)
     return info ? info->location : -1;
 }
 
-static int pair_node_to_attribinfo(struct render *s, const char *name,
+static int pair_node_to_attribinfo(struct render_priv *s, const char *name,
                                    struct ngl_node *anode)
 {
     const struct ngl_node *pnode = s->pipeline.program;
-    const struct program *program = pnode->priv_data;
+    const struct program_priv *program = pnode->priv_data;
     const struct attributeprograminfo *active_attribute =
         ngli_hmap_get(program->active_attributes, name);
     if (!active_attribute)
@@ -223,12 +223,12 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attribut
     if (!attributes)
         return 0;
 
-    struct render *s = node->priv_data;
+    struct render_priv *s = node->priv_data;
 
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(attributes, entry))) {
         struct ngl_node *anode = entry->data;
-        struct buffer *buffer = anode->priv_data;
+        struct buffer_priv *buffer = anode->priv_data;
 
         if (per_instance) {
             if (buffer->count != s->nb_instances) {
@@ -240,8 +240,8 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attribut
                 return -1;
             }
         } else {
-            struct geometry *geometry = s->geometry->priv_data;
-            struct buffer *vertices = geometry->vertices_buffer->priv_data;
+            struct geometry_priv *geometry = s->geometry->priv_data;
+            struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
             if (buffer->count != vertices->count) {
                 LOG(ERROR,
                     "attribute buffer %s count (%d) does not match vertices count (%d)",
@@ -265,33 +265,33 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attribut
     return 0;
 }
 
-static void draw_elements(struct glcontext *gl, struct render *render)
+static void draw_elements(struct glcontext *gl, struct render_priv *render)
 {
-    struct geometry *geometry = render->geometry->priv_data;
-    const struct buffer *indices = geometry->indices_buffer->priv_data;
+    struct geometry_priv *geometry = render->geometry->priv_data;
+    const struct buffer_priv *indices = geometry->indices_buffer->priv_data;
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->graphic_buffer.id);
     ngli_glDrawElements(gl, geometry->topology, indices->count, render->indices_type, 0);
 }
 
-static void draw_elements_instanced(struct glcontext *gl, struct render *render)
+static void draw_elements_instanced(struct glcontext *gl, struct render_priv *render)
 {
-    struct geometry *geometry = render->geometry->priv_data;
-    struct buffer *indices = geometry->indices_buffer->priv_data;
+    struct geometry_priv *geometry = render->geometry->priv_data;
+    struct buffer_priv *indices = geometry->indices_buffer->priv_data;
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->graphic_buffer.id);
     ngli_glDrawElementsInstanced(gl, geometry->topology, indices->count, render->indices_type, 0, render->nb_instances);
 }
 
-static void draw_arrays(struct glcontext *gl, struct render *render)
+static void draw_arrays(struct glcontext *gl, struct render_priv *render)
 {
-    struct geometry *geometry = render->geometry->priv_data;
-    struct buffer *vertices = geometry->vertices_buffer->priv_data;
+    struct geometry_priv *geometry = render->geometry->priv_data;
+    struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
     ngli_glDrawArrays(gl, geometry->topology, 0, vertices->count);
 }
 
-static void draw_arrays_instanced(struct glcontext *gl, struct render *render)
+static void draw_arrays_instanced(struct glcontext *gl, struct render_priv *render)
 {
-    struct geometry *geometry = render->geometry->priv_data;
-    struct buffer *vertices = geometry->vertices_buffer->priv_data;
+    struct geometry_priv *geometry = render->geometry->priv_data;
+    struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
     ngli_glDrawArraysInstanced(gl, geometry->topology, 0, vertices->count, render->nb_instances);
 }
 
@@ -299,7 +299,7 @@ static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct render *s = node->priv_data;
+    struct render_priv *s = node->priv_data;
 
     if (!s->pipeline.program) {
         s->pipeline.program = ngl_node_create(NGL_NODE_PROGRAM);
@@ -315,7 +315,7 @@ static int render_init(struct ngl_node *node)
         return ret;
 
     struct ngl_node *pnode = s->pipeline.program;
-    struct program *program = pnode->priv_data;
+    struct program_priv *program = pnode->priv_data;
     struct hmap *uniforms = program->active_uniforms;
 
     /* Instancing checks */
@@ -343,7 +343,7 @@ static int render_init(struct ngl_node *node)
         return -1;
 
     /* Builtin vertex attributes */
-    struct geometry *geometry = s->geometry->priv_data;
+    struct geometry_priv *geometry = s->geometry->priv_data;
     for (int i = 0; i < NGLI_ARRAY_NB(attrib_const_map); i++) {
         const int offset = attrib_const_map[i].offset;
         const char *const_name = attrib_const_map[i].const_name;
@@ -374,7 +374,7 @@ static int render_init(struct ngl_node *node)
             return ret;
         s->has_indices_buffer_ref = 1;
 
-        struct buffer *indices = geometry->indices_buffer->priv_data;
+        struct buffer_priv *indices = geometry->indices_buffer->priv_data;
         ngli_format_get_gl_texture_format(gl, indices->data_format, NULL, NULL, &s->indices_type);
     }
 
@@ -396,7 +396,7 @@ static void render_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct render *s = node->priv_data;
+    struct render_priv *s = node->priv_data;
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
@@ -405,7 +405,7 @@ static void render_uninit(struct ngl_node *node)
     ngli_pipeline_uninit(node);
 
     if (s->has_indices_buffer_ref) {
-        struct geometry *geometry = s->geometry->priv_data;
+        struct geometry_priv *geometry = s->geometry->priv_data;
         ngli_buffer_unref(geometry->indices_buffer);
     }
 
@@ -419,7 +419,7 @@ static void render_uninit(struct ngl_node *node)
 
 static int render_update(struct ngl_node *node, double t)
 {
-    struct render *s = node->priv_data;
+    struct render_priv *s = node->priv_data;
 
     int ret = ngli_node_update(s->geometry, t);
     if (ret < 0)
@@ -443,9 +443,9 @@ static void render_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct render *s = node->priv_data;
+    struct render_priv *s = node->priv_data;
 
-    const struct program *program = s->pipeline.program->priv_data;
+    const struct program_priv *program = s->pipeline.program->priv_data;
     ngli_glUseProgram(gl, program->program_id);
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
@@ -475,7 +475,7 @@ const struct node_class ngli_render_class = {
     .uninit    = render_uninit,
     .update    = render_update,
     .draw      = render_draw,
-    .priv_size = sizeof(struct render),
+    .priv_size = sizeof(struct render_priv),
     .params    = render_params,
     .file      = __FILE__,
 };

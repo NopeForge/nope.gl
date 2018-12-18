@@ -30,8 +30,8 @@
 
 static void update_trf_matrix(struct ngl_node *node, const float *f)
 {
-    struct scale *s = node->priv_data;
-    struct transform *trf = &s->trf;
+    struct scale_priv *s = node->priv_data;
+    struct transform_priv *trf = &s->trf;
     float *matrix = trf->matrix;
 
     ngli_mat4_scale(matrix, f[0], f[1], f[2]);
@@ -48,7 +48,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *f)
 
 static int scale_init(struct ngl_node *node)
 {
-    struct scale *s = node->priv_data;
+    struct scale_priv *s = node->priv_data;
     static const float zero_anchor[3] = {0};
     s->use_anchor = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
     if (!s->anim)
@@ -58,7 +58,7 @@ static int scale_init(struct ngl_node *node)
 
 static int update_factors(struct ngl_node *node)
 {
-    struct scale *s = node->priv_data;
+    struct scale_priv *s = node->priv_data;
     if (s->anim) {
         LOG(ERROR, "updating factors while the animation is set is undefined behaviour");
         return -1;
@@ -69,12 +69,12 @@ static int update_factors(struct ngl_node *node)
 
 static int scale_update(struct ngl_node *node, double t)
 {
-    struct scale *s = node->priv_data;
-    struct transform *trf = &s->trf;
+    struct scale_priv *s = node->priv_data;
+    struct transform_priv *trf = &s->trf;
     struct ngl_node *child = trf->child;
     if (s->anim) {
         struct ngl_node *anim_node = s->anim;
-        struct animation *anim = anim_node->priv_data;
+        struct animation_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
@@ -83,7 +83,7 @@ static int scale_update(struct ngl_node *node, double t)
     return ngli_node_update(child, t);
 }
 
-#define OFFSET(x) offsetof(struct scale, x)
+#define OFFSET(x) offsetof(struct scale_priv, x)
 static const struct node_param scale_params[] = {
     {"child",   PARAM_TYPE_NODE, OFFSET(trf.child),
                 .flags=PARAM_FLAG_CONSTRUCTOR,
@@ -108,7 +108,7 @@ const struct node_class ngli_scale_class = {
     .init      = scale_init,
     .update    = scale_update,
     .draw      = ngli_transform_draw,
-    .priv_size = sizeof(struct scale),
+    .priv_size = sizeof(struct scale_priv),
     .params    = scale_params,
     .file      = __FILE__,
 };

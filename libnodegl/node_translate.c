@@ -29,14 +29,14 @@
 
 static void update_trf_matrix(struct ngl_node *node, const float *vec)
 {
-    struct translate *s = node->priv_data;
-    struct transform *trf = &s->trf;
+    struct translate_priv *s = node->priv_data;
+    struct transform_priv *trf = &s->trf;
     ngli_mat4_translate(trf->matrix, vec[0], vec[1], vec[2]);
 }
 
 static int update_vector(struct ngl_node *node)
 {
-    struct translate *s = node->priv_data;
+    struct translate_priv *s = node->priv_data;
     if (s->anim) {
         LOG(ERROR, "updating vector while the animation is set is undefined behaviour");
         return -1;
@@ -47,7 +47,7 @@ static int update_vector(struct ngl_node *node)
 
 static int translate_init(struct ngl_node *node)
 {
-    struct translate *s = node->priv_data;
+    struct translate_priv *s = node->priv_data;
     if (!s->anim)
         update_trf_matrix(node, s->vector);
     return 0;
@@ -55,12 +55,12 @@ static int translate_init(struct ngl_node *node)
 
 static int translate_update(struct ngl_node *node, double t)
 {
-    struct translate *s = node->priv_data;
-    struct transform *trf = &s->trf;
+    struct translate_priv *s = node->priv_data;
+    struct transform_priv *trf = &s->trf;
     struct ngl_node *child = trf->child;
     if (s->anim) {
         struct ngl_node *anim_node = s->anim;
-        struct animation *anim = anim_node->priv_data;
+        struct animation_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
@@ -69,7 +69,7 @@ static int translate_update(struct ngl_node *node, double t)
     return ngli_node_update(child, t);
 }
 
-#define OFFSET(x) offsetof(struct translate, x)
+#define OFFSET(x) offsetof(struct translate_priv, x)
 static const struct node_param translate_params[] = {
     {"child",  PARAM_TYPE_NODE, OFFSET(trf.child),
                .flags=PARAM_FLAG_CONSTRUCTOR,
@@ -92,7 +92,7 @@ const struct node_class ngli_translate_class = {
     .init      = translate_init,
     .update    = translate_update,
     .draw      = ngli_transform_draw,
-    .priv_size = sizeof(struct translate),
+    .priv_size = sizeof(struct translate_priv),
     .params    = translate_params,
     .file      = __FILE__,
 };

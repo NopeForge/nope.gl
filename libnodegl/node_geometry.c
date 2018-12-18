@@ -69,7 +69,7 @@ static const struct param_choices topology_choices = {
                                            NGL_NODE_ANIMATEDBUFFERVEC3,     \
                                            -1}
 
-#define OFFSET(x) offsetof(struct geometry, x)
+#define OFFSET(x) offsetof(struct geometry_priv, x)
 static const struct node_param geometry_params[] = {
     {"vertices",  PARAM_TYPE_NODE, OFFSET(vertices_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
@@ -95,12 +95,12 @@ static const struct node_param geometry_params[] = {
 
 static int geometry_init(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
-    struct buffer *vertices = s->vertices_buffer->priv_data;
+    struct buffer_priv *vertices = s->vertices_buffer->priv_data;
 
     if (s->uvcoords_buffer) {
-        struct buffer *uvcoords = s->uvcoords_buffer->priv_data;
+        struct buffer_priv *uvcoords = s->uvcoords_buffer->priv_data;
         if (uvcoords->count != vertices->count) {
             LOG(ERROR,
                 "uvcoords count (%d) does not match vertices count (%d)",
@@ -111,7 +111,7 @@ static int geometry_init(struct ngl_node *node)
     }
 
     if (s->normals_buffer) {
-        struct buffer *normals = s->normals_buffer->priv_data;
+        struct buffer_priv *normals = s->normals_buffer->priv_data;
         if (normals->count != vertices->count) {
             LOG(ERROR,
                 "normals count (%d) does not match vertices count (%d)",
@@ -126,7 +126,7 @@ static int geometry_init(struct ngl_node *node)
 
 static int geometry_update(struct ngl_node *node, double t)
 {
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
     int ret = ngli_node_update(s->vertices_buffer, t);
     if (ret < 0)
@@ -152,7 +152,7 @@ const struct node_class ngli_geometry_class = {
     .name      = "Geometry",
     .init      = geometry_init,
     .update    = geometry_update,
-    .priv_size = sizeof(struct geometry),
+    .priv_size = sizeof(struct geometry_priv),
     .params    = geometry_params,
     .file      = __FILE__,
 };

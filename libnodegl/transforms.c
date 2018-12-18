@@ -34,7 +34,7 @@ const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
             case NGL_NODE_SCALE:
             case NGL_NODE_TRANSFORM:
             case NGL_NODE_TRANSLATE: {
-                const struct transform *trf = node->priv_data;
+                const struct transform_priv *trf = node->priv_data;
                 node = trf->child;
                 break;
             }
@@ -55,7 +55,7 @@ const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
 void ngli_transform_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct transform *s = node->priv_data;
+    struct transform_priv *s = node->priv_data;
     struct ngl_node *child = s->child;
 
     float *prev_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);

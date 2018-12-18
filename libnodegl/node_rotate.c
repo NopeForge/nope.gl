@@ -31,8 +31,8 @@
 
 static void update_trf_matrix(struct ngl_node *node, double deg_angle)
 {
-    struct rotate *s = node->priv_data;
-    struct transform *trf = &s->trf;
+    struct rotate_priv *s = node->priv_data;
+    struct transform_priv *trf = &s->trf;
     float *matrix = trf->matrix;
 
     const double angle = deg_angle * (2.0f * M_PI / 360.0f);
@@ -50,7 +50,7 @@ static void update_trf_matrix(struct ngl_node *node, double deg_angle)
 
 static int rotate_init(struct ngl_node *node)
 {
-    struct rotate *s = node->priv_data;
+    struct rotate_priv *s = node->priv_data;
     static const float zvec[3] = {0};
     if (!memcmp(s->axis, zvec, sizeof(s->axis))) {
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
@@ -65,7 +65,7 @@ static int rotate_init(struct ngl_node *node)
 
 static int update_angle(struct ngl_node *node)
 {
-    struct rotate *s = node->priv_data;
+    struct rotate_priv *s = node->priv_data;
     if (s->anim) {
         LOG(ERROR, "updating angle while the animation is set is undefined behaviour");
         return -1;
@@ -76,12 +76,12 @@ static int update_angle(struct ngl_node *node)
 
 static int rotate_update(struct ngl_node *node, double t)
 {
-    struct rotate *s = node->priv_data;
-    struct transform *trf = &s->trf;
+    struct rotate_priv *s = node->priv_data;
+    struct transform_priv *trf = &s->trf;
     struct ngl_node *child = trf->child;
     if (s->anim) {
         struct ngl_node *anim_node = s->anim;
-        struct animation *anim = anim_node->priv_data;
+        struct animation_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
@@ -90,7 +90,7 @@ static int rotate_update(struct ngl_node *node, double t)
     return ngli_node_update(child, t);
 }
 
-#define OFFSET(x) offsetof(struct rotate, x)
+#define OFFSET(x) offsetof(struct rotate_priv, x)
 static const struct node_param rotate_params[] = {
     {"child",  PARAM_TYPE_NODE, OFFSET(trf.child),
                .flags=PARAM_FLAG_CONSTRUCTOR,
@@ -117,7 +117,7 @@ const struct node_class ngli_rotate_class = {
     .init      = rotate_init,
     .update    = rotate_update,
     .draw      = ngli_transform_draw,
-    .priv_size = sizeof(struct rotate),
+    .priv_size = sizeof(struct rotate_priv),
     .params    = rotate_params,
     .file      = __FILE__,
 };

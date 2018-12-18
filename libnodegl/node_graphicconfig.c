@@ -111,7 +111,7 @@ static const struct param_choices cull_face_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct graphicconfig, x)
+#define OFFSET(x) offsetof(struct graphicconfig_priv, x)
 static const struct node_param graphicconfig_params[] = {
     {"child",              PARAM_TYPE_NODE,   OFFSET(child),              .flags=PARAM_FLAG_CONSTRUCTOR,
                            .desc=NGLI_DOCSTRING("scene to which the graphic configuration will be applied")},
@@ -175,7 +175,7 @@ static const struct node_param graphicconfig_params[] = {
 
 static int graphicconfig_update(struct ngl_node *node, double t)
 {
-    struct graphicconfig *s = node->priv_data;
+    struct graphicconfig_priv *s = node->priv_data;
     struct ngl_node *child = s->child;
 
     return ngli_node_update(child, t);
@@ -191,7 +191,7 @@ static void honor_config(struct ngl_node *node, int restore)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct graphicconfig *s = node->priv_data;
+    struct graphicconfig_priv *s = node->priv_data;
     struct glstate *prev = restore ? &s->states[0] : &s->states[1];
     struct glstate *next = restore ? &s->states[1] : &s->states[0];
 
@@ -239,7 +239,7 @@ static void honor_config(struct ngl_node *node, int restore)
 
 static void graphicconfig_draw(struct ngl_node *node)
 {
-    struct graphicconfig *s = node->priv_data;
+    struct graphicconfig_priv *s = node->priv_data;
     struct ngl_node *child = s->child;
 
     honor_config(node, 0);
@@ -252,7 +252,7 @@ const struct node_class ngli_graphicconfig_class = {
     .name      = "GraphicConfig",
     .update    = graphicconfig_update,
     .draw      = graphicconfig_draw,
-    .priv_size = sizeof(struct graphicconfig),
+    .priv_size = sizeof(struct graphicconfig_priv),
     .params    = graphicconfig_params,
     .file      = __FILE__,
 };

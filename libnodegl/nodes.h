@@ -111,7 +111,7 @@ struct ngl_node {
                                            NGL_NODE_IDENTITY,  \
                                            -1}
 
-struct graphicconfig {
+struct graphicconfig_priv {
     struct ngl_node *child;
 
     int blend;
@@ -143,7 +143,7 @@ struct graphicconfig {
     struct glstate states[2];
 };
 
-struct camera {
+struct camera_priv {
     struct ngl_node *child;
     float eye[3];
     float center[3];
@@ -178,7 +178,7 @@ struct camera {
     struct fbo fbo;
 };
 
-struct geometry {
+struct geometry_priv {
     /* quad params */
     float quad_corner[3];
     float quad_width[3];
@@ -207,7 +207,7 @@ struct geometry {
 
 struct ngl_node *ngli_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data);
 
-struct buffer {
+struct buffer_priv {
     int count;              // number of elements
     uint8_t *data;          // buffer of <count> elements
     int data_size;          // total buffer data size in bytes
@@ -234,7 +234,7 @@ int ngli_buffer_ref(struct ngl_node *node);
 void ngli_buffer_unref(struct ngl_node *node);
 int ngli_buffer_upload(struct ngl_node *node);
 
-struct uniform {
+struct uniform_priv {
     double scalar;
     float vector[4];
     float matrix[4*4];
@@ -244,7 +244,7 @@ struct uniform {
     const float *transform_matrix;
 };
 
-struct rtt {
+struct rtt_priv {
     struct ngl_node *child;
     struct ngl_node *color_texture;
     struct ngl_node *depth_texture;
@@ -261,7 +261,7 @@ struct rtt {
     struct fbo fbo_ms;
 };
 
-struct program {
+struct program_priv {
     const char *vertex;
     const char *fragment;
     const char *compute;
@@ -284,7 +284,7 @@ struct texture_plane {
     GLenum target;
 };
 
-struct texture {
+struct texture_priv {
     int data_format;
     int width;
     int height;
@@ -384,7 +384,7 @@ struct pipeline {
     int nb_buffer_pairs;
 };
 
-struct render {
+struct render_priv {
     struct ngl_node *geometry;
 
     struct pipeline pipeline;
@@ -407,10 +407,10 @@ struct render {
     GLuint vao_id;
     GLenum indices_type;
 
-    void (*draw)(struct glcontext *gl, struct render *render);
+    void (*draw)(struct glcontext *gl, struct render_priv *render);
 };
 
-struct compute {
+struct compute_priv {
     int nb_group_x;
     int nb_group_y;
     int nb_group_z;
@@ -423,7 +423,7 @@ void ngli_pipeline_uninit(struct ngl_node *node);
 int ngli_pipeline_update(struct ngl_node *node, double t);
 int ngli_pipeline_upload_data(struct ngl_node *node);
 
-struct media {
+struct media_priv {
     const char *filename;
     int sxplayer_min_level;
     struct ngl_node *anim;
@@ -444,19 +444,19 @@ struct media {
 #endif
 };
 
-struct timerangemode {
+struct timerangemode_priv {
     double start_time;
     double render_time;
     int updated;
 };
 
-struct transform {
+struct transform_priv {
     struct ngl_node *child;
     NGLI_ALIGNED_MAT(matrix);
 };
 
-struct rotate {
-    struct transform trf;
+struct rotate_priv {
+    struct transform_priv trf;
     double angle;
     float axis[3];
     float normed_axis[3];
@@ -465,14 +465,14 @@ struct rotate {
     int use_anchor;
 };
 
-struct translate {
-    struct transform trf;
+struct translate_priv {
+    struct transform_priv trf;
     float vector[3];
     struct ngl_node *anim;
 };
 
-struct scale {
-    struct transform trf;
+struct scale_priv {
+    struct transform_priv trf;
     float factors[3];
     float anchor[3];
     struct ngl_node *anim;
@@ -530,7 +530,7 @@ enum easing_id {
 typedef double easing_type;
 typedef easing_type (*easing_function)(easing_type, int, const easing_type *);
 
-struct animation {
+struct animation_priv {
     struct ngl_node **animkf;
     int nb_animkf;
     int current_kf;
@@ -539,7 +539,7 @@ struct animation {
     double scalar;
 };
 
-struct animkeyframe {
+struct animkeyframe_priv {
     double time;
     float value[4];
     double scalar;
@@ -555,7 +555,7 @@ struct animkeyframe {
     double boundaries[2];
 };
 
-struct hud {
+struct hud_priv {
     struct ngl_node *child;
     int measure_window;
     int refresh_rate[2];

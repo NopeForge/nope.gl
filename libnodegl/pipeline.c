@@ -38,10 +38,10 @@ static struct pipeline *get_pipeline(struct ngl_node *node)
 {
     struct pipeline *ret = NULL;
     if (node->class->id == NGL_NODE_RENDER) {
-        struct render *s = node->priv_data;
+        struct render_priv *s = node->priv_data;
         ret = &s->pipeline;
     } else if (node->class->id == NGL_NODE_COMPUTE) {
-        struct compute *s = node->priv_data;
+        struct compute_priv *s = node->priv_data;
         ret = &s->pipeline;
     } else {
         ngli_assert(0);
@@ -95,7 +95,7 @@ static int get_disabled_texture_unit(const struct glcontext *gl,
 }
 
 static int bind_texture_plane(const struct glcontext *gl,
-                              struct texture *texture,
+                              struct texture_priv *texture,
                               uint64_t *used_texture_units,
                               int index,
                               int location)
@@ -113,7 +113,7 @@ static int bind_texture_plane(const struct glcontext *gl,
 
 static int update_sampler(const struct glcontext *gl,
                           struct pipeline *s,
-                          struct texture *texture,
+                          struct texture_priv *texture,
                           const struct textureprograminfo *info,
                           uint64_t *used_texture_units,
                           int *sampling_mode)
@@ -199,7 +199,7 @@ static int update_images_and_samplers(struct ngl_node *node)
             const struct nodeprograminfopair *pair = &s->texture_pairs[i];
             const struct textureprograminfo *info = pair->program_info;
             const struct ngl_node *tnode = pair->node;
-            struct texture *texture = tnode->priv_data;
+            struct texture_priv *texture = tnode->priv_data;
 
             int sampling_mode;
             int ret = update_sampler(gl, s, texture, info, &used_texture_units, &sampling_mode);
@@ -243,32 +243,32 @@ static int update_uniforms(struct ngl_node *node)
         const struct ngl_node *unode = pair->node;
         switch (unode->class->id) {
         case NGL_NODE_UNIFORMFLOAT: {
-            const struct uniform *u = unode->priv_data;
+            const struct uniform_priv *u = unode->priv_data;
             ngli_glUniform1f(gl, uid, u->scalar);
             break;
         }
         case NGL_NODE_UNIFORMVEC2: {
-            const struct uniform *u = unode->priv_data;
+            const struct uniform_priv *u = unode->priv_data;
             ngli_glUniform2fv(gl, uid, 1, u->vector);
             break;
         }
         case NGL_NODE_UNIFORMVEC3: {
-            const struct uniform *u = unode->priv_data;
+            const struct uniform_priv *u = unode->priv_data;
             ngli_glUniform3fv(gl, uid, 1, u->vector);
             break;
         }
         case NGL_NODE_UNIFORMVEC4: {
-            const struct uniform *u = unode->priv_data;
+            const struct uniform_priv *u = unode->priv_data;
             ngli_glUniform4fv(gl, uid, 1, u->vector);
             break;
         }
         case NGL_NODE_UNIFORMINT: {
-            const struct uniform *u = unode->priv_data;
+            const struct uniform_priv *u = unode->priv_data;
             ngli_glUniform1i(gl, uid, u->ival);
             break;
         }
         case NGL_NODE_UNIFORMQUAT: {
-            const struct uniform *u = unode->priv_data;
+            const struct uniform_priv *u = unode->priv_data;
             if (info->type == GL_FLOAT_MAT4)
                 ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
             else if (info->type == GL_FLOAT_VEC4)
@@ -280,27 +280,27 @@ static int update_uniforms(struct ngl_node *node)
             break;
         }
         case NGL_NODE_UNIFORMMAT4: {
-            const struct uniform *u = unode->priv_data;
+            const struct uniform_priv *u = unode->priv_data;
             ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
             break;
         }
         case NGL_NODE_BUFFERFLOAT: {
-            const struct buffer *buffer = unode->priv_data;
+            const struct buffer_priv *buffer = unode->priv_data;
             ngli_glUniform1fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
             break;
         }
         case NGL_NODE_BUFFERVEC2: {
-            const struct buffer *buffer = unode->priv_data;
+            const struct buffer_priv *buffer = unode->priv_data;
             ngli_glUniform2fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
             break;
         }
         case NGL_NODE_BUFFERVEC3: {
-            const struct buffer *buffer = unode->priv_data;
+            const struct buffer_priv *buffer = unode->priv_data;
             ngli_glUniform3fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
             break;
         }
         case NGL_NODE_BUFFERVEC4: {
-            const struct buffer *buffer = unode->priv_data;
+            const struct buffer_priv *buffer = unode->priv_data;
             ngli_glUniform4fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
             break;
         }
@@ -322,7 +322,7 @@ static int update_buffers(struct ngl_node *node)
     for (int i = 0; i < s->nb_buffer_pairs; i++) {
         const struct nodeprograminfopair *pair = &s->buffer_pairs[i];
         const struct ngl_node *bnode = pair->node;
-        const struct buffer *buffer = bnode->priv_data;
+        const struct buffer_priv *buffer = bnode->priv_data;
         const struct bufferprograminfo *info = pair->program_info;
 
         ngli_glBindBufferBase(gl, info->type, info->binding, buffer->graphic_buffer.id);
@@ -401,7 +401,7 @@ int ngli_pipeline_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct pipeline *s = get_pipeline(node);
-    struct program *program = s->program->priv_data;
+    struct program_priv *program = s->program->priv_data;
 
     int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
     if (nb_uniforms > 0) {
@@ -449,7 +449,7 @@ int ngli_pipeline_init(struct ngl_node *node)
         while ((entry = ngli_hmap_next(s->textures, entry))) {
             const char *key = entry->key;
             struct ngl_node *tnode = entry->data;
-            struct texture *texture = tnode->priv_data;
+            struct texture_priv *texture = tnode->priv_data;
 
             struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
 
@@ -515,7 +515,7 @@ int ngli_pipeline_init(struct ngl_node *node)
             }
 
             struct ngl_node *bnode = entry->data;
-            struct buffer *buffer = bnode->priv_data;
+            struct buffer_priv *buffer = bnode->priv_data;
 
             if (info->type == GL_UNIFORM_BUFFER &&
                 buffer->data_size > gl->max_uniform_block_size) {

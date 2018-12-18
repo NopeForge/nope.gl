@@ -45,7 +45,7 @@ static const struct param_choices sxplayer_log_level_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct media, x)
+#define OFFSET(x) offsetof(struct media_priv, x)
 static const struct node_param media_params[] = {
     {"filename", PARAM_TYPE_STR, OFFSET(filename), {.str=NULL}, PARAM_FLAG_CONSTRUCTOR,
                  .desc=NGLI_DOCSTRING("path to input media file")},
@@ -82,7 +82,7 @@ static void callback_sxplayer_log(void *arg, int level, const char *filename, in
     if (level < 0 || level >= NGLI_ARRAY_NB(log_levels))
         return;
 
-    struct media *s = arg;
+    struct media_priv *s = arg;
     if (level < s->sxplayer_min_level)
         return;
 
@@ -96,7 +96,7 @@ static void callback_sxplayer_log(void *arg, int level, const char *filename, in
 static int media_init(struct ngl_node *node)
 {
     int i;
-    struct media *s = node->priv_data;
+    struct media_priv *s = node->priv_data;
 
     s->player = sxplayer_create(s->filename);
     if (!s->player)
@@ -106,12 +106,12 @@ static int media_init(struct ngl_node *node)
 
     struct ngl_node *anim_node = s->anim;
     if (anim_node) {
-        struct animation *anim = anim_node->priv_data;
+        struct animation_priv *anim = anim_node->priv_data;
 
         // Sanity checks for time animation keyframe
         double prev_media_time = 0;
         for (i = 0; i < anim->nb_animkf; i++) {
-            const struct animkeyframe *kf = anim->animkf[i]->priv_data;
+            const struct animkeyframe_priv *kf = anim->animkf[i]->priv_data;
             if (kf->easing != EASING_LINEAR) {
                 LOG(ERROR, "only linear interpolation is allowed for time remapping");
                 return -1;
@@ -126,13 +126,13 @@ static int media_init(struct ngl_node *node)
 
         // Set the media time boundaries using the time remapping animation
         if (anim->nb_animkf) {
-            const struct animkeyframe *kf0 = anim->animkf[0]->priv_data;
+            const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
             const double initial_seek = kf0->scalar;
 
             sxplayer_set_option(s->player, "skip", initial_seek);
 
             if (anim->nb_animkf > 1) {
-                const struct animkeyframe *kfn = anim->animkf[anim->nb_animkf - 1]->priv_data;
+                const struct animkeyframe_priv *kfn = anim->animkf[anim->nb_animkf - 1]->priv_data;
                 const double last_time = kfn->scalar;
                 sxplayer_set_option(s->player, "trim_duration", last_time - initial_seek);
             }
@@ -192,7 +192,7 @@ static int media_init(struct ngl_node *node)
 
 static int media_prefetch(struct ngl_node *node)
 {
-    struct media *s = node->priv_data;
+    struct media_priv *s = node->priv_data;
     sxplayer_start(s->player);
     return 0;
 }
@@ -206,15 +206,15 @@ static const char * const pix_fmt_names[] = {
 
 static int media_update(struct ngl_node *node, double t)
 {
-    struct media *s = node->priv_data;
+    struct media_priv *s = node->priv_data;
     struct ngl_node *anim_node = s->anim;
     double media_time = t;
 
     if (anim_node) {
-        struct animation *anim = anim_node->priv_data;
+        struct animation_priv *anim = anim_node->priv_data;
 
         if (anim->nb_animkf >= 1) {
-            const struct animkeyframe *kf0 = anim->animkf[0]->priv_data;
+            const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
             const double initial_seek = kf0->scalar;
 
             if (anim->nb_animkf == 1) {
@@ -262,7 +262,7 @@ static int media_update(struct ngl_node *node, double t)
 
 static void media_release(struct ngl_node *node)
 {
-    struct media *s = node->priv_data;
+    struct media_priv *s = node->priv_data;
     sxplayer_release_frame(s->frame);
     s->frame = NULL;
     sxplayer_stop(s->player);
@@ -270,7 +270,7 @@ static void media_release(struct ngl_node *node)
 
 static void media_uninit(struct ngl_node *node)
 {
-    struct media *s = node->priv_data;
+    struct media_priv *s = node->priv_data;
     sxplayer_free(&s->player);
 
 #if defined(TARGET_ANDROID)
@@ -291,7 +291,7 @@ const struct node_class ngli_media_class = {
     .update    = media_update,
     .release   = media_release,
     .uninit    = media_uninit,
-    .priv_size = sizeof(struct media),
+    .priv_size = sizeof(struct media_priv),
     .params    = media_params,
     .file      = __FILE__,
 };

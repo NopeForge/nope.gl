@@ -35,7 +35,7 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-#define OFFSET(x) offsetof(struct camera, x)
+#define OFFSET(x) offsetof(struct camera_priv, x)
 static const struct node_param camera_params[] = {
     {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
               .desc=NGLI_DOCSTRING("scene to observe through the lens of the camera")},
@@ -85,7 +85,7 @@ static int camera_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct camera *s = node->priv_data;
+    struct camera_priv *s = node->priv_data;
 
     ngli_vec3_norm(s->up, s->up);
     ngli_vec3_sub(s->ground, s->eye, s->center);
@@ -143,7 +143,7 @@ static int camera_init(struct ngl_node *node)
 static int camera_update(struct ngl_node *node, double t)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct camera *s = node->priv_data;
+    struct camera_priv *s = node->priv_data;
     struct ngl_node *child = s->child;
 
     NGLI_ALIGNED_VEC(eye)    = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -181,7 +181,7 @@ static int camera_update(struct ngl_node *node, double t)
 
     if (s->fov_anim) {
         struct ngl_node *anim_node = s->fov_anim;
-        struct animation *anim = anim_node->priv_data;
+        struct animation_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
@@ -213,7 +213,7 @@ static void camera_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct camera *s = node->priv_data;
+    struct camera_priv *s = node->priv_data;
 
     if (!ngli_darray_push(&ctx->modelview_matrix_stack, s->modelview_matrix) ||
         !ngli_darray_push(&ctx->projection_matrix_stack, s->projection_matrix))
@@ -258,7 +258,7 @@ static void camera_draw(struct ngl_node *node)
 
 static void camera_uninit(struct ngl_node *node)
 {
-    struct camera *s = node->priv_data;
+    struct camera_priv *s = node->priv_data;
 
     if (s->pipe_fd) {
         ngli_free(s->pipe_buf);
@@ -273,7 +273,7 @@ const struct node_class ngli_camera_class = {
     .update    = camera_update,
     .draw      = camera_draw,
     .uninit    = camera_uninit,
-    .priv_size = sizeof(struct camera),
+    .priv_size = sizeof(struct camera_priv),
     .params    = camera_params,
     .file      = __FILE__,
 };

@@ -63,8 +63,8 @@ static const struct hwmap_class *get_hwmap_class(struct ngl_node *node, struct s
 
 int ngli_hwupload_upload_frame(struct ngl_node *node)
 {
-    struct texture *s = node->priv_data;
-    struct media *media = s->data_src->priv_data;
+    struct texture_priv *s = node->priv_data;
+    struct media_priv *media = s->data_src->priv_data;
     struct sxplayer_frame *frame = media->frame;
     if (!frame)
         return 0;
@@ -105,7 +105,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
 
 void ngli_hwupload_uninit(struct ngl_node *node)
 {
-    struct texture *s = node->priv_data;
+    struct texture_priv *s = node->priv_data;
     if (s->hwupload_map_class && s->hwupload_map_class->uninit) {
         s->hwupload_map_class->uninit(node);
     }

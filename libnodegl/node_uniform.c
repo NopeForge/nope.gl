@@ -30,7 +30,7 @@
 #include "nodes.h"
 #include "transforms.h"
 
-#define OFFSET(x) offsetof(struct uniform, x)
+#define OFFSET(x) offsetof(struct uniform_priv, x)
 static const struct node_param uniformfloat_params[] = {
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar),
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
@@ -97,11 +97,11 @@ static const struct node_param uniformmat4_params[] = {
     {NULL}
 };
 
-static inline int uniform_update(struct uniform *s, double t, int len)
+static inline int uniform_update(struct uniform_priv *s, double t, int len)
 {
     if (s->anim) {
         struct ngl_node *anim_node = s->anim;
-        struct animation *anim = anim_node->priv_data;
+        struct animation_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
@@ -126,7 +126,7 @@ UPDATE_FUNC(vec4,   4);
 
 static int uniformquat_update(struct ngl_node *node, double t)
 {
-    struct uniform *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     int ret = uniform_update(node->priv_data, t, 4);
     if (ret < 0)
         return ret;
@@ -136,7 +136,7 @@ static int uniformquat_update(struct ngl_node *node, double t)
 
 static int uniform_mat_init(struct ngl_node *node)
 {
-    struct uniform *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     s->transform_matrix = ngli_get_last_transformation_matrix(s->transform);
     return 0;
 }
@@ -144,7 +144,7 @@ static int uniform_mat_init(struct ngl_node *node)
 static int uniform_mat_update(struct ngl_node *node, double t)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct uniform *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     if (s->transform) {
         int ret = ngli_node_update(s->transform, t);
         if (ret < 0)
@@ -164,7 +164,7 @@ const struct node_class ngli_uniformfloat_class = {
     .id        = NGL_NODE_UNIFORMFLOAT,
     .name      = "UniformFloat",
     .update    = uniformfloat_update,
-    .priv_size = sizeof(struct uniform),
+    .priv_size = sizeof(struct uniform_priv),
     .params    = uniformfloat_params,
     .file      = __FILE__,
 };
@@ -173,7 +173,7 @@ const struct node_class ngli_uniformvec2_class = {
     .id        = NGL_NODE_UNIFORMVEC2,
     .name      = "UniformVec2",
     .update    = uniformvec2_update,
-    .priv_size = sizeof(struct uniform),
+    .priv_size = sizeof(struct uniform_priv),
     .params    = uniformvec2_params,
     .file      = __FILE__,
 };
@@ -182,7 +182,7 @@ const struct node_class ngli_uniformvec3_class = {
     .id        = NGL_NODE_UNIFORMVEC3,
     .name      = "UniformVec3",
     .update    = uniformvec3_update,
-    .priv_size = sizeof(struct uniform),
+    .priv_size = sizeof(struct uniform_priv),
     .params    = uniformvec3_params,
     .file      = __FILE__,
 };
@@ -191,7 +191,7 @@ const struct node_class ngli_uniformvec4_class = {
     .id        = NGL_NODE_UNIFORMVEC4,
     .name      = "UniformVec4",
     .update    = uniformvec4_update,
-    .priv_size = sizeof(struct uniform),
+    .priv_size = sizeof(struct uniform_priv),
     .params    = uniformvec4_params,
     .file      = __FILE__,
 };
@@ -200,7 +200,7 @@ const struct node_class ngli_uniformquat_class = {
     .id        = NGL_NODE_UNIFORMQUAT,
     .name      = "UniformQuat",
     .update    = uniformquat_update,
-    .priv_size = sizeof(struct uniform),
+    .priv_size = sizeof(struct uniform_priv),
     .params    = uniformquat_params,
     .file      = __FILE__,
 };
@@ -208,7 +208,7 @@ const struct node_class ngli_uniformquat_class = {
 const struct node_class ngli_uniformint_class = {
     .id        = NGL_NODE_UNIFORMINT,
     .name      = "UniformInt",
-    .priv_size = sizeof(struct uniform),
+    .priv_size = sizeof(struct uniform_priv),
     .params    = uniformint_params,
     .file      = __FILE__,
 };
@@ -218,7 +218,7 @@ const struct node_class ngli_uniformmat4_class = {
     .name      = "UniformMat4",
     .init      = uniform_mat_init,
     .update    = uniform_mat_update,
-    .priv_size = sizeof(struct uniform),
+    .priv_size = sizeof(struct uniform_priv),
     .params    = uniformmat4_params,
     .file      = __FILE__,
 };

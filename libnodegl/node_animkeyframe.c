@@ -67,7 +67,7 @@ static const struct param_choices easing_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct animkeyframe, x)
+#define OFFSET(x) offsetof(struct animkeyframe_priv, x)
 
 #define ANIMKEYFRAME_PARAMS(id, value_data_key, value_data_type, value_data_field, value_data_flags)    \
 static const struct node_param animkeyframe##id##_params[] = {                                          \
@@ -337,7 +337,7 @@ static const struct {
 
 static int animkeyframe_init(struct ngl_node *node)
 {
-    struct animkeyframe *s = node->priv_data;
+    struct animkeyframe_priv *s = node->priv_data;
 
     const int easing_id = s->easing;
     const char *easing_name = ngli_params_get_select_str(easing_choices.consts, easing_id);
@@ -383,7 +383,7 @@ static int animkeyframe_init(struct ngl_node *node)
 
 static char *animkeyframe_info_str(const struct ngl_node *node)
 {
-    const struct animkeyframe *s = node->priv_data;
+    const struct animkeyframe_priv *s = node->priv_data;
     const struct node_param *params = node->class->params;
     struct bstr *b = ngli_bstr_create();
 
@@ -425,7 +425,7 @@ const struct node_class ngli_animkeyframefloat_class = {
     .name      = "AnimKeyFrameFloat",
     .init      = animkeyframe_init,
     .info_str  = animkeyframe_info_str,
-    .priv_size = sizeof(struct animkeyframe),
+    .priv_size = sizeof(struct animkeyframe_priv),
     .params    = animkeyframefloat_params,
     .file      = __FILE__,
 };
@@ -435,7 +435,7 @@ const struct node_class ngli_animkeyframevec2_class = {
     .name      = "AnimKeyFrameVec2",
     .init      = animkeyframe_init,
     .info_str  = animkeyframe_info_str,
-    .priv_size = sizeof(struct animkeyframe),
+    .priv_size = sizeof(struct animkeyframe_priv),
     .params    = animkeyframevec2_params,
     .file      = __FILE__,
 };
@@ -445,7 +445,7 @@ const struct node_class ngli_animkeyframevec3_class = {
     .name      = "AnimKeyFrameVec3",
     .init      = animkeyframe_init,
     .info_str  = animkeyframe_info_str,
-    .priv_size = sizeof(struct animkeyframe),
+    .priv_size = sizeof(struct animkeyframe_priv),
     .params    = animkeyframevec3_params,
     .file      = __FILE__,
 };
@@ -455,7 +455,7 @@ const struct node_class ngli_animkeyframevec4_class = {
     .name      = "AnimKeyFrameVec4",
     .init      = animkeyframe_init,
     .info_str  = animkeyframe_info_str,
-    .priv_size = sizeof(struct animkeyframe),
+    .priv_size = sizeof(struct animkeyframe_priv),
     .params    = animkeyframevec4_params,
     .file      = __FILE__,
 };
@@ -465,7 +465,7 @@ const struct node_class ngli_animkeyframebuffer_class = {
     .name      = "AnimKeyFrameBuffer",
     .init      = animkeyframe_init,
     .info_str  = animkeyframe_info_str,
-    .priv_size = sizeof(struct animkeyframe),
+    .priv_size = sizeof(struct animkeyframe_priv),
     .params    = animkeyframebuffer_params,
     .file      = __FILE__,
 };
@@ -475,7 +475,7 @@ const struct node_class ngli_animkeyframequat_class = {
     .name      = "AnimKeyFrameQuat",
     .init      = animkeyframe_init,
     .info_str  = animkeyframe_info_str,
-    .priv_size = sizeof(struct animkeyframe),
+    .priv_size = sizeof(struct animkeyframe_priv),
     .params    = animkeyframequat_params,
     .file      = __FILE__,
 };

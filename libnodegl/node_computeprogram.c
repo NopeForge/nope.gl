@@ -29,7 +29,7 @@
 #include "nodes.h"
 #include "program.h"
 
-#define OFFSET(x) offsetof(struct program, x)
+#define OFFSET(x) offsetof(struct program_priv, x)
 static const struct node_param computeprogram_params[] = {
     {"compute", PARAM_TYPE_STR, OFFSET(compute), .flags=PARAM_FLAG_CONSTRUCTOR,
                 .desc=NGLI_DOCSTRING("compute shader")},
@@ -71,7 +71,7 @@ static int computeprogram_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct program *s = node->priv_data;
+    struct program_priv *s = node->priv_data;
 
     if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
         LOG(ERROR, "context does not support compute shaders");
@@ -94,7 +94,7 @@ static void computeprogram_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct program *s = node->priv_data;
+    struct program_priv *s = node->priv_data;
 
     ngli_hmap_freep(&s->active_uniforms);
     ngli_hmap_freep(&s->active_buffer_blocks);
@@ -106,7 +106,7 @@ const struct node_class ngli_computeprogram_class = {
     .name      = "ComputeProgram",
     .init      = computeprogram_init,
     .uninit    = computeprogram_uninit,
-    .priv_size = sizeof(struct program),
+    .priv_size = sizeof(struct program_priv),
     .params    = computeprogram_params,
     .file      = __FILE__,
 };
