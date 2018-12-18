@@ -46,13 +46,13 @@ struct eagl_priv {
     struct fbo fbo_ms;
 };
 
-static int eagl_setup_layer(struct glcontext *ctx)
+static int eagl_init_layer(struct glcontext *ctx)
 {
     if (![NSThread isMainThread]) {
         __block int ret;
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            ret = eagl_setup_layer(ctx);
+            ret = eagl_init_layer(ctx);
         });
 
         return ret;
@@ -106,7 +106,7 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             return -1;
         }
 
-        int ret = eagl_setup_layer(ctx);
+        int ret = eagl_init_layer(ctx);
         if (ret < 0)
             return ret;
     }
