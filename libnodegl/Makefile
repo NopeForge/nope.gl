@@ -115,14 +115,14 @@ LIB_OBJS_ARCH_aarch64 = asm_aarch64.o
 
 LIB_OBJS += $(LIB_OBJS_ARCH_$(ARCH))
 
-LIB_EXTRA_OBJS_Linux     = glcontext_x11.o glcontext_egl.o
+LIB_EXTRA_OBJS_Linux     = glcontext_egl.o
 LIB_EXTRA_OBJS_Darwin    = glcontext_nsgl.o hwupload_videotoolbox_darwin.o
 LIB_EXTRA_OBJS_Android   = glcontext_egl.o jni_utils.o android_utils.o android_looper.o android_surface.o android_handler.o android_handlerthread.o hwupload_mediacodec.o
 LIB_EXTRA_OBJS_iPhone    = glcontext_eagl.o hwupload_videotoolbox_ios.o
 LIB_EXTRA_OBJS_MinGW-w64 = glcontext_wgl.o
 
 LIB_CFLAGS                 = -fPIC
-LIB_EXTRA_CFLAGS_Linux     = -DHAVE_GLPLATFORM_GLX -DHAVE_GLPLATFORM_EGL
+LIB_EXTRA_CFLAGS_Linux     = -DHAVE_GLPLATFORM_EGL
 LIB_EXTRA_CFLAGS_Darwin    = -DHAVE_GLPLATFORM_NSGL
 LIB_EXTRA_CFLAGS_Android   = -DHAVE_GLPLATFORM_EGL
 LIB_EXTRA_CFLAGS_iPhone    = -DHAVE_GLPLATFORM_EAGL

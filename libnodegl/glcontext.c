@@ -44,16 +44,11 @@ NGLI_STATIC_ASSERT(guint_size,   sizeof(GLuint)   == sizeof(unsigned int));
 NGLI_STATIC_ASSERT(gl_bool,      GL_FALSE == 0 && GL_TRUE == 1);
 
 enum {
-    GLPLATFORM_GLX,
     GLPLATFORM_EGL,
     GLPLATFORM_NSGL,
     GLPLATFORM_EAGL,
     GLPLATFORM_WGL,
 };
-
-#ifdef HAVE_GLPLATFORM_GLX
-extern const struct glcontext_class ngli_glcontext_x11_class;
-#endif
 
 #ifdef HAVE_GLPLATFORM_EGL
 extern const struct glcontext_class ngli_glcontext_egl_class;
@@ -72,9 +67,6 @@ extern const struct glcontext_class ngli_glcontext_wgl_class;
 #endif
 
 static const struct glcontext_class *glcontext_class_map[] = {
-#ifdef HAVE_GLPLATFORM_GLX
-    [GLPLATFORM_GLX] = &ngli_glcontext_x11_class,
-#endif
 #ifdef HAVE_GLPLATFORM_EGL
     [GLPLATFORM_EGL] = &ngli_glcontext_egl_class,
 #endif
