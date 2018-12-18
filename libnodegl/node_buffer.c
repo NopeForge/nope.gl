@@ -87,6 +87,8 @@ int ngli_node_buffer_ref(struct ngl_node *node)
         ret = ngli_buffer_upload(&s->buffer, s->data, s->data_size);
         if (ret < 0)
             return ret;
+
+        s->buffer_last_upload_time = -1.;
     }
 
     return 0;
