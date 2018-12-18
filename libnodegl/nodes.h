@@ -315,9 +315,9 @@ struct texture_priv {
     double data_src_ts;
 };
 
-int ngli_texture_update_data(struct ngl_node *node,
-                             int width, int height, int depth,
-                             const uint8_t *data);
+int ngli_node_texture_update_data(struct ngl_node *node,
+                                  int width, int height, int depth,
+                                  const uint8_t *data);
 
 struct uniformprograminfo {
     GLint location;

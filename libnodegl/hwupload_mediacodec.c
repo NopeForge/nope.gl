@@ -87,7 +87,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ret = ngli_texture_update_data(node, frame->width, frame->height, 0, NULL);
+    ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
     if (ret < 0)
         return ret;
 
@@ -168,7 +168,7 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         0.0f, 0.0f, 0.0f, 1.0f,
     };
 
-    int ret = ngli_texture_update_data(node, frame->width, frame->height, 0, NULL);
+    int ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
     if (ret < 0)
         return ret;
 

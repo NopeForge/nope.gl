@@ -252,9 +252,9 @@ static void tex_set_params(const struct glcontext *gl, const struct texture_priv
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_R, s->wrap_r);
 }
 
-int ngli_texture_update_data(struct ngl_node *node,
-                             int width, int height, int depth,
-                             const uint8_t *data)
+int ngli_node_texture_update_data(struct ngl_node *node,
+                                  int width, int height, int depth,
+                                  const uint8_t *data)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -414,7 +414,7 @@ static int texture_prefetch(struct ngl_node *node, GLenum local_target)
     if (ret < 0)
         return ret;
 
-    ngli_texture_update_data(node, s->width, s->height, s->depth, data);
+    ngli_node_texture_update_data(node, s->width, s->height, s->depth, data);
 
     return 0;
 }
@@ -436,7 +436,7 @@ static void handle_hud_frame(struct ngl_node *node)
     const int height = hud->data_h;
     const uint8_t *data = hud->data_buf;
 
-    ngli_texture_update_data(node, width, height, 0, data);
+    ngli_node_texture_update_data(node, width, height, 0, data);
 }
 
 static void handle_media_frame(struct ngl_node *node)
@@ -452,7 +452,7 @@ static void handle_buffer_frame(struct ngl_node *node)
     struct buffer_priv *buffer = s->data_src->priv_data;
     const uint8_t *data = buffer->data;
 
-    ngli_texture_update_data(node, s->width, s->height, s->depth, data);
+    ngli_node_texture_update_data(node, s->width, s->height, s->depth, data);
 }
 
 static int texture_update(struct ngl_node *node, double t)
