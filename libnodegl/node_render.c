@@ -160,7 +160,7 @@ static int update_vertex_attribs(struct ngl_node *node)
         struct buffer_priv *buffer = pair->node->priv_data;
 
         ngli_glEnableVertexAttribArray(gl, aid);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->graphic_buffer.id);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer.id);
         ngli_glVertexAttribPointer(gl, aid, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
 
         if (i >= s->first_instance_attribute_index)
@@ -269,7 +269,7 @@ static void draw_elements(struct glcontext *gl, struct render_priv *render)
 {
     struct geometry_priv *geometry = render->geometry->priv_data;
     const struct buffer_priv *indices = geometry->indices_buffer->priv_data;
-    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->graphic_buffer.id);
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->buffer.id);
     ngli_glDrawElements(gl, geometry->topology, indices->count, render->indices_type, 0);
 }
 
@@ -277,7 +277,7 @@ static void draw_elements_instanced(struct glcontext *gl, struct render_priv *re
 {
     struct geometry_priv *geometry = render->geometry->priv_data;
     struct buffer_priv *indices = geometry->indices_buffer->priv_data;
-    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->graphic_buffer.id);
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->buffer.id);
     ngli_glDrawElementsInstanced(gl, geometry->topology, indices->count, render->indices_type, 0, render->nb_instances);
 }
 

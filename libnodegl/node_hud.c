@@ -659,7 +659,7 @@ static void widget_memory_make_stats(struct ngl_node *node, struct widget *widge
     for (int i = 0; i < ngli_darray_count(nodes_buf_array_gpu); i++) {
         const struct ngl_node *buf_node = nodes_buf_gpu[i];
         const struct buffer_priv *buffer = buf_node->priv_data;
-        priv->sizes[MEMORY_BUFFERS_GPU] += buffer->data_size * (buffer->graphic_buffer_refcount > 0);
+        priv->sizes[MEMORY_BUFFERS_GPU] += buffer->data_size * (buffer->buffer_refcount > 0);
     }
 
     struct darray *nodes_tex_array = &priv->nodes[MEMORY_TEXTURES];

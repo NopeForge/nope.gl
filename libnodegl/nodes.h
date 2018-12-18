@@ -225,9 +225,9 @@ struct buffer_priv {
     int fd;
     int dynamic;
 
-    struct graphic_buffer graphic_buffer;
-    int graphic_buffer_refcount;
-    double graphic_buffer_last_upload_time;
+    struct buffer buffer;
+    int buffer_refcount;
+    double buffer_last_upload_time;
 };
 
 int ngli_node_buffer_ref(struct ngl_node *node);

@@ -25,10 +25,7 @@
 #include "glcontext.h"
 #include "glincludes.h"
 
-int ngli_graphic_buffer_allocate(struct graphic_buffer *buffer,
-                                 struct glcontext *gl,
-                                 int size,
-                                 int usage)
+int ngli_buffer_allocate(struct buffer *buffer, struct glcontext *gl, int size, int usage)
 {
     buffer->gl = gl;
     buffer->size = size;
@@ -39,9 +36,7 @@ int ngli_graphic_buffer_allocate(struct graphic_buffer *buffer,
     return 0;
 }
 
-int ngli_graphic_buffer_upload(struct graphic_buffer *buffer,
-                               void *data,
-                               int size)
+int ngli_buffer_upload(struct buffer *buffer, void *data, int size)
 {
     struct glcontext *gl = buffer->gl;
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->id);
@@ -49,7 +44,7 @@ int ngli_graphic_buffer_upload(struct graphic_buffer *buffer,
     return 0;
 }
 
-void ngli_graphic_buffer_free(struct graphic_buffer *buffer)
+void ngli_buffer_free(struct buffer *buffer)
 {
     if (!buffer->gl)
         return;

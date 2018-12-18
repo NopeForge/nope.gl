@@ -325,7 +325,7 @@ static int update_buffers(struct ngl_node *node)
         const struct buffer_priv *buffer = bnode->priv_data;
         const struct bufferprograminfo *info = pair->program_info;
 
-        ngli_glBindBufferBase(gl, info->type, info->binding, buffer->graphic_buffer.id);
+        ngli_glBindBufferBase(gl, info->type, info->binding, buffer->buffer.id);
     }
 
     return 0;
