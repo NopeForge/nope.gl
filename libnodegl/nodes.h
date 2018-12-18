@@ -230,9 +230,9 @@ struct buffer_priv {
     double graphic_buffer_last_upload_time;
 };
 
-int ngli_buffer_ref(struct ngl_node *node);
-void ngli_buffer_unref(struct ngl_node *node);
-int ngli_buffer_upload(struct ngl_node *node);
+int ngli_node_buffer_ref(struct ngl_node *node);
+void ngli_node_buffer_unref(struct ngl_node *node);
+int ngli_node_buffer_upload(struct ngl_node *node);
 
 struct uniform_priv {
     double scalar;

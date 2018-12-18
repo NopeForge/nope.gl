@@ -524,7 +524,7 @@ int ngli_pipeline_init(struct ngl_node *node)
                 return -1;
             }
 
-            int ret = ngli_buffer_ref(bnode);
+            int ret = ngli_node_buffer_ref(bnode);
             if (ret < 0)
                 return ret;
 
@@ -549,7 +549,7 @@ void ngli_pipeline_uninit(struct ngl_node *node)
     ngli_free(s->uniform_pairs);
     for (int i = 0; i < s->nb_buffer_pairs; i++) {
         struct nodeprograminfopair *pair = &s->buffer_pairs[i];
-        ngli_buffer_unref(pair->node);
+        ngli_node_buffer_unref(pair->node);
     }
     ngli_free(s->buffer_pairs);
 }
@@ -586,7 +586,7 @@ int ngli_pipeline_update(struct ngl_node *node, double t)
             int ret = ngli_node_update(bnode, t);
             if (ret < 0)
                 return ret;
-            ret = ngli_buffer_upload(bnode);
+            ret = ngli_node_buffer_upload(bnode);
             if (ret < 0)
                 return ret;
         }

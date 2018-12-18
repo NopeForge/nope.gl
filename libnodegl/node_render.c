@@ -204,7 +204,7 @@ static int pair_node_to_attribinfo(struct render_priv *s, const char *name,
     if (active_attribute->location < 0)
         return 0;
 
-    int ret = ngli_buffer_ref(anode);
+    int ret = ngli_node_buffer_ref(anode);
     if (ret < 0)
         return ret;
 
@@ -369,7 +369,7 @@ static int render_init(struct ngl_node *node)
         return ret;
 
     if (geometry->indices_buffer) {
-        ret = ngli_buffer_ref(geometry->indices_buffer);
+        ret = ngli_node_buffer_ref(geometry->indices_buffer);
         if (ret < 0)
             return ret;
         s->has_indices_buffer_ref = 1;
@@ -406,12 +406,12 @@ static void render_uninit(struct ngl_node *node)
 
     if (s->has_indices_buffer_ref) {
         struct geometry_priv *geometry = s->geometry->priv_data;
-        ngli_buffer_unref(geometry->indices_buffer);
+        ngli_node_buffer_unref(geometry->indices_buffer);
     }
 
     for (int i = 0; i < s->nb_attribute_pairs; i++) {
         struct nodeprograminfopair *pair = &s->attribute_pairs[i];
-        ngli_buffer_unref(pair->node);
+        ngli_node_buffer_unref(pair->node);
     }
 
     ngli_free(s->attribute_pairs);
@@ -431,7 +431,7 @@ static int render_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(bnode, t);
         if (ret < 0)
             return ret;
-        ret = ngli_buffer_upload(bnode);
+        ret = ngli_node_buffer_upload(bnode);
         if (ret < 0)
             return ret;
     }

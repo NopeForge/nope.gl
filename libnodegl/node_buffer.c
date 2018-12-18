@@ -73,7 +73,7 @@ static const struct node_param buffer_params[] = {
     {NULL}
 };
 
-int ngli_buffer_ref(struct ngl_node *node)
+int ngli_node_buffer_ref(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -92,7 +92,7 @@ int ngli_buffer_ref(struct ngl_node *node)
     return 0;
 }
 
-void ngli_buffer_unref(struct ngl_node *node)
+void ngli_node_buffer_unref(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
 
@@ -101,7 +101,7 @@ void ngli_buffer_unref(struct ngl_node *node)
         ngli_graphic_buffer_free(&s->graphic_buffer);
 }
 
-int ngli_buffer_upload(struct ngl_node *node)
+int ngli_node_buffer_upload(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
 
