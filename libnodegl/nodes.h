@@ -60,6 +60,7 @@ typedef int (*cmd_func_type)(struct ngl_ctx *s, void *arg);
 
 struct ngl_ctx {
     /* Controller-only fields */
+    const struct backend *backend;
     int configured;
     pthread_t worker_tid;
 

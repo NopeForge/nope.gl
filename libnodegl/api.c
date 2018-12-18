@@ -22,7 +22,6 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include <stdio.h>
-#include <string.h>
 
 #if defined(TARGET_ANDROID)
 #include <jni.h>
@@ -30,61 +29,22 @@
 #include "jni_utils.h"
 #endif
 
+#include "backend.h"
 #include "darray.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
-#include "glcontext.h"
 
 static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 {
-    const struct ngl_config *config = arg;
-
-    int ret = ngli_glcontext_resize(s->glcontext, config->width, config->height);
-    if (ret < 0)
-        return ret;
-
-    struct ngl_config *current_config = &s->config;
-    current_config->width = config->width;
-    current_config->height = config->height;
-
-    const int *viewport = config->viewport;
-    if (viewport[2] > 0 && viewport[3] > 0) {
-        ngli_glViewport(s->glcontext, viewport[0], viewport[1], viewport[2], viewport[3]);
-        memcpy(current_config->viewport, config->viewport, sizeof(config->viewport));
-    }
-
-    const float *rgba = config->clear_color;
-    ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
-    memcpy(current_config->clear_color, config->clear_color, sizeof(config->clear_color));
-
-    return 0;
+    return s->backend->reconfigure(s, arg);
 }
 
 static int cmd_configure(struct ngl_ctx *s, void *arg)
 {
-    const struct ngl_config *config = arg;
-    memcpy(&s->config, config, sizeof(s->config));
-
-    s->glcontext = ngli_glcontext_new(&s->config);
-    if (!s->glcontext)
-        return -1;
-
-    if (s->config.swap_interval >= 0)
-        ngli_glcontext_set_swap_interval(s->glcontext, s->config.swap_interval);
-
-    ngli_glstate_probe(s->glcontext, &s->glstate);
-
-    const int *viewport = config->viewport;
-    if (viewport[2] > 0 && viewport[3] > 0)
-        ngli_glViewport(s->glcontext, viewport[0], viewport[1], viewport[2], viewport[3]);
-
-    const float *rgba = config->clear_color;
-    ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
-
-    return 0;
+    return s->backend->configure(s, arg);
 }
 
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
@@ -138,11 +98,12 @@ static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 static int cmd_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
-    struct glcontext *gl = s->glcontext;
 
-    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    int ret = s->backend->pre_draw(s, t);
+    if (ret < 0)
+        goto end;
 
-    int ret = cmd_prepare_draw(s, arg);
+    ret = cmd_prepare_draw(s, arg);
     if (ret < 0)
         goto end;
 
@@ -150,21 +111,18 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
         LOG(DEBUG, "draw scene %s @ t=%f", s->scene->label, t);
         ngli_node_draw(s->scene);
     }
-end:
-    if (ret == 0 && ngli_glcontext_check_gl_error(gl, __FUNCTION__))
-        ret = -1;
 
-    if (gl->set_surface_pts)
-        ngli_glcontext_set_surface_pts(gl, t);
-
-    ngli_glcontext_swap_buffers(gl);
+end:;
+    int end_ret = s->backend->post_draw(s, t);
+    if (end_ret < 0)
+        return end_ret;
 
     return ret;
 }
 
 static int cmd_stop(struct ngl_ctx *s, void *arg)
 {
-    ngli_glcontext_freep(&s->glcontext);
+    s->backend->destroy(s);
     return 0;
 }
 
@@ -284,6 +242,20 @@ fail:
     return NULL;
 }
 
+#if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
+# define DEFAULT_BACKEND NGL_BACKEND_OPENGLES
+#else
+# define DEFAULT_BACKEND NGL_BACKEND_OPENGL
+#endif
+
+extern const struct backend ngli_backend_gl;
+extern const struct backend ngli_backend_gles;
+
+static const struct backend *backend_map[] = {
+    [NGL_BACKEND_OPENGL]   = &ngli_backend_gl,
+    [NGL_BACKEND_OPENGLES] = &ngli_backend_gles,
+};
+
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (!config) {
@@ -297,6 +269,19 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 #else
         return dispatch_cmd(s, cmd_reconfigure, config);
 #endif
+
+    if (config->backend == NGL_BACKEND_AUTO)
+        config->backend = DEFAULT_BACKEND;
+
+    if (config->backend < 0 ||
+        config->backend >= NGLI_ARRAY_NB(backend_map) ||
+        !backend_map[config->backend]) {
+        LOG(ERROR, "unknown backend %d", config->backend);
+        return -1;
+    }
+
+    s->backend = backend_map[config->backend];
+    LOG(INFO, "selected backend: %s", s->backend->name);
 
 #if defined(TARGET_IPHONE)
     int ret = configure_ios(s, config);
