@@ -39,12 +39,18 @@
 
 static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 {
-    return s->backend->reconfigure(s, arg);
+    int ret = s->backend->reconfigure(s, arg);
+    if (ret < 0)
+        LOG(ERROR, "unable to reconfigure %s", s->backend->name);
+    return ret;
 }
 
 static int cmd_configure(struct ngl_ctx *s, void *arg)
 {
-    return s->backend->configure(s, arg);
+    int ret = s->backend->configure(s, arg);
+    if (ret < 0)
+        LOG(ERROR, "unable to configure %s", s->backend->name);
+    return ret;
 }
 
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
