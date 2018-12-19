@@ -26,16 +26,15 @@
 
 #include <CoreVideo/CoreVideo.h>
 
-#include "fbo.h"
 #include "format.h"
 #include "glincludes.h"
+#include "hwconv.h"
 #include "hwupload.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
-#include "program.h"
 
 #define NGLI_CFRELEASE(ref) do { \
     if (ref) {                   \
@@ -45,45 +44,9 @@
 } while (0)
 
 struct hwupload_vt_ios {
-    struct fbo fbo;
-    GLuint vao_id;
-    GLuint program_id;
-    GLuint vertices_id;
-    GLint position_location;
-    GLint texture_locations[2];
+    struct hwconv hwconv;
     CVOpenGLESTextureRef ios_textures[2];
 };
-
-static const char nv12_to_rgba_vertex_data[] =
-    "#version 100"                                                                 "\n"
-    "precision highp float;"                                                       "\n"
-    "attribute vec4 position;"                                                     "\n"
-    "varying vec2 tex_coord;"                                                      "\n"
-    "void main()"                                                                  "\n"
-    "{"                                                                            "\n"
-    "    gl_Position = vec4(position.xy, 0.0, 1.0);"                               "\n"
-    "    tex_coord = position.zw;"                                                 "\n"
-    "}";
-
-#define NV12_TO_RGBA_FRAGMENT_DATA                                                      \
-    "#version 100"                                                                 "\n" \
-    ""                                                                             "\n" \
-    "precision mediump float;"                                                     "\n" \
-    "uniform sampler2D tex0;"                                                      "\n" \
-    "uniform sampler2D tex1;"                                                      "\n" \
-    "varying vec2 tex_coord;"                                                      "\n" \
-    "const mat4 conv = mat4("                                                      "\n" \
-    "    1.164,     1.164,    1.164,   0.0,"                                       "\n" \
-    "    0.0,      -0.213,    2.112,   0.0,"                                       "\n" \
-    "    1.787,    -0.531,    0.0,     0.0,"                                       "\n" \
-    "   -0.96625,   0.29925, -1.12875, 1.0);"                                      "\n" \
-    "void main(void)"                                                              "\n" \
-    "{"                                                                            "\n" \
-    "    vec3 yuv;"                                                                "\n" \
-    "    yuv.x = texture2D(tex0, tex_coord).r;"                                    "\n" \
-    "    yuv.yz = texture2D(tex1, tex_coord).%s;"                                  "\n" \
-    "    gl_FragColor = conv * vec4(yuv, 1.0);"                                    "\n" \
-    "}"
 
 static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
@@ -113,71 +76,21 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    if ((ret = ngli_fbo_init(&vt->fbo, gl, frame->width, frame->height, 0)) < 0 ||
-        (ret = ngli_fbo_attach_texture(&vt->fbo, s->data_format, s->id))    < 0 ||
-        (ret = ngli_fbo_allocate(&vt->fbo))                                 < 0)
+    ret = ngli_hwconv_init(&vt->hwconv, gl,
+                           s->id, s->data_format, s->width, s->height,
+                           NGLI_TEXTURE_LAYOUT_NV12);
+    if (ret < 0)
         return ret;
-
-    const char *uv = gl->version < 300 ? "ra": "rg";
-    char *nv12_to_rgba_fragment_data = ngli_asprintf(NV12_TO_RGBA_FRAGMENT_DATA, uv);
-    if (!nv12_to_rgba_fragment_data)
-        return -1;
-
-    vt->program_id = ngli_program_load(gl, nv12_to_rgba_vertex_data, nv12_to_rgba_fragment_data);
-    ngli_free(nv12_to_rgba_fragment_data);
-    if (!vt->program_id)
-        return -1;
-    ngli_glUseProgram(gl, vt->program_id);
-
-    vt->position_location = ngli_glGetAttribLocation(gl, vt->program_id, "position");
-    if (vt->position_location < 0)
-        return -1;
-
-    vt->texture_locations[0] = ngli_glGetUniformLocation(gl, vt->program_id, "tex0");
-    if (vt->texture_locations[0] < 0)
-        return -1;
-    ngli_glUniform1i(gl, vt->texture_locations[0], 0);
-
-    vt->texture_locations[1] = ngli_glGetUniformLocation(gl, vt->program_id, "tex1");
-    if (vt->texture_locations[1] < 0)
-        return -1;
-    ngli_glUniform1i(gl, vt->texture_locations[1], 1);
-
-    static const float vertices[] = {
-        -1.0f, -1.0f, 0.0f, 0.0f,
-         1.0f, -1.0f, 1.0f, 0.0f,
-         1.0f,  1.0f, 1.0f, 1.0f,
-        -1.0f,  1.0f, 0.0f, 1.0f,
-    };
-    ngli_glGenBuffers(gl, 1, &vt->vertices_id);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices_id);
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
-        ngli_glGenVertexArrays(gl, 1, &vt->vao_id);
-        ngli_glBindVertexArray(gl, vt->vao_id);
-
-        ngli_glEnableVertexAttribArray(gl, vt->position_location);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices_id);
-        ngli_glVertexAttribPointer(gl, vt->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
-    }
 
     return 0;
 }
 
 static void vt_ios_uninit(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
-    ngli_fbo_reset(&vt->fbo);
-
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
-        ngli_glDeleteVertexArrays(gl, 1, &vt->vao_id);
-    ngli_glDeleteProgram(gl, vt->program_id);
-    ngli_glDeleteBuffers(gl, 1, &vt->vertices_id);
+    ngli_hwconv_reset(&vt->hwconv);
 
     NGLI_CFRELEASE(vt->ios_textures[0]);
     NGLI_CFRELEASE(vt->ios_textures[1]);
@@ -266,32 +179,19 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
     }
 
-    ngli_fbo_bind(&vt->fbo);
+    const struct texture_plane planes[] = {
+        {
+            .id = CVOpenGLESTextureGetName(textures[0]),
+            .target = GL_TEXTURE_2D,
+        }, {
+            .id = CVOpenGLESTextureGetName(textures[1]),
+            .target = GL_TEXTURE_2D,
+        }
+    };
 
-    GLint viewport[4];
-    ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
-    ngli_glViewport(gl, 0, 0, frame->width, frame->height);
-    ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
-
-    ngli_glUseProgram(gl, vt->program_id);
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
-        ngli_glBindVertexArray(gl, vt->vao_id);
-    } else {
-        ngli_glEnableVertexAttribArray(gl, vt->position_location);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, vt->vertices_id);
-        ngli_glVertexAttribPointer(gl, vt->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
-    }
-    for (int i = 0; i < 2; i++) {
-        ngli_glActiveTexture(gl, GL_TEXTURE0 + i);
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, CVOpenGLESTextureGetName(textures[i]));
-    }
-    ngli_glDrawArrays(gl, GL_TRIANGLE_FAN, 0, 4);
-    if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)) {
-        ngli_glDisableVertexAttribArray(gl, vt->position_location);
-    }
-
-    ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
-    ngli_fbo_unbind(&vt->fbo);
+    ret = ngli_hwconv_convert(&vt->hwconv, planes, NULL);
+    if (ret < 0)
+        return ret;
 
     NGLI_CFRELEASE(textures[0]);
     NGLI_CFRELEASE(textures[1]);
