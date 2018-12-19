@@ -262,6 +262,23 @@ static const struct backend *backend_map[] = {
     [NGL_BACKEND_OPENGLES] = &ngli_backend_gles,
 };
 
+static int get_default_platform(void)
+{
+#if defined(TARGET_LINUX)
+    return NGL_PLATFORM_XLIB;
+#elif defined(TARGET_IPHONE)
+    return NGL_PLATFORM_IOS;
+#elif defined(TARGET_DARWIN)
+    return NGL_PLATFORM_MACOS;
+#elif defined(TARGET_ANDROID)
+    return NGL_PLATFORM_ANDROID;
+#elif defined(TARGET_MINGW_W64)
+    return NGL_PLATFORM_WINDOWS;
+#else
+    return -1;
+#endif
+}
+
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (!config) {
@@ -288,6 +305,13 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 
     s->backend = backend_map[config->backend];
     LOG(INFO, "selected backend: %s", s->backend->name);
+
+    if (config->platform == NGL_PLATFORM_AUTO)
+        config->platform = get_default_platform();
+    if (config->platform < 0) {
+        LOG(ERROR, "can not determine which platform to use");
+        return -1;
+    }
 
 #if defined(TARGET_IPHONE)
     int ret = configure_ios(s, config);
