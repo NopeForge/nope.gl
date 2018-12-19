@@ -348,14 +348,6 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     glcontext->samples = config->samples;
     glcontext->set_surface_pts = config->set_surface_pts;
 
-    if (glcontext->offscreen && (glcontext->width <= 0 || glcontext->height <= 0)) {
-        LOG(ERROR,
-            "could not initialize offscreen rendering with invalid dimensions (%dx%d)",
-            glcontext->width,
-            glcontext->height);
-        goto fail;
-    }
-
     if (glcontext->class->init) {
         int ret = glcontext->class->init(glcontext, config->display, config->window, config->handle);
         if (ret < 0)
