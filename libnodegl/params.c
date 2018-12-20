@@ -599,7 +599,7 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
             struct ngl_node **cur_elems = *(struct ngl_node ***)cur_elems_p;
             const int nb_cur_elems = *(int *)nb_cur_elems_p;
             const int nb_new_elems = nb_cur_elems + nb_elems;
-            struct ngl_node **new_elems = realloc(cur_elems, nb_new_elems * sizeof(*new_elems));
+            struct ngl_node **new_elems = ngli_realloc(cur_elems, nb_new_elems * sizeof(*new_elems));
             struct ngl_node **new_elems_addp = new_elems + nb_cur_elems;
             struct ngl_node **add_elems = elems;
 
@@ -628,7 +628,7 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
             double *cur_elems = *(double **)cur_elems_p;
             const int nb_cur_elems = *(int *)nb_cur_elems_p;
             const int nb_new_elems = nb_cur_elems + nb_elems;
-            double *new_elems = realloc(cur_elems, nb_new_elems * sizeof(*new_elems));
+            double *new_elems = ngli_realloc(cur_elems, nb_new_elems * sizeof(*new_elems));
             double *new_elems_addp = new_elems + nb_cur_elems;
             double *add_elems = elems;
 

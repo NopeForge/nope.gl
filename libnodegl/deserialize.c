@@ -114,7 +114,8 @@ static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \
             consumed = -1;                                                  \
             break;                                                          \
         }                                                                   \
-        type *new_vals = realloc(vals, (nb_vals + 1) * sizeof(*new_vals));  \
+        type *new_vals = ngli_realloc(vals,                                 \
+                                      (nb_vals + 1) * sizeof(*new_vals));   \
         if (!new_vals) {                                                    \
             consumed = -1;                                                  \
             break;                                                          \
@@ -166,14 +167,14 @@ static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
             break;
         }
 
-        char **new_keys = realloc(keys, (nb_vals + 1) * sizeof(*new_keys));
+        char **new_keys = ngli_realloc(keys, (nb_vals + 1) * sizeof(*new_keys));
         if (!new_keys) {
             consumed = -1;
             break;
         }
         keys = new_keys;
 
-        int *new_vals = realloc(vals, (nb_vals + 1) * sizeof(*new_vals));
+        int *new_vals = ngli_realloc(vals, (nb_vals + 1) * sizeof(*new_vals));
         if (!new_vals) {
             consumed = -1;
             break;

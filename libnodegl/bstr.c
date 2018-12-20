@@ -63,7 +63,7 @@ int ngli_bstr_print(struct bstr *b, const char *fmt, ...)
     const int avail = b->bufsize - b->len - 1;
     if (len > avail) {
         const int new_size = b->len + len + 1;
-        void *ptr = realloc(b->str, new_size);
+        void *ptr = ngli_realloc(b->str, new_size);
         if (!ptr)
             return 0;
         b->str = ptr;
