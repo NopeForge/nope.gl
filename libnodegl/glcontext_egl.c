@@ -27,6 +27,7 @@
 #include <X11/Xlib.h>
 #endif
 
+#include "egl.h"
 #include "fbo.h"
 #include "format.h"
 #include "glcontext.h"
@@ -47,11 +48,28 @@ struct egl_priv {
     const char *extensions;
     EGLBoolean (*PresentationTimeANDROID)(EGLDisplay dpy, EGLSurface sur, khronos_stime_nanoseconds_t time);
     EGLDisplay (*GetPlatformDisplay)(EGLenum platform, void *native_display, const EGLint *attrib_list);
+    EGLAPIENTRY EGLImageKHR (*CreateImageKHR)(EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLint *);
+    EGLAPIENTRY EGLBoolean (*DestroyImageKHR)(EGLDisplay, EGLImageKHR);
+    EGLAPIENTRY void (*EGLImageTargetTexture2DOES)(GLenum, GLeglImageOES);
     struct fbo fbo;
 };
 
-static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
+EGLImageKHR ngli_eglCreateImageKHR(struct glcontext *gl, EGLConfig context, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
 {
+    struct egl_priv *egl = gl->priv_data;
+    return egl->CreateImageKHR(egl->display, context, target, buffer, attrib_list);
+}
+
+EGLBoolean ngli_eglDestroyImageKHR(struct glcontext *gl, EGLImageKHR image)
+{
+    struct egl_priv *egl = gl->priv_data;
+    return egl->DestroyImageKHR(egl->display, image);
+}
+
+static int egl_probe_extensions(struct glcontext *ctx)
+{
+    struct egl_priv *egl = ctx->priv_data;
+
 #if defined(TARGET_ANDROID)
     if (ngli_glcontext_check_extension("EGL_ANDROID_presentation_time", egl->extensions)) {
         egl->PresentationTimeANDROID = (void *)eglGetProcAddress("eglPresentationTimeANDROID");
@@ -59,9 +77,18 @@ static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
             LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
             return -1;
         }
-        return 1;
     }
 #endif
+
+    if (ngli_glcontext_check_extension("EGL_KHR_image_base", egl->extensions)) {
+        egl->CreateImageKHR = (void *)eglGetProcAddress("eglCreateImageKHR");
+        egl->DestroyImageKHR = (void *)eglGetProcAddress("eglDestroyImageKHR");
+        if (!egl->CreateImageKHR || !egl->DestroyImageKHR) {
+            LOG(ERROR, "could not retrieve egl{Create,Destroy}ImageKHR()");
+            return -1;
+        }
+        ctx->features |= NGLI_FEATURE_EGL_IMAGE_BASE_KHR;
+    }
 
     return 0;
 }
@@ -240,7 +267,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         }
     }
 
-    ret = egl_probe_android_presentation_time_ext(egl);
+    ret = egl_probe_extensions(ctx);
     if (ret < 0)
         return ret;
 

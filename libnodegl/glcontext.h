@@ -46,6 +46,7 @@
 #define NGLI_FEATURE_DEPTH_TEXTURE                (1 << 17)
 #define NGLI_FEATURE_RGB8_RGBA8                   (1 << 18)
 #define NGLI_FEATURE_OES_EGL_IMAGE                (1 << 19)
+#define NGLI_FEATURE_EGL_IMAGE_BASE_KHR           (1 << 20)
 
 #define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
                                          NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \
