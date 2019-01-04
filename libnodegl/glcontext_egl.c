@@ -43,6 +43,8 @@ struct egl_priv {
     EGLSurface surface;
     EGLContext handle;
     EGLConfig config;
+    const char *client_extensions;
+    const char *extensions;
     EGLBoolean (*PresentationTimeANDROID)(EGLDisplay dpy, EGLSurface sur, khronos_stime_nanoseconds_t time);
     EGLDisplay (*GetPlatformDisplay)(EGLenum platform, void *native_display, const EGLint *attrib_list);
     struct fbo fbo;
@@ -51,11 +53,7 @@ struct egl_priv {
 static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
 {
 #if defined(TARGET_ANDROID)
-    char const *extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
-    if (!extensions)
-        return 0;
-
-    if (ngli_glcontext_check_extension("EGL_ANDROID_presentation_time", extensions)) {
+    if (ngli_glcontext_check_extension("EGL_ANDROID_presentation_time", egl->extensions)) {
         egl->PresentationTimeANDROID = (void *)eglGetProcAddress("eglPresentationTimeANDROID");
         if (!egl->PresentationTimeANDROID) {
             LOG(ERROR, "could not retrieve eglPresentationTimeANDROID()");
@@ -71,12 +69,8 @@ static int egl_probe_android_presentation_time_ext(struct egl_priv *egl)
 #if defined(TARGET_LINUX)
 static int egl_probe_platform_x11_ext(struct egl_priv *egl)
 {
-    char const *extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
-    if (!extensions)
-        return 0;
-
-    if (ngli_glcontext_check_extension("EGL_KHR_platform_x11", extensions) ||
-        ngli_glcontext_check_extension("EGL_EXT_platform_x11", extensions)) {
+    if (ngli_glcontext_check_extension("EGL_KHR_platform_x11", egl->client_extensions) ||
+        ngli_glcontext_check_extension("EGL_EXT_platform_x11", egl->client_extensions)) {
         egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplay");
         if (!egl->GetPlatformDisplay)
             egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplayEXT");
@@ -130,6 +124,12 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 {
     struct egl_priv *egl = ctx->priv_data;
 
+    egl->client_extensions = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
+    if (!egl->client_extensions) {
+        LOG(ERROR, "could not retrieve EGL client extensions");
+        return -1;
+    }
+
     int ret = egl_set_native_display(egl, display);
     if (ret < 0) {
         LOG(ERROR, "could not set native display");
@@ -147,6 +147,12 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     ret = eglInitialize(egl->display, &egl_major, &egl_minor);
     if (!ret) {
         LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
+        return -1;
+    }
+
+    egl->extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
+    if (!egl->extensions) {
+        LOG(ERROR, "could not retrieve EGL extensions");
         return -1;
     }
 
