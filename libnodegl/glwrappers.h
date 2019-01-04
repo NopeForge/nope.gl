@@ -299,6 +299,12 @@ static inline void ngli_glDrawElementsInstanced(const struct glcontext *gl, GLen
     check_error_code(gl, "glDrawElementsInstanced");
 }
 
+static inline void ngli_glEGLImageTargetTexture2DOES(const struct glcontext *gl, GLenum target, GLeglImageOES image)
+{
+    gl->funcs.EGLImageTargetTexture2DOES(target, image);
+    check_error_code(gl, "glEGLImageTargetTexture2DOES");
+}
+
 static inline void ngli_glEnable(const struct glcontext *gl, GLenum cap)
 {
     gl->funcs.Enable(cap);

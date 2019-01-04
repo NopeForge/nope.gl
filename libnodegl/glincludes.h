@@ -59,6 +59,10 @@
 # define NGL_OGL3_COMPAT_INCLUDES 1
 #endif
 
+#ifndef GL_OES_EGL_image
+typedef void* GLeglImageOES;
+#endif
+
 #if NGL_OGL3_COMPAT_INCLUDES
 # define GL_LUMINANCE                          0x1909
 # define GL_LUMINANCE_ALPHA                    0x190A

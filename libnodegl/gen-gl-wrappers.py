@@ -88,6 +88,9 @@ cmds_optional = [
     'glUniformBlockBinding',
     'glGetActiveUniformBlockName',
     'glGetActiveUniformBlockiv',
+
+    # EGL OES image
+    'glEGLImageTargetTexture2DOES',
 ]
 
 cmds = [

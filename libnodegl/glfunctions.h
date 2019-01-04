@@ -60,6 +60,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*DrawArraysInstanced)(GLenum mode, GLint first, GLsizei count, GLsizei instancecount);
     NGLI_GL_APIENTRY void (*DrawElements)(GLenum mode, GLsizei count, GLenum type, const void * indices);
     NGLI_GL_APIENTRY void (*DrawElementsInstanced)(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);
+    NGLI_GL_APIENTRY void (*EGLImageTargetTexture2DOES)(GLenum target, GLeglImageOES image);
     NGLI_GL_APIENTRY void (*Enable)(GLenum cap);
     NGLI_GL_APIENTRY void (*EnableVertexAttribArray)(GLuint index);
     NGLI_GL_APIENTRY void (*EndQuery)(GLenum target);
