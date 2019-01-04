@@ -90,6 +90,10 @@ static int egl_probe_extensions(struct glcontext *ctx)
         ctx->features |= NGLI_FEATURE_EGL_IMAGE_BASE_KHR;
     }
 
+    if (ngli_glcontext_check_extension("EGL_EXT_image_dma_buf_import", egl->extensions)) {
+        ctx->features |= NGLI_FEATURE_EGL_EXT_IMAGE_DMA_BUF_IMPORT;
+    }
+
     return 0;
 }
 
