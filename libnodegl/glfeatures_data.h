@@ -191,5 +191,12 @@ static const struct glfeature {
         .version        = 300,
         .es_version     = 300,
         .es_extensions  = (const char*[]){"GL_OES_rgb8_rgba8", NULL}
+    }, {
+        .name           = "oes_egl_image",
+        .flag           = NGLI_FEATURE_OES_EGL_IMAGE,
+        .extensions     = (const char*[]){"GL_OES_EGL_image", NULL},
+        .es_extensions  = (const char*[]){"GL_OES_EGL_image", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(EGLImageTargetTexture2DOES),
+                                           -1}
     }
 };
