@@ -173,9 +173,9 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
         return ret;
     p->ngl_config.swap_interval = -1;
     p->ngl_config.viewport[0] = 0;
-    p->ngl_config.viewport[0] = 0;
-    p->ngl_config.viewport[0] = p->width;
-    p->ngl_config.viewport[0] = p->height;
+    p->ngl_config.viewport[1] = 0;
+    p->ngl_config.viewport[2] = p->width;
+    p->ngl_config.viewport[3] = p->height;
 
     ret = ngl_configure(p->ngl, &p->ngl_config);
     if (ret < 0)
