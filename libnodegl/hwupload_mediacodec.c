@@ -77,15 +77,37 @@ static void mc_uninit(struct ngl_node *node)
     ngli_hwconv_reset(&mc->hwconv);
 }
 
+static int mc_common_render_frame(struct ngl_node *node, struct sxplayer_frame *frame, float *matrix)
+{
+    struct texture_priv *s = node->priv_data;
+    struct media_priv *media = s->data_src->priv_data;
+    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
+
+    NGLI_ALIGNED_MAT(flip_matrix) = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f,-1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 1.0f,
+    };
+
+    ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
+    ngli_mat4_mul(matrix, flip_matrix, matrix);
+
+    return 0;
+}
+
 static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
-
     struct media_priv *media = s->data_src->priv_data;
-    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 
-    int ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
+    NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;
+    int ret = mc_common_render_frame(node, frame, matrix);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
     if (ret < 0)
         return ret;
 
@@ -95,17 +117,6 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         if (ret < 0)
             return ret;
     }
-
-    NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;
-    ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
-
-    NGLI_ALIGNED_MAT(flip_matrix) = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f,-1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-    };
-    ngli_mat4_mul(matrix, flip_matrix, matrix);
 
     const struct texture_plane plane = {
         .id = media->android_texture_id,
@@ -143,21 +154,13 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
-    struct media_priv *media = s->data_src->priv_data;
-    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 
-    NGLI_ALIGNED_MAT(flip_matrix) = {
-        1.0f,  0.0f, 0.0f, 0.0f,
-        0.0f, -1.0f, 0.0f, 0.0f,
-        0.0f,  0.0f, 1.0f, 0.0f,
-        0.0f,  1.0f, 0.0f, 1.0f,
-    };
+    int ret = mc_common_render_frame(node, frame, s->coordinates_matrix);
+    if (ret < 0)
+        return ret;
 
     s->width  = frame->width;
     s->height = frame->height;
-
-    ngli_android_surface_render_buffer(media->android_surface, buffer, s->coordinates_matrix);
-    ngli_mat4_mul(s->coordinates_matrix, flip_matrix, s->coordinates_matrix);
 
     return 0;
 }
