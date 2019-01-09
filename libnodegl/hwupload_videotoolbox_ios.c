@@ -181,13 +181,8 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     }
 
     const struct texture_plane planes[] = {
-        {
-            .id = CVOpenGLESTextureGetName(textures[0]),
-            .target = GL_TEXTURE_2D,
-        }, {
-            .id = CVOpenGLESTextureGetName(textures[1]),
-            .target = GL_TEXTURE_2D,
-        }
+        {.id = CVOpenGLESTextureGetName(textures[0]), .target = GL_TEXTURE_2D},
+        {.id = CVOpenGLESTextureGetName(textures[1]), .target = GL_TEXTURE_2D}
     };
 
     ret = ngli_hwconv_convert(&vt->hwconv, planes, NULL);
