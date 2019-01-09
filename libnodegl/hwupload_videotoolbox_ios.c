@@ -93,9 +93,13 @@ static int vt_ios_common_map_plane(struct ngl_node *node,
         return -1;
     }
 
+    GLenum min_filter = s->min_filter;
+    if (ngli_node_texture_has_mipmap(node))
+        min_filter = ngli_node_texture_has_linear_filtering(node) ? GL_LINEAR : GL_NEAREST;
+
     GLint id = CVOpenGLESTextureGetName(vt->ios_textures[index]);
     ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, s->min_filter);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
     ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
     ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
     ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
