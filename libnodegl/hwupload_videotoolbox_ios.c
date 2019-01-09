@@ -45,6 +45,7 @@
 
 struct hwupload_vt_ios {
     struct hwconv hwconv;
+    OSType format;
     CVOpenGLESTextureRef ios_textures[2];
 };
 
@@ -56,9 +57,9 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
-    OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
+    vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    ngli_assert(cvformat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
+    ngli_assert(vt->format == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
 
     s->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
     int ret = ngli_format_get_gl_texture_format(gl,
@@ -108,7 +109,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    ngli_assert(cvformat == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
+    ngli_assert(vt->format == cvformat);
 
     int width  = CVPixelBufferGetWidth(cvpixbuf);
     int height = CVPixelBufferGetHeight(cvpixbuf);
@@ -213,11 +214,12 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
+    struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
-    OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
+    vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    switch (cvformat) {
+    switch (vt->format) {
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA:
         s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
@@ -249,10 +251,12 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
+    ngli_assert(vt->format == cvformat);
+
     s->width  = CVPixelBufferGetWidth(cvpixbuf);
     s->height = CVPixelBufferGetHeight(cvpixbuf);
 
-    switch (cvformat) {
+    switch (vt->format) {
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA: {
         int data_format;
@@ -260,7 +264,7 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
         GLint gl_internal_format;
         GLenum gl_type;
 
-        switch (cvformat) {
+        switch (vt->format) {
         case kCVPixelFormatType_32BGRA:
             data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
             break;
