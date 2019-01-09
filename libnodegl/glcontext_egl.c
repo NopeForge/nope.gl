@@ -116,7 +116,6 @@ static int egl_probe_platform_x11_ext(struct egl_priv *egl)
 }
 #endif
 
-
 static int egl_set_native_display(struct egl_priv *egl, uintptr_t native_display)
 {
     if (native_display) {
