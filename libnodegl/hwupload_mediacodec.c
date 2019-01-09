@@ -126,6 +126,14 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
+    if (ngli_node_texture_has_mipmap(node)) {
+        struct ngl_ctx *ctx = node->ctx;
+        struct glcontext *gl = ctx->glcontext;
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
+        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+    }
+
     return 0;
 }
 
