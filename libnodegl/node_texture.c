@@ -307,7 +307,7 @@ int ngli_node_texture_update_data(struct ngl_node *node,
         }
     }
 
-    if (ngli_node_texture_has_mipmap(node))
+    if (data && ngli_node_texture_has_mipmap(node))
         ngli_glGenerateMipmap(gl, s->target);
 
     ngli_glBindTexture(gl, s->target, 0);
