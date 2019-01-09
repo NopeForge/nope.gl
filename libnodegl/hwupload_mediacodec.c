@@ -146,7 +146,6 @@ static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     struct media_priv *media = s->data_src->priv_data;
     AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 
-    NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;
     NGLI_ALIGNED_MAT(flip_matrix) = {
         1.0f,  0.0f, 0.0f, 0.0f,
         0.0f, -1.0f, 0.0f, 0.0f,
@@ -157,8 +156,8 @@ static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     s->width  = frame->width;
     s->height = frame->height;
 
-    ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
-    ngli_mat4_mul(s->coordinates_matrix, flip_matrix, matrix);
+    ngli_android_surface_render_buffer(media->android_surface, buffer, s->coordinates_matrix);
+    ngli_mat4_mul(s->coordinates_matrix, flip_matrix, s->coordinates_matrix);
 
     return 0;
 }
