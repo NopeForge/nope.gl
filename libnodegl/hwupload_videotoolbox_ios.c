@@ -304,14 +304,6 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
         ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
-        switch (s->min_filter) {
-        case GL_NEAREST_MIPMAP_NEAREST:
-        case GL_NEAREST_MIPMAP_LINEAR:
-        case GL_LINEAR_MIPMAP_NEAREST:
-        case GL_LINEAR_MIPMAP_LINEAR:
-            ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-            break;
-        }
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
         break;
     }
@@ -382,6 +374,16 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA:
         s->planes[0].id = CVOpenGLESTextureGetName(vt->ios_textures[0]);
+        switch (s->min_filter) {
+        case GL_NEAREST_MIPMAP_NEAREST:
+        case GL_NEAREST_MIPMAP_LINEAR:
+        case GL_LINEAR_MIPMAP_NEAREST:
+        case GL_LINEAR_MIPMAP_LINEAR:
+            ngli_glBindTexture(gl, GL_TEXTURE_2D, s->planes[0].id);
+            ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
+            ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+            break;
+        }
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         for (int i = 0; i < 2; i++)
