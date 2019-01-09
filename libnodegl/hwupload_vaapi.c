@@ -41,9 +41,13 @@ static int vaapi_common_init(struct ngl_node *node, struct sxplayer_frame *frame
     }
 
     for (int i = 0; i < 2; i++) {
+        GLenum min_filter = s->min_filter;
+        if (ngli_node_texture_has_mipmap(node))
+            min_filter = ngli_node_texture_has_linear_filtering(node) ? GL_LINEAR : GL_NEAREST;
+
         ngli_glGenTextures(gl, 1, &vaapi->textures[i]);
         ngli_glBindTexture(gl, s->target, vaapi->textures[i]);
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, s->min_filter);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, min_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, s->wrap_s);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, s->wrap_t);
@@ -234,6 +238,12 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     ret = ngli_hwconv_convert(&vaapi->hwconv, planes, NULL);
     if (ret < 0)
         return ret;
+
+    if (ngli_node_texture_has_mipmap(node)) {
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
+        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
+        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+    }
 
     return 0;
 }
