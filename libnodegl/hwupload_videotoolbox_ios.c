@@ -313,8 +313,6 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
             break;
         }
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-
-        s->planes[0].id = id;
         break;
     }
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
@@ -373,11 +371,22 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
             ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
             ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
             ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-
-            s->planes[i].id = id;
         }
         break;
         }
+    default:
+        ngli_assert(0);
+    }
+
+    switch (vt->format) {
+    case kCVPixelFormatType_32BGRA:
+    case kCVPixelFormatType_32RGBA:
+        s->planes[0].id = CVOpenGLESTextureGetName(vt->ios_textures[0]);
+        break;
+    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+        for (int i = 0; i < 2; i++)
+            s->planes[i].id = CVOpenGLESTextureGetName(vt->ios_textures[i]);
+        break;
     default:
         ngli_assert(0);
     }
