@@ -310,9 +310,7 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
         }
         ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
-        s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
         s->planes[0].id = id;
-        s->planes[0].target = GL_TEXTURE_2D;
         break;
     }
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
@@ -373,7 +371,6 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
             ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
             s->planes[i].id = id;
-            s->planes[i].target = GL_TEXTURE_2D;
         }
         break;
         }
