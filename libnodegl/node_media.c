@@ -145,7 +145,7 @@ static int media_init(struct ngl_node *node)
     if (s->max_pixels)     sxplayer_set_option(s->player, "max_pixels",     s->max_pixels);
 
     sxplayer_set_option(s->player, "sw_pix_fmt", SXPLAYER_PIXFMT_RGBA);
-#if defined(TARGET_IPHONE)
+#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
     sxplayer_set_option(s->player, "vt_pix_fmt", "nv12");
 #endif
 

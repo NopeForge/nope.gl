@@ -132,7 +132,7 @@ LIB_EXTRA_CFLAGS_MinGW-w64 = -DHAVE_GLPLATFORM_WGL
 
 LIB_LDLIBS                 = -lm -lpthread
 LIB_EXTRA_LDLIBS_Linux     =
-LIB_EXTRA_LDLIBS_Darwin    = -framework OpenGL -framework CoreVideo -framework CoreFoundation -framework AppKit
+LIB_EXTRA_LDLIBS_Darwin    = -framework OpenGL -framework CoreVideo -framework CoreFoundation -framework AppKit -framework IOSurface
 LIB_EXTRA_LDLIBS_Android   = -legl
 LIB_EXTRA_LDLIBS_iPhone    = -framework CoreMedia
 LIB_EXTRA_LDLIBS_MinGW-w64 = -lopengl32 -lgdi32

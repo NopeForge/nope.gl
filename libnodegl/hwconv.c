@@ -74,6 +74,42 @@ static const char * const nv12_to_rgba_fragment_data =
     "    gl_FragColor = conv * vec4(yuv, 1.0);"                             "\n"
     "}";
 
+static const char * const nv12_rectangle_to_rgba_vertex_data =
+    "#version 410"                                                          "\n"
+    "precision highp float;"                                                "\n"
+    "uniform mat4 tex_coord_matrix;"                                        "\n"
+    "uniform vec2 tex_dimensions[2];"                                       "\n"
+    "in vec4 position;"                                                     "\n"
+    "out vec2 tex0_coord;"                                                  "\n"
+    "out vec2 tex1_coord;"                                                  "\n"
+    "void main()"                                                           "\n"
+    "{"                                                                     "\n"
+    "    gl_Position = vec4(position.xy, 0.0, 1.0);"                        "\n"
+    "    vec2 coord = (tex_coord_matrix * vec4(position.zw, 0.0, 1.0)).xy;" "\n"
+    "    tex0_coord = coord * tex_dimensions[0];"                           "\n"
+    "    tex1_coord = coord * tex_dimensions[1];"                           "\n"
+    "}";
+
+static const char * const nv12_rectangle_to_rgba_fragment_data =
+    "#version 410"                                                          "\n"
+    "uniform mediump sampler2DRect tex0;"                                   "\n"
+    "uniform mediump sampler2DRect tex1;"                                   "\n"
+    "in vec2 tex0_coord;"                                                   "\n"
+    "in vec2 tex1_coord;"                                                   "\n"
+    "out vec4 color;"                                                       "\n"
+    "const mat4 conv = mat4("                                               "\n"
+    "    1.164,     1.164,    1.164,   0.0,"                                "\n"
+    "    0.0,      -0.213,    2.112,   0.0,"                                "\n"
+    "    1.787,    -0.531,    0.0,     0.0,"                                "\n"
+    "   -0.96625,   0.29925, -1.12875, 1.0);"                               "\n"
+    "void main(void)"                                                       "\n"
+    "{"                                                                     "\n"
+    "    vec3 yuv;"                                                         "\n"
+    "    yuv.x = texture(tex0, tex0_coord).r;"                              "\n"
+    "    yuv.yz = texture(tex1, tex1_coord).%s;"                            "\n"
+    "    color = conv * vec4(yuv, 1.0);"                                    "\n"
+    "}";
+
 static const struct hwconv_desc {
     int nb_planes;
     const char *vertex_data;
@@ -88,6 +124,11 @@ static const struct hwconv_desc {
         .nb_planes = 2,
         .vertex_data = vertex_data,
         .fragment_data = nv12_to_rgba_fragment_data,
+    },
+    [NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE] = {
+        .nb_planes = 2,
+        .vertex_data = nv12_rectangle_to_rgba_vertex_data,
+        .fragment_data = nv12_rectangle_to_rgba_fragment_data,
     },
 };
 
@@ -107,6 +148,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
         return ret;
 
     if (src_layout != NGLI_TEXTURE_LAYOUT_NV12 &&
+        src_layout != NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE &&
         src_layout != NGLI_TEXTURE_LAYOUT_MEDIACODEC) {
         LOG(ERROR, "unsupported texture layout: 0x%x", src_layout);
         return -1;
@@ -140,6 +182,8 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
     hwconv->texture_matrix_location = ngli_glGetUniformLocation(gl, hwconv->program_id, "tex_coord_matrix");
     if (hwconv->texture_matrix_location < 0)
         return -1;
+
+    hwconv->texture_dimensions_location = ngli_glGetUniformLocation(gl, hwconv->program_id, "tex_dimensions");
 
     static const float vertices[] = {
         -1.0f, -1.0f, 0.0f, 0.0f,
@@ -192,6 +236,15 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture_plane *plane
     } else {
         NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
         ngli_glUniformMatrix4fv(gl, hwconv->texture_matrix_location, 1, GL_FALSE, id_matrix);
+    }
+    if (hwconv->texture_dimensions_location >= 0) {
+        ngli_assert(desc->nb_planes <= 2);
+        float dimensions[4] = {0};
+        for (int i = 0; i < desc->nb_planes; i++) {
+            dimensions[i*2 + 0] = planes[i].width;
+            dimensions[i*2 + 1] = planes[i].height;
+        }
+        ngli_glUniform2fv(gl, hwconv->texture_dimensions_location, desc->nb_planes, dimensions);
     }
     ngli_glDrawArrays(gl, GL_TRIANGLE_FAN, 0, 4);
     if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)) {

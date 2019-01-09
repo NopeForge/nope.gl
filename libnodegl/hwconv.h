@@ -40,6 +40,7 @@ struct hwconv {
     GLint position_location;
     GLint texture_locations[2];
     GLint texture_matrix_location;
+    GLint texture_dimensions_location;
 };
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
