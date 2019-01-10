@@ -293,8 +293,7 @@ static const struct hwmap_class *vaapi_get_hwmap(struct ngl_node *node, struct s
     struct texture_priv *s = node->priv_data;
 
     if (s->direct_rendering &&
-        s->min_filter != GL_NEAREST &&
-        s->min_filter != GL_LINEAR) {
+        ngli_node_texture_has_mipmap(node)) {
         LOG(WARNING,
             "vaapi direct rendering only support nearest and linear filtering: "
             "disabling direct rendering");
