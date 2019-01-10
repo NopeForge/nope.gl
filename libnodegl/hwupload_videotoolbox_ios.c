@@ -334,10 +334,7 @@ static const struct hwmap_class *vt_ios_get_hwmap(struct ngl_node *node, struct 
             s->direct_rendering = 0;
         }
 
-        if (s->direct_rendering)
-            return &hwmap_vt_ios_dr_class;
-        else
-            return &hwmap_vt_ios_class;
+        return s->direct_rendering ? &hwmap_vt_ios_dr_class : &hwmap_vt_ios_class;
     default:
         return NULL;
     }
