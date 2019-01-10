@@ -282,13 +282,6 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA:
         s->planes[0].id = CVOpenGLESTextureGetName(vt->ios_textures[0]);
-        if (ngli_node_texture_has_mipmap(node)) {
-            struct ngl_ctx *ctx = node->ctx;
-            struct glcontext *gl = ctx->glcontext;
-            ngli_glBindTexture(gl, GL_TEXTURE_2D, s->planes[0].id);
-            ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-            ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-        }
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         for (int i = 0; i < 2; i++)
@@ -326,8 +319,12 @@ static const struct hwmap_class *vt_ios_get_hwmap(struct ngl_node *node, struct 
 
     switch (cvformat) {
     case kCVPixelFormatType_32BGRA:
-        return &hwmap_vt_ios_dr_class;
     case kCVPixelFormatType_32RGBA:
+        if (ngli_node_texture_has_mipmap(node)) {
+            LOG(WARNING, "IOSurface RGBA/BGRA buffers do not support mipmapping: "
+                "disabling mipmapping");
+            s->min_filter = ngli_node_texture_has_linear_filtering(node) ? GL_LINEAR : GL_NEAREST;
+        }
         return &hwmap_vt_ios_dr_class;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         if (s->direct_rendering &&
