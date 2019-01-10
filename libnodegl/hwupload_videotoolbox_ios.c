@@ -330,6 +330,13 @@ static const struct hwmap_class *vt_ios_get_hwmap(struct ngl_node *node, struct 
     case kCVPixelFormatType_32RGBA:
         return &hwmap_vt_ios_dr_class;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+        if (s->direct_rendering &&
+            ngli_node_texture_has_mipmap(node)) {
+            LOG(WARNING, "IOSurface NV12 buffers do not support mipmapping: "
+                "disabling direct rendering");
+            s->direct_rendering = 0;
+        }
+
         if (s->direct_rendering)
             return &hwmap_vt_ios_dr_class;
         else
