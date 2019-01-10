@@ -307,14 +307,8 @@ int ngli_node_texture_update_data(struct ngl_node *node,
         }
     }
 
-    switch (s->min_filter) {
-    case GL_NEAREST_MIPMAP_NEAREST:
-    case GL_NEAREST_MIPMAP_LINEAR:
-    case GL_LINEAR_MIPMAP_NEAREST:
-    case GL_LINEAR_MIPMAP_LINEAR:
+    if (ngli_node_texture_has_mipmap(node))
         ngli_glGenerateMipmap(gl, s->target);
-        break;
-    }
 
     ngli_glBindTexture(gl, s->target, 0);
 
