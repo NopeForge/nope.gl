@@ -185,7 +185,7 @@ static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxpl
 
     if (s->direct_rendering) {
         if (ngli_node_texture_has_mipmap(node)) {
-            LOG(WARNING, "external textures only support nearest and linear filtering: "
+            LOG(WARNING, "external textures do not support mipmapping: "
                 "disabling direct rendering");
             s->direct_rendering = 0;
         } else if (s->wrap_s != GL_CLAMP_TO_EDGE || s->wrap_t != GL_CLAMP_TO_EDGE) {
