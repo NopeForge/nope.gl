@@ -483,7 +483,7 @@ int ngli_pipeline_init(struct ngl_node *node)
 
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE) || defined(HAVE_VAAPI_X11)
             texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
-            LOG(INFO, "direct rendering for texture %s.%s: %s",
+            LOG(DEBUG, "direct rendering for texture %s.%s: %s",
                 node->label, key, texture->direct_rendering ? "yes" : "no");
 #endif
             s->nb_textureprograminfos++;
