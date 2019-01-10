@@ -234,15 +234,12 @@ static void rtt_draw(struct ngl_node *node)
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
 
+    struct ngl_node *texture_node = s->color_texture;
     struct texture_priv *texture = s->color_texture->priv_data;
-    switch(texture->min_filter) {
-    case GL_NEAREST_MIPMAP_NEAREST:
-    case GL_NEAREST_MIPMAP_LINEAR:
-    case GL_LINEAR_MIPMAP_NEAREST:
-    case GL_LINEAR_MIPMAP_LINEAR:
+
+    if (ngli_node_texture_has_mipmap(texture_node)) {
         ngli_glBindTexture(gl, GL_TEXTURE_2D, texture->id);
         ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-        break;
     }
 
     if (s->vflip) {
