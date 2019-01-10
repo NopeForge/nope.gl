@@ -340,6 +340,20 @@ int ngli_node_texture_has_mipmap(const struct ngl_node *node)
     }
 }
 
+int ngli_node_texture_has_linear_filtering(const struct ngl_node *node)
+{
+    const struct texture_priv *s = node->priv_data;
+
+    switch (s->min_filter) {
+    case GL_LINEAR:
+    case GL_LINEAR_MIPMAP_NEAREST:
+    case GL_LINEAR_MIPMAP_LINEAR:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
 static int texture_prefetch(struct ngl_node *node, GLenum local_target)
 {
     struct ngl_ctx *ctx = node->ctx;

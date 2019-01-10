@@ -332,6 +332,8 @@ int ngli_node_texture_update_data(struct ngl_node *node,
 
 int ngli_node_texture_has_mipmap(const struct ngl_node *node);
 
+int ngli_node_texture_has_linear_filtering(const struct ngl_node *node);
+
 struct uniformprograminfo {
     GLint location;
     GLint size;
