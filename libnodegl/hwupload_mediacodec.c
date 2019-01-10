@@ -184,7 +184,7 @@ static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxpl
     struct texture_priv *s = node->priv_data;
 
     if (s->direct_rendering) {
-        if (s->min_filter != GL_NEAREST && s->min_filter != GL_LINEAR) {
+        if (ngli_node_texture_has_mipmap(node)) {
             LOG(WARNING, "external textures only support nearest and linear filtering: "
                 "disabling direct rendering");
             s->direct_rendering = 0;
