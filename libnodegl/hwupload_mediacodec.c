@@ -203,10 +203,7 @@ static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxpl
         }
     }
 
-    if (s->direct_rendering)
-        return &hwmap_mc_dr_class;
-
-    return &hwmap_mc_class;
+    return s->direct_rendering ? &hwmap_mc_dr_class : &hwmap_mc_class;
 }
 
 const struct hwupload_class ngli_hwupload_mc_class = {
