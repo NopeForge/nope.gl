@@ -45,6 +45,7 @@
 
 struct hwupload_vt_ios {
     struct hwconv hwconv;
+    struct texture_plane planes[2];
     int width;
     int height;
     OSType format;
@@ -104,6 +105,9 @@ static int vt_ios_common_map_plane(struct ngl_node *node,
     ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
     ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
     ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+
+    vt->planes[index].id = id;
+    vt->planes[index].target = GL_TEXTURE_2D;
 
     return 0;
 }
@@ -217,11 +221,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
             return ret;
     }
 
-    const struct texture_plane planes[] = {
-        {.id = CVOpenGLESTextureGetName(vt->ios_textures[0]), .target = GL_TEXTURE_2D},
-        {.id = CVOpenGLESTextureGetName(vt->ios_textures[1]), .target = GL_TEXTURE_2D}
-    };
-    ret = ngli_hwconv_convert(&vt->hwconv, planes, NULL);
+    ret = ngli_hwconv_convert(&vt->hwconv, vt->planes, NULL);
     if (ret < 0)
         return ret;
 
@@ -249,15 +249,9 @@ static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA:
         s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
-        s->planes[0].id = 0;
-        s->planes[0].target = GL_TEXTURE_2D;
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         s->layout = NGLI_TEXTURE_LAYOUT_NV12;
-        for (int i = 0; i < 2; i++) {
-            s->planes[i].id = 0;
-            s->planes[i].target = GL_TEXTURE_2D;
-        }
         break;
     default:
         return -1;
@@ -281,11 +275,8 @@ static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     switch (vt->format) {
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA:
-        s->planes[0].id = CVOpenGLESTextureGetName(vt->ios_textures[0]);
-        break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-        for (int i = 0; i < 2; i++)
-            s->planes[i].id = CVOpenGLESTextureGetName(vt->ios_textures[i]);
+        memcpy(s->planes, vt->planes, sizeof(vt->planes));
         break;
     default:
         ngli_assert(0);
