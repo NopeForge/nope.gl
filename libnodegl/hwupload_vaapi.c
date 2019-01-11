@@ -153,9 +153,15 @@ static int vaapi_common_map_frame(struct ngl_node *node, struct sxplayer_frame *
                vaapi->surface_descriptor.layers[i].pitch[plane]);                    \
 } while (0)
 
+        int width = i == 0 ? frame->width : (frame->width + 1) >> 1;
+        int height = i == 0 ? frame->height : (frame->height + 1) >> 1;
+
+        vaapi->planes[i].width = width;
+        vaapi->planes[i].height = height;
+
         ADD_ATTRIB(EGL_LINUX_DRM_FOURCC_EXT, vaapi->surface_descriptor.layers[i].drm_format);
-        ADD_ATTRIB(EGL_WIDTH,  i == 0 ? frame->width : (frame->width + 1) >> 1);
-        ADD_ATTRIB(EGL_HEIGHT, i == 0 ? frame->height : (frame->height + 1) >> 1);
+        ADD_ATTRIB(EGL_WIDTH,  width);
+        ADD_ATTRIB(EGL_HEIGHT, height);
 
         ADD_PLANE_ATTRIBS(0);
         if (vaapi->surface_descriptor.layers[i].num_planes > 1)

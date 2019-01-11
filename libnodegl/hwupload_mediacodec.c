@@ -167,8 +167,8 @@ static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    s->width  = frame->width;
-    s->height = frame->height;
+    s->planes[0].width = s->width  = frame->width;
+    s->planes[0].height = s->height = frame->height;
 
     return 0;
 }

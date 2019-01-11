@@ -293,6 +293,8 @@ enum texture_layout {
 struct texture_plane {
     GLuint id;
     GLenum target;
+    int width;
+    int height;
 };
 
 struct texture_priv {

@@ -315,6 +315,8 @@ int ngli_node_texture_update_data(struct ngl_node *node,
     s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
     s->planes[0].id = s->id;
     s->planes[0].target = s->target;
+    s->planes[0].width = s->width;
+    s->planes[0].height = s->height;
 
     return ret;
 }
