@@ -18,6 +18,7 @@
 struct hwupload_vaapi {
     struct sxplayer_frame *frame;
     struct hwconv hwconv;
+    struct texture_plane planes[2];
 
     GLuint textures[2];
     EGLImageKHR egl_images[2];
@@ -51,6 +52,9 @@ static int vaapi_common_init(struct ngl_node *node, struct sxplayer_frame *frame
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, s->wrap_s);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, s->wrap_t);
+
+        vaapi->planes[i].id = vaapi->textures[i];
+        vaapi->planes[i].target = s->target;
     }
 
     return 0;
@@ -230,12 +234,7 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
             return ret;
     }
 
-    const struct texture_plane planes[] = {
-        {.id = vaapi->textures[0], .target = GL_TEXTURE_2D},
-        {.id = vaapi->textures[1], .target = GL_TEXTURE_2D}
-    };
-
-    ret = ngli_hwconv_convert(&vaapi->hwconv, planes, NULL);
+    ret = ngli_hwconv_convert(&vaapi->hwconv, vaapi->planes, NULL);
     if (ret < 0)
         return ret;
 
@@ -251,31 +250,14 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 static int vaapi_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
+    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
 
     int ret = vaapi_common_init(node, frame);
     if (ret < 0)
         return ret;
 
     s->layout = NGLI_TEXTURE_LAYOUT_NV12;
-    for (int i = 0; i < 2; i++) {
-        s->planes[i].id = 0;
-        s->planes[i].target = GL_TEXTURE_2D;
-    }
-
-    return 0;
-}
-
-static int vaapi_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
-
-    int ret = vaapi_common_map_frame(node, frame);
-    if (ret < 0)
-        return ret;
-
-    for (int i = 0; i < 2; i++)
-        s->planes[i].id = vaapi->textures[i];
+    memcpy(s->planes, vaapi->planes, sizeof(vaapi->planes));
 
     return 0;
 }
@@ -294,7 +276,7 @@ static const struct hwmap_class hwmap_vaapi_dr_class = {
     .flags     = HWMAP_FLAG_FRAME_OWNER,
     .priv_size = sizeof(struct hwupload_vaapi),
     .init      = vaapi_dr_init,
-    .map_frame = vaapi_dr_map_frame,
+    .map_frame = vaapi_common_map_frame,
     .uninit    = vaapi_common_uninit,
 };
 
