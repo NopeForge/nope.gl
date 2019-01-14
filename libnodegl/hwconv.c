@@ -133,16 +133,17 @@ static const struct hwconv_desc {
 };
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
-                     GLuint dst_texture, int dst_format, int dst_width, int dst_height,
+                     const struct texture *dst_texture,
                      enum texture_layout src_layout)
 {
     hwconv->gl = gl;
     hwconv->src_layout = src_layout;
 
     int ret;
-    if ((ret = ngli_fbo_init(&hwconv->fbo, gl, dst_width, dst_height, 0))      < 0 ||
-        (ret = ngli_fbo_attach_texture(&hwconv->fbo, dst_format, dst_texture)) < 0 ||
-        (ret = ngli_fbo_allocate(&hwconv->fbo))                                < 0)
+    const struct texture_params *params = &dst_texture->params;
+    if ((ret = ngli_fbo_init(&hwconv->fbo, gl, params->width, params->height, 0))      < 0 ||
+        (ret = ngli_fbo_attach_texture(&hwconv->fbo, params->format, dst_texture->id)) < 0 ||
+        (ret = ngli_fbo_allocate(&hwconv->fbo))                                        < 0)
         return ret;
 
     if (src_layout != NGLI_TEXTURE_LAYOUT_NV12 &&
@@ -205,7 +206,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
     return 0;
 }
 
-int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture_plane *planes, const float *matrix)
+int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, const float *matrix)
 {
     struct glcontext *gl = hwconv->gl;
     struct fbo *fbo = &hwconv->fbo;
@@ -239,8 +240,9 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture_plane *plane
         ngli_assert(desc->nb_planes <= 2);
         float dimensions[4] = {0};
         for (int i = 0; i < desc->nb_planes; i++) {
-            dimensions[i*2 + 0] = planes[i].width;
-            dimensions[i*2 + 1] = planes[i].height;
+            const struct texture_params *params = &planes[i].params;
+            dimensions[i*2 + 0] = params->width;
+            dimensions[i*2 + 1] = params->height;
         }
         ngli_glUniform2fv(gl, hwconv->texture_dimensions_location, desc->nb_planes, dimensions);
     }

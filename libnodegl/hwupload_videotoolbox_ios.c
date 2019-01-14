@@ -45,36 +45,61 @@
 
 struct hwupload_vt_ios {
     struct hwconv hwconv;
-    struct texture_plane planes[2];
+    struct texture planes[2];
     int width;
     int height;
     OSType format;
     CVOpenGLESTextureRef ios_textures[2];
 };
 
-static int vt_ios_common_map_plane(struct ngl_node *node,
-                                   CVPixelBufferRef cvpixbuf,
-                                   int data_format,
-                                   int index)
+struct format_desc {
+    int layout;
+    int nb_planes;
+    struct {
+        int format;
+    } planes[2];
+};
+
+static int vt_get_format_desc(OSType format, struct format_desc *desc)
+{
+    switch (format) {
+    case kCVPixelFormatType_32BGRA:
+        desc->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+        desc->nb_planes = 1;
+        desc->planes[0].format = NGLI_FORMAT_B8G8R8A8_UNORM;
+        break;
+    case kCVPixelFormatType_32RGBA:
+        desc->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+        desc->nb_planes = 1;
+        desc->planes[0].format = NGLI_FORMAT_R8G8B8A8_UNORM;
+        break;
+    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+        desc->layout = NGLI_TEXTURE_LAYOUT_NV12;
+        desc->nb_planes = 2;
+        desc->planes[0].format = NGLI_FORMAT_R8_UNORM;
+        desc->planes[1].format = NGLI_FORMAT_R8G8_UNORM;
+        break;
+    default:
+        return -1;
+    }
+
+    return 0;
+}
+
+static int vt_ios_common_map_plane(struct ngl_node *node, CVPixelBufferRef cvpixbuf, int index)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
-
-    GLint gl_format;
-    GLint gl_internal_format;
-    GLenum gl_type;
-
-    int ret = ngli_format_get_gl_texture_format(gl, data_format,
-                                                &gl_format, &gl_internal_format, &gl_type);
-    if (ret < 0)
-        return ret;
+    struct texture *plane = &vt->planes[index];
+    const struct texture_params *plane_params = &plane->params;
 
     NGLI_CFRELEASE(vt->ios_textures[index]);
 
     int width  = CVPixelBufferGetWidthOfPlane(cvpixbuf, index);
     int height = CVPixelBufferGetHeightOfPlane(cvpixbuf, index);
+
     CVOpenGLESTextureCacheRef *cache = ngli_glcontext_get_texture_cache(gl);
 
     CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
@@ -82,11 +107,11 @@ static int vt_ios_common_map_plane(struct ngl_node *node,
                                                                 cvpixbuf,
                                                                 NULL,
                                                                 GL_TEXTURE_2D,
-                                                                gl_internal_format,
+                                                                plane->internal_format,
                                                                 width,
                                                                 height,
-                                                                gl_format,
-                                                                gl_type,
+                                                                plane->format,
+                                                                plane->format_type,
                                                                 index,
                                                                 &vt->ios_textures[index]);
     if (err != noErr) {
@@ -94,20 +119,16 @@ static int vt_ios_common_map_plane(struct ngl_node *node,
         return -1;
     }
 
-    GLenum min_filter = s->min_filter;
-    if (ngli_node_texture_has_mipmap(node))
-        min_filter = ngli_node_texture_has_linear_filtering(node) ? GL_LINEAR : GL_NEAREST;
-
     GLint id = CVOpenGLESTextureGetName(vt->ios_textures[index]);
     ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, s->wrap_s);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, s->wrap_t);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, plane_params->min_filter);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, plane_params->mag_filter);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, plane_params->wrap_s);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, plane_params->wrap_t);
     ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
-    vt->planes[index].id = id;
-    vt->planes[index].target = GL_TEXTURE_2D;
+    ngli_texture_set_id(plane, id);
+    ngli_texture_set_dimensions(plane, width, height, 0);
 
     return 0;
 }
@@ -127,20 +148,16 @@ static int vt_ios_common_map_frame(struct ngl_node *node, struct sxplayer_frame 
     int ret;
     switch (vt->format) {
     case kCVPixelFormatType_32BGRA:
-        ret = vt_ios_common_map_plane(node, cvpixbuf, NGLI_FORMAT_B8G8R8A8_UNORM, 0);
-        if (ret < 0)
-            return ret;
-        break;
     case kCVPixelFormatType_32RGBA:
-        ret = vt_ios_common_map_plane(node, cvpixbuf, NGLI_FORMAT_R8G8B8A8_UNORM, 0);
+        ret = vt_ios_common_map_plane(node, cvpixbuf, 0);
         if (ret < 0)
             return ret;
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
-        ret = vt_ios_common_map_plane(node, cvpixbuf, NGLI_FORMAT_R8_UNORM, 0);
+        ret = vt_ios_common_map_plane(node, cvpixbuf, 0);
         if (ret < 0)
             return ret;
-        ret = vt_ios_common_map_plane(node, cvpixbuf, NGLI_FORMAT_R8G8_UNORM, 1);
+        ret = vt_ios_common_map_plane(node, cvpixbuf, 1);
         if (ret < 0)
             return ret;
         break;
@@ -158,6 +175,10 @@ static void vt_ios_common_uninit(struct ngl_node *node)
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
     ngli_hwconv_reset(&vt->hwconv);
+    ngli_texture_reset(&s->texture);
+
+    ngli_texture_reset(&vt->planes[0]);
+    ngli_texture_reset(&vt->planes[1]);
 
     NGLI_CFRELEASE(vt->ios_textures[0]);
     NGLI_CFRELEASE(vt->ios_textures[1]);
@@ -174,35 +195,45 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
     ngli_assert(vt->format == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
 
-    s->data_format = NGLI_FORMAT_B8G8R8A8_UNORM;
-    int ret = ngli_format_get_gl_texture_format(gl,
-                                                s->data_format,
-                                                &s->format,
-                                                &s->internal_format,
-                                                &s->type);
-    if (ret < 0)
-        return ret;
-
-    vt->width = CVPixelBufferGetWidth(cvpixbuf);
+    vt->width  = CVPixelBufferGetWidth(cvpixbuf);
     vt->height = CVPixelBufferGetHeight(cvpixbuf);
 
-    ret = ngli_node_texture_update_data(node, vt->width, vt->height, 0, NULL);
+    struct format_desc format_desc = {0};
+    int ret = vt_get_format_desc(vt->format, &format_desc);
     if (ret < 0)
         return ret;
 
-    ret = ngli_hwconv_init(&vt->hwconv, gl,
-                           s->id, s->data_format, vt->width, vt->height,
-                           NGLI_TEXTURE_LAYOUT_NV12);
+    for (int i = 0; i < format_desc.nb_planes; i++) {
+        struct texture *plane = &vt->planes[i];
+        struct texture_params plane_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+        plane_params.format = format_desc.planes[i].format;
+
+        ret = ngli_texture_wrap(plane, gl, &plane_params, 0);
+        if (ret < 0)
+            return ret;
+    }
+
+    struct texture_params params = s->params;
+    params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
+    params.width  = vt->width;
+    params.height = vt->height;
+
+    ret = ngli_texture_init(&s->texture, gl, &params);
     if (ret < 0)
         return ret;
+
+    ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12);
+    if (ret < 0)
+        return ret;
+
+    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+    s->planes[0] = &s->texture;
 
     return 0;
 }
 
 static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
@@ -210,13 +241,23 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_texture_update_data(node, vt->width, vt->height, 0, NULL);
-    if (ret < 0)
-        return ret;
+    if (!ngli_texture_match_dimensions(&s->texture, vt->width, vt->height, 0)) {
+        struct ngl_ctx *ctx = node->ctx;
+        struct glcontext *gl = ctx->glcontext;
 
-    if (ret) {
-        vt_ios_common_uninit(node);
-        ret = vt_ios_init(node, frame);
+        ngli_hwconv_reset(&vt->hwconv);
+        ngli_texture_reset(&s->texture);
+
+        struct texture_params params = s->params;
+        params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
+        params.width  = vt->width;
+        params.height = vt->height;
+
+        ret = ngli_texture_init(&s->texture, gl, &params);
+        if (ret < 0)
+            return ret;
+
+        ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12);
         if (ret < 0)
             return ret;
     }
@@ -228,59 +269,45 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     NGLI_CFRELEASE(vt->ios_textures[0]);
     NGLI_CFRELEASE(vt->ios_textures[1]);
 
-    if (ngli_node_texture_has_mipmap(node)) {
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-    }
+    if (ngli_texture_has_mipmap(&s->texture))
+        ngli_texture_generate_mipmap(&s->texture);
 
     return 0;
 }
 
 static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    switch (vt->format) {
-    case kCVPixelFormatType_32BGRA:
-    case kCVPixelFormatType_32RGBA:
-        s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
-        break;
-    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-        s->layout = NGLI_TEXTURE_LAYOUT_NV12;
-        break;
-    default:
-        return -1;
+    struct texture_params plane_params = s->params;
+    if (ngli_texture_filter_has_mipmap(plane_params.min_filter)) {
+        LOG(WARNING, "IOSurface RGBA/BGRA buffers do not support mipmapping: "
+            "disabling mipmapping");
+        plane_params.min_filter = ngli_texture_filter_has_linear_filtering(plane_params.min_filter) ? GL_LINEAR : GL_NEAREST;
     }
 
-    return 0;
-}
-
-static int vt_ios_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_ios *vt = s->hwupload_priv_data;
-
-    int ret = vt_ios_common_map_frame(node, frame);
+    struct format_desc format_desc = {0};
+    int ret = vt_get_format_desc(vt->format, &format_desc);
     if (ret < 0)
         return ret;
 
-    s->width  = vt->width;
-    s->height = vt->height;
+    for (int i = 0; i < format_desc.nb_planes; i++) {
+        struct texture *plane = &vt->planes[i];
 
-    switch (vt->format) {
-    case kCVPixelFormatType_32BGRA:
-    case kCVPixelFormatType_32RGBA:
-    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-        memcpy(s->planes, vt->planes, sizeof(vt->planes));
-        break;
-    default:
-        ngli_assert(0);
+        plane_params.format = format_desc.planes[i].format;
+        ret = ngli_texture_wrap(plane, gl, &plane_params, 0);
+        if (ret < 0)
+            return ret;
+
+        s->planes[i] = plane;
     }
+    s->layout = format_desc.layout;
 
     return 0;
 }
@@ -297,7 +324,7 @@ static const struct hwmap_class hwmap_vt_ios_dr_class = {
     .name      = "videotoolbox (zero-copy)",
     .priv_size = sizeof(struct hwupload_vt_ios),
     .init      = vt_ios_dr_init,
-    .map_frame = vt_ios_dr_map_frame,
+    .map_frame = vt_ios_common_map_frame,
     .uninit    = vt_ios_common_uninit,
 };
 
@@ -311,15 +338,10 @@ static const struct hwmap_class *vt_ios_get_hwmap(struct ngl_node *node, struct 
     switch (cvformat) {
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA:
-        if (ngli_node_texture_has_mipmap(node)) {
-            LOG(WARNING, "IOSurface RGBA/BGRA buffers do not support mipmapping: "
-                "disabling mipmapping");
-            s->min_filter = ngli_node_texture_has_linear_filtering(node) ? GL_LINEAR : GL_NEAREST;
-        }
         return &hwmap_vt_ios_dr_class;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         if (s->direct_rendering &&
-            ngli_node_texture_has_mipmap(node)) {
+            ngli_texture_filter_has_mipmap(s->params.min_filter)) {
             LOG(WARNING, "IOSurface NV12 buffers do not support mipmapping: "
                 "disabling direct rendering");
             s->direct_rendering = 0;

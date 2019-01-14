@@ -38,10 +38,9 @@
 #include "nodes.h"
 
 struct hwupload_vt_darwin {
-    GLuint textures[2];
     struct sxplayer_frame *frame;
     struct hwconv hwconv;
-    struct texture_plane planes[2];
+    struct texture planes[2];
 };
 
 static int vt_get_data_format(struct sxplayer_frame *frame)
@@ -67,35 +66,32 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
 
-    s->data_format = vt_get_data_format(frame);
-    if (s->data_format < 0)
-        return -1;
+    struct texture_params params = s->params;
+    params.format = vt_get_data_format(frame);
+    params.width  = frame->width;
+    params.height = frame->height;
 
-    int ret = ngli_format_get_gl_texture_format(gl, s->data_format,
-                                                &s->format, &s->internal_format, &s->type);
+    int ret = ngli_texture_init(&s->texture, gl, &params);
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
+    ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE);
     if (ret < 0)
         return ret;
 
-    ret = ngli_hwconv_init(&vt->hwconv, gl, s->id, s->data_format,
-                           frame->width, frame->height, NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE);
-    if (ret < 0)
-        return ret;
+    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+    s->planes[0] = &s->texture;
 
     for (int i = 0; i < 2; i++) {
-        ngli_glGenTextures(gl, 1, &vt->textures[i]);
-        ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, vt->textures[i]);
-        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, 0);
+        struct texture *plane = &vt->planes[i];
+        struct texture_params plane_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+        plane_params.format = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM;
+        plane_params.rectangle = 1;
+        plane_params.external_storage = 1;
 
-        vt->planes[i].id = vt->textures[i];
-        vt->planes[i].target = GL_TEXTURE_RECTANGLE;
+        int ret = ngli_texture_init(plane, gl, &plane_params);
+        if (ret < 0)
+            return ret;
     }
 
     return 0;
@@ -125,44 +121,47 @@ static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     }
 
     for (int i = 0; i < 2; i++) {
-        ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, vt->textures[i]);
+        struct texture *plane = &vt->planes[i];
+
+        ngli_glBindTexture(gl, plane->target, plane->id);
 
         int width = IOSurfaceGetWidthOfPlane(surface, i);
         int height = IOSurfaceGetHeightOfPlane(surface, i);
+        ngli_texture_set_dimensions(plane, width, height, 0);
 
-        vt->planes[i].width = width;
-        vt->planes[i].height = height;
-
-        GLint format;
-        GLint internal_format;
-        GLenum type;
-
-        int data_format = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM;
-        int ret = ngli_format_get_gl_texture_format(gl, data_format, &format, &internal_format, &type);
-        if (ret < 0)
-            return ret;
-
-        CGLError err = CGLTexImageIOSurface2D(CGLGetCurrentContext(), GL_TEXTURE_RECTANGLE,
-                                              internal_format, width, height, format, type, surface, i);
+        CGLError err = CGLTexImageIOSurface2D(CGLGetCurrentContext(), plane->target,
+                                              plane->internal_format, width, height,
+                                              plane->format, plane->format_type, surface, i);
         if (err != kCGLNoError) {
-            LOG(ERROR, "could not bind IOSurface plane %d to texture %d: %d", i, s->id, err);
+            LOG(ERROR, "could not bind IOSurface plane %d to texture %d: %d", i, s->texture.id, err);
             return -1;
         }
 
         ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, 0);
     }
 
-    int ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
-    if (ret < 0)
-        return ret;
+    if (!ngli_texture_match_dimensions(&s->texture, frame->width, frame->height, 0)) {
+        ngli_hwconv_reset(&vt->hwconv);
+        ngli_texture_reset(&s->texture);
+
+        struct texture_params params = s->params;
+        params.format = vt_get_data_format(frame);
+        params.width  = frame->width;
+        params.height = frame->height;
+
+        int ret = ngli_texture_init(&s->texture, gl, &params);
+        if (ret < 0)
+            return ret;
+
+        ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE);
+        if (ret < 0)
+            return ret;
+    }
 
     ngli_hwconv_convert(&vt->hwconv, vt->planes, NULL);
 
-    if (ngli_node_texture_has_mipmap(node)) {
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-    }
+    if (ngli_texture_has_mipmap(&s->texture))
+        ngli_texture_generate_mipmap(&s->texture);
 
     return 0;
 }
@@ -173,6 +172,10 @@ static void vt_darwin_uninit(struct ngl_node *node)
     struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
 
     ngli_hwconv_reset(&vt->hwconv);
+    ngli_texture_reset(&s->texture);
+
+    for (int i = 0; i < 2; i++)
+        ngli_texture_reset(&vt->planes[i]);
 
     sxplayer_release_frame(vt->frame);
     vt->frame = NULL;

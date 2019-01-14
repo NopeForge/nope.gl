@@ -95,10 +95,14 @@ static int rtt_prefetch(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct rtt_priv *s = node->priv_data;
     struct texture_priv *texture = s->color_texture->priv_data;
+    struct texture *t = &texture->texture;
+    struct texture_params *params = &t->params;
     struct texture_priv *depth_texture = NULL;
+    struct texture_params *depth_texture_params = NULL; 
 
-    s->width = texture->width;
-    s->height = texture->height;
+    s->width = params->width;
+    s->height = params->height;
+
 
     if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) &&
         s->samples > 0) {
@@ -108,27 +112,29 @@ static int rtt_prefetch(struct ngl_node *node)
 
     if (s->depth_texture) {
         depth_texture = s->depth_texture->priv_data;
-        if (s->width != depth_texture->width || s->height != depth_texture->height) {
+        depth_texture_params = &depth_texture->params;
+        if (s->width != depth_texture_params->width || s->height != depth_texture_params->height) {
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
-                s->width, s->height, depth_texture->width, depth_texture->height);
+                s->width, s->height, depth_texture_params->width, depth_texture_params->height);
             return -1;
         }
     }
 
     int ret;
     struct fbo *fbo = &s->fbo;
-    if ((ret = ngli_fbo_init(fbo, gl, texture->width, texture->height, 0))          < 0 ||
-        (ret = ngli_fbo_attach_texture(&s->fbo, texture->data_format, texture->id)) < 0)
+    if ((ret = ngli_fbo_init(fbo, gl, params->width, params->height, 0)) < 0 ||
+        (ret = ngli_fbo_attach_texture(&s->fbo, params->format, t->id))  < 0)
         return ret;
 
     GLenum depth_format = NGLI_FORMAT_UNDEFINED;
 
     if (depth_texture) {
-        depth_format = depth_texture->data_format;
+        struct texture *dt = &depth_texture->texture;
+        depth_format = depth_texture_params->format;
         s->features |= FEATURE_DEPTH;
         s->features |= has_stencil(depth_format) ? FEATURE_STENCIL : 0;
 
-        ret = ngli_fbo_attach_texture(&s->fbo, depth_format, depth_texture->id);
+        ret = ngli_fbo_attach_texture(&s->fbo, depth_format, dt->id);
         if (ret < 0)
             return ret;
     } else {
@@ -151,7 +157,7 @@ static int rtt_prefetch(struct ngl_node *node)
     if (s->samples > 0) {
         struct fbo *fbo_ms = &s->fbo_ms;
         if ((ret = ngli_fbo_init(fbo_ms, gl, s->width, s->height, s->samples)) < 0 ||
-            (ret = ngli_fbo_create_renderbuffer(fbo_ms, texture->data_format)) < 0)
+            (ret = ngli_fbo_create_renderbuffer(fbo_ms, params->format)) < 0)
             return ret;
 
         if ((s->features & FEATURE_DEPTH) || (s->features & FEATURE_STENCIL)) {
@@ -235,12 +241,11 @@ static void rtt_draw(struct ngl_node *node)
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
 
     struct ngl_node *texture_node = s->color_texture;
-    struct texture_priv *texture = s->color_texture->priv_data;
+    struct texture_priv *texture = texture_node->priv_data;
+    struct texture *t = &texture->texture;
 
-    if (ngli_node_texture_has_mipmap(texture_node)) {
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, texture->id);
-        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-    }
+    if (ngli_texture_has_mipmap(t))
+        ngli_texture_generate_mipmap(t);
 
     if (s->vflip) {
         texture->coordinates_matrix[5] = -1.0f;

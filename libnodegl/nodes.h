@@ -50,6 +50,7 @@
 #include "buffer.h"
 #include "format.h"
 #include "fbo.h"
+#include "texture.h"
 
 struct node_class;
 
@@ -291,51 +292,23 @@ enum texture_layout {
     NGLI_TEXTURE_LAYOUT_MEDIACODEC,
 };
 
-struct texture_plane {
-    GLuint id;
-    GLenum target;
-    int width;
-    int height;
-};
-
 struct texture_priv {
-    int data_format;
-    int width;
-    int height;
-    int depth;
-    GLint min_filter;
-    GLint mag_filter;
-    GLint wrap_s;
-    GLint wrap_t;
-    GLint wrap_r;
-    GLenum access;
+    struct texture_params params;
+
     struct ngl_node *data_src;
     int direct_rendering;
-    int immutable;
 
-    GLuint id;
-    GLenum target;
-    GLint format;
-    GLint internal_format;
-    GLenum type;
+    struct texture texture;
     NGLI_ALIGNED_MAT(coordinates_matrix);
 
     enum texture_layout layout;
-    struct texture_plane planes[4];
+    const struct texture *planes[4];
 
     const struct hwmap_class *hwupload_map_class;
     void *hwupload_priv_data;
 
     double data_src_ts;
 };
-
-int ngli_node_texture_update_data(struct ngl_node *node,
-                                  int width, int height, int depth,
-                                  const uint8_t *data);
-
-int ngli_node_texture_has_mipmap(const struct ngl_node *node);
-
-int ngli_node_texture_has_linear_filtering(const struct ngl_node *node);
 
 struct uniformprograminfo {
     GLint location;
@@ -455,8 +428,7 @@ struct media_priv {
     struct sxplayer_frame *frame;
 
 #if defined(TARGET_ANDROID)
-    GLuint android_texture_id;
-    GLenum android_texture_target;
+    struct texture android_texture;
     struct android_surface *android_surface;
     struct android_handlerthread *android_handlerthread;
 #endif

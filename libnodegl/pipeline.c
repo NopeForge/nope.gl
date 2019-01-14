@@ -32,6 +32,7 @@
 #include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "texture.h"
 #include "utils.h"
 
 static struct pipeline *get_pipeline(struct ngl_node *node)
@@ -100,13 +101,12 @@ static int bind_texture_plane(const struct glcontext *gl,
                               int index,
                               int location)
 {
-    GLuint id = texture->planes[index].id;
-    GLenum target = texture->planes[index].target;
     int texture_index = acquire_next_available_texture_unit(used_texture_units);
     if (texture_index < 0)
         return -1;
+    const struct texture *plane = texture->planes[index];
     ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
-    ngli_glBindTexture(gl, target, id);
+    ngli_glBindTexture(gl, plane->target, plane->id);
     ngli_glUniform1i(gl, location, texture_index);
     return 0;
 }
@@ -133,9 +133,10 @@ static int update_sampler(const struct glcontext *gl,
     if (texture->layout == NGLI_TEXTURE_LAYOUT_DEFAULT) {
         if (info->sampler_location >= 0) {
             if (info->sampler_type == GL_IMAGE_2D) {
-                GLuint id = texture->planes[0].id;
+                const struct texture *plane = texture->planes[0];
+                const struct texture_params *params = &plane->params;
                 GLuint unit = info->sampler_value;
-                ngli_glBindImageTexture(gl, unit, id, 0, GL_FALSE, 0, texture->access, texture->internal_format);
+                ngli_glBindImageTexture(gl, unit, plane->id, 0, GL_FALSE, 0, params->access, plane->internal_format);
             } else {
                 int ret = bind_texture_plane(gl, texture, used_texture_units, 0, info->sampler_location);
                 if (ret < 0)
@@ -213,7 +214,13 @@ static int update_images_and_samplers(struct ngl_node *node)
                 ngli_glUniformMatrix4fv(gl, info->coord_matrix_location, 1, GL_FALSE, texture->coordinates_matrix);
 
             if (info->dimensions_location >= 0) {
-                const float dimensions[3] = {texture->width, texture->height, texture->depth};
+                float dimensions[3] = {0};
+                if (texture->layout != NGLI_TEXTURE_LAYOUT_NONE) {
+                    const struct texture_params *params = &texture->planes[0]->params;
+                    dimensions[0] = params->width;
+                    dimensions[1] = params->height;
+                    dimensions[2] = params->depth;
+                }
                 if (info->dimensions_type == GL_FLOAT_VEC2)
                     ngli_glUniform2fv(gl, info->dimensions_location, 1, dimensions);
                 else if (info->dimensions_type == GL_FLOAT_VEC3)

@@ -42,9 +42,10 @@ struct hwconv {
 };
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
-                     GLuint dst_texture, int dst_format, int dst_width, int dst_height,
+                     const struct texture *dst_texture,
                      enum texture_layout src_layout);
-int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture_plane *planes, const float *matrix);
+
+int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, const float *matrix);
 void ngli_hwconv_reset(struct hwconv *texconv);
 
 #endif

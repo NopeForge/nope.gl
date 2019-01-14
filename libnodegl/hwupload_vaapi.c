@@ -18,9 +18,8 @@
 struct hwupload_vaapi {
     struct sxplayer_frame *frame;
     struct hwconv hwconv;
-    struct texture_plane planes[2];
+    struct texture planes[2];
 
-    GLuint textures[2];
     EGLImageKHR egl_images[2];
 
     VADRMPRIMESurfaceDescriptor surface_descriptor;
@@ -42,19 +41,29 @@ static int vaapi_common_init(struct ngl_node *node, struct sxplayer_frame *frame
     }
 
     for (int i = 0; i < 2; i++) {
-        GLenum min_filter = s->min_filter;
-        if (ngli_node_texture_has_mipmap(node))
-            min_filter = ngli_node_texture_has_linear_filtering(node) ? GL_LINEAR : GL_NEAREST;
+        const struct texture_params *params = &s->params;
 
-        ngli_glGenTextures(gl, 1, &vaapi->textures[i]);
-        ngli_glBindTexture(gl, s->target, vaapi->textures[i]);
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, min_filter);
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, s->wrap_s);
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, s->wrap_t);
+        int format = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM;
+        GLenum min_filter = params->min_filter;
+        if (ngli_texture_filter_has_mipmap(params->min_filter))
+            min_filter = ngli_texture_filter_has_linear_filtering(params->min_filter) ? GL_LINEAR : GL_NEAREST;
 
-        vaapi->planes[i].id = vaapi->textures[i];
-        vaapi->planes[i].target = s->target;
+        struct texture *plane = &vaapi->planes[i];
+        const struct texture_params plane_params = {
+            .dimensions = 2,
+            .format = format,
+            .min_filter = min_filter,
+            .mag_filter = params->mag_filter,
+            .wrap_s = params->wrap_s,
+            .wrap_t = params->wrap_t,
+            .wrap_r = params->wrap_r,
+            .access = params->access,
+            .external_storage = 1,
+        };
+
+        int ret = ngli_texture_init(plane, gl, &plane_params);
+        if (ret < 0)
+            return ret;
     }
 
     return 0;
@@ -68,7 +77,7 @@ static void vaapi_common_uninit(struct ngl_node *node)
     struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
 
     for (int i = 0; i < 2; i++)
-        ngli_glDeleteTextures(gl, 1, &vaapi->textures[i]);
+        ngli_texture_reset(&vaapi->planes[i]);
 
     if (vaapi->surface_acquired) {
         for (int i = 0; i < 2; i++) {
@@ -84,6 +93,7 @@ static void vaapi_common_uninit(struct ngl_node *node)
     }
 
     ngli_hwconv_reset(&vaapi->hwconv);
+    ngli_texture_reset(&s->texture);
 
     sxplayer_release_frame(vaapi->frame);
     vaapi->frame = NULL;
@@ -156,9 +166,6 @@ static int vaapi_common_map_frame(struct ngl_node *node, struct sxplayer_frame *
         int width = i == 0 ? frame->width : (frame->width + 1) >> 1;
         int height = i == 0 ? frame->height : (frame->height + 1) >> 1;
 
-        vaapi->planes[i].width = width;
-        vaapi->planes[i].height = height;
-
         ADD_ATTRIB(EGL_LINUX_DRM_FOURCC_EXT, vaapi->surface_descriptor.layers[i].drm_format);
         ADD_ATTRIB(EGL_WIDTH,  width);
         ADD_ATTRIB(EGL_HEIGHT, height);
@@ -181,8 +188,11 @@ static int vaapi_common_map_frame(struct ngl_node *node, struct sxplayer_frame *
             return -1;
         }
 
-        ngli_glBindTexture(gl, s->target, vaapi->textures[i]);
-        ngli_glEGLImageTargetTexture2DOES(gl, GL_TEXTURE_2D, vaapi->egl_images[i]);
+        struct texture *plane = &vaapi->planes[i];
+        ngli_texture_set_dimensions(plane, width, height, 0);
+
+        ngli_glBindTexture(gl, plane->target, plane->id);
+        ngli_glEGLImageTargetTexture2DOES(gl, plane->target, vaapi->egl_images[i]);
     }
 
     return 0;
@@ -199,28 +209,27 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    s->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
-    ret = ngli_format_get_gl_texture_format(gl, s->data_format,
-                                            &s->format, &s->internal_format, &s->type);
+    struct texture_params params = s->params;
+    params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
+    params.width  = frame->width;
+    params.height = frame->height;
+
+    ret = ngli_texture_init(&s->texture, gl, &params);
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
+    ret = ngli_hwconv_init(&vaapi->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12);
     if (ret < 0)
         return ret;
 
-    ret = ngli_hwconv_init(&vaapi->hwconv, gl, s->id, s->data_format,
-                           s->width, s->height, NGLI_TEXTURE_LAYOUT_NV12);
-    if (ret < 0)
-        return ret;
+    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+    s->planes[0] = &s->texture;
 
     return 0;
 }
 
 static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
 
@@ -228,14 +237,23 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
-    if (ret < 0)
-        return ret;
+    if (!ngli_texture_match_dimensions(&s->texture, frame->width, frame->height, 0)) {
+        struct ngl_ctx *ctx = node->ctx;
+        struct glcontext *gl = ctx->glcontext;
 
-    if (ret) {
         ngli_hwconv_reset(&vaapi->hwconv);
-        ret = ngli_hwconv_init(&vaapi->hwconv, gl, s->id, s->data_format,
-                                s->width, s->height, NGLI_TEXTURE_LAYOUT_NV12);
+        ngli_texture_reset(&s->texture);
+
+        struct texture_params params = s->params;
+        params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
+        params.width  = frame->width;
+        params.height = frame->height;
+
+        ret = ngli_texture_init(&s->texture, gl, &params);
+        if (ret < 0)
+            return ret;
+
+        ret = ngli_hwconv_init(&vaapi->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12);
         if (ret < 0)
             return ret;
     }
@@ -244,11 +262,8 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    if (ngli_node_texture_has_mipmap(node)) {
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-    }
+    if (ngli_texture_has_mipmap(&s->texture))
+        ngli_texture_generate_mipmap(&s->texture);
 
     return 0;
 }
@@ -263,7 +278,8 @@ static int vaapi_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
         return ret;
 
     s->layout = NGLI_TEXTURE_LAYOUT_NV12;
-    memcpy(s->planes, vaapi->planes, sizeof(vaapi->planes));
+    for (int i = 0; i < 2; i++)
+        s->planes[i] = &vaapi->planes[i];
 
     return 0;
 }
@@ -291,7 +307,7 @@ static const struct hwmap_class *vaapi_get_hwmap(struct ngl_node *node, struct s
     struct texture_priv *s = node->priv_data;
 
     if (s->direct_rendering &&
-        ngli_node_texture_has_mipmap(node)) {
+        ngli_texture_filter_has_mipmap(s->params.min_filter)) {
         LOG(WARNING,
             "vaapi direct rendering does not support mipmapping: "
             "disabling direct rendering");

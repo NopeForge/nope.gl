@@ -111,6 +111,7 @@ LIB_OBJS = api.o                    \
            pipeline.o               \
            program.o                \
            serialize.o              \
+           texture.o                \
            transforms.o             \
            utils.o                  \
 

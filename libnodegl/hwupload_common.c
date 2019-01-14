@@ -53,27 +53,41 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
     struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
 
-    s->data_format = common_get_data_format(frame->pix_fmt);
-    if (s->data_format < 0)
+    struct texture_params params = s->params;
+    params.width  = frame->linesize >> 2;
+    params.height = frame->height;
+
+    params.format = common_get_data_format(frame->pix_fmt);
+    if (params.format < 0)
         return -1;
 
-    return ngli_format_get_gl_texture_format(gl,
-                                             s->data_format,
-                                             &s->format,
-                                             &s->internal_format,
-                                             &s->type);
+    int ret = ngli_texture_init(&s->texture, gl, &params);
+    if (ret < 0)
+        return ret;
+
+    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+    s->planes[0] = &s->texture;
+
+    return 0;
 }
 
 static int common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
+    struct texture *texture = &s->texture;
 
     const int linesize       = frame->linesize >> 2;
     s->coordinates_matrix[0] = linesize ? frame->width / (float)linesize : 1.0;
 
-    ngli_node_texture_update_data(node, linesize, frame->height, 0, frame->data);
+    if (!ngli_texture_match_dimensions(&s->texture, linesize, frame->height, 0)) {
+        ngli_texture_reset(texture);
 
-    return 0;
+        int ret = common_init(node, frame);
+        if (ret < 0)
+            return ret;
+    }
+
+    return ngli_texture_upload(texture, frame->data);
 }
 
 static const struct hwmap_class hwmap_common_class = {

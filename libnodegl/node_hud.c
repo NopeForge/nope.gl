@@ -673,10 +673,11 @@ static void widget_memory_make_stats(struct ngl_node *node, struct widget *widge
         const struct ngl_node *tex_node = nodes_tex[i];
         const struct texture_priv *texture = tex_node->priv_data;
         // FIXME: account for planes/internal textures (hwaccel)?
-        priv->sizes[MEMORY_TEXTURES] += texture->width
-                                      * texture->height
-                                      * NGLI_MAX(texture->depth, 1)
-                                      * format_byte_per_pixel(texture->data_format)
+        const struct texture_params *params = &texture->params;
+        priv->sizes[MEMORY_TEXTURES] += params->width
+                                      * params->height
+                                      * NGLI_MAX(params->depth, 1)
+                                      * format_byte_per_pixel(params->format)
                                       * tex_node->is_active;
     }
 }

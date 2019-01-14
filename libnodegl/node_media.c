@@ -159,14 +159,21 @@ static int media_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
 
-    ngli_glGenTextures(gl, 1, &s->android_texture_id);
-    s->android_texture_target = GL_TEXTURE_EXTERNAL_OES;
-    ngli_glBindTexture(gl, s->android_texture_target, s->android_texture_id);
-    ngli_glTexParameteri(gl, s->android_texture_target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    ngli_glTexParameteri(gl, s->android_texture_target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    ngli_glTexParameteri(gl, s->android_texture_target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    ngli_glTexParameteri(gl, s->android_texture_target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    ngli_glBindTexture(gl, s->android_texture_target, 0);
+    struct texture_params params = {
+        .dimensions = 2,
+        .format = NGLI_FORMAT_UNDEFINED,
+        .min_filter = GL_NEAREST,
+        .mag_filter = GL_NEAREST,
+        .wrap_s = GL_CLAMP_TO_EDGE,
+        .wrap_t = GL_CLAMP_TO_EDGE,
+        .wrap_r = GL_CLAMP_TO_EDGE,
+        .access = GL_READ_WRITE,
+        .external_oes = 1,
+    };
+
+    int ret = ngli_texture_init(&s->android_texture, gl, &params);
+    if (ret < 0)
+        return ret;
 
     s->android_handlerthread = ngli_android_handlerthread_new();
     if (!s->android_handlerthread)
@@ -176,7 +183,7 @@ static int media_init(struct ngl_node *node)
     if (!handler)
         return -1;
 
-    s->android_surface = ngli_android_surface_new(s->android_texture_id, handler);
+    s->android_surface = ngli_android_surface_new(s->android_texture.id, handler);
     if (!s->android_surface)
         return -1;
 
@@ -278,12 +285,9 @@ static void media_uninit(struct ngl_node *node)
     sxplayer_free(&s->player);
 
 #if defined(TARGET_ANDROID)
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
     ngli_android_surface_free(&s->android_surface);
-    ngli_glDeleteTextures(gl, 1, &s->android_texture_id);
     ngli_android_handlerthread_free(&s->android_handlerthread);
+    ngli_texture_reset(&s->android_texture);
 #endif
 }
 

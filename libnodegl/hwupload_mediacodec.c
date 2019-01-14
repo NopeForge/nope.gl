@@ -38,6 +38,7 @@
 
 struct hwupload_mc {
     struct hwconv hwconv;
+    struct texture planes;
 };
 
 static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
@@ -47,24 +48,21 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     struct texture_priv *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
-    s->data_format = NGLI_FORMAT_R8G8B8A8_UNORM;
-    int ret = ngli_format_get_gl_texture_format(gl,
-                                                s->data_format,
-                                                &s->format,
-                                                &s->internal_format,
-                                                &s->type);
+    struct texture_params params = s->params;
+    params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
+    params.width  = frame->width;
+    params.height = frame->height;
+
+    int ret = ngli_texture_init(&s->texture, gl, &params);
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
+    ret = ngli_hwconv_init(&mc->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_MEDIACODEC);
     if (ret < 0)
         return ret;
 
-    ret = ngli_hwconv_init(&mc->hwconv, gl,
-                           s->id, s->data_format, s->width, s->height,
-                           NGLI_TEXTURE_LAYOUT_MEDIACODEC);
-    if (ret < 0)
-        return ret;
+    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+    s->planes[0] = &s->texture;
 
     return 0;
 }
@@ -75,6 +73,7 @@ static void mc_uninit(struct ngl_node *node)
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
     ngli_hwconv_reset(&mc->hwconv);
+    ngli_texture_reset(&s->texture);
 }
 
 static int mc_common_render_frame(struct ngl_node *node, struct sxplayer_frame *frame, float *matrix)
@@ -93,6 +92,8 @@ static int mc_common_render_frame(struct ngl_node *node, struct sxplayer_frame *
     ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
     ngli_mat4_mul(matrix, flip_matrix, matrix);
 
+    ngli_texture_set_dimensions(&media->android_texture, frame->width, frame->height, 0);
+
     return 0;
 }
 
@@ -107,32 +108,19 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ret = ngli_node_texture_update_data(node, frame->width, frame->height, 0, NULL);
-    if (ret < 0)
-        return ret;
-
-    if (ret) {
+    if (!ngli_texture_match_dimensions(&s->texture, frame->width, frame->height, 0)) {
         mc_uninit(node);
         ret = mc_init(node, frame);
         if (ret < 0)
             return ret;
     }
 
-    const struct texture_plane plane = {
-        .id = media->android_texture_id,
-        .target = media->android_texture_target,
-    };
-    ret = ngli_hwconv_convert(&mc->hwconv, &plane, matrix);
+    ret = ngli_hwconv_convert(&mc->hwconv, &media->android_texture, matrix);
     if (ret < 0)
         return ret;
 
-    if (ngli_node_texture_has_mipmap(node)) {
-        struct ngl_ctx *ctx = node->ctx;
-        struct glcontext *gl = ctx->glcontext;
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, s->id);
-        ngli_glGenerateMipmap(gl, GL_TEXTURE_2D);
-        ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-    }
+    if (ngli_texture_has_mipmap(&s->texture))
+        ngli_texture_generate_mipmap(&s->texture);
 
     return 0;
 }
@@ -142,19 +130,19 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
+    const struct texture_params *params = &s->params;
     struct media_priv *media = s->data_src->priv_data;
 
-    GLint id = media->android_texture_id;
-    GLenum target = media->android_texture_target;
+    GLint id = media->android_texture.id;
+    GLenum target = media->android_texture.target;
 
     ngli_glBindTexture(gl, target, id);
-    ngli_glTexParameteri(gl, target, GL_TEXTURE_MIN_FILTER, s->min_filter);
-    ngli_glTexParameteri(gl, target, GL_TEXTURE_MAG_FILTER, s->mag_filter);
+    ngli_glTexParameteri(gl, target, GL_TEXTURE_MIN_FILTER, params->min_filter);
+    ngli_glTexParameteri(gl, target, GL_TEXTURE_MAG_FILTER, params->mag_filter);
     ngli_glBindTexture(gl, target, 0);
 
     s->layout = NGLI_TEXTURE_LAYOUT_MEDIACODEC;
-    s->planes[0].id = id;
-    s->planes[0].target = target;
+    s->planes[0] = &media->android_texture;
 
     return 0;
 }
@@ -166,9 +154,6 @@ static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     int ret = mc_common_render_frame(node, frame, s->coordinates_matrix);
     if (ret < 0)
         return ret;
-
-    s->planes[0].width = s->width  = frame->width;
-    s->planes[0].height = s->height = frame->height;
 
     return 0;
 }
@@ -192,11 +177,13 @@ static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxpl
     struct texture_priv *s = node->priv_data;
 
     if (s->direct_rendering) {
-        if (ngli_node_texture_has_mipmap(node)) {
+        const struct texture_params *params = &s->params;
+
+        if (ngli_texture_filter_has_mipmap(params->min_filter)) {
             LOG(WARNING, "external textures do not support mipmapping: "
                 "disabling direct rendering");
             s->direct_rendering = 0;
-        } else if (s->wrap_s != GL_CLAMP_TO_EDGE || s->wrap_t != GL_CLAMP_TO_EDGE) {
+        } else if (params->wrap_s != GL_CLAMP_TO_EDGE || params->wrap_t != GL_CLAMP_TO_EDGE) {
             LOG(WARNING, "external textures only support clamp to edge wrapping: "
                 "disabling direct rendering");
             s->direct_rendering = 0;
