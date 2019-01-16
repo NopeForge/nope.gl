@@ -145,10 +145,10 @@ static const struct node_param texture2d_params[] = {
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
     {"wrap_t", PARAM_TYPE_SELECT, OFFSET(wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the t dimension (vertical)")},
-    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_2D,
-                 .desc=NGLI_DOCSTRING("data source")},
     {"access", PARAM_TYPE_SELECT, OFFSET(access), {.i64=GL_READ_WRITE}, .choices=&access_choices,
                .desc=NGLI_DOCSTRING("texture access (only honored by the `Compute` node)")},
+    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_2D,
+                 .desc=NGLI_DOCSTRING("data source")},
     {"direct_rendering", PARAM_TYPE_BOOL, OFFSET(direct_rendering), {.i64=-1},
                          .desc=NGLI_DOCSTRING("whether direct rendering is enabled or not for media playback")},
     {NULL}
@@ -173,10 +173,10 @@ static const struct node_param texture3d_params[] = {
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the t dimension (vertical)")},
     {"wrap_r", PARAM_TYPE_SELECT, OFFSET(wrap_r), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the r dimension (depth)")},
-    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D,
-                 .desc=NGLI_DOCSTRING("data source")},
     {"access", PARAM_TYPE_SELECT, OFFSET(access), {.i64=GL_READ_WRITE}, .choices=&access_choices,
                .desc=NGLI_DOCSTRING("texture access (only honored by the `Compute` node)")},
+    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D,
+                 .desc=NGLI_DOCSTRING("data source")},
     {NULL}
 };
 

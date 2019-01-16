@@ -326,8 +326,8 @@
         - [mag_filter, select]
         - [wrap_s, select]
         - [wrap_t, select]
-        - [data_src, Node]
         - [access, select]
+        - [data_src, Node]
         - [direct_rendering, bool]
 
 - Texture3D:
@@ -341,8 +341,8 @@
         - [wrap_s, select]
         - [wrap_t, select]
         - [wrap_r, select]
-        - [data_src, Node]
         - [access, select]
+        - [data_src, Node]
 
 - TimeRangeFilter:
     constructors:

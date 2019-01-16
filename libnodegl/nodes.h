@@ -308,8 +308,8 @@ struct texture_priv {
     GLint wrap_s;
     GLint wrap_t;
     GLint wrap_r;
-    struct ngl_node *data_src;
     GLenum access;
+    struct ngl_node *data_src;
     int direct_rendering;
     int immutable;
 
