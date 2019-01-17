@@ -28,8 +28,8 @@
 #include "math_utils.h"
 #include "memory.h"
 #include "program.h"
+#include "texture.h"
 #include "utils.h"
-#include "nodes.h"
 
 static const char * const vertex_data =
     "#version 100"                                                          "\n"

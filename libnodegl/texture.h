@@ -25,6 +25,14 @@
 #include "glincludes.h"
 #include "glcontext.h"
 
+enum texture_layout {
+    NGLI_TEXTURE_LAYOUT_NONE,
+    NGLI_TEXTURE_LAYOUT_DEFAULT,
+    NGLI_TEXTURE_LAYOUT_NV12,
+    NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE,
+    NGLI_TEXTURE_LAYOUT_MEDIACODEC,
+};
+
 int ngli_texture_filter_has_mipmap(GLint filter);
 int ngli_texture_filter_has_linear_filtering(GLint filter);
 

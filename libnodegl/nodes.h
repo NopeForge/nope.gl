@@ -284,14 +284,6 @@ struct program_priv {
     struct hmap *active_buffer_blocks;
 };
 
-enum texture_layout {
-    NGLI_TEXTURE_LAYOUT_NONE,
-    NGLI_TEXTURE_LAYOUT_DEFAULT,
-    NGLI_TEXTURE_LAYOUT_NV12,
-    NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE,
-    NGLI_TEXTURE_LAYOUT_MEDIACODEC,
-};
-
 struct texture_priv {
     struct texture_params params;
 

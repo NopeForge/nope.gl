@@ -25,7 +25,7 @@
 #include "fbo.h"
 #include "glincludes.h"
 #include "glcontext.h"
-#include "nodes.h"
+#include "texture.h"
 
 struct hwconv {
     struct glcontext *gl;
