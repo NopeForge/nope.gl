@@ -211,7 +211,6 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture_plane *plane
     struct fbo *fbo = &hwconv->fbo;
 
     ngli_fbo_bind(fbo);
-
     GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
     ngli_glViewport(gl, 0, 0, fbo->width, fbo->height);
