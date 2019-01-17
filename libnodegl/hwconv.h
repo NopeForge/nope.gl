@@ -29,8 +29,6 @@
 
 struct hwconv {
     struct glcontext *gl;
-    int dst_width;
-    int dst_height;
     enum texture_layout src_layout;
 
     struct fbo fbo;

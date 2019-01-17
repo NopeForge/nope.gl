@@ -137,8 +137,6 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
                      enum texture_layout src_layout)
 {
     hwconv->gl = gl;
-    hwconv->dst_width = dst_width;
-    hwconv->dst_height = dst_height;
     hwconv->src_layout = src_layout;
 
     int ret;
@@ -210,12 +208,13 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
 int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture_plane *planes, const float *matrix)
 {
     struct glcontext *gl = hwconv->gl;
+    struct fbo *fbo = &hwconv->fbo;
 
-    ngli_fbo_bind(&hwconv->fbo);
+    ngli_fbo_bind(fbo);
 
     GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
-    ngli_glViewport(gl, 0, 0, hwconv->dst_width, hwconv->dst_height);
+    ngli_glViewport(gl, 0, 0, fbo->width, fbo->height);
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
 
     ngli_glUseProgram(gl, hwconv->program_id);
@@ -252,7 +251,7 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture_plane *plane
     }
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
-    ngli_fbo_unbind(&hwconv->fbo);
+    ngli_fbo_unbind(fbo);
 
     return 0;
 }
