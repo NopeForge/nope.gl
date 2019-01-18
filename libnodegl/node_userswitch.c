@@ -19,6 +19,8 @@
  * under the License.
  */
 
+#include <stddef.h>
+
 #include "nodes.h"
 #include "params.h"
 
