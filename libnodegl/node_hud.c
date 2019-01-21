@@ -635,15 +635,6 @@ static void widget_latency_make_stats(struct ngl_node *node, struct widget *widg
     register_time(s, &priv->measures[LATENCY_TOTAL_GPU], gpu_tdraw + gpu_tupdate);
 }
 
-#define FORMAT_SIZE_CASE(format, size, name, doc) case format: return size;
-static int format_byte_per_pixel(int format)
-{
-    switch (format) {
-        NGLI_FORMATS(FORMAT_SIZE_CASE);
-    }
-    return 0;
-}
-
 static void widget_memory_make_stats(struct ngl_node *node, struct widget *widget)
 {
     struct widget_memory *priv = widget->priv_data;
@@ -672,12 +663,7 @@ static void widget_memory_make_stats(struct ngl_node *node, struct widget *widge
     for (int i = 0; i < ngli_darray_count(nodes_tex_array); i++) {
         const struct ngl_node *tex_node = nodes_tex[i];
         const struct texture_priv *texture = tex_node->priv_data;
-        // FIXME: account for planes/internal textures (hwaccel)?
-        const struct texture_params *params = &texture->params;
-        priv->sizes[MEMORY_TEXTURES] += params->width
-                                      * params->height
-                                      * NGLI_MAX(params->depth, 1)
-                                      * format_byte_per_pixel(params->format)
+        priv->sizes[MEMORY_TEXTURES] += ngli_image_get_memory_size(&texture->image)
                                       * tex_node->is_active;
     }
 }

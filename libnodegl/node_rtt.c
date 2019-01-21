@@ -174,12 +174,14 @@ static int rtt_prefetch(struct ngl_node *node)
     if (s->vflip) {
         /* flip vertically the color and depth textures so the coordinates
          * match how the uv coordinates system works */
-        texture->coordinates_matrix[5] = -1.0f;
-        texture->coordinates_matrix[13] = 1.0f;
+        struct image *image = &texture->image;
+        image->coordinates_matrix[5] = -1.0f;
+        image->coordinates_matrix[13] = 1.0f;
 
         if (depth_texture) {
-            depth_texture->coordinates_matrix[5] = -1.0f;
-            depth_texture->coordinates_matrix[13] = 1.0f;
+            struct image *depth_image = &depth_texture->image;
+            depth_image->coordinates_matrix[5] = -1.0f;
+            depth_image->coordinates_matrix[13] = 1.0f;
         }
     }
 
@@ -248,13 +250,15 @@ static void rtt_draw(struct ngl_node *node)
         ngli_texture_generate_mipmap(t);
 
     if (s->vflip) {
-        texture->coordinates_matrix[5] = -1.0f;
-        texture->coordinates_matrix[13] = 1.0f;
+        struct image *image = &texture->image;
+        image->coordinates_matrix[5] = -1.0f;
+        image->coordinates_matrix[13] = 1.0f;
 
         if (s->depth_texture) {
             struct texture_priv *depth_texture = s->depth_texture->priv_data;
-            depth_texture->coordinates_matrix[5] = -1.0f;
-            depth_texture->coordinates_matrix[13] = 1.0f;
+            struct image *depth_image = &depth_texture->image;
+            depth_image->coordinates_matrix[5] = -1.0f;
+            depth_image->coordinates_matrix[13] = 1.0f;
         }
     }
 }

@@ -75,12 +75,11 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
     if (ret < 0)
         return ret;
 
-    ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE);
+    ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
     if (ret < 0)
         return ret;
 
-    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
-    s->planes[0] = &s->texture;
+    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
     for (int i = 0; i < 2; i++) {
         struct texture *plane = &vt->planes[i];
@@ -153,7 +152,7 @@ static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
         if (ret < 0)
             return ret;
 
-        ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE);
+        ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
         if (ret < 0)
             return ret;
     }

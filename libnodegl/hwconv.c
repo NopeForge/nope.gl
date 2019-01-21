@@ -24,6 +24,7 @@
 #include "hwconv.h"
 #include "glincludes.h"
 #include "glcontext.h"
+#include "image.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
@@ -115,17 +116,17 @@ static const struct hwconv_desc {
     const char *vertex_data;
     const char *fragment_data;
 } hwconv_descs[] = {
-    [NGLI_TEXTURE_LAYOUT_MEDIACODEC] = {
+    [NGLI_IMAGE_LAYOUT_MEDIACODEC] = {
         .nb_planes = 1,
         .vertex_data = vertex_data,
         .fragment_data = oes_to_rgba_fragment_data,
     },
-    [NGLI_TEXTURE_LAYOUT_NV12] = {
+    [NGLI_IMAGE_LAYOUT_NV12] = {
         .nb_planes = 2,
         .vertex_data = vertex_data,
         .fragment_data = nv12_to_rgba_fragment_data,
     },
-    [NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE] = {
+    [NGLI_IMAGE_LAYOUT_NV12_RECTANGLE] = {
         .nb_planes = 2,
         .vertex_data = nv12_rectangle_to_rgba_vertex_data,
         .fragment_data = nv12_rectangle_to_rgba_fragment_data,
@@ -134,7 +135,7 @@ static const struct hwconv_desc {
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
                      const struct texture *dst_texture,
-                     enum texture_layout src_layout)
+                     enum image_layout src_layout)
 {
     hwconv->gl = gl;
     hwconv->src_layout = src_layout;
@@ -146,9 +147,9 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
         (ret = ngli_fbo_allocate(&hwconv->fbo))                                        < 0)
         return ret;
 
-    if (src_layout != NGLI_TEXTURE_LAYOUT_NV12 &&
-        src_layout != NGLI_TEXTURE_LAYOUT_NV12_RECTANGLE &&
-        src_layout != NGLI_TEXTURE_LAYOUT_MEDIACODEC) {
+    if (src_layout != NGLI_IMAGE_LAYOUT_NV12 &&
+        src_layout != NGLI_IMAGE_LAYOUT_NV12_RECTANGLE &&
+        src_layout != NGLI_IMAGE_LAYOUT_MEDIACODEC) {
         LOG(ERROR, "unsupported texture layout: 0x%x", src_layout);
         return -1;
     }

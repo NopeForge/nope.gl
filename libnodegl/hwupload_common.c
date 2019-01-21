@@ -28,6 +28,7 @@
 #include "format.h"
 #include "glincludes.h"
 #include "hwupload.h"
+#include "image.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
@@ -65,8 +66,7 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
-    s->planes[0] = &s->texture;
+    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
     return 0;
 }
@@ -75,9 +75,10 @@ static int common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
     struct texture *texture = &s->texture;
+    struct image *image = &s->image;
 
     const int linesize       = frame->linesize >> 2;
-    s->coordinates_matrix[0] = linesize ? frame->width / (float)linesize : 1.0;
+    image->coordinates_matrix[0] = linesize ? frame->width / (float)linesize : 1.0;
 
     if (!ngli_texture_match_dimensions(&s->texture, linesize, frame->height, 0)) {
         ngli_texture_reset(texture);

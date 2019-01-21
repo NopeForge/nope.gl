@@ -11,6 +11,7 @@
 #include "glincludes.h"
 #include "hwconv.h"
 #include "hwupload.h"
+#include "image.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -218,12 +219,11 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ret = ngli_hwconv_init(&vaapi->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12);
+    ret = ngli_hwconv_init(&vaapi->hwconv, gl, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
     if (ret < 0)
         return ret;
 
-    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
-    s->planes[0] = &s->texture;
+    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
     return 0;
 }
@@ -253,7 +253,7 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         if (ret < 0)
             return ret;
 
-        ret = ngli_hwconv_init(&vaapi->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12);
+        ret = ngli_hwconv_init(&vaapi->hwconv, gl, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
         if (ret < 0)
             return ret;
     }
@@ -277,9 +277,7 @@ static int vaapi_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    s->layout = NGLI_TEXTURE_LAYOUT_NV12;
-    for (int i = 0; i < 2; i++)
-        s->planes[i] = &vaapi->planes[i];
+    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_NV12, &vaapi->planes[0], &vaapi->planes[1]);
 
     return 0;
 }

@@ -73,7 +73,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
         return 0;
     media->frame = NULL;
 
-    s->data_src_ts = frame->ts;
+    s->image.ts = frame->ts;
 
     const struct hwmap_class *hwmap_class = get_hwmap_class(node, frame);
     if (!hwmap_class) {
@@ -117,7 +117,5 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     ngli_free(s->hwupload_priv_data);
     s->hwupload_priv_data = NULL;
     s->hwupload_map_class = NULL;
-    s->layout = NGLI_TEXTURE_LAYOUT_NONE;
-    memset(s->planes, 0, sizeof(s->planes));
-    ngli_mat4_identity(s->coordinates_matrix);
+    ngli_image_reset(&s->image);
 }

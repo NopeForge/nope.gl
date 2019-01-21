@@ -193,8 +193,6 @@ static int texture_prefetch(struct ngl_node *node, int dimensions)
     if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE)
         params->immutable = 1;
 
-    ngli_mat4_identity(s->coordinates_matrix);
-
     const uint8_t *data = NULL;
 
     if (s->data_src) {
@@ -278,8 +276,7 @@ static int texture_prefetch(struct ngl_node *node, int dimensions)
     if (ret < 0)
         return ret;
 
-    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
-    s->planes[0] = &s->texture;
+    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
     return 0;
 }
@@ -361,9 +358,7 @@ static void texture_release(struct ngl_node *node)
 
     ngli_hwupload_uninit(node);
     ngli_texture_reset(&s->texture);
-
-    s->layout = NGLI_TEXTURE_LAYOUT_NONE;
-    memset(&s->planes, 0, sizeof(s->planes));
+    ngli_image_reset(&s->image);
 }
 
 static int texture3d_init(struct ngl_node *node)

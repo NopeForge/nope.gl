@@ -75,6 +75,7 @@ LIB_OBJS = api.o                    \
            hwconv.o                 \
            hwupload.o               \
            hwupload_common.o        \
+           image.o                  \
            log.o                    \
            math_utils.o             \
            memory.o                 \

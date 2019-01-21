@@ -19,34 +19,31 @@
  * under the License.
  */
 
-#ifndef HWCONV_H
-#define HWCONV_H
+#ifndef IMAGE_H
+#define IMAGE_H
 
-#include "fbo.h"
-#include "glincludes.h"
-#include "glcontext.h"
-#include "image.h"
 #include "texture.h"
+#include "utils.h"
 
-struct hwconv {
-    struct glcontext *gl;
-    enum image_layout src_layout;
-
-    struct fbo fbo;
-    GLuint vao_id;
-    GLuint program_id;
-    GLuint vertices_id;
-    GLint position_location;
-    GLint texture_locations[2];
-    GLint texture_matrix_location;
-    GLint texture_dimensions_location;
+enum image_layout {
+    NGLI_IMAGE_LAYOUT_NONE,
+    NGLI_IMAGE_LAYOUT_DEFAULT,
+    NGLI_IMAGE_LAYOUT_NV12,
+    NGLI_IMAGE_LAYOUT_NV12_RECTANGLE,
+    NGLI_IMAGE_LAYOUT_MEDIACODEC,
+    NGLI_NB_IMAGE_LAYOUTS
 };
 
-int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
-                     const struct texture *dst_texture,
-                     enum image_layout src_layout);
+struct image {
+    enum image_layout layout;
+    const struct texture *planes[4];
+    int nb_planes;
+    NGLI_ALIGNED_MAT(coordinates_matrix);
+    double ts;
+};
 
-int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, const float *matrix);
-void ngli_hwconv_reset(struct hwconv *texconv);
+void ngli_image_init(struct image *s, enum image_layout layout, ...);
+void ngli_image_reset(struct image *s);
+uint64_t ngli_image_get_memory_size(const struct image *s);
 
 #endif

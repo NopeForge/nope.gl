@@ -64,17 +64,17 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 {
     switch (format) {
     case kCVPixelFormatType_32BGRA:
-        desc->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+        desc->layout = NGLI_IMAGE_LAYOUT_DEFAULT;
         desc->nb_planes = 1;
         desc->planes[0].format = NGLI_FORMAT_B8G8R8A8_UNORM;
         break;
     case kCVPixelFormatType_32RGBA:
-        desc->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
+        desc->layout = NGLI_IMAGE_LAYOUT_DEFAULT;
         desc->nb_planes = 1;
         desc->planes[0].format = NGLI_FORMAT_R8G8B8A8_UNORM;
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-        desc->layout = NGLI_TEXTURE_LAYOUT_NV12;
+        desc->layout = NGLI_IMAGE_LAYOUT_NV12;
         desc->nb_planes = 2;
         desc->planes[0].format = NGLI_FORMAT_R8_UNORM;
         desc->planes[1].format = NGLI_FORMAT_R8G8_UNORM;
@@ -222,12 +222,11 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12);
+    ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
     if (ret < 0)
         return ret;
 
-    s->layout = NGLI_TEXTURE_LAYOUT_DEFAULT;
-    s->planes[0] = &s->texture;
+    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
     return 0;
 }
@@ -257,7 +256,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         if (ret < 0)
             return ret;
 
-        ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_TEXTURE_LAYOUT_NV12);
+        ret = ngli_hwconv_init(&vt->hwconv, gl, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
         if (ret < 0)
             return ret;
     }
@@ -304,10 +303,9 @@ static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
         ret = ngli_texture_wrap(plane, gl, &plane_params, 0);
         if (ret < 0)
             return ret;
-
-        s->planes[i] = plane;
     }
-    s->layout = format_desc.layout;
+
+    ngli_image_init(&s->image, format_desc.layout, &vt->planes[0], &vt->planes[1]);
 
     return 0;
 }

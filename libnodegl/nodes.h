@@ -44,6 +44,7 @@
 #include "glcontext.h"
 #include "glstate.h"
 #include "hmap.h"
+#include "image.h"
 #include "nodegl.h"
 #include "params.h"
 #include "darray.h"
@@ -286,20 +287,14 @@ struct program_priv {
 
 struct texture_priv {
     struct texture_params params;
-
     struct ngl_node *data_src;
     int direct_rendering;
 
     struct texture texture;
-    NGLI_ALIGNED_MAT(coordinates_matrix);
-
-    enum texture_layout layout;
-    const struct texture *planes[4];
+    struct image image;
 
     const struct hwmap_class *hwupload_map_class;
     void *hwupload_priv_data;
-
-    double data_src_ts;
 };
 
 struct uniformprograminfo {
