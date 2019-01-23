@@ -153,8 +153,10 @@ static int update_vertex_attribs(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
-    for (int i = 0; i < s->nb_attribute_pairs; i++) {
-        const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
+    const struct darray *attribute_pairs = &s->attribute_pairs;
+    const struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
+    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
         const GLint aid = info->location;
         struct buffer_priv *buffer = pair->node->priv_data;
@@ -176,8 +178,10 @@ static int disable_vertex_attribs(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
-    for (int i = 0; i < s->nb_attribute_pairs; i++) {
-        const struct nodeprograminfopair *pair = &s->attribute_pairs[i];
+    const struct darray *attribute_pairs = &s->attribute_pairs;
+    const struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
+    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
         ngli_glDisableVertexAttribArray(gl, info->location);
     }
@@ -213,7 +217,11 @@ static int pair_node_to_attribinfo(struct render_priv *s, const char *name,
         .program_info = (void *)active_attribute,
     };
     snprintf(pair.name, sizeof(pair.name), "%s", name);
-    s->attribute_pairs[s->nb_attribute_pairs++] = pair;
+    if (!ngli_darray_push(&s->attribute_pairs, &pair)) {
+        ngli_node_buffer_unref(anode);
+        return -1;
+    }
+
     return 0;
 }
 
@@ -335,12 +343,7 @@ static int render_init(struct ngl_node *node)
     s->normal_matrix_location     = get_uniform_location(uniforms, "ngl_normal_matrix");
 
     /* User and builtin attribute pairs */
-    const int max_nb_attributes = NGLI_ARRAY_NB(attrib_const_map)
-                                + (s->attributes ? ngli_hmap_count(s->attributes) : 0)
-                                + (s->instance_attributes ? ngli_hmap_count(s->instance_attributes) : 0);
-    s->attribute_pairs = ngli_calloc(max_nb_attributes, sizeof(*s->attribute_pairs));
-    if (!s->attribute_pairs)
-        return -1;
+    ngli_darray_init(&s->attribute_pairs, sizeof(struct nodeprograminfopair), 0);
 
     /* Builtin vertex attributes */
     struct geometry_priv *geometry = s->geometry->priv_data;
@@ -363,7 +366,7 @@ static int render_init(struct ngl_node *node)
         return ret;
 
     /* User per instance vertex attributes */
-    s->first_instance_attribute_index = s->nb_attribute_pairs;
+    s->first_instance_attribute_index = s->attribute_pairs.count;
     ret = pair_nodes_to_attribinfo(node, s->instance_attributes, 1);
     if (ret < 0)
         return ret;
@@ -409,12 +412,14 @@ static void render_uninit(struct ngl_node *node)
         ngli_node_buffer_unref(geometry->indices_buffer);
     }
 
-    for (int i = 0; i < s->nb_attribute_pairs; i++) {
-        struct nodeprograminfopair *pair = &s->attribute_pairs[i];
+    struct darray *attribute_pairs = &s->attribute_pairs;
+    struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
+    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
+        struct nodeprograminfopair *pair = &pairs[i];
         ngli_node_buffer_unref(pair->node);
     }
 
-    ngli_free(s->attribute_pairs);
+    ngli_darray_reset(&s->attribute_pairs);
 }
 
 static int render_update(struct ngl_node *node, double t)
@@ -425,8 +430,10 @@ static int render_update(struct ngl_node *node, double t)
     if (ret < 0)
         return ret;
 
-    for (int i = 0; i < s->nb_attribute_pairs; i++) {
-        struct nodeprograminfopair *pair = &s->attribute_pairs[i];
+    struct darray *attribute_pairs = &s->attribute_pairs;
+    struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
+    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
+        struct nodeprograminfopair *pair = &pairs[i];
         struct ngl_node *bnode = pair->node;
         int ret = ngli_node_update(bnode, t);
         if (ret < 0)

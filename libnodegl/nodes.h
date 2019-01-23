@@ -377,8 +377,7 @@ struct render_priv {
 
     int nb_instances;
 
-    struct nodeprograminfopair *attribute_pairs; // (attribute, attributeprograminfo)
-    int nb_attribute_pairs;
+    struct darray attribute_pairs; // nodeprograminfopair (attribute, attributeprograminfo)
     int first_instance_attribute_index;
 
     int has_indices_buffer_ref;
