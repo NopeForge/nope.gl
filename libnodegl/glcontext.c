@@ -399,7 +399,7 @@ void ngli_glcontext_swap_buffers(struct glcontext *glcontext)
 void ngli_glcontext_set_surface_pts(struct glcontext *glcontext, double t)
 {
     if (glcontext->class->set_surface_pts)
-        return glcontext->class->set_surface_pts(glcontext, t);
+        glcontext->class->set_surface_pts(glcontext, t);
 }
 
 int ngli_glcontext_resize(struct glcontext *glcontext, int width, int height)
