@@ -352,19 +352,16 @@ struct pipeline {
     struct hmap *textures;
     struct textureprograminfo *textureprograminfos;
     int nb_textureprograminfos;
-    struct nodeprograminfopair *texture_pairs; // (texture, textureprograminfo)
-    int nb_texture_pairs;
+    struct darray texture_pairs; // nodeprograminfopair (texture, textureprograminfo)
 
     uint64_t used_texture_units;
     int disabled_texture_unit[2]; /* 2D, OES */
 
     struct hmap *uniforms;
-    struct nodeprograminfopair *uniform_pairs; // (uniform, uniformprograminfo)
-    int nb_uniform_pairs;
+    struct darray uniform_pairs; // nodeprograminfopair (uniform, uniformprograminfo)
 
     struct hmap *buffers;
-    struct nodeprograminfopair *buffer_pairs; // (buffer, uniformprograminfo)
-    int nb_buffer_pairs;
+    struct darray buffer_pairs; // nodeprograminfopair (buffer, uniformprograminfo)
 };
 
 struct render_priv {

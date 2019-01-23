@@ -196,8 +196,10 @@ static int update_images_and_samplers(struct ngl_node *node)
         for (int i = 0; i < NGLI_ARRAY_NB(s->disabled_texture_unit); i++)
             s->disabled_texture_unit[i] = -1;
 
-        for (int i = 0; i < s->nb_texture_pairs; i++) {
-            const struct nodeprograminfopair *pair = &s->texture_pairs[i];
+        const struct darray *texture_pairs = &s->texture_pairs;
+        const struct nodeprograminfopair *pairs = ngli_darray_data(texture_pairs);
+        for (int i = 0; i < ngli_darray_count(texture_pairs); i++) {
+            const struct nodeprograminfopair *pair = &pairs[i];
             const struct textureprograminfo *info = pair->program_info;
             const struct ngl_node *tnode = pair->node;
             struct texture_priv *texture = tnode->priv_data;
@@ -241,8 +243,10 @@ static int update_uniforms(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct pipeline *s = get_pipeline(node);
 
-    for (int i = 0; i < s->nb_uniform_pairs; i++) {
-        const struct nodeprograminfopair *pair = &s->uniform_pairs[i];
+    const struct darray *uniform_pairs = &s->uniform_pairs;
+    const struct nodeprograminfopair *pairs = ngli_darray_data(uniform_pairs);
+    for (int i = 0; i < ngli_darray_count(uniform_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
         const struct uniformprograminfo *info = pair->program_info;
         const GLint uid = info->location;
         if (uid < 0)
@@ -326,8 +330,10 @@ static int update_buffers(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct pipeline *s = get_pipeline(node);
 
-    for (int i = 0; i < s->nb_buffer_pairs; i++) {
-        const struct nodeprograminfopair *pair = &s->buffer_pairs[i];
+    const struct darray *buffer_pairs = &s->buffer_pairs;
+    const struct nodeprograminfopair *pairs = ngli_darray_data(buffer_pairs);
+    for (int i = 0; i < ngli_darray_count(buffer_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
         const struct ngl_node *bnode = pair->node;
         const struct buffer_priv *buffer = bnode->priv_data;
         const struct bufferprograminfo *info = pair->program_info;
@@ -410,12 +416,11 @@ int ngli_pipeline_init(struct ngl_node *node)
     struct pipeline *s = get_pipeline(node);
     struct program_priv *program = s->program->priv_data;
 
-    int nb_uniforms = s->uniforms ? ngli_hmap_count(s->uniforms) : 0;
-    if (nb_uniforms > 0) {
-        s->uniform_pairs = ngli_calloc(nb_uniforms, sizeof(*s->uniform_pairs));
-        if (!s->uniform_pairs)
-            return -1;
+    ngli_darray_init(&s->texture_pairs, sizeof(struct nodeprograminfopair), 0);
+    ngli_darray_init(&s->uniform_pairs, sizeof(struct nodeprograminfopair), 0);
+    ngli_darray_init(&s->buffer_pairs, sizeof(struct nodeprograminfopair), 0);
 
+    if (s->uniforms) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->uniforms, entry))) {
             const struct uniformprograminfo *active_uniform =
@@ -431,7 +436,8 @@ int ngli_pipeline_init(struct ngl_node *node)
                 .program_info = (void *)active_uniform,
             };
             snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
-            s->uniform_pairs[s->nb_uniform_pairs++] = pair;
+            if (!ngli_darray_push(&s->uniform_pairs, &pair))
+                return -1;
         }
     }
 
@@ -446,10 +452,6 @@ int ngli_pipeline_init(struct ngl_node *node)
     if (nb_textures > 0) {
         s->textureprograminfos = ngli_calloc(nb_textures, sizeof(*s->textureprograminfos));
         if (!s->textureprograminfos)
-            return -1;
-
-        s->texture_pairs = ngli_calloc(nb_textures, sizeof(*s->texture_pairs));
-        if (!s->texture_pairs)
             return -1;
 
         const struct hmap_entry *entry = NULL;
@@ -500,16 +502,13 @@ int ngli_pipeline_init(struct ngl_node *node)
                 .program_info = (void *)info,
             };
             snprintf(pair.name, sizeof(pair.name), "%s", key);
-            s->texture_pairs[s->nb_texture_pairs++] = pair;
+            if (!ngli_darray_push(&s->texture_pairs, &pair))
+                return -1;
         }
     }
 
-    int nb_buffers = s->buffers ? ngli_hmap_count(s->buffers) : 0;
-    if (nb_buffers > 0 &&
+    if (s->buffers &&
         gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
-        s->buffer_pairs = ngli_calloc(nb_buffers, sizeof(*s->buffer_pairs));
-        if (!s->buffer_pairs)
-            return -1;
 
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->buffers, entry))) {
@@ -540,7 +539,10 @@ int ngli_pipeline_init(struct ngl_node *node)
                 .program_info = (void *)info,
             };
             snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
-            s->buffer_pairs[s->nb_buffer_pairs++] = pair;
+            if (!ngli_darray_push(&s->buffer_pairs, &pair)) {
+                ngli_node_buffer_unref(bnode);
+                return -1;
+            }
         }
     }
 
@@ -552,13 +554,17 @@ void ngli_pipeline_uninit(struct ngl_node *node)
     struct pipeline *s = get_pipeline(node);
 
     ngli_free(s->textureprograminfos);
-    ngli_free(s->texture_pairs);
-    ngli_free(s->uniform_pairs);
-    for (int i = 0; i < s->nb_buffer_pairs; i++) {
-        struct nodeprograminfopair *pair = &s->buffer_pairs[i];
+
+    ngli_darray_reset(&s->texture_pairs);
+    ngli_darray_reset(&s->uniform_pairs);
+
+    struct darray *buffer_pairs = &s->buffer_pairs;
+    struct nodeprograminfopair *pairs = ngli_darray_data(buffer_pairs);
+    for (int i = 0; i < ngli_darray_count(buffer_pairs); i++) {
+        struct nodeprograminfopair *pair = &pairs[i];
         ngli_node_buffer_unref(pair->node);
     }
-    ngli_free(s->buffer_pairs);
+    ngli_darray_reset(&s->buffer_pairs);
 }
 
 int ngli_pipeline_update(struct ngl_node *node, double t)
