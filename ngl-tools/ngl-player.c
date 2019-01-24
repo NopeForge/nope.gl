@@ -34,10 +34,11 @@ static const char *pgbar_shader = \
 "#version 100"                                                          "\n" \
 "precision mediump float;"                                              "\n" \
                                                                         "\n" \
-"uniform float time;"                                                   "\n" \
 "uniform float ar;"                                                     "\n" \
 "uniform float opacity;"                                                "\n" \
 "uniform sampler2D tex0_sampler;"                                       "\n" \
+"uniform float tex0_ts;"                                                "\n" \
+"uniform float media_duration;"                                         "\n" \
 "varying vec2 var_tex0_coord;"                                          "\n" \
                                                                         "\n" \
 "void main()"                                                           "\n" \
@@ -47,6 +48,7 @@ static const char *pgbar_shader = \
 "    float y = var_tex0_coord.y;"                                       "\n" \
 "    vec4 video_pix = texture2D(tex0_sampler, var_tex0_coord);"         "\n" \
 "    vec4 color = video_pix;"                                           "\n" \
+"    float time = tex0_ts / media_duration;"                            "\n" \
 "    if (y > 1. - height)"                                              "\n" \
 "        color = x < time ? vec4(1) : mix(video_pix, vec4(1), 0.3);"    "\n" \
 "    gl_FragColor = mix(video_pix, color, opacity);"                    "\n" \
@@ -70,28 +72,19 @@ static struct ngl_node *get_scene(const char *filename)
         ngl_node_create(NGL_NODE_UNIFORMFLOAT),
     };
 
-    struct ngl_node *time_animkf[2] = {
-        ngl_node_create(NGL_NODE_ANIMKEYFRAMEFLOAT, 0.0, 0.0),
-        ngl_node_create(NGL_NODE_ANIMKEYFRAMEFLOAT, g_info.duration, 1.0),
-    };
-
-    struct ngl_node *time_anim = ngl_node_create(NGL_NODE_ANIMATEDFLOAT);
-
-    ngl_node_param_add(time_anim, "keyframes", 2, time_animkf);
-
     ngl_node_param_set(quad, "corner", corner);
     ngl_node_param_set(quad, "width", width);
     ngl_node_param_set(quad, "height", height);
 
     ngl_node_param_set(texture, "data_src", media);
     ngl_node_param_set(program, "fragment", pgbar_shader);
-    ngl_node_param_set(uniforms[0], "anim", time_anim);
+    ngl_node_param_set(uniforms[0], "value", g_info.duration);
     ngl_node_param_set(uniforms[1], "value", g_info.width / (double)g_info.height);
     ngl_node_param_set(uniforms[2], "value", 0.0);
 
     ngl_node_param_set(render, "program", program);
     ngl_node_param_set(render, "textures", "tex0",    texture);
-    ngl_node_param_set(render, "uniforms", "time",    uniforms[0]);
+    ngl_node_param_set(render, "uniforms", "media_duration", uniforms[0]);
     ngl_node_param_set(render, "uniforms", "ar",      uniforms[1]);
     ngl_node_param_set(render, "uniforms", "opacity", uniforms[2]);
 
@@ -100,10 +93,7 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_unrefp(&uniforms[0]);
     ngl_node_unrefp(&uniforms[1]);
     ngl_node_unrefp(&uniforms[2]);
-    ngl_node_unrefp(&time_animkf[0]);
-    ngl_node_unrefp(&time_animkf[1]);
 
-    ngl_node_unrefp(&time_anim);
     ngl_node_unrefp(&program);
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);
