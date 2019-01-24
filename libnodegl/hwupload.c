@@ -73,6 +73,8 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
         return 0;
     media->frame = NULL;
 
+    s->data_src_ts = frame->ts;
+
     const struct hwmap_class *hwmap_class = get_hwmap_class(node, frame);
     if (!hwmap_class) {
         sxplayer_release_frame(frame);
