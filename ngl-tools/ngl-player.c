@@ -66,11 +66,9 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *program = ngl_node_create(NGL_NODE_PROGRAM);
     struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER, quad);
 
-    struct ngl_node *uniforms[3] = {
-        ngl_node_create(NGL_NODE_UNIFORMFLOAT),
-        ngl_node_create(NGL_NODE_UNIFORMFLOAT),
-        ngl_node_create(NGL_NODE_UNIFORMFLOAT),
-    };
+    struct ngl_node *u_media_duration = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
+    struct ngl_node *u_ar             = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
+    struct ngl_node *u_opacity        = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
 
     ngl_node_param_set(quad, "corner", corner);
     ngl_node_param_set(quad, "width", width);
@@ -78,21 +76,21 @@ static struct ngl_node *get_scene(const char *filename)
 
     ngl_node_param_set(texture, "data_src", media);
     ngl_node_param_set(program, "fragment", pgbar_shader);
-    ngl_node_param_set(uniforms[0], "value", g_info.duration);
-    ngl_node_param_set(uniforms[1], "value", g_info.width / (double)g_info.height);
-    ngl_node_param_set(uniforms[2], "value", 0.0);
+    ngl_node_param_set(u_media_duration, "value", g_info.duration);
+    ngl_node_param_set(u_ar,             "value", g_info.width / (double)g_info.height);
+    ngl_node_param_set(u_opacity,        "value", 0.0);
 
     ngl_node_param_set(render, "program", program);
     ngl_node_param_set(render, "textures", "tex0",    texture);
-    ngl_node_param_set(render, "uniforms", "media_duration", uniforms[0]);
-    ngl_node_param_set(render, "uniforms", "ar",      uniforms[1]);
-    ngl_node_param_set(render, "uniforms", "opacity", uniforms[2]);
+    ngl_node_param_set(render, "uniforms", "media_duration", u_media_duration);
+    ngl_node_param_set(render, "uniforms", "ar",             u_ar);
+    ngl_node_param_set(render, "uniforms", "opacity",        u_opacity);
 
-    g_opacity_uniform = uniforms[2];
+    g_opacity_uniform = u_opacity;
 
-    ngl_node_unrefp(&uniforms[0]);
-    ngl_node_unrefp(&uniforms[1]);
-    ngl_node_unrefp(&uniforms[2]);
+    ngl_node_unrefp(&u_media_duration);
+    ngl_node_unrefp(&u_ar);
+    ngl_node_unrefp(&u_opacity);
 
     ngl_node_unrefp(&program);
     ngl_node_unrefp(&media);
