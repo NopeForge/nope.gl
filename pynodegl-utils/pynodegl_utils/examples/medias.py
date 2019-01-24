@@ -23,11 +23,10 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
 
     if progress_bar:
         p.set_fragment(get_frag('progress-bar'))
-        time_animkf = [ngl.AnimKeyFrameFloat(0, 0),
-                       ngl.AnimKeyFrameFloat(cfg.duration, 1)]
-        time = ngl.UniformFloat(anim=ngl.AnimatedFloat(time_animkf))
+
+        media_duration = ngl.UniformFloat(m0.duration)
         ar = ngl.UniformFloat(cfg.aspect_ratio_float)
-        render.update_uniforms(time=time, ar=ar)
+        render.update_uniforms(media_duration=media_duration, ar=ar)
     return render
 
 

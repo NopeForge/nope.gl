@@ -1,9 +1,10 @@
 #version 100
 precision mediump float;
 
-uniform float time;
 uniform float ar;
 uniform sampler2D tex0_sampler;
+uniform float tex0_ts;
+uniform float media_duration;
 varying vec2 var_tex0_coord;
 varying vec2 var_uvcoord;
 
@@ -23,7 +24,7 @@ void main()
 
     float bar_width = 1. - padw*2. - thickw*2.;
 
-    float t = time*bar_width + padw+thickw;
+    float t = tex0_ts/media_duration*bar_width + padw+thickw;
 
     if (x < t && x > padw+thickw &&
         y < 1.-padh-thickh && y > 1.-padh-height) {
