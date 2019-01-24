@@ -312,6 +312,7 @@ struct media_priv {
     int max_pixels;
     int stream_idx;
     int hwaccel;
+    char *filters;
 
     struct sxplayer_ctx *player;
     struct sxplayer_frame *frame;

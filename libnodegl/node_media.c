@@ -89,6 +89,8 @@ static const struct node_param media_params[] = {
     {"hwaccel",        NGLI_PARAM_TYPE_SELECT, OFFSET(hwaccel),     {.i64=HWACCEL_AUTO},
                        .choices=&sxplayer_hwaccel_choices,
                        .desc=NGLI_DOCSTRING("hardware acceleration")},
+    {"filters",        NGLI_PARAM_TYPE_STR, OFFSET(filters),
+                       .desc=NGLI_DOCSTRING("filters to apply on the media (sxplayer/libavfilter)")},
     {NULL}
 };
 
@@ -150,6 +152,7 @@ static int media_init(struct ngl_node *node)
     if (s->max_nb_frames)  sxplayer_set_option(s->player, "max_nb_frames",  s->max_nb_frames);
     if (s->max_nb_sink)    sxplayer_set_option(s->player, "max_nb_sink",    s->max_nb_sink);
     if (s->max_pixels)     sxplayer_set_option(s->player, "max_pixels",     s->max_pixels);
+    if (s->filters)        sxplayer_set_option(s->player, "filters",        s->filters);
 
     sxplayer_set_option(s->player, "stream_idx", s->stream_idx);
     sxplayer_set_option(s->player, "auto_hwaccel", s->hwaccel);

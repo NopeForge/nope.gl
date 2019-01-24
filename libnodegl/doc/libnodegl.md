@@ -394,6 +394,7 @@ Parameter | Live-chg. | Type | Description | Default
 `max_pixels` |  | [`int`](#parameter-types) | maximum number of pixels per frame | `0`
 `stream_idx` |  | [`int`](#parameter-types) | force a stream number instead of picking the "best" one | `-1`
 `hwaccel` |  | [`sxplayer_hwaccel`](#sxplayer_hwaccel-choices) | hardware acceleration | `auto`
+`filters` |  | [`string`](#parameter-types) | filters to apply on the media (sxplayer/libavfilter) | 
 
 
 **Source**: [node_media.c](/libnodegl/node_media.c)

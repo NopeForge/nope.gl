@@ -267,6 +267,7 @@
     - [max_pixels, int]
     - [stream_idx, int]
     - [hwaccel, select]
+    - [filters, string]
 
 - _Noise:
     - [frequency, double]
