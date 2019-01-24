@@ -369,6 +369,12 @@ static void *egl_get_proc_address(struct glcontext *ctx, const char *name)
     return eglGetProcAddress(name);
 }
 
+static uintptr_t get_display(struct glcontext *ctx)
+{
+    struct egl_priv *egl = ctx->priv_data;
+    return (uintptr_t)egl->native_display;
+}
+
 static uintptr_t egl_get_handle(struct glcontext *ctx)
 {
     struct egl_priv *egl = ctx->priv_data;
@@ -385,5 +391,6 @@ const struct glcontext_class ngli_glcontext_egl_class = {
     .set_surface_pts = egl_set_surface_pts,
     .get_proc_address = egl_get_proc_address,
     .get_handle = egl_get_handle,
+    .get_display = get_display,
     .priv_size = sizeof(struct egl_priv),
 };

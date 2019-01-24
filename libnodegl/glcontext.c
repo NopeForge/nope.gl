@@ -453,6 +453,16 @@ void *ngli_glcontext_get_texture_cache(struct glcontext *glcontext)
     return texture_cache;
 }
 
+uintptr_t ngli_glcontext_get_display(struct glcontext *glcontext)
+{
+    uintptr_t handle = 0;
+
+    if (glcontext->class->get_display)
+        handle = glcontext->class->get_display(glcontext);
+
+    return handle;
+}
+
 uintptr_t ngli_glcontext_get_handle(struct glcontext *glcontext)
 {
     uintptr_t handle = 0;
