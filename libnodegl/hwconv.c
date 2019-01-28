@@ -140,11 +140,16 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
     hwconv->gl = gl;
     hwconv->src_layout = src_layout;
 
-    int ret;
     const struct texture_params *params = &dst_texture->params;
-    if ((ret = ngli_fbo_init(&hwconv->fbo, gl, params->width, params->height, 0))      < 0 ||
-        (ret = ngli_fbo_attach_texture(&hwconv->fbo, params->format, dst_texture->id)) < 0 ||
-        (ret = ngli_fbo_allocate(&hwconv->fbo))                                        < 0)
+
+    struct fbo_params fbo_params = {
+        .width = params->width,
+        .height = params->height,
+        .nb_attachments = 1,
+        .attachments = &dst_texture,
+    };
+    int ret = ngli_fbo_init(&hwconv->fbo, gl, &fbo_params);
+    if (ret < 0)
         return ret;
 
     if (src_layout != NGLI_IMAGE_LAYOUT_NV12 &&

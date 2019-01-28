@@ -189,6 +189,7 @@ struct camera_priv {
 
     int samples;
     struct fbo fbo;
+    struct texture fbo_color;
 };
 
 struct geometry_priv {
@@ -271,7 +272,11 @@ struct rtt_priv {
     int height;
 
     struct fbo fbo;
+    struct texture fbo_depth;
+
     struct fbo fbo_ms;
+    struct texture fbo_ms_color;
+    struct texture fbo_ms_depth;
 };
 
 struct program_priv {

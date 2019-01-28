@@ -33,6 +33,8 @@ struct hwconv {
     enum image_layout src_layout;
 
     struct fbo fbo;
+    struct texture color_attachment;
+
     GLuint vao_id;
     GLuint program_id;
     GLuint vertices_id;

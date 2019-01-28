@@ -51,6 +51,8 @@ struct egl_priv {
     EGLAPIENTRY EGLBoolean (*DestroyImageKHR)(EGLDisplay, EGLImageKHR);
     EGLAPIENTRY void (*EGLImageTargetTexture2DOES)(GLenum, GLeglImageOES);
     struct fbo fbo;
+    struct texture fbo_color;
+    struct texture fbo_depth;
 };
 
 EGLImageKHR ngli_eglCreateImageKHR(struct glcontext *gl, EGLConfig context, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
@@ -288,12 +290,34 @@ static int egl_init_framebuffer(struct glcontext *ctx)
         ctx->samples = 0;
     }
 
-    int ret;
-    if ((ret = ngli_fbo_init(&egl->fbo, ctx, ctx->width, ctx->height, ctx->samples))   < 0 ||
-        (ret = ngli_fbo_create_renderbuffer(&egl->fbo, NGLI_FORMAT_R8G8B8A8_UNORM))    < 0 ||
-        (ret = ngli_fbo_create_renderbuffer(&egl->fbo, NGLI_FORMAT_D24_UNORM_S8_UINT)) < 0 ||
-        (ret = ngli_fbo_allocate(&egl->fbo))                                           < 0 ||
-        (ret = ngli_fbo_bind(&egl->fbo))                                               < 0)
+    struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+    attachment_params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
+    attachment_params.width = ctx->width;
+    attachment_params.height = ctx->height;
+    attachment_params.samples = ctx->samples;
+    attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
+    int ret = ngli_texture_init(&egl->fbo_color, ctx, &attachment_params);
+    if (ret < 0)
+        return ret;
+
+    attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
+    ret = ngli_texture_init(&egl->fbo_depth, ctx, &attachment_params);
+    if (ret < 0)
+        return ret;
+
+    const struct texture *attachments[] = {&egl->fbo_color, &egl->fbo_depth};
+    struct fbo_params fbo_params = {
+        .width = ctx->width,
+        .height = ctx->height,
+        .nb_attachments = NGLI_ARRAY_NB(attachments),
+        .attachments = attachments,
+    };
+    ret = ngli_fbo_init(&egl->fbo, ctx, &fbo_params);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_fbo_bind(&egl->fbo);
+    if (ret < 0)
         return ret;
 
     return 0;
@@ -304,6 +328,9 @@ static void egl_uninit(struct glcontext *ctx)
     struct egl_priv *egl = ctx->priv_data;
 
     ngli_fbo_reset(&egl->fbo);
+    ngli_texture_reset(&egl->fbo_color);
+    ngli_texture_reset(&egl->fbo_depth);
+
     ngli_glcontext_make_current(ctx, 0);
 
     if (egl->surface)

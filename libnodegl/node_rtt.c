@@ -103,7 +103,6 @@ static int rtt_prefetch(struct ngl_node *node)
     s->width = params->width;
     s->height = params->height;
 
-
     if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) &&
         s->samples > 0) {
         LOG(WARNING, "context does not support the framebuffer object feature, multisample anti-aliasing will be disabled");
@@ -120,53 +119,69 @@ static int rtt_prefetch(struct ngl_node *node)
         }
     }
 
-    int ret;
-    struct fbo *fbo = &s->fbo;
-    if ((ret = ngli_fbo_init(fbo, gl, params->width, params->height, 0)) < 0 ||
-        (ret = ngli_fbo_attach_texture(&s->fbo, params->format, t->id))  < 0)
-        return ret;
+    struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+    attachment_params.width = s->width;
+    attachment_params.height = s->height;
+    attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
+
+    const struct texture *attachments[2] = {&texture->texture};
+    int nb_attachments = 1;
 
     GLenum depth_format = NGLI_FORMAT_UNDEFINED;
-
     if (depth_texture) {
         struct texture *dt = &depth_texture->texture;
         depth_format = depth_texture_params->format;
         s->features |= FEATURE_DEPTH;
         s->features |= has_stencil(depth_format) ? FEATURE_STENCIL : 0;
-
-        ret = ngli_fbo_attach_texture(&s->fbo, depth_format, dt->id);
-        if (ret < 0)
-            return ret;
+        attachments[nb_attachments++] = dt;
     } else {
         if (s->features & FEATURE_STENCIL)
             depth_format = NGLI_FORMAT_D24_UNORM_S8_UINT;
         else if (s->features & FEATURE_DEPTH)
             depth_format = NGLI_FORMAT_D16_UNORM;
 
-        if (depth_format) {
-            ret = ngli_fbo_create_renderbuffer(fbo, depth_format);
-            if (ret < 0)
-                return ret;
-        }
+        attachment_params.format = depth_format;
+        int ret = ngli_texture_init(&s->fbo_depth, gl, &attachment_params);
+        if (ret < 0)
+            return ret;
+        attachments[nb_attachments++] = &s->fbo_depth;
     }
 
-    ret = ngli_fbo_allocate(fbo);
+    struct fbo_params fbo_params = {
+        .width = s->width,
+        .height = s->height,
+        .nb_attachments = nb_attachments,
+        .attachments = attachments,
+    };
+    int ret = ngli_fbo_init(&s->fbo, gl, &fbo_params);
     if (ret < 0)
         return ret;
 
     if (s->samples > 0) {
-        struct fbo *fbo_ms = &s->fbo_ms;
-        if ((ret = ngli_fbo_init(fbo_ms, gl, s->width, s->height, s->samples)) < 0 ||
-            (ret = ngli_fbo_create_renderbuffer(fbo_ms, params->format)) < 0)
+        const struct texture *attachments[2] = {&s->fbo_ms_color};
+        int nb_attachments = 1;
+
+        attachment_params.samples = s->samples;
+        attachment_params.format = params->format;
+        int ret = ngli_texture_init(&s->fbo_ms_color, gl, &attachment_params);
+        if (ret < 0)
             return ret;
 
-        if ((s->features & FEATURE_DEPTH) || (s->features & FEATURE_STENCIL)) {
-            ret = ngli_fbo_create_renderbuffer(fbo_ms, depth_format);
+        if (depth_format != NGLI_FORMAT_UNDEFINED) {
+            attachment_params.format = depth_format;
+            int ret = ngli_texture_init(&s->fbo_ms_depth, gl, &attachment_params);
             if (ret < 0)
                 return ret;
+            attachments[nb_attachments++] = &s->fbo_ms_depth;
         }
 
-        ret = ngli_fbo_allocate(fbo_ms);
+        struct fbo_params fbo_params = {
+            .width = s->width,
+            .height = s->height,
+            .nb_attachments = nb_attachments,
+            .attachments = attachments,
+        };
+        ret = ngli_fbo_init(&s->fbo_ms, gl, &fbo_params);
         if (ret < 0)
             return ret;
     }
@@ -268,7 +283,11 @@ static void rtt_release(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
 
     ngli_fbo_reset(&s->fbo);
+    ngli_texture_reset(&s->fbo_depth);
+
     ngli_fbo_reset(&s->fbo_ms);
+    ngli_texture_reset(&s->fbo_ms_color);
+    ngli_texture_reset(&s->fbo_ms_depth);
 }
 
 const struct node_class ngli_rtt_class = {

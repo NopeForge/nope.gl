@@ -26,22 +26,9 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "log.h"
+#include "texture.h"
 
-enum fbo_attachment_type {
-    FBO_ATTACHMENT_TYPE_NONE,
-    FBO_ATTACHMENT_TYPE_RENDERBUFFER,
-    FBO_ATTACHMENT_TYPE_TEXTURE,
-};
-
-struct fbo_attachment {
-    enum fbo_attachment_type type;
-    int is_external;
-    GLuint id;
-    GLenum index;
-    GLenum format;
-};
-
-static GLenum get_gl_index(GLenum format)
+static GLenum get_gl_attachment_index(GLenum format)
 {
     switch (format) {
     case GL_DEPTH_COMPONENT:
@@ -61,126 +48,13 @@ static GLenum get_gl_index(GLenum format)
     }
 }
 
-static int has_attachment(struct fbo *fbo, int index)
-{
-    struct fbo_attachment *attachments = ngli_darray_data(&fbo->attachments);
-    for (int i = 0; i < ngli_darray_count(&fbo->attachments); i++) {
-        struct fbo_attachment *attachment = &attachments[i];
-        if (attachment->index == index)
-            return 1;
-    }
-    return 0;
-}
-
-int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, int width, int height, int samples)
+int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params *params)
 {
     fbo->gl = gl;
-    fbo->width = width;
-    fbo->height = height;
-    fbo->samples = samples;
-    fbo->id = 0;
-    ngli_darray_init(&fbo->attachments, sizeof(struct fbo_attachment), 0);
+    fbo->width = params->width;
+    fbo->height = params->height;
+
     ngli_darray_init(&fbo->depth_indices, sizeof(GLenum), 0);
-    return 0;
-}
-
-int ngli_fbo_resize(struct fbo *fbo, int width, int height)
-{
-    struct glcontext *gl = fbo->gl;
-
-    fbo->width = width;
-    fbo->height = height;
-
-    struct fbo_attachment *attachments = ngli_darray_data(&fbo->attachments);
-    for (int i = 0; i < ngli_darray_count(&fbo->attachments); i++) {
-        struct fbo_attachment *attachment = &attachments[i];
-        if (!attachment->id || attachment->is_external)
-            continue;
-        if (attachment->type == FBO_ATTACHMENT_TYPE_RENDERBUFFER) {
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, attachment->id);
-            if (fbo->samples > 0)
-                ngli_glRenderbufferStorageMultisample(gl, GL_RENDERBUFFER, fbo->samples, attachment->format, fbo->width, fbo->height);
-            else
-                ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, attachment->format, fbo->width, fbo->height);
-            ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
-        }
-    }
-
-    return 0;
-}
-
-int ngli_fbo_create_renderbuffer(struct fbo *fbo, int format)
-{
-    struct glcontext *gl = fbo->gl;
-
-    GLenum gl_format;
-    int ret = ngli_format_get_gl_renderbuffer_format(gl, format, (GLint *)&gl_format);
-    if (ret < 0)
-        return ret;
-
-    GLenum gl_index = get_gl_index(gl_format);
-    ngli_assert(!has_attachment(fbo, gl_index));
-
-    if (gl->features & NGLI_FEATURE_INTERNALFORMAT_QUERY) {
-        GLint samples;
-        ngli_glGetInternalformativ(gl, GL_RENDERBUFFER, gl_format, GL_SAMPLES, 1, &samples);
-        if (fbo->samples > samples) {
-            LOG(WARNING, "renderbuffer format 0x%x does not support requested samples %d (maximum %d)", gl_format, fbo->samples, samples);
-            fbo->samples = samples;
-        }
-    }
-
-    struct fbo_attachment *attachment = ngli_darray_push(&fbo->attachments, NULL);
-    if (!attachment)
-        return -1;
-
-    attachment->type = FBO_ATTACHMENT_TYPE_RENDERBUFFER;
-    attachment->is_external = 0;
-    attachment->id = 0;
-    attachment->index = gl_index;
-    attachment->format = gl_format;
-
-    return 0;
-}
-
-static int attach(struct fbo *fbo, enum fbo_attachment_type type, int format, GLuint id)
-{
-    struct glcontext *gl = fbo->gl;
-
-    GLenum gl_format;
-    int ret = ngli_format_get_gl_renderbuffer_format(gl, format, (GLint *)&gl_format);
-    if (ret < 0)
-        return ret;
-
-    GLenum gl_index = get_gl_index(gl_format);
-    ngli_assert(!has_attachment(fbo, gl_index));
-
-    struct fbo_attachment *attachment = ngli_darray_push(&fbo->attachments, NULL);
-    if (!attachment)
-        return -1;
-
-    attachment->type = type;
-    attachment->is_external = 1;
-    attachment->id = id;
-    attachment->index = gl_index;
-    attachment->format = gl_format;
-
-    return 0;
-}
-
-int ngli_fbo_attach_renderbuffer(struct fbo *fbo, int format, GLuint renderbuffer)
-{
-    return attach(fbo, FBO_ATTACHMENT_TYPE_RENDERBUFFER, format, renderbuffer);
-}
-
-int ngli_fbo_attach_texture(struct fbo *fbo, int format, GLuint texture)
-{
-    return attach(fbo, FBO_ATTACHMENT_TYPE_TEXTURE, format, texture);
-}
-
-int ngli_fbo_allocate(struct fbo *fbo)
-{
-    struct glcontext *gl = fbo->gl;
 
     GLuint fbo_id = 0;
     ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&fbo_id);
@@ -188,32 +62,38 @@ int ngli_fbo_allocate(struct fbo *fbo)
     ngli_glGenFramebuffers(gl, 1, &fbo->id);
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo->id);
 
-    struct fbo_attachment *attachments = ngli_darray_data(&fbo->attachments);
-    for (int i = 0; i < ngli_darray_count(&fbo->attachments); i++) {
-        struct fbo_attachment *attachment = &attachments[i];
-        if (attachment->type == FBO_ATTACHMENT_TYPE_RENDERBUFFER) {
-            if (!attachment->is_external) {
-                ngli_glGenRenderbuffers(gl, 1, &attachment->id);
-                ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, attachment->id);
-                if (fbo->samples > 0)
-                    ngli_glRenderbufferStorageMultisample(gl, GL_RENDERBUFFER, fbo->samples, attachment->format, fbo->width, fbo->height);
-                else
-                    ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, attachment->format, fbo->width, fbo->height);
-                ngli_glBindRenderbuffer(gl, GL_RENDERBUFFER, 0);
+    int color_index = 0;
+    for (int i = 0; i < params->nb_attachments; i++) {
+        const struct texture *attachment = params->attachments[i];
+
+        GLenum attachment_index = get_gl_attachment_index(attachment->format);
+        const int is_color_attachment = attachment_index == GL_COLOR_ATTACHMENT0;
+        if (is_color_attachment) {
+            if (color_index >= gl->max_color_attachments) {
+                LOG(ERROR, "could not attach color buffer %d (maximum %d)",
+                    color_index, gl->max_color_attachments);
+                ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+                return -1;
             }
-            if (gl->backend == NGL_BACKEND_OPENGLES && gl->version < 300 && attachment->index == GL_DEPTH_STENCIL_ATTACHMENT) {
+            attachment_index = attachment_index + color_index++;
+        }
+
+        switch (attachment->target) {
+        case GL_RENDERBUFFER:
+            if (gl->backend == NGL_BACKEND_OPENGLES && gl->version < 300 && attachment_index == GL_DEPTH_STENCIL_ATTACHMENT) {
                 ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, attachment->id);
                 ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, attachment->id);
             } else {
-                ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, attachment->index, GL_RENDERBUFFER, attachment->id);
+                ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, attachment_index, GL_RENDERBUFFER, attachment->id);
             }
-        } else if (attachment->type == FBO_ATTACHMENT_TYPE_TEXTURE) {
-            ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment->index, GL_TEXTURE_2D, attachment->id, 0);
-        } else {
+            if (!is_color_attachment)
+                ngli_darray_push(&fbo->depth_indices, &attachment_index);
+            break;
+        case GL_TEXTURE_2D:
+            ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, attachment->id, 0);
+            break;
+        default:
             ngli_assert(0);
-        }
-        if (attachment->index != GL_COLOR_ATTACHMENT0) {
-            ngli_darray_push(&fbo->depth_indices, &attachment->index);
         }
     }
 
@@ -224,6 +104,7 @@ int ngli_fbo_allocate(struct fbo *fbo)
     }
 
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+
     return 0;
 }
 
@@ -282,16 +163,6 @@ void ngli_fbo_reset(struct fbo *fbo)
 
     ngli_glDeleteFramebuffers(gl, 1, &fbo->id);
 
-    struct fbo_attachment *attachments = ngli_darray_data(&fbo->attachments);
-    for (int i = 0; i < ngli_darray_count(&fbo->attachments); i++) {
-        struct fbo_attachment *attachment = &attachments[i];
-        if (attachment->is_external)
-            continue;
-        if (attachment->type == FBO_ATTACHMENT_TYPE_RENDERBUFFER) {
-            ngli_glDeleteRenderbuffers(gl, 1, &attachment->id);
-        }
-    }
-    ngli_darray_reset(&fbo->attachments);
     ngli_darray_reset(&fbo->depth_indices);
 
     memset(fbo, 0, sizeof(*fbo));

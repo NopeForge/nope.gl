@@ -24,24 +24,26 @@
 
 #include "darray.h"
 #include "glcontext.h"
+#include "texture.h"
+
+struct fbo_params {
+    int width;
+    int height;
+    int nb_attachments;
+    const struct texture **attachments;
+};
 
 struct fbo {
     struct glcontext *gl;
     int width;
     int height;
-    int samples;
+
     GLuint id;
     GLuint prev_id;
-    struct darray attachments;
     struct darray depth_indices;
 };
 
-int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, int width, int height, int samples);
-int ngli_fbo_resize(struct fbo *fbo, int width, int height);
-int ngli_fbo_create_renderbuffer(struct fbo *fbo, int format);
-int ngli_fbo_attach_renderbuffer(struct fbo *fbo, int format, GLuint renderbuffer);
-int ngli_fbo_attach_texture(struct fbo *fbo, int format, GLuint texture);
-int ngli_fbo_allocate(struct fbo *fbo);
+int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params *params);
 int ngli_fbo_bind(struct fbo *fbo);
 int ngli_fbo_unbind(struct fbo *fbo);
 void ngli_fbo_invalidate_depth_buffers(struct fbo *fbo);
