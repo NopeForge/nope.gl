@@ -145,7 +145,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 {
     struct eagl_priv *eagl = ctx->priv_data;
 
-    if (![NSThread isMainThread]) {
+    if (!ctx->offscreen && ![NSThread isMainThread]) {
         __block int ret;
         ngli_glcontext_make_current(ctx, 0);
 
