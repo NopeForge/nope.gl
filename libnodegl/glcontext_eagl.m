@@ -109,9 +109,15 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             return ret;
     }
 
-    eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3];
+    EAGLSharegroup *share_group = nil;
+    if (other) {
+        EAGLContext *shared_context = (EAGLContext *)other;
+        share_group = [shared_context sharegroup];
+    }
+
+    eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:share_group];
     if (!eagl->handle) {
-        eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
+        eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:share_group];
         if (!eagl->handle) {
             LOG(ERROR, "could not create EAGL context");
             return -1;
