@@ -147,7 +147,7 @@ static const struct {
     {"ngl_normal",   GEOMETRY_OFFSET(normals_buffer)},
 };
 
-static int update_vertex_attribs(struct ngl_node *node)
+static void update_vertex_attribs(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -168,11 +168,9 @@ static int update_vertex_attribs(struct ngl_node *node)
         if (i >= s->first_instance_attribute_index)
             ngli_glVertexAttribDivisor(gl, aid, 1);
     }
-
-    return 0;
 }
 
-static int disable_vertex_attribs(struct ngl_node *node)
+static void disable_vertex_attribs(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -185,8 +183,6 @@ static int disable_vertex_attribs(struct ngl_node *node)
         const struct attributeprograminfo *info = pair->program_info;
         ngli_glDisableVertexAttribArray(gl, info->location);
     }
-
-    return 0;
 }
 
 static int get_uniform_location(struct hmap *uniforms, const char *name)
