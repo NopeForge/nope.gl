@@ -91,6 +91,11 @@ cmds_optional = [
 
     # EGL OES image
     'glEGLImageTargetTexture2DOES',
+
+    # Sync object
+    'glFenceSync',
+    'glWaitSync',
+    'glClientWaitSync',
 ]
 
 cmds = [

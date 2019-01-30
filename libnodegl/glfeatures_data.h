@@ -198,5 +198,15 @@ static const struct glfeature {
         .es_extensions  = (const char*[]){"GL_OES_EGL_image", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(EGLImageTargetTexture2DOES),
                                            -1}
+    }, {
+        .name           = "sync",
+        .flag           = NGLI_FEATURE_SYNC,
+        .version        = 320,
+        .es_version     = 300,
+        .extensions     = (const char*[]){"ARB_sync", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(FenceSync),
+                                           OFFSET(ClientWaitSync),
+                                           OFFSET(WaitSync),
+                                           -1}
     }
 };

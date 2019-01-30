@@ -153,6 +153,13 @@ static inline void ngli_glClearColor(const struct glcontext *gl, GLfloat red, GL
     check_error_code(gl, "glClearColor");
 }
 
+static inline GLenum ngli_glClientWaitSync(const struct glcontext *gl, GLsync sync, GLbitfield flags, GLuint64 timeout)
+{
+    GLenum ret = gl->funcs.ClientWaitSync(sync, flags, timeout);
+    check_error_code(gl, "glClientWaitSync");
+    return ret;
+}
+
 static inline void ngli_glColorMask(const struct glcontext *gl, GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha)
 {
     gl->funcs.ColorMask(red, green, blue, alpha);
@@ -327,6 +334,13 @@ static inline void ngli_glEndQueryEXT(const struct glcontext *gl, GLenum target)
 {
     gl->funcs.EndQueryEXT(target);
     check_error_code(gl, "glEndQueryEXT");
+}
+
+static inline GLsync ngli_glFenceSync(const struct glcontext *gl, GLenum condition, GLbitfield flags)
+{
+    GLsync ret = gl->funcs.FenceSync(condition, flags);
+    check_error_code(gl, "glFenceSync");
+    return ret;
 }
 
 static inline void ngli_glFramebufferRenderbuffer(const struct glcontext *gl, GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
@@ -849,4 +863,10 @@ static inline void ngli_glViewport(const struct glcontext *gl, GLint x, GLint y,
 {
     gl->funcs.Viewport(x, y, width, height);
     check_error_code(gl, "glViewport");
+}
+
+static inline void ngli_glWaitSync(const struct glcontext *gl, GLsync sync, GLbitfield flags, GLuint64 timeout)
+{
+    gl->funcs.WaitSync(sync, flags, timeout);
+    check_error_code(gl, "glWaitSync");
 }

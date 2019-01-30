@@ -36,6 +36,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY GLenum (*CheckFramebufferStatus)(GLenum target);
     NGLI_GL_APIENTRY void (*Clear)(GLbitfield mask);
     NGLI_GL_APIENTRY void (*ClearColor)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+    NGLI_GL_APIENTRY GLenum (*ClientWaitSync)(GLsync sync, GLbitfield flags, GLuint64 timeout);
     NGLI_GL_APIENTRY void (*ColorMask)(GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha);
     NGLI_GL_APIENTRY void (*CompileShader)(GLuint shader);
     NGLI_GL_APIENTRY GLuint (*CreateProgram)();
@@ -65,6 +66,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*EnableVertexAttribArray)(GLuint index);
     NGLI_GL_APIENTRY void (*EndQuery)(GLenum target);
     NGLI_GL_APIENTRY void (*EndQueryEXT)(GLenum target);
+    NGLI_GL_APIENTRY GLsync (*FenceSync)(GLenum condition, GLbitfield flags);
     NGLI_GL_APIENTRY void (*FramebufferRenderbuffer)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
     NGLI_GL_APIENTRY void (*FramebufferTexture2D)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
     NGLI_GL_APIENTRY void (*GenBuffers)(GLsizei n, GLuint * buffers);
@@ -151,6 +153,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*VertexAttribDivisor)(GLuint index, GLuint divisor);
     NGLI_GL_APIENTRY void (*VertexAttribPointer)(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const void * pointer);
     NGLI_GL_APIENTRY void (*Viewport)(GLint x, GLint y, GLsizei width, GLsizei height);
+    NGLI_GL_APIENTRY void (*WaitSync)(GLsync sync, GLbitfield flags, GLuint64 timeout);
 };
 
 #endif

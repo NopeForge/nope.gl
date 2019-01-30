@@ -48,6 +48,7 @@
 #define NGLI_FEATURE_OES_EGL_IMAGE                (1 << 19)
 #define NGLI_FEATURE_EGL_IMAGE_BASE_KHR           (1 << 20)
 #define NGLI_FEATURE_EGL_EXT_IMAGE_DMA_BUF_IMPORT (1 << 21)
+#define NGLI_FEATURE_SYNC                         (1 << 22)
 
 #define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
                                          NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \

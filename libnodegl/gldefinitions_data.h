@@ -37,6 +37,7 @@ static const struct gldefinition {
     {"glCheckFramebufferStatus", offsetof(struct glfunctions, CheckFramebufferStatus), M},
     {"glClear", offsetof(struct glfunctions, Clear), M},
     {"glClearColor", offsetof(struct glfunctions, ClearColor), M},
+    {"glClientWaitSync", offsetof(struct glfunctions, ClientWaitSync), 0},
     {"glColorMask", offsetof(struct glfunctions, ColorMask), M},
     {"glCompileShader", offsetof(struct glfunctions, CompileShader), M},
     {"glCreateProgram", offsetof(struct glfunctions, CreateProgram), M},
@@ -66,6 +67,7 @@ static const struct gldefinition {
     {"glEnableVertexAttribArray", offsetof(struct glfunctions, EnableVertexAttribArray), M},
     {"glEndQuery", offsetof(struct glfunctions, EndQuery), 0},
     {"glEndQueryEXT", offsetof(struct glfunctions, EndQueryEXT), 0},
+    {"glFenceSync", offsetof(struct glfunctions, FenceSync), 0},
     {"glFramebufferRenderbuffer", offsetof(struct glfunctions, FramebufferRenderbuffer), M},
     {"glFramebufferTexture2D", offsetof(struct glfunctions, FramebufferTexture2D), M},
     {"glGenBuffers", offsetof(struct glfunctions, GenBuffers), M},
@@ -152,4 +154,5 @@ static const struct gldefinition {
     {"glVertexAttribDivisor", offsetof(struct glfunctions, VertexAttribDivisor), 0},
     {"glVertexAttribPointer", offsetof(struct glfunctions, VertexAttribPointer), M},
     {"glViewport", offsetof(struct glfunctions, Viewport), M},
+    {"glWaitSync", offsetof(struct glfunctions, WaitSync), 0},
 };
