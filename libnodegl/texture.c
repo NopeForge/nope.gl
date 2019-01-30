@@ -170,29 +170,29 @@ int ngli_texture_init(struct texture *s,
         ngli_glBindRenderbuffer(gl, s->target, s->id);
         renderbuffer_set_storage(s);
     } else {
-    ngli_glGenTextures(gl, 1, &s->id);
-    ngli_glBindTexture(gl, s->target, s->id);
-    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, params->min_filter);
-    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, params->mag_filter);
-    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, params->wrap_s);
-    ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, params->wrap_t);
-    if (s->target == GL_TEXTURE_3D)
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_R, params->wrap_r);
+        ngli_glGenTextures(gl, 1, &s->id);
+        ngli_glBindTexture(gl, s->target, s->id);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, params->min_filter);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, params->mag_filter);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, params->wrap_s);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, params->wrap_t);
+        if (s->target == GL_TEXTURE_3D)
+            ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_R, params->wrap_r);
 
-    if (!s->external_storage) {
-        if (!params->width || !params->height ||
-            (params->dimensions == 3 && !params->depth)) {
-            LOG(ERROR, "invalid texture dimensions %dx%dx%d",
-                params->width, params->height, params->depth);
-            ngli_texture_reset(s);
-            return -1;
+        if (!s->external_storage) {
+            if (!params->width || !params->height ||
+                (params->dimensions == 3 && !params->depth)) {
+                LOG(ERROR, "invalid texture dimensions %dx%dx%d",
+                    params->width, params->height, params->depth);
+                ngli_texture_reset(s);
+                return -1;
+            }
+            if (params->immutable) {
+                texture_set_storage(s);
+            } else {
+                texture_set_image(s, NULL);
+            }
         }
-        if (params->immutable) {
-            texture_set_storage(s);
-        } else {
-            texture_set_image(s, NULL);
-        }
-    }
     }
 
     return 0;
