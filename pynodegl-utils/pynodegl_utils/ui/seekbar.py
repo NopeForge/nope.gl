@@ -21,8 +21,6 @@
 # under the License.
 #
 
-import time
-
 from PyQt5 import QtCore, QtWidgets
 
 

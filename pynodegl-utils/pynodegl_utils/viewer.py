@@ -23,7 +23,7 @@
 
 import sys
 
-from PyQt5 import QtGui, QtWidgets
+from PyQt5 import QtWidgets
 
 from ui.main_window import MainWindow
 

@@ -21,7 +21,6 @@
 # under the License.
 #
 
-import subprocess
 from PyQt5 import QtCore, QtWidgets
 from fractions import Fraction
 
