@@ -137,16 +137,6 @@ static int update_geometry_uniforms(struct ngl_node *node)
     return 0;
 }
 
-#define GEOMETRY_OFFSET(x) offsetof(struct geometry_priv, x)
-static const struct {
-    const char *const_name;
-    int offset;
-} attrib_const_map[] = {
-    {"ngl_position", GEOMETRY_OFFSET(vertices_buffer)},
-    {"ngl_uvcoord",  GEOMETRY_OFFSET(uvcoords_buffer)},
-    {"ngl_normal",   GEOMETRY_OFFSET(normals_buffer)},
-};
-
 static void update_vertex_attribs_from_pairs(struct glcontext *gl,
                                              const struct darray *attribute_pairs,
                                              int is_instance_attrib)
@@ -318,6 +308,16 @@ static void draw_arrays_instanced(struct glcontext *gl, struct render_priv *rend
     struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
     ngli_glDrawArraysInstanced(gl, geometry->topology, 0, vertices->count, render->nb_instances);
 }
+
+#define GEOMETRY_OFFSET(x) offsetof(struct geometry_priv, x)
+static const struct {
+    const char *const_name;
+    int offset;
+} attrib_const_map[] = {
+    {"ngl_position", GEOMETRY_OFFSET(vertices_buffer)},
+    {"ngl_uvcoord",  GEOMETRY_OFFSET(uvcoords_buffer)},
+    {"ngl_normal",   GEOMETRY_OFFSET(normals_buffer)},
+};
 
 static int init_builtin_attributes(struct render_priv *s)
 {
