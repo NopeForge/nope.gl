@@ -316,6 +316,24 @@ static void draw_arrays_instanced(struct glcontext *gl, struct render_priv *rend
     ngli_glDrawArraysInstanced(gl, geometry->topology, 0, vertices->count, render->nb_instances);
 }
 
+static int init_builtin_attributes(struct render_priv *s)
+{
+    struct geometry_priv *geometry = s->geometry->priv_data;
+    for (int i = 0; i < NGLI_ARRAY_NB(attrib_const_map); i++) {
+        const int offset = attrib_const_map[i].offset;
+        const char *const_name = attrib_const_map[i].const_name;
+        uint8_t *buffer_node_p = ((uint8_t *)geometry) + offset;
+        struct ngl_node *anode = *(struct ngl_node **)buffer_node_p;
+        if (!anode)
+            continue;
+
+        int ret = pair_node_to_attribinfo(s, &s->attribute_pairs, const_name, anode);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
+
 static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -360,19 +378,9 @@ static int render_init(struct ngl_node *node)
     ngli_darray_init(&s->instance_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
 
     /* Builtin vertex attributes */
-    struct geometry_priv *geometry = s->geometry->priv_data;
-    for (int i = 0; i < NGLI_ARRAY_NB(attrib_const_map); i++) {
-        const int offset = attrib_const_map[i].offset;
-        const char *const_name = attrib_const_map[i].const_name;
-        uint8_t *buffer_node_p = ((uint8_t *)geometry) + offset;
-        struct ngl_node *anode = *(struct ngl_node **)buffer_node_p;
-        if (!anode)
-            continue;
-
-        ret = pair_node_to_attribinfo(s, &s->attribute_pairs, const_name, anode);
-        if (ret < 0)
-            return ret;
-    }
+    ret = init_builtin_attributes(s);
+    if (ret < 0)
+        return ret;
 
     /* User vertex attributes */
     ret = pair_nodes_to_attribinfo(node, &s->attribute_pairs, s->attributes, 0);
@@ -384,6 +392,7 @@ static int render_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
+    struct geometry_priv *geometry = s->geometry->priv_data;
     if (geometry->indices_buffer) {
         ret = ngli_node_buffer_ref(geometry->indices_buffer);
         if (ret < 0)
