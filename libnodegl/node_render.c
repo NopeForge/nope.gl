@@ -149,7 +149,7 @@ static const struct {
 
 static void update_vertex_attribs_from_pairs(struct glcontext *gl,
                                              const struct darray *attribute_pairs,
-                                             int first_instance_attribute_index)
+                                             int is_instance_attrib)
 {
     const struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
     for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
@@ -162,7 +162,7 @@ static void update_vertex_attribs_from_pairs(struct glcontext *gl,
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer.id);
         ngli_glVertexAttribPointer(gl, aid, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
 
-        if (i >= first_instance_attribute_index)
+        if (is_instance_attrib)
             ngli_glVertexAttribDivisor(gl, aid, 1);
     }
 }
@@ -173,7 +173,8 @@ static void update_vertex_attribs(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
-    update_vertex_attribs_from_pairs(gl, &s->attribute_pairs, s->first_instance_attribute_index);
+    update_vertex_attribs_from_pairs(gl, &s->attribute_pairs, 0);
+    update_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs, 1);
 }
 
 static void disable_vertex_attribs_from_pairs(struct glcontext *gl,
@@ -194,6 +195,7 @@ static void disable_vertex_attribs(struct ngl_node *node)
     struct render_priv *s = node->priv_data;
 
     disable_vertex_attribs_from_pairs(gl, &s->attribute_pairs);
+    disable_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs);
 }
 
 static int get_uniform_location(struct hmap *uniforms, const char *name)
@@ -355,6 +357,7 @@ static int render_init(struct ngl_node *node)
 
     /* User and builtin attribute pairs */
     ngli_darray_init(&s->attribute_pairs, sizeof(struct nodeprograminfopair), 0);
+    ngli_darray_init(&s->instance_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
 
     /* Builtin vertex attributes */
     struct geometry_priv *geometry = s->geometry->priv_data;
@@ -377,8 +380,7 @@ static int render_init(struct ngl_node *node)
         return ret;
 
     /* User per instance vertex attributes */
-    s->first_instance_attribute_index = s->attribute_pairs.count;
-    ret = pair_nodes_to_attribinfo(node, &s->attribute_pairs, s->instance_attributes, 1);
+    ret = pair_nodes_to_attribinfo(node, &s->instance_attribute_pairs, s->instance_attributes, 1);
     if (ret < 0)
         return ret;
 
@@ -435,6 +437,7 @@ static void render_uninit(struct ngl_node *node)
     }
 
     uninit_attributes(&s->attribute_pairs);
+    uninit_attributes(&s->instance_attribute_pairs);
 }
 
 static int update_attributes(struct darray *attribute_pairs, double t)
@@ -462,6 +465,10 @@ static int render_update(struct ngl_node *node, double t)
         return ret;
 
     ret = update_attributes(&s->attribute_pairs, t);
+    if (ret < 0)
+        return ret;
+
+    ret = update_attributes(&s->instance_attribute_pairs, t);
     if (ret < 0)
         return ret;
 
