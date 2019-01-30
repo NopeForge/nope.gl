@@ -103,12 +103,33 @@ static void texture_set_storage(struct texture *s)
     }
 }
 
+static int renderbuffer_check_samples(struct texture *s)
+{
+    struct glcontext *gl = s->gl;
+    const struct texture_params *params = &s->params;
+
+    int max_samples = gl->max_samples;
+    if (gl->features & NGLI_FEATURE_INTERNALFORMAT_QUERY)
+        ngli_glGetInternalformativ(gl, GL_RENDERBUFFER, s->format, GL_SAMPLES, 1, &max_samples);
+
+    if (params->samples > max_samples) {
+        LOG(WARNING, "renderbuffer format 0x%x does not support samples %d (maximum %d)",
+            s->format, params->samples, max_samples);
+        return -1;
+    }
+
+    return 0;
+}
+
 static void renderbuffer_set_storage(struct texture *s)
 {
     struct glcontext *gl = s->gl;
     const struct texture_params *params = &s->params;
 
-    ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, s->format, params->width, params->height);
+    if (params->samples > 0)
+        ngli_glRenderbufferStorageMultisample(gl, GL_RENDERBUFFER, params->samples, s->format, params->width, params->height);
+    else
+        ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, s->format, params->width, params->height);
 }
 
 static int texture_init_fields(struct texture *s)
@@ -122,8 +143,15 @@ static int texture_init_fields(struct texture *s)
         if (ret < 0)
             return ret;
         s->internal_format = s->format;
+
+        ret = renderbuffer_check_samples(s);
+        if (ret < 0)
+            return ret;
         return 0;
     }
+
+    /* TODO: add multisample support for textures */
+    ngli_assert(!params->samples);
 
     if (params->dimensions == 2)
         s->target = GL_TEXTURE_2D;

@@ -47,6 +47,7 @@ struct texture_params {
     int width;
     int height;
     int depth;
+    int samples;
     GLint min_filter;
     GLint mag_filter;
     GLint wrap_s;
