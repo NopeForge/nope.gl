@@ -1,5 +1,5 @@
 import pynodegl as ngl
-from pynodegl_utils.misc import scene, get_frag, get_vert
+from pynodegl_utils.misc import scene
 
 
 @scene(overlap_time={'type': 'range', 'range': [0, 5], 'unit_base': 10},
@@ -94,8 +94,8 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
 
     cfg.duration = transition_start*2 + transition_duration
 
-    vertex = get_vert('dual-tex')
-    fragment = get_frag('tex-mix')
+    vertex = cfg.get_vert('dual-tex')
+    fragment = cfg.get_frag('tex-mix')
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p = ngl.Program()

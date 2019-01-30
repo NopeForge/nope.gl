@@ -3,7 +3,7 @@ import array
 import math
 import random
 import pynodegl as ngl
-from pynodegl_utils.misc import scene, get_frag, get_vert, get_comp
+from pynodegl_utils.misc import scene
 
 
 @scene(xsplit={'type': 'range', 'range': [0, 1], 'unit_base': 100},
@@ -32,8 +32,8 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
 
     shader_version = '300 es' if cfg.backend == 'gles' else '330'
     shader_header = '#version %s\n' % shader_version
-    prog = ngl.Program(fragment=shader_header + get_frag('lut3d'),
-                       vertex=shader_header + get_vert('lut3d'))
+    prog = ngl.Program(fragment=shader_header + cfg.get_frag('lut3d'),
+                       vertex=shader_header + cfg.get_vert('lut3d'))
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     render = ngl.Render(quad, prog)
@@ -75,7 +75,7 @@ def buffer_dove(cfg,
                                blend_src_factor_a='zero',
                                blend_dst_factor_a='one')
 
-    prog_bg = ngl.Program(fragment=get_frag('color'))
+    prog_bg = ngl.Program(fragment=cfg.get_frag('color'))
     shape_bg = ngl.Circle(radius=.6, npoints=256)
     render_bg = ngl.Render(shape_bg, prog_bg, label='background')
     color_animkf = [ngl.AnimKeyFrameVec4(0,                bgcolor1),
@@ -101,7 +101,7 @@ def triangle(cfg, size=0.5):
     colors_buffer = ngl.BufferVec4(data=colors_data)
 
     triangle = ngl.Triangle((-b, -c, 0), (b, -c, 0), (0, size, 0))
-    p = ngl.Program(fragment=get_frag('triangle'), vertex=get_vert('triangle'))
+    p = ngl.Program(fragment=cfg.get_frag('triangle'), vertex=cfg.get_vert('triangle'))
     node = ngl.Render(triangle, p)
     node.update_attributes(edge_color=colors_buffer)
     animkf = [ngl.AnimKeyFrameFloat(0, 0),
@@ -118,7 +118,7 @@ def fibo(cfg, n=8):
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
-    p = ngl.Program(fragment=get_frag('color'))
+    p = ngl.Program(fragment=cfg.get_frag('color'))
 
     fib = [0, 1, 1]
     for i in range(2, n):
@@ -166,7 +166,7 @@ def cropboard(cfg, dim=15):
     kw = kh = 1. / dim
     qw = qh = 2. / dim
 
-    p = ngl.Program(vertex=get_vert('cropboard'))
+    p = ngl.Program(vertex=cfg.get_vert('cropboard'))
     m = ngl.Media(m0.filename)
     t = ngl.Texture2D(data_src=m)
 
@@ -222,8 +222,8 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
     video_m = ngl.Media(media.filename)
     video_tex = ngl.Texture2D(data_src=video_m)
 
-    p = ngl.Program(vertex=get_vert('dual-tex'),
-                    fragment=get_frag('audiotex'))
+    p = ngl.Program(vertex=cfg.get_vert('dual-tex'),
+                    fragment=cfg.get_frag('audiotex'))
     render = ngl.Render(q, p)
     render.update_textures(tex0=audio_tex, tex1=video_tex)
     render.update_uniforms(overlay=ngl.UniformFloat(overlay))
@@ -238,9 +238,9 @@ def particules(cfg, particules=32):
 
     shader_version = '310 es' if cfg.backend == 'gles' else '430'
     shader_header = '#version %s\n' % shader_version
-    compute_shader = shader_header + get_comp('particules')
-    vertex_shader = shader_header + get_vert('particules')
-    fragment_shader = shader_header + get_frag('particules')
+    compute_shader = shader_header + cfg.get_comp('particules')
+    vertex_shader = shader_header + cfg.get_vert('particules')
+    fragment_shader = shader_header + cfg.get_frag('particules')
 
     cfg.duration = 6
 
@@ -322,7 +322,7 @@ def blending_and_stencil(cfg):
     '''Scene using blending and stencil graphic features'''
     cfg.duration = 5
     random.seed(0)
-    fragment = get_frag('color')
+    fragment = cfg.get_frag('color')
 
     program = ngl.Program(fragment=fragment)
     circle = ngl.Circle(npoints=256)
@@ -428,7 +428,7 @@ def cube(cfg, display_depth_buffer=False):
     '''
     cube = ngl.Group(label='cube')
 
-    frag_data = get_frag('tex-tint')
+    frag_data = cfg.get_frag('tex-tint')
     program = ngl.Program(fragment=frag_data)
 
     texture = ngl.Texture2D(data_src=ngl.Media(cfg.medias[0].filename))
@@ -506,14 +506,14 @@ def histogram(cfg):
     if cfg.backend == 'gles' and cfg.system == 'Android':
         shader_header += '#extension GL_ANDROID_extension_pack_es31a: require\n'
 
-    compute_program = ngl.ComputeProgram(shader_header + get_comp('histogram-clear'))
+    compute_program = ngl.ComputeProgram(shader_header + cfg.get_comp('histogram-clear'))
     compute = ngl.Compute(256, 1, 1, compute_program, label='histogram-clear')
     compute.update_buffers(histogram_buffer=h)
     g.add_children(compute)
 
     local_size = 8
     group_size = proxy_size / local_size
-    compute_shader = get_comp('histogram-exec') % {'local_size': local_size}
+    compute_shader = cfg.get_comp('histogram-exec') % {'local_size': local_size}
     compute_program = ngl.ComputeProgram(shader_header + compute_shader)
     compute = ngl.Compute(group_size, group_size, 1, compute_program, label='histogram-exec')
     compute.update_buffers(histogram_buffer=h)
@@ -521,8 +521,8 @@ def histogram(cfg):
     g.add_children(compute)
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    p = ngl.Program(vertex=shader_header + get_vert('histogram-display'),
-                    fragment=shader_header + get_frag('histogram-display'))
+    p = ngl.Program(vertex=shader_header + cfg.get_vert('histogram-display'),
+                    fragment=shader_header + cfg.get_frag('histogram-display'))
     render = ngl.Render(q, p)
     render.update_textures(tex0=t)
     render.update_buffers(histogram_buffer=h)
@@ -550,7 +550,7 @@ def quaternion(cfg):
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     m = ngl.Media(cfg.medias[0].filename)
     t = ngl.Texture2D(data_src=m)
-    p = ngl.Program(vertex=get_vert('uniform-mat4'))
+    p = ngl.Program(vertex=cfg.get_vert('uniform-mat4'))
     render = ngl.Render(q, p)
     render.update_textures(tex0=t)
     render.update_uniforms(transformation_matrix=quat)
@@ -583,7 +583,7 @@ def mountain(cfg, ndim=3, nb_layers=7,
     black, white = (0, 0, 0, 1), (1, 1, 1, 1)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
-    prog = ngl.Program(fragment=get_frag('mountain'))
+    prog = ngl.Program(fragment=cfg.get_frag('mountain'))
     hscale = 1/2.
     mountains = []
     for i in range(nb_mountains):
@@ -622,7 +622,7 @@ def mountain(cfg, ndim=3, nb_layers=7,
 
         mountains.append(render)
 
-    prog = ngl.Program(fragment=get_frag('color'))
+    prog = ngl.Program(fragment=cfg.get_frag('color'))
     sky = ngl.Render(quad, prog)
     sky.update_uniforms(color=ngl.UniformVec4(white))
 

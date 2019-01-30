@@ -2,7 +2,7 @@ import array
 import math
 import random
 import pynodegl as ngl
-from pynodegl_utils.misc import scene, get_frag
+from pynodegl_utils.misc import scene
 
 
 @scene(square_color={'type': 'color'},
@@ -58,7 +58,7 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
 
     geom = ngl.Geometry(vertices)
     geom.set_topology('triangle_fan')
-    p = ngl.Program(fragment=get_frag('color'))
+    p = ngl.Program(fragment=cfg.get_frag('color'))
     render = ngl.Render(geom, p)
     render.update_uniforms(color=ucolor)
     return render
@@ -106,7 +106,7 @@ def urchin(cfg, npoints=25):
 
     geom = ngl.Geometry(vertices)
     geom.set_topology('line_strip')
-    p = ngl.Program(fragment=get_frag('color'))
+    p = ngl.Program(fragment=cfg.get_frag('color'))
     render = ngl.Render(geom, p)
     render.update_uniforms(color=ngl.UniformVec4(value=(.9, .1, .3, 1)))
     return render

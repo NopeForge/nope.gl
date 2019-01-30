@@ -1,9 +1,7 @@
 import array
 import pynodegl as ngl
-from pynodegl_utils.misc import scene, get_frag
+from pynodegl_utils.misc import scene
 
-
-_frag_data = get_frag('color')
 
 _colors = [
     (1, 0, 0, 1),
@@ -43,7 +41,8 @@ def _get_func(name, flags=0):
 
         g = ngl.Group()
         cfg.aspect_ratio = (1, 1)
-        program = ngl.Program(fragment=_frag_data)
+        frag_data = cfg.get_frag('color')
+        program = ngl.Program(fragment=frag_data)
 
         for idx, ext in enumerate(versions):
 

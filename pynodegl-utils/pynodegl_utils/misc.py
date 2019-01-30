@@ -52,24 +52,6 @@ def scene(**widgets_specs):
     return real_decorator
 
 
-def get_shader(filename, shader_path=None):
-    if shader_path is None:
-        shader_path = op.join(op.dirname(__file__), 'examples', 'shaders')
-    return open(op.join(shader_path, filename)).read()
-
-
-def get_frag(name, shader_path=None):
-    return get_shader(name + '.frag', shader_path)
-
-
-def get_vert(name, shader_path=None):
-    return get_shader(name + '.vert', shader_path)
-
-
-def get_comp(name, shader_path=None):
-    return get_shader(name + '.comp', shader_path)
-
-
 class Media:
 
     def __init__(self, filename):
@@ -157,6 +139,21 @@ class SceneCfg:
         for field in self._DEFAULT_FIELDS.keys():
             odict[field] = getattr(self, field)
         return odict
+
+    def _get_shader(self, name, stype, shader_path):
+        filename = '%s.%s' % (name, stype)
+        if shader_path is None:
+            shader_path = op.join(op.dirname(__file__), 'examples', 'shaders')
+        return open(op.join(shader_path, filename)).read()
+
+    def get_frag(self, name, shader_path=None):
+        return self._get_shader(name, 'frag', shader_path)
+
+    def get_vert(self, name, shader_path=None):
+        return self._get_shader(name, 'vert', shader_path)
+
+    def get_comp(self, name, shader_path=None):
+        return self._get_shader(name, 'comp', shader_path)
 
 
 def get_viewport(width, height, aspect_ratio):

@@ -421,7 +421,7 @@ We will start with the current new scene template:
 import math
 import random
 import pynodegl as ngl
-from pynodegl_utils.misc import scene, get_frag
+from pynodegl_utils.misc import scene
 
 ...
 
@@ -441,7 +441,7 @@ def test_timeranges(cfg):
     circle = ngl.Circle(radius=sz/2., npoints=64)
 
     # Renders for each shape, sharing a common program for coloring
-    prog = ngl.Program(fragment=get_frag('color'))
+    prog = ngl.Program(fragment=cfg.get_frag('color'))
     renders = [
             ngl.Render(triangle, prog),
             ngl.Render(square, prog),

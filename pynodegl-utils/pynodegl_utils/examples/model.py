@@ -1,7 +1,7 @@
 import os.path as op
 import array
 import pynodegl as ngl
-from pynodegl_utils.misc import scene, get_frag
+from pynodegl_utils.misc import scene
 
 
 def _load_model(fp):
@@ -81,7 +81,7 @@ def obj(cfg, n=0.5, model=None):
     q = ngl.Geometry(vertices, texcoords, normals)
     m = ngl.Media(cfg.medias[0].filename)
     t = ngl.Texture2D(data_src=m)
-    p = ngl.Program(fragment=get_frag('tex-tint-normals'))
+    p = ngl.Program(fragment=cfg.get_frag('tex-tint-normals'))
     render = ngl.Render(q, p)
     render.update_textures(tex0=t)
     render = ngl.GraphicConfig(render, depth_test=True)
@@ -132,7 +132,7 @@ def stl(cfg, stl=None, scale=.8):
     normals  = ngl.BufferVec3(data=normals_data)
 
     g = ngl.Geometry(vertices=vertices, normals=normals)
-    p = ngl.Program(fragment=get_frag('colored-normals'))
+    p = ngl.Program(fragment=cfg.get_frag('colored-normals'))
     solid = ngl.Render(g, p, label=solid_label)
     solid = ngl.GraphicConfig(solid, depth_test=True)
 
