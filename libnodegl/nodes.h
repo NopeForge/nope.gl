@@ -370,6 +370,7 @@ struct render_priv {
 
     int nb_instances;
 
+    struct darray builtin_attribute_pairs; // nodeprograminfopair (builtin attribute, attributeprograminfo)
     struct darray attribute_pairs; // nodeprograminfopair (attribute, attributeprograminfo)
     struct darray instance_attribute_pairs; // nodeprograminfopair (instance attribute, attributeprograminfo)
 

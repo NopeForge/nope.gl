@@ -173,6 +173,7 @@ static void update_vertex_attribs(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
+    update_vertex_attribs_from_pairs(gl, &s->builtin_attribute_pairs, 0);
     update_vertex_attribs_from_pairs(gl, &s->attribute_pairs, 0);
     update_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs, 1);
 }
@@ -194,6 +195,7 @@ static void disable_vertex_attribs(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
+    disable_vertex_attribs_from_pairs(gl, &s->builtin_attribute_pairs);
     disable_vertex_attribs_from_pairs(gl, &s->attribute_pairs);
     disable_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs);
 }
@@ -379,6 +381,7 @@ static int render_init(struct ngl_node *node)
     s->normal_matrix_location     = get_uniform_location(uniforms, "ngl_normal_matrix");
 
     /* User and builtin attribute pairs */
+    ngli_darray_init(&s->builtin_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
     ngli_darray_init(&s->attribute_pairs, sizeof(struct nodeprograminfopair), 0);
     ngli_darray_init(&s->instance_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
 
@@ -387,7 +390,7 @@ static int render_init(struct ngl_node *node)
         return ret;
 
     /* Builtin vertex attributes */
-    ret = pair_nodes_to_attribinfo(node, &s->attribute_pairs, s->builtin_attributes, 0, 0);
+    ret = pair_nodes_to_attribinfo(node, &s->builtin_attribute_pairs, s->builtin_attributes, 0, 0);
     if (ret < 0)
         return ret;
 
@@ -456,6 +459,7 @@ static void render_uninit(struct ngl_node *node)
         ngli_node_buffer_unref(geometry->indices_buffer);
     }
 
+    uninit_attributes(&s->builtin_attribute_pairs);
     uninit_attributes(&s->attribute_pairs);
     uninit_attributes(&s->instance_attribute_pairs);
 }
@@ -481,6 +485,10 @@ static int render_update(struct ngl_node *node, double t)
     struct render_priv *s = node->priv_data;
 
     int ret = ngli_node_update(s->geometry, t);
+    if (ret < 0)
+        return ret;
+
+    ret = update_attributes(&s->builtin_attribute_pairs, t);
     if (ret < 0)
         return ret;
 
