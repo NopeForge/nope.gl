@@ -103,10 +103,27 @@ static void texture_set_storage(struct texture *s)
     }
 }
 
+static void renderbuffer_set_storage(struct texture *s)
+{
+    struct glcontext *gl = s->gl;
+    const struct texture_params *params = &s->params;
+
+    ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, s->format, params->width, params->height);
+}
+
 static int texture_init_fields(struct texture *s)
 {
     struct glcontext *gl = s->gl;
     const struct texture_params *params = &s->params;
+
+    if (params->usage & NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY) {
+        s->target = GL_RENDERBUFFER;
+        int ret = ngli_format_get_gl_renderbuffer_format(gl, params->format, &s->format);
+        if (ret < 0)
+            return ret;
+        s->internal_format = s->format;
+        return 0;
+    }
 
     if (params->dimensions == 2)
         s->target = GL_TEXTURE_2D;
@@ -148,6 +165,11 @@ int ngli_texture_init(struct texture *s,
     if (ret < 0)
         return ret;
 
+    if (s->target == GL_RENDERBUFFER) {
+        ngli_glGenRenderbuffers(gl, 1, &s->id);
+        ngli_glBindRenderbuffer(gl, s->target, s->id);
+        renderbuffer_set_storage(s);
+    } else {
     ngli_glGenTextures(gl, 1, &s->id);
     ngli_glBindTexture(gl, s->target, s->id);
     ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, params->min_filter);
@@ -170,6 +192,7 @@ int ngli_texture_init(struct texture *s,
         } else {
             texture_set_image(s, NULL);
         }
+    }
     }
 
     return 0;
@@ -232,10 +255,11 @@ int ngli_texture_match_dimensions(const struct texture *s, int width, int height
 int ngli_texture_upload(struct texture *s, const uint8_t *data)
 {
     struct glcontext *gl = s->gl;
+    const struct texture_params *params = &s->params;
 
-    /* texture with external storage (including wrapped textures) cannot update
-     * their content with this function */
-    ngli_assert(!s->external_storage);
+    /* texture with external storage (including wrapped textures and render
+     * buffers) cannot update their content with this function */
+    ngli_assert(!s->external_storage && !(params->usage & NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY));
 
     ngli_glBindTexture(gl, s->target, s->id);
     if (data) {
@@ -251,6 +275,10 @@ int ngli_texture_upload(struct texture *s, const uint8_t *data)
 int ngli_texture_generate_mipmap(struct texture *s)
 {
     struct glcontext *gl = s->gl;
+    const struct texture_params *params = &s->params;
+
+    ngli_assert(!(params->usage & NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY));
+
     ngli_glBindTexture(gl, s->target, s->id);
     ngli_glGenerateMipmap(gl, s->target);
     return 0;
@@ -262,8 +290,12 @@ void ngli_texture_reset(struct texture *s)
     if (!gl)
         return;
 
-    if (!s->wrapped)
-        ngli_glDeleteTextures(gl, 1, &s->id);
+    if (!s->wrapped) {
+        if (s->target == GL_RENDERBUFFER)
+            ngli_glDeleteRenderbuffers(gl, 1, &s->id);
+        else
+            ngli_glDeleteTextures(gl, 1, &s->id);
+    }
 
     memset(s, 0, sizeof(*s));
 }

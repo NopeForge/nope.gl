@@ -39,6 +39,8 @@ int ngli_texture_filter_has_linear_filtering(GLint filter);
     .access = GL_READ_WRITE                    \
 }
 
+#define NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY (1 << 0)
+
 struct texture_params {
     int dimensions;
     int format;
@@ -52,6 +54,7 @@ struct texture_params {
     GLint wrap_r;
     GLenum access;
     int immutable;
+    int usage;
     int external_storage;
     int external_oes;
     int rectangle;
