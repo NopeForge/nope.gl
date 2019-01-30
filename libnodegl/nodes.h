@@ -364,6 +364,7 @@ struct render_priv {
 
     struct pipeline pipeline;
 
+    struct hmap *builtin_attributes;
     struct hmap *attributes;
     struct hmap *instance_attributes;
 

@@ -239,7 +239,8 @@ static int pair_node_to_attribinfo(struct render_priv *s,
 static int pair_nodes_to_attribinfo(struct ngl_node *node,
                                     struct darray *attribute_pairs,
                                     struct hmap *attributes,
-                                    int per_instance)
+                                    int per_instance,
+                                    int warn_not_found)
 {
     if (!attributes)
         return 0;
@@ -277,7 +278,7 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node,
         if (ret < 0)
             return ret;
 
-        if (ret == 1) {
+        if (warn_not_found && ret == 1) {
             const struct ngl_node *pnode = s->pipeline.program;
             LOG(WARNING, "attribute %s attached to %s not found in %s",
                 entry->key, node->label, pnode->label);
@@ -318,6 +319,10 @@ static void draw_arrays_instanced(struct glcontext *gl, struct render_priv *rend
 
 static int init_builtin_attributes(struct render_priv *s)
 {
+    s->builtin_attributes = ngli_hmap_create();
+    if (!s->builtin_attributes)
+        return -1;
+
     struct geometry_priv *geometry = s->geometry->priv_data;
     for (int i = 0; i < NGLI_ARRAY_NB(attrib_const_map); i++) {
         const int offset = attrib_const_map[i].offset;
@@ -327,7 +332,7 @@ static int init_builtin_attributes(struct render_priv *s)
         if (!anode)
             continue;
 
-        int ret = pair_node_to_attribinfo(s, &s->attribute_pairs, const_name, anode);
+        int ret = ngli_hmap_set(s->builtin_attributes, const_name, anode);
         if (ret < 0)
             return ret;
     }
@@ -377,18 +382,22 @@ static int render_init(struct ngl_node *node)
     ngli_darray_init(&s->attribute_pairs, sizeof(struct nodeprograminfopair), 0);
     ngli_darray_init(&s->instance_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
 
-    /* Builtin vertex attributes */
     ret = init_builtin_attributes(s);
     if (ret < 0)
         return ret;
 
+    /* Builtin vertex attributes */
+    ret = pair_nodes_to_attribinfo(node, &s->attribute_pairs, s->builtin_attributes, 0, 0);
+    if (ret < 0)
+        return ret;
+
     /* User vertex attributes */
-    ret = pair_nodes_to_attribinfo(node, &s->attribute_pairs, s->attributes, 0);
+    ret = pair_nodes_to_attribinfo(node, &s->attribute_pairs, s->attributes, 0, 1);
     if (ret < 0)
         return ret;
 
     /* User per instance vertex attributes */
-    ret = pair_nodes_to_attribinfo(node, &s->instance_attribute_pairs, s->instance_attributes, 1);
+    ret = pair_nodes_to_attribinfo(node, &s->instance_attribute_pairs, s->instance_attributes, 1, 1);
     if (ret < 0)
         return ret;
 
@@ -433,6 +442,8 @@ static void render_uninit(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
+
+    ngli_hmap_freep(&s->builtin_attributes);
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
