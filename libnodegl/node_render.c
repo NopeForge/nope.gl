@@ -147,13 +147,10 @@ static const struct {
     {"ngl_normal",   GEOMETRY_OFFSET(normals_buffer)},
 };
 
-static void update_vertex_attribs(struct ngl_node *node)
+static void update_vertex_attribs_from_pairs(struct glcontext *gl,
+                                             const struct darray *attribute_pairs,
+                                             int first_instance_attribute_index)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-    struct render_priv *s = node->priv_data;
-
-    const struct darray *attribute_pairs = &s->attribute_pairs;
     const struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
     for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
         const struct nodeprograminfopair *pair = &pairs[i];
@@ -165,8 +162,28 @@ static void update_vertex_attribs(struct ngl_node *node)
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer.id);
         ngli_glVertexAttribPointer(gl, aid, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
 
-        if (i >= s->first_instance_attribute_index)
+        if (i >= first_instance_attribute_index)
             ngli_glVertexAttribDivisor(gl, aid, 1);
+    }
+}
+
+static void update_vertex_attribs(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+    struct render_priv *s = node->priv_data;
+
+    update_vertex_attribs_from_pairs(gl, &s->attribute_pairs, s->first_instance_attribute_index);
+}
+
+static void disable_vertex_attribs_from_pairs(struct glcontext *gl,
+                                              const struct darray *attribute_pairs)
+{
+    const struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
+    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
+        const struct attributeprograminfo *info = pair->program_info;
+        ngli_glDisableVertexAttribArray(gl, info->location);
     }
 }
 
@@ -176,13 +193,7 @@ static void disable_vertex_attribs(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
-    const struct darray *attribute_pairs = &s->attribute_pairs;
-    const struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
-    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
-        const struct nodeprograminfopair *pair = &pairs[i];
-        const struct attributeprograminfo *info = pair->program_info;
-        ngli_glDisableVertexAttribArray(gl, info->location);
-    }
+    disable_vertex_attribs_from_pairs(gl, &s->attribute_pairs);
 }
 
 static int get_uniform_location(struct hmap *uniforms, const char *name)
@@ -191,7 +202,9 @@ static int get_uniform_location(struct hmap *uniforms, const char *name)
     return info ? info->location : -1;
 }
 
-static int pair_node_to_attribinfo(struct render_priv *s, const char *name,
+static int pair_node_to_attribinfo(struct render_priv *s,
+                                   struct darray *attribute_pairs,
+                                   const char *name,
                                    struct ngl_node *anode)
 {
     const struct ngl_node *pnode = s->pipeline.program;
@@ -213,7 +226,7 @@ static int pair_node_to_attribinfo(struct render_priv *s, const char *name,
         .program_info = (void *)active_attribute,
     };
     snprintf(pair.name, sizeof(pair.name), "%s", name);
-    if (!ngli_darray_push(&s->attribute_pairs, &pair)) {
+    if (!ngli_darray_push(attribute_pairs, &pair)) {
         ngli_node_buffer_unref(anode);
         return -1;
     }
@@ -221,7 +234,9 @@ static int pair_node_to_attribinfo(struct render_priv *s, const char *name,
     return 0;
 }
 
-static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attributes,
+static int pair_nodes_to_attribinfo(struct ngl_node *node,
+                                    struct darray *attribute_pairs,
+                                    struct hmap *attributes,
                                     int per_instance)
 {
     if (!attributes)
@@ -256,7 +271,7 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node, struct hmap *attribut
             }
         }
 
-        int ret = pair_node_to_attribinfo(s, entry->key, anode);
+        int ret = pair_node_to_attribinfo(s, attribute_pairs, entry->key, anode);
         if (ret < 0)
             return ret;
 
@@ -351,19 +366,19 @@ static int render_init(struct ngl_node *node)
         if (!anode)
             continue;
 
-        ret = pair_node_to_attribinfo(s, const_name, anode);
+        ret = pair_node_to_attribinfo(s, &s->attribute_pairs, const_name, anode);
         if (ret < 0)
             return ret;
     }
 
     /* User vertex attributes */
-    ret = pair_nodes_to_attribinfo(node, s->attributes, 0);
+    ret = pair_nodes_to_attribinfo(node, &s->attribute_pairs, s->attributes, 0);
     if (ret < 0)
         return ret;
 
     /* User per instance vertex attributes */
     s->first_instance_attribute_index = s->attribute_pairs.count;
-    ret = pair_nodes_to_attribinfo(node, s->instance_attributes, 1);
+    ret = pair_nodes_to_attribinfo(node, &s->attribute_pairs, s->instance_attributes, 1);
     if (ret < 0)
         return ret;
 
@@ -391,6 +406,17 @@ static int render_init(struct ngl_node *node)
     return 0;
 }
 
+static void uninit_attributes(struct darray *attribute_pairs)
+{
+    struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
+    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
+        struct nodeprograminfopair *pair = &pairs[i];
+        ngli_node_buffer_unref(pair->node);
+    }
+
+    ngli_darray_reset(attribute_pairs);
+}
+
 static void render_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -408,25 +434,11 @@ static void render_uninit(struct ngl_node *node)
         ngli_node_buffer_unref(geometry->indices_buffer);
     }
 
-    struct darray *attribute_pairs = &s->attribute_pairs;
-    struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
-    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
-        struct nodeprograminfopair *pair = &pairs[i];
-        ngli_node_buffer_unref(pair->node);
-    }
-
-    ngli_darray_reset(&s->attribute_pairs);
+    uninit_attributes(&s->attribute_pairs);
 }
 
-static int render_update(struct ngl_node *node, double t)
+static int update_attributes(struct darray *attribute_pairs, double t)
 {
-    struct render_priv *s = node->priv_data;
-
-    int ret = ngli_node_update(s->geometry, t);
-    if (ret < 0)
-        return ret;
-
-    struct darray *attribute_pairs = &s->attribute_pairs;
     struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
     for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
         struct nodeprograminfopair *pair = &pairs[i];
@@ -438,6 +450,20 @@ static int render_update(struct ngl_node *node, double t)
         if (ret < 0)
             return ret;
     }
+    return 0;
+}
+
+static int render_update(struct ngl_node *node, double t)
+{
+    struct render_priv *s = node->priv_data;
+
+    int ret = ngli_node_update(s->geometry, t);
+    if (ret < 0)
+        return ret;
+
+    ret = update_attributes(&s->attribute_pairs, t);
+    if (ret < 0)
+        return ret;
 
     return ngli_pipeline_update(node, t);
 }
