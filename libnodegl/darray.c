@@ -109,6 +109,7 @@ void *ngli_darray_get(const struct darray *darray, int index)
 
 void ngli_darray_reset(struct darray *darray)
 {
-    darray->release(darray->data);
+    if (darray->release)
+        darray->release(darray->data);
     memset(darray, 0, sizeof(*darray));
 }
