@@ -447,6 +447,7 @@ static int node_prefetch(struct ngl_node *node)
         int ret = node->class->prefetch(node);
         if (ret < 0) {
             LOG(ERROR, "prefetching node %s failed: %d", node->label, ret);
+            node->visit_time = -1.;
             return ret;
         }
     }
