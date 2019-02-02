@@ -29,6 +29,9 @@ cmds_optional = [
     'glBlitFramebuffer',
     'glInvalidateFramebuffer',
 
+    # Renderbuffer
+    'glRenderbufferStorageMultisample',
+
     # Texture
     'glTexImage3D',
     'glTexStorage2D',
@@ -170,7 +173,6 @@ cmds = [
     'glGenRenderbuffers',
     'glGetRenderbufferParameteriv',
     'glRenderbufferStorage',
-    'glRenderbufferStorageMultisample',
 
     # Shader
     'glCreateProgram',
