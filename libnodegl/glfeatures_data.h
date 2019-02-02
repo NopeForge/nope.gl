@@ -106,6 +106,7 @@ static const struct glfeature {
         .es_version     = 300,
         .extensions     = (const char*[]){"ARB_framebuffer_object", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(RenderbufferStorageMultisample),
+                                           OFFSET(BlitFramebuffer),
                                            -1}
     }, {
         .name           = "internalformat_query",
