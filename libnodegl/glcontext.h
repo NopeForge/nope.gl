@@ -79,6 +79,8 @@ struct glcontext {
     int max_texture_image_units;
     int max_compute_work_group_counts[3];
     int max_uniform_block_size;
+    int max_samples;
+    int max_color_attachments;
 
     /* GL functions */
     struct glfunctions funcs;

@@ -279,6 +279,12 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
 {
     ngli_glGetIntegerv(glcontext, GL_MAX_TEXTURE_IMAGE_UNITS, &glcontext->max_texture_image_units);
 
+    glcontext->max_color_attachments = 1;
+    if (glcontext->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) {
+        ngli_glGetIntegerv(glcontext, GL_MAX_SAMPLES, &glcontext->max_samples);
+        ngli_glGetIntegerv(glcontext, GL_MAX_COLOR_ATTACHMENTS, &glcontext->max_color_attachments);
+    }
+
     if (glcontext->features & NGLI_FEATURE_UNIFORM_BUFFER_OBJECT) {
         ngli_glGetIntegerv(glcontext, GL_MAX_UNIFORM_BLOCK_SIZE, &glcontext->max_uniform_block_size);
     }

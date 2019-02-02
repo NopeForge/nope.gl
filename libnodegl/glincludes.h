@@ -72,6 +72,8 @@ typedef void* GLeglImageOES;
 #endif
 
 #if NGL_GLES2_COMPAT_INCLUDES
+# define GL_MAX_SAMPLES                        0x8D57
+# define GL_MAX_COLOR_ATTACHMENTS              0x8CDF
 # define GL_SYNC_GPU_COMMANDS_COMPLETE         0x9117
 # define GL_TIMEOUT_IGNORED                    0xFFFFFFFFFFFFFFFFull
 # define GL_TEXTURE_RECTANGLE                  0x84F5
