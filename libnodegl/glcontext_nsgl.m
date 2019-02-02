@@ -180,7 +180,6 @@ static int nsgl_init_framebuffer(struct glcontext *ctx)
     return 0;
 }
 
-
 static int nsgl_resize(struct glcontext *ctx, int width, int height)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
