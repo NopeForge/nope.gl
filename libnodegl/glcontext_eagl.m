@@ -274,7 +274,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 
     ngli_fbo_bind(ctx->samples ? fbo_ms : fbo);
 
-    glViewport(0, 0, ctx->width, ctx->height);
+    ngli_glViewport(ctx, 0, 0, ctx->width, ctx->height);
 
     return 0;
 }

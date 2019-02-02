@@ -175,7 +175,7 @@ static int nsgl_init_framebuffer(struct glcontext *ctx)
     if (ret < 0)
         return ret;
 
-    glViewport(0, 0, ctx->width, ctx->height);
+    ngli_glViewport(ctx, 0, 0, ctx->width, ctx->height);
 
     return 0;
 }
