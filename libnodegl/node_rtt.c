@@ -98,7 +98,7 @@ static int rtt_prefetch(struct ngl_node *node)
     struct texture *t = &texture->texture;
     struct texture_params *params = &t->params;
     struct texture_priv *depth_texture = NULL;
-    struct texture_params *depth_texture_params = NULL; 
+    struct texture_params *depth_texture_params = NULL;
 
     s->width = params->width;
     s->height = params->height;
