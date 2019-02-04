@@ -62,7 +62,7 @@ class _GLWidget(QtWidgets.QWidget):
         super(_GLWidget, self).resizeEvent(event)
 
     def event(self, event):
-        if event.type() == QEvent.UpdateRequest:
+        if event.type() == QEvent.Paint:
             if not self._player:
                 self._player = player.Player(
                     self.winId(),
