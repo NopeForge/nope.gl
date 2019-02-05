@@ -73,9 +73,8 @@ class _GLWidget(QtWidgets.QWidget):
                 self._player.start()
                 self._player.onFrame.connect(self._set_last_frame_time)
                 self.onPlayerAvailable.emit()
-            return super(_GLWidget, self).event(event)
-        elif event.type() == QEvent.Paint:
-            self._player.draw()
+            else:
+                self._player.draw()
             return super(_GLWidget, self).event(event)
         elif event.type() == QEvent.Close:
             if self._player:
