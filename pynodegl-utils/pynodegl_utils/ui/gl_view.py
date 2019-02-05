@@ -75,14 +75,11 @@ class _GLWidget(QtWidgets.QWidget):
                 self.onPlayerAvailable.emit()
             else:
                 self._player.draw()
-            return super(_GLWidget, self).event(event)
         elif event.type() == QEvent.Close:
             if self._player:
                 self._player.stop()
                 self._player.wait()
-            return super(_GLWidget, self).event(event)
-        else:
-            return super(_GLWidget, self).event(event)
+        return super(_GLWidget, self).event(event)
 
     @QtCore.pyqtSlot(int, float)
     def _set_last_frame_time(self, frame_index, frame_time):
