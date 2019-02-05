@@ -114,7 +114,7 @@ static const struct gldefinition {
     {"glReadPixels", offsetof(struct glfunctions, ReadPixels), M},
     {"glReleaseShaderCompiler", offsetof(struct glfunctions, ReleaseShaderCompiler), M},
     {"glRenderbufferStorage", offsetof(struct glfunctions, RenderbufferStorage), M},
-    {"glRenderbufferStorageMultisample", offsetof(struct glfunctions, RenderbufferStorageMultisample), M},
+    {"glRenderbufferStorageMultisample", offsetof(struct glfunctions, RenderbufferStorageMultisample), 0},
     {"glShaderBinary", offsetof(struct glfunctions, ShaderBinary), M},
     {"glShaderSource", offsetof(struct glfunctions, ShaderSource), M},
     {"glStencilFunc", offsetof(struct glfunctions, StencilFunc), M},
