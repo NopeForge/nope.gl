@@ -141,11 +141,11 @@ static int rtt_prefetch(struct ngl_node *node)
             depth_format = NGLI_FORMAT_D16_UNORM;
 
         if (depth_format != NGLI_FORMAT_UNDEFINED) {
-        attachment_params.format = depth_format;
-        int ret = ngli_texture_init(&s->fbo_depth, gl, &attachment_params);
-        if (ret < 0)
-            return ret;
-        attachments[nb_attachments++] = &s->fbo_depth;
+            attachment_params.format = depth_format;
+            int ret = ngli_texture_init(&s->fbo_depth, gl, &attachment_params);
+            if (ret < 0)
+                return ret;
+            attachments[nb_attachments++] = &s->fbo_depth;
         }
     }
 
