@@ -65,6 +65,8 @@ static const struct node_param media_params[] = {
                        .desc=NGLI_DOCSTRING("maximum number of frames in sxplayer filtering queue")},
     {"max_pixels",     PARAM_TYPE_INT, OFFSET(max_pixels),     {.i64=0},
                        .desc=NGLI_DOCSTRING("maximum number of pixels per frame")},
+    {"stream_idx",     PARAM_TYPE_INT, OFFSET(stream_idx),     {.i64=-1},
+                       .desc=NGLI_DOCSTRING("force a stream number instead of picking the \"best\" one")},
     {NULL}
 };
 
@@ -143,6 +145,8 @@ static int media_init(struct ngl_node *node)
     if (s->max_nb_frames)  sxplayer_set_option(s->player, "max_nb_frames",  s->max_nb_frames);
     if (s->max_nb_sink)    sxplayer_set_option(s->player, "max_nb_sink",    s->max_nb_sink);
     if (s->max_pixels)     sxplayer_set_option(s->player, "max_pixels",     s->max_pixels);
+
+    sxplayer_set_option(s->player, "stream_idx", s->stream_idx);
 
     sxplayer_set_option(s->player, "sw_pix_fmt", SXPLAYER_PIXFMT_RGBA);
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
