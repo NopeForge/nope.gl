@@ -54,7 +54,7 @@ Qualifier | Type                        | Name                       | Descripti
 uniform   | `mat4`                      | `%s_coord_matrix`          | uv transformation matrix of the texture associated with the render node using key `%s`, it should be applied to the geometry uv coordinates `ngl_uvcoord` to obtain the final texture coordinates
 uniform   | `vec2`                      | `%s_dimensions`            | dimensions in pixels of the texture associated with the render node using key `%s`
 uniform   | `sampler2D`, `sampler3D`    | `%s_sampler`               | sampler of the texture associated with the render node using key `%s`
-uniform   | `samplerExternalOES`        | `%s_external_sampler`      | external OES sampler (Android only) of the texture associated with the render node using key `%s`
+uniform   | `samplerExternalOES`, `__samplerExternal2DY2YEXT` | `%s_external_sampler` | external `OES` (Android only) or `2DY2YEXT` (Android with `GL_EXT_YUV_target` only) sampler of the texture associated with the render node using key `%s`
 uniform   | `sampler2D`                 | `%s_y_sampler`             | luminance sampler (iOS only) of the texture associated with the render node using key `%s`
 uniform   | `sampler2D`                 | `%s_uv_sampler`            | chrominance sampler (iOS only) of the texture associated with the render node using key `%s`
 uniform   | `int`                       | `%s_sampling_mode`         | sampling mode used by the texture nodes associated with the render node using key `%s`, it indicates from which sampler the color should be picked from: `1` for standard 2D/3D sampling, `2` for external OES sampling on Android, `3` for NV12 sampling on iOS
