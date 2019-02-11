@@ -209,5 +209,9 @@ static const struct glfeature {
                                            OFFSET(ClientWaitSync),
                                            OFFSET(WaitSync),
                                            -1}
+    }, {
+        .name           = "yuv_target",
+        .flag           = NGLI_FEATURE_YUV_TARGET,
+        .es_extensions  = (const char*[]){"GL_EXT_YUV_target", NULL}
     }
 };

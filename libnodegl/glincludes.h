@@ -69,6 +69,7 @@ typedef void* GLeglImageOES;
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
 # define GL_SAMPLER_EXTERNAL_OES               0x8D66
 # define GL_TEXTURE_BINDING_EXTERNAL_OES       0x8D67
+# define GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT        0x8BE7
 #endif
 
 #if NGL_GLES2_COMPAT_INCLUDES
@@ -83,6 +84,7 @@ typedef void* GLeglImageOES;
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
 # define GL_SAMPLER_EXTERNAL_OES               0x8D66
 # define GL_TEXTURE_BINDING_EXTERNAL_OES       0x8D67
+# define GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT        0x8BE7
 # define GL_MAJOR_VERSION                      0x821B
 # define GL_MINOR_VERSION                      0x821C
 # define GL_NUM_EXTENSIONS                     0x821D
