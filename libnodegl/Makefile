@@ -60,7 +60,8 @@ LIB_BASENAME = libnodegl
 LIB_NAME     = $(LIB_BASENAME).$(LIBSUFFIX)
 LIB_PCNAME   = $(LIB_BASENAME).pc
 
-LIB_OBJS = api.o                    \
+LIB_OBJS = animation.o              \
+           api.o                    \
            backend_gl.o             \
            bstr.o                   \
            buffer.o                 \
