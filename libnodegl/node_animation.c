@@ -22,6 +22,7 @@
 #include <float.h>
 #include <stddef.h>
 #include <string.h>
+#include "animation.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
@@ -63,63 +64,69 @@ static const struct node_param animatedquat_params[] = {
     {NULL}
 };
 
-static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double t)
+static void mix_float(void *user_arg, void *dst,
+                      const struct animkeyframe_priv *kf0,
+                      const struct animkeyframe_priv *kf1,
+                      double ratio)
 {
-    int ret = -1;
-
-    for (int i = start; i < nb_animkf; i++) {
-        const struct animkeyframe_priv *kf = animkf[i]->priv_data;
-        if (kf->time > t)
-            break;
-        ret = i;
-    }
-    return ret;
+    double *dstd = dst;
+    dstd[0] = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
 }
 
-static inline int animation_update(const struct animation_priv *s, double t, int len,
-                                   void *dst, int *cache)
+static void mix_quat(void *user_arg, void *dst,
+                     const struct animkeyframe_priv *kf0,
+                     const struct animkeyframe_priv *kf1,
+                     double ratio)
 {
-    struct ngl_node **animkf = s->animkf;
-    const int nb_animkf = s->nb_animkf;
-    if (!nb_animkf)
-        return 0;
-    int kf_id = get_kf_id(animkf, nb_animkf, *cache, t);
-    if (kf_id < 0)
-        kf_id = get_kf_id(animkf, nb_animkf, 0, t);
-    if (kf_id >= 0 && kf_id < nb_animkf - 1) {
-        const struct animkeyframe_priv *kf0 = animkf[kf_id    ]->priv_data;
-        const struct animkeyframe_priv *kf1 = animkf[kf_id + 1]->priv_data;
-        const double t0 = kf0->time;
-        const double t1 = kf1->time;
+    ngli_quat_slerp(dst, kf0->value, kf1->value, ratio);
+}
 
-        double tnorm = (t - t0) / (t1 - t0);
-        if (kf1->scale_boundaries)
-            tnorm = (kf1->offsets[1] - kf1->offsets[0]) * tnorm + kf1->offsets[0];
-        double ratio = kf1->function(tnorm, kf1->nb_args, kf1->args);
-        if (kf1->scale_boundaries)
-            ratio = (ratio - kf1->boundaries[0]) / (kf1->boundaries[1] - kf1->boundaries[0]);
+static void mix_vector(void *user_arg, void *dst,
+                       const struct animkeyframe_priv *kf0,
+                       const struct animkeyframe_priv *kf1,
+                       double ratio)
+{
+    float *dstf = dst;
+    const struct ngl_node *node = user_arg;
+    const int len = node->class->id - NGL_NODE_ANIMATEDFLOAT + 1;
+    for (int i = 0; i < len; i++)
+        dstf[i] = NGLI_MIX(kf0->value[i], kf1->value[i], ratio);
+}
 
-        *cache = kf_id;
-        if (len == 1) { /* scalar */
-            ((double *)dst)[0] = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
-        } else if (len == 5) { /* quaternion */
-            ngli_quat_slerp(dst, kf0->value, kf1->value, ratio);
-        } else { /* vector */
-            for (int i = 0; i < len; i++)
-                ((float *)dst)[i] = NGLI_MIX(kf0->value[i], kf1->value[i], ratio);
-        }
-    } else {
-        const struct animkeyframe_priv *kf0 = animkf[            0]->priv_data;
-        const struct animkeyframe_priv *kfn = animkf[nb_animkf - 1]->priv_data;
-        const struct animkeyframe_priv *kf  = t < kf0->time ? kf0 : kfn;
-        if (len == 1) /* scalar */
-            memcpy(dst, &kf->scalar, sizeof(double));
-        else if (len == 5) /* quaternion */
-            memcpy(dst, kf->value, 4 * sizeof(float));
-        else /* vector */
-            memcpy(dst, kf->value, len * sizeof(float));
+static void cpy_scalar(void *user_arg, void *dst,
+                      const struct animkeyframe_priv *kf)
+{
+    memcpy(dst, &kf->scalar, sizeof(kf->scalar));
+}
+
+static void cpy_values(void *user_arg, void *dst,
+                    const struct animkeyframe_priv *kf)
+{
+    memcpy(dst, kf->value, sizeof(kf->value));
+}
+
+static ngli_animation_mix_func_type get_mix_func(int node_class)
+{
+    switch (node_class) {
+        case NGL_NODE_ANIMATEDFLOAT: return mix_float;
+        case NGL_NODE_ANIMATEDVEC2:  return mix_vector;
+        case NGL_NODE_ANIMATEDVEC3:  return mix_vector;
+        case NGL_NODE_ANIMATEDVEC4:  return mix_vector;
+        case NGL_NODE_ANIMATEDQUAT:  return mix_quat;
     }
-    return 0;
+    return NULL;
+}
+
+static ngli_animation_cpy_func_type get_cpy_func(int node_class)
+{
+    switch (node_class) {
+        case NGL_NODE_ANIMATEDFLOAT: return cpy_scalar;
+        case NGL_NODE_ANIMATEDVEC2:
+        case NGL_NODE_ANIMATEDVEC3:
+        case NGL_NODE_ANIMATEDVEC4:
+        case NGL_NODE_ANIMATEDQUAT:  return cpy_values;
+    }
+    return NULL;
 }
 
 int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
@@ -127,6 +134,15 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
     struct animation_priv *s = node->priv_data;
     if (!s->nb_animkf)
         return -1;
+
+    if (!s->anim_eval.kfs) {
+        int ret = ngli_animation_init(&s->anim_eval, node,
+                                      s->animkf, s->nb_animkf,
+                                      get_mix_func(node->class->id),
+                                      get_cpy_func(node->class->id));
+        if (ret < 0)
+            return ret;
+    }
 
     struct animkeyframe_priv *kf0 = s->animkf[0]->priv_data;
     if (!kf0->function) {
@@ -137,46 +153,29 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
         }
     }
 
-    const int len = node->class->id - NGL_NODE_ANIMATEDFLOAT + 1;
-    return animation_update(s, t, len, dst, &s->eval_current_kf);
+    return ngli_animation_evaluate(&s->anim_eval, dst, t);
 }
 
 static int animation_init(struct ngl_node *node)
 {
     struct animation_priv *s = node->priv_data;
-    double prev_time = -DBL_MAX;
-
-    for (int i = 0; i < s->nb_animkf; i++) {
-        const struct animkeyframe_priv *kf = s->animkf[i]->priv_data;
-
-        if (kf->time < prev_time) {
-            LOG(ERROR, "key frames must be monotically increasing: %g < %g",
-                kf->time, prev_time);
-            return -1;
-        }
-        prev_time = kf->time;
-    }
-
-    return 0;
+    return ngli_animation_init(&s->anim, node,
+                               s->animkf, s->nb_animkf,
+                               get_mix_func(node->class->id),
+                               get_cpy_func(node->class->id));
 }
 
 static int animatedfloat_update(struct ngl_node *node, double t)
 {
     struct animation_priv *s = node->priv_data;
-    return animation_update(s, t, 1, &s->scalar, &s->current_kf);
+    return ngli_animation_evaluate(&s->anim, &s->scalar, t);
 }
 
-#define UPDATE_FUNC(type, len)                                          \
-static int animated##type##_update(struct ngl_node *node, double t)     \
-{                                                                       \
-    struct animation_priv *s = node->priv_data;                         \
-    return animation_update(s, t, len, s->values, &s->current_kf);      \
+static int animatedvec_update(struct ngl_node *node, double t)
+{
+    struct animation_priv *s = node->priv_data;
+    return ngli_animation_evaluate(&s->anim, s->values, t);
 }
-
-UPDATE_FUNC(vec2,   2);
-UPDATE_FUNC(vec3,   3);
-UPDATE_FUNC(vec4,   4);
-UPDATE_FUNC(quat,   5); /* quaternion (4) + slerp (1) */
 
 const struct node_class ngli_animatedfloat_class = {
     .id        = NGL_NODE_ANIMATEDFLOAT,
@@ -192,7 +191,7 @@ const struct node_class ngli_animatedvec2_class = {
     .id        = NGL_NODE_ANIMATEDVEC2,
     .name      = "AnimatedVec2",
     .init      = animation_init,
-    .update    = animatedvec2_update,
+    .update    = animatedvec_update,
     .priv_size = sizeof(struct animation_priv),
     .params    = animatedvec2_params,
     .file      = __FILE__,
@@ -202,7 +201,7 @@ const struct node_class ngli_animatedvec3_class = {
     .id        = NGL_NODE_ANIMATEDVEC3,
     .name      = "AnimatedVec3",
     .init      = animation_init,
-    .update    = animatedvec3_update,
+    .update    = animatedvec_update,
     .priv_size = sizeof(struct animation_priv),
     .params    = animatedvec3_params,
     .file      = __FILE__,
@@ -212,7 +211,7 @@ const struct node_class ngli_animatedvec4_class = {
     .id        = NGL_NODE_ANIMATEDVEC4,
     .name      = "AnimatedVec4",
     .init      = animation_init,
-    .update    = animatedvec4_update,
+    .update    = animatedvec_update,
     .priv_size = sizeof(struct animation_priv),
     .params    = animatedvec4_params,
     .file      = __FILE__,
@@ -222,7 +221,7 @@ const struct node_class ngli_animatedquat_class = {
     .id        = NGL_NODE_ANIMATEDQUAT,
     .name      = "AnimatedQuat",
     .init      = animation_init,
-    .update    = animatedquat_update,
+    .update    = animatedvec_update,
     .priv_size = sizeof(struct animation_priv),
     .params    = animatedquat_params,
     .file      = __FILE__,

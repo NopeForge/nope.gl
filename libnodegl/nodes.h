@@ -515,8 +515,8 @@ typedef easing_type (*easing_function)(easing_type, int, const easing_type *);
 struct animation_priv {
     struct ngl_node **animkf;
     int nb_animkf;
-    int current_kf;
-    int eval_current_kf;
+    struct animation anim;
+    struct animation anim_eval;
     float values[4];
     double scalar;
 };
