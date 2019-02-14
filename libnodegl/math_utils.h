@@ -26,6 +26,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#define NGLI_MIX(x, y, a) ((x)*(1.-(a)) + (y)*(a))
+
 float ngli_vec3_length(float *v);
 void ngli_vec3_sub(float *dst, float *v1, float *v2);
 void ngli_vec3_norm(float *dst, float *v);

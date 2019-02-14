@@ -76,8 +76,6 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
     return ret;
 }
 
-#define MIX(x, y, a) ((x)*(1.-(a)) + (y)*(a))
-
 static inline int animation_update(const struct animation_priv *s, double t, int len,
                                    void *dst, int *cache)
 {
@@ -103,12 +101,12 @@ static inline int animation_update(const struct animation_priv *s, double t, int
 
         *cache = kf_id;
         if (len == 1) { /* scalar */
-            ((double *)dst)[0] = MIX(kf0->scalar, kf1->scalar, ratio);
+            ((double *)dst)[0] = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
         } else if (len == 5) { /* quaternion */
             ngli_quat_slerp(dst, kf0->value, kf1->value, ratio);
         } else { /* vector */
             for (int i = 0; i < len; i++)
-                ((float *)dst)[i] = MIX(kf0->value[i], kf1->value[i], ratio);
+                ((float *)dst)[i] = NGLI_MIX(kf0->value[i], kf1->value[i], ratio);
         }
     } else {
         const struct animkeyframe_priv *kf0 = animkf[            0]->priv_data;

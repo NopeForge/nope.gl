@@ -23,6 +23,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "log.h"
+#include "math_utils.h"
 #include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -48,8 +49,6 @@ static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double 
     }
     return ret;
 }
-
-#define MIX(x, y, a) ((x)*(1.-(a)) + (y)*(a))
 
 static int animatedbuffer_update(struct ngl_node *node, double t)
 {
@@ -82,7 +81,7 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
         const float *d2 = (const float *)kf1->data;
         for (int k = 0; k < s->count; k++)
             for (int i = 0; i < s->data_comp; i++)
-                dst[k*s->data_comp + i] = MIX(d1[k*s->data_comp + i], d2[k*s->data_comp + i], ratio);
+                dst[k*s->data_comp + i] = NGLI_MIX(d1[k*s->data_comp + i], d2[k*s->data_comp + i], ratio);
     } else {
         const struct animkeyframe_priv *kf0 = animkf[            0]->priv_data;
         const struct animkeyframe_priv *kfn = animkf[nb_animkf - 1]->priv_data;
