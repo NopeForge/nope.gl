@@ -67,7 +67,7 @@ class Media:
         data = json.loads(data)
         st = data['streams'][0]
         self._dimensions = (st['width'], st['height'])
-        self._duration = float(data['format']['duration'])
+        self._duration = float(data['format'].get('duration', 1))
         self._framerate = tuple(int(x) for x in st['avg_frame_rate'].split('/'))
 
     @property
