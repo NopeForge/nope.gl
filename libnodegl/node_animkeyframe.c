@@ -420,6 +420,50 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
     return ret;
 }
 
+int ngl_easing_evaluate(const char *name, double *args, int nb_args,
+                        double *offsets, double t, double *v)
+{
+    int easing_id;
+    int ret = ngli_params_get_select_val(easing_choices.consts, name, &easing_id);
+    if (ret < 0)
+        return ret;
+    if (offsets)
+        t = NGLI_MIX(offsets[0], offsets[1], t);
+    const easing_function eval_func = easings[easing_id].function;
+    double value = eval_func(t, nb_args, args);
+    if (offsets) {
+        const double start_value = eval_func(offsets[0], nb_args, args);
+        const double end_value   = eval_func(offsets[1], nb_args, args);
+        value = (value - start_value) / (end_value - start_value);
+    }
+    *v = value;
+    return 0;
+}
+
+int ngl_easing_solve(const char *name, double *args, int nb_args,
+                     double *offsets, double v, double *t)
+{
+    int easing_id;
+    int ret = ngli_params_get_select_val(easing_choices.consts, name, &easing_id);
+    if (ret < 0)
+        return ret;
+    if (!easings[easing_id].resolution) {
+        LOG(ERROR, "no resolution available for easing %s", name);
+        return -1;
+    }
+    if (offsets) {
+        const easing_function eval_func = easings[easing_id].function;
+        const double start_value = eval_func(offsets[0], nb_args, args);
+        const double end_value   = eval_func(offsets[1], nb_args, args);
+        v = NGLI_MIX(start_value, end_value, v);
+    }
+    double time = easings[easing_id].resolution(v, nb_args, args);
+    if (offsets)
+        time = (time - offsets[0]) / (offsets[1] - offsets[0]);
+    *t = time;
+    return 0;
+}
+
 const struct node_class ngli_animkeyframefloat_class = {
     .id        = NGL_NODE_ANIMKEYFRAMEFLOAT,
     .name      = "AnimKeyFrameFloat",

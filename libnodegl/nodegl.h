@@ -427,6 +427,38 @@ void ngl_freep(struct ngl_ctx **ss);
 int ngl_anim_evaluate(struct ngl_node *anim, void *dst, double t);
 
 /**
+ * Evaluate an easing at a given time t
+ *
+ * @param name      the easing name
+ * @param args      a list of arguments some easings may use, can be NULL
+ * @param nb_args   number of arguments in args
+ * @param offsets   starting and ending offset of the truncation of the easing, can be NULL or point to two doubles
+ * @param t         the target time
+ * @param v         pointer for the resulting value
+ *
+ * @return 0 on success, < 0 on error
+ */
+int ngl_easing_evaluate(const char *name, double *args, int nb_args,
+                        double *offsets, double t, double *v);
+
+/**
+ * Solve an easing for a given value t
+ *
+ * @param name      the easing name
+ * @param args      a list of arguments some easings may use, can be NULL
+ * @param nb_args   number of arguments in args
+ * @param offsets   starting and ending offset of the truncation of the easing, can be NULL or point to two doubles
+ * @param v         the target value
+ * @param t         pointer for the resulting time
+ *
+ * @note Not all easings have a resolution function available
+ *
+ * @return 0 on success, < 0 on error
+ */
+int ngl_easing_solve(const char *name, double *args, int nb_args,
+                     double *offsets, double v, double *t);
+
+/**
  * Android
  */
 
