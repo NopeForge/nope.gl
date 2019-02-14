@@ -22,6 +22,7 @@
 #include <float.h>
 #include <stddef.h>
 #include <string.h>
+#include "animation.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
@@ -37,66 +38,36 @@ static const struct node_param animatedbuffer_params[] = {
     {NULL}
 };
 
-static int get_kf_id(struct ngl_node **animkf, int nb_animkf, int start, double t)
+static void mix_buffer(void *user_arg, void *dst,
+                       const struct animkeyframe_priv *kf0,
+                       const struct animkeyframe_priv *kf1,
+                       double ratio)
 {
-    int ret = -1;
+    float *dstf = dst;
+    const struct buffer_priv *s = user_arg;
+    const float *d1 = (const float *)kf0->data;
+    const float *d2 = (const float *)kf1->data;
+    for (int k = 0; k < s->count; k++)
+        for (int i = 0; i < s->data_comp; i++)
+            dstf[k*s->data_comp + i] = NGLI_MIX(d1[k*s->data_comp + i], d2[k*s->data_comp + i], ratio);
+}
 
-    for (int i = start; i < nb_animkf; i++) {
-        const struct animkeyframe_priv *kf = animkf[i]->priv_data;
-        if (kf->time > t)
-            break;
-        ret = i;
-    }
-    return ret;
+static void cpy_buffer(void *user_arg, void *dst,
+                       const struct animkeyframe_priv *kf)
+{
+    const struct buffer_priv *s = user_arg;
+    memcpy(dst, kf->data, s->data_size);
 }
 
 static int animatedbuffer_update(struct ngl_node *node, double t)
 {
     struct buffer_priv *s = node->priv_data;
-    struct ngl_node **animkf = s->animkf;
-    const int nb_animkf = s->nb_animkf;
-    float *dst = (float *)s->data;
-
-    if (!nb_animkf)
-        return 0;
-    int kf_id = get_kf_id(animkf, nb_animkf, s->current_kf, t);
-    if (kf_id < 0)
-        kf_id = get_kf_id(animkf, nb_animkf, 0, t);
-    if (kf_id >= 0 && kf_id < nb_animkf - 1) {
-        const struct animkeyframe_priv *kf0 = animkf[kf_id    ]->priv_data;
-        const struct animkeyframe_priv *kf1 = animkf[kf_id + 1]->priv_data;
-        const double t0 = kf0->time;
-        const double t1 = kf1->time;
-
-        double tnorm = (t - t0) / (t1 - t0);
-        if (kf1->scale_boundaries)
-            tnorm = (kf1->offsets[1] - kf1->offsets[0]) * tnorm + kf1->offsets[0];
-        double ratio = kf1->function(tnorm, kf1->nb_args, kf1->args);
-        if (kf1->scale_boundaries)
-            ratio = (ratio - kf1->boundaries[0]) / (kf1->boundaries[1] - kf1->boundaries[0]);
-
-        s->current_kf = kf_id;
-
-        const float *d1 = (const float *)kf0->data;
-        const float *d2 = (const float *)kf1->data;
-        for (int k = 0; k < s->count; k++)
-            for (int i = 0; i < s->data_comp; i++)
-                dst[k*s->data_comp + i] = NGLI_MIX(d1[k*s->data_comp + i], d2[k*s->data_comp + i], ratio);
-    } else {
-        const struct animkeyframe_priv *kf0 = animkf[            0]->priv_data;
-        const struct animkeyframe_priv *kfn = animkf[nb_animkf - 1]->priv_data;
-        const struct animkeyframe_priv *kf  = t < kf0->time ? kf0 : kfn;
-
-        memcpy(dst, kf->data, s->data_size);
-    }
-
-    return 0;
+    return ngli_animation_evaluate(&s->anim, s->data, t);
 }
 
 static int animatedbuffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
-    double prev_time = -DBL_MAX;
 
     int nb_comp;
     int format;
@@ -116,17 +87,16 @@ static int animatedbuffer_init(struct ngl_node *node)
     s->data_format = format;
     s->data_stride = s->data_comp * sizeof(float);
 
+    int ret = ngli_animation_init(&s->anim, s,
+                                  s->animkf, s->nb_animkf,
+                                  mix_buffer, cpy_buffer);
+    if (ret < 0)
+        return ret;
+
     for (int i = 0; i < s->nb_animkf; i++) {
         const struct animkeyframe_priv *kf = s->animkf[i]->priv_data;
         const int data_count = kf->data_size / s->data_stride;
         const int data_pad   = kf->data_size % s->data_stride;
-
-        if (kf->time < prev_time) {
-            LOG(ERROR, "key frames must be monotically increasing: %g < %g",
-                kf->time, prev_time);
-            return -1;
-        }
-        prev_time = kf->time;
 
         if (s->count && s->count != data_count) {
             static const char *types[] = {"float", "vec2", "vec3", "vec4"};

@@ -40,6 +40,7 @@
 #include <CoreVideo/CoreVideo.h>
 #endif
 
+#include "animation.h"
 #include "glincludes.h"
 #include "glcontext.h"
 #include "glstate.h"
@@ -234,7 +235,7 @@ struct buffer_priv {
     /* animatedbuffer */
     struct ngl_node **animkf;
     int nb_animkf;
-    int current_kf;
+    struct animation anim;
 
     int fd;
     int dynamic;
