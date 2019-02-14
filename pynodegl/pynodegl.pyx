@@ -61,6 +61,11 @@ cdef extern from "nodegl.h":
     char *ngl_dot(ngl_ctx *s, double t) nogil
     void ngl_freep(ngl_ctx **ss)
 
+    int ngl_easing_evaluate(const char *name, double *args, int nb_args,
+                            double *offsets, double t, double *v)
+    int ngl_easing_solve(const char *name, double *args, int nb_args,
+                         double *offsets, double v, double *t)
+
 PLATFORM_AUTO    = NGL_PLATFORM_AUTO
 PLATFORM_XLIB    = NGL_PLATFORM_XLIB
 PLATFORM_ANDROID = NGL_PLATFORM_ANDROID
@@ -89,6 +94,48 @@ include "nodes_def.pyx"
 
 def log_set_min_level(int level):
     ngl_log_set_min_level(level)
+
+
+cdef _eval_solve(name, src, args, offsets, evaluate):
+    cdef double c_args[2]
+    cdef double *c_args_param = NULL
+    cdef int nb_args = 0
+    if args is not None:
+        nb_args = len(args)
+        if nb_args > 2:
+            raise Exception("Easing do not support more than 2 arguments")
+        for i, arg in enumerate(args):
+            c_args[i] = arg
+        c_args_param = c_args
+
+    cdef double c_offsets[2]
+    cdef double *c_offsets_param = NULL
+    if offsets is not None:
+        c_offsets[0] = offsets[0]
+        c_offsets[1] = offsets[1]
+        c_offsets_param = c_offsets
+
+    cdef double dst
+    cdef int ret
+    if evaluate:
+        ret = ngl_easing_evaluate(name, c_args_param, nb_args, c_offsets_param, src, &dst)
+        if ret < 0:
+            raise Exception("Error evaluating %s" % name)
+    else:
+        ret = ngl_easing_solve(name, c_args_param, nb_args, c_offsets_param, src, &dst)
+        if ret < 0:
+            raise Exception("Error solving %s" % name)
+
+    return dst
+
+
+def easing_evaluate(name, t, args=None, offsets=None):
+    return _eval_solve(name, t, args, offsets, True)
+
+
+def easing_solve(name, v, args=None, offsets=None):
+    return _eval_solve(name, v, args, offsets, False)
+
 
 cdef class Viewer:
     cdef ngl_ctx *ctx
