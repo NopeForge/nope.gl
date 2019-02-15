@@ -237,6 +237,10 @@ cmds = [
     # Face Culling
     'glCullFace',
 
+    # Sync
+    'glFlush',
+    'glFinish',
+
 ] + cmds_optional
 
 def get_proto_elems(xml_node):

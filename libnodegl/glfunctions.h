@@ -67,6 +67,8 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*EndQuery)(GLenum target);
     NGLI_GL_APIENTRY void (*EndQueryEXT)(GLenum target);
     NGLI_GL_APIENTRY GLsync (*FenceSync)(GLenum condition, GLbitfield flags);
+    NGLI_GL_APIENTRY void (*Finish)();
+    NGLI_GL_APIENTRY void (*Flush)();
     NGLI_GL_APIENTRY void (*FramebufferRenderbuffer)(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
     NGLI_GL_APIENTRY void (*FramebufferTexture2D)(GLenum target, GLenum attachment, GLenum textarget, GLuint texture, GLint level);
     NGLI_GL_APIENTRY void (*GenBuffers)(GLsizei n, GLuint * buffers);

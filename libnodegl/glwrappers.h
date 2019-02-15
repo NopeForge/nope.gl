@@ -343,6 +343,18 @@ static inline GLsync ngli_glFenceSync(const struct glcontext *gl, GLenum conditi
     return ret;
 }
 
+static inline void ngli_glFinish(const struct glcontext *gl)
+{
+    gl->funcs.Finish();
+    check_error_code(gl, "glFinish");
+}
+
+static inline void ngli_glFlush(const struct glcontext *gl)
+{
+    gl->funcs.Flush();
+    check_error_code(gl, "glFlush");
+}
+
 static inline void ngli_glFramebufferRenderbuffer(const struct glcontext *gl, GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
     gl->funcs.FramebufferRenderbuffer(target, attachment, renderbuffertarget, renderbuffer);

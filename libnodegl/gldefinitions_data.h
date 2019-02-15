@@ -68,6 +68,8 @@ static const struct gldefinition {
     {"glEndQuery", offsetof(struct glfunctions, EndQuery), 0},
     {"glEndQueryEXT", offsetof(struct glfunctions, EndQueryEXT), 0},
     {"glFenceSync", offsetof(struct glfunctions, FenceSync), 0},
+    {"glFinish", offsetof(struct glfunctions, Finish), M},
+    {"glFlush", offsetof(struct glfunctions, Flush), M},
     {"glFramebufferRenderbuffer", offsetof(struct glfunctions, FramebufferRenderbuffer), M},
     {"glFramebufferTexture2D", offsetof(struct glfunctions, FramebufferTexture2D), M},
     {"glGenBuffers", offsetof(struct glfunctions, GenBuffers), M},
