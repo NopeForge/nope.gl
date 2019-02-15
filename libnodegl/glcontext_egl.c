@@ -320,6 +320,8 @@ static int egl_init_framebuffer(struct glcontext *ctx)
     if (ret < 0)
         return ret;
 
+    ngli_glViewport(ctx, 0, 0, ctx->width, ctx->height);
+
     return 0;
 }
 
