@@ -47,7 +47,7 @@ int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params
 int ngli_fbo_bind(struct fbo *fbo);
 int ngli_fbo_unbind(struct fbo *fbo);
 void ngli_fbo_invalidate_depth_buffers(struct fbo *fbo);
-void ngli_fbo_blit(struct fbo *fbo, struct fbo *dst);
+void ngli_fbo_blit(struct fbo *fbo, struct fbo *dst, int vflip);
 void ngli_fbo_reset(struct fbo *fbo);
 
 #endif

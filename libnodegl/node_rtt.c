@@ -252,7 +252,7 @@ static void rtt_draw(struct ngl_node *node)
     }
 
     if (s->samples > 0)
-        ngli_fbo_blit(fbo, &s->fbo);
+        ngli_fbo_blit(fbo, &s->fbo, 0);
 
     ngli_fbo_invalidate_depth_buffers(fbo);
     ngli_fbo_unbind(fbo);

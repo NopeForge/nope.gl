@@ -152,7 +152,7 @@ void ngli_fbo_invalidate_depth_buffers(struct fbo *fbo)
     }
 }
 
-void ngli_fbo_blit(struct fbo *fbo, struct fbo *dst)
+void ngli_fbo_blit(struct fbo *fbo, struct fbo *dst, int vflip)
 {
     struct glcontext *gl = fbo->gl;
 
@@ -160,8 +160,16 @@ void ngli_fbo_blit(struct fbo *fbo, struct fbo *dst)
         return;
 
     ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, dst->id);
-    ngli_glBlitFramebuffer(gl, 0, 0, fbo->width, fbo->height, 0, 0, dst->width, dst->height,
-                           GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+    if (vflip)
+        ngli_glBlitFramebuffer(gl,
+                               0, 0, fbo->width, fbo->height, 0, dst->height, dst->width, 0,
+                               GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+                               GL_NEAREST);
+    else
+        ngli_glBlitFramebuffer(gl,
+                               0, 0, fbo->width, fbo->height, 0, 0, dst->width, dst->height,
+                               GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT,
+                               GL_NEAREST);
     ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, fbo->id);
 }
 

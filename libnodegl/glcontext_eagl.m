@@ -343,7 +343,7 @@ static void eagl_swap_buffers(struct glcontext *ctx)
     struct eagl_priv *eagl = ctx->priv_data;
 
     if (ctx->samples > 0)
-        ngli_fbo_blit(&eagl->fbo_ms, &eagl->fbo);
+        ngli_fbo_blit(&eagl->fbo_ms, &eagl->fbo, 0);
 
     if (ctx->offscreen) {
         if (eagl->pixel_buffer) {
