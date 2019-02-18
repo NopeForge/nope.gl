@@ -160,6 +160,7 @@ int main(int argc, char *argv[])
 
     int fd = -1;
     struct ngl_ctx *ctx = NULL;
+    uint8_t *capture_buffer = NULL;
 
     struct ngl_node *scene = get_scene(input);
     if (!scene) {
@@ -178,12 +179,9 @@ int main(int argc, char *argv[])
             ret = EXIT_FAILURE;
             goto end;
         }
-        struct ngl_node *camera = ngl_node_create(NGL_NODE_CAMERA, scene);
-        ngl_node_unrefp(&scene);
-        scene = camera;
-        ngl_node_param_set(scene, "pipe_fd", fd);
-        ngl_node_param_set(scene, "pipe_width", width);
-        ngl_node_param_set(scene, "pipe_height", height);
+        capture_buffer = calloc(width * height, 4);
+        if (!capture_buffer)
+            goto end;
     }
 
     ctx = ngl_create();
@@ -197,6 +195,7 @@ int main(int argc, char *argv[])
         .height = height,
         .viewport = {0, 0, width, height},
         .offscreen = !show_window,
+        .capture_buffer = capture_buffer,
     };
     if (show_window) {
         ret = wsi_set_ngl_config(&config, window);
@@ -238,6 +237,8 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Unable to draw @ t=%g\n", t);
                 goto end;
             }
+            if (capture_buffer)
+                write(fd, capture_buffer, 4 * width * height);
             if (show_window)
                 glfwPollEvents();
             k++;
@@ -252,6 +253,8 @@ end:
 
     if (fd != -1)
         close(fd);
+
+    free(capture_buffer);
 
     if (show_window) {
         glfwDestroyWindow(window);
