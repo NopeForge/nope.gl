@@ -164,15 +164,6 @@ def query_inplace(**idict):
             g.add_children(hud, render)
             scene = g
 
-        # Pipe mode for data export requires a Camera
-        if 'pipe' in idict:
-            pipe_fd, pipe_w, pipe_h = idict['pipe']
-            camera = scene if isinstance(scene, ngl.Camera) else ngl.Camera(scene)
-            camera.set_pipe_fd(pipe_fd)
-            camera.set_pipe_width(pipe_w)
-            camera.set_pipe_height(pipe_h)
-            scene = camera
-
         # Prepare output data
         odict['scene'] = scene.dot() if idict.get('fmt') == 'dot' else scene.serialize()
 

@@ -45,7 +45,7 @@ class Exporter(QtCore.QThread):
     def _export(self, filename, width, height, extra_enc_args=None):
         fd_r, fd_w = os.pipe()
 
-        cfg = self._get_scene_func(pipe=(fd_w, width, height))
+        cfg = self._get_scene_func()
         if not cfg:
             self.failed.emit()
             return False
@@ -73,6 +73,8 @@ class Exporter(QtCore.QThread):
         reader = subprocess.Popen(cmd, preexec_fn=close_unused_child_fd, close_fds=False)
         close_unused_parent_fd()
 
+        capture_buffer = bytearray(width * height * 4)
+
         # node.gl context
         ngl_viewer = ngl.Viewer()
         ngl_viewer.configure(
@@ -84,6 +86,7 @@ class Exporter(QtCore.QThread):
             viewport=get_viewport(width, height, cfg['aspect_ratio']),
             samples=samples,
             clear_color=cfg['clear_color'],
+            capture_buffer=capture_buffer,
         )
         ngl_viewer.set_scene_from_string(cfg['scene'])
 
@@ -98,6 +101,7 @@ class Exporter(QtCore.QThread):
                     break
                 time = i * fps[1] / float(fps[0])
                 ngl_viewer.draw(time)
+                os.write(fd_w, capture_buffer)
                 self.progressed.emit(i*100 / nb_frame)
             self.progressed.emit(100)
 
