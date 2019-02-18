@@ -173,6 +173,12 @@ void ngli_fbo_blit(struct fbo *fbo, struct fbo *dst, int vflip)
     ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, fbo->id);
 }
 
+void ngli_fbo_read_pixels(struct fbo *fbo, uint8_t *data)
+{
+    struct glcontext *gl = fbo->gl;
+    ngli_glReadPixels(gl, 0, 0, fbo->width, fbo->height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+}
+
 void ngli_fbo_reset(struct fbo *fbo)
 {
     struct glcontext *gl = fbo->gl;

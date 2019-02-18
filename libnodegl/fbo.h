@@ -48,6 +48,7 @@ int ngli_fbo_bind(struct fbo *fbo);
 int ngli_fbo_unbind(struct fbo *fbo);
 void ngli_fbo_invalidate_depth_buffers(struct fbo *fbo);
 void ngli_fbo_blit(struct fbo *fbo, struct fbo *dst, int vflip);
+void ngli_fbo_read_pixels(struct fbo *fbo, uint8_t *data);
 void ngli_fbo_reset(struct fbo *fbo);
 
 #endif
