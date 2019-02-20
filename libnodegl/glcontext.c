@@ -368,10 +368,12 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     if (ret < 0)
         goto fail;
 
+    if (!glcontext->offscreen) {
     if (glcontext->class->init_framebuffer) {
         int ret = glcontext->class->init_framebuffer(glcontext);
         if (ret < 0)
             goto fail;
+    }
     }
 
     if (config->swap_interval >= 0)

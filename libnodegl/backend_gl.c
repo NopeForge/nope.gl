@@ -30,6 +30,60 @@
 #include "vaapi.h"
 #endif
 
+static int offscreen_fbo_init(struct ngl_ctx *s)
+{
+    struct glcontext *gl = s->glcontext;
+    struct ngl_config *config = &s->config;
+
+    if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) && config->samples > 0) {
+        LOG(WARNING, "context does not support the framebuffer object feature, "
+            "multisample anti-aliasing will be disabled");
+        config->samples = 0;
+    }
+
+    struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+    attachment_params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
+    attachment_params.width = config->width;
+    attachment_params.height = config->height;
+    attachment_params.samples = config->samples;
+    attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
+    int ret = ngli_texture_init(&s->fbo_color, gl, &attachment_params);
+    if (ret < 0)
+        return ret;
+
+    attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
+    ret = ngli_texture_init(&s->fbo_depth, gl, &attachment_params);
+    if (ret < 0)
+        return ret;
+
+    const struct texture *attachments[] = {&s->fbo_color, &s->fbo_depth};
+    const int nb_attachments = NGLI_ARRAY_NB(attachments);
+    struct fbo_params fbo_params = {
+        .width = config->width,
+        .height = config->height,
+        .nb_attachments = nb_attachments,
+        .attachments = attachments,
+    };
+    ret = ngli_fbo_init(&s->fbo, gl, &fbo_params);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_fbo_bind(&s->fbo);
+    if (ret < 0)
+        return ret;
+
+    ngli_glViewport(gl, 0, 0, config->width, config->height);
+
+    return 0;
+}
+
+static void offscreen_fbo_reset(struct ngl_ctx *s)
+{
+    ngli_fbo_reset(&s->fbo);
+    ngli_texture_reset(&s->fbo_color);
+    ngli_texture_reset(&s->fbo_depth);
+}
+
 static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
 {
     int ret = ngli_glcontext_resize(s->glcontext, config->width, config->height);
@@ -60,6 +114,12 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
     s->glcontext = ngli_glcontext_new(&s->config);
     if (!s->glcontext)
         return -1;
+
+    if (s->glcontext->offscreen) {
+        int ret = offscreen_fbo_init(s);
+        if (ret < 0)
+            return ret;
+    }
 
     ngli_glstate_probe(s->glcontext, &s->glstate);
 
@@ -105,6 +165,7 @@ static int gl_post_draw(struct ngl_ctx *s, double t)
 
 static void gl_destroy(struct ngl_ctx *s)
 {
+    offscreen_fbo_reset(s);
 #if defined(HAVE_VAAPI_X11)
     ngli_vaapi_reset(s);
 #endif

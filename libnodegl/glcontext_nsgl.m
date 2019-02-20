@@ -40,9 +40,6 @@ struct nsgl_priv {
     int swap_interval;
     int swap_event;
     NSCondition *swap_condition;
-    struct fbo fbo;
-    struct texture fbo_color;
-    struct texture fbo_depth;
 };
 
 static CVReturn display_link_cb(CVDisplayLinkRef display_link,
@@ -134,48 +131,6 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             return -1;
         }
     }
-
-    return 0;
-}
-
-static int nsgl_init_framebuffer(struct glcontext *ctx)
-{
-    struct nsgl_priv *nsgl = ctx->priv_data;
-
-    if (!ctx->offscreen)
-        return 0;
-
-    struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
-    attachment_params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
-    attachment_params.width = ctx->width;
-    attachment_params.height = ctx->height;
-    attachment_params.samples = ctx->samples;
-    attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-    int ret = ngli_texture_init(&nsgl->fbo_color, ctx, &attachment_params);
-    if (ret < 0)
-        return ret;
-
-    attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-    ret = ngli_texture_init(&nsgl->fbo_depth, ctx, &attachment_params);
-    if (ret < 0)
-        return ret;
-
-    const struct texture *attachments[] = {&nsgl->fbo_color, &nsgl->fbo_depth};
-    struct fbo_params fbo_params = {
-        .width = ctx->width,
-        .height = ctx->height,
-        .attachments = attachments,
-        .nb_attachments = NGLI_ARRAY_NB(attachments),
-    };
-    ret = ngli_fbo_init(&nsgl->fbo, ctx, &fbo_params);
-    if (ret < 0)
-        return ret;
-
-    ret = ngli_fbo_bind(&nsgl->fbo);
-    if (ret < 0)
-        return ret;
-
-    ngli_glViewport(ctx, 0, 0, ctx->width, ctx->height);
 
     return 0;
 }
@@ -274,10 +229,6 @@ static void nsgl_uninit(struct glcontext *ctx)
     if (nsgl->swap_condition)
         CFRelease(nsgl->swap_condition);
 
-    ngli_fbo_reset(&nsgl->fbo);
-    ngli_texture_reset(&nsgl->fbo_color);
-    ngli_texture_reset(&nsgl->fbo_depth);
-
     if (nsgl->framework)
         CFRelease(nsgl->framework);
 
@@ -287,7 +238,6 @@ static void nsgl_uninit(struct glcontext *ctx)
 
 const struct glcontext_class ngli_glcontext_nsgl_class = {
     .init = nsgl_init,
-    .init_framebuffer = nsgl_init_framebuffer,
     .uninit = nsgl_uninit,
     .resize = nsgl_resize,
     .make_current = nsgl_make_current,

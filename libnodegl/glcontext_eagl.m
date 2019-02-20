@@ -36,8 +36,6 @@ struct eagl_priv {
     UIView *view;
     CAEAGLLayer *layer;
     CFBundleRef framework;
-    CVPixelBufferRef pixel_buffer;
-    CVOpenGLESTextureRef texture;
     CVOpenGLESTextureCacheRef texture_cache;
     GLuint colorbuffer;
     struct fbo fbo;
@@ -97,12 +95,7 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         return -1;
     }
 
-    if (ctx->offscreen) {
-        if (window) {
-            CVPixelBufferRef pixel_buffer = (CVPixelBufferRef)window;
-            eagl->pixel_buffer = (CVPixelBufferRef)CFRetain(pixel_buffer);
-        }
-    } else {
+    if (!ctx->offscreen) {
         eagl->view = (UIView *)window;
         if (!eagl->view) {
             LOG(ERROR, "could not retrieve UI view");
@@ -150,7 +143,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 {
     struct eagl_priv *eagl = ctx->priv_data;
 
-    if (!ctx->offscreen && ![NSThread isMainThread]) {
+    if (![NSThread isMainThread]) {
         __block int ret;
         ngli_glcontext_make_current(ctx, 0);
 
@@ -172,45 +165,8 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 
     struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
     attachment_params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
-    attachment_params.width = ctx->width;
-    attachment_params.height = ctx->height;
+    attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
 
-    if (eagl->pixel_buffer) {
-        ctx->width = CVPixelBufferGetWidth(eagl->pixel_buffer);
-        ctx->height = CVPixelBufferGetHeight(eagl->pixel_buffer);
-        CVReturn err = CVOpenGLESTextureCacheCreateTextureFromImage(kCFAllocatorDefault,
-                                                                    eagl->texture_cache,
-                                                                    eagl->pixel_buffer,
-                                                                    NULL,
-                                                                    GL_TEXTURE_2D,
-                                                                    GL_RGBA,
-                                                                    ctx->width,
-                                                                    ctx->height,
-                                                                    GL_BGRA,
-                                                                    GL_UNSIGNED_BYTE,
-                                                                    0,
-                                                                    &eagl->texture);
-        if (err != noErr) {
-            LOG(ERROR, "could not create CoreVideo texture from CVPixelBuffer: 0x%x", err);
-            return -1;
-        }
-
-        GLuint id = CVOpenGLESTextureGetName(eagl->texture);
-        ngli_glBindTexture(ctx, GL_TEXTURE_2D, id);
-        ngli_glTexParameteri(ctx, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        ngli_glTexParameteri(ctx, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        ngli_glBindTexture(ctx, GL_TEXTURE_2D, 0);
-
-        int ret = ngli_texture_wrap(&eagl->fbo_color, ctx, &attachment_params, id);
-        if (ret < 0)
-            return ret;
-    } else {
-        if (ctx->offscreen) {
-            attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-            int ret = ngli_texture_init(&eagl->fbo_color, ctx, &attachment_params);
-            if (ret < 0)
-                return ret;
-        } else {
             if (!eagl->colorbuffer)
                 ngli_glGenRenderbuffers(ctx, 1, &eagl->colorbuffer);
             ngli_glBindRenderbuffer (ctx, GL_RENDERBUFFER, eagl->colorbuffer);
@@ -220,16 +176,12 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 
             attachment_params.width = ctx->width;
             attachment_params.height = ctx->height;
-            attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
             int ret = ngli_texture_wrap(&eagl->fbo_color, ctx, &attachment_params, eagl->colorbuffer);
             if (ret < 0)
                 return ret;
-        }
-    }
 
     if (!ctx->samples) {
         attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-        attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
         int ret = ngli_texture_init(&eagl->fbo_depth, ctx, &attachment_params);
         if (ret < 0)
             return ret;
@@ -242,14 +194,13 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
         .nb_attachments = nb_attachments,
         .attachments = attachments,
     };
-    int ret = ngli_fbo_init(fbo, ctx, &fbo_params);
+    ret = ngli_fbo_init(fbo, ctx, &fbo_params);
     if (ret < 0)
         return ret;
 
     if (ctx->samples > 0) {
         attachment_params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
         attachment_params.samples = ctx->samples;
-        attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
         int ret = ngli_texture_init(&eagl->fbo_ms_color, ctx, &attachment_params);
         if (ret < 0)
             return ret;
@@ -304,12 +255,6 @@ static void eagl_uninit(struct glcontext *ctx)
     if (eagl->framework)
         CFRelease(eagl->framework);
 
-    if (eagl->pixel_buffer)
-        CFRelease(eagl->pixel_buffer);
-
-    if (eagl->texture)
-        CFRelease(eagl->texture);
-
     if (eagl->texture_cache)
         CFRelease(eagl->texture_cache);
 
@@ -342,17 +287,14 @@ static void eagl_swap_buffers(struct glcontext *ctx)
 {
     struct eagl_priv *eagl = ctx->priv_data;
 
+    if (ctx->offscreen)
+        return;
+
     if (ctx->samples > 0)
         ngli_fbo_blit(&eagl->fbo_ms, &eagl->fbo, 0);
 
-    if (ctx->offscreen) {
-        if (eagl->pixel_buffer) {
-            glFinish();
-        }
-    } else {
-        ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->colorbuffer);
-        [eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
-    }
+    ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->colorbuffer);
+    [eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
 }
 
 static void *eagl_get_texture_cache(struct glcontext *ctx)

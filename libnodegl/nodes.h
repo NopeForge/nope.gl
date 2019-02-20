@@ -86,6 +86,10 @@ struct ngl_ctx {
     VADisplay va_display;
     int va_version;
 #endif
+    /* Offscreen framebuffer */
+    struct fbo fbo;
+    struct texture fbo_color;
+    struct texture fbo_depth;
 
     /* Shared fields */
     pthread_mutex_t lock;
