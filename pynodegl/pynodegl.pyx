@@ -1,5 +1,6 @@
 from libc.stdlib cimport calloc
 from libc.string cimport memset
+from libc.stdint cimport uint8_t
 from libc.stdint cimport uintptr_t
 
 cdef extern from "nodegl.h":
@@ -53,6 +54,7 @@ cdef extern from "nodegl.h":
         int  samples
         int  set_surface_pts
         float clear_color[4]
+        uint8_t *capture_buffer
 
     ngl_ctx *ngl_create()
     int ngl_configure(ngl_ctx *s, ngl_config *config)
@@ -165,6 +167,9 @@ cdef class Viewer:
         clear_color = kwargs.get('clear_color', (0.0, 0.0, 0.0, 1.0))
         for i in range(4):
             config.clear_color[i] = clear_color[i]
+        capture_buffer = kwargs.get('capture_buffer')
+        if capture_buffer is not None:
+            config.capture_buffer = capture_buffer
         return ngl_configure(self.ctx, &config)
 
     def set_scene(self, _Node scene):

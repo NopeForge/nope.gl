@@ -66,6 +66,8 @@ enum {
 
 typedef int (*cmd_func_type)(struct ngl_ctx *s, void *arg);
 
+typedef void (*capture_func_type)(struct ngl_ctx *s);
+
 struct ngl_ctx {
     /* Controller-only fields */
     const struct backend *backend;
@@ -90,6 +92,17 @@ struct ngl_ctx {
     struct fbo fbo;
     struct texture fbo_color;
     struct texture fbo_depth;
+    /* Capture offscreen framebuffer */
+    capture_func_type capture_func;
+    struct fbo oes_resolve_fbo;
+    struct texture oes_resolve_fbo_color;
+    struct fbo capture_fbo;
+    struct texture capture_fbo_color;
+    uint8_t *capture_buffer;
+#if defined(TARGET_IPHONE)
+    CVPixelBufferRef capture_cvbuffer;
+    CVOpenGLESTextureRef capture_cvtexture;
+#endif
 
     /* Shared fields */
     pthread_mutex_t lock;

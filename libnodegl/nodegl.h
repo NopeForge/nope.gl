@@ -322,6 +322,10 @@ struct ngl_config {
     int set_surface_pts; /* Whether pts should be set to the surface or not (Android only) */
 
     float clear_color[4]; /* Clear color (red, green, blue, alpha) */
+
+    uint8_t *capture_buffer; /* RGBA offscreen capture buffer. If allocated,
+                                its size must be at least width * height * 4
+                                bytes. */
 };
 
 /**
