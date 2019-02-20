@@ -160,7 +160,7 @@ void ngli_fbo_blit(struct fbo *fbo, struct fbo *dst)
         return;
 
     ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, dst->id);
-    ngli_glBlitFramebuffer(gl, 0, 0, dst->width, dst->height, 0, 0, fbo->width, fbo->height,
+    ngli_glBlitFramebuffer(gl, 0, 0, fbo->width, fbo->height, 0, 0, dst->width, dst->height,
                            GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
     ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, fbo->id);
 }
