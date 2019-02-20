@@ -374,6 +374,9 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
             goto fail;
     }
 
+    if (config->swap_interval >= 0)
+        ngli_glcontext_set_swap_interval(glcontext, config->swap_interval);
+
     return glcontext;
 fail:
     ngli_glcontext_freep(&glcontext);

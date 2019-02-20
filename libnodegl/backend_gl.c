@@ -61,9 +61,6 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
     if (!s->glcontext)
         return -1;
 
-    if (s->config.swap_interval >= 0)
-        ngli_glcontext_set_swap_interval(s->glcontext, s->config.swap_interval);
-
     ngli_glstate_probe(s->glcontext, &s->glstate);
 
     const int *viewport = config->viewport;
