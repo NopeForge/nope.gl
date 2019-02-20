@@ -131,6 +131,12 @@ static ngli_animation_cpy_func_type get_cpy_func(int node_class)
 
 int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 {
+    if (node->class->id != NGL_NODE_ANIMATEDFLOAT &&
+        node->class->id != NGL_NODE_ANIMATEDVEC2 &&
+        node->class->id != NGL_NODE_ANIMATEDVEC3 &&
+        node->class->id != NGL_NODE_ANIMATEDVEC4)
+        return -1;
+
     struct animation_priv *s = node->priv_data;
     if (!s->nb_animkf)
         return -1;
