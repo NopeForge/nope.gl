@@ -153,7 +153,7 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
         return -1;
 
     if (!s->anim_eval.kfs) {
-        int ret = ngli_animation_init(&s->anim_eval, node,
+        int ret = ngli_animation_init(&s->anim_eval, NULL,
                                       s->animkf, s->nb_animkf,
                                       get_mix_func(node->class->id),
                                       get_cpy_func(node->class->id));
@@ -176,7 +176,7 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 static int animation_init(struct ngl_node *node)
 {
     struct animation_priv *s = node->priv_data;
-    return ngli_animation_init(&s->anim, node,
+    return ngli_animation_init(&s->anim, NULL,
                                s->animkf, s->nb_animkf,
                                get_mix_func(node->class->id),
                                get_cpy_func(node->class->id));
