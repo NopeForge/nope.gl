@@ -307,11 +307,28 @@ static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
     ngli_glcontext_set_swap_interval(gl, config->swap_interval);
     current_config->swap_interval = config->swap_interval;
 
-    int ret = ngli_glcontext_resize(gl, config->width, config->height);
-    if (ret < 0)
-        return ret;
+    const int update_dimensions = current_config->width != config->width ||
+                                  current_config->height != config->height;
     current_config->width = config->width;
     current_config->height = config->height;
+
+    if (config->offscreen) {
+        if (update_dimensions) {
+            offscreen_fbo_reset(s);
+            int ret = offscreen_fbo_init(s);
+            if (ret < 0)
+                return ret;
+
+            capture_reset(s);
+            ret = capture_init(s);
+            if (ret < 0)
+                return ret;
+        }
+    } else {
+        int ret = ngli_glcontext_resize(gl, config->width, config->height);
+        if (ret < 0)
+            return ret;
+    }
 
     const int *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0) {
