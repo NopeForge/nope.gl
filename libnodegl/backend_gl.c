@@ -302,12 +302,14 @@ static void capture_reset(struct ngl_ctx *s)
 static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
 {
     struct glcontext *gl = s->glcontext;
+    struct ngl_config *current_config = &s->config;
+
+    ngli_glcontext_set_swap_interval(gl, config->swap_interval);
+    current_config->swap_interval = config->swap_interval;
 
     int ret = ngli_glcontext_resize(gl, config->width, config->height);
     if (ret < 0)
         return ret;
-
-    struct ngl_config *current_config = &s->config;
     current_config->width = config->width;
     current_config->height = config->height;
 
