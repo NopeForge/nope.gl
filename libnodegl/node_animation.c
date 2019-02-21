@@ -105,13 +105,13 @@ DECLARE_VEC_MIX_FUNC(3)
 DECLARE_VEC_MIX_FUNC(4)
 
 static void cpy_scalar(void *user_arg, void *dst,
-                      const struct animkeyframe_priv *kf)
+                       const struct animkeyframe_priv *kf)
 {
     memcpy(dst, &kf->scalar, sizeof(kf->scalar));
 }
 
 static void cpy_values(void *user_arg, void *dst,
-                    const struct animkeyframe_priv *kf)
+                       const struct animkeyframe_priv *kf)
 {
     memcpy(dst, kf->value, sizeof(kf->value));
 }
