@@ -57,7 +57,7 @@ int ngli_vaapi_init(struct ngl_ctx *s)
     int minor_version;
     VAStatus va_status = vaInitialize(va_display, &major_version, &minor_version);
     if (va_status != VA_STATUS_SUCCESS) {
-        LOG(ERROR, "could not initialize va display");
+        LOG(ERROR, "could not initialize va display: %s", vaErrorStr(va_status));
         return -1;
     }
 
