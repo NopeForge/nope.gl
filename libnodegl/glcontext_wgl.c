@@ -55,10 +55,18 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         return -1;
     }
 
+    if (ctx->offscreen) {
+        wgl->window = CreateWindowA("static", "node.gl", WS_DISABLED, 0, 0, 1, 1, NULL, NULL, NULL, NULL);
+        if (!wgl->window) {
+            LOG(ERROR, "could not create offscreen window");
+            return -1;
+        }
+    } else {
     wgl->window = (HWND)window;
-    if (!ctx->offscreen && !wgl->window) {
+    if (!wgl->window) {
         LOG(ERROR, "could not retrieve window");
         return -1;
+    }
     }
 
     wgl->device_context = GetDC((HWND)wgl->window);
@@ -160,7 +168,7 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     }
 
     if (ctx->offscreen) {
-        wgl->pixel_buffer = wgl->CreatePbufferARB(NULL, pixel_format, ctx->width, ctx->height, NULL);
+        wgl->pixel_buffer = wgl->CreatePbufferARB(wgl->device_context, pixel_format, ctx->width, ctx->height, NULL);
         if (!wgl->pixel_buffer) {
             LOG(ERROR, "could not create pixel buffer");
             return -1;
@@ -208,6 +216,9 @@ static void wgl_uninit(struct glcontext *ctx)
 
     if (wgl->rendering_context)
         wglDeleteContext(wgl->rendering_context);
+
+    if (ctx->offscreen && wgl->window)
+        DestroyWindow(wgl->window);
 
     if (wgl->module)
         FreeLibrary(wgl->module);
