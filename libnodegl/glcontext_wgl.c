@@ -62,11 +62,11 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             return -1;
         }
     } else {
-    wgl->window = (HWND)window;
-    if (!wgl->window) {
-        LOG(ERROR, "could not retrieve window");
-        return -1;
-    }
+        wgl->window = (HWND)window;
+        if (!wgl->window) {
+            LOG(ERROR, "could not retrieve window");
+            return -1;
+        }
     }
 
     wgl->device_context = GetDC((HWND)wgl->window);
