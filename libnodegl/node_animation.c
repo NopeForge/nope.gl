@@ -84,14 +84,25 @@ static void mix_quat(void *user_arg, void *dst,
 static void mix_vector(void *user_arg, void *dst,
                        const struct animkeyframe_priv *kf0,
                        const struct animkeyframe_priv *kf1,
-                       double ratio)
+                       double ratio, int len)
 {
     float *dstf = dst;
-    const struct ngl_node *node = user_arg;
-    const int len = node->class->id - NGL_NODE_ANIMATEDFLOAT + 1;
     for (int i = 0; i < len; i++)
         dstf[i] = NGLI_MIX(kf0->value[i], kf1->value[i], ratio);
 }
+
+#define DECLARE_VEC_MIX_FUNC(len)                               \
+static void mix_vec##len(void *user_arg, void *dst,             \
+                         const struct animkeyframe_priv *kf0,   \
+                         const struct animkeyframe_priv *kf1,   \
+                         double ratio)                          \
+{                                                               \
+    return mix_vector(user_arg, dst, kf0, kf1, ratio, len);     \
+}
+
+DECLARE_VEC_MIX_FUNC(2)
+DECLARE_VEC_MIX_FUNC(3)
+DECLARE_VEC_MIX_FUNC(4)
 
 static void cpy_scalar(void *user_arg, void *dst,
                       const struct animkeyframe_priv *kf)
@@ -109,9 +120,9 @@ static ngli_animation_mix_func_type get_mix_func(int node_class)
 {
     switch (node_class) {
         case NGL_NODE_ANIMATEDFLOAT: return mix_float;
-        case NGL_NODE_ANIMATEDVEC2:  return mix_vector;
-        case NGL_NODE_ANIMATEDVEC3:  return mix_vector;
-        case NGL_NODE_ANIMATEDVEC4:  return mix_vector;
+        case NGL_NODE_ANIMATEDVEC2:  return mix_vec2;
+        case NGL_NODE_ANIMATEDVEC3:  return mix_vec3;
+        case NGL_NODE_ANIMATEDVEC4:  return mix_vec4;
         case NGL_NODE_ANIMATEDQUAT:  return mix_quat;
     }
     return NULL;
