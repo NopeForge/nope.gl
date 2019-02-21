@@ -39,7 +39,37 @@
 
 static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 {
-    int ret = s->backend->reconfigure(s, arg);
+    struct ngl_config *config = arg;
+    struct ngl_config *current_config = &s->config;
+
+    if (config->platform == NGL_PLATFORM_AUTO)
+        config->platform = current_config->platform;
+    if (config->backend == NGL_BACKEND_AUTO)
+        config->backend = current_config->backend;
+
+    if (current_config->platform != config->platform ||
+        current_config->backend  != config->backend) {
+        LOG(ERROR, "backend or platform cannot be reconfigured");
+        return -1;
+    }
+
+    if (current_config->display   != config->display   ||
+        current_config->window    != config->window    ||
+        current_config->handle    != config->handle    ||
+        current_config->offscreen != config->offscreen ||
+        current_config->samples   != config->samples) {
+        ngli_node_detach_ctx(s->scene);
+        s->backend->destroy(s);
+        int ret = s->backend->configure(s, config);
+        if (ret < 0)
+            return ret;
+        ret = ngli_node_attach_ctx(s->scene, s);
+        if (ret < 0)
+            return ret;
+        return 0;
+    }
+
+    int ret = s->backend->reconfigure(s, config);
     if (ret < 0)
         LOG(ERROR, "unable to reconfigure %s", s->backend->name);
     return ret;
