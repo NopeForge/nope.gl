@@ -27,19 +27,19 @@
 
 static const float zvec[4];
 
-float ngli_vec3_length(float *v)
+float ngli_vec3_length(const float *v)
 {
     return sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
 }
 
-void ngli_vec3_sub(float *dst, float *v1, float *v2)
+void ngli_vec3_sub(float *dst, const float *v1, const float *v2)
 {
     dst[0] = v1[0] - v2[0];
     dst[1] = v1[1] - v2[1];
     dst[2] = v1[2] - v2[2];
 }
 
-void ngli_vec3_norm(float *dst, float *v)
+void ngli_vec3_norm(float *dst, const float *v)
 {
     if (!memcmp(v, zvec, 3 * sizeof(*v))) {
         memcpy(dst, zvec, 3 * sizeof(*v));
@@ -53,7 +53,7 @@ void ngli_vec3_norm(float *dst, float *v)
     dst[2] = v[2] * l;
 }
 
-void ngli_vec3_cross(float *dst, float *v1, float *v2)
+void ngli_vec3_cross(float *dst, const float *v1, const float *v2)
 {
     float v[3];
 
@@ -64,14 +64,14 @@ void ngli_vec3_cross(float *dst, float *v1, float *v2)
     memcpy(dst, v, sizeof(v));
 }
 
-float ngli_vec3_dot(float *v1, float *v2)
+float ngli_vec3_dot(const float *v1, const float *v2)
 {
     return v1[0]*v2[0]
          + v1[1]*v2[1]
          + v1[2]*v2[2];
 }
 
-void ngli_vec3_normalvec(float *dst, float *a, float *b, float *c)
+void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float *c)
 {
     float d[3];
     float e[3];

@@ -28,12 +28,12 @@
 
 #define NGLI_MIX(x, y, a) ((x)*(1.-(a)) + (y)*(a))
 
-float ngli_vec3_length(float *v);
-void ngli_vec3_sub(float *dst, float *v1, float *v2);
-void ngli_vec3_norm(float *dst, float *v);
-void ngli_vec3_cross(float *dst, float *v1, float *v2);
-float ngli_vec3_dot(float *v1, float *v2);
-void ngli_vec3_normalvec(float *dst, float *a, float *b, float *c);
+float ngli_vec3_length(const float *v);
+void ngli_vec3_sub(float *dst, const float *v1, const float *v2);
+void ngli_vec3_norm(float *dst, const float *v);
+void ngli_vec3_cross(float *dst, const float *v1, const float *v2);
+float ngli_vec3_dot(const float *v1, const float *v2);
+void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float *c);
 
 void ngli_vec4_neg(float *dst, const float *v);
 float ngli_vec4_dot(const float *v1, const float *v2);
