@@ -101,6 +101,10 @@ int main(int argc, char *argv[])
                                 "is not following \"WxH\"\n", arg);
                         return EXIT_FAILURE;
                     }
+                    if (width <= 0 || width > 8192 || height <= 0 || height > 8192) {
+                        fprintf(stderr, "Invalid size: \"%s\" exceeds 8192x8192\n", arg);
+                        return EXIT_FAILURE;
+                    }
                     break;
                 case 'z':
                     swap_interval = atoi(arg);
