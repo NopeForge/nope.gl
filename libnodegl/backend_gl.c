@@ -301,7 +301,9 @@ static void capture_reset(struct ngl_ctx *s)
 
 static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
 {
-    int ret = ngli_glcontext_resize(s->glcontext, config->width, config->height);
+    struct glcontext *gl = s->glcontext;
+
+    int ret = ngli_glcontext_resize(gl, config->width, config->height);
     if (ret < 0)
         return ret;
 
@@ -311,12 +313,12 @@ static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
 
     const int *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0) {
-        ngli_glViewport(s->glcontext, viewport[0], viewport[1], viewport[2], viewport[3]);
+        ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
         memcpy(current_config->viewport, config->viewport, sizeof(config->viewport));
     }
 
     const float *rgba = config->clear_color;
-    ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
+    ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
     memcpy(current_config->clear_color, config->clear_color, sizeof(config->clear_color));
 
     return 0;
