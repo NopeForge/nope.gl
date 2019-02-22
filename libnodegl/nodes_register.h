@@ -83,6 +83,7 @@
     action(NGL_NODE_RENDER,                 ngli_render_class)                  \
     action(NGL_NODE_RENDERTOTEXTURE,        ngli_rtt_class)                     \
     action(NGL_NODE_ROTATE,                 ngli_rotate_class)                  \
+    action(NGL_NODE_ROTATEQUAT,             ngli_rotatequat_class)              \
     action(NGL_NODE_SCALE,                  ngli_scale_class)                   \
     action(NGL_NODE_TEXT,                   ngli_text_class)                    \
     action(NGL_NODE_TEXTURE2D,              ngli_texture2d_class)               \

@@ -224,9 +224,9 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `perspective` |  | ✓ | [`vec2`](#parameter-types) | the 2 following values: *fov*, *aspect* | (`0`,`0`)
 `orthographic` |  | ✓ | [`vec4`](#parameter-types) | the 4 following values: *left*, *right*, *bottom*, *top* | (`0`,`0`,`0`,`0`)
 `clipping` |  | ✓ | [`vec2`](#parameter-types) | the 2 following values: *near clipping plane*, *far clipping plane* | (`0`,`0`)
-`eye_transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `eye` transformation chain | 
-`center_transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `center` transformation chain | 
-`up_transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `up` transformation chain | 
+`eye_transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `eye` transformation chain | 
+`center_transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `center` transformation chain | 
+`up_transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `up` transformation chain | 
 `fov_anim` |  |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
 `pipe_fd` |  |  | [`int`](#parameter-types) | pipe file descriptor where the rendered raw RGBA buffer is written | `0`
 `pipe_width` |  |  | [`int`](#parameter-types) | width (in pixels) of the raw image buffer when using `pipe_fd` | `0`
@@ -441,6 +441,19 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 **Source**: [node_rotate.c](/libnodegl/node_rotate.c)
 
 
+## RotateQuat
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`child` | ✓ |  | [`Node`](#parameter-types) | scene to rotate | 
+`quat` |  | ✓ | [`vec4`](#parameter-types) | quaternion | (`0`,`0`,`0`,`0`)
+`anchor` |  |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
+`anim` |  |  | [`Node`](#parameter-types) ([AnimatedQuat](#animatedquat)) | `quat` animation | 
+
+
+**Source**: [node_rotatequat.c](/libnodegl/node_rotatequat.c)
+
+
 ## Scale
 
 Parameter | Ctor. | Live-chg. | Type | Description | Default
@@ -634,7 +647,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `value` |  | ✓ | [`mat4`](#parameter-types) | value exposed to the shader | 
-`transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `value` transformation chain | 
+`transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `value` transformation chain | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)

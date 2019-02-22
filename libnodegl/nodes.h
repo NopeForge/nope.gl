@@ -136,6 +136,7 @@ struct ngl_node {
 };
 
 #define TRANSFORM_TYPES_LIST (const int[]){NGL_NODE_ROTATE,    \
+                                           NGL_NODE_ROTATEQUAT,\
                                            NGL_NODE_TRANSFORM, \
                                            NGL_NODE_TRANSLATE, \
                                            NGL_NODE_SCALE,     \

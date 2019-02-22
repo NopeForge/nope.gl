@@ -31,6 +31,7 @@ const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
         const int id = node->class->id;
         switch (id) {
             case NGL_NODE_ROTATE:
+            case NGL_NODE_ROTATEQUAT:
             case NGL_NODE_SCALE:
             case NGL_NODE_TRANSFORM:
             case NGL_NODE_TRANSLATE: {

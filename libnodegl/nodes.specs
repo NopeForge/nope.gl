@@ -319,6 +319,14 @@
         - [anchor, vec3]
         - [anim, Node]
 
+- RotateQuat:
+    constructors:
+        - [child, Node]
+    optional:
+        - [quat, vec4]
+        - [anchor, vec3]
+        - [anim, Node]
+
 - Scale:
     constructors:
         - [child, Node]
