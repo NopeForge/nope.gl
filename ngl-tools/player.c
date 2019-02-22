@@ -19,14 +19,114 @@
  * under the License.
  */
 
+#include <inttypes.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include <GLFW/glfw3.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include "common.h"
 #include "player.h"
 #include "wsi.h"
 
 static struct player *g_player;
+
+
+static int save_ppm(const char *filename, uint8_t *data, int width, int height)
+{
+    int ret = 0;
+    int flags = O_WRONLY|O_CREAT|O_TRUNC;
+#ifdef O_BINARY
+    flags |= O_BINARY;
+#endif
+    int fd = open(filename, flags, 0644);
+    if (fd == -1) {
+        fprintf(stderr, "Unable to open '%s'\n", filename);
+        return -1;
+    }
+
+    uint8_t *buf = malloc(32 + width * height * 3);
+    if (!buf) {
+        ret = -1;
+        goto end;
+    }
+
+    const int header_size = snprintf((char *)buf, 32, "P6 %d %d 255\n", width, height);
+    if (header_size < 0) {
+        ret = -1;
+        fprintf(stderr, "Failed to write PPM header\n");
+        goto end;
+    }
+
+    uint8_t *dst = buf + header_size;
+    for (int i = 0; i < width * height; i++) {
+        memcpy(dst, data, 3);
+        dst += 3;
+        data += 4;
+    }
+
+    const int size = header_size + width * height * 3;
+    ret = write(fd, buf, size);
+    if (ret < 0) {
+        fprintf(stderr, "Failed to write PPM data\n");
+        goto end;
+    }
+
+end:
+    free(buf);
+    close(fd);
+    return ret;
+}
+
+static int screenshot(void)
+{
+    struct player *p = g_player;
+    struct ngl_config *config = &p->ngl_config;
+    struct ngl_config backup = *config;
+
+    uint8_t *capture_buffer = calloc(config->width * config->height, 4);
+    if (!capture_buffer)
+        return -1;
+
+    config->offscreen = 1;
+    config->width = config->viewport[2];
+    config->height = config->viewport[3];
+    memset(config->viewport, 0, sizeof(config->viewport));
+    config->capture_buffer = capture_buffer;
+
+    int ret = ngl_configure(p->ngl, config);
+    if (ret < 0) {
+        fprintf(stderr, "Could not configure node.gl for offscreen capture\n");
+        goto end;
+    }
+    ngl_draw(p->ngl, p->frame_ts / 1000000.0);
+
+    char filename[32];
+    snprintf(filename, sizeof(filename), "ngl-%" PRId64 ".ppm", gettime());
+    fprintf(stdout, "Screenshot saved to '%s'\n", filename);
+    ret = save_ppm(filename, capture_buffer, config->width, config->height);
+    if (ret < 0) {
+        fprintf(stderr, "Could not save screenshot to '%s'", filename);
+    }
+
+    *config = backup;
+    ret = ngl_configure(p->ngl, config);
+    if (ret < 0) {
+        fprintf(stderr, "Could not configure node.gl for onscreen rendering\n");
+        goto end;
+    }
+end:
+    *config = backup;
+    ngl_configure(p->ngl, config);
+    p->clock_off = gettime() - p->frame_ts;
+
+    free(capture_buffer);
+    return ret;
+}
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
@@ -59,6 +159,9 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
             }
             break;
         }
+        case GLFW_KEY_S:
+            screenshot();
+            break;
         default:
             break;
         }
