@@ -70,7 +70,6 @@ struct glcontext {
     int width;
     int height;
     int samples;
-    int set_surface_pts;
 
     /* GL api */
     int version;

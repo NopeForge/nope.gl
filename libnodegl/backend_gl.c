@@ -402,6 +402,7 @@ static int gl_pre_draw(struct ngl_ctx *s, double t)
 static int gl_post_draw(struct ngl_ctx *s, double t)
 {
     struct glcontext *gl = s->glcontext;
+    struct ngl_config *config = &s->config;
 
     if (s->capture_func)
         s->capture_func(s);
@@ -410,7 +411,7 @@ static int gl_post_draw(struct ngl_ctx *s, double t)
     if (ngli_glcontext_check_gl_error(gl, __FUNCTION__))
         ret = -1;
 
-    if (gl->set_surface_pts)
+    if (config->set_surface_pts)
         ngli_glcontext_set_surface_pts(gl, t);
 
     ngli_glcontext_swap_buffers(gl);
