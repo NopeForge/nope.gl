@@ -198,6 +198,8 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glc
     if (!(gl->features & NGLI_FEATURE_UNIFORM_BUFFER_OBJECT))
         return bmap;
 
+    int binding = 0;
+
     /* Uniform Buffers */
     int nb_active_uniform_buffers;
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
@@ -212,7 +214,7 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glc
 
         ngli_glGetActiveUniformBlockName(gl, pid, i, sizeof(name), NULL, name);
         GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
-        ngli_glGetActiveUniformBlockiv(gl, pid, block_index, GL_UNIFORM_BLOCK_BINDING, &info->binding);
+        info->binding = binding++;
         ngli_glUniformBlockBinding(gl, pid, block_index, info->binding);
 
         LOG(DEBUG, "%s.ubo[%d/%d]: %s binding:%d",
@@ -244,10 +246,8 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glc
 
         ngli_glGetProgramResourceName(gl, pid, GL_SHADER_STORAGE_BLOCK, i, sizeof(name), NULL, name);
         GLuint block_index = ngli_glGetProgramResourceIndex(gl, pid, GL_SHADER_STORAGE_BLOCK, name);
-
-        static const GLenum props[] = {GL_BUFFER_BINDING};
-        ngli_glGetProgramResourceiv(gl, pid, GL_SHADER_STORAGE_BLOCK, block_index,
-                                    NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
+        info->binding = binding++;
+        ngli_glShaderStorageBlockBinding(gl, pid, block_index, info->binding);
 
         LOG(DEBUG, "%s.ssbo[%d/%d]: %s binding:%d",
             node_label, i + 1, nb_active_buffers, name, info->binding);
