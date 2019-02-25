@@ -231,10 +231,12 @@ static int nsgl_set_swap_interval(struct glcontext *ctx, int interval)
 
     nsgl->swap_interval = interval;
     if (nsgl->swap_interval > 0) {
-        CVReturn ret = CVDisplayLinkStart(nsgl->display_link);
-        if (ret != kCVReturnSuccess) {
-            LOG(ERROR, "could not start display link");
-            return -1;
+        if (!CVDisplayLinkIsRunning(nsgl->display_link)) {
+            CVReturn ret = CVDisplayLinkStart(nsgl->display_link);
+            if (ret != kCVReturnSuccess) {
+                LOG(ERROR, "could not start display link");
+                return -1;
+            }
         }
     }
 
