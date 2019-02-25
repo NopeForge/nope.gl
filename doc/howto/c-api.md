@@ -187,8 +187,6 @@ this:
     }
 ```
 
-**Note**: the draw must be executed in the GL context.
-
 If you are dealing with real time rendering, the drawing callback needs to be
 called at regular interval (graphic system API often comes with a vsync
 callback) and use the current time of the reference clock to compute the
