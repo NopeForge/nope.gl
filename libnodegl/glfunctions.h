@@ -118,6 +118,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*RenderbufferStorageMultisample)(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
     NGLI_GL_APIENTRY void (*ShaderBinary)(GLsizei count, const GLuint * shaders, GLenum binaryformat, const void * binary, GLsizei length);
     NGLI_GL_APIENTRY void (*ShaderSource)(GLuint shader, GLsizei count, const GLchar *const* string, const GLint * length);
+    NGLI_GL_APIENTRY void (*ShaderStorageBlockBinding)(GLuint program, GLuint storageBlockIndex, GLuint storageBlockBinding);
     NGLI_GL_APIENTRY void (*StencilFunc)(GLenum func, GLint ref, GLuint mask);
     NGLI_GL_APIENTRY void (*StencilFuncSeparate)(GLenum face, GLenum func, GLint ref, GLuint mask);
     NGLI_GL_APIENTRY void (*StencilMask)(GLuint mask);

@@ -92,6 +92,9 @@ cmds_optional = [
     'glGetActiveUniformBlockName',
     'glGetActiveUniformBlockiv',
 
+    # Shader Storage Buffer Object
+    'glShaderStorageBlockBinding',
+
     # EGL OES image
     'glEGLImageTargetTexture2DOES',
 

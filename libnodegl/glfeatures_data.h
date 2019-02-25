@@ -98,6 +98,7 @@ static const struct glfeature {
         .extensions     = (const char*[]){"GL_ARB_shader_storage_buffer_object", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(TexStorage2D),
                                            OFFSET(TexStorage3D),
+                                           OFFSET(ShaderStorageBlockBinding),
                                            -1}
     }, {
         .name           = "framebuffer_object",
