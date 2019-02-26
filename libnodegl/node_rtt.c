@@ -82,7 +82,7 @@ static int rtt_init(struct ngl_node *node)
 {
     struct rtt_priv *s = node->priv_data;
 
-    float clear_color[4] = DEFAULT_CLEAR_COLOR;
+    static const float clear_color[4] = DEFAULT_CLEAR_COLOR;
     s->use_clear_color = memcmp(s->clear_color, clear_color, sizeof(s->clear_color));
 
     return 0;
