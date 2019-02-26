@@ -307,6 +307,8 @@ static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
     ngli_glcontext_set_swap_interval(gl, config->swap_interval);
     current_config->swap_interval = config->swap_interval;
 
+    current_config->set_surface_pts = config->set_surface_pts;
+
     const int update_dimensions = current_config->width != config->width ||
                                   current_config->height != config->height;
     current_config->width = config->width;
