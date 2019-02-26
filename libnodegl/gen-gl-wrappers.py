@@ -122,6 +122,7 @@ cmds = [
 
     # Viewport
     'glViewport',
+    'glScissor',
 
     # Color
     'glColorMask',

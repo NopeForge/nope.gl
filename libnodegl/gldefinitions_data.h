@@ -120,6 +120,7 @@ static const struct gldefinition {
     {"glReleaseShaderCompiler", offsetof(struct glfunctions, ReleaseShaderCompiler), M},
     {"glRenderbufferStorage", offsetof(struct glfunctions, RenderbufferStorage), M},
     {"glRenderbufferStorageMultisample", offsetof(struct glfunctions, RenderbufferStorageMultisample), 0},
+    {"glScissor", offsetof(struct glfunctions, Scissor), M},
     {"glShaderBinary", offsetof(struct glfunctions, ShaderBinary), M},
     {"glShaderSource", offsetof(struct glfunctions, ShaderSource), M},
     {"glStencilFunc", offsetof(struct glfunctions, StencilFunc), M},

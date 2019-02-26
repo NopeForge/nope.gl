@@ -661,6 +661,12 @@ static inline void ngli_glRenderbufferStorageMultisample(const struct glcontext 
     check_error_code(gl, "glRenderbufferStorageMultisample");
 }
 
+static inline void ngli_glScissor(const struct glcontext *gl, GLint x, GLint y, GLsizei width, GLsizei height)
+{
+    gl->funcs.Scissor(x, y, width, height);
+    check_error_code(gl, "glScissor");
+}
+
 static inline void ngli_glShaderBinary(const struct glcontext *gl, GLsizei count, const GLuint * shaders, GLenum binaryformat, const void * binary, GLsizei length)
 {
     gl->funcs.ShaderBinary(count, shaders, binaryformat, binary, length);

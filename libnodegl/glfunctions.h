@@ -119,6 +119,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*ReleaseShaderCompiler)();
     NGLI_GL_APIENTRY void (*RenderbufferStorage)(GLenum target, GLenum internalformat, GLsizei width, GLsizei height);
     NGLI_GL_APIENTRY void (*RenderbufferStorageMultisample)(GLenum target, GLsizei samples, GLenum internalformat, GLsizei width, GLsizei height);
+    NGLI_GL_APIENTRY void (*Scissor)(GLint x, GLint y, GLsizei width, GLsizei height);
     NGLI_GL_APIENTRY void (*ShaderBinary)(GLsizei count, const GLuint * shaders, GLenum binaryformat, const void * binary, GLsizei length);
     NGLI_GL_APIENTRY void (*ShaderSource)(GLuint shader, GLsizei count, const GLchar *const* string, const GLint * length);
     NGLI_GL_APIENTRY void (*StencilFunc)(GLenum func, GLint ref, GLuint mask);
