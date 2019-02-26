@@ -33,12 +33,14 @@
 #define DEFAULT_CLEAR_COLOR {-1.0f, -1.0f, -1.0f, -1.0f}
 #define FEATURE_DEPTH       (1 << 0)
 #define FEATURE_STENCIL     (1 << 1)
+#define FEATURE_NO_CLEAR    (1 << 2)
 
 static const struct param_choices feature_choices = {
     .name = "framebuffer_features",
     .consts = {
         {"depth",   FEATURE_DEPTH,   .desc=NGLI_DOCSTRING("depth")},
         {"stencil", FEATURE_STENCIL, .desc=NGLI_DOCSTRING("stencil")},
+        {"no_clear",FEATURE_NO_CLEAR,.desc=NGLI_DOCSTRING("not cleared between draws (non-deterministic)")},
         {NULL}
     }
 };
@@ -314,7 +316,8 @@ static void rtt_draw(struct ngl_node *node)
         ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
     }
 
-    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    if (!(s->features & FEATURE_NO_CLEAR))
+        ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     ngli_node_draw(s->child);
 
@@ -327,7 +330,9 @@ static void rtt_draw(struct ngl_node *node)
     if (s->samples > 0)
         ngli_fbo_blit(fbo, &s->fbo, 0);
 
-    ngli_fbo_invalidate_depth_buffers(fbo);
+    if (!(s->features & FEATURE_NO_CLEAR))
+        ngli_fbo_invalidate_depth_buffers(fbo);
+
     ngli_fbo_unbind(fbo);
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);

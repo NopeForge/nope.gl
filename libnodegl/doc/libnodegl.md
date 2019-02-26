@@ -872,6 +872,7 @@ Constant | Description
 -------- | -----------
 `depth` | depth
 `stencil` | stencil
+`no_clear` | not cleared between draws (non-deterministic)
 
 ## valign choices
 
