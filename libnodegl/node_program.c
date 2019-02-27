@@ -84,7 +84,7 @@ static const char default_vertex_shader[] =
     "    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;"    "\n"
     "    var_uvcoord = ngl_uvcoord;"                                                    "\n"
     "    var_normal = ngl_normal_matrix * ngl_normal;"                                  "\n"
-    "    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0, 1)).xy;"            "\n"
+    "    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;"        "\n"
     "}";
 
 #define OFFSET(x) offsetof(struct program_priv, x)
