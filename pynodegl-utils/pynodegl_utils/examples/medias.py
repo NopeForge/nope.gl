@@ -85,6 +85,7 @@ def time_remapping(cfg):
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedFloat(media_animkf))
+    m.set_sxplayer_min_level('verbose')
     t = ngl.Texture2D(data_src=m)
     r = ngl.Render(q)
     r.update_textures(tex0=t)
