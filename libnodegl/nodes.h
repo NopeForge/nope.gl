@@ -41,6 +41,7 @@
 #endif
 
 #include "animation.h"
+#include "drawutils.h"
 #include "glincludes.h"
 #include "glcontext.h"
 #include "glstate.h"
@@ -558,8 +559,7 @@ struct hud_priv {
     uint32_t bg_color_u32;
     int fd_export;
     struct bstr *csv_line;
-    uint8_t *data_buf;
-    int data_w, data_h;
+    struct canvas canvas;
     double refresh_rate_interval;
     double last_refresh_time;
     int need_refresh;

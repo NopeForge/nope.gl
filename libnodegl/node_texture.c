@@ -201,8 +201,8 @@ static int texture_prefetch(struct ngl_node *node, int dimensions)
             struct texture_priv *s = node->priv_data;
             struct hud_priv *hud = s->data_src->priv_data;
             params->format = NGLI_FORMAT_R8G8B8A8_UNORM;
-            params->width = hud->data_w;
-            params->height = hud->data_h;
+            params->width = hud->canvas.w;
+            params->height = hud->canvas.h;
             break;
         }
         case NGL_NODE_MEDIA:
@@ -294,10 +294,10 @@ static void handle_hud_frame(struct ngl_node *node)
     struct texture_priv *s = node->priv_data;
     struct texture_params *params = &s->params;
     struct hud_priv *hud = s->data_src->priv_data;
-    const uint8_t *data = hud->data_buf;
+    const uint8_t *data = hud->canvas.buf;
 
-    params->width = hud->data_w;
-    params->height = hud->data_h;
+    params->width = hud->canvas.w;
+    params->height = hud->canvas.h;
 
     ngli_texture_upload(&s->texture, data);
 }
