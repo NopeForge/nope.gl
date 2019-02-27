@@ -165,7 +165,7 @@ static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
                         // The node will actually be needed soon, so we need to
                         // start it if necessary.
                         is_active = 1;
-                    } else if (next_use_in < s->max_idle_time && child->state == STATE_READY) {
+                    } else if (next_use_in < s->max_idle_time && child->is_active) {
                         TRACE("%s not currently needed by will be soon %g (< %g), keep as active",
                               child->label, next_use_in, s->max_idle_time);
 
