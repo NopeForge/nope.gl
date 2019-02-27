@@ -35,6 +35,14 @@
 #include "utils.h"
 #include "nodes_register.h"
 
+enum {
+    STATE_INIT_FAILED   = -1,
+    STATE_UNINITIALIZED = 0, /* post uninit(), default */
+    STATE_INITIALIZED   = 1, /* post init() */
+    STATE_READY         = 2, /* post prefetch() */
+    STATE_IDLE          = 3, /* post release() */
+};
+
 /* We depend on the monotically incrementing by 1 property of these fields */
 NGLI_STATIC_ASSERT(node_uniform_vec_flt, NGL_NODE_UNIFORMVEC4      - NGL_NODE_UNIFORMFLOAT       == 3);
 NGLI_STATIC_ASSERT(node_animkf_vec_flt,  NGL_NODE_ANIMKEYFRAMEVEC4 - NGL_NODE_ANIMKEYFRAMEFLOAT  == 3);

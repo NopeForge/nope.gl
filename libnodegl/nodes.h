@@ -56,14 +56,6 @@
 
 struct node_class;
 
-enum {
-    STATE_INIT_FAILED   = -1,
-    STATE_UNINITIALIZED = 0, /* post uninit(), default */
-    STATE_INITIALIZED   = 1, /* post init() */
-    STATE_READY         = 2, /* post prefetch() */
-    STATE_IDLE          = 3, /* post release() */
-};
-
 typedef int (*cmd_func_type)(struct ngl_ctx *s, void *arg);
 
 typedef void (*capture_func_type)(struct ngl_ctx *s);
