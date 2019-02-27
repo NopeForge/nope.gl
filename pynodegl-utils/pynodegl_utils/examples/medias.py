@@ -96,4 +96,40 @@ def time_remapping(cfg):
     ]
     rf = ngl.TimeRangeFilter(r, ranges=time_ranges, prefetch_time=prefetch_duration)
 
-    return rf
+    base_string = 'media time: %2g to %2g\nscene time: %2g to %2g\ntime range: %2g to %2g' % (
+                  media_seek, media_seek + playback_duration, play_start, play_stop, range_start, range_stop)
+    text = ngl.Text(base_string,
+                    box_height=(0, 0.3, 0),
+                    box_corner=(-1, 1 - 0.3, 0),
+                    aspect_ratio=cfg.aspect_ratio,
+                    halign='left')
+
+    group = ngl.Group()
+    group.add_children(rf, text)
+
+    steps = (
+        ('default color, nothing yet', 0, noop_duration),
+        ('default color, media prefetched', noop_duration, range_start),
+        ('first frame', range_start, play_start),
+        ('normal playback', play_start, play_stop),
+        ('last frame', play_stop, range_stop),
+        ('default color, media released', range_stop, duration),
+    )
+
+    for i, (description, start_time, end_time) in enumerate(steps):
+        text = ngl.Text('%g to %g: %s' % (start_time, end_time, description),
+                        aspect_ratio=cfg.aspect_ratio,
+                        box_height=(0, 0.2, 0))
+        text_tr = (
+            ngl.TimeRangeModeNoop(0),
+            ngl.TimeRangeModeCont(start_time),
+            ngl.TimeRangeModeNoop(end_time),
+        )
+        text_rf = ngl.TimeRangeFilter(text, ranges=text_tr, label='text-step-%d' % i)
+        group.add_children(text_rf)
+
+    return ngl.GraphicConfig(group, blend=True,
+                             blend_src_factor='src_alpha',
+                             blend_dst_factor='one_minus_src_alpha',
+                             blend_src_factor_a='zero',
+                             blend_dst_factor_a='one')
