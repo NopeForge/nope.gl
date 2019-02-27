@@ -394,7 +394,7 @@ void ngli_node_detach_ctx(struct ngl_node *node)
 int ngli_node_visit(struct ngl_node *node, int is_active, double t)
 {
     /*
-     * If a node is inactive and is already in a dead state, there is no need
+     * If a node is inactive and meant to be, there is no need
      * to check for resources below as we can assume they were already released
      * as well (unless they're shared with another branch) by
      * honor_release_prefetch().
@@ -403,7 +403,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
      * we have to mark every node below for activity to prevent an early
      * release from another branch.
      */
-    if (!is_active && node->state == STATE_IDLE)
+    if (!is_active && !node->is_active)
         return 0;
 
     const int queue_node = node->visit_time != t;
