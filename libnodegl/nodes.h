@@ -301,6 +301,9 @@ struct program_priv {
     struct hmap *active_buffer_blocks;
 };
 
+extern const struct param_choices ngli_minfilter_choices;
+extern const struct param_choices ngli_magfilter_choices;
+
 struct texture_priv {
     struct texture_params params;
     struct ngl_node *data_src;

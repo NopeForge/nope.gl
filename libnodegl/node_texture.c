@@ -33,7 +33,7 @@
 #include "nodes.h"
 #include "texture.h"
 
-static const struct param_choices minfilter_choices = {
+const struct param_choices ngli_minfilter_choices = {
     .name = "min_filter",
     .consts = {
         {"nearest",                GL_NEAREST,                .desc=NGLI_DOCSTRING("nearest filtering")},
@@ -46,7 +46,7 @@ static const struct param_choices minfilter_choices = {
     }
 };
 
-static const struct param_choices magfilter_choices = {
+const struct param_choices ngli_magfilter_choices = {
     .name = "mag_filter",
     .consts = {
         {"nearest", GL_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering")},
@@ -138,9 +138,9 @@ static const struct node_param texture2d_params[] = {
               .desc=NGLI_DOCSTRING("width of the texture")},
     {"height", PARAM_TYPE_INT, OFFSET(params.height), {.i64=0},
                .desc=NGLI_DOCSTRING("height of the texture")},
-    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&minfilter_choices,
+    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&ngli_minfilter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
-    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&magfilter_choices,
+    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&ngli_magfilter_choices,
                    .desc=NGLI_DOCSTRING("texture magnification function")},
     {"wrap_s", PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
@@ -164,9 +164,9 @@ static const struct node_param texture3d_params[] = {
                .desc=NGLI_DOCSTRING("height of the texture")},
     {"depth", PARAM_TYPE_INT, OFFSET(params.depth), {.i64=0},
                .desc=NGLI_DOCSTRING("depth of the texture")},
-    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&minfilter_choices,
+    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&ngli_minfilter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
-    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&magfilter_choices,
+    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&ngli_magfilter_choices,
                    .desc=NGLI_DOCSTRING("texture magnification function")},
     {"wrap_s", PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
