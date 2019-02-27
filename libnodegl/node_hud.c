@@ -1015,7 +1015,7 @@ static int widgets_init(struct ngl_node *node)
                            + get_widget_width(WIDGET_MEMORY);
     const int bot_width    = WIDGET_MARGIN * 3
                            + get_widget_width(WIDGET_ACTIVITY) * NB_ACTIVITY + WIDGET_MARGIN * (NB_ACTIVITY - 1)
-                           + get_widget_width(WIDGET_DRAWCALL)  * NB_DRAWCALL  + WIDGET_MARGIN * (NB_DRAWCALL  - 1);
+                           + get_widget_width(WIDGET_DRAWCALL) * NB_DRAWCALL + WIDGET_MARGIN * (NB_DRAWCALL - 1);
     const int left_height  = WIDGET_MARGIN * 3
                            + get_widget_height(WIDGET_LATENCY)
                            + get_widget_height(WIDGET_ACTIVITY);
