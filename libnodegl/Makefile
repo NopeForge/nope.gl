@@ -101,6 +101,7 @@ LIB_OBJS = animation.o              \
            node_rotate.o            \
            node_rtt.o               \
            node_scale.o             \
+           node_text.o              \
            node_texture.o           \
            node_timerangefilter.o   \
            node_timerangemodes.o    \

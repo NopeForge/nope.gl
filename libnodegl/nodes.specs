@@ -318,6 +318,23 @@
         - [anchor, vec3]
         - [anim, Node]
 
+- Text:
+    constructors:
+        - [text, string]
+    optional:
+        - [fg_color, vec4]
+        - [bg_color, vec4]
+        - [box_corner, vec3]
+        - [box_width, vec3]
+        - [box_height, vec3]
+        - [padding, int]
+        - [font_scale, double]
+        - [valign, select]
+        - [halign, select]
+        - [aspect_ratio, rational]
+        - [min_filter, select]
+        - [mag_filter, select]
+
 - Texture2D:
     optional:
         - [format, select]
