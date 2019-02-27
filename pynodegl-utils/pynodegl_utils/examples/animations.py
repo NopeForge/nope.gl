@@ -1,85 +1,210 @@
 import array
+import colorsys
+import math
+import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
-_colors = [
-    (1, 0, 0, 1),
-    (0, 1, 0, 1),
-    (1, 0, 1, 1),
-    (1, 1, 0, 1),
-]
+def _block(w, h, program, corner=None, **uniforms):
+    block_width = (w, 0, 0)
+    block_height = (0, h, 0)
+    block_corner = (-w / 2., -h / 2., 0) if corner is None else corner
+    block_quad = ngl.Quad(corner=block_corner, width=block_width, height=block_height)
+    block_render = ngl.Render(block_quad, program)
+    block_render.update_uniforms(**uniforms)
+    return block_render
 
 
-def _get_func(name, flags=0):
+def _easing_split(easing):
+    name_split = easing.split(':')
+    easing_name = name_split[0]
+    args = [float(x) for x in name_split[1:]] if len(name_split) > 1 else None
+    return easing_name, args
 
-    widgets = {
-            'nb_points': {'type': 'range', 'range': [2, 200]},
-            'zoom': {'type': 'range', 'range': [0.1, 2], 'unit_base': 100},
-            'offset_start': {'type': 'range', 'range': [0, 1], 'unit_base': 100},
-            'offset_end': {'type': 'range', 'range': [0, 1], 'unit_base': 100},
-    }
 
-    versions = []
-    if flags & 1:
-        versions += ['in', 'out']
-    if flags & 2:
-        versions += ['in_out', 'out_in']
+def _easing_join(easing, args):
+    return easing if not args else easing + ':' + ':'.join('%g' % x for x in args)
 
-    if not flags:
-        versions = [None]
 
-    for ext in versions:
-        if ext is not None:
-            widgets['draw_' + ext] = {'type': 'bool'}
+def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
+    text_vratio = 1 / 8.
+    graph_hpad_ratio = 1 / 16.
 
-    @scene(**widgets)
-    def ret_func(cfg, nb_points=100, zoom=1,
-                 offset_start=0, offset_end=1,
-                 draw_in=True, draw_out=True,
-                 draw_in_out=True, draw_out_in=True):
+    area_size = 2.0
+    width, height = area_size, area_size
+    text_height = text_vratio * height
+    pad_height = graph_hpad_ratio * height
 
-        g = ngl.Group()
-        cfg.aspect_ratio = (1, 1)
-        frag_data = cfg.get_frag('color')
-        program = ngl.Program(fragment=frag_data)
+    # Colors
+    hue = random.uniform(0, 0.6)
+    color = list(colorsys.hls_to_rgb(hue, 0.6, 1.0)) + [1]
+    ucolor = ngl.UniformVec4(value=color)
+    graph_bg_ucolor = ngl.UniformVec4(value=(.15, .15, .15, 1))
+    normed_graph_bg_ucolor = ngl.UniformVec4(value=(0, 0, 0, 1))
+    line_ucolor = ngl.UniformVec4(value=(1, 1, 1, .4))
 
-        for idx, ext in enumerate(versions):
+    # Text legend
+    text = ngl.Text(text=easing,
+                    fg_color=color,
+                    padding=3,
+                    bg_color=(0, 0, 0, 1),
+                    box_corner=(-width / 2., height / 2. - text_height, 0),
+                    box_width=(width, 0, 0),
+                    box_height=(0, text_height, 0),
+                    label='%s legend' % easing)
 
-            interp = name
-            if ext is not None:
-                interp += '_' + ext
-                if not eval('draw_' + ext):
-                    continue
+    # Graph drawing area (where the curve may overflow)
+    graph_size = area_size - text_height - pad_height * 2
+    graph_block = _block(graph_size, graph_size, color_program,
+                         corner=(-graph_size/2, -(graph_size + text_height)/2, 0),
+                         color=graph_bg_ucolor)
 
-            anim = ngl.AnimatedFloat([ngl.AnimKeyFrameFloat(-1,-1),
-                                      ngl.AnimKeyFrameFloat( 1, 1, interp,
-                                                            easing_start_offset=offset_start,
-                                                            easing_end_offset=offset_end)])
+    # Normed area of the graph
+    normed_graph_size = graph_size * curve_zoom
+    normed_graph_block = _block(normed_graph_size, normed_graph_size, color_program,
+                                corner=(-normed_graph_size/2, -(normed_graph_size + text_height)/2, 0),
+                                color=normed_graph_bg_ucolor)
 
-            vertices_data = array.array('f')
-            for i in range(nb_points + 1):
-                x = (i/float(nb_points) * 2 - 1)
-                y = anim.evaluate(x * 1/zoom) * zoom
-                vertices_data.extend([x, y, 0])
+    # Curve
+    easing_name, easing_args = _easing_split(easing)
+    curve_scale_factor = graph_size / area_size * curve_zoom
+    vertices_data = array.array('f')
+    for i in range(nb_points + 1):
+        t = i / float(nb_points)
+        v = ngl.easing_evaluate(easing_name, t, easing_args)
+        x = curve_scale_factor * (t * width - width / 2.)
+        y = curve_scale_factor * (v * height - height / 2.)
+        y -= text_height / 2.
+        vertices_data.extend([x, y, 0])
+    vertices = ngl.BufferVec3(data=vertices_data)
+    geometry = ngl.Geometry(vertices, topology='line_strip')
+    curve = ngl.Render(geometry, color_program, label='%s curve' % easing)
+    curve.update_uniforms(color=ucolor)
 
-            vertices = ngl.BufferVec3(data=vertices_data)
-            geometry = ngl.Geometry(vertices, topology='line_strip')
-            render = ngl.Render(geometry, program)
-            render.update_uniforms(color=ngl.UniformVec4(_colors[idx]))
+    # Value cursor
+    y = 2 / 3. * pad_height
+    x = y * math.sqrt(3)
+    cursor_geometry = ngl.Triangle((-x, y, 0), (0, 0, 0), (-x, -y, 0))
+    cursor = ngl.Render(cursor_geometry, color_program, label='%s cursor' % easing)
+    cursor.update_uniforms(color=ucolor)
 
-            g.add_children(render)
-        return g
-    return ret_func
+    # Horizontal value line
+    hline_data = array.array('f', (0, 0, 0, graph_size, 0, 0))
+    hline_vertices = ngl.BufferVec3(data=hline_data)
+    hline_geometry = ngl.Geometry(hline_vertices, topology='line_strip')
+    hline = ngl.Render(hline_geometry, color_program, label='%s value line' % easing)
+    hline.update_uniforms(color=line_ucolor)
 
-linear    = _get_func('linear')
-quadratic = _get_func('quadratic', 3)
-cubic     = _get_func('cubic',     3)
-quartic   = _get_func('quartic',   3)
-quintic   = _get_func('quintic',   3)
-sinus     = _get_func('sinus',     3)
-exp       = _get_func('exp',       3)
-circular  = _get_func('circular',  3)
-bounce    = _get_func('bounce',    1)
-elastic   = _get_func('elastic',   1)
-back      = _get_func('back',      3)
+    # Value animation (cursor + h-line)
+    value_x = -graph_size / 2.
+    value_y = (-text_height - normed_graph_size) / 2.
+    value_animkf = (
+        ngl.AnimKeyFrameVec3(0, (value_x, value_y, 0)),
+        ngl.AnimKeyFrameVec3(cfg.duration, (value_x, value_y + normed_graph_size, 0), easing_name, easing_args),
+    )
+    value_anim = ngl.Group(children=(hline, cursor))
+    value_anim = ngl.Translate(value_anim, anim=ngl.AnimatedVec3(value_animkf), label='%s value anim' % easing)
+
+    # Vertical time line
+    vline_data = array.array('f', (0, 0, 0, 0, graph_size, 0))
+    vline_vertices = ngl.BufferVec3(data=vline_data)
+    vline_geometry = ngl.Geometry(vline_vertices, topology='line_strip')
+    vline = ngl.Render(vline_geometry, color_program, label='%s time line' % easing)
+    vline.update_uniforms(color=line_ucolor)
+
+    # Time animation (v-line only)
+    time_x = -normed_graph_size / 2.
+    time_y = (-text_height - graph_size) / 2.
+    time_animkf = (
+        ngl.AnimKeyFrameVec3(0, (time_x, time_y, 0)),
+        ngl.AnimKeyFrameVec3(cfg.duration, (time_x + normed_graph_size, time_y, 0))
+    )
+    time_anim = ngl.Translate(vline, anim=ngl.AnimatedVec3(time_animkf), label='%s time anim' % easing)
+
+    group = ngl.Group(label='%s block' % easing)
+    group.add_children(text, graph_block, normed_graph_block, curve, value_anim, time_anim)
+    return group
+
+
+_easing_specs = (
+    ('linear',    0, 1.),
+    ('quadratic', 3, 1.),
+    ('cubic',     3, 1.),
+    ('quartic',   3, 1.),
+    ('quintic',   3, 1.),
+    ('power:7.3', 3, 1.),
+    ('sinus',     3, 1.),
+    ('exp',       3, 1.),
+    ('circular',  3, 1.),
+    ('bounce',    1, 1.),
+    ('elastic',   1, 0.5),
+    ('back',      3, 0.7),
+)
+
+
+def _get_easing_list():
+    easings = []
+    for col, (easing, flags, zoom) in enumerate(_easing_specs):
+        versions = []
+        if flags & 1:
+            versions += ['_in', '_out']
+        if flags & 2:
+            versions += ['_in_out', '_out_in']
+        if not flags:
+            versions = ['']
+
+        for version in versions:
+            base_name, args = _easing_split(easing)
+            easing_name = _easing_join(base_name + version, args)
+            easings.append((easing_name, zoom))
+    return easings
+
+
+def _get_easing_nodes(cfg, color_program):
+    easings = _get_easing_list()
+    nb_easings = len(easings)
+
+    nb_rows = int(math.sqrt(nb_easings))
+    nb_cols = int(math.ceil(nb_easings / float(nb_rows)))
+
+    cfg.aspect_ratio = (nb_cols, nb_rows)
+
+    easing_h = 1. / nb_rows
+    easing_w = 1. / nb_cols
+    for row in range(nb_rows):
+        for col in range(nb_cols):
+            easing_id = row * nb_cols + col
+            if easing_id >= nb_easings:
+                return
+            easing, zoom = easings[easing_id]
+            easing_node = _get_easing_node(cfg, easing, zoom, color_program)
+            easing_node = ngl.Scale(easing_node, factors=[easing_w, easing_h, 0])
+            x = easing_w * (-nb_cols + 1 + 2 * col)
+            y = easing_h * (nb_rows - 1 - 2 * row)
+            easing_node = ngl.Translate(easing_node, vector=(x, y, 0))
+            yield easing_node
+
+
+@scene()
+def easings(cfg):
+    '''Display all the easings (primitive for animation / motion design) at once'''
+    random.seed(0)
+
+    cfg.duration = 2.
+
+    frag_data = cfg.get_frag('color')
+    color_program = ngl.Program(fragment=frag_data, label='color')
+    full_block = _block(2, 2, color_program, color=ngl.UniformVec4(value=(.3, .3, .3, 1)))
+
+    group = ngl.Group()
+    group.add_children(full_block)
+    for easing_node in _get_easing_nodes(cfg, color_program):
+        group.add_children(easing_node)
+
+    return ngl.GraphicConfig(group,
+                             blend=True,
+                             blend_src_factor='src_alpha',
+                             blend_dst_factor='one_minus_src_alpha',
+                             blend_src_factor_a='zero',
+                             blend_dst_factor_a='one')
