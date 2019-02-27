@@ -68,6 +68,7 @@ LIB_OBJS = animation.o              \
            darray.o                 \
            deserialize.o            \
            dot.o                    \
+           drawutils.o              \
            fbo.o                    \
            format.o                 \
            glcontext.o              \
