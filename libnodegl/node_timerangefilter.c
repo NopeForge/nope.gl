@@ -158,14 +158,14 @@ static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
                     const struct timerangemode_priv *next = s->ranges[rr_id + 1]->priv_data;
                     const double next_use_in = next->start_time - t;
 
-                    if (next_use_in < s->prefetch_time) {
+                    if (next_use_in <= s->prefetch_time) {
                         TRACE("next use of %s in %g (< %g), mark as active",
                               child->label, next_use_in, s->prefetch_time);
 
                         // The node will actually be needed soon, so we need to
                         // start it if necessary.
                         is_active = 1;
-                    } else if (next_use_in < s->max_idle_time && child->is_active) {
+                    } else if (next_use_in <= s->max_idle_time && child->is_active) {
                         TRACE("%s not currently needed but will be soon %g (< %g), keep as active",
                               child->label, next_use_in, s->max_idle_time);
 
