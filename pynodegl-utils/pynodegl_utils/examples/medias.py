@@ -64,9 +64,9 @@ def time_remapping(cfg):
     m0 = cfg.medias[0]
 
     media_seek = 10
-    noop_duration = 1
+    noop_duration = 2
     prefetch_duration = 2
-    freeze_duration = 1
+    freeze_duration = 3
     playback_duration = 5
 
     range_start = noop_duration + prefetch_duration
