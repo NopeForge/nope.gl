@@ -39,7 +39,7 @@ struct rect {
 };
 
 #define NGLI_FONT_H 8
-#define NGLI_FONT_W 8
+#define NGLI_FONT_W 7
 
 void ngli_drawutils_draw_rect(struct canvas *canvas, const struct rect *rect, uint32_t color);
 void ngli_drawutils_print(struct canvas *canvas, int x, int y, const char *str, uint32_t color);
