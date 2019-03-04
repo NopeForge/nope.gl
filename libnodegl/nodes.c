@@ -38,9 +38,8 @@
 enum {
     STATE_INIT_FAILED   = -1,
     STATE_UNINITIALIZED = 0, /* post uninit(), default */
-    STATE_INITIALIZED   = 1, /* post init() */
+    STATE_INITIALIZED   = 1, /* post init() or release() */
     STATE_READY         = 2, /* post prefetch() */
-    STATE_IDLE          = 3, /* post release() */
 };
 
 /* We depend on the monotically incrementing by 1 property of these fields */
@@ -187,7 +186,7 @@ static void node_release(struct ngl_node *node)
         TRACE("RELEASE %s @ %p", node->label, node);
         node->class->release(node);
     }
-    node->state = STATE_IDLE;
+    node->state = STATE_INITIALIZED;
     node->last_update_time = -1.;
 }
 
