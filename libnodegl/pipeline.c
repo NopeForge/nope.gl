@@ -511,7 +511,8 @@ int ngli_pipeline_init(struct ngl_node *node)
     }
 
     if (s->buffers &&
-        gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
+        gl->features & (NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT |
+                        NGLI_FEATURE_UNIFORM_BUFFER_OBJECT)) {
 
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->buffers, entry))) {
