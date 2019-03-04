@@ -572,7 +572,7 @@ struct hud_priv {
  * P Prefetch       STATE_READY
  * D Update/Draw
  * R Release        STATE_IDLE
- * U Uninit         STATE_INITIALIZED
+ * U Uninit         STATE_UNINITIALIZED
  *
  * Dependency callgraph:
  *
