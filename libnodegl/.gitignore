@@ -8,5 +8,6 @@
 /libnodegl.symexport
 /test_asm
 /test_darray
+/test_draw
 /test_hmap
 /test_utils
