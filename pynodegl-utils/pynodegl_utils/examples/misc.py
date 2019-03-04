@@ -1,5 +1,6 @@
 import os.path as op
 import array
+import colorsys
 import math
 import random
 import pynodegl as ngl
@@ -634,3 +635,50 @@ def mountain(cfg, ndim=3, nb_layers=7,
                               blend_src_factor_a='zero',
                               blend_dst_factor_a='one')
     return blend
+
+
+@scene()
+def text(cfg):
+    '''Demonstrate the text node features (colors, scale, alignment, fitting, ...)'''
+
+    random.seed(0)
+    cfg.duration = 6.
+
+    group = ngl.Group()
+
+    demo_str = 'Hello World!\n\nThis is a multi-line\ntext demonstration.'
+    time_unit = cfg.duration / 2. / len(demo_str)
+    nb_chars = len(demo_str)
+    for i in range(nb_chars):
+        ascii_text = ngl.Text(demo_str[:i + 1],
+                              aspect_ratio=cfg.aspect_ratio,
+                              bg_color=(0.15, 0.15, 0.15, 1),
+                              font_scale=1/2.)
+        start = i * time_unit
+        text_range = [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(start)]
+        if i != nb_chars - 1:
+            end = (i + 1) * time_unit
+            text_range.append(ngl.TimeRangeModeNoop(end))
+        text_range_filter = ngl.TimeRangeFilter(ascii_text, ranges=text_range)
+        group.add_children(text_range_filter)
+
+    for valign in ('top', 'center', 'bottom'):
+        for halign in ('left', 'center', 'right'):
+            if (valign, halign) == ('center', 'center'):
+                continue
+            fg_color = list(colorsys.hls_to_rgb(random.uniform(0, 1), 0.5, 1.0)) + [1]
+            aligned_text = ngl.Text('%s-%s' % (valign, halign),
+                                    valign=valign,
+                                    halign=halign,
+                                    aspect_ratio=cfg.aspect_ratio,
+                                    fg_color=fg_color,
+                                    bg_color=(0, 0, 0, 0),
+                                    font_scale=1/5.)
+            group.add_children(aligned_text)
+
+    return ngl.GraphicConfig(group,
+                              blend=True,
+                              blend_src_factor='src_alpha',
+                              blend_dst_factor='one_minus_src_alpha',
+                              blend_src_factor_a='zero',
+                              blend_dst_factor_a='one')
