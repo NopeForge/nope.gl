@@ -92,6 +92,7 @@ class Exporter(QtCore.QThread):
 
         if self._time is not None:
             ngl_viewer.draw(self._time)
+            os.write(fd_w, capture_buffer)
             self.progressed.emit(100)
         else:
             # Draw every frame
