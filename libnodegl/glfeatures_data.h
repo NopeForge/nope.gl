@@ -220,5 +220,13 @@ static const struct glfeature {
         .es_version     = 300,
         .extensions     = (const char*[]){"GL_ARB_texture_non_power_of_two", NULL},
         .es_extensions  = (const char*[]){"GL_OES_texture_npot", NULL},
+    }, {
+        .name           = "texture_cube_map",
+        .flag           = NGLI_FEATURE_TEXTURE_CUBE_MAP,
+        .version        = 320,
+        .es_version     = 300,
+        .extensions     = (const char*[]){"GL_ARB_texture_cube_map",
+                                          "GL_ARB_seamless_cube_map",
+                                          NULL},
     }
 };

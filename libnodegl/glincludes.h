@@ -81,6 +81,7 @@ typedef void* GLeglImageOES;
 # define GL_STENCIL_INDEX                      0x1901
 # define GL_STENCIL_INDEX8                     0x8D48
 # define GL_SAMPLER_3D                         0x8B5F
+# define GL_SAMPLER_CUBE                       0x8B60
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
 # define GL_SAMPLER_EXTERNAL_OES               0x8D66
 # define GL_TEXTURE_BINDING_EXTERNAL_OES       0x8D67
@@ -182,6 +183,14 @@ typedef void* GLeglImageOES;
 # define GL_UNIFORM_BUFFER                     0x8A11
 # define GL_UNIFORM_BLOCK_BINDING              0x8A3F
 # define GL_MAX_UNIFORM_BLOCK_SIZE             0x8A30
+# define GL_TEXTURE_CUBE_MAP                   0x8513
+# define GL_TEXTURE_BINDING_CUBE_MAP           0x8514
+# define GL_TEXTURE_CUBE_MAP_POSITIVE_X        0x8515
+# define GL_TEXTURE_CUBE_MAP_NEGATIVE_X        0x8516
+# define GL_TEXTURE_CUBE_MAP_POSITIVE_Y        0x8517
+# define GL_TEXTURE_CUBE_MAP_NEGATIVE_Y        0x8518
+# define GL_TEXTURE_CUBE_MAP_POSITIVE_Z        0x8519
+# define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z        0x851A
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES
