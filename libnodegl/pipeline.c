@@ -105,6 +105,10 @@ static int bind_texture_plane(const struct glcontext *gl,
     if (texture_index < 0)
         return -1;
     ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
+    if (gl->features & NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE) {
+        GLenum target = plane->target == GL_TEXTURE_2D ? GL_TEXTURE_EXTERNAL_OES : GL_TEXTURE_2D;
+        ngli_glBindTexture(gl, target, 0);
+    }
     ngli_glBindTexture(gl, plane->target, plane->id);
     ngli_glUniform1i(gl, location, texture_index);
     return 0;
