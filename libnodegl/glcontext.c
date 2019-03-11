@@ -296,6 +296,11 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
         }
     }
 
+    glcontext->max_draw_buffers = 1;
+    if (glcontext->features & NGLI_FEATURE_DRAW_BUFFERS) {
+        ngli_glGetIntegerv(glcontext, GL_MAX_DRAW_BUFFERS, &glcontext->max_draw_buffers);
+    }
+
     return 0;
 }
 
