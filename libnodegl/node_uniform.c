@@ -25,15 +25,27 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "transforms.h"
 
+static int uniform_update_func(struct ngl_node *node)
+{
+    struct uniform_priv *s = node->priv_data;
+    if (s->dynamic) {
+        LOG(ERROR, "updating data on a dynamic uniform is unsupported");
+        return -1;
+    }
+    return 0;
+}
+
 #define OFFSET(x) offsetof(struct uniform_priv, x)
 static const struct node_param uniformfloat_params[] = {
     {"value",  PARAM_TYPE_DBL,  OFFSET(scalar),
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=uniform_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
                .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
@@ -44,6 +56,7 @@ static const struct node_param uniformfloat_params[] = {
 static const struct node_param uniformvec2_params[] = {
     {"value",  PARAM_TYPE_VEC2, OFFSET(vector),
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=uniform_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC2, -1},
@@ -54,6 +67,7 @@ static const struct node_param uniformvec2_params[] = {
 static const struct node_param uniformvec3_params[] = {
     {"value",  PARAM_TYPE_VEC3, OFFSET(vector),
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=uniform_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
@@ -64,6 +78,7 @@ static const struct node_param uniformvec3_params[] = {
 static const struct node_param uniformvec4_params[] = {
     {"value",  PARAM_TYPE_VEC4, OFFSET(vector),
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=uniform_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC4, -1},
@@ -74,6 +89,7 @@ static const struct node_param uniformvec4_params[] = {
 static const struct node_param uniformquat_params[] = {
     {"value",  PARAM_TYPE_VEC4, OFFSET(vector),
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=uniform_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
                .node_types=(const int[]){NGL_NODE_ANIMATEDQUAT, -1},
@@ -84,6 +100,7 @@ static const struct node_param uniformquat_params[] = {
 static const struct node_param uniformint_params[] = {
     {"value",  PARAM_TYPE_INT, OFFSET(ival),
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+               .update_func=uniform_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
     {NULL}
 };
@@ -91,6 +108,7 @@ static const struct node_param uniformint_params[] = {
 static const struct node_param uniformmat4_params[] = {
     {"value",     PARAM_TYPE_MAT4, OFFSET(matrix), {.mat=NGLI_MAT4_IDENTITY},
                   .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                  .update_func=uniform_update_func,
                   .desc=NGLI_DOCSTRING("value exposed to the shader")},
     {"transform", PARAM_TYPE_NODE, OFFSET(transform), .node_types=TRANSFORM_TYPES_LIST,
                   .desc=NGLI_DOCSTRING("`value` transformation chain")},
