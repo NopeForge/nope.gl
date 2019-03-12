@@ -190,7 +190,7 @@ static int update_sampler(const struct glcontext *gl,
     return 0;
 }
 
-static int update_images_and_samplers(struct ngl_node *node)
+static int set_images_and_samplers(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -303,7 +303,7 @@ static void set_uniform_buf4fv(struct glcontext *gl, GLint loc, void *priv)
     ngli_glUniform4fv(gl, loc, buffer->count, (const GLfloat *)buffer->data);
 }
 
-static int update_uniforms(struct ngl_node *node)
+static int set_uniforms(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -322,7 +322,7 @@ static int update_uniforms(struct ngl_node *node)
     return 0;
 }
 
-static int update_buffers(struct ngl_node *node)
+static int set_buffers(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -721,9 +721,9 @@ int ngli_pipeline_upload_data(struct ngl_node *node)
 {
     int ret;
 
-    if ((ret = update_uniforms(node)) < 0 ||
-        (ret = update_images_and_samplers(node)) < 0 ||
-        (ret = update_buffers(node)) < 0)
+    if ((ret = set_uniforms(node)) < 0 ||
+        (ret = set_images_and_samplers(node)) < 0 ||
+        (ret = set_buffers(node)) < 0)
         return ret;
 
     return 0;
