@@ -679,40 +679,39 @@ void ngli_pipeline_uninit(struct ngl_node *node)
 
 int ngli_pipeline_update(struct ngl_node *node, double t)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct pipeline *s = get_pipeline(node);
 
-    if (s->textures) {
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->textures, entry))) {
-            int ret = ngli_node_update(entry->data, t);
-            if (ret < 0)
-                return ret;
-        }
+    struct darray *texture_pairs = &s->texture_pairs;
+    struct nodeprograminfopair *tpairs = ngli_darray_data(texture_pairs);
+    for (int i = 0; i < ngli_darray_count(texture_pairs); i++) {
+        struct nodeprograminfopair *pair = &tpairs[i];
+        struct ngl_node *tnode = pair->node;
+        int ret = ngli_node_update(tnode, t);
+        if (ret < 0)
+            return ret;
     }
 
-    if (s->uniforms) {
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-            int ret = ngli_node_update(entry->data, t);
-            if (ret < 0)
-                return ret;
-        }
+    struct darray *uniform_pairs = &s->uniform_pairs;
+    struct nodeprograminfopair *upairs = ngli_darray_data(uniform_pairs);
+    for (int i = 0; i < ngli_darray_count(uniform_pairs); i++) {
+        struct nodeprograminfopair *pair = &upairs[i];
+        struct ngl_node *unode = pair->node;
+        int ret = ngli_node_update(unode, t);
+        if (ret < 0)
+            return ret;
     }
 
-    if (s->buffers &&
-        gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->buffers, entry))) {
-            struct ngl_node *bnode = (struct ngl_node *)entry->data;
-            int ret = ngli_node_update(bnode, t);
-            if (ret < 0)
-                return ret;
-            ret = ngli_node_buffer_upload(bnode);
-            if (ret < 0)
-                return ret;
-        }
+    struct darray *buffer_pairs = &s->buffer_pairs;
+    struct nodeprograminfopair *bpairs = ngli_darray_data(buffer_pairs);
+    for (int i = 0; i < ngli_darray_count(buffer_pairs); i++) {
+        struct nodeprograminfopair *pair = &bpairs[i];
+        struct ngl_node *bnode = pair->node;
+        int ret = ngli_node_update(bnode, t);
+        if (ret < 0)
+            return ret;
+        ret = ngli_node_buffer_upload(bnode);
+        if (ret < 0)
+            return ret;
     }
 
     return ngli_node_update(s->program, t);
