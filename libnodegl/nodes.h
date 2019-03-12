@@ -268,6 +268,7 @@ struct uniform_priv {
     struct ngl_node *anim;
     struct ngl_node *transform;
     const float *transform_matrix;
+    int dynamic;
 };
 
 struct rtt_priv {

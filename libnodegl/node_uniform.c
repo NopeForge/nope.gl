@@ -134,10 +134,24 @@ static int uniformquat_update(struct ngl_node *node, double t)
     return ret;
 }
 
+static int uniform_init(struct ngl_node *node)
+{
+    struct uniform_priv *s = node->priv_data;
+    s->dynamic = !!s->anim;
+    return 0;
+}
+
 static int uniform_mat_init(struct ngl_node *node)
 {
     struct uniform_priv *s = node->priv_data;
     s->transform_matrix = ngli_get_last_transformation_matrix(s->transform);
+    /* Note: we assume here that a transformation chain includes at least one
+     * dynamic transform. We could crawl the chain to figure it out in the
+     * details, but that would be limited since we would have to also detect
+     * live changes in any of the transform node at update as well. That extra
+     * complexity is probably not worth just for handling the case of a static
+     * transformation list. */
+    s->dynamic = !!s->transform_matrix;
     return 0;
 }
 
@@ -163,6 +177,7 @@ static int uniform_mat_update(struct ngl_node *node, double t)
 const struct node_class ngli_uniformfloat_class = {
     .id        = NGL_NODE_UNIFORMFLOAT,
     .name      = "UniformFloat",
+    .init      = uniform_init,
     .update    = uniformfloat_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformfloat_params,
@@ -172,6 +187,7 @@ const struct node_class ngli_uniformfloat_class = {
 const struct node_class ngli_uniformvec2_class = {
     .id        = NGL_NODE_UNIFORMVEC2,
     .name      = "UniformVec2",
+    .init      = uniform_init,
     .update    = uniformvec2_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformvec2_params,
@@ -181,6 +197,7 @@ const struct node_class ngli_uniformvec2_class = {
 const struct node_class ngli_uniformvec3_class = {
     .id        = NGL_NODE_UNIFORMVEC3,
     .name      = "UniformVec3",
+    .init      = uniform_init,
     .update    = uniformvec3_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformvec3_params,
@@ -190,6 +207,7 @@ const struct node_class ngli_uniformvec3_class = {
 const struct node_class ngli_uniformvec4_class = {
     .id        = NGL_NODE_UNIFORMVEC4,
     .name      = "UniformVec4",
+    .init      = uniform_init,
     .update    = uniformvec4_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformvec4_params,
@@ -199,6 +217,7 @@ const struct node_class ngli_uniformvec4_class = {
 const struct node_class ngli_uniformquat_class = {
     .id        = NGL_NODE_UNIFORMQUAT,
     .name      = "UniformQuat",
+    .init      = uniform_init,
     .update    = uniformquat_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformquat_params,
@@ -208,6 +227,7 @@ const struct node_class ngli_uniformquat_class = {
 const struct node_class ngli_uniformint_class = {
     .id        = NGL_NODE_UNIFORMINT,
     .name      = "UniformInt",
+    .init      = uniform_init,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformint_params,
     .file      = __FILE__,
