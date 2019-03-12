@@ -23,6 +23,15 @@
 #include "glcontext.h"
 #include "nodes.h"
 
+#define FORMAT_SIZE_CASE(format, size, name, doc) case format: return size;
+int ngli_format_get_bytes_per_pixel(int format)
+{
+    switch (format) {
+        NGLI_FORMATS(FORMAT_SIZE_CASE);
+    }
+    return 0;
+}
+
 static int get_gl_format_type(struct glcontext *gl, int data_format,
                               GLint *formatp, GLint *internal_formatp, GLenum *typep)
 {

@@ -55,15 +55,6 @@ void ngli_image_reset(struct image *s)
     ngli_mat4_identity(s->coordinates_matrix);
 }
 
-#define FORMAT_SIZE_CASE(format, size, name, doc) case format: return size;
-static int format_byte_per_pixel(int format)
-{
-    switch (format) {
-        NGLI_FORMATS(FORMAT_SIZE_CASE);
-    }
-    return 0;
-}
-
 uint64_t ngli_image_get_memory_size(const struct image *s)
 {
     uint64_t size = 0;
@@ -73,7 +64,7 @@ uint64_t ngli_image_get_memory_size(const struct image *s)
         size += params->width
               * params->height
               * NGLI_MAX(params->depth, 1)
-              * format_byte_per_pixel(params->format);
+              * ngli_format_get_bytes_per_pixel(params->format);
     }
     return size;
 }

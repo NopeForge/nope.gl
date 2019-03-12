@@ -32,6 +32,8 @@ enum {
     NGLI_FORMATS(DECLARE_FORMAT)
 };
 
+int ngli_format_get_bytes_per_pixel(int format);
+
 int ngli_format_get_gl_texture_format(struct glcontext *gl,
                                       int data_format,
                                       GLint *formatp,
