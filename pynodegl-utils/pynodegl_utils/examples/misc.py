@@ -464,7 +464,8 @@ def cube(cfg, display_depth_buffer=False):
         texture = ngl.Texture2D()
         texture.set_width(640)
         texture.set_height(480)
-        rtt = ngl.RenderToTexture(camera, texture)
+        rtt = ngl.RenderToTexture(camera)
+        rtt.add_color_textures(texture)
         rtt.set_depth_texture(depth_texture)
 
         quad = ngl.Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
@@ -499,7 +500,8 @@ def histogram(cfg):
     r.update_textures(tex0=t)
     proxy_size = 128
     proxy = ngl.Texture2D(width=proxy_size, height=proxy_size)
-    rtt = ngl.RenderToTexture(r, proxy)
+    rtt = ngl.RenderToTexture(r)
+    rtt.add_color_textures(proxy)
     g.add_children(rtt)
 
     shader_version = '310 es' if cfg.backend == 'gles' else '430'

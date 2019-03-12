@@ -293,8 +293,8 @@
 - RenderToTexture:
     constructors:
         - [child, Node]
-        - [color_texture, Node]
     optional:
+        - [color_textures, NodeList]
         - [depth_texture, Node]
         - [samples, int]
         - [clear_color, vec4]

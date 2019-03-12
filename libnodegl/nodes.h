@@ -272,7 +272,8 @@ struct uniform_priv {
 
 struct rtt_priv {
     struct ngl_node *child;
-    struct ngl_node *color_texture;
+    struct ngl_node **color_textures;
+    int nb_color_textures;
     struct ngl_node *depth_texture;
     int samples;
     float clear_color[4];
@@ -287,7 +288,7 @@ struct rtt_priv {
     struct texture fbo_depth;
 
     struct fbo fbo_ms;
-    struct texture fbo_ms_color;
+    struct darray fbo_ms_colors;
     struct texture fbo_ms_depth;
 };
 
