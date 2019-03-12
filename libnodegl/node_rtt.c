@@ -103,9 +103,9 @@ static int rtt_prefetch(struct ngl_node *node)
     s->width = params->width;
     s->height = params->height;
 
-    if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) &&
-        s->samples > 0) {
-        LOG(WARNING, "context does not support the framebuffer object feature, multisample anti-aliasing will be disabled");
+    if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) && s->samples > 0) {
+        LOG(WARNING, "context does not support the framebuffer object feature, "
+            "multisample anti-aliasing will be disabled");
         s->samples = 0;
     }
 
