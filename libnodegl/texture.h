@@ -59,6 +59,7 @@ struct texture_params {
     int external_storage;
     int external_oes;
     int rectangle;
+    int cubemap;
 };
 
 struct texture {
@@ -66,6 +67,7 @@ struct texture {
     struct texture_params params;
     int wrapped;
     int external_storage;
+    int bytes_per_pixel;
 
     GLenum target;
     GLuint id;

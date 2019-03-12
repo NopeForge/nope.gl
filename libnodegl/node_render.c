@@ -37,6 +37,7 @@
 
 #define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE2D,       \
                                           NGL_NODE_TEXTURE3D,       \
+                                          NGL_NODE_TEXTURECUBE,     \
                                           -1}
 
 #define PROGRAMS_TYPES_LIST (const int[]){NGL_NODE_PROGRAM,         \

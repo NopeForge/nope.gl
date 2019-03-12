@@ -362,6 +362,18 @@
         - [access, select]
         - [data_src, Node]
 
+- TextureCube:
+    optional:
+        - [format, select]
+        - [size, int]
+        - [min_filter, select]
+        - [mag_filter, select]
+        - [wrap_s, select]
+        - [wrap_t, select]
+        - [wrap_r, select]
+        - [access, select]
+        - [data_src, Node]
+
 - TimeRangeFilter:
     constructors:
         - [child, Node]

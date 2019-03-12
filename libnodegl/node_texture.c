@@ -181,7 +181,29 @@ static const struct node_param texture3d_params[] = {
     {NULL}
 };
 
-static int texture_prefetch(struct ngl_node *node, int dimensions)
+static const struct node_param texturecube_params[] = {
+    {"format", PARAM_TYPE_SELECT, OFFSET(params.format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM}, .choices=&format_choices,
+               .desc=NGLI_DOCSTRING("format of the pixel data")},
+    {"size", PARAM_TYPE_INT, OFFSET(params.width), {.i64=0},
+             .desc=NGLI_DOCSTRING("width and height of the texture")},
+    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&ngli_minfilter_choices,
+                   .desc=NGLI_DOCSTRING("texture minifying function")},
+    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&ngli_magfilter_choices,
+                   .desc=NGLI_DOCSTRING("texture magnification function")},
+    {"wrap_s", PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+               .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
+    {"wrap_t", PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+               .desc=NGLI_DOCSTRING("wrap parameter for the texture on the t dimension (vertical)")},
+    {"wrap_r", PARAM_TYPE_SELECT, OFFSET(params.wrap_r), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
+               .desc=NGLI_DOCSTRING("wrap parameter for the texture on the r dimension (depth)")},
+    {"access", PARAM_TYPE_SELECT, OFFSET(params.access), {.i64=GL_READ_WRITE}, .choices=&access_choices,
+               .desc=NGLI_DOCSTRING("texture access (only honored by the `Compute` node)")},
+    {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_3D,
+                 .desc=NGLI_DOCSTRING("data source")},
+    {NULL}
+};
+
+static int texture_prefetch(struct ngl_node *node, int dimensions, int cubemap)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -189,6 +211,11 @@ static int texture_prefetch(struct ngl_node *node, int dimensions)
     struct texture_params *params = &s->params;
 
     params->dimensions = dimensions;
+    if (cubemap) {
+        params->height = params->width;
+        params->depth = 6;
+        params->cubemap = 1;
+    }
 
     if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE)
         params->immutable = 1;
@@ -280,14 +307,15 @@ static int texture_prefetch(struct ngl_node *node, int dimensions)
     return 0;
 }
 
-#define TEXTURE_PREFETCH(dim)                               \
-static int texture##dim##d_prefetch(struct ngl_node *node)  \
+#define TEXTURE_PREFETCH(name, dim, cubemap)                \
+static int texture##name##_prefetch(struct ngl_node *node)  \
 {                                                           \
-    return texture_prefetch(node, dim);                     \
+    return texture_prefetch(node, dim, cubemap);            \
 }
 
-TEXTURE_PREFETCH(2)
-TEXTURE_PREFETCH(3)
+TEXTURE_PREFETCH(2d,   2, 0)
+TEXTURE_PREFETCH(3d,   3, 0)
+TEXTURE_PREFETCH(cube, 3, 1)
 
 static void handle_hud_frame(struct ngl_node *node)
 {
@@ -372,6 +400,18 @@ static int texture3d_init(struct ngl_node *node)
     return 0;
 }
 
+static int texturecube_init(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
+    if (!(gl->features & NGLI_FEATURE_TEXTURE_CUBE_MAP)) {
+        LOG(ERROR, "context does not support cube map textures");
+        return -1;
+    }
+    return 0;
+}
+
 const struct node_class ngli_texture2d_class = {
     .id        = NGL_NODE_TEXTURE2D,
     .name      = "Texture2D",
@@ -392,5 +432,17 @@ const struct node_class ngli_texture3d_class = {
     .release   = texture_release,
     .priv_size = sizeof(struct texture_priv),
     .params    = texture3d_params,
+    .file      = __FILE__,
+};
+
+const struct node_class ngli_texturecube_class = {
+    .id        = NGL_NODE_TEXTURECUBE,
+    .name      = "TextureCube",
+    .init      = texturecube_init,
+    .prefetch  = texturecube_prefetch,
+    .update    = texture_update,
+    .release   = texture_release,
+    .priv_size = sizeof(struct texture_priv),
+    .params    = texturecube_params,
     .file      = __FILE__,
 };

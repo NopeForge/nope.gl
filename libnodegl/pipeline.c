@@ -367,7 +367,8 @@ static const struct texture_uniform_map {
     size_t type_offset;
     size_t binding_offset;
 } texture_uniform_maps[] = {
-    {"",                  (const GLenum[]){GL_SAMPLER_2D, GL_SAMPLER_3D, GL_IMAGE_2D, 0}, OFFSET(sampler_location),          OFFSET(sampler_type),    OFFSET(sampler_value)},
+    {"",                  (const GLenum[]){GL_SAMPLER_2D, GL_SAMPLER_3D,
+                                           GL_SAMPLER_CUBE, GL_IMAGE_2D, 0},              OFFSET(sampler_location),          OFFSET(sampler_type),    OFFSET(sampler_value)},
     {"_sampling_mode",    (const GLenum[]){GL_INT, 0},                                    OFFSET(sampling_mode_location),    SIZE_MAX,                SIZE_MAX},
     {"_coord_matrix",     (const GLenum[]){GL_FLOAT_MAT4, 0},                             OFFSET(coord_matrix_location),     SIZE_MAX,                SIZE_MAX},
     {"_dimensions",       (const GLenum[]){GL_FLOAT_VEC2, GL_FLOAT_VEC3, 0},              OFFSET(dimensions_location),       OFFSET(dimensions_type), SIZE_MAX},
