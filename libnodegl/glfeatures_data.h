@@ -228,5 +228,11 @@ static const struct glfeature {
         .extensions     = (const char*[]){"GL_ARB_texture_cube_map",
                                           "GL_ARB_seamless_cube_map",
                                           NULL},
+    }, {
+        .name           = "draw_buffers",
+        .flag           = NGLI_FEATURE_DRAW_BUFFERS,
+        .version        = 200,
+        .es_version     = 300,
+        .funcs_offsets  = (const size_t[]){OFFSET(DrawBuffers), -1}
     }
 };

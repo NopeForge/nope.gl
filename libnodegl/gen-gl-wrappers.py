@@ -99,6 +99,9 @@ cmds_optional = [
     'glFenceSync',
     'glWaitSync',
     'glClientWaitSync',
+
+    # Draw Buffer
+    'glDrawBuffers',
 ]
 
 cmds = [
