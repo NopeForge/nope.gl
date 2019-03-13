@@ -207,7 +207,6 @@ static int texture_prefetch(struct ngl_node *node, int dimensions)
         }
         case NGL_NODE_MEDIA:
             return 0;
-            break;
         case NGL_NODE_ANIMATEDBUFFERFLOAT:
         case NGL_NODE_ANIMATEDBUFFERVEC2:
         case NGL_NODE_ANIMATEDBUFFERVEC3:
