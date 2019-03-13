@@ -85,16 +85,19 @@ int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params
             if (gl->backend == NGL_BACKEND_OPENGLES && gl->version < 300 && attachment_index == GL_DEPTH_STENCIL_ATTACHMENT) {
                 ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, attachment->id);
                 ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, attachment->id);
-                ngli_darray_push(&fbo->depth_indices, depth_stencil_attachments);
-                ngli_darray_push(&fbo->depth_indices, depth_stencil_attachments + 1);
+                if (!ngli_darray_push(&fbo->depth_indices, depth_stencil_attachments) ||
+                    !ngli_darray_push(&fbo->depth_indices, depth_stencil_attachments + 1))
+                    return -1;
             } else {
                 ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, attachment_index, GL_RENDERBUFFER, attachment->id);
                 if (!is_color_attachment) {
                     if (gl->platform == NGL_PLATFORM_IOS && attachment_index == GL_DEPTH_STENCIL_ATTACHMENT) {
-                        ngli_darray_push(&fbo->depth_indices, depth_stencil_attachments);
-                        ngli_darray_push(&fbo->depth_indices, depth_stencil_attachments + 1);
+                        if (!ngli_darray_push(&fbo->depth_indices, depth_stencil_attachments) ||
+                            !ngli_darray_push(&fbo->depth_indices, depth_stencil_attachments + 1))
+                            return -1;
                     } else {
-                        ngli_darray_push(&fbo->depth_indices, &attachment_index);
+                        if (!ngli_darray_push(&fbo->depth_indices, &attachment_index))
+                            return -1;
                     }
                 }
             }
