@@ -190,7 +190,7 @@ static int update_sampler(const struct glcontext *gl,
     return 0;
 }
 
-static int set_images_and_samplers(struct ngl_node *node)
+static int set_textures(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -753,7 +753,7 @@ int ngli_pipeline_upload_data(struct ngl_node *node)
     int ret;
 
     if ((ret = set_uniforms(node)) < 0 ||
-        (ret = set_images_and_samplers(node)) < 0 ||
+        (ret = set_textures(node)) < 0 ||
         (ret = set_buffers(node)) < 0)
         return ret;
 
