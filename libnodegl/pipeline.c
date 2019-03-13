@@ -506,49 +506,55 @@ static nodeprograminfopair_handle_func get_uniform_pair_handle(int class_id, GLe
     return NULL;
 }
 
-int ngli_pipeline_init(struct ngl_node *node)
+static int build_uniform_pairs(struct ngl_node *node)
+{
+    struct pipeline *s = get_pipeline(node);
+    struct program_priv *program = s->program->priv_data;
+
+    if (!s->uniforms)
+        return 0;
+
+    ngli_darray_init(&s->uniform_pairs, sizeof(struct nodeprograminfopair), 0);
+
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->uniforms, entry))) {
+        const struct uniformprograminfo *active_uniform =
+            ngli_hmap_get(program->active_uniforms, entry->key);
+        if (!active_uniform) {
+            LOG(WARNING, "uniform %s attached to %s not found in %s",
+                entry->key, node->label, s->program->label);
+            continue;
+        }
+
+        if (active_uniform->location < 0)
+            continue;
+
+        struct ngl_node *unode = entry->data;
+        struct nodeprograminfopair pair = {
+            .node = unode,
+            .program_info = (void *)active_uniform,
+        };
+
+        pair.handle = get_uniform_pair_handle(unode->class->id, active_uniform->type);
+        if (!pair.handle) {
+            LOG(ERROR, "%s set on %s.%s has not the expected type in the shader",
+                unode->label, node->label, entry->key);
+            return -1;
+        }
+
+        snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
+        if (!ngli_darray_push(&s->uniform_pairs, &pair))
+            return -1;
+    }
+    return 0;
+}
+
+static int build_texture_pairs(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct pipeline *s = get_pipeline(node);
     struct program_priv *program = s->program->priv_data;
-
-    ngli_darray_init(&s->texture_pairs, sizeof(struct nodeprograminfopair), 0);
-    ngli_darray_init(&s->uniform_pairs, sizeof(struct nodeprograminfopair), 0);
-    ngli_darray_init(&s->buffer_pairs, sizeof(struct nodeprograminfopair), 0);
-
-    if (s->uniforms) {
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->uniforms, entry))) {
-            const struct uniformprograminfo *active_uniform =
-                ngli_hmap_get(program->active_uniforms, entry->key);
-            if (!active_uniform) {
-                LOG(WARNING, "uniform %s attached to %s not found in %s",
-                    entry->key, node->label, s->program->label);
-                continue;
-            }
-
-            if (active_uniform->location < 0)
-                continue;
-
-            struct ngl_node *unode = entry->data;
-            struct nodeprograminfopair pair = {
-                .node = unode,
-                .program_info = (void *)active_uniform,
-            };
-
-            pair.handle = get_uniform_pair_handle(unode->class->id, active_uniform->type);
-            if (!pair.handle) {
-                LOG(ERROR, "%s set on %s.%s has not the expected type in the shader",
-                    unode->label, node->label, entry->key);
-                return -1;
-            }
-
-            snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
-            if (!ngli_darray_push(&s->uniform_pairs, &pair))
-                return -1;
-        }
-    }
 
     int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
     int max_nb_textures = NGLI_MIN(gl->max_texture_image_units, sizeof(s->used_texture_units) * 8);
@@ -558,103 +564,128 @@ int ngli_pipeline_init(struct ngl_node *node)
         return -1;
     }
 
-    if (nb_textures > 0) {
-        s->textureprograminfos = ngli_calloc(nb_textures, sizeof(*s->textureprograminfos));
-        if (!s->textureprograminfos)
-            return -1;
+    if (!nb_textures)
+        return 0;
 
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->textures, entry))) {
-            const char *key = entry->key;
-            struct ngl_node *tnode = entry->data;
-            struct texture_priv *texture = tnode->priv_data;
+    ngli_darray_init(&s->texture_pairs, sizeof(struct nodeprograminfopair), 0);
 
-            struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
+    s->textureprograminfos = ngli_calloc(nb_textures, sizeof(*s->textureprograminfos));
+    if (!s->textureprograminfos)
+        return -1;
 
-            int ret = load_textureprograminfo(info, program->active_uniforms, key);
-            if (ret < 0)
-                return ret;
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->textures, entry))) {
+        const char *key = entry->key;
+        struct ngl_node *tnode = entry->data;
+        struct texture_priv *texture = tnode->priv_data;
 
-            if (info->sampler_type == GL_IMAGE_2D) {
-                texture->direct_rendering = 0;
-                if (info->sampler_value >= max_nb_textures) {
-                    LOG(ERROR, "maximum number (%d) of texture unit reached", max_nb_textures);
-                    return -1;
-                }
-                if (s->used_texture_units & (1ULL << info->sampler_value)) {
-                    LOG(ERROR, "texture unit %d is already used by another image", info->sampler_value);
-                    return -1;
-                }
-                s->used_texture_units |= 1ULL << info->sampler_value;
+        struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
+
+        int ret = load_textureprograminfo(info, program->active_uniforms, key);
+        if (ret < 0)
+            return ret;
+
+        if (info->sampler_type == GL_IMAGE_2D) {
+            texture->direct_rendering = 0;
+            if (info->sampler_value >= max_nb_textures) {
+                LOG(ERROR, "maximum number (%d) of texture unit reached", max_nb_textures);
+                return -1;
             }
+            if (s->used_texture_units & (1ULL << info->sampler_value)) {
+                LOG(ERROR, "texture unit %d is already used by another image", info->sampler_value);
+                return -1;
+            }
+            s->used_texture_units |= 1ULL << info->sampler_value;
+        }
 
 #if defined(TARGET_ANDROID)
-            const int has_aux_sampler = info->external_sampler_location >= 0;
+        const int has_aux_sampler = info->external_sampler_location >= 0;
 #elif defined(TARGET_IPHONE) || defined(HAVE_VAAPI_X11)
-            const int has_aux_sampler = (info->y_sampler_location >= 0 || info->uv_sampler_location >= 0);
+        const int has_aux_sampler = (info->y_sampler_location >= 0 || info->uv_sampler_location >= 0);
 #else
-            const int has_aux_sampler = 0;
+        const int has_aux_sampler = 0;
 #endif
 
-            if (info->sampler_location < 0 && !has_aux_sampler)
-                LOG(WARNING, "no sampler found for texture %s", key);
+        if (info->sampler_location < 0 && !has_aux_sampler)
+            LOG(WARNING, "no sampler found for texture %s", key);
 
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE) || defined(HAVE_VAAPI_X11)
-            texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
-            LOG(DEBUG, "direct rendering for texture %s.%s: %s",
-                node->label, key, texture->direct_rendering ? "yes" : "no");
+        texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
+        LOG(DEBUG, "direct rendering for texture %s.%s: %s",
+            node->label, key, texture->direct_rendering ? "yes" : "no");
 #endif
-            s->nb_textureprograminfos++;
+        s->nb_textureprograminfos++;
 
-            struct nodeprograminfopair pair = {
-                .node = tnode,
-                .program_info = (void *)info,
-            };
-            snprintf(pair.name, sizeof(pair.name), "%s", key);
-            if (!ngli_darray_push(&s->texture_pairs, &pair))
-                return -1;
+        struct nodeprograminfopair pair = {
+            .node = tnode,
+            .program_info = (void *)info,
+        };
+        snprintf(pair.name, sizeof(pair.name), "%s", key);
+        if (!ngli_darray_push(&s->texture_pairs, &pair))
+            return -1;
+    }
+    return 0;
+}
+
+static int build_buffer_pairs(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+    struct pipeline *s = get_pipeline(node);
+    struct program_priv *program = s->program->priv_data;
+
+    if (!(s->buffers &&
+          gl->features & (NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT |
+                          NGLI_FEATURE_UNIFORM_BUFFER_OBJECT)))
+        return 0;
+
+    ngli_darray_init(&s->buffer_pairs, sizeof(struct nodeprograminfopair), 0);
+
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(s->buffers, entry))) {
+        const struct bufferprograminfo *info =
+            ngli_hmap_get(program->active_buffer_blocks, entry->key);
+        if (!info) {
+            LOG(WARNING, "buffer %s attached to %s not found in %s",
+                entry->key, node->label, s->program->label);
+            continue;
+        }
+
+        struct ngl_node *bnode = entry->data;
+        struct buffer_priv *buffer = bnode->priv_data;
+
+        if (info->type == GL_UNIFORM_BUFFER &&
+            buffer->data_size > gl->max_uniform_block_size) {
+            LOG(ERROR, "buffer %s size (%d) exceeds max uniform block size (%d)",
+                bnode->label, buffer->data_size, gl->max_uniform_block_size);
+            return -1;
+        }
+
+        int ret = ngli_node_buffer_ref(bnode);
+        if (ret < 0)
+            return ret;
+
+        struct nodeprograminfopair pair = {
+            .node = bnode,
+            .program_info = (void *)info,
+        };
+        snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
+        if (!ngli_darray_push(&s->buffer_pairs, &pair)) {
+            ngli_node_buffer_unref(bnode);
+            return -1;
         }
     }
+    return 0;
+}
 
-    if (s->buffers &&
-        gl->features & (NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT |
-                        NGLI_FEATURE_UNIFORM_BUFFER_OBJECT)) {
+int ngli_pipeline_init(struct ngl_node *node)
+{
+    int ret;
 
-        const struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->buffers, entry))) {
-            const struct bufferprograminfo *info =
-                ngli_hmap_get(program->active_buffer_blocks, entry->key);
-            if (!info) {
-                LOG(WARNING, "buffer %s attached to %s not found in %s",
-                    entry->key, node->label, s->program->label);
-                continue;
-            }
-
-            struct ngl_node *bnode = entry->data;
-            struct buffer_priv *buffer = bnode->priv_data;
-
-            if (info->type == GL_UNIFORM_BUFFER &&
-                buffer->data_size > gl->max_uniform_block_size) {
-                LOG(ERROR, "buffer %s size (%d) exceeds max uniform block size (%d)",
-                    bnode->label, buffer->data_size, gl->max_uniform_block_size);
-                return -1;
-            }
-
-            int ret = ngli_node_buffer_ref(bnode);
-            if (ret < 0)
-                return ret;
-
-            struct nodeprograminfopair pair = {
-                .node = bnode,
-                .program_info = (void *)info,
-            };
-            snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
-            if (!ngli_darray_push(&s->buffer_pairs, &pair)) {
-                ngli_node_buffer_unref(bnode);
-                return -1;
-            }
-        }
-    }
+    if ((ret = build_uniform_pairs(node)) < 0 ||
+        (ret = build_texture_pairs(node)) < 0 ||
+        (ret = build_buffer_pairs(node)) < 0)
+        return ret;
 
     return 0;
 }
