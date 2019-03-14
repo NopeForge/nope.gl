@@ -246,8 +246,9 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glc
 
         ngli_glGetProgramResourceName(gl, pid, GL_SHADER_STORAGE_BLOCK, i, sizeof(name), NULL, name);
         GLuint block_index = ngli_glGetProgramResourceIndex(gl, pid, GL_SHADER_STORAGE_BLOCK, name);
-        info->binding = binding++;
-        ngli_glShaderStorageBlockBinding(gl, pid, block_index, info->binding);
+        static const GLenum props[] = {GL_BUFFER_BINDING};
+        ngli_glGetProgramResourceiv(gl, pid, GL_SHADER_STORAGE_BLOCK, block_index,
+                                    NGLI_ARRAY_NB(props), props, 1, NULL, &info->binding);
 
         LOG(DEBUG, "%s.ssbo[%d/%d]: %s binding:%d",
             node_label, i + 1, nb_active_buffers, name, info->binding);
