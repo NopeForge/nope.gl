@@ -182,6 +182,11 @@ static int texture_init_fields(struct texture *s)
     return 0;
 }
 
+static int is_pow2(int x)
+{
+    return x && !(x & (x - 1));
+}
+
 int ngli_texture_init(struct texture *s,
                       struct glcontext *gl,
                       const struct texture_params *params)
@@ -200,7 +205,14 @@ int ngli_texture_init(struct texture *s,
     } else {
         ngli_glGenTextures(gl, 1, &s->id);
         ngli_glBindTexture(gl, s->target, s->id);
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, params->min_filter);
+        GLint min_filter = params->min_filter;
+        if (!(gl->features & NGLI_FEATURE_TEXTURE_NPOT) &&
+            (!is_pow2(params->width) || !is_pow2(params->height))) {
+            LOG(WARNING, "context does not support non-power of two textures, "
+                "mipmapping will be disabled");
+            min_filter = ngli_texture_filter_has_linear_filtering(params->min_filter) ? GL_LINEAR : GL_NEAREST;
+        }
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, min_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, params->mag_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, params->wrap_s);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, params->wrap_t);
