@@ -214,5 +214,12 @@ static const struct glfeature {
         .name           = "yuv_target",
         .flag           = NGLI_FEATURE_YUV_TARGET,
         .es_extensions  = (const char*[]){"GL_EXT_YUV_target", NULL}
+    }, {
+        .name           ="texture_npot",
+        .flag           = NGLI_FEATURE_TEXTURE_NPOT,
+        .version        = 200,
+        .es_version     = 300,
+        .extensions     = (const char*[]){"GL_ARB_texture_non_power_of_two", NULL},
+        .es_extensions  = (const char*[]){"GL_OES_texture_npot", NULL},
     }
 };

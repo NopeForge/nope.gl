@@ -50,6 +50,7 @@
 #define NGLI_FEATURE_EGL_EXT_IMAGE_DMA_BUF_IMPORT (1 << 21)
 #define NGLI_FEATURE_SYNC                         (1 << 22)
 #define NGLI_FEATURE_YUV_TARGET                   (1 << 23)
+#define NGLI_FEATURE_TEXTURE_NPOT                 (1 << 24)
 
 #define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
                                          NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \
