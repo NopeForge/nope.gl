@@ -62,6 +62,14 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
     render2 = ngl.Render(q, p, label='render #2')
     render2.update_textures(tex0=t2)
 
+    text_settings={
+        'box_corner': (-1, 1 - 0.2, 0),
+        'box_height': (0, 0.2, 0),
+        'aspect_ratio': cfg.aspect_ratio,
+    }
+    render1 = ngl.Group(children=(render1, ngl.Text('media #1', **text_settings)))
+    render2 = ngl.Group(children=(render2, ngl.Text('media #2', **text_settings)))
+
     rf1 = ngl.TimeRangeFilter(render1)
     rf2 = ngl.TimeRangeFilter(render2)
 
