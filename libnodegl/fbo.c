@@ -107,6 +107,11 @@ int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params
         case GL_TEXTURE_2D:
             ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, attachment->id, 0);
             break;
+        case GL_TEXTURE_CUBE_MAP:
+            for (int face = 0; face < 6; face++)
+                ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, attachment->id, 0);
+            color_index += 5;
+            break;
         default:
             ngli_assert(0);
         }
