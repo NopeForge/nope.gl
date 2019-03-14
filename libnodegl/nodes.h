@@ -269,6 +269,7 @@ struct uniform_priv {
     struct ngl_node *transform;
     const float *transform_matrix;
     int dynamic;
+    int live_changed;
 };
 
 struct rtt_priv {

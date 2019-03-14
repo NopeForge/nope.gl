@@ -38,6 +38,7 @@ static int uniform_update_func(struct ngl_node *node)
         LOG(ERROR, "updating data on a dynamic uniform is unsupported");
         return -1;
     }
+    s->live_changed = 1;
     return 0;
 }
 
@@ -128,6 +129,7 @@ static inline int uniform_update(struct uniform_priv *s, double t, int len)
         else
             memcpy(s->vector, anim->values, len * sizeof(*s->vector));
     }
+    s->live_changed = 0;
     return 0;
 }
 
@@ -150,6 +152,13 @@ static int uniformquat_update(struct ngl_node *node, double t)
         return ret;
     ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     return ret;
+}
+
+static int uniformint_update(struct ngl_node *node, double t)
+{
+    struct uniform_priv *s = node->priv_data;
+    s->live_changed = 0;
+    return 0;
 }
 
 static int uniform_init(struct ngl_node *node)
@@ -189,6 +198,7 @@ static int uniform_mat_update(struct ngl_node *node, double t)
         if (s->transform_matrix)
             memcpy(s->matrix, s->transform_matrix, sizeof(s->matrix));
     }
+    s->live_changed = 0;
     return 0;
 }
 
@@ -246,6 +256,7 @@ const struct node_class ngli_uniformint_class = {
     .id        = NGL_NODE_UNIFORMINT,
     .name      = "UniformInt",
     .init      = uniform_init,
+    .update    = uniformint_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformint_params,
     .file      = __FILE__,
