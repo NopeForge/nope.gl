@@ -26,6 +26,7 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "log.h"
+#include "memory.h"
 #include "texture.h"
 
 static GLenum get_gl_attachment_index(GLenum format)
@@ -52,6 +53,8 @@ static const GLenum depth_stencil_attachments[] = {GL_DEPTH_ATTACHMENT, GL_STENC
 
 int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params *params)
 {
+    int ret = -1;
+
     fbo->gl = gl;
     fbo->width = params->width;
     fbo->height = params->height;
@@ -74,8 +77,7 @@ int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params
             if (color_index >= gl->max_color_attachments) {
                 LOG(ERROR, "could not attach color buffer %d (maximum %d)",
                     color_index, gl->max_color_attachments);
-                ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
-                return -1;
+                goto done;
             }
             attachment_index = attachment_index + color_index++;
         }
@@ -112,13 +114,32 @@ int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params
 
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         LOG(ERROR, "framebuffer %u is not complete", fbo->id);
-        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
-        return -1;
+        goto done;
     }
 
+    if (gl->features & NGLI_FEATURE_DRAW_BUFFERS) {
+        const int nb_draw_buffers = color_index;
+        if (nb_draw_buffers > gl->max_draw_buffers) {
+            LOG(ERROR, "draw buffer count (%d) exceeds driver limit (%d)",
+                nb_draw_buffers, gl->max_draw_buffers);
+            goto done;
+        }
+        if (nb_draw_buffers > 1) {
+            GLenum *draw_buffers = ngli_calloc(nb_draw_buffers, sizeof(*draw_buffers));
+            if (!draw_buffers)
+                goto done;
+            for (int i = 0; i < nb_draw_buffers; i++)
+                draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+            ngli_glDrawBuffers(gl, nb_draw_buffers, draw_buffers);
+            ngli_free(draw_buffers);
+        }
+    }
+
+    ret = 0;
+done:
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
 
-    return 0;
+    return ret;
 }
 
 int ngli_fbo_bind(struct fbo *fbo)
