@@ -38,8 +38,9 @@ def queued_medias(cfg, overlap_time=1., dim=3):
 
 
 @scene(fast={'type': 'bool'},
-       segment_time={'type': 'range', 'range': [0, 10], 'unit_base': 10})
-def parallel_playback(cfg, fast=True, segment_time=2.):
+       segment_time={'type': 'range', 'range': [0, 10], 'unit_base': 10},
+       constrained_timeranges={'type': 'bool'})
+def parallel_playback(cfg, fast=True, segment_time=2., constrained_timeranges=False):
     '''
     Parallel media playback, flipping between the two sources.
 
@@ -72,6 +73,12 @@ def parallel_playback(cfg, fast=True, segment_time=2.):
 
     rf1 = ngl.TimeRangeFilter(render1)
     rf2 = ngl.TimeRangeFilter(render2)
+
+    if constrained_timeranges:
+        rf1.set_prefetch_time(segment_time / 3.)
+        rf2.set_prefetch_time(segment_time / 3.)
+        rf1.set_max_idle_time(segment_time / 2.)
+        rf2.set_max_idle_time(segment_time / 2.)
 
     t = 0
     rr1 = []
