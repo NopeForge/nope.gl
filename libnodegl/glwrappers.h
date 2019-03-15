@@ -655,12 +655,6 @@ static inline void ngli_glShaderSource(const struct glcontext *gl, GLuint shader
     check_error_code(gl, "glShaderSource");
 }
 
-static inline void ngli_glShaderStorageBlockBinding(const struct glcontext *gl, GLuint program, GLuint storageBlockIndex, GLuint storageBlockBinding)
-{
-    gl->funcs.ShaderStorageBlockBinding(program, storageBlockIndex, storageBlockBinding);
-    check_error_code(gl, "glShaderStorageBlockBinding");
-}
-
 static inline void ngli_glStencilFunc(const struct glcontext *gl, GLenum func, GLint ref, GLuint mask)
 {
     gl->funcs.StencilFunc(func, ref, mask);
