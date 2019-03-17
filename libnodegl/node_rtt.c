@@ -89,6 +89,49 @@ static int rtt_init(struct ngl_node *node)
     return 0;
 }
 
+static int create_ms_fbo(struct ngl_node *node, int depth_format)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct glcontext *gl = ctx->glcontext;
+    struct rtt_priv *s = node->priv_data;
+    struct texture_priv *texture_priv = s->color_texture->priv_data;
+    struct texture *texture = &texture_priv->texture;
+    struct texture_params *params = &texture->params;
+
+    const struct texture *attachments[2] = {&s->fbo_ms_color};
+    int nb_attachments = 1;
+
+    struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+    attachment_params.format = params->format;
+    attachment_params.width = s->width;
+    attachment_params.height = s->height;
+    attachment_params.samples = s->samples;
+    attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
+    int ret = ngli_texture_init(&s->fbo_ms_color, gl, &attachment_params);
+    if (ret < 0)
+        return ret;
+
+    if (depth_format != NGLI_FORMAT_UNDEFINED) {
+        attachment_params.format = depth_format;
+        int ret = ngli_texture_init(&s->fbo_ms_depth, gl, &attachment_params);
+        if (ret < 0)
+            return ret;
+        attachments[nb_attachments++] = &s->fbo_ms_depth;
+    }
+
+    struct fbo_params fbo_params = {
+        .width = s->width,
+        .height = s->height,
+        .nb_attachments = nb_attachments,
+        .attachments = attachments,
+    };
+    ret = ngli_fbo_init(&s->fbo_ms, gl, &fbo_params);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
 static int rtt_prefetch(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -160,30 +203,7 @@ static int rtt_prefetch(struct ngl_node *node)
         return ret;
 
     if (s->samples > 0) {
-        const struct texture *attachments[2] = {&s->fbo_ms_color};
-        int nb_attachments = 1;
-
-        attachment_params.samples = s->samples;
-        attachment_params.format = params->format;
-        int ret = ngli_texture_init(&s->fbo_ms_color, gl, &attachment_params);
-        if (ret < 0)
-            return ret;
-
-        if (depth_format != NGLI_FORMAT_UNDEFINED) {
-            attachment_params.format = depth_format;
-            int ret = ngli_texture_init(&s->fbo_ms_depth, gl, &attachment_params);
-            if (ret < 0)
-                return ret;
-            attachments[nb_attachments++] = &s->fbo_ms_depth;
-        }
-
-        struct fbo_params fbo_params = {
-            .width = s->width,
-            .height = s->height,
-            .nb_attachments = nb_attachments,
-            .attachments = attachments,
-        };
-        ret = ngli_fbo_init(&s->fbo_ms, gl, &fbo_params);
+        ret = create_ms_fbo(node, depth_format);
         if (ret < 0)
             return ret;
     }
