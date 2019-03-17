@@ -455,6 +455,10 @@ static int node_prefetch(struct ngl_node *node)
         if (ret < 0) {
             LOG(ERROR, "prefetching node %s failed: %d", node->label, ret);
             node->visit_time = -1.;
+            if (node->class->release) {
+                LOG(VERBOSE, "RELEASE %s @ %p", node->label, node);
+                node->class->release(node);
+            }
             return ret;
         }
     }
