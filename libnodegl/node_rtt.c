@@ -127,7 +127,7 @@ static int rtt_prefetch(struct ngl_node *node)
     const struct texture *attachments[2] = {&texture->texture};
     int nb_attachments = 1;
 
-    GLenum depth_format = NGLI_FORMAT_UNDEFINED;
+    int depth_format = NGLI_FORMAT_UNDEFINED;
     if (depth_texture) {
         struct texture *dt = &depth_texture->texture;
         depth_format = depth_texture_params->format;
