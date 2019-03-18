@@ -421,31 +421,31 @@ static const struct {
     {
         .class_id = NGL_NODE_UNIFORMFLOAT,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_1f},
+            {GL_FLOAT, set_uniform_1f},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMVEC2,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_2fv},
+            {GL_FLOAT_VEC2, set_uniform_2fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMVEC3,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_3fv},
+            {GL_FLOAT_VEC3, set_uniform_3fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMVEC4,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_4fv},
+            {GL_FLOAT_VEC4, set_uniform_4fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMMAT4,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_mat4fv},
+            {GL_FLOAT_MAT4, set_uniform_mat4fv},
             {0},
         },
     }, {
@@ -458,31 +458,32 @@ static const struct {
     }, {
         .class_id = NGL_NODE_UNIFORMINT,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_1i},
+            {GL_INT, set_uniform_1i},
+            {GL_BOOL, set_uniform_1i},
             {0},
         },
     }, {
         .class_id = NGL_NODE_BUFFERFLOAT,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_buf1fv},
+            {GL_FLOAT, set_uniform_buf1fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_BUFFERVEC2,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_buf2fv},
+            {GL_FLOAT_VEC2, set_uniform_buf2fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_BUFFERVEC3,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_buf3fv},
+            {GL_FLOAT_VEC3, set_uniform_buf3fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_BUFFERVEC4,
         .handles_map = (const struct handle_map[]){
-            {0, set_uniform_buf4fv},
+            {GL_FLOAT_VEC4, set_uniform_buf4fv},
             {0},
         },
     },
@@ -499,8 +500,8 @@ static const struct handle_map *get_uniform_handle_map(int class_id)
 static nodeprograminfopair_handle_func get_uniform_pair_handle(int class_id, GLenum uniform_type)
 {
     const struct handle_map *handle_map = get_uniform_handle_map(class_id);
-    for (int i = 0; handle_map[i].handle; i++)
-        if (!handle_map[i].uniform_type || handle_map[i].uniform_type == uniform_type)
+    for (int i = 0; handle_map[i].uniform_type; i++)
+        if (handle_map[i].uniform_type == uniform_type)
             return handle_map[i].handle;
     return NULL;
 }
