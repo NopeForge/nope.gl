@@ -67,19 +67,19 @@ int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params
     ngli_glGenFramebuffers(gl, 1, &fbo->id);
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo->id);
 
-    int color_index = 0;
+    fbo->nb_color_attachments = 0;
     for (int i = 0; i < params->nb_attachments; i++) {
         const struct texture *attachment = params->attachments[i];
 
         GLenum attachment_index = get_gl_attachment_index(attachment->format);
         const int is_color_attachment = attachment_index == GL_COLOR_ATTACHMENT0;
         if (is_color_attachment) {
-            if (color_index >= gl->max_color_attachments) {
+            if (fbo->nb_color_attachments >= gl->max_color_attachments) {
                 LOG(ERROR, "could not attach color buffer %d (maximum %d)",
-                    color_index, gl->max_color_attachments);
+                    fbo->nb_color_attachments, gl->max_color_attachments);
                 goto done;
             }
-            attachment_index = attachment_index + color_index++;
+            attachment_index = attachment_index + fbo->nb_color_attachments++;
         }
 
         switch (attachment->target) {
@@ -110,7 +110,7 @@ int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params
         case GL_TEXTURE_CUBE_MAP:
             for (int face = 0; face < 6; face++)
                 ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, attachment->id, 0);
-            color_index += 5;
+            fbo->nb_color_attachments += 5;
             break;
         default:
             ngli_assert(0);
@@ -123,7 +123,7 @@ int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params
     }
 
     if (gl->features & NGLI_FEATURE_DRAW_BUFFERS) {
-        const int nb_draw_buffers = color_index;
+        const int nb_draw_buffers = fbo->nb_color_attachments;
         if (nb_draw_buffers > gl->max_draw_buffers) {
             LOG(ERROR, "draw buffer count (%d) exceeds driver limit (%d)",
                 nb_draw_buffers, gl->max_draw_buffers);

@@ -37,6 +37,7 @@ struct fbo {
     struct glcontext *gl;
     int width;
     int height;
+    int nb_color_attachments;
 
     GLuint id;
     GLuint prev_id;
