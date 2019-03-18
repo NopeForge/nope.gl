@@ -354,11 +354,14 @@ struct textureprograminfo {
     int ts_location;
 };
 
+typedef void (*nodeprograminfopair_handle_func)(struct glcontext *gl, GLint loc, void *priv);
+
 #define MAX_ID_LEN 128
 struct nodeprograminfopair {
     char name[MAX_ID_LEN];
     struct ngl_node *node;
     void *program_info;
+    nodeprograminfopair_handle_func handle;
 };
 
 struct pipeline {

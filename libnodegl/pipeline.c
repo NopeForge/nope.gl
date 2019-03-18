@@ -243,6 +243,66 @@ static int update_images_and_samplers(struct ngl_node *node)
     return 0;
 }
 
+static void set_uniform_1f(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct uniform_priv *u = priv;
+    ngli_glUniform1f(gl, loc, u->scalar);
+}
+
+static void set_uniform_2fv(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct uniform_priv *u = priv;
+    ngli_glUniform2fv(gl, loc, 1, u->vector);
+}
+
+static void set_uniform_3fv(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct uniform_priv *u = priv;
+    ngli_glUniform3fv(gl, loc, 1, u->vector);
+}
+
+static void set_uniform_4fv(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct uniform_priv *u = priv;
+    ngli_glUniform4fv(gl, loc, 1, u->vector);
+}
+
+static void set_uniform_1i(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct uniform_priv *u = priv;
+    ngli_glUniform1i(gl, loc, u->ival);
+}
+
+static void set_uniform_mat4fv(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct uniform_priv *u = priv;
+    ngli_glUniformMatrix4fv(gl, loc, 1, GL_FALSE, u->matrix);
+}
+
+static void set_uniform_buf1fv(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct buffer_priv *buffer = priv;
+    ngli_glUniform1fv(gl, loc, buffer->count, (const GLfloat *)buffer->data);
+}
+
+static void set_uniform_buf2fv(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct buffer_priv *buffer = priv;
+    ngli_glUniform2fv(gl, loc, buffer->count, (const GLfloat *)buffer->data);
+}
+
+static void set_uniform_buf3fv(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct buffer_priv *buffer = priv;
+    ngli_glUniform3fv(gl, loc, buffer->count, (const GLfloat *)buffer->data);
+}
+
+static void set_uniform_buf4fv(struct glcontext *gl, GLint loc, void *priv)
+{
+    const struct buffer_priv *buffer = priv;
+    ngli_glUniform4fv(gl, loc, buffer->count, (const GLfloat *)buffer->data);
+}
+
 static int update_uniforms(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -253,78 +313,10 @@ static int update_uniforms(struct ngl_node *node)
     const struct nodeprograminfopair *pairs = ngli_darray_data(uniform_pairs);
     for (int i = 0; i < ngli_darray_count(uniform_pairs); i++) {
         const struct nodeprograminfopair *pair = &pairs[i];
-        const struct uniformprograminfo *info = pair->program_info;
-        const GLint uid = info->location;
-        if (uid < 0)
-            continue;
         const struct ngl_node *unode = pair->node;
-        switch (unode->class->id) {
-        case NGL_NODE_UNIFORMFLOAT: {
-            const struct uniform_priv *u = unode->priv_data;
-            ngli_glUniform1f(gl, uid, u->scalar);
-            break;
-        }
-        case NGL_NODE_UNIFORMVEC2: {
-            const struct uniform_priv *u = unode->priv_data;
-            ngli_glUniform2fv(gl, uid, 1, u->vector);
-            break;
-        }
-        case NGL_NODE_UNIFORMVEC3: {
-            const struct uniform_priv *u = unode->priv_data;
-            ngli_glUniform3fv(gl, uid, 1, u->vector);
-            break;
-        }
-        case NGL_NODE_UNIFORMVEC4: {
-            const struct uniform_priv *u = unode->priv_data;
-            ngli_glUniform4fv(gl, uid, 1, u->vector);
-            break;
-        }
-        case NGL_NODE_UNIFORMINT: {
-            const struct uniform_priv *u = unode->priv_data;
-            ngli_glUniform1i(gl, uid, u->ival);
-            break;
-        }
-        case NGL_NODE_UNIFORMQUAT: {
-            const struct uniform_priv *u = unode->priv_data;
-            if (info->type == GL_FLOAT_MAT4)
-                ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
-            else if (info->type == GL_FLOAT_VEC4)
-                ngli_glUniform4fv(gl, uid, 1, u->vector);
-            else
-                LOG(ERROR,
-                    "quaternion uniform '%s' must be declared as vec4 or mat4 in the shader",
-                    pair->name);
-            break;
-        }
-        case NGL_NODE_UNIFORMMAT4: {
-            const struct uniform_priv *u = unode->priv_data;
-            ngli_glUniformMatrix4fv(gl, uid, 1, GL_FALSE, u->matrix);
-            break;
-        }
-        case NGL_NODE_BUFFERFLOAT: {
-            const struct buffer_priv *buffer = unode->priv_data;
-            ngli_glUniform1fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
-            break;
-        }
-        case NGL_NODE_BUFFERVEC2: {
-            const struct buffer_priv *buffer = unode->priv_data;
-            ngli_glUniform2fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
-            break;
-        }
-        case NGL_NODE_BUFFERVEC3: {
-            const struct buffer_priv *buffer = unode->priv_data;
-            ngli_glUniform3fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
-            break;
-        }
-        case NGL_NODE_BUFFERVEC4: {
-            const struct buffer_priv *buffer = unode->priv_data;
-            ngli_glUniform4fv(gl, uid, buffer->count, (const GLfloat *)buffer->data);
-            break;
-        }
-        default:
-            LOG(ERROR, "unsupported uniform of type %s", unode->class->name);
-            break;
-        }
+        const struct uniformprograminfo *info = pair->program_info;
+
+        pair->handle(gl, info->location, unode->priv_data);
     }
 
     return 0;
@@ -417,6 +409,102 @@ static int load_textureprograminfo(struct textureprograminfo *info,
     return 0;
 }
 
+struct handle_map {
+    GLenum uniform_type;
+    nodeprograminfopair_handle_func handle;
+};
+
+static const struct {
+    int class_id;
+    const struct handle_map *handles_map;
+} uniforms_specs[] = {
+    {
+        .class_id = NGL_NODE_UNIFORMFLOAT,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_1f},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_UNIFORMVEC2,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_2fv},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_UNIFORMVEC3,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_3fv},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_UNIFORMVEC4,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_4fv},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_UNIFORMMAT4,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_mat4fv},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_UNIFORMQUAT,
+        .handles_map = (const struct handle_map[]){
+            {GL_FLOAT_MAT4, set_uniform_mat4fv},
+            {GL_FLOAT_VEC4, set_uniform_4fv},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_UNIFORMINT,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_1i},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_BUFFERFLOAT,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_buf1fv},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_BUFFERVEC2,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_buf2fv},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_BUFFERVEC3,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_buf3fv},
+            {0},
+        },
+    }, {
+        .class_id = NGL_NODE_BUFFERVEC4,
+        .handles_map = (const struct handle_map[]){
+            {0, set_uniform_buf4fv},
+            {0},
+        },
+    },
+};
+
+static const struct handle_map *get_uniform_handle_map(int class_id)
+{
+    for (int i = 0; i < NGLI_ARRAY_NB(uniforms_specs); i++)
+        if (uniforms_specs[i].class_id == class_id)
+            return uniforms_specs[i].handles_map;
+    return NULL;
+}
+
+static nodeprograminfopair_handle_func get_uniform_pair_handle(int class_id, GLenum uniform_type)
+{
+    const struct handle_map *handle_map = get_uniform_handle_map(class_id);
+    for (int i = 0; handle_map[i].handle; i++)
+        if (!handle_map[i].uniform_type || handle_map[i].uniform_type == uniform_type)
+            return handle_map[i].handle;
+    return NULL;
+}
+
 int ngli_pipeline_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -439,10 +527,22 @@ int ngli_pipeline_init(struct ngl_node *node)
                 continue;
             }
 
+            if (active_uniform->location < 0)
+                continue;
+
+            struct ngl_node *unode = entry->data;
             struct nodeprograminfopair pair = {
-                .node = entry->data,
+                .node = unode,
                 .program_info = (void *)active_uniform,
             };
+
+            pair.handle = get_uniform_pair_handle(unode->class->id, active_uniform->type);
+            if (!pair.handle) {
+                LOG(ERROR, "%s set on %s.%s has not the expected type in the shader",
+                    unode->label, node->label, entry->key);
+                return -1;
+            }
+
             snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
             if (!ngli_darray_push(&s->uniform_pairs, &pair))
                 return -1;
