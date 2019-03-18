@@ -28,6 +28,7 @@
 #include "log.h"
 #include "memory.h"
 #include "texture.h"
+#include "utils.h"
 
 static GLenum get_gl_attachment_index(GLenum format)
 {
@@ -123,20 +124,19 @@ int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params
     }
 
     if (gl->features & NGLI_FEATURE_DRAW_BUFFERS) {
-        const int nb_draw_buffers = fbo->nb_color_attachments;
-        if (nb_draw_buffers > gl->max_draw_buffers) {
+        fbo->nb_draw_buffers = fbo->nb_color_attachments;
+        if (fbo->nb_draw_buffers > gl->max_draw_buffers) {
             LOG(ERROR, "draw buffer count (%d) exceeds driver limit (%d)",
-                nb_draw_buffers, gl->max_draw_buffers);
+                fbo->nb_draw_buffers, gl->max_draw_buffers);
             goto done;
         }
-        if (nb_draw_buffers > 1) {
-            GLenum *draw_buffers = ngli_calloc(nb_draw_buffers, sizeof(*draw_buffers));
-            if (!draw_buffers)
+        if (fbo->nb_draw_buffers > 1) {
+            fbo->draw_buffers = ngli_calloc(fbo->nb_draw_buffers, sizeof(*fbo->draw_buffers));
+            if (!fbo->draw_buffers)
                 goto done;
-            for (int i = 0; i < nb_draw_buffers; i++)
-                draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-            ngli_glDrawBuffers(gl, nb_draw_buffers, draw_buffers);
-            ngli_free(draw_buffers);
+            for (int i = 0; i < fbo->nb_draw_buffers; i++)
+                fbo->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+            ngli_glDrawBuffers(gl, fbo->nb_draw_buffers, fbo->draw_buffers);
         }
     }
 
@@ -217,6 +217,7 @@ void ngli_fbo_reset(struct fbo *fbo)
     ngli_glDeleteFramebuffers(gl, 1, &fbo->id);
 
     ngli_darray_reset(&fbo->depth_indices);
+    ngli_free(fbo->draw_buffers);
 
     memset(fbo, 0, sizeof(*fbo));
 }

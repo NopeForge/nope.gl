@@ -42,6 +42,8 @@ struct fbo {
     GLuint id;
     GLuint prev_id;
     struct darray depth_indices;
+    GLenum *draw_buffers;
+    int nb_draw_buffers;
 };
 
 int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params *params);
