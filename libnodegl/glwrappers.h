@@ -625,6 +625,12 @@ static inline void ngli_glPolygonMode(const struct glcontext *gl, GLenum face, G
     check_error_code(gl, "glPolygonMode");
 }
 
+static inline void ngli_glReadBuffer(const struct glcontext *gl, GLenum src)
+{
+    gl->funcs.ReadBuffer(src);
+    check_error_code(gl, "glReadBuffer");
+}
+
 static inline void ngli_glReadPixels(const struct glcontext *gl, GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void * pixels)
 {
     gl->funcs.ReadPixels(x, y, width, height, format, type, pixels);

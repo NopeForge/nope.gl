@@ -233,6 +233,8 @@ static const struct glfeature {
         .flag           = NGLI_FEATURE_DRAW_BUFFERS,
         .version        = 200,
         .es_version     = 300,
-        .funcs_offsets  = (const size_t[]){OFFSET(DrawBuffers), -1}
+        .funcs_offsets  = (const size_t[]){OFFSET(DrawBuffers),
+                                           OFFSET(ReadBuffer),
+                                           -1}
     }
 };

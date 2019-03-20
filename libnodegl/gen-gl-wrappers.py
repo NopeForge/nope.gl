@@ -100,7 +100,8 @@ cmds_optional = [
     'glWaitSync',
     'glClientWaitSync',
 
-    # Draw Buffer
+    # Read/Draw Buffer
+    'glReadBuffer',
     'glDrawBuffers',
 ]
 
