@@ -151,6 +151,7 @@ cmds = [
     'glDeleteTextures',
     'glGenTextures',
     'glGenerateMipmap',
+    'glPixelStorei',
     'glTexImage2D',
     'glTexParameteri',
     'glTexSubImage2D',

@@ -113,6 +113,7 @@ static const struct gldefinition {
     {"glInvalidateFramebuffer", offsetof(struct glfunctions, InvalidateFramebuffer), 0},
     {"glLinkProgram", offsetof(struct glfunctions, LinkProgram), M},
     {"glMemoryBarrier", offsetof(struct glfunctions, MemoryBarrier), 0},
+    {"glPixelStorei", offsetof(struct glfunctions, PixelStorei), M},
     {"glPolygonMode", offsetof(struct glfunctions, PolygonMode), 0},
     {"glReadBuffer", offsetof(struct glfunctions, ReadBuffer), 0},
     {"glReadPixels", offsetof(struct glfunctions, ReadPixels), M},

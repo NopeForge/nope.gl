@@ -619,6 +619,12 @@ static inline void ngli_glMemoryBarrier(const struct glcontext *gl, GLbitfield b
     check_error_code(gl, "glMemoryBarrier");
 }
 
+static inline void ngli_glPixelStorei(const struct glcontext *gl, GLenum pname, GLint param)
+{
+    gl->funcs.PixelStorei(pname, param);
+    check_error_code(gl, "glPixelStorei");
+}
+
 static inline void ngli_glPolygonMode(const struct glcontext *gl, GLenum face, GLenum mode)
 {
     gl->funcs.PolygonMode(face, mode);

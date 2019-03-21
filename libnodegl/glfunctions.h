@@ -112,6 +112,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*InvalidateFramebuffer)(GLenum target, GLsizei numAttachments, const GLenum * attachments);
     NGLI_GL_APIENTRY void (*LinkProgram)(GLuint program);
     NGLI_GL_APIENTRY void (*MemoryBarrier)(GLbitfield barriers);
+    NGLI_GL_APIENTRY void (*PixelStorei)(GLenum pname, GLint param);
     NGLI_GL_APIENTRY void (*PolygonMode)(GLenum face, GLenum mode);
     NGLI_GL_APIENTRY void (*ReadBuffer)(GLenum src);
     NGLI_GL_APIENTRY void (*ReadPixels)(GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void * pixels);
