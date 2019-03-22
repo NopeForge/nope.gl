@@ -55,7 +55,7 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
     struct texture_priv *s = node->priv_data;
 
     struct texture_params params = s->params;
-    params.width  = frame->linesize >> 2;
+    params.width  = frame->width;
     params.height = frame->height;
 
     params.format = common_get_data_format(frame->pix_fmt);
@@ -75,12 +75,8 @@ static int common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
     struct texture *texture = &s->texture;
-    struct image *image = &s->image;
 
-    const int linesize       = frame->linesize >> 2;
-    image->coordinates_matrix[0] = linesize ? frame->width / (float)linesize : 1.0;
-
-    if (!ngli_texture_match_dimensions(&s->texture, linesize, frame->height, 0)) {
+    if (!ngli_texture_match_dimensions(&s->texture, frame->width, frame->height, 0)) {
         ngli_texture_reset(texture);
 
         int ret = common_init(node, frame);
@@ -88,7 +84,8 @@ static int common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
             return ret;
     }
 
-    return ngli_texture_upload(texture, frame->data, 0);
+    const int linesize = frame->linesize >> 2;
+    return ngli_texture_upload(texture, frame->data, linesize);
 }
 
 static const struct hwmap_class hwmap_common_class = {
