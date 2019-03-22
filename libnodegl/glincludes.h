@@ -73,6 +73,7 @@ typedef void* GLeglImageOES;
 #endif
 
 #if NGL_GLES2_COMPAT_INCLUDES
+# define GL_UNPACK_ROW_LENGTH                  0x0CF2
 # define GL_MAX_DRAW_BUFFERS                   0x8824
 # define GL_MAX_SAMPLES                        0x8D57
 # define GL_MAX_COLOR_ATTACHMENTS              0x8CDF

@@ -53,6 +53,7 @@
 #define NGLI_FEATURE_TEXTURE_NPOT                 (1 << 24)
 #define NGLI_FEATURE_TEXTURE_CUBE_MAP             (1 << 25)
 #define NGLI_FEATURE_DRAW_BUFFERS                 (1 << 26)
+#define NGLI_FEATURE_ROW_LENGTH                   (1 << 27)
 
 #define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
                                          NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \
