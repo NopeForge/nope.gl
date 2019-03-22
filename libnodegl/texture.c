@@ -78,28 +78,48 @@ static void texture_set_image(struct texture *s, const uint8_t *data)
     }
 }
 
-static void texture_set_sub_image(struct texture *s, const uint8_t *data)
+static void texture2d_set_sub_image(struct texture *s, const uint8_t *data)
 {
     struct glcontext *gl = s->gl;
     const struct texture_params *params = &s->params;
 
+    ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, params->width, params->height, s->format, s->format_type, data);
+}
+
+static void texture3d_set_sub_image(struct texture *s, const uint8_t *data)
+{
+    struct glcontext *gl = s->gl;
+    const struct texture_params *params = &s->params;
+
+    ngli_glTexSubImage3D(gl, GL_TEXTURE_3D, 0, 0, 0, 0, params->width, params->height, params->depth, s->format, s->format_type, data);
+}
+
+static void texturecube_set_sub_image(struct texture *s, const uint8_t *data)
+{
+    struct glcontext *gl = s->gl;
+    const struct texture_params *params = &s->params;
+
+    const int face_size = data ? s->bytes_per_pixel * params->width * params->height : 0;
+    ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, 0, 0, params->width, params->height, s->format, s->format_type, data);
+    ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size);
+    ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size * 2);
+    ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size * 3);
+    ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size * 4);
+    ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size * 5);
+}
+
+static void texture_set_sub_image(struct texture *s, const uint8_t *data)
+{
     switch (s->target) {
     case GL_TEXTURE_2D:
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, 0, params->width, params->height, s->format, s->format_type, data);
+        texture2d_set_sub_image(s, data);
         break;
     case GL_TEXTURE_3D:
-        ngli_glTexSubImage3D(gl, GL_TEXTURE_3D, 0, 0, 0, 0, params->width, params->height, params->depth, s->format, s->format_type, data);
+        texture3d_set_sub_image(s, data);
         break;
-    case GL_TEXTURE_CUBE_MAP: {
-        const int face_size = data ? s->bytes_per_pixel * params->width * params->height : 0;
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, 0, 0, params->width, params->height, s->format, s->format_type, data);
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size);
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size * 2);
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size * 3);
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size * 4);
-        ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, 0, 0, params->width, params->height, s->format, s->format_type, data + face_size * 5);
+    case GL_TEXTURE_CUBE_MAP:
+        texturecube_set_sub_image(s, data);
         break;
-    }
     }
 }
 
