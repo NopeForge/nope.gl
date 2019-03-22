@@ -88,7 +88,7 @@ static int common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
             return ret;
     }
 
-    return ngli_texture_upload(texture, frame->data);
+    return ngli_texture_upload(texture, frame->data, 0);
 }
 
 static const struct hwmap_class hwmap_common_class = {

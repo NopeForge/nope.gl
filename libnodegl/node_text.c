@@ -289,7 +289,7 @@ static int text_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    return ngli_texture_upload(&s->texture, s->canvas.buf);
+    return ngli_texture_upload(&s->texture, s->canvas.buf, 0);
 }
 
 static void text_draw(struct ngl_node *node)

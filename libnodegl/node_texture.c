@@ -298,7 +298,7 @@ static int texture_prefetch(struct ngl_node *node, int dimensions, int cubemap)
     if (ret < 0)
         return ret;
 
-    ret = ngli_texture_upload(&s->texture, data);
+    ret = ngli_texture_upload(&s->texture, data, 0);
     if (ret < 0)
         return ret;
 
@@ -327,7 +327,7 @@ static void handle_hud_frame(struct ngl_node *node)
     params->width = hud->canvas.w;
     params->height = hud->canvas.h;
 
-    ngli_texture_upload(&s->texture, data);
+    ngli_texture_upload(&s->texture, data, 0);
 }
 
 static void handle_media_frame(struct ngl_node *node)
@@ -344,7 +344,7 @@ static void handle_buffer_frame(struct ngl_node *node)
     const uint8_t *data = buffer->data;
     struct texture *t = &s->texture;
 
-    ngli_texture_upload(t, data);
+    ngli_texture_upload(t, data, 0);
 }
 
 static int texture_update(struct ngl_node *node, double t)
