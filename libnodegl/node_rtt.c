@@ -38,8 +38,8 @@
 static const struct param_choices feature_choices = {
     .name = "framebuffer_features",
     .consts = {
-        {"depth",   FEATURE_DEPTH,   .desc=NGLI_DOCSTRING("depth")},
-        {"stencil", FEATURE_STENCIL, .desc=NGLI_DOCSTRING("stencil")},
+        {"depth",   FEATURE_DEPTH,   .desc=NGLI_DOCSTRING("add depth buffer")},
+        {"stencil", FEATURE_STENCIL, .desc=NGLI_DOCSTRING("add stencil buffer")},
         {"no_clear",FEATURE_NO_CLEAR,.desc=NGLI_DOCSTRING("not cleared between draws (non-deterministic)")},
         {NULL}
     }
