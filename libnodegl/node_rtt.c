@@ -162,8 +162,6 @@ static int rtt_prefetch(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct rtt_priv *s = node->priv_data;
-    struct texture_priv *depth_texture_priv = NULL;
-    struct texture_params *depth_texture_params = NULL;
 
     if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) && s->samples > 0) {
         LOG(WARNING, "context does not support the framebuffer object feature, "
@@ -191,8 +189,8 @@ static int rtt_prefetch(struct ngl_node *node)
     }
 
     if (s->depth_texture) {
-        depth_texture_priv = s->depth_texture->priv_data;
-        depth_texture_params = &depth_texture_priv->params;
+        const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
+        const struct texture_params *depth_texture_params = &depth_texture_priv->params;
         if (s->width != depth_texture_params->width || s->height != depth_texture_params->height) {
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
                 s->width, s->height, depth_texture_params->width, depth_texture_params->height);
@@ -214,8 +212,10 @@ static int rtt_prefetch(struct ngl_node *node)
     }
 
     int depth_format = NGLI_FORMAT_UNDEFINED;
-    if (depth_texture_priv) {
-        struct texture *dt = &depth_texture_priv->texture;
+    if (s->depth_texture) {
+        const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
+        const struct texture_params *depth_texture_params = &depth_texture_priv->params;
+        const struct texture *dt = &depth_texture_priv->texture;
         depth_format = depth_texture_params->format;
         if (!ngli_darray_push(&attachments, &dt))
             goto error;
@@ -262,7 +262,8 @@ static int rtt_prefetch(struct ngl_node *node)
             image->coordinates_matrix[13] = 1.0f;
         }
 
-        if (depth_texture_priv) {
+        if (s->depth_texture) {
+            struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
             struct image *depth_image = &depth_texture_priv->image;
             depth_image->coordinates_matrix[5] = -1.0f;
             depth_image->coordinates_matrix[13] = 1.0f;
