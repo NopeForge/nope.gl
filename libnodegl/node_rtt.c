@@ -190,7 +190,8 @@ static int rtt_prefetch(struct ngl_node *node)
 
     if (s->depth_texture) {
         const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
-        const struct texture_params *depth_texture_params = &depth_texture_priv->params;
+        const struct texture *depth_texture = &depth_texture_priv->texture;
+        const struct texture_params *depth_texture_params = &depth_texture->params;
         if (s->width != depth_texture_params->width || s->height != depth_texture_params->height) {
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
                 s->width, s->height, depth_texture_params->width, depth_texture_params->height);
@@ -214,8 +215,8 @@ static int rtt_prefetch(struct ngl_node *node)
     int depth_format = NGLI_FORMAT_UNDEFINED;
     if (s->depth_texture) {
         const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
-        const struct texture_params *depth_texture_params = &depth_texture_priv->params;
         const struct texture *depth_texture = &depth_texture_priv->texture;
+        const struct texture_params *depth_texture_params = &depth_texture->params;
         depth_format = depth_texture_params->format;
         if (!ngli_darray_push(&attachments, &depth_texture))
             goto error;
