@@ -84,6 +84,22 @@ static int rtt_init(struct ngl_node *node)
 {
     struct rtt_priv *s = node->priv_data;
 
+    for (int i = 0; i < s->nb_color_textures; i++) {
+        const struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
+        if (texture_priv->data_src) {
+            LOG(ERROR, "render targets cannot have a data source");
+            return -1;
+        }
+    }
+
+    if (s->depth_texture) {
+        const struct texture_priv *texture_priv = s->depth_texture->priv_data;
+        if (texture_priv->data_src) {
+            LOG(ERROR, "render targets cannot have a data source");
+            return -1;
+        }
+    }
+
     static const float clear_color[4] = DEFAULT_CLEAR_COLOR;
     s->use_clear_color = memcmp(s->clear_color, clear_color, sizeof(s->clear_color));
 
