@@ -358,18 +358,6 @@ static void rtt_draw(struct ngl_node *node)
         struct texture *texture = &texture_priv->texture;
         if (ngli_texture_has_mipmap(texture))
             ngli_texture_generate_mipmap(texture);
-        if (s->vflip) {
-            struct image *image = &texture_priv->image;
-            image->coordinates_matrix[5] = -1.0f;
-            image->coordinates_matrix[13] = 1.0f;
-        }
-    }
-
-    if (s->depth_texture && s->vflip) {
-        struct texture_priv *depth_texture = s->depth_texture->priv_data;
-        struct image *depth_image = &depth_texture->image;
-        depth_image->coordinates_matrix[5] = -1.0f;
-        depth_image->coordinates_matrix[13] = 1.0f;
     }
 }
 
