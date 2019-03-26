@@ -228,8 +228,6 @@ static int rtt_prefetch(struct ngl_node *node)
     if (depth_texture) {
         struct texture *dt = &depth_texture->texture;
         depth_format = depth_texture_params->format;
-        s->features |= FEATURE_DEPTH;
-        s->features |= has_stencil(depth_format) ? FEATURE_STENCIL : 0;
         if (!ngli_darray_push(&attachments, &dt))
             goto error;
     } else {
