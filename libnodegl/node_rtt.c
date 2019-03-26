@@ -215,9 +215,9 @@ static int rtt_prefetch(struct ngl_node *node)
     if (s->depth_texture) {
         const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
         const struct texture_params *depth_texture_params = &depth_texture_priv->params;
-        const struct texture *dt = &depth_texture_priv->texture;
+        const struct texture *depth_texture = &depth_texture_priv->texture;
         depth_format = depth_texture_params->format;
-        if (!ngli_darray_push(&attachments, &dt))
+        if (!ngli_darray_push(&attachments, &depth_texture))
             goto error;
     } else {
         if (s->features & FEATURE_STENCIL)
