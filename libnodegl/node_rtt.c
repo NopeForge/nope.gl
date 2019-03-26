@@ -69,17 +69,6 @@ static const struct node_param rtt_params[] = {
     {NULL}
 };
 
-static int has_stencil(int format)
-{
-    switch (format) {
-    case NGLI_FORMAT_D24_UNORM_S8_UINT:
-    case NGLI_FORMAT_D32_SFLOAT_S8_UINT:
-        return 1;
-    default:
-        return 0;
-    }
-}
-
 static int rtt_init(struct ngl_node *node)
 {
     struct rtt_priv *s = node->priv_data;
