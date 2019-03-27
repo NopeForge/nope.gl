@@ -333,7 +333,7 @@ static int set_buffers(struct ngl_node *node)
     for (int i = 0; i < ngli_darray_count(buffer_pairs); i++) {
         const struct nodeprograminfopair *pair = &pairs[i];
         const struct ngl_node *bnode = pair->node;
-        const struct buffer_priv *buffer = bnode->priv_data;
+        const struct block_priv *buffer = bnode->priv_data;
         const struct bufferprograminfo *info = pair->program_info;
 
         ngli_glBindBufferBase(gl, info->type, info->binding, buffer->buffer.id);
@@ -634,9 +634,7 @@ static int build_buffer_pairs(struct ngl_node *node)
     struct pipeline *s = get_pipeline(node);
     struct program_priv *program = s->program->priv_data;
 
-    if (!(s->buffers &&
-          gl->features & (NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT |
-                          NGLI_FEATURE_UNIFORM_BUFFER_OBJECT)))
+    if (!s->buffers)
         return 0;
 
     ngli_darray_init(&s->buffer_pairs, sizeof(struct nodeprograminfopair), 0);
@@ -652,16 +650,16 @@ static int build_buffer_pairs(struct ngl_node *node)
         }
 
         struct ngl_node *bnode = entry->data;
-        struct buffer_priv *buffer = bnode->priv_data;
+        struct block_priv *block = bnode->priv_data;
 
         if (info->type == GL_UNIFORM_BUFFER &&
-            buffer->data_size > gl->max_uniform_block_size) {
-            LOG(ERROR, "buffer %s size (%d) exceeds max uniform block size (%d)",
-                bnode->label, buffer->data_size, gl->max_uniform_block_size);
+            block->data_size > gl->max_uniform_block_size) {
+            LOG(ERROR, "block %s size (%d) exceeds max uniform block size (%d)",
+                bnode->label, block->data_size, gl->max_uniform_block_size);
             return -1;
         }
 
-        int ret = ngli_node_buffer_ref(bnode);
+        int ret = ngli_node_block_ref(bnode);
         if (ret < 0)
             return ret;
 
@@ -671,7 +669,7 @@ static int build_buffer_pairs(struct ngl_node *node)
         };
         snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
         if (!ngli_darray_push(&s->buffer_pairs, &pair)) {
-            ngli_node_buffer_unref(bnode);
+            ngli_node_block_unref(bnode);
             return -1;
         }
     }
@@ -703,7 +701,8 @@ void ngli_pipeline_uninit(struct ngl_node *node)
     struct nodeprograminfopair *pairs = ngli_darray_data(buffer_pairs);
     for (int i = 0; i < ngli_darray_count(buffer_pairs); i++) {
         struct nodeprograminfopair *pair = &pairs[i];
-        ngli_node_buffer_unref(pair->node);
+        struct ngl_node *bnode = pair->node;
+        ngli_node_block_unref(bnode);
     }
     ngli_darray_reset(&s->buffer_pairs);
 }
@@ -740,7 +739,7 @@ int ngli_pipeline_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(bnode, t);
         if (ret < 0)
             return ret;
-        ret = ngli_node_buffer_upload(bnode);
+        ret = ngli_node_block_upload(bnode);
         if (ret < 0)
             return ret;
     }

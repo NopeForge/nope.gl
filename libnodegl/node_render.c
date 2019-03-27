@@ -68,19 +68,7 @@
                                           NGL_NODE_TRIANGLE,        \
                                           -1}
 
-#define BUFFERS_TYPES_LIST (const int[]){NGL_NODE_BUFFERFLOAT,      \
-                                         NGL_NODE_BUFFERVEC2,       \
-                                         NGL_NODE_BUFFERVEC3,       \
-                                         NGL_NODE_BUFFERVEC4,       \
-                                         NGL_NODE_BUFFERINT,        \
-                                         NGL_NODE_BUFFERIVEC2,      \
-                                         NGL_NODE_BUFFERIVEC3,      \
-                                         NGL_NODE_BUFFERIVEC4,      \
-                                         NGL_NODE_BUFFERUINT,       \
-                                         NGL_NODE_BUFFERUIVEC2,     \
-                                         NGL_NODE_BUFFERUIVEC3,     \
-                                         NGL_NODE_BUFFERUIVEC4,     \
-                                         -1}
+#define BUFFERS_TYPES_LIST (const int[]){NGL_NODE_BLOCK, -1}
 
 #define OFFSET(x) offsetof(struct render_priv, x)
 static const struct node_param render_params[] = {

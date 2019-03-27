@@ -256,7 +256,6 @@ def particules(cfg, particules=32):
             random.uniform(-1.0, 1.0),
             random.uniform(0.0, 1.0),
             0.0,
-            0.0,
         ])
 
         velocities.extend([
@@ -264,14 +263,9 @@ def particules(cfg, particules=32):
             random.uniform(-0.05, 0.05),
         ])
 
-    ipositions = ngl.BufferVec3()
-    ipositions.set_data(positions)
-    ipositions.set_stride(4 * 4)
-    ivelocities = ngl.BufferVec2()
-    ivelocities.set_data(velocities)
-
-    opositions = ngl.BufferVec3(p)
-    opositions.set_stride(4 * 4)
+    ipositions = ngl.Block(fields=[ngl.BufferVec3(data=positions)], layout='std430')
+    ivelocities = ngl.Block(fields=[ngl.BufferVec2(data=velocities)], layout='std430')
+    opositions = ngl.Block(fields=[ngl.BufferVec3(count=p)], layout='std430')
 
     animkf = [ngl.AnimKeyFrameFloat(0, 0),
               ngl.AnimKeyFrameFloat(cfg.duration, 1)]
@@ -493,7 +487,15 @@ def histogram(cfg):
 
     m = ngl.Media(cfg.medias[0].filename)
     t = ngl.Texture2D(data_src=m)
-    h = ngl.BufferUIVec4(256 + 1)
+
+    h = ngl.Block(label='histogram_block', layout='std430')
+    h.add_fields(
+        ngl.BufferUInt(256, label='r'),
+        ngl.BufferUInt(256, label='g'),
+        ngl.BufferUInt(256, label='b'),
+        ngl.BufferUInt(256, label='a'),
+        ngl.UniformInt(label='maximum'),
+    )
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     r = ngl.Render(q)
