@@ -32,31 +32,6 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-static const struct param_choices usage_choices = {
-    .name = "buffer_usage",
-    .consts = {
-        {"stream_draw",  GL_STREAM_DRAW,  .desc=NGLI_DOCSTRING("modified once by the application "
-                                                               "and used at most a few times as a source for drawing")},
-        {"stream_read",  GL_STREAM_READ,  .desc=NGLI_DOCSTRING("modified once by reading data from the graphic pipeline "
-                                                               "and used at most a few times to return the data to the application")},
-        {"stream_copy",  GL_STREAM_COPY,  .desc=NGLI_DOCSTRING("modified once by reading data from the graphic pipeline "
-                                                               "and used at most a few times as a source for drawing")},
-        {"static_draw",  GL_STATIC_DRAW,  .desc=NGLI_DOCSTRING("modified once by the application "
-                                                               "and used many times as a source for drawing")},
-        {"static_read",  GL_STATIC_READ,  .desc=NGLI_DOCSTRING("modified once by reading data from the graphic pipeline "
-                                                               "and used many times to return the data to the application")},
-        {"static_copy",  GL_STATIC_COPY,  .desc=NGLI_DOCSTRING("modified once by reading data from the graphic pipeline "
-                                                               "and used at most a few times a source for drawing")},
-        {"dynamic_draw", GL_DYNAMIC_DRAW, .desc=NGLI_DOCSTRING("modified repeatedly by the application "
-                                                               "and used many times as a source for drawing")},
-        {"dynamic_read", GL_DYNAMIC_READ, .desc=NGLI_DOCSTRING("modified repeatedly by reading data from the graphic pipeline "
-                                                               "and used many times to return data to the application")},
-        {"dynamic_copy", GL_DYNAMIC_COPY, .desc=NGLI_DOCSTRING("modified repeatedly by reading data from the graphic pipeline "
-                                                               "and used many times as a source for drawing")},
-        {NULL}
-    }
-};
-
 #define OFFSET(x) offsetof(struct buffer_priv, x)
 static const struct node_param buffer_params[] = {
     {"count",  PARAM_TYPE_INT,    OFFSET(count),
@@ -67,9 +42,6 @@ static const struct node_param buffer_params[] = {
                .desc=NGLI_DOCSTRING("filename from which the buffer will be read, cannot be used with `data`")},
     {"stride", PARAM_TYPE_INT,    OFFSET(data_stride),
                .desc=NGLI_DOCSTRING("stride of 1 element, in bytes")},
-    {"usage",  PARAM_TYPE_SELECT, OFFSET(usage),  {.i64=GL_STATIC_DRAW},
-               .desc=NGLI_DOCSTRING("buffer usage hint"),
-               .choices=&usage_choices},
     {NULL}
 };
 
@@ -241,6 +213,7 @@ static int buffer_init(struct ngl_node *node)
         ngli_assert(0);
     }
 
+    s->usage = GL_STATIC_DRAW;
     s->data_comp = nb_comp;
     s->data_format = format;
 

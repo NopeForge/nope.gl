@@ -165,7 +165,6 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `data` |  |  | [`data`](#parameter-types) | buffer of `count` elements | 
 `filename` |  |  | [`string`](#parameter-types) | filename from which the buffer will be read, cannot be used with `data` | 
 `stride` |  |  | [`int`](#parameter-types) | stride of 1 element, in bytes | `0`
-`usage` |  |  | [`buffer_usage`](#buffer_usage-choices) | buffer usage hint | `static_draw`
 
 
 **Source**: [node_buffer.c](/libnodegl/node_buffer.c)
@@ -758,20 +757,6 @@ Constant | Description
 `back_out` | overstep target value and smoothly converge back to it
 `back_in_out` | combination of `back_in` then `back_out`
 `back_out_in` | combination of `back_out` then `back_in`
-
-## buffer_usage choices
-
-Constant | Description
--------- | -----------
-`stream_draw` | modified once by the application and used at most a few times as a source for drawing
-`stream_read` | modified once by reading data from the graphic pipeline and used at most a few times to return the data to the application
-`stream_copy` | modified once by reading data from the graphic pipeline and used at most a few times as a source for drawing
-`static_draw` | modified once by the application and used many times as a source for drawing
-`static_read` | modified once by reading data from the graphic pipeline and used many times to return the data to the application
-`static_copy` | modified once by reading data from the graphic pipeline and used at most a few times a source for drawing
-`dynamic_draw` | modified repeatedly by the application and used many times as a source for drawing
-`dynamic_read` | modified repeatedly by reading data from the graphic pipeline and used many times to return data to the application
-`dynamic_copy` | modified repeatedly by reading data from the graphic pipeline and used many times as a source for drawing
 
 ## topology choices
 

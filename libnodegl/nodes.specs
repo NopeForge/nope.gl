@@ -104,7 +104,6 @@
         - [data, data]
         - [filename, string]
         - [stride, int]
-        - [usage, select]
 
 - BufferByte: _Buffer
 
