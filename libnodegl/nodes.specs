@@ -200,7 +200,7 @@
     optional:
         - [textures, NodeDict]
         - [uniforms, NodeDict]
-        - [buffers, NodeDict]
+        - [blocks, NodeDict]
 
 - ComputeProgram:
     constructors:
@@ -291,7 +291,7 @@
         - [program, Node]
         - [textures, NodeDict]
         - [uniforms, NodeDict]
-        - [buffers, NodeDict]
+        - [blocks, NodeDict]
         - [attributes, NodeDict]
         - [instance_attributes, NodeDict]
         - [nb_instances, int]

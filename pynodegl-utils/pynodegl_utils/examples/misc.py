@@ -279,7 +279,7 @@ def particules(cfg, particules=32):
         time=utime,
         duration=uduration,
     )
-    c.update_buffers(
+    c.update_blocks(
         ipositions_buffer=ipositions,
         ivelocities_buffer=ivelocities,
         opositions_buffer=opositions,
@@ -297,7 +297,7 @@ def particules(cfg, particules=32):
     )
     r = ngl.Render(quad, p, nb_instances=particules)
     r.update_uniforms(color=ngl.UniformVec4(value=(0, .6, .8, .9)))
-    r.update_buffers(positions_buffer=opositions)
+    r.update_blocks(positions_buffer=opositions)
 
     r = ngl.GraphicConfig(r,
                           blend=True,
@@ -513,7 +513,7 @@ def histogram(cfg):
 
     compute_program = ngl.ComputeProgram(shader_header + cfg.get_comp('histogram-clear'))
     compute = ngl.Compute(256, 1, 1, compute_program, label='histogram-clear')
-    compute.update_buffers(histogram_buffer=h)
+    compute.update_blocks(histogram_buffer=h)
     g.add_children(compute)
 
     local_size = 8
@@ -521,7 +521,7 @@ def histogram(cfg):
     compute_shader = cfg.get_comp('histogram-exec') % {'local_size': local_size}
     compute_program = ngl.ComputeProgram(shader_header + compute_shader)
     compute = ngl.Compute(group_size, group_size, 1, compute_program, label='histogram-exec')
-    compute.update_buffers(histogram_buffer=h)
+    compute.update_blocks(histogram_buffer=h)
     compute.update_textures(source=proxy)
     g.add_children(compute)
 
@@ -530,7 +530,7 @@ def histogram(cfg):
                     fragment=shader_header + cfg.get_frag('histogram-display'))
     render = ngl.Render(q, p)
     render.update_textures(tex0=t)
-    render.update_buffers(histogram_buffer=h)
+    render.update_blocks(histogram_buffer=h)
     g.add_children(render)
 
     return g

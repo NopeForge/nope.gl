@@ -47,8 +47,6 @@
                                           NGL_NODE_UNIFORMMAT4,     \
                                           -1}
 
-#define BUFFERS_TYPES_LIST (const int[]){NGL_NODE_BLOCK, -1}
-
 #define OFFSET(x) offsetof(struct compute_priv, x)
 static const struct node_param compute_params[] = {
     {"nb_group_x", PARAM_TYPE_INT,      OFFSET(nb_group_x), .flags=PARAM_FLAG_CONSTRUCTOR,
@@ -63,8 +61,8 @@ static const struct node_param compute_params[] = {
                    .desc=NGLI_DOCSTRING("input and output textures made accessible to the compute `program`")},
     {"uniforms",   PARAM_TYPE_NODEDICT, OFFSET(pipeline.uniforms),   .node_types=UNIFORMS_TYPES_LIST,
                    .desc=NGLI_DOCSTRING("uniforms made accessible to the compute `program`")},
-    {"buffers",    PARAM_TYPE_NODEDICT, OFFSET(pipeline.buffers),    .node_types=BUFFERS_TYPES_LIST,
-                   .desc=NGLI_DOCSTRING("input and output buffers made accessible to the compute `program`")},
+    {"blocks",     PARAM_TYPE_NODEDICT, OFFSET(pipeline.buffers),    .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+                   .desc=NGLI_DOCSTRING("input and output blocks made accessible to the compute `program`")},
     {NULL}
 };
 

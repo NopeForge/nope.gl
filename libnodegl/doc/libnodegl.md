@@ -256,7 +256,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `program` | ✓ |  | [`Node`](#parameter-types) ([ComputeProgram](#computeprogram)) | compute program to be executed | 
 `textures` |  |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d)) | input and output textures made accessible to the compute `program` | 
 `uniforms` |  |  | [`NodeDict`](#parameter-types) ([UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) | uniforms made accessible to the compute `program` | 
-`buffers` |  |  | [`NodeDict`](#parameter-types) ([Block](#block)) | input and output buffers made accessible to the compute `program` | 
+`blocks` |  |  | [`NodeDict`](#parameter-types) ([Block](#block)) | input and output blocks made accessible to the compute `program` | 
 
 
 **Source**: [node_compute.c](/libnodegl/node_compute.c)
@@ -399,7 +399,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `program` |  |  | [`Node`](#parameter-types) ([Program](#program)) | program to be executed | 
 `textures` |  |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d), [TextureCube](#texturecube)) | textures made accessible to the `program` | 
 `uniforms` |  |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) | uniforms made accessible to the `program` | 
-`buffers` |  |  | [`NodeDict`](#parameter-types) ([Block](#block)) | buffers made accessible to the `program` | 
+`blocks` |  |  | [`NodeDict`](#parameter-types) ([Block](#block)) | blocks made accessible to the `program` | 
 `attributes` |  |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | extra vertex attributes made accessible to the `program` | 
 `instance_attributes` |  |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | per instance extra vertex attributes made accessible to the `program` | 
 `nb_instances` |  |  | [`int`](#parameter-types) | number of instances to draw | `0`
