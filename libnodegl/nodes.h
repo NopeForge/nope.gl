@@ -272,6 +272,29 @@ struct uniform_priv {
     int live_changed;
 };
 
+struct field_info;
+
+struct block_priv {
+    struct ngl_node **fields;
+    int nb_fields;
+    int layout;
+
+    struct field_info *field_info;
+    int nb_field_info;
+    uint8_t *data;
+    int data_size;
+    int usage;
+
+    struct buffer buffer;
+    int buffer_refcount;
+    int has_changed;
+    double buffer_last_upload_time;
+};
+
+int ngli_node_block_ref(struct ngl_node *node);
+void ngli_node_block_unref(struct ngl_node *node);
+int ngli_node_block_upload(struct ngl_node *node);
+
 struct rtt_priv {
     struct ngl_node *child;
     struct ngl_node **color_textures;

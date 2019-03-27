@@ -157,6 +157,17 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
 
 
+## Block
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`fields` |  |  | [`NodeList`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferMat4](#buffer), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4)) | block fields defined in the graphic program | 
+`layout` |  |  | [`memory_layout`](#memory_layout-choices) | memory layout set in the graphic program | `std140`
+
+
+**Source**: [node_block.c](/libnodegl/node_block.c)
+
+
 ## Buffer*
 
 Parameter | Ctor. | Live-chg. | Type | Description | Default
@@ -758,6 +769,13 @@ Constant | Description
 `back_out` | overstep target value and smoothly converge back to it
 `back_in_out` | combination of `back_in` then `back_out`
 `back_out_in` | combination of `back_out` then `back_in`
+
+## memory_layout choices
+
+Constant | Description
+-------- | -----------
+`std140` | standard uniform block memory layout 140
+`std430` | standard uniform block memory layout 430
 
 ## topology choices
 

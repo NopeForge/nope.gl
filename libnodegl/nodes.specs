@@ -98,6 +98,11 @@
         - [easing_start_offset, double]
         - [easing_end_offset, double]
 
+- Block:
+    optional:
+        - [fields, NodeList]
+        - [layout, select]
+
 - _Buffer:
     optional:
         - [count, int]

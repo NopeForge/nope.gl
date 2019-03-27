@@ -104,6 +104,7 @@ struct ngl_node;
 #define NGL_NODE_ANIMKEYFRAMEVEC3       NGLI_FOURCC('A','K','F','3')
 #define NGL_NODE_ANIMKEYFRAMEVEC4       NGLI_FOURCC('A','K','F','4')
 #define NGL_NODE_ANIMKEYFRAMEQUAT       NGLI_FOURCC('A','K','F','Q')
+#define NGL_NODE_BLOCK                  NGLI_FOURCC('B','l','c','k')
 #define NGL_NODE_BUFFERBYTE             NGLI_FOURCC('B','s','b','1')
 #define NGL_NODE_BUFFERBVEC2            NGLI_FOURCC('B','s','b','2')
 #define NGL_NODE_BUFFERBVEC3            NGLI_FOURCC('B','s','b','3')
