@@ -61,7 +61,7 @@ static const struct node_param compute_params[] = {
                    .desc=NGLI_DOCSTRING("input and output textures made accessible to the compute `program`")},
     {"uniforms",   PARAM_TYPE_NODEDICT, OFFSET(pipeline.uniforms),   .node_types=UNIFORMS_TYPES_LIST,
                    .desc=NGLI_DOCSTRING("uniforms made accessible to the compute `program`")},
-    {"blocks",     PARAM_TYPE_NODEDICT, OFFSET(pipeline.buffers),    .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+    {"blocks",     PARAM_TYPE_NODEDICT, OFFSET(pipeline.blocks),     .node_types=(const int[]){NGL_NODE_BLOCK, -1},
                    .desc=NGLI_DOCSTRING("input and output blocks made accessible to the compute `program`")},
     {NULL}
 };

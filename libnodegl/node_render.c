@@ -82,7 +82,7 @@ static const struct node_param render_params[] = {
     {"uniforms", PARAM_TYPE_NODEDICT, OFFSET(pipeline.uniforms),
                  .node_types=UNIFORMS_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("uniforms made accessible to the `program`")},
-    {"blocks",  PARAM_TYPE_NODEDICT, OFFSET(pipeline.buffers),
+    {"blocks",  PARAM_TYPE_NODEDICT, OFFSET(pipeline.blocks),
                  .node_types=(const int[]){NGL_NODE_BLOCK, -1},
                  .desc=NGLI_DOCSTRING("blocks made accessible to the `program`")},
     {"attributes", PARAM_TYPE_NODEDICT, OFFSET(attributes),

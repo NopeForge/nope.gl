@@ -205,7 +205,7 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glc
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
     for (int i = 0; i < nb_active_uniform_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
-        struct bufferprograminfo *info = ngli_malloc(sizeof(*info));
+        struct blockprograminfo *info = ngli_malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&bmap);
             return NULL;
@@ -237,7 +237,7 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glc
                                  GL_ACTIVE_RESOURCES, &nb_active_buffers);
     for (int i = 0; i < nb_active_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
-        struct bufferprograminfo *info = ngli_malloc(sizeof(*info));
+        struct blockprograminfo *info = ngli_malloc(sizeof(*info));
         if (!info) {
             ngli_hmap_freep(&bmap);
             return NULL;

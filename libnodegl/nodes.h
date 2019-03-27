@@ -356,7 +356,7 @@ struct attributeprograminfo {
     GLenum type;
 };
 
-struct bufferprograminfo {
+struct blockprograminfo {
     GLint binding;
     GLenum type;
 };
@@ -404,8 +404,8 @@ struct pipeline {
     struct hmap *uniforms;
     struct darray uniform_pairs; // nodeprograminfopair (uniform, uniformprograminfo)
 
-    struct hmap *buffers;
-    struct darray buffer_pairs; // nodeprograminfopair (buffer, uniformprograminfo)
+    struct hmap *blocks;
+    struct darray block_pairs; // nodeprograminfopair (block, uniformprograminfo)
 };
 
 struct render_priv {
