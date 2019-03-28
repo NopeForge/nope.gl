@@ -165,6 +165,10 @@ struct graphicconfig_priv {
     int cull_face;
     int cull_face_mode;
 
+    int scissor_test;
+    float scissor[4];
+    int use_scissor;
+
     struct glstate state;
 };
 

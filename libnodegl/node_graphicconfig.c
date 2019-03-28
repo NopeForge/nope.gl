@@ -28,6 +28,8 @@
 #include "nodes.h"
 #include "utils.h"
 
+#define DEFAULT_SCISSOR {-1.0f, -1.0f, -1.0f, -1.0f}
+
 static const struct param_choices blend_factor_choices = {
     .name = "blend_factor",
     .consts = {
@@ -170,8 +172,22 @@ static const struct node_param graphicconfig_params[] = {
     {"cull_face_mode",     PARAM_TYPE_FLAGS,  OFFSET(cull_face_mode),     {.i64=-1},
                            .choices=&cull_face_choices,
                            .desc=NGLI_DOCSTRING("face culling mode")},
+    {"scissor_test",       PARAM_TYPE_BOOL,   OFFSET(scissor_test),       {.i64=-1},
+                           .desc=NGLI_DOCSTRING("enable scissor testing")},
+    {"scissor",            PARAM_TYPE_VEC4, OFFSET(scissor), {.vec=DEFAULT_SCISSOR},
+                           .desc=NGLI_DOCSTRING("define an area where all pixels outside are discarded")},
     {NULL}
 };
+
+static int graphicconfig_init(struct ngl_node *node)
+{
+    struct graphicconfig_priv *s = node->priv_data;
+
+    static const float default_scissor[4] = DEFAULT_SCISSOR;
+    s->use_scissor = memcmp(s->scissor, default_scissor, sizeof(s->scissor));
+
+    return 0;
+}
 
 static int graphicconfig_update(struct ngl_node *node, double t)
 {
@@ -229,6 +245,12 @@ static void honor_config(struct ngl_node *node, int restore)
             pending->cull_face_mode = s->cull_face_mode == (1<<0) ? GL_FRONT
                                     : s->cull_face_mode == (1<<1) ? GL_BACK
                                     : GL_FRONT_AND_BACK;
+
+        COPY_PARAM(scissor_test);
+        if (s->use_scissor) {
+            for (int i = 0; i < 4; i++)
+                pending->scissor[i] = s->scissor[i];
+        }
     }
 }
 
@@ -245,6 +267,7 @@ static void graphicconfig_draw(struct ngl_node *node)
 const struct node_class ngli_graphicconfig_class = {
     .id        = NGL_NODE_GRAPHICCONFIG,
     .name      = "GraphicConfig",
+    .init      = graphicconfig_init,
     .update    = graphicconfig_update,
     .draw      = graphicconfig_draw,
     .priv_size = sizeof(struct graphicconfig_priv),

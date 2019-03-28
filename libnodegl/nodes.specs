@@ -241,6 +241,8 @@
         - [stencil_depth_pass, select]
         - [cull_face, bool]
         - [cull_face_mode, flags]
+        - [scissor_test, bool]
+        - [scissor, vec4]
 
 - Group:
     optional:

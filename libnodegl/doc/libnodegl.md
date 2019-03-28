@@ -313,6 +313,8 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `stencil_depth_pass` |  |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil and depth test pass | `unset`
 `cull_face` |  |  | [`bool`](#parameter-types) | enable face culling | `unset`
 `cull_face_mode` |  |  | [`cull_face`](#cull_face-choices) | face culling mode | `unset`
+`scissor_test` |  |  | [`bool`](#parameter-types) | enable scissor testing | `unset`
+`scissor` |  |  | [`vec4`](#parameter-types) | define an area where all pixels outside are discarded | (`-1`,`-1`,`-1`,`-1`)
 
 
 **Source**: [node_graphicconfig.c](/libnodegl/node_graphicconfig.c)
