@@ -103,30 +103,35 @@ Gives the following shader parameters:
     uniform mat4 matrix;
 ```
 
-## Buffer parameters
+## Block parameters
 
-`Render.buffers` parameters are exposed to the `vertex` and `fragment` shaders
+`Render.blocks` parameters are exposed to the `vertex` and `fragment` shaders
 using names derived from their respective dict parameters keys.
+
 For example, the following scene script:
 
 ```python
-    histogram_buffer = BufferVec4(256)
+    histogram_block = Block(fields=[UniformFloat(), BufferVec4(256)])
     render = Render(geometry)
-    render.update_buffers(histogram=histogram_buffer)
+    render.update_buffers(histogram=histogram_block)
 ```
 
-Gives the following shader parameters as SSBO:
+Gives the following shader parameters as SSBO with
+`histogram_block.set_layout('std430')`:
 
 ```glsl
     layout (std430, binding=0) buffer histogram {
+        float maximum;
         vec4 data[];
     };
 ```
 
-Or gives the following shader parameters as UBO:
+Or gives the following shader parameters as UBO with
+`histogram_block.set_layout('std140')`:
 
 ```glsl
     layout (std140, binding=0) uniform histogram {
+        float maximum;
         vec4 data[256];
     };
 ```
