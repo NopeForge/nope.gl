@@ -61,6 +61,7 @@ void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
 
     /* Scissor */
     ngli_glGetBooleanv(gl, GL_SCISSOR_TEST,            &state->scissor_test);
+    ngli_glGetIntegerv(gl, GL_SCISSOR_BOX,             (GLint *)&state->scissor);
 
 }
 
@@ -169,6 +170,10 @@ int ngli_glstate_honor_state(const struct glcontext *gl,
             ngli_glEnable(gl, GL_SCISSOR_TEST);
         else
             ngli_glDisable(gl, GL_SCISSOR_TEST);
+    }
+
+    if (next->scissor_test && memcmp(next->scissor, prev->scissor, sizeof(prev->scissor))) {
+        ngli_glScissor(gl, next->scissor[0], next->scissor[1], next->scissor[2], next->scissor[3]);
     }
 
     return 1;

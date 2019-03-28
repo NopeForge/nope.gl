@@ -341,6 +341,8 @@ static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
     if (viewport[2] > 0 && viewport[3] > 0) {
         ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
         memcpy(current_config->viewport, config->viewport, sizeof(config->viewport));
+        struct glstate *pending_glstate = &s->pending_glstate;
+        memcpy(pending_glstate->scissor, config->viewport, sizeof(config->viewport));
     }
 
     const float *rgba = config->clear_color;
