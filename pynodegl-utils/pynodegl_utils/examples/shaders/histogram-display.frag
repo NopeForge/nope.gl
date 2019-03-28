@@ -9,7 +9,6 @@ layout (std430, binding = 0) buffer histogram_buffer {
     uint histr[256];
     uint histg[256];
     uint histb[256];
-    uint hista[256];
     uint maximum;
 };
 

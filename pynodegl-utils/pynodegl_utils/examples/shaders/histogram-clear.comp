@@ -4,7 +4,6 @@ layout (std430, binding = 0) buffer histogram_buffer {
     uint histr[256];
     uint histg[256];
     uint histb[256];
-    uint hista[256];
     uint maximum;
 };
 
@@ -14,6 +13,5 @@ void main(void)
     histr[i] = 0U;
     histg[i] = 0U;
     histb[i] = 0U;
-    hista[i] = 0U;
     maximum  = 1U;
 }
