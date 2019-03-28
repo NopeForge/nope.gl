@@ -51,6 +51,8 @@ struct glstate {
 
     GLboolean cull_face;
     GLenum cull_face_mode;
+
+    GLboolean scissor_test;
 };
 
 void ngli_glstate_probe(const struct glcontext *gl,

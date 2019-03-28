@@ -58,6 +58,10 @@ void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
     /* Face Culling */
     ngli_glGetBooleanv(gl, GL_CULL_FACE,               &state->cull_face);
     ngli_glGetIntegerv(gl, GL_CULL_FACE_MODE,          (GLint *)&state->cull_face_mode);
+
+    /* Scissor */
+    ngli_glGetBooleanv(gl, GL_SCISSOR_TEST,            &state->scissor_test);
+
 }
 
 int ngli_glstate_honor_state(const struct glcontext *gl,
@@ -158,6 +162,13 @@ int ngli_glstate_honor_state(const struct glcontext *gl,
 
     if (next->cull_face_mode != prev->cull_face_mode) {
         ngli_glCullFace(gl, next->cull_face_mode);
+    }
+
+    if (next->scissor_test != prev->scissor_test) {
+        if (next->scissor_test)
+            ngli_glEnable(gl, GL_SCISSOR_TEST);
+        else
+            ngli_glDisable(gl, GL_SCISSOR_TEST);
     }
 
     return 1;
