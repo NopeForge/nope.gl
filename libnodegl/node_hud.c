@@ -74,12 +74,15 @@ enum {
 enum {
     MEMORY_BUFFERS_CPU,
     MEMORY_BUFFERS_GPU,
+    MEMORY_BLOCKS_CPU,
+    MEMORY_BLOCKS_GPU,
     MEMORY_TEXTURES,
     NB_MEMORY
 };
 
 enum {
     ACTIVITY_BUFFERS,
+    ACTIVITY_BLOCKS,
     ACTIVITY_MEDIAS,
     ACTIVITY_TEXTURES,
     NB_ACTIVITY
@@ -149,17 +152,27 @@ static const struct {
     [MEMORY_BUFFERS_CPU] = {
         .label="Buffers CPU",
         .node_types=(const int[]){BUFFER_NODES, -1},
-        .color=0x7FFF7FFF,
+        .color=0xD632FFFF,
     },
     [MEMORY_BUFFERS_GPU] = {
         .label="Buffers GPU",
         .node_types=(const int[]){BUFFER_NODES, -1},
-        .color=0x7F7FFFFF,
+        .color=0x3284FFFF,
+    },
+    [MEMORY_BLOCKS_CPU] = {
+        .label="Blocks CPU",
+        .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+        .color=0x32FF84FF,
+    },
+    [MEMORY_BLOCKS_GPU] = {
+        .label="Blocks GPU",
+        .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+        .color=0xD6FF32FF,
     },
     [MEMORY_TEXTURES] = {
         .label="Textures",
         .node_types=(const int[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURE3D, -1},
-        .color=0xFF7F7FFF,
+        .color=0xFF3232FF,
     },
 };
 
@@ -170,6 +183,10 @@ static const struct activity_spec {
     [ACTIVITY_BUFFERS] = {
         .label="Buffers",
         .node_types=(const int[]){BUFFER_NODES, -1},
+    },
+    [ACTIVITY_BLOCKS] = {
+        .label="Blocks",
+        .node_types=(const int[]){NGL_NODE_BLOCK, -1},
     },
     [ACTIVITY_MEDIAS] = {
         .label="Medias",
@@ -519,6 +536,24 @@ static void widget_memory_make_stats(struct ngl_node *node, struct widget *widge
         const struct ngl_node *buf_node = nodes_buf_gpu[i];
         const struct buffer_priv *buffer = buf_node->priv_data;
         priv->sizes[MEMORY_BUFFERS_GPU] += buffer->data_size * (buffer->buffer_refcount > 0);
+    }
+
+    struct darray *nodes_blk_array_cpu = &priv->nodes[MEMORY_BLOCKS_CPU];
+    struct ngl_node **nodes_blk_cpu = ngli_darray_data(nodes_blk_array_cpu);
+    priv->sizes[MEMORY_BLOCKS_CPU] = 0;
+    for (int i = 0; i < ngli_darray_count(nodes_blk_array_cpu); i++) {
+        const struct ngl_node *blk_node = nodes_blk_cpu[i];
+        const struct block_priv *block = blk_node->priv_data;
+        priv->sizes[MEMORY_BLOCKS_CPU] += block->data_size;
+    }
+
+    struct darray *nodes_blk_array_gpu = &priv->nodes[MEMORY_BLOCKS_GPU];
+    struct ngl_node **nodes_blk_gpu = ngli_darray_data(nodes_blk_array_gpu);
+    priv->sizes[MEMORY_BLOCKS_GPU] = 0;
+    for (int i = 0; i < ngli_darray_count(nodes_blk_array_gpu); i++) {
+        const struct ngl_node *blk_node = nodes_blk_gpu[i];
+        const struct block_priv *block = blk_node->priv_data;
+        priv->sizes[MEMORY_BLOCKS_GPU] += block->data_size * (block->buffer_refcount > 0);
     }
 
     struct darray *nodes_tex_array = &priv->nodes[MEMORY_TEXTURES];
