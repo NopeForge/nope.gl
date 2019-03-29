@@ -163,6 +163,8 @@ static void disable_vertex_attribs_from_pairs(struct glcontext *gl,
         const struct nodeprograminfopair *pair = &pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
         ngli_glDisableVertexAttribArray(gl, info->location);
+        if (gl->features & NGLI_FEATURE_INSTANCED_ARRAY)
+            ngli_glVertexAttribDivisor(gl, info->location, 0);
     }
 }
 
