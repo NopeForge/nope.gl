@@ -67,7 +67,7 @@ static int update_angle(struct ngl_node *node)
 {
     struct rotate_priv *s = node->priv_data;
     if (s->anim) {
-        LOG(ERROR, "updating angle while the animation is set is undefined behaviour");
+        LOG(ERROR, "updating angle while the animation is set is unsupported");
         return -1;
     }
     update_trf_matrix(node, s->angle);

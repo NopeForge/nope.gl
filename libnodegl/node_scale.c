@@ -60,7 +60,7 @@ static int update_factors(struct ngl_node *node)
 {
     struct scale_priv *s = node->priv_data;
     if (s->anim) {
-        LOG(ERROR, "updating factors while the animation is set is undefined behaviour");
+        LOG(ERROR, "updating factors while the animation is set is unsupported");
         return -1;
     }
     update_trf_matrix(node, s->factors);
