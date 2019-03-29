@@ -132,15 +132,15 @@ static void update_vertex_attribs_from_pairs(struct glcontext *gl,
     for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
         const struct nodeprograminfopair *pair = &pairs[i];
         const struct attributeprograminfo *info = pair->program_info;
-        const GLint aid = info->location;
+        const GLint index = info->location;
         struct buffer_priv *buffer = pair->node->priv_data;
 
-        ngli_glEnableVertexAttribArray(gl, aid);
+        ngli_glEnableVertexAttribArray(gl, index);
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer.id);
-        ngli_glVertexAttribPointer(gl, aid, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
+        ngli_glVertexAttribPointer(gl, index, buffer->data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, NULL);
 
         if (is_instance_attrib)
-            ngli_glVertexAttribDivisor(gl, aid, 1);
+            ngli_glVertexAttribDivisor(gl, index, 1);
     }
 }
 
