@@ -493,7 +493,6 @@ def histogram(cfg):
         ngl.BufferUInt(256, label='r'),
         ngl.BufferUInt(256, label='g'),
         ngl.BufferUInt(256, label='b'),
-        ngl.BufferUInt(256, label='a'),
         ngl.UniformInt(label='maximum'),
     )
 
