@@ -397,10 +397,20 @@ struct nodeprograminfopair {
     nodeprograminfopair_handle_func handle;
 };
 
-struct pipeline {
+struct pipeline_params {
+    const char *label;
     struct ngl_node *program;
-
     struct hmap *textures;
+    struct hmap *uniforms;
+    struct hmap *blocks;
+    int nb_instances;
+};
+
+struct pipeline {
+    struct ngl_ctx *ctx;
+    struct glcontext *gl;
+    struct pipeline_params params;
+
     struct textureprograminfo *textureprograminfos;
     int nb_textureprograminfos;
     struct darray texture_pairs; // nodeprograminfopair (texture, textureprograminfo)
@@ -408,23 +418,22 @@ struct pipeline {
     uint64_t used_texture_units;
     int disabled_texture_unit[2]; /* 2D, OES */
 
-    struct hmap *uniforms;
     struct darray uniform_pairs; // nodeprograminfopair (uniform, uniformprograminfo)
-
-    struct hmap *blocks;
     struct darray block_pairs; // nodeprograminfopair (block, uniformprograminfo)
 };
 
 struct render_priv {
     struct ngl_node *geometry;
-
-    struct pipeline pipeline;
-
+    struct ngl_node *program;
+    struct hmap *textures;
+    struct hmap *uniforms;
+    struct hmap *blocks;
     struct hmap *builtin_attributes;
     struct hmap *attributes;
     struct hmap *instance_attributes;
-
     int nb_instances;
+
+    struct pipeline pipeline;
 
     struct darray builtin_attribute_pairs; // nodeprograminfopair (builtin attribute, attributeprograminfo)
     struct darray attribute_pairs; // nodeprograminfopair (attribute, attributeprograminfo)
@@ -446,14 +455,18 @@ struct compute_priv {
     int nb_group_x;
     int nb_group_y;
     int nb_group_z;
+    struct ngl_node *program;
+    struct hmap *textures;
+    struct hmap *uniforms;
+    struct hmap *blocks;
 
     struct pipeline pipeline;
 };
 
-int ngli_pipeline_init(struct ngl_node *node);
-void ngli_pipeline_uninit(struct ngl_node *node);
-int ngli_pipeline_update(struct ngl_node *node, double t);
-int ngli_pipeline_upload_data(struct ngl_node *node);
+int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pipeline_params *params);
+void ngli_pipeline_uninit(struct pipeline *s);
+int ngli_pipeline_update(struct pipeline *s, double t);
+int ngli_pipeline_upload_data(struct pipeline *s);
 
 struct media_priv {
     const char *filename;

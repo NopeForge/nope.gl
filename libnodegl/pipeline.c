@@ -36,21 +36,6 @@
 #include "texture.h"
 #include "utils.h"
 
-static struct pipeline *get_pipeline(struct ngl_node *node)
-{
-    struct pipeline *ret = NULL;
-    if (node->class->id == NGL_NODE_RENDER) {
-        struct render_priv *s = node->priv_data;
-        ret = &s->pipeline;
-    } else if (node->class->id == NGL_NODE_COMPUTE) {
-        struct compute_priv *s = node->priv_data;
-        ret = &s->pipeline;
-    } else {
-        ngli_assert(0);
-    }
-    return ret;
-}
-
 static int acquire_next_available_texture_unit(uint64_t *used_texture_units)
 {
     for (int i = 0; i < sizeof(*used_texture_units) * 8; i++) {
@@ -190,11 +175,9 @@ static int update_sampler(const struct glcontext *gl,
     return 0;
 }
 
-static int set_textures(struct ngl_node *node)
+static int set_textures(struct pipeline *s)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-    struct pipeline *s = get_pipeline(node);
+    struct glcontext *gl = s->gl;
     const struct darray *texture_pairs = &s->texture_pairs;
 
     if (!ngli_darray_count(texture_pairs))
@@ -304,12 +287,9 @@ static void set_uniform_buf4fv(struct glcontext *gl, GLint loc, void *priv)
     ngli_glUniform4fv(gl, loc, buffer->count, (const GLfloat *)buffer->data);
 }
 
-static int set_uniforms(struct ngl_node *node)
+static int set_uniforms(struct pipeline *s)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-    struct pipeline *s = get_pipeline(node);
-
+    struct glcontext *gl = s->gl;
     const struct darray *uniform_pairs = &s->uniform_pairs;
     const struct nodeprograminfopair *pairs = ngli_darray_data(uniform_pairs);
     for (int i = 0; i < ngli_darray_count(uniform_pairs); i++) {
@@ -323,12 +303,9 @@ static int set_uniforms(struct ngl_node *node)
     return 0;
 }
 
-static int set_blocks(struct ngl_node *node)
+static int set_blocks(struct pipeline *s)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-    struct pipeline *s = get_pipeline(node);
-
+    struct glcontext *gl = s->gl;
     const struct darray *block_pairs = &s->block_pairs;
     const struct nodeprograminfopair *pairs = ngli_darray_data(block_pairs);
     for (int i = 0; i < ngli_darray_count(block_pairs); i++) {
@@ -507,23 +484,23 @@ static nodeprograminfopair_handle_func get_uniform_pair_handle(int class_id, GLe
     return NULL;
 }
 
-static int build_uniform_pairs(struct ngl_node *node)
+static int build_uniform_pairs(struct pipeline *s)
 {
-    struct pipeline *s = get_pipeline(node);
-    struct program_priv *program = s->program->priv_data;
+    struct pipeline_params *params = &s->params;
+    struct program_priv *program = params->program->priv_data;
 
-    if (!s->uniforms)
+    if (!params->uniforms)
         return 0;
 
     ngli_darray_init(&s->uniform_pairs, sizeof(struct nodeprograminfopair), 0);
 
     const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->uniforms, entry))) {
+    while ((entry = ngli_hmap_next(params->uniforms, entry))) {
         const struct uniformprograminfo *active_uniform =
             ngli_hmap_get(program->active_uniforms, entry->key);
         if (!active_uniform) {
             LOG(WARNING, "uniform %s attached to %s not found in %s",
-                entry->key, node->label, s->program->label);
+                entry->key, params->label, params->program->label);
             continue;
         }
 
@@ -539,7 +516,7 @@ static int build_uniform_pairs(struct ngl_node *node)
         pair.handle = get_uniform_pair_handle(unode->class->id, active_uniform->type);
         if (!pair.handle) {
             LOG(ERROR, "%s set on %s.%s has not the expected type in the shader",
-                unode->label, node->label, entry->key);
+                unode->label, params->label, entry->key);
             return -1;
         }
 
@@ -550,14 +527,13 @@ static int build_uniform_pairs(struct ngl_node *node)
     return 0;
 }
 
-static int build_texture_pairs(struct ngl_node *node)
+static int build_texture_pairs(struct pipeline *s)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-    struct pipeline *s = get_pipeline(node);
-    struct program_priv *program = s->program->priv_data;
+    struct glcontext *gl = s->gl;
+    struct pipeline_params *params = &s->params;
+    struct program_priv *program = params->program->priv_data;
 
-    int nb_textures = s->textures ? ngli_hmap_count(s->textures) : 0;
+    int nb_textures = params->textures ? ngli_hmap_count(params->textures) : 0;
     int max_nb_textures = NGLI_MIN(gl->max_texture_image_units, sizeof(s->used_texture_units) * 8);
     if (nb_textures > max_nb_textures) {
         LOG(ERROR, "attached textures count (%d) exceeds driver limit (%d)",
@@ -575,7 +551,7 @@ static int build_texture_pairs(struct ngl_node *node)
         return -1;
 
     const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->textures, entry))) {
+    while ((entry = ngli_hmap_next(params->textures, entry))) {
         const char *key = entry->key;
         struct ngl_node *tnode = entry->data;
         struct texture_priv *texture = tnode->priv_data;
@@ -611,9 +587,10 @@ static int build_texture_pairs(struct ngl_node *node)
             LOG(WARNING, "no sampler found for texture %s", key);
 
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE) || defined(HAVE_VAAPI_X11)
+        struct pipeline_params *params = &s->params;
         texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
         LOG(DEBUG, "direct rendering for texture %s.%s: %s",
-            node->label, key, texture->direct_rendering ? "yes" : "no");
+            params->label, key, texture->direct_rendering ? "yes" : "no");
 #endif
         s->nb_textureprograminfos++;
 
@@ -628,25 +605,24 @@ static int build_texture_pairs(struct ngl_node *node)
     return 0;
 }
 
-static int build_block_pairs(struct ngl_node *node)
+static int build_block_pairs(struct pipeline *s)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-    struct pipeline *s = get_pipeline(node);
-    struct program_priv *program = s->program->priv_data;
+    struct glcontext *gl = s->gl;
+    struct pipeline_params *params = &s->params;
+    struct program_priv *program = params->program->priv_data;
 
-    if (!s->blocks)
+    if (!params->blocks)
         return 0;
 
     ngli_darray_init(&s->block_pairs, sizeof(struct nodeprograminfopair), 0);
 
     const struct hmap_entry *entry = NULL;
-    while ((entry = ngli_hmap_next(s->blocks, entry))) {
+    while ((entry = ngli_hmap_next(params->blocks, entry))) {
         const struct blockprograminfo *info =
             ngli_hmap_get(program->active_buffer_blocks, entry->key);
         if (!info) {
             LOG(WARNING, "block %s attached to %s not found in %s",
-                entry->key, node->label, s->program->label);
+                entry->key, params->label, params->program->label);
             continue;
         }
 
@@ -677,21 +653,26 @@ static int build_block_pairs(struct ngl_node *node)
     return 0;
 }
 
-int ngli_pipeline_init(struct ngl_node *node)
+int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pipeline_params *params)
 {
     int ret;
 
-    if ((ret = build_uniform_pairs(node)) < 0 ||
-        (ret = build_texture_pairs(node)) < 0 ||
-        (ret = build_block_pairs(node)) < 0)
+    s->ctx = ctx;
+    s->gl = ctx->glcontext;
+    s->params = *params;
+
+    if ((ret = build_uniform_pairs(s)) < 0 ||
+        (ret = build_texture_pairs(s)) < 0 ||
+        (ret = build_block_pairs(s)) < 0)
         return ret;
 
     return 0;
 }
 
-void ngli_pipeline_uninit(struct ngl_node *node)
+void ngli_pipeline_uninit(struct pipeline *s)
 {
-    struct pipeline *s = get_pipeline(node);
+    if (!s->gl)
+        return;
 
     ngli_free(s->textureprograminfos);
 
@@ -706,12 +687,12 @@ void ngli_pipeline_uninit(struct ngl_node *node)
         ngli_node_block_unref(bnode);
     }
     ngli_darray_reset(&s->block_pairs);
+
+    memset(s, 0, sizeof(*s));
 }
 
-int ngli_pipeline_update(struct ngl_node *node, double t)
+int ngli_pipeline_update(struct pipeline *s, double t)
 {
-    struct pipeline *s = get_pipeline(node);
-
     struct darray *texture_pairs = &s->texture_pairs;
     struct nodeprograminfopair *tpairs = ngli_darray_data(texture_pairs);
     for (int i = 0; i < ngli_darray_count(texture_pairs); i++) {
@@ -745,16 +726,17 @@ int ngli_pipeline_update(struct ngl_node *node, double t)
             return ret;
     }
 
-    return ngli_node_update(s->program, t);
+    struct pipeline_params *params = &s->params;
+    return ngli_node_update(params->program, t);
 }
 
-int ngli_pipeline_upload_data(struct ngl_node *node)
+int ngli_pipeline_upload_data(struct pipeline *s)
 {
     int ret;
 
-    if ((ret = set_uniforms(node)) < 0 ||
-        (ret = set_textures(node)) < 0 ||
-        (ret = set_blocks(node)) < 0)
+    if ((ret = set_uniforms(s)) < 0 ||
+        (ret = set_textures(s)) < 0 ||
+        (ret = set_blocks(s)) < 0)
         return ret;
 
     return 0;

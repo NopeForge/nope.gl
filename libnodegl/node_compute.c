@@ -55,13 +55,13 @@ static const struct node_param compute_params[] = {
                    .desc=NGLI_DOCSTRING("number of work groups to be executed in the y dimension")},
     {"nb_group_z", PARAM_TYPE_INT,      OFFSET(nb_group_z), .flags=PARAM_FLAG_CONSTRUCTOR,
                    .desc=NGLI_DOCSTRING("number of work groups to be executed in the z dimension")},
-    {"program",    PARAM_TYPE_NODE,     OFFSET(pipeline.program),    .flags=PARAM_FLAG_CONSTRUCTOR, .node_types=PROGRAMS_TYPES_LIST,
+    {"program",    PARAM_TYPE_NODE,     OFFSET(program),    .flags=PARAM_FLAG_CONSTRUCTOR, .node_types=PROGRAMS_TYPES_LIST,
                    .desc=NGLI_DOCSTRING("compute program to be executed")},
-    {"textures",   PARAM_TYPE_NODEDICT, OFFSET(pipeline.textures),   .node_types=TEXTURES_TYPES_LIST,
+    {"textures",   PARAM_TYPE_NODEDICT, OFFSET(textures),   .node_types=TEXTURES_TYPES_LIST,
                    .desc=NGLI_DOCSTRING("input and output textures made accessible to the compute `program`")},
-    {"uniforms",   PARAM_TYPE_NODEDICT, OFFSET(pipeline.uniforms),   .node_types=UNIFORMS_TYPES_LIST,
+    {"uniforms",   PARAM_TYPE_NODEDICT, OFFSET(uniforms),   .node_types=UNIFORMS_TYPES_LIST,
                    .desc=NGLI_DOCSTRING("uniforms made accessible to the compute `program`")},
-    {"blocks",     PARAM_TYPE_NODEDICT, OFFSET(pipeline.blocks),     .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+    {"blocks",     PARAM_TYPE_NODEDICT, OFFSET(blocks),     .node_types=(const int[]){NGL_NODE_BLOCK, -1},
                    .desc=NGLI_DOCSTRING("input and output blocks made accessible to the compute `program`")},
     {NULL}
 };
@@ -91,17 +91,26 @@ static int compute_init(struct ngl_node *node)
         return -1;
     }
 
-    return ngli_pipeline_init(node);
+    struct pipeline_params params = {
+        .label = node->label,
+        .program = s->program,
+        .textures = s->textures,
+        .uniforms = s->uniforms,
+        .blocks = s->blocks,
+    };
+    return ngli_pipeline_init(&s->pipeline, ctx, &params);
 }
 
 static void compute_uninit(struct ngl_node *node)
 {
-    ngli_pipeline_uninit(node);
+    struct compute_priv *s = node->priv_data;
+    ngli_pipeline_uninit(&s->pipeline);
 }
 
 static int compute_update(struct ngl_node *node, double t)
 {
-    return ngli_pipeline_update(node, t);
+    struct compute_priv *s = node->priv_data;
+    return ngli_pipeline_update(&s->pipeline, t);
 }
 
 static void compute_draw(struct ngl_node *node)
@@ -110,10 +119,10 @@ static void compute_draw(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct compute_priv *s = node->priv_data;
 
-    const struct program_priv *program = s->pipeline.program->priv_data;
+    const struct program_priv *program = s->program->priv_data;
     ngli_glUseProgram(gl, program->program_id);
 
-    int ret = ngli_pipeline_upload_data(node);
+    int ret = ngli_pipeline_upload_data(&s->pipeline);
     if (ret < 0) {
         LOG(ERROR, "pipeline upload data error");
     }

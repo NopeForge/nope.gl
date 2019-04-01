@@ -74,16 +74,16 @@ static const struct node_param render_params[] = {
     {"geometry", PARAM_TYPE_NODE, OFFSET(geometry), .flags=PARAM_FLAG_CONSTRUCTOR,
                  .node_types=GEOMETRY_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("geometry to be rasterized")},
-    {"program",  PARAM_TYPE_NODE, OFFSET(pipeline.program),
+    {"program",  PARAM_TYPE_NODE, OFFSET(program),
                  .node_types=PROGRAMS_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("program to be executed")},
-    {"textures", PARAM_TYPE_NODEDICT, OFFSET(pipeline.textures),
+    {"textures", PARAM_TYPE_NODEDICT, OFFSET(textures),
                  .node_types=TEXTURES_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("textures made accessible to the `program`")},
-    {"uniforms", PARAM_TYPE_NODEDICT, OFFSET(pipeline.uniforms),
+    {"uniforms", PARAM_TYPE_NODEDICT, OFFSET(uniforms),
                  .node_types=UNIFORMS_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("uniforms made accessible to the `program`")},
-    {"blocks",  PARAM_TYPE_NODEDICT, OFFSET(pipeline.blocks),
+    {"blocks",  PARAM_TYPE_NODEDICT, OFFSET(blocks),
                  .node_types=(const int[]){NGL_NODE_BLOCK, -1},
                  .desc=NGLI_DOCSTRING("blocks made accessible to the `program`")},
     {"attributes", PARAM_TYPE_NODEDICT, OFFSET(attributes),
@@ -219,7 +219,7 @@ static int pair_node_to_attribinfo(struct render_priv *s,
                                    const char *name,
                                    struct ngl_node *anode)
 {
-    const struct ngl_node *pnode = s->pipeline.program;
+    const struct ngl_node *pnode = s->program;
     const struct program_priv *program = pnode->priv_data;
     const struct attributeprograminfo *active_attribute =
         ngli_hmap_get(program->active_attributes, name);
@@ -289,7 +289,7 @@ static int pair_nodes_to_attribinfo(struct ngl_node *node,
             return ret;
 
         if (warn_not_found && ret == 1) {
-            const struct ngl_node *pnode = s->pipeline.program;
+            const struct ngl_node *pnode = s->program;
             LOG(WARNING, "attribute %s attached to %s not found in %s",
                 entry->key, node->label, pnode->label);
         }
@@ -365,20 +365,27 @@ static int render_init(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
-    if (!s->pipeline.program) {
-        s->pipeline.program = ngl_node_create(NGL_NODE_PROGRAM);
-        if (!s->pipeline.program)
+    if (!s->program) {
+        s->program = ngl_node_create(NGL_NODE_PROGRAM);
+        if (!s->program)
             return -1;
-        int ret = ngli_node_attach_ctx(s->pipeline.program, ctx);
+        int ret = ngli_node_attach_ctx(s->program, ctx);
         if (ret < 0)
             return ret;
     }
 
-    int ret = ngli_pipeline_init(node);
+    struct pipeline_params params = {
+        .label = node->label,
+        .program = s->program,
+        .textures = s->textures,
+        .uniforms = s->uniforms,
+        .blocks = s->blocks,
+    };
+    int ret = ngli_pipeline_init(&s->pipeline, ctx, &params);
     if (ret < 0)
         return ret;
 
-    struct ngl_node *pnode = s->pipeline.program;
+    struct ngl_node *pnode = s->program;
     struct program_priv *program = pnode->priv_data;
     struct hmap *uniforms = program->active_uniforms;
 
@@ -475,7 +482,7 @@ static void render_uninit(struct ngl_node *node)
         ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
     }
 
-    ngli_pipeline_uninit(node);
+    ngli_pipeline_uninit(&s->pipeline);
 
     if (s->has_indices_buffer_ref) {
         struct geometry_priv *geometry = s->geometry->priv_data;
@@ -523,7 +530,7 @@ static int render_update(struct ngl_node *node, double t)
     if (ret < 0)
         return ret;
 
-    return ngli_pipeline_update(node, t);
+    return ngli_pipeline_update(&s->pipeline, t);
 }
 
 static void render_draw(struct ngl_node *node)
@@ -534,7 +541,7 @@ static void render_draw(struct ngl_node *node)
 
     ngli_honor_pending_glstate(ctx);
 
-    const struct program_priv *program = s->pipeline.program->priv_data;
+    const struct program_priv *program = s->program->priv_data;
     ngli_glUseProgram(gl, program->program_id);
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
@@ -545,7 +552,7 @@ static void render_draw(struct ngl_node *node)
 
     update_geometry_uniforms(node);
 
-    int ret = ngli_pipeline_upload_data(node);
+    int ret = ngli_pipeline_upload_data(&s->pipeline);
     if (ret < 0) {
         LOG(ERROR, "pipeline upload data error");
     }
