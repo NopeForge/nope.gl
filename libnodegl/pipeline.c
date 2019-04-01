@@ -196,7 +196,9 @@ static int set_textures(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct pipeline *s = get_pipeline(node);
 
-    if (s->textures) {
+    if (!s->textures)
+        return 0;
+
         uint64_t used_texture_units = s->used_texture_units;
 
         for (int i = 0; i < NGLI_ARRAY_NB(s->disabled_texture_unit); i++)
@@ -238,7 +240,6 @@ static int set_textures(struct ngl_node *node)
             if (info->ts_location >= 0)
                 ngli_glUniform1f(gl, info->ts_location, image->ts);
         }
-    }
 
     return 0;
 }
