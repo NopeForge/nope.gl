@@ -97,34 +97,6 @@ static const struct node_param render_params[] = {
     {NULL}
 };
 
-static int update_geometry_uniforms(struct ngl_node *node)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-    struct render_priv *s = node->priv_data;
-
-    const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
-    const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
-
-    if (s->modelview_matrix_location >= 0) {
-        ngli_glUniformMatrix4fv(gl, s->modelview_matrix_location, 1, GL_FALSE, modelview_matrix);
-    }
-
-    if (s->projection_matrix_location >= 0) {
-        ngli_glUniformMatrix4fv(gl, s->projection_matrix_location, 1, GL_FALSE, projection_matrix);
-    }
-
-    if (s->normal_matrix_location >= 0) {
-        float normal_matrix[3*3];
-        ngli_mat3_from_mat4(normal_matrix, modelview_matrix);
-        ngli_mat3_inverse(normal_matrix, normal_matrix);
-        ngli_mat3_transpose(normal_matrix, normal_matrix);
-        ngli_glUniformMatrix3fv(gl, s->normal_matrix_location, 1, GL_FALSE, normal_matrix);
-    }
-
-    return 0;
-}
-
 static void update_vertex_attribs_from_pairs(struct glcontext *gl,
                                              const struct darray *attribute_pairs,
                                              int is_instance_attrib)
@@ -206,12 +178,6 @@ static void disable_vertex_attribs(struct ngl_node *node)
     disable_vertex_attribs_from_pairs(gl, &s->builtin_attribute_pairs);
     disable_vertex_attribs_from_pairs(gl, &s->attribute_pairs);
     disable_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs);
-}
-
-static int get_uniform_location(struct hmap *uniforms, const char *name)
-{
-    const struct uniformprograminfo *info = ngli_hmap_get(uniforms, name);
-    return info ? info->location : -1;
 }
 
 static int pair_node_to_attribinfo(struct render_priv *s,
@@ -385,10 +351,6 @@ static int render_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    struct ngl_node *pnode = s->program;
-    struct program_priv *program = pnode->priv_data;
-    struct hmap *uniforms = program->active_uniforms;
-
     /* Instancing checks */
     if (s->nb_instances && !(gl->features & NGLI_FEATURE_DRAW_INSTANCED)) {
         LOG(ERROR, "context does not support instanced draws");
@@ -399,11 +361,6 @@ static int render_init(struct ngl_node *node)
         LOG(ERROR, "context does not support instanced arrays");
         return -1;
     }
-
-    /* Builtin uniforms */
-    s->modelview_matrix_location  = get_uniform_location(uniforms, "ngl_modelview_matrix");
-    s->projection_matrix_location = get_uniform_location(uniforms, "ngl_projection_matrix");
-    s->normal_matrix_location     = get_uniform_location(uniforms, "ngl_normal_matrix");
 
     /* User and builtin attribute pairs */
     ngli_darray_init(&s->builtin_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
@@ -549,8 +506,6 @@ static void render_draw(struct ngl_node *node)
     } else {
         update_vertex_attribs(node);
     }
-
-    update_geometry_uniforms(node);
 
     int ret = ngli_pipeline_upload_data(&s->pipeline);
     if (ret < 0) {

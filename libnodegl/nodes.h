@@ -406,10 +406,16 @@ struct pipeline_params {
     int nb_instances;
 };
 
+enum {
+    NGLI_PIPELINE_TYPE_GRAPHIC,
+    NGLI_PIPELINE_TYPE_COMPUTE,
+};
+
 struct pipeline {
     struct ngl_ctx *ctx;
     struct glcontext *gl;
     struct pipeline_params params;
+    int type;
 
     struct textureprograminfo *textureprograminfos;
     int nb_textureprograminfos;
@@ -420,6 +426,10 @@ struct pipeline {
 
     struct darray uniform_pairs; // nodeprograminfopair (uniform, uniformprograminfo)
     struct darray block_pairs; // nodeprograminfopair (block, uniformprograminfo)
+
+    GLint modelview_matrix_location;
+    GLint projection_matrix_location;
+    GLint normal_matrix_location;
 };
 
 struct render_priv {
@@ -441,9 +451,6 @@ struct render_priv {
 
     int has_indices_buffer_ref;
 
-    GLint modelview_matrix_location;
-    GLint projection_matrix_location;
-    GLint normal_matrix_location;
 
     GLuint vao_id;
     GLenum indices_type;

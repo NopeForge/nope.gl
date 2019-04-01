@@ -98,7 +98,30 @@ static void set_uniform_buf4fv(struct glcontext *gl, GLint loc, void *priv)
 
 static int set_uniforms(struct pipeline *s)
 {
+    struct ngl_ctx *ctx = s->ctx;
     struct glcontext *gl = s->gl;
+
+    if (s->type == NGLI_PIPELINE_TYPE_GRAPHIC) {
+        const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
+        const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
+
+        if (s->modelview_matrix_location >= 0) {
+            ngli_glUniformMatrix4fv(gl, s->modelview_matrix_location, 1, GL_FALSE, modelview_matrix);
+        }
+
+        if (s->projection_matrix_location >= 0) {
+            ngli_glUniformMatrix4fv(gl, s->projection_matrix_location, 1, GL_FALSE, projection_matrix);
+        }
+
+        if (s->normal_matrix_location >= 0) {
+            float normal_matrix[3*3];
+            ngli_mat3_from_mat4(normal_matrix, modelview_matrix);
+            ngli_mat3_inverse(normal_matrix, normal_matrix);
+            ngli_mat3_transpose(normal_matrix, normal_matrix);
+            ngli_glUniformMatrix3fv(gl, s->normal_matrix_location, 1, GL_FALSE, normal_matrix);
+        }
+    }
+
     const struct darray *uniform_pairs = &s->uniform_pairs;
     const struct nodeprograminfopair *pairs = ngli_darray_data(uniform_pairs);
     for (int i = 0; i < ngli_darray_count(uniform_pairs); i++) {
@@ -207,6 +230,12 @@ static nodeprograminfopair_handle_func get_uniform_pair_handle(int class_id, GLe
         if (handle_map[i].uniform_type == uniform_type)
             return handle_map[i].handle;
     return NULL;
+}
+
+static int get_uniform_location(struct hmap *uniforms, const char *name)
+{
+    const struct uniformprograminfo *info = ngli_hmap_get(uniforms, name);
+    return info ? info->location : -1;
 }
 
 static int build_uniform_pairs(struct pipeline *s)
@@ -660,6 +689,17 @@ int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pip
     s->ctx = ctx;
     s->gl = ctx->glcontext;
     s->params = *params;
+    s->type = params->program->class->id == NGL_NODE_PROGRAM ? NGLI_PIPELINE_TYPE_GRAPHIC
+                                                             : NGLI_PIPELINE_TYPE_COMPUTE;
+
+    struct ngl_node *program_node = params->program;
+    struct program_priv *program_priv = program_node->priv_data;
+    struct hmap *uniforms = program_priv->active_uniforms;
+    if (s->type == NGLI_PIPELINE_TYPE_GRAPHIC && uniforms) {
+        s->modelview_matrix_location  = get_uniform_location(uniforms, "ngl_modelview_matrix");
+        s->projection_matrix_location = get_uniform_location(uniforms, "ngl_projection_matrix");
+        s->normal_matrix_location     = get_uniform_location(uniforms, "ngl_normal_matrix");
+    }
 
     if ((ret = build_uniform_pairs(s)) < 0 ||
         (ret = build_texture_pairs(s)) < 0 ||
