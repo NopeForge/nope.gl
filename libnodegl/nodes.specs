@@ -109,6 +109,8 @@
         - [data, data]
         - [filename, string]
         - [stride, int]
+        - [block, Node]
+        - [block_field, int]
 
 - BufferByte: _Buffer
 

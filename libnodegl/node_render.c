@@ -137,16 +137,29 @@ static void update_vertex_attribs_from_pairs(struct glcontext *gl,
         const GLint index = info->location;
         struct buffer_priv *buffer = pair->node->priv_data;
 
-        ngli_glEnableVertexAttribArray(gl, index);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->buffer.id);
-
         /* TODO: check that attribute type is mat4 */
         const int nb_attribs = node->class->id == NGL_NODE_BUFFERMAT4 ? 4 : 1;
         const int attrib_comp = buffer->data_comp / nb_attribs;
-        const uintptr_t attrib_stride = buffer->data_stride / nb_attribs;
+        uintptr_t attrib_stride = buffer->data_stride / nb_attribs;
+        uintptr_t data_stride = buffer->data_stride;
+        int buffer_id = buffer->buffer.id;
+        int offset = 0;
+
+        if (buffer->block) {
+            const struct block_priv *block = buffer->block->priv_data;
+            const struct field_info *fi = &block->field_info[buffer->block_field];
+            attrib_stride = fi->stride / nb_attribs;
+            data_stride = fi->stride;
+            buffer_id = block->buffer.id;
+            offset = fi->offset;
+        }
+
+        ngli_glEnableVertexAttribArray(gl, index);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_id);
+
         for (int j = 0; j < nb_attribs; j++) {
             ngli_glEnableVertexAttribArray(gl, index + j);
-            ngli_glVertexAttribPointer(gl, index + j, attrib_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, (void *)(j * attrib_stride));
+            ngli_glVertexAttribPointer(gl, index + j, attrib_comp, GL_FLOAT, GL_FALSE, data_stride, (void *)(j * attrib_stride + offset));
         }
 
         if (is_instance_attrib) {
@@ -417,6 +430,11 @@ static int render_init(struct ngl_node *node)
         s->has_indices_buffer_ref = 1;
 
         struct buffer_priv *indices = geometry->indices_buffer->priv_data;
+        if (indices->block) {
+            LOG(ERROR, "geometry indices buffers referencing a block are not supported");
+            return -1;
+        }
+
         ngli_format_get_gl_texture_format(gl, indices->data_format, NULL, NULL, &s->indices_type);
     }
 

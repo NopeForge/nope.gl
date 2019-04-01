@@ -42,6 +42,11 @@ static const struct node_param buffer_params[] = {
                .desc=NGLI_DOCSTRING("filename from which the buffer will be read, cannot be used with `data`")},
     {"stride", PARAM_TYPE_INT,    OFFSET(data_stride),
                .desc=NGLI_DOCSTRING("stride of 1 element, in bytes")},
+    {"block",  PARAM_TYPE_NODE,    OFFSET(block),
+               .node_types=(const int[]){NGL_NODE_BLOCK, -1},
+               .desc=NGLI_DOCSTRING("reference a field from the given block")},
+    {"block_field", PARAM_TYPE_INT, OFFSET(block_field),
+                    .desc=NGLI_DOCSTRING("field index in `block`")},
     {NULL}
 };
 
@@ -50,6 +55,9 @@ int ngli_node_buffer_ref(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct buffer_priv *s = node->priv_data;
+
+    if (s->block)
+        return ngli_node_block_ref(s->block);
 
     if (s->buffer_refcount++ == 0) {
         int ret = ngli_buffer_allocate(&s->buffer, gl, s->data_size, s->usage);
@@ -70,6 +78,9 @@ void ngli_node_buffer_unref(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
 
+    if (s->block)
+        return ngli_node_block_unref(s->block);
+
     ngli_assert(s->buffer_refcount);
     if (s->buffer_refcount-- == 1)
         ngli_buffer_free(&s->buffer);
@@ -78,6 +89,9 @@ void ngli_node_buffer_unref(struct ngl_node *node)
 int ngli_node_buffer_upload(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
+
+    if (s->block)
+        return ngli_node_block_upload(s->block);
 
     if (s->dynamic && s->buffer_last_upload_time != node->last_update_time) {
         int ret = ngli_buffer_upload(&s->buffer, s->data, s->data_size);
@@ -165,6 +179,37 @@ static int buffer_init_from_count(struct ngl_node *node)
     return 0;
 }
 
+static int buffer_init_from_block(struct ngl_node *node)
+{
+    struct buffer_priv *s = node->priv_data;
+    struct block_priv *block = s->block->priv_data;
+    if (s->block_field < 0 || s->block_field >= block->nb_fields) {
+        LOG(ERROR, "invalid field id %d; %s has %d fields",
+            s->block_field, s->block->label, block->nb_fields);
+        return -1;
+    }
+
+    struct ngl_node *buffer_target = block->fields[s->block_field];
+    if (buffer_target->class->id != node->class->id) {
+        LOG(ERROR, "%s[%d] of type %s mismatches %s local type",
+            s->block->label, s->block_field, buffer_target->class->name, node->class->name);
+        return -1;
+    }
+
+    struct buffer_priv *buffer_target_priv = buffer_target->priv_data;
+    if (s->count > buffer_target_priv->count) {
+        LOG(ERROR, "block buffer reference count can not be larger than target buffer count (%d > %d)",
+            s->count, buffer_target_priv->count);
+        return -1;
+    }
+    s->count = s->count ? s->count : buffer_target_priv->count;
+    s->data = buffer_target_priv->data;
+    s->data_stride = buffer_target_priv->data_stride;
+    s->data_size = s->count * s->data_stride;
+
+    return 0;
+}
+
 static int buffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
@@ -172,6 +217,11 @@ static int buffer_init(struct ngl_node *node)
     if (s->data && s->filename) {
         LOG(ERROR,
             "data and filename option cannot be set at the same time");
+        return -1;
+    }
+
+    if (s->block && (s->data || s->filename)) {
+        LOG(ERROR, "block option can not be set with data or filename");
         return -1;
     }
 
@@ -225,6 +275,8 @@ static int buffer_init(struct ngl_node *node)
         ret = buffer_init_from_data(node);
     else if (s->filename)
         ret = buffer_init_from_filename(node);
+    else if (s->block)
+        ret = buffer_init_from_block(node);
     else
         ret = buffer_init_from_count(node);
     if (ret < 0)
@@ -248,6 +300,10 @@ static void buffer_uninit(struct ngl_node *node)
                 LOG(ERROR, "could not properly close '%s'", s->filename);
             }
         }
+    } else if (s->block) {
+        /* Prevent the param API to free a non-owned pointer */
+        s->data = NULL;
+        s->data_size = 0;
     }
 }
 

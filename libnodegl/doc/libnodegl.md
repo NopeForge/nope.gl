@@ -176,6 +176,8 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `data` |  |  | [`data`](#parameter-types) | buffer of `count` elements | 
 `filename` |  |  | [`string`](#parameter-types) | filename from which the buffer will be read, cannot be used with `data` | 
 `stride` |  |  | [`int`](#parameter-types) | stride of 1 element, in bytes | `0`
+`block` |  |  | [`Node`](#parameter-types) ([Block](#block)) | reference a field from the given block | 
+`block_field` |  |  | [`int`](#parameter-types) | field index in `block` | `0`
 
 
 **Source**: [node_buffer.c](/libnodegl/node_buffer.c)

@@ -240,6 +240,8 @@ struct buffer_priv {
     char *filename;         // filename from which the data will be read
     int data_comp;          // number of components per element
     int data_stride;        // stride of 1 element, in bytes
+    struct ngl_node *block;
+    int block_field;
     int usage;              // flags defining buffer use
     int data_format;        // any of NGLI_FORMAT_*
 
