@@ -199,47 +199,47 @@ static int set_textures(struct ngl_node *node)
     if (!s->textures)
         return 0;
 
-        uint64_t used_texture_units = s->used_texture_units;
+    uint64_t used_texture_units = s->used_texture_units;
 
-        for (int i = 0; i < NGLI_ARRAY_NB(s->disabled_texture_unit); i++)
-            s->disabled_texture_unit[i] = -1;
+    for (int i = 0; i < NGLI_ARRAY_NB(s->disabled_texture_unit); i++)
+        s->disabled_texture_unit[i] = -1;
 
-        const struct darray *texture_pairs = &s->texture_pairs;
-        const struct nodeprograminfopair *pairs = ngli_darray_data(texture_pairs);
-        for (int i = 0; i < ngli_darray_count(texture_pairs); i++) {
-            const struct nodeprograminfopair *pair = &pairs[i];
-            const struct textureprograminfo *info = pair->program_info;
-            const struct texture_priv *texture = pair->node->priv_data;
-            const struct image *image = &texture->image;
+    const struct darray *texture_pairs = &s->texture_pairs;
+    const struct nodeprograminfopair *pairs = ngli_darray_data(texture_pairs);
+    for (int i = 0; i < ngli_darray_count(texture_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
+        const struct textureprograminfo *info = pair->program_info;
+        const struct texture_priv *texture = pair->node->priv_data;
+        const struct image *image = &texture->image;
 
-            int sampling_mode;
-            int ret = update_sampler(gl, s, image, info, &used_texture_units, &sampling_mode);
-            if (ret < 0)
-                return ret;
+        int sampling_mode;
+        int ret = update_sampler(gl, s, image, info, &used_texture_units, &sampling_mode);
+        if (ret < 0)
+            return ret;
 
-            if (info->sampling_mode_location >= 0)
-                ngli_glUniform1i(gl, info->sampling_mode_location, sampling_mode);
+        if (info->sampling_mode_location >= 0)
+            ngli_glUniform1i(gl, info->sampling_mode_location, sampling_mode);
 
-            if (info->coord_matrix_location >= 0)
-                ngli_glUniformMatrix4fv(gl, info->coord_matrix_location, 1, GL_FALSE, image->coordinates_matrix);
+        if (info->coord_matrix_location >= 0)
+            ngli_glUniformMatrix4fv(gl, info->coord_matrix_location, 1, GL_FALSE, image->coordinates_matrix);
 
-            if (info->dimensions_location >= 0) {
-                float dimensions[3] = {0};
-                if (image->layout != NGLI_IMAGE_LAYOUT_NONE) {
-                    const struct texture_params *params = &image->planes[0]->params;
-                    dimensions[0] = params->width;
-                    dimensions[1] = params->height;
-                    dimensions[2] = params->depth;
-                }
-                if (info->dimensions_type == GL_FLOAT_VEC2)
-                    ngli_glUniform2fv(gl, info->dimensions_location, 1, dimensions);
-                else if (info->dimensions_type == GL_FLOAT_VEC3)
-                    ngli_glUniform3fv(gl, info->dimensions_location, 1, dimensions);
+        if (info->dimensions_location >= 0) {
+            float dimensions[3] = {0};
+            if (image->layout != NGLI_IMAGE_LAYOUT_NONE) {
+                const struct texture_params *params = &image->planes[0]->params;
+                dimensions[0] = params->width;
+                dimensions[1] = params->height;
+                dimensions[2] = params->depth;
             }
-
-            if (info->ts_location >= 0)
-                ngli_glUniform1f(gl, info->ts_location, image->ts);
+            if (info->dimensions_type == GL_FLOAT_VEC2)
+                ngli_glUniform2fv(gl, info->dimensions_location, 1, dimensions);
+            else if (info->dimensions_type == GL_FLOAT_VEC3)
+                ngli_glUniform3fv(gl, info->dimensions_location, 1, dimensions);
         }
+
+        if (info->ts_location >= 0)
+            ngli_glUniform1f(gl, info->ts_location, image->ts);
+    }
 
     return 0;
 }
