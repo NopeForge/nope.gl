@@ -40,8 +40,6 @@ static const struct node_param buffer_params[] = {
                .desc=NGLI_DOCSTRING("buffer of `count` elements")},
     {"filename", PARAM_TYPE_STR,  OFFSET(filename),
                .desc=NGLI_DOCSTRING("filename from which the buffer will be read, cannot be used with `data`")},
-    {"stride", PARAM_TYPE_INT,    OFFSET(data_stride),
-               .desc=NGLI_DOCSTRING("stride of 1 element, in bytes")},
     {"block",  PARAM_TYPE_NODE,    OFFSET(block),
                .node_types=(const int[]){NGL_NODE_BLOCK, -1},
                .desc=NGLI_DOCSTRING("reference a field from the given block")},
@@ -268,8 +266,7 @@ static int buffer_init(struct ngl_node *node)
     s->data_comp = nb_comp;
     s->data_format = format;
 
-    if (!s->data_stride)
-        s->data_stride = s->data_comp * data_comp_size;
+    s->data_stride = s->data_comp * data_comp_size;
 
     if (s->data)
         ret = buffer_init_from_data(node);
