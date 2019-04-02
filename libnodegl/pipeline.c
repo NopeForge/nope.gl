@@ -195,8 +195,9 @@ static int set_textures(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct pipeline *s = get_pipeline(node);
+    const struct darray *texture_pairs = &s->texture_pairs;
 
-    if (!s->textures)
+    if (!ngli_darray_count(texture_pairs))
         return 0;
 
     uint64_t used_texture_units = s->used_texture_units;
@@ -204,7 +205,6 @@ static int set_textures(struct ngl_node *node)
     for (int i = 0; i < NGLI_ARRAY_NB(s->disabled_texture_unit); i++)
         s->disabled_texture_unit[i] = -1;
 
-    const struct darray *texture_pairs = &s->texture_pairs;
     const struct nodeprograminfopair *pairs = ngli_darray_data(texture_pairs);
     for (int i = 0; i < ngli_darray_count(texture_pairs); i++) {
         const struct nodeprograminfopair *pair = &pairs[i];
