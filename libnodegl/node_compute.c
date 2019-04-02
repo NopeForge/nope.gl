@@ -130,6 +130,11 @@ static void compute_draw(struct ngl_node *node)
     ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
     ngli_glDispatchCompute(gl, s->nb_group_x, s->nb_group_y, s->nb_group_z);
     ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
+
+    ret = ngli_pipeline_unbind(&s->pipeline);
+    if (ret < 0) {
+        LOG(ERROR, "could not unbind pipeline");
+    }
 }
 
 const struct node_class ngli_compute_class = {

@@ -404,6 +404,9 @@ struct pipeline_params {
     struct hmap *uniforms;
     struct hmap *blocks;
     int nb_instances;
+    struct hmap *builtin_attributes;
+    struct hmap *attributes;
+    struct hmap *instance_attributes;
 };
 
 enum {
@@ -427,9 +430,15 @@ struct pipeline {
     struct darray uniform_pairs; // nodeprograminfopair (uniform, uniformprograminfo)
     struct darray block_pairs; // nodeprograminfopair (block, uniformprograminfo)
 
+    struct darray builtin_attribute_pairs; // nodeprograminfopair (builtin attribute, attributeprograminfo)
+    struct darray attribute_pairs; // nodeprograminfopair (attribute, attributeprograminfo)
+    struct darray instance_attribute_pairs; // nodeprograminfopair (instance attribute, attributeprograminfo)
+
     GLint modelview_matrix_location;
     GLint projection_matrix_location;
     GLint normal_matrix_location;
+
+    GLuint vao_id;
 };
 
 struct render_priv {
@@ -445,14 +454,7 @@ struct render_priv {
 
     struct pipeline pipeline;
 
-    struct darray builtin_attribute_pairs; // nodeprograminfopair (builtin attribute, attributeprograminfo)
-    struct darray attribute_pairs; // nodeprograminfopair (attribute, attributeprograminfo)
-    struct darray instance_attribute_pairs; // nodeprograminfopair (instance attribute, attributeprograminfo)
-
     int has_indices_buffer_ref;
-
-
-    GLuint vao_id;
     GLenum indices_type;
 
     void (*draw)(struct glcontext *gl, struct render_priv *render);
@@ -474,6 +476,7 @@ int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pip
 void ngli_pipeline_uninit(struct pipeline *s);
 int ngli_pipeline_update(struct pipeline *s, double t);
 int ngli_pipeline_upload_data(struct pipeline *s);
+int ngli_pipeline_unbind(struct pipeline *s);
 
 struct media_priv {
     const char *filename;

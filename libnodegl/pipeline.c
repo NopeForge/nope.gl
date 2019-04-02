@@ -682,6 +682,177 @@ static int set_blocks(struct pipeline *s)
     return 0;
 }
 
+static int pair_node_to_attribinfo(struct pipeline *s,
+                                   struct darray *attribute_pairs,
+                                   const char *name,
+                                   struct ngl_node *anode)
+{
+    const struct pipeline_params *params = &s->params;
+    const struct ngl_node *pnode = params->program;
+    const struct program_priv *program = pnode->priv_data;
+    const struct attributeprograminfo *active_attribute =
+        ngli_hmap_get(program->active_attributes, name);
+    if (!active_attribute)
+        return 1;
+
+    if (active_attribute->location < 0)
+        return 0;
+
+    int ret = ngli_node_buffer_ref(anode);
+    if (ret < 0)
+        return ret;
+
+    struct nodeprograminfopair pair = {
+        .node = anode,
+        .program_info = (void *)active_attribute,
+    };
+    snprintf(pair.name, sizeof(pair.name), "%s", name);
+    if (!ngli_darray_push(attribute_pairs, &pair)) {
+        ngli_node_buffer_unref(anode);
+        return -1;
+    }
+
+    return 0;
+}
+
+static int pair_nodes_to_attribinfo(struct pipeline *s,
+                                    struct darray *attribute_pairs,
+                                    struct hmap *attributes,
+                                    int per_instance,
+                                    int warn_not_found)
+{
+    if (!attributes)
+        return 0;
+
+    struct pipeline_params *params = &s->params;
+
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(attributes, entry))) {
+        struct ngl_node *anode = entry->data;
+
+        int ret = pair_node_to_attribinfo(s, attribute_pairs, entry->key, anode);
+        if (ret < 0)
+            return ret;
+
+        if (warn_not_found && ret == 1) {
+            const struct ngl_node *pnode = params->program;
+            LOG(WARNING, "attribute %s attached to %s not found in %s",
+                entry->key, params->label, pnode->label);
+        }
+    }
+    return 0;
+}
+
+static int build_vertex_attribs_pairs(struct pipeline *s)
+{
+    struct pipeline_params *params = &s->params;
+
+    ngli_darray_init(&s->builtin_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
+    ngli_darray_init(&s->attribute_pairs, sizeof(struct nodeprograminfopair), 0);
+    ngli_darray_init(&s->instance_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
+
+    if (s->type != NGLI_PIPELINE_TYPE_GRAPHIC)
+        return 0;
+
+    /* Builtin vertex attributes */
+    int ret = pair_nodes_to_attribinfo(s, &s->builtin_attribute_pairs, params->builtin_attributes, 0, 0);
+    if (ret < 0)
+        return ret;
+
+    /* User vertex attributes */
+    ret = pair_nodes_to_attribinfo(s, &s->attribute_pairs, params->attributes, 0, 1);
+    if (ret < 0)
+        return ret;
+
+    /* User per instance vertex attributes */
+    ret = pair_nodes_to_attribinfo(s, &s->instance_attribute_pairs, params->instance_attributes, 1, 1);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
+static void set_vertex_attribs_from_pairs(struct glcontext *gl,
+                                             const struct darray *attribute_pairs,
+                                             int is_instance_attrib)
+{
+    const struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
+    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
+        const struct ngl_node *node = pair->node;
+        const struct attributeprograminfo *info = pair->program_info;
+        const GLint index = info->location;
+        struct buffer_priv *buffer = pair->node->priv_data;
+
+        /* TODO: check that attribute type is mat4 */
+        const int nb_attribs = node->class->id == NGL_NODE_BUFFERMAT4 ? 4 : 1;
+        const int attrib_comp = buffer->data_comp / nb_attribs;
+        uintptr_t attrib_stride = buffer->data_stride / nb_attribs;
+        uintptr_t data_stride = buffer->data_stride;
+        int buffer_id = buffer->buffer.id;
+        int offset = 0;
+
+        if (buffer->block) {
+            const struct block_priv *block = buffer->block->priv_data;
+            const struct block_field_info *fi = &block->field_info[buffer->block_field];
+            attrib_stride = fi->stride / nb_attribs;
+            data_stride = fi->stride;
+            buffer_id = block->buffer.id;
+            offset = fi->offset;
+        }
+
+        ngli_glEnableVertexAttribArray(gl, index);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_id);
+
+        for (int j = 0; j < nb_attribs; j++) {
+            ngli_glEnableVertexAttribArray(gl, index + j);
+            ngli_glVertexAttribPointer(gl, index + j, attrib_comp, GL_FLOAT, GL_FALSE, data_stride, (void *)(j * attrib_stride + offset));
+        }
+
+        if (is_instance_attrib) {
+            for (int j = 0; j < nb_attribs; j++)
+                ngli_glVertexAttribDivisor(gl, index + j, 1);
+        }
+    }
+}
+
+static int set_vertex_attribs(struct pipeline *s)
+{
+    struct glcontext *gl = s->gl;
+
+    set_vertex_attribs_from_pairs(gl, &s->builtin_attribute_pairs, 0);
+    set_vertex_attribs_from_pairs(gl, &s->attribute_pairs, 0);
+    set_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs, 1);
+
+    return 0;
+}
+
+static void reset_vertex_attribs_from_pairs(struct glcontext *gl,
+                                              const struct darray *attribute_pairs)
+{
+    const struct nodeprograminfopair *pairs = ngli_darray_data(attribute_pairs);
+    for (int i = 0; i < ngli_darray_count(attribute_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
+        const struct attributeprograminfo *info = pair->program_info;
+        const struct ngl_node *node = pair->node;
+        const int nb_attribs = node->class->id == NGL_NODE_BUFFERMAT4 ? 4 : 1;
+        for (int i = 0; i < nb_attribs; i++) {
+            ngli_glDisableVertexAttribArray(gl, info->location + i);
+            if (gl->features & NGLI_FEATURE_INSTANCED_ARRAY)
+                ngli_glVertexAttribDivisor(gl, info->location + i, 0);
+        }
+    }
+}
+
+static void reset_vertex_attribs(struct pipeline *s)
+{
+    struct glcontext *gl = s->gl;
+
+    reset_vertex_attribs_from_pairs(gl, &s->builtin_attribute_pairs);
+    reset_vertex_attribs_from_pairs(gl, &s->attribute_pairs);
+    reset_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs);
+}
+
 int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pipeline_params *params)
 {
     int ret;
@@ -703,14 +874,22 @@ int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pip
 
     if ((ret = build_uniform_pairs(s)) < 0 ||
         (ret = build_texture_pairs(s)) < 0 ||
-        (ret = build_block_pairs(s)) < 0)
+        (ret = build_block_pairs(s)) < 0   ||
+        (ret = build_vertex_attribs_pairs(s)) < 0)
         return ret;
+
+    if (s->gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
+        ngli_glGenVertexArrays(s->gl, 1, &s->vao_id);
+        ngli_glBindVertexArray(s->gl, s->vao_id);
+        set_vertex_attribs(s);
+    }
 
     return 0;
 }
 
 #define NODE_TYPE_DEFAULT 0
 #define NODE_TYPE_BLOCK   1
+#define NODE_TYPE_BUFFER  2
 
 static void reset_pairs(struct darray *p, int type)
 {
@@ -719,6 +898,8 @@ static void reset_pairs(struct darray *p, int type)
         struct nodeprograminfopair *pair = &pairs[i];
         if (type == NODE_TYPE_BLOCK)
             ngli_node_block_unref(pair->node);
+        else if (type == NODE_TYPE_BUFFER)
+            ngli_node_buffer_unref(pair->node);
     }
     ngli_darray_reset(p);
 }
@@ -730,6 +911,7 @@ static void reset_##name##_pairs(struct darray *p) \
 }                                                  \
 
 DECLARE_RESET_PAIRS_FUNC(block, NODE_TYPE_BLOCK)
+DECLARE_RESET_PAIRS_FUNC(buffer, NODE_TYPE_BUFFER)
 
 void ngli_pipeline_uninit(struct pipeline *s)
 {
@@ -740,7 +922,15 @@ void ngli_pipeline_uninit(struct pipeline *s)
 
     ngli_darray_reset(&s->texture_pairs);
     ngli_darray_reset(&s->uniform_pairs);
+    reset_buffer_pairs(&s->builtin_attribute_pairs);
+    reset_buffer_pairs(&s->attribute_pairs);
+    reset_buffer_pairs(&s->instance_attribute_pairs);
     reset_block_pairs(&s->block_pairs);
+
+    struct glcontext *gl = s->gl;
+    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
+        ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
+    }
 
     memset(s, 0, sizeof(*s));
 }
@@ -756,6 +946,8 @@ static int update_pairs(struct darray *p, double t, int type)
             return ret;
         if (type == NODE_TYPE_BLOCK)
             ret = ngli_node_block_upload(node);
+        else if (type == NODE_TYPE_BUFFER)
+            ret = ngli_node_buffer_upload(node);
         if (ret < 0)
             return ret;
     }
@@ -770,13 +962,17 @@ static int update_##name##_pairs(struct darray *p, double t) \
 
 DECLARE_UPDATE_PAIRS_FUNC(common, NODE_TYPE_DEFAULT)
 DECLARE_UPDATE_PAIRS_FUNC(block, NODE_TYPE_BLOCK)
+DECLARE_UPDATE_PAIRS_FUNC(buffer, NODE_TYPE_BUFFER)
 
 int ngli_pipeline_update(struct pipeline *s, double t)
 {
     int ret;
     if ((ret = update_common_pairs(&s->texture_pairs, t)) < 0 ||
         (ret = update_common_pairs(&s->uniform_pairs, t)) < 0 ||
-        (ret = update_block_pairs(&s->block_pairs, t)) < 0)
+        (ret = update_block_pairs(&s->block_pairs, t)) < 0 ||
+        (ret = update_buffer_pairs(&s->builtin_attribute_pairs, t)) < 0 ||
+        (ret = update_buffer_pairs(&s->attribute_pairs, t)) < 0 ||
+        (ret = update_buffer_pairs(&s->instance_attribute_pairs, t)) < 0)
         return ret;
 
     struct pipeline_params *params = &s->params;
@@ -785,12 +981,28 @@ int ngli_pipeline_update(struct pipeline *s, double t)
 
 int ngli_pipeline_upload_data(struct pipeline *s)
 {
-    int ret;
+    struct glcontext *gl = s->gl;
 
+    int ret;
     if ((ret = set_uniforms(s)) < 0 ||
         (ret = set_textures(s)) < 0 ||
         (ret = set_blocks(s)) < 0)
         return ret;
+
+    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
+        ngli_glBindVertexArray(s->gl, s->vao_id);
+    else
+        set_vertex_attribs(s);
+
+    return 0;
+}
+
+int ngli_pipeline_unbind(struct pipeline *s)
+{
+    struct glcontext *gl = s->gl;
+
+    if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT))
+        reset_vertex_attribs(s);
 
     return 0;
 }
