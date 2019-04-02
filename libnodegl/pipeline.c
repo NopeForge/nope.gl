@@ -969,7 +969,7 @@ int ngli_pipeline_update(struct pipeline *s, double t)
     return ngli_node_update(params->program, t);
 }
 
-int ngli_pipeline_upload_data(struct pipeline *s)
+int ngli_pipeline_bind(struct pipeline *s)
 {
     struct glcontext *gl = s->gl;
 

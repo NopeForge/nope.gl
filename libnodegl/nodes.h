@@ -473,7 +473,7 @@ struct compute_priv {
 int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pipeline_params *params);
 void ngli_pipeline_uninit(struct pipeline *s);
 int ngli_pipeline_update(struct pipeline *s, double t);
-int ngli_pipeline_upload_data(struct pipeline *s);
+int ngli_pipeline_bind(struct pipeline *s);
 int ngli_pipeline_unbind(struct pipeline *s);
 
 struct media_priv {

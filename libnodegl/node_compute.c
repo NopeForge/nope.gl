@@ -122,7 +122,7 @@ static void compute_draw(struct ngl_node *node)
     const struct program_priv *program = s->program->priv_data;
     ngli_glUseProgram(gl, program->program_id);
 
-    int ret = ngli_pipeline_upload_data(&s->pipeline);
+    int ret = ngli_pipeline_bind(&s->pipeline);
     if (ret < 0) {
         LOG(ERROR, "pipeline upload data error");
     }
