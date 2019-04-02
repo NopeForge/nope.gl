@@ -142,11 +142,11 @@ static void update_vertex_attribs_from_pairs(struct glcontext *gl,
 
         /* TODO: check that attribute type is mat4 */
         const int nb_attribs = node->class->id == NGL_NODE_BUFFERMAT4 ? 4 : 1;
-        const int data_comp = buffer->data_comp / nb_attribs;
-        const uintptr_t data_stride = buffer->data_stride / nb_attribs;
+        const int attrib_comp = buffer->data_comp / nb_attribs;
+        const uintptr_t attrib_stride = buffer->data_stride / nb_attribs;
         for (int j = 0; j < nb_attribs; j++) {
             ngli_glEnableVertexAttribArray(gl, index + j);
-            ngli_glVertexAttribPointer(gl, index + j, data_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, (void *)(j * data_stride));
+            ngli_glVertexAttribPointer(gl, index + j, attrib_comp, GL_FLOAT, GL_FALSE, buffer->data_stride, (void *)(j * attrib_stride));
         }
 
         if (is_instance_attrib) {
