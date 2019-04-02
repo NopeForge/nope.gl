@@ -152,7 +152,7 @@ def query_inplace(**idict):
                           bg_color=(0.0, 0.0, 0.0, 0.8),
                           aspect_ratio=odict['aspect_ratio'])
             q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-            t = ngl.Texture2D(data_src=hud, min_filter='linear_mipmap_linear')
+            t = ngl.Texture2D(data_src=hud, min_filter='linear', mipmap_filter='linear')
             render = ngl.Render(q)
             render.update_textures(tex0=t)
             render = ngl.GraphicConfig(render, blend=True,

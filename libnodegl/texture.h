@@ -25,14 +25,27 @@
 #include "glincludes.h"
 #include "glcontext.h"
 
-int ngli_texture_filter_has_mipmap(GLint filter);
-int ngli_texture_filter_has_linear_filtering(GLint filter);
+enum {
+    NGLI_MIPMAP_FILTER_NONE,
+    NGLI_MIPMAP_FILTER_NEAREST,
+    NGLI_MIPMAP_FILTER_LINEAR,
+    NGLI_NB_MIPMAP
+};
+
+enum {
+    NGLI_FILTER_NEAREST,
+    NGLI_FILTER_LINEAR,
+    NGLI_NB_FILTER
+};
+
+GLint ngli_texture_get_gl_min_filter(GLint gl_min_filter, int mipmap_filter);
 
 #define NGLI_TEXTURE_PARAM_DEFAULTS {          \
     .dimensions = 2,                           \
     .format = NGLI_FORMAT_UNDEFINED,           \
     .min_filter = GL_NEAREST,                  \
     .mag_filter = GL_NEAREST,                  \
+    .mipmap_filter = NGLI_MIPMAP_FILTER_NONE,  \
     .wrap_s = GL_CLAMP_TO_EDGE,                \
     .wrap_t = GL_CLAMP_TO_EDGE,                \
     .wrap_r = GL_CLAMP_TO_EDGE,                \
@@ -50,6 +63,7 @@ struct texture_params {
     int samples;
     GLint min_filter;
     GLint mag_filter;
+    int mipmap_filter;
     GLint wrap_s;
     GLint wrap_t;
     GLint wrap_r;
@@ -89,7 +103,6 @@ void ngli_texture_set_id(struct texture *s, GLuint id);
 void ngli_texture_set_dimensions(struct texture *s, int width, int height, int depth);
 
 int ngli_texture_has_mipmap(const struct texture *s);
-int ngli_texture_has_linear_filtering(const struct texture *s);
 int ngli_texture_match_dimensions(const struct texture *s, int width, int height, int depth);
 
 int ngli_texture_upload(struct texture *s, const uint8_t *data, int linesize);

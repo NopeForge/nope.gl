@@ -42,6 +42,7 @@ struct text_priv {
     int aspect_ratio[2];
     GLenum min_filter;
     GLenum mag_filter;
+    int mipmap_filter;
 
     struct texture texture;
     struct canvas canvas;
@@ -111,12 +112,15 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("horizontal alignment of the text in the box")},
     {"aspect_ratio", PARAM_TYPE_RATIONAL, OFFSET(aspect_ratio),
                      .desc=NGLI_DOCSTRING("box aspect ratio")},
-    {"min_filter",   PARAM_TYPE_SELECT, OFFSET(min_filter), {.i64=GL_LINEAR_MIPMAP_LINEAR},
-                     .choices=&ngli_minfilter_choices,
+    {"min_filter",   PARAM_TYPE_SELECT, OFFSET(min_filter), {.i64=GL_LINEAR},
+                     .choices=&ngli_filter_choices,
                      .desc=NGLI_DOCSTRING("rasterized text texture minifying function")},
     {"mag_filter",   PARAM_TYPE_SELECT, OFFSET(mag_filter), {.i64=GL_NEAREST},
-                     .choices=&ngli_magfilter_choices,
+                     .choices=&ngli_filter_choices,
                      .desc=NGLI_DOCSTRING("rasterized text texture magnification function")},
+    {"mipmap_filter", PARAM_TYPE_SELECT, OFFSET(mipmap_filter), {.i64=NGLI_MIPMAP_FILTER_LINEAR},
+                      .choices=&ngli_mipmap_filter_choices,
+                      .desc=NGLI_DOCSTRING("rasterized text texture minifying mipmap function")},
     {NULL}
 };
 
@@ -285,6 +289,7 @@ static int text_init(struct ngl_node *node)
     tex_params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
     tex_params.min_filter = s->min_filter;
     tex_params.mag_filter = s->mag_filter;
+    tex_params.mipmap_filter = s->mipmap_filter;
     ret = ngli_texture_init(&s->texture, gl, &tex_params);
     if (ret < 0)
         return ret;

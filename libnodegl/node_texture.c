@@ -33,21 +33,18 @@
 #include "nodes.h"
 #include "texture.h"
 
-const struct param_choices ngli_minfilter_choices = {
-    .name = "min_filter",
+const struct param_choices ngli_mipmap_filter_choices = {
+    .name = "mipmap_filter",
     .consts = {
-        {"nearest",                GL_NEAREST,                .desc=NGLI_DOCSTRING("nearest filtering")},
-        {"linear",                 GL_LINEAR,                 .desc=NGLI_DOCSTRING("linear filtering")},
-        {"nearest_mipmap_nearest", GL_NEAREST_MIPMAP_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering, nearest mipmap filtering")},
-        {"linear_mipmap_nearest",  GL_LINEAR_MIPMAP_NEAREST,  .desc=NGLI_DOCSTRING("linear filtering, nearest mipmap filtering")},
-        {"nearest_mipmap_linear",  GL_NEAREST_MIPMAP_LINEAR,  .desc=NGLI_DOCSTRING("nearest filtering, linear mipmap filtering")},
-        {"linear_mipmap_linear",   GL_LINEAR_MIPMAP_LINEAR,   .desc=NGLI_DOCSTRING("linear filtering, linear mipmap filtering")},
+        {"none",    NGLI_MIPMAP_FILTER_NONE,    .desc=NGLI_DOCSTRING("no mipmap generation")},
+        {"nearest", NGLI_MIPMAP_FILTER_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering")},
+        {"linear",  NGLI_MIPMAP_FILTER_LINEAR,  .desc=NGLI_DOCSTRING("linear filtering")},
         {NULL}
     }
 };
 
-const struct param_choices ngli_magfilter_choices = {
-    .name = "mag_filter",
+const struct param_choices ngli_filter_choices = {
+    .name = "filter",
     .consts = {
         {"nearest", GL_NEAREST, .desc=NGLI_DOCSTRING("nearest filtering")},
         {"linear",  GL_LINEAR,  .desc=NGLI_DOCSTRING("linear filtering")},
@@ -138,10 +135,13 @@ static const struct node_param texture2d_params[] = {
               .desc=NGLI_DOCSTRING("width of the texture")},
     {"height", PARAM_TYPE_INT, OFFSET(params.height), {.i64=0},
                .desc=NGLI_DOCSTRING("height of the texture")},
-    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&ngli_minfilter_choices,
+    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
-    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&ngli_magfilter_choices,
+    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture magnification function")},
+    {"mipmap_filter", PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i64=NGLI_MIPMAP_FILTER_NONE},
+                      .choices=&ngli_mipmap_filter_choices,
+                      .desc=NGLI_DOCSTRING("texture minifying mipmap function")},
     {"wrap_s", PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
     {"wrap_t", PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
@@ -164,10 +164,13 @@ static const struct node_param texture3d_params[] = {
                .desc=NGLI_DOCSTRING("height of the texture")},
     {"depth", PARAM_TYPE_INT, OFFSET(params.depth), {.i64=0},
                .desc=NGLI_DOCSTRING("depth of the texture")},
-    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&ngli_minfilter_choices,
+    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
-    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&ngli_magfilter_choices,
+    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture magnification function")},
+    {"mipmap_filter", PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i64=NGLI_MIPMAP_FILTER_NONE},
+                      .choices=&ngli_mipmap_filter_choices,
+                      .desc=NGLI_DOCSTRING("texture minifying mipmap function")},
     {"wrap_s", PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
     {"wrap_t", PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
@@ -186,10 +189,13 @@ static const struct node_param texturecube_params[] = {
                .desc=NGLI_DOCSTRING("format of the pixel data")},
     {"size", PARAM_TYPE_INT, OFFSET(params.width), {.i64=0},
              .desc=NGLI_DOCSTRING("width and height of the texture")},
-    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&ngli_minfilter_choices,
+    {"min_filter", PARAM_TYPE_SELECT, OFFSET(params.min_filter), {.i64=GL_NEAREST}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture minifying function")},
-    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&ngli_magfilter_choices,
+    {"mag_filter", PARAM_TYPE_SELECT, OFFSET(params.mag_filter), {.i64=GL_NEAREST}, .choices=&ngli_filter_choices,
                    .desc=NGLI_DOCSTRING("texture magnification function")},
+    {"mipmap_filter", PARAM_TYPE_SELECT, OFFSET(params.mipmap_filter), {.i64=NGLI_MIPMAP_FILTER_NONE},
+                      .choices=&ngli_mipmap_filter_choices,
+                      .desc=NGLI_DOCSTRING("texture minifying mipmap function")},
     {"wrap_s", PARAM_TYPE_SELECT, OFFSET(params.wrap_s), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,
                .desc=NGLI_DOCSTRING("wrap parameter for the texture on the s dimension (horizontal)")},
     {"wrap_t", PARAM_TYPE_SELECT, OFFSET(params.wrap_t), {.i64=GL_CLAMP_TO_EDGE}, .choices=&wrap_choices,

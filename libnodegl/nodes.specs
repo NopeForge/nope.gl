@@ -341,6 +341,7 @@
         - [aspect_ratio, rational]
         - [min_filter, select]
         - [mag_filter, select]
+        - [mipmap_filter, select]
 
 - Texture2D:
     optional:
@@ -349,6 +350,7 @@
         - [height, int]
         - [min_filter, select]
         - [mag_filter, select]
+        - [mipmap_filter, select]
         - [wrap_s, select]
         - [wrap_t, select]
         - [access, select]
@@ -363,6 +365,7 @@
         - [depth, int]
         - [min_filter, select]
         - [mag_filter, select]
+        - [mipmap_filter, select]
         - [wrap_s, select]
         - [wrap_t, select]
         - [wrap_r, select]
@@ -375,6 +378,7 @@
         - [size, int]
         - [min_filter, select]
         - [mag_filter, select]
+        - [mipmap_filter, select]
         - [wrap_s, select]
         - [wrap_t, select]
         - [wrap_r, select]

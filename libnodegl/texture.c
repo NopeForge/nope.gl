@@ -28,29 +28,32 @@
 #include "glcontext.h"
 #include "texture.h"
 
-int ngli_texture_filter_has_mipmap(GLint filter)
+static const GLint gl_filter_map[NGLI_NB_FILTER][NGLI_NB_MIPMAP] = {
+    [NGLI_FILTER_NEAREST] = {
+        [NGLI_MIPMAP_FILTER_NONE]    = GL_NEAREST,
+        [NGLI_MIPMAP_FILTER_NEAREST] = GL_NEAREST_MIPMAP_NEAREST,
+        [NGLI_MIPMAP_FILTER_LINEAR]  = GL_NEAREST_MIPMAP_LINEAR,
+    },
+    [NGLI_FILTER_LINEAR] = {
+        [NGLI_MIPMAP_FILTER_NONE]    = GL_LINEAR,
+        [NGLI_MIPMAP_FILTER_NEAREST] = GL_LINEAR_MIPMAP_NEAREST,
+        [NGLI_MIPMAP_FILTER_LINEAR]  = GL_LINEAR_MIPMAP_LINEAR,
+    },
+};
+
+static int min_filter_gl_to_ngl(GLint gl_min_filter)
 {
-    switch (filter) {
-    case GL_NEAREST_MIPMAP_NEAREST:
-    case GL_NEAREST_MIPMAP_LINEAR:
-    case GL_LINEAR_MIPMAP_NEAREST:
-    case GL_LINEAR_MIPMAP_LINEAR:
-        return 1;
-    default:
-        return 0;
+    switch (gl_min_filter) {
+        case GL_NEAREST: return NGLI_FILTER_NEAREST;
+        case GL_LINEAR:  return NGLI_FILTER_LINEAR;
     }
+    return 0;
 }
 
-int ngli_texture_filter_has_linear_filtering(GLint filter)
+GLint ngli_texture_get_gl_min_filter(GLint gl_min_filter, int mipmap_filter)
 {
-    switch (filter) {
-    case GL_LINEAR:
-    case GL_LINEAR_MIPMAP_NEAREST:
-    case GL_LINEAR_MIPMAP_LINEAR:
-        return 1;
-    default:
-        return 0;
-    }
+    const int min_filter = min_filter_gl_to_ngl(gl_min_filter);
+    return gl_filter_map[min_filter][mipmap_filter];
 }
 
 static void texture_set_image(struct texture *s, const uint8_t *data)
@@ -292,13 +295,15 @@ int ngli_texture_init(struct texture *s,
     } else {
         ngli_glGenTextures(gl, 1, &s->id);
         ngli_glBindTexture(gl, s->target, s->id);
-        GLint min_filter = params->min_filter;
-        if (!(gl->features & NGLI_FEATURE_TEXTURE_NPOT) &&
+        int mipmap_filter = params->mipmap_filter;
+        if (mipmap_filter &&
+            !(gl->features & NGLI_FEATURE_TEXTURE_NPOT) &&
             (!is_pow2(params->width) || !is_pow2(params->height))) {
             LOG(WARNING, "context does not support non-power of two textures, "
                 "mipmapping will be disabled");
-            min_filter = ngli_texture_filter_has_linear_filtering(params->min_filter) ? GL_LINEAR : GL_NEAREST;
+            mipmap_filter = NGLI_MIPMAP_FILTER_NONE;
         }
+        const GLint min_filter = ngli_texture_get_gl_min_filter(params->min_filter, mipmap_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, min_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, params->mag_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, params->wrap_s);
@@ -365,12 +370,7 @@ void ngli_texture_set_dimensions(struct texture *s, int width, int height, int d
 
 int ngli_texture_has_mipmap(const struct texture *s)
 {
-    return ngli_texture_filter_has_mipmap(s->params.min_filter);
-}
-
-int ngli_texture_has_linear_filtering(const struct texture *s)
-{
-    return ngli_texture_filter_has_linear_filtering(s->params.min_filter);
+    return s->params.mipmap_filter != NGLI_MIPMAP_FILTER_NONE;
 }
 
 int ngli_texture_match_dimensions(const struct texture *s, int width, int height, int depth)

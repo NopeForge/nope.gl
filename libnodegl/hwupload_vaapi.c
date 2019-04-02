@@ -45,16 +45,14 @@ static int vaapi_common_init(struct ngl_node *node, struct sxplayer_frame *frame
         const struct texture_params *params = &s->params;
 
         int format = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM;
-        GLenum min_filter = params->min_filter;
-        if (ngli_texture_filter_has_mipmap(params->min_filter))
-            min_filter = ngli_texture_filter_has_linear_filtering(params->min_filter) ? GL_LINEAR : GL_NEAREST;
 
         struct texture *plane = &vaapi->planes[i];
         const struct texture_params plane_params = {
             .dimensions = 2,
             .format = format,
-            .min_filter = min_filter,
+            .min_filter = params->min_filter,
             .mag_filter = params->mag_filter,
+            .mipmap_filter = NGLI_MIPMAP_FILTER_NONE,
             .wrap_s = params->wrap_s,
             .wrap_t = params->wrap_t,
             .wrap_r = params->wrap_r,
@@ -304,8 +302,7 @@ static const struct hwmap_class *vaapi_get_hwmap(struct ngl_node *node, struct s
 {
     struct texture_priv *s = node->priv_data;
 
-    if (s->direct_rendering &&
-        ngli_texture_filter_has_mipmap(s->params.min_filter)) {
+    if (s->direct_rendering && s->params.mipmap_filter) {
         LOG(WARNING,
             "vaapi direct rendering does not support mipmapping: "
             "disabling direct rendering");

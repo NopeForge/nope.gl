@@ -467,8 +467,9 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `valign` |  |  | [`valign`](#valign-choices) | vertical alignment of the text in the box | `center`
 `halign` |  |  | [`halign`](#halign-choices) | horizontal alignment of the text in the box | `center`
 `aspect_ratio` |  |  | [`rational`](#parameter-types) | box aspect ratio | 
-`min_filter` |  |  | [`min_filter`](#min_filter-choices) | rasterized text texture minifying function | `linear_mipmap_linear`
-`mag_filter` |  |  | [`mag_filter`](#mag_filter-choices) | rasterized text texture magnification function | `nearest`
+`min_filter` |  |  | [`filter`](#filter-choices) | rasterized text texture minifying function | `linear`
+`mag_filter` |  |  | [`filter`](#filter-choices) | rasterized text texture magnification function | `nearest`
+`mipmap_filter` |  |  | [`mipmap_filter`](#mipmap_filter-choices) | rasterized text texture minifying mipmap function | `linear`
 
 
 **Source**: [node_text.c](/libnodegl/node_text.c)
@@ -481,8 +482,9 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `format` |  |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
 `width` |  |  | [`int`](#parameter-types) | width of the texture | `0`
 `height` |  |  | [`int`](#parameter-types) | height of the texture | `0`
-`min_filter` |  |  | [`min_filter`](#min_filter-choices) | texture minifying function | `nearest`
-`mag_filter` |  |  | [`mag_filter`](#mag_filter-choices) | texture magnification function | `nearest`
+`min_filter` |  |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
+`mag_filter` |  |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
+`mipmap_filter` |  |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
 `access` |  |  | [`access`](#access-choices) | texture access (only honored by the `Compute` node) | `read_write`
@@ -501,8 +503,9 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `width` |  |  | [`int`](#parameter-types) | width of the texture | `0`
 `height` |  |  | [`int`](#parameter-types) | height of the texture | `0`
 `depth` |  |  | [`int`](#parameter-types) | depth of the texture | `0`
-`min_filter` |  |  | [`min_filter`](#min_filter-choices) | texture minifying function | `nearest`
-`mag_filter` |  |  | [`mag_filter`](#mag_filter-choices) | texture magnification function | `nearest`
+`min_filter` |  |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
+`mag_filter` |  |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
+`mipmap_filter` |  |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
 `wrap_r` |  |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the r dimension (depth) | `clamp_to_edge`
@@ -519,8 +522,9 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `format` |  |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
 `size` |  |  | [`int`](#parameter-types) | width and height of the texture | `0`
-`min_filter` |  |  | [`min_filter`](#min_filter-choices) | texture minifying function | `nearest`
-`mag_filter` |  |  | [`mag_filter`](#mag_filter-choices) | texture magnification function | `nearest`
+`min_filter` |  |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
+`mag_filter` |  |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
+`mipmap_filter` |  |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
 `wrap_r` |  |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the r dimension (depth) | `clamp_to_edge`
@@ -895,21 +899,18 @@ Constant | Description
 `right` | right positioned
 `left` | left positioned
 
-## min_filter choices
+## filter choices
 
 Constant | Description
 -------- | -----------
 `nearest` | nearest filtering
 `linear` | linear filtering
-`nearest_mipmap_nearest` | nearest filtering, nearest mipmap filtering
-`linear_mipmap_nearest` | linear filtering, nearest mipmap filtering
-`nearest_mipmap_linear` | nearest filtering, linear mipmap filtering
-`linear_mipmap_linear` | linear filtering, linear mipmap filtering
 
-## mag_filter choices
+## mipmap_filter choices
 
 Constant | Description
 -------- | -----------
+`none` | no mipmap generation
 `nearest` | nearest filtering
 `linear` | linear filtering
 

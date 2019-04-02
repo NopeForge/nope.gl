@@ -178,7 +178,7 @@ static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxpl
     if (s->direct_rendering) {
         const struct texture_params *params = &s->params;
 
-        if (ngli_texture_filter_has_mipmap(params->min_filter)) {
+        if (params->mipmap_filter) {
             LOG(WARNING, "external textures do not support mipmapping: "
                 "disabling direct rendering");
             s->direct_rendering = 0;

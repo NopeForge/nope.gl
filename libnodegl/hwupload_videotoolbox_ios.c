@@ -285,10 +285,10 @@ static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
     vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
     struct texture_params plane_params = s->params;
-    if (ngli_texture_filter_has_mipmap(plane_params.min_filter)) {
+    if (plane_params.mipmap_filter) {
         LOG(WARNING, "IOSurface RGBA/BGRA buffers do not support mipmapping: "
             "disabling mipmapping");
-        plane_params.min_filter = ngli_texture_filter_has_linear_filtering(plane_params.min_filter) ? GL_LINEAR : GL_NEAREST;
+        plane_params.mipmap_filter = NGLI_MIPMAP_FILTER_NONE;
     }
 
     struct format_desc format_desc = {0};
@@ -338,8 +338,7 @@ static const struct hwmap_class *vt_ios_get_hwmap(struct ngl_node *node, struct 
     case kCVPixelFormatType_32RGBA:
         return &hwmap_vt_ios_dr_class;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-        if (s->direct_rendering &&
-            ngli_texture_filter_has_mipmap(s->params.min_filter)) {
+        if (s->direct_rendering && s->params.mipmap_filter) {
             LOG(WARNING, "IOSurface NV12 buffers do not support mipmapping: "
                 "disabling direct rendering");
             s->direct_rendering = 0;
