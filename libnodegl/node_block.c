@@ -28,13 +28,6 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-struct field_info {
-    int spec_id;
-    int offset;
-    int size;
-    int stride;
-};
-
 enum {
     LAYOUT_STD140,
     LAYOUT_STD430,

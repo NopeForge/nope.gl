@@ -272,7 +272,12 @@ struct uniform_priv {
     int live_changed;
 };
 
-struct field_info;
+struct field_info {
+    int spec_id;
+    int offset;
+    int size;
+    int stride;
+};
 
 struct block_priv {
     struct ngl_node **fields;
