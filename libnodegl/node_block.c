@@ -197,7 +197,7 @@ static int has_changed_buffer(const struct ngl_node *bnode)
 
 static void update_uniform_float_field(uint8_t *dst,
                                        const struct ngl_node *node,
-                                       const struct field_info *fi)
+                                       const struct block_field_info *fi)
 {
     const struct uniform_priv *uniform = node->priv_data;
     *(float *)dst = (float)uniform->scalar; // double -> float
@@ -205,7 +205,7 @@ static void update_uniform_float_field(uint8_t *dst,
 
 static void update_uniform_vec_field(uint8_t *dst,
                                      const struct ngl_node *node,
-                                     const struct field_info *fi)
+                                     const struct block_field_info *fi)
 {
     const struct uniform_priv *uniform = node->priv_data;
     memcpy(dst, uniform->vector, fi->size);
@@ -213,7 +213,7 @@ static void update_uniform_vec_field(uint8_t *dst,
 
 static void update_uniform_int_field(uint8_t *dst,
                                      const struct ngl_node *node,
-                                     const struct field_info *fi)
+                                     const struct block_field_info *fi)
 {
     const struct uniform_priv *uniform = node->priv_data;
     memcpy(dst, &uniform->ival, fi->size);
@@ -221,7 +221,7 @@ static void update_uniform_int_field(uint8_t *dst,
 
 static void update_uniform_mat4_field(uint8_t *dst,
                                       const struct ngl_node *node,
-                                      const struct field_info *fi)
+                                      const struct block_field_info *fi)
 {
     const struct uniform_priv *uniform = node->priv_data;
     memcpy(dst, uniform->matrix, fi->size);
@@ -229,7 +229,7 @@ static void update_uniform_mat4_field(uint8_t *dst,
 
 static void update_buffer_field(uint8_t *dst,
                                 const struct ngl_node *node,
-                                const struct field_info *fi)
+                                const struct block_field_info *fi)
 {
     const struct buffer_priv *buffer = node->priv_data;
     if (buffer->data_stride == fi->stride)
@@ -242,7 +242,7 @@ static void update_buffer_field(uint8_t *dst,
 static const struct type_spec {
     int class_id;
     int (*has_changed)(const struct ngl_node *node);
-    void (*update_data)(uint8_t *dst, const struct ngl_node *node, const struct field_info *fi);
+    void (*update_data)(uint8_t *dst, const struct ngl_node *node, const struct block_field_info *fi);
 } type_specs[] = {
     {NGL_NODE_BUFFERFLOAT,         has_changed_buffer,  update_buffer_field},
     {NGL_NODE_BUFFERVEC2,          has_changed_buffer,  update_buffer_field},
@@ -281,7 +281,7 @@ static void update_block_data(struct block_priv *s, int forced)
 {
     for (int i = 0; i < s->nb_fields; i++) {
         const struct ngl_node *field_node = s->fields[i];
-        const struct field_info *fi = &s->field_info[i];
+        const struct block_field_info *fi = &s->field_info[i];
         const struct type_spec *spec = &type_specs[fi->spec_id];
         if (!forced && !spec->has_changed(field_node))
             continue;
@@ -328,7 +328,7 @@ static int block_init(struct ngl_node *node)
         if (spec->has_changed(field_node))
             s->usage = GL_DYNAMIC_DRAW;
 
-        struct field_info *fi = &s->field_info[i];
+        struct block_field_info *fi = &s->field_info[i];
         fi->spec_id = spec_id;
         fi->size    = size;
         fi->stride  = get_buffer_stride(field_node, s->layout);

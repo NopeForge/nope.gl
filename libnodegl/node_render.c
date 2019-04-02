@@ -147,7 +147,7 @@ static void update_vertex_attribs_from_pairs(struct glcontext *gl,
 
         if (buffer->block) {
             const struct block_priv *block = buffer->block->priv_data;
-            const struct field_info *fi = &block->field_info[buffer->block_field];
+            const struct block_field_info *fi = &block->field_info[buffer->block_field];
             attrib_stride = fi->stride / nb_attribs;
             data_stride = fi->stride;
             buffer_id = block->buffer.id;

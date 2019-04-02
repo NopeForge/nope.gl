@@ -274,7 +274,7 @@ struct uniform_priv {
     int live_changed;
 };
 
-struct field_info {
+struct block_field_info {
     int spec_id;
     int offset;
     int size;
@@ -286,7 +286,7 @@ struct block_priv {
     int nb_fields;
     int layout;
 
-    struct field_info *field_info;
+    struct block_field_info *field_info;
     int nb_field_info;
     uint8_t *data;
     int data_size;
