@@ -134,10 +134,12 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 
     GLint id = media->android_texture.id;
     GLenum target = media->android_texture.target;
+    const GLint min_filter = ngli_texture_get_gl_min_filter(params->min_filter, params->mipmap_filter);
+    const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->mag_filter);
 
     ngli_glBindTexture(gl, target, id);
-    ngli_glTexParameteri(gl, target, GL_TEXTURE_MIN_FILTER, params->min_filter);
-    ngli_glTexParameteri(gl, target, GL_TEXTURE_MAG_FILTER, params->mag_filter);
+    ngli_glTexParameteri(gl, target, GL_TEXTURE_MIN_FILTER, min_filter);
+    ngli_glTexParameteri(gl, target, GL_TEXTURE_MAG_FILTER, mag_filter);
     ngli_glBindTexture(gl, target, 0);
 
     ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_MEDIACODEC, &media->android_texture);

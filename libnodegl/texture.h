@@ -38,13 +38,14 @@ enum {
     NGLI_NB_FILTER
 };
 
-GLint ngli_texture_get_gl_min_filter(GLint gl_min_filter, int mipmap_filter);
+int ngli_texture_get_gl_min_filter(int min_filter, int mipmap_filter);
+int ngli_texture_get_gl_mag_filter(int mag_filter);
 
 #define NGLI_TEXTURE_PARAM_DEFAULTS {          \
     .dimensions = 2,                           \
     .format = NGLI_FORMAT_UNDEFINED,           \
-    .min_filter = GL_NEAREST,                  \
-    .mag_filter = GL_NEAREST,                  \
+    .min_filter = NGLI_FILTER_NEAREST,         \
+    .mag_filter = NGLI_FILTER_NEAREST,         \
     .mipmap_filter = NGLI_MIPMAP_FILTER_NONE,  \
     .wrap_s = GL_CLAMP_TO_EDGE,                \
     .wrap_t = GL_CLAMP_TO_EDGE,                \

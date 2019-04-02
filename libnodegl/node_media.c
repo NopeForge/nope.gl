@@ -166,8 +166,8 @@ static int media_init(struct ngl_node *node)
     struct texture_params params = {
         .dimensions = 2,
         .format = NGLI_FORMAT_UNDEFINED,
-        .min_filter = GL_NEAREST,
-        .mag_filter = GL_NEAREST,
+        .min_filter = NGLI_FILTER_NEAREST,
+        .mag_filter = NGLI_FILTER_NEAREST,
         .wrap_s = GL_CLAMP_TO_EDGE,
         .wrap_t = GL_CLAMP_TO_EDGE,
         .wrap_r = GL_CLAMP_TO_EDGE,

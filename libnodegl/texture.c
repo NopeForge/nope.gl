@@ -41,19 +41,14 @@ static const GLint gl_filter_map[NGLI_NB_FILTER][NGLI_NB_MIPMAP] = {
     },
 };
 
-static int min_filter_gl_to_ngl(GLint gl_min_filter)
+GLint ngli_texture_get_gl_min_filter(int min_filter, int mipmap_filter)
 {
-    switch (gl_min_filter) {
-        case GL_NEAREST: return NGLI_FILTER_NEAREST;
-        case GL_LINEAR:  return NGLI_FILTER_LINEAR;
-    }
-    return 0;
+    return gl_filter_map[min_filter][mipmap_filter];
 }
 
-GLint ngli_texture_get_gl_min_filter(GLint gl_min_filter, int mipmap_filter)
+GLint ngli_texture_get_gl_mag_filter(int mag_filter)
 {
-    const int min_filter = min_filter_gl_to_ngl(gl_min_filter);
-    return gl_filter_map[min_filter][mipmap_filter];
+    return gl_filter_map[mag_filter][NGLI_MIPMAP_FILTER_NONE];
 }
 
 static void texture_set_image(struct texture *s, const uint8_t *data)
@@ -304,8 +299,9 @@ int ngli_texture_init(struct texture *s,
             mipmap_filter = NGLI_MIPMAP_FILTER_NONE;
         }
         const GLint min_filter = ngli_texture_get_gl_min_filter(params->min_filter, mipmap_filter);
+        const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->mag_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, min_filter);
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, params->mag_filter);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, mag_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, params->wrap_s);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, params->wrap_t);
         if (s->target == GL_TEXTURE_3D || s->target == GL_TEXTURE_CUBE_MAP)
