@@ -119,9 +119,6 @@ static void compute_draw(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct compute_priv *s = node->priv_data;
 
-    const struct program_priv *program = s->program->priv_data;
-    ngli_glUseProgram(gl, program->program_id);
-
     int ret = ngli_pipeline_bind(&s->pipeline);
     if (ret < 0) {
         LOG(ERROR, "pipeline upload data error");
