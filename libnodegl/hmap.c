@@ -62,7 +62,7 @@ struct hmap *ngli_hmap_create(void)
     return hm;
 }
 
-int ngli_hmap_count(struct hmap *hm)
+int ngli_hmap_count(const struct hmap *hm)
 {
     return hm->count;
 }

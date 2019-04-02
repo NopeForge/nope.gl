@@ -38,7 +38,7 @@ typedef void (*user_free_func_type)(void *user_arg, void *data);
 
 struct hmap *ngli_hmap_create(void);
 void ngli_hmap_set_free(struct hmap *hm, user_free_func_type user_free_func, void *user_arg);
-int ngli_hmap_count(struct hmap *hm);
+int ngli_hmap_count(const struct hmap *hm);
 int ngli_hmap_set(struct hmap *hm, const char *key, void *data);
 void *ngli_hmap_get(const struct hmap *hm, const char *key);
 const struct hmap_entry *ngli_hmap_next(const struct hmap *hm,
