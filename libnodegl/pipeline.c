@@ -669,6 +669,28 @@ int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pip
     return 0;
 }
 
+#define NODE_TYPE_DEFAULT 0
+#define NODE_TYPE_BLOCK   1
+
+static void reset_pairs(struct darray *p, int type)
+{
+    struct nodeprograminfopair *pairs = ngli_darray_data(p);
+    for (int i = 0; i < ngli_darray_count(p); i++) {
+        struct nodeprograminfopair *pair = &pairs[i];
+        if (type == NODE_TYPE_BLOCK)
+            ngli_node_block_unref(pair->node);
+    }
+    ngli_darray_reset(p);
+}
+
+#define DECLARE_RESET_PAIRS_FUNC(name, type)       \
+static void reset_##name##_pairs(struct darray *p) \
+{                                                  \
+    reset_pairs(p, type);                          \
+}                                                  \
+
+DECLARE_RESET_PAIRS_FUNC(block, NODE_TYPE_BLOCK)
+
 void ngli_pipeline_uninit(struct pipeline *s)
 {
     if (!s->gl)
@@ -678,53 +700,44 @@ void ngli_pipeline_uninit(struct pipeline *s)
 
     ngli_darray_reset(&s->texture_pairs);
     ngli_darray_reset(&s->uniform_pairs);
-
-    struct darray *block_pairs = &s->block_pairs;
-    struct nodeprograminfopair *pairs = ngli_darray_data(block_pairs);
-    for (int i = 0; i < ngli_darray_count(block_pairs); i++) {
-        struct nodeprograminfopair *pair = &pairs[i];
-        struct ngl_node *bnode = pair->node;
-        ngli_node_block_unref(bnode);
-    }
-    ngli_darray_reset(&s->block_pairs);
+    reset_block_pairs(&s->block_pairs);
 
     memset(s, 0, sizeof(*s));
 }
 
+static int update_pairs(struct darray *p, double t, int type)
+{
+    struct nodeprograminfopair *pairs = ngli_darray_data(p);
+    for (int i = 0; i < ngli_darray_count(p); i++) {
+        struct nodeprograminfopair *pair = &pairs[i];
+        struct ngl_node *node = pair->node;
+        int ret = ngli_node_update(node, t);
+        if (ret < 0)
+            return ret;
+        if (type == NODE_TYPE_BLOCK)
+            ret = ngli_node_block_upload(node);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
+
+#define DECLARE_UPDATE_PAIRS_FUNC(name, type)                \
+static int update_##name##_pairs(struct darray *p, double t) \
+{                                                            \
+    return update_pairs(p, t, type);                         \
+}                                                            \
+
+DECLARE_UPDATE_PAIRS_FUNC(common, NODE_TYPE_DEFAULT)
+DECLARE_UPDATE_PAIRS_FUNC(block, NODE_TYPE_BLOCK)
+
 int ngli_pipeline_update(struct pipeline *s, double t)
 {
-    struct darray *texture_pairs = &s->texture_pairs;
-    struct nodeprograminfopair *tpairs = ngli_darray_data(texture_pairs);
-    for (int i = 0; i < ngli_darray_count(texture_pairs); i++) {
-        struct nodeprograminfopair *pair = &tpairs[i];
-        struct ngl_node *tnode = pair->node;
-        int ret = ngli_node_update(tnode, t);
-        if (ret < 0)
-            return ret;
-    }
-
-    struct darray *uniform_pairs = &s->uniform_pairs;
-    struct nodeprograminfopair *upairs = ngli_darray_data(uniform_pairs);
-    for (int i = 0; i < ngli_darray_count(uniform_pairs); i++) {
-        struct nodeprograminfopair *pair = &upairs[i];
-        struct ngl_node *unode = pair->node;
-        int ret = ngli_node_update(unode, t);
-        if (ret < 0)
-            return ret;
-    }
-
-    struct darray *block_pairs = &s->block_pairs;
-    struct nodeprograminfopair *bpairs = ngli_darray_data(block_pairs);
-    for (int i = 0; i < ngli_darray_count(block_pairs); i++) {
-        struct nodeprograminfopair *pair = &bpairs[i];
-        struct ngl_node *bnode = pair->node;
-        int ret = ngli_node_update(bnode, t);
-        if (ret < 0)
-            return ret;
-        ret = ngli_node_block_upload(bnode);
-        if (ret < 0)
-            return ret;
-    }
+    int ret;
+    if ((ret = update_common_pairs(&s->texture_pairs, t)) < 0 ||
+        (ret = update_common_pairs(&s->uniform_pairs, t)) < 0 ||
+        (ret = update_block_pairs(&s->block_pairs, t)) < 0)
+        return ret;
 
     struct pipeline_params *params = &s->params;
     return ngli_node_update(params->program, t);
