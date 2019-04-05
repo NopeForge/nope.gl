@@ -303,23 +303,6 @@ static int set_uniforms(struct pipeline *s)
     return 0;
 }
 
-static int set_blocks(struct pipeline *s)
-{
-    struct glcontext *gl = s->gl;
-    const struct darray *block_pairs = &s->block_pairs;
-    const struct nodeprograminfopair *pairs = ngli_darray_data(block_pairs);
-    for (int i = 0; i < ngli_darray_count(block_pairs); i++) {
-        const struct nodeprograminfopair *pair = &pairs[i];
-        const struct ngl_node *bnode = pair->node;
-        const struct block_priv *block = bnode->priv_data;
-        const struct blockprograminfo *info = pair->program_info;
-
-        ngli_glBindBufferBase(gl, info->type, info->binding, block->buffer.id);
-    }
-
-    return 0;
-}
-
 static struct uniformprograminfo *get_uniform_info(struct hmap *uniforms,
                                                    const char *basename,
                                                    const char *suffix)
@@ -650,6 +633,23 @@ static int build_block_pairs(struct pipeline *s)
             return -1;
         }
     }
+    return 0;
+}
+
+static int set_blocks(struct pipeline *s)
+{
+    struct glcontext *gl = s->gl;
+    const struct darray *block_pairs = &s->block_pairs;
+    const struct nodeprograminfopair *pairs = ngli_darray_data(block_pairs);
+    for (int i = 0; i < ngli_darray_count(block_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
+        const struct ngl_node *bnode = pair->node;
+        const struct block_priv *block = bnode->priv_data;
+        const struct blockprograminfo *info = pair->program_info;
+
+        ngli_glBindBufferBase(gl, info->type, info->binding, block->buffer.id);
+    }
+
     return 0;
 }
 
