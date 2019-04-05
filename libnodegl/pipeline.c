@@ -36,197 +36,6 @@
 #include "texture.h"
 #include "utils.h"
 
-static int acquire_next_available_texture_unit(uint64_t *used_texture_units)
-{
-    for (int i = 0; i < sizeof(*used_texture_units) * 8; i++) {
-        if (!(*used_texture_units & (1ULL << i))) {
-            *used_texture_units |= (1ULL << i);
-            return i;
-        }
-    }
-    LOG(ERROR, "no texture unit available");
-    return -1;
-}
-
-static const struct {
-    const char *name;
-    GLenum type;
-} tex_specs[] = {
-    [0] = {"2D",  GL_TEXTURE_2D},
-    [1] = {"OES", GL_TEXTURE_EXTERNAL_OES},
-};
-
-static int get_disabled_texture_unit(const struct glcontext *gl,
-                                     struct pipeline *s,
-                                     uint64_t *used_texture_units,
-                                     int type_index)
-{
-    int tex_unit = s->disabled_texture_unit[type_index];
-    if (tex_unit >= 0)
-        return tex_unit;
-
-    tex_unit = acquire_next_available_texture_unit(used_texture_units);
-    if (tex_unit < 0)
-        return -1;
-
-    TRACE("using texture unit %d for disabled %s textures",
-          tex_unit, tex_specs[type_index].name);
-    s->disabled_texture_unit[type_index] = tex_unit;
-
-    ngli_glActiveTexture(gl, GL_TEXTURE0 + tex_unit);
-    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-    if (gl->features & NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE)
-        ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
-
-    return tex_unit;
-}
-
-static int bind_texture_plane(const struct glcontext *gl,
-                              const struct texture *plane,
-                              uint64_t *used_texture_units,
-                              int location)
-{
-    int texture_index = acquire_next_available_texture_unit(used_texture_units);
-    if (texture_index < 0)
-        return -1;
-    ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
-    if (gl->features & NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE) {
-        GLenum target = plane->target == GL_TEXTURE_2D ? GL_TEXTURE_EXTERNAL_OES : GL_TEXTURE_2D;
-        ngli_glBindTexture(gl, target, 0);
-    }
-    ngli_glBindTexture(gl, plane->target, plane->id);
-    ngli_glUniform1i(gl, location, texture_index);
-    return 0;
-}
-
-static int update_sampler(const struct glcontext *gl,
-                          struct pipeline *s,
-                          const struct image *image,
-                          const struct textureprograminfo *info,
-                          uint64_t *used_texture_units,
-                          int *sampling_mode)
-{
-    struct {
-        int id;
-        int type_index;
-        int bound;
-    } samplers[] = {
-        { info->sampler_location,          0, 0 },
-        { info->y_sampler_location,        0, 0 },
-        { info->uv_sampler_location,       0, 0 },
-        { info->external_sampler_location, 1, 0 },
-    };
-
-    *sampling_mode = NGLI_SAMPLING_MODE_NONE;
-    if (image->layout == NGLI_IMAGE_LAYOUT_DEFAULT) {
-        if (info->sampler_location >= 0) {
-            const struct texture *plane = image->planes[0];
-            if (info->sampler_type == GL_IMAGE_2D) {
-                const struct texture_params *params = &plane->params;
-                GLuint unit = info->sampler_value;
-                ngli_glBindImageTexture(gl, unit, plane->id, 0, GL_FALSE, 0, params->access, plane->internal_format);
-            } else {
-                int ret = bind_texture_plane(gl, plane, used_texture_units, info->sampler_location);
-                if (ret < 0)
-                    return ret;
-                *sampling_mode = NGLI_SAMPLING_MODE_DEFAULT;
-            }
-            samplers[0].bound = 1;
-        }
-    } else if (image->layout == NGLI_IMAGE_LAYOUT_NV12) {
-        if (info->y_sampler_location >= 0) {
-            const struct texture *plane = image->planes[0];
-            int ret = bind_texture_plane(gl, plane, used_texture_units, info->y_sampler_location);
-            if (ret < 0)
-                return ret;
-            samplers[1].bound = 1;
-            *sampling_mode = NGLI_SAMPLING_MODE_NV12;
-        }
-        if (info->uv_sampler_location >= 0) {
-            const struct texture *plane = image->planes[1];
-            int ret = bind_texture_plane(gl, plane, used_texture_units, info->uv_sampler_location);
-            if (ret < 0)
-                return ret;
-            samplers[2].bound = 1;
-            *sampling_mode = NGLI_SAMPLING_MODE_NV12;
-        }
-    } else if (image->layout == NGLI_IMAGE_LAYOUT_MEDIACODEC) {
-        if (info->external_sampler_location >= 0) {
-            const struct texture *plane = image->planes[0];
-            int ret = bind_texture_plane(gl, plane, used_texture_units, info->external_sampler_location);
-            if (ret < 0)
-                return ret;
-            samplers[3].bound = 1;
-            *sampling_mode = NGLI_SAMPLING_MODE_EXTERNAL_OES;
-        }
-    }
-
-    for (int i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
-        if (samplers[i].id < 0)
-            continue;
-        if (samplers[i].bound)
-            continue;
-        int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, samplers[i].type_index);
-        if (disabled_texture_unit < 0)
-            return -1;
-        ngli_glUniform1i(gl, samplers[i].id, disabled_texture_unit);
-    }
-
-    return 0;
-}
-
-static int set_textures(struct pipeline *s)
-{
-    struct glcontext *gl = s->gl;
-    const struct darray *texture_pairs = &s->texture_pairs;
-
-    if (!ngli_darray_count(texture_pairs))
-        return 0;
-
-    uint64_t used_texture_units = s->used_texture_units;
-
-    for (int i = 0; i < NGLI_ARRAY_NB(s->disabled_texture_unit); i++)
-        s->disabled_texture_unit[i] = -1;
-
-    const struct nodeprograminfopair *pairs = ngli_darray_data(texture_pairs);
-    for (int i = 0; i < ngli_darray_count(texture_pairs); i++) {
-        const struct nodeprograminfopair *pair = &pairs[i];
-        const struct textureprograminfo *info = pair->program_info;
-        const struct texture_priv *texture = pair->node->priv_data;
-        const struct image *image = &texture->image;
-
-        int sampling_mode;
-        int ret = update_sampler(gl, s, image, info, &used_texture_units, &sampling_mode);
-        if (ret < 0)
-            return ret;
-
-        if (info->sampling_mode_location >= 0)
-            ngli_glUniform1i(gl, info->sampling_mode_location, sampling_mode);
-
-        if (info->coord_matrix_location >= 0)
-            ngli_glUniformMatrix4fv(gl, info->coord_matrix_location, 1, GL_FALSE, image->coordinates_matrix);
-
-        if (info->dimensions_location >= 0) {
-            float dimensions[3] = {0};
-            if (image->layout != NGLI_IMAGE_LAYOUT_NONE) {
-                const struct texture_params *params = &image->planes[0]->params;
-                dimensions[0] = params->width;
-                dimensions[1] = params->height;
-                dimensions[2] = params->depth;
-            }
-            if (info->dimensions_type == GL_FLOAT_VEC2)
-                ngli_glUniform2fv(gl, info->dimensions_location, 1, dimensions);
-            else if (info->dimensions_type == GL_FLOAT_VEC3)
-                ngli_glUniform3fv(gl, info->dimensions_location, 1, dimensions);
-        }
-
-        if (info->ts_location >= 0)
-            ngli_glUniform1f(gl, info->ts_location, image->ts);
-    }
-
-    return 0;
-}
-
 static void set_uniform_1f(struct glcontext *gl, GLint loc, void *priv)
 {
     const struct uniform_priv *u = priv;
@@ -585,6 +394,197 @@ static int build_texture_pairs(struct pipeline *s)
         if (!ngli_darray_push(&s->texture_pairs, &pair))
             return -1;
     }
+    return 0;
+}
+
+static int acquire_next_available_texture_unit(uint64_t *used_texture_units)
+{
+    for (int i = 0; i < sizeof(*used_texture_units) * 8; i++) {
+        if (!(*used_texture_units & (1ULL << i))) {
+            *used_texture_units |= (1ULL << i);
+            return i;
+        }
+    }
+    LOG(ERROR, "no texture unit available");
+    return -1;
+}
+
+static const struct {
+    const char *name;
+    GLenum type;
+} tex_specs[] = {
+    [0] = {"2D",  GL_TEXTURE_2D},
+    [1] = {"OES", GL_TEXTURE_EXTERNAL_OES},
+};
+
+static int get_disabled_texture_unit(const struct glcontext *gl,
+                                     struct pipeline *s,
+                                     uint64_t *used_texture_units,
+                                     int type_index)
+{
+    int tex_unit = s->disabled_texture_unit[type_index];
+    if (tex_unit >= 0)
+        return tex_unit;
+
+    tex_unit = acquire_next_available_texture_unit(used_texture_units);
+    if (tex_unit < 0)
+        return -1;
+
+    TRACE("using texture unit %d for disabled %s textures",
+          tex_unit, tex_specs[type_index].name);
+    s->disabled_texture_unit[type_index] = tex_unit;
+
+    ngli_glActiveTexture(gl, GL_TEXTURE0 + tex_unit);
+    ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
+    if (gl->features & NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE)
+        ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
+
+    return tex_unit;
+}
+
+static int bind_texture_plane(const struct glcontext *gl,
+                              const struct texture *plane,
+                              uint64_t *used_texture_units,
+                              int location)
+{
+    int texture_index = acquire_next_available_texture_unit(used_texture_units);
+    if (texture_index < 0)
+        return -1;
+    ngli_glActiveTexture(gl, GL_TEXTURE0 + texture_index);
+    if (gl->features & NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE) {
+        GLenum target = plane->target == GL_TEXTURE_2D ? GL_TEXTURE_EXTERNAL_OES : GL_TEXTURE_2D;
+        ngli_glBindTexture(gl, target, 0);
+    }
+    ngli_glBindTexture(gl, plane->target, plane->id);
+    ngli_glUniform1i(gl, location, texture_index);
+    return 0;
+}
+
+static int update_sampler(const struct glcontext *gl,
+                          struct pipeline *s,
+                          const struct image *image,
+                          const struct textureprograminfo *info,
+                          uint64_t *used_texture_units,
+                          int *sampling_mode)
+{
+    struct {
+        int id;
+        int type_index;
+        int bound;
+    } samplers[] = {
+        { info->sampler_location,          0, 0 },
+        { info->y_sampler_location,        0, 0 },
+        { info->uv_sampler_location,       0, 0 },
+        { info->external_sampler_location, 1, 0 },
+    };
+
+    *sampling_mode = NGLI_SAMPLING_MODE_NONE;
+    if (image->layout == NGLI_IMAGE_LAYOUT_DEFAULT) {
+        if (info->sampler_location >= 0) {
+            const struct texture *plane = image->planes[0];
+            if (info->sampler_type == GL_IMAGE_2D) {
+                const struct texture_params *params = &plane->params;
+                GLuint unit = info->sampler_value;
+                ngli_glBindImageTexture(gl, unit, plane->id, 0, GL_FALSE, 0, params->access, plane->internal_format);
+            } else {
+                int ret = bind_texture_plane(gl, plane, used_texture_units, info->sampler_location);
+                if (ret < 0)
+                    return ret;
+                *sampling_mode = NGLI_SAMPLING_MODE_DEFAULT;
+            }
+            samplers[0].bound = 1;
+        }
+    } else if (image->layout == NGLI_IMAGE_LAYOUT_NV12) {
+        if (info->y_sampler_location >= 0) {
+            const struct texture *plane = image->planes[0];
+            int ret = bind_texture_plane(gl, plane, used_texture_units, info->y_sampler_location);
+            if (ret < 0)
+                return ret;
+            samplers[1].bound = 1;
+            *sampling_mode = NGLI_SAMPLING_MODE_NV12;
+        }
+        if (info->uv_sampler_location >= 0) {
+            const struct texture *plane = image->planes[1];
+            int ret = bind_texture_plane(gl, plane, used_texture_units, info->uv_sampler_location);
+            if (ret < 0)
+                return ret;
+            samplers[2].bound = 1;
+            *sampling_mode = NGLI_SAMPLING_MODE_NV12;
+        }
+    } else if (image->layout == NGLI_IMAGE_LAYOUT_MEDIACODEC) {
+        if (info->external_sampler_location >= 0) {
+            const struct texture *plane = image->planes[0];
+            int ret = bind_texture_plane(gl, plane, used_texture_units, info->external_sampler_location);
+            if (ret < 0)
+                return ret;
+            samplers[3].bound = 1;
+            *sampling_mode = NGLI_SAMPLING_MODE_EXTERNAL_OES;
+        }
+    }
+
+    for (int i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
+        if (samplers[i].id < 0)
+            continue;
+        if (samplers[i].bound)
+            continue;
+        int disabled_texture_unit = get_disabled_texture_unit(gl, s, used_texture_units, samplers[i].type_index);
+        if (disabled_texture_unit < 0)
+            return -1;
+        ngli_glUniform1i(gl, samplers[i].id, disabled_texture_unit);
+    }
+
+    return 0;
+}
+
+static int set_textures(struct pipeline *s)
+{
+    struct glcontext *gl = s->gl;
+    const struct darray *texture_pairs = &s->texture_pairs;
+
+    if (!ngli_darray_count(texture_pairs))
+        return 0;
+
+    uint64_t used_texture_units = s->used_texture_units;
+
+    for (int i = 0; i < NGLI_ARRAY_NB(s->disabled_texture_unit); i++)
+        s->disabled_texture_unit[i] = -1;
+
+    const struct nodeprograminfopair *pairs = ngli_darray_data(texture_pairs);
+    for (int i = 0; i < ngli_darray_count(texture_pairs); i++) {
+        const struct nodeprograminfopair *pair = &pairs[i];
+        const struct textureprograminfo *info = pair->program_info;
+        const struct texture_priv *texture = pair->node->priv_data;
+        const struct image *image = &texture->image;
+
+        int sampling_mode;
+        int ret = update_sampler(gl, s, image, info, &used_texture_units, &sampling_mode);
+        if (ret < 0)
+            return ret;
+
+        if (info->sampling_mode_location >= 0)
+            ngli_glUniform1i(gl, info->sampling_mode_location, sampling_mode);
+
+        if (info->coord_matrix_location >= 0)
+            ngli_glUniformMatrix4fv(gl, info->coord_matrix_location, 1, GL_FALSE, image->coordinates_matrix);
+
+        if (info->dimensions_location >= 0) {
+            float dimensions[3] = {0};
+            if (image->layout != NGLI_IMAGE_LAYOUT_NONE) {
+                const struct texture_params *params = &image->planes[0]->params;
+                dimensions[0] = params->width;
+                dimensions[1] = params->height;
+                dimensions[2] = params->depth;
+            }
+            if (info->dimensions_type == GL_FLOAT_VEC2)
+                ngli_glUniform2fv(gl, info->dimensions_location, 1, dimensions);
+            else if (info->dimensions_type == GL_FLOAT_VEC3)
+                ngli_glUniform3fv(gl, info->dimensions_location, 1, dimensions);
+        }
+
+        if (info->ts_location >= 0)
+            ngli_glUniform1f(gl, info->ts_location, image->ts);
+    }
+
     return 0;
 }
 
