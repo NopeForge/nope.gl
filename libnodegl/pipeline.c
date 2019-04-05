@@ -303,73 +303,6 @@ static int set_uniforms(struct pipeline *s)
     return 0;
 }
 
-static struct uniformprograminfo *get_uniform_info(struct hmap *uniforms,
-                                                   const char *basename,
-                                                   const char *suffix)
-{
-    char name[MAX_ID_LEN];
-    snprintf(name, sizeof(name), "%s%s", basename, suffix);
-    return ngli_hmap_get(uniforms, name);
-}
-
-#define OFFSET(x) offsetof(struct textureprograminfo, x)
-static const struct texture_uniform_map {
-    const char *suffix;
-    const GLenum *allowed_types;
-    size_t location_offset;
-    size_t type_offset;
-    size_t binding_offset;
-} texture_uniform_maps[] = {
-    {"",                  (const GLenum[]){GL_SAMPLER_2D, GL_SAMPLER_3D,
-                                           GL_SAMPLER_CUBE, GL_IMAGE_2D, 0},              OFFSET(sampler_location),          OFFSET(sampler_type),    OFFSET(sampler_value)},
-    {"_sampling_mode",    (const GLenum[]){GL_INT, 0},                                    OFFSET(sampling_mode_location),    SIZE_MAX,                SIZE_MAX},
-    {"_coord_matrix",     (const GLenum[]){GL_FLOAT_MAT4, 0},                             OFFSET(coord_matrix_location),     SIZE_MAX,                SIZE_MAX},
-    {"_dimensions",       (const GLenum[]){GL_FLOAT_VEC2, GL_FLOAT_VEC3, 0},              OFFSET(dimensions_location),       OFFSET(dimensions_type), SIZE_MAX},
-    {"_ts",               (const GLenum[]){GL_FLOAT, 0},                                  OFFSET(ts_location),               SIZE_MAX,                SIZE_MAX},
-    {"_external_sampler", (const GLenum[]){GL_SAMPLER_EXTERNAL_OES,
-                                           GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT, 0},            OFFSET(external_sampler_location), SIZE_MAX,                SIZE_MAX},
-    {"_y_sampler",        (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(y_sampler_location),        SIZE_MAX,                SIZE_MAX},
-    {"_uv_sampler",       (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(uv_sampler_location),       SIZE_MAX,                SIZE_MAX},
-};
-
-static int is_allowed_type(const GLenum *allowed_types, GLenum type)
-{
-    for (int i = 0; allowed_types[i]; i++)
-        if (allowed_types[i] == type)
-            return 1;
-    return 0;
-}
-
-static int load_textureprograminfo(struct textureprograminfo *info,
-                                   struct hmap *active_uniforms,
-                                   const char *tex_key)
-{
-    for (int i = 0; i < NGLI_ARRAY_NB(texture_uniform_maps); i++) {
-        const struct texture_uniform_map *map = &texture_uniform_maps[i];
-        const char *suffix = map->suffix;
-        const struct uniformprograminfo *uniform = get_uniform_info(active_uniforms, tex_key, suffix);
-        if (!uniform && !strcmp(map->suffix, "")) { // Allow _sampler suffix
-            suffix = "_sampler";
-            uniform = get_uniform_info(active_uniforms, tex_key, suffix);
-        }
-        if (uniform && !is_allowed_type(map->allowed_types, uniform->type)) {
-            LOG(ERROR, "invalid type 0x%x found for texture uniform %s%s",
-                uniform->type, tex_key, suffix);
-            return -1;
-        }
-
-#define SET_INFO_FIELD(field) do {                                                       \
-    if (map->field##_offset != SIZE_MAX)                                                 \
-        *(int *)((uint8_t *)info + map->field##_offset) = uniform ? uniform->field : -1; \
-} while (0)
-
-        SET_INFO_FIELD(location);
-        SET_INFO_FIELD(type);
-        SET_INFO_FIELD(binding);
-    }
-    return 0;
-}
-
 struct handle_map {
     GLenum uniform_type;
     nodeprograminfopair_handle_func handle;
@@ -506,6 +439,73 @@ static int build_uniform_pairs(struct pipeline *s)
         snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
         if (!ngli_darray_push(&s->uniform_pairs, &pair))
             return -1;
+    }
+    return 0;
+}
+
+static struct uniformprograminfo *get_uniform_info(struct hmap *uniforms,
+                                                   const char *basename,
+                                                   const char *suffix)
+{
+    char name[MAX_ID_LEN];
+    snprintf(name, sizeof(name), "%s%s", basename, suffix);
+    return ngli_hmap_get(uniforms, name);
+}
+
+#define OFFSET(x) offsetof(struct textureprograminfo, x)
+static const struct texture_uniform_map {
+    const char *suffix;
+    const GLenum *allowed_types;
+    size_t location_offset;
+    size_t type_offset;
+    size_t binding_offset;
+} texture_uniform_maps[] = {
+    {"",                  (const GLenum[]){GL_SAMPLER_2D, GL_SAMPLER_3D,
+                                           GL_SAMPLER_CUBE, GL_IMAGE_2D, 0},              OFFSET(sampler_location),          OFFSET(sampler_type),    OFFSET(sampler_value)},
+    {"_sampling_mode",    (const GLenum[]){GL_INT, 0},                                    OFFSET(sampling_mode_location),    SIZE_MAX,                SIZE_MAX},
+    {"_coord_matrix",     (const GLenum[]){GL_FLOAT_MAT4, 0},                             OFFSET(coord_matrix_location),     SIZE_MAX,                SIZE_MAX},
+    {"_dimensions",       (const GLenum[]){GL_FLOAT_VEC2, GL_FLOAT_VEC3, 0},              OFFSET(dimensions_location),       OFFSET(dimensions_type), SIZE_MAX},
+    {"_ts",               (const GLenum[]){GL_FLOAT, 0},                                  OFFSET(ts_location),               SIZE_MAX,                SIZE_MAX},
+    {"_external_sampler", (const GLenum[]){GL_SAMPLER_EXTERNAL_OES,
+                                           GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT, 0},            OFFSET(external_sampler_location), SIZE_MAX,                SIZE_MAX},
+    {"_y_sampler",        (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(y_sampler_location),        SIZE_MAX,                SIZE_MAX},
+    {"_uv_sampler",       (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(uv_sampler_location),       SIZE_MAX,                SIZE_MAX},
+};
+
+static int is_allowed_type(const GLenum *allowed_types, GLenum type)
+{
+    for (int i = 0; allowed_types[i]; i++)
+        if (allowed_types[i] == type)
+            return 1;
+    return 0;
+}
+
+static int load_textureprograminfo(struct textureprograminfo *info,
+                                   struct hmap *active_uniforms,
+                                   const char *tex_key)
+{
+    for (int i = 0; i < NGLI_ARRAY_NB(texture_uniform_maps); i++) {
+        const struct texture_uniform_map *map = &texture_uniform_maps[i];
+        const char *suffix = map->suffix;
+        const struct uniformprograminfo *uniform = get_uniform_info(active_uniforms, tex_key, suffix);
+        if (!uniform && !strcmp(map->suffix, "")) { // Allow _sampler suffix
+            suffix = "_sampler";
+            uniform = get_uniform_info(active_uniforms, tex_key, suffix);
+        }
+        if (uniform && !is_allowed_type(map->allowed_types, uniform->type)) {
+            LOG(ERROR, "invalid type 0x%x found for texture uniform %s%s",
+                uniform->type, tex_key, suffix);
+            return -1;
+        }
+
+#define SET_INFO_FIELD(field) do {                                                       \
+    if (map->field##_offset != SIZE_MAX)                                                 \
+        *(int *)((uint8_t *)info + map->field##_offset) = uniform ? uniform->field : -1; \
+} while (0)
+
+        SET_INFO_FIELD(location);
+        SET_INFO_FIELD(type);
+        SET_INFO_FIELD(binding);
     }
     return 0;
 }
