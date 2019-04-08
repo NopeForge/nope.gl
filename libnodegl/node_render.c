@@ -174,9 +174,19 @@ static const struct {
 
 static int init_builtin_attributes(struct render_priv *s)
 {
-    s->builtin_attributes = ngli_hmap_create();
-    if (!s->builtin_attributes)
+    s->pipeline_attributes = ngli_hmap_create();
+    if (!s->pipeline_attributes)
         return -1;
+
+    if (s->attributes) {
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->attributes, entry))) {
+            struct ngl_node *anode = entry->data;
+            int ret = ngli_hmap_set(s->pipeline_attributes, entry->key, anode);
+            if (ret < 0)
+                return ret;
+        }
+    }
 
     struct geometry_priv *geometry = s->geometry->priv_data;
     for (int i = 0; i < NGLI_ARRAY_NB(attrib_const_map); i++) {
@@ -187,7 +197,7 @@ static int init_builtin_attributes(struct render_priv *s)
         if (!anode)
             continue;
 
-        int ret = ngli_hmap_set(s->builtin_attributes, const_name, anode);
+        int ret = ngli_hmap_set(s->pipeline_attributes, const_name, anode);
         if (ret < 0)
             return ret;
     }
@@ -254,8 +264,7 @@ static int render_init(struct ngl_node *node)
         .textures = s->textures,
         .uniforms = s->uniforms,
         .blocks = s->blocks,
-        .builtin_attributes = s->builtin_attributes,
-        .attributes = s->attributes,
+        .attributes = s->pipeline_attributes,
         .instance_attributes = s->instance_attributes,
     };
     ret = ngli_pipeline_init(&s->pipeline, ctx, &params);
@@ -274,7 +283,7 @@ static void render_uninit(struct ngl_node *node)
 {
     struct render_priv *s = node->priv_data;
 
-    ngli_hmap_freep(&s->builtin_attributes);
+    ngli_hmap_freep(&s->pipeline_attributes);
 
     ngli_pipeline_uninit(&s->pipeline);
 

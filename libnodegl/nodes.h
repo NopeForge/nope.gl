@@ -404,7 +404,6 @@ struct pipeline_params {
     struct hmap *uniforms;
     struct hmap *blocks;
     int nb_instances;
-    struct hmap *builtin_attributes;
     struct hmap *attributes;
     struct hmap *instance_attributes;
 };
@@ -430,7 +429,6 @@ struct pipeline {
     struct darray uniform_pairs; // nodeprograminfopair (uniform, uniformprograminfo)
     struct darray block_pairs; // nodeprograminfopair (block, uniformprograminfo)
 
-    struct darray builtin_attribute_pairs; // nodeprograminfopair (builtin attribute, attributeprograminfo)
     struct darray attribute_pairs; // nodeprograminfopair (attribute, attributeprograminfo)
     struct darray instance_attribute_pairs; // nodeprograminfopair (instance attribute, attributeprograminfo)
 
@@ -447,11 +445,11 @@ struct render_priv {
     struct hmap *textures;
     struct hmap *uniforms;
     struct hmap *blocks;
-    struct hmap *builtin_attributes;
     struct hmap *attributes;
     struct hmap *instance_attributes;
     int nb_instances;
 
+    struct hmap *pipeline_attributes;
     struct pipeline pipeline;
 
     int has_indices_buffer_ref;

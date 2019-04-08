@@ -718,8 +718,7 @@ static int pair_node_to_attribinfo(struct pipeline *s,
 static int pair_nodes_to_attribinfo(struct pipeline *s,
                                     struct darray *attribute_pairs,
                                     struct hmap *attributes,
-                                    int per_instance,
-                                    int warn_not_found)
+                                    int per_instance)
 {
     if (!attributes)
         return 0;
@@ -734,6 +733,9 @@ static int pair_nodes_to_attribinfo(struct pipeline *s,
         if (ret < 0)
             return ret;
 
+        const int warn_not_found = strcmp(entry->key, "ngl_position") &&
+                                   strcmp(entry->key, "ngl_uvcoord") &&
+                                   strcmp(entry->key, "ngl_normal");
         if (warn_not_found && ret == 1) {
             const struct ngl_node *pnode = params->program;
             LOG(WARNING, "attribute %s attached to %s not found in %s",
@@ -747,25 +749,17 @@ static int build_vertex_attribs_pairs(struct pipeline *s)
 {
     struct pipeline_params *params = &s->params;
 
-    ngli_darray_init(&s->builtin_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
     ngli_darray_init(&s->attribute_pairs, sizeof(struct nodeprograminfopair), 0);
     ngli_darray_init(&s->instance_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
 
     if (s->type != NGLI_PIPELINE_TYPE_GRAPHIC)
         return 0;
 
-    /* Builtin vertex attributes */
-    int ret = pair_nodes_to_attribinfo(s, &s->builtin_attribute_pairs, params->builtin_attributes, 0, 0);
+    int ret = pair_nodes_to_attribinfo(s, &s->attribute_pairs, params->attributes, 0);
     if (ret < 0)
         return ret;
 
-    /* User vertex attributes */
-    ret = pair_nodes_to_attribinfo(s, &s->attribute_pairs, params->attributes, 0, 1);
-    if (ret < 0)
-        return ret;
-
-    /* User per instance vertex attributes */
-    ret = pair_nodes_to_attribinfo(s, &s->instance_attribute_pairs, params->instance_attributes, 1, 1);
+    ret = pair_nodes_to_attribinfo(s, &s->instance_attribute_pairs, params->instance_attributes, 1);
     if (ret < 0)
         return ret;
 
@@ -820,7 +814,6 @@ static int set_vertex_attribs(struct pipeline *s)
 {
     struct glcontext *gl = s->gl;
 
-    set_vertex_attribs_from_pairs(gl, &s->builtin_attribute_pairs, 0);
     set_vertex_attribs_from_pairs(gl, &s->attribute_pairs, 0);
     set_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs, 1);
 
@@ -848,7 +841,6 @@ static void reset_vertex_attribs(struct pipeline *s)
 {
     struct glcontext *gl = s->gl;
 
-    reset_vertex_attribs_from_pairs(gl, &s->builtin_attribute_pairs);
     reset_vertex_attribs_from_pairs(gl, &s->attribute_pairs);
     reset_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs);
 }
@@ -922,7 +914,6 @@ void ngli_pipeline_uninit(struct pipeline *s)
 
     ngli_darray_reset(&s->texture_pairs);
     ngli_darray_reset(&s->uniform_pairs);
-    reset_buffer_pairs(&s->builtin_attribute_pairs);
     reset_buffer_pairs(&s->attribute_pairs);
     reset_buffer_pairs(&s->instance_attribute_pairs);
     reset_block_pairs(&s->block_pairs);
@@ -970,7 +961,6 @@ int ngli_pipeline_update(struct pipeline *s, double t)
     if ((ret = update_common_pairs(&s->texture_pairs, t)) < 0 ||
         (ret = update_common_pairs(&s->uniform_pairs, t)) < 0 ||
         (ret = update_block_pairs(&s->block_pairs, t)) < 0 ||
-        (ret = update_buffer_pairs(&s->builtin_attribute_pairs, t)) < 0 ||
         (ret = update_buffer_pairs(&s->attribute_pairs, t)) < 0 ||
         (ret = update_buffer_pairs(&s->instance_attribute_pairs, t)) < 0)
         return ret;
