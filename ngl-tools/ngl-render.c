@@ -196,6 +196,7 @@ int main(int argc, char *argv[])
         .viewport = {0, 0, width, height},
         .offscreen = !show_window,
         .capture_buffer = capture_buffer,
+        .clear_color = {0.0f, 0.0f, 0.0f, 1.0f},
     };
     if (show_window) {
         ret = wsi_set_ngl_config(&config, window);

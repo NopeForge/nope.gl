@@ -279,6 +279,10 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     p->ngl_config.viewport[1] = 0;
     p->ngl_config.viewport[2] = p->width;
     p->ngl_config.viewport[3] = p->height;
+    p->ngl_config.clear_color[0] = 0.0f;
+    p->ngl_config.clear_color[1] = 0.0f;
+    p->ngl_config.clear_color[2] = 0.0f;
+    p->ngl_config.clear_color[3] = 1.0f;
 
     ret = ngl_configure(p->ngl, &p->ngl_config);
     if (ret < 0)
