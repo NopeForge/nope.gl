@@ -549,7 +549,7 @@ def quaternion(cfg):
         ngl.AnimKeyFrameQuat(4 * step, (x, 0, 0, x)),
         ngl.AnimKeyFrameQuat(5 * step, (0, 0, 0, 1)),
     ]
-    quat = ngl.UniformQuat(anim=ngl.AnimatedQuat(quat_animkf))
+    quat = ngl.UniformQuat(anim=ngl.AnimatedQuat(quat_animkf), as_mat4=True)
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     m = ngl.Media(cfg.medias[0].filename)

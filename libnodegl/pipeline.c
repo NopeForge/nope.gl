@@ -274,6 +274,19 @@ static int build_uniform_pairs(struct pipeline *s)
             return -1;
         }
 
+        if (unode->class->id == NGL_NODE_UNIFORMQUAT) {
+            const struct uniform_priv *quat_priv = unode->priv_data;
+
+            if ((quat_priv->as_mat4 && pair.handle != set_uniform_mat4fv) ||
+                (!quat_priv->as_mat4 && pair.handle != set_uniform_4fv)) {
+                LOG(ERROR, "%s set on %s.%s is configured to be uploaded as a %s"
+                    " but has not the expected type in the shader",
+                    unode->label, params->label, entry->key,
+                    quat_priv->as_mat4 ? "mat4" : "vec4");
+                return -1;
+            }
+        }
+
         snprintf(pair.name, sizeof(pair.name), "%s", entry->key);
         if (!ngli_darray_push(&s->uniform_pairs, &pair))
             return -1;

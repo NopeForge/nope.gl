@@ -464,6 +464,7 @@
     optional:
         - [value, vec4]
         - [anim, Node]
+        - [as_mat4, bool]
 
 - UserSwitch:
     constructors:

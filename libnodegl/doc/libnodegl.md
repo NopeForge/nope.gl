@@ -690,6 +690,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `value` |  | ✓ | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
 `anim` |  |  | [`Node`](#parameter-types) ([AnimatedQuat](#animatedquat)) | `value` animation | 
+`as_mat4` |  |  | [`bool`](#parameter-types) | exposed as a 4x4 rotation matrix in the program | `0`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)

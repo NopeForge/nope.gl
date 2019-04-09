@@ -95,6 +95,8 @@ static const struct node_param uniformquat_params[] = {
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
                .node_types=(const int[]){NGL_NODE_ANIMATEDQUAT, -1},
                .desc=NGLI_DOCSTRING("`value` animation")},
+    {"as_mat4", PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i64=0},
+                .desc=NGLI_DOCSTRING("exposed as a 4x4 rotation matrix in the program")},
     {NULL}
 };
 

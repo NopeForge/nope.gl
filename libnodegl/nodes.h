@@ -274,6 +274,7 @@ struct uniform_priv {
     struct ngl_node *anim;
     struct ngl_node *transform;
     const float *transform_matrix;
+    int as_mat4; /* quaternion only */
     int dynamic;
     int live_changed;
 };
