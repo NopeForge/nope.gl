@@ -43,7 +43,6 @@ static const struct param_choices layout_choices = {
     }
 };
 
-// TODO: NGL_NODE_UNIFORMQUAT
 #define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_ANIMATEDBUFFERFLOAT, \
                                           NGL_NODE_ANIMATEDBUFFERVEC2,  \
                                           NGL_NODE_ANIMATEDBUFFERVEC3,  \
@@ -67,6 +66,7 @@ static const struct param_choices layout_choices = {
                                           NGL_NODE_UNIFORMVEC4,         \
                                           NGL_NODE_UNIFORMINT,          \
                                           NGL_NODE_UNIFORMMAT4,         \
+                                          NGL_NODE_UNIFORMQUAT,         \
                                           -1}
 
 #define OFFSET(x) offsetof(struct block_priv, x)
@@ -155,6 +155,12 @@ static int get_buffer_size(const struct ngl_node *bnode, int layout)
     return b->count * get_buffer_stride(bnode, layout);
 }
 
+static int get_quat_size(const struct ngl_node *quat, int layout)
+{
+    struct uniform_priv *quat_priv = quat->priv_data;
+    return sizeof(GLfloat) * 4 * (quat_priv->as_mat4 ? 4 : 1);
+}
+
 static int get_node_size(const struct ngl_node *node, int layout)
 {
     switch (node->class->id) {
@@ -164,6 +170,7 @@ static int get_node_size(const struct ngl_node *node, int layout)
         case NGL_NODE_UNIFORMVEC4:          return sizeof(GLfloat) * 4;
         case NGL_NODE_UNIFORMMAT4:          return sizeof(GLfloat) * 4 * 4;
         case NGL_NODE_UNIFORMINT:           return sizeof(GLint);
+        case NGL_NODE_UNIFORMQUAT:          return get_quat_size(node, layout);
         default:                            return get_buffer_size(node, layout);
     }
 }
@@ -176,6 +183,7 @@ static int get_node_align(const struct ngl_node *node, int layout)
         case NGL_NODE_UNIFORMVEC3:
         case NGL_NODE_UNIFORMVEC4:
         case NGL_NODE_UNIFORMMAT4:
+        case NGL_NODE_UNIFORMQUAT:
         case NGL_NODE_BUFFERMAT4:           return sizeof(GLfloat) * 4;
         case NGL_NODE_UNIFORMINT:           return sizeof(GLint);
         default:                            return get_buffer_stride(node, layout);
@@ -227,6 +235,14 @@ static void update_uniform_mat4_field(uint8_t *dst,
     memcpy(dst, uniform->matrix, fi->size);
 }
 
+static void update_uniform_quat(uint8_t *dst,
+                                const struct ngl_node *node,
+                                const struct block_field_info *fi)
+{
+    const struct uniform_priv *uniform = node->priv_data;
+    memcpy(dst, uniform->as_mat4 ? uniform->matrix : uniform->vector, fi->size);
+}
+
 static void update_buffer_field(uint8_t *dst,
                                 const struct ngl_node *node,
                                 const struct block_field_info *fi)
@@ -267,6 +283,7 @@ static const struct type_spec {
     {NGL_NODE_UNIFORMVEC4,         has_changed_uniform, update_uniform_vec_field},
     {NGL_NODE_UNIFORMINT,          has_changed_uniform, update_uniform_int_field},
     {NGL_NODE_UNIFORMMAT4,         has_changed_uniform, update_uniform_mat4_field},
+    {NGL_NODE_UNIFORMQUAT,         has_changed_uniform, update_uniform_quat},
 };
 
 static int get_spec_id(int class_id)
