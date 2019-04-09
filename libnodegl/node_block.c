@@ -321,6 +321,10 @@ static int block_init(struct ngl_node *node)
         const int spec_id = get_spec_id(field_node->class->id);
         const int size   = get_node_size(field_node, s->layout);
         const int align  = get_node_align(field_node, s->layout);
+
+        ngli_assert(spec_id >= 0 && spec_id < NGLI_ARRAY_NB(type_specs));
+        ngli_assert(align);
+
         const int remain = s->data_size % align;
         const int offset = s->data_size + (remain ? align - remain : 0);
 
