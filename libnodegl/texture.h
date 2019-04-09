@@ -38,8 +38,8 @@ enum {
     NGLI_NB_FILTER
 };
 
-int ngli_texture_get_gl_min_filter(int min_filter, int mipmap_filter);
-int ngli_texture_get_gl_mag_filter(int mag_filter);
+GLint ngli_texture_get_gl_min_filter(int min_filter, int mipmap_filter);
+GLint ngli_texture_get_gl_mag_filter(int mag_filter);
 
 #define NGLI_TEXTURE_PARAM_DEFAULTS {          \
     .dimensions = 2,                           \
@@ -62,8 +62,8 @@ struct texture_params {
     int height;
     int depth;
     int samples;
-    GLint min_filter;
-    GLint mag_filter;
+    int min_filter;
+    int mag_filter;
     int mipmap_filter;
     GLint wrap_s;
     GLint wrap_t;
