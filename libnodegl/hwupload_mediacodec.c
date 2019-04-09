@@ -184,7 +184,7 @@ static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxpl
             LOG(WARNING, "external textures do not support mipmapping: "
                 "disabling direct rendering");
             s->direct_rendering = 0;
-        } else if (params->wrap_s != GL_CLAMP_TO_EDGE || params->wrap_t != GL_CLAMP_TO_EDGE) {
+        } else if (params->wrap_s != NGLI_WRAP_CLAMP_TO_EDGE || params->wrap_t != NGLI_WRAP_CLAMP_TO_EDGE) {
             LOG(WARNING, "external textures only support clamp to edge wrapping: "
                 "disabling direct rendering");
             s->direct_rendering = 0;

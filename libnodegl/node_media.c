@@ -168,9 +168,9 @@ static int media_init(struct ngl_node *node)
         .format = NGLI_FORMAT_UNDEFINED,
         .min_filter = NGLI_FILTER_NEAREST,
         .mag_filter = NGLI_FILTER_NEAREST,
-        .wrap_s = GL_CLAMP_TO_EDGE,
-        .wrap_t = GL_CLAMP_TO_EDGE,
-        .wrap_r = GL_CLAMP_TO_EDGE,
+        .wrap_s = NGLI_WRAP_CLAMP_TO_EDGE,
+        .wrap_t = NGLI_WRAP_CLAMP_TO_EDGE,
+        .wrap_r = NGLI_WRAP_CLAMP_TO_EDGE,
         .access = GL_READ_WRITE,
         .external_oes = 1,
     };

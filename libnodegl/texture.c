@@ -51,6 +51,17 @@ GLint ngli_texture_get_gl_mag_filter(int mag_filter)
     return gl_filter_map[mag_filter][NGLI_MIPMAP_FILTER_NONE];
 }
 
+static const GLint gl_wrap_map[NGLI_NB_WRAP] = {
+    [NGLI_WRAP_CLAMP_TO_EDGE]   = GL_CLAMP_TO_EDGE,
+    [NGLI_WRAP_MIRRORED_REPEAT] = GL_MIRRORED_REPEAT,
+    [NGLI_WRAP_REPEAT]          = GL_REPEAT,
+};
+
+static GLint get_gl_wrap(int wrap)
+{
+    return gl_wrap_map[wrap];
+}
+
 static void texture_set_image(struct texture *s, const uint8_t *data)
 {
     struct glcontext *gl = s->gl;
@@ -302,10 +313,10 @@ int ngli_texture_init(struct texture *s,
         const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->mag_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MIN_FILTER, min_filter);
         ngli_glTexParameteri(gl, s->target, GL_TEXTURE_MAG_FILTER, mag_filter);
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, params->wrap_s);
-        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, params->wrap_t);
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_S, get_gl_wrap(params->wrap_s));
+        ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_T, get_gl_wrap(params->wrap_t));
         if (s->target == GL_TEXTURE_3D || s->target == GL_TEXTURE_CUBE_MAP)
-            ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_R, params->wrap_r);
+            ngli_glTexParameteri(gl, s->target, GL_TEXTURE_WRAP_R, get_gl_wrap(params->wrap_r));
 
         if (!s->external_storage) {
             if (!params->width || !params->height ||

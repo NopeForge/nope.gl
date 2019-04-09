@@ -41,15 +41,22 @@ enum {
 GLint ngli_texture_get_gl_min_filter(int min_filter, int mipmap_filter);
 GLint ngli_texture_get_gl_mag_filter(int mag_filter);
 
+enum {
+    NGLI_WRAP_CLAMP_TO_EDGE,
+    NGLI_WRAP_MIRRORED_REPEAT,
+    NGLI_WRAP_REPEAT,
+    NGLI_NB_WRAP
+};
+
 #define NGLI_TEXTURE_PARAM_DEFAULTS {          \
     .dimensions = 2,                           \
     .format = NGLI_FORMAT_UNDEFINED,           \
     .min_filter = NGLI_FILTER_NEAREST,         \
     .mag_filter = NGLI_FILTER_NEAREST,         \
     .mipmap_filter = NGLI_MIPMAP_FILTER_NONE,  \
-    .wrap_s = GL_CLAMP_TO_EDGE,                \
-    .wrap_t = GL_CLAMP_TO_EDGE,                \
-    .wrap_r = GL_CLAMP_TO_EDGE,                \
+    .wrap_s = NGLI_WRAP_CLAMP_TO_EDGE,         \
+    .wrap_t = NGLI_WRAP_CLAMP_TO_EDGE,         \
+    .wrap_r = NGLI_WRAP_CLAMP_TO_EDGE,         \
     .access = GL_READ_WRITE                    \
 }
 
@@ -65,9 +72,9 @@ struct texture_params {
     int min_filter;
     int mag_filter;
     int mipmap_filter;
-    GLint wrap_s;
-    GLint wrap_t;
-    GLint wrap_r;
+    int wrap_s;
+    int wrap_t;
+    int wrap_r;
     GLenum access;
     int immutable;
     int usage;
