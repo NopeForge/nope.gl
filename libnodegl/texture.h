@@ -48,6 +48,8 @@ enum {
     NGLI_NB_WRAP
 };
 
+GLint ngli_texture_get_gl_wrap(int wrap);
+
 #define NGLI_TEXTURE_PARAM_DEFAULTS {          \
     .dimensions = 2,                           \
     .format = NGLI_FORMAT_UNDEFINED,           \

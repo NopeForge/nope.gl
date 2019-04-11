@@ -122,12 +122,14 @@ static int vt_ios_common_map_plane(struct ngl_node *node, CVPixelBufferRef cvpix
     GLint id = CVOpenGLESTextureGetName(vt->ios_textures[index]);
     const GLint min_filter = ngli_texture_get_gl_min_filter(plane_params->min_filter, plane_params->mipmap_filter);
     const GLint mag_filter = ngli_texture_get_gl_mag_filter(plane_params->mag_filter);
+    const GLint wrap_s = ngli_texture_get_gl_wrap(plane_params->wrap_s);
+    const GLint wrap_t = ngli_texture_get_gl_wrap(plane_params->wrap_t);
 
     ngli_glBindTexture(gl, GL_TEXTURE_2D, id);
     ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
     ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, plane_params->wrap_s);
-    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, plane_params->wrap_t);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
+    ngli_glTexParameteri(gl, GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
     ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
 
     ngli_texture_set_id(plane, id);
