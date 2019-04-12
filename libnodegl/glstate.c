@@ -24,7 +24,82 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "glstate.h"
+#include "graphicconfig.h"
 #include "nodes.h"
+
+static const GLenum gl_blend_factor_map[NGLI_BLEND_FACTOR_NB] = {
+    [NGLI_BLEND_FACTOR_ZERO]                = GL_ZERO,
+    [NGLI_BLEND_FACTOR_ONE]                 = GL_ONE,
+    [NGLI_BLEND_FACTOR_SRC_COLOR]           = GL_SRC_COLOR,
+    [NGLI_BLEND_FACTOR_ONE_MINUS_SRC_COLOR] = GL_ONE_MINUS_SRC_COLOR,
+    [NGLI_BLEND_FACTOR_DST_COLOR]           = GL_DST_COLOR,
+    [NGLI_BLEND_FACTOR_ONE_MINUS_DST_COLOR] = GL_ONE_MINUS_DST_COLOR,
+    [NGLI_BLEND_FACTOR_SRC_ALPHA]           = GL_SRC_ALPHA,
+    [NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA] = GL_ONE_MINUS_SRC_ALPHA,
+    [NGLI_BLEND_FACTOR_DST_ALPHA]           = GL_DST_ALPHA,
+    [NGLI_BLEND_FACTOR_ONE_MINUS_DST_ALPHA] = GL_ONE_MINUS_DST_ALPHA,
+};
+
+static GLenum get_gl_blend_factor(int blend_factor)
+{
+    return gl_blend_factor_map[blend_factor];
+}
+
+static const GLenum gl_blend_op_map[NGLI_BLEND_OP_NB] = {
+    [NGLI_BLEND_OP_ADD]              = GL_FUNC_ADD,
+    [NGLI_BLEND_OP_SUBTRACT]         = GL_FUNC_SUBTRACT,
+    [NGLI_BLEND_OP_REVERSE_SUBTRACT] = GL_FUNC_REVERSE_SUBTRACT,
+    [NGLI_BLEND_OP_MIN]              = GL_MIN,
+    [NGLI_BLEND_OP_MAX]              = GL_MAX,
+};
+
+static GLenum get_gl_blend_op(int blend_op)
+{
+    return gl_blend_op_map[blend_op];
+}
+
+static const GLenum gl_compare_op_map[NGLI_COMPARE_OP_NB] = {
+    [NGLI_COMPARE_OP_NEVER]            = GL_NEVER,
+    [NGLI_COMPARE_OP_LESS]             = GL_LESS,
+    [NGLI_COMPARE_OP_EQUAL]            = GL_EQUAL,
+    [NGLI_COMPARE_OP_LESS_OR_EQUAL]    = GL_LEQUAL,
+    [NGLI_COMPARE_OP_GREATER]          = GL_GREATER,
+    [NGLI_COMPARE_OP_NOT_EQUAL]        = GL_NOTEQUAL,
+    [NGLI_COMPARE_OP_GREATER_OR_EQUAL] = GL_GEQUAL,
+    [NGLI_COMPARE_OP_ALWAYS]           = GL_ALWAYS,
+};
+
+static GLenum get_gl_compare_op(int compare_op)
+{
+    return gl_compare_op_map[compare_op];
+}
+
+static const GLenum gl_stencil_op_map[NGLI_STENCIL_OP_NB] = {
+    [NGLI_STENCIL_OP_KEEP]                = GL_KEEP,
+    [NGLI_STENCIL_OP_ZERO]                = GL_ZERO,
+    [NGLI_STENCIL_OP_REPLACE]             = GL_REPLACE,
+    [NGLI_STENCIL_OP_INCREMENT_AND_CLAMP] = GL_INCR,
+    [NGLI_STENCIL_OP_DECREMENT_AND_CLAMP] = GL_DECR,
+    [NGLI_STENCIL_OP_INVERT]              = GL_INVERT,
+    [NGLI_STENCIL_OP_INCREMENT_AND_WRAP]  = GL_INCR_WRAP,
+    [NGLI_STENCIL_OP_DECREMENT_AND_WRAP]  = GL_DECR_WRAP,
+};
+
+static GLenum get_gl_stencil_op(int stencil_op)
+{
+    return gl_stencil_op_map[stencil_op];
+}
+
+static const GLenum gl_cull_mode_map[NGLI_CULL_MODE_NB] = {
+    [NGLI_CULL_MODE_FRONT_BIT]      = GL_FRONT,
+    [NGLI_CULL_MODE_BACK_BIT]       = GL_BACK,
+    [NGLI_CULL_MODE_FRONT_AND_BACK] = GL_FRONT_AND_BACK,
+};
+
+static GLenum get_gl_cull_mode(int cull_mode)
+{
+    return gl_cull_mode_map[cull_mode];
+}
 
 void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
 {
@@ -63,6 +138,39 @@ void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
     ngli_glGetBooleanv(gl, GL_SCISSOR_TEST,            &state->scissor_test);
     ngli_glGetIntegerv(gl, GL_SCISSOR_BOX,             (GLint *)&state->scissor);
 
+}
+
+static void init_state(struct glstate *s, const struct graphicconfig *gc)
+{
+    s->blend              = gc->blend;
+    s->blend_dst_factor   = get_gl_blend_factor(gc->blend_dst_factor);
+    s->blend_src_factor   = get_gl_blend_factor(gc->blend_src_factor);
+    s->blend_dst_factor_a = get_gl_blend_factor(gc->blend_dst_factor_a);
+    s->blend_src_factor_a = get_gl_blend_factor(gc->blend_src_factor_a);
+    s->blend_op           = get_gl_blend_op(gc->blend_op);
+    s->blend_op_a         = get_gl_blend_op(gc->blend_op_a);
+
+    for (int i = 0; i < 4; i++)
+        s->color_write_mask[i] = gc->color_write_mask >> i & 1;
+
+    s->depth_test         = gc->depth_test;
+    s->depth_write_mask   = gc->depth_write_mask;
+    s->depth_func         = get_gl_compare_op(gc->depth_func);
+
+    s->stencil_test       = gc->stencil_test;
+    s->stencil_write_mask = gc->stencil_write_mask;
+    s->stencil_func       = get_gl_compare_op(gc->stencil_func);
+    s->stencil_ref        = gc->stencil_ref;
+    s->stencil_read_mask  = gc->stencil_read_mask;
+    s->stencil_fail       = get_gl_stencil_op(gc->stencil_fail);
+    s->stencil_depth_fail = get_gl_stencil_op(gc->stencil_depth_fail);
+    s->stencil_depth_pass = get_gl_stencil_op(gc->stencil_depth_pass);
+
+    s->cull_face      = gc->cull_face;
+    s->cull_face_mode = get_gl_cull_mode(gc->cull_face_mode);
+
+    s->scissor_test = gc->scissor_test;
+    memcpy(&s->scissor, &gc->scissor, sizeof(s->scissor));
 }
 
 static int honor_state(const struct glcontext *gl,
@@ -183,7 +291,10 @@ void ngli_honor_pending_glstate(struct ngl_ctx *ctx)
 {
     struct glcontext *gl = ctx->glcontext;
 
-    int ret = honor_state(gl, &ctx->pending_glstate, &ctx->current_glstate);
+    struct glstate glstate = {0};
+    init_state(&glstate, &ctx->graphicconfig);
+
+    int ret = honor_state(gl, &glstate, &ctx->glstate);
     if (ret > 0)
-        ctx->current_glstate = ctx->pending_glstate;
+        ctx->glstate = glstate;
 }

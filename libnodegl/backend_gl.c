@@ -347,9 +347,9 @@ static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
     ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
     memcpy(current_config->clear_color, config->clear_color, sizeof(config->clear_color));
 
-    const GLint scissor[] = {0, 0, gl->width, gl->height};
-    struct glstate *pending_glstate = &s->pending_glstate;
-    memcpy(pending_glstate->scissor, scissor, sizeof(scissor));
+    const int scissor[] = {0, 0, gl->width, gl->height};
+    struct graphicconfig *graphicconfig = &s->graphicconfig;
+    memcpy(graphicconfig->scissor, scissor, sizeof(scissor));
 
     return 0;
 }
@@ -377,8 +377,7 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
             return ret;
     }
 
-    ngli_glstate_probe(s->glcontext, &s->current_glstate);
-    s->pending_glstate = s->current_glstate;
+    ngli_glstate_probe(s->glcontext, &s->glstate);
 
     const int *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0)
@@ -386,6 +385,11 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 
     const float *rgba = config->clear_color;
     ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
+
+    struct graphicconfig *graphicconfig = &s->graphicconfig;
+    ngli_graphicconfig_init(graphicconfig);
+    const GLint scissor[] = {0, 0, config->width, config->height};
+    memcpy(graphicconfig->scissor, scissor, sizeof(scissor));
 
 #if defined(HAVE_VAAPI_X11)
     int ret = ngli_vaapi_init(s);

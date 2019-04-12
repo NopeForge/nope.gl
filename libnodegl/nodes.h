@@ -45,6 +45,7 @@
 #include "glincludes.h"
 #include "glcontext.h"
 #include "glstate.h"
+#include "graphicconfig.h"
 #include "hmap.h"
 #include "image.h"
 #include "nodegl.h"
@@ -69,8 +70,8 @@ struct ngl_ctx {
 
     /* Worker-only fields */
     struct glcontext *glcontext;
-    struct glstate current_glstate;
-    struct glstate pending_glstate;
+    struct glstate glstate;
+    struct graphicconfig graphicconfig;
     struct ngl_node *scene;
     struct ngl_config config;
     int timer_active;
@@ -169,7 +170,7 @@ struct graphicconfig_priv {
     float scissor[4];
     int use_scissor;
 
-    struct glstate state;
+    struct graphicconfig graphicconfig;
 };
 
 struct camera_priv {

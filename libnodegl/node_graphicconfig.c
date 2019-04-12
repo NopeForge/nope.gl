@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "glincludes.h"
+#include "graphicconfig.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -34,16 +35,16 @@ static const struct param_choices blend_factor_choices = {
     .name = "blend_factor",
     .consts = {
         {"unset",               -1,                     .desc=NGLI_DOCSTRING("unset")},
-        {"zero",                GL_ZERO,                .desc=NGLI_DOCSTRING("`0`")},
-        {"one",                 GL_ONE,                 .desc=NGLI_DOCSTRING("`1`")},
-        {"src_color",           GL_SRC_COLOR,           .desc=NGLI_DOCSTRING("`src_color`")},
-        {"one_minus_src_color", GL_ONE_MINUS_SRC_COLOR, .desc=NGLI_DOCSTRING("`1 - src_color`")},
-        {"dst_color",           GL_DST_COLOR,           .desc=NGLI_DOCSTRING("`dst_color`")},
-        {"one_minus_dst_color", GL_ONE_MINUS_DST_COLOR, .desc=NGLI_DOCSTRING("`1 - dst_color`")},
-        {"src_alpha",           GL_SRC_ALPHA,           .desc=NGLI_DOCSTRING("`src_alpha`")},
-        {"one_minus_src_alpha", GL_ONE_MINUS_SRC_ALPHA, .desc=NGLI_DOCSTRING("`1 - src_alpha`")},
-        {"dst_alpha",           GL_DST_ALPHA,           .desc=NGLI_DOCSTRING("`dst_alpha`")},
-        {"one_minus_dst_alpha", GL_ONE_MINUS_DST_ALPHA, .desc=NGLI_DOCSTRING("`1 - dst_alpha`")},
+        {"zero",                NGLI_BLEND_FACTOR_ZERO,                .desc=NGLI_DOCSTRING("`0`")},
+        {"one",                 NGLI_BLEND_FACTOR_ONE,                 .desc=NGLI_DOCSTRING("`1`")},
+        {"src_color",           NGLI_BLEND_FACTOR_SRC_COLOR,           .desc=NGLI_DOCSTRING("`src_color`")},
+        {"one_minus_src_color", NGLI_BLEND_FACTOR_ONE_MINUS_SRC_COLOR, .desc=NGLI_DOCSTRING("`1 - src_color`")},
+        {"dst_color",           NGLI_BLEND_FACTOR_DST_COLOR,           .desc=NGLI_DOCSTRING("`dst_color`")},
+        {"one_minus_dst_color", NGLI_BLEND_FACTOR_ONE_MINUS_DST_COLOR, .desc=NGLI_DOCSTRING("`1 - dst_color`")},
+        {"src_alpha",           NGLI_BLEND_FACTOR_SRC_ALPHA,           .desc=NGLI_DOCSTRING("`src_alpha`")},
+        {"one_minus_src_alpha", NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA, .desc=NGLI_DOCSTRING("`1 - src_alpha`")},
+        {"dst_alpha",           NGLI_BLEND_FACTOR_DST_ALPHA,           .desc=NGLI_DOCSTRING("`dst_alpha`")},
+        {"one_minus_dst_alpha", NGLI_BLEND_FACTOR_ONE_MINUS_DST_ALPHA, .desc=NGLI_DOCSTRING("`1 - dst_alpha`")},
         {NULL}
     }
 };
@@ -51,12 +52,12 @@ static const struct param_choices blend_factor_choices = {
 static const struct param_choices blend_op_choices = {
     .name = "blend_operation",
     .consts = {
-        {"unset",  -1,                       .desc=NGLI_DOCSTRING("unset")},
-        {"add",    GL_FUNC_ADD,              .desc=NGLI_DOCSTRING("`src + dst`")},
-        {"sub",    GL_FUNC_SUBTRACT,         .desc=NGLI_DOCSTRING("`src - dst`")},
-        {"revsub", GL_FUNC_REVERSE_SUBTRACT, .desc=NGLI_DOCSTRING("`dst - src`")},
-        {"min",    GL_MIN,                   .desc=NGLI_DOCSTRING("`min(src, dst)`")},
-        {"max",    GL_MAX,                   .desc=NGLI_DOCSTRING("`max(src, dst)`")},
+        {"unset",  -1,                             .desc=NGLI_DOCSTRING("unset")},
+        {"add",    NGLI_BLEND_OP_ADD,              .desc=NGLI_DOCSTRING("`src + dst`")},
+        {"sub",    NGLI_BLEND_OP_SUBTRACT,         .desc=NGLI_DOCSTRING("`src - dst`")},
+        {"revsub", NGLI_BLEND_OP_REVERSE_SUBTRACT, .desc=NGLI_DOCSTRING("`dst - src`")},
+        {"min",    NGLI_BLEND_OP_MIN,              .desc=NGLI_DOCSTRING("`min(src, dst)`")},
+        {"max",    NGLI_BLEND_OP_MAX,              .desc=NGLI_DOCSTRING("`max(src, dst)`")},
         {NULL}
     }
 };
@@ -64,10 +65,10 @@ static const struct param_choices blend_op_choices = {
 static const struct param_choices component_choices = {
     .name = "component",
     .consts = {
-        {"r", 1<<0, .desc=NGLI_DOCSTRING("red")},
-        {"g", 1<<1, .desc=NGLI_DOCSTRING("green")},
-        {"b", 1<<2, .desc=NGLI_DOCSTRING("blue")},
-        {"a", 1<<3, .desc=NGLI_DOCSTRING("alpha")},
+        {"r", NGLI_COLOR_COMPONENT_R_BIT, .desc=NGLI_DOCSTRING("red")},
+        {"g", NGLI_COLOR_COMPONENT_G_BIT, .desc=NGLI_DOCSTRING("green")},
+        {"b", NGLI_COLOR_COMPONENT_B_BIT, .desc=NGLI_DOCSTRING("blue")},
+        {"a", NGLI_COLOR_COMPONENT_A_BIT, .desc=NGLI_DOCSTRING("alpha")},
         {NULL}
     }
 };
@@ -75,15 +76,15 @@ static const struct param_choices component_choices = {
 static const struct param_choices func_choices = {
     .name = "function",
     .consts = {
-        {"unset",    -1,          .desc=NGLI_DOCSTRING("unset")},
-        {"never",    GL_NEVER,    .desc=NGLI_DOCSTRING("`f(a,b) = 0`")},
-        {"less",     GL_LESS,     .desc=NGLI_DOCSTRING("`f(a,b) = a < b`")},
-        {"equal",    GL_EQUAL,    .desc=NGLI_DOCSTRING("`f(a,b) = a == b`")},
-        {"lequal",   GL_LEQUAL,   .desc=NGLI_DOCSTRING("`f(a,b) = a ≤ b`")},
-        {"greater",  GL_GREATER,  .desc=NGLI_DOCSTRING("`f(a,b) = a > b`")},
-        {"notequal", GL_NOTEQUAL, .desc=NGLI_DOCSTRING("`f(a,b) = a ≠ b`")},
-        {"gequal",   GL_GEQUAL,   .desc=NGLI_DOCSTRING("`f(a,b) = a ≥ b`")},
-        {"always",   GL_ALWAYS,   .desc=NGLI_DOCSTRING("`f(a,b) = 1`")},
+        {"unset",    -1,                               .desc=NGLI_DOCSTRING("unset")},
+        {"never",    NGLI_COMPARE_OP_NEVER,            .desc=NGLI_DOCSTRING("`f(a,b) = 0`")},
+        {"less",     NGLI_COMPARE_OP_LESS,             .desc=NGLI_DOCSTRING("`f(a,b) = a < b`")},
+        {"equal",    NGLI_COMPARE_OP_EQUAL,            .desc=NGLI_DOCSTRING("`f(a,b) = a == b`")},
+        {"lequal",   NGLI_COMPARE_OP_LESS_OR_EQUAL,    .desc=NGLI_DOCSTRING("`f(a,b) = a ≤ b`")},
+        {"greater",  NGLI_COMPARE_OP_GREATER,          .desc=NGLI_DOCSTRING("`f(a,b) = a > b`")},
+        {"notequal", NGLI_COMPARE_OP_NOT_EQUAL,        .desc=NGLI_DOCSTRING("`f(a,b) = a ≠ b`")},
+        {"gequal",   NGLI_COMPARE_OP_GREATER_OR_EQUAL, .desc=NGLI_DOCSTRING("`f(a,b) = a ≥ b`")},
+        {"always",   NGLI_COMPARE_OP_ALWAYS,           .desc=NGLI_DOCSTRING("`f(a,b) = 1`")},
         {NULL}
     }
 };
@@ -91,15 +92,15 @@ static const struct param_choices func_choices = {
 static const struct param_choices stencil_op_choices = {
     .name = "stencil_operation",
     .consts = {
-        {"unset",       -1,           .desc=NGLI_DOCSTRING("unset")},
-        {"keep",        GL_KEEP,      .desc=NGLI_DOCSTRING("keeps the current value")},
-        {"zero",        GL_ZERO,      .desc=NGLI_DOCSTRING("sets the stencil buffer value to 0")},
-        {"replace",     GL_REPLACE,   .desc=NGLI_DOCSTRING("sets the stencil buffer value to ref, as specified by the stencil function")},
-        {"incr",        GL_INCR,      .desc=NGLI_DOCSTRING("increments the current stencil buffer value and clamps it")},
-        {"incr_wrap",   GL_INCR_WRAP, .desc=NGLI_DOCSTRING("increments the current stencil buffer value and wraps it")},
-        {"decr",        GL_DECR,      .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and clamps it")},
-        {"decr_wrap",   GL_DECR_WRAP, .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and wraps it")},
-        {"decr_invert", GL_INVERT,    .desc=NGLI_DOCSTRING("bitwise inverts the current stencil buffer value")},
+        {"unset",       -1,                                  .desc=NGLI_DOCSTRING("unset")},
+        {"keep",        NGLI_STENCIL_OP_KEEP,                .desc=NGLI_DOCSTRING("keeps the current value")},
+        {"zero",        NGLI_STENCIL_OP_ZERO,                .desc=NGLI_DOCSTRING("sets the stencil buffer value to 0")},
+        {"replace",     NGLI_STENCIL_OP_REPLACE,             .desc=NGLI_DOCSTRING("sets the stencil buffer value to ref, as specified by the stencil function")},
+        {"incr",        NGLI_STENCIL_OP_INCREMENT_AND_CLAMP, .desc=NGLI_DOCSTRING("increments the current stencil buffer value and clamps it")},
+        {"incr_wrap",   NGLI_STENCIL_OP_INCREMENT_AND_WRAP,  .desc=NGLI_DOCSTRING("increments the current stencil buffer value and wraps it")},
+        {"decr",        NGLI_STENCIL_OP_DECREMENT_AND_CLAMP, .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and clamps it")},
+        {"decr_wrap",   NGLI_STENCIL_OP_DECREMENT_AND_WRAP,  .desc=NGLI_DOCSTRING("decrements the current stencil buffer value and wraps it")},
+        {"decr_invert", NGLI_STENCIL_OP_INVERT,              .desc=NGLI_DOCSTRING("bitwise inverts the current stencil buffer value")},
         {NULL}
     }
 };
@@ -107,8 +108,8 @@ static const struct param_choices stencil_op_choices = {
 static const struct param_choices cull_face_choices = {
     .name = "cull_face",
     .consts = {
-        {"front",  1<<0, .desc=NGLI_DOCSTRING("cull front-facing facets")},
-        {"back",   1<<1, .desc=NGLI_DOCSTRING("cull back-facing facets")},
+        {"front", NGLI_CULL_MODE_FRONT_BIT, .desc=NGLI_DOCSTRING("cull front-facing facets")},
+        {"back",  NGLI_CULL_MODE_BACK_BIT,  .desc=NGLI_DOCSTRING("cull back-facing facets")},
         {NULL}
     }
 };
@@ -214,10 +215,10 @@ static void honor_config(struct ngl_node *node, int restore)
     struct graphicconfig_priv *s = node->priv_data;
 
     if (restore) {
-        ctx->pending_glstate = s->state;
+        ctx->graphicconfig = s->graphicconfig;
     } else {
-        struct glstate *pending = &ctx->pending_glstate;
-        s->state = *pending;
+        struct graphicconfig *pending = &ctx->graphicconfig;
+        s->graphicconfig = *pending;
 
         COPY_PARAM(blend);
         COPY_PARAM(blend_dst_factor);
@@ -227,10 +228,7 @@ static void honor_config(struct ngl_node *node, int restore)
         COPY_PARAM(blend_op);
         COPY_PARAM(blend_op_a);
 
-        if (s->color_write_mask != -1) {
-            for (int i = 0; i < 4; i++)
-                pending->color_write_mask[i] = s->color_write_mask >> i & 1;
-        }
+        COPY_PARAM(color_write_mask);
 
         COPY_PARAM(depth_test);
         COPY_PARAM(depth_write_mask);
@@ -246,10 +244,7 @@ static void honor_config(struct ngl_node *node, int restore)
         COPY_PARAM(stencil_depth_pass);
 
         COPY_PARAM(cull_face);
-        if (s->cull_face_mode != -1)
-            pending->cull_face_mode = s->cull_face_mode == (1<<0) ? GL_FRONT
-                                    : s->cull_face_mode == (1<<1) ? GL_BACK
-                                    : GL_FRONT_AND_BACK;
+        COPY_PARAM(cull_face_mode);
 
         COPY_PARAM(scissor_test);
         if (s->use_scissor) {
