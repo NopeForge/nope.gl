@@ -73,6 +73,7 @@ LIB_OBJS = animation.o              \
            format.o                 \
            glcontext.o              \
            glstate.o                \
+           graphicconfig.o          \
            hmap.o                   \
            hwconv.o                 \
            hwupload.o               \
