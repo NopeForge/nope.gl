@@ -424,8 +424,12 @@ int ngli_glcontext_resize(struct glcontext *glcontext, int width, int height)
         return -1;
     }
 
-    if (glcontext->class->resize)
+    if (glcontext->class->resize) {
         return glcontext->class->resize(glcontext, width, height);
+    } else {
+        glcontext->width = width;
+        glcontext->height = height;
+    }
 
     return 0;
 }
