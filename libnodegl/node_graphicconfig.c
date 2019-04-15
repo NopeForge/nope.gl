@@ -186,6 +186,11 @@ static int graphicconfig_init(struct ngl_node *node)
     static const float default_scissor[4] = DEFAULT_SCISSOR;
     s->use_scissor = memcmp(s->scissor, default_scissor, sizeof(s->scissor));
 
+    if (!s->cull_face_mode) {
+        LOG(ERROR, "cull face mode cannot be null");
+        return -1;
+    }
+
     return 0;
 }
 
