@@ -297,6 +297,19 @@ static void egl_uninit(struct glcontext *ctx)
 #endif
 }
 
+static int egl_resize(struct glcontext *ctx, int width, int height)
+{
+    struct egl_priv *egl = ctx->priv_data;
+
+    if (!eglQuerySurface(egl->display, egl->surface, EGL_WIDTH, &ctx->width) ||
+        !eglQuerySurface(egl->display, egl->surface, EGL_HEIGHT, &ctx->height)) {
+        LOG(ERROR, "could not query surface dimensions: 0x%x", eglGetError());
+        return -1;
+    }
+
+    return 0;
+}
+
 static int egl_make_current(struct glcontext *ctx, int current)
 {
     int ret;
@@ -359,6 +372,7 @@ static uintptr_t egl_get_handle(struct glcontext *ctx)
 const struct glcontext_class ngli_glcontext_egl_class = {
     .init = egl_init,
     .uninit = egl_uninit,
+    .resize = egl_resize,
     .make_current = egl_make_current,
     .swap_buffers = egl_swap_buffers,
     .set_swap_interval = egl_set_swap_interval,
