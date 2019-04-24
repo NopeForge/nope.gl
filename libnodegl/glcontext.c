@@ -492,6 +492,16 @@ uintptr_t ngli_glcontext_get_handle(struct glcontext *glcontext)
     return handle;
 }
 
+GLuint ngli_glcontext_get_default_framebuffer(struct glcontext *glcontext)
+{
+    GLuint fbo_id = 0;
+
+    if (glcontext->class->get_default_framebuffer)
+        fbo_id = glcontext->class->get_default_framebuffer(glcontext);
+
+    return fbo_id;
+}
+
 int ngli_glcontext_check_extension(const char *extension, const char *extensions)
 {
     if (!extension || !extensions)

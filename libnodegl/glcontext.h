@@ -103,6 +103,7 @@ struct glcontext_class {
     void* (*get_proc_address)(struct glcontext *glcontext, const char *name);
     uintptr_t (*get_display)(struct glcontext *glcontext);
     uintptr_t (*get_handle)(struct glcontext *glcontext);
+    GLuint (*get_default_framebuffer)(struct glcontext *glcontext);
     void (*uninit)(struct glcontext *glcontext);
     size_t priv_size;
 };
@@ -117,6 +118,7 @@ void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *n
 void *ngli_glcontext_get_texture_cache(struct glcontext *glcontext);
 uintptr_t ngli_glcontext_get_display(struct glcontext *glcontext);
 uintptr_t ngli_glcontext_get_handle(struct glcontext *glcontext);
+GLuint ngli_glcontext_get_default_framebuffer(struct glcontext *glcontext);
 void ngli_glcontext_freep(struct glcontext **glcontext);
 int ngli_glcontext_check_extension(const char *extension, const char *extensions);
 int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char *context);
