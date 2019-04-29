@@ -272,6 +272,8 @@ struct uniform_priv {
     float vector[4];
     float matrix[4*4];
     int ival;
+    void *data;
+    int data_size;
     struct ngl_node *anim;
     struct ngl_node *transform;
     const float *transform_matrix;

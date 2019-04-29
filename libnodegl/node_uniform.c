@@ -164,9 +164,60 @@ static int uniformint_update(struct ngl_node *node, double t)
     return 0;
 }
 
-static int uniform_init(struct ngl_node *node)
+static int uniformfloat_init(struct ngl_node *node)
 {
     struct uniform_priv *s = node->priv_data;
+    s->data = &s->scalar;
+    s->data_size = sizeof(s->scalar);
+    s->dynamic = !!s->anim;
+    return 0;
+}
+
+static int uniformvec2_init(struct ngl_node *node)
+{
+    struct uniform_priv *s = node->priv_data;
+    s->data = s->vector;
+    s->data_size = 2 * sizeof(*s->vector);
+    s->dynamic = !!s->anim;
+    return 0;
+}
+
+static int uniformvec3_init(struct ngl_node *node)
+{
+    struct uniform_priv *s = node->priv_data;
+    s->data = s->vector;
+    s->data_size = 3 * sizeof(*s->vector);
+    s->dynamic = !!s->anim;
+    return 0;
+}
+
+static int uniformvec4_init(struct ngl_node *node)
+{
+    struct uniform_priv *s = node->priv_data;
+    s->data = s->vector;
+    s->data_size = 4 * sizeof(*s->vector);
+    s->dynamic = !!s->anim;
+    return 0;
+}
+
+static int uniformquat_init(struct ngl_node *node)
+{
+    struct uniform_priv *s = node->priv_data;
+    s->data = s->vector;
+    s->data_size = 4 * sizeof(*s->vector);
+    s->dynamic = !!s->anim;
+    if (s->as_mat4) {
+        s->data = s->matrix;
+        s->data_size = sizeof(s->matrix);
+    }
+    return 0;
+}
+
+static int uniformint_init(struct ngl_node *node)
+{
+    struct uniform_priv *s = node->priv_data;
+    s->data = &s->ival;
+    s->data_size = sizeof(s->ival);
     s->dynamic = !!s->anim;
     return 0;
 }
@@ -174,6 +225,8 @@ static int uniform_init(struct ngl_node *node)
 static int uniform_mat_init(struct ngl_node *node)
 {
     struct uniform_priv *s = node->priv_data;
+    s->data = s->matrix;
+    s->data_size = sizeof(s->matrix);
     s->transform_matrix = ngli_get_last_transformation_matrix(s->transform);
     /* Note: we assume here that a transformation chain includes at least one
      * dynamic transform. We could crawl the chain to figure it out in the
@@ -208,7 +261,7 @@ static int uniform_mat_update(struct ngl_node *node, double t)
 const struct node_class ngli_uniformfloat_class = {
     .id        = NGL_NODE_UNIFORMFLOAT,
     .name      = "UniformFloat",
-    .init      = uniform_init,
+    .init      = uniformfloat_init,
     .update    = uniformfloat_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformfloat_params,
@@ -218,7 +271,7 @@ const struct node_class ngli_uniformfloat_class = {
 const struct node_class ngli_uniformvec2_class = {
     .id        = NGL_NODE_UNIFORMVEC2,
     .name      = "UniformVec2",
-    .init      = uniform_init,
+    .init      = uniformvec2_init,
     .update    = uniformvec2_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformvec2_params,
@@ -228,7 +281,7 @@ const struct node_class ngli_uniformvec2_class = {
 const struct node_class ngli_uniformvec3_class = {
     .id        = NGL_NODE_UNIFORMVEC3,
     .name      = "UniformVec3",
-    .init      = uniform_init,
+    .init      = uniformvec3_init,
     .update    = uniformvec3_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformvec3_params,
@@ -238,7 +291,7 @@ const struct node_class ngli_uniformvec3_class = {
 const struct node_class ngli_uniformvec4_class = {
     .id        = NGL_NODE_UNIFORMVEC4,
     .name      = "UniformVec4",
-    .init      = uniform_init,
+    .init      = uniformvec4_init,
     .update    = uniformvec4_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformvec4_params,
@@ -248,7 +301,7 @@ const struct node_class ngli_uniformvec4_class = {
 const struct node_class ngli_uniformquat_class = {
     .id        = NGL_NODE_UNIFORMQUAT,
     .name      = "UniformQuat",
-    .init      = uniform_init,
+    .init      = uniformquat_init,
     .update    = uniformquat_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformquat_params,
@@ -258,7 +311,7 @@ const struct node_class ngli_uniformquat_class = {
 const struct node_class ngli_uniformint_class = {
     .id        = NGL_NODE_UNIFORMINT,
     .name      = "UniformInt",
-    .init      = uniform_init,
+    .init      = uniformint_init,
     .update    = uniformint_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformint_params,
