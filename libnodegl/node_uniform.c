@@ -228,7 +228,7 @@ static int uniformint_init(struct ngl_node *node)
     return 0;
 }
 
-static int uniform_mat_init(struct ngl_node *node)
+static int uniformmat4_init(struct ngl_node *node)
 {
     struct uniform_priv *s = node->priv_data;
     s->data = s->matrix;
@@ -245,7 +245,7 @@ static int uniform_mat_init(struct ngl_node *node)
     return 0;
 }
 
-static int uniform_mat_update(struct ngl_node *node, double t)
+static int uniformmat4_update(struct ngl_node *node, double t)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct uniform_priv *s = node->priv_data;
@@ -328,8 +328,8 @@ const struct node_class ngli_uniformint_class = {
 const struct node_class ngli_uniformmat4_class = {
     .id        = NGL_NODE_UNIFORMMAT4,
     .name      = "UniformMat4",
-    .init      = uniform_mat_init,
-    .update    = uniform_mat_update,
+    .init      = uniformmat4_init,
+    .update    = uniformmat4_update,
     .priv_size = sizeof(struct uniform_priv),
     .params    = uniformmat4_params,
     .file      = __FILE__,
