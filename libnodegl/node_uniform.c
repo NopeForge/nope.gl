@@ -164,6 +164,26 @@ static int uniformint_update(struct ngl_node *node, double t)
     return 0;
 }
 
+static int uniformmat4_update(struct ngl_node *node, double t)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct uniform_priv *s = node->priv_data;
+    if (s->transform) {
+        int ret = ngli_node_update(s->transform, t);
+        if (ret < 0)
+            return ret;
+        static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
+        if (!ngli_darray_push(&ctx->modelview_matrix_stack, id_matrix))
+            return -1;
+        ngli_node_draw(s->transform);
+        ngli_darray_pop(&ctx->modelview_matrix_stack);
+        if (s->transform_matrix)
+            memcpy(s->matrix, s->transform_matrix, sizeof(s->matrix));
+    }
+    s->live_changed = 0;
+    return 0;
+}
+
 static int uniformfloat_init(struct ngl_node *node)
 {
     struct uniform_priv *s = node->priv_data;
@@ -242,26 +262,6 @@ static int uniformmat4_init(struct ngl_node *node)
      * transformation list. */
     s->dynamic = !!s->transform_matrix;
     memcpy(s->data, s->opt.mat, s->data_size);
-    return 0;
-}
-
-static int uniformmat4_update(struct ngl_node *node, double t)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct uniform_priv *s = node->priv_data;
-    if (s->transform) {
-        int ret = ngli_node_update(s->transform, t);
-        if (ret < 0)
-            return ret;
-        static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
-        if (!ngli_darray_push(&ctx->modelview_matrix_stack, id_matrix))
-            return -1;
-        ngli_node_draw(s->transform);
-        ngli_darray_pop(&ctx->modelview_matrix_stack);
-        if (s->transform_matrix)
-            memcpy(s->matrix, s->transform_matrix, sizeof(s->matrix));
-    }
-    s->live_changed = 0;
     return 0;
 }
 
