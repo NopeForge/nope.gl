@@ -127,7 +127,7 @@ static inline int uniform_update(struct uniform_priv *s, double t, int len)
         if (ret < 0)
             return ret;
         if (len == 1)
-            s->scalar = anim->scalar;
+            s->scalar = anim->scalar; // double -> float
         else
             memcpy(s->vector, anim->values, len * sizeof(*s->vector));
     }
@@ -170,7 +170,7 @@ static int uniformfloat_init(struct ngl_node *node)
     s->data = &s->scalar;
     s->data_size = sizeof(s->scalar);
     s->dynamic = !!s->anim;
-    s->scalar = s->opt.dbl;
+    s->scalar = s->opt.dbl; // double -> float
     return 0;
 }
 

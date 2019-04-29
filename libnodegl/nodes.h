@@ -275,7 +275,7 @@ struct uniform_priv {
         int i;
     } opt;
 
-    double scalar;
+    float scalar;
     float vector[4];
     float matrix[4*4];
     int ival;
