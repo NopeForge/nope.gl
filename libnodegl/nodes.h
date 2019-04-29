@@ -268,6 +268,13 @@ void ngli_node_buffer_unref(struct ngl_node *node);
 int ngli_node_buffer_upload(struct ngl_node *node);
 
 struct uniform_priv {
+    union {
+        double dbl;
+        float vec[4];
+        float mat[4*4];
+        int i;
+    } opt;
+
     double scalar;
     float vector[4];
     float matrix[4*4];
