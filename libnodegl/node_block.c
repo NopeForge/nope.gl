@@ -203,44 +203,12 @@ static int has_changed_buffer(const struct ngl_node *bnode)
     return buffer->dynamic;
 }
 
-static void update_uniform_float_field(uint8_t *dst,
-                                       const struct ngl_node *node,
-                                       const struct block_field_info *fi)
+static void update_uniform_field(uint8_t *dst,
+                                 const struct ngl_node *node,
+                                 const struct block_field_info *fi)
 {
     const struct uniform_priv *uniform = node->priv_data;
-    *(float *)dst = (float)uniform->scalar; // double -> float
-}
-
-static void update_uniform_vec_field(uint8_t *dst,
-                                     const struct ngl_node *node,
-                                     const struct block_field_info *fi)
-{
-    const struct uniform_priv *uniform = node->priv_data;
-    memcpy(dst, uniform->vector, fi->size);
-}
-
-static void update_uniform_int_field(uint8_t *dst,
-                                     const struct ngl_node *node,
-                                     const struct block_field_info *fi)
-{
-    const struct uniform_priv *uniform = node->priv_data;
-    memcpy(dst, &uniform->ival, fi->size);
-}
-
-static void update_uniform_mat4_field(uint8_t *dst,
-                                      const struct ngl_node *node,
-                                      const struct block_field_info *fi)
-{
-    const struct uniform_priv *uniform = node->priv_data;
-    memcpy(dst, uniform->matrix, fi->size);
-}
-
-static void update_uniform_quat(uint8_t *dst,
-                                const struct ngl_node *node,
-                                const struct block_field_info *fi)
-{
-    const struct uniform_priv *uniform = node->priv_data;
-    memcpy(dst, uniform->as_mat4 ? uniform->matrix : uniform->vector, fi->size);
+    memcpy(dst, uniform->data, uniform->data_size);
 }
 
 static void update_buffer_field(uint8_t *dst,
@@ -277,13 +245,13 @@ static const struct type_spec {
     {NGL_NODE_ANIMATEDBUFFERVEC2,  has_changed_buffer,  update_buffer_field},
     {NGL_NODE_ANIMATEDBUFFERVEC3,  has_changed_buffer,  update_buffer_field},
     {NGL_NODE_ANIMATEDBUFFERVEC4,  has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_UNIFORMFLOAT,        has_changed_uniform, update_uniform_float_field},
-    {NGL_NODE_UNIFORMVEC2,         has_changed_uniform, update_uniform_vec_field},
-    {NGL_NODE_UNIFORMVEC3,         has_changed_uniform, update_uniform_vec_field},
-    {NGL_NODE_UNIFORMVEC4,         has_changed_uniform, update_uniform_vec_field},
-    {NGL_NODE_UNIFORMINT,          has_changed_uniform, update_uniform_int_field},
-    {NGL_NODE_UNIFORMMAT4,         has_changed_uniform, update_uniform_mat4_field},
-    {NGL_NODE_UNIFORMQUAT,         has_changed_uniform, update_uniform_quat},
+    {NGL_NODE_UNIFORMFLOAT,        has_changed_uniform, update_uniform_field},
+    {NGL_NODE_UNIFORMVEC2,         has_changed_uniform, update_uniform_field},
+    {NGL_NODE_UNIFORMVEC3,         has_changed_uniform, update_uniform_field},
+    {NGL_NODE_UNIFORMVEC4,         has_changed_uniform, update_uniform_field},
+    {NGL_NODE_UNIFORMINT,          has_changed_uniform, update_uniform_field},
+    {NGL_NODE_UNIFORMMAT4,         has_changed_uniform, update_uniform_field},
+    {NGL_NODE_UNIFORMQUAT,         has_changed_uniform, update_uniform_field},
 };
 
 static int get_spec_id(int class_id)
