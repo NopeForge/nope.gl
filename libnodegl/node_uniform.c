@@ -152,7 +152,8 @@ static int uniformquat_update(struct ngl_node *node, double t)
     int ret = uniform_update(node->priv_data, t, 4);
     if (ret < 0)
         return ret;
-    ngli_mat4_rotate_from_quat(s->matrix, s->vector);
+    if (s->as_mat4)
+        ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     return ret;
 }
 
