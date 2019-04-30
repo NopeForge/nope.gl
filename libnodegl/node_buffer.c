@@ -223,8 +223,6 @@ static int buffer_init(struct ngl_node *node)
         return -1;
     }
 
-    int ret;
-
     if (node->class->id == NGL_NODE_BUFFERMAT4) {
         s->data_comp = 4 * 4;
         s->data_stride = s->data_comp * sizeof(float);
@@ -236,17 +234,13 @@ static int buffer_init(struct ngl_node *node)
     s->usage = GL_STATIC_DRAW;
 
     if (s->data)
-        ret = buffer_init_from_data(node);
-    else if (s->filename)
-        ret = buffer_init_from_filename(node);
-    else if (s->block)
-        ret = buffer_init_from_block(node);
-    else
-        ret = buffer_init_from_count(node);
-    if (ret < 0)
-        return ret;
+        return buffer_init_from_data(node);
+    if (s->filename)
+        return buffer_init_from_filename(node);
+    if (s->block)
+        return buffer_init_from_block(node);
 
-    return 0;
+    return buffer_init_from_count(node);
 }
 
 static void buffer_uninit(struct ngl_node *node)
