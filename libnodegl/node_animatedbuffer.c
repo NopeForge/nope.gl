@@ -69,23 +69,22 @@ static int animatedbuffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
 
-    int nb_comp;
     int format;
 
     switch (node->class->id) {
-    case NGL_NODE_ANIMATEDBUFFERFLOAT: nb_comp = 1; format = NGLI_FORMAT_R32_SFLOAT;          break;
-    case NGL_NODE_ANIMATEDBUFFERVEC2:  nb_comp = 2; format = NGLI_FORMAT_R32G32_SFLOAT;       break;
-    case NGL_NODE_ANIMATEDBUFFERVEC3:  nb_comp = 3; format = NGLI_FORMAT_R32G32B32_SFLOAT;    break;
-    case NGL_NODE_ANIMATEDBUFFERVEC4:  nb_comp = 4; format = NGLI_FORMAT_R32G32B32A32_SFLOAT; break;
+    case NGL_NODE_ANIMATEDBUFFERFLOAT: format = NGLI_FORMAT_R32_SFLOAT;          break;
+    case NGL_NODE_ANIMATEDBUFFERVEC2:  format = NGLI_FORMAT_R32G32_SFLOAT;       break;
+    case NGL_NODE_ANIMATEDBUFFERVEC3:  format = NGLI_FORMAT_R32G32B32_SFLOAT;    break;
+    case NGL_NODE_ANIMATEDBUFFERVEC4:  format = NGLI_FORMAT_R32G32B32A32_SFLOAT; break;
     default:
         ngli_assert(0);
     }
 
     s->dynamic = 1;
     s->usage = GL_DYNAMIC_DRAW;
-    s->data_comp = nb_comp;
     s->data_format = format;
-    s->data_stride = s->data_comp * sizeof(float);
+    s->data_comp = ngli_format_get_nb_comp(s->data_format);
+    s->data_stride = ngli_format_get_bytes_per_pixel(s->data_format);
 
     int ret = ngli_animation_init(&s->anim, s,
                                   s->animkf, s->nb_animkf,
