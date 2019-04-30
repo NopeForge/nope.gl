@@ -224,49 +224,53 @@ static int buffer_init(struct ngl_node *node)
     }
 
     int ret;
-    int data_comp_size;
-    int nb_comp;
     int format;
 
     switch (node->class->id) {
-    case NGL_NODE_BUFFERBYTE:   data_comp_size = 1; nb_comp = 1; format = NGLI_FORMAT_R8_SNORM;               break;
-    case NGL_NODE_BUFFERBVEC2:  data_comp_size = 1; nb_comp = 2; format = NGLI_FORMAT_R8G8_SNORM;             break;
-    case NGL_NODE_BUFFERBVEC3:  data_comp_size = 1; nb_comp = 3; format = NGLI_FORMAT_R8G8B8_SNORM;           break;
-    case NGL_NODE_BUFFERBVEC4:  data_comp_size = 1; nb_comp = 4; format = NGLI_FORMAT_R8G8B8A8_SNORM;         break;
-    case NGL_NODE_BUFFERINT:    data_comp_size = 4; nb_comp = 1; format = NGLI_FORMAT_R32_SINT;               break;
-    case NGL_NODE_BUFFERIVEC2:  data_comp_size = 4; nb_comp = 2; format = NGLI_FORMAT_R32G32_SINT;            break;
-    case NGL_NODE_BUFFERIVEC3:  data_comp_size = 4; nb_comp = 3; format = NGLI_FORMAT_R32G32B32_SINT;         break;
-    case NGL_NODE_BUFFERIVEC4:  data_comp_size = 4; nb_comp = 4; format = NGLI_FORMAT_R32G32B32A32_SINT;      break;
-    case NGL_NODE_BUFFERSHORT:  data_comp_size = 2; nb_comp = 1; format = NGLI_FORMAT_R16_SNORM;              break;
-    case NGL_NODE_BUFFERSVEC2:  data_comp_size = 2; nb_comp = 2; format = NGLI_FORMAT_R16G16_SNORM;           break;
-    case NGL_NODE_BUFFERSVEC3:  data_comp_size = 2; nb_comp = 3; format = NGLI_FORMAT_R16G16B16_SNORM;        break;
-    case NGL_NODE_BUFFERSVEC4:  data_comp_size = 2; nb_comp = 4; format = NGLI_FORMAT_R16G16B16A16_SNORM;     break;
-    case NGL_NODE_BUFFERUBYTE:  data_comp_size = 1; nb_comp = 1; format = NGLI_FORMAT_R8_UNORM;               break;
-    case NGL_NODE_BUFFERUBVEC2: data_comp_size = 1; nb_comp = 2; format = NGLI_FORMAT_R8G8_UNORM;             break;
-    case NGL_NODE_BUFFERUBVEC3: data_comp_size = 1; nb_comp = 3; format = NGLI_FORMAT_R8G8B8_UNORM;           break;
-    case NGL_NODE_BUFFERUBVEC4: data_comp_size = 1; nb_comp = 4; format = NGLI_FORMAT_R8G8B8A8_UNORM;         break;
-    case NGL_NODE_BUFFERUINT:   data_comp_size = 4; nb_comp = 1; format = NGLI_FORMAT_R32_UINT;               break;
-    case NGL_NODE_BUFFERUIVEC2: data_comp_size = 4; nb_comp = 2; format = NGLI_FORMAT_R32G32_UINT;            break;
-    case NGL_NODE_BUFFERUIVEC3: data_comp_size = 4; nb_comp = 3; format = NGLI_FORMAT_R32G32B32_UINT;         break;
-    case NGL_NODE_BUFFERUIVEC4: data_comp_size = 4; nb_comp = 4; format = NGLI_FORMAT_R32G32B32A32_UINT;      break;
-    case NGL_NODE_BUFFERUSHORT: data_comp_size = 2; nb_comp = 1; format = NGLI_FORMAT_R16_UNORM;              break;
-    case NGL_NODE_BUFFERUSVEC2: data_comp_size = 2; nb_comp = 2; format = NGLI_FORMAT_R16G16_UNORM;           break;
-    case NGL_NODE_BUFFERUSVEC3: data_comp_size = 2; nb_comp = 3; format = NGLI_FORMAT_R16G16B16_UNORM;        break;
-    case NGL_NODE_BUFFERUSVEC4: data_comp_size = 2; nb_comp = 4; format = NGLI_FORMAT_R16G16B16A16_UNORM;     break;
-    case NGL_NODE_BUFFERFLOAT:  data_comp_size = 4; nb_comp = 1; format = NGLI_FORMAT_R32_SFLOAT;             break;
-    case NGL_NODE_BUFFERVEC2:   data_comp_size = 4; nb_comp = 2; format = NGLI_FORMAT_R32G32_SFLOAT;          break;
-    case NGL_NODE_BUFFERVEC3:   data_comp_size = 4; nb_comp = 3; format = NGLI_FORMAT_R32G32B32_SFLOAT;       break;
-    case NGL_NODE_BUFFERVEC4:   data_comp_size = 4; nb_comp = 4; format = NGLI_FORMAT_R32G32B32A32_SFLOAT;    break;
-    case NGL_NODE_BUFFERMAT4:   data_comp_size = 4; nb_comp = 16; format = NGLI_FORMAT_R32G32B32A32_SFLOAT;   break;
+    case NGL_NODE_BUFFERBYTE:   format = NGLI_FORMAT_R8_SNORM;               break;
+    case NGL_NODE_BUFFERBVEC2:  format = NGLI_FORMAT_R8G8_SNORM;             break;
+    case NGL_NODE_BUFFERBVEC3:  format = NGLI_FORMAT_R8G8B8_SNORM;           break;
+    case NGL_NODE_BUFFERBVEC4:  format = NGLI_FORMAT_R8G8B8A8_SNORM;         break;
+    case NGL_NODE_BUFFERINT:    format = NGLI_FORMAT_R32_SINT;               break;
+    case NGL_NODE_BUFFERIVEC2:  format = NGLI_FORMAT_R32G32_SINT;            break;
+    case NGL_NODE_BUFFERIVEC3:  format = NGLI_FORMAT_R32G32B32_SINT;         break;
+    case NGL_NODE_BUFFERIVEC4:  format = NGLI_FORMAT_R32G32B32A32_SINT;      break;
+    case NGL_NODE_BUFFERSHORT:  format = NGLI_FORMAT_R16_SNORM;              break;
+    case NGL_NODE_BUFFERSVEC2:  format = NGLI_FORMAT_R16G16_SNORM;           break;
+    case NGL_NODE_BUFFERSVEC3:  format = NGLI_FORMAT_R16G16B16_SNORM;        break;
+    case NGL_NODE_BUFFERSVEC4:  format = NGLI_FORMAT_R16G16B16A16_SNORM;     break;
+    case NGL_NODE_BUFFERUBYTE:  format = NGLI_FORMAT_R8_UNORM;               break;
+    case NGL_NODE_BUFFERUBVEC2: format = NGLI_FORMAT_R8G8_UNORM;             break;
+    case NGL_NODE_BUFFERUBVEC3: format = NGLI_FORMAT_R8G8B8_UNORM;           break;
+    case NGL_NODE_BUFFERUBVEC4: format = NGLI_FORMAT_R8G8B8A8_UNORM;         break;
+    case NGL_NODE_BUFFERUINT:   format = NGLI_FORMAT_R32_UINT;               break;
+    case NGL_NODE_BUFFERUIVEC2: format = NGLI_FORMAT_R32G32_UINT;            break;
+    case NGL_NODE_BUFFERUIVEC3: format = NGLI_FORMAT_R32G32B32_UINT;         break;
+    case NGL_NODE_BUFFERUIVEC4: format = NGLI_FORMAT_R32G32B32A32_UINT;      break;
+    case NGL_NODE_BUFFERUSHORT: format = NGLI_FORMAT_R16_UNORM;              break;
+    case NGL_NODE_BUFFERUSVEC2: format = NGLI_FORMAT_R16G16_UNORM;           break;
+    case NGL_NODE_BUFFERUSVEC3: format = NGLI_FORMAT_R16G16B16_UNORM;        break;
+    case NGL_NODE_BUFFERUSVEC4: format = NGLI_FORMAT_R16G16B16A16_UNORM;     break;
+    case NGL_NODE_BUFFERFLOAT:  format = NGLI_FORMAT_R32_SFLOAT;             break;
+    case NGL_NODE_BUFFERVEC2:   format = NGLI_FORMAT_R32G32_SFLOAT;          break;
+    case NGL_NODE_BUFFERVEC3:   format = NGLI_FORMAT_R32G32B32_SFLOAT;       break;
+    case NGL_NODE_BUFFERVEC4:   format = NGLI_FORMAT_R32G32B32A32_SFLOAT;    break;
+    case NGL_NODE_BUFFERMAT4:   format = NGLI_FORMAT_R32G32B32A32_SFLOAT;    break;
     default:
         ngli_assert(0);
     }
 
-    s->usage = GL_STATIC_DRAW;
-    s->data_comp = nb_comp;
     s->data_format = format;
 
-    s->data_stride = s->data_comp * data_comp_size;
+    if (node->class->id == NGL_NODE_BUFFERMAT4) {
+        s->data_comp = 4 * 4;
+        s->data_stride = s->data_comp * sizeof(float);
+    } else {
+        s->data_comp = ngli_format_get_nb_comp(s->data_format);
+        s->data_stride = ngli_format_get_bytes_per_pixel(s->data_format);
+    }
+
+    s->usage = GL_STATIC_DRAW;
 
     if (s->data)
         ret = buffer_init_from_data(node);
