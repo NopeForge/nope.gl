@@ -72,13 +72,75 @@ static const struct param_choices access_choices = {
     }
 };
 
-#define DECLARE_FORMAT_PARAM(format, size, name, doc) \
-    {name, format, .desc=NGLI_DOCSTRING(doc)},
-
 static const struct param_choices format_choices = {
     .name = "format",
     .consts = {
-        NGLI_FORMATS(DECLARE_FORMAT_PARAM)
+        {"undefined",            NGLI_FORMAT_UNDEFINED,           .desc=NGLI_DOCSTRING("undefined")},
+        {"r8_unorm",             NGLI_FORMAT_R8_UNORM,            .desc=NGLI_DOCSTRING("8-bit unsigned normalized R component")},
+        {"r8_snorm",             NGLI_FORMAT_R8_SNORM,            .desc=NGLI_DOCSTRING("8-bit signed normalized R component")},
+        {"r8_uint",              NGLI_FORMAT_R8_UINT,             .desc=NGLI_DOCSTRING("8-bit unsigned integer R component")},
+        {"r8_sint",              NGLI_FORMAT_R8_SINT,             .desc=NGLI_DOCSTRING("8-bit signed integer R component")},
+        {"r8g8_unorm",           NGLI_FORMAT_R8G8_UNORM,          .desc=NGLI_DOCSTRING("8-bit unsigned normalized RG components")},
+        {"r8g8_snorm",           NGLI_FORMAT_R8G8_SNORM,          .desc=NGLI_DOCSTRING("8-bit signed normalized RG components")},
+        {"r8g8_uint",            NGLI_FORMAT_R8G8_UINT,           .desc=NGLI_DOCSTRING("8-bit unsigned integer RG components")},
+        {"r8g8_sint",            NGLI_FORMAT_R8G8_SINT,           .desc=NGLI_DOCSTRING("8-bit signed normalized RG components")},
+        {"r8g8b8_unorm",         NGLI_FORMAT_R8G8B8_UNORM,        .desc=NGLI_DOCSTRING("8-bit unsigned normalized RGB components")},
+        {"r8g8b8_snorm",         NGLI_FORMAT_R8G8B8_SNORM,        .desc=NGLI_DOCSTRING("8-bit signed normalized RGB components")},
+        {"r8g8b8_uint",          NGLI_FORMAT_R8G8B8_UINT,         .desc=NGLI_DOCSTRING("8-bit unsigned integer RGB components")},
+        {"r8g8b8_sint",          NGLI_FORMAT_R8G8B8_SINT,         .desc=NGLI_DOCSTRING("8-bit signed integer RGB components")},
+        {"r8g8b8_srgb",          NGLI_FORMAT_R8G8B8_SRGB,         .desc=NGLI_DOCSTRING("8-bit unsigned normalized sRGB components")},
+        {"r8g8b8a8_unorm",       NGLI_FORMAT_R8G8B8A8_UNORM,      .desc=NGLI_DOCSTRING("8-bit unsigned normalized RGBA components")},
+        {"r8g8b8a8_snorm",       NGLI_FORMAT_R8G8B8A8_SNORM,      .desc=NGLI_DOCSTRING("8-bit signed normalized RGBA components")},
+        {"r8g8b8a8_uint",        NGLI_FORMAT_R8G8B8A8_UINT,       .desc=NGLI_DOCSTRING("8-bit unsigned integer RGBA components")},
+        {"r8g8b8a8_sint",        NGLI_FORMAT_R8G8B8A8_SINT,       .desc=NGLI_DOCSTRING("8-bit signed integer RGBA components")},
+        {"r8g8b8a8_srgb",        NGLI_FORMAT_R8G8B8A8_SRGB,       .desc=NGLI_DOCSTRING("8-bit unsigned normalized RGBA components")},
+        {"b8g8r8a8_unorm",       NGLI_FORMAT_B8G8R8A8_UNORM,      .desc=NGLI_DOCSTRING("8-bit unsigned normalized BGRA components")},
+        {"b8g8r8a8_snorm",       NGLI_FORMAT_B8G8R8A8_SNORM,      .desc=NGLI_DOCSTRING("8-bit signed normalized BGRA components")},
+        {"b8g8r8a8_uint",        NGLI_FORMAT_B8G8R8A8_UINT,       .desc=NGLI_DOCSTRING("8-bit unsigned integer BGRA components")},
+        {"b8g8r8a8_sint",        NGLI_FORMAT_B8G8R8A8_SINT,       .desc=NGLI_DOCSTRING("8-bit signed integer BGRA components")},
+        {"r16_unorm",            NGLI_FORMAT_R16_UNORM,           .desc=NGLI_DOCSTRING("16-bit unsigned normalized R component")},
+        {"r16_snorm",            NGLI_FORMAT_R16_SNORM,           .desc=NGLI_DOCSTRING("16-bit signed normalized R component")},
+        {"r16_uint",             NGLI_FORMAT_R16_UINT,            .desc=NGLI_DOCSTRING("16-bit unsigned integer R component")},
+        {"r16_sint",             NGLI_FORMAT_R16_SINT,            .desc=NGLI_DOCSTRING("16-bit signed integer R component")},
+        {"r16_sfloat",           NGLI_FORMAT_R16_SFLOAT,          .desc=NGLI_DOCSTRING("16-bit signed float R component")},
+        {"r16g16_unorm",         NGLI_FORMAT_R16G16_UNORM,        .desc=NGLI_DOCSTRING("16-bit unsigned normalized RG components")},
+        {"r16g16_snorm",         NGLI_FORMAT_R16G16_SNORM,        .desc=NGLI_DOCSTRING("16-bit signed normalized RG components")},
+        {"r16g16_uint",          NGLI_FORMAT_R16G16_UINT,         .desc=NGLI_DOCSTRING("16-bit unsigned integer RG components")},
+        {"r16g16_sint",          NGLI_FORMAT_R16G16_SINT,         .desc=NGLI_DOCSTRING("16-bit signed integer RG components")},
+        {"r16g16_sfloat",        NGLI_FORMAT_R16G16_SFLOAT,       .desc=NGLI_DOCSTRING("16-bit signed float RG components")},
+        {"r16g16b16_unorm",      NGLI_FORMAT_R16G16B16_UNORM,     .desc=NGLI_DOCSTRING("16-bit unsigned normalized RGB components")},
+        {"r16g16b16_snorm",      NGLI_FORMAT_R16G16B16_SNORM,     .desc=NGLI_DOCSTRING("16-bit signed normalized RGB components")},
+        {"r16g16b16_uint",       NGLI_FORMAT_R16G16B16_UINT,      .desc=NGLI_DOCSTRING("16-bit unsigned integer RGB components")},
+        {"r16g16b16_sint",       NGLI_FORMAT_R16G16B16_SINT,      .desc=NGLI_DOCSTRING("16-bit signed integer RGB components")},
+        {"r16g16b16_sfloat",     NGLI_FORMAT_R16G16B16_SFLOAT,    .desc=NGLI_DOCSTRING("16-bit signed float RGB components")},
+        {"r16g16b16a16_unorm",   NGLI_FORMAT_R16G16B16A16_UNORM,  .desc=NGLI_DOCSTRING("16-bit unsigned normalized RGBA components")},
+        {"r16g16b16a16_snorm",   NGLI_FORMAT_R16G16B16A16_SNORM,  .desc=NGLI_DOCSTRING("16-bit signed normalized RGBA components")},
+        {"r16g16b16a16_uint",    NGLI_FORMAT_R16G16B16A16_UINT,   .desc=NGLI_DOCSTRING("16-bit unsigned integer RGBA components")},
+        {"r16g16b16a16_sint",    NGLI_FORMAT_R16G16B16A16_SINT,   .desc=NGLI_DOCSTRING("16-bit signed integer RGBA components")},
+        {"r16g16b16a16_sfloat",  NGLI_FORMAT_R16G16B16A16_SFLOAT, .desc=NGLI_DOCSTRING("16-bit signed float RGBA components")},
+        {"r32_uint",             NGLI_FORMAT_R32_UINT,            .desc=NGLI_DOCSTRING("32-bit unsigned integer R component")},
+        {"r32_sint",             NGLI_FORMAT_R32_SINT,            .desc=NGLI_DOCSTRING("32-bit signed integer R component")},
+        {"r32_sfloat",           NGLI_FORMAT_R32_SFLOAT,          .desc=NGLI_DOCSTRING("32-bit signed float R component")},
+        {"r32g32_uint",          NGLI_FORMAT_R32G32_UINT,         .desc=NGLI_DOCSTRING("32-bit unsigned integer RG components")},
+        {"r32g32_sint",          NGLI_FORMAT_R32G32_SINT,         .desc=NGLI_DOCSTRING("32-bit signed integer RG components")},
+        {"r32g32_sfloat",        NGLI_FORMAT_R32G32_SFLOAT,       .desc=NGLI_DOCSTRING("32-bit signed float RG components")},
+        {"r32g32b32_uint",       NGLI_FORMAT_R32G32B32_UINT,      .desc=NGLI_DOCSTRING("32-bit unsigned integer RGB components")},
+        {"r32g32b32_sint",       NGLI_FORMAT_R32G32B32_SINT,      .desc=NGLI_DOCSTRING("32-bit signed integer RGB components")},
+        {"r32g32b32_sfloat",     NGLI_FORMAT_R32G32B32_SFLOAT,    .desc=NGLI_DOCSTRING("32-bit signed float RGB components")},
+        {"r32g32b32a32_uint",    NGLI_FORMAT_R32G32B32A32_UINT,   .desc=NGLI_DOCSTRING("32-bit unsigned integer RGBA components")},
+        {"r32g32b32a32_sint",    NGLI_FORMAT_R32G32B32A32_SINT,   .desc=NGLI_DOCSTRING("32-bit signed integer RGBA components")},
+        {"r32g32b32a32_sfloat",  NGLI_FORMAT_R32G32B32A32_SFLOAT, .desc=NGLI_DOCSTRING("32-bit signed float RGBA components")},
+        {"d16_unorm",            NGLI_FORMAT_D16_UNORM,           .desc=NGLI_DOCSTRING("16-bit unsigned normalized depth component")},
+        {"d24_unorm",            NGLI_FORMAT_X8_D24_UNORM_PACK32, .desc=NGLI_DOCSTRING("32-bit packed format that has 24-bit unsigned "
+                                                                                       "normalized depth component + 8-bit of unused data")},
+        {"d32_sfloat",           NGLI_FORMAT_D32_SFLOAT,          .desc=NGLI_DOCSTRING("32-bit signed float depth component")},
+        {"d24_unorm_s8_uint",    NGLI_FORMAT_D24_UNORM_S8_UINT,   .desc=NGLI_DOCSTRING("32-bit packed format that has 24-bit unsigned "
+                                                                                       "normalized depth component + 8-bit unsigned "
+                                                                                       "integer stencil component")},
+        {"d32_sfloat_s8_uint",   NGLI_FORMAT_D32_SFLOAT_S8_UINT,  .desc=NGLI_DOCSTRING("64-bit packed format that has 32-bit signed "
+                                                                                       "float depth component + 8-bit unsigned integer "
+                                                                                       "stencil component + 24-bit of unused data")},
+        {"s8_uint",              NGLI_FORMAT_S8_UINT,             .desc=NGLI_DOCSTRING("8-bit unsigned integer stencil component")},
         {NULL}
     }
 };
