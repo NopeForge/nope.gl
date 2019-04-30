@@ -281,7 +281,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `uvcoords` |  |  | [`Node`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer)) | coordinates used for UV mapping of each `vertices` | 
 `normals` |  |  | [`Node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) | normal vectors of each `vertices` | 
 `indices` |  |  | [`Node`](#parameter-types) ([BufferUByte](#buffer), [BufferUInt](#buffer), [BufferUShort](#buffer)) | indices defining the drawing order of the `vertices`, auto-generated if not set | 
-`topology` |  |  | [`topology`](#topology-choices) | primitive topology | `triangles`
+`topology` |  |  | [`topology`](#topology-choices) | primitive topology | `triangle_list`
 
 
 **Source**: [node_geometry.c](/libnodegl/node_geometry.c)
@@ -789,12 +789,12 @@ Constant | Description
 
 Constant | Description
 -------- | -----------
-`points` | points
+`point_list` | point list
 `line_strip` | line strip
-`lines` | lines
+`line_list` | line list
 `triangle_strip` | triangle strip
 `triangle_fan` | triangle fan
-`triangles` | triangles
+`triangle_list` | triangle list
 
 ## blend_factor choices
 
