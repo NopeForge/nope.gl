@@ -22,7 +22,6 @@
 #ifndef FORMAT_H
 #define FORMAT_H
 
-#include "formats_register.h"
 #include "glcontext.h"
 #include "glincludes.h"
 
