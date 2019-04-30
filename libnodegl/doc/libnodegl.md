@@ -791,7 +791,6 @@ Constant | Description
 -------- | -----------
 `points` | points
 `line_strip` | line strip
-`line_loop` | line loop
 `lines` | lines
 `triangle_strip` | triangle strip
 `triangle_fan` | triangle fan

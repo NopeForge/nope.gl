@@ -52,7 +52,6 @@ static const struct param_choices topology_choices = {
     .consts = {
         {"points",         GL_POINTS,         .desc=NGLI_DOCSTRING("points")},
         {"line_strip",     GL_LINE_STRIP,     .desc=NGLI_DOCSTRING("line strip")},
-        {"line_loop",      GL_LINE_LOOP,      .desc=NGLI_DOCSTRING("line loop")},
         {"lines",          GL_LINES,          .desc=NGLI_DOCSTRING("lines")},
         {"triangle_strip", GL_TRIANGLE_STRIP, .desc=NGLI_DOCSTRING("triangle strip")},
         {"triangle_fan",   GL_TRIANGLE_FAN,   .desc=NGLI_DOCSTRING("triangle fan")},
