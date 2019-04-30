@@ -131,47 +131,20 @@ static void animatedbuffer_uninit(struct ngl_node *node)
     s->data = NULL;
 }
 
-const struct node_class ngli_animatedbufferfloat_class = {
-    .id        = NGL_NODE_ANIMATEDBUFFERFLOAT,
-    .name      = "AnimatedBufferFloat",
-    .init      = animatedbuffer_init,
-    .update    = animatedbuffer_update,
-    .uninit    = animatedbuffer_uninit,
-    .priv_size = sizeof(struct buffer_priv),
-    .params    = animatedbuffer_params,
-    .params_id = "AnimatedBuffer",
-    .file      = __FILE__,
-};
-const struct node_class ngli_animatedbuffervec2_class = {
-    .id        = NGL_NODE_ANIMATEDBUFFERVEC2,
-    .name      = "AnimatedBufferVec2",
-    .init      = animatedbuffer_init,
-    .update    = animatedbuffer_update,
-    .uninit    = animatedbuffer_uninit,
-    .priv_size = sizeof(struct buffer_priv),
-    .params    = animatedbuffer_params,
-    .params_id = "AnimatedBuffer",
-    .file      = __FILE__,
-};
-const struct node_class ngli_animatedbuffervec3_class = {
-    .id        = NGL_NODE_ANIMATEDBUFFERVEC3,
-    .name      = "AnimatedBufferVec3",
-    .init      = animatedbuffer_init,
-    .update    = animatedbuffer_update,
-    .uninit    = animatedbuffer_uninit,
-    .priv_size = sizeof(struct buffer_priv),
-    .params    = animatedbuffer_params,
-    .params_id = "AnimatedBuffer",
-    .file      = __FILE__,
-};
-const struct node_class ngli_animatedbuffervec4_class = {
-    .id        = NGL_NODE_ANIMATEDBUFFERVEC4,
-    .name      = "AnimatedBufferVec4",
-    .init      = animatedbuffer_init,
-    .update    = animatedbuffer_update,
-    .uninit    = animatedbuffer_uninit,
-    .priv_size = sizeof(struct buffer_priv),
-    .params    = animatedbuffer_params,
-    .params_id = "AnimatedBuffer",
-    .file      = __FILE__,
-};
+#define DEFINE_ABUFFER_CLASS(class_id, class_name, type)                           \
+const struct node_class ngli_animatedbuffer##type##_class = {                      \
+    .id        = class_id,                                                         \
+    .name      = class_name,                                                       \
+    .init      = animatedbuffer_init,                                              \
+    .update    = animatedbuffer_update,                                            \
+    .uninit    = animatedbuffer_uninit,                                            \
+    .priv_size = sizeof(struct buffer_priv),                                       \
+    .params    = animatedbuffer_params,                                            \
+    .params_id = "AnimatedBuffer",                                                 \
+    .file      = __FILE__,                                                         \
+};                                                                                 \
+
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERFLOAT, "AnimatedBufferFloat", float)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC2,  "AnimatedBufferVec2",  vec2)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC3,  "AnimatedBufferVec3",  vec3)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC4,  "AnimatedBufferVec4",  vec4)
