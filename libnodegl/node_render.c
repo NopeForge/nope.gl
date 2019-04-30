@@ -33,6 +33,7 @@
 #include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "topology.h"
 #include "utils.h"
 
 #define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE2D,       \
@@ -101,30 +102,34 @@ static void draw_elements(struct glcontext *gl, struct render_priv *render)
 {
     struct geometry_priv *geometry = render->geometry->priv_data;
     const struct buffer_priv *indices = geometry->indices_buffer->priv_data;
+    const GLenum gl_topology = ngli_topology_get_gl_topology(geometry->topology);
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->buffer.id);
-    ngli_glDrawElements(gl, geometry->topology, indices->count, render->indices_type, 0);
+    ngli_glDrawElements(gl, gl_topology, indices->count, render->indices_type, 0);
 }
 
 static void draw_elements_instanced(struct glcontext *gl, struct render_priv *render)
 {
     struct geometry_priv *geometry = render->geometry->priv_data;
     struct buffer_priv *indices = geometry->indices_buffer->priv_data;
+    const GLenum gl_topology = ngli_topology_get_gl_topology(geometry->topology);
     ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->buffer.id);
-    ngli_glDrawElementsInstanced(gl, geometry->topology, indices->count, render->indices_type, 0, render->nb_instances);
+    ngli_glDrawElementsInstanced(gl, gl_topology, indices->count, render->indices_type, 0, render->nb_instances);
 }
 
 static void draw_arrays(struct glcontext *gl, struct render_priv *render)
 {
     struct geometry_priv *geometry = render->geometry->priv_data;
     struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
-    ngli_glDrawArrays(gl, geometry->topology, 0, vertices->count);
+    const GLenum gl_topology = ngli_topology_get_gl_topology(geometry->topology);
+    ngli_glDrawArrays(gl, gl_topology, 0, vertices->count);
 }
 
 static void draw_arrays_instanced(struct glcontext *gl, struct render_priv *render)
 {
     struct geometry_priv *geometry = render->geometry->priv_data;
     struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
-    ngli_glDrawArraysInstanced(gl, geometry->topology, 0, vertices->count, render->nb_instances);
+    const GLenum gl_topology = ngli_topology_get_gl_topology(geometry->topology);
+    ngli_glDrawArraysInstanced(gl, gl_topology, 0, vertices->count, render->nb_instances);
 }
 
 static int check_attributes(struct render_priv *s, struct hmap *attributes, int per_instance)

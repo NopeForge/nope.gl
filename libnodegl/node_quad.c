@@ -26,6 +26,7 @@
 #include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "topology.h"
 #include "utils.h"
 
 #define OFFSET(x) offsetof(struct geometry_priv, x)
@@ -103,7 +104,7 @@ static int quad_init(struct ngl_node *node)
     if (!s->normals_buffer)
         return -1;
 
-    s->topology = GL_TRIANGLE_FAN;
+    s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 
     return 0;
 }

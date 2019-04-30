@@ -27,6 +27,7 @@
 #include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "topology.h"
 #include "utils.h"
 
 #define OFFSET(x) offsetof(struct geometry_priv, x)
@@ -102,7 +103,7 @@ static int circle_init(struct ngl_node *node)
     if (!s->vertices_buffer || !s->uvcoords_buffer || !s->normals_buffer)
         goto end;
 
-    s->topology = GL_TRIANGLE_FAN;
+    s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 
     ret = 0;
 

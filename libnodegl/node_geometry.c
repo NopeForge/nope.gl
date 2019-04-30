@@ -26,6 +26,7 @@
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "topology.h"
 
 struct ngl_node *ngli_node_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data)
 {
@@ -50,12 +51,12 @@ fail:
 static const struct param_choices topology_choices = {
     .name = "topology",
     .consts = {
-        {"points",         GL_POINTS,         .desc=NGLI_DOCSTRING("points")},
-        {"line_strip",     GL_LINE_STRIP,     .desc=NGLI_DOCSTRING("line strip")},
-        {"lines",          GL_LINES,          .desc=NGLI_DOCSTRING("lines")},
-        {"triangle_strip", GL_TRIANGLE_STRIP, .desc=NGLI_DOCSTRING("triangle strip")},
-        {"triangle_fan",   GL_TRIANGLE_FAN,   .desc=NGLI_DOCSTRING("triangle fan")},
-        {"triangles",      GL_TRIANGLES,      .desc=NGLI_DOCSTRING("triangles")},
+        {"points",         NGLI_PRIMITIVE_TOPOLOGY_POINT_LIST,     .desc=NGLI_DOCSTRING("points")},
+        {"line_strip",     NGLI_PRIMITIVE_TOPOLOGY_LINE_STRIP,     .desc=NGLI_DOCSTRING("line strip")},
+        {"lines",          NGLI_PRIMITIVE_TOPOLOGY_LINE_LIST,      .desc=NGLI_DOCSTRING("lines")},
+        {"triangle_strip", NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP, .desc=NGLI_DOCSTRING("triangle strip")},
+        {"triangle_fan",   NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,   .desc=NGLI_DOCSTRING("triangle fan")},
+        {"triangles",      NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,  .desc=NGLI_DOCSTRING("triangles")},
         {NULL}
     }
 };
@@ -86,7 +87,7 @@ static const struct node_param geometry_params[] = {
                   .node_types=(const int[]){NGL_NODE_BUFFERUBYTE, NGL_NODE_BUFFERUINT, NGL_NODE_BUFFERUSHORT, -1},
                   .flags=PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                   .desc=NGLI_DOCSTRING("indices defining the drawing order of the `vertices`, auto-generated if not set")},
-    {"topology",  PARAM_TYPE_SELECT, OFFSET(topology), {.i64=GL_TRIANGLES},
+    {"topology",  PARAM_TYPE_SELECT, OFFSET(topology), {.i64=NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST},
                   .choices=&topology_choices,
                   .desc=NGLI_DOCSTRING("primitive topology")},
     {NULL}

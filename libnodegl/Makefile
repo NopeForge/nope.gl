@@ -118,6 +118,7 @@ LIB_OBJS = animation.o              \
            program.o                \
            serialize.o              \
            texture.o                \
+           topology.o               \
            transforms.o             \
            utils.o                  \
 
