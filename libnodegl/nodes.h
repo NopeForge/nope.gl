@@ -470,7 +470,7 @@ struct render_priv {
     int has_indices_buffer_ref;
     GLenum indices_type;
 
-    void (*draw)(struct glcontext *gl, struct render_priv *render);
+    void (*draw)(struct glcontext *gl, const struct render_priv *render);
 };
 
 struct compute_priv {
