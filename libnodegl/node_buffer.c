@@ -224,43 +224,6 @@ static int buffer_init(struct ngl_node *node)
     }
 
     int ret;
-    int format;
-
-    switch (node->class->id) {
-    case NGL_NODE_BUFFERBYTE:   format = NGLI_FORMAT_R8_SNORM;               break;
-    case NGL_NODE_BUFFERBVEC2:  format = NGLI_FORMAT_R8G8_SNORM;             break;
-    case NGL_NODE_BUFFERBVEC3:  format = NGLI_FORMAT_R8G8B8_SNORM;           break;
-    case NGL_NODE_BUFFERBVEC4:  format = NGLI_FORMAT_R8G8B8A8_SNORM;         break;
-    case NGL_NODE_BUFFERINT:    format = NGLI_FORMAT_R32_SINT;               break;
-    case NGL_NODE_BUFFERIVEC2:  format = NGLI_FORMAT_R32G32_SINT;            break;
-    case NGL_NODE_BUFFERIVEC3:  format = NGLI_FORMAT_R32G32B32_SINT;         break;
-    case NGL_NODE_BUFFERIVEC4:  format = NGLI_FORMAT_R32G32B32A32_SINT;      break;
-    case NGL_NODE_BUFFERSHORT:  format = NGLI_FORMAT_R16_SNORM;              break;
-    case NGL_NODE_BUFFERSVEC2:  format = NGLI_FORMAT_R16G16_SNORM;           break;
-    case NGL_NODE_BUFFERSVEC3:  format = NGLI_FORMAT_R16G16B16_SNORM;        break;
-    case NGL_NODE_BUFFERSVEC4:  format = NGLI_FORMAT_R16G16B16A16_SNORM;     break;
-    case NGL_NODE_BUFFERUBYTE:  format = NGLI_FORMAT_R8_UNORM;               break;
-    case NGL_NODE_BUFFERUBVEC2: format = NGLI_FORMAT_R8G8_UNORM;             break;
-    case NGL_NODE_BUFFERUBVEC3: format = NGLI_FORMAT_R8G8B8_UNORM;           break;
-    case NGL_NODE_BUFFERUBVEC4: format = NGLI_FORMAT_R8G8B8A8_UNORM;         break;
-    case NGL_NODE_BUFFERUINT:   format = NGLI_FORMAT_R32_UINT;               break;
-    case NGL_NODE_BUFFERUIVEC2: format = NGLI_FORMAT_R32G32_UINT;            break;
-    case NGL_NODE_BUFFERUIVEC3: format = NGLI_FORMAT_R32G32B32_UINT;         break;
-    case NGL_NODE_BUFFERUIVEC4: format = NGLI_FORMAT_R32G32B32A32_UINT;      break;
-    case NGL_NODE_BUFFERUSHORT: format = NGLI_FORMAT_R16_UNORM;              break;
-    case NGL_NODE_BUFFERUSVEC2: format = NGLI_FORMAT_R16G16_UNORM;           break;
-    case NGL_NODE_BUFFERUSVEC3: format = NGLI_FORMAT_R16G16B16_UNORM;        break;
-    case NGL_NODE_BUFFERUSVEC4: format = NGLI_FORMAT_R16G16B16A16_UNORM;     break;
-    case NGL_NODE_BUFFERFLOAT:  format = NGLI_FORMAT_R32_SFLOAT;             break;
-    case NGL_NODE_BUFFERVEC2:   format = NGLI_FORMAT_R32G32_SFLOAT;          break;
-    case NGL_NODE_BUFFERVEC3:   format = NGLI_FORMAT_R32G32B32_SFLOAT;       break;
-    case NGL_NODE_BUFFERVEC4:   format = NGLI_FORMAT_R32G32B32A32_SFLOAT;    break;
-    case NGL_NODE_BUFFERMAT4:   format = NGLI_FORMAT_R32G32B32A32_SFLOAT;    break;
-    default:
-        ngli_assert(0);
-    }
-
-    s->data_format = format;
 
     if (node->class->id == NGL_NODE_BUFFERMAT4) {
         s->data_comp = 4 * 4;
@@ -308,11 +271,18 @@ static void buffer_uninit(struct ngl_node *node)
     }
 }
 
-#define DEFINE_BUFFER_CLASS(class_id, class_name, type)     \
+#define DEFINE_BUFFER_CLASS(class_id, class_name, type, format) \
+static int buffer##type##_init(struct ngl_node *node)           \
+{                                                               \
+    struct buffer_priv *s = node->priv_data;                    \
+    s->data_format = format;                                    \
+    return buffer_init(node);                                   \
+}                                                               \
+                                                                \
 const struct node_class ngli_buffer##type##_class = {       \
     .id        = class_id,                                  \
     .name      = class_name,                                \
-    .init      = buffer_init,                               \
+    .init      = buffer##type##_init,                       \
     .uninit    = buffer_uninit,                             \
     .priv_size = sizeof(struct buffer_priv),                \
     .params    = buffer_params,                             \
@@ -320,32 +290,32 @@ const struct node_class ngli_buffer##type##_class = {       \
     .file      = __FILE__,                                  \
 };
 
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBYTE,    "BufferByte",    byte)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC2,   "BufferBVec2",   bvec2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC3,   "BufferBVec3",   bvec3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC4,   "BufferBVec4",   bvec4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERINT,     "BufferInt",     int)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC2,   "BufferIVec2",   ivec2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC3,   "BufferIVec3",   ivec3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC4,   "BufferIVec4",   ivec4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSHORT,   "BufferShort",   short)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC2,   "BufferSVec2",   svec2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC3,   "BufferSVec3",   svec3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC4,   "BufferSVec4",   svec4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBYTE,   "BufferUByte",   ubyte)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC2,  "BufferUBVec2",  ubvec2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC3,  "BufferUBVec3",  ubvec3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC4,  "BufferUBVec4",  ubvec4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUINT,    "BufferUInt",    uint)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC2,  "BufferUIVec2",  uivec2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC3,  "BufferUIVec3",  uivec3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC4,  "BufferUIVec4",  uivec4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSHORT,  "BufferUShort",  ushort)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC2,  "BufferUSVec2",  usvec2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC3,  "BufferUSVec3",  usvec3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC4,  "BufferUSVec4",  usvec4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERFLOAT,   "BufferFloat",   float)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC2,    "BufferVec2",    vec2)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC3,    "BufferVec3",    vec3)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC4,    "BufferVec4",    vec4)
-DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERMAT4,    "BufferMat4",    mat4)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBYTE,   "BufferByte",   byte,   NGLI_FORMAT_R8_SNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC2,  "BufferBVec2",  bvec2,  NGLI_FORMAT_R8G8_SNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC3,  "BufferBVec3",  bvec3,  NGLI_FORMAT_R8G8B8_SNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBVEC4,  "BufferBVec4",  bvec4,  NGLI_FORMAT_R8G8B8A8_SNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERINT,    "BufferInt",    int,    NGLI_FORMAT_R32_SINT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC2,  "BufferIVec2",  ivec2,  NGLI_FORMAT_R32G32_SINT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC3,  "BufferIVec3",  ivec3,  NGLI_FORMAT_R32G32B32_SINT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERIVEC4,  "BufferIVec4",  ivec4,  NGLI_FORMAT_R32G32B32A32_SINT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSHORT,  "BufferShort",  short,  NGLI_FORMAT_R16_SNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC2,  "BufferSVec2",  svec2,  NGLI_FORMAT_R16G16_SNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC3,  "BufferSVec3",  svec3,  NGLI_FORMAT_R16G16B16_SNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERSVEC4,  "BufferSVec4",  svec4,  NGLI_FORMAT_R16G16B16A16_SNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBYTE,  "BufferUByte",  ubyte,  NGLI_FORMAT_R8_UNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC2, "BufferUBVec2", ubvec2, NGLI_FORMAT_R8G8_UNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC3, "BufferUBVec3", ubvec3, NGLI_FORMAT_R8G8B8_UNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUBVEC4, "BufferUBVec4", ubvec4, NGLI_FORMAT_R8G8B8A8_UNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUINT,   "BufferUInt",   uint,   NGLI_FORMAT_R32_UINT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC2, "BufferUIVec2", uivec2, NGLI_FORMAT_R32G32_UINT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC3, "BufferUIVec3", uivec3, NGLI_FORMAT_R32G32B32_UINT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUIVEC4, "BufferUIVec4", uivec4, NGLI_FORMAT_R32G32B32A32_UINT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSHORT, "BufferUShort", ushort, NGLI_FORMAT_R16_UNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC2, "BufferUSVec2", usvec2, NGLI_FORMAT_R16G16_UNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC3, "BufferUSVec3", usvec3, NGLI_FORMAT_R16G16B16_UNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERUSVEC4, "BufferUSVec4", usvec4, NGLI_FORMAT_R16G16B16A16_UNORM)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERFLOAT,  "BufferFloat",  float,  NGLI_FORMAT_R32_SFLOAT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC2,   "BufferVec2",   vec2,   NGLI_FORMAT_R32G32_SFLOAT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC3,   "BufferVec3",   vec3,   NGLI_FORMAT_R32G32B32_SFLOAT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERVEC4,   "BufferVec4",   vec4,   NGLI_FORMAT_R32G32B32A32_SFLOAT)
+DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERMAT4,   "BufferMat4",   mat4,   NGLI_FORMAT_R32G32B32A32_SFLOAT)
