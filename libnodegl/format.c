@@ -94,6 +94,11 @@ int ngli_format_get_bytes_per_pixel(int format)
     return format_comp_sizes[format].size;
 }
 
+int ngli_format_get_nb_comp(int format)
+{
+    return format_comp_sizes[format].nb_comp;
+}
+
 static int get_gl_format_type(struct glcontext *gl, int data_format,
                               GLint *formatp, GLint *internal_formatp, GLenum *typep)
 {
