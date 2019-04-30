@@ -69,20 +69,8 @@ static int animatedbuffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
 
-    int format;
-
-    switch (node->class->id) {
-    case NGL_NODE_ANIMATEDBUFFERFLOAT: format = NGLI_FORMAT_R32_SFLOAT;          break;
-    case NGL_NODE_ANIMATEDBUFFERVEC2:  format = NGLI_FORMAT_R32G32_SFLOAT;       break;
-    case NGL_NODE_ANIMATEDBUFFERVEC3:  format = NGLI_FORMAT_R32G32B32_SFLOAT;    break;
-    case NGL_NODE_ANIMATEDBUFFERVEC4:  format = NGLI_FORMAT_R32G32B32A32_SFLOAT; break;
-    default:
-        ngli_assert(0);
-    }
-
     s->dynamic = 1;
     s->usage = GL_DYNAMIC_DRAW;
-    s->data_format = format;
     s->data_comp = ngli_format_get_nb_comp(s->data_format);
     s->data_stride = ngli_format_get_bytes_per_pixel(s->data_format);
 
@@ -130,11 +118,18 @@ static void animatedbuffer_uninit(struct ngl_node *node)
     s->data = NULL;
 }
 
-#define DEFINE_ABUFFER_CLASS(class_id, class_name, type)                           \
+#define DEFINE_ABUFFER_CLASS(class_id, class_name, type, format)                   \
+static int animatedbuffer##type##_init(struct ngl_node *node)                      \
+{                                                                                  \
+    struct buffer_priv *s = node->priv_data;                                       \
+    s->data_format = format;                                                       \
+    return animatedbuffer_init(node);                                              \
+}                                                                                  \
+                                                                                   \
 const struct node_class ngli_animatedbuffer##type##_class = {                      \
     .id        = class_id,                                                         \
     .name      = class_name,                                                       \
-    .init      = animatedbuffer_init,                                              \
+    .init      = animatedbuffer##type##_init,                                      \
     .update    = animatedbuffer_update,                                            \
     .uninit    = animatedbuffer_uninit,                                            \
     .priv_size = sizeof(struct buffer_priv),                                       \
@@ -143,7 +138,7 @@ const struct node_class ngli_animatedbuffer##type##_class = {                   
     .file      = __FILE__,                                                         \
 };                                                                                 \
 
-DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERFLOAT, "AnimatedBufferFloat", float)
-DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC2,  "AnimatedBufferVec2",  vec2)
-DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC3,  "AnimatedBufferVec3",  vec3)
-DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC4,  "AnimatedBufferVec4",  vec4)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERFLOAT, "AnimatedBufferFloat", float, NGLI_FORMAT_R32_SFLOAT)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC2,  "AnimatedBufferVec2",  vec2,  NGLI_FORMAT_R32G32_SFLOAT)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC3,  "AnimatedBufferVec3",  vec3,  NGLI_FORMAT_R32G32B32_SFLOAT)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC4,  "AnimatedBufferVec4",  vec4,  NGLI_FORMAT_R32G32B32A32_SFLOAT)
