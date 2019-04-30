@@ -279,15 +279,15 @@ static int buffer##type##_init(struct ngl_node *node)           \
     return buffer_init(node);                                   \
 }                                                               \
                                                                 \
-const struct node_class ngli_buffer##type##_class = {       \
-    .id        = class_id,                                  \
-    .name      = class_name,                                \
-    .init      = buffer##type##_init,                       \
-    .uninit    = buffer_uninit,                             \
-    .priv_size = sizeof(struct buffer_priv),                \
-    .params    = buffer_params,                             \
-    .params_id = "Buffer",                                  \
-    .file      = __FILE__,                                  \
+const struct node_class ngli_buffer##type##_class = {           \
+    .id        = class_id,                                      \
+    .name      = class_name,                                    \
+    .init      = buffer##type##_init,                           \
+    .uninit    = buffer_uninit,                                 \
+    .priv_size = sizeof(struct buffer_priv),                    \
+    .params    = buffer_params,                                 \
+    .params_id = "Buffer",                                      \
+    .file      = __FILE__,                                      \
 };
 
 DEFINE_BUFFER_CLASS(NGL_NODE_BUFFERBYTE,   "BufferByte",   byte,   NGLI_FORMAT_R8_SNORM)
