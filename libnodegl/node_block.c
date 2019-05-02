@@ -69,12 +69,12 @@ static const struct param_choices layout_choices = {
                                           NGL_NODE_UNIFORMMAT4,         \
                                           NGL_NODE_UNIFORMQUAT
 
-#define UNIFORMS_TYPES_LIST (const int[]){FIELD_TYPES_BUFFER_LIST, FIELD_TYPES_UNIFORMS_LIST, -1}
+#define FIELD_TYPES_LIST (const int[]){FIELD_TYPES_BUFFER_LIST, FIELD_TYPES_UNIFORMS_LIST, -1}
 
 #define OFFSET(x) offsetof(struct block_priv, x)
 static const struct node_param block_params[] = {
     {"fields", PARAM_TYPE_NODELIST, OFFSET(fields),
-               .node_types=UNIFORMS_TYPES_LIST,
+               .node_types=FIELD_TYPES_LIST,
                .desc=NGLI_DOCSTRING("block fields defined in the graphic program")},
     {"layout", PARAM_TYPE_SELECT, OFFSET(layout), {.i64=LAYOUT_STD140},
                .choices=&layout_choices,
