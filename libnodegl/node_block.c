@@ -131,22 +131,22 @@ static int get_buffer_stride(const struct ngl_node *node, int layout)
 {
     switch (node->class->id) {
         case NGL_NODE_ANIMATEDBUFFERFLOAT:
-        case NGL_NODE_BUFFERFLOAT:          return sizeof(GLfloat) * (layout == LAYOUT_STD140 ? 4 : 1);
+        case NGL_NODE_BUFFERFLOAT:          return sizeof(float) * (layout == LAYOUT_STD140 ? 4 : 1);
         case NGL_NODE_ANIMATEDBUFFERVEC2:
-        case NGL_NODE_BUFFERVEC2:           return sizeof(GLfloat) * (layout == LAYOUT_STD140 ? 4 : 2);
+        case NGL_NODE_BUFFERVEC2:           return sizeof(float) * (layout == LAYOUT_STD140 ? 4 : 2);
         case NGL_NODE_ANIMATEDBUFFERVEC3:
         case NGL_NODE_BUFFERVEC3:
         case NGL_NODE_ANIMATEDBUFFERVEC4:
-        case NGL_NODE_BUFFERVEC4:           return sizeof(GLfloat) * 4;
+        case NGL_NODE_BUFFERVEC4:           return sizeof(float) * 4;
         case NGL_NODE_BUFFERINT:
-        case NGL_NODE_BUFFERUINT:           return sizeof(GLint) * (layout == LAYOUT_STD140 ? 4 : 1);
+        case NGL_NODE_BUFFERUINT:           return sizeof(int) * (layout == LAYOUT_STD140 ? 4 : 1);
         case NGL_NODE_BUFFERIVEC2:
-        case NGL_NODE_BUFFERUIVEC2:         return sizeof(GLint) * (layout == LAYOUT_STD140 ? 4 : 2);
+        case NGL_NODE_BUFFERUIVEC2:         return sizeof(int) * (layout == LAYOUT_STD140 ? 4 : 2);
         case NGL_NODE_BUFFERIVEC3:
         case NGL_NODE_BUFFERUIVEC3:
         case NGL_NODE_BUFFERIVEC4:
-        case NGL_NODE_BUFFERUIVEC4:         return sizeof(GLint) * 4;
-        case NGL_NODE_BUFFERMAT4:           return sizeof(GLfloat) * 4 * 4;
+        case NGL_NODE_BUFFERUIVEC4:         return sizeof(int) * 4;
+        case NGL_NODE_BUFFERMAT4:           return sizeof(float) * 4 * 4;
     }
     return 0;
 }
@@ -160,18 +160,18 @@ static int get_buffer_size(const struct ngl_node *bnode, int layout)
 static int get_quat_size(const struct ngl_node *quat, int layout)
 {
     struct uniform_priv *quat_priv = quat->priv_data;
-    return sizeof(GLfloat) * 4 * (quat_priv->as_mat4 ? 4 : 1);
+    return sizeof(float) * 4 * (quat_priv->as_mat4 ? 4 : 1);
 }
 
 static int get_node_size(const struct ngl_node *node, int layout)
 {
     switch (node->class->id) {
-        case NGL_NODE_UNIFORMFLOAT:         return sizeof(GLfloat) * 1;
-        case NGL_NODE_UNIFORMVEC2:          return sizeof(GLfloat) * 2;
-        case NGL_NODE_UNIFORMVEC3:          return sizeof(GLfloat) * 3;
-        case NGL_NODE_UNIFORMVEC4:          return sizeof(GLfloat) * 4;
-        case NGL_NODE_UNIFORMMAT4:          return sizeof(GLfloat) * 4 * 4;
-        case NGL_NODE_UNIFORMINT:           return sizeof(GLint);
+        case NGL_NODE_UNIFORMFLOAT:         return sizeof(float) * 1;
+        case NGL_NODE_UNIFORMVEC2:          return sizeof(float) * 2;
+        case NGL_NODE_UNIFORMVEC3:          return sizeof(float) * 3;
+        case NGL_NODE_UNIFORMVEC4:          return sizeof(float) * 4;
+        case NGL_NODE_UNIFORMMAT4:          return sizeof(float) * 4 * 4;
+        case NGL_NODE_UNIFORMINT:           return sizeof(int);
         case NGL_NODE_UNIFORMQUAT:          return get_quat_size(node, layout);
         default:                            return get_buffer_size(node, layout);
     }
@@ -180,14 +180,14 @@ static int get_node_size(const struct ngl_node *node, int layout)
 static int get_node_align(const struct ngl_node *node, int layout)
 {
     switch (node->class->id) {
-        case NGL_NODE_UNIFORMFLOAT:         return sizeof(GLfloat) * 1;
-        case NGL_NODE_UNIFORMVEC2:          return sizeof(GLfloat) * 2;
+        case NGL_NODE_UNIFORMFLOAT:         return sizeof(float) * 1;
+        case NGL_NODE_UNIFORMVEC2:          return sizeof(float) * 2;
         case NGL_NODE_UNIFORMVEC3:
         case NGL_NODE_UNIFORMVEC4:
         case NGL_NODE_UNIFORMMAT4:
         case NGL_NODE_UNIFORMQUAT:
-        case NGL_NODE_BUFFERMAT4:           return sizeof(GLfloat) * 4;
-        case NGL_NODE_UNIFORMINT:           return sizeof(GLint);
+        case NGL_NODE_BUFFERMAT4:           return sizeof(float) * 4;
+        case NGL_NODE_UNIFORMINT:           return sizeof(int);
         default:                            return get_buffer_stride(node, layout);
     }
     return 0;
