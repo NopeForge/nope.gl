@@ -355,7 +355,7 @@
         - [mipmap_filter, select]
         - [wrap_s, select]
         - [wrap_t, select]
-        - [access, select]
+        - [access, flags]
         - [data_src, Node]
         - [direct_rendering, bool]
 
@@ -371,7 +371,7 @@
         - [wrap_s, select]
         - [wrap_t, select]
         - [wrap_r, select]
-        - [access, select]
+        - [access, flags]
         - [data_src, Node]
 
 - TextureCube:
@@ -384,7 +384,7 @@
         - [wrap_s, select]
         - [wrap_t, select]
         - [wrap_r, select]
-        - [access, select]
+        - [access, flags]
         - [data_src, Node]
 
 - TimeRangeFilter:
