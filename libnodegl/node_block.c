@@ -43,7 +43,7 @@ static const struct param_choices layout_choices = {
     }
 };
 
-#define UNIFORMS_TYPES_LIST (const int[]){NGL_NODE_ANIMATEDBUFFERFLOAT, \
+#define FIELD_TYPES_BUFFER_LIST           NGL_NODE_ANIMATEDBUFFERFLOAT, \
                                           NGL_NODE_ANIMATEDBUFFERVEC2,  \
                                           NGL_NODE_ANIMATEDBUFFERVEC3,  \
                                           NGL_NODE_ANIMATEDBUFFERVEC4,  \
@@ -59,15 +59,17 @@ static const struct param_choices layout_choices = {
                                           NGL_NODE_BUFFERUIVEC2,        \
                                           NGL_NODE_BUFFERUIVEC3,        \
                                           NGL_NODE_BUFFERUIVEC4,        \
-                                          NGL_NODE_BUFFERMAT4,          \
-                                          NGL_NODE_UNIFORMFLOAT,        \
+                                          NGL_NODE_BUFFERMAT4
+
+#define FIELD_TYPES_UNIFORMS_LIST         NGL_NODE_UNIFORMFLOAT,        \
                                           NGL_NODE_UNIFORMVEC2,         \
                                           NGL_NODE_UNIFORMVEC3,         \
                                           NGL_NODE_UNIFORMVEC4,         \
                                           NGL_NODE_UNIFORMINT,          \
                                           NGL_NODE_UNIFORMMAT4,         \
-                                          NGL_NODE_UNIFORMQUAT,         \
-                                          -1}
+                                          NGL_NODE_UNIFORMQUAT
+
+#define UNIFORMS_TYPES_LIST (const int[]){FIELD_TYPES_BUFFER_LIST, FIELD_TYPES_UNIFORMS_LIST, -1}
 
 #define OFFSET(x) offsetof(struct block_priv, x)
 static const struct node_param block_params[] = {
