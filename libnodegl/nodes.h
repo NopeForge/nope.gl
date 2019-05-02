@@ -290,7 +290,7 @@ struct uniform_priv {
 };
 
 struct block_field_info {
-    int spec_id;
+    int is_array;
     int offset;
     int size;
     int stride;

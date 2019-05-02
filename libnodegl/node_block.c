@@ -225,43 +225,24 @@ static void update_buffer_field(uint8_t *dst,
             memcpy(dst + i * fi->stride, buffer->data + i * buffer->data_stride, buffer->data_stride);
 }
 
-static const struct type_spec {
-    int class_id;
+enum field_type { IS_SINGLE, IS_ARRAY };
+
+static const struct {
     int (*has_changed)(const struct ngl_node *node);
     void (*update_data)(uint8_t *dst, const struct ngl_node *node, const struct block_field_info *fi);
-} type_specs[] = {
-    {NGL_NODE_BUFFERFLOAT,         has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERVEC2,          has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERVEC3,          has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERVEC4,          has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERINT,           has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERIVEC2,         has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERIVEC3,         has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERIVEC4,         has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERUINT,          has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERUIVEC2,        has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERUIVEC3,        has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERUIVEC4,        has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_BUFFERMAT4,          has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_ANIMATEDBUFFERFLOAT, has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_ANIMATEDBUFFERVEC2,  has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_ANIMATEDBUFFERVEC3,  has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_ANIMATEDBUFFERVEC4,  has_changed_buffer,  update_buffer_field},
-    {NGL_NODE_UNIFORMFLOAT,        has_changed_uniform, update_uniform_field},
-    {NGL_NODE_UNIFORMVEC2,         has_changed_uniform, update_uniform_field},
-    {NGL_NODE_UNIFORMVEC3,         has_changed_uniform, update_uniform_field},
-    {NGL_NODE_UNIFORMVEC4,         has_changed_uniform, update_uniform_field},
-    {NGL_NODE_UNIFORMINT,          has_changed_uniform, update_uniform_field},
-    {NGL_NODE_UNIFORMMAT4,         has_changed_uniform, update_uniform_field},
-    {NGL_NODE_UNIFORMQUAT,         has_changed_uniform, update_uniform_field},
+} field_funcs[] = {
+    [IS_SINGLE] = {has_changed_uniform, update_uniform_field},
+    [IS_ARRAY]  = {has_changed_buffer,  update_buffer_field},
 };
 
-static int get_spec_id(int class_id)
+static const int fields_buffer_list[] = {FIELD_TYPES_BUFFER_LIST};
+
+static int node_is_buffer(int class_id)
 {
-    for (int i = 0; i < NGLI_ARRAY_NB(type_specs); i++)
-        if (type_specs[i].class_id == class_id)
-            return i;
-    return -1;
+    for (int i = 0; i < NGLI_ARRAY_NB(fields_buffer_list); i++)
+        if (fields_buffer_list[i] == class_id)
+            return 1;
+    return 0;
 }
 
 static void update_block_data(struct block_priv *s, int forced)
@@ -269,10 +250,9 @@ static void update_block_data(struct block_priv *s, int forced)
     for (int i = 0; i < s->nb_fields; i++) {
         const struct ngl_node *field_node = s->fields[i];
         const struct block_field_info *fi = &s->field_info[i];
-        const struct type_spec *spec = &type_specs[fi->spec_id];
-        if (!forced && !spec->has_changed(field_node))
+        if (!forced && !field_funcs[fi->is_array ? IS_ARRAY : IS_SINGLE].has_changed(field_node))
             continue;
-        spec->update_data(s->data + fi->offset, field_node, fi);
+        field_funcs[fi->is_array ? IS_ARRAY : IS_SINGLE].update_data(s->data + fi->offset, field_node, fi);
         s->has_changed = 1; // TODO: only re-upload the changing data segments
     }
 }
@@ -305,22 +285,20 @@ static int block_init(struct ngl_node *node)
     s->data_size = 0;
     for (int i = 0; i < s->nb_fields; i++) {
         const struct ngl_node *field_node = s->fields[i];
-        const int spec_id = get_spec_id(field_node->class->id);
+        const int is_array = node_is_buffer(field_node->class->id);
         const int size   = get_node_size(field_node, s->layout);
         const int align  = get_node_align(field_node, s->layout);
 
-        ngli_assert(spec_id >= 0 && spec_id < NGLI_ARRAY_NB(type_specs));
         ngli_assert(align);
 
         const int remain = s->data_size % align;
         const int offset = s->data_size + (remain ? align - remain : 0);
 
-        const struct type_spec *spec = &type_specs[spec_id];
-        if (spec->has_changed(field_node))
+        if (field_funcs[is_array ? IS_ARRAY : IS_SINGLE].has_changed(field_node))
             s->usage = GL_DYNAMIC_DRAW;
 
         struct block_field_info *fi = &s->field_info[i];
-        fi->spec_id = spec_id;
+        fi->is_array = is_array;
         fi->size    = size;
         fi->stride  = get_buffer_stride(field_node, s->layout);
         fi->offset  = offset;
