@@ -527,7 +527,8 @@ static int update_sampler(const struct glcontext *gl,
             if (info->sampler_type == GL_IMAGE_2D) {
                 const struct texture_params *params = &plane->params;
                 GLuint unit = info->sampler_value;
-                ngli_glBindImageTexture(gl, unit, plane->id, 0, GL_FALSE, 0, params->access, plane->internal_format);
+                const GLenum access = ngli_texture_get_gl_access(params->access);
+                ngli_glBindImageTexture(gl, unit, plane->id, 0, GL_FALSE, 0, access, plane->internal_format);
             } else {
                 int ret = bind_texture_plane(gl, plane, used_texture_units, info->sampler_location);
                 if (ret < 0)

@@ -24,6 +24,7 @@
 
 #include "glincludes.h"
 #include "glcontext.h"
+#include "utils.h"
 
 enum {
     NGLI_MIPMAP_FILTER_NONE,
@@ -50,6 +51,18 @@ enum {
 
 GLint ngli_texture_get_gl_wrap(int wrap);
 
+enum {
+    NGLI_ACCESS_UNDEFINED,
+    NGLI_ACCESS_READ_BIT,
+    NGLI_ACCESS_WRITE_BIT,
+    NGLI_ACCESS_READ_WRITE,
+    NGLI_ACCESS_NB
+};
+
+NGLI_STATIC_ASSERT(texture_access, (NGLI_ACCESS_READ_BIT | NGLI_ACCESS_WRITE_BIT) == NGLI_ACCESS_READ_WRITE);
+
+GLenum ngli_texture_get_gl_access(int access);
+
 #define NGLI_TEXTURE_PARAM_DEFAULTS {          \
     .dimensions = 2,                           \
     .format = NGLI_FORMAT_UNDEFINED,           \
@@ -59,7 +72,7 @@ GLint ngli_texture_get_gl_wrap(int wrap);
     .wrap_s = NGLI_WRAP_CLAMP_TO_EDGE,         \
     .wrap_t = NGLI_WRAP_CLAMP_TO_EDGE,         \
     .wrap_r = NGLI_WRAP_CLAMP_TO_EDGE,         \
-    .access = GL_READ_WRITE                    \
+    .access = NGLI_ACCESS_READ_WRITE           \
 }
 
 #define NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY (1 << 0)
@@ -77,7 +90,7 @@ struct texture_params {
     int wrap_s;
     int wrap_t;
     int wrap_r;
-    GLenum access;
+    int access;
     int immutable;
     int usage;
     int external_storage;
