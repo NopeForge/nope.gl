@@ -70,6 +70,7 @@ LIB_OBJS = animation.o              \
            dot.o                    \
            drawutils.o              \
            format.o                 \
+           gctx.o                   \
            glcontext.o              \
            glstate.o                \
            graphicconfig.o          \

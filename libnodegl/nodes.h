@@ -73,6 +73,7 @@ struct ngl_ctx {
     struct glcontext *glcontext;
     struct glstate glstate;
     struct graphicconfig graphicconfig;
+    struct rendertarget *rendertarget;
     struct ngl_node *scene;
     struct ngl_config config;
     int timer_active;
