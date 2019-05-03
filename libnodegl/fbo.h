@@ -45,15 +45,15 @@ struct fbo {
     GLenum *draw_buffers;
     int nb_draw_buffers;
     GLenum *blit_draw_buffers;
-    void (*blit)(struct fbo *fbo, struct fbo *dst, int vflip);
+    void (*blit)(struct fbo *s, struct fbo *dst, int vflip);
 };
 
-int ngli_fbo_init(struct fbo *fbo, struct glcontext *gl, const struct fbo_params *params);
-int ngli_fbo_bind(struct fbo *fbo);
-int ngli_fbo_unbind(struct fbo *fbo);
-void ngli_fbo_invalidate_depth_buffers(struct fbo *fbo);
-void ngli_fbo_blit(struct fbo *fbo, struct fbo *dst, int vflip);
-void ngli_fbo_read_pixels(struct fbo *fbo, uint8_t *data);
-void ngli_fbo_reset(struct fbo *fbo);
+int ngli_fbo_init(struct fbo *s, struct glcontext *gl, const struct fbo_params *params);
+int ngli_fbo_bind(struct fbo *s);
+int ngli_fbo_unbind(struct fbo *s);
+void ngli_fbo_invalidate_depth_buffers(struct fbo *s);
+void ngli_fbo_blit(struct fbo *s, struct fbo *dst, int vflip);
+void ngli_fbo_read_pixels(struct fbo *s, uint8_t *data);
+void ngli_fbo_reset(struct fbo *s);
 
 #endif
