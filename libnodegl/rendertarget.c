@@ -100,9 +100,6 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
 
     ngli_darray_init(&s->depth_indices, sizeof(GLenum), 0);
 
-    GLuint rendertarget_id = 0;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&rendertarget_id);
-
     ngli_glGenFramebuffers(gl, 1, &s->id);
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->id);
 
@@ -193,32 +190,13 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
     }
 
     ret = 0;
-done:
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rendertarget_id);
+
+done:;
+    struct rendertarget *rt = ctx->rendertarget;
+    const GLuint fbo_id = rt ? rt->id : ngli_glcontext_get_default_framebuffer(gl);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
 
     return ret;
-}
-
-int ngli_rendertarget_bind(struct rendertarget *s)
-{
-    struct ngl_ctx *ctx = s->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&s->prev_id);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->id);
-
-    return 0;
-}
-
-int ngli_rendertarget_unbind(struct rendertarget *s)
-{
-    struct ngl_ctx *ctx = s->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->prev_id);
-    s->prev_id = 0;
-
-    return 0;
 }
 
 void ngli_rendertarget_invalidate_depth_buffers(struct rendertarget *s)
@@ -244,16 +222,29 @@ void ngli_rendertarget_blit(struct rendertarget *s, struct rendertarget *dst, in
     if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT))
         return;
 
+    ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->id);
     ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, dst->id);
     s->blit(s, dst, vflip);
-    ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->id);
+
+    struct rendertarget *rt = ctx->rendertarget;
+    const GLuint fbo_id = rt ? rt->id : ngli_glcontext_get_default_framebuffer(gl);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
 }
 
 void ngli_rendertarget_read_pixels(struct rendertarget *s, uint8_t *data)
 {
     struct ngl_ctx *ctx = s->ctx;
     struct glcontext *gl = ctx->glcontext;
+    struct rendertarget *rt = ctx->rendertarget;
+
+    const GLuint fbo_id = rt ? rt->id : ngli_glcontext_get_default_framebuffer(gl);
+    if (s->id != fbo_id)
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->id);
+
     ngli_glReadPixels(gl, 0, 0, s->width, s->height, GL_RGBA, GL_UNSIGNED_BYTE, data);
+
+    if (s->id != fbo_id)
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
 }
 
 void ngli_rendertarget_reset(struct rendertarget *s)

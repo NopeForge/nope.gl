@@ -49,8 +49,6 @@ struct rendertarget {
 };
 
 int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const struct rendertarget_params *params);
-int ngli_rendertarget_bind(struct rendertarget *s);
-int ngli_rendertarget_unbind(struct rendertarget *s);
 void ngli_rendertarget_invalidate_depth_buffers(struct rendertarget *s);
 void ngli_rendertarget_blit(struct rendertarget *s, struct rendertarget *dst, int vflip);
 void ngli_rendertarget_read_pixels(struct rendertarget *s, uint8_t *data);

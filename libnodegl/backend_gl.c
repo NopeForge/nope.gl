@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "log.h"
+#include "gctx.h"
 #include "nodes.h"
 #include "backend.h"
 #include "glcontext.h"
@@ -73,10 +74,7 @@ static int offscreen_rendertarget_init(struct ngl_ctx *s)
     if (ret < 0)
         return ret;
 
-    ret = ngli_rendertarget_bind(&s->rt);
-    if (ret < 0)
-        return ret;
-
+    ngli_gctx_set_rendertarget(s, &s->rt);
     ngli_glViewport(gl, 0, 0, config->width, config->height);
 
     return 0;
@@ -96,9 +94,7 @@ static void capture_default(struct ngl_ctx *s)
     struct rendertarget *capture_rt = &s->capture_rt;
 
     ngli_rendertarget_blit(rt, capture_rt, 1);
-    ngli_rendertarget_bind(capture_rt);
     ngli_rendertarget_read_pixels(capture_rt, config->capture_buffer);
-    ngli_rendertarget_unbind(capture_rt);
 }
 
 static void capture_ios(struct ngl_ctx *s)
@@ -119,12 +115,8 @@ static void capture_gles_msaa(struct ngl_ctx *s)
     struct rendertarget *oes_resolve_rt = &s->oes_resolve_rt;
 
     ngli_rendertarget_blit(rt, oes_resolve_rt, 0);
-    ngli_rendertarget_bind(oes_resolve_rt);
     ngli_rendertarget_blit(oes_resolve_rt, capture_rt, 1);
-    ngli_rendertarget_unbind(oes_resolve_rt);
-    ngli_rendertarget_bind(capture_rt);
     ngli_rendertarget_read_pixels(capture_rt, config->capture_buffer);
-    ngli_rendertarget_unbind(capture_rt);
 }
 
 static void capture_ios_msaa(struct ngl_ctx *s)
@@ -135,9 +127,7 @@ static void capture_ios_msaa(struct ngl_ctx *s)
     struct rendertarget *oes_resolve_rt = &s->oes_resolve_rt;
 
     ngli_rendertarget_blit(rt, oes_resolve_rt, 0);
-    ngli_rendertarget_bind(oes_resolve_rt);
     ngli_rendertarget_blit(oes_resolve_rt, capture_rt, 1);
-    ngli_rendertarget_unbind(oes_resolve_rt);
     ngli_glFinish(gl);
 }
 

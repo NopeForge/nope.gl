@@ -24,6 +24,7 @@
 #include "hwconv.h"
 #include "glincludes.h"
 #include "glcontext.h"
+#include "gctx.h"
 #include "image.h"
 #include "log.h"
 #include "math_utils.h"
@@ -223,8 +224,10 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, con
     struct ngl_ctx *ctx = hwconv->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct rendertarget *rt = &hwconv->rt;
+    struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
 
-    ngli_rendertarget_bind(rt);
+    ngli_gctx_set_rendertarget(ctx, rt);
+
     GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
     ngli_glViewport(gl, 0, 0, rt->width, rt->height);
@@ -265,7 +268,7 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, con
     }
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
-    ngli_rendertarget_unbind(rt);
+    ngli_gctx_set_rendertarget(ctx, prev_rt);
 
     return 0;
 }

@@ -25,6 +25,7 @@
 
 #include "rendertarget.h"
 #include "format.h"
+#include "gctx.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -307,9 +308,9 @@ static void rtt_draw(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
 
     struct rendertarget *rt = s->samples > 0 ? &s->rt_ms : &s->rt;
-    int ret = ngli_rendertarget_bind(rt);
-    if (ret < 0)
-        return;
+    struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
+
+    ngli_gctx_set_rendertarget(ctx, rt);
 
     GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
@@ -337,7 +338,7 @@ static void rtt_draw(struct ngl_node *node)
     if (!(s->features & FEATURE_NO_CLEAR))
         ngli_rendertarget_invalidate_depth_buffers(rt);
 
-    ngli_rendertarget_unbind(rt);
+    ngli_gctx_set_rendertarget(ctx, prev_rt);
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
 
