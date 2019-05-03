@@ -28,6 +28,7 @@
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
+#include "nodes.h"
 #include "program.h"
 #include "texture.h"
 #include "utils.h"
@@ -133,13 +134,14 @@ static const struct hwconv_desc {
     },
 };
 
-int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
+int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
                      const struct texture *dst_texture,
                      enum image_layout src_layout)
 {
-    hwconv->gl = gl;
+    hwconv->ctx = ctx;
     hwconv->src_layout = src_layout;
 
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &dst_texture->params;
 
     struct fbo_params fbo_params = {
@@ -218,7 +220,8 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
 
 int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, const float *matrix)
 {
-    struct glcontext *gl = hwconv->gl;
+    struct ngl_ctx *ctx = hwconv->ctx;
+    struct glcontext *gl = ctx->glcontext;
     struct fbo *fbo = &hwconv->fbo;
 
     ngli_fbo_bind(fbo);
@@ -269,12 +272,13 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, con
 
 void ngli_hwconv_reset(struct hwconv *hwconv)
 {
-    struct glcontext *gl = hwconv->gl;
-    if (!gl)
+    struct ngl_ctx *ctx = hwconv->ctx;
+    if (!ctx)
         return;
 
     ngli_fbo_reset(&hwconv->fbo);
 
+    struct glcontext *gl = ctx->glcontext;
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
         ngli_glDeleteVertexArrays(gl, 1, &hwconv->vao_id);
     ngli_program_reset(&hwconv->program);

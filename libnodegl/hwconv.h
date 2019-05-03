@@ -30,7 +30,7 @@
 #include "texture.h"
 
 struct hwconv {
-    struct glcontext *gl;
+    struct ngl_ctx *ctx;
     enum image_layout src_layout;
 
     struct fbo fbo;
@@ -45,7 +45,7 @@ struct hwconv {
     GLint texture_dimensions_location;
 };
 
-int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
+int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
                      const struct texture *dst_texture,
                      enum image_layout src_layout);
 

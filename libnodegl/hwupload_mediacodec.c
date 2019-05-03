@@ -57,7 +57,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ret = ngli_hwconv_init(&mc->hwconv, gl, &s->texture, NGLI_IMAGE_LAYOUT_MEDIACODEC);
+    ret = ngli_hwconv_init(&mc->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_MEDIACODEC);
     if (ret < 0)
         return ret;
 

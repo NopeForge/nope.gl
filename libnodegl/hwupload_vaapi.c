@@ -217,7 +217,7 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ret = ngli_hwconv_init(&vaapi->hwconv, gl, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
+    ret = ngli_hwconv_init(&vaapi->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
     if (ret < 0)
         return ret;
 
@@ -251,7 +251,7 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         if (ret < 0)
             return ret;
 
-        ret = ngli_hwconv_init(&vaapi->hwconv, gl, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
+        ret = ngli_hwconv_init(&vaapi->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
         if (ret < 0)
             return ret;
     }
