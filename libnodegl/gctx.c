@@ -19,6 +19,8 @@
  * under the License.
  */
 
+#include <string.h>
+
 #include "gctx.h"
 
 void ngli_gctx_set_rendertarget(struct ngl_ctx *s, struct rendertarget *rt)
@@ -37,4 +39,57 @@ void ngli_gctx_set_rendertarget(struct ngl_ctx *s, struct rendertarget *rt)
 struct rendertarget *ngli_gctx_get_rendertarget(struct ngl_ctx *s)
 {
     return s->rendertarget;
+}
+
+void ngli_gctx_set_viewport(struct ngl_ctx *s, const int *viewport)
+{
+    struct glcontext *gl = s->glcontext;
+    ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
+    memcpy(&s->viewport, viewport, sizeof(s->viewport));
+}
+
+void ngli_gctx_get_viewport(struct ngl_ctx *s, int *viewport)
+{
+    memcpy(viewport, &s->viewport, sizeof(s->viewport));
+}
+
+void ngli_gctx_set_scissor(struct ngl_ctx *s, const int *scissor)
+{
+    struct glcontext *gl = s->glcontext;
+    ngli_glScissor(gl, scissor[0], scissor[1], scissor[2], scissor[3]);
+}
+
+void ngli_gctx_set_clear_color(struct ngl_ctx *s, const float *color)
+{
+    struct glcontext *gl = s->glcontext;
+    memcpy(s->clear_color, color, sizeof(s->clear_color));
+    ngli_glClearColor(gl, color[0], color[1], color[2], color[3]);
+}
+
+void ngli_gctx_get_clear_color(struct ngl_ctx *s, float *color)
+{
+    memcpy(color, &s->clear_color, sizeof(s->clear_color));
+}
+
+void ngli_gctx_clear_color(struct ngl_ctx *s)
+{
+    struct glcontext *gl = s->glcontext;
+    ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
+}
+
+void ngli_gctx_clear_depth_stencil(struct ngl_ctx *s)
+{
+    struct glcontext *gl = s->glcontext;
+    ngli_glClear(gl, GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+void ngli_gctx_invalidate_depth_stencil(struct ngl_ctx *s)
+{
+    struct glcontext *gl = s->glcontext;
+
+    if (!(gl->features & NGLI_FEATURE_INVALIDATE_SUBDATA))
+        return;
+
+    static const GLenum attachments[] = {GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT};
+    ngli_glInvalidateFramebuffer(gl, GL_FRAMEBUFFER, NGLI_ARRAY_NB(attachments), attachments);
 }

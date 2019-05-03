@@ -27,4 +27,15 @@
 void ngli_gctx_set_rendertarget(struct ngl_ctx *s, struct rendertarget *rt);
 struct rendertarget *ngli_gctx_get_rendertarget(struct ngl_ctx *s);
 
+void ngli_gctx_set_viewport(struct ngl_ctx *s, const int *viewport);
+void ngli_gctx_get_viewport(struct ngl_ctx *s, int *viewport);
+void ngli_gctx_set_scissor(struct ngl_ctx *s, const int *scissor);
+
+void ngli_gctx_set_clear_color(struct ngl_ctx *s, const float *color);
+void ngli_gctx_get_clear_color(struct ngl_ctx *s, float *color);
+
+void ngli_gctx_clear_color(struct ngl_ctx *s);
+void ngli_gctx_clear_depth_stencil(struct ngl_ctx *s);
+void ngli_gctx_invalidate_depth_stencil(struct ngl_ctx *s);
+
 #endif
