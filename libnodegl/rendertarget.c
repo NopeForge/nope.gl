@@ -51,8 +51,6 @@ static GLenum get_gl_attachment_index(GLenum format)
     }
 }
 
-static const GLenum depth_stencil_attachments[] = {GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT};
-
 static void blit(struct rendertarget *s, struct rendertarget *dst, int vflip, int flags)
 {
     struct ngl_ctx *ctx = s->ctx;
@@ -98,8 +96,6 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
     s->width = params->width;
     s->height = params->height;
 
-    ngli_darray_init(&s->depth_indices, sizeof(GLenum), 0);
-
     ngli_glGenFramebuffers(gl, 1, &s->id);
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->id);
 
@@ -123,21 +119,8 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
             if (gl->backend == NGL_BACKEND_OPENGLES && gl->version < 300 && attachment_index == GL_DEPTH_STENCIL_ATTACHMENT) {
                 ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, attachment->id);
                 ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, attachment->id);
-                if (!ngli_darray_push(&s->depth_indices, depth_stencil_attachments) ||
-                    !ngli_darray_push(&s->depth_indices, depth_stencil_attachments + 1))
-                    return -1;
             } else {
                 ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, attachment_index, GL_RENDERBUFFER, attachment->id);
-                if (!is_color_attachment) {
-                    if (gl->platform == NGL_PLATFORM_IOS && attachment_index == GL_DEPTH_STENCIL_ATTACHMENT) {
-                        if (!ngli_darray_push(&s->depth_indices, depth_stencil_attachments) ||
-                            !ngli_darray_push(&s->depth_indices, depth_stencil_attachments + 1))
-                            return -1;
-                    } else {
-                        if (!ngli_darray_push(&s->depth_indices, &attachment_index))
-                            return -1;
-                    }
-                }
             }
             break;
         case GL_TEXTURE_2D:
@@ -199,21 +182,6 @@ done:;
     return ret;
 }
 
-void ngli_rendertarget_invalidate_depth_buffers(struct rendertarget *s)
-{
-    struct ngl_ctx *ctx = s->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
-    if (!(gl->features & NGLI_FEATURE_INVALIDATE_SUBDATA))
-        return;
-
-    int nb_attachments = ngli_darray_count(&s->depth_indices);
-    if (nb_attachments) {
-        GLenum *attachments = ngli_darray_data(&s->depth_indices);
-        ngli_glInvalidateFramebuffer(gl, GL_FRAMEBUFFER, nb_attachments, attachments);
-    }
-}
-
 void ngli_rendertarget_blit(struct rendertarget *s, struct rendertarget *dst, int vflip)
 {
     struct ngl_ctx *ctx = s->ctx;
@@ -256,7 +224,6 @@ void ngli_rendertarget_reset(struct rendertarget *s)
     struct glcontext *gl = ctx->glcontext;
     ngli_glDeleteFramebuffers(gl, 1, &s->id);
 
-    ngli_darray_reset(&s->depth_indices);
     ngli_free(s->draw_buffers);
     ngli_free(s->blit_draw_buffers);
 

@@ -75,7 +75,8 @@ static int offscreen_rendertarget_init(struct ngl_ctx *s)
         return ret;
 
     ngli_gctx_set_rendertarget(s, &s->rt);
-    ngli_glViewport(gl, 0, 0, config->width, config->height);
+    const int vp[4] = {0, 0, config->width, config->height};
+    ngli_gctx_set_viewport(s, vp);
 
     return 0;
 }
@@ -329,12 +330,15 @@ static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
 
     const int *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0) {
-        ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
+        ngli_gctx_set_viewport(s, viewport);
         memcpy(current_config->viewport, config->viewport, sizeof(config->viewport));
+    } else {
+        struct glcontext *gl = s->glcontext;
+        const int default_viewport[] = {0, 0, gl->width, gl->height};
+        ngli_gctx_set_viewport(s, default_viewport);
     }
 
-    const float *rgba = config->clear_color;
-    ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
+    ngli_gctx_set_clear_color(s, config->clear_color);
     memcpy(current_config->clear_color, config->clear_color, sizeof(config->clear_color));
 
     const int scissor[] = {0, 0, gl->width, gl->height};
@@ -370,11 +374,15 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
     ngli_glstate_probe(s->glcontext, &s->glstate);
 
     const int *viewport = config->viewport;
-    if (viewport[2] > 0 && viewport[3] > 0)
-        ngli_glViewport(s->glcontext, viewport[0], viewport[1], viewport[2], viewport[3]);
+    if (viewport[2] > 0 && viewport[3] > 0) {
+        ngli_gctx_set_viewport(s, viewport);
+    } else {
+        struct glcontext *gl = s->glcontext;
+        const int default_viewport[] = {0, 0, gl->width, gl->height};
+        ngli_gctx_set_viewport(s, default_viewport);
+    }
 
-    const float *rgba = config->clear_color;
-    ngli_glClearColor(s->glcontext, rgba[0], rgba[1], rgba[2], rgba[3]);
+    ngli_gctx_set_clear_color(s, config->clear_color);
 
     struct graphicconfig *graphicconfig = &s->graphicconfig;
     ngli_graphicconfig_init(graphicconfig);
@@ -392,9 +400,9 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 
 static int gl_pre_draw(struct ngl_ctx *s, double t)
 {
-    const struct glcontext *gl = s->glcontext;
+    ngli_gctx_clear_color(s);
+    ngli_gctx_clear_depth_stencil(s);
 
-    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     return 0;
 }
 

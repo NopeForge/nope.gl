@@ -306,43 +306,42 @@ static int rtt_update(struct ngl_node *node, double t)
 static void rtt_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct rtt_priv *s = node->priv_data;
 
     struct rendertarget *rt = s->samples > 0 ? &s->rt_ms : &s->rt;
     struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
-
     ngli_gctx_set_rendertarget(ctx, rt);
 
-    GLint viewport[4];
-    ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
-    ngli_glViewport(gl, 0, 0, s->width, s->height);
+    int prev_vp[4] = {0};
+    ngli_gctx_get_viewport(ctx, prev_vp);
 
+    const int vp[4] = {0, 0, s->width, s->height};
+    ngli_gctx_set_viewport(ctx, vp);
+
+    float prev_clear_color[4] = {0};
     if (s->use_clear_color) {
-        float *rgba = s->clear_color;
-        ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
+        ngli_gctx_get_clear_color(ctx, prev_clear_color);
+        ngli_gctx_set_clear_color(ctx, s->clear_color);
     }
 
-    if (!(s->features & FEATURE_NO_CLEAR))
-        ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    if (!(s->features & FEATURE_NO_CLEAR)) {
+        ngli_gctx_clear_color(ctx);
+        ngli_gctx_clear_depth_stencil(ctx);
+    }
 
     ngli_node_draw(s->child);
 
-    if (s->use_clear_color) {
-        struct ngl_config *config = &ctx->config;
-        float *rgba = config->clear_color;
-        ngli_glClearColor(gl, rgba[0], rgba[1], rgba[2], rgba[3]);
-    }
+    if (s->use_clear_color)
+        ngli_gctx_set_clear_color(ctx, prev_clear_color);
 
     if (s->samples > 0)
         ngli_rendertarget_blit(rt, &s->rt, 0);
 
     if (s->invalidate_depth_stencil)
-        ngli_rendertarget_invalidate_depth_buffers(rt);
+        ngli_gctx_invalidate_depth_stencil(ctx);
 
     ngli_gctx_set_rendertarget(ctx, prev_rt);
-
-    ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
+    ngli_gctx_set_viewport(ctx, prev_vp);
 
     for (int i = 0; i < s->nb_color_textures; i++) {
         struct texture_priv *texture_priv = s->color_textures[i]->priv_data;

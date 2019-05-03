@@ -223,15 +223,18 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, con
 {
     struct ngl_ctx *ctx = hwconv->ctx;
     struct glcontext *gl = ctx->glcontext;
+
     struct rendertarget *rt = &hwconv->rt;
     struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
-
     ngli_gctx_set_rendertarget(ctx, rt);
 
-    GLint viewport[4];
-    ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
-    ngli_glViewport(gl, 0, 0, rt->width, rt->height);
-    ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
+    int prev_vp[4] = {0};
+    ngli_gctx_get_viewport(ctx, prev_vp);
+
+    const int vp[4] = {0, 0, rt->width, rt->height};
+    ngli_gctx_set_viewport(ctx, vp);
+
+    ngli_gctx_clear_color(ctx);
 
     ngli_glUseProgram(gl, hwconv->program.id);
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
@@ -267,8 +270,8 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, con
         ngli_glDisableVertexAttribArray(gl, hwconv->position_location);
     }
 
-    ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
     ngli_gctx_set_rendertarget(ctx, prev_rt);
+    ngli_gctx_set_viewport(ctx, prev_vp);
 
     return 0;
 }
