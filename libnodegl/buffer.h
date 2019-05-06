@@ -22,16 +22,16 @@
 #ifndef BUFFER_H
 #define BUFFER_H
 
-#include "glcontext.h"
+#include "glincludes.h"
 
 struct buffer {
-    struct glcontext *gl;
+    struct ngl_ctx *ctx;
     int size;
     int usage;
     GLuint id;
 };
 
-int ngli_buffer_allocate(struct buffer *buffer, struct glcontext *gl, int size, int usage);
+int ngli_buffer_allocate(struct buffer *buffer, struct ngl_ctx *ctx, int size, int usage);
 int ngli_buffer_upload(struct buffer *buffer, void *data, int size);
 void ngli_buffer_free(struct buffer *buffer);
 

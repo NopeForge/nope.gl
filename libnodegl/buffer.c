@@ -24,12 +24,14 @@
 #include "buffer.h"
 #include "glcontext.h"
 #include "glincludes.h"
+#include "nodes.h"
 
-int ngli_buffer_allocate(struct buffer *buffer, struct glcontext *gl, int size, int usage)
+int ngli_buffer_allocate(struct buffer *buffer, struct ngl_ctx *ctx, int size, int usage)
 {
-    buffer->gl = gl;
+    buffer->ctx = ctx;
     buffer->size = size;
     buffer->usage = usage;
+    struct glcontext *gl = ctx->glcontext;
     ngli_glGenBuffers(gl, 1, &buffer->id);
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->id);
     ngli_glBufferData(gl, GL_ARRAY_BUFFER, size, NULL, usage);
@@ -38,7 +40,8 @@ int ngli_buffer_allocate(struct buffer *buffer, struct glcontext *gl, int size, 
 
 int ngli_buffer_upload(struct buffer *buffer, void *data, int size)
 {
-    struct glcontext *gl = buffer->gl;
+    struct ngl_ctx *ctx = buffer->ctx;
+    struct glcontext *gl = ctx->glcontext;
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->id);
     ngli_glBufferSubData(gl, GL_ARRAY_BUFFER, 0, size, data);
     return 0;
@@ -46,8 +49,10 @@ int ngli_buffer_upload(struct buffer *buffer, void *data, int size)
 
 void ngli_buffer_free(struct buffer *buffer)
 {
-    if (!buffer->gl)
+    struct ngl_ctx *ctx = buffer->ctx;
+    if (!ctx)
         return;
-    ngli_glDeleteBuffers(buffer->gl, 1, &buffer->id);
+    struct glcontext *gl = ctx->glcontext;
+    ngli_glDeleteBuffers(gl, 1, &buffer->id);
     memset(buffer, 0, sizeof(*buffer));
 }

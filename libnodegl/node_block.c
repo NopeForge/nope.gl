@@ -85,11 +85,10 @@ static const struct node_param block_params[] = {
 int ngli_node_block_ref(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct block_priv *s = node->priv_data;
 
     if (s->buffer_refcount++ == 0) {
-        int ret = ngli_buffer_allocate(&s->buffer, gl, s->data_size, s->usage);
+        int ret = ngli_buffer_allocate(&s->buffer, ctx, s->data_size, s->usage);
         if (ret < 0)
             return ret;
 

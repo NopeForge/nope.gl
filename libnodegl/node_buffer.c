@@ -51,14 +51,13 @@ static const struct node_param buffer_params[] = {
 int ngli_node_buffer_ref(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct buffer_priv *s = node->priv_data;
 
     if (s->block)
         return ngli_node_block_ref(s->block);
 
     if (s->buffer_refcount++ == 0) {
-        int ret = ngli_buffer_allocate(&s->buffer, gl, s->data_size, s->usage);
+        int ret = ngli_buffer_allocate(&s->buffer, ctx, s->data_size, s->usage);
         if (ret < 0)
             return ret;
 
