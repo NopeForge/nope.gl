@@ -239,7 +239,7 @@ int ngli_program_init(struct program *s, struct glcontext *gl, const char *verte
 
     s->gl = gl;
 
-    GLuint program = ngli_glCreateProgram(gl);
+    s->id = ngli_glCreateProgram(gl);
 
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
         if (!shaders[i].src)
@@ -250,23 +250,21 @@ int ngli_program_init(struct program *s, struct glcontext *gl, const char *verte
         ngli_glCompileShader(gl, shader);
         if (program_check_status(gl, shader, GL_COMPILE_STATUS) < 0)
             goto fail;
-        ngli_glAttachShader(gl, program, shader);
+        ngli_glAttachShader(gl, s->id, shader);
     }
 
-    ngli_glLinkProgram(gl, program);
-    if (program_check_status(gl, program, GL_LINK_STATUS) < 0)
+    ngli_glLinkProgram(gl, s->id);
+    if (program_check_status(gl, s->id, GL_LINK_STATUS) < 0)
         goto fail;
 
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
         ngli_glDeleteShader(gl, shaders[i].id);
 
-    s->uniforms = program_probe_uniforms(s->gl, program);
-    s->attributes = program_probe_attributes(s->gl, program);
-    s->buffer_blocks = program_probe_buffer_blocks(s->gl, program);
+    s->uniforms = program_probe_uniforms(s->gl, s->id);
+    s->attributes = program_probe_attributes(s->gl, s->id);
+    s->buffer_blocks = program_probe_buffer_blocks(s->gl, s->id);
     if (!s->uniforms || !s->attributes || !s->buffer_blocks)
         goto fail;
-
-    s->id = program;
 
     return 0;
 
@@ -274,8 +272,6 @@ fail:
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
         if (shaders[i].id)
             ngli_glDeleteShader(gl, shaders[i].id);
-    if (program)
-        ngli_glDeleteProgram(gl, program);
 
     return -1;
 }
