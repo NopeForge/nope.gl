@@ -25,6 +25,24 @@
 #include "hmap.h"
 #include "glcontext.h"
 
+struct uniformprograminfo {
+    GLint location;
+    GLint size;
+    GLenum type;
+    int binding;
+};
+
+struct attributeprograminfo {
+    GLint location;
+    GLint size;
+    GLenum type;
+};
+
+struct blockprograminfo {
+    GLint binding;
+    GLenum type;
+};
+
 struct program {
     struct glcontext *gl;
     struct hmap *uniforms;

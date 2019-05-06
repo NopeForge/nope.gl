@@ -363,24 +363,6 @@ struct texture_priv {
     void *hwupload_priv_data;
 };
 
-struct uniformprograminfo {
-    GLint location;
-    GLint size;
-    GLenum type;
-    int binding;
-};
-
-struct attributeprograminfo {
-    GLint location;
-    GLint size;
-    GLenum type;
-};
-
-struct blockprograminfo {
-    GLint binding;
-    GLenum type;
-};
-
 #define NGLI_SAMPLING_MODE_NONE         0
 #define NGLI_SAMPLING_MODE_DEFAULT      1
 #define NGLI_SAMPLING_MODE_EXTERNAL_OES 2
