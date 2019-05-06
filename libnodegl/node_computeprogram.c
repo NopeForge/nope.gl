@@ -36,37 +36,6 @@ static const struct node_param computeprogram_params[] = {
     {NULL}
 };
 
-static GLuint load_shader(struct ngl_node *node, const char *compute_shader_data)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-
-    GLuint program = ngli_glCreateProgram(gl);
-    GLuint compute_shader = ngli_glCreateShader(gl, GL_COMPUTE_SHADER);
-
-    ngli_glShaderSource(gl, compute_shader, 1, &compute_shader_data, NULL);
-    ngli_glCompileShader(gl, compute_shader);
-    if (ngli_program_check_status(gl, compute_shader, GL_COMPILE_STATUS) < 0)
-        goto fail;
-
-    ngli_glAttachShader(gl, program, compute_shader);
-    ngli_glLinkProgram(gl, program);
-    if (ngli_program_check_status(gl, program, GL_LINK_STATUS) < 0)
-        goto fail;
-
-    ngli_glDeleteShader(gl, compute_shader);
-
-    return program;
-
-fail:
-    if (compute_shader)
-        ngli_glDeleteShader(gl, compute_shader);
-    if (program)
-        ngli_glDeleteProgram(gl, program);
-
-    return 0;
-}
-
 static int computeprogram_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -78,7 +47,7 @@ static int computeprogram_init(struct ngl_node *node)
         return -1;
     }
 
-    s->program_id = load_shader(node, s->compute);
+    s->program_id = ngli_program_load(gl, NULL, NULL, s->compute);
     if (!s->program_id)
         return -1;
 
