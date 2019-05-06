@@ -30,36 +30,42 @@
 
 GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment)
 {
+    struct {
+        GLenum type;
+        const char *src;
+        GLuint id;
+    } shaders[] = {
+        {GL_VERTEX_SHADER,   vertex,   0},
+        {GL_FRAGMENT_SHADER, fragment, 0},
+    };
+
     GLuint program = ngli_glCreateProgram(gl);
-    GLuint vertex_shader = ngli_glCreateShader(gl, GL_VERTEX_SHADER);
-    GLuint fragment_shader = ngli_glCreateShader(gl, GL_FRAGMENT_SHADER);
 
-    ngli_glShaderSource(gl, vertex_shader, 1, &vertex, NULL);
-    ngli_glCompileShader(gl, vertex_shader);
-    if (ngli_program_check_status(gl, vertex_shader, GL_COMPILE_STATUS) < 0)
-        goto fail;
+    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
+        if (!shaders[i].src)
+            continue;
+        GLuint shader = ngli_glCreateShader(gl, shaders[i].type);
+        shaders[i].id = shader;
+        ngli_glShaderSource(gl, shader, 1, &shaders[i].src, NULL);
+        ngli_glCompileShader(gl, shader);
+        if (ngli_program_check_status(gl, shader, GL_COMPILE_STATUS) < 0)
+            goto fail;
+        ngli_glAttachShader(gl, program, shader);
+    }
 
-    ngli_glShaderSource(gl, fragment_shader, 1, &fragment, NULL);
-    ngli_glCompileShader(gl, fragment_shader);
-    if (ngli_program_check_status(gl, fragment_shader, GL_COMPILE_STATUS) < 0)
-        goto fail;
-
-    ngli_glAttachShader(gl, program, vertex_shader);
-    ngli_glAttachShader(gl, program, fragment_shader);
     ngli_glLinkProgram(gl, program);
     if (ngli_program_check_status(gl, program, GL_LINK_STATUS) < 0)
         goto fail;
 
-    ngli_glDeleteShader(gl, vertex_shader);
-    ngli_glDeleteShader(gl, fragment_shader);
+    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
+        ngli_glDeleteShader(gl, shaders[i].id);
 
     return program;
 
 fail:
-    if (vertex_shader)
-        ngli_glDeleteShader(gl, vertex_shader);
-    if (fragment_shader)
-        ngli_glDeleteShader(gl, fragment_shader);
+    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
+        if (shaders[i].id)
+            ngli_glDeleteShader(gl, shaders[i].id);
     if (program)
         ngli_glDeleteProgram(gl, program);
 
