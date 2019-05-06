@@ -26,7 +26,6 @@
 #include <CoreFoundation/CFBundle.h>
 #include <Cocoa/Cocoa.h>
 
-#include "fbo.h"
 #include "format.h"
 #include "glcontext.h"
 #include "log.h"

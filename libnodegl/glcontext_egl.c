@@ -28,7 +28,6 @@
 #endif
 
 #include "egl.h"
-#include "fbo.h"
 #include "format.h"
 #include "glcontext.h"
 #include "log.h"
