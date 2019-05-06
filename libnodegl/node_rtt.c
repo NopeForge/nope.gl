@@ -145,7 +145,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         .nb_attachments = ngli_darray_count(&attachments),
         .attachments = ngli_darray_data(&attachments),
     };
-    int ret = ngli_rendertarget_init(&s->rt_ms, gl, &rt_params);
+    int ret = ngli_rendertarget_init(&s->rt_ms, ctx, &rt_params);
     if (ret < 0)
         goto error;
 
@@ -243,7 +243,7 @@ static int rtt_prefetch(struct ngl_node *node)
         .nb_attachments = ngli_darray_count(&attachments),
         .attachments = ngli_darray_data(&attachments),
     };
-    int ret = ngli_rendertarget_init(&s->rt, gl, &rt_params);
+    int ret = ngli_rendertarget_init(&s->rt, ctx, &rt_params);
     if (ret < 0)
         goto error;
 

@@ -34,7 +34,7 @@ struct rendertarget_params {
 };
 
 struct rendertarget {
-    struct glcontext *gl;
+    struct ngl_ctx *ctx;
     int width;
     int height;
     int nb_color_attachments;
@@ -48,7 +48,7 @@ struct rendertarget {
     void (*blit)(struct rendertarget *s, struct rendertarget *dst, int vflip);
 };
 
-int ngli_rendertarget_init(struct rendertarget *s, struct glcontext *gl, const struct rendertarget_params *params);
+int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const struct rendertarget_params *params);
 int ngli_rendertarget_bind(struct rendertarget *s);
 int ngli_rendertarget_unbind(struct rendertarget *s);
 void ngli_rendertarget_invalidate_depth_buffers(struct rendertarget *s);

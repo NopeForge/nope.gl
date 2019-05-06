@@ -69,7 +69,7 @@ static int offscreen_rendertarget_init(struct ngl_ctx *s)
         .nb_attachments = nb_attachments,
         .attachments = attachments,
     };
-    ret = ngli_rendertarget_init(&s->rt, gl, &rt_params);
+    ret = ngli_rendertarget_init(&s->rt, s, &rt_params);
     if (ret < 0)
         return ret;
 
@@ -228,7 +228,7 @@ static int capture_init(struct ngl_ctx *s)
             .nb_attachments = nb_attachments,
             .attachments = attachments,
         };
-        int ret = ngli_rendertarget_init(&s->capture_rt, gl, &rt_params);
+        int ret = ngli_rendertarget_init(&s->capture_rt, s, &rt_params);
         if (ret < 0)
             return ret;
 
@@ -251,7 +251,7 @@ static int capture_init(struct ngl_ctx *s)
                 .nb_attachments = nb_attachments,
                 .attachments = attachments,
             };
-            ret = ngli_rendertarget_init(&s->oes_resolve_rt, gl, &rt_params);
+            ret = ngli_rendertarget_init(&s->oes_resolve_rt, s, &rt_params);
             if (ret < 0)
                 return ret;
 

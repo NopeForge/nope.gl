@@ -146,7 +146,7 @@ static int camera_init(struct ngl_node *node)
                 .nb_attachments = nb_attachments,
                 .attachments = attachments,
             };
-            ret = ngli_rendertarget_init(&s->rt, gl, &rt_params);
+            ret = ngli_rendertarget_init(&s->rt, ctx, &rt_params);
             if (ret < 0)
                 return ret;
         }
