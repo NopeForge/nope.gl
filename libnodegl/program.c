@@ -28,7 +28,7 @@
 #include "nodes.h"
 #include "program.h"
 
-GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment)
+GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment, const char *compute)
 {
     struct {
         GLenum type;
@@ -37,6 +37,7 @@ GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *f
     } shaders[] = {
         {GL_VERTEX_SHADER,   vertex,   0},
         {GL_FRAGMENT_SHADER, fragment, 0},
+        {GL_COMPUTE_SHADER,  compute,  0},
     };
 
     GLuint program = ngli_glCreateProgram(gl);

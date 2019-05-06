@@ -165,7 +165,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
     if (!fragment_data)
         return -1;
 
-    hwconv->program_id = ngli_program_load(gl, desc->vertex_data, fragment_data);
+    hwconv->program_id = ngli_program_load(gl, desc->vertex_data, fragment_data, NULL);
     ngli_free(fragment_data);
     if (!hwconv->program_id)
         return -1;

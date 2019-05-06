@@ -102,7 +102,7 @@ static int program_init(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct program_priv *s = node->priv_data;
 
-    s->program_id = ngli_program_load(gl, s->vertex, s->fragment);
+    s->program_id = ngli_program_load(gl, s->vertex, s->fragment, NULL);
     if (!s->program_id)
         return -1;
 
