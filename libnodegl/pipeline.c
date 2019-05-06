@@ -985,9 +985,12 @@ int ngli_pipeline_update(struct pipeline *s, double t)
 
 int ngli_pipeline_bind(struct pipeline *s)
 {
+    struct ngl_ctx *ctx = s->ctx;
     struct glcontext *gl = s->gl;
     struct pipeline_params *params = &s->params;
     const struct program_priv *program = params->program->priv_data;
+
+    ngli_honor_pending_glstate(ctx);
 
     ngli_glUseProgram(gl, program->program_id);
 

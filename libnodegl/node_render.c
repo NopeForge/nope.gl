@@ -315,8 +315,6 @@ static void render_draw(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
-    ngli_honor_pending_glstate(ctx);
-
     int ret = ngli_pipeline_bind(&s->pipeline);
     if (ret < 0) {
         LOG(ERROR, "pipeline upload data error");
