@@ -35,7 +35,7 @@
 #include "vaapi.h"
 #endif
 
-static int offscreen_fbo_init(struct ngl_ctx *s)
+static int offscreen_rendertarget_init(struct ngl_ctx *s)
 {
     struct glcontext *gl = s->glcontext;
     struct ngl_config *config = &s->config;
@@ -52,28 +52,28 @@ static int offscreen_fbo_init(struct ngl_ctx *s)
     attachment_params.height = config->height;
     attachment_params.samples = config->samples;
     attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-    int ret = ngli_texture_init(&s->fbo_color, gl, &attachment_params);
+    int ret = ngli_texture_init(&s->rt_color, gl, &attachment_params);
     if (ret < 0)
         return ret;
 
     attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-    ret = ngli_texture_init(&s->fbo_depth, gl, &attachment_params);
+    ret = ngli_texture_init(&s->rt_depth, gl, &attachment_params);
     if (ret < 0)
         return ret;
 
-    const struct texture *attachments[] = {&s->fbo_color, &s->fbo_depth};
+    const struct texture *attachments[] = {&s->rt_color, &s->rt_depth};
     const int nb_attachments = NGLI_ARRAY_NB(attachments);
-    struct fbo_params fbo_params = {
+    struct rendertarget_params rt_params = {
         .width = config->width,
         .height = config->height,
         .nb_attachments = nb_attachments,
         .attachments = attachments,
     };
-    ret = ngli_fbo_init(&s->fbo, gl, &fbo_params);
+    ret = ngli_rendertarget_init(&s->rt, gl, &rt_params);
     if (ret < 0)
         return ret;
 
-    ret = ngli_fbo_bind(&s->fbo);
+    ret = ngli_rendertarget_bind(&s->rt);
     if (ret < 0)
         return ret;
 
@@ -82,71 +82,71 @@ static int offscreen_fbo_init(struct ngl_ctx *s)
     return 0;
 }
 
-static void offscreen_fbo_reset(struct ngl_ctx *s)
+static void offscreen_rendertarget_reset(struct ngl_ctx *s)
 {
-    ngli_fbo_reset(&s->fbo);
-    ngli_texture_reset(&s->fbo_color);
-    ngli_texture_reset(&s->fbo_depth);
+    ngli_rendertarget_reset(&s->rt);
+    ngli_texture_reset(&s->rt_color);
+    ngli_texture_reset(&s->rt_depth);
 }
 
 static void capture_default(struct ngl_ctx *s)
 {
     struct ngl_config *config = &s->config;
-    struct fbo *fbo = &s->fbo;
-    struct fbo *capture_fbo = &s->capture_fbo;
+    struct rendertarget *rt = &s->rt;
+    struct rendertarget *capture_rt = &s->capture_rt;
 
-    ngli_fbo_blit(fbo, capture_fbo, 1);
-    ngli_fbo_bind(capture_fbo);
-    ngli_fbo_read_pixels(capture_fbo, config->capture_buffer);
-    ngli_fbo_unbind(capture_fbo);
+    ngli_rendertarget_blit(rt, capture_rt, 1);
+    ngli_rendertarget_bind(capture_rt);
+    ngli_rendertarget_read_pixels(capture_rt, config->capture_buffer);
+    ngli_rendertarget_unbind(capture_rt);
 }
 
 static void capture_ios(struct ngl_ctx *s)
 {
     struct glcontext *gl = s->glcontext;
-    struct fbo *fbo = &s->fbo;
-    struct fbo *capture_fbo = &s->capture_fbo;
+    struct rendertarget *rt = &s->rt;
+    struct rendertarget *capture_rt = &s->capture_rt;
 
-    ngli_fbo_blit(fbo, capture_fbo, 1);
+    ngli_rendertarget_blit(rt, capture_rt, 1);
     ngli_glFinish(gl);
 }
 
 static void capture_gles_msaa(struct ngl_ctx *s)
 {
     struct ngl_config *config = &s->config;
-    struct fbo *fbo = &s->fbo;
-    struct fbo *capture_fbo = &s->capture_fbo;
-    struct fbo *oes_resolve_fbo = &s->oes_resolve_fbo;
+    struct rendertarget *rt = &s->rt;
+    struct rendertarget *capture_rt = &s->capture_rt;
+    struct rendertarget *oes_resolve_rt = &s->oes_resolve_rt;
 
-    ngli_fbo_blit(fbo, oes_resolve_fbo, 0);
-    ngli_fbo_bind(oes_resolve_fbo);
-    ngli_fbo_blit(oes_resolve_fbo, capture_fbo, 1);
-    ngli_fbo_unbind(oes_resolve_fbo);
-    ngli_fbo_bind(capture_fbo);
-    ngli_fbo_read_pixels(capture_fbo, config->capture_buffer);
-    ngli_fbo_unbind(capture_fbo);
+    ngli_rendertarget_blit(rt, oes_resolve_rt, 0);
+    ngli_rendertarget_bind(oes_resolve_rt);
+    ngli_rendertarget_blit(oes_resolve_rt, capture_rt, 1);
+    ngli_rendertarget_unbind(oes_resolve_rt);
+    ngli_rendertarget_bind(capture_rt);
+    ngli_rendertarget_read_pixels(capture_rt, config->capture_buffer);
+    ngli_rendertarget_unbind(capture_rt);
 }
 
 static void capture_ios_msaa(struct ngl_ctx *s)
 {
     struct glcontext *gl = s->glcontext;
-    struct fbo *fbo = &s->fbo;
-    struct fbo *capture_fbo = &s->capture_fbo;
-    struct fbo *oes_resolve_fbo = &s->oes_resolve_fbo;
+    struct rendertarget *rt = &s->rt;
+    struct rendertarget *capture_rt = &s->capture_rt;
+    struct rendertarget *oes_resolve_rt = &s->oes_resolve_rt;
 
-    ngli_fbo_blit(fbo, oes_resolve_fbo, 0);
-    ngli_fbo_bind(oes_resolve_fbo);
-    ngli_fbo_blit(oes_resolve_fbo, capture_fbo, 1);
-    ngli_fbo_unbind(oes_resolve_fbo);
+    ngli_rendertarget_blit(rt, oes_resolve_rt, 0);
+    ngli_rendertarget_bind(oes_resolve_rt);
+    ngli_rendertarget_blit(oes_resolve_rt, capture_rt, 1);
+    ngli_rendertarget_unbind(oes_resolve_rt);
     ngli_glFinish(gl);
 }
 
 static void capture_cpu_fallback(struct ngl_ctx *s)
 {
     struct ngl_config *config = &s->config;
-    struct fbo *fbo = &s->fbo;
+    struct rendertarget *rt = &s->rt;
 
-    ngli_fbo_read_pixels(fbo, s->capture_buffer);
+    ngli_rendertarget_read_pixels(rt, s->capture_buffer);
     const int step = config->width * 4;
     const uint8_t *src = s->capture_buffer + (config->height - 1) * step;
     uint8_t *dst = config->capture_buffer;
@@ -204,7 +204,7 @@ static int capture_init(struct ngl_ctx *s)
             attachment_params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
             attachment_params.width = width;
             attachment_params.height = height;
-            int ret = ngli_texture_wrap(&s->capture_fbo_color, gl, &attachment_params, id);
+            int ret = ngli_texture_wrap(&s->capture_rt_color, gl, &attachment_params, id);
             if (ret < 0)
                 return ret;
 #endif
@@ -214,21 +214,21 @@ static int capture_init(struct ngl_ctx *s)
             attachment_params.width = config->width;
             attachment_params.height = config->height;
             attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-            int ret = ngli_texture_init(&s->capture_fbo_color, gl, &attachment_params);
+            int ret = ngli_texture_init(&s->capture_rt_color, gl, &attachment_params);
             if (ret < 0)
                 return ret;
         }
 
-        const struct texture *attachments[] = {&s->capture_fbo_color};
+        const struct texture *attachments[] = {&s->capture_rt_color};
         const int nb_attachments = NGLI_ARRAY_NB(attachments);
 
-        struct fbo_params fbo_params = {
+        struct rendertarget_params rt_params = {
             .width = config->width,
             .height = config->height,
             .nb_attachments = nb_attachments,
             .attachments = attachments,
         };
-        int ret = ngli_fbo_init(&s->capture_fbo, gl, &fbo_params);
+        int ret = ngli_rendertarget_init(&s->capture_rt, gl, &rt_params);
         if (ret < 0)
             return ret;
 
@@ -239,19 +239,19 @@ static int capture_init(struct ngl_ctx *s)
             attachment_params.height = config->height;
             attachment_params.samples = 0;
             attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-            int ret = ngli_texture_init(&s->oes_resolve_fbo_color, gl, &attachment_params);
+            int ret = ngli_texture_init(&s->oes_resolve_rt_color, gl, &attachment_params);
             if (ret < 0)
                 return ret;
 
-            const struct texture *attachments[] = {&s->oes_resolve_fbo_color};
+            const struct texture *attachments[] = {&s->oes_resolve_rt_color};
             const int nb_attachments = NGLI_ARRAY_NB(attachments);
-            struct fbo_params fbo_params = {
+            struct rendertarget_params rt_params = {
                 .width = config->width,
                 .height = config->height,
                 .nb_attachments = nb_attachments,
                 .attachments = attachments,
             };
-            ret = ngli_fbo_init(&s->oes_resolve_fbo, gl, &fbo_params);
+            ret = ngli_rendertarget_init(&s->oes_resolve_rt, gl, &rt_params);
             if (ret < 0)
                 return ret;
 
@@ -280,10 +280,10 @@ static int capture_init(struct ngl_ctx *s)
 
 static void capture_reset(struct ngl_ctx *s)
 {
-    ngli_fbo_reset(&s->capture_fbo);
-    ngli_texture_reset(&s->capture_fbo_color);
-    ngli_fbo_reset(&s->oes_resolve_fbo);
-    ngli_texture_reset(&s->oes_resolve_fbo_color);
+    ngli_rendertarget_reset(&s->capture_rt);
+    ngli_texture_reset(&s->capture_rt_color);
+    ngli_rendertarget_reset(&s->oes_resolve_rt);
+    ngli_texture_reset(&s->oes_resolve_rt_color);
     ngli_free(s->capture_buffer);
     s->capture_buffer = NULL;
 #if defined(TARGET_IPHONE)
@@ -319,8 +319,8 @@ static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
 
     if (config->offscreen) {
         if (update_dimensions) {
-            offscreen_fbo_reset(s);
-            int ret = offscreen_fbo_init(s);
+            offscreen_rendertarget_reset(s);
+            int ret = offscreen_rendertarget_init(s);
             if (ret < 0)
                 return ret;
         }
@@ -368,7 +368,7 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
         return -1;
 
     if (s->glcontext->offscreen) {
-        int ret = offscreen_fbo_init(s);
+        int ret = offscreen_rendertarget_init(s);
         if (ret < 0)
             return ret;
 
@@ -433,7 +433,7 @@ static int gl_post_draw(struct ngl_ctx *s, double t)
 static void gl_destroy(struct ngl_ctx *s)
 {
     capture_reset(s);
-    offscreen_fbo_reset(s);
+    offscreen_rendertarget_reset(s);
 #if defined(HAVE_VAAPI_X11)
     ngli_vaapi_reset(s);
 #endif

@@ -69,7 +69,6 @@ LIB_OBJS = animation.o              \
            deserialize.o            \
            dot.o                    \
            drawutils.o              \
-           fbo.o                    \
            format.o                 \
            glcontext.o              \
            glstate.o                \
@@ -116,6 +115,7 @@ LIB_OBJS = animation.o              \
            params.o                 \
            pipeline.o               \
            program.o                \
+           rendertarget.o           \
            serialize.o              \
            texture.o                \
            topology.o               \

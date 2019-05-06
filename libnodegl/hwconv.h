@@ -22,7 +22,7 @@
 #ifndef HWCONV_H
 #define HWCONV_H
 
-#include "fbo.h"
+#include "rendertarget.h"
 #include "glincludes.h"
 #include "glcontext.h"
 #include "image.h"
@@ -33,7 +33,7 @@ struct hwconv {
     struct ngl_ctx *ctx;
     enum image_layout src_layout;
 
-    struct fbo fbo;
+    struct rendertarget rt;
     struct texture color_attachment;
     struct program program;
 

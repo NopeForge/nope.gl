@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-#include "fbo.h"
+#include "rendertarget.h"
 #include "format.h"
 #include "glcontext.h"
 #include "glincludes.h"
@@ -52,7 +52,7 @@ static GLenum get_gl_attachment_index(GLenum format)
 
 static const GLenum depth_stencil_attachments[] = {GL_DEPTH_ATTACHMENT, GL_STENCIL_ATTACHMENT};
 
-static void blit(struct fbo *s, struct fbo *dst, int vflip, int flags)
+static void blit(struct rendertarget *s, struct rendertarget *dst, int vflip, int flags)
 {
     struct glcontext *gl = s->gl;
 
@@ -62,12 +62,12 @@ static void blit(struct fbo *s, struct fbo *dst, int vflip, int flags)
         ngli_glBlitFramebuffer(gl, 0, 0, s->width, s->height, 0, 0, dst->width, dst->height, flags, GL_NEAREST);
 }
 
-static void blit_no_draw_buffers(struct fbo *s, struct fbo *dst, int vflip)
+static void blit_no_draw_buffers(struct rendertarget *s, struct rendertarget *dst, int vflip)
 {
     blit(s, dst, vflip, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-static void blit_draw_buffers(struct fbo *s, struct fbo *dst, int vflip)
+static void blit_draw_buffers(struct rendertarget *s, struct rendertarget *dst, int vflip)
 {
     struct glcontext *gl = s->gl;
 
@@ -86,7 +86,7 @@ static void blit_draw_buffers(struct fbo *s, struct fbo *dst, int vflip)
     ngli_glDrawBuffers(gl, s->nb_draw_buffers, s->draw_buffers);
 }
 
-int ngli_fbo_init(struct fbo *s, struct glcontext *gl, const struct fbo_params *params)
+int ngli_rendertarget_init(struct rendertarget *s, struct glcontext *gl, const struct rendertarget_params *params)
 {
     int ret = -1;
 
@@ -96,8 +96,8 @@ int ngli_fbo_init(struct fbo *s, struct glcontext *gl, const struct fbo_params *
 
     ngli_darray_init(&s->depth_indices, sizeof(GLenum), 0);
 
-    GLuint fbo_id = 0;
-    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&fbo_id);
+    GLuint rendertarget_id = 0;
+    ngli_glGetIntegerv(gl, GL_FRAMEBUFFER_BINDING, (GLint *)&rendertarget_id);
 
     ngli_glGenFramebuffers(gl, 1, &s->id);
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->id);
@@ -190,12 +190,12 @@ int ngli_fbo_init(struct fbo *s, struct glcontext *gl, const struct fbo_params *
 
     ret = 0;
 done:
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rendertarget_id);
 
     return ret;
 }
 
-int ngli_fbo_bind(struct fbo *s)
+int ngli_rendertarget_bind(struct rendertarget *s)
 {
     struct glcontext *gl = s->gl;
 
@@ -205,7 +205,7 @@ int ngli_fbo_bind(struct fbo *s)
     return 0;
 }
 
-int ngli_fbo_unbind(struct fbo *s)
+int ngli_rendertarget_unbind(struct rendertarget *s)
 {
     struct glcontext *gl = s->gl;
 
@@ -215,7 +215,7 @@ int ngli_fbo_unbind(struct fbo *s)
     return 0;
 }
 
-void ngli_fbo_invalidate_depth_buffers(struct fbo *s)
+void ngli_rendertarget_invalidate_depth_buffers(struct rendertarget *s)
 {
     struct glcontext *gl = s->gl;
 
@@ -229,7 +229,7 @@ void ngli_fbo_invalidate_depth_buffers(struct fbo *s)
     }
 }
 
-void ngli_fbo_blit(struct fbo *s, struct fbo *dst, int vflip)
+void ngli_rendertarget_blit(struct rendertarget *s, struct rendertarget *dst, int vflip)
 {
     struct glcontext *gl = s->gl;
 
@@ -241,13 +241,13 @@ void ngli_fbo_blit(struct fbo *s, struct fbo *dst, int vflip)
     ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->id);
 }
 
-void ngli_fbo_read_pixels(struct fbo *s, uint8_t *data)
+void ngli_rendertarget_read_pixels(struct rendertarget *s, uint8_t *data)
 {
     struct glcontext *gl = s->gl;
     ngli_glReadPixels(gl, 0, 0, s->width, s->height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 }
 
-void ngli_fbo_reset(struct fbo *s)
+void ngli_rendertarget_reset(struct rendertarget *s)
 {
     struct glcontext *gl = s->gl;
     if (!gl)

@@ -144,13 +144,13 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &dst_texture->params;
 
-    struct fbo_params fbo_params = {
+    struct rendertarget_params rt_params = {
         .width = params->width,
         .height = params->height,
         .nb_attachments = 1,
         .attachments = &dst_texture,
     };
-    int ret = ngli_fbo_init(&hwconv->fbo, gl, &fbo_params);
+    int ret = ngli_rendertarget_init(&hwconv->rt, gl, &rt_params);
     if (ret < 0)
         return ret;
 
@@ -222,12 +222,12 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, con
 {
     struct ngl_ctx *ctx = hwconv->ctx;
     struct glcontext *gl = ctx->glcontext;
-    struct fbo *fbo = &hwconv->fbo;
+    struct rendertarget *rt = &hwconv->rt;
 
-    ngli_fbo_bind(fbo);
+    ngli_rendertarget_bind(rt);
     GLint viewport[4];
     ngli_glGetIntegerv(gl, GL_VIEWPORT, viewport);
-    ngli_glViewport(gl, 0, 0, fbo->width, fbo->height);
+    ngli_glViewport(gl, 0, 0, rt->width, rt->height);
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
 
     ngli_glUseProgram(gl, hwconv->program.id);
@@ -265,7 +265,7 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, con
     }
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
-    ngli_fbo_unbind(fbo);
+    ngli_rendertarget_unbind(rt);
 
     return 0;
 }
@@ -276,7 +276,7 @@ void ngli_hwconv_reset(struct hwconv *hwconv)
     if (!ctx)
         return;
 
-    ngli_fbo_reset(&hwconv->fbo);
+    ngli_rendertarget_reset(&hwconv->rt);
 
     struct glcontext *gl = ctx->glcontext;
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)

@@ -25,7 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "fbo.h"
+#include "rendertarget.h"
 #include "format.h"
 #include "darray.h"
 #include "log.h"
@@ -133,20 +133,20 @@ static int camera_init(struct ngl_node *node)
             attachment_params.width = s->pipe_width;
             attachment_params.height = s->pipe_height;
             attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-            int ret = ngli_texture_init(&s->fbo_color, gl, &attachment_params);
+            int ret = ngli_texture_init(&s->rt_color, gl, &attachment_params);
             if (ret < 0)
                 return ret;
 
-            const struct texture *attachments[] = {&s->fbo_color};
+            const struct texture *attachments[] = {&s->rt_color};
             const int nb_attachments = NGLI_ARRAY_NB(attachments);
 
-            struct fbo_params fbo_params = {
+            struct rendertarget_params rt_params = {
                 .width = s->pipe_width,
                 .height = s->pipe_height,
                 .nb_attachments = nb_attachments,
                 .attachments = attachments,
             };
-            ret = ngli_fbo_init(&s->fbo, gl, &fbo_params);
+            ret = ngli_rendertarget_init(&s->rt, gl, &rt_params);
             if (ret < 0)
                 return ret;
         }
@@ -248,10 +248,10 @@ static void camera_draw(struct ngl_node *node)
             ngli_glGetIntegerv(gl, GL_DRAW_FRAMEBUFFER_BINDING, (GLint *)&framebuffer_draw_id);
 
             ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, framebuffer_draw_id);
-            ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->fbo.id);
+            ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->rt.id);
             ngli_glBlitFramebuffer(gl, 0, 0, s->pipe_width, s->pipe_height, 0, 0, s->pipe_width, s->pipe_height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
 
-            ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->fbo.id);
+            ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->rt.id);
         }
 
         TRACE("write %dx%d buffer to FD=%d", s->pipe_width, s->pipe_height, s->pipe_fd);
@@ -277,8 +277,8 @@ static void camera_uninit(struct ngl_node *node)
 
     if (s->pipe_fd) {
         ngli_free(s->pipe_buf);
-        ngli_fbo_reset(&s->fbo);
-        ngli_texture_reset(&s->fbo_color);
+        ngli_rendertarget_reset(&s->rt);
+        ngli_texture_reset(&s->rt_color);
     }
 }
 

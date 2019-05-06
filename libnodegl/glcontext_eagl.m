@@ -25,7 +25,7 @@
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
-#include "fbo.h"
+#include "rendertarget.h"
 #include "format.h"
 #include "glcontext.h"
 #include "log.h"
@@ -38,13 +38,13 @@ struct eagl_priv {
     CFBundleRef framework;
     CVOpenGLESTextureCacheRef texture_cache;
     GLuint colorbuffer;
-    struct fbo fbo;
-    struct texture fbo_color;
-    struct texture fbo_depth;
+    struct rendertarget rt;
+    struct texture rt_color;
+    struct texture rt_depth;
 
-    struct fbo fbo_ms;
-    struct texture fbo_ms_color;
-    struct texture fbo_ms_depth;
+    struct rendertarget rt_ms;
+    struct texture rt_ms_color;
+    struct texture rt_ms_depth;
 };
 
 static int eagl_init_layer(struct glcontext *ctx)
@@ -157,10 +157,10 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
         return ret;
     }
 
-    struct fbo *fbo = &eagl->fbo;
-    struct fbo *fbo_ms = &eagl->fbo_ms;
+    struct rendertarget *rt = &eagl->rt;
+    struct rendertarget *rt_ms = &eagl->rt_ms;
 
-    const struct texture *attachments[2] = {&eagl->fbo_color};
+    const struct texture *attachments[2] = {&eagl->rt_color};
     int nb_attachments = 1;
 
     struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
@@ -176,54 +176,54 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 
             attachment_params.width = ctx->width;
             attachment_params.height = ctx->height;
-            int ret = ngli_texture_wrap(&eagl->fbo_color, ctx, &attachment_params, eagl->colorbuffer);
+            int ret = ngli_texture_wrap(&eagl->rt_color, ctx, &attachment_params, eagl->colorbuffer);
             if (ret < 0)
                 return ret;
 
     if (!ctx->samples) {
         attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-        int ret = ngli_texture_init(&eagl->fbo_depth, ctx, &attachment_params);
+        int ret = ngli_texture_init(&eagl->rt_depth, ctx, &attachment_params);
         if (ret < 0)
             return ret;
-        attachments[nb_attachments++] = &eagl->fbo_depth;
+        attachments[nb_attachments++] = &eagl->rt_depth;
     }
 
-    const struct fbo_params fbo_params = {
+    const struct rendertarget_params rt_params = {
         .width = ctx->width,
         .height = ctx->height,
         .nb_attachments = nb_attachments,
         .attachments = attachments,
     };
-    ret = ngli_fbo_init(fbo, ctx, &fbo_params);
+    ret = ngli_rendertarget_init(rt, ctx, &rt_params);
     if (ret < 0)
         return ret;
 
     if (ctx->samples > 0) {
         attachment_params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
         attachment_params.samples = ctx->samples;
-        int ret = ngli_texture_init(&eagl->fbo_ms_color, ctx, &attachment_params);
+        int ret = ngli_texture_init(&eagl->rt_ms_color, ctx, &attachment_params);
         if (ret < 0)
             return ret;
 
         attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-        ret = ngli_texture_init(&eagl->fbo_ms_depth, ctx, &attachment_params);
+        ret = ngli_texture_init(&eagl->rt_ms_depth, ctx, &attachment_params);
         if (ret < 0)
             return ret;
 
-        const struct texture *attachments[] = {&eagl->fbo_ms_color, &eagl->fbo_ms_depth};
+        const struct texture *attachments[] = {&eagl->rt_ms_color, &eagl->rt_ms_depth};
         const int nb_attachments = NGLI_ARRAY_NB(attachments);
-        const struct fbo_params fbo_params = {
+        const struct rendertarget_params rt_params = {
             .width = ctx->width,
             .height = ctx->height,
             .nb_attachments = nb_attachments,
             .attachments = attachments,
         };
-        ret = ngli_fbo_init(fbo_ms, ctx, &fbo_params);
+        ret = ngli_rendertarget_init(rt_ms, ctx, &rt_params);
         if (ret < 0)
             return ret;
     }
 
-    ngli_fbo_bind(ctx->samples ? fbo_ms : fbo);
+    ngli_rendertarget_bind(ctx->samples ? rt_ms : rt);
 
     ngli_glViewport(ctx, 0, 0, ctx->width, ctx->height);
 
@@ -234,13 +234,13 @@ static void eagl_reset_framebuffer(struct glcontext *ctx)
 {
     struct eagl_priv *eagl = ctx->priv_data;
 
-    ngli_fbo_reset(&eagl->fbo);
-    ngli_texture_reset(&eagl->fbo_color);
-    ngli_texture_reset(&eagl->fbo_depth);
+    ngli_rendertarget_reset(&eagl->rt);
+    ngli_texture_reset(&eagl->rt_color);
+    ngli_texture_reset(&eagl->rt_depth);
 
-    ngli_fbo_reset(&eagl->fbo_ms);
-    ngli_texture_reset(&eagl->fbo_ms_color);
-    ngli_texture_reset(&eagl->fbo_ms_depth);
+    ngli_rendertarget_reset(&eagl->rt_ms);
+    ngli_texture_reset(&eagl->rt_ms_color);
+    ngli_texture_reset(&eagl->rt_ms_depth);
 }
 
 static void eagl_uninit(struct glcontext *ctx)
@@ -291,7 +291,7 @@ static void eagl_swap_buffers(struct glcontext *ctx)
         return;
 
     if (ctx->samples > 0)
-        ngli_fbo_blit(&eagl->fbo_ms, &eagl->fbo, 0);
+        ngli_rendertarget_blit(&eagl->rt_ms, &eagl->rt, 0);
 
     ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->colorbuffer);
     [eagl->handle presentRenderbuffer: GL_RENDERBUFFER];

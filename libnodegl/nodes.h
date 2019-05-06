@@ -54,7 +54,7 @@
 #include "darray.h"
 #include "buffer.h"
 #include "format.h"
-#include "fbo.h"
+#include "rendertarget.h"
 #include "texture.h"
 
 struct node_class;
@@ -84,16 +84,16 @@ struct ngl_ctx {
     VADisplay va_display;
     int va_version;
 #endif
-    /* Offscreen framebuffer */
-    struct fbo fbo;
-    struct texture fbo_color;
-    struct texture fbo_depth;
-    /* Capture offscreen framebuffer */
+    /* Offscreen render target */
+    struct rendertarget rt;
+    struct texture rt_color;
+    struct texture rt_depth;
+    /* Capture offscreen render target */
     capture_func_type capture_func;
-    struct fbo oes_resolve_fbo;
-    struct texture oes_resolve_fbo_color;
-    struct fbo capture_fbo;
-    struct texture capture_fbo_color;
+    struct rendertarget oes_resolve_rt;
+    struct texture oes_resolve_rt_color;
+    struct rendertarget capture_rt;
+    struct texture capture_rt_color;
     uint8_t *capture_buffer;
 #if defined(TARGET_IPHONE)
     CVPixelBufferRef capture_cvbuffer;
@@ -206,8 +206,8 @@ struct camera_priv {
     uint8_t *pipe_buf;
 
     int samples;
-    struct fbo fbo;
-    struct texture fbo_color;
+    struct rendertarget rt;
+    struct texture rt_color;
 };
 
 struct geometry_priv {
@@ -332,12 +332,12 @@ struct rtt_priv {
     int width;
     int height;
 
-    struct fbo fbo;
-    struct texture fbo_depth;
+    struct rendertarget rt;
+    struct texture rt_depth;
 
-    struct fbo fbo_ms;
-    struct darray fbo_ms_colors;
-    struct texture fbo_ms_depth;
+    struct rendertarget rt_ms;
+    struct darray rt_ms_colors;
+    struct texture rt_ms_depth;
 };
 
 struct program_priv {

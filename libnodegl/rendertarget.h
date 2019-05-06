@@ -19,21 +19,21 @@
  * under the License.
  */
 
-#ifndef FBO_H
-#define FBO_H
+#ifndef RENDERTARGET_H
+#define RENDERTARGET_H
 
 #include "darray.h"
 #include "glcontext.h"
 #include "texture.h"
 
-struct fbo_params {
+struct rendertarget_params {
     int width;
     int height;
     int nb_attachments;
     const struct texture **attachments;
 };
 
-struct fbo {
+struct rendertarget {
     struct glcontext *gl;
     int width;
     int height;
@@ -45,15 +45,15 @@ struct fbo {
     GLenum *draw_buffers;
     int nb_draw_buffers;
     GLenum *blit_draw_buffers;
-    void (*blit)(struct fbo *s, struct fbo *dst, int vflip);
+    void (*blit)(struct rendertarget *s, struct rendertarget *dst, int vflip);
 };
 
-int ngli_fbo_init(struct fbo *s, struct glcontext *gl, const struct fbo_params *params);
-int ngli_fbo_bind(struct fbo *s);
-int ngli_fbo_unbind(struct fbo *s);
-void ngli_fbo_invalidate_depth_buffers(struct fbo *s);
-void ngli_fbo_blit(struct fbo *s, struct fbo *dst, int vflip);
-void ngli_fbo_read_pixels(struct fbo *s, uint8_t *data);
-void ngli_fbo_reset(struct fbo *s);
+int ngli_rendertarget_init(struct rendertarget *s, struct glcontext *gl, const struct rendertarget_params *params);
+int ngli_rendertarget_bind(struct rendertarget *s);
+int ngli_rendertarget_unbind(struct rendertarget *s);
+void ngli_rendertarget_invalidate_depth_buffers(struct rendertarget *s);
+void ngli_rendertarget_blit(struct rendertarget *s, struct rendertarget *dst, int vflip);
+void ngli_rendertarget_read_pixels(struct rendertarget *s, uint8_t *data);
+void ngli_rendertarget_reset(struct rendertarget *s);
 
 #endif

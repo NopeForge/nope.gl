@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "fbo.h"
+#include "rendertarget.h"
 #include "format.h"
 #include "log.h"
 #include "nodegl.h"
@@ -95,13 +95,13 @@ static int rtt_init(struct ngl_node *node)
     return 0;
 }
 
-static int create_ms_fbo(struct ngl_node *node, int depth_format)
+static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct rtt_priv *s = node->priv_data;
 
-    ngli_darray_init(&s->fbo_ms_colors, sizeof(struct texture), 0);
+    ngli_darray_init(&s->rt_ms_colors, sizeof(struct texture), 0);
 
     struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
     attachment_params.width = s->width;
@@ -117,7 +117,7 @@ static int create_ms_fbo(struct ngl_node *node, int depth_format)
         const struct texture_params *params = &texture->params;
         const int n = params->cubemap ? 6 : 1;
         for (int i = 0; i < n; i++) {
-            struct texture *ms_texture = ngli_darray_push(&s->fbo_ms_colors, NULL);
+            struct texture *ms_texture = ngli_darray_push(&s->rt_ms_colors, NULL);
             if (!ms_texture)
                 goto error;
             attachment_params.format = params->format;
@@ -131,21 +131,21 @@ static int create_ms_fbo(struct ngl_node *node, int depth_format)
 
     if (depth_format != NGLI_FORMAT_UNDEFINED) {
         attachment_params.format = depth_format;
-        int ret = ngli_texture_init(&s->fbo_ms_depth, gl, &attachment_params);
+        int ret = ngli_texture_init(&s->rt_ms_depth, gl, &attachment_params);
         if (ret < 0)
             goto error;
-        struct texture *fbo_ms_depth = &s->fbo_ms_depth;
-        if (!ngli_darray_push(&attachments, &fbo_ms_depth))
+        struct texture *rt_ms_depth = &s->rt_ms_depth;
+        if (!ngli_darray_push(&attachments, &rt_ms_depth))
             goto error;
     }
 
-    struct fbo_params fbo_params = {
+    struct rendertarget_params rt_params = {
         .width = s->width,
         .height = s->height,
         .nb_attachments = ngli_darray_count(&attachments),
         .attachments = ngli_darray_data(&attachments),
     };
-    int ret = ngli_fbo_init(&s->fbo_ms, gl, &fbo_params);
+    int ret = ngli_rendertarget_init(&s->rt_ms, gl, &rt_params);
     if (ret < 0)
         goto error;
 
@@ -227,28 +227,28 @@ static int rtt_prefetch(struct ngl_node *node)
             depth_format = NGLI_FORMAT_D16_UNORM;
 
         if (depth_format != NGLI_FORMAT_UNDEFINED) {
-            struct texture *fbo_depth = &s->fbo_depth;
+            struct texture *rt_depth = &s->rt_depth;
             attachment_params.format = depth_format;
-            int ret = ngli_texture_init(fbo_depth, gl, &attachment_params);
+            int ret = ngli_texture_init(rt_depth, gl, &attachment_params);
             if (ret < 0)
                 goto error;
-            if (!ngli_darray_push(&attachments, &fbo_depth))
+            if (!ngli_darray_push(&attachments, &rt_depth))
                 goto error;
         }
     }
 
-    struct fbo_params fbo_params = {
+    struct rendertarget_params rt_params = {
         .width = s->width,
         .height = s->height,
         .nb_attachments = ngli_darray_count(&attachments),
         .attachments = ngli_darray_data(&attachments),
     };
-    int ret = ngli_fbo_init(&s->fbo, gl, &fbo_params);
+    int ret = ngli_rendertarget_init(&s->rt, gl, &rt_params);
     if (ret < 0)
         goto error;
 
     if (s->samples > 0) {
-        ret = create_ms_fbo(node, depth_format);
+        ret = create_ms_rendertarget(node, depth_format);
         if (ret < 0)
             goto error;
     }
@@ -307,8 +307,8 @@ static void rtt_draw(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct rtt_priv *s = node->priv_data;
 
-    struct fbo *fbo = s->samples > 0 ? &s->fbo_ms : &s->fbo;
-    int ret = ngli_fbo_bind(fbo);
+    struct rendertarget *rt = s->samples > 0 ? &s->rt_ms : &s->rt;
+    int ret = ngli_rendertarget_bind(rt);
     if (ret < 0)
         return;
 
@@ -333,12 +333,12 @@ static void rtt_draw(struct ngl_node *node)
     }
 
     if (s->samples > 0)
-        ngli_fbo_blit(fbo, &s->fbo, 0);
+        ngli_rendertarget_blit(rt, &s->rt, 0);
 
     if (!(s->features & FEATURE_NO_CLEAR))
-        ngli_fbo_invalidate_depth_buffers(fbo);
+        ngli_rendertarget_invalidate_depth_buffers(rt);
 
-    ngli_fbo_unbind(fbo);
+    ngli_rendertarget_unbind(rt);
 
     ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
 
@@ -354,15 +354,15 @@ static void rtt_release(struct ngl_node *node)
 {
     struct rtt_priv *s = node->priv_data;
 
-    ngli_fbo_reset(&s->fbo);
-    ngli_texture_reset(&s->fbo_depth);
+    ngli_rendertarget_reset(&s->rt);
+    ngli_texture_reset(&s->rt_depth);
 
-    ngli_fbo_reset(&s->fbo_ms);
-    struct texture *fbo_ms_colors = ngli_darray_data(&s->fbo_ms_colors);
-    for (int i = 0; i < ngli_darray_count(&s->fbo_ms_colors); i++)
-        ngli_texture_reset(&fbo_ms_colors[i]);
-    ngli_darray_reset(&s->fbo_ms_colors);
-    ngli_texture_reset(&s->fbo_ms_depth);
+    ngli_rendertarget_reset(&s->rt_ms);
+    struct texture *rt_ms_colors = ngli_darray_data(&s->rt_ms_colors);
+    for (int i = 0; i < ngli_darray_count(&s->rt_ms_colors); i++)
+        ngli_texture_reset(&rt_ms_colors[i]);
+    ngli_darray_reset(&s->rt_ms_colors);
+    ngli_texture_reset(&s->rt_ms_depth);
 }
 
 const struct node_class ngli_rtt_class = {
