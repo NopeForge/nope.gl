@@ -220,8 +220,7 @@ static void eagl_uninit(struct glcontext *ctx)
 
     eagl_reset_framebuffer(ctx);
 
-    if (eagl->colorbuffer)
-        ngli_glDeleteRenderbuffers(ctx, 1, &eagl->colorbuffer);
+    ngli_glDeleteRenderbuffers(ctx, 1, &eagl->colorbuffer);
 
     if (eagl->framework)
         CFRelease(eagl->framework);
