@@ -40,8 +40,8 @@ struct text_priv {
     double font_scale;
     int valign, halign;
     int aspect_ratio[2];
-    GLenum min_filter;
-    GLenum mag_filter;
+    int min_filter;
+    int mag_filter;
     int mipmap_filter;
 
     struct texture texture;
