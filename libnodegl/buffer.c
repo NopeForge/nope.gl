@@ -26,7 +26,7 @@
 #include "glincludes.h"
 #include "nodes.h"
 
-int ngli_buffer_allocate(struct buffer *s, struct ngl_ctx *ctx, int size, int usage)
+int ngli_buffer_init(struct buffer *s, struct ngl_ctx *ctx, int size, int usage)
 {
     s->ctx = ctx;
     s->size = size;
@@ -47,7 +47,7 @@ int ngli_buffer_upload(struct buffer *s, void *data, int size)
     return 0;
 }
 
-void ngli_buffer_free(struct buffer *s)
+void ngli_buffer_reset(struct buffer *s)
 {
     struct ngl_ctx *ctx = s->ctx;
     if (!ctx)

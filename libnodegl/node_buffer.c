@@ -57,7 +57,7 @@ int ngli_node_buffer_ref(struct ngl_node *node)
         return ngli_node_block_ref(s->block);
 
     if (s->buffer_refcount++ == 0) {
-        int ret = ngli_buffer_allocate(&s->buffer, ctx, s->data_size, s->usage);
+        int ret = ngli_buffer_init(&s->buffer, ctx, s->data_size, s->usage);
         if (ret < 0)
             return ret;
 
@@ -80,7 +80,7 @@ void ngli_node_buffer_unref(struct ngl_node *node)
 
     ngli_assert(s->buffer_refcount);
     if (s->buffer_refcount-- == 1)
-        ngli_buffer_free(&s->buffer);
+        ngli_buffer_reset(&s->buffer);
 }
 
 int ngli_node_buffer_upload(struct ngl_node *node)
