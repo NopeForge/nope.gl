@@ -346,9 +346,6 @@ struct program_priv {
     const char *compute;
 
     struct program program;
-    struct hmap *active_uniforms;
-    struct hmap *active_attributes;
-    struct hmap *active_buffer_blocks;
 };
 
 extern const struct param_choices ngli_mipmap_filter_choices;

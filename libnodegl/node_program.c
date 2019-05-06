@@ -101,26 +101,12 @@ static int program_init(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct program_priv *s = node->priv_data;
 
-    int ret = ngli_program_init(&s->program, gl, s->vertex, s->fragment, NULL);
-    if (ret < 0)
-        return ret;
-
-    s->active_uniforms = ngli_program_probe_uniforms(node->label, gl, s->program.id);
-    s->active_attributes = ngli_program_probe_attributes(node->label, gl, s->program.id);
-    s->active_buffer_blocks = ngli_program_probe_buffer_blocks(node->label, gl, s->program.id);
-    if (!s->active_uniforms || !s->active_attributes || !s->active_buffer_blocks)
-        return -1;
-
-    return 0;
+    return ngli_program_init(&s->program, gl, s->vertex, s->fragment, NULL);
 }
 
 static void program_uninit(struct ngl_node *node)
 {
     struct program_priv *s = node->priv_data;
-
-    ngli_hmap_freep(&s->active_uniforms);
-    ngli_hmap_freep(&s->active_attributes);
-    ngli_hmap_freep(&s->active_buffer_blocks);
     ngli_program_reset(&s->program);
 }
 

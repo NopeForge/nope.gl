@@ -251,7 +251,7 @@ static int build_uniform_pairs(struct pipeline *s)
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(params->uniforms, entry))) {
         const struct uniformprograminfo *active_uniform =
-            ngli_hmap_get(program->active_uniforms, entry->key);
+            ngli_hmap_get(program->program.uniforms, entry->key);
         if (!active_uniform) {
             LOG(WARNING, "uniform %s attached to %s not found in %s",
                 entry->key, params->label, params->program->label);
@@ -392,7 +392,7 @@ static int build_texture_pairs(struct pipeline *s)
 
         struct textureprograminfo *info = &s->textureprograminfos[s->nb_textureprograminfos];
 
-        int ret = load_textureprograminfo(info, program->active_uniforms, key);
+        int ret = load_textureprograminfo(info, program->program.uniforms, key);
         if (ret < 0)
             return ret;
 
@@ -645,7 +645,7 @@ static int build_block_pairs(struct pipeline *s)
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(params->blocks, entry))) {
         const struct blockprograminfo *info =
-            ngli_hmap_get(program->active_buffer_blocks, entry->key);
+            ngli_hmap_get(program->program.buffer_blocks, entry->key);
         if (!info) {
             LOG(WARNING, "block %s attached to %s not found in %s",
                 entry->key, params->label, params->program->label);
@@ -705,7 +705,7 @@ static int pair_node_to_attribinfo(struct pipeline *s,
     const struct ngl_node *pnode = params->program;
     const struct program_priv *program = pnode->priv_data;
     const struct attributeprograminfo *active_attribute =
-        ngli_hmap_get(program->active_attributes, name);
+        ngli_hmap_get(program->program.attributes, name);
     if (!active_attribute)
         return 1;
 
@@ -871,7 +871,7 @@ int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pip
 
     struct ngl_node *program_node = params->program;
     struct program_priv *program_priv = program_node->priv_data;
-    struct hmap *uniforms = program_priv->active_uniforms;
+    struct hmap *uniforms = program_priv->program.uniforms;
     if (s->type == NGLI_PIPELINE_TYPE_GRAPHIC && uniforms) {
         s->modelview_matrix_location  = get_uniform_location(uniforms, "ngl_modelview_matrix");
         s->projection_matrix_location = get_uniform_location(uniforms, "ngl_projection_matrix");
