@@ -225,7 +225,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
     return bmap;
 }
 
-int ngli_program_init(struct program *s, struct glcontext *gl, const char *vertex, const char *fragment, const char *compute)
+int ngli_program_init(struct program *s, struct ngl_ctx *ctx, const char *vertex, const char *fragment, const char *compute)
 {
     struct {
         GLenum type;
@@ -237,8 +237,9 @@ int ngli_program_init(struct program *s, struct glcontext *gl, const char *verte
         {GL_COMPUTE_SHADER,  compute,  0},
     };
 
-    s->gl = gl;
+    struct glcontext *gl = ctx->glcontext;
 
+    s->ctx = ctx;
     s->id = ngli_glCreateProgram(gl);
 
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
@@ -260,9 +261,9 @@ int ngli_program_init(struct program *s, struct glcontext *gl, const char *verte
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
         ngli_glDeleteShader(gl, shaders[i].id);
 
-    s->uniforms = program_probe_uniforms(s->gl, s->id);
-    s->attributes = program_probe_attributes(s->gl, s->id);
-    s->buffer_blocks = program_probe_buffer_blocks(s->gl, s->id);
+    s->uniforms = program_probe_uniforms(gl, s->id);
+    s->attributes = program_probe_attributes(gl, s->id);
+    s->buffer_blocks = program_probe_buffer_blocks(gl, s->id);
     if (!s->uniforms || !s->attributes || !s->buffer_blocks)
         goto fail;
 
@@ -277,11 +278,12 @@ fail:
 
 void ngli_program_reset(struct program *s)
 {
-    if (!s->gl)
+    if (!s->ctx)
         return;
     ngli_hmap_freep(&s->uniforms);
     ngli_hmap_freep(&s->attributes);
     ngli_hmap_freep(&s->buffer_blocks);
-    ngli_glDeleteProgram(s->gl, s->id);
+    struct glcontext *gl = s->ctx->glcontext;
+    ngli_glDeleteProgram(gl, s->id);
     memset(s, 0, sizeof(*s));
 }

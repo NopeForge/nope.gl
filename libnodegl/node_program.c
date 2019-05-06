@@ -98,10 +98,9 @@ static const struct node_param program_params[] = {
 static int program_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct program_priv *s = node->priv_data;
 
-    return ngli_program_init(&s->program, gl, s->vertex, s->fragment, NULL);
+    return ngli_program_init(&s->program, ctx, s->vertex, s->fragment, NULL);
 }
 
 static void program_uninit(struct ngl_node *node)

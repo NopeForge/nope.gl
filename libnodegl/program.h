@@ -22,8 +22,8 @@
 #ifndef PROGRAM_H
 #define PROGRAM_H
 
+#include "glincludes.h"
 #include "hmap.h"
-#include "glcontext.h"
 
 struct uniformprograminfo {
     GLint location;
@@ -44,7 +44,7 @@ struct blockprograminfo {
 };
 
 struct program {
-    struct glcontext *gl;
+    struct ngl_ctx *ctx;
     struct hmap *uniforms;
     struct hmap *attributes;
     struct hmap *buffer_blocks;
@@ -52,7 +52,7 @@ struct program {
     GLuint id;
 };
 
-int ngli_program_init(struct program *s, struct glcontext *gl, const char *vertex, const char *fragment, const char *compute);
+int ngli_program_init(struct program *s, struct ngl_ctx *ctx, const char *vertex, const char *fragment, const char *compute);
 void ngli_program_reset(struct program *s);
 
 #endif

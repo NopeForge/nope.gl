@@ -247,7 +247,7 @@ static int text_init(struct ngl_node *node)
 
     static const float uvs[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0};
 
-    ret = ngli_program_init(&s->program, gl, vertex_data, fragment_data, NULL);
+    ret = ngli_program_init(&s->program, ctx, vertex_data, fragment_data, NULL);
     if (ret < 0)
         return ret;
 

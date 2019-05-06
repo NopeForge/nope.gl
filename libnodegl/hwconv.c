@@ -167,7 +167,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     if (!fragment_data)
         return -1;
 
-    ret = ngli_program_init(&hwconv->program, gl, desc->vertex_data, fragment_data, NULL);
+    ret = ngli_program_init(&hwconv->program, ctx, desc->vertex_data, fragment_data, NULL);
     ngli_free(fragment_data);
     if (ret < 0)
         return ret;

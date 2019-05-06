@@ -46,7 +46,7 @@ static int computeprogram_init(struct ngl_node *node)
         return -1;
     }
 
-    return ngli_program_init(&s->program, gl, NULL, NULL, s->compute);
+    return ngli_program_init(&s->program, ctx, NULL, NULL, s->compute);
 }
 
 static void computeprogram_uninit(struct ngl_node *node)
