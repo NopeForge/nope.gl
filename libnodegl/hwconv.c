@@ -171,24 +171,28 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
         return ret;
     ngli_glUseProgram(gl, hwconv->program.id);
 
-    hwconv->position_location = ngli_glGetAttribLocation(gl, hwconv->program.id, "position");
-    if (hwconv->position_location < 0)
+    const struct attributeprograminfo *position_info = ngli_hmap_get(hwconv->program.attributes, "position");
+    if (!position_info)
         return -1;
+    hwconv->position_location = position_info->location;
 
     for (int i = 0; i < desc->nb_planes; i++) {
         char name[32];
         snprintf(name, sizeof(name), "tex%d", i);
-        hwconv->texture_locations[i] = ngli_glGetUniformLocation(gl, hwconv->program.id, name);
-        if (hwconv->texture_locations[i] < 0)
+        const struct uniformprograminfo *tex_info = ngli_hmap_get(hwconv->program.uniforms, name);
+        if (!tex_info)
             return -1;
+        hwconv->texture_locations[i] = tex_info->location;
         ngli_glUniform1i(gl, hwconv->texture_locations[i], i);
     }
 
-    hwconv->texture_matrix_location = ngli_glGetUniformLocation(gl, hwconv->program.id, "tex_coord_matrix");
-    if (hwconv->texture_matrix_location < 0)
+    const struct uniformprograminfo *texture_matrix_info = ngli_hmap_get(hwconv->program.uniforms, "tex_coord_matrix");
+    if (!texture_matrix_info)
         return -1;
+    hwconv->texture_matrix_location = texture_matrix_info->location;
 
-    hwconv->texture_dimensions_location = ngli_glGetUniformLocation(gl, hwconv->program.id, "tex_dimensions");
+    const struct uniformprograminfo *texture_dimensions_info = ngli_hmap_get(hwconv->program.uniforms, "tex_dimensions");
+    hwconv->texture_dimensions_location = texture_dimensions_info ? texture_dimensions_info->location : -1;
 
     static const float vertices[] = {
         -1.0f, -1.0f, 0.0f, 0.0f,
