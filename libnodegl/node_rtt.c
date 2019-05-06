@@ -98,7 +98,6 @@ static int rtt_init(struct ngl_node *node)
 static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct rtt_priv *s = node->priv_data;
 
     ngli_darray_init(&s->rt_ms_colors, sizeof(struct texture), 0);
@@ -121,7 +120,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
             if (!ms_texture)
                 goto error;
             attachment_params.format = params->format;
-            int ret = ngli_texture_init(ms_texture, gl, &attachment_params);
+            int ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
             if (ret < 0)
                 goto error;
             if (!ngli_darray_push(&attachments, &ms_texture))
@@ -131,7 +130,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
 
     if (depth_format != NGLI_FORMAT_UNDEFINED) {
         attachment_params.format = depth_format;
-        int ret = ngli_texture_init(&s->rt_ms_depth, gl, &attachment_params);
+        int ret = ngli_texture_init(&s->rt_ms_depth, ctx, &attachment_params);
         if (ret < 0)
             goto error;
         struct texture *rt_ms_depth = &s->rt_ms_depth;
@@ -229,7 +228,7 @@ static int rtt_prefetch(struct ngl_node *node)
         if (depth_format != NGLI_FORMAT_UNDEFINED) {
             struct texture *rt_depth = &s->rt_depth;
             attachment_params.format = depth_format;
-            int ret = ngli_texture_init(rt_depth, gl, &attachment_params);
+            int ret = ngli_texture_init(rt_depth, ctx, &attachment_params);
             if (ret < 0)
                 goto error;
             if (!ngli_darray_push(&attachments, &rt_depth))

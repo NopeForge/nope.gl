@@ -100,7 +100,7 @@ struct texture_params {
 };
 
 struct texture {
-    struct glcontext *gl;
+    struct ngl_ctx *ctx;
     struct texture_params params;
     int wrapped;
     int external_storage;
@@ -114,11 +114,11 @@ struct texture {
 };
 
 int ngli_texture_init(struct texture *s,
-                      struct glcontext *gl,
+                      struct ngl_ctx *ctx,
                       const struct texture_params *params);
 
 int ngli_texture_wrap(struct texture *s,
-                      struct glcontext *gl,
+                      struct ngl_ctx *ctx,
                       const struct texture_params *params,
                       GLuint id);
 

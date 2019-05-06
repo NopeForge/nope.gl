@@ -133,7 +133,7 @@ static int camera_init(struct ngl_node *node)
             attachment_params.width = s->pipe_width;
             attachment_params.height = s->pipe_height;
             attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-            int ret = ngli_texture_init(&s->rt_color, gl, &attachment_params);
+            int ret = ngli_texture_init(&s->rt_color, ctx, &attachment_params);
             if (ret < 0)
                 return ret;
 

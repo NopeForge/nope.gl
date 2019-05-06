@@ -192,7 +192,6 @@ static void vt_ios_common_uninit(struct ngl_node *node)
 static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
@@ -213,7 +212,7 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
         struct texture_params plane_params = NGLI_TEXTURE_PARAM_DEFAULTS;
         plane_params.format = format_desc.planes[i].format;
 
-        ret = ngli_texture_wrap(plane, gl, &plane_params, 0);
+        ret = ngli_texture_wrap(plane, ctx, &plane_params, 0);
         if (ret < 0)
             return ret;
     }
@@ -223,7 +222,7 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     params.width  = vt->width;
     params.height = vt->height;
 
-    ret = ngli_texture_init(&s->texture, gl, &params);
+    ret = ngli_texture_init(&s->texture, ctx, &params);
     if (ret < 0)
         return ret;
 
@@ -247,7 +246,6 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
     if (!ngli_texture_match_dimensions(&s->texture, vt->width, vt->height, 0)) {
         struct ngl_ctx *ctx = node->ctx;
-        struct glcontext *gl = ctx->glcontext;
 
         ngli_hwconv_reset(&vt->hwconv);
         ngli_texture_reset(&s->texture);
@@ -257,7 +255,7 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         params.width  = vt->width;
         params.height = vt->height;
 
-        ret = ngli_texture_init(&s->texture, gl, &params);
+        ret = ngli_texture_init(&s->texture, ctx, &params);
         if (ret < 0)
             return ret;
 
@@ -282,7 +280,6 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
@@ -305,7 +302,7 @@ static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
         struct texture *plane = &vt->planes[i];
 
         plane_params.format = format_desc.planes[i].format;
-        ret = ngli_texture_wrap(plane, gl, &plane_params, 0);
+        ret = ngli_texture_wrap(plane, ctx, &plane_params, 0);
         if (ret < 0)
             return ret;
     }

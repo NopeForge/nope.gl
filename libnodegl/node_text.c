@@ -291,7 +291,7 @@ static int text_init(struct ngl_node *node)
     tex_params.min_filter = s->min_filter;
     tex_params.mag_filter = s->mag_filter;
     tex_params.mipmap_filter = s->mipmap_filter;
-    ret = ngli_texture_init(&s->texture, gl, &tex_params);
+    ret = ngli_texture_init(&s->texture, ctx, &tex_params);
     if (ret < 0)
         return ret;
 

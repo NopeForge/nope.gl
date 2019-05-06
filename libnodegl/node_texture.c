@@ -361,7 +361,7 @@ static int texture_prefetch(struct ngl_node *node, int dimensions, int cubemap)
         }
     }
 
-    int ret = ngli_texture_init(&s->texture, gl, params);
+    int ret = ngli_texture_init(&s->texture, ctx, params);
     if (ret < 0)
         return ret;
 

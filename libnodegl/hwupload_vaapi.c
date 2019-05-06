@@ -60,7 +60,7 @@ static int vaapi_common_init(struct ngl_node *node, struct sxplayer_frame *frame
             .external_storage = 1,
         };
 
-        int ret = ngli_texture_init(plane, gl, &plane_params);
+        int ret = ngli_texture_init(plane, ctx, &plane_params);
         if (ret < 0)
             return ret;
     }
@@ -200,7 +200,6 @@ static int vaapi_common_map_frame(struct ngl_node *node, struct sxplayer_frame *
 static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
 
@@ -213,7 +212,7 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
     params.width  = frame->width;
     params.height = frame->height;
 
-    ret = ngli_texture_init(&s->texture, gl, &params);
+    ret = ngli_texture_init(&s->texture, ctx, &params);
     if (ret < 0)
         return ret;
 
@@ -237,7 +236,6 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
     if (!ngli_texture_match_dimensions(&s->texture, frame->width, frame->height, 0)) {
         struct ngl_ctx *ctx = node->ctx;
-        struct glcontext *gl = ctx->glcontext;
 
         ngli_hwconv_reset(&vaapi->hwconv);
         ngli_texture_reset(&s->texture);
@@ -247,7 +245,7 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         params.width  = frame->width;
         params.height = frame->height;
 
-        ret = ngli_texture_init(&s->texture, gl, &params);
+        ret = ngli_texture_init(&s->texture, ctx, &params);
         if (ret < 0)
             return ret;
 

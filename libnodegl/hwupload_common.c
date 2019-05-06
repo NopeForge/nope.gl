@@ -51,7 +51,6 @@ static int common_get_data_format(int pix_fmt)
 static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
 
     struct texture_params params = s->params;
@@ -62,7 +61,7 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (params.format < 0)
         return -1;
 
-    int ret = ngli_texture_init(&s->texture, gl, &params);
+    int ret = ngli_texture_init(&s->texture, ctx, &params);
     if (ret < 0)
         return ret;
 

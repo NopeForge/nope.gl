@@ -161,7 +161,6 @@ static int media_init(struct ngl_node *node)
 
 #if defined(TARGET_ANDROID)
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
 
     struct texture_params params = {
         .dimensions = 2,
@@ -175,7 +174,7 @@ static int media_init(struct ngl_node *node)
         .external_oes = 1,
     };
 
-    int ret = ngli_texture_init(&s->android_texture, gl, &params);
+    int ret = ngli_texture_init(&s->android_texture, ctx, &params);
     if (ret < 0)
         return ret;
 

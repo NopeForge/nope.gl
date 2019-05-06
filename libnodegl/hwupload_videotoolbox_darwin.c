@@ -62,7 +62,6 @@ static int vt_get_data_format(struct sxplayer_frame *frame)
 static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
 
@@ -71,7 +70,7 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
     params.width  = frame->width;
     params.height = frame->height;
 
-    int ret = ngli_texture_init(&s->texture, gl, &params);
+    int ret = ngli_texture_init(&s->texture, ctx, &params);
     if (ret < 0)
         return ret;
 
@@ -88,7 +87,7 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
         plane_params.rectangle = 1;
         plane_params.external_storage = 1;
 
-        int ret = ngli_texture_init(plane, gl, &plane_params);
+        int ret = ngli_texture_init(plane, ctx, &plane_params);
         if (ret < 0)
             return ret;
     }
@@ -148,7 +147,7 @@ static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
         params.width  = frame->width;
         params.height = frame->height;
 
-        int ret = ngli_texture_init(&s->texture, gl, &params);
+        int ret = ngli_texture_init(&s->texture, ctx, &params);
         if (ret < 0)
             return ret;
 

@@ -44,7 +44,6 @@ struct hwupload_mc {
 static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct hwupload_mc *mc = s->hwupload_priv_data;
 
@@ -53,7 +52,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     params.width  = frame->width;
     params.height = frame->height;
 
-    int ret = ngli_texture_init(&s->texture, gl, &params);
+    int ret = ngli_texture_init(&s->texture, ctx, &params);
     if (ret < 0)
         return ret;
 

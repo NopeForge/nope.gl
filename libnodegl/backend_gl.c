@@ -52,12 +52,12 @@ static int offscreen_rendertarget_init(struct ngl_ctx *s)
     attachment_params.height = config->height;
     attachment_params.samples = config->samples;
     attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-    int ret = ngli_texture_init(&s->rt_color, gl, &attachment_params);
+    int ret = ngli_texture_init(&s->rt_color, s, &attachment_params);
     if (ret < 0)
         return ret;
 
     attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-    ret = ngli_texture_init(&s->rt_depth, gl, &attachment_params);
+    ret = ngli_texture_init(&s->rt_depth, s, &attachment_params);
     if (ret < 0)
         return ret;
 
@@ -204,7 +204,7 @@ static int capture_init(struct ngl_ctx *s)
             attachment_params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
             attachment_params.width = width;
             attachment_params.height = height;
-            int ret = ngli_texture_wrap(&s->capture_rt_color, gl, &attachment_params, id);
+            int ret = ngli_texture_wrap(&s->capture_rt_color, s, &attachment_params, id);
             if (ret < 0)
                 return ret;
 #endif
@@ -214,7 +214,7 @@ static int capture_init(struct ngl_ctx *s)
             attachment_params.width = config->width;
             attachment_params.height = config->height;
             attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-            int ret = ngli_texture_init(&s->capture_rt_color, gl, &attachment_params);
+            int ret = ngli_texture_init(&s->capture_rt_color, s, &attachment_params);
             if (ret < 0)
                 return ret;
         }
@@ -239,7 +239,7 @@ static int capture_init(struct ngl_ctx *s)
             attachment_params.height = config->height;
             attachment_params.samples = 0;
             attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-            int ret = ngli_texture_init(&s->oes_resolve_rt_color, gl, &attachment_params);
+            int ret = ngli_texture_init(&s->oes_resolve_rt_color, s, &attachment_params);
             if (ret < 0)
                 return ret;
 

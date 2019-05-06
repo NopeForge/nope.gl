@@ -26,6 +26,7 @@
 #include "format.h"
 #include "glincludes.h"
 #include "glcontext.h"
+#include "nodes.h"
 #include "texture.h"
 
 static const GLint gl_filter_map[NGLI_NB_FILTER][NGLI_NB_MIPMAP] = {
@@ -75,7 +76,8 @@ GLenum ngli_texture_get_gl_access(int access)
 
 static void texture_set_image(struct texture *s, const uint8_t *data)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     switch (s->target) {
@@ -98,7 +100,8 @@ static void texture_set_image(struct texture *s, const uint8_t *data)
 
 static void texture2d_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     if (row_upload) {
@@ -113,7 +116,8 @@ static void texture2d_set_sub_image(struct texture *s, const uint8_t *data, int 
 
 static void texture3d_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     if (row_upload) {
@@ -130,7 +134,8 @@ static void texture3d_set_sub_image(struct texture *s, const uint8_t *data, int 
 
 static void texturecube_set_sub_image(struct texture *s, const uint8_t *data, int linesize, int row_upload)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     if (row_upload) {
@@ -151,7 +156,8 @@ static void texturecube_set_sub_image(struct texture *s, const uint8_t *data, in
 
 static void texture_set_sub_image(struct texture *s, const uint8_t *data, int linesize)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     if (!linesize)
@@ -181,7 +187,8 @@ static void texture_set_sub_image(struct texture *s, const uint8_t *data, int li
 
 static void texture_set_storage(struct texture *s)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     switch (s->target) {
@@ -205,7 +212,8 @@ static void texture_set_storage(struct texture *s)
 
 static int renderbuffer_check_samples(struct texture *s)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     int max_samples = gl->max_samples;
@@ -223,7 +231,8 @@ static int renderbuffer_check_samples(struct texture *s)
 
 static void renderbuffer_set_storage(struct texture *s)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     if (params->samples > 0)
@@ -234,7 +243,8 @@ static void renderbuffer_set_storage(struct texture *s)
 
 static int texture_init_fields(struct texture *s)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     if (params->usage & NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY) {
@@ -295,15 +305,17 @@ static int is_pow2(int x)
 }
 
 int ngli_texture_init(struct texture *s,
-                      struct glcontext *gl,
+                      struct ngl_ctx *ctx,
                       const struct texture_params *params)
 {
-    s->gl = gl;
+    s->ctx = ctx;
     s->params = *params;
 
     int ret = texture_init_fields(s);
     if (ret < 0)
         return ret;
+
+    struct glcontext *gl = ctx->glcontext;
 
     if (s->target == GL_RENDERBUFFER) {
         ngli_glGenRenderbuffers(gl, 1, &s->id);
@@ -352,11 +364,11 @@ int ngli_texture_init(struct texture *s,
 }
 
 int ngli_texture_wrap(struct texture *s,
-                      struct glcontext *gl,
+                      struct ngl_ctx *ctx,
                       const struct texture_params *params,
                       GLuint texture)
 {
-    s->gl = gl;
+    s->ctx = ctx;
     s->params = *params;
 
     int ret = texture_init_fields(s);
@@ -402,7 +414,9 @@ int ngli_texture_match_dimensions(const struct texture *s, int width, int height
 
 int ngli_texture_upload(struct texture *s, const uint8_t *data, int linesize)
 {
-    struct glcontext *gl = s->gl;
+
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     /* texture with external storage (including wrapped textures and render
@@ -422,7 +436,8 @@ int ngli_texture_upload(struct texture *s, const uint8_t *data, int linesize)
 
 int ngli_texture_generate_mipmap(struct texture *s)
 {
-    struct glcontext *gl = s->gl;
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
     const struct texture_params *params = &s->params;
 
     ngli_assert(!(params->usage & NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY));
@@ -434,9 +449,11 @@ int ngli_texture_generate_mipmap(struct texture *s)
 
 void ngli_texture_reset(struct texture *s)
 {
-    struct glcontext *gl = s->gl;
-    if (!gl)
+    struct ngl_ctx *ctx = s->ctx;
+    if (!ctx)
         return;
+
+    struct glcontext *gl = ctx->glcontext;
 
     if (!s->wrapped) {
         if (s->target == GL_RENDERBUFFER)
