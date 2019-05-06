@@ -251,19 +251,20 @@ static int text_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    s->position_location = ngli_glGetAttribLocation(gl, s->program.id, "position");
-    s->uvcoord_location  = ngli_glGetAttribLocation(gl, s->program.id, "uvcoord");
-    s->texture_location  = ngli_glGetUniformLocation(gl, s->program.id, "tex");
+    const struct attributeprograminfo *position_info = ngli_hmap_get(s->program.attributes, "position");
+    const struct attributeprograminfo *uvcoord_info  = ngli_hmap_get(s->program.attributes, "uvcoord");
+    const struct uniformprograminfo *texture_info    = ngli_hmap_get(s->program.uniforms, "tex");
+    const struct uniformprograminfo *modelview_info  = ngli_hmap_get(s->program.uniforms, "modelview_matrix");
+    const struct uniformprograminfo *projection_info = ngli_hmap_get(s->program.uniforms, "projection_matrix");
 
-    s->modelview_matrix_location  = ngli_glGetUniformLocation(gl, s->program.id, "modelview_matrix");
-    s->projection_matrix_location = ngli_glGetUniformLocation(gl, s->program.id, "projection_matrix");
-
-    if (s->position_location          < 0 ||
-        s->uvcoord_location           < 0 ||
-        s->texture_location           < 0 ||
-        s->modelview_matrix_location  < 0 ||
-        s->projection_matrix_location < 0)
+    if (!position_info || !uvcoord_info || !texture_info || !modelview_info || !projection_info)
         return -1;
+
+    s->position_location          = position_info->location;
+    s->uvcoord_location           = uvcoord_info->location;
+    s->texture_location           = texture_info->location;
+    s->modelview_matrix_location  = modelview_info->location;
+    s->projection_matrix_location = projection_info->location;
 
     ngli_glUseProgram(gl, s->program.id);
 
