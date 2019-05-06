@@ -165,30 +165,30 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct glcontext *gl,
     if (!fragment_data)
         return -1;
 
-    hwconv->program_id = ngli_program_load(gl, desc->vertex_data, fragment_data, NULL);
+    ret = ngli_program_init(&hwconv->program, gl, desc->vertex_data, fragment_data, NULL);
     ngli_free(fragment_data);
-    if (!hwconv->program_id)
-        return -1;
-    ngli_glUseProgram(gl, hwconv->program_id);
+    if (ret < 0)
+        return ret;
+    ngli_glUseProgram(gl, hwconv->program.id);
 
-    hwconv->position_location = ngli_glGetAttribLocation(gl, hwconv->program_id, "position");
+    hwconv->position_location = ngli_glGetAttribLocation(gl, hwconv->program.id, "position");
     if (hwconv->position_location < 0)
         return -1;
 
     for (int i = 0; i < desc->nb_planes; i++) {
         char name[32];
         snprintf(name, sizeof(name), "tex%d", i);
-        hwconv->texture_locations[i] = ngli_glGetUniformLocation(gl, hwconv->program_id, name);
+        hwconv->texture_locations[i] = ngli_glGetUniformLocation(gl, hwconv->program.id, name);
         if (hwconv->texture_locations[i] < 0)
             return -1;
         ngli_glUniform1i(gl, hwconv->texture_locations[i], i);
     }
 
-    hwconv->texture_matrix_location = ngli_glGetUniformLocation(gl, hwconv->program_id, "tex_coord_matrix");
+    hwconv->texture_matrix_location = ngli_glGetUniformLocation(gl, hwconv->program.id, "tex_coord_matrix");
     if (hwconv->texture_matrix_location < 0)
         return -1;
 
-    hwconv->texture_dimensions_location = ngli_glGetUniformLocation(gl, hwconv->program_id, "tex_dimensions");
+    hwconv->texture_dimensions_location = ngli_glGetUniformLocation(gl, hwconv->program.id, "tex_dimensions");
 
     static const float vertices[] = {
         -1.0f, -1.0f, 0.0f, 0.0f,
@@ -223,7 +223,7 @@ int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, con
     ngli_glViewport(gl, 0, 0, fbo->width, fbo->height);
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
 
-    ngli_glUseProgram(gl, hwconv->program_id);
+    ngli_glUseProgram(gl, hwconv->program.id);
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glBindVertexArray(gl, hwconv->vao_id);
     } else {
@@ -273,7 +273,7 @@ void ngli_hwconv_reset(struct hwconv *hwconv)
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
         ngli_glDeleteVertexArrays(gl, 1, &hwconv->vao_id);
-    ngli_glDeleteProgram(gl, hwconv->program_id);
+    ngli_program_reset(&hwconv->program);
     ngli_glDeleteBuffers(gl, 1, &hwconv->vertices_id);
 
     memset(hwconv, 0, sizeof(*hwconv));

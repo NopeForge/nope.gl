@@ -26,6 +26,7 @@
 #include "glincludes.h"
 #include "glcontext.h"
 #include "image.h"
+#include "program.h"
 #include "texture.h"
 
 struct hwconv {
@@ -34,9 +35,9 @@ struct hwconv {
 
     struct fbo fbo;
     struct texture color_attachment;
+    struct program program;
 
     GLuint vao_id;
-    GLuint program_id;
     GLuint vertices_id;
     GLint position_location;
     GLint texture_locations[2];

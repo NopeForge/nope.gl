@@ -70,7 +70,7 @@ static int program_check_status(const struct glcontext *gl, GLuint id, GLenum st
     return -1;
 }
 
-GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment, const char *compute)
+int ngli_program_init(struct program *s, struct glcontext *gl, const char *vertex, const char *fragment, const char *compute)
 {
     struct {
         GLenum type;
@@ -81,6 +81,8 @@ GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *f
         {GL_FRAGMENT_SHADER, fragment, 0},
         {GL_COMPUTE_SHADER,  compute,  0},
     };
+
+    s->gl = gl;
 
     GLuint program = ngli_glCreateProgram(gl);
 
@@ -103,7 +105,9 @@ GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *f
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
         ngli_glDeleteShader(gl, shaders[i].id);
 
-    return program;
+    s->id = program;
+
+    return 0;
 
 fail:
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
@@ -112,7 +116,7 @@ fail:
     if (program)
         ngli_glDeleteProgram(gl, program);
 
-    return 0;
+    return -1;
 }
 
 static void free_pinfo(void *user_arg, void *data)
@@ -268,4 +272,12 @@ struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glc
     }
 
     return bmap;
+}
+
+void ngli_program_reset(struct program *s)
+{
+    if (!s->gl)
+        return;
+    ngli_glDeleteProgram(s->gl, s->id);
+    memset(s, 0, sizeof(*s));
 }

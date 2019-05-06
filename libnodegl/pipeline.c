@@ -992,7 +992,7 @@ int ngli_pipeline_bind(struct pipeline *s)
 
     ngli_honor_pending_glstate(ctx);
 
-    ngli_glUseProgram(gl, program->program_id);
+    ngli_glUseProgram(gl, program->program.id);
 
     int ret;
     if ((ret = set_uniforms(s)) < 0 ||

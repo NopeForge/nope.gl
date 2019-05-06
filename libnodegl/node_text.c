@@ -46,9 +46,9 @@ struct text_priv {
 
     struct texture texture;
     struct canvas canvas;
+    struct program program;
 
     GLuint vao_id;
-    GLuint program_id;
     GLuint vertices_id;
     GLuint uvcoord_id;
     GLint position_location;
@@ -247,16 +247,16 @@ static int text_init(struct ngl_node *node)
 
     static const float uvs[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0};
 
-    s->program_id = ngli_program_load(gl, vertex_data, fragment_data, NULL);
-    if (!s->program_id)
-        return -1;
+    ret = ngli_program_init(&s->program, gl, vertex_data, fragment_data, NULL);
+    if (ret < 0)
+        return ret;
 
-    s->position_location = ngli_glGetAttribLocation(gl, s->program_id, "position");
-    s->uvcoord_location  = ngli_glGetAttribLocation(gl, s->program_id, "uvcoord");
-    s->texture_location  = ngli_glGetUniformLocation(gl, s->program_id, "tex");
+    s->position_location = ngli_glGetAttribLocation(gl, s->program.id, "position");
+    s->uvcoord_location  = ngli_glGetAttribLocation(gl, s->program.id, "uvcoord");
+    s->texture_location  = ngli_glGetUniformLocation(gl, s->program.id, "tex");
 
-    s->modelview_matrix_location  = ngli_glGetUniformLocation(gl, s->program_id, "modelview_matrix");
-    s->projection_matrix_location = ngli_glGetUniformLocation(gl, s->program_id, "projection_matrix");
+    s->modelview_matrix_location  = ngli_glGetUniformLocation(gl, s->program.id, "modelview_matrix");
+    s->projection_matrix_location = ngli_glGetUniformLocation(gl, s->program.id, "projection_matrix");
 
     if (s->position_location          < 0 ||
         s->uvcoord_location           < 0 ||
@@ -265,7 +265,7 @@ static int text_init(struct ngl_node *node)
         s->projection_matrix_location < 0)
         return -1;
 
-    ngli_glUseProgram(gl, s->program_id);
+    ngli_glUseProgram(gl, s->program.id);
 
     ngli_glUniform1i(gl, s->texture_location, 0);
 
@@ -308,7 +308,7 @@ static void text_draw(struct ngl_node *node)
 
     ngli_honor_pending_glstate(ctx);
 
-    ngli_glUseProgram(gl, s->program_id);
+    ngli_glUseProgram(gl, s->program.id);
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
         ngli_glBindVertexArray(gl, s->vao_id);
     else
@@ -334,7 +334,7 @@ static void text_uninit(struct ngl_node *node)
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
         ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
-    ngli_glDeleteProgram(gl, s->program_id);
+    ngli_program_reset(&s->program);
     ngli_glDeleteBuffers(gl, 1, &s->vertices_id);
     ngli_glDeleteBuffers(gl, 1, &s->uvcoord_id);
     ngli_texture_reset(&s->texture);

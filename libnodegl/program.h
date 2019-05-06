@@ -25,9 +25,15 @@
 #include "hmap.h"
 #include "glcontext.h"
 
-GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment, const char *compute);
+struct program {
+    struct glcontext *gl;
+    GLuint id;
+};
+
+int ngli_program_init(struct program *s, struct glcontext *gl, const char *vertex, const char *fragment, const char *compute);
 struct hmap *ngli_program_probe_uniforms(const char *node_label, struct glcontext *gl, GLuint pid);
 struct hmap *ngli_program_probe_attributes(const char *node_label, struct glcontext *gl, GLuint pid);
 struct hmap *ngli_program_probe_buffer_blocks(const char *node_label, struct glcontext *gl, GLuint pid);
+void ngli_program_reset(struct program *s);
 
 #endif

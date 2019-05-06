@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "bstr.h"
-#include "glincludes.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -102,13 +101,13 @@ static int program_init(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct program_priv *s = node->priv_data;
 
-    s->program_id = ngli_program_load(gl, s->vertex, s->fragment, NULL);
-    if (!s->program_id)
-        return -1;
+    int ret = ngli_program_init(&s->program, gl, s->vertex, s->fragment, NULL);
+    if (ret < 0)
+        return ret;
 
-    s->active_uniforms = ngli_program_probe_uniforms(node->label, gl, s->program_id);
-    s->active_attributes = ngli_program_probe_attributes(node->label, gl, s->program_id);
-    s->active_buffer_blocks = ngli_program_probe_buffer_blocks(node->label, gl, s->program_id);
+    s->active_uniforms = ngli_program_probe_uniforms(node->label, gl, s->program.id);
+    s->active_attributes = ngli_program_probe_attributes(node->label, gl, s->program.id);
+    s->active_buffer_blocks = ngli_program_probe_buffer_blocks(node->label, gl, s->program.id);
     if (!s->active_uniforms || !s->active_attributes || !s->active_buffer_blocks)
         return -1;
 
@@ -117,14 +116,12 @@ static int program_init(struct ngl_node *node)
 
 static void program_uninit(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct program_priv *s = node->priv_data;
 
     ngli_hmap_freep(&s->active_uniforms);
     ngli_hmap_freep(&s->active_attributes);
     ngli_hmap_freep(&s->active_buffer_blocks);
-    ngli_glDeleteProgram(gl, s->program_id);
+    ngli_program_reset(&s->program);
 }
 
 const struct node_class ngli_program_class = {

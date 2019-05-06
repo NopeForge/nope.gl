@@ -50,6 +50,7 @@
 #include "image.h"
 #include "nodegl.h"
 #include "params.h"
+#include "program.h"
 #include "darray.h"
 #include "buffer.h"
 #include "format.h"
@@ -344,7 +345,7 @@ struct program_priv {
     const char *fragment;
     const char *compute;
 
-    GLuint program_id;
+    struct program program;
     struct hmap *active_uniforms;
     struct hmap *active_attributes;
     struct hmap *active_buffer_blocks;
