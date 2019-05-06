@@ -28,6 +28,8 @@
 #include "nodes.h"
 #include "program.h"
 
+static int program_check_status(const struct glcontext *gl, GLuint id, GLenum status);
+
 GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *fragment, const char *compute)
 {
     struct {
@@ -49,13 +51,13 @@ GLuint ngli_program_load(struct glcontext *gl, const char *vertex, const char *f
         shaders[i].id = shader;
         ngli_glShaderSource(gl, shader, 1, &shaders[i].src, NULL);
         ngli_glCompileShader(gl, shader);
-        if (ngli_program_check_status(gl, shader, GL_COMPILE_STATUS) < 0)
+        if (program_check_status(gl, shader, GL_COMPILE_STATUS) < 0)
             goto fail;
         ngli_glAttachShader(gl, program, shader);
     }
 
     ngli_glLinkProgram(gl, program);
-    if (ngli_program_check_status(gl, program, GL_LINK_STATUS) < 0)
+    if (program_check_status(gl, program, GL_LINK_STATUS) < 0)
         goto fail;
 
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
@@ -73,7 +75,7 @@ fail:
     return 0;
 }
 
-int ngli_program_check_status(const struct glcontext *gl, GLuint id, GLenum status)
+static int program_check_status(const struct glcontext *gl, GLuint id, GLenum status)
 {
     char *info_log = NULL;
     int info_log_length = 0;
