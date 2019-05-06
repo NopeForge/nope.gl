@@ -25,8 +25,6 @@
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 
-#include "rendertarget.h"
-#include "format.h"
 #include "glcontext.h"
 #include "log.h"
 #include "nodegl.h"
@@ -37,14 +35,11 @@ struct eagl_priv {
     CAEAGLLayer *layer;
     CFBundleRef framework;
     CVOpenGLESTextureCacheRef texture_cache;
+    GLuint fbo;
     GLuint colorbuffer;
-    struct rendertarget rt;
-    struct texture rt_color;
-    struct texture rt_depth;
-
-    struct rendertarget rt_ms;
-    struct texture rt_ms_color;
-    struct texture rt_ms_depth;
+    GLuint depthbuffer;
+    GLuint fbo_ms;
+    GLuint colorbuffer_ms;
 };
 
 static int eagl_init_layer(struct glcontext *ctx)
@@ -157,73 +152,52 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
         return ret;
     }
 
-    struct rendertarget *rt = &eagl->rt;
-    struct rendertarget *rt_ms = &eagl->rt_ms;
+    ngli_glGenFramebuffers(ctx, 1, &eagl->fbo);
+    ngli_glBindFramebuffer(ctx, GL_FRAMEBUFFER, eagl->fbo);
 
-    const struct texture *attachments[2] = {&eagl->rt_color};
-    int nb_attachments = 1;
-
-    struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
-    attachment_params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
-    attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-
-            if (!eagl->colorbuffer)
-                ngli_glGenRenderbuffers(ctx, 1, &eagl->colorbuffer);
-            ngli_glBindRenderbuffer (ctx, GL_RENDERBUFFER, eagl->colorbuffer);
-            [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
-            ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &ctx->width);
-            ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &ctx->height);
-
-            attachment_params.width = ctx->width;
-            attachment_params.height = ctx->height;
-            int ret = ngli_texture_wrap(&eagl->rt_color, ctx, &attachment_params, eagl->colorbuffer);
-            if (ret < 0)
-                return ret;
+    if (!eagl->colorbuffer)
+        ngli_glGenRenderbuffers(ctx, 1, &eagl->colorbuffer);
+    ngli_glBindRenderbuffer (ctx, GL_RENDERBUFFER, eagl->colorbuffer);
+    [eagl->handle renderbufferStorage:GL_RENDERBUFFER fromDrawable:eagl->layer];
+    ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer);
+    ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &ctx->width);
+    ngli_glGetRenderbufferParameteriv(ctx, GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &ctx->height);
 
     if (!ctx->samples) {
-        attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-        int ret = ngli_texture_init(&eagl->rt_depth, ctx, &attachment_params);
-        if (ret < 0)
-            return ret;
-        attachments[nb_attachments++] = &eagl->rt_depth;
+        ngli_glGenRenderbuffers(ctx, 1, &eagl->depthbuffer);
+        ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->depthbuffer);
+        ngli_glRenderbufferStorage(ctx, GL_RENDERBUFFER, GL_DEPTH24_STENCIL8_OES, ctx->width, ctx->height);
+        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
+        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
     }
 
-    const struct rendertarget_params rt_params = {
-        .width = ctx->width,
-        .height = ctx->height,
-        .nb_attachments = nb_attachments,
-        .attachments = attachments,
-    };
-    ret = ngli_rendertarget_init(rt, ctx, &rt_params);
-    if (ret < 0)
-        return ret;
+    GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE) {
+       LOG(ERROR, "framebuffer is not complete: 0x%x", status);
+       return -1;
+    }
 
     if (ctx->samples > 0) {
-        attachment_params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
-        attachment_params.samples = ctx->samples;
-        int ret = ngli_texture_init(&eagl->rt_ms_color, ctx, &attachment_params);
-        if (ret < 0)
-            return ret;
+        ngli_glGenFramebuffers(ctx, 1, &eagl->fbo_ms);
+        ngli_glBindFramebuffer(ctx, GL_FRAMEBUFFER, eagl->fbo_ms);
 
-        attachment_params.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-        ret = ngli_texture_init(&eagl->rt_ms_depth, ctx, &attachment_params);
-        if (ret < 0)
-            return ret;
+        ngli_glGenRenderbuffers(ctx, 1, &eagl->colorbuffer_ms);
+        ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->colorbuffer_ms);
+        ngli_glRenderbufferStorageMultisample(ctx, GL_RENDERBUFFER, ctx->samples, GL_RGBA8, ctx->width, ctx->height);
+        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, eagl->colorbuffer_ms);
 
-        const struct texture *attachments[] = {&eagl->rt_ms_color, &eagl->rt_ms_depth};
-        const int nb_attachments = NGLI_ARRAY_NB(attachments);
-        const struct rendertarget_params rt_params = {
-            .width = ctx->width,
-            .height = ctx->height,
-            .nb_attachments = nb_attachments,
-            .attachments = attachments,
-        };
-        ret = ngli_rendertarget_init(rt_ms, ctx, &rt_params);
-        if (ret < 0)
-            return ret;
+        ngli_glGenRenderbuffers(ctx, 1, &eagl->depthbuffer);
+        ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->depthbuffer);
+        ngli_glRenderbufferStorageMultisample(ctx, GL_RENDERBUFFER, ctx->samples, GL_DEPTH24_STENCIL8_OES, ctx->width, ctx->height);
+        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
+        ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
+
+        status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (status != GL_FRAMEBUFFER_COMPLETE) {
+            LOG(ERROR, "framebuffer is not complete: 0x%x", status);
+            return -1;
+        }
     }
-
-    ngli_rendertarget_bind(ctx->samples ? rt_ms : rt);
 
     ngli_glViewport(ctx, 0, 0, ctx->width, ctx->height);
 
@@ -234,13 +208,10 @@ static void eagl_reset_framebuffer(struct glcontext *ctx)
 {
     struct eagl_priv *eagl = ctx->priv_data;
 
-    ngli_rendertarget_reset(&eagl->rt);
-    ngli_texture_reset(&eagl->rt_color);
-    ngli_texture_reset(&eagl->rt_depth);
-
-    ngli_rendertarget_reset(&eagl->rt_ms);
-    ngli_texture_reset(&eagl->rt_ms_color);
-    ngli_texture_reset(&eagl->rt_ms_depth);
+    ngli_glDeleteFramebuffers(ctx, 1, &eagl->fbo);
+    ngli_glDeleteFramebuffers(ctx, 1, &eagl->fbo_ms);
+    ngli_glDeleteRenderbuffers(ctx, 1, &eagl->depthbuffer);
+    ngli_glDeleteRenderbuffers(ctx, 1, &eagl->colorbuffer_ms);
 }
 
 static void eagl_uninit(struct glcontext *ctx)
@@ -290,8 +261,13 @@ static void eagl_swap_buffers(struct glcontext *ctx)
     if (ctx->offscreen)
         return;
 
-    if (ctx->samples > 0)
-        ngli_rendertarget_blit(&eagl->rt_ms, &eagl->rt, 0);
+    if (ctx->samples > 0) {
+        ngli_glBindFramebuffer(ctx, GL_READ_FRAMEBUFFER, eagl->fbo_ms);
+        ngli_glBindFramebuffer(ctx, GL_DRAW_FRAMEBUFFER, eagl->fbo);
+        GLbitfield mask = GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+        ngli_glBlitFramebuffer(ctx, 0, 0, ctx->width, ctx->height, 0, 0, ctx->width, ctx->height, mask, GL_NEAREST);
+        ngli_glBindFramebuffer(ctx, GL_DRAW_FRAMEBUFFER, eagl->fbo_ms);
+    }
 
     ngli_glBindRenderbuffer(ctx, GL_RENDERBUFFER, eagl->colorbuffer);
     [eagl->handle presentRenderbuffer: GL_RENDERBUFFER];
