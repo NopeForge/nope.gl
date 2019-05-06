@@ -270,8 +270,7 @@ int ngli_program_init(struct program *s, struct glcontext *gl, const char *verte
 
 fail:
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
-        if (shaders[i].id)
-            ngli_glDeleteShader(gl, shaders[i].id);
+        ngli_glDeleteShader(gl, shaders[i].id);
 
     return -1;
 }
