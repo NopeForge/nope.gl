@@ -70,65 +70,6 @@ static int program_check_status(const struct glcontext *gl, GLuint id, GLenum st
     return -1;
 }
 
-static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid);
-static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid);
-static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid);
-
-int ngli_program_init(struct program *s, struct glcontext *gl, const char *vertex, const char *fragment, const char *compute)
-{
-    struct {
-        GLenum type;
-        const char *src;
-        GLuint id;
-    } shaders[] = {
-        {GL_VERTEX_SHADER,   vertex,   0},
-        {GL_FRAGMENT_SHADER, fragment, 0},
-        {GL_COMPUTE_SHADER,  compute,  0},
-    };
-
-    s->gl = gl;
-
-    GLuint program = ngli_glCreateProgram(gl);
-
-    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
-        if (!shaders[i].src)
-            continue;
-        GLuint shader = ngli_glCreateShader(gl, shaders[i].type);
-        shaders[i].id = shader;
-        ngli_glShaderSource(gl, shader, 1, &shaders[i].src, NULL);
-        ngli_glCompileShader(gl, shader);
-        if (program_check_status(gl, shader, GL_COMPILE_STATUS) < 0)
-            goto fail;
-        ngli_glAttachShader(gl, program, shader);
-    }
-
-    ngli_glLinkProgram(gl, program);
-    if (program_check_status(gl, program, GL_LINK_STATUS) < 0)
-        goto fail;
-
-    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
-        ngli_glDeleteShader(gl, shaders[i].id);
-
-    s->uniforms = program_probe_uniforms(s->gl, program);
-    s->attributes = program_probe_attributes(s->gl, program);
-    s->buffer_blocks = program_probe_buffer_blocks(s->gl, program);
-    if (!s->uniforms || !s->attributes || !s->buffer_blocks)
-        goto fail;
-
-    s->id = program;
-
-    return 0;
-
-fail:
-    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
-        if (shaders[i].id)
-            ngli_glDeleteShader(gl, shaders[i].id);
-    if (program)
-        ngli_glDeleteProgram(gl, program);
-
-    return -1;
-}
-
 static void free_pinfo(void *user_arg, void *data)
 {
     ngli_free(data);
@@ -282,6 +223,61 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
     }
 
     return bmap;
+}
+
+int ngli_program_init(struct program *s, struct glcontext *gl, const char *vertex, const char *fragment, const char *compute)
+{
+    struct {
+        GLenum type;
+        const char *src;
+        GLuint id;
+    } shaders[] = {
+        {GL_VERTEX_SHADER,   vertex,   0},
+        {GL_FRAGMENT_SHADER, fragment, 0},
+        {GL_COMPUTE_SHADER,  compute,  0},
+    };
+
+    s->gl = gl;
+
+    GLuint program = ngli_glCreateProgram(gl);
+
+    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
+        if (!shaders[i].src)
+            continue;
+        GLuint shader = ngli_glCreateShader(gl, shaders[i].type);
+        shaders[i].id = shader;
+        ngli_glShaderSource(gl, shader, 1, &shaders[i].src, NULL);
+        ngli_glCompileShader(gl, shader);
+        if (program_check_status(gl, shader, GL_COMPILE_STATUS) < 0)
+            goto fail;
+        ngli_glAttachShader(gl, program, shader);
+    }
+
+    ngli_glLinkProgram(gl, program);
+    if (program_check_status(gl, program, GL_LINK_STATUS) < 0)
+        goto fail;
+
+    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
+        ngli_glDeleteShader(gl, shaders[i].id);
+
+    s->uniforms = program_probe_uniforms(s->gl, program);
+    s->attributes = program_probe_attributes(s->gl, program);
+    s->buffer_blocks = program_probe_buffer_blocks(s->gl, program);
+    if (!s->uniforms || !s->attributes || !s->buffer_blocks)
+        goto fail;
+
+    s->id = program;
+
+    return 0;
+
+fail:
+    for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
+        if (shaders[i].id)
+            ngli_glDeleteShader(gl, shaders[i].id);
+    if (program)
+        ngli_glDeleteProgram(gl, program);
+
+    return -1;
 }
 
 void ngli_program_reset(struct program *s)
