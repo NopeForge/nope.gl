@@ -33,6 +33,7 @@
 #include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "pass.h"
 #include "program.h"
 #include "texture.h"
 #include "utils.h"
