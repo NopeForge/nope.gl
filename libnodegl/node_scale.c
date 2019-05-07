@@ -28,6 +28,14 @@
 #include "math_utils.h"
 #include "transforms.h"
 
+struct scale_priv {
+    struct transform_priv trf;
+    float factors[3];
+    float anchor[3];
+    struct ngl_node *anim;
+    int use_anchor;
+};
+
 static void update_trf_matrix(struct ngl_node *node, const float *f)
 {
     struct scale_priv *s = node->priv_data;

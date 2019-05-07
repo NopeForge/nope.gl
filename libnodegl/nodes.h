@@ -304,14 +304,6 @@ struct transform_priv {
     NGLI_ALIGNED_MAT(matrix);
 };
 
-struct scale_priv {
-    struct transform_priv trf;
-    float factors[3];
-    float anchor[3];
-    struct ngl_node *anim;
-    int use_anchor;
-};
-
 struct identity {
     NGLI_ALIGNED_MAT(modelview_matrix);
 };
