@@ -179,15 +179,15 @@ static const struct {
 
 static int init_builtin_attributes(struct render_priv *s)
 {
-    s->pipeline_attributes = ngli_hmap_create();
-    if (!s->pipeline_attributes)
+    s->pass_attributes = ngli_hmap_create();
+    if (!s->pass_attributes)
         return -1;
 
     if (s->attributes) {
         const struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(s->attributes, entry))) {
             struct ngl_node *anode = entry->data;
-            int ret = ngli_hmap_set(s->pipeline_attributes, entry->key, anode);
+            int ret = ngli_hmap_set(s->pass_attributes, entry->key, anode);
             if (ret < 0)
                 return ret;
         }
@@ -202,7 +202,7 @@ static int init_builtin_attributes(struct render_priv *s)
         if (!anode)
             continue;
 
-        int ret = ngli_hmap_set(s->pipeline_attributes, const_name, anode);
+        int ret = ngli_hmap_set(s->pass_attributes, const_name, anode);
         if (ret < 0)
             return ret;
     }
@@ -263,16 +263,16 @@ static int render_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    struct pipeline_params params = {
+    struct pass_params params = {
         .label = node->label,
         .program = s->program,
         .textures = s->textures,
         .uniforms = s->uniforms,
         .blocks = s->blocks,
-        .attributes = s->pipeline_attributes,
+        .attributes = s->pass_attributes,
         .instance_attributes = s->instance_attributes,
     };
-    ret = ngli_pipeline_init(&s->pipeline, ctx, &params);
+    ret = ngli_pass_init(&s->pass, ctx, &params);
     if (ret < 0)
         return ret;
 
@@ -288,9 +288,9 @@ static void render_uninit(struct ngl_node *node)
 {
     struct render_priv *s = node->priv_data;
 
-    ngli_hmap_freep(&s->pipeline_attributes);
+    ngli_hmap_freep(&s->pass_attributes);
 
-    ngli_pipeline_uninit(&s->pipeline);
+    ngli_pass_uninit(&s->pass);
 
     if (s->has_indices_buffer_ref) {
         struct geometry_priv *geometry = s->geometry->priv_data;
@@ -306,7 +306,7 @@ static int render_update(struct ngl_node *node, double t)
     if (ret < 0)
         return ret;
 
-    return ngli_pipeline_update(&s->pipeline, t);
+    return ngli_pass_update(&s->pass, t);
 }
 
 static void render_draw(struct ngl_node *node)
@@ -315,16 +315,16 @@ static void render_draw(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct render_priv *s = node->priv_data;
 
-    int ret = ngli_pipeline_bind(&s->pipeline);
+    int ret = ngli_pass_bind(&s->pass);
     if (ret < 0) {
-        LOG(ERROR, "pipeline upload data error");
+        LOG(ERROR, "pass upload data error");
     }
 
     s->draw(gl, s);
 
-    ret = ngli_pipeline_unbind(&s->pipeline);
+    ret = ngli_pass_unbind(&s->pass);
     if (ret < 0) {
-        LOG(ERROR, "could not unbind pipeline");
+        LOG(ERROR, "could not unbind pass");
     }
 }
 

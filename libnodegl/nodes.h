@@ -396,7 +396,7 @@ struct nodeprograminfopair {
     nodeprograminfopair_handle_func handle;
 };
 
-struct pipeline_params {
+struct pass_params {
     const char *label;
     struct ngl_node *program;
     struct hmap *textures;
@@ -408,14 +408,14 @@ struct pipeline_params {
 };
 
 enum {
-    NGLI_PIPELINE_TYPE_GRAPHIC,
-    NGLI_PIPELINE_TYPE_COMPUTE,
+    NGLI_PASS_TYPE_GRAPHIC,
+    NGLI_PASS_TYPE_COMPUTE,
 };
 
-struct pipeline {
+struct pass {
     struct ngl_ctx *ctx;
     struct glcontext *gl;
-    struct pipeline_params params;
+    struct pass_params params;
     int type;
 
     struct textureprograminfo *textureprograminfos;
@@ -448,8 +448,8 @@ struct render_priv {
     struct hmap *instance_attributes;
     int nb_instances;
 
-    struct hmap *pipeline_attributes;
-    struct pipeline pipeline;
+    struct hmap *pass_attributes;
+    struct pass pass;
 
     int has_indices_buffer_ref;
     GLenum indices_type;
@@ -466,14 +466,14 @@ struct compute_priv {
     struct hmap *uniforms;
     struct hmap *blocks;
 
-    struct pipeline pipeline;
+    struct pass pass;
 };
 
-int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pipeline_params *params);
-void ngli_pipeline_uninit(struct pipeline *s);
-int ngli_pipeline_update(struct pipeline *s, double t);
-int ngli_pipeline_bind(struct pipeline *s);
-int ngli_pipeline_unbind(struct pipeline *s);
+int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params *params);
+void ngli_pass_uninit(struct pass *s);
+int ngli_pass_update(struct pass *s, double t);
+int ngli_pass_bind(struct pass *s);
+int ngli_pass_unbind(struct pass *s);
 
 struct media_priv {
     const char *filename;

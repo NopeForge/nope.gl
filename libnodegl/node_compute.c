@@ -91,26 +91,26 @@ static int compute_init(struct ngl_node *node)
         return -1;
     }
 
-    struct pipeline_params params = {
+    struct pass_params params = {
         .label = node->label,
         .program = s->program,
         .textures = s->textures,
         .uniforms = s->uniforms,
         .blocks = s->blocks,
     };
-    return ngli_pipeline_init(&s->pipeline, ctx, &params);
+    return ngli_pass_init(&s->pass, ctx, &params);
 }
 
 static void compute_uninit(struct ngl_node *node)
 {
     struct compute_priv *s = node->priv_data;
-    ngli_pipeline_uninit(&s->pipeline);
+    ngli_pass_uninit(&s->pass);
 }
 
 static int compute_update(struct ngl_node *node, double t)
 {
     struct compute_priv *s = node->priv_data;
-    return ngli_pipeline_update(&s->pipeline, t);
+    return ngli_pass_update(&s->pass, t);
 }
 
 static void compute_draw(struct ngl_node *node)
@@ -119,18 +119,18 @@ static void compute_draw(struct ngl_node *node)
     struct glcontext *gl = ctx->glcontext;
     struct compute_priv *s = node->priv_data;
 
-    int ret = ngli_pipeline_bind(&s->pipeline);
+    int ret = ngli_pass_bind(&s->pass);
     if (ret < 0) {
-        LOG(ERROR, "pipeline upload data error");
+        LOG(ERROR, "pass upload data error");
     }
 
     ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
     ngli_glDispatchCompute(gl, s->nb_group_x, s->nb_group_y, s->nb_group_z);
     ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
 
-    ret = ngli_pipeline_unbind(&s->pipeline);
+    ret = ngli_pass_unbind(&s->pass);
     if (ret < 0) {
-        LOG(ERROR, "could not unbind pipeline");
+        LOG(ERROR, "could not unbind pass");
     }
 }
 

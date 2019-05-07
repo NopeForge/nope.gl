@@ -97,12 +97,12 @@ static void set_uniform_buf4fv(struct glcontext *gl, GLint loc, void *priv)
     ngli_glUniform4fv(gl, loc, buffer->count, (const GLfloat *)buffer->data);
 }
 
-static int set_uniforms(struct pipeline *s)
+static int set_uniforms(struct pass *s)
 {
     struct ngl_ctx *ctx = s->ctx;
     struct glcontext *gl = s->gl;
 
-    if (s->type == NGLI_PIPELINE_TYPE_GRAPHIC) {
+    if (s->type == NGLI_PASS_TYPE_GRAPHIC) {
         const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
         const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
 
@@ -239,9 +239,9 @@ static int get_uniform_location(struct hmap *uniforms, const char *name)
     return info ? info->location : -1;
 }
 
-static int build_uniform_pairs(struct pipeline *s)
+static int build_uniform_pairs(struct pass *s)
 {
-    struct pipeline_params *params = &s->params;
+    struct pass_params *params = &s->params;
     struct program_priv *program = params->program->priv_data;
 
     if (!params->uniforms)
@@ -362,10 +362,10 @@ static int load_textureprograminfo(struct textureprograminfo *info,
     return 0;
 }
 
-static int build_texture_pairs(struct pipeline *s)
+static int build_texture_pairs(struct pass *s)
 {
     struct glcontext *gl = s->gl;
-    struct pipeline_params *params = &s->params;
+    struct pass_params *params = &s->params;
     struct program_priv *program = params->program->priv_data;
 
     int nb_textures = params->textures ? ngli_hmap_count(params->textures) : 0;
@@ -422,7 +422,7 @@ static int build_texture_pairs(struct pipeline *s)
             LOG(WARNING, "no sampler found for texture %s", key);
 
 #if defined(TARGET_ANDROID) || defined(TARGET_IPHONE) || defined(HAVE_VAAPI_X11)
-        struct pipeline_params *params = &s->params;
+        struct pass_params *params = &s->params;
         texture->direct_rendering = texture->direct_rendering && has_aux_sampler;
         LOG(DEBUG, "direct rendering for texture %s.%s: %s",
             params->label, key, texture->direct_rendering ? "yes" : "no");
@@ -461,7 +461,7 @@ static const struct {
 };
 
 static int get_disabled_texture_unit(const struct glcontext *gl,
-                                     struct pipeline *s,
+                                     struct pass *s,
                                      uint64_t *used_texture_units,
                                      int type_index)
 {
@@ -504,7 +504,7 @@ static int bind_texture_plane(const struct glcontext *gl,
 }
 
 static int update_sampler(const struct glcontext *gl,
-                          struct pipeline *s,
+                          struct pass *s,
                           const struct image *image,
                           const struct textureprograminfo *info,
                           uint64_t *used_texture_units,
@@ -580,7 +580,7 @@ static int update_sampler(const struct glcontext *gl,
     return 0;
 }
 
-static int set_textures(struct pipeline *s)
+static int set_textures(struct pass *s)
 {
     struct glcontext *gl = s->gl;
     const struct darray *texture_pairs = &s->texture_pairs;
@@ -632,10 +632,10 @@ static int set_textures(struct pipeline *s)
     return 0;
 }
 
-static int build_block_pairs(struct pipeline *s)
+static int build_block_pairs(struct pass *s)
 {
     struct glcontext *gl = s->gl;
-    struct pipeline_params *params = &s->params;
+    struct pass_params *params = &s->params;
     struct program_priv *program = params->program->priv_data;
 
     if (!params->blocks)
@@ -680,7 +680,7 @@ static int build_block_pairs(struct pipeline *s)
     return 0;
 }
 
-static int set_blocks(struct pipeline *s)
+static int set_blocks(struct pass *s)
 {
     struct glcontext *gl = s->gl;
     const struct darray *block_pairs = &s->block_pairs;
@@ -697,12 +697,12 @@ static int set_blocks(struct pipeline *s)
     return 0;
 }
 
-static int pair_node_to_attribinfo(struct pipeline *s,
+static int pair_node_to_attribinfo(struct pass *s,
                                    struct darray *attribute_pairs,
                                    const char *name,
                                    struct ngl_node *anode)
 {
-    const struct pipeline_params *params = &s->params;
+    const struct pass_params *params = &s->params;
     const struct ngl_node *pnode = params->program;
     const struct program_priv *program = pnode->priv_data;
     const struct attributeprograminfo *active_attribute =
@@ -730,7 +730,7 @@ static int pair_node_to_attribinfo(struct pipeline *s,
     return 0;
 }
 
-static int pair_nodes_to_attribinfo(struct pipeline *s,
+static int pair_nodes_to_attribinfo(struct pass *s,
                                     struct darray *attribute_pairs,
                                     struct hmap *attributes,
                                     int per_instance)
@@ -738,7 +738,7 @@ static int pair_nodes_to_attribinfo(struct pipeline *s,
     if (!attributes)
         return 0;
 
-    struct pipeline_params *params = &s->params;
+    struct pass_params *params = &s->params;
 
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(attributes, entry))) {
@@ -760,14 +760,14 @@ static int pair_nodes_to_attribinfo(struct pipeline *s,
     return 0;
 }
 
-static int build_vertex_attribs_pairs(struct pipeline *s)
+static int build_vertex_attribs_pairs(struct pass *s)
 {
-    struct pipeline_params *params = &s->params;
+    struct pass_params *params = &s->params;
 
     ngli_darray_init(&s->attribute_pairs, sizeof(struct nodeprograminfopair), 0);
     ngli_darray_init(&s->instance_attribute_pairs, sizeof(struct nodeprograminfopair), 0);
 
-    if (s->type != NGLI_PIPELINE_TYPE_GRAPHIC)
+    if (s->type != NGLI_PASS_TYPE_GRAPHIC)
         return 0;
 
     int ret = pair_nodes_to_attribinfo(s, &s->attribute_pairs, params->attributes, 0);
@@ -825,7 +825,7 @@ static void set_vertex_attribs_from_pairs(struct glcontext *gl,
     }
 }
 
-static int set_vertex_attribs(struct pipeline *s)
+static int set_vertex_attribs(struct pass *s)
 {
     struct glcontext *gl = s->gl;
 
@@ -852,7 +852,7 @@ static void reset_vertex_attribs_from_pairs(struct glcontext *gl,
     }
 }
 
-static void reset_vertex_attribs(struct pipeline *s)
+static void reset_vertex_attribs(struct pass *s)
 {
     struct glcontext *gl = s->gl;
 
@@ -860,20 +860,20 @@ static void reset_vertex_attribs(struct pipeline *s)
     reset_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs);
 }
 
-int ngli_pipeline_init(struct pipeline *s, struct ngl_ctx *ctx, const struct pipeline_params *params)
+int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params *params)
 {
     int ret;
 
     s->ctx = ctx;
     s->gl = ctx->glcontext;
     s->params = *params;
-    s->type = params->program->class->id == NGL_NODE_PROGRAM ? NGLI_PIPELINE_TYPE_GRAPHIC
-                                                             : NGLI_PIPELINE_TYPE_COMPUTE;
+    s->type = params->program->class->id == NGL_NODE_PROGRAM ? NGLI_PASS_TYPE_GRAPHIC
+                                                             : NGLI_PASS_TYPE_COMPUTE;
 
     struct ngl_node *program_node = params->program;
     struct program_priv *program_priv = program_node->priv_data;
     struct hmap *uniforms = program_priv->program.uniforms;
-    if (s->type == NGLI_PIPELINE_TYPE_GRAPHIC && uniforms) {
+    if (s->type == NGLI_PASS_TYPE_GRAPHIC && uniforms) {
         s->modelview_matrix_location  = get_uniform_location(uniforms, "ngl_modelview_matrix");
         s->projection_matrix_location = get_uniform_location(uniforms, "ngl_projection_matrix");
         s->normal_matrix_location     = get_uniform_location(uniforms, "ngl_normal_matrix");
@@ -920,7 +920,7 @@ static void reset_##name##_pairs(struct darray *p) \
 DECLARE_RESET_PAIRS_FUNC(block, NODE_TYPE_BLOCK)
 DECLARE_RESET_PAIRS_FUNC(buffer, NODE_TYPE_BUFFER)
 
-void ngli_pipeline_uninit(struct pipeline *s)
+void ngli_pass_uninit(struct pass *s)
 {
     if (!s->gl)
         return;
@@ -970,7 +970,7 @@ DECLARE_UPDATE_PAIRS_FUNC(common, NODE_TYPE_DEFAULT)
 DECLARE_UPDATE_PAIRS_FUNC(block, NODE_TYPE_BLOCK)
 DECLARE_UPDATE_PAIRS_FUNC(buffer, NODE_TYPE_BUFFER)
 
-int ngli_pipeline_update(struct pipeline *s, double t)
+int ngli_pass_update(struct pass *s, double t)
 {
     int ret;
     if ((ret = update_common_pairs(&s->texture_pairs, t)) < 0 ||
@@ -980,15 +980,15 @@ int ngli_pipeline_update(struct pipeline *s, double t)
         (ret = update_buffer_pairs(&s->instance_attribute_pairs, t)) < 0)
         return ret;
 
-    struct pipeline_params *params = &s->params;
+    struct pass_params *params = &s->params;
     return ngli_node_update(params->program, t);
 }
 
-int ngli_pipeline_bind(struct pipeline *s)
+int ngli_pass_bind(struct pass *s)
 {
     struct ngl_ctx *ctx = s->ctx;
     struct glcontext *gl = s->gl;
-    struct pipeline_params *params = &s->params;
+    struct pass_params *params = &s->params;
     const struct program_priv *program = params->program->priv_data;
 
     ngli_honor_pending_glstate(ctx);
@@ -1009,7 +1009,7 @@ int ngli_pipeline_bind(struct pipeline *s)
     return 0;
 }
 
-int ngli_pipeline_unbind(struct pipeline *s)
+int ngli_pass_unbind(struct pass *s)
 {
     struct glcontext *gl = s->gl;
 

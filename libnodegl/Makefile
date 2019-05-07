@@ -114,7 +114,7 @@ LIB_OBJS = animation.o              \
            node_userswitch.o        \
            nodes.o                  \
            params.o                 \
-           pipeline.o               \
+           pass.o                   \
            program.o                \
            rendertarget.o           \
            serialize.o              \
