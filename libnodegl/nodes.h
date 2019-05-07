@@ -330,6 +330,7 @@ struct rtt_priv {
     int vflip;
 
     int use_clear_color;
+    int invalidate_depth_stencil;
     int width;
     int height;
 

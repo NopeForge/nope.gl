@@ -234,6 +234,8 @@ static int rtt_prefetch(struct ngl_node *node)
                 goto error;
             if (!ngli_darray_push(&attachments, &rt_depth))
                 goto error;
+            if (!(s->features & FEATURE_NO_CLEAR))
+                s->invalidate_depth_stencil = 1;
         }
     }
 
@@ -335,7 +337,7 @@ static void rtt_draw(struct ngl_node *node)
     if (s->samples > 0)
         ngli_rendertarget_blit(rt, &s->rt, 0);
 
-    if (!(s->features & FEATURE_NO_CLEAR))
+    if (s->invalidate_depth_stencil)
         ngli_rendertarget_invalidate_depth_buffers(rt);
 
     ngli_gctx_set_rendertarget(ctx, prev_rt);
