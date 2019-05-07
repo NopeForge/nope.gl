@@ -31,6 +31,29 @@
 #include "nodes.h"
 #include "utils.h"
 
+struct rtt_priv {
+    struct ngl_node *child;
+    struct ngl_node **color_textures;
+    int nb_color_textures;
+    struct ngl_node *depth_texture;
+    int samples;
+    float clear_color[4];
+    int features;
+    int vflip;
+
+    int use_clear_color;
+    int invalidate_depth_stencil;
+    int width;
+    int height;
+
+    struct rendertarget rt;
+    struct texture rt_depth;
+
+    struct rendertarget rt_ms;
+    struct darray rt_ms_colors;
+    struct texture rt_ms_depth;
+};
+
 #define DEFAULT_CLEAR_COLOR {-1.0f, -1.0f, -1.0f, -1.0f}
 #define FEATURE_DEPTH       (1 << 0)
 #define FEATURE_STENCIL     (1 << 1)

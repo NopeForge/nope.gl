@@ -249,29 +249,6 @@ int ngli_node_block_ref(struct ngl_node *node);
 void ngli_node_block_unref(struct ngl_node *node);
 int ngli_node_block_upload(struct ngl_node *node);
 
-struct rtt_priv {
-    struct ngl_node *child;
-    struct ngl_node **color_textures;
-    int nb_color_textures;
-    struct ngl_node *depth_texture;
-    int samples;
-    float clear_color[4];
-    int features;
-    int vflip;
-
-    int use_clear_color;
-    int invalidate_depth_stencil;
-    int width;
-    int height;
-
-    struct rendertarget rt;
-    struct texture rt_depth;
-
-    struct rendertarget rt_ms;
-    struct darray rt_ms_colors;
-    struct texture rt_ms_depth;
-};
-
 struct program_priv {
     const char *vertex;
     const char *fragment;
