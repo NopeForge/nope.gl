@@ -29,6 +29,42 @@
 #include "nodes.h"
 #include "utils.h"
 
+struct graphicconfig_priv {
+    struct ngl_node *child;
+
+    int blend;
+    int blend_src_factor;
+    int blend_dst_factor;
+    int blend_src_factor_a;
+    int blend_dst_factor_a;
+    int blend_op;
+    int blend_op_a;
+
+    int color_write_mask;
+
+    int depth_test;
+    int depth_write_mask;
+    int depth_func;
+
+    int stencil_test;
+    int stencil_write_mask;
+    int stencil_func;
+    int stencil_ref;
+    int stencil_read_mask;
+    int stencil_fail;
+    int stencil_depth_fail;
+    int stencil_depth_pass;
+
+    int cull_face;
+    int cull_face_mode;
+
+    int scissor_test;
+    float scissor[4];
+    int use_scissor;
+
+    struct graphicconfig graphicconfig;
+};
+
 #define DEFAULT_SCISSOR {-1.0f, -1.0f, -1.0f, -1.0f}
 
 static const struct param_choices blend_factor_choices = {
