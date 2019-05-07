@@ -35,6 +35,42 @@
 #include "math_utils.h"
 #include "transforms.h"
 
+struct camera_priv {
+    struct ngl_node *child;
+    float eye[3];
+    float center[3];
+    float up[3];
+    float perspective[2];
+    float orthographic[4];
+    float clipping[2];
+
+    struct ngl_node *eye_transform;
+    struct ngl_node *center_transform;
+    struct ngl_node *up_transform;
+
+    struct ngl_node *fov_anim;
+
+    int use_perspective;
+    int use_orthographic;
+
+    const float *eye_transform_matrix;
+    const float *center_transform_matrix;
+    const float *up_transform_matrix;
+
+    float ground[3];
+
+    NGLI_ALIGNED_MAT(modelview_matrix);
+    NGLI_ALIGNED_MAT(projection_matrix);
+
+    int pipe_fd;
+    int pipe_width, pipe_height;
+    uint8_t *pipe_buf;
+
+    int samples;
+    struct rendertarget rt;
+    struct texture rt_color;
+};
+
 #define OFFSET(x) offsetof(struct camera_priv, x)
 static const struct node_param camera_params[] = {
     {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
