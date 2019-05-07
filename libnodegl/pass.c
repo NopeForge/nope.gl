@@ -1196,16 +1196,15 @@ int ngli_pass_update(struct pass *s, double t)
     int ret;
     if ((ret = update_common_pairs(&s->texture_pairs, t)) < 0 ||
         (ret = update_common_pairs(&s->uniform_pairs, t)) < 0 ||
-        (ret = update_block_pairs(&s->block_pairs, t)) < 0 ||
-        (ret = update_buffer_pairs(&s->attribute_pairs, t)) < 0 ||
-        (ret = update_buffer_pairs(&s->instance_attribute_pairs, t)) < 0)
+        (ret = update_block_pairs(&s->block_pairs, t)) < 0)
         return ret;
 
     struct pass_params *params = &s->params;
 
     if (s->type == NGLI_PASS_TYPE_GRAPHIC) {
-        ret = ngli_node_update(params->geometry, t);
-        if (ret < 0)
+        if ((ret = update_buffer_pairs(&s->attribute_pairs, t)) < 0 ||
+            (ret = update_buffer_pairs(&s->instance_attribute_pairs, t)) < 0 ||
+            (ret = ngli_node_update(params->geometry, t)) < 0)
             return ret;
     }
 
