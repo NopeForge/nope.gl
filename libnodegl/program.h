@@ -25,6 +25,8 @@
 #include "glincludes.h"
 #include "hmap.h"
 
+#define MAX_ID_LEN 128
+
 struct uniformprograminfo {
     GLint location;
     GLint size;
