@@ -331,9 +331,6 @@ static void rtt_draw(struct ngl_node *node)
 
     ngli_node_draw(s->child);
 
-    if (s->use_clear_color)
-        ngli_gctx_set_clear_color(ctx, prev_clear_color);
-
     if (s->samples > 0)
         ngli_rendertarget_blit(rt, &s->rt, 0);
 
@@ -342,6 +339,9 @@ static void rtt_draw(struct ngl_node *node)
 
     ngli_gctx_set_rendertarget(ctx, prev_rt);
     ngli_gctx_set_viewport(ctx, prev_vp);
+
+    if (s->use_clear_color)
+        ngli_gctx_set_clear_color(ctx, prev_clear_color);
 
     for (int i = 0; i < s->nb_color_textures; i++) {
         struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
