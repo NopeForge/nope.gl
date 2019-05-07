@@ -48,9 +48,17 @@ struct pass_params {
     struct hmap *textures;
     struct hmap *uniforms;
     struct hmap *blocks;
+
+    /* graphics */
+    struct ngl_node *geometry;
     int nb_instances;
     struct hmap *attributes;
     struct hmap *instance_attributes;
+
+    /* compute */
+    int nb_group_x;
+    int nb_group_y;
+    int nb_group_z;
 };
 
 enum {
@@ -88,6 +96,10 @@ struct pass {
     struct darray uniform_pairs; // nodeprograminfopair (uniform, uniformprograminfo)
     struct darray block_pairs; // nodeprograminfopair (block, uniformprograminfo)
 
+    void (*exec)(struct glcontext *gl, const struct pass *s);
+
+    /* graphics */
+
     struct darray attribute_pairs; // nodeprograminfopair (attribute, attributeprograminfo)
     struct darray instance_attribute_pairs; // nodeprograminfopair (instance attribute, attributeprograminfo)
 
@@ -96,12 +108,15 @@ struct pass {
     GLint normal_matrix_location;
 
     GLuint vao_id;
+
+    struct hmap *pass_attributes;
+    int has_indices_buffer_ref;
+    GLenum indices_type;
 };
 
 int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params *params);
 void ngli_pass_uninit(struct pass *s);
 int ngli_pass_update(struct pass *s, double t);
-int ngli_pass_bind(struct pass *s);
-int ngli_pass_unbind(struct pass *s);
+int ngli_pass_exec(struct pass *s);
 
 #endif

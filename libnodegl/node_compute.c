@@ -24,10 +24,8 @@
 #include <string.h>
 #include <limits.h>
 
-#include "glincludes.h"
 #include "hmap.h"
 #include "log.h"
-#include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "pass.h"
@@ -82,34 +80,16 @@ static const struct node_param compute_params[] = {
 static int compute_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct compute_priv *s = node->priv_data;
-
-    if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
-        LOG(ERROR, "context does not support compute shaders");
-        return -1;
-    }
-
-    if (s->nb_group_x > gl->max_compute_work_group_counts[0] ||
-        s->nb_group_y > gl->max_compute_work_group_counts[1] ||
-        s->nb_group_z > gl->max_compute_work_group_counts[2]) {
-        LOG(ERROR,
-            "compute work group size (%d, %d, %d) exceeds driver limit (%d, %d, %d)",
-            s->nb_group_x,
-            s->nb_group_y,
-            s->nb_group_z,
-            gl->max_compute_work_group_counts[0],
-            gl->max_compute_work_group_counts[1],
-            gl->max_compute_work_group_counts[2]);
-        return -1;
-    }
-
     struct pass_params params = {
         .label = node->label,
         .program = s->program,
         .textures = s->textures,
         .uniforms = s->uniforms,
         .blocks = s->blocks,
+        .nb_group_x = s->nb_group_x,
+        .nb_group_y = s->nb_group_y,
+        .nb_group_z = s->nb_group_z,
     };
     return ngli_pass_init(&s->pass, ctx, &params);
 }
@@ -128,23 +108,8 @@ static int compute_update(struct ngl_node *node, double t)
 
 static void compute_draw(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct compute_priv *s = node->priv_data;
-
-    int ret = ngli_pass_bind(&s->pass);
-    if (ret < 0) {
-        LOG(ERROR, "pass upload data error");
-    }
-
-    ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
-    ngli_glDispatchCompute(gl, s->nb_group_x, s->nb_group_y, s->nb_group_z);
-    ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
-
-    ret = ngli_pass_unbind(&s->pass);
-    if (ret < 0) {
-        LOG(ERROR, "could not unbind pass");
-    }
+    ngli_pass_exec(&s->pass);
 }
 
 const struct node_class ngli_compute_class = {

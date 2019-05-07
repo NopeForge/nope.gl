@@ -36,6 +36,7 @@
 #include "pass.h"
 #include "program.h"
 #include "texture.h"
+#include "topology.h"
 #include "utils.h"
 
 static void set_uniform_1f(struct glcontext *gl, GLint loc, void *priv)
@@ -771,7 +772,7 @@ static int build_vertex_attribs_pairs(struct pass *s)
     if (s->type != NGLI_PASS_TYPE_GRAPHIC)
         return 0;
 
-    int ret = pair_nodes_to_attribinfo(s, &s->attribute_pairs, params->attributes, 0);
+    int ret = pair_nodes_to_attribinfo(s, &s->attribute_pairs, s->pass_attributes, 0);
     if (ret < 0)
         return ret;
 
@@ -861,6 +862,213 @@ static void reset_vertex_attribs(struct pass *s)
     reset_vertex_attribs_from_pairs(gl, &s->instance_attribute_pairs);
 }
 
+static void draw_elements(struct glcontext *gl, const struct pass *s)
+{
+    const struct geometry_priv *geometry = s->params.geometry->priv_data;
+    const struct buffer_priv *indices = geometry->indices_buffer->priv_data;
+    const GLenum gl_topology = ngli_topology_get_gl_topology(geometry->topology);
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->buffer.id);
+    ngli_glDrawElements(gl, gl_topology, indices->count, s->indices_type, 0);
+}
+
+static void draw_elements_instanced(struct glcontext *gl, const struct pass *s)
+{
+    const struct geometry_priv *geometry = s->params.geometry->priv_data;
+    const struct buffer_priv *indices = geometry->indices_buffer->priv_data;
+    const GLenum gl_topology = ngli_topology_get_gl_topology(geometry->topology);
+    ngli_glBindBuffer(gl, GL_ELEMENT_ARRAY_BUFFER, indices->buffer.id);
+    ngli_glDrawElementsInstanced(gl, gl_topology, indices->count, s->indices_type, 0, s->params.nb_instances);
+}
+
+static void draw_arrays(struct glcontext *gl, const struct pass *s)
+{
+    const struct geometry_priv *geometry = s->params.geometry->priv_data;
+    const struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
+    const GLenum gl_topology = ngli_topology_get_gl_topology(geometry->topology);
+    ngli_glDrawArrays(gl, gl_topology, 0, vertices->count);
+}
+
+static void draw_arrays_instanced(struct glcontext *gl, const struct pass *s)
+{
+    const struct geometry_priv *geometry = s->params.geometry->priv_data;
+    const struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
+    const GLenum gl_topology = ngli_topology_get_gl_topology(geometry->topology);
+    ngli_glDrawArraysInstanced(gl, gl_topology, 0, vertices->count, s->params.nb_instances);
+}
+
+static void compute_exec(struct glcontext *gl, const struct pass *s)
+{
+    ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
+    ngli_glDispatchCompute(gl, s->params.nb_group_x, s->params.nb_group_y, s->params.nb_group_z);
+    ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
+}
+
+static int check_attributes(struct pass *s, struct hmap *attributes, int per_instance)
+{
+    if (!attributes)
+        return 0;
+
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(attributes, entry))) {
+        struct ngl_node *anode = entry->data;
+        struct buffer_priv *buffer = anode->priv_data;
+
+        if (per_instance) {
+            if (buffer->count != s->params.nb_instances) {
+                LOG(ERROR,
+                    "attribute buffer %s count (%d) does not match instance count (%d)",
+                    entry->key,
+                    buffer->count,
+                    s->params.nb_instances);
+                return -1;
+            }
+        } else {
+            struct geometry_priv *geometry = s->params.geometry->priv_data;
+            struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
+            if (buffer->count != vertices->count) {
+                LOG(ERROR,
+                    "attribute buffer %s count (%d) does not match vertices count (%d)",
+                    entry->key,
+                    buffer->count,
+                    vertices->count);
+                return -1;
+            }
+        }
+    }
+    return 0;
+}
+
+#define GEOMETRY_OFFSET(x) offsetof(struct geometry_priv, x)
+static const struct {
+    const char *const_name;
+    int offset;
+} attrib_const_map[] = {
+    {"ngl_position", GEOMETRY_OFFSET(vertices_buffer)},
+    {"ngl_uvcoord",  GEOMETRY_OFFSET(uvcoords_buffer)},
+    {"ngl_normal",   GEOMETRY_OFFSET(normals_buffer)},
+};
+
+static int init_attributes(struct pass *s)
+{
+    s->pass_attributes = ngli_hmap_create();
+    if (!s->pass_attributes)
+        return -1;
+
+    if (s->params.attributes) {
+        const struct hmap_entry *entry = NULL;
+        while ((entry = ngli_hmap_next(s->params.attributes, entry))) {
+            struct ngl_node *anode = entry->data;
+            int ret = ngli_hmap_set(s->pass_attributes, entry->key, anode);
+            if (ret < 0)
+                return ret;
+        }
+    }
+
+    struct geometry_priv *geometry = s->params.geometry->priv_data;
+    for (int i = 0; i < NGLI_ARRAY_NB(attrib_const_map); i++) {
+        const int offset = attrib_const_map[i].offset;
+        const char *const_name = attrib_const_map[i].const_name;
+        uint8_t *buffer_node_p = ((uint8_t *)geometry) + offset;
+        struct ngl_node *anode = *(struct ngl_node **)buffer_node_p;
+        if (!anode)
+            continue;
+
+        int ret = ngli_hmap_set(s->pass_attributes, const_name, anode);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
+
+static int pass_graphics_init(struct pass *s, const struct pass_params *params)
+{
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
+    /* Instancing checks */
+    if (params->nb_instances && !(gl->features & NGLI_FEATURE_DRAW_INSTANCED)) {
+        LOG(ERROR, "context does not support instanced draws");
+        return -1;
+    }
+
+    if (params->instance_attributes && !(gl->features & NGLI_FEATURE_INSTANCED_ARRAY)) {
+        LOG(ERROR, "context does not support instanced arrays");
+        return -1;
+    }
+
+    int ret = check_attributes(s, params->attributes, 0);
+    if (ret < 0)
+        return ret;
+
+    ret = check_attributes(s, params->instance_attributes, 1);
+    if (ret < 0)
+        return ret;
+
+    if (!s->params.program) {
+        s->params.program = ngl_node_create(NGL_NODE_PROGRAM);
+        if (!s->params.program)
+            return -1;
+        int ret = ngli_node_attach_ctx(s->params.program, ctx);
+        if (ret < 0)
+            return ret;
+    }
+
+    struct geometry_priv *geometry = params->geometry->priv_data;
+    if (geometry->indices_buffer) {
+        int ret = ngli_node_buffer_ref(geometry->indices_buffer);
+        if (ret < 0)
+            return ret;
+        s->has_indices_buffer_ref = 1;
+
+        struct buffer_priv *indices = geometry->indices_buffer->priv_data;
+        if (indices->block) {
+            LOG(ERROR, "geometry indices buffers referencing a block are not supported");
+            return -1;
+        }
+
+        ngli_format_get_gl_texture_format(gl, indices->data_format, NULL, NULL, &s->indices_type);
+    }
+
+    ret = init_attributes(s);
+    if (ret < 0)
+        return ret;
+
+    if (geometry->indices_buffer)
+        s->exec = params->nb_instances > 0 ? draw_elements_instanced : draw_elements;
+    else
+        s->exec = params->nb_instances > 0 ? draw_arrays_instanced : draw_arrays;
+
+    return 0;
+}
+
+static int pass_compute_init(struct pass *s, const struct pass_params *params)
+{
+    struct glcontext *gl = s->gl;
+
+    if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
+        LOG(ERROR, "context does not support compute shaders");
+        return -1;
+    }
+
+    if (params->nb_group_x > gl->max_compute_work_group_counts[0] ||
+        params->nb_group_y > gl->max_compute_work_group_counts[1] ||
+        params->nb_group_z > gl->max_compute_work_group_counts[2]) {
+        LOG(ERROR,
+            "compute work group size (%d, %d, %d) exceeds driver limit (%d, %d, %d)",
+            params->nb_group_x,
+            params->nb_group_y,
+            params->nb_group_z,
+            gl->max_compute_work_group_counts[0],
+            gl->max_compute_work_group_counts[1],
+            gl->max_compute_work_group_counts[2]);
+        return -1;
+    }
+
+    s->exec = compute_exec;
+
+    return 0;
+}
+
 int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params *params)
 {
     int ret;
@@ -868,10 +1076,14 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     s->ctx = ctx;
     s->gl = ctx->glcontext;
     s->params = *params;
-    s->type = params->program->class->id == NGL_NODE_PROGRAM ? NGLI_PASS_TYPE_GRAPHIC
-                                                             : NGLI_PASS_TYPE_COMPUTE;
+    s->type = params->geometry ? NGLI_PASS_TYPE_GRAPHIC : NGLI_PASS_TYPE_COMPUTE;
 
-    struct ngl_node *program_node = params->program;
+    ret = s->type == NGLI_PASS_TYPE_GRAPHIC ? pass_graphics_init(s, params)
+                                            : pass_compute_init(s, params);
+    if (ret < 0)
+        return ret;
+
+    struct ngl_node *program_node = s->params.program;
     struct program_priv *program_priv = program_node->priv_data;
     struct hmap *uniforms = program_priv->program.uniforms;
     if (s->type == NGLI_PASS_TYPE_GRAPHIC && uniforms) {
@@ -939,6 +1151,14 @@ void ngli_pass_uninit(struct pass *s)
         ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
     }
 
+    /* graphics */
+    ngli_hmap_freep(&s->pass_attributes);
+
+    if (s->has_indices_buffer_ref) {
+        struct geometry_priv *geometry = s->params.geometry->priv_data;
+        ngli_node_buffer_unref(geometry->indices_buffer);
+    }
+
     memset(s, 0, sizeof(*s));
 }
 
@@ -982,10 +1202,17 @@ int ngli_pass_update(struct pass *s, double t)
         return ret;
 
     struct pass_params *params = &s->params;
+
+    if (s->type == NGLI_PASS_TYPE_GRAPHIC) {
+        ret = ngli_node_update(params->geometry, t);
+        if (ret < 0)
+            return ret;
+    }
+
     return ngli_node_update(params->program, t);
 }
 
-int ngli_pass_bind(struct pass *s)
+int ngli_pass_exec(struct pass *s)
 {
     struct ngl_ctx *ctx = s->ctx;
     struct glcontext *gl = s->gl;
@@ -1007,12 +1234,7 @@ int ngli_pass_bind(struct pass *s)
     else
         set_vertex_attribs(s);
 
-    return 0;
-}
-
-int ngli_pass_unbind(struct pass *s)
-{
-    struct glcontext *gl = s->gl;
+    s->exec(gl, s);
 
     if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT))
         reset_vertex_attribs(s);
