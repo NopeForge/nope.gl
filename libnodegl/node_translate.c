@@ -27,6 +27,12 @@
 #include "math_utils.h"
 #include "transforms.h"
 
+struct translate_priv {
+    struct transform_priv trf;
+    float vector[3];
+    struct ngl_node *anim;
+};
+
 static void update_trf_matrix(struct ngl_node *node, const float *vec)
 {
     struct translate_priv *s = node->priv_data;

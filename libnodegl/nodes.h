@@ -304,12 +304,6 @@ struct transform_priv {
     NGLI_ALIGNED_MAT(matrix);
 };
 
-struct translate_priv {
-    struct transform_priv trf;
-    float vector[3];
-    struct ngl_node *anim;
-};
-
 struct scale_priv {
     struct transform_priv trf;
     float factors[3];
