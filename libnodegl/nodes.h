@@ -50,7 +50,6 @@
 #include "image.h"
 #include "nodegl.h"
 #include "params.h"
-#include "pass.h"
 #include "program.h"
 #include "darray.h"
 #include "buffer.h"
@@ -366,18 +365,6 @@ struct texture_priv {
 
     const struct hwmap_class *hwupload_map_class;
     void *hwupload_priv_data;
-};
-
-struct compute_priv {
-    int nb_group_x;
-    int nb_group_y;
-    int nb_group_z;
-    struct ngl_node *program;
-    struct hmap *textures;
-    struct hmap *uniforms;
-    struct hmap *blocks;
-
-    struct pass pass;
 };
 
 struct media_priv {

@@ -30,7 +30,20 @@
 #include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "pass.h"
 #include "utils.h"
+
+struct compute_priv {
+    int nb_group_x;
+    int nb_group_y;
+    int nb_group_z;
+    struct ngl_node *program;
+    struct hmap *textures;
+    struct hmap *uniforms;
+    struct hmap *blocks;
+
+    struct pass pass;
+};
 
 #define TEXTURES_TYPES_LIST (const int[]){NGL_NODE_TEXTURE2D,       \
                                           -1}
