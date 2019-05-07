@@ -368,25 +368,6 @@ struct texture_priv {
     void *hwupload_priv_data;
 };
 
-struct render_priv {
-    struct ngl_node *geometry;
-    struct ngl_node *program;
-    struct hmap *textures;
-    struct hmap *uniforms;
-    struct hmap *blocks;
-    struct hmap *attributes;
-    struct hmap *instance_attributes;
-    int nb_instances;
-
-    struct hmap *pass_attributes;
-    struct pass pass;
-
-    int has_indices_buffer_ref;
-    GLenum indices_type;
-
-    void (*draw)(struct glcontext *gl, const struct render_priv *render);
-};
-
 struct compute_priv {
     int nb_group_x;
     int nb_group_y;
