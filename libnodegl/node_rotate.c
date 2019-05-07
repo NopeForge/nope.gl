@@ -29,6 +29,16 @@
 #include "math_utils.h"
 #include "transforms.h"
 
+struct rotate_priv {
+    struct transform_priv trf;
+    double angle;
+    float axis[3];
+    float normed_axis[3];
+    float anchor[3];
+    struct ngl_node *anim;
+    int use_anchor;
+};
+
 static void update_trf_matrix(struct ngl_node *node, double deg_angle)
 {
     struct rotate_priv *s = node->priv_data;

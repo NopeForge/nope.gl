@@ -304,16 +304,6 @@ struct transform_priv {
     NGLI_ALIGNED_MAT(matrix);
 };
 
-struct rotate_priv {
-    struct transform_priv trf;
-    double angle;
-    float axis[3];
-    float normed_axis[3];
-    float anchor[3];
-    struct ngl_node *anim;
-    int use_anchor;
-};
-
 struct translate_priv {
     struct transform_priv trf;
     float vector[3];
