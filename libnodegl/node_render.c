@@ -197,7 +197,7 @@ static const struct {
     {"ngl_normal",   GEOMETRY_OFFSET(normals_buffer)},
 };
 
-static int init_builtin_attributes(struct render_priv *s)
+static int init_attributes(struct render_priv *s)
 {
     s->pass_attributes = ngli_hmap_create();
     if (!s->pass_attributes)
@@ -279,7 +279,7 @@ static int render_init(struct ngl_node *node)
         ngli_format_get_gl_texture_format(gl, indices->data_format, NULL, NULL, &s->indices_type);
     }
 
-    ret = init_builtin_attributes(s);
+    ret = init_attributes(s);
     if (ret < 0)
         return ret;
 
