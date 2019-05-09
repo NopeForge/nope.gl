@@ -213,6 +213,7 @@ struct uniform_priv {
     int ival;
     void *data;
     int data_size;
+    int data_type;          // any of NGLI_TYPE_*
     struct ngl_node *anim;
     struct ngl_node *transform;
     const float *transform_matrix;
