@@ -122,6 +122,7 @@ LIB_OBJS = animation.o              \
            texture.o                \
            topology.o               \
            transforms.o             \
+           type.o                   \
            utils.o                  \
 
 LIB_OBJS_ARCH_aarch64 = asm_aarch64.o
