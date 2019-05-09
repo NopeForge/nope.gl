@@ -189,6 +189,7 @@ struct buffer_priv {
 
     int fd;
     int dynamic;
+    int data_type;          // any of NGLI_TYPE_*
 
     struct buffer buffer;
     int buffer_refcount;
