@@ -896,7 +896,7 @@ static void draw_arrays_instanced(struct glcontext *gl, const struct pass *s)
     ngli_glDrawArraysInstanced(gl, gl_topology, 0, vertices->count, s->params.nb_instances);
 }
 
-static void compute_exec(struct glcontext *gl, const struct pass *s)
+static void dispatch_compute(struct glcontext *gl, const struct pass *s)
 {
     ngli_glMemoryBarrier(gl, GL_ALL_BARRIER_BITS);
     ngli_glDispatchCompute(gl, s->params.nb_group_x, s->params.nb_group_y, s->params.nb_group_z);
@@ -1064,7 +1064,7 @@ static int pass_compute_init(struct pass *s, const struct pass_params *params)
         return -1;
     }
 
-    s->exec = compute_exec;
+    s->exec = dispatch_compute;
 
     return 0;
 }
