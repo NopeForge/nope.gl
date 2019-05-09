@@ -37,6 +37,7 @@
 #include "program.h"
 #include "texture.h"
 #include "topology.h"
+#include "type.h"
 #include "utils.h"
 
 static void set_uniform_1f(struct glcontext *gl, GLint loc, void *priv)
@@ -139,7 +140,7 @@ static int set_uniforms(struct pass *s)
 }
 
 struct handle_map {
-    GLenum uniform_type;
+    int uniform_type;
     nodeprograminfopair_handle_func handle;
 };
 
@@ -150,69 +151,69 @@ static const struct {
     {
         .class_id = NGL_NODE_UNIFORMFLOAT,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT, set_uniform_1f},
+            {NGLI_TYPE_FLOAT, set_uniform_1f},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMVEC2,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT_VEC2, set_uniform_2fv},
+            {NGLI_TYPE_VEC2, set_uniform_2fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMVEC3,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT_VEC3, set_uniform_3fv},
+            {NGLI_TYPE_VEC3, set_uniform_3fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMVEC4,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT_VEC4, set_uniform_4fv},
+            {NGLI_TYPE_VEC4, set_uniform_4fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMMAT4,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT_MAT4, set_uniform_mat4fv},
+            {NGLI_TYPE_MAT4, set_uniform_mat4fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMQUAT,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT_MAT4, set_uniform_mat4fv},
-            {GL_FLOAT_VEC4, set_uniform_4fv},
+            {NGLI_TYPE_MAT4, set_uniform_mat4fv},
+            {NGLI_TYPE_VEC4, set_uniform_4fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_UNIFORMINT,
         .handles_map = (const struct handle_map[]){
-            {GL_INT, set_uniform_1i},
-            {GL_BOOL, set_uniform_1i},
+            {NGLI_TYPE_INT, set_uniform_1i},
+            {NGLI_TYPE_BOOL, set_uniform_1i},
             {0},
         },
     }, {
         .class_id = NGL_NODE_BUFFERFLOAT,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT, set_uniform_buf1fv},
+            {NGLI_TYPE_FLOAT, set_uniform_buf1fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_BUFFERVEC2,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT_VEC2, set_uniform_buf2fv},
+            {NGLI_TYPE_VEC2, set_uniform_buf2fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_BUFFERVEC3,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT_VEC3, set_uniform_buf3fv},
+            {NGLI_TYPE_VEC3, set_uniform_buf3fv},
             {0},
         },
     }, {
         .class_id = NGL_NODE_BUFFERVEC4,
         .handles_map = (const struct handle_map[]){
-            {GL_FLOAT_VEC4, set_uniform_buf4fv},
+            {NGLI_TYPE_VEC4, set_uniform_buf4fv},
             {0},
         },
     },
@@ -226,7 +227,7 @@ static const struct handle_map *get_uniform_handle_map(int class_id)
     return NULL;
 }
 
-static nodeprograminfopair_handle_func get_uniform_pair_handle(int class_id, GLenum uniform_type)
+static nodeprograminfopair_handle_func get_uniform_pair_handle(int class_id, int uniform_type)
 {
     const struct handle_map *handle_map = get_uniform_handle_map(class_id);
     for (int i = 0; handle_map[i].uniform_type; i++)
@@ -309,24 +310,24 @@ static struct uniformprograminfo *get_uniform_info(struct hmap *uniforms,
 #define OFFSET(x) offsetof(struct textureprograminfo, x)
 static const struct texture_uniform_map {
     const char *suffix;
-    const GLenum *allowed_types;
+    const int *allowed_types;
     size_t location_offset;
     size_t type_offset;
     size_t binding_offset;
 } texture_uniform_maps[] = {
-    {"",                  (const GLenum[]){GL_SAMPLER_2D, GL_SAMPLER_3D,
-                                           GL_SAMPLER_CUBE, GL_IMAGE_2D, 0},              OFFSET(sampler_location),          OFFSET(sampler_type),    OFFSET(sampler_value)},
-    {"_sampling_mode",    (const GLenum[]){GL_INT, 0},                                    OFFSET(sampling_mode_location),    SIZE_MAX,                SIZE_MAX},
-    {"_coord_matrix",     (const GLenum[]){GL_FLOAT_MAT4, 0},                             OFFSET(coord_matrix_location),     SIZE_MAX,                SIZE_MAX},
-    {"_dimensions",       (const GLenum[]){GL_FLOAT_VEC2, GL_FLOAT_VEC3, 0},              OFFSET(dimensions_location),       OFFSET(dimensions_type), SIZE_MAX},
-    {"_ts",               (const GLenum[]){GL_FLOAT, 0},                                  OFFSET(ts_location),               SIZE_MAX,                SIZE_MAX},
-    {"_external_sampler", (const GLenum[]){GL_SAMPLER_EXTERNAL_OES,
-                                           GL_SAMPLER_EXTERNAL_2D_Y2Y_EXT, 0},            OFFSET(external_sampler_location), SIZE_MAX,                SIZE_MAX},
-    {"_y_sampler",        (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(y_sampler_location),        SIZE_MAX,                SIZE_MAX},
-    {"_uv_sampler",       (const GLenum[]){GL_SAMPLER_2D, 0},                             OFFSET(uv_sampler_location),       SIZE_MAX,                SIZE_MAX},
+    {"",                  (const int[]){NGLI_TYPE_SAMPLER_2D, NGLI_TYPE_SAMPLER_3D,
+                                        NGLI_TYPE_SAMPLER_CUBE, NGLI_TYPE_IMAGE_2D, 0}, OFFSET(sampler_location),          OFFSET(sampler_type),    OFFSET(sampler_value)},
+    {"_sampling_mode",    (const int[]){NGLI_TYPE_INT, 0},                              OFFSET(sampling_mode_location),    SIZE_MAX,                SIZE_MAX},
+    {"_coord_matrix",     (const int[]){NGLI_TYPE_MAT4, 0},                             OFFSET(coord_matrix_location),     SIZE_MAX,                SIZE_MAX},
+    {"_dimensions",       (const int[]){NGLI_TYPE_VEC2, NGLI_TYPE_VEC3, 0},             OFFSET(dimensions_location),       OFFSET(dimensions_type), SIZE_MAX},
+    {"_ts",               (const int[]){NGLI_TYPE_FLOAT, 0},                            OFFSET(ts_location),               SIZE_MAX,                SIZE_MAX},
+    {"_external_sampler", (const int[]){NGLI_TYPE_SAMPLER_EXTERNAL_OES,
+                                        NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT, 0},      OFFSET(external_sampler_location), SIZE_MAX,                SIZE_MAX},
+    {"_y_sampler",        (const int[]){NGLI_TYPE_SAMPLER_2D, 0},                       OFFSET(y_sampler_location),        SIZE_MAX,                SIZE_MAX},
+    {"_uv_sampler",       (const int[]){NGLI_TYPE_SAMPLER_2D, 0},                       OFFSET(uv_sampler_location),       SIZE_MAX,                SIZE_MAX},
 };
 
-static int is_allowed_type(const GLenum *allowed_types, GLenum type)
+static int is_allowed_type(const int *allowed_types, int type)
 {
     for (int i = 0; allowed_types[i]; i++)
         if (allowed_types[i] == type)
@@ -399,7 +400,7 @@ static int build_texture_pairs(struct pass *s)
         if (ret < 0)
             return ret;
 
-        if (info->sampler_type == GL_IMAGE_2D) {
+        if (info->sampler_type == NGLI_TYPE_IMAGE_2D) {
             texture->direct_rendering = 0;
             if (info->sampler_value >= max_nb_textures) {
                 LOG(ERROR, "maximum number (%d) of texture unit reached", max_nb_textures);
@@ -527,7 +528,7 @@ static int update_sampler(const struct glcontext *gl,
     if (image->layout == NGLI_IMAGE_LAYOUT_DEFAULT) {
         if (info->sampler_location >= 0) {
             const struct texture *plane = image->planes[0];
-            if (info->sampler_type == GL_IMAGE_2D) {
+            if (info->sampler_type == NGLI_TYPE_IMAGE_2D) {
                 const struct texture_params *params = &plane->params;
                 GLuint unit = info->sampler_value;
                 const GLenum access = ngli_texture_get_gl_access(params->access);
@@ -621,9 +622,9 @@ static int set_textures(struct pass *s)
                 dimensions[1] = params->height;
                 dimensions[2] = params->depth;
             }
-            if (info->dimensions_type == GL_FLOAT_VEC2)
+            if (info->dimensions_type == NGLI_TYPE_VEC2)
                 ngli_glUniform2fv(gl, info->dimensions_location, 1, dimensions);
-            else if (info->dimensions_type == GL_FLOAT_VEC3)
+            else if (info->dimensions_type == NGLI_TYPE_VEC3)
                 ngli_glUniform3fv(gl, info->dimensions_location, 1, dimensions);
         }
 
@@ -658,7 +659,7 @@ static int build_block_pairs(struct pass *s)
         struct ngl_node *bnode = entry->data;
         struct block_priv *block = bnode->priv_data;
 
-        if (info->type == GL_UNIFORM_BUFFER &&
+        if (info->type == NGLI_TYPE_UNIFORM_BUFFER &&
             block->data_size > gl->max_uniform_block_size) {
             LOG(ERROR, "block %s size (%d) exceeds max uniform block size (%d)",
                 bnode->label, block->data_size, gl->max_uniform_block_size);
@@ -692,8 +693,9 @@ static int set_blocks(struct pass *s)
         const struct ngl_node *bnode = pair->node;
         const struct block_priv *block = bnode->priv_data;
         const struct blockprograminfo *info = pair->program_info;
+        const GLenum type = ngli_type_get_gl_type(info->type);
 
-        ngli_glBindBufferBase(gl, info->type, info->binding, block->buffer.id);
+        ngli_glBindBufferBase(gl, type, info->binding, block->buffer.id);
     }
 
     return 0;

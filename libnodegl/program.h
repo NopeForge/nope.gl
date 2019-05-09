@@ -30,19 +30,19 @@
 struct uniformprograminfo {
     GLint location;
     GLint size;
-    GLenum type;
+    int type;
     int binding;
 };
 
 struct attributeprograminfo {
     GLint location;
     GLint size;
-    GLenum type;
+    int type;
 };
 
 struct blockprograminfo {
     GLint binding;
-    GLenum type;
+    int type;
 };
 
 enum {
