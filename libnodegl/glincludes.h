@@ -82,6 +82,9 @@ typedef void* GLeglImageOES;
 # define GL_TEXTURE_RECTANGLE                  0x84F5
 # define GL_STENCIL_INDEX                      0x1901
 # define GL_STENCIL_INDEX8                     0x8D48
+# define GL_UNSIGNED_INT_VEC2                  0x8DC6
+# define GL_UNSIGNED_INT_VEC3                  0x8DC7
+# define GL_UNSIGNED_INT_VEC4                  0x8DC8
 # define GL_SAMPLER_3D                         0x8B5F
 # define GL_SAMPLER_CUBE                       0x8B60
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
