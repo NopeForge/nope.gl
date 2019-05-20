@@ -324,6 +324,11 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
                 config->height);
             return -1;
         }
+    } else {
+        if (config->capture_buffer) {
+            LOG(ERROR, "capture_buffer is only supported with offscreen rendering");
+            return -1;
+        }
     }
 
     if (s->configured)

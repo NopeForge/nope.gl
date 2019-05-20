@@ -352,11 +352,6 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 {
     memcpy(&s->config, config, sizeof(s->config));
 
-    if (!config->offscreen && config->capture_buffer) {
-        LOG(ERROR, "capture_buffer is only supported with offscreen rendering");
-        return -1;
-    }
-
     s->glcontext = ngli_glcontext_new(&s->config);
     if (!s->glcontext)
         return -1;
