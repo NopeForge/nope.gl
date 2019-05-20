@@ -224,6 +224,20 @@ static void wgl_uninit(struct glcontext *ctx)
         FreeLibrary(wgl->module);
 }
 
+static int wgl_resize(struct glcontext *ctx, int width, int height)
+{
+    struct wgl_priv *wgl = ctx->priv_data;
+
+    RECT rect;
+    if (GetWindowRect(wgl->window, &rect) == 0)
+        return -1;
+
+    ctx->width = rect.right-rect.left;
+    ctx->height = rect.bottom-rect.top;
+
+    return 0;
+}
+
 static int wgl_make_current(struct glcontext *ctx, int current)
 {
     struct wgl_priv *wgl = ctx->priv_data;
@@ -277,6 +291,7 @@ static uintptr_t wgl_get_handle(struct glcontext *ctx)
 const struct glcontext_class ngli_glcontext_wgl_class = {
     .init = wgl_init,
     .uninit = wgl_uninit,
+    .resize = wgl_resize,
     .make_current = wgl_make_current,
     .swap_buffers = wgl_swap_buffers,
     .set_swap_interval = wgl_set_swap_interval,
