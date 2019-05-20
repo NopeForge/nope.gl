@@ -316,12 +316,14 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return -1;
     }
 
-    if (config->offscreen && (config->width <= 0 || config->height <= 0)) {
-        LOG(ERROR,
-            "could not initialize offscreen rendering with invalid dimensions (%dx%d)",
-            config->width,
-            config->height);
-        return -1;
+    if (config->offscreen) {
+        if (config->width <= 0 || config->height <= 0) {
+            LOG(ERROR,
+                "could not initialize offscreen rendering with invalid dimensions (%dx%d)",
+                config->width,
+                config->height);
+            return -1;
+        }
     }
 
     if (s->configured)
