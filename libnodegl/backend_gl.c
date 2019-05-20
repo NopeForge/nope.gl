@@ -323,7 +323,7 @@ static int gl_reconfigure(struct ngl_ctx *s, const struct ngl_config *config)
                 return ret;
         }
     } else {
-        int ret = ngli_glcontext_resize(gl, config->width, config->height);
+        int ret = ngli_glcontext_resize(gl);
         if (ret < 0)
             return ret;
     }

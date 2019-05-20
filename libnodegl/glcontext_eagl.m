@@ -232,7 +232,7 @@ static void eagl_uninit(struct glcontext *ctx)
         CFRelease(eagl->handle);
 }
 
-static int eagl_resize(struct glcontext *ctx, int width, int height)
+static int eagl_resize(struct glcontext *ctx)
 {
     eagl_reset_framebuffer(ctx);
 

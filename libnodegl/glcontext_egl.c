@@ -296,7 +296,7 @@ static void egl_uninit(struct glcontext *ctx)
 #endif
 }
 
-static int egl_resize(struct glcontext *ctx, int width, int height)
+static int egl_resize(struct glcontext *ctx)
 {
     struct egl_priv *egl = ctx->priv_data;
 

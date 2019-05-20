@@ -134,7 +134,7 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
     return 0;
 }
 
-static int nsgl_resize(struct glcontext *ctx, int width, int height)
+static int nsgl_resize(struct glcontext *ctx)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
 
