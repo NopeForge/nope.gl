@@ -219,7 +219,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     return 0;
 }
 
-int ngli_hwconv_convert(struct hwconv *hwconv, const struct texture *planes, const float *matrix)
+int ngli_hwconv_convert(struct hwconv *hwconv, struct texture *planes, const float *matrix)
 {
     struct ngl_ctx *ctx = hwconv->ctx;
     struct glcontext *gl = ctx->glcontext;
