@@ -307,7 +307,6 @@ static GLuint eagl_get_default_framebuffer(struct glcontext *ctx)
 
 const struct glcontext_class ngli_glcontext_eagl_class = {
     .init = eagl_init,
-    .init_framebuffer = eagl_init_framebuffer,
     .uninit = eagl_uninit,
     .resize = eagl_resize,
     .make_current = eagl_make_current,
