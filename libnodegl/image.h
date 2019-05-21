@@ -36,7 +36,7 @@ enum image_layout {
 
 struct image {
     enum image_layout layout;
-    const struct texture *planes[4];
+    struct texture *planes[4];
     int nb_planes;
     NGLI_ALIGNED_MAT(coordinates_matrix);
     double ts;

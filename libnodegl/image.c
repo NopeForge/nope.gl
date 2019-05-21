@@ -45,7 +45,7 @@ void ngli_image_init(struct image *s, enum image_layout layout, ...)
     va_list ap;
     va_start(ap, layout);
     for (int i = 0; i < s->nb_planes; i++)
-        s->planes[i] = va_arg(ap, const struct texture *);
+        s->planes[i] = va_arg(ap, struct texture *);
     va_end(ap);
 }
 
