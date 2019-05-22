@@ -27,7 +27,11 @@
 #include "drawutils.h"
 #include "log.h"
 #include "math_utils.h"
+#include "pipeline.h"
 #include "program.h"
+#include "type.h"
+#include "topology.h"
+#include "utils.h"
 
 struct text_priv {
     char *text;
@@ -47,15 +51,12 @@ struct text_priv {
     struct texture texture;
     struct canvas canvas;
     struct program program;
+    struct buffer vertices;
+    struct buffer uvcoords;
+    struct pipeline pipeline;
 
-    GLuint vao_id;
-    GLuint vertices_id;
-    GLuint uvcoord_id;
-    GLint position_location;
-    GLint uvcoord_location;
-    GLint texture_location;
-    GLint modelview_matrix_location;
-    GLint projection_matrix_location;
+    int modelview_matrix_index;
+    int projection_matrix_index;
 };
 
 #define VALIGN_CENTER 0
@@ -209,21 +210,6 @@ static const char * const fragment_data =
     "    gl_FragColor = texture2D(tex, var_tex_coord);"                     "\n"
     "}";
 
-static void enable_vertex_attribs(struct ngl_node *node)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
-    struct text_priv *s = node->priv_data;
-
-    ngli_glEnableVertexAttribArray(gl, s->position_location);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->vertices_id);
-    ngli_glVertexAttribPointer(gl, s->position_location, 3, GL_FLOAT, GL_FALSE, 3 * 4, NULL);
-
-    ngli_glEnableVertexAttribArray(gl, s->uvcoord_location);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->uvcoord_id);
-    ngli_glVertexAttribPointer(gl, s->uvcoord_location, 2, GL_FLOAT, GL_FALSE, 2 * 4, NULL);
-}
-
 #define C(index) s->box_corner[index]
 #define W(index) s->box_width[index]
 #define H(index) s->box_height[index]
@@ -231,7 +217,6 @@ static void enable_vertex_attribs(struct ngl_node *node)
 static int text_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct text_priv *s = node->priv_data;
 
     int ret = prepare_canvas(s);
@@ -251,38 +236,21 @@ static int text_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    const struct attributeprograminfo *position_info = ngli_hmap_get(s->program.attributes, "position");
-    const struct attributeprograminfo *uvcoord_info  = ngli_hmap_get(s->program.attributes, "uvcoord");
-    const struct uniformprograminfo *texture_info    = ngli_hmap_get(s->program.uniforms, "tex");
-    const struct uniformprograminfo *modelview_info  = ngli_hmap_get(s->program.uniforms, "modelview_matrix");
-    const struct uniformprograminfo *projection_info = ngli_hmap_get(s->program.uniforms, "projection_matrix");
+    ret = ngli_buffer_init(&s->vertices, ctx, sizeof(vertices), GL_STATIC_DRAW);
+    if (ret < 0)
+        return ret;
 
-    if (!position_info || !uvcoord_info || !texture_info || !modelview_info || !projection_info)
-        return -1;
+    ret = ngli_buffer_upload(&s->vertices, vertices, sizeof(vertices));
+    if (ret < 0)
+        return ret;
 
-    s->position_location          = position_info->location;
-    s->uvcoord_location           = uvcoord_info->location;
-    s->texture_location           = texture_info->location;
-    s->modelview_matrix_location  = modelview_info->location;
-    s->projection_matrix_location = projection_info->location;
+    ret = ngli_buffer_init(&s->uvcoords, ctx, sizeof(uvs), GL_STATIC_DRAW);
+    if (ret < 0)
+        return ret;
 
-    ngli_glUseProgram(gl, s->program.id);
-
-    ngli_glUniform1i(gl, s->texture_location, 0);
-
-    ngli_glGenBuffers(gl, 1, &s->vertices_id);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->vertices_id);
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    ngli_glGenBuffers(gl, 1, &s->uvcoord_id);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->uvcoord_id);
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, sizeof(uvs), uvs, GL_STATIC_DRAW);
-
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
-        ngli_glGenVertexArrays(gl, 1, &s->vao_id);
-        ngli_glBindVertexArray(gl, s->vao_id);
-        enable_vertex_attribs(node);
-    }
+    ret = ngli_buffer_upload(&s->uvcoords, uvs, sizeof(uvs));
+    if (ret < 0)
+        return ret;
 
     struct texture_params tex_params = NGLI_TEXTURE_PARAM_DEFAULTS;
     tex_params.width = s->canvas.w;
@@ -295,50 +263,71 @@ static int text_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    return ngli_texture_upload(&s->texture, s->canvas.buf, 0);
+    ret = ngli_texture_upload(&s->texture, s->canvas.buf, 0);
+    if (ret < 0)
+        return ret;
+
+    const struct pipeline_uniform uniforms[] = {
+        {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .count = 1, .data = NULL},
+        {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .count = 1, .data = NULL},
+    };
+
+    const struct pipeline_texture textures[] = {
+        {.name  = "tex", .texture = &s->texture},
+    };
+
+    const struct pipeline_attribute attributes[] = {
+        {.name = "position", .format = NGLI_FORMAT_R32G32B32_SFLOAT, .stride = 3 * 4, .buffer = &s->vertices},
+        {.name = "uvcoord",  .format = NGLI_FORMAT_R32G32_SFLOAT,    .stride = 2 * 4, .buffer = &s->uvcoords},
+    };
+
+    struct pipeline_params pipeline_params = {
+        .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
+        .program       = &s->program,
+        .textures      = textures,
+        .nb_textures   = NGLI_ARRAY_NB(textures),
+        .uniforms      = uniforms,
+        .nb_uniforms   = NGLI_ARRAY_NB(uniforms),
+        .attributes    = attributes,
+        .nb_attributes = NGLI_ARRAY_NB(attributes),
+        .graphics      = {
+            .topology    = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
+            .nb_vertices = 4,
+        }
+    };
+
+    ret = ngli_pipeline_init(&s->pipeline, ctx, &pipeline_params);
+    if (ret < 0)
+        return ret;
+
+    s->modelview_matrix_index = ngli_pipeline_get_uniform_index(&s->pipeline, "modelview_matrix");
+    s->projection_matrix_index = ngli_pipeline_get_uniform_index(&s->pipeline, "projection_matrix");
+
+    return 0;
 }
 
 static void text_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct text_priv *s = node->priv_data;
 
     const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
 
-    ngli_honor_pending_glstate(ctx);
+    ngli_pipeline_update_uniform(&s->pipeline, s->modelview_matrix_index, modelview_matrix);
+    ngli_pipeline_update_uniform(&s->pipeline, s->projection_matrix_index, projection_matrix);
 
-    ngli_glUseProgram(gl, s->program.id);
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
-        ngli_glBindVertexArray(gl, s->vao_id);
-    else
-        enable_vertex_attribs(node);
-
-    ngli_glUniformMatrix4fv(gl, s->modelview_matrix_location, 1, GL_FALSE, modelview_matrix);
-    ngli_glUniformMatrix4fv(gl, s->projection_matrix_location, 1, GL_FALSE, projection_matrix);
-    ngli_glActiveTexture(gl, GL_TEXTURE0);
-    ngli_glBindTexture(gl, s->texture.target, s->texture.id);
-    ngli_glDrawArrays(gl, GL_TRIANGLE_FAN, 0, 4);
-
-    if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)) {
-        ngli_glDisableVertexAttribArray(gl, s->position_location);
-        ngli_glDisableVertexAttribArray(gl, s->uvcoord_location);
-    }
+    ngli_pipeline_exec(&s->pipeline);
 }
 
 static void text_uninit(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct text_priv *s = node->priv_data;
-
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
-        ngli_glDeleteVertexArrays(gl, 1, &s->vao_id);
-    ngli_program_reset(&s->program);
-    ngli_glDeleteBuffers(gl, 1, &s->vertices_id);
-    ngli_glDeleteBuffers(gl, 1, &s->uvcoord_id);
+    ngli_pipeline_reset(&s->pipeline);
     ngli_texture_reset(&s->texture);
+    ngli_buffer_reset(&s->vertices);
+    ngli_buffer_reset(&s->uvcoords);
+    ngli_program_reset(&s->program);
     ngli_free(s->canvas.buf);
 }
 
