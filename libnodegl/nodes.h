@@ -76,6 +76,7 @@ struct ngl_ctx {
     struct rendertarget *rendertarget;
     int viewport[4];
     float clear_color[4];
+    int program_id;
     struct ngl_node *scene;
     struct ngl_config config;
     int timer_active;
