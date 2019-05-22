@@ -21,6 +21,7 @@
 
 #include <string.h>
 
+#include "buffer.h"
 #include "hwconv.h"
 #include "glincludes.h"
 #include "glcontext.h"
@@ -30,8 +31,11 @@
 #include "math_utils.h"
 #include "memory.h"
 #include "nodes.h"
+#include "pipeline.h"
 #include "program.h"
 #include "texture.h"
+#include "topology.h"
+#include "type.h"
 #include "utils.h"
 
 static const char * const vertex_data =
@@ -172,30 +176,6 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     ngli_free(fragment_data);
     if (ret < 0)
         return ret;
-    ngli_glUseProgram(gl, hwconv->program.id);
-
-    const struct attributeprograminfo *position_info = ngli_hmap_get(hwconv->program.attributes, "position");
-    if (!position_info)
-        return -1;
-    hwconv->position_location = position_info->location;
-
-    for (int i = 0; i < desc->nb_planes; i++) {
-        char name[32];
-        snprintf(name, sizeof(name), "tex%d", i);
-        const struct uniformprograminfo *tex_info = ngli_hmap_get(hwconv->program.uniforms, name);
-        if (!tex_info)
-            return -1;
-        hwconv->texture_locations[i] = tex_info->location;
-        ngli_glUniform1i(gl, hwconv->texture_locations[i], i);
-    }
-
-    const struct uniformprograminfo *texture_matrix_info = ngli_hmap_get(hwconv->program.uniforms, "tex_coord_matrix");
-    if (!texture_matrix_info)
-        return -1;
-    hwconv->texture_matrix_location = texture_matrix_info->location;
-
-    const struct uniformprograminfo *texture_dimensions_info = ngli_hmap_get(hwconv->program.uniforms, "tex_dimensions");
-    hwconv->texture_dimensions_location = texture_dimensions_info ? texture_dimensions_info->location : -1;
 
     static const float vertices[] = {
         -1.0f, -1.0f, 0.0f, 0.0f,
@@ -203,26 +183,60 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
          1.0f,  1.0f, 1.0f, 1.0f,
         -1.0f,  1.0f, 0.0f, 1.0f,
     };
-    ngli_glGenBuffers(gl, 1, &hwconv->vertices_id);
-    ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, hwconv->vertices_id);
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    ret = ngli_buffer_init(&hwconv->vertices, ctx, sizeof(vertices), GL_STATIC_DRAW);
+    if (ret < 0)
+        return ret;
 
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
-        ngli_glGenVertexArrays(gl, 1, &hwconv->vao_id);
-        ngli_glBindVertexArray(gl, hwconv->vao_id);
+    ret = ngli_buffer_upload(&hwconv->vertices, vertices, sizeof(vertices));
+    if (ret < 0)
+        return ret;
 
-        ngli_glEnableVertexAttribArray(gl, hwconv->position_location);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, hwconv->vertices_id);
-        ngli_glVertexAttribPointer(gl, hwconv->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
-    }
+    const struct pipeline_uniform uniforms[] = {
+        {.name = "tex_coord_matrix", .type = NGLI_TYPE_MAT4, .count = 1,               .data  = NULL},
+        {.name = "tex_dimensions",   .type = NGLI_TYPE_VEC2, .count = desc->nb_planes, .data  = NULL},
+    };
+
+    const struct pipeline_texture textures[] = {
+        {.name = "tex0", .texture = NULL},
+        {.name = "tex1", .texture = NULL},
+    };
+
+    const struct pipeline_attribute attributes[] = {
+        {.name = "position", .format = NGLI_FORMAT_R32G32B32A32_SFLOAT, .stride = 4 * 4, .buffer = &hwconv->vertices},
+    };
+
+    struct pipeline_params pipeline_params = {
+        .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
+        .program       = &hwconv->program,
+        .textures      = textures,
+        .nb_textures   = desc->nb_planes,
+        .uniforms      = uniforms,
+        .nb_uniforms   = NGLI_ARRAY_NB(uniforms),
+        .attributes    = attributes,
+        .nb_attributes = NGLI_ARRAY_NB(attributes),
+        .graphics      = {
+            .topology    = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
+            .nb_vertices = 4,
+        },
+    };
+
+    ret = ngli_pipeline_init(&hwconv->pipeline, ctx, &pipeline_params);
+    if (ret < 0)
+        return ret;
+
+    hwconv->tex_indices[0] = ngli_pipeline_get_texture_index(&hwconv->pipeline, "tex0");
+    hwconv->tex_indices[1] = ngli_pipeline_get_texture_index(&hwconv->pipeline, "tex1");
+    hwconv->tex_coord_matrix_index = ngli_pipeline_get_uniform_index(&hwconv->pipeline, "tex_coord_matrix");
+    hwconv->tex_dimensions_index = ngli_pipeline_get_uniform_index(&hwconv->pipeline, "tex_dimensions");
 
     return 0;
 }
 
+static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
+
 int ngli_hwconv_convert(struct hwconv *hwconv, struct texture *planes, const float *matrix)
 {
     struct ngl_ctx *ctx = hwconv->ctx;
-    struct glcontext *gl = ctx->glcontext;
 
     struct rendertarget *rt = &hwconv->rt;
     struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
@@ -236,39 +250,20 @@ int ngli_hwconv_convert(struct hwconv *hwconv, struct texture *planes, const flo
 
     ngli_gctx_clear_color(ctx);
 
-    ngli_glUseProgram(gl, hwconv->program.id);
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
-        ngli_glBindVertexArray(gl, hwconv->vao_id);
-    } else {
-        ngli_glEnableVertexAttribArray(gl, hwconv->position_location);
-        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, hwconv->vertices_id);
-        ngli_glVertexAttribPointer(gl, hwconv->position_location, 4, GL_FLOAT, GL_FALSE, 4 * 4, NULL);
-    }
     const struct hwconv_desc *desc = &hwconv_descs[hwconv->src_layout];
+    float dimensions[4] = {0};
     for (int i = 0; i < desc->nb_planes; i++) {
-        ngli_glActiveTexture(gl, GL_TEXTURE0 + i);
-        ngli_glBindTexture(gl, planes[i].target, planes[i].id);
+        struct texture *plane = &planes[i];
+        ngli_pipeline_update_texture(&hwconv->pipeline, hwconv->tex_indices[i], plane);
+
+        const struct texture_params *params = &plane->params;
+        dimensions[i*2 + 0] = params->width;
+        dimensions[i*2 + 1] = params->height;
     }
-    if (matrix) {
-        ngli_glUniformMatrix4fv(gl, hwconv->texture_matrix_location, 1, GL_FALSE, matrix);
-    } else {
-        NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
-        ngli_glUniformMatrix4fv(gl, hwconv->texture_matrix_location, 1, GL_FALSE, id_matrix);
-    }
-    if (hwconv->texture_dimensions_location >= 0) {
-        ngli_assert(desc->nb_planes <= 2);
-        float dimensions[4] = {0};
-        for (int i = 0; i < desc->nb_planes; i++) {
-            const struct texture_params *params = &planes[i].params;
-            dimensions[i*2 + 0] = params->width;
-            dimensions[i*2 + 1] = params->height;
-        }
-        ngli_glUniform2fv(gl, hwconv->texture_dimensions_location, desc->nb_planes, dimensions);
-    }
-    ngli_glDrawArrays(gl, GL_TRIANGLE_FAN, 0, 4);
-    if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)) {
-        ngli_glDisableVertexAttribArray(gl, hwconv->position_location);
-    }
+    ngli_pipeline_update_uniform(&hwconv->pipeline, hwconv->tex_coord_matrix_index, matrix ? matrix : id_matrix);
+    ngli_pipeline_update_uniform(&hwconv->pipeline, hwconv->tex_dimensions_index, dimensions);
+
+    ngli_pipeline_exec(&hwconv->pipeline);
 
     ngli_gctx_set_rendertarget(ctx, prev_rt);
     ngli_gctx_set_viewport(ctx, prev_vp);
@@ -282,13 +277,10 @@ void ngli_hwconv_reset(struct hwconv *hwconv)
     if (!ctx)
         return;
 
-    ngli_rendertarget_reset(&hwconv->rt);
-
-    struct glcontext *gl = ctx->glcontext;
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
-        ngli_glDeleteVertexArrays(gl, 1, &hwconv->vao_id);
+    ngli_pipeline_reset(&hwconv->pipeline);
+    ngli_buffer_reset(&hwconv->vertices);
     ngli_program_reset(&hwconv->program);
-    ngli_glDeleteBuffers(gl, 1, &hwconv->vertices_id);
+    ngli_rendertarget_reset(&hwconv->rt);
 
     memset(hwconv, 0, sizeof(*hwconv));
 }

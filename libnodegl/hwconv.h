@@ -22,12 +22,14 @@
 #ifndef HWCONV_H
 #define HWCONV_H
 
+#include "buffer.h"
 #include "rendertarget.h"
 #include "glincludes.h"
 #include "glcontext.h"
 #include "image.h"
 #include "program.h"
 #include "texture.h"
+#include "pipeline.h"
 
 struct hwconv {
     struct ngl_ctx *ctx;
@@ -36,13 +38,12 @@ struct hwconv {
     struct rendertarget rt;
     struct texture color_attachment;
     struct program program;
+    struct buffer vertices;
+    struct pipeline pipeline;
 
-    GLuint vao_id;
-    GLuint vertices_id;
-    GLint position_location;
-    GLint texture_locations[2];
-    GLint texture_matrix_location;
-    GLint texture_dimensions_location;
+    int tex_indices[2];
+    int tex_coord_matrix_index;
+    int tex_dimensions_index;
 };
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
