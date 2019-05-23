@@ -29,9 +29,9 @@
 
 static const int nb_planes_map[] = {
     [NGLI_IMAGE_LAYOUT_DEFAULT]        = 1,
+    [NGLI_IMAGE_LAYOUT_MEDIACODEC]     = 1,
     [NGLI_IMAGE_LAYOUT_NV12]           = 2,
     [NGLI_IMAGE_LAYOUT_NV12_RECTANGLE] = 2,
-    [NGLI_IMAGE_LAYOUT_MEDIACODEC]     = 1,
 };
 
 NGLI_STATIC_ASSERT(nb_planes_map, NGLI_ARRAY_NB(nb_planes_map) == NGLI_NB_IMAGE_LAYOUTS);
