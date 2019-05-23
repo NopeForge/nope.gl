@@ -524,7 +524,7 @@ static int update_sampler(const struct glcontext *gl,
         { info->external_sampler_location, 1, 0 },
     };
 
-    *sampling_mode = NGLI_SAMPLING_MODE_NONE;
+    *sampling_mode = NGLI_IMAGE_LAYOUT_NONE;
     if (image->layout == NGLI_IMAGE_LAYOUT_DEFAULT) {
         if (info->sampler_location >= 0) {
             const struct texture *plane = image->planes[0];
@@ -537,7 +537,7 @@ static int update_sampler(const struct glcontext *gl,
                 int ret = bind_texture_plane(gl, plane, used_texture_units, info->sampler_location);
                 if (ret < 0)
                     return ret;
-                *sampling_mode = NGLI_SAMPLING_MODE_DEFAULT;
+                *sampling_mode = image->layout;
             }
             samplers[0].bound = 1;
         }
@@ -548,7 +548,7 @@ static int update_sampler(const struct glcontext *gl,
             if (ret < 0)
                 return ret;
             samplers[1].bound = 1;
-            *sampling_mode = NGLI_SAMPLING_MODE_NV12;
+            *sampling_mode = image->layout;
         }
         if (info->uv_sampler_location >= 0) {
             const struct texture *plane = image->planes[1];
@@ -556,7 +556,7 @@ static int update_sampler(const struct glcontext *gl,
             if (ret < 0)
                 return ret;
             samplers[2].bound = 1;
-            *sampling_mode = NGLI_SAMPLING_MODE_NV12;
+            *sampling_mode = image->layout;
         }
     } else if (image->layout == NGLI_IMAGE_LAYOUT_MEDIACODEC) {
         if (info->external_sampler_location >= 0) {
@@ -565,7 +565,7 @@ static int update_sampler(const struct glcontext *gl,
             if (ret < 0)
                 return ret;
             samplers[3].bound = 1;
-            *sampling_mode = NGLI_SAMPLING_MODE_EXTERNAL_OES;
+            *sampling_mode = image->layout;
         }
     }
 

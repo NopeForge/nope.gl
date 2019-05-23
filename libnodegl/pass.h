@@ -28,11 +28,6 @@
 #include "glincludes.h"
 #include "program.h"
 
-#define NGLI_SAMPLING_MODE_NONE         0
-#define NGLI_SAMPLING_MODE_DEFAULT      1
-#define NGLI_SAMPLING_MODE_EXTERNAL_OES 2
-#define NGLI_SAMPLING_MODE_NV12         3
-
 typedef void (*nodeprograminfopair_handle_func)(struct glcontext *gl, GLint loc, void *priv);
 
 struct nodeprograminfopair {
