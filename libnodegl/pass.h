@@ -26,16 +26,8 @@
 #include "darray.h"
 #include "glcontext.h"
 #include "glincludes.h"
+#include "pipeline.h"
 #include "program.h"
-
-typedef void (*nodeprograminfopair_handle_func)(struct glcontext *gl, GLint loc, void *priv);
-
-struct nodeprograminfopair {
-    char name[MAX_ID_LEN];
-    struct ngl_node *node;
-    void *program_info;
-    nodeprograminfopair_handle_func handle;
-};
 
 struct pass_params {
     const char *label;
@@ -61,52 +53,35 @@ enum {
     NGLI_PASS_TYPE_COMPUTE,
 };
 
-struct textureprograminfo {
-    int sampling_mode_location;
-    int sampler_value;
-    int sampler_type;
-    int sampler_location;
-    int external_sampler_location;
-    int y_sampler_location;
-    int uv_sampler_location;
-    int coord_matrix_location;
-    int dimensions_location;
-    int dimensions_type;
-    int ts_location;
-};
-
 struct pass {
     struct ngl_ctx *ctx;
-    struct glcontext *gl;
     struct pass_params params;
-    int type;
 
-    struct textureprograminfo *textureprograminfos;
-    int nb_textureprograminfos;
-    struct darray texture_pairs; // nodeprograminfopair (texture, textureprograminfo)
+    struct program default_program;
 
-    uint64_t used_texture_units;
-    int disabled_texture_unit[2]; /* 2D, OES */
+    struct darray attributes;
+    struct darray textures;
+    struct darray uniforms;
+    struct darray blocks;
 
-    struct darray uniform_pairs; // nodeprograminfopair (uniform, uniformprograminfo)
-    struct darray block_pairs; // nodeprograminfopair (block, uniformprograminfo)
+    struct darray texture_infos;
 
-    void (*exec)(struct glcontext *gl, const struct pass *s);
+    struct ngl_node *indices;
+    struct buffer *indices_buffer;
 
-    /* graphics */
+    int pipeline_type;
+    struct program *pipeline_program;
+    struct pipeline_graphics pipeline_graphics;
+    struct pipeline_compute pipeline_compute;
+    struct darray pipeline_attributes;
+    struct darray pipeline_uniforms;
+    struct darray pipeline_textures;
+    struct darray pipeline_buffers;
+    struct pipeline pipeline;
 
-    struct darray attribute_pairs; // nodeprograminfopair (attribute, attributeprograminfo)
-    struct darray instance_attribute_pairs; // nodeprograminfopair (instance attribute, attributeprograminfo)
-
-    GLint modelview_matrix_location;
-    GLint projection_matrix_location;
-    GLint normal_matrix_location;
-
-    GLuint vao_id;
-
-    struct hmap *pass_attributes;
-    int has_indices_buffer_ref;
-    GLenum indices_type;
+    int modelview_matrix_index;
+    int projection_matrix_index;
+    int normal_matrix_index;
 };
 
 int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params *params);
