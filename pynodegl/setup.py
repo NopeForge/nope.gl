@@ -21,7 +21,7 @@
 # under the License.
 #
 
-from setuptools import setup, Extension
+from setuptools import setup, Command, Extension
 from setuptools.command.build_ext import build_ext
 
 
@@ -429,6 +429,21 @@ class BuildExtCommand(build_ext):
         build_ext.run(self)
 
 
+class BuildSrcCommmand(Command):
+    user_options = []
+
+    def initialize_options(self):
+        pass
+
+    def finalize_options(self):
+        pass
+
+    def run(self):
+        from Cython.Compiler.Main import compile
+        CommandUtils.write_definitions_pyx()
+        compile('pynodegl.pyx', output_file='pynodegl.c')
+
+
 setup(
     name='pynodegl',
     version=_LIB_CFG.version,
@@ -439,6 +454,7 @@ setup(
     ],
     cmdclass={
         'build_ext': BuildExtCommand,
+        'build_src': BuildSrcCommmand,
     },
     ext_modules=[Extension("pynodegl",
                            sources=['pynodegl.pyx'],
