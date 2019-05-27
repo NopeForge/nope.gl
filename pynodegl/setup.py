@@ -49,9 +49,10 @@ class LibNodeGLConfig:
 _LIB_CFG = LibNodeGLConfig()
 
 
-class BuildExtCommand(build_ext):
+class CommandUtils:
 
-    def _gen_definitions_pyx(self, specs):
+    @staticmethod
+    def _gen_definitions_pyx(specs):
         import yaml  # must NOT be on top of this file
 
         specs = yaml.load(open(specs))
@@ -413,11 +414,18 @@ cdef class %(class_name)s(%(parent_node)s):
 
         return content
 
-    def run(self):
+    @staticmethod
+    def write_definitions_pyx():
         import os.path as op
         specs_file = op.join(_LIB_CFG.data_root_dir, 'nodegl', 'nodes.specs')
-        content = self._gen_definitions_pyx(specs_file)
+        content = CommandUtils._gen_definitions_pyx(specs_file)
         open('nodes_def.pyx', 'w').write(content)
+
+
+class BuildExtCommand(build_ext):
+
+    def run(self):
+        CommandUtils.write_definitions_pyx()
         build_ext.run(self)
 
 
