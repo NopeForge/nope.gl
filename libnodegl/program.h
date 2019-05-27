@@ -45,6 +45,13 @@ struct blockprograminfo {
     GLenum type;
 };
 
+enum {
+    NGLI_PROGRAM_SHADER_VERT,
+    NGLI_PROGRAM_SHADER_FRAG,
+    NGLI_PROGRAM_SHADER_COMP,
+    NGLI_PROGRAM_SHADER_NB
+};
+
 struct program {
     struct ngl_ctx *ctx;
     struct hmap *uniforms;
