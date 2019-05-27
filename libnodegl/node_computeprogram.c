@@ -38,13 +38,7 @@ static const struct node_param computeprogram_params[] = {
 static int computeprogram_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct program_priv *s = node->priv_data;
-
-    if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
-        LOG(ERROR, "context does not support compute shaders");
-        return -1;
-    }
 
     return ngli_program_init(&s->program, ctx, NULL, NULL, s->compute);
 }
