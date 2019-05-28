@@ -234,16 +234,6 @@ static const struct {
     [IS_ARRAY]  = {has_changed_buffer,  update_buffer_field},
 };
 
-static const int fields_buffer_list[] = {FIELD_TYPES_BUFFER_LIST};
-
-static int node_is_buffer(int class_id)
-{
-    for (int i = 0; i < NGLI_ARRAY_NB(fields_buffer_list); i++)
-        if (fields_buffer_list[i] == class_id)
-            return 1;
-    return 0;
-}
-
 static void update_block_data(struct block_priv *s, int forced)
 {
     for (int i = 0; i < s->nb_fields; i++) {
@@ -284,7 +274,7 @@ static int block_init(struct ngl_node *node)
     s->data_size = 0;
     for (int i = 0; i < s->nb_fields; i++) {
         const struct ngl_node *field_node = s->fields[i];
-        const int is_array = node_is_buffer(field_node->class->id);
+        const int is_array = field_node->class->category == NGLI_NODE_CATEGORY_BUFFER;
         const int size   = get_node_size(field_node, s->layout);
         const int align  = get_node_align(field_node, s->layout);
 
