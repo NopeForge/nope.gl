@@ -23,74 +23,17 @@
 #include <stdio.h>
 #include <string.h>
 #include "bstr.h"
+#include "default_shaders.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "program.h"
 
-#if defined(TARGET_ANDROID)
-static const char default_fragment_shader[] =
-    "#version 100"                                                                      "\n"
-    "#extension GL_OES_EGL_image_external : require"                                    "\n"
-    ""                                                                                  "\n"
-    "precision highp float;"                                                            "\n"
-    "uniform int tex0_sampling_mode;"                                                   "\n"
-    "uniform sampler2D tex0_sampler;"                                                   "\n"
-    "uniform samplerExternalOES tex0_external_sampler;"                                 "\n"
-    "varying vec2 var_uvcoord;"                                                         "\n"
-    "varying vec2 var_tex0_coord;"                                                      "\n"
-    "void main(void)"                                                                   "\n"
-    "{"                                                                                 "\n"
-    "    if (tex0_sampling_mode == 1)"                                                  "\n"
-    "        gl_FragColor = texture2D(tex0_sampler, var_tex0_coord);"                   "\n"
-    "    else if (tex0_sampling_mode == 2)"                                             "\n"
-    "        gl_FragColor = texture2D(tex0_external_sampler, var_tex0_coord);"          "\n"
-    "    else"                                                                          "\n"
-    "        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);"                                  "\n"
-    "}";
-#else
-static const char default_fragment_shader[] =
-    "#version 100"                                                                      "\n"
-    ""                                                                                  "\n"
-    "precision highp float;"                                                            "\n"
-    "uniform sampler2D tex0_sampler;"                                                   "\n"
-    "varying vec2 var_uvcoord;"                                                         "\n"
-    "varying vec2 var_tex0_coord;"                                                      "\n"
-    "void main(void)"                                                                   "\n"
-    "{"                                                                                 "\n"
-    "    gl_FragColor = texture2D(tex0_sampler, var_tex0_coord);"                       "\n"
-    "}";
-#endif
-
-static const char default_vertex_shader[] =
-    "#version 100"                                                                      "\n"
-    ""                                                                                  "\n"
-    "precision highp float;"                                                            "\n"
-    "attribute vec4 ngl_position;"                                                      "\n"
-    "attribute vec2 ngl_uvcoord;"                                                       "\n"
-    "attribute vec3 ngl_normal;"                                                        "\n"
-    "uniform mat4 ngl_modelview_matrix;"                                                "\n"
-    "uniform mat4 ngl_projection_matrix;"                                               "\n"
-    "uniform mat3 ngl_normal_matrix;"                                                   "\n"
-
-    "uniform mat4 tex0_coord_matrix;"                                                   "\n"
-
-    "varying vec2 var_uvcoord;"                                                         "\n"
-    "varying vec3 var_normal;"                                                          "\n"
-    "varying vec2 var_tex0_coord;"                                                      "\n"
-    "void main()"                                                                       "\n"
-    "{"                                                                                 "\n"
-    "    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;"    "\n"
-    "    var_uvcoord = ngl_uvcoord;"                                                    "\n"
-    "    var_normal = ngl_normal_matrix * ngl_normal;"                                  "\n"
-    "    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;"        "\n"
-    "}";
-
 #define OFFSET(x) offsetof(struct program_priv, x)
 static const struct node_param program_params[] = {
-    {"vertex",   PARAM_TYPE_STR, OFFSET(vertex),   {.str=default_vertex_shader},
+    {"vertex",   PARAM_TYPE_STR, OFFSET(vertex),   {.str=NULL},
                  .desc=NGLI_DOCSTRING("vertex shader")},
-    {"fragment", PARAM_TYPE_STR, OFFSET(fragment), {.str=default_fragment_shader},
+    {"fragment", PARAM_TYPE_STR, OFFSET(fragment), {.str=NULL},
                  .desc=NGLI_DOCSTRING("fragment shader")},
     {NULL}
 };
@@ -99,8 +42,10 @@ static int program_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct program_priv *s = node->priv_data;
+    const char *vertex = s->vertex ? s->vertex : ngli_get_default_shader(NGLI_PROGRAM_SHADER_VERT);
+    const char *fragment = s->fragment ? s->fragment : ngli_get_default_shader(NGLI_PROGRAM_SHADER_FRAG);
 
-    return ngli_program_init(&s->program, ctx, s->vertex, s->fragment, NULL);
+    return ngli_program_init(&s->program, ctx, vertex, fragment, NULL);
 }
 
 static void program_uninit(struct ngl_node *node)
