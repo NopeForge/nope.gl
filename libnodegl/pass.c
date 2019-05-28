@@ -913,22 +913,16 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
 
         if (per_instance) {
             if (buffer->count != s->params.nb_instances) {
-                LOG(ERROR,
-                    "attribute buffer %s count (%d) does not match instance count (%d)",
-                    entry->key,
-                    buffer->count,
-                    s->params.nb_instances);
+                LOG(ERROR, "attribute buffer %s count (%d) does not match instance count (%d)",
+                    entry->key, buffer->count, s->params.nb_instances);
                 return -1;
             }
         } else {
             struct geometry_priv *geometry = s->params.geometry->priv_data;
             struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
             if (buffer->count != vertices->count) {
-                LOG(ERROR,
-                    "attribute buffer %s count (%d) does not match vertices count (%d)",
-                    entry->key,
-                    buffer->count,
-                    vertices->count);
+                LOG(ERROR, "attribute buffer %s count (%d) does not match vertices count (%d)",
+                    entry->key, buffer->count, vertices->count);
                 return -1;
             }
         }
