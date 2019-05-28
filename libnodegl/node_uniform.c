@@ -265,72 +265,21 @@ static int uniformmat4_init(struct ngl_node *node)
     return 0;
 }
 
-const struct node_class ngli_uniformfloat_class = {
-    .id        = NGL_NODE_UNIFORMFLOAT,
-    .name      = "UniformFloat",
-    .init      = uniformfloat_init,
-    .update    = uniformfloat_update,
-    .priv_size = sizeof(struct uniform_priv),
-    .params    = uniformfloat_params,
-    .file      = __FILE__,
+#define DEFINE_UNIFORM_CLASS(class_id, class_name, type)        \
+const struct node_class ngli_uniform##type##_class = {          \
+    .id        = class_id,                                      \
+    .name      = class_name,                                    \
+    .init      = uniform##type##_init,                          \
+    .update    = uniform##type##_update,                        \
+    .priv_size = sizeof(struct uniform_priv),                   \
+    .params    = uniform##type##_params,                        \
+    .file      = __FILE__,                                      \
 };
 
-const struct node_class ngli_uniformvec2_class = {
-    .id        = NGL_NODE_UNIFORMVEC2,
-    .name      = "UniformVec2",
-    .init      = uniformvec2_init,
-    .update    = uniformvec2_update,
-    .priv_size = sizeof(struct uniform_priv),
-    .params    = uniformvec2_params,
-    .file      = __FILE__,
-};
-
-const struct node_class ngli_uniformvec3_class = {
-    .id        = NGL_NODE_UNIFORMVEC3,
-    .name      = "UniformVec3",
-    .init      = uniformvec3_init,
-    .update    = uniformvec3_update,
-    .priv_size = sizeof(struct uniform_priv),
-    .params    = uniformvec3_params,
-    .file      = __FILE__,
-};
-
-const struct node_class ngli_uniformvec4_class = {
-    .id        = NGL_NODE_UNIFORMVEC4,
-    .name      = "UniformVec4",
-    .init      = uniformvec4_init,
-    .update    = uniformvec4_update,
-    .priv_size = sizeof(struct uniform_priv),
-    .params    = uniformvec4_params,
-    .file      = __FILE__,
-};
-
-const struct node_class ngli_uniformquat_class = {
-    .id        = NGL_NODE_UNIFORMQUAT,
-    .name      = "UniformQuat",
-    .init      = uniformquat_init,
-    .update    = uniformquat_update,
-    .priv_size = sizeof(struct uniform_priv),
-    .params    = uniformquat_params,
-    .file      = __FILE__,
-};
-
-const struct node_class ngli_uniformint_class = {
-    .id        = NGL_NODE_UNIFORMINT,
-    .name      = "UniformInt",
-    .init      = uniformint_init,
-    .update    = uniformint_update,
-    .priv_size = sizeof(struct uniform_priv),
-    .params    = uniformint_params,
-    .file      = __FILE__,
-};
-
-const struct node_class ngli_uniformmat4_class = {
-    .id        = NGL_NODE_UNIFORMMAT4,
-    .name      = "UniformMat4",
-    .init      = uniformmat4_init,
-    .update    = uniformmat4_update,
-    .priv_size = sizeof(struct uniform_priv),
-    .params    = uniformmat4_params,
-    .file      = __FILE__,
-};
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMFLOAT, "UniformFloat", float)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC2,  "UniformVec2",  vec2)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC3,  "UniformVec3",  vec3)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC4,  "UniformVec4",  vec4)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMQUAT,  "UniformQuat",  quat)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMINT,   "UniformInt",   int)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMMAT4,  "UniformMat4",  mat4)
