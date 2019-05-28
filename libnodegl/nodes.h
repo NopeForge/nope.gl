@@ -398,6 +398,13 @@ struct hud_priv {
     int need_refresh;
 };
 
+enum {
+    NGLI_NODE_CATEGORY_UNIFORM,
+    NGLI_NODE_CATEGORY_TEXTURE,
+    NGLI_NODE_CATEGORY_BUFFER,
+    NGLI_NODE_CATEGORY_BLOCK,
+};
+
 /**
  *   Operation        State result
  * -----------------------------------
@@ -436,6 +443,7 @@ struct hud_priv {
  */
 struct node_class {
     int id;
+    int category;
     const char *name;
     int (*init)(struct ngl_node *node);
     int (*visit)(struct ngl_node *node, int is_active, double t);

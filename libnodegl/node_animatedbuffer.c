@@ -128,6 +128,7 @@ static int animatedbuffer##type##_init(struct ngl_node *node)                   
                                                                                    \
 const struct node_class ngli_animatedbuffer##type##_class = {                      \
     .id        = class_id,                                                         \
+    .category  = NGLI_NODE_CATEGORY_BUFFER,                                        \
     .name      = class_name,                                                       \
     .init      = animatedbuffer##type##_init,                                      \
     .update    = animatedbuffer_update,                                            \

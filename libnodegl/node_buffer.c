@@ -274,6 +274,7 @@ static int buffer##type##_init(struct ngl_node *node)           \
                                                                 \
 const struct node_class ngli_buffer##type##_class = {           \
     .id        = class_id,                                      \
+    .category  = NGLI_NODE_CATEGORY_BUFFER,                     \
     .name      = class_name,                                    \
     .init      = buffer##type##_init,                           \
     .uninit    = buffer_uninit,                                 \

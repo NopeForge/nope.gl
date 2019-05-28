@@ -341,6 +341,7 @@ static void block_uninit(struct ngl_node *node)
 
 const struct node_class ngli_block_class = {
     .id        = NGL_NODE_BLOCK,
+    .category  = NGLI_NODE_CATEGORY_BLOCK,
     .name      = "Block",
     .init      = block_init,
     .update    = block_update,

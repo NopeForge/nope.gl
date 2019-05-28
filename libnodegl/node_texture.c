@@ -481,6 +481,7 @@ static int texturecube_init(struct ngl_node *node)
 
 const struct node_class ngli_texture2d_class = {
     .id        = NGL_NODE_TEXTURE2D,
+    .category  = NGLI_NODE_CATEGORY_TEXTURE,
     .name      = "Texture2D",
     .prefetch  = texture2d_prefetch,
     .update    = texture_update,
@@ -492,6 +493,7 @@ const struct node_class ngli_texture2d_class = {
 
 const struct node_class ngli_texture3d_class = {
     .id        = NGL_NODE_TEXTURE3D,
+    .category  = NGLI_NODE_CATEGORY_TEXTURE,
     .name      = "Texture3D",
     .init      = texture3d_init,
     .prefetch  = texture3d_prefetch,
@@ -504,6 +506,7 @@ const struct node_class ngli_texture3d_class = {
 
 const struct node_class ngli_texturecube_class = {
     .id        = NGL_NODE_TEXTURECUBE,
+    .category  = NGLI_NODE_CATEGORY_TEXTURE,
     .name      = "TextureCube",
     .init      = texturecube_init,
     .prefetch  = texturecube_prefetch,
