@@ -73,7 +73,7 @@ static int parse_bool(const char *s, int *valp)
     return ret;
 }
 
-#define DECLARE_FLT_PARSE_FUNC(type, nbit, shift_exp)                       \
+#define DECLARE_FLT_PARSE_FUNC(type, nbit, shift_exp, expected_z)           \
 static int parse_##type(const char *s, type *valp)                          \
 {                                                                           \
     int consumed = 0;                                                       \
@@ -87,7 +87,7 @@ static int parse_##type(const char *s, type *valp)                          \
     char *endptr = NULL;                                                    \
     uint##nbit##_t exp = nbit == 64 ? strtoull(s + consumed, &endptr, 16)   \
                                     : strtoul(s + consumed, &endptr, 16);   \
-    if (*endptr++ != 'z')                                                   \
+    if (*endptr++ != expected_z)                                            \
         return -1;                                                          \
     uint##nbit##_t mant = nbit == 64 ? strtoull(endptr, &endptr, 16)        \
                                      : strtoul(endptr, &endptr, 16);        \
@@ -98,8 +98,8 @@ static int parse_##type(const char *s, type *valp)                          \
     return (int)(endptr - s);                                               \
 }
 
-DECLARE_FLT_PARSE_FUNC(float,  32, 23)
-DECLARE_FLT_PARSE_FUNC(double, 64, 52)
+DECLARE_FLT_PARSE_FUNC(float,  32, 23, 'z')
+DECLARE_FLT_PARSE_FUNC(double, 64, 52, 'Z')
 
 #define DECLARE_PARSE_LIST_FUNC(type, parse_func)                           \
 static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \

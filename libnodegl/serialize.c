@@ -62,7 +62,7 @@ static const char *get_node_id(const struct hmap *nlist,
     return val;
 }
 
-#define DECLARE_FLT_PRINT_FUNCS(type, nbit, shift_exp)                  \
+#define DECLARE_FLT_PRINT_FUNCS(type, nbit, shift_exp, z)               \
 static void print_##type(struct bstr *b, type f)                        \
 {                                                                       \
     const union { uint##nbit##_t i; type f; } u = {.f = f};             \
@@ -71,8 +71,8 @@ static void print_##type(struct bstr *b, type f)                        \
     const uint##nbit##_t exp_mask = (1 << (nbit - shift_exp - 1)) - 1;  \
     const uint##nbit##_t exp  = v >> shift_exp & exp_mask;              \
     const uint##nbit##_t mant = v & ((1ULL << shift_exp) - 1);          \
-    ngli_bstr_print(b, "%s%" PRIX##nbit "z%" PRIX##nbit,                \
-                    sign ? "-" : "", exp, mant);                        \
+    ngli_bstr_print(b, "%s%" PRIX##nbit "%c%" PRIX##nbit,               \
+                    sign ? "-" : "", exp, z, mant);                     \
 }                                                                       \
                                                                         \
 static void print_##type##s(struct bstr *b, int n, const type *f)       \
@@ -83,8 +83,8 @@ static void print_##type##s(struct bstr *b, int n, const type *f)       \
     }                                                                   \
 }
 
-DECLARE_FLT_PRINT_FUNCS(float,  32, 23)
-DECLARE_FLT_PRINT_FUNCS(double, 64, 52)
+DECLARE_FLT_PRINT_FUNCS(float,  32, 23, 'z')
+DECLARE_FLT_PRINT_FUNCS(double, 64, 52, 'Z')
 
 static void serialize_options(struct hmap *nlist,
                               struct bstr *b,
