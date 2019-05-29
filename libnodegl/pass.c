@@ -537,9 +537,9 @@ static int update_sampler(const struct glcontext *gl,
                 int ret = bind_texture_plane(gl, plane, used_texture_units, info->sampler_location);
                 if (ret < 0)
                     return ret;
-                *sampling_mode = image->layout;
             }
             samplers[0].bound = 1;
+            *sampling_mode = image->layout;
         }
     } else if (image->layout == NGLI_IMAGE_LAYOUT_NV12) {
         if (info->y_sampler_location >= 0) {
