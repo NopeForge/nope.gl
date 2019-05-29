@@ -315,7 +315,7 @@ static const struct texture_uniform_map {
     size_t type_offset;
     size_t binding_offset;
 } texture_uniform_maps[] = {
-    {"",                  (const int[]){NGLI_TYPE_SAMPLER_2D, NGLI_TYPE_SAMPLER_3D,
+    {"_sampler",          (const int[]){NGLI_TYPE_SAMPLER_2D, NGLI_TYPE_SAMPLER_3D,
                                         NGLI_TYPE_SAMPLER_CUBE, NGLI_TYPE_IMAGE_2D, 0}, OFFSET(sampler_location),          OFFSET(sampler_type),    OFFSET(sampler_value)},
     {"_sampling_mode",    (const int[]){NGLI_TYPE_INT, 0},                              OFFSET(sampling_mode_location),    SIZE_MAX,                SIZE_MAX},
     {"_coord_matrix",     (const int[]){NGLI_TYPE_MAT4, 0},                             OFFSET(coord_matrix_location),     SIZE_MAX,                SIZE_MAX},
@@ -343,10 +343,6 @@ static int load_textureprograminfo(struct textureprograminfo *info,
         const struct texture_uniform_map *map = &texture_uniform_maps[i];
         const char *suffix = map->suffix;
         const struct uniformprograminfo *uniform = get_uniform_info(active_uniforms, tex_key, suffix);
-        if (!uniform && !strcmp(map->suffix, "")) { // Allow _sampler suffix
-            suffix = "_sampler";
-            uniform = get_uniform_info(active_uniforms, tex_key, suffix);
-        }
         if (uniform && !is_allowed_type(map->allowed_types, uniform->type)) {
             LOG(ERROR, "invalid type 0x%x found for texture uniform %s%s",
                 uniform->type, tex_key, suffix);
