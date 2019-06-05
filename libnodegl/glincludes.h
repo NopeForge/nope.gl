@@ -85,6 +85,7 @@ typedef void* GLeglImageOES;
 # define GL_UNSIGNED_INT_VEC2                  0x8DC6
 # define GL_UNSIGNED_INT_VEC3                  0x8DC7
 # define GL_UNSIGNED_INT_VEC4                  0x8DC8
+# define GL_SAMPLER_2D_RECT                    0x8B63
 # define GL_SAMPLER_3D                         0x8B5F
 # define GL_SAMPLER_CUBE                       0x8B60
 # define GL_TEXTURE_EXTERNAL_OES               0x8D65
