@@ -161,8 +161,12 @@ def _get_easing_list():
     return easings
 
 
+_easing_list = _get_easing_list()
+_easing_names = [e[0] for e in _easing_list]
+
+
 def _get_easing_nodes(cfg, color_program):
-    easings = _get_easing_list()
+    easings = _easing_list
     nb_easings = len(easings)
 
     nb_rows = int(math.sqrt(nb_easings))
@@ -186,8 +190,8 @@ def _get_easing_nodes(cfg, color_program):
             yield easing_node
 
 
-@scene()
-def easings(cfg):
+@scene(easing_id={'type': 'list', 'choices': ['*'] + _easing_names})
+def easings(cfg, easing_id='*'):
     '''Display all the easings (primitive for animation / motion design) at once'''
     random.seed(0)
 
@@ -199,7 +203,15 @@ def easings(cfg):
 
     group = ngl.Group()
     group.add_children(full_block)
-    for easing_node in _get_easing_nodes(cfg, color_program):
+    if easing_id == '*':
+        for easing_node in _get_easing_nodes(cfg, color_program):
+            group.add_children(easing_node)
+    else:
+        cfg.aspect_ratio = (1, 1)
+        easing_index = _easing_names.index(easing_id)
+        random.seed(easing_index)
+        easing, zoom = _easing_list[easing_index]
+        easing_node = _get_easing_node(cfg, easing, zoom, color_program)
         group.add_children(easing_node)
 
     return ngl.GraphicConfig(group,
