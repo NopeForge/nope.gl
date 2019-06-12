@@ -128,6 +128,27 @@ def file_example(cfg, input=None):
 
 ![file widget](img/widget-file.png)
 
+### list
+
+A `list` is associated with a **combo box** widget.
+
+The associated argument is expected to be a `str` present in the choices.
+
+Available options:
+
+Option      | Description
+----------- | -----------
+`choices`   | a list of `str`
+
+**Example**:
+
+```
+@scene(easing={'type': 'list', 'choices': ('linear', 'exp_in', 'sinus_in')})
+def anim(cfg, easing='exp_in'):
+    ...
+```
+
+![list widget](img/widget-list.png)
 
 ## Viewer hooks
 

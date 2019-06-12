@@ -176,8 +176,8 @@ class Toolbar(QtWidgets.QWidget):
             self._scene_opts_widget = widget
             widget.show()
 
-    def _get_label_text(self, id_name, value):
-        return '<b>{}:</b> {}'.format(id_name, value)
+    def _get_label_text(self, id_name, value=None):
+        return '<b>{}:</b> {}'.format(id_name, value) if value is not None else '<b>{}:</b>'.format(id_name)
 
     def _craft_slider_value_changed_cb(self, id_name, label, unit_base):
 
@@ -227,6 +227,15 @@ class Toolbar(QtWidgets.QWidget):
 
         return checkbox_toggle
 
+    def _craft_combobox_text_changed_cb(self, id_name):
+
+        @QtCore.pyqtSlot(str)
+        def combobox_select(text):
+            self._scene_extra_args[id_name] = text
+            self._load_current_scene(load_widgets=False)
+
+        return combobox_select
+
     def _get_opts_widget_from_specs(self, widgets_specs):
         widgets = []
 
@@ -275,6 +284,17 @@ class Toolbar(QtWidgets.QWidget):
                                                                     widget_specs.get('filter', ''))
                 dialog_btn.pressed.connect(choose_filename_cb)
                 widgets.append(dialog_btn)
+
+            elif widget_specs['type'] == 'list':
+                combobox = QtWidgets.QComboBox()
+                label = QtWidgets.QLabel(self._get_label_text(name))
+                widgets.append(label)
+                choices = widget_specs['choices']
+                combobox.addItems(choices)
+                combobox.setCurrentIndex(choices.index(widget_specs['default']))
+                combobox_text_changed = self._craft_combobox_text_changed_cb(name)
+                combobox.currentTextChanged.connect(combobox_text_changed)
+                widgets.append(combobox)
 
         if not widgets:
             return None
