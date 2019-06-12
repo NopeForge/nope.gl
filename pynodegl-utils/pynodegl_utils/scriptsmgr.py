@@ -69,6 +69,7 @@ class ScriptsManager(QtCore.QObject):
         self.pause()
         odict = query_subproc(query='list', pkg=self._module_pkgname)
         if 'error' in odict:
+            self.update_filelist(odict['filelist'])
             self.resume()
             self.error.emit(odict['error'])
             return
@@ -92,7 +93,15 @@ class ScriptsManager(QtCore.QObject):
             self._timer = Timer(MIN_RELOAD_INTERVAL, print_reload, ())
             self._timer.start()
 
+    def _update_dirs_to_watch(self):
+        self._dirs_to_watch = set(op.dirname(f) for f in self._files_to_watch)
+
+    @QtCore.pyqtSlot(list)
+    def update_filelist(self, filelist):
+        self._files_to_watch.update(filelist)
+        self._update_dirs_to_watch()
+
     @QtCore.pyqtSlot(list)
     def set_filelist(self, filelist):
         self._files_to_watch = set(filelist)
-        self._dirs_to_watch = set(op.dirname(f) for f in self._files_to_watch)
+        self._update_dirs_to_watch()

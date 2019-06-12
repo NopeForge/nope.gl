@@ -126,80 +126,84 @@ def query_inplace(**idict):
 
     odict = {}
 
-    if idict['query'] == 'scene':
+    try:
+        if idict['query'] == 'scene':
 
-        # Get module.func
-        module_name, scene_name = idict['scene']
-        if module_is_script:
-            module = _load_script(module_pkgname)
-        else:
-            import_name = '%s.%s' % (module_pkgname, module_name)
-            module = importlib.import_module(import_name)
-        func = getattr(module, scene_name)
+            # Get module.func
+            module_name, scene_name = idict['scene']
+            if module_is_script:
+                module = _load_script(module_pkgname)
+            else:
+                import_name = '%s.%s' % (module_pkgname, module_name)
+                module = importlib.import_module(import_name)
+            func = getattr(module, scene_name)
 
-        # Call user constructing function
-        odict = func(idict, **idict.get('extra_args', {}))
-        scene = odict['scene']
-        del odict['scene']
-        scene.set_label(scene_name)
+            # Call user constructing function
+            odict = func(idict, **idict.get('extra_args', {}))
+            scene = odict['scene']
+            del odict['scene']
+            scene.set_label(scene_name)
 
-        # Make extra adjustments to the scene according to user options
-        if idict.get('enable_hud'):
-            fr = odict['framerate']
-            measure_window = fr[0] / (4 * fr[1])  # 1/4-second measurement window
-            hud = ngl.HUD(scene,
-                          measure_window=measure_window,
-                          bg_color=(0.0, 0.0, 0.0, 0.8),
-                          aspect_ratio=odict['aspect_ratio'])
-            q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-            t = ngl.Texture2D(data_src=hud, min_filter='linear', mipmap_filter='linear')
-            render = ngl.Render(q)
-            render.update_textures(tex0=t)
-            render = ngl.GraphicConfig(render, blend=True,
-                                       blend_src_factor='src_alpha',
-                                       blend_dst_factor='one_minus_src_alpha',
-                                       blend_src_factor_a='zero',
-                                       blend_dst_factor_a='one')
-            g = ngl.Group()
-            g.add_children(hud, render)
-            scene = g
+            # Make extra adjustments to the scene according to user options
+            if idict.get('enable_hud'):
+                fr = odict['framerate']
+                measure_window = fr[0] / (4 * fr[1])  # 1/4-second measurement window
+                hud = ngl.HUD(scene,
+                              measure_window=measure_window,
+                              bg_color=(0.0, 0.0, 0.0, 0.8),
+                              aspect_ratio=odict['aspect_ratio'])
+                q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+                t = ngl.Texture2D(data_src=hud, min_filter='linear', mipmap_filter='linear')
+                render = ngl.Render(q)
+                render.update_textures(tex0=t)
+                render = ngl.GraphicConfig(render, blend=True,
+                                           blend_src_factor='src_alpha',
+                                           blend_dst_factor='one_minus_src_alpha',
+                                           blend_src_factor_a='zero',
+                                           blend_dst_factor_a='one')
+                g = ngl.Group()
+                g.add_children(hud, render)
+                scene = g
 
-        # Prepare output data
-        odict['scene'] = scene.dot() if idict.get('fmt') == 'dot' else scene.serialize()
+            # Prepare output data
+            odict['scene'] = scene.dot() if idict.get('fmt') == 'dot' else scene.serialize()
 
-    elif idict['query'] == 'list':
+        elif idict['query'] == 'list':
 
-        scripts = []
+            scripts = []
 
-        # Import the script, or the package and its sub-modules
-        if module_is_script:
-            module_pkgname = op.realpath(module_pkgname)
-            module = _load_script(module_pkgname)
-            scripts.append((module.__name__, module))
-        else:
-            module = importlib.import_module(module_pkgname)
-            for submod in pkgutil.iter_modules(module.__path__):
-                module_finder, module_name, ispkg = submod
-                if ispkg:
-                    continue
-                script = importlib.import_module('.' + module_name, module_pkgname)
-                scripts.append((module_name, script))
+            # Import the script, or the package and its sub-modules
+            if module_is_script:
+                module_pkgname = op.realpath(module_pkgname)
+                module = _load_script(module_pkgname)
+                scripts.append((module.__name__, module))
+            else:
+                module = importlib.import_module(module_pkgname)
+                for submod in pkgutil.iter_modules(module.__path__):
+                    module_finder, module_name, ispkg = submod
+                    if ispkg:
+                        continue
+                    script = importlib.import_module('.' + module_name, module_pkgname)
+                    scripts.append((module_name, script))
 
-        # Find all the scenes
-        scenes = []
-        for module_name, script in scripts:
-            all_funcs = inspect.getmembers(script, inspect.isfunction)
-            sub_scenes = []
-            for func in all_funcs:
-                scene_name, func_wrapper = func
-                if not hasattr(func_wrapper, 'iam_a_ngl_scene_func'):
-                    continue
-                sub_scenes.append((scene_name, func_wrapper.__doc__, func_wrapper.widgets_specs))
-            if sub_scenes:
-                scenes.append((module_name, sub_scenes))
+            # Find all the scenes
+            scenes = []
+            for module_name, script in scripts:
+                all_funcs = inspect.getmembers(script, inspect.isfunction)
+                sub_scenes = []
+                for func in all_funcs:
+                    scene_name, func_wrapper = func
+                    if not hasattr(func_wrapper, 'iam_a_ngl_scene_func'):
+                        continue
+                    sub_scenes.append((scene_name, func_wrapper.__doc__, func_wrapper.widgets_specs))
+                if sub_scenes:
+                    scenes.append((module_name, sub_scenes))
 
-        # Prepare output data
-        odict['scenes'] = scenes
+            # Prepare output data
+            odict['scenes'] = scenes
+
+    except:
+        odict = {'error': traceback.format_exc()}
 
     # End of file and modules tracking
     ftrack.end_hooking()
@@ -225,10 +229,7 @@ def run():
     idict = pickle.loads(idata)
 
     # Execute the query
-    try:
-        odict = query_inplace(**idict)
-    except:
-        odict = {'error': traceback.format_exc()}
+    odict = query_inplace(**idict)
 
     # Write output
     odata = pickle.dumps(odict)

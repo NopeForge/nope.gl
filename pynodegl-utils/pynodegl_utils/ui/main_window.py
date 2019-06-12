@@ -201,6 +201,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._scripts_mgr.pause()
         ret = query_subproc(query='scene', **cfg)
         if 'error' in ret:
+            self._scripts_mgr.update_filelist(ret['filelist'])
             self._scripts_mgr.resume()
             self.error.emit(ret['error'])
             return None
