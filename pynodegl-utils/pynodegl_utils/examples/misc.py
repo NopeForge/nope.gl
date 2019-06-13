@@ -640,17 +640,17 @@ def mountain(cfg, ndim=3, nb_layers=7,
     return blend
 
 
-@scene()
-def text(cfg):
+@scene(demo_str=scene.Text(),
+       time_unit=scene.Range(range=[0.01, 0.3], unit_base=100))
+def text(cfg, demo_str='Hello World!\n\nThis is a multi-line\ntext demonstration.', time_unit=0.05):
     '''Demonstrate the text node features (colors, scale, alignment, fitting, ...)'''
 
     random.seed(0)
-    cfg.duration = 6.
 
     group = ngl.Group()
 
-    demo_str = 'Hello World!\n\nThis is a multi-line\ntext demonstration.'
-    time_unit = cfg.duration / 2. / len(demo_str)
+    cfg.duration = time_unit * 2 * len(demo_str)
+
     nb_chars = len(demo_str)
     for i in range(nb_chars):
         ascii_text = ngl.Text(demo_str[:i + 1],
