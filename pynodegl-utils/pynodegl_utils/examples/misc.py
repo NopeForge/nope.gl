@@ -7,8 +7,8 @@ import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
-@scene(xsplit={'type': 'range', 'range': [0, 1], 'unit_base': 100},
-       trilinear={'type': 'bool'})
+@scene(xsplit=scene.Range(range=[0, 1], unit_base=100),
+       trilinear=scene.Bool())
 def lut3d(cfg, xsplit=.3, trilinear=True):
     '''Lookup Table 3D using a Texture3D'''
     level = 6
@@ -45,9 +45,9 @@ def lut3d(cfg, xsplit=.3, trilinear=True):
     return render
 
 
-@scene(bgcolor1={'type': 'color'},
-       bgcolor2={'type': 'color'},
-       bilinear_filtering={'type': 'bool'})
+@scene(bgcolor1=scene.Color(),
+       bgcolor2=scene.Color(),
+       bilinear_filtering=scene.Bool())
 def buffer_dove(cfg,
                 bgcolor1=(.6, 0, 0, 1), bgcolor2=(.8, .8, 0, 1),
                 bilinear_filtering=True):
@@ -88,7 +88,7 @@ def buffer_dove(cfg,
     return ngl.Group(children=(render_bg, render))
 
 
-@scene(size={'type': 'range', 'range': [0, 1.5], 'unit_base': 1000})
+@scene(size=scene.Range(range=[0, 1.5], unit_base=1000))
 def triangle(cfg, size=0.5):
     '''Rotating triangle with edge coloring specified in a vertex attribute'''
     b = size * math.sqrt(3) / 2.0
@@ -113,7 +113,7 @@ def triangle(cfg, size=0.5):
     return node
 
 
-@scene(n={'type': 'range', 'range': [2, 10]})
+@scene(n=scene.Range(range=[2, 10]))
 def fibo(cfg, n=8):
     '''Fibonacci with a recursive tree (nodes inherit transforms)'''
     cfg.duration = 5.0
@@ -156,7 +156,7 @@ def fibo(cfg, n=8):
     return root
 
 
-@scene(dim={'type': 'range', 'range': [1, 50]})
+@scene(dim=scene.Range(range=[1, 50]))
 def cropboard(cfg, dim=15):
     '''Divided media using instancing draw and UV coords offsetting from a buffer'''
     m0 = cfg.medias[0]
@@ -207,8 +207,8 @@ def cropboard(cfg, dim=15):
     return render
 
 
-@scene(freq_precision={'type': 'range', 'range': [1, 10]},
-       overlay={'type': 'range', 'unit_base': 100})
+@scene(freq_precision=scene.Range(range=[1, 10]),
+       overlay=scene.Range(unit_base=100))
 def audiotex(cfg, freq_precision=7, overlay=0.6):
     '''FFT/Waves audio texture of the audio stream blended on top of the video stream'''
     media = cfg.medias[0]
@@ -232,7 +232,7 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
     return render
 
 
-@scene(particules={'type': 'range', 'range': [1, 1023]})
+@scene(particules=scene.Range(range=[1, 1023]))
 def particules(cfg, particules=32):
     '''Particules demo using compute shaders and instancing'''
     random.seed(0)
@@ -415,7 +415,7 @@ def _get_cube_side(texture, program, corner, width, height, color):
     return render
 
 
-@scene(display_depth_buffer={'type': 'bool'})
+@scene(display_depth_buffer=scene.Bool())
 def cube(cfg, display_depth_buffer=False):
     '''
     Cube with a common media Texture but a different color tainting on each side.
@@ -569,10 +569,10 @@ def quaternion(cfg):
     return camera
 
 
-@scene(ndim={'type': 'range', 'range': [1,8]},
-       nb_layers={'type': 'range', 'range': [1,10]},
-       ref_color={'type': 'color'},
-       nb_mountains={'type': 'range', 'range': [3, 15]})
+@scene(ndim=scene.Range(range=[1, 8]),
+       nb_layers=scene.Range(range=[1, 10]),
+       ref_color=scene.Color(),
+       nb_mountains=scene.Range(range=[3, 15]))
 def mountain(cfg, ndim=3, nb_layers=7,
              ref_color=(0.5, .75, .75, 1.0), nb_mountains=6):
     '''Mountain generated with a stack of noise shaders using Textures as random source'''

@@ -4,10 +4,10 @@ import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
-@scene(color={'type': 'color'},
-       rotate={'type': 'bool'},
-       scale={'type': 'bool'},
-       translate={'type': 'bool'})
+@scene(color=scene.Color(),
+       rotate=scene.Bool(),
+       scale=scene.Bool(),
+       translate=scene.Bool())
 def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, translate=True):
     '''Animated Translate/Scale/Rotate on a square'''
     cfg.duration = 5.0
@@ -72,7 +72,7 @@ def animated_uniform(cfg):
     return ts
 
 
-@scene(rotate={'type': 'bool'})
+@scene(rotate=scene.Bool())
 def animated_camera(cfg, rotate=True):
     '''Animated camera around a scene'''
     g = ngl.Group()
@@ -123,7 +123,7 @@ def animated_camera(cfg, rotate=True):
     return camera
 
 
-@scene(dim={'type': 'range', 'range': [1, 100]})
+@scene(dim=scene.Range(range=[1, 100]))
 def animated_buffer(cfg, dim=50):
     '''Transform a random buffer content using animations'''
     cfg.duration = 5.

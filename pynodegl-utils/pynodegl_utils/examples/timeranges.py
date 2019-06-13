@@ -2,8 +2,8 @@ import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
-@scene(overlap_time={'type': 'range', 'range': [0, 5], 'unit_base': 10},
-       dim={'type': 'range', 'range': [1, 10]})
+@scene(overlap_time=scene.Range(range=[0, 5], unit_base=10),
+       dim=scene.Range(range=[1, 10]))
 def queued_medias(cfg, overlap_time=1., dim=3):
     '''Queue of medias, mainly used as a demonstration for the prefetch/release mechanism'''
     qw = qh = 2. / dim
@@ -37,9 +37,9 @@ def queued_medias(cfg, overlap_time=1., dim=3):
     return ngl.Group(children=tqs)
 
 
-@scene(fast={'type': 'bool'},
-       segment_time={'type': 'range', 'range': [0.1, 10], 'unit_base': 10},
-       constrained_timeranges={'type': 'bool'})
+@scene(fast=scene.Bool(),
+       segment_time=scene.Range(range=[0.1, 10], unit_base=10),
+       constrained_timeranges=scene.Bool())
 def parallel_playback(cfg, fast=True, segment_time=2., constrained_timeranges=False):
     '''
     Parallel media playback, flipping between the two sources.
@@ -102,8 +102,8 @@ def parallel_playback(cfg, fast=True, segment_time=2., constrained_timeranges=Fa
     return g
 
 
-@scene(transition_start={'type': 'range', 'range': [0, 30]},
-       transition_duration={'type': 'range', 'range': [0, 30]})
+@scene(transition_start=scene.Range(range=[0, 30]),
+       transition_duration=scene.Range(range=[0, 30]))
 def simple_transition(cfg, transition_start=2, transition_duration=4):
     '''Fading transition between two medias'''
 

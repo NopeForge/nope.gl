@@ -190,7 +190,7 @@ def _get_easing_nodes(cfg, color_program):
             yield easing_node
 
 
-@scene(easing_id={'type': 'list', 'choices': ['*'] + _easing_names})
+@scene(easing_id=scene.List(choices=['*'] + _easing_names))
 def easings(cfg, easing_id='*'):
     '''Display all the easings (primitive for animation / motion design) at once'''
     random.seed(0)

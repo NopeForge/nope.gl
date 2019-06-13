@@ -6,6 +6,7 @@ import inspect
 import json
 import subprocess
 import pynodegl as ngl
+from pynodegl_utils import controls
 
 
 def scene(**widgets_specs):
@@ -28,18 +29,15 @@ def scene(**widgets_specs):
         if func_specs.defaults:
             nb_optionnals = len(func_specs.defaults)
             for i, key in enumerate(func_specs.args[-nb_optionnals:]):
-                # Create a copy of the widgets specifications with the defaults value
+                # Set controller defaults according to the function prototype
                 if key in widgets_specs:
-                    specs = widgets_specs[key].copy()
-                    specs['name'] = key
-                    specs['default'] = func_specs.defaults[i]
-                    final_specs.append(specs)
+                    widgets_specs[key].set_default(func_specs.defaults[i])
 
-        # Transfers the widgets specifications to the UI.
+        # Transfers the widgets controls to the UI.
         # We could use the return value but it's better if the user can still
         # call its decorated scene function transparently inside his own code
         # without getting garbage along the return value.
-        func_wrapper.widgets_specs = final_specs
+        func_wrapper.widgets_specs = widgets_specs.items()
 
         # Flag the scene as a scene function so it's registered in the UI.
         func_wrapper.iam_a_ngl_scene_func = True
@@ -50,6 +48,13 @@ def scene(**widgets_specs):
         return func_wrapper
 
     return real_decorator
+
+
+scene.Range = controls.Range
+scene.Color = controls.Color
+scene.Bool = controls.Bool
+scene.File = controls.File
+scene.List = controls.List
 
 
 class Media:

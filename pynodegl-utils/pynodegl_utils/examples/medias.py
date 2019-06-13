@@ -2,11 +2,11 @@ import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
-@scene(uv_corner_x={'type': 'range', 'range': [0, 1], 'unit_base': 100},
-       uv_corner_y={'type': 'range', 'range': [0, 1], 'unit_base': 100},
-       uv_width={'type': 'range', 'range': [0, 1], 'unit_base': 100},
-       uv_height={'type': 'range', 'range': [0, 1], 'unit_base': 100},
-       progress_bar={'type': 'bool'})
+@scene(uv_corner_x=scene.Range(range=[0, 1], unit_base=100),
+       uv_corner_y=scene.Range(range=[0, 1], unit_base=100),
+       uv_width=scene.Range(range=[0, 1], unit_base=100),
+       uv_height=scene.Range(range=[0, 1], unit_base=100),
+       progress_bar=scene.Bool())
 def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, progress_bar=True):
     '''A simple centered media with an optional progress bar in the shader'''
     m0 = cfg.medias[0]
@@ -30,7 +30,7 @@ def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, p
     return render
 
 
-@scene(speed={'type': 'range', 'range': [0.01, 2], 'unit_base': 1000})
+@scene(speed=scene.Range(range=[0.01, 2], unit_base=1000))
 def playback_speed(cfg, speed=1.0):
     '''Adjust media playback speed using animation keyframes'''
     m0 = cfg.medias[0]

@@ -5,8 +5,8 @@ import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
-@scene(square_color={'type': 'color'},
-       circle_color={'type': 'color'})
+@scene(square_color=scene.Color(),
+       circle_color=scene.Color())
 def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0, 1.0, 1.0)):
     '''Morphing of a square (composed of many vertices) into a circle'''
     cfg.duration = 5
@@ -64,7 +64,7 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
     return render
 
 
-@scene(npoints={'type': 'range', 'range': [3, 100]})
+@scene(npoints=scene.Range(range=[3, 100]))
 def urchin(cfg, npoints=25):
     '''Urchin with animated vertices'''
     cfg.duration = 5

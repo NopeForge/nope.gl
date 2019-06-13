@@ -33,7 +33,7 @@ Every scene must return a valid `pynodegl` node object.
 
 ## Viewer widgets
 
-Widgets are specified as named `dict` arguments to the `@misc.scene` decorator.
+Widgets are specified as named object arguments to the `@misc.scene` decorator.
 The `@misc.scene()` arguments must match the name of the corresponding argument
 in the scene construction function.
 
@@ -43,16 +43,16 @@ scene function argument.
 **Example**:
 
 ```python
-@scene(foo={'type': ...}, bar={'type': ...})
-def example(cfg, foo=..., bar=...):
+@scene(foo=scene.Bool(), bar=scene.Color())
+def example(cfg, foo=True, bar=(1.0, 0.2, 0.5, 1.0)):
     ...
 ```
 
 List of available widget types:
 
-### range
+### scene.Range
 
-A `range` is associated with a **slider** widget.
+A `Range` is associated with a **slider** widget.
 
 Available options:
 
@@ -66,48 +66,48 @@ The associated argument value is expected to be a scalar value.
 **Example**:
 
 ```python
-@scene(n={'type': 'range', 'range': [0, 5], 'unit_base': 100})
+@scene(n=scene.Range(range=[0, 5], unit_base=100))
 def range_example(cfg, n=2.5):
     ...
 ```
 
 ![range widget](img/widget-range.png)
 
-### color
+### scene.Color
 
-A `color` is associated with a **color picker** widget.
+A `Color` is associated with a **color picker** widget.
 
 The associated argument value is expected to be a 4-value `tuple` or `list`.
 
 **Example**:
 
 ```python
-@scene(bgcolor={'type': 'color'})
+@scene(bgcolor=scene.Color())
 def color_example(cfg, bgcolor=(0.3, 0.4, 0.5, 1.0)):
     ...
 ```
 
 ![color widget](img/widget-color.png)
 
-### bool
+### scene.Bool
 
-A `bool` is associated with a **check box** widget.
+A `Bool` is associated with a **check box** widget.
 
 The associated argument is expected to be a `bool`.
 
 **Example**:
 
 ```python
-@scene(bilinear={'type': 'bool'})
+@scene(bilinear=scene.Bool())
 def bool_example(cfg, bilinear=True):
     ...
 ```
 
 ![bool widget](img/widget-bool.png)
 
-### file
+### scene.File
 
-A `file` is associated with a **file chooser** widget.
+A `File` is associated with a **file chooser** widget.
 
 The associated argument is expected to be a `str` or `None`, corresponding to
 the file path.
@@ -121,16 +121,16 @@ Option      | Description
 **Example**:
 
 ```python
-@scene(input={'type': 'file', 'filter': 'Text files (*.txt)'})
+@scene(input=scene.File(filter='Text files (*.txt)'))
 def file_example(cfg, input=None):
     ...
 ```
 
 ![file widget](img/widget-file.png)
 
-### list
+### scene.List
 
-A `list` is associated with a **combo box** widget.
+A `List` is associated with a **combo box** widget.
 
 The associated argument is expected to be a `str` present in the choices.
 
@@ -143,7 +143,7 @@ Option      | Description
 **Example**:
 
 ```
-@scene(easing={'type': 'list', 'choices': ('linear', 'exp_in', 'sinus_in')})
+@scene(easing=scene.List(choices=('linear', 'exp_in', 'sinus_in')))
 def anim(cfg, easing='exp_in'):
     ...
 ```

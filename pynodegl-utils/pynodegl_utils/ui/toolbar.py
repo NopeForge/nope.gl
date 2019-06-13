@@ -176,126 +176,17 @@ class Toolbar(QtWidgets.QWidget):
             self._scene_opts_widget = widget
             widget.show()
 
-    def _get_label_text(self, id_name, value=None):
-        return '<b>{}:</b> {}'.format(id_name, value) if value is not None else '<b>{}:</b>'.format(id_name)
-
-    def _craft_slider_value_changed_cb(self, id_name, label, unit_base):
-
-        @QtCore.pyqtSlot(int)
-        def slider_value_changed(value):
-            real_value = value if unit_base is 1 else value / float(unit_base)
-            self._scene_extra_args[id_name] = real_value
-            label.setText(self._get_label_text(id_name, real_value))
-            self._load_current_scene(load_widgets=False)
-
-        return slider_value_changed
-
-    def _craft_pick_color_cb(self, id_name, label, color_btn):
-
-        @QtCore.pyqtSlot()
-        def pick_color():
-            color = QtWidgets.QColorDialog.getColor(initial=color_btn._color_hack)
-            if not color.isValid():
-                return
-            color_btn.setStyleSheet('background-color: %s;' % color.name())
-            color_btn._color_hack = color
-            label.setText(self._get_label_text(id_name, color.name()))
-            self._scene_extra_args[id_name] = color.getRgbF()
-            self._load_current_scene(load_widgets=False)
-
-        return pick_color
-
-    def _craft_choose_filename_cb(self, id_name, label, dialog_btn, files_filter):
-
-        @QtCore.pyqtSlot()
-        def choose_filename():
-            filenames = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', files_filter)
-            if not filenames[0]:
-                return
-            label.setText(self._get_label_text(id_name, op.basename(filenames[0])))
-            self._scene_extra_args[id_name] = filenames[0]
-            self._load_current_scene(load_widgets=False)
-
-        return choose_filename
-
-    def _craft_checkbox_toggle_cb(self, id_name, chkbox):
-
-        @QtCore.pyqtSlot()
-        def checkbox_toggle():
-            self._scene_extra_args[id_name] = chkbox.isChecked()
-            self._load_current_scene(load_widgets=False)
-
-        return checkbox_toggle
-
-    def _craft_combobox_text_changed_cb(self, id_name):
-
-        @QtCore.pyqtSlot(str)
-        def combobox_select(text):
-            self._scene_extra_args[id_name] = text
-            self._load_current_scene(load_widgets=False)
-
-        return combobox_select
+    @QtCore.pyqtSlot(str, object)
+    def _widget_scene_reload(self, name, value):
+        self._scene_extra_args[name] = value
+        self._load_current_scene(load_widgets=False)
 
     def _get_opts_widget_from_specs(self, widgets_specs):
         widgets = []
-
-        for widget_specs in widgets_specs:
-            name = widget_specs['name']
-            default_value = widget_specs['default']
-
-            if widget_specs['type'] == 'range':
-                slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
-                unit_base = widget_specs.get('unit_base', 1)
-                if 'range' in widget_specs:
-                    srange = widget_specs['range']
-                    slider.setRange(srange[0] * unit_base, srange[1] * unit_base)
-                slider.setValue(default_value * unit_base)
-                label = QtWidgets.QLabel(self._get_label_text(name, default_value))
-                widgets.append(label)
-                slider_value_changed_cb = self._craft_slider_value_changed_cb(name, label, unit_base)
-                slider.valueChanged.connect(slider_value_changed_cb)
-                widgets.append(slider)
-
-            elif widget_specs['type'] == 'color':
-                color_btn = QtWidgets.QPushButton()
-                color = QtGui.QColor()
-                color.setRgbF(*default_value)
-                color_name = color.name()
-                color_btn.setStyleSheet('background-color: %s;' % color_name)
-                label = QtWidgets.QLabel(self._get_label_text(name, color_name))
-                widgets.append(label)
-                pick_color_cb = self._craft_pick_color_cb(name, label, color_btn)
-                color_btn.pressed.connect(pick_color_cb)
-                color_btn._color_hack = color
-                widgets.append(color_btn)
-
-            elif widget_specs['type'] == 'bool':
-                chkbox = QtWidgets.QCheckBox(name)
-                chkbox.setChecked(default_value)
-                checkbox_toggle_cb = self._craft_checkbox_toggle_cb(name, chkbox)
-                chkbox.stateChanged.connect(checkbox_toggle_cb)
-                widgets.append(chkbox)
-
-            elif widget_specs['type'] == 'file':
-                dialog_btn = QtWidgets.QPushButton('Open file')
-                label = QtWidgets.QLabel(self._get_label_text(name, default_value))
-                widgets.append(label)
-                choose_filename_cb = self._craft_choose_filename_cb(name, label, dialog_btn,
-                                                                    widget_specs.get('filter', ''))
-                dialog_btn.pressed.connect(choose_filename_cb)
-                widgets.append(dialog_btn)
-
-            elif widget_specs['type'] == 'list':
-                combobox = QtWidgets.QComboBox()
-                label = QtWidgets.QLabel(self._get_label_text(name))
-                widgets.append(label)
-                choices = widget_specs['choices']
-                combobox.addItems(choices)
-                combobox.setCurrentIndex(choices.index(widget_specs['default']))
-                combobox_text_changed = self._craft_combobox_text_changed_cb(name)
-                combobox.currentTextChanged.connect(combobox_text_changed)
-                widgets.append(combobox)
-
+        for name, controller in widgets_specs:
+            widget = controller.get_widget(name)
+            widget.needSceneReload.connect(self._widget_scene_reload)
+            widgets.append(widget)
         if not widgets:
             return None
 
