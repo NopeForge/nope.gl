@@ -140,3 +140,23 @@ class ComboBox(_ControlWidget):
     @QtCore.pyqtSlot(str)
     def _combobox_select(self, text):
         self.signal_change(text)
+
+
+class TextInput(_ControlWidget):
+
+    def __init__(self, name, value, **kwargs):
+        super(TextInput, self).__init__(name)
+        self._text = QtWidgets.QPlainTextEdit()
+        self._text.setPlainText(value)
+        label = QtWidgets.QLabel(self.get_label_text())
+        self.layout.addWidget(label)
+        self.layout.addWidget(self._text)
+        submit_btn = QtWidgets.QPushButton('OK')
+        submit_btn.pressed.connect(self._submit_text)
+        self.layout.addWidget(label)
+        self.layout.addWidget(self._text)
+        self.layout.addWidget(submit_btn)
+
+    @QtCore.pyqtSlot()
+    def _submit_text(self):
+        self.signal_change(self._text.toPlainText())

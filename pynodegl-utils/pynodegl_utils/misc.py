@@ -55,6 +55,7 @@ scene.Color = controls.Color
 scene.Bool = controls.Bool
 scene.File = controls.File
 scene.List = controls.List
+scene.Text = controls.Text
 
 
 class Media:

@@ -150,6 +150,22 @@ def anim(cfg, easing='exp_in'):
 
 ![list widget](img/widget-list.png)
 
+### scene.Text
+
+A `Text` is associated with an **input text** widget.
+
+The associated argument is expected to be a `str`.
+
+**Example**:
+
+```
+@scene(intro=scene.Text())
+def demo(cfg, intro='Hello World!'):
+    ...
+```
+
+![text widget](img/widget-text.png)
+
 ## Viewer hooks
 
 When using the `--hooks-dir` option, `ngl-viewer` will execute various hook

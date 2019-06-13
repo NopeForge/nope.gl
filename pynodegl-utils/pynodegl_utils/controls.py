@@ -61,3 +61,8 @@ class File(_SceneControlWidget):
 class List(_SceneControlWidget):
 
     _widget_cls = control_widgets.ComboBox
+
+
+class Text(_SceneControlWidget):
+
+    _widget_cls = control_widgets.TextInput
