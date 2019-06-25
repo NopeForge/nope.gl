@@ -26,6 +26,16 @@
 #include "glincludes.h"
 #include "nodes.h"
 
+static const GLenum gl_usage_map[NGLI_BUFFER_USAGE_NB] = {
+    [NGLI_BUFFER_USAGE_STATIC]  = GL_STATIC_DRAW,
+    [NGLI_BUFFER_USAGE_DYNAMIC] = GL_DYNAMIC_DRAW,
+};
+
+static GLenum get_gl_usage(int usage)
+{
+    return gl_usage_map[usage];
+}
+
 int ngli_buffer_init(struct buffer *s, struct ngl_ctx *ctx, int size, int usage)
 {
     s->ctx = ctx;
@@ -34,7 +44,7 @@ int ngli_buffer_init(struct buffer *s, struct ngl_ctx *ctx, int size, int usage)
     struct glcontext *gl = ctx->glcontext;
     ngli_glGenBuffers(gl, 1, &s->id);
     ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, s->id);
-    ngli_glBufferData(gl, GL_ARRAY_BUFFER, size, NULL, usage);
+    ngli_glBufferData(gl, GL_ARRAY_BUFFER, size, NULL, get_gl_usage(usage));
     return 0;
 }
 

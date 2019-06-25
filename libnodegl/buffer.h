@@ -24,6 +24,12 @@
 
 #include "glincludes.h"
 
+enum {
+    NGLI_BUFFER_USAGE_STATIC,
+    NGLI_BUFFER_USAGE_DYNAMIC,
+    NGLI_BUFFER_USAGE_NB
+};
+
 struct buffer {
     struct ngl_ctx *ctx;
     int size;

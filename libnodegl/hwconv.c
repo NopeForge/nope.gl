@@ -183,7 +183,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
          1.0f,  1.0f, 1.0f, 1.0f,
         -1.0f,  1.0f, 0.0f, 1.0f,
     };
-    ret = ngli_buffer_init(&hwconv->vertices, ctx, sizeof(vertices), GL_STATIC_DRAW);
+    ret = ngli_buffer_init(&hwconv->vertices, ctx, sizeof(vertices), NGLI_BUFFER_USAGE_STATIC);
     if (ret < 0)
         return ret;
 

@@ -236,7 +236,7 @@ static int text_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_init(&s->vertices, ctx, sizeof(vertices), GL_STATIC_DRAW);
+    ret = ngli_buffer_init(&s->vertices, ctx, sizeof(vertices), NGLI_BUFFER_USAGE_STATIC);
     if (ret < 0)
         return ret;
 
@@ -244,7 +244,7 @@ static int text_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_init(&s->uvcoords, ctx, sizeof(uvs), GL_STATIC_DRAW);
+    ret = ngli_buffer_init(&s->uvcoords, ctx, sizeof(uvs), NGLI_BUFFER_USAGE_STATIC);
     if (ret < 0)
         return ret;
 

@@ -269,7 +269,7 @@ static int block_init(struct ngl_node *node)
     if (!s->field_info)
         return -1;
 
-    s->usage = GL_STATIC_DRAW;
+    s->usage = NGLI_BUFFER_USAGE_STATIC;
 
     s->data_size = 0;
     for (int i = 0; i < s->nb_fields; i++) {
@@ -284,7 +284,7 @@ static int block_init(struct ngl_node *node)
         const int offset = s->data_size + (remain ? align - remain : 0);
 
         if (field_funcs[is_array ? IS_ARRAY : IS_SINGLE].has_changed(field_node))
-            s->usage = GL_DYNAMIC_DRAW;
+            s->usage = NGLI_BUFFER_USAGE_DYNAMIC;
 
         struct block_field_info *fi = &s->field_info[i];
         fi->is_array = is_array;
