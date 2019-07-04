@@ -38,84 +38,84 @@
 #include "type.h"
 #include "utils.h"
 
-static const char * const vertex_data =
-    "#version 100"                                                          "\n"
-    "precision highp float;"                                                "\n"
-    "attribute vec4 position;"                                              "\n"
-    "uniform mat4 tex_coord_matrix;"                                        "\n"
-    "varying vec2 tex_coord;"                                               "\n"
-    "void main()"                                                           "\n"
-    "{"                                                                     "\n"
-    "    gl_Position = vec4(position.xy, 0.0, 1.0);"                        "\n"
-    "    tex_coord = (tex_coord_matrix * vec4(position.zw, 0.0, 1.0)).xy;"  "\n"
-    "}";
+#define VERTEX_DATA                                                              \
+    "#version 100"                                                          "\n" \
+    "precision highp float;"                                                "\n" \
+    "attribute vec4 position;"                                              "\n" \
+    "uniform mat4 tex_coord_matrix;"                                        "\n" \
+    "varying vec2 tex_coord;"                                               "\n" \
+    "void main()"                                                           "\n" \
+    "{"                                                                     "\n" \
+    "    gl_Position = vec4(position.xy, 0.0, 1.0);"                        "\n" \
+    "    tex_coord = (tex_coord_matrix * vec4(position.zw, 0.0, 1.0)).xy;"  "\n" \
+    "}"
 
-static const char * const oes_to_rgba_fragment_data =
-    "#version 100"                                                          "\n"
-    "#extension GL_OES_EGL_image_external : require"                        "\n"
-    "precision mediump float;"                                              "\n"
-    "uniform samplerExternalOES tex0;"                                      "\n"
-    "varying vec2 tex_coord;"                                               "\n"
-    "void main(void)"                                                       "\n"
-    "{"                                                                     "\n"
-    "    vec4 color = texture2D(tex0, tex_coord);"                          "\n"
-    "    gl_FragColor = vec4(color.rgb, 1.0);"                              "\n"
-    "}";
+#define OES_TO_RGBA_FRAGMENT_DATA                                                \
+    "#version 100"                                                          "\n" \
+    "#extension GL_OES_EGL_image_external : require"                        "\n" \
+    "precision mediump float;"                                              "\n" \
+    "uniform samplerExternalOES tex0;"                                      "\n" \
+    "varying vec2 tex_coord;"                                               "\n" \
+    "void main(void)"                                                       "\n" \
+    "{"                                                                     "\n" \
+    "    vec4 color = texture2D(tex0, tex_coord);"                          "\n" \
+    "    gl_FragColor = vec4(color.rgb, 1.0);"                              "\n" \
+    "}"
 
-static const char * const nv12_to_rgba_fragment_data =
-    "#version 100"                                                          "\n"
-    "precision mediump float;"                                              "\n"
-    "uniform sampler2D tex0;"                                               "\n"
-    "uniform sampler2D tex1;"                                               "\n"
-    "varying vec2 tex_coord;"                                               "\n"
-    "const mat4 conv = mat4("                                               "\n"
-    "    1.164,     1.164,    1.164,   0.0,"                                "\n"
-    "    0.0,      -0.213,    2.112,   0.0,"                                "\n"
-    "    1.787,    -0.531,    0.0,     0.0,"                                "\n"
-    "   -0.96625,   0.29925, -1.12875, 1.0);"                               "\n"
-    "void main(void)"                                                       "\n"
-    "{"                                                                     "\n"
-    "    vec3 yuv;"                                                         "\n"
-    "    yuv.x = texture2D(tex0, tex_coord).r;"                             "\n"
-    "    yuv.yz = texture2D(tex1, tex_coord).%s;"                           "\n"
-    "    gl_FragColor = conv * vec4(yuv, 1.0);"                             "\n"
-    "}";
+#define NV12_TO_RGBA_FRAGMENT_DATA                                               \
+    "#version 100"                                                          "\n" \
+    "precision mediump float;"                                              "\n" \
+    "uniform sampler2D tex0;"                                               "\n" \
+    "uniform sampler2D tex1;"                                               "\n" \
+    "varying vec2 tex_coord;"                                               "\n" \
+    "const mat4 conv = mat4("                                               "\n" \
+    "    1.164,     1.164,    1.164,   0.0,"                                "\n" \
+    "    0.0,      -0.213,    2.112,   0.0,"                                "\n" \
+    "    1.787,    -0.531,    0.0,     0.0,"                                "\n" \
+    "   -0.96625,   0.29925, -1.12875, 1.0);"                               "\n" \
+    "void main(void)"                                                       "\n" \
+    "{"                                                                     "\n" \
+    "    vec3 yuv;"                                                         "\n" \
+    "    yuv.x = texture2D(tex0, tex_coord).r;"                             "\n" \
+    "    yuv.yz = texture2D(tex1, tex_coord).%s;"                           "\n" \
+    "    gl_FragColor = conv * vec4(yuv, 1.0);"                             "\n" \
+    "}"
 
-static const char * const nv12_rectangle_to_rgba_vertex_data =
-    "#version 410"                                                          "\n"
-    "precision highp float;"                                                "\n"
-    "uniform mat4 tex_coord_matrix;"                                        "\n"
-    "uniform vec2 tex_dimensions[2];"                                       "\n"
-    "in vec4 position;"                                                     "\n"
-    "out vec2 tex0_coord;"                                                  "\n"
-    "out vec2 tex1_coord;"                                                  "\n"
-    "void main()"                                                           "\n"
-    "{"                                                                     "\n"
-    "    gl_Position = vec4(position.xy, 0.0, 1.0);"                        "\n"
-    "    vec2 coord = (tex_coord_matrix * vec4(position.zw, 0.0, 1.0)).xy;" "\n"
-    "    tex0_coord = coord * tex_dimensions[0];"                           "\n"
-    "    tex1_coord = coord * tex_dimensions[1];"                           "\n"
-    "}";
+#define NV12_RECTANGLE_TO_RGBA_VERTEX_DATA                                       \
+    "#version 410"                                                          "\n" \
+    "precision highp float;"                                                "\n" \
+    "uniform mat4 tex_coord_matrix;"                                        "\n" \
+    "uniform vec2 tex_dimensions[2];"                                       "\n" \
+    "in vec4 position;"                                                     "\n" \
+    "out vec2 tex0_coord;"                                                  "\n" \
+    "out vec2 tex1_coord;"                                                  "\n" \
+    "void main()"                                                           "\n" \
+    "{"                                                                     "\n" \
+    "    gl_Position = vec4(position.xy, 0.0, 1.0);"                        "\n" \
+    "    vec2 coord = (tex_coord_matrix * vec4(position.zw, 0.0, 1.0)).xy;" "\n" \
+    "    tex0_coord = coord * tex_dimensions[0];"                           "\n" \
+    "    tex1_coord = coord * tex_dimensions[1];"                           "\n" \
+    "}"
 
-static const char * const nv12_rectangle_to_rgba_fragment_data =
-    "#version 410"                                                          "\n"
-    "uniform mediump sampler2DRect tex0;"                                   "\n"
-    "uniform mediump sampler2DRect tex1;"                                   "\n"
-    "in vec2 tex0_coord;"                                                   "\n"
-    "in vec2 tex1_coord;"                                                   "\n"
-    "out vec4 color;"                                                       "\n"
-    "const mat4 conv = mat4("                                               "\n"
-    "    1.164,     1.164,    1.164,   0.0,"                                "\n"
-    "    0.0,      -0.213,    2.112,   0.0,"                                "\n"
-    "    1.787,    -0.531,    0.0,     0.0,"                                "\n"
-    "   -0.96625,   0.29925, -1.12875, 1.0);"                               "\n"
-    "void main(void)"                                                       "\n"
-    "{"                                                                     "\n"
-    "    vec3 yuv;"                                                         "\n"
-    "    yuv.x = texture(tex0, tex0_coord).r;"                              "\n"
-    "    yuv.yz = texture(tex1, tex1_coord).%s;"                            "\n"
-    "    color = conv * vec4(yuv, 1.0);"                                    "\n"
-    "}";
+#define NV12_RECTANGLE_TO_RGBA_FRAGMENT_DATA                                     \
+    "#version 410"                                                          "\n" \
+    "uniform mediump sampler2DRect tex0;"                                   "\n" \
+    "uniform mediump sampler2DRect tex1;"                                   "\n" \
+    "in vec2 tex0_coord;"                                                   "\n" \
+    "in vec2 tex1_coord;"                                                   "\n" \
+    "out vec4 color;"                                                       "\n" \
+    "const mat4 conv = mat4("                                               "\n" \
+    "    1.164,     1.164,    1.164,   0.0,"                                "\n" \
+    "    0.0,      -0.213,    2.112,   0.0,"                                "\n" \
+    "    1.787,    -0.531,    0.0,     0.0,"                                "\n" \
+    "   -0.96625,   0.29925, -1.12875, 1.0);"                               "\n" \
+    "void main(void)"                                                       "\n" \
+    "{"                                                                     "\n" \
+    "    vec3 yuv;"                                                         "\n" \
+    "    yuv.x = texture(tex0, tex0_coord).r;"                              "\n" \
+    "    yuv.yz = texture(tex1, tex1_coord).%s;"                            "\n" \
+    "    color = conv * vec4(yuv, 1.0);"                                    "\n" \
+    "}"
 
 static const struct hwconv_desc {
     int nb_planes;
@@ -124,18 +124,18 @@ static const struct hwconv_desc {
 } hwconv_descs[] = {
     [NGLI_IMAGE_LAYOUT_MEDIACODEC] = {
         .nb_planes = 1,
-        .vertex_data = vertex_data,
-        .fragment_data = oes_to_rgba_fragment_data,
+        .vertex_data = VERTEX_DATA,
+        .fragment_data = OES_TO_RGBA_FRAGMENT_DATA,
     },
     [NGLI_IMAGE_LAYOUT_NV12] = {
         .nb_planes = 2,
-        .vertex_data = vertex_data,
-        .fragment_data = nv12_to_rgba_fragment_data,
+        .vertex_data = VERTEX_DATA,
+        .fragment_data = NV12_TO_RGBA_FRAGMENT_DATA,
     },
     [NGLI_IMAGE_LAYOUT_NV12_RECTANGLE] = {
         .nb_planes = 2,
-        .vertex_data = nv12_rectangle_to_rgba_vertex_data,
-        .fragment_data = nv12_rectangle_to_rgba_fragment_data,
+        .vertex_data = NV12_RECTANGLE_TO_RGBA_VERTEX_DATA,
+        .fragment_data = NV12_RECTANGLE_TO_RGBA_FRAGMENT_DATA,
     },
 };
 
