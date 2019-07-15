@@ -199,6 +199,7 @@ List of `Buffer*` nodes:
 - `BufferBVec3`
 - `BufferBVec4`
 - `BufferInt`
+- `BufferInt64`
 - `BufferIVec2`
 - `BufferIVec3`
 - `BufferIVec4`

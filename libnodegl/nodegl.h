@@ -111,6 +111,7 @@ struct ngl_node;
 #define NGL_NODE_BUFFERBVEC3            NGLI_FOURCC('B','s','b','3')
 #define NGL_NODE_BUFFERBVEC4            NGLI_FOURCC('B','s','b','4')
 #define NGL_NODE_BUFFERINT              NGLI_FOURCC('B','s','i','1')
+#define NGL_NODE_BUFFERINT64            NGLI_FOURCC('B','s','l','1')
 #define NGL_NODE_BUFFERIVEC2            NGLI_FOURCC('B','s','i','2')
 #define NGL_NODE_BUFFERIVEC3            NGLI_FOURCC('B','s','i','3')
 #define NGL_NODE_BUFFERIVEC4            NGLI_FOURCC('B','s','i','4')

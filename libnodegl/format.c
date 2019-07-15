@@ -71,6 +71,7 @@ static const struct {
     [NGLI_FORMAT_R16G16B16A16_SFLOAT] = {4, 2 + 2 + 2 + 2},
     [NGLI_FORMAT_R32_UINT]            = {1, 4},
     [NGLI_FORMAT_R32_SINT]            = {1, 4},
+    [NGLI_FORMAT_R64_SINT]            = {1, 8},
     [NGLI_FORMAT_R32_SFLOAT]          = {1, 4},
     [NGLI_FORMAT_R32G32_UINT]         = {2, 4 + 4},
     [NGLI_FORMAT_R32G32_SINT]         = {2, 4 + 4},

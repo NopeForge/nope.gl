@@ -126,6 +126,8 @@
 
 - BufferInt: _Buffer
 
+- BufferInt64: _Buffer
+
 - BufferIVec2: _Buffer
 
 - BufferIVec3: _Buffer

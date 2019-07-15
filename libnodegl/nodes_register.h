@@ -45,6 +45,7 @@
     action(NGL_NODE_BUFFERBVEC3,            ngli_bufferbvec3_class)             \
     action(NGL_NODE_BUFFERBVEC4,            ngli_bufferbvec4_class)             \
     action(NGL_NODE_BUFFERINT,              ngli_bufferint_class)               \
+    action(NGL_NODE_BUFFERINT64,            ngli_bufferint64_class)             \
     action(NGL_NODE_BUFFERIVEC2,            ngli_bufferivec2_class)             \
     action(NGL_NODE_BUFFERIVEC3,            ngli_bufferivec3_class)             \
     action(NGL_NODE_BUFFERIVEC4,            ngli_bufferivec4_class)             \
