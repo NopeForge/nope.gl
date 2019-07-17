@@ -324,7 +324,8 @@ struct ngl_config {
 
     int samples;   /* Number of samples used for multisample anti-aliasing */
 
-    int set_surface_pts; /* Whether pts should be set to the surface or not (Android only) */
+    int set_surface_pts; /* Whether pts should be set to the surface or not (Android only).
+                            Unsupported with offscreen rendering. */
 
     float clear_color[4]; /* Clear color (red, green, blue, alpha) */
 

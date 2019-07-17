@@ -342,6 +342,11 @@ static int egl_set_swap_interval(struct glcontext *ctx, int interval)
 static void egl_set_surface_pts(struct glcontext *ctx, double t)
 {
 #if defined(TARGET_ANDROID)
+    if (ctx->offscreen) {
+        LOG(WARNING, "setting surface pts is not supported with offscreen rendering");
+        return;
+    }
+
     struct egl_priv *egl = ctx->priv_data;
 
     if (egl->PresentationTimeANDROID) {
