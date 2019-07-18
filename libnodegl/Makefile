@@ -84,7 +84,7 @@ LIB_OBJS = animation.o              \
            math_utils.o             \
            memory.o                 \
            node_animatedbuffer.o    \
-           node_animation.o         \
+           node_animated.o          \
            node_animkeyframe.o      \
            node_block.o             \
            node_buffer.o            \

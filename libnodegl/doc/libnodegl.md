@@ -24,7 +24,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `keyframes` |  |  | [`NodeList`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | float key frames to interpolate from | 
 
 
-**Source**: [node_animation.c](/libnodegl/node_animation.c)
+**Source**: [node_animated.c](/libnodegl/node_animated.c)
 
 
 ## AnimatedVec2
@@ -34,7 +34,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `keyframes` |  |  | [`NodeList`](#parameter-types) ([AnimKeyFrameVec2](#animkeyframevec2)) | vec2 key frames to interpolate from | 
 
 
-**Source**: [node_animation.c](/libnodegl/node_animation.c)
+**Source**: [node_animated.c](/libnodegl/node_animated.c)
 
 
 ## AnimatedVec3
@@ -44,7 +44,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `keyframes` |  |  | [`NodeList`](#parameter-types) ([AnimKeyFrameVec3](#animkeyframevec3)) | vec3 key frames to interpolate from | 
 
 
-**Source**: [node_animation.c](/libnodegl/node_animation.c)
+**Source**: [node_animated.c](/libnodegl/node_animated.c)
 
 
 ## AnimatedVec4
@@ -54,7 +54,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `keyframes` |  |  | [`NodeList`](#parameter-types) ([AnimKeyFrameVec4](#animkeyframevec4)) | vec4 key frames to interpolate from | 
 
 
-**Source**: [node_animation.c](/libnodegl/node_animation.c)
+**Source**: [node_animated.c](/libnodegl/node_animated.c)
 
 
 ## AnimatedQuat
@@ -64,7 +64,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `keyframes` |  |  | [`NodeList`](#parameter-types) ([AnimKeyFrameQuat](#animkeyframequat)) | quaternion key frames to interpolate from | 
 
 
-**Source**: [node_animation.c](/libnodegl/node_animation.c)
+**Source**: [node_animated.c](/libnodegl/node_animated.c)
 
 
 ## AnimKeyFrameFloat
