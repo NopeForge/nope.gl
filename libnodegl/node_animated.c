@@ -194,52 +194,24 @@ static int animatedvec_update(struct ngl_node *node, double t)
     return ngli_animation_evaluate(&s->anim, s->values, t);
 }
 
-const struct node_class ngli_animatedfloat_class = {
-    .id        = NGL_NODE_ANIMATEDFLOAT,
-    .name      = "AnimatedFloat",
-    .init      = animation_init,
-    .update    = animatedfloat_update,
-    .priv_size = sizeof(struct animation_priv),
-    .params    = animatedfloat_params,
-    .file      = __FILE__,
+#define animatedvec2_update  animatedvec_update
+#define animatedvec3_update  animatedvec_update
+#define animatedvec4_update  animatedvec_update
+#define animatedquat_update  animatedvec_update
+
+#define DEFINE_ANIMATED_CLASS(class_id, class_name, type)       \
+const struct node_class ngli_animated##type##_class = {         \
+    .id        = class_id,                                      \
+    .name      = class_name,                                    \
+    .init      = animation_init,                                \
+    .update    = animated##type##_update,                       \
+    .priv_size = sizeof(struct variable_priv),                  \
+    .params    = animated##type##_params,                       \
+    .file      = __FILE__,                                      \
 };
 
-const struct node_class ngli_animatedvec2_class = {
-    .id        = NGL_NODE_ANIMATEDVEC2,
-    .name      = "AnimatedVec2",
-    .init      = animation_init,
-    .update    = animatedvec_update,
-    .priv_size = sizeof(struct animation_priv),
-    .params    = animatedvec2_params,
-    .file      = __FILE__,
-};
-
-const struct node_class ngli_animatedvec3_class = {
-    .id        = NGL_NODE_ANIMATEDVEC3,
-    .name      = "AnimatedVec3",
-    .init      = animation_init,
-    .update    = animatedvec_update,
-    .priv_size = sizeof(struct animation_priv),
-    .params    = animatedvec3_params,
-    .file      = __FILE__,
-};
-
-const struct node_class ngli_animatedvec4_class = {
-    .id        = NGL_NODE_ANIMATEDVEC4,
-    .name      = "AnimatedVec4",
-    .init      = animation_init,
-    .update    = animatedvec_update,
-    .priv_size = sizeof(struct animation_priv),
-    .params    = animatedvec4_params,
-    .file      = __FILE__,
-};
-
-const struct node_class ngli_animatedquat_class = {
-    .id        = NGL_NODE_ANIMATEDQUAT,
-    .name      = "AnimatedQuat",
-    .init      = animation_init,
-    .update    = animatedvec_update,
-    .priv_size = sizeof(struct animation_priv),
-    .params    = animatedquat_params,
-    .file      = __FILE__,
-};
+DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDFLOAT, "AnimatedFloat", float)
+DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDVEC2,  "AnimatedVec2",  vec2)
+DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDVEC3,  "AnimatedVec3",  vec3)
+DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDVEC4,  "AnimatedVec4",  vec4)
+DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDQUAT,  "AnimatedQuat",  quat)
