@@ -202,7 +202,7 @@ int ngli_node_buffer_ref(struct ngl_node *node);
 void ngli_node_buffer_unref(struct ngl_node *node);
 int ngli_node_buffer_upload(struct ngl_node *node);
 
-struct uniform_priv {
+struct variable_priv {
     union {
         double dbl;
         float vec[4];

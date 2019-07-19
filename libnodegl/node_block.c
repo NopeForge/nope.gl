@@ -158,7 +158,7 @@ static int get_buffer_size(const struct ngl_node *bnode, int layout)
 
 static int get_quat_size(const struct ngl_node *quat, int layout)
 {
-    struct uniform_priv *quat_priv = quat->priv_data;
+    struct variable_priv *quat_priv = quat->priv_data;
     return sizeof(float) * 4 * (quat_priv->as_mat4 ? 4 : 1);
 }
 
@@ -194,7 +194,7 @@ static int get_node_align(const struct ngl_node *node, int layout)
 
 static int has_changed_uniform(const struct ngl_node *unode)
 {
-    const struct uniform_priv *uniform = unode->priv_data;
+    const struct variable_priv *uniform = unode->priv_data;
     return uniform->dynamic || uniform->live_changed;
 }
 
@@ -208,7 +208,7 @@ static void update_uniform_field(uint8_t *dst,
                                  const struct ngl_node *node,
                                  const struct block_field_info *fi)
 {
-    const struct uniform_priv *uniform = node->priv_data;
+    const struct variable_priv *uniform = node->priv_data;
     memcpy(dst, uniform->data, uniform->data_size);
 }
 

@@ -63,10 +63,10 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
         pipeline_uniform.count = buffer_priv->count;
         pipeline_uniform.data  = buffer_priv->data;
     } else if (uniform->class->category == NGLI_NODE_CATEGORY_UNIFORM) {
-        struct uniform_priv *uniform_priv = uniform->priv_data;
-        pipeline_uniform.type  = uniform_priv->data_type;
+        struct variable_priv *variable_priv = uniform->priv_data;
+        pipeline_uniform.type  = variable_priv->data_type;
         pipeline_uniform.count = 1;
-        pipeline_uniform.data  = uniform_priv->data;
+        pipeline_uniform.data  = variable_priv->data;
     } else {
         ngli_assert(0);
     }

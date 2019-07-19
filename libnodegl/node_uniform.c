@@ -35,7 +35,7 @@
 
 static int set_live_changed(struct ngl_node *node)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     if (s->dynamic) {
         LOG(ERROR, "updating data on a dynamic uniform is unsupported");
         return -1;
@@ -50,7 +50,7 @@ static int uniform##name##_update_func(struct ngl_node *node) \
     int ret = set_live_changed(node);                         \
     if (ret < 0)                                              \
         return ret;                                           \
-    struct uniform_priv *s = node->priv_data;                 \
+    struct variable_priv *s = node->priv_data;                \
     memcpy(s->data, src, s->data_size);                       \
     return 0;                                                 \
 }                                                             \
@@ -64,7 +64,7 @@ static int uniformfloat_update_func(struct ngl_node *node)
     int ret = set_live_changed(node);
     if (ret < 0)
         return ret;
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     s->scalar = s->opt.dbl; // double -> float
     return 0;
 }
@@ -74,14 +74,14 @@ static int uniformquat_update_func(struct ngl_node *node)
     int ret = set_live_changed(node);
     if (ret < 0)
         return ret;
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     memcpy(s->vector, s->opt.vec, s->data_size);
     if (s->as_mat4)
         ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     return 0;
 }
 
-#define OFFSET(x) offsetof(struct uniform_priv, x)
+#define OFFSET(x) offsetof(struct variable_priv, x)
 static const struct node_param uniformfloat_params[] = {
     {"value",  PARAM_TYPE_DBL,  OFFSET(opt.dbl),
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
@@ -157,7 +157,7 @@ static const struct node_param uniformmat4_params[] = {
     {NULL}
 };
 
-static inline int uniform_update(struct uniform_priv *s, double t, int len)
+static inline int uniform_update(struct variable_priv *s, double t, int len)
 {
     if (s->anim) {
         struct ngl_node *anim_node = s->anim;
@@ -187,7 +187,7 @@ UPDATE_FUNC(vec4,   4);
 
 static int uniformquat_update(struct ngl_node *node, double t)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     int ret = uniform_update(node->priv_data, t, 4);
     if (ret < 0)
         return ret;
@@ -198,7 +198,7 @@ static int uniformquat_update(struct ngl_node *node, double t)
 
 static int uniformint_update(struct ngl_node *node, double t)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     s->live_changed = 0;
     return 0;
 }
@@ -206,7 +206,7 @@ static int uniformint_update(struct ngl_node *node, double t)
 static int uniformmat4_update(struct ngl_node *node, double t)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     if (s->transform) {
         int ret = ngli_node_update(s->transform, t);
         if (ret < 0)
@@ -225,7 +225,7 @@ static int uniformmat4_update(struct ngl_node *node, double t)
 
 static int uniformfloat_init(struct ngl_node *node)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     s->data = &s->scalar;
     s->data_size = sizeof(s->scalar);
     s->data_type = NGLI_TYPE_FLOAT;
@@ -236,7 +236,7 @@ static int uniformfloat_init(struct ngl_node *node)
 
 static int uniformvec2_init(struct ngl_node *node)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     s->data = s->vector;
     s->data_size = 2 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC2;
@@ -247,7 +247,7 @@ static int uniformvec2_init(struct ngl_node *node)
 
 static int uniformvec3_init(struct ngl_node *node)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     s->data = s->vector;
     s->data_size = 3 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC3;
@@ -258,7 +258,7 @@ static int uniformvec3_init(struct ngl_node *node)
 
 static int uniformvec4_init(struct ngl_node *node)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     s->data = s->vector;
     s->data_size = 4 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC4;
@@ -269,7 +269,7 @@ static int uniformvec4_init(struct ngl_node *node)
 
 static int uniformquat_init(struct ngl_node *node)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     s->data = s->vector;
     s->data_size = 4 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC4;
@@ -285,7 +285,7 @@ static int uniformquat_init(struct ngl_node *node)
 
 static int uniformint_init(struct ngl_node *node)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     s->data = &s->ival;
     s->data_size = sizeof(s->ival);
     s->data_type = NGLI_TYPE_INT;
@@ -296,7 +296,7 @@ static int uniformint_init(struct ngl_node *node)
 
 static int uniformmat4_init(struct ngl_node *node)
 {
-    struct uniform_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     s->data = s->matrix;
     s->data_size = sizeof(s->matrix);
     s->data_type = NGLI_TYPE_MAT4;
@@ -319,7 +319,7 @@ const struct node_class ngli_uniform##type##_class = {          \
     .name      = class_name,                                    \
     .init      = uniform##type##_init,                          \
     .update    = uniform##type##_update,                        \
-    .priv_size = sizeof(struct uniform_priv),                   \
+    .priv_size = sizeof(struct variable_priv),                  \
     .params    = uniform##type##_params,                        \
     .file      = __FILE__,                                      \
 };
