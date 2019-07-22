@@ -115,6 +115,12 @@ static int build_uniform_pairs(struct pipeline *s, const struct pipeline_params 
         if (!info)
             continue;
 
+        if (uniform->type != info->type && (uniform->type != NGLI_TYPE_INT ||
+            (info->type != NGLI_TYPE_BOOL && info->type != NGLI_TYPE_INT))) {
+            LOG(ERROR, "uniform '%s' type does not match the type declared in the shader", uniform->name);
+            return -1;
+        }
+
         const set_uniform_func set_func = set_uniform_func_map[uniform->type];
         ngli_assert(set_func);
         struct uniform_pair pair = {
