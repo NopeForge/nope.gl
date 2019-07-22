@@ -54,7 +54,7 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
             ngl.AnimKeyFrameVec4(cfg.duration/2., circle_color, interp),
             ngl.AnimKeyFrameVec4(cfg.duration,    square_color, interp),
     ]
-    ucolor = ngl.UniformVec4(anim=ngl.AnimatedVec4(color_animkf))
+    ucolor = ngl.AnimatedVec4(color_animkf)
 
     geom = ngl.Geometry(vertices)
     geom.set_topology('triangle_fan')

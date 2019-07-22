@@ -82,7 +82,7 @@ def buffer_dove(cfg,
     color_animkf = [ngl.AnimKeyFrameVec4(0,                bgcolor1),
                     ngl.AnimKeyFrameVec4(cfg.duration/2.0, bgcolor2),
                     ngl.AnimKeyFrameVec4(cfg.duration,     bgcolor1)]
-    ucolor = ngl.UniformVec4(anim=ngl.AnimatedVec4(color_animkf))
+    ucolor = ngl.AnimatedVec4(color_animkf)
     render_bg.update_uniforms(color=ucolor)
 
     return ngl.Group(children=(render_bg, render))
@@ -194,7 +194,7 @@ def cropboard(cfg, dim=15):
 
     utime_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                     ngl.AnimKeyFrameFloat(cfg.duration*2/3., 1, 'exp_out')]
-    utime = ngl.UniformFloat(anim=ngl.AnimatedFloat(utime_animkf))
+    utime = ngl.AnimatedFloat(utime_animkf)
 
     render = ngl.Render(q, p, nb_instances=dim**2)
     render.update_textures(tex0=t)
@@ -269,7 +269,7 @@ def particules(cfg, particules=32):
 
     animkf = [ngl.AnimKeyFrameFloat(0, 0),
               ngl.AnimKeyFrameFloat(cfg.duration, 1)]
-    utime = ngl.UniformFloat(anim=ngl.AnimatedFloat(animkf))
+    utime = ngl.AnimatedFloat(animkf)
     uduration = ngl.UniformFloat(cfg.duration)
 
     cp = ngl.ComputeProgram(compute_shader)
@@ -549,7 +549,7 @@ def quaternion(cfg):
         ngl.AnimKeyFrameQuat(4 * step, (x, 0, 0, x)),
         ngl.AnimKeyFrameQuat(5 * step, (0, 0, 0, 1)),
     ]
-    quat = ngl.UniformQuat(anim=ngl.AnimatedQuat(quat_animkf), as_mat4=True)
+    quat = ngl.AnimatedQuat(quat_animkf, as_mat4=True)
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     m = ngl.Media(cfg.medias[0].filename)
@@ -606,12 +606,12 @@ def mountain(cfg, ndim=3, nb_layers=7,
 
         utime_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                         ngl.AnimKeyFrameFloat(cfg.duration, i+1)]
-        utime = ngl.UniformFloat(anim=ngl.AnimatedFloat(utime_animkf))
+        utime = ngl.AnimatedFloat(utime_animkf)
 
         uyoffset_animkf = [ngl.AnimKeyFrameFloat(0, yoffset/2.),
                            ngl.AnimKeyFrameFloat(cfg.duration/2.0, yoffset),
                            ngl.AnimKeyFrameFloat(cfg.duration, yoffset/2.)]
-        uyoffset = ngl.UniformFloat(anim=ngl.AnimatedFloat(uyoffset_animkf))
+        uyoffset = ngl.AnimatedFloat(uyoffset_animkf)
 
         render = ngl.Render(quad, prog)
         render.update_textures(tex0=random_tex)

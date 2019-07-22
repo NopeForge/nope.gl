@@ -132,7 +132,7 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
 
     delta_animkf = [ngl.AnimKeyFrameFloat(transition_start, 1.0),
                     ngl.AnimKeyFrameFloat(transition_start + transition_duration, 0.0)]
-    delta = ngl.UniformFloat(value=1.0, anim=ngl.AnimatedFloat(delta_animkf))
+    delta = anim=ngl.AnimatedFloat(delta_animkf)
 
     render1_2 = ngl.Render(q, p1_2, label='transition')
     render1_2.update_textures(tex0=t1, tex1=t2)
