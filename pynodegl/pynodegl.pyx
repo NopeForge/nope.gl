@@ -105,7 +105,7 @@ cdef _eval_solve(name, src, args, offsets, evaluate):
     if args is not None:
         nb_args = len(args)
         if nb_args > 2:
-            raise Exception("Easing do not support more than 2 arguments")
+            raise Exception("Easings do not support more than 2 arguments")
         for i, arg in enumerate(args):
             c_args[i] = arg
         c_args_param = c_args
