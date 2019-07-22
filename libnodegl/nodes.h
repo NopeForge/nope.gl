@@ -209,8 +209,13 @@ struct variable_priv {
         float mat[4*4];
         int i;
     } opt;
+
     struct ngl_node **animkf;
     int nb_animkf;
+
+    struct ngl_node *timestamps;
+    struct ngl_node *buffer;
+    int timebase[2];
 
     struct animation anim;
     struct animation anim_eval;
@@ -227,6 +232,7 @@ struct variable_priv {
     int as_mat4; /* quaternion only */
     int dynamic;
     int live_changed;
+    int last_index;
 };
 
 struct block_field_info {

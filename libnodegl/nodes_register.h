@@ -98,6 +98,12 @@
     action(NGL_NODE_TRANSFORM,              ngli_transform_class)               \
     action(NGL_NODE_TRANSLATE,              ngli_translate_class)               \
     action(NGL_NODE_TRIANGLE,               ngli_triangle_class)                \
+    action(NGL_NODE_STREAMEDINT,            ngli_streamedint_class)             \
+    action(NGL_NODE_STREAMEDFLOAT,          ngli_streamedfloat_class)           \
+    action(NGL_NODE_STREAMEDVEC2,           ngli_streamedvec2_class)            \
+    action(NGL_NODE_STREAMEDVEC3,           ngli_streamedvec3_class)            \
+    action(NGL_NODE_STREAMEDVEC4,           ngli_streamedvec4_class)            \
+    action(NGL_NODE_STREAMEDMAT4,           ngli_streamedmat4_class)            \
     action(NGL_NODE_UNIFORMINT,             ngli_uniformint_class)              \
     action(NGL_NODE_UNIFORMMAT4,            ngli_uniformmat4_class)             \
     action(NGL_NODE_UNIFORMFLOAT,           ngli_uniformfloat_class)            \

@@ -446,6 +446,48 @@
         - [uv_edge1, vec2]
         - [uv_edge2, vec2]
 
+- StreamedInt:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+
+- StreamedFloat:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+
+- StreamedVec2:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+
+- StreamedVec3:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+
+- StreamedVec4:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+
+- StreamedMat4:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+
 - UniformInt:
     optional:
         - [value, int]

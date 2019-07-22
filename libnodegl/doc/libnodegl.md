@@ -644,6 +644,78 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 **Source**: [node_triangle.c](/libnodegl/node_triangle.c)
 
 
+## StreamedInt
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferInt](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+
+
+**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+
+
+## StreamedFloat
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferFloat](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+
+
+**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+
+
+## StreamedVec2
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferVec2](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+
+
+**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+
+
+## StreamedVec3
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferVec3](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+
+
+**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+
+
+## StreamedVec4
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferVec4](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+
+
+**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+
+
+## StreamedMat4
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferMat4](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+
+
+**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+
+
 ## UniformInt
 
 Parameter | Ctor. | Live-chg. | Type | Description | Default
