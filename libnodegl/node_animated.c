@@ -201,6 +201,7 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 static int animation_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
+    s->dynamic = 1;
     return ngli_animation_init(&s->anim, NULL,
                                s->animkf, s->nb_animkf,
                                get_mix_func(node->class->id),
