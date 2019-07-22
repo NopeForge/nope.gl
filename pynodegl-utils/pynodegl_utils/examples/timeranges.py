@@ -15,7 +15,7 @@ def queued_medias(cfg, overlap_time=1., dim=3):
             video_id = y*dim + x
             start = video_id * cfg.duration / nb_videos
             animkf = [ngl.AnimKeyFrameFloat(start, 0)]
-            m = ngl.Media(cfg.medias[video_id % len(cfg.medias)].filename, time_anim=ngl.AnimatedFloat(animkf))
+            m = ngl.Media(cfg.medias[video_id % len(cfg.medias)].filename, time_anim=ngl.AnimatedTime(animkf))
             m.set_label('media #%d' % video_id)
 
             corner = (-1. + x*qw, 1. - (y+1)*qh, 0)
@@ -120,7 +120,7 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
     m2 = ngl.Media(cfg.medias[1 % len(cfg.medias)].filename, label='media #2')
 
     animkf_m2 = [ngl.AnimKeyFrameFloat(transition_start, 0)]
-    m2.set_time_anim(ngl.AnimatedFloat(animkf_m2))
+    m2.set_time_anim(ngl.AnimatedTime(animkf_m2))
 
     t1 = ngl.Texture2D(data_src=m1, label='texture #1')
     t2 = ngl.Texture2D(data_src=m2, label='texture #2')

@@ -43,7 +43,7 @@ def playback_speed(cfg, speed=1.0):
     q = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     time_animkf = [ngl.AnimKeyFrameFloat(0, initial_seek),
                    ngl.AnimKeyFrameFloat(cfg.duration, media_duration)]
-    m = ngl.Media(m0.filename, time_anim=ngl.AnimatedFloat(time_animkf))
+    m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(time_animkf))
     t = ngl.Texture2D(data_src=m)
     p = ngl.Program()
     render = ngl.Render(q, p)
@@ -84,7 +84,7 @@ def time_remapping(cfg):
     ]
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    m = ngl.Media(m0.filename, time_anim=ngl.AnimatedFloat(media_animkf))
+    m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
     m.set_sxplayer_min_level('verbose')
     t = ngl.Texture2D(data_src=m)
     r = ngl.Render(q)

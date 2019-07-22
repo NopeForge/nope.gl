@@ -18,7 +18,7 @@ Each key frame associates a `node.gl` time to a media time: `f(t) = Tm` with
 ### Example:
 
 ```python
-anim = ngl.AnimatedFloat([
+anim = ngl.AnimatedTime([
     ngl.AnimKeyFrameFloat(5, 4),
     ngl.AnimKeyFrameFloat(7, 10),
 ])
@@ -94,7 +94,7 @@ def media_time_remapping(cfg):
 
     # Basic media playback tree
     q = ngl.Quad()
-    m = ngl.Media(cfg.medias[0].filename, time_anim=ngl.AnimatedFloat(animkf))
+    m = ngl.Media(cfg.medias[0].filename, time_anim=ngl.AnimatedTime(animkf))
     t = ngl.Texture2D(data_src=m)
     r = ngl.Render(q)
     r.update_textures(tex0=t)

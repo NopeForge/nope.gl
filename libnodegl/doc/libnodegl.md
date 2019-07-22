@@ -366,7 +366,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `filename` | ✓ |  | [`string`](#parameter-types) | path to input media file | 
 `sxplayer_min_level` |  |  | [`sxplayer_log_level`](#sxplayer_log_level-choices) | sxplayer min logging level | `warning`
-`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 `audio_tex` |  |  | [`bool`](#parameter-types) | load the audio and expose it as a stereo waves and frequencies buffer | `0`
 `max_nb_packets` |  |  | [`int`](#parameter-types) | maximum number of packets in sxplayer demuxing queue | `1`
 `max_nb_frames` |  |  | [`int`](#parameter-types) | maximum number of frames in sxplayer decoding queue | `1`
