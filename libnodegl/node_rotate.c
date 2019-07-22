@@ -39,13 +39,13 @@ struct rotate_priv {
     int use_anchor;
 };
 
-static void update_trf_matrix(struct ngl_node *node, double deg_angle)
+static void update_trf_matrix(struct ngl_node *node, float deg_angle)
 {
     struct rotate_priv *s = node->priv_data;
     struct transform_priv *trf = &s->trf;
     float *matrix = trf->matrix;
 
-    const double angle = deg_angle * (2.0f * M_PI / 360.0f);
+    const float angle = deg_angle * (2.0f * M_PI / 360.0f);
     ngli_mat4_rotate(matrix, angle, s->normed_axis);
 
     if (s->use_anchor) {
