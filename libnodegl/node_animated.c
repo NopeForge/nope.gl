@@ -215,7 +215,7 @@ static int animatedfloat_update(struct ngl_node *node, double t)
 static int animatedvec_update(struct ngl_node *node, double t)
 {
     struct animation_priv *s = node->priv_data;
-    return ngli_animation_evaluate(&s->anim, s->values, t);
+    return ngli_animation_evaluate(&s->anim, s->vector, t);
 }
 
 #define animatedtime_update  animatedfloat_update

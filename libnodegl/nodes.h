@@ -364,7 +364,7 @@ struct animation_priv {
     int nb_animkf;
     struct animation anim;
     struct animation anim_eval;
-    float values[4];
+    float vector[4];
     double dval;
 };
 

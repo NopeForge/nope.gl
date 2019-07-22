@@ -168,7 +168,7 @@ static inline int uniform_update(struct variable_priv *s, double t, int len)
         if (len == 1)
             s->scalar = anim->dval; // double -> float
         else
-            memcpy(s->vector, anim->values, len * sizeof(*s->vector));
+            memcpy(s->vector, anim->vector, len * sizeof(*s->vector));
     }
     s->live_changed = 0;
     return 0;
