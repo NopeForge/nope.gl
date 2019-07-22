@@ -28,7 +28,7 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-#define OFFSET(x) offsetof(struct animation_priv, x)
+#define OFFSET(x) offsetof(struct variable_priv, x)
 static const struct node_param animatedtime_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1},
@@ -172,7 +172,7 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
         node->class->id != NGL_NODE_ANIMATEDVEC4)
         return -1;
 
-    struct animation_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     if (!s->nb_animkf)
         return -1;
 
@@ -199,7 +199,7 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 
 static int animation_init(struct ngl_node *node)
 {
-    struct animation_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     return ngli_animation_init(&s->anim, NULL,
                                s->animkf, s->nb_animkf,
                                get_mix_func(node->class->id),
@@ -208,13 +208,13 @@ static int animation_init(struct ngl_node *node)
 
 static int animatedfloat_update(struct ngl_node *node, double t)
 {
-    struct animation_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     return ngli_animation_evaluate(&s->anim, &s->dval, t);
 }
 
 static int animatedvec_update(struct ngl_node *node, double t)
 {
-    struct animation_priv *s = node->priv_data;
+    struct variable_priv *s = node->priv_data;
     return ngli_animation_evaluate(&s->anim, s->vector, t);
 }
 

@@ -161,7 +161,7 @@ static inline int uniform_update(struct variable_priv *s, double t, int len)
 {
     if (s->anim_opt) {
         struct ngl_node *anim_node = s->anim_opt;
-        struct animation_priv *anim = anim_node->priv_data;
+        struct variable_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;

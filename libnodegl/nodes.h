@@ -209,11 +209,16 @@ struct variable_priv {
         float mat[4*4];
         int i;
     } opt;
+    struct ngl_node **animkf;
+    int nb_animkf;
 
+    struct animation anim;
+    struct animation anim_eval;
     float scalar;
     float vector[4];
     float matrix[4*4];
     int ival;
+    double dval;
     void *data;
     int data_size;
     int data_type;          // any of NGLI_TYPE_*
@@ -358,15 +363,6 @@ enum easing_id {
 
 typedef double easing_type;
 typedef easing_type (*easing_function)(easing_type, int, const easing_type *);
-
-struct animation_priv {
-    struct ngl_node **animkf;
-    int nb_animkf;
-    struct animation anim;
-    struct animation anim_eval;
-    float vector[4];
-    double dval;
-};
 
 struct animkeyframe_priv {
     double time;

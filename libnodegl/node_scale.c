@@ -82,7 +82,7 @@ static int scale_update(struct ngl_node *node, double t)
     struct ngl_node *child = trf->child;
     if (s->anim) {
         struct ngl_node *anim_node = s->anim;
-        struct animation_priv *anim = anim_node->priv_data;
+        struct variable_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;

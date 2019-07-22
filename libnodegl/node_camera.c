@@ -232,7 +232,7 @@ static int camera_update(struct ngl_node *node, double t)
 
     if (s->fov_anim) {
         struct ngl_node *anim_node = s->fov_anim;
-        struct animation_priv *anim = anim_node->priv_data;
+        struct variable_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;

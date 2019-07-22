@@ -108,7 +108,7 @@ static int media_init(struct ngl_node *node)
 
     struct ngl_node *anim_node = s->anim;
     if (anim_node) {
-        struct animation_priv *anim = anim_node->priv_data;
+        struct variable_priv *anim = anim_node->priv_data;
 
         // Sanity checks for time animation keyframe
         double prev_media_time = 0;
@@ -225,7 +225,7 @@ static int media_update(struct ngl_node *node, double t)
     double media_time = t;
 
     if (anim_node) {
-        struct animation_priv *anim = anim_node->priv_data;
+        struct variable_priv *anim = anim_node->priv_data;
 
         if (anim->nb_animkf >= 1) {
             const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
