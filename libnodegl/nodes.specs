@@ -18,6 +18,10 @@
 
 - AnimatedBufferVec4: _AnimatedBuffer
 
+- AnimatedTime:
+    optional:
+        - [keyframes, NodeList]
+
 - AnimatedFloat:
     optional:
         - [keyframes, NodeList]

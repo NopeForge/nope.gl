@@ -29,6 +29,13 @@
 #include "nodes.h"
 
 #define OFFSET(x) offsetof(struct animation_priv, x)
+static const struct node_param animatedtime_params[] = {
+    {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
+                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1},
+                  .desc=NGLI_DOCSTRING("time key frames to interpolate from")},
+    {NULL}
+};
+
 static const struct node_param animatedfloat_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1},
@@ -119,6 +126,7 @@ static void cpy_values(void *user_arg, void *dst,
 static ngli_animation_mix_func_type get_mix_func(int node_class)
 {
     switch (node_class) {
+        case NGL_NODE_ANIMATEDTIME:
         case NGL_NODE_ANIMATEDFLOAT: return mix_float;
         case NGL_NODE_ANIMATEDVEC2:  return mix_vec2;
         case NGL_NODE_ANIMATEDVEC3:  return mix_vec3;
@@ -131,6 +139,7 @@ static ngli_animation_mix_func_type get_mix_func(int node_class)
 static ngli_animation_cpy_func_type get_cpy_func(int node_class)
 {
     switch (node_class) {
+        case NGL_NODE_ANIMATEDTIME:
         case NGL_NODE_ANIMATEDFLOAT: return cpy_scalar;
         case NGL_NODE_ANIMATEDVEC2:
         case NGL_NODE_ANIMATEDVEC3:
@@ -194,6 +203,7 @@ static int animatedvec_update(struct ngl_node *node, double t)
     return ngli_animation_evaluate(&s->anim, s->values, t);
 }
 
+#define animatedtime_update  animatedfloat_update
 #define animatedvec2_update  animatedvec_update
 #define animatedvec3_update  animatedvec_update
 #define animatedvec4_update  animatedvec_update
@@ -210,6 +220,7 @@ const struct node_class ngli_animated##type##_class = {         \
     .file      = __FILE__,                                      \
 };
 
+DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDTIME,  "AnimatedTime",  time)
 DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDFLOAT, "AnimatedFloat", float)
 DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDVEC2,  "AnimatedVec2",  vec2)
 DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDVEC3,  "AnimatedVec3",  vec3)

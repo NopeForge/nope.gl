@@ -17,6 +17,16 @@ List of `AnimatedBuffer*` nodes:
 - `AnimatedBufferVec3`
 - `AnimatedBufferVec4`
 
+## AnimatedTime
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`keyframes` |  |  | [`NodeList`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | time key frames to interpolate from | 
+
+
+**Source**: [node_animated.c](/libnodegl/node_animated.c)
+
+
 ## AnimatedFloat
 
 Parameter | Ctor. | Live-chg. | Type | Description | Default

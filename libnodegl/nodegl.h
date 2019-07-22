@@ -93,6 +93,7 @@ struct ngl_node;
 #define NGL_NODE_ANIMATEDBUFFERVEC2     NGLI_FOURCC('A','B','f','2')
 #define NGL_NODE_ANIMATEDBUFFERVEC3     NGLI_FOURCC('A','B','f','3')
 #define NGL_NODE_ANIMATEDBUFFERVEC4     NGLI_FOURCC('A','B','f','4')
+#define NGL_NODE_ANIMATEDTIME           NGLI_FOURCC('A','n','m','T')
 #define NGL_NODE_ANIMATEDFLOAT          NGLI_FOURCC('A','n','m','1')
 #define NGL_NODE_ANIMATEDVEC2           NGLI_FOURCC('A','n','m','2')
 #define NGL_NODE_ANIMATEDVEC3           NGLI_FOURCC('A','n','m','3')

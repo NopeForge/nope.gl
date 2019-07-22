@@ -27,6 +27,7 @@
     action(NGL_NODE_ANIMATEDBUFFERVEC2,     ngli_animatedbuffervec2_class)      \
     action(NGL_NODE_ANIMATEDBUFFERVEC3,     ngli_animatedbuffervec3_class)      \
     action(NGL_NODE_ANIMATEDBUFFERVEC4,     ngli_animatedbuffervec4_class)      \
+    action(NGL_NODE_ANIMATEDTIME,           ngli_animatedtime_class)            \
     action(NGL_NODE_ANIMATEDFLOAT,          ngli_animatedfloat_class)           \
     action(NGL_NODE_ANIMATEDVEC2,           ngli_animatedvec2_class)            \
     action(NGL_NODE_ANIMATEDVEC3,           ngli_animatedvec3_class)            \
