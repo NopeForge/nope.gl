@@ -71,6 +71,15 @@ static const struct node_param animatedquat_params[] = {
     {NULL}
 };
 
+static void mix_time(void *user_arg, void *dst,
+                     const struct animkeyframe_priv *kf0,
+                     const struct animkeyframe_priv *kf1,
+                     double ratio)
+{
+    double *dstd = dst;
+    dstd[0] = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
+}
+
 static void mix_float(void *user_arg, void *dst,
                       const struct animkeyframe_priv *kf0,
                       const struct animkeyframe_priv *kf1,
@@ -111,6 +120,12 @@ DECLARE_VEC_MIX_FUNC(2)
 DECLARE_VEC_MIX_FUNC(3)
 DECLARE_VEC_MIX_FUNC(4)
 
+static void cpy_time(void *user_arg, void *dst,
+                     const struct animkeyframe_priv *kf)
+{
+    memcpy(dst, &kf->scalar, sizeof(kf->scalar));
+}
+
 static void cpy_scalar(void *user_arg, void *dst,
                        const struct animkeyframe_priv *kf)
 {
@@ -126,7 +141,7 @@ static void cpy_values(void *user_arg, void *dst,
 static ngli_animation_mix_func_type get_mix_func(int node_class)
 {
     switch (node_class) {
-        case NGL_NODE_ANIMATEDTIME:
+        case NGL_NODE_ANIMATEDTIME:  return mix_time;
         case NGL_NODE_ANIMATEDFLOAT: return mix_float;
         case NGL_NODE_ANIMATEDVEC2:  return mix_vec2;
         case NGL_NODE_ANIMATEDVEC3:  return mix_vec3;
@@ -139,7 +154,7 @@ static ngli_animation_mix_func_type get_mix_func(int node_class)
 static ngli_animation_cpy_func_type get_cpy_func(int node_class)
 {
     switch (node_class) {
-        case NGL_NODE_ANIMATEDTIME:
+        case NGL_NODE_ANIMATEDTIME:  return cpy_time;
         case NGL_NODE_ANIMATEDFLOAT: return cpy_scalar;
         case NGL_NODE_ANIMATEDVEC2:
         case NGL_NODE_ANIMATEDVEC3:
