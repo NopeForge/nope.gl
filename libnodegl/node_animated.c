@@ -27,6 +27,7 @@
 #include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "type.h"
 
 #define OFFSET(x) offsetof(struct variable_priv, x)
 static const struct node_param animatedtime_params[] = {
@@ -206,6 +207,23 @@ static int animation_init(struct ngl_node *node)
                                get_cpy_func(node->class->id));
 }
 
+#define DECLARE_INIT_FUNC(suffix, class_data, class_data_size, class_data_type) \
+static int animated##suffix##_init(struct ngl_node *node)                       \
+{                                                                               \
+    struct variable_priv *s = node->priv_data;                                  \
+    s->data = class_data;                                                       \
+    s->data_size = class_data_size;                                             \
+    s->data_type = class_data_type;                                             \
+    return animation_init(node);                                                \
+}
+
+DECLARE_INIT_FUNC(time,  &s->dval,   sizeof(s->dval),        NGLI_TYPE_NONE)
+DECLARE_INIT_FUNC(float, &s->dval,   sizeof(s->dval),        NGLI_TYPE_FLOAT)
+DECLARE_INIT_FUNC(vec2,  s->vector,  2 * sizeof(*s->vector), NGLI_TYPE_VEC2)
+DECLARE_INIT_FUNC(vec3,  s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
+DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
+DECLARE_INIT_FUNC(quat,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
+
 static int animatedfloat_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
@@ -228,7 +246,7 @@ static int animatedvec_update(struct ngl_node *node, double t)
 const struct node_class ngli_animated##type##_class = {         \
     .id        = class_id,                                      \
     .name      = class_name,                                    \
-    .init      = animation_init,                                \
+    .init      = animated##type##_init,                         \
     .update    = animated##type##_update,                       \
     .priv_size = sizeof(struct variable_priv),                  \
     .params    = animated##type##_params,                       \
