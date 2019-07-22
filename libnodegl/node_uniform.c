@@ -166,7 +166,7 @@ static inline int uniform_update(struct variable_priv *s, double t, int len)
         if (ret < 0)
             return ret;
         if (len == 1)
-            s->scalar = anim->dval; // double -> float
+            s->scalar = anim->scalar;
         else
             memcpy(s->vector, anim->vector, len * sizeof(*s->vector));
     }

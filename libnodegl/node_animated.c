@@ -86,7 +86,7 @@ static void mix_float(void *user_arg, void *dst,
                       const struct animkeyframe_priv *kf1,
                       double ratio)
 {
-    double *dstd = dst;
+    float *dstd = dst;
     dstd[0] = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
 }
 
@@ -130,7 +130,7 @@ static void cpy_time(void *user_arg, void *dst,
 static void cpy_scalar(void *user_arg, void *dst,
                        const struct animkeyframe_priv *kf)
 {
-    memcpy(dst, &kf->scalar, sizeof(kf->scalar));
+    *(float *)dst = kf->scalar;  // double → float
 }
 
 static void cpy_values(void *user_arg, void *dst,
@@ -219,7 +219,7 @@ static int animated##suffix##_init(struct ngl_node *node)                       
 }
 
 DECLARE_INIT_FUNC(time,  &s->dval,   sizeof(s->dval),        NGLI_TYPE_NONE)
-DECLARE_INIT_FUNC(float, &s->dval,   sizeof(s->dval),        NGLI_TYPE_FLOAT)
+DECLARE_INIT_FUNC(float, &s->scalar, sizeof(s->scalar),      NGLI_TYPE_FLOAT)
 DECLARE_INIT_FUNC(vec2,  s->vector,  2 * sizeof(*s->vector), NGLI_TYPE_VEC2)
 DECLARE_INIT_FUNC(vec3,  s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
 DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
@@ -228,7 +228,7 @@ DECLARE_INIT_FUNC(quat,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
 static int animatedfloat_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
-    return ngli_animation_evaluate(&s->anim, &s->dval, t);
+    return ngli_animation_evaluate(&s->anim, &s->scalar, t);
 }
 
 static int animatedvec_update(struct ngl_node *node, double t)

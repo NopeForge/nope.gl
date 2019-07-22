@@ -236,7 +236,7 @@ static int camera_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
-        s->perspective[0] = anim->dval;
+        s->perspective[0] = anim->scalar;
     }
 
     if (s->use_perspective) {

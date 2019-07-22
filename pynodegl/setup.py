@@ -309,13 +309,12 @@ cdef class %(class_name)s(%(parent_node)s):
                     retstr = 'vec[0]'
                 else:
                     retstr = '(%s)' % ', '.join('vec[%d]' % x for x in range(n))
-                float_type = 'double' if node == 'AnimatedFloat' else 'float'
                 class_str += '''
     def evaluate(self, t):
-        cdef %s[%d] vec
+        cdef float[%d] vec
         ngl_anim_evaluate(self.ctx, vec, t)
         return %s
-''' % (float_type, n, retstr)
+''' % (n, retstr)
 
             # Declare a set, add or update method for every optional field of
             # the node. The constructor parameters can not be changed so we
