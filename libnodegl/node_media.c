@@ -237,7 +237,7 @@ static int media_update(struct ngl_node *node, double t)
                 int ret = ngli_node_update(anim_node, t);
                 if (ret < 0)
                     return ret;
-                media_time = anim->scalar - initial_seek;
+                media_time = anim->dval - initial_seek;
             }
 
             TRACE("remapped time f(%g)=%g", t, media_time);

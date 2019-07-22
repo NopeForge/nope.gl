@@ -194,7 +194,7 @@ static int animation_init(struct ngl_node *node)
 static int animatedfloat_update(struct ngl_node *node, double t)
 {
     struct animation_priv *s = node->priv_data;
-    return ngli_animation_evaluate(&s->anim, &s->scalar, t);
+    return ngli_animation_evaluate(&s->anim, &s->dval, t);
 }
 
 static int animatedvec_update(struct ngl_node *node, double t)

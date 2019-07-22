@@ -365,7 +365,7 @@ struct animation_priv {
     struct animation anim;
     struct animation anim_eval;
     float values[4];
-    double scalar;
+    double dval;
 };
 
 struct animkeyframe_priv {

@@ -95,7 +95,7 @@ static int rotate_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
-        update_trf_matrix(node, anim->scalar);
+        update_trf_matrix(node, anim->dval);
     }
     return ngli_node_update(child, t);
 }
