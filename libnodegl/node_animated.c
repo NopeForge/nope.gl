@@ -240,22 +240,17 @@ static int animatedquat_init(struct ngl_node *node)
     return animation_init(node);
 }
 
-static int animatedfloat_update(struct ngl_node *node, double t)
+static int animation_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
-    return ngli_animation_evaluate(&s->anim, &s->scalar, t);
+    return ngli_animation_evaluate(&s->anim, s->data, t);
 }
 
-static int animatedvec_update(struct ngl_node *node, double t)
-{
-    struct variable_priv *s = node->priv_data;
-    return ngli_animation_evaluate(&s->anim, s->vector, t);
-}
-
-#define animatedtime_update  animatedfloat_update
-#define animatedvec2_update  animatedvec_update
-#define animatedvec3_update  animatedvec_update
-#define animatedvec4_update  animatedvec_update
+#define animatedtime_update  animation_update
+#define animatedfloat_update animation_update
+#define animatedvec2_update  animation_update
+#define animatedvec3_update  animation_update
+#define animatedvec4_update  animation_update
 
 static int animatedquat_update(struct ngl_node *node, double t)
 {
