@@ -669,7 +669,6 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `value` |  | ✓ | [`double`](#parameter-types) | value exposed to the shader | `0`
-`anim` |  |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | `value` animation | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -680,7 +679,6 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `value` |  | ✓ | [`vec2`](#parameter-types) | value exposed to the shader | (`0`,`0`)
-`anim` |  |  | [`Node`](#parameter-types) ([AnimatedVec2](#animatedvec2)) | `value` animation | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -691,7 +689,6 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `value` |  | ✓ | [`vec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
-`anim` |  |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) | `value` animation | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -702,7 +699,6 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `value` |  | ✓ | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
-`anim` |  |  | [`Node`](#parameter-types) ([AnimatedVec4](#animatedvec4)) | `value` animation | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -713,7 +709,6 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `value` |  | ✓ | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
-`anim` |  |  | [`Node`](#parameter-types) ([AnimatedQuat](#animatedquat)) | `value` animation | 
 `as_mat4` |  |  | [`bool`](#parameter-types) | exposed as a 4x4 rotation matrix in the program | `0`
 
 

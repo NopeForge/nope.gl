@@ -456,27 +456,22 @@
 - UniformFloat:
     optional:
         - [value, double]
-        - [anim, Node]
 
 - UniformVec2:
     optional:
         - [value, vec2]
-        - [anim, Node]
 
 - UniformVec3:
     optional:
         - [value, vec3]
-        - [anim, Node]
 
 - UniformVec4:
     optional:
         - [value, vec4]
-        - [anim, Node]
 
 - UniformQuat:
     optional:
         - [value, vec4]
-        - [anim, Node]
         - [as_mat4, bool]
 
 - UserSwitch:

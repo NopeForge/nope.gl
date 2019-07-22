@@ -87,9 +87,6 @@ static const struct node_param uniformfloat_params[] = {
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=uniformfloat_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim_opt),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
-               .desc=NGLI_DOCSTRING("`value` animation")},
     {NULL}
 };
 
@@ -98,9 +95,6 @@ static const struct node_param uniformvec2_params[] = {
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=uniformvec_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim_opt),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC2, -1},
-               .desc=NGLI_DOCSTRING("`value` animation")},
     {NULL}
 };
 
@@ -109,9 +103,6 @@ static const struct node_param uniformvec3_params[] = {
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=uniformvec_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim_opt),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
-               .desc=NGLI_DOCSTRING("`value` animation")},
     {NULL}
 };
 
@@ -120,9 +111,6 @@ static const struct node_param uniformvec4_params[] = {
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=uniformvec_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim_opt),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC4, -1},
-               .desc=NGLI_DOCSTRING("`value` animation")},
     {NULL}
 };
 
@@ -131,9 +119,6 @@ static const struct node_param uniformquat_params[] = {
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=uniformquat_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"anim",   PARAM_TYPE_NODE, OFFSET(anim_opt),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDQUAT, -1},
-               .desc=NGLI_DOCSTRING("`value` animation")},
     {"as_mat4", PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i64=0},
                 .desc=NGLI_DOCSTRING("exposed as a 4x4 rotation matrix in the program")},
     {NULL}
@@ -159,17 +144,6 @@ static const struct node_param uniformmat4_params[] = {
 
 static inline int uniform_update(struct variable_priv *s, double t, int len)
 {
-    if (s->anim_opt) {
-        struct ngl_node *anim_node = s->anim_opt;
-        struct variable_priv *anim = anim_node->priv_data;
-        int ret = ngli_node_update(anim_node, t);
-        if (ret < 0)
-            return ret;
-        if (len == 1)
-            s->scalar = anim->scalar;
-        else
-            memcpy(s->vector, anim->vector, len * sizeof(*s->vector));
-    }
     s->live_changed = 0;
     return 0;
 }
@@ -229,7 +203,6 @@ static int uniformfloat_init(struct ngl_node *node)
     s->data = &s->scalar;
     s->data_size = sizeof(s->scalar);
     s->data_type = NGLI_TYPE_FLOAT;
-    s->dynamic = !!s->anim_opt;
     s->scalar = s->opt.dbl; // double -> float
     return 0;
 }
@@ -240,7 +213,6 @@ static int uniformvec2_init(struct ngl_node *node)
     s->data = s->vector;
     s->data_size = 2 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC2;
-    s->dynamic = !!s->anim_opt;
     memcpy(s->data, s->opt.vec, s->data_size);
     return 0;
 }
@@ -251,7 +223,6 @@ static int uniformvec3_init(struct ngl_node *node)
     s->data = s->vector;
     s->data_size = 3 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC3;
-    s->dynamic = !!s->anim_opt;
     memcpy(s->data, s->opt.vec, s->data_size);
     return 0;
 }
@@ -262,7 +233,6 @@ static int uniformvec4_init(struct ngl_node *node)
     s->data = s->vector;
     s->data_size = 4 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC4;
-    s->dynamic = !!s->anim_opt;
     memcpy(s->data, s->opt.vec, s->data_size);
     return 0;
 }
@@ -273,7 +243,6 @@ static int uniformquat_init(struct ngl_node *node)
     s->data = s->vector;
     s->data_size = 4 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC4;
-    s->dynamic = !!s->anim_opt;
     memcpy(s->data, s->opt.vec, s->data_size);
     if (s->as_mat4) {
         s->data = s->matrix;
@@ -289,7 +258,6 @@ static int uniformint_init(struct ngl_node *node)
     s->data = &s->ival;
     s->data_size = sizeof(s->ival);
     s->data_type = NGLI_TYPE_INT;
-    s->dynamic = !!s->anim_opt;
     memcpy(s->data, &s->opt.i, s->data_size);
     return 0;
 }
