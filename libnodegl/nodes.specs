@@ -41,6 +41,7 @@
 - AnimatedQuat:
     optional:
         - [keyframes, NodeList]
+        - [as_mat4, bool]
 
 - AnimKeyFrameFloat:
     constructors:

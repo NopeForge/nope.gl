@@ -69,6 +69,8 @@ static const struct node_param animatedquat_params[] = {
     {"keyframes", PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEQUAT, -1},
                   .desc=NGLI_DOCSTRING("quaternion key frames to interpolate from")},
+    {"as_mat4",   PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i64=0},
+                  .desc=NGLI_DOCSTRING("exposed as a 4x4 rotation matrix in the program")},
     {NULL}
 };
 
@@ -223,7 +225,20 @@ DECLARE_INIT_FUNC(float, &s->scalar, sizeof(s->scalar),      NGLI_TYPE_FLOAT)
 DECLARE_INIT_FUNC(vec2,  s->vector,  2 * sizeof(*s->vector), NGLI_TYPE_VEC2)
 DECLARE_INIT_FUNC(vec3,  s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
 DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
-DECLARE_INIT_FUNC(quat,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
+
+static int animatedquat_init(struct ngl_node *node)
+{
+    struct variable_priv *s = node->priv_data;
+    s->data = s->vector;
+    s->data_size = 4 * sizeof(*s->vector);
+    s->data_type = NGLI_TYPE_VEC4;
+    if (s->as_mat4) {
+        s->data = s->matrix;
+        s->data_size = sizeof(s->matrix);
+        s->data_type = NGLI_TYPE_MAT4;
+    }
+    return animation_init(node);
+}
 
 static int animatedfloat_update(struct ngl_node *node, double t)
 {
@@ -241,7 +256,17 @@ static int animatedvec_update(struct ngl_node *node, double t)
 #define animatedvec2_update  animatedvec_update
 #define animatedvec3_update  animatedvec_update
 #define animatedvec4_update  animatedvec_update
-#define animatedquat_update  animatedvec_update
+
+static int animatedquat_update(struct ngl_node *node, double t)
+{
+    struct variable_priv *s = node->priv_data;
+    int ret = ngli_animation_evaluate(&s->anim, s->vector, t);
+    if (ret < 0)
+        return ret;
+    if (s->as_mat4)
+        ngli_mat4_rotate_from_quat(s->matrix, s->vector);
+    return 0;
+}
 
 #define DEFINE_ANIMATED_CLASS(class_id, class_name, type)       \
 const struct node_class ngli_animated##type##_class = {         \
