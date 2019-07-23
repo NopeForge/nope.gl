@@ -56,6 +56,11 @@ struct compute_priv {
                                           NGL_NODE_UNIFORMQUAT,     \
                                           NGL_NODE_UNIFORMINT,      \
                                           NGL_NODE_UNIFORMMAT4,     \
+                                          NGL_NODE_ANIMATEDFLOAT,   \
+                                          NGL_NODE_ANIMATEDVEC2,    \
+                                          NGL_NODE_ANIMATEDVEC3,    \
+                                          NGL_NODE_ANIMATEDVEC4,    \
+                                          NGL_NODE_ANIMATEDQUAT,    \
                                           -1}
 
 #define OFFSET(x) offsetof(struct compute_priv, x)
