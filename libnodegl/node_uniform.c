@@ -142,39 +142,25 @@ static const struct node_param uniformmat4_params[] = {
     {NULL}
 };
 
-static inline int uniform_update(struct variable_priv *s, double t, int len)
+static int uniform_update(struct ngl_node *node, double t)
 {
+    struct variable_priv *s = node->priv_data;
     s->live_changed = 0;
     return 0;
 }
 
-#define UPDATE_FUNC(type, len)                                          \
-static int uniform##type##_update(struct ngl_node *node, double t)      \
-{                                                                       \
-    return uniform_update(node->priv_data, t, len);                     \
-}
-
-UPDATE_FUNC(float,  1);
-UPDATE_FUNC(vec2,   2);
-UPDATE_FUNC(vec3,   3);
-UPDATE_FUNC(vec4,   4);
+#define uniformfloat_update uniform_update
+#define uniformvec2_update  uniform_update
+#define uniformvec3_update  uniform_update
+#define uniformvec4_update  uniform_update
+#define uniformint_update   uniform_update
 
 static int uniformquat_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
-    int ret = uniform_update(node->priv_data, t, 4);
-    if (ret < 0)
-        return ret;
     if (s->as_mat4)
         ngli_mat4_rotate_from_quat(s->matrix, s->vector);
-    return ret;
-}
-
-static int uniformint_update(struct ngl_node *node, double t)
-{
-    struct variable_priv *s = node->priv_data;
-    s->live_changed = 0;
-    return 0;
+    return uniform_update(node, t);
 }
 
 static int uniformmat4_update(struct ngl_node *node, double t)
