@@ -651,6 +651,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferInt](#buffer)) | buffer containing the data to stream | 
 `timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -663,6 +664,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferFloat](#buffer)) | buffer containing the data to stream | 
 `timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -675,6 +677,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferVec2](#buffer)) | buffer containing the data to stream | 
 `timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -687,6 +690,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferVec3](#buffer)) | buffer containing the data to stream | 
 `timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -699,6 +703,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferVec4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -711,6 +716,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
 `buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferMat4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)

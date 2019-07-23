@@ -41,6 +41,9 @@ static const struct node_param streamed##name##_params[] = {                    
                    .desc=NGLI_DOCSTRING("buffer containing the data to stream")},                         \
     {"timebase",   PARAM_TYPE_RATIONAL, OFFSET(timebase), {.r={1, 1000000}},                              \
                    .desc=NGLI_DOCSTRING("time base in which the `timestamps` are represented")},          \
+    {"time_anim",  PARAM_TYPE_NODE, OFFSET(time_anim),                                                    \
+                   .node_types=(const int[]){NGL_NODE_ANIMATEDTIME, -1},                                  \
+                   .desc=NGLI_DOCSTRING("time remapping animation (must use a `linear` interpolation)")}, \
     {NULL}                                                                                                \
 };
 
@@ -71,8 +74,32 @@ static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 static int streamed_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
+    struct ngl_node *time_anim = s->time_anim;
 
-    const int64_t t64 = llrint(t * s->timebase[1] / (double)s->timebase[0]);
+    double rt = t;
+    if (time_anim) {
+        struct variable_priv *anim = time_anim->priv_data;
+
+        if (anim->nb_animkf >= 1) {
+            const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
+            if (anim->nb_animkf == 1) {
+                rt = NGLI_MAX(0, t - kf0->time) + kf0->scalar;
+            } else {
+                int ret = ngli_node_update(time_anim, t);
+                if (ret < 0)
+                    return ret;
+                rt = anim->dval;
+            }
+
+            TRACE("remapped time f(%g)=%g", t, rt);
+            if (rt < 0) {
+                LOG(ERROR, "invalid remapped time %g", rt);
+                return -1;
+            }
+        }
+    }
+
+    const int64_t t64 = llrint(rt * s->timebase[1] / (double)s->timebase[0]);
     int index = get_data_index(node, s->last_index, t64);
     if (index < 0) {
         index = get_data_index(node, 0, t64);

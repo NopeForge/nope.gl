@@ -452,6 +452,7 @@
         - [buffer, Node]
     optional:
         - [timebase, rational]
+        - [time_anim, Node]
 
 - StreamedFloat:
     constructors:
@@ -459,6 +460,7 @@
         - [buffer, Node]
     optional:
         - [timebase, rational]
+        - [time_anim, Node]
 
 - StreamedVec2:
     constructors:
@@ -466,6 +468,7 @@
         - [buffer, Node]
     optional:
         - [timebase, rational]
+        - [time_anim, Node]
 
 - StreamedVec3:
     constructors:
@@ -473,6 +476,7 @@
         - [buffer, Node]
     optional:
         - [timebase, rational]
+        - [time_anim, Node]
 
 - StreamedVec4:
     constructors:
@@ -480,6 +484,7 @@
         - [buffer, Node]
     optional:
         - [timebase, rational]
+        - [time_anim, Node]
 
 - StreamedMat4:
     constructors:
@@ -487,6 +492,7 @@
         - [buffer, Node]
     optional:
         - [timebase, rational]
+        - [time_anim, Node]
 
 - UniformInt:
     optional:
