@@ -82,8 +82,8 @@ int ngli_animation_init(struct animation *s, void *user_arg,
     s->cpy_func = cpy_func;
 
     double prev_time = -DBL_MAX;
-    for (int i = 0; i < s->nb_kfs; i++) {
-        const struct animkeyframe_priv *kf = s->kfs[i]->priv_data;
+    for (int i = 0; i < nb_kfs; i++) {
+        const struct animkeyframe_priv *kf = kfs[i]->priv_data;
 
         if (kf->time < prev_time) {
             LOG(ERROR, "key frames must be monotically increasing: %g < %g",
