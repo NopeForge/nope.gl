@@ -58,12 +58,14 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
         current_config->handle    != config->handle    ||
         current_config->offscreen != config->offscreen ||
         current_config->samples   != config->samples) {
-        ngli_node_detach_ctx(s->scene);
+        if (s->scene)
+            ngli_node_detach_ctx(s->scene);
         s->backend->destroy(s);
         int ret = s->backend->configure(s, config);
         if (ret < 0)
             return ret;
-        ret = ngli_node_attach_ctx(s->scene, s);
+        if (s->scene)
+            ret = ngli_node_attach_ctx(s->scene, s);
         if (ret < 0)
             return ret;
         return 0;
