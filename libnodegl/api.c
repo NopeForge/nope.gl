@@ -160,7 +160,9 @@ end:;
 
 static int cmd_stop(struct ngl_ctx *s, void *arg)
 {
-    s->backend->destroy(s);
+    if (s->backend)
+        s->backend->destroy(s);
+
     return 0;
 }
 
