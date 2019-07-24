@@ -97,7 +97,6 @@ static void callback_sxplayer_log(void *arg, int level, const char *filename, in
 
 static int media_init(struct ngl_node *node)
 {
-    int i;
     struct media_priv *s = node->priv_data;
 
     s->player = sxplayer_create(s->filename);
@@ -109,22 +108,6 @@ static int media_init(struct ngl_node *node)
     struct ngl_node *anim_node = s->anim;
     if (anim_node) {
         struct variable_priv *anim = anim_node->priv_data;
-
-        // Sanity checks for time animation keyframe
-        double prev_media_time = 0;
-        for (i = 0; i < anim->nb_animkf; i++) {
-            const struct animkeyframe_priv *kf = anim->animkf[i]->priv_data;
-            if (kf->easing != EASING_LINEAR) {
-                LOG(ERROR, "only linear interpolation is allowed for time remapping");
-                return -1;
-            }
-            if (kf->scalar < prev_media_time) {
-                LOG(ERROR, "media times must be positive and monotically increasing: %g < %g",
-                    kf->scalar, prev_media_time);
-                return -1;
-            }
-            prev_media_time = kf->scalar;
-        }
 
         // Set the media time boundaries using the time remapping animation
         if (anim->nb_animkf) {

@@ -220,11 +220,36 @@ static int animated##suffix##_init(struct ngl_node *node)                       
     return animation_init(node);                                                \
 }
 
-DECLARE_INIT_FUNC(time,  &s->dval,   sizeof(s->dval),        NGLI_TYPE_NONE)
 DECLARE_INIT_FUNC(float, &s->scalar, sizeof(s->scalar),      NGLI_TYPE_FLOAT)
 DECLARE_INIT_FUNC(vec2,  s->vector,  2 * sizeof(*s->vector), NGLI_TYPE_VEC2)
 DECLARE_INIT_FUNC(vec3,  s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
 DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
+
+static int animatedtime_init(struct ngl_node *node)
+{
+    struct variable_priv *s = node->priv_data;
+    s->data = &s->dval;
+    s->data_size = sizeof(s->dval);
+    s->data_type = NGLI_TYPE_NONE;
+
+    // Sanity checks for time animation keyframe
+    double prev_time = 0;
+    for (int i = 0; i < s->nb_animkf; i++) {
+        const struct animkeyframe_priv *kf = s->animkf[i]->priv_data;
+        if (kf->easing != EASING_LINEAR) {
+            LOG(ERROR, "only linear interpolation is allowed for time animation");
+            return -1;
+        }
+        if (kf->scalar < prev_time) {
+            LOG(ERROR, "times must be positive and monotically increasing: %g < %g",
+                kf->scalar, prev_time);
+            return -1;
+        }
+        prev_time = kf->scalar;
+    }
+
+    return animation_init(node);
+}
 
 static int animatedquat_init(struct ngl_node *node)
 {
