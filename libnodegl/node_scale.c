@@ -103,7 +103,7 @@ static const struct node_param scale_params[] = {
     {"anchor",  PARAM_TYPE_VEC3, OFFSET(anchor),
                 .desc=NGLI_DOCSTRING("vector to the center point of the scale")},
     {"anim",    PARAM_TYPE_NODE, OFFSET(anim),
-                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, -1},
+                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, NGL_NODE_STREAMEDVEC3, -1},
                 .desc=NGLI_DOCSTRING("`factors` animation")},
     {NULL}
 };
