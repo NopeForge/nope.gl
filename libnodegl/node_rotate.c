@@ -114,7 +114,7 @@ static const struct node_param rotate_params[] = {
     {"anchor", PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}},
                .desc=NGLI_DOCSTRING("vector to the center point of the rotation")},
     {"anim",   PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
+               .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, NGL_NODE_STREAMEDFLOAT, -1},
                .desc=NGLI_DOCSTRING("`angle` animation")},
     {NULL}
 };
