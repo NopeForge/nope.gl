@@ -1,5 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 #
-# Copyright 2017 GoPro Inc.
+# Copyright 2019 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -19,27 +21,22 @@
 # under the License.
 #
 
-include ../common.mak
+import pynodegl as ngl
 
-VISUAL ?= no
 
-all: tests
+def test_backend():
+    viewer = ngl.Viewer()
+    assert viewer.configure(backend=0x1234) < 0
+    del viewer
 
-tests_api:
-	$(PYTHON) api.py
 
-tests_serial:
-	$(PYTHON) serialize.py data
+def test_reconfigure():
+    viewer = ngl.Viewer()
+    assert viewer.configure(offscreen=1, width=16, height=16) == 0
+    assert viewer.configure(offscreen=1, width=16, height=16, samples=4) == 0
+    del viewer
 
-ifeq ($(VISUAL),yes)
-RENDER_FLAGS = -w -z 1
-endif
-tests: tests_api tests_serial
-	@for f in data/*.ngl; do \
-		ngl-render $$f -t 3:2:5 -t 0:1:60 -t 7:3:15 $(RENDER_FLAGS); \
-	done
 
-clean:
-	$(RM) -r data
-
-.PHONY: clean tests tests_api tests_serial all
+if __name__ == '__main__':
+    test_backend()
+    test_reconfigure()
