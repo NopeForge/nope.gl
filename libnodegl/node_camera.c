@@ -130,7 +130,7 @@ static int camera_init(struct ngl_node *node)
 
     if (!s->ground[0] && !s->ground[1] && !s->ground[2]) {
         LOG(ERROR, "view and up are collinear");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     static const float zvec[4] = {0};
@@ -140,7 +140,7 @@ static int camera_init(struct ngl_node *node)
     if ((s->use_perspective || s->use_orthographic) &&
         !memcmp(s->clipping, zvec, sizeof(s->clipping))) {
         LOG(ERROR, "clipping must be set when perspective or orthographic is used");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     s->eye_transform_matrix    = ngli_get_last_transformation_matrix(s->eye_transform);
@@ -150,7 +150,7 @@ static int camera_init(struct ngl_node *node)
     if (s->pipe_fd) {
         s->pipe_buf = ngli_calloc(4 /* RGBA */, s->pipe_width * s->pipe_height);
         if (!s->pipe_buf)
-            return -1;
+            return NGL_ERROR_MEMORY;
 
         int sample_buffers;
         ngli_glGetIntegerv(gl, GL_SAMPLE_BUFFERS, &sample_buffers);
@@ -161,7 +161,7 @@ static int camera_init(struct ngl_node *node)
         if (s->samples > 0) {
             if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT)) {
                 LOG(ERROR, "could not read pixels from anti-aliased framebuffer as framebuffer blitting is not supported");
-                return -1;
+                return NGL_ERROR_UNSUPPORTED;
             }
 
             struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
@@ -209,7 +209,7 @@ static int camera_update(struct ngl_node *node, double t)
         if (ret < 0)                                                        \
             return ret;                                                     \
         if (!ngli_darray_push(&ctx->modelview_matrix_stack, id_matrix))     \
-            return -1;                                                      \
+            return NGL_ERROR_MEMORY;                                        \
         ngli_node_draw(s->what##_transform);                                \
         ngli_darray_pop(&ctx->modelview_matrix_stack);                      \
         const float *matrix = s->what##_transform_matrix;                   \
