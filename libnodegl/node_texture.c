@@ -462,7 +462,7 @@ static int texture3d_init(struct ngl_node *node)
 
     if (!(gl->features & NGLI_FEATURE_TEXTURE_3D)) {
         LOG(ERROR, "context does not support 3D textures");
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
     return 0;
 }
@@ -474,7 +474,7 @@ static int texturecube_init(struct ngl_node *node)
 
     if (!(gl->features & NGLI_FEATURE_TEXTURE_CUBE_MAP)) {
         LOG(ERROR, "context does not support cube map textures");
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
     return 0;
 }

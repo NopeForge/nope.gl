@@ -228,7 +228,7 @@ static int renderbuffer_check_samples(struct texture *s)
     if (params->samples > max_samples) {
         LOG(WARNING, "renderbuffer format 0x%x does not support samples %d (maximum %d)",
             s->format, params->samples, max_samples);
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     return 0;
@@ -355,7 +355,7 @@ int ngli_texture_init(struct texture *s,
                 LOG(ERROR, "invalid texture dimensions %dx%dx%d",
                     params->width, params->height, params->depth);
                 ngli_texture_reset(s);
-                return -1;
+                return NGL_ERROR_INVALID_ARG;
             }
             if (params->immutable) {
                 texture_set_storage(s);
