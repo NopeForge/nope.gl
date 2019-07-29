@@ -59,7 +59,7 @@ static int triangle_init(struct ngl_node *node)
                                                             sizeof(s->triangle_edges),
                                                             s->triangle_edges);
     if (!s->vertices_buffer)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     s->uvcoords_buffer = ngli_node_geometry_generate_buffer(node->ctx,
                                                             NGL_NODE_BUFFERVEC2,
@@ -67,7 +67,7 @@ static int triangle_init(struct ngl_node *node)
                                                             sizeof(s->triangle_uvs),
                                                             s->triangle_uvs);
     if (!s->uvcoords_buffer)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     float normals[3 * NB_VERTICES];
     ngli_vec3_normalvec(normals,
@@ -84,7 +84,7 @@ static int triangle_init(struct ngl_node *node)
                                                            sizeof(normals),
                                                            normals);
     if (!s->normals_buffer)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
