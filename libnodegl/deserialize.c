@@ -35,7 +35,7 @@ case param_type: {                                      \
     type v;                                             \
     len = parse_func(str, &v);                          \
     if (len < 0)                                        \
-        return -1;                                      \
+        return NGL_ERROR_INVALID_DATA;                  \
     int ret = ngli_params_vset(base_ptr, par, v);       \
     if (ret < 0)                                        \
         return ret;                                     \
@@ -88,7 +88,7 @@ static int parse_##type(const char *s, type *valp)                          \
     uint##nbit##_t exp = nbit == 64 ? strtoull(s + consumed, &endptr, 16)   \
                                     : strtoul(s + consumed, &endptr, 16);   \
     if (*endptr++ != expected_z)                                            \
-        return -1;                                                          \
+        return NGL_ERROR_INVALID_DATA;                                      \
     uint##nbit##_t mant = nbit == 64 ? strtoull(endptr, &endptr, 16)        \
                                      : strtoul(endptr, &endptr, 16);        \
                                                                             \
@@ -225,7 +225,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             int r[2] = {0};
             int ret = sscanf(str, "%d/%d%n", &r[0], &r[1], &len);
             if (ret != 2)
-                return -1;
+                return NGL_ERROR_INVALID_DATA;
             ret = ngli_params_vset(base_ptr, par, r[0], r[1]);
             if (ret < 0)
                 return ret;
@@ -237,7 +237,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             len = strcspn(str, " \n");
             char *s = ngli_malloc(len + 1);
             if (!s)
-                return -1;
+                return NGL_ERROR_MEMORY;
             memcpy(s, str, len);
             s[len] = 0;
             int ret = ngli_params_vset(base_ptr, par, s);
@@ -251,7 +251,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             len = strcspn(str, " \n");
             char *s = ngli_malloc(len + 1);
             if (!s)
-                return -1;
+                return NGL_ERROR_MEMORY;
             char *sstart = s;
             for (int i = 0; i < len; i++) {
                 if (str[i] == '%' && i + 2 < len) {
@@ -277,19 +277,19 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             const char *end = str + strlen(str);
             int ret = sscanf(str, "%d,%n", &size, &consumed);
             if (ret != 1)
-                return -1;
+                return NGL_ERROR_INVALID_DATA;
             if (!size)
                 break;
             if (cur >= end - consumed)
-                return -1;
+                return NGL_ERROR_INVALID_DATA;
             cur += consumed;
             uint8_t *data = ngli_calloc(size, sizeof(*data));
             if (!data)
-                return -1;
+                return NGL_ERROR_MEMORY;
             for (int i = 0; i < size; i++) {
                 if (cur > end - 2) {
                     ngli_free(data);
-                    return -1;
+                    return NGL_ERROR_INVALID_DATA;
                 }
                 static const uint8_t hexm[256] = {
                     ['0'] = 0x0, ['1'] = 0x1, ['2'] = 0x2, ['3'] = 0x3,
@@ -317,7 +317,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             len = parse_floats(str, &v, &nb_flts);
             if (len < 0 || nb_flts != n) {
                 ngli_free(v);
-                return -1;
+                return NGL_ERROR_INVALID_DATA;
             }
             int ret = ngli_params_vset(base_ptr, par, v);
             ngli_free(v);
@@ -332,7 +332,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             len = parse_floats(str, &m, &nb_flts);
             if (len < 0 || nb_flts != 16) {
                 ngli_free(m);
-                return -1;
+                return NGL_ERROR_INVALID_DATA;
             }
             int ret = ngli_params_vset(base_ptr, par, m);
             ngli_free(m);
@@ -345,10 +345,10 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             int node_id;
             len = parse_hexint(str, &node_id);
             if (len < 0)
-                return -1;
+                return NGL_ERROR_INVALID_DATA;
             struct ngl_node **nodep = ngli_darray_get(nodes_array, node_id);
             if (!nodep)
-                return -1;
+                return NGL_ERROR_INVALID_DATA;
             int ret = ngli_params_vset(base_ptr, par, *nodep);
             if (ret < 0)
                 return ret;
@@ -364,7 +364,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                 struct ngl_node **nodep = ngli_darray_get(nodes_array, node_ids[i]);
                 if (!nodep) {
                     ngli_free(node_ids);
-                    return -1;
+                    return NGL_ERROR_INVALID_DATA;
                 }
                 int ret = ngli_params_add(base_ptr, par, 1, nodep);
                 if (ret < 0) {
@@ -400,7 +400,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                 struct ngl_node **nodep = ngli_darray_get(nodes_array, node_ids[i]);
                 if (!nodep) {
                     FREE_KVS(nb_nodes, node_keys, node_ids);
-                    return -1;
+                    return NGL_ERROR_INVALID_DATA;
                 }
                 int ret = ngli_params_vset(base_ptr, par, key, *nodep);
                 if (ret < 0) {
@@ -457,7 +457,7 @@ static int set_node_params(struct darray *nodes_array, char *str,
         if (!par) {
             LOG(ERROR, "unable to find parameter %s.%s",
                 node->class->name, str);
-            return -1;
+            return NGL_ERROR_INVALID_DATA;
         }
 
         str = eok + 1;
@@ -465,7 +465,7 @@ static int set_node_params(struct darray *nodes_array, char *str,
         if (ret < 0) {
             LOG(ERROR, "invalid value specified for parameter %s.%s",
                 node->class->name, par->key);
-            return -1;
+            return NGL_ERROR_INVALID_DATA;
         }
 
         str += ret;
