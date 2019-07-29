@@ -144,15 +144,15 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
             struct texture *ms_texture = ngli_darray_push(&s->rt_ms_colors, NULL);
             if (!ms_texture) {
                 ret = -1;
-                goto error;
+                goto end;
             }
             attachment_params.format = params->format;
             ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
             if (ret < 0)
-                goto error;
+                goto end;
             if (!ngli_darray_push(&attachments, &ms_texture)) {
                 ret = -1;
-                goto error;
+                goto end;
             }
         }
     }
@@ -161,11 +161,11 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         attachment_params.format = depth_format;
         ret = ngli_texture_init(&s->rt_ms_depth, ctx, &attachment_params);
         if (ret < 0)
-            goto error;
+            goto end;
         struct texture *rt_ms_depth = &s->rt_ms_depth;
         if (!ngli_darray_push(&attachments, &rt_ms_depth)) {
             ret = -1;
-            goto error;
+            goto end;
         }
     }
 
@@ -177,9 +177,9 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
     };
     ret = ngli_rendertarget_init(&s->rt_ms, ctx, &rt_params);
     if (ret < 0)
-        goto error;
+        goto end;
 
-error:
+end:
     ngli_darray_reset(&attachments);
     return ret;
 }
@@ -239,7 +239,7 @@ static int rtt_prefetch(struct ngl_node *node)
         struct texture *texture = &texture_priv->texture;
         if (!ngli_darray_push(&attachments, &texture)) {
             ret = -1;
-            goto error;
+            goto end;
         }
     }
 
@@ -251,7 +251,7 @@ static int rtt_prefetch(struct ngl_node *node)
         depth_format = depth_texture_params->format;
         if (!ngli_darray_push(&attachments, &depth_texture)) {
             ret = -1;
-            goto error;
+            goto end;
         }
     } else {
         if (s->features & FEATURE_STENCIL)
@@ -264,10 +264,10 @@ static int rtt_prefetch(struct ngl_node *node)
             attachment_params.format = depth_format;
             ret = ngli_texture_init(rt_depth, ctx, &attachment_params);
             if (ret < 0)
-                goto error;
+                goto end;
             if (!ngli_darray_push(&attachments, &rt_depth)) {
                 ret = -1;
-                goto error;
+                goto end;
             }
             if (!(s->features & FEATURE_NO_CLEAR))
                 s->invalidate_depth_stencil = 1;
@@ -282,12 +282,12 @@ static int rtt_prefetch(struct ngl_node *node)
     };
     ret = ngli_rendertarget_init(&s->rt, ctx, &rt_params);
     if (ret < 0)
-        goto error;
+        goto end;
 
     if (s->samples > 0) {
         ret = create_ms_rendertarget(node, depth_format);
         if (ret < 0)
-            goto error;
+            goto end;
     }
 
     if (s->vflip) {
@@ -308,7 +308,7 @@ static int rtt_prefetch(struct ngl_node *node)
         }
     }
 
-error:
+end:
     ngli_darray_reset(&attachments);
     return ret;
 }
