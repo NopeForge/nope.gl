@@ -46,7 +46,7 @@ static int circle_init(struct ngl_node *node)
 
     if (s->npoints < 3) {
         LOG(ERROR, "invalid number of points (%d < 3)", s->npoints);
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
     const int nb_vertices = s->npoints + 2;
 
