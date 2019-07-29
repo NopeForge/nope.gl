@@ -38,7 +38,7 @@ static int set_live_changed(struct ngl_node *node)
     struct variable_priv *s = node->priv_data;
     if (s->dynamic) {
         LOG(ERROR, "updating data on a dynamic uniform is unsupported");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
     s->live_changed = 1;
     return 0;
@@ -173,7 +173,7 @@ static int uniformmat4_update(struct ngl_node *node, double t)
             return ret;
         static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
         if (!ngli_darray_push(&ctx->modelview_matrix_stack, id_matrix))
-            return -1;
+            return NGL_ERROR_MEMORY;
         ngli_node_draw(s->transform);
         ngli_darray_pop(&ctx->modelview_matrix_stack);
         if (s->transform_matrix)
