@@ -163,14 +163,14 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         src_layout != NGLI_IMAGE_LAYOUT_NV12_RECTANGLE &&
         src_layout != NGLI_IMAGE_LAYOUT_MEDIACODEC) {
         LOG(ERROR, "unsupported texture layout: 0x%x", src_layout);
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
     const struct hwconv_desc *desc = &hwconv_descs[src_layout];
 
     const char *uv = gl->version < 300 ? "ra": "rg";
     char *fragment_data = ngli_asprintf(desc->fragment_data, uv);
     if (!fragment_data)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     ret = ngli_program_init(&hwconv->program, ctx, desc->vertex_data, fragment_data, NULL);
     ngli_free(fragment_data);
