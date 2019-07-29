@@ -367,7 +367,7 @@ static int animkeyframe_init(struct ngl_node *node)
             node->class->name, easing_name,
             s->time, s->data_size);
     else
-        return -1;
+        return NGL_ERROR_BUG;
 
     s->function   = easings[easing_id].function;
     s->resolution = easings[easing_id].resolution;
@@ -449,7 +449,7 @@ int ngl_easing_solve(const char *name, double *args, int nb_args,
         return ret;
     if (!easings[easing_id].resolution) {
         LOG(ERROR, "no resolution available for easing %s", name);
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
     if (offsets) {
         const easing_function eval_func = easings[easing_id].function;
