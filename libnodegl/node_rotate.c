@@ -64,7 +64,7 @@ static int rotate_init(struct ngl_node *node)
     static const float zvec[3] = {0};
     if (!memcmp(s->axis, zvec, sizeof(s->axis))) {
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
     s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
     ngli_vec3_norm(s->normed_axis, s->axis);
@@ -78,7 +78,7 @@ static int update_angle(struct ngl_node *node)
     struct rotate_priv *s = node->priv_data;
     if (s->anim) {
         LOG(ERROR, "updating angle while the animation is set is unsupported");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
     update_trf_matrix(node, s->angle);
     return 0;
