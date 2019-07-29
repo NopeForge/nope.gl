@@ -46,13 +46,8 @@ struct eagl_priv {
 static int eagl_init_layer(struct glcontext *ctx)
 {
     if (![NSThread isMainThread]) {
-        __block int ret;
-
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            ret = eagl_init_layer(ctx);
-        });
-
-        return ret;
+        LOG(ERROR, "eagl_init_layer() must be called from the UI thread");
+        return -1;
     }
 
     struct eagl_priv *eagl = ctx->priv_data;
@@ -140,17 +135,8 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
     struct eagl_priv *eagl = ctx->priv_data;
 
     if (![NSThread isMainThread]) {
-        __block int ret;
-        ngli_glcontext_make_current(ctx, 0);
-
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            ngli_glcontext_make_current(ctx, 1);
-            ret = eagl_init_framebuffer(ctx);
-            ngli_glcontext_make_current(ctx, 0);
-        });
-
-        ngli_glcontext_make_current(ctx, 1);
-        return ret;
+        LOG(ERROR, "eagl_init_framebuffer() must be called from the UI thread");
+        return -1;
     }
 
     eagl->fb_initialized = 1;

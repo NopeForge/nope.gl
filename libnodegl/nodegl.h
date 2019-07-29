@@ -366,7 +366,8 @@ struct ngl_ctx *ngl_create(void);
  * If the context has already been configured, calling ngl_configure() will
  * hint the rendering backend to update the onscreen surface dimensions either
  * from the new configuration or directly from the window the node.gl context
- * is associated with.
+ * is associated with. Must be called from the UI thread on iOS if the context
+ * is onscreen.
  *
  * @param s        pointer to a node.gl context
  * @param config   pointer to a node.gl configuration structure (cannot be NULL)
