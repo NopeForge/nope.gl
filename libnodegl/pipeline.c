@@ -466,7 +466,7 @@ static int pipeline_graphics_init(struct pipeline *s, const struct pipeline_para
 
     int ret = build_attribute_pairs(s, params);
     if (ret < 0)
-        return -1;
+        return ret;
 
     if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
         ngli_glGenVertexArrays(gl, 1, &s->vao_id);
