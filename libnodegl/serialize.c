@@ -46,7 +46,7 @@ static int register_node(struct hmap *nlist,
         return ret;
     char *val = ngli_asprintf("%x", ngli_hmap_count(nlist));
     if (!val)
-        return -1;
+        return NGL_ERROR_MEMORY;
     ret = ngli_hmap_set(nlist, key, val);
     if (ret < 0)
         ngli_free(val);
