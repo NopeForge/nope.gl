@@ -180,6 +180,24 @@ struct ngl_node;
 #define NGL_NODE_USERSWITCH             NGLI_FOURCC('U','S','c','h')
 
 /**
+ * Return error codes.
+ *
+ * All NGL_ERROR_* values shall remain < 0.
+ */
+#define NGL_ERROR_GENERIC           -1                                  /* Generic error */
+#define NGL_ERROR_ACCESS            -NGLI_FOURCC('E','a','c','c')       /* Operation not allowed */
+#define NGL_ERROR_BUG               -NGLI_FOURCC('E','b','u','g')       /* A buggy code path was triggered, please report if it happens */
+#define NGL_ERROR_EXTERNAL          -NGLI_FOURCC('E','e','x','t')       /* An error occurred in an external dependency */
+#define NGL_ERROR_INVALID_ARG       -NGLI_FOURCC('E','a','r','g')       /* Invalid user argument specified */
+#define NGL_ERROR_INVALID_DATA      -NGLI_FOURCC('E','d','a','t')       /* Invalid input data */
+#define NGL_ERROR_INVALID_USAGE     -NGLI_FOURCC('E','u','s','g')       /* Invalid public API usage */
+#define NGL_ERROR_IO                -NGLI_FOURCC('E','i','o',' ')       /* Input/Output error */
+#define NGL_ERROR_LIMIT_EXCEEDED    -NGLI_FOURCC('E','l','i','m')       /* Hardware or resource limit exceeded */
+#define NGL_ERROR_MEMORY            -NGLI_FOURCC('E','m','e','m')       /* Memory/allocation error */
+#define NGL_ERROR_NOT_FOUND         -NGLI_FOURCC('E','f','n','d')       /* Target not found */
+#define NGL_ERROR_UNSUPPORTED       -NGLI_FOURCC('E','s','u','p')       /* Unsupported operation */
+
+/**
  * Allocate a node.
  *
  * This function does not perform any OpenGL operation.
