@@ -94,7 +94,7 @@ static int streamed_update(struct ngl_node *node, double t)
             TRACE("remapped time f(%g)=%g", t, rt);
             if (rt < 0) {
                 LOG(ERROR, "invalid remapped time %g", rt);
-                return -1;
+                return NGL_ERROR_INVALID_ARG;
             }
         }
     }
@@ -124,13 +124,13 @@ static int check_timestamps_buffer(const struct ngl_node *node)
 
     if (!nb_timestamps) {
         LOG(ERROR, "timestamps buffer must not be empty");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     const struct buffer_priv *buffer_priv = s->buffer->priv_data;
     if (nb_timestamps != buffer_priv->count) {
         LOG(ERROR, "timestamps count must match buffer data count: %d != %d", nb_timestamps, buffer_priv->count);
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     int64_t last_ts = timestamps[0];
@@ -138,11 +138,11 @@ static int check_timestamps_buffer(const struct ngl_node *node)
         const int64_t ts = timestamps[i];
         if (ts < 0) {
             LOG(ERROR, "timestamps must be positive: %" PRId64, ts);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
         if (ts < last_ts) {
             LOG(ERROR, "timestamps must be monotically increasing: %" PRId64 " < %" PRId64, ts, last_ts);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
         last_ts = ts;
     }
@@ -156,7 +156,7 @@ static int streamed_init(struct ngl_node *node)
 
     if (!s->timebase[1]) {
         LOG(ERROR, "invalid timebase: %d/%d", s->timebase[0], s->timebase[1]);
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     return check_timestamps_buffer(node);
