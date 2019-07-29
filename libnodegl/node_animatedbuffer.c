@@ -90,7 +90,7 @@ static int animatedbuffer_init(struct ngl_node *node)
             LOG(ERROR, "the number of %s in buffer key frame %d "
                 "does not match the previous ones (%d vs %d)",
                 types[s->data_comp - 1], i, data_count, s->count);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
 
         if (data_pad)
@@ -100,11 +100,11 @@ static int animatedbuffer_init(struct ngl_node *node)
     }
 
     if (!s->count)
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
 
     s->data = ngli_calloc(s->count, s->data_stride);
     if (!s->data)
-        return -1;
+        return NGL_ERROR_MEMORY;
     s->data_size = s->count * s->data_stride;
 
     return 0;
