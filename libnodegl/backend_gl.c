@@ -163,7 +163,7 @@ static int capture_init(struct ngl_ctx *s)
             CVPixelBufferRef capture_cvbuffer = (CVPixelBufferRef)config->window;
             s->capture_cvbuffer = (CVPixelBufferRef)CFRetain(capture_cvbuffer);
             if (!s->capture_cvbuffer)
-                return -1;
+                return NGL_ERROR_MEMORY;
 
             CVOpenGLESTextureCacheRef *cache = ngli_glcontext_get_texture_cache(gl);
             int width = CVPixelBufferGetWidth(s->capture_cvbuffer);
@@ -182,7 +182,7 @@ static int capture_init(struct ngl_ctx *s)
                                                                         &s->capture_cvtexture);
             if (err != noErr) {
                 LOG(ERROR, "could not create CoreVideo texture from CVPixelBuffer: 0x%x", err);
-                return -1;
+                return NGL_ERROR_EXTERNAL;
             }
 
             GLuint id = CVOpenGLESTextureGetName(s->capture_cvtexture);
@@ -255,11 +255,11 @@ static int capture_init(struct ngl_ctx *s)
         if (ios_capture) {
             LOG(WARNING, "context does not support the framebuffer object feature, "
                 "capturing to a CVPixelBuffer is not supported");
-            return -1;
+            return NGL_ERROR_UNSUPPORTED;
         }
         s->capture_buffer = ngli_calloc(config->width * config->height, 4 /* RGBA */);
         if (!s->capture_buffer)
-            return -1;
+            return NGL_ERROR_MEMORY;
 
         s->capture_func = capture_cpu_fallback;
     }
@@ -354,7 +354,7 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 
     s->glcontext = ngli_glcontext_new(&s->config);
     if (!s->glcontext)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     if (s->glcontext->offscreen) {
         int ret = offscreen_rendertarget_init(s);
