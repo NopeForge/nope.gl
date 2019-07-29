@@ -242,7 +242,7 @@ static int track_children(struct ngl_node *node)
                 uint8_t *child_p = base_ptr + par->offset;
                 struct ngl_node *child = *(struct ngl_node **)child_p;
                 if (child && !ngli_darray_push(&node->children, &child))
-                    return -1;
+                    return NGL_ERROR_MEMORY;
                 break;
             }
             case PARAM_TYPE_NODELIST: {
@@ -252,7 +252,7 @@ static int track_children(struct ngl_node *node)
                 const int nb_elems = *(int *)nb_elems_p;
                 for (int i = 0; i < nb_elems; i++)
                     if (!ngli_darray_push(&node->children, &elems[i]))
-                        return -1;
+                        return NGL_ERROR_MEMORY;
                 break;
             }
             case PARAM_TYPE_NODEDICT: {
@@ -262,7 +262,7 @@ static int track_children(struct ngl_node *node)
                 const struct hmap_entry *entry = NULL;
                 while ((entry = ngli_hmap_next(hmap, entry)))
                     if (!ngli_darray_push(&node->children, &entry->data))
-                        return -1;
+                        return NGL_ERROR_MEMORY;
                 break;
             }
         }
@@ -352,7 +352,7 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
     if (ctx) {
         if (node->ctx && node->ctx != ctx) {
             LOG(ERROR, "\"%s\" is associated with another rendering context", node->label);
-            return -1;
+            return NGL_ERROR_INVALID_USAGE;
         }
     } else {
         if (node->state > STATE_UNINITIALIZED && node->ctx_refcount-- == 1) {
@@ -439,7 +439,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
     }
 
     if (queue_node && !ngli_darray_push(&node->ctx->activitycheck_nodes, &node))
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     return 0;
 }
@@ -537,11 +537,11 @@ int ngl_node_param_add(struct ngl_node *node, const char *key,
     uint8_t *base_ptr;
     const struct node_param *par = ngli_node_param_find(node, key, &base_ptr);
     if (!par)
-        return -1;
+        return NGL_ERROR_NOT_FOUND;
 
     if (node->ctx && !(par->flags & PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
         LOG(ERROR, "%s.%s can not be live extended", node->label, key);
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
 
     ret = ngli_params_add(base_ptr, par, nb_elems, elems);
@@ -564,11 +564,11 @@ int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
     uint8_t *base_ptr;
     const struct node_param *par = ngli_node_param_find(node, key, &base_ptr);
     if (!par)
-        return -1;
+        return NGL_ERROR_NOT_FOUND;
 
     if (node->ctx && !(par->flags & PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
         LOG(ERROR, "%s.%s can not be live changed", node->label, key);
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
 
     va_start(ap, key);
