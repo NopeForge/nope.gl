@@ -25,6 +25,7 @@
 
 #include "hmap.h"
 #include "memory.h"
+#include "nodegl.h"
 #include "utils.h"
 
 struct bucket {
@@ -70,7 +71,7 @@ int ngli_hmap_count(const struct hmap *hm)
 int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
 {
     if (!key)
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
 
     const uint32_t hash = ngli_crc32(key);
     int id = hash & hm->mask;
@@ -118,7 +119,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
         struct hmap old_hm = *hm;
 
         if (hm->size >= 1 << (sizeof(hm->size)*8 - 2))
-            return -1;
+            return NGL_ERROR_LIMIT_EXCEEDED;
 
         struct bucket *new_buckets = ngli_calloc(hm->size << 1, sizeof(*new_buckets));
         if (new_buckets) {
@@ -142,7 +143,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                             ngli_free(hm->buckets[j].entries);
                         ngli_free(hm->buckets);
                         *hm = old_hm;
-                        return -1;
+                        return NGL_ERROR_MEMORY;
                     }
                     b->entries = entries;
                     struct hmap_entry *new_e = &entries[b->nb_entries++];
@@ -173,12 +174,12 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
     /* Add */
     char *new_key = ngli_strdup(key);
     if (!new_key)
-        return -1;
+        return NGL_ERROR_MEMORY;
     struct hmap_entry *entries =
         ngli_realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
     if (!entries) {
         ngli_free(new_key);
-        return -1;
+        return NGL_ERROR_MEMORY;
     }
     b->entries = entries;
     struct hmap_entry *e = &entries[b->nb_entries++];
