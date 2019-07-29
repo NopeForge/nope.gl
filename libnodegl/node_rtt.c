@@ -101,7 +101,7 @@ static int rtt_init(struct ngl_node *node)
         const struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         if (texture_priv->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
     }
 
@@ -109,7 +109,7 @@ static int rtt_init(struct ngl_node *node)
         const struct texture_priv *texture_priv = s->depth_texture->priv_data;
         if (texture_priv->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
     }
 
@@ -143,7 +143,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         for (int i = 0; i < n; i++) {
             struct texture *ms_texture = ngli_darray_push(&s->rt_ms_colors, NULL);
             if (!ms_texture) {
-                ret = -1;
+                ret = NGL_ERROR_MEMORY;
                 goto end;
             }
             attachment_params.format = params->format;
@@ -151,7 +151,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
             if (ret < 0)
                 goto end;
             if (!ngli_darray_push(&attachments, &ms_texture)) {
-                ret = -1;
+                ret = NGL_ERROR_MEMORY;
                 goto end;
             }
         }
@@ -164,7 +164,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
             goto end;
         struct texture *rt_ms_depth = &s->rt_ms_depth;
         if (!ngli_darray_push(&attachments, &rt_ms_depth)) {
-            ret = -1;
+            ret = NGL_ERROR_MEMORY;
             goto end;
         }
     }
@@ -199,7 +199,7 @@ static int rtt_prefetch(struct ngl_node *node)
 
     if (!s->nb_color_textures) {
         LOG(ERROR, "at least one color texture must be specified");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     for (int i = 0; i < s->nb_color_textures; i++) {
@@ -212,7 +212,7 @@ static int rtt_prefetch(struct ngl_node *node)
         } else if (s->width != params->width || s->height != params->height) {
             LOG(ERROR, "all color texture dimensions do not match %dx%d != %dx%d",
             s->width, s->height, params->width, params->height);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
     }
 
@@ -223,7 +223,7 @@ static int rtt_prefetch(struct ngl_node *node)
         if (s->width != depth_texture_params->width || s->height != depth_texture_params->height) {
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
                 s->width, s->height, depth_texture_params->width, depth_texture_params->height);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
     }
 
@@ -238,7 +238,7 @@ static int rtt_prefetch(struct ngl_node *node)
         struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         struct texture *texture = &texture_priv->texture;
         if (!ngli_darray_push(&attachments, &texture)) {
-            ret = -1;
+            ret = NGL_ERROR_MEMORY;
             goto end;
         }
     }
@@ -250,7 +250,7 @@ static int rtt_prefetch(struct ngl_node *node)
         const struct texture_params *depth_texture_params = &depth_texture->params;
         depth_format = depth_texture_params->format;
         if (!ngli_darray_push(&attachments, &depth_texture)) {
-            ret = -1;
+            ret = NGL_ERROR_MEMORY;
             goto end;
         }
     } else {
@@ -266,7 +266,7 @@ static int rtt_prefetch(struct ngl_node *node)
             if (ret < 0)
                 goto end;
             if (!ngli_darray_push(&attachments, &rt_depth)) {
-                ret = -1;
+                ret = NGL_ERROR_MEMORY;
                 goto end;
             }
             if (!(s->features & FEATURE_NO_CLEAR))
