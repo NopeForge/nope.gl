@@ -177,7 +177,7 @@ static int prepare_canvas(struct text_priv *s)
     /* Allocate, draw background, print text */
     s->canvas.buf = ngli_calloc(s->canvas.w * s->canvas.h, sizeof(*s->canvas.buf) * 4);
     if (!s->canvas.buf)
-        return -1;
+        return NGL_ERROR_MEMORY;
     const uint32_t fg = NGLI_COLOR_VEC4_TO_U32(s->fg_color);
     const uint32_t bg = NGLI_COLOR_VEC4_TO_U32(s->bg_color);
     struct rect rect = {.w = s->canvas.w, .h = s->canvas.h};
