@@ -359,7 +359,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         config->platform = get_default_platform();
     if (config->platform < 0) {
         LOG(ERROR, "can not determine which platform to use");
-        return -1;
+        return config->platform;
     }
 
 #if defined(TARGET_IPHONE)
