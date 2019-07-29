@@ -72,10 +72,10 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
     }
 
     if (!ngli_darray_push(&s->pipeline_uniforms, &pipeline_uniform))
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     if (!ngli_darray_push(&s->uniforms, &uniform))
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     return 0;
 }
@@ -96,7 +96,7 @@ static int register_uniforms(struct pass *s)
         if (!ngli_hmap_get(infos, pipeline_uniform->name))
             continue;
         if (!ngli_darray_push(&s->pipeline_uniforms, pipeline_uniform))
-            return -1;
+            return NGL_ERROR_MEMORY;
     }
 
     if (!params->uniforms)
@@ -207,7 +207,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
         if (!is_allowed_type(map->allowed_types, uniform->type)) {
             LOG(ERROR, "invalid type 0x%x found for texture uniform %s",
                 uniform->type, uniform_name);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
         field->active = 1;
         field->type = uniform->type;
@@ -219,7 +219,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
             };
             snprintf(pipeline_texture.name, sizeof(pipeline_texture.name), "%s", uniform_name);
             if (!ngli_darray_push(&s->pipeline_textures, &pipeline_texture))
-                return -1;
+                return NGL_ERROR_MEMORY;
         } else {
             struct pipeline_uniform pipeline_uniform = {
                 .type  = uniform->type,
@@ -227,7 +227,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
             };
             snprintf(pipeline_uniform.name, sizeof(pipeline_uniform.name), "%s", uniform_name);
             if (!ngli_darray_push(&s->pipeline_uniforms, &pipeline_uniform))
-                return -1;
+                return NGL_ERROR_MEMORY;
         }
     }
 
@@ -249,10 +249,10 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
 #endif
 
     if (!ngli_darray_push(&s->texture_infos, &info))
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     if (!ngli_darray_push(&s->textures, &texture))
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     return 0;
 }
@@ -295,10 +295,10 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     snprintf(pipeline_buffer.name, sizeof(pipeline_buffer.name), "%s", name);
 
     if (!ngli_darray_push(&s->pipeline_buffers, &pipeline_buffer))
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     if (!ngli_darray_push(&s->blocks, &block))
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     int ret = ngli_node_block_ref(block);
     if (ret < 0)
@@ -339,7 +339,7 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
             if (buffer->count != s->params.nb_instances) {
                 LOG(ERROR, "attribute buffer %s count (%d) does not match instance count (%d)",
                     entry->key, buffer->count, s->params.nb_instances);
-                return -1;
+                return NGL_ERROR_INVALID_ARG;
             }
         } else {
             struct geometry_priv *geometry = s->params.geometry->priv_data;
@@ -347,7 +347,7 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
             if (buffer->count != vertices->count) {
                 LOG(ERROR, "attribute buffer %s count (%d) does not match vertices count (%d)",
                     entry->key, buffer->count, vertices->count);
-                return -1;
+                return NGL_ERROR_INVALID_ARG;
             }
         }
     }
@@ -396,10 +396,10 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     snprintf(pipeline_attribute.name, sizeof(pipeline_attribute.name), "%s", name);
 
     if (!ngli_darray_push(&s->pipeline_attributes, &pipeline_attribute))
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     if (!ngli_darray_push(&s->attributes, &attribute))
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     return 0;
 }
@@ -435,7 +435,7 @@ static int pass_graphics_init(struct pass *s)
         struct buffer_priv *indices_priv = indices->priv_data;
         if (indices_priv->block) {
             LOG(ERROR, "geometry indices buffers referencing a block are not supported");
-            return -1;
+            return NGL_ERROR_UNSUPPORTED;
         }
 
         s->indices = indices;
