@@ -101,7 +101,7 @@ static int media_init(struct ngl_node *node)
 
     s->player = sxplayer_create(s->filename);
     if (!s->player)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     sxplayer_set_log_callback(s->player, s, callback_sxplayer_log);
 
@@ -163,19 +163,19 @@ static int media_init(struct ngl_node *node)
 
     s->android_handlerthread = ngli_android_handlerthread_new();
     if (!s->android_handlerthread)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     void *handler = ngli_android_handlerthread_get_native_handler(s->android_handlerthread);
     if (!handler)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
 
     s->android_surface = ngli_android_surface_new(s->android_texture.id, handler);
     if (!s->android_surface)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     void *android_surface = ngli_android_surface_get_surface(s->android_surface);
     if (!android_surface)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
 
     sxplayer_set_option(s->player, "opaque", &android_surface);
 #elif defined(HAVE_VAAPI_X11)
@@ -226,7 +226,7 @@ static int media_update(struct ngl_node *node, double t)
             TRACE("remapped time f(%g)=%g", t, media_time);
             if (media_time < 0) {
                 LOG(ERROR, "invalid remapped time %g", media_time);
-                return -1;
+                return NGL_ERROR_INVALID_ARG;
             }
         }
     }
@@ -243,12 +243,12 @@ static int media_update(struct ngl_node *node, double t)
             if (frame->pix_fmt != SXPLAYER_SMPFMT_FLT) {
                 LOG(ERROR, "unexpected %s (%d) sxplayer frame",
                     pix_fmt_str ? pix_fmt_str : "unknown", frame->pix_fmt);
-                return -1;
+                return NGL_ERROR_BUG;
             }
             pix_fmt_str = "audio";
         } else if (!pix_fmt_str) {
             LOG(ERROR, "invalid pixel format %d in sxplayer frame", frame->pix_fmt);
-            return -1;
+            return NGL_ERROR_BUG;
         }
         TRACE("got frame %dx%d %s with ts=%f", frame->width, frame->height,
               pix_fmt_str, frame->ts);
