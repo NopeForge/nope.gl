@@ -22,6 +22,7 @@
 #include <float.h>
 #include "animation.h"
 #include "log.h"
+#include "nodegl.h"
 #include "nodes.h"
 
 static int get_kf_id(struct ngl_node * const *animkf, int nb_animkf, int start, double t)
@@ -88,7 +89,7 @@ int ngli_animation_init(struct animation *s, void *user_arg,
         if (kf->time < prev_time) {
             LOG(ERROR, "key frames must be monotically increasing: %g < %g",
                 kf->time, prev_time);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
         prev_time = kf->time;
     }
