@@ -76,7 +76,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
     const struct hwmap_class *hwmap_class = get_hwmap_class(node, frame);
     if (!hwmap_class) {
         sxplayer_release_frame(frame);
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     if (s->hwupload_map_class != hwmap_class) {
@@ -86,7 +86,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
             s->hwupload_priv_data = ngli_calloc(1, hwmap_class->priv_size);
             if (!s->hwupload_priv_data) {
                 sxplayer_release_frame(frame);
-                return -1;
+                return NGL_ERROR_MEMORY;
             }
         }
 
