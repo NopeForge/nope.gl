@@ -69,7 +69,7 @@ static int update_factors(struct ngl_node *node)
     struct scale_priv *s = node->priv_data;
     if (s->anim) {
         LOG(ERROR, "updating factors while the animation is set is unsupported");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
     update_trf_matrix(node, s->factors);
     return 0;
