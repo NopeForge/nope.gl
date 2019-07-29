@@ -225,7 +225,7 @@ static int graphicconfig_init(struct ngl_node *node)
 
     if (!s->cull_face_mode) {
         LOG(ERROR, "cull face mode cannot be null");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     return 0;
