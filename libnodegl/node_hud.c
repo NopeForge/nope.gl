@@ -380,7 +380,7 @@ static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, con
         int ret = track_children_per_types(nodes_set, scene, node_types[n]);
         if (ret < 0) {
             ngli_hmap_freep(&nodes_set);
-            return -1;
+            return ret;
         }
     }
 
@@ -1090,8 +1090,9 @@ static int widgets_init(struct ngl_node *node)
     const int y_activity = -get_widget_height(WIDGET_ACTIVITY) - WIDGET_MARGIN;
     const int x_activity_step = get_widget_width(WIDGET_ACTIVITY) + WIDGET_MARGIN;
     for (int i = 0; i < NB_ACTIVITY; i++) {
-        if (create_widget(s, WIDGET_ACTIVITY, &activity_specs[i], x_activity, y_activity) < 0)
-            return -1;
+        ret = create_widget(s, WIDGET_ACTIVITY, &activity_specs[i], x_activity, y_activity);
+        if (ret < 0)
+            return ret;
         x_activity += x_activity_step;
     }
 
@@ -1100,8 +1101,9 @@ static int widgets_init(struct ngl_node *node)
     const int y_drawcall = -get_widget_height(WIDGET_DRAWCALL) - WIDGET_MARGIN;
     const int x_drawcall_step = get_widget_width(WIDGET_DRAWCALL) + WIDGET_MARGIN;
     for (int i = 0; i < NB_DRAWCALL; i++) {
-        if (create_widget(s, WIDGET_DRAWCALL, &drawcall_specs[i], x_drawcall, y_drawcall) < 0)
-            return -1;
+        ret = create_widget(s, WIDGET_DRAWCALL, &drawcall_specs[i], x_drawcall, y_drawcall);
+        if (ret < 0)
+            return ret;
         x_drawcall += x_drawcall_step;
     }
 
