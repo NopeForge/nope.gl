@@ -173,11 +173,11 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
         node->class->id != NGL_NODE_ANIMATEDVEC2 &&
         node->class->id != NGL_NODE_ANIMATEDVEC3 &&
         node->class->id != NGL_NODE_ANIMATEDVEC4)
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
 
     struct variable_priv *s = node->priv_data;
     if (!s->nb_animkf)
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
 
     if (!s->anim_eval.kfs) {
         int ret = ngli_animation_init(&s->anim_eval, NULL,
@@ -238,12 +238,12 @@ static int animatedtime_init(struct ngl_node *node)
         const struct animkeyframe_priv *kf = s->animkf[i]->priv_data;
         if (kf->easing != EASING_LINEAR) {
             LOG(ERROR, "only linear interpolation is allowed for time animation");
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
         if (kf->scalar < prev_time) {
             LOG(ERROR, "times must be positive and monotically increasing: %g < %g",
                 kf->scalar, prev_time);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
         prev_time = kf->scalar;
     }
