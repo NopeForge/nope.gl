@@ -491,8 +491,10 @@ int ngli_node_update(struct ngl_node *node, double t)
         if (node->last_update_time != t) {
             TRACE("UPDATE %s @ %p with t=%g", node->label, node, t);
             int ret = node->class->update(node, t);
-            if (ret < 0)
+            if (ret < 0) {
+                LOG(ERROR, "updating node %s failed: %s", node->label, NGLI_RET_STR(ret));
                 return ret;
+            }
             node->last_update_time = t;
             node->draw_count = 0;
         } else {
