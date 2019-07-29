@@ -100,7 +100,7 @@ static int glcontext_load_functions(struct glcontext *glcontext)
         func = ngli_glcontext_get_proc_address(glcontext, gldefinition->name);
         if ((gldefinition->flags & M) && !func) {
             LOG(ERROR, "could not find core function: %s", gldefinition->name);
-            return -1;
+            return NGL_ERROR_NOT_FOUND;
         }
 
         *(void **)((uint8_t *)gl + gldefinition->offset) = func;
@@ -120,13 +120,13 @@ static int glcontext_probe_version(struct glcontext *glcontext)
 
         if (major_version < 3) {
             LOG(ERROR, "node.gl only supports OpenGL >= 3.0");
-            return -1;
+            return NGL_ERROR_UNSUPPORTED;
         }
     } else if (glcontext->backend == NGL_BACKEND_OPENGLES) {
         const char *gl_version = (const char *)ngli_glGetString(glcontext, GL_VERSION);
         if (!gl_version) {
             LOG(ERROR, "could not get OpenGL ES version");
-            return -1;
+            return NGL_ERROR_BUG;
         }
 
         int ret = sscanf(gl_version,
@@ -135,12 +135,12 @@ static int glcontext_probe_version(struct glcontext *glcontext)
                          &minor_version);
         if (ret != 2) {
             LOG(ERROR, "could not parse OpenGL ES version (%s)", gl_version);
-            return -1;
+            return NGL_ERROR_BUG;
         }
 
         if (major_version < 2) {
             LOG(ERROR, "node.gl only supports OpenGL ES >= 2.0");
-            return -1;
+            return NGL_ERROR_UNSUPPORTED;
         }
     } else {
         ngli_assert(0);
@@ -228,7 +228,7 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
     struct bstr *features_str = ngli_bstr_create();
 
     if (!features_str)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     for (int i = 0; i < NGLI_ARRAY_NB(glfeatures); i++) {
         const struct glfeature *glfeature = &glfeatures[i];
@@ -269,7 +269,7 @@ static int glcontext_check_mandatory_extensions(struct glcontext *glcontext)
         LOG(ERROR,
             "OpenGLES 2.0 context does not support mandatory extensions: "
             "OES_rgb8_rgba8, OES_depth_texture, OES_packed_depth_stencil");
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     return 0;
@@ -419,13 +419,13 @@ int ngli_glcontext_resize(struct glcontext *glcontext)
 {
     if (glcontext->offscreen) {
         LOG(ERROR, "offscreen rendering does not support resize operation");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
 
     if (glcontext->class->resize)
         return glcontext->class->resize(glcontext);
 
-    return -1;
+    return NGL_ERROR_UNSUPPORTED;
 }
 
 void ngli_glcontext_freep(struct glcontext **glcontextp)
