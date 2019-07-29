@@ -340,7 +340,7 @@ static int widget_latency_init(struct ngl_node *node, struct widget *widget)
     for (int i = 0; i < NB_LATENCY; i++) {
         int64_t *times = ngli_calloc(s->measure_window, sizeof(*times));
         if (!times)
-            return -1;
+            return NGL_ERROR_MEMORY;
         priv->measures[i].times = times;
     }
 
@@ -375,7 +375,7 @@ static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, con
     /* construct a set of the nodes of a given type(s) */
     struct hmap *nodes_set = ngli_hmap_create();
     if (!nodes_set)
-        return -1;
+        return NGL_ERROR_MEMORY;
     for (int n = 0; node_types[n] != -1; n++) {
         int ret = track_children_per_types(nodes_set, scene, node_types[n]);
         if (ret < 0) {
@@ -390,7 +390,7 @@ static int make_nodes_set(struct ngl_node *scene, struct darray *nodes_list, con
     while ((entry = ngli_hmap_next(nodes_set, entry))) {
         if (!ngli_darray_push(nodes_list, &entry->data)) {
             ngli_hmap_freep(&nodes_set);
-            return -1;
+            return NGL_ERROR_MEMORY;
         }
     }
 
@@ -1019,21 +1019,21 @@ static int create_widget(struct hud_priv *s, enum widget_type type, const void *
 
     struct widget *widgetp = ngli_darray_push(&s->widgets, &widget);
     if (!widgetp)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     widgetp->priv_data = ngli_calloc(1, spec->priv_size);
     if (!widgetp->priv_data)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     widgetp->data_graph = ngli_calloc(spec->nb_data_graph, sizeof(*widgetp->data_graph));
     if (!widgetp->data_graph)
-        return -1;
+        return NGL_ERROR_MEMORY;
     for (int i = 0; i < spec->nb_data_graph; i++) {
         struct data_graph *d = &widgetp->data_graph[i];
         d->nb_values = widgetp->graph_rect.w;
         d->values = ngli_calloc(d->nb_values, sizeof(*d->values));
         if (!d->values)
-            return -1;
+            return NGL_ERROR_MEMORY;
     }
 
     return 0;
@@ -1170,12 +1170,12 @@ static int widgets_csv_header(struct ngl_node *node)
     s->fd_export = open(s->export_filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
     if (s->fd_export == -1) {
         LOG(ERROR, "unable to open \"%s\" for writing", s->export_filename);
-        return -1;
+        return NGL_ERROR_IO;
     }
 
     s->csv_line = ngli_bstr_create();
     if (!s->csv_line)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     ngli_bstr_print(s->csv_line, "time,");
 
@@ -1193,7 +1193,7 @@ static int widgets_csv_header(struct ngl_node *node)
     ssize_t n = write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
     if (n != len) {
         LOG(ERROR, "unable to write CSV header");
-        return -1;
+        return NGL_ERROR_IO;
     }
 
     return 0;
@@ -1253,7 +1253,7 @@ static int hud_init(struct ngl_node *node)
 
     s->canvas.buf = ngli_calloc(s->canvas.w * s->canvas.h, 4);
     if (!s->canvas.buf)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     widgets_clear(s);
 
