@@ -112,7 +112,7 @@ static int buffer_init_from_data(struct ngl_node *node)
             s->count,
             s->data_stride,
             s->data_size);
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     return 0;
@@ -125,14 +125,14 @@ static int buffer_init_from_filename(struct ngl_node *node)
     s->fd = open(s->filename, O_RDONLY);
     if (s->fd < 0) {
         LOG(ERROR, "could not open '%s'", s->filename);
-        return -1;
+        return NGL_ERROR_IO;
     }
 
     off_t filesize = lseek(s->fd, 0, SEEK_END);
     off_t ret      = lseek(s->fd, 0, SEEK_SET);
     if (filesize < 0 || ret < 0) {
         LOG(ERROR, "could not seek in '%s'", s->filename);
-        return -1;
+        return NGL_ERROR_IO;
     }
     s->data_size = filesize;
     s->count = s->count ? s->count : s->data_size / s->data_stride;
@@ -143,22 +143,22 @@ static int buffer_init_from_filename(struct ngl_node *node)
             s->count,
             s->data_stride,
             s->data_size);
-        return -1;
+        return NGL_ERROR_INVALID_DATA;
     }
 
     s->data = ngli_calloc(s->count, s->data_stride);
     if (!s->data)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     ssize_t n = read(s->fd, s->data, s->data_size);
     if (n < 0) {
         LOG(ERROR, "could not read '%s': %zd", s->filename, n);
-        return -1;
+        return NGL_ERROR_IO;
     }
 
     if (n != s->data_size) {
         LOG(ERROR, "read %zd bytes does not match expected size of %d bytes", n, s->data_size);
-        return -1;
+        return NGL_ERROR_IO;
     }
 
     return 0;
@@ -172,7 +172,7 @@ static int buffer_init_from_count(struct ngl_node *node)
     s->data_size = s->count * s->data_stride;
     s->data = ngli_calloc(s->count, s->data_stride);
     if (!s->data)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     return 0;
 }
@@ -184,21 +184,21 @@ static int buffer_init_from_block(struct ngl_node *node)
     if (s->block_field < 0 || s->block_field >= block->nb_fields) {
         LOG(ERROR, "invalid field id %d; %s has %d fields",
             s->block_field, s->block->label, block->nb_fields);
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     struct ngl_node *buffer_target = block->fields[s->block_field];
     if (buffer_target->class->id != node->class->id) {
         LOG(ERROR, "%s[%d] of type %s mismatches %s local type",
             s->block->label, s->block_field, buffer_target->class->name, node->class->name);
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     struct buffer_priv *buffer_target_priv = buffer_target->priv_data;
     if (s->count > buffer_target_priv->count) {
         LOG(ERROR, "block buffer reference count can not be larger than target buffer count (%d > %d)",
             s->count, buffer_target_priv->count);
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
     s->count = s->count ? s->count : buffer_target_priv->count;
     s->data = buffer_target_priv->data;
@@ -215,12 +215,12 @@ static int buffer_init(struct ngl_node *node)
     if (s->data && s->filename) {
         LOG(ERROR,
             "data and filename option cannot be set at the same time");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     if (s->block && (s->data || s->filename)) {
         LOG(ERROR, "block option can not be set with data or filename");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     if (node->class->id == NGL_NODE_BUFFERMAT4) {
