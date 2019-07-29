@@ -92,3 +92,55 @@ void ngli_log_print(int log_level, const char *filename,
     log_ctx.callback(log_ctx.user_arg, log_level, filename, ln, fn, fmt, arg_list);
     va_end(arg_list);
 }
+
+char *ngli_log_ret_str(char *buf, size_t buf_size, int ret)
+{
+    switch (ret) {
+        case 0:
+            snprintf(buf, buf_size, "success");
+            break;
+        case NGL_ERROR_GENERIC:
+            snprintf(buf, buf_size, "generic error");
+            break;
+        case NGL_ERROR_ACCESS:
+            snprintf(buf, buf_size, "operation not allowed");
+            break;
+        case NGL_ERROR_BUG:
+            snprintf(buf, buf_size, "a buggy code path was triggered, please report");
+            break;
+        case NGL_ERROR_EXTERNAL:
+            snprintf(buf, buf_size, "an error occurred in an external dependency");
+            break;
+        case NGL_ERROR_INVALID_ARG:
+            snprintf(buf, buf_size, "invalid user argument specified");
+            break;
+        case NGL_ERROR_INVALID_DATA:
+            snprintf(buf, buf_size, "invalid input data");
+            break;
+        case NGL_ERROR_INVALID_USAGE:
+            snprintf(buf, buf_size, "invalid public API usage");
+            break;
+        case NGL_ERROR_IO:
+            snprintf(buf, buf_size, "input/output error");
+            break;
+        case NGL_ERROR_LIMIT_EXCEEDED:
+            snprintf(buf, buf_size, "hardware or resource limit exceeded");
+            break;
+        case NGL_ERROR_MEMORY:
+            snprintf(buf, buf_size, "memory/allocation error");
+            break;
+        case NGL_ERROR_NOT_FOUND:
+            snprintf(buf, buf_size, "not found");
+            break;
+        case NGL_ERROR_UNSUPPORTED:
+            snprintf(buf, buf_size, "unsupported operation");
+            break;
+        default:
+            if (ret < 0)
+                snprintf(buf, buf_size, "unknown error code %d", ret);
+            else
+                snprintf(buf, buf_size, "unknown positive value %d", ret);
+            break;
+    }
+    return buf;
+}
