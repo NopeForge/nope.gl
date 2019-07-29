@@ -50,7 +50,7 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
     if (current_config->platform != config->platform ||
         current_config->backend  != config->backend) {
         LOG(ERROR, "backend or platform cannot be reconfigured");
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     if (current_config->display   != config->display   ||
@@ -309,7 +309,7 @@ static int get_default_platform(void)
 #elif defined(TARGET_MINGW_W64)
     return NGL_PLATFORM_WINDOWS;
 #else
-    return -1;
+    return NGL_ERROR_UNSUPPORTED;
 #endif
 }
 
@@ -317,7 +317,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (!config) {
         LOG(ERROR, "context configuration cannot be NULL");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     if (config->offscreen) {
@@ -326,12 +326,12 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
                 "could not initialize offscreen rendering with invalid dimensions (%dx%d)",
                 config->width,
                 config->height);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
     } else {
         if (config->capture_buffer) {
             LOG(ERROR, "capture_buffer is only supported with offscreen rendering");
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
     }
 
@@ -349,7 +349,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         config->backend >= NGLI_ARRAY_NB(backend_map) ||
         !backend_map[config->backend]) {
         LOG(ERROR, "unknown backend %d", config->backend);
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     s->backend = backend_map[config->backend];
@@ -379,7 +379,7 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
     if (!s->configured) {
         LOG(ERROR, "context must be configured before setting a scene");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
 
     return dispatch_cmd(s, cmd_set_scene, scene);
@@ -389,7 +389,7 @@ int ngli_prepare_draw(struct ngl_ctx *s, double t)
 {
     if (!s->configured) {
         LOG(ERROR, "context must be configured before updating");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
 
     return dispatch_cmd(s, cmd_prepare_draw, &t);
@@ -399,7 +399,7 @@ int ngl_draw(struct ngl_ctx *s, double t)
 {
     if (!s->configured) {
         LOG(ERROR, "context must be configured before drawing");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
 
     return dispatch_cmd(s, cmd_draw, &t);
@@ -462,7 +462,7 @@ int ngl_android_set_application_context(void *application_context)
 
     env = ngli_jni_get_env();
     if (!env)
-        return -1;
+        return NGL_ERROR_EXTERNAL;
 
     pthread_mutex_lock(&lock);
 
@@ -493,7 +493,7 @@ void *ngl_android_get_application_context(void)
 #else
 int ngl_jni_set_java_vm(void *vm)
 {
-    return -1;
+    return NGL_ERROR_UNSUPPORTED;
 }
 
 void *ngl_jni_get_java_vm(void)
@@ -503,7 +503,7 @@ void *ngl_jni_get_java_vm(void)
 
 int ngl_android_set_application_context(void *application_context)
 {
-    return -1;
+    return NGL_ERROR_UNSUPPORTED;
 }
 
 void *ngl_android_get_application_context(void)
