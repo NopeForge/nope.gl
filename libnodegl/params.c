@@ -139,7 +139,7 @@ int ngli_params_get_select_val(const struct param_const *consts, const char *s, 
             return 0;
         }
     }
-    return -1;
+    return NGL_ERROR_INVALID_ARG;
 }
 
 const char *ngli_params_get_select_str(const struct param_const *consts, int val)
@@ -178,7 +178,7 @@ int ngli_params_get_flags_val(const struct param_const *consts, const char *s, i
         }
         if (!consts[i].key) {
             LOG(ERROR, "unrecognized \"%.*s\" flag", (int)len, s);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
         s += len;
         while (*s && strchr(FLAGS_SEP, *s))
@@ -380,7 +380,7 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             if (arg_str) {
                 s = ngli_strdup(arg_str);
                 if (!s)
-                    return -1;
+                    return NGL_ERROR_MEMORY;
                 LOG(VERBOSE, "set %s to \"%s\"", par->key, s);
             } else {
                 LOG(VERBOSE, "set %s to NULL", par->key);
@@ -400,7 +400,7 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             if (data && size) {
                 *dst = ngli_malloc(size);
                 if (!*dst)
-                    return -1;
+                    return NGL_ERROR_MEMORY;
                 memcpy(*dst, data, size);
             } else {
                 size = 0;
@@ -443,7 +443,7 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             if (!allowed_node(node, par->node_types)) {
                 LOG(ERROR, "%s (%s) is not an allowed type for %s",
                     node->label, node->class->name, par->key);
-                return -1;
+                return NGL_ERROR_INVALID_ARG;
             }
             ngl_node_unrefp((struct ngl_node **)dstp);
             ngl_node_ref(node);
@@ -458,14 +458,14 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             if (node && !allowed_node(node, par->node_types)) {
                 LOG(ERROR, "%s (%s) is not an allowed type for %s",
                     node->label, node->class->name, par->key);
-                return -1;
+                return NGL_ERROR_INVALID_ARG;
             }
             LOG(VERBOSE, "set %s to (%s,%p)", par->key, name, node);
             struct hmap **hmapp = (struct hmap **)dstp;
             if (!*hmapp) {
                 *hmapp = ngli_hmap_create();
                 if (!*hmapp)
-                    return -1;
+                    return NGL_ERROR_MEMORY;
                 ngli_hmap_set_free(*hmapp, node_hmap_free, NULL);
             }
 
@@ -549,7 +549,7 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                     const int v = (int)par->def_value.i64;
                     char *s = ngli_params_get_flags_str(par->choices->consts, v);
                     if (!s)
-                        return -1;
+                        return NGL_ERROR_INVALID_ARG;
                     ngli_assert(*s);
                     ret = ngli_params_vset(base_ptr, par, s);
                     ngli_free(s);
@@ -604,7 +604,7 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
             struct ngl_node **add_elems = elems;
 
             if (!new_elems)
-                return -1;
+                return NGL_ERROR_MEMORY;
 
             *(struct ngl_node ***)cur_elems_p = new_elems;
             for (int i = 0; i < nb_elems; i++) {
@@ -612,7 +612,7 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
                 if (!allowed_node(e, par->node_types)) {
                     LOG(ERROR, "%s (%s) is not an allowed type for %s list",
                         e->label, e->class->name, par->key);
-                    return -1;
+                    return NGL_ERROR_INVALID_ARG;
                 }
             }
             for (int i = 0; i < nb_elems; i++) {
@@ -633,7 +633,7 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
             double *add_elems = elems;
 
             if (!new_elems)
-                return -1;
+                return NGL_ERROR_MEMORY;
             for (int i = 0; i < nb_elems; i++)
                 new_elems_addp[i] = add_elems[i];
             *(double **)cur_elems_p = new_elems;
@@ -642,7 +642,7 @@ int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
         }
         default:
             LOG(ERROR, "parameter %s is not a list", par->key);
-            return -1;
+            return NGL_ERROR_INVALID_USAGE;
     }
     return 0;
 }
