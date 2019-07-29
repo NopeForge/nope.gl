@@ -57,18 +57,18 @@ static int program_check_status(const struct glcontext *gl, GLuint id, GLenum st
 
     get_info(gl, id, GL_INFO_LOG_LENGTH, &info_log_length);
     if (!info_log_length)
-        return -1;
+        return NGL_ERROR_BUG;
 
     info_log = ngli_malloc(info_log_length);
     if (!info_log)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     get_log(gl, id, info_log_length, NULL, info_log);
     while (info_log_length && strchr(" \r\n", info_log[info_log_length - 1]))
         info_log[--info_log_length] = 0;
 
     LOG(ERROR, "could not %s shader: %s", type_str, info_log);
-    return -1;
+    return NGL_ERROR_INVALID_DATA;
 }
 
 static void free_pinfo(void *user_arg, void *data)
@@ -296,7 +296,7 @@ int ngli_program_init(struct program *s, struct ngl_ctx *ctx, const char *vertex
 
     if (compute && !(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
         LOG(ERROR, "context does not support compute shaders");
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     s->ctx = ctx;
@@ -327,7 +327,7 @@ int ngli_program_init(struct program *s, struct ngl_ctx *ctx, const char *vertex
     s->attributes = program_probe_attributes(gl, s->id);
     s->buffer_blocks = program_probe_buffer_blocks(gl, s->id);
     if (!s->uniforms || !s->attributes || !s->buffer_blocks) {
-        ret = -1;
+        ret = NGL_ERROR_MEMORY;
         goto fail;
     }
 
