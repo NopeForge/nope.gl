@@ -248,7 +248,7 @@ void ngl_node_unrefp(struct ngl_node **nodep);
  * @param nb_elems  number of elements to append
  * @param elems     pointer to an array of values in parameter type
  *
- * @return 0 on success, < 0 on error
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 int ngl_node_param_add(struct ngl_node *node, const char *key,
                        int nb_elems, void *elems);
@@ -263,7 +263,7 @@ int ngl_node_param_add(struct ngl_node *node, const char *key,
  * @param key       string identifying the parameter
  * @param ...       the value in parameter type
  *
- * @return 0 on success, < 0 on error
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 int ngl_node_param_set(struct ngl_node *node, const char *key, ...);
 
@@ -390,7 +390,7 @@ struct ngl_ctx *ngl_create(void);
  * @param s        pointer to a node.gl context
  * @param config   pointer to a node.gl configuration structure (cannot be NULL)
  *
- * @return 0 on success, < 0 on error
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config);
 
@@ -412,7 +412,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config);
  *
  * @note node.gl context must to be configured before calling this function.
  *
- * @return 0 on success, < 0 on error
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene);
 
@@ -424,7 +424,7 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene);
  *
  * @note ngl_draw() will only perform a clear if no scene is set.
  *
- * @return 0 on success, < 0 on error
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 int ngl_draw(struct ngl_ctx *s, double t);
 
@@ -459,7 +459,7 @@ void ngl_freep(struct ngl_ctx **ss);
  *              AnimatedVec3 is float[3], AnimatedVec4 is float[4])
  * @param t     the target time at which to interpolate the value(s)
  *
- * @return 0 on success, < 0 on error
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 int ngl_anim_evaluate(struct ngl_node *anim, void *dst, double t);
 
@@ -473,7 +473,7 @@ int ngl_anim_evaluate(struct ngl_node *anim, void *dst, double t);
  * @param t         the target time
  * @param v         pointer for the resulting value
  *
- * @return 0 on success, < 0 on error
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 int ngl_easing_evaluate(const char *name, double *args, int nb_args,
                         double *offsets, double t, double *v);
@@ -490,7 +490,7 @@ int ngl_easing_evaluate(const char *name, double *args, int nb_args,
  *
  * @note Not all easings have a resolution function available
  *
- * @return 0 on success, < 0 on error
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 int ngl_easing_solve(const char *name, double *args, int nb_args,
                      double *offsets, double v, double *t);
@@ -505,7 +505,7 @@ int ngl_easing_solve(const char *name, double *args, int nb_args,
  *
  * @param vm    pointer to the Java virtual machine
  *
- * @return 0 on success, < 0 on error
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 int ngl_jni_set_java_vm(void *vm);
 
