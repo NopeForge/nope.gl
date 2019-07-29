@@ -21,6 +21,7 @@
 
 #include <string.h>
 
+#include "nodegl.h"
 #include "darray.h"
 #include "memory.h"
 #include "utils.h"
@@ -32,7 +33,7 @@ static int reserve_non_aligned(struct darray *darray, int capacity)
 
     void *ptr = ngli_realloc(darray->data, capacity * darray->element_size);
     if (!ptr)
-        return -1;
+        return NGL_ERROR_MEMORY;
     darray->data = ptr;
     darray->capacity = capacity;
     return 0;
@@ -45,7 +46,7 @@ static int reserve_aligned(struct darray *darray, int capacity)
 
     void *ptr = ngli_malloc_aligned(capacity * darray->element_size);
     if (!ptr)
-        return -1;
+        return NGL_ERROR_MEMORY;
     if (darray->data) {
         memcpy(ptr, darray->data, darray->capacity * darray->element_size);
         ngli_free_aligned(darray->data);
