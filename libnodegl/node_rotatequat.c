@@ -70,7 +70,7 @@ static int update_quat(struct ngl_node *node)
     struct rotatequat_priv *s = node->priv_data;
     if (s->anim) {
         LOG(ERROR, "updating quat while the animation is set is unsupported");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
     update_trf_matrix(node, s->quat);
     return 0;
