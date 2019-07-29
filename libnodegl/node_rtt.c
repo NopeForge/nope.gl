@@ -237,7 +237,10 @@ static int rtt_prefetch(struct ngl_node *node)
     for (int i = 0; i < s->nb_color_textures; i++) {
         struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         struct texture *texture = &texture_priv->texture;
-        ngli_darray_push(&attachments, &texture);
+        if (!ngli_darray_push(&attachments, &texture)) {
+            ret = -1;
+            goto error;
+        }
     }
 
     int depth_format = NGLI_FORMAT_UNDEFINED;
