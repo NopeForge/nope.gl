@@ -70,19 +70,19 @@ static int timerangefilter_init(struct ngl_node *node)
         if (trm->start_time < prev_start_time) {
             LOG(ERROR, "time ranges must be monotically increasing: %g < %g",
                 trm->start_time, prev_start_time);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
         prev_start_time = trm->start_time;
     }
 
     if (s->prefetch_time < 0) {
         LOG(ERROR, "prefetch time must be positive");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     if (s->max_idle_time <= s->prefetch_time) {
         LOG(ERROR, "max idle time must be superior to prefetch time");
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
     }
 
     return 0;
@@ -104,7 +104,7 @@ static int get_rr_id(const struct timerangefilter_priv *s, int start, double t)
 static int update_rr_state(struct timerangefilter_priv *s, double t)
 {
     if (!s->nb_ranges)
-        return -1;
+        return NGL_ERROR_INVALID_ARG;
 
     int rr_id = get_rr_id(s, s->current_range, t);
     if (rr_id < 0) {
