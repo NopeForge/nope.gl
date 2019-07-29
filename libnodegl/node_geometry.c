@@ -106,7 +106,7 @@ static int geometry_init(struct ngl_node *node)
                 "uvcoords count (%d) does not match vertices count (%d)",
                 uvcoords->count,
                 vertices->count);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
     }
 
@@ -117,7 +117,7 @@ static int geometry_init(struct ngl_node *node)
                 "normals count (%d) does not match vertices count (%d)",
                 normals->count,
                 vertices->count);
-            return -1;
+            return NGL_ERROR_INVALID_ARG;
         }
     }
 
