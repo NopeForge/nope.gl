@@ -45,7 +45,7 @@ static int update_vector(struct ngl_node *node)
     struct translate_priv *s = node->priv_data;
     if (s->anim) {
         LOG(ERROR, "updating vector while the animation is set is unsupported");
-        return -1;
+        return NGL_ERROR_INVALID_USAGE;
     }
     update_trf_matrix(node, s->vector);
     return 0;
