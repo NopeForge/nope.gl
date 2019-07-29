@@ -121,6 +121,7 @@ static int rtt_init(struct ngl_node *node)
 
 static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
 {
+    int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct rtt_priv *s = node->priv_data;
 
@@ -141,25 +142,31 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         const int n = params->cubemap ? 6 : 1;
         for (int i = 0; i < n; i++) {
             struct texture *ms_texture = ngli_darray_push(&s->rt_ms_colors, NULL);
-            if (!ms_texture)
+            if (!ms_texture) {
+                ret = -1;
                 goto error;
+            }
             attachment_params.format = params->format;
-            int ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
+            ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
             if (ret < 0)
                 goto error;
-            if (!ngli_darray_push(&attachments, &ms_texture))
+            if (!ngli_darray_push(&attachments, &ms_texture)) {
+                ret = -1;
                 goto error;
+            }
         }
     }
 
     if (depth_format != NGLI_FORMAT_UNDEFINED) {
         attachment_params.format = depth_format;
-        int ret = ngli_texture_init(&s->rt_ms_depth, ctx, &attachment_params);
+        ret = ngli_texture_init(&s->rt_ms_depth, ctx, &attachment_params);
         if (ret < 0)
             goto error;
         struct texture *rt_ms_depth = &s->rt_ms_depth;
-        if (!ngli_darray_push(&attachments, &rt_ms_depth))
+        if (!ngli_darray_push(&attachments, &rt_ms_depth)) {
+            ret = -1;
             goto error;
+        }
     }
 
     struct rendertarget_params rt_params = {
@@ -168,20 +175,18 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         .nb_attachments = ngli_darray_count(&attachments),
         .attachments = ngli_darray_data(&attachments),
     };
-    int ret = ngli_rendertarget_init(&s->rt_ms, ctx, &rt_params);
+    ret = ngli_rendertarget_init(&s->rt_ms, ctx, &rt_params);
     if (ret < 0)
         goto error;
 
-    ngli_darray_reset(&attachments);
-    return 0;
-
 error:
     ngli_darray_reset(&attachments);
-    return -1;
+    return ret;
 }
 
 static int rtt_prefetch(struct ngl_node *node)
 {
+    int ret = 0;
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct rtt_priv *s = node->priv_data;
@@ -241,8 +246,10 @@ static int rtt_prefetch(struct ngl_node *node)
         const struct texture *depth_texture = &depth_texture_priv->texture;
         const struct texture_params *depth_texture_params = &depth_texture->params;
         depth_format = depth_texture_params->format;
-        if (!ngli_darray_push(&attachments, &depth_texture))
+        if (!ngli_darray_push(&attachments, &depth_texture)) {
+            ret = -1;
             goto error;
+        }
     } else {
         if (s->features & FEATURE_STENCIL)
             depth_format = NGLI_FORMAT_D24_UNORM_S8_UINT;
@@ -252,11 +259,13 @@ static int rtt_prefetch(struct ngl_node *node)
         if (depth_format != NGLI_FORMAT_UNDEFINED) {
             struct texture *rt_depth = &s->rt_depth;
             attachment_params.format = depth_format;
-            int ret = ngli_texture_init(rt_depth, ctx, &attachment_params);
+            ret = ngli_texture_init(rt_depth, ctx, &attachment_params);
             if (ret < 0)
                 goto error;
-            if (!ngli_darray_push(&attachments, &rt_depth))
+            if (!ngli_darray_push(&attachments, &rt_depth)) {
+                ret = -1;
                 goto error;
+            }
             if (!(s->features & FEATURE_NO_CLEAR))
                 s->invalidate_depth_stencil = 1;
         }
@@ -268,7 +277,7 @@ static int rtt_prefetch(struct ngl_node *node)
         .nb_attachments = ngli_darray_count(&attachments),
         .attachments = ngli_darray_data(&attachments),
     };
-    int ret = ngli_rendertarget_init(&s->rt, ctx, &rt_params);
+    ret = ngli_rendertarget_init(&s->rt, ctx, &rt_params);
     if (ret < 0)
         goto error;
 
@@ -296,12 +305,9 @@ static int rtt_prefetch(struct ngl_node *node)
         }
     }
 
-    ngli_darray_reset(&attachments);
-    return 0;
-
 error:
     ngli_darray_reset(&attachments);
-    return -1;
+    return ret;
 }
 
 static int rtt_update(struct ngl_node *node, double t)
