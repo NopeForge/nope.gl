@@ -359,7 +359,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             int *node_ids, nb_node_ids;
             len = parse_hexints(str, &node_ids, &nb_node_ids);
             if (len < 0)
-                return -1;
+                return len;
             for (int i = 0; i < nb_node_ids; i++) {
                 struct ngl_node **nodep = ngli_darray_get(nodes_array, node_ids[i]);
                 if (!nodep) {
@@ -381,7 +381,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             int nb_dbls;
             len = parse_doubles(str, &dbls, &nb_dbls);
             if (len < 0)
-                return -1;
+                return len;
             int ret = ngli_params_add(base_ptr, par, nb_dbls, dbls);
             ngli_free(dbls);
             if (ret < 0)
@@ -394,7 +394,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             int *node_ids, nb_nodes;
             len = parse_kvs(str, &nb_nodes, &node_keys, &node_ids);
             if (len < 0)
-                return -1;
+                return len;
             for (int i = 0; i < nb_nodes; i++) {
                 const char *key = node_keys[i];
                 struct ngl_node **nodep = ngli_darray_get(nodes_array, node_ids[i]);
@@ -438,7 +438,7 @@ static int set_node_params(struct darray *nodes_array, char *str,
         if (ret < 0) {
             LOG(ERROR, "invalid value specified for parameter %s.%s",
                 node->class->name, par->key);
-            return -1;
+            return ret;
         }
 
         str += ret;
