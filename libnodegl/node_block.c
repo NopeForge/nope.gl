@@ -275,17 +275,17 @@ static int block_init(struct ngl_node *node)
 
     if (s->layout == LAYOUT_STD140 && !(gl->features & FEATURES_STD140)) {
         LOG(ERROR, "std140 blocks are not supported by this context");
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     if (s->layout == LAYOUT_STD430 && !(gl->features & FEATURES_STD430)) {
         LOG(ERROR, "std430 blocks are not supported by this context");
-        return -1;
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     s->field_info = ngli_calloc(s->nb_fields, sizeof(*s->field_info));
     if (!s->field_info)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     s->usage = NGLI_BUFFER_USAGE_STATIC;
 
@@ -318,7 +318,7 @@ static int block_init(struct ngl_node *node)
     LOG(DEBUG, "total %s size: %d", node->label, s->data_size);
     s->data = ngli_calloc(1, s->data_size);
     if (!s->data)
-        return -1;
+        return NGL_ERROR_MEMORY;
 
     update_block_data(s, 1);
     return 0;
