@@ -128,6 +128,7 @@ struct texture_info {
     struct texture_info_field sampling_mode;
     struct texture_info_field default_sampler;
     struct texture_info_field coordinate_matrix;
+    struct texture_info_field color_matrix;
     struct texture_info_field dimensions;
     struct texture_info_field timestamp;
     struct texture_info_field oes_sampler;
@@ -149,6 +150,7 @@ static const struct texture_info_map {
                                         NGLI_TYPE_SAMPLER_CUBE,
                                         NGLI_TYPE_IMAGE_2D, 0},                    OFFSET(default_sampler)},
     {"_coord_matrix",     (const int[]){NGLI_TYPE_MAT4, 0},                        OFFSET(coordinate_matrix)},
+    {"_color_matrix",     (const int[]){NGLI_TYPE_MAT4, 0},                        OFFSET(color_matrix)},
     {"_dimensions",       (const int[]){NGLI_TYPE_VEC2,
                                         NGLI_TYPE_VEC3, 0},                        OFFSET(dimensions)},
     {"_ts",               (const int[]){NGLI_TYPE_FLOAT, 0},                       OFFSET(timestamp)},
@@ -236,6 +238,11 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
             if (!ngli_darray_push(&s->pipeline_uniforms, &pipeline_uniform))
                 return NGL_ERROR_MEMORY;
         }
+    }
+
+    if (info.color_matrix.active && info.oes_sampler.active &&
+        info.oes_sampler.type == NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT) {
+        LOG(WARNING, "color_matrix is not supported with 2DY2YEXT sampler");
     }
 
     uint32_t supported_image_layouts = 0;
@@ -715,6 +722,7 @@ int ngli_pass_exec(struct pass *s)
         const float ts = image->ts;
 
         ngli_pipeline_update_uniform(&s->pipeline, info->coordinate_matrix.index, image->coordinates_matrix);
+        ngli_pipeline_update_uniform(&s->pipeline, info->color_matrix.index, image->color_matrix);
         ngli_pipeline_update_uniform(&s->pipeline, info->timestamp.index, &ts);
 
         if (image->params.layout) {

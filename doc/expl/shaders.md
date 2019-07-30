@@ -55,6 +55,7 @@ The following table describes these parameters:
 Qualifier | Type                        | Name                       | Description
 ----------|-----------------------------|----------------------------|------------
 uniform   | `mat4`                      | `%s_coord_matrix`          | uv transformation matrix of the texture associated with the render node using key `%s`, it should be applied to the geometry uv coordinates `ngl_uvcoord` to obtain the final texture coordinates
+uniform   | `mat4`                      | `%s_color_matrix`          | color matrix of the texture associated with the render node using key `%s`, it should be used to perform yuv to rgba conversions
 uniform   | `vec2`                      | `%s_dimensions`            | dimensions in pixels of the texture associated with the render node using key `%s`
 uniform   | `sampler2D`, `sampler3D`    | `%s_sampler`               | sampler of the texture associated with the render node using key `%s`
 uniform   | `samplerExternalOES`, `__samplerExternal2DY2YEXT` | `%s_external_sampler` | external `OES` (Android only) or `2DY2YEXT` (Android with `GL_EXT_YUV_target` only) sampler of the texture associated with the render node using key `%s`
