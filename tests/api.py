@@ -33,7 +33,12 @@ def test_backend():
 def test_reconfigure():
     viewer = ngl.Viewer()
     assert viewer.configure(offscreen=1, width=16, height=16) == 0
+    scene = ngl.Render(ngl.Quad())
+    viewer.set_scene(scene)
+    viewer.draw(0)
     assert viewer.configure(offscreen=1, width=16, height=16, samples=4) == 0
+    # FIXME: errors should be raised by the draw call so we can assert here
+    viewer.draw(1)
     del viewer
 
 
