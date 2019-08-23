@@ -43,7 +43,7 @@ struct ngl_node *ngli_node_geometry_generate_buffer(struct ngl_ctx *ctx, int typ
 
     return node;
 fail:
-    ngli_node_detach_ctx(node);
+    ngli_node_detach_ctx(node, ctx);
     ngl_node_unrefp(&node);
     return NULL;
 }

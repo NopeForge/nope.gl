@@ -59,7 +59,7 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
         current_config->offscreen != config->offscreen ||
         current_config->samples   != config->samples) {
         if (s->scene)
-            ngli_node_detach_ctx(s->scene);
+            ngli_node_detach_ctx(s->scene, s);
         s->backend->destroy(s);
         int ret = s->backend->configure(s, config);
         if (ret < 0)
@@ -88,7 +88,7 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 {
     if (s->scene) {
-        ngli_node_detach_ctx(s->scene);
+        ngli_node_detach_ctx(s->scene, s);
         ngl_node_unrefp(&s->scene);
     }
 
@@ -98,7 +98,7 @@ static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 
     int ret = ngli_node_attach_ctx(scene, s);
     if (ret < 0) {
-        ngli_node_detach_ctx(scene);
+        ngli_node_detach_ctx(scene, s);
         return ret;
     }
 

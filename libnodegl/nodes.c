@@ -303,8 +303,10 @@ static int node_init(struct ngl_node *node)
     return 0;
 }
 
+static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx);
+
 static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *params,
-                                 struct ngl_ctx *ctx)
+                                 struct ngl_ctx *ctx, struct ngl_ctx *pctx)
 {
     if (!params)
         return 0;
@@ -315,7 +317,7 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
             uint8_t *node_p = base_ptr + par->offset;
             struct ngl_node *node = *(struct ngl_node **)node_p;
             if (node) {
-                int ret = ngli_node_attach_ctx(node, ctx);
+                int ret = node_set_ctx(node, ctx, pctx);
                 if (ret < 0)
                     return ret;
             }
@@ -325,7 +327,7 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
             struct ngl_node **elems = *(struct ngl_node ***)elems_p;
             const int nb_elems = *(int *)nb_elems_p;
             for (int j = 0; j < nb_elems; j++) {
-                int ret = ngli_node_attach_ctx(elems[j], ctx);
+                int ret = node_set_ctx(elems[j], ctx, pctx);
                 if (ret < 0)
                     return ret;
             }
@@ -336,7 +338,7 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
             const struct hmap_entry *entry = NULL;
             while ((entry = ngli_hmap_next(hmap, entry))) {
                 struct ngl_node *node = entry->data;
-                int ret = ngli_node_attach_ctx(node, ctx);
+                int ret = node_set_ctx(node, ctx, pctx);
                 if (ret < 0)
                     return ret;
             }
@@ -345,9 +347,16 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
     return 0;
 }
 
-static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
+static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx)
 {
     int ret;
+
+    /*
+     * If node_set_ctx is used to attach a new context (ctx != NULL), the
+     * context and the parent must be equal. This is not the case if
+     * node_set_ctx is used to detach the context (ctx = NULL).
+     */
+    ngli_assert(!ctx || ctx == pctx);
 
     if (ctx) {
         if (node->ctx && node->ctx != ctx) {
@@ -355,15 +364,19 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
             return NGL_ERROR_INVALID_USAGE;
         }
     } else {
-        if (node->state > STATE_UNINITIALIZED && node->ctx_refcount-- == 1) {
-            node_uninit(node);
-            node->ctx = NULL;
+        if (node->state > STATE_UNINITIALIZED) {
+            if (node->ctx != pctx)
+                return 0;
+            if (node->ctx_refcount-- == 1) {
+                node_uninit(node);
+                node->ctx = NULL;
+            }
         }
         ngli_assert(node->ctx_refcount >= 0);
     }
 
-    if ((ret = node_set_children_ctx(node->priv_data, node->class->params, ctx)) < 0 ||
-        (ret = node_set_children_ctx((uint8_t *)node, ngli_base_node_params, ctx)) < 0)
+    if ((ret = node_set_children_ctx(node->priv_data, node->class->params, ctx, pctx)) < 0 ||
+        (ret = node_set_children_ctx((uint8_t *)node, ngli_base_node_params, ctx, pctx)) < 0)
         return ret;
 
     if (ctx) {
@@ -381,12 +394,12 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 
 int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 {
-    return node_set_ctx(node, ctx);
+    return node_set_ctx(node, ctx, ctx);
 }
 
-void ngli_node_detach_ctx(struct ngl_node *node)
+void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 {
-    int ret = node_set_ctx(node, NULL);
+    int ret = node_set_ctx(node, NULL, ctx);
     ngli_assert(ret == 0);
 }
 

@@ -116,7 +116,7 @@ end:
 
 #define NODE_UNREFP(node) do {                    \
     if (node) {                                   \
-        ngli_node_detach_ctx(node);               \
+        ngli_node_detach_ctx(node, node->ctx);    \
         ngl_node_unrefp(&node);                   \
     }                                             \
 } while (0)
