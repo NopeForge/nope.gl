@@ -42,6 +42,42 @@ def test_reconfigure():
     del viewer
 
 
+def test_ctx_ownership():
+    viewer = ngl.Viewer()
+    viewer2 = ngl.Viewer()
+    assert viewer.configure(offscreen=1, width=16, height=16) == 0
+    assert viewer2.configure(offscreen=1, width=16, height=16) == 0
+    scene = ngl.Render(ngl.Quad())
+    viewer.set_scene(scene)
+    viewer.draw(0)
+    assert viewer2.set_scene(scene) != 0
+    viewer2.draw(0)
+    del viewer
+    del viewer2
+
+
+def test_ctx_ownership_subgraph():
+    for shared in (True, False):
+        viewer = ngl.Viewer()
+        viewer2 = ngl.Viewer()
+        assert viewer.configure(offscreen=1, width=16, height=16) == 0
+        assert viewer2.configure(offscreen=1, width=16, height=16) == 0
+        quad = ngl.Quad()
+        render1 = ngl.Render(quad)
+        if not shared:
+            quad = ngl.Quad()
+        render2 = ngl.Render(quad)
+        scene = ngl.Group([render1, render2])
+        viewer.set_scene(render2)
+        viewer.draw(0)
+        assert viewer2.set_scene(scene) != 0
+        viewer2.draw(0)
+        del viewer
+        del viewer2
+
+
 if __name__ == '__main__':
     test_backend()
     test_reconfigure()
+    test_ctx_ownership()
+    test_ctx_ownership_subgraph()
