@@ -39,6 +39,7 @@
 struct egl_priv {
     EGLNativeDisplayType native_display;
     int own_native_display;
+    EGLNativeWindowType native_window;
     EGLDisplay display;
     EGLSurface surface;
     EGLContext handle;
@@ -255,12 +256,13 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             return -1;
         }
     } else {
-        EGLNativeWindowType native_window = (EGLNativeWindowType)window;
-        if (!native_window) {
+
+        egl->native_window = (EGLNativeWindowType)window;
+        if (!egl->native_window) {
             LOG(ERROR, "could not retrieve EGL native window");
             return -1;
         }
-        egl->surface = eglCreateWindowSurface(egl->display, config, native_window, NULL);
+        egl->surface = eglCreateWindowSurface(egl->display, config, egl->native_window, NULL);
         if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
             return -1;
