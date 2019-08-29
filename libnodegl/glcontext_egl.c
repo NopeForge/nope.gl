@@ -27,6 +27,10 @@
 #include <X11/Xlib.h>
 #endif
 
+#if defined(TARGET_ANDROID)
+#include <android/native_window.h>
+#endif
+
 #include "egl.h"
 #include "format.h"
 #include "glcontext.h"
@@ -300,6 +304,20 @@ static void egl_uninit(struct glcontext *ctx)
 static int egl_resize(struct glcontext *ctx)
 {
     struct egl_priv *egl = ctx->priv_data;
+
+#if defined(TARGET_ANDROID)
+    const int width = ANativeWindow_getWidth(egl->native_window);
+    const int height = ANativeWindow_getHeight(egl->native_window);
+    GLint format;
+    eglGetConfigAttrib(egl->display, egl->config, EGL_NATIVE_VISUAL_ID, &format);
+    /* Resize the native window buffers to the native window size. This
+     * ensures that the current EGL buffer will be of the same size as the
+     * native window after a resize. See:
+     * https://www.khronos.org/registry/EGL/sdk/docs/man/html/eglSwapBuffers.xhtml */
+    int ret = ANativeWindow_setBuffersGeometry(egl->native_window, width, height, format);
+    if (ret < 0)
+        return -1;
+#endif
 
     if (!eglQuerySurface(egl->display, egl->surface, EGL_WIDTH, &ctx->width) ||
         !eglQuerySurface(egl->display, egl->surface, EGL_HEIGHT, &ctx->height)) {
