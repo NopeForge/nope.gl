@@ -210,9 +210,8 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         EGL_NONE
     };
 
-    EGLConfig config;
     EGLint nb_configs;
-    ret = eglChooseConfig(egl->display, config_attribs, &config, 1, &nb_configs);
+    ret = eglChooseConfig(egl->display, config_attribs, &egl->config, 1, &nb_configs);
     if (!ret || !nb_configs) {
         LOG(ERROR, "could not choose a valid EGL configuration: 0x%x", eglGetError());
         return -1;
@@ -228,14 +227,14 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             EGL_NONE
         };
 
-        egl->handle = eglCreateContext(egl->display, config, shared_context, ctx_attribs);
+        egl->handle = eglCreateContext(egl->display, egl->config, shared_context, ctx_attribs);
     } else {
         static const EGLint ctx_attribs[] = {
             EGL_CONTEXT_CLIENT_VERSION, 2,
             EGL_NONE
         };
 
-        egl->handle = eglCreateContext(egl->display, config, shared_context, ctx_attribs);
+        egl->handle = eglCreateContext(egl->display, egl->config, shared_context, ctx_attribs);
     }
 
     if (!egl->handle) {
@@ -250,7 +249,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             EGL_NONE
         };
 
-        egl->surface = eglCreatePbufferSurface(egl->display, config, attribs);
+        egl->surface = eglCreatePbufferSurface(egl->display, egl->config, attribs);
         if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
             return -1;
@@ -262,7 +261,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             LOG(ERROR, "could not retrieve EGL native window");
             return -1;
         }
-        egl->surface = eglCreateWindowSurface(egl->display, config, egl->native_window, NULL);
+        egl->surface = eglCreateWindowSurface(egl->display, egl->config, egl->native_window, NULL);
         if (!egl->surface) {
             LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
             return -1;
