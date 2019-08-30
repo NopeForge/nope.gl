@@ -56,39 +56,32 @@ static jobject surface_listener_new(struct android_surface *surface)
         return NULL;
 
     listener_class = ngli_android_find_application_class(env, "org/nodegl/OnFrameAvailableListener");
-    if (!listener_class) {
+    if (!listener_class)
         goto done;
-    }
 
     (*env)->RegisterNatives(env, listener_class, methods, NGLI_ARRAY_NB(methods));
-    if (ngli_jni_exception_check(env, 1) < 0) {
+    if (ngli_jni_exception_check(env, 1) < 0)
         goto done;
-    }
 
     init_id = (*env)->GetMethodID(env, listener_class, "<init>", "()V");
-    if (ngli_jni_exception_check(env, 1) < 0) {
+    if (ngli_jni_exception_check(env, 1) < 0)
         goto done;
-    }
 
     set_native_ptr_id = (*env)->GetMethodID(env, listener_class, "setNativePtr", "(J)V");
-    if (ngli_jni_exception_check(env, 1) < 0) {
+    if (ngli_jni_exception_check(env, 1) < 0)
         goto done;
-    }
 
     listener = (*env)->NewObject(env, listener_class, init_id);
-    if (ngli_jni_exception_check(env, 1) < 0) {
+    if (ngli_jni_exception_check(env, 1) < 0)
         goto done;
-    }
 
     (*env)->CallVoidMethod(env, listener, set_native_ptr_id, (jlong)surface);
-    if (ngli_jni_exception_check(env, 1) < 0) {
+    if (ngli_jni_exception_check(env, 1) < 0)
         goto done;
-    }
 
 done:
-    if (listener_class) {
+    if (listener_class)
         (*env)->DeleteLocalRef(env, listener_class);
-    }
 
     return listener;
 }
@@ -153,9 +146,8 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
     jobject surface_texture = NULL;
 
     struct android_surface *ret = ngli_calloc(1, sizeof(*ret));
-    if (!ret) {
+    if (!ret)
         return NULL;
-    }
 
     pthread_mutex_init(&ret->lock, NULL);
     pthread_cond_init(&ret->cond, NULL);
@@ -166,9 +158,8 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
         return NULL;
     }
 
-    if (ngli_jni_init_jfields(env, &ret->jfields, jfields_mapping, 1) < 0) {
+    if (ngli_jni_init_jfields(env, &ret->jfields, jfields_mapping, 1) < 0)
         goto fail;
-    }
 
     surface_texture = (*env)->NewObject(env,
                                         ret->jfields.surface_texture_class,
@@ -179,93 +170,77 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
     }
 
     ret->surface_texture = (*env)->NewGlobalRef(env, surface_texture);
-    if (!ret->surface_texture) {
+    if (!ret->surface_texture)
         goto fail;
-    }
     ret->tex_id = tex_id;
 
     surface = (*env)->NewObject(env,
                                 ret->jfields.surface_class,
                                 ret->jfields.surface_init_id,
                                 ret->surface_texture);
-    if (!surface) {
+    if (!surface)
         goto fail;
-    }
 
     ret->surface = (*env)->NewGlobalRef(env, surface);
-    if (!ret->surface) {
+    if (!ret->surface)
         goto fail;
-    }
 
     listener = surface_listener_new(ret);
     if (listener) {
         ret->listener = (*env)->NewGlobalRef(env, listener);
-        if (!ret->listener) {
+        if (!ret->listener)
             goto fail;
-        }
 
-        if (ret->jfields.set_on_frame_available_listener2_id) {
+        if (ret->jfields.set_on_frame_available_listener2_id)
             (*env)->CallVoidMethod(env,
                                    ret->surface_texture,
                                    ret->jfields.set_on_frame_available_listener2_id,
                                    listener,
                                    handler);
-        } else {
+        else
             (*env)->CallVoidMethod(env,
                                    ret->surface_texture,
                                    ret->jfields.set_on_frame_available_listener_id,
                                    listener);
-        }
 
 
-        if (ngli_jni_exception_check(env, 1) < 0) {
+        if (ngli_jni_exception_check(env, 1) < 0)
             goto fail;
-        }
     }
 
     jfloatArray transformation_matrix = (*env)->NewFloatArray(env, 16);
-    if (!transformation_matrix) {
+    if (!transformation_matrix)
         goto fail;
-    }
 
     ret->transformation_matrix = (*env)->NewGlobalRef(env, transformation_matrix);
-    if (!ret->transformation_matrix) {
+    if (!ret->transformation_matrix)
         goto fail;
-    }
 
-    if (surface) {
+    if (surface)
         (*env)->DeleteLocalRef(env, surface);
-    }
 
-    if (surface_texture) {
+    if (surface_texture)
         (*env)->DeleteLocalRef(env, surface_texture);
-    }
 
-    if (listener) {
+    if (listener)
         (*env)->DeleteLocalRef(env, listener);
-    }
 
-    if (transformation_matrix) {
+    if (transformation_matrix)
         (*env)->DeleteLocalRef(env, transformation_matrix);
-    }
 
     return ret;
 fail:
-    if (surface) {
+    if (surface)
         (*env)->DeleteLocalRef(env, surface);
-    }
 
-    if (surface_texture) {
+    if (surface_texture)
         (*env)->DeleteLocalRef(env, surface_texture);
-    }
 
-    if (listener) {
+    if (listener)
         (*env)->DeleteLocalRef(env, listener);
-    }
 
-    if (transformation_matrix) {
+    if (transformation_matrix)
         (*env)->DeleteLocalRef(env, transformation_matrix);
-    }
 
     ngli_android_surface_free(&ret);
 
@@ -276,9 +251,8 @@ void ngli_android_surface_free(struct android_surface **surface)
 {
     JNIEnv *env = NULL;
 
-    if (!*surface) {
+    if (!*surface)
         return;
-    }
 
     env = ngli_jni_get_env();
     if (!env) {
@@ -333,9 +307,8 @@ fail:
 
 void *ngli_android_surface_get_surface(struct android_surface *surface)
 {
-    if (!surface) {
+    if (!surface)
         return NULL;
-    }
 
     return surface->surface;
 }
@@ -346,9 +319,8 @@ int ngli_android_surface_attach_to_gl_context(struct android_surface *surface, i
     int ret = 0;
     JNIEnv *env = NULL;
 
-    if (!surface) {
+    if (!surface)
         return 0;
-    }
 
     env = ngli_jni_get_env();
     if (!env) {
@@ -356,17 +328,15 @@ int ngli_android_surface_attach_to_gl_context(struct android_surface *surface, i
         return -1;
     }
 
-    if (surface->tex_id != tex_id) {
+    if (surface->tex_id != tex_id)
         ngli_android_surface_detach_from_gl_context(surface);
-    }
 
     (*env)->CallVoidMethod(env,
                            surface->surface_texture,
                            surface->jfields.attach_to_gl_context_id,
                            tex_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
     surface->tex_id = tex_id;
 
 fail:
@@ -378,9 +348,8 @@ int ngli_android_surface_detach_from_gl_context(struct android_surface *surface)
     int ret = 0;
     JNIEnv *env = NULL;
 
-    if (!surface || surface->tex_id < 0) {
+    if (!surface || surface->tex_id < 0)
         return 0;
-    }
 
     env = ngli_jni_get_env();
     if (!env) {
@@ -391,9 +360,8 @@ int ngli_android_surface_detach_from_gl_context(struct android_surface *surface)
     (*env)->CallVoidMethod(env,
                            surface->surface_texture,
                            surface->jfields.detach_from_gl_context_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
     surface->tex_id = -1;
 
 fail:
@@ -405,9 +373,8 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
     int ret = 0;
     JNIEnv *env = NULL;
 
-    if (!surface) {
+    if (!surface)
         return 0;
-    }
 
     env = ngli_jni_get_env();
     if (!env) {
@@ -434,26 +401,23 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
     ret = surface->on_frame_available;
     pthread_mutex_unlock(&surface->lock);
 
-    if (!ret) {
+    if (!ret)
         LOG(WARNING, "no frame available");
-    }
 
     (*env)->CallVoidMethod(env, surface->surface_texture, surface->jfields.update_tex_image_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
+
     (*env)->CallVoidMethod(env,
                            surface->surface_texture,
                            surface->jfields.get_transform_matrix_id,
                            surface->transformation_matrix);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
 
     (*env)->GetFloatArrayRegion(env, surface->transformation_matrix, 0, 16, matrix);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
 
 fail:
 
@@ -462,9 +426,8 @@ fail:
 
 void ngli_android_surface_signal_frame(struct android_surface *surface)
 {
-    if (!surface) {
+    if (!surface)
         return;
-    }
 
     pthread_mutex_lock(&surface->lock);
     surface->on_frame_available = 1;
