@@ -41,7 +41,6 @@ static void native_on_frame_available(JNIEnv *env, jobject object, jlong surface
 
 static jobject surface_listener_new(struct android_surface *surface)
 {
-    JNIEnv *env = NULL;
     jobject listener = NULL;
     jclass listener_class = NULL;
     jmethodID init_id = NULL;
@@ -51,7 +50,7 @@ static jobject surface_listener_new(struct android_surface *surface)
         {"nativeOnFrameAvailable", "(J)V", (void *)&native_on_frame_available},
     };
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env)
         return NULL;
 
@@ -140,7 +139,6 @@ struct android_surface {
 
 struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
 {
-    JNIEnv *env = NULL;
     jobject listener = NULL;
     jobject surface = NULL;
     jobject surface_texture = NULL;
@@ -152,7 +150,7 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
     pthread_mutex_init(&ret->lock, NULL);
     pthread_cond_init(&ret->cond, NULL);
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(ret);
         return NULL;
@@ -249,12 +247,10 @@ fail:
 
 void ngli_android_surface_free(struct android_surface **surface)
 {
-    JNIEnv *env = NULL;
-
     if (!*surface)
         return;
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(*surface);
         *surface = NULL;
@@ -317,12 +313,11 @@ void *ngli_android_surface_get_surface(struct android_surface *surface)
 int ngli_android_surface_attach_to_gl_context(struct android_surface *surface, int tex_id)
 {
     int ret = 0;
-    JNIEnv *env = NULL;
 
     if (!surface)
         return 0;
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(surface);
         return -1;
@@ -346,12 +341,11 @@ fail:
 int ngli_android_surface_detach_from_gl_context(struct android_surface *surface)
 {
     int ret = 0;
-    JNIEnv *env = NULL;
 
     if (!surface || surface->tex_id < 0)
         return 0;
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(surface);
         return -1;
@@ -371,12 +365,11 @@ fail:
 int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaCodecBuffer *buffer, float *matrix)
 {
     int ret = 0;
-    JNIEnv *env = NULL;
 
     if (!surface)
         return 0;
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(surface);
         return -1;
