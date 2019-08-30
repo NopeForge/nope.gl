@@ -138,6 +138,7 @@ struct android_surface {
     jobject surface;
     jobject surface_texture;
     jobject listener;
+    jfloatArray transformation_matrix;
     pthread_mutex_t lock;
     pthread_cond_t cond;
     int tex_id;
@@ -222,6 +223,16 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
         }
     }
 
+    jfloatArray transformation_matrix = (*env)->NewFloatArray(env, 16);
+    if (!transformation_matrix) {
+        goto fail;
+    }
+
+    ret->transformation_matrix = (*env)->NewGlobalRef(env, transformation_matrix);
+    if (!ret->transformation_matrix) {
+        goto fail;
+    }
+
     if (surface) {
         (*env)->DeleteLocalRef(env, surface);
     }
@@ -232,6 +243,10 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
 
     if (listener) {
         (*env)->DeleteLocalRef(env, listener);
+    }
+
+    if (transformation_matrix) {
+        (*env)->DeleteLocalRef(env, transformation_matrix);
     }
 
     return ret;
@@ -246,6 +261,10 @@ fail:
 
     if (listener) {
         (*env)->DeleteLocalRef(env, listener);
+    }
+
+    if (transformation_matrix) {
+        (*env)->DeleteLocalRef(env, transformation_matrix);
     }
 
     ngli_android_surface_free(&ret);
@@ -296,6 +315,11 @@ fail:
     if ((*surface)->listener) {
         (*env)->DeleteGlobalRef(env, (*surface)->listener);
         (*surface)->listener = NULL;
+    }
+
+    if ((*surface)->transformation_matrix) {
+        (*env)->DeleteGlobalRef(env, (*surface)->transformation_matrix);
+        (*surface)->transformation_matrix = NULL;
     }
 
     ngli_jni_reset_jfields(env, &(*surface)->jfields, jfields_mapping, 1);
@@ -380,7 +404,6 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
 {
     int ret = 0;
     JNIEnv *env = NULL;
-    jfloatArray array = NULL;
 
     if (!surface) {
         return 0;
@@ -419,29 +442,20 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
     if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
         goto fail;
     }
-
-    array = (*env)->NewFloatArray(env, 16);
-    if (!array) {
-        ret = -1;
-        goto fail;
-    }
     (*env)->CallVoidMethod(env,
                            surface->surface_texture,
                            surface->jfields.get_transform_matrix_id,
-                           array);
+                           surface->transformation_matrix);
     if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
         goto fail;
     }
 
-    (*env)->GetFloatArrayRegion(env, array, 0, 16, matrix);
+    (*env)->GetFloatArrayRegion(env, surface->transformation_matrix, 0, 16, matrix);
     if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
         goto fail;
     }
 
 fail:
-    if (array) {
-        (*env)->DeleteLocalRef(env, array);
-    }
 
     return ret;
 }
