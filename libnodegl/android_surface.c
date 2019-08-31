@@ -79,8 +79,7 @@ static jobject surface_listener_new(struct android_surface *surface)
         goto done;
 
 done:
-    if (listener_class)
-        (*env)->DeleteLocalRef(env, listener_class);
+    (*env)->DeleteLocalRef(env, listener_class);
 
     return listener;
 }
@@ -215,31 +214,17 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
     if (!ret->transformation_matrix)
         goto fail;
 
-    if (surface)
-        (*env)->DeleteLocalRef(env, surface);
-
-    if (surface_texture)
-        (*env)->DeleteLocalRef(env, surface_texture);
-
-    if (listener)
-        (*env)->DeleteLocalRef(env, listener);
-
-    if (transformation_matrix)
-        (*env)->DeleteLocalRef(env, transformation_matrix);
+    (*env)->DeleteLocalRef(env, surface);
+    (*env)->DeleteLocalRef(env, surface_texture);
+    (*env)->DeleteLocalRef(env, listener);
+    (*env)->DeleteLocalRef(env, transformation_matrix);
 
     return ret;
 fail:
-    if (surface)
-        (*env)->DeleteLocalRef(env, surface);
-
-    if (surface_texture)
-        (*env)->DeleteLocalRef(env, surface_texture);
-
-    if (listener)
-        (*env)->DeleteLocalRef(env, listener);
-
-    if (transformation_matrix)
-        (*env)->DeleteLocalRef(env, transformation_matrix);
+    (*env)->DeleteLocalRef(env, surface);
+    (*env)->DeleteLocalRef(env, surface_texture);
+    (*env)->DeleteLocalRef(env, listener);
+    (*env)->DeleteLocalRef(env, transformation_matrix);
 
     ngli_android_surface_free(&ret);
 
@@ -273,21 +258,10 @@ void ngli_android_surface_free(struct android_surface **surface)
     }
 
 fail:
-    if ((*surface)->surface) {
-        (*env)->DeleteGlobalRef(env, (*surface)->surface);
-    }
-
-    if ((*surface)->surface_texture) {
-        (*env)->DeleteGlobalRef(env, (*surface)->surface_texture);
-    }
-
-    if ((*surface)->listener) {
-        (*env)->DeleteGlobalRef(env, (*surface)->listener);
-    }
-
-    if ((*surface)->transformation_matrix) {
-        (*env)->DeleteGlobalRef(env, (*surface)->transformation_matrix);
-    }
+    (*env)->DeleteGlobalRef(env, (*surface)->surface);
+    (*env)->DeleteGlobalRef(env, (*surface)->surface_texture);
+    (*env)->DeleteGlobalRef(env, (*surface)->listener);
+    (*env)->DeleteGlobalRef(env, (*surface)->transformation_matrix);
 
     ngli_jni_reset_jfields(env, &(*surface)->jfields, jfields_mapping, 1);
 
