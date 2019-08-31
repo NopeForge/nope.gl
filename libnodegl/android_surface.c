@@ -275,22 +275,18 @@ void ngli_android_surface_free(struct android_surface **surface)
 fail:
     if ((*surface)->surface) {
         (*env)->DeleteGlobalRef(env, (*surface)->surface);
-        (*surface)->surface = NULL;
     }
 
     if ((*surface)->surface_texture) {
         (*env)->DeleteGlobalRef(env, (*surface)->surface_texture);
-        (*surface)->surface_texture = NULL;
     }
 
     if ((*surface)->listener) {
         (*env)->DeleteGlobalRef(env, (*surface)->listener);
-        (*surface)->listener = NULL;
     }
 
     if ((*surface)->transformation_matrix) {
         (*env)->DeleteGlobalRef(env, (*surface)->transformation_matrix);
-        (*surface)->transformation_matrix = NULL;
     }
 
     ngli_jni_reset_jfields(env, &(*surface)->jfields, jfields_mapping, 1);
