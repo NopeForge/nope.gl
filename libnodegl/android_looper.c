@@ -111,13 +111,8 @@ int ngli_android_looper_prepare(struct android_looper *looper)
     }
 
 fail:
-    if (my_looper) {
-        (*env)->DeleteLocalRef(env, my_looper);
-    }
-
-    if (main_looper) {
-        (*env)->DeleteLocalRef(env, main_looper);
-    }
+    (*env)->DeleteLocalRef(env, my_looper);
+    (*env)->DeleteLocalRef(env, main_looper);
 
     return ret;
 }
@@ -163,9 +158,8 @@ void ngli_android_looper_free(struct android_looper **looper)
         *looper = NULL;
         return;
     }
-    if ((*looper)->looper) {
-        (*env)->DeleteGlobalRef(env, (*looper)->looper);
-    }
+
+    (*env)->DeleteGlobalRef(env, (*looper)->looper);
 
     ngli_jni_reset_jfields(env, &(*looper)->jfields, android_looper_mapping, 1);
 
