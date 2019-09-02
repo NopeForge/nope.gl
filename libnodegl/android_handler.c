@@ -69,13 +69,11 @@ struct android_handler *ngli_android_handler_new(void)
     if (!ret->handler)
         goto fail;
 
-    if (handler)
-        (*env)->DeleteLocalRef(env, handler);
+    (*env)->DeleteLocalRef(env, handler);
 
     return ret;
 fail:
-    if (handler)
-        (*env)->DeleteLocalRef(env, handler);
+    (*env)->DeleteLocalRef(env, handler);
 
     ngli_android_handler_free(&ret);
     return NULL;
@@ -100,9 +98,8 @@ void ngli_android_handler_free(struct android_handler **handler)
         *handler = NULL;
         return;
     }
-    if ((*handler)->handler) {
-        (*env)->DeleteGlobalRef(env, (*handler)->handler);
-    }
+
+    (*env)->DeleteGlobalRef(env, (*handler)->handler);
 
     ngli_jni_reset_jfields(env, &(*handler)->jfields, android_handler_mapping, 1);
 
