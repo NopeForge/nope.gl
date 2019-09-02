@@ -142,6 +142,7 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
     jobject listener = NULL;
     jobject surface = NULL;
     jobject surface_texture = NULL;
+    jfloatArray transformation_matrix = NULL;
 
     struct android_surface *ret = ngli_calloc(1, sizeof(*ret));
     if (!ret)
@@ -206,7 +207,7 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
             goto fail;
     }
 
-    jfloatArray transformation_matrix = (*env)->NewFloatArray(env, 16);
+    transformation_matrix = (*env)->NewFloatArray(env, 16);
     if (!transformation_matrix)
         goto fail;
 
