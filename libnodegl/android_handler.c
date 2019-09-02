@@ -44,7 +44,6 @@ struct android_handler {
 
 struct android_handler *ngli_android_handler_new(void)
 {
-    JNIEnv *env = NULL;
     jobject handler = NULL;
 
     struct android_handler *ret = ngli_calloc(1, sizeof(*ret));
@@ -52,7 +51,7 @@ struct android_handler *ngli_android_handler_new(void)
         return NULL;
     }
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(ret);
         return NULL;
@@ -98,13 +97,11 @@ void *ngli_android_handler_get_native_handler(struct android_handler *handler)
 
 void ngli_android_handler_free(struct android_handler **handler)
 {
-    JNIEnv *env = NULL;
-
     if (!*handler) {
         return;
     }
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(*handler);
         *handler = NULL;
