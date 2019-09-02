@@ -53,14 +53,12 @@ struct android_looper {
 
 struct android_looper *ngli_android_looper_new(void)
 {
-    JNIEnv *env = NULL;
-
     struct android_looper *ret = ngli_calloc(1, sizeof(*ret));
     if (!ret) {
         return NULL;
     }
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(ret);
         return NULL;
@@ -80,7 +78,6 @@ fail:
 int ngli_android_looper_prepare(struct android_looper *looper)
 {
     int ret = 0;
-    JNIEnv *env = NULL;
     jobject *my_looper = NULL;
     jobject *main_looper = NULL;
 
@@ -88,7 +85,7 @@ int ngli_android_looper_prepare(struct android_looper *looper)
         return 0;
     }
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         return -1;
     }
@@ -137,13 +134,12 @@ fail:
 int ngli_android_looper_loop(struct android_looper *looper)
 {
     int ret = 0;
-    JNIEnv *env = NULL;
 
     if (!looper) {
         return 0;
     }
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         return -1;
     }
@@ -162,13 +158,12 @@ fail:
 int ngli_android_looper_quit(struct android_looper *looper)
 {
     int ret = 0;
-    JNIEnv *env = NULL;
 
     if (!looper) {
         return 0;
     }
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         return -1;
     }
@@ -186,13 +181,11 @@ fail:
 
 void ngli_android_looper_free(struct android_looper **looper)
 {
-    JNIEnv *env = NULL;
-
     if ( !*looper) {
         return;
     }
 
-    env = ngli_jni_get_env();
+    JNIEnv *env = ngli_jni_get_env();
     if (!env) {
         ngli_free(*looper);
         *looper = NULL;
