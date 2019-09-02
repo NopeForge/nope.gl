@@ -240,9 +240,6 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `center_transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `center` transformation chain | 
 `up_transform` |  |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Identity](#identity)) | `up` transformation chain | 
 `fov_anim` |  |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
-`pipe_fd` |  |  | [`int`](#parameter-types) | pipe file descriptor where the rendered raw RGBA buffer is written | `0`
-`pipe_width` |  |  | [`int`](#parameter-types) | width (in pixels) of the raw image buffer when using `pipe_fd` | `0`
-`pipe_height` |  |  | [`int`](#parameter-types) | height (in pixels) of the raw image buffer when using `pipe_fd` | `0`
 
 
 **Source**: [node_camera.c](/libnodegl/node_camera.c)

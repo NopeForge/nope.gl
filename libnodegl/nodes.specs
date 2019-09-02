@@ -190,9 +190,6 @@
         - [center_transform, Node]
         - [up_transform, Node]
         - [fov_anim, Node]
-        - [pipe_fd, int]
-        - [pipe_width, int]
-        - [pipe_height, int]
 
 - Circle:
     optional:
