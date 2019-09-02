@@ -126,8 +126,6 @@ fail:
 
 int ngli_android_looper_loop(struct android_looper *looper)
 {
-    int ret = 0;
-
     if (!looper)
         return 0;
 
@@ -138,17 +136,11 @@ int ngli_android_looper_loop(struct android_looper *looper)
     (*env)->CallStaticVoidMethod(env,
                                  looper->jfields.looper_class,
                                  looper->jfields.loop_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
-        goto fail;
-
-fail:
-    return ret;
+    return ngli_jni_exception_check(env, 1);
 }
 
 int ngli_android_looper_quit(struct android_looper *looper)
 {
-    int ret = 0;
-
     if (!looper)
         return 0;
 
@@ -159,11 +151,7 @@ int ngli_android_looper_quit(struct android_looper *looper)
     (*env)->CallVoidMethod(env,
                            looper->looper,
                            looper->jfields.quit_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
-        goto fail;
-
-fail:
-    return ret;
+    return ngli_jni_exception_check(env, 1);
 }
 
 void ngli_android_looper_free(struct android_looper **looper)
