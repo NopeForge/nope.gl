@@ -47,9 +47,8 @@ struct android_handler *ngli_android_handler_new(void)
     jobject handler = NULL;
 
     struct android_handler *ret = ngli_calloc(1, sizeof(*ret));
-    if (!ret) {
+    if (!ret)
         return NULL;
-    }
 
     JNIEnv *env = ngli_jni_get_env();
     if (!env) {
@@ -57,31 +56,26 @@ struct android_handler *ngli_android_handler_new(void)
         return NULL;
     }
 
-    if (ngli_jni_init_jfields(env, &ret->jfields, android_handler_mapping, 1) < 0) {
+    if (ngli_jni_init_jfields(env, &ret->jfields, android_handler_mapping, 1) < 0)
         goto fail;
-    }
 
     handler = (*env)->NewObject(env,
                                 ret->jfields.handler_class,
                                 ret->jfields.init_id);
-    if (ngli_jni_exception_check(env, 1) < 0) {
+    if (ngli_jni_exception_check(env, 1) < 0)
         goto fail;
-    }
 
     ret->handler = (*env)->NewGlobalRef(env, handler);
-    if (!ret->handler) {
+    if (!ret->handler)
         goto fail;
-    }
 
-    if (handler) {
+    if (handler)
         (*env)->DeleteLocalRef(env, handler);
-    }
 
     return ret;
 fail:
-    if (handler) {
+    if (handler)
         (*env)->DeleteLocalRef(env, handler);
-    }
 
     ngli_android_handler_free(&ret);
     return NULL;
@@ -97,9 +91,8 @@ void *ngli_android_handler_get_native_handler(struct android_handler *handler)
 
 void ngli_android_handler_free(struct android_handler **handler)
 {
-    if (!*handler) {
+    if (!*handler)
         return;
-    }
 
     JNIEnv *env = ngli_jni_get_env();
     if (!env) {
