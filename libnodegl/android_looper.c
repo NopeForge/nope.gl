@@ -54,9 +54,8 @@ struct android_looper {
 struct android_looper *ngli_android_looper_new(void)
 {
     struct android_looper *ret = ngli_calloc(1, sizeof(*ret));
-    if (!ret) {
+    if (!ret)
         return NULL;
-    }
 
     JNIEnv *env = ngli_jni_get_env();
     if (!env) {
@@ -64,9 +63,8 @@ struct android_looper *ngli_android_looper_new(void)
         return NULL;
     }
 
-    if (ngli_jni_init_jfields(env, &ret->jfields, android_looper_mapping, 1) < 0) {
+    if (ngli_jni_init_jfields(env, &ret->jfields, android_looper_mapping, 1) < 0)
         goto fail;
-    }
 
     return ret;
 fail:
@@ -81,35 +79,30 @@ int ngli_android_looper_prepare(struct android_looper *looper)
     jobject *my_looper = NULL;
     jobject *main_looper = NULL;
 
-    if (!looper) {
+    if (!looper)
         return 0;
-    }
 
     JNIEnv *env = ngli_jni_get_env();
-    if (!env) {
+    if (!env)
         return -1;
-    }
 
     (*env)->CallStaticVoidMethod(env,
                                  looper->jfields.looper_class,
                                  looper->jfields.prepare_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
 
     my_looper = (*env)->CallStaticObjectMethod(env,
                                                looper->jfields.looper_class,
                                                looper->jfields.my_looper_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
 
     main_looper = (*env)->CallStaticObjectMethod(env,
                                                  looper->jfields.looper_class,
                                                  looper->jfields.get_main_looper_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
 
     looper->looper = (*env)->NewGlobalRef(env, my_looper);
     if (!looper->looper) {
@@ -135,21 +128,18 @@ int ngli_android_looper_loop(struct android_looper *looper)
 {
     int ret = 0;
 
-    if (!looper) {
+    if (!looper)
         return 0;
-    }
 
     JNIEnv *env = ngli_jni_get_env();
-    if (!env) {
+    if (!env)
         return -1;
-    }
 
     (*env)->CallStaticVoidMethod(env,
                                  looper->jfields.looper_class,
                                  looper->jfields.loop_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
 
 fail:
     return ret;
@@ -159,21 +149,18 @@ int ngli_android_looper_quit(struct android_looper *looper)
 {
     int ret = 0;
 
-    if (!looper) {
+    if (!looper)
         return 0;
-    }
 
     JNIEnv *env = ngli_jni_get_env();
-    if (!env) {
+    if (!env)
         return -1;
-    }
 
     (*env)->CallVoidMethod(env,
                            looper->looper,
                            looper->jfields.quit_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0) {
+    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
-    }
 
 fail:
     return ret;
@@ -181,9 +168,8 @@ fail:
 
 void ngli_android_looper_free(struct android_looper **looper)
 {
-    if ( !*looper) {
+    if (!*looper)
         return;
-    }
 
     JNIEnv *env = ngli_jni_get_env();
     if (!env) {
