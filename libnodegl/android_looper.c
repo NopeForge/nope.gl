@@ -77,7 +77,6 @@ int ngli_android_looper_prepare(struct android_looper *looper)
 {
     int ret = 0;
     jobject *my_looper = NULL;
-    jobject *main_looper = NULL;
 
     if (!looper)
         return 0;
@@ -98,12 +97,6 @@ int ngli_android_looper_prepare(struct android_looper *looper)
     if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
 
-    main_looper = (*env)->CallStaticObjectMethod(env,
-                                                 looper->jfields.looper_class,
-                                                 looper->jfields.get_main_looper_id);
-    if ((ret = ngli_jni_exception_check(env, 1)) < 0)
-        goto fail;
-
     looper->looper = (*env)->NewGlobalRef(env, my_looper);
     if (!looper->looper) {
         ret = -1;
@@ -112,7 +105,6 @@ int ngli_android_looper_prepare(struct android_looper *looper)
 
 fail:
     (*env)->DeleteLocalRef(env, my_looper);
-    (*env)->DeleteLocalRef(env, main_looper);
 
     return ret;
 }
