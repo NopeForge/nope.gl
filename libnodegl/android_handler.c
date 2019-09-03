@@ -102,7 +102,6 @@ void ngli_android_handler_free(struct android_handler **handler)
     }
     if ((*handler)->handler) {
         (*env)->DeleteGlobalRef(env, (*handler)->handler);
-        (*handler)->handler = NULL;
     }
 
     ngli_jni_reset_jfields(env, &(*handler)->jfields, android_handler_mapping, 1);
