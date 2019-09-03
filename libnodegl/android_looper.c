@@ -83,15 +83,11 @@ int ngli_android_looper_prepare(struct android_looper *looper)
     if (!env)
         return -1;
 
-    (*env)->CallStaticVoidMethod(env,
-                                 looper->jfields.looper_class,
-                                 looper->jfields.prepare_id);
+    (*env)->CallStaticVoidMethod(env, looper->jfields.looper_class, looper->jfields.prepare_id);
     if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
 
-    my_looper = (*env)->CallStaticObjectMethod(env,
-                                               looper->jfields.looper_class,
-                                               looper->jfields.my_looper_id);
+    my_looper = (*env)->CallStaticObjectMethod(env, looper->jfields.looper_class, looper->jfields.my_looper_id);
     if ((ret = ngli_jni_exception_check(env, 1)) < 0)
         goto fail;
 
@@ -116,9 +112,7 @@ int ngli_android_looper_loop(struct android_looper *looper)
     if (!env)
         return -1;
 
-    (*env)->CallStaticVoidMethod(env,
-                                 looper->jfields.looper_class,
-                                 looper->jfields.loop_id);
+    (*env)->CallStaticVoidMethod(env, looper->jfields.looper_class, looper->jfields.loop_id);
     return ngli_jni_exception_check(env, 1);
 }
 
@@ -131,9 +125,7 @@ int ngli_android_looper_quit(struct android_looper *looper)
     if (!env)
         return -1;
 
-    (*env)->CallVoidMethod(env,
-                           looper->looper,
-                           looper->jfields.quit_id);
+    (*env)->CallVoidMethod(env, looper->looper, looper->jfields.quit_id);
     return ngli_jni_exception_check(env, 1);
 }
 
