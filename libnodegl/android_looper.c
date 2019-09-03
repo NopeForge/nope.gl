@@ -63,14 +63,12 @@ struct android_looper *ngli_android_looper_new(void)
         return NULL;
     }
 
-    if (ngli_jni_init_jfields(env, &ret->jfields, android_looper_mapping, 1) < 0)
-        goto fail;
+    if (ngli_jni_init_jfields(env, &ret->jfields, android_looper_mapping, 1) < 0) {
+        ngli_free(ret);
+        return NULL;
+    }
 
     return ret;
-fail:
-    ngli_android_looper_free(&ret);
-
-    return NULL;
 }
 
 int ngli_android_looper_prepare(struct android_looper *looper)
