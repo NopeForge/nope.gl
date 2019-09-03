@@ -59,9 +59,7 @@ struct android_handler *ngli_android_handler_new(void)
     if (ngli_jni_init_jfields(env, &ret->jfields, android_handler_mapping, 1) < 0)
         goto fail;
 
-    handler = (*env)->NewObject(env,
-                                ret->jfields.handler_class,
-                                ret->jfields.init_id);
+    handler = (*env)->NewObject(env, ret->jfields.handler_class, ret->jfields.init_id);
     if (ngli_jni_exception_check(env, 1) < 0)
         goto fail;
 
