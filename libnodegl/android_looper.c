@@ -126,7 +126,7 @@ int ngli_android_looper_loop(struct android_looper *looper)
 
 int ngli_android_looper_quit(struct android_looper *looper)
 {
-    if (!looper)
+    if (!looper || !looper->looper)
         return 0;
 
     JNIEnv *env = ngli_jni_get_env();
