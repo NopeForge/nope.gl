@@ -41,8 +41,6 @@ def run():
     pargs = parser.parse_args(sys.argv[1:])
 
     app = QtWidgets.QApplication(sys.argv)
-    # Fixes ui freezes with the native gl view on macos 10.14 (mojave)
-    app.setAttribute(QtCore.Qt.AA_DontCreateNativeWidgetSiblings)
     window = MainWindow(pargs.module, pargs.assets_dir, pargs.hooksdir)
     window.show()
     app.exec_()
