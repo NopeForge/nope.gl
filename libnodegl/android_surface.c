@@ -201,7 +201,6 @@ struct android_surface *ngli_android_surface_new(int tex_id, void *handler)
                                    ret->jfields.set_on_frame_available_listener_id,
                                    listener);
 
-
         if (ngli_jni_exception_check(env, 1) < 0)
             goto fail;
     }
@@ -271,7 +270,6 @@ fail:
     *surface = NULL;
 }
 
-
 void *ngli_android_surface_get_surface(struct android_surface *surface)
 {
     if (!surface)
@@ -279,7 +277,6 @@ void *ngli_android_surface_get_surface(struct android_surface *surface)
 
     return surface->surface;
 }
-
 
 int ngli_android_surface_attach_to_gl_context(struct android_surface *surface, int tex_id)
 {
