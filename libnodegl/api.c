@@ -202,7 +202,7 @@ static void *worker_thread(void *arg)
     return NULL;
 }
 
-#if defined(TARGET_IPHONE)
+#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
 static int cmd_make_current(struct ngl_ctx *s, void *arg)
 {
     const int current = *(int *)arg;
@@ -336,7 +336,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
     }
 
     if (s->configured)
-#if defined(TARGET_IPHONE)
+#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
         return reconfigure_ios(s, config);
 #else
         return dispatch_cmd(s, cmd_reconfigure, config);
@@ -362,7 +362,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return config->platform;
     }
 
-#if defined(TARGET_IPHONE)
+#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
     int ret = configure_ios(s, config);
 #else
     int ret = dispatch_cmd(s, cmd_configure, config);
