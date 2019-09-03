@@ -231,8 +231,13 @@ static void nsgl_uninit(struct glcontext *ctx)
     if (nsgl->framework)
         CFRelease(nsgl->framework);
 
-    if (nsgl->handle)
+    if (nsgl->handle) {
+        /* Unset the view from the OpenGL context to avoid OpenGL framebuffer
+         * errors while creating/release multiple OpenGL contexts with
+         * different MSAA value on the same view. */
+        [nsgl->handle setView:nil];
         CFRelease(nsgl->handle);
+    }
 }
 
 const struct glcontext_class ngli_glcontext_nsgl_class = {
