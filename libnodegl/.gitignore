@@ -7,6 +7,7 @@
 /libnodegl.dylib
 /libnodegl.symexport
 /test_asm
+/test_colorconv
 /test_darray
 /test_draw
 /test_hmap

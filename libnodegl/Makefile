@@ -269,6 +269,7 @@ gl.xml:
 # Tests
 #
 TESTS = asm             \
+        colorconv       \
         darray          \
         draw            \
         hmap            \
@@ -282,6 +283,8 @@ testprogs: $(TESTPROGS)
 
 test_asm: LDLIBS = $(PROJECT_LDLIBS) -lm
 test_asm: test_asm.o math_utils.o $(LIB_OBJS_ARCH_$(ARCH))
+test_colorconv: LDLIBS = $(PROJECT_LDLIBS) -lm
+test_colorconv: test_colorconv.o colorconv.o log.o
 test_darray: test_darray.o darray.o memory.o
 test_draw: test_draw.o drawutils.o
 test_hmap: test_hmap.o utils.o memory.o
