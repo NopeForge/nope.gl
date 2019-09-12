@@ -279,7 +279,7 @@ static int vaapi_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 }
 
 static const struct hwmap_class hwmap_vaapi_class = {
-    .name      = "vaapi (dma buf → egl image)",
+    .name      = "vaapi (dma buf → egl image → rgba)",
     .flags     = HWMAP_FLAG_FRAME_OWNER,
     .priv_size = sizeof(struct hwupload_vaapi),
     .init      = vaapi_init,
@@ -288,7 +288,7 @@ static const struct hwmap_class hwmap_vaapi_class = {
 };
 
 static const struct hwmap_class hwmap_vaapi_dr_class = {
-    .name      = "vaapi (dma buf → egl image → rgba)",
+    .name      = "vaapi (dma buf → egl image)",
     .flags     = HWMAP_FLAG_FRAME_OWNER,
     .priv_size = sizeof(struct hwupload_vaapi),
     .init      = vaapi_dr_init,
