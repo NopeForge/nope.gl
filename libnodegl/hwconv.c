@@ -22,6 +22,7 @@
 #include <string.h>
 
 #include "buffer.h"
+#include "colorconv.h"
 #include "hwconv.h"
 #include "glincludes.h"
 #include "glcontext.h"
@@ -68,17 +69,13 @@
     "uniform sampler2D tex0;"                                               "\n" \
     "uniform sampler2D tex1;"                                               "\n" \
     "varying vec2 tex_coord;"                                               "\n" \
-    "const mat4 conv = mat4("                                               "\n" \
-    "    1.164,     1.164,    1.164,   0.0,"                                "\n" \
-    "    0.0,      -0.213,    2.112,   0.0,"                                "\n" \
-    "    1.787,    -0.531,    0.0,     0.0,"                                "\n" \
-    "   -0.96625,   0.29925, -1.12875, 1.0);"                               "\n" \
+    "uniform mat4 color_matrix;"                                            "\n" \
     "void main(void)"                                                       "\n" \
     "{"                                                                     "\n" \
     "    vec3 yuv;"                                                         "\n" \
     "    yuv.x = texture2D(tex0, tex_coord).r;"                             "\n" \
     "    yuv.yz = texture2D(tex1, tex_coord).%s;"                           "\n" \
-    "    gl_FragColor = conv * vec4(yuv, 1.0);"                             "\n" \
+    "    gl_FragColor = color_matrix * vec4(yuv, 1.0);"                     "\n" \
     "}"
 
 #define NV12_RECTANGLE_TO_RGBA_VERTEX_DATA                                       \
@@ -101,20 +98,16 @@
     "#version 410"                                                          "\n" \
     "uniform mediump sampler2DRect tex0;"                                   "\n" \
     "uniform mediump sampler2DRect tex1;"                                   "\n" \
+    "uniform mat4 color_matrix;"                                            "\n" \
     "in vec2 tex0_coord;"                                                   "\n" \
     "in vec2 tex1_coord;"                                                   "\n" \
     "out vec4 color;"                                                       "\n" \
-    "const mat4 conv = mat4("                                               "\n" \
-    "    1.164,     1.164,    1.164,   0.0,"                                "\n" \
-    "    0.0,      -0.213,    2.112,   0.0,"                                "\n" \
-    "    1.787,    -0.531,    0.0,     0.0,"                                "\n" \
-    "   -0.96625,   0.29925, -1.12875, 1.0);"                               "\n" \
     "void main(void)"                                                       "\n" \
     "{"                                                                     "\n" \
     "    vec3 yuv;"                                                         "\n" \
     "    yuv.x = texture(tex0, tex0_coord).r;"                              "\n" \
     "    yuv.yz = texture(tex1, tex1_coord).%s;"                            "\n" \
-    "    color = conv * vec4(yuv, 1.0);"                                    "\n" \
+    "    color = color_matrix * vec4(yuv, 1.0);"                            "\n" \
     "}"
 
 static const struct hwconv_desc {
@@ -197,9 +190,16 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     if (ret < 0)
         return ret;
 
+    ngli_mat4_identity(hwconv->src_color_matrix);
+    if (src_layout == NGLI_IMAGE_LAYOUT_NV12 ||
+        src_layout == NGLI_IMAGE_LAYOUT_NV12_RECTANGLE) {
+        ngli_colorconv_get_ycbcr_to_rgb_color_matrix(hwconv->src_color_matrix, &src_params->color_info);
+    }
+
     const struct pipeline_uniform uniforms[] = {
         {.name = "tex_coord_matrix", .type = NGLI_TYPE_MAT4, .count = 1,               .data  = NULL},
         {.name = "tex_dimensions",   .type = NGLI_TYPE_VEC2, .count = desc->nb_planes, .data  = NULL},
+        {.name = "color_matrix",     .type = NGLI_TYPE_MAT4, .count = 1,               .data  = hwconv->src_color_matrix},
     };
 
     const struct pipeline_texture textures[] = {
