@@ -88,7 +88,7 @@ static int mc_common_render_frame(struct ngl_node *node, struct sxplayer_frame *
     };
 
     ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
-    ngli_mat4_mul(matrix, flip_matrix, matrix);
+    ngli_mat4_mul(matrix, matrix, flip_matrix);
 
     ngli_texture_set_dimensions(&media->android_texture, frame->width, frame->height, 0);
 
