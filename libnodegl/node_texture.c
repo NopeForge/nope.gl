@@ -455,6 +455,13 @@ static void texture_release(struct ngl_node *node)
     ngli_image_reset(&s->image);
 }
 
+static int texture2d_init(struct ngl_node *node)
+{
+    struct texture_priv *s = node->priv_data;
+    s->supported_image_layouts = s->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
+    return 0;
+}
+
 static int texture3d_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -483,6 +490,7 @@ const struct node_class ngli_texture2d_class = {
     .id        = NGL_NODE_TEXTURE2D,
     .category  = NGLI_NODE_CATEGORY_TEXTURE,
     .name      = "Texture2D",
+    .init      = texture2d_init,
     .prefetch  = texture2d_prefetch,
     .update    = texture_update,
     .release   = texture_release,

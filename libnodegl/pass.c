@@ -231,22 +231,21 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
         }
     }
 
-#if defined(TARGET_ANDROID)
-    const int has_dr_sampler = info.oes_sampler.active;
-#elif defined(TARGET_IPHONE) || defined(HAVE_VAAPI_X11)
-    const int has_dr_sampler = (info.y_sampler.active || info.uv_sampler.active);
-#else
-    const int has_dr_sampler = 0;
-#endif
-    if (!info.default_sampler.active && !has_dr_sampler)
+    uint32_t supported_image_layouts = 0;
+
+    if (info.default_sampler.active)
+        supported_image_layouts |= 1 << NGLI_IMAGE_LAYOUT_DEFAULT;
+
+    if (info.oes_sampler.active)
+        supported_image_layouts |= 1 << NGLI_IMAGE_LAYOUT_MEDIACODEC;
+
+    if (info.y_sampler.active || info.uv_sampler.active)
+        supported_image_layouts |= 1 << NGLI_IMAGE_LAYOUT_NV12;
+
+    if (!supported_image_layouts)
         LOG(WARNING, "no sampler found for texture %s", name);
 
-#if defined(TARGET_ANDROID) || defined(TARGET_IPHONE) || defined(HAVE_VAAPI_X11)
-    struct pass_params *params = &s->params;
-    texture_priv->direct_rendering = texture_priv->direct_rendering && has_dr_sampler;
-    LOG(VERBOSE, "direct rendering for texture %s.%s: %s",
-        params->label, name, texture_priv->direct_rendering ? "yes" : "no");
-#endif
+    texture_priv->supported_image_layouts &= supported_image_layouts;
 
     if (!ngli_darray_push(&s->texture_infos, &info))
         return NGL_ERROR_MEMORY;

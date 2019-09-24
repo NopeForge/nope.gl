@@ -334,19 +334,20 @@ static const struct hwmap_class *vt_ios_get_hwmap(struct ngl_node *node, struct 
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
+    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12);
 
     switch (cvformat) {
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA:
         return &hwmap_vt_ios_dr_class;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-        if (s->direct_rendering && s->params.mipmap_filter) {
+        if (direct_rendering && s->params.mipmap_filter) {
             LOG(WARNING, "IOSurface NV12 buffers do not support mipmapping: "
                 "disabling direct rendering");
-            s->direct_rendering = 0;
+            direct_rendering = 0;
         }
 
-        return s->direct_rendering ? &hwmap_vt_ios_dr_class : &hwmap_vt_ios_class;
+        return direct_rendering ? &hwmap_vt_ios_dr_class : &hwmap_vt_ios_class;
     default:
         return NULL;
     }

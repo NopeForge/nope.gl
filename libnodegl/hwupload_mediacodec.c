@@ -175,22 +175,23 @@ static const struct hwmap_class hwmap_mc_dr_class = {
 static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
+    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_MEDIACODEC);
 
-    if (s->direct_rendering) {
+    if (direct_rendering) {
         const struct texture_params *params = &s->params;
 
         if (params->mipmap_filter) {
             LOG(WARNING, "external textures do not support mipmapping: "
                 "disabling direct rendering");
-            s->direct_rendering = 0;
+            direct_rendering = 0;
         } else if (params->wrap_s != NGLI_WRAP_CLAMP_TO_EDGE || params->wrap_t != NGLI_WRAP_CLAMP_TO_EDGE) {
             LOG(WARNING, "external textures only support clamp to edge wrapping: "
                 "disabling direct rendering");
-            s->direct_rendering = 0;
+            direct_rendering = 0;
         }
     }
 
-    return s->direct_rendering ? &hwmap_mc_dr_class : &hwmap_mc_class;
+    return direct_rendering ? &hwmap_mc_dr_class : &hwmap_mc_class;
 }
 
 const struct hwupload_class ngli_hwupload_mc_class = {

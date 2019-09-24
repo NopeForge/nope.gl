@@ -299,15 +299,16 @@ static const struct hwmap_class hwmap_vaapi_dr_class = {
 static const struct hwmap_class *vaapi_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
+    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12);
 
-    if (s->direct_rendering && s->params.mipmap_filter) {
+    if (direct_rendering && s->params.mipmap_filter) {
         LOG(WARNING,
             "vaapi direct rendering does not support mipmapping: "
             "disabling direct rendering");
-        s->direct_rendering = 0;
+        direct_rendering = 0;
     }
 
-    return s->direct_rendering ? &hwmap_vaapi_dr_class : &hwmap_vaapi_class;
+    return direct_rendering ? &hwmap_vaapi_dr_class : &hwmap_vaapi_class;
 }
 
 const struct hwupload_class ngli_hwupload_vaapi_class = {

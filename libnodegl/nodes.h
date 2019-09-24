@@ -280,6 +280,7 @@ struct texture_priv {
     struct ngl_node *data_src;
     int direct_rendering;
 
+    uint32_t supported_image_layouts;
     struct texture texture;
     struct image image;
 
