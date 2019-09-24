@@ -513,7 +513,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `wrap_t` |  |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
 `access` |  |  | [`access`](#access-choices) | texture access (only honored by the `Compute` node) | `read+write`
 `data_src` |  |  | [`Node`](#parameter-types) ([Media](#media), [HUD](#hud), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec3](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec3](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec3](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec3](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer)) | data source | 
-`direct_rendering` |  |  | [`bool`](#parameter-types) | whether direct rendering is enabled or not for media playback | `unset`
+`direct_rendering` |  |  | [`bool`](#parameter-types) | whether direct rendering is allowed or not for media playback | `unset`
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)

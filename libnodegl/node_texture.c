@@ -212,7 +212,7 @@ static const struct node_param texture2d_params[] = {
     {"data_src", PARAM_TYPE_NODE, OFFSET(data_src), .node_types=DATA_SRC_TYPES_LIST_2D,
                  .desc=NGLI_DOCSTRING("data source")},
     {"direct_rendering", PARAM_TYPE_BOOL, OFFSET(direct_rendering), {.i64=-1},
-                         .desc=NGLI_DOCSTRING("whether direct rendering is enabled or not for media playback")},
+                         .desc=NGLI_DOCSTRING("whether direct rendering is allowed or not for media playback")},
     {NULL}
 };
 
