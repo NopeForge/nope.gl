@@ -301,14 +301,13 @@ long, but it can be changed directly in your function. We want to associate
 ```python
     mixval_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                      ngl.AnimKeyFrameFloat(cfg.duration, 1)]
-    mixval_anim = ngl.AnimatedFloat(keyframes=mixval_animkf)
+    mixval_anim = ngl.AnimatedFloat(mixval_animkf)
 ```
 
-And then create an uniform that will use this animation:
+And then use this animated float directly on the render:
 
 ```python
-    umixval = ngl.UniformFloat(anim=mixval_anim)
-    render.update_uniforms(mixval=umixval)
+    render.update_uniforms(mixval=mixval_anim)
 ```
 
 Just like `color`, we will transmit it to the shader through uniforms.
@@ -390,11 +389,10 @@ def test_demo(cfg, color=(1,0,0,1)):
     # Animated mixing color
     mixval_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                      ngl.AnimKeyFrameFloat(cfg.duration, 1)]
-    mixval_anim = ngl.AnimatedFloat(keyframes=mixval_animkf)
-    umixval = ngl.UniformFloat(anim=mixval_anim)
+    mixval_anim = ngl.AnimatedFloat(mixval_animkf)
     ucolor = ngl.UniformVec4(color)
     render.update_uniforms(color=ucolor)
-    render.update_uniforms(mixval=umixval)
+    render.update_uniforms(mixval=mixval_anim)
 
     # Translation
     translate_animkf = [ngl.AnimKeyFrameVec3(0, (-1, 0, 0)),
