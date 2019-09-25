@@ -268,7 +268,7 @@ in the UI. For that, we can adjust the `@scene()` decorator and the
 `test_demo()` prototype like the following:
 
 ```python
-@scene(color={'type': 'color'})
+@scene(color=scene.Color())
 def test_demo(cfg, color=(1,0,0,1)):
     ...
     ucolor = ngl.UniformVec4(value=color)
@@ -346,7 +346,7 @@ How about making our video *swing from left to right and back again*?
 Let's first reduce the time of the demo to make things a bit more interesting:
 
 ```python
-@scene(color={'type': 'color'})
+@scene(color=scene.Color())
 def test_demo(cfg, color=(1,0,0,1)):
     cfg.duration = 3.
     ...
@@ -374,7 +374,7 @@ import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
-@scene(color={'type': 'color'})
+@scene(color=scene.Color())
 def test_demo(cfg, color=(1,0,0,1)):
     cfg.duration = 3.
 
