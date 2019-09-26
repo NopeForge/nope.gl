@@ -59,43 +59,7 @@ static int vt_get_data_format(struct sxplayer_frame *frame)
     }
 }
 
-static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
-
-    struct texture_params params = s->params;
-    params.format = vt_get_data_format(frame);
-    params.width  = frame->width;
-    params.height = frame->height;
-
-    int ret = ngli_texture_init(&s->texture, ctx, &params);
-    if (ret < 0)
-        return ret;
-
-    ret = ngli_hwconv_init(&vt->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
-    if (ret < 0)
-        return ret;
-
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
-
-    for (int i = 0; i < 2; i++) {
-        struct texture *plane = &vt->planes[i];
-        struct texture_params plane_params = NGLI_TEXTURE_PARAM_DEFAULTS;
-        plane_params.format = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM;
-        plane_params.rectangle = 1;
-        plane_params.external_storage = 1;
-
-        int ret = ngli_texture_init(plane, ctx, &plane_params);
-        if (ret < 0)
-            return ret;
-    }
-
-    return 0;
-}
-
-static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+static int vt_darwin_common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -137,6 +101,55 @@ static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
 
         ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, 0);
     }
+
+    return 0;
+}
+
+static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
+
+    struct texture_params params = s->params;
+    params.format = vt_get_data_format(frame);
+    params.width  = frame->width;
+    params.height = frame->height;
+
+    int ret = ngli_texture_init(&s->texture, ctx, &params);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_hwconv_init(&vt->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
+    if (ret < 0)
+        return ret;
+
+    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+
+    for (int i = 0; i < 2; i++) {
+        struct texture *plane = &vt->planes[i];
+        struct texture_params plane_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+        plane_params.format = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM;
+        plane_params.rectangle = 1;
+        plane_params.external_storage = 1;
+
+        int ret = ngli_texture_init(plane, ctx, &plane_params);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
+}
+
+static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
+
+    int ret = vt_darwin_common_map_frame(node, frame);
+    if (ret < 0)
+        return ret;
 
     if (!ngli_texture_match_dimensions(&s->texture, frame->width, frame->height, 0)) {
         ngli_hwconv_reset(&vt->hwconv);
