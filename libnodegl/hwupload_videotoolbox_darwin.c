@@ -192,6 +192,50 @@ static void vt_darwin_uninit(struct ngl_node *node)
     vt->frame = NULL;
 }
 
+static int vt_darwin_dr_init(struct ngl_node *node, struct sxplayer_frame * frame)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
+
+    for (int i = 0; i < 2; i++) {
+        struct texture *plane = &vt->planes[i];
+        struct texture_params plane_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+        plane_params.format = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM;
+        plane_params.rectangle = 1;
+        plane_params.external_storage = 1;
+
+        int ret = ngli_texture_init(plane, ctx, &plane_params);
+        if (ret < 0)
+            return ret;
+    }
+
+    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE, &vt->planes[0], &vt->planes[1]);
+
+    return 0;
+}
+
+static void vt_darwin_dr_uninit(struct ngl_node *node)
+{
+    struct texture_priv *s = node->priv_data;
+    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
+
+    for (int i = 0; i < 2; i++)
+        ngli_texture_reset(&vt->planes[i]);
+
+    sxplayer_release_frame(vt->frame);
+    vt->frame = NULL;
+}
+
+static const struct hwmap_class hwmap_vt_darwin_dr_class = {
+    .name      = "videotoolbox (iosurface → nv12)",
+    .flags     = HWMAP_FLAG_FRAME_OWNER,
+    .priv_size = sizeof(struct hwupload_vt_darwin),
+    .init      = vt_darwin_dr_init,
+    .map_frame = vt_darwin_common_map_frame,
+    .uninit    = vt_darwin_dr_uninit,
+};
+
 static const struct hwmap_class hwmap_vt_darwin_class = {
     .name      = "videotoolbox (copy)",
     .flags     = HWMAP_FLAG_FRAME_OWNER,
@@ -203,7 +247,16 @@ static const struct hwmap_class hwmap_vt_darwin_class = {
 
 static const struct hwmap_class *vt_darwin_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    return &hwmap_vt_darwin_class;
+    struct texture_priv *s = node->priv_data;
+    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
+
+    if (direct_rendering && s->params.mipmap_filter) {
+        LOG(WARNING, "IOSurface NV12 buffers do not support mipmapping: "
+            "disabling direct rendering");
+        direct_rendering = 0;
+    }
+
+    return direct_rendering ? &hwmap_vt_darwin_dr_class : &hwmap_vt_darwin_class;
 }
 
 const struct hwupload_class ngli_hwupload_vt_darwin_class = {
