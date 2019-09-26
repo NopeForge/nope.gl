@@ -237,7 +237,7 @@ static const struct hwmap_class hwmap_vt_darwin_dr_class = {
 };
 
 static const struct hwmap_class hwmap_vt_darwin_class = {
-    .name      = "videotoolbox (copy)",
+    .name      = "videotoolbox (iosurface → nv12 → rgba)",
     .flags     = HWMAP_FLAG_FRAME_OWNER,
     .priv_size = sizeof(struct hwupload_vt_darwin),
     .init      = vt_darwin_init,
