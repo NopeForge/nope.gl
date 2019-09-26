@@ -131,6 +131,8 @@ struct texture_info {
     struct texture_info_field oes_sampler;
     struct texture_info_field y_sampler;
     struct texture_info_field uv_sampler;
+    struct texture_info_field y_rect_sampler;
+    struct texture_info_field uv_rect_sampler;
 };
 
 #define OFFSET(x) offsetof(struct texture_info, x)
@@ -152,6 +154,8 @@ static const struct texture_info_map {
                                         NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT, 0}, OFFSET(oes_sampler)},
     {"_y_sampler",        (const int[]){NGLI_TYPE_SAMPLER_2D, 0},                  OFFSET(y_sampler)},
     {"_uv_sampler",       (const int[]){NGLI_TYPE_SAMPLER_2D, 0},                  OFFSET(uv_sampler)},
+    {"_y_rect_sampler",   (const int[]){NGLI_TYPE_SAMPLER_2D_RECT, 0},             OFFSET(y_rect_sampler)},
+    {"_uv_rect_sampler",  (const int[]){NGLI_TYPE_SAMPLER_2D_RECT, 0},             OFFSET(uv_rect_sampler)},
 };
 
 static int is_allowed_type(const int *allowed_types, int type)
@@ -166,6 +170,7 @@ static int is_sampler_or_image(int type)
 {
     switch (type) {
     case NGLI_TYPE_SAMPLER_2D:
+    case NGLI_TYPE_SAMPLER_2D_RECT:
     case NGLI_TYPE_SAMPLER_3D:
     case NGLI_TYPE_SAMPLER_CUBE:
     case NGLI_TYPE_SAMPLER_EXTERNAL_OES:
@@ -241,6 +246,9 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
 
     if (info.y_sampler.active || info.uv_sampler.active)
         supported_image_layouts |= 1 << NGLI_IMAGE_LAYOUT_NV12;
+
+    if (info.y_rect_sampler.active || info.uv_rect_sampler.active)
+        supported_image_layouts |= 1 << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE;
 
     if (!supported_image_layouts)
         LOG(WARNING, "no sampler found for texture %s", name);
@@ -710,6 +718,10 @@ int ngli_pass_exec(struct pass *s)
         case NGLI_IMAGE_LAYOUT_NV12:
             ret = ngli_pipeline_update_texture(&s->pipeline, info->y_sampler.index, image->planes[0]);
             ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_sampler.index, image->planes[1]);
+            break;
+        case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
+            ret = ngli_pipeline_update_texture(&s->pipeline, info->y_rect_sampler.index, image->planes[0]);
+            ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_rect_sampler.index, image->planes[1]);
             break;
         case NGLI_IMAGE_LAYOUT_MEDIACODEC:
             ret = ngli_pipeline_update_texture(&s->pipeline, info->oes_sampler.index, image->planes[0]);
