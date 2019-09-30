@@ -66,8 +66,8 @@ class _GLWidget(QtWidgets.QWidget):
             if not self._player:
                 self._player = player.Player(
                     self.winId(),
-                    self.width(),
-                    self.height(),
+                    self.width() * self.devicePixelRatioF(),
+                    self.height() * self.devicePixelRatioF(),
                     self._config,
                 )
                 self._player.start()
