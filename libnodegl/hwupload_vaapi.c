@@ -142,7 +142,13 @@ static int vaapi_common_map_frame(struct ngl_node *node, struct sxplayer_frame *
         return -1;
     }
 
-    for (int i = 0; i < vaapi->surface_descriptor.num_layers; i++) {
+    int num_layers = vaapi->surface_descriptor.num_layers;
+    if (num_layers > NGLI_ARRAY_NB(vaapi->egl_images)) {
+        LOG(WARNING, "vaapi layer count (%d) exceeds plane count (%d)", num_layers, NGLI_ARRAY_NB(vaapi->egl_images));
+        num_layers = NGLI_ARRAY_NB(vaapi->egl_images);
+    }
+
+    for (int i = 0; i < num_layers; i++) {
         int attribs[32] = {EGL_NONE};
         int nb_attribs = 0;
 
