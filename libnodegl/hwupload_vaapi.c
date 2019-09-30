@@ -15,6 +15,7 @@
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "utils.h"
 
 struct hwupload_vaapi {
     struct sxplayer_frame *frame;
