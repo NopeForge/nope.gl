@@ -24,6 +24,8 @@
 
 #include "glincludes.h"
 
+struct ngl_ctx;
+
 enum {
     NGLI_BUFFER_USAGE_STATIC,
     NGLI_BUFFER_USAGE_DYNAMIC,
