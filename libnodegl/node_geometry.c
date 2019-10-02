@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "log.h"
 #include "nodegl.h"
@@ -93,6 +94,14 @@ static const struct node_param geometry_params[] = {
     {NULL}
 };
 
+#define GET_MAX_INDICES(type) do {                         \
+    type *data = (type *)indices_buffer_priv->data;        \
+    for (int i = 0; i < indices_buffer_priv->count; i++) { \
+        if (data[i] > s->max_indices)                      \
+            s->max_indices = data[i];                      \
+    }                                                      \
+} while (0)                                                \
+
 static int geometry_init(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
@@ -118,6 +127,16 @@ static int geometry_init(struct ngl_node *node)
                 normals->count,
                 vertices->count);
             return NGL_ERROR_INVALID_ARG;
+        }
+    }
+
+    if (s->indices_buffer) {
+        const struct buffer_priv *indices_buffer_priv = s->indices_buffer->priv_data;
+        switch (indices_buffer_priv->data_format) {
+        case NGLI_FORMAT_R16_UNORM: GET_MAX_INDICES(uint16_t); break;
+        case NGLI_FORMAT_R32_UINT:  GET_MAX_INDICES(uint32_t); break;
+        default:
+            ngli_assert(0);
         }
     }
 
