@@ -24,9 +24,11 @@
 
 #include "buffer.h"
 #include "darray.h"
-#include "nodes.h"
 #include "program.h"
 #include "texture.h"
+
+struct ngl_ctx;
+struct glcontext;
 
 struct pipeline_uniform {
     char name[MAX_ID_LEN];
