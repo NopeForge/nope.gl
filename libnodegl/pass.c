@@ -337,6 +337,10 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
     if (!attributes)
         return 0;
 
+    const struct geometry_priv *geometry = s->params.geometry->priv_data;
+    const struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
+    const int nb_vertices = vertices->count;
+
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(attributes, entry))) {
         const struct ngl_node *anode = entry->data;
@@ -349,11 +353,9 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
                 return NGL_ERROR_INVALID_ARG;
             }
         } else {
-            const struct geometry_priv *geometry = s->params.geometry->priv_data;
-            const struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
-            if (buffer->count != vertices->count) {
+            if (buffer->count != nb_vertices) {
                 LOG(ERROR, "attribute buffer %s count (%d) does not match vertices count (%d)",
-                    entry->key, buffer->count, vertices->count);
+                    entry->key, buffer->count, nb_vertices);
                 return NGL_ERROR_INVALID_ARG;
             }
         }
