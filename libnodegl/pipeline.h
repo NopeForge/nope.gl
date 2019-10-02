@@ -22,8 +22,11 @@
 #ifndef PIPELINE_H
 #define PIPELINE_H
 
+#include "buffer.h"
+#include "darray.h"
 #include "nodes.h"
 #include "program.h"
+#include "texture.h"
 
 struct pipeline_uniform {
     char name[MAX_ID_LEN];
