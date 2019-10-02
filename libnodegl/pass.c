@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
+#include <stdint.h>
+#include <inttypes.h>
 
 #include "buffer.h"
 #include "default_shaders.h"
@@ -338,6 +340,8 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
         return 0;
 
     const struct geometry_priv *geometry = s->params.geometry->priv_data;
+    const int64_t max_indices = geometry->max_indices;
+
     const struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
     const int nb_vertices = vertices->count;
 
@@ -353,10 +357,18 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
                 return NGL_ERROR_INVALID_ARG;
             }
         } else {
-            if (buffer->count != nb_vertices) {
-                LOG(ERROR, "attribute buffer %s count (%d) does not match vertices count (%d)",
-                    entry->key, buffer->count, nb_vertices);
-                return NGL_ERROR_INVALID_ARG;
+            if (geometry->indices_buffer) {
+                if (max_indices >= buffer->count) {
+                    LOG(ERROR, "indices buffer contains values exceeding attribute buffer %s count (%" PRId64 " >= %d)",
+                        entry->key, max_indices, buffer->count);
+                    return NGL_ERROR_INVALID_ARG;
+                }
+            } else {
+                if (buffer->count != nb_vertices) {
+                    LOG(ERROR, "attribute buffer %s count (%d) does not match vertices count (%d)",
+                        entry->key, buffer->count, nb_vertices);
+                    return NGL_ERROR_INVALID_ARG;
+                }
             }
         }
     }
