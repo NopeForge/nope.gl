@@ -141,6 +141,7 @@ def easing_solve(name, v, args=None, offsets=None):
 
 cdef class Viewer:
     cdef ngl_ctx *ctx
+    cdef object capture_buffer
 
     def __cinit__(self):
         self.ctx = ngl_create()
@@ -167,9 +168,9 @@ cdef class Viewer:
         clear_color = kwargs.get('clear_color', (0.0, 0.0, 0.0, 1.0))
         for i in range(4):
             config.clear_color[i] = clear_color[i]
-        capture_buffer = kwargs.get('capture_buffer')
-        if capture_buffer is not None:
-            config.capture_buffer = capture_buffer
+        self.capture_buffer = kwargs.get('capture_buffer')
+        if self.capture_buffer is not None:
+            config.capture_buffer = self.capture_buffer
         return ngl_configure(self.ctx, &config)
 
     def set_scene(self, _Node scene):
