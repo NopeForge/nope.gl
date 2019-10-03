@@ -24,12 +24,12 @@
 
 #include "buffer.h"
 #include "rendertarget.h"
-#include "glincludes.h"
-#include "glcontext.h"
 #include "image.h"
 #include "program.h"
 #include "texture.h"
 #include "pipeline.h"
+
+struct ngl_ctx;
 
 struct hwconv {
     struct ngl_ctx *ctx;
