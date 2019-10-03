@@ -76,8 +76,20 @@ def test_ctx_ownership_subgraph():
         del viewer2
 
 
+def test_capture_buffer_lifetime(width=1024, height=1024):
+    capture_buffer = bytearray(width * height * 4)
+    viewer = ngl.Viewer()
+    assert viewer.configure(offscreen=1, width=width, height=height, capture_buffer=capture_buffer) == 0
+    del capture_buffer
+    scene = ngl.Render(ngl.Quad())
+    viewer.set_scene(scene)
+    viewer.draw(0)
+    del viewer
+
+
 if __name__ == '__main__':
     test_backend()
     test_reconfigure()
     test_ctx_ownership()
     test_ctx_ownership_subgraph()
+    test_capture_buffer_lifetime()
