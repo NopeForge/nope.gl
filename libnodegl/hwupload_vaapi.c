@@ -227,7 +227,7 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
     s->hwupload_require_hwconv = 0;
 
@@ -297,7 +297,7 @@ static int vaapi_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_NV12, &vaapi->planes[0], &vaapi->planes[1]);
+    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_NV12, &vaapi->planes[0], &vaapi->planes[1]);
 
     s->hwupload_require_hwconv = !support_direct_rendering(node);
 

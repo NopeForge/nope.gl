@@ -288,6 +288,7 @@ struct texture_priv {
 
     const struct hwmap_class *hwupload_map_class;
     void *hwupload_priv_data;
+    struct image hwupload_mapped_image;
     int hwupload_require_hwconv;
 };
 

@@ -101,6 +101,13 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
     }
 
     int ret = hwmap_class->map_frame(node, frame);
+    if (ret < 0) {
+        s->image = (struct image){0};
+        goto end;
+    }
+    s->image = s->hwupload_mapped_image;
+
+end:
     s->image.ts = frame->ts;
 
     if (!(hwmap_class->flags &  HWMAP_FLAG_FRAME_OWNER))
@@ -111,6 +118,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
 void ngli_hwupload_uninit(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
+    ngli_image_reset(&s->hwupload_mapped_image);
     if (s->hwupload_map_class && s->hwupload_map_class->uninit) {
         s->hwupload_map_class->uninit(node);
     }

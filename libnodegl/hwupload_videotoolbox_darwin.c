@@ -32,6 +32,7 @@
 #include "glincludes.h"
 #include "hwconv.h"
 #include "hwupload.h"
+#include "image.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
@@ -124,7 +125,7 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
     if (ret < 0)
         return ret;
 
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
     for (int i = 0; i < 2; i++) {
         struct texture *plane = &vt->planes[i];
@@ -226,7 +227,7 @@ static int vt_darwin_dr_init(struct ngl_node *node, struct sxplayer_frame * fram
             return ret;
     }
 
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE, &vt->planes[0], &vt->planes[1]);
+    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE, &vt->planes[0], &vt->planes[1]);
 
     s->hwupload_require_hwconv = !support_direct_rendering(node);
 

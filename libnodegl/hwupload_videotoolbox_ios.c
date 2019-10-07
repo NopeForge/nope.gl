@@ -30,6 +30,7 @@
 #include "glincludes.h"
 #include "hwconv.h"
 #include "hwupload.h"
+#include "image.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
@@ -230,7 +231,7 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
     s->hwupload_require_hwconv = 0;
 
@@ -335,7 +336,7 @@ static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
             return ret;
     }
 
-    ngli_image_init(&s->image, format_desc.layout, &vt->planes[0], &vt->planes[1]);
+    ngli_image_init(&s->hwupload_mapped_image, format_desc.layout, &vt->planes[0], &vt->planes[1]);
 
     s->hwupload_require_hwconv = !support_direct_rendering(node, frame);
 

@@ -31,6 +31,7 @@
 #include "glincludes.h"
 #include "hwconv.h"
 #include "hwupload.h"
+#include "image.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
@@ -60,7 +61,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
     s->hwupload_require_hwconv = 0;
 
@@ -165,7 +166,7 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
     ngli_glTexParameteri(gl, target, GL_TEXTURE_MAG_FILTER, mag_filter);
     ngli_glBindTexture(gl, target, 0);
 
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_MEDIACODEC, &media->android_texture);
+    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_MEDIACODEC, &media->android_texture);
 
     s->hwupload_require_hwconv = !support_direct_rendering(node);
 
@@ -175,9 +176,8 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
-    struct image *image = &s->image;
 
-    int ret = mc_common_render_frame(node, frame, image->coordinates_matrix);
+    int ret = mc_common_render_frame(node, frame, s->hwupload_mapped_image.coordinates_matrix);
     if (ret < 0)
         return ret;
 
