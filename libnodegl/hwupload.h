@@ -38,10 +38,6 @@ struct hwmap_class {
     void (*uninit)(struct ngl_node *node);
 };
 
-struct hwupload_class {
-    const struct hwmap_class *(*get_hwmap)(struct ngl_node *node, struct sxplayer_frame *frame);
-};
-
 int ngli_hwupload_upload_frame(struct ngl_node *node);
 void ngli_hwupload_uninit(struct ngl_node *node);
 

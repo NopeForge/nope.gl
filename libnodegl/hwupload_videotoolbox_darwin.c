@@ -30,7 +30,6 @@
 
 #include "format.h"
 #include "glincludes.h"
-#include "hwconv.h"
 #include "hwupload.h"
 #include "image.h"
 #include "log.h"
@@ -40,25 +39,8 @@
 
 struct hwupload_vt_darwin {
     struct sxplayer_frame *frame;
-    struct hwconv hwconv;
     struct texture planes[2];
 };
-
-static int vt_get_data_format(struct sxplayer_frame *frame)
-{
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
-    OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
-
-    switch (cvformat) {
-    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-    case kCVPixelFormatType_32BGRA:
-        return NGLI_FORMAT_B8G8R8A8_UNORM;
-    case kCVPixelFormatType_32RGBA:
-        return NGLI_FORMAT_R8G8B8A8_UNORM;
-    default:
-        return -1;
-    }
-}
 
 static int vt_darwin_common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
@@ -104,95 +86,6 @@ static int vt_darwin_common_map_frame(struct ngl_node *node, struct sxplayer_fra
     }
 
     return 0;
-}
-
-static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
-
-    struct texture_params params = s->params;
-    params.format = vt_get_data_format(frame);
-    params.width  = frame->width;
-    params.height = frame->height;
-
-    int ret = ngli_texture_init(&s->texture, ctx, &params);
-    if (ret < 0)
-        return ret;
-
-    ret = ngli_hwconv_init(&vt->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
-    if (ret < 0)
-        return ret;
-
-    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
-
-    for (int i = 0; i < 2; i++) {
-        struct texture *plane = &vt->planes[i];
-        struct texture_params plane_params = NGLI_TEXTURE_PARAM_DEFAULTS;
-        plane_params.format = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM;
-        plane_params.rectangle = 1;
-        plane_params.external_storage = 1;
-
-        int ret = ngli_texture_init(plane, ctx, &plane_params);
-        if (ret < 0)
-            return ret;
-    }
-
-    s->hwupload_require_hwconv = 0;
-
-    return 0;
-}
-
-static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
-
-    int ret = vt_darwin_common_map_frame(node, frame);
-    if (ret < 0)
-        return ret;
-
-    if (!ngli_texture_match_dimensions(&s->texture, frame->width, frame->height, 0)) {
-        ngli_hwconv_reset(&vt->hwconv);
-        ngli_texture_reset(&s->texture);
-
-        struct texture_params params = s->params;
-        params.format = vt_get_data_format(frame);
-        params.width  = frame->width;
-        params.height = frame->height;
-
-        int ret = ngli_texture_init(&s->texture, ctx, &params);
-        if (ret < 0)
-            return ret;
-
-        ret = ngli_hwconv_init(&vt->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
-        if (ret < 0)
-            return ret;
-    }
-
-    ngli_hwconv_convert(&vt->hwconv, vt->planes, NULL);
-
-    if (ngli_texture_has_mipmap(&s->texture))
-        ngli_texture_generate_mipmap(&s->texture);
-
-    return 0;
-}
-
-static void vt_darwin_uninit(struct ngl_node *node)
-{
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
-
-    ngli_hwconv_reset(&vt->hwconv);
-    ngli_texture_reset(&s->texture);
-
-    for (int i = 0; i < 2; i++)
-        ngli_texture_reset(&vt->planes[i]);
-
-    sxplayer_release_frame(vt->frame);
-    vt->frame = NULL;
 }
 
 static int support_direct_rendering(struct ngl_node *node)
@@ -246,30 +139,11 @@ static void vt_darwin_dr_uninit(struct ngl_node *node)
     vt->frame = NULL;
 }
 
-static const struct hwmap_class hwmap_vt_darwin_dr_class = {
+const struct hwmap_class ngli_hwmap_vt_darwin_class = {
     .name      = "videotoolbox (iosurface → nv12)",
     .flags     = HWMAP_FLAG_FRAME_OWNER,
     .priv_size = sizeof(struct hwupload_vt_darwin),
     .init      = vt_darwin_dr_init,
     .map_frame = vt_darwin_common_map_frame,
     .uninit    = vt_darwin_dr_uninit,
-};
-
-static const struct hwmap_class hwmap_vt_darwin_class = {
-    .name      = "videotoolbox (iosurface → nv12 → rgba)",
-    .flags     = HWMAP_FLAG_FRAME_OWNER,
-    .priv_size = sizeof(struct hwupload_vt_darwin),
-    .init      = vt_darwin_init,
-    .map_frame = vt_darwin_map_frame,
-    .uninit    = vt_darwin_uninit,
-};
-
-static const struct hwmap_class *vt_darwin_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    const int direct_rendering = support_direct_rendering(node);
-    return direct_rendering ? &hwmap_vt_darwin_dr_class : &hwmap_vt_darwin_class;
-}
-
-const struct hwupload_class ngli_hwupload_vt_darwin_class = {
-    .get_hwmap = vt_darwin_get_hwmap,
 };

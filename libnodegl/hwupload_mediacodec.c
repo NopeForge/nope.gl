@@ -29,53 +29,12 @@
 #include "android_surface.h"
 #include "format.h"
 #include "glincludes.h"
-#include "hwconv.h"
 #include "hwupload.h"
 #include "image.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
-
-struct hwupload_mc {
-    struct hwconv hwconv;
-    struct texture planes;
-};
-
-static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_mc *mc = s->hwupload_priv_data;
-
-    struct texture_params params = s->params;
-    params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
-    params.width  = frame->width;
-    params.height = frame->height;
-
-    int ret = ngli_texture_init(&s->texture, ctx, &params);
-    if (ret < 0)
-        return ret;
-
-    ret = ngli_hwconv_init(&mc->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_MEDIACODEC);
-    if (ret < 0)
-        return ret;
-
-    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
-
-    s->hwupload_require_hwconv = 0;
-
-    return 0;
-}
-
-static void mc_uninit(struct ngl_node *node)
-{
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_mc *mc = s->hwupload_priv_data;
-
-    ngli_hwconv_reset(&mc->hwconv);
-    ngli_texture_reset(&s->texture);
-}
 
 static int mc_common_render_frame(struct ngl_node *node, struct sxplayer_frame *frame, float *matrix)
 {
@@ -94,34 +53,6 @@ static int mc_common_render_frame(struct ngl_node *node, struct sxplayer_frame *
     ngli_mat4_mul(matrix, matrix, flip_matrix);
 
     ngli_texture_set_dimensions(&media->android_texture, frame->width, frame->height, 0);
-
-    return 0;
-}
-
-static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_mc *mc = s->hwupload_priv_data;
-    struct media_priv *media = s->data_src->priv_data;
-
-    NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;
-    int ret = mc_common_render_frame(node, frame, matrix);
-    if (ret < 0)
-        return ret;
-
-    if (!ngli_texture_match_dimensions(&s->texture, frame->width, frame->height, 0)) {
-        mc_uninit(node);
-        ret = mc_init(node, frame);
-        if (ret < 0)
-            return ret;
-    }
-
-    ret = ngli_hwconv_convert(&mc->hwconv, &media->android_texture, matrix);
-    if (ret < 0)
-        return ret;
-
-    if (ngli_texture_has_mipmap(&s->texture))
-        ngli_texture_generate_mipmap(&s->texture);
 
     return 0;
 }
@@ -184,26 +115,8 @@ static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     return 0;
 }
 
-static const struct hwmap_class hwmap_mc_class = {
-    .name      = "mediacodec (oes → 2d)",
-    .priv_size = sizeof(struct hwupload_mc),
-    .init      = mc_init,
-    .map_frame = mc_map_frame,
-    .uninit    = mc_uninit,
-};
-
-static const struct hwmap_class hwmap_mc_dr_class = {
+const struct hwmap_class ngli_hwmap_mc_class = {
     .name      = "mediacodec (oes zero-copy)",
     .init      = mc_dr_init,
     .map_frame = mc_dr_map_frame,
-};
-
-static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    const int direct_rendering = support_direct_rendering(node);
-    return direct_rendering ? &hwmap_mc_dr_class : &hwmap_mc_class;
-}
-
-const struct hwupload_class ngli_hwupload_mc_class = {
-    .get_hwmap = mc_get_hwmap,
 };

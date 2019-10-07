@@ -32,36 +32,33 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-extern const struct hwupload_class ngli_hwupload_common_class;
-extern const struct hwupload_class ngli_hwupload_mc_class;
-extern const struct hwupload_class ngli_hwupload_vt_darwin_class;
-extern const struct hwupload_class ngli_hwupload_vt_ios_class;
-extern const struct hwupload_class ngli_hwupload_vaapi_class;
+extern const struct hwmap_class ngli_hwmap_common_class;
+extern const struct hwmap_class ngli_hwmap_mc_class;
+extern const struct hwmap_class ngli_hwmap_vt_darwin_class;
+extern const struct hwmap_class ngli_hwmap_vt_ios_class;
+extern const struct hwmap_class ngli_hwmap_vaapi_class;
 
-static const struct hwupload_class *hwupload_class_map[] = {
-    [SXPLAYER_PIXFMT_RGBA]        = &ngli_hwupload_common_class,
-    [SXPLAYER_PIXFMT_BGRA]        = &ngli_hwupload_common_class,
-    [SXPLAYER_SMPFMT_FLT]         = &ngli_hwupload_common_class,
+static const struct hwmap_class *hwupload_class_map[] = {
+    [SXPLAYER_PIXFMT_RGBA]        = &ngli_hwmap_common_class,
+    [SXPLAYER_PIXFMT_BGRA]        = &ngli_hwmap_common_class,
+    [SXPLAYER_SMPFMT_FLT]         = &ngli_hwmap_common_class,
 #if defined(TARGET_ANDROID)
-    [SXPLAYER_PIXFMT_MEDIACODEC]  = &ngli_hwupload_mc_class,
+    [SXPLAYER_PIXFMT_MEDIACODEC]  = &ngli_hwmap_mc_class,
 #elif defined(TARGET_DARWIN)
-    [SXPLAYER_PIXFMT_VT]          = &ngli_hwupload_vt_darwin_class,
+    [SXPLAYER_PIXFMT_VT]          = &ngli_hwmap_vt_darwin_class,
 #elif defined(TARGET_IPHONE)
-    [SXPLAYER_PIXFMT_VT]          = &ngli_hwupload_vt_ios_class,
+    [SXPLAYER_PIXFMT_VT]          = &ngli_hwmap_vt_ios_class,
 #elif defined(HAVE_VAAPI_X11)
-    [SXPLAYER_PIXFMT_VAAPI]       = &ngli_hwupload_vaapi_class,
+    [SXPLAYER_PIXFMT_VAAPI]       = &ngli_hwmap_vaapi_class,
 #endif
 };
 
-static const struct hwmap_class *get_hwmap_class(struct ngl_node *node, struct sxplayer_frame *frame)
+static const struct hwmap_class *get_hwmap_class(struct sxplayer_frame *frame)
 {
     if (frame->pix_fmt < 0 || frame->pix_fmt >= NGLI_ARRAY_NB(hwupload_class_map))
         return NULL;
 
-    const struct hwupload_class *cls = hwupload_class_map[frame->pix_fmt];
-    if (!cls)
-        return NULL;
-    return cls->get_hwmap(node, frame);
+    return hwupload_class_map[frame->pix_fmt];
 }
 
 static int init_hwconv(struct ngl_node *node)
@@ -140,7 +137,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
         return 0;
     media->frame = NULL;
 
-    const struct hwmap_class *hwmap_class = get_hwmap_class(node, frame);
+    const struct hwmap_class *hwmap_class = get_hwmap_class(frame);
     if (!hwmap_class) {
         sxplayer_release_frame(frame);
         return NGL_ERROR_UNSUPPORTED;

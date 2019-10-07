@@ -28,7 +28,6 @@
 
 #include "format.h"
 #include "glincludes.h"
-#include "hwconv.h"
 #include "hwupload.h"
 #include "image.h"
 #include "log.h"
@@ -45,7 +44,6 @@
 } while (0)
 
 struct hwupload_vt_ios {
-    struct hwconv hwconv;
     struct texture planes[2];
     int width;
     int height;
@@ -180,104 +178,11 @@ static void vt_ios_common_uninit(struct ngl_node *node)
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
 
-    ngli_hwconv_reset(&vt->hwconv);
-    ngli_texture_reset(&s->texture);
-
     ngli_texture_reset(&vt->planes[0]);
     ngli_texture_reset(&vt->planes[1]);
 
     NGLI_CFRELEASE(vt->ios_textures[0]);
     NGLI_CFRELEASE(vt->ios_textures[1]);
-}
-
-static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_ios *vt = s->hwupload_priv_data;
-
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
-    vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
-    ngli_assert(vt->format == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange);
-
-    vt->width  = CVPixelBufferGetWidth(cvpixbuf);
-    vt->height = CVPixelBufferGetHeight(cvpixbuf);
-
-    struct format_desc format_desc = {0};
-    int ret = vt_get_format_desc(vt->format, &format_desc);
-    if (ret < 0)
-        return ret;
-
-    for (int i = 0; i < format_desc.nb_planes; i++) {
-        struct texture *plane = &vt->planes[i];
-        struct texture_params plane_params = NGLI_TEXTURE_PARAM_DEFAULTS;
-        plane_params.format = format_desc.planes[i].format;
-
-        ret = ngli_texture_wrap(plane, ctx, &plane_params, 0);
-        if (ret < 0)
-            return ret;
-    }
-
-    struct texture_params params = s->params;
-    params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
-    params.width  = vt->width;
-    params.height = vt->height;
-
-    ret = ngli_texture_init(&s->texture, ctx, &params);
-    if (ret < 0)
-        return ret;
-
-    ret = ngli_hwconv_init(&vt->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
-    if (ret < 0)
-        return ret;
-
-    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
-
-    s->hwupload_require_hwconv = 0;
-
-    return 0;
-}
-
-static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_ios *vt = s->hwupload_priv_data;
-
-    int ret = vt_ios_common_map_frame(node, frame);
-    if (ret < 0)
-        return ret;
-
-    if (!ngli_texture_match_dimensions(&s->texture, vt->width, vt->height, 0)) {
-        struct ngl_ctx *ctx = node->ctx;
-
-        ngli_hwconv_reset(&vt->hwconv);
-        ngli_texture_reset(&s->texture);
-
-        struct texture_params params = s->params;
-        params.format = NGLI_FORMAT_B8G8R8A8_UNORM;
-        params.width  = vt->width;
-        params.height = vt->height;
-
-        ret = ngli_texture_init(&s->texture, ctx, &params);
-        if (ret < 0)
-            return ret;
-
-        ret = ngli_hwconv_init(&vt->hwconv, ctx, &s->texture, NGLI_IMAGE_LAYOUT_NV12);
-        if (ret < 0)
-            return ret;
-    }
-
-    ret = ngli_hwconv_convert(&vt->hwconv, vt->planes, NULL);
-    if (ret < 0)
-        return ret;
-
-    NGLI_CFRELEASE(vt->ios_textures[0]);
-    NGLI_CFRELEASE(vt->ios_textures[1]);
-
-    if (ngli_texture_has_mipmap(&s->texture))
-        ngli_texture_generate_mipmap(&s->texture);
-
-    return 0;
 }
 
 static int support_direct_rendering(struct ngl_node *node, struct sxplayer_frame *frame)
@@ -343,28 +248,10 @@ static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
     return 0;
 }
 
-static const struct hwmap_class hwmap_vt_ios_class = {
-    .name      = "videotoolbox (nv12 → rgba)",
-    .priv_size = sizeof(struct hwupload_vt_ios),
-    .init      = vt_ios_init,
-    .map_frame = vt_ios_map_frame,
-    .uninit    = vt_ios_common_uninit,
-};
-
-static const struct hwmap_class hwmap_vt_ios_dr_class = {
+const struct hwmap_class ngli_hwmap_vt_ios_class = {
     .name      = "videotoolbox (zero-copy)",
     .priv_size = sizeof(struct hwupload_vt_ios),
     .init      = vt_ios_dr_init,
     .map_frame = vt_ios_common_map_frame,
     .uninit    = vt_ios_common_uninit,
-};
-
-static const struct hwmap_class *vt_ios_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    const int direct_rendering = support_direct_rendering(node, frame);
-    return direct_rendering ? &hwmap_vt_ios_dr_class : &hwmap_vt_ios_class;
-}
-
-const struct hwupload_class ngli_hwupload_vt_ios_class = {
-    .get_hwmap = vt_ios_get_hwmap,
 };
