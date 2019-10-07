@@ -232,45 +232,6 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     return 0;
 }
 
-static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
-
-int ngli_hwconv_convert(struct hwconv *hwconv, struct texture *planes, const float *matrix)
-{
-    struct ngl_ctx *ctx = hwconv->ctx;
-
-    struct rendertarget *rt = &hwconv->rt;
-    struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
-    ngli_gctx_set_rendertarget(ctx, rt);
-
-    int prev_vp[4] = {0};
-    ngli_gctx_get_viewport(ctx, prev_vp);
-
-    const int vp[4] = {0, 0, rt->width, rt->height};
-    ngli_gctx_set_viewport(ctx, vp);
-
-    ngli_gctx_clear_color(ctx);
-
-    const struct hwconv_desc *desc = &hwconv_descs[hwconv->src_layout];
-    float dimensions[4] = {0};
-    for (int i = 0; i < desc->nb_planes; i++) {
-        struct texture *plane = &planes[i];
-        ngli_pipeline_update_texture(&hwconv->pipeline, hwconv->tex_indices[i], plane);
-
-        const struct texture_params *params = &plane->params;
-        dimensions[i*2 + 0] = params->width;
-        dimensions[i*2 + 1] = params->height;
-    }
-    ngli_pipeline_update_uniform(&hwconv->pipeline, hwconv->tex_coord_matrix_index, matrix ? matrix : id_matrix);
-    ngli_pipeline_update_uniform(&hwconv->pipeline, hwconv->tex_dimensions_index, dimensions);
-
-    ngli_pipeline_exec(&hwconv->pipeline);
-
-    ngli_gctx_set_rendertarget(ctx, prev_rt);
-    ngli_gctx_set_viewport(ctx, prev_vp);
-
-    return 0;
-}
-
 int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
 {
     struct ngl_ctx *ctx = hwconv->ctx;
