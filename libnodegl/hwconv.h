@@ -51,6 +51,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
                      enum image_layout src_layout);
 
 int ngli_hwconv_convert(struct hwconv *hwconv, struct texture *planes, const float *matrix);
+int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image);
 void ngli_hwconv_reset(struct hwconv *texconv);
 
 #endif
