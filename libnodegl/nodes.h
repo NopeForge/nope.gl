@@ -47,6 +47,7 @@
 #include "glstate.h"
 #include "graphicconfig.h"
 #include "hmap.h"
+#include "hwconv.h"
 #include "image.h"
 #include "nodegl.h"
 #include "params.h"
@@ -290,6 +291,8 @@ struct texture_priv {
     void *hwupload_priv_data;
     struct image hwupload_mapped_image;
     int hwupload_require_hwconv;
+    struct hwconv hwupload_hwconv;
+    int hwupload_hwconv_initialized;
 };
 
 struct media_priv {

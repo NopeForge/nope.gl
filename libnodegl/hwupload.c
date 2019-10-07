@@ -64,6 +64,73 @@ static const struct hwmap_class *get_hwmap_class(struct ngl_node *node, struct s
     return cls->get_hwmap(node, frame);
 }
 
+static int init_hwconv(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct texture_priv *s = node->priv_data;
+    struct texture *texture = &s->texture;
+    struct image *image = &s->image;
+    struct image *mapped_image = &s->hwupload_mapped_image;
+    struct hwconv *hwconv = &s->hwupload_hwconv;
+
+    const int image_width = image->layout ? image->planes[0]->params.width : 0;
+    const int image_height = image->layout ? image->planes[0]->params.height : 0;
+    const int mapped_image_width = mapped_image->layout ? mapped_image->planes[0]->params.width : 0;
+    const int mapped_image_height = mapped_image->layout ? mapped_image->planes[0]->params.height : 0;
+
+    if (s->hwupload_hwconv_initialized     &&
+        image_width  == mapped_image_width &&
+        image_height == mapped_image_height)
+        return 0;
+
+    ngli_hwconv_reset(hwconv);
+    ngli_image_reset(image);
+    ngli_texture_reset(texture);
+
+    LOG(DEBUG, "converting texture '%s' from %s to rgba", node->label, s->hwupload_map_class->name);
+
+    struct texture_params params = s->params;
+    params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
+    params.width  = mapped_image_width;
+    params.height = mapped_image_height;
+
+    int ret = ngli_texture_init(&s->texture, ctx, &params);
+    if (ret < 0)
+        goto end;
+
+    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+
+    ret = ngli_hwconv_init(hwconv, ctx, &s->texture, mapped_image->layout);
+    if (ret < 0)
+        goto end;
+
+    s->hwupload_hwconv_initialized = 1;
+    return 0;
+
+end:
+    ngli_hwconv_reset(hwconv);
+    ngli_image_reset(image);
+    ngli_texture_reset(texture);
+    return ret;
+}
+
+static int exec_hwconv(struct ngl_node *node)
+{
+    struct texture_priv *s = node->priv_data;
+    struct texture *texture = &s->texture;
+    struct image *mapped_image = &s->hwupload_mapped_image;
+    struct hwconv *hwconv = &s->hwupload_hwconv;
+
+    int ret = ngli_hwconv_convert_image(hwconv, mapped_image);
+    if (ret < 0)
+        return ret;
+
+    if (ngli_texture_has_mipmap(texture))
+        ngli_texture_generate_mipmap(texture);
+
+    return 0;
+}
+
 int ngli_hwupload_upload_frame(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
@@ -101,11 +168,19 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
     }
 
     int ret = hwmap_class->map_frame(node, frame);
-    if (ret < 0) {
-        s->image = (struct image){0};
+    if (ret < 0)
         goto end;
+
+    if (s->hwupload_require_hwconv) {
+        ret = init_hwconv(node);
+        if (ret < 0)
+            return ret;
+        ret = exec_hwconv(node);
+        if (ret < 0)
+            return ret;
+    } else {
+        s->image = s->hwupload_mapped_image;
     }
-    s->image = s->hwupload_mapped_image;
 
 end:
     s->image.ts = frame->ts;
@@ -118,6 +193,9 @@ end:
 void ngli_hwupload_uninit(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
+    ngli_hwconv_reset(&s->hwupload_hwconv);
+    s->hwupload_hwconv_initialized = 0;
+    s->hwupload_require_hwconv = 0;
     ngli_image_reset(&s->hwupload_mapped_image);
     if (s->hwupload_map_class && s->hwupload_map_class->uninit) {
         s->hwupload_map_class->uninit(node);
