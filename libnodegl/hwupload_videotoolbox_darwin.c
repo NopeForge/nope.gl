@@ -42,7 +42,7 @@ struct hwupload_vt_darwin {
     struct texture planes[2];
 };
 
-static int vt_darwin_common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -102,7 +102,7 @@ static int support_direct_rendering(struct ngl_node *node)
     return direct_rendering;
 }
 
-static int vt_darwin_dr_init(struct ngl_node *node, struct sxplayer_frame * frame)
+static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct texture_priv *s = node->priv_data;
@@ -127,7 +127,7 @@ static int vt_darwin_dr_init(struct ngl_node *node, struct sxplayer_frame * fram
     return 0;
 }
 
-static void vt_darwin_dr_uninit(struct ngl_node *node)
+static void vt_darwin_uninit(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
@@ -143,7 +143,7 @@ const struct hwmap_class ngli_hwmap_vt_darwin_class = {
     .name      = "videotoolbox (iosurface → nv12)",
     .flags     = HWMAP_FLAG_FRAME_OWNER,
     .priv_size = sizeof(struct hwupload_vt_darwin),
-    .init      = vt_darwin_dr_init,
-    .map_frame = vt_darwin_common_map_frame,
-    .uninit    = vt_darwin_dr_uninit,
+    .init      = vt_darwin_init,
+    .map_frame = vt_darwin_map_frame,
+    .uninit    = vt_darwin_uninit,
 };
