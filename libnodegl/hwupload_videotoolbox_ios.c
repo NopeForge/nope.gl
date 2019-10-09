@@ -85,7 +85,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
     return 0;
 }
 
-static int vt_ios_common_map_plane(struct ngl_node *node, CVPixelBufferRef cvpixbuf, int index)
+static int vt_ios_map_plane(struct ngl_node *node, CVPixelBufferRef cvpixbuf, int index)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -137,7 +137,7 @@ static int vt_ios_common_map_plane(struct ngl_node *node, CVPixelBufferRef cvpix
     return 0;
 }
 
-static int vt_ios_common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
@@ -153,15 +153,15 @@ static int vt_ios_common_map_frame(struct ngl_node *node, struct sxplayer_frame 
     switch (vt->format) {
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA:
-        ret = vt_ios_common_map_plane(node, cvpixbuf, 0);
+        ret = vt_ios_map_plane(node, cvpixbuf, 0);
         if (ret < 0)
             return ret;
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
-        ret = vt_ios_common_map_plane(node, cvpixbuf, 0);
+        ret = vt_ios_map_plane(node, cvpixbuf, 0);
         if (ret < 0)
             return ret;
-        ret = vt_ios_common_map_plane(node, cvpixbuf, 1);
+        ret = vt_ios_map_plane(node, cvpixbuf, 1);
         if (ret < 0)
             return ret;
         break;
@@ -173,7 +173,7 @@ static int vt_ios_common_map_frame(struct ngl_node *node, struct sxplayer_frame 
     return 0;
 }
 
-static void vt_ios_common_uninit(struct ngl_node *node)
+static void vt_ios_uninit(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
     struct hwupload_vt_ios *vt = s->hwupload_priv_data;
@@ -211,7 +211,7 @@ static int support_direct_rendering(struct ngl_node *node, struct sxplayer_frame
     return direct_rendering;
 }
 
-static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
+static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct texture_priv *s = node->priv_data;
@@ -251,7 +251,7 @@ static int vt_ios_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 const struct hwmap_class ngli_hwmap_vt_ios_class = {
     .name      = "videotoolbox (zero-copy)",
     .priv_size = sizeof(struct hwupload_vt_ios),
-    .init      = vt_ios_dr_init,
-    .map_frame = vt_ios_common_map_frame,
-    .uninit    = vt_ios_common_uninit,
+    .init      = vt_ios_init,
+    .map_frame = vt_ios_map_frame,
+    .uninit    = vt_ios_uninit,
 };
