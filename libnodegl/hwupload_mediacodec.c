@@ -36,27 +36,6 @@
 #include "nodegl.h"
 #include "nodes.h"
 
-static int mc_common_render_frame(struct ngl_node *node, struct sxplayer_frame *frame, float *matrix)
-{
-    struct texture_priv *s = node->priv_data;
-    struct media_priv *media = s->data_src->priv_data;
-    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
-
-    NGLI_ALIGNED_MAT(flip_matrix) = {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f,-1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 1.0f,
-    };
-
-    ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
-    ngli_mat4_mul(matrix, matrix, flip_matrix);
-
-    ngli_texture_set_dimensions(&media->android_texture, frame->width, frame->height, 0);
-
-    return 0;
-}
-
 static int support_direct_rendering(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
@@ -107,10 +86,21 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
 static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
+    struct media_priv *media = s->data_src->priv_data;
+    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 
-    int ret = mc_common_render_frame(node, frame, s->hwupload_mapped_image.coordinates_matrix);
-    if (ret < 0)
-        return ret;
+    NGLI_ALIGNED_MAT(flip_matrix) = {
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f,-1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 1.0f,
+    };
+
+    float *matrix = s->hwupload_mapped_image.coordinates_matrix;
+    ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
+    ngli_mat4_mul(matrix, matrix, flip_matrix);
+
+    ngli_texture_set_dimensions(&media->android_texture, frame->width, frame->height, 0);
 
     return 0;
 }
