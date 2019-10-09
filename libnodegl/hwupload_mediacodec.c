@@ -79,7 +79,7 @@ static int support_direct_rendering(struct ngl_node *node)
     return direct_rendering;
 }
 
-static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
+static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -104,7 +104,7 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
     return 0;
 }
 
-static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
 
@@ -117,6 +117,6 @@ static int mc_dr_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 
 const struct hwmap_class ngli_hwmap_mc_class = {
     .name      = "mediacodec (oes zero-copy)",
-    .init      = mc_dr_init,
-    .map_frame = mc_dr_map_frame,
+    .init      = mc_init,
+    .map_frame = mc_map_frame,
 };
