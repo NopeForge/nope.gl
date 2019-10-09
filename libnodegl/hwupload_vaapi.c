@@ -67,7 +67,7 @@ static int vaapi_common_init(struct ngl_node *node, struct sxplayer_frame *frame
     return 0;
 }
 
-static void vaapi_common_uninit(struct ngl_node *node)
+static void vaapi_uninit(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -94,7 +94,7 @@ static void vaapi_common_uninit(struct ngl_node *node)
     vaapi->frame = NULL;
 }
 
-static int vaapi_common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -214,7 +214,7 @@ static int support_direct_rendering(struct ngl_node *node)
     return direct_rendering;
 }
 
-static int vaapi_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
+static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
     struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
@@ -234,7 +234,7 @@ const struct hwmap_class ngli_hwmap_vaapi_class = {
     .name      = "vaapi (dma buf → egl image)",
     .flags     = HWMAP_FLAG_FRAME_OWNER,
     .priv_size = sizeof(struct hwupload_vaapi),
-    .init      = vaapi_dr_init,
-    .map_frame = vaapi_common_map_frame,
-    .uninit    = vaapi_common_uninit,
+    .init      = vaapi_init,
+    .map_frame = vaapi_map_frame,
+    .uninit    = vaapi_uninit,
 };
