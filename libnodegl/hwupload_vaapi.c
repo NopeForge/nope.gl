@@ -26,7 +26,22 @@ struct hwupload_vaapi {
     int surface_acquired;
 };
 
-static int vaapi_common_init(struct ngl_node *node, struct sxplayer_frame *frame)
+static int support_direct_rendering(struct ngl_node *node)
+{
+    const struct texture_priv *s = node->priv_data;
+    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12);
+
+    if (direct_rendering && s->params.mipmap_filter) {
+        LOG(WARNING,
+            "vaapi direct rendering does not support mipmapping: "
+            "disabling direct rendering");
+        direct_rendering = 0;
+    }
+
+    return direct_rendering;
+}
+
+static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
@@ -63,6 +78,10 @@ static int vaapi_common_init(struct ngl_node *node, struct sxplayer_frame *frame
         if (ret < 0)
             return ret;
     }
+
+    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_NV12, &vaapi->planes[0], &vaapi->planes[1]);
+
+    s->hwupload_require_hwconv = !support_direct_rendering(node);
 
     return 0;
 }
@@ -195,37 +214,6 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         ngli_glBindTexture(gl, plane->target, plane->id);
         ngli_glEGLImageTargetTexture2DOES(gl, plane->target, vaapi->egl_images[i]);
     }
-
-    return 0;
-}
-
-static int support_direct_rendering(struct ngl_node *node)
-{
-    const struct texture_priv *s = node->priv_data;
-    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12);
-
-    if (direct_rendering && s->params.mipmap_filter) {
-        LOG(WARNING,
-            "vaapi direct rendering does not support mipmapping: "
-            "disabling direct rendering");
-        direct_rendering = 0;
-    }
-
-    return direct_rendering;
-}
-
-static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
-{
-    struct texture_priv *s = node->priv_data;
-    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
-
-    int ret = vaapi_common_init(node, frame);
-    if (ret < 0)
-        return ret;
-
-    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_NV12, &vaapi->planes[0], &vaapi->planes[1]);
-
-    s->hwupload_require_hwconv = !support_direct_rendering(node);
 
     return 0;
 }
