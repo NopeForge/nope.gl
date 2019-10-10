@@ -62,6 +62,8 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
 
     ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
+    s->hwupload_require_hwconv = 0;
+
     return 0;
 }
 
@@ -164,6 +166,8 @@ static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
     ngli_glBindTexture(gl, target, 0);
 
     ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_MEDIACODEC, &media->android_texture);
+
+    s->hwupload_require_hwconv = !support_direct_rendering(node);
 
     return 0;
 }

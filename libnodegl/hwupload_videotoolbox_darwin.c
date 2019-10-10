@@ -138,6 +138,8 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
             return ret;
     }
 
+    s->hwupload_require_hwconv = 0;
+
     return 0;
 }
 
@@ -225,6 +227,8 @@ static int vt_darwin_dr_init(struct ngl_node *node, struct sxplayer_frame * fram
     }
 
     ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE, &vt->planes[0], &vt->planes[1]);
+
+    s->hwupload_require_hwconv = !support_direct_rendering(node);
 
     return 0;
 }
