@@ -46,7 +46,8 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vaapi *vaapi = hwupload->hwmap_priv_data;
 
     if (!(gl->features & (NGLI_FEATURE_OES_EGL_IMAGE |
                           NGLI_FEATURE_EGL_IMAGE_BASE_KHR |
@@ -79,9 +80,9 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
             return ret;
     }
 
-    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_NV12, &vaapi->planes[0], &vaapi->planes[1]);
+    ngli_image_init(&hwupload->mapped_image, NGLI_IMAGE_LAYOUT_NV12, &vaapi->planes[0], &vaapi->planes[1]);
 
-    s->hwupload_require_hwconv = !support_direct_rendering(node);
+    hwupload->require_hwconv = !support_direct_rendering(node);
 
     return 0;
 }
@@ -91,7 +92,8 @@ static void vaapi_uninit(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vaapi *vaapi = hwupload->hwmap_priv_data;
 
     for (int i = 0; i < 2; i++)
         ngli_texture_reset(&vaapi->planes[i]);
@@ -118,7 +120,8 @@ static int vaapi_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vaapi *vaapi = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vaapi *vaapi = hwupload->hwmap_priv_data;
 
     sxplayer_release_frame(vaapi->frame);
     vaapi->frame = frame;

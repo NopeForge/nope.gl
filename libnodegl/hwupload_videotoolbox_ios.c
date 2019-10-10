@@ -90,7 +90,8 @@ static int vt_ios_map_plane(struct ngl_node *node, CVPixelBufferRef cvpixbuf, in
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_ios *vt = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vt_ios *vt = hwupload->hwmap_priv_data;
     struct texture *plane = &vt->planes[index];
     const struct texture_params *plane_params = &plane->params;
 
@@ -140,7 +141,8 @@ static int vt_ios_map_plane(struct ngl_node *node, CVPixelBufferRef cvpixbuf, in
 static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_ios *vt = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vt_ios *vt = hwupload->hwmap_priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
@@ -176,7 +178,8 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 static void vt_ios_uninit(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_ios *vt = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vt_ios *vt = hwupload->hwmap_priv_data;
 
     ngli_texture_reset(&vt->planes[0]);
     ngli_texture_reset(&vt->planes[1]);
@@ -215,7 +218,8 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_ios *vt = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vt_ios *vt = hwupload->hwmap_priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
@@ -241,9 +245,9 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
             return ret;
     }
 
-    ngli_image_init(&s->hwupload_mapped_image, format_desc.layout, &vt->planes[0], &vt->planes[1]);
+    ngli_image_init(&hwupload->mapped_image, format_desc.layout, &vt->planes[0], &vt->planes[1]);
 
-    s->hwupload_require_hwconv = !support_direct_rendering(node, frame);
+    hwupload->require_hwconv = !support_direct_rendering(node, frame);
 
     return 0;
 }

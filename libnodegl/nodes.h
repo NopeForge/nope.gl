@@ -48,6 +48,7 @@
 #include "graphicconfig.h"
 #include "hmap.h"
 #include "hwconv.h"
+#include "hwupload.h"
 #include "image.h"
 #include "nodegl.h"
 #include "params.h"
@@ -286,13 +287,7 @@ struct texture_priv {
     uint32_t supported_image_layouts;
     struct texture texture;
     struct image image;
-
-    const struct hwmap_class *hwupload_map_class;
-    void *hwupload_priv_data;
-    struct image hwupload_mapped_image;
-    int hwupload_require_hwconv;
-    struct hwconv hwupload_hwconv;
-    int hwupload_hwconv_initialized;
+    struct hwupload hwupload;
 };
 
 struct media_priv {

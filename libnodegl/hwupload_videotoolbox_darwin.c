@@ -47,7 +47,8 @@ static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vt_darwin *vt = hwupload->hwmap_priv_data;
 
     sxplayer_release_frame(vt->frame);
     vt->frame = frame;
@@ -106,7 +107,8 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vt_darwin *vt = hwupload->hwmap_priv_data;
 
     for (int i = 0; i < 2; i++) {
         struct texture *plane = &vt->planes[i];
@@ -120,9 +122,9 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
             return ret;
     }
 
-    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE, &vt->planes[0], &vt->planes[1]);
+    ngli_image_init(&hwupload->mapped_image, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE, &vt->planes[0], &vt->planes[1]);
 
-    s->hwupload_require_hwconv = !support_direct_rendering(node);
+    hwupload->require_hwconv = !support_direct_rendering(node);
 
     return 0;
 }
@@ -130,7 +132,8 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
 static void vt_darwin_uninit(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
-    struct hwupload_vt_darwin *vt = s->hwupload_priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    struct hwupload_vt_darwin *vt = hwupload->hwmap_priv_data;
 
     for (int i = 0; i < 2; i++)
         ngli_texture_reset(&vt->planes[i]);

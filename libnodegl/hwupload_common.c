@@ -52,6 +52,7 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct texture_priv *s = node->priv_data;
+    struct hwupload *hwupload = &s->hwupload;
 
     struct texture_params params = s->params;
     params.width  = frame->width;
@@ -65,9 +66,9 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+    ngli_image_init(&hwupload->mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
 
-    s->hwupload_require_hwconv = 0;
+    hwupload->require_hwconv = 0;
 
     return 0;
 }

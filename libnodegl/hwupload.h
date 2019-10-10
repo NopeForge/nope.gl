@@ -25,6 +25,8 @@
 #include <stdlib.h>
 #include <sxplayer.h>
 
+#include "hwconv.h"
+#include "image.h"
 #include "nodegl.h"
 
 #define HWMAP_FLAG_FRAME_OWNER (1 << 0)
@@ -36,6 +38,15 @@ struct hwmap_class {
     int (*init)(struct ngl_node *node, struct sxplayer_frame *frame);
     int (*map_frame)(struct ngl_node *node, struct sxplayer_frame *frame);
     void (*uninit)(struct ngl_node *node);
+};
+
+struct hwupload {
+    const struct hwmap_class *hwmap_class;
+    void *hwmap_priv_data;
+    struct image mapped_image;
+    int require_hwconv;
+    struct hwconv hwconv;
+    int hwconv_initialized;
 };
 
 int ngli_hwupload_upload_frame(struct ngl_node *node);

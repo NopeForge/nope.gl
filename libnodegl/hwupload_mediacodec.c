@@ -65,6 +65,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     struct texture_priv *s = node->priv_data;
     const struct texture_params *params = &s->params;
     struct media_priv *media = s->data_src->priv_data;
+    struct hwupload *hwupload = &s->hwupload;
 
     GLint id = media->android_texture.id;
     GLenum target = media->android_texture.target;
@@ -76,9 +77,9 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     ngli_glTexParameteri(gl, target, GL_TEXTURE_MAG_FILTER, mag_filter);
     ngli_glBindTexture(gl, target, 0);
 
-    ngli_image_init(&s->hwupload_mapped_image, NGLI_IMAGE_LAYOUT_MEDIACODEC, &media->android_texture);
+    ngli_image_init(&hwupload->mapped_image, NGLI_IMAGE_LAYOUT_MEDIACODEC, &media->android_texture);
 
-    s->hwupload_require_hwconv = !support_direct_rendering(node);
+    hwupload->require_hwconv = !support_direct_rendering(node);
 
     return 0;
 }
@@ -86,6 +87,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
 static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct texture_priv *s = node->priv_data;
+    struct hwupload *hwupload = &s->hwupload;
     struct media_priv *media = s->data_src->priv_data;
     AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 
@@ -96,7 +98,7 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
         0.0f, 1.0f, 0.0f, 1.0f,
     };
 
-    float *matrix = s->hwupload_mapped_image.coordinates_matrix;
+    float *matrix = hwupload->mapped_image.coordinates_matrix;
     ngli_android_surface_render_buffer(media->android_surface, buffer, matrix);
     ngli_mat4_mul(matrix, matrix, flip_matrix);
 
