@@ -192,6 +192,20 @@ static void vt_darwin_uninit(struct ngl_node *node)
     vt->frame = NULL;
 }
 
+static int support_direct_rendering(struct ngl_node *node)
+{
+    struct texture_priv *s = node->priv_data;
+    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
+
+    if (direct_rendering && s->params.mipmap_filter) {
+        LOG(WARNING, "IOSurface NV12 buffers do not support mipmapping: "
+            "disabling direct rendering");
+        direct_rendering = 0;
+    }
+
+    return direct_rendering;
+}
+
 static int vt_darwin_dr_init(struct ngl_node *node, struct sxplayer_frame * frame)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -247,15 +261,7 @@ static const struct hwmap_class hwmap_vt_darwin_class = {
 
 static const struct hwmap_class *vt_darwin_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture_priv *s = node->priv_data;
-    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
-
-    if (direct_rendering && s->params.mipmap_filter) {
-        LOG(WARNING, "IOSurface NV12 buffers do not support mipmapping: "
-            "disabling direct rendering");
-        direct_rendering = 0;
-    }
-
+    const int direct_rendering = support_direct_rendering(node);
     return direct_rendering ? &hwmap_vt_darwin_dr_class : &hwmap_vt_darwin_class;
 }
 

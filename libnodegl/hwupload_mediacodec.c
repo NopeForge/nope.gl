@@ -123,6 +123,28 @@ static int mc_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     return 0;
 }
 
+static int support_direct_rendering(struct ngl_node *node)
+{
+    struct texture_priv *s = node->priv_data;
+    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_MEDIACODEC);
+
+    if (direct_rendering) {
+        const struct texture_params *params = &s->params;
+
+        if (params->mipmap_filter) {
+            LOG(WARNING, "external textures do not support mipmapping: "
+                "disabling direct rendering");
+            direct_rendering = 0;
+        } else if (params->wrap_s != NGLI_WRAP_CLAMP_TO_EDGE || params->wrap_t != NGLI_WRAP_CLAMP_TO_EDGE) {
+            LOG(WARNING, "external textures only support clamp to edge wrapping: "
+                "disabling direct rendering");
+            direct_rendering = 0;
+        }
+    }
+
+    return direct_rendering;
+}
+
 static int mc_dr_init(struct ngl_node *node, struct sxplayer_frame *frame)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -174,23 +196,7 @@ static const struct hwmap_class hwmap_mc_dr_class = {
 
 static const struct hwmap_class *mc_get_hwmap(struct ngl_node *node, struct sxplayer_frame *frame)
 {
-    struct texture_priv *s = node->priv_data;
-    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_MEDIACODEC);
-
-    if (direct_rendering) {
-        const struct texture_params *params = &s->params;
-
-        if (params->mipmap_filter) {
-            LOG(WARNING, "external textures do not support mipmapping: "
-                "disabling direct rendering");
-            direct_rendering = 0;
-        } else if (params->wrap_s != NGLI_WRAP_CLAMP_TO_EDGE || params->wrap_t != NGLI_WRAP_CLAMP_TO_EDGE) {
-            LOG(WARNING, "external textures only support clamp to edge wrapping: "
-                "disabling direct rendering");
-            direct_rendering = 0;
-        }
-    }
-
+    const int direct_rendering = support_direct_rendering(node);
     return direct_rendering ? &hwmap_mc_dr_class : &hwmap_mc_class;
 }
 
