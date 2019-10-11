@@ -123,6 +123,8 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
     }
 
     struct image_params image_params = {
+        .width = frame->width,
+        .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_NV12_RECTANGLE,
         .planes[0] = &vt->planes[0],
         .planes[1] = &vt->planes[1],

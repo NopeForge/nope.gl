@@ -97,6 +97,8 @@ static int init_hwconv(struct ngl_node *node)
         goto end;
 
     struct image_params image_params = {
+        .width = mapped_image_width,
+        .height = mapped_image_height,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .planes[0] = &s->texture,
     };

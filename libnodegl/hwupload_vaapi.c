@@ -81,6 +81,8 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
     }
 
     struct image_params image_params = {
+        .width = frame->width,
+        .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_NV12,
         .planes[0] = &vaapi->planes[0],
         .planes[1] = &vaapi->planes[1],

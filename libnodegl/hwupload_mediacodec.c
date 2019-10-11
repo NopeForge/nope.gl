@@ -78,6 +78,8 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     ngli_glBindTexture(gl, target, 0);
 
     struct image_params image_params = {
+        .width = frame->width,
+        .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_MEDIACODEC,
         .planes[0] = &media->android_texture,
     };

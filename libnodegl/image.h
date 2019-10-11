@@ -35,6 +35,9 @@ enum image_layout {
 };
 
 struct image_params {
+    int width;
+    int height;
+    int depth;
     enum image_layout layout;
     struct texture *planes[4];
 };

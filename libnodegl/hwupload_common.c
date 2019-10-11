@@ -67,6 +67,8 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
         return ret;
 
     struct image_params image_params = {
+        .width = frame->width,
+        .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .planes[0] = &s->texture,
     };
