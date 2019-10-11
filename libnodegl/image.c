@@ -39,7 +39,7 @@ NGLI_STATIC_ASSERT(nb_planes_map, NGLI_ARRAY_NB(nb_planes_map) == NGLI_NB_IMAGE_
 void ngli_image_init(struct image *s, enum image_layout layout, ...)
 {
     ngli_image_reset(s);
-    ngli_assert(layout > NGLI_IMAGE_LAYOUT_NONE);
+    ngli_assert(layout > NGLI_IMAGE_LAYOUT_NONE && layout < NGLI_NB_IMAGE_LAYOUTS);
     s->layout = layout;
     s->nb_planes = nb_planes_map[layout];
     va_list ap;
