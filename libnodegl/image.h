@@ -45,6 +45,7 @@ struct image_params {
 struct image {
     struct image_params params;
     int nb_planes;
+    /* mutable fields after initialization */
     NGLI_ALIGNED_MAT(coordinates_matrix);
     double ts;
 };
