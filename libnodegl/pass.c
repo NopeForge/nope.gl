@@ -718,9 +718,7 @@ int ngli_pass_exec(struct pass *s)
         ngli_pipeline_update_uniform(&s->pipeline, info->timestamp.index, &ts);
 
         if (image->params.layout) {
-            const struct texture *plane = image->params.planes[0];
-            const struct texture_params *plane_params = &plane->params;
-            const float dimensions[] = {plane_params->width, plane_params->height, plane_params->depth};
+            const float dimensions[] = {image->params.width, image->params.height, image->params.depth};
             ngli_pipeline_update_uniform(&s->pipeline, info->dimensions.index, dimensions);
         }
 
