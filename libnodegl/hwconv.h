@@ -47,7 +47,7 @@ struct hwconv {
 };
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
-                     const struct texture *dst_texture,
+                     const struct image *dst_image,
                      enum image_layout src_layout);
 
 int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image);

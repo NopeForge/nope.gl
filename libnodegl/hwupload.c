@@ -94,7 +94,7 @@ static int init_hwconv(struct ngl_node *node)
     };
     ngli_image_init(&s->image, &image_params);
 
-    ret = ngli_hwconv_init(hwconv, ctx, &s->texture, mapped_image->params.layout);
+    ret = ngli_hwconv_init(hwconv, ctx, &s->image, mapped_image->params.layout);
     if (ret < 0)
         goto end;
 

@@ -140,20 +140,25 @@ static const struct hwconv_desc {
 };
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
-                     const struct texture *dst_texture,
+                     const struct image *dst_image,
                      enum image_layout src_layout)
 {
     hwconv->ctx = ctx;
     hwconv->src_layout = src_layout;
 
+    if (dst_image->params.layout != NGLI_IMAGE_LAYOUT_DEFAULT) {
+        LOG(ERROR, "unsupported output image layout: 0x%x", dst_image->params.layout);
+        return NGL_ERROR_UNSUPPORTED;
+    }
+
     struct glcontext *gl = ctx->glcontext;
-    const struct texture_params *params = &dst_texture->params;
+    const struct texture *texture = dst_image->params.planes[0];
 
     struct rendertarget_params rt_params = {
-        .width = params->width,
-        .height = params->height,
+        .width = dst_image->params.width,
+        .height = dst_image->params.height,
         .nb_attachments = 1,
-        .attachments = &dst_texture,
+        .attachments = &texture,
     };
     int ret = ngli_rendertarget_init(&hwconv->rt, ctx, &rt_params);
     if (ret < 0)
