@@ -20,11 +20,22 @@
  */
 
 #include <string.h>
+#include <sxplayer.h>
 
 #include "format.h"
 #include "image.h"
 #include "math_utils.h"
 #include "utils.h"
+
+struct color_info ngli_color_info_from_sxplayer_frame(const struct sxplayer_frame *frame)
+{
+    return (struct color_info){
+        .space     = frame->color_space,
+        .range     = frame->color_range,
+        .primaries = frame->color_primaries,
+        .transfer  = frame->color_trc,
+    };
+}
 
 static const int nb_planes_map[] = {
     [NGLI_IMAGE_LAYOUT_DEFAULT]        = 1,

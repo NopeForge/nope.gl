@@ -82,6 +82,7 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
         .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_MEDIACODEC,
         .planes[0] = &media->android_texture,
+        .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
     ngli_image_init(&hwupload->mapped_image, &image_params);
 

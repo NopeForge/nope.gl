@@ -128,6 +128,7 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
         .layout = NGLI_IMAGE_LAYOUT_NV12_RECTANGLE,
         .planes[0] = &vt->planes[0],
         .planes[1] = &vt->planes[1],
+        .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
     ngli_image_init(&hwupload->mapped_image, &image_params);
 

@@ -71,6 +71,7 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
         .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .planes[0] = &s->texture,
+        .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
     ngli_image_init(&hwupload->mapped_image, &image_params);
 

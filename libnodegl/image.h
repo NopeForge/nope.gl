@@ -22,8 +22,26 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include <sxplayer.h>
+
 #include "texture.h"
 #include "utils.h"
+
+#define NGLI_COLOR_INFO_DEFAULTS {             \
+    .space     = SXPLAYER_COL_SPC_RGB,         \
+    .range     = SXPLAYER_COL_RNG_UNSPECIFIED, \
+    .primaries = SXPLAYER_COL_PRI_UNSPECIFIED, \
+    .transfer  = SXPLAYER_COL_TRC_UNSPECIFIED, \
+}                                              \
+
+struct color_info {
+    int space;
+    int range;
+    int primaries;
+    int transfer;
+};
+
+struct color_info ngli_color_info_from_sxplayer_frame(const struct sxplayer_frame *frame);
 
 enum image_layout {
     NGLI_IMAGE_LAYOUT_NONE           = 0,
@@ -40,6 +58,7 @@ struct image_params {
     int depth;
     enum image_layout layout;
     struct texture *planes[4];
+    struct color_info color_info;
 };
 
 struct image {
