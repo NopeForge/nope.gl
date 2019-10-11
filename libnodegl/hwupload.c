@@ -71,16 +71,6 @@ static int init_hwconv(struct ngl_node *node)
     struct image *mapped_image = &hwupload->mapped_image;
     struct hwconv *hwconv = &hwupload->hwconv;
 
-    const int image_width = image->params.layout ? image->params.planes[0]->params.width : 0;
-    const int image_height = image->params.layout ? image->params.planes[0]->params.height : 0;
-    const int mapped_image_width = mapped_image->params.layout ? mapped_image->params.planes[0]->params.width : 0;
-    const int mapped_image_height = mapped_image->params.layout ? mapped_image->params.planes[0]->params.height : 0;
-
-    if (hwupload->hwconv_initialized       &&
-        image_width  == mapped_image_width &&
-        image_height == mapped_image_height)
-        return 0;
-
     ngli_hwconv_reset(hwconv);
     ngli_image_reset(image);
     ngli_texture_reset(texture);
@@ -89,16 +79,16 @@ static int init_hwconv(struct ngl_node *node)
 
     struct texture_params params = s->params;
     params.format = NGLI_FORMAT_R8G8B8A8_UNORM;
-    params.width  = mapped_image_width;
-    params.height = mapped_image_height;
+    params.width  = mapped_image->params.width;
+    params.height = mapped_image->params.height;
 
     int ret = ngli_texture_init(&s->texture, ctx, &params);
     if (ret < 0)
         goto end;
 
     struct image_params image_params = {
-        .width = mapped_image_width,
-        .height = mapped_image_height,
+        .width = mapped_image->params.width,
+        .height = mapped_image->params.height,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .planes[0] = &s->texture,
     };
@@ -108,7 +98,6 @@ static int init_hwconv(struct ngl_node *node)
     if (ret < 0)
         goto end;
 
-    hwupload->hwconv_initialized = 1;
     return 0;
 
 end:
@@ -152,7 +141,9 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    if (hwupload->hwmap_class != hwmap_class) {
+    if (frame->width  != hwupload->mapped_image.params.width ||
+        frame->height != hwupload->mapped_image.params.height ||
+        hwupload->hwmap_class != hwmap_class) {
         ngli_hwupload_uninit(node);
 
         if (hwmap_class->priv_size) {
@@ -178,9 +169,12 @@ int ngli_hwupload_upload_frame(struct ngl_node *node)
         goto end;
 
     if (hwupload->require_hwconv) {
-        ret = init_hwconv(node);
-        if (ret < 0)
-            return ret;
+        if (!hwupload->hwconv_initialized) {
+            ret = init_hwconv(node);
+            if (ret < 0)
+                return ret;
+            hwupload->hwconv_initialized = 1;
+        }
         ret = exec_hwconv(node);
         if (ret < 0)
             return ret;
