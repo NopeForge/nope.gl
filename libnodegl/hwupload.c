@@ -71,10 +71,10 @@ static int init_hwconv(struct ngl_node *node)
     struct image *mapped_image = &hwupload->mapped_image;
     struct hwconv *hwconv = &hwupload->hwconv;
 
-    const int image_width = image->layout ? image->planes[0]->params.width : 0;
-    const int image_height = image->layout ? image->planes[0]->params.height : 0;
-    const int mapped_image_width = mapped_image->layout ? mapped_image->planes[0]->params.width : 0;
-    const int mapped_image_height = mapped_image->layout ? mapped_image->planes[0]->params.height : 0;
+    const int image_width = image->params.layout ? image->params.planes[0]->params.width : 0;
+    const int image_height = image->params.layout ? image->params.planes[0]->params.height : 0;
+    const int mapped_image_width = mapped_image->params.layout ? mapped_image->params.planes[0]->params.width : 0;
+    const int mapped_image_height = mapped_image->params.layout ? mapped_image->params.planes[0]->params.height : 0;
 
     if (hwupload->hwconv_initialized       &&
         image_width  == mapped_image_width &&
@@ -96,9 +96,13 @@ static int init_hwconv(struct ngl_node *node)
     if (ret < 0)
         goto end;
 
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+    struct image_params image_params = {
+        .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
+        .planes[0] = &s->texture,
+    };
+    ngli_image_init(&s->image, &image_params);
 
-    ret = ngli_hwconv_init(hwconv, ctx, &s->texture, mapped_image->layout);
+    ret = ngli_hwconv_init(hwconv, ctx, &s->texture, mapped_image->params.layout);
     if (ret < 0)
         goto end;
 

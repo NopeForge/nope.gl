@@ -370,7 +370,11 @@ static int texture_prefetch(struct ngl_node *node, int dimensions, int cubemap)
     if (ret < 0)
         return ret;
 
-    ngli_image_init(&s->image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+    struct image_params image_params = {
+        .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
+        .planes[0] = &s->texture,
+    };
+    ngli_image_init(&s->image, &image_params);
 
     return 0;
 }

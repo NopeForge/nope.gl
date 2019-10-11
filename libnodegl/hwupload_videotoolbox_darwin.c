@@ -122,7 +122,12 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
             return ret;
     }
 
-    ngli_image_init(&hwupload->mapped_image, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE, &vt->planes[0], &vt->planes[1]);
+    struct image_params image_params = {
+        .layout = NGLI_IMAGE_LAYOUT_NV12_RECTANGLE,
+        .planes[0] = &vt->planes[0],
+        .planes[1] = &vt->planes[1],
+    };
+    ngli_image_init(&hwupload->mapped_image, &image_params);
 
     hwupload->require_hwconv = !support_direct_rendering(node);
 

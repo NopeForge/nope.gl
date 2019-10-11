@@ -717,32 +717,32 @@ int ngli_pass_exec(struct pass *s)
         ngli_pipeline_update_uniform(&s->pipeline, info->coordinate_matrix.index, image->coordinates_matrix);
         ngli_pipeline_update_uniform(&s->pipeline, info->timestamp.index, &ts);
 
-        if (image->layout) {
-            const struct texture *plane = image->planes[0];
+        if (image->params.layout) {
+            const struct texture *plane = image->params.planes[0];
             const struct texture_params *plane_params = &plane->params;
             const float dimensions[] = {plane_params->width, plane_params->height, plane_params->depth};
             ngli_pipeline_update_uniform(&s->pipeline, info->dimensions.index, dimensions);
         }
 
         int ret = -1;
-        switch (image->layout) {
+        switch (image->params.layout) {
         case NGLI_IMAGE_LAYOUT_DEFAULT:
-            ret = ngli_pipeline_update_texture(&s->pipeline, info->default_sampler.index, image->planes[0]);
+            ret = ngli_pipeline_update_texture(&s->pipeline, info->default_sampler.index, image->params.planes[0]);
             break;
         case NGLI_IMAGE_LAYOUT_NV12:
-            ret = ngli_pipeline_update_texture(&s->pipeline, info->y_sampler.index, image->planes[0]);
-            ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_sampler.index, image->planes[1]);
+            ret = ngli_pipeline_update_texture(&s->pipeline, info->y_sampler.index, image->params.planes[0]);
+            ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_sampler.index, image->params.planes[1]);
             break;
         case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
-            ret = ngli_pipeline_update_texture(&s->pipeline, info->y_rect_sampler.index, image->planes[0]);
-            ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_rect_sampler.index, image->planes[1]);
+            ret = ngli_pipeline_update_texture(&s->pipeline, info->y_rect_sampler.index, image->params.planes[0]);
+            ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_rect_sampler.index, image->params.planes[1]);
             break;
         case NGLI_IMAGE_LAYOUT_MEDIACODEC:
-            ret = ngli_pipeline_update_texture(&s->pipeline, info->oes_sampler.index, image->planes[0]);
+            ret = ngli_pipeline_update_texture(&s->pipeline, info->oes_sampler.index, image->params.planes[0]);
         default:
             break;
         };
-        const int layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->layout;
+        const int layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->params.layout;
         ngli_pipeline_update_uniform(&s->pipeline, info->sampling_mode.index, &layout);
     }
 

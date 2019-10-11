@@ -19,7 +19,6 @@
  * under the License.
  */
 
-#include <stdarg.h>
 #include <string.h>
 
 #include "format.h"
@@ -36,17 +35,12 @@ static const int nb_planes_map[] = {
 
 NGLI_STATIC_ASSERT(nb_planes_map, NGLI_ARRAY_NB(nb_planes_map) == NGLI_NB_IMAGE_LAYOUTS);
 
-void ngli_image_init(struct image *s, enum image_layout layout, ...)
+void ngli_image_init(struct image *s, const struct image_params *params)
 {
     ngli_image_reset(s);
-    ngli_assert(layout > NGLI_IMAGE_LAYOUT_NONE && layout < NGLI_NB_IMAGE_LAYOUTS);
-    s->layout = layout;
-    s->nb_planes = nb_planes_map[layout];
-    va_list ap;
-    va_start(ap, layout);
-    for (int i = 0; i < s->nb_planes; i++)
-        s->planes[i] = va_arg(ap, struct texture *);
-    va_end(ap);
+    ngli_assert(params->layout > NGLI_IMAGE_LAYOUT_NONE && params->layout < NGLI_NB_IMAGE_LAYOUTS);
+    s->params = *params;
+    s->nb_planes = nb_planes_map[params->layout];
 }
 
 void ngli_image_reset(struct image *s)
@@ -59,7 +53,7 @@ uint64_t ngli_image_get_memory_size(const struct image *s)
 {
     uint64_t size = 0;
     for (int i = 0; i < s->nb_planes; i++) {
-        const struct texture *plane = s->planes[i];
+        const struct texture *plane = s->params.planes[i];
         const struct texture_params *params = &plane->params;
         size += params->width
               * params->height

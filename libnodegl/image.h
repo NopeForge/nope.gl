@@ -34,15 +34,19 @@ enum image_layout {
     NGLI_NB_IMAGE_LAYOUTS
 };
 
-struct image {
+struct image_params {
     enum image_layout layout;
     struct texture *planes[4];
+};
+
+struct image {
+    struct image_params params;
     int nb_planes;
     NGLI_ALIGNED_MAT(coordinates_matrix);
     double ts;
 };
 
-void ngli_image_init(struct image *s, enum image_layout layout, ...);
+void ngli_image_init(struct image *s, const struct image_params *params);
 void ngli_image_reset(struct image *s);
 uint64_t ngli_image_get_memory_size(const struct image *s);
 

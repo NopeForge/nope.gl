@@ -77,7 +77,11 @@ static int mc_init(struct ngl_node *node, struct sxplayer_frame *frame)
     ngli_glTexParameteri(gl, target, GL_TEXTURE_MAG_FILTER, mag_filter);
     ngli_glBindTexture(gl, target, 0);
 
-    ngli_image_init(&hwupload->mapped_image, NGLI_IMAGE_LAYOUT_MEDIACODEC, &media->android_texture);
+    struct image_params image_params = {
+        .layout = NGLI_IMAGE_LAYOUT_MEDIACODEC,
+        .planes[0] = &media->android_texture,
+    };
+    ngli_image_init(&hwupload->mapped_image, &image_params);
 
     hwupload->require_hwconv = !support_direct_rendering(node);
 

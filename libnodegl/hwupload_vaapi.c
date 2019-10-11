@@ -80,7 +80,12 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
             return ret;
     }
 
-    ngli_image_init(&hwupload->mapped_image, NGLI_IMAGE_LAYOUT_NV12, &vaapi->planes[0], &vaapi->planes[1]);
+    struct image_params image_params = {
+        .layout = NGLI_IMAGE_LAYOUT_NV12,
+        .planes[0] = &vaapi->planes[0],
+        .planes[1] = &vaapi->planes[1],
+    };
+    ngli_image_init(&hwupload->mapped_image, &image_params);
 
     hwupload->require_hwconv = !support_direct_rendering(node);
 

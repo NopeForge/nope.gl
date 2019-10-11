@@ -235,7 +235,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
 int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
 {
     struct ngl_ctx *ctx = hwconv->ctx;
-    ngli_assert(hwconv->src_layout == image->layout);
+    ngli_assert(hwconv->src_layout == image->params.layout);
 
     struct rendertarget *rt = &hwconv->rt;
     struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
@@ -252,7 +252,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     const struct hwconv_desc *desc = &hwconv_descs[hwconv->src_layout];
     float dimensions[4] = {0};
     for (int i = 0; i < desc->nb_planes; i++) {
-        struct texture *plane = image->planes[i];
+        struct texture *plane = image->params.planes[i];
         ngli_pipeline_update_texture(&hwconv->pipeline, hwconv->tex_indices[i], plane);
 
         const struct texture_params *params = &plane->params;

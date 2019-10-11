@@ -66,7 +66,11 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
     if (ret < 0)
         return ret;
 
-    ngli_image_init(&hwupload->mapped_image, NGLI_IMAGE_LAYOUT_DEFAULT, &s->texture);
+    struct image_params image_params = {
+        .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
+        .planes[0] = &s->texture,
+    };
+    ngli_image_init(&hwupload->mapped_image, &image_params);
 
     hwupload->require_hwconv = 0;
 
