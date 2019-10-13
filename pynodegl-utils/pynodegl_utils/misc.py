@@ -51,6 +51,7 @@ def scene(**widgets_specs):
 
 
 scene.Range = controls.Range
+scene.Vector = controls.Vector
 scene.Color = controls.Color
 scene.Bool = controls.Bool
 scene.File = controls.File

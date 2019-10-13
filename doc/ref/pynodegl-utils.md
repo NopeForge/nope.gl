@@ -73,6 +73,30 @@ def range_example(cfg, n=2.5):
 
 ![range widget](img/widget-range.png)
 
+### scene.Vector
+
+A `Vector` is associated with a pack of spin boxes.
+
+Available options:
+
+Option      | Description
+----------- | -----------
+`n`         | vector len
+`minv`      | smallest possible vector
+`maxv`      | largest possible vector
+
+The associated argument is expected to be a `tuple` of `n` floats.
+
+**Example**:
+
+```python
+@scene(vec=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)))
+def vector_example(cfg, vec=(0.4, -0.75, -0.2, 1.0))
+    ...
+```
+
+![vector widget](img/widget-vector.png)
+
 ### scene.Color
 
 A `Color` is associated with a **color picker** widget.

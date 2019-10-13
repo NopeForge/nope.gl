@@ -64,6 +64,35 @@ class Slider(_ControlWidget):
         self.signal_change(real_value)
 
 
+class VectorWidget(_ControlWidget):
+
+    def __init__(self, name, value, **kwargs):
+        super(VectorWidget, self).__init__(name)
+        n = kwargs.get("n", 3)
+        hlayout = QtWidgets.QHBoxLayout()
+        self._spinboxes = []
+        elems_min = kwargs.get("minv", [0] * n)
+        elems_max = kwargs.get("maxv", [1] * n)
+        assert 2 <= n <= 4
+        assert len(elems_min) == len(elems_max) == len(value) == n
+        for elem_value, elem_min, elem_max in zip(value, elems_min, elems_max):
+            spin = QtWidgets.QDoubleSpinBox()
+            spin.setMinimum(elem_min)
+            spin.setMaximum(elem_max)
+            spin.setSingleStep(0.01)
+            spin.setValue(elem_value)
+            self._spinboxes.append(spin)
+            spin.valueChanged.connect(self._spin_value_changed)
+            hlayout.addWidget(spin)
+        label = QtWidgets.QLabel(self.get_label_text())
+        self.layout.addWidget(label)
+        self.layout.addLayout(hlayout)
+
+    @QtCore.pyqtSlot(float)
+    def _spin_value_changed(self, value):
+        self.signal_change(tuple(spin.value() for spin in self._spinboxes))
+
+
 class ColorPicker(_ControlWidget):
 
     def __init__(self, name, value, **kwargs):

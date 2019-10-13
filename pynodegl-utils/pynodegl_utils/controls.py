@@ -43,6 +43,11 @@ class Range(_SceneControlWidget):
     _widget_cls = control_widgets.Slider
 
 
+class Vector(_SceneControlWidget):
+
+    _widget_cls = control_widgets.VectorWidget
+
+
 class Color(_SceneControlWidget):
 
     _widget_cls = control_widgets.ColorPicker
