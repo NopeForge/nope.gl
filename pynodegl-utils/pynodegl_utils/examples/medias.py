@@ -2,19 +2,17 @@ import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
-@scene(uv_corner_x=scene.Range(range=[0, 1], unit_base=100),
-       uv_corner_y=scene.Range(range=[0, 1], unit_base=100),
-       uv_width=scene.Range(range=[0, 1], unit_base=100),
-       uv_height=scene.Range(range=[0, 1], unit_base=100),
+@scene(uv_corner=scene.Vector(n=2),
+       uv_width=scene.Vector(n=2),
+       uv_height=scene.Vector(n=2),
        progress_bar=scene.Bool())
-def centered_media(cfg, uv_corner_x=0, uv_corner_y=0, uv_width=1, uv_height=1, progress_bar=True):
+def centered_media(cfg, uv_corner=(0, 0), uv_width=(1, 0), uv_height=(0, 1), progress_bar=True):
     '''A simple centered media with an optional progress bar in the shader'''
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0),
-                 (uv_corner_x, uv_corner_y), (uv_width, 0), (0, uv_height))
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0), uv_corner, uv_width, uv_height)
     m = ngl.Media(m0.filename)
     t = ngl.Texture2D(data_src=m)
     p = ngl.Program()
