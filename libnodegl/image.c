@@ -22,6 +22,7 @@
 #include <string.h>
 #include <sxplayer.h>
 
+#include "colorconv.h"
 #include "format.h"
 #include "image.h"
 #include "math_utils.h"
@@ -54,11 +55,16 @@ void ngli_image_init(struct image *s, const struct image_params *params, struct 
     s->nb_planes = nb_planes_map[params->layout];
     for (int i = 0; i < s->nb_planes; i++)
         s->planes[i] = planes[i];
+    if (params->layout == NGLI_IMAGE_LAYOUT_NV12 ||
+        params->layout == NGLI_IMAGE_LAYOUT_NV12_RECTANGLE) {
+        ngli_colorconv_get_ycbcr_to_rgb_color_matrix(s->color_matrix, &params->color_info);
+    }
 }
 
 void ngli_image_reset(struct image *s)
 {
     memset(s, 0, sizeof(*s));
+    ngli_mat4_identity(s->color_matrix);
     ngli_mat4_identity(s->coordinates_matrix);
 }
 
