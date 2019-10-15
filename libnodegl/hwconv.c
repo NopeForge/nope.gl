@@ -141,10 +141,10 @@ static const struct hwconv_desc {
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
                      const struct image *dst_image,
-                     enum image_layout src_layout)
+                     const struct image_params *src_params)
 {
     hwconv->ctx = ctx;
-    hwconv->src_layout = src_layout;
+    hwconv->src_params = *src_params;
 
     if (dst_image->params.layout != NGLI_IMAGE_LAYOUT_DEFAULT) {
         LOG(ERROR, "unsupported output image layout: 0x%x", dst_image->params.layout);
@@ -164,6 +164,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     if (ret < 0)
         return ret;
 
+    enum image_layout src_layout = src_params->layout;
     if (src_layout != NGLI_IMAGE_LAYOUT_NV12 &&
         src_layout != NGLI_IMAGE_LAYOUT_NV12_RECTANGLE &&
         src_layout != NGLI_IMAGE_LAYOUT_MEDIACODEC) {
@@ -240,7 +241,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
 int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
 {
     struct ngl_ctx *ctx = hwconv->ctx;
-    ngli_assert(hwconv->src_layout == image->params.layout);
+    ngli_assert(hwconv->src_params.layout == image->params.layout);
 
     struct rendertarget *rt = &hwconv->rt;
     struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
@@ -254,7 +255,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
 
     ngli_gctx_clear_color(ctx);
 
-    const struct hwconv_desc *desc = &hwconv_descs[hwconv->src_layout];
+    const struct hwconv_desc *desc = &hwconv_descs[hwconv->src_params.layout];
     float dimensions[4] = {0};
     for (int i = 0; i < desc->nb_planes; i++) {
         struct texture *plane = image->params.planes[i];

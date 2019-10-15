@@ -33,7 +33,7 @@ struct ngl_ctx;
 
 struct hwconv {
     struct ngl_ctx *ctx;
-    enum image_layout src_layout;
+    struct image_params src_params;
 
     struct rendertarget rt;
     struct texture color_attachment;
@@ -48,7 +48,7 @@ struct hwconv {
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
                      const struct image *dst_image,
-                     enum image_layout src_layout);
+                     const struct image_params *src_params);
 
 int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image);
 void ngli_hwconv_reset(struct hwconv *texconv);
