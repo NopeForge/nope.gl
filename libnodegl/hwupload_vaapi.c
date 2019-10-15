@@ -84,11 +84,13 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
         .width = frame->width,
         .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_NV12,
-        .planes[0] = &vaapi->planes[0],
-        .planes[1] = &vaapi->planes[1],
         .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
-    ngli_image_init(&hwupload->mapped_image, &image_params);
+    struct texture *planes[] = {
+        &vaapi->planes[0],
+        &vaapi->planes[1]
+    };
+    ngli_image_init(&hwupload->mapped_image, &image_params, planes);
 
     hwupload->require_hwconv = !support_direct_rendering(node);
 

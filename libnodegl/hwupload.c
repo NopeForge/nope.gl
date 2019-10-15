@@ -90,10 +90,10 @@ static int init_hwconv(struct ngl_node *node)
         .width = mapped_image->params.width,
         .height = mapped_image->params.height,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
-        .planes[0] = &s->texture,
         .color_info = NGLI_COLOR_INFO_DEFAULTS,
     };
-    ngli_image_init(&s->image, &image_params);
+    struct texture *planes[] = {&s->texture};
+    ngli_image_init(&s->image, &image_params, planes);
 
     ret = ngli_hwconv_init(hwconv, ctx, &s->image, &mapped_image->params);
     if (ret < 0)

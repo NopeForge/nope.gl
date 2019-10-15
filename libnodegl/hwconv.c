@@ -152,7 +152,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     }
 
     struct glcontext *gl = ctx->glcontext;
-    const struct texture *texture = dst_image->params.planes[0];
+    const struct texture *texture = dst_image->planes[0];
 
     struct rendertarget_params rt_params = {
         .width = dst_image->params.width,
@@ -258,7 +258,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     const struct hwconv_desc *desc = &hwconv_descs[hwconv->src_params.layout];
     float dimensions[4] = {0};
     for (int i = 0; i < desc->nb_planes; i++) {
-        struct texture *plane = image->params.planes[i];
+        struct texture *plane = image->planes[i];
         ngli_pipeline_update_texture(&hwconv->pipeline, hwconv->tex_indices[i], plane);
 
         const struct texture_params *params = &plane->params;

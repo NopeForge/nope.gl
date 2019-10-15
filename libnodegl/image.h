@@ -57,19 +57,19 @@ struct image_params {
     int height;
     int depth;
     enum image_layout layout;
-    struct texture *planes[4];
     struct color_info color_info;
 };
 
 struct image {
     struct image_params params;
+    struct texture *planes[4];
     int nb_planes;
     /* mutable fields after initialization */
     NGLI_ALIGNED_MAT(coordinates_matrix);
     double ts;
 };
 
-void ngli_image_init(struct image *s, const struct image_params *params);
+void ngli_image_init(struct image *s, const struct image_params *params, struct texture **planes);
 void ngli_image_reset(struct image *s);
 uint64_t ngli_image_get_memory_size(const struct image *s);
 

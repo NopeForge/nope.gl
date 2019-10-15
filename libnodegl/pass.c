@@ -725,18 +725,18 @@ int ngli_pass_exec(struct pass *s)
         int ret = -1;
         switch (image->params.layout) {
         case NGLI_IMAGE_LAYOUT_DEFAULT:
-            ret = ngli_pipeline_update_texture(&s->pipeline, info->default_sampler.index, image->params.planes[0]);
+            ret = ngli_pipeline_update_texture(&s->pipeline, info->default_sampler.index, image->planes[0]);
             break;
         case NGLI_IMAGE_LAYOUT_NV12:
-            ret = ngli_pipeline_update_texture(&s->pipeline, info->y_sampler.index, image->params.planes[0]);
-            ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_sampler.index, image->params.planes[1]);
+            ret = ngli_pipeline_update_texture(&s->pipeline, info->y_sampler.index, image->planes[0]);
+            ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_sampler.index, image->planes[1]);
             break;
         case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
-            ret = ngli_pipeline_update_texture(&s->pipeline, info->y_rect_sampler.index, image->params.planes[0]);
-            ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_rect_sampler.index, image->params.planes[1]);
+            ret = ngli_pipeline_update_texture(&s->pipeline, info->y_rect_sampler.index, image->planes[0]);
+            ret &= ngli_pipeline_update_texture(&s->pipeline, info->uv_rect_sampler.index, image->planes[1]);
             break;
         case NGLI_IMAGE_LAYOUT_MEDIACODEC:
-            ret = ngli_pipeline_update_texture(&s->pipeline, info->oes_sampler.index, image->params.planes[0]);
+            ret = ngli_pipeline_update_texture(&s->pipeline, info->oes_sampler.index, image->planes[0]);
         default:
             break;
         };
