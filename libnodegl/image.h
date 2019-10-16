@@ -28,7 +28,7 @@
 #include "utils.h"
 
 #define NGLI_COLOR_INFO_DEFAULTS {             \
-    .space     = SXPLAYER_COL_SPC_RGB,         \
+    .space     = SXPLAYER_COL_SPC_UNSPECIFIED, \
     .range     = SXPLAYER_COL_RNG_UNSPECIFIED, \
     .primaries = SXPLAYER_COL_PRI_UNSPECIFIED, \
     .transfer  = SXPLAYER_COL_TRC_UNSPECIFIED, \
