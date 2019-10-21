@@ -290,6 +290,13 @@ test_draw: test_draw.o drawutils.o
 test_hmap: test_hmap.o utils.o memory.o
 test_utils: test_utils.o utils.o memory.o
 
+run_test_draw: test_draw
+	./$< /tmp/ngl-test.ppm
+run_test_%: test_%
+	./$<
+
+tests: $(addprefix run_test_,$(TESTS))
+
 
 #
 # Misc/general
@@ -332,6 +339,6 @@ uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/include/nodegl.h
 	$(RM) -r $(DESTDIR)$(PREFIX)/share/nodegl
 
-.PHONY: all updatespecs clean install uninstall gen-gl-wrappers
+.PHONY: all updatespecs clean install uninstall gen-gl-wrappers testprogs tests
 
 -include $(LIB_DEPS)
