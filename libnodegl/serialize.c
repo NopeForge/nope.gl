@@ -53,13 +53,12 @@ static int register_node(struct hmap *nlist,
     return ret;
 }
 
-static const char *get_node_id(const struct hmap *nlist,
-                               const struct ngl_node *node)
+static int get_node_id(const struct hmap *nlist, const struct ngl_node *node)
 {
     char key[32];
     (void)snprintf(key, sizeof(key), "%p", node);
     const char *val = ngli_hmap_get(nlist, key);
-    return val;
+    return val ? strtol(val, NULL, 16) : -1;
 }
 
 #define DECLARE_FLT_PRINT_FUNCS(type, nbit, shift_exp, z)               \
@@ -217,11 +216,11 @@ static void serialize_options(struct hmap *nlist,
                 const struct ngl_node *node = *(struct ngl_node **)(priv + p->offset);
                 if (!node)
                     break;
-                const char *node_id = get_node_id(nlist, node);
+                const int node_id = get_node_id(nlist, node);
                 if (constructor)
-                    ngli_bstr_print(b, " %s", node_id);
+                    ngli_bstr_print(b, " %x", node_id);
                 else if (node)
-                    ngli_bstr_print(b, " %s:%s", p->key, node_id);
+                    ngli_bstr_print(b, " %s:%x", p->key, node_id);
                 break;
             }
             case PARAM_TYPE_NODELIST: {
@@ -234,8 +233,8 @@ static void serialize_options(struct hmap *nlist,
                 else
                     ngli_bstr_print(b, " %s:", p->key);
                 for (int i = 0; i < nb_nodes; i++) {
-                    const char *node_id = get_node_id(nlist, nodes[i]);
-                    ngli_bstr_print(b, "%s%s", i ? "," : "", node_id);
+                    const int node_id = get_node_id(nlist, nodes[i]);
+                    ngli_bstr_print(b, "%s%x", i ? "," : "", node_id);
                 }
                 break;
             }
@@ -265,8 +264,8 @@ static void serialize_options(struct hmap *nlist,
                 int i = 0;
                 const struct hmap_entry *entry = NULL;
                 while ((entry = ngli_hmap_next(hmap, entry))) {
-                    const char *node_id = get_node_id(nlist, entry->data);
-                    ngli_bstr_print(b, "%s%s=%s", i ? "," : "", entry->key, node_id);
+                    const int node_id = get_node_id(nlist, entry->data);
+                    ngli_bstr_print(b, "%s%s=%x", i ? "," : "", entry->key, node_id);
                     i++;
                 }
                 break;
@@ -332,7 +331,7 @@ static int serialize(struct hmap *nlist,
                      struct bstr *b,
                      const struct ngl_node *node)
 {
-    if (get_node_id(nlist, node))
+    if (get_node_id(nlist, node) >= 0)
         return 0;
 
     int ret;
