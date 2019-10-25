@@ -210,6 +210,11 @@ static inline int hexv(char c)
     return 0;
 }
 
+static struct ngl_node **get_abs_node(struct darray *nodes_array, int id)
+{
+    return ngli_darray_get(nodes_array, ngli_darray_count(nodes_array) - id - 1);
+}
+
 static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                        const struct node_param *par, const char *str)
 {
@@ -346,7 +351,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             len = parse_hexint(str, &node_id);
             if (len < 0)
                 return NGL_ERROR_INVALID_DATA;
-            struct ngl_node **nodep = ngli_darray_get(nodes_array, node_id);
+            struct ngl_node **nodep = get_abs_node(nodes_array, node_id);
             if (!nodep)
                 return NGL_ERROR_INVALID_DATA;
             int ret = ngli_params_vset(base_ptr, par, *nodep);
@@ -361,7 +366,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             if (len < 0)
                 return len;
             for (int i = 0; i < nb_node_ids; i++) {
-                struct ngl_node **nodep = ngli_darray_get(nodes_array, node_ids[i]);
+                struct ngl_node **nodep = get_abs_node(nodes_array, node_ids[i]);
                 if (!nodep) {
                     ngli_free(node_ids);
                     return NGL_ERROR_INVALID_DATA;
@@ -397,7 +402,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                 return len;
             for (int i = 0; i < nb_nodes; i++) {
                 const char *key = node_keys[i];
-                struct ngl_node **nodep = ngli_darray_get(nodes_array, node_ids[i]);
+                struct ngl_node **nodep = get_abs_node(nodes_array, node_ids[i]);
                 if (!nodep) {
                     FREE_KVS(nb_nodes, node_keys, node_ids);
                     return NGL_ERROR_INVALID_DATA;

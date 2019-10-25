@@ -61,6 +61,11 @@ static int get_node_id(const struct hmap *nlist, const struct ngl_node *node)
     return val ? strtol(val, NULL, 16) : -1;
 }
 
+static int get_rel_node_id(const struct hmap *nlist, const struct ngl_node *node)
+{
+    return ngli_hmap_count(nlist) - get_node_id(nlist, node);
+}
+
 #define DECLARE_FLT_PRINT_FUNCS(type, nbit, shift_exp, z)               \
 static void print_##type(struct bstr *b, type f)                        \
 {                                                                       \
@@ -216,7 +221,7 @@ static void serialize_options(struct hmap *nlist,
                 const struct ngl_node *node = *(struct ngl_node **)(priv + p->offset);
                 if (!node)
                     break;
-                const int node_id = get_node_id(nlist, node);
+                const int node_id = get_rel_node_id(nlist, node);
                 if (constructor)
                     ngli_bstr_print(b, " %x", node_id);
                 else if (node)
@@ -233,7 +238,7 @@ static void serialize_options(struct hmap *nlist,
                 else
                     ngli_bstr_print(b, " %s:", p->key);
                 for (int i = 0; i < nb_nodes; i++) {
-                    const int node_id = get_node_id(nlist, nodes[i]);
+                    const int node_id = get_rel_node_id(nlist, nodes[i]);
                     ngli_bstr_print(b, "%s%x", i ? "," : "", node_id);
                 }
                 break;
@@ -264,7 +269,7 @@ static void serialize_options(struct hmap *nlist,
                 int i = 0;
                 const struct hmap_entry *entry = NULL;
                 while ((entry = ngli_hmap_next(hmap, entry))) {
-                    const int node_id = get_node_id(nlist, entry->data);
+                    const int node_id = get_rel_node_id(nlist, entry->data);
                     ngli_bstr_print(b, "%s%s=%x", i ? "," : "", entry->key, node_id);
                     i++;
                 }
