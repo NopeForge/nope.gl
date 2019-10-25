@@ -84,7 +84,10 @@ class FileTracker:
 
         mods = [ret]
         if not fromlist:
-            mods.append(sys.modules[name])
+            # We can not use name here: "import baz" can lead to the import of
+            # the foo.bar.baz module, meaning name="baz" and
+            # ret.__name__="foo.bar.baz"
+            mods.append(sys.modules[ret.__name__])
 
         for mod in mods:
            if self._mod_is_blacklisted(mod):
