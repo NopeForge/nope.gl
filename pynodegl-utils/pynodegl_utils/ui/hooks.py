@@ -70,14 +70,15 @@ class HooksCaller:
         return uint_color
 
     def scene_change(self, local_scene, cfg):
-        hook_scene_change = self._get_hook('scene_change')
-        args = [hook_scene_change, local_scene,
-                'duration=%f' % cfg['duration'],
-                'framerate=%d/%d' % cfg['framerate'],
-                'aspect_ratio=%d/%d' % cfg['aspect_ratio'],
-                'clear_color=%08X' % self._uint_clear_color(cfg['clear_color']),
-                'samples=%d' % cfg['samples']]
-        subprocess.check_call(args)
+        self._get_hook_output(
+            'scene_change',
+            local_scene,
+            'duration=%f' % cfg['duration'],
+            'framerate=%d/%d' % cfg['framerate'],
+            'aspect_ratio=%d/%d' % cfg['aspect_ratio'],
+            'clear_color=%08X' % self._uint_clear_color(cfg['clear_color']),
+            'samples=%d' % cfg['samples'],
+        )
 
     @staticmethod
     def _get_remotefile(filename, remotedir):
@@ -91,10 +92,9 @@ class HooksCaller:
         return op.join(remotedir, digest + ext)
 
     def sync_file(self, localfile):
-        hook_sync = self._get_hook('sync')
         remotedir = self._get_hook_output('get_remote_dir')
         remotefile = self._get_remotefile(localfile, remotedir)
-        subprocess.check_call([hook_sync, localfile, remotefile])
+        self._get_hook_output('sync', localfile, remotefile)
         return remotefile
 
 
