@@ -59,34 +59,37 @@ class Hooks(QtCore.QThread):
             return None
         return subprocess.check_output([hook]).rstrip()
 
+    @staticmethod
+    def _filename_escape(filename):
+        s = ''
+        for c in filename:
+            cval = ord(c)
+            if cval >= ord('!') and cval <= '~' and cval != '%':
+                s += c
+            else:
+                s += '%%%02x' % (cval & 0xff)
+        return s
+
+    @staticmethod
+    def _get_remotefile(filename, remotedir):
+        statinfo = os.stat(filename)
+        sha256 = hashlib.sha256()
+        sha256.update(filename)
+        sha256.update(str(statinfo.st_size))
+        sha256.update(str(statinfo.st_mtime))
+        digest = sha256.hexdigest()
+        _, ext = op.splitext(filename)
+        return op.join(remotedir, digest + ext)
+
+    @staticmethod
+    def _uint_clear_color(vec4_color):
+        uint_color = 0
+        for i, comp in enumerate(vec4_color):
+            comp_val = int(round(comp*0xff)) & 0xff
+            uint_color |= comp_val << (24 - i*8)
+        return uint_color
+
     def run(self):
-
-        def filename_escape(filename):
-            s = ''
-            for c in filename:
-                cval = ord(c)
-                if cval >= ord('!') and cval <= '~' and cval != '%':
-                    s += c
-                else:
-                    s += '%%%02x' % (cval & 0xff)
-            return s
-
-        def get_remotefile(filename, remotedir):
-            statinfo = os.stat(filename)
-            sha256 = hashlib.sha256()
-            sha256.update(filename)
-            sha256.update(str(statinfo.st_size))
-            sha256.update(str(statinfo.st_mtime))
-            digest = sha256.hexdigest()
-            _, ext = op.splitext(filename)
-            return op.join(remotedir, digest + ext)
-
-        def uint_clear_color(vec4_color):
-            uint_color = 0
-            for i, comp in enumerate(vec4_color):
-                comp_val = int(round(comp*0xff)) & 0xff
-                uint_color |= comp_val << (24 - i*8)
-            return uint_color
 
         try:
             # Bail out immediately if there is no script to run when a scene change
@@ -115,10 +118,10 @@ class Hooks(QtCore.QThread):
             if hook_sync and remotedir:
                 filelist = [m.filename for m in cfg['medias']] + cfg['files']
                 for i, localfile in enumerate(filelist, 1):
-                    remotefile = get_remotefile(localfile, remotedir)
+                    remotefile = self._get_remotefile(localfile, remotedir)
                     serialized_scene = serialized_scene.replace(
-                            filename_escape(localfile),
-                            filename_escape(remotefile))
+                            self._filename_escape(localfile),
+                            self._filename_escape(remotefile))
                     self.uploadingFileNotif.emit(i, len(filelist), localfile)
                     subprocess.check_call([hook_sync, localfile, remotefile])
 
@@ -130,7 +133,7 @@ class Hooks(QtCore.QThread):
                     'duration=%f' % cfg['duration'],
                     'framerate=%d/%d' % cfg['framerate'],
                     'aspect_ratio=%d/%d' % cfg['aspect_ratio'],
-                    'clear_color=%08X' % uint_clear_color(cfg['clear_color']),
+                    'clear_color=%08X' % self._uint_clear_color(cfg['clear_color']),
                     'samples=%d' % cfg['samples']]
             self.sendingSceneNotif.emit()
             subprocess.check_call(args)
