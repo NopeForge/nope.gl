@@ -30,20 +30,15 @@ import subprocess
 from PyQt5 import QtCore
 
 
-class Hooks(QtCore.QThread):
+class HooksCaller:
 
-    uploading_file_notif = QtCore.pyqtSignal(int, int, str, name='uploadingFileNotif')
-    building_scene_notif = QtCore.pyqtSignal(str, str, name='buildingSceneNotif')
-    sending_scene_notif = QtCore.pyqtSignal(name='sendingSceneNotif')
-    error = QtCore.pyqtSignal(str)
-
-    def __init__(self, get_scene_func, hooksdir):
-        super(Hooks, self).__init__()
+    def __init__(self, hooksdir):
         self._hooksdir = hooksdir
-        self._get_scene_func = get_scene_func
+        self.hooks_available = self._get_hook('scene_change') is not None
 
-    def __del__(self):
-        self.wait()
+    @property
+    def sync_available(self):
+        return self._get_hook('sync') and self._get_hook_output('get_remote_dir')
 
     def _get_hook(self, name):
         if not self._hooksdir:
@@ -59,16 +54,29 @@ class Hooks(QtCore.QThread):
             return None
         return subprocess.check_output([hook]).rstrip()
 
+    def get_gl_backend(self):
+        return self._get_hook_output('get_gl_backend')
+
+    def get_system(self):
+        return self._get_hook_output('get_system')
+
     @staticmethod
-    def _filename_escape(filename):
-        s = ''
-        for c in filename:
-            cval = ord(c)
-            if cval >= ord('!') and cval <= '~' and cval != '%':
-                s += c
-            else:
-                s += '%%%02x' % (cval & 0xff)
-        return s
+    def _uint_clear_color(vec4_color):
+        uint_color = 0
+        for i, comp in enumerate(vec4_color):
+            comp_val = int(round(comp*0xff)) & 0xff
+            uint_color |= comp_val << (24 - i*8)
+        return uint_color
+
+    def scene_change(self, local_scene, cfg):
+        hook_scene_change = self._get_hook('scene_change')
+        args = [hook_scene_change, local_scene,
+                'duration=%f' % cfg['duration'],
+                'framerate=%d/%d' % cfg['framerate'],
+                'aspect_ratio=%d/%d' % cfg['aspect_ratio'],
+                'clear_color=%08X' % self._uint_clear_color(cfg['clear_color']),
+                'samples=%d' % cfg['samples']]
+        subprocess.check_call(args)
 
     @staticmethod
     def _get_remotefile(filename, remotedir):
@@ -81,28 +89,51 @@ class Hooks(QtCore.QThread):
         _, ext = op.splitext(filename)
         return op.join(remotedir, digest + ext)
 
+    def sync_file(self, localfile):
+        hook_sync = self._get_hook('sync')
+        remotedir = self._get_hook_output('get_remote_dir')
+        remotefile = self._get_remotefile(localfile, remotedir)
+        subprocess.check_call([hook_sync, localfile, remotefile])
+        return remotefile
+
+
+class Hooks(QtCore.QThread):
+
+    uploading_file_notif = QtCore.pyqtSignal(int, int, str, name='uploadingFileNotif')
+    building_scene_notif = QtCore.pyqtSignal(str, str, name='buildingSceneNotif')
+    sending_scene_notif = QtCore.pyqtSignal(name='sendingSceneNotif')
+    error = QtCore.pyqtSignal(str)
+
+    def __init__(self, get_scene_func, hooksdir):
+        super(Hooks, self).__init__()
+        self._hooks_caller = HooksCaller(hooksdir)
+        self._get_scene_func = get_scene_func
+
+    def __del__(self):
+        self.wait()
+
     @staticmethod
-    def _uint_clear_color(vec4_color):
-        uint_color = 0
-        for i, comp in enumerate(vec4_color):
-            comp_val = int(round(comp*0xff)) & 0xff
-            uint_color |= comp_val << (24 - i*8)
-        return uint_color
+    def _filename_escape(filename):
+        s = ''
+        for c in filename:
+            cval = ord(c)
+            if cval >= ord('!') and cval <= '~' and cval != '%':
+                s += c
+            else:
+                s += '%%%02x' % (cval & 0xff)
+        return s
 
     def run(self):
 
         try:
-            # Bail out immediately if there is no script to run when a scene change
-            # occurs
-            hook_scene_change = self._get_hook('scene_change')
-            if not hook_scene_change:
+            if not self._hooks_caller.hooks_available:
                 return
 
             # The graphic backend can be different when using hooks: the scene might
             # be rendered on a remote device different from the one constructing
             # the scene graph
-            backend = self._get_hook_output('get_gl_backend')
-            system = self._get_hook_output('get_system')
+            backend = self._hooks_caller.get_gl_backend()
+            system = self._hooks_caller.get_system()
             self.buildingSceneNotif.emit(backend, system)
             cfg = self._get_scene_func(backend=backend, system=system)
             if not cfg:
@@ -113,30 +144,21 @@ class Hooks(QtCore.QThread):
             # different from the one in local, so we need to fix up the scene
             # appropriately.
             serialized_scene = cfg['scene']
-            hook_sync = self._get_hook('sync')
-            remotedir = self._get_hook_output('get_remote_dir')
-            if hook_sync and remotedir:
+            if self._hooks_caller.sync_available:
                 filelist = [m.filename for m in cfg['medias']] + cfg['files']
                 for i, localfile in enumerate(filelist, 1):
-                    remotefile = self._get_remotefile(localfile, remotedir)
+                    self.uploadingFileNotif.emit(i, len(filelist), localfile)
+                    remotefile = self._hooks_caller.sync_file(localfile)
                     serialized_scene = serialized_scene.replace(
                             self._filename_escape(localfile),
                             self._filename_escape(remotefile))
-                    self.uploadingFileNotif.emit(i, len(filelist), localfile)
-                    subprocess.check_call([hook_sync, localfile, remotefile])
 
             # The serialized scene is then stored in a file which is then
             # communicated with additional parameters to the user
             local_scene = op.join(tempfile.gettempdir(), 'ngl_scene.ngl')
             open(local_scene, 'w').write(serialized_scene)
-            args = [hook_scene_change, local_scene,
-                    'duration=%f' % cfg['duration'],
-                    'framerate=%d/%d' % cfg['framerate'],
-                    'aspect_ratio=%d/%d' % cfg['aspect_ratio'],
-                    'clear_color=%08X' % self._uint_clear_color(cfg['clear_color']),
-                    'samples=%d' % cfg['samples']]
             self.sendingSceneNotif.emit()
-            subprocess.check_call(args)
+            self._hooks_caller.scene_change(local_scene, cfg)
 
         except subprocess.CalledProcessError, e:
             self.error.emit('Error (%d) while executing %s' % (e.returncode, ' '.join(e.cmd)))
