@@ -120,7 +120,6 @@ class MainWindow(QtWidgets.QSplitter):
         self._scene_toolbar.clearColorChanged.connect(self._config.set_clear_color)
         self._scene_toolbar.backendChanged.connect(gl_view.set_backend)
         self._scene_toolbar.backendChanged.connect(self._config.set_backend)
-
         self._scene_toolbar.hudChanged.connect(self._config.set_hud)
 
         self._errbuf = QtWidgets.QPlainTextEdit()
