@@ -199,8 +199,7 @@ operations such as media seeking, which may cause a delay in the rendering.
 ## Exit
 
 At the end of the rendering, you need to destroy the scene by unreferencing the
-root node and destroying the `node.gl` context (both within the OpenGL
-context!):
+root node and destroying the `node.gl` context:
 
 ```c
     ngl_node_unrefp(&scene);
