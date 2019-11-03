@@ -125,10 +125,10 @@ class Hooks(QtCore.QThread):
 
     def run(self):
 
-        try:
-            if not self._hooks_caller.hooks_available:
-                return
+        if not self._hooks_caller.hooks_available:
+            return
 
+        try:
             # The graphic backend can be different when using hooks: the scene might
             # be rendered on a remote device different from the one constructing
             # the scene graph
