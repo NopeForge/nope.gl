@@ -105,10 +105,9 @@ each demo scene operates, look into this place.
 
 The default video being an overly saturated mire generated with FFmpeg, it is
 not a very interesting asset for most demos. It is suggested to select your own
-assets directory with the viewer (look at `ngl-viewer --help` on how to do
-that), and then play around with the viewer and its default demos. Some demo
-scenes offer customization widgets (look at the bottom left of the UI), check
-them out!
+assets using the "Medias" tab, and then play around with the viewer and its
+default demos. Some demo scenes also offer customization widgets (look at the
+bottom left of the UI), check them out!
 
 [demo-tree]: /pynodegl-utils/pynodegl_utils/examples
 

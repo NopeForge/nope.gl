@@ -21,15 +21,12 @@
 # under the License.
 #
 
-import os
-import os.path as op
 import sys
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 from pynodegl_utils.com import query_subproc
 from pynodegl_utils.config import Config
-from pynodegl_utils.misc import Media
 from pynodegl_utils.scriptsmgr import ScriptsManager
 from pynodegl_utils.hooks import HooksController, HooksCaller
 
@@ -37,6 +34,7 @@ from pynodegl_utils.ui.gl_view import GLView
 from pynodegl_utils.ui.graph_view import GraphView
 from pynodegl_utils.ui.export_view import ExportView
 from pynodegl_utils.ui.hooks_view import HooksView
+from pynodegl_utils.ui.medias_view import MediasView
 from pynodegl_utils.ui.serial_view import SerialView
 from pynodegl_utils.ui.toolbar import Toolbar
 
@@ -45,7 +43,7 @@ class MainWindow(QtWidgets.QSplitter):
 
     error = QtCore.pyqtSignal(str)
 
-    def __init__(self, module_pkgname, assets_dir, hooksdir):
+    def __init__(self, module_pkgname, hooksdir):
         super(MainWindow, self).__init__(QtCore.Qt.Horizontal)
         self._win_title_base = 'Node.gl viewer'
         self.setWindowTitle(self._win_title_base)
@@ -53,22 +51,6 @@ class MainWindow(QtWidgets.QSplitter):
         self._module_pkgname = module_pkgname
         self._scripts_mgr = ScriptsManager(module_pkgname)
         self._hooks_caller = HooksCaller(hooksdir)
-
-        medias = None
-        if assets_dir:
-            medias = []
-            for f in sorted(os.listdir(assets_dir)):
-                ext = f.rsplit('.', 1)[-1].lower()
-                path = op.join(assets_dir, f)
-                if op.isfile(path) and ext in ('mp4', 'mkv', 'avi', 'webm', 'mov', 'lrv'):
-                    try:
-                        media = Media(path)
-                    except:
-                        pass
-                    else:
-                        medias.append(media)
-
-        self._medias = medias
 
         get_scene_func = self._get_scene
 
@@ -84,6 +66,7 @@ class MainWindow(QtWidgets.QSplitter):
         graph_view = GraphView(get_scene_func, self._config)
         export_view = ExportView(get_scene_func, self._config)
         hooks_view = HooksView(self._hooks_caller)
+        self._medias_view = MediasView(self._config)
         serial_view = SerialView(get_scene_func)
 
         self._tabs = [
@@ -91,6 +74,7 @@ class MainWindow(QtWidgets.QSplitter):
             ('Graph view', graph_view),
             ('Export', export_view),
             ('Hooks', hooks_view),
+            ('Medias', self._medias_view),
             ('Serialization', serial_view),
         ]
         self._last_tab_index = -1
@@ -171,7 +155,8 @@ class MainWindow(QtWidgets.QSplitter):
         if cfg['scene'] is None:
             return None
         cfg['pkg'] = self._module_pkgname
-        cfg['medias'] = self._medias
+        medias = self._medias_view.get_medias()
+        cfg['medias'] = medias if medias else None
         cfg.update(cfg_overrides)
 
         self._scripts_mgr.pause()

@@ -77,6 +77,10 @@ class Config(QtCore.QObject):
             'export_height': 720,
             'export_filename': op.join(tempfile.gettempdir(), 'ngl-export.mp4'),
             'export_extra_enc_args': '',
+
+            # Medias
+            'medias_list': [],
+            'medias_last_dir': QtCore.QDir.currentPath(),
         }
 
         self._module_pkgname = module_pkgname
@@ -121,6 +125,14 @@ class Config(QtCore.QObject):
     def _set_cfg(self, key, value):
         self._cfg[key] = value
         self._needs_saving = True
+
+    @QtCore.pyqtSlot(list)
+    def set_medias_list(self, medias_list):
+        self._set_cfg('medias_list', medias_list)
+
+    @QtCore.pyqtSlot(str)
+    def set_medias_last_dir(self, last_dir):
+        self._set_cfg('medias_last_dir', last_dir)
 
     @QtCore.pyqtSlot(int)
     def set_export_width(self, export_width):
