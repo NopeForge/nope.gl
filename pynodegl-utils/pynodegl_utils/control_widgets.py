@@ -146,11 +146,11 @@ class FilePicker(_ControlWidget):
 
     @QtCore.pyqtSlot()
     def _choose_filename(self):
-        filenames = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', self._filter)
-        if not filenames[0]:
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', self._filter)
+        if not filename[0]:
             return
-        self._label.setText(self.get_label_text(op.basename(filenames[0])))
-        self.signal_change(filenames[0])
+        self._label.setText(self.get_label_text(op.basename(filename[0])))
+        self.signal_change(filename[0])
 
 
 class ComboBox(_ControlWidget):
