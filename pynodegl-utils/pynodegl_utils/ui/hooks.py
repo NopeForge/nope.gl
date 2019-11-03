@@ -26,19 +26,18 @@ import os
 import os.path as op
 import tempfile
 import subprocess
+import time
 
 from PyQt5 import QtCore
 
 
 class HooksCaller:
 
+    _HOOKS = ('get_session_info', 'get_sessions', 'scene_change', 'sync_file')
+
     def __init__(self, hooksdir):
         self._hooksdir = hooksdir
-        self.hooks_available = self._get_hook('scene_change') is not None
-
-    @property
-    def sync_available(self):
-        return self._get_hook('sync') and self._get_hook_output('get_remote_dir')
+        self.hooks_available = all(self._get_hook(h) is not None for h in self._HOOKS)
 
     def _get_hook(self, name):
         if not self._hooksdir:
@@ -55,11 +54,30 @@ class HooksCaller:
         cmd = [hook] + list(args)
         return subprocess.check_output(cmd).rstrip()
 
-    def get_gl_backend(self):
-        return self._get_hook_output('get_gl_backend')
+    def get_session_info(self, session_id):
+        ret = {}
+        session_info_output = self._get_hook_output('get_session_info', session_id)
+        if session_info_output:
+            for line in session_info_output.splitlines():
+                k, v = line.split('=', 1)
+                ret[k] = v
+        return ret
 
-    def get_system(self):
-        return self._get_hook_output('get_system')
+    def get_sessions(self):
+        sessions = []
+        sessions_output = self._get_hook_output('get_sessions')
+        session_lines = sessions_output.splitlines() if sessions_output is not None else []
+        for session_line in session_lines:
+            session_id, session_desc = session_line.split(None, 1)
+            # TODO: asynchronous calls? (individual session queries could take some time)
+            session_info = self.get_session_info(session_id)
+            sessions.append((
+                session_id,
+                session_desc,
+                session_info.get('backend', ''),
+                session_info.get('system', ''),
+            ))
+        return sessions
 
     @staticmethod
     def _uint_clear_color(vec4_color):
@@ -69,9 +87,10 @@ class HooksCaller:
             uint_color |= comp_val << (24 - i*8)
         return uint_color
 
-    def scene_change(self, local_scene, cfg):
+    def scene_change(self, session_id, local_scene, cfg):
         self._get_hook_output(
             'scene_change',
+            session_id,
             local_scene,
             'duration=%f' % cfg['duration'],
             'framerate=%d/%d' % cfg['framerate'],
@@ -81,7 +100,7 @@ class HooksCaller:
         )
 
     @staticmethod
-    def _get_remotefile(filename, remotedir):
+    def _hash_filename(filename):
         statinfo = os.stat(filename)
         sha256 = hashlib.sha256()
         sha256.update(filename)
@@ -89,29 +108,32 @@ class HooksCaller:
         sha256.update(str(statinfo.st_mtime))
         digest = sha256.hexdigest()
         _, ext = op.splitext(filename)
-        return op.join(remotedir, digest + ext)
+        return op.join(digest + ext)
 
-    def sync_file(self, localfile):
-        remotedir = self._get_hook_output('get_remote_dir')
-        remotefile = self._get_remotefile(localfile, remotedir)
-        self._get_hook_output('sync', localfile, remotefile)
-        return remotefile
+    def sync_file(self, session_id, localfile):
+        return self._get_hook_output('sync_file', session_id, localfile, self._hash_filename(localfile))
 
 
-class Hooks(QtCore.QThread):
+class _HooksThread(QtCore.QThread):
 
-    uploading_file_notif = QtCore.pyqtSignal(int, int, str, name='uploadingFileNotif')
-    building_scene_notif = QtCore.pyqtSignal(str, str, name='buildingSceneNotif')
-    sending_scene_notif = QtCore.pyqtSignal(name='sendingSceneNotif')
-    error = QtCore.pyqtSignal(str)
+    uploading_file_notif = QtCore.pyqtSignal(str, int, int, str, name='uploadingFileNotif')
+    building_scene_notif = QtCore.pyqtSignal(str, str, str, name='buildingSceneNotif')
+    sending_scene_notif = QtCore.pyqtSignal(str, str, name='sendingSceneNotif')
+    done_notif = QtCore.pyqtSignal(str, str, float, name='doneNotif')
+    error = QtCore.pyqtSignal(str, str)
 
-    def __init__(self, get_scene_func, hooksdir):
-        super(Hooks, self).__init__()
-        self._hooks_caller = HooksCaller(hooksdir)
+    def __init__(self, get_scene_func, hooks_caller, session_id, backend, system, module_name, scene_name):
+        super(_HooksThread, self).__init__()
         self._get_scene_func = get_scene_func
+        self._hooks_caller = hooks_caller
+        self._session_id = session_id
+        self._scene_id = '%s.%s' % (module_name, scene_name)
 
-    def __del__(self):
-        self.wait()
+        # The graphic backend can be different when using hooks: the scene might
+        # be rendered on a remote device different from the one constructing
+        # the scene graph
+        self._target_backend = backend
+        self._target_system = system
 
     @staticmethod
     def _filename_escape(filename):
@@ -125,43 +147,98 @@ class Hooks(QtCore.QThread):
         return s
 
     def run(self):
+        start_time = time.time()
+        session_id, backend, system = self._session_id, self._target_backend, self._target_system
 
-        if not self._hooks_caller.hooks_available:
+        self.buildingSceneNotif.emit(session_id, backend, system)
+        cfg = self._get_scene_func(backend=backend, system=system)
+        if not cfg:
+            self.error.emit(session_id, 'Error getting scene')
             return
 
         try:
-            # The graphic backend can be different when using hooks: the scene might
-            # be rendered on a remote device different from the one constructing
-            # the scene graph
-            backend = self._hooks_caller.get_gl_backend()
-            system = self._hooks_caller.get_system()
-            self.buildingSceneNotif.emit(backend, system)
-            cfg = self._get_scene_func(backend=backend, system=system)
-            if not cfg:
-                return
-
             # The serialized scene is associated with a bunch of assets which we
             # need to sync. Similarly, the remote assets directory might be
             # different from the one in local, so we need to fix up the scene
             # appropriately.
             serialized_scene = cfg['scene']
-            if self._hooks_caller.sync_available:
-                filelist = [m.filename for m in cfg['medias']] + cfg['files']
-                for i, localfile in enumerate(filelist, 1):
-                    self.uploadingFileNotif.emit(i, len(filelist), localfile)
-                    remotefile = self._hooks_caller.sync_file(localfile)
-                    serialized_scene = serialized_scene.replace(
-                            self._filename_escape(localfile),
-                            self._filename_escape(remotefile))
+            filelist = [m.filename for m in cfg['medias']] + cfg['files']
+            for i, localfile in enumerate(filelist, 1):
+                self.uploadingFileNotif.emit(session_id, i, len(filelist), localfile)
+                try:
+                    remotefile = self._hooks_caller.sync_file(session_id, localfile)
+                except subprocess.CalledProcessError, e:
+                    self.error.emit(session_id, 'Error (%d) while uploading %s' % (e.returncode, localfile))
+                    return
+                serialized_scene = serialized_scene.replace(
+                        self._filename_escape(localfile),
+                        self._filename_escape(remotefile))
 
             # The serialized scene is then stored in a file which is then
             # communicated with additional parameters to the user
             local_scene = op.join(tempfile.gettempdir(), 'ngl_scene.ngl')
             open(local_scene, 'w').write(serialized_scene)
-            self.sendingSceneNotif.emit()
-            self._hooks_caller.scene_change(local_scene, cfg)
+            self.sendingSceneNotif.emit(session_id, self._scene_id)
+            try:
+                self._hooks_caller.scene_change(session_id, local_scene, cfg)
+            except subprocess.CalledProcessError, e:
+                self.error.emit(session_id, 'Error (%d) while sending scene' % e.returncode)
+                return
+            self.doneNotif.emit(session_id, self._scene_id, time.time() - start_time)
 
-        except subprocess.CalledProcessError, e:
-            self.error.emit('Error (%d) while executing %s' % (e.returncode, ' '.join(e.cmd)))
         except Exception, e:
-            self.error.emit('Error executing hooks: %s' % str(e))
+            self.error.emit(session_id, 'Error: %s' % str(e))
+
+
+class HooksController(QtCore.QObject):
+
+    def __init__(self, get_scene_func, hooks_view, hooks_caller):
+        super(HooksController, self).__init__()
+        self._get_scene_func = get_scene_func
+        self._hooks_view = hooks_view
+        self._hooks_caller = hooks_caller
+        self._threads = []
+
+    def _wait_threads(self):
+        for hook_thread in self._threads:
+            hook_thread.wait()
+        self._threads = []
+
+    def process(self, module_name, scene_name):
+        if not self._hooks_caller.hooks_available:
+            return
+        self._wait_threads()  # Wait previous batch
+        data = self._hooks_view.get_data_from_model()
+        for session_id, data_row in data.items():
+            if not data_row['checked']:
+                continue
+            hook_thread = _HooksThread(self._get_scene_func, self._hooks_caller,
+                                       session_id, data_row['backend'], data_row['system'],
+                                       module_name, scene_name)
+            self._threads.append(hook_thread)
+            hook_thread.uploadingFileNotif.connect(self._hooks_uploading)
+            hook_thread.buildingSceneNotif.connect(self._hooks_building_scene)
+            hook_thread.sendingSceneNotif.connect(self._hooks_sending_scene)
+            hook_thread.doneNotif.connect(self._hooks_done)
+            hook_thread.error.connect(self._hooks_error)
+            hook_thread.start()
+
+    @QtCore.pyqtSlot(str, int, int, str)
+    def _hooks_uploading(self, session_id, i, n, filename):
+        self._hooks_view.update_status(session_id, 'Uploading [%d/%d]: %s...' % (i, n, filename))
+
+    @QtCore.pyqtSlot(str, str, str)
+    def _hooks_building_scene(self, session_id, backend, system):
+        self._hooks_view.update_status(session_id, 'Building %s scene in %s...' % (system, backend))
+
+    @QtCore.pyqtSlot(str, str)
+    def _hooks_sending_scene(self, session_id, scene):
+        self._hooks_view.update_status(session_id, 'Sending scene %s...' % scene)
+
+    @QtCore.pyqtSlot(str, str, float)
+    def _hooks_done(self, session_id, scene, t):
+        self._hooks_view.update_status(session_id, 'Submitted %s in %f' % (scene, t))
+
+    @QtCore.pyqtSlot(str, str)
+    def _hooks_error(self, session_id, err):
+        self._hooks_view.update_status(session_id, err)

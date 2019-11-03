@@ -35,9 +35,10 @@ from pynodegl_utils.scriptsmgr import ScriptsManager
 from pynodegl_utils.ui.gl_view import GLView
 from pynodegl_utils.ui.graph_view import GraphView
 from pynodegl_utils.ui.export_view import ExportView
+from pynodegl_utils.ui.hooks_view import HooksView
 from pynodegl_utils.ui.serial_view import SerialView
 from pynodegl_utils.ui.toolbar import Toolbar
-from pynodegl_utils.ui.hooks import Hooks
+from pynodegl_utils.ui.hooks import HooksController, HooksCaller
 
 
 class MainWindow(QtWidgets.QSplitter):
@@ -51,7 +52,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         self._module_pkgname = module_pkgname
         self._scripts_mgr = ScriptsManager(module_pkgname)
-        self._hooksdir = hooksdir
+        self._hooks_caller = HooksCaller(hooksdir)
 
         medias = None
         if assets_dir:
@@ -71,7 +72,6 @@ class MainWindow(QtWidgets.QSplitter):
 
         get_scene_func = self._get_scene
 
-        self._hooks = None
         self._config = Config(module_pkgname)
 
         # Apply previous geometry (position + dimensions)
@@ -83,12 +83,14 @@ class MainWindow(QtWidgets.QSplitter):
         gl_view = GLView(get_scene_func, self._config)
         graph_view = GraphView(get_scene_func, self._config)
         export_view = ExportView(get_scene_func, self._config)
+        hooks_view = HooksView(self._hooks_caller)
         serial_view = SerialView(get_scene_func)
 
         self._tabs = [
             ('Player view', gl_view),
             ('Graph view', graph_view),
             ('Export', export_view),
+            ('Hooks', hooks_view),
             ('Serialization', serial_view),
         ]
         self._last_tab_index = -1
@@ -97,6 +99,8 @@ class MainWindow(QtWidgets.QSplitter):
         for tab_name, tab_view in self._tabs:
             self._tab_widget.addTab(tab_view, tab_name)
         self._tab_widget.currentChanged.connect(self._currentTabChanged)
+
+        self._hooks_ctl = HooksController(self._get_scene, hooks_view, self._hooks_caller)
 
         self._scene_toolbar = Toolbar(self._config)
         self._scene_toolbar.sceneChanged.connect(self._scene_changed)
@@ -124,17 +128,9 @@ class MainWindow(QtWidgets.QSplitter):
         self._errbuf.setReadOnly(True)
         self._errbuf.hide()
 
-        self._hooks_lbl = QtWidgets.QLabel()
-        self._hooks_layout = QtWidgets.QHBoxLayout()
-        self._hooks_layout.addWidget(self._hooks_lbl)
-        self._hooks_widget = QtWidgets.QWidget()
-        self._hooks_widget.setLayout(self._hooks_layout)
-        self._hooks_widget.hide()
-
         tabs_and_errbuf = QtWidgets.QVBoxLayout()
         tabs_and_errbuf.addWidget(self._tab_widget)
         tabs_and_errbuf.addWidget(self._errbuf)
-        tabs_and_errbuf.addWidget(self._hooks_widget)
         tabs_and_errbuf_widget = QtWidgets.QWidget()
         tabs_and_errbuf_widget.setLayout(tabs_and_errbuf)
 
@@ -156,25 +152,6 @@ class MainWindow(QtWidgets.QSplitter):
         prev_scene = self._config.get('scene')
         if prev_pkgname == module_pkgname:
             self._scene_toolbar.load_scene_from_name(prev_module, prev_scene)
-
-    @QtCore.pyqtSlot(int, int, str)
-    def _hooks_uploading(self, i, n, filename):
-        self._hooks_widget.show()
-        self._hooks_lbl.setText('Uploading [%d/%d]: %s...' % (i, n, filename))
-
-    @QtCore.pyqtSlot(str, str)
-    def _hooks_building_scene(self, backend, system):
-        self._hooks_widget.show()
-        self._hooks_lbl.setText('Building %s scene in %s...' % (system, backend))
-
-    @QtCore.pyqtSlot()
-    def _hooks_sending_scene(self):
-        self._hooks_widget.show()
-        self._hooks_lbl.setText('Sending scene...')
-
-    @QtCore.pyqtSlot()
-    def _hooks_done(self):
-        self._hooks_widget.hide()
 
     @QtCore.pyqtSlot(str)
     def _scene_err(self, err_str):
@@ -220,19 +197,7 @@ class MainWindow(QtWidgets.QSplitter):
 
     @QtCore.pyqtSlot(str, str)
     def _scene_changed_hook(self, module_name, scene_name):
-        if self._hooks:
-            self._hooks.wait()
-        self._hooks = Hooks(self._get_scene, self._hooksdir)
-        self._hooks.uploadingFileNotif.connect(self._hooks_uploading)
-        self._hooks.buildingSceneNotif.connect(self._hooks_building_scene)
-        self._hooks.sendingSceneNotif.connect(self._hooks_sending_scene)
-        self._hooks.finished.connect(self._hooks_done)
-        self._hooks.error.connect(self._hooks_error)
-        self._hooks.start()
-
-    @QtCore.pyqtSlot(str)
-    def _hooks_error(self, err):
-        QtWidgets.QMessageBox.critical(self, 'Hook error', err, QtWidgets.QMessageBox.Ok)
+        self._hooks_ctl.process(module_name, scene_name)
 
     def _emit_geometry(self):
         geometry = (self.x(), self.y(), self.width(), self.height())

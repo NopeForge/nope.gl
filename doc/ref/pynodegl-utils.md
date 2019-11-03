@@ -194,88 +194,76 @@ def demo(cfg, intro='Hello World!'):
 
 When using the `--hooks-dir` option, `ngl-viewer` will execute various hook
 according to various events. These hooks are typically used for triggering a
-synchronization with another device.
+synchronization with external devices.
 
-Following are the hook script or programs that will be executed and their
+Following are the hook scripts or programs that will be executed and their
 expected behaviour.
 
-### hook.get_remote_dir
+### hook.get_sessions
 
-`hook.get_remote_dir` does not take any argument. It must print on `stdout` the
-remote path where the scene files are supposed to be synchronized.
-
-This hook is not mandatory.
-
-See also `hook.sync`.
+`hook.get_sessions` does not take any argument. It must print on `stdout` all
+the available sessions. Each line represents one session. The first word of
+each line represent the session identifier and must be unique. The rest of the
+line is a description of the session.
 
 **Example**:
 
 ```shell
-$ android/hook.get_remote_dir
-/sdcard/nodegl_data
+$ ./hook.get_sessions
+X2fca1f2c device Foobar 3000
+Y5fd953df Smartphone 9000 GEN X
 ```
 
-### hook.get_gl_backend
+### hook.get_session_info
 
-`hook.get_gl_backend` does not take any argument. It must print on `stdout` the
-string `gl` or `gles`. It corresponds to the OpenGL backend specified in the
-scene configuration when constructed.
+`hook.get_session_info` takes a session ID as argument. It must print on
+`stdout` the backend and system in the `key=value` form.
 
-This hook is not mandatory.
+Accepted values for the `backend`:
 
-**Example**:
+- `gl`
+- `gles`
 
-```shell
-$ android/hook.get_gl_backend
-gles
-```
-
-### hook.get_system
-
-`hook.get_system` does not take any argument. It must print on `stdout` a
-string identifying the operating system.
-
-Accepted values are:
+Accepted values for the `system`:
 
 - `Linux`
 - `Android`
 - `Darwin`
 - `iOS`
 
-This hook is not mandatory.
-
 **Example**:
 
 ```shell
-$ android/hook.get_system
-Android
+$ ./hook.get_session_info X2fca1f2c
+backend=gles
+system=Linux
 ```
 
-### hook.sync
+### hook.sync_file
 
-`hook.sync` takes 2 arguments:
+`hook.sync_file` takes 3 arguments:
 
-1. `localfile`: the path to the local file
-2. `remotefile`: the path to the remote file
+1. `session_id`: the session identifier
+1. `ifile`: the path to the local file
+2. `ofile`: the output filename (not path)
 
 It is called for every file to sync (typically media files).
 
-This hook is not mandatory.
-
-See also `hook.get_remote_dir`.
+The hook must print on `stdout` the output file path.
 
 **Example**:
 
 ```shell
-$ android/hook.sync /tmp/ngl-media.mp4 /sdcard/nodegl_data
-/tmp/ngl-media.mp4: 1 file pushed. 14.3 MB/s (1564947 bytes in 0.105s)
+$ ./hook.sync_file Y5fd953df /tmp/ngl-media.mp4 media-001.mp4
+/mnt/data/ngl-data/media-001.mp4
 ```
 
 ### hook.scene_change
 
 `hook.scene_change` takes several arguments:
 
-- first argument is the `localscene`: the path to the local serialized scene
+- first argument is the session identifier
+- second argument is the `localscene`: the path to the local serialized scene
 - every following argument is a key-value string following the format
   `key=value`. Available named variables are following:
   - `duration`: expressed as a float (in seconds)
@@ -284,12 +272,10 @@ $ android/hook.sync /tmp/ngl-media.mp4 /sdcard/nodegl_data
   - `clear_color`: expressed as a 32-bit hexadecimal following the `RRGGBBAA` format
   - `samples`: number of samples used for multisample anti-aliasing expressed as an integer
 
-This hook is mandatory if anything is expected to happen when using hooks.
-
 **Example**:
 
 A call from `ngl-viewer` to this hook will look like this:
 
 ```shell
-hook.scene_change /tmp/ngl_scene.ngl duration=5 framerate=60000/1001 aspect_ratio=16/9 clear_color=4A646BFF samples=4
+$ ./hook.scene_change X2fca1f2c /tmp/ngl_scene.ngl duration=5 framerate=60000/1001 aspect_ratio=16/9 clear_color=4A646BFF samples=4
 ```
