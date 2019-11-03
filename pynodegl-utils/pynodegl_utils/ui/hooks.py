@@ -48,11 +48,12 @@ class HooksCaller:
             return
         return hook
 
-    def _get_hook_output(self, name):
+    def _get_hook_output(self, name, *args):
         hook = self._get_hook(name)
         if not hook:
             return None
-        return subprocess.check_output([hook]).rstrip()
+        cmd = [hook] + list(args)
+        return subprocess.check_output(cmd).rstrip()
 
     def get_gl_backend(self):
         return self._get_hook_output('get_gl_backend')
