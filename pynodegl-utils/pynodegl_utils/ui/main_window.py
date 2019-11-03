@@ -31,6 +31,7 @@ from pynodegl_utils.com import query_subproc
 from pynodegl_utils.config import Config
 from pynodegl_utils.misc import Media
 from pynodegl_utils.scriptsmgr import ScriptsManager
+from pynodegl_utils.hooks import HooksController, HooksCaller
 
 from pynodegl_utils.ui.gl_view import GLView
 from pynodegl_utils.ui.graph_view import GraphView
@@ -38,7 +39,6 @@ from pynodegl_utils.ui.export_view import ExportView
 from pynodegl_utils.ui.hooks_view import HooksView
 from pynodegl_utils.ui.serial_view import SerialView
 from pynodegl_utils.ui.toolbar import Toolbar
-from pynodegl_utils.ui.hooks import HooksController, HooksCaller
 
 
 class MainWindow(QtWidgets.QSplitter):
