@@ -24,7 +24,6 @@
 #include <string.h>
 #include <sxplayer.h>
 
-#include "android_surface.h"
 #include "format.h"
 #include "glincludes.h"
 #include "hwupload.h"
