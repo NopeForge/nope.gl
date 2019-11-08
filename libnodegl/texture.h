@@ -23,8 +23,9 @@
 #define TEXTURE_H
 
 #include "glincludes.h"
-#include "glcontext.h"
 #include "utils.h"
+
+struct ngl_ctx;
 
 enum {
     NGLI_MIPMAP_FILTER_NONE,
