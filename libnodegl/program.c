@@ -112,6 +112,17 @@ static int get_type(GLenum gl_type)
     return NGLI_TYPE_NONE;
 }
 
+static struct program_variable_info *program_variable_info_create()
+{
+    struct program_variable_info *info = ngli_calloc(1, sizeof(*info));
+    if (!info)
+        return NULL;
+    info->size     = -1;
+    info->binding  = -1;
+    info->location = -1;
+    return info;
+}
+
 static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
 {
     struct hmap *umap = ngli_hmap_create();
@@ -123,7 +134,7 @@ static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORMS, &nb_active_uniforms);
     for (int i = 0; i < nb_active_uniforms; i++) {
         char name[MAX_ID_LEN];
-        struct uniformprograminfo *info = ngli_malloc(sizeof(*info));
+        struct program_variable_info *info = program_variable_info_create();
         if (!info) {
             ngli_hmap_freep(&umap);
             return NULL;
@@ -174,7 +185,7 @@ static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_ATTRIBUTES, &nb_active_attributes);
     for (int i = 0; i < nb_active_attributes; i++) {
         char name[MAX_ID_LEN];
-        struct attributeprograminfo *info = ngli_malloc(sizeof(*info));
+        struct program_variable_info *info = program_variable_info_create();
         if (!info) {
             ngli_hmap_freep(&amap);
             return NULL;
@@ -221,7 +232,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
     ngli_glGetProgramiv(gl, pid, GL_ACTIVE_UNIFORM_BLOCKS, &nb_active_uniform_buffers);
     for (int i = 0; i < nb_active_uniform_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
-        struct blockprograminfo *info = ngli_malloc(sizeof(*info));
+        struct program_variable_info *info = program_variable_info_create();
         if (!info) {
             ngli_hmap_freep(&bmap);
             return NULL;
@@ -253,7 +264,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
                                  GL_ACTIVE_RESOURCES, &nb_active_buffers);
     for (int i = 0; i < nb_active_buffers; i++) {
         char name[MAX_ID_LEN] = {0};
-        struct blockprograminfo *info = ngli_malloc(sizeof(*info));
+        struct program_variable_info *info = program_variable_info_create();
         if (!info) {
             ngli_hmap_freep(&bmap);
             return NULL;

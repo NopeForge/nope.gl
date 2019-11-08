@@ -27,22 +27,11 @@
 
 #define MAX_ID_LEN 128
 
-struct uniformprograminfo {
-    GLint location;
-    GLint size;
+struct program_variable_info {
     int type;
+    int size;
     int binding;
-};
-
-struct attributeprograminfo {
-    GLint location;
-    GLint size;
-    int type;
-};
-
-struct blockprograminfo {
-    GLint binding;
-    int type;
+    int location;
 };
 
 enum {

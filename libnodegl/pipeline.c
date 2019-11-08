@@ -110,7 +110,7 @@ static int build_uniform_descs(struct pipeline *s, const struct pipeline_params 
 
     for (int i = 0; i < params->nb_uniforms; i++) {
         const struct pipeline_uniform *uniform = &params->uniforms[i];
-        const struct uniformprograminfo *info = ngli_hmap_get(program->uniforms, uniform->name);
+        const struct program_variable_info *info = ngli_hmap_get(program->uniforms, uniform->name);
         if (!info)
             continue;
 
@@ -154,7 +154,7 @@ static int build_texture_descs(struct pipeline *s, const struct pipeline_params 
 
     for (int i = 0; i < params->nb_textures; i++) {
         const struct pipeline_texture *texture = &params->textures[i];
-        const struct uniformprograminfo *info = ngli_hmap_get(program->uniforms, texture->name);
+        const struct program_variable_info *info = ngli_hmap_get(program->uniforms, texture->name);
         if (!info)
             continue;
 
@@ -259,7 +259,7 @@ static int build_buffer_descs(struct pipeline *s, const struct pipeline_params *
     for (int i = 0; i < params->nb_buffers; i++) {
         const struct pipeline_buffer *pipeline_buffer = &params->buffers[i];
         const struct buffer *buffer = pipeline_buffer->buffer;
-        const struct blockprograminfo *info = ngli_hmap_get(program->buffer_blocks, pipeline_buffer->name);
+        const struct program_variable_info *info = ngli_hmap_get(program->buffer_blocks, pipeline_buffer->name);
         if (!info)
             continue;
 
@@ -326,7 +326,7 @@ static int build_attribute_descs(struct pipeline *s, const struct pipeline_param
 
     for (int i = 0; i < params->nb_attributes; i++) {
         const struct pipeline_attribute *attribute = &params->attributes[i];
-        const struct attributeprograminfo *info = ngli_hmap_get(program->attributes, attribute->name);
+        const struct program_variable_info *info = ngli_hmap_get(program->attributes, attribute->name);
         if (!info)
             continue;
 

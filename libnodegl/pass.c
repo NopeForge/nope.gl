@@ -209,7 +209,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
         char uniform_name[MAX_ID_LEN];
         snprintf(uniform_name, sizeof(uniform_name), "%s%s", name, map->suffix);
 
-        const struct uniformprograminfo *uniform = ngli_hmap_get(infos, uniform_name);
+        const struct program_variable_info *uniform = ngli_hmap_get(infos, uniform_name);
         if (!uniform)
             continue;
 
