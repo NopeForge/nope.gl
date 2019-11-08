@@ -95,6 +95,7 @@
 
 char *ngli_strdup(const char *s);
 int64_t ngli_gettime(void);
+int64_t ngli_gettime_relative(void);
 char *ngli_asprintf(const char *fmt, ...) ngli_printf_format(1, 2);
 uint32_t ngli_crc32(const char *s);
 void ngli_thread_set_name(const char *name);
