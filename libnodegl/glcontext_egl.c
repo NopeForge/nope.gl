@@ -53,6 +53,7 @@ struct egl_priv {
     EGLDisplay (*GetPlatformDisplay)(EGLenum platform, void *native_display, const EGLint *attrib_list);
     EGLAPIENTRY EGLImageKHR (*CreateImageKHR)(EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLint *);
     EGLAPIENTRY EGLBoolean (*DestroyImageKHR)(EGLDisplay, EGLImageKHR);
+    int has_platform_x11_ext;
 };
 
 EGLImageKHR ngli_eglCreateImageKHR(struct glcontext *gl, EGLConfig context, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
@@ -120,9 +121,9 @@ static int egl_probe_platform_x11_ext(struct egl_priv *egl)
 
     if (ngli_glcontext_check_extension("EGL_KHR_platform_x11", client_extensions) ||
         ngli_glcontext_check_extension("EGL_EXT_platform_x11", client_extensions))
-        return 0;
+        egl->has_platform_x11_ext = 1;
 
-    return -1;
+    return 0;
 }
 #endif
 
@@ -150,10 +151,16 @@ static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType nat
 #if defined(TARGET_ANDROID)
     return eglGetDisplay(native_display);
 #elif defined(TARGET_LINUX)
-    /* XXX: only X11 is supported for now */
     int ret = egl_probe_platform_x11_ext(egl);
     if (ret < 0)
         return EGL_NO_DISPLAY;
+
+    /* XXX: only X11 is supported for now */
+    if (!egl->has_platform_x11_ext) {
+        LOG(ERROR, "EGL_EXT_platform_x11 is not supported");
+        return EGL_NO_DISPLAY;
+    }
+
     return egl->GetPlatformDisplay(EGL_PLATFORM_X11, native_display, NULL);
 #else
     return EGL_NO_DISPLAY;
