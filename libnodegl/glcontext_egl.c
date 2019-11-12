@@ -107,15 +107,20 @@ static int egl_probe_platform_x11_ext(struct egl_priv *egl)
         return -1;
     }
 
-    if (ngli_glcontext_check_extension("EGL_KHR_platform_x11", client_extensions) ||
-        ngli_glcontext_check_extension("EGL_EXT_platform_x11", client_extensions)) {
-        egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplayEXT");
-        if (!egl->GetPlatformDisplay) {
-            LOG(ERROR, "could not retrieve eglGetPlatformDisplay()");
-            return -1;
-        }
-        return 0;
+    if (!ngli_glcontext_check_extension("EGL_EXT_platform_base", client_extensions)) {
+        LOG(ERROR, "EGL_EXT_platform_base is not supported");
+        return -1;
     }
+
+    egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplayEXT");
+    if (!egl->GetPlatformDisplay) {
+        LOG(ERROR, "could not retrieve eglGetPlatformDisplayEXT()");
+        return -1;
+    }
+
+    if (ngli_glcontext_check_extension("EGL_KHR_platform_x11", client_extensions) ||
+        ngli_glcontext_check_extension("EGL_EXT_platform_x11", client_extensions))
+        return 0;
 
     return -1;
 }
