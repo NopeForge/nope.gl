@@ -100,7 +100,7 @@ static int egl_probe_extensions(struct glcontext *ctx)
 }
 
 #if defined(TARGET_LINUX)
-static int egl_probe_platform_x11_ext(struct egl_priv *egl)
+static int egl_probe_client_extensions(struct egl_priv *egl)
 {
     const char *client_extensions = eglQueryString(EGL_NO_DISPLAY, EGL_EXTENSIONS);
     if (!client_extensions) {
@@ -151,7 +151,7 @@ static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType nat
 #if defined(TARGET_ANDROID)
     return eglGetDisplay(native_display);
 #elif defined(TARGET_LINUX)
-    int ret = egl_probe_platform_x11_ext(egl);
+    int ret = egl_probe_client_extensions(egl);
     if (ret < 0)
         return EGL_NO_DISPLAY;
 
