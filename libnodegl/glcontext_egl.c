@@ -39,6 +39,7 @@
 #include "utils.h"
 
 #define EGL_PLATFORM_X11 0x31D5
+#define EGL_PLATFORM_SURFACELESS_MESA 0x31DD
 
 struct egl_priv {
     EGLNativeDisplayType native_display;
@@ -54,6 +55,7 @@ struct egl_priv {
     EGLAPIENTRY EGLImageKHR (*CreateImageKHR)(EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLint *);
     EGLAPIENTRY EGLBoolean (*DestroyImageKHR)(EGLDisplay, EGLImageKHR);
     int has_platform_x11_ext;
+    int has_platform_mesa_surfaceless_ext;
 };
 
 EGLImageKHR ngli_eglCreateImageKHR(struct glcontext *gl, EGLConfig context, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
@@ -122,6 +124,9 @@ static int egl_probe_client_extensions(struct egl_priv *egl)
     if (ngli_glcontext_check_extension("EGL_KHR_platform_x11", client_extensions) ||
         ngli_glcontext_check_extension("EGL_EXT_platform_x11", client_extensions))
         egl->has_platform_x11_ext = 1;
+
+    if (ngli_glcontext_check_extension("EGL_MESA_platform_surfaceless", client_extensions))
+        egl->has_platform_mesa_surfaceless_ext = 1;
 
     return 0;
 }
