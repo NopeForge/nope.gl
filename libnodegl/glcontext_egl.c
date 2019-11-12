@@ -132,40 +132,31 @@ static int egl_probe_client_extensions(struct egl_priv *egl)
 }
 #endif
 
-static int egl_set_native_display(struct egl_priv *egl, uintptr_t native_display)
-{
-    if (native_display) {
-        egl->native_display = (EGLNativeDisplayType)native_display;
-        return 0;
-    }
-#if defined(TARGET_LINUX)
-    egl->native_display = XOpenDisplay(NULL);
-    if (!egl->native_display) {
-        LOG(ERROR, "could not retrieve X11 display");
-        return -1;
-    }
-    egl->own_native_display = 1;
-#else
-    egl->native_display = EGL_DEFAULT_DISPLAY;
-#endif
-    return 0;
-}
-
 static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType native_display)
 {
 #if defined(TARGET_ANDROID)
-    return eglGetDisplay(native_display);
+    egl->native_display = native_display ? native_display : EGL_DEFAULT_DISPLAY;
+    return eglGetDisplay(egl->native_display);
 #elif defined(TARGET_LINUX)
     int ret = egl_probe_client_extensions(egl);
     if (ret < 0)
         return EGL_NO_DISPLAY;
+
+    egl->native_display = native_display ? native_display : EGL_NO_DISPLAY;
+    if (!egl->native_display) {
+        egl->native_display = XOpenDisplay(NULL);
+        if (!egl->native_display) {
+            LOG(ERROR, "could not retrieve X11 display");
+            return EGL_NO_DISPLAY;
+        }
+        egl->own_native_display = 1;
+    }
 
     /* XXX: only X11 is supported for now */
     if (!egl->has_platform_x11_ext) {
         LOG(ERROR, "EGL_EXT_platform_x11 is not supported");
         return EGL_NO_DISPLAY;
     }
-
     return egl->GetPlatformDisplay(EGL_PLATFORM_X11, native_display, NULL);
 #else
     return EGL_NO_DISPLAY;
@@ -176,13 +167,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 {
     struct egl_priv *egl = ctx->priv_data;
 
-    int ret = egl_set_native_display(egl, display);
-    if (ret < 0) {
-        LOG(ERROR, "could not set native display");
-        return -1;
-    }
-
-    egl->display = egl_get_display(egl, egl->native_display);
+    egl->display = egl_get_display(egl, (EGLNativeDisplayType)display);
     if (!egl->display) {
         LOG(ERROR, "could not retrieve EGL display");
         return -1;
@@ -190,7 +175,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     EGLint egl_minor;
     EGLint egl_major;
-    ret = eglInitialize(egl->display, &egl_major, &egl_minor);
+    int ret = eglInitialize(egl->display, &egl_major, &egl_minor);
     if (!ret) {
         LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
         return -1;
