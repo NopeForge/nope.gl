@@ -109,9 +109,7 @@ static int egl_probe_platform_x11_ext(struct egl_priv *egl)
 
     if (ngli_glcontext_check_extension("EGL_KHR_platform_x11", client_extensions) ||
         ngli_glcontext_check_extension("EGL_EXT_platform_x11", client_extensions)) {
-        egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplay");
-        if (!egl->GetPlatformDisplay)
-            egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplayEXT");
+        egl->GetPlatformDisplay = (void *)eglGetProcAddress("eglGetPlatformDisplayEXT");
         if (!egl->GetPlatformDisplay) {
             LOG(ERROR, "could not retrieve eglGetPlatformDisplay()");
             return -1;
