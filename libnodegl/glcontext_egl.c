@@ -132,7 +132,7 @@ static int egl_probe_client_extensions(struct egl_priv *egl)
 }
 #endif
 
-static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType native_display)
+static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType native_display, int offscreen)
 {
 #if defined(TARGET_ANDROID)
     egl->native_display = native_display ? native_display : EGL_DEFAULT_DISPLAY;
@@ -145,19 +145,25 @@ static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType nat
     egl->native_display = native_display ? native_display : EGL_NO_DISPLAY;
     if (!egl->native_display) {
         egl->native_display = XOpenDisplay(NULL);
-        if (!egl->native_display) {
-            LOG(ERROR, "could not retrieve X11 display");
-            return EGL_NO_DISPLAY;
-        }
-        egl->own_native_display = 1;
+        if (!egl->native_display)
+            LOG(WARNING, "could not retrieve X11 display");
+        egl->own_native_display = egl->native_display ? 1 : 0;
     }
 
-    /* XXX: only X11 is supported for now */
-    if (!egl->has_platform_x11_ext) {
-        LOG(ERROR, "EGL_EXT_platform_x11 is not supported");
-        return EGL_NO_DISPLAY;
+    if (egl->native_display) {
+        /* XXX: only X11 is supported for now */
+        if (!egl->has_platform_x11_ext) {
+            LOG(ERROR, "EGL implementation does not support mandatory extension: EGL_EXT_platform_x11");
+            return EGL_NO_DISPLAY;
+        }
+        return egl->GetPlatformDisplay(EGL_PLATFORM_X11, egl->native_display, NULL);
     }
-    return egl->GetPlatformDisplay(EGL_PLATFORM_X11, native_display, NULL);
+
+    if (egl->has_platform_mesa_surfaceless_ext && offscreen) {
+        LOG(WARNING, "no display available, falling back to Mesa surfaceless platform");
+        return egl->GetPlatformDisplay(EGL_PLATFORM_SURFACELESS_MESA, EGL_DEFAULT_DISPLAY, NULL);
+    }
+    return EGL_NO_DISPLAY;
 #else
     return EGL_NO_DISPLAY;
 #endif
@@ -167,7 +173,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 {
     struct egl_priv *egl = ctx->priv_data;
 
-    egl->display = egl_get_display(egl, (EGLNativeDisplayType)display);
+    egl->display = egl_get_display(egl, (EGLNativeDisplayType)display, ctx->offscreen);
     if (!egl->display) {
         LOG(ERROR, "could not retrieve EGL display");
         return -1;
