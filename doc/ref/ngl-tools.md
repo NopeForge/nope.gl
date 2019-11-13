@@ -38,6 +38,9 @@ Option                      | Description
 `-z <swapinterval>`         | specify the OpenGL swapping interval (useful in combination with `-w`); `0` (the default) means non capped while `1` corresponds to the vsync
 `-t <start:duration:freq>`  | specify a time range to render in `start:duration:freq` format. All three values are floats.  `start` is the start time of the range (in seconds), `duration` is the duration of the range (also in seconds), and `freq` is the refresh frame rate.
 
+
+**Example**: `ngl-serialize pynodegl_utils.examples.misc fibo - | ngl-render -t 0:60:60 -s 640x480 -o - | ffplay -f rawvideo -framerate 60 -video_size 640x480 -pixel_format rgba -`
+
 **Source**: [ngl-tools/ngl-render.c](/ngl-tools/ngl-render.c)
 
 
