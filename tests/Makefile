@@ -27,12 +27,7 @@ all: tests
 tests_api:
 	$(PYTHON) api.py
 
-tests_serial:
-	$(PYTHON) serialize.py data
 
-tests: tests_api tests_serial
+tests: tests_api
 
-clean:
-	$(RM) -r data
-
-.PHONY: clean tests tests_api tests_serial all
+.PHONY: tests tests_api all
