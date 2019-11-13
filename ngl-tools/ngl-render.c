@@ -39,7 +39,7 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *scene = NULL;
     char *buf = NULL;
 
-    int fd = open(filename, O_RDONLY);
+    int fd = filename ? open(filename, O_RDONLY) : STDIN_FILENO;
     if (fd == -1) {
         fprintf(stderr, "unable to open %s\n", filename);
         goto end;
@@ -65,7 +65,7 @@ static struct ngl_node *get_scene(const char *filename)
     scene = ngl_node_deserialize(buf);
 
 end:
-    if (fd != -1)
+    if (fd != -1 && fd != STDIN_FILENO)
         close(fd);
     free(buf);
     return scene;
@@ -143,17 +143,12 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (!input) {
-        fprintf(stderr, "Usage: %s [-o out.raw] [-s WxH] [-w] [-d] [-z swapinterval] input.ngl\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
     if (!nb_ranges) {
         fprintf(stderr, "At least one range needs to be specified (-t start:duration:freq)\n");
         return EXIT_FAILURE;
     }
 
-    printf("%s -> %s %dx%d\n", input, output ? output : "-", width, height);
+    printf("%s -> %s %dx%d\n", input ? input : "<stdin>", output ? output : "-", width, height);
 
     if (show_window) {
         if (init_glfw() < 0)

@@ -23,11 +23,11 @@ good start.
 ## ngl-render
 
 `ngl-render` is a rendering test tool. It takes a serialized scene as input
-(`input.ngl`) and render the specified time ranges (by default, in a hidden
-window).
+(`input.ngl` or `stdin` if not specified) and render the specified time ranges
+(by default, in a hidden window).
 
 **Usage**: `ngl-render [-o out.raw] [-s WxH] [-w] [-d] [-z swapinterval]
--t start:duration:freq [-t start:duration:freq ...] input.ngl`
+-t start:duration:freq [-t start:duration:freq ...] [input.ngl]`
 
 Option                      | Description
 --------------------------- | ---------------------------
