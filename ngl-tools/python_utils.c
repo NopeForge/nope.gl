@@ -65,9 +65,11 @@ struct ngl_node *python_get_scene(const char *modname, const char *func_name, do
         goto end;
     }
 
-    *duration = PyFloat_AsDouble(pyduration);
-    if (PyErr_Occurred())
-        goto end;
+    if (duration) {
+        *duration = PyFloat_AsDouble(pyduration);
+        if (PyErr_Occurred())
+            goto end;
+    }
 
     scene = PyLong_AsVoidPtr(cptr);
     ngl_node_ref(scene);
