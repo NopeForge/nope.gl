@@ -1,5 +1,5 @@
 #
-# Copyright 2017 GoPro Inc.
+# Copyright 2019 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -19,13 +19,25 @@
 # under the License.
 #
 
-include ../common.mak
+test-api-backend: FUNC_NAME = test_backend
+API_TESTS += test-api-backend
 
+test-api-reconfigure: FUNC_NAME = test_reconfigure
+API_TESTS += test-api-reconfigure
 
-all: tests
+test-api-ctx-ownership: FUNC_NAME = test_ctx_ownership
+API_TESTS += test-api-ctx-ownership
 
-include api.mak
+test-api-ctx-ownership-subgraph: FUNC_NAME = test_ctx_ownership_subgraph
+API_TESTS += test-api-ctx-ownership-subgraph
 
-tests: $(TESTS)
+test-api-capture-buffer-lifetime: FUNC_NAME = test_capture_buffer_lifetime
+API_TESTS += test-api-capture-buffer-lifetime
 
-.PHONY: all tests
+$(API_TESTS):
+	@echo $@
+	@$(PYTHON) -c 'from api import $(FUNC_NAME); $(FUNC_NAME)()' > /dev/null
+
+test-api: $(API_TESTS)
+
+TESTS += $(API_TESTS)

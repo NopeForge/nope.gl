@@ -85,11 +85,3 @@ def test_capture_buffer_lifetime(width=1024, height=1024):
     viewer.set_scene(scene)
     viewer.draw(0)
     del viewer
-
-
-if __name__ == '__main__':
-    test_backend()
-    test_reconfigure()
-    test_ctx_ownership()
-    test_ctx_ownership_subgraph()
-    test_capture_buffer_lifetime()
