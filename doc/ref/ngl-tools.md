@@ -57,6 +57,22 @@ at build time.
 **Source**: [ngl-tools/ngl-python.c](/ngl-tools/ngl-python.c)
 
 
+## ngl-serialize
+
+`ngl-serialize` serializes a `node.gl` Python scene into the `ngl` format.
+Similarly to `ngl-python`, it relies on the C API of Python to execute the
+specified entry point.
+
+**Note**: it is only available if the Python headers are present on the system
+at build time.
+
+**Usage**: `ngl-serialize <module> <scene_func> <output.ngl>`
+
+**Example**: `ngl-serialize pynodegl_utils.examples.misc fibo -`
+
+**Source**: [ngl-tools/ngl-serialize.c](/ngl-tools/ngl-serialize.c)
+
+
 ## Player keyboard controls
 
 `ngl-player` and `ngl-python` are both scene players supporting the following

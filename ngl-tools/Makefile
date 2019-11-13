@@ -38,7 +38,7 @@ endif
 
 HAS_PYTHON := $(if $(shell pkg-config --exists python2 && echo 1),yes,no)
 
-TOOLS = player render
+TOOLS = player render serialize
 ifeq ($(HAS_PYTHON),yes)
 TOOLS += python
 endif
@@ -46,6 +46,10 @@ endif
 TOOLS_BINS = $(addprefix ngl-, $(addsuffix $(EXESUF), $(TOOLS)))
 
 all: $(TOOLS_BINS)
+
+ngl-serialize$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(shell python2-config --cflags)
+ngl-serialize$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(shell python2-config --libs)
+ngl-serialize$(EXESUF): ngl-serialize.o python_utils.o
 
 ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
 ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
