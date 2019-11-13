@@ -181,16 +181,16 @@ int main(int argc, char *argv[])
                 goto end;
             }
         } else {
-        int flags = O_WRONLY|O_CREAT|O_TRUNC;
+            int flags = O_WRONLY|O_CREAT|O_TRUNC;
 #ifdef O_BINARY
-        flags |= O_BINARY;
+            flags |= O_BINARY;
 #endif
-        fd = open(output, flags, 0644);
-        if (fd == -1) {
-            fprintf(stderr, "Unable to open %s\n", output);
-            ret = EXIT_FAILURE;
-            goto end;
-        }
+            fd = open(output, flags, 0644);
+            if (fd == -1) {
+                fprintf(stderr, "Unable to open %s\n", output);
+                ret = EXIT_FAILURE;
+                goto end;
+            }
         }
         capture_buffer = calloc(width * height, 4);
         if (!capture_buffer)
