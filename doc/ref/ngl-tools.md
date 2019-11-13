@@ -31,7 +31,7 @@ good start.
 
 Option                      | Description
 --------------------------- | ---------------------------
-`-o <out.raw>`              | specify the raw output file
+`-o <out.raw>`              | specify the raw output file, "-" can be used for stdout output
 `-s <WxH>`                  | specify the output dimensions in `WxH` format
 `-w`                        | if specified, the rendering window will be shown
 `-d`                        | enable debugging (of the tool)

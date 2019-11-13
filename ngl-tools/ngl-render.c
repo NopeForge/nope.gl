@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
     int swap_interval = 0;
     int debug = 0;
     GLFWwindow *window = NULL;
+    int stdout_output = 0;
 
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-d")) {
@@ -102,6 +103,7 @@ int main(int argc, char *argv[])
             switch (opt) {
                 case 'o':
                     output = arg;
+                    stdout_output = !strcmp(output, "-");
                     break;
                 case 's':
                     if (sscanf(arg, "%dx%d", &width, &height) != 2) {
@@ -172,6 +174,13 @@ int main(int argc, char *argv[])
     }
 
     if (output) {
+        if (stdout_output) {
+            fd = dup(STDOUT_FILENO);
+            if (fd < 0 || dup2(STDERR_FILENO, STDOUT_FILENO) < 0) {
+                ret = EXIT_FAILURE;
+                goto end;
+            }
+        } else {
         int flags = O_WRONLY|O_CREAT|O_TRUNC;
 #ifdef O_BINARY
         flags |= O_BINARY;
@@ -181,6 +190,7 @@ int main(int argc, char *argv[])
             fprintf(stderr, "Unable to open %s\n", output);
             ret = EXIT_FAILURE;
             goto end;
+        }
         }
         capture_buffer = calloc(width * height, 4);
         if (!capture_buffer)
