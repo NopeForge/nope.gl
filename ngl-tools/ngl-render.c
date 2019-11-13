@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
     }
 
     if (!nb_ranges) {
-        fprintf(stderr, "At least one range needs to be specified\n");
+        fprintf(stderr, "At least one range needs to be specified (-t start:duration:freq)\n");
         return EXIT_FAILURE;
     }
 
