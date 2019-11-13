@@ -32,11 +32,12 @@
 #include "common.h"
 #include "wsi.h"
 
+#define BUF_SIZE 1024
+
 static struct ngl_node *get_scene(const char *filename)
 {
     struct ngl_node *scene = NULL;
     char *buf = NULL;
-    struct stat st;
 
     int fd = open(filename, O_RDONLY);
     if (fd == -1) {
@@ -44,15 +45,22 @@ static struct ngl_node *get_scene(const char *filename)
         goto end;
     }
 
-    if (fstat(fd, &st) == -1)
-        goto end;
-
-    buf = malloc(st.st_size + 1);
-    if (!buf)
-        goto end;
-
-    int n = read(fd, buf, st.st_size);
-    buf[n] = 0;
+    ssize_t pos = 0;
+    for (;;) {
+        const ssize_t needed = pos + BUF_SIZE + 1;
+        void *new_buf = realloc(buf, needed);
+        if (!new_buf)
+            goto end;
+        buf = new_buf;
+        const ssize_t n = read(fd, buf + pos, BUF_SIZE);
+        if (n < 0)
+            goto end;
+        if (n == 0) {
+            buf[pos] = 0;
+            break;
+        }
+        pos += n;
+    }
 
     scene = ngl_node_deserialize(buf);
 
