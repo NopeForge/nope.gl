@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 GoPro Inc.
+ * Copyright 2019 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,39 +19,11 @@
  * under the License.
  */
 
-#include <stdio.h>
-#include <stdlib.h>
+#ifndef PYTHON_UTILS_H
+#define PYTHON_UTILS_H
 
 #include <nodegl.h>
 
-#include "player.h"
-#include "python_utils.h"
+struct ngl_node *python_get_scene(const char *modname, const char *func_name, double *duration);
 
-int main(int argc, char *argv[])
-{
-    int ret;
-    double duration;
-
-    if (argc < 3) {
-        fprintf(stderr, "Usage: %s <module> <scene_func>\n", argv[0]);
-        return -1;
-    }
-
-    struct ngl_node *scene = python_get_scene(argv[1], argv[2], &duration);
-    if (!scene)
-        return -1;
-
-    struct player p;
-    ret = player_init(&p, "ngl-python", scene,
-                      1280, 800, duration);
-    if (ret < 0)
-        goto end;
-    ngl_node_unrefp(&scene);
-
-    player_main_loop();
-
-end:
-    player_uninit();
-
-    return ret;
-}
+#endif
