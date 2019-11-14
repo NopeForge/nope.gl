@@ -116,10 +116,10 @@ static int egl_probe_platform_x11_ext(struct egl_priv *egl)
             LOG(ERROR, "could not retrieve eglGetPlatformDisplay()");
             return -1;
         }
-        return 1;
+        return 0;
     }
 
-    return 0;
+    return -1;
 }
 #endif
 
@@ -149,7 +149,7 @@ static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType nat
 #elif defined(TARGET_LINUX)
     /* XXX: only X11 is supported for now */
     int ret = egl_probe_platform_x11_ext(egl);
-    if (ret <= 0)
+    if (ret < 0)
         return EGL_NO_DISPLAY;
     return egl->GetPlatformDisplay(EGL_PLATFORM_X11, native_display, NULL);
 #else
