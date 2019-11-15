@@ -34,6 +34,9 @@ int ngli_vaapi_init(struct ngl_ctx *s)
     if (gl->platform != NGL_PLATFORM_XLIB)
         return -1;
 
+    if (gl->features & NGLI_FEATURE_SOFTWARE)
+        return -1;
+
     if (!(gl->features & (NGLI_FEATURE_OES_EGL_IMAGE |
                           NGLI_FEATURE_EGL_IMAGE_BASE_KHR |
                           NGLI_FEATURE_EGL_EXT_IMAGE_DMA_BUF_IMPORT))) {
