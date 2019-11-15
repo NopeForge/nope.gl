@@ -154,6 +154,14 @@ static int glcontext_probe_version(struct glcontext *glcontext)
     const char *renderer = (const char *)ngli_glGetString(glcontext, GL_RENDERER);
     LOG(INFO, "OpenGL renderer: %s", renderer ? renderer : "unknown");
 
+    if (renderer && (
+        strstr(renderer, "llvmpipe") || // Mesa llvmpipe
+        strstr(renderer, "softpipe") || // Mesa softpipe
+        strstr(renderer, "SWR"))) {     // Mesa swrast
+        glcontext->features |= NGLI_FEATURE_SOFTWARE;
+        LOG(INFO, "Software renderer detected");
+    }
+
     glcontext->version = major_version * 100 + minor_version * 10;
 
     return 0;
