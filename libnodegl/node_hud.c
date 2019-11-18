@@ -459,9 +459,9 @@ static int widget_latency_update(struct ngl_node *node, struct widget *widget, d
         priv->glBeginQuery(gl, GL_TIME_ELAPSED, priv->query);
     }
 
-    int64_t update_start = ngli_gettime();
+    int64_t update_start = ngli_gettime_relative();
     ret = ngli_node_update(child, t);
-    int64_t update_end = ngli_gettime();
+    int64_t update_end = ngli_gettime_relative();
 
     GLuint64 gpu_tupdate = 0;
     if (!timer_active) {
@@ -491,9 +491,9 @@ static void widget_latency_make_stats(struct ngl_node *node, struct widget *widg
         priv->glBeginQuery(gl, GL_TIME_ELAPSED, priv->query);
     }
 
-    const int64_t draw_start = ngli_gettime();
+    const int64_t draw_start = ngli_gettime_relative();
     ngli_node_draw(s->child);
-    const int64_t draw_end = ngli_gettime();
+    const int64_t draw_end = ngli_gettime_relative();
 
     GLuint64 gpu_tdraw = 0;
     if (!timer_active) {
