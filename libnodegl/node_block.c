@@ -68,6 +68,11 @@ static const struct param_choices layout_choices = {
                                           NGL_NODE_UNIFORMINT,          \
                                           NGL_NODE_UNIFORMMAT4,         \
                                           NGL_NODE_UNIFORMQUAT,         \
+                                          NGL_NODE_ANIMATEDFLOAT,       \
+                                          NGL_NODE_ANIMATEDVEC2,        \
+                                          NGL_NODE_ANIMATEDVEC3,        \
+                                          NGL_NODE_ANIMATEDVEC4,        \
+                                          NGL_NODE_ANIMATEDQUAT,        \
                                           NGL_NODE_STREAMEDINT,         \
                                           NGL_NODE_STREAMEDFLOAT,       \
                                           NGL_NODE_STREAMEDVEC2,        \
@@ -171,18 +176,23 @@ static int get_quat_size(const struct ngl_node *quat, int layout)
 static int get_node_size(const struct ngl_node *node, int layout)
 {
     switch (node->class->id) {
+        case NGL_NODE_ANIMATEDFLOAT:
         case NGL_NODE_STREAMEDFLOAT:
         case NGL_NODE_UNIFORMFLOAT:         return sizeof(float) * 1;
+        case NGL_NODE_ANIMATEDVEC2:
         case NGL_NODE_STREAMEDVEC2:
         case NGL_NODE_UNIFORMVEC2:          return sizeof(float) * 2;
+        case NGL_NODE_ANIMATEDVEC3:
         case NGL_NODE_STREAMEDVEC3:
         case NGL_NODE_UNIFORMVEC3:          return sizeof(float) * 3;
+        case NGL_NODE_ANIMATEDVEC4:
         case NGL_NODE_STREAMEDVEC4:
         case NGL_NODE_UNIFORMVEC4:          return sizeof(float) * 4;
         case NGL_NODE_STREAMEDMAT4:
         case NGL_NODE_UNIFORMMAT4:          return sizeof(float) * 4 * 4;
         case NGL_NODE_STREAMEDINT:
         case NGL_NODE_UNIFORMINT:           return sizeof(int);
+        case NGL_NODE_ANIMATEDQUAT:
         case NGL_NODE_UNIFORMQUAT:          return get_quat_size(node, layout);
         default:                            return get_buffer_size(node, layout);
     }
@@ -191,16 +201,21 @@ static int get_node_size(const struct ngl_node *node, int layout)
 static int get_node_align(const struct ngl_node *node, int layout)
 {
     switch (node->class->id) {
+        case NGL_NODE_ANIMATEDFLOAT:
         case NGL_NODE_STREAMEDFLOAT:
         case NGL_NODE_UNIFORMFLOAT:         return sizeof(float) * 1;
+        case NGL_NODE_ANIMATEDVEC2:
         case NGL_NODE_STREAMEDVEC2:
         case NGL_NODE_UNIFORMVEC2:          return sizeof(float) * 2;
+        case NGL_NODE_ANIMATEDVEC3:
         case NGL_NODE_STREAMEDVEC3:
         case NGL_NODE_UNIFORMVEC3:
+        case NGL_NODE_ANIMATEDVEC4:
         case NGL_NODE_STREAMEDVEC4:
         case NGL_NODE_UNIFORMVEC4:
         case NGL_NODE_STREAMEDMAT4:
         case NGL_NODE_UNIFORMMAT4:
+        case NGL_NODE_ANIMATEDQUAT:
         case NGL_NODE_UNIFORMQUAT:
         case NGL_NODE_BUFFERMAT4:           return sizeof(float) * 4;
         case NGL_NODE_STREAMEDINT:
