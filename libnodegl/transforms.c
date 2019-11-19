@@ -59,12 +59,14 @@ void ngli_transform_draw(struct ngl_node *node)
     struct transform_priv *s = node->priv_data;
     struct ngl_node *child = s->child;
 
-    float *prev_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
-    ngli_assert(prev_matrix);
-
     float *next_matrix = ngli_darray_push(&ctx->modelview_matrix_stack, NULL);
     if (!next_matrix)
         return;
+
+    /* We cannot use ngli_darray_tail() before calling ngli_darray_push() as
+     * ngli_darray_push() can potentially perform a re-allocation on the
+     * underlying matrix stack buffer */
+    const float *prev_matrix = next_matrix - 4 * 4;
 
     ngli_mat4_mul(next_matrix, prev_matrix, s->matrix);
     ngli_node_draw(child);
