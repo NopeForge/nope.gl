@@ -25,7 +25,7 @@
 #include "bstr.h"
 #include "memory.h"
 
-#define INITIAL_SIZE 1024
+#define BUFFER_PADDING 1024
 
 struct bstr {
     char *str;
@@ -39,7 +39,7 @@ struct bstr *ngli_bstr_create(void)
 
     if (!b)
         return NULL;
-    b->bufsize = INITIAL_SIZE;
+    b->bufsize = BUFFER_PADDING;
     b->str = ngli_malloc(b->bufsize);
     if (!b->str) {
         ngli_free(b);
@@ -63,7 +63,7 @@ int ngli_bstr_print(struct bstr *b, const char *fmt, ...)
     }
 
     if (len + 1 > avail) {
-        const int new_size = b->len + len + 1 + INITIAL_SIZE;
+        const int new_size = b->len + len + 1 + BUFFER_PADDING;
         void *ptr = ngli_realloc(b->str, new_size);
         if (!ptr)
             return 0;
