@@ -8,9 +8,9 @@ for building and running the complete **node.gl** stack:
 - **GCC** or **Clang**
 - **GNU/Make**
 - **FFmpeg** (and its libraries for compilation)
-- **Python 2.x** (you will need the package with the build headers as well,
+- **Python 3.x** (you will need the package with the build headers as well,
   typically named with a `-devel` suffix on Debian based systems)
-- **pip** (Python 2 version)
+- **pip** (Python 3 version)
 - **Graphviz**
 - **GLFW3**
 - **Python virtualenv**

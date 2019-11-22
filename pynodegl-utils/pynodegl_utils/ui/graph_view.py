@@ -188,7 +188,7 @@ class GraphView(QtWidgets.QWidget):
         basename = op.join(tempfile.gettempdir(), 'ngl_scene.')
         dotfile = basename + 'dot'
         svgfile = basename + 'svg'
-        open(dotfile, 'w').write(dot_scene)
+        open(dotfile, 'w').write(dot_scene.decode('ascii'))
         try:
             subprocess.call(['dot', '-Tsvg', dotfile, '-o' + svgfile])
         except OSError as e:

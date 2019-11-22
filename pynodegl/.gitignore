@@ -2,5 +2,5 @@ build
 nodes_def.pyx
 pynodegl.c
 pynodegl.egg-info
-pynodegl.so
+pynodegl.*.so
 .eggs

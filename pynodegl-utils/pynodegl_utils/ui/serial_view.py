@@ -59,4 +59,4 @@ class SerialView(QtWidgets.QWidget):
         cfg = self._get_scene_func()
         if not cfg:
             return
-        self._text.setPlainText(cfg['scene'])
+        self._text.setPlainText(cfg['scene'].decode('ascii'))

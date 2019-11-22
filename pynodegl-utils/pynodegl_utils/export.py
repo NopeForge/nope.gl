@@ -85,14 +85,8 @@ class Exporter(QtCore.QThread):
             cmd += extra_enc_args
         cmd += ['-y', filename]
 
-        def close_unused_child_fd():
-            os.close(fd_w)
-
-        def close_unused_parent_fd():
-            os.close(fd_r)
-
-        reader = subprocess.Popen(cmd, preexec_fn=close_unused_child_fd, close_fds=False)
-        close_unused_parent_fd()
+        reader = subprocess.Popen(cmd, pass_fds=(fd_r,))
+        os.close(fd_r)
 
         capture_buffer = bytearray(width * height * 4)
 

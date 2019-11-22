@@ -58,7 +58,7 @@ def scene(**widgets_specs):
         # We could use the return value but it's better if the user can still
         # call its decorated scene function transparently inside his own code
         # without getting garbage along the return value.
-        func_wrapper.widgets_specs = widgets_specs.items()
+        func_wrapper.widgets_specs = list(widgets_specs.items())
 
         # Flag the scene as a scene function so it's registered in the UI.
         func_wrapper.iam_a_ngl_scene_func = True

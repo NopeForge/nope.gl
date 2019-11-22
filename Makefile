@@ -104,7 +104,7 @@ nodegl-%: nodegl-install
 clean_py:
 	$(RM) pynodegl/nodes_def.pyx
 	$(RM) pynodegl/pynodegl.c
-	$(RM) pynodegl/pynodegl.so
+	$(RM) pynodegl/pynodegl.*.so
 	$(RM) -r pynodegl/build
 	$(RM) -r pynodegl/pynodegl.egg-info
 	$(RM) -r pynodegl/.eggs

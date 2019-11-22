@@ -16,10 +16,9 @@ jobs:
 
     - name: Install dependencies
       run: |
-        brew install curl pkg-config glfw3 ffmpeg
-        curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-        python2 get-pip.py
-        sudo pip install virtualenv
+        brew install python3 curl pkg-config glfw3 ffmpeg
+        # https://docs.brew.sh/Homebrew-and-Python
+        python3 -m pip install --upgrade pip virtualenv
 
     - name: Build
       run: |

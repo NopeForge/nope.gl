@@ -19,7 +19,7 @@
 # under the License.
 #
 
-PYTHON_MAJOR = 2
+PYTHON_MAJOR = 3
 
 #
 # User configuration

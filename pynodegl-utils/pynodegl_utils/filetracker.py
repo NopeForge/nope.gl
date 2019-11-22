@@ -22,7 +22,7 @@
 #
 
 import sys
-import __builtin__
+import builtins
 import os.path as op
 import distutils.sysconfig
 
@@ -31,7 +31,7 @@ class FileTracker:
 
     def __init__(self):
         self.filelist = set()
-        self._builtin_open = __builtin__.open
+        self._builtin_open = builtins.open
         self._pysysdir = op.realpath(distutils.sysconfig.get_python_lib(standard_lib=True))
 
     def _open_hook(self, name, *args, **kwargs):
@@ -58,9 +58,9 @@ class FileTracker:
 
     def start_hooking(self):
         self._start_files = self._get_trackable_files()
-        __builtin__.open = self._open_hook
+        builtins.open = self._open_hook
 
     def end_hooking(self):
         new_files = self._get_trackable_files() - self._start_files
         self.filelist.update(new_files)
-        __builtin__.open = self._builtin_open
+        builtins.open = self._builtin_open

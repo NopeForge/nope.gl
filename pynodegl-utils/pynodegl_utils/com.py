@@ -21,7 +21,6 @@
 # under the License.
 #
 
-import imp
 import importlib
 import inspect
 import os
@@ -31,30 +30,21 @@ import pkgutil
 import subprocess
 import sys
 import traceback
-import threading
 import pynodegl as ngl
 from pynodegl_utils.filetracker import FileTracker
 
 
 IPC_READ_BUFSIZE = 4096
 
-# For some unknown reason, Python deadlocks with the pipes when trying to run
-# subprocesses simultaneously. In the context of the viewer, this may happen
-# with concurrent 'list' and 'scene' queries when a change is detected. This
-# global lock is here to prevent several sub-process to happen in parallel.
-_lock = threading.Lock()
-
 
 def load_script(path):
-    dname = op.dirname(path)
-    fname = op.basename(path)
-    name = fname[:-3]
-    fp, pathname, description = imp.find_module(name, [dname])
-    try:
-        return imp.load_module(name, fp, pathname, description)
-    finally:
-        if fp:
-            fp.close()
+    # https://docs.python.org/3/library/importlib.html#importing-a-source-file-directly
+    name, _ = op.splitext(op.basename(path))
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 def query_subproc(**idict):
@@ -64,39 +54,28 @@ def query_subproc(**idict):
     serialization of dict.
 
     The parent process will write the query to the writable input fd
-    (ifilesd[1]) and read the result from the readable output fd (ofilesd[0]).
+    (fd_w) and read the result from the readable output fd (fd_r).
 
     The executed child (ngl-com sub-process) will read the query from the
-    readable input fd (ifilesd[0]) and write result to writable output fd
-    (ofilesd[1]).
+    readable input fd (child_fd_r) and write result to writable output fd
+    (child_fd_w).
     '''
 
-    _lock.acquire()
+    child_fd_r, fd_w = os.pipe()
+    fd_r, child_fd_w = os.pipe()
 
-    ifilesd = os.pipe()
-    ofilesd = os.pipe()
-
-    def close_unused_child_fds():
-        os.close(ifilesd[1])
-        os.close(ofilesd[0])
-
-    def close_unused_parent_fds():
-        os.close(ifilesd[0])
-        os.close(ofilesd[1])
-
-    cmd = [sys.executable, '-m', 'pynodegl_utils.com', str(ifilesd[0]), str(ofilesd[1])]
-    ret = subprocess.Popen(cmd, preexec_fn=close_unused_child_fds)
-    close_unused_parent_fds()
+    cmd = [sys.executable, '-m', 'pynodegl_utils.com', str(child_fd_r), str(child_fd_w)]
+    ret = subprocess.Popen(cmd, pass_fds=(child_fd_r, child_fd_w))
+    os.close(child_fd_r)
+    os.close(child_fd_w)
 
     # Send input
-    fd_w = ifilesd[1]
     idata = pickle.dumps(idict)
     os.write(fd_w, idata)
     os.close(fd_w)
 
     # Receive output
-    fd_r = ofilesd[0]
-    odata = ''
+    odata = b''
     while True:
         rdata = os.read(fd_r, IPC_READ_BUFSIZE)
         if not rdata:
@@ -107,7 +86,6 @@ def query_subproc(**idict):
 
     ret.wait()
 
-    _lock.release()
     return odict
 
 
@@ -207,7 +185,7 @@ def run():
     fd_r, fd_w = int(sys.argv[1]), int(sys.argv[2])
 
     # Read input
-    idata = ''
+    idata = b''
     while True:
         rdata = os.read(fd_r, IPC_READ_BUFSIZE)
         if not rdata:

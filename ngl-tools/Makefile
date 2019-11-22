@@ -43,7 +43,31 @@ HAS_PYTHON := $(if $(shell pkg-config --exists python$(PYTHON_MAJOR) && echo 1),
 TOOLS = player render
 ifeq ($(HAS_PYTHON),yes)
 PYTHON_CFLAGS := $(shell python$(PYTHON_MAJOR)-config --cflags)
-PYTHON_LDLIBS := $(shell python$(PYTHON_MAJOR)-config --libs)
+#
+# After the 2-to-3 migration fiasco, the Python team did a lot of retrospective
+# on why it failed. Lesson learned: now instead of bumping major, they do major
+# incompatible breakages in minor revisions:
+#
+#   To support both 3.8 and older, try python3-config --libs --embed first and
+#   fallback to python3-config --libs (without --embed) if the previous command
+#   fails.
+#
+#   Source: https://docs.python.org/3/whatsnew/3.8.html
+#
+# Note that we need something more complex than `python3-config ... --embed ||
+# python3-config ...` because obviously on failure the tool prints on stdout.
+#
+# And because all of this wasn't enough, we use --ldflags instead of
+# --libs because it seems to be the real equivalent of pkg-config --libs.
+# Indeed, at least on MacOS --libs doesn't raise the -L flag needed for the
+# link to succeed. Note that since they decided that --ldflags was also
+# including the libs (when it shouldn't), there is no need to have an
+# additional redundant --libs.
+#
+PYTHON_LDLIBS_EMBED-no  = $(shell python$(PYTHON_MAJOR)-config --ldflags)
+PYTHON_LDLIBS_EMBED-yes = $(shell python$(PYTHON_MAJOR)-config --ldflags --embed)
+PYTHON_HAS_EMBED := $(shell python$(PYTHON_MAJOR)-config --embed >/dev/null && echo yes || echo no)
+PYTHON_LDLIBS := $(PYTHON_LDLIBS_EMBED-$(PYTHON_HAS_EMBED))
 TOOLS += python serialize
 endif
 
