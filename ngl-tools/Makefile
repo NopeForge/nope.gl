@@ -36,12 +36,14 @@ TOOLS_LDLIBS += $(shell $(PKG_CONFIG) --libs   gl)
 endif
 endif
 
-HAS_PYTHON := $(if $(shell pkg-config --exists python2 && echo 1),yes,no)
+# Warning: while all 3 "python{,2,3}-config" should work as expected,
+# "pkg-config --exists python" never will, so an explicit version is needed.
+HAS_PYTHON := $(if $(shell pkg-config --exists python$(PYTHON_MAJOR) && echo 1),yes,no)
 
 TOOLS = player render serialize
 ifeq ($(HAS_PYTHON),yes)
-PYTHON_CFLAGS := $(shell python2-config --cflags)
-PYTHON_LDLIBS := $(shell python2-config --libs)
+PYTHON_CFLAGS := $(shell python$(PYTHON_MAJOR)-config --cflags)
+PYTHON_LDLIBS := $(shell python$(PYTHON_MAJOR)-config --libs)
 TOOLS += python
 endif
 

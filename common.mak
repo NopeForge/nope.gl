@@ -19,6 +19,8 @@
 # under the License.
 #
 
+PYTHON_MAJOR = 2
+
 #
 # User configuration
 #
