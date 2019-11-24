@@ -92,10 +92,10 @@ class Clock(object):
 
 class Player(QtCore.QThread):
 
-    on_play = QtCore.pyqtSignal(name='onPlay')
-    on_pause = QtCore.pyqtSignal(name='onPause')
-    on_scene_metadata = QtCore.pyqtSignal(dict, name='onSceneMetadata')
-    on_frame = QtCore.pyqtSignal(int, float, name='onFrame')
+    onPlay = QtCore.pyqtSignal()
+    onPause = QtCore.pyqtSignal()
+    onSceneMetadata = QtCore.pyqtSignal(dict)
+    onFrame = QtCore.pyqtSignal(int, float)
 
     def __init__(self, window, width, height, config):
         super(Player, self).__init__()

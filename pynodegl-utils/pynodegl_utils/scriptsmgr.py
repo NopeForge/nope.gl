@@ -36,7 +36,7 @@ MIN_RELOAD_INTERVAL = 0.0015
 
 class ScriptsManager(QtCore.QObject):
 
-    scripts_changed = QtCore.pyqtSignal(list, name='scriptsChanged')
+    scriptsChanged = QtCore.pyqtSignal(list)
     error = QtCore.pyqtSignal(str)
 
     def __init__(self, module_pkgname):
@@ -79,7 +79,7 @@ class ScriptsManager(QtCore.QObject):
         self.resume()
 
         scripts = odict['scenes']
-        self.scripts_changed.emit(scripts)
+        self.scriptsChanged.emit(scripts)
 
     def _on_any_event(self, event):
         def print_reload():

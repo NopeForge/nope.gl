@@ -33,7 +33,7 @@ from pynodegl_utils import export
 
 class _GLWidget(QtWidgets.QWidget):
 
-    on_player_available = QtCore.pyqtSignal(name='onPlayerAvailable')
+    onPlayerAvailable = QtCore.pyqtSignal()
 
     def __init__(self, parent, config):
         super(_GLWidget, self).__init__(parent)

@@ -27,7 +27,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class _ControlWidget(QtWidgets.QWidget):
 
-    need_scene_reload = QtCore.pyqtSignal(str, object, name='needSceneReload')
+    needSceneReload = QtCore.pyqtSignal(str, object)
 
     def __init__(self, name):
         super(_ControlWidget, self).__init__()
@@ -36,7 +36,7 @@ class _ControlWidget(QtWidgets.QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
 
     def signal_change(self, value):
-        self.need_scene_reload.emit(self._name, value)
+        self.needSceneReload.emit(self._name, value)
 
     def get_label_text(self, value=None):
         return '<b>{}:</b> {}'.format(self._name, value) if value is not None else '<b>{}:</b>'.format(self._name)

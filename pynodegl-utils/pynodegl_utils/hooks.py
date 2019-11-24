@@ -116,10 +116,10 @@ class HooksCaller:
 
 class _HooksThread(QtCore.QThread):
 
-    uploading_file_notif = QtCore.pyqtSignal(str, int, int, str, name='uploadingFileNotif')
-    building_scene_notif = QtCore.pyqtSignal(str, str, str, name='buildingSceneNotif')
-    sending_scene_notif = QtCore.pyqtSignal(str, str, name='sendingSceneNotif')
-    done_notif = QtCore.pyqtSignal(str, str, float, name='doneNotif')
+    uploadingFileNotif = QtCore.pyqtSignal(str, int, int, str)
+    buildingSceneNotif = QtCore.pyqtSignal(str, str, str)
+    sendingSceneNotif = QtCore.pyqtSignal(str, str)
+    doneNotif = QtCore.pyqtSignal(str, str, float)
     error = QtCore.pyqtSignal(str, str)
 
     def __init__(self, get_scene_func, hooks_caller, session_id, backend, system, module_name, scene_name):

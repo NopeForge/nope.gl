@@ -32,14 +32,14 @@ from pynodegl_utils.config import Config
 
 class Toolbar(QtWidgets.QWidget):
 
-    scene_changed = QtCore.pyqtSignal(str, str, name='sceneChanged')
-    aspect_ratio_changed = QtCore.pyqtSignal(tuple, name='aspectRatioChanged')
-    samples_changed = QtCore.pyqtSignal(int, name='samplesChanged')
-    frame_rate_changed = QtCore.pyqtSignal(tuple, name='frameRateChanged')
-    log_level_changed = QtCore.pyqtSignal(str, name='logLevelChanged')
-    clear_color_changed = QtCore.pyqtSignal(tuple, name='clearColorChanged')
-    backend_changed = QtCore.pyqtSignal(str, name='backendChanged')
-    hud_changed = QtCore.pyqtSignal(bool, name='hudChanged')
+    sceneChanged = QtCore.pyqtSignal(str, str)
+    aspectRatioChanged = QtCore.pyqtSignal(tuple)
+    samplesChanged = QtCore.pyqtSignal(int)
+    frameRateChanged = QtCore.pyqtSignal(tuple)
+    logLevelChanged = QtCore.pyqtSignal(str)
+    clearColorChanged = QtCore.pyqtSignal(tuple)
+    backendChanged = QtCore.pyqtSignal(str)
+    hudChanged = QtCore.pyqtSignal(bool)
 
     def __init__(self, config):
         super(Toolbar, self).__init__()

@@ -26,11 +26,11 @@ from PyQt5 import QtCore, QtWidgets
 
 class Seekbar(QtWidgets.QWidget):
 
-    play = QtCore.pyqtSignal(name='play')
-    pause = QtCore.pyqtSignal(name='pause')
-    seek = QtCore.pyqtSignal(float, name='seek')
-    step = QtCore.pyqtSignal(int, name='step')
-    stop = QtCore.pyqtSignal(name='stop')
+    play = QtCore.pyqtSignal()
+    pause = QtCore.pyqtSignal()
+    seek = QtCore.pyqtSignal(float)
+    step = QtCore.pyqtSignal(int)
+    stop = QtCore.pyqtSignal()
 
     SLIDER_TIMEBASE = 1000
     SLIDER_TIMESCALE = 1. / SLIDER_TIMEBASE
