@@ -34,8 +34,8 @@ class FileTracker:
         self._builtin_open = __builtin__.open
         self._pysysdir = op.realpath(distutils.sysconfig.get_python_lib(standard_lib=True))
 
-    def _open_hook(self, name, mode='r', buffering=-1):
-        ret = self._builtin_open(name, mode, buffering)
+    def _open_hook(self, name, *args, **kwargs):
+        ret = self._builtin_open(name, *args, **kwargs)
         self.filelist.update([op.realpath(name)])
         return ret
 
