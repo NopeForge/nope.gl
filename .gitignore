@@ -1,3 +1,5 @@
 *.d
 *.exe
 *.o
+nodegl-env/
+sxplayer*

@@ -1,5 +1,20 @@
 # Installation
 
+## Quick user installation
+
+For a fast ready-to-go user experience, you can use the default rule of the
+root `Makefile`.  Calling `make` in the root directory of node.gl will create a
+complete environment (based on Python virtualenv):
+
+```shell
+% make
+[...]
+    Install completed.
+
+    You can now enter the venv with:
+        source /home/user/node.gl/nodegl-env/bin/activate
+```
+
 ## Installation of `libnodegl` (the core library)
 
 ### Build

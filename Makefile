@@ -19,7 +19,87 @@
 # under the License.
 #
 
-all:
+PREFIX ?= $(PWD)/nodegl-env
+
+include common.mak
+
+SXPLAYER_VERSION ?= 9.5.0
+
+# Prevent headers from being rewritten, which would cause unecessary
+# recompilations between `make` calls.
+INSTALL = install -C
+
+VIRTUALENV ?= virtualenv
+
+ACTIVATE = $(PREFIX)/bin/activate
+
+RPATH_LDFLAGS ?= -Wl,-rpath,$(PREFIX)/lib
+ifeq ($(TARGET_OS),Darwin)
+	LIBNODEGL_EXTRA_LDFLAGS   = -Wl,-install_name,@rpath/libnodegl.dylib
+	LIBSXPLAYER_EXTRA_LDFLAGS = -Wl,-install_name,@rpath/libsxplayer.dylib
+endif
+
+all: ngl-tools-install pynodegl-utils-install
+	@echo
+	@echo "    Install completed."
+	@echo
+	@echo "    You can now enter the venv with:"
+	@echo "        source $(ACTIVATE)"
+	@echo
+
+ngl-tools-install: nodegl-install
+	PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS=$(RPATH_LDFLAGS) $(MAKE) -C ngl-tools install PREFIX=$(PREFIX) DEBUG=$(DEBUG)
+
+pynodegl-utils-install: pynodegl-utils-deps-install
+	(source $(ACTIVATE) && pip -v install -e ./pynodegl-utils)
+
+# pynodegl-install is in dependency to prevent from trying to install pynodegl
+# from its requirements. Pulling pynodegl from requirements has two main issue:
+# it tries to get it from PyPi (and we want to install the local pynodegl
+# version), and it would fail anyway because pynodegl is currently not
+# available on PyPi.
+pynodegl-utils-deps-install: pynodegl-install
+	(source $(ACTIVATE) && pip install -r ./pynodegl-utils/requirements.txt)
+
+pynodegl-install: pynodegl-deps-install
+	(source $(ACTIVATE) && PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS=$(RPATH_LDFLAGS) pip -v install -e ./pynodegl)
+
+pynodegl-deps-install: $(PREFIX) nodegl-install
+	(source $(ACTIVATE) && pip install -r ./pynodegl/requirements.txt)
+
+nodegl-install: sxplayer-install
+	PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS="$(RPATH_LDFLAGS) $(LIBNODEGL_EXTRA_LDFLAGS)" $(MAKE) -C libnodegl install PREFIX=$(PREFIX) DEBUG=$(DEBUG) SHARED=yes INSTALL="$(INSTALL)"
+
+sxplayer-install: sxplayer $(PREFIX)
+	PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS="$(RPATH_LDFLAGS) $(LIBSXPLAYER_EXTRA_LDFLAGS)" $(MAKE) -C sxplayer install PREFIX=$(PREFIX) DEBUG=$(DEBUG) SHARED=yes INSTALL="$(INSTALL)"
+
+# Note for developers: in order to customize the sxplayer you're building
+# against, you can use your own sources post-install:
+#
+#     % unlink sxplayer
+#     % ln -snf /path/to/sxplayer.git sxplayer
+#     % touch /path/to/sxplayer.git
+#
+# The `touch` command makes sure the source target directory is more recent
+# than the prerequisite directory of the sxplayer rule. If this isn't true, the
+# symlink will be re-recreated on the next `make` call
+sxplayer: sxplayer-$(SXPLAYER_VERSION)
+	ln -snf $< $@
+
+sxplayer-$(SXPLAYER_VERSION): sxplayer-$(SXPLAYER_VERSION).tar.gz
+	$(TAR) xf $<
+
+sxplayer-$(SXPLAYER_VERSION).tar.gz:
+	$(CURL) -L https://github.com/Stupeflix/sxplayer/archive/v$(SXPLAYER_VERSION).tar.gz -o $@
+
+$(PREFIX):
+	$(VIRTUALENV) -p $(PYTHON) $(PREFIX)
+
+tests: ngl-tools-install pynodegl-utils-install tests_libnodegl
+	(source $(ACTIVATE) && $(MAKE) -C tests)
+
+tests_libnodegl: nodegl-install
+	(source $(ACTIVATE) && PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS=$(RPATH_LDFLAGS) $(MAKE) -C libnodegl tests DEBUG=$(DEBUG))
 
 clean_py:
 	$(RM) pynodegl/nodes_def.pyx
@@ -32,5 +112,14 @@ clean_py:
 	$(RM) -r pynodegl-utils/.eggs
 
 clean: clean_py
-	$(MAKE) -C libnodegl clean
-	$(MAKE) -C ngl-tools clean
+	PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig $(MAKE) -C libnodegl clean
+	PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig $(MAKE) -C ngl-tools clean
+
+.PHONY: all
+.PHONY: ngl-tools-install
+.PHONY: pynodegl-utils-install pynodegl-utils-deps-install
+.PHONY: pynodegl-install pynodegl-deps-install
+.PHONY: nodegl-install
+.PHONY: sxplayer-install
+.PHONY: tests tests_libnodegl
+.PHONY: clean clean_py

@@ -27,9 +27,11 @@ PYTHON_MAJOR = 2
 SHARED     ?= no
 DEBUG      ?= no
 SMALL      ?= no
+CURL       ?= curl
 INSTALL    ?= install
 PKG_CONFIG ?= pkg-config
 PYTHON     ?= python$(if $(shell which python$(PYTHON_MAJOR) 2> /dev/null),$(PYTHON_MAJOR),)
+TAR        ?= tar
 TARGET_OS  ?= $(shell uname -s)
 ARCH       ?= $(shell uname -m)
 

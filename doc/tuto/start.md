@@ -21,34 +21,22 @@ for building and running the complete **node.gl** stack:
 - **GNU/Make**
 - **Git**
 - **FFmpeg**
-- **Cython** (Python 2 version)
 - **Python 2.x** (you will need the package with the build headers as well,
   typically named with a `-devel` suffix on Debian based systems)
-- **pip2**
-- **Qt5** and its Python 2 binding: **PySide2**
+- **pip** (Python 2 version)
 - **Graphviz**
 - **GLFW3**
+- **Python virtualenv**
 
 This tutorial will not cover the installation of these tools, but they are
 fairly standard and packaged for many systems.
 
 ### Installing the full stack in a subdirectory of your home directory
 
-We will build and install node.gl in an arbitrary `$NGLDIR` variable:
+Clone the node.gl repository:
 
 ```shell
-export NGLDIR=$HOME/ngl-build
-mkdir -p $NGLDIR/env
-```
-
-Customize it at will, but make sure it is an absolute path where you have write
-permissions.
-
-Clone the two essential source repositories:
-
-```shell
-git clone https://github.com/stupeflix/sxplayer $NGLDIR/sxplayer
-git clone https://github.com/gopro/gopro-lib-node.gl $NGLDIR/node.gl
+git clone https://github.com/gopro/gopro-lib-node.gl node.gl
 ```
 
 Prepare your make for a parallel build (optional, but will make the process
@@ -61,36 +49,25 @@ alias make="make -j8"
 Replace `8` with the number of parallel job your system can handle. On
 GNU/Linux you can typically rely on `nproc` to obtain this value.
 
-
-Install the C packages:
-
-```shell
-cd $NGLDIR/sxplayer
-make install PREFIX=$NGLDIR/env
-cd $NGLDIR/node.gl/libnodegl
-PKG_CONFIG_PATH=$NGLDIR/env/lib/pkgconfig make install PREFIX=$NGLDIR/env
-cd $NGLDIR/node.gl/ngl-tools
-PKG_CONFIG_PATH=$NGLDIR/env/lib/pkgconfig make install PREFIX=$NGLDIR/env
-```
-
-Install in developer mode the Python packages and their dependencies:
+Install the whole environment:
 
 ```shell
-cd $NGLDIR/node.gl
-PKG_CONFIG_PATH=$NGLDIR/env/lib/pkgconfig pip2 install --user -e ./pynodegl
-pip2 install --user -r ./pynodegl-utils/requirements.txt
-pip2 install --user -e ./pynodegl-utils
+cd node.gl
+make
 ```
 
-One last step is to make sure to have the Python user bin directory in your
-`PATH`, typically `$HOME/.local/bin/`. Similarly, the *ngl-tools* can be found
-in `$NGLDIR/env/bin`. In your shell configuration (`~/.bashrc`, `~/.profile` or
-wherever you configure your paths), you will set something along the lines:
+Upon success, you should get a message similar to the following:
 
-```shell
-export NGLDIR=$HOME/ngl-build
-export PATH=$PATH:$HOME/.local/bin:$NGLDIR/env/bin
 ```
+    Install completed.
+
+    You can now enter the virtual env with:
+        source /home/user/node.gl/nodegl-env/bin/activate
+```
+
+The rest of the tutorial will assume you are in that virtual environment.
+
+**Note**: to leave the environment, you can use `deactivate`.
 
 ## 👁️ Running the demo viewer
 
