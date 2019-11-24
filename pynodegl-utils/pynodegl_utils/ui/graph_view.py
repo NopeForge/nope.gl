@@ -191,7 +191,7 @@ class GraphView(QtWidgets.QWidget):
         open(dotfile, 'w').write(dot_scene)
         try:
             subprocess.call(['dot', '-Tsvg', dotfile, '-o' + svgfile])
-        except OSError, e:
+        except OSError as e:
             QtWidgets.QMessageBox.critical(self, 'Graphviz error',
                                            'Error while executing dot (Graphviz): %s' % e.strerror,
                                            QtWidgets.QMessageBox.Ok)

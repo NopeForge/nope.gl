@@ -167,7 +167,7 @@ class _HooksThread(QtCore.QThread):
                 self.uploadingFileNotif.emit(session_id, i, len(filelist), localfile)
                 try:
                     remotefile = self._hooks_caller.sync_file(session_id, localfile)
-                except subprocess.CalledProcessError, e:
+                except subprocess.CalledProcessError as e:
                     self.error.emit(session_id, 'Error (%d) while uploading %s' % (e.returncode, localfile))
                     return
                 serialized_scene = serialized_scene.replace(
@@ -181,12 +181,12 @@ class _HooksThread(QtCore.QThread):
             self.sendingSceneNotif.emit(session_id, self._scene_id)
             try:
                 self._hooks_caller.scene_change(session_id, local_scene, cfg)
-            except subprocess.CalledProcessError, e:
+            except subprocess.CalledProcessError as e:
                 self.error.emit(session_id, 'Error (%d) while sending scene' % e.returncode)
                 return
             self.doneNotif.emit(session_id, self._scene_id, time.time() - start_time)
 
-        except Exception, e:
+        except Exception as e:
             self.error.emit(session_id, 'Error: %s' % str(e))
 
 
