@@ -40,6 +40,8 @@ HAS_PYTHON := $(if $(shell pkg-config --exists python2 && echo 1),yes,no)
 
 TOOLS = player render serialize
 ifeq ($(HAS_PYTHON),yes)
+PYTHON_CFLAGS := $(shell python2-config --cflags)
+PYTHON_LDLIBS := $(shell python2-config --libs)
 TOOLS += python
 endif
 
@@ -47,8 +49,8 @@ TOOLS_BINS = $(addprefix ngl-, $(addsuffix $(EXESUF), $(TOOLS)))
 
 all: $(TOOLS_BINS)
 
-ngl-serialize$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(shell python2-config --cflags)
-ngl-serialize$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(shell python2-config --libs)
+ngl-serialize$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(PYTHON_CFLAGS)
+ngl-serialize$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(PYTHON_LDLIBS)
 ngl-serialize$(EXESUF): ngl-serialize.o python_utils.o
 
 ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
@@ -59,8 +61,8 @@ ngl-render$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
 ngl-render$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
 ngl-render$(EXESUF): ngl-render.o
 
-ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(shell python2-config --cflags)
-ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(shell python2-config --libs)
+ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(PYTHON_CFLAGS)
+ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(PYTHON_LDLIBS)
 ngl-python$(EXESUF): ngl-python.o player.o python_utils.o
 
 TOOLS_OBJS_Linux  = wsi_x11.o
