@@ -25,26 +25,6 @@
 
 #include "python_utils.h"
 
-static int check_error(void)
-{
-    if (!PyErr_Occurred())
-        return 0;
-
-    PyObject *ptype, *pvalue, *ptraceback;
-    PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-    if (ptype)
-        printf("type: %s\n", PyString_AsString(ptype));
-    if (pvalue)
-        printf("value: %s\n", PyString_AsString(pvalue));
-    if (ptraceback)
-        printf("traceback: %s\n", PyString_AsString(ptraceback));
-    Py_XDECREF(ptype);
-    Py_XDECREF(pvalue);
-    Py_XDECREF(ptraceback);
-
-    return -1;
-}
-
 struct ngl_node *python_get_scene(const char *modname, const char *func_name, double *duration)
 {
     PyObject *pyscene = NULL;
@@ -75,7 +55,8 @@ struct ngl_node *python_get_scene(const char *modname, const char *func_name, do
     ngl_node_ref(scene);
 
 end:
-    check_error();
+    if (PyErr_Occurred())
+        PyErr_PrintEx(0);
 
     Py_XDECREF(mod);
     Py_XDECREF(utils);
