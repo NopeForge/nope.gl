@@ -36,7 +36,8 @@ class FileTracker:
 
     def _open_hook(self, name, *args, **kwargs):
         ret = self._builtin_open(name, *args, **kwargs)
-        self.filelist.update([op.realpath(name)])
+        if op.isfile(name):
+            self.filelist.update([op.realpath(name)])
         return ret
 
     def _get_trackable_files(self):
