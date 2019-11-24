@@ -143,7 +143,7 @@ class SceneCfg:
     }
 
     def __init__(self, **kwargs):
-        for field, def_val in self._DEFAULT_FIELDS.iteritems():
+        for field, def_val in self._DEFAULT_FIELDS.items():
             val = kwargs.get(field, def_val)
             setattr(self, field, val)
 
