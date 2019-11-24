@@ -206,7 +206,7 @@ cdef class _Node:
                 raise TypeError("%%s must be of type dict" %% field_name)
             data_dict.update(arg)
         data_dict.update(**kwargs)
-        for key, val in data_dict.iteritems():
+        for key, val in data_dict.items():
             if not isinstance(key, str) or (val is not None and not isinstance(val, _Node)):
                 raise TypeError("update_%%s() takes a dictionary of <string, Node>" %% field_name)
             node = (<_Node>val).ctx if val is not None else NULL
