@@ -21,8 +21,8 @@
 
 include ../common.mak
 
-TOOLS_CFLAGS = $(shell $(PKG_CONFIG) --cflags libnodegl libsxplayer glfw3)
-TOOLS_LDLIBS = $(shell $(PKG_CONFIG) --libs   libnodegl libsxplayer glfw3)
+TOOLS_CFLAGS := $(shell $(PKG_CONFIG) --cflags libnodegl libsxplayer glfw3)
+TOOLS_LDLIBS := $(shell $(PKG_CONFIG) --libs   libnodegl libsxplayer glfw3)
 
 # OpenGL
 ifeq ($(TARGET_OS),MinGW-w64)
