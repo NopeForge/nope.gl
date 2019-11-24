@@ -59,7 +59,7 @@ class Slider(_ControlWidget):
 
     @QtCore.pyqtSlot(int)
     def _slider_value_changed(self, value):
-        real_value = value if self._unit_base is 1 else value / float(self._unit_base)
+        real_value = value if self._unit_base == 1 else value / float(self._unit_base)
         self._label.setText(self.get_label_text(real_value))
         self.signal_change(real_value)
 
