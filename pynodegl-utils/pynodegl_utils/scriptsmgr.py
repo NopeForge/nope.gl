@@ -29,7 +29,7 @@ from watchdog.events import FileSystemEventHandler
 
 from PyQt5 import QtCore
 
-from com import query_subproc
+from .com import query_subproc
 
 MIN_RELOAD_INTERVAL = 0.0015
 

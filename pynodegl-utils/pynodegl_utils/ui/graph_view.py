@@ -26,7 +26,7 @@ import tempfile
 import subprocess
 from PyQt5 import QtCore, QtGui, QtWidgets, QtSvg
 
-from seekbar import Seekbar
+from .seekbar import Seekbar
 
 from pynodegl_utils import player
 from pynodegl_utils import misc

@@ -25,7 +25,7 @@ import sys
 
 from PyQt5 import QtWidgets, QtCore
 
-from ui.main_window import MainWindow
+from .ui.main_window import MainWindow
 
 
 def run():

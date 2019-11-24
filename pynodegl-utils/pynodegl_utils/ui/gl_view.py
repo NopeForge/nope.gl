@@ -25,7 +25,7 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt
 from PyQt5.QtCore import QEvent
 
-from seekbar import Seekbar
+from .seekbar import Seekbar
 
 from pynodegl_utils import player
 from pynodegl_utils import export
