@@ -116,10 +116,10 @@ class HooksCaller:
 
 class _HooksThread(QtCore.QThread):
 
-    uploadingFileNotif = QtCore.pyqtSignal(str, int, int, str)
-    buildingSceneNotif = QtCore.pyqtSignal(str, str, str)
-    sendingSceneNotif = QtCore.pyqtSignal(str, str)
-    doneNotif = QtCore.pyqtSignal(str, str, float)
+    uploadingFile = QtCore.pyqtSignal(str, int, int, str)
+    buildingScene = QtCore.pyqtSignal(str, str, str)
+    sendingScene = QtCore.pyqtSignal(str, str)
+    done = QtCore.pyqtSignal(str, str, float)
     error = QtCore.pyqtSignal(str, str)
 
     def __init__(self, get_scene_func, hooks_caller, session_id, backend, system, module_name, scene_name):
@@ -150,7 +150,7 @@ class _HooksThread(QtCore.QThread):
         start_time = time.time()
         session_id, backend, system = self._session_id, self._target_backend, self._target_system
 
-        self.buildingSceneNotif.emit(session_id, backend, system)
+        self.buildingScene.emit(session_id, backend, system)
         cfg = self._get_scene_func(backend=backend, system=system)
         if not cfg:
             self.error.emit(session_id, 'Error getting scene')
@@ -164,7 +164,7 @@ class _HooksThread(QtCore.QThread):
             serialized_scene = cfg['scene']
             filelist = [m.filename for m in cfg['medias']] + cfg['files']
             for i, localfile in enumerate(filelist, 1):
-                self.uploadingFileNotif.emit(session_id, i, len(filelist), localfile)
+                self.uploadingFile.emit(session_id, i, len(filelist), localfile)
                 try:
                     remotefile = self._hooks_caller.sync_file(session_id, localfile)
                 except subprocess.CalledProcessError as e:
@@ -178,13 +178,13 @@ class _HooksThread(QtCore.QThread):
             # communicated with additional parameters to the user
             local_scene = op.join(tempfile.gettempdir(), 'ngl_scene.ngl')
             open(local_scene, 'w').write(serialized_scene)
-            self.sendingSceneNotif.emit(session_id, self._scene_id)
+            self.sendingScene.emit(session_id, self._scene_id)
             try:
                 self._hooks_caller.scene_change(session_id, local_scene, cfg)
             except subprocess.CalledProcessError as e:
                 self.error.emit(session_id, 'Error (%d) while sending scene' % e.returncode)
                 return
-            self.doneNotif.emit(session_id, self._scene_id, time.time() - start_time)
+            self.done.emit(session_id, self._scene_id, time.time() - start_time)
 
         except Exception as e:
             self.error.emit(session_id, 'Error: %s' % str(e))
@@ -216,10 +216,10 @@ class HooksController(QtCore.QObject):
                                        session_id, data_row['backend'], data_row['system'],
                                        module_name, scene_name)
             self._threads.append(hook_thread)
-            hook_thread.uploadingFileNotif.connect(self._hooks_uploading)
-            hook_thread.buildingSceneNotif.connect(self._hooks_building_scene)
-            hook_thread.sendingSceneNotif.connect(self._hooks_sending_scene)
-            hook_thread.doneNotif.connect(self._hooks_done)
+            hook_thread.uploadingFile.connect(self._hooks_uploading)
+            hook_thread.buildingScene.connect(self._hooks_building_scene)
+            hook_thread.sendingScene.connect(self._hooks_sending_scene)
+            hook_thread.done.connect(self._hooks_done)
             hook_thread.error.connect(self._hooks_error)
             hook_thread.start()
 
