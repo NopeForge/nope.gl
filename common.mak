@@ -25,6 +25,7 @@
 SHARED     ?= no
 DEBUG      ?= no
 SMALL      ?= no
+INSTALL    ?= install
 PKG_CONFIG ?= pkg-config
 PYTHON     ?= python
 TARGET_OS  ?= $(shell uname -s)

@@ -76,8 +76,8 @@ clean:
 	$(RM) ngl-*.o common.o player.o wsi_*.o
 
 install: $(TOOLS_BINS)
-	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 755 $(TOOLS_BINS) $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -m 755 $(TOOLS_BINS) $(DESTDIR)$(PREFIX)/bin
 
 uninstall:
 	$(RM) $(addprefix $(DESTDIR)$(PREFIX)/bin/, $(TOOLS_BINS))

@@ -312,25 +312,25 @@ clean:
 	$(RM) $(addsuffix .o,$(TESTPROGS))
 
 install: $(LIB_NAME) $(LIB_PCNAME)
-	install -d $(DESTDIR)$(PREFIX)/lib
-	install -d $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	install -d $(DESTDIR)$(PREFIX)/include
-	install -d $(DESTDIR)$(PREFIX)/share
-	install -d $(DESTDIR)$(PREFIX)/share/nodegl
-	install -d $(DESTDIR)$(PREFIX)/share/nodegl/java
-	install -d $(DESTDIR)$(PREFIX)/share/nodegl/java/org
-	install -d $(DESTDIR)$(PREFIX)/share/nodegl/java/org/nodegl
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/lib
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/lib/pkgconfig
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/include
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share/nodegl
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share/nodegl/java
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share/nodegl/java/org
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/share/nodegl/java/org/nodegl
 ifeq ($(TARGET_OS),MinGW-w64)
 ifeq ($(SHARED),yes)
-	install -d $(DESTDIR)$(PREFIX)/bin
-	install -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -d $(DESTDIR)$(PREFIX)/bin
+	$(INSTALL) -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/bin
 endif # shared
 endif # mingw-w64
-	install -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/lib
-	install -m 644 $(LIB_PCNAME) $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	install -m 644 nodegl.h $(DESTDIR)$(PREFIX)/include/nodegl.h
-	install -m 644 $(SPECS_FILE) $(DESTDIR)$(PREFIX)/share/nodegl
-	install -m 644 android/java/OnFrameAvailableListener.java $(DESTDIR)$(PREFIX)/share/nodegl/java/org/nodegl
+	$(INSTALL) -m 644 $(LIB_NAME) $(DESTDIR)$(PREFIX)/lib
+	$(INSTALL) -m 644 $(LIB_PCNAME) $(DESTDIR)$(PREFIX)/lib/pkgconfig
+	$(INSTALL) -m 644 nodegl.h $(DESTDIR)$(PREFIX)/include/nodegl.h
+	$(INSTALL) -m 644 $(SPECS_FILE) $(DESTDIR)$(PREFIX)/share/nodegl
+	$(INSTALL) -m 644 android/java/OnFrameAvailableListener.java $(DESTDIR)$(PREFIX)/share/nodegl/java/org/nodegl
 
 uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/lib/$(LIB_NAME)
