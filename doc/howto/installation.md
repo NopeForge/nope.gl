@@ -32,6 +32,7 @@ installed exactly the same way as `libnodegl`.
 ## Installation of `pynodegl` (the Python binding)
 
 ```shell
+pip install -r ./pynodegl/requirements.txt
 pip install ./pynodegl
 ```
 
