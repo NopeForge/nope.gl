@@ -481,9 +481,9 @@ static inline void ngli_glGetIntegerv(const struct glcontext *gl, GLenum pname, 
     check_error_code(gl, "glGetIntegerv");
 }
 
-static inline void ngli_glGetInternalformativ(const struct glcontext *gl, GLenum target, GLenum internalformat, GLenum pname, GLsizei bufSize, GLint * params)
+static inline void ngli_glGetInternalformativ(const struct glcontext *gl, GLenum target, GLenum internalformat, GLenum pname, GLsizei count, GLint * params)
 {
-    gl->funcs.GetInternalformativ(target, internalformat, pname, bufSize, params);
+    gl->funcs.GetInternalformativ(target, internalformat, pname, count, params);
     check_error_code(gl, "glGetInternalformativ");
 }
 
@@ -519,9 +519,9 @@ static inline void ngli_glGetProgramResourceName(const struct glcontext *gl, GLu
     check_error_code(gl, "glGetProgramResourceName");
 }
 
-static inline void ngli_glGetProgramResourceiv(const struct glcontext *gl, GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum * props, GLsizei bufSize, GLsizei * length, GLint * params)
+static inline void ngli_glGetProgramResourceiv(const struct glcontext *gl, GLuint program, GLenum programInterface, GLuint index, GLsizei propCount, const GLenum * props, GLsizei count, GLsizei * length, GLint * params)
 {
-    gl->funcs.GetProgramResourceiv(program, programInterface, index, propCount, props, bufSize, length, params);
+    gl->funcs.GetProgramResourceiv(program, programInterface, index, propCount, props, count, length, params);
     check_error_code(gl, "glGetProgramResourceiv");
 }
 
