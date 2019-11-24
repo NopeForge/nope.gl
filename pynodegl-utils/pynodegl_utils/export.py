@@ -148,7 +148,7 @@ def test_export():
 
         ret = query_inplace(query='scene', **cfg)
         if 'error' in ret:
-            print ret['error']
+            print(ret['error'])
             return None
         return ret
 
@@ -159,7 +159,7 @@ def test_export():
             sys.stdout.write('\n')
 
     if len(sys.argv) != 2:
-        print 'Usage: %s <outfile>' % sys.argv[0]
+        print('Usage: %s <outfile>' % sys.argv[0])
         sys.exit(0)
 
     filename = sys.argv[1]
