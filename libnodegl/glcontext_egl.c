@@ -229,14 +229,28 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     EGLContext shared_context = other ? (EGLContext)other : NULL;
 
     if (ctx->backend == NGL_BACKEND_OPENGL) {
-        static const EGLint ctx_attribs[] = {
-            EGL_CONTEXT_MAJOR_VERSION_KHR, 4,
-            EGL_CONTEXT_MINOR_VERSION_KHR, 1,
-            EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR,
-            EGL_NONE
+        static const struct {
+            int major;
+            int minor;
+        } gl_versions[] ={
+            {4, 1}, // OpenGL 4.1
+            {3, 3}, // OpenGL 3.3 (Mesa software renderers: llvmpipe, softpipe, swrast)
         };
+        for (int i = 0; i < NGLI_ARRAY_NB(gl_versions); i++) {
+            const EGLint ctx_attribs[] = {
+                EGL_CONTEXT_MAJOR_VERSION_KHR, gl_versions[i].major,
+                EGL_CONTEXT_MINOR_VERSION_KHR, gl_versions[i].minor,
+                EGL_CONTEXT_OPENGL_PROFILE_MASK_KHR, EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT_KHR,
+                EGL_NONE
+            };
 
-        egl->handle = eglCreateContext(egl->display, egl->config, shared_context, ctx_attribs);
+            if (i)
+                LOG(WARNING, "falling back on OpenGL %d.%d", gl_versions[i].major, gl_versions[i].minor);
+
+            egl->handle = eglCreateContext(egl->display, egl->config, shared_context, ctx_attribs);
+            if (egl->handle)
+                break;
+        }
     } else {
         static const EGLint ctx_attribs[] = {
             EGL_CONTEXT_CLIENT_VERSION, 2,
