@@ -3,3 +3,4 @@ nodes_def.pyx
 pynodegl.c
 pynodegl.egg-info
 pynodegl.so
+.eggs
