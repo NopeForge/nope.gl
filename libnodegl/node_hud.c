@@ -1063,7 +1063,8 @@ static int widgets_init(struct ngl_node *node)
 
     /* Compute buffer dimensions according to user specified aspect ratio and
      * minimal dimensions */
-    const int *ar = s->aspect_ratio;
+    static const int default_ar[] = {1, 1};
+    const int *ar = s->aspect_ratio[0] && s->aspect_ratio[1] ? s->aspect_ratio : default_ar;
     s->canvas.w = min_width;
     s->canvas.h = min_width * ar[1] / ar[0];
     if (s->canvas.h < min_height) {
