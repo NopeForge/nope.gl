@@ -148,22 +148,10 @@ def query_inplace(**idict):
             if idict.get('enable_hud'):
                 fr = odict['framerate']
                 measure_window = fr[0] / (4 * fr[1])  # 1/4-second measurement window
-                hud = ngl.HUD(scene,
-                              measure_window=measure_window,
-                              bg_color=(0.0, 0.0, 0.0, 0.8),
-                              aspect_ratio=odict['aspect_ratio'])
-                q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-                t = ngl.Texture2D(data_src=hud, min_filter='linear', mipmap_filter='linear')
-                render = ngl.Render(q)
-                render.update_textures(tex0=t)
-                render = ngl.GraphicConfig(render, blend=True,
-                                           blend_src_factor='src_alpha',
-                                           blend_dst_factor='one_minus_src_alpha',
-                                           blend_src_factor_a='zero',
-                                           blend_dst_factor_a='one')
-                g = ngl.Group()
-                g.add_children(hud, render)
-                scene = g
+                scene = ngl.HUD(scene,
+                                measure_window=measure_window,
+                                bg_color=(0.0, 0.0, 0.0, 0.8),
+                                aspect_ratio=odict['aspect_ratio'])
 
             # Prepare output data
             odict['scene'] = scene.dot() if idict.get('fmt') == 'dot' else scene.serialize()

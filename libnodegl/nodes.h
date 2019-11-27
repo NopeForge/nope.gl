@@ -405,6 +405,15 @@ struct hud_priv {
     double refresh_rate_interval;
     double last_refresh_time;
     int need_refresh;
+
+    struct texture texture;
+    struct program program;
+    struct buffer coords;
+    struct pipeline pipeline;
+    struct graphicconfig graphicconfig;
+
+    int modelview_matrix_index;
+    int projection_matrix_index;
 };
 
 enum {

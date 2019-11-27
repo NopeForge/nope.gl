@@ -181,7 +181,6 @@ static const struct param_choices format_choices = {
 
 
 #define DATA_SRC_TYPES_LIST_2D (const int[]){NGL_NODE_MEDIA,                   \
-                                             NGL_NODE_HUD,                     \
                                              BUFFER_NODES                      \
                                              -1}
 
@@ -292,14 +291,6 @@ static int texture_prefetch(struct ngl_node *node, int dimensions, int cubemap)
 
     if (s->data_src) {
         switch (s->data_src->class->id) {
-        case NGL_NODE_HUD: {
-            struct texture_priv *s = node->priv_data;
-            struct hud_priv *hud = s->data_src->priv_data;
-            params->format = NGLI_FORMAT_R8G8B8A8_UNORM;
-            params->width = hud->canvas.w;
-            params->height = hud->canvas.h;
-            break;
-        }
         case NGL_NODE_MEDIA:
             return 0;
         case NGL_NODE_ANIMATEDBUFFERFLOAT:
@@ -392,19 +383,6 @@ TEXTURE_PREFETCH(2d,   2, 0)
 TEXTURE_PREFETCH(3d,   3, 0)
 TEXTURE_PREFETCH(cube, 3, 1)
 
-static void handle_hud_frame(struct ngl_node *node)
-{
-    struct texture_priv *s = node->priv_data;
-    struct texture_params *params = &s->params;
-    struct hud_priv *hud = s->data_src->priv_data;
-    const uint8_t *data = hud->canvas.buf;
-
-    params->width = hud->canvas.w;
-    params->height = hud->canvas.h;
-
-    ngli_texture_upload(&s->texture, data, 0);
-}
-
 static void handle_media_frame(struct ngl_node *node)
 {
     int ret = ngli_hwupload_upload_frame(node);
@@ -434,9 +412,6 @@ static int texture_update(struct ngl_node *node, double t)
         return ret;
 
     switch (s->data_src->class->id) {
-        case NGL_NODE_HUD:
-            handle_hud_frame(node);
-            break;
         case NGL_NODE_MEDIA:
             handle_media_frame(node);
             break;
