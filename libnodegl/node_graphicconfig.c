@@ -22,7 +22,6 @@
 #include <stddef.h>
 #include <string.h>
 
-#include "glincludes.h"
 #include "graphicconfig.h"
 #include "log.h"
 #include "nodegl.h"
