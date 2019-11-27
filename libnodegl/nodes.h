@@ -389,33 +389,6 @@ struct animkeyframe_priv {
     double boundaries[2];
 };
 
-struct hud_priv {
-    struct ngl_node *child;
-    int measure_window;
-    int refresh_rate[2];
-    char *export_filename;
-    float bg_color[4];
-    int aspect_ratio[2];
-
-    struct darray widgets;
-    uint32_t bg_color_u32;
-    int fd_export;
-    struct bstr *csv_line;
-    struct canvas canvas;
-    double refresh_rate_interval;
-    double last_refresh_time;
-    int need_refresh;
-
-    struct texture texture;
-    struct program program;
-    struct buffer coords;
-    struct pipeline pipeline;
-    struct graphicconfig graphicconfig;
-
-    int modelview_matrix_index;
-    int projection_matrix_index;
-};
-
 enum {
     NGLI_NODE_CATEGORY_NONE,
     NGLI_NODE_CATEGORY_UNIFORM,

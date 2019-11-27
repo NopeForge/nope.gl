@@ -41,6 +41,33 @@
 #include "topology.h"
 #include "graphicconfig.h"
 
+struct hud_priv {
+    struct ngl_node *child;
+    int measure_window;
+    int refresh_rate[2];
+    char *export_filename;
+    float bg_color[4];
+    int aspect_ratio[2];
+
+    struct darray widgets;
+    uint32_t bg_color_u32;
+    int fd_export;
+    struct bstr *csv_line;
+    struct canvas canvas;
+    double refresh_rate_interval;
+    double last_refresh_time;
+    int need_refresh;
+
+    struct texture texture;
+    struct program program;
+    struct buffer coords;
+    struct pipeline pipeline;
+    struct graphicconfig graphicconfig;
+
+    int modelview_matrix_index;
+    int projection_matrix_index;
+};
+
 #define OFFSET(x) offsetof(struct hud_priv, x)
 static const struct node_param hud_params[] = {
     {"child", PARAM_TYPE_NODE, OFFSET(child), .flags=PARAM_FLAG_CONSTRUCTOR,
