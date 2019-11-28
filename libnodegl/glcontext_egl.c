@@ -153,7 +153,7 @@ static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType nat
     if (egl->native_display) {
         /* XXX: only X11 is supported for now */
         if (!egl->has_platform_x11_ext) {
-            LOG(ERROR, "EGL implementation does not support mandatory extension: EGL_EXT_platform_x11");
+            LOG(ERROR, "EGL_EXT_platform_x11 is not supported");
             return EGL_NO_DISPLAY;
         }
         return egl->GetPlatformDisplay(EGL_PLATFORM_X11, egl->native_display, NULL);
