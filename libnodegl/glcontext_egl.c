@@ -160,7 +160,7 @@ static EGLDisplay egl_get_display(struct egl_priv *egl, EGLNativeDisplayType nat
     }
 
     if (egl->has_platform_mesa_surfaceless_ext && offscreen) {
-        LOG(WARNING, "no display available, falling back to Mesa surfaceless platform");
+        LOG(WARNING, "no display available, falling back on Mesa surfaceless platform");
         return egl->GetPlatformDisplay(EGL_PLATFORM_SURFACELESS_MESA, EGL_DEFAULT_DISPLAY, NULL);
     }
     return EGL_NO_DISPLAY;
