@@ -29,9 +29,13 @@ DEBUG      ?= no
 SMALL      ?= no
 INSTALL    ?= install
 PKG_CONFIG ?= pkg-config
-PYTHON     ?= python
+PYTHON     ?= python$(if $(shell which python$(PYTHON_MAJOR) 2> /dev/null),$(PYTHON_MAJOR),)
 TARGET_OS  ?= $(shell uname -s)
 ARCH       ?= $(shell uname -m)
+
+ifneq ($(shell $(PYTHON) -c "import sys;print(sys.version_info.major)"),$(PYTHON_MAJOR))
+$(error "Python $(PYTHON_MAJOR) not found")
+endif
 
 ifeq ($(OS),Windows_NT)
 	TARGET_OS   = MinGW-w64
