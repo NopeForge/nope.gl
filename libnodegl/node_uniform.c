@@ -234,6 +234,7 @@ static int uniformquat_init(struct ngl_node *node)
         s->data = s->matrix;
         s->data_size = sizeof(s->matrix);
         s->data_type = NGLI_TYPE_MAT4;
+        ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     }
     return 0;
 }
