@@ -243,8 +243,8 @@ class Player(QtCore.QThread):
         if self._backend != cfg['backend']:
             self._backend = cfg['backend']
             self._viewer = ngl.Viewer()
-        self._viewer.set_scene_from_string(self._scene)
         self._configure_viewer()
+        self._viewer.set_scene_from_string(self._scene)
         self._clock.configure(self._framerate, self._duration)
         self.onSceneMetadata.emit({'framerate': self._framerate, 'duration': self._duration})
         return False
