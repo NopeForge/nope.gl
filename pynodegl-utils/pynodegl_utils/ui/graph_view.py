@@ -202,16 +202,6 @@ class GraphView(QtWidgets.QWidget):
         self._scene.addItem(item)
         self._scene.setSceneRect(item.boundingRect())
 
-    @QtCore.Slot(tuple)
-    def set_frame_rate(self, fr):
-        self._framerate = fr
-        self._seekbar.set_scene_metadata({'framerate': self._framerate, 'duration': self._duration})
-
-    @QtCore.Slot(int)
-    def set_samples(self, samples):
-        self._samples = samples
-        self._seekbar.set_scene_metadata({'framerate': self._framerate, 'duration': self._duration})
-
     @QtCore.Slot(int)
     def _seek_check_changed(self, state):
         if state:

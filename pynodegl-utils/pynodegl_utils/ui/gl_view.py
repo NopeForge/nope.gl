@@ -149,41 +149,6 @@ class GLView(QtWidgets.QWidget):
         exporter.start()
         exporter.wait()
 
-    @QtCore.Slot(tuple)
-    def set_aspect_ratio(self, ar):
-        player = self._gl_widget.get_player()
-        if not player:
-            return
-        player.set_aspect_ratio(ar)
-
-    @QtCore.Slot(tuple)
-    def set_frame_rate(self, fr):
-        player = self._gl_widget.get_player()
-        if not player:
-            return
-        player.set_framerate(fr)
-
-    @QtCore.Slot(int)
-    def set_samples(self, samples):
-        player = self._gl_widget.get_player()
-        if not player:
-            return
-        player.set_samples(samples)
-
-    @QtCore.Slot(tuple)
-    def set_clear_color(self, color):
-        player = self._gl_widget.get_player()
-        if not player:
-            return
-        player.set_clear_color(color)
-
-    @QtCore.Slot(str)
-    def set_backend(self, backend):
-        player = self._gl_widget.get_player()
-        if not player:
-            return
-        player.set_backend(backend)
-
     def enter(self):
         self._cfg = self._get_scene_func()
         if not self._cfg:
