@@ -23,7 +23,7 @@ PREFIX ?= $(PWD)/nodegl-env
 
 include common.mak
 
-SXPLAYER_VERSION ?= 9.5.0
+SXPLAYER_VERSION ?= 9.5.1
 
 # Prevent headers from being rewritten, which would cause unecessary
 # recompilations between `make` calls.
