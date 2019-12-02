@@ -139,8 +139,6 @@ class GLView(QtWidgets.QWidget):
     @QtCore.Slot()
     def _connect_seekbar(self):
         player = self._gl_widget.get_player()
-        player.set_scene(self._cfg)
-
         player.onPlay.connect(self._seekbar.set_play_state)
         player.onPause.connect(self._seekbar.set_pause_state)
         player.onSceneMetadata.connect(self._seekbar.set_scene_metadata)
@@ -151,6 +149,8 @@ class GLView(QtWidgets.QWidget):
         self._seekbar.pause.connect(player.pause)
         self._seekbar.step.connect(player.step)
         self._seekbar.stop.connect(player.reset_scene)
+
+        player.set_scene(self._cfg)
 
     @QtCore.Slot()
     def _screenshot(self):
