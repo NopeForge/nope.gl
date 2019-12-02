@@ -30,6 +30,8 @@ from .seekbar import Seekbar
 from pynodegl_utils import player
 from pynodegl_utils import export
 
+MIN_RESIZE_INTERVAL = 100
+
 
 class _GLWidget(QtWidgets.QWidget):
 
@@ -47,17 +49,34 @@ class _GLWidget(QtWidgets.QWidget):
         self._last_frame_time = 0.0
         self._config = config
 
+        self._req_width = None
+        self._req_height = None
+
+        self._timer = QtCore.QTimer()
+        self._timer.setSingleShot(True)
+        self._timer.setInterval(MIN_RESIZE_INTERVAL)
+        self._timer.timeout.connect(self._resize)
+
     def paintEngine(self):
         return None
+
+    @QtCore.Slot()
+    def _resize(self):
+        assert self._req_width is not None
+        assert self._req_height is not None
+        width = int(self._req_width * self.devicePixelRatioF())
+        height = int(self._req_height * self.devicePixelRatioF())
+        self._player.resize(width, height)
+        self._player.draw()
 
     def resizeEvent(self, event):
         if not self._player:
             return
 
         size = event.size()
-        width = int(size.width() * self.devicePixelRatioF())
-        height = int(size.height() * self.devicePixelRatioF())
-        self._player.resize(width, height)
+        self._req_width = size.width()
+        self._req_height = size.height()
+        self._timer.start()
 
         super(_GLWidget, self).resizeEvent(event)
 
