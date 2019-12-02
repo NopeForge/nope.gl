@@ -136,7 +136,8 @@ class Player(QtCore.QThread):
 
     def _render(self):
         frame_index, frame_time = self._clock.get_playback_time_info()
-        self._viewer.draw(frame_time)
+        with QtCore.QMutexLocker(self._mutex):
+            self._viewer.draw(frame_time)
         if self._wait_first_frame:
             self._clock.reset_running_time()
             self._wait_first_frame = False
@@ -215,37 +216,36 @@ class Player(QtCore.QThread):
         return False
 
     def resize(self, width, height):
-        self._push_event(lambda: self._resize(width, height))
-
-    def _resize(self, width, height):
-        self._width = width
-        self._height = height
-        self._configure_viewer()
-        return False
+        with QtCore.QMutexLocker(self._mutex):
+            self._width = width
+            self._height = height
+            self._configure_viewer()
 
     def set_scene(self, cfg):
-        self._push_event(lambda: self._set_scene(cfg))
+        with QtCore.QMutexLocker(self._mutex):
+            self._scene = cfg['scene']
+            self._framerate = cfg['framerate']
+            self._duration = cfg['duration']
+            self._clear_color = cfg['clear_color']
+            self._aspect_ratio = cfg['aspect_ratio']
+            self._samples = cfg['samples']
+            if self._backend != cfg['backend']:
+                self._backend = cfg['backend']
+                self._viewer = ngl.Viewer()
+            self._configure_viewer()
+        self._push_event(lambda: self._set_scene())
 
-    def _set_scene(self, cfg):
-        if cfg is None:
-            self._pause()
-            self._scene = None
-            self._viewer.set_scene(None)
-            return False
-        self._scene = cfg['scene']
-        self._framerate = cfg['framerate']
-        self._duration = cfg['duration']
-        self._clear_color = cfg['clear_color']
-        self._aspect_ratio = cfg['aspect_ratio']
-        self._samples = cfg['samples']
-        if self._backend != cfg['backend']:
-            self._backend = cfg['backend']
-            self._viewer = ngl.Viewer()
-        self._configure_viewer()
+    def _set_scene(self):
         self._viewer.set_scene_from_string(self._scene)
         self._clock.configure(self._framerate, self._duration)
         self.onSceneMetadata.emit({'framerate': self._framerate, 'duration': self._duration})
         return False
 
     def reset_scene(self):
-        self._push_event(lambda: self._set_scene(None))
+        self._push_event(lambda: self._reset_scene())
+
+    def _reset_scene(self):
+        self._pause()
+        self._scene = None
+        self._viewer.set_scene(self._scene)
+        return False
