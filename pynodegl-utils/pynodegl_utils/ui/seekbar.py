@@ -21,7 +21,7 @@
 # under the License.
 #
 
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class Seekbar(QtWidgets.QWidget):
@@ -40,6 +40,7 @@ class Seekbar(QtWidgets.QWidget):
 
         self._slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self._time_lbl = QtWidgets.QLabel()
+        self._time_lbl.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
 
         stop_btn = QtWidgets.QToolButton()
         stop_btn.setText(u'■')
