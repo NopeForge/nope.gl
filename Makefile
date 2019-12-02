@@ -44,14 +44,14 @@ all: ngl-tools-install pynodegl-utils-install
 	@echo "    Install completed."
 	@echo
 	@echo "    You can now enter the venv with:"
-	@echo "        source $(ACTIVATE)"
+	@echo "        . $(ACTIVATE)"
 	@echo
 
 ngl-tools-install: nodegl-install
 	PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS=$(RPATH_LDFLAGS) $(MAKE) -C ngl-tools install PREFIX=$(PREFIX) DEBUG=$(DEBUG)
 
 pynodegl-utils-install: pynodegl-utils-deps-install
-	(source $(ACTIVATE) && pip -v install -e ./pynodegl-utils)
+	(. $(ACTIVATE) && pip -v install -e ./pynodegl-utils)
 
 # pynodegl-install is in dependency to prevent from trying to install pynodegl
 # from its requirements. Pulling pynodegl from requirements has two main issue:
@@ -59,13 +59,13 @@ pynodegl-utils-install: pynodegl-utils-deps-install
 # version), and it would fail anyway because pynodegl is currently not
 # available on PyPi.
 pynodegl-utils-deps-install: pynodegl-install
-	(source $(ACTIVATE) && pip install -r ./pynodegl-utils/requirements.txt)
+	(. $(ACTIVATE) && pip install -r ./pynodegl-utils/requirements.txt)
 
 pynodegl-install: pynodegl-deps-install
-	(source $(ACTIVATE) && PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS=$(RPATH_LDFLAGS) pip -v install -e ./pynodegl)
+	(. $(ACTIVATE) && PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS=$(RPATH_LDFLAGS) pip -v install -e ./pynodegl)
 
 pynodegl-deps-install: $(PREFIX) nodegl-install
-	(source $(ACTIVATE) && pip install -r ./pynodegl/requirements.txt)
+	(. $(ACTIVATE) && pip install -r ./pynodegl/requirements.txt)
 
 nodegl-install: sxplayer-install
 	PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS="$(RPATH_LDFLAGS) $(LIBNODEGL_EXTRA_LDFLAGS)" $(MAKE) -C libnodegl install PREFIX=$(PREFIX) DEBUG=$(DEBUG) SHARED=yes INSTALL="$(INSTALL)"
@@ -96,10 +96,10 @@ $(PREFIX):
 	$(VIRTUALENV) -p $(PYTHON) $(PREFIX)
 
 tests: ngl-tools-install pynodegl-utils-install tests_libnodegl
-	(source $(ACTIVATE) && $(MAKE) -C tests)
+	(. $(ACTIVATE) && $(MAKE) -C tests)
 
 tests_libnodegl: nodegl-install
-	(source $(ACTIVATE) && PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS=$(RPATH_LDFLAGS) $(MAKE) -C libnodegl tests DEBUG=$(DEBUG))
+	(. $(ACTIVATE) && PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig LDFLAGS=$(RPATH_LDFLAGS) $(MAKE) -C libnodegl tests DEBUG=$(DEBUG))
 
 clean_py:
 	$(RM) pynodegl/nodes_def.pyx
