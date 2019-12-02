@@ -105,6 +105,11 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
     }
 
     if (!ctx->offscreen) {
+        if (![NSThread isMainThread]) {
+            LOG(ERROR, "nsgl_init() must be called from the main thread");
+            return -1;
+        }
+
         nsgl->view = (NSView *)window;
         if (!nsgl->view) {
             LOG(ERROR, "could not retrieve NS view");
@@ -137,6 +142,11 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 static int nsgl_resize(struct glcontext *ctx)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
+
+    if (![NSThread isMainThread]) {
+        LOG(ERROR, "nsgl_resize() must be called from the main thread");
+        return -1;
+    }
 
     [nsgl->handle update];
 
@@ -231,13 +241,8 @@ static void nsgl_uninit(struct glcontext *ctx)
     if (nsgl->framework)
         CFRelease(nsgl->framework);
 
-    if (nsgl->handle) {
-        /* Unset the view from the OpenGL context to avoid OpenGL framebuffer
-         * errors while creating/release multiple OpenGL contexts with
-         * different MSAA value on the same view. */
-        [nsgl->handle setView:nil];
+    if (nsgl->handle)
         CFRelease(nsgl->handle);
-    }
 }
 
 const struct glcontext_class ngli_glcontext_nsgl_class = {
