@@ -153,22 +153,20 @@ class Player(QtCore.QThread):
 
     def _handle_events(self):
         should_stop = False
-        self._mutex.lock()
-        if not self._events and not self._clock.is_running():
-            self._cond.wait(self._mutex)
-        while self._events:
-            event = self._events.pop(0)
-            should_stop = event()
-            if should_stop:
-                break
-        self._mutex.unlock()
+        with QtCore.QMutexLocker(self._mutex):
+            if not self._events and not self._clock.is_running():
+                self._cond.wait(self._mutex)
+            while self._events:
+                event = self._events.pop(0)
+                should_stop = event()
+                if should_stop:
+                    break
         return should_stop
 
     def _push_event(self, event):
-        self._mutex.lock()
-        self._events.append(event)
-        self._cond.wakeAll()
-        self._mutex.unlock()
+        with QtCore.QMutexLocker(self._mutex):
+            self._events.append(event)
+            self._cond.wakeAll()
 
     def draw(self):
         self._push_event(lambda: False)
