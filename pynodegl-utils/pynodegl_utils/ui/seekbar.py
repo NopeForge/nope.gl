@@ -42,7 +42,7 @@ class Seekbar(QtWidgets.QWidget):
         self._time_lbl = QtWidgets.QLabel()
 
         stop_btn = QtWidgets.QToolButton()
-        stop_btn.setText(u'◾')
+        stop_btn.setText(u'■')
         self._action_btn = QtWidgets.QToolButton()
 
         fw_btn = QtWidgets.QToolButton()
