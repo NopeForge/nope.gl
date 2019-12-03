@@ -150,7 +150,8 @@ class PlayerView(QtWidgets.QWidget):
         self._seekbar.step.connect(player.step)
         self._seekbar.stop.connect(player.reset_scene)
 
-        player.set_scene(self._cfg)
+        if self._cfg:
+            player.set_scene(self._cfg)
 
     @QtCore.Slot()
     def _screenshot(self):
