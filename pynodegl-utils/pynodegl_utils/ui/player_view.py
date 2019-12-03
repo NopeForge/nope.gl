@@ -33,12 +33,12 @@ from pynodegl_utils import export
 MIN_RESIZE_INTERVAL = 100
 
 
-class _GLWidget(QtWidgets.QWidget):
+class _PlayerWidget(QtWidgets.QWidget):
 
     onPlayerAvailable = QtCore.Signal()
 
     def __init__(self, parent, config):
-        super(_GLWidget, self).__init__(parent)
+        super(_PlayerWidget, self).__init__(parent)
 
         self.setAttribute(Qt.WA_DontCreateNativeAncestors)
         self.setAttribute(Qt.WA_NativeWindow)
@@ -78,7 +78,7 @@ class _GLWidget(QtWidgets.QWidget):
         self._req_height = size.height()
         self._timer.start()
 
-        super(_GLWidget, self).resizeEvent(event)
+        super(_PlayerWidget, self).resizeEvent(event)
 
     def event(self, event):
         if event.type() == QEvent.Paint:
@@ -98,7 +98,7 @@ class _GLWidget(QtWidgets.QWidget):
             if self._player:
                 self._player.stop()
                 self._player.wait()
-        return super(_GLWidget, self).event(event)
+        return super(_PlayerWidget, self).event(event)
 
     @QtCore.Slot(int, float)
     def _set_last_frame_time(self, frame_index, frame_time):
@@ -120,8 +120,8 @@ class PlayerView(QtWidgets.QWidget):
         self._cfg = None
 
         self._seekbar = Seekbar(config)
-        self._gl_widget = _GLWidget(self, config)
-        self._gl_widget.onPlayerAvailable.connect(self._connect_seekbar)
+        self._player_widget = _PlayerWidget(self, config)
+        self._player_widget.onPlayerAvailable.connect(self._connect_seekbar)
 
         screenshot_btn = QtWidgets.QToolButton()
         screenshot_btn.setText(u'📷')
@@ -131,14 +131,14 @@ class PlayerView(QtWidgets.QWidget):
         toolbar.addWidget(screenshot_btn)
 
         self._gl_layout = QtWidgets.QVBoxLayout(self)
-        self._gl_layout.addWidget(self._gl_widget, stretch=1)
+        self._gl_layout.addWidget(self._player_widget, stretch=1)
         self._gl_layout.addLayout(toolbar)
 
         screenshot_btn.clicked.connect(self._screenshot)
 
     @QtCore.Slot()
     def _connect_seekbar(self):
-        player = self._gl_widget.get_player()
+        player = self._player_widget.get_player()
         player.onPlay.connect(self._seekbar.set_play_state)
         player.onPause.connect(self._seekbar.set_pause_state)
         player.onSceneMetadata.connect(self._seekbar.set_scene_metadata)
@@ -160,10 +160,10 @@ class PlayerView(QtWidgets.QWidget):
         exporter = export.Exporter(
             self._get_scene_func,
             filenames[0],
-            self._gl_widget.width(),
-            self._gl_widget.height(),
+            self._player_widget.width(),
+            self._player_widget.height(),
             ['-frames:v', '1'],
-            self._gl_widget.get_last_frame_time()
+            self._player_widget.get_last_frame_time()
         )
         exporter.start()
         exporter.wait()
@@ -173,20 +173,20 @@ class PlayerView(QtWidgets.QWidget):
         if not self._cfg:
             return
 
-        player = self._gl_widget.get_player()
+        player = self._player_widget.get_player()
         if not player:
             return
         player.set_scene(self._cfg)
 
-        self._gl_widget.update()
+        self._player_widget.update()
 
     def leave(self):
-        player = self._gl_widget.get_player()
+        player = self._player_widget.get_player()
         if not player:
             return
         player.pause()
 
     def closeEvent(self, close_event):
-        self._gl_widget.close()
+        self._player_widget.close()
         self._seekbar.close()
         super(PlayerView, self).closeEvent(close_event)
