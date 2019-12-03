@@ -44,6 +44,8 @@ class Seekbar(QtWidgets.QWidget):
         stop_btn = QtWidgets.QToolButton()
         stop_btn.setText(u'■')
         self._action_btn = QtWidgets.QToolButton()
+        self._action_btn.setText(u'▶')
+        self._action_btn.setCheckable(True)
 
         fw_btn = QtWidgets.QToolButton()
         fw_btn.setText('>')
@@ -77,9 +79,9 @@ class Seekbar(QtWidgets.QWidget):
 
     def _set_action(self, action):
         if action == 'play':
-            self._action_btn.setText(u'▮▮')
+            self._action_btn.setChecked(True)
         elif action == 'pause':
-            self._action_btn.setText(u'▶')
+            self._action_btn.setChecked(False)
         self._current_state = action
 
     @QtCore.Slot(int)
