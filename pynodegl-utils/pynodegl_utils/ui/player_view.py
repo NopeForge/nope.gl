@@ -111,10 +111,10 @@ class _GLWidget(QtWidgets.QWidget):
         return self._player
 
 
-class GLView(QtWidgets.QWidget):
+class PlayerView(QtWidgets.QWidget):
 
     def __init__(self, get_scene_func, config):
-        super(GLView, self).__init__()
+        super(PlayerView, self).__init__()
 
         self._get_scene_func = get_scene_func
         self._cfg = None
@@ -189,4 +189,4 @@ class GLView(QtWidgets.QWidget):
     def closeEvent(self, close_event):
         self._gl_widget.close()
         self._seekbar.close()
-        super(GLView, self).closeEvent(close_event)
+        super(PlayerView, self).closeEvent(close_event)

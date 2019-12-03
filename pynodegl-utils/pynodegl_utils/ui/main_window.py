@@ -30,7 +30,7 @@ from pynodegl_utils.config import Config
 from pynodegl_utils.scriptsmgr import ScriptsManager
 from pynodegl_utils.hooks import HooksController, HooksCaller
 
-from pynodegl_utils.ui.gl_view import GLView
+from pynodegl_utils.ui.player_view import PlayerView
 from pynodegl_utils.ui.graph_view import GraphView
 from pynodegl_utils.ui.export_view import ExportView
 from pynodegl_utils.ui.hooks_view import HooksView
@@ -62,7 +62,7 @@ class MainWindow(QtWidgets.QSplitter):
             geometry = QtCore.QRect(*rect)
             self.setGeometry(geometry)
 
-        gl_view = GLView(get_scene_func, self._config)
+        player_view = PlayerView(get_scene_func, self._config)
         graph_view = GraphView(get_scene_func, self._config)
         export_view = ExportView(get_scene_func, self._config)
         hooks_view = HooksView(self._hooks_caller)
@@ -70,7 +70,7 @@ class MainWindow(QtWidgets.QSplitter):
         serial_view = SerialView(get_scene_func)
 
         self._tabs = [
-            ('Player view', gl_view),
+            ('Player view', player_view),
             ('Graph view', graph_view),
             ('Export', export_view),
             ('Hooks', hooks_view),
