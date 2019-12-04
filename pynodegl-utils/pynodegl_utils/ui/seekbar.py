@@ -21,6 +21,7 @@
 # under the License.
 #
 
+import math
 from fractions import Fraction
 from PySide2 import QtCore, QtGui, QtWidgets
 
@@ -126,11 +127,26 @@ class Seekbar(QtWidgets.QWidget):
         duration = '%02d:%02d' % divmod(self._scene_duration, 60)
         return '%s / %s (%d @ %.4gHz)' % (cur_time, duration, frame_index, self._framerate)
 
+    def _adjust_time_label_size(self):
+        # Make the time label flexible again
+        self._time_lbl.setMinimumSize(0, 0)
+        self._time_lbl.setMaximumSize(0xffffff, 0xffffff)
+
+        # Set the label to its largest possible content (last frame)
+        last_frame_index = int(math.ceil(self._scene_duration * self._framerate))
+        text = self._get_time_lbl_text(last_frame_index, self._scene_duration)
+        self._time_lbl.setText(text)
+
+        # Probe the occupied size and make it fixed for the current scene
+        hint = self._time_lbl.sizeHint()
+        self._time_lbl.setFixedSize(hint)
+
     @QtCore.Slot(dict)
     def set_scene_metadata(self, cfg):
         self._scene_duration = cfg['duration']
         self._framerate = Fraction(*cfg['framerate'])
         self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
+        self._adjust_time_label_size()
         self._refresh()
 
     @QtCore.Slot(int, float)
