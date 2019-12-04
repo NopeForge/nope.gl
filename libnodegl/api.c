@@ -336,12 +336,18 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         }
     }
 
-    if (s->configured)
+    if (s->configured) {
+        s->configured = 0;
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-        return reconfigure_ios(s, config);
+        int ret = reconfigure_ios(s, config);
 #else
-        return dispatch_cmd(s, cmd_reconfigure, config);
+        int ret = dispatch_cmd(s, cmd_reconfigure, config);
 #endif
+        if (ret < 0)
+            return ret;
+        s->configured = 1;
+        return 0;
+    }
 
     if (config->backend == NGL_BACKEND_AUTO)
         config->backend = DEFAULT_BACKEND;
