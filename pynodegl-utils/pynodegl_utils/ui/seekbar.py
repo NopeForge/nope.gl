@@ -121,6 +121,11 @@ class Seekbar(QtWidgets.QWidget):
     def _step_bw(self):
         self.step.emit(-1)
 
+    def _get_time_lbl_text(self, frame_index, frame_time):
+        cur_time = '%02d:%02d' % divmod(frame_time, 60)
+        duration = '%02d:%02d' % divmod(self._scene_duration, 60)
+        return '%s / %s (%d @ %.4gHz)' % (cur_time, duration, frame_index, self._framerate)
+
     @QtCore.Slot(dict)
     def set_scene_metadata(self, cfg):
         self._scene_duration = cfg['duration']
@@ -143,8 +148,7 @@ class Seekbar(QtWidgets.QWidget):
 
     def _refresh(self):
         t = self._frame_index / self._framerate
-        cur_time = '%02d:%02d' % divmod(t, 60)
-        duration = '%02d:%02d' % divmod(self._scene_duration, 60)
-        self._time_lbl.setText('%s / %s (%d @ %.4gHz)' % (cur_time, duration, self._frame_index, self._framerate))
+        text = self._get_time_lbl_text(self._frame_index, t)
+        self._time_lbl.setText(text)
         if not self._slider_dragged:
             self._slider.setValue(int(t * self.SLIDER_TIMEBASE))
