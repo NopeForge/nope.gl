@@ -220,10 +220,11 @@ static int reconfigure_ios(struct ngl_ctx *s, struct ngl_config *config)
 
     cmd_make_current(s, MAKE_CURRENT);
     ret = cmd_reconfigure(s, config);
+    if (ret < 0)
+        return ret;
     cmd_make_current(s, DONE_CURRENT);
 
-    int ret_dispatch = dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
-    return ret ? ret : ret_dispatch;
+    return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
 }
 
 static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
