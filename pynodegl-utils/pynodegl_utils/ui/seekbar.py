@@ -21,6 +21,7 @@
 # under the License.
 #
 
+from fractions import Fraction
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
@@ -65,7 +66,7 @@ class Seekbar(QtWidgets.QWidget):
 
         self._frame_index = 0
         self._scene_duration = 0
-        self._framerate = config.get('framerate')
+        self._framerate = Fraction(*config.get('framerate'))
         self._set_action('pause')
 
         self._slider.sliderMoved.connect(self._slider_moved)
@@ -123,7 +124,7 @@ class Seekbar(QtWidgets.QWidget):
     @QtCore.Slot(dict)
     def set_scene_metadata(self, cfg):
         self._scene_duration = cfg['duration']
-        self._framerate = cfg['framerate']
+        self._framerate = Fraction(*cfg['framerate'])
         self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
         self._refresh()
 
@@ -141,10 +142,9 @@ class Seekbar(QtWidgets.QWidget):
         self._set_action('pause')
 
     def _refresh(self):
-        rendering_fps = self._framerate[0] / float(self._framerate[1])
-        t = self._frame_index * 1. / rendering_fps
+        t = self._frame_index / self._framerate
         cur_time = '%02d:%02d' % divmod(t, 60)
         duration = '%02d:%02d' % divmod(self._scene_duration, 60)
-        self._time_lbl.setText('%s / %s (%d @ %.4gHz)' % (cur_time, duration, self._frame_index, rendering_fps))
+        self._time_lbl.setText('%s / %s (%d @ %.4gHz)' % (cur_time, duration, self._frame_index, self._framerate))
         if not self._slider_dragged:
-            self._slider.setValue(t * self.SLIDER_TIMEBASE)
+            self._slider.setValue(int(t * self.SLIDER_TIMEBASE))
