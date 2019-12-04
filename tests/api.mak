@@ -25,6 +25,9 @@ API_TESTS += test-api-backend
 test-api-reconfigure: FUNC_NAME = test_reconfigure
 API_TESTS += test-api-reconfigure
 
+test-api-reconfigure-fail: FUNC_NAME = test_reconfigure_fail
+API_TESTS += test-api-reconfigure-fail
+
 test-api-ctx-ownership: FUNC_NAME = test_ctx_ownership
 API_TESTS += test-api-ctx-ownership
 
