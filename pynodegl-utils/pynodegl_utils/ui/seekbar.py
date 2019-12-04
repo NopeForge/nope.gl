@@ -141,8 +141,6 @@ class Seekbar(QtWidgets.QWidget):
         self._set_action('pause')
 
     def _refresh(self):
-        if not self._framerate:
-            return
         rendering_fps = self._framerate[0] / float(self._framerate[1])
         t = self._frame_index * 1. / rendering_fps
         cur_time = '%02d:%02d' % divmod(t, 60)
