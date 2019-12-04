@@ -195,7 +195,6 @@ class Player(QtCore.QThread):
         self._push_event(lambda: self._stop())
 
     def _stop(self):
-        self._is_stopped = True
         return True
 
     def seek(self, time):
