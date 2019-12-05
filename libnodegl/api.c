@@ -37,6 +37,37 @@
 #include "nodegl.h"
 #include "nodes.h"
 
+#if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
+# define DEFAULT_BACKEND NGL_BACKEND_OPENGLES
+#else
+# define DEFAULT_BACKEND NGL_BACKEND_OPENGL
+#endif
+
+extern const struct backend ngli_backend_gl;
+extern const struct backend ngli_backend_gles;
+
+static const struct backend *backend_map[] = {
+    [NGL_BACKEND_OPENGL]   = &ngli_backend_gl,
+    [NGL_BACKEND_OPENGLES] = &ngli_backend_gles,
+};
+
+static int get_default_platform(void)
+{
+#if defined(TARGET_LINUX)
+    return NGL_PLATFORM_XLIB;
+#elif defined(TARGET_IPHONE)
+    return NGL_PLATFORM_IOS;
+#elif defined(TARGET_DARWIN)
+    return NGL_PLATFORM_MACOS;
+#elif defined(TARGET_ANDROID)
+    return NGL_PLATFORM_ANDROID;
+#elif defined(TARGET_MINGW_W64)
+    return NGL_PLATFORM_WINDOWS;
+#else
+    return NGL_ERROR_UNSUPPORTED;
+#endif
+}
+
 static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 {
     int ret = 0;
@@ -90,7 +121,29 @@ fail:
 
 static int cmd_configure(struct ngl_ctx *s, void *arg)
 {
-    int ret = s->backend->configure(s, arg);
+    struct ngl_config *config = arg;
+
+    if (config->backend == NGL_BACKEND_AUTO)
+        config->backend = DEFAULT_BACKEND;
+
+    if (config->backend < 0 ||
+        config->backend >= NGLI_ARRAY_NB(backend_map) ||
+        !backend_map[config->backend]) {
+        LOG(ERROR, "unknown backend %d", config->backend);
+        return NGL_ERROR_INVALID_ARG;
+    }
+
+    s->backend = backend_map[config->backend];
+    LOG(INFO, "selected backend: %s", s->backend->name);
+
+    if (config->platform == NGL_PLATFORM_AUTO)
+        config->platform = get_default_platform();
+    if (config->platform < 0) {
+        LOG(ERROR, "can not determine which platform to use");
+        return config->platform;
+    }
+
+    int ret = s->backend->configure(s, config);
     if (ret < 0)
         LOG(ERROR, "unable to configure %s", s->backend->name);
     return ret;
@@ -294,37 +347,6 @@ fail:
     return NULL;
 }
 
-#if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
-# define DEFAULT_BACKEND NGL_BACKEND_OPENGLES
-#else
-# define DEFAULT_BACKEND NGL_BACKEND_OPENGL
-#endif
-
-extern const struct backend ngli_backend_gl;
-extern const struct backend ngli_backend_gles;
-
-static const struct backend *backend_map[] = {
-    [NGL_BACKEND_OPENGL]   = &ngli_backend_gl,
-    [NGL_BACKEND_OPENGLES] = &ngli_backend_gles,
-};
-
-static int get_default_platform(void)
-{
-#if defined(TARGET_LINUX)
-    return NGL_PLATFORM_XLIB;
-#elif defined(TARGET_IPHONE)
-    return NGL_PLATFORM_IOS;
-#elif defined(TARGET_DARWIN)
-    return NGL_PLATFORM_MACOS;
-#elif defined(TARGET_ANDROID)
-    return NGL_PLATFORM_ANDROID;
-#elif defined(TARGET_MINGW_W64)
-    return NGL_PLATFORM_WINDOWS;
-#else
-    return NGL_ERROR_UNSUPPORTED;
-#endif
-}
-
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (!config) {
@@ -358,26 +380,6 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
             return ret;
         s->configured = 1;
         return 0;
-    }
-
-    if (config->backend == NGL_BACKEND_AUTO)
-        config->backend = DEFAULT_BACKEND;
-
-    if (config->backend < 0 ||
-        config->backend >= NGLI_ARRAY_NB(backend_map) ||
-        !backend_map[config->backend]) {
-        LOG(ERROR, "unknown backend %d", config->backend);
-        return NGL_ERROR_INVALID_ARG;
-    }
-
-    s->backend = backend_map[config->backend];
-    LOG(INFO, "selected backend: %s", s->backend->name);
-
-    if (config->platform == NGL_PLATFORM_AUTO)
-        config->platform = get_default_platform();
-    if (config->platform < 0) {
-        LOG(ERROR, "can not determine which platform to use");
-        return config->platform;
     }
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
