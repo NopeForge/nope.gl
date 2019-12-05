@@ -387,10 +387,8 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 #else
     int ret = dispatch_cmd(s, cmd_configure, config);
 #endif
-    if (ret < 0) {
+    if (ret < 0)
         return ret;
-    }
-
     s->configured = 1;
     return 0;
 }
