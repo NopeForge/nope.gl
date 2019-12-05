@@ -64,10 +64,11 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
         int ret = s->backend->configure(s, config);
         if (ret < 0)
             return ret;
-        if (s->scene)
+        if (s->scene) {
             ret = ngli_node_attach_ctx(s->scene, s);
-        if (ret < 0)
-            return ret;
+            if (ret < 0)
+                return ret;
+        }
         return 0;
     }
 
