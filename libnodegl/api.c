@@ -39,6 +39,7 @@
 
 static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
 {
+    int ret = 0;
     struct ngl_config *config = arg;
     struct ngl_config *current_config = &s->config;
 
@@ -61,20 +62,28 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
         if (s->scene)
             ngli_node_detach_ctx(s->scene, s);
         s->backend->destroy(s);
-        int ret = s->backend->configure(s, config);
+        ret = s->backend->configure(s, config);
         if (ret < 0)
-            return ret;
+            goto fail;
         if (s->scene) {
             ret = ngli_node_attach_ctx(s->scene, s);
             if (ret < 0)
-                return ret;
+                goto fail;
         }
         return 0;
     }
 
-    int ret = s->backend->reconfigure(s, config);
-    if (ret < 0)
+    ret = s->backend->reconfigure(s, config);
+    if (ret < 0) {
         LOG(ERROR, "unable to reconfigure %s", s->backend->name);
+        if (s->scene)
+            ngli_node_detach_ctx(s->scene, s);
+        goto fail;
+    }
+    return 0;
+
+fail:
+    ngl_node_unrefp(&s->scene);
     return ret;
 }
 
