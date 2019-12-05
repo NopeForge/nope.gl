@@ -78,6 +78,7 @@ static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
         LOG(ERROR, "unable to reconfigure %s", s->backend->name);
         if (s->scene)
             ngli_node_detach_ctx(s->scene, s);
+        s->backend->destroy(s);
         goto fail;
     }
     return 0;
