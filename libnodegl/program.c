@@ -294,7 +294,7 @@ int ngli_program_init(struct program *s, struct ngl_ctx *ctx, const char *vertex
 
     struct glcontext *gl = ctx->glcontext;
 
-    if (compute && !(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
+    if (compute && (gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL) != NGLI_FEATURE_COMPUTE_SHADER_ALL) {
         LOG(ERROR, "context does not support compute shaders");
         return NGL_ERROR_UNSUPPORTED;
     }

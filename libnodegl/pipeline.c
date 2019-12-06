@@ -487,7 +487,7 @@ static int pipeline_compute_init(struct pipeline *s)
     struct ngl_ctx *ctx = s->ctx;
     struct glcontext *gl = ctx->glcontext;
 
-    if (!(gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL)) {
+    if ((gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL) != NGLI_FEATURE_COMPUTE_SHADER_ALL) {
         LOG(ERROR, "context does not support compute shaders");
         return NGL_ERROR_UNSUPPORTED;
     }
