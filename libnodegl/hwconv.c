@@ -23,6 +23,7 @@
 
 #include "buffer.h"
 #include "colorconv.h"
+#include "hmap.h"
 #include "hwconv.h"
 #include "glincludes.h"
 #include "glcontext.h"
@@ -202,13 +203,30 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         {.name = "color_matrix",     .type = NGLI_TYPE_MAT4, .count = 1,               .data  = hwconv->src_color_matrix},
     };
 
-    const struct pipeline_texture textures[] = {
+    struct pipeline_texture textures[] = {
         {.name = "tex0", .texture = NULL},
         {.name = "tex1", .texture = NULL},
     };
+    for (int i = 0; i < desc->nb_planes; i++) {
+        const struct program_variable_info *info = ngli_hmap_get(hwconv->program.uniforms, textures[i].name);
+        if (!info)
+            continue;
+        textures[i].type     = info->type;
+        textures[i].location = info->location;
+        textures[i].binding  = info->binding;
+    }
+
+    const struct program_variable_info *position = ngli_hmap_get(hwconv->program.attributes, "position");
+    ngli_assert(position);
 
     const struct pipeline_attribute attributes[] = {
-        {.name = "position", .format = NGLI_FORMAT_R32G32B32A32_SFLOAT, .stride = 4 * 4, .buffer = &hwconv->vertices},
+        {
+            .name     = "position",
+            .location = position->location,
+            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .stride   = 4 * 4,
+            .buffer   = &hwconv->vertices,
+        },
     };
 
     struct pipeline_params pipeline_params = {

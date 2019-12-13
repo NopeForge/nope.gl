@@ -224,7 +224,10 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
 
         if (field->is_sampler_or_image) {
             struct pipeline_texture pipeline_texture = {
-                .name = {0}
+                .name     = {0},
+                .type     = uniform->type,
+                .location = uniform->location,
+                .binding  = uniform->binding,
             };
             snprintf(pipeline_texture.name, sizeof(pipeline_texture.name), "%s", uniform_name);
             if (!ngli_darray_push(&s->pipeline_textures, &pipeline_texture))
@@ -296,8 +299,9 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     if (!block)
         return 0;
 
-    struct hmap *infos = s->pipeline_program->buffer_blocks;
-    if (!ngli_hmap_get(infos, name)) {
+    const struct hmap *infos = s->pipeline_program->buffer_blocks;
+    const struct program_variable_info *info = ngli_hmap_get(infos, name);
+    if (!info) {
         struct pass_params *params = &s->params;
         LOG(WARNING, "block %s attached to pipeline %s not found in shader", name, params->label);
         return 0;
@@ -306,6 +310,8 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     struct block_priv *block_priv = block->priv_data;
     struct buffer *buffer = &block_priv->buffer;
     struct pipeline_buffer pipeline_buffer = {
+        .type = info->type,
+        .binding = info->binding,
         .buffer = buffer,
     };
     snprintf(pipeline_buffer.name, sizeof(pipeline_buffer.name), "%s", name);
@@ -387,8 +393,9 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     if (!attribute)
         return 0;
 
-    struct hmap *infos = s->pipeline_program->attributes;
-    if (!ngli_hmap_get(infos, name)) {
+    const struct hmap *infos = s->pipeline_program->attributes;
+    const struct program_variable_info *info = ngli_hmap_get(infos, name);
+    if (!info) {
         if (warn) {
             const struct pass_params *params = &s->params;
             LOG(WARNING, "attribute %s attached to pipeline %s not found in shader", name, params->label);
@@ -414,6 +421,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     }
 
     struct pipeline_attribute pipeline_attribute = {
+        .location = info->location,
         .format = attribute_priv->data_format,
         .stride = stride,
         .offset = offset,

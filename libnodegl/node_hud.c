@@ -1297,12 +1297,30 @@ static int hud_init(struct ngl_node *node)
         {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .count = 1, .data = NULL},
     };
 
+    const struct program_variable_info *tex = ngli_hmap_get(s->program.uniforms, "tex");
+    ngli_assert(tex);
+
     const struct pipeline_texture textures[] = {
-        {.name  = "tex", .texture = &s->texture},
+        {
+            .name     = "tex",
+            .type     = tex->type,
+            .location = tex->location,
+            .binding  = tex->binding,
+            .texture  = &s->texture,
+        },
     };
 
+    const struct program_variable_info *coords_info = ngli_hmap_get(s->program.attributes, "coords");
+    ngli_assert(coords_info);
+
     const struct pipeline_attribute attributes[] = {
-        {.name = "coords", .format = NGLI_FORMAT_R32G32B32A32_SFLOAT, .stride = 4 * 4, .buffer = &s->coords},
+        {
+            .name     = "coords",
+            .location = coords_info->location,
+            .format   = NGLI_FORMAT_R32G32B32A32_SFLOAT,
+            .stride   = 4 * 4,
+            .buffer   = &s->coords,
+        },
     };
 
     struct pipeline_params pipeline_params = {
