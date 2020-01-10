@@ -79,6 +79,7 @@ cdef extern from "nodegl.h":
 
     ngl_ctx *ngl_create()
     int ngl_configure(ngl_ctx *s, ngl_config *config)
+    int ngl_resize(ngl_ctx *s, int width, int height, const int *viewport);
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
     int ngl_draw(ngl_ctx *s, double t) nogil
     char *ngl_dot(ngl_ctx *s, double t) nogil
@@ -193,6 +194,14 @@ cdef class Viewer:
         if self.capture_buffer is not None:
             config.capture_buffer = self.capture_buffer
         return ngl_configure(self.ctx, &config)
+
+    def resize(self, width, height, viewport=None):
+        if viewport is None:
+            return ngl_resize(self.ctx, width, height, NULL)
+        cdef int c_viewport[4]
+        for i in range(4):
+            c_viewport[i] = viewport[i]
+        return ngl_resize(self.ctx, width, height, c_viewport)
 
     def set_scene(self, _Node scene):
         return ngl_set_scene(self.ctx, NULL if scene is None else scene.ctx)

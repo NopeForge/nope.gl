@@ -395,6 +395,20 @@ struct ngl_ctx *ngl_create(void);
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config);
 
 /**
+ * Update the swap chain buffers size.
+ *
+ * This function must be called on the UI/main thread on iOS/macOS.
+ *
+ * @param width new width of the swap chain buffers
+ * @param height new height of the swap chain buffers
+ * @param viewport new viewport of the current render target,
+ *                 a NULL pointer will make the new viewport match the
+ *                 dimensions of the swap chain buffers
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
+ */
+int ngl_resize(struct ngl_ctx *s, int width, int height, const int *viewport);
+
+/**
  * Associate a scene with a node.gl context.
  *
  * The reference counter of the root node will be incremented and all its node

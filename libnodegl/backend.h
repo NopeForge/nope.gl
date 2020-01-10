@@ -28,6 +28,7 @@ struct backend {
     const char *name;
     int (*reconfigure)(struct ngl_ctx *s, const struct ngl_config *config);
     int (*configure)(struct ngl_ctx *s, const struct ngl_config *config);
+    int (*resize)(struct ngl_ctx *s, int width, int height, const int *viewport);
     int (*pre_draw)(struct ngl_ctx *s, double t);
     int (*post_draw)(struct ngl_ctx *s, double t);
     void (*destroy)(struct ngl_ctx *s);

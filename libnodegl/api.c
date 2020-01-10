@@ -154,6 +154,18 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     return 0;
 }
 
+struct resize_params {
+    int width;
+    int height;
+    const int *viewport;
+};
+
+static int cmd_resize(struct ngl_ctx *s, void *arg)
+{
+    const struct resize_params *params = arg;
+    return s->backend->resize(s, params->width, params->height, params->viewport);
+}
+
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 {
     if (s->scene) {
@@ -305,6 +317,21 @@ static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
 
     return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
 }
+
+static int resize_ios(struct ngl_ctx *s, const struct resize_params *params)
+{
+    int ret = dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
+    if (ret < 0)
+        return ret;
+
+    cmd_make_current(s, MAKE_CURRENT);
+    ret = cmd_resize(s, params);
+    if (ret < 0)
+        return ret;
+    cmd_make_current(s, DONE_CURRENT);
+
+    return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
+}
 #endif
 
 static void stop_thread(struct ngl_ctx *s)
@@ -396,6 +423,32 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return ret;
     s->configured = 1;
     return 0;
+}
+
+int ngl_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
+{
+    if (!s->configured) {
+        LOG(ERROR, "context must be configured before resizing rendering buffers");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    const struct ngl_config *config = &s->config;
+    if (config->offscreen) {
+        LOG(ERROR, "offscreen context does not support resize operation");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    struct resize_params params = {
+        .width = width,
+        .height = height,
+        .viewport = viewport,
+    };
+
+#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
+    return resize_ios(s, &params);
+#else
+    return dispatch_cmd(s, cmd_resize, &params);
+#endif
 }
 
 int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
