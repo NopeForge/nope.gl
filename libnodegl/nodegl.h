@@ -381,11 +381,12 @@ struct ngl_ctx *ngl_create(void);
  *
  * This function must be called before any ngl_draw() call.
  *
+ * This function must be called on the UI/main thread on iOS/macOS.
+ *
  * If the context has already been configured, calling ngl_configure() will
- * hint the rendering backend to update the onscreen surface dimensions either
- * from the new configuration or directly from the window the node.gl context
- * is associated with. Must be called from the UI thread on iOS if the context
- * is onscreen.
+ * perform a hard-reconfiguration meaning it will de-allocate the ressources of
+ * any associated scene, reconfigure the rendering backend and finally
+ * re-allocate the ressources of any previously associated scene.
  *
  * @param s        pointer to a node.gl context
  * @param config   pointer to a node.gl configuration structure (cannot be NULL)

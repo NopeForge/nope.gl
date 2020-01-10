@@ -68,60 +68,17 @@ static int get_default_platform(void)
 #endif
 }
 
-static int cmd_reconfigure(struct ngl_ctx *s, void *arg)
-{
-    int ret = 0;
-    struct ngl_config *config = arg;
-    struct ngl_config *current_config = &s->config;
-
-    if (config->platform == NGL_PLATFORM_AUTO)
-        config->platform = current_config->platform;
-    if (config->backend == NGL_BACKEND_AUTO)
-        config->backend = current_config->backend;
-
-    if (current_config->platform != config->platform ||
-        current_config->backend  != config->backend) {
-        LOG(ERROR, "backend or platform cannot be reconfigured");
-        return NGL_ERROR_UNSUPPORTED;
-    }
-
-    if (current_config->display   != config->display   ||
-        current_config->window    != config->window    ||
-        current_config->handle    != config->handle    ||
-        current_config->offscreen != config->offscreen ||
-        current_config->samples   != config->samples) {
-        if (s->scene)
-            ngli_node_detach_ctx(s->scene, s);
-        s->backend->destroy(s);
-        ret = s->backend->configure(s, config);
-        if (ret < 0)
-            goto fail;
-        if (s->scene) {
-            ret = ngli_node_attach_ctx(s->scene, s);
-            if (ret < 0)
-                goto fail;
-        }
-        return 0;
-    }
-
-    ret = s->backend->reconfigure(s, config);
-    if (ret < 0) {
-        LOG(ERROR, "unable to reconfigure %s", s->backend->name);
-        if (s->scene)
-            ngli_node_detach_ctx(s->scene, s);
-        s->backend->destroy(s);
-        goto fail;
-    }
-    return 0;
-
-fail:
-    ngl_node_unrefp(&s->scene);
-    return ret;
-}
-
 static int cmd_configure(struct ngl_ctx *s, void *arg)
 {
     struct ngl_config *config = arg;
+
+    if (s->scene)
+        ngli_node_detach_ctx(s->scene, s);
+
+    if (s->backend) {
+        s->backend->destroy(s);
+        s->backend = NULL;
+    }
 
     if (config->backend == NGL_BACKEND_AUTO)
         config->backend = DEFAULT_BACKEND;
@@ -150,6 +107,16 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
         return ret;
     }
     s->backend = backend;
+
+    if (s->scene) {
+        ret = ngli_node_attach_ctx(s->scene, s);
+        if (ret < 0) {
+            ngl_node_unrefp(&s->scene);
+            s->backend->destroy(s);
+            s->backend = NULL;
+            return ret;
+        }
+    }
 
     return 0;
 }
@@ -293,21 +260,6 @@ static int cmd_make_current(struct ngl_ctx *s, void *arg)
 
 #define MAKE_CURRENT &(int[]){1}
 #define DONE_CURRENT &(int[]){0}
-static int reconfigure_ios(struct ngl_ctx *s, struct ngl_config *config)
-{
-    int ret = dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
-    if (ret < 0)
-        return ret;
-
-    cmd_make_current(s, MAKE_CURRENT);
-    ret = cmd_reconfigure(s, config);
-    if (ret < 0)
-        return ret;
-    cmd_make_current(s, DONE_CURRENT);
-
-    return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
-}
-
 static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
 {
     int ret = cmd_configure(s, config);
@@ -401,19 +353,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         }
     }
 
-    if (s->configured) {
-        s->configured = 0;
-#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-        int ret = reconfigure_ios(s, config);
-#else
-        int ret = dispatch_cmd(s, cmd_reconfigure, config);
-#endif
-        if (ret < 0)
-            return ret;
-        s->configured = 1;
-        return 0;
-    }
-
+    s->configured = 0;
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
     int ret = configure_ios(s, config);
 #else
