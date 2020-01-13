@@ -133,8 +133,8 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    s->backend = backend_map[config->backend];
-    LOG(INFO, "selected backend: %s", s->backend->name);
+    const struct backend *backend = backend_map[config->backend];
+    LOG(INFO, "selected backend: %s", backend->name);
 
     if (config->platform == NGL_PLATFORM_AUTO)
         config->platform = get_default_platform();
@@ -143,10 +143,15 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
         return config->platform;
     }
 
-    int ret = s->backend->configure(s, config);
-    if (ret < 0)
-        LOG(ERROR, "unable to configure %s", s->backend->name);
-    return ret;
+    int ret = backend->configure(s, config);
+    if (ret < 0) {
+        LOG(ERROR, "unable to configure %s", backend->name);
+        backend->destroy(s);
+        return ret;
+    }
+    s->backend = backend;
+
+    return 0;
 }
 
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
