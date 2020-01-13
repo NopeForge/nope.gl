@@ -35,7 +35,7 @@ class Exporter(QtCore.QThread):
 
     progressed = QtCore.Signal(int)
     failed = QtCore.Signal()
-    finished = QtCore.Signal()
+    export_finished = QtCore.Signal()
 
     def __init__(self, get_scene_func, filename, w, h, extra_enc_args=None, time=None):
         super(Exporter, self).__init__()
@@ -61,7 +61,7 @@ class Exporter(QtCore.QThread):
         else:
             ok = self._export(filename, width, height, self._extra_enc_args)
         if ok:
-            self.finished.emit()
+            self.export_finished.emit()
 
     def _export(self, filename, width, height, extra_enc_args=None):
         fd_r, fd_w = os.pipe()

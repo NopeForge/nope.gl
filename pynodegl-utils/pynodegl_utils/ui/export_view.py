@@ -156,7 +156,7 @@ class ExportView(QtWidgets.QWidget):
         self._pgd.canceled.connect(self._cancel)
         self._exporter.progressed.connect(self._progress)
         self._exporter.failed.connect(self._fail)
-        self._exporter.finished.connect(self._finish)
+        self._exporter.export_finished.connect(self._finish)
 
         self._exporter.start()
 
