@@ -218,20 +218,30 @@ class Player(QtCore.QThread):
         with QtCore.QMutexLocker(self._mutex):
             self._width = width
             self._height = height
-            self._configure_viewer()
+            viewport = misc.get_viewport(width, height, self._aspect_ratio)
+            self._viewer.resize(width, height, viewport)
 
     def set_scene(self, cfg):
         with QtCore.QMutexLocker(self._mutex):
+            need_reconfigure = False
             self._scene = cfg['scene']
             self._framerate = cfg['framerate']
             self._duration = cfg['duration']
-            self._clear_color = cfg['clear_color']
             self._aspect_ratio = cfg['aspect_ratio']
-            self._samples = cfg['samples']
+            if self._clear_color != cfg['clear_color']:
+                self._clear_color = cfg['clear_color']
+                need_reconfigure = True
+            if self._samples != cfg['samples']:
+                self._samples = cfg['samples']
+                need_reconfigure = True
             if self._backend != cfg['backend']:
                 self._backend = cfg['backend']
-                self._viewer = ngl.Viewer()
-            self._configure_viewer()
+                need_reconfigure = True
+            if need_reconfigure:
+                self._configure_viewer()
+            else:
+                viewport = misc.get_viewport(self._width, self._height, self._aspect_ratio)
+                self._viewer.resize(self._width, self._height, viewport)
         self._push_event(lambda: self._set_scene())
 
     def _set_scene(self):
