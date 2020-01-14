@@ -190,7 +190,7 @@ static void size_callback(GLFWwindow *window, int width, int height)
     p->ngl_config.viewport[1] = p->view.y;
     p->ngl_config.viewport[2] = p->view.width;
     p->ngl_config.viewport[3] = p->view.height;
-    ngl_configure(p->ngl, &p->ngl_config);
+    ngl_resize(p->ngl, width, height, p->ngl_config.viewport);
 }
 
 static void update_time(int64_t seek_at)
