@@ -110,18 +110,24 @@ static void mix_vector(void *user_arg, void *dst,
         dstf[i] = NGLI_MIX(kf0->value[i], kf1->value[i], ratio);
 }
 
-#define DECLARE_VEC_MIX_FUNC(len)                               \
+#define DECLARE_VEC_MIX_AND_CPY_FUNCS(len)                      \
 static void mix_vec##len(void *user_arg, void *dst,             \
                          const struct animkeyframe_priv *kf0,   \
                          const struct animkeyframe_priv *kf1,   \
                          double ratio)                          \
 {                                                               \
     return mix_vector(user_arg, dst, kf0, kf1, ratio, len);     \
-}
+}                                                               \
+                                                                \
+static void cpy_vec##len(void *user_arg, void *dst,             \
+                         const struct animkeyframe_priv *kf)    \
+{                                                               \
+    memcpy(dst, kf->value, len * sizeof(*kf->value));           \
+}                                                               \
 
-DECLARE_VEC_MIX_FUNC(2)
-DECLARE_VEC_MIX_FUNC(3)
-DECLARE_VEC_MIX_FUNC(4)
+DECLARE_VEC_MIX_AND_CPY_FUNCS(2)
+DECLARE_VEC_MIX_AND_CPY_FUNCS(3)
+DECLARE_VEC_MIX_AND_CPY_FUNCS(4)
 
 static void cpy_time(void *user_arg, void *dst,
                      const struct animkeyframe_priv *kf)
@@ -133,12 +139,6 @@ static void cpy_scalar(void *user_arg, void *dst,
                        const struct animkeyframe_priv *kf)
 {
     *(float *)dst = kf->scalar;  // double → float
-}
-
-static void cpy_values(void *user_arg, void *dst,
-                       const struct animkeyframe_priv *kf)
-{
-    memcpy(dst, kf->value, sizeof(kf->value));
 }
 
 static ngli_animation_mix_func_type get_mix_func(int node_class)
@@ -159,10 +159,10 @@ static ngli_animation_cpy_func_type get_cpy_func(int node_class)
     switch (node_class) {
         case NGL_NODE_ANIMATEDTIME:  return cpy_time;
         case NGL_NODE_ANIMATEDFLOAT: return cpy_scalar;
-        case NGL_NODE_ANIMATEDVEC2:
-        case NGL_NODE_ANIMATEDVEC3:
-        case NGL_NODE_ANIMATEDVEC4:
-        case NGL_NODE_ANIMATEDQUAT:  return cpy_values;
+        case NGL_NODE_ANIMATEDVEC2:  return cpy_vec2;
+        case NGL_NODE_ANIMATEDVEC3:  return cpy_vec3;
+        case NGL_NODE_ANIMATEDVEC4:  return cpy_vec4;
+        case NGL_NODE_ANIMATEDQUAT:  return cpy_vec4;
     }
     return NULL;
 }
