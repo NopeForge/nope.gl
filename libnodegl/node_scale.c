@@ -97,6 +97,7 @@ static const struct node_param scale_params[] = {
                 .flags=PARAM_FLAG_CONSTRUCTOR,
                 .desc=NGLI_DOCSTRING("scene to scale")},
     {"factors", PARAM_TYPE_VEC3, OFFSET(factors),
+                {.vec={1.0, 1.0, 1.0}},
                 .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                 .update_func=update_factors,
                 .desc=NGLI_DOCSTRING("scaling factors (how much to scale on each axis)")},
