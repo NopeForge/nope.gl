@@ -25,11 +25,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "rendertarget.h"
-#include "format.h"
-#include "darray.h"
 #include "log.h"
-#include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "math_utils.h"
