@@ -56,9 +56,14 @@ define DECLARE_REF_TESTS
 $(call DECLARE_TESTS,REF_TESTS,$(1),$(2))
 endef
 
+ifeq ($(TARGET_OS),Darwin)
+DISABLE_TESTS_STD430 = yes
+endif
+
 include anim.mak
 include api.mak
 include blending.mak
+include data.mak
 
 $(REF_TESTS):
 	@echo $@
