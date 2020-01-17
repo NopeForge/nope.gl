@@ -28,5 +28,5 @@ jobs:
         make -j$(($(nproc)+1))
     - name: Run tests
       run: |
-        DISABLE_TESTS_STD430=yes make -k -j$(($(nproc)+1)) tests
+        DISABLE_TESTS_SAMPLES=yes DISABLE_TESTS_STD430=yes make -k -j$(($(nproc)+1)) tests
 
