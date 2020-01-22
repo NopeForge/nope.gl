@@ -134,11 +134,6 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
 {
     struct eagl_priv *eagl = ctx->priv_data;
 
-    if (![NSThread isMainThread]) {
-        LOG(ERROR, "eagl_init_framebuffer() must be called from the UI thread");
-        return -1;
-    }
-
     eagl->fb_initialized = 1;
     ngli_glGenFramebuffers(ctx, 1, &eagl->fbo);
     ngli_glBindFramebuffer(ctx, GL_FRAMEBUFFER, eagl->fbo);
@@ -224,6 +219,11 @@ static void eagl_uninit(struct glcontext *ctx)
 
 static int eagl_resize(struct glcontext *ctx)
 {
+    if (![NSThread isMainThread]) {
+        LOG(ERROR, "eagl_resize() must be called from the UI thread");
+        return -1;
+    }
+
     eagl_reset_framebuffer(ctx);
 
     return eagl_init_framebuffer(ctx);
