@@ -39,6 +39,7 @@
 #include "program.h"
 #include "type.h"
 #include "topology.h"
+#include "gtimer.h"
 #include "graphicconfig.h"
 
 struct hud_priv {
@@ -284,13 +285,7 @@ struct latency_measure {
 
 struct widget_latency {
     struct latency_measure measures[NB_LATENCY];
-
-    GLuint query;
-    void (*glGenQueries)(const struct glcontext *gl, GLsizei n, GLuint * ids);
-    void (*glDeleteQueries)(const struct glcontext *gl, GLsizei n, const GLuint * ids);
-    void (*glBeginQuery)(const struct glcontext *gl, GLenum target, GLuint id);
-    void (*glEndQuery)(const struct glcontext *gl, GLenum target);
-    void (*glGetQueryObjectui64v)(const struct glcontext *gl, GLuint id, GLenum pname, GLuint64 *params);
+    struct gtimer timer;
 };
 
 struct widget_memory {
@@ -333,38 +328,15 @@ struct widget_spec {
 
 /* Widget init */
 
-static void noop(const struct glcontext *gl, ...)
-{
-}
-
 static int widget_latency_init(struct ngl_node *node, struct widget *widget)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct hud_priv *s = node->priv_data;
     struct widget_latency *priv = widget->priv_data;
 
-    if (gl->features & NGLI_FEATURE_TIMER_QUERY) {
-        priv->glGenQueries          = ngli_glGenQueries;
-        priv->glDeleteQueries       = ngli_glDeleteQueries;
-        priv->glBeginQuery          = ngli_glBeginQuery;
-        priv->glEndQuery            = ngli_glEndQuery;
-        priv->glGetQueryObjectui64v = ngli_glGetQueryObjectui64v;
-    } else if (gl->features & NGLI_FEATURE_EXT_DISJOINT_TIMER_QUERY) {
-        priv->glGenQueries          = ngli_glGenQueriesEXT;
-        priv->glDeleteQueries       = ngli_glDeleteQueriesEXT;
-        priv->glBeginQuery          = ngli_glBeginQueryEXT;
-        priv->glEndQuery            = ngli_glEndQueryEXT;
-        priv->glGetQueryObjectui64v = ngli_glGetQueryObjectui64vEXT;
-    } else {
-        priv->glGenQueries          = (void *)noop;
-        priv->glDeleteQueries       = (void *)noop;
-        priv->glBeginQuery          = (void *)noop;
-        priv->glEndQuery            = (void *)noop;
-        priv->glGetQueryObjectui64v = (void *)noop;
-    }
-
-    priv->glGenQueries(gl, 1, &priv->query);
+    int ret = ngli_gtimer_init(&priv->timer, ctx);
+    if (ret < 0)
+        return ret;
 
     ngli_assert(NB_LATENCY == NGLI_ARRAY_NB(priv->measures));
 
@@ -477,31 +449,15 @@ static int widget_latency_update(struct ngl_node *node, struct widget *widget, d
     int ret;
     struct hud_priv *s = node->priv_data;
     struct ngl_node *child = s->child;
-
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct widget_latency *priv = widget->priv_data;
 
-    int timer_active = ctx->timer_active;
-    if (timer_active) {
-        LOG(WARNING, "GPU timings will not be available when using multiple HUD "
-                     "in the same graph due to GL limitations");
-    } else {
-        ctx->timer_active = 1;
-        priv->glBeginQuery(gl, GL_TIME_ELAPSED, priv->query);
-    }
-
+    ngli_gtimer_start(&priv->timer);
     int64_t update_start = ngli_gettime_relative();
     ret = ngli_node_update(child, t);
     int64_t update_end = ngli_gettime_relative();
+    ngli_gtimer_stop(&priv->timer);
 
-    GLuint64 gpu_tupdate = 0;
-    if (!timer_active) {
-        priv->glEndQuery(gl, GL_TIME_ELAPSED);
-        priv->glGetQueryObjectui64v(gl, priv->query, GL_QUERY_RESULT, &gpu_tupdate);
-        ctx->timer_active = 0;
-    }
-
+    const int64_t gpu_tupdate = ngli_gtimer_read(&priv->timer);
     register_time(s, &priv->measures[LATENCY_UPDATE_CPU], update_end - update_start);
     register_time(s, &priv->measures[LATENCY_UPDATE_GPU], gpu_tupdate);
 
@@ -513,28 +469,16 @@ static int widget_latency_update(struct ngl_node *node, struct widget *widget, d
 static void widget_latency_make_stats(struct ngl_node *node, struct widget *widget)
 {
     struct hud_priv *s = node->priv_data;
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct widget_latency *priv = widget->priv_data;
 
-    int timer_active = ctx->timer_active;
-    if (!timer_active) {
-        ctx->timer_active = 1;
-        priv->glBeginQuery(gl, GL_TIME_ELAPSED, priv->query);
-    }
-
+    ngli_gtimer_start(&priv->timer);
     const int64_t draw_start = ngli_gettime_relative();
     ngli_node_draw(s->child);
     const int64_t draw_end = ngli_gettime_relative();
-
-    GLuint64 gpu_tdraw = 0;
-    if (!timer_active) {
-        priv->glEndQuery(gl, GL_TIME_ELAPSED);
-        priv->glGetQueryObjectui64v(gl, priv->query, GL_QUERY_RESULT, &gpu_tdraw);
-        ctx->timer_active = 0;
-    }
+    ngli_gtimer_stop(&priv->timer);
 
     int64_t cpu_tdraw = draw_end - draw_start;
+    int64_t gpu_tdraw = ngli_gtimer_read(&priv->timer);
     register_time(s, &priv->measures[LATENCY_DRAW_CPU], cpu_tdraw);
     register_time(s, &priv->measures[LATENCY_DRAW_GPU], gpu_tdraw);
 
@@ -911,13 +855,10 @@ static void widget_drawcall_csv_report(struct ngl_node *node, struct widget *wid
 
 static void widget_latency_uninit(struct ngl_node *node, struct widget *widget)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct glcontext *gl = ctx->glcontext;
     struct widget_latency *priv = widget->priv_data;
-
     for (int i = 0; i < NB_LATENCY; i++)
         ngli_free(priv->measures[i].times);
-    priv->glDeleteQueries(gl, 1, &priv->query);
+    ngli_gtimer_reset(&priv->timer);
 }
 
 static void widget_memory_uninit(struct ngl_node *node, struct widget *widget)
