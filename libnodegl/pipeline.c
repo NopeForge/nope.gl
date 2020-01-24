@@ -560,7 +560,9 @@ void ngli_pipeline_exec(struct pipeline *s)
     struct ngl_ctx *ctx = s->ctx;
     struct glcontext *gl = ctx->glcontext;
 
-    ngli_glstate_update(ctx, &ctx->graphicstate);
+    if (s->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
+        ngli_glstate_update(ctx, &ctx->graphicstate);
+    }
 
     use_program(s, gl);
     set_uniforms(s, gl);
