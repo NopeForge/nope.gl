@@ -77,11 +77,7 @@ struct pass {
     struct darray pipeline_uniforms;
     struct darray pipeline_textures;
     struct darray pipeline_buffers;
-    struct pipeline pipeline;
-
-    int modelview_matrix_index;
-    int projection_matrix_index;
-    int normal_matrix_index;
+    struct darray pipeline_descs;
 };
 
 int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params *params);
