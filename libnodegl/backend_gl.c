@@ -379,7 +379,7 @@ static int gl_post_draw(struct ngl_ctx *s, double t)
     struct glcontext *gl = s->glcontext;
     struct ngl_config *config = &s->config;
 
-    ngli_honor_pending_glstate(s);
+    ngli_glstate_update(s, &s->graphicstate);
 
     if (s->capture_func)
         s->capture_func(s);

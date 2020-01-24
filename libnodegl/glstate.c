@@ -280,12 +280,12 @@ static int honor_state(const struct glcontext *gl,
     return 1;
 }
 
-void ngli_honor_pending_glstate(struct ngl_ctx *ctx)
+void ngli_glstate_update(struct ngl_ctx *ctx, const struct graphicstate *state)
 {
     struct glcontext *gl = ctx->glcontext;
 
     struct glstate glstate = {0};
-    init_state(&glstate, &ctx->graphicstate);
+    init_state(&glstate, state);
 
     int ret = honor_state(gl, &glstate, &ctx->glstate);
     if (ret > 0)
