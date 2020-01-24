@@ -78,7 +78,7 @@ static const struct node_param hud_params[] = {
     {"refresh_rate",   PARAM_TYPE_RATIONAL, OFFSET(refresh_rate),
                        .desc=NGLI_DOCSTRING("refresh data buffer every `update_rate` second")},
     {"export_filename", PARAM_TYPE_STR, OFFSET(export_filename),
-                        .desc=NGLI_DOCSTRING("path to export file (CSV)")},
+                        .desc=NGLI_DOCSTRING("path to export file (CSV), disable display if enabled")},
     {"bg_color", PARAM_TYPE_VEC4, OFFSET(bg_color), {.vec={0.0, 0.0, 0.0, 1.0}},
                  .desc=NGLI_DOCSTRING("background buffer color")},
     {"aspect_ratio", PARAM_TYPE_RATIONAL, OFFSET(aspect_ratio),
@@ -1253,11 +1253,8 @@ static int hud_init(struct ngl_node *node)
         s->refresh_rate_interval = s->refresh_rate[0] / (double)s->refresh_rate[1];
     s->last_refresh_time = -1;
 
-    if (s->export_filename) {
-        ret = widgets_csv_header(node);
-        if (ret < 0)
-            return ret;
-    }
+    if (s->export_filename)
+        return widgets_csv_header(node);
 
     s->canvas.buf = ngli_calloc(s->canvas.w * s->canvas.h, 4);
     if (!s->canvas.buf)
@@ -1372,11 +1369,16 @@ static void hud_draw(struct ngl_node *node)
 
     widgets_make_stats(node);
     if (s->need_refresh) {
-        if (s->export_filename)
+        if (s->export_filename) {
             widgets_csv_report(node);
-        widgets_clear(s);
-        widgets_draw(node);
+        } else {
+            widgets_clear(s);
+            widgets_draw(node);
+        }
     }
+
+    if (s->export_filename)
+        return;
 
     int ret = ngli_texture_upload(&s->texture, s->canvas.buf, 0);
     if (ret < 0)
