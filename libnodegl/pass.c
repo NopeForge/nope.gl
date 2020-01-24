@@ -454,19 +454,9 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
 
 static int pass_graphics_init(struct pass *s)
 {
-    struct ngl_ctx *ctx = s->ctx;
     const struct pass_params *params = &s->params;
 
     s->pipeline_type = NGLI_PIPELINE_TYPE_GRAPHICS;
-
-    if (!s->pipeline_program) {
-        const char *vertex = ngli_get_default_shader(NGLI_PROGRAM_SHADER_VERT);
-        const char *fragment = ngli_get_default_shader(NGLI_PROGRAM_SHADER_FRAG);
-        int ret = ngli_program_init(&s->default_program, ctx, vertex, fragment, NULL);
-        if (ret < 0)
-            return ret;
-        s->pipeline_program = &s->default_program;
-    }
 
     struct geometry_priv *geometry_priv = params->geometry->priv_data;
     struct pipeline_graphics *graphics = &s->pipeline_graphics;
@@ -561,6 +551,13 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     if (params->program) {
         struct program_priv *program_priv = params->program->priv_data;
         s->pipeline_program = &program_priv->program;
+    } else if (params->geometry) {
+        const char *vertex = ngli_get_default_shader(NGLI_PROGRAM_SHADER_VERT);
+        const char *fragment = ngli_get_default_shader(NGLI_PROGRAM_SHADER_FRAG);
+        int ret = ngli_program_init(&s->default_program, ctx, vertex, fragment, NULL);
+        if (ret < 0)
+            return ret;
+        s->pipeline_program = &s->default_program;
     }
 
     int ret = params->geometry ? pass_graphics_init(s)
