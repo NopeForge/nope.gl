@@ -1245,17 +1245,9 @@ static int hud_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct hud_priv *s = node->priv_data;
 
-    s->bg_color_u32 = NGLI_COLOR_VEC4_TO_U32(s->bg_color);
-
     int ret = widgets_init(node);
     if (ret < 0)
         return ret;
-
-    s->canvas.buf = ngli_calloc(s->canvas.w * s->canvas.h, 4);
-    if (!s->canvas.buf)
-        return NGL_ERROR_MEMORY;
-
-    widgets_clear(s);
 
     if (s->refresh_rate[1])
         s->refresh_rate_interval = s->refresh_rate[0] / (double)s->refresh_rate[1];
@@ -1266,6 +1258,13 @@ static int hud_init(struct ngl_node *node)
         if (ret < 0)
             return ret;
     }
+
+    s->canvas.buf = ngli_calloc(s->canvas.w * s->canvas.h, 4);
+    if (!s->canvas.buf)
+        return NGL_ERROR_MEMORY;
+
+    s->bg_color_u32 = NGLI_COLOR_VEC4_TO_U32(s->bg_color);
+    widgets_clear(s);
 
     ret = ngli_program_init(&s->program, ctx, vertex_data, fragment_data, NULL);
     if (ret < 0)
