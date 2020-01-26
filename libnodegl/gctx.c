@@ -57,6 +57,12 @@ void ngli_gctx_set_scissor(struct ngl_ctx *s, const int *scissor)
 {
     struct glcontext *gl = s->glcontext;
     ngli_glScissor(gl, scissor[0], scissor[1], scissor[2], scissor[3]);
+    memcpy(&s->scissor, scissor, sizeof(s->scissor));
+}
+
+void ngli_gctx_get_scissor(struct ngl_ctx *s, int *scissor)
+{
+    memcpy(scissor, &s->scissor, sizeof(s->scissor));
 }
 
 void ngli_gctx_set_clear_color(struct ngl_ctx *s, const float *color)
