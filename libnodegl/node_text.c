@@ -24,6 +24,7 @@
 
 #include "memory.h"
 #include "nodes.h"
+#include "darray.h"
 #include "drawutils.h"
 #include "log.h"
 #include "math_utils.h"
@@ -32,6 +33,12 @@
 #include "type.h"
 #include "topology.h"
 #include "utils.h"
+
+struct pipeline_desc {
+    struct pipeline pipeline;
+    int modelview_matrix_index;
+    int projection_matrix_index;
+};
 
 struct text_priv {
     char *text;
@@ -53,10 +60,7 @@ struct text_priv {
     struct program program;
     struct buffer vertices;
     struct buffer uvcoords;
-    struct pipeline pipeline;
-
-    int modelview_matrix_index;
-    int projection_matrix_index;
+    struct darray pipeline_descs;
 };
 
 #define VALIGN_CENTER 0
@@ -323,12 +327,18 @@ static int text_init(struct ngl_node *node)
         }
     };
 
-    ret = ngli_pipeline_init(&s->pipeline, ctx, &pipeline_params);
+    ngli_darray_init(&s->pipeline_descs, sizeof(struct pipeline_desc), 0);
+
+    struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
+    if (!desc)
+        return NGL_ERROR_MEMORY;
+
+    ret = ngli_pipeline_init(&desc->pipeline, ctx, &pipeline_params);
     if (ret < 0)
         return ret;
 
-    s->modelview_matrix_index = ngli_pipeline_get_uniform_index(&s->pipeline, "modelview_matrix");
-    s->projection_matrix_index = ngli_pipeline_get_uniform_index(&s->pipeline, "projection_matrix");
+    desc->modelview_matrix_index = ngli_pipeline_get_uniform_index(&desc->pipeline, "modelview_matrix");
+    desc->projection_matrix_index = ngli_pipeline_get_uniform_index(&desc->pipeline, "projection_matrix");
 
     return 0;
 }
@@ -341,16 +351,25 @@ static void text_draw(struct ngl_node *node)
     const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
 
-    ngli_pipeline_update_uniform(&s->pipeline, s->modelview_matrix_index, modelview_matrix);
-    ngli_pipeline_update_uniform(&s->pipeline, s->projection_matrix_index, projection_matrix);
+    struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
+    struct pipeline_desc *desc = &descs[0];
 
-    ngli_pipeline_exec(&s->pipeline);
+    ngli_pipeline_update_uniform(&desc->pipeline, desc->modelview_matrix_index, modelview_matrix);
+    ngli_pipeline_update_uniform(&desc->pipeline, desc->projection_matrix_index, projection_matrix);
+
+    ngli_pipeline_exec(&desc->pipeline);
 }
 
 static void text_uninit(struct ngl_node *node)
 {
     struct text_priv *s = node->priv_data;
-    ngli_pipeline_reset(&s->pipeline);
+    struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
+    const int nb_descs = ngli_darray_count(&s->pipeline_descs);
+    for (int i = 0; i < nb_descs; i++) {
+        struct pipeline_desc *desc = &descs[i];
+        ngli_pipeline_reset(&desc->pipeline);
+    }
+    ngli_darray_reset(&s->pipeline_descs);
     ngli_texture_reset(&s->texture);
     ngli_buffer_reset(&s->vertices);
     ngli_buffer_reset(&s->uvcoords);
