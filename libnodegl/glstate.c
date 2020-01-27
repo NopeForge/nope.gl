@@ -136,8 +136,6 @@ void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
 
     /* Scissor */
     ngli_glGetBooleanv(gl, GL_SCISSOR_TEST,            &state->scissor_test);
-    ngli_glGetIntegerv(gl, GL_SCISSOR_BOX,             (GLint *)&state->scissor);
-
 }
 
 static void init_state(struct glstate *s, const struct graphicconfig *gc)
@@ -170,7 +168,6 @@ static void init_state(struct glstate *s, const struct graphicconfig *gc)
     s->cull_face_mode = get_gl_cull_mode(gc->cull_face_mode);
 
     s->scissor_test = gc->scissor_test;
-    memcpy(&s->scissor, &gc->scissor, sizeof(s->scissor));
 }
 
 static int honor_state(const struct glcontext *gl,
@@ -278,10 +275,6 @@ static int honor_state(const struct glcontext *gl,
             ngli_glEnable(gl, GL_SCISSOR_TEST);
         else
             ngli_glDisable(gl, GL_SCISSOR_TEST);
-    }
-
-    if (memcmp(next->scissor, prev->scissor, sizeof(prev->scissor))) {
-        ngli_glScissor(gl, next->scissor[0], next->scissor[1], next->scissor[2], next->scissor[3]);
     }
 
     return 1;

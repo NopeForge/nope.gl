@@ -326,12 +326,13 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
         ngli_gctx_set_viewport(s, default_viewport);
     }
 
+    const GLint scissor[] = {0, 0, gl->width, gl->height};
+    ngli_gctx_set_scissor(s, scissor);
+
     ngli_gctx_set_clear_color(s, config->clear_color);
 
     struct graphicconfig *graphicconfig = &s->graphicconfig;
     ngli_graphicconfig_init(graphicconfig);
-    const GLint scissor[] = {0, 0, gl->width, gl->height};
-    memcpy(graphicconfig->scissor, scissor, sizeof(scissor));
 
 #if defined(HAVE_VAAPI_X11)
     int ret = ngli_vaapi_init(s);
@@ -360,8 +361,7 @@ static int gl_resize(struct ngl_ctx *s, int width, int height, const int *viewpo
     }
 
     const int scissor[] = {0, 0, gl->width, gl->height};
-    struct graphicconfig *graphicconfig = &s->graphicconfig;
-    memcpy(graphicconfig->scissor, scissor, sizeof(scissor));
+    ngli_gctx_set_scissor(s, scissor);
 
     return 0;
 }

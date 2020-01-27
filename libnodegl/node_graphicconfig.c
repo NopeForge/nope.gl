@@ -22,6 +22,7 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "gctx.h"
 #include "graphicconfig.h"
 #include "log.h"
 #include "nodegl.h"
@@ -62,6 +63,7 @@ struct graphicconfig_priv {
     int use_scissor;
 
     struct graphicconfig graphicconfig;
+    int prev_scissor[4];
 };
 
 #define DEFAULT_SCISSOR {-1.0f, -1.0f, -1.0f, -1.0f}
@@ -251,6 +253,8 @@ static void honor_config(struct ngl_node *node, int restore)
 
     if (restore) {
         ctx->graphicconfig = s->graphicconfig;
+        if (s->use_scissor)
+            ngli_gctx_set_scissor(ctx, s->prev_scissor);
     } else {
         struct graphicconfig *pending = &ctx->graphicconfig;
         s->graphicconfig = *pending;
@@ -283,8 +287,11 @@ static void honor_config(struct ngl_node *node, int restore)
 
         COPY_PARAM(scissor_test);
         if (s->use_scissor) {
-            for (int i = 0; i < 4; i++)
-                pending->scissor[i] = s->scissor[i];
+            ngli_gctx_get_scissor(ctx, s->prev_scissor);
+
+            const float *sf = s->scissor;
+            const int scissor[] = {sf[0], sf[1], sf[2], sf[3]};
+            ngli_gctx_set_scissor(ctx, scissor);
         }
     }
 }

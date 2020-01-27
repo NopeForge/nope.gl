@@ -116,7 +116,6 @@ struct graphicconfig {
     int cull_face_mode;
 
     int scissor_test;
-    int scissor[4];
 };
 
 void ngli_graphicconfig_init(struct graphicconfig *s);
