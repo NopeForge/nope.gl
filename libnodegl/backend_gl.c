@@ -298,7 +298,8 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
     if (!s->glcontext)
         return NGL_ERROR_MEMORY;
 
-    if (s->glcontext->offscreen) {
+    struct glcontext *gl = s->glcontext;
+    if (gl->offscreen) {
         int ret = offscreen_rendertarget_init(s);
         if (ret < 0)
             return ret;
@@ -308,7 +309,7 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
             return ret;
     }
 
-    ngli_glstate_probe(s->glcontext, &s->glstate);
+    ngli_glstate_probe(gl, &s->glstate);
 
     /* This field is used by the pipeline API in order to reduce the total
      * number of GL program switches. This means pipeline draw calls may alter
@@ -321,7 +322,6 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
     if (viewport[2] > 0 && viewport[3] > 0) {
         ngli_gctx_set_viewport(s, viewport);
     } else {
-        struct glcontext *gl = s->glcontext;
         const int default_viewport[] = {0, 0, gl->width, gl->height};
         ngli_gctx_set_viewport(s, default_viewport);
     }
