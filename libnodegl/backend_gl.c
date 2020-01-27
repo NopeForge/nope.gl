@@ -345,9 +345,7 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 static int gl_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
 {
     struct glcontext *gl = s->glcontext;
-    struct ngl_config *config = &s->config;
-
-    if (config->offscreen)
+    if (gl->offscreen)
         return NGL_ERROR_INVALID_USAGE;
 
     int ret = ngli_glcontext_resize(gl);
