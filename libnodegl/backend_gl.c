@@ -330,7 +330,7 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 
     struct graphicconfig *graphicconfig = &s->graphicconfig;
     ngli_graphicconfig_init(graphicconfig);
-    const GLint scissor[] = {0, 0, config->width, config->height};
+    const GLint scissor[] = {0, 0, gl->width, gl->height};
     memcpy(graphicconfig->scissor, scissor, sizeof(scissor));
 
 #if defined(HAVE_VAAPI_X11)
