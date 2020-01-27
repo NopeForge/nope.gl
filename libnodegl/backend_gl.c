@@ -351,12 +351,9 @@ static int gl_resize(struct ngl_ctx *s, int width, int height, const int *viewpo
     int ret = ngli_glcontext_resize(gl);
     if (ret < 0)
         return ret;
-    config->width = gl->width;
-    config->height = gl->height;
 
     if (viewport && viewport[2] > 0 && viewport[3] > 0) {
         ngli_gctx_set_viewport(s, viewport);
-        memcpy(config->viewport, viewport, sizeof(config->viewport));
     } else {
         const int default_viewport[] = {0, 0, gl->width, gl->height};
         ngli_gctx_set_viewport(s, default_viewport);
