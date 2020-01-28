@@ -24,6 +24,7 @@
 
 #include "buffer.h"
 #include "darray.h"
+#include "graphicstate.h"
 #include "program.h"
 #include "texture.h"
 
@@ -71,6 +72,7 @@ struct pipeline_graphics {
     int indices_format;
     int nb_instances;
     struct buffer *indices;
+    struct graphicstate state;
 };
 
 struct pipeline_compute {

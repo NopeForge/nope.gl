@@ -105,6 +105,12 @@ static int compute_init(struct ngl_node *node)
     return ngli_pass_init(&s->pass, ctx, &params);
 }
 
+static int compute_prepare(struct ngl_node *node)
+{
+    struct compute_priv *s = node->priv_data;
+    return ngli_pass_prepare(&s->pass);
+}
+
 static void compute_uninit(struct ngl_node *node)
 {
     struct compute_priv *s = node->priv_data;
@@ -127,6 +133,7 @@ const struct node_class ngli_compute_class = {
     .id        = NGL_NODE_COMPUTE,
     .name      = "Compute",
     .init      = compute_init,
+    .prepare   = compute_prepare,
     .uninit    = compute_uninit,
     .update    = compute_update,
     .draw      = compute_draw,

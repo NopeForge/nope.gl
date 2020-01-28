@@ -543,9 +543,12 @@ static int register_pipeline(struct pass *s)
 {
     struct ngl_ctx *ctx = s->ctx;
 
+    struct pipeline_graphics pipeline_graphics = s->pipeline_graphics;
+    pipeline_graphics.state = ctx->graphicstate;
+
     struct pipeline_params pipeline_params = {
         .type          = s->pipeline_type,
-        .graphics      = s->pipeline_graphics,
+        .graphics      = pipeline_graphics,
         .compute       = s->pipeline_compute,
         .program       = s->pipeline_program,
         .attributes    = ngli_darray_data(&s->pipeline_attributes),
@@ -561,6 +564,7 @@ static int register_pipeline(struct pass *s)
     struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
     if (!desc)
         return NGL_ERROR_MEMORY;
+    ctx->rnode_pos->id = ngli_darray_count(&s->pipeline_descs) - 1;
 
     struct pipeline *pipeline = &desc->pipeline;
     int ret = ngli_pipeline_init(pipeline, ctx, &pipeline_params);
@@ -642,6 +646,11 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
         (ret = register_blocks(s)) < 0)
         return ret;
 
+    return 0;
+}
+
+int ngli_pass_prepare(struct pass *s)
+{
     return register_pipeline(s);
 }
 
@@ -751,7 +760,7 @@ int ngli_pass_exec(struct pass *s)
 {
     struct ngl_ctx *ctx = s->ctx;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
-    struct pipeline_desc *desc = &descs[0];
+    struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
     struct pipeline *pipeline = &desc->pipeline;
 
     const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);

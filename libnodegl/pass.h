@@ -81,6 +81,7 @@ struct pass {
 };
 
 int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params *params);
+int ngli_pass_prepare(struct pass *s);
 void ngli_pass_uninit(struct pass *s);
 int ngli_pass_update(struct pass *s, double t);
 int ngli_pass_exec(struct pass *s);

@@ -1323,6 +1323,13 @@ static int hud_init(struct ngl_node *node)
         },
     };
 
+    struct graphicstate graphicstate = ctx->graphicstate;
+    graphicstate.blend = 1;
+    graphicstate.blend_src_factor = NGLI_BLEND_FACTOR_SRC_ALPHA;
+    graphicstate.blend_dst_factor = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    graphicstate.blend_src_factor_a = NGLI_BLEND_FACTOR_ZERO;
+    graphicstate.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE;
+
     struct pipeline_params pipeline_params = {
         .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
         .program       = &s->program,
@@ -1335,6 +1342,7 @@ static int hud_init(struct ngl_node *node)
         .graphics      = {
             .topology    = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
             .nb_vertices = 4,
+            .state       = graphicstate,
         }
     };
 

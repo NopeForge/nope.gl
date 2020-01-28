@@ -271,6 +271,16 @@ static int text_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
+    ngli_darray_init(&s->pipeline_descs, sizeof(struct pipeline_desc), 0);
+
+    return 0;
+}
+
+static int text_prepare(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct text_priv *s = node->priv_data;
+
     const struct pipeline_uniform uniforms[] = {
         {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .count = 1, .data = NULL},
         {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .count = 1, .data = NULL},
@@ -324,16 +334,16 @@ static int text_init(struct ngl_node *node)
         .graphics      = {
             .topology    = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
             .nb_vertices = 4,
+            .state       = ctx->graphicstate,
         }
     };
-
-    ngli_darray_init(&s->pipeline_descs, sizeof(struct pipeline_desc), 0);
 
     struct pipeline_desc *desc = ngli_darray_push(&s->pipeline_descs, NULL);
     if (!desc)
         return NGL_ERROR_MEMORY;
+    ctx->rnode_pos->id = ngli_darray_count(&s->pipeline_descs) - 1;
 
-    ret = ngli_pipeline_init(&desc->pipeline, ctx, &pipeline_params);
+    int ret = ngli_pipeline_init(&desc->pipeline, ctx, &pipeline_params);
     if (ret < 0)
         return ret;
 
@@ -352,7 +362,7 @@ static void text_draw(struct ngl_node *node)
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
 
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
-    struct pipeline_desc *desc = &descs[0];
+    struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
 
     ngli_pipeline_update_uniform(&desc->pipeline, desc->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_update_uniform(&desc->pipeline, desc->projection_matrix_index, projection_matrix);
@@ -381,6 +391,7 @@ const struct node_class ngli_text_class = {
     .id        = NGL_NODE_TEXT,
     .name      = "Text",
     .init      = text_init,
+    .prepare   = text_prepare,
     .draw      = text_draw,
     .uninit    = text_uninit,
     .priv_size = sizeof(struct text_priv),
