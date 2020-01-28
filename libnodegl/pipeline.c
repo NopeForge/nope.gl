@@ -561,7 +561,8 @@ void ngli_pipeline_exec(struct pipeline *s)
     struct glcontext *gl = ctx->glcontext;
 
     if (s->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
-        ngli_glstate_update(ctx, &ctx->graphicstate);
+        struct pipeline_graphics *graphics = &s->graphics;
+        ngli_glstate_update(ctx, &graphics->state);
     }
 
     use_program(s, gl);

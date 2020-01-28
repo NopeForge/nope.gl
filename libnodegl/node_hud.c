@@ -1369,25 +1369,6 @@ static int hud_update(struct ngl_node *node, double t)
     return widget_latency_update(node, &widgets[0], t);
 }
 
-static void honor_config(struct ngl_node *node, int restore)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct hud_priv *s = node->priv_data;
-
-    if (restore) {
-        ctx->graphicstate = s->graphicstate;
-    } else {
-        struct graphicstate *pending = &ctx->graphicstate;
-        s->graphicstate = *pending;
-
-        pending->blend = 1;
-        pending->blend_src_factor = NGLI_BLEND_FACTOR_SRC_ALPHA;
-        pending->blend_dst_factor = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-        pending->blend_src_factor_a = NGLI_BLEND_FACTOR_ZERO;
-        pending->blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE;
-    }
-}
-
 static void hud_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -1410,15 +1391,11 @@ static void hud_draw(struct ngl_node *node)
     if (ret < 0)
         return;
 
-    honor_config(node, 0);
-
     const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
     ngli_pipeline_update_uniform(&s->pipeline, s->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_update_uniform(&s->pipeline, s->projection_matrix_index, projection_matrix);
     ngli_pipeline_exec(&s->pipeline);
-
-    honor_config(node, 1);
 }
 
 static void hud_uninit(struct ngl_node *node)
