@@ -1,0 +1,27 @@
+name: 'tests Mac'
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+
+jobs:
+  build_libs:
+
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install dependencies
+      run: |
+        brew update
+        brew upgrade
+        brew install python2 curl pkg-config glfw3 ffmpeg
+        sudo pip install virtualenv
+
+    - name: Build
+      run: |
+        make -j$(($(sysctl -n hw.logicalcpu)+1))
+
