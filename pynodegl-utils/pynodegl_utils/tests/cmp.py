@@ -64,6 +64,7 @@ class CompareSceneBase(CompareBase):
                  exercise_serialization=True,
                  exercise_dot=True,
                  scene_wrap=None,
+                 samples=0,
                  **scene_kwargs):
         self._width = width
         self._height = height
@@ -75,6 +76,7 @@ class CompareSceneBase(CompareBase):
         self._exercise_serialization = exercise_serialization
         self._exercise_dot = exercise_dot
         self._scene_wrap = scene_wrap
+        self._samples = samples
 
     def render_frames(self):
         # We make sure the lists of medias is explicitely empty. If we don't a
@@ -95,6 +97,7 @@ class CompareSceneBase(CompareBase):
         viewer = ngl.Viewer()
         assert viewer.configure(offscreen=1, width=width, height=height,
                                 backend=get_backend(backend) if backend else ngl.BACKEND_AUTO,
+                                samples=self._samples,
                                 clear_color=self._clear_color,
                                 capture_buffer=capture_buffer) == 0
         timescale = duration / float(self._nb_keyframes)
