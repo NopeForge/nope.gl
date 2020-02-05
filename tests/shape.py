@@ -48,6 +48,16 @@ def shape_triangle(cfg, sz=1, color=COLORS['orange']):
     return _render_shape(cfg, geometry, color)
 
 
+@test_fingerprint(samples=4)
+@scene(sz=scene.Range(range=[0.1, 2], unit_base=100),
+       color=scene.Color())
+def shape_triangle_msaa(cfg, sz=1, color=COLORS['orange']):
+    cfg.aspect_ratio = (1, 1)
+    p0, p1, p2 = equilateral_triangle_coords(sz)
+    geometry = ngl.Triangle(p0, p1, p2)
+    return _render_shape(cfg, geometry, color)
+
+
 @test_fingerprint()
 @scene(corner=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
        width=scene.Vector(n=3, minv=(0, 0, 0), maxv=(2, 2, 2)),

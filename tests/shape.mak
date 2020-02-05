@@ -35,7 +35,9 @@ SHAPE_TEST_NAMES =              \
     cropboard_indices           \
 
 ifneq ($(DISABLE_TESTS_SAMPLES),yes)
-SHAPE_TEST_NAMES += geometry_rtt_samples
+SHAPE_TEST_NAMES += geometry_rtt_samples \
+                    triangle_msaa        \
+
 endif
 
 $(eval $(call DECLARE_REF_TESTS,shape,$(SHAPE_TEST_NAMES)))
