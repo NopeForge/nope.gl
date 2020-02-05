@@ -21,7 +21,13 @@
 # under the License.
 #
 
+import os
 import pynodegl as ngl
+from pynodegl_utils.misc import get_backend
+
+
+_backend_str = os.environ.get('BACKEND')
+_backend = get_backend(_backend_str) if _backend_str else ngl.BACKEND_AUTO
 
 
 def api_backend():
@@ -32,11 +38,11 @@ def api_backend():
 
 def api_reconfigure():
     viewer = ngl.Viewer()
-    assert viewer.configure(offscreen=1, width=16, height=16) == 0
+    assert viewer.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
     scene = ngl.Render(ngl.Quad())
     viewer.set_scene(scene)
     viewer.draw(0)
-    assert viewer.configure(offscreen=1, width=16, height=16) == 0
+    assert viewer.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
     # FIXME: errors should be raised by the draw call so we can assert here
     viewer.draw(1)
     del viewer
@@ -44,11 +50,11 @@ def api_reconfigure():
 
 def api_reconfigure_fail():
     viewer = ngl.Viewer()
-    assert viewer.configure(offscreen=1, width=16, height=16) == 0
+    assert viewer.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
     scene = ngl.Render(ngl.Quad())
     viewer.set_scene(scene)
     viewer.draw(0)
-    assert viewer.configure(offscreen=0) != 0
+    assert viewer.configure(offscreen=0, backend=_backend) != 0
     viewer.draw(1)
     del viewer
 
@@ -56,8 +62,8 @@ def api_reconfigure_fail():
 def api_ctx_ownership():
     viewer = ngl.Viewer()
     viewer2 = ngl.Viewer()
-    assert viewer.configure(offscreen=1, width=16, height=16) == 0
-    assert viewer2.configure(offscreen=1, width=16, height=16) == 0
+    assert viewer.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
+    assert viewer2.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
     scene = ngl.Render(ngl.Quad())
     viewer.set_scene(scene)
     viewer.draw(0)
@@ -71,8 +77,8 @@ def api_ctx_ownership_subgraph():
     for shared in (True, False):
         viewer = ngl.Viewer()
         viewer2 = ngl.Viewer()
-        assert viewer.configure(offscreen=1, width=16, height=16) == 0
-        assert viewer2.configure(offscreen=1, width=16, height=16) == 0
+        assert viewer.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
+        assert viewer2.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
         quad = ngl.Quad()
         render1 = ngl.Render(quad)
         if not shared:
@@ -90,7 +96,7 @@ def api_ctx_ownership_subgraph():
 def api_capture_buffer_lifetime(width=1024, height=1024):
     capture_buffer = bytearray(width * height * 4)
     viewer = ngl.Viewer()
-    assert viewer.configure(offscreen=1, width=width, height=height, capture_buffer=capture_buffer) == 0
+    assert viewer.configure(offscreen=1, width=width, height=height, backend=_backend, capture_buffer=capture_buffer) == 0
     del capture_buffer
     scene = ngl.Render(ngl.Quad())
     viewer.set_scene(scene)
