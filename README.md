@@ -10,6 +10,9 @@ and mobile (Android, iOS).
 **Warning:** note that `node.gl` is still highly experimental. This means the ABI
 and API can change at any time.
 
+![tests Linux](https://github.com/gopro/gopro-lib-node.gl/workflows/tests%20Linux/badge.svg)
+![tests Mac](https://github.com/gopro/gopro-lib-node.gl/workflows/tests%20Mac/badge.svg)
+
 [gopro]: https://gopro.com/
 
 
