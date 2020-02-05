@@ -193,7 +193,7 @@ def _debug_overlay(cfg, scene, grid_names, show_dbg_points=False, show_labels=Fa
     return overlay
 
 
-_TEST_SETTINGS = dict(show_dbg_points=False, show_labels=False, clear_color=COLORS['azure'])
+_TEST_SETTINGS = dict(show_dbg_points=False, show_labels=False, clear_color=COLORS['azure'], tolerance=1)
 
 
 @test_cuepoints(points=_get_dbg_positions(_NB_BLENDINGS), **_TEST_SETTINGS)
