@@ -102,3 +102,17 @@ def api_capture_buffer_lifetime(width=1024, height=1024):
     viewer.set_scene(scene)
     viewer.draw(0)
     del viewer
+
+
+# Exercise the HUD rasterization. We can't really check the output, so this is
+# just for blind coverage and similar code instrumentalization.
+def api_hud(width=234, height=123):
+    viewer = ngl.Viewer()
+    assert viewer.configure(offscreen=1, width=width, height=height, backend=_backend) == 0
+    quad = ngl.Quad()
+    render = ngl.Render(quad)
+    scene = ngl.HUD(render)
+    viewer.set_scene(scene)
+    for i in range(60 * 3):
+        viewer.draw(i / 60.)
+    del viewer
