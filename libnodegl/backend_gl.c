@@ -307,6 +307,10 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 
     ngli_glstate_probe(gl, &s->glstate);
 
+    ret = ngli_pgcache_init(&s->pgcache, s);
+    if (ret < 0)
+        return ret;
+
     /* This field is used by the pipeline API in order to reduce the total
      * number of GL program switches. This means pipeline draw calls may alter
      * this value, but we don't want it to be hard-reconfigure resilient (the
@@ -394,6 +398,7 @@ static int gl_post_draw(struct ngl_ctx *s, double t)
 
 static void gl_destroy(struct ngl_ctx *s)
 {
+    ngli_pgcache_reset(&s->pgcache);
     capture_reset(s);
     offscreen_rendertarget_reset(s);
 #if defined(HAVE_VAAPI_X11)

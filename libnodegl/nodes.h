@@ -52,6 +52,7 @@
 #include "image.h"
 #include "nodegl.h"
 #include "params.h"
+#include "pgcache.h"
 #include "program.h"
 #include "darray.h"
 #include "buffer.h"
@@ -83,6 +84,7 @@ struct ngl_ctx {
     int scissor[4];
     float clear_color[4];
     int program_id;
+    struct pgcache pgcache;
     struct ngl_node *scene;
     struct ngl_config config;
     int timer_active;
