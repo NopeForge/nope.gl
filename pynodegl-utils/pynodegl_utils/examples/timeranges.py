@@ -9,7 +9,6 @@ def queued_medias(cfg, overlap_time=1., dim=3):
     '''Queue of medias, mainly used as a demonstration for the prefetch/release mechanism'''
     nb_videos = dim * dim
     tqs = []
-    p = ngl.Program()
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
     ag = AutoGrid(range(nb_videos))
@@ -50,7 +49,6 @@ def parallel_playback(cfg, fast=True, segment_time=2., constrained_timeranges=Fa
     underlying media, and thus undesired delays.
     '''
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    p = ngl.Program()
 
     m1 = ngl.Media(cfg.medias[0].filename, label='media #1')
     m2 = ngl.Media(cfg.medias[0].filename, label='media #2')
@@ -58,9 +56,9 @@ def parallel_playback(cfg, fast=True, segment_time=2., constrained_timeranges=Fa
     t1 = ngl.Texture2D(data_src=m1, label='texture #1')
     t2 = ngl.Texture2D(data_src=m2, label='texture #2')
 
-    render1 = ngl.Render(q, p, label='render #1')
+    render1 = ngl.Render(q, label='render #1')
     render1.update_textures(tex0=t1)
-    render2 = ngl.Render(q, p, label='render #2')
+    render2 = ngl.Render(q, label='render #2')
     render2.update_textures(tex0=t2)
 
     text_settings={
@@ -113,7 +111,6 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
     fragment = cfg.get_frag('tex-mix')
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    p = ngl.Program()
     p1_2 = ngl.Program(vertex=vertex, fragment=fragment)
 
     m1 = ngl.Media(cfg.medias[0].filename, label='media #1')
@@ -125,9 +122,9 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
     t1 = ngl.Texture2D(data_src=m1, label='texture #1')
     t2 = ngl.Texture2D(data_src=m2, label='texture #2')
 
-    render1 = ngl.Render(q, p, label='render #1')
+    render1 = ngl.Render(q, label='render #1')
     render1.update_textures(tex0=t1)
-    render2 = ngl.Render(q, p, label='render #2')
+    render2 = ngl.Render(q, label='render #2')
     render2.update_textures(tex0=t2)
 
     delta_animkf = [ngl.AnimKeyFrameFloat(transition_start, 1.0),

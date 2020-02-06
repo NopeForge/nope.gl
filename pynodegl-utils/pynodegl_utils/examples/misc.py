@@ -66,8 +66,7 @@ def buffer_dove(cfg,
     if bilinear_filtering:
         img_tex.set_mag_filter('linear')
     quad = ngl.Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
-    prog = ngl.Program()
-    render = ngl.Render(quad, prog, label='dove')
+    render = ngl.Render(quad, label='dove')
     render.update_textures(tex0=img_tex)
     render = ngl.GraphicConfig(render,
                                blend=True,
@@ -463,14 +462,12 @@ def cube(cfg, display_depth_buffer=False):
         rtt.set_depth_texture(depth_texture)
 
         quad = ngl.Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
-        program = ngl.Program()
-        render = ngl.Render(quad, program)
+        render = ngl.Render(quad)
         render.update_textures(tex0=texture)
         group.add_children(rtt, render)
 
         quad = ngl.Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
-        program = ngl.Program()
-        render = ngl.Render(quad, program)
+        render = ngl.Render(quad)
         render.update_textures(tex0=depth_texture)
         group.add_children(rtt, render)
 

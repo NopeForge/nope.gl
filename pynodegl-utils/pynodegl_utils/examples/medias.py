@@ -43,8 +43,7 @@ def playback_speed(cfg, speed=1.0):
                    ngl.AnimKeyFrameFloat(cfg.duration, media_duration)]
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(time_animkf))
     t = ngl.Texture2D(data_src=m)
-    p = ngl.Program()
-    render = ngl.Render(q, p)
+    render = ngl.Render(q)
     render.update_textures(tex0=t)
     return render
 

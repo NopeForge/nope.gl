@@ -80,8 +80,7 @@ def animated_camera(cfg, rotate=True):
     q = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = ngl.Media(cfg.medias[0].filename)
     t = ngl.Texture2D(data_src=m)
-    p = ngl.Program()
-    node = ngl.Render(q, p)
+    node = ngl.Render(q)
     node.update_textures(tex0=t)
     g.add_children(node)
 
@@ -140,8 +139,7 @@ def animated_buffer(cfg, dim=50):
     random_tex = ngl.Texture2D(data_src=random_buffer, width=dim, height=dim)
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    prog = ngl.Program()
-    render = ngl.Render(quad, prog)
+    render = ngl.Render(quad)
     render.update_textures(tex0=random_tex)
     return render
 
