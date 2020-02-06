@@ -27,6 +27,7 @@
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "pgcache.h"
 #include "program.h"
 
 #define OFFSET(x) offsetof(struct program_priv, x)
@@ -45,13 +46,13 @@ static int program_init(struct ngl_node *node)
     const char *vertex = s->vertex ? s->vertex : ngli_get_default_shader(NGLI_PROGRAM_SHADER_VERT);
     const char *fragment = s->fragment ? s->fragment : ngli_get_default_shader(NGLI_PROGRAM_SHADER_FRAG);
 
-    return ngli_program_init(&s->program, ctx, vertex, fragment, NULL);
+    return ngli_pgcache_get_graphics_program(&ctx->pgcache, &s->program, vertex, fragment);
 }
 
 static void program_uninit(struct ngl_node *node)
 {
     struct program_priv *s = node->priv_data;
-    ngli_program_reset(&s->program);
+    ngli_pgcache_release_program(&s->program);
 }
 
 const struct node_class ngli_program_class = {
