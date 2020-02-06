@@ -26,6 +26,7 @@
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "pgcache.h"
 #include "program.h"
 
 #define OFFSET(x) offsetof(struct program_priv, x)
@@ -40,13 +41,13 @@ static int computeprogram_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct program_priv *s = node->priv_data;
 
-    return ngli_program_init(&s->program, ctx, NULL, NULL, s->compute);
+    return ngli_pgcache_get_compute_program(&ctx->pgcache, &s->program, s->compute);
 }
 
 static void computeprogram_uninit(struct ngl_node *node)
 {
     struct program_priv *s = node->priv_data;
-    ngli_program_reset(&s->program);
+    ngli_pgcache_release_program(&s->program);
 }
 
 const struct node_class ngli_computeprogram_class = {
