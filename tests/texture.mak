@@ -20,6 +20,7 @@
 #
 
 TEXTURE_TEST_NAMES =        \
+    cubemap_from_mrt        \
     data                    \
     data_animated           \
     data_unaligned_row      \

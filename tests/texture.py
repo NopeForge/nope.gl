@@ -72,3 +72,81 @@ def texture_data_unaligned_row(cfg, h=32):
     '''Tests upload of buffers with rows that are not 4-byte aligned'''
     cfg.aspect_ratio = (1, 1)
     return _render_buffer(1, h)
+
+
+_RENDER_TO_CUBEMAP_VERT = '''
+in vec4 ngl_position;
+uniform mat4 ngl_modelview_matrix;
+uniform mat4 ngl_projection_matrix;
+
+void main()
+{
+    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;
+}
+'''
+
+
+_RENDER_TO_CUBEMAP_FRAG = '''
+precision mediump float;
+out vec4 frag_color[6];
+
+void main()
+{
+    frag_color[0] = vec4(1.0, 0.0, 0.0, 1.0); // right
+    frag_color[1] = vec4(0.0, 1.0, 0.0, 1.0); // left
+    frag_color[2] = vec4(0.0, 0.0, 1.0, 1.0); // top
+    frag_color[3] = vec4(1.0, 1.0, 0.0, 1.0); // bottom
+    frag_color[4] = vec4(0.0, 1.0, 1.0, 1.0); // back
+    frag_color[5] = vec4(1.0, 0.0, 1.0, 1.0); // front
+}
+'''
+
+
+_RENDER_CUBEMAP_VERT = '''
+in vec4 ngl_position;
+uniform mat4 ngl_modelview_matrix;
+uniform mat4 ngl_projection_matrix;
+out vec3 var_uvcoord;
+
+void main()
+{
+    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;
+    var_uvcoord = ngl_position.xyz;
+}
+'''
+
+
+_RENDER_CUBEMAP_FRAG = '''
+precision mediump float;
+out vec4 frag_color;
+in vec3 var_uvcoord;
+uniform samplerCube tex0_sampler;
+
+void main()
+{
+    frag_color = texture(tex0_sampler, vec3(var_uvcoord.xy, 0.5));
+}
+'''
+
+
+@test_fingerprint()
+@scene()
+def texture_cubemap_from_mrt(cfg):
+    glsl_version = '300 es' if cfg.backend == 'gles' else '330'
+    glsl_header = '#version %s\n' % glsl_version
+
+    render_to_cubemap_vert = glsl_header + _RENDER_TO_CUBEMAP_VERT
+    render_to_cubemap_frag = glsl_header + _RENDER_TO_CUBEMAP_FRAG
+    program = ngl.Program(vertex=render_to_cubemap_vert, fragment=render_to_cubemap_frag)
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render = ngl.Render(quad, program)
+    cube = ngl.TextureCube(size=64, min_filter="linear", mag_filter="linear")
+    rtt = ngl.RenderToTexture(render, [cube])
+
+    render_cubemap_vert = glsl_header + _RENDER_CUBEMAP_VERT
+    render_cubemap_frag = glsl_header + _RENDER_CUBEMAP_FRAG
+    program = ngl.Program(vertex=render_cubemap_vert, fragment=render_cubemap_frag)
+    render = ngl.Render(quad, program)
+    render.update_textures(tex0=cube)
+
+    return ngl.Group(children=(rtt, render))
