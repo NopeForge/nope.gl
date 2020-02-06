@@ -37,6 +37,7 @@
 #include "nodegl.h"
 #include "nodes.h"
 #include "pass.h"
+#include "pgcache.h"
 #include "pipeline.h"
 #include "program.h"
 #include "texture.h"
@@ -630,7 +631,7 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     } else if (params->geometry) {
         const char *vertex = ngli_get_default_shader(NGLI_PROGRAM_SHADER_VERT);
         const char *fragment = ngli_get_default_shader(NGLI_PROGRAM_SHADER_FRAG);
-        int ret = ngli_program_init(&s->default_program, ctx, vertex, fragment, NULL);
+        int ret = ngli_pgcache_get_graphics_program(&ctx->pgcache, &s->default_program, vertex, fragment);
         if (ret < 0)
             return ret;
         s->pipeline_program = &s->default_program;
@@ -708,7 +709,7 @@ void ngli_pass_uninit(struct pass *s)
     ngli_darray_reset(&s->pipeline_uniforms);
     ngli_darray_reset(&s->pipeline_buffers);
 
-    ngli_program_reset(&s->default_program);
+    ngli_pgcache_release_program(&s->default_program);
 
     memset(s, 0, sizeof(*s));
 }
