@@ -286,6 +286,8 @@ static void capture_reset(struct ngl_ctx *s)
 
 static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 {
+    int ret;
+
     memcpy(&s->config, config, sizeof(s->config));
 
     s->glcontext = ngli_glcontext_new(&s->config);
@@ -294,7 +296,7 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 
     struct glcontext *gl = s->glcontext;
     if (gl->offscreen) {
-        int ret = offscreen_rendertarget_init(s);
+        ret = offscreen_rendertarget_init(s);
         if (ret < 0)
             return ret;
 
@@ -329,7 +331,7 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
     ngli_graphicstate_init(graphicstate);
 
 #if defined(HAVE_VAAPI_X11)
-    int ret = ngli_vaapi_init(s);
+    ret = ngli_vaapi_init(s);
     if (ret < 0)
         LOG(WARNING, "could not initialize vaapi");
 #endif
