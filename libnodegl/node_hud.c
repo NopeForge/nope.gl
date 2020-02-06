@@ -35,6 +35,7 @@
 #include "nodes.h"
 #include "log.h"
 #include "drawutils.h"
+#include "pgcache.h"
 #include "pipeline.h"
 #include "program.h"
 #include "type.h"
@@ -1263,7 +1264,7 @@ static int hud_init(struct ngl_node *node)
     s->bg_color_u32 = NGLI_COLOR_VEC4_TO_U32(s->bg_color);
     widgets_clear(s);
 
-    ret = ngli_program_init(&s->program, ctx, vertex_data, fragment_data, NULL);
+    ret = ngli_pgcache_get_graphics_program(&ctx->pgcache, &s->program, vertex_data, fragment_data);
     if (ret < 0)
         return ret;
 
@@ -1405,7 +1406,7 @@ static void hud_uninit(struct ngl_node *node)
     ngli_pipeline_reset(&s->pipeline);
     ngli_texture_reset(&s->texture);
     ngli_buffer_reset(&s->coords);
-    ngli_program_reset(&s->program);
+    ngli_pgcache_release_program(&s->program);
 
     widgets_uninit(node);
     ngli_free(s->canvas.buf);
