@@ -120,6 +120,7 @@ LIB_OBJS = animation.o              \
            nodes.o                  \
            params.o                 \
            pass.o                   \
+           pgcache.o                \
            pipeline.o               \
            program.o                \
            rendertarget.o           \
