@@ -28,6 +28,7 @@
 #include "drawutils.h"
 #include "log.h"
 #include "math_utils.h"
+#include "pgcache.h"
 #include "pipeline.h"
 #include "program.h"
 #include "type.h"
@@ -236,7 +237,7 @@ static int text_init(struct ngl_node *node)
 
     static const float uvs[] = {0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0};
 
-    ret = ngli_program_init(&s->program, ctx, vertex_data, fragment_data, NULL);
+    ret = ngli_pgcache_get_graphics_program(&ctx->pgcache, &s->program, vertex_data, fragment_data);
     if (ret < 0)
         return ret;
 
@@ -383,7 +384,7 @@ static void text_uninit(struct ngl_node *node)
     ngli_texture_reset(&s->texture);
     ngli_buffer_reset(&s->vertices);
     ngli_buffer_reset(&s->uvcoords);
-    ngli_program_reset(&s->program);
+    ngli_pgcache_release_program(&s->program);
     ngli_free(s->canvas.buf);
 }
 
