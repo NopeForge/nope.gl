@@ -33,6 +33,7 @@
 #include "math_utils.h"
 #include "memory.h"
 #include "nodes.h"
+#include "pgcache.h"
 #include "pipeline.h"
 #include "program.h"
 #include "texture.h"
@@ -172,7 +173,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     if (!fragment_data)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_program_init(&hwconv->program, ctx, desc->vertex_data, fragment_data, NULL);
+    ret = ngli_pgcache_get_graphics_program(&ctx->pgcache, &hwconv->program, desc->vertex_data, fragment_data);
     ngli_free(fragment_data);
     if (ret < 0)
         return ret;
@@ -303,7 +304,7 @@ void ngli_hwconv_reset(struct hwconv *hwconv)
 
     ngli_pipeline_reset(&hwconv->pipeline);
     ngli_buffer_reset(&hwconv->vertices);
-    ngli_program_reset(&hwconv->program);
+    ngli_pgcache_release_program(&hwconv->program);
     ngli_rendertarget_reset(&hwconv->rt);
 
     memset(hwconv, 0, sizeof(*hwconv));
