@@ -111,6 +111,7 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     if (s->scene) {
         ret = ngli_node_attach_ctx(s->scene, s);
         if (ret < 0) {
+            ngli_node_detach_ctx(s->scene, s);
             ngl_node_unrefp(&s->scene);
             s->backend->destroy(s);
             s->backend = NULL;
