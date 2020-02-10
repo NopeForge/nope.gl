@@ -25,6 +25,8 @@ import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynodegl_utils.toolbox.colors import COLORS
 
 
 def _render_buffer(w, h):
@@ -150,3 +152,22 @@ def texture_cubemap_from_mrt(cfg):
     render.update_textures(tex0=cube)
 
     return ngl.Group(children=(rtt, render))
+
+
+@test_cuepoints(width=32, height=32, points={'bottom-left': (-1, -1), 'top-right': (1, 1)})
+@scene()
+def texture_clear_and_scissor(cfg):
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    color = ngl.UniformVec4(COLORS['white'])
+    program = ngl.Program(fragment=cfg.get_frag('color'))
+    render = ngl.Render(quad, program)
+    render.update_uniforms(color=color)
+    graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0))
+
+    texture = ngl.Texture2D(width=64, height=64)
+    rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS['orange'])
+
+    render = ngl.Render(quad)
+    render.update_textures(tex0=texture)
+
+    return ngl.Group(children=(graphic_config, rtt, render))
