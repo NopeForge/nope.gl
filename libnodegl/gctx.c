@@ -80,13 +80,29 @@ void ngli_gctx_get_clear_color(struct ngl_ctx *s, float *color)
 void ngli_gctx_clear_color(struct ngl_ctx *s)
 {
     struct glcontext *gl = s->glcontext;
+    struct glstate *glstate = &s->glstate;
+
+    const int scissor_test = glstate->scissor_test;
+    ngli_glDisable(gl, GL_SCISSOR_TEST);
+
     ngli_glClear(gl, GL_COLOR_BUFFER_BIT);
+
+    if (scissor_test)
+        ngli_glEnable(gl, GL_SCISSOR_TEST);
 }
 
 void ngli_gctx_clear_depth_stencil(struct ngl_ctx *s)
 {
     struct glcontext *gl = s->glcontext;
+    struct glstate *glstate = &s->glstate;
+
+    const int scissor_test = glstate->scissor_test;
+    ngli_glDisable(gl, GL_SCISSOR_TEST);
+
     ngli_glClear(gl, GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+    if (scissor_test)
+        ngli_glEnable(gl, GL_SCISSOR_TEST);
 }
 
 void ngli_gctx_invalidate_depth_stencil(struct ngl_ctx *s)
