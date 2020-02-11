@@ -68,7 +68,7 @@ class _CompareResources(CompareSceneBase):
             reader = csv.DictReader(csvfile)
             data = [self._columns]
             for row in reader:
-                data.append([v for k, v in row.items() if k in self._columns])
+                data.append([row[k] for k in self._columns])
 
         # rely on base string diff
         ret = ''
