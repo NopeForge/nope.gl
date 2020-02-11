@@ -6,68 +6,13 @@ of `node.gl`. At the end of this tutorial, you will be able to write your own
 demo scripts in Python and how to read the advanced technical documentation for
 your future creative adventures.
 
-## 🏗️ Quick user installation
+## 🏗️ Installation
 
-The following steps describe how to install `node.gl` and its dependencies in
-your home user directory, without polluting your system (aside from the system
-dependencies which you should install and remove in sane ways).
+Follow the ["Dependencies" and "Quick user installation" guides][install] to
+bootstrap the node.gl environment. The rest of the tutorial will assume you are
+in that environment.
 
-### Dependencies
-
-Make sure you have installed on your system the essential list of dependencies
-for building and running the complete **node.gl** stack:
-
-- **GCC** or **Clang**
-- **GNU/Make**
-- **Git**
-- **FFmpeg**
-- **Python 2.x** (you will need the package with the build headers as well,
-  typically named with a `-devel` suffix on Debian based systems)
-- **pip** (Python 2 version)
-- **Graphviz**
-- **GLFW3**
-- **Python virtualenv**
-
-This tutorial will not cover the installation of these tools, but they are
-fairly standard and packaged for many systems.
-
-### Installing the full stack in a subdirectory of your home directory
-
-Clone the node.gl repository:
-
-```shell
-git clone https://github.com/gopro/gopro-lib-node.gl node.gl
-```
-
-Prepare your make for a parallel build (optional, but will make the process
-much faster):
-
-```shell
-alias make="make -j8"
-```
-
-Replace `8` with the number of parallel job your system can handle. On
-GNU/Linux you can typically rely on `nproc` to obtain this value.
-
-Install the whole environment:
-
-```shell
-cd node.gl
-make
-```
-
-Upon success, you should get a message similar to the following:
-
-```
-    Install completed.
-
-    You can now enter the virtual env with:
-        source /home/user/node.gl/nodegl-env/bin/activate
-```
-
-The rest of the tutorial will assume you are in that virtual environment.
-
-**Note**: to leave the environment, you can use `deactivate`.
+[install]: /doc/howto/installation.md
 
 ## 👁️ Running the demo viewer
 

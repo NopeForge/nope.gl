@@ -1,6 +1,25 @@
 # Installation
 
+## Dependencies
+
+Make sure you have installed on your system the essential list of dependencies
+for building and running the complete **node.gl** stack:
+
+- **GCC** or **Clang**
+- **GNU/Make**
+- **FFmpeg** (and its libraries for compilation)
+- **Python 2.x** (you will need the package with the build headers as well,
+  typically named with a `-devel` suffix on Debian based systems)
+- **pip** (Python 2 version)
+- **Graphviz**
+- **GLFW3**
+- **Python virtualenv**
+
 ## Quick user installation
+
+The following steps describe how to install `node.gl` and its dependencies in
+your home user directory, without polluting your system (aside from the system
+dependencies which you should install and remove in sane ways).
 
 For a fast ready-to-go user experience, you can use the default rule of the
 root `Makefile`.  Calling `make` in the root directory of node.gl will create a
@@ -12,8 +31,13 @@ complete environment (based on Python virtualenv):
     Install completed.
 
     You can now enter the venv with:
-        source /home/user/node.gl/nodegl-env/bin/activate
+        . /home/user/node.gl/nodegl-env/bin/activate
 ```
+
+Jobbed `make` calls are supported, so you can use `make -jN` where `N` is the
+number of parallel processes.
+
+**Note**: to leave the environment, you can use `deactivate`.
 
 ## Installation of `libnodegl` (the core library)
 
