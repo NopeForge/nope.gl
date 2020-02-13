@@ -579,8 +579,8 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     struct texture_info *texture_infos = ngli_darray_data(&s->texture_infos);
     for (int i = 0; i < ngli_darray_count(&s->texture_infos); i++) {
         struct texture_info *info = &texture_infos[i];
-        for (int i = 0; i < NGLI_ARRAY_NB(texture_info_maps); i++) {
-            const struct texture_info_map *map = &texture_info_maps[i];
+        for (int j = 0; j < NGLI_ARRAY_NB(texture_info_maps); j++) {
+            const struct texture_info_map *map = &texture_info_maps[j];
 
             uint8_t *info_p = (uint8_t *)info + map->field_offset;
             struct texture_info_field *field = (struct texture_info_field *)info_p;
