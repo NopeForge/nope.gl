@@ -19,9 +19,9 @@
  * under the License.
  */
 
-#include "graphicconfig.h"
+#include "graphicstate.h"
 
-static const struct graphicconfig default_graphicconfig = {
+static const struct graphicstate default_graphicstate = {
     .blend              = 0,
     .blend_src_factor   = NGLI_BLEND_FACTOR_ONE,
     .blend_dst_factor   = NGLI_BLEND_FACTOR_ZERO,
@@ -48,7 +48,7 @@ static const struct graphicconfig default_graphicconfig = {
     .cull_face_mode     = NGLI_CULL_MODE_BACK_BIT,
 };
 
-void ngli_graphicconfig_init(struct graphicconfig *s)
+void ngli_graphicstate_init(struct graphicstate *s)
 {
-    *s = default_graphicconfig;
+    *s = default_graphicstate;
 }

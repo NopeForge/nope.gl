@@ -19,8 +19,8 @@
  * under the License.
  */
 
-#ifndef GRAPHICCONFIG_H
-#define GRAPHICCONFIG_H
+#ifndef GRAPHICSTATE_H
+#define GRAPHICSTATE_H
 
 #include "utils.h"
 
@@ -88,7 +88,7 @@ enum {
     NGLI_COLOR_COMPONENT_A_BIT = 1 << 3,
 };
 
-struct graphicconfig {
+struct graphicstate {
     int blend;
     int blend_dst_factor;
     int blend_src_factor;
@@ -118,6 +118,6 @@ struct graphicconfig {
     int scissor_test;
 };
 
-void ngli_graphicconfig_init(struct graphicconfig *s);
+void ngli_graphicstate_init(struct graphicstate *s);
 
 #endif

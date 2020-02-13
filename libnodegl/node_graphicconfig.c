@@ -23,7 +23,7 @@
 #include <string.h>
 
 #include "gctx.h"
-#include "graphicconfig.h"
+#include "graphicstate.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -62,7 +62,7 @@ struct graphicconfig_priv {
     float scissor[4];
     int use_scissor;
 
-    struct graphicconfig graphicconfig;
+    struct graphicstate graphicstate;
     int prev_scissor[4];
 };
 
@@ -252,12 +252,12 @@ static void honor_config(struct ngl_node *node, int restore)
     struct graphicconfig_priv *s = node->priv_data;
 
     if (restore) {
-        ctx->graphicconfig = s->graphicconfig;
+        ctx->graphicstate = s->graphicstate;
         if (s->use_scissor)
             ngli_gctx_set_scissor(ctx, s->prev_scissor);
     } else {
-        struct graphicconfig *pending = &ctx->graphicconfig;
-        s->graphicconfig = *pending;
+        struct graphicstate *pending = &ctx->graphicstate;
+        s->graphicstate = *pending;
 
         COPY_PARAM(blend);
         COPY_PARAM(blend_dst_factor);

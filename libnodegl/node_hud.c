@@ -40,7 +40,7 @@
 #include "type.h"
 #include "topology.h"
 #include "gtimer.h"
-#include "graphicconfig.h"
+#include "graphicstate.h"
 
 struct hud_priv {
     struct ngl_node *child;
@@ -63,7 +63,7 @@ struct hud_priv {
     struct program program;
     struct buffer coords;
     struct pipeline pipeline;
-    struct graphicconfig graphicconfig;
+    struct graphicstate graphicstate;
 
     int modelview_matrix_index;
     int projection_matrix_index;
@@ -1349,10 +1349,10 @@ static void honor_config(struct ngl_node *node, int restore)
     struct hud_priv *s = node->priv_data;
 
     if (restore) {
-        ctx->graphicconfig = s->graphicconfig;
+        ctx->graphicstate = s->graphicstate;
     } else {
-        struct graphicconfig *pending = &ctx->graphicconfig;
-        s->graphicconfig = *pending;
+        struct graphicstate *pending = &ctx->graphicstate;
+        s->graphicstate = *pending;
 
         pending->blend = 1;
         pending->blend_src_factor = NGLI_BLEND_FACTOR_SRC_ALPHA;

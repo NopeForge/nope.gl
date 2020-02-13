@@ -331,8 +331,8 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
 
     ngli_gctx_set_clear_color(s, config->clear_color);
 
-    struct graphicconfig *graphicconfig = &s->graphicconfig;
-    ngli_graphicconfig_init(graphicconfig);
+    struct graphicstate *graphicstate = &s->graphicstate;
+    ngli_graphicstate_init(graphicstate);
 
 #if defined(HAVE_VAAPI_X11)
     int ret = ngli_vaapi_init(s);

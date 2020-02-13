@@ -45,7 +45,7 @@
 #include "glincludes.h"
 #include "glcontext.h"
 #include "glstate.h"
-#include "graphicconfig.h"
+#include "graphicstate.h"
 #include "hmap.h"
 #include "hwconv.h"
 #include "hwupload.h"
@@ -74,7 +74,7 @@ struct ngl_ctx {
     /* Worker-only fields */
     struct glcontext *glcontext;
     struct glstate glstate;
-    struct graphicconfig graphicconfig;
+    struct graphicstate graphicstate;
     struct rendertarget *rendertarget;
     int viewport[4];
     int scissor[4];

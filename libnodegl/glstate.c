@@ -24,7 +24,7 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "glstate.h"
-#include "graphicconfig.h"
+#include "graphicstate.h"
 #include "nodes.h"
 
 static const GLenum gl_blend_factor_map[NGLI_BLEND_FACTOR_NB] = {
@@ -138,7 +138,7 @@ void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
     ngli_glGetBooleanv(gl, GL_SCISSOR_TEST,            &state->scissor_test);
 }
 
-static void init_state(struct glstate *s, const struct graphicconfig *gc)
+static void init_state(struct glstate *s, const struct graphicstate *gc)
 {
     s->blend              = gc->blend;
     s->blend_dst_factor   = get_gl_blend_factor(gc->blend_dst_factor);
@@ -285,7 +285,7 @@ void ngli_honor_pending_glstate(struct ngl_ctx *ctx)
     struct glcontext *gl = ctx->glcontext;
 
     struct glstate glstate = {0};
-    init_state(&glstate, &ctx->graphicconfig);
+    init_state(&glstate, &ctx->graphicstate);
 
     int ret = honor_state(gl, &glstate, &ctx->glstate);
     if (ret > 0)
