@@ -57,6 +57,7 @@
 #include "buffer.h"
 #include "format.h"
 #include "rendertarget.h"
+#include "rnode.h"
 #include "texture.h"
 
 struct node_class;
@@ -76,6 +77,8 @@ struct ngl_ctx {
     struct glstate glstate;
     struct graphicstate graphicstate;
     struct rendertarget *rendertarget;
+    struct rnode rnode;
+    struct rnode *rnode_pos;
     int viewport[4];
     int scissor[4];
     float clear_color[4];

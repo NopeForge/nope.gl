@@ -36,6 +36,7 @@
 #include "memory.h"
 #include "nodegl.h"
 #include "nodes.h"
+#include "rnode.h"
 
 #if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
 # define DEFAULT_BACKEND NGL_BACKEND_OPENGLES
@@ -74,6 +75,7 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
 
     if (s->scene)
         ngli_node_detach_ctx(s->scene, s);
+    ngli_rnode_clear(&s->rnode);
 
     if (s->backend) {
         s->backend->destroy(s);
@@ -140,6 +142,7 @@ static int cmd_set_scene(struct ngl_ctx *s, void *arg)
         ngli_node_detach_ctx(s->scene, s);
         ngl_node_unrefp(&s->scene);
     }
+    ngli_rnode_clear(&s->rnode);
 
     struct ngl_node *scene = arg;
     if (!scene)
@@ -313,6 +316,9 @@ struct ngl_ctx *ngl_create(void)
         return NULL;
     }
 
+    ngli_rnode_init(&s->rnode);
+    s->rnode_pos = &s->rnode;
+
     ngli_darray_init(&s->modelview_matrix_stack, 4 * 4 * sizeof(float), 1);
     ngli_darray_init(&s->projection_matrix_stack, 4 * 4 * sizeof(float), 1);
     ngli_darray_init(&s->activitycheck_nodes, sizeof(struct ngl_node *), 0);
@@ -328,6 +334,7 @@ struct ngl_ctx *ngl_create(void)
     return s;
 
 fail:
+    ngli_rnode_reset(&s->rnode);
     ngl_freep(&s);
     return NULL;
 }
@@ -433,6 +440,7 @@ void ngl_freep(struct ngl_ctx **ss)
         ngl_set_scene(s, NULL);
 
     stop_thread(s);
+    ngli_rnode_reset(&s->rnode);
     ngli_darray_reset(&s->modelview_matrix_stack);
     ngli_darray_reset(&s->projection_matrix_stack);
     ngli_darray_reset(&s->activitycheck_nodes);
