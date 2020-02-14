@@ -26,6 +26,7 @@
 #include "darray.h"
 #include "graphicstate.h"
 #include "program.h"
+#include "rendertarget.h"
 #include "texture.h"
 
 struct ngl_ctx;
@@ -73,6 +74,7 @@ struct pipeline_graphics {
     int nb_instances;
     struct buffer *indices;
     struct graphicstate state;
+    struct rendertarget_desc rt_desc;
 };
 
 struct pipeline_compute {

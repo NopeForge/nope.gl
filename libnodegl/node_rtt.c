@@ -119,6 +119,49 @@ static int rtt_init(struct ngl_node *node)
     return 0;
 }
 
+static int rtt_prepare(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct rtt_priv *s = node->priv_data;
+
+    struct rendertarget_desc desc = {0};
+    for (int i = 0; i < s->nb_color_textures; i++) {
+        const struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
+        const struct texture_params *params = &texture_priv->params;
+        const int faces = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1;
+        for (int j = 0; j < faces; j++) {
+            desc.colors[desc.nb_colors].format = params->format;
+            desc.colors[desc.nb_colors].samples = s->samples;
+            desc.colors[desc.nb_colors].resolve = s->samples > 1;
+            desc.nb_colors++;
+        }
+    }
+    if (s->depth_texture) {
+        const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
+        const struct texture_params *depth_texture_params = &depth_texture_priv->params;
+        desc.depth_stencil.format = depth_texture_params->format;
+        desc.depth_stencil.samples = s->samples;
+        desc.depth_stencil.resolve = s->samples > 1;
+    } else {
+        int depth_format = NGLI_FORMAT_UNDEFINED;
+        if (s->features & FEATURE_STENCIL)
+            depth_format = NGLI_FORMAT_D24_UNORM_S8_UINT;
+        else if (s->features & FEATURE_DEPTH)
+            depth_format = NGLI_FORMAT_D16_UNORM;
+        desc.depth_stencil.format = depth_format;
+        desc.depth_stencil.samples = s->samples;
+    }
+
+    struct rendertarget_desc *prev_desc = ctx->rendertarget_desc;
+    ctx->rendertarget_desc = &desc;
+
+    int ret = ngli_node_prepare(s->child);
+
+    ctx->rendertarget_desc = prev_desc;
+
+    return ret;
+}
+
 static int rtt_prefetch(struct ngl_node *node)
 {
     int ret = 0;
@@ -360,6 +403,7 @@ const struct node_class ngli_rtt_class = {
     .id        = NGL_NODE_RENDERTOTEXTURE,
     .name      = "RenderToTexture",
     .init      = rtt_init,
+    .prepare   = rtt_prepare,
     .prefetch  = rtt_prefetch,
     .update    = rtt_update,
     .draw      = rtt_draw,

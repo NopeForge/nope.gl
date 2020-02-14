@@ -548,6 +548,7 @@ int ngli_pass_prepare(struct pass *s)
 
     struct pipeline_graphics pipeline_graphics = s->pipeline_graphics;
     pipeline_graphics.state = ctx->graphicstate;
+    pipeline_graphics.rt_desc = *ctx->rendertarget_desc;
 
     struct pipeline_params pipeline_params = {
         .type          = s->pipeline_type,

@@ -313,6 +313,15 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
             return ret;
     }
 
+    s->default_rendertarget_desc.nb_colors = 1;
+    s->default_rendertarget_desc.colors[0].format = NGLI_FORMAT_R8G8B8A8_UNORM;
+    s->default_rendertarget_desc.colors[0].samples = gl->samples;
+    s->default_rendertarget_desc.colors[0].resolve = gl->samples > 1;
+    s->default_rendertarget_desc.depth_stencil.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
+    s->default_rendertarget_desc.depth_stencil.samples = gl->samples;
+    s->default_rendertarget_desc.depth_stencil.resolve = gl->samples > 1;
+    s->rendertarget_desc = &s->default_rendertarget_desc;
+
     ngli_glstate_probe(gl, &s->glstate);
 
     ret = ngli_pgcache_init(&s->pgcache, s);

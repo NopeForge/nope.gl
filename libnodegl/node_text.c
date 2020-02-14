@@ -336,6 +336,7 @@ static int text_prepare(struct ngl_node *node)
             .topology    = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
             .nb_vertices = 4,
             .state       = ctx->graphicstate,
+            .rt_desc     = *ctx->rendertarget_desc,
         }
     };
 

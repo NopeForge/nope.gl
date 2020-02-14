@@ -1344,6 +1344,7 @@ static int hud_init(struct ngl_node *node)
             .topology    = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN,
             .nb_vertices = 4,
             .state       = graphicstate,
+            .rt_desc     = *ctx->rendertarget_desc,
         }
     };
 

@@ -28,6 +28,18 @@
 
 #define NGLI_MAX_COLOR_ATTACHMENTS 8
 
+struct attachment_desc {
+    int format;
+    int samples;
+    int resolve;
+};
+
+struct rendertarget_desc {
+    int nb_colors;
+    struct attachment_desc colors[NGLI_MAX_COLOR_ATTACHMENTS];
+    struct attachment_desc depth_stencil;
+};
+
 struct attachment {
     struct texture *attachment;
     int attachment_layer;

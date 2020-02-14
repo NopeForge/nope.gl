@@ -88,6 +88,8 @@ struct ngl_ctx {
     struct rendertarget *rendertarget;
     struct rnode rnode;
     struct rnode *rnode_pos;
+    struct rendertarget_desc default_rendertarget_desc;
+    struct rendertarget_desc *rendertarget_desc;
     int viewport[4];
     int scissor[4];
     float clear_color[4];
