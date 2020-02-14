@@ -122,6 +122,7 @@ LIB_OBJS = animation.o              \
            pipeline.o               \
            program.o                \
            rendertarget.o           \
+           rnode.o                  \
            serialize.o              \
            texture.o                \
            topology.o               \
