@@ -31,8 +31,9 @@
 struct rendertarget_params {
     int width;
     int height;
-    int nb_attachments;
-    const struct texture *attachments[NGLI_MAX_COLOR_ATTACHMENTS+1];
+    int nb_colors;
+    const struct texture *colors[NGLI_MAX_COLOR_ATTACHMENTS];
+    const struct texture *depth_stencil;
 };
 
 struct rendertarget {

@@ -100,19 +100,39 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->id);
 
     s->nb_color_attachments = 0;
-    for (int i = 0; i < params->nb_attachments; i++) {
-        const struct texture *attachment = params->attachments[i];
-
+    for (int i = 0; i < params->nb_colors; i++) {
+        const struct texture *attachment = params->colors[i];
         GLenum attachment_index = get_gl_attachment_index(attachment->format);
-        const int is_color_attachment = attachment_index == GL_COLOR_ATTACHMENT0;
-        if (is_color_attachment) {
-            if (s->nb_color_attachments >= gl->max_color_attachments) {
-                LOG(ERROR, "could not attach color buffer %d (maximum %d)",
-                    s->nb_color_attachments, gl->max_color_attachments);
-                goto done;
-            }
-            attachment_index = attachment_index + s->nb_color_attachments++;
+        ngli_assert(attachment_index == GL_COLOR_ATTACHMENT0);
+
+        if (s->nb_color_attachments >= gl->max_color_attachments) {
+            LOG(ERROR, "could not attach color buffer %d (maximum %d)",
+                s->nb_color_attachments, gl->max_color_attachments);
+            goto done;
         }
+        attachment_index = attachment_index + s->nb_color_attachments++;
+
+        switch (attachment->target) {
+        case GL_RENDERBUFFER:
+            ngli_glFramebufferRenderbuffer(gl, GL_FRAMEBUFFER, attachment_index, GL_RENDERBUFFER, attachment->id);
+            break;
+        case GL_TEXTURE_2D:
+            ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, attachment->id, 0);
+            break;
+        case GL_TEXTURE_CUBE_MAP:
+            for (int face = 0; face < 6; face++)
+                ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, attachment->id, 0);
+            s->nb_color_attachments += 5;
+            break;
+        default:
+            ngli_assert(0);
+        }
+    }
+
+    if (params->depth_stencil) {
+        const struct texture *attachment = params->depth_stencil;
+        const GLenum attachment_index = get_gl_attachment_index(attachment->format);
+        ngli_assert(attachment_index != GL_COLOR_ATTACHMENT0);
 
         switch (attachment->target) {
         case GL_RENDERBUFFER:
@@ -125,11 +145,6 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
             break;
         case GL_TEXTURE_2D:
             ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, attachment->id, 0);
-            break;
-        case GL_TEXTURE_CUBE_MAP:
-            for (int face = 0; face < 6; face++)
-                ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, attachment->id, 0);
-            s->nb_color_attachments += 5;
             break;
         default:
             ngli_assert(0);

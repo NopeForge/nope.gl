@@ -151,11 +151,11 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
             ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
             if (ret < 0)
                 return ret;
-            if (rt_params.nb_attachments >= NGLI_MAX_COLOR_ATTACHMENTS) {
+            if (rt_params.nb_colors >= NGLI_MAX_COLOR_ATTACHMENTS) {
                 LOG(ERROR, "context does not support more than 8 color attachments");
                 return NGL_ERROR_UNSUPPORTED;
             }
-            rt_params.attachments[rt_params.nb_attachments++] = ms_texture;
+            rt_params.colors[rt_params.nb_colors++] = ms_texture;
         }
     }
 
@@ -165,7 +165,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         if (ret < 0)
             return ret;
         struct texture *rt_ms_depth = &s->rt_ms_depth;
-        rt_params.attachments[rt_params.nb_attachments++] = rt_ms_depth;
+        rt_params.depth_stencil = rt_ms_depth;
     }
 
     ret = ngli_rendertarget_init(&s->rt_ms, ctx, &rt_params);
@@ -236,14 +236,14 @@ static int rtt_prefetch(struct ngl_node *node)
     for (int i = 0; i < s->nb_color_textures; i++) {
         struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         struct texture *texture = &texture_priv->texture;
-        rt_params.attachments[rt_params.nb_attachments++] = texture;
+        rt_params.colors[rt_params.nb_colors++] = texture;
     }
 
     int depth_format = NGLI_FORMAT_UNDEFINED;
     if (s->depth_texture) {
         const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
         const struct texture *depth_texture = &depth_texture_priv->texture;
-        rt_params.attachments[rt_params.nb_attachments++] = depth_texture;
+        rt_params.depth_stencil = depth_texture;
 
         const struct texture_params *depth_texture_params = &depth_texture->params;
         depth_format = depth_texture_params->format;
@@ -259,7 +259,7 @@ static int rtt_prefetch(struct ngl_node *node)
             ret = ngli_texture_init(rt_depth, ctx, &attachment_params);
             if (ret < 0)
                 return ret;
-            rt_params.attachments[rt_params.nb_attachments++] = rt_depth;
+            rt_params.depth_stencil = rt_depth;
 
             if (!(s->features & FEATURE_NO_CLEAR))
                 s->invalidate_depth_stencil = 1;
