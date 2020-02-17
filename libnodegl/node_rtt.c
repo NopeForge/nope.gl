@@ -133,8 +133,11 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
     attachment_params.samples = s->samples;
     attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
 
-    struct darray attachments;
-    ngli_darray_init(&attachments, sizeof(struct texture *), 0);
+    struct rendertarget_params rt_params = {
+        .width = s->width,
+        .height = s->height,
+    };
+
     for (int i = 0; i < s->nb_color_textures; i++) {
         const struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         const struct texture *texture = &texture_priv->texture;
@@ -142,18 +145,17 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         const int n = params->cubemap ? 6 : 1;
         for (int i = 0; i < n; i++) {
             struct texture *ms_texture = ngli_darray_push(&s->rt_ms_colors, NULL);
-            if (!ms_texture) {
-                ret = NGL_ERROR_MEMORY;
-                goto end;
-            }
+            if (!ms_texture)
+                return NGL_ERROR_MEMORY;
             attachment_params.format = params->format;
             ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
             if (ret < 0)
-                goto end;
-            if (!ngli_darray_push(&attachments, &ms_texture)) {
-                ret = NGL_ERROR_MEMORY;
-                goto end;
+                return ret;
+            if (rt_params.nb_attachments >= NGLI_MAX_COLOR_ATTACHMENTS) {
+                LOG(ERROR, "context does not support more than 8 color attachments");
+                return NGL_ERROR_UNSUPPORTED;
             }
+            rt_params.attachments[rt_params.nb_attachments++] = ms_texture;
         }
     }
 
@@ -161,27 +163,16 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         attachment_params.format = depth_format;
         ret = ngli_texture_init(&s->rt_ms_depth, ctx, &attachment_params);
         if (ret < 0)
-            goto end;
+            return ret;
         struct texture *rt_ms_depth = &s->rt_ms_depth;
-        if (!ngli_darray_push(&attachments, &rt_ms_depth)) {
-            ret = NGL_ERROR_MEMORY;
-            goto end;
-        }
+        rt_params.attachments[rt_params.nb_attachments++] = rt_ms_depth;
     }
 
-    struct rendertarget_params rt_params = {
-        .width = s->width,
-        .height = s->height,
-        .nb_attachments = ngli_darray_count(&attachments),
-        .attachments = ngli_darray_data(&attachments),
-    };
     ret = ngli_rendertarget_init(&s->rt_ms, ctx, &rt_params);
     if (ret < 0)
-        goto end;
+        return ret;
 
-end:
-    ngli_darray_reset(&attachments);
-    return ret;
+    return 0;
 }
 
 static int rtt_prefetch(struct ngl_node *node)
@@ -200,6 +191,11 @@ static int rtt_prefetch(struct ngl_node *node)
     if (!s->nb_color_textures) {
         LOG(ERROR, "at least one color texture must be specified");
         return NGL_ERROR_INVALID_ARG;
+    }
+
+    if (s->nb_color_textures > NGLI_MAX_COLOR_ATTACHMENTS) {
+        LOG(ERROR, "context does not support more than %d color attachments", NGLI_MAX_COLOR_ATTACHMENTS);
+        return NGL_ERROR_UNSUPPORTED;
     }
 
     for (int i = 0; i < s->nb_color_textures; i++) {
@@ -227,32 +223,30 @@ static int rtt_prefetch(struct ngl_node *node)
         }
     }
 
+    struct rendertarget_params rt_params = {
+        .width = s->width,
+        .height = s->height,
+    };
+
     struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
     attachment_params.width = s->width;
     attachment_params.height = s->height;
     attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
 
-    struct darray attachments;
-    ngli_darray_init(&attachments, sizeof(struct texture *), 0);
     for (int i = 0; i < s->nb_color_textures; i++) {
         struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         struct texture *texture = &texture_priv->texture;
-        if (!ngli_darray_push(&attachments, &texture)) {
-            ret = NGL_ERROR_MEMORY;
-            goto end;
-        }
+        rt_params.attachments[rt_params.nb_attachments++] = texture;
     }
 
     int depth_format = NGLI_FORMAT_UNDEFINED;
     if (s->depth_texture) {
         const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
         const struct texture *depth_texture = &depth_texture_priv->texture;
+        rt_params.attachments[rt_params.nb_attachments++] = depth_texture;
+
         const struct texture_params *depth_texture_params = &depth_texture->params;
         depth_format = depth_texture_params->format;
-        if (!ngli_darray_push(&attachments, &depth_texture)) {
-            ret = NGL_ERROR_MEMORY;
-            goto end;
-        }
     } else {
         if (s->features & FEATURE_STENCIL)
             depth_format = NGLI_FORMAT_D24_UNORM_S8_UINT;
@@ -264,30 +258,22 @@ static int rtt_prefetch(struct ngl_node *node)
             attachment_params.format = depth_format;
             ret = ngli_texture_init(rt_depth, ctx, &attachment_params);
             if (ret < 0)
-                goto end;
-            if (!ngli_darray_push(&attachments, &rt_depth)) {
-                ret = NGL_ERROR_MEMORY;
-                goto end;
-            }
+                return ret;
+            rt_params.attachments[rt_params.nb_attachments++] = rt_depth;
+
             if (!(s->features & FEATURE_NO_CLEAR))
                 s->invalidate_depth_stencil = 1;
         }
     }
 
-    struct rendertarget_params rt_params = {
-        .width = s->width,
-        .height = s->height,
-        .nb_attachments = ngli_darray_count(&attachments),
-        .attachments = ngli_darray_data(&attachments),
-    };
     ret = ngli_rendertarget_init(&s->rt, ctx, &rt_params);
     if (ret < 0)
-        goto end;
+        return ret;
 
     if (s->samples > 0) {
         ret = create_ms_rendertarget(node, depth_format);
         if (ret < 0)
-            goto end;
+            return ret;
     }
 
     if (s->vflip) {
@@ -308,9 +294,7 @@ static int rtt_prefetch(struct ngl_node *node)
         }
     }
 
-end:
-    ngli_darray_reset(&attachments);
-    return ret;
+    return 0;
 }
 
 static int rtt_update(struct ngl_node *node, double t)

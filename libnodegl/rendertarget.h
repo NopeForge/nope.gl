@@ -26,11 +26,13 @@
 #include "glcontext.h"
 #include "texture.h"
 
+#define NGLI_MAX_COLOR_ATTACHMENTS 8
+
 struct rendertarget_params {
     int width;
     int height;
     int nb_attachments;
-    const struct texture **attachments;
+    const struct texture *attachments[NGLI_MAX_COLOR_ATTACHMENTS+1];
 };
 
 struct rendertarget {

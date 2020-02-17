@@ -62,13 +62,12 @@ static int offscreen_rendertarget_init(struct ngl_ctx *s)
     if (ret < 0)
         return ret;
 
-    const struct texture *attachments[] = {&s->rt_color, &s->rt_depth};
-    const int nb_attachments = NGLI_ARRAY_NB(attachments);
     struct rendertarget_params rt_params = {
         .width = config->width,
         .height = config->height,
-        .nb_attachments = nb_attachments,
-        .attachments = attachments,
+        .nb_attachments = 2,
+        .attachments[0] = &s->rt_color,
+        .attachments[1] = &s->rt_depth,
     };
     ret = ngli_rendertarget_init(&s->rt, s, &rt_params);
     if (ret < 0)
@@ -210,14 +209,11 @@ static int capture_init(struct ngl_ctx *s)
                 return ret;
         }
 
-        const struct texture *attachments[] = {&s->capture_rt_color};
-        const int nb_attachments = NGLI_ARRAY_NB(attachments);
-
         struct rendertarget_params rt_params = {
             .width = config->width,
             .height = config->height,
-            .nb_attachments = nb_attachments,
-            .attachments = attachments,
+            .nb_attachments = 1,
+            .attachments[0] = &s->capture_rt_color,
         };
         int ret = ngli_rendertarget_init(&s->capture_rt, s, &rt_params);
         if (ret < 0)
@@ -234,13 +230,11 @@ static int capture_init(struct ngl_ctx *s)
             if (ret < 0)
                 return ret;
 
-            const struct texture *attachments[] = {&s->oes_resolve_rt_color};
-            const int nb_attachments = NGLI_ARRAY_NB(attachments);
             struct rendertarget_params rt_params = {
                 .width = config->width,
                 .height = config->height,
-                .nb_attachments = nb_attachments,
-                .attachments = attachments,
+                .nb_attachments = 1,
+                .attachments[0] = &s->oes_resolve_rt_color,
             };
             ret = ngli_rendertarget_init(&s->oes_resolve_rt, s, &rt_params);
             if (ret < 0)
