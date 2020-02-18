@@ -103,10 +103,10 @@ struct pipeline {
     struct pipeline_compute compute;
     const struct program *program;
 
-    struct darray uniform_pairs;
-    struct darray texture_pairs;
-    struct darray buffer_pairs;
-    struct darray attribute_pairs;
+    struct darray uniform_descs;
+    struct darray texture_descs;
+    struct darray buffer_descs;
+    struct darray attribute_descs;
 
     void (*exec)(const struct pipeline *s, struct glcontext *gl);
 
