@@ -21,6 +21,7 @@
 
 SHAPE_TEST_NAMES =              \
     triangle                    \
+    triangles_mat4_attribute    \
     quad                        \
     circle                      \
     diamond_colormask           \

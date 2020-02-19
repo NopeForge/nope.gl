@@ -328,3 +328,46 @@ def _get_cropboard_function(set_indices=False):
 
 shape_cropboard = _get_cropboard_function(set_indices=False)
 shape_cropboard_indices = _get_cropboard_function(set_indices=True)
+
+
+TRIANGLES_MAT4_ATTRIBUTE_VERT = '''
+#version 100
+precision highp float;
+attribute vec4 ngl_position;
+attribute mat4 matrix;
+uniform mat4 ngl_modelview_matrix;
+uniform mat4 ngl_projection_matrix;
+
+void main()
+{
+    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * matrix * ngl_position;
+}
+'''
+
+
+@test_fingerprint()
+@scene()
+def shape_triangles_mat4_attribute(cfg):
+    cfg.aspect_ratio = (1, 1)
+    p0, p1, p2 = equilateral_triangle_coords(1)
+    geometry = ngl.Triangle(p0, p1, p2)
+    matrices = ngl.BufferMat4(data=array.array('f', [
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+       -0.5, 0.0, 0.0, 1.0,
+
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 1.0, 0.0,
+        0.5, 0.0, 0.0, 1.0,
+    ]))
+
+    program = ngl.Program(
+        vertex=TRIANGLES_MAT4_ATTRIBUTE_VERT,
+        fragment=cfg.get_frag('color'),
+    )
+    render = ngl.Render(geometry, program, nb_instances=2)
+    render.update_instance_attributes(matrix=matrices)
+    render.update_uniforms(color=ngl.UniformVec4(value=COLORS['orange']))
+    return render
