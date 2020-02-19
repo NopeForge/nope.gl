@@ -411,28 +411,40 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     const int format = attribute_priv->data_format;
     int stride = attribute_priv->data_stride;
     int offset = 0;
+    int class_id = attribute->class->id;
     struct buffer *buffer = &attribute_priv->buffer;
 
     if (attribute_priv->block) {
         struct block_priv *block = attribute_priv->block->priv_data;
+        const struct ngl_node *f = block->fields[attribute_priv->block_field];
         const struct block_field_info *fi = &block->field_info[attribute_priv->block_field];
         stride = fi->stride;
         offset = fi->offset;
         buffer = &block->buffer;
+        class_id = f->class->id;
     }
 
-    struct pipeline_attribute pipeline_attribute = {
-        .location = info->location,
-        .format = format,
-        .stride = stride,
-        .offset = offset,
-        .rate   = rate,
-        .buffer = buffer,
-    };
-    snprintf(pipeline_attribute.name, sizeof(pipeline_attribute.name), "%s", name);
+    if (info->type == NGLI_TYPE_MAT4 && class_id != NGL_NODE_BUFFERMAT4) {
+        LOG(ERROR, "attribute '%s' type does not match the type declared in the shader", name);
+        return NGL_ERROR_INVALID_ARG;
+    }
 
-    if (!ngli_darray_push(&s->pipeline_attributes, &pipeline_attribute))
-        return NGL_ERROR_MEMORY;
+    const int attribute_count = info->type == NGLI_TYPE_MAT4 ? 4 : 1;
+    const int attribute_offset = ngli_format_get_bytes_per_pixel(format);
+    for (int i = 0; i < attribute_count; i++) {
+        struct pipeline_attribute pipeline_attribute = {
+            .location = info->location + i,
+            .format = format,
+            .stride = stride,
+            .offset = offset + i * attribute_offset,
+            .rate   = rate,
+            .buffer = buffer,
+        };
+        snprintf(pipeline_attribute.name, sizeof(pipeline_attribute.name), "%s", name);
+
+        if (!ngli_darray_push(&s->pipeline_attributes, &pipeline_attribute))
+            return NGL_ERROR_MEMORY;
+    }
 
     if (!ngli_darray_push(&s->attributes, &attribute))
         return NGL_ERROR_MEMORY;
