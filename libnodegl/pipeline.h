@@ -50,7 +50,6 @@ struct pipeline_buffer {
 struct pipeline_attribute {
     char name[MAX_ID_LEN];
     int format;
-    int count;
     int stride;
     int offset;
     int rate;

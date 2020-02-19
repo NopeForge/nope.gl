@@ -417,7 +417,6 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
         .format = attribute_priv->data_format,
         .stride = stride,
         .offset = offset,
-        .count  = 1,
         .rate   = rate,
         .buffer = buffer,
     };

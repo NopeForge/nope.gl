@@ -51,7 +51,6 @@ struct buffer_desc {
 };
 
 struct attribute_desc {
-    int count;
     GLuint location;
     struct pipeline_attribute attribute;
 };
@@ -290,20 +289,17 @@ static void set_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
     const struct attribute_desc *descs = ngli_darray_data(&s->attribute_descs);
     for (int i = 0; i < ngli_darray_count(&s->attribute_descs); i++) {
         const struct attribute_desc *desc = &descs[i];
-        const int count = desc->count;
         const GLuint location = desc->location;
         const struct pipeline_attribute *attribute = &desc->attribute;
         const struct buffer *buffer = attribute->buffer;
         const GLuint size = ngli_format_get_nb_comp(attribute->format);
-        const GLint stride = attribute->stride * count;
+        const GLint stride = attribute->stride;
 
-        for (int i = 0; i < count; i++) {
-            ngli_glEnableVertexAttribArray(gl, location + i);
-            ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->id);
-            ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(stride * i + attribute->offset));
-            if ((gl->features & NGLI_FEATURE_INSTANCED_ARRAY) && attribute->rate > 0)
-                ngli_glVertexAttribDivisor(gl, location + i, attribute->rate);
-        }
+        ngli_glEnableVertexAttribArray(gl, location);
+        ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer->id);
+        ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute->offset));
+        if ((gl->features & NGLI_FEATURE_INSTANCED_ARRAY) && attribute->rate > 0)
+            ngli_glVertexAttribDivisor(gl, location, attribute->rate);
     }
 }
 
@@ -312,13 +308,10 @@ static void reset_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
     const struct attribute_desc *descs = ngli_darray_data(&s->attribute_descs);
     for (int i = 0; i < ngli_darray_count(&s->attribute_descs); i++) {
         const struct attribute_desc *desc = &descs[i];
-        const int count = desc->count;
         const GLuint location = desc->location;
-        for (int i = 0; i < count; i++) {
-            ngli_glDisableVertexAttribArray(gl, location + i);
-            if (gl->features & NGLI_FEATURE_INSTANCED_ARRAY)
-                ngli_glVertexAttribDivisor(gl, location + i, 0);
-        }
+        ngli_glDisableVertexAttribArray(gl, location);
+        if (gl->features & NGLI_FEATURE_INSTANCED_ARRAY)
+            ngli_glVertexAttribDivisor(gl, location, 0);
     }
 }
 
@@ -337,20 +330,12 @@ static int build_attribute_descs(struct pipeline *s, const struct pipeline_param
         if (!info)
             continue;
 
-        if (attribute->count > 4) {
-            LOG(ERROR, "attribute count could not exceed 4");
-            return NGL_ERROR_INVALID_ARG;
-        }
-        const int type_count = info->type == NGLI_TYPE_MAT4 ? 4 : 1;
-        const int attribute_count = NGLI_MAX(NGLI_MIN(attribute->count, type_count), 1);
-
         if (attribute->rate > 0 && !(gl->features & NGLI_FEATURE_INSTANCED_ARRAY)) {
             LOG(ERROR, "context does not support instanced arrays");
             return NGL_ERROR_UNSUPPORTED;
         }
 
         struct attribute_desc desc = {
-            .count     = attribute_count,
             .location  = info->location,
             .attribute = *attribute,
         };
