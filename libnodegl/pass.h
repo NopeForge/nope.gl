@@ -24,10 +24,10 @@
 
 #include <stdint.h>
 #include "darray.h"
-#include "glcontext.h"
-#include "glincludes.h"
 #include "pipeline.h"
 #include "program.h"
+
+struct ngl_ctx;
 
 struct pass_params {
     const char *label;
