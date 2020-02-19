@@ -408,6 +408,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
         return ret;
 
     struct buffer_priv *attribute_priv = attribute->priv_data;
+    const int format = attribute_priv->data_format;
     int stride = attribute_priv->data_stride;
     int offset = 0;
     struct buffer *buffer = &attribute_priv->buffer;
@@ -422,7 +423,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
 
     struct pipeline_attribute pipeline_attribute = {
         .location = info->location,
-        .format = attribute_priv->data_format,
+        .format = format,
         .stride = stride,
         .offset = offset,
         .rate   = rate,
