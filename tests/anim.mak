@@ -25,6 +25,7 @@ ANIM_TEST_NAMES =        \
     forward_vec2         \
     forward_vec3         \
     forward_vec4         \
+    forward_quat         \
     resolution_api       \
 
 $(eval $(call DECLARE_REF_TESTS,anim,$(ANIM_TEST_NAMES)))

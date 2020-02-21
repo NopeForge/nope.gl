@@ -308,6 +308,7 @@ cdef class %(class_name)s(%(parent_node)s):
                 AnimatedVec2=2,
                 AnimatedVec3=3,
                 AnimatedVec4=4,
+                AnimatedQuat=4,
             )
             n = animated_nodes.get(node)
             if n:

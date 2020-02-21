@@ -172,12 +172,18 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
     if (node->class->id != NGL_NODE_ANIMATEDFLOAT &&
         node->class->id != NGL_NODE_ANIMATEDVEC2 &&
         node->class->id != NGL_NODE_ANIMATEDVEC3 &&
-        node->class->id != NGL_NODE_ANIMATEDVEC4)
+        node->class->id != NGL_NODE_ANIMATEDVEC4 &&
+        node->class->id != NGL_NODE_ANIMATEDQUAT)
         return NGL_ERROR_INVALID_ARG;
 
     struct variable_priv *s = node->priv_data;
     if (!s->nb_animkf)
         return NGL_ERROR_INVALID_ARG;
+
+    if (node->class->id == NGL_NODE_ANIMATEDQUAT && s->as_mat4) {
+        LOG(ERROR, "evaluating an AnimatedQuat to a mat4 is not supported");
+        return NGL_ERROR_UNSUPPORTED;
+    }
 
     if (!s->anim_eval.kfs) {
         int ret = ngli_animation_init(&s->anim_eval, NULL,
