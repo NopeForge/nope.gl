@@ -8,6 +8,5 @@ Missing tests:
 - test more sharing nodes (buffers, anims, ...)
 - test more buffer features (filename, ...)
 - test userswitch node
-- test compute nodes
 - test streamed nodes
 - test more media node (images, colorconv, hwconv, ...)

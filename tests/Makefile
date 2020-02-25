@@ -63,6 +63,7 @@ endif
 include anim.mak
 include api.mak
 include blending.mak
+include compute.mak
 include data.mak
 include live.mak
 include media.mak
