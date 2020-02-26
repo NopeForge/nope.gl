@@ -119,7 +119,7 @@ clean: clean_py
 # For example: `make clean && make -j8 tests COVERAGE=yes`
 coverage:
 	mkdir -p ngl-cov
-	gcovr -r libnodegl --html-details -o ngl-cov/index.html
+	gcovr -r libnodegl --html-details --html-title "node.gl coverage" -o ngl-cov/index.html
 
 .PHONY: all
 .PHONY: ngl-tools-install
