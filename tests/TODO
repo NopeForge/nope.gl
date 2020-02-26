@@ -1,7 +1,6 @@
 Missing tests:
 
 - animations: add some easing args to trigger specific easing branches
-- texture: add 3D support
 - texture: test mipmap special cases
 - timeranges: add "once" mode
 - test more sharing nodes (buffers, anims, ...)

@@ -171,3 +171,66 @@ def texture_clear_and_scissor(cfg):
     render.update_textures(tex0=texture)
 
     return ngl.Group(children=(graphic_config, rtt, render))
+
+
+_TEXTURE3D_VERT = '''
+in vec4 ngl_position;
+in vec2 ngl_uvcoord;
+uniform mat4 ngl_modelview_matrix;
+uniform mat4 ngl_projection_matrix;
+out vec2 var_uvcoord;
+
+void main()
+{
+    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;
+    var_uvcoord = ngl_uvcoord;
+}
+'''
+
+
+_TEXTURE3D_FRAG = '''
+precision mediump float;
+precision mediump sampler3D;
+out vec4 frag_color;
+in vec2 var_uvcoord;
+uniform sampler3D tex0_sampler;
+
+void main()
+{
+    frag_color = texture(tex0_sampler, vec3(var_uvcoord, 0.0));
+    frag_color += texture(tex0_sampler, vec3(var_uvcoord, 0.5));
+    frag_color += texture(tex0_sampler, vec3(var_uvcoord, 1.0));
+}
+'''
+
+
+@test_fingerprint()
+@scene()
+def texture_3d(cfg):
+    random.seed(0)
+    width, height, depth = 9, 9, 3
+    n = width * height
+    indices = range(n)
+    data = array.array('B')
+    random.shuffle(indices)
+    for i in indices:
+        data.extend([i * 255 // n, 0, 0, 255])
+    random.shuffle(indices)
+    for i in indices:
+        data.extend([0, i * 255 // n, 0, 255])
+    random.shuffle(indices)
+    for i in indices:
+        data.extend([0, 0, i * 255 // n, 255])
+    texture_buffer = ngl.BufferUBVec4(data=data)
+    texture = ngl.Texture3D(width=width, height=height, depth=depth, data_src=texture_buffer)
+
+    glsl_version = '300 es' if cfg.backend == 'gles' else '330'
+    glsl_header = '#version %s\n' % glsl_version
+    render_cubemap_vert = glsl_header + _TEXTURE3D_VERT
+    render_cubemap_frag = glsl_header + _TEXTURE3D_FRAG
+
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    program = ngl.Program(vertex=render_cubemap_vert, fragment=render_cubemap_frag)
+    render = ngl.Render(quad, program)
+    render.update_textures(tex0=texture)
+    return render

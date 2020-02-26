@@ -20,6 +20,7 @@
 #
 
 TEXTURE_TEST_NAMES =        \
+    3d                      \
     clear_and_scissor       \
     cubemap_from_mrt        \
     data                    \
