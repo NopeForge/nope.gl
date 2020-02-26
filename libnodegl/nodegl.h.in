@@ -22,15 +22,15 @@
 #ifndef NODEGL_H
 #define NODEGL_H
 
-#define NODEGL_VERSION_MAJOR @version_major@
-#define NODEGL_VERSION_MINOR @version_minor@
-#define NODEGL_VERSION_MICRO @version_micro@
+#define NGL_VERSION_MAJOR @version_major@
+#define NGL_VERSION_MINOR @version_minor@
+#define NGL_VERSION_MICRO @version_micro@
 
-#define NODEGL_GET_VERSION(major, minor, micro) ((major)<<16 | (minor)<<8 | (micro))
+#define NGL_GET_VERSION(major, minor, micro) ((major)<<16 | (minor)<<8 | (micro))
 
-#define NODEGL_VERSION_INT NODEGL_GET_VERSION(NODEGL_VERSION_MAJOR, \
-                                              NODEGL_VERSION_MINOR, \
-                                              NODEGL_VERSION_MICRO)
+#define NGL_VERSION_INT NGL_GET_VERSION(NGL_VERSION_MAJOR, \
+                                        NGL_VERSION_MINOR, \
+                                        NGL_VERSION_MICRO)
 
 #if defined(_WIN32)
 #  if defined(BUILD_NODEGL_SHARED_LIB)

@@ -51,7 +51,7 @@ static void print_node_params(const char *name, const struct node_param *p)
 int main(void)
 {
     printf("#\n# Nodes specifications for node.gl v%d.%d.%d\n#\n\n",
-           NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
+           NGL_VERSION_MAJOR, NGL_VERSION_MINOR, NGL_VERSION_MICRO);
     print_node_params("_Node", ngli_base_node_params);
 
     static const struct node_class *node_classes[] = {

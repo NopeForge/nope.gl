@@ -664,7 +664,7 @@ struct ngl_ctx *ngl_create(void)
         goto fail;
 
     LOG(INFO, "context create in node.gl v%d.%d.%d",
-        NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
+        NGL_VERSION_MAJOR, NGL_VERSION_MINOR, NGL_VERSION_MICRO);
 
     return s;
 

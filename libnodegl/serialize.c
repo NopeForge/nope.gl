@@ -496,7 +496,7 @@ char *ngl_node_serialize(const struct ngl_node *node)
 
     ngli_hmap_set_free(nlist, free_func, NULL);
     ngli_bstr_printf(b, "# Node.GL v%d.%d.%d\n",
-                    NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
+                    NGL_VERSION_MAJOR, NGL_VERSION_MINOR, NGL_VERSION_MICRO);
     if (serialize(nlist, b, node) < 0)
         goto end;
     s = ngli_bstr_strdup(b);

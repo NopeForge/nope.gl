@@ -537,10 +537,10 @@ struct ngl_node *ngl_node_deserialize(const char *str)
         LOG(ERROR, "invalid serialized scene");
         goto end;
     }
-    if (NODEGL_VERSION_INT != NODEGL_GET_VERSION(major, minor, micro)) {
+    if (NGL_VERSION_INT != NGL_GET_VERSION(major, minor, micro)) {
         LOG(ERROR, "mismatching version: %d.%d.%d != %d.%d.%d",
             major, minor, micro,
-            NODEGL_VERSION_MAJOR, NODEGL_VERSION_MINOR, NODEGL_VERSION_MICRO);
+            NGL_VERSION_MAJOR, NGL_VERSION_MINOR, NGL_VERSION_MICRO);
         goto end;
     }
     s += strcspn(s, "\n");
