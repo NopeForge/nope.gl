@@ -92,7 +92,7 @@ void main(void)
 '''
 
 
-@test_fingerprint(nb_keyframes=10)
+@test_fingerprint(nb_keyframes=10, tolerance=1)
 @scene()
 def compute_particules(cfg):
     random.seed(0)

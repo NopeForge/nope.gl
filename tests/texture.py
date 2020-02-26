@@ -154,7 +154,7 @@ def texture_cubemap_from_mrt(cfg):
     return ngl.Group(children=(rtt, render))
 
 
-@test_cuepoints(width=32, height=32, points={'bottom-left': (-1, -1), 'top-right': (1, 1)})
+@test_cuepoints(width=32, height=32, points={'bottom-left': (-1, -1), 'top-right': (1, 1)}, tolerance=1)
 @scene()
 def texture_clear_and_scissor(cfg):
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
