@@ -303,8 +303,14 @@ cdef class %(class_name)s(%(parent_node)s):
 
             # Animated classes need a specific evaluate method that could not
             # be created through the parameters system.
-            if node in ['AnimatedFloat', 'AnimatedVec2', 'AnimatedVec3', 'AnimatedVec4']:
-                n = ['Float', 'Vec2', 'Vec3', 'Vec4'].index(node[len('Animated'):]) + 1
+            animated_nodes = dict(
+                AnimatedFloat=1,
+                AnimatedVec2=2,
+                AnimatedVec3=3,
+                AnimatedVec4=4,
+            )
+            n = animated_nodes.get(node)
+            if n:
                 if n == 1:
                     retstr = 'vec[0]'
                 else:
