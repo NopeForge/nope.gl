@@ -380,6 +380,10 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
     if (ret < 0)
         goto fail;
 
+    if (glcontext->backend == NGL_BACKEND_OPENGL &&
+        (glcontext->features & NGLI_FEATURE_TEXTURE_CUBE_MAP))
+        ngli_glEnable(glcontext, GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
     if (!glcontext->offscreen) {
         int ret = ngli_glcontext_resize(glcontext);
         if (ret < 0)
