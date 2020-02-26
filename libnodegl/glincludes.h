@@ -197,6 +197,7 @@ typedef void* GLeglImageOES;
 # define GL_TEXTURE_CUBE_MAP_NEGATIVE_Y        0x8518
 # define GL_TEXTURE_CUBE_MAP_POSITIVE_Z        0x8519
 # define GL_TEXTURE_CUBE_MAP_NEGATIVE_Z        0x851A
+# define GL_TEXTURE_CUBE_MAP_SEAMLESS          0x884F
 #endif
 
 #if NGL_CS_COMPAT_INCLUDES
