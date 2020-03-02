@@ -22,7 +22,9 @@
 COMPUTE_TEST_NAMES =
 
 ifneq ($(DISABLE_TESTS_STD430),yes)
-COMPUTE_TEST_NAMES += particules \
+COMPUTE_TEST_NAMES +=            \
+    histogram                    \
+    particules                   \
 
 endif
 
