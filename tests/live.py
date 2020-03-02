@@ -89,7 +89,7 @@ def _get_live_trf_spec(layout):
                 lambda: t3.set_angle(123.4),                # trf_step=3
                 lambda: t4.set_factors(0.7, 1.4, 0.2),      # trf_step=4
                 lambda: t5.set_quat(0, 0, -0.474, 0.880),   # trf_step=5
-                lambda: t5.set_quat(0, 0, 0, 0),
+                lambda: t5.set_quat(0, 0, 0, 1),
                 lambda: t4.set_factors(1, 1, 1),
                 lambda: t3.set_angle(0),
                 lambda: t2.set_vector(0, 0, 0),
