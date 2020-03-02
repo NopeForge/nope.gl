@@ -97,7 +97,7 @@ static const struct node_param rotatequat_params[] = {
     {"child",  PARAM_TYPE_NODE, OFFSET(trf.child),
                .flags=PARAM_FLAG_CONSTRUCTOR,
                .desc=NGLI_DOCSTRING("scene to rotate")},
-    {"quat",   PARAM_TYPE_VEC4, OFFSET(quat),
+    {"quat",   PARAM_TYPE_VEC4, OFFSET(quat), {.vec=NGLI_QUAT_IDENTITY},
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=update_quat,
                .desc=NGLI_DOCSTRING("quaternion")},

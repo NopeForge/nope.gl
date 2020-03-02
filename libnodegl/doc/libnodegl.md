@@ -455,7 +455,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
 `child` | ✓ |  | [`Node`](#parameter-types) | scene to rotate | 
-`quat` |  | ✓ | [`vec4`](#parameter-types) | quaternion | (`0`,`0`,`0`,`0`)
+`quat` |  | ✓ | [`vec4`](#parameter-types) | quaternion | (`0`,`0`,`0`,`1`)
 `anchor` |  |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
 `anim` |  |  | [`Node`](#parameter-types) ([AnimatedQuat](#animatedquat)) | `quat` animation | 
 
@@ -784,7 +784,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
-`value` |  | ✓ | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+`value` |  | ✓ | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`1`)
 `as_mat4` |  |  | [`bool`](#parameter-types) | exposed as a 4x4 rotation matrix in the program | `0`
 
 

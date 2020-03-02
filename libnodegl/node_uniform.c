@@ -115,7 +115,7 @@ static const struct node_param uniformvec4_params[] = {
 };
 
 static const struct node_param uniformquat_params[] = {
-    {"value",  PARAM_TYPE_VEC4, OFFSET(opt.vec),
+    {"value",  PARAM_TYPE_VEC4, OFFSET(opt.vec), {.vec=NGLI_QUAT_IDENTITY},
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=uniformquat_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},

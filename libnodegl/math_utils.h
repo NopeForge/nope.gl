@@ -80,6 +80,8 @@ void ngli_mat4_scale(float *dst, float x, float y, float z);
 void ngli_mat4_mul_aarch64(float *dst, const float *m1, const float *m2);
 void ngli_mat4_mul_vec4_aarch64(float *dst, const float *m, const float *v);
 
+#define NGLI_QUAT_IDENTITY {0.0f, 0.0f, 0.0f, 1.0f}
+
 void ngli_quat_slerp(float *dst, const float *q1, const float *q2, float t);
 
 #endif
