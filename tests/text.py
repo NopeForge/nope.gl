@@ -39,20 +39,6 @@ def text_0_to_127(cfg):
     return ngl.Text(s)
 
 
-@test_fingerprint(tolerance=1)
-@scene()
-def text_128_to_255(cfg):
-    '''Note: this is currently incorrectly displaying characters it shouldn't
-    display but this test is mainly meant to check for crashes'''
-    s = ''
-    for y in range(8):
-        for x in range(16):
-            c = 1<<7 | y << 4 | x
-            s += chr(c) if c else ' '
-        s += '\n'
-    return ngl.Text(s)
-
-
 def _text(**params):
     return ngl.Text('This\nis\nnode.gl', font_scale=0.7, padding=8, **params)
 

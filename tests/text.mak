@@ -22,7 +22,6 @@
 TEXT_TEST_NAMES =           \
     colors                  \
     0_to_127                \
-    128_to_255              \
     align_cc                \
     align_cr                \
     align_cl                \
