@@ -99,6 +99,6 @@ if __name__ == '__main__':
         buf = [['.'] * ag.nb_cols for i in range(ag.nb_rows)]
         for _, i, x, y in ag:
             buf[y][x] = 'x'
-        print '#%d (cols:%d rows:%d)' % (n, ag.nb_cols, ag.nb_rows)
-        print '\n'.join(''.join(line) for line in buf)
-        print
+        print('#%d (cols:%d rows:%d)' % (n, ag.nb_cols, ag.nb_rows))
+        print('\n'.join(''.join(line) for line in buf))
+        print()
