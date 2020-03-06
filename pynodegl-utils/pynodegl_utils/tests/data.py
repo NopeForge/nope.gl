@@ -352,8 +352,7 @@ def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
 
     # Seed only defines the random for the position of the fields
     random.seed(seed)
-    fields_pos = range(len(spec))
-    random.shuffle(fields_pos)
+    fields_pos = random.sample(range(len(spec)), len(spec))
 
     # Always the same colors whatever the user seed
     random.seed(0)
