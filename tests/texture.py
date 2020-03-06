@@ -269,16 +269,12 @@ def texture_3d(cfg):
     random.seed(0)
     width, height, depth = 9, 9, 3
     n = width * height
-    indices = list(range(n))
     data = array.array('B')
-    random.shuffle(indices, random.random)
-    for i in indices:
+    for i in random.sample(range(n), n):
         data.extend([i * 255 // n, 0, 0, 255])
-    random.shuffle(indices, random.random)
-    for i in indices:
+    for i in random.sample(range(n), n):
         data.extend([0, i * 255 // n, 0, 255])
-    random.shuffle(indices, random.random)
-    for i in indices:
+    for i in random.sample(range(n), n):
         data.extend([0, 0, i * 255 // n, 255])
     texture_buffer = ngl.BufferUBVec4(data=data)
     texture = ngl.Texture3D(width=width, height=height, depth=depth, data_src=texture_buffer)
