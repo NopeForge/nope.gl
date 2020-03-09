@@ -40,11 +40,11 @@ endif
 # "pkg-config --exists python" never will, so an explicit version is needed.
 HAS_PYTHON := $(if $(shell pkg-config --exists python$(PYTHON_MAJOR) && echo 1),yes,no)
 
-TOOLS = player render serialize
+TOOLS = player render
 ifeq ($(HAS_PYTHON),yes)
 PYTHON_CFLAGS := $(shell python$(PYTHON_MAJOR)-config --cflags)
 PYTHON_LDLIBS := $(shell python$(PYTHON_MAJOR)-config --libs)
-TOOLS += python
+TOOLS += python serialize
 endif
 
 TOOLS_BINS = $(addprefix ngl-, $(addsuffix $(EXESUF), $(TOOLS)))
