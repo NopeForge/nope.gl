@@ -63,6 +63,7 @@ struct graphicconfig_priv {
 
     struct graphicstate graphicstate;
     int use_scissor;
+    int scissor[4];
     int prev_scissor[4];
 };
 
@@ -223,6 +224,9 @@ static int graphicconfig_init(struct ngl_node *node)
 
     static const float default_scissor[4] = DEFAULT_SCISSOR_F;
     s->use_scissor = memcmp(s->scissor_f, default_scissor, sizeof(s->scissor_f));
+    const float *sf = s->scissor_f;
+    const int scissor[4] = {sf[0], sf[1], sf[2], sf[3]};
+    memcpy(s->scissor, scissor, sizeof(s->scissor));
 
     if (!s->cull_face_mode) {
         LOG(ERROR, "cull face mode cannot be null");
@@ -288,10 +292,7 @@ static void honor_config(struct ngl_node *node, int restore)
         COPY_PARAM(scissor_test);
         if (s->use_scissor) {
             ngli_gctx_get_scissor(ctx, s->prev_scissor);
-
-            const float *sf = s->scissor_f;
-            const int scissor[] = {sf[0], sf[1], sf[2], sf[3]};
-            ngli_gctx_set_scissor(ctx, scissor);
+            ngli_gctx_set_scissor(ctx, s->scissor);
         }
     }
 }
