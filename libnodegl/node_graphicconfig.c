@@ -64,7 +64,6 @@ struct graphicconfig_priv {
     struct graphicstate graphicstate;
     int use_scissor;
     int scissor[4];
-    int prev_scissor[4];
 };
 
 #define DEFAULT_SCISSOR_F {-1.0f, -1.0f, -1.0f, -1.0f}
@@ -257,8 +256,6 @@ static void honor_config(struct ngl_node *node, int restore)
 
     if (restore) {
         ctx->graphicstate = s->graphicstate;
-        if (s->use_scissor)
-            ngli_gctx_set_scissor(ctx, s->prev_scissor);
     } else {
         struct graphicstate *pending = &ctx->graphicstate;
         s->graphicstate = *pending;
@@ -290,10 +287,6 @@ static void honor_config(struct ngl_node *node, int restore)
         COPY_PARAM(cull_face_mode);
 
         COPY_PARAM(scissor_test);
-        if (s->use_scissor) {
-            ngli_gctx_get_scissor(ctx, s->prev_scissor);
-            ngli_gctx_set_scissor(ctx, s->scissor);
-        }
     }
 }
 
@@ -311,10 +304,20 @@ static int graphicconfig_prepare(struct ngl_node *node)
 
 static void graphicconfig_draw(struct ngl_node *node)
 {
+    struct ngl_ctx *ctx = node->ctx;
     struct graphicconfig_priv *s = node->priv_data;
     struct ngl_node *child = s->child;
 
+    int prev_scissor[4];
+    if (s->use_scissor) {
+        ngli_gctx_get_scissor(ctx, prev_scissor);
+        ngli_gctx_set_scissor(ctx, s->scissor);
+    }
+
     ngli_node_draw(child);
+
+    if (s->use_scissor)
+        ngli_gctx_set_scissor(ctx, prev_scissor);
 }
 
 const struct node_class ngli_graphicconfig_class = {
