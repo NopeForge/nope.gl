@@ -60,9 +60,9 @@ struct graphicconfig_priv {
 
     int scissor_test;
     float scissor[4];
-    int use_scissor;
 
     struct graphicstate graphicstate;
+    int use_scissor;
     int prev_scissor[4];
 };
 
