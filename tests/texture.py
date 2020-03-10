@@ -212,6 +212,26 @@ def texture_clear_and_scissor(cfg):
     return ngl.Group(children=(graphic_config, rtt, render))
 
 
+@test_fingerprint(width=64, height=64)
+@scene()
+def texture_scissor(cfg):
+    cfg.aspect_ratio = (1, 1)
+
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    color = ngl.UniformVec4(COLORS['orange'])
+    program = ngl.Program(fragment=cfg.get_frag('color'))
+    render = ngl.Render(quad, program)
+    render.update_uniforms(color=color)
+    graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(32, 32, 32, 32))
+    texture = ngl.Texture2D(width=64, height=64)
+    rtt = ngl.RenderToTexture(graphic_config, [texture])
+
+    render = ngl.Render(quad)
+    render.update_textures(tex0=texture)
+
+    return ngl.Group(children=(rtt, render))
+
+
 _TEXTURE3D_VERT = '''
 in vec4 ngl_position;
 in vec2 ngl_uvcoord;
