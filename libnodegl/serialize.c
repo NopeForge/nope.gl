@@ -23,6 +23,7 @@
 #include <string.h>
 
 #include "bstr.h"
+#include "darray.h"
 #include "hmap.h"
 #include "log.h"
 #include "memory.h"
@@ -89,6 +90,38 @@ static void print_##type##s(struct bstr *b, int n, const type *f)       \
 
 DECLARE_FLT_PRINT_FUNCS(float,  32, 23, 'z')
 DECLARE_FLT_PRINT_FUNCS(double, 64, 52, 'Z')
+
+struct item {
+    const char *key;
+    void *data;
+};
+
+static int cmp_item(const void *p1, const void *p2)
+{
+    const struct item *i1 = p1;
+    const struct item *i2 = p2;
+    return strcmp(i1->key, i2->key);
+}
+
+static int hmap_to_sorted_items(struct darray *items_array, struct hmap *hm)
+{
+    ngli_darray_init(items_array, sizeof(struct item), 0);
+
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(hm, entry))) {
+        struct item item = {.key = entry->key, .data = entry->data};
+        if (!ngli_darray_push(items_array, &item)) {
+            ngli_darray_reset(items_array);
+            return NGL_ERROR_MEMORY;
+        }
+    }
+
+    void *items = ngli_darray_data(items_array);
+    const int nb_items = ngli_darray_count(items_array);
+    qsort(items, nb_items, sizeof(struct item), cmp_item);
+
+    return 0;
+}
 
 static int serialize_options(struct hmap *nlist,
                              struct bstr *b,
@@ -266,13 +299,19 @@ static int serialize_options(struct hmap *nlist,
                     ngli_bstr_print(b, " ");
                 else
                     ngli_bstr_print(b, " %s:", p->key);
-                int i = 0;
-                const struct hmap_entry *entry = NULL;
-                while ((entry = ngli_hmap_next(hmap, entry))) {
-                    const int node_id = get_rel_node_id(nlist, entry->data);
-                    ngli_bstr_print(b, "%s%s=%x", i ? "," : "", entry->key, node_id);
-                    i++;
+
+                struct darray items_array;
+                ngli_darray_init(&items_array, sizeof(struct item), 0);
+                int ret = hmap_to_sorted_items(&items_array, hmap);
+                if (ret < 0)
+                    return ret;
+                const struct item *items = ngli_darray_data(&items_array);
+                for (int i = 0; i < ngli_darray_count(&items_array); i++) {
+                    const struct item *item = &items[i];
+                    const int node_id = get_rel_node_id(nlist, item->data);
+                    ngli_bstr_print(b, "%s%s=%x", i ? "," : "", item->key, node_id);
                 }
+                ngli_darray_reset(&items_array);
                 break;
             }
             default:
@@ -320,12 +359,21 @@ static int serialize_children(struct hmap *nlist,
                 struct hmap *hmap = *(struct hmap **)(priv + p->offset);
                 if (!hmap)
                     break;
-                const struct hmap_entry *entry = NULL;
-                while ((entry = ngli_hmap_next(hmap, entry))) {
-                    int ret = serialize(nlist, b, entry->data);
-                    if (ret < 0)
+
+                struct darray items_array;
+                int ret = hmap_to_sorted_items(&items_array, hmap);
+                if (ret < 0)
+                    return ret;
+                const struct item *items = ngli_darray_data(&items_array);
+                for (int i = 0; i < ngli_darray_count(&items_array); i++) {
+                    const struct item *item = &items[i];
+                    int ret = serialize(nlist, b, item->data);
+                    if (ret < 0) {
+                        ngli_darray_reset(&items_array);
                         return ret;
+                    }
                 }
+                ngli_darray_reset(&items_array);
                 break;
             }
         }
