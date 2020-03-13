@@ -90,11 +90,11 @@ static void print_##type##s(struct bstr *b, int n, const type *f)       \
 DECLARE_FLT_PRINT_FUNCS(float,  32, 23, 'z')
 DECLARE_FLT_PRINT_FUNCS(double, 64, 52, 'Z')
 
-static void serialize_options(struct hmap *nlist,
-                              struct bstr *b,
-                              const struct ngl_node *node,
-                              uint8_t *priv,
-                              const struct node_param *p)
+static int serialize_options(struct hmap *nlist,
+                             struct bstr *b,
+                             const struct ngl_node *node,
+                             uint8_t *priv,
+                             const struct node_param *p)
 {
     while (p && p->key) {
         const int constructor = p->flags & PARAM_FLAG_CONSTRUCTOR;
@@ -114,7 +114,7 @@ static void serialize_options(struct hmap *nlist,
                 char *s = ngli_params_get_flags_str(p->choices->consts, v);
                 if (!s) {
                     LOG(ERROR, "unable to allocate param flags string");
-                    return; // XXX: code return
+                    return NGL_ERROR_MEMORY;
                 }
                 ngli_assert(*s);
                 if (constructor)
@@ -277,9 +277,11 @@ static void serialize_options(struct hmap *nlist,
             }
             default:
                 LOG(ERROR, "cannot serialize %s: unsupported parameter type", p->key);
+                return NGL_ERROR_BUG;
         }
         p++;
     }
+    return 0;
 }
 
 static int serialize(struct hmap *nlist,
@@ -351,8 +353,10 @@ static int serialize(struct hmap *nlist,
                     tag >> 16 & 0xff,
                     tag >>  8 & 0xff,
                     tag       & 0xff);
-    serialize_options(nlist, b, node, node->priv_data, node->class->params);
-    serialize_options(nlist, b, node, (uint8_t *)node, ngli_base_node_params);
+    if ((ret = serialize_options(nlist, b, node, node->priv_data, node->class->params)) < 0 ||
+        (ret = serialize_options(nlist, b, node, (uint8_t *)node, ngli_base_node_params)) < 0)
+        return ret;
+
     ngli_bstr_print(b, "\n");
 
     return register_node(nlist, node);
