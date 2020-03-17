@@ -43,7 +43,7 @@ class FileTracker:
     def _get_trackable_files(self):
         files = set()
         for mod in sys.modules.values():
-            if not hasattr(mod, '__file__'):
+            if not hasattr(mod, '__file__') or mod.__file__ is None:
                 continue
             path = op.realpath(mod.__file__)
             modpath = op.dirname(path)
