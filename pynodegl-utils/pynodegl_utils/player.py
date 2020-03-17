@@ -238,6 +238,7 @@ class Player(QtCore.QThread):
                 self._backend = cfg['backend']
                 need_reconfigure = True
             if need_reconfigure:
+                self._viewer.set_scene(None)
                 self._configure_viewer()
             else:
                 viewport = misc.get_viewport(self._width, self._height, self._aspect_ratio)
