@@ -54,4 +54,8 @@ ifneq ($(DISABLE_TESTS_STD430),yes)
 DATA_TEST_NAMES      += $(addsuffix _std430,$(DATA_TEST_BLOCK_NAMES))
 endif
 
+DATA_TEST_NAMES      +=            \
+    streamed_buffer_vec4           \
+    streamed_buffer_vec4_time_anim \
+
 $(eval $(call DECLARE_REF_TESTS,data,$(DATA_TEST_NAMES)))

@@ -25,6 +25,7 @@ import array
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynodegl_utils.tests.debug import get_debug_points
 
 from pynodegl_utils.tests.data import (
     ANIM_DURATION,
@@ -210,3 +211,110 @@ for layout in {'std140', 'std430', 'uniform'}:
     for field_info in spec:
         field_id = '{category}_{type}'.format(**field_info)
         globals()['data_{}_{}'.format(field_id, layout)] = _get_data_function(field_id, layout)
+
+
+_RENDER_STREAMEDBUFFER_VERT = '''
+in vec4 ngl_position;
+in vec2 ngl_uvcoord;
+
+uniform mat4 ngl_modelview_matrix;
+uniform mat4 ngl_projection_matrix;
+
+out vec2 var_uvcoord;
+
+void main()
+{
+    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;
+    var_uvcoord = ngl_uvcoord;
+}
+'''
+
+
+_RENDER_STREAMEDBUFFER_FRAG = '''
+precision mediump float;
+in vec2 var_uvcoord;
+out vec4 frag_color;
+
+layout(std140) uniform streamed {
+    vec4 data[%(size)d];
+};
+
+void main()
+{
+    uint x = uint(var_uvcoord.x * %(size)d.0);
+    uint y = uint(var_uvcoord.y * %(size)d.0);
+    uint i = clamp(x + y * %(size)dU, 0U, %(data_size)dU - 1U);
+    frag_color = data[i];
+}
+'''
+
+
+_N = 4
+
+
+def _get_data_streamed_buffer_cuepoints():
+    f = float(_N)
+    off = 1 / (2 * f)
+    c = lambda i: (i / f + off) * 2.0 - 1.0
+    return dict(('%d%d' % (x, y), (c(x), c(y))) for y in range(_N) for x in range(_N))
+
+
+def _get_data_streamed_buffer_vec4_scene(cfg, scale, show_dbg_points):
+    duration = _N
+    cfg.duration = duration * scale
+    cfg.aspect_ratio = (1, 1)
+    size, data_size, = _N, _N * _N
+
+    time_anim = None
+    if scale != 1:
+        kfs = [
+            ngl.AnimKeyFrameFloat(0, 0),
+            ngl.AnimKeyFrameFloat(cfg.duration, duration),
+        ]
+        time_anim = ngl.AnimatedTime(kfs)
+
+    pts_data = array.array('l')
+    for i in range(duration):
+        offset = 10000 if i == 0 else 0
+        pts_data.extend([i * 1000000 + offset])
+
+    vec4_data = array.array('f')
+    for i in range(duration):
+        for j in range(data_size):
+            v = i / float(duration) + j / float(data_size*duration)
+            vec4_data.extend([v, v, v, v])
+
+    pts_buffer = ngl.BufferInt64(data=pts_data)
+    vec4_buffer = ngl.BufferVec4(data=vec4_data)
+    streamed_buffer = ngl.StreamedBufferVec4(data_size, pts_buffer, vec4_buffer, time_anim=time_anim)
+    streamed_block = ngl.Block(layout='std140', label='streamed_block', fields=(streamed_buffer,))
+
+    shader_version = '300 es' if cfg.backend == 'gles' else '330'
+    shader_header = '#version %s\n' % shader_version
+    shader_params = dict(data_size=data_size, size=size)
+
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    program = ngl.Program(
+        vertex=shader_header + _RENDER_STREAMEDBUFFER_VERT,
+        fragment=shader_header + _RENDER_STREAMEDBUFFER_FRAG % shader_params,
+    )
+    render = ngl.Render(quad, program)
+    render.update_blocks(streamed=streamed_block)
+
+    group = ngl.Group(children=(render,))
+    if show_dbg_points:
+        cuepoints = _get_data_streamed_buffer_cuepoints()
+        group.add_children(get_debug_points(cfg, cuepoints))
+    return group
+
+
+@test_cuepoints(points=_get_data_streamed_buffer_cuepoints(), nb_keyframes=_N, tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def data_streamed_buffer_vec4(cfg, show_dbg_points=False):
+    return _get_data_streamed_buffer_vec4_scene(cfg, 1, show_dbg_points)
+
+
+@test_cuepoints(points=_get_data_streamed_buffer_cuepoints(), nb_keyframes=_N, tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def data_streamed_buffer_vec4_time_anim(cfg, show_dbg_points=False):
+    return _get_data_streamed_buffer_vec4_scene(cfg, 2, show_dbg_points)
