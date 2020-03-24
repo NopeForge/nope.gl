@@ -172,7 +172,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 
 Parameter | Ctor. | Live-chg. | Type | Description | Default
 --------- | :---: | :-------: | ---- | ----------- | :-----:
-`fields` |  |  | [`NodeList`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferMat4](#buffer), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4), [UniformQuat](#uniformquat), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4)) | block fields defined in the graphic program | 
+`fields` |  |  | [`NodeList`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [StreamedBufferInt](#streamedbufferint), [StreamedBufferFloat](#streamedbufferfloat), [StreamedBufferVec2](#streamedbuffervec2), [StreamedBufferVec3](#streamedbuffervec3), [StreamedBufferVec4](#streamedbuffervec4), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferMat4](#buffer), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformMat4](#uniformmat4), [UniformQuat](#uniformquat), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4)) | block fields defined in the graphic program | 
 `layout` |  |  | [`memory_layout`](#memory_layout-choices) | memory layout set in the graphic program | `std140`
 
 
@@ -410,7 +410,7 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 `geometry` | ✓ |  | [`Node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
 `program` |  |  | [`Node`](#parameter-types) ([Program](#program)) | program to be executed | 
 `textures` |  |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d), [TextureCube](#texturecube)) | textures made accessible to the `program` | 
-`uniforms` |  |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4)) | uniforms made accessible to the `program` | 
+`uniforms` |  |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [StreamedBufferInt](#streamedbufferint), [StreamedBufferFloat](#streamedbufferfloat), [StreamedBufferVec2](#streamedbuffervec2), [StreamedBufferVec3](#streamedbuffervec3), [StreamedBufferVec4](#streamedbuffervec4), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformMat4](#uniformmat4), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4)) | uniforms made accessible to the `program` | 
 `blocks` |  |  | [`NodeDict`](#parameter-types) ([Block](#block)) | blocks made accessible to the `program` | 
 `attributes` |  |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferMat4](#buffer)) | extra vertex attributes made accessible to the `program` | 
 `instance_attributes` |  |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferMat4](#buffer)) | per instance extra vertex attributes made accessible to the `program` | 
@@ -717,6 +717,90 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+
+
+## StreamedBufferInt
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferInt](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferFloat
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferFloat](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferVec2
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferVec2](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferVec3
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferVec3](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferVec4
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferVec4](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferMat4
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferMat4](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
 
 
 ## UniformInt

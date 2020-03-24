@@ -107,6 +107,7 @@ LIB_OBJS = animation.o              \
            node_rtt.o               \
            node_scale.o             \
            node_streamed.o          \
+           node_streamedbuffer.o    \
            node_text.o              \
            node_texture.o           \
            node_timerangefilter.o   \

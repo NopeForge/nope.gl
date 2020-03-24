@@ -197,9 +197,16 @@ struct buffer_priv {
     int nb_animkf;
     struct animation anim;
 
+    /* streamedbuffer */
+    struct ngl_node *timestamps;
+    struct ngl_node *buffer_node;
+    int timebase[2];
+    struct ngl_node *time_anim;
+
     int fd;
     int dynamic;
     int data_type;          // any of NGLI_TYPE_*
+    int last_index;
 
     struct buffer buffer;
     int buffer_refcount;

@@ -47,6 +47,11 @@ static const struct param_choices layout_choices = {
                                           NGL_NODE_ANIMATEDBUFFERVEC2,  \
                                           NGL_NODE_ANIMATEDBUFFERVEC3,  \
                                           NGL_NODE_ANIMATEDBUFFERVEC4,  \
+                                          NGL_NODE_STREAMEDBUFFERINT,   \
+                                          NGL_NODE_STREAMEDBUFFERFLOAT, \
+                                          NGL_NODE_STREAMEDBUFFERVEC2,  \
+                                          NGL_NODE_STREAMEDBUFFERVEC3,  \
+                                          NGL_NODE_STREAMEDBUFFERVEC4,  \
                                           NGL_NODE_BUFFERFLOAT,         \
                                           NGL_NODE_BUFFERVEC2,          \
                                           NGL_NODE_BUFFERVEC3,          \
@@ -140,14 +145,19 @@ int ngli_node_block_upload(struct ngl_node *node)
 static int get_buffer_stride(const struct ngl_node *node, int layout)
 {
     switch (node->class->id) {
+        case NGL_NODE_STREAMEDBUFFERFLOAT:
         case NGL_NODE_ANIMATEDBUFFERFLOAT:
         case NGL_NODE_BUFFERFLOAT:          return sizeof(float) * (layout == LAYOUT_STD140 ? 4 : 1);
+        case NGL_NODE_STREAMEDBUFFERVEC2:
         case NGL_NODE_ANIMATEDBUFFERVEC2:
         case NGL_NODE_BUFFERVEC2:           return sizeof(float) * (layout == LAYOUT_STD140 ? 4 : 2);
+        case NGL_NODE_STREAMEDBUFFERVEC3:
         case NGL_NODE_ANIMATEDBUFFERVEC3:
         case NGL_NODE_BUFFERVEC3:
+        case NGL_NODE_STREAMEDBUFFERVEC4:
         case NGL_NODE_ANIMATEDBUFFERVEC4:
         case NGL_NODE_BUFFERVEC4:           return sizeof(float) * 4;
+        case NGL_NODE_STREAMEDBUFFERINT:
         case NGL_NODE_BUFFERINT:
         case NGL_NODE_BUFFERUINT:           return sizeof(int) * (layout == LAYOUT_STD140 ? 4 : 1);
         case NGL_NODE_BUFFERIVEC2:

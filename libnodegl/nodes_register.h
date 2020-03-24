@@ -104,6 +104,12 @@
     action(NGL_NODE_STREAMEDVEC3,           ngli_streamedvec3_class)            \
     action(NGL_NODE_STREAMEDVEC4,           ngli_streamedvec4_class)            \
     action(NGL_NODE_STREAMEDMAT4,           ngli_streamedmat4_class)            \
+    action(NGL_NODE_STREAMEDBUFFERINT,      ngli_streamedbufferint_class)       \
+    action(NGL_NODE_STREAMEDBUFFERFLOAT,    ngli_streamedbufferfloat_class)     \
+    action(NGL_NODE_STREAMEDBUFFERVEC2,     ngli_streamedbuffervec2_class)      \
+    action(NGL_NODE_STREAMEDBUFFERVEC3,     ngli_streamedbuffervec3_class)      \
+    action(NGL_NODE_STREAMEDBUFFERVEC4,     ngli_streamedbuffervec4_class)      \
+    action(NGL_NODE_STREAMEDBUFFERMAT4,     ngli_streamedbuffermat4_class)      \
     action(NGL_NODE_UNIFORMINT,             ngli_uniformint_class)              \
     action(NGL_NODE_UNIFORMMAT4,            ngli_uniformmat4_class)             \
     action(NGL_NODE_UNIFORMFLOAT,           ngli_uniformfloat_class)            \
