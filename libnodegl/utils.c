@@ -95,7 +95,7 @@ uint32_t ngli_crc32(const char *s)
 {
     uint32_t crc = ~0;
     for (int i = 0; s[i]; i++) {
-        crc ^= s[i];
+        crc ^= (uint8_t)s[i];
         for (int j = 0; j < 8; j++) {
             const uint32_t mask = -(crc & 1);
             crc = (crc >> 1) ^ (mask & 0xEDB88320);
