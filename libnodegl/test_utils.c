@@ -25,5 +25,11 @@ int main(void)
 {
     ngli_assert(ngli_crc32("") == 0);
     ngli_assert(ngli_crc32("Hello world !@#$%^&*()_+") == 0xDCEB8676);
+
+    char buf[256];
+    for (int i = 0; i <= 0xff; i++)
+        buf[i] = 0xff - i;
+    ngli_assert(ngli_crc32(buf) == 0x5473AA4D);
+
     return 0;
 }
