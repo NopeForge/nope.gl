@@ -221,7 +221,6 @@ def _get_debug_positions_from_fields(fields):
 
 
 def get_data_debug_positions(spec, field_id):
-    fields_info, block_fields, color_fields, block_definition, color_definition = get_random_block_info(spec) #seed, layout)
     fields = match_fields(spec, field_id)
     return _get_debug_positions_from_fields(fields)
 
