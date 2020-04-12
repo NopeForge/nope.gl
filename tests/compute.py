@@ -161,7 +161,7 @@ def compute_particules(cfg):
 _COMPUTE_HISTOGRAM_CLEAR = '''
 layout(local_size_x = %(local_size)d, local_size_y = 1, local_size_z = 1) in;
 
-layout (std430, binding = 0) buffer histogram {
+layout(std430, binding = 0) buffer histogram {
     uint histr[%(hsize)d];
     uint histg[%(hsize)d];
     uint histb[%(hsize)d];
