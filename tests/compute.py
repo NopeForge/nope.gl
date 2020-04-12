@@ -333,3 +333,101 @@ def compute_histogram(cfg, show_dbg_points=False):
         cuepoints = _get_compute_histogram_cuepoints()
         group.add_children(get_debug_points(cfg, cuepoints))
     return group
+
+
+_ANIMATION_COMPUTE = '''
+#version %(version)s
+
+layout(local_size_x = %(local_size)d, local_size_y = %(local_size)d, local_size_z = 1) in;
+
+layout(std140, binding = 0) uniform input_block {
+    vec3 vertices[4];
+} src;
+
+layout (std430, binding = 0) buffer output_block {
+    vec3 vertices[4];
+} dst;
+
+uniform mat4 transform;
+
+void main(void)
+{
+    uint i = gl_WorkGroupID.x * gl_WorkGroupSize.x * gl_WorkGroupSize.y + gl_LocalInvocationIndex;
+    dst.vertices[i] = vec3(transform * vec4(src.vertices[i], 1.0));
+}
+'''
+
+
+_ANIMATION_VERT = '''
+#version %(version)s
+precision highp float;
+in vec4 ngl_position;
+uniform mat4 ngl_modelview_matrix;
+uniform mat4 ngl_projection_matrix;
+
+void main(void)
+{
+    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;
+}
+'''
+
+
+_ANIMATION_FRAG = '''
+#version %(version)s
+precision mediump float;
+uniform vec4 color;
+out vec4 frag_color;
+
+void main(void)
+{
+    frag_color = color;
+}
+'''
+
+
+@test_fingerprint(nb_keyframes=5, tolerance=1)
+@scene()
+def compute_animation(cfg):
+    cfg.duration = 5
+    cfg.aspect_ratio = (1, 1)
+    local_size = 2
+
+    shader_version = '310 es' if cfg.backend == 'gles' else '430'
+    shader_data = dict(
+        version=shader_version,
+        local_size=local_size,
+    )
+    compute_shader = _ANIMATION_COMPUTE % shader_data
+    vertex_shader = _ANIMATION_VERT % shader_data
+    fragment_shader = _ANIMATION_FRAG % shader_data
+
+    vertices_data = array.array('f', [
+        -0.5, -0.5, 0.0,
+         0.5, -0.5, 0.0,
+         0.5,  0.5, 0.0,
+        -0.5,  0.5, 0.0,
+    ])
+    nb_vertices = 4
+
+    input_vertices = ngl.BufferVec3(data=vertices_data)
+    output_vertices = ngl.BufferVec3(data=vertices_data)
+    input_block = ngl.Block(fields=[input_vertices], layout='std140')
+    output_block = ngl.Block(fields=[output_vertices], layout='std430')
+
+    rotate_animkf = [ngl.AnimKeyFrameFloat(0, 0),
+                     ngl.AnimKeyFrameFloat(cfg.duration, 360)]
+    rotate = ngl.Rotate(ngl.Identity(), axis=(0, 0, 1), anim=ngl.AnimatedFloat(rotate_animkf))
+    transform = ngl.UniformMat4(transform=rotate)
+
+    program = ngl.ComputeProgram(compute_shader)
+    compute = ngl.Compute(nb_vertices / (local_size ** 2), 1, 1, program)
+    compute.update_uniforms(transform=transform)
+    compute.update_blocks(input_block=input_block, output_block=output_block)
+
+    quad_buffer = ngl.BufferVec3(block=output_block, block_field=0)
+    geometry = ngl.Geometry(quad_buffer, topology='triangle_fan')
+    program = ngl.Program(vertex=vertex_shader, fragment=fragment_shader)
+    render = ngl.Render(geometry, program)
+    render.update_uniforms(color=ngl.UniformVec4(value=COLORS['sgreen']))
+
+    return ngl.Group(children=(compute, render))

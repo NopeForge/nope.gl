@@ -23,6 +23,7 @@ COMPUTE_TEST_NAMES =
 
 ifneq ($(DISABLE_TESTS_STD430),yes)
 COMPUTE_TEST_NAMES +=            \
+    animation                    \
     histogram                    \
     particules                   \
 
