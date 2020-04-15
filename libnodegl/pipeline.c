@@ -507,7 +507,7 @@ int ngli_pipeline_get_uniform_index(struct pipeline *s, const char *name)
         if (!strcmp(uniform->name, name))
             return i;
     }
-    return NGL_ERROR_NOT_FOUND;
+    return -1;
 }
 
 int ngli_pipeline_get_texture_index(struct pipeline *s, const char *name)
@@ -519,15 +519,15 @@ int ngli_pipeline_get_texture_index(struct pipeline *s, const char *name)
         if (!strcmp(pipeline_texture->name, name))
             return i;
     }
-    return NGL_ERROR_NOT_FOUND;
+    return -1;
 }
 
 int ngli_pipeline_update_uniform(struct pipeline *s, int index, const void *data)
 {
-    if (index < 0)
+    if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
-    ngli_assert(index < ngli_darray_count(&s->uniform_descs));
+    ngli_assert(index >= 0 && index < ngli_darray_count(&s->uniform_descs));
     struct uniform_desc *descs = ngli_darray_data(&s->uniform_descs);
     struct uniform_desc *desc = &descs[index];
     struct pipeline_uniform *pipeline_uniform = &desc->uniform;
@@ -544,10 +544,10 @@ int ngli_pipeline_update_uniform(struct pipeline *s, int index, const void *data
 
 int ngli_pipeline_update_texture(struct pipeline *s, int index, struct texture *texture)
 {
-    if (index < 0)
+    if (index == -1)
         return NGL_ERROR_NOT_FOUND;
 
-    ngli_assert(index < ngli_darray_count(&s->texture_descs));
+    ngli_assert(index >= 0 && index < ngli_darray_count(&s->texture_descs));
     struct texture_desc *descs = ngli_darray_data(&s->texture_descs);
     struct pipeline_texture *pipeline_texture = &descs[index].texture;
     pipeline_texture->texture = texture;
