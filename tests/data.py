@@ -155,9 +155,9 @@ def debug_block(cfg, seed=0, layout=LAYOUTS[0], color_tint=True):
 
     fields_info, block_fields, color_fields, block_definition, color_definition = get_random_block_info(spec, seed, layout, color_tint=color_tint)
 
-    fields_single   = filter(lambda f: f['category'] == 'single', fields_info)
-    fields_array    = filter(lambda f: f['category'] == 'array', fields_info)
-    fields_animated = filter(lambda f: f['category'].startswith('animated'), fields_info)
+    fields_single   = [f for f in fields_info if f['category'] == 'single']
+    fields_array    = [f for f in fields_info if f['category'] == 'array']
+    fields_animated = [f for f in fields_info if f['category'].startswith('animated')]
     field_specs = (
         (fields_single,   (-1/3., -1, 2/3., 2.), 'Single fields'),
         (fields_array,    ( 1/3.,  0, 2/3., 1.), 'Arrays'),
