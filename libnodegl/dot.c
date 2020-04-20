@@ -111,9 +111,9 @@ static void print_custom_priv_options(struct bstr *b, const struct ngl_node *nod
 
     while (par->key) {
         if (should_print_par(priv, par)) {
-            ngli_bstr_print(b, "%s: ", par->key);
+            ngli_bstr_printf(b, "%s: ", par->key);
             ngli_params_bstr_print_val(b, priv, par);
-            ngli_bstr_print(b, LB);
+            ngli_bstr_printf(b, LB);
         }
         par++;
     }
@@ -128,15 +128,15 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
     if (visited(decls, node))
         return;
 
-    ngli_bstr_print(b, "    %s_%p[label=<<b>%s</b><br/>",
+    ngli_bstr_printf(b, "    %s_%p[label=<<b>%s</b><br/>",
                     node->class->name, node, node->class->name);
     if (!ngli_is_default_label(node->class->name, node->label) && *node->label)
-        ngli_bstr_print(b, "<i>%s</i><br/>", node->label);
+        ngli_bstr_printf(b, "<i>%s</i><br/>", node->label);
     print_custom_priv_options(b, node);
     if (!node->ctx || node->is_active)
-        ngli_bstr_print(b, ">,color="HSLFMT"]\n", get_hue(node->class->name));
+        ngli_bstr_printf(b, ">,color="HSLFMT"]\n", get_hue(node->class->name));
     else
-        ngli_bstr_print(b, ">,color="INACTIVE_COLOR"]\n");
+        ngli_bstr_printf(b, ">,color="INACTIVE_COLOR"]\n");
 
     print_decls(b, node, ngli_base_node_params, (uint8_t *)node, decls);
     print_decls(b, node, node->class->params, node->priv_data, decls);
@@ -146,18 +146,18 @@ static void print_packed_decls(struct bstr *b, const char *label,
                                struct ngl_node **children, int nb_children,
                                int is_active)
 {
-    ngli_bstr_print(b, "    %s_%p[label=<<b>%s</b> (x%d)", label, children, label, nb_children);
+    ngli_bstr_printf(b, "    %s_%p[label=<<b>%s</b> (x%d)", label, children, label, nb_children);
     for (int i = 0; i < nb_children; i++) {
         const struct ngl_node *node = children[i];
         char *info_str = node->class->info_str ? node->class->info_str(node) : NULL;
-        ngli_bstr_print(b, LB "- %s", info_str ? info_str : "?");
+        ngli_bstr_printf(b, LB "- %s", info_str ? info_str : "?");
         ngli_free(info_str);
     }
-    ngli_bstr_print(b, LB ">,shape=box,color=");
+    ngli_bstr_printf(b, LB ">,shape=box,color=");
     if (is_active)
-        ngli_bstr_print(b, HSLFMT"]\n", get_hue(label));
+        ngli_bstr_printf(b, HSLFMT"]\n", get_hue(label));
     else
-        ngli_bstr_print(b, INACTIVE_COLOR "]\n");
+        ngli_bstr_printf(b, INACTIVE_COLOR "]\n");
 }
 
 static void print_decls(struct bstr *b, const struct ngl_node *node,
@@ -205,7 +205,7 @@ static void print_link(struct bstr *b,
                        const struct ngl_node *x, const struct ngl_node *y,
                        const char *label)
 {
-    ngli_bstr_print(b, "    %s_%p -> %s_%p%s\n",
+    ngli_bstr_printf(b, "    %s_%p -> %s_%p%s\n",
                     x->class->name, x, y->class->name, y, label);
 }
 
@@ -245,7 +245,7 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 const int nb_children = *(int *)(priv + p->offset + sizeof(struct ngl_node **));
 
                 if (nb_children && (p->flags & PARAM_FLAG_DOT_DISPLAY_PACKED)) {
-                    ngli_bstr_print(b, "    %s_%p -> %s_%p%s\n",
+                    ngli_bstr_printf(b, "    %s_%p -> %s_%p%s\n",
                                     node->class->name, node, p->key, children, label);
                     break;
                 }
@@ -306,7 +306,7 @@ char *ngl_node_dot(const struct ngl_node *node)
 
     const char *font_settings="fontsize=9,fontname=Arial";
 
-    ngli_bstr_print(b, "digraph G {\n"
+    ngli_bstr_printf(b, "digraph G {\n"
                     "    bgcolor=\"#222222\";\n"
                     "    edge [%s,color=\"#dddddd\",fontcolor=\"#dddddd\",arrowsize=0.7];\n"
                     "    node [style=filled,%s];\n",
@@ -315,7 +315,7 @@ char *ngl_node_dot(const struct ngl_node *node)
     print_all_decls(b, node, decls);
     print_all_links(b, node, links);
 
-    ngli_bstr_print(b, "}\n");
+    ngli_bstr_printf(b, "}\n");
 
     graph = ngli_bstr_strdup(b);
 

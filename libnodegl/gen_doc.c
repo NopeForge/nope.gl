@@ -53,10 +53,10 @@ static void print_node_type(struct bstr *b, const struct node_class *class)
 {
     const char *class_ref = class->params_id ? class->params_id : class->name;
 
-    ngli_bstr_print(b, "[%s](#", class->name);
+    ngli_bstr_printf(b, "[%s](#", class->name);
     for (int i = 0; class_ref[i]; i++)
-        ngli_bstr_print(b, "%c", LOWER(class_ref[i]));
-    ngli_bstr_print(b, ")");
+        ngli_bstr_printf(b, "%c", LOWER(class_ref[i]));
+    ngli_bstr_printf(b, ")");
 }
 
 static char *get_type_str(const struct node_param *p)
@@ -66,18 +66,18 @@ static char *get_type_str(const struct node_param *p)
         return NULL;
 
     if (p->choices) {
-        ngli_bstr_print(b, "[`%s`](#%s-choices)", p->choices->name, p->choices->name);
+        ngli_bstr_printf(b, "[`%s`](#%s-choices)", p->choices->name, p->choices->name);
     } else {
-        ngli_bstr_print(b, "[`%s`](#parameter-types)", ngli_params_specs[p->type].name);
+        ngli_bstr_printf(b, "[`%s`](#parameter-types)", ngli_params_specs[p->type].name);
     }
     if (p->node_types) {
-        ngli_bstr_print(b, " (");
+        ngli_bstr_printf(b, " (");
         for (int i = 0; p->node_types[i] != -1; i++) {
             if (i)
-                ngli_bstr_print(b, ", ");
+                ngli_bstr_printf(b, ", ");
             print_node_type(b, get_node_class(p->node_types[i]));
         }
-        ngli_bstr_print(b, ")");
+        ngli_bstr_printf(b, ")");
     }
 
     char *type = ngli_bstr_strdup(b);
@@ -96,7 +96,7 @@ static char *get_default_str(const struct node_param *p)
             const int v = (int)p->def_value.i64;
             const char *s = ngli_params_get_select_str(p->choices->consts, v);
             ngli_assert(s);
-            ngli_bstr_print(b, "`%s`", s);
+            ngli_bstr_printf(b, "`%s`", s);
             break;
         }
         case PARAM_TYPE_FLAGS: {
@@ -105,38 +105,38 @@ static char *get_default_str(const struct node_param *p)
             if (!s)
                 return NULL;
             ngli_assert(*s);
-            ngli_bstr_print(b, "`%s`", s);
+            ngli_bstr_printf(b, "`%s`", s);
             ngli_free(s);
             break;
         }
         case PARAM_TYPE_DBL:
-            ngli_bstr_print(b, "`%g`", p->def_value.dbl);
+            ngli_bstr_printf(b, "`%g`", p->def_value.dbl);
             break;
         case PARAM_TYPE_BOOL:
             if (p->def_value.i64 < 0)
-                ngli_bstr_print(b, "`unset`");
+                ngli_bstr_printf(b, "`unset`");
             else
-                ngli_bstr_print(b, "`%d`", (int)p->def_value.i64);
+                ngli_bstr_printf(b, "`%d`", (int)p->def_value.i64);
             break;
         case PARAM_TYPE_INT:
-            ngli_bstr_print(b, "`%d`", (int)p->def_value.i64);
+            ngli_bstr_printf(b, "`%d`", (int)p->def_value.i64);
             break;
         case PARAM_TYPE_I64:
-            ngli_bstr_print(b, "`%" PRId64 "`", p->def_value.i64);
+            ngli_bstr_printf(b, "`%" PRId64 "`", p->def_value.i64);
             break;
         case PARAM_TYPE_VEC2: {
             const float *v = p->def_value.vec;
-            ngli_bstr_print(b, "(`%g`,`%g`)", v[0], v[1]);
+            ngli_bstr_printf(b, "(`%g`,`%g`)", v[0], v[1]);
             break;
         }
         case PARAM_TYPE_VEC3: {
             const float *v = p->def_value.vec;
-            ngli_bstr_print(b, "(`%g`,`%g`,`%g`)", v[0], v[1], v[2]);
+            ngli_bstr_printf(b, "(`%g`,`%g`,`%g`)", v[0], v[1], v[2]);
             break;
         }
         case PARAM_TYPE_VEC4: {
             const float *v = p->def_value.vec;
-            ngli_bstr_print(b, "(`%g`,`%g`,`%g`,`%g`)", v[0], v[1], v[2], v[3]);
+            ngli_bstr_printf(b, "(`%g`,`%g`,`%g`,`%g`)", v[0], v[1], v[2], v[3]);
             break;
         }
     }

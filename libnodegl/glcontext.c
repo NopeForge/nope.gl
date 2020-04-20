@@ -257,7 +257,7 @@ static int glcontext_probe_extensions(struct glcontext *glcontext)
         if (!glcontext_check_functions(glcontext, glfeature->funcs_offsets))
             continue;
 
-        ngli_bstr_print(features_str, " %s", glfeature->name);
+        ngli_bstr_printf(features_str, " %s", glfeature->name);
         glcontext->features |= glfeature->flag;
     }
 

@@ -201,7 +201,7 @@ char *ngli_params_get_flags_str(const struct param_const *consts, int val)
 
     for (int i = 0; consts[i].key; i++)
         if (val & consts[i].value)
-            ngli_bstr_print(b, "%.1s%s", *ngli_bstr_strptr(b) ? FLAGS_SEP : "", consts[i].key);
+            ngli_bstr_printf(b, "%.1s%s", *ngli_bstr_strptr(b) ? FLAGS_SEP : "", consts[i].key);
 
     char *ret = ngli_bstr_strdup(b);
     ngli_bstr_freep(&b);
@@ -213,14 +213,14 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
     switch (par->type) {
         case PARAM_TYPE_DBL: {
             const double v = *(double *)(base_ptr + par->offset);
-            ngli_bstr_print(b, "%g", v);
+            ngli_bstr_printf(b, "%g", v);
             break;
         }
         case PARAM_TYPE_SELECT: {
             const int v = *(int *)(base_ptr + par->offset);
             const char *s = ngli_params_get_select_str(par->choices->consts, v);
             ngli_assert(s);
-            ngli_bstr_print(b, "%s", s);
+            ngli_bstr_printf(b, "%s", s);
             break;
         }
         case PARAM_TYPE_FLAGS: {
@@ -229,46 +229,46 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             if (!s)
                 break;
             ngli_assert(*s);
-            ngli_bstr_print(b, "%s", s);
+            ngli_bstr_printf(b, "%s", s);
             ngli_free(s);
             break;
         }
         case PARAM_TYPE_BOOL: {
             const int v = *(int *)(base_ptr + par->offset);
             if (v == -1)
-                ngli_bstr_print(b, "unset");
+                ngli_bstr_printf(b, "unset");
             else
-                ngli_bstr_print(b, "%d", v);
+                ngli_bstr_printf(b, "%d", v);
             break;
         }
         case PARAM_TYPE_INT: {
             const int v = *(int *)(base_ptr + par->offset);
-            ngli_bstr_print(b, "%d", v);
+            ngli_bstr_printf(b, "%d", v);
             break;
         }
         case PARAM_TYPE_I64: {
             const int64_t v = *(int64_t *)(base_ptr + par->offset);
-            ngli_bstr_print(b, "%" PRId64, v);
+            ngli_bstr_printf(b, "%" PRId64, v);
             break;
         }
         case PARAM_TYPE_VEC2: {
             const float *v = (const float *)(base_ptr + par->offset);
-            ngli_bstr_print(b, "(%g,%g)", v[0], v[1]);
+            ngli_bstr_printf(b, "(%g,%g)", v[0], v[1]);
             break;
         }
         case PARAM_TYPE_VEC3: {
             const float *v = (const float *)(base_ptr + par->offset);
-            ngli_bstr_print(b, "(%g,%g,%g)", v[0], v[1], v[2]);
+            ngli_bstr_printf(b, "(%g,%g,%g)", v[0], v[1], v[2]);
             break;
         }
         case PARAM_TYPE_VEC4: {
             const float *v = (const float *)(base_ptr + par->offset);
-            ngli_bstr_print(b, "(%g,%g,%g,%g)", v[0], v[1], v[2], v[3]);
+            ngli_bstr_printf(b, "(%g,%g,%g,%g)", v[0], v[1], v[2], v[3]);
             break;
         }
         case PARAM_TYPE_MAT4: {
             const float *m = (const float *)(base_ptr + par->offset);
-            ngli_bstr_print(b,
+            ngli_bstr_printf(b,
                             "(%g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g)",
                             m[ 0], m[ 1], m[ 2], m[ 3],
                             m[ 4], m[ 5], m[ 6], m[ 7],
@@ -279,13 +279,13 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
         case PARAM_TYPE_STR: {
             const char *s = *(const char **)(base_ptr + par->offset);
             if (!s)
-                ngli_bstr_print(b, "\"\"");
+                ngli_bstr_printf(b, "\"\"");
             else if (strchr(s, '\n')) // print a checksum when the string is multiline (typically, shaders)
-                ngli_bstr_print(b, "%08X <i>(CRC32)</i>", ngli_crc32(s));
+                ngli_bstr_printf(b, "%08X <i>(CRC32)</i>", ngli_crc32(s));
             else if (strchr(s, '/')) // assume a file and display only basename
-                ngli_bstr_print(b, "\"%s\"", strrchr(s, '/') + 1);
+                ngli_bstr_printf(b, "\"%s\"", strrchr(s, '/') + 1);
             else
-                ngli_bstr_print(b, "\"%s\"", s);
+                ngli_bstr_printf(b, "\"%s\"", s);
             break;
         }
         case PARAM_TYPE_DBLLIST: {
@@ -294,12 +294,12 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             const double *elems = *(double **)elems_p;
             const int nb_elems = *(int *)nb_elems_p;
             for (int i = 0; i < nb_elems; i++)
-                ngli_bstr_print(b, "%s%g", i ? "," : "", elems[i]);
+                ngli_bstr_printf(b, "%s%g", i ? "," : "", elems[i]);
             break;
         }
         case PARAM_TYPE_RATIONAL: {
             const int *r = (int *)(base_ptr + par->offset);
-            ngli_bstr_print(b, "%d/%d", r[0], r[1]);
+            ngli_bstr_printf(b, "%d/%d", r[0], r[1]);
             break;
         }
     }

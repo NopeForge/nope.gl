@@ -391,25 +391,25 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
         return NULL;
 
     const char *easing_name = ngli_params_get_select_str(easing_choices.consts, s->easing);
-    ngli_bstr_print(b, "%s @ t=%g ", easing_name, s->time);
+    ngli_bstr_printf(b, "%s @ t=%g ", easing_name, s->time);
     if (s->nb_args) {
         const struct node_param *easing_args_par = ngli_params_find(params, "easing_args");
         ngli_assert(easing_args_par);
-        ngli_bstr_print(b, "(args: ");
+        ngli_bstr_printf(b, "(args: ");
         ngli_params_bstr_print_val(b, node->priv_data, easing_args_par);
-        ngli_bstr_print(b, ") ");
+        ngli_bstr_printf(b, ") ");
     }
 
     if (s->offsets[0] || s->offsets[1] != 1.0) { // can not use scale_boundaries yet (not initialized)
-        ngli_bstr_print(b, "on (%g,%g) ", s->offsets[0], s->offsets[1]);
+        ngli_bstr_printf(b, "on (%g,%g) ", s->offsets[0], s->offsets[1]);
     }
 
     if (node->class->id == NGL_NODE_ANIMKEYFRAMEBUFFER) {
-        ngli_bstr_print(b, "with data size of %dB", s->data_size);
+        ngli_bstr_printf(b, "with data size of %dB", s->data_size);
     } else if (node->class->id == NGL_NODE_ANIMKEYFRAMEQUAT) {
-        ngli_bstr_print(b, "with quat=(%g,%g,%g,%g)", NGLI_ARG_VEC4(s->value));
+        ngli_bstr_printf(b, "with quat=(%g,%g,%g,%g)", NGLI_ARG_VEC4(s->value));
     } else {
-        ngli_bstr_print(b, "with v=");
+        ngli_bstr_printf(b, "with v=");
         const struct node_param *val_par = ngli_params_find(params, "value");
         ngli_assert(val_par);
         ngli_params_bstr_print_val(b, node->priv_data, val_par);

@@ -49,7 +49,7 @@ struct bstr *ngli_bstr_create(void)
     return b;
 }
 
-int ngli_bstr_print(struct bstr *b, const char *fmt, ...)
+int ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
 {
     va_list va;
 
