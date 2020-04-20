@@ -213,13 +213,12 @@ cdef class _Node:
                 # by other nodes for their specific list-based parameters.
                 for field_type in 'NodeList', 'doubleList':
                     base_field_type = field_type[:-len('List')]
-                    citem_type = {
-                        'Node': 'ngl_node *',
-                    }.get(base_field_type, base_field_type)
                     if base_field_type == 'Node':
                         cfield = '(<_Node>item).ctx'
+                        citem_type = 'ngl_node *'
                     else:
                         cfield = f'<{base_field_type}>item'
+                        citem_type = base_field_type
                     class_str += f'''
     def _add_{field_type.lower()}(self, field_name, *elems):
         if hasattr(elems[0], '__iter__'):
