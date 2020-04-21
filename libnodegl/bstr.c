@@ -99,7 +99,7 @@ char *ngli_bstr_strdup(const struct bstr *b)
     return ngli_strdup(b->str);
 }
 
-char *ngli_bstr_strptr(const struct bstr *b)
+const char *ngli_bstr_strptr(const struct bstr *b)
 {
     return b->str;
 }
