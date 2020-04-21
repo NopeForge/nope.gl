@@ -94,17 +94,17 @@ void ngli_bstr_clear(struct bstr *b)
     b->state = 0;
 }
 
-char *ngli_bstr_strdup(struct bstr *b)
+char *ngli_bstr_strdup(const struct bstr *b)
 {
     return ngli_strdup(b->str);
 }
 
-char *ngli_bstr_strptr(struct bstr *b)
+char *ngli_bstr_strptr(const struct bstr *b)
 {
     return b->str;
 }
 
-int ngli_bstr_len(struct bstr *b)
+int ngli_bstr_len(const struct bstr *b)
 {
     return b->len;
 }
