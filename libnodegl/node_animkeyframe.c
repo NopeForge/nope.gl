@@ -395,9 +395,9 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
     if (s->nb_args) {
         const struct node_param *easing_args_par = ngli_params_find(params, "easing_args");
         ngli_assert(easing_args_par);
-        ngli_bstr_printf(b, "(args: ");
+        ngli_bstr_print(b, "(args: ");
         ngli_params_bstr_print_val(b, node->priv_data, easing_args_par);
-        ngli_bstr_printf(b, ") ");
+        ngli_bstr_print(b, ") ");
     }
 
     if (s->offsets[0] || s->offsets[1] != 1.0) { // can not use scale_boundaries yet (not initialized)
@@ -409,7 +409,7 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
     } else if (node->class->id == NGL_NODE_ANIMKEYFRAMEQUAT) {
         ngli_bstr_printf(b, "with quat=(%g,%g,%g,%g)", NGLI_ARG_VEC4(s->value));
     } else {
-        ngli_bstr_printf(b, "with v=");
+        ngli_bstr_print(b, "with v=");
         const struct node_param *val_par = ngli_params_find(params, "value");
         ngli_assert(val_par);
         ngli_params_bstr_print_val(b, node->priv_data, val_par);

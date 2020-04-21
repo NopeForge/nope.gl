@@ -224,7 +224,7 @@ int ngli_jni_exception_get_summary(JNIEnv *env, jthrowable exception, char **err
         ngli_bstr_printf(bstr, "Exception: %s", message);
     } else {
         LOG(WARNING, "could not retrieve exception name and message");
-        ngli_bstr_printf(bstr, "Exception occurred");
+        ngli_bstr_print(bstr, "Exception occurred");
     }
 
     *error = ngli_bstr_strdup(bstr);

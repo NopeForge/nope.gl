@@ -56,7 +56,7 @@ static void print_node_type(struct bstr *b, const struct node_class *class)
     ngli_bstr_printf(b, "[%s](#", class->name);
     for (int i = 0; class_ref[i]; i++)
         ngli_bstr_printf(b, "%c", LOWER(class_ref[i]));
-    ngli_bstr_printf(b, ")");
+    ngli_bstr_print(b, ")");
 }
 
 static char *get_type_str(const struct node_param *p)
@@ -71,13 +71,13 @@ static char *get_type_str(const struct node_param *p)
         ngli_bstr_printf(b, "[`%s`](#parameter-types)", ngli_params_specs[p->type].name);
     }
     if (p->node_types) {
-        ngli_bstr_printf(b, " (");
+        ngli_bstr_print(b, " (");
         for (int i = 0; p->node_types[i] != -1; i++) {
             if (i)
-                ngli_bstr_printf(b, ", ");
+                ngli_bstr_print(b, ", ");
             print_node_type(b, get_node_class(p->node_types[i]));
         }
-        ngli_bstr_printf(b, ")");
+        ngli_bstr_print(b, ")");
     }
 
     char *type = ngli_bstr_strdup(b);
@@ -114,7 +114,7 @@ static char *get_default_str(const struct node_param *p)
             break;
         case PARAM_TYPE_BOOL:
             if (p->def_value.i64 < 0)
-                ngli_bstr_printf(b, "`unset`");
+                ngli_bstr_print(b, "`unset`");
             else
                 ngli_bstr_printf(b, "`%d`", (int)p->def_value.i64);
             break;

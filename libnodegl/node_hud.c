@@ -817,7 +817,7 @@ static void widget_activity_csv_header(struct ngl_node *node, struct widget *wid
 static void widget_drawcall_csv_header(struct ngl_node *node, struct widget *widget, struct bstr *dst)
 {
     const struct drawcall_spec *spec = widget->user_data;
-    ngli_bstr_printf(dst, "%s", spec->label);
+    ngli_bstr_print(dst, spec->label);
 }
 
 /* Widget CSV report */
@@ -1152,17 +1152,17 @@ static int widgets_csv_header(struct ngl_node *node)
     if (!s->csv_line)
         return NGL_ERROR_MEMORY;
 
-    ngli_bstr_printf(s->csv_line, "time,");
+    ngli_bstr_print(s->csv_line, "time,");
 
     struct darray *widgets_array = &s->widgets;
     struct widget *widgets = ngli_darray_data(widgets_array);
     for (int i = 0; i < ngli_darray_count(widgets_array); i++) {
         struct widget *widget = &widgets[i];
-        ngli_bstr_printf(s->csv_line, i ? "," : "");
+        ngli_bstr_print(s->csv_line, i ? "," : "");
         widget_specs[widget->type].csv_header(node, widget, s->csv_line);
     }
 
-    ngli_bstr_printf(s->csv_line, "\n");
+    ngli_bstr_print(s->csv_line, "\n");
 
     const int len = ngli_bstr_len(s->csv_line);
     ssize_t n = write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);
@@ -1185,11 +1185,11 @@ static void widgets_csv_report(struct ngl_node *node)
     struct darray *widgets_array = &s->widgets;
     struct widget *widgets = ngli_darray_data(widgets_array);
     for (int i = 0; i < ngli_darray_count(widgets_array); i++) {
-        ngli_bstr_printf(s->csv_line, ",");
+        ngli_bstr_print(s->csv_line, ",");
         struct widget *widget = &widgets[i];
         widget_specs[widget->type].csv_report(node, widget, s->csv_line);
     }
-    ngli_bstr_printf(s->csv_line, "\n");
+    ngli_bstr_print(s->csv_line, "\n");
 
     const int len = ngli_bstr_len(s->csv_line);
     write(s->fd_export, ngli_bstr_strptr(s->csv_line), len);

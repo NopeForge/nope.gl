@@ -220,7 +220,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             const int v = *(int *)(base_ptr + par->offset);
             const char *s = ngli_params_get_select_str(par->choices->consts, v);
             ngli_assert(s);
-            ngli_bstr_printf(b, "%s", s);
+            ngli_bstr_print(b, s);
             break;
         }
         case PARAM_TYPE_FLAGS: {
@@ -229,14 +229,14 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             if (!s)
                 break;
             ngli_assert(*s);
-            ngli_bstr_printf(b, "%s", s);
+            ngli_bstr_print(b, s);
             ngli_free(s);
             break;
         }
         case PARAM_TYPE_BOOL: {
             const int v = *(int *)(base_ptr + par->offset);
             if (v == -1)
-                ngli_bstr_printf(b, "unset");
+                ngli_bstr_print(b, "unset");
             else
                 ngli_bstr_printf(b, "%d", v);
             break;
@@ -279,7 +279,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
         case PARAM_TYPE_STR: {
             const char *s = *(const char **)(base_ptr + par->offset);
             if (!s)
-                ngli_bstr_printf(b, "\"\"");
+                ngli_bstr_print(b, "\"\"");
             else if (strchr(s, '\n')) // print a checksum when the string is multiline (typically, shaders)
                 ngli_bstr_printf(b, "%08X <i>(CRC32)</i>", ngli_crc32(s));
             else if (strchr(s, '/')) // assume a file and display only basename

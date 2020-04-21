@@ -113,7 +113,7 @@ static void print_custom_priv_options(struct bstr *b, const struct ngl_node *nod
         if (should_print_par(priv, par)) {
             ngli_bstr_printf(b, "%s: ", par->key);
             ngli_params_bstr_print_val(b, priv, par);
-            ngli_bstr_printf(b, LB);
+            ngli_bstr_print(b, LB);
         }
         par++;
     }
@@ -136,7 +136,7 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
     if (!node->ctx || node->is_active)
         ngli_bstr_printf(b, ">,color="HSLFMT"]\n", get_hue(node->class->name));
     else
-        ngli_bstr_printf(b, ">,color="INACTIVE_COLOR"]\n");
+        ngli_bstr_print(b, ">,color="INACTIVE_COLOR"]\n");
 
     print_decls(b, node, ngli_base_node_params, (uint8_t *)node, decls);
     print_decls(b, node, node->class->params, node->priv_data, decls);
@@ -153,11 +153,11 @@ static void print_packed_decls(struct bstr *b, const char *label,
         ngli_bstr_printf(b, LB "- %s", info_str ? info_str : "?");
         ngli_free(info_str);
     }
-    ngli_bstr_printf(b, LB ">,shape=box,color=");
+    ngli_bstr_print(b, LB ">,shape=box,color=");
     if (is_active)
         ngli_bstr_printf(b, HSLFMT"]\n", get_hue(label));
     else
-        ngli_bstr_printf(b, INACTIVE_COLOR "]\n");
+        ngli_bstr_print(b, INACTIVE_COLOR "]\n");
 }
 
 static void print_decls(struct bstr *b, const struct ngl_node *node,
@@ -315,7 +315,7 @@ char *ngl_node_dot(const struct ngl_node *node)
     print_all_decls(b, node, decls);
     print_all_links(b, node, links);
 
-    ngli_bstr_printf(b, "}\n");
+    ngli_bstr_print(b, "}\n");
 
     graph = ngli_bstr_strdup(b);
 

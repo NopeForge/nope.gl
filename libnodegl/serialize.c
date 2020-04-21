@@ -177,7 +177,7 @@ static int serialize_options(struct hmap *nlist,
             case PARAM_TYPE_DBL: {
                 const double v = *(double *)(priv + p->offset);
                 if (constructor) {
-                    ngli_bstr_printf(b, " ");
+                    ngli_bstr_print(b, " ");
                     print_double(b, v);
                 } else if (v != p->def_value.dbl) {
                     ngli_bstr_printf(b, " %s:", p->key);
@@ -203,7 +203,7 @@ static int serialize_options(struct hmap *nlist,
                 if (!constructor)
                     ngli_bstr_printf(b, " %s:", p->key);
                 else
-                    ngli_bstr_printf(b, " ");
+                    ngli_bstr_print(b, " ");
                 for (int i = 0; s[i]; i++)
                     if (s[i] >= '!' && s[i] <= '~' && s[i] != '%')
                         ngli_bstr_printf(b, "%c", s[i]);
@@ -231,7 +231,7 @@ static int serialize_options(struct hmap *nlist,
                 const float *v = (float *)(priv + p->offset);
                 const int n = p->type - PARAM_TYPE_VEC2 + 2;
                 if (constructor) {
-                    ngli_bstr_printf(b, " ");
+                    ngli_bstr_print(b, " ");
                     print_floats(b, n, v);
                 } else if (memcmp(v, p->def_value.vec, n * sizeof(*v))) {
                     ngli_bstr_printf(b, " %s:", p->key);
@@ -242,7 +242,7 @@ static int serialize_options(struct hmap *nlist,
             case PARAM_TYPE_MAT4: {
                 const float *m = (float *)(priv + p->offset);
                 if (constructor) {
-                    ngli_bstr_printf(b, " ");
+                    ngli_bstr_print(b, " ");
                     print_floats(b, 16, m);
                 } else if (memcmp(m, p->def_value.mat, 16 * sizeof(*m))) {
                     ngli_bstr_printf(b, " %s:", p->key);
@@ -267,7 +267,7 @@ static int serialize_options(struct hmap *nlist,
                 if (!nb_nodes)
                     break;
                 if (constructor)
-                    ngli_bstr_printf(b, " ");
+                    ngli_bstr_print(b, " ");
                 else
                     ngli_bstr_printf(b, " %s:", p->key);
                 for (int i = 0; i < nb_nodes; i++) {
@@ -284,7 +284,7 @@ static int serialize_options(struct hmap *nlist,
                 if (!nb_elems)
                     break;
                 if (constructor)
-                    ngli_bstr_printf(b, " ");
+                    ngli_bstr_print(b, " ");
                 else
                     ngli_bstr_printf(b, " %s:", p->key);
                 print_doubles(b, nb_elems, elems);
@@ -296,7 +296,7 @@ static int serialize_options(struct hmap *nlist,
                 if (!nb_nodes)
                     break;
                 if (constructor)
-                    ngli_bstr_printf(b, " ");
+                    ngli_bstr_print(b, " ");
                 else
                     ngli_bstr_printf(b, " %s:", p->key);
 
@@ -405,7 +405,7 @@ static int serialize(struct hmap *nlist,
         (ret = serialize_options(nlist, b, node, (uint8_t *)node, ngli_base_node_params)) < 0)
         return ret;
 
-    ngli_bstr_printf(b, "\n");
+    ngli_bstr_print(b, "\n");
 
     return register_node(nlist, node);
 }
