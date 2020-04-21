@@ -24,6 +24,7 @@
 
 #include "bstr.h"
 #include "memory.h"
+#include "nodegl.h"
 
 #define BUFFER_PADDING 1024
 
@@ -31,6 +32,7 @@ struct bstr {
     char *str;
     int len;
     int bufsize;
+    int state;
 };
 
 struct bstr *ngli_bstr_create(void)
@@ -49,7 +51,7 @@ struct bstr *ngli_bstr_create(void)
     return b;
 }
 
-int ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
+void ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
 {
     va_list va;
 
@@ -59,14 +61,17 @@ int ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
     va_end(va);
     if (len < 0) {
         b->str[b->len] = 0;
-        return len;
+        b->state = NGL_ERROR_MEMORY;
+        return;
     }
 
     if (len + 1 > avail) {
         const int new_size = b->len + len + 1 + BUFFER_PADDING;
         void *ptr = ngli_realloc(b->str, new_size);
-        if (!ptr)
-            return 0;
+        if (!ptr) {
+            b->state = NGL_ERROR_MEMORY;
+            return;
+        }
         b->str = ptr;
         b->bufsize = new_size;
         va_start(va, fmt);
@@ -74,18 +79,19 @@ int ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
         va_end(va);
         if (len < 0) {
             b->str[b->len] = 0;
-            return len;
+            b->state = NGL_ERROR_MEMORY;
+            return;
         }
     }
 
     b->len = b->len + len;
-    return 0;
 }
 
 void ngli_bstr_clear(struct bstr *b)
 {
     b->len = 0;
     b->str[0] = 0;
+    b->state = 0;
 }
 
 char *ngli_bstr_strdup(struct bstr *b)
@@ -101,6 +107,11 @@ char *ngli_bstr_strptr(struct bstr *b)
 int ngli_bstr_len(struct bstr *b)
 {
     return b->len;
+}
+
+int ngli_bstr_check(const struct bstr *b)
+{
+    return b->state;
 }
 
 void ngli_bstr_freep(struct bstr **bp)
