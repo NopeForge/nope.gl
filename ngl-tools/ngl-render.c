@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
     printf("%s -> %s %dx%d\n", input ? input : "<stdin>", output ? output : "-", width, height);
 
     if (show_window) {
-        if (init_glfw() < 0)
+        if (init_window() < 0)
             return EXIT_FAILURE;
 
         window = get_window("ngl-render", width, height);

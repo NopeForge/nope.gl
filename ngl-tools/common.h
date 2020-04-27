@@ -30,7 +30,7 @@
 int64_t gettime(void);
 double clipd(double v, double min, double max);
 
-int init_glfw(void);
+int init_window(void);
 GLFWwindow *get_window(const char *title, int width, int height);
 
 #endif

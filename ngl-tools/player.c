@@ -246,7 +246,7 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
 
     g_player = p;
 
-    if (init_glfw() < 0)
+    if (init_window() < 0)
         return -1;
 
     p->window = get_window(win_title, width, height);

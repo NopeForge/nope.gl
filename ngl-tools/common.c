@@ -41,7 +41,7 @@ double clipd(double v, double min, double max)
     return v;
 }
 
-int init_glfw(void)
+int init_window(void)
 {
     if (!glfwInit()) {
         fprintf(stderr, "Failed to initialize GLFW\n");
