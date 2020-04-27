@@ -12,7 +12,7 @@ for building and running the complete **node.gl** stack:
   typically named with a `-devel` suffix on Debian based systems)
 - **pip** (Python 3 version)
 - **Graphviz**
-- **GLFW3**
+- **SDL2**
 - **Python virtualenv**
 
 ## Quick user installation

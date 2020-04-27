@@ -22,12 +22,12 @@
 #ifndef WSI_H
 #define WSI_H
 
-#include <GLFW/glfw3.h>
+#include <SDL.h>
 #include <nodegl.h>
 
 int init_window(void);
-GLFWwindow *get_window(const char *title, int width, int height);
+SDL_Window *get_window(const char *title, int width, int height);
 
-int wsi_set_ngl_config(struct ngl_config *config, GLFWwindow *window);
+int wsi_set_ngl_config(struct ngl_config *config, SDL_Window *window);
 
 #endif /* WSI_H */

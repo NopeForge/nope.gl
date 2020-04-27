@@ -24,12 +24,12 @@
 
 #include <stdint.h>
 
-#include <GLFW/glfw3.h>
+#include <SDL.h>
 #include <nodegl.h>
 
 struct player {
 
-    GLFWwindow *window;
+    SDL_Window *window;
     struct {
         double x;
         double y;

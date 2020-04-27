@@ -19,19 +19,29 @@
  * under the License.
  */
 
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_COCOA
-#include <GLFW/glfw3native.h>
+#include <Cocoa/Cocoa.h>
+#include <SDL.h>
+#include <SDL_syswm.h>
 #include <nodegl.h>
 
 #include "wsi.h"
 
-int wsi_set_ngl_config(struct ngl_config *config, GLFWwindow *window)
+int wsi_set_ngl_config(struct ngl_config *config, SDL_Window *window)
 {
-    NSWindow *nswindow = glfwGetCocoaWindow(window);
-    NSView *view = [nswindow contentView];
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    if (!SDL_GetWindowWMInfo(window, &info)) {
+        fprintf(stderr, "Failed to get window WM information\n");
+        return -1;
+    }
 
-    config->window = (uintptr_t)view;
+    if (info.subsystem == SDL_SYSWM_COCOA) {
+        NSWindow *nswindow = info.info.cocoa.window;
+        NSView *view = [nswindow contentView];
+        config->platform = NGL_PLATFORM_MACOS;
+        config->window = (uintptr_t)view;
+        return 0;
+    }
 
-    return 0;
+    return -1;
 }

@@ -13,7 +13,7 @@ digraph {
     node[color=gray]
     cython[label="Cython"]
     ffmpeg[label="FFmpeg"]
-    glfw3[label="GLFW3"]
+    sdl2[label="SDL2"]
     graphviz[label="Graphviz"]
     pyside2[label="PySide2"]
     python[label="Python"]
@@ -23,7 +23,7 @@ digraph {
     sxplayer -> ffmpeg
     libnodegl -> sxplayer
     ngl_tools -> libnodegl
-    ngl_tools -> glfw3
+    ngl_tools -> sdl2
     ngl_tools -> python[style=dashed,label="(ngl-python)"]
     pynodegl -> libnodegl
     pynodegl -> python

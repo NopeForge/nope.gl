@@ -17,7 +17,7 @@ The `node.gl` project is split in several parts:
   It also depends on [sxplayer library][sxplayer] for media (video and images)
   playback. [Graphviz][graphviz] is optional but can be used to render and
   preview graphs obtained from the API.
-- `ngl-tools` needs [GLFW3][glfw3] and `libnodegl` installed.
+- `ngl-tools` needs [SDL2][sdl2] and `libnodegl` installed.
 - `pynodegl` needs [Python][python] and [Cython][cython], and `libnodegl`
   installed.
 - `pynodegl-utils` needs [Python][python] and `pynodegl`. The viewer depends on
@@ -31,4 +31,4 @@ The `node.gl` project is split in several parts:
 [graphviz]: http://www.graphviz.org/
 [python]: https://www.python.org/
 [cython]: http://cython.org/
-[glfw3]: http://www.glfw.org/
+[sdl2]: https://www.libsdl.org/

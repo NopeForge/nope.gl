@@ -19,17 +19,26 @@
  * under the License.
  */
 
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
+#include <SDL.h>
+#include <SDL_syswm.h>
 #include <nodegl.h>
 
 #include "wsi.h"
 
-int wsi_set_ngl_config(struct ngl_config *config, GLFWwindow *window)
+int wsi_set_ngl_config(struct ngl_config *config, SDL_Window *window)
 {
-    HWND handle_window = glfwGetWin32Window(window);
-    config->window = (uintptr_t)handle_window;
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    if (!SDL_GetWindowWMInfo(window, &info)) {
+        fprintf(stderr, "Failed to get window WM information\n");
+        return -1;
+    }
 
-    return 0;
+    if (info.subsystem == SDL_SYSWM_WINDOWS) {
+        config->platform = NGL_PLATFORM_WINDOWS;
+        config->window = (uintptr_t)info.info.win.window;
+        return 0;
+    }
+
+    return -1;
 }

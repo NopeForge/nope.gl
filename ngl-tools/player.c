@@ -23,7 +23,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <GLFW/glfw3.h>
+#include <SDL.h>
+#include <SDL_syswm.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -128,47 +129,34 @@ end:
     return ret;
 }
 
-static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+static int key_callback(SDL_Window *window, SDL_KeyboardEvent *event)
 {
     struct player *p = g_player;
 
-    if (action == GLFW_PRESS) {
-        switch(key) {
-        case GLFW_KEY_ESCAPE:
-        case GLFW_KEY_Q:
-            glfwSetWindowShouldClose(window, GLFW_TRUE);
-            break;
-        case GLFW_KEY_SPACE:
-            p->paused ^= 1;
-            p->clock_off = gettime() - p->frame_ts;
-            break;
-        case GLFW_KEY_F: {
-            p->fullscreen ^= 1;
-            int *wi = p->win_info_backup;
-            if (p->fullscreen) {
-                glfwGetWindowPos(window, &wi[0], &wi[1]);
-                glfwGetWindowSize(window, &wi[2], &wi[3]);
-
-                GLFWmonitor *monitor = glfwGetPrimaryMonitor();
-                const GLFWvidmode *mode = glfwGetVideoMode(monitor);
-                glfwSetWindowMonitor(window, monitor, 0, 0,
-                                     mode->width, mode->height, 0);
-            } else {
-                glfwSetWindowMonitor(window, NULL,
-                                     wi[0], wi[1], wi[2], wi[3], 0);
-            }
-            break;
-        }
-        case GLFW_KEY_S:
-            screenshot();
-            break;
-        default:
-            break;
-        }
+    const SDL_Keycode key = event->keysym.sym;
+    switch (key) {
+    case SDLK_ESCAPE:
+    case SDLK_q:
+        return 1;
+    case SDLK_SPACE:
+        p->paused ^= 1;
+        p->clock_off = gettime() - p->frame_ts;
+        break;
+    case SDLK_f:
+        p->fullscreen ^= 1;
+        SDL_SetWindowFullscreen(window, p->fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+        break;
+    case SDLK_s:
+        screenshot();
+        break;
+    default:
+        break;
     }
+
+    return 0;
 }
 
-static void size_callback(GLFWwindow *window, int width, int height)
+static void size_callback(SDL_Window *window, int width, int height)
 {
     struct player *p = g_player;
     const double ar = p->width / (double)p->height;
@@ -215,27 +203,19 @@ static void update_time(int64_t seek_at)
         p->tick_callback(p);
 }
 
-static void mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+static void mouse_button_callback(SDL_Window *window, SDL_MouseButtonEvent *event)
 {
     struct player *p = g_player;
 
-    if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        double xpos, ypos;
-
-        glfwGetCursorPos(window, &xpos, &ypos);
-
-        const double pos = clipd(xpos - p->view.x, 0.0, p->view.width);
-        const int64_t seek_at64 = p->duration * pos / p->view.width;
-
-        p->lasthover = gettime();
-        update_time(seek_at64);
-    }
+    const double pos = clipd(event->x - p->view.x, 0.0, p->view.width);
+    const int64_t seek_at64 = p->duration * pos / p->view.width;
+    p->lasthover = gettime();
+    update_time(seek_at64);
 }
 
-static void cursor_pos_callback(GLFWwindow *window, double xpos, double ypos)
+static void mouse_pos_callback(SDL_Window *window, SDL_MouseMotionEvent *event)
 {
     struct player *p = g_player;
-
     p->lasthover = gettime();
 }
 
@@ -251,7 +231,7 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
 
     p->window = get_window(win_title, width, height);
     if (!p->window) {
-        glfwTerminate();
+        SDL_Quit();
         return -1;
     }
 
@@ -260,12 +240,6 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     p->width = width;
     p->height = height;
     p->duration = duration * 1000000;
-
-    glfwSetInputMode(p->window, GLFW_STICKY_KEYS, GLFW_TRUE);
-    glfwSetKeyCallback(p->window, key_callback);
-    glfwSetMouseButtonCallback(p->window, mouse_button_callback);
-    glfwSetWindowSizeCallback(p->window, size_callback);
-    glfwSetCursorPosCallback(p->window, cursor_pos_callback);
 
     int ret = wsi_set_ngl_config(&p->ngl_config, p->window);
     if (ret < 0)
@@ -302,18 +276,37 @@ void player_uninit(void)
     struct player *p = g_player;
 
     ngl_freep(&p->ngl);
-    glfwDestroyWindow(p->window);
-    glfwTerminate();
+    SDL_DestroyWindow(p->window);
+    SDL_Quit();
 }
 
 void player_main_loop(void)
 {
     struct player *p = g_player;
 
-    do {
+    int run = 1;
+    while (run) {
         update_time(-1);
         ngl_draw(p->ngl, p->frame_ts / 1000000.0);
-        glfwPollEvents();
-    } while (glfwGetKey(p->window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
-             glfwWindowShouldClose(p->window) == 0);
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            switch (event.type) {
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_CLOSE)
+                    run = 0;
+                else if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+                    size_callback(p->window, event.window.data1, event.window.data2);
+                break;
+            case SDL_KEYDOWN:
+                run = key_callback(p->window, &event.key) == 0;
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                mouse_button_callback(p->window, &event.button);
+                break;
+            case SDL_MOUSEMOTION:
+                mouse_pos_callback(p->window, &event.motion);
+                break;
+            }
+        }
+    }
 }

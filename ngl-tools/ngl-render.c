@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
     int show_window = 0;
     int swap_interval = 0;
     int debug = 0;
-    GLFWwindow *window = NULL;
+    SDL_Window *window = NULL;
     int stdout_output = 0;
 
     for (int i = 1; i < argc; i++) {
@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
 
         window = get_window("ngl-render", width, height);
         if (!window) {
-            glfwTerminate();
+            SDL_Quit();
             return EXIT_FAILURE;
         }
     }
@@ -253,8 +253,12 @@ int main(int argc, char *argv[])
             }
             if (capture_buffer)
                 write(fd, capture_buffer, 4 * width * height);
-            if (show_window)
-                glfwPollEvents();
+            if (show_window) {
+                SDL_Event event;
+                while (SDL_PollEvent(&event)) {
+                }
+            }
+
             k++;
         }
 
@@ -271,8 +275,8 @@ end:
     free(capture_buffer);
 
     if (show_window) {
-        glfwDestroyWindow(window);
-        glfwTerminate();
+        SDL_DestroyWindow(window);
+        SDL_Quit();
     }
 
     return ret;

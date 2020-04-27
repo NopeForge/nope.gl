@@ -20,30 +20,36 @@
  */
 
 #include <stdio.h>
+#include <stdint.h>
 
-#include <GLFW/glfw3.h>
+#include <SDL.h>
 
 #include "wsi.h"
 
+
 int init_window(void)
 {
-    if (!glfwInit()) {
-        fprintf(stderr, "Failed to initialize GLFW\n");
+    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
+        fprintf(stderr, "Failed to initialize SDL");
         return -1;
     }
-
-    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
     return 0;
 }
 
-GLFWwindow *get_window(const char *title, int width, int height)
+SDL_Window *get_window(const char *title, int width, int height)
 {
-    GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
+    uint32_t flags = SDL_WINDOW_RESIZABLE;
+    SDL_Window *window = SDL_CreateWindow(title,
+                                          SDL_WINDOWPOS_UNDEFINED,
+                                          SDL_WINDOWPOS_UNDEFINED,
+                                          width,
+                                          height,
+                                          flags);
     if (!window) {
         fprintf(stderr, "Failed to create window\n");
         return NULL;
     }
-    glfwShowWindow(window);
+
     return window;
 }

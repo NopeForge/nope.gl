@@ -19,20 +19,29 @@
  * under the License.
  */
 
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_X11
-#include <GLFW/glfw3native.h>
+#include <SDL.h>
+#include <SDL_config.h>
+#include <SDL_syswm.h>
 #include <nodegl.h>
 
 #include "wsi.h"
 
-int wsi_set_ngl_config(struct ngl_config *config, GLFWwindow *window)
+int wsi_set_ngl_config(struct ngl_config *config, SDL_Window *window)
 {
-    Display *x11_display = glfwGetX11Display();
-    Window x11_window = glfwGetX11Window(window);
+    SDL_SysWMinfo info;
+    SDL_VERSION(&info.version);
+    if (!SDL_GetWindowWMInfo(window, &info)) {
+        fprintf(stderr, "Failed to get window WM information: %s\n", SDL_GetError());
+        return -1;
+    }
+    if (info.subsystem == SDL_SYSWM_X11) {
+#ifdef SDL_VIDEO_DRIVER_X11
+        config->platform = NGL_PLATFORM_XLIB;
+        config->display = (uintptr_t)info.info.x11.display;
+        config->window = (uintptr_t)info.info.x11.window;
+        return 0;
+#endif
+    }
 
-    config->display = (uintptr_t)x11_display;
-    config->window  = x11_window;
-
-    return 0;
+    return -1;
 }
