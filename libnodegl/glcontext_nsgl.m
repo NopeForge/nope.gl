@@ -32,6 +32,7 @@
 #include "nodegl.h"
 
 struct nsgl_priv {
+    NSOpenGLPixelFormat *pixel_format;
     NSOpenGLContext *handle;
     NSView *view;
     CFBundleRef framework;
@@ -91,14 +92,14 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         0,
     };
 
-    NSOpenGLPixelFormat* pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttrs];
-    if (!pixelFormat) {
+    nsgl->pixel_format = [[NSOpenGLPixelFormat alloc] initWithAttributes:pixelAttrs];
+    if (!nsgl->pixel_format) {
         LOG(ERROR, "could not allocate pixel format");
         return -1;
     }
 
     NSOpenGLContext *shared_context = other ? (NSOpenGLContext *)other : NULL;
-    nsgl->handle = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:shared_context];
+    nsgl->handle = [[NSOpenGLContext alloc] initWithFormat:nsgl->pixel_format shareContext:shared_context];
     if (!nsgl->handle) {
         LOG(ERROR, "could not create NSGL context");
         return -1;
@@ -243,6 +244,9 @@ static void nsgl_uninit(struct glcontext *ctx)
 
     if (nsgl->handle)
         CFRelease(nsgl->handle);
+
+    if (nsgl->pixel_format)
+        CFRelease(nsgl->pixel_format);
 }
 
 const struct glcontext_class ngli_glcontext_nsgl_class = {
