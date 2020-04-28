@@ -222,7 +222,7 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     EGLint egl_major;
     int ret = eglInitialize(egl->display, &egl_major, &egl_minor);
     if (!ret) {
-        LOG(ERROR, "could initialize EGL: 0x%x", eglGetError());
+        LOG(ERROR, "could not initialize EGL: 0x%x", eglGetError());
         return -1;
     }
 
