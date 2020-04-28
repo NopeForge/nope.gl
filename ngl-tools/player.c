@@ -184,8 +184,8 @@ static void size_callback(GLFWwindow *window, int width, int height)
     p->view.x = (width  - p->view.width)  / 2.0;
     p->view.y = (height - p->view.height) / 2.0;
 
-    p->ngl_config.width = p->view.width;
-    p->ngl_config.height = p->view.height;
+    p->ngl_config.width = width;
+    p->ngl_config.height = height;
     p->ngl_config.viewport[0] = p->view.x;
     p->ngl_config.viewport[1] = p->view.y;
     p->ngl_config.viewport[2] = p->view.width;
