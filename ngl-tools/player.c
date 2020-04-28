@@ -267,10 +267,6 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     glfwSetWindowSizeCallback(p->window, size_callback);
     glfwSetCursorPosCallback(p->window, cursor_pos_callback);
 
-    p->ngl = ngl_create();
-    if (!p->ngl)
-        return -1;
-
     int ret = wsi_set_ngl_config(&p->ngl_config, p->window);
     if (ret < 0)
         return ret;
@@ -285,6 +281,10 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     p->ngl_config.clear_color[1] = 0.0f;
     p->ngl_config.clear_color[2] = 0.0f;
     p->ngl_config.clear_color[3] = 1.0f;
+
+    p->ngl = ngl_create();
+    if (!p->ngl)
+        return -1;
 
     ret = ngl_configure(p->ngl, &p->ngl_config);
     if (ret < 0)
