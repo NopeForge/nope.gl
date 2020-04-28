@@ -21,8 +21,11 @@
 
 include ../common.mak
 
-TOOLS_CFLAGS := $(shell $(PKG_CONFIG) --cflags libnodegl libsxplayer glfw3)
-TOOLS_LDLIBS := $(shell $(PKG_CONFIG) --libs   libnodegl libsxplayer glfw3)
+GLFW_CFLAGS := $(shell $(PKG_CONFIG) --cflags glfw3)
+GLFW_LDLIBS := $(shell $(PKG_CONFIG) --libs   glfw3)
+
+TOOLS_CFLAGS := $(shell $(PKG_CONFIG) --cflags libnodegl libsxplayer)
+TOOLS_LDLIBS := $(shell $(PKG_CONFIG) --libs   libnodegl libsxplayer)
 
 ifeq ($(TARGET_OS),Darwin)
 TOOLS_LDLIBS += -framework AppKit
@@ -76,16 +79,16 @@ ngl-serialize$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(PYTHON_CFLA
 ngl-serialize$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(PYTHON_LDLIBS)
 ngl-serialize$(EXESUF): ngl-serialize.o python_utils.o
 
-ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
-ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
+ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(GLFW_CFLAGS)
+ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(GLFW_LDLIBS)
 ngl-player$(EXESUF): ngl-player.o player.o $(WSI_OBJS)
 
-ngl-render$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
-ngl-render$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
+ngl-render$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(GLFW_CFLAGS)
+ngl-render$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(GLFW_LDLIBS)
 ngl-render$(EXESUF): ngl-render.o $(WSI_OBJS)
 
-ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(PYTHON_CFLAGS)
-ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(PYTHON_LDLIBS)
+ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(GLFW_CFLAGS) $(PYTHON_CFLAGS)
+ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(GLFW_LDLIBS) $(PYTHON_LDLIBS)
 ngl-python$(EXESUF): ngl-python.o player.o python_utils.o $(WSI_OBJS)
 
 TOOLS_OBJS = common.o
