@@ -24,16 +24,8 @@ include ../common.mak
 TOOLS_CFLAGS := $(shell $(PKG_CONFIG) --cflags libnodegl libsxplayer glfw3)
 TOOLS_LDLIBS := $(shell $(PKG_CONFIG) --libs   libnodegl libsxplayer glfw3)
 
-# OpenGL
-ifeq ($(TARGET_OS),MinGW-w64)
-TOOLS_LDLIBS += -lopengl32
-else
 ifeq ($(TARGET_OS),Darwin)
-TOOLS_LDLIBS += -framework OpenGL -framework AppKit
-else
-TOOLS_CFLAGS += $(shell $(PKG_CONFIG) --cflags gl)
-TOOLS_LDLIBS += $(shell $(PKG_CONFIG) --libs   gl)
-endif
+TOOLS_LDLIBS += -framework AppKit
 endif
 
 # Warning: while all 3 "python{,2,3}-config" should work as expected,
