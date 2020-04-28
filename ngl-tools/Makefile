@@ -67,26 +67,28 @@ TOOLS_BINS = $(addprefix ngl-, $(addsuffix $(EXESUF), $(TOOLS)))
 
 all: $(TOOLS_BINS)
 
+WSI_OBJS_Linux  = wsi_x11.o
+WSI_OBJS_Darwin = wsi_cocoa.o
+WSI_OBJS_MinGW-w64 = wsi_windows.o
+WSI_OBJS = wsi.o $(WSI_OBJS_$(TARGET_OS))
+
 ngl-serialize$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(PYTHON_CFLAGS)
 ngl-serialize$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(PYTHON_LDLIBS)
 ngl-serialize$(EXESUF): ngl-serialize.o python_utils.o
 
 ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
 ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
-ngl-player$(EXESUF): ngl-player.o player.o
+ngl-player$(EXESUF): ngl-player.o player.o $(WSI_OBJS)
 
 ngl-render$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS)
 ngl-render$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS)
-ngl-render$(EXESUF): ngl-render.o
+ngl-render$(EXESUF): ngl-render.o $(WSI_OBJS)
 
 ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(PYTHON_CFLAGS)
 ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(PYTHON_LDLIBS)
-ngl-python$(EXESUF): ngl-python.o player.o python_utils.o
+ngl-python$(EXESUF): ngl-python.o player.o python_utils.o $(WSI_OBJS)
 
-TOOLS_OBJS_Linux  = wsi_x11.o
-TOOLS_OBJS_Darwin = wsi_cocoa.o
-TOOLS_OBJS_MinGW-w64 = wsi_windows.o
-TOOLS_OBJS = common.o wsi.o $(TOOLS_OBJS_$(TARGET_OS))
+TOOLS_OBJS = common.o
 
 $(TOOLS_BINS): $(TOOLS_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
