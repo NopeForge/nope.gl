@@ -114,15 +114,11 @@ static int screenshot(void)
         fprintf(stderr, "Could not save screenshot to '%s'", filename);
     }
 
-    *config = backup;
-    ret = ngl_configure(p->ngl, config);
-    if (ret < 0) {
-        fprintf(stderr, "Could not configure node.gl for onscreen rendering\n");
-        goto end;
-    }
 end:
     *config = backup;
-    ngl_configure(p->ngl, config);
+    ret = ngl_configure(p->ngl, config);
+    if (ret < 0)
+        fprintf(stderr, "Could not configure node.gl for onscreen rendering\n");
     p->clock_off = gettime() - p->frame_ts;
 
     free(capture_buffer);
