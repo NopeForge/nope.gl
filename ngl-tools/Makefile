@@ -70,7 +70,7 @@ TOOLS_BINS = $(addprefix ngl-, $(addsuffix $(EXESUF), $(TOOLS)))
 
 all: $(TOOLS_BINS)
 
-WSI_OBJS_Linux  = wsi_x11.o
+WSI_OBJS_Linux  = wsi_linux.o
 WSI_OBJS_Darwin = wsi_cocoa.o
 WSI_OBJS_MinGW-w64 = wsi_windows.o
 WSI_OBJS = wsi.o $(WSI_OBJS_$(TARGET_OS))
