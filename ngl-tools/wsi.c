@@ -40,6 +40,20 @@ int init_window(void)
 SDL_Window *get_window(const char *title, int width, int height)
 {
     uint32_t flags = SDL_WINDOW_RESIZABLE;
+
+    /*
+     * Workaround an issue with the SDL Wayland video driver. If
+     * SDL_WINDOW_VULKAN is not set, SDL automatically adds the
+     * SDL_WINDOW_OPENGL flag internally, causing the Wayland backend to create
+     * a Wayland EGL surface, an EGL context and expects the user to call
+     * SDL_*_SwapWindow(). This conflicts with what we want to do (ie: manage
+     * the underlying GPU buffers in node.gl). Adding the SDL_WINDOW_VULKAN
+     * flag workarounds the issue and fixes resizing issues on Wayland.
+     */
+    const char *name = SDL_GetCurrentVideoDriver();
+    if (name && !strcmp(name, "wayland"))
+        flags |= SDL_WINDOW_VULKAN;
+
     SDL_Window *window = SDL_CreateWindow(title,
                                           SDL_WINDOWPOS_UNDEFINED,
                                           SDL_WINDOWPOS_UNDEFINED,

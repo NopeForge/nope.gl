@@ -34,7 +34,14 @@ int wsi_set_ngl_config(struct ngl_config *config, SDL_Window *window)
         fprintf(stderr, "Failed to get window WM information: %s\n", SDL_GetError());
         return -1;
     }
-    if (info.subsystem == SDL_SYSWM_X11) {
+    if (info.subsystem == SDL_SYSWM_WAYLAND) {
+#ifdef SDL_VIDEO_DRIVER_WAYLAND
+        config->platform = NGL_PLATFORM_WAYLAND;
+        config->display = (uintptr_t)info.info.wl.display;
+        config->window = (uintptr_t)info.info.wl.surface;
+        return 0;
+#endif
+    } else if (info.subsystem == SDL_SYSWM_X11) {
 #ifdef SDL_VIDEO_DRIVER_X11
         config->platform = NGL_PLATFORM_XLIB;
         config->display = (uintptr_t)info.info.x11.display;
