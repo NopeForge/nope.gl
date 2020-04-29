@@ -86,7 +86,7 @@ ngl-python$(EXESUF): ngl-python.o player.o python_utils.o
 TOOLS_OBJS_Linux  = wsi_x11.o
 TOOLS_OBJS_Darwin = wsi_cocoa.o
 TOOLS_OBJS_MinGW-w64 = wsi_windows.o
-TOOLS_OBJS = common.o $(TOOLS_OBJS_$(TARGET_OS))
+TOOLS_OBJS = common.o wsi.o $(TOOLS_OBJS_$(TARGET_OS))
 
 $(TOOLS_BINS): $(TOOLS_OBJS)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@

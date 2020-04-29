@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 GoPro Inc.
+ * Copyright 2020 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -19,22 +19,31 @@
  * under the License.
  */
 
-#include <stdlib.h>
-#include <sys/time.h>
+#include <stdio.h>
 
-#include "common.h"
+#include <GLFW/glfw3.h>
 
-int64_t gettime(void)
+#include "wsi.h"
+
+int init_window(void)
 {
-    struct timeval tv;
+    if (!glfwInit()) {
+        fprintf(stderr, "Failed to initialize GLFW\n");
+        return -1;
+    }
 
-    gettimeofday(&tv, NULL);
-    return 1000000 * (int64_t)tv.tv_sec + tv.tv_usec;
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
+    return 0;
 }
 
-double clipd(double v, double min, double max)
+GLFWwindow *get_window(const char *title, int width, int height)
 {
-    if (v < min) return min;
-    if (v > max) return max;
-    return v;
+    GLFWwindow *window = glfwCreateWindow(width, height, title, NULL, NULL);
+    if (!window) {
+        fprintf(stderr, "Failed to create window\n");
+        return NULL;
+    }
+    glfwShowWindow(window);
+    return window;
 }

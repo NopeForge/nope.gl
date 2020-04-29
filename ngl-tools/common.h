@@ -25,12 +25,7 @@
 
 #include <stdint.h>
 
-#include <GLFW/glfw3.h>
-
 int64_t gettime(void);
 double clipd(double v, double min, double max);
-
-int init_window(void);
-GLFWwindow *get_window(const char *title, int width, int height);
 
 #endif

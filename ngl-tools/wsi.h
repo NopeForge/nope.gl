@@ -25,6 +25,9 @@
 #include <GLFW/glfw3.h>
 #include <nodegl.h>
 
+int init_window(void);
+GLFWwindow *get_window(const char *title, int width, int height);
+
 int wsi_set_ngl_config(struct ngl_config *config, GLFWwindow *window);
 
 #endif /* WSI_H */
