@@ -37,7 +37,6 @@ struct hwconv {
     NGLI_ALIGNED_MAT(src_color_matrix);
 
     struct rendertarget rt;
-    struct texture color_attachment;
     struct program program;
     struct buffer vertices;
     struct pipeline pipeline;
