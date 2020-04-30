@@ -540,7 +540,7 @@ static int pass_compute_init(struct pass *s)
     return 0;
 }
 
-static int register_pipeline(struct pass *s)
+int ngli_pass_prepare(struct pass *s)
 {
     struct ngl_ctx *ctx = s->ctx;
 
@@ -648,11 +648,6 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
         return ret;
 
     return 0;
-}
-
-int ngli_pass_prepare(struct pass *s)
-{
-    return register_pipeline(s);
 }
 
 #define NODE_TYPE_DEFAULT 0
