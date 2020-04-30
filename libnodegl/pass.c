@@ -810,7 +810,7 @@ int ngli_pass_exec(struct pass *s)
             ret = ngli_pipeline_update_texture(pipeline, info->oes_sampler.index, image->planes[0]);
         default:
             break;
-        };
+        }
         const int layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->params.layout;
         ngli_pipeline_update_uniform(pipeline, info->sampling_mode.index, &layout);
     }
