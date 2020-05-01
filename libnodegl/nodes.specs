@@ -451,6 +451,62 @@
         - [timebase, rational]
         - [time_anim, Node]
 
+- StreamedIVec2:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedIVec3:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedIVec4:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedUInt:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedUIVec2:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedUIVec3:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedUIVec4:
+    constructors:
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
 - StreamedFloat:
     constructors:
         - [timestamps, Node]

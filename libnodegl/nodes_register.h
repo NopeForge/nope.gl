@@ -99,6 +99,13 @@
     action(NGL_NODE_TRANSLATE,              ngli_translate_class)               \
     action(NGL_NODE_TRIANGLE,               ngli_triangle_class)                \
     action(NGL_NODE_STREAMEDINT,            ngli_streamedint_class)             \
+    action(NGL_NODE_STREAMEDIVEC2,          ngli_streamedivec2_class)           \
+    action(NGL_NODE_STREAMEDIVEC3,          ngli_streamedivec3_class)           \
+    action(NGL_NODE_STREAMEDIVEC4,          ngli_streamedivec4_class)           \
+    action(NGL_NODE_STREAMEDUINT,           ngli_streameduint_class)            \
+    action(NGL_NODE_STREAMEDUIVEC2,         ngli_streameduivec2_class)          \
+    action(NGL_NODE_STREAMEDUIVEC3,         ngli_streameduivec3_class)          \
+    action(NGL_NODE_STREAMEDUIVEC4,         ngli_streameduivec4_class)          \
     action(NGL_NODE_STREAMEDFLOAT,          ngli_streamedfloat_class)           \
     action(NGL_NODE_STREAMEDVEC2,           ngli_streamedvec2_class)            \
     action(NGL_NODE_STREAMEDVEC3,           ngli_streamedvec3_class)            \
