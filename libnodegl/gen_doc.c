@@ -122,9 +122,18 @@ static char *get_default_str(const struct node_param *p)
         case PARAM_TYPE_INT:
             ngli_bstr_printf(b, "`%d`", (int)p->def_value.i64);
             break;
+        case PARAM_TYPE_UINT:
+            ngli_bstr_printf(b, "`%u`", (unsigned)p->def_value.i64);
+            break;
         case PARAM_TYPE_I64:
             ngli_bstr_printf(b, "`%" PRId64 "`", p->def_value.i64);
             break;
+        case PARAM_TYPE_IVEC2:  ngli_bstr_printf(b, "(`%d`,`%d`)",           NGLI_ARG_VEC2(p->def_value.ivec)); break;
+        case PARAM_TYPE_IVEC3:  ngli_bstr_printf(b, "(`%d`,`%d`,`%d`)",      NGLI_ARG_VEC3(p->def_value.ivec)); break;
+        case PARAM_TYPE_IVEC4:  ngli_bstr_printf(b, "(`%d`,`%d`,`%d`,`%d`)", NGLI_ARG_VEC4(p->def_value.ivec)); break;
+        case PARAM_TYPE_UIVEC2: ngli_bstr_printf(b, "(`%u`,`%u`)",           NGLI_ARG_VEC2(p->def_value.uvec)); break;
+        case PARAM_TYPE_UIVEC3: ngli_bstr_printf(b, "(`%u`,`%u`,`%u`)",      NGLI_ARG_VEC3(p->def_value.uvec)); break;
+        case PARAM_TYPE_UIVEC4: ngli_bstr_printf(b, "(`%u`,`%u`,`%u`,`%u`)", NGLI_ARG_VEC4(p->def_value.uvec)); break;
         case PARAM_TYPE_VEC2:   ngli_bstr_printf(b, "(`%g`,`%g`)",           NGLI_ARG_VEC2(p->def_value.vec));  break;
         case PARAM_TYPE_VEC3:   ngli_bstr_printf(b, "(`%g`,`%g`,`%g`)",      NGLI_ARG_VEC3(p->def_value.vec));  break;
         case PARAM_TYPE_VEC4:   ngli_bstr_printf(b, "(`%g`,`%g`,`%g`,`%g`)", NGLI_ARG_VEC4(p->def_value.vec));  break;

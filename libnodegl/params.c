@@ -37,6 +37,41 @@ const struct param_specs ngli_params_specs[] = {
         .size = sizeof(int),
         .desc = NGLI_DOCSTRING("Integer"),
     },
+    [PARAM_TYPE_IVEC2] = {
+        .name = "ivec2",
+        .size = sizeof(int[2]),
+        .desc = NGLI_DOCSTRING("2 integers"),
+    },
+    [PARAM_TYPE_IVEC3] = {
+        .name = "ivec3",
+        .size = sizeof(int[3]),
+        .desc = NGLI_DOCSTRING("3 integers"),
+    },
+    [PARAM_TYPE_IVEC4] = {
+        .name = "ivec4",
+        .size = sizeof(int[4]),
+        .desc = NGLI_DOCSTRING("4 integers"),
+    },
+    [PARAM_TYPE_UINT] = {
+        .name = "uint",
+        .size = sizeof(unsigned),
+        .desc = NGLI_DOCSTRING("Unsigned integer"),
+    },
+    [PARAM_TYPE_UIVEC2] = {
+        .name = "uivec2",
+        .size = sizeof(unsigned[2]),
+        .desc = NGLI_DOCSTRING("2 unsigned integers"),
+    },
+    [PARAM_TYPE_UIVEC3] = {
+        .name = "uivec3",
+        .size = sizeof(unsigned[3]),
+        .desc = NGLI_DOCSTRING("3 unsigned integers"),
+    },
+    [PARAM_TYPE_UIVEC4] = {
+        .name = "uivec4",
+        .size = sizeof(unsigned[4]),
+        .desc = NGLI_DOCSTRING("4 unsigned integers"),
+    },
     [PARAM_TYPE_BOOL] = {
         .name = "bool",
         .size = sizeof(int),
@@ -240,7 +275,14 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
         }
         case PARAM_TYPE_DBL:    ngli_bstr_printf(b, "%g",            *(const double *)srcp);                 break;
         case PARAM_TYPE_INT:    ngli_bstr_printf(b, "%d",            *(const int *)srcp);                    break;
+        case PARAM_TYPE_UINT:   ngli_bstr_printf(b, "%u",            *(const unsigned *)srcp);               break;
         case PARAM_TYPE_I64:    ngli_bstr_printf(b, "%" PRId64,      *(const int64_t *)srcp);                break;
+        case PARAM_TYPE_IVEC2:  ngli_bstr_printf(b, "(%d,%d)",       NGLI_ARG_VEC2((const int *)srcp));      break;
+        case PARAM_TYPE_IVEC3:  ngli_bstr_printf(b, "(%d,%d,%d)",    NGLI_ARG_VEC3((const int *)srcp));      break;
+        case PARAM_TYPE_IVEC4:  ngli_bstr_printf(b, "(%d,%d,%d,%d)", NGLI_ARG_VEC4((const int *)srcp));      break;
+        case PARAM_TYPE_UIVEC2: ngli_bstr_printf(b, "(%u,%u)",       NGLI_ARG_VEC2((const unsigned *)srcp)); break;
+        case PARAM_TYPE_UIVEC3: ngli_bstr_printf(b, "(%u,%u,%u)",    NGLI_ARG_VEC3((const unsigned *)srcp)); break;
+        case PARAM_TYPE_UIVEC4: ngli_bstr_printf(b, "(%u,%u,%u,%u)", NGLI_ARG_VEC4((const unsigned *)srcp)); break;
         case PARAM_TYPE_VEC2:   ngli_bstr_printf(b, "(%g,%g)",       NGLI_ARG_VEC2((const float *)srcp));    break;
         case PARAM_TYPE_VEC3:   ngli_bstr_printf(b, "(%g,%g,%g)",    NGLI_ARG_VEC3((const float *)srcp));    break;
         case PARAM_TYPE_VEC4:   ngli_bstr_printf(b, "(%g,%g,%g,%g)", NGLI_ARG_VEC4((const float *)srcp));    break;
@@ -328,6 +370,12 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             memcpy(dstp, &v, sizeof(v));
             break;
         }
+        case PARAM_TYPE_UINT: {
+            unsigned v = va_arg(*ap, unsigned);
+            LOG(VERBOSE, "set %s to %u", par->key, v);
+            memcpy(dstp, &v, sizeof(v));
+            break;
+        }
         case PARAM_TYPE_I64: {
             int64_t v = va_arg(*ap, int64_t);
             LOG(VERBOSE, "set %s to %"PRId64, par->key, v);
@@ -374,6 +422,42 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
                 size = 0;
             }
             memcpy(dstp + sizeof(void *), &size, sizeof(size));
+            break;
+        }
+        case PARAM_TYPE_IVEC2: {
+            const int *iv = va_arg(*ap, const int *);
+            LOG(VERBOSE, "set %s to (%d,%d)", par->key, NGLI_ARG_VEC2(iv));
+            memcpy(dstp, iv, 2 * sizeof(*iv));
+            break;
+        }
+        case PARAM_TYPE_IVEC3: {
+            const int *iv = va_arg(*ap, const int *);
+            LOG(VERBOSE, "set %s to (%d,%d,%d)", par->key, NGLI_ARG_VEC3(iv));
+            memcpy(dstp, iv, 3 * sizeof(*iv));
+            break;
+        }
+        case PARAM_TYPE_IVEC4: {
+            const int *iv = va_arg(*ap, const int *);
+            LOG(VERBOSE, "set %s to (%d,%d,%d,%d)", par->key, NGLI_ARG_VEC4(iv));
+            memcpy(dstp, iv, 4 * sizeof(*iv));
+            break;
+        }
+        case PARAM_TYPE_UIVEC2: {
+            const unsigned *uv = va_arg(*ap, const unsigned *);
+            LOG(VERBOSE, "set %s to (%u,%u)", par->key, NGLI_ARG_VEC2(uv));
+            memcpy(dstp, uv, 2 * sizeof(*uv));
+            break;
+        }
+        case PARAM_TYPE_UIVEC3: {
+            const unsigned *uv = va_arg(*ap, const unsigned *);
+            LOG(VERBOSE, "set %s to (%u,%u,%u)", par->key, NGLI_ARG_VEC3(uv));
+            memcpy(dstp, uv, 3 * sizeof(*uv));
+            break;
+        }
+        case PARAM_TYPE_UIVEC4: {
+            const unsigned *uv = va_arg(*ap, const unsigned *);
+            LOG(VERBOSE, "set %s to (%u,%u,%u,%u)", par->key, NGLI_ARG_VEC4(uv));
+            memcpy(dstp, uv, 4 * sizeof(*uv));
             break;
         }
         case PARAM_TYPE_VEC2: {
@@ -520,6 +604,7 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                 }
                 case PARAM_TYPE_BOOL:
                 case PARAM_TYPE_INT:
+                case PARAM_TYPE_UINT:
                 case PARAM_TYPE_I64:
                     ret = ngli_params_vset(base_ptr, par, par->def_value.i64);
                     break;
@@ -528,6 +613,16 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                     break;
                 case PARAM_TYPE_STR:
                     ret = ngli_params_vset(base_ptr, par, par->def_value.str);
+                    break;
+                case PARAM_TYPE_IVEC2:
+                case PARAM_TYPE_IVEC3:
+                case PARAM_TYPE_IVEC4:
+                    ret = ngli_params_vset(base_ptr, par, par->def_value.ivec);
+                    break;
+                case PARAM_TYPE_UIVEC2:
+                case PARAM_TYPE_UIVEC3:
+                case PARAM_TYPE_UIVEC4:
+                    ret = ngli_params_vset(base_ptr, par, par->def_value.uvec);
                     break;
                 case PARAM_TYPE_VEC2:
                 case PARAM_TYPE_VEC3:

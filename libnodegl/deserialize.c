@@ -63,6 +63,13 @@ static int parse_int(const char *s, int *valp)
     return (int)(endptr - s);
 }
 
+static int parse_uint(const char *s, unsigned *valp)
+{
+    char *endptr = NULL;
+    *valp = (unsigned)strtol(s, &endptr, 10);
+    return (int)(endptr - s);
+}
+
 static int parse_hexint(const char *s, int *valp)
 {
     char *endptr = NULL;
@@ -156,6 +163,8 @@ static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \
 DECLARE_PARSE_LIST_FUNC(float,  parse_float)
 DECLARE_PARSE_LIST_FUNC(double, parse_double)
 DECLARE_PARSE_LIST_FUNC(int,    parse_hexint)
+DECLARE_PARSE_LIST_FUNC(int,      parse_int)
+DECLARE_PARSE_LIST_FUNC(unsigned, parse_uint)
 
 #define FREE_KVS(count, keys, vals) do {                                    \
     for (int k = 0; k < (count); k++)                                       \
@@ -236,6 +245,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
 
     switch (par->type) {
         CASE_LITERAL(PARAM_TYPE_INT, int,     parse_int)
+        CASE_LITERAL(PARAM_TYPE_UINT, unsigned, parse_uint)
         CASE_LITERAL(PARAM_TYPE_BOOL,int,     parse_bool)
         CASE_LITERAL(PARAM_TYPE_I64, int64_t, parse_i64)
         CASE_LITERAL(PARAM_TYPE_DBL, double,  parse_double)
@@ -317,6 +327,22 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             if (ret < 0)
                 return ret;
             len = cur - str;
+            break;
+        }
+
+        case PARAM_TYPE_IVEC2:
+        case PARAM_TYPE_IVEC3:
+        case PARAM_TYPE_IVEC4: {
+            int *iv = NULL;
+            CASE_VEC(parse_ints, iv, par->type - PARAM_TYPE_IVEC2 + 2);
+            break;
+        }
+
+        case PARAM_TYPE_UIVEC2:
+        case PARAM_TYPE_UIVEC3:
+        case PARAM_TYPE_UIVEC4: {
+            unsigned *uv = NULL;
+            CASE_VEC(parse_uints, uv, par->type - PARAM_TYPE_UIVEC2 + 2);
             break;
         }
 

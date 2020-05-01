@@ -891,7 +891,14 @@ Parameter types
 Type | Description
 ---- | -----------
 `int` | Integer
+`ivec2` | 2 integers
+`ivec3` | 3 integers
+`ivec4` | 4 integers
 `bool` | Boolean (map to `int` in C)
+`uint` | Unsigned integer
+`uivec2` | 2 unsigned integers
+`uivec3` | 3 unsigned integers
+`uivec4` | 4 unsigned integers
 `i64` | 64-bit integer
 `double` | Double-precision float
 `string` | String

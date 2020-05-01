@@ -28,7 +28,14 @@
 
 enum {
     PARAM_TYPE_INT,
+    PARAM_TYPE_IVEC2,
+    PARAM_TYPE_IVEC3,
+    PARAM_TYPE_IVEC4,
     PARAM_TYPE_BOOL,
+    PARAM_TYPE_UINT,
+    PARAM_TYPE_UIVEC2,
+    PARAM_TYPE_UIVEC3,
+    PARAM_TYPE_UIVEC4,
     PARAM_TYPE_I64,
     PARAM_TYPE_DBL,
     PARAM_TYPE_STR,
@@ -78,6 +85,8 @@ struct node_param {
         const char *str;
         void *p;
         float vec[4];
+        int ivec[4];
+        unsigned uvec[4];
         float mat[4*4];
         int r[2];
     } def_value;

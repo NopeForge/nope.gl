@@ -83,6 +83,9 @@ static void print_##type(struct bstr *b, type f)                        \
 DECLARE_FLT_PRINT_FUNC(float,  32, 23, 'z')
 DECLARE_FLT_PRINT_FUNC(double, 64, 52, 'Z')
 
+#define print_int(b, v)      ngli_bstr_printf(b, "%d", v)
+#define print_unsigned(b, v) ngli_bstr_printf(b, "%u", v)
+
 #define DECLARE_PRINT_FUNC(type)                                        \
 static void print_##type##s(struct bstr *b, int n, const type *v)       \
 {                                                                       \
@@ -94,6 +97,8 @@ static void print_##type##s(struct bstr *b, int n, const type *v)       \
 
 DECLARE_PRINT_FUNC(float)
 DECLARE_PRINT_FUNC(double)
+DECLARE_PRINT_FUNC(int)
+DECLARE_PRINT_FUNC(unsigned)
 
 struct item {
     const char *key;
@@ -170,6 +175,14 @@ static int serialize_options(struct hmap *nlist,
                     ngli_bstr_printf(b, " %s:%d", p->key, v);
                 break;
             }
+            case PARAM_TYPE_UINT: {
+                const int v = *(int *)(priv + p->offset);
+                if (constructor)
+                    ngli_bstr_printf(b, " %u", v);
+                else if (v != p->def_value.i64)
+                    ngli_bstr_printf(b, " %s:%u", p->key, v);
+                break;
+            }
             case PARAM_TYPE_I64: {
                 const int64_t v = *(int64_t *)(priv + p->offset);
                 if (constructor)
@@ -226,6 +239,34 @@ static int serialize_options(struct hmap *nlist,
                     ngli_bstr_printf(b, " %d,", size);
                 for (int i = 0; i < size; i++) {
                     ngli_bstr_printf(b, "%02x", data[i]);
+                }
+                break;
+            }
+            case PARAM_TYPE_IVEC2:
+            case PARAM_TYPE_IVEC3:
+            case PARAM_TYPE_IVEC4: {
+                const int *iv = (const int *)(priv + p->offset);
+                const int n = p->type - PARAM_TYPE_IVEC2 + 2;
+                if (constructor) {
+                    ngli_bstr_print(b, " ");
+                    print_ints(b, n, iv);
+                } else if (memcmp(iv, p->def_value.ivec, n * sizeof(*iv))) {
+                    ngli_bstr_printf(b, " %s:", p->key);
+                    print_ints(b, n, iv);
+                }
+                break;
+            }
+            case PARAM_TYPE_UIVEC2:
+            case PARAM_TYPE_UIVEC3:
+            case PARAM_TYPE_UIVEC4: {
+                const unsigned *uv = (const unsigned *)(priv + p->offset);
+                const int n = p->type - PARAM_TYPE_UIVEC2 + 2;
+                if (constructor) {
+                    ngli_bstr_print(b, " ");
+                    print_unsigneds(b, n, uv);
+                } else if (memcmp(uv, p->def_value.uvec, n * sizeof(*uv))) {
+                    ngli_bstr_printf(b, " %s:", p->key);
+                    print_unsigneds(b, n, uv);
                 }
                 break;
             }
