@@ -222,6 +222,8 @@ static const uint8_t hexm[256] = {
     ['c'] = 0xc, ['d'] = 0xd, ['e'] = 0xe, ['f'] = 0xf,
 };
 
+#define CHR_FROM_HEX(s) (hexm[(uint8_t)(s)[0]]<<4 | hexm[(uint8_t)(s)[1]])
+
 static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                        const struct node_param *par, const char *str)
 {
@@ -303,7 +305,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                     ngli_free(data);
                     return NGL_ERROR_INVALID_DATA;
                 }
-                data[i] = hexm[(uint8_t)cur[0]]<<4 | hexm[(uint8_t)cur[1]];
+                data[i] = CHR_FROM_HEX(cur);
                 cur += 2;
             }
             ret = ngli_params_vset(base_ptr, par, size, data);
