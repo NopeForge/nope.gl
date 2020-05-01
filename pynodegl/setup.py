@@ -58,7 +58,11 @@ class CommandUtils:
 
         def _get_vec_init_code(vectype, vecname):
             cvecname = f'{vecname}_c'
-            n = int(vectype[3:]) if vectype.startswith('vec') else 16
+            if vectype.startswith('vec'):
+                n = int(vectype[3:])
+            else:
+                assert vectype == 'mat4'
+                n = 16
             return cvecname, f'''
         cdef float[{n}] {cvecname}
         cdef int {vecname}_i
