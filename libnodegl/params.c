@@ -448,7 +448,6 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             memcpy(dstp + sizeof(num), &den, sizeof(den));
             break;
         }
-
     }
     return 0;
 }
