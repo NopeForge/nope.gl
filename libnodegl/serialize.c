@@ -84,11 +84,11 @@ DECLARE_FLT_PRINT_FUNC(float,  32, 23, 'z')
 DECLARE_FLT_PRINT_FUNC(double, 64, 52, 'Z')
 
 #define DECLARE_PRINT_FUNC(type)                                        \
-static void print_##type##s(struct bstr *b, int n, const type *f)       \
+static void print_##type##s(struct bstr *b, int n, const type *v)       \
 {                                                                       \
     for (int i = 0; i < n; i++) {                                       \
         ngli_bstr_printf(b, "%s", i ? "," : "");                        \
-        print_##type(b, f[i]);                                          \
+        print_##type(b, v[i]);                                          \
     }                                                                   \
 }
 
