@@ -43,6 +43,13 @@ static const struct param_choices layout_choices = {
                                        NGL_NODE_ANIMATEDBUFFERVEC3,     \
                                        NGL_NODE_ANIMATEDBUFFERVEC4,     \
                                        NGL_NODE_STREAMEDBUFFERINT,      \
+                                       NGL_NODE_STREAMEDBUFFERIVEC2,    \
+                                       NGL_NODE_STREAMEDBUFFERIVEC3,    \
+                                       NGL_NODE_STREAMEDBUFFERIVEC4,    \
+                                       NGL_NODE_STREAMEDBUFFERUINT,     \
+                                       NGL_NODE_STREAMEDBUFFERUIVEC2,   \
+                                       NGL_NODE_STREAMEDBUFFERUIVEC3,   \
+                                       NGL_NODE_STREAMEDBUFFERUIVEC4,   \
                                        NGL_NODE_STREAMEDBUFFERFLOAT,    \
                                        NGL_NODE_STREAMEDBUFFERVEC2,     \
                                        NGL_NODE_STREAMEDBUFFERVEC3,     \
