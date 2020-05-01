@@ -67,7 +67,7 @@ static int get_rel_node_id(const struct hmap *nlist, const struct ngl_node *node
     return ngli_hmap_count(nlist) - get_node_id(nlist, node);
 }
 
-#define DECLARE_FLT_PRINT_FUNCS(type, nbit, shift_exp, z)               \
+#define DECLARE_FLT_PRINT_FUNC(type, nbit, shift_exp, z)                \
 static void print_##type(struct bstr *b, type f)                        \
 {                                                                       \
     const union { uint##nbit##_t i; type f; } u = {.f = f};             \
@@ -79,7 +79,11 @@ static void print_##type(struct bstr *b, type f)                        \
     ngli_bstr_printf(b, "%s%" PRIX##nbit "%c%" PRIX##nbit,              \
                     sign ? "-" : "", exp, z, mant);                     \
 }                                                                       \
-                                                                        \
+
+DECLARE_FLT_PRINT_FUNC(float,  32, 23, 'z')
+DECLARE_FLT_PRINT_FUNC(double, 64, 52, 'Z')
+
+#define DECLARE_PRINT_FUNC(type)                                        \
 static void print_##type##s(struct bstr *b, int n, const type *f)       \
 {                                                                       \
     for (int i = 0; i < n; i++) {                                       \
@@ -88,8 +92,8 @@ static void print_##type##s(struct bstr *b, int n, const type *f)       \
     }                                                                   \
 }
 
-DECLARE_FLT_PRINT_FUNCS(float,  32, 23, 'z')
-DECLARE_FLT_PRINT_FUNCS(double, 64, 52, 'Z')
+DECLARE_PRINT_FUNC(float)
+DECLARE_PRINT_FUNC(double)
 
 struct item {
     const char *key;
