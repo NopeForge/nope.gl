@@ -119,7 +119,7 @@ class CommandUtils:
                 elif field_type in ('select', 'flags', 'string'):
                     construct_cargs.append(field_name)
                     construct_args.append(f'const char *{field_name}')
-                elif field_type.startswith('vec') or field_type == 'mat4':
+                elif 'vec' in field_type or field_type == 'mat4':
                     n = int(field_type[3:]) if field_type.startswith('vec') else 16
                     cparam = field_name + '_c'
                     special_inits += _get_vec_init_code(n, field_name, cparam)
@@ -152,7 +152,7 @@ class CommandUtils:
                     extra_args += f'''
             self.update_{field_name}({field_name})'''
                 else:
-                    dereference = field_type.startswith('vec') or field_type == 'mat4'
+                    dereference = 'vec' in field_type or field_type == 'mat4'
                     arg = '*' + field_name if dereference else field_name
                     extra_args += f'''
             self.set_{field_name}({arg})'''
@@ -331,7 +331,7 @@ cdef class {node}({parent_node}):
 '''
 
                 # Set method for vectors and matrices
-                elif field_type.startswith('vec') or field_type == 'mat4':
+                elif 'vec' in field_type or field_type == 'mat4':
                     n = int(field_type[3:]) if field_type.startswith('vec') else 16
                     cparam = f'{field_name}_c'
                     vec_init_code = _get_vec_init_code(n, field_name, cparam)
