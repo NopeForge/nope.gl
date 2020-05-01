@@ -60,11 +60,13 @@ class CommandUtils:
             cvecname = f'{vecname}_c'
             if vectype.startswith('vec'):
                 n = int(vectype[3:])
+                ctype = 'float'
             else:
                 assert vectype == 'mat4'
                 n = 16
+                ctype = 'float'
             return cvecname, f'''
-        cdef float[{n}] {cvecname}
+        cdef {ctype}[{n}] {cvecname}
         cdef int {vecname}_i
         if len({vecname}) != {n}:
             raise TypeError("%s parameter is expected to be vec%d but got %d values" % (
