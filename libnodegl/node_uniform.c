@@ -55,7 +55,7 @@ static int uniform##name##_update_func(struct ngl_node *node) \
     return 0;                                                 \
 }                                                             \
 
-DECLARE_UPDATE_FUNC(int,   s->opt.ivec)
+DECLARE_UPDATE_FUNC(ivec,  s->opt.ivec)
 DECLARE_UPDATE_FUNC(vec,   s->opt.vec)
 DECLARE_UPDATE_FUNC(mat4,  s->opt.mat)
 
@@ -96,7 +96,7 @@ DECLARE_PARAMS(float,  PARAM_TYPE_DBL,    opt.dbl,  uniformfloat_update_func);
 DECLARE_PARAMS(vec2,   PARAM_TYPE_VEC2,   opt.vec,  uniformvec_update_func);
 DECLARE_PARAMS(vec3,   PARAM_TYPE_VEC3,   opt.vec,  uniformvec_update_func);
 DECLARE_PARAMS(vec4,   PARAM_TYPE_VEC4,   opt.vec,  uniformvec_update_func);
-DECLARE_PARAMS(int,    PARAM_TYPE_INT,    opt.ivec, uniformint_update_func);
+DECLARE_PARAMS(int,    PARAM_TYPE_INT,    opt.ivec, uniformivec_update_func);
 
 static const struct node_param uniformquat_params[] = {
     {"value",  PARAM_TYPE_VEC4, OFFSET(opt.vec), {.vec=NGLI_QUAT_IDENTITY},
