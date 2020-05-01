@@ -58,7 +58,13 @@ class CommandUtils:
 
         def _get_vec_init_code(vectype, vecname):
             cvecname = f'{vecname}_c'
-            if vectype.startswith('vec'):
+            if vectype.startswith('ivec'):
+                n = int(vectype[4:])
+                ctype = 'int'
+            elif vectype.startswith('uivec'):
+                n = int(vectype[5:])
+                ctype = 'unsigned'
+            elif vectype.startswith('vec'):
                 n = int(vectype[3:])
                 ctype = 'float'
             else:
@@ -121,6 +127,9 @@ class CommandUtils:
                 if field_type in ('int', 'float', 'double'):
                     construct_cargs.append(field_name)
                     construct_args.append(f'{field_type} {field_name}')
+                elif field_type == 'uint':
+                    construct_cargs.append('unsigned')
+                    construct_args.append(f'unsigned {field_name}')
                 elif field_type == 'bool':
                     construct_cargs.append('bint')
                     construct_args.append(f'bint {field_name}')
@@ -377,6 +386,8 @@ cdef class {node}({parent_node}):
                         cparam += '.ctx'
                     elif field_type == 'bool':
                         ctype = 'bint'
+                    elif field_type == 'uint':
+                        ctype = 'unsigned'
                     class_str += f'''
     def set_{field_name}(self, {ctype} {field_name}):
         return ngl_node_param_set(self.ctx, "{field_name}", {cparam})
