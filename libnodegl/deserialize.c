@@ -201,15 +201,6 @@ static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)
     return consumed;
 }
 
-static inline int hexv(char c)
-{
-    if (c >= 'a' && c <= 'f')
-        return c - ('a' - 10);
-    if (c >= '0' && c <= '9')
-        return c - '0';
-    return 0;
-}
-
 static struct ngl_node **get_abs_node(struct darray *nodes_array, int id)
 {
     return ngli_darray_get(nodes_array, ngli_darray_count(nodes_array) - id - 1);
@@ -269,8 +260,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             char *sstart = s;
             for (int i = 0; i < len; i++) {
                 if (str[i] == '%' && i + 2 < len) {
-                    int chr = hexv(str[i+1])<<4 | hexv(str[i+2]);
-                    *s++ = chr;
+                    *s++ = CHR_FROM_HEX(str + i + 1);
                     i += 2;
                 } else {
                     *s++ = str[i];
