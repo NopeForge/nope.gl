@@ -47,7 +47,7 @@ static const struct node_param streamed##name##_params[] = {                    
     {NULL}                                                                                                \
 };
 
-DECLARE_STREAMED_PARAMS(int,   NGL_NODE_BUFFERINT)
+DECLARE_STREAMED_PARAMS(int,    NGL_NODE_BUFFERINT)
 DECLARE_STREAMED_PARAMS(ivec2,  NGL_NODE_BUFFERIVEC2)
 DECLARE_STREAMED_PARAMS(ivec3,  NGL_NODE_BUFFERIVEC3)
 DECLARE_STREAMED_PARAMS(ivec4,  NGL_NODE_BUFFERIVEC4)
@@ -55,11 +55,11 @@ DECLARE_STREAMED_PARAMS(uint,   NGL_NODE_BUFFERUINT)
 DECLARE_STREAMED_PARAMS(uivec2, NGL_NODE_BUFFERUIVEC2)
 DECLARE_STREAMED_PARAMS(uivec3, NGL_NODE_BUFFERUIVEC3)
 DECLARE_STREAMED_PARAMS(uivec4, NGL_NODE_BUFFERUIVEC4)
-DECLARE_STREAMED_PARAMS(float, NGL_NODE_BUFFERFLOAT)
-DECLARE_STREAMED_PARAMS(vec2,  NGL_NODE_BUFFERVEC2)
-DECLARE_STREAMED_PARAMS(vec3,  NGL_NODE_BUFFERVEC3)
-DECLARE_STREAMED_PARAMS(vec4,  NGL_NODE_BUFFERVEC4)
-DECLARE_STREAMED_PARAMS(mat4,  NGL_NODE_BUFFERMAT4)
+DECLARE_STREAMED_PARAMS(float,  NGL_NODE_BUFFERFLOAT)
+DECLARE_STREAMED_PARAMS(vec2,   NGL_NODE_BUFFERVEC2)
+DECLARE_STREAMED_PARAMS(vec3,   NGL_NODE_BUFFERVEC3)
+DECLARE_STREAMED_PARAMS(vec4,   NGL_NODE_BUFFERVEC4)
+DECLARE_STREAMED_PARAMS(mat4,   NGL_NODE_BUFFERMAT4)
 
 static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 {
@@ -180,7 +180,7 @@ static int streamed##suffix##_init(struct ngl_node *node)                       
     return streamed_init(node);                                                     \
 }                                                                                   \
 
-DECLARE_STREAMED_INIT(int,   s->ivector, sizeof(*s->ivector),    NGLI_TYPE_INT)
+DECLARE_STREAMED_INIT(int,    s->ivector, sizeof(*s->ivector),     NGLI_TYPE_INT)
 DECLARE_STREAMED_INIT(ivec2,  s->ivector, 2 * sizeof(*s->ivector), NGLI_TYPE_IVEC2)
 DECLARE_STREAMED_INIT(ivec3,  s->ivector, 3 * sizeof(*s->ivector), NGLI_TYPE_IVEC3)
 DECLARE_STREAMED_INIT(ivec4,  s->ivector, 4 * sizeof(*s->ivector), NGLI_TYPE_IVEC4)
@@ -188,11 +188,11 @@ DECLARE_STREAMED_INIT(uint,   s->uvector, sizeof(*s->uvector),     NGLI_TYPE_UIN
 DECLARE_STREAMED_INIT(uivec2, s->uvector, 2 * sizeof(*s->uvector), NGLI_TYPE_UIVEC2)
 DECLARE_STREAMED_INIT(uivec3, s->uvector, 3 * sizeof(*s->uvector), NGLI_TYPE_UIVEC3)
 DECLARE_STREAMED_INIT(uivec4, s->uvector, 4 * sizeof(*s->uvector), NGLI_TYPE_UIVEC4)
-DECLARE_STREAMED_INIT(float, &s->scalar, sizeof(s->scalar),      NGLI_TYPE_FLOAT)
-DECLARE_STREAMED_INIT(vec2,  s->vector,  2 * sizeof(*s->vector), NGLI_TYPE_VEC2)
-DECLARE_STREAMED_INIT(vec3,  s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
-DECLARE_STREAMED_INIT(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
-DECLARE_STREAMED_INIT(mat4,  s->matrix,  sizeof(s->matrix),      NGLI_TYPE_MAT4)
+DECLARE_STREAMED_INIT(float,  &s->scalar, sizeof(s->scalar),       NGLI_TYPE_FLOAT)
+DECLARE_STREAMED_INIT(vec2,   s->vector,  2 * sizeof(*s->vector),  NGLI_TYPE_VEC2)
+DECLARE_STREAMED_INIT(vec3,   s->vector,  3 * sizeof(*s->vector),  NGLI_TYPE_VEC3)
+DECLARE_STREAMED_INIT(vec4,   s->vector,  4 * sizeof(*s->vector),  NGLI_TYPE_VEC4)
+DECLARE_STREAMED_INIT(mat4,   s->matrix,  sizeof(s->matrix),       NGLI_TYPE_MAT4)
 
 #define DECLARE_STREAMED_CLASS(class_id, class_name, class_suffix)          \
 const struct node_class ngli_streamed##class_suffix##_class = {             \
@@ -206,7 +206,7 @@ const struct node_class ngli_streamed##class_suffix##_class = {             \
     .file      = __FILE__,                                                  \
 };                                                                          \
 
-DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDINT,   "StreamedInt",   int)
+DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDINT,    "StreamedInt",    int)
 DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDIVEC2,  "StreamedIVec2",  ivec2)
 DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDIVEC3,  "StreamedIVec3",  ivec3)
 DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDIVEC4,  "StreamedIVec4",  ivec4)
@@ -214,8 +214,8 @@ DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDUINT,   "StreamedUInt",   uint)
 DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDUIVEC2, "StreamedUIVec2", uivec2)
 DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDUIVEC3, "StreamedUIVec3", uivec3)
 DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDUIVEC4, "StreamedUIVec4", uivec4)
-DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDFLOAT, "StreamedFloat", float)
-DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDVEC2,  "StreamedVec2",  vec2)
-DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDVEC3,  "StreamedVec3",  vec3)
-DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDVEC4,  "StreamedVec4",  vec4)
-DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDMAT4,  "StreamedMat4",  mat4)
+DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDFLOAT,  "StreamedFloat",  float)
+DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDVEC2,   "StreamedVec2",   vec2)
+DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDVEC3,   "StreamedVec3",   vec3)
+DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDVEC4,   "StreamedVec4",   vec4)
+DECLARE_STREAMED_CLASS(NGL_NODE_STREAMEDMAT4,   "StreamedMat4",   mat4)
