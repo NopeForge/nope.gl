@@ -102,6 +102,12 @@ cmds_optional = [
     # Read/Draw Buffer
     'glReadBuffer',
     'glDrawBuffers',
+
+    # UInt uniforms
+    'glUniform1uiv',
+    'glUniform2uiv',
+    'glUniform3uiv',
+    'glUniform4uiv',
 ]
 
 cmds = [

@@ -781,6 +781,12 @@ static inline void ngli_glUniform1iv(const struct glcontext *gl, GLint location,
     check_error_code(gl, "glUniform1iv");
 }
 
+static inline void ngli_glUniform1uiv(const struct glcontext *gl, GLint location, GLsizei count, const GLuint * value)
+{
+    gl->funcs.Uniform1uiv(location, count, value);
+    check_error_code(gl, "glUniform1uiv");
+}
+
 static inline void ngli_glUniform2f(const struct glcontext *gl, GLint location, GLfloat v0, GLfloat v1)
 {
     gl->funcs.Uniform2f(location, v0, v1);
@@ -803,6 +809,12 @@ static inline void ngli_glUniform2iv(const struct glcontext *gl, GLint location,
 {
     gl->funcs.Uniform2iv(location, count, value);
     check_error_code(gl, "glUniform2iv");
+}
+
+static inline void ngli_glUniform2uiv(const struct glcontext *gl, GLint location, GLsizei count, const GLuint * value)
+{
+    gl->funcs.Uniform2uiv(location, count, value);
+    check_error_code(gl, "glUniform2uiv");
 }
 
 static inline void ngli_glUniform3f(const struct glcontext *gl, GLint location, GLfloat v0, GLfloat v1, GLfloat v2)
@@ -829,6 +841,12 @@ static inline void ngli_glUniform3iv(const struct glcontext *gl, GLint location,
     check_error_code(gl, "glUniform3iv");
 }
 
+static inline void ngli_glUniform3uiv(const struct glcontext *gl, GLint location, GLsizei count, const GLuint * value)
+{
+    gl->funcs.Uniform3uiv(location, count, value);
+    check_error_code(gl, "glUniform3uiv");
+}
+
 static inline void ngli_glUniform4f(const struct glcontext *gl, GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
 {
     gl->funcs.Uniform4f(location, v0, v1, v2, v3);
@@ -851,6 +869,12 @@ static inline void ngli_glUniform4iv(const struct glcontext *gl, GLint location,
 {
     gl->funcs.Uniform4iv(location, count, value);
     check_error_code(gl, "glUniform4iv");
+}
+
+static inline void ngli_glUniform4uiv(const struct glcontext *gl, GLint location, GLsizei count, const GLuint * value)
+{
+    gl->funcs.Uniform4uiv(location, count, value);
+    check_error_code(gl, "glUniform4uiv");
 }
 
 static inline void ngli_glUniformBlockBinding(const struct glcontext *gl, GLuint program, GLuint uniformBlockIndex, GLuint uniformBlockBinding)
