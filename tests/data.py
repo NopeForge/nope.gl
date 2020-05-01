@@ -76,21 +76,21 @@ def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_coun
 
     spec = []
 
-    spec += [dict(name='f_%d'    % i, type='float',     category='single', data=one_f)    for i in range(f_count)]
-    spec += [dict(name='v2_%d'   % i, type='vec2',      category='single', data=one_v2)   for i in range(v2_count)]
-    spec += [dict(name='v3_%d'   % i, type='vec3',      category='single', data=one_v3)   for i in range(v3_count)]
-    spec += [dict(name='v4_%d'   % i, type='vec4',      category='single', data=one_v4)   for i in range(v4_count)]
-    spec += [dict(name='i_%d'    % i, type='int',       category='single', data=one_i)    for i in range(i_count)]
-    spec += [dict(name='iv2_%d'  % i, type='ivec2',     category='single', data=one_iv2)  for i in range(v2_count)]
-    spec += [dict(name='iv3_%d'  % i, type='ivec3',     category='single', data=one_iv3)  for i in range(v3_count)]
-    spec += [dict(name='iv4_%d'  % i, type='ivec4',     category='single', data=one_iv4)  for i in range(v4_count)]
-    spec += [dict(name='u_%d'    % i, type='uint',      category='single', data=one_u)    for i in range(i_count)]
-    spec += [dict(name='uiv2_%d' % i, type='uvec2',     category='single', data=one_uv2)  for i in range(v2_count)]
-    spec += [dict(name='uiv3_%d' % i, type='uvec3',     category='single', data=one_uv3)  for i in range(v3_count)]
-    spec += [dict(name='uiv4_%d' % i, type='uvec4',     category='single', data=one_uv4)  for i in range(v4_count)]
-    spec += [dict(name='m4_%d'   % i, type='mat4',      category='single', data=one_mat4) for i in range(mat_count)]
-    spec += [dict(name='qm_%d'   % i, type='quat_mat4', category='single', data=one_quat) for i in range(mat_count)]
-    spec += [dict(name='qv_%d'   % i, type='quat_vec4', category='single', data=one_quat) for i in range(v4_count)]
+    spec += [dict(name=f'f_{i}',    type='float',     category='single', data=one_f)    for i in range(f_count)]
+    spec += [dict(name=f'v2_{i}',   type='vec2',      category='single', data=one_v2)   for i in range(v2_count)]
+    spec += [dict(name=f'v3_{i}',   type='vec3',      category='single', data=one_v3)   for i in range(v3_count)]
+    spec += [dict(name=f'v4_{i}',   type='vec4',      category='single', data=one_v4)   for i in range(v4_count)]
+    spec += [dict(name=f'i_{i}',    type='int',       category='single', data=one_i)    for i in range(i_count)]
+    spec += [dict(name=f'iv2_{i}',  type='ivec2',     category='single', data=one_iv2)  for i in range(v2_count)]
+    spec += [dict(name=f'iv3_{i}',  type='ivec3',     category='single', data=one_iv3)  for i in range(v3_count)]
+    spec += [dict(name=f'iv4_{i}',  type='ivec4',     category='single', data=one_iv4)  for i in range(v4_count)]
+    spec += [dict(name=f'u_{i}',    type='uint',      category='single', data=one_u)    for i in range(i_count)]
+    spec += [dict(name=f'uiv2_{i}', type='uvec2',     category='single', data=one_uv2)  for i in range(v2_count)]
+    spec += [dict(name=f'uiv3_{i}', type='uvec3',     category='single', data=one_uv3)  for i in range(v3_count)]
+    spec += [dict(name=f'uiv4_{i}', type='uvec4',     category='single', data=one_uv4)  for i in range(v4_count)]
+    spec += [dict(name=f'm4_{i}',   type='mat4',      category='single', data=one_mat4) for i in range(mat_count)]
+    spec += [dict(name=f'qm_{i}',   type='quat_mat4', category='single', data=one_quat) for i in range(mat_count)]
+    spec += [dict(name=f'qv_{i}',   type='quat_vec4', category='single', data=one_quat) for i in range(v4_count)]
     spec += [
         dict(name='t_f',   type='float',     category='array',    data=f_array,    len=f_count),
         dict(name='t_v2',  type='vec2',      category='array',    data=v2_array,   len=v2_count),
@@ -179,7 +179,7 @@ def debug_block(cfg, seed=0, layout=LAYOUTS[0], color_tint=True):
 
     g = ngl.Group()
     block_def_text = ngl.Text(
-        '{}:\n\n{}'.format(layout, block_definition),
+        f'{layout}:\n\n{block_definition}',
         valign='top',
         box_corner=(-1, -1, 0),
         box_width=(2/3., 0, 0),
@@ -223,7 +223,7 @@ for layout in {'std140', 'std430', 'uniform'}:
     spec = _get_data_spec(layout, i_count=1, f_count=1, v2_count=1, v3_count=1, v4_count=1, mat_count=1)
     for field_info in spec:
         field_id = '{category}_{type}'.format(**field_info)
-        globals()['data_{}_{}'.format(field_id, layout)] = _get_data_function(field_id, layout)
+        globals()[f'data_{field_id}_{layout}'] = _get_data_function(field_id, layout)
 
 
 _RENDER_STREAMEDBUFFER_VERT = '''
@@ -269,7 +269,7 @@ def _get_data_streamed_buffer_cuepoints():
     f = float(_N)
     off = 1 / (2 * f)
     c = lambda i: (i / f + off) * 2.0 - 1.0
-    return dict(('%d%d' % (x, y), (c(x), c(y))) for y in range(_N) for x in range(_N))
+    return dict((f'{x}{y}', (c(x), c(y))) for y in range(_N) for x in range(_N))
 
 
 def _get_data_streamed_buffer_vec4_scene(cfg, scale, show_dbg_points):
