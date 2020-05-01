@@ -213,11 +213,6 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
     const uint8_t *srcp = base_ptr + par->offset;
 
     switch (par->type) {
-        case PARAM_TYPE_DBL: {
-            const double v = *(const double *)srcp;
-            ngli_bstr_printf(b, "%g", v);
-            break;
-        }
         case PARAM_TYPE_SELECT: {
             const int v = *(const int *)srcp;
             const char *s = ngli_params_get_select_str(par->choices->consts, v);
@@ -243,41 +238,15 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
                 ngli_bstr_printf(b, "%d", v);
             break;
         }
-        case PARAM_TYPE_INT: {
-            const int v = *(const int *)srcp;
-            ngli_bstr_printf(b, "%d", v);
+        case PARAM_TYPE_DBL:    ngli_bstr_printf(b, "%g",            *(const double *)srcp);                 break;
+        case PARAM_TYPE_INT:    ngli_bstr_printf(b, "%d",            *(const int *)srcp);                    break;
+        case PARAM_TYPE_I64:    ngli_bstr_printf(b, "%" PRId64,      *(const int64_t *)srcp);                break;
+        case PARAM_TYPE_VEC2:   ngli_bstr_printf(b, "(%g,%g)",       NGLI_ARG_VEC2((const float *)srcp));    break;
+        case PARAM_TYPE_VEC3:   ngli_bstr_printf(b, "(%g,%g,%g)",    NGLI_ARG_VEC3((const float *)srcp));    break;
+        case PARAM_TYPE_VEC4:   ngli_bstr_printf(b, "(%g,%g,%g,%g)", NGLI_ARG_VEC4((const float *)srcp));    break;
+        case PARAM_TYPE_MAT4:
+            ngli_bstr_printf(b, "(%g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g)", NGLI_ARG_MAT4((const float *)srcp));
             break;
-        }
-        case PARAM_TYPE_I64: {
-            const int64_t v = *(const int64_t *)srcp;
-            ngli_bstr_printf(b, "%" PRId64, v);
-            break;
-        }
-        case PARAM_TYPE_VEC2: {
-            const float *v = (const float *)srcp;
-            ngli_bstr_printf(b, "(%g,%g)", v[0], v[1]);
-            break;
-        }
-        case PARAM_TYPE_VEC3: {
-            const float *v = (const float *)srcp;
-            ngli_bstr_printf(b, "(%g,%g,%g)", v[0], v[1], v[2]);
-            break;
-        }
-        case PARAM_TYPE_VEC4: {
-            const float *v = (const float *)srcp;
-            ngli_bstr_printf(b, "(%g,%g,%g,%g)", v[0], v[1], v[2], v[3]);
-            break;
-        }
-        case PARAM_TYPE_MAT4: {
-            const float *m = (const float *)srcp;
-            ngli_bstr_printf(b,
-                            "(%g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g)",
-                            m[ 0], m[ 1], m[ 2], m[ 3],
-                            m[ 4], m[ 5], m[ 6], m[ 7],
-                            m[ 8], m[ 9], m[10], m[11],
-                            m[12], m[13], m[14], m[15]);
-            break;
-        }
         case PARAM_TYPE_STR: {
             const char *s = *(const char **)srcp;
             if (!s)
@@ -299,11 +268,9 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
                 ngli_bstr_printf(b, "%s%g", i ? "," : "", elems[i]);
             break;
         }
-        case PARAM_TYPE_RATIONAL: {
-            const int *r = (const int *)srcp;
-            ngli_bstr_printf(b, "%d/%d", r[0], r[1]);
+        case PARAM_TYPE_RATIONAL:
+            ngli_bstr_printf(b, "%d/%d", NGLI_ARG_VEC2((const int *)srcp));
             break;
-        }
     }
 }
 
