@@ -183,6 +183,22 @@ static int uniformmat4_update(struct ngl_node *node, double t)
     return 0;
 }
 
+#define DECLARE_INIT_FUNC(type, dtype, count, dst, src)     \
+static int uniform##type##_init(struct ngl_node *node)      \
+{                                                           \
+    struct variable_priv *s = node->priv_data;              \
+    s->data = dst;                                          \
+    s->data_size = count * sizeof(*dst);                    \
+    s->data_type = dtype;                                   \
+    memcpy(s->data, src, s->data_size);                     \
+    return 0;                                               \
+}
+
+DECLARE_INIT_FUNC(int,    NGLI_TYPE_INT,    1, s->ivector, s->opt.ivec)
+DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  s->opt.vec)
+DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  s->opt.vec)
+DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  s->opt.vec)
+
 static int uniformfloat_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
@@ -190,36 +206,6 @@ static int uniformfloat_init(struct ngl_node *node)
     s->data_size = sizeof(s->scalar);
     s->data_type = NGLI_TYPE_FLOAT;
     s->scalar = s->opt.dbl; // double -> float
-    return 0;
-}
-
-static int uniformvec2_init(struct ngl_node *node)
-{
-    struct variable_priv *s = node->priv_data;
-    s->data = s->vector;
-    s->data_size = 2 * sizeof(*s->vector);
-    s->data_type = NGLI_TYPE_VEC2;
-    memcpy(s->data, s->opt.vec, s->data_size);
-    return 0;
-}
-
-static int uniformvec3_init(struct ngl_node *node)
-{
-    struct variable_priv *s = node->priv_data;
-    s->data = s->vector;
-    s->data_size = 3 * sizeof(*s->vector);
-    s->data_type = NGLI_TYPE_VEC3;
-    memcpy(s->data, s->opt.vec, s->data_size);
-    return 0;
-}
-
-static int uniformvec4_init(struct ngl_node *node)
-{
-    struct variable_priv *s = node->priv_data;
-    s->data = s->vector;
-    s->data_size = 4 * sizeof(*s->vector);
-    s->data_type = NGLI_TYPE_VEC4;
-    memcpy(s->data, s->opt.vec, s->data_size);
     return 0;
 }
 
@@ -236,16 +222,6 @@ static int uniformquat_init(struct ngl_node *node)
         s->data_type = NGLI_TYPE_MAT4;
         ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     }
-    return 0;
-}
-
-static int uniformint_init(struct ngl_node *node)
-{
-    struct variable_priv *s = node->priv_data;
-    s->data = s->ivector;
-    s->data_size = sizeof(*s->ivector);
-    s->data_type = NGLI_TYPE_INT;
-    memcpy(s->data, s->opt.ivec, s->data_size);
     return 0;
 }
 
