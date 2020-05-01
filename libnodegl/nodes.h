@@ -237,7 +237,7 @@ struct variable_priv {
         double dbl;
         float vec[4];
         float mat[4*4];
-        int i;
+        int ivec[4];
     } opt;
 
     struct ngl_node **animkf;
@@ -253,7 +253,7 @@ struct variable_priv {
     float scalar;
     float vector[4];
     float matrix[4*4];
-    int ival;
+    int ivector[4];
     double dval;
     void *data;
     int data_size;

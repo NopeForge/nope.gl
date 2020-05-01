@@ -55,7 +55,7 @@ static int uniform##name##_update_func(struct ngl_node *node) \
     return 0;                                                 \
 }                                                             \
 
-DECLARE_UPDATE_FUNC(int,   &s->opt.i)
+DECLARE_UPDATE_FUNC(int,   s->opt.ivec)
 DECLARE_UPDATE_FUNC(vec,   s->opt.vec)
 DECLARE_UPDATE_FUNC(mat4,  s->opt.mat)
 
@@ -125,7 +125,7 @@ static const struct node_param uniformquat_params[] = {
 };
 
 static const struct node_param uniformint_params[] = {
-    {"value",  PARAM_TYPE_INT, OFFSET(opt.i),
+    {"value",  PARAM_TYPE_INT, OFFSET(opt.ivec),
                .flags=PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=uniformint_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
@@ -242,10 +242,10 @@ static int uniformquat_init(struct ngl_node *node)
 static int uniformint_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
-    s->data = &s->ival;
-    s->data_size = sizeof(s->ival);
+    s->data = s->ivector;
+    s->data_size = sizeof(*s->ivector);
     s->data_type = NGLI_TYPE_INT;
-    memcpy(s->data, &s->opt.i, s->data_size);
+    memcpy(s->data, s->opt.ivec, s->data_size);
     return 0;
 }
 

@@ -173,7 +173,7 @@ static int streamed##suffix##_init(struct ngl_node *node)                       
     return streamed_init(node);                                                     \
 }                                                                                   \
 
-DECLARE_STREAMED_INIT(int,   &s->ival,   sizeof(s->ival),        NGLI_TYPE_INT)
+DECLARE_STREAMED_INIT(int,   s->ivector, sizeof(*s->ivector),    NGLI_TYPE_INT)
 DECLARE_STREAMED_INIT(float, &s->scalar, sizeof(s->scalar),      NGLI_TYPE_FLOAT)
 DECLARE_STREAMED_INIT(vec2,  s->vector,  2 * sizeof(*s->vector), NGLI_TYPE_VEC2)
 DECLARE_STREAMED_INIT(vec3,  s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
