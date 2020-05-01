@@ -70,6 +70,26 @@ static void set_uniform_4iv(struct glcontext *gl, GLint location, int count, con
     ngli_glUniform4iv(gl, location, count, data);
 }
 
+static void set_uniform_1ui(struct glcontext *gl, GLint location, int count, const void *data)
+{
+    ngli_glUniform1uiv(gl, location, count, data);
+}
+
+static void set_uniform_2uiv(struct glcontext *gl, GLint location, int count, const void *data)
+{
+    ngli_glUniform2uiv(gl, location, count, data);
+}
+
+static void set_uniform_3uiv(struct glcontext *gl, GLint location, int count, const void *data)
+{
+    ngli_glUniform3uiv(gl, location, count, data);
+}
+
+static void set_uniform_4uiv(struct glcontext *gl, GLint location, int count, const void *data)
+{
+    ngli_glUniform4uiv(gl, location, count, data);
+}
+
 static void set_uniform_1f(struct glcontext *gl, GLint location, int count, const void *data)
 {
     ngli_glUniform1fv(gl, location, count, data);
@@ -106,6 +126,10 @@ static const set_uniform_func set_uniform_func_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_IVEC2] = set_uniform_2iv,
     [NGLI_TYPE_IVEC3] = set_uniform_3iv,
     [NGLI_TYPE_IVEC4] = set_uniform_4iv,
+    [NGLI_TYPE_UINT]   = set_uniform_1ui,
+    [NGLI_TYPE_UIVEC2] = set_uniform_2uiv,
+    [NGLI_TYPE_UIVEC3] = set_uniform_3uiv,
+    [NGLI_TYPE_UIVEC4] = set_uniform_4uiv,
     [NGLI_TYPE_FLOAT] = set_uniform_1f,
     [NGLI_TYPE_VEC2]  = set_uniform_2fv,
     [NGLI_TYPE_VEC3]  = set_uniform_3fv,
@@ -121,6 +145,9 @@ static int build_uniform_descs(struct pipeline *s, const struct pipeline_params 
     if (!program->uniforms)
         return 0;
 
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
     for (int i = 0; i < params->nb_uniforms; i++) {
         const struct pipeline_uniform *uniform = &params->uniforms[i];
         const struct program_variable_info *info = ngli_hmap_get(program->uniforms, uniform->name);
@@ -131,6 +158,15 @@ static int build_uniform_descs(struct pipeline *s, const struct pipeline_params 
             (info->type != NGLI_TYPE_BOOL && info->type != NGLI_TYPE_INT))) {
             LOG(ERROR, "uniform '%s' type does not match the type declared in the shader", uniform->name);
             return NGL_ERROR_INVALID_ARG;
+        }
+
+        if (!(gl->features & NGLI_FEATURE_UINT_UNIFORMS) &&
+            (uniform->type == NGLI_TYPE_UINT ||
+             uniform->type == NGLI_TYPE_UIVEC2 ||
+             uniform->type == NGLI_TYPE_UIVEC3 ||
+             uniform->type == NGLI_TYPE_UIVEC4)) {
+            LOG(ERROR, "context does not support unsigned int uniform flavours");
+            return NGL_ERROR_UNSUPPORTED;
         }
 
         const set_uniform_func set_func = set_uniform_func_map[uniform->type];
