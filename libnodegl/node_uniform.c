@@ -133,11 +133,11 @@ static int uniform_update(struct ngl_node *node, double t)
     return 0;
 }
 
-#define uniformfloat_update uniform_update
-#define uniformvec2_update  uniform_update
-#define uniformvec3_update  uniform_update
-#define uniformvec4_update  uniform_update
-#define uniformint_update   uniform_update
+#define uniformfloat_update  uniform_update
+#define uniformvec2_update   uniform_update
+#define uniformvec3_update   uniform_update
+#define uniformvec4_update   uniform_update
+#define uniformint_update    uniform_update
 #define uniformivec2_update  uniform_update
 #define uniformivec3_update  uniform_update
 #define uniformivec4_update  uniform_update
@@ -253,12 +253,12 @@ const struct node_class ngli_uniform##type##_class = {          \
     .file      = __FILE__,                                      \
 };
 
-DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMFLOAT, "UniformFloat", float)
-DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC2,  "UniformVec2",  vec2)
-DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC3,  "UniformVec3",  vec3)
-DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC4,  "UniformVec4",  vec4)
-DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMQUAT,  "UniformQuat",  quat)
-DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMINT,   "UniformInt",   int)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMFLOAT,  "UniformFloat",  float)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC2,   "UniformVec2",   vec2)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC3,   "UniformVec3",   vec3)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC4,   "UniformVec4",   vec4)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMQUAT,   "UniformQuat",   quat)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMINT,    "UniformInt",    int)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMIVEC2,  "UniformIVec2",  ivec2)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMIVEC3,  "UniformIVec3",  ivec3)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMIVEC4,  "UniformIVec4",  ivec4)
@@ -266,4 +266,4 @@ DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUINT,   "UniformUInt",   uint)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUIVEC2, "UniformUIVec2", uivec2)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUIVEC3, "UniformUIVec3", uivec3)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUIVEC4, "UniformUIVec4", uivec4)
-DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMMAT4,  "UniformMat4",  mat4)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMMAT4,   "UniformMat4",   mat4)
