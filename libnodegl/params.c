@@ -378,19 +378,19 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
         }
         case PARAM_TYPE_VEC2: {
             const float *v = va_arg(*ap, const float *);
-            LOG(VERBOSE, "set %s to (%g,%g)", par->key, v[0], v[1]);
+            LOG(VERBOSE, "set %s to (%g,%g)", par->key, NGLI_ARG_VEC2(v));
             memcpy(dstp, v, 2 * sizeof(*v));
             break;
         }
         case PARAM_TYPE_VEC3: {
             const float *v = va_arg(*ap, const float *);
-            LOG(VERBOSE, "set %s to (%g,%g,%g)", par->key, v[0], v[1], v[2]);
+            LOG(VERBOSE, "set %s to (%g,%g,%g)", par->key, NGLI_ARG_VEC3(v));
             memcpy(dstp, v, 3 * sizeof(*v));
             break;
         }
         case PARAM_TYPE_VEC4: {
             const float *v = va_arg(*ap, const float *);
-            LOG(VERBOSE, "set %s to (%g,%g,%g,%g)", par->key, v[0], v[1], v[2], v[3]);
+            LOG(VERBOSE, "set %s to (%g,%g,%g,%g)", par->key, NGLI_ARG_VEC4(v));
             memcpy(dstp, v, 4 * sizeof(*v));
             break;
         }
@@ -398,11 +398,7 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             const float *v = va_arg(*ap, const float *);
             LOG(VERBOSE,
                 "set %s to (%g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g)",
-                par->key,
-                v[ 0], v[ 1], v[ 2], v[ 3],
-                v[ 4], v[ 5], v[ 6], v[ 7],
-                v[ 8], v[ 9], v[10], v[11],
-                v[12], v[13], v[14], v[15]);
+                par->key, NGLI_ARG_MAT4(v));
             memcpy(dstp, v, 16 * sizeof(*v));
             break;
         }
