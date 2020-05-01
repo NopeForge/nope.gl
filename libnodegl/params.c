@@ -260,9 +260,8 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             break;
         }
         case PARAM_TYPE_DBLLIST: {
-            const uint8_t *elems_p = srcp;
             const uint8_t *nb_elems_p = srcp + sizeof(double *);
-            const double *elems = *(const double **)elems_p;
+            const double *elems = *(const double **)srcp;
             const int nb_elems = *(const int *)nb_elems_p;
             for (int i = 0; i < nb_elems; i++)
                 ngli_bstr_printf(b, "%s%g", i ? "," : "", elems[i]);
