@@ -56,8 +56,10 @@ class CommandUtils:
         with open(specs) as f:
             specs = yaml.safe_load(f)
 
-        def _get_vec_init_code(n, vecname, cvecname):
-            return f'''
+        def _get_vec_init_code(vectype, vecname):
+            cvecname = f'{vecname}_c'
+            n = int(vectype[3:]) if vectype.startswith('vec') else 16
+            return cvecname, f'''
         cdef float[{n}] {cvecname}
         cdef int {vecname}_i
         if len({vecname}) != {n}:
@@ -120,9 +122,8 @@ class CommandUtils:
                     construct_cargs.append(field_name)
                     construct_args.append(f'const char *{field_name}')
                 elif 'vec' in field_type or field_type == 'mat4':
-                    n = int(field_type[3:]) if field_type.startswith('vec') else 16
-                    cparam = field_name + '_c'
-                    special_inits += _get_vec_init_code(n, field_name, cparam)
+                    cparam, vec_init_code = _get_vec_init_code(field_type, field_name)
+                    special_inits += vec_init_code
                     construct_cargs.append(cparam)
                     construct_args.append(field_name)
                 else:
@@ -332,9 +333,7 @@ cdef class {node}({parent_node}):
 
                 # Set method for vectors and matrices
                 elif 'vec' in field_type or field_type == 'mat4':
-                    n = int(field_type[3:]) if field_type.startswith('vec') else 16
-                    cparam = f'{field_name}_c'
-                    vec_init_code = _get_vec_init_code(n, field_name, cparam)
+                    cparam, vec_init_code = _get_vec_init_code(field_type, field_name)
                     class_str += f'''
     def set_{field_name}(self, *{field_name}):{vec_init_code}
         return ngl_node_param_set(self.ctx, "{field_name}", {cparam})
