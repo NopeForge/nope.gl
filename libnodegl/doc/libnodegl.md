@@ -824,6 +824,104 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
 
 
+## StreamedBufferIVec2
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferIVec2](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferIVec3
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferIVec3](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferIVec4
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferIVec4](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferUInt
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferUInt](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferUIVec2
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferUIVec2](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferUIVec3
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferUIVec3](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
+## StreamedBufferUIVec4
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`count` | ✓ |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` | ✓ |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` | ✓ |  | [`Node`](#parameter-types) ([BufferUIVec4](#buffer)) | buffer containing the data to stream | 
+`timebase` |  |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
+`time_anim` |  |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+
+
+**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+
+
 ## StreamedBufferFloat
 
 Parameter | Ctor. | Live-chg. | Type | Description | Default

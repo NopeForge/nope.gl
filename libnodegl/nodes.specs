@@ -556,6 +556,69 @@
         - [timebase, rational]
         - [time_anim, Node]
 
+- StreamedBufferIVec2:
+    constructors:
+        - [count, int]
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedBufferIVec3:
+    constructors:
+        - [count, int]
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedBufferIVec4:
+    constructors:
+        - [count, int]
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedBufferUInt:
+    constructors:
+        - [count, int]
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedBufferUIVec2:
+    constructors:
+        - [count, int]
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedBufferUIVec3:
+    constructors:
+        - [count, int]
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
+- StreamedBufferUIVec4:
+    constructors:
+        - [count, int]
+        - [timestamps, Node]
+        - [buffer, Node]
+    optional:
+        - [timebase, rational]
+        - [time_anim, Node]
+
 - StreamedBufferFloat:
     constructors:
         - [count, int]
