@@ -210,21 +210,23 @@ char *ngli_params_get_flags_str(const struct param_const *consts, int val)
 
 void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct node_param *par)
 {
+    const uint8_t *srcp = base_ptr + par->offset;
+
     switch (par->type) {
         case PARAM_TYPE_DBL: {
-            const double v = *(double *)(base_ptr + par->offset);
+            const double v = *(double *)srcp;
             ngli_bstr_printf(b, "%g", v);
             break;
         }
         case PARAM_TYPE_SELECT: {
-            const int v = *(int *)(base_ptr + par->offset);
+            const int v = *(int *)srcp;
             const char *s = ngli_params_get_select_str(par->choices->consts, v);
             ngli_assert(s);
             ngli_bstr_print(b, s);
             break;
         }
         case PARAM_TYPE_FLAGS: {
-            const int v = *(int *)(base_ptr + par->offset);
+            const int v = *(int *)srcp;
             char *s = ngli_params_get_flags_str(par->choices->consts, v);
             if (!s)
                 break;
@@ -234,7 +236,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             break;
         }
         case PARAM_TYPE_BOOL: {
-            const int v = *(int *)(base_ptr + par->offset);
+            const int v = *(int *)srcp;
             if (v == -1)
                 ngli_bstr_print(b, "unset");
             else
@@ -242,32 +244,32 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             break;
         }
         case PARAM_TYPE_INT: {
-            const int v = *(int *)(base_ptr + par->offset);
+            const int v = *(int *)srcp;
             ngli_bstr_printf(b, "%d", v);
             break;
         }
         case PARAM_TYPE_I64: {
-            const int64_t v = *(int64_t *)(base_ptr + par->offset);
+            const int64_t v = *(int64_t *)srcp;
             ngli_bstr_printf(b, "%" PRId64, v);
             break;
         }
         case PARAM_TYPE_VEC2: {
-            const float *v = (const float *)(base_ptr + par->offset);
+            const float *v = (const float *)srcp;
             ngli_bstr_printf(b, "(%g,%g)", v[0], v[1]);
             break;
         }
         case PARAM_TYPE_VEC3: {
-            const float *v = (const float *)(base_ptr + par->offset);
+            const float *v = (const float *)srcp;
             ngli_bstr_printf(b, "(%g,%g,%g)", v[0], v[1], v[2]);
             break;
         }
         case PARAM_TYPE_VEC4: {
-            const float *v = (const float *)(base_ptr + par->offset);
+            const float *v = (const float *)srcp;
             ngli_bstr_printf(b, "(%g,%g,%g,%g)", v[0], v[1], v[2], v[3]);
             break;
         }
         case PARAM_TYPE_MAT4: {
-            const float *m = (const float *)(base_ptr + par->offset);
+            const float *m = (const float *)srcp;
             ngli_bstr_printf(b,
                             "(%g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g)",
                             m[ 0], m[ 1], m[ 2], m[ 3],
@@ -277,7 +279,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             break;
         }
         case PARAM_TYPE_STR: {
-            const char *s = *(const char **)(base_ptr + par->offset);
+            const char *s = *(const char **)srcp;
             if (!s)
                 ngli_bstr_print(b, "\"\"");
             else if (strchr(s, '\n')) // print a checksum when the string is multiline (typically, shaders)
@@ -289,8 +291,8 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             break;
         }
         case PARAM_TYPE_DBLLIST: {
-            uint8_t *elems_p = base_ptr + par->offset;
-            uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(double *);
+            const uint8_t *elems_p = srcp;
+            const uint8_t *nb_elems_p = srcp + sizeof(double *);
             const double *elems = *(double **)elems_p;
             const int nb_elems = *(int *)nb_elems_p;
             for (int i = 0; i < nb_elems; i++)
@@ -298,7 +300,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             break;
         }
         case PARAM_TYPE_RATIONAL: {
-            const int *r = (int *)(base_ptr + par->offset);
+            const int *r = (int *)srcp;
             ngli_bstr_printf(b, "%d/%d", r[0], r[1]);
             break;
         }
