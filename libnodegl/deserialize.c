@@ -215,6 +215,13 @@ static struct ngl_node **get_abs_node(struct darray *nodes_array, int id)
     return ngli_darray_get(nodes_array, ngli_darray_count(nodes_array) - id - 1);
 }
 
+static const uint8_t hexm[256] = {
+    ['0'] = 0x0, ['1'] = 0x1, ['2'] = 0x2, ['3'] = 0x3,
+    ['4'] = 0x4, ['5'] = 0x5, ['6'] = 0x6, ['7'] = 0x7,
+    ['8'] = 0x8, ['9'] = 0x9, ['a'] = 0xa, ['b'] = 0xb,
+    ['c'] = 0xc, ['d'] = 0xd, ['e'] = 0xe, ['f'] = 0xf,
+};
+
 static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                        const struct node_param *par, const char *str)
 {
@@ -296,12 +303,6 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                     ngli_free(data);
                     return NGL_ERROR_INVALID_DATA;
                 }
-                static const uint8_t hexm[256] = {
-                    ['0'] = 0x0, ['1'] = 0x1, ['2'] = 0x2, ['3'] = 0x3,
-                    ['4'] = 0x4, ['5'] = 0x5, ['6'] = 0x6, ['7'] = 0x7,
-                    ['8'] = 0x8, ['9'] = 0x9, ['a'] = 0xa, ['b'] = 0xb,
-                    ['c'] = 0xc, ['d'] = 0xd, ['e'] = 0xe, ['f'] = 0xf,
-                };
                 data[i] = hexm[(uint8_t)cur[0]]<<4 | hexm[(uint8_t)cur[1]];
                 cur += 2;
             }
