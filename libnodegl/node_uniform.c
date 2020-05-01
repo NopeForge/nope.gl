@@ -56,6 +56,7 @@ static int uniform##name##_update_func(struct ngl_node *node) \
 }                                                             \
 
 DECLARE_UPDATE_FUNC(ivec,  s->opt.ivec)
+DECLARE_UPDATE_FUNC(uivec, s->opt.uvec)
 DECLARE_UPDATE_FUNC(vec,   s->opt.vec)
 DECLARE_UPDATE_FUNC(mat4,  s->opt.mat)
 
@@ -97,6 +98,13 @@ DECLARE_PARAMS(vec2,   PARAM_TYPE_VEC2,   opt.vec,  uniformvec_update_func);
 DECLARE_PARAMS(vec3,   PARAM_TYPE_VEC3,   opt.vec,  uniformvec_update_func);
 DECLARE_PARAMS(vec4,   PARAM_TYPE_VEC4,   opt.vec,  uniformvec_update_func);
 DECLARE_PARAMS(int,    PARAM_TYPE_INT,    opt.ivec, uniformivec_update_func);
+DECLARE_PARAMS(ivec2,  PARAM_TYPE_IVEC2,  opt.ivec, uniformivec_update_func);
+DECLARE_PARAMS(ivec3,  PARAM_TYPE_IVEC3,  opt.ivec, uniformivec_update_func);
+DECLARE_PARAMS(ivec4,  PARAM_TYPE_IVEC4,  opt.ivec, uniformivec_update_func);
+DECLARE_PARAMS(uint,   PARAM_TYPE_UINT,   opt.uvec, uniformuivec_update_func);
+DECLARE_PARAMS(uivec2, PARAM_TYPE_UIVEC2, opt.uvec, uniformuivec_update_func);
+DECLARE_PARAMS(uivec3, PARAM_TYPE_UIVEC3, opt.uvec, uniformuivec_update_func);
+DECLARE_PARAMS(uivec4, PARAM_TYPE_UIVEC4, opt.uvec, uniformuivec_update_func);
 
 static const struct node_param uniformquat_params[] = {
     {"value",  PARAM_TYPE_VEC4, OFFSET(opt.vec), {.vec=NGLI_QUAT_IDENTITY},
@@ -130,6 +138,13 @@ static int uniform_update(struct ngl_node *node, double t)
 #define uniformvec3_update  uniform_update
 #define uniformvec4_update  uniform_update
 #define uniformint_update   uniform_update
+#define uniformivec2_update  uniform_update
+#define uniformivec3_update  uniform_update
+#define uniformivec4_update  uniform_update
+#define uniformuint_update   uniform_update
+#define uniformuivec2_update uniform_update
+#define uniformuivec3_update uniform_update
+#define uniformuivec4_update uniform_update
 
 static int uniformquat_update(struct ngl_node *node, double t)
 {
@@ -171,6 +186,13 @@ static int uniform##type##_init(struct ngl_node *node)      \
 }
 
 DECLARE_INIT_FUNC(int,    NGLI_TYPE_INT,    1, s->ivector, s->opt.ivec)
+DECLARE_INIT_FUNC(ivec2,  NGLI_TYPE_IVEC2,  2, s->ivector, s->opt.ivec)
+DECLARE_INIT_FUNC(ivec3,  NGLI_TYPE_IVEC3,  3, s->ivector, s->opt.ivec)
+DECLARE_INIT_FUNC(ivec4,  NGLI_TYPE_IVEC4,  4, s->ivector, s->opt.ivec)
+DECLARE_INIT_FUNC(uint,   NGLI_TYPE_UINT,   1, s->uvector, s->opt.uvec)
+DECLARE_INIT_FUNC(uivec2, NGLI_TYPE_UIVEC2, 2, s->uvector, s->opt.uvec)
+DECLARE_INIT_FUNC(uivec3, NGLI_TYPE_UIVEC3, 3, s->uvector, s->opt.uvec)
+DECLARE_INIT_FUNC(uivec4, NGLI_TYPE_UIVEC4, 4, s->uvector, s->opt.uvec)
 DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  s->opt.vec)
 DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  s->opt.vec)
 DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  s->opt.vec)
@@ -237,4 +259,11 @@ DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC3,  "UniformVec3",  vec3)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMVEC4,  "UniformVec4",  vec4)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMQUAT,  "UniformQuat",  quat)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMINT,   "UniformInt",   int)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMIVEC2,  "UniformIVec2",  ivec2)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMIVEC3,  "UniformIVec3",  ivec3)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMIVEC4,  "UniformIVec4",  ivec4)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUINT,   "UniformUInt",   uint)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUIVEC2, "UniformUIVec2", uivec2)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUIVEC3, "UniformUIVec3", uivec3)
+DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUIVEC4, "UniformUIVec4", uivec4)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMMAT4,  "UniformMat4",  mat4)

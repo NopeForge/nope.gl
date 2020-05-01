@@ -549,6 +549,34 @@
     optional:
         - [value, int]
 
+- UniformIVec2:
+    optional:
+        - [value, ivec2]
+
+- UniformIVec3:
+    optional:
+        - [value, ivec3]
+
+- UniformIVec4:
+    optional:
+        - [value, ivec4]
+
+- UniformUInt:
+    optional:
+        - [value, uint]
+
+- UniformUIVec2:
+    optional:
+        - [value, uivec2]
+
+- UniformUIVec3:
+    optional:
+        - [value, uivec3]
+
+- UniformUIVec4:
+    optional:
+        - [value, uivec4]
+
 - UniformMat4:
     optional:
         - [value, mat4]

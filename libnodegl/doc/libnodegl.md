@@ -813,6 +813,76 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
 
 
+## UniformIVec2
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`value` |  | ✓ | [`ivec2`](#parameter-types) | value exposed to the shader | (`0`,`0`)
+
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
+
+## UniformIVec3
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`value` |  | ✓ | [`ivec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
+
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
+
+## UniformIVec4
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`value` |  | ✓ | [`ivec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
+
+## UniformUInt
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`value` |  | ✓ | [`uint`](#parameter-types) | value exposed to the shader | `0`
+
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
+
+## UniformUIVec2
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`value` |  | ✓ | [`uivec2`](#parameter-types) | value exposed to the shader | (`0`,`0`)
+
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
+
+## UniformUIVec3
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`value` |  | ✓ | [`uivec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
+
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
+
+## UniformUIVec4
+
+Parameter | Ctor. | Live-chg. | Type | Description | Default
+--------- | :---: | :-------: | ---- | ----------- | :-----:
+`value` |  | ✓ | [`uivec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+
+
+**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+
+
 ## UniformMat4
 
 Parameter | Ctor. | Live-chg. | Type | Description | Default
