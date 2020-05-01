@@ -160,9 +160,9 @@ static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \
     return consumed;                                                        \
 }
 
-DECLARE_PARSE_LIST_FUNC(float,  parse_float)
-DECLARE_PARSE_LIST_FUNC(double, parse_double)
-DECLARE_PARSE_LIST_FUNC(int,    parse_hexint)
+DECLARE_PARSE_LIST_FUNC(float,    parse_float)
+DECLARE_PARSE_LIST_FUNC(double,   parse_double)
+DECLARE_PARSE_LIST_FUNC(int,      parse_hexint)
 DECLARE_PARSE_LIST_FUNC(int,      parse_int)
 DECLARE_PARSE_LIST_FUNC(unsigned, parse_uint)
 
@@ -244,11 +244,11 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
     int len = -1;
 
     switch (par->type) {
-        CASE_LITERAL(PARAM_TYPE_INT, int,     parse_int)
+        CASE_LITERAL(PARAM_TYPE_INT,  int,      parse_int)
         CASE_LITERAL(PARAM_TYPE_UINT, unsigned, parse_uint)
-        CASE_LITERAL(PARAM_TYPE_BOOL,int,     parse_bool)
-        CASE_LITERAL(PARAM_TYPE_I64, int64_t, parse_i64)
-        CASE_LITERAL(PARAM_TYPE_DBL, double,  parse_double)
+        CASE_LITERAL(PARAM_TYPE_BOOL, int,      parse_bool)
+        CASE_LITERAL(PARAM_TYPE_I64,  int64_t,  parse_i64)
+        CASE_LITERAL(PARAM_TYPE_DBL,  double,   parse_double)
 
         case PARAM_TYPE_RATIONAL: {
             int r[2] = {0};
