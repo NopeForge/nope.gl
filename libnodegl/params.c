@@ -214,19 +214,19 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
 
     switch (par->type) {
         case PARAM_TYPE_DBL: {
-            const double v = *(double *)srcp;
+            const double v = *(const double *)srcp;
             ngli_bstr_printf(b, "%g", v);
             break;
         }
         case PARAM_TYPE_SELECT: {
-            const int v = *(int *)srcp;
+            const int v = *(const int *)srcp;
             const char *s = ngli_params_get_select_str(par->choices->consts, v);
             ngli_assert(s);
             ngli_bstr_print(b, s);
             break;
         }
         case PARAM_TYPE_FLAGS: {
-            const int v = *(int *)srcp;
+            const int v = *(const int *)srcp;
             char *s = ngli_params_get_flags_str(par->choices->consts, v);
             if (!s)
                 break;
@@ -236,7 +236,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             break;
         }
         case PARAM_TYPE_BOOL: {
-            const int v = *(int *)srcp;
+            const int v = *(const int *)srcp;
             if (v == -1)
                 ngli_bstr_print(b, "unset");
             else
@@ -244,12 +244,12 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             break;
         }
         case PARAM_TYPE_INT: {
-            const int v = *(int *)srcp;
+            const int v = *(const int *)srcp;
             ngli_bstr_printf(b, "%d", v);
             break;
         }
         case PARAM_TYPE_I64: {
-            const int64_t v = *(int64_t *)srcp;
+            const int64_t v = *(const int64_t *)srcp;
             ngli_bstr_printf(b, "%" PRId64, v);
             break;
         }
@@ -293,14 +293,14 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
         case PARAM_TYPE_DBLLIST: {
             const uint8_t *elems_p = srcp;
             const uint8_t *nb_elems_p = srcp + sizeof(double *);
-            const double *elems = *(double **)elems_p;
-            const int nb_elems = *(int *)nb_elems_p;
+            const double *elems = *(const double **)elems_p;
+            const int nb_elems = *(const int *)nb_elems_p;
             for (int i = 0; i < nb_elems; i++)
                 ngli_bstr_printf(b, "%s%g", i ? "," : "", elems[i]);
             break;
         }
         case PARAM_TYPE_RATIONAL: {
-            const int *r = (int *)srcp;
+            const int *r = (const int *)srcp;
             ngli_bstr_printf(b, "%d/%d", r[0], r[1]);
             break;
         }
