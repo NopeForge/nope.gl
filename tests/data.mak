@@ -22,6 +22,13 @@
 DATA_TEST_UNIFORM_NAMES =           \
     single_float                    \
     single_int                      \
+    single_ivec2                    \
+    single_ivec3                    \
+    single_ivec4                    \
+    single_uint                     \
+    single_uvec2                    \
+    single_uvec3                    \
+    single_uvec4                    \
     single_mat4                     \
     single_quat_mat4                \
     single_quat_vec4                \
