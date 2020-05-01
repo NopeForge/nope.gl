@@ -42,6 +42,20 @@ case param_type: {                                      \
     break;                                              \
 }
 
+#define CASE_VEC(parse_func, vals, expected_nb_vals) do {       \
+    int nb_vals;                                                \
+    len = parse_func(str, &vals, &nb_vals);                     \
+    if (len < 0 || nb_vals != expected_nb_vals) {               \
+        ngli_free(vals);                                        \
+        return NGL_ERROR_INVALID_DATA;                          \
+    }                                                           \
+    int ret = ngli_params_vset(base_ptr, par, vals);            \
+    ngli_free(vals);                                            \
+    if (ret < 0)                                                \
+        return ret;                                             \
+} while (0)
+
+
 static int parse_int(const char *s, int *valp)
 {
     char *endptr = NULL;
@@ -309,33 +323,14 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
         case PARAM_TYPE_VEC2:
         case PARAM_TYPE_VEC3:
         case PARAM_TYPE_VEC4: {
-            const int n = par->type - PARAM_TYPE_VEC2 + 2;
             float *v = NULL;
-            int nb_flts;
-            len = parse_floats(str, &v, &nb_flts);
-            if (len < 0 || nb_flts != n) {
-                ngli_free(v);
-                return NGL_ERROR_INVALID_DATA;
-            }
-            int ret = ngli_params_vset(base_ptr, par, v);
-            ngli_free(v);
-            if (ret < 0)
-                return ret;
+            CASE_VEC(parse_floats, v, par->type - PARAM_TYPE_VEC2 + 2);
             break;
         }
 
         case PARAM_TYPE_MAT4: {
             float *m = NULL;
-            int nb_flts;
-            len = parse_floats(str, &m, &nb_flts);
-            if (len < 0 || nb_flts != 16) {
-                ngli_free(m);
-                return NGL_ERROR_INVALID_DATA;
-            }
-            int ret = ngli_params_vset(base_ptr, par, m);
-            ngli_free(m);
-            if (ret < 0)
-                return ret;
+            CASE_VEC(parse_floats, m, 16);
             break;
         }
 
