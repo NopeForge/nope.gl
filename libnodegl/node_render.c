@@ -82,6 +82,13 @@ struct render_priv {
                                           NGL_NODE_ANIMATEDVEC4,    \
                                           NGL_NODE_ANIMATEDQUAT,    \
                                           NGL_NODE_STREAMEDINT,     \
+                                          NGL_NODE_STREAMEDIVEC2,   \
+                                          NGL_NODE_STREAMEDIVEC3,   \
+                                          NGL_NODE_STREAMEDIVEC4,   \
+                                          NGL_NODE_STREAMEDUINT,    \
+                                          NGL_NODE_STREAMEDUIVEC2,  \
+                                          NGL_NODE_STREAMEDUIVEC3,  \
+                                          NGL_NODE_STREAMEDUIVEC4,  \
                                           NGL_NODE_STREAMEDFLOAT,   \
                                           NGL_NODE_STREAMEDVEC2,    \
                                           NGL_NODE_STREAMEDVEC3,    \
