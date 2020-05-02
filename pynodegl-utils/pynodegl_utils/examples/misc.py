@@ -490,7 +490,7 @@ def histogram(cfg):
         ngl.BufferUInt(256, label='r'),
         ngl.BufferUInt(256, label='g'),
         ngl.BufferUInt(256, label='b'),
-        ngl.UniformInt(label='maximum'),
+        ngl.UniformUInt(label='maximum'),
     )
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
