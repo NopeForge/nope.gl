@@ -121,21 +121,21 @@ static void set_uniform_mat4fv(struct glcontext *gl, GLint location, int count, 
 }
 
 static const set_uniform_func set_uniform_func_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_BOOL]  = set_uniform_1i,
-    [NGLI_TYPE_INT]   = set_uniform_1i,
-    [NGLI_TYPE_IVEC2] = set_uniform_2iv,
-    [NGLI_TYPE_IVEC3] = set_uniform_3iv,
-    [NGLI_TYPE_IVEC4] = set_uniform_4iv,
+    [NGLI_TYPE_BOOL]   = set_uniform_1i,
+    [NGLI_TYPE_INT]    = set_uniform_1i,
+    [NGLI_TYPE_IVEC2]  = set_uniform_2iv,
+    [NGLI_TYPE_IVEC3]  = set_uniform_3iv,
+    [NGLI_TYPE_IVEC4]  = set_uniform_4iv,
     [NGLI_TYPE_UINT]   = set_uniform_1ui,
     [NGLI_TYPE_UIVEC2] = set_uniform_2uiv,
     [NGLI_TYPE_UIVEC3] = set_uniform_3uiv,
     [NGLI_TYPE_UIVEC4] = set_uniform_4uiv,
-    [NGLI_TYPE_FLOAT] = set_uniform_1f,
-    [NGLI_TYPE_VEC2]  = set_uniform_2fv,
-    [NGLI_TYPE_VEC3]  = set_uniform_3fv,
-    [NGLI_TYPE_VEC4]  = set_uniform_4fv,
-    [NGLI_TYPE_MAT3]  = set_uniform_mat3fv,
-    [NGLI_TYPE_MAT4]  = set_uniform_mat4fv,
+    [NGLI_TYPE_FLOAT]  = set_uniform_1f,
+    [NGLI_TYPE_VEC2]   = set_uniform_2fv,
+    [NGLI_TYPE_VEC3]   = set_uniform_3fv,
+    [NGLI_TYPE_VEC4]   = set_uniform_4fv,
+    [NGLI_TYPE_MAT3]   = set_uniform_mat3fv,
+    [NGLI_TYPE_MAT4]   = set_uniform_mat4fv,
 };
 
 static int build_uniform_descs(struct pipeline *s, const struct pipeline_params *params)
