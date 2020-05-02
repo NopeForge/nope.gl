@@ -20,7 +20,7 @@ def queued_medias(cfg, overlap_time=1., dim=3):
 
         t = ngl.Texture2D(data_src=m)
 
-        render = ngl.Render(q, p)
+        render = ngl.Render(q)
         render.set_label('render #%d' % video_id)
         render.update_textures(tex0=t)
         render = ag.place_node(render, (col, pos))
