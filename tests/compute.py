@@ -285,7 +285,7 @@ def compute_histogram(cfg, show_dbg_points=False):
         ngl.BufferUInt(hsize),
         ngl.BufferUInt(hsize),
         ngl.BufferUInt(hsize),
-        ngl.UniformVec3(),
+        ngl.UniformUIVec3(),
     )
 
     shader_version = '310 es' if cfg.backend == 'gles' else '430'
