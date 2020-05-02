@@ -111,11 +111,26 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
             return -1;
         }
 
-        nsgl->view = (NSView *)window;
-        if (!nsgl->view) {
-            LOG(ERROR, "could not retrieve NS view");
+        NSObject *object = (NSObject *)window;
+        if (!object) {
+            LOG(ERROR, "no window specified");
             return -1;
         }
+
+        if ([object isKindOfClass:[NSView class]]) {
+            nsgl->view = (NSView *)object;
+        } else if ([object isKindOfClass:[NSWindow class]]) {
+            NSWindow *window = (NSWindow *)object;
+            nsgl->view = [window contentView];
+            if (!nsgl->view) {
+                LOG(ERROR, "could not retrieve a NSView from the NSWindow");
+                return -1;
+            }
+        } else {
+            LOG(ERROR, "window must be either a NSView or a NSWindow");
+            return -1;
+        }
+
         [nsgl->handle setView:nsgl->view];
 
         CVReturn ret = CVDisplayLinkCreateWithActiveCGDisplays(&nsgl->display_link);
