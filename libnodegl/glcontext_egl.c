@@ -249,7 +249,8 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     const EGLint type = ctx->backend == NGL_BACKEND_OPENGL ? EGL_OPENGL_BIT : EGL_OPENGL_ES2_BIT;
     EGLint surface_type = EGL_NONE;
-    if (ctx->platform == NGL_PLATFORM_XLIB) {
+    if (ctx->platform == NGL_PLATFORM_XLIB ||
+        ctx->platform == NGL_PLATFORM_ANDROID) {
         surface_type = ctx->offscreen ? EGL_PBUFFER_BIT : EGL_WINDOW_BIT;
     } else if (ctx->platform == NGL_PLATFORM_WAYLAND) {
         if (!egl->has_surfaceless_context_ext) {
@@ -257,6 +258,8 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             return -1;
         }
         surface_type = EGL_WINDOW_BIT;
+    } else {
+        ngli_assert(0);
     }
 
     const EGLint config_attribs[] = {
