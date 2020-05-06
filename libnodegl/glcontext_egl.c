@@ -323,7 +323,8 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     }
 
     if (ctx->offscreen) {
-        if (ctx->platform == NGL_PLATFORM_XLIB) {
+        if (ctx->platform == NGL_PLATFORM_XLIB ||
+            ctx->platform == NGL_PLATFORM_ANDROID) {
             const EGLint attribs[] = {
                 EGL_WIDTH, 1,
                 EGL_HEIGHT, 1,
@@ -339,7 +340,8 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
             egl->surface = EGL_NO_SURFACE;
         }
     } else {
-        if (ctx->platform == NGL_PLATFORM_XLIB) {
+        if (ctx->platform == NGL_PLATFORM_XLIB ||
+            ctx->platform == NGL_PLATFORM_ANDROID) {
             egl->native_window = (EGLNativeWindowType)window;
         } else if (ctx->platform == NGL_PLATFORM_WAYLAND) {
 #if defined(HAVE_WAYLAND)
