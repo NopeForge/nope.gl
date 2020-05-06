@@ -51,7 +51,7 @@ class HooksCaller:
         if not hook:
             return None
         cmd = [hook] + list(args)
-        return subprocess.check_output(cmd).rstrip()
+        return subprocess.check_output(cmd, text=True).rstrip()
 
     def get_session_info(self, session_id):
         ret = {}
@@ -102,9 +102,9 @@ class HooksCaller:
     def _hash_filename(filename):
         statinfo = os.stat(filename)
         sha256 = hashlib.sha256()
-        sha256.update(filename)
-        sha256.update(str(statinfo.st_size))
-        sha256.update(str(statinfo.st_mtime))
+        sha256.update(filename.encode())
+        sha256.update(str(statinfo.st_size).encode())
+        sha256.update(str(statinfo.st_mtime).encode())
         digest = sha256.hexdigest()
         _, ext = op.splitext(filename)
         return op.join(digest + ext)
@@ -139,7 +139,7 @@ class _HooksThread(QtCore.QThread):
         s = ''
         for c in filename:
             cval = ord(c)
-            if cval >= ord('!') and cval <= '~' and cval != '%':
+            if cval >= ord('!') and cval <= ord('~') and cval != ord('%'):
                 s += c
             else:
                 s += '%%%02x' % (cval & 0xff)
@@ -160,7 +160,7 @@ class _HooksThread(QtCore.QThread):
             # need to sync. Similarly, the remote assets directory might be
             # different from the one in local, so we need to fix up the scene
             # appropriately.
-            serialized_scene = cfg['scene']
+            serialized_scene = cfg['scene'].decode('ascii')
             filelist = [m.filename for m in cfg['medias']] + cfg['files']
             for i, localfile in enumerate(filelist, 1):
                 self.uploadingFile.emit(session_id, i, len(filelist), localfile)
