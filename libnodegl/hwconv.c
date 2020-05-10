@@ -147,7 +147,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     }
 
     struct glcontext *gl = ctx->glcontext;
-    const struct texture *texture = dst_image->planes[0];
+    struct texture *texture = dst_image->planes[0];
 
     struct rendertarget_params rt_params = {
         .width = dst_image->params.width,

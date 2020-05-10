@@ -241,8 +241,8 @@ static int rtt_prefetch(struct ngl_node *node)
 
     int depth_format = NGLI_FORMAT_UNDEFINED;
     if (s->depth_texture) {
-        const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
-        const struct texture *depth_texture = &depth_texture_priv->texture;
+        struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
+        struct texture *depth_texture = &depth_texture_priv->texture;
         rt_params.depth_stencil = depth_texture;
 
         const struct texture_params *depth_texture_params = &depth_texture->params;
