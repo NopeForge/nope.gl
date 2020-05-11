@@ -757,12 +757,6 @@ static inline void ngli_glTexSubImage3D(const struct glcontext *gl, GLenum targe
     check_error_code(gl, "glTexSubImage3D");
 }
 
-static inline void ngli_glUniform1f(const struct glcontext *gl, GLint location, GLfloat v0)
-{
-    gl->funcs.Uniform1f(location, v0);
-    check_error_code(gl, "glUniform1f");
-}
-
 static inline void ngli_glUniform1fv(const struct glcontext *gl, GLint location, GLsizei count, const GLfloat * value)
 {
     gl->funcs.Uniform1fv(location, count, value);
@@ -787,22 +781,10 @@ static inline void ngli_glUniform1uiv(const struct glcontext *gl, GLint location
     check_error_code(gl, "glUniform1uiv");
 }
 
-static inline void ngli_glUniform2f(const struct glcontext *gl, GLint location, GLfloat v0, GLfloat v1)
-{
-    gl->funcs.Uniform2f(location, v0, v1);
-    check_error_code(gl, "glUniform2f");
-}
-
 static inline void ngli_glUniform2fv(const struct glcontext *gl, GLint location, GLsizei count, const GLfloat * value)
 {
     gl->funcs.Uniform2fv(location, count, value);
     check_error_code(gl, "glUniform2fv");
-}
-
-static inline void ngli_glUniform2i(const struct glcontext *gl, GLint location, GLint v0, GLint v1)
-{
-    gl->funcs.Uniform2i(location, v0, v1);
-    check_error_code(gl, "glUniform2i");
 }
 
 static inline void ngli_glUniform2iv(const struct glcontext *gl, GLint location, GLsizei count, const GLint * value)
@@ -817,22 +799,10 @@ static inline void ngli_glUniform2uiv(const struct glcontext *gl, GLint location
     check_error_code(gl, "glUniform2uiv");
 }
 
-static inline void ngli_glUniform3f(const struct glcontext *gl, GLint location, GLfloat v0, GLfloat v1, GLfloat v2)
-{
-    gl->funcs.Uniform3f(location, v0, v1, v2);
-    check_error_code(gl, "glUniform3f");
-}
-
 static inline void ngli_glUniform3fv(const struct glcontext *gl, GLint location, GLsizei count, const GLfloat * value)
 {
     gl->funcs.Uniform3fv(location, count, value);
     check_error_code(gl, "glUniform3fv");
-}
-
-static inline void ngli_glUniform3i(const struct glcontext *gl, GLint location, GLint v0, GLint v1, GLint v2)
-{
-    gl->funcs.Uniform3i(location, v0, v1, v2);
-    check_error_code(gl, "glUniform3i");
 }
 
 static inline void ngli_glUniform3iv(const struct glcontext *gl, GLint location, GLsizei count, const GLint * value)
@@ -847,22 +817,10 @@ static inline void ngli_glUniform3uiv(const struct glcontext *gl, GLint location
     check_error_code(gl, "glUniform3uiv");
 }
 
-static inline void ngli_glUniform4f(const struct glcontext *gl, GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
-{
-    gl->funcs.Uniform4f(location, v0, v1, v2, v3);
-    check_error_code(gl, "glUniform4f");
-}
-
 static inline void ngli_glUniform4fv(const struct glcontext *gl, GLint location, GLsizei count, const GLfloat * value)
 {
     gl->funcs.Uniform4fv(location, count, value);
     check_error_code(gl, "glUniform4fv");
-}
-
-static inline void ngli_glUniform4i(const struct glcontext *gl, GLint location, GLint v0, GLint v1, GLint v2, GLint v3)
-{
-    gl->funcs.Uniform4i(location, v0, v1, v2, v3);
-    check_error_code(gl, "glUniform4i");
 }
 
 static inline void ngli_glUniform4iv(const struct glcontext *gl, GLint location, GLsizei count, const GLint * value)
