@@ -200,7 +200,7 @@ static int build_texture_descs(struct pipeline *s, const struct pipeline_params 
         const struct pipeline_texture *texture = &params->textures[i];
 
         if (texture->type == NGLI_TYPE_IMAGE_2D) {
-            struct ngl_ctx *ctx =s->ctx;
+            struct ngl_ctx *ctx = s->ctx;
             struct glcontext *gl = ctx->glcontext;
 
             int max_nb_textures = NGLI_MIN(gl->max_texture_image_units, sizeof(s->used_texture_units) * 8);
