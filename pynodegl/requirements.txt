@@ -1,4 +1,4 @@
 # FIXME: this is temporary until setuptools/pip is fixed. While setup_requires
 # should be enough, it actually isn't due to Extension() not recognizing the
 # .pyx extension before it honors the dependencies.
-cython
+cython>=0.29.6

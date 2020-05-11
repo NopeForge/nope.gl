@@ -417,7 +417,7 @@ setup(
     version=_LIB_CFG.version,
     setup_requires=[
         'setuptools>=18.0',
-        'cython',
+        'cython>=0.29.6',
         'pyyaml',
     ],
     cmdclass={
