@@ -55,6 +55,21 @@ static void set_uniform_1i(struct glcontext *gl, GLint location, int count, cons
     ngli_glUniform1iv(gl, location, count, data);
 }
 
+static void set_uniform_2iv(struct glcontext *gl, GLint location, int count, const void *data)
+{
+    ngli_glUniform2iv(gl, location, count, data);
+}
+
+static void set_uniform_3iv(struct glcontext *gl, GLint location, int count, const void *data)
+{
+    ngli_glUniform3iv(gl, location, count, data);
+}
+
+static void set_uniform_4iv(struct glcontext *gl, GLint location, int count, const void *data)
+{
+    ngli_glUniform4iv(gl, location, count, data);
+}
+
 static void set_uniform_1f(struct glcontext *gl, GLint location, int count, const void *data)
 {
     ngli_glUniform1fv(gl, location, count, data);
@@ -88,6 +103,9 @@ static void set_uniform_mat4fv(struct glcontext *gl, GLint location, int count, 
 static const set_uniform_func set_uniform_func_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_BOOL]  = set_uniform_1i,
     [NGLI_TYPE_INT]   = set_uniform_1i,
+    [NGLI_TYPE_IVEC2] = set_uniform_2iv,
+    [NGLI_TYPE_IVEC3] = set_uniform_3iv,
+    [NGLI_TYPE_IVEC4] = set_uniform_4iv,
     [NGLI_TYPE_FLOAT] = set_uniform_1f,
     [NGLI_TYPE_VEC2]  = set_uniform_2fv,
     [NGLI_TYPE_VEC3]  = set_uniform_3fv,
