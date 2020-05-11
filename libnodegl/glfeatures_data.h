@@ -241,5 +241,15 @@ static const struct glfeature {
         .flag           = NGLI_FEATURE_ROW_LENGTH,
         .version        = 300,
         .es_version     = 300,
+    }, {
+        .name           = "uint_uniforms",
+        .flag           = NGLI_FEATURE_UINT_UNIFORMS,
+        .version        = 300,
+        .es_version     = 300,
+        .funcs_offsets  = (const size_t[]){OFFSET(Uniform1uiv),
+                                           OFFSET(Uniform2uiv),
+                                           OFFSET(Uniform3uiv),
+                                           OFFSET(Uniform4uiv),
+                                           -1}
     }
 };
