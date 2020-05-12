@@ -189,11 +189,11 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
 
-    int ret = s->backend->pre_draw(s, t);
+    int ret = cmd_prepare_draw(s, arg);
     if (ret < 0)
         goto end;
 
-    ret = cmd_prepare_draw(s, arg);
+    ret = s->backend->pre_draw(s, t);
     if (ret < 0)
         goto end;
 
