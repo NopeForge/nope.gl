@@ -109,7 +109,11 @@ clean_py:
 	$(RM) -r pynodegl-utils/pynodegl_utils.egg-info
 	$(RM) -r pynodegl-utils/.eggs
 
-clean: clean_py
+clean_gcx:
+	$(RM) libnodegl/*.gcda libnodegl/*.gcno
+	$(RM) ngl-tools/*.gcda ngl-tools/*.gcno
+
+clean: clean_gcx clean_py
 	PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig $(MAKE) -C libnodegl clean
 	PKG_CONFIG_PATH=$(PREFIX)/lib/pkgconfig $(MAKE) -C ngl-tools clean
 
@@ -126,5 +130,5 @@ coverage:
 .PHONY: nodegl-install
 .PHONY: sxplayer-install
 .PHONY: tests
-.PHONY: clean clean_py
+.PHONY: clean clean_gcx clean_py
 .PHONY: coverage

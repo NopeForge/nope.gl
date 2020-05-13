@@ -346,7 +346,6 @@ clean:
 	$(RM) $(LD_SYM_FILE)
 	$(RM) $(TESTPROGS)
 	$(RM) $(addsuffix .o,$(TESTPROGS))
-	$(RM) *.gcda *.gcno
 
 install: $(LIB_NAME) $(LIB_PCNAME)
 	$(INSTALL) -d $(DESTDIR)$(PREFIX)/lib
