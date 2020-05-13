@@ -1,0 +1,9 @@
+codecov:
+  require_ci_to_pass: yes
+  max_report_age: 168  # Coverage reports expire after one week.
+
+# Keep only relevant files, see doc: https://docs.codecov.io/docs/fixing-paths
+codecov:
+  disable_default_path_fixes: yes
+fixes:
+  - "libnodegl::"
