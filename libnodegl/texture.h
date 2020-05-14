@@ -65,7 +65,7 @@ NGLI_STATIC_ASSERT(texture_access, (NGLI_ACCESS_READ_BIT | NGLI_ACCESS_WRITE_BIT
 GLenum ngli_texture_get_gl_access(int access);
 
 #define NGLI_TEXTURE_PARAM_DEFAULTS {          \
-    .dimensions = 2,                           \
+    .type = NGLI_TEXTURE_TYPE_2D,              \
     .format = NGLI_FORMAT_UNDEFINED,           \
     .min_filter = NGLI_FILTER_NEAREST,         \
     .mag_filter = NGLI_FILTER_NEAREST,         \
@@ -78,8 +78,14 @@ GLenum ngli_texture_get_gl_access(int access);
 
 #define NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY (1 << 0)
 
+enum texture_type {
+    NGLI_TEXTURE_TYPE_2D,
+    NGLI_TEXTURE_TYPE_3D,
+    NGLI_TEXTURE_TYPE_CUBE,
+};
+
 struct texture_params {
-    int dimensions;
+    enum texture_type type;
     int format;
     int width;
     int height;
@@ -97,7 +103,6 @@ struct texture_params {
     int external_storage;
     int external_oes;
     int rectangle;
-    int cubemap;
 };
 
 struct texture {

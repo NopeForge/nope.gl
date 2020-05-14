@@ -270,18 +270,17 @@ static const struct node_param texturecube_params[] = {
     {NULL}
 };
 
-static int texture_prefetch(struct ngl_node *node, int dimensions, int cubemap)
+static int texture_prefetch(struct ngl_node *node, enum texture_type type)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct glcontext *gl = ctx->glcontext;
     struct texture_priv *s = node->priv_data;
     struct texture_params *params = &s->params;
 
-    params->dimensions = dimensions;
-    if (cubemap) {
+    params->type = type;
+    if (type == NGLI_TEXTURE_TYPE_CUBE) {
         params->height = params->width;
         params->depth = 6;
-        params->cubemap = 1;
     }
 
     if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE)
@@ -327,7 +326,7 @@ static int texture_prefetch(struct ngl_node *node, int dimensions, int cubemap)
         case NGL_NODE_BUFFERVEC4: {
             struct buffer_priv *buffer = s->data_src->priv_data;
 
-            if (params->dimensions == 2) {
+            if (params->type == NGLI_TEXTURE_TYPE_2D) {
                 if (buffer->count != params->width * params->height) {
                     LOG(ERROR, "dimensions (%dx%d) do not match buffer count (%d),"
                         " assuming %dx1", params->width, params->height,
@@ -335,7 +334,7 @@ static int texture_prefetch(struct ngl_node *node, int dimensions, int cubemap)
                     params->width = buffer->count;
                     params->height = 1;
                 }
-            } else if (params->dimensions == 3) {
+            } else if (params->type == NGLI_TEXTURE_TYPE_3D) {
                 if (buffer->count != params->width * params->height * params->depth) {
                     LOG(ERROR, "dimensions (%dx%dx%d) do not match buffer count (%d),"
                         " assuming %dx1x1", params->width, params->height, params->depth,
@@ -373,15 +372,15 @@ static int texture_prefetch(struct ngl_node *node, int dimensions, int cubemap)
     return 0;
 }
 
-#define TEXTURE_PREFETCH(name, dim, cubemap)                \
+#define TEXTURE_PREFETCH(name, type)                        \
 static int texture##name##_prefetch(struct ngl_node *node)  \
 {                                                           \
-    return texture_prefetch(node, dim, cubemap);            \
+    return texture_prefetch(node, type);                    \
 }
 
-TEXTURE_PREFETCH(2d,   2, 0)
-TEXTURE_PREFETCH(3d,   3, 0)
-TEXTURE_PREFETCH(cube, 3, 1)
+TEXTURE_PREFETCH(2d,   NGLI_TEXTURE_TYPE_2D)
+TEXTURE_PREFETCH(3d,   NGLI_TEXTURE_TYPE_3D)
+TEXTURE_PREFETCH(cube, NGLI_TEXTURE_TYPE_CUBE)
 
 static void handle_media_frame(struct ngl_node *node)
 {

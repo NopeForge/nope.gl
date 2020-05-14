@@ -142,7 +142,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         const struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         const struct texture *texture = &texture_priv->texture;
         const struct texture_params *params = &texture->params;
-        const int n = params->cubemap ? 6 : 1;
+        const int n = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1;
         for (int i = 0; i < n; i++) {
             struct texture *ms_texture = ngli_darray_push(&s->rt_ms_colors, NULL);
             if (!ms_texture)

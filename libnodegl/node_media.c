@@ -146,7 +146,7 @@ static int media_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
 
     struct texture_params params = {
-        .dimensions = 2,
+        .type = NGLI_TEXTURE_TYPE_2D,
         .format = NGLI_FORMAT_UNDEFINED,
         .min_filter = NGLI_FILTER_NEAREST,
         .mag_filter = NGLI_FILTER_NEAREST,

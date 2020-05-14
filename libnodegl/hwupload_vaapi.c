@@ -84,7 +84,7 @@ static int vaapi_init(struct ngl_node *node, struct sxplayer_frame *frame)
 
         struct texture *plane = &vaapi->planes[i];
         const struct texture_params plane_params = {
-            .dimensions = 2,
+            .type = NGLI_TEXTURE_TYPE_2D,
             .format = format,
             .min_filter = params->min_filter,
             .mag_filter = params->mag_filter,

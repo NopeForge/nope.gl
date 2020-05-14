@@ -268,23 +268,20 @@ static int texture_init_fields(struct texture *s)
     /* TODO: add multisample support for textures */
     ngli_assert(!params->samples);
 
-    if (params->dimensions == 2)
+    if (params->type == NGLI_TEXTURE_TYPE_2D)
         s->target = GL_TEXTURE_2D;
-    else if (params->dimensions == 3)
+    else if (params->type == NGLI_TEXTURE_TYPE_3D)
         s->target = GL_TEXTURE_3D;
+    else if (params->type == NGLI_TEXTURE_TYPE_CUBE)
+        s->target = GL_TEXTURE_CUBE_MAP;
     else
         ngli_assert(0);
 
-    if (params->cubemap) {
-        ngli_assert(params->dimensions == 3);
-        s->target = GL_TEXTURE_CUBE_MAP;
-    }
-
     if (params->external_oes) {
-        ngli_assert(params->dimensions == 2);
+        ngli_assert(params->type == NGLI_TEXTURE_TYPE_2D);
         s->target = GL_TEXTURE_EXTERNAL_OES;
     } else if (params->rectangle) {
-        ngli_assert(params->dimensions == 2);
+        ngli_assert(params->type == NGLI_TEXTURE_TYPE_2D);
         s->target = GL_TEXTURE_RECTANGLE;
     }
 
@@ -351,8 +348,8 @@ int ngli_texture_init(struct texture *s,
 
         if (!s->external_storage) {
             if (!params->width || !params->height ||
-                (params->dimensions == 3 && !params->depth)) {
-                LOG(ERROR, "invalid texture dimensions %dx%dx%d",
+                (params->type == NGLI_TEXTURE_TYPE_3D && !params->depth)) {
+                LOG(ERROR, "invalid texture type %dx%dx%d",
                     params->width, params->height, params->depth);
                 ngli_texture_reset(s);
                 return NGL_ERROR_INVALID_ARG;
