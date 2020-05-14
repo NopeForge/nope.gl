@@ -278,10 +278,8 @@ static int texture_prefetch(struct ngl_node *node, enum texture_type type)
     struct texture_params *params = &s->params;
 
     params->type = type;
-    if (type == NGLI_TEXTURE_TYPE_CUBE) {
+    if (type == NGLI_TEXTURE_TYPE_CUBE)
         params->height = params->width;
-        params->depth = 6;
-    }
 
     if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE)
         params->immutable = 1;
