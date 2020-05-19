@@ -355,7 +355,7 @@ int ngli_android_surface_render_buffer(struct android_surface *surface, AVMediaC
     if (surface->listener && !surface->on_frame_available) {
         struct timespec ts;
         clock_gettime(CLOCK_REALTIME, &ts);
-        ts.tv_nsec += 30000000;
+        ts.tv_sec += 1;
         pthread_cond_timedwait(&surface->cond, &surface->lock, &ts);
     }
 
