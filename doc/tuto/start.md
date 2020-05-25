@@ -47,12 +47,48 @@ Edit a script such as `~/mydemo.py` and add the following:
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
+
+_VERTEX = '''
+#version 100
+
+precision highp float;
+attribute vec4 ngl_position;
+attribute vec2 ngl_uvcoord;
+uniform mat4 ngl_modelview_matrix;
+uniform mat4 ngl_projection_matrix;
+
+uniform mat4 tex0_coord_matrix;
+varying vec2 var_tex0_coord;
+
+void main()
+{
+    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;
+    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;
+}
+'''
+
+
+_FRAGMENT = '''
+#version 100
+
+precision highp float;
+uniform sampler2D tex0_sampler;
+varying vec2 var_tex0_coord;
+
+void main()
+{
+    gl_FragColor = texture2D(tex0_sampler, var_tex0_coord);
+}
+'''
+
+
 @scene()
 def test_demo(cfg):
     geometry = ngl.Quad()
     media = ngl.Media(cfg.medias[0].filename)
     texture = ngl.Texture2D(data_src=media)
-    render = ngl.Render(geometry)
+    program = ngl.Program(vertex=_VERTEX, fragment=_FRAGMENT)
+    render = ngl.Render(geometry, program)
     render.update_textures(tex0=texture)
     return render
 ```
@@ -68,7 +104,7 @@ To formulate what we observe here, we'll say the following: the `Render` is the
 node orchestrating the render of the `Texture2D` (identified by "*tex0*") in the
 `Quad` geometry, using the `Media` as data source for filling the texture.
 
-### Pimp my demo with a GPU program
+### Pimp my demo
 
 **Note**: writing GLSL shaders is out of the scope of this tutorial, so we will
 assume you are comfortable with the basis. If not, you may want to look at [the
@@ -78,61 +114,9 @@ You may want to refer to the [vertex and fragment shader
 parameters][expl-shaders] documetation to know which parameters are exposed by
 `node.gl`.
 
-We are now going to pimp a little our scene by adding a program shader. No need
-to close `ngl-viewer` as it is supporting live code editing. The scene will be
-reconstructed after every change in your sources.
-
-If no program is specified to  `Render`, it will use a default one which looks
-like this one (that's the code currently being used to render the texture into
-the geometry):
-
-```glsl
-#version 100
-
-precision highp float;
-uniform sampler2D tex0_sampler;
-varying vec2 var_uvcoord;
-varying vec2 var_tex0_coord;
-void main()
-{
-    gl_FragColor = texture2D(tex0_sampler, var_tex0_coord);
-}
-```
-
-Instead of just picking into the texture, we will mix it with some red by
-replacing the `gl_FragColor` assignment with the following:
-
-```glsl
-    vec4 color = vec4(1.0, 0.0, 0.0, 1.0);
-    vec4 video = texture2D(tex0_sampler, var_tex0_coord);
-    gl_FragColor = mix(video, color, 0.5);
-```
-
-Our new GLSL fragment shader can be specified as `fragment` parameter to the
-`Program` node. Making sure the `Render` does use our custom program, our demo
-becomes:
-
-```python
-import os.path as op
-import pynodegl as ngl
-from pynodegl_utils.misc import scene
-
-
-@scene()
-def test_demo(cfg):
-    frag = open(op.join(op.dirname(__file__), 'mydemo.frag')).read()
-    geometry = ngl.Quad()
-    media = ngl.Media(cfg.medias[0].filename)
-    texture = ngl.Texture2D(data_src=media)
-    prog = ngl.Program(fragment=frag)
-    ucolor = ngl.UniformVec4(value=(1,0,0,1))
-    render = ngl.Render(geometry, prog)
-    render.update_textures(tex0=texture)
-    render.update_uniforms(color=ucolor)
-    return render
-```
-
-With `~/mydemo.frag`:
+We are now going to pimp a little our fragment shader. Instead of just picking
+into the texture, we will mix it with some red by replacing the `gl_FragColor`
+assignment with the following:
 
 ```glsl
 #version 100
@@ -232,7 +216,7 @@ And then use this animated float directly on the render:
 ```
 
 Just like `color`, we will transmit it to the shader through uniforms.
-`~/mydemo.frag` ends up being:
+The fragment shader ends up being:
 
 ```glsl
 #version 100
@@ -294,16 +278,52 @@ import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
 
+_VERTEX = '''
+#version 100
+
+precision highp float;
+attribute vec4 ngl_position;
+attribute vec2 ngl_uvcoord;
+uniform mat4 ngl_modelview_matrix;
+uniform mat4 ngl_projection_matrix;
+
+uniform mat4 tex0_coord_matrix;
+varying vec2 var_tex0_coord;
+
+void main()
+{
+    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;
+    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;
+}
+'''
+
+
+_FRAGMENT = '''
+#version 100
+
+precision highp float;
+uniform sampler2D tex0_sampler;
+uniform vec4 color;
+uniform float mixval;
+varying vec2 var_uvcoord;
+varying vec2 var_tex0_coord;
+void main()
+{
+    vec4 video = texture2D(tex0_sampler, var_tex0_coord);
+    gl_FragColor = mix(video, color, mixval);
+}
+'''
+
+
 @scene(color=scene.Color())
 def test_demo(cfg, color=(1,0,0,1)):
     cfg.duration = 3.
 
     # Render branch for my video
-    frag = open(op.join(op.dirname(__file__), 'mydemo.frag')).read()
     geometry = ngl.Quad()
     media = ngl.Media(cfg.medias[0].filename)
     texture = ngl.Texture2D(data_src=media)
-    prog = ngl.Program(fragment=frag)
+    prog = ngl.Program(vertex=_VERTEX, fragment=_FRAGMENT)
     render = ngl.Render(geometry, prog)
     render.update_textures(tex0=texture)
 
@@ -360,7 +380,7 @@ def test_timeranges(cfg):
     circle = ngl.Circle(radius=sz/2., npoints=64)
 
     # Renders for each shape, sharing a common program for coloring
-    prog = ngl.Program(fragment=cfg.get_frag('color'))
+    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     renders = [
             ngl.Render(triangle, prog),
             ngl.Render(square, prog),
