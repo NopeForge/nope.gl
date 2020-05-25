@@ -67,7 +67,6 @@ LIB_OBJS = animation.o              \
            buffer.o                 \
            colorconv.o              \
            darray.o                 \
-           default_shaders.o        \
            deserialize.o            \
            dot.o                    \
            drawutils.o              \

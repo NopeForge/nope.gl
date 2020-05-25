@@ -23,7 +23,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "bstr.h"
-#include "default_shaders.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -43,10 +42,13 @@ static int program_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct program_priv *s = node->priv_data;
-    const char *vertex = s->vertex ? s->vertex : ngli_get_default_shader(NGLI_PROGRAM_SHADER_VERT);
-    const char *fragment = s->fragment ? s->fragment : ngli_get_default_shader(NGLI_PROGRAM_SHADER_FRAG);
 
-    return ngli_pgcache_get_graphics_program(&ctx->pgcache, &s->program, vertex, fragment);
+    if (!s->vertex || !s->fragment) {
+        LOG(ERROR, "both vertex and fragment shaders must be set");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    return ngli_pgcache_get_graphics_program(&ctx->pgcache, &s->program, s->vertex, s->fragment);
 }
 
 static void program_uninit(struct ngl_node *node)

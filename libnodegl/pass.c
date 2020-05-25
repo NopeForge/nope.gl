@@ -28,7 +28,6 @@
 
 #include "block.h"
 #include "buffer.h"
-#include "default_shaders.h"
 #include "glincludes.h"
 #include "hmap.h"
 #include "image.h"
@@ -628,17 +627,8 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
 
     ngli_darray_init(&s->pipeline_descs, sizeof(struct pipeline_desc), 0);
 
-    if (params->program) {
-        struct program_priv *program_priv = params->program->priv_data;
-        s->pipeline_program = &program_priv->program;
-    } else if (params->geometry) {
-        const char *vertex = ngli_get_default_shader(NGLI_PROGRAM_SHADER_VERT);
-        const char *fragment = ngli_get_default_shader(NGLI_PROGRAM_SHADER_FRAG);
-        int ret = ngli_pgcache_get_graphics_program(&ctx->pgcache, &s->default_program, vertex, fragment);
-        if (ret < 0)
-            return ret;
-        s->pipeline_program = &s->default_program;
-    }
+    struct program_priv *program_priv = params->program->priv_data;
+    s->pipeline_program = &program_priv->program;
 
     int ret = params->geometry ? pass_graphics_init(s)
                                : pass_compute_init(s);

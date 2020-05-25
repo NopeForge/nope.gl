@@ -148,6 +148,12 @@ static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct render_priv *s = node->priv_data;
+
+    if (!s->program) {
+        LOG(ERROR, "program must be set");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
     struct pass_params params = {
         .label = node->label,
         .geometry = s->geometry,
