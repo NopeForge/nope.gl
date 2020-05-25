@@ -53,7 +53,8 @@ def _get_time_scene(cfg):
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
     t = ngl.Texture2D(data_src=m)
-    r = ngl.Render(q)
+    p = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    r = ngl.Render(q, p)
     r.update_textures(tex0=t)
 
     time_ranges = [

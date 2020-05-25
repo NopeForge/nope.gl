@@ -78,7 +78,7 @@ _CIRCLES_COLORS = [
 
 def _get_blending_base_objects(cfg):
     circle = ngl.Circle(radius=_CIRCLE_RADIUS, npoints=100)
-    prog = ngl.Program(fragment=cfg.get_frag('color'))
+    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     positions = _equilateral_triangle_coords(_CIRCLE_RADIUS * 2.0 / 3.0)
     colored_circles = ngl.Group(label='colored circles')
     for position, color in zip(positions, _CIRCLES_COLORS):

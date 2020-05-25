@@ -30,12 +30,13 @@ from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.toolbox.colors import COLORS
 
 
-def _render_buffer(w, h):
+def _render_buffer(cfg, w, h):
     n = w * h
     data = array.array('B', [i * 255 // n for i in range(n)])
     buf = ngl.BufferUByte(data=data)
     texture = ngl.Texture2D(width=w, height=h, data_src=buf)
-    render = ngl.Render(ngl.Quad())
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    render = ngl.Render(ngl.Quad(), program)
     render.update_textures(tex0=texture)
     return render
 
@@ -45,7 +46,7 @@ def _render_buffer(w, h):
        h=scene.Range(range=[1, 128]))
 def texture_data(cfg, w=4, h=5):
     cfg.aspect_ratio = (1, 1)
-    return _render_buffer(w, h)
+    return _render_buffer(cfg, w, h)
 
 
 @test_fingerprint()
@@ -63,7 +64,7 @@ def texture_data_animated(cfg, dim=8):
     random_buffer = ngl.AnimatedBufferVec3(keyframes=random_animkf)
     random_tex = ngl.Texture2D(data_src=random_buffer, width=dim, height=dim)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    prog = ngl.Program()
+    prog = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
     render = ngl.Render(quad, prog)
     render.update_textures(tex0=random_tex)
     return render
@@ -74,7 +75,7 @@ def texture_data_animated(cfg, dim=8):
 def texture_data_unaligned_row(cfg, h=32):
     '''Tests upload of buffers with rows that are not 4-byte aligned'''
     cfg.aspect_ratio = (1, 1)
-    return _render_buffer(1, h)
+    return _render_buffer(cfg, 1, h)
 
 
 _RENDER_TO_CUBEMAP_VERT = '''
@@ -198,7 +199,7 @@ def texture_cubemap_from_mrt_msaa(cfg):
 def texture_clear_and_scissor(cfg):
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     color = ngl.UniformVec4(COLORS['white'])
-    program = ngl.Program(fragment=cfg.get_frag('color'))
+    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(quad, program)
     render.update_uniforms(color=color)
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0))
@@ -206,7 +207,8 @@ def texture_clear_and_scissor(cfg):
     texture = ngl.Texture2D(width=64, height=64)
     rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS['orange'])
 
-    render = ngl.Render(quad)
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    render = ngl.Render(quad, program)
     render.update_textures(tex0=texture)
 
     return ngl.Group(children=(graphic_config, rtt, render))
@@ -219,14 +221,15 @@ def texture_scissor(cfg):
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     color = ngl.UniformVec4(COLORS['orange'])
-    program = ngl.Program(fragment=cfg.get_frag('color'))
+    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(quad, program)
     render.update_uniforms(color=color)
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(32, 32, 32, 32))
     texture = ngl.Texture2D(width=64, height=64)
     rtt = ngl.RenderToTexture(graphic_config, [texture])
 
-    render = ngl.Render(quad)
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    render = ngl.Render(quad, program)
     render.update_textures(tex0=texture)
 
     return ngl.Group(children=(rtt, render))

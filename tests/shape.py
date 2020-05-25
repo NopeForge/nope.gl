@@ -32,7 +32,7 @@ from pynodegl_utils.toolbox.grid import autogrid_simple
 
 
 def _render_shape(cfg, geometry, color):
-    prog = ngl.Program(fragment=cfg.get_frag('color'))
+    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(geometry, prog)
     render.update_uniforms(color=ngl.UniformVec4(value=color))
     return render
@@ -107,7 +107,7 @@ def _shape_geometry(cfg, set_normals=False, set_indices=False):
 
     if set_normals:
         geometry.set_normals(normals_buffer)
-        prog = ngl.Program(fragment=cfg.get_frag('colored-normals'))
+        prog = ngl.Program(vertex=cfg.get_vert('colored-normals'), fragment=cfg.get_frag('colored-normals'))
         render = ngl.Render(geometry, prog)
     else:
         render = _render_shape(cfg, geometry, COLORS['magenta'])
@@ -149,7 +149,7 @@ def shape_geometry_normals_indices(cfg):
 def shape_diamond_colormask(cfg):
     color_write_masks = ('r+g+b+a', 'r+g+a', 'g+b+a', 'r+b+a')
     geometry = ngl.Circle(npoints=5)
-    prog = ngl.Program(fragment=cfg.get_frag('color'))
+    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(geometry, prog)
     render.update_uniforms(color=ngl.UniformVec4(value=COLORS['white']))
     scenes = [ngl.GraphicConfig(render, color_write_mask=cwm) for cwm in color_write_masks]
@@ -184,7 +184,8 @@ def _shape_geometry_rtt(cfg, depth=False, samples=0):
         rtt.set_samples(samples)
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad)
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    render = ngl.Render(quad, program)
     render.update_textures(tex0=texture)
 
     return ngl.Group(children=(rtt, render))
@@ -234,7 +235,7 @@ def shape_morphing(cfg, n=6):
 
     geom = ngl.Geometry(vertices)
     geom.set_topology('triangle_fan')
-    p = ngl.Program(fragment=cfg.get_frag('color'))
+    p = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(geom, p)
     render.update_uniforms(color=ngl.UniformVec4(COLORS['cyan']))
     return render
@@ -263,7 +264,7 @@ def _get_cropboard_function(set_indices=False):
         kw = kh = 1. / dim_cut
         qw = qh = 2. / dim_cut
 
-        p = ngl.Program(vertex=cfg.get_vert('cropboard'))
+        p = ngl.Program(vertex=cfg.get_vert('cropboard'), fragment=cfg.get_frag('texture'))
 
         uv_offset_buffer = array.array('f')
         translate_a_buffer = array.array('f')
