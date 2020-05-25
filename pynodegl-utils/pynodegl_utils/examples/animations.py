@@ -188,8 +188,9 @@ def easings(cfg, easing_id='*'):
 
     cfg.duration = 2.
 
+    vert_data = cfg.get_vert('color')
     frag_data = cfg.get_frag('color')
-    color_program = ngl.Program(fragment=frag_data, label='color')
+    color_program = ngl.Program(vertex=vert_data, fragment=frag_data, label='color')
     full_block = _block(2, 2, color_program, color=ngl.UniformVec4(value=(.3, .3, .3, 1)))
 
     group = ngl.Group()

@@ -20,7 +20,8 @@ def queued_medias(cfg, overlap_time=1., dim=3):
 
         t = ngl.Texture2D(data_src=m)
 
-        render = ngl.Render(q)
+        program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+        render = ngl.Render(q, program)
         render.set_label('render #%d' % video_id)
         render.update_textures(tex0=t)
         render = ag.place_node(render, (col, pos))
@@ -56,9 +57,10 @@ def parallel_playback(cfg, fast=True, segment_time=2., constrained_timeranges=Fa
     t1 = ngl.Texture2D(data_src=m1, label='texture #1')
     t2 = ngl.Texture2D(data_src=m2, label='texture #2')
 
-    render1 = ngl.Render(q, label='render #1')
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    render1 = ngl.Render(q, program, label='render #1')
     render1.update_textures(tex0=t1)
-    render2 = ngl.Render(q, label='render #2')
+    render2 = ngl.Render(q, program, label='render #2')
     render2.update_textures(tex0=t2)
 
     text_settings={
@@ -122,9 +124,10 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
     t1 = ngl.Texture2D(data_src=m1, label='texture #1')
     t2 = ngl.Texture2D(data_src=m2, label='texture #2')
 
-    render1 = ngl.Render(q, label='render #1')
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    render1 = ngl.Render(q, program, label='render #1')
     render1.update_textures(tex0=t1)
-    render2 = ngl.Render(q, label='render #2')
+    render2 = ngl.Render(q, program, label='render #2')
     render2.update_textures(tex0=t2)
 
     delta_animkf = [ngl.AnimKeyFrameFloat(transition_start, 1.0),

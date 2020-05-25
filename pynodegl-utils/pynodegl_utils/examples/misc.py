@@ -66,7 +66,8 @@ def buffer_dove(cfg,
     if bilinear_filtering:
         img_tex.set_mag_filter('linear')
     quad = ngl.Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
-    render = ngl.Render(quad, label='dove')
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    render = ngl.Render(quad, program, label='dove')
     render.update_textures(tex0=img_tex)
     render = ngl.GraphicConfig(render,
                                blend=True,
@@ -75,7 +76,7 @@ def buffer_dove(cfg,
                                blend_src_factor_a='zero',
                                blend_dst_factor_a='one')
 
-    prog_bg = ngl.Program(fragment=cfg.get_frag('color'))
+    prog_bg = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     shape_bg = ngl.Circle(radius=.6, npoints=256)
     render_bg = ngl.Render(shape_bg, prog_bg, label='background')
     color_animkf = [ngl.AnimKeyFrameVec4(0,                bgcolor1),
@@ -118,7 +119,7 @@ def fibo(cfg, n=8):
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
-    p = ngl.Program(fragment=cfg.get_frag('color'))
+    p = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
 
     fib = [0, 1, 1]
     for i in range(2, n):
@@ -166,7 +167,7 @@ def cropboard(cfg, dim=15):
     kw = kh = 1. / dim
     qw = qh = 2. / dim
 
-    p = ngl.Program(vertex=cfg.get_vert('cropboard'))
+    p = ngl.Program(vertex=cfg.get_vert('cropboard'), fragment=cfg.get_frag('texture'))
     m = ngl.Media(m0.filename)
     t = ngl.Texture2D(data_src=m)
 
@@ -316,9 +317,10 @@ def blending_and_stencil(cfg):
     '''Scene using blending and stencil graphic features'''
     cfg.duration = 5
     random.seed(0)
+    vertex = cfg.get_vert('color')
     fragment = cfg.get_frag('color')
 
-    program = ngl.Program(fragment=fragment)
+    program = ngl.Program(vertex=vertex, fragment=fragment)
     circle = ngl.Circle(npoints=256)
     cloud_color = ngl.UniformVec4(value=(1, 1, 1, 0.4))
 
@@ -422,8 +424,9 @@ def cube(cfg, display_depth_buffer=False):
     '''
     cube = ngl.Group(label='cube')
 
+    vert_data = cfg.get_vert('texture')
     frag_data = cfg.get_frag('tex-tint')
-    program = ngl.Program(fragment=frag_data)
+    program = ngl.Program(vertex=vert_data, fragment=frag_data)
 
     texture = ngl.Texture2D(data_src=ngl.Media(cfg.medias[0].filename))
     children = [_get_cube_side(texture, program, qi[0], qi[1], qi[2], qi[3]) for qi in _get_cube_quads()]
@@ -462,12 +465,14 @@ def cube(cfg, display_depth_buffer=False):
         rtt.set_depth_texture(depth_texture)
 
         quad = ngl.Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
-        render = ngl.Render(quad)
+        program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+        render = ngl.Render(quad, program)
         render.update_textures(tex0=texture)
         group.add_children(rtt, render)
 
         quad = ngl.Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
-        render = ngl.Render(quad)
+        program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+        render = ngl.Render(quad, program)
         render.update_textures(tex0=depth_texture)
         group.add_children(rtt, render)
 
@@ -494,7 +499,8 @@ def histogram(cfg):
     )
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    r = ngl.Render(q)
+    p = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    r = ngl.Render(q, p)
     r.update_textures(tex0=t)
     proxy_size = 128
     proxy = ngl.Texture2D(width=proxy_size, height=proxy_size)
@@ -551,7 +557,7 @@ def quaternion(cfg):
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     m = ngl.Media(cfg.medias[0].filename)
     t = ngl.Texture2D(data_src=m)
-    p = ngl.Program(vertex=cfg.get_vert('uniform-mat4'))
+    p = ngl.Program(vertex=cfg.get_vert('uniform-mat4'), fragment=cfg.get_frag('texture'))
     render = ngl.Render(q, p)
     render.update_textures(tex0=t)
     render.update_uniforms(transformation_matrix=quat)
@@ -584,7 +590,7 @@ def mountain(cfg, ndim=3, nb_layers=7,
     black, white = (0, 0, 0, 1), (1, 1, 1, 1)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
-    prog = ngl.Program(fragment=cfg.get_frag('mountain'))
+    prog = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('mountain'))
     hscale = 1/2.
     mountains = []
     for i in range(nb_mountains):
@@ -623,7 +629,7 @@ def mountain(cfg, ndim=3, nb_layers=7,
 
         mountains.append(render)
 
-    prog = ngl.Program(fragment=cfg.get_frag('color'))
+    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     sky = ngl.Render(quad, prog)
     sky.update_uniforms(color=ngl.UniformVec4(white))
 

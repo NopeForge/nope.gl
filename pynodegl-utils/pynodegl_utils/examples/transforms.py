@@ -15,7 +15,7 @@ def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, transla
 
     sz = 1/3.
     q = ngl.Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
-    p = ngl.Program(fragment=cfg.get_frag('color'))
+    p = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     node = ngl.Render(q, p)
     ucolor = ngl.UniformVec4(value=color)
     node.update_uniforms(color=ucolor)
@@ -54,7 +54,7 @@ def animated_uniform(cfg):
     q = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = ngl.Media(m0.filename)
     t = ngl.Texture2D(data_src=m)
-    p = ngl.Program(fragment=cfg.get_frag('matrix-transform'))
+    p = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('matrix-transform'))
     ts = ngl.Render(q, p)
     ts.update_textures(tex0=t)
 
@@ -80,7 +80,8 @@ def animated_camera(cfg, rotate=True):
     q = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = ngl.Media(cfg.medias[0].filename)
     t = ngl.Texture2D(data_src=m)
-    node = ngl.Render(q)
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    node = ngl.Render(q, program)
     node.update_textures(tex0=t)
     g.add_children(node)
 
@@ -139,7 +140,8 @@ def animated_buffer(cfg, dim=50):
     random_tex = ngl.Texture2D(data_src=random_buffer, width=dim, height=dim)
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad)
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    render = ngl.Render(quad, program)
     render.update_textures(tex0=random_tex)
     return render
 
@@ -156,7 +158,7 @@ def animated_circles(cfg):
     step = 360. / n
 
     shape = ngl.Circle(radius=radius, npoints=128)
-    prog = ngl.Program(fragment=cfg.get_frag('color'))
+    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(shape, prog)
     render.update_uniforms(color=ngl.UniformVec4([1.0] * 4))
 
