@@ -49,7 +49,7 @@ static const char pgbar_vertex[] = \
 "    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;"        "\n" \
 "}";
 
-static const char *pgbar_shader = \
+static const char *pgbar_fragment = \
 "#version 100"                                                          "\n" \
 "precision mediump float;"                                              "\n" \
                                                                         "\n" \
@@ -95,7 +95,7 @@ static struct ngl_node *get_scene(const char *filename)
 
     ngl_node_param_set(texture, "data_src", media);
     ngl_node_param_set(program, "vertex",   pgbar_vertex);
-    ngl_node_param_set(program, "fragment", pgbar_shader);
+    ngl_node_param_set(program, "fragment", pgbar_fragment);
     ngl_node_param_set(u_media_duration, "value", g_info.duration);
     ngl_node_param_set(u_ar,             "value", g_info.width / (double)g_info.height);
     ngl_node_param_set(u_opacity,        "value", 0.0);
