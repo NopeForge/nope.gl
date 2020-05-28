@@ -84,6 +84,17 @@ def _guess_base_dir(dirs):
     return pathlib.Path(smallest_dir).parts[0]
 
 
+def _get_brew_prefix():
+    prefix = None
+    try:
+        proc = run(['brew', '--prefix'], capture_output=True, text=True, check=True)
+        prefix = proc.stdout.strip()
+    except FileNotFoundError:
+        # Silently pass if brew is not installed
+        pass
+    return prefix
+
+
 def _file_chk(path, chksum_hexdigest):
     chksum = hashlib.sha256()
     with open(path, 'rb') as f:
@@ -237,6 +248,32 @@ def _nodegl_setup(cfg):
     if 'gpu_capture' in cfg.args.debug_opts:
         renderdoc_dir = cfg.externals[_RENDERDOC_ID]
         nodegl_opts += [f'-Drenderdoc_dir={renderdoc_dir}']
+
+    extra_library_dirs = []
+    extra_include_dirs = []
+    if _SYSTEM == 'Windows':
+        vcpkg_prefix = op.join(cfg.args.vcpkg_dir, 'installed', 'x64-windows')
+        extra_library_dirs += [
+            op.join(cfg.prefix, 'Lib'),
+            op.join(vcpkg_prefix, 'lib'),
+        ]
+        extra_include_dirs += [
+            op.join(cfg.prefix, 'Include'),
+            op.join(vcpkg_prefix, 'include'),
+        ]
+    elif _SYSTEM == 'Darwin':
+        prefix = _get_brew_prefix()
+        if prefix:
+            extra_library_dirs += [op.join(prefix, 'lib')]
+            extra_include_dirs += [op.join(prefix, 'include')]
+
+    if extra_library_dirs:
+        opts = ','.join(extra_library_dirs)
+        nodegl_opts += [f'-Dextra_library_dirs={opts}']
+
+    if extra_include_dirs:
+        opts = ','.join(extra_include_dirs)
+        nodegl_opts += [f'-Dextra_include_dirs={opts}']
 
     return ['$(MESON_SETUP) -Drpath=true ' + _cmd_join(*nodegl_opts, 'libnodegl', op.join('builddir', 'libnodegl'))]
 
@@ -570,7 +607,7 @@ def _run():
     parser.add_argument('--coverage', action='store_true',
                         help='Code coverage')
     parser.add_argument('-d', '--debug-opts', nargs='+', default=[],
-                        choices=('gl', 'mem', 'scene', 'gpu_capture'),
+                        choices=('gl', 'vk', 'mem', 'scene', 'gpu_capture'),
                         help='Debug options')
     parser.add_argument('--build-backend', choices=('ninja', 'vs'), default=default_build_backend,
                         help='Build backend to use')

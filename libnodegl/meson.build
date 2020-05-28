@@ -59,6 +59,7 @@ conf_data.set10('TARGET_' + host_system.to_upper(), true)
 conf_data.set10('ARCH_' + cpu_family.to_upper(), true)
 conf_data.set10('CONFIG_SMALL', get_option('small'))
 conf_data.set10('DEBUG_GL', 'gl' in debug_opts)
+conf_data.set10('DEBUG_VK', 'vk' in debug_opts)
 conf_data.set10('DEBUG_MEM', 'mem' in debug_opts)
 conf_data.set10('DEBUG_SCENE', 'scene' in debug_opts)
 conf_data.set10('DEBUG_GPU_CAPTURE', 'gpu_capture' in debug_opts)
@@ -362,6 +363,34 @@ gbackends_cfg = {
       },
     },
   },
+  'vk': {
+    'src': files(
+      'backends/vk/buffer_vk.c',
+      'backends/vk/command_vk.c',
+      'backends/vk/format_vk.c',
+      'backends/vk/gpu_ctx_vk.c',
+      'backends/vk/hwmap_vk.c',
+      'backends/vk/pipeline_vk.c',
+      'backends/vk/program_vk.c',
+      'backends/vk/rendertarget_vk.c',
+      'backends/vk/texture_vk.c',
+      'backends/vk/vkcontext.c',
+      'backends/vk/vkutils.c',
+      'backends/vk/glslang_utils.c',
+    ),
+    'cfg': 'BACKEND_VK',
+    'hosts_cfg': {
+      'linux': {
+        'deps': ['vulkan', 'glslang'],
+      },
+      'android': {
+        'deps': ['vulkan', 'glslang'],
+      },
+      'windows': {
+        'deps': ['vulkan', 'glslang'],
+      },
+    },
+  },
 }
 
 if host_system in ['darwin', 'iphone']
@@ -384,7 +413,90 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
   host_backend_cfg = hosts_backend_cfg.get(host_system)
   gbackend_deps = []
   foreach dep : host_backend_cfg.get('deps', [])
-    gbackend_deps += dependency(dep, required: opt_gbackend)
+    if dep == 'glslang'
+      add_languages('cpp')
+      cxx = meson.get_compiler('cpp')
+      # glslang can be distributed as shared or static libraries optionally
+      # linked to SPIRV-Tools:
+      # - on Linux, it is generally distributed as shared libraries, more
+      #   specifically, libglslang.so, libHLSL.so, libSPVRemapper.so and
+      #   libSPIRV.so are installed. libOGLCompiler.a and libOSDependant.a are
+      #   also provided but not required by the shared libraries. There is no
+      #   dependency between the shared libraries.
+      # - on the other platforms (macOS, Windows, Android, iOS) it is generally
+      #   distributed or installed as static libraries, more specifically,
+      #   libglslang.a, libMachineIndependent.a, libOSDependent.a, libHLSL.a,
+      #   libOGLCompiler.a, libGenericCodeGen.a, libSPVRemapper.a, libSPIRV.a
+      #   libSPIRV-Tools-opt.a (optional), libSPIRV-Tools.a (optional) are
+      #   installed.
+      # The following list declares the glslang libraries that we need to check
+      # and link against in the right order (to allow static linking). Some
+      # libraries are marked as non-required because they might be present or
+      # not depending on the build of glslang.
+      glslang_libs = [
+        {'name': 'glslang',                         'required': true},
+        {'name': 'glslang-default-resource-limits', 'required': true},
+        {'name': 'MachineIndependent',              'required': false},
+        {'name': 'OSDependent',                     'required': true},
+        {'name': 'HLSL',                            'required': true},
+        {'name': 'OGLCompiler',                     'required': true},
+        {'name': 'GenericCodeGen',                  'required': false},
+        {'name': 'SPVRemapper',                     'required': true},
+        {'name': 'SPIRV',                           'required': true},
+        {'name': 'SPIRV-Tools-opt',                 'required': false},
+        {'name': 'SPIRV-Tools',                     'required': false},
+      ]
+      foreach lib : glslang_libs
+        libname = lib.get('name')
+        # Only require the library if the backend is explicitly enabled by the
+        # user. This makes meson bail out early if the required library can not
+        # be found.
+        required = lib.get('required') and opt_gbackend.enabled()
+        dep = cxx.find_library(libname, required: required, dirs: extra_library_dirs)
+        # Add the dependency if the library is marked as required or if it has
+        # been found so the backend can be disabled later on.
+        if lib.get('required') or dep.found()
+          gbackend_deps += dep
+        endif
+      endforeach
+      glslang_header = 'glslang/build_info.h'
+      glslang_include_dirs = include_directories(extra_include_dirs)
+      if cxx.has_header(glslang_header, include_directories: glslang_include_dirs)
+        glslang_ver_major = cxx.get_define(
+          'GLSLANG_VERSION_MAJOR',
+          prefix: '#include <' + glslang_header + '>',
+          include_directories: glslang_include_dirs,
+        ).to_int()
+        glslang_ver_minor = cxx.get_define(
+          'GLSLANG_VERSION_MINOR',
+          prefix: '#include <' + glslang_header + '>',
+          include_directories: glslang_include_dirs,
+        ).to_int()
+        glslang_ver = '@0@.@1@'.format(
+            glslang_ver_major,
+            glslang_ver_minor,
+        )
+        glslang_min_ver = '>= 11.1.0'
+        if glslang_ver.version_compare(glslang_min_ver)
+          gbackend_deps += declare_dependency(include_directories: glslang_include_dirs)
+        else
+          if opt_gbackend.enabled()
+            error('detected glslang version @0@ is too old, must be @1@'.format(
+                  glslang_ver, glslang_min_ver))
+          else
+            gbackend_deps += disabler()
+          endif
+        endif
+      else
+        if opt_gbackend.enabled()
+          error('glslang header not found')
+        else
+          gbackend_deps += disabler()
+        endif
+      endif
+    else
+      gbackend_deps += dependency(dep, required: opt_gbackend)
+    endif
   endforeach
   foreach lib : host_backend_cfg.get('libs', [])
     # We need to call find_library() twice because specifying the dirs

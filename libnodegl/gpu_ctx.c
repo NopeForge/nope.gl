@@ -29,6 +29,7 @@
 
 extern const struct gpu_ctx_class ngli_gpu_ctx_gl;
 extern const struct gpu_ctx_class ngli_gpu_ctx_gles;
+extern const struct gpu_ctx_class ngli_gpu_ctx_vk;
 
 static const struct {
     const char *string_id;
@@ -44,6 +45,12 @@ static const struct {
         .string_id = "opengles",
 #ifdef BACKEND_GL
         .cls = &ngli_gpu_ctx_gles,
+#endif
+    },
+    [NGL_BACKEND_VULKAN] = {
+        .string_id = "vulkan",
+#ifdef BACKEND_VK
+        .cls = &ngli_gpu_ctx_vk,
 #endif
     },
 };

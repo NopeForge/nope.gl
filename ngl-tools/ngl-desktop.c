@@ -295,6 +295,7 @@ static const char *get_backend_str(int backend)
     static const char * const backend_map[] = {
         [NGL_BACKEND_OPENGL]   = "opengl",
         [NGL_BACKEND_OPENGLES] = "opengles",
+        [NGL_BACKEND_VULKAN]   = "vulkan",
     };
 
     if (backend < 0 || backend >= ARRAY_NB(backend_map))

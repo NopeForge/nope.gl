@@ -11,6 +11,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ### Added
 - TextureView node, useful for targeting a specific layer of a texture in RTT
   scenarios
+- Initial Vulkan support
 
 ### Fixed
 - Fix OpenGL buffers and textures bindings

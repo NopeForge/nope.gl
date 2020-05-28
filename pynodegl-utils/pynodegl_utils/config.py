@@ -57,6 +57,7 @@ class Config(QtCore.QObject):
         'backend': [
             'opengl',
             'opengles',
+            'vulkan',
         ],
     }
 

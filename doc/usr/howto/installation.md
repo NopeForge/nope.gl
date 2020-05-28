@@ -13,6 +13,7 @@ building and running the complete `node.gl` stack.
     typically named with a `-dev` suffix on Debian based systems)
   - **Graphviz**
   - **SDL2**
+  - **Glslang**
 - Build with `./configure.py && make`
 - Enter the virtual environment with `. venv/bin/activate`
 
@@ -23,7 +24,7 @@ building and running the complete `node.gl` stack.
 "MINGW64" should be visible in the prompt):
     ```shell
     pacman -Syuu  # and restart the shell
-    pacman -S --needed git make mingw-w64-x86_64-{toolchain,ffmpeg,python,python-watchdog,python3-pillow,pyside6,meson,graphviz}
+    pacman -S --needed git make mingw-w64-x86_64-{toolchain,ffmpeg,python,python-watchdog,python3-pillow,pyside6,meson,graphviz,glslang,vulkan-devel}
     ```
 - From MinGW64, build with `./configure.py && make`
 - Enter the virtual environment with `. venv/bin/activate`
@@ -40,11 +41,12 @@ building and running the complete `node.gl` stack.
   Studio](https://visualstudio.microsoft.com/downloads/) and make sure the
   *Desktop development with C++* is included (it should enable MSVC build tools
   and Windows 10 SDK).
+- Install [VulkanSDK](https://vulkan.lunarg.com/sdk/home#windows) (optional)
 - Download and extract [Vcpkg](https://github.com/microsoft/vcpkg) in
   `C:\vcpkg`, then from Windows PowerShell:
     ```shell
     .\bootstrap-vcpkg.bat
-    .\vcpkg.exe install --triplet x64-windows opengl-registry ffmpeg[ffmpeg,ffprobe] sdl2
+    .\vcpkg.exe install --triplet x64-windows opengl-registry ffmpeg[ffmpeg,ffprobe] sdl2 glslang
     ```
 - Add `C:\vcpkg\installed\x64-windows\tools\ffmpeg` path to your windows system
   `%PATH%` environment variable (`ffmpeg` and `ffprobe` binaries must be
