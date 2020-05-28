@@ -225,7 +225,7 @@ static const struct {
 
 static void update_block_data(struct block_priv *s, int forced)
 {
-    struct block_field *field_info = ngli_darray_data(&s->block.fields);
+    const struct block_field *field_info = ngli_darray_data(&s->block.fields);
     for (int i = 0; i < s->nb_fields; i++) {
         const struct ngl_node *field_node = s->fields[i];
         const struct block_field *fi = &field_info[i];
