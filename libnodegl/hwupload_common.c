@@ -91,7 +91,14 @@ static int common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     }
 
     const int linesize = frame->linesize >> 2;
-    return ngli_texture_upload(texture, frame->data, linesize);
+    int ret = ngli_texture_upload(texture, frame->data, linesize);
+    if (ret < 0)
+        return ret;
+
+    if (ngli_texture_has_mipmap(texture))
+        ngli_texture_generate_mipmap(texture);
+
+    return 0;
 }
 
 const struct hwmap_class ngli_hwmap_common_class = {
