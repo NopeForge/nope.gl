@@ -20,14 +20,10 @@
  */
 
 #include <stddef.h>
-#include <stdio.h>
-#include <string.h>
-#include "bstr.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
 #include "pgcache.h"
-#include "program.h"
 
 #define OFFSET(x) offsetof(struct program_priv, x)
 static const struct node_param program_params[] = {
