@@ -8,9 +8,9 @@ uniform sampler2D tex1_sampler;
 varying vec2 var_tex0_coord;
 varying vec2 var_tex1_coord;
 
-float wave(float sample, float y, float yoff)
+float wave(float amp, float y, float yoff)
 {
-    float s = (sample + 1.0) / 2.0; // [-1;1] -> [0;1]
+    float s = (amp + 1.0) / 2.0; // [-1;1] -> [0;1]
     float v = yoff + s/4.0;         // [0;1] -> [off;off+0.25]
     return smoothstep(v-0.005, v, y)
          - smoothstep(v, v+0.005, y);
