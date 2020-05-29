@@ -84,11 +84,6 @@ static const struct param_choices format_choices = {
         {"r8g8_snorm",           NGLI_FORMAT_R8G8_SNORM,          .desc=NGLI_DOCSTRING("8-bit signed normalized RG components")},
         {"r8g8_uint",            NGLI_FORMAT_R8G8_UINT,           .desc=NGLI_DOCSTRING("8-bit unsigned integer RG components")},
         {"r8g8_sint",            NGLI_FORMAT_R8G8_SINT,           .desc=NGLI_DOCSTRING("8-bit signed normalized RG components")},
-        {"r8g8b8_unorm",         NGLI_FORMAT_R8G8B8_UNORM,        .desc=NGLI_DOCSTRING("8-bit unsigned normalized RGB components")},
-        {"r8g8b8_snorm",         NGLI_FORMAT_R8G8B8_SNORM,        .desc=NGLI_DOCSTRING("8-bit signed normalized RGB components")},
-        {"r8g8b8_uint",          NGLI_FORMAT_R8G8B8_UINT,         .desc=NGLI_DOCSTRING("8-bit unsigned integer RGB components")},
-        {"r8g8b8_sint",          NGLI_FORMAT_R8G8B8_SINT,         .desc=NGLI_DOCSTRING("8-bit signed integer RGB components")},
-        {"r8g8b8_srgb",          NGLI_FORMAT_R8G8B8_SRGB,         .desc=NGLI_DOCSTRING("8-bit unsigned normalized sRGB components")},
         {"r8g8b8a8_unorm",       NGLI_FORMAT_R8G8B8A8_UNORM,      .desc=NGLI_DOCSTRING("8-bit unsigned normalized RGBA components")},
         {"r8g8b8a8_snorm",       NGLI_FORMAT_R8G8B8A8_SNORM,      .desc=NGLI_DOCSTRING("8-bit signed normalized RGBA components")},
         {"r8g8b8a8_uint",        NGLI_FORMAT_R8G8B8A8_UINT,       .desc=NGLI_DOCSTRING("8-bit unsigned integer RGBA components")},
@@ -108,11 +103,6 @@ static const struct param_choices format_choices = {
         {"r16g16_uint",          NGLI_FORMAT_R16G16_UINT,         .desc=NGLI_DOCSTRING("16-bit unsigned integer RG components")},
         {"r16g16_sint",          NGLI_FORMAT_R16G16_SINT,         .desc=NGLI_DOCSTRING("16-bit signed integer RG components")},
         {"r16g16_sfloat",        NGLI_FORMAT_R16G16_SFLOAT,       .desc=NGLI_DOCSTRING("16-bit signed float RG components")},
-        {"r16g16b16_unorm",      NGLI_FORMAT_R16G16B16_UNORM,     .desc=NGLI_DOCSTRING("16-bit unsigned normalized RGB components")},
-        {"r16g16b16_snorm",      NGLI_FORMAT_R16G16B16_SNORM,     .desc=NGLI_DOCSTRING("16-bit signed normalized RGB components")},
-        {"r16g16b16_uint",       NGLI_FORMAT_R16G16B16_UINT,      .desc=NGLI_DOCSTRING("16-bit unsigned integer RGB components")},
-        {"r16g16b16_sint",       NGLI_FORMAT_R16G16B16_SINT,      .desc=NGLI_DOCSTRING("16-bit signed integer RGB components")},
-        {"r16g16b16_sfloat",     NGLI_FORMAT_R16G16B16_SFLOAT,    .desc=NGLI_DOCSTRING("16-bit signed float RGB components")},
         {"r16g16b16a16_unorm",   NGLI_FORMAT_R16G16B16A16_UNORM,  .desc=NGLI_DOCSTRING("16-bit unsigned normalized RGBA components")},
         {"r16g16b16a16_snorm",   NGLI_FORMAT_R16G16B16A16_SNORM,  .desc=NGLI_DOCSTRING("16-bit signed normalized RGBA components")},
         {"r16g16b16a16_uint",    NGLI_FORMAT_R16G16B16A16_UINT,   .desc=NGLI_DOCSTRING("16-bit unsigned integer RGBA components")},
@@ -152,7 +142,6 @@ static const struct param_choices format_choices = {
     NGL_NODE_ANIMATEDBUFFERVEC4,    \
     NGL_NODE_BUFFERBYTE,            \
     NGL_NODE_BUFFERBVEC2,           \
-    NGL_NODE_BUFFERBVEC3,           \
     NGL_NODE_BUFFERBVEC4,           \
     NGL_NODE_BUFFERINT,             \
     NGL_NODE_BUFFERIVEC2,           \
@@ -160,11 +149,9 @@ static const struct param_choices format_choices = {
     NGL_NODE_BUFFERIVEC4,           \
     NGL_NODE_BUFFERSHORT,           \
     NGL_NODE_BUFFERSVEC2,           \
-    NGL_NODE_BUFFERSVEC3,           \
     NGL_NODE_BUFFERSVEC4,           \
     NGL_NODE_BUFFERUBYTE,           \
     NGL_NODE_BUFFERUBVEC2,          \
-    NGL_NODE_BUFFERUBVEC3,          \
     NGL_NODE_BUFFERUBVEC4,          \
     NGL_NODE_BUFFERUINT,            \
     NGL_NODE_BUFFERUIVEC2,          \
@@ -172,7 +159,6 @@ static const struct param_choices format_choices = {
     NGL_NODE_BUFFERUIVEC4,          \
     NGL_NODE_BUFFERUSHORT,          \
     NGL_NODE_BUFFERUSVEC2,          \
-    NGL_NODE_BUFFERUSVEC3,          \
     NGL_NODE_BUFFERUSVEC4,          \
     NGL_NODE_BUFFERFLOAT,           \
     NGL_NODE_BUFFERVEC2,            \
@@ -296,7 +282,6 @@ static int texture_prefetch(struct ngl_node *node, enum texture_type type)
         case NGL_NODE_ANIMATEDBUFFERVEC4:
         case NGL_NODE_BUFFERBYTE:
         case NGL_NODE_BUFFERBVEC2:
-        case NGL_NODE_BUFFERBVEC3:
         case NGL_NODE_BUFFERBVEC4:
         case NGL_NODE_BUFFERINT:
         case NGL_NODE_BUFFERIVEC2:
@@ -304,11 +289,9 @@ static int texture_prefetch(struct ngl_node *node, enum texture_type type)
         case NGL_NODE_BUFFERIVEC4:
         case NGL_NODE_BUFFERSHORT:
         case NGL_NODE_BUFFERSVEC2:
-        case NGL_NODE_BUFFERSVEC3:
         case NGL_NODE_BUFFERSVEC4:
         case NGL_NODE_BUFFERUBYTE:
         case NGL_NODE_BUFFERUBVEC2:
-        case NGL_NODE_BUFFERUBVEC3:
         case NGL_NODE_BUFFERUBVEC4:
         case NGL_NODE_BUFFERUINT:
         case NGL_NODE_BUFFERUIVEC2:
@@ -316,7 +299,6 @@ static int texture_prefetch(struct ngl_node *node, enum texture_type type)
         case NGL_NODE_BUFFERUIVEC4:
         case NGL_NODE_BUFFERUSHORT:
         case NGL_NODE_BUFFERUSVEC2:
-        case NGL_NODE_BUFFERUSVEC3:
         case NGL_NODE_BUFFERUSVEC4:
         case NGL_NODE_BUFFERFLOAT:
         case NGL_NODE_BUFFERVEC2:
