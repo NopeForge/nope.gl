@@ -45,7 +45,6 @@ struct rendertarget {
     GLuint id;
     GLuint prev_id;
     GLenum draw_buffers[NGLI_MAX_COLOR_ATTACHMENTS];
-    int nb_draw_buffers;
     GLenum blit_draw_buffers[NGLI_MAX_COLOR_ATTACHMENTS*(NGLI_MAX_COLOR_ATTACHMENTS+1)/2];
     void (*blit)(struct rendertarget *s, struct rendertarget *dst, int vflip);
 };

@@ -84,7 +84,7 @@ static void blit_draw_buffers(struct rendertarget *s, struct rendertarget *dst, 
         blit(s, dst, vflip, flags);
     }
     ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0);
-    ngli_glDrawBuffers(gl, s->nb_draw_buffers, s->draw_buffers);
+    ngli_glDrawBuffers(gl, s->nb_color_attachments, s->draw_buffers);
 }
 
 int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const struct rendertarget_params *params)
@@ -158,19 +158,18 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
 
     s->blit = blit_no_draw_buffers;
     if (gl->features & NGLI_FEATURE_DRAW_BUFFERS) {
-        s->nb_draw_buffers = s->nb_color_attachments;
-        if (s->nb_draw_buffers > gl->max_draw_buffers) {
+        if (s->nb_color_attachments > gl->max_draw_buffers) {
             LOG(ERROR, "draw buffer count (%d) exceeds driver limit (%d)",
-                s->nb_draw_buffers, gl->max_draw_buffers);
+                s->nb_color_attachments, gl->max_draw_buffers);
             goto done;
         }
-        if (s->nb_draw_buffers > 1) {
-            for (int i = 0; i < s->nb_draw_buffers; i++)
+        if (s->nb_color_attachments > 1) {
+            for (int i = 0; i < s->nb_color_attachments; i++)
                 s->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
-            ngli_glDrawBuffers(gl, s->nb_draw_buffers, s->draw_buffers);
+            ngli_glDrawBuffers(gl, s->nb_color_attachments, s->draw_buffers);
 
             GLenum *draw_buffers = s->blit_draw_buffers;
-            for (int i = 0; i < s->nb_draw_buffers; i++) {
+            for (int i = 0; i < s->nb_color_attachments; i++) {
                 draw_buffers += i + 1;
                 draw_buffers[-1] = GL_COLOR_ATTACHMENT0 + i;
             }
