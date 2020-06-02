@@ -46,7 +46,7 @@ struct rendertarget {
     GLuint prev_id;
     GLenum draw_buffers[NGLI_MAX_COLOR_ATTACHMENTS];
     GLenum blit_draw_buffers[NGLI_MAX_COLOR_ATTACHMENTS*(NGLI_MAX_COLOR_ATTACHMENTS+1)/2];
-    void (*blit)(struct rendertarget *s, struct rendertarget *dst, int vflip);
+    void (*blit)(struct rendertarget *s, int nb_color_attachments, int width, int height, int vflip);
 };
 
 int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const struct rendertarget_params *params);
