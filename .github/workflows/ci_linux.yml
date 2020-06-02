@@ -9,18 +9,14 @@ on:
 jobs:
   build_libs:
 
-    runs-on: ubuntu-18.04
-    container: ubuntu:19.10
+    runs-on: ubuntu-20.04
 
     steps:
     - uses: actions/checkout@v1
-    - uses: docker://ubuntu:19.10
 
     - name: Install dependencies
       run: |
-        apt -y --force-yes update
-        apt -y install build-essential
-
+        sudo apt -y update
         #
         # python3-venv is required to prevent the following issue:
         #     The virtual environment was not created successfully because ensurepip is not
@@ -29,8 +25,8 @@ jobs:
         #
         #         apt-get install python3-venv
         #
-        apt -y install curl pkg-config libsdl2-dev python3-pip python3-dev python3-venv
-        apt -y install ffmpeg libavcodec-dev libavutil-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libpostproc-dev
+        sudo apt -y install libsdl2-dev python3-venv
+        sudo apt -y install ffmpeg libavcodec-dev libavutil-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libpostproc-dev
 
     - name: Build
       run: |
