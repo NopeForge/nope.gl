@@ -165,17 +165,9 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
             goto done;
         }
         if (s->nb_draw_buffers > 1) {
-            s->draw_buffers = ngli_calloc(s->nb_draw_buffers, sizeof(*s->draw_buffers));
-            if (!s->draw_buffers)
-                goto done;
             for (int i = 0; i < s->nb_draw_buffers; i++)
                 s->draw_buffers[i] = GL_COLOR_ATTACHMENT0 + i;
             ngli_glDrawBuffers(gl, s->nb_draw_buffers, s->draw_buffers);
-
-            const int nb_blit_draw_buffers = s->nb_draw_buffers * (s->nb_draw_buffers + 1) / 2;
-            s->blit_draw_buffers = ngli_calloc(nb_blit_draw_buffers, sizeof(*s->blit_draw_buffers));
-            if (!s->blit_draw_buffers)
-                goto done;
 
             GLenum *draw_buffers = s->blit_draw_buffers;
             for (int i = 0; i < s->nb_draw_buffers; i++) {
@@ -238,9 +230,6 @@ void ngli_rendertarget_reset(struct rendertarget *s)
 
     struct glcontext *gl = ctx->glcontext;
     ngli_glDeleteFramebuffers(gl, 1, &s->id);
-
-    ngli_free(s->draw_buffers);
-    ngli_free(s->blit_draw_buffers);
 
     memset(s, 0, sizeof(*s));
 }
