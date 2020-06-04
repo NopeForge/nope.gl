@@ -801,6 +801,7 @@ int ngli_pass_exec(struct pass *s)
             break;
         case NGLI_IMAGE_LAYOUT_MEDIACODEC:
             ret = ngli_pipeline_update_texture(pipeline, info->oes_sampler.index, image->planes[0]);
+            break;
         default:
             break;
         }
