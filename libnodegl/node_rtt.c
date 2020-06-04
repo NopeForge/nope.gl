@@ -47,11 +47,11 @@ struct rtt_priv {
     int height;
 
     struct rendertarget rt;
-    struct texture rt_depth;
+    struct texture depth;
 
-    struct rendertarget rt_ms;
-    struct darray rt_ms_colors;
-    struct texture rt_ms_depth;
+    struct rendertarget ms_rt;
+    struct darray ms_colors;
+    struct texture ms_depth;
 };
 
 #define DEFAULT_CLEAR_COLOR {-1.0f, -1.0f, -1.0f, -1.0f}
@@ -125,7 +125,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
     struct ngl_ctx *ctx = node->ctx;
     struct rtt_priv *s = node->priv_data;
 
-    ngli_darray_init(&s->rt_ms_colors, sizeof(struct texture), 0);
+    ngli_darray_init(&s->ms_colors, sizeof(struct texture), 0);
 
     struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
     attachment_params.width = s->width;
@@ -144,7 +144,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         const struct texture_params *params = &texture->params;
         const int n = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1;
         for (int i = 0; i < n; i++) {
-            struct texture *ms_texture = ngli_darray_push(&s->rt_ms_colors, NULL);
+            struct texture *ms_texture = ngli_darray_push(&s->ms_colors, NULL);
             if (!ms_texture)
                 return NGL_ERROR_MEMORY;
             attachment_params.format = params->format;
@@ -161,14 +161,14 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
 
     if (depth_format != NGLI_FORMAT_UNDEFINED) {
         attachment_params.format = depth_format;
-        ret = ngli_texture_init(&s->rt_ms_depth, ctx, &attachment_params);
+        ret = ngli_texture_init(&s->ms_depth, ctx, &attachment_params);
         if (ret < 0)
             return ret;
-        struct texture *rt_ms_depth = &s->rt_ms_depth;
-        rt_params.depth_stencil = rt_ms_depth;
+        struct texture *ms_depth = &s->ms_depth;
+        rt_params.depth_stencil = ms_depth;
     }
 
-    ret = ngli_rendertarget_init(&s->rt_ms, ctx, &rt_params);
+    ret = ngli_rendertarget_init(&s->ms_rt, ctx, &rt_params);
     if (ret < 0)
         return ret;
 
@@ -254,12 +254,12 @@ static int rtt_prefetch(struct ngl_node *node)
             depth_format = NGLI_FORMAT_D16_UNORM;
 
         if (depth_format != NGLI_FORMAT_UNDEFINED) {
-            struct texture *rt_depth = &s->rt_depth;
+            struct texture *depth = &s->depth;
             attachment_params.format = depth_format;
-            ret = ngli_texture_init(rt_depth, ctx, &attachment_params);
+            ret = ngli_texture_init(depth, ctx, &attachment_params);
             if (ret < 0)
                 return ret;
-            rt_params.depth_stencil = rt_depth;
+            rt_params.depth_stencil = depth;
 
             if (!(s->features & FEATURE_NO_CLEAR))
                 s->invalidate_depth_stencil = 1;
@@ -324,7 +324,7 @@ static void rtt_draw(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct rtt_priv *s = node->priv_data;
 
-    struct rendertarget *rt = s->samples > 0 ? &s->rt_ms : &s->rt;
+    struct rendertarget *rt = s->samples > 0 ? &s->ms_rt : &s->rt;
     struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
     ngli_gctx_set_rendertarget(ctx, rt);
 
@@ -372,14 +372,14 @@ static void rtt_release(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
 
     ngli_rendertarget_reset(&s->rt);
-    ngli_texture_reset(&s->rt_depth);
+    ngli_texture_reset(&s->depth);
 
-    ngli_rendertarget_reset(&s->rt_ms);
-    struct texture *rt_ms_colors = ngli_darray_data(&s->rt_ms_colors);
-    for (int i = 0; i < ngli_darray_count(&s->rt_ms_colors); i++)
-        ngli_texture_reset(&rt_ms_colors[i]);
-    ngli_darray_reset(&s->rt_ms_colors);
-    ngli_texture_reset(&s->rt_ms_depth);
+    ngli_rendertarget_reset(&s->ms_rt);
+    struct texture *ms_colors = ngli_darray_data(&s->ms_colors);
+    for (int i = 0; i < ngli_darray_count(&s->ms_colors); i++)
+        ngli_texture_reset(&ms_colors[i]);
+    ngli_darray_reset(&s->ms_colors);
+    ngli_texture_reset(&s->ms_depth);
 }
 
 const struct node_class ngli_rtt_class = {
