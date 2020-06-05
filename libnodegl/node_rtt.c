@@ -49,7 +49,6 @@ struct rtt_priv {
     struct rendertarget rt;
     struct texture depth;
 
-    struct rendertarget ms_rt;
     struct texture ms_colors[NGLI_MAX_COLOR_ATTACHMENTS];
     int nb_ms_colors;
     struct texture ms_depth;
@@ -120,61 +119,6 @@ static int rtt_init(struct ngl_node *node)
     return 0;
 }
 
-static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
-{
-    int ret = 0;
-    struct ngl_ctx *ctx = node->ctx;
-    struct rtt_priv *s = node->priv_data;
-
-    struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
-    attachment_params.width = s->width;
-    attachment_params.height = s->height;
-    attachment_params.samples = s->samples;
-    attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-
-    struct rendertarget_params rt_params = {
-        .width = s->width,
-        .height = s->height,
-    };
-
-    s->nb_ms_colors = 0;
-    for (int i = 0; i < s->nb_color_textures; i++) {
-        const struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
-        const struct texture *texture = &texture_priv->texture;
-        const struct texture_params *params = &texture->params;
-        const int n = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1;
-        for (int i = 0; i < n; i++) {
-            if (s->nb_ms_colors >= NGLI_MAX_COLOR_ATTACHMENTS) {
-                LOG(ERROR, "context does not support more than %d color attachments", NGLI_MAX_COLOR_ATTACHMENTS);
-                return NGL_ERROR_UNSUPPORTED;
-            }
-            struct texture *ms_texture = &s->ms_colors[s->nb_ms_colors];
-            attachment_params.format = params->format;
-            ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
-            if (ret < 0)
-                return ret;
-            rt_params.colors[s->nb_ms_colors].attachment = ms_texture;
-            s->nb_ms_colors++;
-        }
-    }
-    rt_params.nb_colors = s->nb_ms_colors;
-
-    if (depth_format != NGLI_FORMAT_UNDEFINED) {
-        attachment_params.format = depth_format;
-        ret = ngli_texture_init(&s->ms_depth, ctx, &attachment_params);
-        if (ret < 0)
-            return ret;
-        struct texture *ms_depth = &s->ms_depth;
-        rt_params.depth_stencil.attachment = ms_depth;
-    }
-
-    ret = ngli_rendertarget_init(&s->ms_rt, ctx, &rt_params);
-    if (ret < 0)
-        return ret;
-
-    return 0;
-}
-
 static int rtt_prefetch(struct ngl_node *node)
 {
     int ret = 0;
@@ -234,8 +178,26 @@ static int rtt_prefetch(struct ngl_node *node)
         struct texture_params *params = &texture->params;
         const int n = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1;
         for (int j = 0; j < n; j++) {
-            rt_params.colors[rt_params.nb_colors].attachment = texture;
-            rt_params.colors[rt_params.nb_colors].attachment_layer = j;
+            if (s->samples) {
+                struct texture *ms_texture = &s->ms_colors[s->nb_ms_colors];
+                struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+                attachment_params.format = params->format;
+                attachment_params.width = s->width;
+                attachment_params.height = s->height;
+                attachment_params.samples = s->samples;
+                attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
+                ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
+                if (ret < 0)
+                    return ret;
+                s->nb_ms_colors++;
+                rt_params.colors[rt_params.nb_colors].attachment = ms_texture;
+                rt_params.colors[rt_params.nb_colors].attachment_layer = j;
+                rt_params.colors[rt_params.nb_colors].resolve_target = texture;
+                rt_params.colors[rt_params.nb_colors].resolve_target_layer = j;
+            } else {
+                rt_params.colors[rt_params.nb_colors].attachment = texture;
+                rt_params.colors[rt_params.nb_colors].attachment_layer = j;
+            }
             rt_params.nb_colors++;
         }
     }
@@ -243,11 +205,25 @@ static int rtt_prefetch(struct ngl_node *node)
     int depth_format = NGLI_FORMAT_UNDEFINED;
     if (s->depth_texture) {
         struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
-        struct texture *depth_texture = &depth_texture_priv->texture;
-        rt_params.depth_stencil.attachment = depth_texture;
+        struct texture *texture = &depth_texture_priv->texture;
+        struct texture_params *params = &texture->params;
 
-        const struct texture_params *depth_texture_params = &depth_texture->params;
-        depth_format = depth_texture_params->format;
+        if (s->samples) {
+            struct texture *ms_texture = &s->ms_depth;
+            struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
+            attachment_params.format = params->format;
+            attachment_params.width = s->width;
+            attachment_params.height = s->height;
+            attachment_params.samples = s->samples;
+            attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
+            ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
+            if (ret < 0)
+                return ret;
+            rt_params.depth_stencil.attachment = ms_texture;
+            rt_params.depth_stencil.resolve_target = texture;
+        } else {
+            rt_params.depth_stencil.attachment = texture;
+        }
     } else {
         if (s->features & FEATURE_STENCIL)
             depth_format = NGLI_FORMAT_D24_UNORM_S8_UINT;
@@ -260,6 +236,7 @@ static int rtt_prefetch(struct ngl_node *node)
             attachment_params.format = depth_format;
             attachment_params.width = s->width;
             attachment_params.height = s->height;
+            attachment_params.samples = s->samples;
             attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
             ret = ngli_texture_init(depth, ctx, &attachment_params);
             if (ret < 0)
@@ -274,12 +251,6 @@ static int rtt_prefetch(struct ngl_node *node)
     ret = ngli_rendertarget_init(&s->rt, ctx, &rt_params);
     if (ret < 0)
         return ret;
-
-    if (s->samples > 0) {
-        ret = create_ms_rendertarget(node, depth_format);
-        if (ret < 0)
-            return ret;
-    }
 
     if (s->vflip) {
         /* flip vertically the color and depth textures so the coordinates
@@ -329,7 +300,7 @@ static void rtt_draw(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct rtt_priv *s = node->priv_data;
 
-    struct rendertarget *rt = s->samples > 0 ? &s->ms_rt : &s->rt;
+    struct rendertarget *rt = &s->rt;
     struct rendertarget *prev_rt = ngli_gctx_get_rendertarget(ctx);
     ngli_gctx_set_rendertarget(ctx, rt);
 
@@ -353,7 +324,7 @@ static void rtt_draw(struct ngl_node *node)
     ngli_node_draw(s->child);
 
     if (s->samples > 0)
-        ngli_rendertarget_blit(rt, &s->rt, 0);
+        ngli_rendertarget_resolve(rt);
 
     if (s->invalidate_depth_stencil)
         ngli_gctx_invalidate_depth_stencil(ctx);
@@ -379,7 +350,6 @@ static void rtt_release(struct ngl_node *node)
     ngli_rendertarget_reset(&s->rt);
     ngli_texture_reset(&s->depth);
 
-    ngli_rendertarget_reset(&s->ms_rt);
     for (int i = 0; i < s->nb_ms_colors; i++)
         ngli_texture_reset(&s->ms_colors[i]);
     s->nb_ms_colors = 0;
