@@ -30,6 +30,7 @@
 
 struct attachment {
     struct texture *attachment;
+    int attachment_layer;
 };
 
 struct rendertarget_params {

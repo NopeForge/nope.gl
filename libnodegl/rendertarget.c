@@ -103,6 +103,7 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
     for (int i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
         const struct texture *texture = attachment->attachment;
+        const int layer = attachment->attachment_layer;
         GLenum attachment_index = get_gl_attachment_index(texture->format);
         ngli_assert(attachment_index == GL_COLOR_ATTACHMENT0);
 
@@ -121,9 +122,7 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
             ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index, GL_TEXTURE_2D, texture->id, 0);
             break;
         case GL_TEXTURE_CUBE_MAP:
-            for (int face = 0; face < 6; face++)
-                ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, texture->id, 0);
-            s->nb_color_attachments += 5;
+            ngli_glFramebufferTexture2D(gl, GL_FRAMEBUFFER, attachment_index++, GL_TEXTURE_CUBE_MAP_POSITIVE_X + layer, texture->id, 0);
             break;
         default:
             ngli_assert(0);

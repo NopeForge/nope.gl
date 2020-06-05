@@ -236,7 +236,13 @@ static int rtt_prefetch(struct ngl_node *node)
     for (int i = 0; i < s->nb_color_textures; i++) {
         struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         struct texture *texture = &texture_priv->texture;
-        rt_params.colors[rt_params.nb_colors++].attachment = texture;
+        struct texture_params *params = &texture->params;
+        const int n = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1;
+        for (int j = 0; j < n; j++) {
+            rt_params.colors[rt_params.nb_colors].attachment = texture;
+            rt_params.colors[rt_params.nb_colors].attachment_layer = j;
+            rt_params.nb_colors++;
+        }
     }
 
     int depth_format = NGLI_FORMAT_UNDEFINED;
