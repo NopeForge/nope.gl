@@ -93,6 +93,7 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
     struct glcontext *gl = ctx->glcontext;
 
     s->ctx = ctx;
+    s->params = *params;
     s->width = params->width;
     s->height = params->height;
 

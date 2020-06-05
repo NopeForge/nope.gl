@@ -43,6 +43,7 @@ struct rendertarget_params {
 
 struct rendertarget {
     struct ngl_ctx *ctx;
+    struct rendertarget_params params;
     int width;
     int height;
     int nb_color_attachments;
