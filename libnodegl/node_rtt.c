@@ -153,7 +153,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
             ret = ngli_texture_init(ms_texture, ctx, &attachment_params);
             if (ret < 0)
                 return ret;
-            rt_params.colors[s->nb_ms_colors] = ms_texture;
+            rt_params.colors[s->nb_ms_colors].attachment = ms_texture;
             s->nb_ms_colors++;
         }
     }
@@ -165,7 +165,7 @@ static int create_ms_rendertarget(struct ngl_node *node, int depth_format)
         if (ret < 0)
             return ret;
         struct texture *ms_depth = &s->ms_depth;
-        rt_params.depth_stencil = ms_depth;
+        rt_params.depth_stencil.attachment = ms_depth;
     }
 
     ret = ngli_rendertarget_init(&s->ms_rt, ctx, &rt_params);
@@ -236,14 +236,14 @@ static int rtt_prefetch(struct ngl_node *node)
     for (int i = 0; i < s->nb_color_textures; i++) {
         struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         struct texture *texture = &texture_priv->texture;
-        rt_params.colors[rt_params.nb_colors++] = texture;
+        rt_params.colors[rt_params.nb_colors++].attachment = texture;
     }
 
     int depth_format = NGLI_FORMAT_UNDEFINED;
     if (s->depth_texture) {
         struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
         struct texture *depth_texture = &depth_texture_priv->texture;
-        rt_params.depth_stencil = depth_texture;
+        rt_params.depth_stencil.attachment = depth_texture;
 
         const struct texture_params *depth_texture_params = &depth_texture->params;
         depth_format = depth_texture_params->format;
@@ -259,7 +259,7 @@ static int rtt_prefetch(struct ngl_node *node)
             ret = ngli_texture_init(depth, ctx, &attachment_params);
             if (ret < 0)
                 return ret;
-            rt_params.depth_stencil = depth;
+            rt_params.depth_stencil.attachment = depth;
 
             if (!(s->features & FEATURE_NO_CLEAR))
                 s->invalidate_depth_stencil = 1;

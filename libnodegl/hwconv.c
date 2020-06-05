@@ -153,7 +153,9 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         .width = dst_image->params.width,
         .height = dst_image->params.height,
         .nb_colors = 1,
-        .colors[0] = texture,
+        .colors[0] = {
+            .attachment = texture,
+        }
     };
     int ret = ngli_rendertarget_init(&hwconv->rt, ctx, &rt_params);
     if (ret < 0)

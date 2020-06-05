@@ -66,8 +66,12 @@ static int offscreen_rendertarget_init(struct ngl_ctx *s)
         .width = config->width,
         .height = config->height,
         .nb_colors = 1,
-        .colors[0] = &s->rt_color,
-        .depth_stencil = &s->rt_depth,
+        .colors[0] = {
+            .attachment = &s->rt_color,
+        },
+        .depth_stencil = {
+            .attachment = &s->rt_depth
+        },
     };
     ret = ngli_rendertarget_init(&s->rt, s, &rt_params);
     if (ret < 0)
@@ -213,7 +217,9 @@ static int capture_init(struct ngl_ctx *s)
             .width = config->width,
             .height = config->height,
             .nb_colors = 1,
-            .colors[0] = &s->capture_rt_color,
+            .colors[0] = {
+                .attachment = &s->capture_rt_color,
+            },
         };
         int ret = ngli_rendertarget_init(&s->capture_rt, s, &rt_params);
         if (ret < 0)
@@ -234,7 +240,9 @@ static int capture_init(struct ngl_ctx *s)
                 .width = config->width,
                 .height = config->height,
                 .nb_colors = 1,
-                .colors[0] = &s->oes_resolve_rt_color,
+                .colors[0] = {
+                    .attachment = &s->oes_resolve_rt_color,
+                }
             };
             ret = ngli_rendertarget_init(&s->oes_resolve_rt, s, &rt_params);
             if (ret < 0)
