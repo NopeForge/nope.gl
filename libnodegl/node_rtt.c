@@ -228,11 +228,6 @@ static int rtt_prefetch(struct ngl_node *node)
         .height = s->height,
     };
 
-    struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
-    attachment_params.width = s->width;
-    attachment_params.height = s->height;
-    attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
-
     for (int i = 0; i < s->nb_color_textures; i++) {
         struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
         struct texture *texture = &texture_priv->texture;
@@ -261,7 +256,11 @@ static int rtt_prefetch(struct ngl_node *node)
 
         if (depth_format != NGLI_FORMAT_UNDEFINED) {
             struct texture *depth = &s->depth;
+            struct texture_params attachment_params = NGLI_TEXTURE_PARAM_DEFAULTS;
             attachment_params.format = depth_format;
+            attachment_params.width = s->width;
+            attachment_params.height = s->height;
+            attachment_params.usage = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY;
             ret = ngli_texture_init(depth, ctx, &attachment_params);
             if (ret < 0)
                 return ret;
