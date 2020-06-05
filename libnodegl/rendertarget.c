@@ -87,31 +87,65 @@ static void blit_draw_buffers(struct rendertarget *s, int nb_color_attachments, 
     ngli_glDrawBuffers(gl, s->nb_color_attachments, s->draw_buffers);
 }
 
-static int create_fbo(struct rendertarget *s)
+static void resolve_no_draw_buffers(struct rendertarget *s)
+{
+    blit(s, s->width, s->height, 0, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+}
+
+static void resolve_draw_buffers(struct rendertarget *s)
+{
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
+    struct rendertarget_params *params = &s->params;
+
+    const GLenum *draw_buffers = s->blit_draw_buffers;
+
+    for (int i = 0; i < params->nb_colors; i++) {
+        const struct attachment *attachment = &params->colors[i];
+        if (!attachment->resolve_target)
+            continue;
+        GLbitfield flags = GL_COLOR_BUFFER_BIT;
+        if (i == 0)
+            flags |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
+        ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0 + i);
+        ngli_glDrawBuffers(gl, i + 1, draw_buffers);
+        draw_buffers += i + 1;
+        blit(s, s->width, s->height, 0, flags);
+    }
+    ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0);
+    ngli_glDrawBuffers(gl, s->nb_color_attachments, s->draw_buffers);
+}
+
+static int create_fbo(struct rendertarget *s, int resolve)
 {
     int ret = -1;
     struct ngl_ctx *ctx = s->ctx;
     struct glcontext *gl = ctx->glcontext;
     const struct rendertarget_params *params = &s->params;
 
-    ngli_glGenFramebuffers(gl, 1, &s->id);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->id);
+    GLuint id = 0;
+    int nb_color_attachments = 0;
 
-    s->nb_color_attachments = 0;
+    ngli_glGenFramebuffers(gl, 1, &id);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, id);
+
     for (int i = 0; i < params->nb_colors; i++) {
         const struct attachment *attachment = &params->colors[i];
-        const struct texture *texture = attachment->attachment;
-        const int layer = attachment->attachment_layer;
+        const struct texture *texture = resolve ? attachment->resolve_target : attachment->attachment;
+        const int layer = resolve ? attachment->resolve_target_layer : attachment->attachment_layer;
+
+        if (!texture)
+            continue;
 
         GLenum attachment_index = get_gl_attachment_index(texture->format);
         ngli_assert(attachment_index == GL_COLOR_ATTACHMENT0);
 
-        if (s->nb_color_attachments >= gl->max_color_attachments) {
+        if (nb_color_attachments >= gl->max_color_attachments) {
             LOG(ERROR, "could not attach color buffer %d (maximum %d)",
-                s->nb_color_attachments, gl->max_color_attachments);
+                nb_color_attachments, gl->max_color_attachments);
             goto fail;
         }
-        attachment_index = attachment_index + s->nb_color_attachments++;
+        attachment_index = attachment_index + nb_color_attachments++;
 
         switch (texture->target) {
         case GL_RENDERBUFFER:
@@ -129,7 +163,7 @@ static int create_fbo(struct rendertarget *s)
     }
 
     const struct attachment *attachment = &params->depth_stencil;
-    const struct texture *texture = attachment->attachment;
+    struct texture *texture = resolve ? attachment->resolve_target : attachment->attachment;
     if (texture) {
         const GLenum attachment_index = get_gl_attachment_index(texture->format);
         ngli_assert(attachment_index != GL_COLOR_ATTACHMENT0);
@@ -152,16 +186,34 @@ static int create_fbo(struct rendertarget *s)
     }
 
     if (ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        LOG(ERROR, "framebuffer %u is not complete", s->id);
+        LOG(ERROR, "framebuffer %u is not complete", id);
         goto fail;
+    }
+
+    if (resolve) {
+        s->resolve_id = id;
+        s->nb_resolve_color_attachments = nb_color_attachments;
+    } else {
+        s->id = id;
+        s->nb_color_attachments = nb_color_attachments;
     }
 
     return 0;
 
 fail:
-    ngli_glDeleteFramebuffers(gl, 1, &s->id);
-    s->id = 0;
+    ngli_glDeleteFramebuffers(gl, 1, &id);
     return ret;
+}
+
+static int require_resolve_fbo(struct rendertarget *s)
+{
+    const struct rendertarget_params *params = &s->params;
+    for (int i = 0; i < params->nb_colors; i++) {
+        const struct attachment *attachment = &params->colors[i];
+        if (attachment->resolve_target)
+            return 1;
+    }
+    return 0;
 }
 
 int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const struct rendertarget_params *params)
@@ -173,11 +225,19 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
     s->width = params->width;
     s->height = params->height;
 
-    int ret = create_fbo(s);
+    int ret;
+    if (require_resolve_fbo(s)) {
+        ret = create_fbo(s, 1);
+        if (ret < 0)
+            goto done;
+    }
+
+    ret = create_fbo(s, 0);
     if (ret < 0)
         goto done;
 
     s->blit = blit_no_draw_buffers;
+    s->resolve = resolve_no_draw_buffers;
     if (gl->features & NGLI_FEATURE_DRAW_BUFFERS) {
         if (s->nb_color_attachments > gl->max_draw_buffers) {
             LOG(ERROR, "draw buffer count (%d) exceeds driver limit (%d)",
@@ -197,6 +257,7 @@ int ngli_rendertarget_init(struct rendertarget *s, struct ngl_ctx *ctx, const st
             }
 
             s->blit = blit_draw_buffers;
+            s->resolve = resolve_draw_buffers;
         }
     }
 
@@ -225,6 +286,26 @@ void ngli_rendertarget_blit(struct rendertarget *s, struct rendertarget *dst, in
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
 }
 
+void ngli_rendertarget_resolve(struct rendertarget *s)
+{
+    struct ngl_ctx *ctx = s->ctx;
+    struct glcontext *gl = ctx->glcontext;
+
+    if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT))
+        return;
+
+    if (!s->resolve_id)
+        return;
+
+    ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s->id);
+    ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s->resolve_id);
+    s->resolve(s);
+
+    struct rendertarget *rt = ctx->rendertarget;
+    const GLuint fbo_id = rt ? rt->id : ngli_glcontext_get_default_framebuffer(gl);
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+}
+
 void ngli_rendertarget_read_pixels(struct rendertarget *s, uint8_t *data)
 {
     struct ngl_ctx *ctx = s->ctx;
@@ -232,12 +313,13 @@ void ngli_rendertarget_read_pixels(struct rendertarget *s, uint8_t *data)
     struct rendertarget *rt = ctx->rendertarget;
 
     const GLuint fbo_id = rt ? rt->id : ngli_glcontext_get_default_framebuffer(gl);
-    if (s->id != fbo_id)
-        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s->id);
+    const GLuint id = s->resolve_id ? s->resolve_id : s->id;
+    if (id != fbo_id)
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, id);
 
     ngli_glReadPixels(gl, 0, 0, s->width, s->height, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-    if (s->id != fbo_id)
+    if (id != fbo_id)
         ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
 }
 
@@ -249,6 +331,7 @@ void ngli_rendertarget_reset(struct rendertarget *s)
 
     struct glcontext *gl = ctx->glcontext;
     ngli_glDeleteFramebuffers(gl, 1, &s->id);
+    ngli_glDeleteFramebuffers(gl, 1, &s->resolve_id);
 
     memset(s, 0, sizeof(*s));
 }
