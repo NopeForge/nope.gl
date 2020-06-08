@@ -326,15 +326,14 @@ int ngli_texture_init(struct texture *s,
     } else {
         ngli_glGenTextures(gl, 1, &s->id);
         ngli_glBindTexture(gl, s->target, s->id);
-        int mipmap_filter = params->mipmap_filter;
-        if (mipmap_filter &&
+        if (s->params.mipmap_filter &&
             !(gl->features & NGLI_FEATURE_TEXTURE_NPOT) &&
             (!is_pow2(params->width) || !is_pow2(params->height))) {
             LOG(WARNING, "context does not support non-power of two textures, "
                 "mipmapping will be disabled");
-            mipmap_filter = NGLI_MIPMAP_FILTER_NONE;
+            s->params.mipmap_filter = NGLI_MIPMAP_FILTER_NONE;
         }
-        const GLint min_filter = ngli_texture_get_gl_min_filter(params->min_filter, mipmap_filter);
+        const GLint min_filter = ngli_texture_get_gl_min_filter(params->min_filter, s->params.mipmap_filter);
         const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->mag_filter);
         const GLint wrap_s = ngli_texture_get_gl_wrap(params->wrap_s);
         const GLint wrap_t = ngli_texture_get_gl_wrap(params->wrap_t);
