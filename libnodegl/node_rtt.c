@@ -234,7 +234,7 @@ static int rtt_prefetch(struct ngl_node *node)
                     return ret;
                 s->nb_ms_colors++;
                 rt_params.colors[rt_params.nb_colors].attachment = ms_texture;
-                rt_params.colors[rt_params.nb_colors].attachment_layer = j;
+                rt_params.colors[rt_params.nb_colors].attachment_layer = 0;
                 rt_params.colors[rt_params.nb_colors].resolve_target = texture;
                 rt_params.colors[rt_params.nb_colors].resolve_target_layer = j;
             } else {
