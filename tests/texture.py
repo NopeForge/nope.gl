@@ -298,6 +298,8 @@ _RENDER_TEXTURE_LOD_VERT = '''
 #version %(version)s
 in vec4 ngl_position;
 in vec2 ngl_uvcoord;
+uniform mat4 ngl_modelview_matrix;
+uniform mat4 ngl_projection_matrix;
 out vec2 var_uvcoord;
 
 void main()
