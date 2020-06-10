@@ -302,7 +302,7 @@ out vec2 var_uvcoord;
 
 void main()
 {
-    gl_Position = ngl_position;
+    gl_Position = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;
     var_uvcoord = ngl_uvcoord;
 }
 '''
