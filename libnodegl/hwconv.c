@@ -148,10 +148,11 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
 
     struct glcontext *gl = ctx->glcontext;
     struct texture *texture = dst_image->planes[0];
+    struct texture_params *texture_params = &texture->params;
 
     struct rendertarget_desc rt_desc = {
         .nb_colors = 1,
-        .colors[0].format = texture->format,
+        .colors[0].format = texture_params->format,
     };
     struct rendertarget_params rt_params = {
         .width = dst_image->params.width,
