@@ -28,7 +28,6 @@
 #include <libavcodec/mediacodec.h>
 #endif
 
-#include "glincludes.h"
 #include "log.h"
 #include "nodegl.h"
 #include "nodes.h"
@@ -153,7 +152,7 @@ static int media_init(struct ngl_node *node)
         .wrap_s = NGLI_WRAP_CLAMP_TO_EDGE,
         .wrap_t = NGLI_WRAP_CLAMP_TO_EDGE,
         .wrap_r = NGLI_WRAP_CLAMP_TO_EDGE,
-        .access = GL_READ_WRITE,
+        .access = NGLI_ACCESS_READ_WRITE,
         .external_oes = 1,
     };
 
