@@ -166,6 +166,7 @@ static struct hmap *program_probe_uniforms(struct glcontext *gl, GLuint pid)
 
         int ret = ngli_hmap_set(umap, name, info);
         if (ret < 0) {
+            free_pinfo(NULL, info);
             ngli_hmap_freep(&umap);
             return NULL;
         }
@@ -207,6 +208,7 @@ static struct hmap *program_probe_attributes(struct glcontext *gl, GLuint pid)
 
         int ret = ngli_hmap_set(amap, name, info);
         if (ret < 0) {
+            free_pinfo(NULL, info);
             ngli_hmap_freep(&amap);
             return NULL;
         }
@@ -249,6 +251,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
 
         int ret = ngli_hmap_set(bmap, name, info);
         if (ret < 0) {
+            free_pinfo(NULL, info);
             ngli_hmap_freep(&bmap);
             return NULL;
         }
@@ -282,6 +285,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
 
         int ret = ngli_hmap_set(bmap, name, info);
         if (ret < 0) {
+            free_pinfo(NULL, info);
             ngli_hmap_freep(&bmap);
             return NULL;
         }
