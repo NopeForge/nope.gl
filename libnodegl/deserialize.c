@@ -484,7 +484,7 @@ static int set_node_params(struct darray *nodes_array, char *str,
         if (ret < 0) {
             LOG(ERROR, "unable to set node param %s.%s: %s",
                 node->class->name, par->key, NGLI_RET_STR(ret));
-            return NGL_ERROR_INVALID_DATA;
+            return ret;
         }
 
         str += ret;
