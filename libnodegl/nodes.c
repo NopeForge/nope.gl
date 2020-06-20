@@ -291,8 +291,11 @@ static int node_init(struct ngl_node *node)
     }
 
     int ret = track_children(node);
-    if (ret < 0)
+    if (ret < 0) {
+        node->state = STATE_INIT_FAILED;
+        node_uninit(node);
         return ret;
+    }
 
     if (node->class->prefetch)
         node->state = STATE_INITIALIZED;
