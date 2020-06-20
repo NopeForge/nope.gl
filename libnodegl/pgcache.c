@@ -71,6 +71,7 @@ static int query_cache(struct pgcache *s, struct program *dst,
 
     int ret = ngli_program_init(new_program, s->ctx, vert, frag, comp);
     if (ret < 0) {
+        ngli_program_reset(new_program);
         ngli_free(new_program);
         return ret;
     }
