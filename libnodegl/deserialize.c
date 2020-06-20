@@ -455,8 +455,8 @@ static int set_node_params(struct darray *nodes_array, char *str,
 
         int ret = parse_param(nodes_array, base_ptr, par, str);
         if (ret < 0) {
-            LOG(ERROR, "invalid value specified for parameter %s.%s",
-                node->class->name, par->key);
+            LOG(ERROR, "unable to set node param %s.%s: %s",
+                node->class->name, par->key, NGLI_RET_STR(ret));
             return ret;
         }
 
@@ -482,8 +482,8 @@ static int set_node_params(struct darray *nodes_array, char *str,
         str = eok + 1;
         int ret = parse_param(nodes_array, base_ptr, par, str);
         if (ret < 0) {
-            LOG(ERROR, "invalid value specified for parameter %s.%s",
-                node->class->name, par->key);
+            LOG(ERROR, "unable to set node param %s.%s: %s",
+                node->class->name, par->key, NGLI_RET_STR(ret));
             return NGL_ERROR_INVALID_DATA;
         }
 
