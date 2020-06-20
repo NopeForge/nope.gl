@@ -111,7 +111,7 @@ assume you are comfortable with the basis. If not, you may want to look at [the
 book of shaders][book-of-shaders] or any beginner resource of your choice.
 
 You may want to refer to the [vertex and fragment shader
-parameters][expl-shaders] documetation to know which parameters are exposed by
+parameters][expl-shaders] documentation to know which parameters are exposed by
 `node.gl`.
 
 We are now going to pimp a little our fragment shader. Instead of just picking
