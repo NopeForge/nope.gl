@@ -328,12 +328,14 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     if (!ngli_darray_push(&s->pipeline_buffers, &pipeline_buffer))
         return NGL_ERROR_MEMORY;
 
-    if (!ngli_darray_push(&s->block_nodes, &block))
-        return NGL_ERROR_MEMORY;
-
     int ret = ngli_node_block_ref(block);
     if (ret < 0)
         return ret;
+
+    if (!ngli_darray_push(&s->block_nodes, &block)) {
+        ngli_node_block_unref(block);
+        return NGL_ERROR_MEMORY;
+    }
 
     return 0;
 }
