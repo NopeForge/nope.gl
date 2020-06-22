@@ -418,6 +418,11 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     if (ret < 0)
         return ret;
 
+    if (!ngli_darray_push(&s->attribute_nodes, &attribute)) {
+        ngli_node_buffer_unref(attribute);
+        return NGL_ERROR_MEMORY;
+    }
+
     struct buffer_priv *attribute_priv = attribute->priv_data;
     const int format = attribute_priv->data_format;
     int stride = attribute_priv->data_stride;
@@ -458,9 +463,6 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
         if (!ngli_darray_push(&s->pipeline_attributes, &pipeline_attribute))
             return NGL_ERROR_MEMORY;
     }
-
-    if (!ngli_darray_push(&s->attribute_nodes, &attribute))
-        return NGL_ERROR_MEMORY;
 
     return 0;
 }
