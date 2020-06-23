@@ -256,15 +256,14 @@ static const struct node_param texturecube_params[] = {
     {NULL}
 };
 
-static int texture_prefetch(struct ngl_node *node, enum texture_type type)
+static int texture_prefetch(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gctx *gctx = ctx->gctx;
     struct texture_priv *s = node->priv_data;
     struct texture_params *params = &s->params;
 
-    params->type = type;
-    if (type == NGLI_TEXTURE_TYPE_CUBE)
+    if (params->type == NGLI_TEXTURE_TYPE_CUBE)
         params->height = params->width;
 
     if (gctx->features & NGLI_FEATURE_TEXTURE_STORAGE)
@@ -355,16 +354,6 @@ static int texture_prefetch(struct ngl_node *node, enum texture_type type)
     return 0;
 }
 
-#define TEXTURE_PREFETCH(name, type)                        \
-static int texture##name##_prefetch(struct ngl_node *node)  \
-{                                                           \
-    return texture_prefetch(node, type);                    \
-}
-
-TEXTURE_PREFETCH(2d,   NGLI_TEXTURE_TYPE_2D)
-TEXTURE_PREFETCH(3d,   NGLI_TEXTURE_TYPE_3D)
-TEXTURE_PREFETCH(cube, NGLI_TEXTURE_TYPE_CUBE)
-
 static void handle_media_frame(struct ngl_node *node)
 {
     int ret = ngli_hwupload_upload_frame(node);
@@ -422,6 +411,7 @@ static void texture_release(struct ngl_node *node)
 static int texture2d_init(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
+    s->params.type = NGLI_TEXTURE_TYPE_2D;
     s->supported_image_layouts = s->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
     return 0;
 }
@@ -435,6 +425,10 @@ static int texture3d_init(struct ngl_node *node)
         LOG(ERROR, "context does not support 3D textures");
         return NGL_ERROR_UNSUPPORTED;
     }
+
+    struct texture_priv *s = node->priv_data;
+    s->params.type = NGLI_TEXTURE_TYPE_3D;
+
     return 0;
 }
 
@@ -447,6 +441,10 @@ static int texturecube_init(struct ngl_node *node)
         LOG(ERROR, "context does not support cube map textures");
         return NGL_ERROR_UNSUPPORTED;
     }
+
+    struct texture_priv *s = node->priv_data;
+    s->params.type = NGLI_TEXTURE_TYPE_CUBE;
+
     return 0;
 }
 
@@ -455,7 +453,7 @@ const struct node_class ngli_texture2d_class = {
     .category  = NGLI_NODE_CATEGORY_TEXTURE,
     .name      = "Texture2D",
     .init      = texture2d_init,
-    .prefetch  = texture2d_prefetch,
+    .prefetch  = texture_prefetch,
     .update    = texture_update,
     .release   = texture_release,
     .priv_size = sizeof(struct texture_priv),
@@ -468,7 +466,7 @@ const struct node_class ngli_texture3d_class = {
     .category  = NGLI_NODE_CATEGORY_TEXTURE,
     .name      = "Texture3D",
     .init      = texture3d_init,
-    .prefetch  = texture3d_prefetch,
+    .prefetch  = texture_prefetch,
     .update    = texture_update,
     .release   = texture_release,
     .priv_size = sizeof(struct texture_priv),
@@ -481,7 +479,7 @@ const struct node_class ngli_texturecube_class = {
     .category  = NGLI_NODE_CATEGORY_TEXTURE,
     .name      = "TextureCube",
     .init      = texturecube_init,
-    .prefetch  = texturecube_prefetch,
+    .prefetch  = texture_prefetch,
     .update    = texture_update,
     .release   = texture_release,
     .priv_size = sizeof(struct texture_priv),
