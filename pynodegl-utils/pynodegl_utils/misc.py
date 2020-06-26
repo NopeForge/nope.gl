@@ -46,7 +46,7 @@ def scene(**widgets_specs):
         final_specs = []
 
         # Construct a arg -> default dict
-        func_specs = inspect.getargspec(scene_func)
+        func_specs = inspect.getfullargspec(scene_func)
         if func_specs.defaults:
             nb_optionnals = len(func_specs.defaults)
             for i, key in enumerate(func_specs.args[-nb_optionnals:]):
