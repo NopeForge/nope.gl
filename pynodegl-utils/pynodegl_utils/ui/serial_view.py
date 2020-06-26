@@ -52,7 +52,8 @@ class SerialView(QtWidgets.QWidget):
         filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
         if not filenames[0]:
             return
-        open(filenames[0], 'w').write(data)
+        with open(filenames[0], 'w') as f:
+            f.write(data)
 
     def enter(self):
         cfg = self._get_scene_func()

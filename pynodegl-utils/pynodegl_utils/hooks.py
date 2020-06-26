@@ -176,7 +176,8 @@ class _HooksThread(QtCore.QThread):
             # The serialized scene is then stored in a file which is then
             # communicated with additional parameters to the user
             local_scene = op.join(tempfile.gettempdir(), 'ngl_scene.ngl')
-            open(local_scene, 'w').write(serialized_scene)
+            with open(local_scene, 'w') as f:
+                f.write(serialized_scene)
             self.sendingScene.emit(session_id, self._scene_id)
             try:
                 self._hooks_caller.scene_change(session_id, local_scene, cfg)

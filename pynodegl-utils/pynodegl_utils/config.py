@@ -87,7 +87,8 @@ class Config(QtCore.QObject):
 
         config_filepath = self._get_config_filepath()
         if op.exists(config_filepath):
-            self._cfg.update(json.load(open(config_filepath, 'r')))
+            with open(config_filepath) as f:
+                self._cfg.update(json.load(f))
         else:
             self._needs_saving = True
 

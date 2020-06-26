@@ -172,7 +172,8 @@ class SceneCfg:
         filename = '%s.%s' % (name, stype)
         if shader_path is None:
             shader_path = op.join(op.dirname(__file__), 'examples', 'shaders')
-        return open(op.join(shader_path, filename)).read()
+        with open(op.join(shader_path, filename)) as f:
+            return f.read()
 
     def get_frag(self, name, shader_path=None):
         return self._get_shader(name, 'frag', shader_path)
