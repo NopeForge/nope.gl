@@ -333,7 +333,7 @@ updatedoc: gen_doc$(EXESUF)
 #
 # OpenGL function wrappers
 #
-gen-gl-wrappers: gl.xml
+gen_gl_wrappers: gl.xml
 	$(PYTHON) gen-gl-wrappers.py $^
 gl.xml:
 	$(CURL) https://raw.githubusercontent.com/KhronosGroup/OpenGL-Registry/master/xml/$@ -o $@
@@ -413,6 +413,6 @@ uninstall:
 	$(RM) $(DESTDIR)$(PREFIX)/include/nodegl.h
 	$(RM) -r $(DESTDIR)$(PREFIX)/share/nodegl
 
-.PHONY: all updatespecs clean install uninstall gen-gl-wrappers testprogs tests
+.PHONY: all updatespecs clean install uninstall gen_gl_wrappers testprogs tests
 
 -include $(LIB_DEPS)
