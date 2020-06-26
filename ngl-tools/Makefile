@@ -24,8 +24,11 @@ include ../common.mak
 SDL_CFLAGS := $(shell $(PKG_CONFIG) --cflags sdl2)
 SDL_LDLIBS := $(shell $(PKG_CONFIG) --libs   sdl2)
 
-TOOLS_CFLAGS := $(shell $(PKG_CONFIG) --cflags libnodegl libsxplayer)
-TOOLS_LDLIBS := $(shell $(PKG_CONFIG) --libs   libnodegl libsxplayer)
+SXPLAYER_CFLAGS := $(shell $(PKG_CONFIG) --cflags libsxplayer)
+SXPLAYER_LDLIBS := $(shell $(PKG_CONFIG) --libs   libsxplayer)
+
+TOOLS_CFLAGS := $(shell $(PKG_CONFIG) --cflags libnodegl)
+TOOLS_LDLIBS := $(shell $(PKG_CONFIG) --libs   libnodegl)
 
 ifeq ($(TARGET_OS),Darwin)
 TOOLS_LDLIBS += -framework AppKit
@@ -79,8 +82,8 @@ ngl-serialize$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(PYTHON_CFLA
 ngl-serialize$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(PYTHON_LDLIBS)
 ngl-serialize$(EXESUF): ngl-serialize.o python_utils.o
 
-ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(SDL_CFLAGS)
-ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(SDL_LDLIBS)
+ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(SDL_CFLAGS) $(SXPLAYER_CFLAGS)
+ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(SDL_LDLIBS) $(SXPLAYER_LDLIBS)
 ngl-player$(EXESUF): ngl-player.o player.o $(WSI_OBJS)
 
 ngl-render$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(SDL_CFLAGS)
