@@ -20,7 +20,6 @@
 # under the License.
 #
 
-from collections import OrderedDict
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
@@ -57,7 +56,7 @@ class HooksView(QtWidgets.QWidget):
 
         self._refresh_btn.clicked.connect(self._refresh)
 
-        self._data_cache = OrderedDict()
+        self._data_cache = {}
         self._references = {}
         self._refresh()
 
@@ -91,7 +90,7 @@ class HooksView(QtWidgets.QWidget):
         self._view.resizeColumnsToContents()
 
     def get_data_from_model(self):
-        data = OrderedDict()
+        data = {}
         for row_id in range(self._model.rowCount()):
             name_item, desc_item, backend_item, system_item, status_item = [self._model.item(row_id, i) for i in range(5)]
             data[name_item.text()] = dict(
