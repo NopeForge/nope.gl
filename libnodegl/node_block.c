@@ -292,6 +292,11 @@ static int block_init(struct ngl_node *node)
         return NGL_ERROR_UNSUPPORTED;
     }
 
+    if (!s->nb_fields) {
+        LOG(ERROR, "block fields must not be empty");
+        return NGL_ERROR_INVALID_ARG;
+    }
+
     int ret = check_dup_labels(node->label, s->fields, s->nb_fields);
     if (ret < 0)
         return ret;
