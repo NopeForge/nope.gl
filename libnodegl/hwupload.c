@@ -211,8 +211,7 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     if (hwupload->hwmap_class && hwupload->hwmap_class->uninit) {
         hwupload->hwmap_class->uninit(node);
     }
-    ngli_free(hwupload->hwmap_priv_data);
-    hwupload->hwmap_priv_data = NULL;
+    ngli_freep(&hwupload->hwmap_priv_data);
     hwupload->hwmap_class = NULL;
     ngli_image_reset(&s->image);
 }

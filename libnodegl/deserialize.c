@@ -151,8 +151,7 @@ static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \
         consumed++;                                                         \
     }                                                                       \
     if (consumed < 0) {                                                     \
-        ngli_free(vals);                                                    \
-        vals = NULL;                                                        \
+        ngli_freep(&vals);                                                  \
         nb_vals = 0;                                                        \
     }                                                                       \
     *valsp = vals;                                                          \
@@ -169,10 +168,8 @@ DECLARE_PARSE_LIST_FUNC(unsigned, parse_uint)
 #define FREE_KVS(count, keys, vals) do {                                    \
     for (int k = 0; k < (count); k++)                                       \
         ngli_free((keys)[k]);                                               \
-    ngli_free(keys);                                                        \
-    ngli_free(vals);                                                        \
-    keys = NULL;                                                            \
-    vals = NULL;                                                            \
+    ngli_freep(&keys);                                                      \
+    ngli_freep(&vals);                                                      \
 } while (0)
 
 static int parse_kvs(const char *s, int *nb_kvsp, char ***keysp, int **valsp)

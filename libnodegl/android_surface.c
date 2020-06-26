@@ -237,8 +237,7 @@ void ngli_android_surface_free(struct android_surface **surface)
 
     JNIEnv *env = ngli_jni_get_env();
     if (!env) {
-        ngli_free(*surface);
-        *surface = NULL;
+        ngli_freep(surface);
         return;
     }
 
@@ -266,8 +265,7 @@ fail:
 
     pthread_mutex_destroy(&(*surface)->lock);
     pthread_cond_destroy(&(*surface)->cond);
-    ngli_free(*surface);
-    *surface = NULL;
+    ngli_freep(surface);
 }
 
 void *ngli_android_surface_get_surface(struct android_surface *surface)

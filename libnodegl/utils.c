@@ -82,10 +82,8 @@ char *ngli_asprintf(const char *fmt, ...)
     va_start(va, fmt);
     len = vsnprintf(p, len + 1, fmt, va);
     va_end(va);
-    if (len < 0) {
-        ngli_free(p);
-        p = NULL;
-    }
+    if (len < 0)
+        ngli_freep(&p);
 
 end:
     return p;

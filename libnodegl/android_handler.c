@@ -92,8 +92,7 @@ void ngli_android_handler_free(struct android_handler **handler)
 
     JNIEnv *env = ngli_jni_get_env();
     if (!env) {
-        ngli_free(*handler);
-        *handler = NULL;
+        ngli_freep(handler);
         return;
     }
 
@@ -101,6 +100,5 @@ void ngli_android_handler_free(struct android_handler **handler)
 
     ngli_jni_reset_jfields(env, &(*handler)->jfields, android_handler_mapping, 1);
 
-    ngli_free(*handler);
-    *handler = NULL;
+    ngli_freep(handler);
 }

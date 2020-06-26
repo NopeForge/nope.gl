@@ -457,9 +457,7 @@ void ngli_glcontext_freep(struct glcontext **glcontextp)
         glcontext->class->uninit(glcontext);
 
     ngli_free(glcontext->priv_data);
-    ngli_free(glcontext);
-
-    *glcontextp = NULL;
+    ngli_freep(glcontextp);
 }
 
 void *ngli_glcontext_get_proc_address(struct glcontext *glcontext, const char *name)

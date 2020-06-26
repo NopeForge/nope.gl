@@ -1122,6 +1122,5 @@ void ngli_pgcraft_freep(struct pgcraft **sp)
     ngli_darray_reset(&s->filtered_pipeline_buffers);
     ngli_darray_reset(&s->filtered_pipeline_attributes);
 
-    ngli_free(s);
-    *sp = NULL;
+    ngli_freep(sp);
 }

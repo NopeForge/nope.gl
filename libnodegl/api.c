@@ -425,8 +425,7 @@ void ngl_freep(struct ngl_ctx **ss)
     ngli_darray_reset(&s->modelview_matrix_stack);
     ngli_darray_reset(&s->projection_matrix_stack);
     ngli_darray_reset(&s->activitycheck_nodes);
-    ngli_free(*ss);
-    *ss = NULL;
+    ngli_freep(ss);
 }
 
 #if defined(TARGET_ANDROID)

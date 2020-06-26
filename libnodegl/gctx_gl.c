@@ -321,8 +321,7 @@ static void capture_reset(struct gctx *s)
     ngli_texture_freep(&s_priv->capture_rt_color);
     ngli_rendertarget_freep(&s_priv->oes_resolve_rt);
     ngli_texture_freep(&s_priv->oes_resolve_rt_color);
-    ngli_free(s_priv->capture_buffer);
-    s_priv->capture_buffer = NULL;
+    ngli_freep(&s_priv->capture_buffer);
 #if defined(TARGET_IPHONE)
     if (s_priv->capture_cvbuffer) {
         CFRelease(s_priv->capture_cvbuffer);

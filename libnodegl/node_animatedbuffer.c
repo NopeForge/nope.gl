@@ -115,8 +115,7 @@ static void animatedbuffer_uninit(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
 
-    ngli_free(s->data);
-    s->data = NULL;
+    ngli_freep(&s->data);
 }
 
 #define DEFINE_ABUFFER_CLASS(class_id, class_name, type, class_data_type, format)  \

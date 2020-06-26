@@ -416,8 +416,7 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
             LOG(VERBOSE, "set %s to %p (of size %d)", par->key, data, size);
             uint8_t **dst = (uint8_t **)dstp;
 
-            ngli_free(*dst);
-            *dst = NULL;
+            ngli_freep(dst);
             if (data && size) {
                 *dst = ngli_malloc(size);
                 if (!*dst)

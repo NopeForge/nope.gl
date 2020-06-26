@@ -261,6 +261,5 @@ void ngli_hmap_freep(struct hmap **hmp)
     }
 
     ngli_free(hm->buckets);
-    ngli_free(hm);
-    *hmp = NULL;
+    ngli_freep(hmp);
 }

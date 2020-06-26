@@ -121,6 +121,5 @@ void ngli_android_handlerthread_free(struct android_handlerthread **threadp)
     pthread_mutex_destroy(&thread->lock);
     pthread_cond_destroy(&thread->cond);
 
-    ngli_free(*threadp);
-    *threadp = NULL;
+    ngli_freep(threadp);
 }
