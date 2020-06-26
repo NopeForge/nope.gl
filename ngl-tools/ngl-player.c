@@ -30,25 +30,25 @@
 struct sxplayer_info g_info;
 struct ngl_node *g_opacity_uniform;
 
-static const char pgbar_vertex[] = \
-"void main()"                                                                       "\n" \
-"{"                                                                                 "\n" \
-"    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;"    "\n" \
-"    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;"        "\n" \
+static const char pgbar_vertex[] =
+"void main()"                                                                       "\n"
+"{"                                                                                 "\n"
+"    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;"    "\n"
+"    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;"        "\n"
 "}";
 
-static const char *pgbar_fragment = \
-"void main()"                                                           "\n" \
-"{"                                                                     "\n" \
-"    float height = 2.0 / 100. * ar;"                                   "\n" \
-"    float x = var_tex0_coord.x;"                                       "\n" \
-"    float y = var_tex0_coord.y;"                                       "\n" \
-"    vec4 video_pix = ngl_texvideo(tex0, var_tex0_coord);"              "\n" \
-"    vec4 color = video_pix;"                                           "\n" \
-"    float time = tex0_ts / media_duration;"                            "\n" \
-"    if (y > 1. - height)"                                              "\n" \
-"        color = x < time ? vec4(1.) : mix(video_pix, vec4(1.), 0.3);"  "\n" \
-"    ngl_out_color = mix(video_pix, color, opacity);"                   "\n" \
+static const char *pgbar_fragment =
+"void main()"                                                           "\n"
+"{"                                                                     "\n"
+"    float height = 2.0 / 100. * ar;"                                   "\n"
+"    float x = var_tex0_coord.x;"                                       "\n"
+"    float y = var_tex0_coord.y;"                                       "\n"
+"    vec4 video_pix = ngl_texvideo(tex0, var_tex0_coord);"              "\n"
+"    vec4 color = video_pix;"                                           "\n"
+"    float time = tex0_ts / media_duration;"                            "\n"
+"    if (y > 1. - height)"                                              "\n"
+"        color = x < time ? vec4(1.) : mix(video_pix, vec4(1.), 0.3);"  "\n"
+"    ngl_out_color = mix(video_pix, color, opacity);"                   "\n"
 "}"                                                                     "\n";
 
 static struct ngl_node *get_scene(const char *filename)
