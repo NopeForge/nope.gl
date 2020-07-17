@@ -187,8 +187,10 @@ static void nsgl_uninit(struct glcontext *ctx)
     if (nsgl->framework)
         CFRelease(nsgl->framework);
 
-    if (nsgl->handle)
+    if (nsgl->handle) {
+        [nsgl->handle clearDrawable];
         CFRelease(nsgl->handle);
+    }
 
     if (nsgl->pixel_format)
         CFRelease(nsgl->pixel_format);
