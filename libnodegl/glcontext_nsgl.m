@@ -36,31 +36,7 @@ struct nsgl_priv {
     NSOpenGLContext *handle;
     NSView *view;
     CFBundleRef framework;
-    CVDisplayLinkRef display_link;
-    int swap_interval;
-    int swap_event;
-    NSCondition *swap_condition;
 };
-
-static CVReturn display_link_cb(CVDisplayLinkRef display_link,
-                                const CVTimeStamp *now,
-                                const CVTimeStamp *output_time,
-                                CVOptionFlags flags_in,
-                                CVOptionFlags *flags_out,
-                                void *user_info)
-{
-    struct glcontext *ctx = user_info;
-    struct nsgl_priv *nsgl = ctx->priv_data;
-
-    if (nsgl->swap_interval > 0) {
-        [nsgl->swap_condition lock];
-        nsgl->swap_event++;
-        [nsgl->swap_condition signal];
-        [nsgl->swap_condition unlock];
-    }
-
-    return kCVReturnSuccess;
-}
 
 static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
 {
@@ -132,24 +108,6 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
         }
 
         [nsgl->handle setView:nsgl->view];
-
-        CVReturn ret = CVDisplayLinkCreateWithActiveCGDisplays(&nsgl->display_link);
-        if (ret != kCVReturnSuccess) {
-            LOG(ERROR, "could not create CVDisplayLink");
-            return -1;
-        }
-
-        ret = CVDisplayLinkSetOutputCallback(nsgl->display_link, display_link_cb, ctx);
-        if (ret != kCVReturnSuccess) {
-            LOG(ERROR, "could not set CVDisplayLink callback");
-            return -1;
-        }
-
-        nsgl->swap_condition = [NSCondition new];
-        if (!nsgl->swap_condition) {
-            LOG(ERROR, "could not allocate swap condition");
-            return -1;
-        }
     }
 
     return 0;
@@ -189,16 +147,6 @@ static int nsgl_make_current(struct glcontext *ctx, int current)
 static void nsgl_swap_buffers(struct glcontext *ctx)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
-
-    if (nsgl->swap_interval > 0) {
-        [nsgl->swap_condition lock];
-        do {
-            [nsgl->swap_condition wait];
-        } while (!nsgl->swap_event);
-        nsgl->swap_event = 0;
-        [nsgl->swap_condition unlock];
-    }
-
     [nsgl->handle flushBuffer];
 }
 
@@ -206,19 +154,7 @@ static int nsgl_set_swap_interval(struct glcontext *ctx, int interval)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
 
-    if (!nsgl->display_link)
-        return 0;
-
-    nsgl->swap_interval = interval;
-    if (nsgl->swap_interval > 0) {
-        if (!CVDisplayLinkIsRunning(nsgl->display_link)) {
-            CVReturn ret = CVDisplayLinkStart(nsgl->display_link);
-            if (ret != kCVReturnSuccess) {
-                LOG(ERROR, "could not start display link");
-                return -1;
-            }
-        }
-    }
+    [nsgl->handle setValues:&interval forParameter:NSOpenGLCPSwapInterval];
 
     return 0;
 }
@@ -247,12 +183,6 @@ static uintptr_t nsgl_get_handle(struct glcontext *ctx)
 static void nsgl_uninit(struct glcontext *ctx)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
-
-    if (nsgl->display_link)
-        CVDisplayLinkRelease(nsgl->display_link);
-
-    if (nsgl->swap_condition)
-        CFRelease(nsgl->swap_condition);
 
     if (nsgl->framework)
         CFRelease(nsgl->framework);
