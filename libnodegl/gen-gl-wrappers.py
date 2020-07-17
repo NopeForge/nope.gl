@@ -101,6 +101,7 @@ cmds_optional = [
 
     # Read/Draw Buffer
     'glReadBuffer',
+    'glDrawBuffer',
     'glDrawBuffers',
 
     # UInt uniforms

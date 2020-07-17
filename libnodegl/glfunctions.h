@@ -59,6 +59,7 @@ struct glfunctions {
     NGLI_GL_APIENTRY void (*DispatchCompute)(GLuint num_groups_x, GLuint num_groups_y, GLuint num_groups_z);
     NGLI_GL_APIENTRY void (*DrawArrays)(GLenum mode, GLint first, GLsizei count);
     NGLI_GL_APIENTRY void (*DrawArraysInstanced)(GLenum mode, GLint first, GLsizei count, GLsizei instancecount);
+    NGLI_GL_APIENTRY void (*DrawBuffer)(GLenum buf);
     NGLI_GL_APIENTRY void (*DrawBuffers)(GLsizei n, const GLenum * bufs);
     NGLI_GL_APIENTRY void (*DrawElements)(GLenum mode, GLsizei count, GLenum type, const void * indices);
     NGLI_GL_APIENTRY void (*DrawElementsInstanced)(GLenum mode, GLsizei count, GLenum type, const void * indices, GLsizei instancecount);

@@ -60,6 +60,7 @@ static const struct gldefinition {
     {"glDispatchCompute", offsetof(struct glfunctions, DispatchCompute), 0},
     {"glDrawArrays", offsetof(struct glfunctions, DrawArrays), M},
     {"glDrawArraysInstanced", offsetof(struct glfunctions, DrawArraysInstanced), 0},
+    {"glDrawBuffer", offsetof(struct glfunctions, DrawBuffer), 0},
     {"glDrawBuffers", offsetof(struct glfunctions, DrawBuffers), 0},
     {"glDrawElements", offsetof(struct glfunctions, DrawElements), M},
     {"glDrawElementsInstanced", offsetof(struct glfunctions, DrawElementsInstanced), 0},

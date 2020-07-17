@@ -294,6 +294,12 @@ static inline void ngli_glDrawArraysInstanced(const struct glcontext *gl, GLenum
     check_error_code(gl, "glDrawArraysInstanced");
 }
 
+static inline void ngli_glDrawBuffer(const struct glcontext *gl, GLenum buf)
+{
+    gl->funcs.DrawBuffer(buf);
+    check_error_code(gl, "glDrawBuffer");
+}
+
 static inline void ngli_glDrawBuffers(const struct glcontext *gl, GLsizei n, const GLenum * bufs)
 {
     gl->funcs.DrawBuffers(n, bufs);
