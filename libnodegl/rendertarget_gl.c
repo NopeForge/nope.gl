@@ -81,7 +81,11 @@ static void blit_draw_buffers(struct rendertarget *s, int nb_color_attachments, 
         if (i == 0)
             flags |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
         ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0 + i);
+#if defined(TARGET_DARWIN)
+        ngli_glDrawBuffer(gl, GL_COLOR_ATTACHMENT0 + i);
+#else
         ngli_glDrawBuffers(gl, i + 1, draw_buffers);
+#endif
         draw_buffers += i + 1;
         blit(s, width, height, vflip, flags);
     }
@@ -111,7 +115,11 @@ static void resolve_draw_buffers(struct rendertarget *s)
         if (i == 0)
             flags |= GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT;
         ngli_glReadBuffer(gl, GL_COLOR_ATTACHMENT0 + i);
+#if defined(TARGET_DARWIN)
+        ngli_glDrawBuffer(gl, GL_COLOR_ATTACHMENT0 + i);
+#else
         ngli_glDrawBuffers(gl, i + 1, draw_buffers);
+#endif
         draw_buffers += i + 1;
         blit(s, s->width, s->height, 0, flags);
     }
