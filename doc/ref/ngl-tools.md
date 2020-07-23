@@ -13,7 +13,9 @@ The [ngl-tools][ngl-tools] is a set of small C programs making use of
 testing or diagnose video playback and seeking issues, this tool is likely a
 good start.
 
-**Usage**: `ngl-player <media>`
+**Usage**: `ngl-player [options] <media>`
+
+The detail of available options can be obtained with `ngl-player -h`.
 
 ![ngl-player](img/ngl-player.png)
 

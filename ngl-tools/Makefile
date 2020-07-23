@@ -84,7 +84,7 @@ ngl-serialize$(EXESUF): ngl-serialize.o python_utils.o
 
 ngl-player$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(SDL_CFLAGS) $(SXPLAYER_CFLAGS)
 ngl-player$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(SDL_LDLIBS) $(SXPLAYER_LDLIBS)
-ngl-player$(EXESUF): ngl-player.o player.o $(WSI_OBJS)
+ngl-player$(EXESUF): ngl-player.o player.o opts.o $(WSI_OBJS)
 
 ngl-render$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(SDL_CFLAGS)
 ngl-render$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(SDL_LDLIBS)

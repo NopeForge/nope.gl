@@ -25,12 +25,26 @@
 #include <sxplayer.h>
 
 #include "common.h"
+#include "opts.h"
 #include "player.h"
 
 struct ctx {
+    /* options */
     int log_level;
     struct ngl_config cfg;
+    int player_ui;
+
     struct sxplayer_info media_info;
+};
+
+#define OFFSET(x) offsetof(struct ctx, x)
+static const struct opt options[] = {
+    {"-l", "--loglevel",         OPT_TYPE_LOGLEVEL, .offset=OFFSET(log_level)},
+    {"-b", "--backend",          OPT_TYPE_BACKEND,  .offset=OFFSET(cfg.backend)},
+    {"-z", "--swap_interval",    OPT_TYPE_INT,      .offset=OFFSET(cfg.swap_interval)},
+    {"-c", "--clear_color",      OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
+    {"-m", "--samples",          OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
+    {"-u", "--disable-ui",       OPT_TYPE_TOGGLE,   .offset=OFFSET(player_ui)},
 };
 
 static const char *media_vertex =
@@ -99,21 +113,23 @@ static int probe(const char *filename, struct sxplayer_info *media_info)
 
 int main(int argc, char *argv[])
 {
-    int ret;
     struct ctx s = {
         .log_level          = NGL_LOG_INFO,
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
+        .player_ui          = 1,
     };
 
-    if (argc < 2) {
-        fprintf(stderr, "Usage: %s <media>\n", argv[0]);
-        return -1;
+    int ret = opts_parse(argc, argc - 1, argv, options, ARRAY_NB(options), &s);
+    if (ret < 0 || ret == OPT_HELP || argc < 2) {
+        opts_print_usage(argv[0], options, ARRAY_NB(options), " <media>");
+        return ret == OPT_HELP ? 0 : EXIT_FAILURE;
     }
 
     ngl_log_set_min_level(s.log_level);
 
-    ret = probe(argv[1], &s.media_info);
+    const char *filename = argv[argc - 1];
+    ret = probe(filename, &s.media_info);
     if (ret < 0)
         return ret;
 
@@ -124,7 +140,7 @@ int main(int argc, char *argv[])
     struct player p;
     s.cfg.width  = s.media_info.width;
     s.cfg.height = s.media_info.height;
-    ret = player_init(&p, "ngl-player", scene, &s.cfg, s.media_info.duration, 1);
+    ret = player_init(&p, "ngl-player", scene, &s.cfg, s.media_info.duration, s.player_ui);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);
