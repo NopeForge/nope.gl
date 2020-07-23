@@ -24,6 +24,6 @@
 
 #include <nodegl.h>
 
-struct ngl_node *python_get_scene(const char *modname, const char *func_name, double *duration);
+struct ngl_node *python_get_scene(const char *modname, const char *func_name, double *duration, int *aspect);
 
 #endif

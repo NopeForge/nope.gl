@@ -42,12 +42,13 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    static const int aspect[2] = {1, 1};
-    get_viewport(cfg.width, cfg.height, aspect, cfg.viewport);
+    int aspect[2] = {1, 1};
 
-    struct ngl_node *scene = python_get_scene(argv[1], argv[2], &duration);
+    struct ngl_node *scene = python_get_scene(argv[1], argv[2], &duration, aspect);
     if (!scene)
         return -1;
+
+    get_viewport(cfg.width, cfg.height, aspect, cfg.viewport);
 
     struct player p;
     ret = player_init(&p, "ngl-python", scene, &cfg, duration);

@@ -25,7 +25,7 @@
 
 #include "python_utils.h"
 
-struct ngl_node *python_get_scene(const char *modname, const char *func_name, double *duration)
+struct ngl_node *python_get_scene(const char *modname, const char *func_name, double *duration, int *aspect)
 {
     PyObject *pyscene = NULL;
     PyObject *com = NULL, *load_script = NULL, *path = NULL;
@@ -58,6 +58,22 @@ struct ngl_node *python_get_scene(const char *modname, const char *func_name, do
 
     if (duration) {
         *duration = PyFloat_AsDouble(pyduration);
+        if (PyErr_Occurred())
+            goto end;
+    }
+
+    if (aspect) {
+        PyObject *pyaspect = PyDict_GetItemString(ret_pydict, "aspect_ratio");
+        if (!pyaspect)
+            goto end;
+        PyObject *pyaspect0, *pyaspect1;
+        if (!(pyaspect0 = PyTuple_GetItem(pyaspect, 0)) ||
+            !(pyaspect1 = PyTuple_GetItem(pyaspect, 1)))
+            goto end;
+        aspect[0] = PyLong_AsLong(pyaspect0);
+        if (PyErr_Occurred())
+            goto end;
+        aspect[1] = PyLong_AsLong(pyaspect1);
         if (PyErr_Occurred())
             goto end;
     }
