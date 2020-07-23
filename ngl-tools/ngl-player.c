@@ -32,6 +32,7 @@ struct ctx {
     /* options */
     int log_level;
     struct ngl_config cfg;
+    int direct_rendering;
     int player_ui;
 
     struct sxplayer_info media_info;
@@ -41,6 +42,7 @@ struct ctx {
 static const struct opt options[] = {
     {"-l", "--loglevel",         OPT_TYPE_LOGLEVEL, .offset=OFFSET(log_level)},
     {"-b", "--backend",          OPT_TYPE_BACKEND,  .offset=OFFSET(cfg.backend)},
+    {"-d", "--direct_rendering", OPT_TYPE_INT,      .offset=OFFSET(direct_rendering)},
     {"-z", "--swap_interval",    OPT_TYPE_INT,      .offset=OFFSET(cfg.swap_interval)},
     {"-c", "--clear_color",      OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
     {"-m", "--samples",          OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
@@ -60,7 +62,7 @@ static const char *media_fragment =
 "    ngl_out_color = ngl_texvideo(tex0, var_tex0_coord);"               "\n"
 "}";
 
-static struct ngl_node *get_scene(const char *filename)
+static struct ngl_node *get_scene(const char *filename, int direct_rendering)
 {
     static const float corner[3] = {-1.0, -1.0, 0.0};
     static const float width[3]  = { 2.0,  0.0, 0.0};
@@ -79,6 +81,9 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_param_set(quad, "height", height);
 
     ngl_node_param_set(texture, "data_src", media);
+    if (direct_rendering != -1)
+        ngl_node_param_set(texture, "direct_rendering", direct_rendering);
+
     ngl_node_param_set(program, "vertex",   media_vertex);
     ngl_node_param_set(program, "fragment", media_fragment);
     ngl_node_param_set(program, "vert_out_vars", "var_tex0_coord", var_tex0_coord);
@@ -115,6 +120,7 @@ int main(int argc, char *argv[])
 {
     struct ctx s = {
         .log_level          = NGL_LOG_INFO,
+        .direct_rendering   = -1,
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
         .player_ui          = 1,
@@ -133,7 +139,7 @@ int main(int argc, char *argv[])
     if (ret < 0)
         return ret;
 
-    struct ngl_node *scene = get_scene(argv[1]);
+    struct ngl_node *scene = get_scene(filename, s.direct_rendering);
     if (!scene)
         return -1;
 
