@@ -28,6 +28,7 @@
 #include "player.h"
 
 struct ctx {
+    int log_level;
     struct ngl_config cfg;
     struct sxplayer_info media_info;
 };
@@ -100,6 +101,7 @@ int main(int argc, char *argv[])
 {
     int ret;
     struct ctx s = {
+        .log_level          = NGL_LOG_INFO,
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
     };
@@ -108,6 +110,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage: %s <media>\n", argv[0]);
         return -1;
     }
+
+    ngl_log_set_min_level(s.log_level);
 
     ret = probe(argv[1], &s.media_info);
     if (ret < 0)
