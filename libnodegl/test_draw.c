@@ -64,7 +64,7 @@ static int save_ppm(const char *filename, uint8_t *data, int width, int height)
 
     const int size = header_size + width * height * 3;
     ret = write(fd, buf, size);
-    if (ret < 0) {
+    if (ret != size) {
         fprintf(stderr, "Failed to write PPM data\n");
         goto end;
     }
