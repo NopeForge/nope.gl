@@ -87,10 +87,33 @@ struct ctx {
     int debug;
     const char *input;
     const char *output;
-    struct range ranges[128];
+    struct range *ranges;
     int nb_ranges;
     int aspect[2];
 };
+
+static int opt_timerange(const char *arg, void *dst)
+{
+    struct range r;
+    if (sscanf(arg, "%f:%f:%d", &r.start, &r.duration, &r.freq) != 3) {
+        fprintf(stderr, "Invalid range format: \"%s\" "
+                "is not following \"start:duration:freq\"\n", arg);
+        return EXIT_FAILURE;
+    }
+
+    uint8_t *cur_ranges_p = dst;
+    uint8_t *nb_cur_ranges_p = cur_ranges_p + sizeof(struct range *);
+    struct range *cur_ranges = *(struct range **)cur_ranges_p;
+    const int nb_cur_ranges = *(int *)nb_cur_ranges_p;
+    const int nb_new_ranges = nb_cur_ranges + 1;
+    struct range *new_ranges = realloc(cur_ranges, nb_new_ranges * sizeof(*new_ranges));
+    if (!new_ranges)
+        return NGL_ERROR_MEMORY;
+    new_ranges[nb_cur_ranges] = r;
+    memcpy(dst, &new_ranges, sizeof(new_ranges));
+    *(int *)nb_cur_ranges_p = nb_new_ranges;
+    return 0;
+}
 
 int main(int argc, char *argv[])
 {
@@ -108,7 +131,6 @@ int main(int argc, char *argv[])
     };
 
     int ret = 0;
-    struct range *r;
     SDL_Window *window = NULL;
 
     for (int i = 1; i < argc; i++) {
@@ -138,17 +160,9 @@ int main(int argc, char *argv[])
                     s.cfg.swap_interval = atoi(arg);
                     break;
                 case 't':
-                    if (s.nb_ranges >= sizeof(s.ranges)/sizeof(*s.ranges)) {
-                        fprintf(stderr, "Too much ranges specified (max:%d)\n",
-                                (int)(sizeof(s.ranges)/sizeof(*s.ranges)));
+                    ret = opt_timerange(arg, &s.ranges);
+                    if (ret < 0)
                         return EXIT_FAILURE;
-                    }
-                    r = &s.ranges[s.nb_ranges++];
-                    if (sscanf(arg, "%f:%f:%d", &r->start, &r->duration, &r->freq) != 3) {
-                        fprintf(stderr, "Invalid range format: \"%s\" "
-                                "is not following \"start:duration:freq\"\n", arg);
-                        return EXIT_FAILURE;
-                    }
                     break;
                 default:
                     fprintf(stderr, "Unknown option -%c\n", opt);
@@ -285,6 +299,7 @@ end:
         close(fd);
 
     free(capture_buffer);
+    free(s.ranges);
 
     if (show_window) {
         SDL_DestroyWindow(window);
