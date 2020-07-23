@@ -154,25 +154,16 @@ static int key_callback(SDL_Window *window, SDL_KeyboardEvent *event)
 static void size_callback(SDL_Window *window, int width, int height)
 {
     struct player *p = g_player;
-    const double ar = p->aspect[0] / (double)p->aspect[1];
 
-    p->view.width = width;
-    p->view.height = width / ar;
-
-    if (p->view.height > height) {
-        p->view.height = height;
-        p->view.width = height * ar;
-    }
-
-    p->view.x = (width  - p->view.width)  / 2.0;
-    p->view.y = (height - p->view.height) / 2.0;
-
+    get_viewport(width, height, p->aspect, p->ngl_config.viewport);
     p->ngl_config.width = width;
     p->ngl_config.height = height;
-    p->ngl_config.viewport[0] = p->view.x;
-    p->ngl_config.viewport[1] = p->view.y;
-    p->ngl_config.viewport[2] = p->view.width;
-    p->ngl_config.viewport[3] = p->view.height;
+
+    p->view.x      = p->ngl_config.viewport[0];
+    p->view.y      = p->ngl_config.viewport[1];
+    p->view.width  = p->ngl_config.viewport[2];
+    p->view.height = p->ngl_config.viewport[3];
+
     ngl_resize(p->ngl, width, height, p->ngl_config.viewport);
 }
 
