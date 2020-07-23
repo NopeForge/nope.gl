@@ -29,6 +29,7 @@
 #include "python_utils.h"
 
 struct ctx {
+    int log_level;
     int aspect[2];
     struct ngl_config cfg;
     double duration;
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
 {
     int ret;
     struct ctx s = {
+        .log_level  = NGL_LOG_INFO,
         .cfg.width  = 1280,
         .cfg.height = 800,
         .aspect[0]  = 1,
@@ -50,6 +52,8 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage: %s <module|script.py> <scene_func>\n", argv[0]);
         return -1;
     }
+
+    ngl_log_set_min_level(s.log_level);
 
     struct ngl_node *scene = python_get_scene(argv[1], argv[2], &s.duration, s.aspect);
     if (!scene)
