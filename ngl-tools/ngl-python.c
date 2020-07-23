@@ -24,6 +24,7 @@
 
 #include <nodegl.h>
 
+#include "common.h"
 #include "player.h"
 #include "python_utils.h"
 
@@ -40,6 +41,9 @@ int main(int argc, char *argv[])
         fprintf(stderr, "Usage: %s <module|script.py> <scene_func>\n", argv[0]);
         return -1;
     }
+
+    static const int aspect[2] = {1, 1};
+    get_viewport(cfg.width, cfg.height, aspect, cfg.viewport);
 
     struct ngl_node *scene = python_get_scene(argv[1], argv[2], &duration);
     if (!scene)
