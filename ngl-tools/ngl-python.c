@@ -55,8 +55,8 @@ int main(int argc, char *argv[])
 {
     struct ctx s = {
         .log_level  = NGL_LOG_INFO,
-        .cfg.width  = 1280,
-        .cfg.height = 800,
+        .cfg.width  = DEFAULT_WIDTH,
+        .cfg.height = DEFAULT_HEIGHT,
         .aspect[0]  = 1,
         .aspect[1]  = 1,
         .cfg.swap_interval  = -1,

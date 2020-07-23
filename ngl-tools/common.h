@@ -27,6 +27,9 @@
 
 #define ARRAY_NB(x) ((int)(sizeof(x) / sizeof(*(x))))
 
+#define DEFAULT_WIDTH  640
+#define DEFAULT_HEIGHT 360
+
 int64_t gettime(void);
 double clipd(double v, double min, double max);
 int clipi(int v, int min, int max);
