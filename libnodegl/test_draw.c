@@ -29,14 +29,14 @@
 
 #include "drawutils.h"
 
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+
 static int save_ppm(const char *filename, uint8_t *data, int width, int height)
 {
     int ret = 0;
-    int flags = O_WRONLY|O_CREAT|O_TRUNC;
-#ifdef O_BINARY
-    flags |= O_BINARY;
-#endif
-    int fd = open(filename, flags, 0644);
+    int fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
     if (fd == -1) {
         fprintf(stderr, "Unable to open '%s'\n", filename);
         return -1;
