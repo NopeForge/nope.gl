@@ -37,8 +37,8 @@ struct player {
         double height;
     } view;
 
-    int width, height;
     int64_t duration;
+    int aspect[2];
 
     struct ngl_ctx *ngl;
     struct ngl_config ngl_config;

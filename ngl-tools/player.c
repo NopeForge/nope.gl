@@ -154,7 +154,7 @@ static int key_callback(SDL_Window *window, SDL_KeyboardEvent *event)
 static void size_callback(SDL_Window *window, int width, int height)
 {
     struct player *p = g_player;
-    const double ar = p->width / (double)p->height;
+    const double ar = p->aspect[0] / (double)p->aspect[1];
 
     p->view.width = width;
     p->view.height = width / ar;
@@ -247,8 +247,8 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
 
     p->clock_off = -1;
     p->lasthover = -1;
-    p->width  = cfg->width;
-    p->height = cfg->height;
+    p->aspect[0] = cfg->width;
+    p->aspect[1] = cfg->height;
     p->duration = duration * 1000000;
 
     p->ngl_config = *cfg;
@@ -259,8 +259,8 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     p->ngl_config.swap_interval = -1;
     p->ngl_config.viewport[0] = 0;
     p->ngl_config.viewport[1] = 0;
-    p->ngl_config.viewport[2] = p->width;
-    p->ngl_config.viewport[3] = p->height;
+    p->ngl_config.viewport[2] = cfg->width;
+    p->ngl_config.viewport[3] = cfg->height;
     p->ngl_config.clear_color[0] = 0.0f;
     p->ngl_config.clear_color[1] = 0.0f;
     p->ngl_config.clear_color[2] = 0.0f;
