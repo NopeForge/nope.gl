@@ -78,6 +78,7 @@ struct compute_priv {
                                           NGL_NODE_STREAMEDVEC3,    \
                                           NGL_NODE_STREAMEDVEC4,    \
                                           NGL_NODE_STREAMEDMAT4,    \
+                                          NGL_NODE_TIME,            \
                                           -1}
 
 #define OFFSET(x) offsetof(struct compute_priv, x)
