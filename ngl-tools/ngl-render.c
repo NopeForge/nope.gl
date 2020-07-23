@@ -88,6 +88,7 @@ struct ctx {
     const char *output;
     struct range ranges[128];
     int nb_ranges;
+    int aspect[2];
 };
 
 int main(int argc, char *argv[])
@@ -100,6 +101,8 @@ int main(int argc, char *argv[])
         .cfg.offscreen      = 1,
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
+        .aspect[0]          = 1,
+        .aspect[1]          = 1,
     };
 
     int ret = 0;
@@ -214,8 +217,7 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-    s.cfg.viewport[2]    = s.cfg.width;
-    s.cfg.viewport[3]    = s.cfg.height;
+    get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
     s.cfg.capture_buffer = capture_buffer;
 
     if (show_window) {
