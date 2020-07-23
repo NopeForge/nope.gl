@@ -92,7 +92,7 @@ ngl-render$(EXESUF): ngl-render.o $(WSI_OBJS)
 
 ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(SDL_CFLAGS) $(PYTHON_CFLAGS)
 ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(SDL_LDLIBS) $(PYTHON_LDLIBS)
-ngl-python$(EXESUF): ngl-python.o player.o python_utils.o $(WSI_OBJS)
+ngl-python$(EXESUF): ngl-python.o player.o python_utils.o opts.o $(WSI_OBJS)
 
 TOOLS_OBJS = common.o
 

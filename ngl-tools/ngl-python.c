@@ -25,19 +25,34 @@
 #include <nodegl.h>
 
 #include "common.h"
+#include "opts.h"
 #include "player.h"
 #include "python_utils.h"
 
 struct ctx {
+    /* options */
     int log_level;
     int aspect[2];
     struct ngl_config cfg;
+    int player_ui;
+
     double duration;
+};
+
+#define OFFSET(x) offsetof(struct ctx, x)
+static const struct opt options[] = {
+    {"-l", "--loglevel",      OPT_TYPE_LOGLEVEL, .offset=OFFSET(log_level)},
+    {"-b", "--backend",       OPT_TYPE_BACKEND,  .offset=OFFSET(cfg.backend)},
+    {"-s", "--size",          OPT_TYPE_RATIONAL, .offset=OFFSET(cfg.width)},
+    {"-a", "--aspect",        OPT_TYPE_RATIONAL, .offset=OFFSET(aspect)},
+    {"-z", "--swap_interval", OPT_TYPE_INT,      .offset=OFFSET(cfg.swap_interval)},
+    {"-c", "--clear_color",   OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
+    {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
+    {"-u", "--disable-ui",    OPT_TYPE_TOGGLE,   .offset=OFFSET(player_ui)},
 };
 
 int main(int argc, char *argv[])
 {
-    int ret;
     struct ctx s = {
         .log_level  = NGL_LOG_INFO,
         .cfg.width  = 1280,
@@ -46,23 +61,27 @@ int main(int argc, char *argv[])
         .aspect[1]  = 1,
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
+        .player_ui          = 1,
     };
 
-    if (argc < 3) {
-        fprintf(stderr, "Usage: %s <module|script.py> <scene_func>\n", argv[0]);
-        return -1;
+    int ret = opts_parse(argc, argc - 2, argv, options, ARRAY_NB(options), &s);
+    if (ret < 0 || ret == OPT_HELP || argc < 3) {
+        opts_print_usage(argv[0], options, ARRAY_NB(options), " <module> <scene_func>");
+        return ret == OPT_HELP ? 0 : EXIT_FAILURE;
     }
 
     ngl_log_set_min_level(s.log_level);
 
-    struct ngl_node *scene = python_get_scene(argv[1], argv[2], &s.duration, s.aspect);
+    const char *scene_func = argv[argc - 1];
+    const char *module     = argv[argc - 2];
+    struct ngl_node *scene = python_get_scene(module, scene_func, &s.duration, s.aspect);
     if (!scene)
         return -1;
 
     get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
 
     struct player p;
-    ret = player_init(&p, "ngl-python", scene, &s.cfg, s.duration, 1);
+    ret = player_init(&p, "ngl-python", scene, &s.cfg, s.duration, s.player_ui);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);
