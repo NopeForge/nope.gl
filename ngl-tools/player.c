@@ -158,12 +158,6 @@ static void size_callback(SDL_Window *window, int width, int height)
     get_viewport(width, height, p->aspect, p->ngl_config.viewport);
     p->ngl_config.width = width;
     p->ngl_config.height = height;
-
-    p->view.x      = p->ngl_config.viewport[0];
-    p->view.y      = p->ngl_config.viewport[1];
-    p->view.width  = p->ngl_config.viewport[2];
-    p->view.height = p->ngl_config.viewport[3];
-
     ngl_resize(p->ngl, width, height, p->ngl_config.viewport);
 }
 
@@ -192,8 +186,9 @@ static void update_time(int64_t seek_at)
 static void seek_event(int x)
 {
     struct player *p = g_player;
-    const double pos = clipd(x - p->view.x, 0.0, p->view.width);
-    const int64_t seek_at64 = p->duration * pos / p->view.width;
+    const int *vp = p->ngl_config.viewport;
+    const int pos = clipi(x - vp[0], 0, vp[2]);
+    const int64_t seek_at64 = p->duration * pos / vp[2];
     p->lasthover = gettime();
     update_time(seek_at64);
 }

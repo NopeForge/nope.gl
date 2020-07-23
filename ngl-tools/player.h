@@ -30,12 +30,6 @@
 struct player {
 
     SDL_Window *window;
-    struct {
-        double x;
-        double y;
-        double width;
-        double height;
-    } view;
 
     int64_t duration;
     int aspect[2];
