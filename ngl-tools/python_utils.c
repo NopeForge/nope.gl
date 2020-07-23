@@ -28,7 +28,7 @@
 struct ngl_node *python_get_scene(const char *modname, const char *func_name, double *duration)
 {
     PyObject *pyscene = NULL;
-    PyObject *mod = NULL, *utils = NULL;
+    PyObject *mod = NULL;
     PyObject *ret_pydict = NULL;
     PyObject *scene_func = NULL, *cptr = NULL, *pyduration = NULL;
     struct ngl_node *scene = NULL;
@@ -36,7 +36,6 @@ struct ngl_node *python_get_scene(const char *modname, const char *func_name, do
     Py_Initialize();
 
     if (!(mod        = PyImport_ImportModule(modname))                 ||
-        !(utils      = PyImport_ImportModule("pynodegl_utils.misc"))   ||
         !(scene_func = PyObject_GetAttrString(mod, func_name))         ||
         !(ret_pydict = PyObject_CallFunctionObjArgs(scene_func, NULL)) ||
         !(pyscene    = PyDict_GetItemString(ret_pydict, "scene"))      ||
@@ -59,7 +58,6 @@ end:
         PyErr_PrintEx(0);
 
     Py_XDECREF(mod);
-    Py_XDECREF(utils);
     Py_XDECREF(scene_func);
     Py_XDECREF(ret_pydict);
     Py_XDECREF(cptr);
