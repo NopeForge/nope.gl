@@ -34,6 +34,10 @@
 
 #define BUF_SIZE 1024
 
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
+
 static struct ngl_node *get_scene(const char *filename)
 {
     struct ngl_node *scene = NULL;
@@ -181,11 +185,7 @@ int main(int argc, char *argv[])
                 goto end;
             }
         } else {
-            int flags = O_WRONLY|O_CREAT|O_TRUNC;
-#ifdef O_BINARY
-            flags |= O_BINARY;
-#endif
-            fd = open(output, flags, 0644);
+            fd = open(output, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
             if (fd == -1) {
                 fprintf(stderr, "Unable to open %s\n", output);
                 ret = EXIT_FAILURE;
