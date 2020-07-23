@@ -186,7 +186,7 @@ static void update_time(int64_t seek_at)
         return;
     }
 
-    if (!p->paused) {
+    if (!p->paused && !p->mouse_down) {
         const int64_t now = gettime();
         if (p->clock_off < 0 || now - p->clock_off > p->duration)
             p->clock_off = now;
@@ -198,20 +198,35 @@ static void update_time(int64_t seek_at)
         p->tick_callback(p);
 }
 
-static void mouse_button_callback(SDL_Window *window, SDL_MouseButtonEvent *event)
+static void seek_event(int x)
 {
     struct player *p = g_player;
-
-    const double pos = clipd(event->x - p->view.x, 0.0, p->view.width);
+    const double pos = clipd(x - p->view.x, 0.0, p->view.width);
     const int64_t seek_at64 = p->duration * pos / p->view.width;
     p->lasthover = gettime();
     update_time(seek_at64);
+}
+
+static void mouse_buttondown_callback(SDL_Window *window, SDL_MouseButtonEvent *event)
+{
+    struct player *p = g_player;
+    p->mouse_down = 1;
+    seek_event(event->x);
+}
+
+static void mouse_buttonup_callback(SDL_Window *window, SDL_MouseButtonEvent *event)
+{
+    struct player *p = g_player;
+    p->mouse_down = 0;
+    p->clock_off = gettime() - p->frame_ts;
 }
 
 static void mouse_pos_callback(SDL_Window *window, SDL_MouseMotionEvent *event)
 {
     struct player *p = g_player;
     p->lasthover = gettime();
+    if (p->mouse_down)
+        seek_event(event->x);
 }
 
 int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
@@ -296,7 +311,10 @@ void player_main_loop(void)
                 run = key_callback(p->window, &event.key) == 0;
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                mouse_button_callback(p->window, &event.button);
+                mouse_buttondown_callback(p->window, &event.button);
+                break;
+            case SDL_MOUSEBUTTONUP:
+                mouse_buttonup_callback(p->window, &event.button);
                 break;
             case SDL_MOUSEMOTION:
                 mouse_pos_callback(p->window, &event.motion);
