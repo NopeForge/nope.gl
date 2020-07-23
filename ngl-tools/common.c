@@ -39,6 +39,13 @@ double clipd(double v, double min, double max)
     return v;
 }
 
+int clipi(int v, int min, int max)
+{
+    if (v < min) return min;
+    if (v > max) return max;
+    return v;
+}
+
 void get_viewport(int width, int height, const int *aspect_ratio, int *vp)
 {
     vp[2] = width;
