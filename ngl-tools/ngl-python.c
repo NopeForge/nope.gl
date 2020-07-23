@@ -28,13 +28,20 @@
 #include "player.h"
 #include "python_utils.h"
 
+struct ctx {
+    int aspect[2];
+    struct ngl_config cfg;
+    double duration;
+};
+
 int main(int argc, char *argv[])
 {
     int ret;
-    double duration;
-    struct ngl_config cfg = {
-        .width  = 1280,
-        .height = 800,
+    struct ctx s = {
+        .cfg.width  = 1280,
+        .cfg.height = 800,
+        .aspect[0]  = 1,
+        .aspect[1]  = 1,
     };
 
     if (argc < 3) {
@@ -42,16 +49,14 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    int aspect[2] = {1, 1};
-
-    struct ngl_node *scene = python_get_scene(argv[1], argv[2], &duration, aspect);
+    struct ngl_node *scene = python_get_scene(argv[1], argv[2], &s.duration, s.aspect);
     if (!scene)
         return -1;
 
-    get_viewport(cfg.width, cfg.height, aspect, cfg.viewport);
+    get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
 
     struct player p;
-    ret = player_init(&p, "ngl-python", scene, &cfg, duration, 1);
+    ret = player_init(&p, "ngl-python", scene, &s.cfg, s.duration, 1);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);
