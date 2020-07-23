@@ -82,6 +82,7 @@ struct range {
 };
 
 struct ctx {
+    int log_level;
     struct ngl_config cfg;
     int debug;
     const char *input;
@@ -94,6 +95,7 @@ struct ctx {
 int main(int argc, char *argv[])
 {
     struct ctx s = {
+        .log_level          = NGL_LOG_INFO,
         .input              = NULL,
         .output             = NULL,
         .cfg.width          = 320,
@@ -160,6 +162,8 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
     }
+
+    ngl_log_set_min_level(s.log_level);
 
     if (!s.nb_ranges) {
         fprintf(stderr, "At least one range needs to be specified (-t start:duration:freq)\n");
