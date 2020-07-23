@@ -97,13 +97,13 @@ int main(int argc, char *argv[])
         .output             = NULL,
         .cfg.width          = 320,
         .cfg.height         = 240,
+        .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
     };
 
     int ret = 0;
     struct range *r;
     int show_window = 0;
-    int swap_interval = 0;
     SDL_Window *window = NULL;
     int stdout_output = 0;
 
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
                     }
                     break;
                 case 'z':
-                    swap_interval = atoi(arg);
+                    s.cfg.swap_interval = atoi(arg);
                     break;
                 case 't':
                     if (s.nb_ranges >= sizeof(s.ranges)/sizeof(*s.ranges)) {
@@ -225,7 +225,6 @@ int main(int argc, char *argv[])
             ngl_node_unrefp(&scene);
             return ret;
         }
-        s.cfg.swap_interval = swap_interval;
     }
 
     ret = ngl_configure(ctx, &s.cfg);
