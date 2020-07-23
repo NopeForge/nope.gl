@@ -27,7 +27,10 @@
 #include "common.h"
 #include "player.h"
 
-struct sxplayer_info g_info;
+struct ctx {
+    struct sxplayer_info media_info;
+};
+
 static const char *media_vertex =
 "void main()"                                                                       "\n"
 "{"                                                                                 "\n"
@@ -77,13 +80,13 @@ static struct ngl_node *get_scene(const char *filename)
     return render;
 }
 
-static int probe(const char *filename)
+static int probe(const char *filename, struct sxplayer_info *media_info)
 {
     struct sxplayer_ctx *ctx = sxplayer_create(filename);
     if (!ctx)
         return -1;
 
-    int ret = sxplayer_get_info(ctx, &g_info);
+    int ret = sxplayer_get_info(ctx, media_info);
     if (ret < 0)
         return ret;
 
@@ -95,13 +98,14 @@ static int probe(const char *filename)
 int main(int argc, char *argv[])
 {
     int ret;
+    struct ctx s = {0};
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <media>\n", argv[0]);
         return -1;
     }
 
-    ret = probe(argv[1]);
+    ret = probe(argv[1], &s.media_info);
     if (ret < 0)
         return ret;
 
@@ -111,10 +115,10 @@ int main(int argc, char *argv[])
 
     struct player p;
     struct ngl_config cfg = {
-        .width  = g_info.width,
-        .height = g_info.height,
+        .width  = s.media_info.width,
+        .height = s.media_info.height,
     };
-    ret = player_init(&p, "ngl-player", scene, &cfg, g_info.duration, 1);
+    ret = player_init(&p, "ngl-player", scene, &cfg, s.media_info.duration, 1);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);
