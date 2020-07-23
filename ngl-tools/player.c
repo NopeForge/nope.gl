@@ -181,6 +181,12 @@ static void update_time(int64_t seek_at)
 
     if (p->tick_callback)
         p->tick_callback(p);
+
+    if (p->pgbar_opacity_node && p->lasthover >= 0) {
+        const int64_t t64_diff = gettime() - p->lasthover;
+        const double opacity = clipd(1.5 - t64_diff / 1000000.0, 0, 1);
+        ngl_node_param_set(p->pgbar_opacity_node, "value", opacity);
+    }
 }
 
 static void seek_event(int x)
@@ -215,8 +221,88 @@ static void mouse_pos_callback(SDL_Window *window, SDL_MouseMotionEvent *event)
         seek_event(event->x);
 }
 
+static const char *pgbar_vert =
+    "void main()"                                                                       "\n"
+    "{"                                                                                 "\n"
+    "    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;"    "\n"
+    "    coord = ngl_uvcoord;"                                                          "\n"
+    "}";
+
+static const char *pgbar_frag =
+    "void main()"                                                                       "\n"
+    "{"                                                                                 "\n"
+    "    float stime = time / duration;"                                                "\n"
+    "    float alpha = opacity * (coord.x < stime ? 1.0 : 0.3);"                        "\n"
+    "    ngl_out_color = vec4(1.0, 1.0, 1.0, alpha);"                                   "\n"
+    "}";
+
+static struct ngl_node *add_progress_bar(struct ngl_node *scene)
+{
+    struct player *p = g_player;
+
+    static const float bar_corner[3] = {-1.0, -1.0, 0.0};
+    static const float bar_width[3]  = { 2.0,  0.0, 0.0};
+    static const float bar_height[3] = { 0.0,  2.0 * 0.03, 0.0}; // 3% of the height
+
+    struct ngl_node *quad       = ngl_node_create(NGL_NODE_QUAD);
+    struct ngl_node *program    = ngl_node_create(NGL_NODE_PROGRAM);
+    struct ngl_node *render     = ngl_node_create(NGL_NODE_RENDER, quad);
+    struct ngl_node *time       = ngl_node_create(NGL_NODE_TIME);
+    struct ngl_node *v_duration = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
+    struct ngl_node *v_opacity  = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
+    struct ngl_node *coord      = ngl_node_create(NGL_NODE_IOVEC2);
+    struct ngl_node *group      = ngl_node_create(NGL_NODE_GROUP);
+    struct ngl_node *gcfg       = ngl_node_create(NGL_NODE_GRAPHICCONFIG, group);
+
+    if (!quad || !program || !render || !time || !v_duration || !v_opacity ||
+        !coord || !group || !gcfg) {
+        ngl_node_unrefp(&gcfg);
+        goto end;
+    }
+
+    struct ngl_node *children[] = {scene, render};
+
+    ngl_node_param_set(quad, "corner", bar_corner);
+    ngl_node_param_set(quad, "width",  bar_width);
+    ngl_node_param_set(quad, "height", bar_height);
+
+    ngl_node_param_set(program, "vertex",   pgbar_vert);
+    ngl_node_param_set(program, "fragment", pgbar_frag);
+    ngl_node_param_set(program, "vert_out_vars", "coord", coord);
+
+    ngl_node_param_set(v_duration, "value", p->duration_f);
+    ngl_node_param_set(v_opacity,  "value", 0.0);
+
+    ngl_node_param_set(render, "program", program);
+    ngl_node_param_set(render, "frag_resources", "time",     time);
+    ngl_node_param_set(render, "frag_resources", "duration", v_duration);
+    ngl_node_param_set(render, "frag_resources", "opacity",  v_opacity);
+
+    ngl_node_param_add(group, "children", ARRAY_NB(children), children);
+
+    ngl_node_param_set(gcfg, "blend", 1);
+    ngl_node_param_set(gcfg, "blend_src_factor",   "src_alpha");
+    ngl_node_param_set(gcfg, "blend_dst_factor",   "one_minus_src_alpha");
+    ngl_node_param_set(gcfg, "blend_src_factor_a", "zero");
+    ngl_node_param_set(gcfg, "blend_dst_factor_a", "one");
+
+    p->pgbar_opacity_node  = v_opacity;
+
+end:
+    ngl_node_unrefp(&quad);
+    ngl_node_unrefp(&program);
+    ngl_node_unrefp(&render);
+    ngl_node_unrefp(&time);
+    ngl_node_unrefp(&v_duration);
+    ngl_node_unrefp(&v_opacity);
+    ngl_node_unrefp(&coord);
+    ngl_node_unrefp(&group);
+
+    return gcfg;
+}
+
 int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
-                const struct ngl_config *cfg, double duration)
+                const struct ngl_config *cfg, double duration, int enable_ui)
 {
     memset(p, 0, sizeof(*p));
 
@@ -233,6 +319,7 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
 
     p->clock_off = -1;
     p->lasthover = -1;
+    p->duration_f = duration;
     p->duration = duration * 1000000;
 
     p->ngl_config = *cfg;
@@ -266,7 +353,15 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     if (ret < 0)
         return ret;
 
-    ret = ngl_set_scene(p->ngl, scene);
+    if (enable_ui) {
+        scene = add_progress_bar(scene);
+        if (!scene)
+            return NGL_ERROR_MEMORY;
+        ret = ngl_set_scene(p->ngl, scene);
+        ngl_node_unrefp(&scene);
+    } else {
+        ret = ngl_set_scene(p->ngl, scene);
+    }
     if (ret < 0)
         return ret;
 

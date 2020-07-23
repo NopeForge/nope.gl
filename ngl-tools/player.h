@@ -31,6 +31,7 @@ struct player {
 
     SDL_Window *window;
 
+    double duration_f;
     int64_t duration;
     int aspect[2];
 
@@ -42,11 +43,12 @@ struct player {
     int64_t lasthover;
     int mouse_down;
     int fullscreen;
+    struct ngl_node *pgbar_opacity_node;
     void (*tick_callback)(struct player *p);
 };
 
 int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
-                const struct ngl_config *cfg, double duration);
+                const struct ngl_config *cfg, double duration, int enable_ui);
 
 void player_uninit(void);
 

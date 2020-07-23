@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
         .width  = g_info.width,
         .height = g_info.height,
     };
-    ret = player_init(&p, "ngl-player", scene, &cfg, g_info.duration);
+    ret = player_init(&p, "ngl-player", scene, &cfg, g_info.duration, 0);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);
