@@ -25,6 +25,8 @@
 
 #include <stdint.h>
 
+#define ARRAY_NB(x) ((int)(sizeof(x) / sizeof(*(x))))
+
 int64_t gettime(void);
 double clipd(double v, double min, double max);
 int clipi(int v, int min, int max);
