@@ -31,6 +31,10 @@ int main(int argc, char *argv[])
 {
     int ret;
     double duration;
+    struct ngl_config cfg = {
+        .width  = 1280,
+        .height = 800,
+    };
 
     if (argc < 3) {
         fprintf(stderr, "Usage: %s <module|script.py> <scene_func>\n", argv[0]);
@@ -42,8 +46,7 @@ int main(int argc, char *argv[])
         return -1;
 
     struct player p;
-    ret = player_init(&p, "ngl-python", scene,
-                      1280, 800, duration);
+    ret = player_init(&p, "ngl-python", scene, &cfg, duration);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);

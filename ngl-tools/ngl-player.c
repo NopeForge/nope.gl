@@ -144,8 +144,11 @@ int main(int argc, char *argv[])
         return -1;
 
     struct player p;
-    ret = player_init(&p, "ngl-player", scene,
-                      g_info.width, g_info.height, g_info.duration);
+    struct ngl_config cfg = {
+        .width  = g_info.width,
+        .height = g_info.height,
+    };
+    ret = player_init(&p, "ngl-player", scene, &cfg, g_info.duration);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);

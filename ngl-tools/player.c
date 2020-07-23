@@ -230,7 +230,7 @@ static void mouse_pos_callback(SDL_Window *window, SDL_MouseMotionEvent *event)
 }
 
 int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
-                int width, int height, double duration)
+                const struct ngl_config *cfg, double duration)
 {
     memset(p, 0, sizeof(*p));
 
@@ -239,7 +239,7 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     if (init_window() < 0)
         return -1;
 
-    p->window = get_window(win_title, width, height);
+    p->window = get_window(win_title, cfg->width, cfg->height);
     if (!p->window) {
         SDL_Quit();
         return -1;
@@ -247,16 +247,16 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
 
     p->clock_off = -1;
     p->lasthover = -1;
-    p->width = width;
-    p->height = height;
+    p->width  = cfg->width;
+    p->height = cfg->height;
     p->duration = duration * 1000000;
+
+    p->ngl_config = *cfg;
 
     int ret = wsi_set_ngl_config(&p->ngl_config, p->window);
     if (ret < 0)
         return ret;
     p->ngl_config.swap_interval = -1;
-    p->ngl_config.width = width;
-    p->ngl_config.height = height;
     p->ngl_config.viewport[0] = 0;
     p->ngl_config.viewport[1] = 0;
     p->ngl_config.viewport[2] = p->width;

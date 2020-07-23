@@ -52,7 +52,7 @@ struct player {
 };
 
 int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
-                int width, int height, double duration);
+                const struct ngl_config *cfg, double duration);
 
 void player_uninit(void);
 
