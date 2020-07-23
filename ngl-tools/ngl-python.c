@@ -42,6 +42,8 @@ int main(int argc, char *argv[])
         .cfg.height = 800,
         .aspect[0]  = 1,
         .aspect[1]  = 1,
+        .cfg.swap_interval  = -1,
+        .cfg.clear_color[3] = 1.f,
     };
 
     if (argc < 3) {

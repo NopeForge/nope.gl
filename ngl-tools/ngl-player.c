@@ -99,7 +99,10 @@ static int probe(const char *filename, struct sxplayer_info *media_info)
 int main(int argc, char *argv[])
 {
     int ret;
-    struct ctx s = {0};
+    struct ctx s = {
+        .cfg.swap_interval  = -1,
+        .cfg.clear_color[3] = 1.f,
+    };
 
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <media>\n", argv[0]);

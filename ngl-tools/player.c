@@ -336,11 +336,6 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     int ret = wsi_set_ngl_config(&p->ngl_config, p->window);
     if (ret < 0)
         return ret;
-    p->ngl_config.swap_interval = -1;
-    p->ngl_config.clear_color[0] = 0.0f;
-    p->ngl_config.clear_color[1] = 0.0f;
-    p->ngl_config.clear_color[2] = 0.0f;
-    p->ngl_config.clear_color[3] = 1.0f;
 
     p->ngl = ngl_create();
     if (!p->ngl)
