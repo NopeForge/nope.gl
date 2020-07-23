@@ -97,20 +97,20 @@ int main(int argc, char *argv[])
         .output             = NULL,
         .cfg.width          = 320,
         .cfg.height         = 240,
+        .cfg.offscreen      = 1,
         .cfg.swap_interval  = -1,
         .cfg.clear_color[3] = 1.f,
     };
 
     int ret = 0;
     struct range *r;
-    int show_window = 0;
     SDL_Window *window = NULL;
 
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-d")) {
             s.debug = 1;
         } else if (!strcmp(argv[i], "-w")) {
-            show_window = 1;
+            s.cfg.offscreen = 0;
         } else if (argv[i][0] == '-' && i < argc - 1) {
             const char opt = argv[i][1];
             const char *arg = argv[i + 1];
@@ -165,6 +165,7 @@ int main(int argc, char *argv[])
 
     printf("%s -> %s %dx%d\n", s.input ? s.input : "<stdin>", s.output ? s.output : "-", s.cfg.width, s.cfg.height);
 
+    const int show_window = !s.cfg.offscreen;
     if (show_window) {
         if (init_window() < 0)
             return EXIT_FAILURE;
@@ -215,7 +216,6 @@ int main(int argc, char *argv[])
 
     s.cfg.viewport[2]    = s.cfg.width;
     s.cfg.viewport[3]    = s.cfg.height;
-    s.cfg.offscreen      = !show_window;
     s.cfg.capture_buffer = capture_buffer;
 
     if (show_window) {
