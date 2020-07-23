@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
     double duration;
 
     if (argc < 3) {
-        fprintf(stderr, "Usage: %s <module> <scene_func>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <module|script.py> <scene_func>\n", argv[0]);
         return -1;
     }
 

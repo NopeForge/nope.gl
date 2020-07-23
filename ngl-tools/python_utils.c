@@ -28,6 +28,7 @@
 struct ngl_node *python_get_scene(const char *modname, const char *func_name, double *duration)
 {
     PyObject *pyscene = NULL;
+    PyObject *com = NULL, *load_script = NULL, *path = NULL;
     PyObject *mod = NULL;
     PyObject *ret_pydict = NULL;
     PyObject *scene_func = NULL, *cptr = NULL, *pyduration = NULL;
@@ -35,8 +36,19 @@ struct ngl_node *python_get_scene(const char *modname, const char *func_name, do
 
     Py_Initialize();
 
-    if (!(mod        = PyImport_ImportModule(modname))                 ||
-        !(scene_func = PyObject_GetAttrString(mod, func_name))         ||
+    const size_t len = strlen(modname);
+    if (len > 3 && !strcmp(modname + len - 3, ".py")) {
+        if (!(com         = PyImport_ImportModule("pynodegl_utils.com")) ||
+            !(load_script = PyObject_GetAttrString(com, "load_script"))  ||
+            !(path        = PyUnicode_FromString(modname))               ||
+            !(mod         = PyObject_CallFunctionObjArgs(load_script, path, NULL)))
+            goto end;
+    } else {
+        if (!(mod = PyImport_ImportModule(modname)))
+            goto end;
+    }
+
+    if (!(scene_func = PyObject_GetAttrString(mod, func_name))         ||
         !(ret_pydict = PyObject_CallFunctionObjArgs(scene_func, NULL)) ||
         !(pyscene    = PyDict_GetItemString(ret_pydict, "scene"))      ||
         !(cptr       = PyObject_GetAttrString(pyscene, "cptr"))        ||
@@ -57,6 +69,9 @@ end:
     if (PyErr_Occurred())
         PyErr_PrintEx(0);
 
+    Py_XDECREF(com);
+    Py_XDECREF(load_script);
+    Py_XDECREF(path);
     Py_XDECREF(mod);
     Py_XDECREF(scene_func);
     Py_XDECREF(ret_pydict);

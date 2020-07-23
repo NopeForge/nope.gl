@@ -53,7 +53,7 @@ execute a demo script (in order to get the scene) and render it using the
 **Note**: it is only available if the Python headers are present on the system
 at build time.
 
-**Usage**: `ngl-python <module> <scene_func>`
+**Usage**: `ngl-python <module|script.py> <scene_func>`
 
 **Example**: `ngl-python pynodegl_utils.examples.misc fibo`
 
