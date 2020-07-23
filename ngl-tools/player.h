@@ -47,7 +47,6 @@ struct player {
     int paused;
     int64_t lasthover;
     int fullscreen;
-    int win_info_backup[4];
     void (*tick_callback)(struct player *p);
 };
 
