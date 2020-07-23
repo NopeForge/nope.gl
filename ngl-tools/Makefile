@@ -88,7 +88,7 @@ ngl-player$(EXESUF): ngl-player.o player.o opts.o $(WSI_OBJS)
 
 ngl-render$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(SDL_CFLAGS)
 ngl-render$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(SDL_LDLIBS)
-ngl-render$(EXESUF): ngl-render.o $(WSI_OBJS)
+ngl-render$(EXESUF): ngl-render.o opts.o $(WSI_OBJS)
 
 ngl-python$(EXESUF): CFLAGS = $(PROJECT_CFLAGS) $(TOOLS_CFLAGS) $(SDL_CFLAGS) $(PYTHON_CFLAGS)
 ngl-python$(EXESUF): LDLIBS = $(PROJECT_LDLIBS) $(TOOLS_LDLIBS) $(SDL_LDLIBS) $(PYTHON_LDLIBS)

@@ -29,7 +29,7 @@ The detail of available options can be obtained with `ngl-player -h`.
 (by default, in a hidden window).
 
 **Usage**: `ngl-render [-o out.raw] [-s WxH] [-w] [-d] [-z swapinterval]
--t start:duration:freq [-t start:duration:freq ...] [input.ngl]`
+-t start:duration:freq [-t start:duration:freq ...] [-i input.ngl]`
 
 Option                      | Description
 --------------------------- | ---------------------------

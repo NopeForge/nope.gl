@@ -30,6 +30,7 @@
 #include <nodegl.h>
 
 #include "common.h"
+#include "opts.h"
 #include "wsi.h"
 
 #define BUF_SIZE 1024
@@ -82,6 +83,7 @@ struct range {
 };
 
 struct ctx {
+    /* options */
     int log_level;
     struct ngl_config cfg;
     int debug;
@@ -115,6 +117,22 @@ static int opt_timerange(const char *arg, void *dst)
     return 0;
 }
 
+#define OFFSET(x) offsetof(struct ctx, x)
+static const struct opt options[] = {
+    {"-d", "--debug",         OPT_TYPE_TOGGLE,   .offset=OFFSET(debug)},
+    {"-w", "--show_window",   OPT_TYPE_TOGGLE,   .offset=OFFSET(cfg.offscreen)},
+    {"-i", "--input",         OPT_TYPE_STR,      .offset=OFFSET(input)},
+    {"-o", "--output",        OPT_TYPE_STR,      .offset=OFFSET(output)},
+    {"-t", "--timerange",     OPT_TYPE_CUSTOM,   .offset=OFFSET(ranges), .func=opt_timerange},
+    {"-l", "--loglevel",      OPT_TYPE_LOGLEVEL, .offset=OFFSET(log_level)},
+    {"-b", "--backend",       OPT_TYPE_BACKEND,  .offset=OFFSET(cfg.backend)},
+    {"-s", "--size",          OPT_TYPE_RATIONAL, .offset=OFFSET(cfg.width)},
+    {"-a", "--aspect",        OPT_TYPE_RATIONAL, .offset=OFFSET(aspect)},
+    {"-z", "--swap_interval", OPT_TYPE_INT,      .offset=OFFSET(cfg.swap_interval)},
+    {"-c", "--clear_color",   OPT_TYPE_COLOR,    .offset=OFFSET(cfg.clear_color)},
+    {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(cfg.samples)},
+};
+
 int main(int argc, char *argv[])
 {
     struct ctx s = {
@@ -130,51 +148,12 @@ int main(int argc, char *argv[])
         .aspect[1]          = 1,
     };
 
-    int ret = 0;
     SDL_Window *window = NULL;
 
-    for (int i = 1; i < argc; i++) {
-        if (!strcmp(argv[i], "-d")) {
-            s.debug = 1;
-        } else if (!strcmp(argv[i], "-w")) {
-            s.cfg.offscreen = 0;
-        } else if (argv[i][0] == '-' && i < argc - 1) {
-            const char opt = argv[i][1];
-            const char *arg = argv[i + 1];
-            switch (opt) {
-                case 'o':
-                    s.output = arg;
-                    break;
-                case 's':
-                    if (sscanf(arg, "%dx%d", &s.cfg.width, &s.cfg.height) != 2) {
-                        fprintf(stderr, "Invalid size format: \"%s\" "
-                                "is not following \"WxH\"\n", arg);
-                        return EXIT_FAILURE;
-                    }
-                    if (s.cfg.width <= 0 || s.cfg.width > 8192 || s.cfg.height <= 0 || s.cfg.height > 8192) {
-                        fprintf(stderr, "Invalid size: \"%s\" exceeds 8192x8192\n", arg);
-                        return EXIT_FAILURE;
-                    }
-                    break;
-                case 'z':
-                    s.cfg.swap_interval = atoi(arg);
-                    break;
-                case 't':
-                    ret = opt_timerange(arg, &s.ranges);
-                    if (ret < 0)
-                        return EXIT_FAILURE;
-                    break;
-                default:
-                    fprintf(stderr, "Unknown option -%c\n", opt);
-                    return EXIT_FAILURE;
-            }
-            i++;
-        } else if (!s.input) {
-            s.input = argv[i];
-        } else {
-            fprintf(stderr, "Unexpected option \"%s\"\n", argv[i]);
-            return EXIT_FAILURE;
-        }
+    int ret = opts_parse(argc, argc, argv, options, ARRAY_NB(options), &s);
+    if (ret < 0 || ret == OPT_HELP) {
+        opts_print_usage(argv[0], options, ARRAY_NB(options), NULL);
+        return ret == OPT_HELP ? 0 : EXIT_FAILURE;
     }
 
     ngl_log_set_min_level(s.log_level);
