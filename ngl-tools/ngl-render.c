@@ -105,7 +105,6 @@ int main(int argc, char *argv[])
     struct range *r;
     int show_window = 0;
     SDL_Window *window = NULL;
-    int stdout_output = 0;
 
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-d")) {
@@ -118,7 +117,6 @@ int main(int argc, char *argv[])
             switch (opt) {
                 case 'o':
                     s.output = arg;
-                    stdout_output = !strcmp(s.output, "-");
                     break;
                 case 's':
                     if (sscanf(arg, "%dx%d", &s.cfg.width, &s.cfg.height) != 2) {
@@ -189,6 +187,7 @@ int main(int argc, char *argv[])
     }
 
     if (s.output) {
+        const int stdout_output = !strcmp(s.output, "-");
         if (stdout_output) {
             fd = dup(STDOUT_FILENO);
             if (fd < 0 || dup2(STDERR_FILENO, STDOUT_FILENO) < 0) {
