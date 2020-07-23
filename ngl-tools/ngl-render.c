@@ -81,24 +81,35 @@ struct range {
     int freq;
 };
 
+struct ctx {
+    struct ngl_config cfg;
+    int debug;
+    const char *input;
+    const char *output;
+    struct range ranges[128];
+    int nb_ranges;
+};
+
 int main(int argc, char *argv[])
 {
+    struct ctx s = {
+        .input              = NULL,
+        .output             = NULL,
+        .cfg.width          = 320,
+        .cfg.height         = 240,
+        .cfg.clear_color[3] = 1.f,
+    };
+
     int ret = 0;
-    const char *input = NULL;
-    const char *output = NULL;
-    int width = 320, height = 240;
-    struct range ranges[128] = {0};
     struct range *r;
-    int nb_ranges = 0;
     int show_window = 0;
     int swap_interval = 0;
-    int debug = 0;
     SDL_Window *window = NULL;
     int stdout_output = 0;
 
     for (int i = 1; i < argc; i++) {
         if (!strcmp(argv[i], "-d")) {
-            debug = 1;
+            s.debug = 1;
         } else if (!strcmp(argv[i], "-w")) {
             show_window = 1;
         } else if (argv[i][0] == '-' && i < argc - 1) {
@@ -106,16 +117,16 @@ int main(int argc, char *argv[])
             const char *arg = argv[i + 1];
             switch (opt) {
                 case 'o':
-                    output = arg;
-                    stdout_output = !strcmp(output, "-");
+                    s.output = arg;
+                    stdout_output = !strcmp(s.output, "-");
                     break;
                 case 's':
-                    if (sscanf(arg, "%dx%d", &width, &height) != 2) {
+                    if (sscanf(arg, "%dx%d", &s.cfg.width, &s.cfg.height) != 2) {
                         fprintf(stderr, "Invalid size format: \"%s\" "
                                 "is not following \"WxH\"\n", arg);
                         return EXIT_FAILURE;
                     }
-                    if (width <= 0 || width > 8192 || height <= 0 || height > 8192) {
+                    if (s.cfg.width <= 0 || s.cfg.width > 8192 || s.cfg.height <= 0 || s.cfg.height > 8192) {
                         fprintf(stderr, "Invalid size: \"%s\" exceeds 8192x8192\n", arg);
                         return EXIT_FAILURE;
                     }
@@ -124,12 +135,12 @@ int main(int argc, char *argv[])
                     swap_interval = atoi(arg);
                     break;
                 case 't':
-                    if (nb_ranges >= sizeof(ranges)/sizeof(*ranges)) {
+                    if (s.nb_ranges >= sizeof(s.ranges)/sizeof(*s.ranges)) {
                         fprintf(stderr, "Too much ranges specified (max:%d)\n",
-                                (int)(sizeof(ranges)/sizeof(*ranges)));
+                                (int)(sizeof(s.ranges)/sizeof(*s.ranges)));
                         return EXIT_FAILURE;
                     }
-                    r = &ranges[nb_ranges++];
+                    r = &s.ranges[s.nb_ranges++];
                     if (sscanf(arg, "%f:%f:%d", &r->start, &r->duration, &r->freq) != 3) {
                         fprintf(stderr, "Invalid range format: \"%s\" "
                                 "is not following \"start:duration:freq\"\n", arg);
@@ -141,26 +152,26 @@ int main(int argc, char *argv[])
                     return EXIT_FAILURE;
             }
             i++;
-        } else if (!input) {
-            input = argv[i];
+        } else if (!s.input) {
+            s.input = argv[i];
         } else {
             fprintf(stderr, "Unexpected option \"%s\"\n", argv[i]);
             return EXIT_FAILURE;
         }
     }
 
-    if (!nb_ranges) {
+    if (!s.nb_ranges) {
         fprintf(stderr, "At least one range needs to be specified (-t start:duration:freq)\n");
         return EXIT_FAILURE;
     }
 
-    printf("%s -> %s %dx%d\n", input ? input : "<stdin>", output ? output : "-", width, height);
+    printf("%s -> %s %dx%d\n", s.input ? s.input : "<stdin>", s.output ? s.output : "-", s.cfg.width, s.cfg.height);
 
     if (show_window) {
         if (init_window() < 0)
             return EXIT_FAILURE;
 
-        window = get_window("ngl-render", width, height);
+        window = get_window("ngl-render", s.cfg.width, s.cfg.height);
         if (!window) {
             SDL_Quit();
             return EXIT_FAILURE;
@@ -171,13 +182,13 @@ int main(int argc, char *argv[])
     struct ngl_ctx *ctx = NULL;
     uint8_t *capture_buffer = NULL;
 
-    struct ngl_node *scene = get_scene(input);
+    struct ngl_node *scene = get_scene(s.input);
     if (!scene) {
         ret = EXIT_FAILURE;
         goto end;
     }
 
-    if (output) {
+    if (s.output) {
         if (stdout_output) {
             fd = dup(STDOUT_FILENO);
             if (fd < 0 || dup2(STDERR_FILENO, STDOUT_FILENO) < 0) {
@@ -185,14 +196,14 @@ int main(int argc, char *argv[])
                 goto end;
             }
         } else {
-            fd = open(output, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
+            fd = open(s.output, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
             if (fd == -1) {
-                fprintf(stderr, "Unable to open %s\n", output);
+                fprintf(stderr, "Unable to open %s\n", s.output);
                 ret = EXIT_FAILURE;
                 goto end;
             }
         }
-        capture_buffer = calloc(width * height, 4);
+        capture_buffer = calloc(s.cfg.width * s.cfg.height, 4);
         if (!capture_buffer)
             goto end;
     }
@@ -203,24 +214,21 @@ int main(int argc, char *argv[])
         goto end;
     }
 
-    struct ngl_config config = {
-        .width = width,
-        .height = height,
-        .viewport = {0, 0, width, height},
-        .offscreen = !show_window,
-        .capture_buffer = capture_buffer,
-        .clear_color = {0.0f, 0.0f, 0.0f, 1.0f},
-    };
+    s.cfg.viewport[2]    = s.cfg.width;
+    s.cfg.viewport[3]    = s.cfg.height;
+    s.cfg.offscreen      = !show_window;
+    s.cfg.capture_buffer = capture_buffer;
+
     if (show_window) {
-        ret = wsi_set_ngl_config(&config, window);
+        ret = wsi_set_ngl_config(&s.cfg, window);
         if (ret < 0) {
             ngl_node_unrefp(&scene);
             return ret;
         }
-        config.swap_interval = swap_interval;
+        s.cfg.swap_interval = swap_interval;
     }
 
-    ret = ngl_configure(ctx, &config);
+    ret = ngl_configure(ctx, &s.cfg);
     if (ret < 0) {
         ngl_node_unrefp(&scene);
         goto end;
@@ -231,9 +239,9 @@ int main(int argc, char *argv[])
     if (ret < 0)
         goto end;
 
-    for (int i = 0; i < nb_ranges; i++) {
+    for (int i = 0; i < s.nb_ranges; i++) {
         int k = 0;
-        const struct range *r = &ranges[i];
+        const struct range *r = &s.ranges[i];
         const float t0 = r->start;
         const float t1 = r->start + r->duration;
 
@@ -243,16 +251,16 @@ int main(int argc, char *argv[])
             const float t = t0 + k*1./r->freq;
             if (t >= t1)
                 break;
-            if (debug)
+            if (s.debug)
                 printf("draw @ t=%f [range %d/%d: %g-%g @ %dHz]\n",
-                       t, i + 1, nb_ranges, t0, t1, r->freq);
+                       t, i + 1, s.nb_ranges, t0, t1, r->freq);
             ret = ngl_draw(ctx, t);
             if (ret < 0) {
                 fprintf(stderr, "Unable to draw @ t=%g\n", t);
                 goto end;
             }
             if (capture_buffer)
-                write(fd, capture_buffer, 4 * width * height);
+                write(fd, capture_buffer, 4 * s.cfg.width * s.cfg.height);
             if (show_window) {
                 SDL_Event event;
                 while (SDL_PollEvent(&event)) {
