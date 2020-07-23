@@ -38,3 +38,15 @@ double clipd(double v, double min, double max)
     if (v > max) return max;
     return v;
 }
+
+void get_viewport(int width, int height, const int *aspect_ratio, int *vp)
+{
+    vp[2] = width;
+    vp[3] = width * aspect_ratio[1] / (double)aspect_ratio[0];
+    if (vp[3] > height) {
+        vp[3] = height;
+        vp[2] = height * aspect_ratio[0] / (double)aspect_ratio[1];
+    }
+    vp[0] = (width  - vp[2]) / 2.0;
+    vp[1] = (height - vp[3]) / 2.0;
+}

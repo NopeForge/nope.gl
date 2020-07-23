@@ -27,5 +27,6 @@
 
 int64_t gettime(void);
 double clipd(double v, double min, double max);
+void get_viewport(int width, int height, const int *aspect_ratio, int *vp);
 
 #endif
