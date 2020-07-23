@@ -648,6 +648,11 @@ Parameter | Ctor. | Live-chg. | Type | Description | Default
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
 
 
+## Time
+
+**Source**: [node_time.c](/libnodegl/node_time.c)
+
+
 ## TimeRangeFilter
 
 Parameter | Ctor. | Live-chg. | Type | Description | Default

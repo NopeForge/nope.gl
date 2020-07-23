@@ -199,6 +199,7 @@ struct ngl_node;
 #define NGL_NODE_TEXTURE2D              NGLI_FOURCC('T','e','x','2')
 #define NGL_NODE_TEXTURE3D              NGLI_FOURCC('T','e','x','3')
 #define NGL_NODE_TEXTURECUBE            NGLI_FOURCC('T','e','x','C')
+#define NGL_NODE_TIME                   NGLI_FOURCC('T','i','m','e')
 #define NGL_NODE_TIMERANGEFILTER        NGLI_FOURCC('T','R','F','l')
 #define NGL_NODE_TIMERANGEMODECONT      NGLI_FOURCC('T','R','M','C')
 #define NGL_NODE_TIMERANGEMODENOOP      NGLI_FOURCC('T','R','M','N')

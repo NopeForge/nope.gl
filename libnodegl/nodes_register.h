@@ -107,6 +107,7 @@
     action(NGL_NODE_TEXTURE2D,              ngli_texture2d_class)               \
     action(NGL_NODE_TEXTURE3D,              ngli_texture3d_class)               \
     action(NGL_NODE_TEXTURECUBE,            ngli_texturecube_class)             \
+    action(NGL_NODE_TIME,                   ngli_time_class)                    \
     action(NGL_NODE_TIMERANGEFILTER,        ngli_timerangefilter_class)         \
     action(NGL_NODE_TIMERANGEMODECONT,      ngli_timerangemodecont_class)       \
     action(NGL_NODE_TIMERANGEMODENOOP,      ngli_timerangemodenoop_class)       \
