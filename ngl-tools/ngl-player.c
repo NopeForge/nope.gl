@@ -28,6 +28,7 @@
 #include "player.h"
 
 struct ctx {
+    struct ngl_config cfg;
     struct sxplayer_info media_info;
 };
 
@@ -114,11 +115,9 @@ int main(int argc, char *argv[])
         return -1;
 
     struct player p;
-    struct ngl_config cfg = {
-        .width  = s.media_info.width,
-        .height = s.media_info.height,
-    };
-    ret = player_init(&p, "ngl-player", scene, &cfg, s.media_info.duration, 1);
+    s.cfg.width  = s.media_info.width;
+    s.cfg.height = s.media_info.height;
+    ret = player_init(&p, "ngl-player", scene, &s.cfg, s.media_info.duration, 1);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);
