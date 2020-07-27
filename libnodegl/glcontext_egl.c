@@ -248,21 +248,11 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     }
 
     const EGLint type = ctx->backend == NGL_BACKEND_OPENGL ? EGL_OPENGL_BIT : EGL_OPENGL_ES2_BIT;
-    EGLint surface_type = EGL_NONE;
-    if (ctx->platform == NGL_PLATFORM_XLIB ||
-        ctx->platform == NGL_PLATFORM_ANDROID) {
-        surface_type = ctx->offscreen ? EGL_PBUFFER_BIT : EGL_WINDOW_BIT;
-    } else if (ctx->platform == NGL_PLATFORM_WAYLAND) {
-        if (!egl->has_surfaceless_context_ext) {
-            LOG(ERROR, "EGL_KHR_surfaceless_context is not supported");
-            return -1;
-        }
-        surface_type = EGL_WINDOW_BIT;
-    } else {
-        ngli_assert(0);
-    }
+    EGLint surface_type = ctx->offscreen ? EGL_PBUFFER_BIT : EGL_WINDOW_BIT;
 
-    const EGLint config_attribs[] = {
+try_again:;
+
+    EGLint config_attribs[] = {
         EGL_RENDERABLE_TYPE, type,
         EGL_SURFACE_TYPE, surface_type,
         EGL_RED_SIZE,   8,
@@ -278,6 +268,15 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
 
     EGLint nb_configs;
     ret = eglChooseConfig(egl->display, config_attribs, &egl->config, 1, &nb_configs);
+    if (ret && nb_configs == 0) {
+        /* Fallback to EGL_WINDOW_BIT if the driver do not advertize any
+         * pbuffer configurations. This happens on Wayland with Mesa. */
+        if (surface_type == EGL_PBUFFER_BIT) {
+            surface_type = EGL_WINDOW_BIT;
+            goto try_again;
+        }
+    }
+
     if (!ret || !nb_configs) {
         LOG(ERROR, "could not choose a valid EGL configuration: 0x%x", eglGetError());
         return -1;
@@ -323,8 +322,9 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     }
 
     if (ctx->offscreen) {
-        if (ctx->platform == NGL_PLATFORM_XLIB ||
-            ctx->platform == NGL_PLATFORM_ANDROID) {
+        if (egl->has_surfaceless_context_ext) {
+            egl->surface = EGL_NO_SURFACE;
+        } else {
             const EGLint attribs[] = {
                 EGL_WIDTH, 1,
                 EGL_HEIGHT, 1,
@@ -336,8 +336,6 @@ static int egl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
                 LOG(ERROR, "could not create EGL window surface: 0x%x", eglGetError());
                 return -1;
             }
-        } else if (ctx->platform == NGL_PLATFORM_WAYLAND) {
-            egl->surface = EGL_NO_SURFACE;
         }
     } else {
         if (ctx->platform == NGL_PLATFORM_XLIB ||
