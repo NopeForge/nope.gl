@@ -449,7 +449,9 @@ static int egl_make_current(struct glcontext *ctx, int current)
 static void egl_swap_buffers(struct glcontext *ctx)
 {
     struct egl_priv *egl = ctx->priv_data;
-    eglSwapBuffers(egl->display, egl->surface);
+
+    if (!ctx->offscreen)
+        eglSwapBuffers(egl->display, egl->surface);
 }
 
 static int egl_set_swap_interval(struct glcontext *ctx, int interval)
