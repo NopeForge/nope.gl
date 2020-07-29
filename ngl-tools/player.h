@@ -44,7 +44,6 @@ struct player {
     int mouse_down;
     int fullscreen;
     struct ngl_node *pgbar_opacity_node;
-    void (*tick_callback)(struct player *p);
 };
 
 int player_init(struct player *p, const char *win_title, struct ngl_node *scene,

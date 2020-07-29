@@ -28,28 +28,18 @@
 #include "player.h"
 
 struct sxplayer_info g_info;
-struct ngl_node *g_opacity_uniform;
-
-static const char pgbar_vertex[] =
+static const char *media_vertex =
 "void main()"                                                                       "\n"
 "{"                                                                                 "\n"
 "    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * ngl_position;"    "\n"
 "    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;"        "\n"
 "}";
 
-static const char *pgbar_fragment =
+static const char *media_fragment =
 "void main()"                                                           "\n"
 "{"                                                                     "\n"
-"    float height = 2.0 / 100. * ar;"                                   "\n"
-"    float x = var_tex0_coord.x;"                                       "\n"
-"    float y = var_tex0_coord.y;"                                       "\n"
-"    vec4 video_pix = ngl_texvideo(tex0, var_tex0_coord);"              "\n"
-"    vec4 color = video_pix;"                                           "\n"
-"    float time = tex0_ts / media_duration;"                            "\n"
-"    if (y > 1. - height)"                                              "\n"
-"        color = x < time ? vec4(1.) : mix(video_pix, vec4(1.), 0.3);"  "\n"
-"    ngl_out_color = mix(video_pix, color, opacity);"                   "\n"
-"}"                                                                     "\n";
+"    ngl_out_color = ngl_texvideo(tex0, var_tex0_coord);"               "\n"
+"}";
 
 static struct ngl_node *get_scene(const char *filename)
 {
@@ -63,9 +53,6 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *program = ngl_node_create(NGL_NODE_PROGRAM);
     struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER, quad);
 
-    struct ngl_node *u_media_duration = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
-    struct ngl_node *u_ar             = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
-    struct ngl_node *u_opacity        = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
     struct ngl_node *var_tex0_coord = ngl_node_create(NGL_NODE_IOVEC2);
 
     ngl_node_param_set(quad, "corner", corner);
@@ -73,26 +60,14 @@ static struct ngl_node *get_scene(const char *filename)
     ngl_node_param_set(quad, "height", height);
 
     ngl_node_param_set(texture, "data_src", media);
-    ngl_node_param_set(program, "vertex",   pgbar_vertex);
-    ngl_node_param_set(program, "fragment", pgbar_fragment);
+    ngl_node_param_set(program, "vertex",   media_vertex);
+    ngl_node_param_set(program, "fragment", media_fragment);
     ngl_node_param_set(program, "vert_out_vars", "var_tex0_coord", var_tex0_coord);
-    ngl_node_param_set(u_media_duration, "value", g_info.duration);
-    ngl_node_param_set(u_ar,             "value", g_info.width / (double)g_info.height);
-    ngl_node_param_set(u_opacity,        "value", 0.0);
 
     ngl_node_param_set(render, "program", program);
     ngl_node_param_set(render, "frag_resources", "tex0",           texture);
-    ngl_node_param_set(render, "frag_resources", "media_duration", u_media_duration);
-    ngl_node_param_set(render, "frag_resources", "ar",             u_ar);
-    ngl_node_param_set(render, "frag_resources", "opacity",        u_opacity);
-
-    g_opacity_uniform = u_opacity;
 
     ngl_node_unrefp(&var_tex0_coord);
-
-    ngl_node_unrefp(&u_media_duration);
-    ngl_node_unrefp(&u_ar);
-    ngl_node_unrefp(&u_opacity);
 
     ngl_node_unrefp(&program);
     ngl_node_unrefp(&media);
@@ -117,15 +92,6 @@ static int probe(const char *filename)
     return 0;
 }
 
-static void tick_callback(struct player *p)
-{
-    if (p->lasthover >= 0) {
-        const int64_t t64_diff = gettime() - p->lasthover;
-        const double opacity = clipd(1.5 - t64_diff / 1000000.0, 0, 1);
-        ngl_node_param_set(g_opacity_uniform, "value", opacity);
-    }
-}
-
 int main(int argc, char *argv[])
 {
     int ret;
@@ -148,11 +114,10 @@ int main(int argc, char *argv[])
         .width  = g_info.width,
         .height = g_info.height,
     };
-    ret = player_init(&p, "ngl-player", scene, &cfg, g_info.duration, 0);
+    ret = player_init(&p, "ngl-player", scene, &cfg, g_info.duration, 1);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);
-    p.tick_callback = tick_callback;
 
     player_main_loop();
 

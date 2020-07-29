@@ -179,9 +179,6 @@ static void update_time(int64_t seek_at)
         p->frame_ts = now - p->clock_off;
     }
 
-    if (p->tick_callback)
-        p->tick_callback(p);
-
     if (p->pgbar_opacity_node && p->lasthover >= 0) {
         const int64_t t64_diff = gettime() - p->lasthover;
         const double opacity = clipd(1.5 - t64_diff / 1000000.0, 0, 1);
