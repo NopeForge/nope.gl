@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
     get_viewport(cfg.width, cfg.height, aspect, cfg.viewport);
 
     struct player p;
-    ret = player_init(&p, "ngl-python", scene, &cfg, duration, 0);
+    ret = player_init(&p, "ngl-python", scene, &cfg, duration, 1);
     if (ret < 0)
         goto end;
     ngl_node_unrefp(&scene);
