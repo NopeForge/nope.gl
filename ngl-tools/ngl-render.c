@@ -165,8 +165,7 @@ int main(int argc, char *argv[])
 
     printf("%s -> %s %dx%d\n", s.input ? s.input : "<stdin>", s.output ? s.output : "-", s.cfg.width, s.cfg.height);
 
-    const int show_window = !s.cfg.offscreen;
-    if (show_window) {
+    if (!s.cfg.offscreen) {
         if (init_window() < 0)
             return EXIT_FAILURE;
 
@@ -217,7 +216,7 @@ int main(int argc, char *argv[])
     get_viewport(s.cfg.width, s.cfg.height, s.aspect, s.cfg.viewport);
     s.cfg.capture_buffer = capture_buffer;
 
-    if (show_window) {
+    if (!s.cfg.offscreen) {
         ret = wsi_set_ngl_config(&s.cfg, window);
         if (ret < 0) {
             ngl_node_unrefp(&scene);
@@ -258,7 +257,7 @@ int main(int argc, char *argv[])
             }
             if (capture_buffer)
                 write(fd, capture_buffer, 4 * s.cfg.width * s.cfg.height);
-            if (show_window) {
+            if (!s.cfg.offscreen) {
                 SDL_Event event;
                 while (SDL_PollEvent(&event)) {
                 }
@@ -280,7 +279,7 @@ end:
     free(capture_buffer);
     free(s.ranges);
 
-    if (show_window) {
+    if (!s.cfg.offscreen) {
         SDL_DestroyWindow(window);
         SDL_Quit();
     }
