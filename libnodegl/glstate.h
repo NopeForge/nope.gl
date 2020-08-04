@@ -56,6 +56,8 @@ struct glstate {
     GLenum cull_face_mode;
 
     GLboolean scissor_test;
+
+    GLuint program_id;
 };
 
 void ngli_glstate_probe(const struct glcontext *gl,
@@ -63,5 +65,8 @@ void ngli_glstate_probe(const struct glcontext *gl,
 
 void ngli_glstate_update(struct gctx *gctx,
                          const struct graphicstate *state);
+
+void ngli_glstate_use_program(struct gctx *gctx,
+                              GLuint program_id);
 
 #endif

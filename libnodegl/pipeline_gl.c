@@ -383,13 +383,9 @@ static int build_attribute_descs(struct pipeline *s, const struct pipeline_param
 
 static void use_program(struct pipeline *s, struct glcontext *gl)
 {
-    struct gctx_gl *gctx_gl = (struct gctx_gl *)s->gctx;
     const struct program_gl *program_gl = (const struct program_gl *)s->program;
 
-    if (gctx_gl->program_id != program_gl->id) {
-        ngli_glUseProgram(gl, program_gl->id);
-        gctx_gl->program_id = program_gl->id;
-    }
+    ngli_glstate_use_program(s->gctx, program_gl->id);
 }
 
 static const GLenum gl_indices_type_map[NGLI_FORMAT_NB] = {

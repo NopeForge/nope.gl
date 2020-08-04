@@ -137,6 +137,8 @@ void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
 
     /* Scissor */
     ngli_glGetBooleanv(gl, GL_SCISSOR_TEST,            &state->scissor_test);
+
+    ngli_glGetIntegerv(gl, GL_CURRENT_PROGRAM,         (GLint *)&state->program_id);
 }
 
 static void init_state(struct glstate *s, const struct graphicstate *gc)
@@ -292,4 +294,16 @@ void ngli_glstate_update(struct gctx *gctx, const struct graphicstate *state)
     int ret = honor_state(gl, &glstate, &gctx_gl->glstate);
     if (ret > 0)
         gctx_gl->glstate = glstate;
+}
+
+void ngli_glstate_use_program(struct gctx *gctx, GLuint program_id)
+{
+    struct gctx_gl *gctx_gl = (struct gctx_gl *)gctx;
+    struct glcontext *gl = gctx_gl->glcontext;
+    struct glstate *glstate = &gctx_gl->glstate;
+
+    if (glstate->program_id != program_id) {
+        ngli_glUseProgram(gl, program_id);
+        glstate->program_id = program_id;
+    }
 }

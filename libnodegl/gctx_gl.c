@@ -385,13 +385,6 @@ static int gl_init(struct gctx *s)
     if (ret < 0)
         return ret;
 
-    /* This field is used by the pipeline API in order to reduce the total
-     * number of GL program switches. This means pipeline draw calls may alter
-     * this value, but we don't want it to be hard-reconfigure resilient (the
-     * value is specific to a given GL context). As a result, we need to make
-     * sure the value is always reset. */
-    s_priv->program_id = 0;
-
     const int *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0) {
         ngli_gctx_set_viewport(s, viewport);
