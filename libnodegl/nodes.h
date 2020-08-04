@@ -80,7 +80,6 @@ struct ngl_ctx {
     struct rnode rnode;
     struct rnode *rnode_pos;
     struct graphicstate graphicstate;
-    struct rendertarget_desc default_rendertarget_desc;
     struct rendertarget_desc *rendertarget_desc;
     struct ngl_node *scene;
     struct ngl_config config;
