@@ -381,13 +381,6 @@ static int build_attribute_descs(struct pipeline *s, const struct pipeline_param
     return 0;
 }
 
-static void use_program(struct pipeline *s, struct glcontext *gl)
-{
-    const struct program_gl *program_gl = (const struct program_gl *)s->program;
-
-    ngli_glstate_use_program(s->gctx, program_gl->id);
-}
-
 static const GLenum gl_indices_type_map[NGLI_FORMAT_NB] = {
     [NGLI_FORMAT_R16_UNORM] = GL_UNSIGNED_SHORT,
     [NGLI_FORMAT_R32_UINT]  = GL_UNSIGNED_INT,
@@ -550,9 +543,11 @@ int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *d
     struct uniform_desc *desc = &descs[index];
     struct pipeline_uniform *pipeline_uniform = &desc->uniform;
     if (data) {
-        struct gctx_gl *gctx_gl = (struct gctx_gl *)s->gctx;
+        struct gctx *gctx = s->gctx;
+        struct gctx_gl *gctx_gl = (struct gctx_gl *)gctx;
         struct glcontext *gl = gctx_gl->glcontext;
-        use_program(s, gl);
+        struct program_gl *program_gl = (struct program_gl *)s->program;
+        ngli_glstate_use_program(gctx, program_gl->id);
         desc->set(gl, desc->location, pipeline_uniform->count, data);
     }
     pipeline_uniform->data = NULL;
@@ -579,9 +574,10 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
     struct gctx_gl *gctx_gl = (struct gctx_gl *)gctx;
     struct glcontext *gl = gctx_gl->glcontext;
     struct pipeline_graphics *graphics = &s->graphics;
+    struct program_gl *program_gl = (struct program_gl *)s->program;
 
     ngli_glstate_update(gctx, &graphics->state);
-    use_program(s, gl);
+    ngli_glstate_use_program(gctx, program_gl->id);
     set_uniforms(s, gl);
     set_buffers(s, gl);
     set_textures(s, gl);
@@ -612,9 +608,10 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, struct buffer *indices, i
     struct gctx_gl *gctx_gl = (struct gctx_gl *)gctx;
     struct glcontext *gl = gctx_gl->glcontext;
     struct pipeline_graphics *graphics = &s->graphics;
+    struct program_gl *program_gl = (struct program_gl *)s->program;
 
     ngli_glstate_update(gctx, &graphics->state);
-    use_program(s, gl);
+    ngli_glstate_use_program(gctx, program_gl->id);
     set_uniforms(s, gl);
     set_buffers(s, gl);
     set_textures(s, gl);
@@ -649,8 +646,9 @@ void ngli_pipeline_gl_dispatch(struct pipeline *s, int nb_group_x, int nb_group_
     struct gctx *gctx = s->gctx;
     struct gctx_gl *gctx_gl = (struct gctx_gl *)gctx;
     struct glcontext *gl = gctx_gl->glcontext;
+    struct program_gl *program_gl = (struct program_gl *)s->program;
 
-    use_program(s, gl);
+    ngli_glstate_use_program(gctx, program_gl->id);
     set_uniforms(s, gl);
     set_buffers(s, gl);
     set_textures(s, gl);
