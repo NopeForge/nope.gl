@@ -291,3 +291,14 @@ def api_reset_scene(width=320, height=240):
     viewer.draw(2)
     assert viewer.set_scene(None) == 0
     viewer.draw(3)
+
+
+def api_shader_init_fail(width=320, height=240):
+    viewer = ngl.Context()
+    assert viewer.configure(offscreen=1, width=width, height=height, backend=_backend) == 0
+
+    render = ngl.Render(ngl.Quad(), ngl.Program(vertex='<bug>', fragment='<bug>'))
+
+    assert viewer.set_scene(render) != 0
+    assert viewer.set_scene(render) != 0  # another try to make sure the state stays consistent
+    assert viewer.draw(0) == 0

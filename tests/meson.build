@@ -82,6 +82,7 @@ foreach backend : backends
     'denied_node_live_change',
     'livectls',
     'reset_scene',
+    'shader_init_fail',
   ]
 
   tests_blending = [
