@@ -81,6 +81,7 @@ foreach backend : backends
     'media_sharing_failure',
     'denied_node_live_change',
     'livectls',
+    'reset_scene',
   ]
 
   tests_blending = [

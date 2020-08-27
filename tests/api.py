@@ -277,3 +277,17 @@ def api_livectls():
             assert all(math.isclose(v, e, rel_tol=1e-6) for v, e in zip(value, expected_value))
         else:
             assert math.isclose(value, expected_value, rel_tol=1e-6)
+
+
+def api_reset_scene(width=320, height=240):
+    viewer = ngl.Context()
+    assert viewer.configure(offscreen=1, width=width, height=height, backend=_backend) == 0
+    render = _get_scene()
+    assert viewer.set_scene(render) == 0
+    viewer.draw(0)
+    assert viewer.set_scene(None) == 0
+    viewer.draw(1)
+    assert viewer.set_scene(render) == 0
+    viewer.draw(2)
+    assert viewer.set_scene(None) == 0
+    viewer.draw(3)
