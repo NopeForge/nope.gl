@@ -61,7 +61,9 @@ struct egl_priv {
     EGLDisplay (*GetPlatformDisplay)(EGLenum platform, void *native_display, const EGLint *attrib_list);
     EGLAPIENTRY EGLImageKHR (*CreateImageKHR)(EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLint *);
     EGLAPIENTRY EGLBoolean (*DestroyImageKHR)(EGLDisplay, EGLImageKHR);
+#if defined(TARGET_ANDROID)
     EGLAPIENTRY EGLClientBuffer (*GetNativeClientBufferANDROID)(const struct AHardwareBuffer *);
+#endif
     int has_platform_x11_ext;
     int has_platform_mesa_surfaceless_ext;
     int has_platform_wayland_ext;
@@ -83,11 +85,13 @@ EGLBoolean ngli_eglDestroyImageKHR(struct glcontext *gl, EGLImageKHR image)
     return egl->DestroyImageKHR(egl->display, image);
 }
 
+#if defined(TARGET_ANDROID)
 EGLClientBuffer ngli_eglGetNativeClientBufferANDROID(struct glcontext *gl, const struct AHardwareBuffer *buffer)
 {
     struct egl_priv *egl = gl->priv_data;
     return egl->GetNativeClientBufferANDROID(buffer);
 }
+#endif
 
 static int egl_probe_extensions(struct glcontext *ctx)
 {
