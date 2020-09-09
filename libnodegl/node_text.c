@@ -696,6 +696,8 @@ static void text_uninit(struct ngl_node *node)
         ngli_pgcraft_freep(&desc->fg.crafter);
     }
     ngli_darray_reset(&s->pipeline_descs);
+    ngli_buffer_freep(&s->bg_vertices);
+    ngli_buffer_freep(&s->bg_indices);
     ngli_buffer_freep(&s->vertices);
     ngli_buffer_freep(&s->uvcoords);
     ngli_buffer_freep(&s->indices);
