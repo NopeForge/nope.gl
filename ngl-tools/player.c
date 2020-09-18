@@ -167,8 +167,8 @@ static void update_pgbar(void)
         const double opacity = clipd(1.5 - t64_diff / 1000000.0, 0, 1);
         ngl_node_param_set(p->pgbar_opacity_node, "value", opacity);
 
-        const float text_bg[4] = {1.0, 1.0, 1.0, opacity};
-        const float text_fg[4] = {0.0, 0.0, 0.0, opacity};
+        const float text_bg[4] = {0.0, 0.0, 0.0, 0.8 * opacity};
+        const float text_fg[4] = {1.0, 1.0, 1.0, opacity};
         ngl_node_param_set(p->pgbar_text_node, "bg_color", text_bg);
         ngl_node_param_set(p->pgbar_text_node, "fg_color", text_fg);
 
@@ -282,7 +282,7 @@ static void seek_event(int x)
 {
     struct player *p = g_player;
     const int *vp = p->ngl_config.viewport;
-    const int pos = clipi(x - vp[0], 0, vp[2]) * 3/2;
+    const int pos = clipi(x - vp[0], 0, vp[2]);
     const int64_t seek_at64 = p->duration * pos / vp[2];
     p->lasthover = gettime_relative();
     update_time(clipi64(seek_at64, 0, p->duration));
@@ -329,15 +329,15 @@ static struct ngl_node *add_progress_bar(struct ngl_node *scene)
 {
     struct player *p = g_player;
 
-    static const float bar_corner[3] = {-1.0, -1.0, 0.0};
-    static const float bar_width[3]  = { 2.0 * 2/3.,  0.0, 0.0};
-    static const float bar_height[3] = { 0.0,  2.0 * 0.05, 0.0}; // 5% of the height
+    static const float bar_corner[3] = {-1.0, -1.0 + 0.1, 0.0};
+    static const float bar_width[3]  = { 2.0,  0.0, 0.0};
+    static const float bar_height[3] = { 0.0,  2.0 * 0.01, 0.0}; // 1% of the height
 
-    static const float text_corner[3] = {1.0 - 2.0 * 1/3., -1.0, 0.0};
-    static const float text_width[3]  = {2.0 * 1/3.,  0.0, 0.0};
-    static const float text_height[3] = {0.0,  2.0 * 0.05, 0.0};
-    static const float text_bg[4]     = {1.0, 1.0, 1.0, 0.0};
-    static const float text_fg[4]     = {0.0, 0.0, 0.0, 0.0};
+    static const float text_corner[3] = {-1.0, -1.0, 0.0};
+    static const float text_width[3]  = { 2.0,  0.0, 0.0};
+    static const float text_height[3] = { 0.0,  2.0 * 0.05, 0.0}; // 5% of the height
+    static const float text_bg[4]     = { 0.0,  0.0, 0.0, 0.8};
+    static const float text_fg[4]     = { 1.0,  1.0, 1.0, 1.0};
 
     struct ngl_node *text       = ngl_node_create(NGL_NODE_TEXT);
     struct ngl_node *quad       = ngl_node_create(NGL_NODE_QUAD);
