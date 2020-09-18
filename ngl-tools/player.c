@@ -144,7 +144,7 @@ static void update_text(void)
 
     const int frame_ts = p->frame_time;
     const int duration = p->duration / 1000000;
-    if (frame_ts == p->text_last_frame_ts && duration == p->text_last_duration)
+    if (p->frame_index == p->text_last_frame_index && duration == p->text_last_duration)
         return;
 
     char buf[128];
@@ -152,9 +152,10 @@ static void update_text(void)
     const int cs = frame_ts % 60;
     const int dm = duration / 60;
     const int ds = duration % 60;
-    snprintf(buf, sizeof(buf), "%02d:%02d / %02d:%02d", cm, cs, dm, ds);
+    snprintf(buf, sizeof(buf), "%02d:%02d / %02d:%02d (%" PRId64 " @ %d/%d)",
+             cm, cs, dm, ds, p->frame_index, p->framerate[0], p->framerate[1]);
     ngl_node_param_set(p->pgbar_text_node, "text", buf);
-    p->text_last_frame_ts = frame_ts;
+    p->text_last_frame_index = p->frame_index;
     p->text_last_duration = duration;
 }
 
