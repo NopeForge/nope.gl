@@ -26,7 +26,7 @@
 #define OFFSET(x) offsetof(struct glfunctions, x)
 static const struct glfeature {
     const char *name;
-    int flag;
+    uint64_t flag;
     size_t offset;
     int version;
     int es_version;

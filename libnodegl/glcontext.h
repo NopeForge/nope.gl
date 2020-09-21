@@ -48,7 +48,7 @@ struct glcontext {
     int version;
 
     /* GL features */
-    int features;
+    uint64_t features;
 
     /* GL limits */
     struct limits limits;
