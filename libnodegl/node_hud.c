@@ -1261,7 +1261,7 @@ static int hud_init(struct ngl_node *node)
     if (!s->coords)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_buffer_init(s->coords, sizeof(coords), NGLI_BUFFER_USAGE_STATIC);
+    ret = ngli_buffer_init(s->coords, sizeof(coords), NGLI_BUFFER_USAGE_DYNAMIC);
     if (ret < 0)
         return ret;
 
