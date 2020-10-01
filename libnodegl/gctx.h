@@ -92,7 +92,7 @@ struct gctx_class {
     void (*rendertarget_read_pixels)(struct rendertarget *s, uint8_t *data);
     void (*rendertarget_freep)(struct rendertarget **sp);
 
-    struct texture *(*texture_create)(struct gctx* ctx);
+    struct texture *(*texture_create)(struct gctx *ctx);
     int (*texture_init)(struct texture *s, const struct texture_params *params);
     int (*texture_has_mipmap)(const struct texture *s);
     int (*texture_match_dimensions)(const struct texture *s, int width, int height, int depth);
