@@ -54,6 +54,8 @@ struct gpu_ctx_class {
     int (*init)(struct gpu_ctx *s);
     int (*resize)(struct gpu_ctx *s, int width, int height, const int *viewport);
     int (*set_capture_buffer)(struct gpu_ctx *s, void *capture_buffer);
+    int (*begin_update)(struct gpu_ctx *s, double t);
+    int (*end_update)(struct gpu_ctx *s, double t);
     int (*begin_draw)(struct gpu_ctx *s, double t);
     int (*end_draw)(struct gpu_ctx *s, double t);
     int (*query_draw_time)(struct gpu_ctx *s, int64_t *time);
@@ -129,6 +131,8 @@ struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config);
 int ngli_gpu_ctx_init(struct gpu_ctx *s);
 int ngli_gpu_ctx_resize(struct gpu_ctx *s, int width, int height, const int *viewport);
 int ngli_gpu_ctx_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer);
+int ngli_gpu_ctx_begin_update(struct gpu_ctx *s, double t);
+int ngli_gpu_ctx_end_update(struct gpu_ctx *s, double t);
 int ngli_gpu_ctx_begin_draw(struct gpu_ctx *s, double t);
 int ngli_gpu_ctx_query_draw_time(struct gpu_ctx *s, int64_t *time);
 int ngli_gpu_ctx_end_draw(struct gpu_ctx *s, double t);

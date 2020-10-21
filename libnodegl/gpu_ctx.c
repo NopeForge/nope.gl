@@ -87,6 +87,16 @@ int ngli_gpu_ctx_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
     return cls->set_capture_buffer(s, capture_buffer);
 }
 
+int ngli_gpu_ctx_begin_update(struct gpu_ctx *s, double t)
+{
+    return s->cls->begin_update(s, t);
+}
+
+int ngli_gpu_ctx_end_update(struct gpu_ctx *s, double t)
+{
+    return s->cls->end_update(s, t);
+}
+
 int ngli_gpu_ctx_begin_draw(struct gpu_ctx *s, double t)
 {
     return s->cls->begin_draw(s, t);

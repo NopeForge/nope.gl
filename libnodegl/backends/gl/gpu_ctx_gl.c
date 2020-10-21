@@ -618,6 +618,16 @@ static int gl_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
     return 0;
 }
 
+static int gl_begin_update(struct gpu_ctx *s, double t)
+{
+    return 0;
+}
+
+static int gl_end_update(struct gpu_ctx *s, double t)
+{
+    return 0;
+}
+
 static int gl_begin_draw(struct gpu_ctx *s, double t)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
@@ -799,6 +809,8 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
     .init                               = gl_init,                               \
     .resize                             = gl_resize,                             \
     .set_capture_buffer                 = gl_set_capture_buffer,                 \
+    .begin_update                       = gl_begin_update,                       \
+    .end_update                         = gl_end_update,                         \
     .begin_draw                         = gl_begin_draw,                         \
     .end_draw                           = gl_end_draw,                           \
     .query_draw_time                    = gl_query_draw_time,                    \

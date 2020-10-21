@@ -287,21 +287,28 @@ static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
+    const int64_t start_time = s->hud ? ngli_gettime_relative() : 0;
+
+    int ret = ngli_gpu_ctx_begin_update(s->gpu_ctx, t);
+    if (ret < 0)
+        return ret;
 
     struct ngl_node *scene = s->scene;
     if (!scene) {
-        return 0;
+        return ngli_gpu_ctx_end_update(s->gpu_ctx, t);
     }
 
     LOG(DEBUG, "prepare scene %s @ t=%f", scene->label, t);
 
-    const int64_t start_time = s->hud ? ngli_gettime_relative() : 0;
-
-    int ret = ngli_node_honor_release_prefetch(scene, t);
+    ret = ngli_node_honor_release_prefetch(scene, t);
     if (ret < 0)
         return ret;
 
     ret = ngli_node_update(scene, t);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_gpu_ctx_end_update(s->gpu_ctx, t);
     if (ret < 0)
         return ret;
 
