@@ -36,7 +36,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #endif
-#include <fcntl.h>
 
 #include <nodegl.h>
 
@@ -66,7 +65,7 @@ struct ctx {
 
     struct ipc_pkt *send_pkt;
     struct ipc_pkt *recv_pkt;
-    int upload_fd;
+    FILE *upload_fp;
     uint8_t *upload_buffer;
     int64_t upload_size;
     int64_t uploaded_size;
@@ -146,9 +145,9 @@ static int craft_packet(struct ctx *s, struct ipc_pkt *pkt)
         if (ret < 0)
             return ret;
 
-        s->upload_fd = open(filename, O_RDONLY | O_BINARY);
-        if (s->upload_fd == -1) {
-            perror("open");
+        s->upload_fp = fopen(filename, "rb");
+        if (!s->upload_fp) {
+            perror("fopen");
             return NGL_ERROR_IO;
         }
 
@@ -208,9 +207,9 @@ static int craft_packet(struct ctx *s, struct ipc_pkt *pkt)
 
 static void close_upload_file(struct ctx *s)
 {
-    if (s->upload_fd > 0)
-        close(s->upload_fd);
-    s->upload_fd = 0;
+    if (s->upload_fp)
+        fclose(s->upload_fp);
+    s->upload_fp = NULL;
     free(s->upload_buffer);
     s->upload_buffer = NULL;
 }
@@ -279,11 +278,11 @@ static int handle_response(struct ctx *s, const struct ipc_pkt *pkt)
         data_size -= size;
     }
 
-    if (s->upload_fd > 0) {
+    if (s->upload_fp) {
         ipc_pkt_reset(s->send_pkt);
 
-        const ssize_t n = read(s->upload_fd, s->upload_buffer, UPLOAD_CHUNK_SIZE);
-        if (n < 0)
+        const size_t n = fread(s->upload_buffer, 1, UPLOAD_CHUNK_SIZE, s->upload_fp);
+        if (ferror(s->upload_fp))
             return NGL_ERROR_IO;
         int ret = ipc_pkt_add_qtag_filepart(s->send_pkt, s->upload_buffer, n);
         if (ret < 0)
@@ -378,7 +377,7 @@ int main(int argc, char *argv[])
         if (ret < 0)
             goto end;
 
-    } while (s.upload_fd > 0);
+    } while (s.upload_fp);
 
 end:
     if (addr_info)
