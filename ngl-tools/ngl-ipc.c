@@ -66,8 +66,8 @@ struct ctx {
     struct ipc_pkt *recv_pkt;
     int upload_fd;
     uint8_t *upload_buffer;
-    struct stat upload_stat;
-    off_t uploaded_size; // same type as stat.st_size
+    int64_t upload_size;
+    int64_t uploaded_size;
 };
 
 #define OFFSET(x) offsetof(struct ctx, x)
@@ -84,6 +84,18 @@ static const struct opt options[] = {
     {"-m", "--samples",       OPT_TYPE_INT,      .offset=OFFSET(samples)},
     {"-g", "--reconfigure",   OPT_TYPE_TOGGLE,   .offset=OFFSET(reconfigure)},
 };
+
+static int get_filesize(const char *filename, int64_t *size)
+{
+    struct stat st;
+    int ret = stat(filename, &st);
+    if (ret == -1) {
+        perror(filename);
+        return NGL_ERROR_IO;
+    }
+    *size = st.st_size;
+    return 0;
+}
 
 static int craft_packet(struct ctx *s, struct ipc_pkt *pkt)
 {
@@ -114,14 +126,13 @@ static int craft_packet(struct ctx *s, struct ipc_pkt *pkt)
         const size_t name_size = name_len + 1;
 
         const char *filename = s->uploadfile + name_size;
+        int ret = get_filesize(filename, &s->upload_size);
+        if (ret < 0)
+            return ret;
+
         s->upload_fd = open(filename, O_RDONLY | O_BINARY);
         if (s->upload_fd == -1) {
             perror("open");
-            return NGL_ERROR_IO;
-        }
-
-        if (fstat(s->upload_fd, &s->upload_stat) < 0) {
-            perror("stat");
             return NGL_ERROR_IO;
         }
 
@@ -129,7 +140,7 @@ static int craft_packet(struct ctx *s, struct ipc_pkt *pkt)
         if (!s->upload_buffer)
             return NGL_ERROR_MEMORY;
 
-        int ret = ipc_pkt_add_qtag_file(pkt, name);
+        ret = ipc_pkt_add_qtag_file(pkt, name);
         if (ret < 0)
             return ret;
     }
@@ -203,7 +214,7 @@ static int handle_filepart(struct ctx *s, const uint8_t *data, int size)
         return NGL_ERROR_INVALID_DATA;
     const int written = IPC_U32_READ(data);
     s->uploaded_size += written;
-    fprintf(stderr, "\ruploading %s... %d%%", s->uploadfile, (int)(s->uploaded_size * 100LL / s->upload_stat.st_size));
+    fprintf(stderr, "\ruploading %s... %d%%", s->uploadfile, (int)(s->uploaded_size * 100LL / s->upload_size));
     return 0;
 }
 
