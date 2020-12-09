@@ -20,6 +20,8 @@
  */
 
 #include <fcntl.h>
+#include <inttypes.h>
+#include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -32,6 +34,7 @@
 #include "nodegl.h"
 #include "nodes.h"
 #include "type.h"
+#include "utils.h"
 
 #define OFFSET(x) offsetof(struct buffer_priv, x)
 static const struct node_param buffer_params[] = {
@@ -127,19 +130,17 @@ static int buffer_init_from_filename(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
 
-    s->fd = open(s->filename, O_RDONLY);
-    if (s->fd < 0) {
-        LOG(ERROR, "could not open '%s'", s->filename);
-        return NGL_ERROR_IO;
+    int64_t size;
+    int ret = ngli_get_filesize(s->filename, &size);
+    if (ret < 0)
+        return ret;
+
+    if (size > INT_MAX) {
+        LOG(ERROR, "'%s' size (%" PRId64 ") exceeds supported limit (%d)", s->filename, size, INT_MAX);
+        return NGL_ERROR_UNSUPPORTED;
     }
 
-    off_t filesize = lseek(s->fd, 0, SEEK_END);
-    off_t ret      = lseek(s->fd, 0, SEEK_SET);
-    if (filesize < 0 || ret < 0) {
-        LOG(ERROR, "could not seek in '%s'", s->filename);
-        return NGL_ERROR_IO;
-    }
-    s->data_size = filesize;
+    s->data_size = size;
     s->count = s->count ? s->count : s->data_size / s->data_stride;
 
     if (s->data_size != s->count * s->data_stride) {
@@ -154,6 +155,12 @@ static int buffer_init_from_filename(struct ngl_node *node)
     s->data = ngli_calloc(s->count, s->data_stride);
     if (!s->data)
         return NGL_ERROR_MEMORY;
+
+    s->fd = open(s->filename, O_RDONLY);
+    if (s->fd < 0) {
+        LOG(ERROR, "could not open '%s'", s->filename);
+        return NGL_ERROR_IO;
+    }
 
     ssize_t n = read(s->fd, s->data, s->data_size);
     if (n < 0) {
