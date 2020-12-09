@@ -22,6 +22,16 @@
 #define _GNU_SOURCE
 #include <pthread.h>
 
+#ifdef _WIN32
+#include <Handleapi.h>
+#include <Fileapi.h>
+#else
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <errno.h>
+#endif
+
 #include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -152,4 +162,30 @@ void ngli_thread_set_name(const char *name)
 #elif ((defined(__linux__) && defined(__GLIBC__)) || defined(__ANDROID__))
     pthread_setname_np(pthread_self(), name);
 #endif
+}
+
+int ngli_get_filesize(const char *filename, int64_t *size)
+{
+#ifdef _WIN32
+    HANDLE file_handle = CreateFile(TEXT(filename), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file_handle == INVALID_HANDLE_VALUE)
+        return NGL_ERROR_IO;
+
+    LARGE_INTEGER file_size;
+    if (!GetFileSizeEx(file_handle, &file_size)) {
+        CloseHandle(file_handle);
+        return NGL_ERROR_IO;
+    }
+    *size = file_size.QuadPart;
+    CloseHandle(file_handle);
+#else
+    struct stat st;
+    int ret = stat(filename, &st);
+    if (ret == -1) {
+        LOG(ERROR, "could not stat '%s': %s", filename, strerror(errno));
+        return NGL_ERROR_IO;
+    }
+    *size = st.st_size;
+#endif
+    return 0;
 }
