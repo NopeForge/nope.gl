@@ -28,12 +28,14 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <Handleapi.h>
+#include <Fileapi.h>
 #else
 #include <sys/socket.h>
 #include <netdb.h>
-#endif
 #include <unistd.h>
 #include <sys/stat.h>
+#endif
 #include <fcntl.h>
 
 #include <nodegl.h>
@@ -87,6 +89,19 @@ static const struct opt options[] = {
 
 static int get_filesize(const char *filename, int64_t *size)
 {
+#ifdef _WIN32
+    HANDLE file_handle = CreateFile(TEXT(filename), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (file_handle == INVALID_HANDLE_VALUE)
+        return NGL_ERROR_IO;
+
+    LARGE_INTEGER file_size;
+    if (!GetFileSizeEx(file_handle, &file_size)) {
+        CloseHandle(file_handle);
+        return NGL_ERROR_IO;
+    }
+    *size = file_size.QuadPart;
+    CloseHandle(file_handle);
+#else
     struct stat st;
     int ret = stat(filename, &st);
     if (ret == -1) {
@@ -94,6 +109,7 @@ static int get_filesize(const char *filename, int64_t *size)
         return NGL_ERROR_IO;
     }
     *size = st.st_size;
+#endif
     return 0;
 }
 
