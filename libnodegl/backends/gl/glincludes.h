@@ -56,7 +56,7 @@
 # define NGL_OGL3_COMPAT_INCLUDES 1
 #endif
 
-#if _WIN32
+#ifdef _WIN32
 # include <Windows.h>
 # include <GL/gl.h>
 # include <GL/glcorearb.h>
