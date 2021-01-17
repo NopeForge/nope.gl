@@ -191,7 +191,7 @@ static const struct {
     },
     [MEMORY_BLOCKS_GPU] = {
         .label="Blocks GPU",
-        .node_types=(const uint32_t[]){NGL_NODE_BLOCK, NGLI_NODE_NONE},
+        .node_types=(const uint32_t[]){NGL_NODE_BLOCK, NGL_NODE_COLORSTATS, NGLI_NODE_NONE},
         .color=0xD6FF32FF,
     },
     [MEMORY_TEXTURES] = {
@@ -211,7 +211,7 @@ static const struct activity_spec {
     },
     [ACTIVITY_BLOCKS] = {
         .label="Blocks",
-        .node_types=(const uint32_t[]){NGL_NODE_BLOCK, NGLI_NODE_NONE},
+        .node_types=(const uint32_t[]){NGL_NODE_BLOCK, NGL_NODE_COLORSTATS, NGLI_NODE_NONE},
     },
     [ACTIVITY_MEDIAS] = {
         .label="Medias",

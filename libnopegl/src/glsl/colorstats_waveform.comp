@@ -1,0 +1,106 @@
+/*
+ * Copyright 2022-2023 Clément Bœsch <u pkh.me>
+ * Copyright 2022 GoPro Inc.
+ *
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+#define MAX_DEPTH 256 /* 8-bit */
+
+/*
+ * Shared histogram corresponding to 1 column of pixels from the input image.
+ * With 8-bit depth, this represents 2kB. With 10-bit depth, this would
+ * represents 8kB, which is still below the minimum amount of shared data an
+ * implementation must allow (16kB).
+ */
+shared uint hist_rg[MAX_DEPTH];
+shared uint hist_bl[MAX_DEPTH];
+shared uint max_rgb;
+shared uint max_luma;
+
+const vec3 luma_weights = vec3(.2126, .7152, .0722); // BT.709
+
+void main()
+{
+    /*
+     * Each thread from each workgroup initialize their respective interleaved
+     * slice of data in the workgroup shared histograms
+     */
+    uint depth = uint(stats.depth);
+    for (uint i = gl_LocalInvocationIndex; i < depth; i += gl_WorkGroupSize.x) {
+        hist_rg[i] = 0U;
+        hist_bl[i] = 0U;
+    }
+
+    /* 1st thread from each workgroup initialize the workgroup shared maximums */
+    if (gl_LocalInvocationIndex == 0U) {
+        max_rgb = 0U;
+        max_luma = 0U;
+    }
+
+    barrier(); /* Wait for the workgroup shared data initialization */
+
+    /*
+     * Cast concurrent votes into workgroup shared histogram and maximums
+     */
+    float depth_scale = float(depth) - 1.0;
+    uint image_h = uint(source_dimensions.y);
+    uint image_x = gl_WorkGroupID.x;
+    for (uint y = gl_LocalInvocationIndex; y < image_h; y += gl_WorkGroupSize.x) {
+        vec2 pos = vec2(image_x, y) / (source_dimensions - 1.0);
+        vec4 color = ngl_texvideo(source, pos);
+        float luma = dot(color.rgb, luma_weights);
+        vec4 rgby = vec4(color.rgb, luma) * depth_scale;
+        uvec4 urgby = uvec4(clamp(ivec4(rgby), 0, int(depth) - 1));
+
+        uint r = atomicAdd(hist_rg[urgby.r], 1U) & 0xffffU;
+        uint g = atomicAdd(hist_rg[urgby.g], 1U << 16U) >> 16U;
+        uint b = atomicAdd(hist_bl[urgby.b], 1U) & 0xffffU;
+        uint l = atomicAdd(hist_bl[urgby.a], 1U << 16U) >> 16U;
+
+        uint m = max(max(r, g), b);
+        /* +1 because atomicAdd returns the value before the addition occurred */
+        atomicMax(max_rgb, m + 1U);
+        atomicMax(max_luma, l + 1U);
+    }
+
+    barrier(); /* Wait for all updates on the shared data */
+
+    /*
+     * Commit the thread interleaved slice to the global waveform
+     */
+    uint data_offset = image_x * depth;
+    for (uint i = gl_LocalInvocationIndex; i < depth; i += gl_WorkGroupSize.x) {
+        uint r = hist_rg[i] & 0xffffU;
+        uint g = hist_rg[i] >> 16U;
+        uint b = hist_bl[i] & 0xffffU;
+        uint l = hist_bl[i] >> 16U;
+        stats.data[data_offset + i] = uvec4(r, g, b, l);
+
+        atomicAdd(stats.summary[i].r, r);
+        atomicAdd(stats.summary[i].g, g);
+        atomicAdd(stats.summary[i].b, b);
+        atomicAdd(stats.summary[i].a, l);
+    }
+
+    /* 1st thread from each workgroup populate their maximum to the global one */
+    if (gl_LocalInvocationIndex == 0U) {
+        atomicMax(stats.max_rgb.x, max_rgb);
+        atomicMax(stats.max_luma.x, max_luma);
+    }
+}

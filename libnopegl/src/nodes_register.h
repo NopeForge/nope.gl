@@ -75,6 +75,7 @@
     action(NGL_NODE_BUFFERMAT4,             ngli_buffermat4_class)              \
     action(NGL_NODE_CAMERA,                 ngli_camera_class)                  \
     action(NGL_NODE_CIRCLE,                 ngli_circle_class)                  \
+    action(NGL_NODE_COLORSTATS,             ngli_colorstats_class)              \
     action(NGL_NODE_COMPUTE,                ngli_compute_class)                 \
     action(NGL_NODE_COMPUTEPROGRAM,         ngli_computeprogram_class)          \
     action(NGL_NODE_FILTERALPHA,            ngli_filteralpha_class)             \
