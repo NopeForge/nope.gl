@@ -589,6 +589,15 @@
       "desc": "number of points"
     }
   ],
+  "ColorStats": [
+    {
+      "name": "texture",
+      "type": "node",
+      "node_types": ["Texture2D"],
+      "flags": ["nonull"],
+      "desc": "source texture to compute the color stats from"
+    }
+  ],
   "Compute": [
     {
       "name": "workgroup_count",

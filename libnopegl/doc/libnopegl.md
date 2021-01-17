@@ -292,6 +292,16 @@ Parameter | Flags | Type | Description | Default
 **Source**: [src/node_circle.c](/libnopegl/src/node_circle.c)
 
 
+## ColorStats
+
+Parameter | Flags | Type | Description | Default
+--------- | ----- | ---- | ----------- | :-----:
+`texture` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([Texture2D](#texture2d)) | source texture to compute the color stats from | 
+
+
+**Source**: [src/node_colorstats.c](/libnopegl/src/node_colorstats.c)
+
+
 ## Compute
 
 Parameter | Flags | Type | Description | Default
