@@ -306,7 +306,7 @@ int main(int argc, char *argv[])
         return ret == OPT_HELP ? 0 : EXIT_FAILURE;
     }
 
-#if _WIN32
+#ifdef _WIN32
     WSADATA wsa_data;
     int sret = WSAStartup(MAKEWORD(2, 2), &wsa_data);
     if (sret != 0) {

@@ -396,7 +396,7 @@ static void close_socket(int socket)
      */
     if (shutdown(socket, SHUT_RDWR) < 0)
         perror("shutdown");
-#if _WIN32
+#ifdef _WIN32
     closesocket(socket);
 #else
     close(socket);
@@ -479,7 +479,7 @@ end:
 
 static int setup_network(struct ctx *s)
 {
-#if _WIN32
+#ifdef _WIN32
     WSADATA wsa_data;
     int sret = WSAStartup(MAKEWORD(2, 2), &wsa_data);
     if (sret != 0) {
