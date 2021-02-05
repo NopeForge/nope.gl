@@ -30,7 +30,7 @@ complete environment (based on Python `venv` module):
     Install completed.
 
     You can now enter the venv with:
-        . /home/user/node.gl/nodegl-env/bin/activate
+        . /home/user/node.gl/venv/bin/activate
 ```
 
 Jobbed `make` calls are supported, so you can use `make -jN` where `N` is the

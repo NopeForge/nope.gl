@@ -19,7 +19,7 @@
 # under the License.
 #
 
-PREFIX ?= $(PWD)/nodegl-env
+PREFIX ?= $(PWD)/venv
 
 PYTHON_MAJOR = 3
 
