@@ -260,8 +260,7 @@ def _get_data_streamed_buffer_cuepoints():
     return {f'{x}{y}': (c(x), c(y)) for y in range(_N) for x in range(_N)}
 
 
-def _get_data_streamed_buffer_vec4_scene(cfg, scale, show_dbg_points):
-    duration = _N
+def _get_data_streamed_buffer_vec4_scene(cfg, duration, scale, show_dbg_points):
     cfg.duration = duration * scale
     cfg.aspect_ratio = (1, 1)
     size, data_size, = _N, _N * _N
@@ -311,10 +310,11 @@ def _get_data_streamed_buffer_vec4_scene(cfg, scale, show_dbg_points):
 
 
 def _get_data_streamed_buffer_function(scale):
-    @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(), nb_keyframes=_N, tolerance=1)
+    nb_keyframes = 4
+    @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(), nb_keyframes=nb_keyframes, tolerance=1)
     @scene(show_dbg_points=scene.Bool())
     def scene_func(cfg, show_dbg_points=False):
-        return _get_data_streamed_buffer_vec4_scene(cfg, scale, show_dbg_points)
+        return _get_data_streamed_buffer_vec4_scene(cfg, nb_keyframes, scale, show_dbg_points)
     return scene_func
 
 
