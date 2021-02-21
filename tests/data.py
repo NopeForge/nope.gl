@@ -310,16 +310,16 @@ def _get_data_streamed_buffer_vec4_scene(cfg, scale, show_dbg_points):
     return group
 
 
-@test_cuepoints(points=_get_data_streamed_buffer_cuepoints(), nb_keyframes=_N, tolerance=1)
-@scene(show_dbg_points=scene.Bool())
-def data_streamed_buffer_vec4(cfg, show_dbg_points=False):
-    return _get_data_streamed_buffer_vec4_scene(cfg, 1, show_dbg_points)
+def _get_data_streamed_buffer_function(scale):
+    @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(), nb_keyframes=_N, tolerance=1)
+    @scene(show_dbg_points=scene.Bool())
+    def scene_func(cfg, show_dbg_points=False):
+        return _get_data_streamed_buffer_vec4_scene(cfg, scale, show_dbg_points)
+    return scene_func
 
 
-@test_cuepoints(points=_get_data_streamed_buffer_cuepoints(), nb_keyframes=_N, tolerance=1)
-@scene(show_dbg_points=scene.Bool())
-def data_streamed_buffer_vec4_time_anim(cfg, show_dbg_points=False):
-    return _get_data_streamed_buffer_vec4_scene(cfg, 2, show_dbg_points)
+data_streamed_buffer_vec4 = _get_data_streamed_buffer_function(1)
+data_streamed_buffer_vec4_time_anim = _get_data_streamed_buffer_function(2)
 
 
 @test_cuepoints(points={'c': (0, 0)}, tolerance=1)
