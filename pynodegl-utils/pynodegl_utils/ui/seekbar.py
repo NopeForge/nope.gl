@@ -21,7 +21,7 @@
 
 import math
 from fractions import Fraction
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class Seekbar(QtWidgets.QWidget):

@@ -25,7 +25,7 @@ import os.path as op
 import tempfile
 import time
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from pynodegl_utils.module import load_script
 

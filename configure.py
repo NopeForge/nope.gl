@@ -247,7 +247,7 @@ def _pynodegl_install(cfg):
 def _pynodegl_utils_deps_install(cfg):
     #
     # Requirements not installed on MinGW because:
-    # - PySide2 can't be pulled (required to be installed by the user outside the
+    # - PySide6 can't be pulled (required to be installed by the user outside the
     #   Python virtual env)
     # - Pillow fails to find zlib (required to be installed by the user outside the
     #   Python virtual env)
