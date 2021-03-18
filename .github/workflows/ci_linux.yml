@@ -36,7 +36,15 @@ jobs:
         #         apt-get install python3-venv
         #
         sudo apt -y install libsdl2-dev python3-venv valgrind
-        sudo apt -y install ffmpeg libavcodec-dev libavutil-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libpostproc-dev
+        sudo apt -y install ffmpeg libavcodec-dev libavutil-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libpostproc-dev libvulkan-dev
+        #
+        # Install a more up-to-date version of glslang (from Ubuntu 21.10) that
+        # provides the C interface node.gl depends on.
+        #
+        wget http://archive.ubuntu.com/ubuntu/pool/universe/s/spirv-tools/spirv-tools_2020.6-2_amd64.deb
+        wget http://archive.ubuntu.com/ubuntu/pool/universe/g/glslang/glslang-dev_11.1.0-4_amd64.deb
+        sudo dpkg --install spirv-tools_2020.6-2_amd64.deb
+        sudo dpkg --install glslang-dev_11.1.0-4_amd64.deb
 
     - name: Build
       run: |
