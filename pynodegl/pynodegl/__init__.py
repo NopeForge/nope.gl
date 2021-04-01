@@ -19,6 +19,19 @@
 # under the License.
 #
 
+import os
+import platform
+
+
+if platform.system() == 'Windows':
+    ngl_dll_dirs = os.getenv('NGL_DLL_DIRS')
+    if ngl_dll_dirs:
+        dll_dirs = ngl_dll_dirs.split(os.pathsep)
+        for dll_dir in dll_dirs:
+            if os.path.isdir(dll_dir):
+                os.add_dll_directory(dll_dir)
+
+
 from .specs import SPECS
 import _pynodegl as _ngl
 
