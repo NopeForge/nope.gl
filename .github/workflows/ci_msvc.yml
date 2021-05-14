@@ -15,7 +15,8 @@ jobs:
     runs-on: windows-latest
     env:
         VCPKG_TRIPLET: x64-windows
-        VCPKG_INSTALL_PACKAGES: opengl-registry ffmpeg[ffmpeg,ffprobe] sdl2
+        VCPKG_INSTALL_PACKAGES: opengl-registry ffmpeg[ffmpeg,ffprobe] sdl2 glslang
+        VULKAN_SDK_VERSION: 1.3.204.1
     strategy:
       matrix:
         include:
@@ -49,11 +50,26 @@ jobs:
 
       - name: Install dependencies
         run: |
+          iwr https://sdk.lunarg.com/sdk/download/${{env.VULKAN_SDK_VERSION}}/windows/VulkanSDK-${{env.VULKAN_SDK_VERSION}}-Installer.exe -OutFile VulkanSDK-Installer.exe
+          .\VulkanSDK-Installer.exe --accept-licenses --default-answer --confirm-command install
+
+          iwr https://sdk.lunarg.com/sdk/download/${{env.VULKAN_SDK_VERSION}}/windows/VulkanRT-${{env.VULKAN_SDK_VERSION}}-Installer.exe -OutFile VulkanRT-Installer.exe
+          .\VulkanRT-Installer.exe /S
+
           cd C:\vcpkg
           .\vcpkg.exe install --triplet ${{env.VCPKG_TRIPLET}} ${{env.VCPKG_INSTALL_PACKAGES}}
 
       - name: Build (${{matrix.build_backend}})
         run: |
+          # Disable the Vulkan backend when using the vs backend to workaround
+          # the following meson error (specific to the CI setup which uses
+          # resources from multiple drives (C:\ and D:\)):
+          #  ValueError: path is on mount 'C:', start on mount 'D:'
+          #  ERROR: Unhandled python exception
+          #  This is a Meson bug and should be reported!
+          if ("${{matrix.build_backend}}" -eq "ninja") {
+            $Env:VULKAN_SDK = "C:/VulkanSDK/${{env.VULKAN_SDK_VERSION}}"
+          }
           .\scripts\msvc-env.ps1
           python.exe .\configure.py --debug-opts gpu_capture --build-backend ${{matrix.build_backend}}
           nmake
