@@ -44,13 +44,11 @@ struct hwupload_vt_darwin {
     struct texture *planes[2];
 };
 
-static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+static int vt_darwin_map_frame(struct hwupload *hwupload, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = node->ctx;
+    struct ngl_ctx *ctx = hwupload->ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)ctx->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
     struct hwupload_vt_darwin *vt = hwupload->hwmap_priv_data;
 
     sxplayer_release_frame(vt->frame);
@@ -93,12 +91,13 @@ static int vt_darwin_map_frame(struct ngl_node *node, struct sxplayer_frame *fra
     return 0;
 }
 
-static int support_direct_rendering(struct ngl_node *node)
+static int support_direct_rendering(struct hwupload *hwupload)
 {
-    struct texture_priv *s = node->priv_data;
-    int direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
+    const struct hwupload_params *params = &hwupload->params;
 
-    if (direct_rendering && s->params.mipmap_filter) {
+    int direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
+
+    if (direct_rendering && params->texture_mipmap_filter) {
         LOG(WARNING, "IOSurface NV12 buffers do not support mipmapping: "
             "disabling direct rendering");
         direct_rendering = 0;
@@ -107,24 +106,21 @@ static int support_direct_rendering(struct ngl_node *node)
     return direct_rendering;
 }
 
-static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
+static int vt_darwin_init(struct hwupload *hwupload, struct sxplayer_frame * frame)
 {
-    struct ngl_ctx *ctx = node->ctx;
+    struct ngl_ctx *ctx = hwupload->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
     struct hwupload_vt_darwin *vt = hwupload->hwmap_priv_data;
+    const struct hwupload_params *params = &hwupload->params;
 
     for (int i = 0; i < 2; i++) {
-        const struct texture_params *texture_params = &s->params;
-
         const struct texture_params plane_params = {
             .type             = NGLI_TEXTURE_TYPE_2D,
             .format           = i == 0 ? NGLI_FORMAT_R8_UNORM : NGLI_FORMAT_R8G8_UNORM,
-            .min_filter       = texture_params->min_filter,
-            .mag_filter       = texture_params->mag_filter,
-            .wrap_s           = texture_params->wrap_s,
-            .wrap_t           = texture_params->wrap_t,
+            .min_filter       = params->texture_min_filter,
+            .mag_filter       = params->texture_mag_filter,
+            .wrap_s           = params->texture_wrap_s,
+            .wrap_t           = params->texture_wrap_t,
             .usage            = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
             .rectangle        = 1,
             .external_storage = 1,
@@ -148,15 +144,13 @@ static int vt_darwin_init(struct ngl_node *node, struct sxplayer_frame * frame)
     };
     ngli_image_init(&hwupload->mapped_image, &image_params, vt->planes);
 
-    hwupload->require_hwconv = !support_direct_rendering(node);
+    hwupload->require_hwconv = !support_direct_rendering(hwupload);
 
     return 0;
 }
 
-static void vt_darwin_uninit(struct ngl_node *node)
+static void vt_darwin_uninit(struct hwupload *hwupload)
 {
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
     struct hwupload_vt_darwin *vt = hwupload->hwmap_priv_data;
 
     for (int i = 0; i < 2; i++)

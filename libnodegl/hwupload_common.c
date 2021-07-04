@@ -169,26 +169,25 @@ static const struct format_desc *common_get_format_desc(int pix_fmt)
     return desc;
 }
 
-static int support_direct_rendering(struct ngl_node *node, const struct format_desc *desc)
+static int support_direct_rendering(struct hwupload *hwupload, const struct format_desc *desc)
 {
-    struct texture_priv *s = node->priv_data;
+    const struct hwupload_params *params = &hwupload->params;
 
     int direct_rendering = 1;
     if (desc->layout != NGLI_IMAGE_LAYOUT_DEFAULT) {
-        direct_rendering = (s->supported_image_layouts & (1 << desc->layout));
-        if (s->params.mipmap_filter)
+        direct_rendering = (params->image_layouts & (1 << desc->layout));
+        if (params->texture_mipmap_filter)
             direct_rendering = 0;
     }
 
     return direct_rendering;
 }
 
-static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
+static int common_init(struct hwupload *hwupload, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = node->ctx;
+    struct ngl_ctx *ctx = hwupload->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
+    const struct hwupload_params *params = &hwupload->params;
     struct hwupload_common *common = hwupload->hwmap_priv_data;
 
     const struct format_desc *desc = common_get_format_desc(frame->pix_fmt);
@@ -202,16 +201,24 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
     common->nb_planes = desc->nb_planes;
 
     for (int i = 0; i < common->nb_planes; i++) {
-        struct texture_params params = s->params;
-        params.width  = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc->log2_chroma_width);
-        params.height = i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc->log2_chroma_height);
-        params.format = desc->formats[i];
+        const struct texture_params plane_params = {
+            .type          = NGLI_TEXTURE_TYPE_2D,
+            .format        = desc->formats[i],
+            .width         = i == 0 ? frame->width : NGLI_CEIL_RSHIFT(frame->width, desc->log2_chroma_width),
+            .height        = i == 0 ? frame->height : NGLI_CEIL_RSHIFT(frame->height, desc->log2_chroma_height),
+            .min_filter    = params->texture_min_filter,
+            .mag_filter    = params->texture_mag_filter,
+            .mipmap_filter = desc->layout == NGLI_IMAGE_LAYOUT_DEFAULT ? params->texture_mipmap_filter : NGLI_MIPMAP_FILTER_NONE,
+            .wrap_s        = params->texture_wrap_s,
+            .wrap_t        = params->texture_wrap_t,
+            .usage         = params->texture_usage,
+        };
 
         common->planes[i] = ngli_texture_create(gpu_ctx);
         if (!common->planes[i])
             return NGL_ERROR_MEMORY;
 
-        int ret = ngli_texture_init(common->planes[i], &params);
+        int ret = ngli_texture_init(common->planes[i], &plane_params);
         if (ret < 0)
             return ret;
     }
@@ -229,25 +236,21 @@ static int common_init(struct ngl_node *node, struct sxplayer_frame *frame)
     };
     ngli_image_init(&hwupload->mapped_image, &image_params, common->planes);
 
-    hwupload->require_hwconv = !support_direct_rendering(node, desc);
+    hwupload->require_hwconv = !support_direct_rendering(hwupload, desc);
 
     return 0;
 }
 
-static void common_uninit(struct ngl_node *node)
+static void common_uninit(struct hwupload *hwupload)
 {
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
     struct hwupload_common *common = hwupload->hwmap_priv_data;
 
     for (int i = 0; i < NGLI_ARRAY_NB(common->planes); i++)
         ngli_texture_freep(&common->planes[i]);
 }
 
-static int common_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+static int common_map_frame(struct hwupload *hwupload, struct sxplayer_frame *frame)
 {
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
     struct hwupload_common *common = hwupload->hwmap_priv_data;
 
     for (int i = 0; i < common->nb_planes; i++) {

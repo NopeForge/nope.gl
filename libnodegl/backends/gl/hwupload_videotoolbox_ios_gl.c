@@ -87,13 +87,12 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
     return 0;
 }
 
-static int vt_ios_map_plane(struct ngl_node *node, CVPixelBufferRef cvpixbuf, int index)
+static int vt_ios_map_plane(struct hwupload *hwupload, CVPixelBufferRef cvpixbuf, int index)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)ctx->gpu_ctx;
+    struct ngl_ctx *ctx = hwupload->ctx;
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
     struct hwupload_vt_ios *vt = hwupload->hwmap_priv_data;
     struct texture *plane = vt->planes[index];
     struct texture_gl *plane_gl = (struct texture_gl *)plane;
@@ -142,10 +141,8 @@ static int vt_ios_map_plane(struct ngl_node *node, CVPixelBufferRef cvpixbuf, in
     return 0;
 }
 
-static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
+static int vt_ios_map_frame(struct hwupload *hwupload, struct sxplayer_frame *frame)
 {
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
     struct hwupload_vt_ios *vt = hwupload->hwmap_priv_data;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
@@ -159,15 +156,15 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     switch (vt->format) {
     case kCVPixelFormatType_32BGRA:
     case kCVPixelFormatType_32RGBA:
-        ret = vt_ios_map_plane(node, cvpixbuf, 0);
+        ret = vt_ios_map_plane(hwupload, cvpixbuf, 0);
         if (ret < 0)
             return ret;
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
-        ret = vt_ios_map_plane(node, cvpixbuf, 0);
+        ret = vt_ios_map_plane(hwupload, cvpixbuf, 0);
         if (ret < 0)
             return ret;
-        ret = vt_ios_map_plane(node, cvpixbuf, 1);
+        ret = vt_ios_map_plane(hwupload, cvpixbuf, 1);
         if (ret < 0)
             return ret;
         break;
@@ -179,10 +176,8 @@ static int vt_ios_map_frame(struct ngl_node *node, struct sxplayer_frame *frame)
     return 0;
 }
 
-static void vt_ios_uninit(struct ngl_node *node)
+static void vt_ios_uninit(struct hwupload *hwupload)
 {
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
     struct hwupload_vt_ios *vt = hwupload->hwmap_priv_data;
 
     ngli_texture_freep(&vt->planes[0]);
@@ -192,9 +187,9 @@ static void vt_ios_uninit(struct ngl_node *node)
     NGLI_CFRELEASE(vt->ios_textures[1]);
 }
 
-static int support_direct_rendering(struct ngl_node *node, struct sxplayer_frame *frame)
+static int support_direct_rendering(struct hwupload *hwupload, struct sxplayer_frame *frame)
 {
-    struct texture_priv *s = node->priv_data;
+    const struct hwupload_params *params = &hwupload->params;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
@@ -205,13 +200,13 @@ static int support_direct_rendering(struct ngl_node *node, struct sxplayer_frame
     case kCVPixelFormatType_32RGBA:
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
-        direct_rendering = s->supported_image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12);
+        direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12);
         break;
     default:
         ngli_assert(0);
     }
 
-    if (direct_rendering && s->params.mipmap_filter) {
+    if (direct_rendering && params->texture_mipmap_filter) {
         LOG(WARNING, "Videotoolbox textures do not support mipmapping: "
             "disabling direct rendering");
         direct_rendering = 0;
@@ -220,13 +215,12 @@ static int support_direct_rendering(struct ngl_node *node, struct sxplayer_frame
     return direct_rendering;
 }
 
-static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
+static int vt_ios_init(struct hwupload *hwupload, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = node->ctx;
+    struct ngl_ctx *ctx = hwupload->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
     struct hwupload_vt_ios *vt = hwupload->hwmap_priv_data;
+    const struct hwupload_params *params = &hwupload->params;
 
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
@@ -237,15 +231,13 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
         return ret;
 
     for (int i = 0; i < format_desc.nb_planes; i++) {
-        const struct texture_params texture_params = &s->params;
-
         const struct texture_params plane_params = {
             .type             = NGLI_TEXTURE_TYPE_2D,
-            .format           = format_desc.planes[i].format;
-            .min_filter       = texture_params->min_filter,
-            .mag_filter       = texture_params->mag_filter,
-            .wrap_s           = texture_params->wrap_s,
-            .wrap_t           = texture_params->wrap_t,
+            .format           = format_desc.planes[i].format,
+            .min_filter       = params->texture_min_filter,
+            .mag_filter       = params->texture_mag_filter,
+            .wrap_s           = params->texture_wrap_s,
+            .wrap_t           = params->texture_wrap_t,
             .usage            = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
         };
 
@@ -267,7 +259,7 @@ static int vt_ios_init(struct ngl_node *node, struct sxplayer_frame *frame)
     };
     ngli_image_init(&hwupload->mapped_image, &image_params, vt->planes);
 
-    hwupload->require_hwconv = !support_direct_rendering(node, frame);
+    hwupload->require_hwconv = !support_direct_rendering(hwupload, frame);
 
     return 0;
 }

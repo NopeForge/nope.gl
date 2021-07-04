@@ -262,8 +262,25 @@ static int texture_prefetch(struct ngl_node *node)
 
     if (s->data_src) {
         switch (s->data_src->cls->id) {
-        case NGL_NODE_MEDIA:
-            return ngli_hwupload_init(node);
+        case NGL_NODE_MEDIA: {
+            struct ngl_node *media = s->data_src;
+            ngli_unused struct media_priv *media_priv = media->priv_data;
+            const struct hwupload_params hwupload_params = {
+                .label                 = node->label,
+                .image_layouts         = s->supported_image_layouts,
+                .texture_min_filter    = params->min_filter,
+                .texture_mag_filter    = params->mag_filter,
+                .texture_mipmap_filter = params->mipmap_filter,
+                .texture_wrap_s        = params->wrap_s,
+                .texture_wrap_t        = params->wrap_t,
+                .texture_usage         = params->usage,
+#if defined(TARGET_ANDROID)
+                .android_surface       = media_priv->android_surface,
+                .android_imagereader   = media_priv->android_imagereader,
+#endif
+            };
+            return ngli_hwupload_init(&s->hwupload, ctx, &hwupload_params);
+        }
         case NGL_NODE_ANIMATEDBUFFERFLOAT:
         case NGL_NODE_ANIMATEDBUFFERVEC2:
         case NGL_NODE_ANIMATEDBUFFERVEC4:
@@ -359,7 +376,7 @@ static int handle_media_frame(struct ngl_node *node)
     /* Reset destination image */
     ngli_image_reset(&s->image);
 
-    int ret = ngli_hwupload_upload_frame(node, frame, &s->image);
+    int ret = ngli_hwupload_upload_frame(&s->hwupload, frame, &s->image);
     if (ret < 0) {
         LOG(ERROR, "could not map media frame");
         return ret;
@@ -422,7 +439,7 @@ static void texture_release(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
 
-    ngli_hwupload_uninit(node);
+    ngli_hwupload_uninit(&s->hwupload);
     ngli_texture_freep(&s->texture);
     ngli_image_reset(&s->image);
 }
