@@ -38,12 +38,9 @@ extern const struct hwmap_class ngli_hwmap_common_class;
 extern const struct hwmap_class *ngli_hwmap_gl_classes[];
 #endif
 
-static const struct hwmap_class *get_hwmap_class(int backend, struct sxplayer_frame *frame)
+static const struct hwmap_class *get_hwmap_class(const struct hwupload *hwupload, struct sxplayer_frame *frame)
 {
-    const struct hwmap_class **hwmap_classes = NULL;
-
-    if (backend == NGL_BACKEND_OPENGL || backend == NGL_BACKEND_OPENGLES)
-        hwmap_classes = ngli_hwmap_gl_classes;
+    const struct hwmap_class **hwmap_classes = hwupload->hwmap_classes;
 
     if (hwmap_classes) {
         for (int i = 0; hwmap_classes[i]; i++) {
@@ -126,10 +123,35 @@ static int exec_hwconv(struct ngl_node *node)
     return 0;
 }
 
+static void hwupload_set_defaults(struct ngl_node *node)
+{
+    struct texture_priv *s = node->priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+
+    memset(hwupload, 0, sizeof(*hwupload));
+    hwupload->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
+}
+
+static void hwupload_set_hwmap_classes(struct ngl_node *node)
+{
+    const struct ngl_ctx *ctx = node->ctx;
+    const struct ngl_config *config = &ctx->config;
+    struct texture_priv *s = node->priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+
+    if (config->backend == NGL_BACKEND_OPENGL || config->backend == NGL_BACKEND_OPENGLES)
+        hwupload->hwmap_classes = ngli_hwmap_gl_classes;
+}
+
+int ngli_hwupload_init(struct ngl_node *node)
+{
+    hwupload_set_defaults(node);
+    hwupload_set_hwmap_classes(node);
+    return 0;
+}
+
 int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *frame, struct image *image)
 {
-    struct ngl_ctx *ctx = node->ctx;
-    const struct ngl_config *config = &ctx->config;
     struct texture_priv *s = node->priv_data;
     struct hwupload *hwupload = &s->hwupload;
 
@@ -138,7 +160,11 @@ int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *fra
         frame->pix_fmt != hwupload->pix_fmt) {
         ngli_hwupload_uninit(node);
 
-        const struct hwmap_class *hwmap_class = get_hwmap_class(config->backend, frame);
+        int ret = ngli_hwupload_init(node);
+        if (ret < 0)
+            return ret;
+
+        const struct hwmap_class *hwmap_class = get_hwmap_class(hwupload, frame);
         ngli_assert(hwmap_class);
         ngli_assert(hwmap_class->priv_size);
 
@@ -148,7 +174,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *fra
             return NGL_ERROR_MEMORY;
         }
 
-        int ret = hwmap_class->init(node, frame);
+        ret = hwmap_class->init(node, frame);
         if (ret < 0) {
             sxplayer_release_frame(frame);
             return ret;
@@ -198,6 +224,5 @@ void ngli_hwupload_uninit(struct ngl_node *node)
         hwupload->hwmap_class->uninit(node);
     }
     ngli_freep(&hwupload->hwmap_priv_data);
-    memset(hwupload, 0, sizeof(*hwupload));
-    hwupload->pix_fmt = -1; /* TODO: replace with SXPLAYER_PIXFMT_NONE */
+    hwupload_set_defaults(node);
 }
