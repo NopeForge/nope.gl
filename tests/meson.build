@@ -148,6 +148,7 @@ foreach backend : backends
     tests_data += test_name + '_uniform'
   endforeach
 
+  tests_data += 'mat_iovars'
   if has_uint_uniforms
     tests_data += 'integer_iovars'
   endif

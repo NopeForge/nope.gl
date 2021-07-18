@@ -350,6 +350,31 @@ def data_integer_iovars(cfg):
     return render
 
 
+@test_cuepoints(points={'c': (0, 0)}, tolerance=1)
+@scene()
+def data_mat_iovars(cfg):
+    cfg.aspect_ratio = (1, 1)
+    vert = '''void main() {
+    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+    var_mat3 = mat3(1.0);
+    var_mat4 = mat4(1.0);
+    var_vec4 = vec4(1.0, 0.5, 0.0, 1.0);
+}
+'''
+    frag = '''void main() {
+    ngl_out_color = mat4(var_mat3) * var_mat4 * var_vec4;
+}'''
+    program = ngl.Program(vertex=vert, fragment=frag)
+    program.update_vert_out_vars(
+        var_mat3=ngl.IOMat3(),
+        var_mat4=ngl.IOMat4(),
+        var_vec4=ngl.IOVec4(),
+    )
+    geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
+    render = ngl.Render(geometry, program)
+    return render
+
+
 @test_fingerprint(nb_keyframes=10, tolerance=1)
 @scene()
 def data_noise_time(cfg):
