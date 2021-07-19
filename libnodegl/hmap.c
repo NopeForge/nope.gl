@@ -68,6 +68,20 @@ int ngli_hmap_count(const struct hmap *hm)
     return hm->count;
 }
 
+static int add_entry(struct hmap *hm, struct bucket *b, char *key, void *data, int id)
+{
+    struct hmap_entry *entries = ngli_realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
+    if (!entries)
+        return NGL_ERROR_MEMORY;
+    b->entries = entries;
+    struct hmap_entry *e = &entries[b->nb_entries++];
+    e->key = key;
+    e->data = data;
+    e->bucket_id = id;
+    hm->count++;
+    return 0;
+}
+
 int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
 {
     if (!key)
@@ -134,9 +148,8 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                 while ((e = ngli_hmap_next(&old_hm, e))) {
                     const int new_id = ngli_crc32(e->key) & hm->mask;
                     struct bucket *b = &hm->buckets[new_id];
-                    struct hmap_entry *entries =
-                        ngli_realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
-                    if (!entries) {
+                    int ret = add_entry(hm, b, e->key, e->data, new_id);
+                    if (ret < 0) {
                         /* Unable to allocate more, ngli_free the incomplete buckets
                          * and restore the previous hashmap state */
                         for (int j = 0; j < hm->size; j++)
@@ -145,12 +158,6 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                         *hm = old_hm;
                         return NGL_ERROR_MEMORY;
                     }
-                    b->entries = entries;
-                    struct hmap_entry *new_e = &entries[b->nb_entries++];
-                    new_e->key = e->key;
-                    new_e->data = e->data;
-                    new_e->bucket_id = new_id;
-                    hm->count++;
                 }
 
                 /* Destroy previous indexes in the old buckets */
@@ -175,18 +182,11 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
     char *new_key = ngli_strdup(key);
     if (!new_key)
         return NGL_ERROR_MEMORY;
-    struct hmap_entry *entries =
-        ngli_realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
-    if (!entries) {
+    int ret = add_entry(hm, b, new_key, data, id);
+    if (ret < 0) {
         ngli_free(new_key);
-        return NGL_ERROR_MEMORY;
+        return ret;
     }
-    b->entries = entries;
-    struct hmap_entry *e = &entries[b->nb_entries++];
-    e->key = new_key;
-    e->data = data;
-    e->bucket_id = id;
-    hm->count++;
 
     return 0;
 }
