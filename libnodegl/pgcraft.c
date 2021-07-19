@@ -444,6 +444,15 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     return 0;
 }
 
+static int get_location_count(int type)
+{
+    switch (type) {
+    case NGLI_TYPE_MAT3: return 3;
+    case NGLI_TYPE_MAT4: return 4;
+    default:             return 1;
+    }
+}
+
 static int inject_attribute(struct pgcraft *s, struct bstr *b,
                             const struct pgcraft_attribute *attribute, int stage)
 {
@@ -452,7 +461,7 @@ static int inject_attribute(struct pgcraft *s, struct bstr *b,
     const char *type = get_glsl_type(attribute->type);
 
     int base_location = -1;
-    const int attribute_count = attribute->type == NGLI_TYPE_MAT4 ? 4 : 1;
+    const int attribute_count = get_location_count(attribute->type);
 
     if (s->has_in_out_layout_qualifiers) {
         base_location = s->next_in_locations[stage];
