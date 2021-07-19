@@ -40,6 +40,8 @@ struct hmap {
     int count; // total number of entries
     user_free_func_type user_free_func;
     void *user_arg;
+    struct hmap_ref first;
+    struct hmap_ref last;
 };
 
 void ngli_hmap_set_free(struct hmap *hm, user_free_func_type user_free_func, void *user_arg)
@@ -47,6 +49,9 @@ void ngli_hmap_set_free(struct hmap *hm, user_free_func_type user_free_func, voi
     hm->user_free_func = user_free_func;
     hm->user_arg = user_arg;
 }
+
+#define NO_REF (struct hmap_ref){.bucket_id = -1}
+#define HAS_REF(ref) ((ref).bucket_id != -1)
 
 struct hmap *ngli_hmap_create(void)
 {
@@ -60,12 +65,61 @@ struct hmap *ngli_hmap_create(void)
         ngli_free(hm);
         return NULL;
     }
+    hm->first = hm->last = NO_REF;
     return hm;
 }
 
 int ngli_hmap_count(const struct hmap *hm)
 {
     return hm->count;
+}
+
+static struct hmap_entry *entry_from_ref(const struct hmap *hm, struct hmap_ref ref)
+{
+    return HAS_REF(ref) ? &hm->buckets[ref.bucket_id].entries[ref.entry_id] : NULL;
+}
+
+static struct hmap_ref ref_from_entry(const struct hmap *hm, const struct hmap_entry *entry)
+{
+    if (!entry)
+        return NO_REF;
+    struct hmap_ref ref = {
+        .bucket_id = entry->bucket_id,
+        .entry_id  = (int)(entry - hm->buckets[ref.bucket_id].entries),
+    };
+    return ref;
+}
+
+static struct hmap_entry *fixed_entry_from_ref(const struct hmap *hm, struct hmap_ref ref, struct hmap_ref removed)
+{
+    if (!HAS_REF(ref))
+        return NULL;
+    const int need_fix = ref.bucket_id == removed.bucket_id && ref.entry_id > removed.entry_id;
+    const int entry_id = ref.entry_id - need_fix;
+    return &hm->buckets[ref.bucket_id].entries[entry_id];
+}
+
+/*
+ * Every entry starting at removed.entry_id is offset by 1 (since the buffer
+ * was memory moved after the target entry got removed). We need to fix the
+ * references to all these entries, which can be simply done with a -1 on
+ * entry indexes (or global pointers indexes) referencing them.
+ *
+ * Note that we can not use entry_from_ref() directly, because the
+ * e->{prev,next} could be referencing an entry in the same bucket, and so we
+ * need to offset them in this particular situation; see fixed_entry_from_ref().
+ */
+static void fix_refs(struct hmap *hm, struct bucket *b, struct hmap_ref removed)
+{
+    for (int i = removed.entry_id; i < b->nb_entries; i++) {
+        struct hmap_entry *e = &b->entries[i];
+        struct hmap_entry *prev = fixed_entry_from_ref(hm, e->prev, removed);
+        struct hmap_entry *next = fixed_entry_from_ref(hm, e->next, removed);
+        struct hmap_ref *prev_ref = prev ? &prev->next : &hm->first;
+        struct hmap_ref *next_ref = next ? &next->prev : &hm->last;
+        prev_ref->entry_id--;
+        next_ref->entry_id--;
+    }
 }
 
 static int add_entry(struct hmap *hm, struct bucket *b, char *key, void *data, int id)
@@ -78,6 +132,20 @@ static int add_entry(struct hmap *hm, struct bucket *b, char *key, void *data, i
     e->key = key;
     e->data = data;
     e->bucket_id = id;
+    e->prev = hm->last;
+    e->next = NO_REF;
+
+    /* update global first reference */
+    const struct hmap_ref ref = ref_from_entry(hm, e);
+    if (!HAS_REF(hm->first))
+        hm->first = ref;
+
+    /* update global last reference */
+    struct hmap_entry *last = entry_from_ref(hm, hm->last);
+    if (last)
+        last->next = ref;
+    hm->last = ref;
+
     hm->count++;
     return 0;
 }
@@ -96,6 +164,18 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
         for (int i = 0; i < b->nb_entries; i++) {
             struct hmap_entry *e = &b->entries[i];
             if (!strcmp(e->key, key)) {
+
+                /* Link previous and next entries together */
+                struct hmap_entry *prev = entry_from_ref(hm, e->prev);
+                struct hmap_entry *next = entry_from_ref(hm, e->next);
+                struct hmap_ref *link_from_back  = prev ? &prev->next : &hm->first;
+                struct hmap_ref *link_from_front = next ? &next->prev : &hm->last;
+                *link_from_back = e->next;
+                *link_from_front = e->prev;
+
+                /* Keep a reference pre-remove for fixing the refs later */
+                const struct hmap_ref removed = ref_from_entry(hm, e);
+
                 ngli_free(e->key);
                 if (hm->user_free_func)
                     hm->user_free_func(hm->user_arg, e->data);
@@ -110,6 +190,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                     if (!entries)
                         return 0; // unable to realloc but entry got dropped, so this is OK
                     b->entries = entries;
+                    fix_refs(hm, b, removed);
                 }
                 return 1;
             }
@@ -141,6 +222,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
             hm->count = 0;
             hm->size <<= 1;
             hm->mask = hm->size - 1;
+            hm->first = hm->last = NO_REF;
 
             if (old_hm.count) {
                 /* Transfer all entries to the new map */
@@ -191,37 +273,10 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
     return 0;
 }
 
-static struct hmap_entry *get_first_entry(const struct hmap *hm,
-                                          int bucket_start)
-{
-    for (int i = bucket_start; i < hm->size; i++) {
-        const struct bucket *b = &hm->buckets[i];
-        if (b->nb_entries)
-            return &b->entries[0];
-    }
-    return NULL;
-}
-
 struct hmap_entry *ngli_hmap_next(const struct hmap *hm,
                                   const struct hmap_entry *prev)
 {
-    if (!hm->count)
-        return NULL;
-
-    if (!prev)
-        return get_first_entry(hm, 0);
-
-    const int id = prev->bucket_id;
-    const struct bucket *b = &hm->buckets[id];
-    const int entry_id = prev - b->entries;
-
-    if (entry_id < b->nb_entries - 1)
-        return &b->entries[entry_id + 1];
-
-    if (id < hm->size - 1)
-        return get_first_entry(hm, id + 1);
-
-    return NULL;
+    return entry_from_ref(hm, prev ? prev->next : hm->first);
 }
 
 void *ngli_hmap_get(const struct hmap *hm, const char *key)
