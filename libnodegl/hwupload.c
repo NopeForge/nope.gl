@@ -193,15 +193,11 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     struct texture_priv *s = node->priv_data;
     struct hwupload *hwupload = &s->hwupload;
     ngli_hwconv_reset(&hwupload->hwconv);
-    hwupload->hwconv_initialized = 0;
-    hwupload->require_hwconv = 0;
     ngli_image_reset(&hwupload->mapped_image);
     if (hwupload->hwmap_class && hwupload->hwmap_class->uninit) {
         hwupload->hwmap_class->uninit(node);
     }
     ngli_freep(&hwupload->hwmap_priv_data);
-    hwupload->hwmap_class = NULL;
+    memset(hwupload, 0, sizeof(*hwupload));
     hwupload->pix_fmt = -1; /* TODO: replace with SXPLAYER_PIXFMT_NONE */
-    hwupload->width = 0;
-    hwupload->height = 0;
 }
