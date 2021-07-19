@@ -201,7 +201,7 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     }
     ngli_freep(&hwupload->hwmap_priv_data);
     hwupload->hwmap_class = NULL;
-    hwupload->pix_fmt = 0;
+    hwupload->pix_fmt = -1; /* TODO: replace with SXPLAYER_PIXFMT_NONE */
     hwupload->width = 0;
     hwupload->height = 0;
 }
