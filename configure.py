@@ -40,7 +40,7 @@ from subprocess import run
 
 
 _ROOTDIR = op.abspath(op.dirname(__file__))
-_SYSTEM = 'MinGW' if sysconfig.get_platform() == 'mingw' else platform.system()
+_SYSTEM = 'MinGW' if sysconfig.get_platform().startswith('mingw') else platform.system()
 _RENDERDOC_ID = f'renderdoc_{_SYSTEM}'
 _EXTERNAL_DEPS = dict(
     sxplayer=dict(
