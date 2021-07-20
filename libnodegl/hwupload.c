@@ -219,6 +219,8 @@ void ngli_hwupload_uninit(struct ngl_node *node)
     struct texture_priv *s = node->priv_data;
     struct hwupload *hwupload = &s->hwupload;
     ngli_hwconv_reset(&hwupload->hwconv);
+    ngli_image_reset(&hwupload->hwconv_image);
+    ngli_texture_freep(&hwupload->hwconv_texture);
     ngli_image_reset(&hwupload->mapped_image);
     if (hwupload->hwmap_class && hwupload->hwmap_class->uninit) {
         hwupload->hwmap_class->uninit(node);
