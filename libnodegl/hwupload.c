@@ -33,10 +33,7 @@
 #include "nodes.h"
 
 extern const struct hwmap_class ngli_hwmap_common_class;
-
-#ifdef BACKEND_GL
 extern const struct hwmap_class *ngli_hwmap_gl_classes[];
-#endif
 
 static const struct hwmap_class *get_hwmap_class(const struct hwupload *hwupload, struct sxplayer_frame *frame)
 {
@@ -139,8 +136,10 @@ static void hwupload_set_hwmap_classes(struct ngl_node *node)
     struct texture_priv *s = node->priv_data;
     struct hwupload *hwupload = &s->hwupload;
 
+#ifdef BACKEND_GL
     if (config->backend == NGL_BACKEND_OPENGL || config->backend == NGL_BACKEND_OPENGLES)
         hwupload->hwmap_classes = ngli_hwmap_gl_classes;
+#endif
 }
 
 int ngli_hwupload_init(struct ngl_node *node)
