@@ -40,4 +40,3 @@ const struct hwmap_class *ngli_hwmap_gl_classes[] = {
 #endif
     NULL
 };
-
