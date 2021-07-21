@@ -120,32 +120,21 @@ static int exec_hwconv(struct ngl_node *node)
     return 0;
 }
 
-static void hwupload_set_defaults(struct ngl_node *node)
-{
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
-
-    memset(hwupload, 0, sizeof(*hwupload));
-    hwupload->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
-}
-
-static void hwupload_set_hwmap_classes(struct ngl_node *node)
+int ngli_hwupload_init(struct ngl_node *node)
 {
     const struct ngl_ctx *ctx = node->ctx;
     const struct ngl_config *config = &ctx->config;
     struct texture_priv *s = node->priv_data;
     struct hwupload *hwupload = &s->hwupload;
 
+    memset(hwupload, 0, sizeof(*hwupload));
+    hwupload->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
+
 #ifdef BACKEND_GL
     if (config->backend == NGL_BACKEND_OPENGL || config->backend == NGL_BACKEND_OPENGLES)
         hwupload->hwmap_classes = ngli_hwmap_gl_classes;
 #endif
-}
 
-int ngli_hwupload_init(struct ngl_node *node)
-{
-    hwupload_set_defaults(node);
-    hwupload_set_hwmap_classes(node);
     return 0;
 }
 
@@ -230,6 +219,9 @@ end:
 
 void ngli_hwupload_uninit(struct ngl_node *node)
 {
+    struct texture_priv *s = node->priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+
     hwupload_reset(node);
-    hwupload_set_defaults(node);
+    memset(hwupload, 0, sizeof(*hwupload));
 }
