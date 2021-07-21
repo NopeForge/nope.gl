@@ -149,6 +149,25 @@ int ngli_hwupload_init(struct ngl_node *node)
     return 0;
 }
 
+static void hwupload_reset(struct ngl_node *node)
+{
+    struct texture_priv *s = node->priv_data;
+    struct hwupload *hwupload = &s->hwupload;
+    hwupload->require_hwconv = 0;
+    ngli_hwconv_reset(&hwupload->hwconv);
+    ngli_image_reset(&hwupload->hwconv_image);
+    ngli_texture_freep(&hwupload->hwconv_texture);
+    hwupload->hwconv_initialized = 0;
+    ngli_image_reset(&hwupload->mapped_image);
+    if (hwupload->hwmap_class)
+        hwupload->hwmap_class->uninit(node);
+    hwupload->hwmap_class = NULL;
+    ngli_freep(&hwupload->hwmap_priv_data);
+    hwupload->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
+    hwupload->width = 0;
+    hwupload->height = 0;
+}
+
 int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *frame, struct image *image)
 {
     struct texture_priv *s = node->priv_data;
@@ -157,11 +176,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *fra
     if (frame->width  != hwupload->width ||
         frame->height != hwupload->height ||
         frame->pix_fmt != hwupload->pix_fmt) {
-        ngli_hwupload_uninit(node);
-
-        int ret = ngli_hwupload_init(node);
-        if (ret < 0)
-            return ret;
+        hwupload_reset(node);
 
         const struct hwmap_class *hwmap_class = get_hwmap_class(hwupload, frame);
         ngli_assert(hwmap_class);
@@ -173,7 +188,7 @@ int ngli_hwupload_upload_frame(struct ngl_node *node, struct sxplayer_frame *fra
             return NGL_ERROR_MEMORY;
         }
 
-        ret = hwmap_class->init(node, frame);
+        int ret = hwmap_class->init(node, frame);
         if (ret < 0) {
             sxplayer_release_frame(frame);
             return ret;
@@ -215,15 +230,6 @@ end:
 
 void ngli_hwupload_uninit(struct ngl_node *node)
 {
-    struct texture_priv *s = node->priv_data;
-    struct hwupload *hwupload = &s->hwupload;
-    ngli_hwconv_reset(&hwupload->hwconv);
-    ngli_image_reset(&hwupload->hwconv_image);
-    ngli_texture_freep(&hwupload->hwconv_texture);
-    ngli_image_reset(&hwupload->mapped_image);
-    if (hwupload->hwmap_class) {
-        hwupload->hwmap_class->uninit(node);
-    }
-    ngli_freep(&hwupload->hwmap_priv_data);
+    hwupload_reset(node);
     hwupload_set_defaults(node);
 }
