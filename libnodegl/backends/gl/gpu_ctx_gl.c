@@ -166,7 +166,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
                 .format = NGLI_FORMAT_R8G8B8A8_UNORM,
                 .width  = config->width,
                 .height = config->height,
-                .usage  = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY,
+                .usage  = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
             };
             int ret = ngli_texture_init(s_priv->color, &params);
             if (ret < 0)
@@ -524,7 +524,7 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
             .format = NGLI_FORMAT_R8G8B8A8_UNORM,
             .width  = config->width,
             .height = config->height,
-            .usage  = NGLI_TEXTURE_USAGE_ATTACHMENT_ONLY,
+            .usage  = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
         };
         ret = ngli_texture_init(texture, &params);
         if (ret < 0)
