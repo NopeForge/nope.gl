@@ -25,14 +25,14 @@
 #include <sxplayer.h>
 
 #include "format.h"
-#include "hwupload.h"
+#include "hwmap.h"
 #include "image.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
 #include "nodes.h"
 
-struct hwupload_common {
+struct hwmap_common {
     int width;
     int height;
     int nb_planes;
@@ -169,9 +169,9 @@ static const struct format_desc *common_get_format_desc(int pix_fmt)
     return desc;
 }
 
-static int support_direct_rendering(struct hwupload *hwupload, const struct format_desc *desc)
+static int support_direct_rendering(struct hwmap *hwmap, const struct format_desc *desc)
 {
-    const struct hwupload_params *params = &hwupload->params;
+    const struct hwmap_params *params = &hwmap->params;
 
     int direct_rendering = 1;
     if (desc->layout != NGLI_IMAGE_LAYOUT_DEFAULT) {
@@ -183,12 +183,12 @@ static int support_direct_rendering(struct hwupload *hwupload, const struct form
     return direct_rendering;
 }
 
-static int common_init(struct hwupload *hwupload, struct sxplayer_frame *frame)
+static int common_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = hwupload->ctx;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct hwupload_params *params = &hwupload->params;
-    struct hwupload_common *common = hwupload->hwmap_priv_data;
+    const struct hwmap_params *params = &hwmap->params;
+    struct hwmap_common *common = hwmap->hwmap_priv_data;
 
     const struct format_desc *desc = common_get_format_desc(frame->pix_fmt);
     if (!desc) {
@@ -234,24 +234,24 @@ static int common_init(struct hwupload *hwupload, struct sxplayer_frame *frame)
         .color_scale = color_scale,
         .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
-    ngli_image_init(&hwupload->mapped_image, &image_params, common->planes);
+    ngli_image_init(&hwmap->mapped_image, &image_params, common->planes);
 
-    hwupload->require_hwconv = !support_direct_rendering(hwupload, desc);
+    hwmap->require_hwconv = !support_direct_rendering(hwmap, desc);
 
     return 0;
 }
 
-static void common_uninit(struct hwupload *hwupload)
+static void common_uninit(struct hwmap *hwmap)
 {
-    struct hwupload_common *common = hwupload->hwmap_priv_data;
+    struct hwmap_common *common = hwmap->hwmap_priv_data;
 
     for (int i = 0; i < NGLI_ARRAY_NB(common->planes); i++)
         ngli_texture_freep(&common->planes[i]);
 }
 
-static int common_map_frame(struct hwupload *hwupload, struct sxplayer_frame *frame)
+static int common_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    struct hwupload_common *common = hwupload->hwmap_priv_data;
+    struct hwmap_common *common = hwmap->hwmap_priv_data;
 
     for (int i = 0; i < common->nb_planes; i++) {
         struct texture *plane = common->planes[i];
@@ -268,7 +268,7 @@ static int common_map_frame(struct hwupload *hwupload, struct sxplayer_frame *fr
 const struct hwmap_class ngli_hwmap_common_class = {
     .name      = "default",
     .hwformat  = -1, /* TODO: replace with SXPLAYER_PIXFMT_NONE */
-    .priv_size = sizeof(struct hwupload_common),
+    .priv_size = sizeof(struct hwmap_common),
     .init      = common_init,
     .map_frame = common_map_frame,
     .uninit    = common_uninit,

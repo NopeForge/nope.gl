@@ -26,7 +26,7 @@
 
 #include "format.h"
 #include "gpu_ctx.h"
-#include "hwupload.h"
+#include "hwmap.h"
 #include "image.h"
 #include "log.h"
 #include "math_utils.h"
@@ -265,7 +265,7 @@ static int texture_prefetch(struct ngl_node *node)
         case NGL_NODE_MEDIA: {
             struct ngl_node *media = s->data_src;
             ngli_unused struct media_priv *media_priv = media->priv_data;
-            const struct hwupload_params hwupload_params = {
+            const struct hwmap_params hwmap_params = {
                 .label                 = node->label,
                 .image_layouts         = s->supported_image_layouts,
                 .texture_min_filter    = params->min_filter,
@@ -279,7 +279,7 @@ static int texture_prefetch(struct ngl_node *node)
                 .android_imagereader   = media_priv->android_imagereader,
 #endif
             };
-            return ngli_hwupload_init(&s->hwupload, ctx, &hwupload_params);
+            return ngli_hwmap_init(&s->hwmap, ctx, &hwmap_params);
         }
         case NGL_NODE_ANIMATEDBUFFERFLOAT:
         case NGL_NODE_ANIMATEDBUFFERVEC2:
@@ -369,14 +369,14 @@ static int handle_media_frame(struct ngl_node *node)
     if (!frame)
         return 0;
 
-    /* Transfer frame ownership to hwupload and ensure it cannot be re-used
+    /* Transfer frame ownership to hwmap and ensure it cannot be re-used
      * later on */
     media->frame = NULL;
 
     /* Reset destination image */
     ngli_image_reset(&s->image);
 
-    int ret = ngli_hwupload_upload_frame(&s->hwupload, frame, &s->image);
+    int ret = ngli_hwmap_map_frame(&s->hwmap, frame, &s->image);
     if (ret < 0) {
         LOG(ERROR, "could not map media frame");
         return ret;
@@ -439,7 +439,7 @@ static void texture_release(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
 
-    ngli_hwupload_uninit(&s->hwupload);
+    ngli_hwmap_uninit(&s->hwmap);
     ngli_texture_freep(&s->texture);
     ngli_image_reset(&s->image);
 }

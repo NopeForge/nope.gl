@@ -31,7 +31,7 @@
 #include "format.h"
 #include "gpu_ctx_gl.h"
 #include "glincludes.h"
-#include "hwupload.h"
+#include "hwmap.h"
 #include "image.h"
 #include "log.h"
 #include "math_utils.h"
@@ -39,17 +39,17 @@
 #include "nodes.h"
 #include "texture_gl.h"
 
-struct hwupload_vt_darwin {
+struct hwmap_vt_darwin {
     struct sxplayer_frame *frame;
     struct texture *planes[2];
 };
 
-static int vt_darwin_map_frame(struct hwupload *hwupload, struct sxplayer_frame *frame)
+static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = hwupload->ctx;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)ctx->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct hwupload_vt_darwin *vt = hwupload->hwmap_priv_data;
+    struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
 
     sxplayer_release_frame(vt->frame);
     vt->frame = frame;
@@ -91,9 +91,9 @@ static int vt_darwin_map_frame(struct hwupload *hwupload, struct sxplayer_frame 
     return 0;
 }
 
-static int support_direct_rendering(struct hwupload *hwupload)
+static int support_direct_rendering(struct hwmap *hwmap)
 {
-    const struct hwupload_params *params = &hwupload->params;
+    const struct hwmap_params *params = &hwmap->params;
 
     int direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
 
@@ -106,12 +106,12 @@ static int support_direct_rendering(struct hwupload *hwupload)
     return direct_rendering;
 }
 
-static int vt_darwin_init(struct hwupload *hwupload, struct sxplayer_frame * frame)
+static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
 {
-    struct ngl_ctx *ctx = hwupload->ctx;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct hwupload_vt_darwin *vt = hwupload->hwmap_priv_data;
-    const struct hwupload_params *params = &hwupload->params;
+    struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
+    const struct hwmap_params *params = &hwmap->params;
 
     for (int i = 0; i < 2; i++) {
         const struct texture_params plane_params = {
@@ -142,16 +142,16 @@ static int vt_darwin_init(struct hwupload *hwupload, struct sxplayer_frame * fra
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
-    ngli_image_init(&hwupload->mapped_image, &image_params, vt->planes);
+    ngli_image_init(&hwmap->mapped_image, &image_params, vt->planes);
 
-    hwupload->require_hwconv = !support_direct_rendering(hwupload);
+    hwmap->require_hwconv = !support_direct_rendering(hwmap);
 
     return 0;
 }
 
-static void vt_darwin_uninit(struct hwupload *hwupload)
+static void vt_darwin_uninit(struct hwmap *hwmap)
 {
-    struct hwupload_vt_darwin *vt = hwupload->hwmap_priv_data;
+    struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
 
     for (int i = 0; i < 2; i++)
         ngli_texture_freep(&vt->planes[i]);
@@ -164,7 +164,7 @@ const struct hwmap_class ngli_hwmap_vt_darwin_gl_class = {
     .name      = "videotoolbox (iosurface → nv12)",
     .hwformat  = SXPLAYER_PIXFMT_VT,
     .flags     = HWMAP_FLAG_FRAME_OWNER,
-    .priv_size = sizeof(struct hwupload_vt_darwin),
+    .priv_size = sizeof(struct hwmap_vt_darwin),
     .init      = vt_darwin_init,
     .map_frame = vt_darwin_map_frame,
     .uninit    = vt_darwin_uninit,

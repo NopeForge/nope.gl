@@ -45,7 +45,7 @@
 #include "hmap.h"
 #include "hud.h"
 #include "hwconv.h"
-#include "hwupload.h"
+#include "hwmap.h"
 #include "image.h"
 #include "nodegl.h"
 #include "params.h"
@@ -299,7 +299,7 @@ struct texture_priv {
     uint32_t supported_image_layouts;
     struct texture *texture;
     struct image image;
-    struct hwupload hwupload;
+    struct hwmap hwmap;
 };
 
 struct media_priv {

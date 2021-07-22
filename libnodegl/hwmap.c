@@ -26,7 +26,7 @@
 
 #include "config.h"
 #include "gpu_ctx.h"
-#include "hwupload.h"
+#include "hwmap.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
@@ -36,9 +36,9 @@
 extern const struct hwmap_class ngli_hwmap_common_class;
 extern const struct hwmap_class *ngli_hwmap_gl_classes[];
 
-static const struct hwmap_class *get_hwmap_class(const struct hwupload *hwupload, struct sxplayer_frame *frame)
+static const struct hwmap_class *get_hwmap_class(const struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    const struct hwmap_class **hwmap_classes = hwupload->hwmap_classes;
+    const struct hwmap_class **hwmap_classes = hwmap->hwmap_classes;
 
     if (hwmap_classes) {
         for (int i = 0; hwmap_classes[i]; i++) {
@@ -51,20 +51,20 @@ static const struct hwmap_class *get_hwmap_class(const struct hwupload *hwupload
     return &ngli_hwmap_common_class;
 }
 
-static int init_hwconv(struct hwupload *hwupload)
+static int init_hwconv(struct hwmap *hwmap)
 {
-    struct ngl_ctx *ctx = hwupload->ctx;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct hwupload_params *params = &hwupload->params;
-    struct image *mapped_image = &hwupload->mapped_image;
-    struct image *hwconv_image = &hwupload->hwconv_image;
-    struct hwconv *hwconv = &hwupload->hwconv;
+    const struct hwmap_params *params = &hwmap->params;
+    struct image *mapped_image = &hwmap->mapped_image;
+    struct image *hwconv_image = &hwmap->hwconv_image;
+    struct hwconv *hwconv = &hwmap->hwconv;
 
     ngli_hwconv_reset(hwconv);
     ngli_image_reset(hwconv_image);
-    ngli_texture_freep(&hwupload->hwconv_texture);
+    ngli_texture_freep(&hwmap->hwconv_texture);
 
-    LOG(DEBUG, "converting texture '%s' from %s to rgba", hwupload->params.label, hwupload->hwmap_class->name);
+    LOG(DEBUG, "converting texture '%s' from %s to rgba", hwmap->params.label, hwmap->hwmap_class->name);
 
     const struct texture_params texture_params = {
         .type          = NGLI_TEXTURE_TYPE_2D,
@@ -79,10 +79,10 @@ static int init_hwconv(struct hwupload *hwupload)
         .usage         = params->texture_usage | NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
     };
 
-    hwupload->hwconv_texture = ngli_texture_create(gpu_ctx);
-    if (!hwupload->hwconv_texture)
+    hwmap->hwconv_texture = ngli_texture_create(gpu_ctx);
+    if (!hwmap->hwconv_texture)
         return NGL_ERROR_MEMORY;
-    int ret = ngli_texture_init(hwupload->hwconv_texture, &texture_params);
+    int ret = ngli_texture_init(hwmap->hwconv_texture, &texture_params);
     if (ret < 0)
         goto end;
 
@@ -93,7 +93,7 @@ static int init_hwconv(struct hwupload *hwupload)
         .color_scale = 1.f,
         .color_info = NGLI_COLOR_INFO_DEFAULTS,
     };
-    ngli_image_init(hwconv_image, &image_params, &hwupload->hwconv_texture);
+    ngli_image_init(hwconv_image, &image_params, &hwmap->hwconv_texture);
 
     ret = ngli_hwconv_init(hwconv, ctx, hwconv_image, &mapped_image->params);
     if (ret < 0)
@@ -104,16 +104,16 @@ static int init_hwconv(struct hwupload *hwupload)
 end:
     ngli_hwconv_reset(hwconv);
     ngli_image_reset(hwconv_image);
-    ngli_texture_freep(&hwupload->hwconv_texture);
+    ngli_texture_freep(&hwmap->hwconv_texture);
     return ret;
 }
 
-static int exec_hwconv(struct hwupload *hwupload)
+static int exec_hwconv(struct hwmap *hwmap)
 {
-    struct texture *texture = hwupload->hwconv_texture;
+    struct texture *texture = hwmap->hwconv_texture;
     const struct texture_params *texture_params = &texture->params;
-    struct image *mapped_image = &hwupload->mapped_image;
-    struct hwconv *hwconv = &hwupload->hwconv;
+    struct image *mapped_image = &hwmap->mapped_image;
+    struct hwconv *hwconv = &hwmap->hwconv;
 
     int ret = ngli_hwconv_convert_image(hwconv, mapped_image);
     if (ret < 0)
@@ -125,98 +125,99 @@ static int exec_hwconv(struct hwupload *hwupload)
     return 0;
 }
 
-int ngli_hwupload_init(struct hwupload *hwupload, struct ngl_ctx *ctx, const struct hwupload_params *params)
+int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap_params *params)
 {
-    memset(hwupload, 0, sizeof(*hwupload));
-    hwupload->ctx = ctx;
-    hwupload->params = *params;
-    hwupload->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
+    memset(hwmap, 0, sizeof(*hwmap));
+    hwmap->ctx = ctx;
+    hwmap->params = *params;
+    hwmap->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
 
     const struct ngl_config *config = &ctx->config;
 #ifdef BACKEND_GL
     if (config->backend == NGL_BACKEND_OPENGL || config->backend == NGL_BACKEND_OPENGLES)
-        hwupload->hwmap_classes = ngli_hwmap_gl_classes;
+        hwmap->hwmap_classes = ngli_hwmap_gl_classes;
 #endif
 
     return 0;
 }
 
-static void hwupload_reset(struct hwupload *hwupload)
+static void hwmap_reset(struct hwmap *hwmap)
 {
-    hwupload->require_hwconv = 0;
-    ngli_hwconv_reset(&hwupload->hwconv);
-    ngli_image_reset(&hwupload->hwconv_image);
-    ngli_texture_freep(&hwupload->hwconv_texture);
-    hwupload->hwconv_initialized = 0;
-    ngli_image_reset(&hwupload->mapped_image);
-    if (hwupload->hwmap_class)
-        hwupload->hwmap_class->uninit(hwupload);
-    hwupload->hwmap_class = NULL;
-    ngli_freep(&hwupload->hwmap_priv_data);
-    hwupload->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
-    hwupload->width = 0;
-    hwupload->height = 0;
+    hwmap->require_hwconv = 0;
+    ngli_hwconv_reset(&hwmap->hwconv);
+    ngli_image_reset(&hwmap->hwconv_image);
+    ngli_texture_freep(&hwmap->hwconv_texture);
+    hwmap->hwconv_initialized = 0;
+    ngli_image_reset(&hwmap->mapped_image);
+    if (hwmap->hwmap_class) {
+        hwmap->hwmap_class->uninit(hwmap);
+    }
+    hwmap->hwmap_class = NULL;
+    ngli_freep(&hwmap->hwmap_priv_data);
+    hwmap->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
+    hwmap->width = 0;
+    hwmap->height = 0;
 }
 
-int ngli_hwupload_upload_frame(struct hwupload *hwupload, struct sxplayer_frame *frame, struct image *image)
+int ngli_hwmap_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame, struct image *image)
 {
-    if (frame->width  != hwupload->width ||
-        frame->height != hwupload->height ||
-        frame->pix_fmt != hwupload->pix_fmt) {
-        hwupload_reset(hwupload);
+    if (frame->width  != hwmap->width ||
+        frame->height != hwmap->height ||
+        frame->pix_fmt != hwmap->pix_fmt) {
+        hwmap_reset(hwmap);
 
-        const struct hwmap_class *hwmap_class = get_hwmap_class(hwupload, frame);
+        const struct hwmap_class *hwmap_class = get_hwmap_class(hwmap, frame);
         ngli_assert(hwmap_class);
         ngli_assert(hwmap_class->priv_size);
 
-        hwupload->hwmap_priv_data = ngli_calloc(1, hwmap_class->priv_size);
-        if (!hwupload->hwmap_priv_data) {
+        hwmap->hwmap_priv_data = ngli_calloc(1, hwmap_class->priv_size);
+        if (!hwmap->hwmap_priv_data) {
             sxplayer_release_frame(frame);
             return NGL_ERROR_MEMORY;
         }
 
-        int ret = hwmap_class->init(hwupload, frame);
+        int ret = hwmap_class->init(hwmap, frame);
         if (ret < 0) {
             sxplayer_release_frame(frame);
             return ret;
         }
-        hwupload->hwmap_class = hwmap_class;
-        hwupload->pix_fmt = frame->pix_fmt;
-        hwupload->width = frame->width;
-        hwupload->height = frame->height;
+        hwmap->hwmap_class = hwmap_class;
+        hwmap->pix_fmt = frame->pix_fmt;
+        hwmap->width = frame->width;
+        hwmap->height = frame->height;
 
-        LOG(DEBUG, "mapping texture '%s' with method: %s", hwupload->params.label, hwmap_class->name);
+        LOG(DEBUG, "mapping texture '%s' with method: %s", hwmap->params.label, hwmap_class->name);
     }
 
-    int ret = hwupload->hwmap_class->map_frame(hwupload, frame);
+    int ret = hwmap->hwmap_class->map_frame(hwmap, frame);
     if (ret < 0)
         goto end;
 
-    if (hwupload->require_hwconv) {
-        if (!hwupload->hwconv_initialized) {
-            ret = init_hwconv(hwupload);
+    if (hwmap->require_hwconv) {
+        if (!hwmap->hwconv_initialized) {
+            ret = init_hwconv(hwmap);
             if (ret < 0)
                 goto end;
-            hwupload->hwconv_initialized = 1;
+            hwmap->hwconv_initialized = 1;
         }
-        ret = exec_hwconv(hwupload);
+        ret = exec_hwconv(hwmap);
         if (ret < 0)
             goto end;
-        *image = hwupload->hwconv_image;
+        *image = hwmap->hwconv_image;
     } else {
-        *image = hwupload->mapped_image;
+        *image = hwmap->mapped_image;
     }
 
 end:
     image->ts = frame->ts;
 
-    if (!(hwupload->hwmap_class->flags &  HWMAP_FLAG_FRAME_OWNER))
+    if (!(hwmap->hwmap_class->flags &  HWMAP_FLAG_FRAME_OWNER))
         sxplayer_release_frame(frame);
     return ret;
 }
 
-void ngli_hwupload_uninit(struct hwupload *hwupload)
+void ngli_hwmap_uninit(struct hwmap *hwmap)
 {
-    hwupload_reset(hwupload);
-    memset(hwupload, 0, sizeof(*hwupload));
+    hwmap_reset(hwmap);
+    memset(hwmap, 0, sizeof(*hwmap));
 }

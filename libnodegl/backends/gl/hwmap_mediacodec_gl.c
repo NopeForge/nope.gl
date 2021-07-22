@@ -32,7 +32,7 @@
 #include "format.h"
 #include "gpu_ctx_gl.h"
 #include "glincludes.h"
-#include "hwupload.h"
+#include "hwmap.h"
 #include "image.h"
 #include "log.h"
 #include "math_utils.h"
@@ -40,15 +40,15 @@
 #include "nodes.h"
 #include "texture_gl.h"
 
-struct hwupload_mc {
+struct hwmap_mc {
     struct android_image *android_image;
     EGLImageKHR egl_image;
     struct texture *texture;
 };
 
-static int support_direct_rendering(struct hwupload *hwupload)
+static int support_direct_rendering(struct hwmap *hwmap)
 {
-    const struct hwupload_params *params = &hwupload->params;
+    const struct hwmap_params *params = &hwmap->params;
 
     int direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_MEDIACODEC);
 
@@ -67,13 +67,13 @@ static int support_direct_rendering(struct hwupload *hwupload)
     return direct_rendering;
 }
 
-static int mc_init(struct hwupload *hwupload, struct sxplayer_frame *frame)
+static int mc_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = hwupload->ctx;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct android_ctx *android_ctx = &ctx->android_ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    const struct hwupload_params *params = &hwupload->params;
-    struct hwupload_mc *mc = hwupload->hwmap_priv_data;
+    const struct hwmap_params *params = &hwmap->params;
+    struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
     struct texture_params texture_params = {
         .type         = NGLI_TEXTURE_TYPE_2D,
@@ -102,9 +102,9 @@ static int mc_init(struct hwupload *hwupload, struct sxplayer_frame *frame)
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
-    ngli_image_init(&hwupload->mapped_image, &image_params, &mc->texture);
+    ngli_image_init(&hwmap->mapped_image, &image_params, &mc->texture);
 
-    hwupload->require_hwconv = !support_direct_rendering(hwupload);
+    hwmap->require_hwconv = !support_direct_rendering(hwmap);
 
     if (!android_ctx->has_native_imagereader_api) {
         struct texture_gl *texture_gl = (struct texture_gl *)mc->texture;
@@ -116,10 +116,10 @@ static int mc_init(struct hwupload *hwupload, struct sxplayer_frame *frame)
     return 0;
 }
 
-static int mc_map_frame_surfacetexture(struct hwupload *hwupload, struct sxplayer_frame *frame)
+static int mc_map_frame_surfacetexture(struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    const struct hwupload_params *params = &hwupload->params;
-    struct hwupload_mc *mc = hwupload->hwmap_priv_data;
+    const struct hwmap_params *params = &hwmap->params;
+    struct hwmap_mc *mc = hwmap->hwmap_priv_data;
     AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
 
     NGLI_ALIGNED_MAT(flip_matrix) = {
@@ -129,7 +129,7 @@ static int mc_map_frame_surfacetexture(struct hwupload *hwupload, struct sxplaye
         0.0f, 1.0f, 0.0f, 1.0f,
     };
 
-    float *matrix = hwupload->mapped_image.coordinates_matrix;
+    float *matrix = hwmap->mapped_image.coordinates_matrix;
     ngli_android_surface_render_buffer(params->android_surface, buffer, matrix);
     ngli_mat4_mul(matrix, matrix, flip_matrix);
 
@@ -138,11 +138,11 @@ static int mc_map_frame_surfacetexture(struct hwupload *hwupload, struct sxplaye
     return 0;
 }
 
-static int mc_map_frame_imagereader(struct hwupload *hwupload, struct sxplayer_frame *frame)
+static int mc_map_frame_imagereader(struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    const struct hwupload_params *params = &hwupload->params;
-    struct hwupload_mc *mc = hwupload->hwmap_priv_data;
-    struct ngl_ctx *ctx = hwupload->ctx;
+    const struct hwmap_params *params = &hwmap->params;
+    struct hwmap_mc *mc = hwmap->hwmap_priv_data;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
@@ -194,25 +194,25 @@ static int mc_map_frame_imagereader(struct hwupload *hwupload, struct sxplayer_f
     return 0;
 }
 
-static int mc_map_frame(struct hwupload *hwupload, struct sxplayer_frame *frame)
+static int mc_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = hwupload->ctx;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
     if (android_ctx->has_native_imagereader_api)
-        return mc_map_frame_imagereader(hwupload, frame);
+        return mc_map_frame_imagereader(hwmap, frame);
 
-    return mc_map_frame_surfacetexture(hwupload, frame);
+    return mc_map_frame_surfacetexture(hwmap, frame);
 }
 
-static void mc_uninit(struct hwupload *hwupload)
+static void mc_uninit(struct hwmap *hwmap)
 {
-    struct ngl_ctx *ctx = hwupload->ctx;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct android_ctx *android_ctx = &ctx->android_ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct hwupload_mc *mc = hwupload->hwmap_priv_data;
+    struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
     ngli_texture_freep(&mc->texture);
 
@@ -225,7 +225,7 @@ static void mc_uninit(struct hwupload *hwupload)
 const struct hwmap_class ngli_hwmap_mc_gl_class = {
     .name      = "mediacodec (oes zero-copy)",
     .hwformat  = SXPLAYER_PIXFMT_MEDIACODEC,
-    .priv_size = sizeof(struct hwupload_mc),
+    .priv_size = sizeof(struct hwmap_mc),
     .init      = mc_init,
     .map_frame = mc_map_frame,
     .uninit    = mc_uninit,

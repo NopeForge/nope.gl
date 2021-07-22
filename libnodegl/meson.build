@@ -130,8 +130,8 @@ lib_src = files(
   'hmap.c',
   'hud.c',
   'hwconv.c',
-  'hwupload.c',
-  'hwupload_common.c',
+  'hwmap.c',
+  'hwmap_common.c',
   'image.c',
   'log.c',
   'math_utils.c',
@@ -315,7 +315,7 @@ gbackends_cfg = {
       'backends/gl/gpu_ctx_gl.c',
       'backends/gl/glcontext.c',
       'backends/gl/glstate.c',
-      'backends/gl/hwupload_gl.c',
+      'backends/gl/hwmap_gl.c',
       'backends/gl/pipeline_gl.c',
       'backends/gl/program_gl.c',
       'backends/gl/rendertarget_gl.c',
@@ -331,17 +331,17 @@ gbackends_cfg = {
         'deps': ['gl', 'egl'],
       },
       'darwin': {
-        'src': files('backends/gl/glcontext_nsgl.m', 'backends/gl/hwupload_videotoolbox_darwin_gl.c'),
+        'src': files('backends/gl/glcontext_nsgl.m', 'backends/gl/hwmap_videotoolbox_darwin_gl.c'),
         'cfg': 'HAVE_GLPLATFORM_NSGL',
         'frameworks': ['OpenGL'],
       },
       'android': {
-        'src': files('backends/gl/glcontext_egl.c', 'backends/gl/hwupload_mediacodec_gl.c'),
+        'src': files('backends/gl/glcontext_egl.c', 'backends/gl/hwmap_mediacodec_gl.c'),
         'cfg': 'HAVE_GLPLATFORM_EGL',
         'libs': ['EGL'],
       },
       'iphone': {
-        'src': files('backends/gl/glcontext_eagl.m', 'backends/gl/hwupload_videotoolbox_ios_gl.c'),
+        'src': files('backends/gl/glcontext_eagl.m', 'backends/gl/hwmap_videotoolbox_ios_gl.c'),
         'cfg': 'HAVE_GLPLATFORM_EAGL',
       },
       'windows': {
@@ -380,7 +380,7 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
   if all_dep_found
 
     if gbackend_name == 'gl' and vaapi_enabled
-      lib_src += files('backends/gl/hwupload_vaapi_gl.c')
+      lib_src += files('backends/gl/hwmap_vaapi_gl.c')
     endif
 
     lib_src += gbackend_cfg.get('src')

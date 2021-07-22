@@ -32,7 +32,7 @@
 
 #define HWMAP_FLAG_FRAME_OWNER (1 << 0)
 
-struct hwupload_params {
+struct hwmap_params {
     const char *label;
     uint32_t image_layouts;
     int texture_min_filter;
@@ -47,9 +47,9 @@ struct hwupload_params {
 #endif
 };
 
-struct hwupload {
+struct hwmap {
     struct ngl_ctx *ctx;
-    struct hwupload_params params;
+    struct hwmap_params params;
     const struct hwmap_class **hwmap_classes;
     const struct hwmap_class *hwmap_class;
     void *hwmap_priv_data;
@@ -69,13 +69,13 @@ struct hwmap_class {
     int flags;
     int hwformat;
     size_t priv_size;
-    int (*init)(struct hwupload *hwupload, struct sxplayer_frame *frame);
-    int (*map_frame)(struct hwupload *hwupload, struct sxplayer_frame *frame);
-    void (*uninit)(struct hwupload *hwupload);
+    int (*init)(struct hwmap *hwmap, struct sxplayer_frame *frame);
+    int (*map_frame)(struct hwmap *hwmap, struct sxplayer_frame *frame);
+    void (*uninit)(struct hwmap *hwmap);
 };
 
-int ngli_hwupload_init(struct hwupload *hwupload, struct ngl_ctx *ctx, const struct hwupload_params *params);
-int ngli_hwupload_upload_frame(struct hwupload *hwupload, struct sxplayer_frame *frame, struct image *image);
-void ngli_hwupload_uninit(struct hwupload *hwupload);
+int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap_params *params);
+int ngli_hwmap_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame, struct image *image);
+void ngli_hwmap_uninit(struct hwmap *hwmap);
 
 #endif /* HWUPLOAD_H */

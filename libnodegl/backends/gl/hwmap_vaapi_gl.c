@@ -32,7 +32,7 @@
 #include "gpu_ctx.h"
 #include "gpu_ctx_gl.h"
 #include "glincludes.h"
-#include "hwupload.h"
+#include "hwmap.h"
 #include "image.h"
 #include "log.h"
 #include "nodegl.h"
@@ -40,7 +40,7 @@
 #include "texture_gl.h"
 #include "utils.h"
 
-struct hwupload_vaapi {
+struct hwmap_vaapi {
     struct sxplayer_frame *frame;
     struct texture *planes[2];
 
@@ -50,9 +50,9 @@ struct hwupload_vaapi {
     int surface_acquired;
 };
 
-static int support_direct_rendering(struct hwupload *hwupload)
+static int support_direct_rendering(struct hwmap *hwmap)
 {
-    const struct hwupload_params *params = &hwupload->params;
+    const struct hwmap_params *params = &hwmap->params;
 
     int direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12);
 
@@ -66,14 +66,14 @@ static int support_direct_rendering(struct hwupload *hwupload)
     return direct_rendering;
 }
 
-static int vaapi_init(struct hwupload *hwupload, struct sxplayer_frame *frame)
+static int vaapi_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    const struct hwupload_params *params = &hwupload->params;
-    struct ngl_ctx *ctx = hwupload->ctx;
+    const struct hwmap_params *params = &hwmap->params;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct hwupload_vaapi *vaapi = hwupload->hwmap_priv_data;
+    struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
     if (!(gl->features & (NGLI_FEATURE_OES_EGL_IMAGE |
                           NGLI_FEATURE_EGL_IMAGE_BASE_KHR |
@@ -113,20 +113,20 @@ static int vaapi_init(struct hwupload *hwupload, struct sxplayer_frame *frame)
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
-    ngli_image_init(&hwupload->mapped_image, &image_params, vaapi->planes);
+    ngli_image_init(&hwmap->mapped_image, &image_params, vaapi->planes);
 
-    hwupload->require_hwconv = !support_direct_rendering(hwupload);
+    hwmap->require_hwconv = !support_direct_rendering(hwmap);
 
     return 0;
 }
 
-static void vaapi_uninit(struct hwupload *hwupload)
+static void vaapi_uninit(struct hwmap *hwmap)
 {
-    struct ngl_ctx *ctx = hwupload->ctx;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct hwupload_vaapi *vaapi = hwupload->hwmap_priv_data;
+    struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
     for (int i = 0; i < 2; i++)
         ngli_texture_freep(&vaapi->planes[i]);
@@ -148,14 +148,14 @@ static void vaapi_uninit(struct hwupload *hwupload)
     vaapi->frame = NULL;
 }
 
-static int vaapi_map_frame(struct hwupload *hwupload, struct sxplayer_frame *frame)
+static int vaapi_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
 {
-    struct ngl_ctx *ctx = hwupload->ctx;
+    struct ngl_ctx *ctx = hwmap->ctx;
     struct vaapi_ctx *vaapi_ctx = &ctx->vaapi_ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct hwupload_vaapi *vaapi = hwupload->hwmap_priv_data;
+    struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
     sxplayer_release_frame(vaapi->frame);
     vaapi->frame = frame;
@@ -260,7 +260,7 @@ const struct hwmap_class ngli_hwmap_vaapi_gl_class = {
     .name      = "vaapi (dma buf → egl image)",
     .hwformat  = SXPLAYER_PIXFMT_VAAPI,
     .flags     = HWMAP_FLAG_FRAME_OWNER,
-    .priv_size = sizeof(struct hwupload_vaapi),
+    .priv_size = sizeof(struct hwmap_vaapi),
     .init      = vaapi_init,
     .map_frame = vaapi_map_frame,
     .uninit    = vaapi_uninit,
