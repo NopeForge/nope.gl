@@ -34,6 +34,12 @@
 # define ngli_printf_format(fmtpos, attrpos)
 #endif
 
+#if defined(__GNUC__) || defined(__clang__)
+# define ngli_unused __attribute__((unused))
+#else
+# define ngli_unused
+#endif
+
 #define ngli_assert(cond) do {                          \
     if (!(cond)) {                                      \
         fprintf(stderr, "Assert %s @ %s:%d\n",          \
