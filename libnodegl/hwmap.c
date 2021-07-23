@@ -149,7 +149,7 @@ static void hwmap_reset(struct hwmap *hwmap)
     ngli_texture_freep(&hwmap->hwconv_texture);
     hwmap->hwconv_initialized = 0;
     ngli_image_reset(&hwmap->mapped_image);
-    if (hwmap->hwmap_class) {
+    if (hwmap->hwmap_priv_data && hwmap->hwmap_class) {
         hwmap->hwmap_class->uninit(hwmap);
     }
     hwmap->hwmap_class = NULL;
@@ -169,6 +169,7 @@ int ngli_hwmap_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame, stru
         const struct hwmap_class *hwmap_class = get_hwmap_class(hwmap, frame);
         ngli_assert(hwmap_class);
         ngli_assert(hwmap_class->priv_size);
+        hwmap->hwmap_class = hwmap_class;
 
         hwmap->hwmap_priv_data = ngli_calloc(1, hwmap_class->priv_size);
         if (!hwmap->hwmap_priv_data) {
@@ -181,7 +182,6 @@ int ngli_hwmap_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame, stru
             sxplayer_release_frame(frame);
             return ret;
         }
-        hwmap->hwmap_class = hwmap_class;
         hwmap->pix_fmt = frame->pix_fmt;
         hwmap->width = frame->width;
         hwmap->height = frame->height;
