@@ -31,16 +31,6 @@
 
 #define HWMAP_FLAG_FRAME_OWNER (1 << 0)
 
-struct hwmap_class {
-    const char *name;
-    int flags;
-    int hwformat;
-    size_t priv_size;
-    int (*init)(struct ngl_node *node, struct sxplayer_frame *frame);
-    int (*map_frame)(struct ngl_node *node, struct sxplayer_frame *frame);
-    void (*uninit)(struct ngl_node *node);
-};
-
 struct hwupload {
     const struct hwmap_class **hwmap_classes;
     const struct hwmap_class *hwmap_class;
@@ -54,6 +44,16 @@ struct hwupload {
     struct texture *hwconv_texture;
     struct image hwconv_image;
     int hwconv_initialized;
+};
+
+struct hwmap_class {
+    const char *name;
+    int flags;
+    int hwformat;
+    size_t priv_size;
+    int (*init)(struct ngl_node *node, struct sxplayer_frame *frame);
+    int (*map_frame)(struct ngl_node *node, struct sxplayer_frame *frame);
+    void (*uninit)(struct ngl_node *node);
 };
 
 int ngli_hwupload_init(struct ngl_node *node);
