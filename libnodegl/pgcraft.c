@@ -260,6 +260,23 @@ static const int texture_types_map[NGLI_PGCRAFT_SHADER_TEX_TYPE_NB][NGLI_INFO_FI
     },
 };
 
+static int is_type_supported(struct pgcraft *s, int type)
+{
+    const struct ngl_ctx *ctx = s->ctx;
+    const struct ngl_config *config = &ctx->config;
+
+    switch(type) {
+    case NGLI_TYPE_SAMPLER_2D_RECT:
+        return ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_RECTANGLE) ||
+               ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
+    case NGLI_TYPE_SAMPLER_EXTERNAL_OES:
+    case NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT:
+        return ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_MEDIACODEC);
+    default:
+        return 1;
+    }
+}
+
 static int prepare_texture_info_fields(struct pgcraft *s, const struct pgcraft_params *params, int graphics,
                                         const struct pgcraft_texture *texture,
                                         struct pgcraft_texture_info *info)
@@ -268,9 +285,8 @@ static int prepare_texture_info_fields(struct pgcraft *s, const struct pgcraft_p
 
     for (int i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         struct pgcraft_texture_info_field *field = &info->fields[i];
-
         const int type = types_map[i];
-        if (type == NGLI_TYPE_NONE)
+        if (type == NGLI_TYPE_NONE || !is_type_supported(s, type))
             continue;
         field->type = type;
         int len = snprintf(field->name, sizeof(field->name), "%s%s", texture->name, texture_info_suffixes[i]);
