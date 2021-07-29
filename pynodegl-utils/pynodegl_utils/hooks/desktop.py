@@ -31,7 +31,11 @@ def get_sessions():
 
     remote_sessions = os.getenv('NGL_DESKTOP_REMOTE_SESSIONS', '').split()
     for session_id in remote_sessions:
-        info = get_session_info(session_id)
+        try:
+            info = get_session_info(session_id)
+        except Exception as e:
+            print(f"Could not get information for remote session '{session_id}': {e}")
+            continue
         sessions.append((session_id, 'remote ngl-desktop'))
     return sessions
 
