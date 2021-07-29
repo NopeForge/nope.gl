@@ -287,5 +287,17 @@ static const struct glfeature {
         .version        = 300,
         .es_version     = 300,
         .es_extensions  = (const char*[]){"GL_EXT_shader_texture_lod", NULL},
-    }
+    }, {
+        .name           = "color_buffer_float",
+        .flag           = NGLI_FEATURE_COLOR_BUFFER_FLOAT,
+        .version        = 300,
+        .es_version     = 320,
+        .es_extensions  = (const char*[]){"EXT_color_buffer_float", NULL},
+    }, {
+        .name           = "color_buffer_half_float",
+        .flag           = NGLI_FEATURE_COLOR_BUFFER_HALF_FLOAT,
+        .version        = 300,
+        .es_version     = 320,
+        .es_extensions  = (const char*[]){"EXT_color_buffer_half_float", NULL},
+    },
 };
