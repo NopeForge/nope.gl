@@ -52,8 +52,12 @@ class _HooksCaller:
         session_list = self._module.get_sessions()
         for session in session_list:
             session_id, session_desc = session
-            # TODO: asynchronous calls? (individual session queries could take some time)
-            session_info = self._module.get_session_info(session_id)
+            try:
+                # TODO: asynchronous calls? (individual session queries could take some time)
+                session_info = self._module.get_session_info(session_id)
+            except Exception as e:
+                print(f"Could not get information for session '{session_id}': {e}")
+                continue
             sessions.append((
                 session_id,
                 session_desc,
