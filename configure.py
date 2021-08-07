@@ -55,14 +55,14 @@ _EXTERNAL_DEPS = dict(
         sha256='d73f32c248a4591139a6b17777c80d4deab6b414ec2b3d21d0a24be348c476ab',
     ),
     renderdoc_Windows=dict(
-        version='1.14',
+        version='1.15',
         url=f'https://renderdoc.org/stable/@VERSION@/RenderDoc_@VERSION@_64.zip',
-        sha256='d91bac6702e832543f4bc7a8ee260e8e2176d450170fb2fc0b111c6a889ce3d5',
+        sha256='9a437ddf2e7d687bb2d78327c27e06a52e5f8e9dd62f4e6e13bf036d2830bc3d',
     ),
     renderdoc_Linux=dict(
-        version='1.14',
+        version='1.15',
         url=f'https://renderdoc.org/stable/@VERSION@/renderdoc_@VERSION@.tar.gz',
-        sha256='8ae12b5c0ab28dc6fd60e0a1a8e52dbb49b8745b48c08ff27c70139f05a6e545',
+        sha256='ce0c7339359aa6c463055d7b92d32b442a6a6943d3c9009d50136127ee9c855a',
     ),
 )
 
