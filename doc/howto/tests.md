@@ -74,10 +74,10 @@ ngl-serialize pynodegl_utils.examples.misc fibo /tmp/fibo.ngl
 
 # Execute a command with librenderdoc hook and capture enabled
 # A renderdoc capture path will be indicated on stdout
-LD_PRELOAD=external/renderdoc/lib/librenderdoc.so NGL_GPU_CAPTURE=yes ngl-render -t 0:30:60 -i /tmp/fibo.ngl
+LD_PRELOAD=external/renderdoc_Linux/lib/librenderdoc.so NGL_GPU_CAPTURE=yes ngl-render -t 0:30:60 -i /tmp/fibo.ngl
 
 # Study the capture with QRenderDoc
-external/renderdoc/bin/qrenderdoc /tmp/RenderDoc/ngl-render_*_capture.rdc
+external/renderdoc_Linux/bin/qrenderdoc /tmp/RenderDoc/ngl-render_*_capture.rdc
 ```
 
 
