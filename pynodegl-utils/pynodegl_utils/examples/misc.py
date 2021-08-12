@@ -690,3 +690,21 @@ def text(cfg, demo_str='Hello World!\n\nThis is a multi-line\ntext demonstration
                               blend_dst_factor='one_minus_src_alpha',
                               blend_src_factor_a='zero',
                               blend_dst_factor_a='one')
+
+
+@scene()
+def smptebars_glitch(cfg):
+    cfg.duration = 15
+    cfg.aspect_ratio = (4, 3)
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    program = ngl.Program(vertex=cfg.get_vert('smptebars'), fragment=cfg.get_frag('smptebars'))
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(
+        active_noise=ngl.NoiseFloat(octaves=1),
+        active_probability=ngl.UniformFloat(0.4),  # glitch 40% of the time
+        uv_noise_0=ngl.NoiseVec2(amplitude=0.05, frequency=60.0, seed=1000 + 0),
+        uv_noise_1=ngl.NoiseVec2(amplitude=0.05, frequency=60.0, seed=1000 + 0x7fff),
+        uv_noise_2=ngl.NoiseVec2(amplitude=0.05, frequency=60.0, seed=1000 + 0xffff),
+    )
+    return render
