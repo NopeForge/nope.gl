@@ -401,6 +401,8 @@ configure_file(output: 'config.h', configuration: conf_data)
 lib_c_args = []
 if get_option('default_library') == 'shared'
   lib_c_args += '-DBUILD_NODEGL_SHARED_LIB'
+else
+  lib_c_args += '-DUSE_NODEGL_STATIC_LIB'
 endif
 
 libnodegl = library(
