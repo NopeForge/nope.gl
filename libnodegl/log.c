@@ -94,13 +94,13 @@ static struct {
     .min_level = NGL_LOG_WARNING,
 };
 
-void ngl_log_set_callback(void *arg, ngl_log_callback_type callback)
+void ngli_log_set_callback(void *arg, ngl_log_callback_type callback)
 {
     log_ctx.user_arg = arg;
     log_ctx.callback = callback;
 }
 
-void ngl_log_set_min_level(int level)
+void ngli_log_set_min_level(int level)
 {
     log_ctx.min_level = level;
 }

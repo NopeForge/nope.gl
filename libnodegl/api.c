@@ -60,6 +60,16 @@
 # define DEFAULT_BACKEND NGL_BACKEND_OPENGL
 #endif
 
+void ngl_log_set_callback(void *arg, ngl_log_callback_type callback)
+{
+    ngli_log_set_callback(arg, callback);
+}
+
+void ngl_log_set_min_level(int level)
+{
+    ngli_log_set_min_level(level);
+}
+
 static int get_default_platform(void)
 {
 #if defined(TARGET_LINUX)

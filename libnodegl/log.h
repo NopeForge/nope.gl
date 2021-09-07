@@ -37,6 +37,9 @@
 # define TRACE(...) do { if (0) LOG(VERBOSE, __VA_ARGS__); } while (0)
 #endif
 
+void ngli_log_set_callback(void *arg, ngl_log_callback_type callback);
+void ngli_log_set_min_level(int level);
+
 void ngli_log_print(int log_level, const char *filename,
                     int ln, const char *fn, const char *fmt, ...) ngli_printf_format(5, 6);
 
