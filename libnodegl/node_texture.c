@@ -423,9 +423,6 @@ static int texture_update(struct ngl_node *node, double t)
         case NGL_NODE_ANIMATEDBUFFERFLOAT:
         case NGL_NODE_ANIMATEDBUFFERVEC2:
         case NGL_NODE_ANIMATEDBUFFERVEC4:
-            ret = ngli_node_update(s->data_src, t);
-            if (ret < 0)
-                return ret;
             ret = handle_buffer_frame(node);
             if (ret < 0)
                 return ret;
