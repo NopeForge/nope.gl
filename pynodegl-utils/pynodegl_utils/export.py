@@ -163,6 +163,8 @@ def test_export():
     exporter.start()
     exporter.wait()
 
+    app.exit()
+
 
 if __name__ == '__main__':
     test_export()
