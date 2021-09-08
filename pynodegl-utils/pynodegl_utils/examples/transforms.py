@@ -1,4 +1,3 @@
-import array
 import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
@@ -171,16 +170,16 @@ def animated_circles(cfg):
         end_time = cfg.duration - start_time
 
         scale_animkf = [
-                ngl.AnimKeyFrameVec3(start_time, (0, 0, 0)),
-                ngl.AnimKeyFrameVec3(mid_time, (1.0, 1.0, 1.0), 'exp_out'),
-                ngl.AnimKeyFrameVec3(end_time, (0, 0, 0), 'exp_in'),
+            ngl.AnimKeyFrameVec3(start_time, (0, 0, 0)),
+            ngl.AnimKeyFrameVec3(mid_time, (1.0, 1.0, 1.0), 'exp_out'),
+            ngl.AnimKeyFrameVec3(end_time, (0, 0, 0), 'exp_in'),
         ]
 
         angle = i * step
         rotate_animkf = [
-                ngl.AnimKeyFrameFloat(start_time, 0),
-                ngl.AnimKeyFrameFloat(mid_time, angle, 'exp_out'),
-                ngl.AnimKeyFrameFloat(end_time, 0, 'exp_in'),
+            ngl.AnimKeyFrameFloat(start_time, 0),
+            ngl.AnimKeyFrameFloat(mid_time, angle, 'exp_out'),
+            ngl.AnimKeyFrameFloat(end_time, 0, 'exp_in'),
         ]
 
         tnode = render

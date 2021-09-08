@@ -25,12 +25,12 @@ import os
 import os.path as op
 import tempfile
 import time
-import importlib
 import platform
 
 from PySide2 import QtCore
 
 from pynodegl_utils.com import load_script
+
 
 class _HooksCaller:
 
@@ -211,8 +211,8 @@ class _HooksWorker(QtCore.QObject):
                     self.error.emit(self, session_id, 'Error while uploading %s: %s' % (localfile, str(e)))
                     return
                 serialized_scene = serialized_scene.replace(
-                        self._filename_escape(localfile),
-                        self._filename_escape(remotefile))
+                    self._filename_escape(localfile),
+                    self._filename_escape(remotefile))
 
             # The serialized scene is then stored in a file which is then
             # communicated with additional parameters to the user

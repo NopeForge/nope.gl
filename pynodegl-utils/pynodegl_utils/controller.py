@@ -23,7 +23,7 @@
 import sys
 import os.path as op
 
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtWidgets
 
 from .ui.main_window import MainWindow
 

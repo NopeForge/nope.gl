@@ -22,7 +22,6 @@
 
 import importlib
 import inspect
-import os
 import os.path as op
 import pkgutil
 import sys

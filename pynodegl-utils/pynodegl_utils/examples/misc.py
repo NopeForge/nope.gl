@@ -177,11 +177,11 @@ def cropboard(cfg, dim=15):
     translate_b_buffer = array.array('f')
 
     q = ngl.Quad(corner=(0, 0, 0),
-             width=(qw, 0, 0),
-             height=(0, qh, 0),
-             uv_corner=(0, 0),
-             uv_width=(kw, 0),
-             uv_height=(0, kh))
+                 width=(qw, 0, 0),
+                 height=(0, qh, 0),
+                 uv_corner=(0, 0),
+                 uv_width=(kw, 0),
+                 uv_height=(0, kh))
 
     for y in range(dim):
         for x in range(dim):
@@ -685,11 +685,11 @@ def text(cfg, demo_str='Hello World!\n\nThis is a multi-line\ntext demonstration
             group.add_children(aligned_text)
 
     return ngl.GraphicConfig(group,
-                              blend=True,
-                              blend_src_factor='src_alpha',
-                              blend_dst_factor='one_minus_src_alpha',
-                              blend_src_factor_a='zero',
-                              blend_dst_factor_a='one')
+                             blend=True,
+                             blend_src_factor='src_alpha',
+                             blend_dst_factor='one_minus_src_alpha',
+                             blend_src_factor_a='zero',
+                             blend_dst_factor_a='one')
 
 
 @scene()

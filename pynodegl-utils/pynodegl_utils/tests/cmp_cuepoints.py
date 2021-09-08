@@ -20,7 +20,6 @@
 # under the License.
 #
 
-import os.path as op
 from PIL import Image
 
 from .cmp import CompareBase, CompareSceneBase, get_test_decorator

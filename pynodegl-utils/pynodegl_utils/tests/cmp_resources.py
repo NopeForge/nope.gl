@@ -23,26 +23,26 @@
 import os
 import csv
 import tempfile
-import pynodegl as ngl
 
 from .cmp import CompareSceneBase, get_test_decorator
 
 
 _COLS = (
-     'Textures memory',
-     'Buffers count',
-     'Buffers total',
-     'Blocks count',
-     'Blocks total',
-     'Medias count',
-     'Medias total',
-     'Textures count',
-     'Textures total',
-     'Computes',
-     'GraphicCfgs',
-     'Renders',
-     'RTTs',
+    'Textures memory',
+    'Buffers count',
+    'Buffers total',
+    'Blocks count',
+    'Blocks total',
+    'Medias count',
+    'Medias total',
+    'Textures count',
+    'Textures total',
+    'Computes',
+    'GraphicCfgs',
+    'Renders',
+    'RTTs',
 )
+
 
 class _CompareResources(CompareSceneBase):
 

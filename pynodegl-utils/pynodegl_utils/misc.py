@@ -44,8 +44,6 @@ def scene(**controls):
             odict['scene'] = scene
             return odict
 
-        final_specs = []
-
         # Construct widgets specs
         widgets_specs = []
         func_specs = inspect.getfullargspec(scene_func)

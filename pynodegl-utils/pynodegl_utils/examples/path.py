@@ -72,7 +72,7 @@ def simple_bezier(cfg, easing='linear'):
         ngl.PathKeyMove(to=points[0]),
         ngl.PathKeyBezier3(control1=controls[0], control2=controls[1], to=points[1]),
     )
-    path = ngl.Path(keyframes);
+    path = ngl.Path(keyframes)
 
     return _path_scene(cfg, path, points, controls, easing=easing)
 
@@ -117,14 +117,14 @@ def complex_bezier(cfg):
     )
 
     controls = (
-       ( 0.45,-0.59, 0.0),
-       (-1.1, -0.47, 0.0),
-       ( 0.25, 0.29, 0.0),
-       (-0.19,-1.1,  0.0),
-       (-0.25, 1.1,  0.0),
-       ( 0.19,-0.75, 0.0),
-       ( 0.0,  0.96, 0.0),
-       ( 1.1, -0.86, 0.0),
+        ( 0.45,-0.59, 0.0),
+        (-1.1, -0.47, 0.0),
+        ( 0.25, 0.29, 0.0),
+        (-0.19,-1.1,  0.0),
+        (-0.25, 1.1,  0.0),
+        ( 0.19,-0.75, 0.0),
+        ( 0.0,  0.96, 0.0),
+        ( 1.1, -0.86, 0.0),
     )
 
     keyframes = [
@@ -277,6 +277,7 @@ def character_otf(cfg):
 
     path = ngl.Path(keyframes)
     return ngl.Scale(_path_scene(cfg, path), factors=(2,2,0), anchor=(1,1,0))
+
 
 @scene()
 def character_ttf(cfg):
