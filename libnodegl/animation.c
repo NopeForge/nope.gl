@@ -43,8 +43,6 @@ int ngli_animation_evaluate(struct animation *s, void *dst, double t)
 {
     struct ngl_node * const *animkf = s->kfs;
     const int nb_animkf = s->nb_kfs;
-    if (!nb_animkf)
-        return 0;
     int kf_id = get_kf_id(animkf, nb_animkf, s->current_kf, t);
     if (kf_id < 0)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
@@ -76,8 +74,6 @@ int ngli_animation_derivate(struct animation *s, void *dst, double t)
 {
     struct ngl_node * const *animkf = s->kfs;
     const int nb_animkf = s->nb_kfs;
-    if (!nb_animkf)
-        return 0;
     int kf_id = get_kf_id(animkf, nb_animkf, s->current_kf, t);
     if (kf_id < 0)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
@@ -110,6 +106,11 @@ int ngli_animation_init(struct animation *s, void *user_arg,
                         ngli_animation_mix_func_type mix_func,
                         ngli_animation_cpy_func_type cpy_func)
 {
+    if (nb_kfs < 1) {
+        LOG(ERROR, "invalid number of animated key frames: %d", nb_kfs);
+        return NGL_ERROR_INVALID_ARG;
+    }
+
     s->user_arg = user_arg;
 
     ngli_assert(mix_func && cpy_func);

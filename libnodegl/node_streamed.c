@@ -88,7 +88,6 @@ static int streamed_update(struct ngl_node *node, double t)
         struct variable_priv *anim = time_anim->priv_data;
 
         if (anim->nb_animkf >= 1) {
-            const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
             int ret = ngli_node_update(time_anim, t);
             if (ret < 0)
                 return ret;
