@@ -256,17 +256,14 @@ static int media_update(struct ngl_node *node, double t)
 
     if (anim_node) {
         struct variable_priv *anim = anim_node->priv_data;
+        const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
+        const double initial_seek = kf0->scalar;
+        int ret = ngli_node_update(anim_node, t);
+        if (ret < 0)
+            return ret;
+        media_time = NGLI_MAX(0, anim->dval - initial_seek);
 
-        if (anim->nb_animkf >= 1) {
-            const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
-            const double initial_seek = kf0->scalar;
-            int ret = ngli_node_update(anim_node, t);
-            if (ret < 0)
-                return ret;
-            media_time = NGLI_MAX(0, anim->dval - initial_seek);
-
-            TRACE("remapped time f(%g)=%g", t, media_time);
-        }
+        TRACE("remapped time f(%g)=%g", t, media_time);
     }
 
     sxplayer_release_frame(s->frame);

@@ -89,17 +89,15 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
     if (time_anim) {
         struct variable_priv *anim = time_anim->priv_data;
 
-        if (anim->nb_animkf >= 1) {
-            int ret = ngli_node_update(time_anim, t);
-            if (ret < 0)
-                return ret;
-            rt = anim->dval;
+        int ret = ngli_node_update(time_anim, t);
+        if (ret < 0)
+            return ret;
+        rt = anim->dval;
 
-            TRACE("remapped time f(%g)=%g", t, rt);
-            if (rt < 0) {
-                LOG(ERROR, "invalid remapped time %g", rt);
-                return NGL_ERROR_INVALID_ARG;
-            }
+        TRACE("remapped time f(%g)=%g", t, rt);
+        if (rt < 0) {
+            LOG(ERROR, "invalid remapped time %g", rt);
+            return NGL_ERROR_INVALID_ARG;
         }
     }
 
