@@ -326,7 +326,7 @@ NGL_API void ngl_node_unrefp(struct ngl_node **nodep);
  * @return 0 on success, NGL_ERROR_* (< 0) on error
  */
 NGL_API int ngl_node_param_add(struct ngl_node *node, const char *key,
-                       int nb_elems, void *elems);
+                               int nb_elems, void *elems);
 
 /**
  * Set a parameter value of an allocated node.
