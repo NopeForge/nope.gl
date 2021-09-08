@@ -260,15 +260,10 @@ static int media_update(struct ngl_node *node, double t)
         if (anim->nb_animkf >= 1) {
             const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
             const double initial_seek = kf0->scalar;
-
-            if (anim->nb_animkf == 1) {
-                media_time = NGLI_MAX(0, t - kf0->time);
-            } else {
-                int ret = ngli_node_update(anim_node, t);
-                if (ret < 0)
-                    return ret;
-                media_time = NGLI_MAX(0, anim->dval - initial_seek);
-            }
+            int ret = ngli_node_update(anim_node, t);
+            if (ret < 0)
+                return ret;
+            media_time = NGLI_MAX(0, anim->dval - initial_seek);
 
             TRACE("remapped time f(%g)=%g", t, media_time);
         }

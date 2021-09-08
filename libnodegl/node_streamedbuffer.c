@@ -91,14 +91,10 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
 
         if (anim->nb_animkf >= 1) {
             const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
-            if (anim->nb_animkf == 1) {
-                rt = NGLI_MAX(0, t - kf0->time) + kf0->scalar;
-            } else {
-                int ret = ngli_node_update(time_anim, t);
-                if (ret < 0)
-                    return ret;
-                rt = anim->dval;
-            }
+            int ret = ngli_node_update(time_anim, t);
+            if (ret < 0)
+                return ret;
+            rt = anim->dval;
 
             TRACE("remapped time f(%g)=%g", t, rt);
             if (rt < 0) {
