@@ -60,10 +60,6 @@
 #include "player.h"
 #include "pthread_compat.h"
 
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-
 struct ctx {
     /* options */
     const char *host;

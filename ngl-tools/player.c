@@ -35,10 +35,6 @@
 
 static struct player *g_player;
 
-#ifndef O_BINARY
-#define O_BINARY 0
-#endif
-
 static int save_ppm(const char *filename, uint8_t *data, int width, int height)
 {
     int ret = 0;
