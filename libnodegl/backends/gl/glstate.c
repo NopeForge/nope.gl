@@ -26,7 +26,7 @@
 #include "glincludes.h"
 #include "glstate.h"
 #include "graphicstate.h"
-#include "nodes.h"
+#include "internal.h"
 
 static const GLenum gl_blend_factor_map[NGLI_BLEND_FACTOR_NB] = {
     [NGLI_BLEND_FACTOR_ZERO]                = GL_ZERO,

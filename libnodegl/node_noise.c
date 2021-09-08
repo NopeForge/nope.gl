@@ -23,7 +23,7 @@
 #include <limits.h>
 
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "noise.h"
 #include "type.h"
 

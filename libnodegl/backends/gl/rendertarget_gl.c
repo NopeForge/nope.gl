@@ -29,7 +29,7 @@
 #include "glincludes.h"
 #include "log.h"
 #include "memory.h"
-#include "nodes.h"
+#include "internal.h"
 #include "texture_gl.h"
 #include "utils.h"
 

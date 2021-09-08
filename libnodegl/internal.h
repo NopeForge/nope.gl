@@ -19,8 +19,8 @@
  * under the License.
  */
 
-#ifndef NODES_H
-#define NODES_H
+#ifndef INTERNAL_H
+#define INTERNAL_H
 
 #include <stdlib.h>
 #include <sxplayer.h>

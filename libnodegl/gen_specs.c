@@ -22,7 +22,7 @@
 #include "hmap.h"
 #include "memory.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "nodes_register.h"
 
 #define CLASS_LIST(type_name, cls) extern const struct node_class cls;

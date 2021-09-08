@@ -26,7 +26,7 @@
 #include "gpu_ctx.h"
 #include "image.h"
 #include "log.h"
-#include "nodes.h"
+#include "internal.h"
 #include "pgcraft.h"
 #include "pipeline.h"
 #include "texture.h"

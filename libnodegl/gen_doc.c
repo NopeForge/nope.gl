@@ -25,7 +25,7 @@
 #include "hmap.h"
 #include "memory.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "nodes_register.h"
 #include "utils.h"
 

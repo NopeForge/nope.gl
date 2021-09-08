@@ -26,7 +26,7 @@
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "topology.h"
 #include "utils.h"
 

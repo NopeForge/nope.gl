@@ -24,7 +24,7 @@
 #include "gpu_ctx.h"
 #include "log.h"
 #include "memory.h"
-#include "nodes.h"
+#include "internal.h"
 #include "rendertarget.h"
 
 extern const struct gpu_ctx_class ngli_gpu_ctx_gl;

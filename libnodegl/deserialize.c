@@ -27,7 +27,7 @@
 #include "log.h"
 #include "memory.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "params.h"
 
 #define CASE_LITERAL(param_type, type, parse_func)      \

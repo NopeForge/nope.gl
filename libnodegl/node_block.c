@@ -28,7 +28,7 @@
 #include "log.h"
 #include "memory.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 
 static const struct param_choices layout_choices = {
     .name = "memory_layout",

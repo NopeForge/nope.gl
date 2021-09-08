@@ -25,7 +25,7 @@
 
 #include "log.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "params.h"
 
 struct timerangefilter_priv {

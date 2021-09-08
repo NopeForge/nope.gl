@@ -23,7 +23,7 @@
 #include <string.h>
 
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "path.h"
 
 struct path_priv {

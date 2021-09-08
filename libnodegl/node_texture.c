@@ -31,7 +31,7 @@
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "texture.h"
 
 const struct param_choices ngli_mipmap_filter_choices = {

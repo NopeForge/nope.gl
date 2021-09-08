@@ -26,7 +26,7 @@
 
 #include "log.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "topology.h"
 
 struct ngl_node *ngli_node_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data)

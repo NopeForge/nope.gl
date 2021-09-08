@@ -24,7 +24,7 @@
 #include <string.h>
 #include "log.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "math_utils.h"
 #include "transforms.h"
 

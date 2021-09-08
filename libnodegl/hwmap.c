@@ -31,7 +31,7 @@
 #include "math_utils.h"
 #include "memory.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 
 extern const struct hwmap_class ngli_hwmap_common_class;
 extern const struct hwmap_class *ngli_hwmap_gl_classes[];

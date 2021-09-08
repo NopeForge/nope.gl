@@ -22,7 +22,7 @@
 #include <string.h>
 
 #include "memory.h"
-#include "nodes.h"
+#include "internal.h"
 #include "pgcache.h"
 #include "utils.h"
 

@@ -20,7 +20,7 @@
  */
 
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "type.h"
 
 static int time_init(struct ngl_node *node)

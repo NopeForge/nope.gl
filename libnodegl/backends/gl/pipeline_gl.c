@@ -27,7 +27,7 @@
 #include "glcontext.h"
 #include "log.h"
 #include "memory.h"
-#include "nodes.h"
+#include "internal.h"
 #include "pipeline_gl.h"
 #include "program_gl.h"
 #include "texture_gl.h"

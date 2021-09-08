@@ -33,7 +33,7 @@
 
 #include "log.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 
 #if defined(TARGET_ANDROID)
 #include "gpu_ctx.h"

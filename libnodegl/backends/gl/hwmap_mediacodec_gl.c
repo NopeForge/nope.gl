@@ -37,7 +37,7 @@
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "texture_gl.h"
 
 struct hwmap_mc {

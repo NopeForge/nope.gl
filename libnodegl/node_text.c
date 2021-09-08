@@ -23,7 +23,7 @@
 #include <string.h>
 
 #include "memory.h"
-#include "nodes.h"
+#include "internal.h"
 #include "darray.h"
 #include "drawutils.h"
 #include "gpu_ctx.h"

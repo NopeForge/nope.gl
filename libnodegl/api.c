@@ -39,7 +39,7 @@
 #include "math_utils.h"
 #include "memory.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "pgcache.h"
 #include "rnode.h"
 #include "pthread_compat.h"

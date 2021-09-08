@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 
 struct group_priv {
     struct ngl_node **children;

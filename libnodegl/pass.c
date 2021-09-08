@@ -34,7 +34,7 @@
 #include "math_utils.h"
 #include "memory.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "pass.h"
 #include "pgcraft.h"
 #include "pipeline.h"

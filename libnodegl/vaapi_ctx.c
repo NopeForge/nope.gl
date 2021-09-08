@@ -35,7 +35,7 @@
 
 #include "gpu_ctx.h"
 #include "log.h"
-#include "nodes.h"
+#include "internal.h"
 #include "vaapi_ctx.h"
 
 int ngli_vaapi_ctx_init(struct gpu_ctx *gpu_ctx, struct vaapi_ctx *s)

@@ -24,7 +24,7 @@
 
 #include "animation.h"
 #include "math_utils.h"
-#include "nodes.h"
+#include "internal.h"
 #include "type.h"
 
 #define OFFSET(x) offsetof(struct variable_priv, x)

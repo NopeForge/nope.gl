@@ -34,7 +34,7 @@
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
-#include "nodes.h"
+#include "internal.h"
 #include "pipeline_gl.h"
 #include "program_gl.h"
 #include "rendertarget_gl.h"

@@ -23,7 +23,7 @@
 
 #include "darray.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 
 static void identity_draw(struct ngl_node *node)
 {

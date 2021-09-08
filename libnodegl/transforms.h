@@ -22,7 +22,7 @@
 #ifndef TRANSFORMS_H
 #define TRANSFORMS_H
 
-#include "nodes.h"
+#include "internal.h"
 
 const float *ngli_get_last_transformation_matrix(const struct ngl_node *node);
 void ngli_transform_draw(struct ngl_node *node);

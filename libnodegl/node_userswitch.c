@@ -21,7 +21,7 @@
 
 #include <stddef.h>
 
-#include "nodes.h"
+#include "internal.h"
 #include "params.h"
 
 struct userswitch {

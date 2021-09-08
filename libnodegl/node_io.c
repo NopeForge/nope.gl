@@ -22,7 +22,7 @@
 #include <stddef.h>
 
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "params.h"
 #include "precision.h"
 #include "type.h"

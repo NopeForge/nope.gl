@@ -27,7 +27,7 @@
 #include "android_ctx.h"
 #include "gpu_ctx.h"
 #include "log.h"
-#include "nodes.h"
+#include "internal.h"
 
 #define NDK_LOAD_FUNC(handle, name) do {       \
     s->name = dlsym(handle, #name);            \

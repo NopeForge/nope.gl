@@ -22,7 +22,7 @@
 #include <stddef.h>
 
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "precision.h"
 
 #define OFFSET(x) offsetof(struct resourceprops_priv, x)

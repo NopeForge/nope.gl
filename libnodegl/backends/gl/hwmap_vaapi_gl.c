@@ -36,7 +36,7 @@
 #include "image.h"
 #include "log.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "texture_gl.h"
 #include "utils.h"
 

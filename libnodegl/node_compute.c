@@ -28,7 +28,7 @@
 #include "hmap.h"
 #include "log.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "pass.h"
 #include "utils.h"
 

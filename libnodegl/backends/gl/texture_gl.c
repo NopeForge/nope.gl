@@ -28,7 +28,7 @@
 #include "glincludes.h"
 #include "glcontext.h"
 #include "memory.h"
-#include "nodes.h"
+#include "internal.h"
 #include "texture_gl.h"
 
 static const GLint gl_filter_map[NGLI_NB_FILTER][NGLI_NB_MIPMAP] = {

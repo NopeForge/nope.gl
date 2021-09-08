@@ -24,7 +24,7 @@
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 
 static int get_kf_id(struct ngl_node * const *animkf, int nb_animkf, int start, double t)
 {

@@ -26,7 +26,7 @@
 #include "glcontext.h"
 #include "glincludes.h"
 #include "memory.h"
-#include "nodes.h"
+#include "internal.h"
 
 static GLenum get_gl_usage(int usage)
 {

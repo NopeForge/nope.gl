@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include "log.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 
 #define OFFSET(x) offsetof(struct program_priv, x)
 static const struct node_param computeprogram_params[] = {

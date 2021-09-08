@@ -24,7 +24,7 @@
 #include "darray.h"
 #include "log.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "pgcraft.h"
 
 #define IO_NODES (const int[]){NGL_NODE_IOINT,        \

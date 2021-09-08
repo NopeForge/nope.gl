@@ -24,7 +24,7 @@
 
 #include "log.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "path.h"
 
 struct smoothpath_priv {

@@ -35,7 +35,7 @@
 #include "math_utils.h"
 #include "memory.h"
 #include "nodegl.h"
-#include "nodes.h"
+#include "internal.h"
 #include "texture_gl.h"
 
 #define NGLI_CFRELEASE(ref) do { \
