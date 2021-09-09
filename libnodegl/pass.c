@@ -456,12 +456,12 @@ int ngli_pass_prepare(struct pass *s)
 
     const int format = rnode->rendertarget_desc.depth_stencil.format;
     if (rnode->graphicstate.depth_test && !ngli_format_has_depth(format)) {
-        LOG(ERROR, "depth testing is not support on rendertargets with no depth attachment");
+        LOG(ERROR, "depth testing is not supported on rendertargets with no depth attachment");
         return NGL_ERROR_INVALID_USAGE;
     }
 
     if (rnode->graphicstate.stencil_test && !ngli_format_has_stencil(format)) {
-        LOG(ERROR, "stencil operations are not support on rendertargets with no stencil attachment");
+        LOG(ERROR, "stencil operations are not supported on rendertargets with no stencil attachment");
         return NGL_ERROR_INVALID_USAGE;
     }
 
