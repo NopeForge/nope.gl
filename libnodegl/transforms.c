@@ -25,7 +25,7 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
+int ngli_transform_chain_check(const struct ngl_node *node)
 {
     while (node) {
         const int id = node->cls->id;
@@ -40,18 +40,27 @@ const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
                 node = trf->child;
                 break;
             }
-            case NGL_NODE_IDENTITY: {
-                const struct transform_priv *transform = node->priv_data;
-                return transform->matrix;
-            }
+            case NGL_NODE_IDENTITY:
+                return 0;
             default:
                 LOG(ERROR, "%s (%s) is not an allowed type for a camera transformation",
                     node->label, node->cls->name);
-                break;
+                return NGL_ERROR_INVALID_USAGE;
         }
     }
 
-    return NULL;
+    return 0;
+}
+
+void ngli_transform_chain_compute(const struct ngl_node *node, float *matrix)
+{
+    NGLI_ALIGNED_MAT(tmp) = NGLI_MAT4_IDENTITY;
+    while (node && node->cls->id != NGL_NODE_IDENTITY) {
+        const struct transform_priv *transform_priv = node->priv_data;
+        ngli_mat4_mul(tmp, tmp, transform_priv->matrix);
+        node = transform_priv->child;
+    }
+    memcpy(matrix, tmp, sizeof(tmp));
 }
 
 void ngli_transform_draw(struct ngl_node *node)

@@ -24,19 +24,20 @@
 #include "darray.h"
 #include "nodegl.h"
 #include "internal.h"
+#include "math_utils.h"
 
-static void identity_draw(struct ngl_node *node)
+static int identity_init(struct ngl_node *node)
 {
-    struct ngl_ctx *ctx = node->ctx;
     struct transform_priv *s = node->priv_data;
-    const float *matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
-    memcpy(s->matrix, matrix, sizeof(s->matrix));
+    static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
+    memcpy(s->matrix, id_matrix, sizeof(s->matrix));
+    return 0;
 }
 
 const struct node_class ngli_identity_class = {
     .id        = NGL_NODE_IDENTITY,
     .name      = "Identity",
-    .draw      = identity_draw,
+    .init      = identity_init,
     .priv_size = sizeof(struct transform_priv),
     .file      = __FILE__,
 };

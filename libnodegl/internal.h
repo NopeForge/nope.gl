@@ -244,7 +244,6 @@ struct variable_priv {
     int data_size;
     int data_type;          // any of NGLI_TYPE_*
     struct ngl_node *transform;
-    const float *transform_matrix;
     int as_mat4; /* quaternion only */
     int dynamic;
     int last_index;

@@ -24,7 +24,8 @@
 
 #include "internal.h"
 
-const float *ngli_get_last_transformation_matrix(const struct ngl_node *node);
+int ngli_transform_chain_check(const struct ngl_node *node);
+void ngli_transform_chain_compute(const struct ngl_node *node, float *matrix);
 void ngli_transform_draw(struct ngl_node *node);
 
 #endif

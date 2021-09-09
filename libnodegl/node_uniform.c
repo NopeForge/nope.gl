@@ -150,19 +150,12 @@ static int uniformquat_update(struct ngl_node *node, double t)
 
 static int uniformmat4_update(struct ngl_node *node, double t)
 {
-    struct ngl_ctx *ctx = node->ctx;
     struct variable_priv *s = node->priv_data;
     if (s->transform) {
         int ret = ngli_node_update(s->transform, t);
         if (ret < 0)
             return ret;
-        static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
-        if (!ngli_darray_push(&ctx->modelview_matrix_stack, id_matrix))
-            return NGL_ERROR_MEMORY;
-        ngli_node_draw(s->transform);
-        ngli_darray_pop(&ctx->modelview_matrix_stack);
-        if (s->transform_matrix)
-            memcpy(s->matrix, s->transform_matrix, sizeof(s->matrix));
+        ngli_transform_chain_compute(s->transform, s->matrix);
     }
     return 0;
 }
@@ -220,17 +213,21 @@ static int uniformquat_init(struct ngl_node *node)
 static int uniformmat4_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
+
+    int ret = ngli_transform_chain_check(s->transform);
+    if (ret < 0)
+        return ret;
+
     s->data = s->matrix;
     s->data_size = sizeof(s->matrix);
     s->data_type = NGLI_TYPE_MAT4;
-    s->transform_matrix = ngli_get_last_transformation_matrix(s->transform);
     /* Note: we assume here that a transformation chain includes at least one
      * dynamic transform. We could crawl the chain to figure it out in the
      * details, but that would be limited since we would have to also detect
      * live changes in any of the transform node at update as well. That extra
      * complexity is probably not worth just for handling the case of a static
      * transformation list. */
-    s->dynamic = !!s->transform_matrix;
+    s->dynamic = !!s->transform;
     memcpy(s->data, s->opt.mat, s->data_size);
     return 0;
 }

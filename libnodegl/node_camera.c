@@ -49,10 +49,6 @@ struct camera_priv {
     int use_perspective;
     int use_orthographic;
 
-    const float *eye_transform_matrix;
-    const float *center_transform_matrix;
-    const float *up_transform_matrix;
-
     NGLI_ALIGNED_MAT(modelview_matrix);
     NGLI_ALIGNED_MAT(projection_matrix);
 };
@@ -65,7 +61,6 @@ static int update_matrices(struct ngl_node *node, double t)
     NGLI_ALIGNED_VEC(eye)    = {0.0f, 0.0f, 0.0f, 1.0f};
     NGLI_ALIGNED_VEC(center) = {0.0f, 0.0f, 0.0f, 1.0f};
     NGLI_ALIGNED_VEC(up)     = {0.0f, 0.0f, 0.0f, 1.0f};
-    static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
 
 #define APPLY_TRANSFORM(what) do {                                          \
     memcpy(what, s->what, sizeof(s->what));                                 \
@@ -73,13 +68,9 @@ static int update_matrices(struct ngl_node *node, double t)
         int ret = ngli_node_update(s->what##_transform, t);                 \
         if (ret < 0)                                                        \
             return ret;                                                     \
-        if (!ngli_darray_push(&ctx->modelview_matrix_stack, id_matrix))     \
-            return NGL_ERROR_MEMORY;                                        \
-        ngli_node_draw(s->what##_transform);                                \
-        ngli_darray_pop(&ctx->modelview_matrix_stack);                      \
-        const float *matrix = s->what##_transform_matrix;                   \
-        if (matrix)                                                         \
-            ngli_mat4_mul_vec4(what, matrix, what);                         \
+        NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;                      \
+        ngli_transform_chain_compute(s->what##_transform, matrix);          \
+        ngli_mat4_mul_vec4(what, matrix, what);                             \
     }                                                                       \
 } while (0)
 
@@ -207,9 +198,11 @@ static int camera_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    s->eye_transform_matrix    = ngli_get_last_transformation_matrix(s->eye_transform);
-    s->center_transform_matrix = ngli_get_last_transformation_matrix(s->center_transform);
-    s->up_transform_matrix     = ngli_get_last_transformation_matrix(s->up_transform);
+    int ret;
+    if ((ret = ngli_transform_chain_check(s->eye_transform)) < 0 ||
+        (ret = ngli_transform_chain_check(s->center_transform)) < 0 ||
+        (ret = ngli_transform_chain_check(s->up_transform)) < 0)
+        return ret;
 
     return 0;
 }
