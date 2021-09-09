@@ -336,10 +336,6 @@ struct transform_priv {
     NGLI_ALIGNED_MAT(matrix);
 };
 
-struct identity_priv {
-    NGLI_ALIGNED_MAT(modelview_matrix);
-};
-
 struct io_priv {
     int precision_out;
     int precision_in;

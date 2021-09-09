@@ -41,8 +41,8 @@ const float *ngli_get_last_transformation_matrix(const struct ngl_node *node)
                 break;
             }
             case NGL_NODE_IDENTITY: {
-                const struct identity_priv *identity = node->priv_data;
-                return identity->modelview_matrix;
+                const struct transform_priv *transform = node->priv_data;
+                return transform->matrix;
             }
             default:
                 LOG(ERROR, "%s (%s) is not an allowed type for a camera transformation",
