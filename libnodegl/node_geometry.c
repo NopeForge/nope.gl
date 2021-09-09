@@ -138,6 +138,11 @@ static int geometry_init(struct ngl_node *node)
 
     if (s->indices_buffer) {
         const struct buffer_priv *indices = s->indices_buffer->priv_data;
+        if (indices->block) {
+            LOG(ERROR, "geometry indices buffers referencing a block are not supported");
+            return NGL_ERROR_UNSUPPORTED;
+        }
+
         switch (indices->layout.format) {
         case NGLI_FORMAT_R16_UNORM: GET_MAX_INDICES(uint16_t); break;
         case NGLI_FORMAT_R32_UINT:  GET_MAX_INDICES(uint32_t); break;

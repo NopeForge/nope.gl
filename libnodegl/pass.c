@@ -378,10 +378,6 @@ static int pass_graphics_init(struct pass *s)
     if (geometry_priv->indices_buffer) {
         struct ngl_node *indices = geometry_priv->indices_buffer;
         struct buffer_priv *indices_priv = indices->priv_data;
-        if (indices_priv->block) {
-            LOG(ERROR, "geometry indices buffers referencing a block are not supported");
-            return NGL_ERROR_UNSUPPORTED;
-        }
 
         int ret = ngli_node_buffer_ref(indices);
         if (ret < 0)
