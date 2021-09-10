@@ -163,10 +163,23 @@ struct geometry_priv {
     int npoints;
 
     /* geometry params */
-    struct ngl_node *vertices_buffer;
-    struct ngl_node *uvcoords_buffer;
-    struct ngl_node *normals_buffer;
-    struct ngl_node *indices_buffer;
+    struct ngl_node *vertices;
+    struct ngl_node *uvcoords;
+    struct ngl_node *normals;
+    struct ngl_node *indices;
+    struct ngl_node *update_nodes[3]; /* {vertices, uvcoords, normals} at most */
+    int nb_update_nodes;
+
+    /* shared for all geometries */
+    struct buffer *vertices_buffer;
+    struct buffer *uvcoords_buffer;
+    struct buffer *normals_buffer;
+    struct buffer *indices_buffer;
+
+    struct buffer_layout vertices_layout;
+    struct buffer_layout uvcoords_layout;
+    struct buffer_layout normals_layout;
+    struct buffer_layout indices_layout;
 
     int topology;
 

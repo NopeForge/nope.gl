@@ -242,8 +242,7 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
     const struct geometry_priv *geometry = s->params.geometry->priv_data;
     const int64_t max_indices = geometry->max_indices;
 
-    const struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
-    const int nb_vertices = vertices->layout.count;
+    const int nb_vertices = geometry->vertices_layout.count;
 
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(attributes, entry))) {
@@ -272,6 +271,36 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
             }
         }
     }
+    return 0;
+}
+
+static int register_attribute_from_buffer(struct pass *s, const char *name,
+                                          struct buffer *buffer, const struct buffer_layout *layout)
+{
+    if (!buffer)
+        return 0;
+
+    struct pgcraft_attribute crafter_attribute = {
+        .type   = layout->type,
+        .format = layout->format,
+        .stride = layout->stride,
+        .offset = layout->offset,
+        .buffer = buffer,
+    };
+    snprintf(crafter_attribute.name, sizeof(crafter_attribute.name), "%s", name);
+
+    const struct pass_params *params = &s->params;
+    if (params->properties) {
+        const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
+        if (resprops_node) {
+            const struct resourceprops_priv *resprops = resprops_node->priv_data;
+            crafter_attribute.precision = resprops->precision;
+        }
+    }
+
+    if (!ngli_darray_push(&s->crafter_attributes, &crafter_attribute))
+        return NGL_ERROR_MEMORY;
+
     return 0;
 }
 
@@ -376,22 +405,10 @@ static int pass_graphics_init(struct pass *s)
     graphics->topology = geometry_priv->topology;
 
     if (geometry_priv->indices_buffer) {
-        struct ngl_node *indices = geometry_priv->indices_buffer;
-        struct buffer_priv *indices_priv = indices->priv_data;
-
-        int ret = ngli_node_buffer_ref(indices);
-        if (ret < 0)
-            return ret;
-
-        s->indices = indices;
-        s->indices_buffer = indices_priv->buffer;
-        s->indices_format = indices_priv->layout.format;
-        s->nb_indices = indices_priv->layout.count;
-        indices_priv->usage |= NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT;
+        s->indices = geometry_priv->indices_buffer;
+        s->indices_layout = &geometry_priv->indices_layout;
     } else {
-        struct ngl_node *vertices = geometry_priv->vertices_buffer;
-        struct buffer_priv *buffer_priv = vertices->priv_data;
-        s->nb_vertices = buffer_priv->layout.count;
+        s->nb_vertices = geometry_priv->vertices_layout.count;
     }
     s->nb_instances = s->params.nb_instances;
 
@@ -405,9 +422,9 @@ static int pass_graphics_init(struct pass *s)
         (ret = check_attributes(s, params->instance_attributes, 1)) < 0)
         return ret;
 
-    if ((ret = register_attribute(s, "ngl_position", geometry_priv->vertices_buffer, 0)) < 0 ||
-        (ret = register_attribute(s, "ngl_uvcoord",  geometry_priv->uvcoords_buffer, 0)) < 0 ||
-        (ret = register_attribute(s, "ngl_normal",   geometry_priv->normals_buffer, 0)) < 0)
+    if ((ret = register_attribute_from_buffer(s, "ngl_position", geometry_priv->vertices_buffer, &geometry_priv->vertices_layout)) < 0 ||
+        (ret = register_attribute_from_buffer(s, "ngl_uvcoord",  geometry_priv->uvcoords_buffer, &geometry_priv->uvcoords_layout)) < 0 ||
+        (ret = register_attribute_from_buffer(s, "ngl_normal",   geometry_priv->normals_buffer,  &geometry_priv->normals_layout)) < 0)
         return ret;
 
     if (params->attributes) {
@@ -464,12 +481,6 @@ int ngli_pass_prepare(struct pass *s)
     struct ngl_node **attribute_nodes = ngli_darray_data(&s->attribute_nodes);
     for (int i = 0; i < ngli_darray_count(&s->attribute_nodes); i++) {
         int ret = ngli_node_buffer_init(attribute_nodes[i]);
-        if (ret < 0)
-            return ret;
-    }
-
-    if (s->indices) {
-        int ret = ngli_node_buffer_init(s->indices);
         if (ret < 0)
             return ret;
     }
@@ -610,9 +621,6 @@ void ngli_pass_uninit(struct pass *s)
     }
     ngli_darray_reset(&s->pipeline_descs);
 
-    if (s->indices)
-        ngli_node_buffer_unref(s->indices);
-
     ngli_darray_reset(&s->uniform_nodes);
     ngli_darray_reset(&s->texture_nodes);
     reset_block_nodes(&s->block_nodes);
@@ -659,6 +667,12 @@ DECLARE_UPDATE_NODES_FUNC(buffer, NODE_TYPE_BUFFER)
 
 int ngli_pass_update(struct pass *s, double t)
 {
+    if (s->params.geometry) {
+        int ret = ngli_node_update(s->params.geometry, t);
+        if (ret < 0)
+            return ret;
+    }
+
     int ret;
     if ((ret = update_common_nodes(&s->uniform_nodes, t)) < 0 ||
         (ret = update_common_nodes(&s->texture_nodes, t)) < 0 ||
@@ -761,8 +775,9 @@ int ngli_pass_exec(struct pass *s)
             ctx->begin_render_pass = 0;
         }
 
-        if (s->indices_buffer)
-            ngli_pipeline_draw_indexed(pipeline, s->indices_buffer, s->indices_format, s->nb_indices, s->nb_instances);
+        if (s->indices)
+            ngli_pipeline_draw_indexed(pipeline, s->indices, s->indices_layout->format,
+                                       s->indices_layout->count, s->nb_instances);
         else
             ngli_pipeline_draw(pipeline, s->nb_vertices, s->nb_instances);
     } else {

@@ -67,10 +67,8 @@ struct pass {
     struct darray uniform_nodes;
     struct darray block_nodes;
 
-    struct ngl_node *indices;
-    struct buffer *indices_buffer;
-    int indices_format;
-    int nb_indices;
+    struct buffer *indices;
+    const struct buffer_layout *indices_layout;
     int nb_vertices;
     int nb_instances;
 

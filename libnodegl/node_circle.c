@@ -22,6 +22,8 @@
 #include <math.h>
 #include <stddef.h>
 #include <string.h>
+
+#include "geometry.h"
 #include "log.h"
 #include "math_utils.h"
 #include "memory.h"
@@ -87,34 +89,13 @@ static int circle_init(struct ngl_node *node)
     for (int i = 1; i < nb_vertices; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
-    s->vertices_buffer = ngli_node_geometry_generate_buffer(node->ctx,
-                                                            NGL_NODE_BUFFERVEC3,
-                                                            nb_vertices,
-                                                            nb_vertices * sizeof(*vertices) * 3,
-                                                            vertices);
+    struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
-    s->uvcoords_buffer = ngli_node_geometry_generate_buffer(node->ctx,
-                                                            NGL_NODE_BUFFERVEC2,
-                                                            nb_vertices,
-                                                            nb_vertices * sizeof(*uvcoords) * 2,
-                                                            uvcoords);
-
-    s->normals_buffer = ngli_node_geometry_generate_buffer(node->ctx,
-                                                           NGL_NODE_BUFFERVEC3,
-                                                           nb_vertices,
-                                                           nb_vertices * sizeof(*normals) * 3,
-                                                           normals);
-
-    s->indices_buffer = ngli_node_geometry_generate_buffer(node->ctx,
-                                                           NGL_NODE_BUFFERUSHORT,
-                                                           nb_indices,
-                                                           nb_indices * sizeof(*indices),
-                                                           (void *)indices);
-
-    if (!s->vertices_buffer || !s->uvcoords_buffer || !s->normals_buffer || !s->indices_buffer) {
-        ret = NGL_ERROR_MEMORY;
+    if ((ret = ngli_geometry_gen_vec3(&s->vertices_buffer,   &s->vertices_layout, gpu_ctx, nb_vertices, vertices)) < 0 ||
+        (ret = ngli_geometry_gen_vec2(&s->uvcoords_buffer,   &s->uvcoords_layout, gpu_ctx, nb_vertices, uvcoords)) < 0 ||
+        (ret = ngli_geometry_gen_vec3(&s->normals_buffer,    &s->normals_layout,  gpu_ctx, nb_vertices, normals))  < 0 ||
+        (ret = ngli_geometry_gen_indices(&s->indices_buffer, &s->indices_layout,  gpu_ctx, nb_indices,  indices))  < 0)
         goto end;
-    }
 
     s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
@@ -126,21 +107,14 @@ end:
     return ret;
 }
 
-#define NODE_UNREFP(node) do {                    \
-    if (node) {                                   \
-        ngli_node_detach_ctx(node, node->ctx);    \
-        ngl_node_unrefp(&node);                   \
-    }                                             \
-} while (0)
-
 static void circle_uninit(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
 
-    NODE_UNREFP(s->vertices_buffer);
-    NODE_UNREFP(s->uvcoords_buffer);
-    NODE_UNREFP(s->normals_buffer);
-    NODE_UNREFP(s->indices_buffer);
+    ngli_buffer_freep(&s->vertices_buffer);
+    ngli_buffer_freep(&s->uvcoords_buffer);
+    ngli_buffer_freep(&s->normals_buffer);
+    ngli_buffer_freep(&s->indices_buffer);
 }
 
 const struct node_class ngli_circle_class = {

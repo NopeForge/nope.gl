@@ -23,6 +23,8 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+
+#include "geometry.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
@@ -56,22 +58,6 @@ static int triangle_init(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
 
-    s->vertices_buffer = ngli_node_geometry_generate_buffer(node->ctx,
-                                                            NGL_NODE_BUFFERVEC3,
-                                                            NB_VERTICES,
-                                                            sizeof(s->triangle_edges),
-                                                            s->triangle_edges);
-    if (!s->vertices_buffer)
-        return NGL_ERROR_MEMORY;
-
-    s->uvcoords_buffer = ngli_node_geometry_generate_buffer(node->ctx,
-                                                            NGL_NODE_BUFFERVEC2,
-                                                            NB_VERTICES,
-                                                            sizeof(s->triangle_uvs),
-                                                            s->triangle_uvs);
-    if (!s->uvcoords_buffer)
-        return NGL_ERROR_MEMORY;
-
     float normals[3 * NB_VERTICES];
     ngli_vec3_normalvec(normals,
                         s->triangle_edges,
@@ -81,33 +67,26 @@ static int triangle_init(struct ngl_node *node)
     for (int i = 1; i < NB_VERTICES; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
 
-    s->normals_buffer = ngli_node_geometry_generate_buffer(node->ctx,
-                                                           NGL_NODE_BUFFERVEC3,
-                                                           NB_VERTICES,
-                                                           sizeof(normals),
-                                                           normals);
-    if (!s->normals_buffer)
-        return NGL_ERROR_MEMORY;
+    struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
+
+    int ret;
+    if ((ret = ngli_geometry_gen_vec3(&s->vertices_buffer, &s->vertices_layout, gpu_ctx, NB_VERTICES, s->triangle_edges)) < 0 ||
+        (ret = ngli_geometry_gen_vec2(&s->uvcoords_buffer, &s->uvcoords_layout, gpu_ctx, NB_VERTICES, s->triangle_uvs))   < 0 ||
+        (ret = ngli_geometry_gen_vec3(&s->normals_buffer,  &s->normals_layout,  gpu_ctx, NB_VERTICES, normals))           < 0)
+        return 0;
 
     s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
     return 0;
 }
 
-#define NODE_UNREFP(node) do {                    \
-    if (node) {                                   \
-        ngli_node_detach_ctx(node, node->ctx);    \
-        ngl_node_unrefp(&node);                   \
-    }                                             \
-} while (0)
-
 static void triangle_uninit(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
 
-    NODE_UNREFP(s->vertices_buffer);
-    NODE_UNREFP(s->uvcoords_buffer);
-    NODE_UNREFP(s->normals_buffer);
+    ngli_buffer_freep(&s->vertices_buffer);
+    ngli_buffer_freep(&s->uvcoords_buffer);
+    ngli_buffer_freep(&s->normals_buffer);
 }
 
 const struct node_class ngli_triangle_class = {
