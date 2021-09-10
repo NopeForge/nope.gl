@@ -58,12 +58,11 @@ static int update_matrices(struct ngl_node *node, double t)
     struct ngl_ctx *ctx = node->ctx;
     struct camera_priv *s = node->priv_data;
 
-    NGLI_ALIGNED_VEC(eye)    = {0.0f, 0.0f, 0.0f, 1.0f};
-    NGLI_ALIGNED_VEC(center) = {0.0f, 0.0f, 0.0f, 1.0f};
-    NGLI_ALIGNED_VEC(up)     = {0.0f, 0.0f, 0.0f, 1.0f};
+    NGLI_ALIGNED_VEC(eye)    = {NGLI_ARG_VEC3(s->eye),    1.0f};
+    NGLI_ALIGNED_VEC(center) = {NGLI_ARG_VEC3(s->center), 1.0f};
+    NGLI_ALIGNED_VEC(up)     = {NGLI_ARG_VEC3(s->up),     1.0f};
 
 #define APPLY_TRANSFORM(what) do {                                          \
-    memcpy(what, s->what, sizeof(s->what));                                 \
     if (s->what##_transform) {                                              \
         int ret = ngli_node_update(s->what##_transform, t);                 \
         if (ret < 0)                                                        \
