@@ -43,7 +43,7 @@ int ngli_transform_chain_check(const struct ngl_node *node)
             case NGL_NODE_IDENTITY:
                 return 0;
             default:
-                LOG(ERROR, "%s (%s) is not an allowed type for a camera transformation",
+                LOG(ERROR, "%s (%s) is not an allowed type for a transformation chain",
                     node->label, node->cls->name);
                 return NGL_ERROR_INVALID_USAGE;
         }
