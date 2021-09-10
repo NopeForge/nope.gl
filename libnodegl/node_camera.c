@@ -53,6 +53,21 @@ struct camera_priv {
     NGLI_ALIGNED_MAT(projection_matrix);
 };
 
+static int apply_transform(float *v, struct ngl_node *transform, double t)
+{
+    if (!transform)
+        return 0;
+
+    int ret = ngli_node_update(transform, t);
+    if (ret < 0)
+        return ret;
+    NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;
+    ngli_transform_chain_compute(transform, matrix);
+    ngli_mat4_mul_vec4(v, matrix, v);
+
+    return 0;
+}
+
 static int update_matrices(struct ngl_node *node, double t)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -62,20 +77,11 @@ static int update_matrices(struct ngl_node *node, double t)
     NGLI_ALIGNED_VEC(center) = {NGLI_ARG_VEC3(s->center), 1.0f};
     NGLI_ALIGNED_VEC(up)     = {NGLI_ARG_VEC3(s->up),     1.0f};
 
-#define APPLY_TRANSFORM(what) do {                                          \
-    if (s->what##_transform) {                                              \
-        int ret = ngli_node_update(s->what##_transform, t);                 \
-        if (ret < 0)                                                        \
-            return ret;                                                     \
-        NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;                      \
-        ngli_transform_chain_compute(s->what##_transform, matrix);          \
-        ngli_mat4_mul_vec4(what, matrix, what);                             \
-    }                                                                       \
-} while (0)
-
-    APPLY_TRANSFORM(eye);
-    APPLY_TRANSFORM(center);
-    APPLY_TRANSFORM(up);
+    int ret;
+    if ((ret = apply_transform(eye, s->eye_transform, t)) < 0 ||
+        (ret = apply_transform(center, s->center_transform, t)) < 0 ||
+        (ret = apply_transform(up, s->up_transform, t)) < 0)
+        return ret;
 
     ngli_mat4_look_at(s->modelview_matrix, eye, center, up);
 
