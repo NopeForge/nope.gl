@@ -118,20 +118,20 @@ static void animatedbuffer_uninit(struct ngl_node *node)
     ngli_freep(&s->data);
 }
 
-#define DEFINE_ABUFFER_CLASS(class_id, class_name, type, class_data_type, format)  \
-static int animatedbuffer##type##_init(struct ngl_node *node)                      \
+#define DEFINE_ABUFFER_CLASS(class_id, class_name, type_name, class_data_type, class_data_format)  \
+static int animatedbuffer##type_name##_init(struct ngl_node *node)                 \
 {                                                                                  \
     struct buffer_priv *s = node->priv_data;                                       \
-    s->data_format = format;                                                       \
+    s->data_format = class_data_format;                                            \
     s->data_type   = class_data_type;                                              \
     return animatedbuffer_init(node);                                              \
 }                                                                                  \
                                                                                    \
-const struct node_class ngli_animatedbuffer##type##_class = {                      \
+const struct node_class ngli_animatedbuffer##type_name##_class = {                 \
     .id        = class_id,                                                         \
     .category  = NGLI_NODE_CATEGORY_BUFFER,                                        \
     .name      = class_name,                                                       \
-    .init      = animatedbuffer##type##_init,                                      \
+    .init      = animatedbuffer##type_name##_init,                                 \
     .update    = animatedbuffer_update,                                            \
     .uninit    = animatedbuffer_uninit,                                            \
     .priv_size = sizeof(struct buffer_priv),                                       \

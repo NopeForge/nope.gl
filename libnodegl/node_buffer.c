@@ -297,20 +297,20 @@ static void buffer_uninit(struct ngl_node *node)
     }
 }
 
-#define DEFINE_BUFFER_CLASS(class_id, class_name, type, format, dtype) \
-static int buffer##type##_init(struct ngl_node *node)           \
+#define DEFINE_BUFFER_CLASS(class_id, class_name, type_name, dformat, dtype) \
+static int buffer##type_name##_init(struct ngl_node *node)      \
 {                                                               \
     struct buffer_priv *s = node->priv_data;                    \
-    s->data_format = format;                                    \
+    s->data_format = dformat;                                   \
     s->data_type = dtype;                                       \
     return buffer_init(node);                                   \
 }                                                               \
                                                                 \
-const struct node_class ngli_buffer##type##_class = {           \
+const struct node_class ngli_buffer##type_name##_class = {      \
     .id        = class_id,                                      \
     .category  = NGLI_NODE_CATEGORY_BUFFER,                     \
     .name      = class_name,                                    \
-    .init      = buffer##type##_init,                           \
+    .init      = buffer##type_name##_init,                      \
     .uninit    = buffer_uninit,                                 \
     .priv_size = sizeof(struct buffer_priv),                    \
     .params    = buffer_params,                                 \
