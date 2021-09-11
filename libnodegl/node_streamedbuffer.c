@@ -157,6 +157,7 @@ static int streamedbuffer_init(struct ngl_node *node)
     struct buffer_priv *s = node->priv_data;
     struct buffer_priv *buffer_priv = s->buffer_node->priv_data;
 
+    s->layout = buffer_priv->layout;
     s->layout.count = s->opt.count;
 
     if (s->layout.count <= 0) {
@@ -172,12 +173,8 @@ static int streamedbuffer_init(struct ngl_node *node)
 
     s->data = buffer_priv->data;
     s->data_size = buffer_priv->data_size / s->layout.count;
-    s->layout.comp = buffer_priv->layout.comp;
-    s->layout.stride = buffer_priv->layout.stride;
     s->usage = buffer_priv->usage;
-    s->layout.format = buffer_priv->layout.format;
     s->dynamic = 1;
-    s->layout.type = buffer_priv->layout.type;
 
     if (!s->timebase[1]) {
         LOG(ERROR, "invalid timebase: %d/%d", s->timebase[0], s->timebase[1]);
