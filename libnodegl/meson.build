@@ -126,6 +126,7 @@ lib_src = files(
   'dot.c',
   'drawutils.c',
   'format.c',
+  'geometry.c',
   'gpu_ctx.c',
   'hmap.c',
   'hud.c',
