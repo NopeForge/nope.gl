@@ -186,8 +186,6 @@ struct geometry_priv {
     int64_t max_indices;
 };
 
-struct ngl_node *ngli_node_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data);
-
 struct buffer_priv {
     struct {
         int count;

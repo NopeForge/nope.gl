@@ -29,33 +29,6 @@
 #include "internal.h"
 #include "topology.h"
 
-struct ngl_node *ngli_node_geometry_generate_buffer(struct ngl_ctx *ctx, int type, int count, int size, void *data)
-{
-    struct ngl_node *node = ngl_node_create(type);
-    if (!node)
-        return NULL;
-
-    int ret = ngl_node_param_set(node, "count", count);
-    if (ret < 0)
-        goto fail;
-
-    if (data) {
-        int ret = ngl_node_param_set(node, "data", size, data);
-        if (ret < 0)
-            goto fail;
-    }
-
-    ret = ngli_node_attach_ctx(node, ctx);
-    if (ret < 0)
-        goto fail;
-
-    return node;
-fail:
-    ngli_node_detach_ctx(node, ctx);
-    ngl_node_unrefp(&node);
-    return NULL;
-}
-
 static const struct param_choices topology_choices = {
     .name = "topology",
     .consts = {
