@@ -101,8 +101,8 @@ static const struct node_param geometry_params[] = {
 };
 
 #define GET_MAX_INDICES(type) do {                         \
-    type *data = (type *)indices_buffer_priv->data;        \
-    for (int i = 0; i < indices_buffer_priv->count; i++) { \
+    type *data = (type *)indices->data;                    \
+    for (int i = 0; i < indices->count; i++) {             \
         if (data[i] > s->max_indices)                      \
             s->max_indices = data[i];                      \
     }                                                      \
@@ -137,8 +137,8 @@ static int geometry_init(struct ngl_node *node)
     }
 
     if (s->indices_buffer) {
-        const struct buffer_priv *indices_buffer_priv = s->indices_buffer->priv_data;
-        switch (indices_buffer_priv->data_format) {
+        const struct buffer_priv *indices = s->indices_buffer->priv_data;
+        switch (indices->data_format) {
         case NGLI_FORMAT_R16_UNORM: GET_MAX_INDICES(uint16_t); break;
         case NGLI_FORMAT_R32_UINT:  GET_MAX_INDICES(uint32_t); break;
         default:
