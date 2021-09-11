@@ -102,7 +102,7 @@ static const struct node_param geometry_params[] = {
 
 #define GET_MAX_INDICES(type) do {                         \
     type *data = (type *)indices->data;                    \
-    for (int i = 0; i < indices->count; i++) {             \
+    for (int i = 0; i < indices->layout.count; i++) {      \
         if (data[i] > s->max_indices)                      \
             s->max_indices = data[i];                      \
     }                                                      \
@@ -116,29 +116,29 @@ static int geometry_init(struct ngl_node *node)
 
     if (s->uvcoords_buffer) {
         const struct buffer_priv *uvcoords = s->uvcoords_buffer->priv_data;
-        if (uvcoords->count != vertices->count) {
+        if (uvcoords->layout.count != vertices->layout.count) {
             LOG(ERROR,
                 "uvcoords count (%d) does not match vertices count (%d)",
-                uvcoords->count,
-                vertices->count);
+                uvcoords->layout.count,
+                vertices->layout.count);
             return NGL_ERROR_INVALID_ARG;
         }
     }
 
     if (s->normals_buffer) {
         const struct buffer_priv *normals = s->normals_buffer->priv_data;
-        if (normals->count != vertices->count) {
+        if (normals->layout.count != vertices->layout.count) {
             LOG(ERROR,
                 "normals count (%d) does not match vertices count (%d)",
-                normals->count,
-                vertices->count);
+                normals->layout.count,
+                vertices->layout.count);
             return NGL_ERROR_INVALID_ARG;
         }
     }
 
     if (s->indices_buffer) {
         const struct buffer_priv *indices = s->indices_buffer->priv_data;
-        switch (indices->data_format) {
+        switch (indices->layout.format) {
         case NGLI_FORMAT_R16_UNORM: GET_MAX_INDICES(uint16_t); break;
         case NGLI_FORMAT_R32_UINT:  GET_MAX_INDICES(uint32_t); break;
         default:

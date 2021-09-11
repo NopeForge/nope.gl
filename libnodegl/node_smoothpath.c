@@ -68,7 +68,7 @@ static int smoothpath_init(struct ngl_node *node)
 
     const struct buffer_priv *points = s->points_buffer->priv_data;
 
-    if (points->count < 2) {
+    if (points->layout.count < 2) {
         LOG(ERROR, "at least 2 points must be defined");
         return NGL_ERROR_INVALID_ARG;
     }
@@ -89,7 +89,7 @@ static int smoothpath_init(struct ngl_node *node)
      * See https://pomax.github.io/bezierinfo/#catmullconv
      */
     const float scale = 1.f / (s->tension * 6.f);
-    const int nb_segments = points->count - 1;
+    const int nb_segments = points->layout.count - 1;
     for (int i = 0; i < nb_segments; i++) {
         const float *p0 = i == 0 ? s->control1 : &p[(i - 1) * 3];
         const float *p1 = &p[i * 3];

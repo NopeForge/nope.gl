@@ -312,24 +312,24 @@ static int texture_prefetch(struct ngl_node *node)
             }
 
             if (params->type == NGLI_TEXTURE_TYPE_2D) {
-                if (buffer->count != params->width * params->height) {
+                if (buffer->layout.count != params->width * params->height) {
                     LOG(ERROR, "dimensions (%dx%d) do not match buffer count (%d),"
                         " assuming %dx1", params->width, params->height,
-                        buffer->count, buffer->count);
-                    params->width = buffer->count;
+                        buffer->layout.count, buffer->layout.count);
+                    params->width = buffer->layout.count;
                     params->height = 1;
                 }
             } else if (params->type == NGLI_TEXTURE_TYPE_3D) {
-                if (buffer->count != params->width * params->height * params->depth) {
+                if (buffer->layout.count != params->width * params->height * params->depth) {
                     LOG(ERROR, "dimensions (%dx%dx%d) do not match buffer count (%d),"
                         " assuming %dx1x1", params->width, params->height, params->depth,
-                        buffer->count, buffer->count);
-                    params->width = buffer->count;
+                        buffer->layout.count, buffer->layout.count);
+                    params->width = buffer->layout.count;
                     params->height = params->depth = 1;
                 }
             }
             data = buffer->data;
-            params->format = buffer->data_format;
+            params->format = buffer->layout.format;
             break;
         }
         default:

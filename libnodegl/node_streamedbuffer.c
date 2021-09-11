@@ -68,7 +68,7 @@ static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
     const struct buffer_priv *s = node->priv_data;
     const struct buffer_priv *timestamps_priv = s->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
-    const int nb_timestamps = timestamps_priv->count;
+    const int nb_timestamps = timestamps_priv->layout.count;
 
     int ret = -1;
     for (int i = start; i < nb_timestamps; i++) {
@@ -111,7 +111,7 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
     s->last_index = index;
 
     const struct buffer_priv *buffer_priv = s->buffer_node->priv_data;
-    s->data = buffer_priv->data + s->data_stride * s->count * index;
+    s->data = buffer_priv->data + s->layout.stride * s->layout.count * index;
 
     return 0;
 }
@@ -121,7 +121,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
     const struct buffer_priv *s = node->priv_data;
     const struct buffer_priv *timestamps_priv = s->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
-    const int nb_timestamps = timestamps_priv->count;
+    const int nb_timestamps = timestamps_priv->layout.count;
 
     if (!nb_timestamps) {
         LOG(ERROR, "timestamps buffer must not be empty");
@@ -129,7 +129,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
     }
 
     const struct buffer_priv *buffer_priv = s->buffer_node->priv_data;
-    const int count = buffer_priv->count / s->count;
+    const int count = buffer_priv->layout.count / s->layout.count;
     if (nb_timestamps != count) {
         LOG(ERROR, "timestamps count must match buffer chunk count: %d != %d", nb_timestamps, count);
         return NGL_ERROR_INVALID_ARG;
@@ -157,27 +157,27 @@ static int streamedbuffer_init(struct ngl_node *node)
     struct buffer_priv *s = node->priv_data;
     struct buffer_priv *buffer_priv = s->buffer_node->priv_data;
 
-    s->count = s->opt.count;
+    s->layout.count = s->opt.count;
 
-    if (s->count <= 0) {
-        LOG(ERROR, "invalid number of elements (%d <= 0)", s->count);
+    if (s->layout.count <= 0) {
+        LOG(ERROR, "invalid number of elements (%d <= 0)", s->layout.count);
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (buffer_priv->count % s->count) {
+    if (buffer_priv->layout.count % s->layout.count) {
         LOG(ERROR, "buffer count (%d) is not a multiple of streamed buffer count (%d)",
-            buffer_priv->count, s->count);
+            buffer_priv->layout.count, s->layout.count);
         return NGL_ERROR_INVALID_ARG;
     }
 
     s->data = buffer_priv->data;
-    s->data_size = buffer_priv->data_size / s->count;
-    s->data_comp = buffer_priv->data_comp;
-    s->data_stride = buffer_priv->data_stride;
+    s->data_size = buffer_priv->data_size / s->layout.count;
+    s->layout.comp = buffer_priv->layout.comp;
+    s->layout.stride = buffer_priv->layout.stride;
     s->usage = buffer_priv->usage;
-    s->data_format = buffer_priv->data_format;
+    s->layout.format = buffer_priv->layout.format;
     s->dynamic = 1;
-    s->data_type = buffer_priv->data_type;
+    s->layout.type = buffer_priv->layout.type;
 
     if (!s->timebase[1]) {
         LOG(ERROR, "invalid timebase: %d/%d", s->timebase[0], s->timebase[1]);

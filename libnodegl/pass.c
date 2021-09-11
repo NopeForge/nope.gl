@@ -62,8 +62,8 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
 
     if (uniform->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
         struct buffer_priv *buffer_priv = uniform->priv_data;
-        crafter_uniform.type  = buffer_priv->data_type;
-        crafter_uniform.count = buffer_priv->count;
+        crafter_uniform.type  = buffer_priv->layout.type;
+        crafter_uniform.count = buffer_priv->layout.count;
         crafter_uniform.data  = buffer_priv->data;
     } else if (uniform->cls->category == NGLI_NODE_CATEGORY_UNIFORM) {
         struct variable_priv *variable_priv = uniform->priv_data;
@@ -243,7 +243,7 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
     const int64_t max_indices = geometry->max_indices;
 
     const struct buffer_priv *vertices = geometry->vertices_buffer->priv_data;
-    const int nb_vertices = vertices->count;
+    const int nb_vertices = vertices->layout.count;
 
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(attributes, entry))) {
@@ -251,22 +251,22 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
         const struct buffer_priv *buffer = anode->priv_data;
 
         if (per_instance) {
-            if (buffer->count != s->params.nb_instances) {
+            if (buffer->layout.count != s->params.nb_instances) {
                 LOG(ERROR, "attribute buffer %s count (%d) does not match instance count (%d)",
-                    entry->key, buffer->count, s->params.nb_instances);
+                    entry->key, buffer->layout.count, s->params.nb_instances);
                 return NGL_ERROR_INVALID_ARG;
             }
         } else {
             if (geometry->indices_buffer) {
-                if (max_indices >= buffer->count) {
+                if (max_indices >= buffer->layout.count) {
                     LOG(ERROR, "indices buffer contains values exceeding attribute buffer %s count (%" PRId64 " >= %d)",
-                        entry->key, max_indices, buffer->count);
+                        entry->key, max_indices, buffer->layout.count);
                     return NGL_ERROR_INVALID_ARG;
                 }
             } else {
-                if (buffer->count != nb_vertices) {
+                if (buffer->layout.count != nb_vertices) {
                     LOG(ERROR, "attribute buffer %s count (%d) does not match vertices count (%d)",
-                        entry->key, buffer->count, nb_vertices);
+                        entry->key, buffer->layout.count, nb_vertices);
                     return NGL_ERROR_INVALID_ARG;
                 }
             }
@@ -290,7 +290,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     }
 
     struct buffer_priv *attribute_priv = attribute->priv_data;
-    const int format = attribute_priv->data_format;
+    const int format = attribute_priv->layout.format;
     int stride;
     int offset;
     struct buffer *buffer;
@@ -305,13 +305,13 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
         buffer = block_priv->buffer;
         block_priv->usage |= NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT;
     } else {
-        stride = attribute_priv->data_stride;
+        stride = attribute_priv->layout.stride;
         offset = 0;
         buffer = attribute_priv->buffer;
         attribute_priv->usage |= NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT;
     }
 
-    const int attr_type = attribute_priv->data_type;
+    const int attr_type = attribute_priv->layout.type;
 
     struct pgcraft_attribute crafter_attribute = {
         .type   = attr_type,
@@ -389,13 +389,13 @@ static int pass_graphics_init(struct pass *s)
 
         s->indices = indices;
         s->indices_buffer = indices_priv->buffer;
-        s->indices_format = indices_priv->data_format;
-        s->nb_indices = indices_priv->count;
+        s->indices_format = indices_priv->layout.format;
+        s->nb_indices = indices_priv->layout.count;
         indices_priv->usage |= NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT;
     } else {
         struct ngl_node *vertices = geometry_priv->vertices_buffer;
         struct buffer_priv *buffer_priv = vertices->priv_data;
-        s->nb_vertices = buffer_priv->count;
+        s->nb_vertices = buffer_priv->layout.count;
     }
     s->nb_instances = s->params.nb_instances;
 

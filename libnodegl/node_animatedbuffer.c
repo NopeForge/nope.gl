@@ -48,9 +48,9 @@ static void mix_buffer(void *user_arg, void *dst,
     const struct buffer_priv *s = user_arg;
     const float *d1 = (const float *)kf0->data;
     const float *d2 = (const float *)kf1->data;
-    for (int k = 0; k < s->count; k++)
-        for (int i = 0; i < s->data_comp; i++)
-            dstf[k*s->data_comp + i] = NGLI_MIX(d1[k*s->data_comp + i], d2[k*s->data_comp + i], ratio);
+    for (int k = 0; k < s->layout.count; k++)
+        for (int i = 0; i < s->layout.comp; i++)
+            dstf[k*s->layout.comp + i] = NGLI_MIX(d1[k*s->layout.comp + i], d2[k*s->layout.comp + i], ratio);
 }
 
 static void cpy_buffer(void *user_arg, void *dst,
@@ -72,8 +72,8 @@ static int animatedbuffer_init(struct ngl_node *node)
 
     s->dynamic = 1;
     s->usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT | NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
-    s->data_comp = ngli_format_get_nb_comp(s->data_format);
-    s->data_stride = ngli_format_get_bytes_per_pixel(s->data_format);
+    s->layout.comp = ngli_format_get_nb_comp(s->layout.format);
+    s->layout.stride = ngli_format_get_bytes_per_pixel(s->layout.format);
 
     int ret = ngli_animation_init(&s->anim, s,
                                   s->animkf, s->nb_animkf,
@@ -83,30 +83,30 @@ static int animatedbuffer_init(struct ngl_node *node)
 
     for (int i = 0; i < s->nb_animkf; i++) {
         const struct animkeyframe_priv *kf = s->animkf[i]->priv_data;
-        const int data_count = kf->data_size / s->data_stride;
-        const int data_pad   = kf->data_size % s->data_stride;
+        const int data_count = kf->data_size / s->layout.stride;
+        const int data_pad   = kf->data_size % s->layout.stride;
 
-        if (s->count && s->count != data_count) {
+        if (s->layout.count && s->layout.count != data_count) {
             static const char *types[] = {"float", "vec2", "vec3", "vec4"};
             LOG(ERROR, "the number of %s in buffer key frame %d "
                 "does not match the previous ones (%d vs %d)",
-                types[s->data_comp - 1], i, data_count, s->count);
+                types[s->layout.comp - 1], i, data_count, s->layout.count);
             return NGL_ERROR_INVALID_ARG;
         }
 
         if (data_pad)
             LOG(WARNING, "the data buffer has %d trailing bytes", data_pad);
 
-        s->count = data_count;
+        s->layout.count = data_count;
     }
 
-    if (!s->count)
+    if (!s->layout.count)
         return NGL_ERROR_INVALID_ARG;
 
-    s->data = ngli_calloc(s->count, s->data_stride);
+    s->data = ngli_calloc(s->layout.count, s->layout.stride);
     if (!s->data)
         return NGL_ERROR_MEMORY;
-    s->data_size = s->count * s->data_stride;
+    s->data_size = s->layout.count * s->layout.stride;
 
     return 0;
 }
@@ -122,8 +122,8 @@ static void animatedbuffer_uninit(struct ngl_node *node)
 static int animatedbuffer##type_name##_init(struct ngl_node *node)                 \
 {                                                                                  \
     struct buffer_priv *s = node->priv_data;                                       \
-    s->data_format = class_data_format;                                            \
-    s->data_type   = class_data_type;                                              \
+    s->layout.format = class_data_format;                                          \
+    s->layout.type   = class_data_type;                                            \
     return animatedbuffer_init(node);                                              \
 }                                                                                  \
                                                                                    \

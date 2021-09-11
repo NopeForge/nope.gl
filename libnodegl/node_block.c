@@ -182,7 +182,7 @@ static int get_node_data_type(const struct ngl_node *node)
         return variable->data_type;
     } else if (node->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
         const struct buffer_priv *buffer = node->priv_data;
-        return buffer->data_type;
+        return buffer->layout.type;
     } else {
         ngli_assert(0);
     }
@@ -194,7 +194,7 @@ static int get_node_data_count(const struct ngl_node *node)
         return 0;
     } else if (node->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
         const struct buffer_priv *buffer = node->priv_data;
-        return buffer->count;
+        return buffer->layout.count;
     } else {
         ngli_assert(0);
     }

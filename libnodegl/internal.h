@@ -134,6 +134,15 @@ struct ngl_node {
                                            NGL_NODE_IDENTITY,  \
                                            -1}
 
+/* helper structure to specify the content (or a slice) of a buffer */
+struct buffer_layout {
+    int type;       // any of NGLI_TYPE_*
+    int format;     // any of NGLI_FORMAT_*
+    int stride;     // stride of 1 element, in bytes
+    int comp;       // number of components per element
+    int count;      // number of elements
+};
+
 struct geometry_priv {
     /* quad params */
     float quad_corner[3];
@@ -174,16 +183,16 @@ struct buffer_priv {
         struct ngl_node *block;
         int block_field;
     } opt;
-    int count;              // number of elements
+
+    struct buffer_layout layout;
+
     uint8_t *data;          // buffer of <count> elements
     int data_size;          // total buffer data size in bytes
+
     char *filename;         // filename from which the data will be read
-    int data_comp;          // number of components per element
-    int data_stride;        // stride of 1 element, in bytes
     struct ngl_node *block;
     int block_field;
     int usage;              // flags defining buffer use
-    int data_format;        // any of NGLI_FORMAT_*
 
     /* animatedbuffer */
     struct ngl_node **animkf;
@@ -198,7 +207,6 @@ struct buffer_priv {
 
     FILE *fp;
     int dynamic;
-    int data_type;          // any of NGLI_TYPE_*
     int last_index;
 
     struct buffer *buffer;
