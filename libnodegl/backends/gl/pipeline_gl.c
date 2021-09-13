@@ -670,6 +670,8 @@ int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, struct buffer 
                     buffer_binding->desc.name, buffer->size, limits->max_uniform_block_size);
                 return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
             }
+        } else if (buffer_binding->desc.type == NGLI_TYPE_STORAGE_BUFFER) {
+            ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
         }
     }
 
