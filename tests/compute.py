@@ -255,9 +255,7 @@ void main()
 '''
 
 
-@test_fingerprint(nb_keyframes=5, tolerance=1)
-@scene()
-def compute_animation(cfg):
+def _compute_animation(cfg, animate_pre_render=True):
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
     local_size = 2
@@ -291,4 +289,17 @@ def compute_animation(cfg):
     render = ngl.Render(geometry, program)
     render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.sgreen))
 
-    return ngl.Group(children=(compute, render))
+    children = (compute, render) if animate_pre_render else (render, compute)
+    return ngl.Group(children=children)
+
+
+@test_fingerprint(nb_keyframes=5, tolerance=1)
+@scene()
+def compute_animation(cfg):
+    return _compute_animation(cfg)
+
+
+@test_fingerprint(nb_keyframes=5, tolerance=1)
+@scene()
+def compute_animation_post_render(cfg):
+    return _compute_animation(cfg, False)

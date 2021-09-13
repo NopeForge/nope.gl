@@ -94,6 +94,7 @@ foreach backend : backends
   if has_compute
     tests_compute += [
       'animation',
+      'animation_post_render',
       'histogram',
       'particles',
     ]
