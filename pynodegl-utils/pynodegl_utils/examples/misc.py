@@ -54,6 +54,7 @@ def buffer_dove(cfg,
     cfg.duration = 3.
 
     # Credits: https://icons8.com/icon/40514/dove
+    # (Raw data is the premultiplied)
     icon_filename = op.join(op.dirname(__file__), 'data', 'icons8-dove.raw')
     cfg.files.append(icon_filename)
     w, h = (96, 96)
@@ -71,7 +72,7 @@ def buffer_dove(cfg,
     render.update_frag_resources(tex0=img_tex)
     render = ngl.GraphicConfig(render,
                                blend=True,
-                               blend_src_factor='src_alpha',
+                               blend_src_factor='one',
                                blend_dst_factor='one_minus_src_alpha',
                                blend_src_factor_a='zero',
                                blend_dst_factor_a='one')
