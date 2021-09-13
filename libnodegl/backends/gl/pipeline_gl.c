@@ -664,6 +664,7 @@ int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, struct buffer 
         struct glcontext *gl = gpu_ctx_gl->glcontext;
         const struct gpu_limits *limits = &gl->limits;
         if (buffer_binding->desc.type == NGLI_TYPE_UNIFORM_BUFFER) {
+            ngli_assert(buffer->usage & NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
             if (buffer->size > limits->max_uniform_block_size) {
                 LOG(ERROR, "buffer %s size (%d) exceeds max uniform block size (%d)",
                     buffer_binding->desc.name, buffer->size, limits->max_uniform_block_size);
