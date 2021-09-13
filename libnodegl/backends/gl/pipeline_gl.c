@@ -663,11 +663,12 @@ int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, struct buffer 
         struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
         struct glcontext *gl = gpu_ctx_gl->glcontext;
         const struct gpu_limits *limits = &gl->limits;
-        if (buffer_binding->desc.type == NGLI_TYPE_UNIFORM_BUFFER &&
-            buffer->size > limits->max_uniform_block_size) {
-            LOG(ERROR, "buffer %s size (%d) exceeds max uniform block size (%d)",
-                buffer_binding->desc.name, buffer->size, limits->max_uniform_block_size);
-            return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+        if (buffer_binding->desc.type == NGLI_TYPE_UNIFORM_BUFFER) {
+            if (buffer->size > limits->max_uniform_block_size) {
+                LOG(ERROR, "buffer %s size (%d) exceeds max uniform block size (%d)",
+                    buffer_binding->desc.name, buffer->size, limits->max_uniform_block_size);
+                return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
+            }
         }
     }
 
