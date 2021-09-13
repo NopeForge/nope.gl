@@ -191,16 +191,13 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
      * situations, UBO is not possible.
      */
     int type = NGLI_TYPE_UNIFORM_BUFFER;
-    int usage = NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
     if (block->layout == NGLI_BLOCK_LAYOUT_STD430) {
         LOG(DEBUG, "block %s has a std430 layout, declaring it as SSBO", name);
         type = NGLI_TYPE_STORAGE_BUFFER;
-        usage = NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     } else if (block->size > limits->max_uniform_block_size) {
         LOG(DEBUG, "block %s is larger than the max UBO size (%d > %d), declaring it as SSBO",
             name, block->size, limits->max_uniform_block_size);
         type = NGLI_TYPE_STORAGE_BUFFER;
-        usage = NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     }
 
     int writable = 0;
@@ -209,15 +206,18 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
         const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
         if (resprops_node) {
             const struct resourceprops_priv *resprops = resprops_node->priv_data;
-            if (resprops->variadic || resprops->writable) {
+            if (resprops->variadic || resprops->writable)
                 type = NGLI_TYPE_STORAGE_BUFFER;
-                usage = NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-            }
             writable = resprops->writable;
         }
     }
 
-    block_priv->usage |= usage;
+    if (type == NGLI_TYPE_UNIFORM_BUFFER)
+        block_priv->usage |= NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+    else if (type == NGLI_TYPE_STORAGE_BUFFER)
+        block_priv->usage |= NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+    else
+        ngli_assert(0);
 
     struct pgcraft_block crafter_block = {
         .type     = type,
