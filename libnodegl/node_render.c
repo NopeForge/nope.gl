@@ -185,6 +185,14 @@ static int render_init(struct ngl_node *node)
 static int render_prepare(struct ngl_node *node)
 {
     struct render_priv *s = node->priv_data;
+
+    struct ngl_node **children = ngli_darray_data(&node->children);
+    for (int i = 0; i < ngli_darray_count(&node->children); i++) {
+        int ret = ngli_node_prepare(children[i]);
+        if (ret < 0)
+            return ret;
+    }
+
     return ngli_pass_prepare(&s->pass);
 }
 
