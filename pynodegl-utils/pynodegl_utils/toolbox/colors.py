@@ -42,8 +42,8 @@ class COLORS:
     rose =    (1.0, 0.0, 0.5, 1.0)
 
 
-def get_random_color_buffer(dim):
+def get_random_color_buffer(rng, dim):
     data = []
     for i in range(dim ** 2):
-        data += (random.random(), random.random(), random.random(), 1.0)
+        data += (rng.random(), rng.random(), rng.random(), 1.0)
     return array.array('f', data)

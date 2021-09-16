@@ -2,7 +2,6 @@ import os.path as op
 import array
 import colorsys
 import math
-import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
@@ -161,7 +160,6 @@ def fibo(cfg, n=8):
 def cropboard(cfg, dim=15):
     '''Divided media using instancing draw and UV coords offsetting from a buffer'''
     m0 = cfg.medias[0]
-    random.seed(0)
     cfg.duration = 10
     cfg.aspect_ratio = (m0.width, m0.height)
 
@@ -187,7 +185,7 @@ def cropboard(cfg, dim=15):
     for y in range(dim):
         for x in range(dim):
             uv_offset = [x*kw, (y+1.)*kh - 1.]
-            src = [random.uniform(-2, 2), random.uniform(-2, 2)]
+            src = [cfg.rng.uniform(-2, 2), cfg.rng.uniform(-2, 2)]
             dst = [x*qw - 1., 1. - (y+1.)*qh]
 
             uv_offset_buffer.extend(uv_offset)
@@ -238,7 +236,6 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
 @scene(particles=scene.Range(range=[1, 1023]))
 def particles(cfg, particles=32):
     '''Particules demo using compute shaders and instancing'''
-    random.seed(0)
 
     compute_shader = cfg.get_comp('particles')
     vertex_shader = cfg.get_vert('particles')
@@ -254,14 +251,14 @@ def particles(cfg, particles=32):
 
     for i in range(p):
         positions.extend([
-            random.uniform(-1.0, 1.0),
-            random.uniform(0.0, 1.0),
+            cfg.rng.uniform(-1.0, 1.0),
+            cfg.rng.uniform(0.0, 1.0),
             0.0,
         ])
 
         velocities.extend([
-            random.uniform(-0.01, 0.01),
-            random.uniform(-0.05, 0.05),
+            cfg.rng.uniform(-0.01, 0.01),
+            cfg.rng.uniform(-0.05, 0.05),
         ])
 
     ipositions = ngl.Block(fields=[ngl.BufferVec3(data=positions, label='data')], layout='std430')
@@ -317,7 +314,6 @@ def particles(cfg, particles=32):
 def blending_and_stencil(cfg):
     '''Scene using blending and stencil graphic features'''
     cfg.duration = 5
-    random.seed(0)
     vertex = cfg.get_vert('color')
     fragment = cfg.get_frag('color')
 
@@ -363,8 +359,8 @@ def blending_and_stencil(cfg):
         render = ngl.Render(circle, program)
         render.update_frag_resources(color=cloud_color)
 
-        factor = random.random() * 0.4 + center[2]
-        keyframe = cfg.duration * (random.random() * 0.4 + 0.2)
+        factor = cfg.rng.random() * 0.4 + center[2]
+        keyframe = cfg.duration * (cfg.rng.random() * 0.4 + 0.2)
         animkf = (ngl.AnimKeyFrameVec3(0,            (factor,       factor,       0)),
                   ngl.AnimKeyFrameVec3(keyframe,     (factor + 0.1, factor + 0.1, 0)),
                   ngl.AnimKeyFrameVec3(cfg.duration, (factor,       factor,       0)))
@@ -581,13 +577,12 @@ def quaternion(cfg):
 def mountain(cfg, ndim=3, nb_layers=7,
              ref_color=(0.5, .75, .75, 1.0), nb_mountains=6):
     '''Mountain generated with a stack of noise shaders using Textures as random source'''
-    random.seed(0)
     random_dim = 1 << ndim
     cfg.aspect_ratio = (16, 9)
     cfg.duration = nb_mountains ** 2
 
     def get_rand():
-        return array.array('f', [random.uniform(0, 1) for x in range(random_dim)])
+        return array.array('f', [cfg.rng.uniform(0, 1) for x in range(random_dim)])
 
     black, white = (0, 0, 0, 1), (1, 1, 1, 1)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
@@ -651,8 +646,6 @@ def mountain(cfg, ndim=3, nb_layers=7,
 def text(cfg, demo_str='Hello World!\n\nThis is a multi-line\ntext demonstration.', time_unit=0.05):
     '''Demonstrate the text node features (colors, scale, alignment, fitting, ...)'''
 
-    random.seed(0)
-
     group = ngl.Group()
 
     cfg.duration = time_unit * 2 * len(demo_str)
@@ -675,7 +668,7 @@ def text(cfg, demo_str='Hello World!\n\nThis is a multi-line\ntext demonstration
         for halign in ('left', 'center', 'right'):
             if (valign, halign) == ('center', 'center'):
                 continue
-            fg_color = list(colorsys.hls_to_rgb(random.uniform(0, 1), 0.5, 1.0)) + [1]
+            fg_color = list(colorsys.hls_to_rgb(cfg.rng.uniform(0, 1), 0.5, 1.0)) + [1]
             aligned_text = ngl.Text(f'{valign}-{halign}',
                                     valign=valign,
                                     halign=halign,

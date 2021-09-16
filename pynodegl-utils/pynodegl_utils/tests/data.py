@@ -327,13 +327,11 @@ def _get_field_decl(layout, f):
 
 
 def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
-
     # Seed only defines the random for the position of the fields
-    random.seed(seed)
-    fields_pos = random.sample(range(len(spec)), len(spec))
+    fields_pos = random.Random(seed).sample(range(len(spec)), len(spec))
 
     # Always the same colors whatever the user seed
-    random.seed(0)
+    clr_rng = random.Random(0)
 
     fields_info = []
     max_id_len = 0
@@ -345,7 +343,7 @@ def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
         field_info['pos'] = fields_pos.index(i)
         max_id_len = max(len(field_info['decl']), max_id_len)
         if color_tint:
-            hue = random.uniform(0, 1)
+            hue = clr_rng.uniform(0, 1)
             field_info['color'] = colorsys.hls_to_rgb(hue, 0.6, 1.0)
         else:
             field_info['color'] = (1, 1, 1)

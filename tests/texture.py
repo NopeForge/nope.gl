@@ -21,7 +21,6 @@
 #
 
 import array
-import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.tests.debug import get_debug_points
@@ -64,9 +63,8 @@ def texture_data(cfg, w=4, h=5):
 @scene(dim=scene.Range(range=[1, 100]))
 def texture_data_animated(cfg, dim=8):
     cfg.duration = 3.0
-    random.seed(0)
     nb_kf = int(cfg.duration)
-    buffers = [get_random_color_buffer(dim) for i in range(nb_kf)]
+    buffers = [get_random_color_buffer(cfg.rng, dim) for i in range(nb_kf)]
     random_animkf = []
     time_scale = cfg.duration / float(nb_kf)
     for i, buf in enumerate(buffers + [buffers[0]]):
@@ -245,15 +243,14 @@ void main()
 @test_fingerprint()
 @scene()
 def texture_3d(cfg):
-    random.seed(0)
     width, height, depth = 9, 9, 3
     n = width * height
     data = array.array('B')
-    for i in random.sample(range(n), n):
+    for i in cfg.rng.sample(range(n), n):
         data.extend([i * 255 // n, 0, 0, 255])
-    for i in random.sample(range(n), n):
+    for i in cfg.rng.sample(range(n), n):
         data.extend([0, i * 255 // n, 0, 255])
-    for i in random.sample(range(n), n):
+    for i in cfg.rng.sample(range(n), n):
         data.extend([0, 0, i * 255 // n, 255])
     texture_buffer = ngl.BufferUBVec4(data=data)
     texture = ngl.Texture3D(width=width, height=height, depth=depth, data_src=texture_buffer)

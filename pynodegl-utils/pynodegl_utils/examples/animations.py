@@ -1,7 +1,6 @@
 import array
 import colorsys
 import math
-import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.grid import AutoGrid
@@ -38,7 +37,7 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
     pad_height = graph_hpad_ratio * height
 
     # Colors
-    hue = random.uniform(0, 0.6)
+    hue = cfg.rng.uniform(0, 0.6)
     color = list(colorsys.hls_to_rgb(hue, 0.6, 1.0)) + [1]
     ucolor = ngl.UniformVec4(value=color)
     graph_bg_ucolor = ngl.UniformVec4(value=(.15, .15, .15, 1))
@@ -184,8 +183,6 @@ def _get_easing_nodes(cfg, color_program):
 @scene(easing_id=scene.List(choices=['*'] + _easing_names))
 def easings(cfg, easing_id='*'):
     '''Display all the easings (primitive for animation / motion design) at once'''
-    random.seed(0)
-
     cfg.duration = 2.
 
     vert_data = cfg.get_vert('color')
@@ -202,7 +199,7 @@ def easings(cfg, easing_id='*'):
     else:
         cfg.aspect_ratio = (1, 1)
         easing_index = _easing_names.index(easing_id)
-        random.seed(easing_index)
+        cfg.rng.seed(easing_index)
         easing, zoom = _easing_list[easing_index]
         easing_node = _get_easing_node(cfg, easing, zoom, color_program)
         group.add_children(easing_node)

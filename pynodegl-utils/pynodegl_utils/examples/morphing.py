@@ -1,6 +1,5 @@
 import array
 import math
-import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
@@ -75,8 +74,6 @@ def urchin(cfg, npoints=25):
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
 
-    random.seed(0)
-
     def get_vertices(n, radius_func, offset=0):
         vertices = []
         step = 2 * math.pi / n
@@ -95,7 +92,7 @@ def urchin(cfg, npoints=25):
 
     vdata = []
     for i in range(k):
-        outer_rfunc = lambda: random.uniform(n, m)
+        outer_rfunc = lambda: cfg.rng.uniform(n, m)
         outer_vertices = get_vertices(npoints, outer_rfunc, offset=.5)
         vertices_data = array.array('f')
         for inner_vertex, outer_vertex in zip(inner_vertices, outer_vertices):

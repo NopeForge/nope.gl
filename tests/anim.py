@@ -180,8 +180,8 @@ def _get_anim_func(size, animated_type, kf_func, velocity_type=None):
         nb_kf = len(_easing_specs) + 1
         nb_queries = nb_kf - 1
         scale = 1. / float(nb_kf)
-        random.seed(0)
-        kfvalues = [[random.uniform(0, 1) for r in range(size)] for i in range(nb_kf + 1)]
+        rng = random.Random(0)
+        kfvalues = [[rng.uniform(0, 1) for r in range(size)] for i in range(nb_kf + 1)]
 
         ret = []
         for i, (easing_start_offset, easing_end_offset) in enumerate(offsets):

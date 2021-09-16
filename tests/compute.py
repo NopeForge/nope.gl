@@ -21,7 +21,6 @@
 #
 
 import array
-import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.colors import COLORS
@@ -60,7 +59,6 @@ void main()
 @test_fingerprint(nb_keyframes=10, tolerance=1)
 @scene()
 def compute_particles(cfg):
-    random.seed(0)
     cfg.duration = 10
     workgroups = (2, 1, 4)
     local_size = (4, 4, 1)
@@ -71,13 +69,13 @@ def compute_particles(cfg):
     velocities = array.array('f')
     for i in range(nb_particles):
         positions.extend([
-            random.uniform(-2.0, 1.0),
-            random.uniform(-1.0, 1.0),
+            cfg.rng.uniform(-2.0, 1.0),
+            cfg.rng.uniform(-1.0, 1.0),
             0.0,
         ])
         velocities.extend([
-            random.uniform(1.0, 2.0),
-            random.uniform(0.5, 1.5),
+            cfg.rng.uniform(1.0, 2.0),
+            cfg.rng.uniform(0.5, 1.5),
         ])
 
     ipositions = ngl.Block(
@@ -181,16 +179,15 @@ def _get_compute_histogram_cuepoints():
 @test_cuepoints(points=_get_compute_histogram_cuepoints(), tolerance=1)
 @scene(show_dbg_points=scene.Bool())
 def compute_histogram(cfg, show_dbg_points=False):
-    random.seed(0)
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)
     hsize, size, local_size = _N * _N, _N, _N // 2
     data = array.array('f')
     for i in range(size * size):
         data.extend((
-            random.uniform(0.0, 0.5),
-            random.uniform(0.25, 0.75),
-            random.uniform(0.5, 1.0),
+            cfg.rng.uniform(0.0, 0.5),
+            cfg.rng.uniform(0.25, 0.75),
+            cfg.rng.uniform(0.5, 1.0),
             1.0,
         ))
     texture_buffer = ngl.BufferVec4(data=data)

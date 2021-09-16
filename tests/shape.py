@@ -21,7 +21,6 @@
 #
 
 import array
-import random
 import itertools
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
@@ -183,9 +182,9 @@ def shape_diamond_colormask(cfg):
     return autogrid_simple(scenes)
 
 
-def _get_morphing_coordinates(n, x_off, y_off):
-    coords = [(random.uniform(0, 1) + x_off,
-               random.uniform(0, 1) + y_off, 0) for i in range(n - 1)]
+def _get_morphing_coordinates(rng, n, x_off, y_off):
+    coords = [(rng.uniform(0, 1) + x_off,
+               rng.uniform(0, 1) + y_off, 0) for i in range(n - 1)]
     coords.append(coords[0])  # smooth loop
     return coords
 
@@ -194,11 +193,10 @@ def _get_morphing_coordinates(n, x_off, y_off):
 @scene(n=scene.Range(range=[2, 50]))
 def shape_morphing(cfg, n=6):
     cfg.duration = 5.0
-    random.seed(0)
-    vertices_tl = _get_morphing_coordinates(n, -1, 0)
-    vertices_tr = _get_morphing_coordinates(n,  0, 0)
-    vertices_bl = _get_morphing_coordinates(n, -1,-1)
-    vertices_br = _get_morphing_coordinates(n,  0,-1)
+    vertices_tl = _get_morphing_coordinates(cfg.rng, n, -1, 0)
+    vertices_tr = _get_morphing_coordinates(cfg.rng, n,  0, 0)
+    vertices_bl = _get_morphing_coordinates(cfg.rng, n, -1,-1)
+    vertices_br = _get_morphing_coordinates(cfg.rng, n,  0,-1)
 
     vertices_animkf = []
     for i, coords in enumerate(zip(vertices_tl, vertices_tr, vertices_bl, vertices_br)):
@@ -223,9 +221,8 @@ def _get_cropboard_function(set_indices=False):
     def cropboard(cfg, dim_clr=3, dim_cut=9):
         cfg.duration = 5. + 1.
 
-        random.seed(0)
         nb_kf = 2
-        buffers = [get_random_color_buffer(dim_clr) for i in range(nb_kf)]
+        buffers = [get_random_color_buffer(cfg.rng, dim_clr) for i in range(nb_kf)]
         random_animkf = []
         time_scale = cfg.duration / float(nb_kf)
         for i, buf in enumerate(buffers + [buffers[0]]):
@@ -274,7 +271,7 @@ def _get_cropboard_function(set_indices=False):
         for y in range(dim_cut):
             for x in range(dim_cut):
                 uv_offset = [x*kw, (y+1.)*kh - 1.]
-                src = [random.uniform(-2, 2), random.uniform(-2, 2)]
+                src = [cfg.rng.uniform(-2, 2), cfg.rng.uniform(-2, 2)]
                 dst = [x*qw - 1., 1. - (y+1.)*qh]
 
                 uv_offset_buffer.extend(uv_offset)
