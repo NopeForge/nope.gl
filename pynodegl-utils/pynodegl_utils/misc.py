@@ -27,6 +27,7 @@ import math
 import inspect
 import json
 import subprocess
+import random
 import pynodegl as ngl
 from collections import namedtuple
 
@@ -167,6 +168,9 @@ class SceneCfg:
                 if ret:
                     raise Exception('Unable to create a media file using ffmpeg (ret=%d)' % ret)
             self.medias = [Media(media_file)]
+
+        # Predictible random number generator
+        self.rng = random.Random(0)
 
     @property
     def aspect_ratio_float(self):
