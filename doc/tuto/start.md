@@ -347,7 +347,6 @@ We will start with the current new scene template:
 
 ```python
 import math
-import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 
@@ -356,9 +355,6 @@ from pynodegl_utils.misc import scene
 @scene()
 def test_timeranges(cfg):
     cfg.duration = 6.0
-
-    # predictible randomization
-    random.seed(0)
 
     # 3 basic different shapes
     sz = 1/3.
@@ -378,7 +374,7 @@ def test_timeranges(cfg):
 
     # Associate a different color for each shape
     for r in renders:
-        color = [random.random() for i in range(3)] + [1]
+        color = [cfg.rng.random() for i in range(3)] + [1]
         r.update_frag_resources(color=ngl.UniformVec4(value=color))
 
     # Move them in different places
