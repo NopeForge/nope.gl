@@ -20,12 +20,7 @@
 # under the License.
 #
 
-import sys
-import os
-import os.path as op
-import array
 import math
-import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 

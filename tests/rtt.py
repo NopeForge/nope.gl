@@ -224,6 +224,7 @@ def _rtt_load_attachment(cfg):
 def rtt_load_attachment(cfg):
     return _rtt_load_attachment(cfg)
 
+
 @test_cuepoints(width=32, height=32, points={'bottom-left': (-0.5, -0.5), 'top-right': (0.5, 0.5)}, tolerance=1)
 @scene()
 def rtt_load_attachment_nested(cfg):

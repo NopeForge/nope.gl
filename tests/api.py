@@ -32,6 +32,7 @@ _backend = get_backend(_backend_str) if _backend_str else ngl.BACKEND_AUTO
 _vert = 'void main() { ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0); }'
 _frag = 'void main() { ngl_out_color = color; }'
 
+
 def _get_scene(geometry=None):
     program = ngl.Program(vertex=_vert, fragment=_frag)
     if geometry is None:
@@ -39,6 +40,7 @@ def _get_scene(geometry=None):
     scene = ngl.Render(geometry, program)
     scene.update_frag_resources(color=ngl.UniformVec4(value=(1.0, 1.0, 1.0, 1.0)))
     return scene
+
 
 def api_backend():
     ctx = ngl.Context()
@@ -191,7 +193,6 @@ def _ret_to_fourcc(ret):
 
 
 def api_media_sharing_failure():
-    import struct
     ctx = ngl.Context()
     assert ctx.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
     m = ngl.Media('/dev/null')

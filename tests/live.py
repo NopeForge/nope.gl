@@ -28,7 +28,6 @@ from pynodegl_utils.toolbox.colors import COLORS
 
 from pynodegl_utils.tests.data import (
     LAYOUTS,
-    ANIM_DURATION,
     FUNCS,
     gen_floats,
     gen_ints,
@@ -39,7 +38,7 @@ from pynodegl_utils.tests.data import (
 )
 
 
-_SHARED_UNIFORM_CUEPOINTS=dict((('0', (-0.5, -0.5)), ('1', (0.5, 0.5))))
+_SHARED_UNIFORM_CUEPOINTS = dict((('0', (-0.5, -0.5)), ('1', (0.5, 0.5))))
 
 
 def _get_live_shared_uniform_scene(cfg, color, debug_positions):
@@ -149,11 +148,12 @@ def _get_live_trf_spec(layout):
     t6 = ngl.Skew(t5)
 
     return [
-        dict(name='m4',
-             type='mat4',
-             category='single',
-             func=lambda data: ngl.UniformMat4(data, transform=t6),
-             livechange=(
+        dict(
+            name='m4',
+            type='mat4',
+            category='single',
+            func=lambda data: ngl.UniformMat4(data, transform=t6),
+            livechange=(
                 lambda: t1.set_matrix(                      # trf_step=1
                     0.1, 0.2, 0.0, 0.0,
                     0.0, 0.3, 0.4, 0.0,

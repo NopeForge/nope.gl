@@ -21,8 +21,6 @@
 #
 
 import array
-import math
-import random
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.colors import COLORS
@@ -264,7 +262,7 @@ def transform_path(cfg):
         ngl.PathKeyBezier2(control=controls[0], to=points[0]),
         ngl.PathKeyBezier3(control1=controls[0], control2=controls[1], to=points[1]),
     )
-    path = ngl.Path(keyframes);
+    path = ngl.Path(keyframes)
 
     # We use back_in_out easing to force an overflow on both sides
     anim_kf = [

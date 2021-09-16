@@ -53,6 +53,7 @@ _easing_specs = (
     ('back',      3),
 )
 
+
 def _get_easing_list():
     easings = []
     for col, (easing, flags) in enumerate(_easing_specs):
@@ -69,6 +70,7 @@ def _get_easing_list():
             easing_name = _easing_join(base_name + version, args)
             easings.append(easing_name)
     return easings
+
 
 _offsets = (None, (0.0, 0.7), (0.3, 1.0), (0.3, 0.7))
 _easing_list = _get_easing_list()
@@ -163,7 +165,7 @@ def anim_resolution_api(nb_points=7):
         for offsets in _offsets:
             try:
                 values = [ngl.easing_solve(easing_name, t, easing_args, offsets) for t in times]
-            except Exception as e:
+            except Exception:
                 pass
             else:
                 ret.append([easing_name] + values)

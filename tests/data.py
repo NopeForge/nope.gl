@@ -317,6 +317,7 @@ def _get_data_streamed_buffer_vec4_scene(cfg, size, nb_keyframes, scale, single,
 def _get_data_streamed_buffer_function(scale, single):
     size = 2 if single else 4
     nb_keyframes = 4
+
     @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(size), nb_keyframes=nb_keyframes, tolerance=1)
     @scene(show_dbg_points=scene.Bool())
     def scene_func(cfg, show_dbg_points=False):

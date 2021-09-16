@@ -67,6 +67,7 @@ def _get_time_scene(cfg):
 
     return rf
 
+
 @scene()
 def flat_remap(cfg):
     cfg.medias = [Media('ngl-media-test.nut')]
