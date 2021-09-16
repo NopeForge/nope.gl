@@ -694,11 +694,12 @@ def smptebars_glitch(cfg):
     program = ngl.Program(vertex=cfg.get_vert('smptebars'), fragment=cfg.get_frag('smptebars'))
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
     render = ngl.Render(quad, program)
+    freq = cfg.framerate[0] / cfg.framerate[1] + 1
     render.update_frag_resources(
         active_noise=ngl.NoiseFloat(octaves=1),
         active_probability=ngl.UniformFloat(0.4),  # glitch 40% of the time
-        uv_noise_0=ngl.NoiseVec2(amplitude=0.05, frequency=60.0, seed=1000 + 0),
-        uv_noise_1=ngl.NoiseVec2(amplitude=0.05, frequency=60.0, seed=1000 + 0x7fff),
-        uv_noise_2=ngl.NoiseVec2(amplitude=0.05, frequency=60.0, seed=1000 + 0xffff),
+        uv_noise_0=ngl.NoiseVec2(amplitude=0.05, frequency=freq, seed=1000 + 0),
+        uv_noise_1=ngl.NoiseVec2(amplitude=0.05, frequency=freq, seed=1000 + 0x7fff),
+        uv_noise_2=ngl.NoiseVec2(amplitude=0.05, frequency=freq, seed=1000 + 0xffff),
     )
     return render
