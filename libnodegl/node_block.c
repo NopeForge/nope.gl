@@ -325,7 +325,7 @@ static int block_init(struct ngl_node *node)
             return ret;
 
         if (field_funcs[count ? IS_ARRAY : IS_SINGLE].has_changed(field_node))
-            s->usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT;
+            s->usage |= NGLI_BUFFER_USAGE_DYNAMIC_BIT;
 
         const struct block_field *fields = ngli_darray_data(&s->block.fields);
         const struct block_field *fi = &fields[i];
