@@ -399,6 +399,24 @@ endforeach
 
 
 #
+# GLSL to C (header)
+#
+shaders = {}
+glsl2c = find_program('scripts/glsl2c.py')
+shaders_h = []
+foreach shader_file, header_file : shaders
+  shaders_h += custom_target(
+    shader_file,
+    command: [glsl2c, '@INPUT@'],
+    capture: true,
+    input: files('glsl' / shader_file),
+    output: header_file,
+  )
+endforeach
+lib_src += shaders_h
+
+
+#
 # Library
 #
 
