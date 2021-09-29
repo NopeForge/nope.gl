@@ -636,6 +636,153 @@ static int node_invalidate_branch(struct ngl_node *node)
     return 0;
 }
 
+static int node_param_find(struct ngl_node *node, const char *key,
+                           uint8_t **dstp, const struct node_param **parp)
+{
+    uint8_t *base_ptr;
+    const struct node_param *par = ngli_node_param_find(node, key, &base_ptr);
+    if (!par)
+        return NGL_ERROR_NOT_FOUND;
+
+    if (node->ctx && !(par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
+        LOG(ERROR, "%s.%s can not be live changed", node->label, key);
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    *dstp = base_ptr + par->offset;
+    *parp = par;
+    return 0;
+}
+
+static int node_param_update(struct ngl_node *node, const struct node_param *par)
+{
+    if (!node->ctx)
+        return 0;
+
+    if (par->update_func) {
+        int ret = par->update_func(node);
+        if (ret < 0)
+            return ret;
+    }
+
+    return node_invalidate_branch(node);
+}
+
+#define FORWARD_TO_PARAM(type, ...)                                     \
+    int ret;                                                            \
+    uint8_t *dst;                                                       \
+    const struct node_param *par;                                       \
+    if ((ret = node_param_find(node, key, &dst, &par)) < 0 ||           \
+        (ret = ngli_params_set_##type(dst, par, __VA_ARGS__)) < 0 ||    \
+        (ret = node_param_update(node, par)) < 0)                       \
+        return ret;                                                     \
+    return 0
+
+int ngl_node_param_set_bool(struct ngl_node *node, const char *key, int value)
+{
+    FORWARD_TO_PARAM(bool, value);
+}
+
+int ngl_node_param_set_data(struct ngl_node *node, const char *key, int size, const void *data)
+{
+    FORWARD_TO_PARAM(data, size, data);
+}
+
+int ngl_node_param_set_f64(struct ngl_node *node, const char *key, double value)
+{
+    FORWARD_TO_PARAM(f64, value);
+}
+
+int ngl_node_param_set_flags(struct ngl_node *node, const char *key, const char *value)
+{
+    FORWARD_TO_PARAM(flags, value);
+}
+
+int ngl_node_param_set_i32(struct ngl_node *node, const char *key, int value)
+{
+    FORWARD_TO_PARAM(i32, value);
+}
+
+int ngl_node_param_set_ivec2(struct ngl_node *node, const char *key, const int *value)
+{
+    FORWARD_TO_PARAM(ivec2, value);
+}
+
+int ngl_node_param_set_ivec3(struct ngl_node *node, const char *key, const int *value)
+{
+    FORWARD_TO_PARAM(ivec3, value);
+}
+
+int ngl_node_param_set_ivec4(struct ngl_node *node, const char *key, const int *value)
+{
+    FORWARD_TO_PARAM(ivec4, value);
+}
+
+int ngl_node_param_set_mat4(struct ngl_node *node, const char *key, const float *value)
+{
+    FORWARD_TO_PARAM(mat4, value);
+}
+
+int ngl_node_param_set_node(struct ngl_node *node, const char *key, struct ngl_node *value)
+{
+    FORWARD_TO_PARAM(node, value);
+}
+
+int ngl_node_param_set_rational(struct ngl_node *node, const char *key, int num, int den)
+{
+    FORWARD_TO_PARAM(rational, num, den);
+}
+
+int ngl_node_param_set_select(struct ngl_node *node, const char *key, const char *value)
+{
+    FORWARD_TO_PARAM(select, value);
+}
+
+int ngl_node_param_set_str(struct ngl_node *node, const char *key, const char *value)
+{
+    FORWARD_TO_PARAM(str, value);
+}
+
+int ngl_node_param_set_u32(struct ngl_node *node, const char *key, const unsigned value)
+{
+    FORWARD_TO_PARAM(u32, value);
+}
+
+int ngl_node_param_set_uvec2(struct ngl_node *node, const char *key, const unsigned *value)
+{
+    FORWARD_TO_PARAM(uvec2, value);
+}
+
+int ngl_node_param_set_uvec3(struct ngl_node *node, const char *key, const unsigned *value)
+{
+    FORWARD_TO_PARAM(uvec3, value);
+}
+
+int ngl_node_param_set_uvec4(struct ngl_node *node, const char *key, const unsigned *value)
+{
+    FORWARD_TO_PARAM(uvec4, value);
+}
+
+int ngl_node_param_set_vec2(struct ngl_node *node, const char *key, const float *value)
+{
+    FORWARD_TO_PARAM(vec2, value);
+}
+
+int ngl_node_param_set_vec3(struct ngl_node *node, const char *key, const float *value)
+{
+    FORWARD_TO_PARAM(vec3, value);
+}
+
+int ngl_node_param_set_vec4(struct ngl_node *node, const char *key, const float *value)
+{
+    FORWARD_TO_PARAM(vec4, value);
+}
+
+int ngl_node_param_set_dict(struct ngl_node *node, const char *key, const char *name, struct ngl_node *value)
+{
+    FORWARD_TO_PARAM(dict, name, value);
+}
+
 int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
 {
     int ret = 0;

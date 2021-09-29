@@ -154,6 +154,13 @@ const struct param_specs ngli_params_specs[] = {
     },
 };
 
+static const char *get_param_type_name(int param_type)
+{
+    if (param_type < 0 || param_type >= NGLI_ARRAY_NB(ngli_params_specs))
+        return "???";
+    return ngli_params_specs[param_type].name;
+}
+
 const struct node_param *ngli_params_find(const struct node_param *params, const char *key)
 {
     if (!params)
@@ -331,8 +338,22 @@ static void node_hmap_free(void *user_arg, void *data)
     ngl_node_unrefp(&node);
 }
 
+static int check_param_type(const struct node_param *par, int expected_type)
+{
+    if (par->type != expected_type) {
+        LOG(ERROR, "invalid type: %s is of type %s, not %s", par->key,
+            get_param_type_name(par->type), get_param_type_name(expected_type));
+        return NGL_ERROR_INVALID_ARG;
+    }
+    return 0;
+}
+
 int ngli_params_set_bool(uint8_t *dstp, const struct node_param *par, int value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_BOOL);
+    if (ret < 0)
+        return ret;
+
     if (value != -1)
         value = !!value;
     LOG(VERBOSE, "set %s to %d", par->key, value);
@@ -342,6 +363,10 @@ int ngli_params_set_bool(uint8_t *dstp, const struct node_param *par, int value)
 
 int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, int size, const void *data)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_DATA);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to %p (of size %d)", par->key, data, size);
     uint8_t **dst = (uint8_t **)dstp;
 
@@ -360,6 +385,10 @@ int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, int size, 
 
 int ngli_params_set_dict(uint8_t *dstp, const struct node_param *par, const char *name, struct ngl_node *node)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_NODEDICT);
+    if (ret < 0)
+        return ret;
+
     if (node && !allowed_node(node, par->node_types)) {
         LOG(ERROR, "%s (%s) is not an allowed type for %s",
             node->label, node->cls->name, par->key);
@@ -374,7 +403,7 @@ int ngli_params_set_dict(uint8_t *dstp, const struct node_param *par, const char
         ngli_hmap_set_free(*hmapp, node_hmap_free, NULL);
     }
 
-    int ret = ngli_hmap_set(*hmapp, name, node);
+    ret = ngli_hmap_set(*hmapp, name, node);
     if (ret < 0)
         return ret;
     if (node)
@@ -384,6 +413,10 @@ int ngli_params_set_dict(uint8_t *dstp, const struct node_param *par, const char
 
 int ngli_params_set_f64(uint8_t *dstp, const struct node_param *par, double value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_F64);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to %g", par->key, value);
     memcpy(dstp, &value, sizeof(value));
     return 0;
@@ -391,8 +424,12 @@ int ngli_params_set_f64(uint8_t *dstp, const struct node_param *par, double valu
 
 int ngli_params_set_flags(uint8_t *dstp, const struct node_param *par, const char *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_FLAGS);
+    if (ret < 0)
+        return ret;
+
     int v;
-    int ret = ngli_params_get_flags_val(par->choices->consts, value, &v);
+    ret = ngli_params_get_flags_val(par->choices->consts, value, &v);
     if (ret < 0) {
         LOG(ERROR, "unrecognized flags \"%s\" for option %s", value, par->key);
         return ret;
@@ -404,6 +441,10 @@ int ngli_params_set_flags(uint8_t *dstp, const struct node_param *par, const cha
 
 int ngli_params_set_i32(uint8_t *dstp, const struct node_param *par, int value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_I32);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to %d", par->key, value);
     memcpy(dstp, &value, sizeof(value));
     return 0;
@@ -411,6 +452,10 @@ int ngli_params_set_i32(uint8_t *dstp, const struct node_param *par, int value)
 
 int ngli_params_set_ivec2(uint8_t *dstp, const struct node_param *par, const int *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_IVEC2);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%d,%d)", par->key, NGLI_ARG_VEC2(value));
     memcpy(dstp, value, 2 * sizeof(*value));
     return 0;
@@ -418,6 +463,10 @@ int ngli_params_set_ivec2(uint8_t *dstp, const struct node_param *par, const int
 
 int ngli_params_set_ivec3(uint8_t *dstp, const struct node_param *par, const int *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_IVEC3);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%d,%d,%d)", par->key, NGLI_ARG_VEC3(value));
     memcpy(dstp, value, 3 * sizeof(*value));
     return 0;
@@ -425,6 +474,10 @@ int ngli_params_set_ivec3(uint8_t *dstp, const struct node_param *par, const int
 
 int ngli_params_set_ivec4(uint8_t *dstp, const struct node_param *par, const int *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_IVEC4);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%d,%d,%d,%d)", par->key, NGLI_ARG_VEC4(value));
     memcpy(dstp, value, 4 * sizeof(*value));
     return 0;
@@ -432,6 +485,10 @@ int ngli_params_set_ivec4(uint8_t *dstp, const struct node_param *par, const int
 
 int ngli_params_set_mat4(uint8_t *dstp, const struct node_param *par, const float *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_MAT4);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g)", par->key, NGLI_ARG_MAT4(value));
     memcpy(dstp, value, 16 * sizeof(*value));
     return 0;
@@ -439,6 +496,10 @@ int ngli_params_set_mat4(uint8_t *dstp, const struct node_param *par, const floa
 
 int ngli_params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl_node *node)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_NODE);
+    if (ret < 0)
+        return ret;
+
     if (!allowed_node(node, par->node_types)) {
         LOG(ERROR, "%s (%s) is not an allowed type for %s",
             node->label, node->cls->name, par->key);
@@ -453,6 +514,10 @@ int ngli_params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl
 
 int ngli_params_set_rational(uint8_t *dstp, const struct node_param *par, int num, int den)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_RATIONAL);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to %d/%d", par->key, num, den);
     memcpy(dstp, &num, sizeof(num));
     memcpy(dstp + sizeof(num), &den, sizeof(den));
@@ -461,8 +526,12 @@ int ngli_params_set_rational(uint8_t *dstp, const struct node_param *par, int nu
 
 int ngli_params_set_select(uint8_t *dstp, const struct node_param *par, const char *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_SELECT);
+    if (ret < 0)
+        return ret;
+
     int v;
-    int ret = ngli_params_get_select_val(par->choices->consts, value, &v);
+    ret = ngli_params_get_select_val(par->choices->consts, value, &v);
     if (ret < 0) {
         LOG(ERROR, "unrecognized constant \"%s\" for option %s", value, par->key);
         return ret;
@@ -474,6 +543,10 @@ int ngli_params_set_select(uint8_t *dstp, const struct node_param *par, const ch
 
 int ngli_params_set_str(uint8_t *dstp, const struct node_param *par, const char *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_STR);
+    if (ret < 0)
+        return ret;
+
     char *s = NULL;
     if (!value)
         value = par->def_value.str;
@@ -492,6 +565,10 @@ int ngli_params_set_str(uint8_t *dstp, const struct node_param *par, const char 
 
 int ngli_params_set_u32(uint8_t *dstp, const struct node_param *par, const unsigned value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_U32);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to %u", par->key, value);
     memcpy(dstp, &value, sizeof(value));
     return 0;
@@ -499,6 +576,10 @@ int ngli_params_set_u32(uint8_t *dstp, const struct node_param *par, const unsig
 
 int ngli_params_set_uvec2(uint8_t *dstp, const struct node_param *par, const unsigned *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_UVEC2);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%u,%u)", par->key, NGLI_ARG_VEC2(value));
     memcpy(dstp, value, 2 * sizeof(*value));
     return 0;
@@ -506,6 +587,10 @@ int ngli_params_set_uvec2(uint8_t *dstp, const struct node_param *par, const uns
 
 int ngli_params_set_uvec3(uint8_t *dstp, const struct node_param *par, const unsigned *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_UVEC3);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%u,%u,%u)", par->key, NGLI_ARG_VEC3(value));
     memcpy(dstp, value, 3 * sizeof(*value));
     return 0;
@@ -513,6 +598,10 @@ int ngli_params_set_uvec3(uint8_t *dstp, const struct node_param *par, const uns
 
 int ngli_params_set_uvec4(uint8_t *dstp, const struct node_param *par, const unsigned *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_UVEC4);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%u,%u,%u,%u)", par->key, NGLI_ARG_VEC4(value));
     memcpy(dstp, value, 4 * sizeof(*value));
     return 0;
@@ -520,6 +609,10 @@ int ngli_params_set_uvec4(uint8_t *dstp, const struct node_param *par, const uns
 
 int ngli_params_set_vec2(uint8_t *dstp, const struct node_param *par, const float *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_VEC2);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%g,%g)", par->key, NGLI_ARG_VEC2(value));
     memcpy(dstp, value, 2 * sizeof(*value));
     return 0;
@@ -527,6 +620,10 @@ int ngli_params_set_vec2(uint8_t *dstp, const struct node_param *par, const floa
 
 int ngli_params_set_vec3(uint8_t *dstp, const struct node_param *par, const float *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_VEC3);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%g,%g,%g)", par->key, NGLI_ARG_VEC3(value));
     memcpy(dstp, value, 3 * sizeof(*value));
     return 0;
@@ -534,6 +631,10 @@ int ngli_params_set_vec3(uint8_t *dstp, const struct node_param *par, const floa
 
 int ngli_params_set_vec4(uint8_t *dstp, const struct node_param *par, const float *value)
 {
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_VEC4);
+    if (ret < 0)
+        return ret;
+
     LOG(VERBOSE, "set %s to (%g,%g,%g,%g)", par->key, NGLI_ARG_VEC4(value));
     memcpy(dstp, value, 4 * sizeof(*value));
     return 0;
