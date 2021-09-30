@@ -122,6 +122,14 @@ static void print_custom_priv_options(struct bstr *b, const struct ngl_node *nod
 
     while (par->key) {
         const uint8_t *srcp = priv + par->offset;
+        if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE) {
+            struct ngl_node *pnode = *(struct ngl_node **)srcp;
+            if (pnode) {
+                par++;
+                continue;
+            }
+            srcp += sizeof(struct ngl_node *);
+        }
         if (should_print_par(srcp, par)) {
             ngli_bstr_printf(b, "%s: ", par->key);
             ngli_params_bstr_print_val(b, priv, par);
@@ -181,6 +189,15 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
 
     while (p->key) {
         const uint8_t *srcp = priv + p->offset;
+
+        if (p->flags & NGLI_PARAM_FLAG_ALLOW_NODE) {
+            const struct ngl_node *child = *(struct ngl_node **)srcp;
+            if (child)
+                print_all_decls(b, child, decls);
+            p++;
+            continue;
+        }
+
         switch (p->type) {
             case NGLI_PARAM_TYPE_NODE: {
                 const struct ngl_node *child = *(struct ngl_node **)srcp;
@@ -306,8 +323,8 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
         return;
 
     while (p->key) {
-        char *label = ngli_asprintf("[label=\"%s\"]",
-                                    (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME) ? p->key : "");
+        const int print_label = !!(p->flags & (NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME | NGLI_PARAM_FLAG_ALLOW_NODE));
+        char *label = ngli_asprintf("[label=\"%s\"]", print_label ? p->key : "");
         if (!label)
             return;
         const uint8_t *srcp = priv + p->offset;
@@ -320,6 +337,10 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
             break;
         case NGLI_PARAM_TYPE_NODEDICT:
             print_nodedict_links(b, node, p, srcp, links);
+            break;
+        default:
+            if (p->flags & NGLI_PARAM_FLAG_ALLOW_NODE)
+                print_node_links(b, node, p, srcp, links, label);
             break;
         }
         ngli_free(label);

@@ -440,6 +440,13 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
 
     uint8_t *dstp = base_ptr + par->offset;
 
+    if ((par->flags & NGLI_PARAM_FLAG_ALLOW_NODE) && str[0] == '!') {
+        len = parse_param_node(nodes_array, dstp, par, str + 1);
+        if (len < 0)
+            return len;
+        return len + 1;
+    }
+
     switch (par->type) {
     case NGLI_PARAM_TYPE_I32:      len = parse_param_i32(nodes_array, dstp, par, str);      break;
     case NGLI_PARAM_TYPE_U32:      len = parse_param_u32(nodes_array, dstp, par, str);      break;

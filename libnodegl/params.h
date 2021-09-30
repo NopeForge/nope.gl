@@ -75,6 +75,8 @@ struct ngl_node;
 #define NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED (1<<1)
 #define NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME (1<<2)
 #define NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE (1<<3)
+#define NGLI_PARAM_FLAG_ALLOW_NODE (1<<4)
+
 struct node_param {
     const char *key;
     int type;

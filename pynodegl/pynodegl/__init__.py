@@ -35,12 +35,16 @@ from _pynodegl import (
 
 def _create_arg_setter(cython_setter, param_name):
     def arg_setter(self, arg):
+        if isinstance(arg, _Node):
+            return self._param_set_node(param_name, arg)
         return cython_setter(self, param_name, arg)
     return arg_setter
 
 
 def _create_args_setter(cython_setter, param_name):
     def args_setter(self, *args):
+        if args and isinstance(args[0], _Node):
+            return self._param_set_node(param_name, args[0])
         return cython_setter(self, param_name, args)
     return args_setter
 

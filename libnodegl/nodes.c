@@ -184,6 +184,8 @@ static void reset_non_params(struct ngl_node *node)
         if (offset != cur_offset)
             memset(base_ptr + cur_offset, 0, offset - cur_offset);
         cur_offset = offset + ngli_params_specs[par->type].size;
+        if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)
+            cur_offset += sizeof(struct ngl_node *);
         par++;
     }
     memset(base_ptr + cur_offset, 0, node->cls->priv_size - cur_offset);
@@ -254,6 +256,16 @@ static int track_children(struct ngl_node *node)
                     if (!ngli_darray_push(&child->parents, &node))
                         return NGL_ERROR_MEMORY;
                 }
+                break;
+            }
+            default: {
+                if (!(par->flags & NGLI_PARAM_FLAG_ALLOW_NODE))
+                    break;
+                struct ngl_node *child = *(struct ngl_node **)parp;
+                if (child && !ngli_darray_push(&node->children, &child))
+                    return NGL_ERROR_MEMORY;
+                if (child && !ngli_darray_push(&child->parents, &node))
+                    return NGL_ERROR_MEMORY;
                 break;
             }
         }
@@ -332,6 +344,15 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
     for (int i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
         uint8_t *parp = base_ptr + par->offset;
+
+        if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE) {
+            struct ngl_node *node = *(struct ngl_node **)parp;
+            if (node) {
+                int ret = node_set_ctx(node, ctx, pctx);
+                if (ret < 0)
+                    return ret;
+            }
+        }
 
         if (par->type == NGLI_PARAM_TYPE_NODE) {
             struct ngl_node *node = *(struct ngl_node **)parp;
@@ -655,9 +676,18 @@ static int node_param_find(struct ngl_node *node, const char *key,
     if (!par)
         return NGL_ERROR_NOT_FOUND;
 
-    if (node->ctx && !(par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
-        LOG(ERROR, "%s.%s can not be live changed", node->label, key);
-        return NGL_ERROR_INVALID_USAGE;
+    if (node->ctx) {
+        if (!(par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
+            LOG(ERROR, "%s.%s can not be live changed", node->label, key);
+            return NGL_ERROR_INVALID_USAGE;
+        }
+        if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE) {
+            const struct ngl_node *pnode = *(struct ngl_node **)(base_ptr + par->offset);
+            if (pnode) {
+                LOG(ERROR, "%s.%s can not be live changed because it is associated with a node", node->label, key);
+                return NGL_ERROR_INVALID_USAGE;
+            }
+        }
     }
 
     *dstp = base_ptr + par->offset;
@@ -741,6 +771,10 @@ int ngl_node_param_set_mat4(struct ngl_node *node, const char *key, const float 
 
 int ngl_node_param_set_node(struct ngl_node *node, const char *key, struct ngl_node *value)
 {
+    if (node->ctx) {
+        LOG(ERROR, "%s.%s node can not be live changed", node->label, key);
+        return NGL_ERROR_INVALID_USAGE;
+    }
     FORWARD_TO_PARAM(node, value);
 }
 

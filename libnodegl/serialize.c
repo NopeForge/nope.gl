@@ -144,6 +144,17 @@ static int serialize_options(struct hmap *nlist,
     while (p->key) {
         const uint8_t *srcp = priv + p->offset;
 
+        if (p->flags & NGLI_PARAM_FLAG_ALLOW_NODE) {
+            struct ngl_node *src_node = *(struct ngl_node **)srcp;
+            if (src_node) {
+                const int node_id = get_rel_node_id(nlist, src_node);
+                ngli_bstr_printf(b, " %s:!%x", p->key, node_id);
+                p++;
+                continue;
+            }
+            srcp += sizeof(struct ngl_node *);
+        }
+
         switch (p->type) {
             case NGLI_PARAM_TYPE_SELECT: {
                 const int v = *(int *)srcp;
@@ -385,6 +396,17 @@ static int serialize_children(struct hmap *nlist,
                     }
                 }
                 ngli_darray_reset(&items_array);
+                break;
+            }
+            default: {
+                if (!(p->flags & NGLI_PARAM_FLAG_ALLOW_NODE))
+                    break;
+                struct ngl_node *child = *(struct ngl_node **)srcp;
+                if (child) {
+                    int ret = serialize(nlist, b, child);
+                    if (ret < 0)
+                        return ret;
+                }
                 break;
             }
         }
