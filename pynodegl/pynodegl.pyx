@@ -1,6 +1,6 @@
 # cython: c_string_type=unicode, c_string_encoding=utf8
 #
-# Copyright 2016 GoPro Inc.
+# Copyright 2016-2021 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
 # or more contributor license agreements.  See the NOTICE file
@@ -20,7 +20,9 @@
 # under the License.
 #
 
+from cpython cimport array
 from libc.stdlib cimport calloc
+from libc.stdlib cimport free
 from libc.string cimport memset
 from libc.stdint cimport uint8_t
 from libc.stdint cimport uint32_t
@@ -191,6 +193,150 @@ def log_set_min_level(int level):
     ngl_log_set_min_level(level)
 
 
+cdef class _Node:
+    cdef ngl_node *ctx
+
+    @property
+    def cptr(self):
+        return <uintptr_t>self.ctx
+
+    def __init__(self):
+        assert self.ctx is NULL
+        self.ctx = ngl_node_create(self.type_id)
+        if self.ctx is NULL:
+            raise MemoryError()
+
+    def serialize(self):
+        return _ret_pystr(ngl_node_serialize(self.ctx))
+
+    def dot(self):
+        return _ret_pystr(ngl_node_dot(self.ctx))
+
+    def __dealloc__(self):
+        ngl_node_unrefp(&self.ctx)
+
+    def _param_set_bool(self, const char *key, bint value):
+        return ngl_node_param_set_bool(self.ctx, key, value)
+
+    def _param_set_data(self, const char *key, array.array arg):
+        return ngl_node_param_set_data(self.ctx, key,
+                                       arg.buffer_info()[1] * arg.itemsize,
+                                       arg.data.as_voidptr)
+
+    def _param_set_dict(self, const char *key, const char *name, _Node value):
+        cdef ngl_node *node = value.ctx if value is not None else NULL
+        return ngl_node_param_set_dict(self.ctx, key, name, node)
+
+    def _param_set_f32(self, const char *key, float value):
+        return ngl_node_param_set_f32(self.ctx, key, value)
+
+    def _param_set_f64(self, const char *key, double value):
+        return ngl_node_param_set_f64(self.ctx, key, value)
+
+    def _param_set_flags(self, const char *key, const char *value):
+        return ngl_node_param_set_flags(self.ctx, key, value)
+
+    def _param_set_i32(self, const char *key, int value):
+        return ngl_node_param_set_i32(self.ctx, key, value)
+
+    def _param_set_ivec2(self, const char *key, value):
+        cdef int[2] ivec = value
+        return ngl_node_param_set_ivec2(self.ctx, key, ivec)
+
+    def _param_set_ivec3(self, const char *key, value):
+        cdef int[3] ivec = value
+        return ngl_node_param_set_ivec3(self.ctx, key, ivec)
+
+    def _param_set_ivec4(self, const char *key, value):
+        cdef int[4] ivec = value
+        return ngl_node_param_set_ivec4(self.ctx, key, ivec)
+
+    def _param_set_mat4(self, const char *key, value):
+        cdef float[16] mat = value
+        return ngl_node_param_set_mat4(self.ctx, key, mat)
+
+    def _param_set_node(self, const char *key, _Node value):
+        return ngl_node_param_set_node(self.ctx, key, value.ctx)
+
+    def _param_set_rational(self, const char *key, int num, int den):
+        return ngl_node_param_set_rational(self.ctx, key, num, den)
+
+    def _param_set_select(self, const char *key, const char *value):
+        return ngl_node_param_set_select(self.ctx, key, value)
+
+    def _param_set_str(self, const char *key, const char *value):
+        return ngl_node_param_set_str(self.ctx, key, value)
+
+    def _param_set_u32(self, const char *key, const unsigned value):
+        return ngl_node_param_set_u32(self.ctx, key, value)
+
+    def _param_set_uvec2(self, const char *key, value):
+        cdef unsigned[2] uvec = value
+        return ngl_node_param_set_uvec2(self.ctx, key, uvec)
+
+    def _param_set_uvec3(self, const char *key, value):
+        cdef unsigned[3] uvec = value
+        return ngl_node_param_set_uvec3(self.ctx, key, uvec)
+
+    def _param_set_uvec4(self, const char *key, value):
+        cdef unsigned[4] uvec = value
+        return ngl_node_param_set_uvec4(self.ctx, key, uvec)
+
+    def _param_set_vec2(self, const char *key, value):
+        cdef float[2] vec = value
+        return ngl_node_param_set_vec2(self.ctx, key, vec)
+
+    def _param_set_vec3(self, const char *key, value):
+        cdef float[3] vec = value
+        return ngl_node_param_set_vec3(self.ctx, key, vec)
+
+    def _param_set_vec4(self, const char *key, value):
+        cdef float[4] vec = value
+        return ngl_node_param_set_vec4(self.ctx, key, vec)
+
+    def _param_add_nodes(self, const char *key, int nb_nodes, nodes):
+        nodes_c = <ngl_node **>calloc(nb_nodes, sizeof(ngl_node *))
+        if nodes_c is NULL:
+            raise MemoryError()
+        cdef int i
+        for i, node in enumerate(nodes):
+            nodes_c[i] = (<_Node>node).ctx
+        ret = ngl_node_param_add_nodes(self.ctx, key, nb_nodes, nodes_c)
+        free(nodes_c)
+        return ret
+
+    def _eval_f32(self, double t):
+        cdef float f32
+        ngl_anim_evaluate(self.ctx, &f32, t)
+        return f32
+
+    def _eval_vec2(self, double t):
+        cdef float[2] vec
+        ngl_anim_evaluate(self.ctx, vec, t)
+        return (vec[0], vec[1])
+
+    def _eval_vec3(self, double t):
+        cdef float[3] vec
+        ngl_anim_evaluate(self.ctx, vec, t)
+        return (vec[0], vec[1], vec[2])
+
+    def _eval_vec4(self, double t):
+        cdef float[4] vec
+        ngl_anim_evaluate(self.ctx, vec, t)
+        return (vec[0], vec[1], vec[2], vec[3])
+
+    def _param_add_f64s(self, const char *key, int nb_f64s, f64s):
+        f64s_c = <double *>calloc(nb_f64s, sizeof(double))
+        if f64s_c is NULL:
+            raise MemoryError()
+        cdef int i
+        for i, f64 in enumerate(f64s):
+            f64s_c[i] = f64
+        ret = ngl_node_param_add_f64s(self.ctx, key, nb_f64s, f64s_c)
+        free(f64s_c)
+        return ret
+
+
 _ANIM_EVALUATE, _ANIM_DERIVATE, _ANIM_SOLVE = range(3)
 
 
@@ -243,13 +389,6 @@ def easing_derivate(name, t, args=None, offsets=None):
 
 def easing_solve(name, v, args=None, offsets=None):
     return _animate(name, v, args, offsets, _ANIM_SOLVE)
-
-
-cdef _set_node_ctx(_Node node, int type):
-    assert node.ctx is NULL
-    node.ctx = ngl_node_create(type)
-    if node.ctx is NULL:
-        raise MemoryError()
 
 
 _PROBE_MODE_FULL = 0
