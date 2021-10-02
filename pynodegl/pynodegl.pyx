@@ -41,9 +41,8 @@ cdef extern from "nodegl.h":
     ngl_node *ngl_node_create(int type)
     ngl_node *ngl_node_ref(ngl_node *node)
     void ngl_node_unrefp(ngl_node **nodep)
-
-    int ngl_node_param_add(ngl_node *node, const char *key,
-                           int nb_elems, void *elems)
+    int ngl_node_param_add_nodes(ngl_node *node, const char *key, int nb_nodes, ngl_node **nodes)
+    int ngl_node_param_add_f64s(ngl_node *node, const char *key, int nb_f64s, double *f64s)
     int ngl_node_param_set_bool(ngl_node *node, const char *key, int value)
     int ngl_node_param_set_data(ngl_node *node, const char *key, int size, const void *data)
     int ngl_node_param_set_dict(ngl_node *node, const char *key, const char *name, ngl_node *value)

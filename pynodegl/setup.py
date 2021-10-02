@@ -195,9 +195,11 @@ cdef class _Node:
                     if field_type == 'node_list':
                         cfield = '(<_Node>item).ctx'
                         citem_type = 'ngl_node *'
+                        add_func = 'ngl_node_param_add_nodes'
                     else:
                         cfield = f'<double>item'
                         citem_type = 'double'
+                        add_func = 'ngl_node_param_add_f64s'
                     class_str += f'''
     def _add_{field_type.lower()}(self, field_name, *elems):
         if hasattr(elems[0], '__iter__'):
@@ -211,7 +213,7 @@ cdef class _Node:
         cdef int i
         for i, item in enumerate(elems):
             elems_c[i] = {cfield}
-        ret = ngl_node_param_add(self.ctx, field_name, nb_elems, elems_c)
+        ret = {add_func}(self.ctx, field_name, nb_elems, elems_c)
         free(elems_c)
         return ret
 '''
