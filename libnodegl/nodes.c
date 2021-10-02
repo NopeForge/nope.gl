@@ -620,6 +620,18 @@ int ngl_node_param_add(struct ngl_node *node, const char *key,
     return ret;
 }
 
+int ngl_node_param_add_nodes(struct ngl_node *node, const char *key,
+                             int nb_nodes, struct ngl_node **nodes)
+{
+    return ngl_node_param_add(node, key, nb_nodes, nodes);
+}
+
+int ngl_node_param_add_f64s(struct ngl_node *node, const char *key,
+                            int nb_f64s, double *f64s)
+{
+    return ngl_node_param_add(node, key, nb_f64s, f64s);
+}
+
 static int node_invalidate_branch(struct ngl_node *node)
 {
     node->last_update_time = -1;

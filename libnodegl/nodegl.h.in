@@ -329,6 +329,34 @@ NGL_API int ngl_node_param_add(struct ngl_node *node, const char *key,
                                int nb_elems, void *elems);
 
 /**
+ * Add nodes to a list-based parameter of an allocated node.
+ *
+ * The reference counter of the passed nodes will be incremented.
+ *
+ * @param node      pointer to the target node
+ * @param key       string identifying the parameter
+ * @param nb_nodes  number of nodes to append
+ * @param nodes     pointer to an array of nodes
+ *
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
+ */
+NGL_API int ngl_node_param_add_nodes(struct ngl_node *node, const char *key,
+                                     int nb_nodes, struct ngl_node **nodes);
+
+/**
+ * Add double precision floats to a list-based parameter of an allocated node.
+ *
+ * @param node      pointer to the target node
+ * @param key       string identifying the parameter
+ * @param nb_f64s   number of doubles to append
+ * @param f64s      pointer to an array of doubles
+ *
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
+ */
+NGL_API int ngl_node_param_add_f64s(struct ngl_node *node, const char *key,
+                                    int nb_f64s, double *f64s);
+
+/**
  * Set a parameter value of an allocated node.
  *
  * If the type of the parameter is node based, the reference counter of the
