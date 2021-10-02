@@ -313,22 +313,6 @@ NGL_API struct ngl_node *ngl_node_ref(struct ngl_node *node);
 NGL_API void ngl_node_unrefp(struct ngl_node **nodep);
 
 /**
- * Add entries to a list-based parameter of an allocated node.
- *
- * If the type of the parameter is node based, the reference counter of the
- * passed nodes will be incremented.
- *
- * @param node      pointer to the target node
- * @param key       string identifying the parameter
- * @param nb_elems  number of elements to append
- * @param elems     pointer to an array of values in parameter type
- *
- * @return 0 on success, NGL_ERROR_* (< 0) on error
- */
-NGL_API int ngl_node_param_add(struct ngl_node *node, const char *key,
-                               int nb_elems, void *elems);
-
-/**
  * Add nodes to a list-based parameter of an allocated node.
  *
  * The reference counter of the passed nodes will be incremented.

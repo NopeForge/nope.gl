@@ -592,8 +592,7 @@ const struct node_param *ngli_node_param_find(const struct ngl_node *node, const
     return par;
 }
 
-int ngl_node_param_add(struct ngl_node *node, const char *key,
-                       int nb_elems, void *elems)
+static int param_add(struct ngl_node *node, const char *key, int nb_elems, void *elems)
 {
     int ret = 0;
 
@@ -622,13 +621,13 @@ int ngl_node_param_add(struct ngl_node *node, const char *key,
 int ngl_node_param_add_nodes(struct ngl_node *node, const char *key,
                              int nb_nodes, struct ngl_node **nodes)
 {
-    return ngl_node_param_add(node, key, nb_nodes, nodes);
+    return param_add(node, key, nb_nodes, nodes);
 }
 
 int ngl_node_param_add_f64s(struct ngl_node *node, const char *key,
                             int nb_f64s, double *f64s)
 {
-    return ngl_node_param_add(node, key, nb_f64s, f64s);
+    return param_add(node, key, nb_f64s, f64s);
 }
 
 static int node_invalidate_branch(struct ngl_node *node)
