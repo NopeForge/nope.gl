@@ -360,7 +360,6 @@ Scale:
     - [child, node]
     - [factors, vec3]
     - [anchor, vec3]
-    - [anim, node]
 
 Skew:
     - [child, node]

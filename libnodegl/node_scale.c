@@ -22,7 +22,6 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include "log.h"
 #include "nodegl.h"
 #include "internal.h"
 #include "math_utils.h"
@@ -30,9 +29,9 @@
 
 struct scale_priv {
     struct transform_priv trf;
+    struct ngl_node *factors_node;
     float factors[3];
     float anchor[3];
-    struct ngl_node *anim;
     int use_anchor;
 };
 
@@ -59,7 +58,7 @@ static int scale_init(struct ngl_node *node)
     struct scale_priv *s = node->priv_data;
     static const float zero_anchor[3];
     s->use_anchor = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
-    if (!s->anim)
+    if (!s->factors_node)
         update_trf_matrix(node, s->factors);
     return 0;
 }
@@ -67,10 +66,6 @@ static int scale_init(struct ngl_node *node)
 static int update_factors(struct ngl_node *node)
 {
     struct scale_priv *s = node->priv_data;
-    if (s->anim) {
-        LOG(ERROR, "updating factors while the animation is set is unsupported");
-        return NGL_ERROR_INVALID_USAGE;
-    }
     update_trf_matrix(node, s->factors);
     return 0;
 }
@@ -80,13 +75,12 @@ static int scale_update(struct ngl_node *node, double t)
     struct scale_priv *s = node->priv_data;
     struct transform_priv *trf = &s->trf;
     struct ngl_node *child = trf->child;
-    if (s->anim) {
-        struct ngl_node *anim_node = s->anim;
-        struct variable_priv *anim = anim_node->priv_data;
-        int ret = ngli_node_update(anim_node, t);
+    if (s->factors_node) {
+        int ret = ngli_node_update(s->factors_node, t);
         if (ret < 0)
             return ret;
-        update_trf_matrix(node, anim->vector);
+        struct variable_priv *factors = s->factors_node->priv_data;
+        update_trf_matrix(node, factors->vector);
     }
     return ngli_node_update(child, t);
 }
@@ -96,16 +90,13 @@ static const struct node_param scale_params[] = {
     {"child",   NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
                 .flags=NGLI_PARAM_FLAG_NON_NULL,
                 .desc=NGLI_DOCSTRING("scene to scale")},
-    {"factors", NGLI_PARAM_TYPE_VEC3, OFFSET(factors),
+    {"factors", NGLI_PARAM_TYPE_VEC3, OFFSET(factors_node),
                 {.vec={1.0, 1.0, 1.0}},
-                .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                 .update_func=update_factors,
                 .desc=NGLI_DOCSTRING("scaling factors (how much to scale on each axis)")},
     {"anchor",  NGLI_PARAM_TYPE_VEC3, OFFSET(anchor),
                 .desc=NGLI_DOCSTRING("vector to the center point of the scale")},
-    {"anim",    NGLI_PARAM_TYPE_NODE, OFFSET(anim),
-                .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, NGL_NODE_STREAMEDVEC3, -1},
-                .desc=NGLI_DOCSTRING("`factors` animation")},
     {NULL}
 };
 

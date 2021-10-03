@@ -149,7 +149,7 @@ def transform_scale_animated(cfg, factors=(0.7, 1.4, 0)):
         ngl.AnimKeyFrameVec3(cfg.duration / 2., factors),
         ngl.AnimKeyFrameVec3(cfg.duration, (0, 0, 0)),
     ]
-    return ngl.Scale(shape, anim=ngl.AnimatedVec3(anim))
+    return ngl.Scale(shape, factors=ngl.AnimatedVec3(anim))
 
 
 @test_fingerprint()
@@ -164,7 +164,7 @@ def transform_scale_anchor_animated(cfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0.
         ngl.AnimKeyFrameVec3(cfg.duration / 2., factors),
         ngl.AnimKeyFrameVec3(cfg.duration, (0, 0, 0)),
     ]
-    return ngl.Scale(shape, anim=ngl.AnimatedVec3(anim), anchor=anchor)
+    return ngl.Scale(shape, factors=ngl.AnimatedVec3(anim), anchor=anchor)
 
 
 @test_fingerprint()

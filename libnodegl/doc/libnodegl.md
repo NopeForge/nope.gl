@@ -583,7 +583,6 @@ Parameter | Live-chg. | Type | Description | Default
 `child` |  | [`node`](#parameter-types) | scene to scale | 
 `factors` | ✓ | [`vec3`](#parameter-types) | scaling factors (how much to scale on each axis) | (`1`,`1`,`1`)
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the scale | (`0`,`0`,`0`)
-`anim` |  | [`node`](#parameter-types) ([AnimatedVec3](#animatedvec3), [StreamedVec3](#streamedvec3)) | `factors` animation | 
 
 
 **Source**: [node_scale.c](/libnodegl/node_scale.c)

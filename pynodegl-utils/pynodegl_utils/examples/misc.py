@@ -364,7 +364,7 @@ def blending_and_stencil(cfg):
         animkf = (ngl.AnimKeyFrameVec3(0,            (factor,       factor,       0)),
                   ngl.AnimKeyFrameVec3(keyframe,     (factor + 0.1, factor + 0.1, 0)),
                   ngl.AnimKeyFrameVec3(cfg.duration, (factor,       factor,       0)))
-        scale = ngl.Scale(render, anim=ngl.AnimatedVec3(animkf))
+        scale = ngl.Scale(render, factors=ngl.AnimatedVec3(animkf))
 
         translate = ngl.Translate(scale, vector=(center[0], center[1], 0))
         cloud_group.add_children(translate)

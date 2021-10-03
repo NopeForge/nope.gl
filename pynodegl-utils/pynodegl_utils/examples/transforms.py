@@ -30,7 +30,7 @@ def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, transla
         animkf = (ngl.AnimKeyFrameVec3(0,              (1, 1, 1)),
                   ngl.AnimKeyFrameVec3(cfg.duration/2, (2, 2, 2)),
                   ngl.AnimKeyFrameVec3(cfg.duration,   (1, 1, 1)))
-        node = ngl.Scale(node, anim=ngl.AnimatedVec3(animkf))
+        node = ngl.Scale(node, factors=ngl.AnimatedVec3(animkf))
 
     if translate:
         animkf = []
@@ -60,7 +60,7 @@ def animated_uniform(cfg):
 
     scale_animkf = [ngl.AnimKeyFrameVec3(0, (1, 1, 1)),
                     ngl.AnimKeyFrameVec3(cfg.duration, (0.1, 0.1, 0.1), 'quartic_out')]
-    s = ngl.Scale(ngl.Identity(), anim=ngl.AnimatedVec3(scale_animkf))
+    s = ngl.Scale(ngl.Identity(), factors=ngl.AnimatedVec3(scale_animkf))
 
     rotate_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                      ngl.AnimKeyFrameFloat(cfg.duration, 360, 'exp_out')]
@@ -180,7 +180,7 @@ def animated_circles(cfg):
         ]
 
         tnode = render
-        tnode = ngl.Scale(tnode, anim=ngl.AnimatedVec3(scale_animkf))
+        tnode = ngl.Scale(tnode, factors=ngl.AnimatedVec3(scale_animkf))
         tnode = ngl.Translate(tnode, vector=(1 - radius, 0, 0))
         tnode = ngl.Rotate(tnode, anim=ngl.AnimatedFloat(rotate_animkf))
 
