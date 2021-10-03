@@ -104,7 +104,7 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
         ngl.AnimKeyFrameVec3(cfg.duration, (value_x, value_y + normed_graph_size, 0), easing_name, easing_args),
     )
     value_anim = ngl.Group(children=(hline, cursor))
-    value_anim = ngl.Translate(value_anim, anim=ngl.AnimatedVec3(value_animkf), label='%s value anim' % easing)
+    value_anim = ngl.Translate(value_anim, vector=ngl.AnimatedVec3(value_animkf), label='%s value anim' % easing)
 
     # Vertical time line
     vline_data = array.array('f', (0, 0, 0, 0, graph_size, 0))
@@ -120,7 +120,7 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
         ngl.AnimKeyFrameVec3(0, (time_x, time_y, 0)),
         ngl.AnimKeyFrameVec3(cfg.duration, (time_x + normed_graph_size, time_y, 0))
     )
-    time_anim = ngl.Translate(vline, anim=ngl.AnimatedVec3(time_animkf), label='%s time anim' % easing)
+    time_anim = ngl.Translate(vline, vector=ngl.AnimatedVec3(time_animkf), label='%s time anim' % easing)
 
     group = ngl.Group(label='%s block' % easing)
     group.add_children(text, graph_block, normed_graph_block, curve, value_anim, time_anim)

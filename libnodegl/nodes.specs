@@ -448,7 +448,6 @@ Transform:
 Translate:
     - [child, node]
     - [vector, vec3]
-    - [anim, node]
 
 Triangle:
     - [edge0, vec3]

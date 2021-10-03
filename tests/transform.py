@@ -82,7 +82,7 @@ def transform_animated_camera(cfg):
 
     tr_animkf = [ngl.AnimKeyFrameVec3(0,  (0.0, 0.0, 0.0)),
                  ngl.AnimKeyFrameVec3(cfg.duration, (0.0, 0.0, 3.0))]
-    eye_transform = ngl.Translate(ngl.Identity(), anim=ngl.AnimatedVec3(tr_animkf))
+    eye_transform = ngl.Translate(ngl.Identity(), vector=ngl.AnimatedVec3(tr_animkf))
 
     rot_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                   ngl.AnimKeyFrameFloat(cfg.duration, 360)]
@@ -118,7 +118,7 @@ def transform_translate_animated(cfg):
         ngl.AnimKeyFrameVec3(cfg.duration, p0),
     ]
     shape = _transform_shape(cfg)
-    return ngl.Translate(shape, anim=ngl.AnimatedVec3(anim))
+    return ngl.Translate(shape, vector=ngl.AnimatedVec3(anim))
 
 
 @test_fingerprint()
@@ -269,7 +269,7 @@ def transform_path(cfg):
         ngl.AnimKeyFrameFloat(cfg.duration - 1, 1, 'back_in_out'),
     ]
 
-    return ngl.Translate(shape, anim=ngl.AnimatedPath(anim_kf, path))
+    return ngl.Translate(shape, vector=ngl.AnimatedPath(anim_kf, path))
 
 
 @test_fingerprint(nb_keyframes=15)
@@ -306,4 +306,4 @@ def transform_smoothpath(cfg):
         ngl.AnimKeyFrameFloat(cfg.duration, 1, 'exp_in_out'),
     ]
 
-    return ngl.Translate(shape, anim=ngl.AnimatedPath(anim_kf, path))
+    return ngl.Translate(shape, vector=ngl.AnimatedPath(anim_kf, path))

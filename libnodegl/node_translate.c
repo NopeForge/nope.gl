@@ -21,7 +21,6 @@
 
 #include <stddef.h>
 #include <stdio.h>
-#include "log.h"
 #include "nodegl.h"
 #include "internal.h"
 #include "math_utils.h"
@@ -29,8 +28,8 @@
 
 struct translate_priv {
     struct transform_priv trf;
+    struct ngl_node *vector_node;
     float vector[3];
-    struct ngl_node *anim;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *vec)
@@ -43,10 +42,6 @@ static void update_trf_matrix(struct ngl_node *node, const float *vec)
 static int update_vector(struct ngl_node *node)
 {
     struct translate_priv *s = node->priv_data;
-    if (s->anim) {
-        LOG(ERROR, "updating vector while the animation is set is unsupported");
-        return NGL_ERROR_INVALID_USAGE;
-    }
     update_trf_matrix(node, s->vector);
     return 0;
 }
@@ -54,7 +49,7 @@ static int update_vector(struct ngl_node *node)
 static int translate_init(struct ngl_node *node)
 {
     struct translate_priv *s = node->priv_data;
-    if (!s->anim)
+    if (!s->vector_node)
         update_trf_matrix(node, s->vector);
     return 0;
 }
@@ -64,13 +59,12 @@ static int translate_update(struct ngl_node *node, double t)
     struct translate_priv *s = node->priv_data;
     struct transform_priv *trf = &s->trf;
     struct ngl_node *child = trf->child;
-    if (s->anim) {
-        struct ngl_node *anim_node = s->anim;
-        struct variable_priv *anim = anim_node->priv_data;
-        int ret = ngli_node_update(anim_node, t);
+    if (s->vector_node) {
+        int ret = ngli_node_update(s->vector_node, t);
         if (ret < 0)
             return ret;
-        update_trf_matrix(node, anim->vector);
+        struct variable_priv *vector = s->vector_node->priv_data;
+        update_trf_matrix(node, vector->vector);
     }
     return ngli_node_update(child, t);
 }
@@ -80,13 +74,10 @@ static const struct node_param translate_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to translate")},
-    {"vector", NGLI_PARAM_TYPE_VEC3, OFFSET(vector),
-               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+    {"vector", NGLI_PARAM_TYPE_VEC3, OFFSET(vector_node),
+               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                .update_func=update_vector,
                .desc=NGLI_DOCSTRING("translation vector")},
-    {"anim",   NGLI_PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDVEC3, NGL_NODE_STREAMEDVEC3, NGL_NODE_ANIMATEDPATH, -1},
-               .desc=NGLI_DOCSTRING("`vector` animation")},
     {NULL}
 };
 

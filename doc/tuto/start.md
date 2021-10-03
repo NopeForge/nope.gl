@@ -272,7 +272,7 @@ And create the translation with our previous `Render` as child:
                         ngl.AnimKeyFrameVec3(cfg.duration/2., (1, 0, 0)),
                         ngl.AnimKeyFrameVec3(cfg.duration, (-1, 0, 0))]
     translate_anim = ngl.AnimatedVec3(keyframes=translate_animkf)
-    translate = ngl.Translate(render, anim=translate_anim)
+    translate = ngl.Translate(render, vector=translate_anim)
     return translate
 ```
 
@@ -329,7 +329,7 @@ def test_demo(cfg, color=(1,0,0,1)):
                         ngl.AnimKeyFrameVec3(cfg.duration/2., (1, 0, 0)),
                         ngl.AnimKeyFrameVec3(cfg.duration, (-1, 0, 0))]
     translate_anim = ngl.AnimatedVec3(keyframes=translate_animkf)
-    translate = ngl.Translate(render, anim=translate_anim)
+    translate = ngl.Translate(render, vector=translate_anim)
 
     return translate
 ```

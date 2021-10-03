@@ -39,7 +39,7 @@ def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, transla
             pos = (xy[0] * .5, xy[1] * .5, 0)
             t = i * tscale
             animkf.append(ngl.AnimKeyFrameVec3(t, pos))
-        node = ngl.Translate(node, anim=ngl.AnimatedVec3(animkf))
+        node = ngl.Translate(node, vector=ngl.AnimatedVec3(animkf))
 
     return node
 
@@ -107,7 +107,7 @@ def animated_camera(cfg, rotate=True):
 
     tr_animkf = [ngl.AnimKeyFrameVec3(0,  (0.0, 0.0, 0.0)),
                  ngl.AnimKeyFrameVec3(10, (0.0, 0.0, 3.0), 'exp_out')]
-    node = ngl.Translate(ngl.Identity(), anim=ngl.AnimatedVec3(tr_animkf))
+    node = ngl.Translate(ngl.Identity(), vector=ngl.AnimatedVec3(tr_animkf))
 
     if rotate:
         rot_animkf = [ngl.AnimKeyFrameFloat(0, 0),

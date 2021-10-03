@@ -758,7 +758,6 @@ Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
 `child` |  | [`node`](#parameter-types) | scene to translate | 
 `vector` | ✓ | [`vec3`](#parameter-types) | translation vector | (`0`,`0`,`0`)
-`anim` |  | [`node`](#parameter-types) ([AnimatedVec3](#animatedvec3), [StreamedVec3](#streamedvec3), [AnimatedPath](#animatedpath)) | `vector` animation | 
 
 
 **Source**: [node_translate.c](/libnodegl/node_translate.c)

@@ -39,7 +39,7 @@ def _path_scene(cfg, path, points=None, controls=None, easing='linear'):
     shape = ngl.Render(geom, prog)
     shape.update_frag_resources(color=ngl.UniformVec4(value=COLORS.orange))
 
-    moving_shape = ngl.Translate(shape, anim=ngl.AnimatedPath(anim_kf, path))
+    moving_shape = ngl.Translate(shape, vector=ngl.AnimatedPath(anim_kf, path))
 
     objects = []
 
