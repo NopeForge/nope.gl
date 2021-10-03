@@ -51,7 +51,7 @@ void main()
     prog_t = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     triangle = ngl.Render(ngl.Triangle(p0, p1, p2), prog_t)
     triangle.update_frag_resources(color=ngl.UniformVec4(COLORS.white))
-    triangle = ngl.Rotate(triangle, anim=anim)
+    triangle = ngl.Rotate(triangle, angle=anim)
 
     prog_c = ngl.Program(vertex=cfg.get_vert('color'), fragment=frag)
     circle = ngl.Render(ngl.Circle(radius=1.0, npoints=128), prog_c)

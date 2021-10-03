@@ -119,7 +119,7 @@ def _get_rtt_scene(cfg, features='depth', texture_ds_format=None, samples=0, mip
             ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))
         ])
         axis = [int(i == x) for x in range(3)]
-        render = ngl.Rotate(render, axis=axis, anim=rot_animkf)
+        render = ngl.Rotate(render, axis=axis, angle=rot_animkf)
 
     config = ngl.GraphicConfig(render, depth_test=True)
 
@@ -267,7 +267,7 @@ def rtt_clear_attachment_with_timeranges(cfg):
     render = ngl.Render(quad, program)
     render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.orange))
     animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, -360)]
-    render = ngl.Rotate(render, anim=ngl.AnimatedFloat(animkf))
+    render = ngl.Rotate(render, angle=ngl.AnimatedFloat(animkf))
 
     group = ngl.Group(children=(time_range_filter, rtt_noop, render))
 

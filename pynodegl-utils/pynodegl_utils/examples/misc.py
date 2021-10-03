@@ -109,7 +109,7 @@ def triangle(cfg, size=4/3):
               ngl.AnimKeyFrameFloat(  cfg.duration/3.,   -360/3., 'exp_in_out'),
               ngl.AnimKeyFrameFloat(2*cfg.duration/3., -2*360/3., 'exp_in_out'),
               ngl.AnimKeyFrameFloat(  cfg.duration,      -360,    'exp_in_out')]
-    node = ngl.Rotate(node, anim=ngl.AnimatedFloat(animkf))
+    node = ngl.Rotate(node, angle=ngl.AnimatedFloat(animkf))
     return node
 
 
@@ -144,7 +144,7 @@ def fibo(cfg, n=8):
         animkf = [ngl.AnimKeyFrameFloat(0,               90),
                   ngl.AnimKeyFrameFloat(cfg.duration/2, -90, 'exp_in_out'),
                   ngl.AnimKeyFrameFloat(cfg.duration,    90, 'exp_in_out')]
-        rot = ngl.Rotate(new_g, anchor=orig, anim=ngl.AnimatedFloat(animkf))
+        rot = ngl.Rotate(new_g, anchor=orig, angle=ngl.AnimatedFloat(animkf))
         if g:
             g.add_children(rot)
         else:
@@ -434,7 +434,7 @@ def cube(cfg, display_depth_buffer=False):
         rot_animkf = ngl.AnimatedFloat([ngl.AnimKeyFrameFloat(0,            0),
                                         ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
         axis = [int(i == x) for x in range(3)]
-        cube = ngl.Rotate(cube, axis=axis, anim=rot_animkf)
+        cube = ngl.Rotate(cube, axis=axis, angle=rot_animkf)
 
     config = ngl.GraphicConfig(cube, depth_test=True)
 

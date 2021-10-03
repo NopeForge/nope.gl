@@ -24,7 +24,7 @@ def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, transla
     if rotate:
         animkf = (ngl.AnimKeyFrameFloat(0,            0),
                   ngl.AnimKeyFrameFloat(cfg.duration, 360))
-        node = ngl.Rotate(node, anim=ngl.AnimatedFloat(animkf))
+        node = ngl.Rotate(node, angle=ngl.AnimatedFloat(animkf))
 
     if scale:
         animkf = (ngl.AnimKeyFrameVec3(0,              (1, 1, 1)),
@@ -64,7 +64,7 @@ def animated_uniform(cfg):
 
     rotate_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                      ngl.AnimKeyFrameFloat(cfg.duration, 360, 'exp_out')]
-    r = ngl.Rotate(s, axis=(0, 0, 1), anim=ngl.AnimatedFloat(rotate_animkf))
+    r = ngl.Rotate(s, axis=(0, 0, 1), angle=ngl.AnimatedFloat(rotate_animkf))
 
     u = ngl.UniformMat4(transform=r)
     ts.update_frag_resources(matrix=u)
@@ -112,7 +112,7 @@ def animated_camera(cfg, rotate=True):
     if rotate:
         rot_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                       ngl.AnimKeyFrameFloat(cfg.duration, 360, 'exp_out')]
-        node = ngl.Rotate(node, axis=(0, 1, 0), anim=ngl.AnimatedFloat(rot_animkf))
+        node = ngl.Rotate(node, axis=(0, 1, 0), angle=ngl.AnimatedFloat(rot_animkf))
 
     camera.set_eye_transform(node)
 
@@ -182,7 +182,7 @@ def animated_circles(cfg):
         tnode = render
         tnode = ngl.Scale(tnode, factors=ngl.AnimatedVec3(scale_animkf))
         tnode = ngl.Translate(tnode, vector=(1 - radius, 0, 0))
-        tnode = ngl.Rotate(tnode, anim=ngl.AnimatedFloat(rotate_animkf))
+        tnode = ngl.Rotate(tnode, angle=ngl.AnimatedFloat(rotate_animkf))
 
         group.add_children(tnode)
 

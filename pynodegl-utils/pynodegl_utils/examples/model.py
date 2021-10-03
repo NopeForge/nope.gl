@@ -89,7 +89,7 @@ def obj(cfg, n=0.5, model=None):
 
     animkf = [ngl.AnimKeyFrameFloat(0, 0),
               ngl.AnimKeyFrameFloat(cfg.duration, 360*2)]
-    rot = ngl.Rotate(render, label='roty', axis=(0, 1, 0), anim=ngl.AnimatedFloat(animkf))
+    rot = ngl.Rotate(render, label='roty', axis=(0, 1, 0), angle=ngl.AnimatedFloat(animkf))
 
     camera = ngl.Camera(rot)
     camera.set_eye(2.0, 2.0, 2.0)
@@ -144,7 +144,7 @@ def stl(cfg, stl=None, scale=.8):
         rot_animkf = ngl.AnimatedFloat([ngl.AnimKeyFrameFloat(0, 0),
                                         ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))])
         axis = [int(i == x) for x in range(3)]
-        solid = ngl.Rotate(solid, axis=axis, anim=rot_animkf)
+        solid = ngl.Rotate(solid, axis=axis, angle=rot_animkf)
 
     camera = ngl.Camera(solid)
     camera.set_eye(2.0, 2.0, 2.0)

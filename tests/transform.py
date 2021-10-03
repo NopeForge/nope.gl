@@ -86,7 +86,7 @@ def transform_animated_camera(cfg):
 
     rot_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                   ngl.AnimKeyFrameFloat(cfg.duration, 360)]
-    eye_transform = ngl.Rotate(eye_transform, axis=(0, 1, 0), anim=ngl.AnimatedFloat(rot_animkf))
+    eye_transform = ngl.Rotate(eye_transform, axis=(0, 1, 0), angle=ngl.AnimatedFloat(rot_animkf))
 
     camera.set_eye_transform(eye_transform)
 

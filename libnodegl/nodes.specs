@@ -348,7 +348,6 @@ Rotate:
     - [angle, f32]
     - [axis, vec3]
     - [anchor, vec3]
-    - [anim, node]
 
 RotateQuat:
     - [child, node]

@@ -557,7 +557,6 @@ Parameter | Live-chg. | Type | Description | Default
 `angle` | ✓ | [`f32`](#parameter-types) | rotation angle in degrees | `0`
 `axis` |  | [`vec3`](#parameter-types) | rotation axis | (`0`,`0`,`1`)
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
-`anim` |  | [`node`](#parameter-types) ([AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat)) | `angle` animation | 
 
 
 **Source**: [node_rotate.c](/libnodegl/node_rotate.c)

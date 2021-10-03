@@ -272,7 +272,7 @@ def _compute_animation(cfg, animate_pre_render=True):
 
     rotate_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                      ngl.AnimKeyFrameFloat(cfg.duration, 360)]
-    rotate = ngl.Rotate(ngl.Identity(), axis=(0, 0, 1), anim=ngl.AnimatedFloat(rotate_animkf))
+    rotate = ngl.Rotate(ngl.Identity(), axis=(0, 0, 1), angle=ngl.AnimatedFloat(rotate_animkf))
     transform = ngl.UniformMat4(transform=rotate)
 
     program = ngl.ComputeProgram(_ANIMATION_COMPUTE, workgroup_size=(local_size, local_size, 1))

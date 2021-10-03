@@ -31,11 +31,11 @@
 
 struct rotate_priv {
     struct transform_priv trf;
+    struct ngl_node *angle_node;
     float angle;
     float axis[3];
     float normed_axis[3];
     float anchor[3];
-    struct ngl_node *anim;
     int use_anchor;
 };
 
@@ -68,7 +68,7 @@ static int rotate_init(struct ngl_node *node)
     }
     s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
     ngli_vec3_norm(s->normed_axis, s->axis);
-    if (!s->anim)
+    if (!s->angle_node)
         update_trf_matrix(node, s->angle);
     return 0;
 }
@@ -76,10 +76,6 @@ static int rotate_init(struct ngl_node *node)
 static int update_angle(struct ngl_node *node)
 {
     struct rotate_priv *s = node->priv_data;
-    if (s->anim) {
-        LOG(ERROR, "updating angle while the animation is set is unsupported");
-        return NGL_ERROR_INVALID_USAGE;
-    }
     update_trf_matrix(node, s->angle);
     return 0;
 }
@@ -89,13 +85,12 @@ static int rotate_update(struct ngl_node *node, double t)
     struct rotate_priv *s = node->priv_data;
     struct transform_priv *trf = &s->trf;
     struct ngl_node *child = trf->child;
-    if (s->anim) {
-        struct ngl_node *anim_node = s->anim;
-        struct variable_priv *anim = anim_node->priv_data;
-        int ret = ngli_node_update(anim_node, t);
+    if (s->angle_node) {
+        int ret = ngli_node_update(s->angle_node, t);
         if (ret < 0)
             return ret;
-        update_trf_matrix(node, *(float *)anim->data);
+        struct variable_priv *angle = s->angle_node->priv_data;
+        update_trf_matrix(node, *(float *)angle->data);
     }
     return ngli_node_update(child, t);
 }
@@ -105,17 +100,14 @@ static const struct node_param rotate_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to rotate")},
-    {"angle",  NGLI_PARAM_TYPE_F32,  OFFSET(angle),
-               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+    {"angle",  NGLI_PARAM_TYPE_F32,  OFFSET(angle_node),
+               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                .update_func=update_angle,
                .desc=NGLI_DOCSTRING("rotation angle in degrees")},
     {"axis",   NGLI_PARAM_TYPE_VEC3, OFFSET(axis),   {.vec={0.0, 0.0, 1.0}},
                .desc=NGLI_DOCSTRING("rotation axis")},
     {"anchor", NGLI_PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}},
                .desc=NGLI_DOCSTRING("vector to the center point of the rotation")},
-    {"anim",   NGLI_PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, NGL_NODE_STREAMEDFLOAT, -1},
-               .desc=NGLI_DOCSTRING("`angle` animation")},
     {NULL}
 };
 
