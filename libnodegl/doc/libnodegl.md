@@ -594,7 +594,6 @@ Parameter | Live-chg. | Type | Description | Default
 `angles` | ✓ | [`vec3`](#parameter-types) | skewing angles, only components forming a plane opposite to `axis` should be set | (`0`,`0`,`0`)
 `axis` |  | [`vec3`](#parameter-types) | skew axis | (`1`,`0`,`0`)
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the skew | (`0`,`0`,`0`)
-`anim` |  | [`node`](#parameter-types) ([AnimatedVec3](#animatedvec3), [StreamedVec3](#streamedvec3)) | `angles` animation | 
 
 
 **Source**: [node_skew.c](/libnodegl/node_skew.c)

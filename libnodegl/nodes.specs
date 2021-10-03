@@ -364,7 +364,6 @@ Skew:
     - [angles, vec3]
     - [axis, vec3]
     - [anchor, vec3]
-    - [anim, node]
 
 SmoothPath:
     - [points, node]

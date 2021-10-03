@@ -188,7 +188,7 @@ def transform_skew_animated(cfg, angles=(0, -60, 14), axis=(1, 0, 0), anchor=(0,
         ngl.AnimKeyFrameVec3(cfg.duration / 2., angles),
         ngl.AnimKeyFrameVec3(cfg.duration, (0, 0, 0)),
     ]
-    return ngl.Skew(shape, anim=ngl.AnimatedVec3(anim), axis=axis, anchor=anchor)
+    return ngl.Skew(shape, angles=ngl.AnimatedVec3(anim), axis=axis, anchor=anchor)
 
 
 @test_fingerprint()
