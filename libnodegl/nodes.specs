@@ -353,7 +353,6 @@ RotateQuat:
     - [child, node]
     - [quat, vec4]
     - [anchor, vec3]
-    - [anim, node]
 
 Scale:
     - [child, node]

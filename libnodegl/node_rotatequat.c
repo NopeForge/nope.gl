@@ -23,7 +23,6 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include "log.h"
 #include "nodegl.h"
 #include "internal.h"
 #include "math_utils.h"
@@ -31,9 +30,9 @@
 
 struct rotatequat_priv {
     struct transform_priv trf;
+    struct ngl_node *quat_node;
     float quat[4];
     float anchor[3];
-    struct ngl_node *anim;
     int use_anchor;
 };
 
@@ -60,7 +59,7 @@ static int rotatequat_init(struct ngl_node *node)
     struct rotatequat_priv *s = node->priv_data;
     static const float zvec[3];
     s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
-    if (!s->anim)
+    if (!s->quat_node)
         update_trf_matrix(node, s->quat);
     return 0;
 }
@@ -68,10 +67,6 @@ static int rotatequat_init(struct ngl_node *node)
 static int update_quat(struct ngl_node *node)
 {
     struct rotatequat_priv *s = node->priv_data;
-    if (s->anim) {
-        LOG(ERROR, "updating quat while the animation is set is unsupported");
-        return NGL_ERROR_INVALID_USAGE;
-    }
     update_trf_matrix(node, s->quat);
     return 0;
 }
@@ -81,13 +76,12 @@ static int rotatequat_update(struct ngl_node *node, double t)
     struct rotatequat_priv *s = node->priv_data;
     struct transform_priv *trf = &s->trf;
     struct ngl_node *child = trf->child;
-    if (s->anim) {
-        struct ngl_node *anim_node = s->anim;
-        struct variable_priv *anim = anim_node->priv_data;
-        int ret = ngli_node_update(anim_node, t);
+    if (s->quat_node) {
+        int ret = ngli_node_update(s->quat_node, t);
         if (ret < 0)
             return ret;
-        update_trf_matrix(node, anim->vector);
+        struct variable_priv *quat = s->quat_node->priv_data;
+        update_trf_matrix(node, quat->vector);
     }
     return ngli_node_update(child, t);
 }
@@ -97,15 +91,12 @@ static const struct node_param rotatequat_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to rotate")},
-    {"quat",   NGLI_PARAM_TYPE_VEC4, OFFSET(quat), {.vec=NGLI_QUAT_IDENTITY},
-               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+    {"quat",   NGLI_PARAM_TYPE_VEC4, OFFSET(quat_node), {.vec=NGLI_QUAT_IDENTITY},
+               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                .update_func=update_quat,
                .desc=NGLI_DOCSTRING("quaternion")},
     {"anchor", NGLI_PARAM_TYPE_VEC3, OFFSET(anchor), {.vec={0.0, 0.0, 0.0}},
                .desc=NGLI_DOCSTRING("vector to the center point of the rotation")},
-    {"anim",   NGLI_PARAM_TYPE_NODE, OFFSET(anim),
-               .node_types=(const int[]){NGL_NODE_ANIMATEDQUAT, -1},
-               .desc=NGLI_DOCSTRING("`quat` animation")},
     {NULL}
 };
 

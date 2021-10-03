@@ -236,7 +236,7 @@ def transform_rotate_quat_animated(cfg, quat0=(0, 0, -0.474, 0.880), quat1=(0, 0
         ngl.AnimKeyFrameQuat(cfg.duration / 2., quat1),
         ngl.AnimKeyFrameQuat(cfg.duration, quat0),
     ]
-    return ngl.RotateQuat(shape, anim=ngl.AnimatedQuat(anim))
+    return ngl.RotateQuat(shape, quat=ngl.AnimatedQuat(anim))
 
 
 @test_fingerprint(nb_keyframes=15)

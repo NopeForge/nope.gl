@@ -569,7 +569,6 @@ Parameter | Live-chg. | Type | Description | Default
 `child` |  | [`node`](#parameter-types) | scene to rotate | 
 `quat` | ✓ | [`vec4`](#parameter-types) | quaternion | (`0`,`0`,`0`,`1`)
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
-`anim` |  | [`node`](#parameter-types) ([AnimatedQuat](#animatedquat)) | `quat` animation | 
 
 
 **Source**: [node_rotatequat.c](/libnodegl/node_rotatequat.c)
