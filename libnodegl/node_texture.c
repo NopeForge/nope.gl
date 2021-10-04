@@ -458,6 +458,7 @@ static int texture2d_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
+
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
     if (s->params.width  > max_dimension ||
         s->params.height > max_dimension) {
@@ -468,6 +469,7 @@ static int texture2d_init(struct ngl_node *node)
     s->params.type = NGLI_TEXTURE_TYPE_2D;
     s->params.format = get_preferred_format(gpu_ctx, s->format);
     s->supported_image_layouts = s->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
+
     return 0;
 }
 
