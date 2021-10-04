@@ -662,13 +662,14 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
         }
         last_offset = par->offset;
 
+        uint8_t *dstp = base_ptr + par->offset;
         int ret = 0;
         switch (par->type) {
             case NGLI_PARAM_TYPE_SELECT: {
                 const int v = (int)par->def_value.i64;
                 const char *s = ngli_params_get_select_str(par->choices->consts, v);
                 ngli_assert(s);
-                ret = ngli_params_vset(base_ptr, par, s);
+                ret = params_set_select(dstp, par, s);
                 break;
             }
             case NGLI_PARAM_TYPE_FLAGS: {
@@ -677,44 +678,60 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                 if (!s)
                     return NGL_ERROR_INVALID_ARG;
                 ngli_assert(*s);
-                ret = ngli_params_vset(base_ptr, par, s);
+                ret = params_set_flags(dstp, par, s);
                 ngli_free(s);
                 break;
             }
             case NGLI_PARAM_TYPE_BOOL:
+                ret = params_set_bool(dstp, par, par->def_value.i64);
+                break;
             case NGLI_PARAM_TYPE_I32:
+                ret = params_set_i32(dstp, par, par->def_value.i64);
+                break;
             case NGLI_PARAM_TYPE_U32:
-                ret = ngli_params_vset(base_ptr, par, par->def_value.i64);
+                ret = params_set_u32(dstp, par, par->def_value.i64);
                 break;
             case NGLI_PARAM_TYPE_F64:
-                ret = ngli_params_vset(base_ptr, par, par->def_value.dbl);
+                ret = params_set_f64(dstp, par, par->def_value.dbl);
                 break;
             case NGLI_PARAM_TYPE_STR:
-                ret = ngli_params_vset(base_ptr, par, par->def_value.str);
+                ret = params_set_str(dstp, par, par->def_value.str);
                 break;
             case NGLI_PARAM_TYPE_IVEC2:
+                ret = params_set_ivec2(dstp, par, par->def_value.ivec);
+                break;
             case NGLI_PARAM_TYPE_IVEC3:
+                ret = params_set_ivec3(dstp, par, par->def_value.ivec);
+                break;
             case NGLI_PARAM_TYPE_IVEC4:
-                ret = ngli_params_vset(base_ptr, par, par->def_value.ivec);
+                ret = params_set_ivec4(dstp, par, par->def_value.ivec);
                 break;
             case NGLI_PARAM_TYPE_UVEC2:
+                ret = params_set_uvec2(dstp, par, par->def_value.uvec);
+                break;
             case NGLI_PARAM_TYPE_UVEC3:
+                ret = params_set_uvec3(dstp, par, par->def_value.uvec);
+                break;
             case NGLI_PARAM_TYPE_UVEC4:
-                ret = ngli_params_vset(base_ptr, par, par->def_value.uvec);
+                ret = params_set_uvec4(dstp, par, par->def_value.uvec);
                 break;
             case NGLI_PARAM_TYPE_VEC2:
+                ret = params_set_vec2(dstp, par, par->def_value.vec);
+                break;
             case NGLI_PARAM_TYPE_VEC3:
+                ret = params_set_vec3(dstp, par, par->def_value.vec);
+                break;
             case NGLI_PARAM_TYPE_VEC4:
-                ret = ngli_params_vset(base_ptr, par, par->def_value.vec);
+                ret = params_set_vec4(dstp, par, par->def_value.vec);
                 break;
             case NGLI_PARAM_TYPE_MAT4:
-                ret = ngli_params_vset(base_ptr, par, par->def_value.mat);
+                ret = params_set_mat4(dstp, par, par->def_value.mat);
                 break;
             case NGLI_PARAM_TYPE_DATA:
-                ret = ngli_params_vset(base_ptr, par, 0, par->def_value.p);
+                ret = params_set_data(dstp, par, 0, NULL);
                 break;
             case NGLI_PARAM_TYPE_RATIONAL:
-                ret = ngli_params_vset(base_ptr, par, par->def_value.r[0], par->def_value.r[1]);
+                ret = params_set_rational(dstp, par, par->def_value.r[0], par->def_value.r[1]);
                 break;
         }
         if (ret < 0)
