@@ -196,5 +196,5 @@ def api_media_sharing_failure():
     ctx = ngl.Context()
     assert ctx.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
     m = ngl.Media('/dev/null')
-    scene = ngl.Group(children=(m, m))
+    scene = ngl.Group(children=(ngl.Texture2D(data_src=m), ngl.Texture2D(data_src=m)))
     assert _ret_to_fourcc(ctx.set_scene(scene)) == 'Eusg'  # Usage error

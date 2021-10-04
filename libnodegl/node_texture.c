@@ -470,6 +470,21 @@ static int texture2d_init(struct ngl_node *node)
     s->params.format = get_preferred_format(gpu_ctx, s->format);
     s->supported_image_layouts = s->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
 
+    /*
+     * On Android, the frame can only be uploaded once and each subsequent
+     * upload will be a noop which results in an empty texture. This limitation
+     * prevents us from sharing the Media node across multiple textures.
+     */
+    struct ngl_node *data_src = s->data_src;
+    if (data_src && data_src->cls->id == NGL_NODE_MEDIA) {
+        struct media_priv *media_priv = data_src->priv_data;
+        if (media_priv->nb_parents++ > 0) {
+            LOG(ERROR, "A media node (label=%s) can not be shared, "
+                "the Texture should be shared instead", data_src->label);
+            return NGL_ERROR_INVALID_USAGE;
+        }
+    }
+
     return 0;
 }
 

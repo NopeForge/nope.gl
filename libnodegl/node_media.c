@@ -213,21 +213,6 @@ static int media_init(struct ngl_node *node)
     return 0;
 }
 
-static int media_prepare(struct ngl_node *node)
-{
-    struct media_priv *s = node->priv_data;
-    if (s->nb_parents++) {
-        /*
-         * On Android, the frame can only be uploaded once and each subsequent
-         * upload will be a noop which results in an empty texture. This
-         * limitation prevents us from sharing the Media node.
-         */
-        LOG(ERROR, "Media nodes can not be shared, the Texture should be shared instead");
-        return NGL_ERROR_INVALID_USAGE;
-    }
-    return 0;
-}
-
 static int media_prefetch(struct ngl_node *node)
 {
     struct media_priv *s = node->priv_data;
@@ -324,7 +309,6 @@ const struct node_class ngli_media_class = {
     .id        = NGL_NODE_MEDIA,
     .name      = "Media",
     .init      = media_init,
-    .prepare   = media_prepare,
     .prefetch  = media_prefetch,
     .update    = media_update,
     .release   = media_release,
