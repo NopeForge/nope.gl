@@ -116,16 +116,16 @@ static struct ngl_node *get_scene(const char *filename)
     struct ngl_node *program = ngl_node_create(NGL_NODE_PROGRAM);
     struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDER);
 
-    ngl_node_param_set(media, "filename", filename);
-    ngl_node_param_set(texture, "data_src", media);
-    ngl_node_param_set(quad, "corner", corner);
-    ngl_node_param_set(quad, "width",  width);
-    ngl_node_param_set(quad, "height", height);
-    ngl_node_param_set(program, "vertex",   vertex);
-    ngl_node_param_set(program, "fragment", fragment);
-    ngl_node_param_set(render, "geometry", quad);
-    ngl_node_param_set(render, "program", program);
-    ngl_node_param_set(render, "textures", "tex0", texture);
+    ngl_node_param_set_str(media, "filename", filename);
+    ngl_node_param_set_data(texture, "data_src", media);
+    ngl_node_param_set_vec3(quad, "corner", corner);
+    ngl_node_param_set_vec3(quad, "width", width);
+    ngl_node_param_set_vec3(quad, "height", height);
+    ngl_node_param_set_str(program, "vertex", vertex);
+    ngl_node_param_set_str(program, "fragment", fragment);
+    ngl_node_param_set_node(render, "geometry", quad);
+    ngl_node_param_set_node(render, "program", program);
+    ngl_node_param_set_dict(render, "textures", "tex0", texture);
 
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);
@@ -139,25 +139,6 @@ static struct ngl_node *get_scene(const char *filename)
 reference counter is incremented because the parent holds a reference to its
 children.  As a result, you **must release your own references** using
 `ngl_node_unrefp()`.
-
-#### Node parameters
-
-Two functions exists to set node parameters:
-
-```c
-int ngl_node_param_add(struct ngl_node *node, const char *key,
-                       int nb_elems, void *elems);
-```
-
-```c
-int ngl_node_param_set(struct ngl_node *node, const char *key, ...);
-```
-
-The former is to be used for all list-based parameters (`NodeList` or
-`doubleList`), and the latter for all the others, even the `NodeDict`. In that
-particular case of `NodeDict`, the argument following `key` (identifying the
-parameter) is not the value but the key associated with the node (look for
-`tex0` in the `get_scene()` example above).
 
 ## Drawing
 
