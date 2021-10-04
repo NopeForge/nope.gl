@@ -86,28 +86,28 @@ static struct ngl_node *get_scene(const char *filename, int direct_rendering, in
     struct ngl_node *render         = ngl_node_create(NGL_NODE_RENDER);
     struct ngl_node *var_tex0_coord = ngl_node_create(NGL_NODE_IOVEC2);
 
-    ngl_node_param_set(media, "filename", filename);
-    ngl_node_param_set(media, "hwaccel", hwaccel ? "auto" : "disabled");
+    ngl_node_param_set_str(media, "filename", filename);
+    ngl_node_param_set_select(media, "hwaccel", hwaccel ? "auto" : "disabled");
 
-    ngl_node_param_set(quad, "corner", corner);
-    ngl_node_param_set(quad, "width", width);
-    ngl_node_param_set(quad, "height", height);
+    ngl_node_param_set_vec3(quad, "corner", corner);
+    ngl_node_param_set_vec3(quad, "width", width);
+    ngl_node_param_set_vec3(quad, "height", height);
 
-    ngl_node_param_set(texture, "data_src", media);
-    ngl_node_param_set(texture, "min_filter", "linear");
-    ngl_node_param_set(texture, "mag_filter", "linear");
+    ngl_node_param_set_node(texture, "data_src", media);
+    ngl_node_param_set_select(texture, "min_filter", "linear");
+    ngl_node_param_set_select(texture, "mag_filter", "linear");
     if (mipmap)
-        ngl_node_param_set(texture, "mipmap_filter", "linear");
+        ngl_node_param_set_select(texture, "mipmap_filter", "linear");
     if (direct_rendering != -1)
-        ngl_node_param_set(texture, "direct_rendering", direct_rendering);
+        ngl_node_param_set_bool(texture, "direct_rendering", direct_rendering);
 
-    ngl_node_param_set(program, "vertex",   media_vertex);
-    ngl_node_param_set(program, "fragment", media_fragment);
-    ngl_node_param_set(program, "vert_out_vars", "var_tex0_coord", var_tex0_coord);
+    ngl_node_param_set_str(program, "vertex",   media_vertex);
+    ngl_node_param_set_str(program, "fragment", media_fragment);
+    ngl_node_param_set_dict(program, "vert_out_vars", "var_tex0_coord", var_tex0_coord);
 
-    ngl_node_param_set(render, "geometry", quad);
-    ngl_node_param_set(render, "program", program);
-    ngl_node_param_set(render, "frag_resources", "tex0", texture);
+    ngl_node_param_set_node(render, "geometry", quad);
+    ngl_node_param_set_node(render, "program", program);
+    ngl_node_param_set_dict(render, "frag_resources", "tex0", texture);
 
     ngl_node_unrefp(&var_tex0_coord);
 

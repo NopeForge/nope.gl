@@ -148,7 +148,7 @@ static void update_text(void)
     const int ds = duration % 60;
     snprintf(buf, sizeof(buf), "%02d:%02d / %02d:%02d (%" PRId64 " @ %d/%d)",
              cm, cs, dm, ds, p->frame_index, p->framerate[0], p->framerate[1]);
-    ngl_node_param_set(p->pgbar_text_node, "text", buf);
+    ngl_node_param_set_str(p->pgbar_text_node, "text", buf);
     p->text_last_frame_index = p->frame_index;
     p->text_last_duration = duration;
 }
@@ -160,12 +160,12 @@ static void update_pgbar(void)
     if (p->pgbar_opacity_node && p->lasthover >= 0) {
         const int64_t t64_diff = gettime_relative() - p->lasthover;
         const double opacity = clipd(1.5 - t64_diff / 1000000.0, 0, 1);
-        ngl_node_param_set(p->pgbar_opacity_node, "value", opacity);
+        ngl_node_param_set_f64(p->pgbar_opacity_node, "value", opacity);
 
         const float text_bg[4] = {0.0, 0.0, 0.0, 0.8 * opacity};
         const float text_fg[4] = {1.0, 1.0, 1.0, opacity};
-        ngl_node_param_set(p->pgbar_text_node, "bg_color", text_bg);
-        ngl_node_param_set(p->pgbar_text_node, "fg_color", text_fg);
+        ngl_node_param_set_vec4(p->pgbar_text_node, "bg_color", text_bg);
+        ngl_node_param_set_vec4(p->pgbar_text_node, "fg_color", text_fg);
 
         update_text();
     }
@@ -365,40 +365,40 @@ static struct ngl_node *add_progress_bar(struct ngl_node *scene)
     struct ngl_node *ui_children[] = {render, text};
     struct ngl_node *children[] = {scene, gcfg};
 
-    ngl_node_param_set(quad, "corner", bar_corner);
-    ngl_node_param_set(quad, "width",  bar_width);
-    ngl_node_param_set(quad, "height", bar_height);
+    ngl_node_param_set_vec3(quad, "corner", bar_corner);
+    ngl_node_param_set_vec3(quad, "width",  bar_width);
+    ngl_node_param_set_vec3(quad, "height", bar_height);
 
-    ngl_node_param_set(program, "vertex",   pgbar_vert);
-    ngl_node_param_set(program, "fragment", pgbar_frag);
-    ngl_node_param_set(program, "vert_out_vars", "coord", coord);
+    ngl_node_param_set_str(program, "vertex",   pgbar_vert);
+    ngl_node_param_set_str(program, "fragment", pgbar_frag);
+    ngl_node_param_set_dict(program, "vert_out_vars", "coord", coord);
 
-    ngl_node_param_set(v_duration, "value", p->duration_f);
-    ngl_node_param_set(v_opacity,  "value", 0.0);
+    ngl_node_param_set_f64(v_duration, "value", p->duration_f);
+    ngl_node_param_set_f64(v_opacity,  "value", 0.0);
 
-    ngl_node_param_set(render, "geometry", quad);
-    ngl_node_param_set(render, "program", program);
-    ngl_node_param_set(render, "frag_resources", "time",     time);
-    ngl_node_param_set(render, "frag_resources", "duration", v_duration);
-    ngl_node_param_set(render, "frag_resources", "opacity",  v_opacity);
+    ngl_node_param_set_node(render, "geometry", quad);
+    ngl_node_param_set_node(render, "program", program);
+    ngl_node_param_set_dict(render, "frag_resources", "time",     time);
+    ngl_node_param_set_dict(render, "frag_resources", "duration", v_duration);
+    ngl_node_param_set_dict(render, "frag_resources", "opacity",  v_opacity);
 
     ngl_node_param_add(ui_group, "children", ARRAY_NB(ui_children), ui_children);
 
-    ngl_node_param_set(gcfg, "child", ui_group);
-    ngl_node_param_set(gcfg, "blend", 1);
-    ngl_node_param_set(gcfg, "blend_src_factor",   "src_alpha");
-    ngl_node_param_set(gcfg, "blend_dst_factor",   "one_minus_src_alpha");
-    ngl_node_param_set(gcfg, "blend_src_factor_a", "zero");
-    ngl_node_param_set(gcfg, "blend_dst_factor_a", "one");
+    ngl_node_param_set_node(gcfg, "child", ui_group);
+    ngl_node_param_set_bool(gcfg, "blend", 1);
+    ngl_node_param_set_select(gcfg, "blend_src_factor",   "src_alpha");
+    ngl_node_param_set_select(gcfg, "blend_dst_factor",   "one_minus_src_alpha");
+    ngl_node_param_set_select(gcfg, "blend_src_factor_a", "zero");
+    ngl_node_param_set_select(gcfg, "blend_dst_factor_a", "one");
 
     ngl_node_param_add(group, "children", ARRAY_NB(children), children);
 
-    ngl_node_param_set(text, "box_corner", text_corner);
-    ngl_node_param_set(text, "box_width", text_width);
-    ngl_node_param_set(text, "box_height", text_height);
-    ngl_node_param_set(text, "bg_color", text_bg);
-    ngl_node_param_set(text, "fg_color", text_fg);
-    ngl_node_param_set(text, "aspect_ratio", p->aspect[0], p->aspect[1]);
+    ngl_node_param_set_vec3(text, "box_corner", text_corner);
+    ngl_node_param_set_vec3(text, "box_width", text_width);
+    ngl_node_param_set_vec3(text, "box_height", text_height);
+    ngl_node_param_set_vec4(text, "bg_color", text_bg);
+    ngl_node_param_set_vec4(text, "fg_color", text_fg);
+    ngl_node_param_set_rational(text, "aspect_ratio", p->aspect[0], p->aspect[1]);
 
     p->pgbar_opacity_node  = v_opacity;
     p->pgbar_duration_node = v_duration;
@@ -546,7 +546,7 @@ static int handle_duration(const void *data)
     p->duration = p->duration_f * 1000000;
     p->duration_i = llrint(p->duration_f * p->framerate[0] / (double)p->framerate[1]);
     if (p->pgbar_duration_node)
-        ngl_node_param_set(p->pgbar_duration_node, "value", p->duration_f);
+        ngl_node_param_set_f64(p->pgbar_duration_node, "value", p->duration_f);
     return 0;
 }
 
@@ -585,7 +585,7 @@ static int handle_aspect_ratio(const void *data)
     SDL_GetWindowSize(p->window, &width, &height);
     size_callback(p->window, width, height);
     if (p->pgbar_text_node)
-        ngl_node_param_set(p->pgbar_text_node, "aspect_ratio", p->aspect[0], p->aspect[1]);
+        ngl_node_param_set_rational(p->pgbar_text_node, "aspect_ratio", p->aspect[0], p->aspect[1]);
     return 0;
 }
 
