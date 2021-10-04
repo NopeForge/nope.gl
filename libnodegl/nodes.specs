@@ -3,10 +3,10 @@
 #
 
 - _Node:
-    - [label, string]
+    - [label, str]
 
 - _AnimatedBuffer:
-    - [keyframes, NodeList]
+    - [keyframes, node_list]
 
 - AnimatedBufferFloat: _AnimatedBuffer
 
@@ -17,86 +17,86 @@
 - AnimatedBufferVec4: _AnimatedBuffer
 
 - AnimatedPath:
-    - [keyframes, NodeList]
-    - [path, Node]
+    - [keyframes, node_list]
+    - [path, node]
 
 - AnimatedTime:
-    - [keyframes, NodeList]
+    - [keyframes, node_list]
 
 - AnimatedFloat:
-    - [keyframes, NodeList]
+    - [keyframes, node_list]
 
 - AnimatedVec2:
-    - [keyframes, NodeList]
+    - [keyframes, node_list]
 
 - AnimatedVec3:
-    - [keyframes, NodeList]
+    - [keyframes, node_list]
 
 - AnimatedVec4:
-    - [keyframes, NodeList]
+    - [keyframes, node_list]
 
 - AnimatedQuat:
-    - [keyframes, NodeList]
+    - [keyframes, node_list]
     - [as_mat4, bool]
 
 - AnimKeyFrameFloat:
-    - [time, double]
-    - [value, double]
+    - [time, f64]
+    - [value, f64]
     - [easing, select]
-    - [easing_args, doubleList]
-    - [easing_start_offset, double]
-    - [easing_end_offset, double]
+    - [easing_args, f64_list]
+    - [easing_start_offset, f64]
+    - [easing_end_offset, f64]
 
 - AnimKeyFrameVec2:
-    - [time, double]
+    - [time, f64]
     - [value, vec2]
     - [easing, select]
-    - [easing_args, doubleList]
-    - [easing_start_offset, double]
-    - [easing_end_offset, double]
+    - [easing_args, f64_list]
+    - [easing_start_offset, f64]
+    - [easing_end_offset, f64]
 
 - AnimKeyFrameVec3:
-    - [time, double]
+    - [time, f64]
     - [value, vec3]
     - [easing, select]
-    - [easing_args, doubleList]
-    - [easing_start_offset, double]
-    - [easing_end_offset, double]
+    - [easing_args, f64_list]
+    - [easing_start_offset, f64]
+    - [easing_end_offset, f64]
 
 - AnimKeyFrameVec4:
-    - [time, double]
+    - [time, f64]
     - [value, vec4]
     - [easing, select]
-    - [easing_args, doubleList]
-    - [easing_start_offset, double]
-    - [easing_end_offset, double]
+    - [easing_args, f64_list]
+    - [easing_start_offset, f64]
+    - [easing_end_offset, f64]
 
 - AnimKeyFrameQuat:
-    - [time, double]
+    - [time, f64]
     - [quat, vec4]
     - [easing, select]
-    - [easing_args, doubleList]
-    - [easing_start_offset, double]
-    - [easing_end_offset, double]
+    - [easing_args, f64_list]
+    - [easing_start_offset, f64]
+    - [easing_end_offset, f64]
 
 - AnimKeyFrameBuffer:
-    - [time, double]
+    - [time, f64]
     - [data, data]
     - [easing, select]
-    - [easing_args, doubleList]
-    - [easing_start_offset, double]
-    - [easing_end_offset, double]
+    - [easing_args, f64_list]
+    - [easing_start_offset, f64]
+    - [easing_end_offset, f64]
 
 - Block:
-    - [fields, NodeList]
+    - [fields, node_list]
     - [layout, select]
 
 - _Buffer:
-    - [count, int]
+    - [count, i32]
     - [data, data]
-    - [filename, string]
-    - [block, Node]
-    - [block_field, int]
+    - [filename, str]
+    - [block, node]
+    - [block_field, i32]
 
 - BufferByte: _Buffer
 
@@ -159,41 +159,41 @@
 - BufferMat4: _Buffer
 
 - Camera:
-    - [child, Node]
+    - [child, node]
     - [eye, vec3]
     - [center, vec3]
     - [up, vec3]
     - [perspective, vec2]
     - [orthographic, vec4]
     - [clipping, vec2]
-    - [eye_transform, Node]
-    - [center_transform, Node]
-    - [up_transform, Node]
-    - [fov_anim, Node]
+    - [eye_transform, node]
+    - [center_transform, node]
+    - [up_transform, node]
+    - [fov_anim, node]
 
 - Circle:
-    - [radius, double]
-    - [npoints, int]
+    - [radius, f64]
+    - [npoints, i32]
 
 - Compute:
     - [workgroup_count, ivec3]
-    - [program, Node]
-    - [resources, NodeDict]
+    - [program, node]
+    - [resources, node_dict]
 
 - ComputeProgram:
-    - [compute, string]
+    - [compute, str]
     - [workgroup_size, ivec3]
-    - [properties, NodeDict]
+    - [properties, node_dict]
 
 - Geometry:
-    - [vertices, Node]
-    - [uvcoords, Node]
-    - [normals, Node]
-    - [indices, Node]
+    - [vertices, node]
+    - [uvcoords, node]
+    - [normals, node]
+    - [indices, node]
     - [topology, select]
 
 - GraphicConfig:
-    - [child, Node]
+    - [child, node]
     - [blend, bool]
     - [blend_src_factor, select]
     - [blend_dst_factor, select]
@@ -206,10 +206,10 @@
     - [depth_write_mask, bool]
     - [depth_func, select]
     - [stencil_test, bool]
-    - [stencil_write_mask, int]
+    - [stencil_write_mask, i32]
     - [stencil_func, select]
-    - [stencil_ref, int]
-    - [stencil_read_mask, int]
+    - [stencil_ref, i32]
+    - [stencil_read_mask, i32]
     - [stencil_fail, select]
     - [stencil_depth_fail, select]
     - [stencil_depth_pass, select]
@@ -218,7 +218,7 @@
     - [scissor, vec4]
 
 - Group:
-    - [children, NodeList]
+    - [children, node_list]
 
 - Identity:
 
@@ -257,26 +257,26 @@
 - IOBool: _IOVar
 
 - Media:
-    - [filename, string]
+    - [filename, str]
     - [sxplayer_min_level, select]
-    - [time_anim, Node]
+    - [time_anim, node]
     - [audio_tex, bool]
-    - [max_nb_packets, int]
-    - [max_nb_frames, int]
-    - [max_nb_sink, int]
-    - [max_pixels, int]
-    - [stream_idx, int]
+    - [max_nb_packets, i32]
+    - [max_nb_frames, i32]
+    - [max_nb_sink, i32]
+    - [max_pixels, i32]
+    - [stream_idx, i32]
     - [hwaccel, select]
-    - [filters, string]
-    - [vt_pix_fmt, string]
+    - [filters, str]
+    - [vt_pix_fmt, str]
 
 - _Noise:
-    - [frequency, double]
-    - [amplitude, double]
-    - [octaves, int]
-    - [lacunarity, double]
-    - [gain, double]
-    - [seed, uint]
+    - [frequency, f64]
+    - [amplitude, f64]
+    - [octaves, i32]
+    - [lacunarity, f64]
+    - [gain, f64]
+    - [seed, u32]
     - [interpolant, select]
 
 - NoiseFloat: _Noise
@@ -288,8 +288,8 @@
 - NoiseVec4: _Noise
 
 - Path:
-    - [keyframes, NodeList]
-    - [precision, int]
+    - [keyframes, node_list]
+    - [precision, i32]
 
 - PathKeyBezier2:
     - [control, vec3]
@@ -307,11 +307,11 @@
     - [to, vec3]
 
 - Program:
-    - [vertex, string]
-    - [fragment, string]
-    - [properties, NodeDict]
-    - [vert_out_vars, NodeDict]
-    - [nb_frag_output, int]
+    - [vertex, str]
+    - [fragment, str]
+    - [properties, node_dict]
+    - [vert_out_vars, node_dict]
+    - [nb_frag_output, i32]
 
 - Quad:
     - [corner, vec3]
@@ -322,19 +322,19 @@
     - [uv_height, vec2]
 
 - Render:
-    - [geometry, Node]
-    - [program, Node]
-    - [vert_resources, NodeDict]
-    - [frag_resources, NodeDict]
-    - [attributes, NodeDict]
-    - [instance_attributes, NodeDict]
-    - [nb_instances, int]
+    - [geometry, node]
+    - [program, node]
+    - [vert_resources, node_dict]
+    - [frag_resources, node_dict]
+    - [attributes, node_dict]
+    - [instance_attributes, node_dict]
+    - [nb_instances, i32]
 
 - RenderToTexture:
-    - [child, Node]
-    - [color_textures, NodeList]
-    - [depth_texture, Node]
-    - [samples, int]
+    - [child, node]
+    - [color_textures, node_list]
+    - [depth_texture, node]
+    - [samples, i32]
     - [clear_color, vec4]
     - [features, flags]
 
@@ -345,114 +345,114 @@
     - [variadic, bool]
 
 - Rotate:
-    - [child, Node]
-    - [angle, double]
+    - [child, node]
+    - [angle, f64]
     - [axis, vec3]
     - [anchor, vec3]
-    - [anim, Node]
+    - [anim, node]
 
 - RotateQuat:
-    - [child, Node]
+    - [child, node]
     - [quat, vec4]
     - [anchor, vec3]
-    - [anim, Node]
+    - [anim, node]
 
 - Scale:
-    - [child, Node]
+    - [child, node]
     - [factors, vec3]
     - [anchor, vec3]
-    - [anim, Node]
+    - [anim, node]
 
 - Skew:
-    - [child, Node]
+    - [child, node]
     - [angles, vec3]
     - [axis, vec3]
     - [anchor, vec3]
-    - [anim, Node]
+    - [anim, node]
 
 - SmoothPath:
-    - [points, Node]
+    - [points, node]
     - [control1, vec3]
     - [control2, vec3]
-    - [precision, int]
-    - [tension, double]
+    - [precision, i32]
+    - [tension, f64]
 
 - Text:
-    - [text, string]
+    - [text, str]
     - [fg_color, vec4]
     - [bg_color, vec4]
     - [box_corner, vec3]
     - [box_width, vec3]
     - [box_height, vec3]
-    - [padding, int]
-    - [font_scale, double]
+    - [padding, i32]
+    - [font_scale, f64]
     - [valign, select]
     - [halign, select]
     - [aspect_ratio, rational]
 
 - Texture2D:
     - [format, select]
-    - [width, int]
-    - [height, int]
+    - [width, i32]
+    - [height, i32]
     - [min_filter, select]
     - [mag_filter, select]
     - [mipmap_filter, select]
     - [wrap_s, select]
     - [wrap_t, select]
-    - [data_src, Node]
+    - [data_src, node]
     - [direct_rendering, bool]
     - [clamp_video, bool]
 
 - Texture3D:
     - [format, select]
-    - [width, int]
-    - [height, int]
-    - [depth, int]
+    - [width, i32]
+    - [height, i32]
+    - [depth, i32]
     - [min_filter, select]
     - [mag_filter, select]
     - [mipmap_filter, select]
     - [wrap_s, select]
     - [wrap_t, select]
     - [wrap_r, select]
-    - [data_src, Node]
+    - [data_src, node]
 
 - TextureCube:
     - [format, select]
-    - [size, int]
+    - [size, i32]
     - [min_filter, select]
     - [mag_filter, select]
     - [mipmap_filter, select]
     - [wrap_s, select]
     - [wrap_t, select]
     - [wrap_r, select]
-    - [data_src, Node]
+    - [data_src, node]
 
 - Time:
 
 - TimeRangeFilter:
-    - [child, Node]
-    - [ranges, NodeList]
-    - [prefetch_time, double]
-    - [max_idle_time, double]
+    - [child, node]
+    - [ranges, node_list]
+    - [prefetch_time, f64]
+    - [max_idle_time, f64]
 
 - TimeRangeModeCont:
-    - [start_time, double]
+    - [start_time, f64]
 
 - TimeRangeModeNoop:
-    - [start_time, double]
+    - [start_time, f64]
 
 - TimeRangeModeOnce:
-    - [start_time, double]
-    - [render_time, double]
+    - [start_time, f64]
+    - [render_time, f64]
 
 - Transform:
-    - [child, Node]
+    - [child, node]
     - [matrix, mat4]
 
 - Translate:
-    - [child, Node]
+    - [child, node]
     - [vector, vec3]
-    - [anim, Node]
+    - [anim, node]
 
 - Triangle:
     - [edge0, vec3]
@@ -463,179 +463,179 @@
     - [uv_edge2, vec2]
 
 - StreamedInt:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedIVec2:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedIVec3:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedIVec4:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedUInt:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedUIVec2:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedUIVec3:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedUIVec4:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedFloat:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedVec2:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedVec3:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedVec4:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedMat4:
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferInt:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferIVec2:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferIVec3:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferIVec4:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferUInt:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferUIVec2:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferUIVec3:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferUIVec4:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferFloat:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferVec2:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferVec3:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferVec4:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - StreamedBufferMat4:
-    - [count, int]
-    - [timestamps, Node]
-    - [buffer, Node]
+    - [count, i32]
+    - [timestamps, node]
+    - [buffer, node]
     - [timebase, rational]
-    - [time_anim, Node]
+    - [time_anim, node]
 
 - UniformBool:
     - [value, bool]
 
 - UniformInt:
-    - [value, int]
+    - [value, i32]
 
 - UniformIVec2:
     - [value, ivec2]
@@ -647,23 +647,23 @@
     - [value, ivec4]
 
 - UniformUInt:
-    - [value, uint]
+    - [value, u32]
 
 - UniformUIVec2:
-    - [value, uivec2]
+    - [value, uvec2]
 
 - UniformUIVec3:
-    - [value, uivec3]
+    - [value, uvec3]
 
 - UniformUIVec4:
-    - [value, uivec4]
+    - [value, uvec4]
 
 - UniformMat4:
     - [value, mat4]
-    - [transform, Node]
+    - [transform, node]
 
 - UniformFloat:
-    - [value, double]
+    - [value, f64]
 
 - UniformVec2:
     - [value, vec2]
@@ -679,18 +679,18 @@
     - [as_mat4, bool]
 
 - UserSwitch:
-    - [child, Node]
+    - [child, node]
     - [enabled, bool]
 
 - VelocityFloat:
-    - [animation, Node]
+    - [animation, node]
 
 - VelocityVec2:
-    - [animation, Node]
+    - [animation, node]
 
 - VelocityVec3:
-    - [animation, Node]
+    - [animation, node]
 
 - VelocityVec4:
-    - [animation, Node]
+    - [animation, node]
 

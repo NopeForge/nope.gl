@@ -38,7 +38,7 @@ NGLI_STATIC_ASSERT(param_uivec, NGLI_PARAM_TYPE_UIVEC4 - NGLI_PARAM_TYPE_UINT ==
 
 const struct param_specs ngli_params_specs[] = {
     [NGLI_PARAM_TYPE_INT] = {
-        .name = "int",
+        .name = "i32",
         .size = sizeof(int),
         .desc = NGLI_DOCSTRING("Integer"),
     },
@@ -58,22 +58,22 @@ const struct param_specs ngli_params_specs[] = {
         .desc = NGLI_DOCSTRING("4 integers"),
     },
     [NGLI_PARAM_TYPE_UINT] = {
-        .name = "uint",
+        .name = "u32",
         .size = sizeof(unsigned),
         .desc = NGLI_DOCSTRING("Unsigned integer"),
     },
     [NGLI_PARAM_TYPE_UIVEC2] = {
-        .name = "uivec2",
+        .name = "uvec2",
         .size = sizeof(unsigned[2]),
         .desc = NGLI_DOCSTRING("2 unsigned integers"),
     },
     [NGLI_PARAM_TYPE_UIVEC3] = {
-        .name = "uivec3",
+        .name = "uvec3",
         .size = sizeof(unsigned[3]),
         .desc = NGLI_DOCSTRING("3 unsigned integers"),
     },
     [NGLI_PARAM_TYPE_UIVEC4] = {
-        .name = "uivec4",
+        .name = "uvec4",
         .size = sizeof(unsigned[4]),
         .desc = NGLI_DOCSTRING("4 unsigned integers"),
     },
@@ -83,12 +83,12 @@ const struct param_specs ngli_params_specs[] = {
         .desc = NGLI_DOCSTRING("Boolean (map to `int` in C)"),
     },
     [NGLI_PARAM_TYPE_DBL] = {
-        .name = "double",
+        .name = "f64",
         .size = sizeof(double),
         .desc = NGLI_DOCSTRING("Double-precision float"),
     },
     [NGLI_PARAM_TYPE_STR] = {
-        .name = "string",
+        .name = "str",
         .size = sizeof(char *),
         .desc = NGLI_DOCSTRING("String"),
     },
@@ -118,22 +118,22 @@ const struct param_specs ngli_params_specs[] = {
         .desc = NGLI_DOCSTRING("4x4 single-precision floats"),
     },
     [NGLI_PARAM_TYPE_NODE] = {
-        .name = "Node",
+        .name = "node",
         .size = sizeof(struct ngl_node *),
         .desc = NGLI_DOCSTRING("node.gl Node"),
     },
     [NGLI_PARAM_TYPE_NODELIST] = {
-        .name = "NodeList",
+        .name = "node_list",
         .size = sizeof(struct ngl_node **) + sizeof(int),
         .desc = NGLI_DOCSTRING("List of node.gl Node"),
     },
     [NGLI_PARAM_TYPE_DBLLIST] = {
-        .name = "doubleList",
+        .name = "f64_list",
         .size = sizeof(double *) + sizeof(int),
         .desc = NGLI_DOCSTRING("List of double-precision floats"),
     },
     [NGLI_PARAM_TYPE_NODEDICT] = {
-        .name = "NodeDict",
+        .name = "node_dict",
         .size = sizeof(struct hmap *),
         .desc = NGLI_DOCSTRING("Dictionary mapping arbitrary string identifiers to node.gl Nodes"),
     },

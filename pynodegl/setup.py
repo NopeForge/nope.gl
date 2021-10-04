@@ -61,8 +61,8 @@ class CommandUtils:
             if vectype.startswith('ivec'):
                 n = int(vectype[4:])
                 ctype = 'int'
-            elif vectype.startswith('uivec'):
-                n = int(vectype[5:])
+            elif vectype.startswith('uvec'):
+                n = int(vectype[4:])
                 ctype = 'unsigned'
             elif vectype.startswith('vec'):
                 n = int(vectype[3:])
@@ -122,8 +122,8 @@ class CommandUtils:
                 construct_args.append(f'{field_name}=None')
                 optional_args.append(f'{field_name}=None')
                 optional_varnames.append(field_name)
-                is_list = field_type.endswith('List')
-                is_dict = field_type.endswith('Dict')
+                is_list = field_type.endswith('_list')
+                is_dict = field_type.endswith('_dict')
                 extra_args += f'''
         if {field_name} is not None:'''
                 if is_list:
@@ -178,7 +178,7 @@ cdef class _Node:
         data_dict.update(**kwargs)
         for key, val in data_dict.items():
             if not isinstance(key, str) or (val is not None and not isinstance(val, _Node)):
-                raise TypeError("update_%s() takes a dictionary of <string, Node>" % field_name)
+                raise TypeError("update_%s() takes a dictionary of <string, node>" % field_name)
             node = (<_Node>val).ctx if val is not None else NULL
             ret = ngl_node_param_set(self.ctx, field_name, <const char *>key, node)
             if ret < 0:
@@ -191,14 +191,13 @@ cdef class _Node:
 
                 # Declare growing list helpers functions to _Node, to be used
                 # by other nodes for their specific list-based parameters.
-                for field_type in 'NodeList', 'doubleList':
-                    base_field_type = field_type[:-len('List')]
-                    if base_field_type == 'Node':
+                for field_type in 'node_list', 'f64_list':
+                    if field_type == 'node_list':
                         cfield = '(<_Node>item).ctx'
                         citem_type = 'ngl_node *'
                     else:
-                        cfield = f'<{base_field_type}>item'
-                        citem_type = base_field_type
+                        cfield = f'<double>item'
+                        citem_type = 'double'
                     class_str += f'''
     def _add_{field_type.lower()}(self, field_name, *elems):
         if hasattr(elems[0], '__iter__'):
@@ -291,7 +290,7 @@ cdef class {node}({parent_node}):
                 field_name, field_type = field
 
                 # Add method
-                if field_type.endswith('List'):
+                if field_type.endswith('_list'):
                     field_name, field_type = field
                     class_str += f'''
     def add_{field_name}(self, *{field_name}):
@@ -299,9 +298,9 @@ cdef class {node}({parent_node}):
 '''
 
                 # Update method
-                elif field_type.endswith('Dict'):
-                    field_type = field_type[:-len('Dict')]
-                    assert field_type == 'Node'
+                elif field_type.endswith('_dict'):
+                    field_type = field_type[:-len('_dict')]
+                    assert field_type == 'node'
                     class_str += f'''
     def update_{field_name}(self, arg=None, **kwargs):
         return self._update_dict("{field_name}", arg, **kwargs)
@@ -338,17 +337,13 @@ cdef class {node}({parent_node}):
 
                 # Set method
                 else:
-                    ctype = field_type
+                    ctype_map = dict(u32='unsigned', i32='int', f64='double', bool='bint', node='_Node')
+                    ctype = ctype_map.get(field_type, field_type)
                     cparam = field_name
-                    if field_type in ('select', 'flags', 'string'):
+                    if field_type in ('select', 'flags', 'str'):
                         ctype = 'const char *'
-                    elif field_type == 'Node':
-                        ctype = '_Node'
+                    elif field_type == 'node':
                         cparam += '.ctx'
-                    elif field_type == 'bool':
-                        ctype = 'bint'
-                    elif field_type == 'uint':
-                        ctype = 'unsigned'
                     class_str += f'''
     def set_{field_name}(self, {ctype} {field_name}):
         return ngl_node_param_set(self.ctx, "{field_name}", {cparam})

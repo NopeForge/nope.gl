@@ -5,7 +5,7 @@ libnodegl
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameBuffer](#animkeyframebuffer)) | key frame buffers to interpolate from | 
+`keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameBuffer](#animkeyframebuffer)) | key frame buffers to interpolate from | 
 
 
 **Source**: [node_animatedbuffer.c](/libnodegl/node_animatedbuffer.c)
@@ -21,8 +21,8 @@ List of `AnimatedBuffer*` nodes:
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | float key frames to interpolate from, representing the normed distance from the start of the `path` | 
-`path` |  | [`Node`](#parameter-types) ([Path](#path), [SmoothPath](#smoothpath)) | path to follow | 
+`keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | float key frames to interpolate from, representing the normed distance from the start of the `path` | 
+`path` |  | [`node`](#parameter-types) ([Path](#path), [SmoothPath](#smoothpath)) | path to follow | 
 
 
 **Source**: [node_animated.c](/libnodegl/node_animated.c)
@@ -32,7 +32,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | time key frames to interpolate from | 
+`keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | time key frames to interpolate from | 
 
 
 **Source**: [node_animated.c](/libnodegl/node_animated.c)
@@ -42,7 +42,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | float key frames to interpolate from | 
+`keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | float key frames to interpolate from | 
 
 
 **Source**: [node_animated.c](/libnodegl/node_animated.c)
@@ -52,7 +52,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameVec2](#animkeyframevec2)) | vec2 key frames to interpolate from | 
+`keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameVec2](#animkeyframevec2)) | vec2 key frames to interpolate from | 
 
 
 **Source**: [node_animated.c](/libnodegl/node_animated.c)
@@ -62,7 +62,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameVec3](#animkeyframevec3)) | vec3 key frames to interpolate from | 
+`keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameVec3](#animkeyframevec3)) | vec3 key frames to interpolate from | 
 
 
 **Source**: [node_animated.c](/libnodegl/node_animated.c)
@@ -72,7 +72,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameVec4](#animkeyframevec4)) | vec4 key frames to interpolate from | 
+`keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameVec4](#animkeyframevec4)) | vec4 key frames to interpolate from | 
 
 
 **Source**: [node_animated.c](/libnodegl/node_animated.c)
@@ -82,7 +82,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`keyframes` |  | [`NodeList`](#parameter-types) ([AnimKeyFrameQuat](#animkeyframequat)) | quaternion key frames to interpolate from | 
+`keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameQuat](#animkeyframequat)) | quaternion key frames to interpolate from | 
 `as_mat4` |  | [`bool`](#parameter-types) | exposed as a 4x4 rotation matrix in the program | `0`
 
 
@@ -93,12 +93,12 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`time` |  | [`double`](#parameter-types) | the time key point in seconds | `0`
-`value` |  | [`double`](#parameter-types) | the value at time `time` | `0`
+`time` |  | [`f64`](#parameter-types) | the time key point in seconds | `0`
+`value` |  | [`f64`](#parameter-types) | the value at time `time` | `0`
 `easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
-`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
-`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
-`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
+`easing_args` |  | [`f64_list`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`f64`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -108,12 +108,12 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`time` |  | [`double`](#parameter-types) | the time key point in seconds | `0`
+`time` |  | [`f64`](#parameter-types) | the time key point in seconds | `0`
 `value` |  | [`vec2`](#parameter-types) | the value at time `time` | (`0`,`0`)
 `easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
-`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
-`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
-`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
+`easing_args` |  | [`f64_list`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`f64`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -123,12 +123,12 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`time` |  | [`double`](#parameter-types) | the time key point in seconds | `0`
+`time` |  | [`f64`](#parameter-types) | the time key point in seconds | `0`
 `value` |  | [`vec3`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`)
 `easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
-`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
-`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
-`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
+`easing_args` |  | [`f64_list`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`f64`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -138,12 +138,12 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`time` |  | [`double`](#parameter-types) | the time key point in seconds | `0`
+`time` |  | [`f64`](#parameter-types) | the time key point in seconds | `0`
 `value` |  | [`vec4`](#parameter-types) | the value at time `time` | (`0`,`0`,`0`,`0`)
 `easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
-`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
-`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
-`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
+`easing_args` |  | [`f64_list`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`f64`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -153,12 +153,12 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`time` |  | [`double`](#parameter-types) | the time key point in seconds | `0`
+`time` |  | [`f64`](#parameter-types) | the time key point in seconds | `0`
 `quat` |  | [`vec4`](#parameter-types) | the quat at time `time` | (`0`,`0`,`0`,`0`)
 `easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
-`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
-`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
-`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
+`easing_args` |  | [`f64_list`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`f64`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -168,12 +168,12 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`time` |  | [`double`](#parameter-types) | the time key point in seconds | `0`
+`time` |  | [`f64`](#parameter-types) | the time key point in seconds | `0`
 `data` |  | [`data`](#parameter-types) | the data at time `time` | 
 `easing` |  | [`easing`](#easing-choices) | easing interpolation from previous key frame | `linear`
-`easing_args` |  | [`doubleList`](#parameter-types) | a list of arguments some easings may use | 
-`easing_start_offset` |  | [`double`](#parameter-types) | starting offset of the truncation of the easing | `0`
-`easing_end_offset` |  | [`double`](#parameter-types) | ending offset of the truncation of the easing | `1`
+`easing_args` |  | [`f64_list`](#parameter-types) | a list of arguments some easings may use | 
+`easing_start_offset` |  | [`f64`](#parameter-types) | starting offset of the truncation of the easing | `0`
+`easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
 **Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
@@ -183,7 +183,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`fields` |  | [`NodeList`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [StreamedBufferInt](#streamedbufferint), [StreamedBufferIVec2](#streamedbufferivec2), [StreamedBufferIVec3](#streamedbufferivec3), [StreamedBufferIVec4](#streamedbufferivec4), [StreamedBufferUInt](#streamedbufferuint), [StreamedBufferUIVec2](#streamedbufferuivec2), [StreamedBufferUIVec3](#streamedbufferuivec3), [StreamedBufferUIVec4](#streamedbufferuivec4), [StreamedBufferFloat](#streamedbufferfloat), [StreamedBufferVec2](#streamedbuffervec2), [StreamedBufferVec3](#streamedbuffervec3), [StreamedBufferVec4](#streamedbuffervec4), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferMat4](#buffer), [UniformBool](#uniformbool), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformIVec2](#uniformivec2), [UniformIVec3](#uniformivec3), [UniformIVec4](#uniformivec4), [UniformUInt](#uniformuint), [UniformUIVec2](#uniformuivec2), [UniformUIVec3](#uniformuivec3), [UniformUIVec4](#uniformuivec4), [UniformMat4](#uniformmat4), [UniformQuat](#uniformquat), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedIVec2](#streamedivec2), [StreamedIVec3](#streamedivec3), [StreamedIVec4](#streamedivec4), [StreamedUInt](#streameduint), [StreamedUIVec2](#streameduivec2), [StreamedUIVec3](#streameduivec3), [StreamedUIVec4](#streameduivec4), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4), [Time](#time)) | block fields defined in the graphic program | 
+`fields` |  | [`node_list`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [StreamedBufferInt](#streamedbufferint), [StreamedBufferIVec2](#streamedbufferivec2), [StreamedBufferIVec3](#streamedbufferivec3), [StreamedBufferIVec4](#streamedbufferivec4), [StreamedBufferUInt](#streamedbufferuint), [StreamedBufferUIVec2](#streamedbufferuivec2), [StreamedBufferUIVec3](#streamedbufferuivec3), [StreamedBufferUIVec4](#streamedbufferuivec4), [StreamedBufferFloat](#streamedbufferfloat), [StreamedBufferVec2](#streamedbuffervec2), [StreamedBufferVec3](#streamedbuffervec3), [StreamedBufferVec4](#streamedbuffervec4), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec3](#buffer), [BufferIVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec3](#buffer), [BufferUIVec4](#buffer), [BufferMat4](#buffer), [UniformBool](#uniformbool), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformInt](#uniformint), [UniformIVec2](#uniformivec2), [UniformIVec3](#uniformivec3), [UniformIVec4](#uniformivec4), [UniformUInt](#uniformuint), [UniformUIVec2](#uniformuivec2), [UniformUIVec3](#uniformuivec3), [UniformUIVec4](#uniformuivec4), [UniformMat4](#uniformmat4), [UniformQuat](#uniformquat), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedIVec2](#streamedivec2), [StreamedIVec3](#streamedivec3), [StreamedIVec4](#streamedivec4), [StreamedUInt](#streameduint), [StreamedUIVec2](#streameduivec2), [StreamedUIVec3](#streameduivec3), [StreamedUIVec4](#streameduivec4), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4), [Time](#time)) | block fields defined in the graphic program | 
 `layout` |  | [`memory_layout`](#memory_layout-choices) | memory layout set in the graphic program | `std140`
 
 
@@ -194,11 +194,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements | `0`
+`count` |  | [`i32`](#parameter-types) | number of elements | `0`
 `data` |  | [`data`](#parameter-types) | buffer of `count` elements | 
-`filename` |  | [`string`](#parameter-types) | filename from which the buffer will be read, cannot be used with `data` | 
-`block` |  | [`Node`](#parameter-types) ([Block](#block)) | reference a field from the given block | 
-`block_field` |  | [`int`](#parameter-types) | field index in `block` | `0`
+`filename` |  | [`str`](#parameter-types) | filename from which the buffer will be read, cannot be used with `data` | 
+`block` |  | [`node`](#parameter-types) ([Block](#block)) | reference a field from the given block | 
+`block_field` |  | [`i32`](#parameter-types) | field index in `block` | `0`
 
 
 **Source**: [node_buffer.c](/libnodegl/node_buffer.c)
@@ -240,17 +240,17 @@ List of `Buffer*` nodes:
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to observe through the lens of the camera | 
+`child` |  | [`node`](#parameter-types) | scene to observe through the lens of the camera | 
 `eye` | ✓ | [`vec3`](#parameter-types) | eye position | (`0`,`0`,`0`)
 `center` | ✓ | [`vec3`](#parameter-types) | center position | (`0`,`0`,`-1`)
 `up` | ✓ | [`vec3`](#parameter-types) | up vector, must not be parallel to the line of sight from the eye point to the center point | (`0`,`1`,`0`)
 `perspective` | ✓ | [`vec2`](#parameter-types) | the 2 following values: *fov*, *aspect* | (`0`,`0`)
 `orthographic` | ✓ | [`vec4`](#parameter-types) | the 4 following values: *left*, *right*, *bottom*, *top* | (`0`,`0`,`0`,`0`)
 `clipping` | ✓ | [`vec2`](#parameter-types) | the 2 following values: *near clipping plane*, *far clipping plane* | (`0`,`0`)
-`eye_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `eye` transformation chain | 
-`center_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `center` transformation chain | 
-`up_transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `up` transformation chain | 
-`fov_anim` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
+`eye_transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `eye` transformation chain | 
+`center_transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `center` transformation chain | 
+`up_transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `up` transformation chain | 
+`fov_anim` |  | [`node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
 
 
 **Source**: [node_camera.c](/libnodegl/node_camera.c)
@@ -260,8 +260,8 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`radius` |  | [`double`](#parameter-types) | circle radius | `1`
-`npoints` |  | [`int`](#parameter-types) | number of points | `16`
+`radius` |  | [`f64`](#parameter-types) | circle radius | `1`
+`npoints` |  | [`i32`](#parameter-types) | number of points | `16`
 
 
 **Source**: [node_circle.c](/libnodegl/node_circle.c)
@@ -272,8 +272,8 @@ Parameter | Live-chg. | Type | Description | Default
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
 `workgroup_count` |  | [`ivec3`](#parameter-types) | number of work groups to be executed | (`0`,`0`,`0`)
-`program` |  | [`Node`](#parameter-types) ([ComputeProgram](#computeprogram)) | compute program to be executed | 
-`resources` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d), [Block](#block), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformBool](#uniformbool), [UniformInt](#uniformint), [UniformIVec2](#uniformivec2), [UniformIVec3](#uniformivec3), [UniformIVec4](#uniformivec4), [UniformUInt](#uniformuint), [UniformUIVec2](#uniformuivec2), [UniformUIVec3](#uniformuivec3), [UniformUIVec4](#uniformuivec4), [UniformMat4](#uniformmat4), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [NoiseFloat](#noise), [NoiseVec2](#noise), [NoiseVec3](#noise), [NoiseVec4](#noise), [StreamedInt](#streamedint), [StreamedIVec2](#streamedivec2), [StreamedIVec3](#streamedivec3), [StreamedIVec4](#streamedivec4), [StreamedUInt](#streameduint), [StreamedUIVec2](#streameduivec2), [StreamedUIVec3](#streameduivec3), [StreamedUIVec4](#streameduivec4), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4), [Time](#time), [VelocityFloat](#velocityfloat), [VelocityVec2](#velocityvec2), [VelocityVec3](#velocityvec3), [VelocityVec4](#velocityvec4)) | resources made accessible to the compute `program` | 
+`program` |  | [`node`](#parameter-types) ([ComputeProgram](#computeprogram)) | compute program to be executed | 
+`resources` |  | [`node_dict`](#parameter-types) ([Texture2D](#texture2d), [Block](#block), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformBool](#uniformbool), [UniformInt](#uniformint), [UniformIVec2](#uniformivec2), [UniformIVec3](#uniformivec3), [UniformIVec4](#uniformivec4), [UniformUInt](#uniformuint), [UniformUIVec2](#uniformuivec2), [UniformUIVec3](#uniformuivec3), [UniformUIVec4](#uniformuivec4), [UniformMat4](#uniformmat4), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [NoiseFloat](#noise), [NoiseVec2](#noise), [NoiseVec3](#noise), [NoiseVec4](#noise), [StreamedInt](#streamedint), [StreamedIVec2](#streamedivec2), [StreamedIVec3](#streamedivec3), [StreamedIVec4](#streamedivec4), [StreamedUInt](#streameduint), [StreamedUIVec2](#streameduivec2), [StreamedUIVec3](#streameduivec3), [StreamedUIVec4](#streameduivec4), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4), [Time](#time), [VelocityFloat](#velocityfloat), [VelocityVec2](#velocityvec2), [VelocityVec3](#velocityvec3), [VelocityVec4](#velocityvec4)) | resources made accessible to the compute `program` | 
 
 
 **Source**: [node_compute.c](/libnodegl/node_compute.c)
@@ -283,9 +283,9 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`compute` |  | [`string`](#parameter-types) | compute shader | 
+`compute` |  | [`str`](#parameter-types) | compute shader | 
 `workgroup_size` |  | [`ivec3`](#parameter-types) | number of local compute instances in a work group | (`0`,`0`,`0`)
-`properties` |  | [`NodeDict`](#parameter-types) ([ResourceProps](#resourceprops)) | resource properties | 
+`properties` |  | [`node_dict`](#parameter-types) ([ResourceProps](#resourceprops)) | resource properties | 
 
 
 **Source**: [node_computeprogram.c](/libnodegl/node_computeprogram.c)
@@ -295,10 +295,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`vertices` |  | [`Node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) | vertice coordinates defining the geometry | 
-`uvcoords` |  | [`Node`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer)) | coordinates used for UV mapping of each `vertices` | 
-`normals` |  | [`Node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) | normal vectors of each `vertices` | 
-`indices` |  | [`Node`](#parameter-types) ([BufferUShort](#buffer), [BufferUInt](#buffer)) | indices defining the drawing order of the `vertices`, auto-generated if not set | 
+`vertices` |  | [`node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) | vertice coordinates defining the geometry | 
+`uvcoords` |  | [`node`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec3](#animatedbuffer)) | coordinates used for UV mapping of each `vertices` | 
+`normals` |  | [`node`](#parameter-types) ([BufferVec3](#buffer), [AnimatedBufferVec3](#animatedbuffer)) | normal vectors of each `vertices` | 
+`indices` |  | [`node`](#parameter-types) ([BufferUShort](#buffer), [BufferUInt](#buffer)) | indices defining the drawing order of the `vertices`, auto-generated if not set | 
 `topology` |  | [`topology`](#topology-choices) | primitive topology | `triangle_list`
 
 
@@ -309,7 +309,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to which the graphic configuration will be applied | 
+`child` |  | [`node`](#parameter-types) | scene to which the graphic configuration will be applied | 
 `blend` |  | [`bool`](#parameter-types) | enable blending | `unset`
 `blend_src_factor` |  | [`blend_factor`](#blend_factor-choices) | blend source factor | `unset`
 `blend_dst_factor` |  | [`blend_factor`](#blend_factor-choices) | blend destination factor | `unset`
@@ -322,10 +322,10 @@ Parameter | Live-chg. | Type | Description | Default
 `depth_write_mask` |  | [`bool`](#parameter-types) | depth write mask | `unset`
 `depth_func` |  | [`function`](#function-choices) | passes if `<function>(depth, stored_depth)` | `unset`
 `stencil_test` |  | [`bool`](#parameter-types) | enable stencil testing | `unset`
-`stencil_write_mask` |  | [`int`](#parameter-types) | stencil write mask | `-1`
+`stencil_write_mask` |  | [`i32`](#parameter-types) | stencil write mask | `-1`
 `stencil_func` |  | [`function`](#function-choices) | passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)` | `unset`
-`stencil_ref` |  | [`int`](#parameter-types) | stencil reference value to compare against | `-1`
-`stencil_read_mask` |  | [`int`](#parameter-types) | stencil read mask | `-1`
+`stencil_ref` |  | [`i32`](#parameter-types) | stencil reference value to compare against | `-1`
+`stencil_read_mask` |  | [`i32`](#parameter-types) | stencil read mask | `-1`
 `stencil_fail` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil test fails | `unset`
 `stencil_depth_fail` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if depth test fails | `unset`
 `stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil and depth test pass | `unset`
@@ -341,7 +341,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`children` |  | [`NodeList`](#parameter-types) | a set of scenes | 
+`children` |  | [`node_list`](#parameter-types) | a set of scenes | 
 
 
 **Source**: [node_group.c](/libnodegl/node_group.c)
@@ -384,18 +384,18 @@ List of `IOVar*` nodes:
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`filename` |  | [`string`](#parameter-types) | path to input media file | 
+`filename` |  | [`str`](#parameter-types) | path to input media file | 
 `sxplayer_min_level` |  | [`sxplayer_log_level`](#sxplayer_log_level-choices) | sxplayer min logging level | `warning`
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 `audio_tex` |  | [`bool`](#parameter-types) | load the audio and expose it as a stereo waves and frequencies buffer | `0`
-`max_nb_packets` |  | [`int`](#parameter-types) | maximum number of packets in sxplayer demuxing queue | `1`
-`max_nb_frames` |  | [`int`](#parameter-types) | maximum number of frames in sxplayer decoding queue | `1`
-`max_nb_sink` |  | [`int`](#parameter-types) | maximum number of frames in sxplayer filtering queue | `1`
-`max_pixels` |  | [`int`](#parameter-types) | maximum number of pixels per frame | `0`
-`stream_idx` |  | [`int`](#parameter-types) | force a stream number instead of picking the "best" one | `-1`
+`max_nb_packets` |  | [`i32`](#parameter-types) | maximum number of packets in sxplayer demuxing queue | `1`
+`max_nb_frames` |  | [`i32`](#parameter-types) | maximum number of frames in sxplayer decoding queue | `1`
+`max_nb_sink` |  | [`i32`](#parameter-types) | maximum number of frames in sxplayer filtering queue | `1`
+`max_pixels` |  | [`i32`](#parameter-types) | maximum number of pixels per frame | `0`
+`stream_idx` |  | [`i32`](#parameter-types) | force a stream number instead of picking the "best" one | `-1`
 `hwaccel` |  | [`sxplayer_hwaccel`](#sxplayer_hwaccel-choices) | hardware acceleration | `auto`
-`filters` |  | [`string`](#parameter-types) | filters to apply on the media (sxplayer/libavfilter) | 
-`vt_pix_fmt` |  | [`string`](#parameter-types) | auto or a comma or space separated list of VideoToolbox (Apple) allowed output pixel formats | 
+`filters` |  | [`str`](#parameter-types) | filters to apply on the media (sxplayer/libavfilter) | 
+`vt_pix_fmt` |  | [`str`](#parameter-types) | auto or a comma or space separated list of VideoToolbox (Apple) allowed output pixel formats | 
 
 
 **Source**: [node_media.c](/libnodegl/node_media.c)
@@ -405,12 +405,12 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`frequency` | ✓ | [`double`](#parameter-types) | oscillation per second | `1`
-`amplitude` | ✓ | [`double`](#parameter-types) | by how much it oscillates | `1`
-`octaves` | ✓ | [`int`](#parameter-types) | number of accumulated noise layers (controls the level of details) | `3`
-`lacunarity` | ✓ | [`double`](#parameter-types) | frequency multiplier per octave | `2`
-`gain` | ✓ | [`double`](#parameter-types) | amplitude multiplier per octave (also known as persistence) | `0.5`
-`seed` |  | [`uint`](#parameter-types) | random base seed (acts as an offsetting to the time) | `0`
+`frequency` | ✓ | [`f64`](#parameter-types) | oscillation per second | `1`
+`amplitude` | ✓ | [`f64`](#parameter-types) | by how much it oscillates | `1`
+`octaves` | ✓ | [`i32`](#parameter-types) | number of accumulated noise layers (controls the level of details) | `3`
+`lacunarity` | ✓ | [`f64`](#parameter-types) | frequency multiplier per octave | `2`
+`gain` | ✓ | [`f64`](#parameter-types) | amplitude multiplier per octave (also known as persistence) | `0.5`
+`seed` |  | [`u32`](#parameter-types) | random base seed (acts as an offsetting to the time) | `0`
 `interpolant` |  | [`interp_noise`](#interp_noise-choices) | interpolation function to use between noise points | `quintic`
 
 
@@ -427,8 +427,8 @@ List of `Noise*` nodes:
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`keyframes` |  | [`NodeList`](#parameter-types) ([PathKeyMove](#pathkeymove), [PathKeyLine](#pathkeyline), [PathKeyBezier2](#pathkeybezier2), [PathKeyBezier3](#pathkeybezier3)) | anchor points the path go through | 
-`precision` |  | [`int`](#parameter-types) | number of divisions per curve segment | `64`
+`keyframes` |  | [`node_list`](#parameter-types) ([PathKeyMove](#pathkeymove), [PathKeyLine](#pathkeyline), [PathKeyBezier2](#pathkeybezier2), [PathKeyBezier3](#pathkeybezier3)) | anchor points the path go through | 
+`precision` |  | [`i32`](#parameter-types) | number of divisions per curve segment | `64`
 
 
 **Source**: [node_path.c](/libnodegl/node_path.c)
@@ -481,11 +481,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`vertex` |  | [`string`](#parameter-types) | vertex shader | 
-`fragment` |  | [`string`](#parameter-types) | fragment shader | 
-`properties` |  | [`NodeDict`](#parameter-types) ([ResourceProps](#resourceprops)) | resource properties | 
-`vert_out_vars` |  | [`NodeDict`](#parameter-types) ([IOInt](#iovar), [IOIVec2](#iovar), [IOIVec3](#iovar), [IOIVec4](#iovar), [IOUInt](#iovar), [IOUIvec2](#iovar), [IOUIvec3](#iovar), [IOUIvec4](#iovar), [IOFloat](#iovar), [IOVec2](#iovar), [IOVec3](#iovar), [IOVec4](#iovar), [IOMat3](#iovar), [IOMat4](#iovar), [IOBool](#iovar)) | in/out communication variables shared between vertex and fragment stages | 
-`nb_frag_output` |  | [`int`](#parameter-types) | number of color outputs in the fragment shader | `0`
+`vertex` |  | [`str`](#parameter-types) | vertex shader | 
+`fragment` |  | [`str`](#parameter-types) | fragment shader | 
+`properties` |  | [`node_dict`](#parameter-types) ([ResourceProps](#resourceprops)) | resource properties | 
+`vert_out_vars` |  | [`node_dict`](#parameter-types) ([IOInt](#iovar), [IOIVec2](#iovar), [IOIVec3](#iovar), [IOIVec4](#iovar), [IOUInt](#iovar), [IOUIvec2](#iovar), [IOUIvec3](#iovar), [IOUIvec4](#iovar), [IOFloat](#iovar), [IOVec2](#iovar), [IOVec3](#iovar), [IOVec4](#iovar), [IOMat3](#iovar), [IOMat4](#iovar), [IOBool](#iovar)) | in/out communication variables shared between vertex and fragment stages | 
+`nb_frag_output` |  | [`i32`](#parameter-types) | number of color outputs in the fragment shader | `0`
 
 
 **Source**: [node_program.c](/libnodegl/node_program.c)
@@ -510,13 +510,13 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`geometry` |  | [`Node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
-`program` |  | [`Node`](#parameter-types) ([Program](#program)) | program to be executed | 
-`vert_resources` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d), [TextureCube](#texturecube), [Block](#block), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [NoiseFloat](#noise), [NoiseVec2](#noise), [NoiseVec3](#noise), [NoiseVec4](#noise), [StreamedBufferInt](#streamedbufferint), [StreamedBufferIVec2](#streamedbufferivec2), [StreamedBufferIVec3](#streamedbufferivec3), [StreamedBufferIVec4](#streamedbufferivec4), [StreamedBufferUInt](#streamedbufferuint), [StreamedBufferUIVec2](#streamedbufferuivec2), [StreamedBufferUIVec3](#streamedbufferuivec3), [StreamedBufferUIVec4](#streamedbufferuivec4), [StreamedBufferFloat](#streamedbufferfloat), [StreamedBufferVec2](#streamedbuffervec2), [StreamedBufferVec3](#streamedbuffervec3), [StreamedBufferVec4](#streamedbuffervec4), [UniformBool](#uniformbool), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformIVec2](#uniformivec2), [UniformIVec3](#uniformivec3), [UniformIVec4](#uniformivec4), [UniformUInt](#uniformuint), [UniformUIVec2](#uniformuivec2), [UniformUIVec3](#uniformuivec3), [UniformUIVec4](#uniformuivec4), [UniformMat4](#uniformmat4), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedIVec2](#streamedivec2), [StreamedIVec3](#streamedivec3), [StreamedIVec4](#streamedivec4), [StreamedUInt](#streameduint), [StreamedUIVec2](#streameduivec2), [StreamedUIVec3](#streameduivec3), [StreamedUIVec4](#streameduivec4), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4), [Time](#time), [VelocityFloat](#velocityfloat), [VelocityVec2](#velocityvec2), [VelocityVec3](#velocityvec3), [VelocityVec4](#velocityvec4)) | resources made accessible to the vertex stage of the `program` | 
-`frag_resources` |  | [`NodeDict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d), [TextureCube](#texturecube), [Block](#block), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [NoiseFloat](#noise), [NoiseVec2](#noise), [NoiseVec3](#noise), [NoiseVec4](#noise), [StreamedBufferInt](#streamedbufferint), [StreamedBufferIVec2](#streamedbufferivec2), [StreamedBufferIVec3](#streamedbufferivec3), [StreamedBufferIVec4](#streamedbufferivec4), [StreamedBufferUInt](#streamedbufferuint), [StreamedBufferUIVec2](#streamedbufferuivec2), [StreamedBufferUIVec3](#streamedbufferuivec3), [StreamedBufferUIVec4](#streamedbufferuivec4), [StreamedBufferFloat](#streamedbufferfloat), [StreamedBufferVec2](#streamedbuffervec2), [StreamedBufferVec3](#streamedbuffervec3), [StreamedBufferVec4](#streamedbuffervec4), [UniformBool](#uniformbool), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformIVec2](#uniformivec2), [UniformIVec3](#uniformivec3), [UniformIVec4](#uniformivec4), [UniformUInt](#uniformuint), [UniformUIVec2](#uniformuivec2), [UniformUIVec3](#uniformuivec3), [UniformUIVec4](#uniformuivec4), [UniformMat4](#uniformmat4), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedIVec2](#streamedivec2), [StreamedIVec3](#streamedivec3), [StreamedIVec4](#streamedivec4), [StreamedUInt](#streameduint), [StreamedUIVec2](#streameduivec2), [StreamedUIVec3](#streameduivec3), [StreamedUIVec4](#streameduivec4), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4), [Time](#time), [VelocityFloat](#velocityfloat), [VelocityVec2](#velocityvec2), [VelocityVec3](#velocityvec3), [VelocityVec4](#velocityvec4)) | resources made accessible to the fragment stage of the `program` | 
-`attributes` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferMat4](#buffer)) | extra vertex attributes made accessible to the `program` | 
-`instance_attributes` |  | [`NodeDict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferMat4](#buffer)) | per instance extra vertex attributes made accessible to the `program` | 
-`nb_instances` |  | [`int`](#parameter-types) | number of instances to draw | `1`
+`geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
+`program` |  | [`node`](#parameter-types) ([Program](#program)) | program to be executed | 
+`vert_resources` |  | [`node_dict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d), [TextureCube](#texturecube), [Block](#block), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [NoiseFloat](#noise), [NoiseVec2](#noise), [NoiseVec3](#noise), [NoiseVec4](#noise), [StreamedBufferInt](#streamedbufferint), [StreamedBufferIVec2](#streamedbufferivec2), [StreamedBufferIVec3](#streamedbufferivec3), [StreamedBufferIVec4](#streamedbufferivec4), [StreamedBufferUInt](#streamedbufferuint), [StreamedBufferUIVec2](#streamedbufferuivec2), [StreamedBufferUIVec3](#streamedbufferuivec3), [StreamedBufferUIVec4](#streamedbufferuivec4), [StreamedBufferFloat](#streamedbufferfloat), [StreamedBufferVec2](#streamedbuffervec2), [StreamedBufferVec3](#streamedbuffervec3), [StreamedBufferVec4](#streamedbuffervec4), [UniformBool](#uniformbool), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformIVec2](#uniformivec2), [UniformIVec3](#uniformivec3), [UniformIVec4](#uniformivec4), [UniformUInt](#uniformuint), [UniformUIVec2](#uniformuivec2), [UniformUIVec3](#uniformuivec3), [UniformUIVec4](#uniformuivec4), [UniformMat4](#uniformmat4), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedIVec2](#streamedivec2), [StreamedIVec3](#streamedivec3), [StreamedIVec4](#streamedivec4), [StreamedUInt](#streameduint), [StreamedUIVec2](#streameduivec2), [StreamedUIVec3](#streameduivec3), [StreamedUIVec4](#streameduivec4), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4), [Time](#time), [VelocityFloat](#velocityfloat), [VelocityVec2](#velocityvec2), [VelocityVec3](#velocityvec3), [VelocityVec4](#velocityvec4)) | resources made accessible to the vertex stage of the `program` | 
+`frag_resources` |  | [`node_dict`](#parameter-types) ([Texture2D](#texture2d), [Texture3D](#texture3d), [TextureCube](#texturecube), [Block](#block), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [NoiseFloat](#noise), [NoiseVec2](#noise), [NoiseVec3](#noise), [NoiseVec4](#noise), [StreamedBufferInt](#streamedbufferint), [StreamedBufferIVec2](#streamedbufferivec2), [StreamedBufferIVec3](#streamedbufferivec3), [StreamedBufferIVec4](#streamedbufferivec4), [StreamedBufferUInt](#streamedbufferuint), [StreamedBufferUIVec2](#streamedbufferuivec2), [StreamedBufferUIVec3](#streamedbufferuivec3), [StreamedBufferUIVec4](#streamedbufferuivec4), [StreamedBufferFloat](#streamedbufferfloat), [StreamedBufferVec2](#streamedbuffervec2), [StreamedBufferVec3](#streamedbuffervec3), [StreamedBufferVec4](#streamedbuffervec4), [UniformBool](#uniformbool), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformQuat](#uniformquat), [UniformInt](#uniformint), [UniformIVec2](#uniformivec2), [UniformIVec3](#uniformivec3), [UniformIVec4](#uniformivec4), [UniformUInt](#uniformuint), [UniformUIVec2](#uniformuivec2), [UniformUIVec3](#uniformuivec3), [UniformUIVec4](#uniformuivec4), [UniformMat4](#uniformmat4), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [StreamedInt](#streamedint), [StreamedIVec2](#streamedivec2), [StreamedIVec3](#streamedivec3), [StreamedIVec4](#streamedivec4), [StreamedUInt](#streameduint), [StreamedUIVec2](#streameduivec2), [StreamedUIVec3](#streameduivec3), [StreamedUIVec4](#streameduivec4), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4), [Time](#time), [VelocityFloat](#velocityfloat), [VelocityVec2](#velocityvec2), [VelocityVec3](#velocityvec3), [VelocityVec4](#velocityvec4)) | resources made accessible to the fragment stage of the `program` | 
+`attributes` |  | [`node_dict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferMat4](#buffer)) | extra vertex attributes made accessible to the `program` | 
+`instance_attributes` |  | [`node_dict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferMat4](#buffer)) | per instance extra vertex attributes made accessible to the `program` | 
+`nb_instances` |  | [`i32`](#parameter-types) | number of instances to draw | `1`
 
 
 **Source**: [node_render.c](/libnodegl/node_render.c)
@@ -526,10 +526,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to be rasterized to `color_textures` and optionally to `depth_texture` | 
-`color_textures` |  | [`NodeList`](#parameter-types) ([Texture2D](#texture2d), [TextureCube](#texturecube)) | destination color texture | 
-`depth_texture` |  | [`Node`](#parameter-types) ([Texture2D](#texture2d)) | destination depth (and potentially combined stencil) texture | 
-`samples` |  | [`int`](#parameter-types) | number of samples used for multisampling anti-aliasing | `0`
+`child` |  | [`node`](#parameter-types) | scene to be rasterized to `color_textures` and optionally to `depth_texture` | 
+`color_textures` |  | [`node_list`](#parameter-types) ([Texture2D](#texture2d), [TextureCube](#texturecube)) | destination color texture | 
+`depth_texture` |  | [`node`](#parameter-types) ([Texture2D](#texture2d)) | destination depth (and potentially combined stencil) texture | 
+`samples` |  | [`i32`](#parameter-types) | number of samples used for multisampling anti-aliasing | `0`
 `clear_color` |  | [`vec4`](#parameter-types) | color used to clear the `color_texture` | (`0`,`0`,`0`,`0`)
 `features` |  | [`framebuffer_features`](#framebuffer_features-choices) | framebuffer feature mask | `0`
 
@@ -554,11 +554,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to rotate | 
-`angle` | ✓ | [`double`](#parameter-types) | rotation angle in degrees | `0`
+`child` |  | [`node`](#parameter-types) | scene to rotate | 
+`angle` | ✓ | [`f64`](#parameter-types) | rotation angle in degrees | `0`
 `axis` |  | [`vec3`](#parameter-types) | rotation axis | (`0`,`0`,`1`)
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
-`anim` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat)) | `angle` animation | 
+`anim` |  | [`node`](#parameter-types) ([AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat)) | `angle` animation | 
 
 
 **Source**: [node_rotate.c](/libnodegl/node_rotate.c)
@@ -568,10 +568,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to rotate | 
+`child` |  | [`node`](#parameter-types) | scene to rotate | 
 `quat` | ✓ | [`vec4`](#parameter-types) | quaternion | (`0`,`0`,`0`,`1`)
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
-`anim` |  | [`Node`](#parameter-types) ([AnimatedQuat](#animatedquat)) | `quat` animation | 
+`anim` |  | [`node`](#parameter-types) ([AnimatedQuat](#animatedquat)) | `quat` animation | 
 
 
 **Source**: [node_rotatequat.c](/libnodegl/node_rotatequat.c)
@@ -581,10 +581,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to scale | 
+`child` |  | [`node`](#parameter-types) | scene to scale | 
 `factors` | ✓ | [`vec3`](#parameter-types) | scaling factors (how much to scale on each axis) | (`1`,`1`,`1`)
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the scale | (`0`,`0`,`0`)
-`anim` |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3), [StreamedVec3](#streamedvec3)) | `factors` animation | 
+`anim` |  | [`node`](#parameter-types) ([AnimatedVec3](#animatedvec3), [StreamedVec3](#streamedvec3)) | `factors` animation | 
 
 
 **Source**: [node_scale.c](/libnodegl/node_scale.c)
@@ -594,11 +594,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to skew | 
+`child` |  | [`node`](#parameter-types) | scene to skew | 
 `angles` | ✓ | [`vec3`](#parameter-types) | skewing angles, only components forming a plane opposite to `axis` should be set | (`0`,`0`,`0`)
 `axis` |  | [`vec3`](#parameter-types) | skew axis | (`1`,`0`,`0`)
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the skew | (`0`,`0`,`0`)
-`anim` |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3), [StreamedVec3](#streamedvec3)) | `angles` animation | 
+`anim` |  | [`node`](#parameter-types) ([AnimatedVec3](#animatedvec3), [StreamedVec3](#streamedvec3)) | `angles` animation | 
 
 
 **Source**: [node_skew.c](/libnodegl/node_skew.c)
@@ -608,11 +608,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`points` |  | [`Node`](#parameter-types) ([BufferVec3](#buffer)) | anchor points the path go through | 
+`points` |  | [`node`](#parameter-types) ([BufferVec3](#buffer)) | anchor points the path go through | 
 `control1` |  | [`vec3`](#parameter-types) | initial control point | (`0`,`0`,`0`)
 `control2` |  | [`vec3`](#parameter-types) | final control point | (`0`,`0`,`0`)
-`precision` |  | [`int`](#parameter-types) | number of divisions per curve segment | `64`
-`tension` |  | [`double`](#parameter-types) | tension between points | `0.5`
+`precision` |  | [`i32`](#parameter-types) | number of divisions per curve segment | `64`
+`tension` |  | [`f64`](#parameter-types) | tension between points | `0.5`
 
 
 **Source**: [node_smoothpath.c](/libnodegl/node_smoothpath.c)
@@ -622,14 +622,14 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`text` | ✓ | [`string`](#parameter-types) | text string to rasterize | 
+`text` | ✓ | [`str`](#parameter-types) | text string to rasterize | 
 `fg_color` | ✓ | [`vec4`](#parameter-types) | foreground text color | (`1`,`1`,`1`,`1`)
 `bg_color` | ✓ | [`vec4`](#parameter-types) | background text color | (`0`,`0`,`0`,`0.8`)
 `box_corner` |  | [`vec3`](#parameter-types) | origin coordinates of `box_width` and `box_height` vectors | (`-1`,`-1`,`0`)
 `box_width` |  | [`vec3`](#parameter-types) | box width vector | (`2`,`0`,`0`)
 `box_height` |  | [`vec3`](#parameter-types) | box height vector | (`0`,`2`,`0`)
-`padding` |  | [`int`](#parameter-types) | pixel padding around the text | `3`
-`font_scale` |  | [`double`](#parameter-types) | scaling of the font | `1`
+`padding` |  | [`i32`](#parameter-types) | pixel padding around the text | `3`
+`font_scale` |  | [`f64`](#parameter-types) | scaling of the font | `1`
 `valign` |  | [`valign`](#valign-choices) | vertical alignment of the text in the box | `center`
 `halign` |  | [`halign`](#halign-choices) | horizontal alignment of the text in the box | `center`
 `aspect_ratio` | ✓ | [`rational`](#parameter-types) | box aspect ratio | 
@@ -643,14 +643,14 @@ Parameter | Live-chg. | Type | Description | Default
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
 `format` |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
-`width` |  | [`int`](#parameter-types) | width of the texture | `0`
-`height` |  | [`int`](#parameter-types) | height of the texture | `0`
+`width` |  | [`i32`](#parameter-types) | width of the texture | `0`
+`height` |  | [`i32`](#parameter-types) | height of the texture | `0`
 `min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
 `mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
 `mipmap_filter` |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
-`data_src` |  | [`Node`](#parameter-types) ([Media](#media), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
+`data_src` |  | [`node`](#parameter-types) ([Media](#media), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
 `direct_rendering` |  | [`bool`](#parameter-types) | whether direct rendering is allowed or not for media playback | `1`
 `clamp_video` |  | [`bool`](#parameter-types) | clamp ngl_texvideo() output to [0;1] | `0`
 
@@ -663,16 +663,16 @@ Parameter | Live-chg. | Type | Description | Default
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
 `format` |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
-`width` |  | [`int`](#parameter-types) | width of the texture | `0`
-`height` |  | [`int`](#parameter-types) | height of the texture | `0`
-`depth` |  | [`int`](#parameter-types) | depth of the texture | `0`
+`width` |  | [`i32`](#parameter-types) | width of the texture | `0`
+`height` |  | [`i32`](#parameter-types) | height of the texture | `0`
+`depth` |  | [`i32`](#parameter-types) | depth of the texture | `0`
 `min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
 `mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
 `mipmap_filter` |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
 `wrap_r` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the r dimension (depth) | `clamp_to_edge`
-`data_src` |  | [`Node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
+`data_src` |  | [`node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
@@ -683,14 +683,14 @@ Parameter | Live-chg. | Type | Description | Default
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
 `format` |  | [`format`](#format-choices) | format of the pixel data | `r8g8b8a8_unorm`
-`size` |  | [`int`](#parameter-types) | width and height of the texture | `0`
+`size` |  | [`i32`](#parameter-types) | width and height of the texture | `0`
 `min_filter` |  | [`filter`](#filter-choices) | texture minifying function | `nearest`
 `mag_filter` |  | [`filter`](#filter-choices) | texture magnification function | `nearest`
 `mipmap_filter` |  | [`mipmap_filter`](#mipmap_filter-choices) | texture minifying mipmap function | `none`
 `wrap_s` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the s dimension (horizontal) | `clamp_to_edge`
 `wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
 `wrap_r` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the r dimension (depth) | `clamp_to_edge`
-`data_src` |  | [`Node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
+`data_src` |  | [`node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
@@ -705,10 +705,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | time filtered scene | 
-`ranges` |  | [`NodeList`](#parameter-types) ([TimeRangeModeOnce](#timerangemodeonce), [TimeRangeModeNoop](#timerangemodenoop), [TimeRangeModeCont](#timerangemodecont)) | key frame time filtering events | 
-`prefetch_time` |  | [`double`](#parameter-types) | `child` is prefetched `prefetch_time` seconds in advance | `1`
-`max_idle_time` |  | [`double`](#parameter-types) | `child` will not be released if it is required in the next incoming `max_idle_time` seconds | `4`
+`child` |  | [`node`](#parameter-types) | time filtered scene | 
+`ranges` |  | [`node_list`](#parameter-types) ([TimeRangeModeOnce](#timerangemodeonce), [TimeRangeModeNoop](#timerangemodenoop), [TimeRangeModeCont](#timerangemodecont)) | key frame time filtering events | 
+`prefetch_time` |  | [`f64`](#parameter-types) | `child` is prefetched `prefetch_time` seconds in advance | `1`
+`max_idle_time` |  | [`f64`](#parameter-types) | `child` will not be released if it is required in the next incoming `max_idle_time` seconds | `4`
 
 
 **Source**: [node_timerangefilter.c](/libnodegl/node_timerangefilter.c)
@@ -718,7 +718,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`start_time` |  | [`double`](#parameter-types) | starting time for the scene to be drawn | `0`
+`start_time` |  | [`f64`](#parameter-types) | starting time for the scene to be drawn | `0`
 
 
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
@@ -728,7 +728,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`start_time` |  | [`double`](#parameter-types) | starting time for the scene to stop being drawn | `0`
+`start_time` |  | [`f64`](#parameter-types) | starting time for the scene to stop being drawn | `0`
 
 
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
@@ -738,8 +738,8 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`start_time` |  | [`double`](#parameter-types) | starting time for the scene to be drawn once | `0`
-`render_time` |  | [`double`](#parameter-types) | chosen time to draw | `0`
+`start_time` |  | [`f64`](#parameter-types) | starting time for the scene to be drawn once | `0`
+`render_time` |  | [`f64`](#parameter-types) | chosen time to draw | `0`
 
 
 **Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
@@ -749,7 +749,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to apply the transform to | 
+`child` |  | [`node`](#parameter-types) | scene to apply the transform to | 
 `matrix` | ✓ | [`mat4`](#parameter-types) | transformation matrix | 
 
 
@@ -760,9 +760,9 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to translate | 
+`child` |  | [`node`](#parameter-types) | scene to translate | 
 `vector` | ✓ | [`vec3`](#parameter-types) | translation vector | (`0`,`0`,`0`)
-`anim` |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3), [StreamedVec3](#streamedvec3), [AnimatedPath](#animatedpath)) | `vector` animation | 
+`anim` |  | [`node`](#parameter-types) ([AnimatedVec3](#animatedvec3), [StreamedVec3](#streamedvec3), [AnimatedPath](#animatedpath)) | `vector` animation | 
 
 
 **Source**: [node_translate.c](/libnodegl/node_translate.c)
@@ -787,10 +787,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferInt](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferInt](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -800,10 +800,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferIVec2](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferIVec2](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -813,10 +813,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferIVec3](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferIVec3](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -826,10 +826,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferIVec4](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferIVec4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -839,10 +839,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferUInt](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferUInt](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -852,10 +852,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferUIVec2](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferUIVec2](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -865,10 +865,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferUIVec3](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferUIVec3](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -878,10 +878,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferUIVec4](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferUIVec4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -891,10 +891,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferFloat](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferFloat](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -904,10 +904,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferVec2](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferVec2](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -917,10 +917,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferVec3](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferVec3](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -930,10 +930,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferVec4](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferVec4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -943,10 +943,10 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferMat4](#buffer)) | buffer containing the data to stream | 
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferMat4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamed.c](/libnodegl/node_streamed.c)
@@ -956,11 +956,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferInt](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferInt](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -970,11 +970,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferIVec2](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferIVec2](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -984,11 +984,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferIVec3](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferIVec3](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -998,11 +998,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferIVec4](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferIVec4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1012,11 +1012,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferUInt](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferUInt](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1026,11 +1026,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferUIVec2](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferUIVec2](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1040,11 +1040,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferUIVec3](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferUIVec3](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1054,11 +1054,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferUIVec4](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferUIVec4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1068,11 +1068,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferFloat](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferFloat](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1082,11 +1082,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferVec2](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferVec2](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1096,11 +1096,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferVec3](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferVec3](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1110,11 +1110,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferVec4](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferVec4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1124,11 +1124,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`count` |  | [`int`](#parameter-types) | number of elements for each chunk of data to stream | `0`
-`timestamps` |  | [`Node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
-`buffer` |  | [`Node`](#parameter-types) ([BufferMat4](#buffer)) | buffer containing the data to stream | 
+`count` |  | [`i32`](#parameter-types) | number of elements for each chunk of data to stream | `0`
+`timestamps` |  | [`node`](#parameter-types) ([BufferInt64](#buffer)) | timestamps associated with each chunk of data to stream | 
+`buffer` |  | [`node`](#parameter-types) ([BufferMat4](#buffer)) | buffer containing the data to stream | 
 `timebase` |  | [`rational`](#parameter-types) | time base in which the `timestamps` are represented | 
-`time_anim` |  | [`Node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
+`time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
 **Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
@@ -1148,7 +1148,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`value` | ✓ | [`int`](#parameter-types) | value exposed to the shader | `0`
+`value` | ✓ | [`i32`](#parameter-types) | value exposed to the shader | `0`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1188,7 +1188,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`value` | ✓ | [`uint`](#parameter-types) | value exposed to the shader | `0`
+`value` | ✓ | [`u32`](#parameter-types) | value exposed to the shader | `0`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1198,7 +1198,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`value` | ✓ | [`uivec2`](#parameter-types) | value exposed to the shader | (`0`,`0`)
+`value` | ✓ | [`uvec2`](#parameter-types) | value exposed to the shader | (`0`,`0`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1208,7 +1208,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`value` | ✓ | [`uivec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
+`value` | ✓ | [`uvec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1218,7 +1218,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`value` | ✓ | [`uivec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+`value` | ✓ | [`uvec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1229,7 +1229,7 @@ Parameter | Live-chg. | Type | Description | Default
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
 `value` | ✓ | [`mat4`](#parameter-types) | value exposed to the shader | 
-`transform` |  | [`Node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `value` transformation chain | 
+`transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `value` transformation chain | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1239,7 +1239,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`value` | ✓ | [`double`](#parameter-types) | value exposed to the shader | `0`
+`value` | ✓ | [`f64`](#parameter-types) | value exposed to the shader | `0`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1290,7 +1290,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`child` |  | [`Node`](#parameter-types) | scene to be rendered or not | 
+`child` |  | [`node`](#parameter-types) | scene to be rendered or not | 
 `enabled` | ✓ | [`bool`](#parameter-types) | set if the scene should be rendered | `1`
 
 
@@ -1301,7 +1301,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`animation` |  | [`Node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | 1D animation to analyze the velocity from | 
+`animation` |  | [`node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | 1D animation to analyze the velocity from | 
 
 
 **Source**: [node_velocity.c](/libnodegl/node_velocity.c)
@@ -1311,7 +1311,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`animation` |  | [`Node`](#parameter-types) ([AnimatedVec2](#animatedvec2)) | 2D animation to analyze the velocity from | 
+`animation` |  | [`node`](#parameter-types) ([AnimatedVec2](#animatedvec2)) | 2D animation to analyze the velocity from | 
 
 
 **Source**: [node_velocity.c](/libnodegl/node_velocity.c)
@@ -1321,7 +1321,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`animation` |  | [`Node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) | 3D animation to analyze the velocity from | 
+`animation` |  | [`node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) | 3D animation to analyze the velocity from | 
 
 
 **Source**: [node_velocity.c](/libnodegl/node_velocity.c)
@@ -1331,7 +1331,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`animation` |  | [`Node`](#parameter-types) ([AnimatedVec4](#animatedvec4)) | 4D animation to analyze the velocity from | 
+`animation` |  | [`node`](#parameter-types) ([AnimatedVec4](#animatedvec4)) | 4D animation to analyze the velocity from | 
 
 
 **Source**: [node_velocity.c](/libnodegl/node_velocity.c)
@@ -1341,26 +1341,26 @@ Parameter types
 
 Type | Description
 ---- | -----------
-`int` | Integer
+`i32` | Integer
 `ivec2` | 2 integers
 `ivec3` | 3 integers
 `ivec4` | 4 integers
 `bool` | Boolean (map to `int` in C)
-`uint` | Unsigned integer
-`uivec2` | 2 unsigned integers
-`uivec3` | 3 unsigned integers
-`uivec4` | 4 unsigned integers
-`double` | Double-precision float
-`string` | String
+`u32` | Unsigned integer
+`uvec2` | 2 unsigned integers
+`uvec3` | 3 unsigned integers
+`uvec4` | 4 unsigned integers
+`f64` | Double-precision float
+`str` | String
 `data` | Agnostic data buffer
 `vec2` | 2 single-precision floats
 `vec3` | 3 single-precision floats
 `vec4` | 4 single-precision floats
 `mat4` | 4x4 single-precision floats
-`Node` | node.gl Node
-`NodeList` | List of node.gl Node
-`doubleList` | List of double-precision floats
-`NodeDict` | Dictionary mapping arbitrary string identifiers to node.gl Nodes
+`node` | node.gl Node
+`node_list` | List of node.gl Node
+`f64_list` | List of double-precision floats
+`node_dict` | Dictionary mapping arbitrary string identifiers to node.gl Nodes
 `select` | Selection of one constant (expressed as a string)
 `flags` | Combination of constants (expressed as strings), using `+` as separator. Can be empty for none.
 `rational` | Rational number (expressed as 2 integers, respectively as numerator and denominator)
