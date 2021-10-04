@@ -141,6 +141,7 @@ struct buffer_layout {
     int stride;     // stride of 1 element, in bytes
     int comp;       // number of components per element
     int count;      // number of elements
+    int offset;     // offset where the data starts in the buffer, in bytes
 };
 
 struct geometry_priv {

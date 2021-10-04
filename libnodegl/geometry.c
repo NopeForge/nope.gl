@@ -37,7 +37,7 @@ static int geometry_gen_buffer(struct buffer **bufferp, const struct buffer_layo
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_upload(buffer, data, size, 0);
+    ret = ngli_buffer_upload(buffer, data, size, layout->offset);
     if (ret < 0)
         return ret;
 
@@ -55,6 +55,7 @@ int ngli_geometry_gen_vec3(struct buffer **bufferp, struct buffer_layout *layout
         .stride = ngli_format_get_bytes_per_pixel(format),
         .comp   = ngli_format_get_nb_comp(format),
         .count  = count,
+        .offset = 0,
     };
     return geometry_gen_buffer(bufferp, layout, gpu_ctx, data, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 }
@@ -69,6 +70,7 @@ int ngli_geometry_gen_vec2(struct buffer **bufferp, struct buffer_layout *layout
         .stride = ngli_format_get_bytes_per_pixel(format),
         .comp   = ngli_format_get_nb_comp(format),
         .count  = count,
+        .offset = 0,
     };
     return geometry_gen_buffer(bufferp, layout, gpu_ctx, data, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 }
@@ -83,6 +85,7 @@ int ngli_geometry_gen_indices(struct buffer **bufferp, struct buffer_layout *lay
         .stride = ngli_format_get_bytes_per_pixel(format),
         .comp   = ngli_format_get_nb_comp(format),
         .count  = count,
+        .offset = 0,
     };
     return geometry_gen_buffer(bufferp, layout, gpu_ctx, data, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT);
 }
