@@ -357,20 +357,6 @@ NGL_API int ngl_node_param_add_f64s(struct ngl_node *node, const char *key,
                                     int nb_f64s, double *f64s);
 
 /**
- * Set a parameter value of an allocated node.
- *
- * If the type of the parameter is node based, the reference counter of the
- * passed node will be incremented.
- *
- * @param node      pointer to the target node
- * @param key       string identifying the parameter
- * @param ...       the value in parameter type
- *
- * @return 0 on success, NGL_ERROR_* (< 0) on error
- */
-NGL_API int ngl_node_param_set(struct ngl_node *node, const char *key, ...);
-
-/**
  * All ngl_node_param_set_* functions set a parameter value of an allocated
  * node.
  *

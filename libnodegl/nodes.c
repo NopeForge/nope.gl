@@ -19,7 +19,6 @@
  * under the License.
  */
 
-#include <stdarg.h>
 #include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -794,43 +793,6 @@ int ngl_node_param_set_vec4(struct ngl_node *node, const char *key, const float 
 int ngl_node_param_set_dict(struct ngl_node *node, const char *key, const char *name, struct ngl_node *value)
 {
     FORWARD_TO_PARAM(dict, name, value);
-}
-
-int ngl_node_param_set(struct ngl_node *node, const char *key, ...)
-{
-    int ret = 0;
-    va_list ap;
-
-    uint8_t *base_ptr;
-    const struct node_param *par = ngli_node_param_find(node, key, &base_ptr);
-    if (!par)
-        return NGL_ERROR_NOT_FOUND;
-
-    if (node->ctx && !(par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
-        LOG(ERROR, "%s.%s can not be live changed", node->label, key);
-        return NGL_ERROR_INVALID_USAGE;
-    }
-
-    va_start(ap, key);
-    ret = ngli_params_set(base_ptr, par, &ap);
-    va_end(ap);
-    if (ret < 0) {
-        LOG(ERROR, "unable to set %s.%s", node->label, key);
-        return ret;
-    }
-
-    if (node->ctx) {
-        if (par->update_func) {
-            ret = par->update_func(node);
-            if (ret < 0)
-                return ret;
-        }
-        ret = node_invalidate_branch(node);
-        if (ret < 0)
-            return ret;
-    }
-
-    return ret;
 }
 
 struct ngl_node *ngl_node_ref(struct ngl_node *node)
