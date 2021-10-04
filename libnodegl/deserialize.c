@@ -30,26 +30,27 @@
 #include "internal.h"
 #include "params.h"
 
-#define CASE_LITERAL(param_type, type, parse_func)      \
+#define CASE_LITERAL(param_type, type, set_type, parse_func)    \
 case param_type: {                                      \
     type v;                                             \
     len = parse_func(str, &v);                          \
     if (len < 0)                                        \
         return NGL_ERROR_INVALID_DATA;                  \
-    int ret = ngli_params_vset(base_ptr, par, v);       \
+    int ret = ngli_params_set_##set_type(dstp, par, v); \
     if (ret < 0)                                        \
         return ret;                                     \
     break;                                              \
 }
 
-#define CASE_VEC(parse_func, vals, expected_nb_vals) do {       \
+#define CASE_VEC(parse_func, type, set_type, expected_nb_vals) do { \
     int nb_vals;                                                \
+    type *vals;                                                 \
     len = parse_func(str, &vals, &nb_vals);                     \
     if (len < 0 || nb_vals != expected_nb_vals) {               \
         ngli_free(vals);                                        \
         return NGL_ERROR_INVALID_DATA;                          \
     }                                                           \
-    int ret = ngli_params_vset(base_ptr, par, vals);            \
+    int ret = ngli_params_set_##set_type(dstp, par, vals);      \
     ngli_free(vals);                                            \
     if (ret < 0)                                                \
         return ret;                                             \
@@ -237,24 +238,39 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
 {
     int len = -1;
 
+    uint8_t *dstp = base_ptr + par->offset;
+
     switch (par->type) {
-        CASE_LITERAL(NGLI_PARAM_TYPE_I32,  int,      parse_int)
-        CASE_LITERAL(NGLI_PARAM_TYPE_U32,  unsigned, parse_uint)
-        CASE_LITERAL(NGLI_PARAM_TYPE_BOOL, int,      parse_bool)
-        CASE_LITERAL(NGLI_PARAM_TYPE_F64,  double,   parse_double)
+        CASE_LITERAL(NGLI_PARAM_TYPE_I32,  int,      i32,  parse_int)
+        CASE_LITERAL(NGLI_PARAM_TYPE_U32,  unsigned, u32,  parse_uint)
+        CASE_LITERAL(NGLI_PARAM_TYPE_BOOL, int,      bool, parse_bool)
+        CASE_LITERAL(NGLI_PARAM_TYPE_F64,  double,   f64,  parse_double)
 
         case NGLI_PARAM_TYPE_RATIONAL: {
             int r[2] = {0};
             int ret = sscanf(str, "%d/%d%n", &r[0], &r[1], &len);
             if (ret != 2)
                 return NGL_ERROR_INVALID_DATA;
-            ret = ngli_params_vset(base_ptr, par, r[0], r[1]);
+            ret = ngli_params_set_rational(dstp, par, r[0], r[1]);
             if (ret < 0)
                 return ret;
             break;
         }
 
-        case NGLI_PARAM_TYPE_FLAGS:
+        case NGLI_PARAM_TYPE_FLAGS: {
+            len = strcspn(str, " \n");
+            char *s = ngli_malloc(len + 1);
+            if (!s)
+                return NGL_ERROR_MEMORY;
+            memcpy(s, str, len);
+            s[len] = 0;
+            int ret = ngli_params_set_flags(dstp, par, s);
+            ngli_free(s);
+            if (ret < 0)
+                return ret;
+            break;
+        }
+
         case NGLI_PARAM_TYPE_SELECT: {
             len = strcspn(str, " \n");
             char *s = ngli_malloc(len + 1);
@@ -262,7 +278,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                 return NGL_ERROR_MEMORY;
             memcpy(s, str, len);
             s[len] = 0;
-            int ret = ngli_params_vset(base_ptr, par, s);
+            int ret = ngli_params_set_select(dstp, par, s);
             ngli_free(s);
             if (ret < 0)
                 return ret;
@@ -284,7 +300,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                 }
             }
             *s = 0;
-            int ret = ngli_params_vset(base_ptr, par, sstart);
+            int ret = ngli_params_set_str(dstp, par, sstart);
             ngli_free(sstart);
             if (ret < 0)
                 return ret;
@@ -315,7 +331,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                 data[i] = CHR_FROM_HEX(cur);
                 cur += 2;
             }
-            ret = ngli_params_vset(base_ptr, par, size, data);
+            ret = ngli_params_set_data(dstp, par, size, data);
             ngli_free(data);
             if (ret < 0)
                 return ret;
@@ -323,35 +339,16 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             break;
         }
 
-        case NGLI_PARAM_TYPE_IVEC2:
-        case NGLI_PARAM_TYPE_IVEC3:
-        case NGLI_PARAM_TYPE_IVEC4: {
-            int *iv = NULL;
-            CASE_VEC(parse_ints, iv, par->type - NGLI_PARAM_TYPE_IVEC2 + 2);
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_UVEC2:
-        case NGLI_PARAM_TYPE_UVEC3:
-        case NGLI_PARAM_TYPE_UVEC4: {
-            unsigned *uv = NULL;
-            CASE_VEC(parse_uints, uv, par->type - NGLI_PARAM_TYPE_UVEC2 + 2);
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_VEC2:
-        case NGLI_PARAM_TYPE_VEC3:
-        case NGLI_PARAM_TYPE_VEC4: {
-            float *v = NULL;
-            CASE_VEC(parse_floats, v, par->type - NGLI_PARAM_TYPE_VEC2 + 2);
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_MAT4: {
-            float *m = NULL;
-            CASE_VEC(parse_floats, m, 16);
-            break;
-        }
+        case NGLI_PARAM_TYPE_IVEC2: CASE_VEC(parse_ints,   int,      ivec2, 2); break;
+        case NGLI_PARAM_TYPE_IVEC3: CASE_VEC(parse_ints,   int,      ivec3, 3); break;
+        case NGLI_PARAM_TYPE_IVEC4: CASE_VEC(parse_ints,   int,      ivec4, 4); break;
+        case NGLI_PARAM_TYPE_UVEC2: CASE_VEC(parse_uints,  unsigned, uvec2, 2); break;
+        case NGLI_PARAM_TYPE_UVEC3: CASE_VEC(parse_uints,  unsigned, uvec3, 3); break;
+        case NGLI_PARAM_TYPE_UVEC4: CASE_VEC(parse_uints,  unsigned, uvec4, 4); break;
+        case NGLI_PARAM_TYPE_VEC2:  CASE_VEC(parse_floats, float,    vec2,  2); break;
+        case NGLI_PARAM_TYPE_VEC3:  CASE_VEC(parse_floats, float,    vec3,  3); break;
+        case NGLI_PARAM_TYPE_VEC4:  CASE_VEC(parse_floats, float,    vec4,  4); break;
+        case NGLI_PARAM_TYPE_MAT4:  CASE_VEC(parse_floats, float,    mat4, 16); break;
 
         case NGLI_PARAM_TYPE_NODE: {
             int node_id;
@@ -361,7 +358,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             struct ngl_node **nodep = get_abs_node(nodes_array, node_id);
             if (!nodep)
                 return NGL_ERROR_INVALID_DATA;
-            int ret = ngli_params_vset(base_ptr, par, *nodep);
+            int ret = ngli_params_set_node(dstp, par, *nodep);
             if (ret < 0)
                 return ret;
             break;
@@ -414,7 +411,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                     FREE_KVS(nb_nodes, node_keys, node_ids);
                     return NGL_ERROR_INVALID_DATA;
                 }
-                int ret = ngli_params_vset(base_ptr, par, key, *nodep);
+                int ret = ngli_params_set_dict(dstp, par, key, *nodep);
                 if (ret < 0) {
                     FREE_KVS(nb_nodes, node_keys, node_ids);
                     return ret;
