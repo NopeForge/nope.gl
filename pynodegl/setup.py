@@ -180,7 +180,7 @@ cdef class _Node:
             if not isinstance(key, str) or (val is not None and not isinstance(val, _Node)):
                 raise TypeError("update_%s() takes a dictionary of <string, node>" % field_name)
             node = (<_Node>val).ctx if val is not None else NULL
-            ret = ngl_node_param_set(self.ctx, field_name, <const char *>key, node)
+            ret = ngl_node_param_set_dict(self.ctx, field_name, key, node)
             if ret < 0:
                 return ret
         return 0
@@ -311,17 +311,17 @@ cdef class {node}({parent_node}):
                     cparam, vec_init_code = _get_vec_init_code(field_type, field_name)
                     class_str += f'''
     def set_{field_name}(self, *{field_name}):{vec_init_code}
-        return ngl_node_param_set(self.ctx, "{field_name}", {cparam})
+        return ngl_node_param_set_{field_type}(self.ctx, "{field_name}", {cparam})
 '''
 
                 # Set method for data
                 elif field_type == 'data':
                     class_str += f'''
     def set_{field_name}(self, array.array {field_name}):
-        return ngl_node_param_set(self.ctx,
-                                  "{field_name}",
-                                  <int>({field_name}.buffer_info()[1] * {field_name}.itemsize),
-                                  <void *>({field_name}.data.as_voidptr))
+        return ngl_node_param_set_data(self.ctx,
+                                       "{field_name}",
+                                       {field_name}.buffer_info()[1] * {field_name}.itemsize,
+                                       ({field_name}.data.as_voidptr))
 
 '''
 
@@ -329,10 +329,7 @@ cdef class {node}({parent_node}):
                 elif field_type == 'rational':
                     class_str += f'''
     def set_{field_name}(self, tuple {field_name}):
-        return ngl_node_param_set(self.ctx,
-                                  "{field_name}",
-                                  <int>{field_name}[0],
-                                  <int>{field_name}[1]);
+        return ngl_node_param_set_rational(self.ctx, "{field_name}", {field_name}[0], {field_name}[1]);
 '''
 
                 # Set method
@@ -346,7 +343,7 @@ cdef class {node}({parent_node}):
                         cparam += '.ctx'
                     class_str += f'''
     def set_{field_name}(self, {ctype} {field_name}):
-        return ngl_node_param_set(self.ctx, "{field_name}", {cparam})
+        return ngl_node_param_set_{field_type}(self.ctx, "{field_name}", {cparam})
 '''
 
             content += class_str + '\n'
