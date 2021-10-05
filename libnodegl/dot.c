@@ -75,14 +75,14 @@ static int mat_is_set(uint8_t *base_ptr, const struct node_param *par)
 static int should_print_par(uint8_t *priv, const struct node_param *par)
 {
     switch (par->type) {
-        case NGLI_PARAM_TYPE_DBL: {
+        case NGLI_PARAM_TYPE_F64: {
             const double v = *(double *)(priv + par->offset);
             return v != par->def_value.dbl;
         }
         case NGLI_PARAM_TYPE_BOOL:
         case NGLI_PARAM_TYPE_FLAGS:
         case NGLI_PARAM_TYPE_SELECT:
-        case NGLI_PARAM_TYPE_INT: {
+        case NGLI_PARAM_TYPE_I32: {
             const int v = *(int *)(priv + par->offset);
             return v != par->def_value.i64;
         }

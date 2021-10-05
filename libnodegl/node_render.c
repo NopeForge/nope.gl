@@ -143,7 +143,7 @@ static const struct node_param render_params[] = {
     {"instance_attributes", NGLI_PARAM_TYPE_NODEDICT, OFFSET(instance_attributes),
                  .node_types=ATTRIBUTES_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("per instance extra vertex attributes made accessible to the `program`")},
-    {"nb_instances", NGLI_PARAM_TYPE_INT, OFFSET(nb_instances), {.i64 = 1},
+    {"nb_instances", NGLI_PARAM_TYPE_I32, OFFSET(nb_instances), {.i64 = 1},
                  .desc=NGLI_DOCSTRING("number of instances to draw")},
     {NULL}
 };

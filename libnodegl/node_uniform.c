@@ -92,19 +92,19 @@ static const struct node_param uniform##type##_params[] = {             \
     {NULL}                                                              \
 }
 
-DECLARE_PARAMS(bool,   NGLI_PARAM_TYPE_BOOL,   opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(float,  NGLI_PARAM_TYPE_DBL,    opt.dbl,  uniformfloat_update_func);
-DECLARE_PARAMS(vec2,   NGLI_PARAM_TYPE_VEC2,   opt.vec,  uniformvec_update_func);
-DECLARE_PARAMS(vec3,   NGLI_PARAM_TYPE_VEC3,   opt.vec,  uniformvec_update_func);
-DECLARE_PARAMS(vec4,   NGLI_PARAM_TYPE_VEC4,   opt.vec,  uniformvec_update_func);
-DECLARE_PARAMS(int,    NGLI_PARAM_TYPE_INT,    opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(ivec2,  NGLI_PARAM_TYPE_IVEC2,  opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(ivec3,  NGLI_PARAM_TYPE_IVEC3,  opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(ivec4,  NGLI_PARAM_TYPE_IVEC4,  opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(uint,   NGLI_PARAM_TYPE_UINT,   opt.uvec, uniformuivec_update_func);
-DECLARE_PARAMS(uivec2, NGLI_PARAM_TYPE_UIVEC2, opt.uvec, uniformuivec_update_func);
-DECLARE_PARAMS(uivec3, NGLI_PARAM_TYPE_UIVEC3, opt.uvec, uniformuivec_update_func);
-DECLARE_PARAMS(uivec4, NGLI_PARAM_TYPE_UIVEC4, opt.uvec, uniformuivec_update_func);
+DECLARE_PARAMS(bool,   NGLI_PARAM_TYPE_BOOL,  opt.ivec, uniformivec_update_func);
+DECLARE_PARAMS(float,  NGLI_PARAM_TYPE_F64,   opt.dbl,  uniformfloat_update_func);
+DECLARE_PARAMS(vec2,   NGLI_PARAM_TYPE_VEC2,  opt.vec,  uniformvec_update_func);
+DECLARE_PARAMS(vec3,   NGLI_PARAM_TYPE_VEC3,  opt.vec,  uniformvec_update_func);
+DECLARE_PARAMS(vec4,   NGLI_PARAM_TYPE_VEC4,  opt.vec,  uniformvec_update_func);
+DECLARE_PARAMS(int,    NGLI_PARAM_TYPE_I32,   opt.ivec, uniformivec_update_func);
+DECLARE_PARAMS(ivec2,  NGLI_PARAM_TYPE_IVEC2, opt.ivec, uniformivec_update_func);
+DECLARE_PARAMS(ivec3,  NGLI_PARAM_TYPE_IVEC3, opt.ivec, uniformivec_update_func);
+DECLARE_PARAMS(ivec4,  NGLI_PARAM_TYPE_IVEC4, opt.ivec, uniformivec_update_func);
+DECLARE_PARAMS(uint,   NGLI_PARAM_TYPE_U32,   opt.uvec, uniformuivec_update_func);
+DECLARE_PARAMS(uivec2, NGLI_PARAM_TYPE_UVEC2, opt.uvec, uniformuivec_update_func);
+DECLARE_PARAMS(uivec3, NGLI_PARAM_TYPE_UVEC3, opt.uvec, uniformuivec_update_func);
+DECLARE_PARAMS(uivec4, NGLI_PARAM_TYPE_UVEC4, opt.uvec, uniformuivec_update_func);
 
 static const struct node_param uniformquat_params[] = {
     {"value",  NGLI_PARAM_TYPE_VEC4, OFFSET(opt.vec), {.vec=NGLI_QUAT_IDENTITY},

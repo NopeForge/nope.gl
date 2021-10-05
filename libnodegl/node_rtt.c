@@ -79,7 +79,7 @@ static const struct node_param rtt_params[] = {
                       .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                       .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1},
                       .desc=NGLI_DOCSTRING("destination depth (and potentially combined stencil) texture")},
-    {"samples",       NGLI_PARAM_TYPE_INT, OFFSET(samples),
+    {"samples",       NGLI_PARAM_TYPE_I32, OFFSET(samples),
                       .desc=NGLI_DOCSTRING("number of samples used for multisampling anti-aliasing")},
     {"clear_color",   NGLI_PARAM_TYPE_VEC4, OFFSET(clear_color),
                       .desc=NGLI_DOCSTRING("color used to clear the `color_texture`")},

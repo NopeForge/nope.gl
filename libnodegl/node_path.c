@@ -46,7 +46,7 @@ static const struct node_param path_params[] = {
                     },
                   .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .desc=NGLI_DOCSTRING("anchor points the path go through")},
-    {"precision", NGLI_PARAM_TYPE_INT, OFFSET(precision), {.i64=64},
+    {"precision", NGLI_PARAM_TYPE_I32, OFFSET(precision), {.i64=64},
                   .desc=NGLI_DOCSTRING("number of divisions per curve segment")},
     {NULL}
 };

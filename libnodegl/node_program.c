@@ -56,7 +56,7 @@ static const struct node_param program_params[] = {
     {"vert_out_vars", NGLI_PARAM_TYPE_NODEDICT, OFFSET(vert_out_vars),
                        .node_types=IO_NODES,
                        .desc=NGLI_DOCSTRING("in/out communication variables shared between vertex and fragment stages")},
-    {"nb_frag_output", NGLI_PARAM_TYPE_INT, OFFSET(nb_frag_output),
+    {"nb_frag_output", NGLI_PARAM_TYPE_I32, OFFSET(nb_frag_output),
                        .desc=NGLI_DOCSTRING("number of color outputs in the fragment shader")},
     {NULL}
 };

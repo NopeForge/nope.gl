@@ -162,19 +162,19 @@ static int serialize_options(struct hmap *nlist,
                 break;
             }
             case NGLI_PARAM_TYPE_BOOL:
-            case NGLI_PARAM_TYPE_INT: {
+            case NGLI_PARAM_TYPE_I32: {
                 const int v = *(int *)(priv + p->offset);
                 if (v != p->def_value.i64)
                     ngli_bstr_printf(b, " %s:%d", p->key, v);
                 break;
             }
-            case NGLI_PARAM_TYPE_UINT: {
+            case NGLI_PARAM_TYPE_U32: {
                 const int v = *(int *)(priv + p->offset);
                 if (v != p->def_value.i64)
                     ngli_bstr_printf(b, " %s:%u", p->key, v);
                 break;
             }
-            case NGLI_PARAM_TYPE_DBL: {
+            case NGLI_PARAM_TYPE_F64: {
                 const double v = *(double *)(priv + p->offset);
                 if (v != p->def_value.dbl) {
                     ngli_bstr_printf(b, " %s:", p->key);
@@ -225,11 +225,11 @@ static int serialize_options(struct hmap *nlist,
                 }
                 break;
             }
-            case NGLI_PARAM_TYPE_UIVEC2:
-            case NGLI_PARAM_TYPE_UIVEC3:
-            case NGLI_PARAM_TYPE_UIVEC4: {
+            case NGLI_PARAM_TYPE_UVEC2:
+            case NGLI_PARAM_TYPE_UVEC3:
+            case NGLI_PARAM_TYPE_UVEC4: {
                 const unsigned *uv = (const unsigned *)(priv + p->offset);
-                const int n = p->type - NGLI_PARAM_TYPE_UIVEC2 + 2;
+                const int n = p->type - NGLI_PARAM_TYPE_UVEC2 + 2;
                 if (memcmp(uv, p->def_value.uvec, n * sizeof(*uv))) {
                     ngli_bstr_printf(b, " %s:", p->key);
                     print_unsigneds(b, n, uv);
@@ -275,7 +275,7 @@ static int serialize_options(struct hmap *nlist,
                 }
                 break;
             }
-            case NGLI_PARAM_TYPE_DBLLIST: {
+            case NGLI_PARAM_TYPE_F64LIST: {
                 uint8_t *elems_p = priv + p->offset;
                 uint8_t *nb_elems_p = priv + p->offset + sizeof(double *);
                 const double *elems = *(double **)elems_p;

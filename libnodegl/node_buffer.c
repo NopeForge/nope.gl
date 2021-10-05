@@ -36,7 +36,7 @@
 
 #define OFFSET(x) offsetof(struct buffer_priv, opt.x)
 static const struct node_param buffer_params[] = {
-    {"count",  NGLI_PARAM_TYPE_INT,    OFFSET(count),
+    {"count",  NGLI_PARAM_TYPE_I32,    OFFSET(count),
                .desc=NGLI_DOCSTRING("number of elements")},
     {"data",   NGLI_PARAM_TYPE_DATA,   OFFSET(data),
                .desc=NGLI_DOCSTRING("buffer of `count` elements")},
@@ -45,7 +45,7 @@ static const struct node_param buffer_params[] = {
     {"block",  NGLI_PARAM_TYPE_NODE,    OFFSET(block),
                .node_types=(const int[]){NGL_NODE_BLOCK, -1},
                .desc=NGLI_DOCSTRING("reference a field from the given block")},
-    {"block_field", NGLI_PARAM_TYPE_INT, OFFSET(block_field),
+    {"block_field", NGLI_PARAM_TYPE_I32, OFFSET(block_field),
                     .desc=NGLI_DOCSTRING("field index in `block`")},
     {NULL}
 };

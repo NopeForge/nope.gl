@@ -33,7 +33,7 @@
 
 #define DECLARE_STREAMED_PARAMS(name, allowed_node)                                                       \
 static const struct node_param streamedbuffer##name##_params[] = {                                        \
-    {"count",      NGLI_PARAM_TYPE_INT, OFFSET(opt.count),                                                \
+    {"count",      NGLI_PARAM_TYPE_I32, OFFSET(opt.count),                                                \
                    .desc=NGLI_DOCSTRING("number of elements for each chunk of data to stream")},          \
     {"timestamps", NGLI_PARAM_TYPE_NODE, OFFSET(timestamps), .flags=NGLI_PARAM_FLAG_NON_NULL,             \
                    .node_types=(const int[]){NGL_NODE_BUFFERINT64, -1},                                   \

@@ -71,23 +71,23 @@ static const struct param_choices easing_choices = {
 
 #define ANIMKEYFRAME_PARAMS(id, value_data_key, value_data_type, value_data_field)                      \
 static const struct node_param animkeyframe##id##_params[] = {                                          \
-    {"time",                 NGLI_PARAM_TYPE_DBL, OFFSET(time),                                         \
+    {"time",                 NGLI_PARAM_TYPE_F64, OFFSET(time),                                         \
                              .desc=NGLI_DOCSTRING("the time key point in seconds")},                    \
     {#value_data_key,        value_data_type, OFFSET(value_data_field),                                 \
                              .desc=NGLI_DOCSTRING("the " #value_data_key " at time `time`")},           \
     {"easing",               NGLI_PARAM_TYPE_SELECT,  OFFSET(easing), {.i64=EASING_LINEAR},             \
                              .choices=&easing_choices,                                                  \
                              .desc=NGLI_DOCSTRING("easing interpolation from previous key frame")},     \
-    {"easing_args",          NGLI_PARAM_TYPE_DBLLIST, OFFSET(args),                                     \
+    {"easing_args",          NGLI_PARAM_TYPE_F64LIST, OFFSET(args),                                     \
                              .desc=NGLI_DOCSTRING("a list of arguments some easings may use")},         \
-    {"easing_start_offset",  NGLI_PARAM_TYPE_DBL, OFFSET(offsets[0]), {.dbl=0},                         \
+    {"easing_start_offset",  NGLI_PARAM_TYPE_F64, OFFSET(offsets[0]), {.dbl=0},                         \
                              .desc=NGLI_DOCSTRING("starting offset of the truncation of the easing")},  \
-    {"easing_end_offset",    NGLI_PARAM_TYPE_DBL, OFFSET(offsets[1]), {.dbl=1},                         \
+    {"easing_end_offset",    NGLI_PARAM_TYPE_F64, OFFSET(offsets[1]), {.dbl=1},                         \
                              .desc=NGLI_DOCSTRING("ending offset of the truncation of the easing")},    \
     {NULL}                                                                                              \
 }
 
-ANIMKEYFRAME_PARAMS(float, value, NGLI_PARAM_TYPE_DBL, scalar);
+ANIMKEYFRAME_PARAMS(float, value, NGLI_PARAM_TYPE_F64, scalar);
 ANIMKEYFRAME_PARAMS(vec2,  value, NGLI_PARAM_TYPE_VEC2, value);
 ANIMKEYFRAME_PARAMS(vec3,  value, NGLI_PARAM_TYPE_VEC3, value);
 ANIMKEYFRAME_PARAMS(vec4,  value, NGLI_PARAM_TYPE_VEC4, value);

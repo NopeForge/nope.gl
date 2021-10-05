@@ -238,10 +238,10 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
     int len = -1;
 
     switch (par->type) {
-        CASE_LITERAL(NGLI_PARAM_TYPE_INT,  int,      parse_int)
-        CASE_LITERAL(NGLI_PARAM_TYPE_UINT, unsigned, parse_uint)
+        CASE_LITERAL(NGLI_PARAM_TYPE_I32,  int,      parse_int)
+        CASE_LITERAL(NGLI_PARAM_TYPE_U32,  unsigned, parse_uint)
         CASE_LITERAL(NGLI_PARAM_TYPE_BOOL, int,      parse_bool)
-        CASE_LITERAL(NGLI_PARAM_TYPE_DBL,  double,   parse_double)
+        CASE_LITERAL(NGLI_PARAM_TYPE_F64,  double,   parse_double)
 
         case NGLI_PARAM_TYPE_RATIONAL: {
             int r[2] = {0};
@@ -331,11 +331,11 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             break;
         }
 
-        case NGLI_PARAM_TYPE_UIVEC2:
-        case NGLI_PARAM_TYPE_UIVEC3:
-        case NGLI_PARAM_TYPE_UIVEC4: {
+        case NGLI_PARAM_TYPE_UVEC2:
+        case NGLI_PARAM_TYPE_UVEC3:
+        case NGLI_PARAM_TYPE_UVEC4: {
             unsigned *uv = NULL;
-            CASE_VEC(parse_uints, uv, par->type - NGLI_PARAM_TYPE_UIVEC2 + 2);
+            CASE_VEC(parse_uints, uv, par->type - NGLI_PARAM_TYPE_UVEC2 + 2);
             break;
         }
 
@@ -388,7 +388,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             break;
         }
 
-        case NGLI_PARAM_TYPE_DBLLIST: {
+        case NGLI_PARAM_TYPE_F64LIST: {
             double *dbls;
             int nb_dbls;
             len = parse_doubles(str, &dbls, &nb_dbls);

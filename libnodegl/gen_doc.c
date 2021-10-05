@@ -115,7 +115,7 @@ static char *get_default_str(const struct node_param *p)
             ngli_free(s);
             break;
         }
-        case NGLI_PARAM_TYPE_DBL:
+        case NGLI_PARAM_TYPE_F64:
             ngli_bstr_printf(b, "`%g`", p->def_value.dbl);
             break;
         case NGLI_PARAM_TYPE_BOOL:
@@ -124,21 +124,21 @@ static char *get_default_str(const struct node_param *p)
             else
                 ngli_bstr_printf(b, "`%d`", (int)p->def_value.i64);
             break;
-        case NGLI_PARAM_TYPE_INT:
+        case NGLI_PARAM_TYPE_I32:
             ngli_bstr_printf(b, "`%d`", (int)p->def_value.i64);
             break;
-        case NGLI_PARAM_TYPE_UINT:
+        case NGLI_PARAM_TYPE_U32:
             ngli_bstr_printf(b, "`%u`", (unsigned)p->def_value.i64);
             break;
-        case NGLI_PARAM_TYPE_IVEC2:  ngli_bstr_printf(b, "(`%d`,`%d`)",           NGLI_ARG_VEC2(p->def_value.ivec)); break;
-        case NGLI_PARAM_TYPE_IVEC3:  ngli_bstr_printf(b, "(`%d`,`%d`,`%d`)",      NGLI_ARG_VEC3(p->def_value.ivec)); break;
-        case NGLI_PARAM_TYPE_IVEC4:  ngli_bstr_printf(b, "(`%d`,`%d`,`%d`,`%d`)", NGLI_ARG_VEC4(p->def_value.ivec)); break;
-        case NGLI_PARAM_TYPE_UIVEC2: ngli_bstr_printf(b, "(`%u`,`%u`)",           NGLI_ARG_VEC2(p->def_value.uvec)); break;
-        case NGLI_PARAM_TYPE_UIVEC3: ngli_bstr_printf(b, "(`%u`,`%u`,`%u`)",      NGLI_ARG_VEC3(p->def_value.uvec)); break;
-        case NGLI_PARAM_TYPE_UIVEC4: ngli_bstr_printf(b, "(`%u`,`%u`,`%u`,`%u`)", NGLI_ARG_VEC4(p->def_value.uvec)); break;
-        case NGLI_PARAM_TYPE_VEC2:   ngli_bstr_printf(b, "(`%g`,`%g`)",           NGLI_ARG_VEC2(p->def_value.vec));  break;
-        case NGLI_PARAM_TYPE_VEC3:   ngli_bstr_printf(b, "(`%g`,`%g`,`%g`)",      NGLI_ARG_VEC3(p->def_value.vec));  break;
-        case NGLI_PARAM_TYPE_VEC4:   ngli_bstr_printf(b, "(`%g`,`%g`,`%g`,`%g`)", NGLI_ARG_VEC4(p->def_value.vec));  break;
+        case NGLI_PARAM_TYPE_IVEC2: ngli_bstr_printf(b, "(`%d`,`%d`)",           NGLI_ARG_VEC2(p->def_value.ivec)); break;
+        case NGLI_PARAM_TYPE_IVEC3: ngli_bstr_printf(b, "(`%d`,`%d`,`%d`)",      NGLI_ARG_VEC3(p->def_value.ivec)); break;
+        case NGLI_PARAM_TYPE_IVEC4: ngli_bstr_printf(b, "(`%d`,`%d`,`%d`,`%d`)", NGLI_ARG_VEC4(p->def_value.ivec)); break;
+        case NGLI_PARAM_TYPE_UVEC2: ngli_bstr_printf(b, "(`%u`,`%u`)",           NGLI_ARG_VEC2(p->def_value.uvec)); break;
+        case NGLI_PARAM_TYPE_UVEC3: ngli_bstr_printf(b, "(`%u`,`%u`,`%u`)",      NGLI_ARG_VEC3(p->def_value.uvec)); break;
+        case NGLI_PARAM_TYPE_UVEC4: ngli_bstr_printf(b, "(`%u`,`%u`,`%u`,`%u`)", NGLI_ARG_VEC4(p->def_value.uvec)); break;
+        case NGLI_PARAM_TYPE_VEC2:  ngli_bstr_printf(b, "(`%g`,`%g`)",           NGLI_ARG_VEC2(p->def_value.vec));  break;
+        case NGLI_PARAM_TYPE_VEC3:  ngli_bstr_printf(b, "(`%g`,`%g`,`%g`)",      NGLI_ARG_VEC3(p->def_value.vec));  break;
+        case NGLI_PARAM_TYPE_VEC4:  ngli_bstr_printf(b, "(`%g`,`%g`,`%g`,`%g`)", NGLI_ARG_VEC4(p->def_value.vec));  break;
     }
 
     char *def = ngli_bstr_strdup(b);
