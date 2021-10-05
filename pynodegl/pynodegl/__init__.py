@@ -19,6 +19,7 @@
 # under the License.
 #
 
+from .specs import SPECS
 import _pynodegl as _ngl
 
 from _pynodegl import (
@@ -234,7 +235,7 @@ def _declare_class(class_name, params):
 
 
 def _declare_classes():
-    for class_name, params in _ngl.SPECS.items():
+    for class_name, params in SPECS.items():
         _declare_class(class_name, params)
 
 

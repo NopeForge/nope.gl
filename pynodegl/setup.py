@@ -21,7 +21,7 @@
 #
 
 import pprint
-from setuptools import setup, Command, Extension
+from setuptools import setup, find_packages, Command, Extension
 from setuptools.command.build_ext import build_ext
 
 
@@ -51,16 +51,14 @@ _LIB_CFG = LibNodeGLConfig()
 class CommandUtils:
 
     @staticmethod
-    def _gen_definitions_pyx(specs):
-        import yaml  # must NOT be on top of this file
-
-        with open(specs) as f:
-            specs = yaml.safe_load(f)
+    def _gen_specs_py(specs):
         specs_dump = pprint.pformat(specs, sort_dicts=False)
-        content = f'SPECS = {specs_dump}\n\n'
+        return f'SPECS = {specs_dump}\n'
 
+    @staticmethod
+    def _gen_definitions_pyx(specs):
         # Map C nodes identifiers (NGL_NODE_*)
-        content += 'cdef extern from "nodegl.h":\n'
+        content = 'cdef extern from "nodegl.h":\n'
         nodes_decls = []
         constants = []
         for node in specs.keys():
@@ -76,9 +74,16 @@ class CommandUtils:
     @staticmethod
     def write_definitions_pyx():
         import os.path as op
+        import yaml  # must NOT be on top of this file
+
         specs_file = op.join(_LIB_CFG.data_root_dir, 'nodegl', 'nodes.specs')
-        content = CommandUtils._gen_definitions_pyx(specs_file)
+        with open(specs_file) as f:
+            specs = yaml.safe_load(f)
+        content = CommandUtils._gen_definitions_pyx(specs)
         with open('nodes_def.pyx', 'w') as output:
+            output.write(content)
+        content = CommandUtils._gen_specs_py(specs)
+        with open('pynodegl/specs.py', 'w') as output:
             output.write(content)
 
 
@@ -107,6 +112,7 @@ class BuildSrcCommmand(Command):
 setup(
     name='pynodegl',
     version=_LIB_CFG.version,
+    packages=find_packages(include=['pynodegl']),
     setup_requires=[
         'setuptools>=18.0',
         'cython>=0.29.6',
@@ -121,5 +127,4 @@ setup(
                            include_dirs=_LIB_CFG.include_dirs,
                            libraries=_LIB_CFG.libraries,
                            library_dirs=_LIB_CFG.library_dirs)],
-    py_modules=['pynodegl'],
 )
