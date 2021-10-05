@@ -30,7 +30,7 @@
 #include "internal.h"
 #include "params.h"
 
-#define CASE_LITERAL(type, set_type, parse_func) do {   \
+#define CASE_LITERAL(parse_func, type, set_type) do {   \
     type v;                                             \
     len = parse_func(str, &v);                          \
     if (len < 0)                                        \
@@ -240,10 +240,10 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
     uint8_t *dstp = base_ptr + par->offset;
 
     switch (par->type) {
-        case NGLI_PARAM_TYPE_I32:  CASE_LITERAL(int,      i32,  parse_int);     break;
-        case NGLI_PARAM_TYPE_U32:  CASE_LITERAL(unsigned, u32,  parse_uint);    break;
-        case NGLI_PARAM_TYPE_BOOL: CASE_LITERAL(int,      bool, parse_bool);    break;
-        case NGLI_PARAM_TYPE_F64:  CASE_LITERAL(double,   f64,  parse_double);  break;
+        case NGLI_PARAM_TYPE_I32:  CASE_LITERAL(parse_int,    int,      i32);  break;
+        case NGLI_PARAM_TYPE_U32:  CASE_LITERAL(parse_uint,   unsigned, u32);  break;
+        case NGLI_PARAM_TYPE_BOOL: CASE_LITERAL(parse_bool,   int,      bool); break;
+        case NGLI_PARAM_TYPE_F64:  CASE_LITERAL(parse_double, double,   f64);  break;
 
         case NGLI_PARAM_TYPE_RATIONAL: {
             int r[2] = {0};
