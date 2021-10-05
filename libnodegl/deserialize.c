@@ -30,8 +30,7 @@
 #include "internal.h"
 #include "params.h"
 
-#define CASE_LITERAL(param_type, type, set_type, parse_func)    \
-case param_type: {                                      \
+#define CASE_LITERAL(type, set_type, parse_func) do {   \
     type v;                                             \
     len = parse_func(str, &v);                          \
     if (len < 0)                                        \
@@ -40,7 +39,7 @@ case param_type: {                                      \
     if (ret < 0)                                        \
         return ret;                                     \
     break;                                              \
-}
+} while (0)
 
 #define CASE_VEC(parse_func, type, set_type, expected_nb_vals) do { \
     int nb_vals;                                                \
@@ -241,10 +240,10 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
     uint8_t *dstp = base_ptr + par->offset;
 
     switch (par->type) {
-        CASE_LITERAL(NGLI_PARAM_TYPE_I32,  int,      i32,  parse_int)
-        CASE_LITERAL(NGLI_PARAM_TYPE_U32,  unsigned, u32,  parse_uint)
-        CASE_LITERAL(NGLI_PARAM_TYPE_BOOL, int,      bool, parse_bool)
-        CASE_LITERAL(NGLI_PARAM_TYPE_F64,  double,   f64,  parse_double)
+        case NGLI_PARAM_TYPE_I32:  CASE_LITERAL(int,      i32,  parse_int);     break;
+        case NGLI_PARAM_TYPE_U32:  CASE_LITERAL(unsigned, u32,  parse_uint);    break;
+        case NGLI_PARAM_TYPE_BOOL: CASE_LITERAL(int,      bool, parse_bool);    break;
+        case NGLI_PARAM_TYPE_F64:  CASE_LITERAL(double,   f64,  parse_double);  break;
 
         case NGLI_PARAM_TYPE_RATIONAL: {
             int r[2] = {0};
