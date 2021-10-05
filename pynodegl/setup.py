@@ -88,17 +88,13 @@ class CommandUtils:
         # Map C nodes identifiers (NGL_NODE_*)
         content += 'cdef extern from "nodegl.h":\n'
         nodes_decls = []
-        for item in specs:
-            node = list(item.keys())[0]
+        for node in specs.keys():
             if not node.startswith('_'):
                 nodes_decls.append(f'cdef int NGL_NODE_{node.upper()}')
         nodes_decls.append(None)
         content += '\n'.join((f'    {d}') if d else '' for d in nodes_decls) + '\n'
 
-        for item in specs:
-            node = list(item.keys())[0]
-            fields = item[node]
-
+        for node, fields in specs.items():
             type_id = f'NGL_NODE_{node.upper()}'
             construct_args = ['self']
             special_inits = ''
