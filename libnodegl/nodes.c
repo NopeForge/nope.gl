@@ -699,6 +699,11 @@ int ngl_node_param_set_data(struct ngl_node *node, const char *key, int size, co
     FORWARD_TO_PARAM(data, size, data);
 }
 
+int ngl_node_param_set_f32(struct ngl_node *node, const char *key, float value)
+{
+    FORWARD_TO_PARAM(f32, value);
+}
+
 int ngl_node_param_set_f64(struct ngl_node *node, const char *key, double value)
 {
     FORWARD_TO_PARAM(f64, value);

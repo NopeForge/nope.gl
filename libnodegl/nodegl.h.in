@@ -355,6 +355,7 @@ NGL_API int ngl_node_param_add_f64s(struct ngl_node *node, const char *key,
 NGL_API int ngl_node_param_set_bool(struct ngl_node *node, const char *key, int value);
 NGL_API int ngl_node_param_set_data(struct ngl_node *node, const char *key, int size, const void *data);
 NGL_API int ngl_node_param_set_dict(struct ngl_node *node, const char *key, const char *name, struct ngl_node *value);
+NGL_API int ngl_node_param_set_f32(struct ngl_node *node, const char *key, float value);
 NGL_API int ngl_node_param_set_f64(struct ngl_node *node, const char *key, double value);
 NGL_API int ngl_node_param_set_flags(struct ngl_node *node, const char *key, const char *value);
 NGL_API int ngl_node_param_set_i32(struct ngl_node *node, const char *key, int value);

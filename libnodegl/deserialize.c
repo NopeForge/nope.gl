@@ -223,6 +223,7 @@ static int parse_param_##set_type(struct darray *nodes_array, uint8_t *dstp,    
 DEFINE_LITERAL_PARSE_FUNC(parse_int,    int,      i32)
 DEFINE_LITERAL_PARSE_FUNC(parse_uint,   unsigned, u32)
 DEFINE_LITERAL_PARSE_FUNC(parse_bool,   int,      bool)
+DEFINE_LITERAL_PARSE_FUNC(parse_float,  float,    f32)
 DEFINE_LITERAL_PARSE_FUNC(parse_double, double,   f64)
 
 #define DEFINE_VEC_PARSE_FUNC(parse_func, type, set_type, expected_nb_vals)         \
@@ -443,6 +444,7 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
     case NGLI_PARAM_TYPE_I32:      len = parse_param_i32(nodes_array, dstp, par, str);      break;
     case NGLI_PARAM_TYPE_U32:      len = parse_param_u32(nodes_array, dstp, par, str);      break;
     case NGLI_PARAM_TYPE_BOOL:     len = parse_param_bool(nodes_array, dstp, par, str);     break;
+    case NGLI_PARAM_TYPE_F32:      len = parse_param_f32(nodes_array, dstp, par, str);      break;
     case NGLI_PARAM_TYPE_F64:      len = parse_param_f64(nodes_array, dstp, par, str);      break;
     case NGLI_PARAM_TYPE_RATIONAL: len = parse_param_rational(nodes_array, dstp, par, str); break;
     case NGLI_PARAM_TYPE_FLAGS:    len = parse_param_flags(nodes_array, dstp, par, str);    break;

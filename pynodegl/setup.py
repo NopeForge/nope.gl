@@ -336,7 +336,7 @@ cdef class {node}({parent_node}):
 
                 # Set method
                 else:
-                    ctype_map = dict(u32='unsigned', i32='int', f64='double', bool='bint', node='_Node')
+                    ctype_map = dict(u32='unsigned', i32='int', f32='float', f64='double', bool='bint', node='_Node')
                     ctype = ctype_map.get(field_type, field_type)
                     cparam = field_name
                     if field_type in ('select', 'flags', 'str'):

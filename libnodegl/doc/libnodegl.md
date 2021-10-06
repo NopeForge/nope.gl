@@ -1353,6 +1353,7 @@ Type | Description
 `f64` | 64-bit float
 `str` | String
 `data` | Agnostic data buffer
+`f32` | 32-bit float
 `vec2` | 2 32-bit floats
 `vec3` | 3 32-bit floats
 `vec4` | 4 32-bit floats

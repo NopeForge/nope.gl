@@ -97,6 +97,11 @@ const struct param_specs ngli_params_specs[] = {
         .size = sizeof(void *) + sizeof(int),
         .desc = NGLI_DOCSTRING("Agnostic data buffer"),
     },
+    [NGLI_PARAM_TYPE_F32] = {
+        .name = "f32",
+        .size = sizeof(float),
+        .desc = NGLI_DOCSTRING("32-bit float"),
+    },
     [NGLI_PARAM_TYPE_VEC2] = {
         .name = "vec2",
         .size = sizeof(float[2]),
@@ -280,6 +285,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
                 ngli_bstr_printf(b, "%d", v);
             break;
         }
+        case NGLI_PARAM_TYPE_F32:    ngli_bstr_printf(b, "%g",            *(const float *)srcp);                  break;
         case NGLI_PARAM_TYPE_F64:    ngli_bstr_printf(b, "%g",            *(const double *)srcp);                 break;
         case NGLI_PARAM_TYPE_I32:    ngli_bstr_printf(b, "%d",            *(const int *)srcp);                    break;
         case NGLI_PARAM_TYPE_U32:    ngli_bstr_printf(b, "%u",            *(const unsigned *)srcp);               break;
@@ -408,6 +414,17 @@ int ngli_params_set_dict(uint8_t *dstp, const struct node_param *par, const char
         return ret;
     if (node)
         ngl_node_ref(node);
+    return 0;
+}
+
+int ngli_params_set_f32(uint8_t *dstp, const struct node_param *par, float value)
+{
+    int ret = check_param_type(par, NGLI_PARAM_TYPE_F32);
+    if (ret < 0)
+        return ret;
+
+    LOG(VERBOSE, "set %s to %g", par->key, value);
+    memcpy(dstp, &value, sizeof(value));
     return 0;
 }
 
@@ -686,6 +703,9 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                 break;
             case NGLI_PARAM_TYPE_U32:
                 ret = ngli_params_set_u32(dstp, par, par->def_value.i64);
+                break;
+            case NGLI_PARAM_TYPE_F32:
+                ret = ngli_params_set_f32(dstp, par, par->def_value.f32);
                 break;
             case NGLI_PARAM_TYPE_F64:
                 ret = ngli_params_set_f64(dstp, par, par->def_value.dbl);

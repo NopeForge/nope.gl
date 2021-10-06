@@ -75,6 +75,10 @@ static int mat_is_set(const uint8_t *srcp, const struct node_param *par)
 static int should_print_par(const uint8_t *srcp, const struct node_param *par)
 {
     switch (par->type) {
+        case NGLI_PARAM_TYPE_F32: {
+            const float v = *(float *)srcp;
+            return v != par->def_value.f32;
+        }
         case NGLI_PARAM_TYPE_F64: {
             const double v = *(double *)srcp;
             return v != par->def_value.dbl;

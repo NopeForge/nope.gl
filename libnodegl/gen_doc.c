@@ -115,6 +115,9 @@ static char *get_default_str(const struct node_param *p)
             ngli_free(s);
             break;
         }
+        case NGLI_PARAM_TYPE_F32:
+            ngli_bstr_printf(b, "`%g`", p->def_value.f32);
+            break;
         case NGLI_PARAM_TYPE_F64:
             ngli_bstr_printf(b, "`%g`", p->def_value.dbl);
             break;

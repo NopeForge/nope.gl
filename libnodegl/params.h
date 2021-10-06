@@ -37,6 +37,7 @@ enum {
     NGLI_PARAM_TYPE_F64,
     NGLI_PARAM_TYPE_STR,
     NGLI_PARAM_TYPE_DATA,
+    NGLI_PARAM_TYPE_F32,
     NGLI_PARAM_TYPE_VEC2,
     NGLI_PARAM_TYPE_VEC3,
     NGLI_PARAM_TYPE_VEC4,
@@ -80,6 +81,7 @@ struct node_param {
     int offset;
     union {
         int64_t i64;
+        float f32;
         double dbl;
         const char *str;
         void *p;
@@ -105,6 +107,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
 int ngli_params_set_bool(uint8_t *dstp, const struct node_param *par, int value);
 int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, int size, const void *data);
 int ngli_params_set_dict(uint8_t *dstp, const struct node_param *par, const char *name, struct ngl_node *value);
+int ngli_params_set_f32(uint8_t *dstp, const struct node_param *par, float value);
 int ngli_params_set_f64(uint8_t *dstp, const struct node_param *par, double value);
 int ngli_params_set_flags(uint8_t *dstp, const struct node_param *par, const char *value);
 int ngli_params_set_i32(uint8_t *dstp, const struct node_param *par, int value);
