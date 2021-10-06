@@ -612,7 +612,7 @@ Parameter | Live-chg. | Type | Description | Default
 `control1` |  | [`vec3`](#parameter-types) | initial control point | (`0`,`0`,`0`)
 `control2` |  | [`vec3`](#parameter-types) | final control point | (`0`,`0`,`0`)
 `precision` |  | [`i32`](#parameter-types) | number of divisions per curve segment | `64`
-`tension` |  | [`f64`](#parameter-types) | tension between points | `0.5`
+`tension` |  | [`f32`](#parameter-types) | tension between points | `0.5`
 
 
 **Source**: [node_smoothpath.c](/libnodegl/node_smoothpath.c)

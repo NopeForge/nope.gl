@@ -34,7 +34,7 @@ struct smoothpath_priv {
     float control1[3];
     float control2[3];
     int precision;
-    double tension;
+    float tension;
 };
 
 #define OFFSET(x) offsetof(struct smoothpath_priv, x)
@@ -49,7 +49,7 @@ static const struct node_param smoothpath_params[] = {
                   .desc=NGLI_DOCSTRING("final control point")},
     {"precision", NGLI_PARAM_TYPE_I32, OFFSET(precision), {.i64=64},
                   .desc=NGLI_DOCSTRING("number of divisions per curve segment")},
-    {"tension",   NGLI_PARAM_TYPE_F64, OFFSET(tension), {.dbl=0.5},
+    {"tension",   NGLI_PARAM_TYPE_F32, OFFSET(tension), {.f32=0.5f},
                   .desc=NGLI_DOCSTRING("tension between points")},
     {NULL}
 };

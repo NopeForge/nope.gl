@@ -375,7 +375,7 @@
     - [control1, vec3]
     - [control2, vec3]
     - [precision, i32]
-    - [tension, f64]
+    - [tension, f32]
 
 - Text:
     - [text, str]
