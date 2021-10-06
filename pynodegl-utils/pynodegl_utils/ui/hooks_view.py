@@ -121,24 +121,39 @@ class HooksView(QtWidgets.QWidget):
         self._view.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._view.verticalHeader().hide()
 
-        self._refresh_btn = QtWidgets.QPushButton('Refresh')
+        self._auto_refresh_btn = QtWidgets.QCheckBox('Automatic refresh')
+        self._auto_refresh_btn.setChecked(True)
 
         spawn_view = _SpawnView(config)
 
         hbox = QtWidgets.QHBoxLayout()
         hbox.addStretch()
-        hbox.addWidget(self._refresh_btn)
+        hbox.addWidget(self._auto_refresh_btn)
 
         serial_layout = QtWidgets.QVBoxLayout(self)
         serial_layout.addWidget(spawn_view)
         serial_layout.addLayout(hbox)
         serial_layout.addWidget(self._view)
 
-        self._refresh_btn.clicked.connect(self._refresh)
+        self._auto_refresh_btn.clicked.connect(self._toggle_automatic_refresh)
 
         self._data_cache = {}
         self._references = {}
+
+        self._refresh_timer = QtCore.QTimer(self)
+        self._refresh_timer.setInterval(500)
+        self._refresh_timer.timeout.connect(self._refresh)
+        self._refresh_timer.start()
+
         self._refresh()
+
+    @QtCore.Slot()
+    def _toggle_automatic_refresh(self):
+        checked = self._auto_refresh_btn.isChecked()
+        if checked:
+            self._refresh_timer.start()
+        else:
+            self._refresh_timer.stop()
 
     @QtCore.Slot()
     def _refresh(self):
