@@ -159,7 +159,7 @@ struct geometry_priv {
     float triangle_uvs[6];
 
     /* circle params */
-    double radius;
+    float radius;
     int npoints;
 
     /* geometry params */

@@ -34,7 +34,7 @@
 
 #define OFFSET(x) offsetof(struct geometry_priv, x)
 static const struct node_param circle_params[] = {
-    {"radius",  NGLI_PARAM_TYPE_F64, OFFSET(radius),  {.dbl=1.0},
+    {"radius",  NGLI_PARAM_TYPE_F32, OFFSET(radius),  {.f32=1.f},
                 .desc=NGLI_DOCSTRING("circle radius")},
     {"npoints", NGLI_PARAM_TYPE_I32, OFFSET(npoints), {.i64=16},
                 .desc=NGLI_DOCSTRING("number of points")},
@@ -63,16 +63,16 @@ static int circle_init(struct ngl_node *node)
         goto end;
     }
 
-    const double step = 2.0 * M_PI / s->npoints;
+    const float step = 2.0 * M_PI / s->npoints;
 
     vertices[0] = 0.0;
     vertices[1] = 0.0;
     uvcoords[0] = 0.5;
     uvcoords[1] = 0.5;
     for (int i = 1; i < nb_vertices; i++) {
-        const double angle = (i - 1) * -step;
-        const double x = sin(angle) * s->radius;
-        const double y = cos(angle) * s->radius;
+        const float angle = (i - 1) * -step;
+        const float x = sinf(angle) * s->radius;
+        const float y = cosf(angle) * s->radius;
         vertices[i*3 + 0] = x;
         vertices[i*3 + 1] = y;
         uvcoords[i*2 + 0] = (x + 1.0) / 2.0;

@@ -172,7 +172,7 @@
     - [fov_anim, node]
 
 - Circle:
-    - [radius, f64]
+    - [radius, f32]
     - [npoints, i32]
 
 - Compute:

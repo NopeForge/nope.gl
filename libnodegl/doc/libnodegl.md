@@ -260,7 +260,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`radius` |  | [`f64`](#parameter-types) | circle radius | `1`
+`radius` |  | [`f32`](#parameter-types) | circle radius | `1`
 `npoints` |  | [`i32`](#parameter-types) | number of points | `16`
 
 
