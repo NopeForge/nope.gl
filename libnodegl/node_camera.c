@@ -91,7 +91,7 @@ static int update_matrices(struct ngl_node *node, double t)
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
-        s->perspective[0] = anim->scalar;
+        s->perspective[0] = *(float *)anim->data;
     }
 
     if (s->use_perspective) {
