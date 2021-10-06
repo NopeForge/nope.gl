@@ -268,6 +268,7 @@
     - [stream_idx, int]
     - [hwaccel, select]
     - [filters, string]
+    - [vt_pix_fmt, string]
 
 - _Noise:
     - [frequency, double]

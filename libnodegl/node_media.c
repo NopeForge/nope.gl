@@ -91,6 +91,8 @@ static const struct node_param media_params[] = {
                        .desc=NGLI_DOCSTRING("hardware acceleration")},
     {"filters",        NGLI_PARAM_TYPE_STR, OFFSET(filters),
                        .desc=NGLI_DOCSTRING("filters to apply on the media (sxplayer/libavfilter)")},
+    {"vt_pix_fmt",     NGLI_PARAM_TYPE_STR, OFFSET(vt_pix_fmt),  {.str="auto"},
+                       .desc=NGLI_DOCSTRING("auto or a comma or space separated list of VideoToolbox (Apple) allowed output pixel formats")},
     {NULL}
 };
 
@@ -118,6 +120,17 @@ static void callback_sxplayer_log(void *arg, int level, const char *filename, in
         ngli_log_print(log_levels[level], __FILE__, __LINE__, __func__,
                        "[SXPLAYER %s:%d %s] %s", filename, ln, fn, buf);
 }
+
+#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
+static const char *get_default_vt_pix_fmts(int backend)
+{
+    /* OpenGLES 3.0 (iOS) does not support 16-bit texture formats */
+    if (backend == NGL_BACKEND_OPENGLES)
+        return "nv12";
+
+    return "nv12,p010";
+}
+#endif
 
 static int media_init(struct ngl_node *node)
 {
@@ -159,7 +172,12 @@ static int media_init(struct ngl_node *node)
 
     sxplayer_set_option(s->player, "sw_pix_fmt", SXPLAYER_PIXFMT_AUTO);
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-    sxplayer_set_option(s->player, "vt_pix_fmt", "nv12");
+    const struct ngl_ctx *ctx = node->ctx;
+    const struct ngl_config *config = &ctx->config;
+    const char *vt_pix_fmt = s->vt_pix_fmt;
+    if (!strcmp(s->vt_pix_fmt, "auto"))
+        vt_pix_fmt = get_default_vt_pix_fmts(config->backend);
+    sxplayer_set_option(s->player, "vt_pix_fmt", vt_pix_fmt);
 #endif
 
     if (s->audio_tex) {

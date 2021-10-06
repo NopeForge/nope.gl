@@ -395,6 +395,7 @@ Parameter | Live-chg. | Type | Description | Default
 `stream_idx` |  | [`int`](#parameter-types) | force a stream number instead of picking the "best" one | `-1`
 `hwaccel` |  | [`sxplayer_hwaccel`](#sxplayer_hwaccel-choices) | hardware acceleration | `auto`
 `filters` |  | [`string`](#parameter-types) | filters to apply on the media (sxplayer/libavfilter) | 
+`vt_pix_fmt` |  | [`string`](#parameter-types) | auto or a comma or space separated list of VideoToolbox (Apple) allowed output pixel formats | 
 
 
 **Source**: [node_media.c](/libnodegl/node_media.c)

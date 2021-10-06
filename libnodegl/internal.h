@@ -333,6 +333,7 @@ struct media_priv {
     int stream_idx;
     int hwaccel;
     char *filters;
+    char *vt_pix_fmt;
 
     struct sxplayer_ctx *player;
     struct sxplayer_frame *frame;
