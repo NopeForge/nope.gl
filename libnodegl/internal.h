@@ -253,7 +253,6 @@ struct variable_priv {
 
     struct animation anim;
     struct animation anim_eval;
-    float scalar;
     float vector[4];
     float matrix[4*4];
     int ivector[4];
