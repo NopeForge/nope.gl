@@ -382,7 +382,7 @@ static struct ngl_node *add_progress_bar(struct ngl_node *scene)
     ngl_node_param_set_dict(render, "frag_resources", "duration", v_duration);
     ngl_node_param_set_dict(render, "frag_resources", "opacity",  v_opacity);
 
-    ngl_node_param_add(ui_group, "children", ARRAY_NB(ui_children), ui_children);
+    ngl_node_param_add_nodes(ui_group, "children", ARRAY_NB(ui_children), ui_children);
 
     ngl_node_param_set_node(gcfg, "child", ui_group);
     ngl_node_param_set_bool(gcfg, "blend", 1);
@@ -391,7 +391,7 @@ static struct ngl_node *add_progress_bar(struct ngl_node *scene)
     ngl_node_param_set_select(gcfg, "blend_src_factor_a", "zero");
     ngl_node_param_set_select(gcfg, "blend_dst_factor_a", "one");
 
-    ngl_node_param_add(group, "children", ARRAY_NB(children), children);
+    ngl_node_param_add_nodes(group, "children", ARRAY_NB(children), children);
 
     ngl_node_param_set_vec3(text, "box_corner", text_corner);
     ngl_node_param_set_vec3(text, "box_width", text_width);
