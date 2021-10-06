@@ -1239,7 +1239,7 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`value` | ✓ | [`f64`](#parameter-types) | value exposed to the shader | `0`
+`value` | ✓ | [`f32`](#parameter-types) | value exposed to the shader | `0`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)

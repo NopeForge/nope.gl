@@ -233,7 +233,6 @@ int ngli_node_buffer_upload(struct ngl_node *node);
 
 struct variable_priv {
     union {
-        double dbl;
         float vec[4];
         float mat[4*4];
         int ivec[4];

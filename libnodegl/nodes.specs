@@ -663,7 +663,7 @@
     - [transform, node]
 
 - UniformFloat:
-    - [value, f64]
+    - [value, f32]
 
 - UniformVec2:
     - [value, vec2]

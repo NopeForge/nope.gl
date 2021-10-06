@@ -59,16 +59,6 @@ DECLARE_UPDATE_FUNC(uivec, s->opt.uvec)
 DECLARE_UPDATE_FUNC(vec,   s->opt.vec)
 DECLARE_UPDATE_FUNC(mat4,  s->opt.mat)
 
-static int uniformfloat_update_func(struct ngl_node *node)
-{
-    int ret = is_live_update_supported(node);
-    if (ret < 0)
-        return ret;
-    struct variable_priv *s = node->priv_data;
-    s->scalar = s->opt.dbl; // double -> float
-    return 0;
-}
-
 static int uniformquat_update_func(struct ngl_node *node)
 {
     int ret = is_live_update_supported(node);
@@ -93,7 +83,7 @@ static const struct node_param uniform##type##_params[] = {             \
 }
 
 DECLARE_PARAMS(bool,   NGLI_PARAM_TYPE_BOOL,  opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(float,  NGLI_PARAM_TYPE_F64,   opt.dbl,  uniformfloat_update_func);
+DECLARE_PARAMS(float,  NGLI_PARAM_TYPE_F32,   opt.vec,  uniformvec_update_func);
 DECLARE_PARAMS(vec2,   NGLI_PARAM_TYPE_VEC2,  opt.vec,  uniformvec_update_func);
 DECLARE_PARAMS(vec3,   NGLI_PARAM_TYPE_VEC3,  opt.vec,  uniformvec_update_func);
 DECLARE_PARAMS(vec4,   NGLI_PARAM_TYPE_VEC4,  opt.vec,  uniformvec_update_func);
@@ -180,19 +170,10 @@ DECLARE_INIT_FUNC(uint,   NGLI_TYPE_UINT,   1, s->uvector, s->opt.uvec)
 DECLARE_INIT_FUNC(uivec2, NGLI_TYPE_UIVEC2, 2, s->uvector, s->opt.uvec)
 DECLARE_INIT_FUNC(uivec3, NGLI_TYPE_UIVEC3, 3, s->uvector, s->opt.uvec)
 DECLARE_INIT_FUNC(uivec4, NGLI_TYPE_UIVEC4, 4, s->uvector, s->opt.uvec)
+DECLARE_INIT_FUNC(float,  NGLI_TYPE_FLOAT,  1, s->vector,  s->opt.vec)
 DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  s->opt.vec)
 DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  s->opt.vec)
 DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  s->opt.vec)
-
-static int uniformfloat_init(struct ngl_node *node)
-{
-    struct variable_priv *s = node->priv_data;
-    s->data = &s->scalar;
-    s->data_size = sizeof(s->scalar);
-    s->data_type = NGLI_TYPE_FLOAT;
-    s->scalar = s->opt.dbl; // double -> float
-    return 0;
-}
 
 static int uniformquat_init(struct ngl_node *node)
 {

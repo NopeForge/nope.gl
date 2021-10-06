@@ -160,7 +160,7 @@ static void update_pgbar(void)
     if (p->pgbar_opacity_node && p->lasthover >= 0) {
         const int64_t t64_diff = gettime_relative() - p->lasthover;
         const double opacity = clipd(1.5 - t64_diff / 1000000.0, 0, 1);
-        ngl_node_param_set_f64(p->pgbar_opacity_node, "value", opacity);
+        ngl_node_param_set_f32(p->pgbar_opacity_node, "value", opacity);
 
         const float text_bg[4] = {0.0, 0.0, 0.0, 0.8 * opacity};
         const float text_fg[4] = {1.0, 1.0, 1.0, opacity};
@@ -373,8 +373,8 @@ static struct ngl_node *add_progress_bar(struct ngl_node *scene)
     ngl_node_param_set_str(program, "fragment", pgbar_frag);
     ngl_node_param_set_dict(program, "vert_out_vars", "coord", coord);
 
-    ngl_node_param_set_f64(v_duration, "value", p->duration_f);
-    ngl_node_param_set_f64(v_opacity,  "value", 0.0);
+    ngl_node_param_set_f32(v_duration, "value", p->duration_f);
+    ngl_node_param_set_f32(v_opacity,  "value", 0.f);
 
     ngl_node_param_set_node(render, "geometry", quad);
     ngl_node_param_set_node(render, "program", program);
@@ -546,7 +546,7 @@ static int handle_duration(const void *data)
     p->duration = p->duration_f * 1000000;
     p->duration_i = llrint(p->duration_f * p->framerate[0] / (double)p->framerate[1]);
     if (p->pgbar_duration_node)
-        ngl_node_param_set_f64(p->pgbar_duration_node, "value", p->duration_f);
+        ngl_node_param_set_f32(p->pgbar_duration_node, "value", p->duration_f);
     return 0;
 }
 
