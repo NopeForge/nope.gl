@@ -44,6 +44,7 @@ static const int nb_planes_map[] = {
     [NGLI_IMAGE_LAYOUT_NV12]           = 2,
     [NGLI_IMAGE_LAYOUT_NV12_RECTANGLE] = 2,
     [NGLI_IMAGE_LAYOUT_YUV]            = 3,
+    [NGLI_IMAGE_LAYOUT_RECTANGLE]      = 1,
 };
 
 NGLI_STATIC_ASSERT(nb_planes_map, NGLI_ARRAY_NB(nb_planes_map) == NGLI_NB_IMAGE_LAYOUTS);

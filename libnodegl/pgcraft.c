@@ -740,6 +740,9 @@ static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
                          ARG_FMT(arg0),
                          ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0),
                          ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
+        ngli_bstr_printf(dst, "%.*s_sampling_mode == 6 ? ", ARG_FMT(arg0));
+        ngli_bstr_printf(dst, "ngl_tex2d(%.*s_rect_0, (%.*s) * %.*s_dimensions) : ",
+                         ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
 #endif
         ngli_bstr_printf(dst, "%.*s_sampling_mode == 3 ? ", ARG_FMT(arg0));
         ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(ngl_tex2d(%.*s,   %.*s).r, "

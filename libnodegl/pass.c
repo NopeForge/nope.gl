@@ -743,6 +743,9 @@ int ngli_pass_exec(struct pass *s)
             textures[NGLI_INFO_FIELD_SAMPLER_1] = image->planes[1];
             textures[NGLI_INFO_FIELD_SAMPLER_2] = image->planes[2];
             break;
+        case NGLI_IMAGE_LAYOUT_RECTANGLE:
+            textures[NGLI_INFO_FIELD_SAMPLER_RECT_0] = image->planes[0];
+            break;
         default:
             break;
         }
