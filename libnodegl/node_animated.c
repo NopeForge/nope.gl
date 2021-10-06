@@ -265,7 +265,7 @@ static int animated##suffix##_init(struct ngl_node *node)                       
     return animation_init(node);                                                \
 }
 
-DECLARE_INIT_FUNC(float, &s->scalar, sizeof(s->scalar),      NGLI_TYPE_FLOAT)
+DECLARE_INIT_FUNC(float, s->vector,  1 * sizeof(*s->vector), NGLI_TYPE_FLOAT)
 DECLARE_INIT_FUNC(vec2,  s->vector,  2 * sizeof(*s->vector), NGLI_TYPE_VEC2)
 DECLARE_INIT_FUNC(vec3,  s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
 DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
