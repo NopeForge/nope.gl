@@ -629,7 +629,7 @@ Parameter | Live-chg. | Type | Description | Default
 `box_width` |  | [`vec3`](#parameter-types) | box width vector | (`2`,`0`,`0`)
 `box_height` |  | [`vec3`](#parameter-types) | box height vector | (`0`,`2`,`0`)
 `padding` |  | [`i32`](#parameter-types) | pixel padding around the text | `3`
-`font_scale` |  | [`f64`](#parameter-types) | scaling of the font | `1`
+`font_scale` |  | [`f32`](#parameter-types) | scaling of the font | `1`
 `valign` |  | [`valign`](#valign-choices) | vertical alignment of the text in the box | `center`
 `halign` |  | [`halign`](#halign-choices) | horizontal alignment of the text in the box | `center`
 `aspect_ratio` | ✓ | [`rational`](#parameter-types) | box aspect ratio | 

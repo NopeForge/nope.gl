@@ -67,7 +67,7 @@ struct text_priv {
     float box_width[3];
     float box_height[3];
     int padding;
-    double font_scale;
+    float font_scale;
     int valign, halign;
     int aspect_ratio[2];
 
@@ -139,7 +139,7 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("box height vector")},
     {"padding",      NGLI_PARAM_TYPE_I32, OFFSET(padding), {.i64=3},
                      .desc=NGLI_DOCSTRING("pixel padding around the text")},
-    {"font_scale",   NGLI_PARAM_TYPE_F64, OFFSET(font_scale), {.dbl=1.0},
+    {"font_scale",   NGLI_PARAM_TYPE_F32, OFFSET(font_scale), {.f32=1.f},
                      .desc=NGLI_DOCSTRING("scaling of the font")},
     {"valign",       NGLI_PARAM_TYPE_SELECT, OFFSET(valign), {.i64=VALIGN_CENTER},
                      .choices=&valign_choices,

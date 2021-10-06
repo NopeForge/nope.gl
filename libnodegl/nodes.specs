@@ -385,7 +385,7 @@
     - [box_width, vec3]
     - [box_height, vec3]
     - [padding, i32]
-    - [font_scale, f64]
+    - [font_scale, f32]
     - [valign, select]
     - [halign, select]
     - [aspect_ratio, rational]
