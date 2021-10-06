@@ -181,7 +181,7 @@ DECLARE_STREAMED_INIT(uint,   s->uvector, sizeof(*s->uvector),     NGLI_TYPE_UIN
 DECLARE_STREAMED_INIT(uivec2, s->uvector, 2 * sizeof(*s->uvector), NGLI_TYPE_UIVEC2)
 DECLARE_STREAMED_INIT(uivec3, s->uvector, 3 * sizeof(*s->uvector), NGLI_TYPE_UIVEC3)
 DECLARE_STREAMED_INIT(uivec4, s->uvector, 4 * sizeof(*s->uvector), NGLI_TYPE_UIVEC4)
-DECLARE_STREAMED_INIT(float,  &s->scalar, sizeof(s->scalar),       NGLI_TYPE_FLOAT)
+DECLARE_STREAMED_INIT(float,  s->vector,  sizeof(*s->vector),      NGLI_TYPE_FLOAT)
 DECLARE_STREAMED_INIT(vec2,   s->vector,  2 * sizeof(*s->vector),  NGLI_TYPE_VEC2)
 DECLARE_STREAMED_INIT(vec3,   s->vector,  3 * sizeof(*s->vector),  NGLI_TYPE_VEC3)
 DECLARE_STREAMED_INIT(vec4,   s->vector,  4 * sizeof(*s->vector),  NGLI_TYPE_VEC4)
