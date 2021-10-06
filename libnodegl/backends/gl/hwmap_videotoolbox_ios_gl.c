@@ -253,7 +253,7 @@ static int vt_ios_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
     struct image_params image_params = {
         .width = frame->width,
         .height = frame->height,
-        .layout = NGLI_IMAGE_LAYOUT_NV12,
+        .layout = format_desc.layout,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
