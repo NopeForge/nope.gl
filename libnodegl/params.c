@@ -826,12 +826,11 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 break;
             }
             case NGLI_PARAM_TYPE_NODELIST: {
-                int j;
                 uint8_t *elems_p = base_ptr + par->offset;
                 uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
                 struct ngl_node **elems = *(struct ngl_node ***)elems_p;
                 const int nb_elems = *(int *)nb_elems_p;
-                for (j = 0; j < nb_elems; j++)
+                for (int j = 0; j < nb_elems; j++)
                     ngl_node_unrefp(&elems[j]);
                 ngli_free(elems);
                 break;
