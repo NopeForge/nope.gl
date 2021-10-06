@@ -26,8 +26,8 @@
 static int time_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
-    s->data = &s->scalar;
-    s->data_size = sizeof(s->scalar);
+    s->data = &s->vector[0];
+    s->data_size = sizeof(s->vector[0]);
     s->data_type = NGLI_TYPE_FLOAT;
     s->dynamic = 1;
     return 0;
@@ -36,7 +36,7 @@ static int time_init(struct ngl_node *node)
 static int time_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
-    s->scalar = t;
+    s->vector[0] = t;
     return 0;
 }
 
