@@ -71,13 +71,6 @@ static const struct node_param noise_params[] = {
 
 NGLI_STATIC_ASSERT(variable_priv_is_first, OFFSET(var) == 0);
 
-static int noisefloat_update(struct ngl_node *node, double t)
-{
-    struct noise_priv *s = node->priv_data;
-    s->var.scalar = ngli_noise_get(&s->generator[0], t * s->frequency);
-    return 0;
-}
-
 static int noisevec_update(struct ngl_node *node, double t, int n)
 {
     struct noise_priv *s = node->priv_data;
@@ -85,6 +78,11 @@ static int noisevec_update(struct ngl_node *node, double t, int n)
     for (int i = 0; i < n; i++)
         s->var.vector[i] = ngli_noise_get(&s->generator[i], v);
     return 0;
+}
+
+static int noisefloat_update(struct ngl_node *node, double t)
+{
+    return noisevec_update(node, t, 1);
 }
 
 static int noisevec2_update(struct ngl_node *node, double t)
@@ -122,11 +120,11 @@ static int init_noise_generators(struct noise_priv *s, int n)
     return 0;
 }
 
-#define DEFINE_NOISE_CLASS(class_id, class_name, type, dtype, count, dst)   \
+#define DEFINE_NOISE_CLASS(class_id, class_name, type, dtype, count)        \
 static int noise##type##_init(struct ngl_node *node)                        \
 {                                                                           \
     struct noise_priv *s = node->priv_data;                                 \
-    s->var.data = dst;                                                      \
+    s->var.data = s->var.vector;                                            \
     s->var.data_size = count * sizeof(float);                               \
     s->var.data_type = dtype;                                               \
     return init_noise_generators(s, count);                                 \
@@ -144,7 +142,7 @@ const struct node_class ngli_noise##type##_class = {                        \
     .file      = __FILE__,                                                  \
 };
 
-DEFINE_NOISE_CLASS(NGL_NODE_NOISEFLOAT, "NoiseFloat", float, NGLI_TYPE_FLOAT, 1, &s->var.scalar)
-DEFINE_NOISE_CLASS(NGL_NODE_NOISEVEC2,  "NoiseVec2",  vec2,  NGLI_TYPE_VEC2,  2, s->var.vector)
-DEFINE_NOISE_CLASS(NGL_NODE_NOISEVEC3,  "NoiseVec3",  vec3,  NGLI_TYPE_VEC3,  3, s->var.vector)
-DEFINE_NOISE_CLASS(NGL_NODE_NOISEVEC4,  "NoiseVec4",  vec4,  NGLI_TYPE_VEC4,  4, s->var.vector)
+DEFINE_NOISE_CLASS(NGL_NODE_NOISEFLOAT, "NoiseFloat", float, NGLI_TYPE_FLOAT, 1)
+DEFINE_NOISE_CLASS(NGL_NODE_NOISEVEC2,  "NoiseVec2",  vec2,  NGLI_TYPE_VEC2,  2)
+DEFINE_NOISE_CLASS(NGL_NODE_NOISEVEC3,  "NoiseVec3",  vec3,  NGLI_TYPE_VEC3,  3)
+DEFINE_NOISE_CLASS(NGL_NODE_NOISEVEC4,  "NoiseVec4",  vec4,  NGLI_TYPE_VEC4,  4)
