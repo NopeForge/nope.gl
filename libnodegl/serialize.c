@@ -138,7 +138,10 @@ static int serialize_options(struct hmap *nlist,
                              uint8_t *priv,
                              const struct node_param *p)
 {
-    while (p && p->key) {
+    if (!p)
+        return 0;
+
+    while (p->key) {
         switch (p->type) {
             case NGLI_PARAM_TYPE_SELECT: {
                 const int v = *(int *)(priv + p->offset);
@@ -326,7 +329,10 @@ static int serialize_children(struct hmap *nlist,
                                uint8_t *priv,
                                const struct node_param *p)
 {
-    while (p && p->key) {
+    if (!p)
+        return 0;
+
+    while (p->key) {
         switch (p->type) {
             case NGLI_PARAM_TYPE_NODE: {
                 const struct ngl_node *child = *(struct ngl_node **)(priv + p->offset);
