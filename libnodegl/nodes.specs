@@ -346,7 +346,7 @@
 
 - Rotate:
     - [child, node]
-    - [angle, f64]
+    - [angle, f32]
     - [axis, vec3]
     - [anchor, vec3]
     - [anim, node]

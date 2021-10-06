@@ -31,7 +31,7 @@
 
 struct rotate_priv {
     struct transform_priv trf;
-    double angle;
+    float angle;
     float axis[3];
     float normed_axis[3];
     float anchor[3];
@@ -105,7 +105,7 @@ static const struct node_param rotate_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to rotate")},
-    {"angle",  NGLI_PARAM_TYPE_F64,  OFFSET(angle),
+    {"angle",  NGLI_PARAM_TYPE_F32,  OFFSET(angle),
                .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=update_angle,
                .desc=NGLI_DOCSTRING("rotation angle in degrees")},
