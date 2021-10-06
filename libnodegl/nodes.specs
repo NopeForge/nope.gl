@@ -271,11 +271,11 @@
     - [vt_pix_fmt, str]
 
 - _Noise:
-    - [frequency, f64]
-    - [amplitude, f64]
+    - [frequency, f32]
+    - [amplitude, f32]
     - [octaves, i32]
-    - [lacunarity, f64]
-    - [gain, f64]
+    - [lacunarity, f32]
+    - [gain, f32]
     - [seed, u32]
     - [interpolant, select]
 

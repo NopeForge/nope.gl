@@ -34,10 +34,10 @@ enum {
 typedef float (*interp_func_type)(float t);
 
 struct noise_params {
-    double amplitude;
+    float amplitude;
     int octaves;
-    double lacunarity;
-    double gain;
+    float lacunarity;
+    float gain;
     uint32_t seed;
     int function;
 };

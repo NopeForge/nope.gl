@@ -29,7 +29,7 @@
 
 struct noise_priv {
     struct variable_priv var;
-    double frequency;
+    float frequency;
     struct noise_params generator_params;
     struct noise generator[4];
 };
@@ -46,19 +46,19 @@ const struct param_choices noise_func_choices = {
 
 #define OFFSET(x) offsetof(struct noise_priv, x)
 static const struct node_param noise_params[] = {
-    {"frequency",   NGLI_PARAM_TYPE_F64, OFFSET(frequency), {.dbl=1.},
+    {"frequency",   NGLI_PARAM_TYPE_F32, OFFSET(frequency), {.f32=1.f},
                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                     .desc=NGLI_DOCSTRING("oscillation per second")},
-    {"amplitude",   NGLI_PARAM_TYPE_F64, OFFSET(generator_params.amplitude), {.dbl=1.},
+    {"amplitude",   NGLI_PARAM_TYPE_F32, OFFSET(generator_params.amplitude), {.f32=1.f},
                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                     .desc=NGLI_DOCSTRING("by how much it oscillates")},
     {"octaves",     NGLI_PARAM_TYPE_I32, OFFSET(generator_params.octaves), {.i64=3},
                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                     .desc=NGLI_DOCSTRING("number of accumulated noise layers (controls the level of details)")},
-    {"lacunarity",  NGLI_PARAM_TYPE_F64, OFFSET(generator_params.lacunarity), {.dbl=2.0},
+    {"lacunarity",  NGLI_PARAM_TYPE_F32, OFFSET(generator_params.lacunarity), {.f32=2.f},
                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                     .desc=NGLI_DOCSTRING("frequency multiplier per octave")},
-    {"gain",        NGLI_PARAM_TYPE_F64, OFFSET(generator_params.gain), {.dbl=0.5},
+    {"gain",        NGLI_PARAM_TYPE_F32, OFFSET(generator_params.gain), {.f32=0.5f},
                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                     .desc=NGLI_DOCSTRING("amplitude multiplier per octave (also known as persistence)")},
     {"seed",        NGLI_PARAM_TYPE_U32, OFFSET(generator_params.seed), {.i64=0},

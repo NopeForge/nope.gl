@@ -405,11 +405,11 @@ Parameter | Live-chg. | Type | Description | Default
 
 Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
-`frequency` | ✓ | [`f64`](#parameter-types) | oscillation per second | `1`
-`amplitude` | ✓ | [`f64`](#parameter-types) | by how much it oscillates | `1`
+`frequency` | ✓ | [`f32`](#parameter-types) | oscillation per second | `1`
+`amplitude` | ✓ | [`f32`](#parameter-types) | by how much it oscillates | `1`
 `octaves` | ✓ | [`i32`](#parameter-types) | number of accumulated noise layers (controls the level of details) | `3`
-`lacunarity` | ✓ | [`f64`](#parameter-types) | frequency multiplier per octave | `2`
-`gain` | ✓ | [`f64`](#parameter-types) | amplitude multiplier per octave (also known as persistence) | `0.5`
+`lacunarity` | ✓ | [`f32`](#parameter-types) | frequency multiplier per octave | `2`
+`gain` | ✓ | [`f32`](#parameter-types) | amplitude multiplier per octave (also known as persistence) | `0.5`
 `seed` |  | [`u32`](#parameter-types) | random base seed (acts as an offsetting to the time) | `0`
 `interpolant` |  | [`interp_noise`](#interp_noise-choices) | interpolation function to use between noise points | `quintic`
 
