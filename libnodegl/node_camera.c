@@ -36,6 +36,7 @@ struct camera_priv {
     float eye[3];
     float center[3];
     float up[3];
+    struct ngl_node *perspective_node;
     float perspective[2];
     float orthographic[4];
     float clipping[2];
@@ -43,8 +44,6 @@ struct camera_priv {
     struct ngl_node *eye_transform;
     struct ngl_node *center_transform;
     struct ngl_node *up_transform;
-
-    struct ngl_node *fov_anim;
 
     int use_perspective;
     int use_orthographic;
@@ -85,19 +84,22 @@ static int update_matrices(struct ngl_node *node, double t)
 
     ngli_mat4_look_at(s->modelview_matrix, eye, center, up);
 
-    if (s->fov_anim) {
-        struct ngl_node *anim_node = s->fov_anim;
+    const float *perspective;
+    if (s->perspective_node) {
+        struct ngl_node *anim_node = s->perspective_node;
         struct variable_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
-        s->perspective[0] = *(float *)anim->data;
+        perspective = anim->data;
+    } else {
+        perspective = s->perspective;
     }
 
     if (s->use_perspective) {
         ngli_mat4_perspective(s->projection_matrix,
-                              s->perspective[0],
-                              s->perspective[1],
+                              perspective[0],
+                              perspective[1],
                               s->clipping[0],
                               s->clipping[1]);
     } else if (s->use_orthographic) {
@@ -125,7 +127,7 @@ static int update_params(struct ngl_node *node)
     ngli_vec3_norm(s->up, s->up);
 
     static const float zvec[4];
-    s->use_perspective = memcmp(s->perspective, zvec, sizeof(s->perspective));
+    s->use_perspective = memcmp(s->perspective, zvec, sizeof(s->perspective)) || s->perspective_node;
     s->use_orthographic = memcmp(s->orthographic, zvec, sizeof(s->orthographic));
 
     return 0;
@@ -147,8 +149,8 @@ static const struct node_param camera_params[] = {
            .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
            .update_func=update_params,
            .desc=NGLI_DOCSTRING("up vector, must not be parallel to the line of sight from the eye point to the center point")},
-    {"perspective", NGLI_PARAM_TYPE_VEC2,  OFFSET(perspective),
-                    .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+    {"perspective", NGLI_PARAM_TYPE_VEC2,  OFFSET(perspective_node),
+                    .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                     .update_func=update_params,
                     .desc=NGLI_DOCSTRING("the 2 following values: *fov*, *aspect*")},
     {"orthographic", NGLI_PARAM_TYPE_VEC4, OFFSET(orthographic),
@@ -171,9 +173,6 @@ static const struct node_param camera_params[] = {
                      .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                      .node_types=TRANSFORM_TYPES_LIST,
                      .desc=NGLI_DOCSTRING("`up` transformation chain")},
-    {"fov_anim", NGLI_PARAM_TYPE_NODE, OFFSET(fov_anim),
-                 .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
-                 .desc=NGLI_DOCSTRING("field of view animation (first field of `perspective`)")},
     {NULL}
 };
 
@@ -194,7 +193,7 @@ static int camera_init(struct ngl_node *node)
     }
 
     static const float zvec[4];
-    s->use_perspective = memcmp(s->perspective, zvec, sizeof(s->perspective));
+    s->use_perspective = memcmp(s->perspective, zvec, sizeof(s->perspective)) || s->perspective_node;
     s->use_orthographic = memcmp(s->orthographic, zvec, sizeof(s->orthographic));
 
     if ((s->use_perspective || s->use_orthographic) &&

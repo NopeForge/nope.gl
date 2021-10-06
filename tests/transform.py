@@ -78,7 +78,6 @@ def transform_animated_camera(cfg):
     camera.set_eye(0, 0, 2)
     camera.set_center(0.0, 0.0, 0.0)
     camera.set_up(0.0, 1.0, 0.0)
-    camera.set_perspective(45.0, cfg.aspect_ratio_float)
     camera.set_clipping(0.1, 10.0)
 
     tr_animkf = [ngl.AnimKeyFrameVec3(0,  (0.0, 0.0, 0.0)),
@@ -91,9 +90,9 @@ def transform_animated_camera(cfg):
 
     camera.set_eye_transform(eye_transform)
 
-    fov_animkf = [ngl.AnimKeyFrameFloat(0.5, 60.0),
-                  ngl.AnimKeyFrameFloat(cfg.duration, 45.0)]
-    camera.set_fov_anim(ngl.AnimatedFloat(fov_animkf))
+    perspective_animkf = [ngl.AnimKeyFrameVec2(0.5, (60.0, cfg.aspect_ratio_float)),
+                          ngl.AnimKeyFrameVec2(cfg.duration, (45.0, cfg.aspect_ratio_float))]
+    camera.set_perspective(ngl.AnimatedVec2(perspective_animkf))
 
     return camera
 

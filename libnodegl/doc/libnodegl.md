@@ -250,7 +250,6 @@ Parameter | Live-chg. | Type | Description | Default
 `eye_transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `eye` transformation chain | 
 `center_transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `center` transformation chain | 
 `up_transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `up` transformation chain | 
-`fov_anim` |  | [`node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | field of view animation (first field of `perspective`) | 
 
 
 **Source**: [node_camera.c](/libnodegl/node_camera.c)

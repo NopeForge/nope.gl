@@ -169,7 +169,6 @@ Camera:
     - [eye_transform, node]
     - [center_transform, node]
     - [up_transform, node]
-    - [fov_anim, node]
 
 Circle:
     - [radius, f32]
