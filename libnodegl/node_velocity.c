@@ -171,11 +171,11 @@ static int velocity_update(struct ngl_node *node, double t)
     return ngli_animation_derivate(&s->anim, s->data, t);
 }
 
-#define DEFINE_VELOCITY_CLASS(class_id, class_name, type, dtype, count, dst)    \
+#define DEFINE_VELOCITY_CLASS(class_id, class_name, type, dtype, count)         \
 static int velocity##type##_init(struct ngl_node *node)                         \
 {                                                                               \
     struct variable_priv *s = node->priv_data;                                  \
-    s->data = dst;                                                              \
+    s->data = s->vector;                                                        \
     s->data_size = count * sizeof(float);                                       \
     s->data_type = dtype;                                                       \
     return velocity_init(node);                                                 \
@@ -192,7 +192,7 @@ const struct node_class ngli_velocity##type##_class = {                         
     .file      = __FILE__,                                                      \
 };
 
-DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYFLOAT, "VelocityFloat", float, NGLI_TYPE_FLOAT, 1, &s->scalar)
-DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC2,  "VelocityVec2",  vec2,  NGLI_TYPE_VEC2,  2, s->vector)
-DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC3,  "VelocityVec3",  vec3,  NGLI_TYPE_VEC3,  3, s->vector)
-DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC4,  "VelocityVec4",  vec4,  NGLI_TYPE_VEC4,  4, s->vector)
+DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYFLOAT, "VelocityFloat", float, NGLI_TYPE_FLOAT, 1)
+DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC2,  "VelocityVec2",  vec2,  NGLI_TYPE_VEC2,  2)
+DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC3,  "VelocityVec3",  vec3,  NGLI_TYPE_VEC3,  3)
+DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC4,  "VelocityVec4",  vec4,  NGLI_TYPE_VEC4,  4)
