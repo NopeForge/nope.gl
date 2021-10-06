@@ -40,42 +40,42 @@ const struct param_specs ngli_params_specs[] = {
     [NGLI_PARAM_TYPE_I32] = {
         .name = "i32",
         .size = sizeof(int),
-        .desc = NGLI_DOCSTRING("Integer"),
+        .desc = NGLI_DOCSTRING("32-bit integer"),
     },
     [NGLI_PARAM_TYPE_IVEC2] = {
         .name = "ivec2",
         .size = sizeof(int[2]),
-        .desc = NGLI_DOCSTRING("2 integers"),
+        .desc = NGLI_DOCSTRING("2 32-bit integers"),
     },
     [NGLI_PARAM_TYPE_IVEC3] = {
         .name = "ivec3",
         .size = sizeof(int[3]),
-        .desc = NGLI_DOCSTRING("3 integers"),
+        .desc = NGLI_DOCSTRING("3 32-bit integers"),
     },
     [NGLI_PARAM_TYPE_IVEC4] = {
         .name = "ivec4",
         .size = sizeof(int[4]),
-        .desc = NGLI_DOCSTRING("4 integers"),
+        .desc = NGLI_DOCSTRING("4 32-bit integers"),
     },
     [NGLI_PARAM_TYPE_U32] = {
         .name = "u32",
         .size = sizeof(unsigned),
-        .desc = NGLI_DOCSTRING("Unsigned integer"),
+        .desc = NGLI_DOCSTRING("32-bit unsigned integer"),
     },
     [NGLI_PARAM_TYPE_UVEC2] = {
         .name = "uvec2",
         .size = sizeof(unsigned[2]),
-        .desc = NGLI_DOCSTRING("2 unsigned integers"),
+        .desc = NGLI_DOCSTRING("2 32-bit unsigned integers"),
     },
     [NGLI_PARAM_TYPE_UVEC3] = {
         .name = "uvec3",
         .size = sizeof(unsigned[3]),
-        .desc = NGLI_DOCSTRING("3 unsigned integers"),
+        .desc = NGLI_DOCSTRING("3 32-bit unsigned integers"),
     },
     [NGLI_PARAM_TYPE_UVEC4] = {
         .name = "uvec4",
         .size = sizeof(unsigned[4]),
-        .desc = NGLI_DOCSTRING("4 unsigned integers"),
+        .desc = NGLI_DOCSTRING("4 32-bit unsigned integers"),
     },
     [NGLI_PARAM_TYPE_BOOL] = {
         .name = "bool",
@@ -85,7 +85,7 @@ const struct param_specs ngli_params_specs[] = {
     [NGLI_PARAM_TYPE_F64] = {
         .name = "f64",
         .size = sizeof(double),
-        .desc = NGLI_DOCSTRING("Double-precision float"),
+        .desc = NGLI_DOCSTRING("64-bit float"),
     },
     [NGLI_PARAM_TYPE_STR] = {
         .name = "str",
@@ -100,22 +100,22 @@ const struct param_specs ngli_params_specs[] = {
     [NGLI_PARAM_TYPE_VEC2] = {
         .name = "vec2",
         .size = sizeof(float[2]),
-        .desc = NGLI_DOCSTRING("2 single-precision floats"),
+        .desc = NGLI_DOCSTRING("2 32-bit floats"),
     },
     [NGLI_PARAM_TYPE_VEC3] = {
         .name = "vec3",
         .size = sizeof(float[3]),
-        .desc = NGLI_DOCSTRING("3 single-precision floats"),
+        .desc = NGLI_DOCSTRING("3 32-bit floats"),
     },
     [NGLI_PARAM_TYPE_VEC4] = {
         .name = "vec4",
         .size = sizeof(float[4]),
-        .desc = NGLI_DOCSTRING("4 single-precision floats"),
+        .desc = NGLI_DOCSTRING("4 32-bit floats"),
     },
     [NGLI_PARAM_TYPE_MAT4] = {
         .name = "mat4",
         .size = sizeof(float[4*4]),
-        .desc = NGLI_DOCSTRING("4x4 single-precision floats"),
+        .desc = NGLI_DOCSTRING("4x4 32-bit floats"),
     },
     [NGLI_PARAM_TYPE_NODE] = {
         .name = "node",
@@ -130,7 +130,7 @@ const struct param_specs ngli_params_specs[] = {
     [NGLI_PARAM_TYPE_F64LIST] = {
         .name = "f64_list",
         .size = sizeof(double *) + sizeof(int),
-        .desc = NGLI_DOCSTRING("List of double-precision floats"),
+        .desc = NGLI_DOCSTRING("List of 64-bit floats"),
     },
     [NGLI_PARAM_TYPE_NODEDICT] = {
         .name = "node_dict",
@@ -150,7 +150,7 @@ const struct param_specs ngli_params_specs[] = {
     [NGLI_PARAM_TYPE_RATIONAL] = {
         .name = "rational",
         .size = sizeof(int[2]),
-        .desc = NGLI_DOCSTRING("Rational number (expressed as 2 integers, respectively as numerator and denominator)"),
+        .desc = NGLI_DOCSTRING("Rational number (expressed as 2 32-bit integers, respectively as numerator and denominator)"),
     },
 };
 

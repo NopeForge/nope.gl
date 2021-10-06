@@ -1341,29 +1341,29 @@ Parameter types
 
 Type | Description
 ---- | -----------
-`i32` | Integer
-`ivec2` | 2 integers
-`ivec3` | 3 integers
-`ivec4` | 4 integers
+`i32` | 32-bit integer
+`ivec2` | 2 32-bit integers
+`ivec3` | 3 32-bit integers
+`ivec4` | 4 32-bit integers
 `bool` | Boolean (map to `int` in C)
-`u32` | Unsigned integer
-`uvec2` | 2 unsigned integers
-`uvec3` | 3 unsigned integers
-`uvec4` | 4 unsigned integers
-`f64` | Double-precision float
+`u32` | 32-bit unsigned integer
+`uvec2` | 2 32-bit unsigned integers
+`uvec3` | 3 32-bit unsigned integers
+`uvec4` | 4 32-bit unsigned integers
+`f64` | 64-bit float
 `str` | String
 `data` | Agnostic data buffer
-`vec2` | 2 single-precision floats
-`vec3` | 3 single-precision floats
-`vec4` | 4 single-precision floats
-`mat4` | 4x4 single-precision floats
+`vec2` | 2 32-bit floats
+`vec3` | 3 32-bit floats
+`vec4` | 4 32-bit floats
+`mat4` | 4x4 32-bit floats
 `node` | node.gl Node
 `node_list` | List of node.gl Node
-`f64_list` | List of double-precision floats
+`f64_list` | List of 64-bit floats
 `node_dict` | Dictionary mapping arbitrary string identifiers to node.gl Nodes
 `select` | Selection of one constant (expressed as a string)
 `flags` | Combination of constants (expressed as strings), using `+` as separator. Can be empty for none.
-`rational` | Rational number (expressed as 2 integers, respectively as numerator and denominator)
+`rational` | Rational number (expressed as 2 32-bit integers, respectively as numerator and denominator)
 
 Constants for choices parameters
 ================================
