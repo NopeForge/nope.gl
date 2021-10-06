@@ -44,11 +44,36 @@ struct hwmap_vt_darwin {
     struct texture *planes[2];
 };
 
-static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, int index)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)ctx->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
+    struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
+    struct texture *plane = vt->planes[index];
+    struct texture_gl *plane_gl = (struct texture_gl *)plane;
+
+    ngli_glBindTexture(gl, plane_gl->target, plane_gl->id);
+
+    int width = IOSurfaceGetWidthOfPlane(surface, index);
+    int height = IOSurfaceGetHeightOfPlane(surface, index);
+    ngli_texture_gl_set_dimensions(plane, width, height, 0);
+
+    CGLError err = CGLTexImageIOSurface2D(CGLGetCurrentContext(), plane_gl->target,
+                                          plane_gl->internal_format, width, height,
+                                          plane_gl->format, plane_gl->format_type, surface, index);
+    if (err != kCGLNoError) {
+        LOG(ERROR, "could not bind IOSurface plane %d to texture %d: %s", index, plane_gl->id, CGLErrorString(err));
+        return -1;
+    }
+
+    ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, 0);
+
+    return 0;
+}
+
+static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
+{
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
 
     sxplayer_release_frame(vt->frame);
@@ -68,24 +93,9 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame
     }
 
     for (int i = 0; i < 2; i++) {
-        struct texture *plane = vt->planes[i];
-        struct texture_gl *plane_gl = (struct texture_gl *)plane;
-
-        ngli_glBindTexture(gl, plane_gl->target, plane_gl->id);
-
-        int width = IOSurfaceGetWidthOfPlane(surface, i);
-        int height = IOSurfaceGetHeightOfPlane(surface, i);
-        ngli_texture_gl_set_dimensions(plane, width, height, 0);
-
-        CGLError err = CGLTexImageIOSurface2D(CGLGetCurrentContext(), plane_gl->target,
-                                              plane_gl->internal_format, width, height,
-                                              plane_gl->format, plane_gl->format_type, surface, i);
-        if (err != kCGLNoError) {
-            LOG(ERROR, "could not bind IOSurface plane %d to texture %d: %d", i, plane_gl->id, err);
-            return -1;
-        }
-
-        ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, 0);
+        int ret = vt_darwin_map_plane(hwmap, surface, i);
+        if (ret < 0)
+            return ret;
     }
 
     return 0;
