@@ -172,7 +172,10 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                         const struct node_param *p, uint8_t *priv,
                         struct hmap *decls)
 {
-    while (p && p->key) {
+    if (!p)
+        return;
+
+    while (p->key) {
         const uint8_t *srcp = priv + p->offset;
         switch (p->type) {
             case NGLI_PARAM_TYPE_NODE: {
@@ -235,7 +238,10 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                         const struct node_param *p, uint8_t *priv,
                         struct hmap *links)
 {
-    while (p && p->key) {
+    if (!p)
+        return;
+
+    while (p->key) {
         char *label = ngli_asprintf("[label=\"%s\"]",
                                     (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME) ? p->key : "");
         if (!label)
