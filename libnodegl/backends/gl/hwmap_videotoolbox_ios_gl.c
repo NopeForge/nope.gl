@@ -79,6 +79,7 @@ struct hwmap_vt_ios {
     int width;
     int height;
     OSType format;
+    struct format_desc format_desc;
     CVOpenGLESTextureRef ios_textures[2];
 };
 
@@ -147,24 +148,10 @@ static int vt_ios_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
     vt->width  = CVPixelBufferGetWidth(cvpixbuf);
     vt->height = CVPixelBufferGetHeight(cvpixbuf);
 
-    int ret;
-    switch (vt->format) {
-    case kCVPixelFormatType_32BGRA:
-        ret = vt_ios_map_plane(hwmap, cvpixbuf, 0);
+    for (int i = 0; i < vt->format_desc.nb_planes; i++) {
+        int ret = vt_ios_map_plane(hwmap, cvpixbuf, i);
         if (ret < 0)
             return ret;
-        break;
-    case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange: {
-        ret = vt_ios_map_plane(hwmap, cvpixbuf, 0);
-        if (ret < 0)
-            return ret;
-        ret = vt_ios_map_plane(hwmap, cvpixbuf, 1);
-        if (ret < 0)
-            return ret;
-        break;
-    }
-    default:
-        ngli_assert(0);
     }
 
     return 0;
@@ -218,15 +205,14 @@ static int vt_ios_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
     CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
     vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
-    struct format_desc format_desc = {0};
-    int ret = vt_get_format_desc(vt->format, &format_desc);
+    int ret = vt_get_format_desc(vt->format, &vt->format_desc);
     if (ret < 0)
         return ret;
 
-    for (int i = 0; i < format_desc.nb_planes; i++) {
+    for (int i = 0; i < vt->format_desc.nb_planes; i++) {
         const struct texture_params plane_params = {
             .type             = NGLI_TEXTURE_TYPE_2D,
-            .format           = format_desc.planes[i].format,
+            .format           = vt->format_desc.planes[i].format,
             .min_filter       = params->texture_min_filter,
             .mag_filter       = params->texture_mag_filter,
             .wrap_s           = params->texture_wrap_s,
@@ -246,7 +232,7 @@ static int vt_ios_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
     struct image_params image_params = {
         .width = frame->width,
         .height = frame->height,
-        .layout = format_desc.layout,
+        .layout = vt->format_desc.layout,
         .color_scale = 1.f,
         .color_info = ngli_color_info_from_sxplayer_frame(frame),
     };
