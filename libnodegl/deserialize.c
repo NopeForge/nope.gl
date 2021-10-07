@@ -30,32 +30,6 @@
 #include "internal.h"
 #include "params.h"
 
-#define CASE_LITERAL(parse_func, type, set_type) do {   \
-    type v;                                             \
-    len = parse_func(str, &v);                          \
-    if (len < 0)                                        \
-        return NGL_ERROR_INVALID_DATA;                  \
-    int ret = ngli_params_set_##set_type(dstp, par, v); \
-    if (ret < 0)                                        \
-        return ret;                                     \
-    break;                                              \
-} while (0)
-
-#define CASE_VEC(parse_func, type, set_type, expected_nb_vals) do { \
-    int nb_vals;                                                \
-    type *vals;                                                 \
-    len = parse_func(str, &vals, &nb_vals);                     \
-    if (len < 0 || nb_vals != expected_nb_vals) {               \
-        ngli_free(vals);                                        \
-        return NGL_ERROR_INVALID_DATA;                          \
-    }                                                           \
-    int ret = ngli_params_set_##set_type(dstp, par, vals);      \
-    ngli_free(vals);                                            \
-    if (ret < 0)                                                \
-        return ret;                                             \
-} while (0)
-
-
 static int parse_int(const char *s, int *valp)
 {
     char *endptr = NULL;
@@ -232,6 +206,54 @@ static const uint8_t hexm[256] = {
 
 #define CHR_FROM_HEX(s) (hexm[(uint8_t)(s)[0]]<<4 | hexm[(uint8_t)(s)[1]])
 
+#define DEFINE_LITERAL_PARSE_FUNC(parse_func, type, set_type)                       \
+static int parse_param_##set_type(struct darray *nodes_array, uint8_t *dstp,        \
+                                  const struct node_param *par, const char *str)    \
+{                                                                                   \
+    type v;                                                                         \
+    const int len = parse_func(str, &v);                                            \
+    if (len < 0)                                                                    \
+        return NGL_ERROR_INVALID_DATA;                                              \
+    int ret = ngli_params_set_##set_type(dstp, par, v);                             \
+    if (ret < 0)                                                                    \
+        return ret;                                                                 \
+    return len;                                                                     \
+}
+
+DEFINE_LITERAL_PARSE_FUNC(parse_int,    int,      i32)
+DEFINE_LITERAL_PARSE_FUNC(parse_uint,   unsigned, u32)
+DEFINE_LITERAL_PARSE_FUNC(parse_bool,   int,      bool)
+DEFINE_LITERAL_PARSE_FUNC(parse_double, double,   f64)
+
+#define DEFINE_VEC_PARSE_FUNC(parse_func, type, set_type, expected_nb_vals)         \
+static int parse_param_##set_type(struct darray *nodes_array, uint8_t *dstp,        \
+                                  const struct node_param *par, const char *str)    \
+{                                                                                   \
+    int nb_vals;                                                                    \
+    type *vals;                                                                     \
+    const int len = parse_func(str, &vals, &nb_vals);                               \
+    if (len < 0 || nb_vals != expected_nb_vals) {                                   \
+        ngli_free(vals);                                                            \
+        return NGL_ERROR_INVALID_DATA;                                              \
+    }                                                                               \
+    int ret = ngli_params_set_##set_type(dstp, par, vals);                          \
+    ngli_free(vals);                                                                \
+    if (ret < 0)                                                                    \
+        return ret;                                                                 \
+    return len;                                                                     \
+}
+
+DEFINE_VEC_PARSE_FUNC(parse_ints,   int,      ivec2, 2)
+DEFINE_VEC_PARSE_FUNC(parse_ints,   int,      ivec3, 3)
+DEFINE_VEC_PARSE_FUNC(parse_ints,   int,      ivec4, 4)
+DEFINE_VEC_PARSE_FUNC(parse_uints,  unsigned, uvec2, 2)
+DEFINE_VEC_PARSE_FUNC(parse_uints,  unsigned, uvec3, 3)
+DEFINE_VEC_PARSE_FUNC(parse_uints,  unsigned, uvec4, 4)
+DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec2,  2)
+DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec3,  3)
+DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec4,  4)
+DEFINE_VEC_PARSE_FUNC(parse_floats, float,    mat4, 16)
+
 static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                        const struct node_param *par, const char *str)
 {
@@ -240,10 +262,10 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
     uint8_t *dstp = base_ptr + par->offset;
 
     switch (par->type) {
-        case NGLI_PARAM_TYPE_I32:  CASE_LITERAL(parse_int,    int,      i32);  break;
-        case NGLI_PARAM_TYPE_U32:  CASE_LITERAL(parse_uint,   unsigned, u32);  break;
-        case NGLI_PARAM_TYPE_BOOL: CASE_LITERAL(parse_bool,   int,      bool); break;
-        case NGLI_PARAM_TYPE_F64:  CASE_LITERAL(parse_double, double,   f64);  break;
+        case NGLI_PARAM_TYPE_I32:  len = parse_param_i32(nodes_array, dstp, par, str);  break;
+        case NGLI_PARAM_TYPE_U32:  len = parse_param_u32(nodes_array, dstp, par, str);  break;
+        case NGLI_PARAM_TYPE_BOOL: len = parse_param_bool(nodes_array, dstp, par, str); break;
+        case NGLI_PARAM_TYPE_F64:  len = parse_param_f64(nodes_array, dstp, par, str);  break;
 
         case NGLI_PARAM_TYPE_RATIONAL: {
             int r[2] = {0};
@@ -334,16 +356,16 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             break;
         }
 
-        case NGLI_PARAM_TYPE_IVEC2: CASE_VEC(parse_ints,   int,      ivec2, 2); break;
-        case NGLI_PARAM_TYPE_IVEC3: CASE_VEC(parse_ints,   int,      ivec3, 3); break;
-        case NGLI_PARAM_TYPE_IVEC4: CASE_VEC(parse_ints,   int,      ivec4, 4); break;
-        case NGLI_PARAM_TYPE_UVEC2: CASE_VEC(parse_uints,  unsigned, uvec2, 2); break;
-        case NGLI_PARAM_TYPE_UVEC3: CASE_VEC(parse_uints,  unsigned, uvec3, 3); break;
-        case NGLI_PARAM_TYPE_UVEC4: CASE_VEC(parse_uints,  unsigned, uvec4, 4); break;
-        case NGLI_PARAM_TYPE_VEC2:  CASE_VEC(parse_floats, float,    vec2,  2); break;
-        case NGLI_PARAM_TYPE_VEC3:  CASE_VEC(parse_floats, float,    vec3,  3); break;
-        case NGLI_PARAM_TYPE_VEC4:  CASE_VEC(parse_floats, float,    vec4,  4); break;
-        case NGLI_PARAM_TYPE_MAT4:  CASE_VEC(parse_floats, float,    mat4, 16); break;
+        case NGLI_PARAM_TYPE_IVEC2: len = parse_param_ivec2(nodes_array, dstp, par, str); break;
+        case NGLI_PARAM_TYPE_IVEC3: len = parse_param_ivec3(nodes_array, dstp, par, str); break;
+        case NGLI_PARAM_TYPE_IVEC4: len = parse_param_ivec4(nodes_array, dstp, par, str); break;
+        case NGLI_PARAM_TYPE_UVEC2: len = parse_param_uvec2(nodes_array, dstp, par, str); break;
+        case NGLI_PARAM_TYPE_UVEC3: len = parse_param_uvec3(nodes_array, dstp, par, str); break;
+        case NGLI_PARAM_TYPE_UVEC4: len = parse_param_uvec4(nodes_array, dstp, par, str); break;
+        case NGLI_PARAM_TYPE_VEC2:  len = parse_param_vec2(nodes_array, dstp, par, str);  break;
+        case NGLI_PARAM_TYPE_VEC3:  len = parse_param_vec3(nodes_array, dstp, par, str);  break;
+        case NGLI_PARAM_TYPE_VEC4:  len = parse_param_vec4(nodes_array, dstp, par, str);  break;
+        case NGLI_PARAM_TYPE_MAT4:  len = parse_param_mat4(nodes_array, dstp, par, str);  break;
 
         case NGLI_PARAM_TYPE_NODE: {
             int node_id;
