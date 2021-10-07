@@ -254,6 +254,184 @@ DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec3,  3)
 DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec4,  4)
 DEFINE_VEC_PARSE_FUNC(parse_floats, float,    mat4, 16)
 
+static int parse_param_rational(struct darray *nodes_array, uint8_t *dstp,
+                                const struct node_param *par, const char *str)
+{
+    int r[2] = {0};
+    int len = -1;
+    int ret = sscanf(str, "%d/%d%n", &r[0], &r[1], &len);
+    if (ret != 2)
+        return NGL_ERROR_INVALID_DATA;
+    ret = ngli_params_set_rational(dstp, par, r[0], r[1]);
+    if (ret < 0)
+        return ret;
+    return len;
+}
+
+static int parse_param_flags(struct darray *nodes_array, uint8_t *dstp,
+                             const struct node_param *par, const char *str)
+{
+    const int len = strcspn(str, " \n");
+    char *s = ngli_malloc(len + 1);
+    if (!s)
+        return NGL_ERROR_MEMORY;
+    memcpy(s, str, len);
+    s[len] = 0;
+    int ret = ngli_params_set_flags(dstp, par, s);
+    ngli_free(s);
+    if (ret < 0)
+        return ret;
+    return len;
+}
+
+static int parse_param_select(struct darray *nodes_array, uint8_t *dstp,
+                              const struct node_param *par, const char *str)
+{
+    const int len = strcspn(str, " \n");
+    char *s = ngli_malloc(len + 1);
+    if (!s)
+        return NGL_ERROR_MEMORY;
+    memcpy(s, str, len);
+    s[len] = 0;
+    int ret = ngli_params_set_select(dstp, par, s);
+    ngli_free(s);
+    if (ret < 0)
+        return ret;
+    return len;
+}
+
+static int parse_param_str(struct darray *nodes_array, uint8_t *dstp,
+                           const struct node_param *par, const char *str)
+{
+    const int len = strcspn(str, " \n");
+    char *s = ngli_malloc(len + 1);
+    if (!s)
+        return NGL_ERROR_MEMORY;
+    char *sstart = s;
+    for (int i = 0; i < len; i++) {
+        if (str[i] == '%' && i + 2 < len) {
+            *s++ = CHR_FROM_HEX(str + i + 1);
+            i += 2;
+        } else {
+            *s++ = str[i];
+        }
+    }
+    *s = 0;
+    int ret = ngli_params_set_str(dstp, par, sstart);
+    ngli_free(sstart);
+    if (ret < 0)
+        return ret;
+    return len;
+}
+
+static int parse_param_data(struct darray *nodes_array, uint8_t *dstp,
+                            const struct node_param *par, const char *str)
+{
+    int size = 0;
+    int consumed = 0;
+    const char *cur = str;
+    const char *end = str + strlen(str);
+    int ret = sscanf(str, "%d,%n", &size, &consumed);
+    if (ret != 1 || !size || cur >= end - consumed)
+        return NGL_ERROR_INVALID_DATA;
+    cur += consumed;
+    uint8_t *data = ngli_calloc(size, sizeof(*data));
+    if (!data)
+        return NGL_ERROR_MEMORY;
+    for (int i = 0; i < size; i++) {
+        if (cur > end - 2) {
+            ngli_free(data);
+            return NGL_ERROR_INVALID_DATA;
+        }
+        data[i] = CHR_FROM_HEX(cur);
+        cur += 2;
+    }
+    ret = ngli_params_set_data(dstp, par, size, data);
+    ngli_free(data);
+    if (ret < 0)
+        return ret;
+    return cur - str;
+}
+
+static int parse_param_node(struct darray *nodes_array, uint8_t *dstp,
+                            const struct node_param *par, const char *str)
+{
+    int node_id;
+    const int len = parse_hexint(str, &node_id);
+    if (len < 0)
+        return NGL_ERROR_INVALID_DATA;
+    struct ngl_node **nodep = get_abs_node(nodes_array, node_id);
+    if (!nodep)
+        return NGL_ERROR_INVALID_DATA;
+    int ret = ngli_params_set_node(dstp, par, *nodep);
+    if (ret < 0)
+        return ret;
+    return len;
+}
+
+static int parse_param_nodelist(struct darray *nodes_array, uint8_t *dstp,
+                                const struct node_param *par, const char *str)
+{
+    int *node_ids, nb_node_ids;
+    const int len = parse_hexints(str, &node_ids, &nb_node_ids);
+    if (len < 0)
+        return len;
+    for (int i = 0; i < nb_node_ids; i++) {
+        struct ngl_node **nodep = get_abs_node(nodes_array, node_ids[i]);
+        if (!nodep) {
+            ngli_free(node_ids);
+            return NGL_ERROR_INVALID_DATA;
+        }
+        int ret = ngli_params_add_nodes(dstp, par, 1, nodep);
+        if (ret < 0) {
+            ngli_free(node_ids);
+            return ret;
+        }
+    }
+    ngli_free(node_ids);
+    return len;
+}
+
+static int parse_param_f64list(struct darray *nodes_array, uint8_t *dstp,
+                               const struct node_param *par, const char *str)
+{
+    double *dbls;
+    int nb_dbls;
+    const int len = parse_doubles(str, &dbls, &nb_dbls);
+    if (len < 0)
+        return len;
+    int ret = ngli_params_add_f64s(dstp, par, nb_dbls, dbls);
+    ngli_free(dbls);
+    if (ret < 0)
+        return ret;
+    return len;
+}
+
+static int parse_param_nodedict(struct darray *nodes_array, uint8_t *dstp,
+                                const struct node_param *par, const char *str)
+{
+    char **node_keys;
+    int *node_ids, nb_nodes;
+    const int len = parse_kvs(str, &nb_nodes, &node_keys, &node_ids);
+    if (len < 0)
+        return len;
+    for (int i = 0; i < nb_nodes; i++) {
+        const char *key = node_keys[i];
+        struct ngl_node **nodep = get_abs_node(nodes_array, node_ids[i]);
+        if (!nodep) {
+            FREE_KVS(nb_nodes, node_keys, node_ids);
+            return NGL_ERROR_INVALID_DATA;
+        }
+        int ret = ngli_params_set_dict(dstp, par, key, *nodep);
+        if (ret < 0) {
+            FREE_KVS(nb_nodes, node_keys, node_ids);
+            return ret;
+        }
+    }
+    FREE_KVS(nb_nodes, node_keys, node_ids);
+    return len;
+}
+
 static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
                        const struct node_param *par, const char *str)
 {
@@ -266,96 +444,11 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
         case NGLI_PARAM_TYPE_U32:  len = parse_param_u32(nodes_array, dstp, par, str);  break;
         case NGLI_PARAM_TYPE_BOOL: len = parse_param_bool(nodes_array, dstp, par, str); break;
         case NGLI_PARAM_TYPE_F64:  len = parse_param_f64(nodes_array, dstp, par, str);  break;
-
-        case NGLI_PARAM_TYPE_RATIONAL: {
-            int r[2] = {0};
-            int ret = sscanf(str, "%d/%d%n", &r[0], &r[1], &len);
-            if (ret != 2)
-                return NGL_ERROR_INVALID_DATA;
-            ret = ngli_params_set_rational(dstp, par, r[0], r[1]);
-            if (ret < 0)
-                return ret;
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_FLAGS: {
-            len = strcspn(str, " \n");
-            char *s = ngli_malloc(len + 1);
-            if (!s)
-                return NGL_ERROR_MEMORY;
-            memcpy(s, str, len);
-            s[len] = 0;
-            int ret = ngli_params_set_flags(dstp, par, s);
-            ngli_free(s);
-            if (ret < 0)
-                return ret;
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_SELECT: {
-            len = strcspn(str, " \n");
-            char *s = ngli_malloc(len + 1);
-            if (!s)
-                return NGL_ERROR_MEMORY;
-            memcpy(s, str, len);
-            s[len] = 0;
-            int ret = ngli_params_set_select(dstp, par, s);
-            ngli_free(s);
-            if (ret < 0)
-                return ret;
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_STR: {
-            len = strcspn(str, " \n");
-            char *s = ngli_malloc(len + 1);
-            if (!s)
-                return NGL_ERROR_MEMORY;
-            char *sstart = s;
-            for (int i = 0; i < len; i++) {
-                if (str[i] == '%' && i + 2 < len) {
-                    *s++ = CHR_FROM_HEX(str + i + 1);
-                    i += 2;
-                } else {
-                    *s++ = str[i];
-                }
-            }
-            *s = 0;
-            int ret = ngli_params_set_str(dstp, par, sstart);
-            ngli_free(sstart);
-            if (ret < 0)
-                return ret;
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_DATA: {
-            int size = 0;
-            int consumed = 0;
-            const char *cur = str;
-            const char *end = str + strlen(str);
-            int ret = sscanf(str, "%d,%n", &size, &consumed);
-            if (ret != 1 || !size || cur >= end - consumed)
-                return NGL_ERROR_INVALID_DATA;
-            cur += consumed;
-            uint8_t *data = ngli_calloc(size, sizeof(*data));
-            if (!data)
-                return NGL_ERROR_MEMORY;
-            for (int i = 0; i < size; i++) {
-                if (cur > end - 2) {
-                    ngli_free(data);
-                    return NGL_ERROR_INVALID_DATA;
-                }
-                data[i] = CHR_FROM_HEX(cur);
-                cur += 2;
-            }
-            ret = ngli_params_set_data(dstp, par, size, data);
-            ngli_free(data);
-            if (ret < 0)
-                return ret;
-            len = cur - str;
-            break;
-        }
-
+        case NGLI_PARAM_TYPE_RATIONAL: len = parse_param_rational(nodes_array, dstp, par, str); break;
+        case NGLI_PARAM_TYPE_FLAGS:    len = parse_param_flags(nodes_array, dstp, par, str);    break;
+        case NGLI_PARAM_TYPE_SELECT:   len = parse_param_select(nodes_array, dstp, par, str);   break;
+        case NGLI_PARAM_TYPE_STR:      len = parse_param_str(nodes_array, dstp, par, str);      break;
+        case NGLI_PARAM_TYPE_DATA:     len = parse_param_data(nodes_array, dstp, par, str);     break;
         case NGLI_PARAM_TYPE_IVEC2: len = parse_param_ivec2(nodes_array, dstp, par, str); break;
         case NGLI_PARAM_TYPE_IVEC3: len = parse_param_ivec3(nodes_array, dstp, par, str); break;
         case NGLI_PARAM_TYPE_IVEC4: len = parse_param_ivec4(nodes_array, dstp, par, str); break;
@@ -366,78 +459,10 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
         case NGLI_PARAM_TYPE_VEC3:  len = parse_param_vec3(nodes_array, dstp, par, str);  break;
         case NGLI_PARAM_TYPE_VEC4:  len = parse_param_vec4(nodes_array, dstp, par, str);  break;
         case NGLI_PARAM_TYPE_MAT4:  len = parse_param_mat4(nodes_array, dstp, par, str);  break;
-
-        case NGLI_PARAM_TYPE_NODE: {
-            int node_id;
-            len = parse_hexint(str, &node_id);
-            if (len < 0)
-                return NGL_ERROR_INVALID_DATA;
-            struct ngl_node **nodep = get_abs_node(nodes_array, node_id);
-            if (!nodep)
-                return NGL_ERROR_INVALID_DATA;
-            int ret = ngli_params_set_node(dstp, par, *nodep);
-            if (ret < 0)
-                return ret;
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_NODELIST: {
-            int *node_ids, nb_node_ids;
-            len = parse_hexints(str, &node_ids, &nb_node_ids);
-            if (len < 0)
-                return len;
-            for (int i = 0; i < nb_node_ids; i++) {
-                struct ngl_node **nodep = get_abs_node(nodes_array, node_ids[i]);
-                if (!nodep) {
-                    ngli_free(node_ids);
-                    return NGL_ERROR_INVALID_DATA;
-                }
-                int ret = ngli_params_add(base_ptr, par, 1, nodep);
-                if (ret < 0) {
-                    ngli_free(node_ids);
-                    return ret;
-                }
-            }
-            ngli_free(node_ids);
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_F64LIST: {
-            double *dbls;
-            int nb_dbls;
-            len = parse_doubles(str, &dbls, &nb_dbls);
-            if (len < 0)
-                return len;
-            int ret = ngli_params_add(base_ptr, par, nb_dbls, dbls);
-            ngli_free(dbls);
-            if (ret < 0)
-                return ret;
-            break;
-        }
-
-        case NGLI_PARAM_TYPE_NODEDICT: {
-            char **node_keys;
-            int *node_ids, nb_nodes;
-            len = parse_kvs(str, &nb_nodes, &node_keys, &node_ids);
-            if (len < 0)
-                return len;
-            for (int i = 0; i < nb_nodes; i++) {
-                const char *key = node_keys[i];
-                struct ngl_node **nodep = get_abs_node(nodes_array, node_ids[i]);
-                if (!nodep) {
-                    FREE_KVS(nb_nodes, node_keys, node_ids);
-                    return NGL_ERROR_INVALID_DATA;
-                }
-                int ret = ngli_params_set_dict(dstp, par, key, *nodep);
-                if (ret < 0) {
-                    FREE_KVS(nb_nodes, node_keys, node_ids);
-                    return ret;
-                }
-            }
-            FREE_KVS(nb_nodes, node_keys, node_ids);
-            break;
-        }
-
+        case NGLI_PARAM_TYPE_NODE:     len = parse_param_node(nodes_array, dstp, par, str);     break;
+        case NGLI_PARAM_TYPE_NODELIST: len = parse_param_nodelist(nodes_array, dstp, par, str); break;
+        case NGLI_PARAM_TYPE_F64LIST:  len = parse_param_f64list(nodes_array, dstp, par, str);  break;
+        case NGLI_PARAM_TYPE_NODEDICT: len = parse_param_nodedict(nodes_array, dstp, par, str); break;
         default:
             LOG(ERROR, "cannot deserialize %s: "
                 "unsupported parameter type", par->key);
