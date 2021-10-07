@@ -740,63 +740,72 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
     return 0;
 }
 
+int ngli_params_add_nodes(uint8_t *dstp, const struct node_param *par,
+                          int nb_nodes, struct ngl_node **nodes)
+{
+    uint8_t *cur_elems_p = dstp;
+    uint8_t *nb_cur_elems_p = dstp + sizeof(struct ngl_node **);
+    struct ngl_node **cur_elems = *(struct ngl_node ***)cur_elems_p;
+    const int nb_cur_elems = *(int *)nb_cur_elems_p;
+    const int nb_new_elems = nb_cur_elems + nb_nodes;
+    struct ngl_node **new_elems = ngli_realloc(cur_elems, nb_new_elems * sizeof(*new_elems));
+    struct ngl_node **new_elems_addp = new_elems + nb_cur_elems;
+
+    if (!new_elems)
+        return NGL_ERROR_MEMORY;
+
+    *(struct ngl_node ***)cur_elems_p = new_elems;
+    for (int i = 0; i < nb_nodes; i++) {
+        const struct ngl_node *e = nodes[i];
+        if (!allowed_node(e, par->node_types)) {
+            LOG(ERROR, "%s (%s) is not an allowed type for %s list",
+                e->label, e->cls->name, par->key);
+            return NGL_ERROR_INVALID_ARG;
+        }
+    }
+    for (int i = 0; i < nb_nodes; i++) {
+        struct ngl_node *e = nodes[i];
+        new_elems_addp[i] = ngl_node_ref(e);
+    }
+    *(int *)nb_cur_elems_p = nb_new_elems;
+    return 0;
+}
+
+int ngli_params_add_f64s(uint8_t *dstp, const struct node_param *par,
+                         int nb_f64s, const double *f64s)
+{
+    uint8_t *cur_elems_p = dstp;
+    uint8_t *nb_cur_elems_p = dstp + sizeof(double *);
+    double *cur_elems = *(double **)cur_elems_p;
+    const int nb_cur_elems = *(int *)nb_cur_elems_p;
+    const int nb_new_elems = nb_cur_elems + nb_f64s;
+    double *new_elems = ngli_realloc(cur_elems, nb_new_elems * sizeof(*new_elems));
+    double *new_elems_addp = new_elems + nb_cur_elems;
+
+    if (!new_elems)
+        return NGL_ERROR_MEMORY;
+    for (int i = 0; i < nb_f64s; i++)
+        new_elems_addp[i] = f64s[i];
+    *(double **)cur_elems_p = new_elems;
+    *(int *)nb_cur_elems_p = nb_new_elems;
+    return 0;
+}
+
 int ngli_params_add(uint8_t *base_ptr, const struct node_param *par,
                     int nb_elems, void *elems)
 {
     LOG(VERBOSE, "add %d elems to %s", nb_elems, par->key);
+
+    int ret = 0;
+    uint8_t *dstp = base_ptr + par->offset;
     switch (par->type) {
-        case NGLI_PARAM_TYPE_NODELIST: {
-            uint8_t *cur_elems_p = base_ptr + par->offset;
-            uint8_t *nb_cur_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
-            struct ngl_node **cur_elems = *(struct ngl_node ***)cur_elems_p;
-            const int nb_cur_elems = *(int *)nb_cur_elems_p;
-            const int nb_new_elems = nb_cur_elems + nb_elems;
-            struct ngl_node **new_elems = ngli_realloc(cur_elems, nb_new_elems * sizeof(*new_elems));
-            struct ngl_node **new_elems_addp = new_elems + nb_cur_elems;
-            struct ngl_node **add_elems = elems;
-
-            if (!new_elems)
-                return NGL_ERROR_MEMORY;
-
-            *(struct ngl_node ***)cur_elems_p = new_elems;
-            for (int i = 0; i < nb_elems; i++) {
-                const struct ngl_node *e = add_elems[i];
-                if (!allowed_node(e, par->node_types)) {
-                    LOG(ERROR, "%s (%s) is not an allowed type for %s list",
-                        e->label, e->cls->name, par->key);
-                    return NGL_ERROR_INVALID_ARG;
-                }
-            }
-            for (int i = 0; i < nb_elems; i++) {
-                struct ngl_node *e = add_elems[i];
-                new_elems_addp[i] = ngl_node_ref(e);
-            }
-            *(int *)nb_cur_elems_p = nb_new_elems;
-            break;
-        }
-        case NGLI_PARAM_TYPE_F64LIST: {
-            uint8_t *cur_elems_p = base_ptr + par->offset;
-            uint8_t *nb_cur_elems_p = base_ptr + par->offset + sizeof(double *);
-            double *cur_elems = *(double **)cur_elems_p;
-            const int nb_cur_elems = *(int *)nb_cur_elems_p;
-            const int nb_new_elems = nb_cur_elems + nb_elems;
-            double *new_elems = ngli_realloc(cur_elems, nb_new_elems * sizeof(*new_elems));
-            double *new_elems_addp = new_elems + nb_cur_elems;
-            double *add_elems = elems;
-
-            if (!new_elems)
-                return NGL_ERROR_MEMORY;
-            for (int i = 0; i < nb_elems; i++)
-                new_elems_addp[i] = add_elems[i];
-            *(double **)cur_elems_p = new_elems;
-            *(int *)nb_cur_elems_p = nb_new_elems;
-            break;
-        }
-        default:
-            LOG(ERROR, "parameter %s is not a list", par->key);
-            return NGL_ERROR_INVALID_USAGE;
+    case NGLI_PARAM_TYPE_NODELIST: ret = ngli_params_add_nodes(dstp, par, nb_elems, elems); break;
+    case NGLI_PARAM_TYPE_F64LIST:  ret = ngli_params_add_f64s(dstp, par, nb_elems, elems);  break;
+    default:
+        LOG(ERROR, "parameter %s is not a list", par->key);
+        return NGL_ERROR_INVALID_USAGE;
     }
-    return 0;
+    return ret;
 }
 
 void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
