@@ -829,15 +829,13 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 break;
             }
             case NGLI_PARAM_TYPE_NODE: {
-                uint8_t *node_p = base_ptr + par->offset;
-                struct ngl_node *node = *(struct ngl_node **)node_p;
+                struct ngl_node *node = *(struct ngl_node **)parp;
                 ngl_node_unrefp(&node);
                 break;
             }
             case NGLI_PARAM_TYPE_NODELIST: {
-                uint8_t *elems_p = base_ptr + par->offset;
-                uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
-                struct ngl_node **elems = *(struct ngl_node ***)elems_p;
+                uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
+                struct ngl_node **elems = *(struct ngl_node ***)parp;
                 const int nb_elems = *(int *)nb_elems_p;
                 for (int j = 0; j < nb_elems; j++)
                     ngl_node_unrefp(&elems[j]);
@@ -845,13 +843,12 @@ void ngli_params_free(uint8_t *base_ptr, const struct node_param *params)
                 break;
             }
             case NGLI_PARAM_TYPE_F64LIST: {
-                uint8_t *elems_p = base_ptr + par->offset;
-                double *elems = *(double **)elems_p;
+                double *elems = *(double **)parp;
                 ngli_free(elems);
                 break;
             }
             case NGLI_PARAM_TYPE_NODEDICT: {
-                struct hmap **hmapp = (struct hmap **)(base_ptr + par->offset);
+                struct hmap **hmapp = (struct hmap **)parp;
                 ngli_hmap_freep(hmapp);
                 break;
             }
