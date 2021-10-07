@@ -61,6 +61,12 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
         desc->planes[0].format = NGLI_FORMAT_R8_UNORM;
         desc->planes[1].format = NGLI_FORMAT_R8G8_UNORM;
         break;
+    case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
+        desc->layout = NGLI_IMAGE_LAYOUT_NV12_RECTANGLE;
+        desc->nb_planes = 2;
+        desc->planes[0].format = NGLI_FORMAT_R16_UNORM;
+        desc->planes[1].format = NGLI_FORMAT_R16G16_UNORM;
+        break;
     default:
         return NGL_ERROR_UNSUPPORTED;
     }
@@ -144,6 +150,7 @@ static int support_direct_rendering(struct hwmap *hwmap, struct sxplayer_frame *
         direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_RECTANGLE);
         break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
+    case kCVPixelFormatType_420YpCbCr10BiPlanarVideoRange:
         direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
         break;
     default:
