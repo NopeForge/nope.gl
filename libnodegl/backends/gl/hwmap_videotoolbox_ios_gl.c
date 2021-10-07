@@ -45,14 +45,6 @@
     }                            \
 } while (0)
 
-struct hwmap_vt_ios {
-    struct texture *planes[2];
-    int width;
-    int height;
-    OSType format;
-    CVOpenGLESTextureRef ios_textures[2];
-};
-
 struct format_desc {
     int layout;
     int nb_planes;
@@ -81,6 +73,14 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 
     return 0;
 }
+
+struct hwmap_vt_ios {
+    struct texture *planes[2];
+    int width;
+    int height;
+    OSType format;
+    CVOpenGLESTextureRef ios_textures[2];
+};
 
 static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, int index)
 {
