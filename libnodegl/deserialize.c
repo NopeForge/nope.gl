@@ -312,10 +312,8 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
             const char *cur = str;
             const char *end = str + strlen(str);
             int ret = sscanf(str, "%d,%n", &size, &consumed);
-            if (ret != 1)
+            if (ret != 1 || !size)
                 return NGL_ERROR_INVALID_DATA;
-            if (!size)
-                break;
             if (cur >= end - consumed)
                 return NGL_ERROR_INVALID_DATA;
             cur += consumed;
