@@ -50,6 +50,11 @@ struct format_desc {
 static int vt_get_format_desc(OSType format, struct format_desc *desc)
 {
     switch (format) {
+    case kCVPixelFormatType_32BGRA:
+        desc->layout = NGLI_IMAGE_LAYOUT_RECTANGLE;
+        desc->nb_planes = 1;
+        desc->planes[0].format = NGLI_FORMAT_B8G8R8A8_UNORM;
+        break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         desc->layout = NGLI_IMAGE_LAYOUT_NV12_RECTANGLE;
         desc->nb_planes = 2;
@@ -84,6 +89,9 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, int in
     int width = IOSurfaceGetWidthOfPlane(surface, index);
     int height = IOSurfaceGetHeightOfPlane(surface, index);
     ngli_texture_gl_set_dimensions(plane, width, height, 0);
+
+    /* CGLTexImageIOSurface2D() requires GL_UNSIGNED_INT_8_8_8_8_REV instead of GL_UNSIGNED_SHORT to map BGRA IOSurface2D */
+    const GLenum format_type = plane_gl->format == GL_BGRA ? GL_UNSIGNED_INT_8_8_8_8_REV : plane_gl->format_type;
 
     CGLError err = CGLTexImageIOSurface2D(CGLGetCurrentContext(), plane_gl->target,
                                           plane_gl->internal_format, width, height,
@@ -132,6 +140,9 @@ static int support_direct_rendering(struct hwmap *hwmap, struct sxplayer_frame *
     int direct_rendering = 1;
 
     switch (cvformat) {
+    case kCVPixelFormatType_32BGRA:
+        direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_RECTANGLE);
+        break;
     case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange:
         direct_rendering = params->image_layouts & (1 << NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
         break;
