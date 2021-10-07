@@ -152,6 +152,7 @@ lib_src = files(
   'node_group.c',
   'node_identity.c',
   'node_io.c',
+  'node_eval.c',
   'node_media.c',
   'node_noise.c',
   'node_path.c',

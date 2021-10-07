@@ -58,6 +58,10 @@ struct render_priv {
                                           NGL_NODE_NOISEVEC2,       \
                                           NGL_NODE_NOISEVEC3,       \
                                           NGL_NODE_NOISEVEC4,       \
+                                          NGL_NODE_EVALFLOAT,       \
+                                          NGL_NODE_EVALVEC2,        \
+                                          NGL_NODE_EVALVEC3,        \
+                                          NGL_NODE_EVALVEC4,        \
                                           NGL_NODE_STREAMEDBUFFERINT,   \
                                           NGL_NODE_STREAMEDBUFFERIVEC2, \
                                           NGL_NODE_STREAMEDBUFFERIVEC3, \

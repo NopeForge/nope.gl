@@ -255,6 +255,28 @@ IOMat4: _IOVar
 
 IOBool: _IOVar
 
+EvalFloat:
+    - [expr0, str]
+    - [resources, node_dict]
+
+EvalVec2:
+    - [expr0, str]
+    - [expr1, str]
+    - [resources, node_dict]
+
+EvalVec3:
+    - [expr0, str]
+    - [expr1, str]
+    - [expr2, str]
+    - [resources, node_dict]
+
+EvalVec4:
+    - [expr0, str]
+    - [expr1, str]
+    - [expr2, str]
+    - [expr3, str]
+    - [resources, node_dict]
+
 Media:
     - [filename, str]
     - [sxplayer_min_level, select]

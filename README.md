@@ -68,6 +68,7 @@ Following are how-to guides on various specific usages:
 - [pynodegl][ref-pynodegl]
 - [pynodegl-utils][ref-pynodegl-utils]
 - [ngl-tools][ref-ngl-tools]
+- [Eval][ref-eval]
 
 [proj-archi]:            /doc/project/architecture.md
 [proj-developers]:       /doc/project/developers.md
@@ -90,3 +91,4 @@ Following are how-to guides on various specific usages:
 [ref-pynodegl]:          /doc/ref/pynodegl.md
 [ref-pynodegl-utils]:    /doc/ref/pynodegl-utils.md
 [ref-ngl-tools]:         /doc/ref/ngl-tools.md
+[ref-eval]:              /doc/ref/eval.md

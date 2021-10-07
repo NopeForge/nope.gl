@@ -428,3 +428,47 @@ void main()
     render.update_vert_resources(wiggle=ngl.NoiseVec2(octaves=8))
     render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.white))
     return render
+
+
+@test_cuepoints(points={'c': (0, 0)}, nb_keyframes=10, tolerance=1)
+@scene()
+def data_eval(cfg):
+    cfg.aspect_ratio = (1, 1)
+
+    # Entangled dependencies between evals
+    t = ngl.Time()
+    a = ngl.UniformFloat(0.7)
+    b = ngl.UniformFloat(0.3)
+    x = ngl.EvalFloat("sin(a - b + t*4)")
+    x.update_resources(t=t, a=a, b=b)
+    color = ngl.EvalVec4(
+        expr0="sat(sin(x + t*4)/2 + wiggle/3)",
+        expr1="abs(fract(sin(t + a)))",
+        expr2=None, # re-use expr1
+        expr3="1",
+    )
+    color.update_resources(wiggle=ngl.NoiseFloat(), t=t, a=a, x=x)
+
+    vert = '''
+void main()
+{
+    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+}
+'''
+    frag = '''
+void main()
+{
+    ngl_out_color = color;
+}
+'''
+    program = ngl.Program(vertex=vert, fragment=frag)
+    program.update_vert_out_vars(
+        var_mat3=ngl.IOMat3(),
+        var_mat4=ngl.IOMat4(),
+        var_vec4=ngl.IOVec4(),
+    )
+    geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
+    render = ngl.Render(geometry, program)
+    render.update_frag_resources(color=color)
+
+    return render

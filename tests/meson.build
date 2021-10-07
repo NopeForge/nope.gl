@@ -146,6 +146,7 @@ foreach backend : backends
   tests_data = [
     'noise_time',
     'noise_wiggle',
+    'eval',
   ]
   foreach test_name : uniform_names
     tests_data += test_name + '_uniform'
