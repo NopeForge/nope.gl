@@ -331,7 +331,7 @@ static void node_hmap_free(void *user_arg, void *data)
     ngl_node_unrefp(&node);
 }
 
-static int params_set_bool(uint8_t *dstp, const struct node_param *par, int value)
+int ngli_params_set_bool(uint8_t *dstp, const struct node_param *par, int value)
 {
     if (value != -1)
         value = !!value;
@@ -340,7 +340,7 @@ static int params_set_bool(uint8_t *dstp, const struct node_param *par, int valu
     return 0;
 }
 
-static int params_set_data(uint8_t *dstp, const struct node_param *par, int size, const void *data)
+int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, int size, const void *data)
 {
     LOG(VERBOSE, "set %s to %p (of size %d)", par->key, data, size);
     uint8_t **dst = (uint8_t **)dstp;
@@ -358,7 +358,7 @@ static int params_set_data(uint8_t *dstp, const struct node_param *par, int size
     return 0;
 }
 
-static int params_set_dict(uint8_t *dstp, const struct node_param *par, const char *name, struct ngl_node *node)
+int ngli_params_set_dict(uint8_t *dstp, const struct node_param *par, const char *name, struct ngl_node *node)
 {
     if (node && !allowed_node(node, par->node_types)) {
         LOG(ERROR, "%s (%s) is not an allowed type for %s",
@@ -382,14 +382,14 @@ static int params_set_dict(uint8_t *dstp, const struct node_param *par, const ch
     return 0;
 }
 
-static int params_set_f64(uint8_t *dstp, const struct node_param *par, double value)
+int ngli_params_set_f64(uint8_t *dstp, const struct node_param *par, double value)
 {
     LOG(VERBOSE, "set %s to %g", par->key, value);
     memcpy(dstp, &value, sizeof(value));
     return 0;
 }
 
-static int params_set_flags(uint8_t *dstp, const struct node_param *par, const char *value)
+int ngli_params_set_flags(uint8_t *dstp, const struct node_param *par, const char *value)
 {
     int v;
     int ret = ngli_params_get_flags_val(par->choices->consts, value, &v);
@@ -402,42 +402,42 @@ static int params_set_flags(uint8_t *dstp, const struct node_param *par, const c
     return 0;
 }
 
-static int params_set_i32(uint8_t *dstp, const struct node_param *par, int value)
+int ngli_params_set_i32(uint8_t *dstp, const struct node_param *par, int value)
 {
     LOG(VERBOSE, "set %s to %d", par->key, value);
     memcpy(dstp, &value, sizeof(value));
     return 0;
 }
 
-static int params_set_ivec2(uint8_t *dstp, const struct node_param *par, const int *value)
+int ngli_params_set_ivec2(uint8_t *dstp, const struct node_param *par, const int *value)
 {
     LOG(VERBOSE, "set %s to (%d,%d)", par->key, NGLI_ARG_VEC2(value));
     memcpy(dstp, value, 2 * sizeof(*value));
     return 0;
 }
 
-static int params_set_ivec3(uint8_t *dstp, const struct node_param *par, const int *value)
+int ngli_params_set_ivec3(uint8_t *dstp, const struct node_param *par, const int *value)
 {
     LOG(VERBOSE, "set %s to (%d,%d,%d)", par->key, NGLI_ARG_VEC3(value));
     memcpy(dstp, value, 3 * sizeof(*value));
     return 0;
 }
 
-static int params_set_ivec4(uint8_t *dstp, const struct node_param *par, const int *value)
+int ngli_params_set_ivec4(uint8_t *dstp, const struct node_param *par, const int *value)
 {
     LOG(VERBOSE, "set %s to (%d,%d,%d,%d)", par->key, NGLI_ARG_VEC4(value));
     memcpy(dstp, value, 4 * sizeof(*value));
     return 0;
 }
 
-static int params_set_mat4(uint8_t *dstp, const struct node_param *par, const float *value)
+int ngli_params_set_mat4(uint8_t *dstp, const struct node_param *par, const float *value)
 {
     LOG(VERBOSE, "set %s to (%g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g %g,%g,%g,%g)", par->key, NGLI_ARG_MAT4(value));
     memcpy(dstp, value, 16 * sizeof(*value));
     return 0;
 }
 
-static int params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl_node *node)
+int ngli_params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl_node *node)
 {
     if (!allowed_node(node, par->node_types)) {
         LOG(ERROR, "%s (%s) is not an allowed type for %s",
@@ -451,7 +451,7 @@ static int params_set_node(uint8_t *dstp, const struct node_param *par, struct n
     return 0;
 }
 
-static int params_set_rational(uint8_t *dstp, const struct node_param *par, int num, int den)
+int ngli_params_set_rational(uint8_t *dstp, const struct node_param *par, int num, int den)
 {
     LOG(VERBOSE, "set %s to %d/%d", par->key, num, den);
     memcpy(dstp, &num, sizeof(num));
@@ -459,7 +459,7 @@ static int params_set_rational(uint8_t *dstp, const struct node_param *par, int 
     return 0;
 }
 
-static int params_set_select(uint8_t *dstp, const struct node_param *par, const char *value)
+int ngli_params_set_select(uint8_t *dstp, const struct node_param *par, const char *value)
 {
     int v;
     int ret = ngli_params_get_select_val(par->choices->consts, value, &v);
@@ -472,7 +472,7 @@ static int params_set_select(uint8_t *dstp, const struct node_param *par, const 
     return 0;
 }
 
-static int params_set_str(uint8_t *dstp, const struct node_param *par, const char *value)
+int ngli_params_set_str(uint8_t *dstp, const struct node_param *par, const char *value)
 {
     char *s = NULL;
     if (!value)
@@ -490,49 +490,49 @@ static int params_set_str(uint8_t *dstp, const struct node_param *par, const cha
     return 0;
 }
 
-static int params_set_u32(uint8_t *dstp, const struct node_param *par, const unsigned value)
+int ngli_params_set_u32(uint8_t *dstp, const struct node_param *par, const unsigned value)
 {
     LOG(VERBOSE, "set %s to %u", par->key, value);
     memcpy(dstp, &value, sizeof(value));
     return 0;
 }
 
-static int params_set_uvec2(uint8_t *dstp, const struct node_param *par, const unsigned *value)
+int ngli_params_set_uvec2(uint8_t *dstp, const struct node_param *par, const unsigned *value)
 {
     LOG(VERBOSE, "set %s to (%u,%u)", par->key, NGLI_ARG_VEC2(value));
     memcpy(dstp, value, 2 * sizeof(*value));
     return 0;
 }
 
-static int params_set_uvec3(uint8_t *dstp, const struct node_param *par, const unsigned *value)
+int ngli_params_set_uvec3(uint8_t *dstp, const struct node_param *par, const unsigned *value)
 {
     LOG(VERBOSE, "set %s to (%u,%u,%u)", par->key, NGLI_ARG_VEC3(value));
     memcpy(dstp, value, 3 * sizeof(*value));
     return 0;
 }
 
-static int params_set_uvec4(uint8_t *dstp, const struct node_param *par, const unsigned *value)
+int ngli_params_set_uvec4(uint8_t *dstp, const struct node_param *par, const unsigned *value)
 {
     LOG(VERBOSE, "set %s to (%u,%u,%u,%u)", par->key, NGLI_ARG_VEC4(value));
     memcpy(dstp, value, 4 * sizeof(*value));
     return 0;
 }
 
-static int params_set_vec2(uint8_t *dstp, const struct node_param *par, const float *value)
+int ngli_params_set_vec2(uint8_t *dstp, const struct node_param *par, const float *value)
 {
     LOG(VERBOSE, "set %s to (%g,%g)", par->key, NGLI_ARG_VEC2(value));
     memcpy(dstp, value, 2 * sizeof(*value));
     return 0;
 }
 
-static int params_set_vec3(uint8_t *dstp, const struct node_param *par, const float *value)
+int ngli_params_set_vec3(uint8_t *dstp, const struct node_param *par, const float *value)
 {
     LOG(VERBOSE, "set %s to (%g,%g,%g)", par->key, NGLI_ARG_VEC3(value));
     memcpy(dstp, value, 3 * sizeof(*value));
     return 0;
 }
 
-static int params_set_vec4(uint8_t *dstp, const struct node_param *par, const float *value)
+int ngli_params_set_vec4(uint8_t *dstp, const struct node_param *par, const float *value)
 {
     LOG(VERBOSE, "set %s to (%g,%g,%g,%g)", par->key, NGLI_ARG_VEC4(value));
     memcpy(dstp, value, 4 * sizeof(*value));
@@ -546,90 +546,90 @@ int ngli_params_set(uint8_t *base_ptr, const struct node_param *par, va_list *ap
     switch (par->type) {
         case NGLI_PARAM_TYPE_SELECT: {
             const char *s = va_arg(*ap, const char *);
-            return params_set_select(dstp, par, s);
+            return ngli_params_set_select(dstp, par, s);
         }
         case NGLI_PARAM_TYPE_FLAGS: {
             const char *s = va_arg(*ap, const char *);
-            return params_set_flags(dstp, par, s);
+            return ngli_params_set_flags(dstp, par, s);
         }
         case NGLI_PARAM_TYPE_BOOL: {
             int v = va_arg(*ap, int);
-            return params_set_bool(dstp, par, v);
+            return ngli_params_set_bool(dstp, par, v);
         }
         case NGLI_PARAM_TYPE_I32: {
             int v = va_arg(*ap, int);
-            return params_set_i32(dstp, par, v);
+            return ngli_params_set_i32(dstp, par, v);
         }
         case NGLI_PARAM_TYPE_U32: {
             unsigned v = va_arg(*ap, unsigned);
-            return params_set_u32(dstp, par, v);
+            return ngli_params_set_u32(dstp, par, v);
         }
         case NGLI_PARAM_TYPE_F64: {
             double v = va_arg(*ap, double);
-            return params_set_f64(dstp, par, v);
+            return ngli_params_set_f64(dstp, par, v);
         }
         case NGLI_PARAM_TYPE_STR: {
             const char *arg_str = va_arg(*ap, const char *);
-            return params_set_str(dstp, par, arg_str);
+            return ngli_params_set_str(dstp, par, arg_str);
         }
         case NGLI_PARAM_TYPE_DATA: {
             int size = va_arg(*ap, int);
             void *data = va_arg(*ap, void *);
-            return params_set_data(dstp, par, size, data);
+            return ngli_params_set_data(dstp, par, size, data);
         }
         case NGLI_PARAM_TYPE_IVEC2: {
             const int *iv = va_arg(*ap, const int *);
-            return params_set_ivec2(dstp, par, iv);
+            return ngli_params_set_ivec2(dstp, par, iv);
         }
         case NGLI_PARAM_TYPE_IVEC3: {
             const int *iv = va_arg(*ap, const int *);
-            return params_set_ivec3(dstp, par, iv);
+            return ngli_params_set_ivec3(dstp, par, iv);
         }
         case NGLI_PARAM_TYPE_IVEC4: {
             const int *iv = va_arg(*ap, const int *);
-            return params_set_ivec4(dstp, par, iv);
+            return ngli_params_set_ivec4(dstp, par, iv);
         }
         case NGLI_PARAM_TYPE_UVEC2: {
             const unsigned *uv = va_arg(*ap, const unsigned *);
-            return params_set_uvec2(dstp, par, uv);
+            return ngli_params_set_uvec2(dstp, par, uv);
         }
         case NGLI_PARAM_TYPE_UVEC3: {
             const unsigned *uv = va_arg(*ap, const unsigned *);
-            return params_set_uvec3(dstp, par, uv);
+            return ngli_params_set_uvec3(dstp, par, uv);
         }
         case NGLI_PARAM_TYPE_UVEC4: {
             const unsigned *uv = va_arg(*ap, const unsigned *);
-            return params_set_uvec4(dstp, par, uv);
+            return ngli_params_set_uvec4(dstp, par, uv);
         }
         case NGLI_PARAM_TYPE_VEC2: {
             const float *v = va_arg(*ap, const float *);
-            return params_set_vec2(dstp, par, v);
+            return ngli_params_set_vec2(dstp, par, v);
         }
         case NGLI_PARAM_TYPE_VEC3: {
             const float *v = va_arg(*ap, const float *);
-            return params_set_vec3(dstp, par, v);
+            return ngli_params_set_vec3(dstp, par, v);
         }
         case NGLI_PARAM_TYPE_VEC4: {
             const float *v = va_arg(*ap, const float *);
-            return params_set_vec4(dstp, par, v);
+            return ngli_params_set_vec4(dstp, par, v);
         }
         case NGLI_PARAM_TYPE_MAT4: {
             const float *v = va_arg(*ap, const float *);
-            return params_set_mat4(dstp, par, v);
+            return ngli_params_set_mat4(dstp, par, v);
         }
         case NGLI_PARAM_TYPE_NODE: {
             struct ngl_node *node = va_arg(*ap, struct ngl_node *);
-            return params_set_node(dstp, par, node);
+            return ngli_params_set_node(dstp, par, node);
         }
         case NGLI_PARAM_TYPE_NODEDICT: {
             const char *name = va_arg(*ap, const char *);
             struct ngl_node *node = va_arg(*ap, struct ngl_node *);
-            return params_set_dict(dstp, par, name, node);
+            return ngli_params_set_dict(dstp, par, name, node);
         }
         case NGLI_PARAM_TYPE_RATIONAL: {
             const int num = va_arg(*ap, int);
             const int den = va_arg(*ap, int);
-            return params_set_rational(dstp, par, num, den);
+            return ngli_params_set_rational(dstp, par, num, den);
         }
     }
     return 0;
@@ -669,7 +669,7 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                 const int v = (int)par->def_value.i64;
                 const char *s = ngli_params_get_select_str(par->choices->consts, v);
                 ngli_assert(s);
-                ret = params_set_select(dstp, par, s);
+                ret = ngli_params_set_select(dstp, par, s);
                 break;
             }
             case NGLI_PARAM_TYPE_FLAGS: {
@@ -678,60 +678,60 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                 if (!s)
                     return NGL_ERROR_INVALID_ARG;
                 ngli_assert(*s);
-                ret = params_set_flags(dstp, par, s);
+                ret = ngli_params_set_flags(dstp, par, s);
                 ngli_free(s);
                 break;
             }
             case NGLI_PARAM_TYPE_BOOL:
-                ret = params_set_bool(dstp, par, par->def_value.i64);
+                ret = ngli_params_set_bool(dstp, par, par->def_value.i64);
                 break;
             case NGLI_PARAM_TYPE_I32:
-                ret = params_set_i32(dstp, par, par->def_value.i64);
+                ret = ngli_params_set_i32(dstp, par, par->def_value.i64);
                 break;
             case NGLI_PARAM_TYPE_U32:
-                ret = params_set_u32(dstp, par, par->def_value.i64);
+                ret = ngli_params_set_u32(dstp, par, par->def_value.i64);
                 break;
             case NGLI_PARAM_TYPE_F64:
-                ret = params_set_f64(dstp, par, par->def_value.dbl);
+                ret = ngli_params_set_f64(dstp, par, par->def_value.dbl);
                 break;
             case NGLI_PARAM_TYPE_STR:
-                ret = params_set_str(dstp, par, par->def_value.str);
+                ret = ngli_params_set_str(dstp, par, par->def_value.str);
                 break;
             case NGLI_PARAM_TYPE_IVEC2:
-                ret = params_set_ivec2(dstp, par, par->def_value.ivec);
+                ret = ngli_params_set_ivec2(dstp, par, par->def_value.ivec);
                 break;
             case NGLI_PARAM_TYPE_IVEC3:
-                ret = params_set_ivec3(dstp, par, par->def_value.ivec);
+                ret = ngli_params_set_ivec3(dstp, par, par->def_value.ivec);
                 break;
             case NGLI_PARAM_TYPE_IVEC4:
-                ret = params_set_ivec4(dstp, par, par->def_value.ivec);
+                ret = ngli_params_set_ivec4(dstp, par, par->def_value.ivec);
                 break;
             case NGLI_PARAM_TYPE_UVEC2:
-                ret = params_set_uvec2(dstp, par, par->def_value.uvec);
+                ret = ngli_params_set_uvec2(dstp, par, par->def_value.uvec);
                 break;
             case NGLI_PARAM_TYPE_UVEC3:
-                ret = params_set_uvec3(dstp, par, par->def_value.uvec);
+                ret = ngli_params_set_uvec3(dstp, par, par->def_value.uvec);
                 break;
             case NGLI_PARAM_TYPE_UVEC4:
-                ret = params_set_uvec4(dstp, par, par->def_value.uvec);
+                ret = ngli_params_set_uvec4(dstp, par, par->def_value.uvec);
                 break;
             case NGLI_PARAM_TYPE_VEC2:
-                ret = params_set_vec2(dstp, par, par->def_value.vec);
+                ret = ngli_params_set_vec2(dstp, par, par->def_value.vec);
                 break;
             case NGLI_PARAM_TYPE_VEC3:
-                ret = params_set_vec3(dstp, par, par->def_value.vec);
+                ret = ngli_params_set_vec3(dstp, par, par->def_value.vec);
                 break;
             case NGLI_PARAM_TYPE_VEC4:
-                ret = params_set_vec4(dstp, par, par->def_value.vec);
+                ret = ngli_params_set_vec4(dstp, par, par->def_value.vec);
                 break;
             case NGLI_PARAM_TYPE_MAT4:
-                ret = params_set_mat4(dstp, par, par->def_value.mat);
+                ret = ngli_params_set_mat4(dstp, par, par->def_value.mat);
                 break;
             case NGLI_PARAM_TYPE_DATA:
-                ret = params_set_data(dstp, par, 0, NULL);
+                ret = ngli_params_set_data(dstp, par, 0, NULL);
                 break;
             case NGLI_PARAM_TYPE_RATIONAL:
-                ret = params_set_rational(dstp, par, par->def_value.r[0], par->def_value.r[1]);
+                ret = ngli_params_set_rational(dstp, par, par->def_value.r[0], par->def_value.r[1]);
                 break;
         }
         if (ret < 0)
