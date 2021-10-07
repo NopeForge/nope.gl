@@ -440,32 +440,31 @@ static int parse_param(struct darray *nodes_array, uint8_t *base_ptr,
     uint8_t *dstp = base_ptr + par->offset;
 
     switch (par->type) {
-        case NGLI_PARAM_TYPE_I32:  len = parse_param_i32(nodes_array, dstp, par, str);  break;
-        case NGLI_PARAM_TYPE_U32:  len = parse_param_u32(nodes_array, dstp, par, str);  break;
-        case NGLI_PARAM_TYPE_BOOL: len = parse_param_bool(nodes_array, dstp, par, str); break;
-        case NGLI_PARAM_TYPE_F64:  len = parse_param_f64(nodes_array, dstp, par, str);  break;
-        case NGLI_PARAM_TYPE_RATIONAL: len = parse_param_rational(nodes_array, dstp, par, str); break;
-        case NGLI_PARAM_TYPE_FLAGS:    len = parse_param_flags(nodes_array, dstp, par, str);    break;
-        case NGLI_PARAM_TYPE_SELECT:   len = parse_param_select(nodes_array, dstp, par, str);   break;
-        case NGLI_PARAM_TYPE_STR:      len = parse_param_str(nodes_array, dstp, par, str);      break;
-        case NGLI_PARAM_TYPE_DATA:     len = parse_param_data(nodes_array, dstp, par, str);     break;
-        case NGLI_PARAM_TYPE_IVEC2: len = parse_param_ivec2(nodes_array, dstp, par, str); break;
-        case NGLI_PARAM_TYPE_IVEC3: len = parse_param_ivec3(nodes_array, dstp, par, str); break;
-        case NGLI_PARAM_TYPE_IVEC4: len = parse_param_ivec4(nodes_array, dstp, par, str); break;
-        case NGLI_PARAM_TYPE_UVEC2: len = parse_param_uvec2(nodes_array, dstp, par, str); break;
-        case NGLI_PARAM_TYPE_UVEC3: len = parse_param_uvec3(nodes_array, dstp, par, str); break;
-        case NGLI_PARAM_TYPE_UVEC4: len = parse_param_uvec4(nodes_array, dstp, par, str); break;
-        case NGLI_PARAM_TYPE_VEC2:  len = parse_param_vec2(nodes_array, dstp, par, str);  break;
-        case NGLI_PARAM_TYPE_VEC3:  len = parse_param_vec3(nodes_array, dstp, par, str);  break;
-        case NGLI_PARAM_TYPE_VEC4:  len = parse_param_vec4(nodes_array, dstp, par, str);  break;
-        case NGLI_PARAM_TYPE_MAT4:  len = parse_param_mat4(nodes_array, dstp, par, str);  break;
-        case NGLI_PARAM_TYPE_NODE:     len = parse_param_node(nodes_array, dstp, par, str);     break;
-        case NGLI_PARAM_TYPE_NODELIST: len = parse_param_nodelist(nodes_array, dstp, par, str); break;
-        case NGLI_PARAM_TYPE_F64LIST:  len = parse_param_f64list(nodes_array, dstp, par, str);  break;
-        case NGLI_PARAM_TYPE_NODEDICT: len = parse_param_nodedict(nodes_array, dstp, par, str); break;
-        default:
-            LOG(ERROR, "cannot deserialize %s: "
-                "unsupported parameter type", par->key);
+    case NGLI_PARAM_TYPE_I32:      len = parse_param_i32(nodes_array, dstp, par, str);      break;
+    case NGLI_PARAM_TYPE_U32:      len = parse_param_u32(nodes_array, dstp, par, str);      break;
+    case NGLI_PARAM_TYPE_BOOL:     len = parse_param_bool(nodes_array, dstp, par, str);     break;
+    case NGLI_PARAM_TYPE_F64:      len = parse_param_f64(nodes_array, dstp, par, str);      break;
+    case NGLI_PARAM_TYPE_RATIONAL: len = parse_param_rational(nodes_array, dstp, par, str); break;
+    case NGLI_PARAM_TYPE_FLAGS:    len = parse_param_flags(nodes_array, dstp, par, str);    break;
+    case NGLI_PARAM_TYPE_SELECT:   len = parse_param_select(nodes_array, dstp, par, str);   break;
+    case NGLI_PARAM_TYPE_STR:      len = parse_param_str(nodes_array, dstp, par, str);      break;
+    case NGLI_PARAM_TYPE_DATA:     len = parse_param_data(nodes_array, dstp, par, str);     break;
+    case NGLI_PARAM_TYPE_IVEC2:    len = parse_param_ivec2(nodes_array, dstp, par, str);    break;
+    case NGLI_PARAM_TYPE_IVEC3:    len = parse_param_ivec3(nodes_array, dstp, par, str);    break;
+    case NGLI_PARAM_TYPE_IVEC4:    len = parse_param_ivec4(nodes_array, dstp, par, str);    break;
+    case NGLI_PARAM_TYPE_UVEC2:    len = parse_param_uvec2(nodes_array, dstp, par, str);    break;
+    case NGLI_PARAM_TYPE_UVEC3:    len = parse_param_uvec3(nodes_array, dstp, par, str);    break;
+    case NGLI_PARAM_TYPE_UVEC4:    len = parse_param_uvec4(nodes_array, dstp, par, str);    break;
+    case NGLI_PARAM_TYPE_VEC2:     len = parse_param_vec2(nodes_array, dstp, par, str);     break;
+    case NGLI_PARAM_TYPE_VEC3:     len = parse_param_vec3(nodes_array, dstp, par, str);     break;
+    case NGLI_PARAM_TYPE_VEC4:     len = parse_param_vec4(nodes_array, dstp, par, str);     break;
+    case NGLI_PARAM_TYPE_MAT4:     len = parse_param_mat4(nodes_array, dstp, par, str);     break;
+    case NGLI_PARAM_TYPE_NODE:     len = parse_param_node(nodes_array, dstp, par, str);     break;
+    case NGLI_PARAM_TYPE_NODELIST: len = parse_param_nodelist(nodes_array, dstp, par, str); break;
+    case NGLI_PARAM_TYPE_F64LIST:  len = parse_param_f64list(nodes_array, dstp, par, str);  break;
+    case NGLI_PARAM_TYPE_NODEDICT: len = parse_param_nodedict(nodes_array, dstp, par, str); break;
+    default:
+        LOG(ERROR, "cannot deserialize %s: unsupported parameter type", par->key);
     }
     return len;
 }
