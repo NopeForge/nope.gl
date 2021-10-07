@@ -218,10 +218,11 @@ static int track_children(struct ngl_node *node)
         return 0;
 
     while (par->key) {
+        uint8_t *parp = base_ptr + par->offset;
+
         switch (par->type) {
             case NGLI_PARAM_TYPE_NODE: {
-                uint8_t *child_p = base_ptr + par->offset;
-                struct ngl_node *child = *(struct ngl_node **)child_p;
+                struct ngl_node *child = *(struct ngl_node **)parp;
                 if (child && !ngli_darray_push(&node->children, &child))
                     return NGL_ERROR_MEMORY;
                 if (child && !ngli_darray_push(&child->parents, &node))
@@ -229,8 +230,8 @@ static int track_children(struct ngl_node *node)
                 break;
             }
             case NGLI_PARAM_TYPE_NODELIST: {
-                uint8_t *elems_p = base_ptr + par->offset;
-                uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
+                uint8_t *elems_p = parp;
+                uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
                 struct ngl_node **elems = *(struct ngl_node ***)elems_p;
                 const int nb_elems = *(int *)nb_elems_p;
                 for (int i = 0; i < nb_elems; i++) {
@@ -243,7 +244,7 @@ static int track_children(struct ngl_node *node)
                 break;
             }
             case NGLI_PARAM_TYPE_NODEDICT: {
-                struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
+                struct hmap *hmap = *(struct hmap **)parp;
                 if (!hmap)
                     break;
                 const struct hmap_entry *entry = NULL;
@@ -331,18 +332,18 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
         return 0;
     for (int i = 0; params[i].key; i++) {
         const struct node_param *par = &params[i];
+        uint8_t *parp = base_ptr + par->offset;
 
         if (par->type == NGLI_PARAM_TYPE_NODE) {
-            uint8_t *node_p = base_ptr + par->offset;
-            struct ngl_node *node = *(struct ngl_node **)node_p;
+            struct ngl_node *node = *(struct ngl_node **)parp;
             if (node) {
                 int ret = node_set_ctx(node, ctx, pctx);
                 if (ret < 0)
                     return ret;
             }
         } else if (par->type == NGLI_PARAM_TYPE_NODELIST) {
-            uint8_t *elems_p = base_ptr + par->offset;
-            uint8_t *nb_elems_p = base_ptr + par->offset + sizeof(struct ngl_node **);
+            uint8_t *elems_p = parp;
+            uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
             struct ngl_node **elems = *(struct ngl_node ***)elems_p;
             const int nb_elems = *(int *)nb_elems_p;
             for (int j = 0; j < nb_elems; j++) {
@@ -351,7 +352,7 @@ static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *par
                     return ret;
             }
         } else if (par->type == NGLI_PARAM_TYPE_NODEDICT) {
-            struct hmap *hmap = *(struct hmap **)(base_ptr + par->offset);
+            struct hmap *hmap = *(struct hmap **)parp;
             if (!hmap)
                 continue;
             const struct hmap_entry *entry = NULL;
