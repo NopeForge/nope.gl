@@ -62,6 +62,8 @@ struct pipeline_buffer_desc {
     int binding;
     int access;
     int stage;
+    int offset;
+    int size;
 };
 
 struct pipeline_attribute_desc {
@@ -124,7 +126,7 @@ int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resour
 int ngli_pipeline_update_attribute(struct pipeline *s, int index, struct buffer *buffer);
 int ngli_pipeline_update_uniform(struct pipeline *s, int index, const void *value);
 int ngli_pipeline_update_texture(struct pipeline *s, int index, struct texture *texture);
-int ngli_pipeline_update_buffer(struct pipeline *s, int index, struct buffer *buffer);
+int ngli_pipeline_update_buffer(struct pipeline *s, int index, struct buffer *buffer, int offset, int size);
 void ngli_pipeline_draw(struct pipeline *s, int nb_vertices, int nb_instances);
 void ngli_pipeline_draw_indexed(struct pipeline *s, struct buffer *indices, int indices_format, int nb_indices, int nb_instances);
 void ngli_pipeline_dispatch(struct pipeline *s, int nb_group_x, int nb_group_y, int nb_group_z);

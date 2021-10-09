@@ -53,9 +53,9 @@ int ngli_pipeline_update_texture(struct pipeline *s, int index, struct texture *
     return s->gpu_ctx->cls->pipeline_update_texture(s, index, texture);
 }
 
-int ngli_pipeline_update_buffer(struct pipeline *s, int index, struct buffer *buffer)
+int ngli_pipeline_update_buffer(struct pipeline *s, int index, struct buffer *buffer, int offset, int size)
 {
-    return s->gpu_ctx->cls->pipeline_update_buffer(s, index, buffer);
+    return s->gpu_ctx->cls->pipeline_update_buffer(s, index, buffer, offset, size);
 }
 
 void ngli_pipeline_draw(struct pipeline *s, int nb_vertices, int nb_instances)
