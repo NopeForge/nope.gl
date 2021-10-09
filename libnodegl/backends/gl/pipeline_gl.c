@@ -311,7 +311,7 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
         const struct buffer_binding *buffer_binding = &bindings[i];
         const struct buffer *buffer = buffer_binding->buffer;
         const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
-        ngli_glBindBufferBase(gl, buffer_binding->type, buffer_binding->desc.binding, buffer_gl->id);
+        ngli_glBindBufferRange(gl, buffer_binding->type, buffer_binding->desc.binding, buffer_gl->id, 0, buffer->size);
     }
 }
 
