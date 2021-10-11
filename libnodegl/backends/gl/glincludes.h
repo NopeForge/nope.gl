@@ -233,6 +233,7 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_UNIFORM_BUFFER                     0x8A11
 # define GL_UNIFORM_BLOCK_BINDING              0x8A3F
 # define GL_MAX_UNIFORM_BLOCK_SIZE             0x8A30
+# define GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT    0x8A34
 # define GL_TEXTURE_CUBE_MAP                   0x8513
 # define GL_TEXTURE_BINDING_CUBE_MAP           0x8514
 # define GL_TEXTURE_CUBE_MAP_POSITIVE_X        0x8515
@@ -255,6 +256,7 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_SHADER_STORAGE_BUFFER_START        0x90D4
 # define GL_SHADER_STORAGE_BUFFER_SIZE         0x90D5
 # define GL_SHADER_STORAGE_BLOCK               0x92E6
+# define GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT 0x90DF
 # define GL_BUFFER_BINDING                     0x9302
 # define GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT    0x00000001
 # define GL_ELEMENT_ARRAY_BARRIER_BIT          0x00000002

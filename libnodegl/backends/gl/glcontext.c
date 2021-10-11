@@ -344,6 +344,11 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
 
     if (glcontext->features & NGLI_FEATURE_UNIFORM_BUFFER_OBJECT) {
         GET(GL_MAX_UNIFORM_BLOCK_SIZE, &limits->max_uniform_block_size);
+        GET(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &limits->min_uniform_block_offset_alignment);
+    }
+
+    if (glcontext->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
+        GET(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &limits->min_storage_block_offset_alignment);
     }
 
     if (glcontext->features & NGLI_FEATURE_COMPUTE_SHADER) {

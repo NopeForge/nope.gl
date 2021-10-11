@@ -30,6 +30,8 @@ struct gpu_limits {
     uint32_t max_compute_work_group_invocations;
     uint32_t max_compute_work_group_size[3];
     uint32_t max_uniform_block_size;
+    uint32_t min_uniform_block_offset_alignment;
+    uint32_t min_storage_block_offset_alignment;
     uint32_t max_samples;
     uint32_t max_texture_dimension_1d;
     uint32_t max_texture_dimension_2d;
