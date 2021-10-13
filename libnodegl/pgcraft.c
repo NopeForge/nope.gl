@@ -1138,11 +1138,6 @@ static void setup_glsl_info_gl(struct pgcraft *s)
         s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_VERT, NGLI_BINDING_TYPE_UBO)] = NULL;
         s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_FRAG, NGLI_BINDING_TYPE_UBO)] = NULL;
         s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_COMP, NGLI_BINDING_TYPE_UBO)] = NULL;
-
-        /* No explicit binding required for now */
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_VERT, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_FRAG, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_COMP, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
     }
 }
 
