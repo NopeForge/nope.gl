@@ -37,67 +37,70 @@
 /*
  * Currently unmapped formats: r11f_g11f_b10f, rgb10_a2, rgb10_a2ui
  */
-static const char *image_glsl_format_map[NGLI_FORMAT_NB] = {
-    [NGLI_FORMAT_R8_UNORM]             = "r8",
-    [NGLI_FORMAT_R8_SNORM]             = "r8_snorm",
-    [NGLI_FORMAT_R8_UINT]              = "r8ui",
-    [NGLI_FORMAT_R8_SINT]              = "r8i",
-    [NGLI_FORMAT_R8G8_UNORM]           = "rg8",
-    [NGLI_FORMAT_R8G8_SNORM]           = "rg8_snorm",
-    [NGLI_FORMAT_R8G8_UINT]            = "rg8ui",
-    [NGLI_FORMAT_R8G8_SINT]            = "rg8i",
-    [NGLI_FORMAT_R8G8B8_UNORM]         = NULL,
-    [NGLI_FORMAT_R8G8B8_SNORM]         = NULL,
-    [NGLI_FORMAT_R8G8B8_UINT]          = NULL,
-    [NGLI_FORMAT_R8G8B8_SINT]          = NULL,
-    [NGLI_FORMAT_R8G8B8_SRGB]          = NULL,
-    [NGLI_FORMAT_R8G8B8A8_UNORM]       = "rgba8",
-    [NGLI_FORMAT_R8G8B8A8_SNORM]       = "rgba8_snorm",
-    [NGLI_FORMAT_R8G8B8A8_UINT]        = "rgba8ui",
-    [NGLI_FORMAT_R8G8B8A8_SINT]        = "rgba8i",
-    [NGLI_FORMAT_R8G8B8A8_SRGB]        = NULL,
-    [NGLI_FORMAT_B8G8R8A8_UNORM]       = "rgba8",
-    [NGLI_FORMAT_B8G8R8A8_SNORM]       = "rgba8_snorm",
-    [NGLI_FORMAT_B8G8R8A8_UINT]        = "rgba8ui",
-    [NGLI_FORMAT_B8G8R8A8_SINT]        = "rgba8i",
-    [NGLI_FORMAT_R16_UNORM]            = "r16",
-    [NGLI_FORMAT_R16_SNORM]            = "r16_snorm",
-    [NGLI_FORMAT_R16_UINT]             = "r16ui",
-    [NGLI_FORMAT_R16_SINT]             = "r16i",
-    [NGLI_FORMAT_R16_SFLOAT]           = "r16f",
-    [NGLI_FORMAT_R16G16_UNORM]         = "rg16",
-    [NGLI_FORMAT_R16G16_SNORM]         = "rg16_snorm",
-    [NGLI_FORMAT_R16G16_UINT]          = "rg16ui",
-    [NGLI_FORMAT_R16G16_SINT]          = "rg16i",
-    [NGLI_FORMAT_R16G16_SFLOAT]        = "rg16f",
-    [NGLI_FORMAT_R16G16B16_UNORM]      = NULL,
-    [NGLI_FORMAT_R16G16B16_SNORM]      = NULL,
-    [NGLI_FORMAT_R16G16B16_UINT]       = NULL,
-    [NGLI_FORMAT_R16G16B16_SINT]       = NULL,
-    [NGLI_FORMAT_R16G16B16_SFLOAT]     = NULL,
-    [NGLI_FORMAT_R16G16B16A16_UNORM]   = "rgba16",
-    [NGLI_FORMAT_R16G16B16A16_SNORM]   = "rgba16_snorm",
-    [NGLI_FORMAT_R16G16B16A16_UINT]    = "rgba16ui",
-    [NGLI_FORMAT_R16G16B16A16_SINT]    = "rgba16i",
-    [NGLI_FORMAT_R16G16B16A16_SFLOAT]  = "rgba16f",
-    [NGLI_FORMAT_R32_UINT]             = "r32ui",
-    [NGLI_FORMAT_R32_SINT]             = "r32i",
-    [NGLI_FORMAT_R32_SFLOAT]           = "r32f",
-    [NGLI_FORMAT_R32G32_UINT]          = "rg32ui",
-    [NGLI_FORMAT_R32G32_SINT]          = "rg32i",
-    [NGLI_FORMAT_R32G32_SFLOAT]        = "rg32f",
-    [NGLI_FORMAT_R32G32B32_UINT]       = NULL,
-    [NGLI_FORMAT_R32G32B32_SINT]       = NULL,
-    [NGLI_FORMAT_R32G32B32_SFLOAT]     = NULL,
-    [NGLI_FORMAT_R32G32B32A32_UINT]    = "rgba32ui",
-    [NGLI_FORMAT_R32G32B32A32_SINT]    = "rgba32i",
-    [NGLI_FORMAT_R32G32B32A32_SFLOAT]  = "rgba32f",
-    [NGLI_FORMAT_D16_UNORM]            = NULL,
-    [NGLI_FORMAT_X8_D24_UNORM_PACK32]  = NULL,
-    [NGLI_FORMAT_D32_SFLOAT]           = NULL,
-    [NGLI_FORMAT_D24_UNORM_S8_UINT]    = NULL,
-    [NGLI_FORMAT_D32_SFLOAT_S8_UINT]   = NULL,
-    [NGLI_FORMAT_S8_UINT]              = NULL,
+static const struct {
+    const char *format;
+    const char *prefix;
+} image_glsl_format_map[NGLI_FORMAT_NB] = {
+    [NGLI_FORMAT_R8_UNORM]             = {"r8",           ""},
+    [NGLI_FORMAT_R8_SNORM]             = {"r8_snorm",     ""},
+    [NGLI_FORMAT_R8_UINT]              = {"r8ui",         "u"},
+    [NGLI_FORMAT_R8_SINT]              = {"r8i",          "i"},
+    [NGLI_FORMAT_R8G8_UNORM]           = {"rg8",          ""},
+    [NGLI_FORMAT_R8G8_SNORM]           = {"rg8_snorm",    ""},
+    [NGLI_FORMAT_R8G8_UINT]            = {"rg8ui",        "u"},
+    [NGLI_FORMAT_R8G8_SINT]            = {"rg8i",         "i"},
+    [NGLI_FORMAT_R8G8B8_UNORM]         = {NULL,           NULL},
+    [NGLI_FORMAT_R8G8B8_SNORM]         = {NULL,           NULL},
+    [NGLI_FORMAT_R8G8B8_UINT]          = {NULL,           NULL},
+    [NGLI_FORMAT_R8G8B8_SINT]          = {NULL,           NULL},
+    [NGLI_FORMAT_R8G8B8_SRGB]          = {NULL,           NULL},
+    [NGLI_FORMAT_R8G8B8A8_UNORM]       = {"rgba8",        ""},
+    [NGLI_FORMAT_R8G8B8A8_SNORM]       = {"rgba8_snorm",  ""},
+    [NGLI_FORMAT_R8G8B8A8_UINT]        = {"rgba8ui",      "u"},
+    [NGLI_FORMAT_R8G8B8A8_SINT]        = {"rgba8i",       "i"},
+    [NGLI_FORMAT_R8G8B8A8_SRGB]        = {NULL,           NULL},
+    [NGLI_FORMAT_B8G8R8A8_UNORM]       = {"rgba8",        ""},
+    [NGLI_FORMAT_B8G8R8A8_SNORM]       = {"rgba8_snorm",  ""},
+    [NGLI_FORMAT_B8G8R8A8_UINT]        = {"rgba8ui",      "u"},
+    [NGLI_FORMAT_B8G8R8A8_SINT]        = {"rgba8i",       "i"},
+    [NGLI_FORMAT_R16_UNORM]            = {"r16",          ""},
+    [NGLI_FORMAT_R16_SNORM]            = {"r16_snorm",    ""},
+    [NGLI_FORMAT_R16_UINT]             = {"r16ui",        "u"},
+    [NGLI_FORMAT_R16_SINT]             = {"r16i",         "i"},
+    [NGLI_FORMAT_R16_SFLOAT]           = {"r16f",         ""},
+    [NGLI_FORMAT_R16G16_UNORM]         = {"rg16",         ""},
+    [NGLI_FORMAT_R16G16_SNORM]         = {"rg16_snorm",   ""},
+    [NGLI_FORMAT_R16G16_UINT]          = {"rg16ui",       "u"},
+    [NGLI_FORMAT_R16G16_SINT]          = {"rg16i",        "i"},
+    [NGLI_FORMAT_R16G16_SFLOAT]        = {"rg16f",        ""},
+    [NGLI_FORMAT_R16G16B16_UNORM]      = {NULL,           NULL},
+    [NGLI_FORMAT_R16G16B16_SNORM]      = {NULL,           NULL},
+    [NGLI_FORMAT_R16G16B16_UINT]       = {NULL,           NULL},
+    [NGLI_FORMAT_R16G16B16_SINT]       = {NULL,           NULL},
+    [NGLI_FORMAT_R16G16B16_SFLOAT]     = {NULL,           NULL},
+    [NGLI_FORMAT_R16G16B16A16_UNORM]   = {"rgba16",       ""},
+    [NGLI_FORMAT_R16G16B16A16_SNORM]   = {"rgba16_snorm", ""},
+    [NGLI_FORMAT_R16G16B16A16_UINT]    = {"rgba16ui",     "u"},
+    [NGLI_FORMAT_R16G16B16A16_SINT]    = {"rgba16i",      "i"},
+    [NGLI_FORMAT_R16G16B16A16_SFLOAT]  = {"rgba16f",      ""},
+    [NGLI_FORMAT_R32_UINT]             = {"r32ui",        "u"},
+    [NGLI_FORMAT_R32_SINT]             = {"r32i",         "i"},
+    [NGLI_FORMAT_R32_SFLOAT]           = {"r32f",         ""},
+    [NGLI_FORMAT_R32G32_UINT]          = {"rg32ui",       "u"},
+    [NGLI_FORMAT_R32G32_SINT]          = {"rg32i",        "i"},
+    [NGLI_FORMAT_R32G32_SFLOAT]        = {"rg32f",        ""},
+    [NGLI_FORMAT_R32G32B32_UINT]       = {NULL,           NULL},
+    [NGLI_FORMAT_R32G32B32_SINT]       = {NULL,           NULL},
+    [NGLI_FORMAT_R32G32B32_SFLOAT]     = {NULL,           NULL},
+    [NGLI_FORMAT_R32G32B32A32_UINT]    = {"rgba32ui",     "u"},
+    [NGLI_FORMAT_R32G32B32A32_SINT]    = {"rgba32i",      "i"},
+    [NGLI_FORMAT_R32G32B32A32_SFLOAT]  = {"rgba32f",      ""},
+    [NGLI_FORMAT_D16_UNORM]            = {NULL,           NULL},
+    [NGLI_FORMAT_X8_D24_UNORM_PACK32]  = {NULL,           NULL},
+    [NGLI_FORMAT_D32_SFLOAT]           = {NULL,           NULL},
+    [NGLI_FORMAT_D24_UNORM_S8_UINT]    = {NULL,           NULL},
+    [NGLI_FORMAT_D32_SFLOAT_S8_UINT]   = {NULL,           NULL},
+    [NGLI_FORMAT_S8_UINT]              = {NULL,           NULL},
 };
 
 enum {
@@ -329,13 +332,15 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
             if (next_bind)
                 pl_texture_desc.binding = (*next_bind)++;
 
+            const char *prefix = "";
             if (field->type == NGLI_TYPE_IMAGE_2D) {
                 if (info->format == NGLI_TYPE_NONE) {
                     LOG(ERROR, "Texture2D.format must be set when accessing it as an image");
                     return NGL_ERROR_INVALID_ARG;
                 }
-                const char *format = image_glsl_format_map[info->format];
-                if (!format) {
+                const char *format = image_glsl_format_map[info->format].format;
+                prefix = image_glsl_format_map[info->format].prefix;
+                if (!format || !prefix) {
                     LOG(ERROR, "unsupported texture format");
                     return NGL_ERROR_UNSUPPORTED;
                 }
@@ -365,7 +370,7 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
 
             const char *type = get_glsl_type(field->type);
             const char *precision = get_precision_qualifier(s, field->type, info->precision, "lowp");
-            ngli_bstr_printf(b, "uniform %s %s %s;\n", precision, type, field->name);
+            ngli_bstr_printf(b, "uniform %s %s%s %s;\n", precision, prefix, type, field->name);
 
             if (!ngli_darray_push(&s->pipeline_info.desc.textures, &pl_texture_desc))
                 return NGL_ERROR_MEMORY;
