@@ -300,3 +300,66 @@ def compute_animation(cfg):
 @scene()
 def compute_animation_post_render(cfg):
     return _compute_animation(cfg, False)
+
+
+_IMAGE_LOAD_STORE_COMPUTE = '''
+void main()
+{
+    ivec2 pos = ivec2(gl_LocalInvocationID.xy);
+    vec4 color;
+    color.r = imageLoad(texture_r, pos).r;
+    color.g = imageLoad(texture_g, pos).r;
+    color.b = imageLoad(texture_b, pos).r;
+    color.a = 1.0;
+    color.rgb = (color.rgb * scale.factors.x) + scale.factors.y;
+    imageStore(texture_rgba, pos, color);
+}
+'''
+
+
+@test_cuepoints(points=_get_compute_histogram_cuepoints(), tolerance=1)
+@scene(show_dbg_points=scene.Bool())
+def compute_image_load_store(cfg, show_dbg_points=False):
+    size = _N
+    texture_data = ngl.BufferFloat(data=array.array('f', [
+        x / (size**2) for x in range(size**2)
+    ]))
+    texture_r = ngl.Texture2D(format="r32_sfloat", width=size, height=size, data_src=texture_data)
+    texture_g = ngl.Texture2D(format="r32_sfloat", width=size, height=size, data_src=texture_data)
+    texture_b = ngl.Texture2D(format="r32_sfloat", width=size, height=size, data_src=texture_data)
+    scale = ngl.Block(
+        fields=[
+            ngl.UniformVec2(value=(-1.0, 1.0), label='factors')
+        ],
+        layout='std140',
+    )
+    texture_rgba = ngl.Texture2D(width=size, height=size)
+    program = ngl.ComputeProgram(_IMAGE_LOAD_STORE_COMPUTE, workgroup_size=(size, size, 1))
+    program.update_properties(
+        texture_r=ngl.ResourceProps(as_image=True),
+        texture_g=ngl.ResourceProps(as_image=True),
+        texture_b=ngl.ResourceProps(as_image=True),
+        texture_rgba=ngl.ResourceProps(as_image=True, writable=True),
+    )
+    compute = ngl.Compute(workgroup_count=(1, 1, 1), program=program)
+    compute.update_resources(
+        texture_r=texture_r,
+        texture_g=texture_g,
+        texture_b=texture_b,
+        scale=scale,
+        texture_rgba=texture_rgba
+    )
+
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(tex0=texture_rgba)
+
+    group = ngl.Group(children=(compute, render))
+
+    if show_dbg_points:
+        cuepoints = _get_compute_histogram_cuepoints()
+        group.add_children(get_debug_points(cfg, cuepoints))
+
+    return group

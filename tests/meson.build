@@ -96,6 +96,7 @@ foreach backend : backends
       'animation',
       'animation_post_render',
       'histogram',
+      'image_load_store',
       'particles',
     ]
   endif
