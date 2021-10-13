@@ -343,7 +343,22 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
                 ngli_bstr_printf(b, "layout(%s", format);
                 if (pl_texture_desc.binding != -1)
                     ngli_bstr_printf(b, ", binding=%d", pl_texture_desc.binding);
-                ngli_bstr_printf(b, ") %s ", info->writable ? "" : "readonly");
+
+                /*
+                 * Restrict memory qualifier according to the OpenGLES 3.2 spec
+                 * (Section 4.10. Memory qualifiers):
+                 *
+                 *     Except for image variables qualified with the format
+                 *     qualifiers r32f, r32i, and r32ui, image variables must
+                 *     specify a memory qualifier (readonly, writeonly, or both).
+                 */
+                const char *writable_qualifier= "";
+                if (info->format != NGLI_FORMAT_R32_SFLOAT &&
+                    info->format != NGLI_FORMAT_R32_SINT &&
+                    info->format != NGLI_FORMAT_R32_UINT) {
+                    writable_qualifier = "writeonly";
+                }
+                ngli_bstr_printf(b, ") %s ", info->writable ? writable_qualifier : "readonly");
             } else if (pl_texture_desc.binding != -1) {
                 ngli_bstr_printf(b, "layout(binding=%d) ", pl_texture_desc.binding);
             }
