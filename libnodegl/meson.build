@@ -319,6 +319,7 @@ gbackends_cfg = {
       'backends/gl/hwmap_gl.c',
       'backends/gl/pipeline_gl.c',
       'backends/gl/program_gl.c',
+      'backends/gl/program_gl_utils.c',
       'backends/gl/rendertarget_gl.c',
       'backends/gl/texture_gl.c',
       'backends/gl/topology_gl.c',

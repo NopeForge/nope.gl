@@ -255,6 +255,7 @@ typedef void (NGLI_GL_APIENTRY *GLDEBUGPROC)(GLenum source, GLenum type, GLuint 
 # define GL_SHADER_STORAGE_BUFFER_BINDING      0x90D3
 # define GL_SHADER_STORAGE_BUFFER_START        0x90D4
 # define GL_SHADER_STORAGE_BUFFER_SIZE         0x90D5
+# define GL_UNIFORM_BLOCK                      0x92E2
 # define GL_SHADER_STORAGE_BLOCK               0x92E6
 # define GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT 0x90DF
 # define GL_BUFFER_BINDING                     0x9302

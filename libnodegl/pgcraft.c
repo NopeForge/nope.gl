@@ -34,6 +34,10 @@
 #include "precision.h"
 #include "type.h"
 
+#ifdef BACKEND_GL
+#include "backends/gl/program_gl_utils.h"
+#endif
+
 /*
  * Currently unmapped formats: r11f_g11f_b10f, rgb10_a2, rgb10_a2ui
  */
@@ -431,8 +435,8 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     const char *layout = glsl_layout_str_map[block->layout];
     const int bind_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
     int *next_bind = s->next_bindings[BIND_ID(stage, bind_type)];
-    if (next_bind) {
-        pl_buffer_desc.binding = (*next_bind)++;
+    pl_buffer_desc.binding = (*next_bind)++;
+    if (s->has_explicit_bindings) {
         ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, pl_buffer_desc.binding);
     } else {
         ngli_bstr_printf(b, "layout(%s)", layout);
@@ -968,14 +972,15 @@ static int probe_pipeline_uniform(const struct hmap *info_map, void *arg)
 
 static int probe_pipeline_buffer(const struct hmap *info_map, void *arg)
 {
-    struct pipeline_buffer_desc *elem_desc = arg;
-    if (elem_desc->binding != -1)
+    if (!info_map)
         return 0;
+    struct pipeline_buffer_desc *elem_desc = arg;
+    /* Remove buffer from the filtered list if it has been stripped during
+     * shader compilation */
     const struct program_variable_info *info = ngli_hmap_get(info_map, elem_desc->name);
     if (!info)
         return NGL_ERROR_NOT_FOUND;
-    elem_desc->binding = info->binding;
-    return elem_desc->binding != -1 ? 0 : NGL_ERROR_NOT_FOUND;
+    return 0;
 }
 
 static int probe_pipeline_texture(const struct hmap *info_map, void *arg)
@@ -1128,19 +1133,16 @@ static void setup_glsl_info_gl(struct pgcraft *s)
 
     s->has_explicit_bindings = IS_GLSL_ES_MIN(310) || IS_GLSL_MIN(420) ||
                                (gpu_ctx->features & NGLI_FEATURE_SHADING_LANGUAGE_420PACK);
-    if (s->has_explicit_bindings) {
-        /* Bindings are unique across stages and types */
-        for (int i = 0; i < NB_BINDINGS; i++)
-            s->next_bindings[i] = &s->bindings[i];
+    /* Bindings are unique across stages and types */
+    for (int i = 0; i < NB_BINDINGS; i++)
+        s->next_bindings[i] = &s->bindings[i];
 
-        /*
-         * FIXME: currently, program probing code forces a binding for the UBO, so
-         * it directly conflicts with the indexes we could set here. The 3
-         * following lines should be removed when this is fixed.
-         */
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_VERT, NGLI_BINDING_TYPE_UBO)] = NULL;
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_FRAG, NGLI_BINDING_TYPE_UBO)] = NULL;
-        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_COMP, NGLI_BINDING_TYPE_UBO)] = NULL;
+    /* Force non-explicit texture bindings for contexts that do not support
+     * explicit locations and bindings */
+    if (!s->has_explicit_bindings) {
+        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_VERT, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
+        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_FRAG, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
+        s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_COMP, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
     }
 }
 
@@ -1257,6 +1259,21 @@ int ngli_pgcraft_craft(struct pgcraft *s,
     ret = probe_pipeline_elems(s);
     if (ret < 0)
         return ret;
+
+#ifdef BACKEND_GL
+    struct ngl_ctx *ctx = s->ctx;
+    struct ngl_config *config = &ctx->config;
+    if (config->backend == NGL_BACKEND_OPENGL ||
+        config->backend == NGL_BACKEND_OPENGLES) {
+        if (!s->has_explicit_bindings) {
+            /* Force locations and bindings for contexts that do not support
+             * explicit locations and bindings */
+            ret = ngli_program_gl_set_locations_and_bindings(s->program, s);
+            if (ret < 0)
+                return ret;
+        }
+    }
+#endif
 
     dst_desc_params->program            = s->program;
     dst_desc_params->uniforms_desc      = ngli_darray_data(&s->filtered_pipeline_info.desc.uniforms);
