@@ -483,13 +483,12 @@ static int inject_attribute(struct pgcraft *s, struct bstr *b,
     ngli_assert(stage == NGLI_PROGRAM_SHADER_VERT);
 
     const char *type = get_glsl_type(attribute->type);
-
-    int base_location = -1;
     const int attribute_count = get_location_count(attribute->type);
 
+    const int base_location = s->next_in_locations[stage];
+    s->next_in_locations[stage] += attribute_count;
+
     if (s->has_in_out_layout_qualifiers) {
-        base_location = s->next_in_locations[stage];
-        s->next_in_locations[stage] += attribute_count;
         ngli_bstr_printf(b, "layout(location=%d) ", base_location);
     }
 
@@ -499,10 +498,8 @@ static int inject_attribute(struct pgcraft *s, struct bstr *b,
 
     const int attribute_offset = ngli_format_get_bytes_per_pixel(attribute->format);
     for (int i = 0; i < attribute_count; i++) {
-        /* negative location offset trick is for probe_pipeline_attribute() */
-        const int loc = base_location != -1 ? base_location + i : -1 - i;
         struct pipeline_attribute_desc pl_attribute_desc = {
-            .location = loc,
+            .location = base_location + i,
             .format   = attribute->format,
             .stride   = attribute->stride,
             .offset   = attribute->offset + i * attribute_offset,
@@ -999,14 +996,14 @@ static int probe_pipeline_texture(const struct hmap *info_map, void *arg)
 
 static int probe_pipeline_attribute(const struct hmap *info_map, void *arg)
 {
-    struct pipeline_attribute_desc *elem_desc = arg;
-    if (elem_desc->location >= 0) // can be ≤ -1 if there is a location offset so we don't check ≠ -1 here
+    if (!info_map)
         return 0;
+    struct pipeline_attribute_desc *elem_desc = arg;
+    /* Remove attribute from the filtered list if it has been stripped during
+     * shader compilation */
     const struct program_variable_info *info = ngli_hmap_get(info_map, elem_desc->name);
-    if (!info || info->location == -1)
+    if (!info)
         return NGL_ERROR_NOT_FOUND;
-    const int loc_offset = -elem_desc->location - 1; // reverse location offset trick from inject_attribute()
-    elem_desc->location = info->location + loc_offset;
     return 0;
 }
 

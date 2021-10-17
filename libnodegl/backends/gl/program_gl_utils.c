@@ -19,6 +19,8 @@
  * under the License.
  */
 
+#include <string.h>
+
 #include "gpu_ctx_gl.h"
 #include "pipeline.h"
 #include "program_gl.h"
@@ -32,6 +34,20 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct program_gl *s_priv = (struct program_gl *)s;
+
+    const struct pipeline_attribute_desc *attribute_descs = ngli_darray_data(&crafter->filtered_pipeline_info.desc.attributes);
+    const char *name = NULL;
+    for (int i = 0; i < ngli_darray_count(&crafter->filtered_pipeline_info.desc.attributes); i++) {
+        const struct pipeline_attribute_desc *attribute_desc = &attribute_descs[i];
+        if (name && !strcmp(name, attribute_desc->name))
+            continue;
+        name = attribute_desc->name;
+        ngli_glBindAttribLocation(gl, s_priv->id, attribute_desc->location, attribute_desc->name);
+        struct program_variable_info *info = ngli_hmap_get(s->attributes, attribute_desc->name);
+        if (info)
+            info->location = attribute_desc->location;
+    }
+    ngli_glLinkProgram(gl, s_priv->id);
 
     const struct pipeline_buffer_desc *buffer_descs = ngli_darray_data(&crafter->filtered_pipeline_info.desc.buffers);
     for (int i = 0; i < ngli_darray_count(&crafter->filtered_pipeline_info.desc.buffers); i++) {
