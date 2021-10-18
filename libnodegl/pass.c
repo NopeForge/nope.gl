@@ -50,6 +50,7 @@ struct pipeline_desc {
     int modelview_matrix_index;
     int projection_matrix_index;
     int normal_matrix_index;
+    int resolution_index;
 };
 
 static int register_uniform(struct pass *s, const char *name, struct ngl_node *uniform, int stage)
@@ -94,6 +95,7 @@ static int register_builtin_uniforms(struct pass *s)
         {.name = "ngl_modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT, .data = NULL},
         {.name = "ngl_projection_matrix", .type = NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT, .data = NULL},
         {.name = "ngl_normal_matrix",     .type = NGLI_TYPE_MAT3, .stage=NGLI_PROGRAM_SHADER_VERT, .data = NULL},
+        {.name = "ngl_resolution",        .type = NGLI_TYPE_VEC2, .stage=NGLI_PROGRAM_SHADER_FRAG, .data = NULL},
     };
 
     for (int i = 0; i < NGLI_ARRAY_NB(crafter_uniforms); i++) {
@@ -550,6 +552,7 @@ int ngli_pass_prepare(struct pass *s)
     desc->modelview_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_modelview_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_projection_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->normal_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_normal_matrix", NGLI_PROGRAM_SHADER_VERT);
+    desc->resolution_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_resolution", NGLI_PROGRAM_SHADER_FRAG);
     return 0;
 }
 
@@ -696,6 +699,12 @@ int ngli_pass_exec(struct pass *s)
 
     ngli_pipeline_update_uniform(pipeline, desc->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_update_uniform(pipeline, desc->projection_matrix_index, projection_matrix);
+
+    int viewport[4] = {0};
+    ngli_gpu_ctx_get_viewport(ctx->gpu_ctx, viewport);
+
+    const float resolution[2] = {viewport[2], viewport[3]};
+    ngli_pipeline_update_uniform(pipeline, desc->resolution_index, resolution);
 
     if (desc->normal_matrix_index >= 0) {
         float normal_matrix[3*3];

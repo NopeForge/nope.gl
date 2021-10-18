@@ -50,14 +50,15 @@ The vertex shader will get two extra attributes:
 
 ### Builtin variables
 
-The variables are another type of inputs made accessible to the vertex shader.
+The variables are another type of inputs made accessible to the shader.
 `node.gl` provides the following as builtin:
 
-Type   | Name                    | Description
--------|-------------------------|------------
-`mat4` | `ngl_modelview_matrix`  | modelview matrix
-`mat4` | `ngl_projection_matrix` | projection matrix
-`mat3` | `ngl_normal_matrix`     | normal matrix
+Type   | Name                    | Stage    | Description
+-------|-------------------------|----------|------------
+`mat4` | `ngl_modelview_matrix`  | vertex   | modelview matrix
+`mat4` | `ngl_projection_matrix` | vertex   | projection matrix
+`mat3` | `ngl_normal_matrix`     | vertex   | normal matrix
+`vec2` | `ngl_resolution`        | fragment | viewport size
 
 **Note**: these are commonly referred as `uniforms` in GL lexicon.
 
