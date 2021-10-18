@@ -44,10 +44,10 @@ _SYSTEM = 'MinGW' if sysconfig.get_platform().startswith('mingw') else platform.
 _RENDERDOC_ID = f'renderdoc_{_SYSTEM}'
 _EXTERNAL_DEPS = dict(
     sxplayer=dict(
-        version='9.9.0',
+        version='9.10.0',
         url='https://github.com/Stupeflix/sxplayer/archive/v@VERSION@.tar.gz',
         dst_file='sxplayer-@VERSION@.tar.gz',
-        sha256='a4baff3b70cc0b519128474d078ee7ec1099e880f869968b3d32693bdb5260de',
+        sha256='229cc06b4febac6d37ad596089edc1a9614b72383230fa546140c40c665e540d',
     ),
     pkgconf=dict(
         version='1.7.4',
