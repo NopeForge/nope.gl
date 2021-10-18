@@ -406,6 +406,15 @@ else
   lib_c_args += '-DUSE_NODEGL_STATIC_LIB'
 endif
 
+lib_objc_args = []
+if host_system == 'darwin'
+  lib_c_args += '-DGL_SILENCE_DEPRECATION'
+  lib_objc_args += '-DGL_SILENCE_DEPRECATION'
+elif host_system == 'iphone'
+  lib_c_args += '-DGLES_SILENCE_DEPRECATION'
+  lib_objc_args += '-DGLES_SILENCE_DEPRECATION'
+endif
+
 libnodegl = library(
   'nodegl',
   lib_src,
@@ -414,6 +423,7 @@ libnodegl = library(
   install_rpath: install_rpath,
   version: meson.project_version(),
   c_args: lib_c_args,
+  objc_args: lib_objc_args,
   gnu_symbol_visibility: 'hidden',
 )
 lib_header = configure_file(
