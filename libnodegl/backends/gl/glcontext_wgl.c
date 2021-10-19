@@ -42,34 +42,25 @@ struct wgl_priv {
     PFNWGLSWAPINTERVALEXTPROC SwapIntervalEXT;
 };
 
-static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
+static int wgl_init_extensions(struct glcontext *ctx)
 {
     struct wgl_priv *wgl = ctx->priv_data;
 
-    wgl->module = LoadLibrary("opengl32.dll");
-    if (!wgl->module) {
-        LOG(ERROR, "could not load opengl32.dll (%lu)", GetLastError());
-        return -1;
+    int ret = -1;
+    HWND window = 0;
+    HDC device_context = 0;
+    HGLRC rendering_context = 0;
+
+    window = CreateWindowA("static", "node.gl", WS_DISABLED, 0, 0, 1, 1, NULL, NULL, NULL, NULL);
+    if (!window) {
+        LOG(ERROR, "could not create offscreen dummy window");
+        goto done;
     }
 
-    if (ctx->offscreen) {
-        wgl->window = CreateWindowA("static", "node.gl", WS_DISABLED, 0, 0, 1, 1, NULL, NULL, NULL, NULL);
-        if (!wgl->window) {
-            LOG(ERROR, "could not create offscreen window");
-            return -1;
-        }
-    } else {
-        wgl->window = (HWND)window;
-        if (!wgl->window) {
-            LOG(ERROR, "could not retrieve window");
-            return -1;
-        }
-    }
-
-    wgl->device_context = GetDC((HWND)wgl->window);
-    if (!wgl->device_context) {
-        LOG(ERROR, "could not retrieve device context");
-        return -1;
+    device_context = GetDC(window);
+    if (!device_context) {
+        LOG(ERROR, "could not retrieve dummy device context");
+        goto done;
     }
 
     // windows needs a dummy context to probe extensions
@@ -87,21 +78,21 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         .cStencilBits = 8,
         .iLayerType = PFD_MAIN_PLANE,
     };
-    int pixel_format = ChoosePixelFormat(wgl->device_context, &pixel_format_descriptor);
-    if (SetPixelFormat(wgl->device_context, pixel_format, &pixel_format_descriptor) == FALSE) {
+    int pixel_format = ChoosePixelFormat(device_context, &pixel_format_descriptor);
+    if (SetPixelFormat(device_context, pixel_format, &pixel_format_descriptor) == FALSE) {
         LOG(ERROR, "could not apply default pixel format (%lu)", GetLastError());
-        return -1;
+        goto done;
     }
 
-    wgl->rendering_context = wglCreateContext(wgl->device_context);
-    if (!wgl->rendering_context) {
+    rendering_context = wglCreateContext(device_context);
+    if (!rendering_context) {
         LOG(ERROR, "could not create rendering context (%lu)", GetLastError());
-        return -1;
+        goto done;
     }
 
-    if (wglMakeCurrent(wgl->device_context, wgl->rendering_context) == FALSE) {
+    if (wglMakeCurrent(device_context, rendering_context) == FALSE) {
         LOG(ERROR, "could not apply current rendering context (%lu)", GetLastError());
-        return -1;
+        goto done;
     }
 
     // probe all extensions potentially needed
@@ -120,15 +111,58 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         void *function_ptr = wglGetProcAddress(name);
         if (!function_ptr) {
             LOG(ERROR, "could not retrieve %s()", name);
-            return -1;
+            goto done;
         }
-
         memcpy(((uint8_t *)wgl) + offset, &function_ptr, sizeof(function_ptr));
     }
 
     wgl->SwapIntervalEXT = (PFNWGLSWAPINTERVALEXTPROC)wglGetProcAddress("wglSwapIntervalEXT");
     if (!wgl->SwapIntervalEXT)
         LOG(WARNING, "context does not support any swap interval extension (%lu)", GetLastError());
+
+    ret = 0;
+
+done:
+    if (rendering_context)
+        wglDeleteContext(rendering_context);
+    if (window)
+        DestroyWindow(window);
+    return ret;
+}
+
+static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
+{
+    struct wgl_priv *wgl = ctx->priv_data;
+
+    wgl->module = LoadLibrary("opengl32.dll");
+    if (!wgl->module) {
+        LOG(ERROR, "could not load opengl32.dll (%lu)", GetLastError());
+        return -1;
+    }
+
+    int ret = wgl_init_extensions(ctx);
+    if (ret < 0)
+        return ret;
+
+    if (ctx->offscreen) {
+        wgl->window = CreateWindowA("static", "node.gl", WS_DISABLED, 0, 0, 1, 1, NULL, NULL, NULL, NULL);
+        if (!wgl->window) {
+            LOG(ERROR, "could not create offscreen window");
+            return -1;
+        }
+    } else {
+        wgl->window = (HWND)window;
+        if (!wgl->window) {
+            LOG(ERROR, "could not retrieve window");
+            return -1;
+        }
+    }
+
+    wgl->device_context = GetDC((HWND)wgl->window);
+    if (!wgl->device_context) {
+        LOG(ERROR, "could not retrieve dummy device context");
+        return -1;
+    }
 
     const int pixel_format_attributes[] = {
         WGL_DRAW_TO_WINDOW_ARB, GL_TRUE,
@@ -148,20 +182,19 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
         0
     };
 
+    int pixel_format;
     UINT pixel_format_count;
     if (wgl->ChoosePixelFormatARB(wgl->device_context, pixel_format_attributes, NULL, 1, &pixel_format, &pixel_format_count) == FALSE) {
         LOG(ERROR, "could not choose proper pixel format (%lu)", GetLastError());
         return -1;
     }
+    PIXELFORMATDESCRIPTOR pixel_format_descriptor;
     DescribePixelFormat(wgl->device_context, pixel_format, sizeof(PIXELFORMATDESCRIPTOR), &pixel_format_descriptor);
 
     if (SetPixelFormat(wgl->device_context, pixel_format, &pixel_format_descriptor) == FALSE) {
         LOG(ERROR, "could not apply pixel format (%lu)", GetLastError());
         return -1;
     }
-
-    if (wglDeleteContext(wgl->rendering_context) == FALSE)
-        LOG(WARNING, "failed to delete dummy rendering context (%lu)", GetLastError());
 
     HGLRC shared_context = (HGLRC)other;
 
