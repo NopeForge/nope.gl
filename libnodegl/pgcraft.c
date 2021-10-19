@@ -961,6 +961,8 @@ static int craft_comp(struct pgcraft *s, const struct pgcraft_params *params)
 static int probe_pipeline_uniform(const struct hmap *info_map, void *arg)
 {
     struct pipeline_uniform_desc *elem_desc = arg;
+    /* Remove uniform from the filtered list if it has been stripped during
+     * shader compilation */
     const struct program_variable_info *info = ngli_hmap_get(info_map, elem_desc->name);
     if (!info)
         return NGL_ERROR_NOT_FOUND;
