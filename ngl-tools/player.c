@@ -560,6 +560,17 @@ static int handle_clearcolor(const void *data)
 static int handle_samples(const void *data)
 {
     struct player *p = g_player;
+#ifdef _WIN32
+    if (p->ngl_config.backend == NGL_BACKEND_OPENGL ||
+        p->ngl_config.backend == NGL_BACKEND_OPENGLES) {
+        const int *samples = data;
+        if (*samples != p->ngl_config.samples) {
+            fprintf(stderr, "MSAA cannot be reconfigured on Windows, "
+                            "the player needs to be restarted instead\n");
+            return 0;
+        }
+    }
+#endif
     memcpy(&p->ngl_config.samples, data, sizeof(p->ngl_config.samples));
     return 0;
 }
