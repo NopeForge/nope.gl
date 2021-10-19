@@ -95,9 +95,10 @@ class _SpawnView(QtWidgets.QGroupBox):
     def _spawn(self):
         loglevel = self._config.CHOICES['log_level'][self._loglevel_cbbox.currentIndex()]
         backend = self._config.CHOICES['backend'][self._backend_cbbox.currentIndex()]
+        samples = self._config.get('samples')
         listen = self._listen_text.text()
         port = self._port_spin.value()
-        subprocess.Popen(['ngl-desktop', '--host', listen, '--backend', backend, '--loglevel', loglevel, '--port', str(port)])
+        subprocess.Popen(['ngl-desktop', '--host', listen, '--backend', backend, '--loglevel', loglevel, '--port', str(port), '--samples', str(samples)])
 
 
 class HooksView(QtWidgets.QWidget):
