@@ -236,22 +236,23 @@ class HooksController(QtCore.QObject):
         self._get_scene_func = get_scene_func
         self._hooks_view = hooks_view
         self._hooks_caller = hooks_caller
-        self._threads = []
+        self._threads = {}
         self._workers = []
 
     def stop_threads(self):
-        for thread in self._threads:
+        for thread in self._threads.values():
             thread.exit()
             thread.wait()
-        self._threads = []
+        self._threads = {}
 
     def process(self, module_name, scene_name):
         data = self._hooks_view.get_data_from_model()
-        for i, (session_id, data_row) in enumerate(data.items()):
-            if i >= len(self._threads):
+        for session_id, data_row in data.items():
+            if session_id not in self._threads:
                 thread = QtCore.QThread()
                 thread.start()
-                self._threads.append(thread)
+                self._threads[session_id] = thread
+            thread = self._threads[session_id]
             if not data_row['checked']:
                 continue
             worker = _HooksWorker(self._get_scene_func, self._hooks_caller,
@@ -263,7 +264,7 @@ class HooksController(QtCore.QObject):
             worker.done.connect(self._hooks_done)
             worker.error.connect(self._hooks_error)
             self._workers.append(worker)
-            worker.moveToThread(self._threads[i])
+            worker.moveToThread(thread)
             worker.process.emit()
 
     @QtCore.Slot(str, int, int, str)
