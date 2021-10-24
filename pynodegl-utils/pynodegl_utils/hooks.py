@@ -48,23 +48,7 @@ class _HooksCaller:
         return self._module.get_session_info(session_id)
 
     def get_sessions(self):
-        sessions = []
-        session_list = self._module.get_sessions()
-        for session in session_list:
-            session_id, session_desc = session
-            try:
-                # TODO: asynchronous calls? (individual session queries could take some time)
-                session_info = self._module.get_session_info(session_id)
-            except Exception as e:
-                print(f"Could not get information for session '{session_id}': {e}")
-                continue
-            sessions.append((
-                session_id,
-                session_desc,
-                session_info.get('backend', ''),
-                session_info.get('system', ''),
-            ))
-        return sessions
+        return self._module.get_sessions()
 
     @staticmethod
     def _uint_clear_color(vec4_color):
@@ -122,9 +106,19 @@ class HooksCaller:
         '''
         sessions = []
         for caller_id, caller in enumerate(self._callers):
-            caller_sessions = caller.get_sessions()
-            for (session_id, desc, backend, system) in caller_sessions:
-                sessions.append((f'{caller_id}:{session_id}', desc, backend, system))
+            for session_id, session_desc in caller.get_sessions():
+                try:
+                    # TODO: asynchronous calls? (individual session queries could take some time)
+                    session_info = caller.get_session_info(session_id)
+                except Exception as e:
+                    print(f"Could not get information for session '{session_id}': {e}")
+                    continue
+                sessions.append((
+                    f'{caller_id}:{session_id}',
+                    session_desc,
+                    session_info.get('backend', ''),
+                    session_info.get('system', ''),
+                ))
         return sessions
 
     def get_session_info(self, session_id):
