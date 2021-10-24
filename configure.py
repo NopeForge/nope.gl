@@ -192,7 +192,7 @@ def _pkgconf_install(cfg):
 
 @_block('sxplayer-setup')
 def _sxplayer_setup(cfg):
-    return ['$(MESON_SETUP) ' + _cmd_join(cfg.externals['sxplayer'], op.join('builddir', 'sxplayer'))]
+    return ['$(MESON_SETUP) -Drpath=true ' + _cmd_join(cfg.externals['sxplayer'], op.join('builddir', 'sxplayer'))]
 
 
 @_block('sxplayer-install', [_sxplayer_setup])
@@ -217,7 +217,7 @@ def _nodegl_setup(cfg):
         renderdoc_dir = cfg.externals[_RENDERDOC_ID]
         nodegl_debug_opts += [f'-Drenderdoc_dir={renderdoc_dir}']
 
-    return ['$(MESON_SETUP) ' + _cmd_join(*nodegl_debug_opts, 'libnodegl', op.join('builddir', 'libnodegl'))]
+    return ['$(MESON_SETUP) -Drpath=true ' + _cmd_join(*nodegl_debug_opts, 'libnodegl', op.join('builddir', 'libnodegl'))]
 
 
 @_block('nodegl-install', [_nodegl_setup])
@@ -264,7 +264,7 @@ def _pynodegl_utils_install(cfg):
 
 @_block('ngl-tools-setup', [_nodegl_install])
 def _ngl_tools_setup(cfg):
-    return ['$(MESON_SETUP) ' + _cmd_join('ngl-tools', op.join('builddir', 'ngl-tools'))]
+    return ['$(MESON_SETUP) -Drpath=true ' + _cmd_join('ngl-tools', op.join('builddir', 'ngl-tools'))]
 
 
 @_block('ngl-tools-install', [_ngl_tools_setup])
@@ -400,7 +400,6 @@ def _get_make_vars(cfg):
     meson_setup = [
         'setup',
         '--prefix', cfg.prefix,
-        '-Drpath=true',
         '--pkg-config-path', cfg.pkg_config_path,
         '--buildtype', buildtype,
     ]
