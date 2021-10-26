@@ -78,6 +78,7 @@ foreach backend : backends
     'hud',
     'text_live_change',
     'media_sharing_failure',
+    'denied_node_live_change',
   ]
 
   tests_blending = [

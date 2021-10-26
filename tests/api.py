@@ -198,3 +198,23 @@ def api_media_sharing_failure():
     m = ngl.Media('/dev/null')
     scene = ngl.Group(children=(ngl.Texture2D(data_src=m), ngl.Texture2D(data_src=m)))
     assert _ret_to_fourcc(ctx.set_scene(scene)) == 'Eusg'  # Usage error
+
+
+def api_denied_node_live_change(width=320, height=240):
+    ctx = ngl.Context()
+    assert ctx.configure(offscreen=1, width=width, height=height, backend=_backend) == 0
+
+    scene = ngl.Translate(ngl.Group())
+
+    # Check that we can live change but not into a node
+    assert ctx.set_scene(scene) == 0
+    assert scene.set_vector(1, 2, 3) == 0
+    assert scene.set_vector(ngl.UniformVec3(value=(3, 2, 1))) != 0
+
+    # Check that we can do the change after a reset of the context
+    assert ctx.set_scene(None) == 0
+    assert scene.set_vector(ngl.UniformVec3(value=(4, 5, 6))) == 0
+
+    # Check that we can not live unplug a node from a live changeable parameter
+    assert ctx.set_scene(scene) == 0
+    assert scene.set_vector(ngl.UniformVec3(value=(7, 8, 9))) != 0
