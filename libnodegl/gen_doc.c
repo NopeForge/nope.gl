@@ -149,6 +149,95 @@ static char *get_default_str(const struct node_param *p)
     return def;
 }
 
+static int node_based_parameter(const struct node_param *par)
+{
+    return par->type == NGLI_PARAM_TYPE_NODE ||
+           par->type == NGLI_PARAM_TYPE_NODELIST ||
+           par->type == NGLI_PARAM_TYPE_NODEDICT;
+}
+
+static int pointer_based_parameter(const struct node_param *par)
+{
+    return node_based_parameter(par) ||
+           par->type == NGLI_PARAM_TYPE_DATA ||
+           par->type == NGLI_PARAM_TYPE_STR;
+}
+
+static int node_has_children(const struct node_class *cls)
+{
+    const struct node_param *par = cls->params;
+    while (par->key) {
+        if (node_based_parameter(par))
+            return 1;
+        par++;
+    }
+    return 0;
+}
+
+#define MAP_NODE_CLS(type_name, cls) case type_name: return &cls;
+
+static const struct node_class *node_type_to_class(int type)
+{
+    switch (type) {
+        NODE_MAP_TYPE2CLASS(MAP_NODE_CLS)
+    }
+    return NULL;
+}
+
+static int check_node_params(const struct node_class *cls)
+{
+    const struct node_param *par = cls->params;
+    if (!par)
+        return 0;
+
+    while (par->key) {
+        if ((par->flags & NGLI_PARAM_FLAG_NON_NULL) && !pointer_based_parameter(par)) {
+            fprintf(stderr, "parameter %s.%s has a non-applicable non-null flag\n", cls->name, par->key);
+            return NGL_ERROR_BUG;
+        }
+
+        const uint32_t invalid_flags = NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_ALLOW_NODE;
+        if ((par->flags & invalid_flags) == invalid_flags) {
+            fprintf(stderr, "parameter %s.%s can not be non-null and "
+                    "allow a node at the same time\n", cls->name, par->key);
+            return NGL_ERROR_BUG;
+        }
+
+        if (par->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED) {
+            if (par->type != NGLI_PARAM_TYPE_NODELIST) {
+                fprintf(stderr, "parameter %s.%s is not a node list, "
+                        "so packed display in dot is not supported\n", cls->name, par->key);
+                return NGL_ERROR_UNSUPPORTED;
+            }
+
+            for (int i = 0; par->node_types[i] != -1; i++) {
+                const struct node_class *child_cls = node_type_to_class(par->node_types[i]);
+                if (node_has_children(child_cls)) {
+                    fprintf(stderr, "parameter %s.%s could be a node that has children nodes, "
+                            "so packed display in dot should not be set\n", cls->name, par->key);
+                    return NGL_ERROR_BUG;
+                }
+            }
+        }
+
+        if ((par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE) && node_based_parameter(par)) {
+            fprintf(stderr, "%s.%s is a node based parameter, "
+                    "so it can not be live changed", cls->name, par->key);
+            return NGL_ERROR_BUG;
+        }
+
+        if ((par->flags & NGLI_PARAM_FLAG_ALLOW_NODE) && pointer_based_parameter(par)) {
+            fprintf(stderr, "%s.%s is already a pointer-based parameter, "
+                    "so the allow node flag should not be present\n", cls->name, par->key);
+            return NGL_ERROR_BUG;
+        }
+
+        par++;
+    }
+
+    return 0;
+}
+
 static void print_node_params(const char *name, const struct node_param *p)
 {
     printf("\n## %s\n\n", name);
@@ -212,6 +301,10 @@ int main(void)
     for (int i = 0; i < NGLI_ARRAY_NB(node_classes); i++) {
         const struct node_class *c = node_classes[i];
         const struct node_param *p = &c->params[0];
+
+        int ret = check_node_params(c);
+        if (ret < 0)
+            return EXIT_FAILURE;
 
         if (c->params_id) {
             void *mapped_param = ngli_hmap_get(params_map, c->params_id);
