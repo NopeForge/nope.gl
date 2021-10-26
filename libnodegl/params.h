@@ -71,10 +71,66 @@ struct param_choices {
 
 struct ngl_node;
 
+/*
+ * Imply that the parameter must be set, otherwise it will fail at the node
+ * initialization.
+ *
+ * Only applicable for pointer-based parameters such as nodes or strings.
+ *
+ * This option can not be combined with NGLI_PARAM_FLAG_ALLOW_NODE.
+ */
 #define NGLI_PARAM_FLAG_NON_NULL (1<<0)
+
+/*
+ * Imply that the parameter needs to be represented in a single block (more
+ * compact) in the dot output.
+ *
+ * Only applicable for node list parameters.
+ *
+ * Note that this flag only works with nodes that do not have any other nodes
+ * as children (since no outgoing link can be individually represented
+ * anymore).
+ */
 #define NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED (1<<1)
+
+/*
+ * Display the field name alongside the edge associated with this parameter in
+ * the dot output.
+ *
+ * This is useful to prevent potential confusion on which parameter the edge is
+ * associated with. For example, a node may have multiple parameters accepting
+ * the same type. In the graph representation, it may not be clear which is which.
+ *
+ * Having this flag unconditionally would clutter the output too much, so it
+ * needs to be explicitly specified where appropriate.
+ */
 #define NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME (1<<2)
+
+/*
+ * Imply that the parameter can be live changed post-init (when a context is
+ * active). The update_func callback may be implemented to allow specific
+ * mechanics on a live-change event.
+ *
+ * See also NGLI_PARAM_FLAG_ALLOW_NODE.
+ *
+ * Only applicable for non-node-based parameters.
+ */
 #define NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE (1<<3)
+
+/*
+ * Imply that the parameter allows an additional node parameter, taking over
+ * the non-pointer-based parameter.
+ *
+ * Only applicable for non-pointer-based parameters.
+ *
+ * If this flag is set, the node field must be placed before the non-pointer
+ * field in the private structure. The offset must also point to the node
+ * field.
+ *
+ * When combined with NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE, the user will not be able
+ * to set or unset a node at runtime (but it works pre-init). If a node is not
+ * set, live-change on the non-pointer-based parameter will work as expected.
+ */
 #define NGLI_PARAM_FLAG_ALLOW_NODE (1<<4)
 
 struct node_param {
