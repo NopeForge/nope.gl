@@ -668,30 +668,25 @@ static int node_invalidate_branch(struct ngl_node *node)
     return 0;
 }
 
-static int node_param_find(struct ngl_node *node, const char *key,
-                           uint8_t **dstp, const struct node_param **parp)
+static int node_param_is_value_allowed(struct ngl_node *node, const char *key,
+                                       const uint8_t *ptr, const struct node_param *par)
 {
-    uint8_t *base_ptr;
-    const struct node_param *par = ngli_node_param_find(node, key, &base_ptr);
-    if (!par)
-        return NGL_ERROR_NOT_FOUND;
+    if (!node->ctx)
+        return 0;
 
-    if (node->ctx) {
-        if (!(par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
-            LOG(ERROR, "%s.%s can not be live changed", node->label, key);
+    if (!(par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE)) {
+        LOG(ERROR, "%s.%s can not be live changed", node->label, key);
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE) {
+        const struct ngl_node *pnode = *(struct ngl_node **)ptr;
+        if (pnode) {
+            LOG(ERROR, "%s.%s can not be live changed because it is associated with a node", node->label, key);
             return NGL_ERROR_INVALID_USAGE;
-        }
-        if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE) {
-            const struct ngl_node *pnode = *(struct ngl_node **)(base_ptr + par->offset);
-            if (pnode) {
-                LOG(ERROR, "%s.%s can not be live changed because it is associated with a node", node->label, key);
-                return NGL_ERROR_INVALID_USAGE;
-            }
         }
     }
 
-    *dstp = base_ptr + par->offset;
-    *parp = par;
     return 0;
 }
 
@@ -711,9 +706,13 @@ static int node_param_update(struct ngl_node *node, const struct node_param *par
 
 #define FORWARD_TO_PARAM(type, ...)                                     \
     int ret;                                                            \
-    uint8_t *dst;                                                       \
-    const struct node_param *par;                                       \
-    if ((ret = node_param_find(node, key, &dst, &par)) < 0 ||           \
+    uint8_t *base_ptr;                                                  \
+    const struct node_param *par =                                      \
+        ngli_node_param_find(node, key, &base_ptr);                     \
+    if (!par)                                                           \
+        return NGL_ERROR_NOT_FOUND;                                     \
+    uint8_t *dst = base_ptr + par->offset;                              \
+    if ((ret = node_param_is_value_allowed(node, key, dst, par)) < 0 || \
         (ret = ngli_params_set_##type(dst, par, __VA_ARGS__)) < 0 ||    \
         (ret = node_param_update(node, par)) < 0)                       \
         return ret;                                                     \
