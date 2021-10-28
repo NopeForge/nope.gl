@@ -101,3 +101,24 @@ def media_phases_display(cfg):
 def media_phases_resources(cfg):
     cfg.medias = [Media('ngl-media-test.nut')]
     return _get_time_scene(cfg)
+
+
+# Note: the following test only makes sure the clamping code shader compiles,
+# not check for an actual overflow
+@test_cuepoints(points={'X': (0, -0.625)}, nb_keyframes=1, tolerance=1)
+@scene()
+def media_clamp(cfg):
+    cfg.medias = [Media('ngl-media-test.nut')]
+
+    m0 = cfg.medias[0]
+    cfg.duration = m0.duration
+    cfg.aspect_ratio = (m0.width, m0.height)
+
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    media = ngl.Media(m0.filename)
+    texture = ngl.Texture2D(data_src=media, clamp_video=True)
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(tex0=texture)
+    return render

@@ -632,6 +632,17 @@ static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcr
     ngli_bstr_print(b, "\n");
 }
 
+static int texture_needs_clamping(const struct pgcraft_params *params,
+                                  const char *name, int name_len)
+{
+    for (int i = 0; i < params->nb_textures; i++) {
+        const struct pgcraft_texture *pgcraft_texture = &params->textures[i];
+        if (!strncmp(name, pgcraft_texture->name, name_len))
+            return pgcraft_texture->clamp_video;
+    }
+    return 0;
+}
+
 static enum pgcraft_shader_tex_type get_texture_type(const struct pgcraft_params *params,
                                                      const char *name, int name_len)
 {
@@ -730,6 +741,10 @@ static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
             return 0;
         }
 
+        const int clamp = texture_needs_clamping(params, arg0_start, arg0_len);
+        if (clamp)
+            ngli_bstr_print(dst, "clamp(");
+
         ngli_bstr_print(dst, "(");
 #if defined(TARGET_ANDROID)
         ngli_bstr_printf(dst, "%.*s_sampling_mode == 2 ? ", ARG_FMT(arg0));
@@ -762,6 +777,8 @@ static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
         ngli_bstr_printf(dst, " : ngl_tex2d(%.*s, %.*s)", ARG_FMT(arg0), ARG_FMT(coords));
 
         ngli_bstr_print(dst, ")");
+        if (clamp)
+            ngli_bstr_print(dst, ", 0.0, 1.0)");
         ngli_bstr_print(dst, p);
     } else {
         ngli_assert(0);

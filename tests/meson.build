@@ -204,6 +204,7 @@ foreach backend : backends
   endif
 
   tests_media = [
+    'clamp',
     'phases_display',
     'phases_resources',
   ]

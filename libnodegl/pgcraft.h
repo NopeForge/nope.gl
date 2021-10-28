@@ -58,6 +58,7 @@ struct pgcraft_texture {
     int precision;
     int writable;
     int format;
+    int clamp_video;
     struct texture *texture;
     struct image *image;
 };

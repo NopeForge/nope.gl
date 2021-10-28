@@ -123,6 +123,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
         .stage  = stage,
         .image  = &texture_priv->image,
         .format = texture_priv->params.format,
+        .clamp_video = texture_priv->clamp_video,
     };
     snprintf(crafter_texture.name, sizeof(crafter_texture.name), "%s", name);
 

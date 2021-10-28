@@ -314,6 +314,7 @@ struct texture_priv {
     struct texture_params params;
     struct ngl_node *data_src;
     int direct_rendering;
+    int clamp_video;
 
     uint32_t supported_image_layouts;
     struct texture *texture;

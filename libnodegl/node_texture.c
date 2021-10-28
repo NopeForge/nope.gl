@@ -187,6 +187,8 @@ static const struct node_param texture2d_params[] = {
                  .desc=NGLI_DOCSTRING("data source")},
     {"direct_rendering", NGLI_PARAM_TYPE_BOOL, OFFSET(direct_rendering), {.i64=1},
                          .desc=NGLI_DOCSTRING("whether direct rendering is allowed or not for media playback")},
+    {"clamp_video", NGLI_PARAM_TYPE_BOOL, OFFSET(clamp_video), {.i64=0},
+                    .desc=NGLI_DOCSTRING("clamp ngl_texvideo() output to [0;1]")},
     {NULL}
 };
 

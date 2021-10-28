@@ -401,6 +401,7 @@
     - [wrap_t, select]
     - [data_src, Node]
     - [direct_rendering, bool]
+    - [clamp_video, bool]
 
 - Texture3D:
     - [format, select]

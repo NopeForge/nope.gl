@@ -652,6 +652,7 @@ Parameter | Live-chg. | Type | Description | Default
 `wrap_t` |  | [`wrap`](#wrap-choices) | wrap parameter for the texture on the t dimension (vertical) | `clamp_to_edge`
 `data_src` |  | [`Node`](#parameter-types) ([Media](#media), [AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
 `direct_rendering` |  | [`bool`](#parameter-types) | whether direct rendering is allowed or not for media playback | `1`
+`clamp_video` |  | [`bool`](#parameter-types) | clamp ngl_texvideo() output to [0;1] | `0`
 
 
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
