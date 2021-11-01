@@ -253,8 +253,9 @@ static int texture_init_fields(struct texture *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct texture_params *params = &s->params;
 
-    if (params->usage == NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT ||
-        params->usage == NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+    if (!s->wrapped &&
+        (params->usage == NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT ||
+         params->usage == NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)) {
         s_priv->target = GL_RENDERBUFFER;
         int ret = ngli_format_get_gl_renderbuffer_format(gl, params->format, &s_priv->format);
         if (ret < 0)
@@ -378,6 +379,7 @@ int ngli_texture_gl_wrap(struct texture *s,
                          GLuint texture)
 {
     s->params = *params;
+    s->wrapped = 1;
 
     int ret = texture_init_fields(s);
     if (ret < 0)
@@ -385,7 +387,6 @@ int ngli_texture_gl_wrap(struct texture *s,
 
     struct texture_gl *s_priv = (struct texture_gl *)s;
     s_priv->id = texture;
-    s->wrapped = 1;
     s->external_storage = 1;
 
     return 0;
