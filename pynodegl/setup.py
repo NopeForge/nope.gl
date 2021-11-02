@@ -106,7 +106,7 @@ class BuildSrcCommmand(Command):
     def run(self):
         from Cython.Compiler.Main import compile
         CommandUtils.write_definitions_pyx()
-        compile('pynodegl.pyx', output_file='pynodegl.c')
+        compile('_pynodegl.pyx', output_file='_pynodegl.c')
 
 
 setup(
@@ -123,7 +123,7 @@ setup(
         'build_src': BuildSrcCommmand,
     },
     ext_modules=[Extension("_pynodegl",
-                           sources=['pynodegl.pyx'],
+                           sources=['_pynodegl.pyx'],
                            include_dirs=_LIB_CFG.include_dirs,
                            libraries=_LIB_CFG.libraries,
                            library_dirs=_LIB_CFG.library_dirs)],

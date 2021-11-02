@@ -1,6 +1,6 @@
 build
 nodes_def.pyx
-pynodegl.c
+_pynodegl.c
 pynodegl.egg-info
 pynodegl/specs.py
 _pynodegl.*.so
