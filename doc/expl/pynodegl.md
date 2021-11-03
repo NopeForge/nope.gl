@@ -55,3 +55,9 @@ Compiled source ends up being linked against Python library to create a
 `_pynodegl.so` loadable Python module.
 
 [pynodegl-pyx]: /pynodegl/_pynodegl.pyx
+
+### pynodegl ← _pynodegl.so
+
+The final binding exposed to the user is a traditional pure Python module,
+which imports the native `_pynodegl` module. All the nodes and their methods
+are dynamically generated into that module at runtime.

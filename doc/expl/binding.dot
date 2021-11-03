@@ -18,6 +18,9 @@ digraph {
     node[color=gold]
     mod [label="_pynodegl.so"]
 
+    node[color=coral]
+    pymod [label="pynodegl"]
+
     libnodegl_install -> specs [label="write"]
     pynodegl_setup -> specs [label="read"]
     pynodegl_setup -> pyx [label="write"]
@@ -25,4 +28,5 @@ digraph {
     cython -> c [label="write"]
     cc -> c [label="read"]
     cc -> mod [label="write"]
+    pymod -> mod [label="import"]
 }
