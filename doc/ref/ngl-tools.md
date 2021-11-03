@@ -114,8 +114,8 @@ The detail of available options can be obtained with `ngl-probe -h`.
 
 ## Player keyboard controls
 
-`ngl-player` and `ngl-python` are both scene players supporting the following
-keyboard controls:
+`ngl-player`, `ngl-python` and `ngl-desktop` are scene players supporting the
+following keyboard controls:
 
 Key           | Action
 ------------- | ------
