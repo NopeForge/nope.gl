@@ -3,8 +3,8 @@ digraph {
     edge[fontsize=10,arrowsize=0.5]
 
     node[color=cadetblue2]
-    libnodegl
-    pynodegl
+    libnodegl_install [label="libnodegl\ninstall"]
+    pynodegl_setup [label="pynodegl\nsetup.py"]
 
     node[color=hotpink2]
     cython [label="Cython"]
@@ -18,9 +18,9 @@ digraph {
     node[color=gold]
     mod [label="_pynodegl.so"]
 
-    libnodegl -> specs [label="write"]
-    pynodegl -> specs [label="read"]
-    pynodegl -> pyx [label="write"]
+    libnodegl_install -> specs [label="write"]
+    pynodegl_setup -> specs [label="read"]
+    pynodegl_setup -> pyx [label="write"]
     cython -> pyx [label="read"]
     cython -> c [label="write"]
     cc -> c [label="read"]
