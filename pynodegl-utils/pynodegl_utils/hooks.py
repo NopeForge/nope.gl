@@ -103,21 +103,11 @@ class HooksCaller:
         This methods makes these session IDs unique by adding the index of
         the caller as prefix.
         '''
-        sessions = []
+        sessions = {}
         for caller_id, caller in enumerate(self._callers):
             for session_id, session_desc in caller.get_sessions():
-                try:
-                    # TODO: asynchronous calls? (individual session queries could take some time)
-                    session_info = caller.get_session_info(session_id)
-                except Exception as e:
-                    print(f"Could not get information for session '{session_id}': {e}")
-                    continue
-                sessions.append((
-                    f'{caller_id}:{session_id}',
-                    session_desc,
-                    session_info.get('backend', ''),
-                    session_info.get('system', ''),
-                ))
+                sid = f'{caller_id}:{session_id}'
+                sessions[sid] = dict(sid=sid, desc=session_desc)
         return sessions
 
     def get_session_info(self, session_id):
@@ -131,6 +121,42 @@ class HooksCaller:
     def sync_file(self, session_id, localfile):
         caller, session_id = self._get_caller_session_id(session_id)
         return caller.sync_file(session_id, localfile)
+
+
+class _SessionInfoWorker(QtCore.QObject):
+
+    _process = QtCore.Signal()
+    success = QtCore.Signal(object, object)
+    error = QtCore.Signal(object)
+
+    def __init__(self, hooks_caller, session):
+        super().__init__()
+        self._hooks_caller = hooks_caller
+        self._session = session
+        self._lock = QtCore.QMutex()
+        self._submit = False
+        self._process.connect(self._run)
+
+    def submit_session_info(self):
+        with QtCore.QMutexLocker(self._lock):
+            self._submit = True
+        self._process.emit()
+
+    @QtCore.Slot()
+    def _run(self):
+        submit = False
+        with QtCore.QMutexLocker(self._lock):
+            submit = self._submit
+            self._submit = False
+        if not submit:
+            return
+        try:
+            info = self._hooks_caller.get_session_info(self._session['sid'])
+        except Exception as e:
+            print(f"Could not get information for session '{self._session['sid']}': {e}")
+            self.error.emit(self._session)
+            return
+        self.success.emit(self._session, info)
 
 
 class _SceneChangeWorker(QtCore.QObject):
@@ -226,13 +252,19 @@ class _SceneChangeWorker(QtCore.QObject):
 
 class HooksController(QtCore.QObject):
 
-    def __init__(self, get_scene_func, hooks_view, hooks_caller):
+    session_added = QtCore.Signal(object)
+    session_removed = QtCore.Signal(str)
+    session_status_changed = QtCore.Signal(object)
+
+    def __init__(self, get_scene_func, hooks_caller):
         super().__init__()
         self._get_scene_func = get_scene_func
-        self._hooks_view = hooks_view
         self._hooks_caller = hooks_caller
         self._threads = {}
+        self._session_info_workers = {}
         self._scene_change_workers = {}
+        self._sessions_cache = {}
+        self._sessions_state = {}
 
     def stop_threads(self):
         for thread in self._threads.values():
@@ -240,13 +272,25 @@ class HooksController(QtCore.QObject):
             thread.wait()
         self._threads = {}
 
-    def process(self, module_name, scene_name):
-        data = self._hooks_view.get_data_from_model()
-        for session_id, data_row in data.items():
+    def refresh_sessions(self):
+        sessions = self._hooks_caller.get_sessions()
+
+        removed_sessions = [sid for sid in self._sessions_cache.keys() if sid not in sessions]
+        for session_id in removed_sessions:
+            del self._sessions_cache[session_id]
+            self.session_removed.emit(session_id)
+
+        for session_id, session in sessions.items():
             if session_id not in self._threads:
                 thread = QtCore.QThread()
                 thread.start()
                 self._threads[session_id] = thread
+
+                worker = _SessionInfoWorker(self._hooks_caller, session)
+                worker.success.connect(self._session_info_success)
+                worker.error.connect(self._session_info_error)
+                worker.moveToThread(thread)
+                self._session_info_workers[session_id] = worker
 
                 worker = _SceneChangeWorker(self._get_scene_func, self._hooks_caller)
                 worker.uploadingFile.connect(self._hooks_uploading)
@@ -257,30 +301,78 @@ class HooksController(QtCore.QObject):
                 worker.moveToThread(thread)
                 self._scene_change_workers[session_id] = worker
 
-            if not data_row['checked']:
-                continue
+            worker = self._session_info_workers[session_id]
+            worker.submit_session_info()
 
+    def enable_session(self, session_id, enabled):
+        if session_id in self._sessions_cache:
+            self._sessions_cache[session_id]['enabled'] = enabled
+            self._sessions_state[session_id] = enabled
+
+    @QtCore.Slot(object, str, object)
+    def _session_info_success(self, session, info):
+        if session['sid'] not in self._sessions_cache:
+            enabled = self._sessions_state.get(session['sid'], True)
+            new_session = dict(
+                sid=session['sid'],
+                desc=session['desc'],
+                backend=info.get('backend'),
+                system=info.get('system'),
+                enabled=enabled,
+                status='',
+            )
+            self._sessions_cache[new_session['sid']] = new_session
+            self.session_added.emit(new_session)
+
+    @QtCore.Slot(object, str)
+    def _session_info_error(self, session):
+        session_id = session['sid']
+        if session_id in self._sessions_cache:
+            del self._sessions_cache[session_id]
+            self.session_removed.emit(session_id)
+
+    def process(self, module_name, scene_name):
+        for session in self._sessions_cache.values():
             scene_id = f'{module_name}.{scene_name}'
-            session = dict(sid=session_id, backend=data_row['backend'], system=data_row['system'])
-            worker = self._scene_change_workers[session_id]
+            worker = self._scene_change_workers[session['sid']]
             worker.submit_scene_change(scene_id, session)
 
     @QtCore.Slot(str, int, int, str)
     def _hooks_uploading(self, session_id, i, n, filename):
-        self._hooks_view.update_status(session_id, 'Uploading [%d/%d]: %s...' % (i, n, filename))
+        session = self._sessions_cache.get(session_id, None)
+        if not session:
+            return
+        session['status'] = 'Uploading [%d/%d]: %s...' % (i, n, filename)
+        self.session_status_changed.emit(session)
 
     @QtCore.Slot(str, str, str)
     def _hooks_building_scene(self, session_id, backend, system):
-        self._hooks_view.update_status(session_id, f'Building {system} scene in {backend}...')
+        session = self._sessions_cache.get(session_id, None)
+        if not session:
+            return
+        session['status'] = f'Building {system} scene in {backend}...'
+        self.session_status_changed.emit(session)
 
     @QtCore.Slot(str, str)
     def _hooks_sending_scene(self, session_id, scene):
-        self._hooks_view.update_status(session_id, 'Sending scene %s...' % scene)
+        session = self._sessions_cache.get(session_id, None)
+        if not session:
+            return
+        session['status'] = 'Sending scene %s...' % scene
+        self.session_status_changed.emit(session)
 
     @QtCore.Slot(str, str, float)
     def _hooks_success(self, session_id, scene, t):
-        self._hooks_view.update_status(session_id, f'Submitted {scene} in {t:f}')
+        session = self._sessions_cache.get(session_id, None)
+        if not session:
+            return
+        session['status'] = f'Submitted {scene} in {t:f}'
+        self.session_status_changed.emit(session)
 
     @QtCore.Slot(str, str)
-    def _hooks_error(self, session_id, err):
-        self._hooks_view.update_status(session_id, err)
+    def _hooks_error(self, session_id, error):
+        session = self._sessions_cache.get(session_id, None)
+        if not session:
+            return
+        session['status'] = error
+        self.session_status_changed.emit(session)

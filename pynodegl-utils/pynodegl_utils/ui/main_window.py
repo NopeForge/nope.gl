@@ -50,6 +50,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._module_pkgname = module_pkgname
         self._scripts_mgr = ScriptsManager(module_pkgname)
         self._hooks_caller = HooksCaller(hooks_scripts)
+        self._hooks_ctl = HooksController(self._get_scene, self._hooks_caller)
 
         get_scene_func = self._get_scene
 
@@ -63,7 +64,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         graph_view = GraphView(get_scene_func, self._config)
         export_view = ExportView(get_scene_func, self._config)
-        hooks_view = HooksView(self._hooks_caller, self._config)
+        hooks_view = HooksView(self._hooks_ctl, self._config)
         self._medias_view = MediasView(self._config)
         serial_view = SerialView(get_scene_func)
 
@@ -81,7 +82,6 @@ class MainWindow(QtWidgets.QSplitter):
             self._tab_widget.addTab(tab_view, tab_name)
         self._tab_widget.currentChanged.connect(self._currentTabChanged)
 
-        self._hooks_ctl = HooksController(self._get_scene, hooks_view, self._hooks_caller)
 
         self._scene_toolbar = Toolbar(self._config)
         self._scene_toolbar.sceneChanged.connect(self._scene_changed)

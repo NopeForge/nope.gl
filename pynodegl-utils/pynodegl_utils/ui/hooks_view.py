@@ -105,10 +105,10 @@ class HooksView(QtWidgets.QWidget):
 
     _COLUMNS = ('Session', 'Description', 'Backend', 'System', 'Status')
 
-    def __init__(self, hooks_caller, config=None):
+    def __init__(self, hooks_ctl, config=None):
         super().__init__()
 
-        self._hooks_caller = hooks_caller
+        self._hooks_ctl = hooks_ctl
 
         self._status_column = self._COLUMNS.index('Status')
 
@@ -121,6 +121,7 @@ class HooksView(QtWidgets.QWidget):
         self._view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self._view.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._view.verticalHeader().hide()
+        self._view.clicked.connect(self._toggle_session)
 
         self._auto_refresh_btn = QtWidgets.QCheckBox('Automatic refresh')
         self._auto_refresh_btn.setChecked(True)
@@ -138,15 +139,59 @@ class HooksView(QtWidgets.QWidget):
 
         self._auto_refresh_btn.clicked.connect(self._toggle_automatic_refresh)
 
-        self._data_cache = {}
         self._references = {}
+
+        self._hooks_ctl.session_added.connect(self._add_session)
+        self._hooks_ctl.session_removed.connect(self._remove_session)
+        self._hooks_ctl.session_status_changed.connect(self._update_session_status)
+
+        self._model.clear()
+        self._model.setHorizontalHeaderLabels(self._COLUMNS)
 
         self._refresh_timer = QtCore.QTimer(self)
         self._refresh_timer.setInterval(500)
         self._refresh_timer.timeout.connect(self._refresh)
         self._refresh_timer.start()
 
-        self._refresh()
+    @QtCore.Slot(object)
+    def _add_session(self, session):
+        row = [
+            QtGui.QStandardItem(session['sid']),
+            QtGui.QStandardItem(session['desc']),
+            QtGui.QStandardItem(session['backend']),
+            QtGui.QStandardItem(session['system']),
+            QtGui.QStandardItem(session['status']),
+        ]
+        row[0].setCheckable(True)
+        row[0].setCheckState(QtCore.Qt.Checked if session['enabled'] else QtCore.Qt.Unchecked)
+
+        self._model.appendRow(row)
+        self._view.resizeColumnsToContents()
+
+    @QtCore.Slot(str)
+    def _remove_session(self, session_id):
+        for i in range(self._model.rowCount()):
+            sid = self._model.item(i, 0)
+            if sid.text() == session_id:
+                self._model.removeRows(i, 1)
+                self._view.resizeColumnsToContents()
+                return
+
+    @QtCore.Slot(object)
+    def _update_session_status(self, session):
+        session_id = session['sid']
+        status = session['status']
+        for i in range(self._model.rowCount()):
+            sid = self._model.item(i, 0)
+            if sid.text() == session_id:
+                self._model.item(i, self._status_column).setText(status)
+        self._view.resizeColumnsToContents()
+
+    @QtCore.Slot(object)
+    def _toggle_session(self, obj):
+        item = self._model.item(obj.row(), 0)
+        enabled = item.checkState()
+        self._hooks_ctl.enable_session(item.text(), enabled)
 
     @QtCore.Slot()
     def _toggle_automatic_refresh(self):
@@ -158,53 +203,13 @@ class HooksView(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def _refresh(self):
-        self._data_cache.update(self.get_data_from_model())
-
-        self._model.clear()
-        self._model.setHorizontalHeaderLabels(self._COLUMNS)
-        self._references = {}
-        for row_id, (session_id, desc, backend, system) in enumerate(self._hooks_caller.get_sessions()):
-
-            # Memorized previous state
-            prev_session = self._data_cache.get(session_id, {})
-            checked = prev_session.get('checked', True)
-            status = prev_session.get('status', '')
-
-            row = [
-                QtGui.QStandardItem(session_id),
-                QtGui.QStandardItem(desc),
-                QtGui.QStandardItem(backend),
-                QtGui.QStandardItem(system),
-                QtGui.QStandardItem(status),
-            ]
-            row[0].setCheckable(True)
-            row[0].setCheckState(QtCore.Qt.Checked if checked else QtCore.Qt.Unchecked)
-
-            self._model.appendRow(row)
-            self._references[session_id] = row_id
-
-        self._view.resizeColumnsToContents()
-
-    def get_data_from_model(self):
-        data = {}
-        for row_id in range(self._model.rowCount()):
-            name_item, desc_item, backend_item, system_item, status_item = [self._model.item(row_id, i) for i in range(5)]
-            data[name_item.text()] = dict(
-                checked=True if name_item.checkState() else False,
-                desc=desc_item.text(),
-                backend=backend_item.text(),
-                system=system_item.text(),
-                status=status_item.text(),
-            )
-        return data
-
-    def update_status(self, id_, status):
-        self._model.item(self._references[id_], self._status_column).setText(status)
+        self._hooks_ctl.refresh_sessions()
 
 
 if __name__ == '__main__':
 
-    import random, string, sys, time
+    import random, string, sys
+    from pynodegl_utils.hooks import HooksController
 
 
     class DummyHooksCaller:
@@ -214,13 +219,15 @@ if __name__ == '__main__':
         def __init__(self):
             self._backend = self._random_word()
             self._system = self._random_word()
-            self._full_data = [data for data in self._get_random_data()]
+            self._full_data = {}
+            for data in self._get_random_data():
+                self._full_data[data['sid']] = data
 
         def _get_random_data(self, n=10):
             for row in range(n):
                 name = self._random_word()
                 desc = self._random_desc()
-                yield name, desc, self._backend, self._system
+                yield dict(sid=name, desc=desc, backend=self._backend, system=self._system)
 
         def _random_word(self, min_length=5, max_length=10):
             return ''.join(random.choice(string.ascii_lowercase) for x in range(random.randint(min_length, max_length))).title()
@@ -229,7 +236,11 @@ if __name__ == '__main__':
             return ' '.join(self._random_word() for x in range(random.randint(min_words, max_words))).title()
 
         def get_sessions(self):
-            return random.sample(self._full_data, random.randint(2, 8))
+            keys = random.sample(list(self._full_data.keys()), random.randint(2, 8))
+            return {key: self._full_data[key] for key in keys}
+
+        def get_session_info(self, session_id):
+            return self._full_data[session_id]
 
 
     class DummyWindow(QtWidgets.QWidget):
@@ -238,20 +249,23 @@ if __name__ == '__main__':
 
         def __init__(self):
             super().__init__()
-            self._hooks_view = HooksView(DummyHooksCaller())
-            action_btn = QtWidgets.QPushButton('Action!')
-            action_btn.clicked.connect(self._do_action)
+            self._hooks_ctl = HooksController(None, DummyHooksCaller())
+            self._hooks_view = HooksView(self._hooks_ctl)
+            action_btn = QtWidgets.QPushButton('Refresh sessions')
+            action_btn.clicked.connect(self._refresh)
             layout = QtWidgets.QVBoxLayout()
             layout.addWidget(self._hooks_view)
             layout.addWidget(action_btn)
             self.setLayout(layout)
 
         @QtCore.Slot()
-        def _do_action(self):
-            data = self._hooks_view.get_data_from_model()
-            for id_, data_row in data.items():
-                status = f"applied action at {time.time()}" if data_row['checked'] else ''
-                self._hooks_view.update_status(id_, status)
+        def _refresh(self):
+            self._hooks_ctl.refresh_sessions()
+
+        @QtCore.Slot(QtGui.QCloseEvent)
+        def closeEvent(self, close_event):
+            self._hooks_ctl.stop_threads()
+            super().closeEvent(close_event)
 
 
     app = QtWidgets.QApplication(sys.argv)
