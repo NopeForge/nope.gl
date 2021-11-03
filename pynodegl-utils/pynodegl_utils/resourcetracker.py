@@ -20,6 +20,7 @@
 # under the License.
 #
 
+import _io
 import sys
 import builtins
 import os.path as op
@@ -32,10 +33,17 @@ class ResourceTracker:
         self.filelist = set()
         self.modulelist = set()
         self._builtin_open = builtins.open
+        self._io_open = _io.open
         self._pysysdir = op.realpath(sysconfig.get_paths()['stdlib'])
 
     def _builtin_open_hook(self, file, *args, **kwargs):
         ret = self._builtin_open(file, *args, **kwargs)
+        if op.isfile(file):
+            self.filelist.update([op.realpath(file)])
+        return ret
+
+    def _io_open_hook(self, file, *args, **kwargs):
+        ret = self._io_open(file, *args, **kwargs)
         if op.isfile(file):
             self.filelist.update([op.realpath(file)])
         return ret
@@ -60,6 +68,7 @@ class ResourceTracker:
         self._start_modules = set(sys.modules.keys())
         self._start_files = self._get_trackable_files()
         builtins.open = self._builtin_open_hook
+        _io.open = self._io_open_hook
 
     def end_hooking(self):
         new_modules = set(sys.modules.keys()) - self._start_modules
@@ -67,3 +76,4 @@ class ResourceTracker:
         new_files = self._get_trackable_files() - self._start_files
         self.filelist.update(new_files)
         builtins.open = self._builtin_open
+        _io.open = self._io_open
