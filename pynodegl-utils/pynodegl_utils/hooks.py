@@ -25,7 +25,6 @@ import os
 import os.path as op
 import tempfile
 import time
-import platform
 
 from PySide2 import QtCore
 
@@ -212,19 +211,11 @@ class _SceneChangeWorker(QtCore.QObject):
             # communicated with additional parameters to the user
             # temfile.NamedTemporaryFile is not supported on Windows, see
             # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
-            if platform.system() == 'Windows':
-                fd, fname = tempfile.mkstemp(prefix='ngl_scene_', suffix='.ngl')
-                try:
-                    with os.fdopen(fd, "w", newline='\n') as f:
-                        f.write(serialized_scene)
-                    self._change_scene(fname, cfg, start_time)
-                finally:
-                    os.remove(fname)
-            else:
-                with tempfile.NamedTemporaryFile('w', prefix='ngl_scene_', suffix='.ngl', delete=True) as f:
-                    f.write(serialized_scene)
-                    f.flush()
-                    self._change_scene(f.name, cfg, start_time)
+            with tempfile.TemporaryDirectory(prefix="ngl_") as td:
+                fname = op.join(td, 'scene.ngl')
+                with open(fname, 'w', newline='\n') as fp:
+                    fp.write(serialized_scene)
+                self._change_scene(fname, cfg, start_time)
         except Exception as e:
             self.error.emit(self, session_id, 'Error: %s' % str(e))
 
