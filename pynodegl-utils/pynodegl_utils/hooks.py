@@ -209,7 +209,7 @@ class _SceneChangeWorker(QtCore.QObject):
 
             # The serialized scene is then stored in a file which is then
             # communicated with additional parameters to the user
-            # temfile.NamedTemporaryFile is not supported on Windows, see
+            # tempfile.NamedTemporaryFile has limitations on Windows, see
             # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
             with tempfile.TemporaryDirectory(prefix="ngl_") as td:
                 fname = op.join(td, 'scene.ngl')
