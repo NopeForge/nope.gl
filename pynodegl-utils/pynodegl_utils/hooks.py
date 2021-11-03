@@ -169,15 +169,6 @@ class _SceneChangeWorker(QtCore.QObject):
                 s += '%%%02x' % (cval & 0xff)
         return s
 
-    def _change_scene(self, scenefile, cfg, start_time):
-        self.sendingScene.emit(self._session_id, self._scene_id)
-        try:
-            self._hooks_caller.scene_change(self._session_id, scenefile, cfg)
-        except Exception as e:
-            self.error.emit(self, self._session_id, 'Error while sending scene: %s' % str(e))
-            return
-        self.success.emit(self, self._session_id, self._scene_id, time.time() - start_time)
-
     @QtCore.Slot()
     def _run(self):
         start_time = time.time()
@@ -215,7 +206,13 @@ class _SceneChangeWorker(QtCore.QObject):
                 fname = op.join(td, 'scene.ngl')
                 with open(fname, 'w', newline='\n') as fp:
                     fp.write(serialized_scene)
-                self._change_scene(fname, cfg, start_time)
+                self.sendingScene.emit(self._session_id, self._scene_id)
+                try:
+                    self._hooks_caller.scene_change(self._session_id, fname, cfg)
+                except Exception as e:
+                    self.error.emit(self, self._session_id, 'Error while sending scene: %s' % str(e))
+                    return
+                self.success.emit(self, self._session_id, self._scene_id, time.time() - start_time)
         except Exception as e:
             self.error.emit(self, session_id, 'Error: %s' % str(e))
 
