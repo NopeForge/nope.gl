@@ -12,11 +12,11 @@ digraph {
 
     node[color=lawngreen]
     specs [label="nodes.specs"]
-    c [label="pynodegl.c"]
+    c [label="_pynodegl.c"]
     pyx [label="nodes_def.pyx"]
 
     node[color=gold]
-    mod [label="pynodegl.so"]
+    mod [label="_pynodegl.so"]
 
     libnodegl -> specs [label="write"]
     pynodegl -> specs [label="read"]

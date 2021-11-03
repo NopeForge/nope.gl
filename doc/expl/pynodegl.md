@@ -37,22 +37,22 @@ definitions into a `nodes_def.pyx` file.
 ### nodes_def.pyx ← Cython
 
 The `distutils` module used to package `pynodegl` calls Cython to read the
-generated `.pyx` file (along with [pynodegl.pyx][pynodegl-pyx]).
+generated `.pyx` file (along with [_pynodegl.pyx][pynodegl-pyx]).
 
-### Cython → pynodegl.c
+### Cython → _pynodegl.c
 
 From the `.pyx` files, Cython will generate a C source code using the C
 Python API. This source file declares the Python classes calling the libnodegl
 C functions, based on the rules contained in the `.pyx` files.
 
-### pynodegl.c ← C compiler
+### _pynodegl.c ← C compiler
 
 In the Cython toolchain triggered by the `distutils`, a C compiler will compile
 the generated C source.
 
-### C compiler → pynodegl.so
+### C compiler → _pynodegl.so
 
 Compiled source ends up being linked against Python library to create a
-`pynodegl.so` loadable Python module.
+`_pynodegl.so` loadable Python module.
 
-[pynodegl-pyx]: /pynodegl/pynodegl.pyx
+[pynodegl-pyx]: /pynodegl/_pynodegl.pyx
