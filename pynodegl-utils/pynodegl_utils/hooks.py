@@ -134,7 +134,7 @@ class HooksCaller:
         return caller.sync_file(session_id, localfile)
 
 
-class _HooksWorker(QtCore.QObject):
+class _SceneChangeWorker(QtCore.QObject):
 
     process = QtCore.Signal()
 
@@ -255,9 +255,9 @@ class HooksController(QtCore.QObject):
             thread = self._threads[session_id]
             if not data_row['checked']:
                 continue
-            worker = _HooksWorker(self._get_scene_func, self._hooks_caller,
-                                  session_id, data_row['backend'], data_row['system'],
-                                  module_name, scene_name)
+            worker = _SceneChangeWorker(self._get_scene_func, self._hooks_caller,
+                                        session_id, data_row['backend'], data_row['system'],
+                                        module_name, scene_name)
             worker.uploadingFile.connect(self._hooks_uploading)
             worker.buildingScene.connect(self._hooks_building_scene)
             worker.sendingScene.connect(self._hooks_sending_scene)
