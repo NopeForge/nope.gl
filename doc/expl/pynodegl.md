@@ -36,7 +36,7 @@ definitions into a `nodes_def.pyx` file.
 
 ### nodes_def.pyx ← Cython
 
-The `distutils` module used to package `pynodegl` calls Cython to read the
+The `setuptools` module used to package `pynodegl` calls Cython to read the
 generated `.pyx` file (along with [_pynodegl.pyx][pynodegl-pyx]).
 
 ### Cython → _pynodegl.c
@@ -47,7 +47,7 @@ C functions, based on the rules contained in the `.pyx` files.
 
 ### _pynodegl.c ← C compiler
 
-In the Cython toolchain triggered by the `distutils`, a C compiler will compile
+In the Cython toolchain triggered by the `setuptools`, a C compiler will compile
 the generated C source.
 
 ### C compiler → _pynodegl.so
