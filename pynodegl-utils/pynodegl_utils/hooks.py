@@ -141,7 +141,7 @@ class _HooksWorker(QtCore.QObject):
     uploadingFile = QtCore.Signal(str, int, int, str)
     buildingScene = QtCore.Signal(str, str, str)
     sendingScene = QtCore.Signal(str, str)
-    done = QtCore.Signal(object, str, str, float)
+    success = QtCore.Signal(object, str, str, float)
     error = QtCore.Signal(object, str, str)
 
     def __init__(self, get_scene_func, hooks_caller, session_id, backend, system, module_name, scene_name):
@@ -177,7 +177,7 @@ class _HooksWorker(QtCore.QObject):
         except Exception as e:
             self.error.emit(self, self._session_id, 'Error while sending scene: %s' % str(e))
             return
-        self.done.emit(self, self._session_id, self._scene_id, time.time() - start_time)
+        self.success.emit(self, self._session_id, self._scene_id, time.time() - start_time)
 
     @QtCore.Slot()
     def _run(self):
@@ -261,7 +261,7 @@ class HooksController(QtCore.QObject):
             worker.uploadingFile.connect(self._hooks_uploading)
             worker.buildingScene.connect(self._hooks_building_scene)
             worker.sendingScene.connect(self._hooks_sending_scene)
-            worker.done.connect(self._hooks_done)
+            worker.success.connect(self._hooks_success)
             worker.error.connect(self._hooks_error)
             self._workers.append(worker)
             worker.moveToThread(thread)
@@ -280,7 +280,7 @@ class HooksController(QtCore.QObject):
         self._hooks_view.update_status(session_id, 'Sending scene %s...' % scene)
 
     @QtCore.Slot(object, str, str, float)
-    def _hooks_done(self, worker, session_id, scene, t):
+    def _hooks_success(self, worker, session_id, scene, t):
         self._workers.remove(worker)
         self._hooks_view.update_status(session_id, f'Submitted {scene} in {t:f}')
 
