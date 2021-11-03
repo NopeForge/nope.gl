@@ -34,7 +34,7 @@ class ResourceTracker:
         self._builtin_open = builtins.open
         self._pysysdir = op.realpath(sysconfig.get_paths()['stdlib'])
 
-    def _open_hook(self, file, *args, **kwargs):
+    def _builtin_open_hook(self, file, *args, **kwargs):
         ret = self._builtin_open(file, *args, **kwargs)
         if op.isfile(file):
             self.filelist.update([op.realpath(file)])
@@ -59,7 +59,7 @@ class ResourceTracker:
     def start_hooking(self):
         self._start_modules = set(sys.modules.keys())
         self._start_files = self._get_trackable_files()
-        builtins.open = self._open_hook
+        builtins.open = self._builtin_open_hook
 
     def end_hooking(self):
         new_modules = set(sys.modules.keys()) - self._start_modules
