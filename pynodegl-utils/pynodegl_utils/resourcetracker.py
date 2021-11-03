@@ -23,7 +23,7 @@
 import sys
 import builtins
 import os.path as op
-import distutils.sysconfig
+import sysconfig
 
 
 class ResourceTracker:
@@ -32,7 +32,7 @@ class ResourceTracker:
         self.filelist = set()
         self.modulelist = set()
         self._builtin_open = builtins.open
-        self._pysysdir = op.realpath(distutils.sysconfig.get_python_lib(standard_lib=True))
+        self._pysysdir = op.realpath(sysconfig.get_paths()['stdlib'])
 
     def _open_hook(self, name, *args, **kwargs):
         ret = self._builtin_open(name, *args, **kwargs)
