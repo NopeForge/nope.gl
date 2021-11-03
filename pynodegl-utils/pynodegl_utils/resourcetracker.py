@@ -77,3 +77,18 @@ class ResourceTracker:
         self.filelist.update(new_files)
         builtins.open = self._builtin_open
         _io.open = self._io_open
+
+
+if __name__ == '__main__':
+    import pkgutil
+
+    tracker = ResourceTracker()
+    tracker.start_hooking()
+
+    open(op.join(op.dirname(__file__), 'examples', 'shaders', 'texture.vert'))
+    pkgutil.get_data('pynodegl_utils.examples.shaders', 'texture.frag')
+
+    tracker.end_hooking()
+
+    import pprint
+    pprint.pprint(tracker.filelist)
