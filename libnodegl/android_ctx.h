@@ -34,6 +34,7 @@ struct android_ctx {
     /* AImage */
     void (*AImage_delete)(AImage *image);
     media_status_t (*AImage_getHardwareBuffer)(const AImage *image, AHardwareBuffer **buffer);
+    media_status_t (*AImage_getCropRect)(const AImage *image, AImageCropRect *rect);
 
     /* AImageReader */
     media_status_t (*AImageReader_new)(int32_t width, int32_t height, int32_t format, int32_t maxImages, AImageReader **reader);

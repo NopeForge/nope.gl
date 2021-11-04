@@ -56,6 +56,16 @@ AHardwareBuffer *ngli_android_image_get_hardware_buffer(struct android_image *s)
     return hardware_buffer;
 }
 
+int ngli_android_image_get_crop_rect(struct android_image *s, AImageCropRect *rect)
+{
+    struct android_ctx *android_ctx = s->android_ctx;
+
+    media_status_t status = android_ctx->AImage_getCropRect(s->image, rect);
+    if (status != AMEDIA_OK)
+        return NGL_ERROR_EXTERNAL;
+    return 0;
+}
+
 void ngli_android_image_freep(struct android_image **sp)
 {
     if (!*sp)

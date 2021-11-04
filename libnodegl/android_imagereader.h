@@ -50,6 +50,7 @@ enum {
 struct android_image;
 
 AHardwareBuffer *ngli_android_image_get_hardware_buffer(struct android_image *s);
+int ngli_android_image_get_crop_rect(struct android_image *s, AImageCropRect *rect);
 void ngli_android_image_freep(struct android_image **sp);
 
 struct android_imagereader;
