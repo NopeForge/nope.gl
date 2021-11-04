@@ -66,7 +66,10 @@ class ScriptsManager(QtCore.QObject):
         for path in self._dirs_to_watch:
             if path == '':
                 path = '.'
-            self._observer.schedule(self._event_handler, path)
+            try:
+                self._observer.schedule(self._event_handler, path)
+            except Exception as e:
+                print(f"Failed to schedule watch for {path}: {e}")
 
     def pause(self):
         self._observer.unschedule_all()
