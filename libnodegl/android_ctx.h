@@ -46,6 +46,9 @@ struct android_ctx {
     /* ANativeWindow */
     jobject (*ANativeWindow_toSurface)(JNIEnv* env, ANativeWindow* window);
 
+    /* AHardwareBuffer */
+    void (*AHardwareBuffer_describe)(const AHardwareBuffer *buffer, AHardwareBuffer_Desc *outDesc);
+
     int has_native_imagereader_api;
 };
 
