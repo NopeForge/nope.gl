@@ -105,7 +105,7 @@ class HooksView(QtWidgets.QWidget):
 
     _COLUMNS = ('Session', 'Description', 'Backend', 'System', 'Status')
 
-    def __init__(self, hooks_caller, config):
+    def __init__(self, hooks_caller, config=None):
         super().__init__()
 
         self._hooks_caller = hooks_caller
@@ -125,14 +125,14 @@ class HooksView(QtWidgets.QWidget):
         self._auto_refresh_btn = QtWidgets.QCheckBox('Automatic refresh')
         self._auto_refresh_btn.setChecked(True)
 
-        spawn_view = _SpawnView(config)
-
         hbox = QtWidgets.QHBoxLayout()
         hbox.addStretch()
         hbox.addWidget(self._auto_refresh_btn)
 
         serial_layout = QtWidgets.QVBoxLayout(self)
-        serial_layout.addWidget(spawn_view)
+        if config:
+            spawn_view = _SpawnView(config)
+            serial_layout.addWidget(spawn_view)
         serial_layout.addLayout(hbox)
         serial_layout.addWidget(self._view)
 
