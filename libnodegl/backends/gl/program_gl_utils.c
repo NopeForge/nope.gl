@@ -37,6 +37,7 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
 
     const struct pipeline_attribute_desc *attribute_descs = ngli_darray_data(&crafter->filtered_pipeline_info.desc.attributes);
     const char *name = NULL;
+    int need_relink = 0;
     for (int i = 0; i < ngli_darray_count(&crafter->filtered_pipeline_info.desc.attributes); i++) {
         const struct pipeline_attribute_desc *attribute_desc = &attribute_descs[i];
         if (name && !strcmp(name, attribute_desc->name))
@@ -44,10 +45,13 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
         name = attribute_desc->name;
         ngli_glBindAttribLocation(gl, s_priv->id, attribute_desc->location, attribute_desc->name);
         struct program_variable_info *info = ngli_hmap_get(s->attributes, attribute_desc->name);
-        if (info)
+        if (info && info->location != attribute_desc->location) {
             info->location = attribute_desc->location;
+            need_relink = 1;
+        }
     }
-    ngli_glLinkProgram(gl, s_priv->id);
+    if (need_relink)
+        ngli_glLinkProgram(gl, s_priv->id);
 
     const struct pipeline_buffer_desc *buffer_descs = ngli_darray_data(&crafter->filtered_pipeline_info.desc.buffers);
     for (int i = 0; i < ngli_darray_count(&crafter->filtered_pipeline_info.desc.buffers); i++) {
