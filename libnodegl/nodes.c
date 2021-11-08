@@ -555,17 +555,24 @@ static int node_prefetch(struct ngl_node *node)
 int ngli_node_honor_release_prefetch(struct darray *nodes_array)
 {
     struct ngl_node **nodes = ngli_darray_data(nodes_array);
+
+    /* Release nodes starting from the parents (root) down to the children (leaves) */
+    for (int i = 0; i < ngli_darray_count(nodes_array); i++) {
+        struct ngl_node *node = nodes[ngli_darray_count(nodes_array) - i - 1];
+        if (!node->is_active)
+            node_release(node);
+    }
+
+    /* Prefetch nodes starting from the children (leaves) up to the parents (root) */
     for (int i = 0; i < ngli_darray_count(nodes_array); i++) {
         struct ngl_node *node = nodes[i];
-
         if (node->is_active) {
             int ret = node_prefetch(node);
             if (ret < 0)
                 return ret;
-        } else {
-            node_release(node);
         }
     }
+
     return 0;
 }
 
