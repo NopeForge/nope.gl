@@ -595,6 +595,8 @@ int ngl_backends_get(const struct ngl_config *user_config, int *nb_backendsp, st
 void ngl_backends_freep(struct ngl_backend **backendsp)
 {
     struct ngl_backend *backends = *backendsp;
+    if (!backends)
+        return;
     for (int i = 0; i < NGLI_ARRAY_NB(backend_ids); i++)
         ngli_free(backends[i].caps);
     ngli_freep(backendsp);
