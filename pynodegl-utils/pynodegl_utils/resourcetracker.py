@@ -26,6 +26,8 @@ import builtins
 import os.path as op
 import sysconfig
 
+from .config import Config
+
 
 class ResourceTracker:
 
@@ -35,11 +37,15 @@ class ResourceTracker:
         self._builtin_open = builtins.open
         self._io_open = _io.open
         self._pysysdir = op.realpath(sysconfig.get_paths()['stdlib'])
+        self._configfile = op.realpath(Config.FILEPATH)
 
     def _register_file(self, file):
         if not op.isfile(file):
             return
-        self.filelist.update([op.realpath(file)])
+        file = op.realpath(file)
+        if file == self._configfile:
+            return
+        self.filelist.update([file])
 
     def _builtin_open_hook(self, file, *args, **kwargs):
         ret = self._builtin_open(file, *args, **kwargs)
