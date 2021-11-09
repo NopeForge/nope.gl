@@ -29,6 +29,7 @@ from .misc import get_nodegl_tempdir
 
 class Config(QtCore.QObject):
 
+    FILEPATH = op.join(os.environ.get('XDG_DATA_HOME', op.expanduser('~/.local/share')), 'node.gl', 'controller.json')
     CHOICES = {
         'aspect_ratio': [
             (16, 9),
@@ -85,9 +86,8 @@ class Config(QtCore.QObject):
         self._module_pkgname = module_pkgname
         self._needs_saving = False
 
-        config_filepath = self._get_config_filepath()
-        if op.exists(config_filepath):
-            with open(config_filepath) as f:
+        if op.exists(self.FILEPATH):
+            with open(self.FILEPATH) as f:
                 self._cfg.update(self._sanitized_config(json.load(f)))
         else:
             self._needs_saving = True
@@ -109,21 +109,15 @@ class Config(QtCore.QObject):
                 print(f'warning: {value} not allowed for {key}')
         return out_cfg
 
-    def _get_config_filepath(self):
-        config_basedir = os.environ.get('XDG_DATA_HOME', op.expanduser('~/.local/share'))
-        config_dir = op.join(config_basedir, 'node.gl')
-        return op.join(config_dir, 'controller.json')
-
     @QtCore.Slot()
     def _check_config(self):
         if not self._needs_saving:
             return
 
-        config_filepath = self._get_config_filepath()
-        config_dir = op.dirname(config_filepath)
+        config_dir = op.dirname(self.FILEPATH)
         os.makedirs(config_dir, exist_ok=True)
 
-        config_file = open(config_filepath, 'w')
+        config_file = open(self.FILEPATH, 'w')
         json.dump(self._cfg, config_file, indent=4)
         config_file.close()
 
