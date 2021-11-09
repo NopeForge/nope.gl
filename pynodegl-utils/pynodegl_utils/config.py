@@ -128,6 +128,8 @@ class Config(QtCore.QObject):
         return tuple(ret) if isinstance(ret, list) else ret
 
     def _set_cfg(self, key, value):
+        if self._cfg.get(key) == value:
+            return
         self._cfg[key] = value
         self._needs_saving = True
 
