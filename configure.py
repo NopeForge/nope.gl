@@ -406,7 +406,7 @@ def _get_make_vars(cfg):
     ]
     if cfg.args.coverage:
         meson_setup += ['-Db_coverage=true']
-    if _SYSTEM != 'MinGW':
+    if _SYSTEM != 'MinGW' and 'debug' not in cfg.args.buildtype:
         meson_setup += ['-Db_lto=true']
 
     if _SYSTEM == 'Windows':
