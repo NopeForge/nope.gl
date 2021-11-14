@@ -77,8 +77,6 @@ struct text_priv {
     int nb_indices;
 
     struct buffer *bg_vertices;
-    struct buffer *bg_indices;
-    int nb_bg_indices;
 
     struct darray pipeline_descs;
     int live_changed;
@@ -388,29 +386,21 @@ static int init_bounding_box_geometry(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct text_priv *s = node->priv_data;
 
-    static const short indices[] = { 0, 1, 2, 0, 2, 3 };
     const float vertices[] = {
         BC(0),                 BC(1),                 BC(2),
         BC(0) + BW(0),         BC(1) + BW(1),         BC(2) + BW(2),
-        BC(0) + BH(0) + BW(0), BC(1) + BH(1) + BW(1), BC(2) + BH(2) + BW(2),
         BC(0) + BH(0),         BC(1) + BH(1),         BC(2) + BH(2),
+        BC(0) + BH(0) + BW(0), BC(1) + BH(1) + BW(1), BC(2) + BH(2) + BW(2),
     };
 
     s->bg_vertices = ngli_buffer_create(gpu_ctx);
-    s->bg_indices  = ngli_buffer_create(gpu_ctx);
-    if (!s->bg_vertices || !s->bg_indices)
+    if (!s->bg_vertices)
         return NGL_ERROR_MEMORY;
 
     int ret;
     if ((ret = ngli_buffer_init(s->bg_vertices, sizeof(vertices), VERTEX_USAGE_FLAGS)) < 0 ||
-        (ret = ngli_buffer_init(s->bg_indices,  sizeof(indices),  INDEX_USAGE_FLAGS)) < 0)
+        (ret = ngli_buffer_upload(s->bg_vertices, vertices, sizeof(vertices), 0)) < 0)
         return ret;
-
-    if ((ret = ngli_buffer_upload(s->bg_vertices, vertices, sizeof(vertices), 0)) < 0 ||
-        (ret = ngli_buffer_upload(s->bg_indices,  indices,  sizeof(indices), 0)) < 0)
-        return ret;
-
-    s->nb_bg_indices = NGLI_ARRAY_NB(indices);
 
     return 0;
 }
@@ -542,7 +532,7 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     struct pipeline_params pipeline_params = {
         .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics      = {
-            .topology       = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+            .topology       = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
             .state          = rnode->graphicstate,
             .rt_desc        = rnode->rendertarget_desc,
         }
@@ -695,7 +685,7 @@ static void text_draw(struct ngl_node *node)
     ngli_pipeline_update_uniform(bg_desc->pipeline, bg_desc->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_update_uniform(bg_desc->pipeline, bg_desc->projection_matrix_index, projection_matrix);
     ngli_pipeline_update_uniform(bg_desc->pipeline, bg_desc->color_index, s->bg_color);
-    ngli_pipeline_draw_indexed(bg_desc->pipeline, s->bg_indices, NGLI_FORMAT_R16_UNORM, s->nb_bg_indices, 1);
+    ngli_pipeline_draw(bg_desc->pipeline, 4, 1);
 
     if (s->nb_indices) {
         struct pipeline_subdesc *fg_desc = &desc->fg;
@@ -720,7 +710,6 @@ static void text_uninit(struct ngl_node *node)
     }
     ngli_darray_reset(&s->pipeline_descs);
     ngli_buffer_freep(&s->bg_vertices);
-    ngli_buffer_freep(&s->bg_indices);
     ngli_buffer_freep(&s->vertices);
     ngli_buffer_freep(&s->uvcoords);
     ngli_buffer_freep(&s->indices);
