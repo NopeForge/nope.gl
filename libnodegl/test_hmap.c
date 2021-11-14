@@ -50,6 +50,9 @@ static const struct {
     {"lorem",   "ipsum"},
     {"bazbaz",  ""},
     {"abc",     "def"},
+    /* the two following entries have the same CRC */
+    {"codding", "data#0"},
+    {"gnu",     "data#1"},
     {"last",    "samurai"},
 };
 
@@ -74,6 +77,8 @@ static void check_order(const struct hmap *hm)
 
 int main(void)
 {
+    ngli_assert(ngli_crc32("codding") == ngli_crc32("gnu"));
+
     for (int custom_alloc = 0; custom_alloc <= 1; custom_alloc++) {
         struct hmap *hm = ngli_hmap_create();
 
