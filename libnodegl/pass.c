@@ -66,7 +66,7 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
         crafter_uniform.type  = buffer_priv->layout.type;
         crafter_uniform.count = buffer_priv->layout.count;
         crafter_uniform.data  = buffer_priv->data;
-    } else if (uniform->cls->category == NGLI_NODE_CATEGORY_UNIFORM) {
+    } else if (uniform->cls->category == NGLI_NODE_CATEGORY_VARIABLE) {
         struct variable_priv *variable_priv = uniform->priv_data;
         crafter_uniform.type  = variable_priv->data_type;
         crafter_uniform.data  = variable_priv->data;
@@ -373,7 +373,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
 static int register_resource(struct pass *s, const char *name, struct ngl_node *node, int stage)
 {
     switch (node->cls->category) {
-    case NGLI_NODE_CATEGORY_UNIFORM:
+    case NGLI_NODE_CATEGORY_VARIABLE:
     case NGLI_NODE_CATEGORY_BUFFER:  return register_uniform(s, name, node, stage);
     case NGLI_NODE_CATEGORY_TEXTURE: return register_texture(s, name, node, stage);
     case NGLI_NODE_CATEGORY_BLOCK:   return register_block(s, name, node, stage);

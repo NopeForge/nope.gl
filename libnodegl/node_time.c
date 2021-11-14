@@ -42,7 +42,7 @@ static int time_update(struct ngl_node *node, double t)
 
 const struct node_class ngli_time_class = {
     .id        = NGL_NODE_TIME,
-    .category  = NGLI_NODE_CATEGORY_UNIFORM,
+    .category  = NGLI_NODE_CATEGORY_VARIABLE,
     .name      = "Time",
     .init      = time_init,
     .update    = time_update,

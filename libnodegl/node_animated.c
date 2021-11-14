@@ -346,7 +346,7 @@ static int animatedquat_update(struct ngl_node *node, double t)
 #define DEFINE_ANIMATED_CLASS(class_id, class_name, type)       \
 const struct node_class ngli_animated##type##_class = {         \
     .id        = class_id,                                      \
-    .category  = NGLI_NODE_CATEGORY_UNIFORM,                    \
+    .category  = NGLI_NODE_CATEGORY_VARIABLE,                   \
     .name      = class_name,                                    \
     .init      = animated##type##_init,                         \
     .update    = animated##type##_update,                       \

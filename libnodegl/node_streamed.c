@@ -190,7 +190,7 @@ DECLARE_STREAMED_INIT(mat4,   s->matrix,  sizeof(s->matrix),       NGLI_TYPE_MAT
 #define DECLARE_STREAMED_CLASS(class_id, class_name, class_suffix)          \
 const struct node_class ngli_streamed##class_suffix##_class = {             \
     .id        = class_id,                                                  \
-    .category  = NGLI_NODE_CATEGORY_UNIFORM,                                \
+    .category  = NGLI_NODE_CATEGORY_VARIABLE,                               \
     .name      = class_name,                                                \
     .init      = streamed##class_suffix##_init,                             \
     .update    = streamed_update,                                           \

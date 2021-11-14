@@ -183,7 +183,7 @@ static int velocity##type##_init(struct ngl_node *node)                         
                                                                                 \
 const struct node_class ngli_velocity##type##_class = {                         \
     .id        = class_id,                                                      \
-    .category  = NGLI_NODE_CATEGORY_UNIFORM,                                    \
+    .category  = NGLI_NODE_CATEGORY_VARIABLE,                                   \
     .name      = class_name,                                                    \
     .init      = velocity##type##_init,                                         \
     .update    = velocity_update,                                               \

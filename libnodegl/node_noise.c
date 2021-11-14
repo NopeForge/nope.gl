@@ -132,7 +132,7 @@ static int noise##type##_init(struct ngl_node *node)                        \
                                                                             \
 const struct node_class ngli_noise##type##_class = {                        \
     .id        = class_id,                                                  \
-    .category  = NGLI_NODE_CATEGORY_UNIFORM,                                \
+    .category  = NGLI_NODE_CATEGORY_VARIABLE,                               \
     .name      = class_name,                                                \
     .init      = noise##type##_init,                                        \
     .update    = noise##type##_update,                                      \
