@@ -21,7 +21,6 @@
 
 #include <string.h>
 
-#include "darray.h"
 #include "nodegl.h"
 #include "internal.h"
 #include "math_utils.h"
