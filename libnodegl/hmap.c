@@ -90,11 +90,27 @@ static struct hmap_ref ref_from_entry(const struct hmap *hm, const struct hmap_e
     return ref;
 }
 
-static struct hmap_entry *fixed_entry_from_ref(const struct hmap *hm, struct hmap_ref ref, struct hmap_ref removed)
+static struct hmap_entry *fixed_entry_from_ref(const struct hmap *hm, struct hmap_ref ref,
+                                               struct hmap_ref removed, int current_id)
 {
     if (!HAS_REF(ref))
         return NULL;
-    const int need_fix = ref.bucket_id == removed.bucket_id && ref.entry_id > removed.entry_id;
+    const int need_fix =
+        /* Only the current bucket has entry references shifted */
+        ref.bucket_id == removed.bucket_id &&
+        /* Only the entries after the removed one are shifted */
+        ref.entry_id > removed.entry_id
+        /*
+         * The following last condition prevents from fixing the reference
+         * twice (and thus decrementing too much): if the passed reference
+         * `ref` (be it a next or prev, it doesn't matter) is located earlier
+         * in the current bucket, it means the complementary reference (prev if
+         * next, next if prev) in that particular entry was for sure already
+         * fixed. Indeed, since the current entry points to it, it means that
+         * the referred entry was also pointing to the current entry with its
+         * complementary reference.
+         */
+        && current_id < ref.entry_id - 1;
     const int entry_id = ref.entry_id - need_fix;
     return &hm->buckets[ref.bucket_id].entries[entry_id];
 }
@@ -113,8 +129,8 @@ static void fix_refs(struct hmap *hm, struct bucket *b, struct hmap_ref removed)
 {
     for (int i = removed.entry_id; i < b->nb_entries; i++) {
         struct hmap_entry *e = &b->entries[i];
-        struct hmap_entry *prev = fixed_entry_from_ref(hm, e->prev, removed);
-        struct hmap_entry *next = fixed_entry_from_ref(hm, e->next, removed);
+        struct hmap_entry *prev = fixed_entry_from_ref(hm, e->prev, removed, i);
+        struct hmap_entry *next = fixed_entry_from_ref(hm, e->next, removed, i);
         struct hmap_ref *prev_ref = prev ? &prev->next : &hm->first;
         struct hmap_ref *next_ref = next ? &next->prev : &hm->last;
         prev_ref->entry_id--;
