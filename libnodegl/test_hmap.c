@@ -30,7 +30,8 @@
     printf(__VA_ARGS__);                                        \
     const struct hmap_entry *e = NULL;                          \
     while ((e = ngli_hmap_next(hm, e)))                         \
-        printf("  %s: %s\n", e->key, (const char *)e->data);    \
+        printf("  %08X %s: %s\n", ngli_crc32(e->key),           \
+               e->key, (const char *)e->data);                  \
     printf("\n");                                               \
 } while (0)
 
