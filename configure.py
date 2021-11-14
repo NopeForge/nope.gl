@@ -324,8 +324,8 @@ def _rd(d):
 def _clean_py(cfg):
     return [
         _rm(op.join('pynodegl', 'nodes_def.pyx')),
-        _rm(op.join('pynodegl', 'pynodegl.c')),
-        _rm(op.join('pynodegl', 'pynodegl.*.so')),
+        _rm(op.join('pynodegl', '_pynodegl.c')),
+        _rm(op.join('pynodegl', '_pynodegl.*.so')),
         _rm(op.join('pynodegl', 'pynodegl.*.pyd')),
         _rm(op.join('pynodegl', 'pynodegl/specs.py')),
         _rd(op.join('pynodegl', 'build')),
