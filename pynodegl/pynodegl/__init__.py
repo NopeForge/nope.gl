@@ -104,7 +104,7 @@ def _create_set_node(param_name):
 def _init_param(self, param_name, param_type, value):
     if ('vec' in param_type or param_type == 'mat4') and not isinstance(value, _Node):
         getattr(self, f'set_{param_name}')(*value)
-    elif param_type == 'dict':
+    elif param_type == 'node_dict':
         getattr(self, f'update_{param_name}')(value)
     elif param_type.endswith('_list'):
         getattr(self, f'add_{param_name}')(*value)
