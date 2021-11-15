@@ -339,7 +339,7 @@ static int rtt_prefetch(struct ngl_node *node)
                 return ret;
             rt_params.depth_stencil.attachment = depth;
             rt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
-            rt_params.depth_stencil.store_op = s->use_rt_resume ? NGLI_STORE_OP_STORE : NGLI_LOAD_OP_DONT_CARE;
+            rt_params.depth_stencil.store_op = s->use_rt_resume ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
         }
     }
 
@@ -358,7 +358,7 @@ static int rtt_prefetch(struct ngl_node *node)
         for (int i = 0; i < rt_params.nb_colors; i++)
             rt_params.colors[i].load_op = NGLI_LOAD_OP_LOAD;
         rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
-        rt_params.depth_stencil.store_op = s->depth_texture ? NGLI_STORE_OP_STORE : NGLI_LOAD_OP_DONT_CARE;
+        rt_params.depth_stencil.store_op = s->depth_texture ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
 
         s->rt_resume = ngli_rendertarget_create(gpu_ctx);
         if (!s->rt_resume)
