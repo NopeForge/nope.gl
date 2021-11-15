@@ -50,7 +50,11 @@ struct gpu_ctx_gl {
     struct rendertarget *rendertarget;
     int viewport[4];
     int scissor[4];
+    /* default rendertarget with load op set to clear */
     struct rendertarget *rt;
+    /* default rendertarget with load op set to load, useful for resuming the
+     * associated renderpass (without discarding its attachments) */
+    struct rendertarget *rt_load;
     /* Offscreen render target resources */
     struct texture *color;
     struct texture *ms_color;

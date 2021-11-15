@@ -49,7 +49,7 @@ struct gpu_ctx_class {
     void (*transform_projection_matrix)(struct gpu_ctx *s, float *dst);
     void (*get_rendertarget_uvcoord_matrix)(struct gpu_ctx *s, float *dst);
 
-    struct rendertarget *(*get_default_rendertarget)(struct gpu_ctx *s);
+    struct rendertarget *(*get_default_rendertarget)(struct gpu_ctx *s, int load_op);
     const struct rendertarget_desc *(*get_default_rendertarget_desc)(struct gpu_ctx *s);
 
     void (*begin_render_pass)(struct gpu_ctx *s, struct rendertarget *rt);
@@ -123,7 +123,7 @@ int ngli_gpu_ctx_transform_cull_mode(struct gpu_ctx *s, int cull_mode);
 void ngli_gpu_ctx_transform_projection_matrix(struct gpu_ctx *s, float *dst);
 void ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(struct gpu_ctx *s, float *dst);
 
-struct rendertarget *ngli_gpu_ctx_get_default_rendertarget(struct gpu_ctx *s);
+struct rendertarget *ngli_gpu_ctx_get_default_rendertarget(struct gpu_ctx *s, int load_op);
 const struct rendertarget_desc *ngli_gpu_ctx_get_default_rendertarget_desc(struct gpu_ctx *s);
 
 void ngli_gpu_ctx_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt);

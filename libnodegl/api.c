@@ -311,16 +311,22 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
 
     const int64_t cpu_start_time = s->hud ? ngli_gettime_relative() : 0;
 
-    struct rendertarget *rt = ngli_gpu_ctx_get_default_rendertarget(s->gpu_ctx);
+    struct rendertarget *rt = ngli_gpu_ctx_get_default_rendertarget(s->gpu_ctx, NGLI_LOAD_OP_CLEAR);
+    struct rendertarget *rt_resume = ngli_gpu_ctx_get_default_rendertarget(s->gpu_ctx, NGLI_LOAD_OP_LOAD);
     s->available_rendertargets[0] = rt;
-    s->available_rendertargets[1] = rt;
+    s->available_rendertargets[1] = rt_resume;
     s->current_rendertarget = rt;
-    s->begin_render_pass = 0;
+    s->begin_render_pass = 1;
 
     struct ngl_node *scene = s->scene;
     if (scene) {
         LOG(DEBUG, "draw scene %s @ t=%f", scene->label, t);
         ngli_node_draw(scene);
+    }
+
+    if (s->begin_render_pass) {
+        ngli_gpu_ctx_begin_render_pass(s->gpu_ctx, s->current_rendertarget);
+        s->begin_render_pass = 0;
     }
 
     if (s->hud) {

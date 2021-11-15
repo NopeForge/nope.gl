@@ -234,7 +234,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         .colors[0] = {
             .attachment     = config->samples ? s_priv->ms_color : s_priv->color,
             .resolve_target = config->samples ? s_priv->color    : NULL,
-            .load_op        = NGLI_LOAD_OP_LOAD,
+            .load_op        = NGLI_LOAD_OP_CLEAR,
             .clear_value[0] = config->clear_color[0],
             .clear_value[1] = config->clear_color[1],
             .clear_value[2] = config->clear_color[2],
@@ -243,7 +243,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         },
         .depth_stencil = {
             .attachment = s_priv->depth,
-            .load_op    = NGLI_LOAD_OP_LOAD,
+            .load_op    = NGLI_LOAD_OP_CLEAR,
             .store_op   = NGLI_STORE_OP_STORE,
         },
         .readable = 1,
@@ -252,7 +252,21 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
     s_priv->rt = ngli_rendertarget_create(s);
     if (!s_priv->rt)
         return NGL_ERROR_MEMORY;
+
     ret = ngli_rendertarget_init(s_priv->rt, &rt_params);
+    if (ret < 0)
+        return ret;
+
+    rt_params.colors[0].load_op = NGLI_LOAD_OP_LOAD;
+    rt_params.colors[0].store_op = NGLI_STORE_OP_STORE;
+    rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
+    rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
+
+    s_priv->rt_load = ngli_rendertarget_create(s);
+    if (!s_priv->rt_load)
+        return NGL_ERROR_MEMORY;
+
+    ret = ngli_rendertarget_init(s_priv->rt_load, &rt_params);
     if (ret < 0)
         return ret;
 
@@ -273,14 +287,14 @@ static int onscreen_rendertarget_init(struct gpu_ctx *s)
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     const struct ngl_config *config = &s->config;
 
-    const struct rendertarget_params rt_params = {
+    struct rendertarget_params rt_params = {
         .width = config->width,
         .height = config->height,
         .nb_colors = 1,
         .colors[0] = {
             .attachment     = NULL,
             .resolve_target = NULL,
-            .load_op        = NGLI_LOAD_OP_LOAD,
+            .load_op        = NGLI_LOAD_OP_CLEAR,
             .clear_value[0] = config->clear_color[0],
             .clear_value[1] = config->clear_color[1],
             .clear_value[2] = config->clear_color[2],
@@ -289,7 +303,7 @@ static int onscreen_rendertarget_init(struct gpu_ctx *s)
         },
         .depth_stencil = {
             .attachment = NULL,
-            .load_op    = NGLI_LOAD_OP_LOAD,
+            .load_op    = NGLI_LOAD_OP_CLEAR,
             .store_op   = NGLI_STORE_OP_STORE,
         },
     };
@@ -298,13 +312,31 @@ static int onscreen_rendertarget_init(struct gpu_ctx *s)
     if (!s_priv->rt)
         return NGL_ERROR_MEMORY;
 
-    return ngli_default_rendertarget_gl_init(s_priv->rt, &rt_params);
+    int ret = ngli_default_rendertarget_gl_init(s_priv->rt, &rt_params);
+    if (ret < 0)
+        return ret;
+
+    rt_params.colors[0].load_op = NGLI_LOAD_OP_LOAD;
+    rt_params.colors[0].store_op = NGLI_STORE_OP_STORE;
+    rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
+    rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
+
+    s_priv->rt_load = ngli_rendertarget_create(s);
+    if (!s_priv->rt_load)
+        return NGL_ERROR_MEMORY;
+
+    ret = ngli_default_rendertarget_gl_init(s_priv->rt_load, &rt_params);
+    if (ret < 0)
+        return ret;
+
+    return 0;
 }
 
 static void rendertarget_reset(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     ngli_rendertarget_freep(&s_priv->rt);
+    ngli_rendertarget_freep(&s_priv->rt_load);
     ngli_texture_freep(&s_priv->color);
     ngli_texture_freep(&s_priv->ms_color);
     ngli_texture_freep(&s_priv->depth);
@@ -506,6 +538,7 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
     struct texture *texture = NULL;
     CVOpenGLESTextureRef cv_texture = NULL;
     struct rendertarget *rt = NULL;
+    struct rendertarget *rt_load = NULL;
 
     int ret = 0;
     if (capture_buffer) {
@@ -537,6 +570,12 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
         goto fail;
     }
 
+    rt_load = ngli_rendertarget_create(s);
+    if (!rt_load) {
+        ret = NGL_ERROR_MEMORY;
+        goto fail;
+    }
+
     struct rendertarget_params rt_params = {
         .width = config->width,
         .height = config->height,
@@ -544,7 +583,7 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
         .colors[0] = {
             .attachment     = config->samples ? s_priv->ms_color : texture,
             .resolve_target = config->samples ? texture          : NULL,
-            .load_op        = NGLI_LOAD_OP_LOAD,
+            .load_op        = NGLI_LOAD_OP_CLEAR,
             .clear_value[0] = config->clear_color[0],
             .clear_value[1] = config->clear_color[1],
             .clear_value[2] = config->clear_color[2],
@@ -553,7 +592,7 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
         },
         .depth_stencil = {
             .attachment = s_priv->depth,
-            .load_op    = NGLI_LOAD_OP_LOAD,
+            .load_op    = NGLI_LOAD_OP_CLEAR,
             .store_op   = NGLI_STORE_OP_STORE,
         },
         .readable = 1,
@@ -562,11 +601,22 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
     if (ret < 0)
         goto fail;
 
+    rt_params.colors[0].load_op = NGLI_LOAD_OP_LOAD;
+    rt_params.colors[0].store_op = NGLI_STORE_OP_STORE;
+    rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
+    rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
+
+    ret = ngli_rendertarget_init(rt_load, &rt_params);
+    if (ret < 0)
+        goto fail;
+
     ngli_rendertarget_freep(&s_priv->rt);
+    ngli_rendertarget_freep(&s_priv->rt_load);
     ngli_texture_freep(&s_priv->color);
     reset_capture_cvpixelbuffer(s);
 
     s_priv->rt = rt;
+    s_priv->rt_load = rt_load;
     s_priv->color = texture;
     s_priv->capture_cvbuffer = (CVPixelBufferRef)CFRetain(capture_buffer);
     s_priv->capture_cvtexture = cv_texture;
@@ -575,6 +625,7 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
 
 fail:
     ngli_rendertarget_freep(&rt);
+    ngli_rendertarget_freep(&rt_load);
     ngli_texture_freep(&texture);
     if (cv_texture)
         CFRelease(cv_texture);
@@ -621,11 +672,6 @@ static int gl_begin_draw(struct gpu_ctx *s, double t)
         s_priv->glQueryCounter(gl, s_priv->queries[0], GL_TIMESTAMP);
 #endif
 
-    ngli_gpu_ctx_begin_render_pass(s, s_priv->rt);
-
-    const float *color = config->clear_color;
-    ngli_glClearColor(gl, color[0], color[1], color[2], color[3]);
-    ngli_glClear(gl, GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     return 0;
 }
 
@@ -743,10 +789,18 @@ static void gl_get_rendertarget_uvcoord_matrix(struct gpu_ctx *s, float *dst)
     memcpy(dst, matrix, 4 * 4 * sizeof(float));
 }
 
-static struct rendertarget *gl_get_default_rendertarget(struct gpu_ctx *s)
+static struct rendertarget *gl_get_default_rendertarget(struct gpu_ctx *s, int load_op)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    return s_priv->rt;
+    switch (load_op) {
+    case NGLI_LOAD_OP_DONT_CARE:
+    case NGLI_LOAD_OP_CLEAR:
+        return s_priv->rt;
+    case NGLI_LOAD_OP_LOAD:
+        return s_priv->rt_load;
+    default:
+        ngli_assert(0);
+    }
 }
 
 static const struct rendertarget_desc *gl_get_default_rendertarget_desc(struct gpu_ctx *s)

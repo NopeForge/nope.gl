@@ -145,9 +145,9 @@ void ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(struct gpu_ctx *s, float *dst)
     s->cls->get_rendertarget_uvcoord_matrix(s, dst);
 }
 
-struct rendertarget *ngli_gpu_ctx_get_default_rendertarget(struct gpu_ctx *s)
+struct rendertarget *ngli_gpu_ctx_get_default_rendertarget(struct gpu_ctx *s, int load_op)
 {
-    return s->cls->get_default_rendertarget(s);
+    return s->cls->get_default_rendertarget(s, load_op);
 }
 
 const struct rendertarget_desc *ngli_gpu_ctx_get_default_rendertarget_desc(struct gpu_ctx *s)
