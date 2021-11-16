@@ -333,6 +333,8 @@ class HooksController(QtCore.QObject):
 
     def process(self, module_name, scene_name):
         for session in self._sessions_cache.values():
+            if not session['enabled']:
+                continue
             scene_id = f'{module_name}.{scene_name}'
             worker = self._scene_change_workers[session['sid']]
             worker.submit_scene_change(scene_id, session)
