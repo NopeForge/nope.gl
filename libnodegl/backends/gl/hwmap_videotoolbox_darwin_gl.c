@@ -157,10 +157,12 @@ static int support_direct_rendering(struct hwmap *hwmap, struct sxplayer_frame *
         ngli_assert(0);
     }
 
-    if (direct_rendering && params->texture_mipmap_filter) {
-        LOG(WARNING, "Videotoolbox textures do not support mipmapping: "
-            "disabling direct rendering");
-        direct_rendering = 0;
+    if (direct_rendering) {
+        if (params->texture_mipmap_filter) {
+            LOG(WARNING, "Videotoolbox textures do not support mipmapping: "
+                "disabling direct rendering");
+            direct_rendering = 0;
+        }
     }
 
     return direct_rendering;
