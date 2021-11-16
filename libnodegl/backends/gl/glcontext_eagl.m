@@ -74,6 +74,11 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 {
     struct eagl_priv *eagl = ctx->priv_data;
 
+    if (ctx->backend != NGL_BACKEND_OPENGLES) {
+        LOG(ERROR, "unsupported backend: %d, only OpenGLES is supported by EAGL", ctx->backend);
+        return -1;
+    }
+
     CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengles"));
     if (!framework) {
         LOG(ERROR, "could not retrieve OpenGLES framework");
