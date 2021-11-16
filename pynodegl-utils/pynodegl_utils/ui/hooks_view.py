@@ -190,7 +190,7 @@ class HooksView(QtWidgets.QWidget):
     @QtCore.Slot(object)
     def _toggle_session(self, obj):
         item = self._model.item(obj.row(), 0)
-        enabled = item.checkState()
+        enabled = item.checkState() == QtCore.Qt.CheckState.Checked
         self._hooks_ctl.enable_session(item.text(), enabled)
 
     @QtCore.Slot()
