@@ -59,7 +59,8 @@ static int support_direct_rendering(struct hwmap *hwmap)
             LOG(WARNING, "external textures do not support mipmapping: "
                 "disabling direct rendering");
             direct_rendering = 0;
-        } else if (params->texture_wrap_s != NGLI_WRAP_CLAMP_TO_EDGE || params->texture_wrap_t != NGLI_WRAP_CLAMP_TO_EDGE) {
+        } else if (params->texture_wrap_s != NGLI_WRAP_CLAMP_TO_EDGE ||
+                   params->texture_wrap_t != NGLI_WRAP_CLAMP_TO_EDGE) {
             LOG(WARNING, "external textures only support clamp to edge wrapping: "
                 "disabling direct rendering");
             direct_rendering = 0;
