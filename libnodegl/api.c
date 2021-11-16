@@ -535,7 +535,7 @@ end:
 }
 
 static const int backend_ids[] = {
-#ifdef BACKEND_GL
+#if defined(BACKEND_GL)
     NGL_BACKEND_OPENGL,
     NGL_BACKEND_OPENGLES,
 #endif
