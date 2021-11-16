@@ -162,6 +162,11 @@ static int support_direct_rendering(struct hwmap *hwmap, struct sxplayer_frame *
             LOG(WARNING, "Videotoolbox textures do not support mipmapping: "
                 "disabling direct rendering");
             direct_rendering = 0;
+        } else if (params->texture_wrap_s != NGLI_WRAP_CLAMP_TO_EDGE ||
+                   params->texture_wrap_t != NGLI_WRAP_CLAMP_TO_EDGE) {
+            LOG(WARNING, "Videotoolbox textures only support clamp to edge wrapping: "
+                "disabling direct rendering");
+            direct_rendering = 0;
         }
     }
 
@@ -188,8 +193,8 @@ static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
             .format           = vt->format_desc.planes[i].format,
             .min_filter       = params->texture_min_filter,
             .mag_filter       = params->texture_mag_filter,
-            .wrap_s           = params->texture_wrap_s,
-            .wrap_t           = params->texture_wrap_t,
+            .wrap_s           = NGLI_WRAP_CLAMP_TO_EDGE,
+            .wrap_t           = NGLI_WRAP_CLAMP_TO_EDGE,
             .usage            = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
             .rectangle        = 1,
             .external_storage = 1,
