@@ -214,6 +214,7 @@ static void clear_buffer(struct rendertarget *s)
 
 static void clear_buffers(struct rendertarget *s)
 {
+    struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct rendertarget_params *params = &s->params;
@@ -225,7 +226,7 @@ static void clear_buffers(struct rendertarget *s)
         }
     }
 
-    if (params->depth_stencil.attachment) {
+    if (params->depth_stencil.attachment || s_priv->wrapped) {
         const struct attachment *depth_stencil = &params->depth_stencil;
         if (depth_stencil->load_op != NGLI_LOAD_OP_LOAD) {
             ngli_glClearBufferfi(gl, GL_DEPTH_STENCIL, 0, 1.0f, 0);
