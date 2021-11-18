@@ -32,6 +32,10 @@
 #include "internal.h"
 #include "utils.h"
 
+struct renderpass_info {
+    int nb_interruptions;
+};
+
 struct rtt_priv {
     struct ngl_node *child;
     struct ngl_node **color_textures;
@@ -41,6 +45,7 @@ struct rtt_priv {
     float clear_color[4];
     int features;
 
+    struct renderpass_info renderpass_info;
     int use_rt_resume;
     int width;
     int height;
@@ -118,10 +123,6 @@ enum {
     RENDER_PASS_STATE_STOPPED,
 };
 
-struct renderpass_info {
-    int nb_interruptions;
-};
-
 static int get_renderpass_info(const struct ngl_node *node, int state, struct renderpass_info *info)
 {
     const struct ngl_node **children = ngli_darray_data(&node->children);
@@ -150,9 +151,8 @@ static int rtt_prepare(struct ngl_node *node)
     struct rnode *rnode = ctx->rnode_pos;
     struct rtt_priv *s = node->priv_data;
 
-    struct renderpass_info info = {0};
-    get_renderpass_info(s->child, RENDER_PASS_STATE_NONE, &info);
-    if (info.nb_interruptions) {
+    get_renderpass_info(s->child, RENDER_PASS_STATE_NONE, &s->renderpass_info);
+    if (s->renderpass_info.nb_interruptions) {
 #if DEBUG_SCENE
         LOG(WARNING, "the underlying render pass might not be optimal as it contains a rtt or compute node in the middle of it");
 #endif
