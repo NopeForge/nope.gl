@@ -461,13 +461,13 @@ static void rtt_draw(struct ngl_node *node)
     struct rendertarget *prev_rendertarget = ctx->current_rendertarget;
     if (ctx->render_pass_started) {
         ngli_gpu_ctx_end_render_pass(gpu_ctx);
+        ctx->render_pass_started = 0;
         prev_rendertarget = ctx->available_rendertargets[1];
     }
 
     ctx->available_rendertargets[0] = s->available_rendertargets[0];
     ctx->available_rendertargets[1] = s->available_rendertargets[1];
     ctx->current_rendertarget = s->available_rendertargets[0];
-    ctx->render_pass_started = 0;
 
     ngli_node_draw(s->child);
 
@@ -476,11 +476,11 @@ static void rtt_draw(struct ngl_node *node)
         ctx->render_pass_started = 1;
     }
     ngli_gpu_ctx_end_render_pass(gpu_ctx);
+    ctx->render_pass_started = 0;
 
     ctx->current_rendertarget = prev_rendertarget;
     ctx->available_rendertargets[0] = prev_rendertargets[0];
     ctx->available_rendertargets[1] = prev_rendertargets[1];
-    ctx->render_pass_started = 0;
 
     ngli_gpu_ctx_set_viewport(gpu_ctx, prev_vp);
     ngli_gpu_ctx_set_scissor(gpu_ctx, prev_scissor);

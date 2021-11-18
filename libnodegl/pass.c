@@ -797,8 +797,8 @@ int ngli_pass_exec(struct pass *s)
         if (ctx->render_pass_started) {
             struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
             ngli_gpu_ctx_end_render_pass(gpu_ctx);
-            ctx->current_rendertarget = ctx->available_rendertargets[1];
             ctx->render_pass_started = 0;
+            ctx->current_rendertarget = ctx->available_rendertargets[1];
         }
 
         ngli_pipeline_dispatch(pipeline, NGLI_ARG_VEC3(params->workgroup_count));
