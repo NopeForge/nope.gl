@@ -1354,10 +1354,10 @@ void ngli_hud_draw(struct hud *s)
     if (ret < 0)
         return;
 
-    if (ctx->begin_render_pass) {
+    if (!ctx->render_pass_started) {
         struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
         ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-        ctx->begin_render_pass = 0;
+        ctx->render_pass_started = 1;
     }
 
     const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);

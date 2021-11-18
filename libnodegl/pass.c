@@ -782,10 +782,10 @@ int ngli_pass_exec(struct pass *s)
     }
 
     if (s->pipeline_type == NGLI_PIPELINE_TYPE_GRAPHICS) {
-        if (ctx->begin_render_pass) {
+        if (!ctx->render_pass_started) {
             struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
             ngli_gpu_ctx_begin_render_pass(gpu_ctx, ctx->current_rendertarget);
-            ctx->begin_render_pass = 0;
+            ctx->render_pass_started = 1;
         }
 
         if (s->indices)
@@ -794,11 +794,11 @@ int ngli_pass_exec(struct pass *s)
         else
             ngli_pipeline_draw(pipeline, s->nb_vertices, s->nb_instances);
     } else {
-        if (!ctx->begin_render_pass) {
+        if (ctx->render_pass_started) {
             struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
             ngli_gpu_ctx_end_render_pass(gpu_ctx);
             ctx->current_rendertarget = ctx->available_rendertargets[1];
-            ctx->begin_render_pass = 1;
+            ctx->render_pass_started = 0;
         }
 
         ngli_pipeline_dispatch(pipeline, NGLI_ARG_VEC3(params->workgroup_count));
