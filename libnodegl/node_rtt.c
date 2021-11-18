@@ -118,11 +118,11 @@ enum {
     RENDER_PASS_STATE_STOPPED,
 };
 
-struct renderpass_children_info {
+struct renderpass_info {
     int nb_interruptions;
 };
 
-static int get_renderpass_children_info(const struct ngl_node *node, int state, struct renderpass_children_info *info)
+static int get_renderpass_info(const struct ngl_node *node, int state, struct renderpass_info *info)
 {
     const struct ngl_node **children = ngli_darray_data(&node->children);
     for (int i = 0; i < ngli_darray_count(&node->children); i++) {
@@ -137,7 +137,7 @@ static int get_renderpass_children_info(const struct ngl_node *node, int state, 
                 info->nb_interruptions++;
             state = RENDER_PASS_STATE_STARTED;
         } else {
-            state = get_renderpass_children_info(child, state, info);
+            state = get_renderpass_info(child, state, info);
         }
     }
     return state;
@@ -150,8 +150,8 @@ static int rtt_prepare(struct ngl_node *node)
     struct rnode *rnode = ctx->rnode_pos;
     struct rtt_priv *s = node->priv_data;
 
-    struct renderpass_children_info info = {0};
-    get_renderpass_children_info(s->child, RENDER_PASS_STATE_NONE, &info);
+    struct renderpass_info info = {0};
+    get_renderpass_info(s->child, RENDER_PASS_STATE_NONE, &info);
     if (info.nb_interruptions) {
 #if DEBUG_SCENE
         LOG(WARNING, "the underlying render pass might not be optimal as it contains a rtt or compute node in the middle of it");
