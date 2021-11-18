@@ -46,7 +46,6 @@ struct rtt_priv {
     int features;
 
     struct renderpass_info renderpass_info;
-    int use_rt_resume;
     int width;
     int height;
 
@@ -152,12 +151,11 @@ static int rtt_prepare(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
 
     get_renderpass_info(s->child, RENDER_PASS_STATE_NONE, &s->renderpass_info);
-    if (s->renderpass_info.nb_interruptions) {
 #if DEBUG_SCENE
+    if (s->renderpass_info.nb_interruptions) {
         LOG(WARNING, "the underlying render pass might not be optimal as it contains a rtt or compute node in the middle of it");
-#endif
-        s->use_rt_resume = 1;
     }
+#endif
 
     struct rendertarget_desc desc = {
         .samples = s->samples,
@@ -349,7 +347,14 @@ static int rtt_prefetch(struct ngl_node *node)
                 return ret;
             rt_params.depth_stencil.attachment = depth;
             rt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
-            rt_params.depth_stencil.store_op = s->use_rt_resume ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+            /*
+             * For the first rendertarget with load operations set to clear, if
+             * the depth attachment is not exposed in the graph (ie: it is not
+             * a user supplied texture) and if the renderpass is not
+             * interrupted we can discard the depth attachment at the end of
+             * the renderpass.
+             */
+            rt_params.depth_stencil.store_op = s->renderpass_info.nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
         }
     }
 
@@ -364,11 +369,22 @@ static int rtt_prefetch(struct ngl_node *node)
     s->available_rendertargets[0] = s->rt;
     s->available_rendertargets[1] = s->rt;
 
-    if (s->use_rt_resume) {
+    if (s->renderpass_info.nb_interruptions) {
         for (int i = 0; i < rt_params.nb_colors; i++)
             rt_params.colors[i].load_op = NGLI_LOAD_OP_LOAD;
         rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
-        rt_params.depth_stencil.store_op = s->depth_texture ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+        if (s->depth_texture) {
+            rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
+        } else {
+            /*
+             * For the second rendertarget with load operations set to load, if
+             * the depth attachment is not exposed in the graph (ie: it is not
+             * a user supplied texture) and if the renderpass is interrupted
+             * *once*, we can discard the depth attachment at the end of the
+             * renderpass.
+             */
+            rt_params.depth_stencil.store_op = s->renderpass_info.nb_interruptions > 1 ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+        }
 
         s->rt_resume = ngli_rendertarget_create(gpu_ctx);
         if (!s->rt_resume)
