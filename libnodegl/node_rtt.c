@@ -125,7 +125,8 @@ static void get_renderpass_children_info(const struct ngl_node *node, struct ren
         if (child->cls->id == NGL_NODE_RENDERTOTEXTURE ||
             child->cls->id == NGL_NODE_COMPUTE) {
             info->has_rtt_or_compute = 1;
-        } else if (child->cls->id == NGL_NODE_RENDER) {
+        } else if (child->cls->id == NGL_NODE_RENDER ||
+                   child->cls->id == NGL_NODE_TEXT) {
             info->render_counts[info->has_rtt_or_compute ? 1 : 0] += 1;
         } else {
             get_renderpass_children_info(child, info);
