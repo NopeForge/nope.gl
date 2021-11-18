@@ -112,26 +112,35 @@ static int rtt_init(struct ngl_node *node)
     return 0;
 }
 
-struct renderpass_children_info {
-    int has_rtt_or_compute;
-    int render_counts[2]; // number of render nodes before and after the first rtt or compute node (renderpass interruption)
+enum {
+    RENDER_PASS_STATE_NONE,
+    RENDER_PASS_STATE_STARTED,
+    RENDER_PASS_STATE_STOPPED,
 };
 
-static void get_renderpass_children_info(const struct ngl_node *node, struct renderpass_children_info *info)
+struct renderpass_children_info {
+    int nb_interruptions;
+};
+
+static int get_renderpass_children_info(const struct ngl_node *node, int state, struct renderpass_children_info *info)
 {
     const struct ngl_node **children = ngli_darray_data(&node->children);
     for (int i = 0; i < ngli_darray_count(&node->children); i++) {
         const struct ngl_node *child = children[i];
         if (child->cls->id == NGL_NODE_RENDERTOTEXTURE ||
             child->cls->id == NGL_NODE_COMPUTE) {
-            info->has_rtt_or_compute = 1;
+            if (state == RENDER_PASS_STATE_STARTED)
+                state = RENDER_PASS_STATE_STOPPED;
         } else if (child->cls->id == NGL_NODE_RENDER ||
                    child->cls->id == NGL_NODE_TEXT) {
-            info->render_counts[info->has_rtt_or_compute ? 1 : 0] += 1;
+            if (state == RENDER_PASS_STATE_STOPPED)
+                info->nb_interruptions++;
+            state = RENDER_PASS_STATE_STARTED;
         } else {
-            get_renderpass_children_info(child, info);
+            state = get_renderpass_children_info(child, state, info);
         }
     }
+    return state;
 }
 
 static int rtt_prepare(struct ngl_node *node)
@@ -142,8 +151,8 @@ static int rtt_prepare(struct ngl_node *node)
     struct rtt_priv *s = node->priv_data;
 
     struct renderpass_children_info info = {0};
-    get_renderpass_children_info(s->child, &info);
-    if (info.render_counts[0] && info.render_counts[1]) {
+    get_renderpass_children_info(s->child, RENDER_PASS_STATE_NONE, &info);
+    if (info.nb_interruptions) {
 #if DEBUG_SCENE
         LOG(WARNING, "the underlying render pass might not be optimal as it contains a rtt or compute node in the middle of it");
 #endif
