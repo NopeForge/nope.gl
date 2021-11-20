@@ -408,7 +408,7 @@ static int cmd_make_current(struct ngl_ctx *s, void *arg)
 #define DONE_CURRENT &(int[]){0}
 static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
 {
-    cmd_reset(s, &(int[]){KEEP_SCENE});
+    dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
 
     int ret = cmd_configure(s, config);
     if (ret < 0)
