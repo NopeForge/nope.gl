@@ -669,8 +669,8 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         }
     }
 
-    s->configured = 0;
     dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
+    s->configured = 0;
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
     int ret = configure_ios(s, config);
