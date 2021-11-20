@@ -90,6 +90,11 @@ static int get_default_platform(void)
 #define KEEP_SCENE  0
 #define UNREF_SCENE 1
 
+static int cmd_stop(struct ngl_ctx *s, void *arg)
+{
+    return 0;
+}
+
 static int cmd_reset(struct ngl_ctx *s, void *arg)
 {
     if (s->gpu_ctx)
@@ -374,7 +379,7 @@ static void *worker_thread(void *arg)
         while (!s->cmd_func)
             pthread_cond_wait(&s->cond_wkr, &s->lock);
         s->cmd_ret = s->cmd_func(s, s->cmd_arg);
-        int need_stop = s->cmd_func == cmd_reset;
+        int need_stop = s->cmd_func == cmd_stop;
         s->cmd_func = s->cmd_arg = NULL;
         pthread_cond_signal(&s->cond_ctl);
 
@@ -763,6 +768,7 @@ void ngl_freep(struct ngl_ctx **ss)
         return;
 
     dispatch_cmd(s, cmd_reset, &(int[]){UNREF_SCENE});
+    dispatch_cmd(s, cmd_stop, NULL);
     pthread_join(s->worker_tid, NULL);
     pthread_cond_destroy(&s->cond_ctl);
     pthread_cond_destroy(&s->cond_wkr);
