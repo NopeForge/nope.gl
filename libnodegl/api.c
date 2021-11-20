@@ -408,8 +408,6 @@ static int cmd_make_current(struct ngl_ctx *s, void *arg)
 #define DONE_CURRENT &(int[]){0}
 static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
 {
-    dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
-
     int ret = cmd_configure(s, config);
     if (ret < 0)
         return ret;
@@ -672,10 +670,11 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
     }
 
     s->configured = 0;
+    dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
+
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
     int ret = configure_ios(s, config);
 #else
-    dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
     int ret = dispatch_cmd(s, cmd_configure, config);
 #endif
     if (ret < 0)
