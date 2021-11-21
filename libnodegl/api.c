@@ -90,7 +90,7 @@ static int get_default_platform(void)
 #define KEEP_SCENE  0
 #define UNREF_SCENE 1
 
-static int cmd_stop(struct ngl_ctx *s, void *arg)
+static int cmd_reset(struct ngl_ctx *s, void *arg)
 {
     if (s->gpu_ctx)
         ngli_gpu_ctx_wait_idle(s->gpu_ctx);
@@ -118,7 +118,7 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
 {
     struct ngl_config *config = arg;
 
-    cmd_stop(s, &(int[]){KEEP_SCENE});
+    cmd_reset(s, &(int[]){KEEP_SCENE});
 
     if (config->backend == NGL_BACKEND_AUTO)
         config->backend = DEFAULT_BACKEND;
@@ -374,7 +374,7 @@ static void *worker_thread(void *arg)
         while (!s->cmd_func)
             pthread_cond_wait(&s->cond_wkr, &s->lock);
         s->cmd_ret = s->cmd_func(s, s->cmd_arg);
-        int need_stop = s->cmd_func == cmd_stop;
+        int need_stop = s->cmd_func == cmd_reset;
         s->cmd_func = s->cmd_arg = NULL;
         pthread_cond_signal(&s->cond_ctl);
 
@@ -762,7 +762,7 @@ void ngl_freep(struct ngl_ctx **ss)
     if (!s)
         return;
 
-    dispatch_cmd(s, cmd_stop, &(int[]){UNREF_SCENE});
+    dispatch_cmd(s, cmd_reset, &(int[]){UNREF_SCENE});
     pthread_join(s->worker_tid, NULL);
     pthread_cond_destroy(&s->cond_ctl);
     pthread_cond_destroy(&s->cond_wkr);
