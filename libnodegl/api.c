@@ -121,6 +121,7 @@ static int cmd_reset(struct ngl_ctx *s, void *arg)
 
 static int cmd_configure(struct ngl_ctx *s, void *arg)
 {
+    int reset_param = KEEP_SCENE;
     struct ngl_config *config = arg;
 
     if (config->backend == NGL_BACKEND_AUTO)
@@ -152,7 +153,7 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
 
     ret = ngli_pgcache_init(&s->pgcache, s->gpu_ctx);
     if (ret < 0)
-        return ret;
+        goto fail;
 
 #if defined(HAVE_VAAPI)
     ret = ngli_vaapi_ctx_init(s->gpu_ctx, &s->vaapi_ctx);
@@ -170,29 +171,36 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     NGLI_ALIGNED_MAT(matrix) = NGLI_MAT4_IDENTITY;
     ngli_gpu_ctx_transform_projection_matrix(s->gpu_ctx, matrix);
     ngli_darray_clear(&s->projection_matrix_stack);
-    if (!ngli_darray_push(&s->projection_matrix_stack, matrix))
-        return NGL_ERROR_MEMORY;
+    if (!ngli_darray_push(&s->projection_matrix_stack, matrix)) {
+        ret = NGL_ERROR_MEMORY;
+        goto fail;
+    }
 
     if (s->scene) {
         ret = ngli_node_attach_ctx(s->scene, s);
         if (ret < 0) {
-            ngli_node_detach_ctx(s->scene, s);
-            ngl_node_unrefp(&s->scene);
-            return ret;
+            reset_param = UNREF_SCENE;
+            goto fail;
         }
     }
 
     if (config->hud) {
         s->hud = ngli_hud_create(s);
-        if (!s->hud)
-            return NGL_ERROR_MEMORY;
+        if (!s->hud) {
+            ret = NGL_ERROR_MEMORY;
+            goto fail;
+        }
 
         ret = ngli_hud_init(s->hud);
         if (ret < 0)
-            return ret;
+            goto fail;
     }
 
     return 0;
+
+fail:
+    cmd_reset(s, &reset_param);
+    return ret;
 }
 
 struct resize_params {
@@ -669,8 +677,10 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         }
     }
 
-    dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
-    s->configured = 0;
+    if (s->configured) {
+        dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
+        s->configured = 0;
+    }
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
     int ret = configure_ios(s, config);
@@ -767,7 +777,10 @@ void ngl_freep(struct ngl_ctx **ss)
     if (!s)
         return;
 
-    dispatch_cmd(s, cmd_reset, &(int[]){UNREF_SCENE});
+    if (s->configured) {
+        dispatch_cmd(s, cmd_reset, &(int[]){UNREF_SCENE});
+        s->configured = 0;
+    }
     dispatch_cmd(s, cmd_stop, NULL);
     pthread_join(s->worker_tid, NULL);
     pthread_cond_destroy(&s->cond_ctl);
