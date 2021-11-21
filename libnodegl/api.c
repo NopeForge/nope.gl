@@ -123,8 +123,6 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
 {
     struct ngl_config *config = arg;
 
-    cmd_reset(s, &(int[]){KEEP_SCENE});
-
     if (config->backend == NGL_BACKEND_AUTO)
         config->backend = DEFAULT_BACKEND;
     if (config->platform == NGL_PLATFORM_AUTO)
@@ -410,6 +408,8 @@ static int cmd_make_current(struct ngl_ctx *s, void *arg)
 #define DONE_CURRENT &(int[]){0}
 static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
 {
+    cmd_reset(s, &(int[]){KEEP_SCENE});
+
     int ret = cmd_configure(s, config);
     if (ret < 0)
         return ret;
@@ -675,6 +675,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
     int ret = configure_ios(s, config);
 #else
+    dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
     int ret = dispatch_cmd(s, cmd_configure, config);
 #endif
     if (ret < 0)
