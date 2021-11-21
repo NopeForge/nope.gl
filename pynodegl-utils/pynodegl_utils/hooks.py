@@ -28,7 +28,7 @@ import time
 
 from PySide2 import QtCore
 
-from pynodegl_utils.com import load_script
+from pynodegl_utils.module import load_script
 
 
 class _HooksCaller:

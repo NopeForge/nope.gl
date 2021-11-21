@@ -24,7 +24,7 @@ import os
 import os.path as op
 import sys
 
-from pynodegl_utils.com import load_script
+from pynodegl_utils.module import load_script
 
 
 def _run_test(func_name, tester, ref_data, out_data):
