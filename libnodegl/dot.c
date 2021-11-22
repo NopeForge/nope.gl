@@ -324,27 +324,37 @@ static void print_nodelist_links(struct bstr *b, const struct ngl_node *node,
 
 static void print_nodedict_links(struct bstr *b, const struct ngl_node *node,
                                  const struct node_param *p, const uint8_t *srcp,
-                                 struct hmap *links)
+                                 struct hmap *links, const char *edge_attrs)
 {
     struct hmap *hmap = *(struct hmap **)srcp;
-    if (!hmap)
+    if (!hmap || !ngli_hmap_count(hmap))
         return;
+
+    if (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED) {
+        ngli_bstr_printf(b, "    %s_%p -> %s_%p%s\n", node->cls->name, node, p->key, hmap, edge_attrs);
+        return;
+    }
+
+    /* Declare the dictionary as a dedicated table */
+    ngli_bstr_printf(b, "    %s_%p_%s", node->cls->name, node, p->key);
+    table_header(b, p->key, !node->ctx || node->is_active, ngli_hmap_count(hmap));
+    ngli_bstr_print(b, "<tr>");
     const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(hmap, entry)))
+        ngli_bstr_printf(b, "<td port=\"%s\">%s</td>", entry->key, entry->key);
+    ngli_bstr_print(b, "</tr>");
+    table_footer(b);
+
+    /* Link node to the dict table */
+    ngli_bstr_printf(b, "    %s_%p -> %s_%p_%s\n",
+                     node->cls->name, node, node->cls->name, node, p->key);
+
+    /* Link individual table cell to their dedicated nodes */
+    entry = NULL;
     while ((entry = ngli_hmap_next(hmap, entry))) {
-        char *key;
         const struct ngl_node *child = entry->data;
-
-        if (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME)
-            key = ngli_asprintf("[label=\"%s:%s\"]", p->key, entry->key);
-        else
-            key = ngli_asprintf("[label=\"%s\"]", entry->key);
-
-        if (!key)
-            return;
-
-        print_link(b, node, child, key);
-        ngli_free(key);
-
+        ngli_bstr_printf(b, "    %s_%p_%s:%s -> %s_%p\n",
+                         node->cls->name, node, p->key, entry->key, child->cls->name, child);
         print_all_links(b, child, links);
     }
 }
@@ -370,7 +380,7 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
             print_nodelist_links(b, node, p, srcp, links, edge_attrs);
             break;
         case NGLI_PARAM_TYPE_NODEDICT:
-            print_nodedict_links(b, node, p, srcp, links);
+            print_nodedict_links(b, node, p, srcp, links, edge_attrs);
             break;
         default:
             if (p->flags & NGLI_PARAM_FLAG_ALLOW_NODE)
