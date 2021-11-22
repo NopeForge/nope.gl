@@ -97,6 +97,8 @@ struct ngl_node;
  * Display the field name alongside the edge associated with this parameter in
  * the dot output.
  *
+ * Only applicable for node parameters.
+ *
  * This is useful to prevent potential confusion on which parameter the edge is
  * associated with. For example, a node may have multiple parameters accepting
  * the same type. In the graph representation, it may not be clear which is which.

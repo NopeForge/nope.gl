@@ -220,6 +220,12 @@ static int check_node_params(const struct node_class *cls)
             }
         }
 
+        if ((par->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME) && (par->type != NGLI_PARAM_TYPE_NODE)) {
+            fprintf(stderr, "parameter %s.%s is not a node parameter, "
+                    "so the DOT_DISPLAY_FIELDNAME is not needed\n", cls->name, par->key);
+            return NGL_ERROR_BUG;
+        }
+
         if ((par->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE) && node_based_parameter(par)) {
             fprintf(stderr, "%s.%s is a node based parameter, "
                     "so it can not be live changed", cls->name, par->key);
