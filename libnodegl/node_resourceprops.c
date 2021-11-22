@@ -39,9 +39,38 @@ static const struct node_param resourceprops_params[] = {
     {NULL}
 };
 
+static const char * const precisions_map[] = {
+    [NGLI_PRECISION_HIGH]   = "high",
+    [NGLI_PRECISION_MEDIUM] = "medium",
+    [NGLI_PRECISION_LOW]    = "low",
+};
+
+static char *resourceprops_info_str(const struct ngl_node *node)
+{
+    const struct resourceprops_priv *s = node->priv_data;
+    struct bstr *b = ngli_bstr_create();
+
+    if (!b)
+        return NULL;
+
+    if (s->precision != NGLI_PRECISION_AUTO)
+        ngli_bstr_printf(b, "precision:%s", precisions_map[s->precision]);
+    if (s->as_image)
+        ngli_bstr_printf(b, "%sas_image", ngli_bstr_len(b) ? " " : "");
+    if (s->writable)
+        ngli_bstr_printf(b, "%swritable", ngli_bstr_len(b) ? " " : "");
+    if (s->variadic)
+        ngli_bstr_printf(b, "%svariadic", ngli_bstr_len(b) ? " " : "");
+
+    char *ret = ngli_bstr_strdup(b);
+    ngli_bstr_freep(&b);
+    return ret;
+}
+
 const struct node_class ngli_resourceprops_class = {
     .id        = NGL_NODE_RESOURCEPROPS,
     .name      = "ResourceProps",
+    .info_str  = resourceprops_info_str,
     .priv_size = sizeof(struct resourceprops_priv),
     .params    = resourceprops_params,
     .file      = __FILE__,

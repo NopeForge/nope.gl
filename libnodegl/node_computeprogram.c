@@ -31,6 +31,7 @@ static const struct node_param computeprogram_params[] = {
     {"workgroup_size", NGLI_PARAM_TYPE_IVEC3, OFFSET(workgroup_size),
                        .desc=NGLI_DOCSTRING("number of local compute instances in a work group")},
     {"properties", NGLI_PARAM_TYPE_NODEDICT, OFFSET(properties),
+                   .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                    .node_types=(const int[]){NGL_NODE_RESOURCEPROPS, -1},
                    .desc=NGLI_DOCSTRING("resource properties")},
     {NULL}

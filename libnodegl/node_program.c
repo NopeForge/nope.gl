@@ -51,6 +51,7 @@ static const struct node_param program_params[] = {
     {"fragment", NGLI_PARAM_TYPE_STR, OFFSET(fragment), {.str=NULL},
                  .desc=NGLI_DOCSTRING("fragment shader")},
     {"properties", NGLI_PARAM_TYPE_NODEDICT, OFFSET(properties),
+                   .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                    .node_types=(const int[]){NGL_NODE_RESOURCEPROPS, -1},
                    .desc=NGLI_DOCSTRING("resource properties")},
     {"vert_out_vars", NGLI_PARAM_TYPE_NODEDICT, OFFSET(vert_out_vars),
