@@ -46,11 +46,17 @@ static int io##type_id##_init(struct ngl_node *node)            \
     return 0;                                                   \
 }                                                               \
                                                                 \
+static char *io##type_id##_info_str(const struct ngl_node *node)\
+{                                                               \
+    return ngli_asprintf("%s", #type_id);                       \
+}                                                               \
+                                                                \
 const struct node_class ngli_io##type_id##_class = {            \
     .id        = class_id,                                      \
     .category  = NGLI_NODE_CATEGORY_IO,                         \
     .name      = class_name,                                    \
     .init      = io##type_id##_init,                            \
+    .info_str  = io##type_id##_info_str,                        \
     .priv_size = sizeof(struct io_priv),                        \
     .params    = io_params,                                     \
     .params_id = "IOVar",                                       \

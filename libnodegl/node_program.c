@@ -54,6 +54,7 @@ static const struct node_param program_params[] = {
                    .node_types=(const int[]){NGL_NODE_RESOURCEPROPS, -1},
                    .desc=NGLI_DOCSTRING("resource properties")},
     {"vert_out_vars", NGLI_PARAM_TYPE_NODEDICT, OFFSET(vert_out_vars),
+                       .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                        .node_types=IO_NODES,
                        .desc=NGLI_DOCSTRING("in/out communication variables shared between vertex and fragment stages")},
     {"nb_frag_output", NGLI_PARAM_TYPE_I32, OFFSET(nb_frag_output),
