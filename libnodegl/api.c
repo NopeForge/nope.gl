@@ -414,7 +414,7 @@ static int cmd_make_current(struct ngl_ctx *s, void *arg)
 
 #define MAKE_CURRENT &(int[]){1}
 #define DONE_CURRENT &(int[]){0}
-static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
+static int configure_from_current_thread(struct ngl_ctx *s, struct ngl_config *config)
 {
     int ret = cmd_configure(s, config);
     if (ret < 0)
@@ -424,7 +424,7 @@ static int configure_ios(struct ngl_ctx *s, struct ngl_config *config)
     return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
 }
 
-static int resize_ios(struct ngl_ctx *s, const struct resize_params *params)
+static int resize_from_current_thread(struct ngl_ctx *s, const struct resize_params *params)
 {
     int ret = dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
     if (ret < 0)
@@ -683,7 +683,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
     }
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-    int ret = configure_ios(s, config);
+    int ret = configure_from_current_thread(s, config);
 #else
     int ret = dispatch_cmd(s, cmd_configure, config);
 #endif
@@ -713,7 +713,7 @@ int ngl_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
     };
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-    return resize_ios(s, &params);
+    return resize_from_current_thread(s, &params);
 #else
     return dispatch_cmd(s, cmd_resize, &params);
 #endif
