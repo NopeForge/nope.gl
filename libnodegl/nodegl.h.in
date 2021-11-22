@@ -538,10 +538,10 @@ struct ngl_backend {
  * ngl_backends_probe() will probe every supported backends, otherwise, it will
  * only probe the specified backend
  *
- * @param nb_backends a pointer to an integer set to the number of backends
+ * @param nb_backendsp a pointer to an integer set to the number of backends
  * available
  *
- * @param backends a pointer to an array of ngl_backend structures. The array
+ * @param backendsp a pointer to an array of ngl_backend structures. The array
  * is allocated by ngl_backends_probe() and has a size of nb_backends. Must be
  * freed by the user using ngl_backends_freep()
  *
