@@ -307,17 +307,31 @@ static void print_nodelist_links(struct bstr *b, const struct ngl_node *node,
     struct ngl_node **children = *(struct ngl_node ***)srcp;
     const int nb_children = *(int *)(srcp + sizeof(struct ngl_node **));
 
-    if (nb_children && (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED)) {
+    if (!nb_children)
+        return;
+
+    if (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED) {
         ngli_bstr_printf(b, "    %s_%p -> %s_%p%s\n", node->cls->name, node, p->key, children, edge_attrs);
         return;
     }
 
-    for (int i = 0; i < nb_children; i++) {
-        char numlbl[64];
-        snprintf(numlbl, sizeof(numlbl), "[label=\"#%d\"]", i);
-        const struct ngl_node *child = children[i];
+    /* Declare the list as a dedicated table */
+    ngli_bstr_printf(b, "    %s_%p_%s", node->cls->name, node, p->key);
+    table_header(b, p->key, !node->ctx || node->is_active, nb_children);
+    ngli_bstr_print(b, "<tr>");
+    for (int i = 0; i < nb_children; i++)
+        ngli_bstr_printf(b, "<td port=\"e%d\">#%d</td>", i, i);
+    ngli_bstr_print(b, "</tr>");
+    table_footer(b);
 
-        print_link(b, node, child, numlbl);
+    /* Link node to the list table */
+    ngli_bstr_printf(b, "    %s_%p -> %s_%p_%s\n",
+                     node->cls->name, node, node->cls->name, node, p->key);
+
+    /* Link individual table cell to their dedicated nodes */
+    for (int i = 0; i < nb_children; i++) {
+        const struct ngl_node *child = children[i];
+        ngli_bstr_printf(b, "    %s_%p_%s:e%d -> %s_%p\n", node->cls->name, node, p->key, i, child->cls->name, child);
         print_all_links(b, child, links);
     }
 }
