@@ -248,10 +248,10 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
 
 static void print_link(struct bstr *b,
                        const struct ngl_node *x, const struct ngl_node *y,
-                       const char *label)
+                       const char *edge_attrs)
 {
     ngli_bstr_printf(b, "    %s_%p -> %s_%p%s\n",
-                    x->cls->name, x, y->cls->name, y, label);
+                    x->cls->name, x, y->cls->name, y, edge_attrs);
 }
 
 static void print_links(struct bstr *b, const struct ngl_node *node,
@@ -269,24 +269,24 @@ static void print_all_links(struct bstr *b, const struct ngl_node *node, struct 
 
 static void print_node_links(struct bstr *b, const struct ngl_node *node,
                              const struct node_param *p, const uint8_t *srcp,
-                             struct hmap *links, const char *label)
+                             struct hmap *links, const char *edge_attrs)
 {
     const struct ngl_node *child = *(struct ngl_node **)srcp;
     if (child) {
-        print_link(b, node, child, label);
+        print_link(b, node, child, edge_attrs);
         print_all_links(b, child, links);
     }
 }
 
 static void print_nodelist_links(struct bstr *b, const struct ngl_node *node,
                                  const struct node_param *p, const uint8_t *srcp,
-                                 struct hmap *links, const char *label)
+                                 struct hmap *links, const char *edge_attrs)
 {
     struct ngl_node **children = *(struct ngl_node ***)srcp;
     const int nb_children = *(int *)(srcp + sizeof(struct ngl_node **));
 
     if (nb_children && (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED)) {
-        ngli_bstr_printf(b, "    %s_%p -> %s_%p%s\n", node->cls->name, node, p->key, children, label);
+        ngli_bstr_printf(b, "    %s_%p -> %s_%p%s\n", node->cls->name, node, p->key, children, edge_attrs);
         return;
     }
 
@@ -336,26 +336,26 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
 
     while (p->key) {
         const int print_label = !!(p->flags & (NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME | NGLI_PARAM_FLAG_ALLOW_NODE));
-        char *label = ngli_asprintf("[label=\"%s\"]", print_label ? p->key : "");
-        if (!label)
+        char *edge_attrs = ngli_asprintf("[label=\"%s\"]", print_label ? p->key : "");
+        if (!edge_attrs)
             return;
         const uint8_t *srcp = priv + p->offset;
         switch (p->type) {
         case NGLI_PARAM_TYPE_NODE:
-            print_node_links(b, node, p, srcp, links, label);
+            print_node_links(b, node, p, srcp, links, edge_attrs);
             break;
         case NGLI_PARAM_TYPE_NODELIST:
-            print_nodelist_links(b, node, p, srcp, links, label);
+            print_nodelist_links(b, node, p, srcp, links, edge_attrs);
             break;
         case NGLI_PARAM_TYPE_NODEDICT:
             print_nodedict_links(b, node, p, srcp, links);
             break;
         default:
             if (p->flags & NGLI_PARAM_FLAG_ALLOW_NODE)
-                print_node_links(b, node, p, srcp, links, label);
+                print_node_links(b, node, p, srcp, links, edge_attrs);
             break;
         }
-        ngli_free(label);
+        ngli_free(edge_attrs);
         p++;
     }
 }
