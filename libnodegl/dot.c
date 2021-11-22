@@ -162,22 +162,36 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
     print_decls(b, node, node->cls->params, node->priv_data, decls);
 }
 
+static void table_header(struct bstr *b, const char *label, int is_active, int colspan)
+{
+    ngli_bstr_print(b, "[shape=none,label=<<table border=\"0\" cellspacing=\"0\" cellborder=\"1\" bgcolor=");
+    const unsigned hue = get_hue(label);
+    if (is_active)
+        ngli_bstr_printf(b, "\"0.%u 0.2 0.8\"", hue); /* color of all the entries, more pale than HSLFMT */
+    else
+        ngli_bstr_print(b, INACTIVE_COLOR);
+    ngli_bstr_printf(b, "><tr><td colspan=\"%d\" bgcolor="HSLFMT"><b>%s</b></td></tr>", colspan, hue, label);
+}
+
+static void table_footer(struct bstr *b)
+{
+    ngli_bstr_print(b, "</table>>,color=\"#222222\"]\n");
+}
+
 static void print_list_packed_decls(struct bstr *b, const char *key,
                                     struct ngl_node **children, int nb_children,
                                     int is_active)
 {
-    ngli_bstr_printf(b, "    %s_%p[label=<<b>%s</b> (x%d)", key, children, key, nb_children);
+    ngli_bstr_printf(b, "    %s_%p", key, children);
+    table_header(b, key, is_active, 2);
     for (int i = 0; i < nb_children; i++) {
         const struct ngl_node *node = children[i];
         char *info_str = node->cls->info_str ? node->cls->info_str(node) : NULL;
-        ngli_bstr_printf(b, LB "- %s", info_str ? info_str : "?");
+        ngli_bstr_printf(b, "<tr><td>#%d</td><td align=\"left\">%s</td></tr>",
+                         i, info_str ? info_str : "?");
         ngli_free(info_str);
     }
-    ngli_bstr_print(b, LB ">,shape=box,color=");
-    if (is_active)
-        ngli_bstr_printf(b, HSLFMT"]\n", get_hue(key));
-    else
-        ngli_bstr_print(b, INACTIVE_COLOR "]\n");
+    table_footer(b);
 }
 
 static void print_decls(struct bstr *b, const struct ngl_node *node,
