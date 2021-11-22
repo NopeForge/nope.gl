@@ -162,11 +162,11 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
     print_decls(b, node, node->cls->params, node->priv_data, decls);
 }
 
-static void print_packed_decls(struct bstr *b, const char *label,
+static void print_packed_decls(struct bstr *b, const char *key,
                                struct ngl_node **children, int nb_children,
                                int is_active)
 {
-    ngli_bstr_printf(b, "    %s_%p[label=<<b>%s</b> (x%d)", label, children, label, nb_children);
+    ngli_bstr_printf(b, "    %s_%p[label=<<b>%s</b> (x%d)", key, children, key, nb_children);
     for (int i = 0; i < nb_children; i++) {
         const struct ngl_node *node = children[i];
         char *info_str = node->cls->info_str ? node->cls->info_str(node) : NULL;
@@ -175,7 +175,7 @@ static void print_packed_decls(struct bstr *b, const char *label,
     }
     ngli_bstr_print(b, LB ">,shape=box,color=");
     if (is_active)
-        ngli_bstr_printf(b, HSLFMT"]\n", get_hue(label));
+        ngli_bstr_printf(b, HSLFMT"]\n", get_hue(key));
     else
         ngli_bstr_print(b, INACTIVE_COLOR "]\n");
 }
