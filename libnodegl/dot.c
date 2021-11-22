@@ -194,6 +194,22 @@ static void print_list_packed_decls(struct bstr *b, const char *key,
     table_footer(b);
 }
 
+static void print_dict_packed_decls(struct bstr *b, const char *key,
+                                    struct hmap *hmap, int is_active)
+{
+    ngli_bstr_printf(b, "    %s_%p", key, hmap);
+    table_header(b, key, is_active, 2);
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(hmap, entry))) {
+        const struct ngl_node *node = entry->data;
+        char *info_str = node->cls->info_str ? node->cls->info_str(node) : NULL;
+        ngli_bstr_printf(b, "<tr><td align=\"left\">%s</td><td align=\"left\">%s</td></tr>",
+                         entry->key, info_str ? info_str : "?");
+        ngli_free(info_str);
+    }
+    table_footer(b);
+}
+
 static void print_decls(struct bstr *b, const struct ngl_node *node,
                         const struct node_param *p, uint8_t *priv,
                         struct hmap *decls)
@@ -236,6 +252,12 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                 struct hmap *hmap = *(struct hmap **)srcp;
                 if (!hmap)
                     break;
+
+                if (ngli_hmap_count(hmap) && (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED)) {
+                    print_dict_packed_decls(b, p->key, hmap, !node->ctx || node->is_active);
+                    break;
+                }
+
                 const struct hmap_entry *entry = NULL;
                 while ((entry = ngli_hmap_next(hmap, entry)))
                     print_all_decls(b, entry->data, decls);
