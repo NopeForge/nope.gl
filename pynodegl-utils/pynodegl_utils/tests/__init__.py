@@ -125,6 +125,9 @@ def run():
     module = load_script(script_path)
     func = getattr(module, func_name)
 
+    # Ensure PySide/Qt is not imported
+    assert not any(k.startswith(('PySide', 'Qt')) for k in globals().keys())
+
     if ref_filepath is None:
         sys.exit(func())
 
