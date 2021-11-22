@@ -224,8 +224,6 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                 const int nb_children = *(int *)(srcp + sizeof(struct ngl_node **));
 
                 if (nb_children && (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED)) {
-                    if (visited(decls, children))
-                        break;
                     print_list_packed_decls(b, p->key, children, nb_children, !node->ctx || node->is_active);
                     break;
                 }
