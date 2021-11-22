@@ -170,7 +170,12 @@ static void table_header(struct bstr *b, const char *label, int is_active, int c
         ngli_bstr_printf(b, "\"0.%u 0.2 0.8\"", hue); /* color of all the entries, more pale than HSLFMT */
     else
         ngli_bstr_print(b, INACTIVE_COLOR);
-    ngli_bstr_printf(b, "><tr><td colspan=\"%d\" bgcolor="HSLFMT"><b>%s</b></td></tr>", colspan, hue, label);
+    ngli_bstr_printf(b, "><tr><td colspan=\"%d\" bgcolor=", colspan);
+    if (is_active)
+        ngli_bstr_printf(b, HSLFMT, hue);
+    else
+        ngli_bstr_print(b, INACTIVE_COLOR);
+    ngli_bstr_printf(b, "><b>%s</b></td></tr>", label);
 }
 
 static void table_footer(struct bstr *b)
