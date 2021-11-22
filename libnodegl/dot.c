@@ -162,9 +162,9 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
     print_decls(b, node, node->cls->params, node->priv_data, decls);
 }
 
-static void print_packed_decls(struct bstr *b, const char *key,
-                               struct ngl_node **children, int nb_children,
-                               int is_active)
+static void print_list_packed_decls(struct bstr *b, const char *key,
+                                    struct ngl_node **children, int nb_children,
+                                    int is_active)
 {
     ngli_bstr_printf(b, "    %s_%p[label=<<b>%s</b> (x%d)", key, children, key, nb_children);
     for (int i = 0; i < nb_children; i++) {
@@ -212,7 +212,7 @@ static void print_decls(struct bstr *b, const struct ngl_node *node,
                 if (nb_children && (p->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED)) {
                     if (visited(decls, children))
                         break;
-                    print_packed_decls(b, p->key, children, nb_children, !node->ctx || node->is_active);
+                    print_list_packed_decls(b, p->key, children, nb_children, !node->ctx || node->is_active);
                     break;
                 }
 
