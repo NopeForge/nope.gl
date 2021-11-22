@@ -204,8 +204,8 @@ static int check_node_params(const struct node_class *cls)
         }
 
         if (par->flags & NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED) {
-            if (par->type != NGLI_PARAM_TYPE_NODELIST) {
-                fprintf(stderr, "parameter %s.%s is not a node list, "
+            if (par->type != NGLI_PARAM_TYPE_NODELIST && par->type != NGLI_PARAM_TYPE_NODEDICT) {
+                fprintf(stderr, "parameter %s.%s is not a node list nor a node dict, "
                         "so packed display in dot is not supported\n", cls->name, par->key);
                 return NGL_ERROR_UNSUPPORTED;
             }
