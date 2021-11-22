@@ -382,9 +382,12 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
 
     while (p->key) {
         const int print_label = !!(p->flags & (NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME | NGLI_PARAM_FLAG_ALLOW_NODE));
-        char *edge_attrs = ngli_asprintf("[label=\"%s\"]", print_label ? p->key : "");
-        if (!edge_attrs)
-            return;
+        char *edge_attrs = "";
+        if (print_label) {
+            edge_attrs = ngli_asprintf("[label=\"%s\"]", p->key);
+            if (!edge_attrs)
+                return;
+        }
         const uint8_t *srcp = priv + p->offset;
         switch (p->type) {
         case NGLI_PARAM_TYPE_NODE:
@@ -401,7 +404,8 @@ static void print_links(struct bstr *b, const struct ngl_node *node,
                 print_node_links(b, node, p, srcp, links, edge_attrs);
             break;
         }
-        ngli_free(edge_attrs);
+        if (print_label)
+            ngli_free(edge_attrs);
         p++;
     }
 }
