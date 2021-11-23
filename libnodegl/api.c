@@ -97,6 +97,7 @@ static int cmd_stop(struct ngl_ctx *s, void *arg)
 
 static void config_reset(struct ngl_config *config)
 {
+    ngli_freep(&config->hud_export_filename);
     memset(config, 0, sizeof(*config));
 }
 
@@ -140,6 +141,11 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     }
 
     s->config = *config;
+    if (s->config.hud_export_filename) {
+        s->config.hud_export_filename = ngli_strdup(s->config.hud_export_filename);
+        if (!s->config.hud_export_filename)
+            return NGL_ERROR_MEMORY;
+    }
 
     s->gpu_ctx = ngli_gpu_ctx_create(config);
     if (!s->gpu_ctx) {
