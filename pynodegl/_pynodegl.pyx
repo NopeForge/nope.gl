@@ -445,7 +445,6 @@ def get_backends(**kwargs):
 cdef class Context:
     cdef ngl_ctx *ctx
     cdef object capture_buffer
-    cdef object hud_export_filename
 
     def __cinit__(self):
         self.ctx = ngl_create()
@@ -487,7 +486,6 @@ cdef class Context:
 
     def configure(self, **kwargs):
         self.capture_buffer = kwargs.get('capture_buffer')
-        self.hud_export_filename = kwargs.get('hud_export_filename')
         cdef ngl_config config
         Context._init_ngl_config_from_dict(&config, kwargs)
         return ngl_configure(self.ctx, &config)
