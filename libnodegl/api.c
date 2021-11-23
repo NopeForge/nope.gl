@@ -95,6 +95,11 @@ static int cmd_stop(struct ngl_ctx *s, void *arg)
     return 0;
 }
 
+static void config_reset(struct ngl_config *config)
+{
+    memset(config, 0, sizeof(*config));
+}
+
 static int cmd_reset(struct ngl_ctx *s, void *arg)
 {
     if (s->gpu_ctx)
@@ -115,6 +120,7 @@ static int cmd_reset(struct ngl_ctx *s, void *arg)
     ngli_pgcache_reset(&s->pgcache);
     ngli_hud_freep(&s->hud);
     ngli_gpu_ctx_freep(&s->gpu_ctx);
+    config_reset(&s->config);
 
     return 0;
 }
@@ -136,13 +142,16 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     s->config = *config;
 
     s->gpu_ctx = ngli_gpu_ctx_create(config);
-    if (!s->gpu_ctx)
+    if (!s->gpu_ctx) {
+        config_reset(&s->config);
         return NGL_ERROR_MEMORY;
+    }
 
     int ret = ngli_gpu_ctx_init(s->gpu_ctx);
     if (ret < 0) {
         LOG(ERROR, "unable to initialize gpu context");
         ngli_gpu_ctx_freep(&s->gpu_ctx);
+        config_reset(&s->config);
         return ret;
     }
 
