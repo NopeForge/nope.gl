@@ -508,13 +508,16 @@ static int gl_resize(struct gpu_ctx *s, int width, int height, const int *viewpo
 
     s_priv->rt->width = gl->width;
     s_priv->rt->height = gl->height;
+    s_priv->rt_load->width = gl->width;
+    s_priv->rt_load->height = gl->height;
 
     /*
      * The default framebuffer id can change after a resize operation on EAGL,
-     * thus we need to update the rendertarget wrapping the default framebuffer
+     * thus we need to update the rendertargets wrapping the default framebuffer
      */
     struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)s_priv->rt;
-    rt_gl->id = ngli_glcontext_get_default_framebuffer(gl);
+    struct rendertarget_gl *rt_load_gl = (struct rendertarget_gl *)s_priv->rt_load;
+    rt_gl->id = rt_load_gl->id = ngli_glcontext_get_default_framebuffer(gl);
 
     if (viewport && viewport[2] > 0 && viewport[3] > 0) {
         ngli_gpu_ctx_set_viewport(s, viewport);
