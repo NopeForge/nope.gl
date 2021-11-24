@@ -822,7 +822,8 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rt_gl->id);
 
     const int scissor_test = s_priv->glstate.scissor_test;
-    ngli_glDisable(gl, GL_SCISSOR_TEST);
+    if (scissor_test)
+        ngli_glDisable(gl, GL_SCISSOR_TEST);
     ngli_rendertarget_gl_clear(rt);
     if (scissor_test)
         ngli_glEnable(gl, GL_SCISSOR_TEST);
