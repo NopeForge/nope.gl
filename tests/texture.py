@@ -186,7 +186,7 @@ def texture_clear_and_scissor(cfg):
     program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(quad, program)
     render.update_frag_resources(color=color)
-    graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0))
+    graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask='')
 
     texture = ngl.Texture2D(width=64, height=64)
     rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS.orange)
