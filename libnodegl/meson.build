@@ -125,6 +125,7 @@ lib_src = files(
   'deserialize.c',
   'dot.c',
   'drawutils.c',
+  'eval.c',
   'format.c',
   'geometry.c',
   'gpu_ctx.c',
@@ -569,6 +570,10 @@ test_progs = {
     'exe': 'test_draw',
     'src': files('test_draw.c', 'drawutils.c', 'memory.c'),
     'args': ['ngl-test.ppm']
+  },
+  'Eval': {
+    'exe': 'test_eval',
+    'src': files('test_eval.c', 'eval.c', 'darray.c', 'memory.c', 'hmap.c', 'bstr.c', 'log.c', 'utils.c'),
   },
   'Hash map': {
     'exe': 'test_hmap',
