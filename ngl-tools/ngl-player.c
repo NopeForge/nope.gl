@@ -182,10 +182,10 @@ int main(int argc, char *argv[])
 
     update_window_title(p.window, filename);
 
-    player_main_loop();
+    player_main_loop(&p);
 
 end:
-    player_uninit();
+    player_uninit(&p);
 
     return ret;
 }

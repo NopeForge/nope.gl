@@ -90,10 +90,10 @@ int main(int argc, char *argv[])
         goto end;
     ngl_node_unrefp(&scene);
 
-    player_main_loop();
+    player_main_loop(&p);
 
 end:
-    player_uninit();
+    player_uninit(&p);
 
     return ret;
 }

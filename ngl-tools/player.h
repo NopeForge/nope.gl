@@ -74,8 +74,8 @@ struct player {
 int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
                 const struct ngl_config *cfg, double duration, int *framerate, int enable_ui);
 
-void player_uninit(void);
+void player_uninit(struct player *p);
 
-void player_main_loop(void);
+void player_main_loop(struct player *p);
 
 #endif

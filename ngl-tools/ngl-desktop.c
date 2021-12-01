@@ -696,7 +696,7 @@ int main(int argc, char *argv[])
     if (ret < 0)
         goto end;
 
-    player_main_loop();
+    player_main_loop(&s.p);
 
 end:
     remove_session_file(&s);
@@ -718,7 +718,7 @@ end:
     ipc_pkt_freep(&s.send_pkt);
     ipc_pkt_freep(&s.recv_pkt);
 
-    player_uninit();
+    player_uninit(&s.p);
 
     return ret;
 }

@@ -33,8 +33,6 @@
 #include "player.h"
 #include "wsi.h"
 
-static struct player *g_player;
-
 static int save_ppm(const char *filename, uint8_t *data, int width, int height)
 {
     int ret = 0;
@@ -77,9 +75,8 @@ end:
     return ret;
 }
 
-static int screenshot(void)
+static int screenshot(struct player *p)
 {
-    struct player *p = g_player;
     struct ngl_config *config = &p->ngl_config;
     struct ngl_config backup = *config;
 
@@ -119,20 +116,16 @@ end:
     return ret;
 }
 
-static void kill_scene()
+static void kill_scene(struct player *p)
 {
-    struct player *p = g_player;
-
     ngl_set_scene(p->ngl, NULL);
     p->pgbar_opacity_node  = NULL;
     p->pgbar_duration_node = NULL;
     p->pgbar_text_node     = NULL;
 }
 
-static void update_text(void)
+static void update_text(struct player *p)
 {
-    struct player *p = g_player;
-
     if (!p->pgbar_text_node)
         return;
 
@@ -153,10 +146,8 @@ static void update_text(void)
     p->text_last_duration = duration;
 }
 
-static void update_pgbar(void)
+static void update_pgbar(struct player *p)
 {
-    struct player *p = g_player;
-
     if (p->pgbar_opacity_node && p->lasthover >= 0) {
         const int64_t t64_diff = gettime_relative() - p->lasthover;
         const double opacity = clipd(1.5 - t64_diff / 1000000.0, 0, 1);
@@ -167,34 +158,30 @@ static void update_pgbar(void)
         ngl_node_param_set_vec4(p->pgbar_text_node, "bg_color", text_bg);
         ngl_node_param_set_vec4(p->pgbar_text_node, "fg_color", text_fg);
 
-        update_text();
+        update_text(p);
     }
 }
 
-static void set_frame_ts(int64_t frame_ts)
+static void set_frame_ts(struct player *p, int64_t frame_ts)
 {
-    struct player *p = g_player;
     p->frame_ts = frame_ts;
     p->frame_index = llrint((p->frame_ts * p->framerate[0]) / (double)(p->framerate[1] * 1000000));
     p->frame_time = (p->frame_index * p->framerate[1]) / (double)p->framerate[0];
 }
 
-static void set_frame_index(int64_t frame_index)
+static void set_frame_index(struct player *p, int64_t frame_index)
 {
-    struct player *p = g_player;
     p->frame_index = frame_index;
     p->frame_time = (p->frame_index * p->framerate[1]) / (double)p->framerate[0];
     p->frame_ts = llrint(p->frame_index * p->framerate[1] * 1000000 / (double)p->framerate[0]);
 }
 
-static void update_time(int64_t seek_at)
+static void update_time(struct player *p, int64_t seek_at)
 {
-    struct player *p = g_player;
-
     if (seek_at >= 0) {
         p->seeking = 1;
         p->clock_off = gettime_relative() - seek_at;
-        set_frame_ts(seek_at);
+        set_frame_ts(p, seek_at);
         return;
     }
 
@@ -205,28 +192,24 @@ static void update_time(int64_t seek_at)
             p->clock_off = now;
         }
 
-        set_frame_ts(now - p->clock_off);
+        set_frame_ts(p, now - p->clock_off);
     }
 }
 
-static void reset_running_time(void)
+static void reset_running_time(struct player *p)
 {
-    struct player *p = g_player;
     p->clock_off = gettime_relative() - p->frame_ts;
 }
 
-static int toggle_hud(void)
+static int toggle_hud(struct player *p)
 {
-    struct player *p = g_player;
     struct ngl_config *config = &p->ngl_config;
     config->hud ^= 1;
     return ngl_configure(p->ngl, config);
 }
 
-static int key_callback(SDL_Window *window, SDL_KeyboardEvent *event)
+static int key_callback(struct player *p, SDL_KeyboardEvent *event)
 {
-    struct player *p = g_player;
-
     const SDL_Keycode key = event->keysym.sym;
     switch (key) {
     case SDLK_ESCAPE:
@@ -234,37 +217,37 @@ static int key_callback(SDL_Window *window, SDL_KeyboardEvent *event)
         return 1;
     case SDLK_SPACE:
         p->paused ^= 1;
-        reset_running_time();
+        reset_running_time(p);
         break;
     case SDLK_f:
         p->fullscreen ^= 1;
-        SDL_SetWindowFullscreen(window, p->fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
+        SDL_SetWindowFullscreen(p->window, p->fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
         break;
     case SDLK_h:
-        return toggle_hud();
+        return toggle_hud(p);
     case SDLK_s:
-        screenshot();
+        screenshot(p);
         break;
     case SDLK_k:
-        kill_scene();
+        kill_scene(p);
         break;
     case SDLK_LEFT:
         p->lasthover = gettime_relative();
-        update_time(clipi64(p->frame_ts - 10 * 1000000, 0, p->duration));
+        update_time(p, clipi64(p->frame_ts - 10 * 1000000, 0, p->duration));
         break;
     case SDLK_RIGHT:
         p->lasthover = gettime_relative();
-        update_time(clipi64(p->frame_ts + 10 * 1000000, 0, p->duration));
+        update_time(p, clipi64(p->frame_ts + 10 * 1000000, 0, p->duration));
         break;
     case SDLK_o:
         p->paused = 1;
         p->lasthover = gettime_relative();
-        set_frame_index(clipi64(p->frame_index - 1, 0, p->duration_i));
+        set_frame_index(p, clipi64(p->frame_index - 1, 0, p->duration_i));
         break;
     case SDLK_p:
         p->paused = 1;
         p->lasthover = gettime_relative();
-        set_frame_index(clipi64(p->frame_index + 1, 0, p->duration_i));
+        set_frame_index(p, clipi64(p->frame_index + 1, 0, p->duration_i));
         break;
     default:
         break;
@@ -273,46 +256,40 @@ static int key_callback(SDL_Window *window, SDL_KeyboardEvent *event)
     return 0;
 }
 
-static void size_callback(SDL_Window *window, int width, int height)
+static void size_callback(struct player *p, int width, int height)
 {
-    struct player *p = g_player;
-
     get_viewport(width, height, p->aspect, p->ngl_config.viewport);
     p->ngl_config.width = width;
     p->ngl_config.height = height;
     ngl_resize(p->ngl, width, height, p->ngl_config.viewport);
 }
 
-static void seek_event(int x)
+static void seek_event(struct player *p, int x)
 {
-    struct player *p = g_player;
     const int *vp = p->ngl_config.viewport;
     const int pos = clipi(x - vp[0], 0, vp[2]);
     const int64_t seek_at64 = p->duration * pos / vp[2];
     p->lasthover = gettime_relative();
-    update_time(clipi64(seek_at64, 0, p->duration));
+    update_time(p, clipi64(seek_at64, 0, p->duration));
 }
 
-static void mouse_buttondown_callback(SDL_Window *window, SDL_MouseButtonEvent *event)
+static void mouse_buttondown_callback(struct player *p, SDL_MouseButtonEvent *event)
 {
-    struct player *p = g_player;
     p->mouse_down = 1;
-    seek_event(event->x);
+    seek_event(p, event->x);
 }
 
-static void mouse_buttonup_callback(SDL_Window *window, SDL_MouseButtonEvent *event)
+static void mouse_buttonup_callback(struct player *p, SDL_MouseButtonEvent *event)
 {
-    struct player *p = g_player;
     p->mouse_down = 0;
     p->clock_off = gettime_relative() - p->frame_ts;
 }
 
-static void mouse_pos_callback(SDL_Window *window, SDL_MouseMotionEvent *event)
+static void mouse_pos_callback(struct player *p, SDL_MouseMotionEvent *event)
 {
-    struct player *p = g_player;
     p->lasthover = gettime_relative();
     if (p->mouse_down)
-        seek_event(event->x);
+        seek_event(p, event->x);
 }
 
 static const char *pgbar_vert =
@@ -330,10 +307,8 @@ static const char *pgbar_frag =
     "    ngl_out_color = vec4(1.0, 1.0, 1.0, alpha);"                                   "\n"
     "}";
 
-static struct ngl_node *add_progress_bar(struct ngl_node *scene)
+static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scene)
 {
-    struct player *p = g_player;
-
     static const float bar_corner[3] = {-1.0, -1.0 + 0.1, 0.0};
     static const float bar_width[3]  = { 2.0,  0.0, 0.0};
     static const float bar_height[3] = { 0.0,  2.0 * 0.01, 0.0}; // 1% of the height
@@ -419,13 +394,12 @@ end:
     return group;
 }
 
-static int set_scene(struct ngl_node *scene)
+static int set_scene(struct player *p, struct ngl_node *scene)
 {
     int ret;
-    struct player *p = g_player;
 
     if (p->enable_ui) {
-        scene = add_progress_bar(scene);
+        scene = add_progress_bar(p, scene);
         if (!scene)
             return NGL_ERROR_MEMORY;
         ret = ngl_set_scene(p->ngl, scene);
@@ -445,8 +419,6 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
                 const struct ngl_config *cfg, double duration, int *framerate, int enable_ui)
 {
     memset(p, 0, sizeof(*p));
-
-    g_player = p;
 
     if (init_window() < 0)
         return -1;
@@ -509,13 +481,11 @@ int player_init(struct player *p, const char *win_title, struct ngl_node *scene,
     if (ret < 0)
         return ret;
 
-    return set_scene(scene);
+    return set_scene(p, scene);
 }
 
-void player_uninit(void)
+void player_uninit(struct player *p)
 {
-    struct player *p = g_player;
-
     if (!p)
         return;
 
@@ -529,19 +499,18 @@ void player_uninit(void)
     SDL_Quit();
 }
 
-static int handle_scene(const void *data)
+static int handle_scene(struct player *p, const void *data)
 {
     struct ngl_node *scene = ngl_node_deserialize(data);
     if (!scene)
         return NGL_ERROR_INVALID_DATA;
-    int ret = set_scene(scene);
+    int ret = set_scene(p, scene);
     ngl_node_unrefp(&scene);
     return ret;
 }
 
-static int handle_duration(const void *data)
+static int handle_duration(struct player *p, const void *data)
 {
-    struct player *p = g_player;
     memcpy(&p->duration_f, data, sizeof(p->duration_f));
     p->duration = p->duration_f * 1000000;
     p->duration_i = llrint(p->duration_f * p->framerate[0] / (double)p->framerate[1]);
@@ -550,16 +519,14 @@ static int handle_duration(const void *data)
     return 0;
 }
 
-static int handle_clearcolor(const void *data)
+static int handle_clearcolor(struct player *p, const void *data)
 {
-    struct player *p = g_player;
     memcpy(p->ngl_config.clear_color, data, sizeof(p->ngl_config.clear_color));
     return 0;
 }
 
-static int handle_samples(const void *data)
+static int handle_samples(struct player *p, const void *data)
 {
-    struct player *p = g_player;
 #ifdef _WIN32
     if (p->ngl_config.backend == NGL_BACKEND_OPENGL ||
         p->ngl_config.backend == NGL_BACKEND_OPENGLES) {
@@ -575,41 +542,38 @@ static int handle_samples(const void *data)
     return 0;
 }
 
-static int handle_aspect_ratio(const void *data)
+static int handle_aspect_ratio(struct player *p, const void *data)
 {
-    struct player *p = g_player;
     memcpy(p->aspect, data, sizeof(p->aspect));
     if (!p->aspect[0] || !p->aspect[1])
         p->aspect[0] = p->aspect[1] = 1;
     int width, height;
     SDL_GetWindowSize(p->window, &width, &height);
-    size_callback(p->window, width, height);
+    size_callback(p, width, height);
     if (p->pgbar_text_node)
         ngl_node_param_set_rational(p->pgbar_text_node, "aspect_ratio", p->aspect[0], p->aspect[1]);
     return 0;
 }
 
-static int handle_framerate(const void *data)
+static int handle_framerate(struct player *p, const void *data)
 {
     const int *rate = data;
-    struct player *p = g_player;
     if (!rate[0] || !rate[1]) {
         fprintf(stderr, "Invalid framerate %d/%d\n", rate[0], rate[1]);
         return -1;
     }
     memcpy(p->framerate, rate, sizeof(p->framerate));
     p->duration_i = llrint(p->duration_f * rate[0] / (double)rate[1]);
-    set_frame_ts(p->frame_ts);
+    set_frame_ts(p, p->frame_ts);
     return 0;
 }
 
-static int handle_reconfigure(const void *data)
+static int handle_reconfigure(struct player *p, const void *data)
 {
-    struct player *p = g_player;
     return ngl_configure(p->ngl, &p->ngl_config);
 }
 
-typedef int (*handle_func)(const void *data);
+typedef int (*handle_func)(struct player *p, const void *data);
 
 static const handle_func handle_map[] = {
     [PLAYER_SIGNAL_SCENE]        = handle_scene,
@@ -621,17 +585,15 @@ static const handle_func handle_map[] = {
     [PLAYER_SIGNAL_RECONFIGURE]  = handle_reconfigure,
 };
 
-void player_main_loop(void)
+void player_main_loop(struct player *p)
 {
-    struct player *p = g_player;
-
     int run = 1;
     while (run) {
-        update_time(-1);
-        update_pgbar();
+        update_time(p, -1);
+        update_pgbar(p);
         ngl_draw(p->ngl, p->frame_time);
         if (p->seeking) {
-            reset_running_time();
+            reset_running_time(p);
             p->seeking = 0;
         }
         SDL_Event event;
@@ -641,22 +603,22 @@ void player_main_loop(void)
                 if (event.window.event == SDL_WINDOWEVENT_CLOSE)
                     run = 0;
                 else if (event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-                    size_callback(p->window, event.window.data1, event.window.data2);
+                    size_callback(p, event.window.data1, event.window.data2);
                 break;
             case SDL_KEYDOWN:
-                run = key_callback(p->window, &event.key) == 0;
+                run = key_callback(p, &event.key) == 0;
                 break;
             case SDL_MOUSEBUTTONDOWN:
-                mouse_buttondown_callback(p->window, &event.button);
+                mouse_buttondown_callback(p, &event.button);
                 break;
             case SDL_MOUSEBUTTONUP:
-                mouse_buttonup_callback(p->window, &event.button);
+                mouse_buttonup_callback(p, &event.button);
                 break;
             case SDL_MOUSEMOTION:
-                mouse_pos_callback(p->window, &event.motion);
+                mouse_pos_callback(p, &event.motion);
                 break;
             case SDL_USEREVENT:
-                run = handle_map[event.user.code](event.user.data1) == 0;
+                run = handle_map[event.user.code](p, event.user.data1) == 0;
                 free(event.user.data1);
                 p->text_last_frame_index = -1;
                 p->lasthover = gettime_relative();
