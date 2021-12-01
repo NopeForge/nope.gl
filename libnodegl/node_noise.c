@@ -127,6 +127,7 @@ static int noise##type##_init(struct ngl_node *node)                        \
     s->var.data = s->var.vector;                                            \
     s->var.data_size = count * sizeof(float);                               \
     s->var.data_type = dtype;                                               \
+    s->var.dynamic = 1;                                                     \
     return init_noise_generators(s, count);                                 \
 }                                                                           \
                                                                             \
