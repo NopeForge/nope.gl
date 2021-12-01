@@ -79,7 +79,14 @@ struct ngl_ctx {
     int render_pass_started;
     struct darray modelview_matrix_stack;
     struct darray projection_matrix_stack;
+
+    /*
+     * Array of nodes that are candidate to either prefetch (active) or release
+     * (non-active). Nodes are inserted from bottom (leaves) up to the top
+     * (root).
+     */
     struct darray activitycheck_nodes;
+
     struct texture *font_atlas;
     struct pgcache pgcache;
 #if defined(HAVE_VAAPI)
