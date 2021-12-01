@@ -206,6 +206,7 @@ foreach backend : backends
 
   tests_media = [
     'clamp',
+    'flat_remap',
     'phases_display',
     'phases_resources',
     'timeranges_rtt',

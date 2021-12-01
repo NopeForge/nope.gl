@@ -69,8 +69,9 @@ def _get_time_scene(cfg):
     return rf
 
 
+@test_fingerprint(width=320, height=240, nb_keyframes=3, tolerance=1)
 @scene()
-def flat_remap(cfg):
+def media_flat_remap(cfg):
     cfg.medias = [Media('ngl-media-test.nut')]
 
     m0 = cfg.medias[0]
@@ -78,14 +79,15 @@ def flat_remap(cfg):
     cfg.aspect_ratio = (m0.width, m0.height)
 
     media_animkf = [
-        ngl.AnimKeyFrameFloat(-0.4, 1.833),
-        ngl.AnimKeyFrameFloat(cfg.duration, 1.833),
+        ngl.AnimKeyFrameFloat(cfg.duration/2, 1.833),
     ]
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    p = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    p.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
     t = ngl.Texture2D(data_src=m)
-    render = ngl.Render(q)
+    render = ngl.Render(q, p)
     render.update_frag_resources(tex0=t)
     return render
 
