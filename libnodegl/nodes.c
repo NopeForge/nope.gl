@@ -522,6 +522,7 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
         }
     }
 
+    /* Insert children (leaves) first */
     if (queue_node && !ngli_darray_push(&node->ctx->activitycheck_nodes, &node))
         return NGL_ERROR_MEMORY;
 
