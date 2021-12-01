@@ -74,7 +74,7 @@ int64_t gettime_relative(void)
 #endif
 }
 
-double clipd(double v, double min, double max)
+double clipf64(double v, double min, double max)
 {
     if (v < min) return min;
     if (v > max) return max;
