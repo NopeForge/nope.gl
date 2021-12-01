@@ -208,6 +208,7 @@ foreach backend : backends
     'clamp',
     'phases_display',
     'phases_resources',
+    'timeranges_rtt',
   ]
 
   tests_velocity = [

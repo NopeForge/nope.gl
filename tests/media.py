@@ -25,6 +25,7 @@ from pynodegl_utils.misc import scene, Media
 from pynodegl_utils.toolbox.colors import COLORS
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_resources import test_resources
+from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 
 
 def _get_time_scene(cfg):
@@ -122,3 +123,63 @@ def media_clamp(cfg):
     render = ngl.Render(quad, program)
     render.update_frag_resources(tex0=texture)
     return render
+
+
+@test_fingerprint(width=320, height=240, nb_keyframes=20, tolerance=1)
+@scene()
+def media_timeranges_rtt(cfg):
+    cfg.medias = [Media('ngl-media-test.nut')]
+
+    m0 = cfg.medias[0]
+    cfg.duration = d = 10
+    cfg.aspect_ratio = (m0.width, m0.height)
+
+    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
+    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
+
+    # Use a media/texture as leaf to exercise its prefetch/release mechanism
+    media = ngl.Media(m0.filename)
+    texture = ngl.Texture2D(data_src=media)
+
+    # Diamond tree on the same media texture
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render0 = ngl.Render(quad, program, frag_resources=dict(tex0=texture), label='leaf 0')
+    render1 = ngl.Render(quad, program, frag_resources=dict(tex0=texture), label='leaf 1')
+
+    # Create intermediate RTT "proxy" to exercise prefetch/release at this
+    # level as well
+    dst_tex0 = ngl.Texture2D(width=m0.width, height=m0.height)
+    dst_tex1 = ngl.Texture2D(width=m0.width, height=m0.height)
+    rtt0 = ngl.RenderToTexture(render0, [dst_tex0])
+    rtt1 = ngl.RenderToTexture(render1, [dst_tex1])
+
+    # Render the 2 RTTs vertically split (one half content each)
+    quad0 = ngl.Quad((-1, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(0, 0), uv_width=(.5, 0))
+    quad1 = ngl.Quad((0, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(.5, 0), uv_width=(.5, 0))
+    rtt_render0 = ngl.Render(quad0, program, frag_resources=dict(tex0=dst_tex0), label='render RTT 0')
+    rtt_render1 = ngl.Render(quad1, program, frag_resources=dict(tex0=dst_tex1), label='render RTT 1')
+    proxy0 = ngl.Group(children=(rtt0, rtt_render0), label='proxy 0')
+    proxy1 = ngl.Group(children=(rtt1, rtt_render1), label='proxy 1')
+
+    # We want to make sure the idle times are enough to exercise the
+    # prefetch/release mechanism
+    prefetch_time = 1
+    assert prefetch_time < d / 5
+
+    # Split the presentation in 5 segments such that there are inactive times,
+    # prefetch times and both overlapping and non-overlapping times for the
+    # RTTs
+    ranges0 = (
+        ngl.TimeRangeModeNoop(0),
+        ngl.TimeRangeModeCont(1/5 * d),
+        ngl.TimeRangeModeNoop(3/5 * d),
+    )
+    ranges1 = (
+        ngl.TimeRangeModeNoop(0),
+        ngl.TimeRangeModeCont(2/5 * d),
+        ngl.TimeRangeModeNoop(4/5 * d),
+    )
+    trange0 = ngl.TimeRangeFilter(proxy0, ranges=ranges0, prefetch_time=prefetch_time, label='left')
+    trange1 = ngl.TimeRangeFilter(proxy1, ranges=ranges1, prefetch_time=prefetch_time, label='right')
+
+    return ngl.Group(children=(trange0, trange1))
