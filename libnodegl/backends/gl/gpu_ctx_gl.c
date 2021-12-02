@@ -852,8 +852,6 @@ static void gl_end_render_pass(struct gpu_ctx *s)
 static void gl_set_viewport(struct gpu_ctx *s, const int *viewport)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
-    ngli_glViewport(gl, viewport[0], viewport[1], viewport[2], viewport[3]);
     memcpy(&s_priv->viewport, viewport, sizeof(s_priv->viewport));
 }
 

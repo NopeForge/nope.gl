@@ -714,6 +714,7 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
     ngli_glstate_update(gl, glstate, &graphics->state);
     int scissor[4];
     get_scissor(s, scissor);
+    ngli_glstate_update_viewport(gl, glstate, gpu_ctx_gl->viewport);
     ngli_glstate_update_scissor(gl, glstate, scissor);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
@@ -756,6 +757,7 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, struct buffer *indices, i
     ngli_glstate_update(gl, glstate, &graphics->state);
     int scissor[4];
     get_scissor(s, scissor);
+    ngli_glstate_update_viewport(gl, glstate, gpu_ctx_gl->viewport);
     ngli_glstate_update_scissor(gl, glstate, scissor);
     ngli_glstate_use_program(gl, glstate, program_gl->id);
 
