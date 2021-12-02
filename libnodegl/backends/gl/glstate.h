@@ -29,6 +29,7 @@ struct gpu_ctx;
 struct graphicstate;
 
 struct glstate {
+    /* Graphics state */
     GLenum blend;
     GLenum blend_dst_factor;
     GLenum blend_src_factor;
@@ -56,8 +57,11 @@ struct glstate {
     GLenum cull_face_mode;
 
     GLboolean scissor_test;
+
+    /* Dynamic graphics state */
     int scissor[4];
 
+    /* Common state */
     GLuint program_id;
 };
 
