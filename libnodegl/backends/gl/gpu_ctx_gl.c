@@ -813,7 +813,7 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
-    const struct glstate *glstate = &s_priv->glstate;
+    struct glstate *glstate = &s_priv->glstate;
 
     ngli_assert(rt);
     struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
@@ -825,14 +825,12 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
     if (reset_color_write_mask)
         ngli_glColorMask(gl, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 
-    const int scissor_test = glstate->scissor_test;
-    if (scissor_test)
+    if (glstate->scissor_test) {
         ngli_glDisable(gl, GL_SCISSOR_TEST);
+        glstate->scissor_test = 0;
+    }
 
     ngli_rendertarget_gl_clear(rt);
-
-    if (scissor_test)
-        ngli_glEnable(gl, GL_SCISSOR_TEST);
 
     if (reset_color_write_mask)
         ngli_glColorMask(gl, color_write_mask[0], color_write_mask[1], color_write_mask[2], color_write_mask[3]);
