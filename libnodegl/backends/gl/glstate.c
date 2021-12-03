@@ -102,44 +102,72 @@ static GLenum get_gl_cull_mode(int cull_mode)
     return gl_cull_mode_map[cull_mode];
 }
 
-void ngli_glstate_probe(const struct glcontext *gl, struct glstate *state)
+void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
 {
-    /* Blend */
-    ngli_glGetIntegerv(gl, GL_BLEND,                   (GLint *)&state->blend);
-    ngli_glGetIntegerv(gl, GL_BLEND_SRC_RGB,           (GLint *)&state->blend_src_factor);
-    ngli_glGetIntegerv(gl, GL_BLEND_DST_RGB,           (GLint *)&state->blend_dst_factor);
-    ngli_glGetIntegerv(gl, GL_BLEND_SRC_ALPHA,         (GLint *)&state->blend_src_factor_a);
-    ngli_glGetIntegerv(gl, GL_BLEND_DST_ALPHA,         (GLint *)&state->blend_dst_factor_a);
-    ngli_glGetIntegerv(gl, GL_BLEND_EQUATION_RGB,      (GLint *)&state->blend_op);
-    ngli_glGetIntegerv(gl, GL_BLEND_EQUATION_ALPHA,    (GLint *)&state->blend_op_a);
+    memset(glstate, 0, sizeof(*glstate));
 
-    /* Color */
-    ngli_glGetBooleanv(gl, GL_COLOR_WRITEMASK,         state->color_write_mask);
+    /* Blending */
+    ngli_glDisable(gl, GL_BLEND);
+    glstate->blend = 0;
+
+    ngli_glBlendFuncSeparate(gl, GL_ONE, GL_ZERO, GL_ONE, GL_ZERO);
+    glstate->blend_src_factor = GL_ONE;
+    glstate->blend_dst_factor = GL_ZERO;
+    glstate->blend_src_factor_a = GL_ONE;
+    glstate->blend_dst_factor_a = GL_ZERO;
+
+    ngli_glBlendEquationSeparate(gl, GL_FUNC_ADD, GL_FUNC_ADD);
+    glstate->blend_op = GL_FUNC_ADD;
+    glstate->blend_op_a = GL_FUNC_ADD;
+
+    /* Color write mask */
+    ngli_glColorMask(gl, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glstate->color_write_mask[0] = GL_TRUE;
+    glstate->color_write_mask[1] = GL_TRUE;
+    glstate->color_write_mask[2] = GL_TRUE;
+    glstate->color_write_mask[3] = GL_TRUE;
 
     /* Depth */
-    ngli_glGetIntegerv(gl, GL_DEPTH_TEST,              (GLint *)&state->depth_test);
-    ngli_glGetBooleanv(gl, GL_DEPTH_WRITEMASK,         &state->depth_write_mask);
-    ngli_glGetIntegerv(gl, GL_DEPTH_FUNC,              (GLint *)&state->depth_func);
+    ngli_glDisable(gl, GL_DEPTH_TEST);
+    glstate->depth_test = 0;
+
+    ngli_glDepthMask(gl, GL_TRUE);
+    glstate->depth_write_mask = GL_TRUE;
+
+    ngli_glDepthFunc(gl, GL_LESS);
+    glstate->depth_func = GL_LESS;
 
     /* Stencil */
-    ngli_glGetIntegerv(gl, GL_STENCIL_TEST,            (GLint *)&state->stencil_test);
-    ngli_glGetIntegerv(gl, GL_STENCIL_WRITEMASK,       (GLint *)&state->stencil_write_mask);
-    ngli_glGetIntegerv(gl, GL_STENCIL_FUNC,            (GLint *)&state->stencil_func);
-    ngli_glGetIntegerv(gl, GL_STENCIL_REF,             &state->stencil_ref);
-    ngli_glGetIntegerv(gl, GL_STENCIL_VALUE_MASK,      (GLint *)&state->stencil_read_mask);
-    ngli_glGetIntegerv(gl, GL_STENCIL_FAIL,            (GLint *)&state->stencil_fail);
-    ngli_glGetIntegerv(gl, GL_STENCIL_PASS_DEPTH_FAIL, (GLint *)&state->stencil_depth_fail);
-    ngli_glGetIntegerv(gl, GL_STENCIL_PASS_DEPTH_PASS, (GLint *)&state->stencil_depth_pass);
+    ngli_glDisable(gl, GL_STENCIL_TEST);
+    glstate->stencil_test = 0;
 
-    /* Face Culling */
-    ngli_glGetBooleanv(gl, GL_CULL_FACE,               &state->cull_face);
-    ngli_glGetIntegerv(gl, GL_CULL_FACE_MODE,          (GLint *)&state->cull_face_mode);
+    ngli_glStencilMask(gl, GL_TRUE);
+    glstate->stencil_write_mask = GL_TRUE;
+
+    ngli_glStencilFunc(gl, GL_ALWAYS, 0, 1);
+    glstate->stencil_func = GL_ALWAYS;
+    glstate->stencil_ref = 0;
+    glstate->stencil_read_mask = 1;
+
+    ngli_glStencilOp(gl, GL_KEEP, GL_KEEP, GL_KEEP);
+    glstate->stencil_fail = GL_KEEP;
+    glstate->stencil_depth_fail = GL_KEEP;
+    glstate->stencil_depth_pass = GL_KEEP;
+
+    /* Face culling */
+    ngli_glDisable(gl, GL_CULL_FACE);
+    glstate->cull_face = 0;
+
+    ngli_glCullFace(gl, GL_BACK);
+    glstate->cull_face_mode = GL_BACK;
 
     /* Scissor */
-    ngli_glGetBooleanv(gl, GL_SCISSOR_TEST,            &state->scissor_test);
+    ngli_glDisable(gl, GL_SCISSOR_TEST);
+    glstate->scissor_test = 0;
 
     /* Program */
-    ngli_glGetIntegerv(gl, GL_CURRENT_PROGRAM,         (GLint *)&state->program_id);
+    ngli_glUseProgram(gl, 0);
+    glstate->program_id = 0;
 }
 
 static void init_state(struct glstate *s, const struct graphicstate *gc)

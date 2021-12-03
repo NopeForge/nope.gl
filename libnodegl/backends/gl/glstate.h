@@ -64,7 +64,7 @@ struct glstate {
     GLuint program_id;
 };
 
-void ngli_glstate_probe(const struct glcontext *gl,
+void ngli_glstate_reset(const struct glcontext *gl,
                         struct glstate *glstate);
 
 void ngli_glstate_update(const struct glcontext *gl,

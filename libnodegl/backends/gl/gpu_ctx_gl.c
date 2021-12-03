@@ -478,7 +478,7 @@ static int gl_init(struct gpu_ctx *s)
     s_priv->default_rendertarget_desc.depth_stencil.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
     s_priv->default_rendertarget_desc.depth_stencil.resolve = gl->samples > 1;
 
-    ngli_glstate_probe(gl, &s_priv->glstate);
+    ngli_glstate_reset(gl, &s_priv->glstate);
 
     const int *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0) {
