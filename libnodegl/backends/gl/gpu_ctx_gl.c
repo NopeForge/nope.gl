@@ -479,7 +479,6 @@ static int gl_init(struct gpu_ctx *s)
     s_priv->default_rendertarget_desc.depth_stencil.resolve = gl->samples > 1;
 
     ngli_glstate_probe(gl, &s_priv->glstate);
-    s_priv->default_graphicstate = NGLI_GRAPHICSTATE_DEFAULTS;
 
     const int *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0) {
@@ -683,8 +682,6 @@ static int gl_end_draw(struct gpu_ctx *s, double t)
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
     struct ngl_config *config = &s->config;
-
-    ngli_glstate_update(s, &s_priv->default_graphicstate);
 
     ngli_gpu_ctx_end_render_pass(s);
 
