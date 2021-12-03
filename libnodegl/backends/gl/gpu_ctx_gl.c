@@ -846,8 +846,14 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 static void gl_end_render_pass(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct glcontext *gl = s_priv->glcontext;
+    struct glstate *glstate = &s_priv->glstate;
 
     if (s_priv->rendertarget) {
+        if (glstate->scissor_test) {
+            ngli_glDisable(gl, GL_SCISSOR_TEST);
+            glstate->scissor_test = 0;
+        }
         ngli_rendertarget_gl_resolve(s_priv->rendertarget);
         ngli_rendertarget_gl_invalidate(s_priv->rendertarget);
     }
