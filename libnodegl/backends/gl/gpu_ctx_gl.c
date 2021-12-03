@@ -819,11 +819,11 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
     struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rt_gl->id);
 
-    const GLboolean *color_write_mask = glstate->color_write_mask;
     static const GLboolean default_color_write_mask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
-    const int reset_color_write_mask = memcmp(color_write_mask, default_color_write_mask, sizeof(default_color_write_mask));
-    if (reset_color_write_mask)
+    if (memcmp(glstate->color_write_mask, default_color_write_mask, sizeof(default_color_write_mask))) {
         ngli_glColorMask(gl, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        memcpy(glstate->color_write_mask, &default_color_write_mask, sizeof(default_color_write_mask));
+    }
 
     if (glstate->scissor_test) {
         ngli_glDisable(gl, GL_SCISSOR_TEST);
@@ -831,9 +831,6 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
     }
 
     ngli_rendertarget_gl_clear(rt);
-
-    if (reset_color_write_mask)
-        ngli_glColorMask(gl, color_write_mask[0], color_write_mask[1], color_write_mask[2], color_write_mask[3]);
 
     s_priv->rendertarget = rt;
 }
