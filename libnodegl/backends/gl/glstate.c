@@ -168,6 +168,10 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
     /* Program */
     ngli_glUseProgram(gl, 0);
     glstate->program_id = 0;
+
+    /* VAO */
+    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
+        ngli_glBindVertexArray(gl, 0);
 }
 
 static void init_state(struct glstate *s, const struct graphicstate *gc)
