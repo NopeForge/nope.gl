@@ -92,6 +92,12 @@ static const int platform_to_glplatform[] = {
     [NGL_PLATFORM_WAYLAND] = GLPLATFORM_EGL,
 };
 
+static const char * const backend_names[] = {
+    [NGL_BACKEND_AUTO]     = "NGL_BACKEND_AUTO",
+    [NGL_BACKEND_OPENGL]   = "NGL_BACKEND_OPENGL",
+    [NGL_BACKEND_OPENGLES] = "NGL_BACKEND_OPENGLES",
+};
+
 static int glcontext_load_functions(struct glcontext *glcontext)
 {
     const struct glfunctions *gl = &glcontext->funcs;
@@ -117,6 +123,21 @@ static int glcontext_probe_version(struct glcontext *glcontext)
     GLint major_version = 0;
     GLint minor_version = 0;
 
+    const char *gl_version = (const char *)ngli_glGetString(glcontext, GL_VERSION);
+    if (!gl_version) {
+        LOG(ERROR, "could not get OpenGL version");
+        return NGL_ERROR_BUG;
+    }
+
+    const char *es_prefix = "OpenGL ES";
+    const int es = !strncmp(es_prefix, gl_version, strlen(es_prefix));
+    const int backend = es ? NGL_BACKEND_OPENGLES : NGL_BACKEND_OPENGL;
+    if (glcontext->backend != backend) {
+        LOG(ERROR, "OpenGL context (%s) does not match requested backend (%s)",
+            backend_names[backend], backend_names[glcontext->backend]);
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
     if (glcontext->backend == NGL_BACKEND_OPENGL) {
         ngli_glGetIntegerv(glcontext, GL_MAJOR_VERSION, &major_version);
         ngli_glGetIntegerv(glcontext, GL_MINOR_VERSION, &minor_version);
@@ -126,12 +147,6 @@ static int glcontext_probe_version(struct glcontext *glcontext)
             return NGL_ERROR_UNSUPPORTED;
         }
     } else if (glcontext->backend == NGL_BACKEND_OPENGLES) {
-        const char *gl_version = (const char *)ngli_glGetString(glcontext, GL_VERSION);
-        if (!gl_version) {
-            LOG(ERROR, "could not get OpenGL ES version");
-            return NGL_ERROR_BUG;
-        }
-
         int ret = sscanf(gl_version,
                          "OpenGL ES %d.%d",
                          &major_version,
