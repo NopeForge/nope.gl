@@ -285,48 +285,28 @@ static int honor_state(const struct glcontext *gl,
     return 1;
 }
 
-void ngli_glstate_update(struct gpu_ctx *gpu_ctx, const struct graphicstate *state)
+void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct graphicstate *state)
 {
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
+    struct glstate new_glstate = {0};
+    init_state(&new_glstate, state);
 
-    struct glstate glstate = {0};
-    init_state(&glstate, state);
-
-    int ret = honor_state(gl, &glstate, &gpu_ctx_gl->glstate);
+    int ret = honor_state(gl, &new_glstate, glstate);
     if (ret > 0)
-        gpu_ctx_gl->glstate = glstate;
+        *glstate = new_glstate;
 }
 
-void ngli_glstate_use_program(struct gpu_ctx *gpu_ctx, GLuint program_id)
+void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstate, GLuint program_id)
 {
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct glstate *glstate = &gpu_ctx_gl->glstate;
-
     if (glstate->program_id != program_id) {
         ngli_glUseProgram(gl, program_id);
         glstate->program_id = program_id;
     }
 }
 
-void ngli_glstate_update_scissor(struct gpu_ctx *gpu_ctx, const int *scissor)
+void ngli_glstate_update_scissor(const struct glcontext *gl, struct glstate *glstate, const int *scissor)
 {
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct glstate *glstate = &gpu_ctx_gl->glstate;
-
-    int tmp[4];
-    memcpy(tmp, scissor, sizeof(tmp));
-
-    struct ngl_config *config = &gpu_ctx->config;
-    if (config->offscreen) {
-        const int height = gpu_ctx_gl->rendertarget ? gpu_ctx_gl->rendertarget->height : gl->height;
-        tmp[1] = NGLI_MAX(height - tmp[1] - tmp[3], 0);
-    }
-
-    if (!memcmp(glstate->scissor, tmp, sizeof(glstate->scissor)))
+    if (!memcmp(glstate->scissor, scissor, sizeof(glstate->scissor)))
         return;
-    memcpy(glstate->scissor, tmp, sizeof(glstate->scissor));
-    ngli_glScissor(gl, tmp[0], tmp[1], tmp[2], tmp[3]);
+    memcpy(glstate->scissor, scissor, sizeof(glstate->scissor));
+    ngli_glScissor(gl, scissor[0], scissor[1], scissor[2], scissor[3]);
 }

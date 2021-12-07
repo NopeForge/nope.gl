@@ -633,8 +633,9 @@ int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *d
         struct gpu_ctx *gpu_ctx = s->gpu_ctx;
         struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
         struct glcontext *gl = gpu_ctx_gl->glcontext;
+        struct glstate *glstate = &gpu_ctx_gl->glstate;
         struct program_gl *program_gl = (struct program_gl *)s->program;
-        ngli_glstate_use_program(gpu_ctx, program_gl->id);
+        ngli_glstate_use_program(gl, glstate, program_gl->id);
         uniform_binding->set(gl, uniform_binding->location, uniform_binding->desc.count, data);
     }
     uniform_binding->data = NULL;
@@ -687,18 +688,35 @@ int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, struct buffer 
     return 0;
 }
 
+static void get_scissor(struct pipeline *s, int *scissor)
+{
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    const struct ngl_config *config = &gpu_ctx->config;
+    struct rendertarget *rendertarget = gpu_ctx_gl->rendertarget;
+
+    memcpy(scissor, gpu_ctx_gl->scissor, sizeof(gpu_ctx_gl->scissor));
+    if (config->offscreen) {
+        scissor[1] = NGLI_MAX(rendertarget->height - scissor[1] - scissor[3], 0);
+    }
+}
+
 void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
+    struct glstate *glstate = &gpu_ctx_gl->glstate;
     struct pipeline_graphics *graphics = &s->graphics;
     struct program_gl *program_gl = (struct program_gl *)s->program;
 
-    ngli_glstate_update(gpu_ctx, &graphics->state);
-    ngli_glstate_update_scissor(gpu_ctx, gpu_ctx_gl->scissor);
-    ngli_glstate_use_program(gpu_ctx, program_gl->id);
+    ngli_glstate_update(gl, glstate, &graphics->state);
+    int scissor[4];
+    get_scissor(s, scissor);
+    ngli_glstate_update_scissor(gl, glstate, scissor);
+    ngli_glstate_use_program(gl, glstate, program_gl->id);
+
     set_uniforms(s, gl);
     set_buffers(s, gl);
     set_textures(s, gl);
@@ -731,12 +749,16 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, struct buffer *indices, i
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
+    struct glstate *glstate = &gpu_ctx_gl->glstate;
     struct pipeline_graphics *graphics = &s->graphics;
     struct program_gl *program_gl = (struct program_gl *)s->program;
 
-    ngli_glstate_update(gpu_ctx, &graphics->state);
-    ngli_glstate_update_scissor(gpu_ctx, gpu_ctx_gl->scissor);
-    ngli_glstate_use_program(gpu_ctx, program_gl->id);
+    ngli_glstate_update(gl, glstate, &graphics->state);
+    int scissor[4];
+    get_scissor(s, scissor);
+    ngli_glstate_update_scissor(gl, glstate, scissor);
+    ngli_glstate_use_program(gl, glstate, program_gl->id);
+
     set_uniforms(s, gl);
     set_buffers(s, gl);
     set_textures(s, gl);
@@ -773,9 +795,10 @@ void ngli_pipeline_gl_dispatch(struct pipeline *s, int nb_group_x, int nb_group_
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
+    struct glstate *glstate = &gpu_ctx_gl->glstate;
     struct program_gl *program_gl = (struct program_gl *)s->program;
 
-    ngli_glstate_use_program(gpu_ctx, program_gl->id);
+    ngli_glstate_use_program(gl, glstate, program_gl->id);
     set_uniforms(s, gl);
     set_buffers(s, gl);
     set_textures(s, gl);
