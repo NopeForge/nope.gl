@@ -174,157 +174,154 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
         ngli_glBindVertexArray(gl, 0);
 }
 
-static void init_state(struct glstate *s, const struct graphicstate *gc)
+void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct graphicstate *state)
 {
-    s->blend              = gc->blend;
-    s->blend_dst_factor   = get_gl_blend_factor(gc->blend_dst_factor);
-    s->blend_src_factor   = get_gl_blend_factor(gc->blend_src_factor);
-    s->blend_dst_factor_a = get_gl_blend_factor(gc->blend_dst_factor_a);
-    s->blend_src_factor_a = get_gl_blend_factor(gc->blend_src_factor_a);
-    s->blend_op           = get_gl_blend_op(gc->blend_op);
-    s->blend_op_a         = get_gl_blend_op(gc->blend_op_a);
-
-    for (int i = 0; i < 4; i++)
-        s->color_write_mask[i] = gc->color_write_mask >> i & 1;
-
-    s->depth_test         = gc->depth_test;
-    s->depth_write_mask   = gc->depth_write_mask;
-    s->depth_func         = get_gl_compare_op(gc->depth_func);
-
-    s->stencil_test       = gc->stencil_test;
-    s->stencil_write_mask = gc->stencil_write_mask;
-    s->stencil_func       = get_gl_compare_op(gc->stencil_func);
-    s->stencil_ref        = gc->stencil_ref;
-    s->stencil_read_mask  = gc->stencil_read_mask;
-    s->stencil_fail       = get_gl_stencil_op(gc->stencil_fail);
-    s->stencil_depth_fail = get_gl_stencil_op(gc->stencil_depth_fail);
-    s->stencil_depth_pass = get_gl_stencil_op(gc->stencil_depth_pass);
-
-    s->cull_face      = gc->cull_mode != NGLI_CULL_MODE_NONE;
-    s->cull_face_mode = get_gl_cull_mode(gc->cull_mode);
-
-    s->scissor_test = gc->scissor_test;
-}
-
-static int honor_state(const struct glcontext *gl,
-                       const struct glstate *next,
-                       const struct glstate *prev)
-{
-    if (!memcmp(prev, next, sizeof(*prev)))
-        return 0;
-
     /* Blend */
-    if (next->blend != prev->blend) {
-        if (next->blend)
+    const int blend = state->blend;
+    if (blend != glstate->blend) {
+        if (blend)
             ngli_glEnable(gl, GL_BLEND);
         else
             ngli_glDisable(gl, GL_BLEND);
+        glstate->blend = blend;
     }
 
-    if (next->blend_dst_factor   != prev->blend_dst_factor   ||
-        next->blend_src_factor   != prev->blend_src_factor   ||
-        next->blend_dst_factor_a != prev->blend_dst_factor_a ||
-        next->blend_src_factor_a != prev->blend_src_factor_a) {
+    const GLenum blend_dst_factor   = get_gl_blend_factor(state->blend_dst_factor);
+    const GLenum blend_src_factor   = get_gl_blend_factor(state->blend_src_factor);
+    const GLenum blend_dst_factor_a = get_gl_blend_factor(state->blend_dst_factor_a);
+    const GLenum blend_src_factor_a = get_gl_blend_factor(state->blend_src_factor_a);
+    if (blend_dst_factor   != glstate->blend_dst_factor   ||
+        blend_src_factor   != glstate->blend_src_factor   ||
+        blend_dst_factor_a != glstate->blend_dst_factor_a ||
+        blend_src_factor_a != glstate->blend_src_factor_a) {
         ngli_glBlendFuncSeparate(gl,
-                                 next->blend_src_factor,
-                                 next->blend_dst_factor,
-                                 next->blend_src_factor_a,
-                                 next->blend_dst_factor_a);
+                                 blend_src_factor,
+                                 blend_dst_factor,
+                                 blend_src_factor_a,
+                                 blend_dst_factor_a);
+        glstate->blend_dst_factor = blend_dst_factor;
+        glstate->blend_src_factor = blend_src_factor;
+        glstate->blend_dst_factor_a = blend_dst_factor_a;
+        glstate->blend_src_factor_a = blend_src_factor_a;
     }
 
-    if (next->blend_op   != prev->blend_op ||
-        next->blend_op_a != prev->blend_op_a) {
+    const GLenum blend_op   = get_gl_blend_op(state->blend_op);
+    const GLenum blend_op_a = get_gl_blend_op(state->blend_op_a);
+    if (blend_op   != glstate->blend_op ||
+        blend_op_a != glstate->blend_op_a) {
         ngli_glBlendEquationSeparate(gl,
-                                     next->blend_op,
-                                     next->blend_op_a);
+                                     blend_op,
+                                     blend_op_a);
+        glstate->blend_op   = blend_op;
+        glstate->blend_op_a = blend_op_a;
     }
 
     /* Color */
-    if (memcmp(next->color_write_mask, prev->color_write_mask, sizeof(prev->color_write_mask))) {
+    GLboolean color_write_mask[4];
+    for (int i = 0; i < 4; i++)
+        color_write_mask[i] = state->color_write_mask >> i & 1;
+    if (memcmp(color_write_mask, glstate->color_write_mask, sizeof(glstate->color_write_mask))) {
         ngli_glColorMask(gl,
-                         next->color_write_mask[0],
-                         next->color_write_mask[1],
-                         next->color_write_mask[2],
-                         next->color_write_mask[3]);
+                         color_write_mask[0],
+                         color_write_mask[1],
+                         color_write_mask[2],
+                         color_write_mask[3]);
+        memcpy(glstate->color_write_mask, color_write_mask, sizeof(glstate->color_write_mask));
     }
 
     /* Depth */
-    if (next->depth_test != prev->depth_test) {
-        if (next->depth_test)
+    const GLenum depth_test = state->depth_test;
+    if (depth_test != glstate->depth_test) {
+        if (depth_test)
             ngli_glEnable(gl, GL_DEPTH_TEST);
         else
             ngli_glDisable(gl, GL_DEPTH_TEST);
+        glstate->depth_test = depth_test;
     }
 
-    if (next->depth_write_mask != prev->depth_write_mask) {
-        ngli_glDepthMask(gl, next->depth_write_mask);
+    const GLboolean depth_write_mask = state->depth_write_mask;
+    if (depth_write_mask != glstate->depth_write_mask) {
+        ngli_glDepthMask(gl, depth_write_mask);
+        glstate->depth_write_mask = depth_write_mask;
     }
 
-    if (next->depth_func != prev->depth_func) {
-        ngli_glDepthFunc(gl, next->depth_func);
+    const GLenum depth_func = get_gl_compare_op(state->depth_func);
+    if (depth_func != glstate->depth_func) {
+        ngli_glDepthFunc(gl, depth_func);
+        glstate->depth_func = depth_func;
     }
 
     /* Stencil */
-    if (next->stencil_test != prev->stencil_test) {
-        if (next->stencil_test)
+    const int stencil_test = state->stencil_test;
+    if (stencil_test != glstate->stencil_test) {
+        if (stencil_test)
             ngli_glEnable(gl, GL_STENCIL_TEST);
         else
             ngli_glDisable(gl, GL_STENCIL_TEST);
+        glstate->stencil_test = stencil_test;
     }
 
-    if (next->stencil_write_mask != prev->stencil_write_mask) {
-        ngli_glStencilMask(gl, next->stencil_write_mask);
+    const GLboolean stencil_write_mask = state->stencil_write_mask;
+    if (stencil_write_mask != glstate->stencil_write_mask) {
+        ngli_glStencilMask(gl, stencil_write_mask);
+        glstate->stencil_write_mask = stencil_write_mask;
     }
 
-    if (next->stencil_func      != prev->stencil_func ||
-        next->stencil_ref       != prev->stencil_ref  ||
-        next->stencil_read_mask != prev->stencil_read_mask) {
+    const GLenum stencil_func       = get_gl_compare_op(state->stencil_func);
+    const GLenum stencil_ref        = state->stencil_ref;
+    const GLenum stencil_read_mask  = state->stencil_read_mask;
+    if (stencil_func      != glstate->stencil_func ||
+        stencil_ref       != glstate->stencil_ref  ||
+        stencil_read_mask != glstate->stencil_read_mask) {
         ngli_glStencilFunc(gl,
-                           next->stencil_func,
-                           next->stencil_ref,
-                           next->stencil_read_mask);
+                           stencil_func,
+                           stencil_ref,
+                           stencil_read_mask);
+        glstate->stencil_func = stencil_func;
+        glstate->stencil_ref = stencil_ref;
+        glstate->stencil_read_mask = stencil_read_mask;
     }
 
-    if (next->stencil_fail       != prev->stencil_fail       ||
-        next->stencil_depth_fail != prev->stencil_depth_fail ||
-        next->stencil_depth_pass != prev->stencil_depth_pass) {
+    const GLenum stencil_fail       = get_gl_stencil_op(state->stencil_fail);
+    const GLenum stencil_depth_fail = get_gl_stencil_op(state->stencil_depth_fail);
+    const GLenum stencil_depth_pass = get_gl_stencil_op(state->stencil_depth_pass);
+    if (stencil_fail       != glstate->stencil_fail       ||
+        stencil_depth_fail != glstate->stencil_depth_fail ||
+        stencil_depth_pass != glstate->stencil_depth_pass) {
         ngli_glStencilOp(gl,
-                         next->stencil_fail,
-                         next->stencil_depth_fail,
-                         next->stencil_depth_pass);
+                         stencil_fail,
+                         stencil_depth_fail,
+                         stencil_depth_pass);
+        glstate->stencil_fail = stencil_fail;
+        glstate->stencil_depth_fail = stencil_depth_fail;
+        glstate->stencil_depth_pass = stencil_depth_pass;
     }
 
     /* Face Culling */
-    if (next->cull_face != prev->cull_face) {
-        if (next->cull_face)
+    const int cull_face = state->cull_mode != NGLI_CULL_MODE_NONE;
+    if (cull_face != glstate->cull_face) {
+        if (cull_face)
             ngli_glEnable(gl, GL_CULL_FACE);
         else
             ngli_glDisable(gl, GL_CULL_FACE);
+        glstate->cull_face = cull_face;
     }
 
-    if (next->cull_face_mode != prev->cull_face_mode) {
-        ngli_glCullFace(gl, next->cull_face_mode);
+    const GLenum cull_face_mode = get_gl_cull_mode(state->cull_mode);
+    if (cull_face_mode != glstate->cull_face_mode) {
+        ngli_glCullFace(gl, cull_face_mode);
+        glstate->cull_face_mode = cull_face_mode;
     }
 
     /* Scissor */
-    if (next->scissor_test != prev->scissor_test) {
-        if (next->scissor_test)
+    const int scissor_test = state->scissor_test;
+    if (scissor_test != glstate->scissor_test) {
+        if (scissor_test)
             ngli_glEnable(gl, GL_SCISSOR_TEST);
         else
             ngli_glDisable(gl, GL_SCISSOR_TEST);
+        glstate->scissor_test = scissor_test;
     }
-
-    return 1;
-}
-
-void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, const struct graphicstate *state)
-{
-    struct glstate new_glstate = {0};
-    init_state(&new_glstate, state);
-
-    int ret = honor_state(gl, &new_glstate, glstate);
-    if (ret > 0)
-        *glstate = new_glstate;
 }
 
 void ngli_glstate_use_program(const struct glcontext *gl, struct glstate *glstate, GLuint program_id)
