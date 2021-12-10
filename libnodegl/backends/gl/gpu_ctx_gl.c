@@ -683,8 +683,6 @@ static int gl_end_draw(struct gpu_ctx *s, double t)
     struct glcontext *gl = s_priv->glcontext;
     struct ngl_config *config = &s->config;
 
-    ngli_gpu_ctx_end_render_pass(s);
-
     if (s_priv->capture_func && config->capture_buffer)
         s_priv->capture_func(s);
 

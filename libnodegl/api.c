@@ -369,6 +369,11 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
     }
 
 end:;
+    if (s->render_pass_started) {
+        ngli_gpu_ctx_end_render_pass(s->gpu_ctx);
+        s->render_pass_started = 0;
+    }
+
     int end_ret = ngli_gpu_ctx_end_draw(s->gpu_ctx, t);
     if (end_ret < 0)
         return end_ret;
