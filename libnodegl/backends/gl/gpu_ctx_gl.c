@@ -813,12 +813,12 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
+    const struct glstate *glstate = &s_priv->glstate;
 
     ngli_assert(rt);
     struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rt_gl->id);
 
-    const struct glstate *glstate = &s_priv->glstate;
     const GLboolean *color_write_mask = glstate->color_write_mask;
     static const GLboolean default_color_write_mask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
     const int reset_color_write_mask = memcmp(color_write_mask, default_color_write_mask, sizeof(default_color_write_mask));
