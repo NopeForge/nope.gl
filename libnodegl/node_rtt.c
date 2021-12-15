@@ -413,28 +413,6 @@ static int rtt_prefetch(struct ngl_node *node)
     return 0;
 }
 
-static int rtt_update(struct ngl_node *node, double t)
-{
-    struct rtt_priv *s = node->priv_data;
-    int ret = ngli_node_update(s->child, t);
-    if (ret < 0)
-        return ret;
-
-    for (int i = 0; i < s->nb_color_textures; i++) {
-        ret = ngli_node_update(s->color_textures[i], t);
-        if (ret < 0)
-            return ret;
-    }
-
-    if (s->depth_texture) {
-        ret = ngli_node_update(s->depth_texture, t);
-        if (ret < 0)
-            return ret;
-    }
-
-    return 0;
-}
-
 static void rtt_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -514,7 +492,7 @@ const struct node_class ngli_rtt_class = {
     .init      = rtt_init,
     .prepare   = rtt_prepare,
     .prefetch  = rtt_prefetch,
-    .update    = rtt_update,
+    .update    = ngli_node_update_children,
     .draw      = rtt_draw,
     .release   = rtt_release,
     .priv_size = sizeof(struct rtt_priv),
