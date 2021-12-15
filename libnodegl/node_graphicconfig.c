@@ -229,14 +229,6 @@ static int graphicconfig_init(struct ngl_node *node)
     return 0;
 }
 
-static int graphicconfig_update(struct ngl_node *node, double t)
-{
-    struct graphicconfig_priv *s = node->priv_data;
-    struct ngl_node *child = s->child;
-
-    return ngli_node_update(child, t);
-}
-
 #define COPY_PARAM(name) do {        \
     if (s->name != -1) {             \
         pending->name = s->name;     \
@@ -315,7 +307,7 @@ const struct node_class ngli_graphicconfig_class = {
     .name      = "GraphicConfig",
     .init      = graphicconfig_init,
     .prepare   = graphicconfig_prepare,
-    .update    = graphicconfig_update,
+    .update    = ngli_node_update_children,
     .draw      = graphicconfig_draw,
     .priv_size = sizeof(struct graphicconfig_priv),
     .params    = graphicconfig_params,
