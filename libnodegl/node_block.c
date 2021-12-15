@@ -357,12 +357,9 @@ static int block_update(struct ngl_node *node, double t)
 {
     struct block_priv *s = node->priv_data;
 
-    for (int i = 0; i < s->nb_fields; i++) {
-        struct ngl_node *field_node = s->fields[i];
-        int ret = ngli_node_update(field_node, t);
-        if (ret < 0)
-            return ret;
-    }
+    int ret = ngli_node_update_children(node, t);
+    if (ret < 0)
+        return ret;
 
     update_block_data(s, s->force_update);
     s->force_update = 0;
