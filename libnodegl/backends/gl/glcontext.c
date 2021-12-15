@@ -611,11 +611,10 @@ int ngli_glcontext_check_extension(const char *extension, const char *extensions
 int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char *context)
 {
     const GLenum error = ngli_glGetError(glcontext);
-    const char *errorstr = NULL;
-
     if (!error)
         return error;
 
+    const char *errorstr = NULL;
     switch (error) {
     GL_ERROR_STR_CASE(GL_INVALID_ENUM);
     GL_ERROR_STR_CASE(GL_INVALID_VALUE);
