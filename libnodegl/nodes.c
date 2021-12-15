@@ -597,6 +597,18 @@ int ngli_node_update(struct ngl_node *node, double t)
     return 0;
 }
 
+int ngli_node_update_children(struct ngl_node *node, double t)
+{
+    struct ngl_node **children = ngli_darray_data(&node->children);
+    for (int i = 0; i < ngli_darray_count(&node->children); i++) {
+        struct ngl_node *child = children[i];
+        int ret = ngli_node_update(child, t);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
+
 void ngli_node_draw(struct ngl_node *node)
 {
     if (node->cls->draw) {
