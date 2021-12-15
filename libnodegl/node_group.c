@@ -61,20 +61,6 @@ done:
     return ret;
 }
 
-static int group_update(struct ngl_node *node, double t)
-{
-    struct group_priv *s = node->priv_data;
-
-    for (int i = 0; i < s->nb_children; i++) {
-        struct ngl_node *child = s->children[i];
-        int ret = ngli_node_update(child, t);
-        if (ret < 0)
-            return ret;
-    }
-
-    return 0;
-}
-
 static void group_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -94,7 +80,7 @@ const struct node_class ngli_group_class = {
     .id        = NGL_NODE_GROUP,
     .name      = "Group",
     .prepare   = group_prepare,
-    .update    = group_update,
+    .update    = ngli_node_update_children,
     .draw      = group_draw,
     .priv_size = sizeof(struct group_priv),
     .params    = group_params,
