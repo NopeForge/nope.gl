@@ -606,6 +606,8 @@ int ngli_glcontext_check_extension(const char *extension, const char *extensions
     return 0;
 }
 
+#define GL_ERROR_STR_CASE(error) case error: errorstr = #error; break
+
 int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char *context)
 {
     const GLenum error = ngli_glGetError(glcontext);
@@ -615,21 +617,11 @@ int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char 
         return error;
 
     switch (error) {
-    case GL_INVALID_ENUM:
-        errorstr = "GL_INVALID_ENUM";
-        break;
-    case GL_INVALID_VALUE:
-        errorstr = "GL_INVALID_VALUE";
-        break;
-    case GL_INVALID_OPERATION:
-        errorstr = "GL_INVALID_OPERATION";
-        break;
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
-        errorstr = "GL_INVALID_FRAMEBUFFER_OPERATION";
-        break;
-    case GL_OUT_OF_MEMORY:
-        errorstr = "GL_OUT_OF_MEMORY";
-        break;
+    GL_ERROR_STR_CASE(GL_INVALID_ENUM);
+    GL_ERROR_STR_CASE(GL_INVALID_VALUE);
+    GL_ERROR_STR_CASE(GL_INVALID_OPERATION);
+    GL_ERROR_STR_CASE(GL_INVALID_FRAMEBUFFER_OPERATION);
+    GL_ERROR_STR_CASE(GL_OUT_OF_MEMORY);
     }
 
     if (errorstr)
