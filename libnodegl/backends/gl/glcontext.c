@@ -622,12 +622,11 @@ int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char 
     GL_ERROR_STR_CASE(GL_INVALID_OPERATION);
     GL_ERROR_STR_CASE(GL_INVALID_FRAMEBUFFER_OPERATION);
     GL_ERROR_STR_CASE(GL_OUT_OF_MEMORY);
+    default:
+        errorstr = "unknown error";
     }
 
-    if (errorstr)
-        LOG(ERROR, "GL error in %s: %s", context, errorstr);
-    else
-        LOG(ERROR, "GL error in %s: %04x", context, error);
+    LOG(ERROR, "%s: GL error: %s (0x%04x)", context, errorstr, error);
 
 #if DEBUG_GL
     ngli_assert(0);
