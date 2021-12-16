@@ -190,11 +190,11 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
 
     struct pipeline *pipeline = hwconv->pipeline;
 
-    struct darray *texture_infos_array = &hwconv->crafter->texture_infos;
-    struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
+    const struct darray *texture_infos_array = &hwconv->crafter->texture_infos;
+    const struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
     ngli_assert(ngli_darray_count(texture_infos_array) == 1);
 
-    struct pgcraft_texture_info_field *fields = info->fields;
+    const struct pgcraft_texture_info_field *fields = info->fields;
 
     if (image->params.layout) {
         const float dimensions[] = {image->params.width, image->params.height, image->params.depth};
