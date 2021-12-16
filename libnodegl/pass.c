@@ -38,6 +38,7 @@
 #include "pass.h"
 #include "pgcraft.h"
 #include "pipeline.h"
+#include "pipeline_utils.h"
 #include "program.h"
 #include "texture.h"
 #include "topology.h"
@@ -717,69 +718,8 @@ int ngli_pass_exec(struct pass *s)
 
     const struct darray *texture_infos_array = &desc->crafter->texture_infos;
     const struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
-    for (int i = 0; i < ngli_darray_count(texture_infos_array); i++) {
-        const struct pgcraft_texture_info *info = &texture_infos[i];
-        const struct pgcraft_texture_info_field *fields = info->fields;
-        const struct image *image = info->image;
-        const float ts = image->ts;
-
-        ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
-        ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
-        ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_TIMESTAMP].index, &ts);
-
-        if (image->params.layout) {
-            const float dimensions[] = {image->params.width, image->params.height, image->params.depth};
-            ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
-        }
-
-        const struct texture *textures[NGLI_INFO_FIELD_NB] = {0};
-        switch (image->params.layout) {
-        case NGLI_IMAGE_LAYOUT_DEFAULT:
-            textures[NGLI_INFO_FIELD_SAMPLER_0] = image->planes[0];
-            break;
-        case NGLI_IMAGE_LAYOUT_NV12:
-            textures[NGLI_INFO_FIELD_SAMPLER_0] = image->planes[0];
-            textures[NGLI_INFO_FIELD_SAMPLER_1] = image->planes[1];
-            break;
-        case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
-            textures[NGLI_INFO_FIELD_SAMPLER_RECT_0] = image->planes[0];
-            textures[NGLI_INFO_FIELD_SAMPLER_RECT_1] = image->planes[1];
-            break;
-        case NGLI_IMAGE_LAYOUT_MEDIACODEC:
-            textures[NGLI_INFO_FIELD_SAMPLER_OES] = image->planes[0];
-            break;
-        case NGLI_IMAGE_LAYOUT_YUV:
-            textures[NGLI_INFO_FIELD_SAMPLER_0] = image->planes[0];
-            textures[NGLI_INFO_FIELD_SAMPLER_1] = image->planes[1];
-            textures[NGLI_INFO_FIELD_SAMPLER_2] = image->planes[2];
-            break;
-        case NGLI_IMAGE_LAYOUT_RECTANGLE:
-            textures[NGLI_INFO_FIELD_SAMPLER_RECT_0] = image->planes[0];
-            break;
-        default:
-            break;
-        }
-
-        static const int samplers[] = {
-            NGLI_INFO_FIELD_SAMPLER_0,
-            NGLI_INFO_FIELD_SAMPLER_1,
-            NGLI_INFO_FIELD_SAMPLER_2,
-            NGLI_INFO_FIELD_SAMPLER_OES,
-            NGLI_INFO_FIELD_SAMPLER_RECT_0,
-            NGLI_INFO_FIELD_SAMPLER_RECT_1,
-        };
-
-        int ret = 1;
-        for (int i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
-            const int sampler = samplers[i];
-            const int index = fields[sampler].index;
-            const struct texture *texture = textures[sampler];
-            ret &= ngli_pipeline_update_texture(pipeline, index, texture);
-        };
-
-        const int layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->params.layout;
-        ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &layout);
-    }
+    for (int i = 0; i < ngli_darray_count(texture_infos_array); i++)
+        ngli_pipeline_utils_update_texture(pipeline, &texture_infos[i]);
 
     if (s->pipeline_type == NGLI_PIPELINE_TYPE_GRAPHICS) {
         if (!ctx->render_pass_started) {

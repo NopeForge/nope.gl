@@ -188,6 +188,7 @@ lib_src = files(
   'pgcache.c',
   'pgcraft.c',
   'pipeline.c',
+  'pipeline_utils.c',
   'precision.c',
   'program.c',
   'rendertarget.c',
