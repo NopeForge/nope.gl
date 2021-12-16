@@ -715,12 +715,12 @@ int ngli_pass_exec(struct pass *s)
         ngli_pipeline_update_uniform(pipeline, desc->normal_matrix_index, normal_matrix);
     }
 
-    struct darray *texture_infos_array = &desc->crafter->texture_infos;
-    struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
+    const struct darray *texture_infos_array = &desc->crafter->texture_infos;
+    const struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
     for (int i = 0; i < ngli_darray_count(texture_infos_array); i++) {
-        struct pgcraft_texture_info *info = &texture_infos[i];
+        const struct pgcraft_texture_info *info = &texture_infos[i];
         const struct pgcraft_texture_info_field *fields = info->fields;
-        struct image *image = info->image;
+        const struct image *image = info->image;
         const float ts = image->ts;
 
         ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
@@ -732,7 +732,7 @@ int ngli_pass_exec(struct pass *s)
             ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
         }
 
-        struct texture *textures[NGLI_INFO_FIELD_NB] = {0};
+        const struct texture *textures[NGLI_INFO_FIELD_NB] = {0};
         switch (image->params.layout) {
         case NGLI_IMAGE_LAYOUT_DEFAULT:
             textures[NGLI_INFO_FIELD_SAMPLER_0] = image->planes[0];
@@ -773,7 +773,7 @@ int ngli_pass_exec(struct pass *s)
         for (int i = 0; i < NGLI_ARRAY_NB(samplers); i++) {
             const int sampler = samplers[i];
             const int index = fields[sampler].index;
-            struct texture *texture = textures[sampler];
+            const struct texture *texture = textures[sampler];
             ret &= ngli_pipeline_update_texture(pipeline, index, texture);
         };
 
