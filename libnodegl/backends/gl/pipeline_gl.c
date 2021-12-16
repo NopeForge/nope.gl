@@ -583,7 +583,7 @@ int ngli_pipeline_gl_set_resources(struct pipeline *s, const struct pipeline_res
     return 0;
 }
 
-int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, struct buffer *buffer)
+int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, const struct buffer *buffer)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
@@ -611,7 +611,7 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, struct buff
         const GLuint location = attribute_binding->desc.location;
         const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
         const GLint stride = attribute_binding->desc.stride;
-        struct buffer_gl *buffer_gl = (struct buffer_gl *)buffer;
+        const struct buffer_gl *buffer_gl = (const struct buffer_gl *)buffer;
         ngli_glBindVertexArray(gl, s_priv->vao_id);
         ngli_glBindBuffer(gl, GL_ARRAY_BUFFER, buffer_gl->id);
         ngli_glVertexAttribPointer(gl, location, size, GL_FLOAT, GL_FALSE, stride, (void*)(uintptr_t)(attribute_binding->desc.offset));
@@ -643,7 +643,7 @@ int ngli_pipeline_gl_update_uniform(struct pipeline *s, int index, const void *d
     return 0;
 }
 
-int ngli_pipeline_gl_update_texture(struct pipeline *s, int index, struct texture *texture)
+int ngli_pipeline_gl_update_texture(struct pipeline *s, int index, const struct texture *texture)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
@@ -656,7 +656,7 @@ int ngli_pipeline_gl_update_texture(struct pipeline *s, int index, struct textur
     return 0;
 }
 
-int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, struct buffer *buffer, int offset, int size)
+int ngli_pipeline_gl_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, int offset, int size)
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 

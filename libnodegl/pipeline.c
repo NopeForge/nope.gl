@@ -38,7 +38,7 @@ int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resour
     return s->gpu_ctx->cls->pipeline_set_resources(s, data_params);
 }
 
-int ngli_pipeline_update_attribute(struct pipeline *s, int index, struct buffer *buffer)
+int ngli_pipeline_update_attribute(struct pipeline *s, int index, const struct buffer *buffer)
 {
     return s->gpu_ctx->cls->pipeline_update_attribute(s, index, buffer);
 }
@@ -48,12 +48,12 @@ int ngli_pipeline_update_uniform(struct pipeline *s, int index, const void *valu
     return s->gpu_ctx->cls->pipeline_update_uniform(s, index, value);
 }
 
-int ngli_pipeline_update_texture(struct pipeline *s, int index, struct texture *texture)
+int ngli_pipeline_update_texture(struct pipeline *s, int index, const struct texture *texture)
 {
     return s->gpu_ctx->cls->pipeline_update_texture(s, index, texture);
 }
 
-int ngli_pipeline_update_buffer(struct pipeline *s, int index, struct buffer *buffer, int offset, int size)
+int ngli_pipeline_update_buffer(struct pipeline *s, int index, const struct buffer *buffer, int offset, int size)
 {
     return s->gpu_ctx->cls->pipeline_update_buffer(s, index, buffer, offset, size);
 }
