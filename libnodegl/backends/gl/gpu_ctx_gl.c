@@ -102,7 +102,7 @@ static int wrap_capture_cvpixelbuffer(struct gpu_ctx *s,
         return NGL_ERROR_MEMORY;
     }
 
-    struct texture_params attachment_params = {
+    const struct texture_params attachment_params = {
         .type   = NGLI_TEXTURE_TYPE_2D,
         .format = NGLI_FORMAT_B8G8R8A8_UNORM,
         .width  = width,
@@ -185,7 +185,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
             if (!s_priv->color)
                 return NGL_ERROR_MEMORY;
 
-            struct texture_params params = {
+            const struct texture_params params = {
                 .type   = NGLI_TEXTURE_TYPE_2D,
                 .format = NGLI_FORMAT_R8G8B8A8_UNORM,
                 .width  = config->width,
@@ -201,7 +201,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         return NGL_ERROR_UNSUPPORTED;
 #endif
     } else if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_CPU) {
-        struct texture_params params = {
+        const struct texture_params params = {
             .type   = NGLI_TEXTURE_TYPE_2D,
             .format = NGLI_FORMAT_R8G8B8A8_UNORM,
             .width  = config->width,
@@ -220,7 +220,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
     }
 
     if (config->samples) {
-        struct texture_params params = {
+        const struct texture_params params = {
             .type    = NGLI_TEXTURE_TYPE_2D,
             .format  = NGLI_FORMAT_R8G8B8A8_UNORM,
             .width   = config->width,
@@ -236,7 +236,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
             return ret;
     }
 
-    struct texture_params attachment_params = {
+    const struct texture_params attachment_params = {
         .type    = NGLI_TEXTURE_TYPE_2D,
         .format  = NGLI_FORMAT_D24_UNORM_S8_UINT,
         .width   = config->width,
@@ -576,7 +576,7 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
             goto fail;
         }
 
-        struct texture_params params = {
+        const struct texture_params params = {
             .type   = NGLI_TEXTURE_TYPE_2D,
             .format = NGLI_FORMAT_R8G8B8A8_UNORM,
             .width  = config->width,
@@ -836,7 +836,7 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
     struct glstate *glstate = &s_priv->glstate;
 
     ngli_assert(rt);
-    struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
+    const struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rt_gl->id);
 
     static const GLboolean default_color_write_mask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
