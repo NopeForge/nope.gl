@@ -137,6 +137,30 @@ static void reset_capture_cvpixelbuffer(struct gpu_ctx *s)
 }
 #endif
 
+static void gl_set_viewport(struct gpu_ctx *s, const int *viewport)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    memcpy(&s_priv->viewport, viewport, sizeof(s_priv->viewport));
+}
+
+static void gl_get_viewport(struct gpu_ctx *s, int *viewport)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    memcpy(viewport, &s_priv->viewport, sizeof(s_priv->viewport));
+}
+
+static void gl_set_scissor(struct gpu_ctx *s, const int *scissor)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    memcpy(&s_priv->scissor, scissor, sizeof(s_priv->scissor));
+}
+
+static void gl_get_scissor(struct gpu_ctx *s, int *scissor)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    memcpy(scissor, &s_priv->scissor, sizeof(s_priv->scissor));
+}
+
 static int offscreen_rendertarget_init(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
@@ -847,30 +871,6 @@ static void gl_end_render_pass(struct gpu_ctx *s)
     }
 
     s_priv->rendertarget = NULL;
-}
-
-static void gl_set_viewport(struct gpu_ctx *s, const int *viewport)
-{
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    memcpy(&s_priv->viewport, viewport, sizeof(s_priv->viewport));
-}
-
-static void gl_get_viewport(struct gpu_ctx *s, int *viewport)
-{
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    memcpy(viewport, &s_priv->viewport, sizeof(s_priv->viewport));
-}
-
-static void gl_set_scissor(struct gpu_ctx *s, const int *scissor)
-{
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    memcpy(&s_priv->scissor, scissor, sizeof(s_priv->scissor));
-}
-
-static void gl_get_scissor(struct gpu_ctx *s, int *scissor)
-{
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    memcpy(scissor, &s_priv->scissor, sizeof(s_priv->scissor));
 }
 
 static int gl_get_preferred_depth_format(struct gpu_ctx *s)
