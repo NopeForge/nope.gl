@@ -189,14 +189,14 @@ static const struct node_param graphicconfig_params[] = {
     {"stencil_test",       NGLI_PARAM_TYPE_BOOL,   OFFSET(stencil_test),       {.i64=-1},
                            .desc=NGLI_DOCSTRING("enable stencil testing")},
     {"stencil_write_mask", NGLI_PARAM_TYPE_I32,    OFFSET(stencil_write_mask), {.i64=-1},
-                           .desc=NGLI_DOCSTRING("stencil write mask")},
+                           .desc=NGLI_DOCSTRING("stencil write mask, must be in the range [0, 0xff]")},
     {"stencil_func",       NGLI_PARAM_TYPE_SELECT, OFFSET(stencil_func),       {.i64=-1},
                            .desc=NGLI_DOCSTRING("passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)`"),
                            .choices=&func_choices},
     {"stencil_ref",        NGLI_PARAM_TYPE_I32,    OFFSET(stencil_ref),        {.i64=-1},
                            .desc=NGLI_DOCSTRING("stencil reference value to compare against")},
     {"stencil_read_mask",  NGLI_PARAM_TYPE_I32,    OFFSET(stencil_read_mask),  {.i64=-1},
-                           .desc=NGLI_DOCSTRING("stencil read mask")},
+                           .desc=NGLI_DOCSTRING("stencil read mask, must be in the range [0, 0xff]")},
     {"stencil_fail",       NGLI_PARAM_TYPE_SELECT, OFFSET(stencil_fail),       {.i64=-1},
                            .choices=&stencil_op_choices,
                            .desc=NGLI_DOCSTRING("operation to execute if stencil test fails")},
@@ -219,6 +219,18 @@ static const struct node_param graphicconfig_params[] = {
 static int graphicconfig_init(struct ngl_node *node)
 {
     struct graphicconfig_priv *s = node->priv_data;
+
+    if (s->stencil_write_mask != -1 &&
+        (s->stencil_write_mask < 0 || s->stencil_write_mask > 0xff)) {
+        LOG(ERROR, "stencil write mask (0x%x) must be in the range [0, 0xff]", s->stencil_write_mask);
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    if (s->stencil_read_mask != -1 &&
+        (s->stencil_read_mask < 0 || s->stencil_read_mask > 0xff)) {
+        LOG(ERROR, "stencil read mask (0x%x) must be in the range [0, 0xff]", s->stencil_read_mask);
+        return NGL_ERROR_INVALID_USAGE;
+    }
 
     static const float default_scissor[4] = DEFAULT_SCISSOR_F;
     s->use_scissor = memcmp(s->scissor_f, default_scissor, sizeof(s->scissor_f));

@@ -321,10 +321,10 @@ Parameter | Live-chg. | Type | Description | Default
 `depth_write_mask` |  | [`bool`](#parameter-types) | depth write mask | `unset`
 `depth_func` |  | [`function`](#function-choices) | passes if `<function>(depth, stored_depth)` | `unset`
 `stencil_test` |  | [`bool`](#parameter-types) | enable stencil testing | `unset`
-`stencil_write_mask` |  | [`i32`](#parameter-types) | stencil write mask | `-1`
+`stencil_write_mask` |  | [`i32`](#parameter-types) | stencil write mask, must be in the range [0, 0xff] | `-1`
 `stencil_func` |  | [`function`](#function-choices) | passes if `<function>(stencil_ref & stencil_read_mask, stencil & stencil_read_mask)` | `unset`
 `stencil_ref` |  | [`i32`](#parameter-types) | stencil reference value to compare against | `-1`
-`stencil_read_mask` |  | [`i32`](#parameter-types) | stencil read mask | `-1`
+`stencil_read_mask` |  | [`i32`](#parameter-types) | stencil read mask, must be in the range [0, 0xff] | `-1`
 `stencil_fail` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil test fails | `unset`
 `stencil_depth_fail` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if depth test fails | `unset`
 `stencil_depth_pass` |  | [`stencil_operation`](#stencil_operation-choices) | operation to execute if stencil and depth test pass | `unset`
