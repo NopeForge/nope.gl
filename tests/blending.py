@@ -65,39 +65,36 @@ def _get_dbg_positions(n=1):
 
 
 _CIRCLES_COLORS = [
-    (186/255., 159/255.,   8/255., 1.0),
-    (165/255.,   3/255.,  81/255., 1.0),
-    (  6/255., 163/255., 194/255., 1.0),
+    (186/255., 159/255.,   8/255.),
+    (165/255.,   3/255.,  81/255.),
+    (  6/255., 163/255., 194/255.),
 ]
 
 
 def _get_blending_base_objects(cfg):
     circle = ngl.Circle(radius=_CIRCLE_RADIUS, npoints=100)
-    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     positions = _equilateral_triangle_coords(_CIRCLE_RADIUS * 2.0 / 3.0)
     colored_circles = ngl.Group(label='colored circles')
     for position, color in zip(positions, _CIRCLES_COLORS):
-        render = ngl.Render(circle, prog)
-        render.update_frag_resources(color=ngl.UniformVec4(value=color))
+        render = ngl.RenderColor(color, geometry=circle)
         render = ngl.Translate(render, position)
         colored_circles.add_children(render)
-    return colored_circles, circle, prog, positions
+    return colored_circles, circle, positions
 
 
-def _get_background_circles(circle, prog, positions, bcolor):
+def _get_background_circles(circle, positions, bcolor):
     blend_bg = ngl.Group()
-    render = ngl.Render(circle, prog)
-    render.update_frag_resources(color=ngl.UniformVec4(value=bcolor))
+    render = ngl.RenderColor(bcolor[:3], geometry=circle)
     for position in positions:
         trender = ngl.Translate(render, position)
         blend_bg.add_children(trender)
     return blend_bg
 
 
-def _get_blending_scene_with_args(cfg, colored_circles, circle, prog, positions, bname, bcolor, **bparams):
+def _get_blending_scene_with_args(cfg, colored_circles, circle, positions, bname, bcolor, **bparams):
     g = ngl.Group(label=bname)
     if bcolor is not None:
-        blend_bg = _get_background_circles(circle, prog, positions, bcolor)
+        blend_bg = _get_background_circles(circle, positions, bcolor)
         blend_bg.set_label(f'background for {bname}')
         g.add_children(blend_bg)
     blended_circles = ngl.GraphicConfig(colored_circles, blend=True, **bparams)
@@ -107,8 +104,8 @@ def _get_blending_scene_with_args(cfg, colored_circles, circle, prog, positions,
 
 def _get_blending_scene(cfg, bname, bcolor, **bparams):
     cfg.aspect_ratio = (1, 1)
-    colored_circles, circle, prog, positions = _get_blending_base_objects(cfg)
-    return _get_blending_scene_with_args(cfg, colored_circles, circle, prog, positions, bname, bcolor, **bparams)
+    colored_circles, circle, positions = _get_blending_base_objects(cfg)
+    return _get_blending_scene_with_args(cfg, colored_circles, circle, positions, bname, bcolor, **bparams)
 
 
 _BLENDING_CFGS = (
@@ -139,11 +136,11 @@ def _get_blending_scenes(cfg):
     # WARNING: it is important to keep the creation of these base objects
     # outside of the loop below to test the diamond tree infrastructure
     # (multiple pipelines for one render).
-    colored_circles, circle, prog, positions = _get_blending_base_objects(cfg)
+    colored_circles, circle, positions = _get_blending_base_objects(cfg)
 
     scenes = []
     for bname, bcolor, bparams in _BLENDING_CFGS:
-        scenes.append(_get_blending_scene_with_args(cfg, colored_circles, circle, prog, positions, bname, bcolor, **bparams))
+        scenes.append(_get_blending_scene_with_args(cfg, colored_circles, circle, positions, bname, bcolor, **bparams))
     return scenes
 
 

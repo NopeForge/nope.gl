@@ -350,12 +350,7 @@ def compute_image_load_store(cfg, show_dbg_points=False):
         texture_rgba=texture_rgba
     )
 
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture_rgba)
-
+    render = ngl.RenderTexture(texture_rgba)
     group = ngl.Group(children=(compute, render))
 
     if show_dbg_points:

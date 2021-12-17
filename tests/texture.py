@@ -71,12 +71,7 @@ def texture_data_animated(cfg, dim=8):
         random_animkf.append(ngl.AnimKeyFrameBuffer(i*time_scale, buf))
     random_buffer = ngl.AnimatedBufferVec4(keyframes=random_animkf)
     random_tex = ngl.Texture2D(data_src=random_buffer, width=dim, height=dim)
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    prog = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    prog.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, prog)
-    render.update_frag_resources(tex0=random_tex)
-    return render
+    return ngl.RenderTexture(random_tex)
 
 
 @test_fingerprint()
@@ -181,20 +176,12 @@ def texture_cubemap_from_mrt_msaa(cfg):
 @test_cuepoints(width=32, height=32, points={'bottom-left': (-1, -1), 'top-right': (1, 1)}, tolerance=1)
 @scene()
 def texture_clear_and_scissor(cfg):
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    color = ngl.UniformVec4(COLORS.white)
-    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(color=color)
+    render = ngl.RenderColor(COLORS.white[:3])
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask='')
 
     texture = ngl.Texture2D(width=64, height=64)
     rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS.orange)
-
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
+    render = ngl.RenderTexture(texture)
 
     return ngl.Group(children=(graphic_config, rtt, render))
 
@@ -204,20 +191,11 @@ def texture_clear_and_scissor(cfg):
 def texture_scissor(cfg):
     cfg.aspect_ratio = (1, 1)
 
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    color = ngl.UniformVec4(COLORS.orange)
-    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(color=color)
+    render = ngl.RenderColor(COLORS.orange[:3])
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(32, 32, 32, 32))
     texture = ngl.Texture2D(width=64, height=64)
     rtt = ngl.RenderToTexture(graphic_config, [texture], clear_color=(0, 0, 0, 1))
-
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
-
+    render = ngl.RenderTexture(texture)
     return ngl.Group(children=(rtt, render))
 
 

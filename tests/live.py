@@ -42,12 +42,10 @@ _SHARED_UNIFORM_CUEPOINTS = dict((('0', (-0.5, -0.5)), ('1', (0.5, 0.5))))
 
 
 def _get_live_shared_uniform_scene(cfg, color, debug_positions):
-    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     group = ngl.Group()
     for i in range(2):
         quad = ngl.Quad((-1 + i, -1 + i, 0), (1, 0, 0), (0, 1, 0))
-        render = ngl.Render(quad, program)
-        render.update_frag_resources(color=color)
+        render = ngl.RenderColor(color, geometry=quad)
         group.add_children(render)
     if debug_positions:
         group.add_children(get_debug_points(cfg, _SHARED_UNIFORM_CUEPOINTS))
@@ -64,7 +62,7 @@ void main()
     fragment = '''
 void main()
 {
-    ngl_out_color = data.color;
+    ngl_out_color = vec4(data.color, 1.0);
 }
 '''
     program = ngl.Program(vertex=vertex, fragment=fragment)
@@ -81,8 +79,8 @@ void main()
 
 
 def _get_live_shared_uniform_function(layout=None):
-    data = [COLORS.red, COLORS.blue]
-    color = ngl.UniformVec4(value=COLORS.black, label='color')
+    data = [COLORS.red[:3], COLORS.blue[:3]]
+    color = ngl.UniformVec3(value=COLORS.black[:3], label='color')
 
     def keyframes_callback(t_id):
         color.set_value(*data[t_id])

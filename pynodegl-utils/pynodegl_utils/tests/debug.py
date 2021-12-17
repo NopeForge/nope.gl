@@ -25,11 +25,9 @@ from pynodegl_utils.toolbox.colors import COLORS
 
 
 def get_debug_points(cfg, points, radius=0.025, color=COLORS.green, text_size=(0.1, 0.1)):
-    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     g = ngl.Group()
     circle = ngl.Circle(radius=radius)
-    circle_render = ngl.Render(circle, prog)
-    circle_render.update_frag_resources(color=ngl.UniformVec4(value=color))
+    circle_render = ngl.RenderColor(color[:3], geometry=circle)
     box_w = (text_size[0], 0, 0)
     box_h = (0, text_size[1], 0)
     for pos_name, position in points.items():

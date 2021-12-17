@@ -152,17 +152,14 @@ def _get_rtt_scene(cfg, features='depth', texture_ds_format=None, samples=0, mip
         clear_color=(0, 0, 0, 1),
     )
 
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     if sample_depth:
+        quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
         program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=_RENDER_DEPTH)
         program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
         render = ngl.Render(quad, program)
         render.update_frag_resources(tex0=texture_depth)
     else:
-        program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-        program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-        render = ngl.Render(quad, program)
-        render.update_frag_resources(tex0=texture)
+        render = ngl.RenderTexture(texture)
     return ngl.Group(children=(rtt, render))
 
 
@@ -194,16 +191,8 @@ for name, params in _rtt_tests.items():
 
 
 def _rtt_load_attachment(cfg):
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    background = ngl.Render(quad, program)
-    background.update_frag_resources(color=ngl.UniformVec4(value=COLORS.white))
-
-    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.orange))
+    background = ngl.RenderColor(COLORS.white[:3])
+    render = ngl.RenderColor(COLORS.orange[:3])
 
     texture = ngl.Texture2D(width=16, height=16)
     rtt = ngl.RenderToTexture(render, [texture])
@@ -212,10 +201,7 @@ def _rtt_load_attachment(cfg):
     rtt_noop = ngl.RenderToTexture(render, [texture_noop])
 
     quad = ngl.Quad((0, 0, 0), (1, 0, 0), (0, 1, 0))
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    foreground = ngl.Render(quad, program)
-    foreground.update_frag_resources(tex0=texture)
+    foreground = ngl.RenderTexture(texture, geometry=quad)
 
     return ngl.Group(children=(background, rtt, rtt_noop, foreground))
 
@@ -234,11 +220,7 @@ def rtt_load_attachment_nested(cfg):
     texture = ngl.Texture2D(width=16, height=16)
     rtt = ngl.RenderToTexture(scene, [texture])
 
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    foreground = ngl.Render(quad, program)
-    foreground.update_frag_resources(tex0=texture)
+    foreground = ngl.RenderTexture(texture)
 
     return ngl.Group(children=(rtt, foreground))
 
@@ -249,11 +231,8 @@ def rtt_clear_attachment_with_timeranges(cfg):
     cfg.aspect_ratio = (1, 1)
 
     # Time-disabled full screen white quad
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.white))
+    render = ngl.RenderColor(COLORS.white[:3])
+
     time_range_filter = ngl.TimeRangeFilter(render)
     time_range_filter.add_ranges(ngl.TimeRangeModeNoop(0))
 
@@ -263,10 +242,8 @@ def rtt_clear_attachment_with_timeranges(cfg):
 
     # Centered rotating quad
     quad = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.orange))
+    render = ngl.RenderColor(COLORS.orange[:3], geometry=quad)
+
     animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, -360)]
     render = ngl.Rotate(render, angle=ngl.AnimatedFloat(animkf))
 
@@ -277,10 +254,6 @@ def rtt_clear_attachment_with_timeranges(cfg):
     rtt = ngl.RenderToTexture(group, [texture])
 
     # Full screen render of the root RTT result
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
+    render = ngl.RenderTexture(texture)
 
     return ngl.Group(children=(rtt, render))

@@ -48,9 +48,7 @@ void main()
 '''
 
     p0, p1, p2 = equilateral_triangle_coords(2.0)
-    prog_t = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    triangle = ngl.Render(ngl.Triangle(p0, p1, p2), prog_t)
-    triangle.update_frag_resources(color=ngl.UniformVec4(COLORS.white))
+    triangle = ngl.RenderColor(COLORS.white[:3], geometry=ngl.Triangle(p0, p1, p2))
     triangle = ngl.Rotate(triangle, angle=anim)
 
     prog_c = ngl.Program(vertex=cfg.get_vert('color'), fragment=frag)

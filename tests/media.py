@@ -51,13 +51,9 @@ def _get_time_scene(cfg):
         ngl.AnimKeyFrameFloat(play_stop,  media_seek + playback_duration),
     ]
 
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
     t = ngl.Texture2D(data_src=m)
-    p = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    p.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    r = ngl.Render(q, p)
-    r.update_frag_resources(tex0=t)
+    r = ngl.RenderTexture(t)
 
     time_ranges = [
         ngl.TimeRangeModeNoop(0),
@@ -82,14 +78,9 @@ def media_flat_remap(cfg):
         ngl.AnimKeyFrameFloat(cfg.duration/2, 1.833),
     ]
 
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    p = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    p.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
     t = ngl.Texture2D(data_src=m)
-    render = ngl.Render(q, p)
-    render.update_frag_resources(tex0=t)
-    return render
+    return ngl.RenderTexture(t)
 
 
 @test_cuepoints(points={'X': (0, -0.625)}, nb_keyframes=15, clear_color=COLORS.violet, tolerance=1)
@@ -117,14 +108,9 @@ def media_clamp(cfg):
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     media = ngl.Media(m0.filename)
     texture = ngl.Texture2D(data_src=media, clamp_video=True)
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=texture)
-    return render
+    return ngl.RenderTexture(texture)
 
 
 @test_cuepoints(points={f'P{i}': (i/5*2-1, 0) for i in range(5)}, nb_keyframes=5, tolerance=1)
@@ -168,17 +154,14 @@ def media_timeranges_rtt(cfg):
     cfg.duration = d = 10
     cfg.aspect_ratio = (m0.width, m0.height)
 
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-
     # Use a media/texture as leaf to exercise its prefetch/release mechanism
     media = ngl.Media(m0.filename)
     texture = ngl.Texture2D(data_src=media)
 
     # Diamond tree on the same media texture
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render0 = ngl.Render(quad, program, frag_resources=dict(tex0=texture), label='leaf 0')
-    render1 = ngl.Render(quad, program, frag_resources=dict(tex0=texture), label='leaf 1')
+    render0 = ngl.RenderTexture(texture, label='leaf 0')
+    render1 = ngl.RenderTexture(texture, label='leaf 1')
 
     # Create intermediate RTT "proxy" to exercise prefetch/release at this
     # level as well
@@ -190,8 +173,8 @@ def media_timeranges_rtt(cfg):
     # Render the 2 RTTs vertically split (one half content each)
     quad0 = ngl.Quad((-1, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(0, 0), uv_width=(.5, 0))
     quad1 = ngl.Quad((0, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(.5, 0), uv_width=(.5, 0))
-    rtt_render0 = ngl.Render(quad0, program, frag_resources=dict(tex0=dst_tex0), label='render RTT 0')
-    rtt_render1 = ngl.Render(quad1, program, frag_resources=dict(tex0=dst_tex1), label='render RTT 1')
+    rtt_render0 = ngl.RenderTexture(dst_tex0, geometry=quad0, label='render RTT 0')
+    rtt_render1 = ngl.RenderTexture(dst_tex1, geometry=quad1, label='render RTT 1')
     proxy0 = ngl.Group(children=(rtt0, rtt_render0), label='proxy 0')
     proxy1 = ngl.Group(children=(rtt1, rtt_render1), label='proxy 1')
 

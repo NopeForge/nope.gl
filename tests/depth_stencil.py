@@ -25,13 +25,9 @@ from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.toolbox.colors import COLORS
 
 
-def _render_quad(cfg, corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0), color=(1, 1, 1, 1)):
+def _render_quad(cfg, corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0), color=(1, 1, 1), opacity=1):
     quad = ngl.Quad(corner, width, height)
-    program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(color=ngl.UniformVec4(value=color))
-    return render
+    return ngl.RenderColor(color, opacity=opacity, geometry=quad, blending='src_over')
 
 
 @test_fingerprint(width=16, height=16, nb_keyframes=2, tolerance=1)
@@ -43,7 +39,7 @@ def depth_stencil_depth(cfg):
     for i in range(count):
         depth = (i + 1) / count
         corner = (-1 + (count - 1 - i) * 2 / count, -1, depth)
-        render = _render_quad(cfg, corner=corner, color=(depth, depth, depth, 1))
+        render = _render_quad(cfg, corner=corner, color=(depth, depth, depth))
         graphicconfig = ngl.GraphicConfig(
             render,
             depth_test=True,
@@ -54,14 +50,9 @@ def depth_stencil_depth(cfg):
     for i, depth in enumerate((0.4, 0.6)):
         corner = (-1, -0.5 + 0.25 * i, depth)
         height = (0, 1 - 0.25 * i * 2, 0)
-        render = _render_quad(cfg, corner=corner, height=height, color=(0.5, 0, 0, 0.5))
+        render = _render_quad(cfg, corner=corner, height=height, color=COLORS.red[:3], opacity=0.5)
         graphicconfig = ngl.GraphicConfig(
             render,
-            blend=True,
-            blend_src_factor='one',
-            blend_src_factor_a='one',
-            blend_dst_factor='one_minus_src_alpha',
-            blend_dst_factor_a='one_minus_src_alpha',
             depth_test=True,
             depth_func='less',
             depth_write_mask=0,
@@ -78,7 +69,7 @@ def depth_stencil_stencil(cfg):
 
     count = 4
     for i in range(count):
-        render = _render_quad(cfg, corner=(-1 + (i * 2) / count, -1, 0), color=(0, 0, 0, 1))
+        render = _render_quad(cfg, corner=(-1 + (i * 2) / count, -1, 0), color=COLORS.black[:3])
         graphicconfig = ngl.GraphicConfig(
             render,
             color_write_mask='',
@@ -93,7 +84,7 @@ def depth_stencil_stencil(cfg):
         )
         group.add_children(graphicconfig)
 
-    render = _render_quad(cfg, color=COLORS.white)
+    render = _render_quad(cfg, color=COLORS.white[:3])
     graphicconfig = ngl.GraphicConfig(
         render,
         stencil_test=True,

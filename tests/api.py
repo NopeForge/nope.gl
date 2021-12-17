@@ -29,17 +29,9 @@ from pynodegl_utils.toolbox.grid import autogrid_simple
 _backend_str = os.environ.get('BACKEND')
 _backend = get_backend(_backend_str) if _backend_str else ngl.BACKEND_AUTO
 
-_vert = 'void main() { ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0); }'
-_frag = 'void main() { ngl_out_color = color; }'
-
 
 def _get_scene(geometry=None):
-    program = ngl.Program(vertex=_vert, fragment=_frag)
-    if geometry is None:
-        geometry = ngl.Quad()
-    scene = ngl.Render(geometry, program)
-    scene.update_frag_resources(color=ngl.UniformVec4(value=(1.0, 1.0, 1.0, 1.0)))
-    return scene
+    return ngl.RenderColor(geometry=ngl.Quad() if geometry is None else geometry)
 
 
 def api_backend():

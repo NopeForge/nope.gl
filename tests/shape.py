@@ -57,10 +57,7 @@ void main()
 
 
 def _render_shape(cfg, geometry, color):
-    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    render = ngl.Render(geometry, prog)
-    render.update_frag_resources(color=ngl.UniformVec4(value=color))
-    return render
+    return ngl.RenderColor(color, geometry=geometry)
 
 
 @test_fingerprint()
@@ -70,7 +67,7 @@ def shape_triangle(cfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
     geometry = ngl.Triangle(p0, p1, p2)
-    return _render_shape(cfg, geometry, color)
+    return _render_shape(cfg, geometry, color[:3])
 
 
 @test_fingerprint(samples=4)
@@ -80,7 +77,7 @@ def shape_triangle_msaa(cfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
     geometry = ngl.Triangle(p0, p1, p2)
-    return _render_shape(cfg, geometry, color)
+    return _render_shape(cfg, geometry, color[:3])
 
 
 @test_fingerprint()
@@ -91,7 +88,7 @@ def shape_triangle_msaa(cfg, sz=1, color=COLORS.orange):
 def shape_quad(cfg, corner=(-.5, -.8, 0), width=(0.9, 0.2, 0), height=(0.1, 1.3, 0), color=COLORS.sgreen):
     cfg.aspect_ratio = (1, 1)
     geometry = ngl.Quad(corner, width, height)
-    return _render_shape(cfg, geometry, color)
+    return _render_shape(cfg, geometry, color[:3])
 
 
 @test_fingerprint()
@@ -100,7 +97,7 @@ def shape_quad(cfg, corner=(-.5, -.8, 0), width=(0.9, 0.2, 0), height=(0.1, 1.3,
 def shape_circle(cfg, radius=0.5, color=COLORS.azure):
     cfg.aspect_ratio = (1, 1)
     geometry = ngl.Circle(radius, npoints=64)
-    return _render_shape(cfg, geometry, color)
+    return _render_shape(cfg, geometry, color[:3])
 
 
 def _shape_geometry(cfg, set_normals=False, set_indices=False):
@@ -136,7 +133,9 @@ def _shape_geometry(cfg, set_normals=False, set_indices=False):
         prog.update_vert_out_vars(var_normal=ngl.IOVec3())
         render = ngl.Render(geometry, prog)
     else:
-        render = _render_shape(cfg, geometry, COLORS.magenta)
+        prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
+        render = ngl.Render(geometry, prog)
+        render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.magenta))
 
     if set_indices:
         indices = array.array('H', list(range(3 * 6)))
@@ -175,9 +174,7 @@ def shape_geometry_normals_indices(cfg):
 def shape_diamond_colormask(cfg):
     color_write_masks = ('r+g+b+a', 'r+g+a', 'g+b+a', 'r+b+a')
     geometry = ngl.Circle(npoints=5)
-    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    render = ngl.Render(geometry, prog)
-    render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.white))
+    render = ngl.RenderColor(COLORS.white[:3], geometry=geometry)
     scenes = [ngl.GraphicConfig(render, color_write_mask=cwm) for cwm in color_write_masks]
     return autogrid_simple(scenes)
 
@@ -346,7 +343,7 @@ def _get_shape_scene(cfg, shape, cull_mode):
     )
     geometry = geometry_cls[shape]()
 
-    node = _render_shape(cfg, geometry, COLORS.sgreen)
+    node = _render_shape(cfg, geometry, COLORS.sgreen[:3])
     return ngl.GraphicConfig(node, cull_mode=cull_mode)
 
 

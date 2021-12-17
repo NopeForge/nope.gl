@@ -84,9 +84,7 @@ def _get_compositing_scene(cfg, op, show_label=False):
     B = ngl.Render(quad, prog, label='B', blending=op)
     B.update_frag_resources(color=ngl.UniformVec4(value=COLORS.orange), off=B_off)
 
-    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    bg = ngl.Render(quad, prog, blending='dst_over', label='opaque white background')
-    bg.update_frag_resources(color=ngl.UniformVec4(value=COLORS.white))
+    bg = ngl.RenderColor(blending='dst_over')
 
     # draw A in current FBO, then draw B with the current operator, and
     # then result goes over the white background
