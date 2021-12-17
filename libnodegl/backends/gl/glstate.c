@@ -261,15 +261,15 @@ void ngli_glstate_update(const struct glcontext *gl, struct glstate *glstate, co
         glstate->stencil_test = stencil_test;
     }
 
-    const GLboolean stencil_write_mask = state->stencil_write_mask;
+    const GLuint stencil_write_mask = state->stencil_write_mask;
     if (stencil_write_mask != glstate->stencil_write_mask) {
         ngli_glStencilMask(gl, stencil_write_mask);
         glstate->stencil_write_mask = stencil_write_mask;
     }
 
     const GLenum stencil_func       = get_gl_compare_op(state->stencil_func);
-    const GLenum stencil_ref        = state->stencil_ref;
-    const GLenum stencil_read_mask  = state->stencil_read_mask;
+    const GLint stencil_ref         = state->stencil_ref;
+    const GLuint stencil_read_mask  = state->stencil_read_mask;
     if (stencil_func      != glstate->stencil_func ||
         stencil_ref       != glstate->stencil_ref  ||
         stencil_read_mask != glstate->stencil_read_mask) {
