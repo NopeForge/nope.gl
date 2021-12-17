@@ -31,10 +31,10 @@ By default, `node.gl` aligns its defaults with the sane ones from OpenGL:
 - Depth write mask: `1`
 - Depth Function: *less than*
 - Stencil test: *disabled*
-- Stencil write mask: `1`
+- Stencil write mask: `0xff`
 - Stencil function: *always*
 - Stencil reference: `0`
-- Stencil read mask: `1`
+- Stencil read mask: `0xff`
 - Stencil fail: *keep*
 - Stencil depth fail: *keep*
 - Stencil depth pass: *keep*

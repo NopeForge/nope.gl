@@ -131,10 +131,10 @@ struct graphicstate {
     .depth_write_mask   = 1,                               \
     .depth_func         = NGLI_COMPARE_OP_LESS,            \
     .stencil_test       = 0,                               \
-    .stencil_write_mask = 1,                               \
+    .stencil_write_mask = 0xff,                            \
     .stencil_func       = NGLI_COMPARE_OP_ALWAYS,          \
     .stencil_ref        = 0,                               \
-    .stencil_read_mask  = 1,                               \
+    .stencil_read_mask  = 0xff,                            \
     .stencil_fail       = NGLI_STENCIL_OP_KEEP,            \
     .stencil_depth_fail = NGLI_STENCIL_OP_KEEP,            \
     .stencil_depth_pass = NGLI_STENCIL_OP_KEEP,            \

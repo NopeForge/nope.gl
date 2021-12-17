@@ -141,13 +141,15 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
     ngli_glDisable(gl, GL_STENCIL_TEST);
     glstate->stencil_test = 0;
 
-    ngli_glStencilMask(gl, GL_TRUE);
-    glstate->stencil_write_mask = GL_TRUE;
+    /* Use node.gl's stencil read mask default (0xff) instead of OpenGL's ((GLuint)-1) */
+    ngli_glStencilMask(gl, 0xff);
+    glstate->stencil_write_mask = 0xff;
 
-    ngli_glStencilFunc(gl, GL_ALWAYS, 0, 1);
+    /* Use node.gl's stencil write mask default (0xff) instead of OpenGL's ((GLuint)-1) */
+    ngli_glStencilFunc(gl, GL_ALWAYS, 0, 0xff);
     glstate->stencil_func = GL_ALWAYS;
     glstate->stencil_ref = 0;
-    glstate->stencil_read_mask = 1;
+    glstate->stencil_read_mask = 0xff;
 
     ngli_glStencilOp(gl, GL_KEEP, GL_KEEP, GL_KEEP);
     glstate->stencil_fail = GL_KEEP;
