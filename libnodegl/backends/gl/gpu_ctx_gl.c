@@ -301,7 +301,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
     s_priv->capture_func = capture_func_map[config->capture_buffer_type];
 
     const int vp[4] = {0, 0, config->width, config->height};
-    ngli_gpu_ctx_set_viewport(s, vp);
+    gl_set_viewport(s, vp);
 
     return 0;
 }
@@ -506,14 +506,14 @@ static int gl_init(struct gpu_ctx *s)
 
     const int *viewport = config->viewport;
     if (viewport[2] > 0 && viewport[3] > 0) {
-        ngli_gpu_ctx_set_viewport(s, viewport);
+        gl_set_viewport(s, viewport);
     } else {
         const int default_viewport[] = {0, 0, gl->width, gl->height};
-        ngli_gpu_ctx_set_viewport(s, default_viewport);
+        gl_set_viewport(s, default_viewport);
     }
 
     const GLint scissor[] = {0, 0, gl->width, gl->height};
-    ngli_gpu_ctx_set_scissor(s, scissor);
+    gl_set_scissor(s, scissor);
 
     return 0;
 }
@@ -541,14 +541,14 @@ static int gl_resize(struct gpu_ctx *s, int width, int height, const int *viewpo
     rt_gl->id = rt_load_gl->id = ngli_glcontext_get_default_framebuffer(gl);
 
     if (viewport && viewport[2] > 0 && viewport[3] > 0) {
-        ngli_gpu_ctx_set_viewport(s, viewport);
+        gl_set_viewport(s, viewport);
     } else {
         const int default_viewport[] = {0, 0, gl->width, gl->height};
-        ngli_gpu_ctx_set_viewport(s, default_viewport);
+        gl_set_viewport(s, default_viewport);
     }
 
     const int scissor[] = {0, 0, gl->width, gl->height};
-    ngli_gpu_ctx_set_scissor(s, scissor);
+    gl_set_scissor(s, scissor);
 
     return 0;
 }
