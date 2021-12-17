@@ -68,6 +68,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
         desc->planes[1].format = NGLI_FORMAT_R8G8_UNORM;
         break;
     default:
+        LOG(ERROR, "unsupported pixel format %d", format);
         return NGL_ERROR_UNSUPPORTED;
     }
 
