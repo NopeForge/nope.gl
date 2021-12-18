@@ -127,6 +127,7 @@ lib_src = files(
   'dot.c',
   'drawutils.c',
   'eval.c',
+  'filterschain.c',
   'format.c',
   'geometry.c',
   'gpu_ctx.c',
@@ -401,7 +402,11 @@ endforeach
 #
 # GLSL to C (header)
 #
-shaders = {}
+shaders = {
+  'helper_linear2srgb.glsl': 'helper_linear2srgb_glsl.h',
+  'helper_srgb2linear.glsl': 'helper_srgb2linear_glsl.h',
+  'helper_misc_utils.glsl': 'helper_misc_utils_glsl.h',
+}
 glsl2c = find_program('scripts/glsl2c.py')
 shaders_h = []
 foreach shader_file, header_file : shaders
