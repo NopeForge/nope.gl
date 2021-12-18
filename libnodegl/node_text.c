@@ -717,6 +717,7 @@ static void text_uninit(struct ngl_node *node)
 
 const struct node_class ngli_text_class = {
     .id        = NGL_NODE_TEXT,
+    .category  = NGLI_NODE_CATEGORY_RENDER,
     .name      = "Text",
     .init      = text_init,
     .prepare   = text_prepare,

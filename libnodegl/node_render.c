@@ -226,6 +226,7 @@ static void render_draw(struct ngl_node *node)
 
 const struct node_class ngli_render_class = {
     .id        = NGL_NODE_RENDER,
+    .category  = NGLI_NODE_CATEGORY_RENDER,
     .name      = "Render",
     .init      = render_init,
     .prepare   = render_prepare,
