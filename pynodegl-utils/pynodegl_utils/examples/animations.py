@@ -6,13 +6,12 @@ from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.grid import AutoGrid
 
 
-def _block(w, h, program, corner=None, **uniforms):
+def _block(w, h, color, corner=None):
     block_width = (w, 0, 0)
     block_height = (0, h, 0)
     block_corner = (-w / 2., -h / 2., 0) if corner is None else corner
     block_quad = ngl.Quad(corner=block_corner, width=block_width, height=block_height)
-    block_render = ngl.Render(block_quad, program)
-    block_render.update_frag_resources(**uniforms)
+    block_render = ngl.RenderColor(color=color, geometry=block_quad)
     return block_render
 
 
@@ -40,8 +39,6 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
     hue = cfg.rng.uniform(0, 0.6)
     color = list(colorsys.hls_to_rgb(hue, 0.6, 1.0)) + [1]
     ucolor = ngl.UniformVec4(value=color)
-    graph_bg_ucolor = ngl.UniformVec4(value=(.15, .15, .15, 1))
-    normed_graph_bg_ucolor = ngl.UniformVec4(value=(0, 0, 0, 1))
     line_ucolor = ngl.UniformVec4(value=(1, 1, 1, .4))
 
     # Text legend
@@ -56,15 +53,13 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
 
     # Graph drawing area (where the curve may overflow)
     graph_size = area_size - text_height - pad_height * 2
-    graph_block = _block(graph_size, graph_size, color_program,
-                         corner=(-graph_size/2, -(graph_size + text_height)/2, 0),
-                         color=graph_bg_ucolor)
+    graph_block = _block(graph_size, graph_size, (.15, .15, .15),
+                         corner=(-graph_size/2, -(graph_size + text_height)/2, 0))
 
     # Normed area of the graph
     normed_graph_size = graph_size * curve_zoom
-    normed_graph_block = _block(normed_graph_size, normed_graph_size, color_program,
-                                corner=(-normed_graph_size/2, -(normed_graph_size + text_height)/2, 0),
-                                color=normed_graph_bg_ucolor)
+    normed_graph_block = _block(normed_graph_size, normed_graph_size, (0, 0, 0),
+                                corner=(-normed_graph_size/2, -(normed_graph_size + text_height)/2, 0))
 
     # Curve
     easing_name, easing_args = _easing_split(easing)
@@ -86,8 +81,7 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
     y = 2 / 3. * pad_height
     x = y * math.sqrt(3)
     cursor_geometry = ngl.Triangle((-x, y, 0), (0, 0, 0), (-x, -y, 0))
-    cursor = ngl.Render(cursor_geometry, color_program, label='%s cursor' % easing)
-    cursor.update_frag_resources(color=ucolor)
+    cursor = ngl.RenderColor(color[:3], geometry=cursor_geometry, label='%s cursor' % easing)
 
     # Horizontal value line
     hline_data = array.array('f', (0, 0, 0, graph_size, 0, 0))
@@ -189,7 +183,7 @@ def easings(cfg, easing_id='*'):
     frag_data = cfg.get_frag('color')
     color_program = ngl.Program(vertex=vert_data, fragment=frag_data, label='color')
     color_program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
-    full_block = _block(2, 2, color_program, color=ngl.UniformVec4(value=(.3, .3, .3, 1)))
+    full_block = _block(2, 2, (.3, .3, .3))
 
     group = ngl.Group()
     group.add_children(full_block)

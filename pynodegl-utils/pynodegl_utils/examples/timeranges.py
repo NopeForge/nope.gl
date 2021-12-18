@@ -9,7 +9,6 @@ def queued_medias(cfg, overlap_time=1., dim=3):
     '''Queue of medias, mainly used as a demonstration for the prefetch/release mechanism'''
     nb_videos = dim * dim
     tqs = []
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
     ag = AutoGrid(range(nb_videos))
     for video_id, _, col, pos in ag:
@@ -23,11 +22,8 @@ def queued_medias(cfg, overlap_time=1., dim=3):
 
         t = ngl.Texture2D(data_src=m)
 
-        program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-        program.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-        render = ngl.Render(q, program)
+        render = ngl.RenderTexture(t)
         render.set_label('render #%d' % video_id)
-        render.update_frag_resources(tex0=t)
         render = ag.place_node(render, (col, pos))
 
         rf = ngl.TimeRangeFilter(render)
@@ -53,20 +49,14 @@ def parallel_playback(cfg, fast=True, segment_time=2., constrained_timeranges=Fa
     textures only when needed to be displayed, causing potential seek in the
     underlying media, and thus undesired delays.
     '''
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-
     m1 = ngl.Media(cfg.medias[0].filename, label='media #1')
     m2 = ngl.Media(cfg.medias[0].filename, label='media #2')
 
     t1 = ngl.Texture2D(data_src=m1, label='texture #1')
     t2 = ngl.Texture2D(data_src=m2, label='texture #2')
 
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    render1 = ngl.Render(q, program, label='render #1')
-    render1.update_frag_resources(tex0=t1)
-    render2 = ngl.Render(q, program, label='render #2')
-    render2.update_frag_resources(tex0=t2)
+    render1 = ngl.RenderTexture(t1)
+    render2 = ngl.RenderTexture(t2)
 
     text_settings={
         'box_corner': (-1, 1 - 0.2, 0),
@@ -133,12 +123,8 @@ def simple_transition(cfg, transition_start=2, transition_duration=4):
     t1 = ngl.Texture2D(data_src=m1, label='texture #1')
     t2 = ngl.Texture2D(data_src=m2, label='texture #2')
 
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    render1 = ngl.Render(q, program, label='render #1')
-    render1.update_frag_resources(tex0=t1)
-    render2 = ngl.Render(q, program, label='render #2')
-    render2.update_frag_resources(tex0=t2)
+    render1 = ngl.RenderTexture(t1, label='render #1')
+    render2 = ngl.RenderTexture(t2, label='render #2')
 
     delta_animkf = [ngl.AnimKeyFrameFloat(transition_start, 1.0),
                     ngl.AnimKeyFrameFloat(transition_start + transition_duration, 0.0)]

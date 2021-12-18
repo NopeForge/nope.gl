@@ -14,10 +14,7 @@ def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, transla
 
     sz = 1/3.
     q = ngl.Quad((-sz/2, -sz/2, 0), (sz, 0, 0), (0, sz, 0))
-    p = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    node = ngl.Render(q, p)
-    ucolor = ngl.UniformVec4(value=color)
-    node.update_frag_resources(color=ucolor)
+    node = ngl.RenderColor(color[:3], geometry=q)
 
     coords = [(-1, 1), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 
@@ -80,10 +77,7 @@ def animated_camera(cfg, rotate=True):
     q = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     m = ngl.Media(cfg.medias[0].filename)
     t = ngl.Texture2D(data_src=m)
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    node = ngl.Render(q, program)
-    node.update_frag_resources(tex0=t)
+    node = ngl.RenderTexture(t, geometry=q)
     g.add_children(node)
 
     translate = ngl.Translate(node, vector=(-0.6, 0.8, -1))
@@ -136,13 +130,7 @@ def animated_buffer(cfg, dim=50):
         random_animkf.append(ngl.AnimKeyFrameBuffer(i*time_scale, buf))
     random_buffer = ngl.AnimatedBufferVec4(keyframes=random_animkf)
     random_tex = ngl.Texture2D(data_src=random_buffer, width=dim, height=dim)
-
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(quad, program)
-    render.update_frag_resources(tex0=random_tex)
-    return render
+    return ngl.RenderTexture(random_tex)
 
 
 @scene()
@@ -157,9 +145,7 @@ def animated_circles(cfg):
     step = 360. / n
 
     shape = ngl.Circle(radius=radius, npoints=128)
-    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    render = ngl.Render(shape, prog)
-    render.update_frag_resources(color=ngl.UniformVec4([1.0] * 4))
+    render = ngl.RenderColor(geometry=shape)
 
     for i in range(n):
         mid_time = cfg.duration / 2.0

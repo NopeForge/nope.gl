@@ -65,10 +65,7 @@ def buffer_dove(cfg,
     if bilinear_filtering:
         img_tex.set_mag_filter('linear')
     quad = ngl.Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
-    program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
-    render = ngl.Render(quad, program, label='dove')
-    render.update_frag_resources(tex0=img_tex)
+    render = ngl.RenderTexture(img_tex, geometry=quad)
     render = ngl.GraphicConfig(render,
                                blend=True,
                                blend_src_factor='one',
@@ -76,14 +73,12 @@ def buffer_dove(cfg,
                                blend_src_factor_a='zero',
                                blend_dst_factor_a='one')
 
-    prog_bg = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     shape_bg = ngl.Circle(radius=.6, npoints=256)
-    render_bg = ngl.Render(shape_bg, prog_bg, label='background')
-    color_animkf = [ngl.AnimKeyFrameVec4(0,                bgcolor1),
-                    ngl.AnimKeyFrameVec4(cfg.duration/2.0, bgcolor2),
-                    ngl.AnimKeyFrameVec4(cfg.duration,     bgcolor1)]
-    ucolor = ngl.AnimatedVec4(color_animkf)
-    render_bg.update_frag_resources(color=ucolor)
+    color_animkf = [ngl.AnimKeyFrameVec3(0,                bgcolor1[:3]),
+                    ngl.AnimKeyFrameVec3(cfg.duration/2.0, bgcolor2[:3]),
+                    ngl.AnimKeyFrameVec3(cfg.duration,     bgcolor1[:3])]
+    ucolor = ngl.AnimatedVec3(color_animkf)
+    render_bg = ngl.RenderColor(ucolor, geometry=shape_bg, label='background')
 
     return ngl.Group(children=(render_bg, render))
 
@@ -119,8 +114,6 @@ def fibo(cfg, n=8):
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
-    p = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-
     fib = [0, 1, 1]
     for i in range(2, n):
         fib.append(fib[i] + fib[i-1])
@@ -135,10 +128,9 @@ def fibo(cfg, n=8):
     for i, x in enumerate(fib[:-1]):
         w = x * shape_scale
         gray = 1. - i/float(n)
-        color = [gray, gray, gray, 1]
+        color = [gray, gray, gray]
         q = ngl.Quad(orig, (w, 0, 0), (0, w, 0))
-        render = ngl.Render(q, p)
-        render.update_frag_resources(color=ngl.UniformVec4(value=color))
+        render = ngl.RenderColor(color, geometry=q)
 
         new_g = ngl.Group()
         animkf = [ngl.AnimKeyFrameFloat(0,               90),
@@ -323,9 +315,7 @@ def blending_and_stencil(cfg):
 
     main_group = ngl.Group()
 
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program, label='sky')
-    render.update_frag_resources(color=ngl.UniformVec4(value=(0.2, 0.6, 1, 1)))
+    render = ngl.RenderColor(color=(0.2, 0.6, 1), label='sky')
     config = ngl.GraphicConfig(render,
                                stencil_test=True,
                                stencil_write_mask=0xFF,
@@ -337,8 +327,7 @@ def blending_and_stencil(cfg):
                                stencil_depth_pass='replace')
     main_group.add_children(config)
 
-    render = ngl.Render(circle, program, label='sun')
-    render.update_frag_resources(color=ngl.UniformVec4(value=(1, 0.8, 0, 1)))
+    render = ngl.RenderColor(color=(1, 0.8, 0), geometry=circle, label='sun')
 
     scale = ngl.Scale(render, (0.15, 0.15, 0.0))
     translate = ngl.Translate(scale, (0.4, 0.3, 0))
@@ -463,17 +452,11 @@ def cube(cfg, display_depth_buffer=False):
         rtt.set_depth_texture(depth_texture)
 
         quad = ngl.Quad((-1.0, -1.0, 0), (1, 0, 0), (0, 1, 0))
-        program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-        program.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-        render = ngl.Render(quad, program)
-        render.update_frag_resources(tex0=texture)
+        render = ngl.RenderTexture(texture, geometry=quad)
         group.add_children(rtt, render)
 
         quad = ngl.Quad((0.0, 0.0, 0), (1, 0, 0), (0, 1, 0))
-        program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-        program.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-        render = ngl.Render(quad, program)
-        render.update_frag_resources(tex0=depth_texture)
+        render = ngl.RenderTexture(depth_texture, geometry=quad)
         group.add_children(rtt, render)
 
         return group
@@ -498,11 +481,7 @@ def histogram(cfg):
         ngl.UniformUInt(label='maximum'),
     )
 
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    p = ngl.Program(vertex=cfg.get_vert('texture'), fragment=cfg.get_frag('texture'))
-    p.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    r = ngl.Render(q, p)
-    r.update_frag_resources(tex0=t)
+    r = ngl.RenderTexture(t)
     proxy_size = 128
     proxy = ngl.Texture2D(width=proxy_size, height=proxy_size)
     rtt = ngl.RenderToTexture(r)
@@ -627,9 +606,7 @@ def mountain(cfg, ndim=3, nb_layers=7,
 
         mountains.append(render)
 
-    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    sky = ngl.Render(quad, prog)
-    sky.update_frag_resources(color=ngl.UniformVec4(white))
+    sky = ngl.RenderColor(white[:3])
 
     group = ngl.Group(children=[sky] + mountains)
     blend = ngl.GraphicConfig(group,

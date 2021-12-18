@@ -35,9 +35,7 @@ def _path_scene(cfg, path, points=None, controls=None, easing='linear'):
     ]
 
     geom = ngl.Circle(radius=0.03, npoints=32)
-    prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
-    shape = ngl.Render(geom, prog)
-    shape.update_frag_resources(color=ngl.UniformVec4(value=COLORS.orange))
+    shape = ngl.RenderColor(COLORS.orange[:3], geometry=geom)
 
     moving_shape = ngl.Translate(shape, vector=ngl.AnimatedPath(anim_kf, path))
 
