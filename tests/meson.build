@@ -91,6 +91,18 @@ foreach backend : backends
     'lighten',
   ]
 
+  tests_compositing = [
+    'src_over',
+    'dst_over',
+    'src_out',
+    'dst_out',
+    'src_in',
+    'dst_in',
+    'src_atop',
+    'dst_atop',
+    'xor',
+  ]
+
   tests_compute = []
   if has_compute
     tests_compute += [
@@ -343,6 +355,7 @@ foreach backend : backends
     'api':       {'tests': tests_api, 'has_refs': false},
     'anim':      {'tests': tests_anim},
     'blending':  {'tests': tests_blending},
+    'compositing': {'tests': tests_compositing},
     'compute':   {'tests': tests_compute},
     'data':      {'tests': tests_data},
     'depth_stencil': {'tests': tests_depth_stencil},
