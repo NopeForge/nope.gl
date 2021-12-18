@@ -173,7 +173,7 @@ def api_text_live_change(width=320, height=240):
 
     # Exercise the diamond-form/prepare mechanism
     text_node = ngl.Text()
-    ctx.set_scene(autogrid_simple([text_node] * 4))
+    assert ctx.set_scene(autogrid_simple([text_node] * 4)) == 0
 
     ctx.draw(0)
     last_crc = zlib.crc32(capture_buffer)

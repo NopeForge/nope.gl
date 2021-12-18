@@ -119,9 +119,9 @@ class CompareSceneBase(CompareBase):
 
         if self._exercise_serialization:
             scene_str = scene.serialize()
-            ctx.set_scene_from_string(scene_str)
+            assert ctx.set_scene_from_string(scene_str) == 0
         else:
-            ctx.set_scene(scene)
+            assert ctx.set_scene(scene) == 0
 
         for t_id in range(self._nb_keyframes):
             if self._keyframes_callback:
