@@ -127,6 +127,38 @@ def media_clamp(cfg):
     return render
 
 
+@test_cuepoints(points={f'P{i}': (i/5*2-1, 0) for i in range(5)}, nb_keyframes=5, tolerance=1)
+@scene()
+def media_exposed_time(cfg):
+    cfg.medias = [Media('ngl-media-test.nut')]
+
+    m0 = cfg.medias[0]
+    cfg.duration = m0.duration
+    cfg.aspect_ratio = (m0.width, m0.height)
+
+    vert = '''
+void main() {
+    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+    uv = ngl_uvcoord;
+}
+'''
+
+    frag = '''
+void main() {
+    ngl_out_color = vec4(vec3(step(0.0, tex0_ts/duration - uv.x)), 1.0);
+}
+'''
+
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    media = ngl.Media(m0.filename)
+    texture = ngl.Texture2D(data_src=media)
+    program = ngl.Program(vertex=vert, fragment=frag)
+    program.update_vert_out_vars(uv=ngl.IOVec2())
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(tex0=texture, duration=ngl.UniformFloat(cfg.duration))
+    return render
+
+
 @test_fingerprint(width=320, height=240, nb_keyframes=20, tolerance=1)
 @scene()
 def media_timeranges_rtt(cfg):
