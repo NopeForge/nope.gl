@@ -117,6 +117,7 @@ lib_version = '0.0.0'
 lib_src = files(
   'animation.c',
   'api.c',
+  'blending.c',
   'block.c',
   'bstr.c',
   'buffer.c',
