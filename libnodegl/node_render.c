@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "blending.h"
 #include "hmap.h"
 #include "log.h"
 #include "nodegl.h"
@@ -39,6 +40,7 @@ struct render_priv {
     struct hmap *attributes;
     struct hmap *instance_attributes;
     int nb_instances;
+    int blending;
 
     struct pass pass;
 };
@@ -149,6 +151,9 @@ static const struct node_param render_params[] = {
                  .desc=NGLI_DOCSTRING("per instance extra vertex attributes made accessible to the `program`")},
     {"nb_instances", NGLI_PARAM_TYPE_I32, OFFSET(nb_instances), {.i64 = 1},
                  .desc=NGLI_DOCSTRING("number of instances to draw")},
+    {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(blending),
+                 .choices=&ngli_blending_choices,
+                 .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blended together")},
     {NULL}
 };
 
@@ -182,6 +187,7 @@ static int render_init(struct ngl_node *node)
         .vert_out_vars = ngli_darray_data(&program->vert_out_vars_array),
         .nb_vert_out_vars = ngli_darray_count(&program->vert_out_vars_array),
         .nb_frag_output = program->nb_frag_output,
+        .blending = s->blending,
     };
     return ngli_pass_init(&s->pass, ctx, &params);
 }

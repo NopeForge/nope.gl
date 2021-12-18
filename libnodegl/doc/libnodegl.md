@@ -566,6 +566,7 @@ Parameter | Live-chg. | Type | Description | Default
 `attributes` |  | [`node_dict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferMat4](#buffer)) | extra vertex attributes made accessible to the `program` | 
 `instance_attributes` |  | [`node_dict`](#parameter-types) ([BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec3](#buffer), [BufferVec4](#buffer), [BufferMat4](#buffer)) | per instance extra vertex attributes made accessible to the `program` | 
 `nb_instances` |  | [`i32`](#parameter-types) | number of instances to draw | `1`
+`blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blended together | `default`
 
 
 **Source**: [node_render.c](/libnodegl/node_render.c)
@@ -1582,6 +1583,21 @@ Constant | Description
 `linear` | linear interpolation (not recommended), f(t)=t
 `cubic` | cubic hermite curve, f(t)=3t²-2t³
 `quintic` | quintic curve, f(t)=6t⁵-15t⁴+10t³
+
+## blend_preset choices
+
+Constant | Description
+-------- | -----------
+`default` | unchanged current graphics state
+`src_over` | this node over destination
+`dst_over` | destination over this node
+`src_out` | subtract destination from this node
+`dst_out` | subtract this node from destination
+`src_in` | keep only the part of this node overlapping with destination
+`dst_in` | keep only the part of destination overlapping with this node
+`src_atop` | union of `src_in` and `dst_out`
+`dst_atop` | union of `src_out` and `dst_in`
+`xor` | exclusive or between this node and the destination
 
 ## framebuffer_features choices
 

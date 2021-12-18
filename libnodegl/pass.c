@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <inttypes.h>
 
+#include "blending.h"
 #include "block.h"
 #include "buffer.h"
 #include "gpu_ctx.h"
@@ -500,6 +501,10 @@ int ngli_pass_prepare(struct pass *s)
     pipeline_graphics.state = rnode->graphicstate;
     pipeline_graphics.rt_desc = rnode->rendertarget_desc;
 
+    int ret = ngli_blending_apply_preset(&pipeline_graphics.state, s->params.blending);
+    if (ret < 0)
+        return ret;
+
     struct pipeline_params pipeline_params = {
         .type          = s->pipeline_type,
         .graphics      = pipeline_graphics,
@@ -535,7 +540,7 @@ int ngli_pass_prepare(struct pass *s)
         return NGL_ERROR_MEMORY;
 
     struct pipeline_resource_params pipeline_resource_params = {0};
-    int ret = ngli_pgcraft_craft(desc->crafter, &pipeline_params, &pipeline_resource_params, &crafter_params);
+    ret = ngli_pgcraft_craft(desc->crafter, &pipeline_params, &pipeline_resource_params, &crafter_params);
     if (ret < 0)
         return ret;
 

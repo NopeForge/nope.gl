@@ -350,6 +350,7 @@ Render:
     - [attributes, node_dict]
     - [instance_attributes, node_dict]
     - [nb_instances, i32]
+    - [blending, select]
 
 RenderToTexture:
     - [child, node]

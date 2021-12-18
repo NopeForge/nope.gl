@@ -45,6 +45,7 @@ struct pass_params {
     struct pgcraft_iovar *vert_out_vars;
     int nb_vert_out_vars;
     int nb_frag_output;
+    int blending;
 
     /* compute */
     const char *comp_base;
