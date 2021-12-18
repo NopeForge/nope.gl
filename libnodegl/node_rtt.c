@@ -131,8 +131,7 @@ static int get_renderpass_info(const struct ngl_node *node, int state, struct re
             child->cls->id == NGL_NODE_COMPUTE) {
             if (state == RENDER_PASS_STATE_STARTED)
                 state = RENDER_PASS_STATE_STOPPED;
-        } else if (child->cls->id == NGL_NODE_RENDER ||
-                   child->cls->id == NGL_NODE_TEXT) {
+        } else if (child->cls->category == NGLI_NODE_CATEGORY_RENDER) {
             if (state == RENDER_PASS_STATE_STOPPED)
                 info->nb_interruptions++;
             state = RENDER_PASS_STATE_STARTED;
