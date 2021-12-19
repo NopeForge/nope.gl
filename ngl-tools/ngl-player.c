@@ -62,9 +62,9 @@ static const struct opt options[] = {
 
 static struct ngl_node *get_scene(const char *filename, int direct_rendering, int hwaccel, int mipmap)
 {
-    struct ngl_node *media          = ngl_node_create(NGL_NODE_MEDIA);
-    struct ngl_node *texture        = ngl_node_create(NGL_NODE_TEXTURE2D);
-    struct ngl_node *render         = ngl_node_create(NGL_NODE_RENDERTEXTURE);
+    struct ngl_node *media   = ngl_node_create(NGL_NODE_MEDIA);
+    struct ngl_node *texture = ngl_node_create(NGL_NODE_TEXTURE2D);
+    struct ngl_node *render  = ngl_node_create(NGL_NODE_RENDERTEXTURE);
 
     ngl_node_param_set_str(media, "filename", filename);
     ngl_node_param_set_select(media, "hwaccel", hwaccel ? "auto" : "disabled");
