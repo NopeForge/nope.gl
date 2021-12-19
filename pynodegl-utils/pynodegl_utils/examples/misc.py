@@ -665,6 +665,8 @@ def text(cfg, demo_str='Hello World!\n\nThis is a multi-line\ntext demonstration
 
 @scene()
 def smptebars_glitch(cfg):
+    '''SMPTE bars glitching at irregular intervals'''
+
     cfg.duration = 15
     cfg.aspect_ratio = (4, 3)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
