@@ -60,39 +60,14 @@ static const struct opt options[] = {
     {NULL, "--mipmap",           OPT_TYPE_INT,      .offset=OFFSET(mipmap)},
 };
 
-static const char *media_vertex =
-"void main()"                                                                               "\n"
-"{"                                                                                         "\n"
-"    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);" "\n"
-"    var_tex0_coord = (tex0_coord_matrix * vec4(ngl_uvcoord, 0.0, 1.0)).xy;"                "\n"
-"}";
-
-static const char *media_fragment =
-"void main()"                                                           "\n"
-"{"                                                                     "\n"
-"    ngl_out_color = ngl_texvideo(tex0, var_tex0_coord);"               "\n"
-"}";
-
 static struct ngl_node *get_scene(const char *filename, int direct_rendering, int hwaccel, int mipmap)
 {
-    static const float corner[3] = {-1.0, -1.0, 0.0};
-    static const float width[3]  = { 2.0,  0.0, 0.0};
-    static const float height[3] = { 0.0,  2.0, 0.0};
-
     struct ngl_node *media          = ngl_node_create(NGL_NODE_MEDIA);
     struct ngl_node *texture        = ngl_node_create(NGL_NODE_TEXTURE2D);
-    struct ngl_node *quad           = ngl_node_create(NGL_NODE_QUAD);
-    struct ngl_node *program        = ngl_node_create(NGL_NODE_PROGRAM);
-    struct ngl_node *render         = ngl_node_create(NGL_NODE_RENDER);
-    struct ngl_node *var_tex0_coord = ngl_node_create(NGL_NODE_IOVEC2);
+    struct ngl_node *render         = ngl_node_create(NGL_NODE_RENDERTEXTURE);
 
     ngl_node_param_set_str(media, "filename", filename);
     ngl_node_param_set_select(media, "hwaccel", hwaccel ? "auto" : "disabled");
-
-    ngl_node_param_set_vec3(quad, "corner", corner);
-    ngl_node_param_set_vec3(quad, "width", width);
-    ngl_node_param_set_vec3(quad, "height", height);
-
     ngl_node_param_set_node(texture, "data_src", media);
     ngl_node_param_set_select(texture, "min_filter", "linear");
     ngl_node_param_set_select(texture, "mag_filter", "linear");
@@ -100,21 +75,10 @@ static struct ngl_node *get_scene(const char *filename, int direct_rendering, in
         ngl_node_param_set_select(texture, "mipmap_filter", "linear");
     if (direct_rendering != -1)
         ngl_node_param_set_bool(texture, "direct_rendering", direct_rendering);
+    ngl_node_param_set_node(render, "texture", texture);
 
-    ngl_node_param_set_str(program, "vertex",   media_vertex);
-    ngl_node_param_set_str(program, "fragment", media_fragment);
-    ngl_node_param_set_dict(program, "vert_out_vars", "var_tex0_coord", var_tex0_coord);
-
-    ngl_node_param_set_node(render, "geometry", quad);
-    ngl_node_param_set_node(render, "program", program);
-    ngl_node_param_set_dict(render, "frag_resources", "tex0", texture);
-
-    ngl_node_unrefp(&var_tex0_coord);
-
-    ngl_node_unrefp(&program);
     ngl_node_unrefp(&media);
     ngl_node_unrefp(&texture);
-    ngl_node_unrefp(&quad);
 
     return render;
 }
