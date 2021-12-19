@@ -680,3 +680,35 @@ def smptebars_glitch(cfg):
         uv_noise_2=ngl.NoiseVec2(amplitude=0.05, frequency=freq, seed=1000 + 0xffff),
     )
     return render
+
+
+@scene(
+    mode=scene.List(('ramp', 'radial')),
+    c0=scene.Color(),
+    c1=scene.Color(),
+)
+def gradient_eval(cfg, mode='ramp', c0=(1, 0.5, 0.5, 1), c1=(0.5, 1, 0.5, 1)):
+    '''Animate a gradient and objects using CPU evaluation'''
+
+    pos_res = dict(t=ngl.Time())
+    pos0_x = ngl.EvalFloat('sin( 0.307*t - 0.190)', resources=pos_res)
+    pos0_y = ngl.EvalFloat('sin( 0.703*t - 0.957)', resources=pos_res)
+    pos1_x = ngl.EvalFloat('sin(-0.236*t + 0.218)', resources=pos_res)
+    pos1_y = ngl.EvalFloat('sin(-0.851*t - 0.904)', resources=pos_res)
+
+    trf0 = ngl.EvalVec3('x', 'y', '0', resources=dict(x=pos0_x, y=pos0_y))
+    trf1 = ngl.EvalVec3('x', 'y', '0', resources=dict(x=pos1_x, y=pos1_y))
+
+    geom = ngl.Circle(radius=0.02, npoints=64)
+    p0 = ngl.RenderColor(color=(1-c0[0], 1-c0[1], 1-c0[2]), geometry=geom)
+    p1 = ngl.RenderColor(color=(1-c1[0], 1-c1[1], 1-c1[2]), geometry=geom)
+    p0 = ngl.Scale(p0, factors=(1/cfg.aspect_ratio_float, 1, 1))
+    p1 = ngl.Scale(p1, factors=(1/cfg.aspect_ratio_float, 1, 1))
+    p0 = ngl.Translate(p0, vector=trf0)
+    p1 = ngl.Translate(p1, vector=trf1)
+
+    pos0 = ngl.EvalVec2('x/2+.5', '.5-y/2', resources=dict(x=pos0_x, y=pos0_y))
+    pos1 = ngl.EvalVec2('x/2+.5', '.5-y/2', resources=dict(x=pos1_x, y=pos1_y))
+    grad = ngl.RenderGradient(pos0=pos0, pos1=pos1, mode=mode, color0=c0[:3], color1=c1[:3])
+
+    return ngl.Group(children=(grad, p0, p1))
