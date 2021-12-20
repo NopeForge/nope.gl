@@ -81,6 +81,8 @@ struct render_priv {
                                           NGL_NODE_UNIFORMVEC2,     \
                                           NGL_NODE_UNIFORMVEC3,     \
                                           NGL_NODE_UNIFORMVEC4,     \
+                                          NGL_NODE_UNIFORMCOLOR,    \
+                                          NGL_NODE_UNIFORMCOLORA,   \
                                           NGL_NODE_UNIFORMQUAT,     \
                                           NGL_NODE_UNIFORMINT,      \
                                           NGL_NODE_UNIFORMIVEC2,    \

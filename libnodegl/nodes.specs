@@ -755,6 +755,12 @@ UniformVec3:
 UniformVec4:
     - [value, vec4, "L"]
 
+UniformColor:
+    - [value, vec3, "L"]
+
+UniformColorA:
+    - [value, vec4, "L"]
+
 UniformQuat:
     - [value, vec4, "L"]
     - [as_mat4, bool, ""]
