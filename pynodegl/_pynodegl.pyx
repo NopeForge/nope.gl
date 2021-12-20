@@ -137,8 +137,8 @@ cdef extern from "nodegl.h":
     int ngl_backends_get(const ngl_config *user_config, int *nb_backendsp, ngl_backend **backendsp)
     void ngl_backends_freep(ngl_backend **backendsp)
     int ngl_configure(ngl_ctx *s, ngl_config *config)
-    int ngl_resize(ngl_ctx *s, int width, int height, const int *viewport);
-    int ngl_set_capture_buffer(ngl_ctx *s, void *capture_buffer);
+    int ngl_resize(ngl_ctx *s, int width, int height, const int *viewport)
+    int ngl_set_capture_buffer(ngl_ctx *s, void *capture_buffer)
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
     int ngl_draw(ngl_ctx *s, double t) nogil
     char *ngl_dot(ngl_ctx *s, double t) nogil
@@ -397,7 +397,7 @@ _PROBE_MODE_NO_GRAPHICS = 1
 
 def _probe_backends(mode, **kwargs):
     cdef ngl_config config
-    cdef ngl_config *configp = NULL;
+    cdef ngl_config *configp = NULL
     if kwargs:
         configp = &config
         Context._init_ngl_config_from_dict(configp, kwargs)
@@ -405,7 +405,7 @@ def _probe_backends(mode, **kwargs):
     cdef ngl_backend *backend = NULL
     cdef ngl_backend *backends = NULL
     cdef ngl_cap *cap = NULL
-    cdef int ret;
+    cdef int ret
     if mode == _PROBE_MODE_NO_GRAPHICS:
         ret = ngl_backends_get(configp, &nb_backends, &backends)
     else:
@@ -417,7 +417,7 @@ def _probe_backends(mode, **kwargs):
         backend = &backends[i]
         caps = []
         for j in range(backend.nb_caps):
-            cap = &backend.caps[j];
+            cap = &backend.caps[j]
             caps.append(dict(
                 id=cap.id,
                 string_id=cap.string_id,
@@ -453,7 +453,7 @@ cdef class Context:
 
     @staticmethod
     cdef void _init_ngl_config_from_dict(ngl_config *config, kwargs):
-        memset(config, 0, sizeof(ngl_config));
+        memset(config, 0, sizeof(ngl_config))
         config.platform = kwargs.get('platform', PLATFORM_AUTO)
         config.backend = kwargs.get('backend', BACKEND_AUTO)
         config.display = kwargs.get('display', 0)
@@ -509,7 +509,7 @@ cdef class Context:
         return ngl_set_scene(self.ctx, NULL if scene is None else scene.ctx)
 
     def set_scene_from_string(self, s):
-        cdef ngl_node *scene = ngl_node_deserialize(s);
+        cdef ngl_node *scene = ngl_node_deserialize(s)
         ret = ngl_set_scene(self.ctx, scene)
         ngl_node_unrefp(&scene)
         return ret
@@ -520,7 +520,7 @@ cdef class Context:
         return ret
 
     def dot(self, double t):
-        cdef char *s;
+        cdef char *s
         with nogil:
             s = ngl_dot(self.ctx, t)
         return _ret_pystr(s) if s else None
