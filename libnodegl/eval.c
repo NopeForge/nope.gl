@@ -633,15 +633,15 @@ int ngli_eval_init(struct eval *s, const char *expr, const struct hmap *vars)
  */
 static float eval_operator_pop(struct darray *stack, const struct token *token)
 {
-    const struct token *o1 = ngli_darray_pop(stack);
+    const struct token *o1 = ngli_darray_pop_unsafe(stack);
     if (token->nb_args == 1)
         return token->func.f1(o1->value);
 
-    const struct token *o2 = ngli_darray_pop(stack);
+    const struct token *o2 = ngli_darray_pop_unsafe(stack);
     if (token->nb_args == 2)
         return token->func.f2(o2->value, o1->value);
 
-    const struct token *o3 = ngli_darray_pop(stack);
+    const struct token *o3 = ngli_darray_pop_unsafe(stack);
     if (token->nb_args == 3)
         return token->func.f3(o3->value, o2->value, o1->value);
 
