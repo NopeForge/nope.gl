@@ -36,6 +36,7 @@ struct darray {
 void ngli_darray_init(struct darray *darray, int element_size, int aligned);
 void *ngli_darray_push(struct darray *darray, const void *element);
 void *ngli_darray_pop(struct darray *darray);
+void *ngli_darray_pop_unsafe(struct darray *darray);
 void *ngli_darray_tail(const struct darray *darray);
 void *ngli_darray_get(const struct darray *darray, int index);
 void ngli_darray_reset(struct darray *darray);

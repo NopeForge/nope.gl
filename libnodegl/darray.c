@@ -101,6 +101,12 @@ void *ngli_darray_pop(struct darray *darray)
     return element;
 }
 
+void *ngli_darray_pop_unsafe(struct darray *darray)
+{
+    darray->count--;
+    return darray->data + darray->count * darray->element_size;
+}
+
 void *ngli_darray_get(const struct darray *darray, int index)
 {
     ngli_assert(index >= 0 && index < darray->count);
