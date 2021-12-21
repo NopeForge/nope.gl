@@ -612,7 +612,7 @@ int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char 
 {
     const GLenum error = ngli_glGetError(glcontext);
     if (!error)
-        return error;
+        return 0;
 
     const char *error_str = NULL;
     switch (error) {
@@ -631,5 +631,5 @@ int ngli_glcontext_check_gl_error(const struct glcontext *glcontext, const char 
     ngli_assert(0);
 #endif
 
-    return error;
+    return NGL_ERROR_GRAPHICS_GENERIC;
 }

@@ -708,9 +708,7 @@ static int gl_end_draw(struct gpu_ctx *s, double t)
     if (s_priv->capture_func && config->capture_buffer)
         s_priv->capture_func(s);
 
-    int ret = 0;
-    if (ngli_glcontext_check_gl_error(gl, __func__))
-        ret = -1;
+    int ret = ngli_glcontext_check_gl_error(gl, __func__);
 
     if (config->set_surface_pts)
         ngli_glcontext_set_surface_pts(gl, t);
