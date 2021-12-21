@@ -87,6 +87,7 @@ struct glfunctions {
     GLint (NGLI_GL_APIENTRY *GetAttribLocation)(GLuint program, const GLchar * name);
     void (NGLI_GL_APIENTRY *GetBooleanv)(GLenum pname, GLboolean * data);
     GLenum (NGLI_GL_APIENTRY *GetError)();
+    void (NGLI_GL_APIENTRY *GetFramebufferAttachmentParameteriv)(GLenum target, GLenum attachment, GLenum pname, GLint * params);
     void (NGLI_GL_APIENTRY *GetIntegeri_v)(GLenum target, GLuint index, GLint * data);
     void (NGLI_GL_APIENTRY *GetIntegerv)(GLenum pname, GLint * data);
     void (NGLI_GL_APIENTRY *GetInternalformativ)(GLenum target, GLenum internalformat, GLenum pname, GLsizei count, GLint * params);

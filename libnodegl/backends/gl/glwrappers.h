@@ -501,6 +501,12 @@ static inline GLenum ngli_glGetError(const struct glcontext *gl)
     return gl->funcs.GetError();
 }
 
+static inline void ngli_glGetFramebufferAttachmentParameteriv(const struct glcontext *gl, GLenum target, GLenum attachment, GLenum pname, GLint * params)
+{
+    gl->funcs.GetFramebufferAttachmentParameteriv(target, attachment, pname, params);
+    check_error_code(gl, "glGetFramebufferAttachmentParameteriv");
+}
+
 static inline void ngli_glGetIntegeri_v(const struct glcontext *gl, GLenum target, GLuint index, GLint * data)
 {
     gl->funcs.GetIntegeri_v(target, index, data);

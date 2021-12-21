@@ -94,6 +94,7 @@ static const struct gldefinition {
     {"glGetAttribLocation", offsetof(struct glfunctions, GetAttribLocation), M},
     {"glGetBooleanv", offsetof(struct glfunctions, GetBooleanv), M},
     {"glGetError", offsetof(struct glfunctions, GetError), M},
+    {"glGetFramebufferAttachmentParameteriv", offsetof(struct glfunctions, GetFramebufferAttachmentParameteriv), 0},
     {"glGetIntegeri_v", offsetof(struct glfunctions, GetIntegeri_v), M},
     {"glGetIntegerv", offsetof(struct glfunctions, GetIntegerv), M},
     {"glGetInternalformativ", offsetof(struct glfunctions, GetInternalformativ), 0},

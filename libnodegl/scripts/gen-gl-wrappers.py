@@ -28,6 +28,7 @@ cmds_optional = [
     # Framebuffer
     "glBlitFramebuffer",
     "glInvalidateFramebuffer",
+    "glGetFramebufferAttachmentParameteriv",
     # Renderbuffer
     "glRenderbufferStorageMultisample",
     # Texture
