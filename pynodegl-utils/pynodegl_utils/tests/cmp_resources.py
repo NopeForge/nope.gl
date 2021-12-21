@@ -74,9 +74,10 @@ class _CompareResources(CompareSceneBase):
         for row in data:
             ret += ','.join(row) + '\n'
 
-        os.remove(self._csvfile)
-
         return ret
+
+    def __del__(self):
+        os.remove(self._csvfile)
 
 
 test_resources = get_test_decorator(_CompareResources)
