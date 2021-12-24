@@ -249,17 +249,19 @@ static void print_node_params(const char *name, const struct node_param *p)
     printf("\n## %s\n\n", name);
     if (!p)
         return;
-    printf("Parameter | Live-chg. | Type | Description | Default\n");
-    printf("--------- | :-------: | ---- | ----------- | :-----:\n");
+    printf("Parameter | Flags | Type | Description | Default\n");
+    printf("--------- | ----- | ---- | ----------- | :-----:\n");
     while (p->key) {
         char *type = get_type_str(p);
         char *def = get_default_str(p);
 
         if (type && def) {
             ngli_assert(p->desc);
-            printf("`%s` | %s | %s | %s | %s\n",
+            printf("`%s` | %s%s%s | %s | %s | %s\n",
                    p->key,
-                   (p->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE) ? "✓" : "",
+                   (p->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE) ? " [`live`](#Parameter-flags)" : "",
+                   (p->flags & NGLI_PARAM_FLAG_ALLOW_NODE)        ? " [`node`](#Parameter-flags)" : "",
+                   (p->flags & NGLI_PARAM_FLAG_NON_NULL)          ? " [`nonull`](#Parameter-flags)" : "",
                    type, p->desc, def);
         }
 
@@ -281,6 +283,22 @@ static void print_choices(const struct param_choices *choices)
         ngli_assert(c->desc);
         printf("`%s` | %s\n", c->key, c->desc);
     }
+}
+
+static void print_parameter_flags(void)
+{
+    printf(
+        "Parameter flags\n"
+        "===============\n"
+        "\n"
+        "Marker   | Meaning\n"
+        "-------- | -------\n"
+        "`live`   | value is live-changeable between draw calls\n"
+        "`node`   | nodes with the same data size are also allowed"
+        " (e.g a `vec3` parameter can accept `AnimatedVec3`, `EvalVec3`, `NoiseVec3`, …)\n"
+        "`nonull` | parameter must be set\n"
+        "\n"
+    );
 }
 
 #define CLASS_COMMALIST(type_name, cls) &cls,
@@ -348,6 +366,8 @@ int main(void)
         printf("`%s` | %s\n", ps->name, ps->desc);
     }
     printf("\n");
+
+    print_parameter_flags();
 
     printf("Constants for choices parameters\n");
     printf("================================\n");
