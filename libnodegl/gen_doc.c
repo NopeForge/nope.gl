@@ -285,6 +285,22 @@ static void print_choices(const struct param_choices *choices)
     }
 }
 
+static void print_parameter_types(void)
+{
+    printf(
+        "Parameter types\n"
+        "===============\n"
+        "\n"
+        "Type | Description\n"
+        "---- | -----------\n");
+    for (int i = 0; i < NGLI_PARAM_TYPE_NB; i++) {
+        const struct param_specs *ps = &ngli_params_specs[i];
+        ngli_assert(ps->name && ps->desc);
+        printf("`%s` | %s\n", ps->name, ps->desc);
+    }
+    printf("\n");
+}
+
 static void print_parameter_flags(void)
 {
     printf(
@@ -355,18 +371,7 @@ int main(void)
 
     ngli_hmap_freep(&params_map);
 
-    printf("Parameter types\n");
-    printf("===============\n");
-    printf("\n");
-    printf("Type | Description\n");
-    printf("---- | -----------\n");
-    for (int i = 0; i < NGLI_PARAM_TYPE_NB; i++) {
-        const struct param_specs *ps = &ngli_params_specs[i];
-        ngli_assert(ps->name && ps->desc);
-        printf("`%s` | %s\n", ps->name, ps->desc);
-    }
-    printf("\n");
-
+    print_parameter_types();
     print_parameter_flags();
 
     printf("Constants for choices parameters\n");
