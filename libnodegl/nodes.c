@@ -179,14 +179,16 @@ static void reset_non_params(struct ngl_node *node)
     const struct node_param *par = node->cls->params;
     uint8_t *base_ptr = node->priv_data;
 
-    while (par && par->key) {
-        size_t offset = par->offset;
-        if (offset != cur_offset)
-            memset(base_ptr + cur_offset, 0, offset - cur_offset);
-        cur_offset = offset + ngli_params_specs[par->type].size;
-        if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)
-            cur_offset += sizeof(struct ngl_node *);
-        par++;
+    if (par) {
+        while (par->key) {
+            size_t offset = par->offset;
+            if (offset != cur_offset)
+                memset(base_ptr + cur_offset, 0, offset - cur_offset);
+            cur_offset = offset + ngli_params_specs[par->type].size;
+            if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)
+                cur_offset += sizeof(struct ngl_node *);
+            par++;
+        }
     }
     memset(base_ptr + cur_offset, 0, node->cls->priv_size - cur_offset);
 }
