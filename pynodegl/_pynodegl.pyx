@@ -200,8 +200,11 @@ cdef class _Node:
     def cptr(self):
         return <uintptr_t>self.ctx
 
-    def __init__(self):
+    def __init__(self, uintptr_t ctx=0):
         assert self.ctx is NULL
+        if ctx:
+            self.ctx = ngl_node_ref(<ngl_node *>ctx)
+            return
         self.ctx = ngl_node_create(self.type_id)
         if self.ctx is NULL:
             raise MemoryError()

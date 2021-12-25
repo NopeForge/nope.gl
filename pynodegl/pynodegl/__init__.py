@@ -126,8 +126,8 @@ def _init_param(self, param_name, param_type, value):
 
 
 def _set_class_init(cls, base_class):
-    def cls_init(self, *args, **kwargs):
-        base_class.__init__(self)
+    def cls_init(self, *args, ctx=0, **kwargs):
+        base_class.__init__(self, ctx)
 
         # Consume args and kwargs from the leaf (user node) up to the root
         # (ngl._Node)
