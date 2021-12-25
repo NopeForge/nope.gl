@@ -238,6 +238,13 @@ int ngli_node_buffer_init(struct ngl_node *node);
 void ngli_node_buffer_unref(struct ngl_node *node);
 int ngli_node_buffer_upload(struct ngl_node *node);
 
+struct livectl {
+    union ngl_livectl_data val;
+    char *id;
+    union ngl_livectl_data min;
+    union ngl_livectl_data max;
+};
+
 struct variable_priv {
     union {
         float vec[4];
@@ -470,6 +477,22 @@ enum {
     NGLI_NODE_CATEGORY_RENDER, /* node executes a graphics pipeline */
 };
 
+/*
+ * Node is an exposed live control.
+ *
+ * A few important notes when setting this flag:
+ *
+ * - the private node context must contain a livectl struct, and
+ *   node_class.livectl_offset must point to it (we can not have any static
+ *   check for this because 0 is a valid offset)
+ * - an option named "live_id" must be exposed in the parameters (and
+ *   associated with `livectl.id`)
+ * - the value parameter can have any arbitrary name but must be present before
+ *   "live_id", point to `livectl.val`, and has to be the first parameter
+ *   flagged with NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE
+ */
+#define NGLI_NODE_FLAG_LIVECTL (1 << 0)
+
 /**
  *   Operation        State result
  * -----------------------------------
@@ -523,6 +546,8 @@ struct node_class {
     size_t priv_size;
     const struct node_param *params;
     const char *params_id;
+    size_t livectl_offset;
+    uint32_t flags;
     const char *file;
 };
 
@@ -538,6 +563,9 @@ void ngli_node_draw(struct ngl_node *node);
 
 int ngli_node_attach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
 void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx);
+
+int ngli_node_livectls_get(const struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp);
+void ngli_node_livectls_freep(struct ngl_livectl **livectlsp);
 
 char *ngli_node_default_label(const char *class_name);
 int ngli_is_default_label(const char *class_name, const char *str);

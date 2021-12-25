@@ -336,6 +336,145 @@ static int node_init(struct ngl_node *node)
     return 0;
 }
 
+static const struct livectl *get_internal_livectl(const struct ngl_node *node)
+{
+    const uint8_t *base_ptr = node->priv_data;
+    const struct livectl *ctl = (struct livectl *)(base_ptr + node->cls->livectl_offset);
+    return ctl;
+}
+
+static int find_livectls(const struct ngl_node *node, struct hmap *hm)
+{
+    if (node->cls->flags & NGLI_NODE_FLAG_LIVECTL) {
+        const struct livectl *ref_ctl = get_internal_livectl(node);
+        if (ref_ctl->id) {
+            const struct ngl_node *ctl_node = ngli_hmap_get(hm, ref_ctl->id);
+            if (ctl_node) {
+                if (ctl_node != node) {
+                    LOG(ERROR, "duplicated live control with name \"%s\"", ref_ctl->id);
+                    return NGL_ERROR_INVALID_USAGE;
+                }
+                return 0;
+            }
+            int ret = ngli_hmap_set(hm, ref_ctl->id, (void *)node);
+            if (ret < 0)
+                return ret;
+        }
+    }
+
+    const struct node_param *par = node->cls->params;
+    if (!par)
+        return 0;
+    while (par->key) {
+        const uint8_t *parp = (const uint8_t*)node->priv_data + par->offset;
+
+        if (par->type == NGLI_PARAM_TYPE_NODE || (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)) {
+            const struct ngl_node *child = *(struct ngl_node **)parp;
+            if (child) {
+                int ret = find_livectls(child, hm);
+                if (ret < 0)
+                    return ret;
+            }
+        } else if (par->type == NGLI_PARAM_TYPE_NODELIST) {
+            const uint8_t *elems_p = parp;
+            const uint8_t *nb_elems_p = parp + sizeof(struct ngl_node **);
+            struct ngl_node * const *elems = *(struct ngl_node ***)elems_p;
+            const int nb_elems = *(int *)nb_elems_p;
+            for (int i = 0; i < nb_elems; i++) {
+                int ret = find_livectls(elems[i], hm);
+                if (ret < 0)
+                    return ret;
+            }
+        } else if (par->type == NGLI_PARAM_TYPE_NODEDICT) {
+            const struct hmap *hmap = *(struct hmap **)parp;
+            if (hmap) {
+                const struct hmap_entry *entry = NULL;
+                while ((entry = ngli_hmap_next(hmap, entry))) {
+                    const struct ngl_node *child = entry->data;
+                    int ret = find_livectls(child, hm);
+                    if (ret < 0)
+                        return ret;
+                }
+            }
+        }
+        par++;
+    }
+    return 0;
+}
+
+int ngli_node_livectls_get(const struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp)
+{
+    struct ngl_livectl *ctls = NULL;
+    *livectlsp = NULL;
+    *nb_livectlsp = 0;
+
+    struct hmap *livectls_index = ngli_hmap_create();
+    if (!livectls_index)
+        return NGL_ERROR_MEMORY;
+
+    int ret = find_livectls(scene, livectls_index);
+    if (ret < 0)
+        goto end;
+
+    const int nb = ngli_hmap_count(livectls_index);
+    if (!nb)
+        goto end;
+
+    /* +1 so that we know when to stop in ngli_node_livectls_freep() */
+    ctls = ngli_calloc(nb + 1, sizeof(*ctls));
+    if (!ctls) {
+        ret = NGL_ERROR_MEMORY;
+        goto end;
+    }
+
+    /*
+     * Transfer internal live controls (struct livectl) to public live controls
+     * (struct ngl_livectl), with independant ownership (ref counting the node
+     * and duplicating memory when needed).
+     */
+    int i = 0;
+    const struct hmap_entry *entry = NULL;
+    while ((entry = ngli_hmap_next(livectls_index, entry))) {
+        struct ngl_node *node = entry->data;
+
+        struct ngl_livectl *ctl = &ctls[i++];
+        ctl->node_type = node->cls->id;
+        ctl->node = ngl_node_ref(node);
+
+        const struct livectl *ref_ctl = get_internal_livectl(node);
+        ctl->id = ngli_strdup(ref_ctl->id);
+        if (!ctl->id) {
+            ret = NGL_ERROR_MEMORY;
+            goto end;
+        }
+        memcpy(&ctl->val, &ref_ctl->val, sizeof(ctl->val));
+        memcpy(&ctl->min, &ref_ctl->min, sizeof(ctl->min));
+        memcpy(&ctl->max, &ref_ctl->max, sizeof(ctl->max));
+    }
+
+    *livectlsp = ctls;
+    *nb_livectlsp = nb;
+
+end:
+    if (ret < 0)
+        ngli_node_livectls_freep(&ctls);
+    ngli_hmap_freep(&livectls_index);
+    return ret;
+}
+
+void ngli_node_livectls_freep(struct ngl_livectl **livectlsp)
+{
+    struct ngl_livectl *livectls = *livectlsp;
+    if (!livectls)
+        return;
+    for (int i = 0; livectls[i].node; i++) {
+        struct ngl_livectl *ctl = &livectls[i];
+        ngl_node_unrefp(&ctl->node);
+        ngli_freep(&ctl->id);
+    }
+    ngli_freep(livectlsp);
+}
+
 static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_ctx *pctx);
 
 static int node_set_children_ctx(uint8_t *base_ptr, const struct node_param *params,

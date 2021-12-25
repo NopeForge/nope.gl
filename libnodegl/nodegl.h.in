@@ -425,6 +425,46 @@ NGL_API char *ngl_node_serialize(const struct ngl_node *node);
  */
 NGL_API struct ngl_node *ngl_node_deserialize(const char *s);
 
+/*
+ * Live controls
+ */
+
+union ngl_livectl_data {
+    float f[4];     /* f32, vec2, vec3, vec4 */
+    int32_t i[4];   /* i32, ivec2, ivec3, ivec4, bool */
+    uint32_t u[4];  /* u32, uvec2, uvec3, uvec4 */
+    float m[16];    /* mat4 */
+};
+
+struct ngl_livectl {
+    char *id;                   /* printable unique identifier specified by the user through the live_id parameter */
+    uint32_t node_type;         /* NGL_NODE_* */
+    struct ngl_node *node;      /* the node that was flagged with a live_id */
+    union ngl_livectl_data val; /* copy of the value held by the node when ngl_livectls_get() was called */
+    union ngl_livectl_data min; /* minimum value specified by the user, to interpret according to node_type */
+    union ngl_livectl_data max; /* maximum value specified by the user, to interpret according to node_type */
+};
+
+/**
+ * Returns the available live controls in a given scene.
+ *
+ * Any node with a live_id parameter can be exposed as a live control. In order
+ * to do so, the user has to set its live_id parameter to an arbitrary string
+ * that must be unique to the scene.
+ *
+ * @param nb_livectlsp a pointer to an integer set to the number of live
+ *                     controls available
+ * @param livectlsp    a pointer to an array of ngl_livectl structures. The
+ *                     array is allocated by ngl_livectls_get() and has a
+ *                     size of nb_livectlsp. Must be freed by the user using
+ *                     ngl_livectls_freep()
+ *
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
+ */
+NGL_API int ngl_livectls_get(struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp);
+
+NGL_API void ngl_livectls_freep(struct ngl_livectl **livectlsp);
+
 /**
  * Platform-specific identifiers
  */
