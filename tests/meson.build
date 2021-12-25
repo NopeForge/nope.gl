@@ -79,6 +79,7 @@ foreach backend : backends
     'text_live_change',
     'media_sharing_failure',
     'denied_node_live_change',
+    'livectls',
   ]
 
   tests_blending = [

@@ -21,6 +21,8 @@
 #
 
 import os
+import math
+import random
 import pynodegl as ngl
 from pynodegl_utils.misc import get_backend
 from pynodegl_utils.toolbox.grid import autogrid_simple
@@ -210,3 +212,56 @@ def api_denied_node_live_change(width=320, height=240):
     # Check that we can not live unplug a node from a live changeable parameter
     assert ctx.set_scene(scene) == 0
     assert scene.set_vector(ngl.UniformVec3(value=(7, 8, 9))) != 0
+
+
+def api_livectls():
+    # Build a scene and extract its live controls
+    rng = random.Random(0)
+    scene = ngl.Group(children=(
+        ngl.UniformBool(live_id='b'),
+        ngl.UniformFloat(live_id='f'),
+        ngl.UniformIVec3(live_id='iv3'),
+        ngl.Group(children=(
+            ngl.UniformMat4(live_id='m4'),
+            ngl.UniformColorA(live_id='clr'),
+            ngl.UniformQuat(as_mat4=True, live_id='rot'),
+        )),
+    ))
+    livectls = ngl.get_livectls(scene)
+    assert len(livectls) == 6
+
+    # Attach scene and run a dummy draw to make sure it's valid
+    ctx = ngl.Context()
+    assert ctx.configure(offscreen=1, width=16, height=16, backend=_backend) == 0
+    assert ctx.set_scene(scene) == 0
+    assert ctx.draw(0) == 0
+
+    # Apply live changes on nodes previously tracked by get_livectls()
+    values = dict(
+        b=True,
+        f=rng.uniform(-1, 1),
+        iv3=[rng.randint(-100, 100) for i in range(3)],
+        m4=[rng.uniform(-1, 1) for i in range(16)],
+        clr=(.9, .3, .8, .9),
+        rot=(.1, -.2, .5, -.3),
+    )
+    for live_id, value in values.items():
+        node = livectls[live_id]['node']
+        node_type = livectls[live_id]['node_type']
+        assert node_type == node.__class__.__name__
+        if hasattr(value, '__iter__'):
+            node.set_value(*value)
+        else:
+            node.set_value(value)
+
+    # Detach scene from context and grab all live controls again
+    assert ctx.set_scene(None) == 0
+    livectls = ngl.get_livectls(scene)
+
+    # Inspect nodes to check if they were properly altered by the live changes
+    for live_id, expected_value in values.items():
+        value = livectls[live_id]['val']
+        if hasattr(value, '__iter__'):
+            assert all(math.isclose(v, e, rel_tol=1e-6) for v, e in zip(value, expected_value))
+        else:
+            assert math.isclose(value, expected_value, rel_tol=1e-6)
