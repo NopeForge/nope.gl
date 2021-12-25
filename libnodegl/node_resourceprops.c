@@ -27,7 +27,7 @@
 
 #define OFFSET(x) offsetof(struct resourceprops_priv, x)
 static const struct node_param resourceprops_params[] = {
-    {"precision", NGLI_PARAM_TYPE_SELECT, OFFSET(precision), {.i64=NGLI_PRECISION_AUTO},
+    {"precision", NGLI_PARAM_TYPE_SELECT, OFFSET(precision), {.i32=NGLI_PRECISION_AUTO},
                   .choices=&ngli_precision_choices,
                   .desc=NGLI_DOCSTRING("precision qualifier for the shader")},
     {"as_image", NGLI_PARAM_TYPE_BOOL, OFFSET(as_image),

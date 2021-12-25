@@ -99,14 +99,14 @@ static char *get_default_str(const struct node_param *p)
 
     switch (p->type) {
         case NGLI_PARAM_TYPE_SELECT: {
-            const int v = (int)p->def_value.i64;
+            const int v = (int)p->def_value.i32;
             const char *s = ngli_params_get_select_str(p->choices->consts, v);
             ngli_assert(s);
             ngli_bstr_printf(b, "`%s`", s);
             break;
         }
         case NGLI_PARAM_TYPE_FLAGS: {
-            const int v = (int)p->def_value.i64;
+            const int v = (int)p->def_value.i32;
             char *s = ngli_params_get_flags_str(p->choices->consts, v);
             if (!s)
                 return NULL;
@@ -122,16 +122,16 @@ static char *get_default_str(const struct node_param *p)
             ngli_bstr_printf(b, "`%g`", p->def_value.dbl);
             break;
         case NGLI_PARAM_TYPE_BOOL:
-            if (p->def_value.i64 < 0)
+            if (p->def_value.i32 < 0)
                 ngli_bstr_print(b, "`unset`");
             else
-                ngli_bstr_printf(b, "`%d`", (int)p->def_value.i64);
+                ngli_bstr_printf(b, "`%d`", p->def_value.i32);
             break;
         case NGLI_PARAM_TYPE_I32:
-            ngli_bstr_printf(b, "`%d`", (int)p->def_value.i64);
+            ngli_bstr_printf(b, "`%d`", p->def_value.i32);
             break;
         case NGLI_PARAM_TYPE_U32:
-            ngli_bstr_printf(b, "`%u`", (unsigned)p->def_value.i64);
+            ngli_bstr_printf(b, "`%u`", p->def_value.u32);
             break;
         case NGLI_PARAM_TYPE_IVEC2: ngli_bstr_printf(b, "(`%d`,`%d`)",           NGLI_ARG_VEC2(p->def_value.ivec)); break;
         case NGLI_PARAM_TYPE_IVEC3: ngli_bstr_printf(b, "(`%d`,`%d`,`%d`)",      NGLI_ARG_VEC3(p->def_value.ivec)); break;

@@ -75,7 +75,7 @@ static const struct node_param animkeyframe##id##_params[] = {                  
                              .desc=NGLI_DOCSTRING("the time key point in seconds")},                    \
     {#value_data_key,        value_data_type, OFFSET(value_data_field),                                 \
                              .desc=NGLI_DOCSTRING("the " #value_data_key " at time `time`")},           \
-    {"easing",               NGLI_PARAM_TYPE_SELECT,  OFFSET(easing), {.i64=EASING_LINEAR},             \
+    {"easing",               NGLI_PARAM_TYPE_SELECT,  OFFSET(easing), {.i32=EASING_LINEAR},             \
                              .choices=&easing_choices,                                                  \
                              .desc=NGLI_DOCSTRING("easing interpolation from previous key frame")},     \
     {"easing_args",          NGLI_PARAM_TYPE_F64LIST, OFFSET(args),                                     \

@@ -101,7 +101,7 @@ static const struct node_param uniformquat_params[] = {
                .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=uniformquat_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"as_mat4", NGLI_PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i64=0},
+    {"as_mat4", NGLI_PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i32=0},
                 .desc=NGLI_DOCSTRING("exposed as a 4x4 rotation matrix in the program")},
     {NULL}
 };

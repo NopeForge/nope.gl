@@ -70,7 +70,7 @@ static const struct node_param animatedquat_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEQUAT, -1},
                   .desc=NGLI_DOCSTRING("quaternion key frames to interpolate from")},
-    {"as_mat4",   NGLI_PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i64=0},
+    {"as_mat4",   NGLI_PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i32=0},
                   .desc=NGLI_DOCSTRING("exposed as a 4x4 rotation matrix in the program")},
     {NULL}
 };

@@ -160,7 +160,7 @@ static int serialize_options(struct hmap *nlist,
                 const int v = *(int *)srcp;
                 const char *s = ngli_params_get_select_str(p->choices->consts, v);
                 ngli_assert(s);
-                if (v != p->def_value.i64)
+                if (v != p->def_value.i32)
                     ngli_bstr_printf(b, " %s:%s", p->key, s);
                 break;
             }
@@ -172,7 +172,7 @@ static int serialize_options(struct hmap *nlist,
                     return NGL_ERROR_MEMORY;
                 }
                 ngli_assert(*s);
-                if (v != p->def_value.i64)
+                if (v != p->def_value.i32)
                     ngli_bstr_printf(b, " %s:%s", p->key, s);
                 ngli_free(s);
                 break;
@@ -180,13 +180,13 @@ static int serialize_options(struct hmap *nlist,
             case NGLI_PARAM_TYPE_BOOL:
             case NGLI_PARAM_TYPE_I32: {
                 const int v = *(int *)srcp;
-                if (v != p->def_value.i64)
+                if (v != p->def_value.i32)
                     ngli_bstr_printf(b, " %s:%d", p->key, v);
                 break;
             }
             case NGLI_PARAM_TYPE_U32: {
                 const int v = *(int *)srcp;
-                if (v != p->def_value.i64)
+                if (v != p->def_value.u32)
                     ngli_bstr_printf(b, " %s:%u", p->key, v);
                 break;
             }

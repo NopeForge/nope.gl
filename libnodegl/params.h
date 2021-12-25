@@ -140,7 +140,8 @@ struct node_param {
     int type;
     int offset;
     union {
-        int64_t i64;
+        int32_t i32;
+        uint32_t u32;
         float f32;
         double dbl;
         const char *str;

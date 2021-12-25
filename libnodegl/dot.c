@@ -88,7 +88,7 @@ static int should_print_par(const uint8_t *srcp, const struct node_param *par)
         case NGLI_PARAM_TYPE_SELECT:
         case NGLI_PARAM_TYPE_I32: {
             const int v = *(int *)srcp;
-            return v != par->def_value.i64;
+            return v != par->def_value.i32;
         }
         case NGLI_PARAM_TYPE_RATIONAL: {
             const int *r = (int *)srcp;

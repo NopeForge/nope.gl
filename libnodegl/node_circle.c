@@ -36,7 +36,7 @@
 static const struct node_param circle_params[] = {
     {"radius",  NGLI_PARAM_TYPE_F32, OFFSET(radius),  {.f32=1.f},
                 .desc=NGLI_DOCSTRING("circle radius")},
-    {"npoints", NGLI_PARAM_TYPE_I32, OFFSET(npoints), {.i64=16},
+    {"npoints", NGLI_PARAM_TYPE_I32, OFFSET(npoints), {.i32=16},
                 .desc=NGLI_DOCSTRING("number of points")},
     {NULL}
 };

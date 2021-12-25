@@ -67,7 +67,7 @@ static const struct node_param geometry_params[] = {
                   .node_types=(const int[]){NGL_NODE_BUFFERUSHORT, NGL_NODE_BUFFERUINT, -1},
                   .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
                   .desc=NGLI_DOCSTRING("indices defining the drawing order of the `vertices`, auto-generated if not set")},
-    {"topology",  NGLI_PARAM_TYPE_SELECT, OFFSET(topology), {.i64=NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST},
+    {"topology",  NGLI_PARAM_TYPE_SELECT, OFFSET(topology), {.i32=NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST},
                   .choices=&topology_choices,
                   .desc=NGLI_DOCSTRING("primitive topology")},
     {NULL}

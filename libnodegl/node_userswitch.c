@@ -34,7 +34,7 @@ static const struct node_param userswitch_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to be rendered or not")},
-    {"enabled", NGLI_PARAM_TYPE_BOOL, OFFSET(enabled), {.i64=1},
+    {"enabled", NGLI_PARAM_TYPE_BOOL, OFFSET(enabled), {.i32=1},
                .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .desc=NGLI_DOCSTRING("set if the scene should be rendered")},
     {NULL}

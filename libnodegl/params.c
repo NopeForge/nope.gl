@@ -777,14 +777,14 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
         int ret = 0;
         switch (par->type) {
             case NGLI_PARAM_TYPE_SELECT: {
-                const int v = (int)par->def_value.i64;
+                const int v = (int)par->def_value.i32;
                 const char *s = ngli_params_get_select_str(par->choices->consts, v);
                 ngli_assert(s);
                 ret = ngli_params_set_select(dstp, par, s);
                 break;
             }
             case NGLI_PARAM_TYPE_FLAGS: {
-                const int v = (int)par->def_value.i64;
+                const int v = (int)par->def_value.i32;
                 char *s = ngli_params_get_flags_str(par->choices->consts, v);
                 if (!s)
                     return NGL_ERROR_INVALID_ARG;
@@ -794,13 +794,13 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                 break;
             }
             case NGLI_PARAM_TYPE_BOOL:
-                ret = ngli_params_set_bool(dstp, par, par->def_value.i64);
+                ret = ngli_params_set_bool(dstp, par, par->def_value.i32);
                 break;
             case NGLI_PARAM_TYPE_I32:
-                ret = ngli_params_set_i32(dstp, par, par->def_value.i64);
+                ret = ngli_params_set_i32(dstp, par, par->def_value.i32);
                 break;
             case NGLI_PARAM_TYPE_U32:
-                ret = ngli_params_set_u32(dstp, par, par->def_value.i64);
+                ret = ngli_params_set_u32(dstp, par, par->def_value.u32);
                 break;
             case NGLI_PARAM_TYPE_F32:
                 ret = ngli_params_set_f32(dstp, par, par->def_value.f32);

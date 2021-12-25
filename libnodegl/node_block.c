@@ -109,7 +109,7 @@ static const struct node_param block_params[] = {
     {"fields", NGLI_PARAM_TYPE_NODELIST, OFFSET(fields),
                .node_types=FIELD_TYPES_LIST,
                .desc=NGLI_DOCSTRING("block fields defined in the graphic program")},
-    {"layout", NGLI_PARAM_TYPE_SELECT, OFFSET(layout), {.i64=NGLI_BLOCK_LAYOUT_STD140},
+    {"layout", NGLI_PARAM_TYPE_SELECT, OFFSET(layout), {.i32=NGLI_BLOCK_LAYOUT_STD140},
                .choices=&layout_choices,
                .desc=NGLI_DOCSTRING("memory layout set in the graphic program")},
     {NULL}

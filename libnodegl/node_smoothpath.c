@@ -47,7 +47,7 @@ static const struct node_param smoothpath_params[] = {
                   .desc=NGLI_DOCSTRING("initial control point")},
     {"control2",  NGLI_PARAM_TYPE_VEC3, OFFSET(control2),
                   .desc=NGLI_DOCSTRING("final control point")},
-    {"precision", NGLI_PARAM_TYPE_I32, OFFSET(precision), {.i64=64},
+    {"precision", NGLI_PARAM_TYPE_I32, OFFSET(precision), {.i32=64},
                   .desc=NGLI_DOCSTRING("number of divisions per curve segment")},
     {"tension",   NGLI_PARAM_TYPE_F32, OFFSET(tension), {.f32=0.5f},
                   .desc=NGLI_DOCSTRING("tension between points")},
