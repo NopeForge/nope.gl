@@ -132,6 +132,195 @@ static int hmap_to_sorted_items(struct darray *items_array, struct hmap *hm)
     return 0;
 }
 
+static void serialize_select(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const int v = *(int *)srcp;
+    const char *s = ngli_params_get_select_str(par->choices->consts, v);
+    ngli_assert(s);
+    if (v != par->def_value.i32)
+        ngli_bstr_printf(b, " %s:%s", par->key, s);
+}
+
+static int serialize_flags(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const int v = *(int *)srcp;
+    char *s = ngli_params_get_flags_str(par->choices->consts, v);
+    if (!s) {
+        LOG(ERROR, "unable to allocate param flags string");
+        return NGL_ERROR_MEMORY;
+    }
+    ngli_assert(*s);
+    if (v != par->def_value.i32)
+        ngli_bstr_printf(b, " %s:%s", par->key, s);
+    ngli_free(s);
+    return 0;
+}
+
+static void serialize_i32(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const int v = *(int *)srcp;
+    if (v != par->def_value.i32)
+        ngli_bstr_printf(b, " %s:%d", par->key, v);
+}
+
+static void serialize_u32(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const int v = *(int *)srcp;
+    if (v != par->def_value.u32)
+        ngli_bstr_printf(b, " %s:%u", par->key, v);
+}
+
+static void serialize_f32(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const float v = *(float *)srcp;
+    if (v != par->def_value.f32) {
+        ngli_bstr_printf(b, " %s:", par->key);
+        print_float(b, v);
+    }
+}
+
+static void serialize_f64(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const double v = *(double *)srcp;
+    if (v != par->def_value.f64) {
+        ngli_bstr_printf(b, " %s:", par->key);
+        print_double(b, v);
+    }
+}
+
+static void serialize_rational(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const int *r = (int *)srcp;
+    if (memcmp(r, par->def_value.r, sizeof(par->def_value.r)))
+        ngli_bstr_printf(b, " %s:%d/%d", par->key, r[0], r[1]);
+}
+
+static void serialize_str(struct bstr *b, const uint8_t *srcp,
+                          const struct node_param *par, const char *label)
+{
+    const char *s = *(char **)srcp;
+    if (!s || (par->def_value.str && !strcmp(s, par->def_value.str)))
+        return;
+    if (!strcmp(par->key, "label") && ngli_is_default_label(label, s))
+        return;
+    ngli_bstr_printf(b, " %s:", par->key);
+    for (int i = 0; s[i]; i++)
+        if (s[i] >= '!' && s[i] <= '~' && s[i] != '%')
+            ngli_bstr_printf(b, "%c", s[i]);
+        else
+            ngli_bstr_printf(b, "%%%02x", s[i] & 0xff);
+}
+
+static void serialize_data(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const uint8_t *data = *(uint8_t **)srcp;
+    const int size = *(int *)(srcp + sizeof(uint8_t *));
+    if (!data || !size)
+        return;
+    ngli_bstr_printf(b, " %s:%d,", par->key, size);
+    for (int i = 0; i < size; i++)
+        ngli_bstr_printf(b, "%02x", data[i]);
+}
+
+static void serialize_ivec(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const int *iv = (const int *)srcp;
+    const int n = par->type - NGLI_PARAM_TYPE_IVEC2 + 2;
+    if (memcmp(iv, par->def_value.ivec, n * sizeof(*iv))) {
+        ngli_bstr_printf(b, " %s:", par->key);
+        print_ints(b, n, iv);
+    }
+}
+
+static void serialize_uvec(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const unsigned *uv = (const unsigned *)srcp;
+    const int n = par->type - NGLI_PARAM_TYPE_UVEC2 + 2;
+    if (memcmp(uv, par->def_value.uvec, n * sizeof(*uv))) {
+        ngli_bstr_printf(b, " %s:", par->key);
+        print_unsigneds(b, n, uv);
+    }
+}
+
+static void serialize_vec(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const float *v = (float *)srcp;
+    const int n = par->type - NGLI_PARAM_TYPE_VEC2 + 2;
+    if (memcmp(v, par->def_value.vec, n * sizeof(*v))) {
+        ngli_bstr_printf(b, " %s:", par->key);
+        print_floats(b, n, v);
+    }
+}
+
+static void serialize_mat4(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const float *m = (float *)srcp;
+    if (memcmp(m, par->def_value.mat, 16 * sizeof(*m))) {
+        ngli_bstr_printf(b, " %s:", par->key);
+        print_floats(b, 16, m);
+    }
+}
+
+static void serialize_node(struct bstr *b, const uint8_t *srcp,
+                           const struct node_param *par, struct hmap *nlist)
+{
+    const struct ngl_node *node = *(struct ngl_node **)srcp;
+    if (!node)
+        return;
+    const int node_id = get_rel_node_id(nlist, node);
+    ngli_bstr_printf(b, " %s:%x", par->key, node_id);
+}
+
+static void serialize_nodelist(struct bstr *b, const uint8_t *srcp,
+                               const struct node_param *par, struct hmap *nlist)
+{
+    struct ngl_node **nodes = *(struct ngl_node ***)srcp;
+    const int nb_nodes = *(int *)(srcp + sizeof(struct ngl_node **));
+    if (!nb_nodes)
+        return;
+    ngli_bstr_printf(b, " %s:", par->key);
+    for (int i = 0; i < nb_nodes; i++) {
+        const int node_id = get_rel_node_id(nlist, nodes[i]);
+        ngli_bstr_printf(b, "%s%x", i ? "," : "", node_id);
+    }
+}
+
+static void serialize_f64list(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
+{
+    const uint8_t *elems_p = srcp;
+    const uint8_t *nb_elems_p = srcp + sizeof(double *);
+    const double *elems = *(double **)elems_p;
+    const int nb_elems = *(int *)nb_elems_p;
+    if (!nb_elems)
+        return;
+    ngli_bstr_printf(b, " %s:", par->key);
+    print_doubles(b, nb_elems, elems);
+}
+
+static int serialize_nodedict(struct bstr *b, const uint8_t *srcp,
+                              const struct node_param *par, struct hmap *nlist)
+{
+    struct hmap *hmap = *(struct hmap **)srcp;
+    const int nb_nodes = hmap ? ngli_hmap_count(hmap) : 0;
+    if (!nb_nodes)
+        return 0;
+    ngli_bstr_printf(b, " %s:", par->key);
+
+    struct darray items_array;
+    ngli_darray_init(&items_array, sizeof(struct item), 0);
+    int ret = hmap_to_sorted_items(&items_array, hmap);
+    if (ret < 0)
+        return ret;
+    const struct item *items = ngli_darray_data(&items_array);
+    for (int i = 0; i < ngli_darray_count(&items_array); i++) {
+        const struct item *item = &items[i];
+        const int node_id = get_rel_node_id(nlist, item->data);
+        ngli_bstr_printf(b, "%s%s=%x", i ? "," : "", item->key, node_id);
+    }
+    ngli_darray_reset(&items_array);
+    return 0;
+}
+
 static int serialize_options(struct hmap *nlist,
                              struct bstr *b,
                              const struct ngl_node *node,
@@ -141,6 +330,7 @@ static int serialize_options(struct hmap *nlist,
     if (!p)
         return 0;
 
+    const char *label = node->cls->name;
     while (p->key) {
         const uint8_t *srcp = priv + p->offset;
 
@@ -155,186 +345,38 @@ static int serialize_options(struct hmap *nlist,
             srcp += sizeof(struct ngl_node *);
         }
 
+        int ret = 0;
         switch (p->type) {
-            case NGLI_PARAM_TYPE_SELECT: {
-                const int v = *(int *)srcp;
-                const char *s = ngli_params_get_select_str(p->choices->consts, v);
-                ngli_assert(s);
-                if (v != p->def_value.i32)
-                    ngli_bstr_printf(b, " %s:%s", p->key, s);
-                break;
-            }
-            case NGLI_PARAM_TYPE_FLAGS: {
-                const int v = *(int *)srcp;
-                char *s = ngli_params_get_flags_str(p->choices->consts, v);
-                if (!s) {
-                    LOG(ERROR, "unable to allocate param flags string");
-                    return NGL_ERROR_MEMORY;
-                }
-                ngli_assert(*s);
-                if (v != p->def_value.i32)
-                    ngli_bstr_printf(b, " %s:%s", p->key, s);
-                ngli_free(s);
-                break;
-            }
-            case NGLI_PARAM_TYPE_BOOL:
-            case NGLI_PARAM_TYPE_I32: {
-                const int v = *(int *)srcp;
-                if (v != p->def_value.i32)
-                    ngli_bstr_printf(b, " %s:%d", p->key, v);
-                break;
-            }
-            case NGLI_PARAM_TYPE_U32: {
-                const int v = *(int *)srcp;
-                if (v != p->def_value.u32)
-                    ngli_bstr_printf(b, " %s:%u", p->key, v);
-                break;
-            }
-            case NGLI_PARAM_TYPE_F32: {
-                const float v = *(float *)srcp;
-                if (v != p->def_value.f32) {
-                    ngli_bstr_printf(b, " %s:", p->key);
-                    print_float(b, v);
-                }
-                break;
-            }
-            case NGLI_PARAM_TYPE_F64: {
-                const double v = *(double *)srcp;
-                if (v != p->def_value.f64) {
-                    ngli_bstr_printf(b, " %s:", p->key);
-                    print_double(b, v);
-                }
-                break;
-            }
-            case NGLI_PARAM_TYPE_RATIONAL: {
-                const int *r = (int *)srcp;
-                if (memcmp(r, p->def_value.r, sizeof(p->def_value.r)))
-                    ngli_bstr_printf(b, " %s:%d/%d", p->key, r[0], r[1]);
-                break;
-            }
-            case NGLI_PARAM_TYPE_STR: {
-                const char *s = *(char **)srcp;
-                if (!s || (p->def_value.str && !strcmp(s, p->def_value.str)))
-                    break;
-                if (!strcmp(p->key, "label") &&
-                    ngli_is_default_label(node->cls->name, s))
-                    break;
-                ngli_bstr_printf(b, " %s:", p->key);
-                for (int i = 0; s[i]; i++)
-                    if (s[i] >= '!' && s[i] <= '~' && s[i] != '%')
-                        ngli_bstr_printf(b, "%c", s[i]);
-                    else
-                        ngli_bstr_printf(b, "%%%02x", s[i] & 0xff);
-                break;
-            }
-            case NGLI_PARAM_TYPE_DATA: {
-                const uint8_t *data = *(uint8_t **)srcp;
-                const int size = *(int *)(srcp + sizeof(uint8_t *));
-                if (!data || !size)
-                    break;
-                ngli_bstr_printf(b, " %s:%d,", p->key, size);
-                for (int i = 0; i < size; i++) {
-                    ngli_bstr_printf(b, "%02x", data[i]);
-                }
-                break;
-            }
-            case NGLI_PARAM_TYPE_IVEC2:
-            case NGLI_PARAM_TYPE_IVEC3:
-            case NGLI_PARAM_TYPE_IVEC4: {
-                const int *iv = (const int *)srcp;
-                const int n = p->type - NGLI_PARAM_TYPE_IVEC2 + 2;
-                if (memcmp(iv, p->def_value.ivec, n * sizeof(*iv))) {
-                    ngli_bstr_printf(b, " %s:", p->key);
-                    print_ints(b, n, iv);
-                }
-                break;
-            }
-            case NGLI_PARAM_TYPE_UVEC2:
-            case NGLI_PARAM_TYPE_UVEC3:
-            case NGLI_PARAM_TYPE_UVEC4: {
-                const unsigned *uv = (const unsigned *)srcp;
-                const int n = p->type - NGLI_PARAM_TYPE_UVEC2 + 2;
-                if (memcmp(uv, p->def_value.uvec, n * sizeof(*uv))) {
-                    ngli_bstr_printf(b, " %s:", p->key);
-                    print_unsigneds(b, n, uv);
-                }
-                break;
-            }
-            case NGLI_PARAM_TYPE_VEC2:
-            case NGLI_PARAM_TYPE_VEC3:
-            case NGLI_PARAM_TYPE_VEC4: {
-                const float *v = (float *)srcp;
-                const int n = p->type - NGLI_PARAM_TYPE_VEC2 + 2;
-                if (memcmp(v, p->def_value.vec, n * sizeof(*v))) {
-                    ngli_bstr_printf(b, " %s:", p->key);
-                    print_floats(b, n, v);
-                }
-                break;
-            }
-            case NGLI_PARAM_TYPE_MAT4: {
-                const float *m = (float *)srcp;
-                if (memcmp(m, p->def_value.mat, 16 * sizeof(*m))) {
-                    ngli_bstr_printf(b, " %s:", p->key);
-                    print_floats(b, 16, m);
-                }
-                break;
-            }
-            case NGLI_PARAM_TYPE_NODE: {
-                const struct ngl_node *node = *(struct ngl_node **)srcp;
-                if (!node)
-                    break;
-                const int node_id = get_rel_node_id(nlist, node);
-                ngli_bstr_printf(b, " %s:%x", p->key, node_id);
-                break;
-            }
-            case NGLI_PARAM_TYPE_NODELIST: {
-                struct ngl_node **nodes = *(struct ngl_node ***)srcp;
-                const int nb_nodes = *(int *)(srcp + sizeof(struct ngl_node **));
-                if (!nb_nodes)
-                    break;
-                ngli_bstr_printf(b, " %s:", p->key);
-                for (int i = 0; i < nb_nodes; i++) {
-                    const int node_id = get_rel_node_id(nlist, nodes[i]);
-                    ngli_bstr_printf(b, "%s%x", i ? "," : "", node_id);
-                }
-                break;
-            }
-            case NGLI_PARAM_TYPE_F64LIST: {
-                const uint8_t *elems_p = srcp;
-                const uint8_t *nb_elems_p = srcp + sizeof(double *);
-                const double *elems = *(double **)elems_p;
-                const int nb_elems = *(int *)nb_elems_p;
-                if (!nb_elems)
-                    break;
-                ngli_bstr_printf(b, " %s:", p->key);
-                print_doubles(b, nb_elems, elems);
-                break;
-            }
-            case NGLI_PARAM_TYPE_NODEDICT: {
-                struct hmap *hmap = *(struct hmap **)srcp;
-                const int nb_nodes = hmap ? ngli_hmap_count(hmap) : 0;
-                if (!nb_nodes)
-                    break;
-                ngli_bstr_printf(b, " %s:", p->key);
-
-                struct darray items_array;
-                ngli_darray_init(&items_array, sizeof(struct item), 0);
-                int ret = hmap_to_sorted_items(&items_array, hmap);
-                if (ret < 0)
-                    return ret;
-                const struct item *items = ngli_darray_data(&items_array);
-                for (int i = 0; i < ngli_darray_count(&items_array); i++) {
-                    const struct item *item = &items[i];
-                    const int node_id = get_rel_node_id(nlist, item->data);
-                    ngli_bstr_printf(b, "%s%s=%x", i ? "," : "", item->key, node_id);
-                }
-                ngli_darray_reset(&items_array);
-                break;
-            }
-            default:
-                LOG(ERROR, "cannot serialize %s: unsupported parameter type", p->key);
-                return NGL_ERROR_BUG;
+        case NGLI_PARAM_TYPE_SELECT:    serialize_select(b, srcp, p);                   break;
+        case NGLI_PARAM_TYPE_FLAGS:     ret = serialize_flags(b, srcp, p);              break;
+        case NGLI_PARAM_TYPE_BOOL:
+        case NGLI_PARAM_TYPE_I32:       serialize_i32(b, srcp, p);                      break;
+        case NGLI_PARAM_TYPE_U32:       serialize_u32(b, srcp, p);                      break;
+        case NGLI_PARAM_TYPE_F32:       serialize_f32(b, srcp, p);                      break;
+        case NGLI_PARAM_TYPE_F64:       serialize_f64(b, srcp, p);                      break;
+        case NGLI_PARAM_TYPE_RATIONAL:  serialize_rational(b, srcp, p);                 break;
+        case NGLI_PARAM_TYPE_STR:       serialize_str(b, srcp, p, label);               break;
+        case NGLI_PARAM_TYPE_DATA:      serialize_data(b, srcp, p);                     break;
+        case NGLI_PARAM_TYPE_IVEC2:
+        case NGLI_PARAM_TYPE_IVEC3:
+        case NGLI_PARAM_TYPE_IVEC4:     serialize_ivec(b, srcp, p);                     break;
+        case NGLI_PARAM_TYPE_UVEC2:
+        case NGLI_PARAM_TYPE_UVEC3:
+        case NGLI_PARAM_TYPE_UVEC4:     serialize_uvec(b, srcp, p);                     break;
+        case NGLI_PARAM_TYPE_VEC2:
+        case NGLI_PARAM_TYPE_VEC3:
+        case NGLI_PARAM_TYPE_VEC4:      serialize_vec(b, srcp, p);                      break;
+        case NGLI_PARAM_TYPE_MAT4:      serialize_mat4(b, srcp, p);                     break;
+        case NGLI_PARAM_TYPE_NODE:      serialize_node(b, srcp, p, nlist);              break;
+        case NGLI_PARAM_TYPE_NODELIST:  serialize_nodelist(b, srcp, p, nlist);          break;
+        case NGLI_PARAM_TYPE_F64LIST:   serialize_f64list(b, srcp, p);                  break;
+        case NGLI_PARAM_TYPE_NODEDICT:  ret = serialize_nodedict(b, srcp, p, nlist);    break;
+        default:
+            LOG(ERROR, "cannot serialize %s: unsupported parameter type", p->key);
+            return NGL_ERROR_BUG;
         }
+        if (ret < 0)
+            return ret;
         p++;
     }
     return 0;
