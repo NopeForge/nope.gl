@@ -453,16 +453,16 @@ static int uniformmat4_init(struct ngl_node *node)
 
 #define DEFINE_UNIFORM_CLASS(class_id, class_name, type)        \
 const struct node_class ngli_uniform##type##_class = {          \
-    .id        = class_id,                                      \
-    .category  = NGLI_NODE_CATEGORY_VARIABLE,                   \
-    .name      = class_name,                                    \
-    .init      = uniform##type##_init,                          \
-    .update    = uniform##type##_update,                        \
-    .priv_size = sizeof(struct variable_priv),                  \
-    .params    = uniform##type##_params,                        \
-    .flags     = NGLI_NODE_FLAG_LIVECTL,                        \
+    .id             = class_id,                                 \
+    .category       = NGLI_NODE_CATEGORY_VARIABLE,              \
+    .name           = class_name,                               \
+    .init           = uniform##type##_init,                     \
+    .update         = uniform##type##_update,                   \
+    .priv_size      = sizeof(struct variable_priv),             \
+    .params         = uniform##type##_params,                   \
+    .flags          = NGLI_NODE_FLAG_LIVECTL,                   \
     .livectl_offset = OFFSET(opt),                              \
-    .file      = __FILE__,                                      \
+    .file           = __FILE__,                                 \
 };
 
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMBOOL,   "UniformBool",   bool)
