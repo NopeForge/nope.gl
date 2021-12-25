@@ -114,15 +114,11 @@ static int cmp_item(const void *p1, const void *p2)
 
 static int hmap_to_sorted_items(struct darray *items_array, struct hmap *hm)
 {
-    ngli_darray_init(items_array, sizeof(struct item), 0);
-
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(hm, entry))) {
         struct item item = {.key = entry->key, .data = entry->data};
-        if (!ngli_darray_push(items_array, &item)) {
-            ngli_darray_reset(items_array);
+        if (!ngli_darray_push(items_array, &item))
             return NGL_ERROR_MEMORY;
-        }
     }
 
     void *items = ngli_darray_data(items_array);
@@ -309,8 +305,10 @@ static int serialize_nodedict(struct bstr *b, const uint8_t *srcp,
     struct darray items_array;
     ngli_darray_init(&items_array, sizeof(struct item), 0);
     int ret = hmap_to_sorted_items(&items_array, hmap);
-    if (ret < 0)
+    if (ret < 0) {
+        ngli_darray_reset(&items_array);
         return ret;
+    }
     const struct item *items = ngli_darray_data(&items_array);
     for (int i = 0; i < ngli_darray_count(&items_array); i++) {
         const struct item *item = &items[i];
@@ -425,9 +423,12 @@ static int serialize_children(struct hmap *nlist,
                     break;
 
                 struct darray items_array;
+                ngli_darray_init(&items_array, sizeof(struct item), 0);
                 int ret = hmap_to_sorted_items(&items_array, hmap);
-                if (ret < 0)
+                if (ret < 0) {
+                    ngli_darray_reset(&items_array);
                     return ret;
+                }
                 const struct item *items = ngli_darray_data(&items_array);
                 for (int i = 0; i < ngli_darray_count(&items_array); i++) {
                     const struct item *item = &items[i];
