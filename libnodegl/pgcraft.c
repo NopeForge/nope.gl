@@ -745,6 +745,7 @@ static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
         if (clamp)
             ngli_bstr_print(dst, "clamp(");
 
+        /* Sampling mode values correspond to NGLI_IMAGE_LAYOUT_* constants */
         ngli_bstr_print(dst, "(");
 #if defined(TARGET_ANDROID)
         ngli_bstr_printf(dst, "%.*s_sampling_mode == 2 ? ", ARG_FMT(arg0));
