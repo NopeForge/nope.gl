@@ -52,9 +52,9 @@ static const struct node_param timerangefilter_params[] = {
                .node_types=RANGES_TYPES_LIST,
                .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                .desc=NGLI_DOCSTRING("key frame time filtering events")},
-    {"prefetch_time", NGLI_PARAM_TYPE_F64, OFFSET(prefetch_time), {.dbl=1.0},
+    {"prefetch_time", NGLI_PARAM_TYPE_F64, OFFSET(prefetch_time), {.f64=1.0},
                       .desc=NGLI_DOCSTRING("`child` is prefetched `prefetch_time` seconds in advance")},
-    {"max_idle_time", NGLI_PARAM_TYPE_F64, OFFSET(max_idle_time), {.dbl=4.0},
+    {"max_idle_time", NGLI_PARAM_TYPE_F64, OFFSET(max_idle_time), {.f64=4.0},
                       .desc=NGLI_DOCSTRING("`child` will not be released if it is required in the next incoming `max_idle_time` seconds")},
     {NULL}
 };

@@ -81,7 +81,7 @@ static int should_print_par(const uint8_t *srcp, const struct node_param *par)
         }
         case NGLI_PARAM_TYPE_F64: {
             const double v = *(double *)srcp;
-            return v != par->def_value.dbl;
+            return v != par->def_value.f64;
         }
         case NGLI_PARAM_TYPE_BOOL:
         case NGLI_PARAM_TYPE_FLAGS:

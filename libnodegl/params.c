@@ -806,7 +806,7 @@ int ngli_params_set_defaults(uint8_t *base_ptr, const struct node_param *params)
                 ret = ngli_params_set_f32(dstp, par, par->def_value.f32);
                 break;
             case NGLI_PARAM_TYPE_F64:
-                ret = ngli_params_set_f64(dstp, par, par->def_value.dbl);
+                ret = ngli_params_set_f64(dstp, par, par->def_value.f64);
                 break;
             case NGLI_PARAM_TYPE_STR:
                 ret = ngli_params_set_str(dstp, par, par->def_value.str);

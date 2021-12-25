@@ -119,7 +119,7 @@ static char *get_default_str(const struct node_param *p)
             ngli_bstr_printf(b, "`%g`", p->def_value.f32);
             break;
         case NGLI_PARAM_TYPE_F64:
-            ngli_bstr_printf(b, "`%g`", p->def_value.dbl);
+            ngli_bstr_printf(b, "`%g`", p->def_value.f64);
             break;
         case NGLI_PARAM_TYPE_BOOL:
             if (p->def_value.i32 < 0)

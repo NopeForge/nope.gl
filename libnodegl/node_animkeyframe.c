@@ -80,9 +80,9 @@ static const struct node_param animkeyframe##id##_params[] = {                  
                              .desc=NGLI_DOCSTRING("easing interpolation from previous key frame")},     \
     {"easing_args",          NGLI_PARAM_TYPE_F64LIST, OFFSET(args),                                     \
                              .desc=NGLI_DOCSTRING("a list of arguments some easings may use")},         \
-    {"easing_start_offset",  NGLI_PARAM_TYPE_F64, OFFSET(offsets[0]), {.dbl=0},                         \
+    {"easing_start_offset",  NGLI_PARAM_TYPE_F64, OFFSET(offsets[0]), {.f64=0},                         \
                              .desc=NGLI_DOCSTRING("starting offset of the truncation of the easing")},  \
-    {"easing_end_offset",    NGLI_PARAM_TYPE_F64, OFFSET(offsets[1]), {.dbl=1},                         \
+    {"easing_end_offset",    NGLI_PARAM_TYPE_F64, OFFSET(offsets[1]), {.f64=1},                         \
                              .desc=NGLI_DOCSTRING("ending offset of the truncation of the easing")},    \
     {NULL}                                                                                              \
 }

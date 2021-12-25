@@ -143,7 +143,7 @@ struct node_param {
         int32_t i32;
         uint32_t u32;
         float f32;
-        double dbl;
+        double f64;
         const char *str;
         void *p;
         float vec[4];

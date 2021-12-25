@@ -200,7 +200,7 @@ static int serialize_options(struct hmap *nlist,
             }
             case NGLI_PARAM_TYPE_F64: {
                 const double v = *(double *)srcp;
-                if (v != p->def_value.dbl) {
+                if (v != p->def_value.f64) {
                     ngli_bstr_printf(b, " %s:", p->key);
                     print_double(b, v);
                 }
