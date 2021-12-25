@@ -166,7 +166,8 @@ static const struct param_choices format_choices = {
 
 #define OFFSET(x) offsetof(struct texture_priv, x)
 static const struct node_param texture2d_params[] = {
-    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM}, .choices=&format_choices,
+    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM},
+               .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
     {"width", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i64=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
@@ -193,7 +194,8 @@ static const struct node_param texture2d_params[] = {
 };
 
 static const struct node_param texture3d_params[] = {
-    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM}, .choices=&format_choices,
+    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM},
+               .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
     {"width", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i64=0},
               .desc=NGLI_DOCSTRING("width of the texture")},
@@ -220,7 +222,8 @@ static const struct node_param texture3d_params[] = {
 };
 
 static const struct node_param texturecube_params[] = {
-    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM}, .choices=&format_choices,
+    {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i64=NGLI_FORMAT_R8G8B8A8_UNORM},
+               .choices=&format_choices,
                .desc=NGLI_DOCSTRING("format of the pixel data")},
     {"size", NGLI_PARAM_TYPE_I32, OFFSET(params.width), {.i64=0},
              .desc=NGLI_DOCSTRING("width and height of the texture")},
@@ -469,7 +472,7 @@ static int texture2d_init(struct ngl_node *node)
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
     s->params.type = NGLI_TEXTURE_TYPE_2D;
-    s->params.format = get_preferred_format(gpu_ctx, s->format);
+    s->params.format = get_preferred_format(gpu_ctx, s->requested_format);
     s->supported_image_layouts = s->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
 
     /*
@@ -511,7 +514,7 @@ static int texture3d_init(struct ngl_node *node)
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
     s->params.type = NGLI_TEXTURE_TYPE_3D;
-    s->params.format = get_preferred_format(gpu_ctx, s->format);
+    s->params.format = get_preferred_format(gpu_ctx, s->requested_format);
 
     return 0;
 }
@@ -535,7 +538,7 @@ static int texturecube_init(struct ngl_node *node)
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
     s->params.type = NGLI_TEXTURE_TYPE_CUBE;
-    s->params.format = get_preferred_format(gpu_ctx, s->format);
+    s->params.format = get_preferred_format(gpu_ctx, s->requested_format);
 
     return 0;
 }
