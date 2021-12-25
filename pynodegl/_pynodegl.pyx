@@ -24,6 +24,7 @@ from cpython cimport array
 from libc.stdlib cimport calloc
 from libc.stdlib cimport free
 from libc.string cimport memset
+from libc.stdint cimport int32_t
 from libc.stdint cimport uint8_t
 from libc.stdint cimport uint32_t
 from libc.stdint cimport uintptr_t
@@ -132,6 +133,20 @@ cdef extern from "nodegl.h":
         const char *hud_export_filename
         int hud_scale
 
+    cdef union ngl_livectl_data:
+        float f[4]
+        int32_t i[4]
+        uint32_t u[4]
+        float m[16]
+
+    cdef struct ngl_livectl:
+        char *id
+        uint32_t node_type
+        ngl_node *node
+        ngl_livectl_data val
+        ngl_livectl_data min
+        ngl_livectl_data max
+
     ngl_ctx *ngl_create()
     int ngl_backends_probe(const ngl_config *user_config, int *nb_backendsp, ngl_backend **backendsp)
     int ngl_backends_get(const ngl_config *user_config, int *nb_backendsp, ngl_backend **backendsp)
@@ -142,6 +157,8 @@ cdef extern from "nodegl.h":
     int ngl_set_scene(ngl_ctx *s, ngl_node *scene)
     int ngl_draw(ngl_ctx *s, double t) nogil
     char *ngl_dot(ngl_ctx *s, double t) nogil
+    int ngl_livectls_get(ngl_node *scene, int *nb_livectlsp, ngl_livectl **livectlsp)
+    void ngl_livectls_freep(ngl_livectl **livectlsp)
     void ngl_freep(ngl_ctx **ss)
 
     int ngl_easing_evaluate(const char *name, const double *args, int nb_args,
@@ -443,6 +460,54 @@ def probe_backends(**kwargs):
 
 def get_backends(**kwargs):
     return _probe_backends(_PROBE_MODE_NO_GRAPHICS, **kwargs)
+
+
+LIVECTL_INFO = {}  # Filled dynamically by the Python side
+
+_TYPES_COUNT = {
+    'bool': 1, 'mat4': 16,
+    'f32': 1, 'vec2': 2, 'vec3': 3, 'vec4': 4,
+    'i32': 1, 'ivec2': 2, 'ivec3': 3, 'ivec4': 4,
+    'u32': 1, 'uvec2': 2, 'uvec3': 3, 'uvec4': 4,
+}
+
+
+def get_livectls(_Node scene):
+    cdef int nb_livectls = 0
+    cdef ngl_livectl *livectls = NULL
+    cdef int ret = ngl_livectls_get(scene.ctx, &nb_livectls, &livectls)
+    if ret < 0:
+        raise Exception('Error getting live controls')
+
+    livectl_dict = {}
+    for i in range(nb_livectls):
+        livectl = &livectls[i]
+        py_cls, data_type = LIVECTL_INFO[livectl.node_type]
+        data_count = _TYPES_COUNT[data_type]
+        py_node = py_cls(ctx=<uintptr_t>livectl.node)
+        py_data = dict(node=py_node, node_type=py_cls.__name__)
+        if data_type[0] in 'fvm':
+            py_data['val'] = [livectl.val.f[i] for i in range(data_count)]
+            py_data['min'] = [livectl.min.f[i] for i in range(data_count)]
+            py_data['max'] = [livectl.max.f[i] for i in range(data_count)]
+        elif data_type[0] == 'i':
+            py_data['val'] = [livectl.val.i[i] for i in range(data_count)]
+            py_data['min'] = [livectl.min.i[i] for i in range(data_count)]
+            py_data['max'] = [livectl.max.i[i] for i in range(data_count)]
+        elif data_type[0] == 'u':
+            py_data['val'] = [livectl.val.u[i] for i in range(data_count)]
+            py_data['min'] = [livectl.min.u[i] for i in range(data_count)]
+            py_data['max'] = [livectl.max.u[i] for i in range(data_count)]
+        elif data_type == 'bool':
+            py_data['val'] = bool(livectl.val.i[0])
+        if data_type[0] in 'fiu' and data_count == 1:
+            py_data['val'] = py_data['val'][0]
+            py_data['min'] = py_data['min'][0]
+            py_data['max'] = py_data['max'][0]
+        livectl_dict[livectl.id] = py_data
+
+    ngl_livectls_freep(&livectls)
+    return livectl_dict
 
 
 cdef class Context:

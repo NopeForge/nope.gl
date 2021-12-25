@@ -42,6 +42,7 @@ from _pynodegl import (
     easing_solve,
     probe_backends,
     get_backends,
+    get_livectls,
     Context,
 )
 
@@ -247,6 +248,18 @@ def _declare_class(class_name, params):
     # Set various node methods dynamically
     _set_class_setters(cls)
     if class_name[0] != '_':
+        if params and not isinstance(params, str):
+
+            # Live controls handling
+            dparams = {k: (dtype, flags) for k, dtype, flags in params}
+            if 'live_id' in dparams:
+                # Identify the first parameter with a "live" flag as the reference value
+                data_type = next(dtype for dtype, flags in dparams.values() if 'L' in flags)
+                # Expose enough information to the Cython such that it is able
+                # to construct and expose a usable dict of live controls to the
+                # user
+                _ngl.LIVECTL_INFO[attr['type_id']] = (cls, data_type)
+
         _set_class_init(cls, base_class)
         _set_class_eval_method(cls, class_name)
 
