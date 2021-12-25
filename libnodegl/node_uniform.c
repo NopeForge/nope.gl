@@ -67,30 +67,124 @@ static int uniformquat_update_func(struct ngl_node *node)
 
 #define OFFSET(x) offsetof(struct variable_priv, x)
 
-#define DECLARE_PARAMS(type, ptype, dst, upd_fn)                        \
-static const struct node_param uniform##type##_params[] = {             \
-    {"value",  ptype, OFFSET(dst),                                      \
-               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,                     \
-               .update_func=upd_fn,                                     \
-               .desc=NGLI_DOCSTRING("value exposed to the shader")},    \
-    {NULL}                                                              \
-}
+static const struct node_param uniformbool_params[] = {
+    {"value",    NGLI_PARAM_TYPE_BOOL, OFFSET(opt.ivec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformivec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
 
-DECLARE_PARAMS(bool,   NGLI_PARAM_TYPE_BOOL,  opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(float,  NGLI_PARAM_TYPE_F32,   opt.vec,  uniformvec_update_func);
-DECLARE_PARAMS(vec2,   NGLI_PARAM_TYPE_VEC2,  opt.vec,  uniformvec_update_func);
-DECLARE_PARAMS(vec3,   NGLI_PARAM_TYPE_VEC3,  opt.vec,  uniformvec_update_func);
-DECLARE_PARAMS(vec4,   NGLI_PARAM_TYPE_VEC4,  opt.vec,  uniformvec_update_func);
-DECLARE_PARAMS(int,    NGLI_PARAM_TYPE_I32,   opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(ivec2,  NGLI_PARAM_TYPE_IVEC2, opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(ivec3,  NGLI_PARAM_TYPE_IVEC3, opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(ivec4,  NGLI_PARAM_TYPE_IVEC4, opt.ivec, uniformivec_update_func);
-DECLARE_PARAMS(uint,   NGLI_PARAM_TYPE_U32,   opt.uvec, uniformuivec_update_func);
-DECLARE_PARAMS(uivec2, NGLI_PARAM_TYPE_UVEC2, opt.uvec, uniformuivec_update_func);
-DECLARE_PARAMS(uivec3, NGLI_PARAM_TYPE_UVEC3, opt.uvec, uniformuivec_update_func);
-DECLARE_PARAMS(uivec4, NGLI_PARAM_TYPE_UVEC4, opt.uvec, uniformuivec_update_func);
-DECLARE_PARAMS(color,  NGLI_PARAM_TYPE_VEC3,  opt.vec,  uniformvec_update_func);
-DECLARE_PARAMS(colora, NGLI_PARAM_TYPE_VEC4,  opt.vec,  uniformvec_update_func);
+static const struct node_param uniformfloat_params[] = {
+    {"value",    NGLI_PARAM_TYPE_F32, OFFSET(opt.vec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformvec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformvec2_params[] = {
+    {"value",    NGLI_PARAM_TYPE_VEC2, OFFSET(opt.vec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformvec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformvec3_params[] = {
+    {"value",    NGLI_PARAM_TYPE_VEC3, OFFSET(opt.vec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformvec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformvec4_params[] = {
+    {"value",    NGLI_PARAM_TYPE_VEC4, OFFSET(opt.vec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformvec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformint_params[] = {
+    {"value",    NGLI_PARAM_TYPE_I32, OFFSET(opt.ivec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformivec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformivec2_params[] = {
+    {"value",    NGLI_PARAM_TYPE_IVEC2, OFFSET(opt.ivec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformivec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+static const struct node_param uniformivec3_params[] = {
+    {"value",    NGLI_PARAM_TYPE_IVEC3, OFFSET(opt.ivec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformivec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformivec4_params[] = {
+    {"value",    NGLI_PARAM_TYPE_IVEC4, OFFSET(opt.ivec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformivec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformuint_params[] = {
+    {"value",    NGLI_PARAM_TYPE_U32, OFFSET(opt.uvec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformuivec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformuivec2_params[] = {
+    {"value",    NGLI_PARAM_TYPE_UVEC2, OFFSET(opt.uvec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformuivec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformuivec3_params[] = {
+    {"value",    NGLI_PARAM_TYPE_UVEC3, OFFSET(opt.uvec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformuivec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformuivec4_params[] = {
+    {"value",    NGLI_PARAM_TYPE_UVEC4, OFFSET(opt.uvec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformuivec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformcolor_params[] = {
+    {"value",    NGLI_PARAM_TYPE_VEC3, OFFSET(opt.vec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformvec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
+
+static const struct node_param uniformcolora_params[] = {
+    {"value",    NGLI_PARAM_TYPE_VEC4, OFFSET(opt.vec),
+                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                 .update_func=uniformvec_update_func,
+                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
+    {NULL}
+};
 
 static const struct node_param uniformquat_params[] = {
     {"value",  NGLI_PARAM_TYPE_VEC4, OFFSET(opt.vec), {.vec=NGLI_QUAT_IDENTITY},
