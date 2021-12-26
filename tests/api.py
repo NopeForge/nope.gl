@@ -229,9 +229,10 @@ def api_livectls():
             )),
             live_id='switch',
         ),
+        ngl.Text(live_id='txt'),
     ))
     livectls = ngl.get_livectls(scene)
-    assert len(livectls) == 7
+    assert len(livectls) == 8
 
     # Attach scene and run a dummy draw to make sure it's valid
     ctx = ngl.Context()
@@ -248,6 +249,7 @@ def api_livectls():
         m4=[rng.uniform(-1, 1) for i in range(16)],
         clr=(.9, .3, .8, .9),
         rot=(.1, -.2, .5, -.3),
+        txt='test string',
     )
     for live_id, value in values.items():
         node = livectls[live_id]['node']
@@ -255,6 +257,8 @@ def api_livectls():
         assert node_type == node.__class__.__name__
         if node_type == 'UserSwitch':
             node.set_enabled(value)
+        elif node_type == 'Text':
+            node.set_text(value)
         elif hasattr(value, '__iter__'):
             node.set_value(*value)
         else:
@@ -267,7 +271,10 @@ def api_livectls():
     # Inspect nodes to check if they were properly altered by the live changes
     for live_id, expected_value in values.items():
         value = livectls[live_id]['val']
-        if hasattr(value, '__iter__'):
+        node_type = livectls[live_id]['node_type']
+        if node_type == 'Text':
+            assert value == expected_value, (value, expected_value)
+        elif hasattr(value, '__iter__'):
             assert all(math.isclose(v, e, rel_tol=1e-6) for v, e in zip(value, expected_value))
         else:
             assert math.isclose(value, expected_value, rel_tol=1e-6)
