@@ -366,6 +366,7 @@ foreach backend : backends
   ]
 
   tests_userlive = [
+    'select',
     'switch',
   ]
 

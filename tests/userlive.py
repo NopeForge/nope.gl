@@ -55,4 +55,53 @@ def _get_userlive_switch_func():
     return scene_func
 
 
+def _get_userlive_select_func():
+    # We point on the same underlying render to test the different render paths
+    render = ngl.RenderColor(COLORS.white[:3], opacity=0.5, geometry=ngl.Quad())
+    below = ngl.Translate(render, vector=(.5 - 2/3, .5 - 1/3, 0))
+    above = ngl.Translate(render, vector=(.5 - 1/3, .5 - 2/3, 0))
+
+    # Additive blending (for premultiplied values): lighten
+    gc0 = ngl.GraphicConfig(
+        above,
+        blend=True,
+        blend_src_factor='one',
+        blend_dst_factor='one',
+        blend_src_factor_a='one',
+        blend_dst_factor_a='one',
+    )
+
+    # Multiply blending (for premultiplied values): darken
+    gc1 = ngl.GraphicConfig(
+        above,
+        blend=True,
+        blend_src_factor='zero',
+        blend_dst_factor='src_color',
+        blend_src_factor_a='zero',
+        blend_dst_factor_a='src_alpha',
+    )
+
+    # Select has 3 branches: simple over blending, additive blending, multiply
+    # blending
+    select = ngl.UserSelect(branches=(above, gc0, gc1))
+
+    def keyframes_callback(t_id):
+        # 4 states: the for the 3 blending branches and one extra for nothing
+        # (branch ID overflow). We remain on the each state for 2 frames.
+        select.set_branch((t_id // 2) % 4)
+
+    @test_fingerprint(nb_keyframes=8,
+                      keyframes_callback=keyframes_callback,
+                      tolerance=1,
+                      exercise_serialization=False)
+    @scene(branch=scene.Range([0, 3]))
+    def scene_func(cfg, branch=0):
+        cfg.aspect_ratio = (1, 1)
+        select.set_branch(branch)
+        return ngl.Group(children=(below, select))
+
+    return scene_func
+
+
 userlive_switch = _get_userlive_switch_func()
+userlive_select = _get_userlive_select_func()
