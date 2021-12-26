@@ -450,6 +450,16 @@ int ngli_node_livectls_get(const struct ngl_node *scene, int *nb_livectlsp, stru
         memcpy(&ctl->val, &ref_ctl->val, sizeof(ctl->val));
         memcpy(&ctl->min, &ref_ctl->min, sizeof(ctl->min));
         memcpy(&ctl->max, &ref_ctl->max, sizeof(ctl->max));
+
+        if (node->cls->id == NGL_NODE_TEXT) {
+            ngli_assert(ctl->val.s);
+            ngli_assert(!ctl->min.s && !ctl->max.s);
+            ctl->val.s = ngli_strdup(ctl->val.s);
+            if (!ctl->val.s) {
+                ret = NGL_ERROR_MEMORY;
+                goto end;
+            }
+        }
     }
 
     *livectlsp = ctls;
@@ -469,6 +479,8 @@ void ngli_node_livectls_freep(struct ngl_livectl **livectlsp)
         return;
     for (int i = 0; livectls[i].node; i++) {
         struct ngl_livectl *ctl = &livectls[i];
+        if (livectls[i].node->cls->id == NGL_NODE_TEXT)
+            ngli_freep(&livectls[i].val.s);
         ngl_node_unrefp(&ctl->node);
         ngli_freep(&ctl->id);
     }

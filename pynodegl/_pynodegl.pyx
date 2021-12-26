@@ -138,6 +138,7 @@ cdef extern from "nodegl.h":
         int32_t i[4]
         uint32_t u[4]
         float m[16]
+        char *s
 
     cdef struct ngl_livectl:
         char *id
@@ -465,7 +466,7 @@ def get_backends(**kwargs):
 LIVECTL_INFO = {}  # Filled dynamically by the Python side
 
 _TYPES_COUNT = {
-    'bool': 1, 'mat4': 16,
+    'bool': 1, 'mat4': 16, 'str': 0,
     'f32': 1, 'vec2': 2, 'vec3': 3, 'vec4': 4,
     'i32': 1, 'ivec2': 2, 'ivec3': 3, 'ivec4': 4,
     'u32': 1, 'uvec2': 2, 'uvec3': 3, 'uvec4': 4,
@@ -500,6 +501,8 @@ def get_livectls(_Node scene):
             py_data['max'] = [livectl.max.u[i] for i in range(data_count)]
         elif data_type == 'bool':
             py_data['val'] = bool(livectl.val.i[0])
+        elif data_type == 'str':
+            py_data['val'] = livectl.val.s
         if data_type[0] in 'fiu' and data_count == 1:
             py_data['val'] = py_data['val'][0]
             py_data['min'] = py_data['min'][0]

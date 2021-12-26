@@ -435,6 +435,7 @@ union ngl_livectl_data {
     int32_t i[4];   /* i32, ivec2, ivec3, ivec4, bool */
     uint32_t u[4];  /* u32, uvec2, uvec3, uvec4 */
     float m[16];    /* mat4 */
+    char *s;        /* str */
 };
 
 struct ngl_livectl {
