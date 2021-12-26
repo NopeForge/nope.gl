@@ -808,6 +808,7 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `text` |  [`live`](#Parameter-flags) [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | text string to rasterize | 
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
 `fg_color` |  [`live`](#Parameter-flags) | [`vec4`](#parameter-types) | foreground text color | (`1`,`1`,`1`,`1`)
 `bg_color` |  [`live`](#Parameter-flags) | [`vec4`](#parameter-types) | background text color | (`0`,`0`,`0`,`0.8`)
 `box_corner` |  | [`vec3`](#parameter-types) | origin coordinates of `box_width` and `box_height` vectors | (`-1`,`-1`,`0`)

@@ -60,7 +60,7 @@ struct pipeline_desc {
 };
 
 struct text_priv {
-    char *text;
+    struct livectl live;
     float fg_color[4];
     float bg_color[4];
     float box_corner[3];
@@ -119,10 +119,12 @@ static int set_live_changed(struct ngl_node *node)
 
 #define OFFSET(x) offsetof(struct text_priv, x)
 static const struct node_param text_params[] = {
-    {"text",         NGLI_PARAM_TYPE_STR, OFFSET(text), {.str=""},
+    {"text",         NGLI_PARAM_TYPE_STR, OFFSET(live.val.s), {.str=""},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_NON_NULL,
                      .update_func=set_live_changed,
                      .desc=NGLI_DOCSTRING("text string to rasterize")},
+    {"live_id",      NGLI_PARAM_TYPE_STR, OFFSET(live.id),
+                     .desc=NGLI_DOCSTRING("live control identifier")},
     {"fg_color",     NGLI_PARAM_TYPE_VEC4, OFFSET(fg_color), {.vec={1.0, 1.0, 1.0, 1.0}},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                      .desc=NGLI_DOCSTRING("foreground text color")},
@@ -217,7 +219,7 @@ static int update_character_geometries(struct ngl_node *node)
     struct text_priv *s = node->priv_data;
 
     int ret = 0;
-    const char *str = s->text;
+    const char *str = s->live.val.s;
 
     int text_cols, text_rows, text_nbchr;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
@@ -726,5 +728,7 @@ const struct node_class ngli_text_class = {
     .uninit    = text_uninit,
     .priv_size = sizeof(struct text_priv),
     .params    = text_params,
+    .flags     = NGLI_NODE_FLAG_LIVECTL,
+    .livectl_offset = OFFSET(live),
     .file      = __FILE__,
 };
