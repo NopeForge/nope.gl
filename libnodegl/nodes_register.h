@@ -186,6 +186,7 @@
     action(NGL_NODE_UNIFORMCOLOR,           ngli_uniformcolor_class)            \
     action(NGL_NODE_UNIFORMCOLORA,          ngli_uniformcolora_class)           \
     action(NGL_NODE_UNIFORMQUAT,            ngli_uniformquat_class)             \
+    action(NGL_NODE_USERSELECT,             ngli_userselect_class)              \
     action(NGL_NODE_USERSWITCH,             ngli_userswitch_class)              \
     action(NGL_NODE_VELOCITYFLOAT,          ngli_velocityfloat_class)           \
     action(NGL_NODE_VELOCITYVEC2,           ngli_velocityvec2_class)            \

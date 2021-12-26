@@ -812,6 +812,13 @@ UniformQuat:
     - [live_max, vec4, ""]
     - [as_mat4, bool, ""]
 
+UserSelect:
+    - [branches, node_list, ""]
+    - [branch, i32, "L"]
+    - [live_id, str, ""]
+    - [live_min, i32, ""]
+    - [live_max, i32, ""]
+
 UserSwitch:
     - [child, node, "M"]
     - [enabled, bool, "L"]

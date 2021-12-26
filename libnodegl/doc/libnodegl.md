@@ -1537,6 +1537,20 @@ Parameter | Flags | Type | Description | Default
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
 
 
+## UserSelect
+
+Parameter | Flags | Type | Description | Default
+--------- | ----- | ---- | ----------- | :-----:
+`branches` |  | [`node_list`](#parameter-types) | a set of branches to pick from | 
+`branch` |  [`live`](#Parameter-flags) | [`i32`](#parameter-types) | controls which branch is taken | `0`
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`i32`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | `0`
+`live_max` |  | [`i32`](#parameter-types) | maximum value allowed during live change (only_honored when live_id is set) | `10`
+
+
+**Source**: [node_userselect.c](/libnodegl/node_userselect.c)
+
+
 ## UserSwitch
 
 Parameter | Flags | Type | Description | Default
