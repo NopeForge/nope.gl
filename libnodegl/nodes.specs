@@ -815,6 +815,7 @@ UniformQuat:
 UserSwitch:
     - [child, node, "M"]
     - [enabled, bool, "L"]
+    - [live_id, str, ""]
 
 VelocityFloat:
     - [animation, node, "M"]

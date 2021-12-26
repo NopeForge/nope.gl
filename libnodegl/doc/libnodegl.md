@@ -1543,6 +1543,7 @@ Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `child` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) | scene to be rendered or not | 
 `enabled` |  [`live`](#Parameter-flags) | [`bool`](#parameter-types) | set if the scene should be rendered | `1`
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
 
 
 **Source**: [node_userswitch.c](/libnodegl/node_userswitch.c)
