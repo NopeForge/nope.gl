@@ -65,14 +65,14 @@ static void userswitch_draw(struct ngl_node *node)
 }
 
 const struct node_class ngli_userswitch_class = {
-    .id        = NGL_NODE_USERSWITCH,
-    .name      = "UserSwitch",
-    .visit     = userswitch_visit,
-    .update    = userswitch_update,
-    .draw      = userswitch_draw,
-    .priv_size = sizeof(struct userswitch),
-    .params    = userswitch_params,
-    .flags     = NGLI_NODE_FLAG_LIVECTL,
+    .id             = NGL_NODE_USERSWITCH,
+    .name           = "UserSwitch",
+    .visit          = userswitch_visit,
+    .update         = userswitch_update,
+    .draw           = userswitch_draw,
+    .priv_size      = sizeof(struct userswitch),
+    .params         = userswitch_params,
+    .flags          = NGLI_NODE_FLAG_LIVECTL,
     .livectl_offset = OFFSET(live),
-    .file      = __FILE__,
+    .file           = __FILE__,
 };
