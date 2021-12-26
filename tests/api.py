@@ -221,14 +221,17 @@ def api_livectls():
         ngl.UniformBool(live_id='b'),
         ngl.UniformFloat(live_id='f'),
         ngl.UniformIVec3(live_id='iv3'),
-        ngl.Group(children=(
-            ngl.UniformMat4(live_id='m4'),
-            ngl.UniformColorA(live_id='clr'),
-            ngl.UniformQuat(as_mat4=True, live_id='rot'),
-        )),
+        ngl.UserSwitch(
+            ngl.Group(children=(
+                ngl.UniformMat4(live_id='m4'),
+                ngl.UniformColorA(live_id='clr'),
+                ngl.UniformQuat(as_mat4=True, live_id='rot'),
+            )),
+            live_id='switch',
+        ),
     ))
     livectls = ngl.get_livectls(scene)
-    assert len(livectls) == 6
+    assert len(livectls) == 7
 
     # Attach scene and run a dummy draw to make sure it's valid
     ctx = ngl.Context()
@@ -241,6 +244,7 @@ def api_livectls():
         b=True,
         f=rng.uniform(-1, 1),
         iv3=[rng.randint(-100, 100) for i in range(3)],
+        switch=False,
         m4=[rng.uniform(-1, 1) for i in range(16)],
         clr=(.9, .3, .8, .9),
         rot=(.1, -.2, .5, -.3),
@@ -249,7 +253,9 @@ def api_livectls():
         node = livectls[live_id]['node']
         node_type = livectls[live_id]['node_type']
         assert node_type == node.__class__.__name__
-        if hasattr(value, '__iter__'):
+        if node_type == 'UserSwitch':
+            node.set_enabled(value)
+        elif hasattr(value, '__iter__'):
             node.set_value(*value)
         else:
             node.set_value(value)
