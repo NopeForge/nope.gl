@@ -138,14 +138,14 @@ def _set_class_init(cls, base_class):
 
             # consume args
             args = list(args)
-            for param_name, param_type in params[:len(args)]:
+            for param_name, param_type, _ in params[:len(args)]:
                 value = args.pop(0)
                 if value is None:
                     continue
                 _init_param(self, param_name, param_type, value)
 
             # consume kwargs
-            for param_name, param_type in params[len(args):]:
+            for param_name, param_type, _ in params[len(args):]:
                 value = kwargs.pop(param_name, None)
                 if value is None:
                     continue
@@ -184,7 +184,7 @@ def _set_class_setters(cls):
         vec4=cls._param_set_vec4,
     )
 
-    for param_name, param_type in cls._params:
+    for param_name, param_type, _ in cls._params:
         if param_type in cython_arg_setters:
             cython_setter = cython_arg_setters.get(param_type)
             setattr(cls, f'set_{param_name}', _create_arg_setter(cython_setter, param_name))

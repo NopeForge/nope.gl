@@ -36,7 +36,10 @@ static void print_node_params(const char *name, const struct node_param *p)
     printf("%s:\n", name);
     if (p) {
         while (p->key) {
-            printf("    - [%s, %s]\n", p->key, ngli_params_specs[p->type].name);
+            printf("    - [%s, %s, \"%s%s%s\"]\n", p->key, ngli_params_specs[p->type].name,
+                   (p->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE) ? "L" : "",  /* [L]ive */
+                   (p->flags & NGLI_PARAM_FLAG_ALLOW_NODE)        ? "N" : "",  /* [N]ode */
+                   (p->flags & NGLI_PARAM_FLAG_NON_NULL)          ? "M" : ""); /* [M]andatory */
             p++;
         }
     }

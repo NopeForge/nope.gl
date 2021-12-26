@@ -3,10 +3,10 @@
 #
 
 _Node:
-    - [label, str]
+    - [label, str, ""]
 
 _AnimatedBuffer:
-    - [keyframes, node_list]
+    - [keyframes, node_list, ""]
 
 AnimatedBufferFloat: _AnimatedBuffer
 
@@ -17,86 +17,86 @@ AnimatedBufferVec3: _AnimatedBuffer
 AnimatedBufferVec4: _AnimatedBuffer
 
 AnimatedPath:
-    - [keyframes, node_list]
-    - [path, node]
+    - [keyframes, node_list, ""]
+    - [path, node, "M"]
 
 AnimatedTime:
-    - [keyframes, node_list]
+    - [keyframes, node_list, ""]
 
 AnimatedFloat:
-    - [keyframes, node_list]
+    - [keyframes, node_list, ""]
 
 AnimatedVec2:
-    - [keyframes, node_list]
+    - [keyframes, node_list, ""]
 
 AnimatedVec3:
-    - [keyframes, node_list]
+    - [keyframes, node_list, ""]
 
 AnimatedVec4:
-    - [keyframes, node_list]
+    - [keyframes, node_list, ""]
 
 AnimatedQuat:
-    - [keyframes, node_list]
-    - [as_mat4, bool]
+    - [keyframes, node_list, ""]
+    - [as_mat4, bool, ""]
 
 AnimKeyFrameFloat:
-    - [time, f64]
-    - [value, f64]
-    - [easing, select]
-    - [easing_args, f64_list]
-    - [easing_start_offset, f64]
-    - [easing_end_offset, f64]
+    - [time, f64, ""]
+    - [value, f64, ""]
+    - [easing, select, ""]
+    - [easing_args, f64_list, ""]
+    - [easing_start_offset, f64, ""]
+    - [easing_end_offset, f64, ""]
 
 AnimKeyFrameVec2:
-    - [time, f64]
-    - [value, vec2]
-    - [easing, select]
-    - [easing_args, f64_list]
-    - [easing_start_offset, f64]
-    - [easing_end_offset, f64]
+    - [time, f64, ""]
+    - [value, vec2, ""]
+    - [easing, select, ""]
+    - [easing_args, f64_list, ""]
+    - [easing_start_offset, f64, ""]
+    - [easing_end_offset, f64, ""]
 
 AnimKeyFrameVec3:
-    - [time, f64]
-    - [value, vec3]
-    - [easing, select]
-    - [easing_args, f64_list]
-    - [easing_start_offset, f64]
-    - [easing_end_offset, f64]
+    - [time, f64, ""]
+    - [value, vec3, ""]
+    - [easing, select, ""]
+    - [easing_args, f64_list, ""]
+    - [easing_start_offset, f64, ""]
+    - [easing_end_offset, f64, ""]
 
 AnimKeyFrameVec4:
-    - [time, f64]
-    - [value, vec4]
-    - [easing, select]
-    - [easing_args, f64_list]
-    - [easing_start_offset, f64]
-    - [easing_end_offset, f64]
+    - [time, f64, ""]
+    - [value, vec4, ""]
+    - [easing, select, ""]
+    - [easing_args, f64_list, ""]
+    - [easing_start_offset, f64, ""]
+    - [easing_end_offset, f64, ""]
 
 AnimKeyFrameQuat:
-    - [time, f64]
-    - [quat, vec4]
-    - [easing, select]
-    - [easing_args, f64_list]
-    - [easing_start_offset, f64]
-    - [easing_end_offset, f64]
+    - [time, f64, ""]
+    - [quat, vec4, ""]
+    - [easing, select, ""]
+    - [easing_args, f64_list, ""]
+    - [easing_start_offset, f64, ""]
+    - [easing_end_offset, f64, ""]
 
 AnimKeyFrameBuffer:
-    - [time, f64]
-    - [data, data]
-    - [easing, select]
-    - [easing_args, f64_list]
-    - [easing_start_offset, f64]
-    - [easing_end_offset, f64]
+    - [time, f64, ""]
+    - [data, data, ""]
+    - [easing, select, ""]
+    - [easing_args, f64_list, ""]
+    - [easing_start_offset, f64, ""]
+    - [easing_end_offset, f64, ""]
 
 Block:
-    - [fields, node_list]
-    - [layout, select]
+    - [fields, node_list, ""]
+    - [layout, select, ""]
 
 _Buffer:
-    - [count, i32]
-    - [data, data]
-    - [filename, str]
-    - [block, node]
-    - [block_field, i32]
+    - [count, i32, ""]
+    - [data, data, ""]
+    - [filename, str, ""]
+    - [block, node, ""]
+    - [block_field, i32, ""]
 
 BufferByte: _Buffer
 
@@ -159,95 +159,95 @@ BufferVec4: _Buffer
 BufferMat4: _Buffer
 
 Camera:
-    - [child, node]
-    - [eye, vec3]
-    - [center, vec3]
-    - [up, vec3]
-    - [perspective, vec2]
-    - [orthographic, vec4]
-    - [clipping, vec2]
-    - [eye_transform, node]
-    - [center_transform, node]
-    - [up_transform, node]
+    - [child, node, "M"]
+    - [eye, vec3, "L"]
+    - [center, vec3, "L"]
+    - [up, vec3, "L"]
+    - [perspective, vec2, "LN"]
+    - [orthographic, vec4, "L"]
+    - [clipping, vec2, "L"]
+    - [eye_transform, node, ""]
+    - [center_transform, node, ""]
+    - [up_transform, node, ""]
 
 Circle:
-    - [radius, f32]
-    - [npoints, i32]
+    - [radius, f32, ""]
+    - [npoints, i32, ""]
 
 Compute:
-    - [workgroup_count, ivec3]
-    - [program, node]
-    - [resources, node_dict]
+    - [workgroup_count, ivec3, ""]
+    - [program, node, "M"]
+    - [resources, node_dict, ""]
 
 ComputeProgram:
-    - [compute, str]
-    - [workgroup_size, ivec3]
-    - [properties, node_dict]
+    - [compute, str, "M"]
+    - [workgroup_size, ivec3, ""]
+    - [properties, node_dict, ""]
 
 FilterAlpha:
-    - [alpha, f32]
+    - [alpha, f32, "LN"]
 
 FilterContrast:
-    - [contrast, f32]
-    - [pivot, f32]
+    - [contrast, f32, "LN"]
+    - [pivot, f32, "LN"]
 
 FilterExposure:
-    - [exposure, f32]
+    - [exposure, f32, "LN"]
 
 FilterInverseAlpha:
 
 FilterLinear2sRGB:
 
 FilterOpacity:
-    - [opacity, f32]
+    - [opacity, f32, "LN"]
 
 FilterPremult:
 
 FilterSaturation:
-    - [saturation, f32]
+    - [saturation, f32, "LN"]
 
 FilterSRGB2Linear:
 
 Geometry:
-    - [vertices, node]
-    - [uvcoords, node]
-    - [normals, node]
-    - [indices, node]
-    - [topology, select]
+    - [vertices, node, "M"]
+    - [uvcoords, node, ""]
+    - [normals, node, ""]
+    - [indices, node, ""]
+    - [topology, select, ""]
 
 GraphicConfig:
-    - [child, node]
-    - [blend, bool]
-    - [blend_src_factor, select]
-    - [blend_dst_factor, select]
-    - [blend_src_factor_a, select]
-    - [blend_dst_factor_a, select]
-    - [blend_op, select]
-    - [blend_op_a, select]
-    - [color_write_mask, flags]
-    - [depth_test, bool]
-    - [depth_write_mask, bool]
-    - [depth_func, select]
-    - [stencil_test, bool]
-    - [stencil_write_mask, i32]
-    - [stencil_func, select]
-    - [stencil_ref, i32]
-    - [stencil_read_mask, i32]
-    - [stencil_fail, select]
-    - [stencil_depth_fail, select]
-    - [stencil_depth_pass, select]
-    - [cull_mode, select]
-    - [scissor_test, bool]
-    - [scissor, vec4]
+    - [child, node, "M"]
+    - [blend, bool, ""]
+    - [blend_src_factor, select, ""]
+    - [blend_dst_factor, select, ""]
+    - [blend_src_factor_a, select, ""]
+    - [blend_dst_factor_a, select, ""]
+    - [blend_op, select, ""]
+    - [blend_op_a, select, ""]
+    - [color_write_mask, flags, ""]
+    - [depth_test, bool, ""]
+    - [depth_write_mask, bool, ""]
+    - [depth_func, select, ""]
+    - [stencil_test, bool, ""]
+    - [stencil_write_mask, i32, ""]
+    - [stencil_func, select, ""]
+    - [stencil_ref, i32, ""]
+    - [stencil_read_mask, i32, ""]
+    - [stencil_fail, select, ""]
+    - [stencil_depth_fail, select, ""]
+    - [stencil_depth_pass, select, ""]
+    - [cull_mode, select, ""]
+    - [scissor_test, bool, ""]
+    - [scissor, vec4, ""]
 
 Group:
-    - [children, node_list]
+    - [children, node_list, ""]
 
 Identity:
 
 _IOVar:
-    - [precision_out, select]
-    - [precision_in, select]
+    - [precision_out, select, ""]
+    - [precision_in, select, ""]
 
 IOInt: _IOVar
 
@@ -280,49 +280,49 @@ IOMat4: _IOVar
 IOBool: _IOVar
 
 EvalFloat:
-    - [expr0, str]
-    - [resources, node_dict]
+    - [expr0, str, "M"]
+    - [resources, node_dict, ""]
 
 EvalVec2:
-    - [expr0, str]
-    - [expr1, str]
-    - [resources, node_dict]
+    - [expr0, str, "M"]
+    - [expr1, str, ""]
+    - [resources, node_dict, ""]
 
 EvalVec3:
-    - [expr0, str]
-    - [expr1, str]
-    - [expr2, str]
-    - [resources, node_dict]
+    - [expr0, str, "M"]
+    - [expr1, str, ""]
+    - [expr2, str, ""]
+    - [resources, node_dict, ""]
 
 EvalVec4:
-    - [expr0, str]
-    - [expr1, str]
-    - [expr2, str]
-    - [expr3, str]
-    - [resources, node_dict]
+    - [expr0, str, "M"]
+    - [expr1, str, ""]
+    - [expr2, str, ""]
+    - [expr3, str, ""]
+    - [resources, node_dict, ""]
 
 Media:
-    - [filename, str]
-    - [sxplayer_min_level, select]
-    - [time_anim, node]
-    - [audio_tex, bool]
-    - [max_nb_packets, i32]
-    - [max_nb_frames, i32]
-    - [max_nb_sink, i32]
-    - [max_pixels, i32]
-    - [stream_idx, i32]
-    - [hwaccel, select]
-    - [filters, str]
-    - [vt_pix_fmt, str]
+    - [filename, str, "M"]
+    - [sxplayer_min_level, select, ""]
+    - [time_anim, node, ""]
+    - [audio_tex, bool, ""]
+    - [max_nb_packets, i32, ""]
+    - [max_nb_frames, i32, ""]
+    - [max_nb_sink, i32, ""]
+    - [max_pixels, i32, ""]
+    - [stream_idx, i32, ""]
+    - [hwaccel, select, ""]
+    - [filters, str, ""]
+    - [vt_pix_fmt, str, ""]
 
 _Noise:
-    - [frequency, f32]
-    - [amplitude, f32]
-    - [octaves, i32]
-    - [lacunarity, f32]
-    - [gain, f32]
-    - [seed, u32]
-    - [interpolant, select]
+    - [frequency, f32, "L"]
+    - [amplitude, f32, "L"]
+    - [octaves, i32, "L"]
+    - [lacunarity, f32, "L"]
+    - [gain, f32, "L"]
+    - [seed, u32, ""]
+    - [interpolant, select, ""]
 
 NoiseFloat: _Noise
 
@@ -333,445 +333,445 @@ NoiseVec3: _Noise
 NoiseVec4: _Noise
 
 Path:
-    - [keyframes, node_list]
-    - [precision, i32]
+    - [keyframes, node_list, "M"]
+    - [precision, i32, ""]
 
 PathKeyBezier2:
-    - [control, vec3]
-    - [to, vec3]
+    - [control, vec3, ""]
+    - [to, vec3, ""]
 
 PathKeyBezier3:
-    - [control1, vec3]
-    - [control2, vec3]
-    - [to, vec3]
+    - [control1, vec3, ""]
+    - [control2, vec3, ""]
+    - [to, vec3, ""]
 
 PathKeyLine:
-    - [to, vec3]
+    - [to, vec3, ""]
 
 PathKeyMove:
-    - [to, vec3]
+    - [to, vec3, ""]
 
 Program:
-    - [vertex, str]
-    - [fragment, str]
-    - [properties, node_dict]
-    - [vert_out_vars, node_dict]
-    - [nb_frag_output, i32]
+    - [vertex, str, ""]
+    - [fragment, str, ""]
+    - [properties, node_dict, ""]
+    - [vert_out_vars, node_dict, ""]
+    - [nb_frag_output, i32, ""]
 
 Quad:
-    - [corner, vec3]
-    - [width, vec3]
-    - [height, vec3]
-    - [uv_corner, vec2]
-    - [uv_width, vec2]
-    - [uv_height, vec2]
+    - [corner, vec3, ""]
+    - [width, vec3, ""]
+    - [height, vec3, ""]
+    - [uv_corner, vec2, ""]
+    - [uv_width, vec2, ""]
+    - [uv_height, vec2, ""]
 
 Render:
-    - [geometry, node]
-    - [program, node]
-    - [vert_resources, node_dict]
-    - [frag_resources, node_dict]
-    - [attributes, node_dict]
-    - [instance_attributes, node_dict]
-    - [nb_instances, i32]
-    - [blending, select]
+    - [geometry, node, "M"]
+    - [program, node, ""]
+    - [vert_resources, node_dict, ""]
+    - [frag_resources, node_dict, ""]
+    - [attributes, node_dict, ""]
+    - [instance_attributes, node_dict, ""]
+    - [nb_instances, i32, ""]
+    - [blending, select, ""]
 
 RenderColor:
-    - [color, vec3]
-    - [opacity, f32]
-    - [blending, select]
-    - [geometry, node]
-    - [filters, node_list]
+    - [color, vec3, "LN"]
+    - [opacity, f32, "LN"]
+    - [blending, select, ""]
+    - [geometry, node, ""]
+    - [filters, node_list, ""]
 
 RenderGradient:
-    - [color0, vec3]
-    - [color1, vec3]
-    - [opacity0, f32]
-    - [opacity1, f32]
-    - [pos0, vec2]
-    - [pos1, vec2]
-    - [mode, select]
-    - [linear, bool]
-    - [blending, select]
-    - [geometry, node]
-    - [filters, node_list]
+    - [color0, vec3, "LN"]
+    - [color1, vec3, "LN"]
+    - [opacity0, f32, "LN"]
+    - [opacity1, f32, "LN"]
+    - [pos0, vec2, "LN"]
+    - [pos1, vec2, "LN"]
+    - [mode, select, ""]
+    - [linear, bool, "LN"]
+    - [blending, select, ""]
+    - [geometry, node, ""]
+    - [filters, node_list, ""]
 
 RenderGradient4:
-    - [color_tl, vec3]
-    - [color_tr, vec3]
-    - [color_br, vec3]
-    - [color_bl, vec3]
-    - [opacity_tl, f32]
-    - [opacity_tr, f32]
-    - [opacity_br, f32]
-    - [opacity_bl, f32]
-    - [linear, bool]
-    - [blending, select]
-    - [geometry, node]
-    - [filters, node_list]
+    - [color_tl, vec3, "LN"]
+    - [color_tr, vec3, "LN"]
+    - [color_br, vec3, "LN"]
+    - [color_bl, vec3, "LN"]
+    - [opacity_tl, f32, "LN"]
+    - [opacity_tr, f32, "LN"]
+    - [opacity_br, f32, "LN"]
+    - [opacity_bl, f32, "LN"]
+    - [linear, bool, "LN"]
+    - [blending, select, ""]
+    - [geometry, node, ""]
+    - [filters, node_list, ""]
 
 RenderTexture:
-    - [texture, node]
-    - [blending, select]
-    - [geometry, node]
-    - [filters, node_list]
+    - [texture, node, "M"]
+    - [blending, select, ""]
+    - [geometry, node, ""]
+    - [filters, node_list, ""]
 
 RenderToTexture:
-    - [child, node]
-    - [color_textures, node_list]
-    - [depth_texture, node]
-    - [samples, i32]
-    - [clear_color, vec4]
-    - [features, flags]
+    - [child, node, "M"]
+    - [color_textures, node_list, ""]
+    - [depth_texture, node, ""]
+    - [samples, i32, ""]
+    - [clear_color, vec4, ""]
+    - [features, flags, ""]
 
 ResourceProps:
-    - [precision, select]
-    - [as_image, bool]
-    - [writable, bool]
-    - [variadic, bool]
+    - [precision, select, ""]
+    - [as_image, bool, ""]
+    - [writable, bool, ""]
+    - [variadic, bool, ""]
 
 Rotate:
-    - [child, node]
-    - [angle, f32]
-    - [axis, vec3]
-    - [anchor, vec3]
+    - [child, node, "M"]
+    - [angle, f32, "LN"]
+    - [axis, vec3, ""]
+    - [anchor, vec3, ""]
 
 RotateQuat:
-    - [child, node]
-    - [quat, vec4]
-    - [anchor, vec3]
+    - [child, node, "M"]
+    - [quat, vec4, "LN"]
+    - [anchor, vec3, ""]
 
 Scale:
-    - [child, node]
-    - [factors, vec3]
-    - [anchor, vec3]
+    - [child, node, "M"]
+    - [factors, vec3, "LN"]
+    - [anchor, vec3, ""]
 
 Skew:
-    - [child, node]
-    - [angles, vec3]
-    - [axis, vec3]
-    - [anchor, vec3]
+    - [child, node, "M"]
+    - [angles, vec3, "LN"]
+    - [axis, vec3, ""]
+    - [anchor, vec3, ""]
 
 SmoothPath:
-    - [points, node]
-    - [control1, vec3]
-    - [control2, vec3]
-    - [precision, i32]
-    - [tension, f32]
+    - [points, node, "M"]
+    - [control1, vec3, ""]
+    - [control2, vec3, ""]
+    - [precision, i32, ""]
+    - [tension, f32, ""]
 
 Text:
-    - [text, str]
-    - [fg_color, vec4]
-    - [bg_color, vec4]
-    - [box_corner, vec3]
-    - [box_width, vec3]
-    - [box_height, vec3]
-    - [padding, i32]
-    - [font_scale, f32]
-    - [valign, select]
-    - [halign, select]
-    - [aspect_ratio, rational]
+    - [text, str, "LM"]
+    - [fg_color, vec4, "L"]
+    - [bg_color, vec4, "L"]
+    - [box_corner, vec3, ""]
+    - [box_width, vec3, ""]
+    - [box_height, vec3, ""]
+    - [padding, i32, ""]
+    - [font_scale, f32, ""]
+    - [valign, select, ""]
+    - [halign, select, ""]
+    - [aspect_ratio, rational, "L"]
 
 Texture2D:
-    - [format, select]
-    - [width, i32]
-    - [height, i32]
-    - [min_filter, select]
-    - [mag_filter, select]
-    - [mipmap_filter, select]
-    - [wrap_s, select]
-    - [wrap_t, select]
-    - [data_src, node]
-    - [direct_rendering, bool]
-    - [clamp_video, bool]
+    - [format, select, ""]
+    - [width, i32, ""]
+    - [height, i32, ""]
+    - [min_filter, select, ""]
+    - [mag_filter, select, ""]
+    - [mipmap_filter, select, ""]
+    - [wrap_s, select, ""]
+    - [wrap_t, select, ""]
+    - [data_src, node, ""]
+    - [direct_rendering, bool, ""]
+    - [clamp_video, bool, ""]
 
 Texture3D:
-    - [format, select]
-    - [width, i32]
-    - [height, i32]
-    - [depth, i32]
-    - [min_filter, select]
-    - [mag_filter, select]
-    - [mipmap_filter, select]
-    - [wrap_s, select]
-    - [wrap_t, select]
-    - [wrap_r, select]
-    - [data_src, node]
+    - [format, select, ""]
+    - [width, i32, ""]
+    - [height, i32, ""]
+    - [depth, i32, ""]
+    - [min_filter, select, ""]
+    - [mag_filter, select, ""]
+    - [mipmap_filter, select, ""]
+    - [wrap_s, select, ""]
+    - [wrap_t, select, ""]
+    - [wrap_r, select, ""]
+    - [data_src, node, ""]
 
 TextureCube:
-    - [format, select]
-    - [size, i32]
-    - [min_filter, select]
-    - [mag_filter, select]
-    - [mipmap_filter, select]
-    - [wrap_s, select]
-    - [wrap_t, select]
-    - [wrap_r, select]
-    - [data_src, node]
+    - [format, select, ""]
+    - [size, i32, ""]
+    - [min_filter, select, ""]
+    - [mag_filter, select, ""]
+    - [mipmap_filter, select, ""]
+    - [wrap_s, select, ""]
+    - [wrap_t, select, ""]
+    - [wrap_r, select, ""]
+    - [data_src, node, ""]
 
 Time:
 
 TimeRangeFilter:
-    - [child, node]
-    - [ranges, node_list]
-    - [prefetch_time, f64]
-    - [max_idle_time, f64]
+    - [child, node, "M"]
+    - [ranges, node_list, ""]
+    - [prefetch_time, f64, ""]
+    - [max_idle_time, f64, ""]
 
 TimeRangeModeCont:
-    - [start_time, f64]
+    - [start_time, f64, ""]
 
 TimeRangeModeNoop:
-    - [start_time, f64]
+    - [start_time, f64, ""]
 
 TimeRangeModeOnce:
-    - [start_time, f64]
-    - [render_time, f64]
+    - [start_time, f64, ""]
+    - [render_time, f64, ""]
 
 Transform:
-    - [child, node]
-    - [matrix, mat4]
+    - [child, node, "M"]
+    - [matrix, mat4, "L"]
 
 Translate:
-    - [child, node]
-    - [vector, vec3]
+    - [child, node, "M"]
+    - [vector, vec3, "LN"]
 
 Triangle:
-    - [edge0, vec3]
-    - [edge1, vec3]
-    - [edge2, vec3]
-    - [uv_edge0, vec2]
-    - [uv_edge1, vec2]
-    - [uv_edge2, vec2]
+    - [edge0, vec3, ""]
+    - [edge1, vec3, ""]
+    - [edge2, vec3, ""]
+    - [uv_edge0, vec2, ""]
+    - [uv_edge1, vec2, ""]
+    - [uv_edge2, vec2, ""]
 
 StreamedInt:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedIVec2:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedIVec3:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedIVec4:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedUInt:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedUIVec2:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedUIVec3:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedUIVec4:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedFloat:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedVec2:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedVec3:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedVec4:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedMat4:
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferInt:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferIVec2:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferIVec3:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferIVec4:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferUInt:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferUIVec2:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferUIVec3:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferUIVec4:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferFloat:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferVec2:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferVec3:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferVec4:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 StreamedBufferMat4:
-    - [count, i32]
-    - [timestamps, node]
-    - [buffer, node]
-    - [timebase, rational]
-    - [time_anim, node]
+    - [count, i32, ""]
+    - [timestamps, node, "M"]
+    - [buffer, node, "M"]
+    - [timebase, rational, ""]
+    - [time_anim, node, ""]
 
 UniformBool:
-    - [value, bool]
+    - [value, bool, "L"]
 
 UniformInt:
-    - [value, i32]
+    - [value, i32, "L"]
 
 UniformIVec2:
-    - [value, ivec2]
+    - [value, ivec2, "L"]
 
 UniformIVec3:
-    - [value, ivec3]
+    - [value, ivec3, "L"]
 
 UniformIVec4:
-    - [value, ivec4]
+    - [value, ivec4, "L"]
 
 UniformUInt:
-    - [value, u32]
+    - [value, u32, "L"]
 
 UniformUIVec2:
-    - [value, uvec2]
+    - [value, uvec2, "L"]
 
 UniformUIVec3:
-    - [value, uvec3]
+    - [value, uvec3, "L"]
 
 UniformUIVec4:
-    - [value, uvec4]
+    - [value, uvec4, "L"]
 
 UniformMat4:
-    - [value, mat4]
-    - [transform, node]
+    - [value, mat4, "L"]
+    - [transform, node, ""]
 
 UniformFloat:
-    - [value, f32]
+    - [value, f32, "L"]
 
 UniformVec2:
-    - [value, vec2]
+    - [value, vec2, "L"]
 
 UniformVec3:
-    - [value, vec3]
+    - [value, vec3, "L"]
 
 UniformVec4:
-    - [value, vec4]
+    - [value, vec4, "L"]
 
 UniformQuat:
-    - [value, vec4]
-    - [as_mat4, bool]
+    - [value, vec4, "L"]
+    - [as_mat4, bool, ""]
 
 UserSwitch:
-    - [child, node]
-    - [enabled, bool]
+    - [child, node, "M"]
+    - [enabled, bool, "L"]
 
 VelocityFloat:
-    - [animation, node]
+    - [animation, node, "M"]
 
 VelocityVec2:
-    - [animation, node]
+    - [animation, node, "M"]
 
 VelocityVec3:
-    - [animation, node]
+    - [animation, node, "M"]
 
 VelocityVec4:
-    - [animation, node]
+    - [animation, node, "M"]
 
