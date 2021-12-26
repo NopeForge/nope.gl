@@ -365,6 +365,10 @@ foreach backend : backends
     'smoothpath',
   ]
 
+  tests_userlive = [
+    'switch',
+  ]
+
   tests = {
     'api':           {'tests': tests_api, 'has_refs': false},
     'anim':          {'tests': tests_anim},
@@ -382,6 +386,7 @@ foreach backend : backends
     'text':          {'tests': tests_text},
     'texture':       {'tests': tests_texture},
     'transform':     {'tests': tests_transform},
+    'userlive':      {'tests': tests_userlive},
   }
 
   env = ['BACKEND=' + backend]
