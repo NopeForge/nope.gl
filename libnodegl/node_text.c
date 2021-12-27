@@ -542,11 +542,19 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
         },
     };
 
+    /* This controls how the background blends onto the current framebuffer */
+    struct graphicstate state = rnode->graphicstate;
+    state.blend = 1;
+    state.blend_src_factor   = NGLI_BLEND_FACTOR_ONE;
+    state.blend_dst_factor   = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    state.blend_src_factor_a = NGLI_BLEND_FACTOR_ONE;
+    state.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+
     struct pipeline_params pipeline_params = {
         .type          = NGLI_PIPELINE_TYPE_GRAPHICS,
         .graphics      = {
             .topology       = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP,
-            .state          = rnode->graphicstate,
+            .state          = state,
             .rt_desc        = rnode->rendertarget_desc,
         }
     };
