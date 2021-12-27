@@ -631,7 +631,8 @@ def text(cfg, demo_str='Hello World!\n\nThis is a multi-line\ntext demonstration
     for i in range(nb_chars):
         ascii_text = ngl.Text(demo_str[:i + 1],
                               aspect_ratio=cfg.aspect_ratio,
-                              bg_color=(0.15, 0.15, 0.15, 1),
+                              bg_color=(0.15, 0.15, 0.15),
+                              bg_opacity=1,
                               font_scale=1/2.)
         start = i * time_unit
         text_range = [ngl.TimeRangeModeNoop(0), ngl.TimeRangeModeCont(start)]
@@ -645,13 +646,13 @@ def text(cfg, demo_str='Hello World!\n\nThis is a multi-line\ntext demonstration
         for halign in ('left', 'center', 'right'):
             if (valign, halign) == ('center', 'center'):
                 continue
-            fg_color = list(colorsys.hls_to_rgb(cfg.rng.uniform(0, 1), 0.5, 1.0)) + [1]
+            fg_color = colorsys.hls_to_rgb(cfg.rng.uniform(0, 1), 0.5, 1.0)
             aligned_text = ngl.Text(f'{valign}-{halign}',
                                     valign=valign,
                                     halign=halign,
                                     aspect_ratio=cfg.aspect_ratio,
                                     fg_color=fg_color,
-                                    bg_color=(0, 0, 0, 0),
+                                    bg_opacity=0,
                                     font_scale=1/5.)
             group.add_children(aligned_text)
 

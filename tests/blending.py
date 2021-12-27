@@ -159,7 +159,8 @@ def _debug_overlay(cfg, scene, grid_names, show_dbg_points=False, show_labels=Fa
         ag = AutoGrid(grid_names)
         for grid_name, i, col, row in ag:
             text = ngl.Text(grid_name,
-                            fg_color=COLORS.white, bg_color=COLORS.black,
+                            fg_color=COLORS.white[:3],
+                            bg_opacity=1,
                             valign='top',
                             box_width=(2.0, 0, 0),
                             box_height=(0, text_height, 0),

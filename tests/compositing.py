@@ -95,8 +95,9 @@ def _get_compositing_scene(cfg, op, show_label=False):
         label_pad = .1
         label = ngl.Text(
             op,
-            fg_color=COLORS.black,
-            bg_color=(.8, .8, .8, 1),
+            fg_color=COLORS.black[:3],
+            bg_color=(.8, .8, .8),
+            bg_opacity=1,
             box_corner=(label_pad/2 - 1, 1 - label_h - label_pad/2, 0),
             box_width=(2 - label_pad, 0, 0),
             box_height=(0, label_h, 0),

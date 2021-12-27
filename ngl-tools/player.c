@@ -153,10 +153,8 @@ static void update_pgbar(struct player *p)
         const double opacity = clipf64(1.5 - t64_diff / 1000000.0, 0, 1);
         ngl_node_param_set_f32(p->pgbar_opacity_node, "value", opacity);
 
-        const float text_bg[4] = {0.0, 0.0, 0.0, 0.8 * opacity};
-        const float text_fg[4] = {1.0, 1.0, 1.0, opacity};
-        ngl_node_param_set_vec4(p->pgbar_text_node, "bg_color", text_bg);
-        ngl_node_param_set_vec4(p->pgbar_text_node, "fg_color", text_fg);
+        ngl_node_param_set_f32(p->pgbar_text_node, "bg_opacity", .8f * opacity);
+        ngl_node_param_set_f32(p->pgbar_text_node, "fg_opacity", opacity);
 
         update_text(p);
     }
@@ -316,8 +314,6 @@ static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scen
     static const float text_corner[3] = {-1.0, -1.0, 0.0};
     static const float text_width[3]  = { 2.0,  0.0, 0.0};
     static const float text_height[3] = { 0.0,  2.0 * 0.05, 0.0}; // 5% of the height
-    static const float text_bg[4]     = { 0.0,  0.0, 0.0, 0.0};
-    static const float text_fg[4]     = { 1.0,  1.0, 1.0, 0.0};
 
     struct ngl_node *text       = ngl_node_create(NGL_NODE_TEXT);
     struct ngl_node *quad       = ngl_node_create(NGL_NODE_QUAD);
@@ -371,8 +367,8 @@ static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scen
     ngl_node_param_set_vec3(text, "box_corner", text_corner);
     ngl_node_param_set_vec3(text, "box_width", text_width);
     ngl_node_param_set_vec3(text, "box_height", text_height);
-    ngl_node_param_set_vec4(text, "bg_color", text_bg);
-    ngl_node_param_set_vec4(text, "fg_color", text_fg);
+    ngl_node_param_set_f32(text, "bg_opacity", 0.f);
+    ngl_node_param_set_f32(text, "fg_opacity", 0.f);
     ngl_node_param_set_rational(text, "aspect_ratio", p->aspect[0], p->aspect[1]);
 
     p->pgbar_opacity_node  = v_opacity;

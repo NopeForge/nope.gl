@@ -136,8 +136,9 @@ def _get_render_with_legend(cfg, fields, area, title, block_definition, color_de
         box_corner=(ax, ay + ah - title_h, 0),
         box_width=(aw, 0, 0),
         box_height=(0, title_h, 0),
-        fg_color=(0, 0, 0, 1),
-        bg_color=(1, 1, 1, 1),
+        fg_color=(0, 0, 0),
+        bg_color=(1, 1, 1),
+        bg_opacity=1,
         aspect_ratio=cfg.aspect_ratio,
     )
 
@@ -150,7 +151,7 @@ def _get_render_with_legend(cfg, fields, area, title, block_definition, color_de
                              box_corner=(ax, ay + field_hpos * field_h, 0),
                              box_width=(aw / 2., 0, 0),
                              box_height=(0, field_h, 0),
-                             fg_color=list(field['color']) + [1],
+                             fg_color=field['color'],
                              halign='left',
                              aspect_ratio=cfg.aspect_ratio)
         text_group.add_children(text_node)

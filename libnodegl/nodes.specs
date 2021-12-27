@@ -462,8 +462,10 @@ SmoothPath:
 Text:
     - [text, str, "LM"]
     - [live_id, str, ""]
-    - [fg_color, vec4, "L"]
-    - [bg_color, vec4, "L"]
+    - [fg_color, vec3, "L"]
+    - [fg_opacity, f32, "L"]
+    - [bg_color, vec3, "L"]
+    - [bg_opacity, f32, "L"]
     - [box_corner, vec3, ""]
     - [box_width, vec3, ""]
     - [box_height, vec3, ""]

@@ -52,6 +52,7 @@ struct pipeline_subdesc {
     int modelview_matrix_index;
     int projection_matrix_index;
     int color_index;
+    int opacity_index;
 };
 
 struct pipeline_desc {
@@ -61,8 +62,10 @@ struct pipeline_desc {
 
 struct text_priv {
     struct livectl live;
-    float fg_color[4];
-    float bg_color[4];
+    float fg_color[3];
+    float fg_opacity;
+    float bg_color[3];
+    float bg_opacity;
     float box_corner[3];
     float box_width[3];
     float box_height[3];
@@ -125,12 +128,18 @@ static const struct node_param text_params[] = {
                      .desc=NGLI_DOCSTRING("text string to rasterize")},
     {"live_id",      NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                      .desc=NGLI_DOCSTRING("live control identifier")},
-    {"fg_color",     NGLI_PARAM_TYPE_VEC4, OFFSET(fg_color), {.vec={1.0, 1.0, 1.0, 1.0}},
+    {"fg_color",     NGLI_PARAM_TYPE_VEC3, OFFSET(fg_color), {.vec={1.0, 1.0, 1.0}},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                      .desc=NGLI_DOCSTRING("foreground text color")},
-    {"bg_color",     NGLI_PARAM_TYPE_VEC4, OFFSET(bg_color), {.vec={0.0, 0.0, 0.0, 0.8}},
+    {"fg_opacity",   NGLI_PARAM_TYPE_F32, OFFSET(fg_opacity), {.f32=1.f},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                     .desc=NGLI_DOCSTRING("foreground text opacity")},
+    {"bg_color",     NGLI_PARAM_TYPE_VEC3, OFFSET(bg_color), {.vec={0.0, 0.0, 0.0}},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                      .desc=NGLI_DOCSTRING("background text color")},
+    {"bg_opacity",   NGLI_PARAM_TYPE_F32, OFFSET(bg_opacity), {.f32=.8f},
+                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+                     .desc=NGLI_DOCSTRING("background text opacity")},
     {"box_corner",   NGLI_PARAM_TYPE_VEC3, OFFSET(box_corner), {.vec={-1.0, -1.0, 0.0}},
                      .desc=NGLI_DOCSTRING("origin coordinates of `box_width` and `box_height` vectors")},
     {"box_width",    NGLI_PARAM_TYPE_VEC3, OFFSET(box_width), {.vec={2.0, 0.0, 0.0}},
@@ -163,7 +172,7 @@ static const char * const bg_vertex_data =
 static const char * const bg_fragment_data =
     "void main()"                                                                       "\n"
     "{"                                                                                 "\n"
-    "    ngl_out_color = color;"                                                        "\n"
+    "    ngl_out_color = vec4(color, opacity);"                                         "\n"
     "}";
 
 static const char * const vertex_data =
@@ -177,7 +186,7 @@ static const char * const fragment_data =
     "void main()"                                                                       "\n"
     "{"                                                                                 "\n"
     "    float v = ngl_tex2d(tex, var_tex_coord).r;"                                    "\n"
-    "    ngl_out_color = vec4(color.rgb, color.a * v);"                                 "\n"
+    "    ngl_out_color = vec4(color.rgb, opacity * v);"                                 "\n"
     "}";
 
 static const struct pgcraft_iovar vert_out_vars[] = {
@@ -505,6 +514,7 @@ static int init_subdesc(struct ngl_node *node,
     desc->modelview_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "projection_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->color_index = ngli_pgcraft_get_uniform_index(desc->crafter, "color", NGLI_PROGRAM_SHADER_FRAG);
+    desc->opacity_index = ngli_pgcraft_get_uniform_index(desc->crafter, "opacity", NGLI_PROGRAM_SHADER_FRAG);
 
     return 0;
 }
@@ -518,7 +528,8 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     const struct pgcraft_uniform uniforms[] = {
         {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
         {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "color",             .type = NGLI_TYPE_VEC4, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = s->bg_color},
+        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = s->bg_color},
+        {.name = "opacity",           .type = NGLI_TYPE_FLOAT, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = &s->bg_opacity},
     };
 
     const struct pgcraft_attribute attributes[] = {
@@ -561,7 +572,8 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     const struct pgcraft_uniform uniforms[] = {
         {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
         {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "color",             .type = NGLI_TYPE_VEC4, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = s->fg_color},
+        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = s->fg_color},
+        {.name = "opacity",           .type = NGLI_TYPE_FLOAT, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = &s->fg_opacity},
     };
 
     const struct pgcraft_texture textures[] = {
@@ -687,6 +699,7 @@ static void text_draw(struct ngl_node *node)
     ngli_pipeline_update_uniform(bg_desc->pipeline, bg_desc->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_update_uniform(bg_desc->pipeline, bg_desc->projection_matrix_index, projection_matrix);
     ngli_pipeline_update_uniform(bg_desc->pipeline, bg_desc->color_index, s->bg_color);
+    ngli_pipeline_update_uniform(bg_desc->pipeline, bg_desc->opacity_index, &s->bg_opacity);
     ngli_pipeline_draw(bg_desc->pipeline, 4, 1);
 
     if (s->nb_indices) {
@@ -694,6 +707,7 @@ static void text_draw(struct ngl_node *node)
         ngli_pipeline_update_uniform(fg_desc->pipeline, fg_desc->modelview_matrix_index, modelview_matrix);
         ngli_pipeline_update_uniform(fg_desc->pipeline, fg_desc->projection_matrix_index, projection_matrix);
         ngli_pipeline_update_uniform(fg_desc->pipeline, fg_desc->color_index, s->fg_color);
+        ngli_pipeline_update_uniform(fg_desc->pipeline, fg_desc->opacity_index, &s->fg_opacity);
         ngli_pipeline_draw_indexed(fg_desc->pipeline, s->indices, NGLI_FORMAT_R16_UNORM, s->nb_indices, 1);
     }
 }
