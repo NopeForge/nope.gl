@@ -302,7 +302,7 @@ static const char *pgbar_frag =
     "{"                                                                                 "\n"
     "    float stime = time / duration;"                                                "\n"
     "    float alpha = opacity * (coord.x < stime ? 1.0 : 0.3);"                        "\n"
-    "    ngl_out_color = vec4(1.0, 1.0, 1.0, alpha);"                                   "\n"
+    "    ngl_out_color = vec4(1.0) * alpha;"                                            "\n"
     "}";
 
 static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scene)
@@ -323,18 +323,16 @@ static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scen
     struct ngl_node *v_duration = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
     struct ngl_node *v_opacity  = ngl_node_create(NGL_NODE_UNIFORMFLOAT);
     struct ngl_node *coord      = ngl_node_create(NGL_NODE_IOVEC2);
-    struct ngl_node *ui_group   = ngl_node_create(NGL_NODE_GROUP);
     struct ngl_node *gcfg       = ngl_node_create(NGL_NODE_GRAPHICCONFIG);
     struct ngl_node *group      = ngl_node_create(NGL_NODE_GROUP);
 
     if (!text || !quad || !program || !render || !time || !v_duration || !v_opacity ||
-        !coord || !ui_group || !group || !gcfg) {
+        !coord || !group) {
         ngl_node_unrefp(&group);
         goto end;
     }
 
-    struct ngl_node *ui_children[] = {render, text};
-    struct ngl_node *children[] = {scene, gcfg};
+    struct ngl_node *children[] = {scene, render, text};
 
     ngl_node_param_set_vec3(quad, "corner", bar_corner);
     ngl_node_param_set_vec3(quad, "width",  bar_width);
@@ -352,15 +350,7 @@ static struct ngl_node *add_progress_bar(struct player *p, struct ngl_node *scen
     ngl_node_param_set_dict(render, "frag_resources", "time",     time);
     ngl_node_param_set_dict(render, "frag_resources", "duration", v_duration);
     ngl_node_param_set_dict(render, "frag_resources", "opacity",  v_opacity);
-
-    ngl_node_param_add_nodes(ui_group, "children", ARRAY_NB(ui_children), ui_children);
-
-    ngl_node_param_set_node(gcfg, "child", ui_group);
-    ngl_node_param_set_bool(gcfg, "blend", 1);
-    ngl_node_param_set_select(gcfg, "blend_src_factor",   "src_alpha");
-    ngl_node_param_set_select(gcfg, "blend_dst_factor",   "one_minus_src_alpha");
-    ngl_node_param_set_select(gcfg, "blend_src_factor_a", "zero");
-    ngl_node_param_set_select(gcfg, "blend_dst_factor_a", "one");
+    ngl_node_param_set_select(render, "blending", "src_over");
 
     ngl_node_param_add_nodes(group, "children", ARRAY_NB(children), children);
 
@@ -384,7 +374,6 @@ end:
     ngl_node_unrefp(&v_duration);
     ngl_node_unrefp(&v_opacity);
     ngl_node_unrefp(&coord);
-    ngl_node_unrefp(&ui_group);
     ngl_node_unrefp(&gcfg);
 
     return group;
