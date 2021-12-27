@@ -843,6 +843,16 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
         memcpy(glstate->color_write_mask, &default_color_write_mask, sizeof(default_color_write_mask));
     }
 
+    if (glstate->depth_write_mask != GL_TRUE) {
+        ngli_glDepthMask(gl, GL_TRUE);
+        glstate->depth_write_mask = GL_TRUE;
+    }
+
+    if (glstate->stencil_write_mask != 0xff) {
+        ngli_glStencilMask(gl, 0xff);
+        glstate->stencil_write_mask = 0xff;
+    }
+
     if (glstate->scissor_test) {
         ngli_glDisable(gl, GL_SCISSOR_TEST);
         glstate->scissor_test = 0;
