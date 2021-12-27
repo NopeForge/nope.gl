@@ -102,7 +102,7 @@ def compute_particles(cfg):
     circle = ngl.Circle(radius=0.05)
     program = ngl.Program(vertex=_PARTICULES_VERT, fragment=cfg.get_frag('color'))
     render = ngl.Render(circle, program, nb_instances=nb_particles)
-    render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.sgreen))
+    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.sgreen[:3]), opacity=ngl.UniformFloat(1))
     render.update_vert_resources(data=opositions)
 
     group = ngl.Group()
@@ -284,7 +284,7 @@ def _compute_animation(cfg, animate_pre_render=True):
     geometry = ngl.Geometry(quad_buffer, topology='triangle_strip')
     program = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(geometry, program)
-    render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.sgreen))
+    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.sgreen[:3]), opacity=ngl.UniformFloat(1))
 
     children = (compute, render) if animate_pre_render else (render, compute)
     return ngl.Group(children=children)

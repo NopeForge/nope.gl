@@ -55,16 +55,16 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
     vertices = ngl.AnimatedBufferVec3(vertices_animkf)
 
     color_animkf = [
-            ngl.AnimKeyFrameVec4(0,               square_color),
-            ngl.AnimKeyFrameVec4(cfg.duration/2., circle_color, interp),
-            ngl.AnimKeyFrameVec4(cfg.duration,    square_color, interp),
+            ngl.AnimKeyFrameVec3(0,               square_color[:3]),
+            ngl.AnimKeyFrameVec3(cfg.duration/2., circle_color[:3], interp),
+            ngl.AnimKeyFrameVec3(cfg.duration,    square_color[:3], interp),
     ]
-    ucolor = ngl.AnimatedVec4(color_animkf)
+    ucolor = ngl.AnimatedVec3(color_animkf)
 
     geom = ngl.Geometry(vertices, indices=ngl.BufferUShort(data=indices))
     p = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(geom, p)
-    render.update_frag_resources(color=ucolor)
+    render.update_frag_resources(color=ucolor, opacity=ngl.UniformFloat(1))
     return render
 
 
@@ -110,5 +110,5 @@ def urchin(cfg, npoints=25):
     geom.set_topology('line_strip')
     p = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(geom, p)
-    render.update_frag_resources(color=ngl.UniformVec4(value=(.9, .1, .3, 1)))
+    render.update_frag_resources(color=ngl.UniformVec3(value=(.9, .1, .3)), opacity=ngl.UniformFloat(1))
     return render

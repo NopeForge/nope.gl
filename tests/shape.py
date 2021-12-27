@@ -135,7 +135,7 @@ def _shape_geometry(cfg, set_normals=False, set_indices=False):
     else:
         prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
         render = ngl.Render(geometry, prog)
-        render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.magenta))
+        render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.magenta[:3]), opacity=ngl.UniformFloat(1))
 
     if set_indices:
         indices = array.array('H', list(range(3 * 6)))
@@ -206,7 +206,7 @@ def shape_morphing(cfg, n=6):
     geom.set_topology('triangle_strip')
     p = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(geom, p)
-    render.update_frag_resources(color=ngl.UniformVec4(COLORS.cyan))
+    render.update_frag_resources(color=ngl.UniformVec3(COLORS.cyan[:3]), opacity=ngl.UniformFloat(1))
     return render
 
 
@@ -329,7 +329,7 @@ def shape_triangles_mat4_attribute(cfg):
     )
     render = ngl.Render(geometry, program, nb_instances=2)
     render.update_instance_attributes(matrix=matrices)
-    render.update_frag_resources(color=ngl.UniformVec4(value=COLORS.orange))
+    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.orange[:3]), opacity=ngl.UniformFloat(1))
     return render
 
 

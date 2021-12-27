@@ -89,17 +89,18 @@ def triangle(cfg, size=4/3):
     cfg.duration = 3.
     cfg.aspect_ratio = (1, 1)
 
-    colors_data = array.array('f', [0.0, 0.0, 1.0, 1.0,
-                                    0.0, 1.0, 0.0, 1.0,
-                                    1.0, 0.0, 0.0, 1.0])
-    colors_buffer = ngl.BufferVec4(data=colors_data)
+    colors_data = array.array('f', [0.0, 0.0, 1.0,
+                                    0.0, 1.0, 0.0,
+                                    1.0, 0.0, 0.0])
+    colors_buffer = ngl.BufferVec3(data=colors_data)
 
     p0, p1, p2 = equilateral_triangle_coords(size)
     triangle = ngl.Triangle(p0, p1, p2)
     p = ngl.Program(fragment=cfg.get_frag('color'), vertex=cfg.get_vert('triangle'))
-    p.update_vert_out_vars(color=ngl.IOVec4())
+    p.update_vert_out_vars(color=ngl.IOVec3())
     node = ngl.Render(triangle, p)
     node.update_attributes(edge_color=colors_buffer)
+    node.update_frag_resources(opacity=ngl.UniformFloat(1))
     animkf = [ngl.AnimKeyFrameFloat(0, 0),
               ngl.AnimKeyFrameFloat(  cfg.duration/3.,   -360/3., 'exp_in_out'),
               ngl.AnimKeyFrameFloat(2*cfg.duration/3., -2*360/3., 'exp_in_out'),
@@ -285,16 +286,9 @@ def particles(cfg, particles=32):
         fragment=fragment_shader,
     )
     p.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    r = ngl.Render(quad, p, nb_instances=particles)
-    r.update_frag_resources(color=ngl.UniformVec4(value=(0, .6, .8, .9)))
+    r = ngl.Render(quad, p, nb_instances=particles, blending='src_over')
+    r.update_frag_resources(color=ngl.UniformVec3(value=(0, .6, .8)), opacity=ngl.UniformFloat(.9))
     r.update_vert_resources(positions=opositions)
-
-    r = ngl.GraphicConfig(r,
-                          blend=True,
-                          blend_src_factor='src_alpha',
-                          blend_dst_factor='one_minus_src_alpha',
-                          blend_src_factor_a='zero',
-                          blend_dst_factor_a='one')
 
     g = ngl.Group()
     g.add_children(c, r)
@@ -311,7 +305,8 @@ def blending_and_stencil(cfg):
 
     program = ngl.Program(vertex=vertex, fragment=fragment)
     circle = ngl.Circle(npoints=256)
-    cloud_color = ngl.UniformVec4(value=(1, 1, 1, 0.4))
+    cloud_color = ngl.UniformVec3(value=(1, 1, 1))
+    cloud_opacity = ngl.UniformFloat(.4)
 
     main_group = ngl.Group()
 
@@ -345,8 +340,8 @@ def blending_and_stencil(cfg):
     ]
 
     for center in centers:
-        render = ngl.Render(circle, program)
-        render.update_frag_resources(color=cloud_color)
+        render = ngl.Render(circle, program, blending='src_over')
+        render.update_frag_resources(color=cloud_color, opacity=cloud_opacity)
 
         factor = cfg.rng.random() * 0.4 + center[2]
         keyframe = cfg.duration * (cfg.rng.random() * 0.4 + 0.2)
@@ -359,11 +354,6 @@ def blending_and_stencil(cfg):
         cloud_group.add_children(translate)
 
     config = ngl.GraphicConfig(cloud_group,
-                               blend=True,
-                               blend_src_factor='src_alpha',
-                               blend_dst_factor='one_minus_src_alpha',
-                               blend_src_factor_a='zero',
-                               blend_dst_factor_a='one',
                                stencil_test=True,
                                stencil_write_mask=0x0,
                                stencil_func='equal',

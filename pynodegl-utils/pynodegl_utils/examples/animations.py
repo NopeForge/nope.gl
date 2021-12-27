@@ -37,9 +37,10 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
 
     # Colors
     hue = cfg.rng.uniform(0, 0.6)
-    color = list(colorsys.hls_to_rgb(hue, 0.6, 1.0)) + [1]
-    ucolor = ngl.UniformVec4(value=color)
-    line_ucolor = ngl.UniformVec4(value=(1, 1, 1, .4))
+    color = colorsys.hls_to_rgb(hue, 0.6, 1.0)
+    ucolor = ngl.UniformVec3(value=color)
+    uopacity = ngl.UniformFloat(value=1)
+    line_ucolor = ngl.UniformVec3(value=(1, 1, 1))
 
     # Text legend
     text = ngl.Text(text=easing,
@@ -75,7 +76,7 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
     vertices = ngl.BufferVec3(data=vertices_data)
     geometry = ngl.Geometry(vertices, topology='line_strip')
     curve = ngl.Render(geometry, color_program, label='%s curve' % easing)
-    curve.update_frag_resources(color=ucolor)
+    curve.update_frag_resources(color=ucolor, opacity=ngl.UniformFloat(1))
 
     # Value cursor
     y = 2 / 3. * pad_height
@@ -87,8 +88,8 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
     hline_data = array.array('f', (0, 0, 0, graph_size, 0, 0))
     hline_vertices = ngl.BufferVec3(data=hline_data)
     hline_geometry = ngl.Geometry(hline_vertices, topology='line_strip')
-    hline = ngl.Render(hline_geometry, color_program, label='%s value line' % easing)
-    hline.update_frag_resources(color=line_ucolor)
+    hline = ngl.Render(hline_geometry, color_program, blending='src_over', label='%s value line' % easing)
+    hline.update_frag_resources(color=line_ucolor, opacity=ngl.UniformFloat(.4))
 
     # Value animation (cursor + h-line)
     value_x = -graph_size / 2.
@@ -104,8 +105,8 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
     vline_data = array.array('f', (0, 0, 0, 0, graph_size, 0))
     vline_vertices = ngl.BufferVec3(data=vline_data)
     vline_geometry = ngl.Geometry(vline_vertices, topology='line_strip')
-    vline = ngl.Render(vline_geometry, color_program, label='%s time line' % easing)
-    vline.update_frag_resources(color=line_ucolor)
+    vline = ngl.Render(vline_geometry, color_program, blending='src_over', label='%s time line' % easing)
+    vline.update_frag_resources(color=line_ucolor, opacity=ngl.UniformFloat(.4))
 
     # Time animation (v-line only)
     time_x = -normed_graph_size / 2.
@@ -198,9 +199,4 @@ def easings(cfg, easing_id='*'):
         easing_node = _get_easing_node(cfg, easing, zoom, color_program)
         group.add_children(easing_node)
 
-    return ngl.GraphicConfig(group,
-                             blend=True,
-                             blend_src_factor='src_alpha',
-                             blend_dst_factor='one_minus_src_alpha',
-                             blend_src_factor_a='zero',
-                             blend_dst_factor_a='one')
+    return group

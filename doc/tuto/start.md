@@ -374,8 +374,8 @@ def test_timeranges(cfg):
 
     # Associate a different color for each shape
     for r in renders:
-        color = [cfg.rng.random() for i in range(3)] + [1]
-        r.update_frag_resources(color=ngl.UniformVec4(value=color))
+        color = [cfg.rng.random() for i in range(3)]
+        r.update_frag_resources(color=ngl.UniformVec3(value=color), opacity=ngl.UniformFloat(value=1))
 
     # Move them in different places
     translates = [
