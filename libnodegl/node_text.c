@@ -172,7 +172,7 @@ static const char * const bg_vertex_data =
 static const char * const bg_fragment_data =
     "void main()"                                                                       "\n"
     "{"                                                                                 "\n"
-    "    ngl_out_color = vec4(color, opacity);"                                         "\n"
+    "    ngl_out_color = vec4(color, 1.0) * opacity;"                                   "\n"
     "}";
 
 static const char * const vertex_data =
@@ -186,7 +186,7 @@ static const char * const fragment_data =
     "void main()"                                                                       "\n"
     "{"                                                                                 "\n"
     "    float v = ngl_tex2d(tex, var_tex_coord).r;"                                    "\n"
-    "    ngl_out_color = vec4(color.rgb, opacity * v);"                                 "\n"
+    "    ngl_out_color = vec4(color, 1.0) * opacity * v;"                               "\n"
     "}";
 
 static const struct pgcraft_iovar vert_out_vars[] = {
@@ -605,9 +605,9 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     /* This controls how the characters blend onto the background */
     struct graphicstate state = rnode->graphicstate;
     state.blend = 1;
-    state.blend_src_factor   = NGLI_BLEND_FACTOR_SRC_ALPHA;
+    state.blend_src_factor   = NGLI_BLEND_FACTOR_ONE;
     state.blend_dst_factor   = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-    state.blend_src_factor_a = NGLI_BLEND_FACTOR_SRC_ALPHA;
+    state.blend_src_factor_a = NGLI_BLEND_FACTOR_ONE;
     state.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 
     struct pipeline_params pipeline_params = {
