@@ -19,6 +19,7 @@
 # under the License.
 #
 
+import textwrap
 import pynodegl as ngl
 from pynodegl_utils.misc import scene, Media
 from pynodegl_utils.toolbox.colors import COLORS
@@ -121,18 +122,20 @@ def media_exposed_time(cfg):
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
-    vert = '''
-void main() {
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    uv = ngl_uvcoord;
-}
-'''
+    vert = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+        uv = ngl_uvcoord;
+    }
+    ''')
 
-    frag = '''
-void main() {
-    ngl_out_color = vec4(vec3(step(0.0, tex0_ts/duration - uv.x)), 1.0);
-}
-'''
+    frag = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_color = vec4(vec3(step(0.0, tex0_ts/duration - uv.x)), 1.0);
+    }
+    ''')
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     media = ngl.Media(m0.filename)

@@ -19,6 +19,7 @@
 # under the License.
 #
 
+import textwrap
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.tests.debug import get_debug_points
@@ -52,18 +53,18 @@ def _get_live_shared_uniform_scene(cfg, color, debug_positions):
 
 
 def _get_live_shared_uniform_with_block_scene(cfg, color, layout, debug_positions):
-    vertex = '''
-void main()
-{
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-}
-'''
-    fragment = '''
-void main()
-{
-    ngl_out_color = vec4(data.color, 1.0);
-}
-'''
+    vertex = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+    }
+    ''')
+    fragment = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_color = vec4(data.color, 1.0);
+    }
+    ''')
     program = ngl.Program(vertex=vertex, fragment=fragment)
     group = ngl.Group()
     for i in range(2):

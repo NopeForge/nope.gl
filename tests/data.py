@@ -20,6 +20,7 @@
 #
 
 import array
+import textwrap
 import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.colors import COLORS
@@ -335,14 +336,19 @@ data_streamed_buffer_vec4_time_anim = _get_data_streamed_buffer_function(2, Fals
 @scene()
 def data_integer_iovars(cfg):
     cfg.aspect_ratio = (1, 1)
-    vert = '''void main() {
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    var_color_u32 = color_u32;
-}
-'''
-    frag = '''void main() {
-    ngl_out_color = vec4(var_color_u32) / 255.;
-}'''
+    vert = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+        var_color_u32 = color_u32;
+    }
+    ''')
+    frag = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_color = vec4(var_color_u32) / 255.;
+    }
+    ''')
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(var_color_u32=ngl.IOIVec4())
     geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
@@ -355,16 +361,21 @@ def data_integer_iovars(cfg):
 @scene()
 def data_mat_iovars(cfg):
     cfg.aspect_ratio = (1, 1)
-    vert = '''void main() {
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    var_mat3 = mat3(1.0);
-    var_mat4 = mat4(1.0);
-    var_vec4 = vec4(1.0, 0.5, 0.0, 1.0);
-}
-'''
-    frag = '''void main() {
-    ngl_out_color = mat4(var_mat3) * var_mat4 * var_vec4;
-}'''
+    vert = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+        var_mat3 = mat3(1.0);
+        var_mat4 = mat4(1.0);
+        var_vec4 = vec4(1.0, 0.5, 0.0, 1.0);
+    }
+    ''')
+    frag = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_color = mat4(var_mat3) * var_mat4 * var_vec4;
+    }
+    ''')
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(
         var_mat3=ngl.IOMat3(),
@@ -381,19 +392,19 @@ def data_mat_iovars(cfg):
 def data_noise_time(cfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 2
-    vert = '''
-void main()
-{
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    ngl_out_pos += vec4(t - 1., signal, 0.0, 0.0);
-}
-'''
-    frag = '''
-void main()
-{
-    ngl_out_color = vec4(color, 1.0);
-}
-'''
+    vert = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+        ngl_out_pos += vec4(t - 1., signal, 0.0, 0.0);
+    }
+    ''')
+    frag = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_color = vec4(color, 1.0);
+    }
+    ''')
 
     geometry = ngl.Circle(radius=0.25, npoints=6)
     program = ngl.Program(vertex=vert, fragment=frag)
@@ -408,19 +419,19 @@ void main()
 def data_noise_wiggle(cfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 3
-    vert = '''
-void main()
-{
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-    ngl_out_pos += vec4(wiggle, 0.0, 0.0);
-}
-'''
-    frag = '''
-void main()
-{
-    ngl_out_color = vec4(color, 1.0);
-}
-'''
+    vert = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+        ngl_out_pos += vec4(wiggle, 0.0, 0.0);
+    }
+    ''')
+    frag = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_color = vec4(color, 1.0);
+    }
+    ''')
 
     geometry = ngl.Circle(radius=0.25, npoints=6)
     program = ngl.Program(vertex=vert, fragment=frag)
@@ -449,18 +460,18 @@ def data_eval(cfg):
     )
     color.update_resources(wiggle=ngl.NoiseFloat(), t=t, a=a, x=x)
 
-    vert = '''
-void main()
-{
-    ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-}
-'''
-    frag = '''
-void main()
-{
-    ngl_out_color = color;
-}
-'''
+    vert = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+    }
+    ''')
+    frag = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_color = color;
+    }
+    ''')
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(
         var_mat3=ngl.IOMat3(),
