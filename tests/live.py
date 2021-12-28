@@ -79,8 +79,8 @@ void main()
 
 
 def _get_live_shared_uniform_function(layout=None):
-    data = [COLORS.red[:3], COLORS.blue[:3]]
-    color = ngl.UniformVec3(value=COLORS.black[:3], label='color')
+    data = [COLORS.red, COLORS.blue]
+    color = ngl.UniformVec3(value=COLORS.black, label='color')
 
     def keyframes_callback(t_id):
         color.set_value(*data[t_id])

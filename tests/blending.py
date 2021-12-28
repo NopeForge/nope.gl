@@ -84,7 +84,7 @@ def _get_blending_base_objects(cfg):
 
 def _get_background_circles(circle, positions, bcolor):
     blend_bg = ngl.Group()
-    render = ngl.RenderColor(bcolor[:3], geometry=circle)
+    render = ngl.RenderColor(bcolor, geometry=circle)
     for position in positions:
         trender = ngl.Translate(render, position)
         blend_bg.add_children(trender)
@@ -159,7 +159,7 @@ def _debug_overlay(cfg, scene, grid_names, show_dbg_points=False, show_labels=Fa
         ag = AutoGrid(grid_names)
         for grid_name, i, col, row in ag:
             text = ngl.Text(grid_name,
-                            fg_color=COLORS.white[:3],
+                            fg_color=COLORS.white,
                             bg_opacity=1,
                             valign='top',
                             box_width=(2.0, 0, 0),
@@ -185,7 +185,7 @@ def _debug_overlay(cfg, scene, grid_names, show_dbg_points=False, show_labels=Fa
     return overlay
 
 
-_TEST_SETTINGS = dict(show_dbg_points=False, show_labels=False, clear_color=COLORS.azure, tolerance=1)
+_TEST_SETTINGS = dict(show_dbg_points=False, show_labels=False, clear_color=list(COLORS.azure) + [1], tolerance=1)
 
 
 @test_cuepoints(points=_get_dbg_positions(_NB_BLENDINGS), **_TEST_SETTINGS)

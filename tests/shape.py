@@ -135,7 +135,7 @@ def _shape_geometry(cfg, set_normals=False, set_indices=False):
     else:
         prog = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
         render = ngl.Render(geometry, prog)
-        render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.magenta[:3]), opacity=ngl.UniformFloat(1))
+        render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.magenta), opacity=ngl.UniformFloat(1))
 
     if set_indices:
         indices = array.array('H', list(range(3 * 6)))
@@ -174,7 +174,7 @@ def shape_geometry_normals_indices(cfg):
 def shape_diamond_colormask(cfg):
     color_write_masks = ('r+g+b+a', 'r+g+a', 'g+b+a', 'r+b+a')
     geometry = ngl.Circle(npoints=5)
-    render = ngl.RenderColor(COLORS.white[:3], geometry=geometry)
+    render = ngl.RenderColor(COLORS.white, geometry=geometry)
     scenes = [ngl.GraphicConfig(render, color_write_mask=cwm) for cwm in color_write_masks]
     return autogrid_simple(scenes)
 
@@ -206,7 +206,7 @@ def shape_morphing(cfg, n=6):
     geom.set_topology('triangle_strip')
     p = ngl.Program(vertex=cfg.get_vert('color'), fragment=cfg.get_frag('color'))
     render = ngl.Render(geom, p)
-    render.update_frag_resources(color=ngl.UniformVec3(COLORS.cyan[:3]), opacity=ngl.UniformFloat(1))
+    render.update_frag_resources(color=ngl.UniformVec3(COLORS.cyan), opacity=ngl.UniformFloat(1))
     return render
 
 
@@ -329,7 +329,7 @@ def shape_triangles_mat4_attribute(cfg):
     )
     render = ngl.Render(geometry, program, nb_instances=2)
     render.update_instance_attributes(matrix=matrices)
-    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.orange[:3]), opacity=ngl.UniformFloat(1))
+    render.update_frag_resources(color=ngl.UniformVec3(value=COLORS.orange), opacity=ngl.UniformFloat(1))
     return render
 
 
@@ -343,7 +343,7 @@ def _get_shape_scene(cfg, shape, cull_mode):
     )
     geometry = geometry_cls[shape]()
 
-    node = _render_shape(cfg, geometry, COLORS.sgreen[:3])
+    node = _render_shape(cfg, geometry, COLORS.sgreen)
     return ngl.GraphicConfig(node, cull_mode=cull_mode)
 
 

@@ -176,11 +176,11 @@ def texture_cubemap_from_mrt_msaa(cfg):
 @test_cuepoints(width=32, height=32, points={'bottom-left': (-1, -1), 'top-right': (1, 1)}, tolerance=1)
 @scene()
 def texture_clear_and_scissor(cfg):
-    render = ngl.RenderColor(COLORS.white[:3])
+    render = ngl.RenderColor(COLORS.white)
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask='')
 
     texture = ngl.Texture2D(width=64, height=64)
-    rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS.orange)
+    rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=list(COLORS.orange) + [1])
     render = ngl.RenderTexture(texture)
 
     return ngl.Group(children=(graphic_config, rtt, render))
@@ -191,7 +191,7 @@ def texture_clear_and_scissor(cfg):
 def texture_scissor(cfg):
     cfg.aspect_ratio = (1, 1)
 
-    render = ngl.RenderColor(COLORS.orange[:3])
+    render = ngl.RenderColor(COLORS.orange)
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(32, 32, 32, 32))
     texture = ngl.Texture2D(width=64, height=64)
     rtt = ngl.RenderToTexture(graphic_config, [texture], clear_color=(0, 0, 0, 1))

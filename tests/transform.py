@@ -30,7 +30,7 @@ from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
 
 def _transform_shape(cfg, w=0.75, h=0.45):
     geometry = ngl.Quad(corner=(-w/2., -h/2., 0), width=(w, 0, 0), height=(0, h, 0))
-    return ngl.RenderColor(COLORS.rose[:3], geometry=geometry)
+    return ngl.RenderColor(COLORS.rose, geometry=geometry)
 
 
 @test_fingerprint()
@@ -63,7 +63,7 @@ def transform_animated_camera(cfg):
 
     quad = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
     for color, vector in elems:
-        node = ngl.RenderColor(color[:3], geometry=quad)
+        node = ngl.RenderColor(color, geometry=quad)
         if vector:
             node = ngl.Translate(node, vector=vector)
         g.add_children(node)

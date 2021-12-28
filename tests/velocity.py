@@ -48,7 +48,7 @@ void main()
 '''
 
     p0, p1, p2 = equilateral_triangle_coords(2.0)
-    triangle = ngl.RenderColor(COLORS.white[:3], geometry=ngl.Triangle(p0, p1, p2))
+    triangle = ngl.RenderColor(COLORS.white, geometry=ngl.Triangle(p0, p1, p2))
     triangle = ngl.Rotate(triangle, angle=anim)
 
     prog_c = ngl.Program(vertex=cfg.get_vert('color'), fragment=frag)
@@ -87,7 +87,7 @@ void main()
     geom = ngl.Circle(radius=0.2, npoints=128)
     prog = ngl.Program(vertex=vert, fragment=cfg.get_frag('color'))
     shape = ngl.Render(geom, prog)
-    shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white[:3]), opacity=ngl.UniformFloat(1))
+    shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white), opacity=ngl.UniformFloat(1))
     shape.update_vert_resources(velocity=velocity, translate=anim)
     return shape
 
@@ -121,6 +121,6 @@ void main()
     geom = ngl.Circle(radius=0.2, npoints=128)
     prog = ngl.Program(vertex=vert, fragment=cfg.get_frag('color'))
     shape = ngl.Render(geom, prog)
-    shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white[:3]), opacity=ngl.UniformFloat(1))
+    shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white), opacity=ngl.UniformFloat(1))
     shape.update_vert_resources(velocity=velocity)
     return ngl.Translate(shape, vector=anim)

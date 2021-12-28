@@ -48,7 +48,7 @@ void main()
 _FRAGMENT = '''
 void main() {
     float sd = length(uv + off) - 0.5; // signed distance to a circle of radius 0.5
-    ngl_out_color = color * step(sd, 0.0);
+    ngl_out_color = vec4(color, 1.0) * step(sd, 0.0);
 }
 '''
 
@@ -79,10 +79,10 @@ def _get_compositing_scene(cfg, op, show_label=False):
     B_off = ngl.AnimatedVec2(B_off_kf)
 
     A = ngl.Render(quad, prog, label='A')
-    A.update_frag_resources(color=ngl.UniformVec4(value=COLORS.azure), off=A_off)
+    A.update_frag_resources(color=ngl.UniformVec3(value=COLORS.azure), off=A_off)
 
     B = ngl.Render(quad, prog, label='B', blending=op)
-    B.update_frag_resources(color=ngl.UniformVec4(value=COLORS.orange), off=B_off)
+    B.update_frag_resources(color=ngl.UniformVec3(value=COLORS.orange), off=B_off)
 
     bg = ngl.RenderColor(blending='dst_over')
 
@@ -95,7 +95,7 @@ def _get_compositing_scene(cfg, op, show_label=False):
         label_pad = .1
         label = ngl.Text(
             op,
-            fg_color=COLORS.black[:3],
+            fg_color=COLORS.black,
             bg_color=(.8, .8, .8),
             bg_opacity=1,
             box_corner=(label_pad/2 - 1, 1 - label_h - label_pad/2, 0),

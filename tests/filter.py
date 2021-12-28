@@ -113,18 +113,18 @@ def filter_gamma_correct(cfg, linear=True):
 
     # Hue colors rotated clockwise
     dst = ngl.RenderGradient4(
-        color_tl=COLORS.rose[:3],
-        color_tr=COLORS.blue[:3],
-        color_br=COLORS.sgreen[:3],
-        color_bl=COLORS.yellow[:3],
+        color_tl=COLORS.rose,
+        color_tr=COLORS.blue,
+        color_br=COLORS.sgreen,
+        color_bl=COLORS.yellow,
     )
 
     # Hue colors rotated counter-clockwise started with another color
     src = ngl.RenderGradient4(
-        color_tl=COLORS.orange[:3],
-        color_tr=COLORS.magenta[:3],
-        color_br=COLORS.azure[:3],
-        color_bl=COLORS.green[:3],
+        color_tl=COLORS.orange,
+        color_tr=COLORS.magenta,
+        color_br=COLORS.azure,
+        color_bl=COLORS.green,
     )
 
     # Screen blending so that working in linear space makes a significant

@@ -26,9 +26,9 @@ from pynodegl_utils.toolbox.colors import COLORS
 
 
 def _get_userlive_switch_func():
-    scene0 = ngl.RenderColor(COLORS.white[:3], geometry=ngl.Circle())
-    scene1 = ngl.RenderColor(COLORS.red[:3], geometry=ngl.Quad())
-    scene2 = ngl.RenderColor(COLORS.azure[:3], geometry=ngl.Triangle())
+    scene0 = ngl.RenderColor(COLORS.white, geometry=ngl.Circle())
+    scene1 = ngl.RenderColor(COLORS.red, geometry=ngl.Quad())
+    scene2 = ngl.RenderColor(COLORS.azure, geometry=ngl.Triangle())
 
     switch0 = ngl.UserSwitch(ngl.Scale(scene0, factors=(1/3, 1/3, 1/3), anchor=(-1, 0, 0)))
     switch1 = ngl.UserSwitch(ngl.Scale(scene1, factors=(1/2, 1/2, 1/2)))
@@ -57,7 +57,7 @@ def _get_userlive_switch_func():
 
 def _get_userlive_select_func():
     # We point on the same underlying render to test the different render paths
-    render = ngl.RenderColor(COLORS.white[:3], opacity=0.5, geometry=ngl.Quad())
+    render = ngl.RenderColor(COLORS.white, opacity=0.5, geometry=ngl.Quad())
     below = ngl.Translate(render, vector=(.5 - 2/3, .5 - 1/3, 0))
     above = ngl.Translate(render, vector=(.5 - 1/3, .5 - 2/3, 0))
 

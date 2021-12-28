@@ -191,8 +191,8 @@ for name, params in _rtt_tests.items():
 
 
 def _rtt_load_attachment(cfg):
-    background = ngl.RenderColor(COLORS.white[:3])
-    render = ngl.RenderColor(COLORS.orange[:3])
+    background = ngl.RenderColor(COLORS.white)
+    render = ngl.RenderColor(COLORS.orange)
 
     texture = ngl.Texture2D(width=16, height=16)
     rtt = ngl.RenderToTexture(render, [texture])
@@ -231,7 +231,7 @@ def rtt_clear_attachment_with_timeranges(cfg):
     cfg.aspect_ratio = (1, 1)
 
     # Time-disabled full screen white quad
-    render = ngl.RenderColor(COLORS.white[:3])
+    render = ngl.RenderColor(COLORS.white)
 
     time_range_filter = ngl.TimeRangeFilter(render)
     time_range_filter.add_ranges(ngl.TimeRangeModeNoop(0))
@@ -242,7 +242,7 @@ def rtt_clear_attachment_with_timeranges(cfg):
 
     # Centered rotating quad
     quad = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
-    render = ngl.RenderColor(COLORS.orange[:3], geometry=quad)
+    render = ngl.RenderColor(COLORS.orange, geometry=quad)
 
     animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, -360)]
     render = ngl.Rotate(render, angle=ngl.AnimatedFloat(animkf))

@@ -45,7 +45,7 @@ def _text(**params):
 @test_fingerprint(tolerance=1)
 @scene()
 def text_colors(cfg):
-    return _text(fg_color=COLORS.rose[:3], bg_color=COLORS.cgreen[:3], bg_opacity=1)
+    return _text(fg_color=COLORS.rose, bg_color=COLORS.cgreen, bg_opacity=1)
 
 
 @test_fingerprint(tolerance=1)
