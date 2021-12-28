@@ -320,12 +320,6 @@ static const struct gldefinition {
         ptype = proto.find('ptype')
         funcret = ' '.join(get_proto_elems(proto)[:-1])
 
-        ret_assign = ''
-        ret_call = ''
-        if funcret != 'void':
-            ret_assign = '%s ret = ' % funcret
-            ret_call = '    return ret;\n'
-
         func_args_specs = []
         func_args = []
         for param in cmd.findall('param'):
@@ -340,9 +334,7 @@ static const struct gldefinition {
                 'func_name_nogl': funcname[2:], # with "gl" stripped
                 'wrapper_args_specs': ', '.join(wrapper_args_specs),
                 'func_args_specs': ', '.join(func_args_specs),
-                'ret_assign': ret_assign,
                 'func_args': ', '.join(func_args),
-                'ret_call': ret_call,
                 'flags': '0' if funcname in cmds_optional else 'M',
         }
 
@@ -355,13 +347,22 @@ static inline GLenum ngli_glGetError(const struct glcontext *gl)
     return gl->funcs.GetError();
 }
 '''
-        else:
-            glwrappers    += '''
+        elif funcret != 'void':
+            glwrappers +=    '''
 static inline %(func_ret)s ngli_%(func_name)s(%(wrapper_args_specs)s)
 {
-    %(ret_assign)sgl->funcs.%(func_name_nogl)s(%(func_args)s);
+    %(func_ret)s ret = gl->funcs.%(func_name_nogl)s(%(func_args)s);
     check_error_code(gl, "%(func_name)s");
-%(ret_call)s}
+    return ret;
+}
+''' % data
+        else:
+            glwrappers += '''
+static inline void ngli_%(func_name)s(%(wrapper_args_specs)s)
+{
+    gl->funcs.%(func_name_nogl)s(%(func_args)s);
+    check_error_code(gl, "%(func_name)s");
+}
 ''' % data
 
         cmds.pop(cmds.index(funcname))
