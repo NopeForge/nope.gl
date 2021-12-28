@@ -567,7 +567,7 @@ gl_xml = custom_target(
 )
 gl_generated_files = custom_target(
   'gl_generated_files',
-  command: [find_program('gen-gl-wrappers.py'), '@INPUT@', '@OUTPUT@'],
+  command: [find_program('scripts/gen-gl-wrappers.py'), '@INPUT@', '@OUTPUT@'],
   capture: false,
   input: gl_xml,
   output: ['glfunctions.h', 'gldefinitions_data.h', 'glwrappers.h'],
