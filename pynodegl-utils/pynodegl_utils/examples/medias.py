@@ -124,8 +124,4 @@ def time_remapping(cfg):
         text_rf = ngl.TimeRangeFilter(text, ranges=text_tr, label='text-step-%d' % i)
         group.add_children(text_rf)
 
-    return ngl.GraphicConfig(group, blend=True,
-                             blend_src_factor='src_alpha',
-                             blend_dst_factor='one_minus_src_alpha',
-                             blend_src_factor_a='zero',
-                             blend_dst_factor_a='one')
+    return group

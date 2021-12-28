@@ -25,7 +25,7 @@ from pynodegl_utils.toolbox.colors import COLORS
 
 
 def get_debug_points(cfg, points, radius=0.025, color=COLORS.green, text_size=(0.1, 0.1)):
-    g = ngl.Group()
+    g = ngl.Group(label='Debug circles')
     circle = ngl.Circle(radius=radius)
     circle_render = ngl.RenderColor(color, geometry=circle)
     box_w = (text_size[0], 0, 0)
@@ -36,9 +36,4 @@ def get_debug_points(cfg, points, radius=0.025, color=COLORS.green, text_size=(0
         point = ngl.Group(children=(circle_render, text))
         point = ngl.Translate(point, list(position) + [0])
         g.add_children(point)
-    return ngl.GraphicConfig(g, blend=True,
-                             blend_src_factor='src_alpha',
-                             blend_dst_factor='one_minus_src_alpha',
-                             blend_src_factor_a='zero',
-                             blend_dst_factor_a='one',
-                             label='Debug circles')
+    return g

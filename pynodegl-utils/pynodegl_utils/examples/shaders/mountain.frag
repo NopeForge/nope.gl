@@ -43,5 +43,5 @@ void main()
     float y = 1.0 - var_tex0_coord.y;
     float alpha = smoothstep(y-alpha_blend_h, y+alpha_blend_h, h);
 
-    ngl_out_color = vec4(mcolor.rgb, alpha);
+    ngl_out_color = mcolor * alpha;
 }

@@ -65,13 +65,7 @@ def buffer_dove(cfg,
     if bilinear_filtering:
         img_tex.set_mag_filter('linear')
     quad = ngl.Quad((-.5, -.5, 0.1), (1, 0, 0), (0, 1, 0))
-    render = ngl.RenderTexture(img_tex, geometry=quad)
-    render = ngl.GraphicConfig(render,
-                               blend=True,
-                               blend_src_factor='one',
-                               blend_dst_factor='one_minus_src_alpha',
-                               blend_src_factor_a='zero',
-                               blend_dst_factor_a='one')
+    render = ngl.RenderTexture(img_tex, geometry=quad, blending='src_over')
 
     shape_bg = ngl.Circle(radius=.6, npoints=256)
     color_animkf = [ngl.AnimKeyFrameVec3(0,                bgcolor1[:3]),
@@ -583,7 +577,7 @@ def mountain(cfg, ndim=3, nb_layers=7,
                            ngl.AnimKeyFrameFloat(cfg.duration, yoffset/2.)]
         uyoffset = ngl.AnimatedFloat(uyoffset_animkf)
 
-        render = ngl.Render(quad, prog)
+        render = ngl.Render(quad, prog, blending='src_over')
         render.update_frag_resources(tex0=random_tex)
         render.update_frag_resources(dim=ngl.UniformInt(random_dim))
         render.update_frag_resources(nb_layers=ngl.UniformInt(nb_layers))
@@ -599,13 +593,7 @@ def mountain(cfg, ndim=3, nb_layers=7,
     sky = ngl.RenderColor(white[:3])
 
     group = ngl.Group(children=[sky] + mountains)
-    blend = ngl.GraphicConfig(group,
-                              blend=True,
-                              blend_src_factor='src_alpha',
-                              blend_dst_factor='one_minus_src_alpha',
-                              blend_src_factor_a='zero',
-                              blend_dst_factor_a='one')
-    return blend
+    return group
 
 
 @scene(demo_str=scene.Text(),
@@ -646,12 +634,7 @@ def text(cfg, demo_str='Hello World!\n\nThis is a multi-line\ntext demonstration
                                     font_scale=1/5.)
             group.add_children(aligned_text)
 
-    return ngl.GraphicConfig(group,
-                             blend=True,
-                             blend_src_factor='src_alpha',
-                             blend_dst_factor='one_minus_src_alpha',
-                             blend_src_factor_a='zero',
-                             blend_dst_factor_a='one')
+    return group
 
 
 @scene()
