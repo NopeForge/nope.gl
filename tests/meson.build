@@ -174,6 +174,11 @@ foreach backend : backends
     endif
   endif
 
+  tests_depth_stencil = [
+    'depth',
+    'stencil',
+  ]
+
   live_names = [
     'single_bool',
     'single_float',
@@ -339,6 +344,7 @@ foreach backend : backends
     'blending':  {'tests': tests_blending},
     'compute':   {'tests': tests_compute},
     'data':      {'tests': tests_data},
+    'depth_stencil': {'tests': tests_depth_stencil},
     'live':      {'tests': tests_live},
     'media':     {'tests': tests_media, 'depends': media_test_file},
     'velocity':  {'tests': tests_velocity},
