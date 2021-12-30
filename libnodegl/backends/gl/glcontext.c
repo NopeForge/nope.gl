@@ -376,6 +376,8 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
         for (int i = 0; i < NGLI_ARRAY_NB(limits->max_compute_work_group_size); i++) {
             GET_I(GL_MAX_COMPUTE_WORK_GROUP_SIZE, i, &limits->max_compute_work_group_size[i]);
         }
+
+        GET(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE, &limits->max_compute_shared_memory_size);
     }
 
     limits->max_draw_buffers = 1;

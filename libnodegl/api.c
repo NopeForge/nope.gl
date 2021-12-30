@@ -474,6 +474,7 @@ static const char *get_cap_string_id(unsigned cap_id)
     case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_X:      return "max_compute_group_size_x";
     case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Y:      return "max_compute_group_size_y";
     case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Z:      return "max_compute_group_size_z";
+    case NGL_CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE:return "max_compute_shared_memory_size";
     case NGL_CAP_MAX_SAMPLES:                   return "max_samples";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_1D:      return "max_texture_dimensions_1d";
     case NGL_CAP_MAX_TEXTURE_DIMENSION_2D:      return "max_texture_dimensions_2d";
@@ -516,6 +517,7 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
         CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_X,      limits->max_compute_work_group_size[0]),
         CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Y,      limits->max_compute_work_group_size[1]),
         CAP(NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Z,      limits->max_compute_work_group_size[2]),
+        CAP(NGL_CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE,limits->max_compute_shared_memory_size),
         CAP(NGL_CAP_MAX_SAMPLES,                   limits->max_samples),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_1D,      limits->max_texture_dimension_1d),
         CAP(NGL_CAP_MAX_TEXTURE_DIMENSION_2D,      limits->max_texture_dimension_2d),
