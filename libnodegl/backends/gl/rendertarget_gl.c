@@ -367,7 +367,7 @@ void ngli_rendertarget_gl_resolve(struct rendertarget *s)
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
 }
 
-void ngli_rendertarget_gl_clear(struct rendertarget *s)
+void ngli_rendertarget_gl_begin_pass(struct rendertarget *s)
 {
     const struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;

@@ -833,7 +833,7 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
     const struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rt_gl->id);
 
-    ngli_rendertarget_gl_clear(rt);
+    ngli_rendertarget_gl_begin_pass(rt);
 
     s_priv->rendertarget = rt;
 }
