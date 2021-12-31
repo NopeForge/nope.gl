@@ -50,10 +50,10 @@ struct gpu_ctx_gl {
     int scissor[4];
     struct rendertarget_desc default_rendertarget_desc;
     /* default rendertarget with load op set to clear */
-    struct rendertarget *rt;
+    struct rendertarget *default_rt;
     /* default rendertarget with load op set to load, useful for resuming the
      * associated renderpass (without discarding its attachments) */
-    struct rendertarget *rt_load;
+    struct rendertarget *default_rt_load;
     /* Offscreen render target resources */
     struct texture *color;
     struct texture *ms_color;

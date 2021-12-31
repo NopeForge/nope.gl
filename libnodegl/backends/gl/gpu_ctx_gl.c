@@ -47,7 +47,7 @@ static void capture_cpu(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct ngl_config *config = &s->config;
-    struct rendertarget *rt = s_priv->rt;
+    struct rendertarget *rt = s_priv->default_rt;
 
     ngli_rendertarget_read_pixels(rt, config->capture_buffer);
 }
@@ -273,11 +273,11 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         .readable = 1,
     };
 
-    s_priv->rt = ngli_rendertarget_create(s);
-    if (!s_priv->rt)
+    s_priv->default_rt = ngli_rendertarget_create(s);
+    if (!s_priv->default_rt)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_rendertarget_init(s_priv->rt, &rt_params);
+    ret = ngli_rendertarget_init(s_priv->default_rt, &rt_params);
     if (ret < 0)
         return ret;
 
@@ -286,11 +286,11 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
     rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
     rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
 
-    s_priv->rt_load = ngli_rendertarget_create(s);
-    if (!s_priv->rt_load)
+    s_priv->default_rt_load = ngli_rendertarget_create(s);
+    if (!s_priv->default_rt_load)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_rendertarget_init(s_priv->rt_load, &rt_params);
+    ret = ngli_rendertarget_init(s_priv->default_rt_load, &rt_params);
     if (ret < 0)
         return ret;
 
@@ -329,11 +329,11 @@ static int onscreen_rendertarget_init(struct gpu_ctx *s)
         },
     };
 
-    s_priv->rt = ngli_rendertarget_create(s);
-    if (!s_priv->rt)
+    s_priv->default_rt = ngli_rendertarget_create(s);
+    if (!s_priv->default_rt)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_default_rendertarget_gl_init(s_priv->rt, &rt_params);
+    int ret = ngli_default_rendertarget_gl_init(s_priv->default_rt, &rt_params);
     if (ret < 0)
         return ret;
 
@@ -342,11 +342,11 @@ static int onscreen_rendertarget_init(struct gpu_ctx *s)
     rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
     rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
 
-    s_priv->rt_load = ngli_rendertarget_create(s);
-    if (!s_priv->rt_load)
+    s_priv->default_rt_load = ngli_rendertarget_create(s);
+    if (!s_priv->default_rt_load)
         return NGL_ERROR_MEMORY;
 
-    ret = ngli_default_rendertarget_gl_init(s_priv->rt_load, &rt_params);
+    ret = ngli_default_rendertarget_gl_init(s_priv->default_rt_load, &rt_params);
     if (ret < 0)
         return ret;
 
@@ -356,8 +356,8 @@ static int onscreen_rendertarget_init(struct gpu_ctx *s)
 static void rendertarget_reset(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    ngli_rendertarget_freep(&s_priv->rt);
-    ngli_rendertarget_freep(&s_priv->rt_load);
+    ngli_rendertarget_freep(&s_priv->default_rt);
+    ngli_rendertarget_freep(&s_priv->default_rt_load);
     ngli_texture_freep(&s_priv->color);
     ngli_texture_freep(&s_priv->ms_color);
     ngli_texture_freep(&s_priv->depth);
@@ -524,17 +524,17 @@ static int gl_resize(struct gpu_ctx *s, int width, int height, const int *viewpo
     if (ret < 0)
         return ret;
 
-    s_priv->rt->width = gl->width;
-    s_priv->rt->height = gl->height;
-    s_priv->rt_load->width = gl->width;
-    s_priv->rt_load->height = gl->height;
+    s_priv->default_rt->width = gl->width;
+    s_priv->default_rt->height = gl->height;
+    s_priv->default_rt_load->width = gl->width;
+    s_priv->default_rt_load->height = gl->height;
 
     /*
      * The default framebuffer id can change after a resize operation on EAGL,
      * thus we need to update the rendertargets wrapping the default framebuffer
      */
-    struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)s_priv->rt;
-    struct rendertarget_gl *rt_load_gl = (struct rendertarget_gl *)s_priv->rt_load;
+    struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)s_priv->default_rt;
+    struct rendertarget_gl *rt_load_gl = (struct rendertarget_gl *)s_priv->default_rt_load;
     rt_gl->id = rt_load_gl->id = ngli_glcontext_get_default_framebuffer(gl);
 
     if (viewport && viewport[2] > 0 && viewport[3] > 0) {
@@ -631,13 +631,13 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
     if (ret < 0)
         goto fail;
 
-    ngli_rendertarget_freep(&s_priv->rt);
-    ngli_rendertarget_freep(&s_priv->rt_load);
+    ngli_rendertarget_freep(&s_priv->default_rt);
+    ngli_rendertarget_freep(&s_priv->default_rt_load);
     ngli_texture_freep(&s_priv->color);
     reset_capture_cvpixelbuffer(s);
 
-    s_priv->rt = rt;
-    s_priv->rt_load = rt_load;
+    s_priv->default_rt = rt;
+    s_priv->default_rt_load = rt_load;
     s_priv->color = texture;
     s_priv->capture_cvbuffer = (CVPixelBufferRef)CFRetain(capture_buffer);
     s_priv->capture_cvtexture = cv_texture;
@@ -810,9 +810,9 @@ static struct rendertarget *gl_get_default_rendertarget(struct gpu_ctx *s, int l
     switch (load_op) {
     case NGLI_LOAD_OP_DONT_CARE:
     case NGLI_LOAD_OP_CLEAR:
-        return s_priv->rt;
+        return s_priv->default_rt;
     case NGLI_LOAD_OP_LOAD:
-        return s_priv->rt_load;
+        return s_priv->default_rt_load;
     default:
         ngli_assert(0);
     }
