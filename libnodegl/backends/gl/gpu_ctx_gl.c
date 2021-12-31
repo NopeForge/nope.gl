@@ -828,9 +828,8 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
 
-    ngli_assert(rt);
+    ngli_assert(rt && !s_priv->rendertarget);
     ngli_rendertarget_gl_begin_pass(rt);
-
     s_priv->rendertarget = rt;
 }
 
@@ -838,10 +837,8 @@ static void gl_end_render_pass(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
 
-    if (s_priv->rendertarget) {
-        ngli_rendertarget_gl_end_pass(s_priv->rendertarget);
-    }
-
+    ngli_assert(s_priv->rendertarget);
+    ngli_rendertarget_gl_end_pass(s_priv->rendertarget);
     s_priv->rendertarget = NULL;
 }
 
