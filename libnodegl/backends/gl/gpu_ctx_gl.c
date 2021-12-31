@@ -300,9 +300,6 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
     };
     s_priv->capture_func = capture_func_map[config->capture_buffer_type];
 
-    const int vp[4] = {0, 0, config->width, config->height};
-    gl_set_viewport(s, vp);
-
     return 0;
 }
 
