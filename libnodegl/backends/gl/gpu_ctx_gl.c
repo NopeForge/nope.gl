@@ -852,126 +852,68 @@ static int gl_get_preferred_depth_stencil_format(struct gpu_ctx *s)
     return NGLI_FORMAT_D24_UNORM_S8_UINT;
 }
 
-const struct gpu_ctx_class ngli_gpu_ctx_gl = {
-    .name         = "OpenGL",
-    .create       = gl_create,
-    .init         = gl_init,
-    .resize       = gl_resize,
-    .set_capture_buffer = gl_set_capture_buffer,
-    .begin_draw   = gl_begin_draw,
-    .end_draw     = gl_end_draw,
-    .query_draw_time = gl_query_draw_time,
-    .wait_idle    = gl_wait_idle,
-    .destroy      = gl_destroy,
+#define DECLARE_GPU_CTX_CLASS(cls_suffix, cls_name)                              \
+const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                         \
+    .name                               = cls_name,                              \
+    .create                             = gl_create,                             \
+    .init                               = gl_init,                               \
+    .resize                             = gl_resize,                             \
+    .set_capture_buffer                 = gl_set_capture_buffer,                 \
+    .begin_draw                         = gl_begin_draw,                         \
+    .end_draw                           = gl_end_draw,                           \
+    .query_draw_time                    = gl_query_draw_time,                    \
+    .wait_idle                          = gl_wait_idle,                          \
+    .destroy                            = gl_destroy,                            \
+                                                                                 \
+    .transform_cull_mode                = gl_transform_cull_mode,                \
+    .transform_projection_matrix        = gl_transform_projection_matrix,        \
+    .get_rendertarget_uvcoord_matrix    = gl_get_rendertarget_uvcoord_matrix,    \
+                                                                                 \
+    .get_default_rendertarget           = gl_get_default_rendertarget,           \
+    .get_default_rendertarget_desc      = gl_get_default_rendertarget_desc,      \
+                                                                                 \
+    .begin_render_pass                  = gl_begin_render_pass,                  \
+    .end_render_pass                    = gl_end_render_pass,                    \
+                                                                                 \
+    .set_viewport                       = gl_set_viewport,                       \
+    .get_viewport                       = gl_get_viewport,                       \
+    .set_scissor                        = gl_set_scissor,                        \
+    .get_scissor                        = gl_get_scissor,                        \
+    .get_preferred_depth_format         = gl_get_preferred_depth_format,         \
+    .get_preferred_depth_stencil_format = gl_get_preferred_depth_stencil_format, \
+                                                                                 \
+    .buffer_create                      = ngli_buffer_gl_create,                 \
+    .buffer_init                        = ngli_buffer_gl_init,                   \
+    .buffer_upload                      = ngli_buffer_gl_upload,                 \
+    .buffer_freep                       = ngli_buffer_gl_freep,                  \
+                                                                                 \
+    .pipeline_create                    = ngli_pipeline_gl_create,               \
+    .pipeline_init                      = ngli_pipeline_gl_init,                 \
+    .pipeline_set_resources             = ngli_pipeline_gl_set_resources,        \
+    .pipeline_update_attribute          = ngli_pipeline_gl_update_attribute,     \
+    .pipeline_update_uniform            = ngli_pipeline_gl_update_uniform,       \
+    .pipeline_update_texture            = ngli_pipeline_gl_update_texture,       \
+    .pipeline_update_buffer             = ngli_pipeline_gl_update_buffer,        \
+    .pipeline_draw                      = ngli_pipeline_gl_draw,                 \
+    .pipeline_draw_indexed              = ngli_pipeline_gl_draw_indexed,         \
+    .pipeline_dispatch                  = ngli_pipeline_gl_dispatch,             \
+    .pipeline_freep                     = ngli_pipeline_gl_freep,                \
+                                                                                 \
+    .program_create                     = ngli_program_gl_create,                \
+    .program_init                       = ngli_program_gl_init,                  \
+    .program_freep                      = ngli_program_gl_freep,                 \
+                                                                                 \
+    .rendertarget_create                = ngli_rendertarget_gl_create,           \
+    .rendertarget_init                  = ngli_rendertarget_gl_init,             \
+    .rendertarget_read_pixels           = ngli_rendertarget_gl_read_pixels,      \
+    .rendertarget_freep                 = ngli_rendertarget_gl_freep,            \
+                                                                                 \
+    .texture_create                     = ngli_texture_gl_create,                \
+    .texture_init                       = ngli_texture_gl_init,                  \
+    .texture_upload                     = ngli_texture_gl_upload,                \
+    .texture_generate_mipmap            = ngli_texture_gl_generate_mipmap,       \
+    .texture_freep                      = ngli_texture_gl_freep,                 \
+}                                                                                \
 
-    .transform_cull_mode              = gl_transform_cull_mode,
-    .transform_projection_matrix      = gl_transform_projection_matrix,
-    .get_rendertarget_uvcoord_matrix  = gl_get_rendertarget_uvcoord_matrix,
-
-    .get_default_rendertarget      = gl_get_default_rendertarget,
-    .get_default_rendertarget_desc = gl_get_default_rendertarget_desc,
-
-    .begin_render_pass        = gl_begin_render_pass,
-    .end_render_pass          = gl_end_render_pass,
-
-    .set_viewport             = gl_set_viewport,
-    .get_viewport             = gl_get_viewport,
-    .set_scissor              = gl_set_scissor,
-    .get_scissor              = gl_get_scissor,
-    .get_preferred_depth_format = gl_get_preferred_depth_format,
-    .get_preferred_depth_stencil_format = gl_get_preferred_depth_stencil_format,
-
-    .buffer_create = ngli_buffer_gl_create,
-    .buffer_init   = ngli_buffer_gl_init,
-    .buffer_upload = ngli_buffer_gl_upload,
-    .buffer_freep  = ngli_buffer_gl_freep,
-
-    .pipeline_create         = ngli_pipeline_gl_create,
-    .pipeline_init           = ngli_pipeline_gl_init,
-    .pipeline_set_resources  = ngli_pipeline_gl_set_resources,
-    .pipeline_update_attribute = ngli_pipeline_gl_update_attribute,
-    .pipeline_update_uniform = ngli_pipeline_gl_update_uniform,
-    .pipeline_update_texture = ngli_pipeline_gl_update_texture,
-    .pipeline_update_buffer  = ngli_pipeline_gl_update_buffer,
-    .pipeline_draw           = ngli_pipeline_gl_draw,
-    .pipeline_draw_indexed   = ngli_pipeline_gl_draw_indexed,
-    .pipeline_dispatch       = ngli_pipeline_gl_dispatch,
-    .pipeline_freep          = ngli_pipeline_gl_freep,
-
-    .program_create = ngli_program_gl_create,
-    .program_init   = ngli_program_gl_init,
-    .program_freep  = ngli_program_gl_freep,
-
-    .rendertarget_create      = ngli_rendertarget_gl_create,
-    .rendertarget_init        = ngli_rendertarget_gl_init,
-    .rendertarget_read_pixels = ngli_rendertarget_gl_read_pixels,
-    .rendertarget_freep       = ngli_rendertarget_gl_freep,
-
-    .texture_create           = ngli_texture_gl_create,
-    .texture_init             = ngli_texture_gl_init,
-    .texture_upload           = ngli_texture_gl_upload,
-    .texture_generate_mipmap  = ngli_texture_gl_generate_mipmap,
-    .texture_freep            = ngli_texture_gl_freep,
-};
-
-const struct gpu_ctx_class ngli_gpu_ctx_gles = {
-    .name         = "OpenGL ES",
-    .create       = gl_create,
-    .init         = gl_init,
-    .resize       = gl_resize,
-    .set_capture_buffer = gl_set_capture_buffer,
-    .begin_draw   = gl_begin_draw,
-    .end_draw     = gl_end_draw,
-    .query_draw_time = gl_query_draw_time,
-    .wait_idle    = gl_wait_idle,
-    .destroy      = gl_destroy,
-
-    .transform_cull_mode              = gl_transform_cull_mode,
-    .transform_projection_matrix      = gl_transform_projection_matrix,
-    .get_rendertarget_uvcoord_matrix  = gl_get_rendertarget_uvcoord_matrix,
-
-    .get_default_rendertarget      = gl_get_default_rendertarget,
-    .get_default_rendertarget_desc = gl_get_default_rendertarget_desc,
-
-    .begin_render_pass        = gl_begin_render_pass,
-    .end_render_pass          = gl_end_render_pass,
-
-    .set_viewport             = gl_set_viewport,
-    .get_viewport             = gl_get_viewport,
-    .set_scissor              = gl_set_scissor,
-    .get_scissor              = gl_get_scissor,
-    .get_preferred_depth_format = gl_get_preferred_depth_format,
-    .get_preferred_depth_stencil_format = gl_get_preferred_depth_stencil_format,
-
-    .buffer_create = ngli_buffer_gl_create,
-    .buffer_init   = ngli_buffer_gl_init,
-    .buffer_upload = ngli_buffer_gl_upload,
-    .buffer_freep  = ngli_buffer_gl_freep,
-
-    .pipeline_create         = ngli_pipeline_gl_create,
-    .pipeline_init           = ngli_pipeline_gl_init,
-    .pipeline_set_resources  = ngli_pipeline_gl_set_resources,
-    .pipeline_update_attribute = ngli_pipeline_gl_update_attribute,
-    .pipeline_update_uniform = ngli_pipeline_gl_update_uniform,
-    .pipeline_update_texture = ngli_pipeline_gl_update_texture,
-    .pipeline_update_buffer  = ngli_pipeline_gl_update_buffer,
-    .pipeline_draw           = ngli_pipeline_gl_draw,
-    .pipeline_draw_indexed   = ngli_pipeline_gl_draw_indexed,
-    .pipeline_dispatch       = ngli_pipeline_gl_dispatch,
-    .pipeline_freep          = ngli_pipeline_gl_freep,
-
-    .program_create = ngli_program_gl_create,
-    .program_init   = ngli_program_gl_init,
-    .program_freep  = ngli_program_gl_freep,
-
-    .rendertarget_create      = ngli_rendertarget_gl_create,
-    .rendertarget_init        = ngli_rendertarget_gl_init,
-    .rendertarget_read_pixels = ngli_rendertarget_gl_read_pixels,
-    .rendertarget_freep       = ngli_rendertarget_gl_freep,
-
-    .texture_create           = ngli_texture_gl_create,
-    .texture_init             = ngli_texture_gl_init,
-    .texture_upload           = ngli_texture_gl_upload,
-    .texture_generate_mipmap  = ngli_texture_gl_generate_mipmap,
-    .texture_freep            = ngli_texture_gl_freep,
-};
+DECLARE_GPU_CTX_CLASS(gl,   "OpenGL");
+DECLARE_GPU_CTX_CLASS(gles, "OpenGL ES");
