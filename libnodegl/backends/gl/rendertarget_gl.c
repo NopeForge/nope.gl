@@ -364,6 +364,31 @@ void ngli_rendertarget_gl_resolve(struct rendertarget *s)
 void ngli_rendertarget_gl_clear(struct rendertarget *s)
 {
     const struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
+    struct glstate *glstate = &gpu_ctx_gl->glstate;
+
+    static const GLboolean default_color_write_mask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
+    if (memcmp(glstate->color_write_mask, default_color_write_mask, sizeof(default_color_write_mask))) {
+        ngli_glColorMask(gl, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        memcpy(glstate->color_write_mask, &default_color_write_mask, sizeof(default_color_write_mask));
+    }
+
+    if (glstate->depth_write_mask != GL_TRUE) {
+        ngli_glDepthMask(gl, GL_TRUE);
+        glstate->depth_write_mask = GL_TRUE;
+    }
+
+    if (glstate->stencil_write_mask != 0xff) {
+        ngli_glStencilMask(gl, 0xff);
+        glstate->stencil_write_mask = 0xff;
+    }
+
+    if (glstate->scissor_test) {
+        ngli_glDisable(gl, GL_SCISSOR_TEST);
+        glstate->scissor_test = 0;
+    }
+
     s_priv->clear(s);
 }
 

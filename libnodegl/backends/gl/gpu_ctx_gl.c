@@ -828,32 +828,10 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
-    struct glstate *glstate = &s_priv->glstate;
 
     ngli_assert(rt);
     const struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rt_gl->id);
-
-    static const GLboolean default_color_write_mask[4] = {GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE};
-    if (memcmp(glstate->color_write_mask, default_color_write_mask, sizeof(default_color_write_mask))) {
-        ngli_glColorMask(gl, GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-        memcpy(glstate->color_write_mask, &default_color_write_mask, sizeof(default_color_write_mask));
-    }
-
-    if (glstate->depth_write_mask != GL_TRUE) {
-        ngli_glDepthMask(gl, GL_TRUE);
-        glstate->depth_write_mask = GL_TRUE;
-    }
-
-    if (glstate->stencil_write_mask != 0xff) {
-        ngli_glStencilMask(gl, 0xff);
-        glstate->stencil_write_mask = 0xff;
-    }
-
-    if (glstate->scissor_test) {
-        ngli_glDisable(gl, GL_SCISSOR_TEST);
-        glstate->scissor_test = 0;
-    }
 
     ngli_rendertarget_gl_clear(rt);
 
