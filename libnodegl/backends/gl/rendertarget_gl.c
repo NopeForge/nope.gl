@@ -344,6 +344,12 @@ void ngli_rendertarget_gl_resolve(struct rendertarget *s)
     const struct rendertarget_gl *s_priv = (const struct rendertarget_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
+    struct glstate *glstate = &gpu_ctx_gl->glstate;
+
+    if (glstate->scissor_test) {
+        ngli_glDisable(gl, GL_SCISSOR_TEST);
+        glstate->scissor_test = 0;
+    }
 
     if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT))
         return;
