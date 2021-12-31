@@ -45,10 +45,10 @@ struct gpu_ctx_gl {
     struct gpu_ctx parent;
     struct glcontext *glcontext;
     struct glstate glstate;
-    struct rendertarget_desc default_rendertarget_desc;
     struct rendertarget *rendertarget;
     int viewport[4];
     int scissor[4];
+    struct rendertarget_desc default_rendertarget_desc;
     /* default rendertarget with load op set to clear */
     struct rendertarget *rt;
     /* default rendertarget with load op set to load, useful for resuming the
