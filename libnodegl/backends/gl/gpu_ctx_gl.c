@@ -839,8 +839,7 @@ static void gl_end_render_pass(struct gpu_ctx *s)
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
 
     if (s_priv->rendertarget) {
-        ngli_rendertarget_gl_resolve(s_priv->rendertarget);
-        ngli_rendertarget_gl_invalidate(s_priv->rendertarget);
+        ngli_rendertarget_gl_end_pass(s_priv->rendertarget);
     }
 
     s_priv->rendertarget = NULL;
