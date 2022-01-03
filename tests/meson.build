@@ -242,6 +242,7 @@ foreach backend : backends
       'feature_depth_stencil_msaa',
       'texture_depth_msaa',
       'texture_depth_stencil_msaa',
+      'sample_depth_msaa',
     ]
   endif
 

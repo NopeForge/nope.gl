@@ -181,6 +181,7 @@ _rtt_tests = dict(
     feature_depth_stencil_msaa=dict(features='depth+stencil', samples=4),
     mipmap=dict(features='depth', mipmap_filter='linear'),
     sample_depth=dict(texture_ds_format='auto_depth', sample_depth=True),
+    sample_depth_msaa=dict(texture_ds_format='auto_depth', sample_depth=True, samples=4),
     texture_depth=dict(texture_ds_format='auto_depth'),
     texture_depth_stencil=dict(texture_ds_format='auto_depth_stencil'),
     texture_depth_msaa=dict(texture_ds_format='auto_depth', samples=4),
