@@ -161,6 +161,83 @@ static void gl_get_scissor(struct gpu_ctx *s, int *scissor)
     memcpy(scissor, &s_priv->scissor, sizeof(s_priv->scissor));
 }
 
+static int create_texture(struct gpu_ctx *s, int format, int samples, struct texture **texturep)
+{
+    const struct ngl_config *config = &s->config;
+
+    struct texture *texture = ngli_texture_create(s);
+    if (!texture)
+        return NGL_ERROR_MEMORY;
+
+    const struct texture_params params = {
+        .type    = NGLI_TEXTURE_TYPE_2D,
+        .format  = format,
+        .width   = config->width,
+        .height  = config->height,
+        .samples = samples,
+        .usage   = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
+    };
+
+    int ret = ngli_texture_init(texture, &params);
+    if (ret < 0) {
+        ngli_texture_freep(&texture);
+        return ret;
+    }
+
+    *texturep = texture;
+    return 0;
+}
+
+static int create_rendertarget(struct gpu_ctx *s,
+                               struct texture *color,
+                               struct texture *resolve_color,
+                               struct texture *depth_stencil,
+                               int load_op,
+                               struct rendertarget **rendertargetp)
+{
+    const struct ngl_config *config = &s->config;
+
+    struct rendertarget *rendertarget = ngli_rendertarget_create(s);
+    if (!rendertarget)
+        return NGL_ERROR_MEMORY;
+
+    const struct rendertarget_params params = {
+        .width = config->width,
+        .height = config->height,
+        .nb_colors = 1,
+        .colors[0] = {
+            .attachment     = color,
+            .resolve_target = resolve_color,
+            .load_op        = load_op,
+            .clear_value[0] = config->clear_color[0],
+            .clear_value[1] = config->clear_color[1],
+            .clear_value[2] = config->clear_color[2],
+            .clear_value[3] = config->clear_color[3],
+            .store_op       = NGLI_STORE_OP_STORE,
+        },
+        .depth_stencil = {
+            .attachment = depth_stencil,
+            .load_op    = load_op,
+            .store_op   = NGLI_STORE_OP_STORE,
+        },
+        .readable = 1,
+    };
+
+    int ret;
+    if (color) {
+        ret = ngli_rendertarget_init(rendertarget, &params);
+    } else {
+        ret = ngli_default_rendertarget_gl_init(rendertarget, &params);
+    }
+    if (ret < 0) {
+        ngli_rendertarget_freep(&rendertarget);
+        return ret;
+    }
+
+    *rendertargetp = rendertarget;
+    return 0;
+}
+
 static int offscreen_rendertarget_init(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
@@ -181,18 +258,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
             if (ret < 0)
                 return ret;
         } else {
-            s_priv->color = ngli_texture_create(s);
-            if (!s_priv->color)
-                return NGL_ERROR_MEMORY;
-
-            const struct texture_params params = {
-                .type   = NGLI_TEXTURE_TYPE_2D,
-                .format = NGLI_FORMAT_R8G8B8A8_UNORM,
-                .width  = config->width,
-                .height = config->height,
-                .usage  = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
-            };
-            int ret = ngli_texture_init(s_priv->color, &params);
+            int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, &s_priv->color);
             if (ret < 0)
                 return ret;
         }
@@ -201,17 +267,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
         return NGL_ERROR_UNSUPPORTED;
 #endif
     } else if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_CPU) {
-        const struct texture_params params = {
-            .type   = NGLI_TEXTURE_TYPE_2D,
-            .format = NGLI_FORMAT_R8G8B8A8_UNORM,
-            .width  = config->width,
-            .height = config->height,
-            .usage  = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
-        };
-        s_priv->color = ngli_texture_create(s);
-        if (!s_priv->color)
-            return NGL_ERROR_MEMORY;
-        int ret = ngli_texture_init(s_priv->color, &params);
+        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, &s_priv->color);
         if (ret < 0)
             return ret;
     } else {
@@ -220,78 +276,23 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
     }
 
     if (config->samples) {
-        const struct texture_params params = {
-            .type    = NGLI_TEXTURE_TYPE_2D,
-            .format  = NGLI_FORMAT_R8G8B8A8_UNORM,
-            .width   = config->width,
-            .height  = config->height,
-            .usage   = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
-            .samples = config->samples,
-        };
-        s_priv->ms_color = ngli_texture_create(s);
-        if (!s_priv->ms_color)
-            return NGL_ERROR_MEMORY;
-        int ret = ngli_texture_init(s_priv->ms_color, &params);
+        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, config->samples, &s_priv->ms_color);
         if (ret < 0)
             return ret;
     }
 
-    const struct texture_params attachment_params = {
-        .type    = NGLI_TEXTURE_TYPE_2D,
-        .format  = NGLI_FORMAT_D24_UNORM_S8_UINT,
-        .width   = config->width,
-        .height  = config->height,
-        .samples = config->samples,
-        .usage   = NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-    };
-    s_priv->depth = ngli_texture_create(s);
-    if (!s_priv->depth)
-        return NGL_ERROR_MEMORY;
-    int ret = ngli_texture_init(s_priv->depth, &attachment_params);
+    int ret = create_texture(s, NGLI_FORMAT_D24_UNORM_S8_UINT, config->samples, &s_priv->depth);
     if (ret < 0)
         return ret;
 
-    struct rendertarget_params rt_params = {
-        .width = config->width,
-        .height = config->height,
-        .nb_colors = 1,
-        .colors[0] = {
-            .attachment     = config->samples ? s_priv->ms_color : s_priv->color,
-            .resolve_target = config->samples ? s_priv->color    : NULL,
-            .load_op        = NGLI_LOAD_OP_CLEAR,
-            .clear_value[0] = config->clear_color[0],
-            .clear_value[1] = config->clear_color[1],
-            .clear_value[2] = config->clear_color[2],
-            .clear_value[3] = config->clear_color[3],
-            .store_op       = NGLI_STORE_OP_STORE,
-        },
-        .depth_stencil = {
-            .attachment = s_priv->depth,
-            .load_op    = NGLI_LOAD_OP_CLEAR,
-            .store_op   = NGLI_STORE_OP_STORE,
-        },
-        .readable = 1,
-    };
+    struct texture *color         = s_priv->ms_color ? s_priv->ms_color : s_priv->color;
+    struct texture *resolve_color = s_priv->ms_color ? s_priv->color    : NULL;
+    struct texture *depth_stencil = s_priv->depth;
 
-    s_priv->default_rt = ngli_rendertarget_create(s);
-    if (!s_priv->default_rt)
-        return NGL_ERROR_MEMORY;
-
-    ret = ngli_rendertarget_init(s_priv->default_rt, &rt_params);
-    if (ret < 0)
-        return ret;
-
-    rt_params.colors[0].load_op = NGLI_LOAD_OP_LOAD;
-    rt_params.colors[0].store_op = NGLI_STORE_OP_STORE;
-    rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
-    rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
-
-    s_priv->default_rt_load = ngli_rendertarget_create(s);
-    if (!s_priv->default_rt_load)
-        return NGL_ERROR_MEMORY;
-
-    ret = ngli_rendertarget_init(s_priv->default_rt_load, &rt_params);
-    if (ret < 0)
+    if ((ret = create_rendertarget(s, color, resolve_color, depth_stencil,
+                                   NGLI_LOAD_OP_CLEAR, &s_priv->default_rt)) < 0 ||
+        (ret = create_rendertarget(s, color, resolve_color, depth_stencil,
+                                   NGLI_LOAD_OP_LOAD, &s_priv->default_rt_load)) < 0)
         return ret;
 
     static const capture_func_type capture_func_map[] = {
@@ -306,48 +307,12 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
 static int onscreen_rendertarget_init(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    const struct ngl_config *config = &s->config;
 
-    struct rendertarget_params rt_params = {
-        .width = config->width,
-        .height = config->height,
-        .nb_colors = 1,
-        .colors[0] = {
-            .attachment     = NULL,
-            .resolve_target = NULL,
-            .load_op        = NGLI_LOAD_OP_CLEAR,
-            .clear_value[0] = config->clear_color[0],
-            .clear_value[1] = config->clear_color[1],
-            .clear_value[2] = config->clear_color[2],
-            .clear_value[3] = config->clear_color[3],
-            .store_op       = NGLI_STORE_OP_STORE,
-        },
-        .depth_stencil = {
-            .attachment = NULL,
-            .load_op    = NGLI_LOAD_OP_CLEAR,
-            .store_op   = NGLI_STORE_OP_STORE,
-        },
-    };
-
-    s_priv->default_rt = ngli_rendertarget_create(s);
-    if (!s_priv->default_rt)
-        return NGL_ERROR_MEMORY;
-
-    int ret = ngli_default_rendertarget_gl_init(s_priv->default_rt, &rt_params);
-    if (ret < 0)
-        return ret;
-
-    rt_params.colors[0].load_op = NGLI_LOAD_OP_LOAD;
-    rt_params.colors[0].store_op = NGLI_STORE_OP_STORE;
-    rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
-    rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
-
-    s_priv->default_rt_load = ngli_rendertarget_create(s);
-    if (!s_priv->default_rt_load)
-        return NGL_ERROR_MEMORY;
-
-    ret = ngli_default_rendertarget_gl_init(s_priv->default_rt_load, &rt_params);
-    if (ret < 0)
+    int ret;
+    if ((ret = create_rendertarget(s, NULL, NULL, NULL, NGLI_LOAD_OP_CLEAR,
+                                   &s_priv->default_rt)) < 0 ||
+        (ret = create_rendertarget(s, NULL, NULL, NULL, NGLI_LOAD_OP_LOAD,
+                                   &s_priv->default_rt_load)) < 0)
         return ret;
 
     return 0;
@@ -554,7 +519,6 @@ static int gl_resize(struct gpu_ctx *s, int width, int height, const int *viewpo
 static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capture_buffer)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct ngl_config *config = &s->config;
 
     ngli_rendertarget_freep(&s_priv->default_rt);
     ngli_rendertarget_freep(&s_priv->default_rt_load);
@@ -568,62 +532,20 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
         if (ret < 0)
             return ret;
     } else {
-        s_priv->color = ngli_texture_create(s);
-        if (!s_priv->color)
-            return NGL_ERROR_MEMORY;
-
-        const struct texture_params params = {
-            .type   = NGLI_TEXTURE_TYPE_2D,
-            .format = NGLI_FORMAT_R8G8B8A8_UNORM,
-            .width  = config->width,
-            .height = config->height,
-            .usage  = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
-        };
-        int ret = ngli_texture_init(s_priv->color, &params);
+        int ret = create_texture(s, NGLI_FORMAT_R8G8B8A8_UNORM, 0, &s_priv->color);
         if (ret < 0)
             return ret;
     }
 
-    s_priv->default_rt = ngli_rendertarget_create(s);
-    if (!s_priv->default_rt)
-        return NGL_ERROR_MEMORY;
+    struct texture *color         = s_priv->ms_color ? s_priv->ms_color : s_priv->color;
+    struct texture *resolve_color = s_priv->ms_color ? s_priv->color : NULL;
+    struct texture *depth_stencil = s_priv->depth;
 
-    s_priv->default_rt_load = ngli_rendertarget_create(s);
-    if (!s_priv->default_rt_load)
-        return NGL_ERROR_MEMORY;
-
-    struct rendertarget_params rt_params = {
-        .width = config->width,
-        .height = config->height,
-        .nb_colors = 1,
-        .colors[0] = {
-            .attachment     = config->samples ? s_priv->ms_color : s_priv->color,
-            .resolve_target = config->samples ? s_priv->color    : NULL,
-            .load_op        = NGLI_LOAD_OP_CLEAR,
-            .clear_value[0] = config->clear_color[0],
-            .clear_value[1] = config->clear_color[1],
-            .clear_value[2] = config->clear_color[2],
-            .clear_value[3] = config->clear_color[3],
-            .store_op       = NGLI_STORE_OP_STORE,
-        },
-        .depth_stencil = {
-            .attachment = s_priv->depth,
-            .load_op    = NGLI_LOAD_OP_CLEAR,
-            .store_op   = NGLI_STORE_OP_STORE,
-        },
-        .readable = 1,
-    };
-    int ret = ngli_rendertarget_init(s_priv->default_rt, &rt_params);
-    if (ret < 0)
-        return ret;
-
-    rt_params.colors[0].load_op = NGLI_LOAD_OP_LOAD;
-    rt_params.colors[0].store_op = NGLI_STORE_OP_STORE;
-    rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
-    rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
-
-    ret = ngli_rendertarget_init(s_priv->default_rt_load, &rt_params);
-    if (ret < 0)
+    int ret;
+    if ((ret = create_rendertarget(s, color, resolve_color, depth_stencil,
+                                   NGLI_LOAD_OP_CLEAR, &s_priv->default_rt)) < 0 ||
+        (ret = create_rendertarget(s, color, resolve_color, depth_stencil,
+                                   NGLI_LOAD_OP_LOAD, &s_priv->default_rt_load)) < 0)
         return ret;
 
     return 0;
