@@ -290,6 +290,67 @@ Parameter | Live-chg. | Type | Description | Default
 **Source**: [node_computeprogram.c](/libnodegl/node_computeprogram.c)
 
 
+## FilterAlpha
+
+Parameter | Live-chg. | Type | Description | Default
+--------- | :-------: | ---- | ----------- | :-----:
+`alpha` | ✓ | [`f32`](#parameter-types) | alpha channel value | `1`
+
+
+**Source**: [node_filters.c](/libnodegl/node_filters.c)
+
+
+## FilterContrast
+
+Parameter | Live-chg. | Type | Description | Default
+--------- | :-------: | ---- | ----------- | :-----:
+`contrast` | ✓ | [`f32`](#parameter-types) | perceptual contrast value | `1`
+`pivot` | ✓ | [`f32`](#parameter-types) | pivot point between light and dark | `0.5`
+
+
+**Source**: [node_filters.c](/libnodegl/node_filters.c)
+
+
+## FilterExposure
+
+Parameter | Live-chg. | Type | Description | Default
+--------- | :-------: | ---- | ----------- | :-----:
+`exposure` | ✓ | [`f32`](#parameter-types) | exposure | `0`
+
+
+**Source**: [node_filters.c](/libnodegl/node_filters.c)
+
+
+## FilterInverseAlpha
+
+**Source**: [node_filters.c](/libnodegl/node_filters.c)
+
+
+## FilterOpacity
+
+Parameter | Live-chg. | Type | Description | Default
+--------- | :-------: | ---- | ----------- | :-----:
+`opacity` | ✓ | [`f32`](#parameter-types) | opacity value (color gets premultiplied by this value) | `1`
+
+
+**Source**: [node_filters.c](/libnodegl/node_filters.c)
+
+
+## FilterPremult
+
+**Source**: [node_filters.c](/libnodegl/node_filters.c)
+
+
+## FilterSaturation
+
+Parameter | Live-chg. | Type | Description | Default
+--------- | :-------: | ---- | ----------- | :-----:
+`saturation` | ✓ | [`f32`](#parameter-types) | saturation | `1`
+
+
+**Source**: [node_filters.c](/libnodegl/node_filters.c)
+
+
 ## Geometry
 
 Parameter | Live-chg. | Type | Description | Default
@@ -570,6 +631,74 @@ Parameter | Live-chg. | Type | Description | Default
 
 
 **Source**: [node_render.c](/libnodegl/node_render.c)
+
+
+## RenderColor
+
+Parameter | Live-chg. | Type | Description | Default
+--------- | :-------: | ---- | ----------- | :-----:
+`color` | ✓ | [`vec3`](#parameter-types) | color of the shape | (`1`,`1`,`1`)
+`opacity` | ✓ | [`f32`](#parameter-types) | opacity of the color | `1`
+`blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
+`geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation)) | filter chain to apply on top of this source | 
+
+
+**Source**: [node_renderother.c](/libnodegl/node_renderother.c)
+
+
+## RenderGradient
+
+Parameter | Live-chg. | Type | Description | Default
+--------- | :-------: | ---- | ----------- | :-----:
+`color0` | ✓ | [`vec3`](#parameter-types) | color of the first point | (`0`,`0`,`0`)
+`color1` | ✓ | [`vec3`](#parameter-types) | color of the second point | (`1`,`1`,`1`)
+`opacity0` | ✓ | [`f32`](#parameter-types) | opacity of the first color | `1`
+`opacity1` | ✓ | [`f32`](#parameter-types) | opacity of the second color | `1`
+`pos0` | ✓ | [`vec2`](#parameter-types) | position of the first point (in UV coordinates) | (`0`,`0.5`)
+`pos1` | ✓ | [`vec2`](#parameter-types) | position of the second point (in UV coordinates) | (`1`,`0.5`)
+`mode` |  | [`gradient_mode`](#gradient_mode-choices) | mode of interpolation between the two points | `ramp`
+`linear` | ✓ | [`bool`](#parameter-types) | interpolate colors linearly | `1`
+`blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
+`geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation)) | filter chain to apply on top of this source | 
+
+
+**Source**: [node_renderother.c](/libnodegl/node_renderother.c)
+
+
+## RenderGradient4
+
+Parameter | Live-chg. | Type | Description | Default
+--------- | :-------: | ---- | ----------- | :-----:
+`color_tl` | ✓ | [`vec3`](#parameter-types) | top-left color | (`1`,`0.5`,`0`)
+`color_tr` | ✓ | [`vec3`](#parameter-types) | top-right color | (`0`,`1`,`0`)
+`color_br` | ✓ | [`vec3`](#parameter-types) | bottom-right color | (`0`,`0.5`,`1`)
+`color_bl` | ✓ | [`vec3`](#parameter-types) | bottom-left color | (`1`,`0`,`1`)
+`opacity_tl` | ✓ | [`f32`](#parameter-types) | opacity of the top-left color | `1`
+`opacity_tr` | ✓ | [`f32`](#parameter-types) | opacity of the top-right color | `1`
+`opacity_br` | ✓ | [`f32`](#parameter-types) | opacity of the bottom-right color | `1`
+`opacity_bl` | ✓ | [`f32`](#parameter-types) | opacity of the bottol-left color | `1`
+`linear` | ✓ | [`bool`](#parameter-types) | interpolate colors linearly | `1`
+`blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
+`geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation)) | filter chain to apply on top of this source | 
+
+
+**Source**: [node_renderother.c](/libnodegl/node_renderother.c)
+
+
+## RenderTexture
+
+Parameter | Live-chg. | Type | Description | Default
+--------- | :-------: | ---- | ----------- | :-----:
+`texture` |  | [`node`](#parameter-types) | texture to render | 
+`blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
+`geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation)) | filter chain to apply on top of this source | 
+
+
+**Source**: [node_renderother.c](/libnodegl/node_renderother.c)
 
 
 ## RenderToTexture
@@ -1598,6 +1727,13 @@ Constant | Description
 `src_atop` | union of `src_in` and `dst_out`
 `dst_atop` | union of `src_out` and `dst_in`
 `xor` | exclusive or between this node and the destination
+
+## gradient_mode choices
+
+Constant | Description
+-------- | -----------
+`ramp` | straight line gradient, uniform perpendicularly to the line between the points
+`radial` | distance between the points spread circularly
 
 ## framebuffer_features choices
 

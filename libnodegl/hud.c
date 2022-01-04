@@ -222,7 +222,14 @@ static const struct drawcall_spec {
     },
     [DRAWCALL_RENDERS] = {
         .label="Renders",
-        .node_types=(const int[]){NGL_NODE_RENDER, -1},
+        .node_types=(const int[]){
+            NGL_NODE_RENDER,
+            NGL_NODE_RENDERCOLOR,
+            NGL_NODE_RENDERGRADIENT,
+            NGL_NODE_RENDERGRADIENT4,
+            NGL_NODE_RENDERTEXTURE,
+            -1
+        },
     },
     [DRAWCALL_RTTS] = {
         .label="RTTs",

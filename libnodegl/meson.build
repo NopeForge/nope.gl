@@ -149,6 +149,7 @@ lib_src = files(
   'node_circle.c',
   'node_compute.c',
   'node_computeprogram.c',
+  'node_filters.c',
   'node_geometry.c',
   'node_graphicconfig.c',
   'node_group.c',
@@ -162,6 +163,7 @@ lib_src = files(
   'node_program.c',
   'node_quad.c',
   'node_render.c',
+  'node_renderother.c',
   'node_resourceprops.c',
   'node_rotate.c',
   'node_rotatequat.c',
@@ -403,9 +405,24 @@ endforeach
 # GLSL to C (header)
 #
 shaders = {
+  'filter_alpha.glsl': 'filter_alpha.h',
+  'filter_contrast.glsl': 'filter_contrast.h',
+  'filter_exposure.glsl': 'filter_exposure.h',
+  'filter_inversealpha.glsl': 'filter_inversealpha.h',
+  'filter_opacity.glsl': 'filter_opacity.h',
+  'filter_premult.glsl': 'filter_premult.h',
+  'filter_saturation.glsl': 'filter_saturation.h',
   'helper_linear2srgb.glsl': 'helper_linear2srgb_glsl.h',
   'helper_srgb2linear.glsl': 'helper_srgb2linear_glsl.h',
   'helper_misc_utils.glsl': 'helper_misc_utils_glsl.h',
+  'source_color.frag': 'source_color_frag.h',
+  'source_color.vert': 'source_color_vert.h',
+  'source_gradient.frag': 'source_gradient_frag.h',
+  'source_gradient.vert': 'source_gradient_vert.h',
+  'source_gradient4.frag': 'source_gradient4_frag.h',
+  'source_gradient4.vert': 'source_gradient4_vert.h',
+  'source_texture.frag': 'source_texture_frag.h',
+  'source_texture.vert': 'source_texture_vert.h',
 }
 glsl2c = find_program('scripts/glsl2c.py')
 shaders_h = []

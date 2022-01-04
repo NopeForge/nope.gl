@@ -191,6 +191,17 @@ foreach backend : backends
     'stencil',
   ]
 
+  tests_filter = [
+    'alpha',
+    'composition_alpha',
+    'composition_colors',
+    'contrast',
+    'exposure',
+    'inversealpha',
+    'opacity',
+    'saturation',
+  ]
+
   live_names = [
     'single_bool',
     'single_float',
@@ -360,6 +371,7 @@ foreach backend : backends
     'compute':       {'tests': tests_compute},
     'data':          {'tests': tests_data},
     'depth_stencil': {'tests': tests_depth_stencil},
+    'filter':        {'tests': tests_filter},
     'live':          {'tests': tests_live},
     'media':         {'tests': tests_media, 'depends': media_test_file},
     'velocity':      {'tests': tests_velocity},

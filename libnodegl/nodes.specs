@@ -184,6 +184,26 @@ ComputeProgram:
     - [workgroup_size, ivec3]
     - [properties, node_dict]
 
+FilterAlpha:
+    - [alpha, f32]
+
+FilterContrast:
+    - [contrast, f32]
+    - [pivot, f32]
+
+FilterExposure:
+    - [exposure, f32]
+
+FilterInverseAlpha:
+
+FilterOpacity:
+    - [opacity, f32]
+
+FilterPremult:
+
+FilterSaturation:
+    - [saturation, f32]
+
 Geometry:
     - [vertices, node]
     - [uvcoords, node]
@@ -351,6 +371,46 @@ Render:
     - [instance_attributes, node_dict]
     - [nb_instances, i32]
     - [blending, select]
+
+RenderColor:
+    - [color, vec3]
+    - [opacity, f32]
+    - [blending, select]
+    - [geometry, node]
+    - [filters, node_list]
+
+RenderGradient:
+    - [color0, vec3]
+    - [color1, vec3]
+    - [opacity0, f32]
+    - [opacity1, f32]
+    - [pos0, vec2]
+    - [pos1, vec2]
+    - [mode, select]
+    - [linear, bool]
+    - [blending, select]
+    - [geometry, node]
+    - [filters, node_list]
+
+RenderGradient4:
+    - [color_tl, vec3]
+    - [color_tr, vec3]
+    - [color_br, vec3]
+    - [color_bl, vec3]
+    - [opacity_tl, f32]
+    - [opacity_tr, f32]
+    - [opacity_br, f32]
+    - [opacity_bl, f32]
+    - [linear, bool]
+    - [blending, select]
+    - [geometry, node]
+    - [filters, node_list]
+
+RenderTexture:
+    - [texture, node]
+    - [blending, select]
+    - [geometry, node]
+    - [filters, node_list]
 
 RenderToTexture:
     - [child, node]

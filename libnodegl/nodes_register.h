@@ -75,6 +75,13 @@
     action(NGL_NODE_CIRCLE,                 ngli_circle_class)                  \
     action(NGL_NODE_COMPUTE,                ngli_compute_class)                 \
     action(NGL_NODE_COMPUTEPROGRAM,         ngli_computeprogram_class)          \
+    action(NGL_NODE_FILTERALPHA,            ngli_filteralpha_class)             \
+    action(NGL_NODE_FILTERCONTRAST,         ngli_filtercontrast_class)          \
+    action(NGL_NODE_FILTEREXPOSURE,         ngli_filterexposure_class)          \
+    action(NGL_NODE_FILTERINVERSEALPHA,     ngli_filterinversealpha_class)      \
+    action(NGL_NODE_FILTEROPACITY,          ngli_filteropacity_class)           \
+    action(NGL_NODE_FILTERPREMULT,          ngli_filterpremult_class)           \
+    action(NGL_NODE_FILTERSATURATION,       ngli_filtersaturation_class)        \
     action(NGL_NODE_GEOMETRY,               ngli_geometry_class)                \
     action(NGL_NODE_GRAPHICCONFIG,          ngli_graphicconfig_class)           \
     action(NGL_NODE_GROUP,                  ngli_group_class)                   \
@@ -111,6 +118,10 @@
     action(NGL_NODE_PROGRAM,                ngli_program_class)                 \
     action(NGL_NODE_QUAD,                   ngli_quad_class)                    \
     action(NGL_NODE_RENDER,                 ngli_render_class)                  \
+    action(NGL_NODE_RENDERCOLOR,            ngli_rendercolor_class)             \
+    action(NGL_NODE_RENDERGRADIENT,         ngli_rendergradient_class)          \
+    action(NGL_NODE_RENDERGRADIENT4,        ngli_rendergradient4_class)         \
+    action(NGL_NODE_RENDERTEXTURE,          ngli_rendertexture_class)           \
     action(NGL_NODE_RENDERTOTEXTURE,        ngli_rtt_class)                     \
     action(NGL_NODE_RESOURCEPROPS,          ngli_resourceprops_class)           \
     action(NGL_NODE_ROTATE,                 ngli_rotate_class)                  \
