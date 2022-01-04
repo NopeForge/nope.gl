@@ -54,14 +54,14 @@ def depth_stencil_depth(cfg):
     for i, depth in enumerate((0.4, 0.6)):
         corner = (-1, -0.5 + 0.25 * i, depth)
         height = (0, 1 - 0.25 * i * 2, 0)
-        render = _render_quad(cfg, corner=corner, height=height, color=(1.0, 0, 0, 0.5))
+        render = _render_quad(cfg, corner=corner, height=height, color=(0.5, 0, 0, 0.5))
         graphicconfig = ngl.GraphicConfig(
             render,
             blend=True,
             blend_src_factor='one',
-            blend_src_factor_a='zero',
+            blend_src_factor_a='one',
             blend_dst_factor='one_minus_src_alpha',
-            blend_dst_factor_a='one',
+            blend_dst_factor_a='one_minus_src_alpha',
             depth_test=True,
             depth_func='less',
             depth_write_mask=0,
