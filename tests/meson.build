@@ -352,21 +352,21 @@ foreach backend : backends
   ]
 
   tests = {
-    'api':       {'tests': tests_api, 'has_refs': false},
-    'anim':      {'tests': tests_anim},
-    'blending':  {'tests': tests_blending},
-    'compositing': {'tests': tests_compositing},
-    'compute':   {'tests': tests_compute},
-    'data':      {'tests': tests_data},
+    'api':           {'tests': tests_api, 'has_refs': false},
+    'anim':          {'tests': tests_anim},
+    'blending':      {'tests': tests_blending},
+    'compositing':   {'tests': tests_compositing},
+    'compute':       {'tests': tests_compute},
+    'data':          {'tests': tests_data},
     'depth_stencil': {'tests': tests_depth_stencil},
-    'live':      {'tests': tests_live},
-    'media':     {'tests': tests_media, 'depends': media_test_file},
-    'velocity':  {'tests': tests_velocity},
-    'rtt':       {'tests': tests_rtt},
-    'shape':     {'tests': tests_shape},
-    'text':      {'tests': tests_text},
-    'texture':   {'tests': tests_texture},
-    'transform': {'tests': tests_transform},
+    'live':          {'tests': tests_live},
+    'media':         {'tests': tests_media, 'depends': media_test_file},
+    'velocity':      {'tests': tests_velocity},
+    'rtt':           {'tests': tests_rtt},
+    'shape':         {'tests': tests_shape},
+    'text':          {'tests': tests_text},
+    'texture':       {'tests': tests_texture},
+    'transform':     {'tests': tests_transform},
   }
 
   env = ['BACKEND=' + backend]
