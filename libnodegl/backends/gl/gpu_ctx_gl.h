@@ -45,7 +45,7 @@ struct gpu_ctx_gl {
     struct gpu_ctx parent;
     struct glcontext *glcontext;
     struct glstate glstate;
-    struct rendertarget *rendertarget;
+    struct rendertarget *current_rt;
     int viewport[4];
     int scissor[4];
     struct rendertarget_desc default_rt_desc;

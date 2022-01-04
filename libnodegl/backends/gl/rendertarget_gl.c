@@ -331,7 +331,7 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
     }
 
 done:;
-    struct rendertarget *rt = gpu_ctx_gl->rendertarget;
+    struct rendertarget *rt = gpu_ctx_gl->current_rt;
     struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
     const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
@@ -394,7 +394,7 @@ void ngli_rendertarget_gl_end_pass(struct rendertarget *s)
     ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s_priv->resolve_id);
     s_priv->resolve(s);
 
-    struct rendertarget *rt = gpu_ctx_gl->rendertarget;
+    struct rendertarget *rt = gpu_ctx_gl->current_rt;
     struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
     const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
     ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
@@ -411,7 +411,7 @@ void ngli_rendertarget_gl_read_pixels(struct rendertarget *s, uint8_t *data)
 
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct rendertarget *rt = gpu_ctx_gl->rendertarget;
+    struct rendertarget *rt = gpu_ctx_gl->current_rt;
     struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
 
     const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);

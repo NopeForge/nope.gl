@@ -828,18 +828,18 @@ static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
 
-    ngli_assert(rt && !s_priv->rendertarget);
+    ngli_assert(rt && !s_priv->current_rt);
     ngli_rendertarget_gl_begin_pass(rt);
-    s_priv->rendertarget = rt;
+    s_priv->current_rt = rt;
 }
 
 static void gl_end_render_pass(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
 
-    ngli_assert(s_priv->rendertarget);
-    ngli_rendertarget_gl_end_pass(s_priv->rendertarget);
-    s_priv->rendertarget = NULL;
+    ngli_assert(s_priv->current_rt);
+    ngli_rendertarget_gl_end_pass(s_priv->current_rt);
+    s_priv->current_rt = NULL;
 }
 
 static int gl_get_preferred_depth_format(struct gpu_ctx *s)
