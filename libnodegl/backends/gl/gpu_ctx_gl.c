@@ -492,12 +492,12 @@ static int gl_init(struct gpu_ctx *s)
     s->language_version = gl->glsl_version;
     s->features = gl->features;
     s->limits = gl->limits;
-    s_priv->default_rendertarget_desc.samples = gl->samples;
-    s_priv->default_rendertarget_desc.nb_colors = 1;
-    s_priv->default_rendertarget_desc.colors[0].format = NGLI_FORMAT_R8G8B8A8_UNORM;
-    s_priv->default_rendertarget_desc.colors[0].resolve = gl->samples > 1;
-    s_priv->default_rendertarget_desc.depth_stencil.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
-    s_priv->default_rendertarget_desc.depth_stencil.resolve = gl->samples > 1;
+    s_priv->default_rt_desc.samples = gl->samples;
+    s_priv->default_rt_desc.nb_colors = 1;
+    s_priv->default_rt_desc.colors[0].format = NGLI_FORMAT_R8G8B8A8_UNORM;
+    s_priv->default_rt_desc.colors[0].resolve = gl->samples > 1;
+    s_priv->default_rt_desc.depth_stencil.format = NGLI_FORMAT_D24_UNORM_S8_UINT;
+    s_priv->default_rt_desc.depth_stencil.resolve = gl->samples > 1;
 
     ngli_glstate_reset(gl, &s_priv->glstate);
 
@@ -821,7 +821,7 @@ static struct rendertarget *gl_get_default_rendertarget(struct gpu_ctx *s, int l
 static const struct rendertarget_desc *gl_get_default_rendertarget_desc(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    return &s_priv->default_rendertarget_desc;
+    return &s_priv->default_rt_desc;
 }
 
 static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
