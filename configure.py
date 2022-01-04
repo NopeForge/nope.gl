@@ -310,7 +310,7 @@ def _tests_setup(cfg):
 
 @_block('nodegl-tests', [_nodegl_install])
 def _nodegl_tests(cfg):
-    return [_cmd_join('meson', 'test', '-C', op.join('builddir', 'libnodegl'))]
+    return ['$(MESON) ' + _cmd_join('test', '-C', op.join('builddir', 'libnodegl'))]
 
 
 def _rm(f):
@@ -364,7 +364,7 @@ def _coverage_xml(cfg):
 
 @_block('tests', [_nodegl_tests, _tests_setup])
 def _tests(cfg):
-    return [_cmd_join('meson', 'test', '-C', op.join('builddir', 'tests'))]
+    return ['$(MESON) ' + _cmd_join('test', '-C', op.join('builddir', 'tests'))]
 
 
 def _quote(s):
