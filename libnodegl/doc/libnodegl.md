@@ -326,6 +326,11 @@ Parameter | Live-chg. | Type | Description | Default
 **Source**: [node_filters.c](/libnodegl/node_filters.c)
 
 
+## FilterLinear2sRGB
+
+**Source**: [node_filters.c](/libnodegl/node_filters.c)
+
+
 ## FilterOpacity
 
 Parameter | Live-chg. | Type | Description | Default
@@ -347,6 +352,11 @@ Parameter | Live-chg. | Type | Description | Default
 --------- | :-------: | ---- | ----------- | :-----:
 `saturation` | ✓ | [`f32`](#parameter-types) | saturation | `1`
 
+
+**Source**: [node_filters.c](/libnodegl/node_filters.c)
+
+
+## FilterSRGB2Linear
 
 **Source**: [node_filters.c](/libnodegl/node_filters.c)
 
@@ -641,7 +651,7 @@ Parameter | Live-chg. | Type | Description | Default
 `opacity` | ✓ | [`f32`](#parameter-types) | opacity of the color | `1`
 `blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
 `geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
-`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation)) | filter chain to apply on top of this source | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
 
 
 **Source**: [node_renderother.c](/libnodegl/node_renderother.c)
@@ -661,7 +671,7 @@ Parameter | Live-chg. | Type | Description | Default
 `linear` | ✓ | [`bool`](#parameter-types) | interpolate colors linearly | `1`
 `blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
 `geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
-`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation)) | filter chain to apply on top of this source | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
 
 
 **Source**: [node_renderother.c](/libnodegl/node_renderother.c)
@@ -682,7 +692,7 @@ Parameter | Live-chg. | Type | Description | Default
 `linear` | ✓ | [`bool`](#parameter-types) | interpolate colors linearly | `1`
 `blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
 `geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
-`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation)) | filter chain to apply on top of this source | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
 
 
 **Source**: [node_renderother.c](/libnodegl/node_renderother.c)
@@ -695,7 +705,7 @@ Parameter | Live-chg. | Type | Description | Default
 `texture` |  | [`node`](#parameter-types) | texture to render | 
 `blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
 `geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
-`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation)) | filter chain to apply on top of this source | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
 
 
 **Source**: [node_renderother.c](/libnodegl/node_renderother.c)

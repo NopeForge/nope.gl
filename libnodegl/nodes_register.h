@@ -79,9 +79,11 @@
     action(NGL_NODE_FILTERCONTRAST,         ngli_filtercontrast_class)          \
     action(NGL_NODE_FILTEREXPOSURE,         ngli_filterexposure_class)          \
     action(NGL_NODE_FILTERINVERSEALPHA,     ngli_filterinversealpha_class)      \
+    action(NGL_NODE_FILTERLINEAR2SRGB,      ngli_filterlinear2srgb_class)       \
     action(NGL_NODE_FILTEROPACITY,          ngli_filteropacity_class)           \
     action(NGL_NODE_FILTERPREMULT,          ngli_filterpremult_class)           \
     action(NGL_NODE_FILTERSATURATION,       ngli_filtersaturation_class)        \
+    action(NGL_NODE_FILTERSRGB2LINEAR,      ngli_filtersrgb2linear_class)       \
     action(NGL_NODE_GEOMETRY,               ngli_geometry_class)                \
     action(NGL_NODE_GRAPHICCONFIG,          ngli_graphicconfig_class)           \
     action(NGL_NODE_GROUP,                  ngli_group_class)                   \

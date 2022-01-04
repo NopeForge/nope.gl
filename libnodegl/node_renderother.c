@@ -59,9 +59,11 @@
                                          NGL_NODE_FILTERCONTRAST,       \
                                          NGL_NODE_FILTEREXPOSURE,       \
                                          NGL_NODE_FILTERINVERSEALPHA,   \
+                                         NGL_NODE_FILTERLINEAR2SRGB,    \
                                          NGL_NODE_FILTEROPACITY,        \
                                          NGL_NODE_FILTERPREMULT,        \
                                          NGL_NODE_FILTERSATURATION,     \
+                                         NGL_NODE_FILTERSRGB2LINEAR,    \
                                          -1}
 
 struct uniform_map {

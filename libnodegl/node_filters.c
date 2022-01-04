@@ -31,9 +31,11 @@
 #include "filter_contrast.h"
 #include "filter_exposure.h"
 #include "filter_inversealpha.h"
+#include "filter_linear2srgb.h"
 #include "filter_opacity.h"
 #include "filter_premult.h"
 #include "filter_saturation.h"
+#include "filter_srgb2linear.h"
 
 struct filteralpha_priv {
     struct filter filter;
@@ -59,6 +61,10 @@ struct filterinversealpha_priv {
     struct filter filter;
 };
 
+struct filterlinear2srgb_priv {
+    struct filter filter;
+};
+
 struct filteropacity_priv {
     struct filter filter;
     struct ngl_node *opacity_node;
@@ -75,15 +81,21 @@ struct filtersaturation_priv {
     float saturation;
 };
 
+struct filtersrgb2linear_priv {
+    struct filter filter;
+};
+
 /* struct filter must be on top of each context because that's how the private
  * data is read externally and in the params below */
 NGLI_STATIC_ASSERT(filter_on_top_of_alpha_priv,         offsetof(struct filteralpha_priv,         filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_contrast_priv,      offsetof(struct filtercontrast_priv,      filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_exposure_priv,      offsetof(struct filterexposure_priv,      filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_inversealpha_priv,  offsetof(struct filterinversealpha_priv,  filter) == 0);
+NGLI_STATIC_ASSERT(filter_on_top_of_linear2srgb_priv,   offsetof(struct filterlinear2srgb_priv,   filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_opacity_priv,       offsetof(struct filteropacity_priv,       filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_premult_priv,       offsetof(struct filterpremult_priv,       filter) == 0);
 NGLI_STATIC_ASSERT(filter_on_top_of_saturation_priv,    offsetof(struct filtersaturation_priv,    filter) == 0);
+NGLI_STATIC_ASSERT(filter_on_top_of_srgb2linear_priv,   offsetof(struct filtersrgb2linear_priv,   filter) == 0);
 
 #define OFFSET(x) offsetof(struct filteralpha_priv, x)
 static const struct node_param filteralpha_params[] = {
@@ -116,6 +128,7 @@ static const struct node_param filterexposure_params[] = {
 #undef OFFSET
 
 #define filterinversealpha_params NULL
+#define filterlinear2srgb_params NULL
 
 #define OFFSET(x) offsetof(struct filteropacity_priv, x)
 static const struct node_param filteropacity_params[] = {
@@ -136,6 +149,8 @@ static const struct node_param filtersaturation_params[] = {
     {NULL}
 };
 #undef OFFSET
+
+#define filtersrgb2linear_params NULL
 
 static int register_resource(struct darray *resources, const char *name,
                              struct ngl_node *pnode, void *data, int data_type)
@@ -208,6 +223,18 @@ static int filterinversealpha_init(struct ngl_node *node)
     return 0;
 }
 
+static int filterlinear2srgb_init(struct ngl_node *node)
+{
+    int ret = filter_init(node);
+    if (ret < 0)
+        return ret;
+    struct filterlinear2srgb_priv *s = node->priv_data;
+    s->filter.name = "linear2srgb";
+    s->filter.code = filter_linear2srgb_glsl;
+    s->filter.helpers = NGLI_FILTER_HELPER_LINEAR2SRGB;
+    return 0;
+}
+
 static int filteropacity_init(struct ngl_node *node)
 {
     int ret = filter_init(node);
@@ -242,6 +269,18 @@ static int filtersaturation_init(struct ngl_node *node)
     return register_resource(&s->filter.resources, "saturation", s->saturation_node, &s->saturation, NGLI_TYPE_FLOAT);
 }
 
+static int filtersrgb2linear_init(struct ngl_node *node)
+{
+    int ret = filter_init(node);
+    if (ret < 0)
+        return ret;
+    struct filtersrgb2linear_priv *s = node->priv_data;
+    s->filter.name = "srgb2linear";
+    s->filter.code = filter_srgb2linear_glsl;
+    s->filter.helpers = NGLI_FILTER_HELPER_SRGB2LINEAR;
+    return 0;
+}
+
 static void filter_uninit(struct ngl_node *node)
 {
     struct filter *s = node->priv_data;
@@ -264,6 +303,8 @@ DECLARE_FILTER(alpha,         NGL_NODE_FILTERALPHA,         "FilterAlpha")
 DECLARE_FILTER(contrast,      NGL_NODE_FILTERCONTRAST,      "FilterContrast")
 DECLARE_FILTER(exposure,      NGL_NODE_FILTEREXPOSURE,      "FilterExposure")
 DECLARE_FILTER(inversealpha,  NGL_NODE_FILTERINVERSEALPHA,  "FilterInverseAlpha")
+DECLARE_FILTER(linear2srgb,   NGL_NODE_FILTERLINEAR2SRGB,   "FilterLinear2sRGB")
 DECLARE_FILTER(opacity,       NGL_NODE_FILTEROPACITY,       "FilterOpacity")
 DECLARE_FILTER(premult,       NGL_NODE_FILTERPREMULT,       "FilterPremult")
 DECLARE_FILTER(saturation,    NGL_NODE_FILTERSATURATION,    "FilterSaturation")
+DECLARE_FILTER(srgb2linear,   NGL_NODE_FILTERSRGB2LINEAR,   "FilterSRGB2Linear")

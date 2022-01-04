@@ -196,6 +196,8 @@ FilterExposure:
 
 FilterInverseAlpha:
 
+FilterLinear2sRGB:
+
 FilterOpacity:
     - [opacity, f32]
 
@@ -203,6 +205,8 @@ FilterPremult:
 
 FilterSaturation:
     - [saturation, f32]
+
+FilterSRGB2Linear:
 
 Geometry:
     - [vertices, node]
