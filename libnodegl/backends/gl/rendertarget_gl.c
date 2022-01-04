@@ -395,6 +395,8 @@ void ngli_rendertarget_gl_begin_pass(struct rendertarget *s)
         glstate->scissor_test = 0;
     }
 
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, s_priv->id);
+
     s_priv->clear(s);
 }
 

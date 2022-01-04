@@ -827,12 +827,8 @@ static const struct rendertarget_desc *gl_get_default_rendertarget_desc(struct g
 static void gl_begin_render_pass(struct gpu_ctx *s, struct rendertarget *rt)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
 
     ngli_assert(rt);
-    const struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, rt_gl->id);
-
     ngli_rendertarget_gl_begin_pass(rt);
 
     s_priv->rendertarget = rt;
