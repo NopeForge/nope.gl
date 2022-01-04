@@ -57,7 +57,7 @@ struct gpu_ctx_gl {
     /* Offscreen render target resources */
     struct texture *color;
     struct texture *ms_color;
-    struct texture *depth;
+    struct texture *depth_stencil;
     /* Offscreen capture callback and resources */
     capture_func_type capture_func;
 #if defined(TARGET_IPHONE)

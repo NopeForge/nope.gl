@@ -281,13 +281,13 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
             return ret;
     }
 
-    int ret = create_texture(s, NGLI_FORMAT_D24_UNORM_S8_UINT, config->samples, &s_priv->depth);
+    int ret = create_texture(s, NGLI_FORMAT_D24_UNORM_S8_UINT, config->samples, &s_priv->depth_stencil);
     if (ret < 0)
         return ret;
 
     struct texture *color         = s_priv->ms_color ? s_priv->ms_color : s_priv->color;
     struct texture *resolve_color = s_priv->ms_color ? s_priv->color    : NULL;
-    struct texture *depth_stencil = s_priv->depth;
+    struct texture *depth_stencil = s_priv->depth_stencil;
 
     if ((ret = create_rendertarget(s, color, resolve_color, depth_stencil,
                                    NGLI_LOAD_OP_CLEAR, &s_priv->default_rt)) < 0 ||
@@ -325,7 +325,7 @@ static void rendertarget_reset(struct gpu_ctx *s)
     ngli_rendertarget_freep(&s_priv->default_rt_load);
     ngli_texture_freep(&s_priv->color);
     ngli_texture_freep(&s_priv->ms_color);
-    ngli_texture_freep(&s_priv->depth);
+    ngli_texture_freep(&s_priv->depth_stencil);
 #if defined(TARGET_IPHONE)
     reset_capture_cvpixelbuffer(s);
 #endif
@@ -539,7 +539,7 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
 
     struct texture *color         = s_priv->ms_color ? s_priv->ms_color : s_priv->color;
     struct texture *resolve_color = s_priv->ms_color ? s_priv->color : NULL;
-    struct texture *depth_stencil = s_priv->depth;
+    struct texture *depth_stencil = s_priv->depth_stencil;
 
     int ret;
     if ((ret = create_rendertarget(s, color, resolve_color, depth_stencil,
