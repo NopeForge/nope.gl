@@ -488,10 +488,14 @@ static int gl_resize(struct gpu_ctx *s, int width, int height, const int *viewpo
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
+    struct ngl_config *config = &s->config;
 
     int ret = ngli_glcontext_resize(gl, width, height);
     if (ret < 0)
         return ret;
+
+    config->width = gl->width;
+    config->height = gl->height;
 
     s_priv->default_rt->width = gl->width;
     s_priv->default_rt->height = gl->height;
