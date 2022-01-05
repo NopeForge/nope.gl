@@ -236,11 +236,7 @@ static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 
     int ret = ngli_gpu_ctx_set_capture_buffer(s->gpu_ctx, capture_buffer);
     if (ret < 0) {
-        if (s->scene) {
-            ngli_node_detach_ctx(s->scene, s);
-            ngl_node_unrefp(&s->scene);
-        }
-        config->capture_buffer = NULL;
+        cmd_reset(s, &(int[]){UNREF_SCENE});
         return ret;
     }
 
