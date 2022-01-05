@@ -90,10 +90,9 @@ static void resolve_draw_buffers(struct rendertarget *s)
     ngli_glDrawBuffers(gl, params->nb_colors, s_priv->draw_buffers);
 }
 
-static int create_fbo(struct rendertarget *s, int resolve)
+static int create_fbo(struct rendertarget *s, int resolve, GLuint *idp)
 {
     int ret = -1;
-    struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct gpu_limits *limits = &gl->limits;
@@ -173,11 +172,7 @@ static int create_fbo(struct rendertarget *s, int resolve)
         goto fail;
     }
 
-    if (resolve) {
-        s_priv->resolve_id = id;
-    } else {
-        s_priv->id = id;
-    }
+    *idp = id;
 
     return 0;
 
@@ -275,12 +270,12 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
                        "resolving MSAA attachments is not supported");
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
-        ret = create_fbo(s, 1);
+        ret = create_fbo(s, 1, &s_priv->resolve_id);
         if (ret < 0)
             goto done;
     }
 
-    ret = create_fbo(s, 0);
+    ret = create_fbo(s, 0, &s_priv->id);
     if (ret < 0)
         goto done;
 
