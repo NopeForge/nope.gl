@@ -314,7 +314,7 @@ static void set_buffers(struct pipeline *s, struct glcontext *gl)
         const struct pipeline_buffer_desc *buffer_desc = &buffer_binding->desc;
         const int offset = buffer_desc->offset;
         const int size = buffer_desc->size ? buffer_desc->size : buffer->size;
-        ngli_glBindBufferRange(gl, buffer_binding->type, buffer_binding->desc.binding, buffer_gl->id, offset, size);
+        ngli_glBindBufferRange(gl, buffer_binding->type, buffer_desc->binding, buffer_gl->id, offset, size);
     }
 }
 
