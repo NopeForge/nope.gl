@@ -449,7 +449,7 @@ static int gl_init(struct gpu_ctx *s)
         ngli_gpu_capture_begin(s->gpu_capture_ctx);
 #endif
 
-    ret = gl->offscreen ? offscreen_rendertarget_init(s) : onscreen_rendertarget_init(s);
+    ret = config->offscreen ? offscreen_rendertarget_init(s) : onscreen_rendertarget_init(s);
     if (ret < 0)
         return ret;
 
@@ -558,13 +558,10 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
 
 static int gl_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
 {
-    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
-    struct glcontext *gl = s_priv->glcontext;
-
-    if (!gl->offscreen)
-        return NGL_ERROR_INVALID_USAGE;
-
     struct ngl_config *config = &s->config;
+
+    if (!config->offscreen)
+        return NGL_ERROR_INVALID_USAGE;
 
     if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_COREVIDEO) {
 #if defined(TARGET_IPHONE)
