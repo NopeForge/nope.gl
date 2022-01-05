@@ -254,7 +254,8 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
 #if defined(TARGET_IPHONE)
         if (config->capture_buffer) {
             s_priv->capture_cvbuffer = (CVPixelBufferRef)CFRetain(config->capture_buffer);
-            int ret = wrap_capture_cvpixelbuffer(s, s_priv->capture_cvbuffer, &s_priv->color, &s_priv->capture_cvtexture);
+            int ret = wrap_capture_cvpixelbuffer(s, s_priv->capture_cvbuffer,
+                                                 &s_priv->color, &s_priv->capture_cvtexture);
             if (ret < 0)
                 return ret;
         } else {
