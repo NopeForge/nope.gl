@@ -227,7 +227,7 @@ static int create_rendertarget(struct gpu_ctx *s,
     if (color) {
         ret = ngli_rendertarget_init(rendertarget, &params);
     } else {
-        ret = ngli_default_rendertarget_gl_init(rendertarget, &params);
+        ret = ngli_rendertarget_gl_wrap(rendertarget, &params);
     }
     if (ret < 0) {
         ngli_rendertarget_freep(&rendertarget);

@@ -445,7 +445,7 @@ void ngli_rendertarget_gl_freep(struct rendertarget **sp)
     ngli_freep(sp);
 }
 
-int ngli_default_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_params *params)
+int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_params *params)
 {
     struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
