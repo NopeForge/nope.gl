@@ -445,7 +445,7 @@ void ngli_rendertarget_gl_freep(struct rendertarget **sp)
     ngli_freep(sp);
 }
 
-int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_params *params)
+int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_params *params, GLuint id)
 {
     struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
@@ -458,7 +458,7 @@ int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_
     s->height = params->height;
 
     s_priv->wrapped = 1;
-    s_priv->id = ngli_glcontext_get_default_framebuffer(gl);
+    s_priv->id = id;
 
     if (gl->features & NGLI_FEATURE_INVALIDATE_SUBDATA) {
         s_priv->invalidate = invalidate;

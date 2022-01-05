@@ -46,6 +46,6 @@ void ngli_rendertarget_gl_end_pass(struct rendertarget *s);
 void ngli_rendertarget_gl_read_pixels(struct rendertarget *s, uint8_t *data);
 void ngli_rendertarget_gl_freep(struct rendertarget **sp);
 
-int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_params *params);
+int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_params *params, GLuint id);
 
 #endif

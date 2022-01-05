@@ -195,6 +195,8 @@ static int create_rendertarget(struct gpu_ctx *s,
                                int load_op,
                                struct rendertarget **rendertargetp)
 {
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct glcontext *gl = s_priv->glcontext;
     const struct ngl_config *config = &s->config;
 
     struct rendertarget *rendertarget = ngli_rendertarget_create(s);
@@ -227,7 +229,8 @@ static int create_rendertarget(struct gpu_ctx *s,
     if (color) {
         ret = ngli_rendertarget_init(rendertarget, &params);
     } else {
-        ret = ngli_rendertarget_gl_wrap(rendertarget, &params);
+        const GLuint fbo_id = ngli_glcontext_get_default_framebuffer(gl);
+        ret = ngli_rendertarget_gl_wrap(rendertarget, &params, fbo_id);
     }
     if (ret < 0) {
         ngli_rendertarget_freep(&rendertarget);
