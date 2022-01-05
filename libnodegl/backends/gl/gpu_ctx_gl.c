@@ -556,22 +556,21 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct ngl_config *config = &s->config;
 
-    struct texture *texture = NULL;
-    CVOpenGLESTextureRef cv_texture = NULL;
-    struct rendertarget *rt = NULL;
-    struct rendertarget *rt_load = NULL;
+    ngli_rendertarget_freep(&s_priv->default_rt);
+    ngli_rendertarget_freep(&s_priv->default_rt_load);
+    ngli_texture_freep(&s_priv->color);
+    reset_capture_cvpixelbuffer(s);
 
-    int ret = 0;
     if (capture_buffer) {
-        ret = wrap_capture_cvpixelbuffer(s, capture_buffer, &texture, &cv_texture);
+        s_priv->capture_cvbuffer = (CVPixelBufferRef)CFRetain(capture_buffer);
+        int ret = wrap_capture_cvpixelbuffer(s, s_priv->capture_cvbuffer,
+                                             &s_priv->color, &s_priv->capture_cvtexture);
         if (ret < 0)
-            goto fail;
+            return ret;
     } else {
-        texture = ngli_texture_create(s);
-        if (!texture) {
-            ret = NGL_ERROR_MEMORY;
-            goto fail;
-        }
+        s_priv->color = ngli_texture_create(s);
+        if (!s_priv->color)
+            return NGL_ERROR_MEMORY;
 
         const struct texture_params params = {
             .type   = NGLI_TEXTURE_TYPE_2D,
@@ -580,30 +579,26 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
             .height = config->height,
             .usage  = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
         };
-        ret = ngli_texture_init(texture, &params);
+        int ret = ngli_texture_init(s_priv->color, &params);
         if (ret < 0)
-            goto fail;
+            return ret;
     }
 
-    rt = ngli_rendertarget_create(s);
-    if (!rt) {
-        ret = NGL_ERROR_MEMORY;
-        goto fail;
-    }
+    s_priv->default_rt = ngli_rendertarget_create(s);
+    if (!s_priv->default_rt)
+        return NGL_ERROR_MEMORY;
 
-    rt_load = ngli_rendertarget_create(s);
-    if (!rt_load) {
-        ret = NGL_ERROR_MEMORY;
-        goto fail;
-    }
+    s_priv->default_rt_load = ngli_rendertarget_create(s);
+    if (!s_priv->default_rt_load)
+        return NGL_ERROR_MEMORY;
 
     struct rendertarget_params rt_params = {
         .width = config->width,
         .height = config->height,
         .nb_colors = 1,
         .colors[0] = {
-            .attachment     = config->samples ? s_priv->ms_color : texture,
-            .resolve_target = config->samples ? texture          : NULL,
+            .attachment     = config->samples ? s_priv->ms_color : s_priv->color,
+            .resolve_target = config->samples ? s_priv->color    : NULL,
             .load_op        = NGLI_LOAD_OP_CLEAR,
             .clear_value[0] = config->clear_color[0],
             .clear_value[1] = config->clear_color[1],
@@ -618,40 +613,20 @@ static int update_capture_cvpixelbuffer(struct gpu_ctx *s, CVPixelBufferRef capt
         },
         .readable = 1,
     };
-    ret = ngli_rendertarget_init(rt, &rt_params);
+    int ret = ngli_rendertarget_init(s_priv->default_rt, &rt_params);
     if (ret < 0)
-        goto fail;
+        return ret;
 
     rt_params.colors[0].load_op = NGLI_LOAD_OP_LOAD;
     rt_params.colors[0].store_op = NGLI_STORE_OP_STORE;
     rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
     rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
 
-    ret = ngli_rendertarget_init(rt_load, &rt_params);
+    ret = ngli_rendertarget_init(s_priv->default_rt_load, &rt_params);
     if (ret < 0)
-        goto fail;
-
-    ngli_rendertarget_freep(&s_priv->default_rt);
-    ngli_rendertarget_freep(&s_priv->default_rt_load);
-    ngli_texture_freep(&s_priv->color);
-    reset_capture_cvpixelbuffer(s);
-
-    s_priv->default_rt = rt;
-    s_priv->default_rt_load = rt_load;
-    s_priv->color = texture;
-    s_priv->capture_cvbuffer = (CVPixelBufferRef)CFRetain(capture_buffer);
-    s_priv->capture_cvtexture = cv_texture;
+        return ret;
 
     return 0;
-
-fail:
-    ngli_rendertarget_freep(&rt);
-    ngli_rendertarget_freep(&rt_load);
-    ngli_texture_freep(&texture);
-    if (cv_texture)
-        CFRelease(cv_texture);
-
-    return ret;
 }
 #endif
 
