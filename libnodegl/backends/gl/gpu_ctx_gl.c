@@ -601,7 +601,7 @@ static int gl_end_draw(struct gpu_ctx *s, double t)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
-    struct ngl_config *config = &s->config;
+    const struct ngl_config *config = &s->config;
 
     if (s_priv->capture_func && config->capture_buffer)
         s_priv->capture_func(s);
