@@ -389,17 +389,17 @@ void ngli_rendertarget_gl_end_pass(struct rendertarget *s)
         glstate->scissor_test = 0;
     }
 
-    if (!s_priv->resolve_id)
-        return;
+    if (s_priv->resolve_id) {
+        ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s_priv->id);
+        ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s_priv->resolve_id);
 
-    ngli_glBindFramebuffer(gl, GL_READ_FRAMEBUFFER, s_priv->id);
-    ngli_glBindFramebuffer(gl, GL_DRAW_FRAMEBUFFER, s_priv->resolve_id);
-    s_priv->resolve(s);
+        s_priv->resolve(s);
 
-    struct rendertarget *rt = gpu_ctx_gl->current_rt;
-    struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
-    const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
-    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+        struct rendertarget *rt = gpu_ctx_gl->current_rt;
+        struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
+        const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
+        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+    }
 
     s_priv->invalidate(s);
 }
