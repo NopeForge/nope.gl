@@ -483,15 +483,13 @@ int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_
     }
 
     const struct attachment *depth_stencil = &params->depth_stencil;
-    if (depth_stencil->attachment) {
-        if (depth_stencil->load_op == NGLI_LOAD_OP_DONT_CARE ||
-            depth_stencil->load_op == NGLI_LOAD_OP_CLEAR) {
-            s_priv->clear_flags |= (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        }
-        if (depth_stencil->store_op == NGLI_STORE_OP_DONT_CARE) {
-            s_priv->invalidate_attachments[s_priv->nb_invalidate_attachments++] = s_priv->id ? GL_DEPTH_ATTACHMENT : GL_DEPTH;
-            s_priv->invalidate_attachments[s_priv->nb_invalidate_attachments++] = s_priv->id ? GL_STENCIL_ATTACHMENT : GL_STENCIL;
-        }
+    if (depth_stencil->load_op == NGLI_LOAD_OP_DONT_CARE ||
+        depth_stencil->load_op == NGLI_LOAD_OP_CLEAR) {
+        s_priv->clear_flags |= (GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    }
+    if (depth_stencil->store_op == NGLI_STORE_OP_DONT_CARE) {
+        s_priv->invalidate_attachments[s_priv->nb_invalidate_attachments++] = s_priv->id ? GL_DEPTH_ATTACHMENT : GL_DEPTH;
+        s_priv->invalidate_attachments[s_priv->nb_invalidate_attachments++] = s_priv->id ? GL_STENCIL_ATTACHMENT : GL_STENCIL;
     }
 
     return 0;
