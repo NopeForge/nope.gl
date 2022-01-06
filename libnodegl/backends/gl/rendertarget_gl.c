@@ -270,6 +270,11 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
 
     int ret;
     if (require_resolve_fbo(s)) {
+        if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT)) {
+            LOG(ERROR, "context does not support the framebuffer object feature, "
+                       "resolving MSAA attachments is not supported");
+            return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+        }
         ret = create_fbo(s, 1);
         if (ret < 0)
             goto done;
@@ -383,9 +388,6 @@ void ngli_rendertarget_gl_end_pass(struct rendertarget *s)
         ngli_glDisable(gl, GL_SCISSOR_TEST);
         glstate->scissor_test = 0;
     }
-
-    if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT))
-        return;
 
     if (!s_priv->resolve_id)
         return;
