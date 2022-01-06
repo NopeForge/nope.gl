@@ -447,6 +447,10 @@ int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     ngli_assert(params->nb_colors == 1);
+    ngli_assert(!params->colors[0].attachment);
+    ngli_assert(!params->colors[0].resolve_target);
+    ngli_assert(!params->depth_stencil.attachment);
+    ngli_assert(!params->depth_stencil.resolve_target);
 
     s->params = *params;
     s->width = params->width;
