@@ -159,7 +159,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
         ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
     }
 
-    GLenum status = ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER);
+    GLenum status = ngli_glCheckFramebufferStatus(ctx, GL_FRAMEBUFFER);
     if (status != GL_FRAMEBUFFER_COMPLETE) {
        LOG(ERROR, "framebuffer is not complete: 0x%x", status);
        return -1;
@@ -180,7 +180,7 @@ static int eagl_init_framebuffer(struct glcontext *ctx)
         ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
         ngli_glFramebufferRenderbuffer(ctx, GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, GL_RENDERBUFFER, eagl->depthbuffer);
 
-        status = ngli_glCheckFramebufferStatus(gl, GL_FRAMEBUFFER);
+        status = ngli_glCheckFramebufferStatus(ctx, GL_FRAMEBUFFER);
         if (status != GL_FRAMEBUFFER_COMPLETE) {
             LOG(ERROR, "framebuffer is not complete: 0x%x", status);
             return -1;
