@@ -1323,6 +1323,7 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`bool`](#parameter-types) | value exposed to the shader | `0`
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1333,6 +1334,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`i32`](#parameter-types) | value exposed to the shader | `0`
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`i32`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | `-100`
+`live_max` |  | [`i32`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | `100`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1343,6 +1347,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`ivec2`](#parameter-types) | value exposed to the shader | (`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`ivec2`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`-100`,`-100`)
+`live_max` |  | [`ivec2`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1353,6 +1360,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`ivec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`ivec3`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`-100`,`-100`,`-100`)
+`live_max` |  | [`ivec3`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`,`100`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1363,6 +1373,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`ivec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`ivec4`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`-100`,`-100`,`-100`,`-100`)
+`live_max` |  | [`ivec4`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`,`100`,`100`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1373,6 +1386,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`u32`](#parameter-types) | value exposed to the shader | `0`
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`u32`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | `0`
+`live_max` |  | [`u32`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | `100`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1383,6 +1399,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`uvec2`](#parameter-types) | value exposed to the shader | (`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`uvec2`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`0`,`0`)
+`live_max` |  | [`uvec2`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1393,6 +1412,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`uvec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`uvec3`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`0`,`0`,`0`)
+`live_max` |  | [`uvec3`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`,`100`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1403,6 +1425,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`uvec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`uvec4`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`0`,`0`,`0`,`0`)
+`live_max` |  | [`uvec4`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`,`100`,`100`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1413,6 +1438,7 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`mat4`](#parameter-types) | value exposed to the shader | 
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
 `transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `value` transformation chain | 
 
 
@@ -1424,6 +1450,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`f32`](#parameter-types) | value exposed to the shader | `0`
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`f32`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | `0`
+`live_max` |  | [`f32`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | `1`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1434,6 +1463,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`vec2`](#parameter-types) | value exposed to the shader | (`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`vec2`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`0`,`0`)
+`live_max` |  | [`vec2`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1444,6 +1476,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`vec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`vec3`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`0`,`0`,`0`)
+`live_max` |  | [`vec3`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`,`1`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1454,6 +1489,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`vec4`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`0`,`0`,`0`,`0`)
+`live_max` |  | [`vec4`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`,`1`,`1`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1464,6 +1502,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`vec3`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`vec3`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`0`,`0`,`0`)
+`live_max` |  | [`vec3`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`,`1`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1474,6 +1515,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`0`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`vec4`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`0`,`0`,`0`,`0`)
+`live_max` |  | [`vec4`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`,`1`,`1`)
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1484,6 +1528,9 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `value` |  [`live`](#Parameter-flags) | [`vec4`](#parameter-types) | value exposed to the shader | (`0`,`0`,`0`,`1`)
+`live_id` |  | [`str`](#parameter-types) | live control identifier | 
+`live_min` |  | [`vec4`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`-1`,`-1`,`-1`,`-1`)
+`live_max` |  | [`vec4`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`,`1`,`1`)
 `as_mat4` |  | [`bool`](#parameter-types) | exposed as a 4x4 rotation matrix in the program | `0`
 
 

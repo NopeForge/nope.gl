@@ -714,55 +714,102 @@ StreamedBufferMat4:
 
 UniformBool:
     - [value, bool, "L"]
+    - [live_id, str, ""]
 
 UniformInt:
     - [value, i32, "L"]
+    - [live_id, str, ""]
+    - [live_min, i32, ""]
+    - [live_max, i32, ""]
 
 UniformIVec2:
     - [value, ivec2, "L"]
+    - [live_id, str, ""]
+    - [live_min, ivec2, ""]
+    - [live_max, ivec2, ""]
 
 UniformIVec3:
     - [value, ivec3, "L"]
+    - [live_id, str, ""]
+    - [live_min, ivec3, ""]
+    - [live_max, ivec3, ""]
 
 UniformIVec4:
     - [value, ivec4, "L"]
+    - [live_id, str, ""]
+    - [live_min, ivec4, ""]
+    - [live_max, ivec4, ""]
 
 UniformUInt:
     - [value, u32, "L"]
+    - [live_id, str, ""]
+    - [live_min, u32, ""]
+    - [live_max, u32, ""]
 
 UniformUIVec2:
     - [value, uvec2, "L"]
+    - [live_id, str, ""]
+    - [live_min, uvec2, ""]
+    - [live_max, uvec2, ""]
 
 UniformUIVec3:
     - [value, uvec3, "L"]
+    - [live_id, str, ""]
+    - [live_min, uvec3, ""]
+    - [live_max, uvec3, ""]
 
 UniformUIVec4:
     - [value, uvec4, "L"]
+    - [live_id, str, ""]
+    - [live_min, uvec4, ""]
+    - [live_max, uvec4, ""]
 
 UniformMat4:
     - [value, mat4, "L"]
+    - [live_id, str, ""]
     - [transform, node, ""]
 
 UniformFloat:
     - [value, f32, "L"]
+    - [live_id, str, ""]
+    - [live_min, f32, ""]
+    - [live_max, f32, ""]
 
 UniformVec2:
     - [value, vec2, "L"]
+    - [live_id, str, ""]
+    - [live_min, vec2, ""]
+    - [live_max, vec2, ""]
 
 UniformVec3:
     - [value, vec3, "L"]
+    - [live_id, str, ""]
+    - [live_min, vec3, ""]
+    - [live_max, vec3, ""]
 
 UniformVec4:
     - [value, vec4, "L"]
+    - [live_id, str, ""]
+    - [live_min, vec4, ""]
+    - [live_max, vec4, ""]
 
 UniformColor:
     - [value, vec3, "L"]
+    - [live_id, str, ""]
+    - [live_min, vec3, ""]
+    - [live_max, vec3, ""]
 
 UniformColorA:
     - [value, vec4, "L"]
+    - [live_id, str, ""]
+    - [live_min, vec4, ""]
+    - [live_max, vec4, ""]
 
 UniformQuat:
     - [value, vec4, "L"]
+    - [live_id, str, ""]
+    - [live_min, vec4, ""]
+    - [live_max, vec4, ""]
     - [as_mat4, bool, ""]
 
 UserSwitch:

@@ -246,12 +246,7 @@ struct livectl {
 };
 
 struct variable_priv {
-    union {
-        float vec[4];
-        float mat[4*4];
-        int ivec[4];
-        unsigned uvec[4];
-    } opt;
+    struct livectl opt;
 
     struct ngl_node **animkf;
     int nb_animkf;
