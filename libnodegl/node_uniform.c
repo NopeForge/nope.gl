@@ -33,22 +33,9 @@
 #include "type.h"
 
 
-static int is_live_update_supported(const struct ngl_node *node)
-{
-    struct variable_priv *s = node->priv_data;
-    if (s->dynamic) {
-        LOG(ERROR, "updating data on a dynamic uniform is unsupported");
-        return NGL_ERROR_INVALID_USAGE;
-    }
-    return 0;
-}
-
 #define DECLARE_UPDATE_FUNC(name, src)                        \
 static int uniform##name##_update_func(struct ngl_node *node) \
 {                                                             \
-    int ret = is_live_update_supported(node);                 \
-    if (ret < 0)                                              \
-        return ret;                                           \
     struct variable_priv *s = node->priv_data;                \
     memcpy(s->data, src, s->data_size);                       \
     return 0;                                                 \
@@ -57,13 +44,20 @@ static int uniform##name##_update_func(struct ngl_node *node) \
 DECLARE_UPDATE_FUNC(ivec,  s->opt.ivec)
 DECLARE_UPDATE_FUNC(uivec, s->opt.uvec)
 DECLARE_UPDATE_FUNC(vec,   s->opt.vec)
-DECLARE_UPDATE_FUNC(mat4,  s->opt.mat)
+
+static int uniformmat4_update_func(struct ngl_node *node)
+{
+    struct variable_priv *s = node->priv_data;
+    if (s->transform) {
+        LOG(ERROR, "updating the matrix on a UniformMat4 with transforms is invalid");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+    memcpy(s->data, s->opt.mat, s->data_size);
+    return 0;
+}
 
 static int uniformquat_update_func(struct ngl_node *node)
 {
-    int ret = is_live_update_supported(node);
-    if (ret < 0)
-        return ret;
     struct variable_priv *s = node->priv_data;
     memcpy(s->vector, s->opt.vec, s->data_size);
     if (s->as_mat4)
