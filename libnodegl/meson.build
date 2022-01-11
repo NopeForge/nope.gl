@@ -24,7 +24,7 @@ project(
   'c',
    default_options: ['c_std=c99'],
    license: 'Apache',
-   meson_version: '>= 0.54.0',
+   meson_version: '>= 0.56.0',
    version: '0.0.0',
 )
 
@@ -89,7 +89,7 @@ endif
 trim_prefix = run_command([
   find_program('python'), '-c', 'import sys,os;print(os.path.relpath(*sys.argv[1:3]))',
   meson.current_source_dir(),
-  meson.build_root(),
+  meson.project_build_root(),
 ]).stdout().strip()
 
 project_args = cc.get_supported_arguments([
