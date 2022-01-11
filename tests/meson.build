@@ -4,7 +4,7 @@ ngl_test = find_program('ngl-test')
 ngl_probe = find_program('ngl-probe')
 
 backends = []
-probe_output = run_command(ngl_probe).stdout()
+probe_output = run_command(ngl_probe, check: true).stdout()
 message('ngl-probe:\n' + probe_output)
 foreach line : probe_output.split('\n')
   if line.startswith('- ')
@@ -30,15 +30,15 @@ foreach backend : backends
   # ngl-probe may display garbage on stdout: typically Mesa does this on
   # offscreen at initialization, this is why we have .split()[-1] to read the
   # last word in the output.
-  has_block              = run_command(cap_cmd + ['block']).stdout().split()[-1].to_int() == 1 ? true : false
-  has_compute            = run_command(cap_cmd + ['compute']).stdout().split()[-1].to_int() == 1 ? true : false
-  has_instanced_draw     = run_command(cap_cmd + ['instanced_draw']).stdout().split()[-1].to_int() == 1 ? true : false
-  has_shader_texture_lod = run_command(cap_cmd + ['shader_texture_lod']).stdout().split()[-1].to_int() == 1 ? true : false
-  has_texture_3d         = run_command(cap_cmd + ['texture_3d']).stdout().split()[-1].to_int() == 1 ? true : false
-  has_texture_cube       = run_command(cap_cmd + ['texture_cube']).stdout().split()[-1].to_int() == 1 ? true : false
-  has_uint_uniforms      = run_command(cap_cmd + ['uint_uniforms']).stdout().split()[-1].to_int() == 1 ? true : false
-  max_color_attachments  = run_command(cap_cmd + ['max_color_attachments']).stdout().split()[-1].to_int()
-  max_samples            = run_command(cap_cmd + ['max_samples']).stdout().split()[-1].to_int()
+  has_block              = run_command(cap_cmd + ['block'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
+  has_compute            = run_command(cap_cmd + ['compute'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
+  has_instanced_draw     = run_command(cap_cmd + ['instanced_draw'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
+  has_shader_texture_lod = run_command(cap_cmd + ['shader_texture_lod'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
+  has_texture_3d         = run_command(cap_cmd + ['texture_3d'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
+  has_texture_cube       = run_command(cap_cmd + ['texture_cube'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
+  has_uint_uniforms      = run_command(cap_cmd + ['uint_uniforms'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
+  max_color_attachments  = run_command(cap_cmd + ['max_color_attachments'], check: true).stdout().split()[-1].to_int()
+  max_samples            = run_command(cap_cmd + ['max_samples'], check: true).stdout().split()[-1].to_int()
 
   message('Backend: ' + backend)
   message('- Block: @0@'.format(has_block))

@@ -90,7 +90,7 @@ trim_prefix = run_command([
   find_program('python'), '-c', 'import sys,os;print(os.path.relpath(*sys.argv[1:3]))',
   meson.current_source_dir(),
   meson.project_build_root(),
-]).stdout().strip()
+], check: true).stdout().strip()
 
 project_args = cc.get_supported_arguments([
   '-Werror=missing-prototypes',
