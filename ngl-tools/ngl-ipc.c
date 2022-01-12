@@ -225,7 +225,8 @@ static int handle_filepart(struct ctx *s, const uint8_t *data, int size)
         return NGL_ERROR_INVALID_DATA;
     const int written = IPC_U32_READ(data);
     s->uploaded_size += written;
-    fprintf(stderr, "\ruploading %s... %d%%", s->uploadfile, (int)(s->uploaded_size * 100LL / s->upload_size));
+    const int progress = (int)(s->uploaded_size * 100LL / s->upload_size);
+    fprintf(stderr, "\ruploading %s... %d%%", s->uploadfile, progress);
     return 0;
 }
 
