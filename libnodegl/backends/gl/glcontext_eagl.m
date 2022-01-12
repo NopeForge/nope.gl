@@ -111,15 +111,8 @@ static int eagl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
 
     eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES3 sharegroup:share_group];
     if (!eagl->handle) {
-        eagl->handle = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2 sharegroup:share_group];
-        if (!eagl->handle) {
-            LOG(ERROR, "could not create EAGL context");
-            return -1;
-        }
-        if (ctx->samples > 0) {
-            LOG(WARNING, "multisample anti-aliasing is not supported with OpenGLES 2.0 context");
-            ctx->samples = 0;
-        }
+        LOG(ERROR, "could not create EAGL context");
+        return -1;
     }
 
     CVReturn err = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault,
