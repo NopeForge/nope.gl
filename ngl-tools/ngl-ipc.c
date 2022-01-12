@@ -356,6 +356,7 @@ int main(int argc, char *argv[])
 #else
         close(fd);
 #endif
+        fd = -1;
     }
 
     if (!rp) {
