@@ -27,8 +27,6 @@ import traceback
 from pynodegl_utils.module import load_script
 from pynodegl_utils.resourcetracker import ResourceTracker
 
-IPC_READ_BUFSIZE = 4096
-
 
 def query_inplace(**idict):
 
