@@ -29,11 +29,6 @@ from pynodegl_utils.resourcetracker import ResourceTracker
 
 
 def query_inplace(**idict):
-
-    '''
-    Run the query in-place.
-    '''
-
     module_pkgname = idict['pkg']
     module_is_script = module_pkgname.endswith('.py')
 
