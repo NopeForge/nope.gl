@@ -13,7 +13,7 @@ The `node.gl` project is split in several parts:
 
 ## Dependencies
 
-- `libnodegl` requires a standard C toolchain (C compiler, linker, GNU/Make).
+- `libnodegl` requires a standard C toolchain and [meson build system][meson].
   It also depends on [sxplayer library][sxplayer] for media (video and images)
   playback. [Graphviz][graphviz] is optional but can be used to render and
   preview graphs obtained from the API.
@@ -27,6 +27,7 @@ The `node.gl` project is split in several parts:
 
 ![Dependencies](dependencies.png)
 
+[meson]: https://mesonbuild.com/
 [sxplayer]: https://github.com/stupeflix/sxplayer
 [graphviz]: http://www.graphviz.org/
 [python]: https://www.python.org/
