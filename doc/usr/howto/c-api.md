@@ -84,7 +84,7 @@ When you have access to your Python node object, you will have to get its
 You probably want to look at how [ngl-python][ngl-python] performs this
 operation.
 
-[ngl-python]: /doc/ref/ngl-tools.md#ngl-python
+[ngl-python]: /doc/usr/ref/ngl-tools.md#ngl-python
 
 ### Method 3: crafting the scene in C
 
@@ -95,7 +95,7 @@ In this section, we will assume that you are familiar with the Python binding
 and how a basic `Render` node works. If not, you are encouraged to check out
 the [starter tutorial][tuto-start] before reading any further.
 
-[tuto-start]: /doc/tuto/start.md
+[tuto-start]: /doc/usr/tuto/start.md
 
 To create a node, you only need the `ngl_node_create()` function, which later
 needs to be de-referenced with `ngl_node_unrefp()`.

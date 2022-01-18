@@ -12,7 +12,7 @@ Follow the ["Dependencies" and "Quick user installation" guides][install] to
 bootstrap the node.gl environment. The rest of the tutorial will assume you are
 in that environment.
 
-[install]: /doc/howto/installation.md
+[install]: /doc/usr/howto/installation.md
 
 ## 👁️ Running the controller
 
@@ -153,7 +153,7 @@ void main()
 ![my reddish demo](img/ngl-control-reddish-scene.png)
 
 [book-of-shaders]: http://thebookofshaders.com/
-[expl-shaders]: /doc/expl/shaders.md
+[expl-shaders]: /doc/usr/expl/shaders.md
 
 ### Introducing uniforms
 
@@ -201,7 +201,7 @@ def test_demo(cfg, color=(1,0,0,1)):
 All the other widgets are documented in the [Controller widgets
 documentation][controller-widgets].
 
-[controller-widgets]: /doc/ref/pynodegl-utils.md#controller-widgets
+[controller-widgets]: /doc/usr/ref/pynodegl-utils.md#controller-widgets
 
 ### Animations
 
@@ -454,4 +454,4 @@ when starting a creative process.
 [expl]:                  /README.md#%EF%B8%8F-discussions-and-explanations
 [refdoc]:                /README.md#-reference-documentation
 [ref-libnodegl]:         /libnodegl/doc/libnodegl.md
-[ref-pynodegl-utils]:    /doc/ref/pynodegl-utils.md
+[ref-pynodegl-utils]:    /doc/usr/ref/pynodegl-utils.md

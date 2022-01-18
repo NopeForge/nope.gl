@@ -31,73 +31,74 @@ and API can change at any time.
 
 ### 🛠 Tutorial
 
-- [Starter tutorial][tuto-start]
+- [Starter tutorial][usr-tuto-start]
 
 ### 💡 How-to guides
 
-- [Installation][howto-install]
-- [Using the C API][howto-c-api]
+- [Installation][usr-howto-install]
+- [Using the C API][usr-howto-c-api]
 
 ### ⚙️ Discussions and explanations
 
-- [node.gl standalone build environment][expl-ngl-env]
-- [Shaders][expl-shaders]
-- [Media (video) time remapping][expl-time-remap]
-- [Graphic configuration (blending, inheritance, ...)][expl-graphicconfig]
-- [How the Noise node works][expl-noise]
+- [node.gl standalone build environment][usr-expl-ngl-env]
+- [Shaders][usr-expl-shaders]
+- [Media (video) time remapping][usr-expl-time-remap]
+- [Graphic configuration (blending, inheritance, ...)][usr-expl-graphicconfig]
+- [How the Noise node works][usr-expl-noise]
 
 ### 🗜 Reference documentation
 
-- [libnodegl][ref-libnodegl]
-- [pynodegl][ref-pynodegl]
-- [pynodegl-utils][ref-pynodegl-utils]
-- [ngl-tools][ref-ngl-tools]
-- [Eval][ref-eval]
+- [libnodegl][usr-ref-libnodegl]
+- [pynodegl][usr-ref-pynodegl]
+- [pynodegl-utils][usr-ref-pynodegl-utils]
+- [ngl-tools][usr-ref-ngl-tools]
+- [Eval][usr-ref-eval]
 
 
 ## 👷📚 Developers documentation
 
 ### 🛠 Tutorial
 
-- [Writing a new node][howto-write-new-node]
+- [Writing a new node][dev-tuto-write-new-node]
 
 ### 💡 How-to guides
 
-- [Working with tests][howto-tests]
+- [Working with tests][dev-howto-tests]
 
 ### ⚙️ Discussions and explanations
 
-- [How the Python binding is created][expl-pynodegl]
-- [What happens in a draw call?][expl-draw-call]
-- [Technical choices][expl-techchoices]
-- [The maths behind the YCbCr to RGBA color matrix][expl-colormatrix]
-- [Tests categories][expl-tests-categories]
+- [How the Python binding is created][dev-expl-pynodegl]
+- [What happens in a draw call?][dev-expl-draw-call]
+- [Technical choices][dev-expl-techchoices]
+- [The maths behind the YCbCr to RGBA color matrix][dev-expl-colormatrix]
+- [Tests categories][dev-expl-tests-categories]
 
 ### 🗜 Reference documentation
 
-- [Developer guidelines][proj-developers]
-- [Project architecture and organization][proj-archi]
+- [Developer guidelines][dev-ref-developers]
+- [Project architecture and organization][dev-ref-archi]
 
 
-[proj-archi]:            /doc/project/architecture.md
-[proj-developers]:       /doc/project/developers.md
-[tuto-start]:            /doc/tuto/start.md
-[howto-install]:         /doc/howto/installation.md
-[howto-c-api]:           /doc/howto/c-api.md
-[howto-tests]:           /doc/howto/tests.md
-[howto-write-new-node]:  /doc/howto/write-new-node.md
-[expl-pynodegl]:         /doc/expl/pynodegl.md
-[expl-draw-call]:        /doc/expl/draw-call.md
-[expl-shaders]:          /doc/expl/shaders.md
-[expl-techchoices]:      /doc/expl/techchoices.md
-[expl-time-remap]:       /doc/expl/media-time-remapping.md
-[expl-colormatrix]:      /doc/expl/colormatrix.md
-[expl-graphicconfig]:    /doc/expl/graphicconfig.md
-[expl-ngl-env]:          /doc/expl/ngl-env.md
-[expl-noise]:            /doc/expl/noise.md
-[expl-tests-categories]: /doc/expl/tests-categories.md
-[ref-libnodegl]:         /libnodegl/doc/libnodegl.md
-[ref-pynodegl]:          /doc/ref/pynodegl.md
-[ref-pynodegl-utils]:    /doc/ref/pynodegl-utils.md
-[ref-ngl-tools]:         /doc/ref/ngl-tools.md
-[ref-eval]:              /doc/ref/eval.md
+[usr-tuto-start]:            /doc/usr/tuto/start.md
+[usr-howto-install]:         /doc/usr/howto/installation.md
+[usr-howto-c-api]:           /doc/usr/howto/c-api.md
+[usr-expl-ngl-env]:          /doc/usr/expl/ngl-env.md
+[usr-expl-shaders]:          /doc/usr/expl/shaders.md
+[usr-expl-time-remap]:       /doc/usr/expl/media-time-remapping.md
+[usr-expl-graphicconfig]:    /doc/usr/expl/graphicconfig.md
+[usr-expl-noise]:            /doc/usr/expl/noise.md
+[usr-ref-libnodegl]:         /libnodegl/doc/libnodegl.md
+[usr-ref-pynodegl]:          /doc/usr/ref/pynodegl.md
+[usr-ref-pynodegl-utils]:    /doc/usr/ref/pynodegl-utils.md
+[usr-ref-ngl-tools]:         /doc/usr/ref/ngl-tools.md
+[usr-ref-eval]:              /doc/usr/ref/eval.md
+
+[dev-tuto-write-new-node]:   /doc/dev/tuto/write-new-node.md
+[dev-howto-tests]:           /doc/dev/howto/tests.md
+[dev-expl-pynodegl]:         /doc/dev/expl/pynodegl.md
+[dev-expl-draw-call]:        /doc/dev/expl/draw-call.md
+[dev-expl-techchoices]:      /doc/dev/expl/techchoices.md
+[dev-expl-colormatrix]:      /doc/dev/expl/colormatrix.md
+[dev-expl-tests-categories]: /doc/dev/expl/tests-categories.md
+[dev-ref-developers]:        /doc/dev/ref/developers.md
+[dev-ref-archi]:             /doc/dev/ref/architecture.md

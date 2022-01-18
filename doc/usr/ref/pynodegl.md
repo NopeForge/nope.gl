@@ -35,6 +35,6 @@ All the others | `set_<param>(self, <param>)`     | positional arguments       |
 
 [pynodegl]: /pynodegl
 [libnodegl]: /libnodegl
-[expl-pynodegl]: /doc/expl/pynodegl.md
+[expl-pynodegl]: /doc/dev/expl/pynodegl.md
 [ref-libnodegl]: /libnodegl/doc/libnodegl.md
 [ref-libnodegl-group]: /libnodegl/doc/libnodegl.md#group
