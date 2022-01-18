@@ -27,40 +27,24 @@ and API can change at any time.
 [license]: /LICENSE
 [notice]: /NOTICE
 
-## 📚 Documentation
-
-### 📁 Project
-
-- [Developer guidelines][proj-developers] if you are interested in
-  contributing.
-- [Project architecture and organization][proj-archi]
+## 👤📚 Users documentation
 
 ### 🛠 Tutorial
 
-The [starter tutorial][tuto-start] is a must read before anything else if you
-are new to the project.
+- [Starter tutorial][tuto-start]
 
 ### 💡 How-to guides
 
-Following are how-to guides on various specific usages:
-
 - [Installation][howto-install]
 - [Using the C API][howto-c-api]
-- [Working with tests][howto-tests] (mainly for core developers)
-- [Writing a new node][howto-write-new-node] (for core developers only)
 
 ### ⚙️ Discussions and explanations
 
 - [node.gl standalone build environment][expl-ngl-env]
-- [How the Python binding is created][expl-pynodegl]
-- [What happens in a draw call?][expl-draw-call]
-- [Technical choices][expl-techchoices]
 - [Shaders][expl-shaders]
 - [Media (video) time remapping][expl-time-remap]
-- [The maths behind the YCbCr to RGBA color matrix][expl-colormatrix]
 - [Graphic configuration (blending, inheritance, ...)][expl-graphicconfig]
 - [How the Noise node works][expl-noise]
-- [Tests categories][expl-tests-categories]
 
 ### 🗜 Reference documentation
 
@@ -69,6 +53,31 @@ Following are how-to guides on various specific usages:
 - [pynodegl-utils][ref-pynodegl-utils]
 - [ngl-tools][ref-ngl-tools]
 - [Eval][ref-eval]
+
+
+## 👷📚 Developers documentation
+
+### 🛠 Tutorial
+
+- [Writing a new node][howto-write-new-node]
+
+### 💡 How-to guides
+
+- [Working with tests][howto-tests]
+
+### ⚙️ Discussions and explanations
+
+- [How the Python binding is created][expl-pynodegl]
+- [What happens in a draw call?][expl-draw-call]
+- [Technical choices][expl-techchoices]
+- [The maths behind the YCbCr to RGBA color matrix][expl-colormatrix]
+- [Tests categories][expl-tests-categories]
+
+### 🗜 Reference documentation
+
+- [Developer guidelines][proj-developers]
+- [Project architecture and organization][proj-archi]
+
 
 [proj-archi]:            /doc/project/architecture.md
 [proj-developers]:       /doc/project/developers.md
