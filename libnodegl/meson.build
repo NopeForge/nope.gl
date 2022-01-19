@@ -24,8 +24,8 @@ project(
   'c',
    default_options: ['c_std=c99'],
    license: 'Apache',
-   meson_version: '>= 0.56.0',
-   version: '0.0.0',
+   meson_version: '>= 0.57.0',
+   version: files('VERSION'),
 )
 
 conf_data = configuration_data()
