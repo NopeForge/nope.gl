@@ -246,6 +246,11 @@ static void renderbuffer_set_storage(struct texture *s)
         ngli_glRenderbufferStorage(gl, GL_RENDERBUFFER, s_priv->format, params->width, params->height);
 }
 
+#define COLOR_USAGE NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT
+#define DEPTH_USAGE NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT
+#define TRANSIENT_COLOR_USAGE (COLOR_USAGE | NGLI_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT)
+#define TRANSIENT_DEPTH_USAGE (DEPTH_USAGE | NGLI_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT)
+
 static int texture_init_fields(struct texture *s)
 {
     struct texture_gl *s_priv = (struct texture_gl *)s;
@@ -254,8 +259,10 @@ static int texture_init_fields(struct texture *s)
     const struct texture_params *params = &s->params;
 
     if (!s->wrapped &&
-        (params->usage == NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT ||
-         params->usage == NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT)) {
+        (params->usage == COLOR_USAGE ||
+         params->usage == DEPTH_USAGE ||
+         params->usage == TRANSIENT_COLOR_USAGE ||
+         params->usage == TRANSIENT_DEPTH_USAGE)) {
         s_priv->target = GL_RENDERBUFFER;
         int ret = ngli_format_get_gl_renderbuffer_format(gl, params->format, &s_priv->format);
         if (ret < 0)
