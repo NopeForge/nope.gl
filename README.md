@@ -64,6 +64,7 @@ and API can change at any time.
 ### 💡 How-to guides
 
 - [Working with tests][dev-howto-tests]
+- [Release process][dev-howto-release-process]
 
 ### ⚙️ Discussions and explanations
 
@@ -95,6 +96,7 @@ and API can change at any time.
 
 [dev-tuto-write-new-node]:   /doc/dev/tuto/write-new-node.md
 [dev-howto-tests]:           /doc/dev/howto/tests.md
+[dev-howto-release-process]: /doc/dev/howto/release-process.md
 [dev-expl-pynodegl]:         /doc/dev/expl/pynodegl.md
 [dev-expl-draw-call]:        /doc/dev/expl/draw-call.md
 [dev-expl-techchoices]:      /doc/dev/expl/techchoices.md
