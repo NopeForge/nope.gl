@@ -290,6 +290,8 @@ static int rtt_prefetch(struct ngl_node *node)
         }
     }
 
+    const int transient_usage = nb_interruptions == 0 ? NGLI_TEXTURE_USAGE_TRANSIENT_ATTACHMENT_BIT : 0;
+
     struct rendertarget_params rt_params = {
         .width = s->width,
         .height = s->height,
@@ -313,7 +315,7 @@ static int rtt_prefetch(struct ngl_node *node)
                     .width   = s->width,
                     .height  = s->height,
                     .samples = o->samples,
-                    .usage   = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
+                    .usage   = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT | transient_usage,
                 };
                 ret = ngli_texture_init(ms_texture, &attachment_params);
                 if (ret < 0)
@@ -356,7 +358,7 @@ static int rtt_prefetch(struct ngl_node *node)
                 .width   = s->width,
                 .height  = s->height,
                 .samples = o->samples,
-                .usage   = NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                .usage   = NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | transient_usage,
             };
             ret = ngli_texture_init(ms_texture, &attachment_params);
             if (ret < 0)
@@ -390,7 +392,7 @@ static int rtt_prefetch(struct ngl_node *node)
                 .width   = s->width,
                 .height  = s->height,
                 .samples = o->samples,
-                .usage   = NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                .usage   = NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT | transient_usage,
             };
             ret = ngli_texture_init(depth, &attachment_params);
             if (ret < 0)
