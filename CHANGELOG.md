@@ -8,5 +8,7 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+
+## [2022.1] [libnodegl 0.1.0] - 2022-01-20
 ### Added
 - This Changelog
