@@ -14,6 +14,7 @@ building and running the complete `node.gl` stack.
   - **Graphviz**
   - **SDL2**
   - **Glslang**
+  - **MoltenVK** (macOS, optional)
 - Build with `./configure.py && make`
 - Enter the virtual environment with `. venv/bin/activate`
 

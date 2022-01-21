@@ -26,6 +26,24 @@
 
 #include "wsi.h"
 
+static int get_default_backend(void)
+{
+    int nb_backends;
+    struct ngl_backend *backends;
+    int ret = ngl_backends_get(NULL, &nb_backends, &backends);
+    if (ret < 0)
+        return ret;
+    for (int i = 0; i < nb_backends; i++) {
+        if (backends[i].is_default) {
+            ret = backends[i].id;
+            ngl_backends_freep(&backends);
+            return ret;
+        }
+    }
+    ngl_backends_freep(&backends);
+    return NGL_ERROR_NOT_FOUND;
+}
+
 int wsi_set_ngl_config(struct ngl_config *config, SDL_Window *window)
 {
     SDL_SysWMinfo info;
@@ -38,6 +56,18 @@ int wsi_set_ngl_config(struct ngl_config *config, SDL_Window *window)
     if (info.subsystem == SDL_SYSWM_COCOA) {
         NSWindow *nswindow = info.info.cocoa.window;
         NSView *view = [nswindow contentView];
+
+        if (config->backend == NGL_BACKEND_AUTO) {
+            config->backend = get_default_backend();
+            if (config->backend < 0)
+                return -1;
+        }
+        if (config->backend == NGL_BACKEND_VULKAN) {
+            NSBundle *bundle = [NSBundle bundleWithPath:@"/System/Library/Frameworks/QuartzCore.framework"];
+            view.layer = [[bundle classNamed:@"CAMetalLayer"] layer];
+            view.wantsLayer = YES;
+        }
+
         config->platform = NGL_PLATFORM_MACOS;
         config->window = (uintptr_t)view;
         return 0;
