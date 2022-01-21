@@ -339,6 +339,7 @@ def _clean_py(cfg):
 @_block('clean', [_clean_py])
 def _clean(cfg):
     return [
+        _rd(op.join('builddir', 'pkgconf')),
         _rd(op.join('builddir', 'sxplayer')),
         _rd(op.join('builddir', 'libnodegl')),
         _rd(op.join('builddir', 'ngl-tools')),
