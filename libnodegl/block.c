@@ -48,6 +48,7 @@ static const int strides_map[NGLI_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
         [NGLI_TYPE_VEC2]   = sizeof(float) * 4,
         [NGLI_TYPE_VEC3]   = sizeof(float) * 4,
         [NGLI_TYPE_VEC4]   = sizeof(float) * 4,
+        [NGLI_TYPE_MAT3]   = sizeof(float) * 4 * 3,
         [NGLI_TYPE_MAT4]   = sizeof(float) * 4 * 4,
     },
     [NGLI_BLOCK_LAYOUT_STD430] = {
@@ -64,6 +65,7 @@ static const int strides_map[NGLI_BLOCK_NB_LAYOUTS][NGLI_TYPE_NB] = {
         [NGLI_TYPE_VEC2]   = sizeof(float) * 2,
         [NGLI_TYPE_VEC3]   = sizeof(float) * 4,
         [NGLI_TYPE_VEC4]   = sizeof(float) * 4,
+        [NGLI_TYPE_MAT3]   = sizeof(float) * 4 * 3,
         [NGLI_TYPE_MAT4]   = sizeof(float) * 4 * 4,
     },
 };
@@ -82,6 +84,7 @@ static const int sizes_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_VEC2]   = sizeof(float) * 2,
     [NGLI_TYPE_VEC3]   = sizeof(float) * 3,
     [NGLI_TYPE_VEC4]   = sizeof(float) * 4,
+    [NGLI_TYPE_MAT3]   = sizeof(float) * 4 * 3,
     [NGLI_TYPE_MAT4]   = sizeof(float) * 4 * 4,
 };
 
@@ -99,6 +102,7 @@ static const int aligns_map[NGLI_TYPE_NB] = {
     [NGLI_TYPE_VEC2]   = sizeof(float) * 2,
     [NGLI_TYPE_VEC3]   = sizeof(float) * 4,
     [NGLI_TYPE_VEC4]   = sizeof(float) * 4,
+    [NGLI_TYPE_MAT3]   = sizeof(float) * 4,
     [NGLI_TYPE_MAT4]   = sizeof(float) * 4,
 };
 
@@ -121,7 +125,7 @@ static int get_field_size(const struct block_field *field, int layout)
 
 static int get_field_align(const struct block_field *field, int layout)
 {
-    if (field->count && field->type != NGLI_TYPE_MAT4)
+    if (field->count && field->type != NGLI_TYPE_MAT3 && field->type != NGLI_TYPE_MAT4)
         return get_buffer_stride(field, layout);
     return aligns_map[field->type];
 }
@@ -160,6 +164,19 @@ void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uin
 {
     uint8_t *dstp = dst;
     const uint8_t *srcp = src;
+
+    if (fi->type == NGLI_TYPE_MAT3) {
+        const int dst_vec_stride = fi->stride / 3;
+        const int src_vec_stride = sizes_map[NGLI_TYPE_VEC3];
+        const int count = 3 * NGLI_MAX(fi->count, 1);
+        for (int i = 0; i < count; i++) {
+            memcpy(dstp, srcp, src_vec_stride);
+            dstp += dst_vec_stride;
+            srcp += src_vec_stride;
+        }
+        return;
+    }
+
     const int src_stride = sizes_map[fi->type];
     const int count = NGLI_MAX(fi->count, 1);
     for (int i = 0; i < count; i++) {
