@@ -24,7 +24,7 @@
 #include "internal.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct timerangemode_priv, x)
+#define OFFSET(x) offsetof(struct timerangemode_priv, opts.x)
 static const struct node_param continuous_params[] = {
     {"start_time", NGLI_PARAM_TYPE_F64, OFFSET(start_time),
                    .desc=NGLI_DOCSTRING("starting time for the scene to be drawn")},
@@ -48,19 +48,22 @@ static const struct node_param once_params[] = {
 static char *timerangemode_info_str_continous(const struct ngl_node *node)
 {
     const struct timerangemode_priv *s = node->priv_data;
-    return ngli_asprintf("cont at %g", s->start_time);
+    const struct timerangemode_opts *o = &s->opts;
+    return ngli_asprintf("cont at %g", o->start_time);
 }
 
 static char *timerangemode_info_str_norender(const struct ngl_node *node)
 {
     const struct timerangemode_priv *s = node->priv_data;
-    return ngli_asprintf("noop at %g", s->start_time);
+    const struct timerangemode_opts *o = &s->opts;
+    return ngli_asprintf("noop at %g", o->start_time);
 }
 
 static char *timerangemode_info_str_once(const struct ngl_node *node)
 {
     const struct timerangemode_priv *s = node->priv_data;
-    return ngli_asprintf("once at %g (with t=%g)", s->start_time, s->render_time);
+    const struct timerangemode_opts *o = &s->opts;
+    return ngli_asprintf("once at %g (with t=%g)", o->start_time, o->render_time);
 }
 
 const struct node_class ngli_timerangemodecont_class = {

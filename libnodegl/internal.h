@@ -361,9 +361,13 @@ struct media_priv {
 #endif
 };
 
-struct timerangemode_priv {
+struct timerangemode_opts {
     double start_time;
     double render_time;
+};
+
+struct timerangemode_priv {
+    struct timerangemode_opts opts;
     int updated;
 };
 

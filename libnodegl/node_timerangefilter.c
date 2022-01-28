@@ -69,7 +69,8 @@ static int timerangefilter_init(struct ngl_node *node)
 
     double prev_start_time = -DBL_MAX;
     for (int i = 0; i < o->nb_ranges; i++) {
-        const struct timerangemode_priv *trm = o->ranges[i]->priv_data;
+        const struct timerangemode_priv *trm_p = o->ranges[i]->priv_data;
+        const struct timerangemode_opts *trm = &trm_p->opts;
 
         if (trm->start_time < prev_start_time) {
             LOG(ERROR, "time ranges must be monotonically increasing: %g < %g",
@@ -97,7 +98,8 @@ static int get_rr_id(const struct timerangefilter_opts *o, int start, double t)
     int ret = -1;
 
     for (int i = start; i < o->nb_ranges; i++) {
-        const struct timerangemode_priv *rr = o->ranges[i]->priv_data;
+        const struct timerangemode_priv *rr_p = o->ranges[i]->priv_data;
+        const struct timerangemode_opts *rr = &rr_p->opts;
         if (rr->start_time > t)
             break;
         ret = i;
@@ -162,7 +164,8 @@ static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
                 if (rr_id < o->nb_ranges - 1) {
                     // We assume here the next range requires the node started
                     // as the current one doesn't.
-                    const struct timerangemode_priv *next = o->ranges[rr_id + 1]->priv_data;
+                    const struct timerangemode_priv *next_p = o->ranges[rr_id + 1]->priv_data;
+                    const struct timerangemode_opts *next = &next_p->opts;
                     const double next_use_in = next->start_time - t;
 
                     if (next_use_in <= o->prefetch_time) {
@@ -217,7 +220,8 @@ static int timerangefilter_update(struct ngl_node *node, double t)
             struct timerangemode_priv *rro = rr->priv_data;
             if (rro->updated)
                 return 0;
-            t = rro->render_time;
+            struct timerangemode_opts *rro_opts = &rro->opts;
+            t = rro_opts->render_time;
             rro->updated = 1;
         }
     }
