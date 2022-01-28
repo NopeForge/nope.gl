@@ -193,15 +193,17 @@ struct geometry_priv {
     int64_t max_indices;
 };
 
+struct buffer_opts {
+    int count;
+    uint8_t *data;
+    int data_size;
+    char *filename;
+    struct ngl_node *block;
+    int block_field;
+};
+
 struct buffer_priv {
-    struct {
-        int count;
-        uint8_t *data;
-        int data_size;
-        char *filename;
-        struct ngl_node *block;
-        int block_field;
-    } opt;
+    struct buffer_opts opt;
 
     struct buffer_layout layout;
 
