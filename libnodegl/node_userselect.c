@@ -25,29 +25,34 @@
 #include "log.h"
 #include "params.h"
 
-struct userselect_priv {
+struct userselect_opts {
     struct ngl_node **branches;
     int nb_branches;
     struct livectl live;
 };
 
+struct userselect_priv {
+    struct userselect_opts opts;
+};
+
 static int branch_update_func(struct ngl_node *node)
 {
     struct userselect_priv *s = node->priv_data;
-    if (!s->live.id)
+    struct userselect_opts *o = &s->opts;
+    if (!o->live.id)
         return 0;
-    if (s->live.val.i[0] < s->live.min.i[0]) {
-        LOG(WARNING, "value (%d) is smaller than live_min (%d), clamping", s->live.val.i[0], s->live.min.i[0]);
-        s->live.val.i[0] = s->live.min.i[0];
+    if (o->live.val.i[0] < o->live.min.i[0]) {
+        LOG(WARNING, "value (%d) is smaller than live_min (%d), clamping", o->live.val.i[0], o->live.min.i[0]);
+        o->live.val.i[0] = o->live.min.i[0];
     }
-    if (s->live.val.i[0] > s->live.max.i[0]) {
-        LOG(WARNING, "value (%d) is larger than live_max (%d), clamping", s->live.val.i[0], s->live.max.i[0]);
-        s->live.val.i[0] = s->live.max.i[0];
+    if (o->live.val.i[0] > o->live.max.i[0]) {
+        LOG(WARNING, "value (%d) is larger than live_max (%d), clamping", o->live.val.i[0], o->live.max.i[0]);
+        o->live.val.i[0] = o->live.max.i[0];
     }
     return 0;
 }
 
-#define OFFSET(x) offsetof(struct userselect_priv, x)
+#define OFFSET(x) offsetof(struct userselect_priv, opts.x)
 static const struct node_param userselect_params[] = {
     {"branches", NGLI_PARAM_TYPE_NODELIST, OFFSET(branches),
                  .desc=NGLI_DOCSTRING("a set of branches to pick from")},
@@ -74,16 +79,17 @@ static int userselect_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct userselect_priv *s = node->priv_data;
+    const struct userselect_opts *o = &s->opts;
 
     int ret = 0;
     struct rnode *rnode_pos = ctx->rnode_pos;
-    for (int i = 0; i < s->nb_branches; i++) {
+    for (int i = 0; i < o->nb_branches; i++) {
         struct rnode *rnode = ngli_rnode_add_child(rnode_pos);
         if (!rnode)
             return NGL_ERROR_MEMORY;
         ctx->rnode_pos = rnode;
 
-        ret = ngli_node_prepare(s->branches[i]);
+        ret = ngli_node_prepare(o->branches[i]);
         if (ret < 0)
             break;
     }
@@ -95,10 +101,11 @@ static int userselect_prepare(struct ngl_node *node)
 static int userselect_visit(struct ngl_node *node, int is_active, double t)
 {
     struct userselect_priv *s = node->priv_data;
+    const struct userselect_opts *o = &s->opts;
 
-    const int branch_id = s->live.val.i[0];
-    for (int i = 0; i < s->nb_branches; i++) {
-        struct ngl_node *branch = s->branches[i];
+    const int branch_id = o->live.val.i[0];
+    for (int i = 0; i < o->nb_branches; i++) {
+        struct ngl_node *branch = o->branches[i];
         int ret = ngli_node_visit(branch, is_active && i == branch_id, t);
         if (ret < 0)
             return ret;
@@ -109,25 +116,27 @@ static int userselect_visit(struct ngl_node *node, int is_active, double t)
 static int userselect_update(struct ngl_node *node, double t)
 {
     struct userselect_priv *s = node->priv_data;
+    const struct userselect_opts *o = &s->opts;
 
-    const int branch_id = s->live.val.i[0];
-    if (branch_id < 0 || branch_id >= s->nb_branches)
+    const int branch_id = o->live.val.i[0];
+    if (branch_id < 0 || branch_id >= o->nb_branches)
         return 0;
-    return ngli_node_update(s->branches[branch_id], t);
+    return ngli_node_update(o->branches[branch_id], t);
 }
 
 static void userselect_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct userselect_priv *s = node->priv_data;
+    const struct userselect_opts *o = &s->opts;
 
-    const int branch_id = s->live.val.i[0];
-    if (branch_id < 0 || branch_id >= s->nb_branches)
+    const int branch_id = o->live.val.i[0];
+    if (branch_id < 0 || branch_id >= o->nb_branches)
         return;
     struct rnode *rnode_pos = ctx->rnode_pos;
     struct rnode *rnodes = ngli_darray_data(&rnode_pos->children);
     ctx->rnode_pos = &rnodes[branch_id];
-    ngli_node_draw(s->branches[branch_id]);
+    ngli_node_draw(o->branches[branch_id]);
     ctx->rnode_pos = rnode_pos;
 }
 
