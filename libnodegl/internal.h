@@ -493,55 +493,161 @@ enum {
  */
 #define NGLI_NODE_FLAG_LIVECTL (1 << 0)
 
-/**
- *   Operation        State result
- * -----------------------------------
- * I Init           STATE_INITIALIZED
- * P Prefetch       STATE_READY
- * D Update/Draw
- * R Release        STATE_INITIALIZED
- * U Uninit         STATE_UNINITIALIZED
+/*
+ * Specifications of a node.
  *
- * Dependency callgraph:
+ * Description of the callbacks attributes:
  *
- *             .------------.
- *             v            |
- *     (I) <- [P] <- [D]   (R) <- [U]
- *      |                          ^
- *      `--------------------------'
- *
- * The starting state is [U].
- *
- * .--[ Legend ]-------
- * |
- * | X:      Operation X
- * | X -> Y: X call depends on Y state result
- * | [X]:    if X dependency is not met, the change state call will be made
- * | (X):    if X dependency is not met, it will noop
- * |
- * `-------------------
- *
- * Some examples:
- *  - calling prefetch() will always call init() if necessary
- *  - release() has a weak dependency to prefetch(), so it will noop if not in
- *    the READY state.
- *
- * Note: nodes implementation do NOT have to implement this logic, but they can
- * rely on these properties in their callback implementations.
+ * - reentrant:
+ *    + yes: callback will be called multiple time in diamond shaped tree
+ *    + no: callback will be called only once in a diamond shaped tree
+ * - execution order:
+ *    + leaf/children first: callbacks are called in ascent order
+ *    + root/parents first: callbacks are called in descent order
+ *    + loose: each node decides (implies a manual dispatch)
+ * - dispatch:
+ *    + manual: the callback takes over / decides the dispatch to the children
+ *    + managed: internals (nodes.c) are responsible for running the descent
+ *               into children (meaning it controls ascent/descent order)
+ *    + delegated: alias for "manual + managed", meaning managed by default
+ *                 unless the callback is defined which take over the default
+ *                 behavior
  */
 struct node_class {
     int id;
     int category;
     const char *name;
+
+
+    /************************
+     * Init stage callbacks *
+     ************************/
+
+    /*
+     * Initialize the node private context.
+     *
+     * reentrant: no (comparing state against STATE_INITIALIZED)
+     * execution-order: leaf first
+     * dispatch: managed
+     * when: called during set_scene() / internal node_set_ctx()
+     */
     int (*init)(struct ngl_node *node);
+
+    /*
+     * Handle render paths (for diamond shape in particular)
+     *
+     * If the node splits the tree in branches (such as Group) that can end up
+     * with a render-based node in the leaves, it must create a new
+     * rnode per branch and forward the call in each branch.
+     *
+     * If the node is a pipeline based node, it has to configure in the
+     * callback each pipeline using ctx->rnode_pos.
+     *
+     * reentrant: yes (there is a different rnode per path)
+     * execution-order: loose
+     * dispatch: delegated
+     * when: called during set_scene() / internal node_set_ctx() (after init)
+     */
     int (*prepare)(struct ngl_node *node);
+
+
+    /*******************************
+     * Draw/update stage callbacks *
+     *******************************/
+
+    /*
+     * Allow a node to stop the descent into its children by optionally
+     * changing is_active and forwarding the call to the children.
+     *
+     * The callback MUST forward the call, even if the purpose is to disable
+     * the branch.
+     *
+     * reentrant: yes (potentially with a different is_active flag)
+     * execution-order: root first
+     * dispatch: delegated
+     * when: first step during an api draw call
+     */
     int (*visit)(struct ngl_node *node, int is_active, double t);
+
+    /*
+     * Pre-allocate resources or start background processing so that they are
+     * ready at update time (typically sxplayer). Contrary to allocations done
+     * in the init, the prefetched resources lifetime is reduced to active
+     * timeranges.
+     *
+     * The symmetrical callback for prefetch is the release callback.
+     *
+     * reentrant: no (comparing state against STATE_READY)
+     * execution-order: leaf first
+     * dispatch: managed
+     * when: follows the visit phase, as part of
+     *       ngli_node_honor_release_prefetch() (comes after the release)
+     */
     int (*prefetch)(struct ngl_node *node);
+
+    /*
+     * Reset node update time (and other potential state used in the update) to
+     * force an update during the next api draw call.
+     *
+     * reentrant: yes
+     * execution-order: leaf first
+     * dispatch: managed
+     * when: any time a parameter is live-changed
+     */
     int (*invalidate)(struct ngl_node *node);
+
+    /*
+     * Update CPU/GPU resources according to the time.
+     *
+     * reentrant: no (based on node last_update_time)
+     * execution-order: loose
+     * dispatch: manual
+     * when: straight after ngli_node_honor_release_prefetch()
+     */
     int (*update)(struct ngl_node *node, double t);
+
+    /*
+     * Apply transforms and execute graphics and compute pipelines.
+     *
+     * reentrant: yes (because the leaf of a diamond tree must be drawn for
+     *            each path)
+     * execution-order: loose
+     * dispatch: manual
+     * when: after scene has been update for a given time (which can be a no-op
+     *       since it's non reentrant)
+     */
     void (*draw)(struct ngl_node *node);
+
+    /*
+     * Must release resources (allocated during the prefetch phase) that will
+     * not be used any time soon, or query a stop to potential background
+     * processing (typically sxplayer).
+     *
+     * The symmetrical callback for release is the prefetch callback.
+     *
+     * reentrant: no (comparing state against STATE_READY)
+     * execution-order: root first
+     * dispatch: managed
+     * when: follows the visit phase, as part of ngli_node_honor_release_prefetch()
+     */
     void (*release)(struct ngl_node *node);
+
+
+    /************************
+     * Exit stage callbacks *
+     ************************/
+
+    /*
+     * Must delete everything not released by the release callback. If
+     * implemented, the release callback will always be called before uninit.
+     *
+     * reentrant: no (comparing state against STATE_READY)
+     * execution-order: root first
+     * dispatch: managed
+     * when: called during set_scene() / internal node_set_ctx()
+     */
     void (*uninit)(struct ngl_node *node);
+
     char *(*info_str)(const struct ngl_node *node);
     size_t priv_size;
     const struct node_param *params;
