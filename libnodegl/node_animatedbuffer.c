@@ -30,7 +30,7 @@
 #include "internal.h"
 #include "type.h"
 
-#define OFFSET(x) offsetof(struct buffer_priv, x)
+#define OFFSET(x) offsetof(struct buffer_priv, opts.x)
 static const struct node_param animatedbuffer_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf),
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEBUFFER, -1},
@@ -69,6 +69,7 @@ static int animatedbuffer_update(struct ngl_node *node, double t)
 static int animatedbuffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
+    const struct buffer_opts *o = &s->opts;
 
     s->dynamic = 1;
     s->usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT | NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
@@ -76,13 +77,13 @@ static int animatedbuffer_init(struct ngl_node *node)
     s->layout.stride = ngli_format_get_bytes_per_pixel(s->layout.format);
 
     int ret = ngli_animation_init(&s->anim, s,
-                                  s->animkf, s->nb_animkf,
+                                  o->animkf, o->nb_animkf,
                                   mix_buffer, cpy_buffer);
     if (ret < 0)
         return ret;
 
-    for (int i = 0; i < s->nb_animkf; i++) {
-        const struct animkeyframe_priv *kf = s->animkf[i]->priv_data;
+    for (int i = 0; i < o->nb_animkf; i++) {
+        const struct animkeyframe_priv *kf = o->animkf[i]->priv_data;
         const int data_count = kf->data_size / s->layout.stride;
         const int data_pad   = kf->data_size % s->layout.stride;
 
