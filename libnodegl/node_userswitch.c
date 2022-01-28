@@ -24,12 +24,16 @@
 #include "internal.h"
 #include "params.h"
 
-struct userswitch {
+struct userswitch_opts {
     struct ngl_node *child;
     struct livectl live;
 };
 
-#define OFFSET(x) offsetof(struct userswitch, x)
+struct userswitch {
+    struct userswitch_opts opts;
+};
+
+#define OFFSET(x) offsetof(struct userswitch, opts.x)
 static const struct node_param userswitch_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -45,23 +49,26 @@ static const struct node_param userswitch_params[] = {
 static int userswitch_visit(struct ngl_node *node, int is_active, double t)
 {
     struct userswitch *s = node->priv_data;
-    const int enabled = s->live.val.i[0];
-    return ngli_node_visit(s->child, is_active && enabled, t);
+    const struct userswitch_opts *o = &s->opts;
+    const int enabled = o->live.val.i[0];
+    return ngli_node_visit(o->child, is_active && enabled, t);
 }
 
 static int userswitch_update(struct ngl_node *node, double t)
 {
     struct userswitch *s = node->priv_data;
-    const int enabled = s->live.val.i[0];
-    return enabled ? ngli_node_update(s->child, t) : 0;
+    const struct userswitch_opts *o = &s->opts;
+    const int enabled = o->live.val.i[0];
+    return enabled ? ngli_node_update(o->child, t) : 0;
 }
 
 static void userswitch_draw(struct ngl_node *node)
 {
     struct userswitch *s = node->priv_data;
-    const int enabled = s->live.val.i[0];
+    const struct userswitch_opts *o = &s->opts;
+    const int enabled = o->live.val.i[0];
     if (enabled)
-        ngli_node_draw(s->child);
+        ngli_node_draw(o->child);
 }
 
 const struct node_class ngli_userswitch_class = {
