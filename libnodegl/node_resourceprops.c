@@ -25,7 +25,7 @@
 #include "internal.h"
 #include "precision.h"
 
-#define OFFSET(x) offsetof(struct resourceprops_priv, x)
+#define OFFSET(x) offsetof(struct resourceprops_priv, opts.x)
 static const struct node_param resourceprops_params[] = {
     {"precision", NGLI_PARAM_TYPE_SELECT, OFFSET(precision), {.i32=NGLI_PRECISION_AUTO},
                   .choices=&ngli_precision_choices,
@@ -48,18 +48,19 @@ static const char * const precisions_map[] = {
 static char *resourceprops_info_str(const struct ngl_node *node)
 {
     const struct resourceprops_priv *s = node->priv_data;
+    const struct resourceprops_opts *o = &s->opts;
     struct bstr *b = ngli_bstr_create();
 
     if (!b)
         return NULL;
 
-    if (s->precision != NGLI_PRECISION_AUTO)
-        ngli_bstr_printf(b, "precision:%s", precisions_map[s->precision]);
-    if (s->as_image)
+    if (o->precision != NGLI_PRECISION_AUTO)
+        ngli_bstr_printf(b, "precision:%s", precisions_map[o->precision]);
+    if (o->as_image)
         ngli_bstr_printf(b, "%sas_image", ngli_bstr_len(b) ? " " : "");
-    if (s->writable)
+    if (o->writable)
         ngli_bstr_printf(b, "%swritable", ngli_bstr_len(b) ? " " : "");
-    if (s->variadic)
+    if (o->variadic)
         ngli_bstr_printf(b, "%svariadic", ngli_bstr_len(b) ? " " : "");
 
     char *ret = ngli_bstr_strdup(b);

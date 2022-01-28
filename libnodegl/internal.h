@@ -382,11 +382,15 @@ struct io_priv {
     int type;
 };
 
-struct resourceprops_priv {
+struct resourceprops_opts {
     int precision;
     int as_image;
     int writable;
     int variadic;
+};
+
+struct resourceprops_priv {
+    struct resourceprops_opts opts;
 };
 
 enum easing_id {
