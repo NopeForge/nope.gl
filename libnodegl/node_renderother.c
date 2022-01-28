@@ -80,15 +80,16 @@ struct pipeline_desc {
     struct darray uniforms; // struct pgcraft_uniform
 };
 
-struct render_common {
-    /* options */
+struct render_common_opts {
     int blending;
     struct ngl_node *geometry;
     struct ngl_node **filters;
     int nb_filters;
+};
 
+struct render_common {
     uint32_t helpers;
-    void (*draw)(struct render_common *s, struct pipeline_compat *pl_compat);
+    void (*draw)(struct render_common *s, const struct render_common_opts *o, struct pipeline_compat *pl_compat);
     struct filterschain *filterschain;
     char *combined_fragment;
     struct pgcraft_attribute position_attr;
@@ -100,15 +101,20 @@ struct render_common {
     struct darray pipeline_descs;
 };
 
-struct rendercolor_priv {
+struct rendercolor_opts {
     struct ngl_node *color_node;
     float color[3];
     struct ngl_node *opacity_node;
     float opacity;
+    struct render_common_opts common;
+};
+
+struct rendercolor_priv {
+    struct rendercolor_opts opts;
     struct render_common common;
 };
 
-struct rendergradient_priv {
+struct rendergradient_opts {
     struct ngl_node *color0_node;
     float color0[3];
     struct ngl_node *color1_node;
@@ -124,10 +130,15 @@ struct rendergradient_priv {
     int mode;
     struct ngl_node *linear_node;
     int linear;
+    struct render_common_opts common;
+};
+
+struct rendergradient_priv {
+    struct rendergradient_opts opts;
     struct render_common common;
 };
 
-struct rendergradient4_priv {
+struct rendergradient4_opts {
     struct ngl_node *color_tl_node;
     float color_tl[3];
     struct ngl_node *color_tr_node;
@@ -146,15 +157,25 @@ struct rendergradient4_priv {
     float opacity_bl;
     struct ngl_node *linear_node;
     int linear;
+    struct render_common_opts common;
+};
+
+struct rendergradient4_priv {
+    struct rendergradient4_opts opts;
     struct render_common common;
+};
+
+struct rendertexture_opts {
+    struct ngl_node *texture_node;
+    struct render_common_opts common;
 };
 
 struct rendertexture_priv {
-    struct ngl_node *texture_node;
+    struct rendertexture_opts opts;
     struct render_common common;
 };
 
-#define OFFSET(x) offsetof(struct rendercolor_priv, x)
+#define OFFSET(x) offsetof(struct rendercolor_priv, opts.x)
 static const struct node_param rendercolor_params[] = {
     {"color",    NGLI_PARAM_TYPE_VEC3, OFFSET(color_node), {.vec={1.f, 1.f, 1.f}},
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
@@ -187,7 +208,7 @@ static const struct param_choices gradient_mode_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct rendergradient_priv, x)
+#define OFFSET(x) offsetof(struct rendergradient_priv, opts.x)
 static const struct node_param rendergradient_params[] = {
     {"color0",   NGLI_PARAM_TYPE_VEC3, OFFSET(color0_node), {.vec={0.f, 0.f, 0.f}},
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
@@ -226,7 +247,7 @@ static const struct node_param rendergradient_params[] = {
 };
 #undef OFFSET
 
-#define OFFSET(x) offsetof(struct rendergradient4_priv, x)
+#define OFFSET(x) offsetof(struct rendergradient4_priv, opts.x)
 static const struct node_param rendergradient4_params[] = {
     {"color_tl",   NGLI_PARAM_TYPE_VEC3, OFFSET(color_tl_node), {.vec={1.f, .5f, 0.f}}, /* orange */
                    .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
@@ -268,7 +289,7 @@ static const struct node_param rendergradient4_params[] = {
 };
 #undef OFFSET
 
-#define OFFSET(x) offsetof(struct rendertexture_priv, x)
+#define OFFSET(x) offsetof(struct rendertexture_priv, opts.x)
 static const struct node_param rendertexture_params[] = {
     {"texture",  NGLI_PARAM_TYPE_NODE, OFFSET(texture_node),
                  .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -300,7 +321,8 @@ static const float default_uvcoords[] = {
     1.f, 0.f,
 };
 
-static int combine_filters_code(struct render_common *s, const char *base_name, const char *base_fragment)
+static int combine_filters_code(struct render_common *s, const struct render_common_opts *o,
+                                const char *base_name, const char *base_fragment)
 {
     s->filterschain = ngli_filterschain_create();
     if (!s->filterschain)
@@ -310,8 +332,8 @@ static int combine_filters_code(struct render_common *s, const char *base_name, 
     if (ret < 0)
         return ret;
 
-    for (int i = 0; i < s->nb_filters; i++) {
-        const struct ngl_node *filter_node = s->filters[i];
+    for (int i = 0; i < o->nb_filters; i++) {
+        const struct ngl_node *filter_node = o->filters[i];
         const struct filter *filter = filter_node->priv_data;
         ret = ngli_filterschain_add_filter(s->filterschain, filter);
         if (ret < 0)
@@ -325,21 +347,25 @@ static int combine_filters_code(struct render_common *s, const char *base_name, 
     return 0;
 }
 
-static void draw_simple(struct render_common *s, struct pipeline_compat *pl_compat)
+static void draw_simple(struct render_common *s,  const struct render_common_opts *o,
+                        struct pipeline_compat *pl_compat)
 {
     ngli_pipeline_compat_draw(pl_compat, s->nb_vertices, 1);
 }
 
-static void draw_indexed(struct render_common *s, struct pipeline_compat *pl_compat)
+static void draw_indexed(struct render_common *s,  const struct render_common_opts *o,
+                         struct pipeline_compat *pl_compat)
 {
-    const struct geometry_priv *geom = s->geometry->priv_data;
+    const struct geometry_priv *geom = o->geometry->priv_data;
     ngli_pipeline_compat_draw_indexed(pl_compat,
                                       geom->indices_buffer,
                                       geom->indices_layout.format,
                                       geom->indices_layout.count, 1);
 }
 
-static int init(struct ngl_node *node, struct render_common *s, const char *base_name, const char *base_fragment)
+static int init(struct ngl_node *node,
+                struct render_common *s, const struct render_common_opts *o,
+                const char *base_name, const char *base_fragment)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -354,7 +380,7 @@ static int init(struct ngl_node *node, struct render_common *s, const char *base
     s->uvcoord_attr.type   = NGLI_TYPE_VEC2;
     s->uvcoord_attr.format = NGLI_FORMAT_R32G32_SFLOAT;
 
-    if (!s->geometry) {
+    if (!o->geometry) {
         s->uvcoords = ngli_buffer_create(gpu_ctx);
         s->vertices = ngli_buffer_create(gpu_ctx);
         if (!s->uvcoords || !s->vertices)
@@ -377,7 +403,7 @@ static int init(struct ngl_node *node, struct render_common *s, const char *base
         s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
         s->draw = draw_simple;
     } else {
-        struct geometry_priv *geom_node = s->geometry->priv_data;
+        struct geometry_priv *geom_node = o->geometry->priv_data;
         struct buffer *vertices = geom_node->vertices_buffer;
         struct buffer *uvcoords = geom_node->uvcoords_buffer;
         struct buffer_layout vertices_layout = geom_node->vertices_layout;
@@ -411,33 +437,37 @@ static int init(struct ngl_node *node, struct render_common *s, const char *base
         s->draw = geom_node->indices_buffer ? draw_indexed : draw_simple;
     }
 
-    return combine_filters_code(s, base_name, base_fragment);
+    return combine_filters_code(s, o, base_name, base_fragment);
 }
 
 static int rendercolor_init(struct ngl_node *node)
 {
     struct rendercolor_priv *s = node->priv_data;
-    return init(node, &s->common, "source_color", source_color_frag);
+    struct rendercolor_opts *o = &s->opts;
+    return init(node, &s->common, &o->common, "source_color", source_color_frag);
 }
 
 static int rendergradient_init(struct ngl_node *node)
 {
     struct rendergradient_priv *s = node->priv_data;
+    struct rendergradient_opts *o = &s->opts;
     s->common.helpers = NGLI_FILTER_HELPER_LINEAR2SRGB | NGLI_FILTER_HELPER_SRGB2LINEAR;
-    return init(node, &s->common, "source_gradient", source_gradient_frag);
+    return init(node, &s->common, &o->common, "source_gradient", source_gradient_frag);
 }
 
 static int rendergradient4_init(struct ngl_node *node)
 {
     struct rendergradient4_priv *s = node->priv_data;
+    struct rendergradient4_opts *o = &s->opts;
     s->common.helpers = NGLI_FILTER_HELPER_LINEAR2SRGB | NGLI_FILTER_HELPER_SRGB2LINEAR;
-    return init(node, &s->common, "source_gradient4", source_gradient4_frag);
+    return init(node, &s->common, &o->common, "source_gradient4", source_gradient4_frag);
 }
 
 static int rendertexture_init(struct ngl_node *node)
 {
     struct rendertexture_priv *s = node->priv_data;
-    return init(node, &s->common, "source_texture", source_texture_frag);
+    struct rendertexture_opts *o = &s->opts;
+    return init(node, &s->common, &o->common, "source_texture", source_texture_frag);
 }
 
 static int init_desc(struct ngl_node *node, struct render_common *s,
@@ -495,7 +525,8 @@ static int build_uniforms_map(struct pipeline_desc *desc)
     return 0;
 }
 
-static int finalize_pipeline(struct ngl_node *node, struct render_common *s,
+static int finalize_pipeline(struct ngl_node *node,
+                             struct render_common *s, const struct render_common_opts *o,
                              const struct pgcraft_params *crafter_params)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -505,7 +536,7 @@ static int finalize_pipeline(struct ngl_node *node, struct render_common *s,
     struct pipeline_desc *desc = &descs[rnode->id];
 
     struct graphicstate state = rnode->graphicstate;
-    int ret = ngli_blending_apply_preset(&state, s->blending);
+    int ret = ngli_blending_apply_preset(&state, o->blending);
     if (ret < 0)
         return ret;
 
@@ -566,11 +597,12 @@ static void *get_data_ptr(struct ngl_node *var_node, void *data_fallback)
 static int rendercolor_prepare(struct ngl_node *node)
 {
     struct rendercolor_priv *s = node->priv_data;
+    struct rendercolor_opts *o = &s->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
-        {.name="color",             .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->color_node, s->color)},
-        {.name="opacity",           .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->opacity_node, &s->opacity)},
+        {.name="color",             .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_node, o->color)},
+        {.name="opacity",           .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_node, &o->opacity)},
     };
 
     struct render_common *c = &s->common;
@@ -596,24 +628,26 @@ static int rendercolor_prepare(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    return finalize_pipeline(node, c, &crafter_params);
+    const struct render_common_opts *co = &o->common;
+    return finalize_pipeline(node, c, co, &crafter_params);
 }
 
 static int rendergradient_prepare(struct ngl_node *node)
 {
     struct rendergradient_priv *s = node->priv_data;
+    struct rendergradient_opts *o = &s->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="aspect",            .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG},
-        {.name="color0",            .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->color0_node, s->color0)},
-        {.name="color1",            .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->color1_node, s->color1)},
-        {.name="opacity0",          .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->opacity0_node, &s->opacity0)},
-        {.name="opacity1",          .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->opacity1_node, &s->opacity1)},
-        {.name="pos0",              .type=NGLI_TYPE_VEC2,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->pos0_node, s->pos0)},
-        {.name="pos1",              .type=NGLI_TYPE_VEC2,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->pos1_node, s->pos1)},
-        {.name="mode",              .type=NGLI_TYPE_INT,   .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&s->mode},
-        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->linear_node, &s->linear)},
+        {.name="color0",            .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color0_node, o->color0)},
+        {.name="color1",            .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color1_node, o->color1)},
+        {.name="opacity0",          .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity0_node, &o->opacity0)},
+        {.name="opacity1",          .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity1_node, &o->opacity1)},
+        {.name="pos0",              .type=NGLI_TYPE_VEC2,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->pos0_node, o->pos0)},
+        {.name="pos1",              .type=NGLI_TYPE_VEC2,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->pos1_node, o->pos1)},
+        {.name="mode",              .type=NGLI_TYPE_INT,   .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->mode},
+        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->linear_node, &o->linear)},
     };
 
     struct render_common *c = &s->common;
@@ -639,24 +673,26 @@ static int rendergradient_prepare(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    return finalize_pipeline(node, c, &crafter_params);
+    const struct render_common_opts *co = &o->common;
+    return finalize_pipeline(node, c, co, &crafter_params);
 }
 
 static int rendergradient4_prepare(struct ngl_node *node)
 {
     struct rendergradient4_priv *s = node->priv_data;
+    struct rendergradient4_opts *o = &s->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
-        {.name="color_tl",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->color_tl_node, s->color_tl)},
-        {.name="color_tr",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->color_tr_node, s->color_tr)},
-        {.name="color_br",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->color_br_node, s->color_br)},
-        {.name="color_bl",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->color_bl_node, s->color_bl)},
-        {.name="opacity_tl",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->opacity_tl_node, &s->opacity_tl)},
-        {.name="opacity_tr",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->opacity_tr_node, &s->opacity_tr)},
-        {.name="opacity_br",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->opacity_br_node, &s->opacity_br)},
-        {.name="opacity_bl",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->opacity_bl_node, &s->opacity_bl)},
-        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(s->linear_node, &s->linear)},
+        {.name="color_tl",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_tl_node, o->color_tl)},
+        {.name="color_tr",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_tr_node, o->color_tr)},
+        {.name="color_br",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_br_node, o->color_br)},
+        {.name="color_bl",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_bl_node, o->color_bl)},
+        {.name="opacity_tl",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_tl_node, &o->opacity_tl)},
+        {.name="opacity_tr",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_tr_node, &o->opacity_tr)},
+        {.name="opacity_br",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_br_node, &o->opacity_br)},
+        {.name="opacity_bl",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_bl_node, &o->opacity_bl)},
+        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->linear_node, &o->linear)},
     };
 
     struct render_common *c = &s->common;
@@ -682,13 +718,15 @@ static int rendergradient4_prepare(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    return finalize_pipeline(node, c, &crafter_params);
+    const struct render_common_opts *co = &o->common;
+    return finalize_pipeline(node, c, co, &crafter_params);
 }
 
 static int rendertexture_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct rendertexture_priv *s = node->priv_data;
+    struct rendertexture_opts *o = &s->opts;
 
     static const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -700,7 +738,7 @@ static int rendertexture_prepare(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    struct texture_priv *texture_priv = s->texture_node->priv_data;
+    struct texture_priv *texture_priv = o->texture_node->priv_data;
     struct pgcraft_texture textures[] = {
         {
             .name        = "tex",
@@ -737,10 +775,11 @@ static int rendertexture_prepare(struct ngl_node *node)
         .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
     };
 
-    return finalize_pipeline(node, c, &crafter_params);
+    const struct render_common_opts *co = &o->common;
+    return finalize_pipeline(node, c, co, &crafter_params);
 }
 
-static void renderother_draw(struct ngl_node *node, struct render_common *s)
+static void renderother_draw(struct ngl_node *node, struct render_common *s, const struct render_common_opts *o)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
@@ -776,7 +815,7 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s)
         ctx->render_pass_started = 1;
     }
 
-    s->draw(s, desc->pipeline_compat);
+    s->draw(s, o, desc->pipeline_compat);
 }
 
 static void renderother_uninit(struct ngl_node *node, struct render_common *s)
@@ -801,7 +840,8 @@ static void renderother_uninit(struct ngl_node *node, struct render_common *s)
 static void type##_draw(struct ngl_node *node)      \
 {                                                   \
     struct type##_priv *s = node->priv_data;        \
-    renderother_draw(node, &s->common);             \
+    const struct type##_opts *o = &s->opts;         \
+    renderother_draw(node, &s->common, &o->common); \
 }                                                   \
                                                     \
 static void type##_uninit(struct ngl_node *node)    \
