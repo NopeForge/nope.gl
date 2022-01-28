@@ -27,9 +27,7 @@
 #include "internal.h"
 #include "path.h"
 
-struct smoothpath_priv {
-    struct path *path;
-
+struct smoothpath_opts {
     struct ngl_node *points_buffer;
     float control1[3];
     float control2[3];
@@ -37,7 +35,12 @@ struct smoothpath_priv {
     float tension;
 };
 
-#define OFFSET(x) offsetof(struct smoothpath_priv, x)
+struct smoothpath_priv {
+    struct path *path;
+    struct smoothpath_opts opts;
+};
+
+#define OFFSET(x) offsetof(struct smoothpath_priv, opts.x)
 static const struct node_param smoothpath_params[] = {
     {"points",    NGLI_PARAM_TYPE_NODE, OFFSET(points_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, -1},
@@ -55,18 +58,19 @@ static const struct node_param smoothpath_params[] = {
 };
 
 /* We must have the struct path in 1st position for AnimatedPath */
-NGLI_STATIC_ASSERT(path_1st_field, OFFSET(path) == 0);
+NGLI_STATIC_ASSERT(path_1st_field, offsetof(struct smoothpath_priv, path) == 0);
 
 static int smoothpath_init(struct ngl_node *node)
 {
     struct smoothpath_priv *s = node->priv_data;
+    const struct smoothpath_opts *o = &s->opts;
 
-    if (s->tension <= 0) {
+    if (o->tension <= 0) {
         LOG(ERROR, "tension must be strictly positive");
         return NGL_ERROR_INVALID_ARG;
     }
 
-    const struct buffer_priv *points = s->points_buffer->priv_data;
+    const struct buffer_priv *points = o->points_buffer->priv_data;
 
     if (points->layout.count < 2) {
         LOG(ERROR, "at least 2 points must be defined");
@@ -88,13 +92,13 @@ static int smoothpath_init(struct ngl_node *node)
      *
      * See https://pomax.github.io/bezierinfo/#catmullconv
      */
-    const float scale = 1.f / (s->tension * 6.f);
+    const float scale = 1.f / (o->tension * 6.f);
     const int nb_segments = points->layout.count - 1;
     for (int i = 0; i < nb_segments; i++) {
-        const float *p0 = i == 0 ? s->control1 : &p[(i - 1) * 3];
+        const float *p0 = i == 0 ? o->control1 : &p[(i - 1) * 3];
         const float *p1 = &p[i * 3];
         const float *p2 = &p[(i + 1) * 3];
-        const float *p3 = i == nb_segments - 1 ? s->control2 : &p[(i + 2) * 3];
+        const float *p3 = i == nb_segments - 1 ? o->control2 : &p[(i + 2) * 3];
         const float bezier3_control1[3] = {
             p1[0] + (p2[0] - p0[0]) * scale,
             p1[1] + (p2[1] - p0[1]) * scale,
@@ -110,7 +114,7 @@ static int smoothpath_init(struct ngl_node *node)
             return ret;
     }
 
-    return ngli_path_init(s->path, s->precision);
+    return ngli_path_init(s->path, o->precision);
 }
 
 static void smoothpath_uninit(struct ngl_node *node)
