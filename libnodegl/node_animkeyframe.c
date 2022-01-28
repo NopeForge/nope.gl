@@ -67,7 +67,7 @@ static const struct param_choices easing_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct animkeyframe_priv, x)
+#define OFFSET(x) offsetof(struct animkeyframe_priv, opts.x)
 
 #define ANIMKEYFRAME_PARAMS(id, value_data_key, value_data_type, value_data_field)                      \
 static const struct node_param animkeyframe##id##_params[] = {                                          \
@@ -384,34 +384,35 @@ static int check_boundaries(double y0, double y1)
 static int animkeyframe_init(struct ngl_node *node)
 {
     struct animkeyframe_priv *s = node->priv_data;
+    const struct animkeyframe_opts *o = &s->opts;
 
-    const int easing_id = s->easing;
+    const int easing_id = o->easing;
     const char *easing_name = ngli_params_get_select_str(easing_choices.consts, easing_id);
 
     if (node->cls->id == NGL_NODE_ANIMKEYFRAMEVEC2)
         LOG(VERBOSE, "%s of type %s starting at (%f,%f) for t=%f",
             node->cls->name, easing_name,
-            s->value[0], s->value[1], s->time);
+            o->value[0], o->value[1], o->time);
     else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEVEC3)
         LOG(VERBOSE, "%s of type %s starting at (%f,%f,%f) for t=%f",
             node->cls->name, easing_name,
-            s->value[0], s->value[1], s->value[2], s->time);
+            o->value[0], o->value[1], o->value[2], o->time);
     else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEVEC4)
         LOG(VERBOSE, "%s of type %s starting at (%f,%f,%f,%f) for t=%f",
             node->cls->name, easing_name,
-            s->value[0], s->value[1], s->value[2], s->value[3], s->time);
+            o->value[0], o->value[1], o->value[2], o->value[3], o->time);
     else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEQUAT)
         LOG(VERBOSE, "%s of type %s starting at (%f,%f,%f,%f) for t=%f",
             node->cls->name, easing_name,
-            s->value[0], s->value[1], s->value[2], s->value[3], s->time);
+            o->value[0], o->value[1], o->value[2], o->value[3], o->time);
     else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEFLOAT)
         LOG(VERBOSE, "%s of type %s starting at %f for t=%f",
             node->cls->name, easing_name,
-            s->scalar, s->time);
+            o->scalar, o->time);
     else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEBUFFER)
         LOG(VERBOSE, "%s of type %s starting with t=%f (data size: %d)",
             node->cls->name, easing_name,
-            s->time, s->data_size);
+            o->time, o->data_size);
     else
         return NGL_ERROR_BUG;
 
@@ -419,16 +420,16 @@ static int animkeyframe_init(struct ngl_node *node)
     s->derivative = easings[easing_id].derivative;
     s->resolution = easings[easing_id].resolution;
 
-    const double x0 = s->offsets[0];
-    const double x1 = s->offsets[1];
+    const double x0 = o->offsets[0];
+    const double x1 = o->offsets[1];
     if (x0 || x1 != 1.0) {
         int ret = check_offsets(x0, x1);
         if (ret < 0)
             return ret;
         s->scale_boundaries = 1;
 
-        const double y0 = s->function(x0, s->nb_args, s->args);
-        const double y1 = s->function(x1, s->nb_args, s->args);
+        const double y0 = s->function(x0, o->nb_args, o->args);
+        const double y1 = s->function(x1, o->nb_args, o->args);
         ret = check_boundaries(y0, y1);
         if (ret < 0)
             return ret;
@@ -443,15 +444,16 @@ static int animkeyframe_init(struct ngl_node *node)
 static char *animkeyframe_info_str(const struct ngl_node *node)
 {
     const struct animkeyframe_priv *s = node->priv_data;
+    const struct animkeyframe_opts *o = &s->opts;
     const struct node_param *params = node->cls->params;
     struct bstr *b = ngli_bstr_create();
 
     if (!b)
         return NULL;
 
-    const char *easing_name = ngli_params_get_select_str(easing_choices.consts, s->easing);
-    ngli_bstr_printf(b, "%s @ t=%g ", easing_name, s->time);
-    if (s->nb_args) {
+    const char *easing_name = ngli_params_get_select_str(easing_choices.consts, o->easing);
+    ngli_bstr_printf(b, "%s @ t=%g ", easing_name, o->time);
+    if (o->nb_args) {
         const struct node_param *easing_args_par = ngli_params_find(params, "easing_args");
         ngli_assert(easing_args_par);
         ngli_bstr_print(b, "(args: ");
@@ -459,14 +461,14 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
         ngli_bstr_print(b, ") ");
     }
 
-    if (s->offsets[0] || s->offsets[1] != 1.0) { // can not use scale_boundaries yet (not initialized)
-        ngli_bstr_printf(b, "on (%g,%g) ", s->offsets[0], s->offsets[1]);
+    if (o->offsets[0] || o->offsets[1] != 1.0) { // can not use scale_boundaries yet (not initialized)
+        ngli_bstr_printf(b, "on (%g,%g) ", o->offsets[0], o->offsets[1]);
     }
 
     if (node->cls->id == NGL_NODE_ANIMKEYFRAMEBUFFER) {
-        ngli_bstr_printf(b, "with data size of %dB", s->data_size);
+        ngli_bstr_printf(b, "with data size of %dB", o->data_size);
     } else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEQUAT) {
-        ngli_bstr_printf(b, "with quat=(%g,%g,%g,%g)", NGLI_ARG_VEC4(s->value));
+        ngli_bstr_printf(b, "with quat=(%g,%g,%g,%g)", NGLI_ARG_VEC4(o->value));
     } else {
         ngli_bstr_print(b, "with v=");
         const struct node_param *val_par = ngli_params_find(params, "value");

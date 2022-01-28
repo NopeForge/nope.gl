@@ -440,19 +440,23 @@ enum easing_id {
 typedef double easing_type;
 typedef easing_type (*easing_function)(easing_type, int, const easing_type *);
 
-struct animkeyframe_priv {
+struct animkeyframe_opts {
     double time;
     float value[4];
     double scalar;
     uint8_t *data;
     int data_size;
     int easing;
-    easing_function function;
-    easing_function derivative;
-    easing_function resolution;
     double *args;
     int nb_args;
     double offsets[2];
+};
+
+struct animkeyframe_priv {
+    struct animkeyframe_opts opts;
+    easing_function function;
+    easing_function derivative;
+    easing_function resolution;
     int scale_boundaries;
     double boundaries[2];
     double derivative_scale;

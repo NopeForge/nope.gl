@@ -148,13 +148,15 @@ static int media_init(struct ngl_node *node)
 
         // Set the media time boundaries using the time remapping animation
         if (anim->nb_animkf) {
-            const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
+            const struct animkeyframe_priv *kf0_p = anim->animkf[0]->priv_data;
+            const struct animkeyframe_opts *kf0 = &kf0_p->opts;
             const double initial_seek = kf0->scalar;
 
             sxplayer_set_option(s->player, "skip", initial_seek);
 
             if (anim->nb_animkf > 1) {
-                const struct animkeyframe_priv *kfn = anim->animkf[anim->nb_animkf - 1]->priv_data;
+                const struct animkeyframe_priv *kfn_p = anim->animkf[anim->nb_animkf - 1]->priv_data;
+                const struct animkeyframe_opts *kfn = &kfn_p->opts;
                 const double last_time = kfn->scalar;
                 sxplayer_set_option(s->player, "trim_duration", last_time - initial_seek);
             }
@@ -262,7 +264,8 @@ static int media_update(struct ngl_node *node, double t)
 
     if (anim_node) {
         struct variable_priv *anim = anim_node->priv_data;
-        const struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
+        const struct animkeyframe_priv *kf0_p = anim->animkf[0]->priv_data;
+        const struct animkeyframe_opts *kf0 = &kf0_p->opts;
         const double initial_seek = kf0->scalar;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)

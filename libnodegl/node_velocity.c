@@ -57,8 +57,8 @@ static const struct node_param velocityvec4_params[] = {
 };
 
 static void mix_velocity_float(void *user_arg, void *dst,
-                               const struct animkeyframe_priv *kf0,
-                               const struct animkeyframe_priv *kf1,
+                               const struct animkeyframe_opts *kf0,
+                               const struct animkeyframe_opts *kf1,
                                double ratio)
 {
     float *dstf = dst;
@@ -66,7 +66,7 @@ static void mix_velocity_float(void *user_arg, void *dst,
 }
 
 static void cpy_velocity_float(void *user_arg, void *dst,
-                               const struct animkeyframe_priv *kf)
+                               const struct animkeyframe_opts *kf)
 {
     float *dstf = dst;
     dstf[0] = 0;
@@ -74,8 +74,8 @@ static void cpy_velocity_float(void *user_arg, void *dst,
 
 #define DECLARE_VELOCITY_FUNCS(len)                                     \
 static void mix_velocity_vec##len(void *user_arg, void *dst,            \
-                                  const struct animkeyframe_priv *kf0,  \
-                                  const struct animkeyframe_priv *kf1,  \
+                                  const struct animkeyframe_opts *kf0,  \
+                                  const struct animkeyframe_opts *kf1,  \
                                   double ratio)                         \
 {                                                                       \
     float *dstf = dst;                                                  \
@@ -85,7 +85,7 @@ static void mix_velocity_vec##len(void *user_arg, void *dst,            \
 }                                                                       \
                                                                         \
 static void cpy_velocity_vec##len(void *user_arg, void *dst,            \
-                                  const struct animkeyframe_priv *kf)   \
+                                  const struct animkeyframe_opts *kf)   \
 {                                                                       \
     memset(dst, 0, len * sizeof(*kf->value));                           \
 }                                                                       \

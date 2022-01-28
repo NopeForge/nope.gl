@@ -40,8 +40,8 @@ static const struct node_param animatedbuffer_params[] = {
 };
 
 static void mix_buffer(void *user_arg, void *dst,
-                       const struct animkeyframe_priv *kf0,
-                       const struct animkeyframe_priv *kf1,
+                       const struct animkeyframe_opts *kf0,
+                       const struct animkeyframe_opts *kf1,
                        double ratio)
 {
     float *dstf = dst;
@@ -54,7 +54,7 @@ static void mix_buffer(void *user_arg, void *dst,
 }
 
 static void cpy_buffer(void *user_arg, void *dst,
-                       const struct animkeyframe_priv *kf)
+                       const struct animkeyframe_opts *kf)
 {
     const struct buffer_priv *s = user_arg;
     memcpy(dst, kf->data, s->data_size);
@@ -83,7 +83,8 @@ static int animatedbuffer_init(struct ngl_node *node)
         return ret;
 
     for (int i = 0; i < o->nb_animkf; i++) {
-        const struct animkeyframe_priv *kf = o->animkf[i]->priv_data;
+        const struct animkeyframe_priv *kf_p = o->animkf[i]->priv_data;
+        const struct animkeyframe_opts *kf = &kf_p->opts;
         const int data_count = kf->data_size / s->layout.stride;
         const int data_pad   = kf->data_size % s->layout.stride;
 

@@ -24,15 +24,15 @@
 
 #include "nodegl.h"
 
-struct animkeyframe_priv;
+struct animkeyframe_opts;
 
 typedef void (*ngli_animation_mix_func_type)(void *user_arg, void *dst,
-                                             const struct animkeyframe_priv *kf0,
-                                             const struct animkeyframe_priv *kf1,
+                                             const struct animkeyframe_opts *kf0,
+                                             const struct animkeyframe_opts *kf1,
                                              double ratio);
 
 typedef void (*ngli_animation_cpy_func_type)(void *user_arg, void *dst,
-                                             const struct animkeyframe_priv *kf);
+                                             const struct animkeyframe_opts *kf);
 
 struct animation {
     struct ngl_node * const *kfs;

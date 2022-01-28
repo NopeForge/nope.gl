@@ -87,8 +87,8 @@ static const struct node_param animatedpath_params[] = {
 };
 
 static void mix_time(void *user_arg, void *dst,
-                     const struct animkeyframe_priv *kf0,
-                     const struct animkeyframe_priv *kf1,
+                     const struct animkeyframe_opts *kf0,
+                     const struct animkeyframe_opts *kf1,
                      double ratio)
 {
     double *dstd = dst;
@@ -96,8 +96,8 @@ static void mix_time(void *user_arg, void *dst,
 }
 
 static void mix_float(void *user_arg, void *dst,
-                      const struct animkeyframe_priv *kf0,
-                      const struct animkeyframe_priv *kf1,
+                      const struct animkeyframe_opts *kf0,
+                      const struct animkeyframe_opts *kf1,
                       double ratio)
 {
     float *dstd = dst;
@@ -105,8 +105,8 @@ static void mix_float(void *user_arg, void *dst,
 }
 
 static void mix_path(void *user_arg, void *dst,
-                     const struct animkeyframe_priv *kf0,
-                     const struct animkeyframe_priv *kf1,
+                     const struct animkeyframe_opts *kf0,
+                     const struct animkeyframe_opts *kf1,
                      double ratio)
 {
     const float t = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
@@ -116,16 +116,16 @@ static void mix_path(void *user_arg, void *dst,
 }
 
 static void mix_quat(void *user_arg, void *dst,
-                     const struct animkeyframe_priv *kf0,
-                     const struct animkeyframe_priv *kf1,
+                     const struct animkeyframe_opts *kf0,
+                     const struct animkeyframe_opts *kf1,
                      double ratio)
 {
     ngli_quat_slerp(dst, kf0->value, kf1->value, ratio);
 }
 
 static void mix_vector(void *user_arg, void *dst,
-                       const struct animkeyframe_priv *kf0,
-                       const struct animkeyframe_priv *kf1,
+                       const struct animkeyframe_opts *kf0,
+                       const struct animkeyframe_opts *kf1,
                        double ratio, int len)
 {
     float *dstf = dst;
@@ -135,15 +135,15 @@ static void mix_vector(void *user_arg, void *dst,
 
 #define DECLARE_VEC_MIX_AND_CPY_FUNCS(len)                      \
 static void mix_vec##len(void *user_arg, void *dst,             \
-                         const struct animkeyframe_priv *kf0,   \
-                         const struct animkeyframe_priv *kf1,   \
+                         const struct animkeyframe_opts *kf0,   \
+                         const struct animkeyframe_opts *kf1,   \
                          double ratio)                          \
 {                                                               \
     mix_vector(user_arg, dst, kf0, kf1, ratio, len);            \
 }                                                               \
                                                                 \
 static void cpy_vec##len(void *user_arg, void *dst,             \
-                         const struct animkeyframe_priv *kf)    \
+                         const struct animkeyframe_opts *kf)    \
 {                                                               \
     memcpy(dst, kf->value, len * sizeof(*kf->value));           \
 }                                                               \
@@ -153,7 +153,7 @@ DECLARE_VEC_MIX_AND_CPY_FUNCS(3)
 DECLARE_VEC_MIX_AND_CPY_FUNCS(4)
 
 static void cpy_path(void *user_arg, void *dst,
-                     const struct animkeyframe_priv *kf)
+                     const struct animkeyframe_opts *kf)
 {
     struct variable_priv *s = user_arg;
     struct path *path = *(struct path **)s->path_node->priv_data;
@@ -161,13 +161,13 @@ static void cpy_path(void *user_arg, void *dst,
 }
 
 static void cpy_time(void *user_arg, void *dst,
-                     const struct animkeyframe_priv *kf)
+                     const struct animkeyframe_opts *kf)
 {
     memcpy(dst, &kf->scalar, sizeof(kf->scalar));
 }
 
 static void cpy_scalar(void *user_arg, void *dst,
-                       const struct animkeyframe_priv *kf)
+                       const struct animkeyframe_opts *kf)
 {
     *(float *)dst = kf->scalar;  // double → float
 }
@@ -280,7 +280,8 @@ static int animatedtime_init(struct ngl_node *node)
     // Sanity checks for time animation keyframe
     double prev_time = 0;
     for (int i = 0; i < s->nb_animkf; i++) {
-        const struct animkeyframe_priv *kf = s->animkf[i]->priv_data;
+        const struct animkeyframe_priv *kf_p = s->animkf[i]->priv_data;
+        const struct animkeyframe_opts *kf = &kf_p->opts;
         if (kf->easing != EASING_LINEAR) {
             LOG(ERROR, "only linear interpolation is allowed for time animation");
             return NGL_ERROR_INVALID_ARG;
