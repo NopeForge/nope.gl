@@ -128,7 +128,8 @@ static int compute_init(struct ngl_node *node)
 
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
-    const struct program_priv *program = s->program->priv_data;
+    const struct program_priv *program_priv = s->program->priv_data;
+    const struct program_opts *program = &program_priv->opts;
     struct pass_params params = {
         .label = node->label,
         .comp_base = program->compute,

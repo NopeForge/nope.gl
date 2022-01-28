@@ -301,7 +301,7 @@ int ngli_node_block_init(struct ngl_node *node);
 void ngli_node_block_unref(struct ngl_node *node);
 int ngli_node_block_upload(struct ngl_node *node);
 
-struct program_priv {
+struct program_opts {
     const char *vertex;
     const char *fragment;
     const char *compute;
@@ -309,7 +309,10 @@ struct program_priv {
     struct hmap *properties;
     struct hmap *vert_out_vars;
     int nb_frag_output;
+};
 
+struct program_priv {
+    struct program_opts opts;
     struct darray vert_out_vars_array; // pgcraft_iovar
 };
 

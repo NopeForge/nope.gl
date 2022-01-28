@@ -27,7 +27,7 @@
 #include "nodegl.h"
 #include "internal.h"
 
-#define OFFSET(x) offsetof(struct program_priv, x)
+#define OFFSET(x) offsetof(struct program_priv, opts.x)
 static const struct node_param computeprogram_params[] = {
     {"compute", NGLI_PARAM_TYPE_STR, OFFSET(compute), .flags=NGLI_PARAM_FLAG_NON_NULL,
                 .desc=NGLI_DOCSTRING("compute shader")},
@@ -43,9 +43,10 @@ static const struct node_param computeprogram_params[] = {
 static int computeprogram_init(struct ngl_node *node)
 {
     struct program_priv *s = node->priv_data;
+    const struct program_opts *o = &s->opts;
     struct ngl_ctx *ctx = node->ctx;
 
-    if (s->workgroup_size[0] <= 0 || s->workgroup_size[1] <= 0 || s->workgroup_size[2] <= 0) {
+    if (o->workgroup_size[0] <= 0 || o->workgroup_size[1] <= 0 || o->workgroup_size[2] <= 0) {
         LOG(ERROR, "work group size must be > 0 for x, y and z");
         return NGL_ERROR_INVALID_ARG;
     }
@@ -53,17 +54,17 @@ static int computeprogram_init(struct ngl_node *node)
     const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     const struct gpu_limits *limits = &gpu_ctx->limits;
 
-    if (s->workgroup_size[0] > limits->max_compute_work_group_size[0] ||
-        s->workgroup_size[1] > limits->max_compute_work_group_size[1] ||
-        s->workgroup_size[2] > limits->max_compute_work_group_size[2]) {
+    if (o->workgroup_size[0] > limits->max_compute_work_group_size[0] ||
+        o->workgroup_size[1] > limits->max_compute_work_group_size[1] ||
+        o->workgroup_size[2] > limits->max_compute_work_group_size[2]) {
         LOG(ERROR,
             "compute work group size (%d, %d, %d) exceeds device limits (%d, %d, %d)",
-            NGLI_ARG_VEC3(s->workgroup_size),
+            NGLI_ARG_VEC3(o->workgroup_size),
             NGLI_ARG_VEC3(limits->max_compute_work_group_size));
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
 
-    const uint32_t nb_invocations = s->workgroup_size[0] * s->workgroup_size[1] * s->workgroup_size[2];
+    const uint32_t nb_invocations = o->workgroup_size[0] * o->workgroup_size[1] * o->workgroup_size[2];
     const uint32_t max_invocations = limits->max_compute_work_group_invocations;
     if (nb_invocations > max_invocations) {
         LOG(ERROR, "compute number of invocations (%u) exceeds device limits (%u)",

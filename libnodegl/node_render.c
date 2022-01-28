@@ -174,21 +174,22 @@ static int render_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    const struct program_priv *program = s->program->priv_data;
+    const struct program_priv *program_priv = s->program->priv_data;
+    const struct program_opts *program_opts = &program_priv->opts;
     struct pass_params params = {
         .label = node->label,
         .geometry = s->geometry,
-        .vert_base = program->vertex,
-        .frag_base = program->fragment,
+        .vert_base = program_opts->vertex,
+        .frag_base = program_opts->fragment,
         .vert_resources = s->vert_resources,
         .frag_resources = s->frag_resources,
-        .properties = program->properties,
+        .properties = program_opts->properties,
         .attributes = s->attributes,
         .instance_attributes = s->instance_attributes,
         .nb_instances = s->nb_instances,
-        .vert_out_vars = ngli_darray_data(&program->vert_out_vars_array),
-        .nb_vert_out_vars = ngli_darray_count(&program->vert_out_vars_array),
-        .nb_frag_output = program->nb_frag_output,
+        .vert_out_vars = ngli_darray_data(&program_priv->vert_out_vars_array),
+        .nb_vert_out_vars = ngli_darray_count(&program_priv->vert_out_vars_array),
+        .nb_frag_output = program_opts->nb_frag_output,
         .blending = s->blending,
     };
     return ngli_pass_init(&s->pass, ctx, &params);

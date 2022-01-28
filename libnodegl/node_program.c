@@ -44,7 +44,7 @@
                                NGL_NODE_IOBOOL,       \
                                -1}
 
-#define OFFSET(x) offsetof(struct program_priv, x)
+#define OFFSET(x) offsetof(struct program_priv, opts.x)
 static const struct node_param program_params[] = {
     {"vertex",   NGLI_PARAM_TYPE_STR, OFFSET(vertex),   {.str=NULL},
                  .desc=NGLI_DOCSTRING("vertex shader")},
@@ -66,16 +66,17 @@ static const struct node_param program_params[] = {
 static int program_init(struct ngl_node *node)
 {
     struct program_priv *s = node->priv_data;
+    const struct program_opts *o = &s->opts;
 
-    if (!s->vertex || !s->fragment) {
+    if (!o->vertex || !o->fragment) {
         LOG(ERROR, "both vertex and fragment shaders must be set");
         return NGL_ERROR_INVALID_USAGE;
     }
 
     ngli_darray_init(&s->vert_out_vars_array, sizeof(struct pgcraft_iovar), 0);
-    if (s->vert_out_vars) {
+    if (o->vert_out_vars) {
         const struct hmap_entry *e = NULL;
-        while ((e = ngli_hmap_next(s->vert_out_vars, e))) {
+        while ((e = ngli_hmap_next(o->vert_out_vars, e))) {
             const struct ngl_node *iovar_node = e->data;
             const struct io_priv *iovar_priv = iovar_node->priv_data;
             struct pgcraft_iovar iovar = {
