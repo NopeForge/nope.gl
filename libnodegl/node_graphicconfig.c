@@ -29,7 +29,7 @@
 #include "internal.h"
 #include "utils.h"
 
-struct graphicconfig_priv {
+struct graphicconfig_opts {
     struct ngl_node *child;
 
     int blend;
@@ -59,7 +59,10 @@ struct graphicconfig_priv {
 
     int scissor_test;
     float scissor_f[4];
+};
 
+struct graphicconfig_priv {
+    struct graphicconfig_opts opts;
     struct graphicstate graphicstate;
     int use_scissor;
     int scissor[4];
@@ -152,7 +155,7 @@ static const struct param_choices cull_mode_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct graphicconfig_priv, x)
+#define OFFSET(x) offsetof(struct graphicconfig_priv, opts.x)
 static const struct node_param graphicconfig_params[] = {
     {"child",              NGLI_PARAM_TYPE_NODE,   OFFSET(child),              .flags=NGLI_PARAM_FLAG_NON_NULL,
                            .desc=NGLI_DOCSTRING("scene to which the graphic configuration will be applied")},
@@ -219,22 +222,23 @@ static const struct node_param graphicconfig_params[] = {
 static int graphicconfig_init(struct ngl_node *node)
 {
     struct graphicconfig_priv *s = node->priv_data;
+    const struct graphicconfig_opts *o = &s->opts;
 
-    if (s->stencil_write_mask != -1 &&
-        (s->stencil_write_mask < 0 || s->stencil_write_mask > 0xff)) {
-        LOG(ERROR, "stencil write mask (0x%x) must be in the range [0, 0xff]", s->stencil_write_mask);
+    if (o->stencil_write_mask != -1 &&
+        (o->stencil_write_mask < 0 || o->stencil_write_mask > 0xff)) {
+        LOG(ERROR, "stencil write mask (0x%x) must be in the range [0, 0xff]", o->stencil_write_mask);
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    if (s->stencil_read_mask != -1 &&
-        (s->stencil_read_mask < 0 || s->stencil_read_mask > 0xff)) {
-        LOG(ERROR, "stencil read mask (0x%x) must be in the range [0, 0xff]", s->stencil_read_mask);
+    if (o->stencil_read_mask != -1 &&
+        (o->stencil_read_mask < 0 || o->stencil_read_mask > 0xff)) {
+        LOG(ERROR, "stencil read mask (0x%x) must be in the range [0, 0xff]", o->stencil_read_mask);
         return NGL_ERROR_INVALID_USAGE;
     }
 
     static const float default_scissor[4] = DEFAULT_SCISSOR_F;
-    s->use_scissor = memcmp(s->scissor_f, default_scissor, sizeof(s->scissor_f));
-    const float *sf = s->scissor_f;
+    s->use_scissor = memcmp(o->scissor_f, default_scissor, sizeof(o->scissor_f));
+    const float *sf = o->scissor_f;
     const int scissor[4] = {sf[0], sf[1], sf[2], sf[3]};
     memcpy(s->scissor, scissor, sizeof(s->scissor));
 
@@ -242,8 +246,8 @@ static int graphicconfig_init(struct ngl_node *node)
 }
 
 #define COPY_PARAM(name) do {        \
-    if (s->name != -1) {             \
-        pending->name = s->name;     \
+    if (o->name != -1) {             \
+        pending->name = o->name;     \
     }                                \
 } while (0)                          \
 
@@ -254,6 +258,7 @@ static void honor_config(struct ngl_node *node)
     struct rnode *rnode = ctx->rnode_pos;
     struct graphicconfig_priv *s = node->priv_data;
     struct graphicstate *pending = &rnode->graphicstate;
+    const struct graphicconfig_opts *o = &s->opts;
 
     s->graphicstate = *pending;
 
@@ -280,8 +285,8 @@ static void honor_config(struct ngl_node *node)
     COPY_PARAM(stencil_depth_fail);
     COPY_PARAM(stencil_depth_pass);
 
-    if (s->cull_mode != -1)
-        pending->cull_mode = ngli_gpu_ctx_transform_cull_mode(gpu_ctx, s->cull_mode);
+    if (o->cull_mode != -1)
+        pending->cull_mode = ngli_gpu_ctx_transform_cull_mode(gpu_ctx, o->cull_mode);
 
     COPY_PARAM(scissor_test);
 }
@@ -289,10 +294,10 @@ static void honor_config(struct ngl_node *node)
 static int graphicconfig_prepare(struct ngl_node *node)
 {
     struct graphicconfig_priv *s = node->priv_data;
-    struct ngl_node *child = s->child;
+    const struct graphicconfig_opts *o = &s->opts;
 
     honor_config(node);
-    return ngli_node_prepare(child);
+    return ngli_node_prepare(o->child);
 }
 
 static void graphicconfig_draw(struct ngl_node *node)
@@ -300,7 +305,7 @@ static void graphicconfig_draw(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct graphicconfig_priv *s = node->priv_data;
-    struct ngl_node *child = s->child;
+    const struct graphicconfig_opts *o = &s->opts;
 
     int prev_scissor[4];
     if (s->use_scissor) {
@@ -308,7 +313,7 @@ static void graphicconfig_draw(struct ngl_node *node)
         ngli_gpu_ctx_set_scissor(gpu_ctx, s->scissor);
     }
 
-    ngli_node_draw(child);
+    ngli_node_draw(o->child);
 
     if (s->use_scissor)
         ngli_gpu_ctx_set_scissor(gpu_ctx, prev_scissor);
