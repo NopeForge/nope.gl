@@ -31,7 +31,7 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-struct camera_priv {
+struct camera_opts {
     struct ngl_node *child;
     float eye[3];
     float center[3];
@@ -40,10 +40,13 @@ struct camera_priv {
     float perspective[2];
     float orthographic[4];
     float clipping[2];
-
     struct ngl_node *eye_transform;
     struct ngl_node *center_transform;
     struct ngl_node *up_transform;
+};
+
+struct camera_priv {
+    struct camera_opts opts;
 
     int use_perspective;
     int use_orthographic;
@@ -71,45 +74,46 @@ static int update_matrices(struct ngl_node *node, double t)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct camera_priv *s = node->priv_data;
+    const struct camera_opts *o = &s->opts;
 
-    NGLI_ALIGNED_VEC(eye)    = {NGLI_ARG_VEC3(s->eye),    1.0f};
-    NGLI_ALIGNED_VEC(center) = {NGLI_ARG_VEC3(s->center), 1.0f};
-    NGLI_ALIGNED_VEC(up)     = {NGLI_ARG_VEC3(s->up),     1.0f};
+    NGLI_ALIGNED_VEC(eye)    = {NGLI_ARG_VEC3(o->eye),    1.0f};
+    NGLI_ALIGNED_VEC(center) = {NGLI_ARG_VEC3(o->center), 1.0f};
+    NGLI_ALIGNED_VEC(up)     = {NGLI_ARG_VEC3(o->up),     1.0f};
 
     int ret;
-    if ((ret = apply_transform(eye, s->eye_transform, t)) < 0 ||
-        (ret = apply_transform(center, s->center_transform, t)) < 0 ||
-        (ret = apply_transform(up, s->up_transform, t)) < 0)
+    if ((ret = apply_transform(eye, o->eye_transform, t)) < 0 ||
+        (ret = apply_transform(center, o->center_transform, t)) < 0 ||
+        (ret = apply_transform(up, o->up_transform, t)) < 0)
         return ret;
 
     ngli_mat4_look_at(s->modelview_matrix, eye, center, up);
 
     const float *perspective;
-    if (s->perspective_node) {
-        struct ngl_node *anim_node = s->perspective_node;
+    if (o->perspective_node) {
+        struct ngl_node *anim_node = o->perspective_node;
         struct variable_priv *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
         perspective = anim->data;
     } else {
-        perspective = s->perspective;
+        perspective = o->perspective;
     }
 
     if (s->use_perspective) {
         ngli_mat4_perspective(s->projection_matrix,
                               perspective[0],
                               perspective[1],
-                              s->clipping[0],
-                              s->clipping[1]);
+                              o->clipping[0],
+                              o->clipping[1]);
     } else if (s->use_orthographic) {
         ngli_mat4_orthographic(s->projection_matrix,
-                               s->orthographic[0],
-                               s->orthographic[1],
-                               s->orthographic[2],
-                               s->orthographic[3],
-                               s->clipping[0],
-                               s->clipping[1]);
+                               o->orthographic[0],
+                               o->orthographic[1],
+                               o->orthographic[2],
+                               o->orthographic[3],
+                               o->clipping[0],
+                               o->clipping[1]);
     } else {
         ngli_mat4_identity(s->projection_matrix);
     }
@@ -123,17 +127,18 @@ static int update_matrices(struct ngl_node *node, double t)
 static int update_params(struct ngl_node *node)
 {
     struct camera_priv *s = node->priv_data;
+    struct camera_opts *o = &s->opts;
 
-    ngli_vec3_norm(s->up, s->up);
+    ngli_vec3_norm(o->up, o->up);
 
     static const float zvec[4];
-    s->use_perspective = memcmp(s->perspective, zvec, sizeof(s->perspective)) || s->perspective_node;
-    s->use_orthographic = memcmp(s->orthographic, zvec, sizeof(s->orthographic));
+    s->use_perspective = memcmp(o->perspective, zvec, sizeof(o->perspective)) || o->perspective_node;
+    s->use_orthographic = memcmp(o->orthographic, zvec, sizeof(o->orthographic));
 
     return 0;
 }
 
-#define OFFSET(x) offsetof(struct camera_priv, x)
+#define OFFSET(x) offsetof(struct camera_priv, opts.x)
 static const struct node_param camera_params[] = {
     {"child", NGLI_PARAM_TYPE_NODE, OFFSET(child), .flags=NGLI_PARAM_FLAG_NON_NULL,
               .desc=NGLI_DOCSTRING("scene to observe through the lens of the camera")},
@@ -179,13 +184,14 @@ static const struct node_param camera_params[] = {
 static int camera_init(struct ngl_node *node)
 {
     struct camera_priv *s = node->priv_data;
+    struct camera_opts *o = &s->opts;
 
-    ngli_vec3_norm(s->up, s->up);
+    ngli_vec3_norm(o->up, o->up);
 
     float ground[3];
-    ngli_vec3_sub(ground, s->eye, s->center);
+    ngli_vec3_sub(ground, o->eye, o->center);
     ngli_vec3_norm(ground, ground);
-    ngli_vec3_cross(ground, ground, s->up);
+    ngli_vec3_cross(ground, ground, o->up);
 
     if (!ground[0] && !ground[1] && !ground[2]) {
         LOG(ERROR, "view and up are collinear");
@@ -193,19 +199,19 @@ static int camera_init(struct ngl_node *node)
     }
 
     static const float zvec[4];
-    s->use_perspective = memcmp(s->perspective, zvec, sizeof(s->perspective)) || s->perspective_node;
-    s->use_orthographic = memcmp(s->orthographic, zvec, sizeof(s->orthographic));
+    s->use_perspective = memcmp(o->perspective, zvec, sizeof(o->perspective)) || o->perspective_node;
+    s->use_orthographic = memcmp(o->orthographic, zvec, sizeof(o->orthographic));
 
     if ((s->use_perspective || s->use_orthographic) &&
-        !memcmp(s->clipping, zvec, sizeof(s->clipping))) {
+        !memcmp(o->clipping, zvec, sizeof(o->clipping))) {
         LOG(ERROR, "clipping must be set when perspective or orthographic is used");
         return NGL_ERROR_INVALID_ARG;
     }
 
     int ret;
-    if ((ret = ngli_transform_chain_check(s->eye_transform)) < 0 ||
-        (ret = ngli_transform_chain_check(s->center_transform)) < 0 ||
-        (ret = ngli_transform_chain_check(s->up_transform)) < 0)
+    if ((ret = ngli_transform_chain_check(o->eye_transform)) < 0 ||
+        (ret = ngli_transform_chain_check(o->center_transform)) < 0 ||
+        (ret = ngli_transform_chain_check(o->up_transform)) < 0)
         return ret;
 
     return 0;
@@ -214,7 +220,8 @@ static int camera_init(struct ngl_node *node)
 static int camera_update(struct ngl_node *node, double t)
 {
     struct camera_priv *s = node->priv_data;
-    struct ngl_node *child = s->child;
+    struct camera_opts *o = &s->opts;
+    struct ngl_node *child = o->child;
 
     int ret = update_matrices(node, t);
     if (ret < 0)
@@ -227,12 +234,13 @@ static void camera_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct camera_priv *s = node->priv_data;
+    struct camera_opts *o = &s->opts;
 
     if (!ngli_darray_push(&ctx->modelview_matrix_stack, s->modelview_matrix) ||
         !ngli_darray_push(&ctx->projection_matrix_stack, s->projection_matrix))
         return;
 
-    ngli_node_draw(s->child);
+    ngli_node_draw(o->child);
 
     ngli_darray_pop(&ctx->modelview_matrix_stack);
     ngli_darray_pop(&ctx->projection_matrix_stack);
