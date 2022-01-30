@@ -1150,9 +1150,16 @@ static void setup_glsl_info_gl(struct pgcraft *s)
 
     s->has_explicit_bindings = IS_GLSL_ES_MIN(310) || IS_GLSL_MIN(420) ||
                                (gpu_ctx->features & NGLI_FEATURE_SHADING_LANGUAGE_420PACK);
-    /* Bindings are unique across stages and types */
-    for (int i = 0; i < NB_BINDINGS; i++)
-        s->next_bindings[i] = &s->bindings[i];
+
+    /*
+     * Bindings are shared across all stages. UBO and SSBO bindings are shared
+     * but distinct from textures bindings.
+     */
+    for (int i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_UBO)] = &s->bindings[0];
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_SSBO)] = &s->bindings[0];
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_TEXTURE)] = &s->bindings[1];
+    }
 
     /* Force non-explicit texture bindings for contexts that do not support
      * explicit locations and bindings */
