@@ -483,3 +483,52 @@ def data_eval(cfg):
     render.update_frag_resources(color=color)
 
     return render
+
+
+@test_cuepoints(points={'c': (0, 0)}, nb_keyframes=1, tolerance=1)
+@scene()
+def data_vertex_and_fragment_blocks(cfg):
+    '''
+    This test ensures that the block bindings are properly set by pgcraft
+    when UBOs or SSBOs are bound to different stages.
+    '''
+    cfg.aspect_ratio = (1, 1)
+
+    src = ngl.Block(
+        fields=[
+            ngl.UniformVec3(value=COLORS.red, label='color'),
+            ngl.UniformFloat(value=0.5, label='opacity'),
+        ],
+        layout='std140',
+    )
+    dst = ngl.Block(
+        fields=[
+            ngl.UniformVec3(value=COLORS.white, label='color'),
+        ],
+        layout='std140',
+    )
+    vert = textwrap.dedent('''\
+    void main()
+    {
+        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+        var_src = vec4(src.color, 1.0) * src.opacity;
+    }
+    ''')
+    frag = textwrap.dedent('''\
+    void main()
+    {
+        vec3 color = var_src.rgb + (1.0 - var_src.a) * dst.color;
+        ngl_out_color = vec4(color, 1.0);
+    }
+    ''')
+
+    program = ngl.Program(vertex=vert, fragment=frag)
+    program.update_vert_out_vars(
+        var_src=ngl.IOVec4(),
+    )
+    geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
+    render = ngl.Render(geometry, program)
+    render.update_vert_resources(src=src)
+    render.update_frag_resources(dst=dst)
+
+    return render

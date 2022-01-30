@@ -176,6 +176,7 @@ foreach backend : backends
       'streamed_vec4_time_anim',
       'streamed_buffer_vec4',
       'streamed_buffer_vec4_time_anim',
+      'vertex_and_fragment_blocks',
     ]
     foreach test_name : block_names
       tests_data += test_name + '_std140'
