@@ -60,7 +60,7 @@ struct pipeline_desc {
     struct pipeline_subdesc fg; /* Foreground (characters) */
 };
 
-struct text_priv {
+struct text_opts {
     struct livectl live;
     float fg_color[3];
     float fg_opacity;
@@ -73,7 +73,10 @@ struct text_priv {
     float font_scale;
     int valign, halign;
     int aspect_ratio[2];
+};
 
+struct text_priv {
+    struct text_opts opts;
     struct buffer *vertices;
     struct buffer *uvcoords;
     struct buffer *indices;
@@ -120,7 +123,7 @@ static int set_live_changed(struct ngl_node *node)
     return 0;
 }
 
-#define OFFSET(x) offsetof(struct text_priv, x)
+#define OFFSET(x) offsetof(struct text_priv, opts.x)
 static const struct node_param text_params[] = {
     {"text",         NGLI_PARAM_TYPE_STR, OFFSET(live.val.s), {.str=""},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_NON_NULL,
@@ -193,9 +196,9 @@ static const struct pgcraft_iovar vert_out_vars[] = {
     {.name = "var_tex_coord", .type = NGLI_TYPE_VEC2},
 };
 
-#define BC(index) s->box_corner[index]
-#define BW(index) s->box_width[index]
-#define BH(index) s->box_height[index]
+#define BC(index) o->box_corner[index]
+#define BW(index) o->box_width[index]
+#define BH(index) o->box_height[index]
 
 #define C(index) chr_corner[index]
 #define W(index) chr_width[index]
@@ -226,9 +229,10 @@ static int update_character_geometries(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct text_priv *s = node->priv_data;
+    struct text_opts *o = &s->opts;
 
     int ret = 0;
-    const char *str = s->live.val.s;
+    const char *str = o->live.val.s;
 
     int text_cols, text_rows, text_nbchr;
     get_char_box_dim(str, &text_cols, &text_rows, &text_nbchr);
@@ -252,14 +256,14 @@ static int update_character_geometries(struct ngl_node *node)
     }
 
     /* Text/Box ratio */
-    const float box_width_len  = ngli_vec3_length(s->box_width);
-    const float box_height_len = ngli_vec3_length(s->box_height);
+    const float box_width_len  = ngli_vec3_length(o->box_width);
+    const float box_height_len = ngli_vec3_length(o->box_height);
     static const int default_ar[2] = {1, 1};
-    const int *ar = s->aspect_ratio[1] ? s->aspect_ratio : default_ar;
+    const int *ar = o->aspect_ratio[1] ? o->aspect_ratio : default_ar;
     const float box_ratio = ar[0] * box_width_len / (float)(ar[1] * box_height_len);
 
-    const int text_width   = text_cols * NGLI_FONT_W + 2 * s->padding;
-    const int text_height  = text_rows * NGLI_FONT_H + 2 * s->padding;
+    const int text_width   = text_cols * NGLI_FONT_W + 2 * o->padding;
+    const int text_height  = text_rows * NGLI_FONT_H + 2 * o->padding;
     const float text_ratio = text_width / (float)(text_height);
 
     float ratio_w, ratio_h;
@@ -274,14 +278,14 @@ static int update_character_geometries(struct ngl_node *node)
     /* Apply aspect ratio and font scaling */
     float width[3];
     float height[3];
-    ngli_vec3_scale(width, s->box_width, ratio_w * s->font_scale);
-    ngli_vec3_scale(height, s->box_height, ratio_h * s->font_scale);
+    ngli_vec3_scale(width, o->box_width, ratio_w * o->font_scale);
+    ngli_vec3_scale(height, o->box_height, ratio_h * o->font_scale);
 
     /* User padding */
     float padw[3];
     float padh[3];
-    ngli_vec3_scale(padw, width,  s->padding / (float)text_width);
-    ngli_vec3_scale(padh, height, s->padding / (float)text_height);
+    ngli_vec3_scale(padw, width,  o->padding / (float)text_width);
+    ngli_vec3_scale(padh, height, o->padding / (float)text_height);
 
     /* Width and height of 1 character */
     const float chr_width[3] = {
@@ -298,14 +302,14 @@ static int update_character_geometries(struct ngl_node *node)
     /* Adjust text position according to alignment settings */
     float align_padw[3];
     float align_padh[3];
-    ngli_vec3_sub(align_padw, s->box_width,  width);
-    ngli_vec3_sub(align_padh, s->box_height, height);
+    ngli_vec3_sub(align_padw, o->box_width,  width);
+    ngli_vec3_sub(align_padh, o->box_height, height);
 
-    const float spx = (s->halign == HALIGN_CENTER ? .5f :
-                       s->halign == HALIGN_RIGHT  ? 1.f :
+    const float spx = (o->halign == HALIGN_CENTER ? .5f :
+                       o->halign == HALIGN_RIGHT  ? 1.f :
                        0.f);
-    const float spy = (s->valign == VALIGN_CENTER ? .5f :
-                       s->valign == VALIGN_TOP    ? 1.f :
+    const float spy = (o->valign == VALIGN_CENTER ? .5f :
+                       o->valign == VALIGN_TOP    ? 1.f :
                        0.f);
 
     float corner[3] = {
@@ -396,6 +400,7 @@ static int init_bounding_box_geometry(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct text_priv *s = node->priv_data;
+    const struct text_opts *o = &s->opts;
 
     const float vertices[] = {
         BC(0),                 BC(1),                 BC(2),
@@ -531,12 +536,13 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     struct ngl_ctx *ctx = node->ctx;
     struct rnode *rnode = ctx->rnode_pos;
     struct text_priv *s = node->priv_data;
+    const struct text_opts *o = &s->opts;
 
     const struct pgcraft_uniform uniforms[] = {
         {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
         {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = s->bg_color},
-        {.name = "opacity",           .type = NGLI_TYPE_FLOAT, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = &s->bg_opacity},
+        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = o->bg_color},
+        {.name = "opacity",           .type = NGLI_TYPE_FLOAT, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = &o->bg_opacity},
     };
 
     const struct pgcraft_attribute attributes[] = {
@@ -583,12 +589,13 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     struct ngl_ctx *ctx = node->ctx;
     struct rnode *rnode = ctx->rnode_pos;
     struct text_priv *s = node->priv_data;
+    const struct text_opts *o = &s->opts;
 
     const struct pgcraft_uniform uniforms[] = {
         {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
         {.name = "projection_matrix", .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
-        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = s->fg_color},
-        {.name = "opacity",           .type = NGLI_TYPE_FLOAT, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = &s->fg_opacity},
+        {.name = "color",             .type = NGLI_TYPE_VEC3, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = o->fg_color},
+        {.name = "opacity",           .type = NGLI_TYPE_FLOAT, .stage = NGLI_PROGRAM_SHADER_FRAG, .data = &o->fg_opacity},
     };
 
     const struct pgcraft_texture textures[] = {
@@ -697,6 +704,7 @@ static void text_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct text_priv *s = node->priv_data;
+    const struct text_opts *o = &s->opts;
 
     const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
@@ -713,16 +721,16 @@ static void text_draw(struct ngl_node *node)
     struct pipeline_subdesc *bg_desc = &desc->bg;
     ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->modelview_matrix_index, modelview_matrix);
     ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->projection_matrix_index, projection_matrix);
-    ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->color_index, s->bg_color);
-    ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->opacity_index, &s->bg_opacity);
+    ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->color_index, o->bg_color);
+    ngli_pipeline_compat_update_uniform(bg_desc->pipeline_compat, bg_desc->opacity_index, &o->bg_opacity);
     ngli_pipeline_compat_draw(bg_desc->pipeline_compat, 4, 1);
 
     if (s->nb_indices) {
         struct pipeline_subdesc *fg_desc = &desc->fg;
         ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->modelview_matrix_index, modelview_matrix);
         ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->projection_matrix_index, projection_matrix);
-        ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->color_index, s->fg_color);
-        ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->opacity_index, &s->fg_opacity);
+        ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->color_index, o->fg_color);
+        ngli_pipeline_compat_update_uniform(fg_desc->pipeline_compat, fg_desc->opacity_index, &o->fg_opacity);
         ngli_pipeline_compat_draw_indexed(fg_desc->pipeline_compat, s->indices, NGLI_FORMAT_R16_UNORM, s->nb_indices, 1);
     }
 }
