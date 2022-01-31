@@ -34,26 +34,26 @@
 
 struct triangle_priv {
     struct geometry geom;
-    float triangle_edges[9];
-    float triangle_uvs[6];
+    float edges[9];
+    float uvs[6];
 };
 
 #define OFFSET(x) offsetof(struct triangle_priv, x)
 static const struct node_param triangle_params[] = {
-    {"edge0", NGLI_PARAM_TYPE_VEC3, OFFSET(triangle_edges[0]),
+    {"edge0", NGLI_PARAM_TYPE_VEC3, OFFSET(edges[0]),
               {.vec={1.0, -1.0, 0.0}},
               .desc=NGLI_DOCSTRING("first edge coordinate of the triangle")},
-    {"edge1", NGLI_PARAM_TYPE_VEC3, OFFSET(triangle_edges[3]),
+    {"edge1", NGLI_PARAM_TYPE_VEC3, OFFSET(edges[3]),
               {.vec={0.0, 1.0, 0.0}},
               .desc=NGLI_DOCSTRING("second edge coordinate of the triangle")},
-    {"edge2", NGLI_PARAM_TYPE_VEC3, OFFSET(triangle_edges[6]),
+    {"edge2", NGLI_PARAM_TYPE_VEC3, OFFSET(edges[6]),
               {.vec={-1.0, -1.0, 0.0}},
              .desc=NGLI_DOCSTRING("third edge coordinate of the triangle")},
-    {"uv_edge0", NGLI_PARAM_TYPE_VEC2, OFFSET(triangle_uvs[0]), {.vec={0.0f, 0.0f}},
+    {"uv_edge0", NGLI_PARAM_TYPE_VEC2, OFFSET(uvs[0]), {.vec={0.0f, 0.0f}},
                  .desc=NGLI_DOCSTRING("UV coordinate associated with `edge0`")},
-    {"uv_edge1", NGLI_PARAM_TYPE_VEC2, OFFSET(triangle_uvs[2]), {.vec={0.0f, 1.0f}},
+    {"uv_edge1", NGLI_PARAM_TYPE_VEC2, OFFSET(uvs[2]), {.vec={0.0f, 1.0f}},
                  .desc=NGLI_DOCSTRING("UV coordinate associated with `edge1`")},
-    {"uv_edge2", NGLI_PARAM_TYPE_VEC2, OFFSET(triangle_uvs[4]), {.vec={1.0f, 1.0f}},
+    {"uv_edge2", NGLI_PARAM_TYPE_VEC2, OFFSET(uvs[4]), {.vec={1.0f, 1.0f}},
                  .desc=NGLI_DOCSTRING("UV coordinate associated with `edge2`")},
     {NULL}
 };
@@ -67,10 +67,7 @@ static int triangle_init(struct ngl_node *node)
     struct triangle_priv *s = node->priv_data;
 
     float normals[3 * NB_VERTICES];
-    ngli_vec3_normalvec(normals,
-                        s->triangle_edges,
-                        s->triangle_edges + 3,
-                        s->triangle_edges + 6);
+    ngli_vec3_normalvec(normals, s->edges, s->edges + 3, s->edges + 6);
 
     for (int i = 1; i < NB_VERTICES; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
@@ -78,9 +75,9 @@ static int triangle_init(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
     int ret;
-    if ((ret = ngli_geometry_gen_vec3(&s->geom.vertices_buffer, &s->geom.vertices_layout, gpu_ctx, NB_VERTICES, s->triangle_edges)) < 0 ||
-        (ret = ngli_geometry_gen_vec2(&s->geom.uvcoords_buffer, &s->geom.uvcoords_layout, gpu_ctx, NB_VERTICES, s->triangle_uvs))   < 0 ||
-        (ret = ngli_geometry_gen_vec3(&s->geom.normals_buffer,  &s->geom.normals_layout,  gpu_ctx, NB_VERTICES, normals))           < 0)
+    if ((ret = ngli_geometry_gen_vec3(&s->geom.vertices_buffer, &s->geom.vertices_layout, gpu_ctx, NB_VERTICES, s->edges)) < 0 ||
+        (ret = ngli_geometry_gen_vec2(&s->geom.uvcoords_buffer, &s->geom.uvcoords_layout, gpu_ctx, NB_VERTICES, s->uvs))   < 0 ||
+        (ret = ngli_geometry_gen_vec3(&s->geom.normals_buffer,  &s->geom.normals_layout,  gpu_ctx, NB_VERTICES, normals))  < 0)
         return 0;
 
     s->geom.topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
