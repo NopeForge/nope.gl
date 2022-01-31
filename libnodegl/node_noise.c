@@ -27,10 +27,14 @@
 #include "noise.h"
 #include "type.h"
 
-struct noise_priv {
-    struct variable_priv var;
+struct noise_opts {
     float frequency;
     struct noise_params generator_params;
+};
+
+struct noise_priv {
+    struct variable_priv var;
+    struct noise_opts opts;
     struct noise generator[4];
 };
 
@@ -44,7 +48,7 @@ const struct param_choices noise_func_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct noise_priv, x)
+#define OFFSET(x) offsetof(struct noise_priv, opts.x)
 static const struct node_param noise_params[] = {
     {"frequency",   NGLI_PARAM_TYPE_F32, OFFSET(frequency), {.f32=1.f},
                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
@@ -69,12 +73,13 @@ static const struct node_param noise_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(variable_priv_is_first, OFFSET(var) == 0);
+NGLI_STATIC_ASSERT(variable_priv_is_first, offsetof(struct noise_priv, var) == 0);
 
 static int noisevec_update(struct ngl_node *node, double t, int n)
 {
     struct noise_priv *s = node->priv_data;
-    const float v = t * s->frequency;
+    const struct noise_opts *o = &s->opts;
+    const float v = t * o->frequency;
     for (int i = 0; i < n; i++)
         s->var.vector[i] = ngli_noise_get(&s->generator[i], v);
     return 0;
@@ -107,10 +112,11 @@ static int init_noise_generators(struct noise_priv *s, int n)
      * offset is defined to create a large gap between every components to keep
      * the overlap to the minimum possible
      */
+    const struct noise_opts *o = &s->opts;
     const uint32_t seed_offset = UINT32_MAX / n;
-    uint32_t seed = s->generator_params.seed;
+    uint32_t seed = o->generator_params.seed;
     for (int i = 0; i < n; i++) {
-        struct noise_params np = s->generator_params;
+        struct noise_params np = o->generator_params;
         np.seed = seed;
         int ret = ngli_noise_init(&s->generator[i], &np);
         if (ret < 0)
