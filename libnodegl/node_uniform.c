@@ -39,7 +39,7 @@ static void live_boundaries_clamp_##type(struct ngl_node *node)                 
     struct variable_priv *s = node->priv_data;                                                              \
     struct variable_opts *o = &s->opts;                                                                     \
                                                                                                             \
-    if (!o->opt.id)                                                                                         \
+    if (!o->live.id)                                                                                        \
         return;                                                                                             \
                                                                                                             \
     for (int i = 0; i < n; i++) {                                                                           \
@@ -73,26 +73,26 @@ static int uniform##type##_update_func(struct ngl_node *node)                   
     return 0;                                                                                               \
 }                                                                                                           \
 
-DECLARE_UPDATE_FUNCS(int,   o->opt.val.i, o->opt.min.i, o->opt.max.i, "%i", 1)
-DECLARE_UPDATE_FUNCS(ivec2, o->opt.val.i, o->opt.min.i, o->opt.max.i, "%i", 2)
-DECLARE_UPDATE_FUNCS(ivec3, o->opt.val.i, o->opt.min.i, o->opt.max.i, "%i", 3)
-DECLARE_UPDATE_FUNCS(ivec4, o->opt.val.i, o->opt.min.i, o->opt.max.i, "%i", 4)
+DECLARE_UPDATE_FUNCS(int,   o->live.val.i, o->live.min.i, o->live.max.i, "%i", 1)
+DECLARE_UPDATE_FUNCS(ivec2, o->live.val.i, o->live.min.i, o->live.max.i, "%i", 2)
+DECLARE_UPDATE_FUNCS(ivec3, o->live.val.i, o->live.min.i, o->live.max.i, "%i", 3)
+DECLARE_UPDATE_FUNCS(ivec4, o->live.val.i, o->live.min.i, o->live.max.i, "%i", 4)
 
-DECLARE_UPDATE_FUNCS(uint,  o->opt.val.u, o->opt.min.u, o->opt.max.u, "%u", 1)
-DECLARE_UPDATE_FUNCS(uvec2, o->opt.val.u, o->opt.min.u, o->opt.max.u, "%u", 2)
-DECLARE_UPDATE_FUNCS(uvec3, o->opt.val.u, o->opt.min.u, o->opt.max.u, "%u", 3)
-DECLARE_UPDATE_FUNCS(uvec4, o->opt.val.u, o->opt.min.u, o->opt.max.u, "%u", 4)
+DECLARE_UPDATE_FUNCS(uint,  o->live.val.u, o->live.min.u, o->live.max.u, "%u", 1)
+DECLARE_UPDATE_FUNCS(uvec2, o->live.val.u, o->live.min.u, o->live.max.u, "%u", 2)
+DECLARE_UPDATE_FUNCS(uvec3, o->live.val.u, o->live.min.u, o->live.max.u, "%u", 3)
+DECLARE_UPDATE_FUNCS(uvec4, o->live.val.u, o->live.min.u, o->live.max.u, "%u", 4)
 
-DECLARE_UPDATE_FUNCS(float, o->opt.val.f, o->opt.min.f, o->opt.max.f, "%g", 1)
-DECLARE_UPDATE_FUNCS(vec2,  o->opt.val.f, o->opt.min.f, o->opt.max.f, "%g", 2)
-DECLARE_UPDATE_FUNCS(vec3,  o->opt.val.f, o->opt.min.f, o->opt.max.f, "%g", 3)
-DECLARE_UPDATE_FUNCS(vec4,  o->opt.val.f, o->opt.min.f, o->opt.max.f, "%g", 4)
+DECLARE_UPDATE_FUNCS(float, o->live.val.f, o->live.min.f, o->live.max.f, "%g", 1)
+DECLARE_UPDATE_FUNCS(vec2,  o->live.val.f, o->live.min.f, o->live.max.f, "%g", 2)
+DECLARE_UPDATE_FUNCS(vec3,  o->live.val.f, o->live.min.f, o->live.max.f, "%g", 3)
+DECLARE_UPDATE_FUNCS(vec4,  o->live.val.f, o->live.min.f, o->live.max.f, "%g", 4)
 
 static int uniformbool_update_func(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
     const struct variable_opts *o = &s->opts;
-    memcpy(s->data, o->opt.val.i, s->data_size);
+    memcpy(s->data, o->live.val.i, s->data_size);
     return 0;
 }
 
@@ -104,7 +104,7 @@ static int uniformmat4_update_func(struct ngl_node *node)
         LOG(ERROR, "updating the matrix on a UniformMat4 with transforms is invalid");
         return NGL_ERROR_INVALID_USAGE;
     }
-    memcpy(s->data, o->opt.val.m, s->data_size);
+    memcpy(s->data, o->live.val.m, s->data_size);
     return 0;
 }
 
@@ -113,7 +113,7 @@ static int uniformquat_update_func(struct ngl_node *node)
     struct variable_priv *s = node->priv_data;
     const struct variable_opts *o = &s->opts;
     live_boundaries_clamp_vec4(node);
-    memcpy(s->vector, o->opt.val.f, s->data_size);
+    memcpy(s->vector, o->live.val.f, s->data_size);
     if (o->as_mat4)
         ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     return 0;
@@ -122,221 +122,221 @@ static int uniformquat_update_func(struct ngl_node *node)
 #define OFFSET(x) offsetof(struct variable_priv, opts.x)
 
 static const struct node_param uniformbool_params[] = {
-    {"value",    NGLI_PARAM_TYPE_BOOL, OFFSET(opt.val.i),
+    {"value",    NGLI_PARAM_TYPE_BOOL, OFFSET(live.val.i),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformbool_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
     {NULL}
 };
 
 static const struct node_param uniformfloat_params[] = {
-    {"value",    NGLI_PARAM_TYPE_F32, OFFSET(opt.val.f),
+    {"value",    NGLI_PARAM_TYPE_F32, OFFSET(live.val.f),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformfloat_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_F32, OFFSET(opt.min.f), {.f32=0.f},
+    {"live_min", NGLI_PARAM_TYPE_F32, OFFSET(live.min.f), {.f32=0.f},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_F32, OFFSET(opt.max.f), {.f32=1.f},
+    {"live_max", NGLI_PARAM_TYPE_F32, OFFSET(live.max.f), {.f32=1.f},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformvec2_params[] = {
-    {"value",    NGLI_PARAM_TYPE_VEC2, OFFSET(opt.val.f),
+    {"value",    NGLI_PARAM_TYPE_VEC2, OFFSET(live.val.f),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformvec2_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_VEC2, OFFSET(opt.min.f), {.vec={0.f, 0.f}},
+    {"live_min", NGLI_PARAM_TYPE_VEC2, OFFSET(live.min.f), {.vec={0.f, 0.f}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_VEC2, OFFSET(opt.max.f), {.vec={1.f, 1.f}},
+    {"live_max", NGLI_PARAM_TYPE_VEC2, OFFSET(live.max.f), {.vec={1.f, 1.f}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformvec3_params[] = {
-    {"value",    NGLI_PARAM_TYPE_VEC3, OFFSET(opt.val.f),
+    {"value",    NGLI_PARAM_TYPE_VEC3, OFFSET(live.val.f),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformvec3_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_VEC3, OFFSET(opt.min.f), {.vec={0.f, 0.f, 0.f}},
+    {"live_min", NGLI_PARAM_TYPE_VEC3, OFFSET(live.min.f), {.vec={0.f, 0.f, 0.f}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_VEC3, OFFSET(opt.max.f), {.vec={1.f, 1.f, 1.f}},
+    {"live_max", NGLI_PARAM_TYPE_VEC3, OFFSET(live.max.f), {.vec={1.f, 1.f, 1.f}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformvec4_params[] = {
-    {"value",    NGLI_PARAM_TYPE_VEC4, OFFSET(opt.val.f),
+    {"value",    NGLI_PARAM_TYPE_VEC4, OFFSET(live.val.f),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformvec4_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_VEC4, OFFSET(opt.min.f), {.vec={0.f, 0.f, 0.f, 0.f}},
+    {"live_min", NGLI_PARAM_TYPE_VEC4, OFFSET(live.min.f), {.vec={0.f, 0.f, 0.f, 0.f}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_VEC4, OFFSET(opt.max.f), {.vec={1.f, 1.f, 1.f, 1.f}},
+    {"live_max", NGLI_PARAM_TYPE_VEC4, OFFSET(live.max.f), {.vec={1.f, 1.f, 1.f, 1.f}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformint_params[] = {
-    {"value",    NGLI_PARAM_TYPE_I32, OFFSET(opt.val.i),
+    {"value",    NGLI_PARAM_TYPE_I32, OFFSET(live.val.i),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformint_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_I32, OFFSET(opt.min.i), {.i32=-100},
+    {"live_min", NGLI_PARAM_TYPE_I32, OFFSET(live.min.i), {.i32=-100},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_I32, OFFSET(opt.max.i), {.i32=100},
+    {"live_max", NGLI_PARAM_TYPE_I32, OFFSET(live.max.i), {.i32=100},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformivec2_params[] = {
-    {"value",    NGLI_PARAM_TYPE_IVEC2, OFFSET(opt.val.i),
+    {"value",    NGLI_PARAM_TYPE_IVEC2, OFFSET(live.val.i),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformivec2_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_IVEC2, OFFSET(opt.min.i), {.ivec={-100, -100}},
+    {"live_min", NGLI_PARAM_TYPE_IVEC2, OFFSET(live.min.i), {.ivec={-100, -100}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_IVEC2, OFFSET(opt.max.i), {.ivec={100, 100}},
+    {"live_max", NGLI_PARAM_TYPE_IVEC2, OFFSET(live.max.i), {.ivec={100, 100}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformivec3_params[] = {
-    {"value",    NGLI_PARAM_TYPE_IVEC3, OFFSET(opt.val.i),
+    {"value",    NGLI_PARAM_TYPE_IVEC3, OFFSET(live.val.i),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformivec3_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_IVEC3, OFFSET(opt.min.i), {.ivec={-100, -100, -100}},
+    {"live_min", NGLI_PARAM_TYPE_IVEC3, OFFSET(live.min.i), {.ivec={-100, -100, -100}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_IVEC3, OFFSET(opt.max.i), {.ivec={100, 100, 100}},
+    {"live_max", NGLI_PARAM_TYPE_IVEC3, OFFSET(live.max.i), {.ivec={100, 100, 100}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformivec4_params[] = {
-    {"value",    NGLI_PARAM_TYPE_IVEC4, OFFSET(opt.val.i),
+    {"value",    NGLI_PARAM_TYPE_IVEC4, OFFSET(live.val.i),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformivec4_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_IVEC4, OFFSET(opt.min.i), {.ivec={-100, -100, -100, -100}},
+    {"live_min", NGLI_PARAM_TYPE_IVEC4, OFFSET(live.min.i), {.ivec={-100, -100, -100, -100}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_IVEC4, OFFSET(opt.max.i), {.ivec={100, 100, 100, 100}},
+    {"live_max", NGLI_PARAM_TYPE_IVEC4, OFFSET(live.max.i), {.ivec={100, 100, 100, 100}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformuint_params[] = {
-    {"value",    NGLI_PARAM_TYPE_U32, OFFSET(opt.val.u),
+    {"value",    NGLI_PARAM_TYPE_U32, OFFSET(live.val.u),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformuint_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_U32, OFFSET(opt.min.u), {.u32=0},
+    {"live_min", NGLI_PARAM_TYPE_U32, OFFSET(live.min.u), {.u32=0},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_U32, OFFSET(opt.max.u), {.u32=100},
+    {"live_max", NGLI_PARAM_TYPE_U32, OFFSET(live.max.u), {.u32=100},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformuivec2_params[] = {
-    {"value",    NGLI_PARAM_TYPE_UVEC2, OFFSET(opt.val.u),
+    {"value",    NGLI_PARAM_TYPE_UVEC2, OFFSET(live.val.u),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformuvec2_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_UVEC2, OFFSET(opt.min.u), {.uvec={0, 0}},
+    {"live_min", NGLI_PARAM_TYPE_UVEC2, OFFSET(live.min.u), {.uvec={0, 0}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_UVEC2, OFFSET(opt.max.u), {.uvec={100, 100}},
+    {"live_max", NGLI_PARAM_TYPE_UVEC2, OFFSET(live.max.u), {.uvec={100, 100}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformuivec3_params[] = {
-    {"value",    NGLI_PARAM_TYPE_UVEC3, OFFSET(opt.val.u),
+    {"value",    NGLI_PARAM_TYPE_UVEC3, OFFSET(live.val.u),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformuvec3_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_UVEC3, OFFSET(opt.min.u), {.uvec={0, 0, 0}},
+    {"live_min", NGLI_PARAM_TYPE_UVEC3, OFFSET(live.min.u), {.uvec={0, 0, 0}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_UVEC3, OFFSET(opt.max.u), {.uvec={100, 100, 100}},
+    {"live_max", NGLI_PARAM_TYPE_UVEC3, OFFSET(live.max.u), {.uvec={100, 100, 100}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformuivec4_params[] = {
-    {"value",    NGLI_PARAM_TYPE_UVEC4, OFFSET(opt.val.u),
+    {"value",    NGLI_PARAM_TYPE_UVEC4, OFFSET(live.val.u),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformuvec4_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_UVEC4, OFFSET(opt.min.u), {.uvec={0, 0, 0, 0}},
+    {"live_min", NGLI_PARAM_TYPE_UVEC4, OFFSET(live.min.u), {.uvec={0, 0, 0, 0}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_UVEC4, OFFSET(opt.max.u), {.uvec={100, 100, 100, 100}},
+    {"live_max", NGLI_PARAM_TYPE_UVEC4, OFFSET(live.max.u), {.uvec={100, 100, 100, 100}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformcolor_params[] = {
-    {"value",    NGLI_PARAM_TYPE_VEC3, OFFSET(opt.val.f),
+    {"value",    NGLI_PARAM_TYPE_VEC3, OFFSET(live.val.f),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformvec4_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_VEC3, OFFSET(opt.min.f), {.vec={0.f, 0.f, 0.f}},
+    {"live_min", NGLI_PARAM_TYPE_VEC3, OFFSET(live.min.f), {.vec={0.f, 0.f, 0.f}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_VEC3, OFFSET(opt.max.f), {.vec={1.f, 1.f, 1.f}},
+    {"live_max", NGLI_PARAM_TYPE_VEC3, OFFSET(live.max.f), {.vec={1.f, 1.f, 1.f}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformcolora_params[] = {
-    {"value",    NGLI_PARAM_TYPE_VEC4, OFFSET(opt.val.f),
+    {"value",    NGLI_PARAM_TYPE_VEC4, OFFSET(live.val.f),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                  .update_func=uniformvec4_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_VEC4, OFFSET(opt.min.f), {.vec={0.f, 0.f, 0.f, 0.f}},
+    {"live_min", NGLI_PARAM_TYPE_VEC4, OFFSET(live.min.f), {.vec={0.f, 0.f, 0.f, 0.f}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_VEC4, OFFSET(opt.max.f), {.vec={1.f, 1.f, 1.f, 1.f}},
+    {"live_max", NGLI_PARAM_TYPE_VEC4, OFFSET(live.max.f), {.vec={1.f, 1.f, 1.f, 1.f}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {NULL}
 };
 
 static const struct node_param uniformquat_params[] = {
-    {"value",  NGLI_PARAM_TYPE_VEC4, OFFSET(opt.val.f), {.vec=NGLI_QUAT_IDENTITY},
+    {"value",  NGLI_PARAM_TYPE_VEC4, OFFSET(live.val.f), {.vec=NGLI_QUAT_IDENTITY},
                .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                .update_func=uniformquat_update_func,
                .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_VEC4, OFFSET(opt.min.f), {.vec={-1.f, -1.f, -1.f, -1.f}},
+    {"live_min", NGLI_PARAM_TYPE_VEC4, OFFSET(live.min.f), {.vec={-1.f, -1.f, -1.f, -1.f}},
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_VEC4, OFFSET(opt.max.f), {.vec={1.f, 1.f, 1.f, 1.f}},
+    {"live_max", NGLI_PARAM_TYPE_VEC4, OFFSET(live.max.f), {.vec={1.f, 1.f, 1.f, 1.f}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
     {"as_mat4", NGLI_PARAM_TYPE_BOOL, OFFSET(as_mat4), {.i32=0},
                 .desc=NGLI_DOCSTRING("exposed as a 4x4 rotation matrix in the program")},
@@ -344,11 +344,11 @@ static const struct node_param uniformquat_params[] = {
 };
 
 static const struct node_param uniformmat4_params[] = {
-    {"value",     NGLI_PARAM_TYPE_MAT4, OFFSET(opt.val.m), {.mat=NGLI_MAT4_IDENTITY},
+    {"value",     NGLI_PARAM_TYPE_MAT4, OFFSET(live.val.m), {.mat=NGLI_MAT4_IDENTITY},
                   .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
                   .update_func=uniformmat4_update_func,
                   .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(opt.id),
+    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
     {"transform", NGLI_PARAM_TYPE_NODE, OFFSET(transform), .node_types=TRANSFORM_TYPES_LIST,
                   .desc=NGLI_DOCSTRING("`value` transformation chain")},
@@ -405,21 +405,21 @@ static int uniform##type##_init(struct ngl_node *node)      \
     return 0;                                               \
 }
 
-DECLARE_INIT_FUNC(bool,   NGLI_TYPE_BOOL,   1, s->ivector, o->opt.val.i)
-DECLARE_INIT_FUNC(int,    NGLI_TYPE_INT,    1, s->ivector, o->opt.val.i)
-DECLARE_INIT_FUNC(ivec2,  NGLI_TYPE_IVEC2,  2, s->ivector, o->opt.val.i)
-DECLARE_INIT_FUNC(ivec3,  NGLI_TYPE_IVEC3,  3, s->ivector, o->opt.val.i)
-DECLARE_INIT_FUNC(ivec4,  NGLI_TYPE_IVEC4,  4, s->ivector, o->opt.val.i)
-DECLARE_INIT_FUNC(uint,   NGLI_TYPE_UINT,   1, s->uvector, o->opt.val.u)
-DECLARE_INIT_FUNC(uivec2, NGLI_TYPE_UIVEC2, 2, s->uvector, o->opt.val.u)
-DECLARE_INIT_FUNC(uivec3, NGLI_TYPE_UIVEC3, 3, s->uvector, o->opt.val.u)
-DECLARE_INIT_FUNC(uivec4, NGLI_TYPE_UIVEC4, 4, s->uvector, o->opt.val.u)
-DECLARE_INIT_FUNC(float,  NGLI_TYPE_FLOAT,  1, s->vector,  o->opt.val.f)
-DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  o->opt.val.f)
-DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  o->opt.val.f)
-DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  o->opt.val.f)
-DECLARE_INIT_FUNC(color,  NGLI_TYPE_VEC3,   3, s->vector,  o->opt.val.f)
-DECLARE_INIT_FUNC(colora, NGLI_TYPE_VEC4,   4, s->vector,  o->opt.val.f)
+DECLARE_INIT_FUNC(bool,   NGLI_TYPE_BOOL,   1, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(int,    NGLI_TYPE_INT,    1, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(ivec2,  NGLI_TYPE_IVEC2,  2, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(ivec3,  NGLI_TYPE_IVEC3,  3, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(ivec4,  NGLI_TYPE_IVEC4,  4, s->ivector, o->live.val.i)
+DECLARE_INIT_FUNC(uint,   NGLI_TYPE_UINT,   1, s->uvector, o->live.val.u)
+DECLARE_INIT_FUNC(uivec2, NGLI_TYPE_UIVEC2, 2, s->uvector, o->live.val.u)
+DECLARE_INIT_FUNC(uivec3, NGLI_TYPE_UIVEC3, 3, s->uvector, o->live.val.u)
+DECLARE_INIT_FUNC(uivec4, NGLI_TYPE_UIVEC4, 4, s->uvector, o->live.val.u)
+DECLARE_INIT_FUNC(float,  NGLI_TYPE_FLOAT,  1, s->vector,  o->live.val.f)
+DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  o->live.val.f)
+DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  o->live.val.f)
+DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  o->live.val.f)
+DECLARE_INIT_FUNC(color,  NGLI_TYPE_VEC3,   3, s->vector,  o->live.val.f)
+DECLARE_INIT_FUNC(colora, NGLI_TYPE_VEC4,   4, s->vector,  o->live.val.f)
 
 static int uniformquat_init(struct ngl_node *node)
 {
@@ -429,7 +429,7 @@ static int uniformquat_init(struct ngl_node *node)
     s->data = s->vector;
     s->data_size = 4 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC4;
-    memcpy(s->data, o->opt.val.f, s->data_size);
+    memcpy(s->data, o->live.val.f, s->data_size);
     if (o->as_mat4) {
         s->data = s->matrix;
         s->data_size = sizeof(s->matrix);
@@ -458,7 +458,7 @@ static int uniformmat4_init(struct ngl_node *node)
      * complexity is probably not worth just for handling the case of a static
      * transformation list. */
     s->dynamic = !!o->transform;
-    memcpy(s->data, o->opt.val.m, s->data_size);
+    memcpy(s->data, o->live.val.m, s->data_size);
     return 0;
 }
 
@@ -472,7 +472,7 @@ const struct node_class ngli_uniform##type##_class = {          \
     .priv_size      = sizeof(struct variable_priv),             \
     .params         = uniform##type##_params,                   \
     .flags          = NGLI_NODE_FLAG_LIVECTL,                   \
-    .livectl_offset = OFFSET(opt),                              \
+    .livectl_offset = OFFSET(live),                             \
     .file           = __FILE__,                                 \
 };
 

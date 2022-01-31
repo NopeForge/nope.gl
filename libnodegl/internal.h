@@ -250,7 +250,7 @@ struct livectl {
 };
 
 struct variable_opts {
-    struct livectl opt;
+    struct livectl live;
 
     struct ngl_node **animkf;
     int nb_animkf;
