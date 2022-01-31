@@ -104,7 +104,7 @@ static const struct param_choices layout_choices = {
                                        NGL_NODE_TIME,                   \
                                        -1}
 
-#define OFFSET(x) offsetof(struct block_priv, x)
+#define OFFSET(x) offsetof(struct block_priv, opts.x)
 static const struct node_param block_params[] = {
     {"fields", NGLI_PARAM_TYPE_NODELIST, OFFSET(fields),
                .node_types=FIELD_TYPES_LIST,
@@ -240,9 +240,10 @@ static const struct {
 
 static void update_block_data(struct block_priv *s, int forced)
 {
+    const struct block_opts *o = &s->opts;
     const struct block_field *field_info = ngli_darray_data(&s->block.fields);
-    for (int i = 0; i < s->nb_fields; i++) {
-        const struct ngl_node *field_node = s->fields[i];
+    for (int i = 0; i < o->nb_fields; i++) {
+        const struct ngl_node *field_node = o->fields[i];
         const struct block_field *fi = &field_info[i];
         if (!forced && !field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].has_changed(field_node))
             continue;
@@ -291,32 +292,33 @@ static int block_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct block_priv *s = node->priv_data;
+    const struct block_opts *o = &s->opts;
 
-    if (s->layout == NGLI_BLOCK_LAYOUT_STD140 && !(gpu_ctx->features & FEATURES_STD140)) {
+    if (o->layout == NGLI_BLOCK_LAYOUT_STD140 && !(gpu_ctx->features & FEATURES_STD140)) {
         LOG(ERROR, "std140 blocks are not supported by this context");
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    if (s->layout == NGLI_BLOCK_LAYOUT_STD430 && !(gpu_ctx->features & FEATURES_STD430)) {
+    if (o->layout == NGLI_BLOCK_LAYOUT_STD430 && !(gpu_ctx->features & FEATURES_STD430)) {
         LOG(ERROR, "std430 blocks are not supported by this context");
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    if (!s->nb_fields) {
+    if (!o->nb_fields) {
         LOG(ERROR, "block fields must not be empty");
         return NGL_ERROR_INVALID_ARG;
     }
 
-    int ret = check_dup_labels(node->label, s->fields, s->nb_fields);
+    int ret = check_dup_labels(node->label, o->fields, o->nb_fields);
     if (ret < 0)
         return ret;
 
-    ngli_block_init(&s->block, s->layout);
+    ngli_block_init(&s->block, o->layout);
 
     s->usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-    for (int i = 0; i < s->nb_fields; i++) {
-        const struct ngl_node *field_node = s->fields[i];
+    for (int i = 0; i < o->nb_fields; i++) {
+        const struct ngl_node *field_node = o->fields[i];
         const int type  = get_node_data_type(field_node);
         const int count = get_node_data_count(field_node);
 

@@ -285,10 +285,14 @@ struct variable_priv {
 
 int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t);
 
-struct block_priv {
+struct block_opts {
     struct ngl_node **fields;
     int nb_fields;
     int layout;
+};
+
+struct block_priv {
+    struct block_opts opts;
 
     struct block block;
     int force_update;
