@@ -32,7 +32,13 @@
 #include "topology.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct geometry, x)
+struct triangle_priv {
+    struct geometry geom;
+    float triangle_edges[9];
+    float triangle_uvs[6];
+};
+
+#define OFFSET(x) offsetof(struct triangle_priv, x)
 static const struct node_param triangle_params[] = {
     {"edge0", NGLI_PARAM_TYPE_VEC3, OFFSET(triangle_edges[0]),
               {.vec={1.0, -1.0, 0.0}},
@@ -52,11 +58,13 @@ static const struct node_param triangle_params[] = {
     {NULL}
 };
 
+NGLI_STATIC_ASSERT(geom_on_top_of_triangle, offsetof(struct triangle_priv, geom) == 0);
+
 #define NB_VERTICES 3
 
 static int triangle_init(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct triangle_priv *s = node->priv_data;
 
     float normals[3 * NB_VERTICES];
     ngli_vec3_normalvec(normals,
@@ -70,23 +78,23 @@ static int triangle_init(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
     int ret;
-    if ((ret = ngli_geometry_gen_vec3(&s->vertices_buffer, &s->vertices_layout, gpu_ctx, NB_VERTICES, s->triangle_edges)) < 0 ||
-        (ret = ngli_geometry_gen_vec2(&s->uvcoords_buffer, &s->uvcoords_layout, gpu_ctx, NB_VERTICES, s->triangle_uvs))   < 0 ||
-        (ret = ngli_geometry_gen_vec3(&s->normals_buffer,  &s->normals_layout,  gpu_ctx, NB_VERTICES, normals))           < 0)
+    if ((ret = ngli_geometry_gen_vec3(&s->geom.vertices_buffer, &s->geom.vertices_layout, gpu_ctx, NB_VERTICES, s->triangle_edges)) < 0 ||
+        (ret = ngli_geometry_gen_vec2(&s->geom.uvcoords_buffer, &s->geom.uvcoords_layout, gpu_ctx, NB_VERTICES, s->triangle_uvs))   < 0 ||
+        (ret = ngli_geometry_gen_vec3(&s->geom.normals_buffer,  &s->geom.normals_layout,  gpu_ctx, NB_VERTICES, normals))           < 0)
         return 0;
 
-    s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    s->geom.topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
     return 0;
 }
 
 static void triangle_uninit(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct triangle_priv *s = node->priv_data;
 
-    ngli_buffer_freep(&s->vertices_buffer);
-    ngli_buffer_freep(&s->uvcoords_buffer);
-    ngli_buffer_freep(&s->normals_buffer);
+    ngli_buffer_freep(&s->geom.vertices_buffer);
+    ngli_buffer_freep(&s->geom.uvcoords_buffer);
+    ngli_buffer_freep(&s->geom.normals_buffer);
 }
 
 const struct node_class ngli_triangle_class = {
@@ -94,7 +102,7 @@ const struct node_class ngli_triangle_class = {
     .name      = "Triangle",
     .init      = triangle_init,
     .uninit    = triangle_uninit,
-    .priv_size = sizeof(struct geometry),
+    .priv_size = sizeof(struct triangle_priv),
     .params    = triangle_params,
     .file      = __FILE__,
 };

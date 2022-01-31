@@ -152,10 +152,6 @@ struct buffer_layout {
 };
 
 struct geometry {
-    /* triangle params */
-    float triangle_edges[9];
-    float triangle_uvs[6];
-
     /* circle params */
     float radius;
     int npoints;
