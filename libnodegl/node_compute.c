@@ -32,11 +32,14 @@
 #include "pass.h"
 #include "utils.h"
 
-struct compute_priv {
+struct compute_opts {
     int workgroup_count[3];
     struct ngl_node *program;
     struct hmap *resources;
+};
 
+struct compute_priv {
+    struct compute_opts opts;
     struct pass pass;
 };
 
@@ -95,7 +98,7 @@ struct compute_priv {
                                           NGL_NODE_VELOCITYVEC4,    \
                                           -1}
 
-#define OFFSET(x) offsetof(struct compute_priv, x)
+#define OFFSET(x) offsetof(struct compute_priv, opts.x)
 static const struct node_param compute_params[] = {
     {"workgroup_count", NGLI_PARAM_TYPE_IVEC3,      OFFSET(workgroup_count),
                         .desc=NGLI_DOCSTRING("number of work groups to be executed")},
@@ -111,31 +114,33 @@ static int compute_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct compute_priv *s = node->priv_data;
-    if (s->workgroup_count[0] <= 0 || s->workgroup_count[1] <= 0 || s->workgroup_count[2] <= 0) {
+    const struct compute_opts *o = &s->opts;
+
+    if (o->workgroup_count[0] <= 0 || o->workgroup_count[1] <= 0 || o->workgroup_count[2] <= 0) {
         LOG(ERROR, "number of group must be > 0 for x, y and z");
         return NGL_ERROR_INVALID_ARG;
     }
     const struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     const struct gpu_limits *limits = &gpu_ctx->limits;
 
-    if (s->workgroup_count[0] > limits->max_compute_work_group_count[0] ||
-        s->workgroup_count[1] > limits->max_compute_work_group_count[1] ||
-        s->workgroup_count[2] > limits->max_compute_work_group_count[2]) {
+    if (o->workgroup_count[0] > limits->max_compute_work_group_count[0] ||
+        o->workgroup_count[1] > limits->max_compute_work_group_count[1] ||
+        o->workgroup_count[2] > limits->max_compute_work_group_count[2]) {
         LOG(ERROR,
             "compute work group counts (%d, %d, %d) exceed device limits (%d, %d, %d)",
-            NGLI_ARG_VEC3(s->workgroup_count),
+            NGLI_ARG_VEC3(o->workgroup_count),
             NGLI_ARG_VEC3(limits->max_compute_work_group_count));
 
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
-    const struct program_priv *program_priv = s->program->priv_data;
+    const struct program_priv *program_priv = o->program->priv_data;
     const struct program_opts *program = &program_priv->opts;
     struct pass_params params = {
         .label = node->label,
         .comp_base = program->compute,
-        .compute_resources = s->resources,
+        .compute_resources = o->resources,
         .properties = program->properties,
-        .workgroup_count = {NGLI_ARG_VEC3(s->workgroup_count)},
+        .workgroup_count = {NGLI_ARG_VEC3(o->workgroup_count)},
         .workgroup_size = {NGLI_ARG_VEC3(program->workgroup_size)},
     };
     return ngli_pass_init(&s->pass, ctx, &params);
