@@ -203,7 +203,7 @@ struct buffer_opts {
 };
 
 struct buffer_priv {
-    struct buffer_opts opt;
+    struct buffer_opts opts;
 
     struct buffer_layout layout;
 

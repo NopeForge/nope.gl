@@ -33,7 +33,7 @@
 
 #define DECLARE_STREAMED_PARAMS(name, allowed_node)                                                       \
 static const struct node_param streamedbuffer##name##_params[] = {                                        \
-    {"count",      NGLI_PARAM_TYPE_I32, OFFSET(opt.count),                                                \
+    {"count",      NGLI_PARAM_TYPE_I32, OFFSET(opts.count),                                               \
                    .desc=NGLI_DOCSTRING("number of elements for each chunk of data to stream")},          \
     {"timestamps", NGLI_PARAM_TYPE_NODE, OFFSET(timestamps), .flags=NGLI_PARAM_FLAG_NON_NULL,             \
                    .node_types=(const int[]){NGL_NODE_BUFFERINT64, -1},                                   \
@@ -158,7 +158,7 @@ static int streamedbuffer_init(struct ngl_node *node)
     struct buffer_priv *buffer_priv = s->buffer_node->priv_data;
 
     s->layout = buffer_priv->layout;
-    s->layout.count = s->opt.count;
+    s->layout.count = s->opts.count;
 
     if (s->layout.count <= 0) {
         LOG(ERROR, "invalid number of elements (%d <= 0)", s->layout.count);

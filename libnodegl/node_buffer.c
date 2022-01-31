@@ -34,7 +34,7 @@
 #include "type.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct buffer_priv, opt.x)
+#define OFFSET(x) offsetof(struct buffer_priv, opts.x)
 static const struct node_param buffer_params[] = {
     {"count",  NGLI_PARAM_TYPE_I32,    OFFSET(count),
                .desc=NGLI_DOCSTRING("number of elements")},
@@ -238,13 +238,13 @@ static int buffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
 
-    s->layout.count = s->opt.count;
+    s->layout.count = s->opts.count;
 
-    s->data        = s->opt.data;
-    s->data_size   = s->opt.data_size;
-    s->filename    = s->opt.filename;
-    s->block       = s->opt.block;
-    s->block_field = s->opt.block_field;
+    s->data        = s->opts.data;
+    s->data_size   = s->opts.data_size;
+    s->filename    = s->opts.filename;
+    s->block       = s->opts.block;
+    s->block_field = s->opts.block_field;
 
     if (s->data && s->filename) {
         LOG(ERROR,
