@@ -33,14 +33,14 @@ struct translate_opts {
 };
 
 struct translate_priv {
-    struct transform_priv trf;
+    struct transform trf;
     struct translate_opts opts;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *vec)
 {
     struct translate_priv *s = node->priv_data;
-    struct transform_priv *trf = &s->trf;
+    struct transform *trf = &s->trf;
     ngli_mat4_translate(trf->matrix, vec[0], vec[1], vec[2]);
 }
 

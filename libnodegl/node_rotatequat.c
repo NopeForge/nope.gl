@@ -36,7 +36,7 @@ struct rotatequat_opts {
 };
 
 struct rotatequat_priv {
-    struct transform_priv trf;
+    struct transform trf;
     struct rotatequat_opts opts;
     int use_anchor;
 };
@@ -45,7 +45,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *quat)
 {
     struct rotatequat_priv *s = node->priv_data;
     const struct rotatequat_opts *o = &s->opts;
-    struct transform_priv *trf = &s->trf;
+    struct transform *trf = &s->trf;
     float *matrix = trf->matrix;
 
     ngli_mat4_rotate_from_quat(matrix, quat);

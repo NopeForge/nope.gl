@@ -35,7 +35,7 @@ struct scale_opts {
 };
 
 struct scale_priv {
-    struct transform_priv trf;
+    struct transform trf;
     struct scale_opts opts;
     int use_anchor;
 };
@@ -44,7 +44,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *f)
 {
     struct scale_priv *s = node->priv_data;
     const struct scale_opts *o = &s->opts;
-    struct transform_priv *trf = &s->trf;
+    struct transform *trf = &s->trf;
     float *matrix = trf->matrix;
 
     ngli_mat4_scale(matrix, f[0], f[1], f[2]);

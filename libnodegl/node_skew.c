@@ -38,7 +38,7 @@ struct skew_opts {
 };
 
 struct skew_priv {
-    struct transform_priv trf;
+    struct transform trf;
     struct skew_opts opts;
     float normed_axis[3];
     int use_anchor;
@@ -48,7 +48,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *angles)
 {
     struct skew_priv *s = node->priv_data;
     const struct skew_opts *o = &s->opts;
-    struct transform_priv *trf = &s->trf;
+    struct transform *trf = &s->trf;
     float *matrix = trf->matrix;
 
     const float skx = tanf(NGLI_DEG2RAD(angles[0]));

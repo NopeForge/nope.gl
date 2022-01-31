@@ -36,7 +36,7 @@ int ngli_transform_chain_check(const struct ngl_node *node)
             case NGL_NODE_SKEW:
             case NGL_NODE_TRANSFORM:
             case NGL_NODE_TRANSLATE: {
-                const struct transform_priv *trf = node->priv_data;
+                const struct transform *trf = node->priv_data;
                 node = trf->child;
                 break;
             }
@@ -56,9 +56,9 @@ void ngli_transform_chain_compute(const struct ngl_node *node, float *matrix)
 {
     NGLI_ALIGNED_MAT(tmp) = NGLI_MAT4_IDENTITY;
     while (node && node->cls->id != NGL_NODE_IDENTITY) {
-        const struct transform_priv *transform_priv = node->priv_data;
-        ngli_mat4_mul(tmp, tmp, transform_priv->matrix);
-        node = transform_priv->child;
+        const struct transform *transform = node->priv_data;
+        ngli_mat4_mul(tmp, tmp, transform->matrix);
+        node = transform->child;
     }
     memcpy(matrix, tmp, sizeof(tmp));
 }
@@ -66,7 +66,7 @@ void ngli_transform_chain_compute(const struct ngl_node *node, float *matrix)
 void ngli_transform_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct transform_priv *s = node->priv_data;
+    struct transform *s = node->priv_data;
     struct ngl_node *child = s->child;
 
     float *next_matrix = ngli_darray_push(&ctx->modelview_matrix_stack, NULL);

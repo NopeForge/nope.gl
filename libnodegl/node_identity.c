@@ -27,7 +27,7 @@
 
 static int identity_init(struct ngl_node *node)
 {
-    struct transform_priv *s = node->priv_data;
+    struct transform *s = node->priv_data;
     static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
     memcpy(s->matrix, id_matrix, sizeof(s->matrix));
     return 0;
@@ -37,6 +37,6 @@ const struct node_class ngli_identity_class = {
     .id        = NGL_NODE_IDENTITY,
     .name      = "Identity",
     .init      = identity_init,
-    .priv_size = sizeof(struct transform_priv),
+    .priv_size = sizeof(struct transform),
     .file      = __FILE__,
 };

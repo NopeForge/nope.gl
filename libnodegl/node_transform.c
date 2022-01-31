@@ -27,7 +27,7 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-#define OFFSET(x) offsetof(struct transform_priv, x)
+#define OFFSET(x) offsetof(struct transform, x)
 static const struct node_param transform_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child), .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to apply the transform to")},
@@ -39,7 +39,7 @@ static const struct node_param transform_params[] = {
 
 static int transform_update(struct ngl_node *node, double t)
 {
-    struct transform_priv *s = node->priv_data;
+    struct transform *s = node->priv_data;
     struct ngl_node *child = s->child;
     return ngli_node_update(child, t);
 }
@@ -49,7 +49,7 @@ const struct node_class ngli_transform_class = {
     .name      = "Transform",
     .update    = transform_update,
     .draw      = ngli_transform_draw,
-    .priv_size = sizeof(struct transform_priv),
+    .priv_size = sizeof(struct transform),
     .params    = transform_params,
     .file      = __FILE__,
 };

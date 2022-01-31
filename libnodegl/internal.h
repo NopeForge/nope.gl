@@ -371,7 +371,7 @@ struct timerangemode_priv {
     int updated;
 };
 
-struct transform_priv {
+struct transform {
     struct ngl_node *child;
     NGLI_ALIGNED_MAT(matrix);
 };

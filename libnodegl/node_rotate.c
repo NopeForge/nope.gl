@@ -38,7 +38,7 @@ struct rotate_opts {
 };
 
 struct rotate_priv {
-    struct transform_priv trf;
+    struct transform trf;
     struct rotate_opts opts;
     float normed_axis[3];
     int use_anchor;
@@ -48,7 +48,7 @@ static void update_trf_matrix(struct ngl_node *node, float deg_angle)
 {
     struct rotate_priv *s = node->priv_data;
     const struct rotate_opts *o = &s->opts;
-    struct transform_priv *trf = &s->trf;
+    struct transform *trf = &s->trf;
     float *matrix = trf->matrix;
 
     const float angle = NGLI_DEG2RAD(deg_angle);
