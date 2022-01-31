@@ -29,19 +29,25 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-struct rotate_priv {
-    struct transform_priv trf;
+struct rotate_opts {
+    struct ngl_node *child;
     struct ngl_node *angle_node;
     float angle;
     float axis[3];
-    float normed_axis[3];
     float anchor[3];
+};
+
+struct rotate_priv {
+    struct transform_priv trf;
+    struct rotate_opts opts;
+    float normed_axis[3];
     int use_anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, float deg_angle)
 {
     struct rotate_priv *s = node->priv_data;
+    const struct rotate_opts *o = &s->opts;
     struct transform_priv *trf = &s->trf;
     float *matrix = trf->matrix;
 
@@ -49,7 +55,7 @@ static void update_trf_matrix(struct ngl_node *node, float deg_angle)
     ngli_mat4_rotate(matrix, angle, s->normed_axis);
 
     if (s->use_anchor) {
-        const float *a = s->anchor;
+        const float *a = o->anchor;
         NGLI_ALIGNED_MAT(transm);
         ngli_mat4_translate(transm, a[0], a[1], a[2]);
         ngli_mat4_mul(matrix, transm, matrix);
@@ -61,43 +67,45 @@ static void update_trf_matrix(struct ngl_node *node, float deg_angle)
 static int rotate_init(struct ngl_node *node)
 {
     struct rotate_priv *s = node->priv_data;
+    const struct rotate_opts *o = &s->opts;
     static const float zvec[3];
-    if (!memcmp(s->axis, zvec, sizeof(s->axis))) {
+    if (!memcmp(o->axis, zvec, sizeof(o->axis))) {
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
         return NGL_ERROR_INVALID_ARG;
     }
-    s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
-    ngli_vec3_norm(s->normed_axis, s->axis);
-    if (!s->angle_node)
-        update_trf_matrix(node, s->angle);
+    s->use_anchor = memcmp(o->anchor, zvec, sizeof(zvec));
+    ngli_vec3_norm(s->normed_axis, o->axis);
+    if (!o->angle_node)
+        update_trf_matrix(node, o->angle);
+    s->trf.child = o->child;
     return 0;
 }
 
 static int update_angle(struct ngl_node *node)
 {
     struct rotate_priv *s = node->priv_data;
-    update_trf_matrix(node, s->angle);
+    const struct rotate_opts *o = &s->opts;
+    update_trf_matrix(node, o->angle);
     return 0;
 }
 
 static int rotate_update(struct ngl_node *node, double t)
 {
     struct rotate_priv *s = node->priv_data;
-    struct transform_priv *trf = &s->trf;
-    struct ngl_node *child = trf->child;
-    if (s->angle_node) {
-        int ret = ngli_node_update(s->angle_node, t);
+    const struct rotate_opts *o = &s->opts;
+    if (o->angle_node) {
+        int ret = ngli_node_update(o->angle_node, t);
         if (ret < 0)
             return ret;
-        struct variable_priv *angle = s->angle_node->priv_data;
+        struct variable_priv *angle = o->angle_node->priv_data;
         update_trf_matrix(node, *(float *)angle->data);
     }
-    return ngli_node_update(child, t);
+    return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct rotate_priv, x)
+#define OFFSET(x) offsetof(struct rotate_priv, opts.x)
 static const struct node_param rotate_params[] = {
-    {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
+    {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to rotate")},
     {"angle",  NGLI_PARAM_TYPE_F32,  OFFSET(angle_node),
@@ -111,7 +119,7 @@ static const struct node_param rotate_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(trf_on_top_of_rotate, OFFSET(trf) == 0);
+NGLI_STATIC_ASSERT(trf_on_top_of_rotate, offsetof(struct rotate_priv, trf) == 0);
 
 const struct node_class ngli_rotate_class = {
     .id        = NGL_NODE_ROTATE,
