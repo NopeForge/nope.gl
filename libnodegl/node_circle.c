@@ -32,13 +32,17 @@
 #include "topology.h"
 #include "utils.h"
 
-struct circle_priv {
-    struct geometry geom;
+struct circle_opts {
     float radius;
     int npoints;
 };
 
-#define OFFSET(x) offsetof(struct circle_priv, x)
+struct circle_priv {
+    struct geometry geom;
+    struct circle_opts opts;
+};
+
+#define OFFSET(x) offsetof(struct circle_priv, opts.x)
 static const struct node_param circle_params[] = {
     {"radius",  NGLI_PARAM_TYPE_F32, OFFSET(radius),  {.f32=1.f},
                 .desc=NGLI_DOCSTRING("circle radius")},
@@ -53,13 +57,14 @@ static int circle_init(struct ngl_node *node)
 {
     int ret = 0;
     struct circle_priv *s = node->priv_data;
+    const struct circle_opts *o = &s->opts;
 
-    if (s->npoints < 3) {
-        LOG(ERROR, "invalid number of points (%d < 3)", s->npoints);
+    if (o->npoints < 3) {
+        LOG(ERROR, "invalid number of points (%d < 3)", o->npoints);
         return NGL_ERROR_INVALID_ARG;
     }
-    const int nb_vertices = s->npoints + 1;
-    const int nb_indices  = s->npoints * 3;
+    const int nb_vertices = o->npoints + 1;
+    const int nb_indices  = o->npoints * 3;
 
     float *vertices  = ngli_calloc(nb_vertices, sizeof(*vertices)  * 3);
     float *uvcoords  = ngli_calloc(nb_vertices, sizeof(*uvcoords)  * 2);
@@ -71,7 +76,7 @@ static int circle_init(struct ngl_node *node)
         goto end;
     }
 
-    const float step = 2.0 * M_PI / s->npoints;
+    const float step = 2.0 * M_PI / o->npoints;
 
     vertices[0] = 0.0;
     vertices[1] = 0.0;
@@ -79,8 +84,8 @@ static int circle_init(struct ngl_node *node)
     uvcoords[1] = 0.5;
     for (int i = 1; i < nb_vertices; i++) {
         const float angle = (i - 1) * -step;
-        const float x = sinf(angle) * s->radius;
-        const float y = cosf(angle) * s->radius;
+        const float x = sinf(angle) * o->radius;
+        const float y = cosf(angle) * o->radius;
         vertices[i*3 + 0] = x;
         vertices[i*3 + 1] = y;
         uvcoords[i*2 + 0] = (x + 1.0) / 2.0;
