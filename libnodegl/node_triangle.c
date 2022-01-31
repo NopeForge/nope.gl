@@ -32,7 +32,7 @@
 #include "topology.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct geometry_priv, x)
+#define OFFSET(x) offsetof(struct geometry, x)
 static const struct node_param triangle_params[] = {
     {"edge0", NGLI_PARAM_TYPE_VEC3, OFFSET(triangle_edges[0]),
               {.vec={1.0, -1.0, 0.0}},
@@ -56,7 +56,7 @@ static const struct node_param triangle_params[] = {
 
 static int triangle_init(struct ngl_node *node)
 {
-    struct geometry_priv *s = node->priv_data;
+    struct geometry *s = node->priv_data;
 
     float normals[3 * NB_VERTICES];
     ngli_vec3_normalvec(normals,
@@ -82,7 +82,7 @@ static int triangle_init(struct ngl_node *node)
 
 static void triangle_uninit(struct ngl_node *node)
 {
-    struct geometry_priv *s = node->priv_data;
+    struct geometry *s = node->priv_data;
 
     ngli_buffer_freep(&s->vertices_buffer);
     ngli_buffer_freep(&s->uvcoords_buffer);
@@ -94,7 +94,7 @@ const struct node_class ngli_triangle_class = {
     .name      = "Triangle",
     .init      = triangle_init,
     .uninit    = triangle_uninit,
-    .priv_size = sizeof(struct geometry_priv),
+    .priv_size = sizeof(struct geometry),
     .params    = triangle_params,
     .file      = __FILE__,
 };

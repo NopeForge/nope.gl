@@ -151,7 +151,7 @@ struct buffer_layout {
     int offset;     // offset where the data starts in the buffer, in bytes
 };
 
-struct geometry_priv {
+struct geometry {
     /* quad params */
     float quad_corner[3];
     float quad_width[3];

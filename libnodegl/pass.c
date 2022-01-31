@@ -251,7 +251,7 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
     if (!attributes)
         return 0;
 
-    const struct geometry_priv *geometry = s->params.geometry->priv_data;
+    const struct geometry *geometry = s->params.geometry->priv_data;
     const int64_t max_indices = geometry->max_indices;
 
     const int nb_vertices = geometry->vertices_layout.count;
@@ -411,16 +411,16 @@ static int pass_graphics_init(struct pass *s)
 
     s->pipeline_type = NGLI_PIPELINE_TYPE_GRAPHICS;
 
-    struct geometry_priv *geometry_priv = params->geometry->priv_data;
+    struct geometry *geometry = params->geometry->priv_data;
     struct pipeline_graphics *graphics = &s->pipeline_graphics;
 
-    graphics->topology = geometry_priv->topology;
+    graphics->topology = geometry->topology;
 
-    if (geometry_priv->indices_buffer) {
-        s->indices = geometry_priv->indices_buffer;
-        s->indices_layout = &geometry_priv->indices_layout;
+    if (geometry->indices_buffer) {
+        s->indices = geometry->indices_buffer;
+        s->indices_layout = &geometry->indices_layout;
     } else {
-        s->nb_vertices = geometry_priv->vertices_layout.count;
+        s->nb_vertices = geometry->vertices_layout.count;
     }
     s->nb_instances = s->params.nb_instances;
 
@@ -434,9 +434,9 @@ static int pass_graphics_init(struct pass *s)
         (ret = check_attributes(s, params->instance_attributes, 1)) < 0)
         return ret;
 
-    if ((ret = register_attribute_from_buffer(s, "ngl_position", geometry_priv->vertices_buffer, &geometry_priv->vertices_layout)) < 0 ||
-        (ret = register_attribute_from_buffer(s, "ngl_uvcoord",  geometry_priv->uvcoords_buffer, &geometry_priv->uvcoords_layout)) < 0 ||
-        (ret = register_attribute_from_buffer(s, "ngl_normal",   geometry_priv->normals_buffer,  &geometry_priv->normals_layout)) < 0)
+    if ((ret = register_attribute_from_buffer(s, "ngl_position", geometry->vertices_buffer, &geometry->vertices_layout)) < 0 ||
+        (ret = register_attribute_from_buffer(s, "ngl_uvcoord",  geometry->uvcoords_buffer, &geometry->uvcoords_layout)) < 0 ||
+        (ret = register_attribute_from_buffer(s, "ngl_normal",   geometry->normals_buffer,  &geometry->normals_layout)) < 0)
         return ret;
 
     if (params->attributes) {

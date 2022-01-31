@@ -32,7 +32,7 @@
 #include "topology.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct geometry_priv, x)
+#define OFFSET(x) offsetof(struct geometry, x)
 static const struct node_param circle_params[] = {
     {"radius",  NGLI_PARAM_TYPE_F32, OFFSET(radius),  {.f32=1.f},
                 .desc=NGLI_DOCSTRING("circle radius")},
@@ -44,7 +44,7 @@ static const struct node_param circle_params[] = {
 static int circle_init(struct ngl_node *node)
 {
     int ret = 0;
-    struct geometry_priv *s = node->priv_data;
+    struct geometry *s = node->priv_data;
 
     if (s->npoints < 3) {
         LOG(ERROR, "invalid number of points (%d < 3)", s->npoints);
@@ -109,7 +109,7 @@ end:
 
 static void circle_uninit(struct ngl_node *node)
 {
-    struct geometry_priv *s = node->priv_data;
+    struct geometry *s = node->priv_data;
 
     ngli_buffer_freep(&s->vertices_buffer);
     ngli_buffer_freep(&s->uvcoords_buffer);
@@ -122,7 +122,7 @@ const struct node_class ngli_circle_class = {
     .name      = "Circle",
     .init      = circle_init,
     .uninit    = circle_uninit,
-    .priv_size = sizeof(struct geometry_priv),
+    .priv_size = sizeof(struct geometry),
     .params    = circle_params,
     .file      = __FILE__,
 };
