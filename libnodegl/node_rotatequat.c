@@ -28,24 +28,30 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-struct rotatequat_priv {
-    struct transform_priv trf;
+struct rotatequat_opts {
+    struct ngl_node *child;
     struct ngl_node *quat_node;
     float quat[4];
     float anchor[3];
+};
+
+struct rotatequat_priv {
+    struct transform_priv trf;
+    struct rotatequat_opts opts;
     int use_anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *quat)
 {
     struct rotatequat_priv *s = node->priv_data;
+    const struct rotatequat_opts *o = &s->opts;
     struct transform_priv *trf = &s->trf;
     float *matrix = trf->matrix;
 
     ngli_mat4_rotate_from_quat(matrix, quat);
 
     if (s->use_anchor) {
-        const float *a = s->anchor;
+        const float *a = o->anchor;
         NGLI_ALIGNED_MAT(transm);
         ngli_mat4_translate(transm, a[0], a[1], a[2]);
         ngli_mat4_mul(matrix, transm, matrix);
@@ -57,38 +63,40 @@ static void update_trf_matrix(struct ngl_node *node, const float *quat)
 static int rotatequat_init(struct ngl_node *node)
 {
     struct rotatequat_priv *s = node->priv_data;
+    const struct rotatequat_opts *o = &s->opts;
     static const float zvec[3];
-    s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
-    if (!s->quat_node)
-        update_trf_matrix(node, s->quat);
+    s->use_anchor = memcmp(o->anchor, zvec, sizeof(zvec));
+    if (!o->quat_node)
+        update_trf_matrix(node, o->quat);
+    s->trf.child = o->child;
     return 0;
 }
 
 static int update_quat(struct ngl_node *node)
 {
     struct rotatequat_priv *s = node->priv_data;
-    update_trf_matrix(node, s->quat);
+    const struct rotatequat_opts *o = &s->opts;
+    update_trf_matrix(node, o->quat);
     return 0;
 }
 
 static int rotatequat_update(struct ngl_node *node, double t)
 {
     struct rotatequat_priv *s = node->priv_data;
-    struct transform_priv *trf = &s->trf;
-    struct ngl_node *child = trf->child;
-    if (s->quat_node) {
-        int ret = ngli_node_update(s->quat_node, t);
+    const struct rotatequat_opts *o = &s->opts;
+    if (o->quat_node) {
+        int ret = ngli_node_update(o->quat_node, t);
         if (ret < 0)
             return ret;
-        struct variable_priv *quat = s->quat_node->priv_data;
+        struct variable_priv *quat = o->quat_node->priv_data;
         update_trf_matrix(node, quat->vector);
     }
-    return ngli_node_update(child, t);
+    return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct rotatequat_priv, x)
+#define OFFSET(x) offsetof(struct rotatequat_priv, opts.x)
 static const struct node_param rotatequat_params[] = {
-    {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
+    {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to rotate")},
     {"quat",   NGLI_PARAM_TYPE_VEC4, OFFSET(quat_node), {.vec=NGLI_QUAT_IDENTITY},
@@ -100,7 +108,7 @@ static const struct node_param rotatequat_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(trf_on_top_of_rotatequat, OFFSET(trf) == 0);
+NGLI_STATIC_ASSERT(trf_on_top_of_rotatequat, offsetof(struct rotatequat_priv, trf) == 0);
 
 const struct node_class ngli_rotatequat_class = {
     .id        = NGL_NODE_ROTATEQUAT,
