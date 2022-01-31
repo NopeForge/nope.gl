@@ -20,10 +20,8 @@
  */
 
 #include <stddef.h>
-#include <stdio.h>
 #include <string.h>
 
-#include "log.h"
 #include "nodegl.h"
 #include "internal.h"
 #include "math_utils.h"
