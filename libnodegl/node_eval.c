@@ -29,12 +29,16 @@
 #include "nodegl.h"
 #include "type.h"
 
+struct eval_opts {
+    char *expr[4];
+    struct hmap *resources;
+};
+
 struct eval_priv {
     struct variable_priv var;
-    char *expr[4];
+    struct eval_opts opts;
     int nb_expr;
     struct hmap *vars;
-    struct hmap *resources;
     struct eval *eval[4];
 };
 
@@ -47,7 +51,7 @@ struct eval_priv {
                                           NGL_NODE_VELOCITYFLOAT,   \
                                           -1}
 
-#define OFFSET(x) offsetof(struct eval_priv, x)
+#define OFFSET(x) offsetof(struct eval_priv, opts.x)
 
 static const struct node_param eval_float_params[] = {
     {"expr0",     NGLI_PARAM_TYPE_STR, OFFSET(expr[0]), {.str="0"},
@@ -101,19 +105,20 @@ static const struct node_param eval_vec4_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(variable_priv_is_first, OFFSET(var) == 0);
+NGLI_STATIC_ASSERT(variable_priv_is_first, offsetof(struct eval_priv, var) == 0);
 
 static int eval_init(struct ngl_node *node)
 {
     struct eval_priv *s = node->priv_data;
+    const struct eval_opts *o = &s->opts;
 
     s->vars = ngli_hmap_create();
     if (!s->vars)
         return NGL_ERROR_MEMORY;
 
-    if (s->resources) {
+    if (o->resources) {
         struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->resources, entry))) {
+        while ((entry = ngli_hmap_next(o->resources, entry))) {
             struct ngl_node *res = entry->data;
             struct variable_priv *var = res->priv_data;
             ngli_assert(var->data_type == NGLI_TYPE_FLOAT);
@@ -124,12 +129,12 @@ static int eval_init(struct ngl_node *node)
     }
 
     for (int i = 0; i < s->nb_expr; i++) {
-        if (!s->expr[i])
+        if (!o->expr[i])
             continue;
         s->eval[i] = ngli_eval_create();
         if (!s->eval[i])
             return NGL_ERROR_MEMORY;
-        int ret = ngli_eval_init(s->eval[i], s->expr[i], s->vars);
+        int ret = ngli_eval_init(s->eval[i], o->expr[i], s->vars);
         if (ret < 0)
             return ret;
     }
@@ -140,10 +145,11 @@ static int eval_init(struct ngl_node *node)
 static int eval_update(struct ngl_node *node, double t)
 {
     struct eval_priv *s = node->priv_data;
+    const struct eval_opts *o = &s->opts;
 
-    if (s->resources) {
+    if (o->resources) {
         struct hmap_entry *entry = NULL;
-        while ((entry = ngli_hmap_next(s->resources, entry))) {
+        while ((entry = ngli_hmap_next(o->resources, entry))) {
             int ret = ngli_node_update(entry->data, t);
             if (ret < 0)
                 return ret;
