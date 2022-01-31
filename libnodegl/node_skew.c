@@ -29,19 +29,25 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-struct skew_priv {
-    struct transform_priv trf;
+struct skew_opts {
+    struct ngl_node *child;
     struct ngl_node *angles_node;
     float angles[3];
     float axis[3];
-    float normed_axis[3];
     float anchor[3];
+};
+
+struct skew_priv {
+    struct transform_priv trf;
+    struct skew_opts opts;
+    float normed_axis[3];
     int use_anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *angles)
 {
     struct skew_priv *s = node->priv_data;
+    const struct skew_opts *o = &s->opts;
     struct transform_priv *trf = &s->trf;
     float *matrix = trf->matrix;
 
@@ -52,7 +58,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *angles)
     ngli_mat4_skew(matrix, skx, sky, skz, s->normed_axis);
 
     if (s->use_anchor) {
-        const float *a = s->anchor;
+        const float *a = o->anchor;
         NGLI_ALIGNED_MAT(transm);
         ngli_mat4_translate(transm, a[0], a[1], a[2]);
         ngli_mat4_mul(matrix, transm, matrix);
@@ -64,43 +70,45 @@ static void update_trf_matrix(struct ngl_node *node, const float *angles)
 static int skew_init(struct ngl_node *node)
 {
     struct skew_priv *s = node->priv_data;
+    const struct skew_opts *o = &s->opts;
     static const float zvec[3];
-    if (!memcmp(s->axis, zvec, sizeof(s->axis))) {
+    if (!memcmp(o->axis, zvec, sizeof(o->axis))) {
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
         return NGL_ERROR_INVALID_ARG;
     }
-    s->use_anchor = memcmp(s->anchor, zvec, sizeof(zvec));
-    ngli_vec3_norm(s->normed_axis, s->axis);
-    if (!s->angles_node)
-        update_trf_matrix(node, s->angles);
+    s->use_anchor = memcmp(o->anchor, zvec, sizeof(zvec));
+    ngli_vec3_norm(s->normed_axis, o->axis);
+    if (!o->angles_node)
+        update_trf_matrix(node, o->angles);
+    s->trf.child = o->child;
     return 0;
 }
 
 static int update_angles(struct ngl_node *node)
 {
     struct skew_priv *s = node->priv_data;
-    update_trf_matrix(node, s->angles);
+    const struct skew_opts *o = &s->opts;
+    update_trf_matrix(node, o->angles);
     return 0;
 }
 
 static int skew_update(struct ngl_node *node, double t)
 {
     struct skew_priv *s = node->priv_data;
-    struct transform_priv *trf = &s->trf;
-    struct ngl_node *child = trf->child;
-    if (s->angles_node) {
-        int ret = ngli_node_update(s->angles_node, t);
+    const struct skew_opts *o = &s->opts;
+    if (o->angles_node) {
+        int ret = ngli_node_update(o->angles_node, t);
         if (ret < 0)
             return ret;
-        struct variable_priv *angles = s->angles_node->priv_data;
+        struct variable_priv *angles = o->angles_node->priv_data;
         update_trf_matrix(node, angles->vector);
     }
-    return ngli_node_update(child, t);
+    return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct skew_priv, x)
+#define OFFSET(x) offsetof(struct skew_priv, opts.x)
 static const struct node_param skew_params[] = {
-    {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
+    {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to skew")},
     {"angles", NGLI_PARAM_TYPE_VEC3,  OFFSET(angles_node),
@@ -114,7 +122,7 @@ static const struct node_param skew_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(trf_on_top_of_skew, OFFSET(trf) == 0);
+NGLI_STATIC_ASSERT(trf_on_top_of_skew, offsetof(struct skew_priv, trf) == 0);
 
 const struct node_class ngli_skew_class = {
     .id        = NGL_NODE_SKEW,
