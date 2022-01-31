@@ -705,8 +705,15 @@ static int node_prefetch(struct ngl_node *node)
     return 0;
 }
 
-int ngli_node_honor_release_prefetch(struct darray *nodes_array)
+int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t)
 {
+    /* Build a new list of activity checks nodes */
+    struct darray *nodes_array = &scene->ctx->activitycheck_nodes;
+    ngli_darray_clear(nodes_array);
+    int ret = ngli_node_visit(scene, 1, t);
+    if (ret < 0)
+        return ret;
+
     struct ngl_node **nodes = ngli_darray_data(nodes_array);
 
     /* Release nodes starting from the parents (root) down to the children (leaves) */

@@ -11,6 +11,9 @@ The `ngl_draw()` call is split in 4 passes:
 
 ## Visit
 
+The first pass performed by `ngli_node_honor_release_prefetch()` is to visit
+the scene.
+
 By default, `ngli_node_visit()` will crawl every node parameter to find the
 child nodes. It is meant to flag every node as *active* or *inactive* for a
 given time. The final state of a node depends on the knowledge of the whole
@@ -25,7 +28,7 @@ filtered branches.
 
 ## Prefetch/Release
 
-The second pass, performed by `ngli_node_honor_release_prefetch()` will crawl
+The second pass performed by `ngli_node_honor_release_prefetch()` will crawl
 every node previously visited by the first pass and execute a prefetch or a
 release according to how it's been flagged. Previously unvisited nodes (and
 their children) are ignored.

@@ -297,12 +297,7 @@ static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 
     const int64_t start_time = s->hud ? ngli_gettime_relative() : 0;
 
-    ngli_darray_clear(&s->activitycheck_nodes);
-    int ret = ngli_node_visit(scene, 1, t);
-    if (ret < 0)
-        return ret;
-
-    ret = ngli_node_honor_release_prefetch(&s->activitycheck_nodes);
+    int ret = ngli_node_honor_release_prefetch(scene, t);
     if (ret < 0)
         return ret;
 
