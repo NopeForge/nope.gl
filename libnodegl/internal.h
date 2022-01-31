@@ -152,15 +152,6 @@ struct buffer_layout {
 };
 
 struct geometry {
-    /* quad params */
-    float quad_corner[3];
-    float quad_width[3];
-    float quad_height[3];
-
-    float quad_uv_corner[2];
-    float quad_uv_width[2];
-    float quad_uv_height[2];
-
     /* triangle params */
     float triangle_edges[9];
     float triangle_uvs[6];

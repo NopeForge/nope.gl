@@ -31,7 +31,17 @@
 #include "topology.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct geometry, x)
+struct quad_priv {
+    struct geometry geom;
+    float quad_corner[3];
+    float quad_width[3];
+    float quad_height[3];
+    float quad_uv_corner[2];
+    float quad_uv_width[2];
+    float quad_uv_height[2];
+};
+
+#define OFFSET(x) offsetof(struct quad_priv, x)
 static const struct node_param quad_params[] = {
     {"corner",    NGLI_PARAM_TYPE_VEC3, OFFSET(quad_corner),    {.vec={-0.5f, -0.5f}},
                   .desc=NGLI_DOCSTRING("origin coordinates of `width` and `height` vectors")},
@@ -48,6 +58,8 @@ static const struct node_param quad_params[] = {
     {NULL}
 };
 
+NGLI_STATIC_ASSERT(geom_on_top_of_quad, offsetof(struct quad_priv, geom) == 0);
+
 #define NB_VERTICES 4
 
 #define C(index) s->quad_corner[(index)]
@@ -60,7 +72,7 @@ static const struct node_param quad_params[] = {
 
 static int quad_init(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct quad_priv *s = node->priv_data;
 
     const float vertices[] = {
         C(0),               C(1),               C(2),
@@ -85,23 +97,23 @@ static int quad_init(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
     int ret;
-    if ((ret = ngli_geometry_gen_vec3(&s->vertices_buffer, &s->vertices_layout, gpu_ctx, NB_VERTICES, vertices)) < 0 ||
-        (ret = ngli_geometry_gen_vec2(&s->uvcoords_buffer, &s->uvcoords_layout, gpu_ctx, NB_VERTICES, uvs))      < 0 ||
-        (ret = ngli_geometry_gen_vec3(&s->normals_buffer,  &s->normals_layout,  gpu_ctx, NB_VERTICES, normals))  < 0)
+    if ((ret = ngli_geometry_gen_vec3(&s->geom.vertices_buffer, &s->geom.vertices_layout, gpu_ctx, NB_VERTICES, vertices)) < 0 ||
+        (ret = ngli_geometry_gen_vec2(&s->geom.uvcoords_buffer, &s->geom.uvcoords_layout, gpu_ctx, NB_VERTICES, uvs))      < 0 ||
+        (ret = ngli_geometry_gen_vec3(&s->geom.normals_buffer,  &s->geom.normals_layout,  gpu_ctx, NB_VERTICES, normals))  < 0)
         return ret;
 
-    s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    s->geom.topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
 
     return 0;
 }
 
 static void quad_uninit(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct quad_priv *s = node->priv_data;
 
-    ngli_buffer_freep(&s->vertices_buffer);
-    ngli_buffer_freep(&s->uvcoords_buffer);
-    ngli_buffer_freep(&s->normals_buffer);
+    ngli_buffer_freep(&s->geom.vertices_buffer);
+    ngli_buffer_freep(&s->geom.uvcoords_buffer);
+    ngli_buffer_freep(&s->geom.normals_buffer);
 }
 
 const struct node_class ngli_quad_class = {
@@ -109,7 +121,7 @@ const struct node_class ngli_quad_class = {
     .name      = "Quad",
     .init      = quad_init,
     .uninit    = quad_uninit,
-    .priv_size = sizeof(struct geometry),
+    .priv_size = sizeof(struct quad_priv),
     .params    = quad_params,
     .file      = __FILE__,
 };
