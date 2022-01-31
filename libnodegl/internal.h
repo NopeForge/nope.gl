@@ -200,6 +200,12 @@ struct buffer_opts {
     char *filename;
     struct ngl_node *block;
     int block_field;
+
+    /* streamedbuffer */
+    struct ngl_node *timestamps;
+    struct ngl_node *buffer_node;
+    int timebase[2];
+    struct ngl_node *time_anim;
 };
 
 struct buffer_priv {
@@ -219,12 +225,6 @@ struct buffer_priv {
     struct ngl_node **animkf;
     int nb_animkf;
     struct animation anim;
-
-    /* streamedbuffer */
-    struct ngl_node *timestamps;
-    struct ngl_node *buffer_node;
-    int timebase[2];
-    struct ngl_node *time_anim;
 
     FILE *fp;
     int dynamic;
