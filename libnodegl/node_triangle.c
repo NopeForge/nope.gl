@@ -32,13 +32,17 @@
 #include "topology.h"
 #include "utils.h"
 
-struct triangle_priv {
-    struct geometry geom;
+struct triangle_opts {
     float edges[9];
     float uvs[6];
 };
 
-#define OFFSET(x) offsetof(struct triangle_priv, x)
+struct triangle_priv {
+    struct geometry geom;
+    struct triangle_opts opts;
+};
+
+#define OFFSET(x) offsetof(struct triangle_priv, opts.x)
 static const struct node_param triangle_params[] = {
     {"edge0", NGLI_PARAM_TYPE_VEC3, OFFSET(edges[0]),
               {.vec={1.0, -1.0, 0.0}},
@@ -65,9 +69,10 @@ NGLI_STATIC_ASSERT(geom_on_top_of_triangle, offsetof(struct triangle_priv, geom)
 static int triangle_init(struct ngl_node *node)
 {
     struct triangle_priv *s = node->priv_data;
+    const struct triangle_opts *o = &s->opts;
 
     float normals[3 * NB_VERTICES];
-    ngli_vec3_normalvec(normals, s->edges, s->edges + 3, s->edges + 6);
+    ngli_vec3_normalvec(normals, o->edges, o->edges + 3, o->edges + 6);
 
     for (int i = 1; i < NB_VERTICES; i++)
         memcpy(normals + (i * 3), normals, 3 * sizeof(*normals));
@@ -75,8 +80,8 @@ static int triangle_init(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
     int ret;
-    if ((ret = ngli_geometry_gen_vec3(&s->geom.vertices_buffer, &s->geom.vertices_layout, gpu_ctx, NB_VERTICES, s->edges)) < 0 ||
-        (ret = ngli_geometry_gen_vec2(&s->geom.uvcoords_buffer, &s->geom.uvcoords_layout, gpu_ctx, NB_VERTICES, s->uvs))   < 0 ||
+    if ((ret = ngli_geometry_gen_vec3(&s->geom.vertices_buffer, &s->geom.vertices_layout, gpu_ctx, NB_VERTICES, o->edges)) < 0 ||
+        (ret = ngli_geometry_gen_vec2(&s->geom.uvcoords_buffer, &s->geom.uvcoords_layout, gpu_ctx, NB_VERTICES, o->uvs))   < 0 ||
         (ret = ngli_geometry_gen_vec3(&s->geom.normals_buffer,  &s->geom.normals_layout,  gpu_ctx, NB_VERTICES, normals))  < 0)
         return 0;
 
