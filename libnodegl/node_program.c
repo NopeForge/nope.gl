@@ -79,10 +79,11 @@ static int program_init(struct ngl_node *node)
         while ((e = ngli_hmap_next(o->vert_out_vars, e))) {
             const struct ngl_node *iovar_node = e->data;
             const struct io_priv *iovar_priv = iovar_node->priv_data;
+            const struct io_opts *iovar_opts = &iovar_priv->opts;
             struct pgcraft_iovar iovar = {
                 .type = iovar_priv->type,
-                .precision_in = iovar_priv->precision_in,
-                .precision_out = iovar_priv->precision_out,
+                .precision_in = iovar_opts->precision_in,
+                .precision_out = iovar_opts->precision_out,
             };
             snprintf(iovar.name, sizeof(iovar.name), "%s", e->key);
             if (!ngli_darray_push(&s->vert_out_vars_array, &iovar))

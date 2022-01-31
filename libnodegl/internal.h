@@ -391,9 +391,13 @@ struct transform {
     NGLI_ALIGNED_MAT(matrix);
 };
 
-struct io_priv {
+struct io_opts {
     int precision_out;
     int precision_in;
+};
+
+struct io_priv {
+    struct io_opts opts;
     int type;
 };
 
