@@ -19,24 +19,32 @@
  * under the License.
  */
 
+#include <stddef.h>
 #include <string.h>
 
 #include "nodegl.h"
 #include "internal.h"
 #include "math_utils.h"
 
+struct identity_priv {
+    struct transform trf;
+};
+
 static int identity_init(struct ngl_node *node)
 {
-    struct transform *s = node->priv_data;
+    struct identity_priv *s = node->priv_data;
     static const NGLI_ALIGNED_MAT(id_matrix) = NGLI_MAT4_IDENTITY;
-    memcpy(s->matrix, id_matrix, sizeof(s->matrix));
+    memcpy(s->trf.matrix, id_matrix, sizeof(id_matrix));
+    s->trf.child = NULL;
     return 0;
 }
+
+NGLI_STATIC_ASSERT(trf_on_top_of_identity, offsetof(struct identity_priv, trf) == 0);
 
 const struct node_class ngli_identity_class = {
     .id        = NGL_NODE_IDENTITY,
     .name      = "Identity",
     .init      = identity_init,
-    .priv_size = sizeof(struct transform),
+    .priv_size = sizeof(struct identity_priv),
     .file      = __FILE__,
 };
