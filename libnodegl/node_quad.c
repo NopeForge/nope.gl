@@ -33,27 +33,27 @@
 
 struct quad_priv {
     struct geometry geom;
-    float quad_corner[3];
-    float quad_width[3];
-    float quad_height[3];
-    float quad_uv_corner[2];
-    float quad_uv_width[2];
-    float quad_uv_height[2];
+    float corner[3];
+    float width[3];
+    float height[3];
+    float uv_corner[2];
+    float uv_width[2];
+    float uv_height[2];
 };
 
 #define OFFSET(x) offsetof(struct quad_priv, x)
 static const struct node_param quad_params[] = {
-    {"corner",    NGLI_PARAM_TYPE_VEC3, OFFSET(quad_corner),    {.vec={-0.5f, -0.5f}},
+    {"corner",    NGLI_PARAM_TYPE_VEC3, OFFSET(corner),    {.vec={-0.5f, -0.5f}},
                   .desc=NGLI_DOCSTRING("origin coordinates of `width` and `height` vectors")},
-    {"width",     NGLI_PARAM_TYPE_VEC3, OFFSET(quad_width),     {.vec={ 1.0f,  0.0f}},
+    {"width",     NGLI_PARAM_TYPE_VEC3, OFFSET(width),     {.vec={ 1.0f,  0.0f}},
                   .desc=NGLI_DOCSTRING("width vector")},
-    {"height",    NGLI_PARAM_TYPE_VEC3, OFFSET(quad_height),    {.vec={ 0.0f,  1.0f}},
+    {"height",    NGLI_PARAM_TYPE_VEC3, OFFSET(height),    {.vec={ 0.0f,  1.0f}},
                   .desc=NGLI_DOCSTRING("height vector")},
-    {"uv_corner", NGLI_PARAM_TYPE_VEC2, OFFSET(quad_uv_corner), {.vec={0.0f, 0.0f}},
+    {"uv_corner", NGLI_PARAM_TYPE_VEC2, OFFSET(uv_corner), {.vec={0.0f, 0.0f}},
                   .desc=NGLI_DOCSTRING("origin coordinates of `uv_width` and `uv_height` vectors")},
-    {"uv_width",  NGLI_PARAM_TYPE_VEC2, OFFSET(quad_uv_width),  {.vec={1.0f, 0.0f}},
+    {"uv_width",  NGLI_PARAM_TYPE_VEC2, OFFSET(uv_width),  {.vec={1.0f, 0.0f}},
                   .desc=NGLI_DOCSTRING("UV coordinates width vector")},
-    {"uv_height", NGLI_PARAM_TYPE_VEC2, OFFSET(quad_uv_height), {.vec={0.0f, 1.0f}},
+    {"uv_height", NGLI_PARAM_TYPE_VEC2, OFFSET(uv_height), {.vec={0.0f, 1.0f}},
                   .desc=NGLI_DOCSTRING("UV coordinates height vector")},
     {NULL}
 };
@@ -62,13 +62,13 @@ NGLI_STATIC_ASSERT(geom_on_top_of_quad, offsetof(struct quad_priv, geom) == 0);
 
 #define NB_VERTICES 4
 
-#define C(index) s->quad_corner[(index)]
-#define W(index) s->quad_width[(index)]
-#define H(index) s->quad_height[(index)]
+#define C(index) s->corner[(index)]
+#define W(index) s->width[(index)]
+#define H(index) s->height[(index)]
 
-#define UV_C(index) s->quad_uv_corner[(index)]
-#define UV_W(index) s->quad_uv_width[(index)]
-#define UV_H(index) s->quad_uv_height[(index)]
+#define UV_C(index) s->uv_corner[(index)]
+#define UV_W(index) s->uv_width[(index)]
+#define UV_H(index) s->uv_height[(index)]
 
 static int quad_init(struct ngl_node *node)
 {
