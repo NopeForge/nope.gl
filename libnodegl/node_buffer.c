@@ -237,14 +237,14 @@ static int buffer_init_from_block(struct ngl_node *node)
 static int buffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
+    const struct buffer_opts *o = &s->opts;
 
-    s->layout.count = s->opts.count;
-
-    s->data        = s->opts.data;
-    s->data_size   = s->opts.data_size;
-    s->filename    = s->opts.filename;
-    s->block       = s->opts.block;
-    s->block_field = s->opts.block_field;
+    s->layout.count = o->count;
+    s->data         = o->data;
+    s->data_size    = o->data_size;
+    s->filename     = o->filename;
+    s->block        = o->block;
+    s->block_field  = o->block_field;
 
     if (s->data && s->filename) {
         LOG(ERROR,
