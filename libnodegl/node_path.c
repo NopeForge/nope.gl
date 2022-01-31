@@ -26,15 +26,18 @@
 #include "internal.h"
 #include "path.h"
 
-struct path_priv {
-    struct path *path;
-
+struct path_opts {
     struct ngl_node **keyframes;
     int nb_keyframes;
     int precision;
 };
 
-#define OFFSET(x) offsetof(struct path_priv, x)
+struct path_priv {
+    struct path *path;
+    struct path_opts opts;
+};
+
+#define OFFSET(x) offsetof(struct path_priv, opts.x)
 static const struct node_param path_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(keyframes),
                   .node_types=(const int[]){
@@ -52,18 +55,19 @@ static const struct node_param path_params[] = {
 };
 
 /* We must have the struct path in 1st position for AnimatedPath */
-NGLI_STATIC_ASSERT(path_1st_field, OFFSET(path) == 0);
+NGLI_STATIC_ASSERT(path_1st_field, offsetof(struct path_priv, path) == 0);
 
 static int path_init(struct ngl_node *node)
 {
     struct path_priv *s = node->priv_data;
+    const struct path_opts *o = &s->opts;
 
     s->path = ngli_path_create();
     if (!s->path)
         return NGL_ERROR_MEMORY;
 
-    for (int i = 0; i < s->nb_keyframes; i++) {
-        const struct ngl_node *kf = s->keyframes[i];
+    for (int i = 0; i < o->nb_keyframes; i++) {
+        const struct ngl_node *kf = o->keyframes[i];
         int ret;
         if (kf->cls->id == NGL_NODE_PATHKEYMOVE) {
             const struct pathkey_move_priv *move_p = kf->priv_data;
@@ -88,7 +92,7 @@ static int path_init(struct ngl_node *node)
             return ret;
     }
 
-    return ngli_path_init(s->path, s->precision);
+    return ngli_path_init(s->path, o->precision);
 }
 
 static void path_uninit(struct ngl_node *node)
