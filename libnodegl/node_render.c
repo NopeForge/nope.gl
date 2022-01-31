@@ -32,7 +32,7 @@
 #include "topology.h"
 #include "utils.h"
 
-struct render_priv {
+struct render_opts {
     struct ngl_node *geometry;
     struct ngl_node *program;
     struct hmap *vert_resources;
@@ -41,7 +41,10 @@ struct render_priv {
     struct hmap *instance_attributes;
     int nb_instances;
     int blending;
+};
 
+struct render_priv {
+    struct render_opts opts;
     struct pass pass;
 };
 
@@ -131,7 +134,7 @@ struct render_priv {
                                           NGL_NODE_TRIANGLE,        \
                                           -1}
 
-#define OFFSET(x) offsetof(struct render_priv, x)
+#define OFFSET(x) offsetof(struct render_priv, opts.x)
 static const struct node_param render_params[] = {
     {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(geometry), .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .node_types=GEOMETRY_TYPES_LIST,
@@ -163,34 +166,35 @@ static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct render_priv *s = node->priv_data;
+    const struct render_opts *o = &s->opts;
 
-    if (s->nb_instances < 1) {
+    if (o->nb_instances < 1) {
         LOG(ERROR, "nb_instances must be > 0");
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (!s->program) {
+    if (!o->program) {
         LOG(ERROR, "program must be set");
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    const struct program_priv *program_priv = s->program->priv_data;
+    const struct program_priv *program_priv = o->program->priv_data;
     const struct program_opts *program_opts = &program_priv->opts;
     struct pass_params params = {
         .label = node->label,
-        .geometry = s->geometry,
+        .geometry = o->geometry,
         .vert_base = program_opts->vertex,
         .frag_base = program_opts->fragment,
-        .vert_resources = s->vert_resources,
-        .frag_resources = s->frag_resources,
+        .vert_resources = o->vert_resources,
+        .frag_resources = o->frag_resources,
         .properties = program_opts->properties,
-        .attributes = s->attributes,
-        .instance_attributes = s->instance_attributes,
-        .nb_instances = s->nb_instances,
+        .attributes = o->attributes,
+        .instance_attributes = o->instance_attributes,
+        .nb_instances = o->nb_instances,
         .vert_out_vars = ngli_darray_data(&program_priv->vert_out_vars_array),
         .nb_vert_out_vars = ngli_darray_count(&program_priv->vert_out_vars_array),
         .nb_frag_output = program_opts->nb_frag_output,
-        .blending = s->blending,
+        .blending = o->blending,
     };
     return ngli_pass_init(&s->pass, ctx, &params);
 }
