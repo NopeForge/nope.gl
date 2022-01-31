@@ -32,7 +32,13 @@
 #include "topology.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct geometry, x)
+struct circle_priv {
+    struct geometry geom;
+    float radius;
+    int npoints;
+};
+
+#define OFFSET(x) offsetof(struct circle_priv, x)
 static const struct node_param circle_params[] = {
     {"radius",  NGLI_PARAM_TYPE_F32, OFFSET(radius),  {.f32=1.f},
                 .desc=NGLI_DOCSTRING("circle radius")},
@@ -41,10 +47,12 @@ static const struct node_param circle_params[] = {
     {NULL}
 };
 
+NGLI_STATIC_ASSERT(geom_on_top_of_circle, offsetof(struct circle_priv, geom) == 0);
+
 static int circle_init(struct ngl_node *node)
 {
     int ret = 0;
-    struct geometry *s = node->priv_data;
+    struct circle_priv *s = node->priv_data;
 
     if (s->npoints < 3) {
         LOG(ERROR, "invalid number of points (%d < 3)", s->npoints);
@@ -91,13 +99,13 @@ static int circle_init(struct ngl_node *node)
 
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
-    if ((ret = ngli_geometry_gen_vec3(&s->vertices_buffer,   &s->vertices_layout, gpu_ctx, nb_vertices, vertices)) < 0 ||
-        (ret = ngli_geometry_gen_vec2(&s->uvcoords_buffer,   &s->uvcoords_layout, gpu_ctx, nb_vertices, uvcoords)) < 0 ||
-        (ret = ngli_geometry_gen_vec3(&s->normals_buffer,    &s->normals_layout,  gpu_ctx, nb_vertices, normals))  < 0 ||
-        (ret = ngli_geometry_gen_indices(&s->indices_buffer, &s->indices_layout,  gpu_ctx, nb_indices,  indices))  < 0)
+    if ((ret = ngli_geometry_gen_vec3(&s->geom.vertices_buffer,   &s->geom.vertices_layout, gpu_ctx, nb_vertices, vertices)) < 0 ||
+        (ret = ngli_geometry_gen_vec2(&s->geom.uvcoords_buffer,   &s->geom.uvcoords_layout, gpu_ctx, nb_vertices, uvcoords)) < 0 ||
+        (ret = ngli_geometry_gen_vec3(&s->geom.normals_buffer,    &s->geom.normals_layout,  gpu_ctx, nb_vertices, normals))  < 0 ||
+        (ret = ngli_geometry_gen_indices(&s->geom.indices_buffer, &s->geom.indices_layout,  gpu_ctx, nb_indices,  indices))  < 0)
         goto end;
 
-    s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    s->geom.topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 
 end:
     ngli_free(vertices);
@@ -109,12 +117,12 @@ end:
 
 static void circle_uninit(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct circle_priv *s = node->priv_data;
 
-    ngli_buffer_freep(&s->vertices_buffer);
-    ngli_buffer_freep(&s->uvcoords_buffer);
-    ngli_buffer_freep(&s->normals_buffer);
-    ngli_buffer_freep(&s->indices_buffer);
+    ngli_buffer_freep(&s->geom.vertices_buffer);
+    ngli_buffer_freep(&s->geom.uvcoords_buffer);
+    ngli_buffer_freep(&s->geom.normals_buffer);
+    ngli_buffer_freep(&s->geom.indices_buffer);
 }
 
 const struct node_class ngli_circle_class = {
@@ -122,7 +130,7 @@ const struct node_class ngli_circle_class = {
     .name      = "Circle",
     .init      = circle_init,
     .uninit    = circle_uninit,
-    .priv_size = sizeof(struct geometry),
+    .priv_size = sizeof(struct circle_priv),
     .params    = circle_params,
     .file      = __FILE__,
 };

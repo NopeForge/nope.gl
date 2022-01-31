@@ -152,11 +152,6 @@ struct buffer_layout {
 };
 
 struct geometry {
-    /* circle params */
-    float radius;
-    int npoints;
-
-    /* shared for all geometries */
     struct buffer *vertices_buffer;
     struct buffer *uvcoords_buffer;
     struct buffer *normals_buffer;
