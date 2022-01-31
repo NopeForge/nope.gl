@@ -31,8 +31,7 @@
 #include "topology.h"
 #include "utils.h"
 
-struct quad_priv {
-    struct geometry geom;
+struct quad_opts {
     float corner[3];
     float width[3];
     float height[3];
@@ -41,7 +40,12 @@ struct quad_priv {
     float uv_height[2];
 };
 
-#define OFFSET(x) offsetof(struct quad_priv, x)
+struct quad_priv {
+    struct geometry geom;
+    struct quad_opts opts;
+};
+
+#define OFFSET(x) offsetof(struct quad_priv, opts.x)
 static const struct node_param quad_params[] = {
     {"corner",    NGLI_PARAM_TYPE_VEC3, OFFSET(corner),    {.vec={-0.5f, -0.5f}},
                   .desc=NGLI_DOCSTRING("origin coordinates of `width` and `height` vectors")},
@@ -62,17 +66,18 @@ NGLI_STATIC_ASSERT(geom_on_top_of_quad, offsetof(struct quad_priv, geom) == 0);
 
 #define NB_VERTICES 4
 
-#define C(index) s->corner[(index)]
-#define W(index) s->width[(index)]
-#define H(index) s->height[(index)]
+#define C(index) o->corner[(index)]
+#define W(index) o->width[(index)]
+#define H(index) o->height[(index)]
 
-#define UV_C(index) s->uv_corner[(index)]
-#define UV_W(index) s->uv_width[(index)]
-#define UV_H(index) s->uv_height[(index)]
+#define UV_C(index) o->uv_corner[(index)]
+#define UV_W(index) o->uv_width[(index)]
+#define UV_H(index) o->uv_height[(index)]
 
 static int quad_init(struct ngl_node *node)
 {
     struct quad_priv *s = node->priv_data;
+    const struct quad_opts *o = &s->opts;
 
     const float vertices[] = {
         C(0),               C(1),               C(2),
