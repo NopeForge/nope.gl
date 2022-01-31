@@ -169,14 +169,6 @@ struct geometry {
     float radius;
     int npoints;
 
-    /* geometry params */
-    struct ngl_node *vertices;
-    struct ngl_node *uvcoords;
-    struct ngl_node *normals;
-    struct ngl_node *indices;
-    struct ngl_node *update_nodes[3]; /* {vertices, uvcoords, normals} at most */
-    int nb_update_nodes;
-
     /* shared for all geometries */
     struct buffer *vertices_buffer;
     struct buffer *uvcoords_buffer;

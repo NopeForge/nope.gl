@@ -49,7 +49,18 @@ static const struct param_choices topology_choices = {
                                            NGL_NODE_ANIMATEDBUFFERVEC3,     \
                                            -1}
 
-#define OFFSET(x) offsetof(struct geometry, x)
+struct geometry_priv {
+    struct geometry geom;
+    struct ngl_node *vertices;
+    struct ngl_node *uvcoords;
+    struct ngl_node *normals;
+    struct ngl_node *indices;
+    struct ngl_node *update_nodes[3]; /* {vertices, uvcoords, normals} at most */
+    int nb_update_nodes;
+    int topology;
+};
+
+#define OFFSET(x) offsetof(struct geometry_priv, x)
 static const struct node_param geometry_params[] = {
     {"vertices",  NGLI_PARAM_TYPE_NODE, OFFSET(vertices),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
@@ -73,11 +84,13 @@ static const struct node_param geometry_params[] = {
     {NULL}
 };
 
+NGLI_STATIC_ASSERT(geom_on_top_of_geometry, offsetof(struct geometry_priv, geom) == 0);
+
 #define GET_MAX_INDICES(type) do {                         \
     type *data = (type *)indices->data;                    \
     for (int i = 0; i < indices->layout.count; i++) {      \
-        if (data[i] > s->max_indices)                      \
-            s->max_indices = data[i];                      \
+        if (data[i] > s->geom.max_indices)                 \
+            s->geom.max_indices = data[i];                 \
     }                                                      \
 } while (0)                                                \
 
@@ -114,9 +127,9 @@ static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buff
 
 static int geometry_init(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
-    int ret = configure_buffer(s->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &s->vertices_buffer, &s->vertices_layout);
+    int ret = configure_buffer(s->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &s->geom.vertices_buffer, &s->geom.vertices_layout);
     if (ret < 0)
         return ret;
     s->update_nodes[s->nb_update_nodes++] = s->vertices;
@@ -133,7 +146,7 @@ static int geometry_init(struct ngl_node *node)
             return NGL_ERROR_INVALID_ARG;
         }
 
-        ret = configure_buffer(s->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &s->uvcoords_buffer, &s->uvcoords_layout);
+        ret = configure_buffer(s->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &s->geom.uvcoords_buffer, &s->geom.uvcoords_layout);
         if (ret < 0)
             return ret;
         s->update_nodes[s->nb_update_nodes++] = s->uvcoords;
@@ -149,7 +162,7 @@ static int geometry_init(struct ngl_node *node)
             return NGL_ERROR_INVALID_ARG;
         }
 
-        ret = configure_buffer(s->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &s->normals_buffer, &s->normals_layout);
+        ret = configure_buffer(s->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &s->geom.normals_buffer, &s->geom.normals_layout);
         if (ret < 0)
             return ret;
         s->update_nodes[s->nb_update_nodes++] = s->normals;
@@ -169,17 +182,19 @@ static int geometry_init(struct ngl_node *node)
             ngli_assert(0);
         }
 
-        ret = configure_buffer(s->indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT, &s->indices_buffer, &s->indices_layout);
+        ret = configure_buffer(s->indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT, &s->geom.indices_buffer, &s->geom.indices_layout);
         if (ret < 0)
             return ret;
     }
+
+    s->geom.topology = s->topology;
 
     return 0;
 }
 
 static int geometry_prepare(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
     /*
      * Init of buffers must happen after all usage flags are set (the usage of
@@ -204,7 +219,7 @@ static int geometry_prepare(struct ngl_node *node)
 static int geometry_update(struct ngl_node *node, double t)
 {
     int ret;
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
     for (int i = 0; i < s->nb_update_nodes; i++) {
         struct ngl_node *update_node = s->update_nodes[i];
@@ -218,7 +233,7 @@ static int geometry_update(struct ngl_node *node, double t)
 
 static void geometry_uninit(struct ngl_node *node)
 {
-    struct geometry *s = node->priv_data;
+    struct geometry_priv *s = node->priv_data;
 
     ngli_node_buffer_unref(s->vertices);
     if (s->uvcoords)
@@ -236,7 +251,7 @@ const struct node_class ngli_geometry_class = {
     .prepare   = geometry_prepare,
     .uninit    = geometry_uninit,
     .update    = geometry_update,
-    .priv_size = sizeof(struct geometry),
+    .priv_size = sizeof(struct geometry_priv),
     .params    = geometry_params,
     .file      = __FILE__,
 };
