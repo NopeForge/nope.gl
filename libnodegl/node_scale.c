@@ -27,24 +27,30 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-struct scale_priv {
-    struct transform_priv trf;
+struct scale_opts {
+    struct ngl_node *child;
     struct ngl_node *factors_node;
     float factors[3];
     float anchor[3];
+};
+
+struct scale_priv {
+    struct transform_priv trf;
+    struct scale_opts opts;
     int use_anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *f)
 {
     struct scale_priv *s = node->priv_data;
+    const struct scale_opts *o = &s->opts;
     struct transform_priv *trf = &s->trf;
     float *matrix = trf->matrix;
 
     ngli_mat4_scale(matrix, f[0], f[1], f[2]);
 
     if (s->use_anchor) {
-        const float *a = s->anchor;
+        const float *a = o->anchor;
         NGLI_ALIGNED_MAT(tm);
         ngli_mat4_translate(tm, a[0], a[1], a[2]);
         ngli_mat4_mul(matrix, tm, matrix);
@@ -56,38 +62,40 @@ static void update_trf_matrix(struct ngl_node *node, const float *f)
 static int scale_init(struct ngl_node *node)
 {
     struct scale_priv *s = node->priv_data;
+    const struct scale_opts *o = &s->opts;
     static const float zero_anchor[3];
-    s->use_anchor = memcmp(s->anchor, zero_anchor, sizeof(s->anchor));
-    if (!s->factors_node)
-        update_trf_matrix(node, s->factors);
+    s->use_anchor = memcmp(o->anchor, zero_anchor, sizeof(o->anchor));
+    if (!o->factors_node)
+        update_trf_matrix(node, o->factors);
+    s->trf.child = o->child;
     return 0;
 }
 
 static int update_factors(struct ngl_node *node)
 {
     struct scale_priv *s = node->priv_data;
-    update_trf_matrix(node, s->factors);
+    const struct scale_opts *o = &s->opts;
+    update_trf_matrix(node, o->factors);
     return 0;
 }
 
 static int scale_update(struct ngl_node *node, double t)
 {
     struct scale_priv *s = node->priv_data;
-    struct transform_priv *trf = &s->trf;
-    struct ngl_node *child = trf->child;
-    if (s->factors_node) {
-        int ret = ngli_node_update(s->factors_node, t);
+    const struct scale_opts *o = &s->opts;
+    if (o->factors_node) {
+        int ret = ngli_node_update(o->factors_node, t);
         if (ret < 0)
             return ret;
-        struct variable_priv *factors = s->factors_node->priv_data;
+        struct variable_priv *factors = o->factors_node->priv_data;
         update_trf_matrix(node, factors->vector);
     }
-    return ngli_node_update(child, t);
+    return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct scale_priv, x)
+#define OFFSET(x) offsetof(struct scale_priv, opts.x)
 static const struct node_param scale_params[] = {
-    {"child",   NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
+    {"child",   NGLI_PARAM_TYPE_NODE, OFFSET(child),
                 .flags=NGLI_PARAM_FLAG_NON_NULL,
                 .desc=NGLI_DOCSTRING("scene to scale")},
     {"factors", NGLI_PARAM_TYPE_VEC3, OFFSET(factors_node),
@@ -100,7 +108,7 @@ static const struct node_param scale_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(trf_on_top_of_scale, OFFSET(trf) == 0);
+NGLI_STATIC_ASSERT(trf_on_top_of_scale, offsetof(struct scale_priv, trf) == 0);
 
 const struct node_class ngli_scale_class = {
     .id        = NGL_NODE_SCALE,
