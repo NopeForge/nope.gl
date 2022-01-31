@@ -46,10 +46,14 @@
 static void capture_cpu(struct gpu_ctx *s)
 {
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct glcontext *gl = s_priv->glcontext;
     struct ngl_config *config = &s->config;
     struct rendertarget *rt = s_priv->default_rt;
+    struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
 
-    ngli_rendertarget_read_pixels(rt, config->capture_buffer);
+    const GLuint fbo_id = rt_gl->resolve_id ? rt_gl->resolve_id : rt_gl->id;
+    ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
+    ngli_glReadPixels(gl, 0, 0, rt->width, rt->height, GL_RGBA, GL_UNSIGNED_BYTE, config->capture_buffer);
 }
 
 static void capture_corevideo(struct gpu_ctx *s)
@@ -222,7 +226,6 @@ static int create_rendertarget(struct gpu_ctx *s,
             .load_op    = load_op,
             .store_op   = NGLI_STORE_OP_STORE,
         },
-        .readable = 1,
     };
 
     int ret;
@@ -809,7 +812,6 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
                                                                                  \
     .rendertarget_create                = ngli_rendertarget_gl_create,           \
     .rendertarget_init                  = ngli_rendertarget_gl_init,             \
-    .rendertarget_read_pixels           = ngli_rendertarget_gl_read_pixels,      \
     .rendertarget_freep                 = ngli_rendertarget_gl_freep,            \
                                                                                  \
     .texture_create                     = ngli_texture_gl_create,                \

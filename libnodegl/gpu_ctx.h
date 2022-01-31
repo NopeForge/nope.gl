@@ -85,7 +85,6 @@ struct gpu_ctx_class {
 
     struct rendertarget *(*rendertarget_create)(struct gpu_ctx *ctx);
     int (*rendertarget_init)(struct rendertarget *s, const struct rendertarget_params *params);
-    void (*rendertarget_read_pixels)(struct rendertarget *s, uint8_t *data);
     void (*rendertarget_freep)(struct rendertarget **sp);
 
     struct texture *(*texture_create)(struct gpu_ctx *ctx);

@@ -399,29 +399,6 @@ void ngli_rendertarget_gl_end_pass(struct rendertarget *s)
     s_priv->invalidate(s);
 }
 
-void ngli_rendertarget_gl_read_pixels(struct rendertarget *s, uint8_t *data)
-{
-    const struct rendertarget_gl *s_priv = (struct rendertarget_gl *)s;
-    const struct rendertarget_params *params = &s->params;
-
-    ngli_assert(params->readable);
-
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
-    struct rendertarget *rt = gpu_ctx_gl->current_rt;
-    struct rendertarget_gl *rt_gl = (struct rendertarget_gl *)rt;
-
-    const GLuint fbo_id = rt_gl ? rt_gl->id : ngli_glcontext_get_default_framebuffer(gl);
-    const GLuint id = s_priv->resolve_id ? s_priv->resolve_id : s_priv->id;
-    if (id != fbo_id)
-        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, id);
-
-    ngli_glReadPixels(gl, 0, 0, s->width, s->height, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-    if (id != fbo_id)
-        ngli_glBindFramebuffer(gl, GL_FRAMEBUFFER, fbo_id);
-}
-
 void ngli_rendertarget_gl_freep(struct rendertarget **sp)
 {
     if (!*sp)

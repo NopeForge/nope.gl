@@ -66,7 +66,6 @@ struct rendertarget_params {
     int nb_colors;
     struct attachment colors[NGLI_MAX_COLOR_ATTACHMENTS];
     struct attachment depth_stencil;
-    int readable;
 };
 
 struct rendertarget {
@@ -78,7 +77,6 @@ struct rendertarget {
 
 struct rendertarget *ngli_rendertarget_create(struct gpu_ctx *gpu_ctx);
 int ngli_rendertarget_init(struct rendertarget *s, const struct rendertarget_params *params);
-void ngli_rendertarget_read_pixels(struct rendertarget *s, uint8_t *data);
 void ngli_rendertarget_freep(struct rendertarget **sp);
 
 #endif

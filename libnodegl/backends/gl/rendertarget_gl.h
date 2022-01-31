@@ -43,7 +43,6 @@ struct rendertarget *ngli_rendertarget_gl_create(struct gpu_ctx *gpu_ctx);
 int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_params *params);
 void ngli_rendertarget_gl_begin_pass(struct rendertarget *s);
 void ngli_rendertarget_gl_end_pass(struct rendertarget *s);
-void ngli_rendertarget_gl_read_pixels(struct rendertarget *s, uint8_t *data);
 void ngli_rendertarget_gl_freep(struct rendertarget **sp);
 
 int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_params *params, GLuint id);
