@@ -25,6 +25,7 @@
 #include "blending.h"
 #include "darray.h"
 #include "filterschain.h"
+#include "geometry.h"
 #include "gpu_ctx.h"
 #include "internal.h"
 #include "log.h"

@@ -24,6 +24,7 @@
 #include <string.h>
 #include <stdint.h>
 
+#include "geometry.h"
 #include "log.h"
 #include "nodegl.h"
 #include "internal.h"

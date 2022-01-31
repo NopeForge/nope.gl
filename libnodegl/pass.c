@@ -29,6 +29,7 @@
 #include "block.h"
 #include "buffer.h"
 #include "darray.h"
+#include "geometry.h"
 #include "gpu_ctx.h"
 #include "hmap.h"
 #include "image.h"

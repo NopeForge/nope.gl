@@ -151,22 +151,6 @@ struct buffer_layout {
     int offset;     // offset where the data starts in the buffer, in bytes
 };
 
-struct geometry {
-    struct buffer *vertices_buffer;
-    struct buffer *uvcoords_buffer;
-    struct buffer *normals_buffer;
-    struct buffer *indices_buffer;
-
-    struct buffer_layout vertices_layout;
-    struct buffer_layout uvcoords_layout;
-    struct buffer_layout normals_layout;
-    struct buffer_layout indices_layout;
-
-    int topology;
-
-    int64_t max_indices;
-};
-
 struct buffer_opts {
     int count;
     uint8_t *data;
