@@ -347,7 +347,7 @@ struct texture_priv {
     struct hwmap hwmap;
 };
 
-struct media_priv {
+struct media_opts {
     const char *filename;
     int sxplayer_min_level;
     struct ngl_node *anim;
@@ -360,6 +360,10 @@ struct media_priv {
     int hwaccel;
     char *filters;
     char *vt_pix_fmt;
+};
+
+struct media_priv {
+    struct media_opts opts;
 
     struct sxplayer_ctx *player;
     struct sxplayer_frame *frame;

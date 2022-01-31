@@ -64,7 +64,7 @@ static const struct param_choices sxplayer_hwaccel_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct media_priv, x)
+#define OFFSET(x) offsetof(struct media_priv, opts.x)
 static const struct node_param media_params[] = {
     {"filename", NGLI_PARAM_TYPE_STR, OFFSET(filename), {.str=NULL}, NGLI_PARAM_FLAG_NON_NULL,
                  .desc=NGLI_DOCSTRING("path to input media file")},
@@ -111,7 +111,8 @@ static void callback_sxplayer_log(void *arg, int level, const char *filename, in
         return;
 
     struct media_priv *s = arg;
-    if (level < s->sxplayer_min_level)
+    const struct media_opts *o = &s->opts;
+    if (level < o->sxplayer_min_level)
         return;
 
     char buf[512];
@@ -135,14 +136,15 @@ static const char *get_default_vt_pix_fmts(int backend)
 static int media_init(struct ngl_node *node)
 {
     struct media_priv *s = node->priv_data;
+    const struct media_opts *o = &s->opts;
 
-    s->player = sxplayer_create(s->filename);
+    s->player = sxplayer_create(o->filename);
     if (!s->player)
         return NGL_ERROR_MEMORY;
 
     sxplayer_set_log_callback(s->player, s, callback_sxplayer_log);
 
-    struct ngl_node *anim_node = s->anim;
+    struct ngl_node *anim_node = o->anim;
     if (anim_node) {
         struct variable_priv *anim_p = anim_node->priv_data;
         const struct variable_opts *anim = &anim_p->opts;
@@ -164,26 +166,26 @@ static int media_init(struct ngl_node *node)
         }
     }
 
-    if (s->max_nb_packets) sxplayer_set_option(s->player, "max_nb_packets", s->max_nb_packets);
-    if (s->max_nb_frames)  sxplayer_set_option(s->player, "max_nb_frames",  s->max_nb_frames);
-    if (s->max_nb_sink)    sxplayer_set_option(s->player, "max_nb_sink",    s->max_nb_sink);
-    if (s->max_pixels)     sxplayer_set_option(s->player, "max_pixels",     s->max_pixels);
-    if (s->filters)        sxplayer_set_option(s->player, "filters",        s->filters);
+    if (o->max_nb_packets) sxplayer_set_option(s->player, "max_nb_packets", o->max_nb_packets);
+    if (o->max_nb_frames)  sxplayer_set_option(s->player, "max_nb_frames",  o->max_nb_frames);
+    if (o->max_nb_sink)    sxplayer_set_option(s->player, "max_nb_sink",    o->max_nb_sink);
+    if (o->max_pixels)     sxplayer_set_option(s->player, "max_pixels",     o->max_pixels);
+    if (o->filters)        sxplayer_set_option(s->player, "filters",        o->filters);
 
-    sxplayer_set_option(s->player, "stream_idx", s->stream_idx);
-    sxplayer_set_option(s->player, "auto_hwaccel", s->hwaccel);
+    sxplayer_set_option(s->player, "stream_idx", o->stream_idx);
+    sxplayer_set_option(s->player, "auto_hwaccel", o->hwaccel);
 
     sxplayer_set_option(s->player, "sw_pix_fmt", SXPLAYER_PIXFMT_AUTO);
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
     const struct ngl_ctx *ctx = node->ctx;
     const struct ngl_config *config = &ctx->config;
-    const char *vt_pix_fmt = s->vt_pix_fmt;
-    if (!strcmp(s->vt_pix_fmt, "auto"))
+    const char *vt_pix_fmt = o->vt_pix_fmt;
+    if (!strcmp(o->vt_pix_fmt, "auto"))
         vt_pix_fmt = get_default_vt_pix_fmts(config->backend);
     sxplayer_set_option(s->player, "vt_pix_fmt", vt_pix_fmt);
 #endif
 
-    if (s->audio_tex) {
+    if (o->audio_tex) {
         sxplayer_set_option(s->player, "avselect", SXPLAYER_SELECT_AUDIO);
         sxplayer_set_option(s->player, "audio_texture", 1);
         return 0;
@@ -260,7 +262,8 @@ static const char * const pix_fmt_names[] = {
 static int media_update(struct ngl_node *node, double t)
 {
     struct media_priv *s = node->priv_data;
-    struct ngl_node *anim_node = s->anim;
+    const struct media_opts *o = &s->opts;
+    struct ngl_node *anim_node = o->anim;
     double media_time = t;
 
     if (anim_node) {
@@ -285,7 +288,7 @@ static int media_update(struct ngl_node *node, double t)
         const char *pix_fmt_str = frame->pix_fmt >= 0 &&
                                   frame->pix_fmt < NGLI_ARRAY_NB(pix_fmt_names) ? pix_fmt_names[frame->pix_fmt]
                                                                                 : NULL;
-        if (s->audio_tex) {
+        if (o->audio_tex) {
             if (frame->pix_fmt != SXPLAYER_SMPFMT_FLT) {
                 LOG(ERROR, "unexpected %s (%d) sxplayer frame",
                     pix_fmt_str ? pix_fmt_str : "unknown", frame->pix_fmt);
