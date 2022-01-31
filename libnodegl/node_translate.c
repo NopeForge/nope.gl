@@ -26,10 +26,15 @@
 #include "math_utils.h"
 #include "transforms.h"
 
-struct translate_priv {
-    struct transform_priv trf;
+struct translate_opts {
+    struct ngl_node *child;
     struct ngl_node *vector_node;
     float vector[3];
+};
+
+struct translate_priv {
+    struct transform_priv trf;
+    struct translate_opts opts;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *vec)
@@ -42,36 +47,38 @@ static void update_trf_matrix(struct ngl_node *node, const float *vec)
 static int update_vector(struct ngl_node *node)
 {
     struct translate_priv *s = node->priv_data;
-    update_trf_matrix(node, s->vector);
+    const struct translate_opts *o = &s->opts;
+    update_trf_matrix(node, o->vector);
     return 0;
 }
 
 static int translate_init(struct ngl_node *node)
 {
     struct translate_priv *s = node->priv_data;
-    if (!s->vector_node)
-        update_trf_matrix(node, s->vector);
+    const struct translate_opts *o = &s->opts;
+    if (!o->vector_node)
+        update_trf_matrix(node, o->vector);
+    s->trf.child = o->child;
     return 0;
 }
 
 static int translate_update(struct ngl_node *node, double t)
 {
     struct translate_priv *s = node->priv_data;
-    struct transform_priv *trf = &s->trf;
-    struct ngl_node *child = trf->child;
-    if (s->vector_node) {
-        int ret = ngli_node_update(s->vector_node, t);
+    const struct translate_opts *o = &s->opts;
+    if (o->vector_node) {
+        int ret = ngli_node_update(o->vector_node, t);
         if (ret < 0)
             return ret;
-        struct variable_priv *vector = s->vector_node->priv_data;
+        struct variable_priv *vector = o->vector_node->priv_data;
         update_trf_matrix(node, vector->vector);
     }
-    return ngli_node_update(child, t);
+    return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct translate_priv, x)
+#define OFFSET(x) offsetof(struct translate_priv, opts.x)
 static const struct node_param translate_params[] = {
-    {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(trf.child),
+    {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
                .desc=NGLI_DOCSTRING("scene to translate")},
     {"vector", NGLI_PARAM_TYPE_VEC3, OFFSET(vector_node),
@@ -81,7 +88,7 @@ static const struct node_param translate_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(trf_on_top_of_translate, OFFSET(trf) == 0);
+NGLI_STATIC_ASSERT(trf_on_top_of_translate, offsetof(struct translate_priv, trf) == 0);
 
 const struct node_class ngli_translate_class = {
     .id        = NGL_NODE_TRANSLATE,
