@@ -232,7 +232,6 @@ struct variable_priv {
     int data_size;
     int data_type;          // any of NGLI_TYPE_*
     int dynamic;
-    int last_index;
 };
 
 int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t);
