@@ -159,7 +159,6 @@ struct buffer_priv {
     uint8_t *data;          // buffer of <count> elements
     int data_size;          // total buffer data size in bytes
 
-    char *filename;         // filename from which the data will be read
     struct ngl_node *block;
     int block_field;
     int usage;              // flags defining buffer use

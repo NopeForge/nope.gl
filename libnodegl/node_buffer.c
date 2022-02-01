@@ -152,14 +152,15 @@ static int buffer_init_from_data(struct ngl_node *node)
 static int buffer_init_from_filename(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
+    const struct buffer_opts *o = node->opts;
 
     int64_t size;
-    int ret = ngli_get_filesize(s->filename, &size);
+    int ret = ngli_get_filesize(o->filename, &size);
     if (ret < 0)
         return ret;
 
     if (size > INT_MAX) {
-        LOG(ERROR, "'%s' size (%" PRId64 ") exceeds supported limit (%d)", s->filename, size, INT_MAX);
+        LOG(ERROR, "'%s' size (%" PRId64 ") exceeds supported limit (%d)", o->filename, size, INT_MAX);
         return NGL_ERROR_UNSUPPORTED;
     }
 
@@ -179,15 +180,15 @@ static int buffer_init_from_filename(struct ngl_node *node)
     if (!s->data)
         return NGL_ERROR_MEMORY;
 
-    s->fp = fopen(s->filename, "rb");
+    s->fp = fopen(o->filename, "rb");
     if (!s->fp) {
-        LOG(ERROR, "could not open '%s'", s->filename);
+        LOG(ERROR, "could not open '%s'", o->filename);
         return NGL_ERROR_IO;
     }
 
     size_t n = fread(s->data, 1, s->data_size, s->fp);
     if (n != s->data_size) {
-        LOG(ERROR, "could not read '%s'", s->filename);
+        LOG(ERROR, "could not read '%s'", o->filename);
         return NGL_ERROR_IO;
     }
 
@@ -251,17 +252,16 @@ static int buffer_init(struct ngl_node *node)
     s->layout.count = o->count;
     s->data         = o->data;
     s->data_size    = o->data_size;
-    s->filename     = o->filename;
     s->block        = o->block;
     s->block_field  = o->block_field;
 
-    if (s->data && s->filename) {
+    if (s->data && o->filename) {
         LOG(ERROR,
             "data and filename option cannot be set at the same time");
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (s->block && (s->data || s->filename)) {
+    if (s->block && (s->data || o->filename)) {
         LOG(ERROR, "block option can not be set with data or filename");
         return NGL_ERROR_INVALID_ARG;
     }
@@ -278,7 +278,7 @@ static int buffer_init(struct ngl_node *node)
 
     if (s->data)
         return buffer_init_from_data(node);
-    if (s->filename)
+    if (o->filename)
         return buffer_init_from_filename(node);
     if (s->block)
         return buffer_init_from_block(node);
@@ -289,15 +289,16 @@ static int buffer_init(struct ngl_node *node)
 static void buffer_uninit(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
+    const struct buffer_opts *o = node->opts;
 
-    if (s->filename) {
+    if (o->filename) {
         ngli_freep(&s->data);
         s->data_size = 0;
 
         if (s->fp) {
             int ret = fclose(s->fp);
             if (ret < 0) {
-                LOG(ERROR, "could not properly close '%s'", s->filename);
+                LOG(ERROR, "could not properly close '%s'", o->filename);
             }
         }
     } else if (s->block) {
