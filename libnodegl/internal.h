@@ -166,7 +166,6 @@ struct buffer_priv {
 
     FILE *fp;
     int dynamic;
-    int last_index;
 
     struct buffer *buffer;
     int buffer_refcount;
