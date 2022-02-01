@@ -161,10 +161,6 @@ struct buffer_opts {
     struct ngl_node *block;
     int block_field;
 
-    /* animatedbuffer */
-    struct ngl_node **animkf;
-    int nb_animkf;
-
     /* streamedbuffer */
     struct ngl_node *timestamps;
     struct ngl_node *buffer_node;
