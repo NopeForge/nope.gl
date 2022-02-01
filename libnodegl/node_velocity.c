@@ -27,7 +27,11 @@
 #include "internal.h"
 #include "type.h"
 
-#define OFFSET(x) offsetof(struct variable_opts, x)
+struct velocity_opts {
+    struct ngl_node *anim_node;
+};
+
+#define OFFSET(x) offsetof(struct velocity_opts, x)
 static const struct node_param velocityfloat_params[] = {
     {"animation", NGLI_PARAM_TYPE_NODE, OFFSET(anim_node), .flags=NGLI_PARAM_FLAG_NON_NULL,
                   .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
@@ -120,7 +124,7 @@ static ngli_animation_cpy_func_type get_cpy_func(int node_class)
 int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t)
 {
     struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = node->opts;
+    const struct velocity_opts *o = node->opts;
 
     /*
      * The following check is required because NGLI_PARAM_FLAG_NON_NULL is
@@ -158,7 +162,7 @@ int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t)
 static int velocity_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = node->opts;
+    const struct velocity_opts *o = node->opts;
     struct variable_opts *anim = o->anim_node->opts;
     s->dynamic = 1;
     return ngli_animation_init(&s->anim, NULL,
@@ -189,7 +193,7 @@ const struct node_class ngli_velocity##type##_class = {                         
     .name      = class_name,                                                    \
     .init      = velocity##type##_init,                                         \
     .update    = velocity_update,                                               \
-    .opts_size = sizeof(struct variable_opts),                                  \
+    .opts_size = sizeof(struct velocity_opts),                                  \
     .priv_size = sizeof(struct variable_priv),                                  \
     .params    = velocity##type##_params,                                       \
     .file      = __FILE__,                                                      \

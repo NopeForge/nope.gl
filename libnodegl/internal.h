@@ -213,10 +213,7 @@ struct variable_opts {
     struct ngl_node **animkf;
     int nb_animkf;
 
-    union {
-        struct ngl_node *anim_node; /* Velocity nodes only */
-        struct ngl_node *path_node; /* AnimatedPath only */
-    };
+    struct ngl_node *path_node; /* AnimatedPath only */
     struct ngl_node *transform;
     int as_mat4; /* quaternion only */
 };
