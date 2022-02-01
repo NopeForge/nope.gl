@@ -25,11 +25,10 @@ void ngli_pipeline_utils_update_texture(struct pipeline *pipeline, const struct 
 {
     const struct pgcraft_texture_info_field *fields = info->fields;
     const struct image *image = info->image;
-    const float ts = image->ts;
 
     ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
     ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
-    ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_TIMESTAMP].index, &ts);
+    ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_TIMESTAMP].index, &image->ts);
 
     if (image->params.layout) {
         const float dimensions[] = {image->params.width, image->params.height, image->params.depth};
