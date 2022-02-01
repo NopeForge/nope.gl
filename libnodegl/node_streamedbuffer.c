@@ -29,7 +29,15 @@
 #include "internal.h"
 #include "type.h"
 
-#define OFFSET(x) offsetof(struct buffer_opts, x)
+struct streamedbuffer_opts {
+    int count;
+    struct ngl_node *timestamps;
+    struct ngl_node *buffer_node;
+    int timebase[2];
+    struct ngl_node *time_anim;
+};
+
+#define OFFSET(x) offsetof(struct streamedbuffer_opts, x)
 
 #define DECLARE_STREAMED_PARAMS(name, allowed_node)                                                       \
 static const struct node_param streamedbuffer##name##_params[] = {                                        \
@@ -65,7 +73,7 @@ DECLARE_STREAMED_PARAMS(mat4,   NGL_NODE_BUFFERMAT4)
 
 static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 {
-    const struct buffer_opts *o = node->opts;
+    const struct streamedbuffer_opts *o = node->opts;
     const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
@@ -83,7 +91,7 @@ static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 static int streamedbuffer_update(struct ngl_node *node, double t)
 {
     struct buffer_priv *s = node->priv_data;
-    const struct buffer_opts *o = node->opts;
+    const struct streamedbuffer_opts *o = node->opts;
     struct ngl_node *time_anim = o->time_anim;
 
     double rt = t;
@@ -120,7 +128,7 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
 static int check_timestamps_buffer(const struct ngl_node *node)
 {
     const struct buffer_priv *s = node->priv_data;
-    const struct buffer_opts *o = node->opts;
+    const struct streamedbuffer_opts *o = node->opts;
     const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
@@ -157,7 +165,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
 static int streamedbuffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
-    const struct buffer_opts *o = node->opts;
+    const struct streamedbuffer_opts *o = node->opts;
     struct buffer_priv *buffer_priv = o->buffer_node->priv_data;
 
     s->layout = buffer_priv->layout;
@@ -195,7 +203,7 @@ const struct node_class ngli_streamedbuffer##class_suffix##_class = {       \
     .name      = class_name,                                                \
     .init      = streamedbuffer_init,                                       \
     .update    = streamedbuffer_update,                                     \
-    .opts_size = sizeof(struct buffer_opts),                                \
+    .opts_size = sizeof(struct streamedbuffer_opts),                        \
     .priv_size = sizeof(struct buffer_priv),                                \
     .params    = streamedbuffer##class_suffix##_params,                     \
     .file      = __FILE__,                                                  \

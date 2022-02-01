@@ -160,12 +160,6 @@ struct buffer_opts {
     char *filename;
     struct ngl_node *block;
     int block_field;
-
-    /* streamedbuffer */
-    struct ngl_node *timestamps;
-    struct ngl_node *buffer_node;
-    int timebase[2];
-    struct ngl_node *time_anim;
 };
 
 struct buffer_priv {
