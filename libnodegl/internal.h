@@ -213,9 +213,11 @@ struct variable_opts {
     struct ngl_node **animkf;
     int nb_animkf;
 
-    struct ngl_node *path_node; /* AnimatedPath only */
-    struct ngl_node *transform; /* UniformMat4 only */
-    int as_mat4; /* UniformQuat and AnimatedQuat only */
+    union {
+        struct ngl_node *path_node; /* AnimatedPath only */
+        struct ngl_node *transform; /* UniformMat4 only */
+        int as_mat4; /* UniformQuat and AnimatedQuat only */
+    };
 };
 
 struct variable_priv {
