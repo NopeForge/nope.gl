@@ -214,7 +214,7 @@ struct variable_opts {
     int nb_animkf;
 
     struct ngl_node *path_node; /* AnimatedPath only */
-    struct ngl_node *transform;
+    struct ngl_node *transform; /* UniformMat4 only */
     int as_mat4; /* quaternion only */
 };
 
