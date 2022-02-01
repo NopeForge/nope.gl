@@ -35,6 +35,13 @@ struct animatedbuffer_opts {
     int nb_animkf;
 };
 
+struct animatedbuffer_priv {
+    struct buffer_priv buf;
+    struct animation anim;
+};
+
+NGLI_STATIC_ASSERT(buffer_priv_is_first, offsetof(struct animatedbuffer_priv, buf) == 0);
+
 #define OFFSET(x) offsetof(struct animatedbuffer_opts, x)
 static const struct node_param animatedbuffer_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf),
@@ -50,10 +57,10 @@ static void mix_buffer(void *user_arg, void *dst,
                        double ratio)
 {
     float *dstf = dst;
-    const struct buffer_priv *s = user_arg;
+    const struct animatedbuffer_priv *s = user_arg;
     const float *d1 = (const float *)kf0->data;
     const float *d2 = (const float *)kf1->data;
-    const struct buffer_layout *layout = &s->layout;
+    const struct buffer_layout *layout = &s->buf.layout;
     const int comp = layout->comp;
     for (int k = 0; k < layout->count; k++)
         for (int i = 0; i < comp; i++)
@@ -63,24 +70,24 @@ static void mix_buffer(void *user_arg, void *dst,
 static void cpy_buffer(void *user_arg, void *dst,
                        const struct animkeyframe_opts *kf)
 {
-    const struct buffer_priv *s = user_arg;
-    memcpy(dst, kf->data, s->data_size);
+    const struct animatedbuffer_priv *s = user_arg;
+    memcpy(dst, kf->data, s->buf.data_size);
 }
 
 static int animatedbuffer_update(struct ngl_node *node, double t)
 {
-    struct buffer_priv *s = node->priv_data;
-    return ngli_animation_evaluate(&s->anim, s->data, t);
+    struct animatedbuffer_priv *s = node->priv_data;
+    return ngli_animation_evaluate(&s->anim, s->buf.data, t);
 }
 
 static int animatedbuffer_init(struct ngl_node *node)
 {
-    struct buffer_priv *s = node->priv_data;
+    struct animatedbuffer_priv *s = node->priv_data;
     const struct animatedbuffer_opts *o = node->opts;
-    struct buffer_layout *layout = &s->layout;
+    struct buffer_layout *layout = &s->buf.layout;
 
-    s->dynamic = 1;
-    s->usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT | NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
+    s->buf.dynamic = 1;
+    s->buf.usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT | NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
     layout->comp = ngli_format_get_nb_comp(layout->format);
     layout->stride = ngli_format_get_bytes_per_pixel(layout->format);
 
@@ -112,27 +119,27 @@ static int animatedbuffer_init(struct ngl_node *node)
     if (!layout->count)
         return NGL_ERROR_INVALID_ARG;
 
-    s->data = ngli_calloc(layout->count, layout->stride);
-    if (!s->data)
+    s->buf.data = ngli_calloc(layout->count, layout->stride);
+    if (!s->buf.data)
         return NGL_ERROR_MEMORY;
-    s->data_size = layout->count * layout->stride;
+    s->buf.data_size = layout->count * layout->stride;
 
     return 0;
 }
 
 static void animatedbuffer_uninit(struct ngl_node *node)
 {
-    struct buffer_priv *s = node->priv_data;
+    struct animatedbuffer_priv *s = node->priv_data;
 
-    ngli_freep(&s->data);
+    ngli_freep(&s->buf.data);
 }
 
 #define DEFINE_ABUFFER_CLASS(class_id, class_name, type_name, class_data_type, class_data_format)  \
 static int animatedbuffer##type_name##_init(struct ngl_node *node)                 \
 {                                                                                  \
-    struct buffer_priv *s = node->priv_data;                                       \
-    s->layout.format = class_data_format;                                          \
-    s->layout.type   = class_data_type;                                            \
+    struct animatedbuffer_priv *s = node->priv_data;                               \
+    s->buf.layout.format = class_data_format;                                      \
+    s->buf.layout.type   = class_data_type;                                        \
     return animatedbuffer_init(node);                                              \
 }                                                                                  \
                                                                                    \
@@ -144,7 +151,7 @@ const struct node_class ngli_animatedbuffer##type_name##_class = {              
     .update    = animatedbuffer_update,                                            \
     .uninit    = animatedbuffer_uninit,                                            \
     .opts_size = sizeof(struct animatedbuffer_opts),                               \
-    .priv_size = sizeof(struct buffer_priv),                                       \
+    .priv_size = sizeof(struct animatedbuffer_priv),                               \
     .params    = animatedbuffer_params,                                            \
     .params_id = "AnimatedBuffer",                                                 \
     .file      = __FILE__,                                                         \

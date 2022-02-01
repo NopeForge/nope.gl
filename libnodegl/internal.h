@@ -164,9 +164,6 @@ struct buffer_priv {
     int block_field;
     int usage;              // flags defining buffer use
 
-    /* animatedbuffer */
-    struct animation anim;
-
     FILE *fp;
     int dynamic;
     int last_index;
