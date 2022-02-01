@@ -268,7 +268,7 @@ static int buffer_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (s->block && (o->data || o->filename)) {
+    if (o->block && (o->data || o->filename)) {
         LOG(ERROR, "block option can not be set with data or filename");
         return NGL_ERROR_INVALID_ARG;
     }
@@ -287,7 +287,7 @@ static int buffer_init(struct ngl_node *node)
         return buffer_init_from_data(node);
     if (o->filename)
         return buffer_init_from_filename(node);
-    if (s->block)
+    if (o->block)
         return buffer_init_from_block(node);
 
     return buffer_init_from_count(node);
