@@ -153,15 +153,6 @@ struct buffer_layout {
     int offset;     // offset where the data starts in the buffer, in bytes
 };
 
-struct buffer_opts {
-    int count;
-    uint8_t *data;
-    int data_size;
-    char *filename;
-    struct ngl_node *block;
-    int block_field;
-};
-
 struct buffer_priv {
     struct buffer_layout layout;
 

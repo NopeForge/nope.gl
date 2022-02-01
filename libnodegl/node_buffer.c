@@ -34,6 +34,15 @@
 #include "type.h"
 #include "utils.h"
 
+struct buffer_opts {
+    int count;
+    uint8_t *data;
+    int data_size;
+    char *filename;
+    struct ngl_node *block;
+    int block_field;
+};
+
 #define OFFSET(x) offsetof(struct buffer_opts, x)
 static const struct node_param buffer_params[] = {
     {"count",  NGLI_PARAM_TYPE_I32,    OFFSET(count),
