@@ -213,11 +213,7 @@ struct variable_opts {
     struct ngl_node **animkf;
     int nb_animkf;
 
-    struct ngl_node *timestamps;
-    struct ngl_node *buffer;
-    int timebase[2];
     union {
-        struct ngl_node *time_anim;
         struct ngl_node *anim_node; /* Velocity nodes only */
         struct ngl_node *path_node; /* AnimatedPath only */
     };
