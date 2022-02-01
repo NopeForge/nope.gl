@@ -135,18 +135,21 @@ int ngli_node_buffer_upload(struct ngl_node *node)
 static int buffer_init_from_data(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
+    const struct buffer_opts *o = node->opts;
     struct buffer_layout *layout = &s->layout;
 
-    layout->count = layout->count ? layout->count : s->data_size / layout->stride;
-    if (s->data_size != layout->count * layout->stride) {
+    layout->count = layout->count ? layout->count : o->data_size / layout->stride;
+    if (o->data_size != layout->count * layout->stride) {
         LOG(ERROR,
             "element count (%d) and data stride (%d) does not match data size (%d)",
             layout->count,
             layout->stride,
-            s->data_size);
+            o->data_size);
         return NGL_ERROR_INVALID_ARG;
     }
 
+    s->data      = o->data;
+    s->data_size = o->data_size;
     return 0;
 }
 
@@ -256,18 +259,16 @@ static int buffer_init(struct ngl_node *node)
     struct buffer_layout *layout = &s->layout;
 
     layout->count   = o->count;
-    s->data         = o->data;
-    s->data_size    = o->data_size;
     s->block        = o->block;
     s->block_field  = o->block_field;
 
-    if (s->data && o->filename) {
+    if (o->data && o->filename) {
         LOG(ERROR,
             "data and filename option cannot be set at the same time");
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (s->block && (s->data || o->filename)) {
+    if (s->block && (o->data || o->filename)) {
         LOG(ERROR, "block option can not be set with data or filename");
         return NGL_ERROR_INVALID_ARG;
     }
@@ -282,7 +283,7 @@ static int buffer_init(struct ngl_node *node)
 
     s->usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-    if (s->data)
+    if (o->data)
         return buffer_init_from_data(node);
     if (o->filename)
         return buffer_init_from_filename(node);
