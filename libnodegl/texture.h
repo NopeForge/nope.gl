@@ -80,7 +80,6 @@ struct texture_params {
     int wrap_s;
     int wrap_t;
     int wrap_r;
-    int immutable;
     int usage;
     int external_storage;
     int external_oes;

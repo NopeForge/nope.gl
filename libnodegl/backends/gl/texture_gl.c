@@ -363,7 +363,7 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
                     params->width, params->height, params->depth);
                 return NGL_ERROR_INVALID_ARG;
             }
-            if (params->immutable) {
+            if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE) {
                 texture_set_storage(s);
             } else {
                 texture_set_image(s, NULL);

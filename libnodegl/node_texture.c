@@ -255,9 +255,6 @@ static int texture_prefetch(struct ngl_node *node)
     if (params->type == NGLI_TEXTURE_TYPE_CUBE)
         params->height = params->width;
 
-    if (gpu_ctx->features & NGLI_FEATURE_TEXTURE_STORAGE)
-        params->immutable = 1;
-
     params->usage |= NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT | NGLI_TEXTURE_USAGE_SAMPLED_BIT;
 
     if (params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE)
