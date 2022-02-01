@@ -308,10 +308,6 @@ static void buffer_uninit(struct ngl_node *node)
                 LOG(ERROR, "could not properly close '%s'", o->filename);
             }
         }
-    } else if (s->block) {
-        /* Prevent the param API to free a non-owned pointer */
-        s->data = NULL;
-        s->data_size = 0;
     }
 }
 
