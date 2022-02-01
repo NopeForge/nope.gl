@@ -19,6 +19,8 @@
  * under the License.
  */
 
+#include "config.h"
+
 #include <dlfcn.h>
 #include <jni.h>
 #include <stdlib.h>
@@ -28,6 +30,10 @@
 #include "gpu_ctx.h"
 #include "log.h"
 #include "internal.h"
+
+#if defined(BACKEND_GL)
+#include "backends/gl/gpu_ctx_gl.c"
+#endif
 
 #define NDK_LOAD_FUNC(handle, name) do {       \
     s->name = dlsym(handle, #name);            \
@@ -97,11 +103,17 @@ int ngli_android_ctx_init(struct gpu_ctx *gpu_ctx, struct android_ctx *s)
         return ret;
     }
 
+#if defined(BACKEND_GL)
     const struct ngl_config *config = &gpu_ctx->config;
-    const int features = NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE |
-                         NGLI_FEATURE_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
-    if (config->backend == NGL_BACKEND_OPENGLES && (gpu_ctx->features & features) == features)
-        s->has_native_imagereader_api = 1;
+    if (config->backend == NGL_BACKEND_OPENGLES) {
+        const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+        const struct glcontext *gl = gpu_ctx_gl->glcontext;
+        const uint64_t features = NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE |
+                                  NGLI_FEATURE_GL_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
+        if ((gl->features & features) == features)
+            s->has_native_imagereader_api = 1;
+    }
+#endif
 
     return 0;
 }

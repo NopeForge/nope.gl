@@ -164,7 +164,7 @@ static void texture_set_sub_image(struct texture *s, const uint8_t *data, int li
     ngli_glPixelStorei(gl, GL_UNPACK_ALIGNMENT, alignment);
 
     int row_upload = 0;
-    if (gl->features & NGLI_FEATURE_ROW_LENGTH)
+    if (gl->features & NGLI_FEATURE_GL_ROW_LENGTH)
         ngli_glPixelStorei(gl, GL_UNPACK_ROW_LENGTH, linesize);
     else if (params->width != linesize)
         row_upload = 1;
@@ -182,7 +182,7 @@ static void texture_set_sub_image(struct texture *s, const uint8_t *data, int li
     }
 
     ngli_glPixelStorei(gl, GL_UNPACK_ALIGNMENT, 4);
-    if (gl->features & NGLI_FEATURE_ROW_LENGTH)
+    if (gl->features & NGLI_FEATURE_GL_ROW_LENGTH)
         ngli_glPixelStorei(gl, GL_UNPACK_ROW_LENGTH, 0);
 }
 
@@ -221,7 +221,7 @@ static int renderbuffer_check_samples(struct texture *s)
     const struct texture_params *params = &s->params;
 
     int max_samples = limits->max_samples;
-    if (gl->features & NGLI_FEATURE_INTERNALFORMAT_QUERY)
+    if (gl->features & NGLI_FEATURE_GL_INTERNALFORMAT_QUERY)
         ngli_glGetInternalformativ(gl, GL_RENDERBUFFER, s_priv->format, GL_SAMPLES, 1, &max_samples);
 
     if (params->samples > max_samples) {
@@ -338,7 +338,7 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
         ngli_glGenTextures(gl, 1, &s_priv->id);
         ngli_glBindTexture(gl, s_priv->target, s_priv->id);
         if (s->params.mipmap_filter &&
-            !(gl->features & NGLI_FEATURE_TEXTURE_NPOT) &&
+            !(gl->features & NGLI_FEATURE_GL_TEXTURE_NPOT) &&
             (!is_pow2(params->width) || !is_pow2(params->height))) {
             LOG(WARNING, "context does not support non-power of two textures, "
                 "mipmapping will be disabled");
@@ -363,7 +363,7 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
                     params->width, params->height, params->depth);
                 return NGL_ERROR_INVALID_ARG;
             }
-            if (gl->features & NGLI_FEATURE_TEXTURE_STORAGE) {
+            if (gl->features & NGLI_FEATURE_GL_TEXTURE_STORAGE) {
                 texture_set_storage(s);
             } else {
                 texture_set_image(s, NULL);

@@ -265,7 +265,7 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
 
     int ret;
     if (require_resolve_fbo(s)) {
-        if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT)) {
+        if (!(gl->features & NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT)) {
             LOG(ERROR, "context does not support the framebuffer object feature, "
                        "resolving MSAA attachments is not supported");
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
@@ -279,20 +279,20 @@ int ngli_rendertarget_gl_init(struct rendertarget *s, const struct rendertarget_
     if (ret < 0)
         goto done;
 
-    if (gl->features & NGLI_FEATURE_INVALIDATE_SUBDATA) {
+    if (gl->features & NGLI_FEATURE_GL_INVALIDATE_SUBDATA) {
         s_priv->invalidate = invalidate;
     } else {
         s_priv->invalidate = invalidate_noop;
     }
 
-    if (gl->features & NGLI_FEATURE_CLEAR_BUFFER) {
+    if (gl->features & NGLI_FEATURE_GL_CLEAR_BUFFER) {
         s_priv->clear = clear_buffers;
     } else {
         s_priv->clear = clear_buffer;
     }
 
     s_priv->resolve = resolve_no_draw_buffers;
-    if (gl->features & NGLI_FEATURE_DRAW_BUFFERS) {
+    if (gl->features & NGLI_FEATURE_GL_DRAW_BUFFERS) {
         if (params->nb_colors > limits->max_draw_buffers) {
             LOG(ERROR, "draw buffer count (%d) exceeds driver limit (%d)",
                 params->nb_colors, limits->max_draw_buffers);
@@ -436,13 +436,13 @@ int ngli_rendertarget_gl_wrap(struct rendertarget *s, const struct rendertarget_
     s_priv->wrapped = 1;
     s_priv->id = id;
 
-    if (gl->features & NGLI_FEATURE_INVALIDATE_SUBDATA) {
+    if (gl->features & NGLI_FEATURE_GL_INVALIDATE_SUBDATA) {
         s_priv->invalidate = invalidate;
     } else {
         s_priv->invalidate = invalidate_noop;
     }
 
-    if (gl->features & NGLI_FEATURE_CLEAR_BUFFER) {
+    if (gl->features & NGLI_FEATURE_GL_CLEAR_BUFFER) {
         s_priv->clear = clear_buffers;
     } else {
         s_priv->clear = clear_buffer;

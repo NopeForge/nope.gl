@@ -24,7 +24,7 @@
 
 #include <stdlib.h>
 
-#include "feature.h"
+#include "feature_gl.h"
 #include "glfunctions.h"
 #include "gpu_limits.h"
 #include "nodegl.h"

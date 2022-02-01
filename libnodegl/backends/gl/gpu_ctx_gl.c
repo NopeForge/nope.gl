@@ -250,7 +250,7 @@ static int offscreen_rendertarget_init(struct gpu_ctx *s)
     struct glcontext *gl = s_priv->glcontext;
     struct ngl_config *config = &s->config;
 
-    if (!(gl->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) && config->samples > 0) {
+    if (!(gl->features & NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT) && config->samples > 0) {
         LOG(WARNING, "context does not support the framebuffer object feature, "
             "multisample anti-aliasing will be disabled");
         config->samples = 0;
@@ -348,14 +348,14 @@ static int timer_init(struct gpu_ctx *s)
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
     struct glcontext *gl = s_priv->glcontext;
 
-    if (gl->features & NGLI_FEATURE_TIMER_QUERY) {
+    if (gl->features & NGLI_FEATURE_GL_TIMER_QUERY) {
         s_priv->glGenQueries          = ngli_glGenQueries;
         s_priv->glDeleteQueries       = ngli_glDeleteQueries;
         s_priv->glBeginQuery          = ngli_glBeginQuery;
         s_priv->glEndQuery            = ngli_glEndQuery;
         s_priv->glQueryCounter        = ngli_glQueryCounter;
         s_priv->glGetQueryObjectui64v = ngli_glGetQueryObjectui64v;
-    } else if (gl->features & NGLI_FEATURE_EXT_DISJOINT_TIMER_QUERY) {
+    } else if (gl->features & NGLI_FEATURE_GL_EXT_DISJOINT_TIMER_QUERY) {
         s_priv->glGenQueries          = ngli_glGenQueriesEXT;
         s_priv->glDeleteQueries       = ngli_glDeleteQueriesEXT;
         s_priv->glBeginQuery          = ngli_glBeginQueryEXT;
@@ -409,6 +409,39 @@ static void NGLI_GL_APIENTRY gl_debug_message_callback(GLenum source,
 }
 #endif
 
+static const struct {
+    uint64_t feature;
+    uint64_t feature_gl;
+} feature_map[] = {
+    {NGLI_FEATURE_COMPUTE_SHADER_ALL,           NGLI_FEATURE_GL_COMPUTE_SHADER_ALL},
+    {NGLI_FEATURE_INSTANCED_DRAW,               NGLI_FEATURE_GL_DRAW_INSTANCED | NGLI_FEATURE_GL_INSTANCED_ARRAY},
+    {NGLI_FEATURE_FRAMEBUFFER_OBJECT,           NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT},
+    {NGLI_FEATURE_SHADER_TEXTURE_LOD,           NGLI_FEATURE_GL_SHADER_TEXTURE_LOD},
+    {NGLI_FEATURE_SOFTWARE,                     NGLI_FEATURE_GL_SOFTWARE},
+    {NGLI_FEATURE_TEXTURE_3D,                   NGLI_FEATURE_GL_TEXTURE_3D},
+    {NGLI_FEATURE_TEXTURE_CUBE_MAP,             NGLI_FEATURE_GL_TEXTURE_CUBE_MAP},
+    {NGLI_FEATURE_TEXTURE_NPOT,                 NGLI_FEATURE_GL_TEXTURE_NPOT},
+    {NGLI_FEATURE_UINT_UNIFORMS,                NGLI_FEATURE_GL_UINT_UNIFORMS},
+    {NGLI_FEATURE_UNIFORM_BUFFER_OBJECT,        NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT},
+    {NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT, NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT},
+};
+
+static void gpu_ctx_info_init(struct gpu_ctx *s)
+{
+    const struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    const struct glcontext *gl = s_priv->glcontext;
+
+    s->version = gl->version;
+    s->language_version = gl->glsl_version;
+    for (int i = 0; i < NGLI_ARRAY_NB(feature_map); i++) {
+        const uint64_t feature = feature_map[i].feature;
+        const uint64_t feature_gl = feature_map[i].feature_gl;
+        if ((gl->features & feature_gl) == feature_gl)
+            s->features |= feature;
+    }
+    s->limits = gl->limits;
+}
+
 static int gl_init(struct gpu_ctx *s)
 {
     int ret;
@@ -438,10 +471,9 @@ static int gl_init(struct gpu_ctx *s)
         return NGL_ERROR_MEMORY;
 
     struct glcontext *gl = s_priv->glcontext;
-    s->features = gl->features;
 
 #if DEBUG_GL
-    if ((gl->features & NGLI_FEATURE_KHR_DEBUG)) {
+    if ((gl->features & NGLI_FEATURE_GL_KHR_DEBUG)) {
         ngli_glEnable(gl, GL_DEBUG_OUTPUT_SYNCHRONOUS);
         ngli_glDebugMessageCallback(gl, gl_debug_message_callback, NULL);
     }
@@ -460,10 +492,8 @@ static int gl_init(struct gpu_ctx *s)
     if (ret < 0)
         return ret;
 
-    s->version = gl->version;
-    s->language_version = gl->glsl_version;
-    s->features = gl->features;
-    s->limits = gl->limits;
+    gpu_ctx_info_init(s);
+
     s_priv->default_rt_desc.samples = gl->samples;
     s_priv->default_rt_desc.nb_colors = 1;
     s_priv->default_rt_desc.colors[0].format = NGLI_FORMAT_R8G8B8A8_UNORM;

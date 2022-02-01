@@ -23,6 +23,10 @@
 
 #include "config.h"
 
+#if defined(BACKEND_GL)
+#include "backends/gl/gpu_ctx_gl.h"
+#endif
+
 #if defined(HAVE_VAAPI_X11)
 #include <X11/Xlib.h>
 #include <va/va_x11.h>
@@ -38,6 +42,20 @@
 #include "internal.h"
 #include "vaapi_ctx.h"
 
+static int check_extensions(const struct gpu_ctx *gpu_ctx)
+{
+#if defined(BACKEND_GL)
+    const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    const struct glcontext *gl = gpu_ctx_gl->glcontext;
+    const uint64_t features = NGLI_FEATURE_GL_OES_EGL_IMAGE |
+                              NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR |
+                              NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT;
+    if ((gl->features & features) == features)
+        return 1;
+#endif
+    return 0;
+}
+
 int ngli_vaapi_ctx_init(struct gpu_ctx *gpu_ctx, struct vaapi_ctx *s)
 {
     const struct ngl_config *config = &gpu_ctx->config;
@@ -45,9 +63,7 @@ int ngli_vaapi_ctx_init(struct gpu_ctx *gpu_ctx, struct vaapi_ctx *s)
     if (gpu_ctx->features & NGLI_FEATURE_SOFTWARE)
         return -1;
 
-    if (!(gpu_ctx->features & (NGLI_FEATURE_OES_EGL_IMAGE |
-                            NGLI_FEATURE_EGL_IMAGE_BASE_KHR |
-                            NGLI_FEATURE_EGL_EXT_IMAGE_DMA_BUF_IMPORT))) {
+    if (!check_extensions(gpu_ctx)) {
         LOG(ERROR, "context does not support required extensions for vaapi");
         return -1;
     }

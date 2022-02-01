@@ -35,6 +35,8 @@
 #include "type.h"
 
 #ifdef BACKEND_GL
+#include "backends/gl/gpu_ctx_gl.h"
+#include "backends/gl/feature_gl.h"
 #include "backends/gl/program_gl_utils.h"
 #endif
 
@@ -1121,6 +1123,8 @@ static int probe_pipeline_elems(struct pgcraft *s)
     return 0;
 }
 
+#if defined(BACKEND_GL)
+
 #define IS_GLSL_ES_MIN(min) (config->backend == NGL_BACKEND_OPENGLES && s->glsl_version >= (min))
 #define IS_GLSL_MIN(min)    (config->backend == NGL_BACKEND_OPENGL   && s->glsl_version >= (min))
 
@@ -1129,6 +1133,8 @@ static void setup_glsl_info_gl(struct pgcraft *s)
     struct ngl_ctx *ctx = s->ctx;
     const struct ngl_config *config = &ctx->config;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    const struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     s->sym_vertex_index   = "gl_VertexID";
     s->sym_instance_index = "gl_InstanceID";
@@ -1149,7 +1155,7 @@ static void setup_glsl_info_gl(struct pgcraft *s)
     s->has_modern_texture_picking   = IS_GLSL_ES_MIN(300) || IS_GLSL_MIN(330);
 
     s->has_explicit_bindings = IS_GLSL_ES_MIN(310) || IS_GLSL_MIN(420) ||
-                               (gpu_ctx->features & NGLI_FEATURE_SHADING_LANGUAGE_420PACK);
+                               (gl->features & NGLI_FEATURE_GL_SHADING_LANGUAGE_420PACK);
 
     /*
      * Bindings are shared across all stages. UBO and SSBO bindings are shared
@@ -1169,6 +1175,7 @@ static void setup_glsl_info_gl(struct pgcraft *s)
         s->next_bindings[BIND_ID(NGLI_PROGRAM_SHADER_COMP, NGLI_BINDING_TYPE_TEXTURE)] = NULL;
     }
 }
+#endif
 
 static void setup_glsl_info(struct pgcraft *s)
 {
@@ -1178,10 +1185,14 @@ static void setup_glsl_info(struct pgcraft *s)
     s->rg = "rg";
     s->glsl_version_suffix = "";
 
-    if (config->backend == NGL_BACKEND_OPENGL || config->backend == NGL_BACKEND_OPENGLES)
+#if defined(BACKEND_GL)
+    if (config->backend == NGL_BACKEND_OPENGL || config->backend == NGL_BACKEND_OPENGLES) {
         setup_glsl_info_gl(s);
-    else
-        ngli_assert(0);
+        return;
+    }
+#endif
+
+    ngli_assert(0);
 }
 
 struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)

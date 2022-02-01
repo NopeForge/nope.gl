@@ -175,7 +175,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         return NULL;
     ngli_hmap_set_free(bmap, free_pinfo, NULL);
 
-    if (!(gl->features & NGLI_FEATURE_UNIFORM_BUFFER_OBJECT))
+    if (!(gl->features & NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT))
         return bmap;
 
     /* Uniform Buffers */
@@ -190,7 +190,7 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         }
 
         ngli_glGetActiveUniformBlockName(gl, pid, i, sizeof(name), NULL, name);
-        if (gl->features & NGLI_FEATURE_PROGRAM_INTERFACE_QUERY) {
+        if (gl->features & NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY) {
             const GLuint block_index = ngli_glGetUniformBlockIndex(gl, pid, name);
             static const GLenum props[] = {GL_BUFFER_BINDING};
             ngli_glGetProgramResourceiv(gl, pid, GL_UNIFORM_BLOCK, block_index,
@@ -208,8 +208,8 @@ static struct hmap *program_probe_buffer_blocks(struct glcontext *gl, GLuint pid
         }
     }
 
-    if (!((gl->features & NGLI_FEATURE_PROGRAM_INTERFACE_QUERY) &&
-          (gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT)))
+    if (!((gl->features & NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY) &&
+          (gl->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT)))
         return bmap;
 
     /* Shader Storage Buffers */
@@ -271,7 +271,7 @@ int ngli_program_gl_init(struct program *s, const char *vertex, const char *frag
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    if (compute && (gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL) != NGLI_FEATURE_COMPUTE_SHADER_ALL) {
+    if (compute && (gl->features & NGLI_FEATURE_GL_COMPUTE_SHADER_ALL) != NGLI_FEATURE_GL_COMPUTE_SHADER_ALL) {
         LOG(ERROR, "context does not support compute shaders");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }

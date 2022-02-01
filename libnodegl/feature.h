@@ -22,52 +22,16 @@
 #ifndef FEATURE_H
 #define FEATURE_H
 
-#define NGLI_FEATURE_VERTEX_ARRAY_OBJECT          (1 << 0)
-#define NGLI_FEATURE_TEXTURE_3D                   (1 << 1)
-#define NGLI_FEATURE_TEXTURE_STORAGE              (1 << 2)
-#define NGLI_FEATURE_COMPUTE_SHADER               (1 << 3)
-#define NGLI_FEATURE_PROGRAM_INTERFACE_QUERY      (1 << 4)
-#define NGLI_FEATURE_SHADER_IMAGE_LOAD_STORE      (1 << 5)
-#define NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT (1 << 6)
-#define NGLI_FEATURE_FRAMEBUFFER_OBJECT           (1 << 7)
-#define NGLI_FEATURE_INTERNALFORMAT_QUERY         (1 << 8)
-#define NGLI_FEATURE_PACKED_DEPTH_STENCIL         (1 << 9)
-#define NGLI_FEATURE_TIMER_QUERY                  (1 << 10)
-#define NGLI_FEATURE_EXT_DISJOINT_TIMER_QUERY     (1 << 11)
-#define NGLI_FEATURE_DRAW_INSTANCED               (1 << 12)
-#define NGLI_FEATURE_INSTANCED_ARRAY              (1 << 13)
-#define NGLI_FEATURE_UNIFORM_BUFFER_OBJECT        (1 << 14)
-#define NGLI_FEATURE_INVALIDATE_SUBDATA           (1 << 15)
-#define NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE       (1 << 16)
-#define NGLI_FEATURE_DEPTH_TEXTURE                (1 << 17)
-#define NGLI_FEATURE_RGB8_RGBA8                   (1 << 18)
-#define NGLI_FEATURE_OES_EGL_IMAGE                (1 << 19)
-#define NGLI_FEATURE_EGL_IMAGE_BASE_KHR           (1 << 20)
-#define NGLI_FEATURE_EGL_EXT_IMAGE_DMA_BUF_IMPORT (1 << 21)
-#define NGLI_FEATURE_SYNC                         (1 << 22)
-#define NGLI_FEATURE_YUV_TARGET                   (1 << 23)
-#define NGLI_FEATURE_TEXTURE_NPOT                 (1 << 24)
-#define NGLI_FEATURE_TEXTURE_CUBE_MAP             (1 << 25)
-#define NGLI_FEATURE_DRAW_BUFFERS                 (1 << 26)
-#define NGLI_FEATURE_ROW_LENGTH                   (1 << 27)
-#define NGLI_FEATURE_SOFTWARE                     (1 << 28)
-#define NGLI_FEATURE_UINT_UNIFORMS                (1 << 29)
-#define NGLI_FEATURE_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER (1 << 30)
-#define NGLI_FEATURE_KHR_DEBUG                    (1ULL << 31)
-#define NGLI_FEATURE_CLEAR_BUFFER                 (1ULL << 32)
-#define NGLI_FEATURE_SHADER_IMAGE_SIZE            (1ULL << 33)
-#define NGLI_FEATURE_SHADING_LANGUAGE_420PACK     (1ULL << 34)
-#define NGLI_FEATURE_SHADER_TEXTURE_LOD           (1ULL << 35)
-#define NGLI_FEATURE_COLOR_BUFFER_FLOAT           (1ULL << 36)
-#define NGLI_FEATURE_COLOR_BUFFER_HALF_FLOAT      (1ULL << 37)
-
-#define NGLI_FEATURE_COMPUTE_SHADER_ALL (NGLI_FEATURE_COMPUTE_SHADER           | \
-                                         NGLI_FEATURE_PROGRAM_INTERFACE_QUERY  | \
-                                         NGLI_FEATURE_SHADER_IMAGE_LOAD_STORE  | \
-                                         NGLI_FEATURE_SHADER_IMAGE_SIZE        | \
-                                         NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT)
-
-#define NGLI_FEATURE_INSTANCED_DRAW (NGLI_FEATURE_DRAW_INSTANCED | \
-                                     NGLI_FEATURE_INSTANCED_ARRAY)
+#define NGLI_FEATURE_COMPUTE_SHADER_ALL                (1 << 0)
+#define NGLI_FEATURE_INSTANCED_DRAW                    (1 << 1)
+#define NGLI_FEATURE_FRAMEBUFFER_OBJECT                (1 << 2)
+#define NGLI_FEATURE_SHADER_TEXTURE_LOD                (1 << 3)
+#define NGLI_FEATURE_SOFTWARE                          (1 << 4)
+#define NGLI_FEATURE_TEXTURE_3D                        (1 << 5)
+#define NGLI_FEATURE_TEXTURE_CUBE_MAP                  (1 << 6)
+#define NGLI_FEATURE_TEXTURE_NPOT                      (1 << 7)
+#define NGLI_FEATURE_UINT_UNIFORMS                     (1 << 8)
+#define NGLI_FEATURE_UNIFORM_BUFFER_OBJECT             (1 << 9)
+#define NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT      (1 << 10)
 
 #endif

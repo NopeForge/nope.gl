@@ -176,7 +176,7 @@ static int glcontext_probe_version(struct glcontext *glcontext)
         strstr(renderer, "llvmpipe") || // Mesa llvmpipe
         strstr(renderer, "softpipe") || // Mesa softpipe
         strstr(renderer, "SWR"))) {     // Mesa swrast
-        glcontext->features |= NGLI_FEATURE_SOFTWARE;
+        glcontext->features |= NGLI_FEATURE_GL_SOFTWARE;
         LOG(INFO, "Software renderer detected");
     }
 
@@ -315,9 +315,9 @@ static int glcontext_check_mandatory_extensions(struct glcontext *glcontext)
     if (glcontext->version >= 300)
         return 0;
 
-    if (!(glcontext->features & (NGLI_FEATURE_RGB8_RGBA8    |
-                                 NGLI_FEATURE_DEPTH_TEXTURE |
-                                 NGLI_FEATURE_PACKED_DEPTH_STENCIL))) {
+    if (!(glcontext->features & (NGLI_FEATURE_GL_RGB8_RGBA8    |
+                                 NGLI_FEATURE_GL_DEPTH_TEXTURE |
+                                 NGLI_FEATURE_GL_PACKED_DEPTH_STENCIL))) {
         LOG(ERROR,
             "OpenGLES 2.0 context does not support mandatory extensions: "
             "OES_rgb8_rgba8, OES_depth_texture, OES_packed_depth_stencil");
@@ -346,27 +346,27 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
     GET(GL_MAX_TEXTURE_IMAGE_UNITS, &limits->max_texture_image_units);
     GET(GL_MAX_TEXTURE_SIZE, &limits->max_texture_dimension_1d);
     GET(GL_MAX_TEXTURE_SIZE, &limits->max_texture_dimension_2d);
-    if (glcontext->features & NGLI_FEATURE_TEXTURE_3D)
+    if (glcontext->features & NGLI_FEATURE_GL_TEXTURE_3D)
         GET(GL_MAX_3D_TEXTURE_SIZE, &limits->max_texture_dimension_3d);
-    if (glcontext->features & NGLI_FEATURE_TEXTURE_CUBE_MAP)
+    if (glcontext->features & NGLI_FEATURE_GL_TEXTURE_CUBE_MAP)
         GET(GL_MAX_CUBE_MAP_TEXTURE_SIZE, &limits->max_texture_dimension_cube);
 
     limits->max_color_attachments = 1;
-    if (glcontext->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) {
+    if (glcontext->features & NGLI_FEATURE_GL_FRAMEBUFFER_OBJECT) {
         GET(GL_MAX_SAMPLES, &limits->max_samples);
         GET(GL_MAX_COLOR_ATTACHMENTS, &limits->max_color_attachments);
     }
 
-    if (glcontext->features & NGLI_FEATURE_UNIFORM_BUFFER_OBJECT) {
+    if (glcontext->features & NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT) {
         GET(GL_MAX_UNIFORM_BLOCK_SIZE, &limits->max_uniform_block_size);
         GET(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &limits->min_uniform_block_offset_alignment);
     }
 
-    if (glcontext->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT) {
+    if (glcontext->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT) {
         GET(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &limits->min_storage_block_offset_alignment);
     }
 
-    if (glcontext->features & NGLI_FEATURE_COMPUTE_SHADER) {
+    if (glcontext->features & NGLI_FEATURE_GL_COMPUTE_SHADER) {
         for (int i = 0; i < NGLI_ARRAY_NB(limits->max_compute_work_group_count); i++) {
             GET_I(GL_MAX_COMPUTE_WORK_GROUP_COUNT, i, &limits->max_compute_work_group_count[i]);
         }
@@ -381,7 +381,7 @@ static int glcontext_probe_settings(struct glcontext *glcontext)
     }
 
     limits->max_draw_buffers = 1;
-    if (glcontext->features & NGLI_FEATURE_DRAW_BUFFERS) {
+    if (glcontext->features & NGLI_FEATURE_GL_DRAW_BUFFERS) {
         GET(GL_MAX_DRAW_BUFFERS, &limits->max_draw_buffers);
     }
 
@@ -461,7 +461,7 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
         goto fail;
 
     if (glcontext->backend == NGL_BACKEND_OPENGL &&
-        (glcontext->features & NGLI_FEATURE_TEXTURE_CUBE_MAP))
+        (glcontext->features & NGLI_FEATURE_GL_TEXTURE_CUBE_MAP))
         ngli_glEnable(glcontext, GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
     if (!glcontext->offscreen) {

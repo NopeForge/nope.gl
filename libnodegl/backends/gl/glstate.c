@@ -172,7 +172,7 @@ void ngli_glstate_reset(const struct glcontext *gl, struct glstate *glstate)
     glstate->program_id = 0;
 
     /* VAO */
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
+    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT)
         ngli_glBindVertexArray(gl, 0);
 }
 

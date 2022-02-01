@@ -75,9 +75,9 @@ static int vaapi_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
-    if (!(gl->features & (NGLI_FEATURE_OES_EGL_IMAGE |
-                          NGLI_FEATURE_EGL_IMAGE_BASE_KHR |
-                          NGLI_FEATURE_EGL_EXT_IMAGE_DMA_BUF_IMPORT))) {
+    if (!(gl->features & (NGLI_FEATURE_GL_OES_EGL_IMAGE |
+                          NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR |
+                          NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT))) {
         LOG(ERROR, "context does not support required extensions for vaapi");
         return -1;
     }

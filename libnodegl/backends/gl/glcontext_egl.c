@@ -114,7 +114,7 @@ static int egl_probe_extensions(struct glcontext *ctx)
             LOG(ERROR, "could not retrieve eglGetNativeClientBufferANDROID()");
             return -1;
         }
-        ctx->features |= NGLI_FEATURE_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
+        ctx->features |= NGLI_FEATURE_GL_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
     }
 #endif
 
@@ -125,11 +125,11 @@ static int egl_probe_extensions(struct glcontext *ctx)
             LOG(ERROR, "could not retrieve egl{Create,Destroy}ImageKHR()");
             return -1;
         }
-        ctx->features |= NGLI_FEATURE_EGL_IMAGE_BASE_KHR;
+        ctx->features |= NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR;
     }
 
     if (ngli_glcontext_check_extension("EGL_EXT_image_dma_buf_import", egl->extensions)) {
-        ctx->features |= NGLI_FEATURE_EGL_EXT_IMAGE_DMA_BUF_IMPORT;
+        ctx->features |= NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT;
     }
 
     if (ngli_glcontext_check_extension("EGL_KHR_surfaceless_context", egl->extensions)) {

@@ -164,7 +164,7 @@ static int build_uniform_bindings(struct pipeline *s, const struct pipeline_para
         if (!info)
             continue;
 
-        if (!(gl->features & NGLI_FEATURE_UINT_UNIFORMS) &&
+        if (!(gl->features & NGLI_FEATURE_GL_UINT_UNIFORMS) &&
             (uniform_desc->type == NGLI_TYPE_UINT ||
              uniform_desc->type == NGLI_TYPE_UIVEC2 ||
              uniform_desc->type == NGLI_TYPE_UIVEC3 ||
@@ -211,7 +211,7 @@ static int build_texture_bindings(struct pipeline *s, const struct pipeline_para
             struct glcontext *gl = gpu_ctx_gl->glcontext;
             const struct gpu_limits *limits = &gl->limits;
 
-            if (!(gl->features & NGLI_FEATURE_SHADER_IMAGE_LOAD_STORE)) {
+            if (!(gl->features & NGLI_FEATURE_GL_SHADER_IMAGE_LOAD_STORE)) {
                 LOG(ERROR, "context does not support shader image load store operations");
                 return NGL_ERROR_GRAPHICS_UNSUPPORTED;
             }
@@ -293,9 +293,9 @@ static void set_textures(struct pipeline *s, struct glcontext *gl)
                 ngli_glBindTexture(gl, texture_gl->target, texture_gl->id);
             } else {
                 ngli_glBindTexture(gl, GL_TEXTURE_2D, 0);
-                if (gl->features & NGLI_FEATURE_TEXTURE_3D)
+                if (gl->features & NGLI_FEATURE_GL_TEXTURE_3D)
                     ngli_glBindTexture(gl, GL_TEXTURE_3D, 0);
-                if (gl->features & NGLI_FEATURE_OES_EGL_EXTERNAL_IMAGE)
+                if (gl->features & NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE)
                     ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
             }
         }
@@ -328,13 +328,13 @@ static int build_buffer_bindings(struct pipeline *s, const struct pipeline_param
         const struct pipeline_buffer_desc *pipeline_buffer_desc = &params->buffers_desc[i];
 
         if (pipeline_buffer_desc->type == NGLI_TYPE_UNIFORM_BUFFER &&
-            !(gl->features & NGLI_FEATURE_UNIFORM_BUFFER_OBJECT)) {
+            !(gl->features & NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT)) {
             LOG(ERROR, "context does not support uniform buffer objects");
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
 
         if (pipeline_buffer_desc->type == NGLI_TYPE_STORAGE_BUFFER &&
-            !(gl->features & NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT)) {
+            !(gl->features & NGLI_FEATURE_GL_SHADER_STORAGE_BUFFER_OBJECT)) {
             LOG(ERROR, "context does not support shader storage buffer objects");
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
@@ -367,7 +367,7 @@ static void set_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
         const GLint stride = attribute_binding->desc.stride;
 
         ngli_glEnableVertexAttribArray(gl, location);
-        if ((gl->features & NGLI_FEATURE_INSTANCED_ARRAY) && attribute_binding->desc.rate > 0)
+        if ((gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY) && attribute_binding->desc.rate > 0)
             ngli_glVertexAttribDivisor(gl, location, attribute_binding->desc.rate);
 
         if (buffer_gl) {
@@ -386,7 +386,7 @@ static void reset_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
         const struct attribute_binding *attribute_binding = &bindings[i];
         const GLuint location = attribute_binding->desc.location;
         ngli_glDisableVertexAttribArray(gl, location);
-        if (gl->features & NGLI_FEATURE_INSTANCED_ARRAY)
+        if (gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY)
             ngli_glVertexAttribDivisor(gl, location, 0);
     }
 }
@@ -400,7 +400,7 @@ static int build_attribute_bindings(struct pipeline *s, const struct pipeline_pa
     for (int i = 0; i < params->nb_attributes; i++) {
         const struct pipeline_attribute_desc *pipeline_attribute_desc = &params->attributes_desc[i];
 
-        if (pipeline_attribute_desc->rate > 0 && !(gl->features & NGLI_FEATURE_INSTANCED_ARRAY)) {
+        if (pipeline_attribute_desc->rate > 0 && !(gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY)) {
             LOG(ERROR, "context does not support instanced arrays");
             return NGL_ERROR_GRAPHICS_UNSUPPORTED;
         }
@@ -435,7 +435,7 @@ static void init_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
         const struct attribute_binding *attribute_binding = &descs[i];
         const GLuint location = attribute_binding->desc.location;
         ngli_glEnableVertexAttribArray(gl, location);
-        if ((gl->features & NGLI_FEATURE_INSTANCED_ARRAY) && attribute_binding->desc.rate > 0)
+        if ((gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY) && attribute_binding->desc.rate > 0)
             ngli_glVertexAttribDivisor(gl, location, attribute_binding->desc.rate);
     }
 }
@@ -443,7 +443,7 @@ static void init_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
 static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
 {
     const struct pipeline_gl *s_priv = (const struct pipeline_gl *)s;
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT)
+    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT)
         ngli_glBindVertexArray(gl, s_priv->vao_id);
     else
         set_vertex_attribs(s, gl);
@@ -451,7 +451,7 @@ static void bind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
 
 static void unbind_vertex_attribs(const struct pipeline *s, struct glcontext *gl)
 {
-    if (!(gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT))
+    if (!(gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT))
         reset_vertex_attribs(s, gl);
 }
 
@@ -465,7 +465,7 @@ static int pipeline_graphics_init(struct pipeline *s, const struct pipeline_para
     if (ret < 0)
         return ret;
 
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
+    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT) {
         ngli_glGenVertexArrays(gl, 1, &s_priv->vao_id);
         ngli_glBindVertexArray(gl, s_priv->vao_id);
         init_vertex_attribs(s, gl);
@@ -479,7 +479,7 @@ static int pipeline_compute_init(struct pipeline *s)
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    if ((gl->features & NGLI_FEATURE_COMPUTE_SHADER_ALL) != NGLI_FEATURE_COMPUTE_SHADER_ALL) {
+    if ((gl->features & NGLI_FEATURE_GL_COMPUTE_SHADER_ALL) != NGLI_FEATURE_GL_COMPUTE_SHADER_ALL) {
         LOG(ERROR, "context does not support compute shaders");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
@@ -607,7 +607,7 @@ int ngli_pipeline_gl_update_attribute(struct pipeline *s, int index, const struc
     if (!buffer)
         return 0;
 
-    if (gl->features & NGLI_FEATURE_VERTEX_ARRAY_OBJECT) {
+    if (gl->features & NGLI_FEATURE_GL_VERTEX_ARRAY_OBJECT) {
         const GLuint location = attribute_binding->desc.location;
         const GLuint size = ngli_format_get_nb_comp(attribute_binding->desc.format);
         const GLint stride = attribute_binding->desc.stride;
@@ -728,7 +728,7 @@ void ngli_pipeline_gl_draw(struct pipeline *s, int nb_vertices, int nb_instances
         return;
     }
 
-    if (nb_instances > 1 && !(gl->features & NGLI_FEATURE_DRAW_INSTANCED)) {
+    if (nb_instances > 1 && !(gl->features & NGLI_FEATURE_GL_DRAW_INSTANCED)) {
         LOG(ERROR, "context does not support instanced draws");
         return;
     }
@@ -771,7 +771,7 @@ void ngli_pipeline_gl_draw_indexed(struct pipeline *s, const struct buffer *indi
         return;
     }
 
-    if (nb_instances > 1 && !(gl->features & NGLI_FEATURE_DRAW_INSTANCED)) {
+    if (nb_instances > 1 && !(gl->features & NGLI_FEATURE_GL_DRAW_INSTANCED)) {
         LOG(ERROR, "context does not support instanced draws");
         return;
     }
