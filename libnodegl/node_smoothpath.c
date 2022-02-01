@@ -69,7 +69,7 @@ static int smoothpath_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    const struct buffer_priv *points = o->points_buffer->priv_data;
+    const struct buffer_info *points = o->points_buffer->priv_data;
 
     if (points->layout.count < 2) {
         LOG(ERROR, "at least 2 points must be defined");

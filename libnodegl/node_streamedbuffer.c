@@ -38,11 +38,11 @@ struct streamedbuffer_opts {
 };
 
 struct streamedbuffer_priv {
-    struct buffer_priv buf;
+    struct buffer_info buf;
     int last_index;
 };
 
-NGLI_STATIC_ASSERT(buffer_priv_is_first, offsetof(struct streamedbuffer_priv, buf) == 0);
+NGLI_STATIC_ASSERT(buffer_info_is_first, offsetof(struct streamedbuffer_priv, buf) == 0);
 
 #define OFFSET(x) offsetof(struct streamedbuffer_opts, x)
 
@@ -81,7 +81,7 @@ DECLARE_STREAMED_PARAMS(mat4,   NGL_NODE_BUFFERMAT4)
 static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 {
     const struct streamedbuffer_opts *o = node->opts;
-    const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
+    const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
 
@@ -126,9 +126,9 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
     }
     s->last_index = index;
 
-    const struct buffer_priv *buffer_priv = o->buffer_node->priv_data;
+    const struct buffer_info *buffer_info = o->buffer_node->priv_data;
     const struct buffer_layout *layout = &s->buf.layout;
-    s->buf.data = buffer_priv->data + layout->stride * layout->count * index;
+    s->buf.data = buffer_info->data + layout->stride * layout->count * index;
 
     return 0;
 }
@@ -137,7 +137,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
 {
     const struct streamedbuffer_priv *s = node->priv_data;
     const struct streamedbuffer_opts *o = node->opts;
-    const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
+    const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
 
@@ -146,8 +146,8 @@ static int check_timestamps_buffer(const struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    const struct buffer_priv *buffer_priv = o->buffer_node->priv_data;
-    const int count = buffer_priv->layout.count / s->buf.layout.count;
+    const struct buffer_info *buffer_info = o->buffer_node->priv_data;
+    const int count = buffer_info->layout.count / s->buf.layout.count;
     if (nb_timestamps != count) {
         LOG(ERROR, "timestamps count must match buffer chunk count: %d != %d", nb_timestamps, count);
         return NGL_ERROR_INVALID_ARG;
@@ -174,10 +174,10 @@ static int streamedbuffer_init(struct ngl_node *node)
 {
     struct streamedbuffer_priv *s = node->priv_data;
     const struct streamedbuffer_opts *o = node->opts;
-    struct buffer_priv *buffer_priv = o->buffer_node->priv_data;
+    struct buffer_info *buffer_info = o->buffer_node->priv_data;
     struct buffer_layout *layout = &s->buf.layout;
 
-    *layout = buffer_priv->layout;
+    *layout = buffer_info->layout;
     layout->count = o->count;
 
     if (layout->count <= 0) {
@@ -185,15 +185,15 @@ static int streamedbuffer_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (buffer_priv->layout.count % layout->count) {
+    if (buffer_info->layout.count % layout->count) {
         LOG(ERROR, "buffer count (%d) is not a multiple of streamed buffer count (%d)",
-            buffer_priv->layout.count, layout->count);
+            buffer_info->layout.count, layout->count);
         return NGL_ERROR_INVALID_ARG;
     }
 
-    s->buf.data = buffer_priv->data;
-    s->buf.data_size = buffer_priv->data_size / layout->count;
-    s->buf.usage = buffer_priv->usage;
+    s->buf.data = buffer_info->data;
+    s->buf.data_size = buffer_info->data_size / layout->count;
+    s->buf.usage = buffer_info->usage;
     s->buf.dynamic = 1;
 
     if (!o->timebase[1]) {

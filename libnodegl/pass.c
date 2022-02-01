@@ -71,10 +71,10 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
     snprintf(crafter_uniform.name, sizeof(crafter_uniform.name), "%s", name);
 
     if (uniform->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
-        struct buffer_priv *buffer_priv = uniform->priv_data;
-        crafter_uniform.type  = buffer_priv->layout.type;
-        crafter_uniform.count = buffer_priv->layout.count;
-        crafter_uniform.data  = buffer_priv->data;
+        struct buffer_info *buffer_info = uniform->priv_data;
+        crafter_uniform.type  = buffer_info->layout.type;
+        crafter_uniform.count = buffer_info->layout.count;
+        crafter_uniform.data  = buffer_info->data;
     } else if (uniform->cls->category == NGLI_NODE_CATEGORY_VARIABLE) {
         struct variable_priv *variable_priv = uniform->priv_data;
         crafter_uniform.type  = variable_priv->data_type;
@@ -260,7 +260,7 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
     const struct hmap_entry *entry = NULL;
     while ((entry = ngli_hmap_next(attributes, entry))) {
         const struct ngl_node *anode = entry->data;
-        const struct buffer_priv *buffer = anode->priv_data;
+        const struct buffer_info *buffer = anode->priv_data;
 
         if (per_instance) {
             if (buffer->layout.count != s->params.nb_instances) {
@@ -331,7 +331,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
         return NGL_ERROR_MEMORY;
     }
 
-    struct buffer_priv *attribute_priv = attribute->priv_data;
+    struct buffer_info *attribute_priv = attribute->priv_data;
     const int format = attribute_priv->layout.format;
     int stride;
     int offset;

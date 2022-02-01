@@ -181,7 +181,7 @@ static int get_node_data_type(const struct ngl_node *node)
         const struct variable_priv *variable = node->priv_data;
         return variable->data_type;
     } else if (node->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
-        const struct buffer_priv *buffer = node->priv_data;
+        const struct buffer_info *buffer = node->priv_data;
         return buffer->layout.type;
     } else {
         ngli_assert(0);
@@ -193,7 +193,7 @@ static int get_node_data_count(const struct ngl_node *node)
     if (node->cls->category == NGLI_NODE_CATEGORY_VARIABLE) {
         return 0;
     } else if (node->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
-        const struct buffer_priv *buffer = node->priv_data;
+        const struct buffer_info *buffer = node->priv_data;
         return buffer->layout.count;
     } else {
         ngli_assert(0);
@@ -208,7 +208,7 @@ static int has_changed_uniform(const struct ngl_node *unode)
 
 static int has_changed_buffer(const struct ngl_node *bnode)
 {
-    const struct buffer_priv *buffer = bnode->priv_data;
+    const struct buffer_info *buffer = bnode->priv_data;
     return buffer->dynamic;
 }
 
@@ -224,7 +224,7 @@ static void update_buffer_field(uint8_t *dst,
                                 const struct ngl_node *node,
                                 const struct block_field *fi)
 {
-    const struct buffer_priv *buffer = node->priv_data;
+    const struct buffer_info *buffer = node->priv_data;
     ngli_block_field_copy(fi, dst, buffer->data);
 }
 

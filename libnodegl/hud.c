@@ -449,7 +449,7 @@ static void widget_memory_make_stats(struct hud *s, struct widget *widget)
     priv->sizes[MEMORY_BUFFERS_CPU] = 0;
     for (int i = 0; i < ngli_darray_count(nodes_buf_array_cpu); i++) {
         const struct ngl_node *buf_node = nodes_buf_cpu[i];
-        const struct buffer_priv *buffer = buf_node->priv_data;
+        const struct buffer_info *buffer = buf_node->priv_data;
         priv->sizes[MEMORY_BUFFERS_CPU] += buffer->block ? 0 : buffer->data_size;
     }
 
@@ -458,7 +458,7 @@ static void widget_memory_make_stats(struct hud *s, struct widget *widget)
     priv->sizes[MEMORY_BUFFERS_GPU] = 0;
     for (int i = 0; i < ngli_darray_count(nodes_buf_array_gpu); i++) {
         const struct ngl_node *buf_node = nodes_buf_gpu[i];
-        const struct buffer_priv *buffer = buf_node->priv_data;
+        const struct buffer_info *buffer = buf_node->priv_data;
         priv->sizes[MEMORY_BUFFERS_GPU] += buffer->block ? 0 : buffer->data_size * (buffer->buffer_refcount > 0);
     }
 

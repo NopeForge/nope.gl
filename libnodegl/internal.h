@@ -153,7 +153,7 @@ struct buffer_layout {
     int offset;     // offset where the data starts in the buffer, in bytes
 };
 
-struct buffer_priv {
+struct buffer_info {
     struct buffer_layout layout;
 
     uint8_t *data;          // buffer of <count> elements
@@ -163,7 +163,6 @@ struct buffer_priv {
     int block_field;
     int usage;              // flags defining buffer use
 
-    FILE *fp;
     int dynamic;
 
     struct buffer *buffer;

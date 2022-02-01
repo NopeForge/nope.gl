@@ -78,7 +78,7 @@ DECLARE_STREAMED_PARAMS(mat4,   NGL_NODE_BUFFERMAT4)
 static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 {
     const struct streamed_opts *o = node->opts;
-    const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
+    const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
 
@@ -123,8 +123,8 @@ static int streamed_update(struct ngl_node *node, double t)
     }
     s->last_index = index;
 
-    const struct buffer_priv *buffer_priv = o->buffer->priv_data;
-    const uint8_t *datap = buffer_priv->data + buffer_priv->layout.stride * index;
+    const struct buffer_info *buffer_info = o->buffer->priv_data;
+    const uint8_t *datap = buffer_info->data + buffer_info->layout.stride * index;
     memcpy(s->var.data, datap, s->var.data_size);
 
     return 0;
@@ -133,7 +133,7 @@ static int streamed_update(struct ngl_node *node, double t)
 static int check_timestamps_buffer(const struct ngl_node *node)
 {
     const struct streamed_opts *o = node->opts;
-    const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
+    const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
 
@@ -142,9 +142,9 @@ static int check_timestamps_buffer(const struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    const struct buffer_priv *buffer_priv = o->buffer->priv_data;
-    if (nb_timestamps != buffer_priv->layout.count) {
-        LOG(ERROR, "timestamps count must match buffer data count: %d != %d", nb_timestamps, buffer_priv->layout.count);
+    const struct buffer_info *buffer_info = o->buffer->priv_data;
+    if (nb_timestamps != buffer_info->layout.count) {
+        LOG(ERROR, "timestamps count must match buffer data count: %d != %d", nb_timestamps, buffer_info->layout.count);
         return NGL_ERROR_INVALID_ARG;
     }
 

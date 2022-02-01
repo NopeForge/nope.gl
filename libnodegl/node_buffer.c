@@ -43,6 +43,13 @@ struct buffer_opts {
     int block_field;
 };
 
+struct buffer_priv {
+    struct buffer_info buf;
+    FILE *fp;
+};
+
+NGLI_STATIC_ASSERT(buffer_info_is_first, offsetof(struct buffer_priv, buf) == 0);
+
 #define OFFSET(x) offsetof(struct buffer_opts, x)
 static const struct node_param buffer_params[] = {
     {"count",  NGLI_PARAM_TYPE_I32,    OFFSET(count),
@@ -63,7 +70,7 @@ int ngli_node_buffer_ref(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct buffer_priv *s = node->priv_data;
+    struct buffer_info *s = node->priv_data;
 
     if (s->block)
         return ngli_node_block_ref(s->block);
@@ -80,7 +87,7 @@ int ngli_node_buffer_ref(struct ngl_node *node)
 
 int ngli_node_buffer_init(struct ngl_node *node)
 {
-    struct buffer_priv *s = node->priv_data;
+    struct buffer_info *s = node->priv_data;
 
     if (s->block)
         return ngli_node_block_init(s->block);
@@ -103,7 +110,7 @@ int ngli_node_buffer_init(struct ngl_node *node)
 
 void ngli_node_buffer_unref(struct ngl_node *node)
 {
-    struct buffer_priv *s = node->priv_data;
+    struct buffer_info *s = node->priv_data;
 
     if (s->block) {
         ngli_node_block_unref(s->block);
@@ -117,7 +124,7 @@ void ngli_node_buffer_unref(struct ngl_node *node)
 
 int ngli_node_buffer_upload(struct ngl_node *node)
 {
-    struct buffer_priv *s = node->priv_data;
+    struct buffer_info *s = node->priv_data;
 
     if (s->block)
         return ngli_node_block_upload(s->block);
@@ -136,7 +143,7 @@ static int buffer_init_from_data(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
     const struct buffer_opts *o = node->opts;
-    struct buffer_layout *layout = &s->layout;
+    struct buffer_layout *layout = &s->buf.layout;
 
     layout->count = layout->count ? layout->count : o->data_size / layout->stride;
     if (o->data_size != layout->count * layout->stride) {
@@ -148,8 +155,8 @@ static int buffer_init_from_data(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    s->data      = o->data;
-    s->data_size = o->data_size;
+    s->buf.data      = o->data;
+    s->buf.data_size = o->data_size;
     return 0;
 }
 
@@ -157,7 +164,7 @@ static int buffer_init_from_filename(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
     const struct buffer_opts *o = node->opts;
-    struct buffer_layout *layout = &s->layout;
+    struct buffer_layout *layout = &s->buf.layout;
 
     int64_t size;
     int ret = ngli_get_filesize(o->filename, &size);
@@ -169,20 +176,20 @@ static int buffer_init_from_filename(struct ngl_node *node)
         return NGL_ERROR_UNSUPPORTED;
     }
 
-    s->data_size = size;
-    layout->count = layout->count ? layout->count : s->data_size / layout->stride;
+    s->buf.data_size = size;
+    layout->count = layout->count ? layout->count : s->buf.data_size / layout->stride;
 
-    if (s->data_size != layout->count * layout->stride) {
+    if (s->buf.data_size != layout->count * layout->stride) {
         LOG(ERROR,
             "element count (%d) and data stride (%d) does not match data size (%d)",
             layout->count,
             layout->stride,
-            s->data_size);
+            s->buf.data_size);
         return NGL_ERROR_INVALID_DATA;
     }
 
-    s->data = ngli_calloc(layout->count, layout->stride);
-    if (!s->data)
+    s->buf.data = ngli_calloc(layout->count, layout->stride);
+    if (!s->buf.data)
         return NGL_ERROR_MEMORY;
 
     s->fp = fopen(o->filename, "rb");
@@ -191,14 +198,14 @@ static int buffer_init_from_filename(struct ngl_node *node)
         return NGL_ERROR_IO;
     }
 
-    size_t n = fread(s->data, 1, s->data_size, s->fp);
-    if (n != s->data_size) {
+    size_t n = fread(s->buf.data, 1, s->buf.data_size, s->fp);
+    if (n != s->buf.data_size) {
         LOG(ERROR, "could not read '%s'", o->filename);
         return NGL_ERROR_IO;
     }
 
-    if (n != s->data_size) {
-        LOG(ERROR, "read %zd bytes does not match expected size of %d bytes", n, s->data_size);
+    if (n != s->buf.data_size) {
+        LOG(ERROR, "read %zd bytes does not match expected size of %d bytes", n, s->buf.data_size);
         return NGL_ERROR_IO;
     }
 
@@ -208,12 +215,12 @@ static int buffer_init_from_filename(struct ngl_node *node)
 static int buffer_init_from_count(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
-    struct buffer_layout *layout = &s->layout;
+    struct buffer_layout *layout = &s->buf.layout;
 
     layout->count = layout->count ? layout->count : 1;
-    s->data_size = layout->count * layout->stride;
-    s->data = ngli_calloc(layout->count, layout->stride);
-    if (!s->data)
+    s->buf.data_size = layout->count * layout->stride;
+    s->buf.data = ngli_calloc(layout->count, layout->stride);
+    if (!s->buf.data)
         return NGL_ERROR_MEMORY;
 
     return 0;
@@ -222,32 +229,32 @@ static int buffer_init_from_count(struct ngl_node *node)
 static int buffer_init_from_block(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
-    struct buffer_layout *layout = &s->layout;
-    const struct block_opts *block = s->block->opts;
+    struct buffer_layout *layout = &s->buf.layout;
+    const struct block_opts *block = s->buf.block->opts;
 
-    if (s->block_field < 0 || s->block_field >= block->nb_fields) {
+    if (s->buf.block_field < 0 || s->buf.block_field >= block->nb_fields) {
         LOG(ERROR, "invalid field id %d; %s has %d fields",
-            s->block_field, s->block->label, block->nb_fields);
+            s->buf.block_field, s->buf.block->label, block->nb_fields);
         return NGL_ERROR_INVALID_ARG;
     }
 
-    struct ngl_node *buffer_target = block->fields[s->block_field];
+    struct ngl_node *buffer_target = block->fields[s->buf.block_field];
     if (buffer_target->cls->id != node->cls->id) {
         LOG(ERROR, "%s[%d] of type %s mismatches %s local type",
-            s->block->label, s->block_field, buffer_target->cls->name, node->cls->name);
+            s->buf.block->label, s->buf.block_field, buffer_target->cls->name, node->cls->name);
         return NGL_ERROR_INVALID_ARG;
     }
 
-    struct buffer_priv *buffer_target_priv = buffer_target->priv_data;
-    if (layout->count > buffer_target_priv->layout.count) {
+    struct buffer_info *buffer_target_info = buffer_target->priv_data;
+    if (layout->count > buffer_target_info->layout.count) {
         LOG(ERROR, "block buffer reference count can not be larger than target buffer count (%d > %d)",
-            layout->count, buffer_target_priv->layout.count);
+            layout->count, buffer_target_info->layout.count);
         return NGL_ERROR_INVALID_ARG;
     }
-    layout->count = layout->count ? layout->count : buffer_target_priv->layout.count;
-    s->data = buffer_target_priv->data;
-    layout->stride = buffer_target_priv->layout.stride;
-    s->data_size = layout->count * layout->stride;
+    layout->count = layout->count ? layout->count : buffer_target_info->layout.count;
+    s->buf.data = buffer_target_info->data;
+    layout->stride = buffer_target_info->layout.stride;
+    s->buf.data_size = layout->count * layout->stride;
 
     return 0;
 }
@@ -256,11 +263,11 @@ static int buffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
     const struct buffer_opts *o = node->opts;
-    struct buffer_layout *layout = &s->layout;
+    struct buffer_layout *layout = &s->buf.layout;
 
-    layout->count   = o->count;
-    s->block        = o->block;
-    s->block_field  = o->block_field;
+    layout->count      = o->count;
+    s->buf.block       = o->block;
+    s->buf.block_field = o->block_field;
 
     if (o->data && o->filename) {
         LOG(ERROR,
@@ -281,7 +288,7 @@ static int buffer_init(struct ngl_node *node)
         layout->stride = ngli_format_get_bytes_per_pixel(layout->format);
     }
 
-    s->usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
+    s->buf.usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     if (o->data)
         return buffer_init_from_data(node);
@@ -299,8 +306,8 @@ static void buffer_uninit(struct ngl_node *node)
     const struct buffer_opts *o = node->opts;
 
     if (o->filename) {
-        ngli_freep(&s->data);
-        s->data_size = 0;
+        ngli_freep(&s->buf.data);
+        s->buf.data_size = 0;
 
         if (s->fp) {
             int ret = fclose(s->fp);
@@ -315,8 +322,8 @@ static void buffer_uninit(struct ngl_node *node)
 static int buffer##type_name##_init(struct ngl_node *node)      \
 {                                                               \
     struct buffer_priv *s = node->priv_data;                    \
-    s->layout.format = dformat;                                 \
-    s->layout.type = dtype;                                     \
+    s->buf.layout.format = dformat;                             \
+    s->buf.layout.type = dtype;                                 \
     return buffer_init(node);                                   \
 }                                                               \
                                                                 \

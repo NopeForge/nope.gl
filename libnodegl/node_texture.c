@@ -308,7 +308,7 @@ static int texture_prefetch(struct ngl_node *node)
         case NGL_NODE_BUFFERFLOAT:
         case NGL_NODE_BUFFERVEC2:
         case NGL_NODE_BUFFERVEC4: {
-            struct buffer_priv *buffer = o->data_src->priv_data;
+            struct buffer_info *buffer = o->data_src->priv_data;
             if (buffer->block) {
                 LOG(ERROR, "buffers used as a texture data source referencing a block are not supported");
                 return NGL_ERROR_UNSUPPORTED;
@@ -393,7 +393,7 @@ static int handle_buffer_frame(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
     const struct texture_opts *o = node->opts;
-    struct buffer_priv *buffer = o->data_src->priv_data;
+    struct buffer_info *buffer = o->data_src->priv_data;
     const uint8_t *data = buffer->data;
 
     int ret = ngli_texture_upload(s->texture, data, 0);

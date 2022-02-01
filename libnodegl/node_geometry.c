@@ -100,30 +100,30 @@ NGLI_STATIC_ASSERT(geom_on_top_of_geometry, offsetof(struct geometry_priv, geom)
 
 static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buffer **bufferp, struct buffer_layout *layout)
 {
-    struct buffer_priv *buffer_priv = buffer_node->priv_data;
+    struct buffer_info *buffer_info = buffer_node->priv_data;
 
     int ret = ngli_node_buffer_ref(buffer_node);
     if (ret < 0)
         return ret;
 
-    if (buffer_priv->block) {
-        struct ngl_node *block_node = buffer_priv->block;
+    if (buffer_info->block) {
+        struct ngl_node *block_node = buffer_info->block;
         struct block_priv *block_priv = block_node->priv_data;
         const struct block *block = &block_priv->block;
         const struct block_field *fields = ngli_darray_data(&block->fields);
-        const struct block_field *fi = &fields[buffer_priv->block_field];
+        const struct block_field *fi = &fields[buffer_info->block_field];
 
         *bufferp = block_priv->buffer;
-        *layout = buffer_priv->layout;
+        *layout = buffer_info->layout;
         layout->stride = fi->stride;
         layout->offset = fi->offset;
 
         block_priv->usage |= usage;
     } else {
-        *bufferp = buffer_priv->buffer;
-        *layout = buffer_priv->layout;
+        *bufferp = buffer_info->buffer;
+        *layout = buffer_info->layout;
 
-        buffer_priv->usage |= usage;
+        buffer_info->usage |= usage;
     }
 
     return 0;
@@ -165,7 +165,7 @@ static int geometry_init(struct ngl_node *node)
     }
 
     if (o->indices) {
-        struct buffer_priv *indices = o->indices->priv_data;
+        struct buffer_info *indices = o->indices->priv_data;
         if (indices->block) {
             LOG(ERROR, "geometry indices buffers referencing a block are not supported");
             return NGL_ERROR_UNSUPPORTED;
