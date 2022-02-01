@@ -60,6 +60,8 @@
 #define NGLI_FEATURE_GL_SHADER_TEXTURE_LOD                         (1ULL << 35)
 #define NGLI_FEATURE_GL_COLOR_BUFFER_FLOAT                         (1ULL << 36)
 #define NGLI_FEATURE_GL_COLOR_BUFFER_HALF_FLOAT                    (1ULL << 37)
+#define NGLI_FEATURE_GL_MAP_BUFFER_RANGE                           (1ULL << 38)
+#define NGLI_FEATURE_GL_BUFFER_STORAGE                             (1ULL << 39)
 
 #define NGLI_FEATURE_GL_COMPUTE_SHADER_ALL (NGLI_FEATURE_GL_COMPUTE_SHADER           | \
                                             NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY  | \

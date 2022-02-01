@@ -299,5 +299,21 @@ static const struct glfeature {
         .version        = 300,
         .es_version     = 320,
         .es_extensions  = (const char*[]){"EXT_color_buffer_half_float", NULL},
-    },
+    }, {
+        .name           = "map_buffer_range",
+        .flag           = NGLI_FEATURE_GL_MAP_BUFFER_RANGE,
+        .version        = 300,
+        .es_version     = 300,
+        .funcs_offsets  = (const size_t[]){OFFSET(MapBufferRange),
+                                           OFFSET(UnmapBuffer),
+                                           -1}
+    }, {
+        .name           = "buffer_storage",
+        .flag           = NGLI_FEATURE_GL_BUFFER_STORAGE,
+        .version        = 440,
+        .es_version     = 320,
+        .extensions     = (const char*[]){"GL_ARB_buffer_storage", NULL},
+        .funcs_offsets  = (const size_t[]){OFFSET(BufferStorage),
+                                           -1}
+    }
 };
