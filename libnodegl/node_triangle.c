@@ -38,7 +38,7 @@ struct triangle_opts {
 };
 
 struct triangle_priv {
-    struct geometry geom;
+    struct geometry *geom;
     struct triangle_opts opts;
 };
 
@@ -79,24 +79,23 @@ static int triangle_init(struct ngl_node *node)
 
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
+    s->geom = ngli_geometry_create(gpu_ctx);
+    if (!s->geom)
+        return NGL_ERROR_MEMORY;
+
     int ret;
-    if ((ret = ngli_geometry_gen_vec3(&s->geom.vertices_buffer, &s->geom.vertices_layout, gpu_ctx, NB_VERTICES, o->edges)) < 0 ||
-        (ret = ngli_geometry_gen_vec2(&s->geom.uvcoords_buffer, &s->geom.uvcoords_layout, gpu_ctx, NB_VERTICES, o->uvs))   < 0 ||
-        (ret = ngli_geometry_gen_vec3(&s->geom.normals_buffer,  &s->geom.normals_layout,  gpu_ctx, NB_VERTICES, normals))  < 0)
-        return 0;
+    if ((ret = ngli_geometry_set_vertices(s->geom, NB_VERTICES, o->edges)) < 0 ||
+        (ret = ngli_geometry_set_uvcoords(s->geom, NB_VERTICES, o->uvs))   < 0 ||
+        (ret = ngli_geometry_set_normals(s->geom, NB_VERTICES, normals))   < 0)
+        return ret;
 
-    s->geom.topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-
-    return 0;
+    return ngli_geometry_init(s->geom, NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 }
 
 static void triangle_uninit(struct ngl_node *node)
 {
     struct triangle_priv *s = node->priv_data;
-
-    ngli_buffer_freep(&s->geom.vertices_buffer);
-    ngli_buffer_freep(&s->geom.uvcoords_buffer);
-    ngli_buffer_freep(&s->geom.normals_buffer);
+    ngli_geometry_freep(&s->geom);
 }
 
 const struct node_class ngli_triangle_class = {

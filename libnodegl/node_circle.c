@@ -38,7 +38,7 @@ struct circle_opts {
 };
 
 struct circle_priv {
-    struct geometry geom;
+    struct geometry *geom;
     struct circle_opts opts;
 };
 
@@ -104,30 +104,28 @@ static int circle_init(struct ngl_node *node)
 
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
-    if ((ret = ngli_geometry_gen_vec3(&s->geom.vertices_buffer,   &s->geom.vertices_layout, gpu_ctx, nb_vertices, vertices)) < 0 ||
-        (ret = ngli_geometry_gen_vec2(&s->geom.uvcoords_buffer,   &s->geom.uvcoords_layout, gpu_ctx, nb_vertices, uvcoords)) < 0 ||
-        (ret = ngli_geometry_gen_vec3(&s->geom.normals_buffer,    &s->geom.normals_layout,  gpu_ctx, nb_vertices, normals))  < 0 ||
-        (ret = ngli_geometry_gen_indices(&s->geom.indices_buffer, &s->geom.indices_layout,  gpu_ctx, nb_indices,  indices))  < 0)
-        goto end;
+    s->geom = ngli_geometry_create(gpu_ctx);
+    if (!s->geom)
+        return NGL_ERROR_MEMORY;
 
-    s->geom.topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    if ((ret = ngli_geometry_set_vertices(s->geom, nb_vertices, vertices)) < 0 ||
+        (ret = ngli_geometry_set_uvcoords(s->geom, nb_vertices, uvcoords)) < 0 ||
+        (ret = ngli_geometry_set_normals(s->geom, nb_vertices, normals))   < 0 ||
+        (ret = ngli_geometry_set_indices(s->geom, nb_indices, indices))    < 0)
+        goto end;
 
 end:
     ngli_free(vertices);
     ngli_free(uvcoords);
     ngli_free(normals);
     ngli_free(indices);
-    return ret;
+    return ngli_geometry_init(s->geom, NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 }
 
 static void circle_uninit(struct ngl_node *node)
 {
     struct circle_priv *s = node->priv_data;
-
-    ngli_buffer_freep(&s->geom.vertices_buffer);
-    ngli_buffer_freep(&s->geom.uvcoords_buffer);
-    ngli_buffer_freep(&s->geom.normals_buffer);
-    ngli_buffer_freep(&s->geom.indices_buffer);
+    ngli_geometry_freep(&s->geom);
 }
 
 const struct node_class ngli_circle_class = {

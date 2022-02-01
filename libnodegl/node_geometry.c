@@ -59,7 +59,7 @@ struct geometry_opts {
 };
 
 struct geometry_priv {
-    struct geometry geom;
+    struct geometry *geom;
     struct geometry_opts opts;
     struct ngl_node *update_nodes[3]; /* {vertices, uvcoords, normals} at most */
     int nb_update_nodes;
@@ -94,8 +94,8 @@ NGLI_STATIC_ASSERT(geom_on_top_of_geometry, offsetof(struct geometry_priv, geom)
 #define GET_MAX_INDICES(type) do {                         \
     type *data = (type *)indices->data;                    \
     for (int i = 0; i < indices->layout.count; i++) {      \
-        if (data[i] > s->geom.max_indices)                 \
-            s->geom.max_indices = data[i];                 \
+        if (data[i] > max_indices)                         \
+            max_indices = data[i];                         \
     }                                                      \
 } while (0)                                                \
 
@@ -134,43 +134,34 @@ static int geometry_init(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
     const struct geometry_opts *o = &s->opts;
+    struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
-    int ret = configure_buffer(o->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &s->geom.vertices_buffer, &s->geom.vertices_layout);
+    s->geom = ngli_geometry_create(gpu_ctx);
+    if (!s->geom)
+        return NGL_ERROR_MEMORY;
+
+    struct buffer *buffer;
+    struct buffer_layout layout;
+
+    int ret = configure_buffer(o->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
     if (ret < 0)
         return ret;
+    ngli_geometry_set_vertices_buffer(s->geom, buffer, layout);
     s->update_nodes[s->nb_update_nodes++] = o->vertices;
 
-    struct buffer_priv *vertices = o->vertices->priv_data;
-
     if (o->uvcoords) {
-        struct buffer_priv *uvcoords = o->uvcoords->priv_data;
-        if (uvcoords->layout.count != vertices->layout.count) {
-            LOG(ERROR,
-                "uvcoords count (%d) does not match vertices count (%d)",
-                uvcoords->layout.count,
-                vertices->layout.count);
-            return NGL_ERROR_INVALID_ARG;
-        }
-
-        ret = configure_buffer(o->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &s->geom.uvcoords_buffer, &s->geom.uvcoords_layout);
+        ret = configure_buffer(o->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
         if (ret < 0)
             return ret;
+        ngli_geometry_set_uvcoords_buffer(s->geom, buffer, layout);
         s->update_nodes[s->nb_update_nodes++] = o->uvcoords;
     }
 
     if (o->normals) {
-        struct buffer_priv *normals = o->normals->priv_data;
-        if (normals->layout.count != vertices->layout.count) {
-            LOG(ERROR,
-                "normals count (%d) does not match vertices count (%d)",
-                normals->layout.count,
-                vertices->layout.count);
-            return NGL_ERROR_INVALID_ARG;
-        }
-
-        ret = configure_buffer(o->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &s->geom.normals_buffer, &s->geom.normals_layout);
+        ret = configure_buffer(o->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
         if (ret < 0)
             return ret;
+        ngli_geometry_set_normals_buffer(s->geom, buffer, layout);
         s->update_nodes[s->nb_update_nodes++] = o->normals;
     }
 
@@ -181,21 +172,22 @@ static int geometry_init(struct ngl_node *node)
             return NGL_ERROR_UNSUPPORTED;
         }
 
-        switch (indices->layout.format) {
+        ret = configure_buffer(o->indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT, &buffer, &layout);
+        if (ret < 0)
+            return ret;
+
+        int64_t max_indices = 0;
+        switch (layout.format) {
         case NGLI_FORMAT_R16_UNORM: GET_MAX_INDICES(uint16_t); break;
         case NGLI_FORMAT_R32_UINT:  GET_MAX_INDICES(uint32_t); break;
         default:
             ngli_assert(0);
         }
 
-        ret = configure_buffer(o->indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT, &s->geom.indices_buffer, &s->geom.indices_layout);
-        if (ret < 0)
-            return ret;
+        ngli_geometry_set_indices_buffer(s->geom, buffer, layout, max_indices);
     }
 
-    s->geom.topology = o->topology;
-
-    return 0;
+    return ngli_geometry_init(s->geom, o->topology);
 }
 
 static int geometry_prepare(struct ngl_node *node)
@@ -243,6 +235,7 @@ static void geometry_uninit(struct ngl_node *node)
     struct geometry_priv *s = node->priv_data;
     const struct geometry_opts *o = &s->opts;
 
+    ngli_geometry_freep(&s->geom);
     ngli_node_buffer_unref(o->vertices);
     if (o->uvcoords)
         ngli_node_buffer_unref(o->uvcoords);

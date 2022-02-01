@@ -22,13 +22,21 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
+#include <stdint.h>
+
 #include "internal.h"
 
+struct gpu_ctx;
+
 struct geometry {
+    struct gpu_ctx *gpu_ctx;
+
     struct buffer *vertices_buffer;
     struct buffer *uvcoords_buffer;
     struct buffer *normals_buffer;
     struct buffer *indices_buffer;
+
+    uint32_t buffer_ownership;
 
     struct buffer_layout vertices_layout;
     struct buffer_layout uvcoords_layout;
@@ -40,12 +48,23 @@ struct geometry {
     int64_t max_indices;
 };
 
-struct gpu_ctx;
+struct geometry *ngli_geometry_create(struct gpu_ctx *gpu_ctx);
 
-int ngli_geometry_gen_vec3(struct buffer **bufferp, struct buffer_layout *layout,
-                           struct gpu_ctx *gpu_ctx, int count, const void *data);
-int ngli_geometry_gen_vec2(struct buffer **bufferp, struct buffer_layout *layout,
-                           struct gpu_ctx *gpu_ctx, int count, const void *data);
-int ngli_geometry_gen_indices(struct buffer **bufferp, struct buffer_layout *layout,
-                              struct gpu_ctx *gpu_ctx, int count, const void *data);
+/* Set vertices/uvs/normals/indices from CPU buffers */
+int ngli_geometry_set_vertices(struct geometry *s, int n, const float *vertices);
+int ngli_geometry_set_uvcoords(struct geometry *s, int n, const float *uvcoords);
+int ngli_geometry_set_normals(struct geometry *s, int n, const float *indices);
+int ngli_geometry_set_indices(struct geometry *s, int n, const uint16_t *indices);
+
+/* With the following functions, the user own the buffers already */
+void ngli_geometry_set_vertices_buffer(struct geometry *s, struct buffer *buffer, struct buffer_layout layout);
+void ngli_geometry_set_uvcoords_buffer(struct geometry *s, struct buffer *buffer, struct buffer_layout layout);
+void ngli_geometry_set_normals_buffer(struct geometry *s, struct buffer *buffer, struct buffer_layout layout);
+void ngli_geometry_set_indices_buffer(struct geometry *s, struct buffer *buffer, struct buffer_layout layout, int64_t max_indices);
+
+/* Must be called when vertices/uvs/normals/indices are set */
+int ngli_geometry_init(struct geometry *s, int topology);
+
+void ngli_geometry_freep(struct geometry **sp);
+
 #endif

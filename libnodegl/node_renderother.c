@@ -357,7 +357,7 @@ static void draw_simple(struct render_common *s,  const struct render_common_opt
 static void draw_indexed(struct render_common *s,  const struct render_common_opts *o,
                          struct pipeline_compat *pl_compat)
 {
-    const struct geometry *geom = o->geometry->priv_data;
+    const struct geometry *geom = *(struct geometry **)o->geometry->priv_data;
     ngli_pipeline_compat_draw_indexed(pl_compat,
                                       geom->indices_buffer,
                                       geom->indices_layout.format,
@@ -404,7 +404,7 @@ static int init(struct ngl_node *node,
         s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
         s->draw = draw_simple;
     } else {
-        struct geometry *geom_node = o->geometry->priv_data;
+        struct geometry *geom_node = *(struct geometry **)o->geometry->priv_data;
         struct buffer *vertices = geom_node->vertices_buffer;
         struct buffer *uvcoords = geom_node->uvcoords_buffer;
         struct buffer_layout vertices_layout = geom_node->vertices_layout;
