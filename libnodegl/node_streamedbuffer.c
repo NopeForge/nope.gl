@@ -120,7 +120,8 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
     s->last_index = index;
 
     const struct buffer_priv *buffer_priv = o->buffer_node->priv_data;
-    s->data = buffer_priv->data + s->layout.stride * s->layout.count * index;
+    const struct buffer_layout *layout = &s->layout;
+    s->data = buffer_priv->data + layout->stride * layout->count * index;
 
     return 0;
 }
@@ -167,23 +168,24 @@ static int streamedbuffer_init(struct ngl_node *node)
     struct buffer_priv *s = node->priv_data;
     const struct streamedbuffer_opts *o = node->opts;
     struct buffer_priv *buffer_priv = o->buffer_node->priv_data;
+    struct buffer_layout *layout = &s->layout;
 
-    s->layout = buffer_priv->layout;
-    s->layout.count = o->count;
+    *layout = buffer_priv->layout;
+    layout->count = o->count;
 
-    if (s->layout.count <= 0) {
-        LOG(ERROR, "invalid number of elements (%d <= 0)", s->layout.count);
+    if (layout->count <= 0) {
+        LOG(ERROR, "invalid number of elements (%d <= 0)", layout->count);
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (buffer_priv->layout.count % s->layout.count) {
+    if (buffer_priv->layout.count % layout->count) {
         LOG(ERROR, "buffer count (%d) is not a multiple of streamed buffer count (%d)",
-            buffer_priv->layout.count, s->layout.count);
+            buffer_priv->layout.count, layout->count);
         return NGL_ERROR_INVALID_ARG;
     }
 
     s->data = buffer_priv->data;
-    s->data_size = buffer_priv->data_size / s->layout.count;
+    s->data_size = buffer_priv->data_size / layout->count;
     s->usage = buffer_priv->usage;
     s->dynamic = 1;
 
