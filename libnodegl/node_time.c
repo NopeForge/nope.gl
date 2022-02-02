@@ -19,24 +19,33 @@
  * under the License.
  */
 
+#include <stddef.h>
+
 #include "nodegl.h"
 #include "internal.h"
 #include "type.h"
 
+struct time_priv {
+    struct variable_priv var;
+    float time;
+};
+
+NGLI_STATIC_ASSERT(variable_priv_is_first, offsetof(struct time_priv, var) == 0);
+
 static int time_init(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
-    s->data = &s->vector[0];
-    s->data_size = sizeof(s->vector[0]);
-    s->data_type = NGLI_TYPE_FLOAT;
-    s->dynamic = 1;
+    struct time_priv *s = node->priv_data;
+    s->var.data = &s->time;
+    s->var.data_size = sizeof(s->time);
+    s->var.data_type = NGLI_TYPE_FLOAT;
+    s->var.dynamic = 1;
     return 0;
 }
 
 static int time_update(struct ngl_node *node, double t)
 {
-    struct variable_priv *s = node->priv_data;
-    s->vector[0] = t;
+    struct time_priv *s = node->priv_data;
+    s->time = t;
     return 0;
 }
 
@@ -46,6 +55,6 @@ const struct node_class ngli_time_class = {
     .name      = "Time",
     .init      = time_init,
     .update    = time_update,
-    .priv_size = sizeof(struct variable_priv),
+    .priv_size = sizeof(struct time_priv),
     .file      = __FILE__,
 };
