@@ -102,6 +102,26 @@ void main()
 '''
 
 
+_RENDER_TO_CUBEMAP_1_FRAG = '''
+void main()
+{
+    ngl_out_color[0] = vec4(1.0, 0.0, 0.0, 1.0); // right
+    ngl_out_color[1] = vec4(0.0, 1.0, 0.0, 1.0); // left
+}
+'''
+
+
+_RENDER_TO_CUBEMAP_2_FRAG = '''
+void main()
+{
+    ngl_out_color[0] = vec4(0.0, 0.0, 1.0, 1.0); // top
+    ngl_out_color[1] = vec4(1.0, 1.0, 0.0, 1.0); // bottom
+    ngl_out_color[2] = vec4(0.0, 1.0, 1.0, 1.0); // back
+    ngl_out_color[3] = vec4(1.0, 0.0, 1.0, 1.0); // front
+}
+'''
+
+
 _RENDER_CUBEMAP_VERT = '''
 void main()
 {
@@ -133,6 +153,30 @@ def _get_texture_cubemap_from_mrt_scene(cfg, samples=0):
     render.update_frag_resources(tex0=cube)
 
     return ngl.Group(children=(rtt, render))
+
+
+def _get_texture_cubemap_from_mrt_scene_2_pass(cfg, samples=0):
+    group = ngl.Group()
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    cube = ngl.TextureCube(size=64, min_filter="linear", mag_filter="linear")
+
+    layer_base = 0
+    for layer_count, fragment in ((2, _RENDER_TO_CUBEMAP_1_FRAG), (4, _RENDER_TO_CUBEMAP_2_FRAG)):
+        program = ngl.Program(vertex=_RENDER_TO_CUBEMAP_VERT, fragment=fragment, nb_frag_output=layer_count)
+        program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
+        render = ngl.Render(quad, program)
+        color_textures = [ngl.TextureView(cube, layer) for layer in range(layer_base, layer_base + layer_count)]
+        rtt = ngl.RenderToTexture(render, color_textures, samples=samples)
+        group.add_children(rtt)
+        layer_base += layer_count
+
+    program = ngl.Program(vertex=_RENDER_CUBEMAP_VERT, fragment=_RENDER_CUBEMAP_FRAG)
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec3())
+    render = ngl.Render(quad, program)
+    render.update_frag_resources(tex0=cube)
+    group.add_children(render)
+
+    return group
 
 
 @test_fingerprint()
@@ -170,6 +214,18 @@ def texture_cubemap_from_mrt(cfg):
 @scene()
 def texture_cubemap_from_mrt_msaa(cfg):
     return _get_texture_cubemap_from_mrt_scene(cfg, 4)
+
+
+@test_fingerprint()
+@scene()
+def texture_cubemap_from_mrt_2_pass(cfg):
+    return _get_texture_cubemap_from_mrt_scene_2_pass(cfg)
+
+
+@test_fingerprint()
+@scene()
+def texture_cubemap_from_mrt_2_pass_msaa(cfg):
+    return _get_texture_cubemap_from_mrt_scene_2_pass(cfg, 4)
 
 
 @test_cuepoints(width=32, height=32, points={'bottom-left': (-1, -1), 'top-right': (1, 1)}, tolerance=1)

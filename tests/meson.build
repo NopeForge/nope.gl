@@ -344,6 +344,12 @@ foreach backend : backends
 
   if has_texture_cube
     tests_texture += 'cubemap'
+    if max_color_attachments >= 4
+      tests_texture += 'cubemap_from_mrt_2_pass'
+      if max_samples >= 4
+        tests_texture += 'cubemap_from_mrt_2_pass_msaa'
+      endif
+    endif
     if max_color_attachments >= 6
       tests_texture += 'cubemap_from_mrt'
       if max_samples >= 4
