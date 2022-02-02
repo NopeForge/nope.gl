@@ -98,7 +98,7 @@ static int skew_update(struct ngl_node *node, double t)
         if (ret < 0)
             return ret;
         struct variable_priv *angles = o->angles_node->priv_data;
-        update_trf_matrix(node, angles->vector);
+        update_trf_matrix(node, angles->data);
     }
     return ngli_node_update(o->child, t);
 }
