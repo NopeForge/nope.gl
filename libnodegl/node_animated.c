@@ -86,6 +86,17 @@ static const struct node_param animatedpath_params[] = {
     {NULL}
 };
 
+struct animated_priv {
+    struct variable_priv var;
+    float vector[4];
+    float matrix[4*4];
+    double dval;
+    struct animation anim;
+    struct animation anim_eval;
+};
+
+NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct animated_priv, var) == 0);
+
 static void mix_time(void *user_arg, void *dst,
                      const struct animkeyframe_opts *kf0,
                      const struct animkeyframe_opts *kf1,
@@ -215,7 +226,7 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
         node->cls->id != NGL_NODE_ANIMATEDQUAT)
         return NGL_ERROR_INVALID_ARG;
 
-    struct variable_priv *s = node->priv_data;
+    struct animated_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
     if (!o->nb_animkf)
         return NGL_ERROR_INVALID_ARG;
@@ -248,9 +259,9 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 
 static int animation_init(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
+    struct animated_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
-    s->dynamic = 1;
+    s->var.dynamic = 1;
     return ngli_animation_init(&s->anim, node->opts,
                                o->animkf, o->nb_animkf,
                                get_mix_func(node->cls->id),
@@ -260,10 +271,10 @@ static int animation_init(struct ngl_node *node)
 #define DECLARE_INIT_FUNC(suffix, class_data, class_data_size, class_data_type) \
 static int animated##suffix##_init(struct ngl_node *node)                       \
 {                                                                               \
-    struct variable_priv *s = node->priv_data;                                  \
-    s->data = class_data;                                                       \
-    s->data_size = class_data_size;                                             \
-    s->data_type = class_data_type;                                             \
+    struct animated_priv *s = node->priv_data;                                  \
+    s->var.data = class_data;                                                   \
+    s->var.data_size = class_data_size;                                         \
+    s->var.data_type = class_data_type;                                         \
     return animation_init(node);                                                \
 }
 
@@ -274,12 +285,12 @@ DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
 
 static int animatedtime_init(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
+    struct animated_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
 
-    s->data = &s->dval;
-    s->data_size = sizeof(s->dval);
-    s->data_type = NGLI_TYPE_NONE;
+    s->var.data = &s->dval;
+    s->var.data_size = sizeof(s->dval);
+    s->var.data_type = NGLI_TYPE_NONE;
 
     // Sanity checks for time animation keyframe
     double prev_time = 0;
@@ -302,33 +313,33 @@ static int animatedtime_init(struct ngl_node *node)
 
 static int animatedquat_init(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
+    struct animated_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
 
-    s->data = s->vector;
-    s->data_size = 4 * sizeof(*s->vector);
-    s->data_type = NGLI_TYPE_VEC4;
+    s->var.data = s->vector;
+    s->var.data_size = 4 * sizeof(*s->vector);
+    s->var.data_type = NGLI_TYPE_VEC4;
     if (o->as_mat4) {
-        s->data = s->matrix;
-        s->data_size = sizeof(s->matrix);
-        s->data_type = NGLI_TYPE_MAT4;
+        s->var.data = s->matrix;
+        s->var.data_size = sizeof(s->matrix);
+        s->var.data_type = NGLI_TYPE_MAT4;
     }
     return animation_init(node);
 }
 
 static int animatedpath_init(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
-    s->data = s->vector;
-    s->data_size = 3 * sizeof(*s->vector);
-    s->data_type = NGLI_TYPE_VEC3;
+    struct animated_priv *s = node->priv_data;
+    s->var.data = s->vector;
+    s->var.data_size = 3 * sizeof(*s->vector);
+    s->var.data_type = NGLI_TYPE_VEC3;
     return animation_init(node);
 }
 
 static int animation_update(struct ngl_node *node, double t)
 {
-    struct variable_priv *s = node->priv_data;
-    return ngli_animation_evaluate(&s->anim, s->data, t);
+    struct animated_priv *s = node->priv_data;
+    return ngli_animation_evaluate(&s->anim, s->var.data, t);
 }
 
 #define animatedtime_update  animation_update
@@ -340,7 +351,7 @@ static int animation_update(struct ngl_node *node, double t)
 
 static int animatedquat_update(struct ngl_node *node, double t)
 {
-    struct variable_priv *s = node->priv_data;
+    struct animated_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
     int ret = ngli_animation_evaluate(&s->anim, s->vector, t);
     if (ret < 0)
@@ -358,7 +369,7 @@ const struct node_class ngli_animated##type##_class = {         \
     .init      = animated##type##_init,                         \
     .update    = animated##type##_update,                       \
     .opts_size = sizeof(struct variable_opts),                  \
-    .priv_size = sizeof(struct variable_priv),                  \
+    .priv_size = sizeof(struct animated_priv),                  \
     .params    = animated##type##_params,                       \
     .file      = __FILE__,                                      \
 };
