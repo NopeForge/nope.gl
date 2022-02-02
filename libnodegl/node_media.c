@@ -285,7 +285,8 @@ static int media_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;
-        media_time = NGLI_MAX(0, anim->dval - initial_seek);
+        const double dval = *(double *)anim->data;
+        media_time = NGLI_MAX(0, dval - initial_seek);
 
         TRACE("remapped time f(%g)=%g", t, media_time);
     }
