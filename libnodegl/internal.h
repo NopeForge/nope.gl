@@ -196,13 +196,6 @@ struct variable_opts {
 };
 
 struct variable_priv {
-    struct animation anim;
-    struct animation anim_eval;
-    float vector[4];
-    float matrix[4*4];
-    int ivector[4];
-    unsigned uvector[4];
-    double dval;
     void *data;
     int data_size;
     int data_type;          // any of NGLI_TYPE_*
