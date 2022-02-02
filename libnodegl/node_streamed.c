@@ -105,7 +105,7 @@ static int streamed_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(time_anim, t);
         if (ret < 0)
             return ret;
-        rt = anim->dval;
+        rt = *(double *)anim->data;
 
         TRACE("remapped time f(%g)=%g", t, rt);
         if (rt < 0) {
