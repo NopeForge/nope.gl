@@ -36,6 +36,7 @@ struct eval_opts {
 
 struct eval_priv {
     struct variable_priv var;
+    float vector[4];
     int nb_expr;
     struct hmap *vars;
     struct eval *eval[4];
@@ -157,10 +158,10 @@ static int eval_update(struct ngl_node *node, double t)
 
     for (int i = 0; i < s->nb_expr; i++) {
         if (!s->eval[i]) {
-            s->var.vector[i] = s->var.vector[i - 1];
+            s->vector[i] = s->vector[i - 1];
             continue;
         }
-        int ret = ngli_eval_run(s->eval[i], &s->var.vector[i]);
+        int ret = ngli_eval_run(s->eval[i], &s->vector[i]);
         if (ret < 0)
             return ret;
     }
@@ -182,7 +183,7 @@ static int eval##type##_init(struct ngl_node *node)                 \
 {                                                                   \
     struct eval_priv *s = node->priv_data;                          \
     s->nb_expr = count;                                             \
-    s->var.data = s->var.vector;                                    \
+    s->var.data = s->vector;                                        \
     s->var.data_size = count * sizeof(float);                       \
     s->var.data_type = dtype;                                       \
     s->var.dynamic = 1;                                             \
