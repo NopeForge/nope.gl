@@ -63,10 +63,8 @@ int ngli_vaapi_ctx_init(struct gpu_ctx *gpu_ctx, struct vaapi_ctx *s)
     if (gpu_ctx->features & NGLI_FEATURE_SOFTWARE)
         return -1;
 
-    if (!check_extensions(gpu_ctx)) {
-        LOG(ERROR, "context does not support required extensions for vaapi");
+    if (!check_extensions(gpu_ctx))
         return -1;
-    }
 
     VADisplay va_display = NULL;
     if (config->platform == NGL_PLATFORM_XLIB) {
@@ -110,6 +108,8 @@ int ngli_vaapi_ctx_init(struct gpu_ctx *gpu_ctx, struct vaapi_ctx *s)
 
     s->va_display = va_display;
     s->va_version = major_version * 100 + minor_version;
+
+    LOG(INFO, "VAAPI version: %d.%d", major_version, minor_version);
 
     return 0;
 }
