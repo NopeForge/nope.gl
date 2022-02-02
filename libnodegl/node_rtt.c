@@ -77,11 +77,11 @@ static const struct node_param rtt_params[] = {
                       .flags=NGLI_PARAM_FLAG_NON_NULL,
                       .desc=NGLI_DOCSTRING("scene to be rasterized to `color_textures` and optionally to `depth_texture`")},
     {"color_textures", NGLI_PARAM_TYPE_NODELIST, OFFSET(color_textures),
-                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURECUBE, -1},
+                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTURECUBE, NGL_NODE_TEXTUREVIEW, -1},
                       .desc=NGLI_DOCSTRING("destination color texture")},
     {"depth_texture", NGLI_PARAM_TYPE_NODE, OFFSET(depth_texture),
                       .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_FIELDNAME,
-                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1},
+                      .node_types=(const int[]){NGL_NODE_TEXTURE2D, NGL_NODE_TEXTUREVIEW, -1},
                       .desc=NGLI_DOCSTRING("destination depth (and potentially combined stencil) texture")},
     {"samples",       NGLI_PARAM_TYPE_I32, OFFSET(samples),
                       .desc=NGLI_DOCSTRING("number of samples used for multisampling anti-aliasing")},
@@ -93,12 +93,40 @@ static const struct node_param rtt_params[] = {
     {NULL}
 };
 
+struct rtt_texture_info {
+    struct texture_priv *texture_priv;
+    int layer_base;
+    int layer_count;
+};
+
+static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
+{
+    if (node->cls->id == NGL_NODE_TEXTUREVIEW) {
+        struct textureview_priv *textureview_priv = node->priv_data;
+        const struct rtt_texture_info info = {
+            .texture_priv = textureview_priv->texture->priv_data,
+            .layer_base = textureview_priv->layer,
+            .layer_count = 1,
+        };
+        return info;
+    } else {
+        struct texture_priv *texture_priv = node->priv_data;
+        const struct rtt_texture_info info = {
+            .texture_priv = texture_priv,
+            .layer_base = 0,
+            .layer_count = node->cls->id == NGL_NODE_TEXTURECUBE ? 6 : 1,
+        };
+        return info;
+    }
+}
+
 static int rtt_init(struct ngl_node *node)
 {
     struct rtt_priv *s = node->priv_data;
 
     for (int i = 0; i < s->nb_color_textures; i++) {
-        const struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->color_textures[i]);
+        const struct texture_priv *texture_priv = info.texture_priv;
         if (texture_priv->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
@@ -106,7 +134,8 @@ static int rtt_init(struct ngl_node *node)
     }
 
     if (s->depth_texture) {
-        const struct texture_priv *texture_priv = s->depth_texture->priv_data;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->depth_texture);
+        const struct texture_priv *texture_priv = info.texture_priv;
         if (texture_priv->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
@@ -160,19 +189,18 @@ static int rtt_prepare(struct ngl_node *node)
         .samples = s->samples,
     };
     for (int i = 0; i < s->nb_color_textures; i++) {
-        struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
-        struct texture_params *params = &texture_priv->params;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->color_textures[i]);
+        struct texture_params *params = &info.texture_priv->params;
         params->usage |= NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT;
-        const int faces = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1;
-        for (int j = 0; j < faces; j++) {
+        for (int j = 0; j < info.layer_count; j++) {
             desc.colors[desc.nb_colors].format = params->format;
             desc.colors[desc.nb_colors].resolve = s->samples > 1;
             desc.nb_colors++;
         }
     }
     if (s->depth_texture) {
-        struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
-        struct texture_params *depth_texture_params = &depth_texture_priv->params;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->depth_texture);
+        struct texture_params *depth_texture_params = &info.texture_priv->params;
         depth_texture_params->usage |= NGLI_TEXTURE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
         desc.depth_stencil.format = depth_texture_params->format;
         desc.depth_stencil.resolve = s->samples > 1;
@@ -220,7 +248,8 @@ static int rtt_prefetch(struct ngl_node *node)
     }
 
     for (int i = 0; i < s->nb_color_textures; i++) {
-        const struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->color_textures[i]);
+        const struct texture_priv *texture_priv = info.texture_priv;
         const struct texture *texture = texture_priv->texture;
         const struct texture_params *params = &texture->params;
         if (i == 0) {
@@ -234,7 +263,8 @@ static int rtt_prefetch(struct ngl_node *node)
     }
 
     if (s->depth_texture) {
-        const struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->depth_texture);
+        const struct texture_priv *depth_texture_priv = info.texture_priv;
         const struct texture *depth_texture = depth_texture_priv->texture;
         const struct texture_params *depth_texture_params = &depth_texture->params;
         if (s->width != depth_texture_params->width || s->height != depth_texture_params->height) {
@@ -255,11 +285,12 @@ static int rtt_prefetch(struct ngl_node *node)
     };
 
     for (int i = 0; i < s->nb_color_textures; i++) {
-        struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->color_textures[i]);
+        struct texture_priv *texture_priv = info.texture_priv;
         struct texture *texture = texture_priv->texture;
         struct texture_params *params = &texture->params;
-        const int n = params->type == NGLI_TEXTURE_TYPE_CUBE ? 6 : 1;
-        for (int j = 0; j < n; j++) {
+        const int layer_end = info.layer_base + info.layer_count;
+        for (int j = info.layer_base; j < layer_end; j++) {
             if (s->samples) {
                 struct texture *ms_texture = ngli_texture_create(gpu_ctx);
                 if (!ms_texture)
@@ -298,7 +329,8 @@ static int rtt_prefetch(struct ngl_node *node)
 
     int depth_format = NGLI_FORMAT_UNDEFINED;
     if (s->depth_texture) {
-        struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->depth_texture);
+        struct texture_priv *depth_texture_priv = info.texture_priv;
         struct texture *texture = depth_texture_priv->texture;
         struct texture_params *params = &texture->params;
 
@@ -319,11 +351,14 @@ static int rtt_prefetch(struct ngl_node *node)
             if (ret < 0)
                 return ret;
             rt_params.depth_stencil.attachment = ms_texture;
+            rt_params.depth_stencil.attachment_layer = 0;
             rt_params.depth_stencil.resolve_target = texture;
+            rt_params.depth_stencil.resolve_target_layer = info.layer_base;
             rt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
             rt_params.depth_stencil.store_op = NGLI_STORE_OP_DONT_CARE;
         } else {
             rt_params.depth_stencil.attachment = texture;
+            rt_params.depth_stencil.attachment_layer = info.layer_base;
             rt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
             rt_params.depth_stencil.store_op = NGLI_STORE_OP_STORE;
         }
@@ -403,13 +438,15 @@ static int rtt_prefetch(struct ngl_node *node)
     /* transform the color and depth textures so the coordinates
      * match how the graphics context uv coordinate system works */
     for (int i = 0; i < s->nb_color_textures; i++) {
-        struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->color_textures[i]);
+        struct texture_priv *texture_priv = info.texture_priv;
         struct image *image = &texture_priv->image;
         ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, image->coordinates_matrix);
     }
 
     if (s->depth_texture) {
-        struct texture_priv *depth_texture_priv = s->depth_texture->priv_data;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->depth_texture);
+        struct texture_priv *depth_texture_priv = info.texture_priv;
         struct image *depth_image = &depth_texture_priv->image;
         ngli_gpu_ctx_get_rendertarget_uvcoord_matrix(gpu_ctx, depth_image->coordinates_matrix);
     }
@@ -468,7 +505,8 @@ static void rtt_draw(struct ngl_node *node)
     ngli_gpu_ctx_set_scissor(gpu_ctx, prev_scissor);
 
     for (int i = 0; i < s->nb_color_textures; i++) {
-        struct texture_priv *texture_priv = s->color_textures[i]->priv_data;
+        const struct rtt_texture_info info = get_rtt_texture_info(s->color_textures[i]);
+        struct texture_priv *texture_priv = info.texture_priv;
         struct texture *texture = texture_priv->texture;
         const struct texture_params *texture_params = &texture->params;
         if (texture_params->mipmap_filter != NGLI_MIPMAP_FILTER_NONE)

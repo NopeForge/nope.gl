@@ -716,8 +716,8 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `child` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) | scene to be rasterized to `color_textures` and optionally to `depth_texture` | 
-`color_textures` |  | [`node_list`](#parameter-types) ([Texture2D](#texture2d), [TextureCube](#texturecube)) | destination color texture | 
-`depth_texture` |  | [`node`](#parameter-types) ([Texture2D](#texture2d)) | destination depth (and potentially combined stencil) texture | 
+`color_textures` |  | [`node_list`](#parameter-types) ([Texture2D](#texture2d), [TextureCube](#texturecube), [TextureView](#textureview)) | destination color texture | 
+`depth_texture` |  | [`node`](#parameter-types) ([Texture2D](#texture2d), [TextureView](#textureview)) | destination depth (and potentially combined stencil) texture | 
 `samples` |  | [`i32`](#parameter-types) | number of samples used for multisampling anti-aliasing | `0`
 `clear_color` |  | [`vec4`](#parameter-types) | color used to clear the `color_texture` | (`0`,`0`,`0`,`0`)
 `features` |  | [`framebuffer_features`](#framebuffer_features-choices) | framebuffer feature mask | `0`

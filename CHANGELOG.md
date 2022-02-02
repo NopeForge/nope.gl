@@ -8,6 +8,10 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+### Added
+- TextureView node, useful for targeting a specific layer of a texture in RTT
+  scenarios
+
 ### Fixed
 - Fix OpenGL buffers and textures bindings
 
