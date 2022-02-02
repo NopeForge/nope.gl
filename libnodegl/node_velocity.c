@@ -60,6 +60,15 @@ static const struct node_param velocityvec4_params[] = {
     {NULL}
 };
 
+struct velocity_priv {
+    struct variable_priv var;
+    float vector[4];
+    struct animation anim;
+    struct animation anim_eval;
+};
+
+NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct velocity_priv, var) == 0);
+
 static void mix_velocity_float(void *user_arg, void *dst,
                                const struct animkeyframe_opts *kf0,
                                const struct animkeyframe_opts *kf1,
@@ -123,7 +132,7 @@ static ngli_animation_cpy_func_type get_cpy_func(int node_class)
 /* Used for standalone evaluation (outside a context) */
 int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t)
 {
-    struct variable_priv *s = node->priv_data;
+    struct velocity_priv *s = node->priv_data;
     const struct velocity_opts *o = node->opts;
 
     /*
@@ -161,10 +170,10 @@ int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t)
 
 static int velocity_init(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
+    struct velocity_priv *s = node->priv_data;
     const struct velocity_opts *o = node->opts;
     struct variable_opts *anim = o->anim_node->opts;
-    s->dynamic = 1;
+    s->var.dynamic = 1;
     return ngli_animation_init(&s->anim, NULL,
                                anim->animkf, anim->nb_animkf,
                                get_mix_func(node->cls->id),
@@ -173,17 +182,17 @@ static int velocity_init(struct ngl_node *node)
 
 static int velocity_update(struct ngl_node *node, double t)
 {
-    struct variable_priv *s = node->priv_data;
-    return ngli_animation_derivate(&s->anim, s->data, t);
+    struct velocity_priv *s = node->priv_data;
+    return ngli_animation_derivate(&s->anim, s->var.data, t);
 }
 
 #define DEFINE_VELOCITY_CLASS(class_id, class_name, type, dtype, count)         \
 static int velocity##type##_init(struct ngl_node *node)                         \
 {                                                                               \
-    struct variable_priv *s = node->priv_data;                                  \
-    s->data = s->vector;                                                        \
-    s->data_size = count * sizeof(float);                                       \
-    s->data_type = dtype;                                                       \
+    struct velocity_priv *s = node->priv_data;                                  \
+    s->var.data = s->vector;                                                    \
+    s->var.data_size = count * sizeof(float);                                   \
+    s->var.data_type = dtype;                                                   \
     return velocity_init(node);                                                 \
 }                                                                               \
                                                                                 \
@@ -194,7 +203,7 @@ const struct node_class ngli_velocity##type##_class = {                         
     .init      = velocity##type##_init,                                         \
     .update    = velocity_update,                                               \
     .opts_size = sizeof(struct velocity_opts),                                  \
-    .priv_size = sizeof(struct variable_priv),                                  \
+    .priv_size = sizeof(struct velocity_priv),                                  \
     .params    = velocity##type##_params,                                       \
     .file      = __FILE__,                                                      \
 };
