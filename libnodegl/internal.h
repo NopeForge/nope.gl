@@ -462,6 +462,11 @@ struct pathkey_bezier3_priv {
     float to[3];
 };
 
+struct textureview_priv {
+    struct ngl_node *texture;
+    int layer;
+};
+
 enum {
     NGLI_NODE_CATEGORY_NONE,
     NGLI_NODE_CATEGORY_VARIABLE,

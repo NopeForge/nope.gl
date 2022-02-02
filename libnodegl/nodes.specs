@@ -1,5 +1,5 @@
 #
-# Nodes specifications for node.gl v0.0.0
+# Nodes specifications for node.gl v0.1.0
 #
 
 _Node:
@@ -511,6 +511,10 @@ TextureCube:
     - [wrap_t, select, ""]
     - [wrap_r, select, ""]
     - [data_src, node, ""]
+
+TextureView:
+    - [texture, node, "M"]
+    - [layer, i32, ""]
 
 Time:
 

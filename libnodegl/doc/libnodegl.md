@@ -884,6 +884,17 @@ Parameter | Flags | Type | Description | Default
 **Source**: [node_texture.c](/libnodegl/node_texture.c)
 
 
+## TextureView
+
+Parameter | Flags | Type | Description | Default
+--------- | ----- | ---- | ----------- | :-----:
+`texture` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([Texture2D](#texture2d), [TextureCube](#texturecube)) | texture used for the view | 
+`layer` |  | [`i32`](#parameter-types) | texture layer used for the view | `0`
+
+
+**Source**: [node_textureview.c](/libnodegl/node_textureview.c)
+
+
 ## Time
 
 **Source**: [node_time.c](/libnodegl/node_time.c)

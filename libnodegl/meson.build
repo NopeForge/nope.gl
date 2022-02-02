@@ -175,6 +175,7 @@ lib_src = files(
   'node_streamedbuffer.c',
   'node_text.c',
   'node_texture.c',
+  'node_textureview.c',
   'node_time.c',
   'node_timerangefilter.c',
   'node_timerangemodes.c',
