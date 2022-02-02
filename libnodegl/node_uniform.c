@@ -32,6 +32,15 @@
 #include "transforms.h"
 #include "type.h"
 
+struct uniform_priv {
+    struct variable_priv var;
+    float vector[4];
+    float matrix[4*4];
+    int ivector[4];
+    unsigned uvector[4];
+};
+
+NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct uniform_priv, var) == 0);
 
 #define DECLARE_UPDATE_FUNCS(type, opt_val, opt_min, opt_max, fmt, n)                                       \
 static void live_boundaries_clamp_##type(struct ngl_node *node)                                             \
@@ -65,10 +74,10 @@ static void live_boundaries_clamp_##type(struct ngl_node *node)                 
                                                                                                             \
 static int uniform##type##_update_func(struct ngl_node *node)                                               \
 {                                                                                                           \
-    struct variable_priv *s = node->priv_data;                                                              \
+    struct uniform_priv *s = node->priv_data;                                                               \
     const struct variable_opts *o = node->opts;                                                             \
     live_boundaries_clamp_##type(node);                                                                     \
-    memcpy(s->data, opt_val, s->data_size);                                                                 \
+    memcpy(s->var.data, opt_val, s->var.data_size);                                                         \
     return 0;                                                                                               \
 }                                                                                                           \
 
@@ -89,30 +98,30 @@ DECLARE_UPDATE_FUNCS(vec4,  o->live.val.f, o->live.min.f, o->live.max.f, "%g", 4
 
 static int uniformbool_update_func(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
-    memcpy(s->data, o->live.val.i, s->data_size);
+    memcpy(s->var.data, o->live.val.i, s->var.data_size);
     return 0;
 }
 
 static int uniformmat4_update_func(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
     if (o->transform) {
         LOG(ERROR, "updating the matrix on a UniformMat4 with transforms is invalid");
         return NGL_ERROR_INVALID_USAGE;
     }
-    memcpy(s->data, o->live.val.m, s->data_size);
+    memcpy(s->var.data, o->live.val.m, s->var.data_size);
     return 0;
 }
 
 static int uniformquat_update_func(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
     live_boundaries_clamp_vec4(node);
-    memcpy(s->vector, o->live.val.f, s->data_size);
+    memcpy(s->vector, o->live.val.f, s->var.data_size);
     if (o->as_mat4)
         ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     return 0;
@@ -372,7 +381,7 @@ static const struct node_param uniformmat4_params[] = {
 
 static int uniformquat_update(struct ngl_node *node, double t)
 {
-    struct variable_priv *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
     if (o->as_mat4)
         ngli_mat4_rotate_from_quat(s->matrix, s->vector);
@@ -381,7 +390,7 @@ static int uniformquat_update(struct ngl_node *node, double t)
 
 static int uniformmat4_update(struct ngl_node *node, double t)
 {
-    struct variable_priv *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
     if (o->transform) {
         int ret = ngli_node_update(o->transform, t);
@@ -395,12 +404,12 @@ static int uniformmat4_update(struct ngl_node *node, double t)
 #define DECLARE_INIT_FUNC(type, dtype, count, dst, src)     \
 static int uniform##type##_init(struct ngl_node *node)      \
 {                                                           \
-    struct variable_priv *s = node->priv_data;              \
+    struct uniform_priv *s = node->priv_data;               \
     const struct variable_opts *o = node->opts;             \
-    s->data = dst;                                          \
-    s->data_size = count * sizeof(*dst);                    \
-    s->data_type = dtype;                                   \
-    memcpy(s->data, src, s->data_size);                     \
+    s->var.data = dst;                                      \
+    s->var.data_size = count * sizeof(*dst);                \
+    s->var.data_type = dtype;                               \
+    memcpy(s->var.data, src, s->var.data_size);             \
     return 0;                                               \
 }
 
@@ -422,17 +431,17 @@ DECLARE_INIT_FUNC(colora, NGLI_TYPE_VEC4,   4, s->vector,  o->live.val.f)
 
 static int uniformquat_init(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
 
-    s->data = s->vector;
-    s->data_size = 4 * sizeof(*s->vector);
-    s->data_type = NGLI_TYPE_VEC4;
-    memcpy(s->data, o->live.val.f, s->data_size);
+    s->var.data = s->vector;
+    s->var.data_size = 4 * sizeof(*s->vector);
+    s->var.data_type = NGLI_TYPE_VEC4;
+    memcpy(s->var.data, o->live.val.f, s->var.data_size);
     if (o->as_mat4) {
-        s->data = s->matrix;
-        s->data_size = sizeof(s->matrix);
-        s->data_type = NGLI_TYPE_MAT4;
+        s->var.data = s->matrix;
+        s->var.data_size = sizeof(s->matrix);
+        s->var.data_type = NGLI_TYPE_MAT4;
         ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     }
     return 0;
@@ -440,24 +449,24 @@ static int uniformquat_init(struct ngl_node *node)
 
 static int uniformmat4_init(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
+    struct uniform_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
 
     int ret = ngli_transform_chain_check(o->transform);
     if (ret < 0)
         return ret;
 
-    s->data = s->matrix;
-    s->data_size = sizeof(s->matrix);
-    s->data_type = NGLI_TYPE_MAT4;
+    s->var.data = s->matrix;
+    s->var.data_size = sizeof(s->matrix);
+    s->var.data_type = NGLI_TYPE_MAT4;
     /* Note: we assume here that a transformation chain includes at least one
      * dynamic transform. We could crawl the chain to figure it out in the
      * details, but that would be limited since we would have to also detect
      * live changes in any of the transform node at update as well. That extra
      * complexity is probably not worth just for handling the case of a static
      * transformation list. */
-    s->dynamic = !!o->transform;
-    memcpy(s->data, o->live.val.m, s->data_size);
+    s->var.dynamic = !!o->transform;
+    memcpy(s->var.data, o->live.val.m, s->var.data_size);
     return 0;
 }
 
@@ -469,7 +478,7 @@ const struct node_class ngli_uniform##type##_class = {          \
     .init           = uniform##type##_init,                     \
     .update         = uniform##type##_update,                   \
     .opts_size      = sizeof(struct variable_opts),             \
-    .priv_size      = sizeof(struct variable_priv),             \
+    .priv_size      = sizeof(struct uniform_priv),              \
     .params         = uniform##type##_params,                   \
     .flags          = NGLI_NODE_FLAG_LIVECTL,                   \
     .livectl_offset = OFFSET(live),                             \
