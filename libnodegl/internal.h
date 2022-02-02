@@ -249,7 +249,7 @@ struct livectl {
     union ngl_livectl_data max;
 };
 
-struct variable_priv {
+struct variable_opts {
     struct livectl opt;
 
     struct ngl_node **animkf;
@@ -263,7 +263,12 @@ struct variable_priv {
         struct ngl_node *anim_node; /* Velocity nodes only */
         struct ngl_node *path_node; /* AnimatedPath only */
     };
+    struct ngl_node *transform;
+    int as_mat4; /* quaternion only */
+};
 
+struct variable_priv {
+    struct variable_opts opts;
     struct animation anim;
     struct animation anim_eval;
     float vector[4];
@@ -274,8 +279,6 @@ struct variable_priv {
     void *data;
     int data_size;
     int data_type;          // any of NGLI_TYPE_*
-    struct ngl_node *transform;
-    int as_mat4; /* quaternion only */
     int dynamic;
     int last_index;
 };

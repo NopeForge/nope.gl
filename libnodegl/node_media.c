@@ -144,7 +144,8 @@ static int media_init(struct ngl_node *node)
 
     struct ngl_node *anim_node = s->anim;
     if (anim_node) {
-        struct variable_priv *anim = anim_node->priv_data;
+        struct variable_priv *anim_p = anim_node->priv_data;
+        const struct variable_opts *anim = &anim_p->opts;
 
         // Set the media time boundaries using the time remapping animation
         if (anim->nb_animkf) {
@@ -264,7 +265,8 @@ static int media_update(struct ngl_node *node, double t)
 
     if (anim_node) {
         struct variable_priv *anim = anim_node->priv_data;
-        const struct animkeyframe_priv *kf0_p = anim->animkf[0]->priv_data;
+        const struct variable_opts *anim_o = &anim->opts;
+        const struct animkeyframe_priv *kf0_p = anim_o->animkf[0]->priv_data;
         const struct animkeyframe_opts *kf0 = &kf0_p->opts;
         const double initial_seek = kf0->scalar;
         int ret = ngli_node_update(anim_node, t);

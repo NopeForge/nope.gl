@@ -29,7 +29,7 @@
 #include "internal.h"
 #include "type.h"
 
-#define OFFSET(x) offsetof(struct variable_priv, x)
+#define OFFSET(x) offsetof(struct variable_priv, opts.x)
 
 #define DECLARE_STREAMED_PARAMS(name, allowed_node)                                                       \
 static const struct node_param streamed##name##_params[] = {                                              \
@@ -64,7 +64,8 @@ DECLARE_STREAMED_PARAMS(mat4,   NGL_NODE_BUFFERMAT4)
 static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 {
     const struct variable_priv *s = node->priv_data;
-    const struct buffer_priv *timestamps_priv = s->timestamps->priv_data;
+    const struct variable_opts *o = &s->opts;
+    const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
 
@@ -81,7 +82,8 @@ static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 static int streamed_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
-    struct ngl_node *time_anim = s->time_anim;
+    const struct variable_opts *o = &s->opts;
+    struct ngl_node *time_anim = o->time_anim;
 
     double rt = t;
     if (time_anim) {
@@ -99,7 +101,7 @@ static int streamed_update(struct ngl_node *node, double t)
         }
     }
 
-    const int64_t t64 = llrint(rt * s->timebase[1] / (double)s->timebase[0]);
+    const int64_t t64 = llrint(rt * o->timebase[1] / (double)o->timebase[0]);
     int index = get_data_index(node, s->last_index, t64);
     if (index < 0) {
         index = get_data_index(node, 0, t64);
@@ -108,7 +110,7 @@ static int streamed_update(struct ngl_node *node, double t)
     }
     s->last_index = index;
 
-    const struct buffer_priv *buffer_priv = s->buffer->priv_data;
+    const struct buffer_priv *buffer_priv = o->buffer->priv_data;
     const uint8_t *datap = buffer_priv->data + buffer_priv->layout.stride * index;
     memcpy(s->data, datap, s->data_size);
 
@@ -118,7 +120,8 @@ static int streamed_update(struct ngl_node *node, double t)
 static int check_timestamps_buffer(const struct ngl_node *node)
 {
     const struct variable_priv *s = node->priv_data;
-    const struct buffer_priv *timestamps_priv = s->timestamps->priv_data;
+    const struct variable_opts *o = &s->opts;
+    const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
 
@@ -127,7 +130,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    const struct buffer_priv *buffer_priv = s->buffer->priv_data;
+    const struct buffer_priv *buffer_priv = o->buffer->priv_data;
     if (nb_timestamps != buffer_priv->layout.count) {
         LOG(ERROR, "timestamps count must match buffer data count: %d != %d", nb_timestamps, buffer_priv->layout.count);
         return NGL_ERROR_INVALID_ARG;
@@ -153,9 +156,10 @@ static int check_timestamps_buffer(const struct ngl_node *node)
 static int streamed_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
+    const struct variable_opts *o = &s->opts;
 
-    if (!s->timebase[1]) {
-        LOG(ERROR, "invalid timebase: %d/%d", s->timebase[0], s->timebase[1]);
+    if (!o->timebase[1]) {
+        LOG(ERROR, "invalid timebase: %d/%d", o->timebase[0], o->timebase[1]);
         return NGL_ERROR_INVALID_ARG;
     }
 

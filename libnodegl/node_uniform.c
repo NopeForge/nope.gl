@@ -37,8 +37,9 @@
 static void live_boundaries_clamp_##type(struct ngl_node *node)                                             \
 {                                                                                                           \
     struct variable_priv *s = node->priv_data;                                                              \
+    struct variable_opts *o = &s->opts;                                                                     \
                                                                                                             \
-    if (!s->opt.id)                                                                                         \
+    if (!o->opt.id)                                                                                         \
         return;                                                                                             \
                                                                                                             \
     for (int i = 0; i < n; i++) {                                                                           \
@@ -66,55 +67,59 @@ static void live_boundaries_clamp_##type(struct ngl_node *node)                 
 static int uniform##type##_update_func(struct ngl_node *node)                                               \
 {                                                                                                           \
     struct variable_priv *s = node->priv_data;                                                              \
+    const struct variable_opts *o = &s->opts;                                                               \
     live_boundaries_clamp_##type(node);                                                                     \
     memcpy(s->data, opt_val, s->data_size);                                                                 \
     return 0;                                                                                               \
 }                                                                                                           \
 
-DECLARE_UPDATE_FUNCS(int,   s->opt.val.i, s->opt.min.i, s->opt.max.i, "%i", 1)
-DECLARE_UPDATE_FUNCS(ivec2, s->opt.val.i, s->opt.min.i, s->opt.max.i, "%i", 2)
-DECLARE_UPDATE_FUNCS(ivec3, s->opt.val.i, s->opt.min.i, s->opt.max.i, "%i", 3)
-DECLARE_UPDATE_FUNCS(ivec4, s->opt.val.i, s->opt.min.i, s->opt.max.i, "%i", 4)
+DECLARE_UPDATE_FUNCS(int,   o->opt.val.i, o->opt.min.i, o->opt.max.i, "%i", 1)
+DECLARE_UPDATE_FUNCS(ivec2, o->opt.val.i, o->opt.min.i, o->opt.max.i, "%i", 2)
+DECLARE_UPDATE_FUNCS(ivec3, o->opt.val.i, o->opt.min.i, o->opt.max.i, "%i", 3)
+DECLARE_UPDATE_FUNCS(ivec4, o->opt.val.i, o->opt.min.i, o->opt.max.i, "%i", 4)
 
-DECLARE_UPDATE_FUNCS(uint,  s->opt.val.u, s->opt.min.u, s->opt.max.u, "%u", 1)
-DECLARE_UPDATE_FUNCS(uvec2, s->opt.val.u, s->opt.min.u, s->opt.max.u, "%u", 2)
-DECLARE_UPDATE_FUNCS(uvec3, s->opt.val.u, s->opt.min.u, s->opt.max.u, "%u", 3)
-DECLARE_UPDATE_FUNCS(uvec4, s->opt.val.u, s->opt.min.u, s->opt.max.u, "%u", 4)
+DECLARE_UPDATE_FUNCS(uint,  o->opt.val.u, o->opt.min.u, o->opt.max.u, "%u", 1)
+DECLARE_UPDATE_FUNCS(uvec2, o->opt.val.u, o->opt.min.u, o->opt.max.u, "%u", 2)
+DECLARE_UPDATE_FUNCS(uvec3, o->opt.val.u, o->opt.min.u, o->opt.max.u, "%u", 3)
+DECLARE_UPDATE_FUNCS(uvec4, o->opt.val.u, o->opt.min.u, o->opt.max.u, "%u", 4)
 
-DECLARE_UPDATE_FUNCS(float, s->opt.val.f, s->opt.min.f, s->opt.max.f, "%g", 1)
-DECLARE_UPDATE_FUNCS(vec2,  s->opt.val.f, s->opt.min.f, s->opt.max.f, "%g", 2)
-DECLARE_UPDATE_FUNCS(vec3,  s->opt.val.f, s->opt.min.f, s->opt.max.f, "%g", 3)
-DECLARE_UPDATE_FUNCS(vec4,  s->opt.val.f, s->opt.min.f, s->opt.max.f, "%g", 4)
+DECLARE_UPDATE_FUNCS(float, o->opt.val.f, o->opt.min.f, o->opt.max.f, "%g", 1)
+DECLARE_UPDATE_FUNCS(vec2,  o->opt.val.f, o->opt.min.f, o->opt.max.f, "%g", 2)
+DECLARE_UPDATE_FUNCS(vec3,  o->opt.val.f, o->opt.min.f, o->opt.max.f, "%g", 3)
+DECLARE_UPDATE_FUNCS(vec4,  o->opt.val.f, o->opt.min.f, o->opt.max.f, "%g", 4)
 
 static int uniformbool_update_func(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
-    memcpy(s->data, s->opt.val.i, s->data_size);
+    const struct variable_opts *o = &s->opts;
+    memcpy(s->data, o->opt.val.i, s->data_size);
     return 0;
 }
 
 static int uniformmat4_update_func(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
-    if (s->transform) {
+    const struct variable_opts *o = &s->opts;
+    if (o->transform) {
         LOG(ERROR, "updating the matrix on a UniformMat4 with transforms is invalid");
         return NGL_ERROR_INVALID_USAGE;
     }
-    memcpy(s->data, s->opt.val.m, s->data_size);
+    memcpy(s->data, o->opt.val.m, s->data_size);
     return 0;
 }
 
 static int uniformquat_update_func(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
+    const struct variable_opts *o = &s->opts;
     live_boundaries_clamp_vec4(node);
-    memcpy(s->vector, s->opt.val.f, s->data_size);
-    if (s->as_mat4)
+    memcpy(s->vector, o->opt.val.f, s->data_size);
+    if (o->as_mat4)
         ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     return 0;
 }
 
-#define OFFSET(x) offsetof(struct variable_priv, x)
+#define OFFSET(x) offsetof(struct variable_priv, opts.x)
 
 static const struct node_param uniformbool_params[] = {
     {"value",    NGLI_PARAM_TYPE_BOOL, OFFSET(opt.val.i),
@@ -369,7 +374,8 @@ static const struct node_param uniformmat4_params[] = {
 static int uniformquat_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
-    if (s->as_mat4)
+    const struct variable_opts *o = &s->opts;
+    if (o->as_mat4)
         ngli_mat4_rotate_from_quat(s->matrix, s->vector);
     return 0;
 }
@@ -377,11 +383,12 @@ static int uniformquat_update(struct ngl_node *node, double t)
 static int uniformmat4_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
-    if (s->transform) {
-        int ret = ngli_node_update(s->transform, t);
+    const struct variable_opts *o = &s->opts;
+    if (o->transform) {
+        int ret = ngli_node_update(o->transform, t);
         if (ret < 0)
             return ret;
-        ngli_transform_chain_compute(s->transform, s->matrix);
+        ngli_transform_chain_compute(o->transform, s->matrix);
     }
     return 0;
 }
@@ -390,6 +397,7 @@ static int uniformmat4_update(struct ngl_node *node, double t)
 static int uniform##type##_init(struct ngl_node *node)      \
 {                                                           \
     struct variable_priv *s = node->priv_data;              \
+    const struct variable_opts *o = &s->opts;               \
     s->data = dst;                                          \
     s->data_size = count * sizeof(*dst);                    \
     s->data_type = dtype;                                   \
@@ -397,30 +405,32 @@ static int uniform##type##_init(struct ngl_node *node)      \
     return 0;                                               \
 }
 
-DECLARE_INIT_FUNC(bool,   NGLI_TYPE_BOOL,   1, s->ivector, s->opt.val.i)
-DECLARE_INIT_FUNC(int,    NGLI_TYPE_INT,    1, s->ivector, s->opt.val.i)
-DECLARE_INIT_FUNC(ivec2,  NGLI_TYPE_IVEC2,  2, s->ivector, s->opt.val.i)
-DECLARE_INIT_FUNC(ivec3,  NGLI_TYPE_IVEC3,  3, s->ivector, s->opt.val.i)
-DECLARE_INIT_FUNC(ivec4,  NGLI_TYPE_IVEC4,  4, s->ivector, s->opt.val.i)
-DECLARE_INIT_FUNC(uint,   NGLI_TYPE_UINT,   1, s->uvector, s->opt.val.u)
-DECLARE_INIT_FUNC(uivec2, NGLI_TYPE_UIVEC2, 2, s->uvector, s->opt.val.u)
-DECLARE_INIT_FUNC(uivec3, NGLI_TYPE_UIVEC3, 3, s->uvector, s->opt.val.u)
-DECLARE_INIT_FUNC(uivec4, NGLI_TYPE_UIVEC4, 4, s->uvector, s->opt.val.u)
-DECLARE_INIT_FUNC(float,  NGLI_TYPE_FLOAT,  1, s->vector,  s->opt.val.f)
-DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  s->opt.val.f)
-DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  s->opt.val.f)
-DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  s->opt.val.f)
-DECLARE_INIT_FUNC(color,  NGLI_TYPE_VEC3,   3, s->vector,  s->opt.val.f)
-DECLARE_INIT_FUNC(colora, NGLI_TYPE_VEC4,   4, s->vector,  s->opt.val.f)
+DECLARE_INIT_FUNC(bool,   NGLI_TYPE_BOOL,   1, s->ivector, o->opt.val.i)
+DECLARE_INIT_FUNC(int,    NGLI_TYPE_INT,    1, s->ivector, o->opt.val.i)
+DECLARE_INIT_FUNC(ivec2,  NGLI_TYPE_IVEC2,  2, s->ivector, o->opt.val.i)
+DECLARE_INIT_FUNC(ivec3,  NGLI_TYPE_IVEC3,  3, s->ivector, o->opt.val.i)
+DECLARE_INIT_FUNC(ivec4,  NGLI_TYPE_IVEC4,  4, s->ivector, o->opt.val.i)
+DECLARE_INIT_FUNC(uint,   NGLI_TYPE_UINT,   1, s->uvector, o->opt.val.u)
+DECLARE_INIT_FUNC(uivec2, NGLI_TYPE_UIVEC2, 2, s->uvector, o->opt.val.u)
+DECLARE_INIT_FUNC(uivec3, NGLI_TYPE_UIVEC3, 3, s->uvector, o->opt.val.u)
+DECLARE_INIT_FUNC(uivec4, NGLI_TYPE_UIVEC4, 4, s->uvector, o->opt.val.u)
+DECLARE_INIT_FUNC(float,  NGLI_TYPE_FLOAT,  1, s->vector,  o->opt.val.f)
+DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  o->opt.val.f)
+DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  o->opt.val.f)
+DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  o->opt.val.f)
+DECLARE_INIT_FUNC(color,  NGLI_TYPE_VEC3,   3, s->vector,  o->opt.val.f)
+DECLARE_INIT_FUNC(colora, NGLI_TYPE_VEC4,   4, s->vector,  o->opt.val.f)
 
 static int uniformquat_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
+    const struct variable_opts *o = &s->opts;
+
     s->data = s->vector;
     s->data_size = 4 * sizeof(*s->vector);
     s->data_type = NGLI_TYPE_VEC4;
-    memcpy(s->data, s->opt.val.f, s->data_size);
-    if (s->as_mat4) {
+    memcpy(s->data, o->opt.val.f, s->data_size);
+    if (o->as_mat4) {
         s->data = s->matrix;
         s->data_size = sizeof(s->matrix);
         s->data_type = NGLI_TYPE_MAT4;
@@ -432,8 +442,9 @@ static int uniformquat_init(struct ngl_node *node)
 static int uniformmat4_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
+    const struct variable_opts *o = &s->opts;
 
-    int ret = ngli_transform_chain_check(s->transform);
+    int ret = ngli_transform_chain_check(o->transform);
     if (ret < 0)
         return ret;
 
@@ -446,8 +457,8 @@ static int uniformmat4_init(struct ngl_node *node)
      * live changes in any of the transform node at update as well. That extra
      * complexity is probably not worth just for handling the case of a static
      * transformation list. */
-    s->dynamic = !!s->transform;
-    memcpy(s->data, s->opt.val.m, s->data_size);
+    s->dynamic = !!o->transform;
+    memcpy(s->data, o->opt.val.m, s->data_size);
     return 0;
 }
 

@@ -27,7 +27,7 @@
 #include "internal.h"
 #include "type.h"
 
-#define OFFSET(x) offsetof(struct variable_priv, x)
+#define OFFSET(x) offsetof(struct variable_priv, opts.x)
 static const struct node_param velocityfloat_params[] = {
     {"animation", NGLI_PARAM_TYPE_NODE, OFFSET(anim_node), .flags=NGLI_PARAM_FLAG_NON_NULL,
                   .node_types=(const int[]){NGL_NODE_ANIMATEDFLOAT, -1},
@@ -120,32 +120,34 @@ static ngli_animation_cpy_func_type get_cpy_func(int node_class)
 int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t)
 {
     struct variable_priv *s = node->priv_data;
+    const struct variable_opts *o = &s->opts;
 
     /*
      * The following check is required because NGLI_PARAM_FLAG_NON_NULL is
      * checked at the node init, but we are in a pass-through mode here (no
      * context) so the node is not initialized.
      */
-    if (!s->anim_node)
+    if (!o->anim_node)
         return NGL_ERROR_INVALID_USAGE;
 
-    struct variable_priv *anim = s->anim_node->priv_data;
-    if (!anim->nb_animkf)
+    struct variable_priv *anim = o->anim_node->priv_data;
+    const struct variable_opts *anim_o = &anim->opts;
+    if (!anim_o->nb_animkf)
         return NGL_ERROR_INVALID_ARG;
 
     if (!s->anim_eval.kfs) {
         int ret = ngli_animation_init(&s->anim_eval, NULL,
-                                      anim->animkf, anim->nb_animkf,
+                                      anim_o->animkf, anim_o->nb_animkf,
                                       get_mix_func(node->cls->id),
                                       get_cpy_func(node->cls->id));
         if (ret < 0)
             return ret;
     }
 
-    struct animkeyframe_priv *kf0 = anim->animkf[0]->priv_data;
+    struct animkeyframe_priv *kf0 = anim_o->animkf[0]->priv_data;
     if (!kf0->derivative) {
-        for (int i = 0; i < anim->nb_animkf; i++) {
-            int ret = anim->animkf[i]->cls->init(anim->animkf[i]);
+        for (int i = 0; i < anim_o->nb_animkf; i++) {
+            int ret = anim_o->animkf[i]->cls->init(anim_o->animkf[i]);
             if (ret < 0)
                 return ret;
         }
@@ -157,10 +159,12 @@ int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t)
 static int velocity_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
-    struct variable_priv *anim = s->anim_node->priv_data;
+    const struct variable_opts *o = &s->opts;
+    struct variable_priv *anim = o->anim_node->priv_data;
+    const struct variable_opts *anim_o = &anim->opts;
     s->dynamic = 1;
     return ngli_animation_init(&s->anim, NULL,
-                               anim->animkf, anim->nb_animkf,
+                               anim_o->animkf, anim_o->nb_animkf,
                                get_mix_func(node->cls->id),
                                get_cpy_func(node->cls->id));
 }
