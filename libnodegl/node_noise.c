@@ -34,6 +34,7 @@ struct noise_opts {
 
 struct noise_priv {
     struct variable_priv var;
+    float vector[4];
     struct noise generator[4];
 };
 
@@ -80,7 +81,7 @@ static int noisevec_update(struct ngl_node *node, double t, int n)
     const struct noise_opts *o = node->opts;
     const float v = t * o->frequency;
     for (int i = 0; i < n; i++)
-        s->var.vector[i] = ngli_noise_get(&s->generator[i], v);
+        s->vector[i] = ngli_noise_get(&s->generator[i], v);
     return 0;
 }
 
@@ -129,7 +130,7 @@ static int noise##type##_init(struct ngl_node *node)                        \
 {                                                                           \
     struct noise_priv *s = node->priv_data;                                 \
     const struct noise_opts *o = node->opts;                                \
-    s->var.data = s->var.vector;                                            \
+    s->var.data = s->vector;                                                \
     s->var.data_size = count * sizeof(float);                               \
     s->var.data_type = dtype;                                               \
     s->var.dynamic = 1;                                                     \
