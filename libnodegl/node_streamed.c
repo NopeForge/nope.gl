@@ -38,6 +38,10 @@ struct streamed_opts {
 
 struct streamed_priv {
     struct variable_priv var;
+    float vector[4];
+    float matrix[4*4];
+    int ivector[4];
+    unsigned uvector[4];
     int last_index;
 };
 
@@ -188,19 +192,19 @@ static int streamed##suffix##_init(struct ngl_node *node)                       
     return streamed_init(node);                                                     \
 }                                                                                   \
 
-DECLARE_STREAMED_INIT(int,    s->var.ivector, sizeof(*s->var.ivector),     NGLI_TYPE_INT)
-DECLARE_STREAMED_INIT(ivec2,  s->var.ivector, 2 * sizeof(*s->var.ivector), NGLI_TYPE_IVEC2)
-DECLARE_STREAMED_INIT(ivec3,  s->var.ivector, 3 * sizeof(*s->var.ivector), NGLI_TYPE_IVEC3)
-DECLARE_STREAMED_INIT(ivec4,  s->var.ivector, 4 * sizeof(*s->var.ivector), NGLI_TYPE_IVEC4)
-DECLARE_STREAMED_INIT(uint,   s->var.uvector, sizeof(*s->var.uvector),     NGLI_TYPE_UINT)
-DECLARE_STREAMED_INIT(uivec2, s->var.uvector, 2 * sizeof(*s->var.uvector), NGLI_TYPE_UIVEC2)
-DECLARE_STREAMED_INIT(uivec3, s->var.uvector, 3 * sizeof(*s->var.uvector), NGLI_TYPE_UIVEC3)
-DECLARE_STREAMED_INIT(uivec4, s->var.uvector, 4 * sizeof(*s->var.uvector), NGLI_TYPE_UIVEC4)
-DECLARE_STREAMED_INIT(float,  s->var.vector,  sizeof(*s->var.vector),      NGLI_TYPE_FLOAT)
-DECLARE_STREAMED_INIT(vec2,   s->var.vector,  2 * sizeof(*s->var.vector),  NGLI_TYPE_VEC2)
-DECLARE_STREAMED_INIT(vec3,   s->var.vector,  3 * sizeof(*s->var.vector),  NGLI_TYPE_VEC3)
-DECLARE_STREAMED_INIT(vec4,   s->var.vector,  4 * sizeof(*s->var.vector),  NGLI_TYPE_VEC4)
-DECLARE_STREAMED_INIT(mat4,   s->var.matrix,  sizeof(s->var.matrix),       NGLI_TYPE_MAT4)
+DECLARE_STREAMED_INIT(int,    s->ivector, sizeof(*s->ivector),     NGLI_TYPE_INT)
+DECLARE_STREAMED_INIT(ivec2,  s->ivector, 2 * sizeof(*s->ivector), NGLI_TYPE_IVEC2)
+DECLARE_STREAMED_INIT(ivec3,  s->ivector, 3 * sizeof(*s->ivector), NGLI_TYPE_IVEC3)
+DECLARE_STREAMED_INIT(ivec4,  s->ivector, 4 * sizeof(*s->ivector), NGLI_TYPE_IVEC4)
+DECLARE_STREAMED_INIT(uint,   s->uvector, sizeof(*s->uvector),     NGLI_TYPE_UINT)
+DECLARE_STREAMED_INIT(uivec2, s->uvector, 2 * sizeof(*s->uvector), NGLI_TYPE_UIVEC2)
+DECLARE_STREAMED_INIT(uivec3, s->uvector, 3 * sizeof(*s->uvector), NGLI_TYPE_UIVEC3)
+DECLARE_STREAMED_INIT(uivec4, s->uvector, 4 * sizeof(*s->uvector), NGLI_TYPE_UIVEC4)
+DECLARE_STREAMED_INIT(float,  s->vector,  sizeof(*s->vector),      NGLI_TYPE_FLOAT)
+DECLARE_STREAMED_INIT(vec2,   s->vector,  2 * sizeof(*s->vector),  NGLI_TYPE_VEC2)
+DECLARE_STREAMED_INIT(vec3,   s->vector,  3 * sizeof(*s->vector),  NGLI_TYPE_VEC3)
+DECLARE_STREAMED_INIT(vec4,   s->vector,  4 * sizeof(*s->vector),  NGLI_TYPE_VEC4)
+DECLARE_STREAMED_INIT(mat4,   s->matrix,  sizeof(s->matrix),       NGLI_TYPE_MAT4)
 
 #define DECLARE_STREAMED_CLASS(class_id, class_name, class_suffix)          \
 const struct node_class ngli_streamed##class_suffix##_class = {             \
