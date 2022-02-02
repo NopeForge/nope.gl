@@ -94,7 +94,7 @@ static int rotate_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(o->angle_node, t);
         if (ret < 0)
             return ret;
-        struct variable_priv *angle = o->angle_node->priv_data;
+        struct variable_info *angle = o->angle_node->priv_data;
         update_trf_matrix(node, *(float *)angle->data);
     }
     return ngli_node_update(o->child, t);

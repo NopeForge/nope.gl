@@ -84,7 +84,7 @@ static int scale_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(o->factors_node, t);
         if (ret < 0)
             return ret;
-        struct variable_priv *factors = o->factors_node->priv_data;
+        struct variable_info *factors = o->factors_node->priv_data;
         update_trf_matrix(node, factors->data);
     }
     return ngli_node_update(o->child, t);

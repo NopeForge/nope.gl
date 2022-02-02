@@ -26,11 +26,11 @@
 #include "type.h"
 
 struct time_priv {
-    struct variable_priv var;
+    struct variable_info var;
     float time;
 };
 
-NGLI_STATIC_ASSERT(variable_priv_is_first, offsetof(struct time_priv, var) == 0);
+NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct time_priv, var) == 0);
 
 static int time_init(struct ngl_node *node)
 {

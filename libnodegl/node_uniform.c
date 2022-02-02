@@ -33,7 +33,7 @@
 #include "type.h"
 
 struct uniform_priv {
-    struct variable_priv var;
+    struct variable_info var;
     float vector[4];
     float matrix[4*4];
     int ivector[4];

@@ -67,7 +67,7 @@ static int translate_update(struct ngl_node *node, double t)
         int ret = ngli_node_update(o->vector_node, t);
         if (ret < 0)
             return ret;
-        struct variable_priv *vector = o->vector_node->priv_data;
+        struct variable_info *vector = o->vector_node->priv_data;
         update_trf_matrix(node, vector->data);
     }
     return ngli_node_update(o->child, t);

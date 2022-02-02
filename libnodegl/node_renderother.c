@@ -587,7 +587,7 @@ static void *get_data_ptr(struct ngl_node *var_node, void *data_fallback)
 {
     if (!var_node)
         return data_fallback;
-    struct variable_priv *var = var_node->priv_data;
+    struct variable_info *var = var_node->priv_data;
     return var->data;
 }
 

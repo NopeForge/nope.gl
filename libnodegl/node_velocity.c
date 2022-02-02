@@ -61,7 +61,7 @@ static const struct node_param velocityvec4_params[] = {
 };
 
 struct velocity_priv {
-    struct variable_priv var;
+    struct variable_info var;
     float vector[4];
     struct animation anim;
     struct animation anim_eval;

@@ -89,7 +89,7 @@ static int update_matrices(struct ngl_node *node, double t)
     const float *perspective;
     if (o->perspective_node) {
         struct ngl_node *anim_node = o->perspective_node;
-        struct variable_priv *anim = anim_node->priv_data;
+        struct variable_info *anim = anim_node->priv_data;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
             return ret;

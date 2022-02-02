@@ -35,7 +35,7 @@ struct eval_opts {
 };
 
 struct eval_priv {
-    struct variable_priv var;
+    struct variable_info var;
     float vector[4];
     int nb_expr;
     struct hmap *vars;
@@ -105,7 +105,7 @@ static const struct node_param eval_vec4_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(variable_priv_is_first, offsetof(struct eval_priv, var) == 0);
+NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct eval_priv, var) == 0);
 
 static int eval_init(struct ngl_node *node)
 {
@@ -120,7 +120,7 @@ static int eval_init(struct ngl_node *node)
         struct hmap_entry *entry = NULL;
         while ((entry = ngli_hmap_next(o->resources, entry))) {
             struct ngl_node *res = entry->data;
-            struct variable_priv *var = res->priv_data;
+            struct variable_info *var = res->priv_data;
             ngli_assert(var->data_type == NGLI_TYPE_FLOAT);
             int ret = ngli_hmap_set(s->vars, entry->key, var->data);
             if (ret < 0)

@@ -87,7 +87,7 @@ static const struct node_param animatedpath_params[] = {
 };
 
 struct animated_priv {
-    struct variable_priv var;
+    struct variable_info var;
     float vector[4];
     float matrix[4*4];
     double dval;

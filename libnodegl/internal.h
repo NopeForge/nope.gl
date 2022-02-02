@@ -195,7 +195,7 @@ struct variable_opts {
     };
 };
 
-struct variable_priv {
+struct variable_info {
     void *data;
     int data_size;
     int data_type;          // any of NGLI_TYPE_*

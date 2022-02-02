@@ -76,9 +76,9 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
         crafter_uniform.count = buffer_info->layout.count;
         crafter_uniform.data  = buffer_info->data;
     } else if (uniform->cls->category == NGLI_NODE_CATEGORY_VARIABLE) {
-        struct variable_priv *variable_priv = uniform->priv_data;
-        crafter_uniform.type  = variable_priv->data_type;
-        crafter_uniform.data  = variable_priv->data;
+        struct variable_info *variable_info = uniform->priv_data;
+        crafter_uniform.type  = variable_info->data_type;
+        crafter_uniform.data  = variable_info->data;
     } else {
         ngli_assert(0);
     }

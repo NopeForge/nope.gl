@@ -103,7 +103,7 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
 
     double rt = t;
     if (time_anim) {
-        struct variable_priv *anim = time_anim->priv_data;
+        struct variable_info *anim = time_anim->priv_data;
 
         int ret = ngli_node_update(time_anim, t);
         if (ret < 0)

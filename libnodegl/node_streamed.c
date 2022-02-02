@@ -37,7 +37,7 @@ struct streamed_opts {
 };
 
 struct streamed_priv {
-    struct variable_priv var;
+    struct variable_info var;
     float vector[4];
     float matrix[4*4];
     int ivector[4];
@@ -45,7 +45,7 @@ struct streamed_priv {
     int last_index;
 };
 
-NGLI_STATIC_ASSERT(variable_priv_is_first, offsetof(struct streamed_priv, var) == 0);
+NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct streamed_priv, var) == 0);
 
 #define OFFSET(x) offsetof(struct streamed_opts, x)
 
@@ -104,7 +104,7 @@ static int streamed_update(struct ngl_node *node, double t)
 
     double rt = t;
     if (time_anim) {
-        struct variable_priv *anim = time_anim->priv_data;
+        struct variable_info *anim = time_anim->priv_data;
 
         int ret = ngli_node_update(time_anim, t);
         if (ret < 0)

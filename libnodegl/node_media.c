@@ -278,7 +278,7 @@ static int media_update(struct ngl_node *node, double t)
     double media_time = t;
 
     if (anim_node) {
-        struct variable_priv *anim = anim_node->priv_data;
+        struct variable_info *anim = anim_node->priv_data;
         const struct variable_opts *anim_o = anim_node->opts;
         const struct animkeyframe_opts *kf0 = anim_o->animkf[0]->opts;
         const double initial_seek = kf0->scalar;

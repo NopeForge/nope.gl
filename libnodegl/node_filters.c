@@ -172,7 +172,7 @@ static int register_resource(struct darray *resources, const char *name,
                              struct ngl_node *pnode, void *data, int data_type)
 {
     if (pnode) {
-        struct variable_priv *var = pnode->priv_data;
+        struct variable_info *var = pnode->priv_data;
         ngli_assert(var->data_type == data_type);
         data = var->data;
     }

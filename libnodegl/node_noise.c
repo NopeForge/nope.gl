@@ -33,7 +33,7 @@ struct noise_opts {
 };
 
 struct noise_priv {
-    struct variable_priv var;
+    struct variable_info var;
     float vector[4];
     struct noise generator[4];
 };
@@ -73,7 +73,7 @@ static const struct node_param noise_params[] = {
     {NULL}
 };
 
-NGLI_STATIC_ASSERT(variable_priv_is_first, offsetof(struct noise_priv, var) == 0);
+NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct noise_priv, var) == 0);
 
 static int noisevec_update(struct ngl_node *node, double t, int n)
 {
