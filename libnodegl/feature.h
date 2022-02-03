@@ -24,7 +24,7 @@
 
 #define NGLI_FEATURE_COMPUTE                           (1 << 0)
 #define NGLI_FEATURE_INSTANCED_DRAW                    (1 << 1)
-#define NGLI_FEATURE_FRAMEBUFFER_OBJECT                (1 << 2)
+#define NGLI_FEATURE_COLOR_RESOLVE                     (1 << 2)
 #define NGLI_FEATURE_SHADER_TEXTURE_LOD                (1 << 3)
 #define NGLI_FEATURE_SOFTWARE                          (1 << 4)
 #define NGLI_FEATURE_TEXTURE_3D                        (1 << 5)
@@ -33,5 +33,6 @@
 #define NGLI_FEATURE_UINT_UNIFORMS                     (1 << 8)
 #define NGLI_FEATURE_UNIFORM_BUFFER                    (1 << 9)
 #define NGLI_FEATURE_STORAGE_BUFFER                    (1 << 10)
+#define NGLI_FEATURE_DEPTH_STENCIL_RESOLVE             (1 << 11)
 
 #endif

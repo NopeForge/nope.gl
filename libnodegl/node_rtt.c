@@ -203,8 +203,8 @@ static int rtt_prefetch(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rtt_priv *s = node->priv_data;
 
-    if (!(gpu_ctx->features & NGLI_FEATURE_FRAMEBUFFER_OBJECT) && s->samples > 0) {
-        LOG(WARNING, "context does not support the framebuffer object feature, "
+    if (!(gpu_ctx->features & NGLI_FEATURE_COLOR_RESOLVE) && s->samples > 0) {
+        LOG(WARNING, "context does not support resolving color attachments, "
             "multisample anti-aliasing will be disabled");
         s->samples = 0;
     }
@@ -241,6 +241,11 @@ static int rtt_prefetch(struct ngl_node *node)
             LOG(ERROR, "color and depth texture dimensions do not match: %dx%d != %dx%d",
                 s->width, s->height, depth_texture_params->width, depth_texture_params->height);
             return NGL_ERROR_INVALID_ARG;
+        }
+        if (!(gpu_ctx->features & NGLI_FEATURE_DEPTH_STENCIL_RESOLVE) && s->samples > 0) {
+            LOG(WARNING, "context does not support resolving depth/stencil attachments, "
+                "multisample anti-aliasing will be disabled");
+            s->samples = 0;
         }
     }
 
