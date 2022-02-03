@@ -66,16 +66,20 @@ static int path_init(struct ngl_node *node)
         const struct ngl_node *kf = s->keyframes[i];
         int ret;
         if (kf->cls->id == NGL_NODE_PATHKEYMOVE) {
-            const struct pathkey_move_priv *move = kf->priv_data;
+            const struct pathkey_move_priv *move_p = kf->priv_data;
+            const struct pathkey_move_opts *move = &move_p->opts;
             ret = ngli_path_move_to(s->path, move->to);
         } else if (kf->cls->id == NGL_NODE_PATHKEYLINE) {
-            const struct pathkey_line_priv *line = kf->priv_data;
+            const struct pathkey_line_priv *line_p = kf->priv_data;
+            const struct pathkey_line_opts *line = &line_p->opts;
             ret = ngli_path_line_to(s->path, line->to);
         } else if (kf->cls->id == NGL_NODE_PATHKEYBEZIER2) {
-            const struct pathkey_bezier2_priv *bezier2 = kf->priv_data;
+            const struct pathkey_bezier2_priv *bezier2_p = kf->priv_data;
+            const struct pathkey_bezier2_opts *bezier2 = &bezier2_p->opts;
             ret = ngli_path_bezier2_to(s->path, bezier2->control, bezier2->to);
         } else if (kf->cls->id == NGL_NODE_PATHKEYBEZIER3) {
-            const struct pathkey_bezier3_priv *bezier3 = kf->priv_data;
+            const struct pathkey_bezier3_priv *bezier3_p = kf->priv_data;
+            const struct pathkey_bezier3_opts *bezier3 = &bezier3_p->opts;
             ret = ngli_path_bezier3_to(s->path, bezier3->control1, bezier3->control2, bezier3->to);
         } else {
             ngli_assert(0);

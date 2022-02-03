@@ -465,23 +465,39 @@ struct animkeyframe_priv {
     double derivative_scale;
 };
 
+struct pathkey_move_opts {
+    float to[3];
+};
+
 struct pathkey_move_priv {
+    struct pathkey_move_opts opts;
+};
+
+struct pathkey_line_opts {
     float to[3];
 };
 
 struct pathkey_line_priv {
-    float to[3];
+    struct pathkey_line_opts opts;
 };
 
-struct pathkey_bezier2_priv {
+struct pathkey_bezier2_opts {
     float control[3];
     float to[3];
 };
 
-struct pathkey_bezier3_priv {
+struct pathkey_bezier2_priv {
+    struct pathkey_bezier2_opts opts;
+};
+
+struct pathkey_bezier3_opts {
     float control1[3];
     float control2[3];
     float to[3];
+};
+
+struct pathkey_bezier3_priv {
+    struct pathkey_bezier3_opts opts;
 };
 
 struct textureview_priv {
