@@ -1180,7 +1180,7 @@ static void setup_glsl_info_gl(struct pgcraft *s)
 static void setup_glsl_info(struct pgcraft *s)
 {
     struct ngl_ctx *ctx = s->ctx;
-    const struct ngl_config *config = &ctx->config;
+    ngli_unused const struct ngl_config *config = &ctx->config;
 
     s->rg = "rg";
     s->glsl_version_suffix = "";
