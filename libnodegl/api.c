@@ -105,6 +105,7 @@ static int cmd_reset(struct ngl_ctx *s, void *arg)
 {
     if (s->gpu_ctx)
         ngli_gpu_ctx_wait_idle(s->gpu_ctx);
+    ngli_hud_freep(&s->hud);
     if (s->scene) {
         ngli_node_detach_ctx(s->scene, s);
         if (*(int *)arg == UNREF_SCENE)
@@ -119,7 +120,6 @@ static int cmd_reset(struct ngl_ctx *s, void *arg)
 #endif
     ngli_texture_freep(&s->font_atlas); // allocated by the first node text
     ngli_pgcache_reset(&s->pgcache);
-    ngli_hud_freep(&s->hud);
     ngli_gpu_ctx_freep(&s->gpu_ctx);
     config_reset(&s->config);
 
