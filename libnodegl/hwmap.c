@@ -132,7 +132,7 @@ int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap
     hwmap->params = *params;
     hwmap->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
 
-    const struct ngl_config *config = &ctx->config;
+    ngli_unused const struct ngl_config *config = &ctx->config;
 #ifdef BACKEND_GL
     if (config->backend == NGL_BACKEND_OPENGL || config->backend == NGL_BACKEND_OPENGLES)
         hwmap->hwmap_classes = ngli_hwmap_gl_classes;
