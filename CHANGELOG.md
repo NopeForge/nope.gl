@@ -14,6 +14,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ### Fixed
 - Fix OpenGL buffers and textures bindings
+- A memory crash happening when resetting the context scene to NULL with the
+  HUD active
 
 ## [2022.1] [libnodegl 0.1.0] - 2022-01-20
 ### Added

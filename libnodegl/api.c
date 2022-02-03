@@ -249,6 +249,7 @@ static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 {
     ngli_gpu_ctx_wait_idle(s->gpu_ctx);
 
+    ngli_hud_freep(&s->hud);
     if (s->scene) {
         ngli_node_detach_ctx(s->scene, s);
         ngl_node_unrefp(&s->scene);
@@ -261,26 +262,23 @@ static int cmd_set_scene(struct ngl_ctx *s, void *arg)
     s->rnode_pos->rendertarget_desc = *ngli_gpu_ctx_get_default_rendertarget_desc(s->gpu_ctx);
 
     struct ngl_node *scene = arg;
-    if (!scene)
-        return 0;
+    if (scene) {
+        int ret = ngli_node_attach_ctx(scene, s);
+        if (ret < 0) {
+            ngli_node_detach_ctx(scene, s);
+            return ret;
+        }
 
-    int ret = ngli_node_attach_ctx(scene, s);
-    if (ret < 0) {
-        ngli_node_detach_ctx(scene, s);
-        return ret;
+        s->scene = ngl_node_ref(scene);
     }
-
-    s->scene = ngl_node_ref(scene);
 
     const struct ngl_config *config = &s->config;
     if (config->hud) {
-        ngli_hud_freep(&s->hud);
-
         s->hud = ngli_hud_create(s);
         if (!s->hud)
             return NGL_ERROR_MEMORY;
 
-        ret = ngli_hud_init(s->hud);
+        int ret = ngli_hud_init(s->hud);
         if (ret < 0)
             return ret;
     }
