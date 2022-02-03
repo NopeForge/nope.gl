@@ -67,4 +67,7 @@
                                          NGLI_FEATURE_SHADER_IMAGE_SIZE        | \
                                          NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT)
 
+#define NGLI_FEATURE_INSTANCED_DRAW (NGLI_FEATURE_DRAW_INSTANCED | \
+                                     NGLI_FEATURE_INSTANCED_ARRAY)
+
 #endif

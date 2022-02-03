@@ -493,7 +493,7 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
 {
     const int has_block          = ANY_FEATURES(gpu_ctx->features, NGLI_FEATURE_UNIFORM_BUFFER_OBJECT | NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT);
     const int has_compute        = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_COMPUTE_SHADER_ALL);
-    const int has_instanced_draw = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_INSTANCED_ARRAY);
+    const int has_instanced_draw = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_INSTANCED_DRAW);
     const int has_npot_texture   = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_NPOT);
     const int has_shader_texture_lod = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_SHADER_TEXTURE_LOD);
     const int has_texture_3d     = ALL_FEATURES(gpu_ctx->features, NGLI_FEATURE_TEXTURE_3D);
