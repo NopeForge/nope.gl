@@ -25,12 +25,26 @@
 #include <stdint.h>
 
 #include "buffer.h"
-#include "feature.h"
 #include "gpu_limits.h"
 #include "nodegl.h"
 #include "pipeline.h"
 #include "rendertarget.h"
 #include "texture.h"
+
+#define NGLI_FEATURE_COMPUTE                           (1 << 0)
+#define NGLI_FEATURE_INSTANCED_DRAW                    (1 << 1)
+#define NGLI_FEATURE_COLOR_RESOLVE                     (1 << 2)
+#define NGLI_FEATURE_SHADER_TEXTURE_LOD                (1 << 3)
+#define NGLI_FEATURE_SOFTWARE                          (1 << 4)
+#define NGLI_FEATURE_TEXTURE_3D                        (1 << 5)
+#define NGLI_FEATURE_TEXTURE_CUBE_MAP                  (1 << 6)
+#define NGLI_FEATURE_TEXTURE_NPOT                      (1 << 7)
+#define NGLI_FEATURE_UINT_UNIFORMS                     (1 << 8)
+#define NGLI_FEATURE_UNIFORM_BUFFER                    (1 << 9)
+#define NGLI_FEATURE_STORAGE_BUFFER                    (1 << 10)
+#define NGLI_FEATURE_DEPTH_STENCIL_RESOLVE             (1 << 11)
+#define NGLI_FEATURE_TEXTURE_FLOAT_RENDERABLE          (1 << 12)
+#define NGLI_FEATURE_TEXTURE_HALF_FLOAT_RENDERABLE     (1 << 13)
 
 struct gpu_ctx_class {
     const char *name;
