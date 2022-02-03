@@ -590,8 +590,8 @@ int ngli_params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl
             if (par->type == NGLI_PARAM_TYPE_MAT4 && !quat->as_mat4) {
                 LOG(ERROR, "when setting a quaternion node for a mat4 parameter, as_mat4 must be set");
                 return NGL_ERROR_INVALID_ARG;
-            } else if (par->type == NGLI_PARAM_TYPE_F64 && quat->as_mat4) {
-                LOG(ERROR, "when setting a quaternion node for a float parameter, as_mat4 must not be set");
+            } else if (par->type == NGLI_PARAM_TYPE_VEC4 && quat->as_mat4) {
+                LOG(ERROR, "when setting a quaternion node for a vec4 parameter, as_mat4 must not be set");
                 return NGL_ERROR_INVALID_ARG;
             }
         }
