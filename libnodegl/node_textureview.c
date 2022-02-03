@@ -25,7 +25,7 @@
 #include "internal.h"
 #include "nodegl.h"
 
-#define OFFSET(x) offsetof(struct textureview_priv, opts.x)
+#define OFFSET(x) offsetof(struct textureview_opts, x)
 static const struct node_param textureview_params[] = {
     {"texture", NGLI_PARAM_TYPE_NODE, OFFSET(texture),
                 .flags = NGLI_PARAM_FLAG_NON_NULL,
@@ -38,8 +38,7 @@ static const struct node_param textureview_params[] = {
 
 static int textureview_init(struct ngl_node *node)
 {
-    struct textureview_priv *s = node->priv_data;
-    const struct textureview_opts *o = &s->opts;
+    const struct textureview_opts *o = node->opts;
 
     if (o->layer < 0) {
         LOG(ERROR, "layer cannot be negative");
@@ -62,7 +61,7 @@ static int textureview_init(struct ngl_node *node)
 const struct node_class ngli_textureview_class = {
     .id        = NGL_NODE_TEXTUREVIEW,
     .name      = "TextureView",
-    .priv_size = sizeof(struct textureview_priv),
+    .opts_size = sizeof(struct textureview_opts),
     .params    = textureview_params,
     .init      = textureview_init,
     .update    = ngli_node_update_children,

@@ -36,14 +36,13 @@ struct scale_opts {
 
 struct scale_priv {
     struct transform trf;
-    struct scale_opts opts;
     int use_anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *f)
 {
     struct scale_priv *s = node->priv_data;
-    const struct scale_opts *o = &s->opts;
+    const struct scale_opts *o = node->opts;
     struct transform *trf = &s->trf;
     float *matrix = trf->matrix;
 
@@ -62,7 +61,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *f)
 static int scale_init(struct ngl_node *node)
 {
     struct scale_priv *s = node->priv_data;
-    const struct scale_opts *o = &s->opts;
+    const struct scale_opts *o = node->opts;
     static const float zero_anchor[3];
     s->use_anchor = memcmp(o->anchor, zero_anchor, sizeof(o->anchor));
     if (!o->factors_node)
@@ -73,16 +72,14 @@ static int scale_init(struct ngl_node *node)
 
 static int update_factors(struct ngl_node *node)
 {
-    struct scale_priv *s = node->priv_data;
-    const struct scale_opts *o = &s->opts;
+    const struct scale_opts *o = node->opts;
     update_trf_matrix(node, o->factors);
     return 0;
 }
 
 static int scale_update(struct ngl_node *node, double t)
 {
-    struct scale_priv *s = node->priv_data;
-    const struct scale_opts *o = &s->opts;
+    const struct scale_opts *o = node->opts;
     if (o->factors_node) {
         int ret = ngli_node_update(o->factors_node, t);
         if (ret < 0)
@@ -93,7 +90,7 @@ static int scale_update(struct ngl_node *node, double t)
     return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct scale_priv, opts.x)
+#define OFFSET(x) offsetof(struct scale_opts, x)
 static const struct node_param scale_params[] = {
     {"child",   NGLI_PARAM_TYPE_NODE, OFFSET(child),
                 .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -116,6 +113,7 @@ const struct node_class ngli_scale_class = {
     .init      = scale_init,
     .update    = scale_update,
     .draw      = ngli_transform_draw,
+    .opts_size = sizeof(struct scale_opts),
     .priv_size = sizeof(struct scale_priv),
     .params    = scale_params,
     .file      = __FILE__,

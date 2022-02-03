@@ -67,14 +67,18 @@ static struct ngl_node *node_create(const struct node_class *cls)
 {
     struct ngl_node *node;
     const size_t node_size = NGLI_ALIGN(sizeof(*node), NGLI_ALIGN_VAL);
+    const size_t opts_size = NGLI_ALIGN(cls->opts_size, NGLI_ALIGN_VAL);
+    const size_t priv_size = NGLI_ALIGN(cls->priv_size, NGLI_ALIGN_VAL);
 
-    node = aligned_allocz(node_size + cls->priv_size);
+    node = aligned_allocz(node_size + opts_size + priv_size);
     if (!node)
         return NULL;
-    node->priv_data = ((uint8_t *)node) + node_size;
+    node->opts = ((uint8_t *)node) + node_size;
+    node->priv_data = ((uint8_t *)node->opts) + opts_size;
 
-    /* Make sure the node and its private data are properly aligned */
+    /* Make sure the node, opts, and its private data are properly aligned */
     ngli_assert((((uintptr_t)node)            & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node);
+    ngli_assert((((uintptr_t)node->opts)      & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node->opts);
     ngli_assert((((uintptr_t)node->priv_data) & ~(NGLI_ALIGN_VAL - 1)) == (uintptr_t)node->priv_data);
 
     node->cls = cls;
@@ -139,7 +143,7 @@ struct ngl_node *ngl_node_create(int type)
         return NULL;
 
     if (ngli_params_set_defaults((uint8_t *)node, ngli_base_node_params) < 0 ||
-        ngli_params_set_defaults(node->priv_data, node->cls->params) < 0) {
+        ngli_params_set_defaults(node->opts, node->cls->params) < 0) {
         ngl_node_unrefp(&node);
         return NULL;
     }
@@ -169,30 +173,6 @@ static void node_release(struct ngl_node *node)
     node->last_update_time = -1.;
 }
 
-/*
- * Reset every field of the private data which is not a parameter. This allows
- * the init() to always be called in a clean state.
- */
-static void reset_non_params(struct ngl_node *node)
-{
-    size_t cur_offset = 0;
-    const struct node_param *par = node->cls->params;
-    uint8_t *base_ptr = node->priv_data;
-
-    if (par) {
-        while (par->key) {
-            size_t offset = par->offset;
-            if (offset != cur_offset)
-                memset(base_ptr + cur_offset, 0, offset - cur_offset);
-            cur_offset = offset + ngli_params_specs[par->type].size;
-            if (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)
-                cur_offset += sizeof(struct ngl_node *);
-            par++;
-        }
-    }
-    memset(base_ptr + cur_offset, 0, node->cls->priv_size - cur_offset);
-}
-
 static void node_uninit(struct ngl_node *node)
 {
     if (node->state == STATE_UNINITIALIZED)
@@ -207,14 +187,14 @@ static void node_uninit(struct ngl_node *node)
         LOG(VERBOSE, "UNINIT %s @ %p", node->label, node);
         node->cls->uninit(node);
     }
-    reset_non_params(node);
+    memset(node->priv_data, 0, node->cls->priv_size);
     node->state = STATE_UNINITIALIZED;
     node->visit_time = -1.;
 }
 
 static int track_children(struct ngl_node *node)
 {
-    uint8_t *base_ptr = node->priv_data;
+    uint8_t *base_ptr = node->opts;
     const struct node_param *par = node->cls->params;
 
     if (!par)
@@ -279,7 +259,7 @@ static int track_children(struct ngl_node *node)
 
 static int check_params_sanity(struct ngl_node *node)
 {
-    const uint8_t *base_ptr = node->priv_data;
+    const uint8_t *base_ptr = node->opts;
     const struct node_param *par = node->cls->params;
 
     if (!par)
@@ -338,7 +318,7 @@ static int node_init(struct ngl_node *node)
 
 static const struct livectl *get_internal_livectl(const struct ngl_node *node)
 {
-    const uint8_t *base_ptr = node->priv_data;
+    const uint8_t *base_ptr = node->opts;
     const struct livectl *ctl = (struct livectl *)(base_ptr + node->cls->livectl_offset);
     return ctl;
 }
@@ -366,7 +346,7 @@ static int find_livectls(const struct ngl_node *node, struct hmap *hm)
     if (!par)
         return 0;
     while (par->key) {
-        const uint8_t *parp = (const uint8_t*)node->priv_data + par->offset;
+        const uint8_t *parp = (const uint8_t*)node->opts + par->offset;
 
         if (par->type == NGLI_PARAM_TYPE_NODE || (par->flags & NGLI_PARAM_FLAG_ALLOW_NODE)) {
             const struct ngl_node *child = *(struct ngl_node **)parp;
@@ -568,7 +548,7 @@ static int node_set_ctx(struct ngl_node *node, struct ngl_ctx *ctx, struct ngl_c
         ngli_assert(node->ctx_refcount >= 0);
     }
 
-    if ((ret = node_set_children_ctx(node->priv_data, node->cls->params, ctx, pctx)) < 0 ||
+    if ((ret = node_set_children_ctx(node->opts, node->cls->params, ctx, pctx)) < 0 ||
         (ret = node_set_children_ctx((uint8_t *)node, ngli_base_node_params, ctx, pctx)) < 0)
         return ret;
 
@@ -786,7 +766,7 @@ const struct node_param *ngli_node_param_find(const struct ngl_node *node, const
 
     if (!par) {
         par = ngli_params_find(node->cls->params, key);
-        *base_ptrp = (uint8_t *)node->priv_data;
+        *base_ptrp = (uint8_t *)node->opts;
     }
     if (!par)
         LOG(ERROR, "parameter %s not found in %s", key, node->cls->name);
@@ -1030,7 +1010,7 @@ void ngl_node_unrefp(struct ngl_node **nodep)
         LOG(VERBOSE, "DELETE %s @ %p", node->label, node);
         ngli_assert(!node->ctx);
         ngli_params_free((uint8_t *)node, ngli_base_node_params);
-        ngli_params_free(node->priv_data, node->cls->params);
+        ngli_params_free(node->opts, node->cls->params);
         ngli_free_aligned(node);
     }
     *nodep = NULL;

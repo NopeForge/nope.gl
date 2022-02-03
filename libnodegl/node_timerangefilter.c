@@ -37,7 +37,6 @@ struct timerangefilter_opts {
 };
 
 struct timerangefilter_priv {
-    struct timerangefilter_opts opts;
     int current_range;
     int drawme;
 };
@@ -47,7 +46,7 @@ struct timerangefilter_priv {
                                         NGL_NODE_TIMERANGEMODECONT,     \
                                         -1}
 
-#define OFFSET(x) offsetof(struct timerangefilter_priv, opts.x)
+#define OFFSET(x) offsetof(struct timerangefilter_opts, x)
 static const struct node_param timerangefilter_params[] = {
     {"child", NGLI_PARAM_TYPE_NODE, OFFSET(child), .flags=NGLI_PARAM_FLAG_NON_NULL,
               .desc=NGLI_DOCSTRING("time filtered scene")},
@@ -64,13 +63,11 @@ static const struct node_param timerangefilter_params[] = {
 
 static int timerangefilter_init(struct ngl_node *node)
 {
-    struct timerangefilter_priv *s = node->priv_data;
-    const struct timerangefilter_opts *o = &s->opts;
+    const struct timerangefilter_opts *o = node->opts;
 
     double prev_start_time = -DBL_MAX;
     for (int i = 0; i < o->nb_ranges; i++) {
-        const struct timerangemode_priv *trm_p = o->ranges[i]->priv_data;
-        const struct timerangemode_opts *trm = &trm_p->opts;
+        const struct timerangemode_opts *trm = o->ranges[i]->opts;
 
         if (trm->start_time < prev_start_time) {
             LOG(ERROR, "time ranges must be monotonically increasing: %g < %g",
@@ -98,8 +95,7 @@ static int get_rr_id(const struct timerangefilter_opts *o, int start, double t)
     int ret = -1;
 
     for (int i = start; i < o->nb_ranges; i++) {
-        const struct timerangemode_priv *rr_p = o->ranges[i]->priv_data;
-        const struct timerangemode_opts *rr = &rr_p->opts;
+        const struct timerangemode_opts *rr = o->ranges[i]->opts;
         if (rr->start_time > t)
             break;
         ret = i;
@@ -107,10 +103,8 @@ static int get_rr_id(const struct timerangefilter_opts *o, int start, double t)
     return ret;
 }
 
-static int update_rr_state(struct timerangefilter_priv *s, double t)
+static int update_rr_state(struct timerangefilter_priv *s, const struct timerangefilter_opts *o, double t)
 {
-    const struct timerangefilter_opts *o = &s->opts;
-
     if (!o->nb_ranges)
         return NGL_ERROR_INVALID_ARG;
 
@@ -142,7 +136,7 @@ static int update_rr_state(struct timerangefilter_priv *s, double t)
 static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
 {
     struct timerangefilter_priv *s = node->priv_data;
-    const struct timerangefilter_opts *o = &s->opts;
+    const struct timerangefilter_opts *o = node->opts;
     struct ngl_node *child = o->child;
 
     /*
@@ -151,7 +145,7 @@ static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
      * children from a dead parent can be revealed by another living branch.
      */
     if (is_active) {
-        const int rr_id = update_rr_state(s, t);
+        const int rr_id = update_rr_state(s, o, t);
 
         if (rr_id >= 0) {
             struct ngl_node *rr = o->ranges[rr_id];
@@ -164,8 +158,7 @@ static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
                 if (rr_id < o->nb_ranges - 1) {
                     // We assume here the next range requires the node started
                     // as the current one doesn't.
-                    const struct timerangemode_priv *next_p = o->ranges[rr_id + 1]->priv_data;
-                    const struct timerangemode_opts *next = &next_p->opts;
+                    const struct timerangemode_opts *next = o->ranges[rr_id + 1]->opts;
                     const double next_use_in = next->start_time - t;
 
                     if (next_use_in <= o->prefetch_time) {
@@ -205,11 +198,11 @@ static int timerangefilter_visit(struct ngl_node *node, int is_active, double t)
 static int timerangefilter_update(struct ngl_node *node, double t)
 {
     struct timerangefilter_priv *s = node->priv_data;
-    const struct timerangefilter_opts *o = &s->opts;
+    const struct timerangefilter_opts *o = node->opts;
 
     s->drawme = 0;
 
-    const int rr_id = update_rr_state(s, t);
+    const int rr_id = update_rr_state(s, o, t);
     if (rr_id >= 0) {
         struct ngl_node *rr = o->ranges[rr_id];
 
@@ -220,7 +213,7 @@ static int timerangefilter_update(struct ngl_node *node, double t)
             struct timerangemode_priv *rro = rr->priv_data;
             if (rro->updated)
                 return 0;
-            struct timerangemode_opts *rro_opts = &rro->opts;
+            const struct timerangemode_opts *rro_opts = rr->opts;
             t = rro_opts->render_time;
             rro->updated = 1;
         }
@@ -234,7 +227,7 @@ static int timerangefilter_update(struct ngl_node *node, double t)
 static void timerangefilter_draw(struct ngl_node *node)
 {
     struct timerangefilter_priv *s = node->priv_data;
-    const struct timerangefilter_opts *o = &s->opts;
+    const struct timerangefilter_opts *o = node->opts;
 
     if (!s->drawme) {
         TRACE("%s @ %p not marked for drawing, skip it", node->label, node);
@@ -251,6 +244,7 @@ const struct node_class ngli_timerangefilter_class = {
     .visit     = timerangefilter_visit,
     .update    = timerangefilter_update,
     .draw      = timerangefilter_draw,
+    .opts_size = sizeof(struct timerangefilter_opts),
     .priv_size = sizeof(struct timerangefilter_priv),
     .params    = timerangefilter_params,
     .file      = __FILE__,

@@ -24,7 +24,7 @@
 #include "internal.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct timerangemode_priv, opts.x)
+#define OFFSET(x) offsetof(struct timerangemode_opts, x)
 static const struct node_param continuous_params[] = {
     {"start_time", NGLI_PARAM_TYPE_F64, OFFSET(start_time),
                    .desc=NGLI_DOCSTRING("starting time for the scene to be drawn")},
@@ -47,22 +47,19 @@ static const struct node_param once_params[] = {
 
 static char *timerangemode_info_str_continous(const struct ngl_node *node)
 {
-    const struct timerangemode_priv *s = node->priv_data;
-    const struct timerangemode_opts *o = &s->opts;
+    const struct timerangemode_opts *o = node->opts;
     return ngli_asprintf("cont at %g", o->start_time);
 }
 
 static char *timerangemode_info_str_norender(const struct ngl_node *node)
 {
-    const struct timerangemode_priv *s = node->priv_data;
-    const struct timerangemode_opts *o = &s->opts;
+    const struct timerangemode_opts *o = node->opts;
     return ngli_asprintf("noop at %g", o->start_time);
 }
 
 static char *timerangemode_info_str_once(const struct ngl_node *node)
 {
-    const struct timerangemode_priv *s = node->priv_data;
-    const struct timerangemode_opts *o = &s->opts;
+    const struct timerangemode_opts *o = node->opts;
     return ngli_asprintf("once at %g (with t=%g)", o->start_time, o->render_time);
 }
 
@@ -70,6 +67,7 @@ const struct node_class ngli_timerangemodecont_class = {
     .id        = NGL_NODE_TIMERANGEMODECONT,
     .name      = "TimeRangeModeCont",
     .info_str  = timerangemode_info_str_continous,
+    .opts_size = sizeof(struct timerangemode_opts),
     .priv_size = sizeof(struct timerangemode_priv),
     .params    = continuous_params,
     .file      = __FILE__,
@@ -79,6 +77,7 @@ const struct node_class ngli_timerangemodenoop_class = {
     .id        = NGL_NODE_TIMERANGEMODENOOP,
     .name      = "TimeRangeModeNoop",
     .info_str  = timerangemode_info_str_norender,
+    .opts_size = sizeof(struct timerangemode_opts),
     .priv_size = sizeof(struct timerangemode_priv),
     .params    = norender_params,
     .file      = __FILE__,
@@ -88,6 +87,7 @@ const struct node_class ngli_timerangemodeonce_class = {
     .id        = NGL_NODE_TIMERANGEMODEONCE,
     .info_str  = timerangemode_info_str_once,
     .name      = "TimeRangeModeOnce",
+    .opts_size = sizeof(struct timerangemode_opts),
     .priv_size = sizeof(struct timerangemode_priv),
     .params    = once_params,
     .file      = __FILE__,

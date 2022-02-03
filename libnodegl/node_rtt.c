@@ -47,7 +47,6 @@ struct rtt_opts {
 };
 
 struct rtt_priv {
-    struct rtt_opts opts;
     struct renderpass_info renderpass_info;
     int width;
     int height;
@@ -74,7 +73,7 @@ static const struct param_choices feature_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct rtt_priv, opts.x)
+#define OFFSET(x) offsetof(struct rtt_opts, x)
 static const struct node_param rtt_params[] = {
     {"child",         NGLI_PARAM_TYPE_NODE, OFFSET(child),
                       .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -106,10 +105,9 @@ struct rtt_texture_info {
 static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
 {
     if (node->cls->id == NGL_NODE_TEXTUREVIEW) {
-        struct textureview_priv *textureview_priv = node->priv_data;
-        const struct textureview_opts *textureview_opts = &textureview_priv->opts;
+        const struct textureview_opts *textureview_opts = node->opts;
         struct texture_priv *texture_priv = textureview_opts->texture->priv_data;
-        const struct texture_opts *texture_opts = &texture_priv->opts;
+        const struct texture_opts *texture_opts = textureview_opts->texture->opts;
         const struct rtt_texture_info info = {
             .texture_priv = texture_priv,
             .texture_opts = texture_opts,
@@ -119,7 +117,7 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
         return info;
     } else {
         struct texture_priv *texture_priv = node->priv_data;
-        const struct texture_opts *texture_opts = &texture_priv->opts;
+        const struct texture_opts *texture_opts = node->opts;
         const struct rtt_texture_info info = {
             .texture_priv = texture_priv,
             .texture_opts = texture_opts,
@@ -132,13 +130,11 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
 
 static int rtt_init(struct ngl_node *node)
 {
-    struct rtt_priv *s = node->priv_data;
-    const struct rtt_opts *o = &s->opts;
+    const struct rtt_opts *o = node->opts;
 
     for (int i = 0; i < o->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->color_textures[i]);
-        const struct texture_priv *texture_priv = info.texture_priv;
-        const struct texture_opts *texture_opts = &texture_priv->opts;
+        const struct texture_opts *texture_opts = info.texture_opts;
         if (texture_opts->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
@@ -147,8 +143,7 @@ static int rtt_init(struct ngl_node *node)
 
     if (o->depth_texture) {
         const struct rtt_texture_info info = get_rtt_texture_info(o->depth_texture);
-        const struct texture_priv *texture_priv = info.texture_priv;
-        const struct texture_opts *texture_opts = &texture_priv->opts;
+        const struct texture_opts *texture_opts = info.texture_opts;
         if (texture_opts->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
@@ -190,7 +185,7 @@ static int rtt_prepare(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rnode *rnode = ctx->rnode_pos;
     struct rtt_priv *s = node->priv_data;
-    const struct rtt_opts *o = &s->opts;
+    const struct rtt_opts *o = node->opts;
 
     get_renderpass_info(o->child, RENDER_PASS_STATE_NONE, &s->renderpass_info);
 #if DEBUG_SCENE
@@ -245,7 +240,7 @@ static int rtt_prefetch(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rtt_priv *s = node->priv_data;
     const int nb_interruptions = s->renderpass_info.nb_interruptions;
-    struct rtt_opts *o = &s->opts;
+    struct rtt_opts *o = node->opts;
 
     if (!(gpu_ctx->features & NGLI_FEATURE_COLOR_RESOLVE) && o->samples > 0) {
         LOG(WARNING, "context does not support resolving color attachments, "
@@ -477,7 +472,7 @@ static void rtt_draw(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rtt_priv *s = node->priv_data;
-    const struct rtt_opts *o = &s->opts;
+    const struct rtt_opts *o = node->opts;
 
     int prev_vp[4] = {0};
     ngli_gpu_ctx_get_viewport(gpu_ctx, prev_vp);
@@ -556,6 +551,7 @@ const struct node_class ngli_rtt_class = {
     .update    = ngli_node_update_children,
     .draw      = rtt_draw,
     .release   = rtt_release,
+    .opts_size = sizeof(struct rtt_opts),
     .priv_size = sizeof(struct rtt_priv),
     .params    = rtt_params,
     .file      = __FILE__,

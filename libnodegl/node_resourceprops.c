@@ -25,7 +25,7 @@
 #include "internal.h"
 #include "precision.h"
 
-#define OFFSET(x) offsetof(struct resourceprops_priv, opts.x)
+#define OFFSET(x) offsetof(struct resourceprops_opts, x)
 static const struct node_param resourceprops_params[] = {
     {"precision", NGLI_PARAM_TYPE_SELECT, OFFSET(precision), {.i32=NGLI_PRECISION_AUTO},
                   .choices=&ngli_precision_choices,
@@ -47,8 +47,7 @@ static const char * const precisions_map[] = {
 
 static char *resourceprops_info_str(const struct ngl_node *node)
 {
-    const struct resourceprops_priv *s = node->priv_data;
-    const struct resourceprops_opts *o = &s->opts;
+    const struct resourceprops_opts *o = node->opts;
     struct bstr *b = ngli_bstr_create();
 
     if (!b)
@@ -72,7 +71,7 @@ const struct node_class ngli_resourceprops_class = {
     .id        = NGL_NODE_RESOURCEPROPS,
     .name      = "ResourceProps",
     .info_str  = resourceprops_info_str,
-    .priv_size = sizeof(struct resourceprops_priv),
+    .priv_size = sizeof(struct resourceprops_opts),
     .params    = resourceprops_params,
     .file      = __FILE__,
 };

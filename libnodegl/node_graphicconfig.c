@@ -62,7 +62,6 @@ struct graphicconfig_opts {
 };
 
 struct graphicconfig_priv {
-    struct graphicconfig_opts opts;
     struct graphicstate graphicstate;
     int use_scissor;
     int scissor[4];
@@ -155,7 +154,7 @@ static const struct param_choices cull_mode_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct graphicconfig_priv, opts.x)
+#define OFFSET(x) offsetof(struct graphicconfig_opts, x)
 static const struct node_param graphicconfig_params[] = {
     {"child",              NGLI_PARAM_TYPE_NODE,   OFFSET(child),              .flags=NGLI_PARAM_FLAG_NON_NULL,
                            .desc=NGLI_DOCSTRING("scene to which the graphic configuration will be applied")},
@@ -222,7 +221,7 @@ static const struct node_param graphicconfig_params[] = {
 static int graphicconfig_init(struct ngl_node *node)
 {
     struct graphicconfig_priv *s = node->priv_data;
-    const struct graphicconfig_opts *o = &s->opts;
+    const struct graphicconfig_opts *o = node->opts;
 
     if (o->stencil_write_mask != -1 &&
         (o->stencil_write_mask < 0 || o->stencil_write_mask > 0xff)) {
@@ -258,7 +257,7 @@ static void honor_config(struct ngl_node *node)
     struct rnode *rnode = ctx->rnode_pos;
     struct graphicconfig_priv *s = node->priv_data;
     struct graphicstate *pending = &rnode->graphicstate;
-    const struct graphicconfig_opts *o = &s->opts;
+    const struct graphicconfig_opts *o = node->opts;
 
     s->graphicstate = *pending;
 
@@ -293,8 +292,7 @@ static void honor_config(struct ngl_node *node)
 
 static int graphicconfig_prepare(struct ngl_node *node)
 {
-    struct graphicconfig_priv *s = node->priv_data;
-    const struct graphicconfig_opts *o = &s->opts;
+    const struct graphicconfig_opts *o = node->opts;
 
     honor_config(node);
     return ngli_node_prepare(o->child);
@@ -305,7 +303,7 @@ static void graphicconfig_draw(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct graphicconfig_priv *s = node->priv_data;
-    const struct graphicconfig_opts *o = &s->opts;
+    const struct graphicconfig_opts *o = node->opts;
 
     int prev_scissor[4];
     if (s->use_scissor) {
@@ -326,6 +324,7 @@ const struct node_class ngli_graphicconfig_class = {
     .prepare   = graphicconfig_prepare,
     .update    = ngli_node_update_children,
     .draw      = graphicconfig_draw,
+    .opts_size = sizeof(struct graphicconfig_opts),
     .priv_size = sizeof(struct graphicconfig_priv),
     .params    = graphicconfig_params,
     .file      = __FILE__,

@@ -468,7 +468,7 @@ static int serialize(struct hmap *nlist,
     int ret;
 
     if ((ret = serialize_children(nlist, b, node, (uint8_t *)node, ngli_base_node_params)) < 0 ||
-        (ret = serialize_children(nlist, b, node, node->priv_data, node->cls->params)) < 0)
+        (ret = serialize_children(nlist, b, node, node->opts, node->cls->params)) < 0)
         return ret;
 
     const uint32_t tag = node->cls->id;
@@ -477,7 +477,7 @@ static int serialize(struct hmap *nlist,
                     tag >> 16 & 0xff,
                     tag >>  8 & 0xff,
                     tag       & 0xff);
-    if ((ret = serialize_options(nlist, b, node, node->priv_data, node->cls->params)) < 0 ||
+    if ((ret = serialize_options(nlist, b, node, node->opts, node->cls->params)) < 0 ||
         (ret = serialize_options(nlist, b, node, (uint8_t *)node, ngli_base_node_params)) < 0)
         return ret;
 

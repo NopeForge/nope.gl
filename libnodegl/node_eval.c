@@ -36,7 +36,6 @@ struct eval_opts {
 
 struct eval_priv {
     struct variable_priv var;
-    struct eval_opts opts;
     int nb_expr;
     struct hmap *vars;
     struct eval *eval[4];
@@ -51,7 +50,7 @@ struct eval_priv {
                                           NGL_NODE_VELOCITYFLOAT,   \
                                           -1}
 
-#define OFFSET(x) offsetof(struct eval_priv, opts.x)
+#define OFFSET(x) offsetof(struct eval_opts, x)
 
 static const struct node_param eval_float_params[] = {
     {"expr0",     NGLI_PARAM_TYPE_STR, OFFSET(expr[0]), {.str="0"},
@@ -110,7 +109,7 @@ NGLI_STATIC_ASSERT(variable_priv_is_first, offsetof(struct eval_priv, var) == 0)
 static int eval_init(struct ngl_node *node)
 {
     struct eval_priv *s = node->priv_data;
-    const struct eval_opts *o = &s->opts;
+    const struct eval_opts *o = node->opts;
 
     s->vars = ngli_hmap_create();
     if (!s->vars)
@@ -145,7 +144,7 @@ static int eval_init(struct ngl_node *node)
 static int eval_update(struct ngl_node *node, double t)
 {
     struct eval_priv *s = node->priv_data;
-    const struct eval_opts *o = &s->opts;
+    const struct eval_opts *o = node->opts;
 
     if (o->resources) {
         struct hmap_entry *entry = NULL;
@@ -197,6 +196,7 @@ const struct node_class ngli_eval##type##_class = {                 \
     .init      = eval##type##_init,                                 \
     .update    = eval_update,                                       \
     .uninit    = eval_uninit,                                       \
+    .opts_size = sizeof(struct eval_opts),                          \
     .priv_size = sizeof(struct eval_priv),                          \
     .params    = eval_##type##_params,                              \
     .file      = __FILE__,                                          \

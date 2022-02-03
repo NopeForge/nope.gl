@@ -27,7 +27,7 @@
 #include "nodegl.h"
 #include "internal.h"
 
-#define OFFSET(x) offsetof(struct program_priv, opts.x)
+#define OFFSET(x) offsetof(struct program_opts, x)
 static const struct node_param computeprogram_params[] = {
     {"compute", NGLI_PARAM_TYPE_STR, OFFSET(compute), .flags=NGLI_PARAM_FLAG_NON_NULL,
                 .desc=NGLI_DOCSTRING("compute shader")},
@@ -42,8 +42,7 @@ static const struct node_param computeprogram_params[] = {
 
 static int computeprogram_init(struct ngl_node *node)
 {
-    struct program_priv *s = node->priv_data;
-    const struct program_opts *o = &s->opts;
+    const struct program_opts *o = node->opts;
     struct ngl_ctx *ctx = node->ctx;
 
     if (o->workgroup_size[0] <= 0 || o->workgroup_size[1] <= 0 || o->workgroup_size[2] <= 0) {
@@ -78,6 +77,7 @@ static int computeprogram_init(struct ngl_node *node)
 const struct node_class ngli_computeprogram_class = {
     .id        = NGL_NODE_COMPUTEPROGRAM,
     .name      = "ComputeProgram",
+    .opts_size = sizeof(struct program_opts),
     .priv_size = sizeof(struct program_priv),
     .params    = computeprogram_params,
     .init      = computeprogram_init,

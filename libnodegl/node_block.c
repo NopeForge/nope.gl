@@ -104,7 +104,7 @@ static const struct param_choices layout_choices = {
                                        NGL_NODE_TIME,                   \
                                        -1}
 
-#define OFFSET(x) offsetof(struct block_priv, opts.x)
+#define OFFSET(x) offsetof(struct block_opts, x)
 static const struct node_param block_params[] = {
     {"fields", NGLI_PARAM_TYPE_NODELIST, OFFSET(fields),
                .node_types=FIELD_TYPES_LIST,
@@ -238,9 +238,10 @@ static const struct {
     [IS_ARRAY]  = {has_changed_buffer,  update_buffer_field},
 };
 
-static void update_block_data(struct block_priv *s, int forced)
+static void update_block_data(struct ngl_node *node, int forced)
 {
-    const struct block_opts *o = &s->opts;
+    struct block_priv *s = node->priv_data;
+    const struct block_opts *o = node->opts;
     const struct block_field *field_info = ngli_darray_data(&s->block.fields);
     for (int i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
@@ -292,7 +293,7 @@ static int block_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct block_priv *s = node->priv_data;
-    const struct block_opts *o = &s->opts;
+    const struct block_opts *o = node->opts;
 
     if (o->layout == NGLI_BLOCK_LAYOUT_STD140 && !(gpu_ctx->features & FEATURES_STD140)) {
         LOG(ERROR, "std140 blocks are not supported by this context");
@@ -341,7 +342,7 @@ static int block_init(struct ngl_node *node)
     if (!s->data)
         return NGL_ERROR_MEMORY;
 
-    update_block_data(s, 1);
+    update_block_data(node, 1);
     return 0;
 }
 
@@ -363,7 +364,7 @@ static int block_update(struct ngl_node *node, double t)
     if (ret < 0)
         return ret;
 
-    update_block_data(s, s->force_update);
+    update_block_data(node, s->force_update);
     s->force_update = 0;
 
     return 0;
@@ -385,6 +386,7 @@ const struct node_class ngli_block_class = {
     .invalidate = block_invalidate,
     .update    = block_update,
     .uninit    = block_uninit,
+    .opts_size = sizeof(struct block_opts),
     .priv_size = sizeof(struct block_priv),
     .params    = block_params,
     .file      = __FILE__,

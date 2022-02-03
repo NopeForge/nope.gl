@@ -64,7 +64,7 @@ static const struct param_choices sxplayer_hwaccel_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct media_priv, opts.x)
+#define OFFSET(x) offsetof(struct media_opts, x)
 static const struct node_param media_params[] = {
     {"filename", NGLI_PARAM_TYPE_STR, OFFSET(filename), {.str=NULL}, NGLI_PARAM_FLAG_NON_NULL,
                  .desc=NGLI_DOCSTRING("path to input media file")},
@@ -110,8 +110,7 @@ static void callback_sxplayer_log(void *arg, int level, const char *filename, in
     if (level < 0 || level >= NGLI_ARRAY_NB(log_levels))
         return;
 
-    struct media_priv *s = arg;
-    const struct media_opts *o = &s->opts;
+    const struct media_opts *o = arg;
     if (level < o->sxplayer_min_level)
         return;
 
@@ -136,30 +135,27 @@ static const char *get_default_vt_pix_fmts(int backend)
 static int media_init(struct ngl_node *node)
 {
     struct media_priv *s = node->priv_data;
-    const struct media_opts *o = &s->opts;
+    const struct media_opts *o = node->opts;
 
     s->player = sxplayer_create(o->filename);
     if (!s->player)
         return NGL_ERROR_MEMORY;
 
-    sxplayer_set_log_callback(s->player, s, callback_sxplayer_log);
+    sxplayer_set_log_callback(s->player, node->opts, callback_sxplayer_log);
 
     struct ngl_node *anim_node = o->anim;
     if (anim_node) {
-        struct variable_priv *anim_p = anim_node->priv_data;
-        const struct variable_opts *anim = &anim_p->opts;
+        const struct variable_opts *anim = anim_node->opts;
 
         // Set the media time boundaries using the time remapping animation
         if (anim->nb_animkf) {
-            const struct animkeyframe_priv *kf0_p = anim->animkf[0]->priv_data;
-            const struct animkeyframe_opts *kf0 = &kf0_p->opts;
+            const struct animkeyframe_opts *kf0 = anim->animkf[0]->opts;
             const double initial_seek = kf0->scalar;
 
             sxplayer_set_option(s->player, "skip", initial_seek);
 
             if (anim->nb_animkf > 1) {
-                const struct animkeyframe_priv *kfn_p = anim->animkf[anim->nb_animkf - 1]->priv_data;
-                const struct animkeyframe_opts *kfn = &kfn_p->opts;
+                const struct animkeyframe_opts *kfn = anim->animkf[anim->nb_animkf - 1]->opts;
                 const double last_time = kfn->scalar;
                 sxplayer_set_option(s->player, "trim_duration", last_time - initial_seek);
             }
@@ -262,15 +258,14 @@ static const char * const pix_fmt_names[] = {
 static int media_update(struct ngl_node *node, double t)
 {
     struct media_priv *s = node->priv_data;
-    const struct media_opts *o = &s->opts;
+    const struct media_opts *o = node->opts;
     struct ngl_node *anim_node = o->anim;
     double media_time = t;
 
     if (anim_node) {
         struct variable_priv *anim = anim_node->priv_data;
-        const struct variable_opts *anim_o = &anim->opts;
-        const struct animkeyframe_priv *kf0_p = anim_o->animkf[0]->priv_data;
-        const struct animkeyframe_opts *kf0 = &kf0_p->opts;
+        const struct variable_opts *anim_o = anim_node->opts;
+        const struct animkeyframe_opts *kf0 = anim_o->animkf[0]->opts;
         const double initial_seek = kf0->scalar;
         int ret = ngli_node_update(anim_node, t);
         if (ret < 0)
@@ -339,6 +334,7 @@ const struct node_class ngli_media_class = {
     .update    = media_update,
     .release   = media_release,
     .uninit    = media_uninit,
+    .opts_size = sizeof(struct media_opts),
     .priv_size = sizeof(struct media_priv),
     .params    = media_params,
     .file      = __FILE__,

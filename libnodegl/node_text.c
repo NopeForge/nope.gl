@@ -76,7 +76,6 @@ struct text_opts {
 };
 
 struct text_priv {
-    struct text_opts opts;
     struct buffer *vertices;
     struct buffer *uvcoords;
     struct buffer *indices;
@@ -123,7 +122,7 @@ static int set_live_changed(struct ngl_node *node)
     return 0;
 }
 
-#define OFFSET(x) offsetof(struct text_priv, opts.x)
+#define OFFSET(x) offsetof(struct text_opts, x)
 static const struct node_param text_params[] = {
     {"text",         NGLI_PARAM_TYPE_STR, OFFSET(live.val.s), {.str=""},
                      .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_NON_NULL,
@@ -229,7 +228,7 @@ static int update_character_geometries(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct text_priv *s = node->priv_data;
-    struct text_opts *o = &s->opts;
+    struct text_opts *o = node->opts;
 
     int ret = 0;
     const char *str = o->live.val.s;
@@ -400,7 +399,7 @@ static int init_bounding_box_geometry(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct text_priv *s = node->priv_data;
-    const struct text_opts *o = &s->opts;
+    const struct text_opts *o = node->opts;
 
     const float vertices[] = {
         BC(0),                 BC(1),                 BC(2),
@@ -536,7 +535,7 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     struct ngl_ctx *ctx = node->ctx;
     struct rnode *rnode = ctx->rnode_pos;
     struct text_priv *s = node->priv_data;
-    const struct text_opts *o = &s->opts;
+    const struct text_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
         {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
@@ -589,7 +588,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     struct ngl_ctx *ctx = node->ctx;
     struct rnode *rnode = ctx->rnode_pos;
     struct text_priv *s = node->priv_data;
-    const struct text_opts *o = &s->opts;
+    const struct text_opts *o = node->opts;
 
     const struct pgcraft_uniform uniforms[] = {
         {.name = "modelview_matrix",  .type = NGLI_TYPE_MAT4, .stage = NGLI_PROGRAM_SHADER_VERT, .data = NULL},
@@ -704,7 +703,7 @@ static void text_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct text_priv *s = node->priv_data;
-    const struct text_opts *o = &s->opts;
+    const struct text_opts *o = node->opts;
 
     const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
@@ -763,6 +762,7 @@ const struct node_class ngli_text_class = {
     .update         = text_update,
     .draw           = text_draw,
     .uninit         = text_uninit,
+    .opts_size      = sizeof(struct text_opts),
     .priv_size      = sizeof(struct text_priv),
     .params         = text_params,
     .flags          = NGLI_NODE_FLAG_LIVECTL,

@@ -39,7 +39,6 @@ struct skew_opts {
 
 struct skew_priv {
     struct transform trf;
-    struct skew_opts opts;
     float normed_axis[3];
     int use_anchor;
 };
@@ -47,7 +46,7 @@ struct skew_priv {
 static void update_trf_matrix(struct ngl_node *node, const float *angles)
 {
     struct skew_priv *s = node->priv_data;
-    const struct skew_opts *o = &s->opts;
+    const struct skew_opts *o = node->opts;
     struct transform *trf = &s->trf;
     float *matrix = trf->matrix;
 
@@ -70,7 +69,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *angles)
 static int skew_init(struct ngl_node *node)
 {
     struct skew_priv *s = node->priv_data;
-    const struct skew_opts *o = &s->opts;
+    const struct skew_opts *o = node->opts;
     static const float zvec[3];
     if (!memcmp(o->axis, zvec, sizeof(o->axis))) {
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
@@ -86,16 +85,14 @@ static int skew_init(struct ngl_node *node)
 
 static int update_angles(struct ngl_node *node)
 {
-    struct skew_priv *s = node->priv_data;
-    const struct skew_opts *o = &s->opts;
+    const struct skew_opts *o = node->opts;
     update_trf_matrix(node, o->angles);
     return 0;
 }
 
 static int skew_update(struct ngl_node *node, double t)
 {
-    struct skew_priv *s = node->priv_data;
-    const struct skew_opts *o = &s->opts;
+    const struct skew_opts *o = node->opts;
     if (o->angles_node) {
         int ret = ngli_node_update(o->angles_node, t);
         if (ret < 0)
@@ -106,7 +103,7 @@ static int skew_update(struct ngl_node *node, double t)
     return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct skew_priv, opts.x)
+#define OFFSET(x) offsetof(struct skew_opts, x)
 static const struct node_param skew_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -130,6 +127,7 @@ const struct node_class ngli_skew_class = {
     .init      = skew_init,
     .update    = skew_update,
     .draw      = ngli_transform_draw,
+    .opts_size = sizeof(struct skew_opts),
     .priv_size = sizeof(struct skew_priv),
     .params    = skew_params,
     .file      = __FILE__,

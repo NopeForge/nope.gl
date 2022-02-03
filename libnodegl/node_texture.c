@@ -164,7 +164,7 @@ static const struct param_choices format_choices = {
                                              -1}
 
 
-#define OFFSET(x) offsetof(struct texture_priv, opts.x)
+#define OFFSET(x) offsetof(struct texture_opts, x)
 static const struct node_param texture2d_params[] = {
     {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGLI_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
@@ -250,7 +250,7 @@ static int texture_prefetch(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
-    const struct texture_opts *o = &s->opts;
+    const struct texture_opts *o = node->opts;
     struct texture_params *params = &s->params;
 
     if (params->type == NGLI_TEXTURE_TYPE_CUBE)
@@ -367,7 +367,7 @@ static int texture_prefetch(struct ngl_node *node)
 static int handle_media_frame(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
-    const struct texture_opts *o = &s->opts;
+    const struct texture_opts *o = node->opts;
     struct media_priv *media = o->data_src->priv_data;
     struct sxplayer_frame *frame = media->frame;
     if (!frame)
@@ -392,7 +392,7 @@ static int handle_media_frame(struct ngl_node *node)
 static int handle_buffer_frame(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
-    const struct texture_opts *o = &s->opts;
+    const struct texture_opts *o = node->opts;
     struct buffer_priv *buffer = o->data_src->priv_data;
     const uint8_t *data = buffer->data;
 
@@ -407,8 +407,7 @@ static int handle_buffer_frame(struct ngl_node *node)
 
 static int texture_update(struct ngl_node *node, double t)
 {
-    struct texture_priv *s = node->priv_data;
-    const struct texture_opts *o = &s->opts;
+    const struct texture_opts *o = node->opts;
 
     if (!o->data_src)
         return 0;
@@ -464,7 +463,7 @@ static int texture2d_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
-    const struct texture_opts *o = &s->opts;
+    const struct texture_opts *o = node->opts;
 
     s->params = o->params;
 
@@ -502,7 +501,7 @@ static int texture3d_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
-    const struct texture_opts *o = &s->opts;
+    const struct texture_opts *o = node->opts;
 
     s->params = o->params;
 
@@ -531,7 +530,7 @@ static int texturecube_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
-    const struct texture_opts *o = &s->opts;
+    const struct texture_opts *o = node->opts;
 
     s->params = o->params;
 
@@ -561,6 +560,7 @@ const struct node_class ngli_texture2d_class = {
     .prefetch  = texture_prefetch,
     .update    = texture_update,
     .release   = texture_release,
+    .opts_size = sizeof(struct texture_opts),
     .priv_size = sizeof(struct texture_priv),
     .params    = texture2d_params,
     .file      = __FILE__,
@@ -574,6 +574,7 @@ const struct node_class ngli_texture3d_class = {
     .prefetch  = texture_prefetch,
     .update    = texture_update,
     .release   = texture_release,
+    .opts_size = sizeof(struct texture_opts),
     .priv_size = sizeof(struct texture_priv),
     .params    = texture3d_params,
     .file      = __FILE__,
@@ -587,6 +588,7 @@ const struct node_class ngli_texturecube_class = {
     .prefetch  = texture_prefetch,
     .update    = texture_update,
     .release   = texture_release,
+    .opts_size = sizeof(struct texture_opts),
     .priv_size = sizeof(struct texture_priv),
     .params    = texturecube_params,
     .file      = __FILE__,

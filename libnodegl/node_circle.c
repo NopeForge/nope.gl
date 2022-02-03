@@ -39,10 +39,9 @@ struct circle_opts {
 
 struct circle_priv {
     struct geometry *geom;
-    struct circle_opts opts;
 };
 
-#define OFFSET(x) offsetof(struct circle_priv, opts.x)
+#define OFFSET(x) offsetof(struct circle_opts, x)
 static const struct node_param circle_params[] = {
     {"radius",  NGLI_PARAM_TYPE_F32, OFFSET(radius),  {.f32=1.f},
                 .desc=NGLI_DOCSTRING("circle radius")},
@@ -57,7 +56,7 @@ static int circle_init(struct ngl_node *node)
 {
     int ret = 0;
     struct circle_priv *s = node->priv_data;
-    const struct circle_opts *o = &s->opts;
+    const struct circle_opts *o = node->opts;
 
     if (o->npoints < 3) {
         LOG(ERROR, "invalid number of points (%d < 3)", o->npoints);
@@ -133,6 +132,7 @@ const struct node_class ngli_circle_class = {
     .name      = "Circle",
     .init      = circle_init,
     .uninit    = circle_uninit,
+    .opts_size = sizeof(struct circle_opts),
     .priv_size = sizeof(struct circle_priv),
     .params    = circle_params,
     .file      = __FILE__,

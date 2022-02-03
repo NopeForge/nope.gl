@@ -113,6 +113,8 @@ struct ngl_node {
     const struct node_class *cls;
     struct ngl_ctx *ctx;
 
+    void *opts;
+
     int state;
     int is_active;
 
@@ -171,8 +173,6 @@ struct buffer_opts {
 };
 
 struct buffer_priv {
-    struct buffer_opts opts;
-
     struct buffer_layout layout;
 
     uint8_t *data;          // buffer of <count> elements
@@ -226,7 +226,6 @@ struct variable_opts {
 };
 
 struct variable_priv {
-    struct variable_opts opts;
     struct animation anim;
     struct animation anim_eval;
     float vector[4];
@@ -250,8 +249,6 @@ struct block_opts {
 };
 
 struct block_priv {
-    struct block_opts opts;
-
     struct block block;
     int force_update;
 
@@ -281,7 +278,6 @@ struct program_opts {
 };
 
 struct program_priv {
-    struct program_opts opts;
     struct darray vert_out_vars_array; // pgcraft_iovar
 };
 
@@ -298,7 +294,6 @@ struct texture_opts {
 
 struct texture_priv {
     struct texture_params params;
-    struct texture_opts opts;
     uint32_t supported_image_layouts;
     struct texture *texture;
     struct image image;
@@ -321,8 +316,6 @@ struct media_opts {
 };
 
 struct media_priv {
-    struct media_opts opts;
-
     struct sxplayer_ctx *player;
     struct sxplayer_frame *frame;
     int nb_parents;
@@ -340,7 +333,6 @@ struct timerangemode_opts {
 };
 
 struct timerangemode_priv {
-    struct timerangemode_opts opts;
     int updated;
 };
 
@@ -355,7 +347,6 @@ struct io_opts {
 };
 
 struct io_priv {
-    struct io_opts opts;
     int type;
 };
 
@@ -364,10 +355,6 @@ struct resourceprops_opts {
     int as_image;
     int writable;
     int variadic;
-};
-
-struct resourceprops_priv {
-    struct resourceprops_opts opts;
 };
 
 enum easing_id {
@@ -430,7 +417,6 @@ struct animkeyframe_opts {
 };
 
 struct animkeyframe_priv {
-    struct animkeyframe_opts opts;
     easing_function function;
     easing_function derivative;
     easing_function resolution;
@@ -443,16 +429,8 @@ struct pathkey_move_opts {
     float to[3];
 };
 
-struct pathkey_move_priv {
-    struct pathkey_move_opts opts;
-};
-
 struct pathkey_line_opts {
     float to[3];
-};
-
-struct pathkey_line_priv {
-    struct pathkey_line_opts opts;
 };
 
 struct pathkey_bezier2_opts {
@@ -460,18 +438,10 @@ struct pathkey_bezier2_opts {
     float to[3];
 };
 
-struct pathkey_bezier2_priv {
-    struct pathkey_bezier2_opts opts;
-};
-
 struct pathkey_bezier3_opts {
     float control1[3];
     float control2[3];
     float to[3];
-};
-
-struct pathkey_bezier3_priv {
-    struct pathkey_bezier3_opts opts;
 };
 
 struct textureview_opts {
@@ -665,6 +635,7 @@ struct node_class {
     void (*uninit)(struct ngl_node *node);
 
     char *(*info_str)(const struct ngl_node *node);
+    size_t opts_size;
     size_t priv_size;
     const struct node_param *params;
     const char *params_id;

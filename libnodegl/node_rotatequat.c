@@ -37,14 +37,13 @@ struct rotatequat_opts {
 
 struct rotatequat_priv {
     struct transform trf;
-    struct rotatequat_opts opts;
     int use_anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *quat)
 {
     struct rotatequat_priv *s = node->priv_data;
-    const struct rotatequat_opts *o = &s->opts;
+    const struct rotatequat_opts *o = node->opts;
     struct transform *trf = &s->trf;
     float *matrix = trf->matrix;
 
@@ -63,7 +62,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *quat)
 static int rotatequat_init(struct ngl_node *node)
 {
     struct rotatequat_priv *s = node->priv_data;
-    const struct rotatequat_opts *o = &s->opts;
+    const struct rotatequat_opts *o = node->opts;
     static const float zvec[3];
     s->use_anchor = memcmp(o->anchor, zvec, sizeof(zvec));
     if (!o->quat_node)
@@ -74,16 +73,14 @@ static int rotatequat_init(struct ngl_node *node)
 
 static int update_quat(struct ngl_node *node)
 {
-    struct rotatequat_priv *s = node->priv_data;
-    const struct rotatequat_opts *o = &s->opts;
+    const struct rotatequat_opts *o = node->opts;
     update_trf_matrix(node, o->quat);
     return 0;
 }
 
 static int rotatequat_update(struct ngl_node *node, double t)
 {
-    struct rotatequat_priv *s = node->priv_data;
-    const struct rotatequat_opts *o = &s->opts;
+    const struct rotatequat_opts *o = node->opts;
     if (o->quat_node) {
         int ret = ngli_node_update(o->quat_node, t);
         if (ret < 0)
@@ -94,7 +91,7 @@ static int rotatequat_update(struct ngl_node *node, double t)
     return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct rotatequat_priv, opts.x)
+#define OFFSET(x) offsetof(struct rotatequat_opts, x)
 static const struct node_param rotatequat_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -116,6 +113,7 @@ const struct node_class ngli_rotatequat_class = {
     .init      = rotatequat_init,
     .update    = rotatequat_update,
     .draw      = ngli_transform_draw,
+    .opts_size = sizeof(struct rotatequat_opts),
     .priv_size = sizeof(struct rotatequat_priv),
     .params    = rotatequat_params,
     .file      = __FILE__,

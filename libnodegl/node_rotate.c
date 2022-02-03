@@ -39,7 +39,6 @@ struct rotate_opts {
 
 struct rotate_priv {
     struct transform trf;
-    struct rotate_opts opts;
     float normed_axis[3];
     int use_anchor;
 };
@@ -47,7 +46,7 @@ struct rotate_priv {
 static void update_trf_matrix(struct ngl_node *node, float deg_angle)
 {
     struct rotate_priv *s = node->priv_data;
-    const struct rotate_opts *o = &s->opts;
+    const struct rotate_opts *o = node->opts;
     struct transform *trf = &s->trf;
     float *matrix = trf->matrix;
 
@@ -67,7 +66,7 @@ static void update_trf_matrix(struct ngl_node *node, float deg_angle)
 static int rotate_init(struct ngl_node *node)
 {
     struct rotate_priv *s = node->priv_data;
-    const struct rotate_opts *o = &s->opts;
+    const struct rotate_opts *o = node->opts;
     static const float zvec[3];
     if (!memcmp(o->axis, zvec, sizeof(o->axis))) {
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
@@ -83,16 +82,14 @@ static int rotate_init(struct ngl_node *node)
 
 static int update_angle(struct ngl_node *node)
 {
-    struct rotate_priv *s = node->priv_data;
-    const struct rotate_opts *o = &s->opts;
+    const struct rotate_opts *o = node->opts;
     update_trf_matrix(node, o->angle);
     return 0;
 }
 
 static int rotate_update(struct ngl_node *node, double t)
 {
-    struct rotate_priv *s = node->priv_data;
-    const struct rotate_opts *o = &s->opts;
+    const struct rotate_opts *o = node->opts;
     if (o->angle_node) {
         int ret = ngli_node_update(o->angle_node, t);
         if (ret < 0)
@@ -103,7 +100,7 @@ static int rotate_update(struct ngl_node *node, double t)
     return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct rotate_priv, opts.x)
+#define OFFSET(x) offsetof(struct rotate_opts, x)
 static const struct node_param rotate_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -127,6 +124,7 @@ const struct node_class ngli_rotate_class = {
     .init      = rotate_init,
     .update    = rotate_update,
     .draw      = ngli_transform_draw,
+    .opts_size = sizeof(struct rotate_opts),
     .priv_size = sizeof(struct rotate_priv),
     .params    = rotate_params,
     .file      = __FILE__,

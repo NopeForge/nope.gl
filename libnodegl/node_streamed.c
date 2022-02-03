@@ -29,7 +29,7 @@
 #include "internal.h"
 #include "type.h"
 
-#define OFFSET(x) offsetof(struct variable_priv, opts.x)
+#define OFFSET(x) offsetof(struct variable_opts, x)
 
 #define DECLARE_STREAMED_PARAMS(name, allowed_node)                                                       \
 static const struct node_param streamed##name##_params[] = {                                              \
@@ -63,8 +63,7 @@ DECLARE_STREAMED_PARAMS(mat4,   NGL_NODE_BUFFERMAT4)
 
 static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 {
-    const struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = node->opts;
     const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
@@ -82,7 +81,7 @@ static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 static int streamed_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = node->opts;
     struct ngl_node *time_anim = o->time_anim;
 
     double rt = t;
@@ -119,8 +118,7 @@ static int streamed_update(struct ngl_node *node, double t)
 
 static int check_timestamps_buffer(const struct ngl_node *node)
 {
-    const struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = node->opts;
     const struct buffer_priv *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
@@ -155,8 +153,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
 
 static int streamed_init(struct ngl_node *node)
 {
-    struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = node->opts;
 
     if (!o->timebase[1]) {
         LOG(ERROR, "invalid timebase: %d/%d", o->timebase[0], o->timebase[1]);
@@ -198,6 +195,7 @@ const struct node_class ngli_streamed##class_suffix##_class = {             \
     .name      = class_name,                                                \
     .init      = streamed##class_suffix##_init,                             \
     .update    = streamed_update,                                           \
+    .opts_size = sizeof(struct variable_opts),                              \
     .priv_size = sizeof(struct variable_priv),                              \
     .params    = streamed##class_suffix##_params,                           \
     .file      = __FILE__,                                                  \

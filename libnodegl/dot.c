@@ -115,7 +115,7 @@ static int should_print_par(const uint8_t *srcp, const struct node_param *par)
 static void print_custom_priv_options(struct bstr *b, const struct ngl_node *node)
 {
     const struct node_param *par = node->cls->params;
-    uint8_t *priv = node->priv_data;
+    uint8_t *priv = node->opts;
 
     if (!par)
         return;
@@ -159,7 +159,7 @@ static void print_all_decls(struct bstr *b, const struct ngl_node *node, struct 
         ngli_bstr_print(b, ">,color="INACTIVE_COLOR"]\n");
 
     print_decls(b, node, ngli_base_node_params, (uint8_t *)node, decls);
-    print_decls(b, node, node->cls->params, node->priv_data, decls);
+    print_decls(b, node, node->cls->params, node->opts, decls);
 }
 
 static void table_header(struct bstr *b, const char *label, int is_active, int colspan)
@@ -291,7 +291,7 @@ static void print_all_links(struct bstr *b, const struct ngl_node *node, struct 
         return;
 
     print_links(b, node, ngli_base_node_params, (uint8_t *)node, links);
-    print_links(b, node, node->cls->params, node->priv_data, links);
+    print_links(b, node, node->cls->params, node->opts, links);
 }
 
 static void print_node_links(struct bstr *b, const struct ngl_node *node,

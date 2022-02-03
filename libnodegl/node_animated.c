@@ -30,7 +30,7 @@
 #include "path.h"
 #include "type.h"
 
-#define OFFSET(x) offsetof(struct variable_priv, opts.x)
+#define OFFSET(x) offsetof(struct variable_opts, x)
 static const struct node_param animatedtime_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMEFLOAT, -1},
@@ -110,8 +110,7 @@ static void mix_path(void *user_arg, void *dst,
                      double ratio)
 {
     const float t = NGLI_MIX(kf0->scalar, kf1->scalar, ratio);
-    struct variable_priv *s = user_arg;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = user_arg;
     struct path *path = *(struct path **)o->path_node->priv_data;
     ngli_path_evaluate(path, dst, t);
 }
@@ -156,8 +155,7 @@ DECLARE_VEC_MIX_AND_CPY_FUNCS(4)
 static void cpy_path(void *user_arg, void *dst,
                      const struct animkeyframe_opts *kf)
 {
-    struct variable_priv *s = user_arg;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = user_arg;
     struct path *path = *(struct path **)o->path_node->priv_data;
     ngli_path_evaluate(path, dst, kf->scalar);
 }
@@ -218,7 +216,7 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
         return NGL_ERROR_INVALID_ARG;
 
     struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = node->opts;
     if (!o->nb_animkf)
         return NGL_ERROR_INVALID_ARG;
 
@@ -251,9 +249,9 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
 static int animation_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = node->opts;
     s->dynamic = 1;
-    return ngli_animation_init(&s->anim, s,
+    return ngli_animation_init(&s->anim, node->opts,
                                o->animkf, o->nb_animkf,
                                get_mix_func(node->cls->id),
                                get_cpy_func(node->cls->id));
@@ -277,7 +275,7 @@ DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
 static int animatedtime_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = node->opts;
 
     s->data = &s->dval;
     s->data_size = sizeof(s->dval);
@@ -286,8 +284,7 @@ static int animatedtime_init(struct ngl_node *node)
     // Sanity checks for time animation keyframe
     double prev_time = 0;
     for (int i = 0; i < o->nb_animkf; i++) {
-        const struct animkeyframe_priv *kf_p = o->animkf[i]->priv_data;
-        const struct animkeyframe_opts *kf = &kf_p->opts;
+        const struct animkeyframe_opts *kf = o->animkf[i]->opts;
         if (kf->easing != EASING_LINEAR) {
             LOG(ERROR, "only linear interpolation is allowed for time animation");
             return NGL_ERROR_INVALID_ARG;
@@ -306,7 +303,7 @@ static int animatedtime_init(struct ngl_node *node)
 static int animatedquat_init(struct ngl_node *node)
 {
     struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = node->opts;
 
     s->data = s->vector;
     s->data_size = 4 * sizeof(*s->vector);
@@ -344,7 +341,7 @@ static int animation_update(struct ngl_node *node, double t)
 static int animatedquat_update(struct ngl_node *node, double t)
 {
     struct variable_priv *s = node->priv_data;
-    const struct variable_opts *o = &s->opts;
+    const struct variable_opts *o = node->opts;
     int ret = ngli_animation_evaluate(&s->anim, s->vector, t);
     if (ret < 0)
         return ret;
@@ -360,6 +357,7 @@ const struct node_class ngli_animated##type##_class = {         \
     .name      = class_name,                                    \
     .init      = animated##type##_init,                         \
     .update    = animated##type##_update,                       \
+    .opts_size = sizeof(struct variable_opts),                  \
     .priv_size = sizeof(struct variable_priv),                  \
     .params    = animated##type##_params,                       \
     .file      = __FILE__,                                      \

@@ -60,12 +60,11 @@ struct geometry_opts {
 
 struct geometry_priv {
     struct geometry *geom;
-    struct geometry_opts opts;
     struct ngl_node *update_nodes[3]; /* {vertices, uvcoords, normals} at most */
     int nb_update_nodes;
 };
 
-#define OFFSET(x) offsetof(struct geometry_priv, opts.x)
+#define OFFSET(x) offsetof(struct geometry_opts, x)
 static const struct node_param geometry_params[] = {
     {"vertices",  NGLI_PARAM_TYPE_NODE, OFFSET(vertices),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, NGL_NODE_ANIMATEDBUFFERVEC3, -1},
@@ -133,7 +132,7 @@ static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buff
 static int geometry_init(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
-    const struct geometry_opts *o = &s->opts;
+    const struct geometry_opts *o = node->opts;
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
     s->geom = ngli_geometry_create(gpu_ctx);
@@ -193,7 +192,7 @@ static int geometry_init(struct ngl_node *node)
 static int geometry_prepare(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
-    const struct geometry_opts *o = &s->opts;
+    const struct geometry_opts *o = node->opts;
 
     /*
      * Init of buffers must happen after all usage flags are set (the usage of
@@ -233,7 +232,7 @@ static int geometry_update(struct ngl_node *node, double t)
 static void geometry_uninit(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
-    const struct geometry_opts *o = &s->opts;
+    const struct geometry_opts *o = node->opts;
 
     ngli_geometry_freep(&s->geom);
     ngli_node_buffer_unref(o->vertices);
@@ -252,6 +251,7 @@ const struct node_class ngli_geometry_class = {
     .prepare   = geometry_prepare,
     .uninit    = geometry_uninit,
     .update    = geometry_update,
+    .opts_size = sizeof(struct geometry_opts),
     .priv_size = sizeof(struct geometry_priv),
     .params    = geometry_params,
     .file      = __FILE__,

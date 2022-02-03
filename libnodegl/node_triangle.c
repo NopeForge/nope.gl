@@ -39,10 +39,9 @@ struct triangle_opts {
 
 struct triangle_priv {
     struct geometry *geom;
-    struct triangle_opts opts;
 };
 
-#define OFFSET(x) offsetof(struct triangle_priv, opts.x)
+#define OFFSET(x) offsetof(struct triangle_opts, x)
 static const struct node_param triangle_params[] = {
     {"edge0", NGLI_PARAM_TYPE_VEC3, OFFSET(edges[0]),
               {.vec={1.0, -1.0, 0.0}},
@@ -69,7 +68,7 @@ NGLI_STATIC_ASSERT(geom_on_top_of_triangle, offsetof(struct triangle_priv, geom)
 static int triangle_init(struct ngl_node *node)
 {
     struct triangle_priv *s = node->priv_data;
-    const struct triangle_opts *o = &s->opts;
+    const struct triangle_opts *o = node->opts;
 
     float normals[3 * NB_VERTICES];
     ngli_vec3_normalvec(normals, o->edges, o->edges + 3, o->edges + 6);
@@ -103,6 +102,7 @@ const struct node_class ngli_triangle_class = {
     .name      = "Triangle",
     .init      = triangle_init,
     .uninit    = triangle_uninit,
+    .opts_size = sizeof(struct triangle_opts),
     .priv_size = sizeof(struct triangle_priv),
     .params    = triangle_params,
     .file      = __FILE__,

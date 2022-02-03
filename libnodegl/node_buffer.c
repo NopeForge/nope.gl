@@ -34,7 +34,7 @@
 #include "type.h"
 #include "utils.h"
 
-#define OFFSET(x) offsetof(struct buffer_priv, opts.x)
+#define OFFSET(x) offsetof(struct buffer_opts, x)
 static const struct node_param buffer_params[] = {
     {"count",  NGLI_PARAM_TYPE_I32,    OFFSET(count),
                .desc=NGLI_DOCSTRING("number of elements")},
@@ -206,8 +206,7 @@ static int buffer_init_from_count(struct ngl_node *node)
 static int buffer_init_from_block(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
-    const struct block_priv *block_p = s->block->priv_data;
-    const struct block_opts *block = &block_p->opts;
+    const struct block_opts *block = s->block->opts;
     if (s->block_field < 0 || s->block_field >= block->nb_fields) {
         LOG(ERROR, "invalid field id %d; %s has %d fields",
             s->block_field, s->block->label, block->nb_fields);
@@ -238,7 +237,7 @@ static int buffer_init_from_block(struct ngl_node *node)
 static int buffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
-    const struct buffer_opts *o = &s->opts;
+    const struct buffer_opts *o = node->opts;
 
     s->layout.count = o->count;
     s->data         = o->data;
@@ -314,6 +313,7 @@ const struct node_class ngli_buffer##type_name##_class = {      \
     .name      = class_name,                                    \
     .init      = buffer##type_name##_init,                      \
     .uninit    = buffer_uninit,                                 \
+    .opts_size = sizeof(struct buffer_opts),                    \
     .priv_size = sizeof(struct buffer_priv),                    \
     .params    = buffer_params,                                 \
     .params_id = "Buffer",                                      \

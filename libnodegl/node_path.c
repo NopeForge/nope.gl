@@ -34,10 +34,9 @@ struct path_opts {
 
 struct path_priv {
     struct path *path;
-    struct path_opts opts;
 };
 
-#define OFFSET(x) offsetof(struct path_priv, opts.x)
+#define OFFSET(x) offsetof(struct path_opts, x)
 static const struct node_param path_params[] = {
     {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(keyframes),
                   .node_types=(const int[]){
@@ -60,7 +59,7 @@ NGLI_STATIC_ASSERT(path_1st_field, offsetof(struct path_priv, path) == 0);
 static int path_init(struct ngl_node *node)
 {
     struct path_priv *s = node->priv_data;
-    const struct path_opts *o = &s->opts;
+    const struct path_opts *o = node->opts;
 
     s->path = ngli_path_create();
     if (!s->path)
@@ -70,20 +69,16 @@ static int path_init(struct ngl_node *node)
         const struct ngl_node *kf = o->keyframes[i];
         int ret;
         if (kf->cls->id == NGL_NODE_PATHKEYMOVE) {
-            const struct pathkey_move_priv *move_p = kf->priv_data;
-            const struct pathkey_move_opts *move = &move_p->opts;
+            const struct pathkey_move_opts *move = kf->opts;
             ret = ngli_path_move_to(s->path, move->to);
         } else if (kf->cls->id == NGL_NODE_PATHKEYLINE) {
-            const struct pathkey_line_priv *line_p = kf->priv_data;
-            const struct pathkey_line_opts *line = &line_p->opts;
+            const struct pathkey_line_opts *line = kf->opts;
             ret = ngli_path_line_to(s->path, line->to);
         } else if (kf->cls->id == NGL_NODE_PATHKEYBEZIER2) {
-            const struct pathkey_bezier2_priv *bezier2_p = kf->priv_data;
-            const struct pathkey_bezier2_opts *bezier2 = &bezier2_p->opts;
+            const struct pathkey_bezier2_opts *bezier2 = kf->opts;
             ret = ngli_path_bezier2_to(s->path, bezier2->control, bezier2->to);
         } else if (kf->cls->id == NGL_NODE_PATHKEYBEZIER3) {
-            const struct pathkey_bezier3_priv *bezier3_p = kf->priv_data;
-            const struct pathkey_bezier3_opts *bezier3 = &bezier3_p->opts;
+            const struct pathkey_bezier3_opts *bezier3 = kf->opts;
             ret = ngli_path_bezier3_to(s->path, bezier3->control1, bezier3->control2, bezier3->to);
         } else {
             ngli_assert(0);
@@ -106,6 +101,7 @@ const struct node_class ngli_path_class = {
     .name      = "Path",
     .init      = path_init,
     .uninit    = path_uninit,
+    .opts_size = sizeof(struct path_opts),
     .priv_size = sizeof(struct path_priv),
     .params    = path_params,
     .file      = __FILE__,

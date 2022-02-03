@@ -34,7 +34,6 @@ struct translate_opts {
 
 struct translate_priv {
     struct transform trf;
-    struct translate_opts opts;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *vec)
@@ -46,8 +45,7 @@ static void update_trf_matrix(struct ngl_node *node, const float *vec)
 
 static int update_vector(struct ngl_node *node)
 {
-    struct translate_priv *s = node->priv_data;
-    const struct translate_opts *o = &s->opts;
+    const struct translate_opts *o = node->opts;
     update_trf_matrix(node, o->vector);
     return 0;
 }
@@ -55,7 +53,7 @@ static int update_vector(struct ngl_node *node)
 static int translate_init(struct ngl_node *node)
 {
     struct translate_priv *s = node->priv_data;
-    const struct translate_opts *o = &s->opts;
+    const struct translate_opts *o = node->opts;
     if (!o->vector_node)
         update_trf_matrix(node, o->vector);
     s->trf.child = o->child;
@@ -64,8 +62,7 @@ static int translate_init(struct ngl_node *node)
 
 static int translate_update(struct ngl_node *node, double t)
 {
-    struct translate_priv *s = node->priv_data;
-    const struct translate_opts *o = &s->opts;
+    const struct translate_opts *o = node->opts;
     if (o->vector_node) {
         int ret = ngli_node_update(o->vector_node, t);
         if (ret < 0)
@@ -76,7 +73,7 @@ static int translate_update(struct ngl_node *node, double t)
     return ngli_node_update(o->child, t);
 }
 
-#define OFFSET(x) offsetof(struct translate_priv, opts.x)
+#define OFFSET(x) offsetof(struct translate_opts, x)
 static const struct node_param translate_params[] = {
     {"child",  NGLI_PARAM_TYPE_NODE, OFFSET(child),
                .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -96,6 +93,7 @@ const struct node_class ngli_translate_class = {
     .init      = translate_init,
     .update    = translate_update,
     .draw      = ngli_transform_draw,
+    .opts_size = sizeof(struct translate_opts),
     .priv_size = sizeof(struct translate_priv),
     .params    = translate_params,
     .file      = __FILE__,

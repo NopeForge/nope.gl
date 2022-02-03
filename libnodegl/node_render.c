@@ -44,7 +44,6 @@ struct render_opts {
 };
 
 struct render_priv {
-    struct render_opts opts;
     struct pass pass;
 };
 
@@ -134,7 +133,7 @@ struct render_priv {
                                           NGL_NODE_TRIANGLE,        \
                                           -1}
 
-#define OFFSET(x) offsetof(struct render_priv, opts.x)
+#define OFFSET(x) offsetof(struct render_opts, x)
 static const struct node_param render_params[] = {
     {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(geometry), .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .node_types=GEOMETRY_TYPES_LIST,
@@ -166,7 +165,7 @@ static int render_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct render_priv *s = node->priv_data;
-    const struct render_opts *o = &s->opts;
+    const struct render_opts *o = node->opts;
 
     if (o->nb_instances < 1) {
         LOG(ERROR, "nb_instances must be > 0");
@@ -179,7 +178,7 @@ static int render_init(struct ngl_node *node)
     }
 
     const struct program_priv *program_priv = o->program->priv_data;
-    const struct program_opts *program_opts = &program_priv->opts;
+    const struct program_opts *program_opts = o->program->opts;
     struct pass_params params = {
         .label = node->label,
         .geometry = o->geometry,
@@ -240,6 +239,7 @@ const struct node_class ngli_render_class = {
     .uninit    = render_uninit,
     .update    = render_update,
     .draw      = render_draw,
+    .opts_size = sizeof(struct render_opts),
     .priv_size = sizeof(struct render_priv),
     .params    = render_params,
     .file      = __FILE__,

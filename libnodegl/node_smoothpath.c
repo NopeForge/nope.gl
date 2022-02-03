@@ -37,10 +37,9 @@ struct smoothpath_opts {
 
 struct smoothpath_priv {
     struct path *path;
-    struct smoothpath_opts opts;
 };
 
-#define OFFSET(x) offsetof(struct smoothpath_priv, opts.x)
+#define OFFSET(x) offsetof(struct smoothpath_opts, x)
 static const struct node_param smoothpath_params[] = {
     {"points",    NGLI_PARAM_TYPE_NODE, OFFSET(points_buffer),
                   .node_types=(const int[]){NGL_NODE_BUFFERVEC3, -1},
@@ -63,7 +62,7 @@ NGLI_STATIC_ASSERT(path_1st_field, offsetof(struct smoothpath_priv, path) == 0);
 static int smoothpath_init(struct ngl_node *node)
 {
     struct smoothpath_priv *s = node->priv_data;
-    const struct smoothpath_opts *o = &s->opts;
+    const struct smoothpath_opts *o = node->opts;
 
     if (o->tension <= 0) {
         LOG(ERROR, "tension must be strictly positive");
@@ -128,6 +127,7 @@ const struct node_class ngli_smoothpath_class = {
     .name      = "SmoothPath",
     .init      = smoothpath_init,
     .uninit    = smoothpath_uninit,
+    .opts_size = sizeof(struct smoothpath_opts),
     .priv_size = sizeof(struct smoothpath_priv),
     .params    = smoothpath_params,
     .file      = __FILE__,

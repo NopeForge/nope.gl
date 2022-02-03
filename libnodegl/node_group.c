@@ -30,11 +30,7 @@ struct group_opts {
     int nb_children;
 };
 
-struct group_priv {
-    struct group_opts opts;
-};
-
-#define OFFSET(x) offsetof(struct group_priv, opts.x)
+#define OFFSET(x) offsetof(struct group_opts, x)
 static const struct node_param group_params[] = {
     {"children", NGLI_PARAM_TYPE_NODELIST, OFFSET(children),
                  .desc=NGLI_DOCSTRING("a set of scenes")},
@@ -44,8 +40,7 @@ static const struct node_param group_params[] = {
 static int group_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct group_priv *s = node->priv_data;
-    const struct group_opts *o = &s->opts;
+    const struct group_opts *o = node->opts;
 
     int ret = 0;
     struct rnode *rnode_pos = ctx->rnode_pos;
@@ -69,8 +64,7 @@ done:
 static void group_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct group_priv *s = node->priv_data;
-    const struct group_opts *o = &s->opts;
+    const struct group_opts *o = node->opts;
 
     struct rnode *rnode_pos = ctx->rnode_pos;
     struct rnode *rnodes = ngli_darray_data(&rnode_pos->children);
@@ -88,7 +82,7 @@ const struct node_class ngli_group_class = {
     .prepare   = group_prepare,
     .update    = ngli_node_update_children,
     .draw      = group_draw,
-    .priv_size = sizeof(struct group_priv),
+    .opts_size = sizeof(struct group_opts),
     .params    = group_params,
     .file      = __FILE__,
 };

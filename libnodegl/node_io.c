@@ -27,7 +27,7 @@
 #include "precision.h"
 #include "type.h"
 
-#define OFFSET(x) offsetof(struct io_priv, opts.x)
+#define OFFSET(x) offsetof(struct io_opts, x)
 static const struct node_param io_params[] = {
     {"precision_out", NGLI_PARAM_TYPE_SELECT, OFFSET(precision_out), {.i32=NGLI_PRECISION_AUTO},
                       .choices=&ngli_precision_choices,
@@ -57,6 +57,7 @@ const struct node_class ngli_io##type_id##_class = {            \
     .name      = class_name,                                    \
     .init      = io##type_id##_init,                            \
     .info_str  = io##type_id##_info_str,                        \
+    .opts_size = sizeof(struct io_opts),                        \
     .priv_size = sizeof(struct io_priv),                        \
     .params    = io_params,                                     \
     .params_id = "IOVar",                                       \

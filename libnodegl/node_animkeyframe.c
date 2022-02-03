@@ -67,7 +67,7 @@ static const struct param_choices easing_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct animkeyframe_priv, opts.x)
+#define OFFSET(x) offsetof(struct animkeyframe_opts, x)
 
 #define ANIMKEYFRAME_PARAMS(id, value_data_key, value_data_type, value_data_field)                      \
 static const struct node_param animkeyframe##id##_params[] = {                                          \
@@ -384,7 +384,7 @@ static int check_boundaries(double y0, double y1)
 static int animkeyframe_init(struct ngl_node *node)
 {
     struct animkeyframe_priv *s = node->priv_data;
-    const struct animkeyframe_opts *o = &s->opts;
+    const struct animkeyframe_opts *o = node->opts;
 
     const int easing_id = o->easing;
     const char *easing_name = ngli_params_get_select_str(easing_choices.consts, easing_id);
@@ -443,8 +443,7 @@ static int animkeyframe_init(struct ngl_node *node)
 
 static char *animkeyframe_info_str(const struct ngl_node *node)
 {
-    const struct animkeyframe_priv *s = node->priv_data;
-    const struct animkeyframe_opts *o = &s->opts;
+    const struct animkeyframe_opts *o = node->opts;
     const struct node_param *params = node->cls->params;
     struct bstr *b = ngli_bstr_create();
 
@@ -457,7 +456,7 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
         const struct node_param *easing_args_par = ngli_params_find(params, "easing_args");
         ngli_assert(easing_args_par);
         ngli_bstr_print(b, "(args: ");
-        ngli_params_bstr_print_val(b, node->priv_data, easing_args_par);
+        ngli_params_bstr_print_val(b, node->opts, easing_args_par);
         ngli_bstr_print(b, ") ");
     }
 
@@ -473,7 +472,7 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
         ngli_bstr_print(b, "with v=");
         const struct node_param *val_par = ngli_params_find(params, "value");
         ngli_assert(val_par);
-        ngli_params_bstr_print_val(b, node->priv_data, val_par);
+        ngli_params_bstr_print_val(b, node->opts, val_par);
     }
 
     char *ret = ngli_bstr_strdup(b);
@@ -572,6 +571,7 @@ const struct node_class ngli_animkeyframe##type##_class = { \
     .name      = class_name,                                \
     .init      = animkeyframe_init,                         \
     .info_str  = animkeyframe_info_str,                     \
+    .opts_size = sizeof(struct animkeyframe_opts),          \
     .priv_size = sizeof(struct animkeyframe_priv),          \
     .params    = animkeyframe##type##_params,               \
     .file      = __FILE__,                                  \

@@ -44,7 +44,7 @@
                                NGL_NODE_IOBOOL,       \
                                -1}
 
-#define OFFSET(x) offsetof(struct program_priv, opts.x)
+#define OFFSET(x) offsetof(struct program_opts, x)
 static const struct node_param program_params[] = {
     {"vertex",   NGLI_PARAM_TYPE_STR, OFFSET(vertex),   {.str=NULL},
                  .desc=NGLI_DOCSTRING("vertex shader")},
@@ -66,7 +66,7 @@ static const struct node_param program_params[] = {
 static int program_init(struct ngl_node *node)
 {
     struct program_priv *s = node->priv_data;
-    const struct program_opts *o = &s->opts;
+    const struct program_opts *o = node->opts;
 
     if (!o->vertex || !o->fragment) {
         LOG(ERROR, "both vertex and fragment shaders must be set");
@@ -79,7 +79,7 @@ static int program_init(struct ngl_node *node)
         while ((e = ngli_hmap_next(o->vert_out_vars, e))) {
             const struct ngl_node *iovar_node = e->data;
             const struct io_priv *iovar_priv = iovar_node->priv_data;
-            const struct io_opts *iovar_opts = &iovar_priv->opts;
+            const struct io_opts *iovar_opts = iovar_node->opts;
             struct pgcraft_iovar iovar = {
                 .type = iovar_priv->type,
                 .precision_in = iovar_opts->precision_in,
@@ -105,6 +105,7 @@ const struct node_class ngli_program_class = {
     .name      = "Program",
     .init      = program_init,
     .uninit    = program_uninit,
+    .opts_size = sizeof(struct program_opts),
     .priv_size = sizeof(struct program_priv),
     .params    = program_params,
     .file      = __FILE__,

@@ -39,7 +39,6 @@ struct compute_opts {
 };
 
 struct compute_priv {
-    struct compute_opts opts;
     struct pass pass;
 };
 
@@ -98,7 +97,7 @@ struct compute_priv {
                                           NGL_NODE_VELOCITYVEC4,    \
                                           -1}
 
-#define OFFSET(x) offsetof(struct compute_priv, opts.x)
+#define OFFSET(x) offsetof(struct compute_opts, x)
 static const struct node_param compute_params[] = {
     {"workgroup_count", NGLI_PARAM_TYPE_IVEC3,      OFFSET(workgroup_count),
                         .desc=NGLI_DOCSTRING("number of work groups to be executed")},
@@ -114,7 +113,7 @@ static int compute_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct compute_priv *s = node->priv_data;
-    const struct compute_opts *o = &s->opts;
+    const struct compute_opts *o = node->opts;
 
     if (o->workgroup_count[0] <= 0 || o->workgroup_count[1] <= 0 || o->workgroup_count[2] <= 0) {
         LOG(ERROR, "number of group must be > 0 for x, y and z");
@@ -133,8 +132,7 @@ static int compute_init(struct ngl_node *node)
 
         return NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED;
     }
-    const struct program_priv *program_priv = o->program->priv_data;
-    const struct program_opts *program = &program_priv->opts;
+    const struct program_opts *program = o->program->opts;
     struct pass_params params = {
         .label = node->label,
         .comp_base = program->compute,
@@ -186,6 +184,7 @@ const struct node_class ngli_compute_class = {
     .uninit    = compute_uninit,
     .update    = compute_update,
     .draw      = compute_draw,
+    .opts_size = sizeof(struct compute_opts),
     .priv_size = sizeof(struct compute_priv),
     .params    = compute_params,
     .file      = __FILE__,

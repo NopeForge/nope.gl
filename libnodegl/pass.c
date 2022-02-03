@@ -87,7 +87,7 @@ static int register_uniform(struct pass *s, const char *name, struct ngl_node *u
     if (params->properties) {
         struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
         if (resprops_node) {
-            const struct resourceprops_opts *resprops = resprops_node->priv_data;
+            const struct resourceprops_opts *resprops = resprops_node->opts;
             crafter_uniform.precision = resprops->precision;
         }
     }
@@ -122,7 +122,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
         return NGL_ERROR_MEMORY;
 
     struct texture_priv *texture_priv = texture->priv_data;
-    struct texture_opts *texture_opts = &texture_priv->opts;
+    struct texture_opts *texture_opts = texture->opts;
 
     /*
      * Note: we do not assign crafter_texture.texture here since it is not
@@ -158,7 +158,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
     if (params->properties) {
         const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
         if (resprops_node) {
-            const struct resourceprops_opts *resprops = resprops_node->priv_data;
+            const struct resourceprops_opts *resprops = resprops_node->opts;
             if (resprops->as_image) {
                 if (texture->cls->id != NGL_NODE_TEXTURE2D) {
                     LOG(ERROR, "\"%s\" can not be accessed as an image; only Texture2D is supported as image", name);
@@ -218,7 +218,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     if (params->properties) {
         const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
         if (resprops_node) {
-            const struct resourceprops_opts *resprops = resprops_node->priv_data;
+            const struct resourceprops_opts *resprops = resprops_node->opts;
             if (resprops->variadic || resprops->writable)
                 type = NGLI_TYPE_STORAGE_BUFFER;
             writable = resprops->writable;
@@ -306,7 +306,7 @@ static int register_attribute_from_buffer(struct pass *s, const char *name,
     if (params->properties) {
         const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
         if (resprops_node) {
-            const struct resourceprops_opts *resprops = resprops_node->priv_data;
+            const struct resourceprops_opts *resprops = resprops_node->opts;
             crafter_attribute.precision = resprops->precision;
         }
     }
@@ -369,7 +369,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     if (params->properties) {
         const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
         if (resprops_node) {
-            const struct resourceprops_opts *resprops = resprops_node->priv_data;
+            const struct resourceprops_opts *resprops = resprops_node->opts;
             crafter_attribute.precision = resprops->precision;
         }
     }

@@ -31,14 +31,9 @@ struct userselect_opts {
     struct livectl live;
 };
 
-struct userselect_priv {
-    struct userselect_opts opts;
-};
-
 static int branch_update_func(struct ngl_node *node)
 {
-    struct userselect_priv *s = node->priv_data;
-    struct userselect_opts *o = &s->opts;
+    struct userselect_opts *o = node->opts;
     if (!o->live.id)
         return 0;
     if (o->live.val.i[0] < o->live.min.i[0]) {
@@ -52,7 +47,7 @@ static int branch_update_func(struct ngl_node *node)
     return 0;
 }
 
-#define OFFSET(x) offsetof(struct userselect_priv, opts.x)
+#define OFFSET(x) offsetof(struct userselect_opts, x)
 static const struct node_param userselect_params[] = {
     {"branches", NGLI_PARAM_TYPE_NODELIST, OFFSET(branches),
                  .desc=NGLI_DOCSTRING("a set of branches to pick from")},
@@ -78,8 +73,7 @@ static const struct node_param userselect_params[] = {
 static int userselect_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct userselect_priv *s = node->priv_data;
-    const struct userselect_opts *o = &s->opts;
+    const struct userselect_opts *o = node->opts;
 
     int ret = 0;
     struct rnode *rnode_pos = ctx->rnode_pos;
@@ -100,8 +94,7 @@ static int userselect_prepare(struct ngl_node *node)
 
 static int userselect_visit(struct ngl_node *node, int is_active, double t)
 {
-    struct userselect_priv *s = node->priv_data;
-    const struct userselect_opts *o = &s->opts;
+    const struct userselect_opts *o = node->opts;
 
     const int branch_id = o->live.val.i[0];
     for (int i = 0; i < o->nb_branches; i++) {
@@ -115,8 +108,7 @@ static int userselect_visit(struct ngl_node *node, int is_active, double t)
 
 static int userselect_update(struct ngl_node *node, double t)
 {
-    struct userselect_priv *s = node->priv_data;
-    const struct userselect_opts *o = &s->opts;
+    const struct userselect_opts *o = node->opts;
 
     const int branch_id = o->live.val.i[0];
     if (branch_id < 0 || branch_id >= o->nb_branches)
@@ -127,8 +119,7 @@ static int userselect_update(struct ngl_node *node, double t)
 static void userselect_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
-    struct userselect_priv *s = node->priv_data;
-    const struct userselect_opts *o = &s->opts;
+    const struct userselect_opts *o = node->opts;
 
     const int branch_id = o->live.val.i[0];
     if (branch_id < 0 || branch_id >= o->nb_branches)
@@ -147,7 +138,7 @@ const struct node_class ngli_userselect_class = {
     .visit          = userselect_visit,
     .update         = userselect_update,
     .draw           = userselect_draw,
-    .priv_size      = sizeof(struct userselect_priv),
+    .opts_size      = sizeof(struct userselect_opts),
     .params         = userselect_params,
     .flags          = NGLI_NODE_FLAG_LIVECTL,
     .livectl_offset = OFFSET(live),

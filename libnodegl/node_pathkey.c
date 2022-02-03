@@ -25,21 +25,21 @@
 #include "nodegl.h"
 #include "internal.h"
 
-#define OFFSET_MOVE(x) offsetof(struct pathkey_move_priv, opts.x)
+#define OFFSET_MOVE(x) offsetof(struct pathkey_move_opts, x)
 static const struct node_param pathkey_move_params[] = {
     {"to", NGLI_PARAM_TYPE_VEC3, OFFSET_MOVE(to),
            .desc=NGLI_DOCSTRING("new cursor position")},
     {NULL}
 };
 
-#define OFFSET_LINE(x) offsetof(struct pathkey_line_priv, opts.x)
+#define OFFSET_LINE(x) offsetof(struct pathkey_line_opts, x)
 static const struct node_param pathkey_line_params[] = {
     {"to", NGLI_PARAM_TYPE_VEC3, OFFSET_LINE(to),
            .desc=NGLI_DOCSTRING("end point of the line, new cursor position")},
     {NULL}
 };
 
-#define OFFSET_BEZIER2(x) offsetof(struct pathkey_bezier2_priv, opts.x)
+#define OFFSET_BEZIER2(x) offsetof(struct pathkey_bezier2_opts, x)
 static const struct node_param pathkey_bezier2_params[] = {
     {"control", NGLI_PARAM_TYPE_VEC3, OFFSET_BEZIER2(control),
                 .desc=NGLI_DOCSTRING("control point")},
@@ -48,7 +48,7 @@ static const struct node_param pathkey_bezier2_params[] = {
     {NULL}
 };
 
-#define OFFSET_BEZIER3(x) offsetof(struct pathkey_bezier3_priv, opts.x)
+#define OFFSET_BEZIER3(x) offsetof(struct pathkey_bezier3_opts, x)
 static const struct node_param pathkey_bezier3_params[] = {
     {"control1", NGLI_PARAM_TYPE_VEC3, OFFSET_BEZIER3(control1),
                  .desc=NGLI_DOCSTRING("first control point")},
@@ -65,21 +65,17 @@ static char *pathkey_info_str(const struct ngl_node *node)
     if (!b)
         return NULL;
     if (node->cls->id == NGL_NODE_PATHKEYMOVE) {
-        struct pathkey_move_priv *s = node->priv_data;
-        const struct pathkey_move_opts *o = &s->opts;
+        const struct pathkey_move_opts *o = node->opts;
         ngli_bstr_printf(b, "move to:%g,%g,%g", NGLI_ARG_VEC3(o->to));
     } else if (node->cls->id == NGL_NODE_PATHKEYLINE) {
-        struct pathkey_line_priv *s = node->priv_data;
-        const struct pathkey_line_opts *o = &s->opts;
+        const struct pathkey_line_opts *o = node->opts;
         ngli_bstr_printf(b, "line to:%g,%g,%g", NGLI_ARG_VEC3(o->to));
     } else if (node->cls->id == NGL_NODE_PATHKEYBEZIER2) {
-        struct pathkey_bezier2_priv *s = node->priv_data;
-        const struct pathkey_bezier2_opts *o = &s->opts;
+        const struct pathkey_bezier2_opts *o = node->opts;
         ngli_bstr_printf(b, "bezier2 ctl:%g,%g,%g to:%g,%g,%g",
                          NGLI_ARG_VEC3(o->control), NGLI_ARG_VEC3(o->to));
     } else if (node->cls->id == NGL_NODE_PATHKEYBEZIER3) {
-        struct pathkey_bezier3_priv *s = node->priv_data;
-        const struct pathkey_bezier3_opts *o = &s->opts;
+        const struct pathkey_bezier3_opts *o = node->opts;
         ngli_bstr_printf(b, "bezier3 ctl1:%g,%g,%g ctl2:%g,%g,%g to:%g,%g,%g",
                          NGLI_ARG_VEC3(o->control1), NGLI_ARG_VEC3(o->control2), NGLI_ARG_VEC3(o->to));
     } else {
@@ -94,7 +90,7 @@ const struct node_class ngli_pathkeymove_class = {
     .id        = NGL_NODE_PATHKEYMOVE,
     .name      = "PathKeyMove",
     .info_str  = pathkey_info_str,
-    .priv_size = sizeof(struct pathkey_move_priv),
+    .opts_size = sizeof(struct pathkey_move_opts),
     .params    = pathkey_move_params,
     .file      = __FILE__,
 };
@@ -103,7 +99,7 @@ const struct node_class ngli_pathkeyline_class = {
     .id        = NGL_NODE_PATHKEYLINE,
     .name      = "PathKeyLine",
     .info_str  = pathkey_info_str,
-    .priv_size = sizeof(struct pathkey_line_priv),
+    .opts_size = sizeof(struct pathkey_line_opts),
     .params    = pathkey_line_params,
     .file      = __FILE__,
 };
@@ -112,7 +108,7 @@ const struct node_class ngli_pathkeybezier2_class = {
     .id        = NGL_NODE_PATHKEYBEZIER2,
     .name      = "PathKeyBezier2",
     .info_str  = pathkey_info_str,
-    .priv_size = sizeof(struct pathkey_bezier2_priv),
+    .opts_size = sizeof(struct pathkey_bezier2_opts),
     .params    = pathkey_bezier2_params,
     .file      = __FILE__,
 };
@@ -121,7 +117,7 @@ const struct node_class ngli_pathkeybezier3_class = {
     .id        = NGL_NODE_PATHKEYBEZIER3,
     .name      = "PathKeyBezier3",
     .info_str  = pathkey_info_str,
-    .priv_size = sizeof(struct pathkey_bezier3_priv),
+    .opts_size = sizeof(struct pathkey_bezier3_opts),
     .params    = pathkey_bezier3_params,
     .file      = __FILE__,
 };

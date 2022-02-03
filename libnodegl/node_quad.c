@@ -42,10 +42,9 @@ struct quad_opts {
 
 struct quad_priv {
     struct geometry *geom;
-    struct quad_opts opts;
 };
 
-#define OFFSET(x) offsetof(struct quad_priv, opts.x)
+#define OFFSET(x) offsetof(struct quad_opts, x)
 static const struct node_param quad_params[] = {
     {"corner",    NGLI_PARAM_TYPE_VEC3, OFFSET(corner),    {.vec={-0.5f, -0.5f}},
                   .desc=NGLI_DOCSTRING("origin coordinates of `width` and `height` vectors")},
@@ -77,7 +76,7 @@ NGLI_STATIC_ASSERT(geom_on_top_of_quad, offsetof(struct quad_priv, geom) == 0);
 static int quad_init(struct ngl_node *node)
 {
     struct quad_priv *s = node->priv_data;
-    const struct quad_opts *o = &s->opts;
+    const struct quad_opts *o = node->opts;
 
     const float vertices[] = {
         C(0),               C(1),               C(2),
@@ -125,6 +124,7 @@ const struct node_class ngli_quad_class = {
     .name      = "Quad",
     .init      = quad_init,
     .uninit    = quad_uninit,
+    .opts_size = sizeof(struct quad_opts),
     .priv_size = sizeof(struct quad_priv),
     .params    = quad_params,
     .file      = __FILE__,

@@ -111,7 +111,6 @@ struct rendercolor_opts {
 };
 
 struct rendercolor_priv {
-    struct rendercolor_opts opts;
     struct render_common common;
 };
 
@@ -135,7 +134,6 @@ struct rendergradient_opts {
 };
 
 struct rendergradient_priv {
-    struct rendergradient_opts opts;
     struct render_common common;
 };
 
@@ -162,7 +160,6 @@ struct rendergradient4_opts {
 };
 
 struct rendergradient4_priv {
-    struct rendergradient4_opts opts;
     struct render_common common;
 };
 
@@ -172,11 +169,10 @@ struct rendertexture_opts {
 };
 
 struct rendertexture_priv {
-    struct rendertexture_opts opts;
     struct render_common common;
 };
 
-#define OFFSET(x) offsetof(struct rendercolor_priv, opts.x)
+#define OFFSET(x) offsetof(struct rendercolor_opts, x)
 static const struct node_param rendercolor_params[] = {
     {"color",    NGLI_PARAM_TYPE_VEC3, OFFSET(color_node), {.vec={1.f, 1.f, 1.f}},
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
@@ -209,7 +205,7 @@ static const struct param_choices gradient_mode_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct rendergradient_priv, opts.x)
+#define OFFSET(x) offsetof(struct rendergradient_opts, x)
 static const struct node_param rendergradient_params[] = {
     {"color0",   NGLI_PARAM_TYPE_VEC3, OFFSET(color0_node), {.vec={0.f, 0.f, 0.f}},
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
@@ -248,7 +244,7 @@ static const struct node_param rendergradient_params[] = {
 };
 #undef OFFSET
 
-#define OFFSET(x) offsetof(struct rendergradient4_priv, opts.x)
+#define OFFSET(x) offsetof(struct rendergradient4_opts, x)
 static const struct node_param rendergradient4_params[] = {
     {"color_tl",   NGLI_PARAM_TYPE_VEC3, OFFSET(color_tl_node), {.vec={1.f, .5f, 0.f}}, /* orange */
                    .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
@@ -290,7 +286,7 @@ static const struct node_param rendergradient4_params[] = {
 };
 #undef OFFSET
 
-#define OFFSET(x) offsetof(struct rendertexture_priv, opts.x)
+#define OFFSET(x) offsetof(struct rendertexture_opts, x)
 static const struct node_param rendertexture_params[] = {
     {"texture",  NGLI_PARAM_TYPE_NODE, OFFSET(texture_node),
                  .flags=NGLI_PARAM_FLAG_NON_NULL,
@@ -444,14 +440,14 @@ static int init(struct ngl_node *node,
 static int rendercolor_init(struct ngl_node *node)
 {
     struct rendercolor_priv *s = node->priv_data;
-    struct rendercolor_opts *o = &s->opts;
+    struct rendercolor_opts *o = node->opts;
     return init(node, &s->common, &o->common, "source_color", source_color_frag);
 }
 
 static int rendergradient_init(struct ngl_node *node)
 {
     struct rendergradient_priv *s = node->priv_data;
-    struct rendergradient_opts *o = &s->opts;
+    struct rendergradient_opts *o = node->opts;
     s->common.helpers = NGLI_FILTER_HELPER_LINEAR2SRGB | NGLI_FILTER_HELPER_SRGB2LINEAR;
     return init(node, &s->common, &o->common, "source_gradient", source_gradient_frag);
 }
@@ -459,7 +455,7 @@ static int rendergradient_init(struct ngl_node *node)
 static int rendergradient4_init(struct ngl_node *node)
 {
     struct rendergradient4_priv *s = node->priv_data;
-    struct rendergradient4_opts *o = &s->opts;
+    struct rendergradient4_opts *o = node->opts;
     s->common.helpers = NGLI_FILTER_HELPER_LINEAR2SRGB | NGLI_FILTER_HELPER_SRGB2LINEAR;
     return init(node, &s->common, &o->common, "source_gradient4", source_gradient4_frag);
 }
@@ -467,7 +463,7 @@ static int rendergradient4_init(struct ngl_node *node)
 static int rendertexture_init(struct ngl_node *node)
 {
     struct rendertexture_priv *s = node->priv_data;
-    struct rendertexture_opts *o = &s->opts;
+    struct rendertexture_opts *o = node->opts;
     return init(node, &s->common, &o->common, "source_texture", source_texture_frag);
 }
 
@@ -598,7 +594,7 @@ static void *get_data_ptr(struct ngl_node *var_node, void *data_fallback)
 static int rendercolor_prepare(struct ngl_node *node)
 {
     struct rendercolor_priv *s = node->priv_data;
-    struct rendercolor_opts *o = &s->opts;
+    struct rendercolor_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -636,7 +632,7 @@ static int rendercolor_prepare(struct ngl_node *node)
 static int rendergradient_prepare(struct ngl_node *node)
 {
     struct rendergradient_priv *s = node->priv_data;
-    struct rendergradient_opts *o = &s->opts;
+    struct rendergradient_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -681,7 +677,7 @@ static int rendergradient_prepare(struct ngl_node *node)
 static int rendergradient4_prepare(struct ngl_node *node)
 {
     struct rendergradient4_priv *s = node->priv_data;
-    struct rendergradient4_opts *o = &s->opts;
+    struct rendergradient4_opts *o = node->opts;
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -727,7 +723,7 @@ static int rendertexture_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct rendertexture_priv *s = node->priv_data;
-    struct rendertexture_opts *o = &s->opts;
+    struct rendertexture_opts *o = node->opts;
 
     static const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
@@ -740,7 +736,7 @@ static int rendertexture_prepare(struct ngl_node *node)
         return ret;
 
     struct texture_priv *texture_priv = o->texture_node->priv_data;
-    struct texture_opts *texture_opts = &texture_priv->opts;
+    struct texture_opts *texture_opts = o->texture_node->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "tex",
@@ -842,7 +838,7 @@ static void renderother_uninit(struct ngl_node *node, struct render_common *s)
 static void type##_draw(struct ngl_node *node)      \
 {                                                   \
     struct type##_priv *s = node->priv_data;        \
-    const struct type##_opts *o = &s->opts;         \
+    const struct type##_opts *o = node->opts;       \
     renderother_draw(node, &s->common, &o->common); \
 }                                                   \
                                                     \
@@ -861,6 +857,7 @@ const struct node_class ngli_##type##_class = {     \
     .update    = ngli_node_update_children,         \
     .draw      = type##_draw,                       \
     .uninit    = type##_uninit,                     \
+    .opts_size = sizeof(struct type##_opts),        \
     .priv_size = sizeof(struct type##_priv),        \
     .params    = type##_params,                     \
     .file      = __FILE__,                          \

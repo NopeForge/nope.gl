@@ -46,8 +46,6 @@ struct camera_opts {
 };
 
 struct camera_priv {
-    struct camera_opts opts;
-
     int use_perspective;
     int use_orthographic;
 
@@ -74,7 +72,7 @@ static int update_matrices(struct ngl_node *node, double t)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct camera_priv *s = node->priv_data;
-    const struct camera_opts *o = &s->opts;
+    const struct camera_opts *o = node->opts;
 
     NGLI_ALIGNED_VEC(eye)    = {NGLI_ARG_VEC3(o->eye),    1.0f};
     NGLI_ALIGNED_VEC(center) = {NGLI_ARG_VEC3(o->center), 1.0f};
@@ -127,7 +125,7 @@ static int update_matrices(struct ngl_node *node, double t)
 static int update_params(struct ngl_node *node)
 {
     struct camera_priv *s = node->priv_data;
-    struct camera_opts *o = &s->opts;
+    struct camera_opts *o = node->opts;
 
     ngli_vec3_norm(o->up, o->up);
 
@@ -138,7 +136,7 @@ static int update_params(struct ngl_node *node)
     return 0;
 }
 
-#define OFFSET(x) offsetof(struct camera_priv, opts.x)
+#define OFFSET(x) offsetof(struct camera_opts, x)
 static const struct node_param camera_params[] = {
     {"child", NGLI_PARAM_TYPE_NODE, OFFSET(child), .flags=NGLI_PARAM_FLAG_NON_NULL,
               .desc=NGLI_DOCSTRING("scene to observe through the lens of the camera")},
@@ -184,7 +182,7 @@ static const struct node_param camera_params[] = {
 static int camera_init(struct ngl_node *node)
 {
     struct camera_priv *s = node->priv_data;
-    struct camera_opts *o = &s->opts;
+    struct camera_opts *o = node->opts;
 
     ngli_vec3_norm(o->up, o->up);
 
@@ -219,8 +217,7 @@ static int camera_init(struct ngl_node *node)
 
 static int camera_update(struct ngl_node *node, double t)
 {
-    struct camera_priv *s = node->priv_data;
-    struct camera_opts *o = &s->opts;
+    struct camera_opts *o = node->opts;
     struct ngl_node *child = o->child;
 
     int ret = update_matrices(node, t);
@@ -234,7 +231,7 @@ static void camera_draw(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct camera_priv *s = node->priv_data;
-    struct camera_opts *o = &s->opts;
+    struct camera_opts *o = node->opts;
 
     if (!ngli_darray_push(&ctx->modelview_matrix_stack, s->modelview_matrix) ||
         !ngli_darray_push(&ctx->projection_matrix_stack, s->projection_matrix))
@@ -252,6 +249,7 @@ const struct node_class ngli_camera_class = {
     .init      = camera_init,
     .update    = camera_update,
     .draw      = camera_draw,
+    .opts_size = sizeof(struct camera_opts),
     .priv_size = sizeof(struct camera_priv),
     .params    = camera_params,
     .file      = __FILE__,

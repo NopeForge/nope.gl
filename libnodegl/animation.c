@@ -31,8 +31,7 @@ static int get_kf_id(struct ngl_node * const *animkf, int nb_animkf, int start, 
     int ret = -1;
 
     for (int i = start; i < nb_animkf; i++) {
-        const struct animkeyframe_priv *kf_priv = animkf[i]->priv_data;
-        const struct animkeyframe_opts *kf = &kf_priv->opts;
+        const struct animkeyframe_opts *kf = animkf[i]->opts;
         if (kf->time > t)
             break;
         ret = i;
@@ -48,10 +47,9 @@ int ngli_animation_evaluate(struct animation *s, void *dst, double t)
     if (kf_id < 0)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
     if (kf_id >= 0 && kf_id < nb_animkf - 1) {
-        const struct animkeyframe_priv *kf0_priv = animkf[kf_id    ]->priv_data;
         const struct animkeyframe_priv *kf1_priv = animkf[kf_id + 1]->priv_data;
-        const struct animkeyframe_opts *kf0 = &kf0_priv->opts;
-        const struct animkeyframe_opts *kf1 = &kf1_priv->opts;
+        const struct animkeyframe_opts *kf0 = animkf[kf_id    ]->opts;
+        const struct animkeyframe_opts *kf1 = animkf[kf_id + 1]->opts;
         const double t0 = kf0->time;
         const double t1 = kf1->time;
 
@@ -65,10 +63,8 @@ int ngli_animation_evaluate(struct animation *s, void *dst, double t)
         s->current_kf = kf_id;
         s->mix_func(s->user_arg, dst, kf0, kf1, ratio);
     } else {
-        const struct animkeyframe_priv *kf0_priv = animkf[            0]->priv_data;
-        const struct animkeyframe_priv *kfn_priv = animkf[nb_animkf - 1]->priv_data;
-        const struct animkeyframe_opts *kf0 = &kf0_priv->opts;
-        const struct animkeyframe_opts *kfn = &kfn_priv->opts;
+        const struct animkeyframe_opts *kf0 = animkf[            0]->opts;
+        const struct animkeyframe_opts *kfn = animkf[nb_animkf - 1]->opts;
         const struct animkeyframe_opts *kf  = t < kf0->time ? kf0 : kfn;
         s->cpy_func(s->user_arg, dst, kf);
     }
@@ -83,10 +79,9 @@ int ngli_animation_derivate(struct animation *s, void *dst, double t)
     if (kf_id < 0)
         kf_id = get_kf_id(animkf, nb_animkf, 0, t);
     if (kf_id >= 0 && kf_id < nb_animkf - 1) {
-        const struct animkeyframe_priv *kf0_priv = animkf[kf_id    ]->priv_data;
         const struct animkeyframe_priv *kf1_priv = animkf[kf_id + 1]->priv_data;
-        const struct animkeyframe_opts *kf0 = &kf0_priv->opts;
-        const struct animkeyframe_opts *kf1 = &kf1_priv->opts;
+        const struct animkeyframe_opts *kf0 = animkf[kf_id    ]->opts;
+        const struct animkeyframe_opts *kf1 = animkf[kf_id + 1]->opts;
         const double t0 = kf0->time;
         const double t1 = kf1->time;
 
@@ -100,10 +95,8 @@ int ngli_animation_derivate(struct animation *s, void *dst, double t)
         s->current_kf = kf_id;
         s->mix_func(s->user_arg, dst, kf0, kf1, ratio);
     } else {
-        const struct animkeyframe_priv *kf0_priv = animkf[            0]->priv_data;
-        const struct animkeyframe_priv *kfn_priv = animkf[nb_animkf - 1]->priv_data;
-        const struct animkeyframe_opts *kf0 = &kf0_priv->opts;
-        const struct animkeyframe_opts *kfn = &kfn_priv->opts;
+        const struct animkeyframe_opts *kf0 = animkf[            0]->opts;
+        const struct animkeyframe_opts *kfn = animkf[nb_animkf - 1]->opts;
         const struct animkeyframe_opts *kf  = t < kf0->time ? kf0 : kfn;
         s->cpy_func(s->user_arg, dst, kf);
     }
@@ -128,8 +121,7 @@ int ngli_animation_init(struct animation *s, void *user_arg,
 
     double prev_time = -DBL_MAX;
     for (int i = 0; i < nb_kfs; i++) {
-        const struct animkeyframe_priv *kf_priv = kfs[i]->priv_data;
-        const struct animkeyframe_opts *kf = &kf_priv->opts;
+        const struct animkeyframe_opts *kf = kfs[i]->opts;
 
         if (kf->time < prev_time) {
             LOG(ERROR, "key frames must be monotonically increasing: %g < %g",

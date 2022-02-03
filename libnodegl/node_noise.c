@@ -34,7 +34,6 @@ struct noise_opts {
 
 struct noise_priv {
     struct variable_priv var;
-    struct noise_opts opts;
     struct noise generator[4];
 };
 
@@ -48,7 +47,7 @@ const struct param_choices noise_func_choices = {
     }
 };
 
-#define OFFSET(x) offsetof(struct noise_priv, opts.x)
+#define OFFSET(x) offsetof(struct noise_opts, x)
 static const struct node_param noise_params[] = {
     {"frequency",   NGLI_PARAM_TYPE_F32, OFFSET(frequency), {.f32=1.f},
                     .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
@@ -78,7 +77,7 @@ NGLI_STATIC_ASSERT(variable_priv_is_first, offsetof(struct noise_priv, var) == 0
 static int noisevec_update(struct ngl_node *node, double t, int n)
 {
     struct noise_priv *s = node->priv_data;
-    const struct noise_opts *o = &s->opts;
+    const struct noise_opts *o = node->opts;
     const float v = t * o->frequency;
     for (int i = 0; i < n; i++)
         s->var.vector[i] = ngli_noise_get(&s->generator[i], v);
@@ -105,14 +104,13 @@ static int noisevec4_update(struct ngl_node *node, double t)
     return noisevec_update(node, t, 4);
 }
 
-static int init_noise_generators(struct noise_priv *s, int n)
+static int init_noise_generators(struct noise_priv *s, const struct noise_opts *o, int n)
 {
     /*
      * Every generator is instanciated the same, except for the seed: the seed
      * offset is defined to create a large gap between every components to keep
      * the overlap to the minimum possible
      */
-    const struct noise_opts *o = &s->opts;
     const uint32_t seed_offset = UINT32_MAX / n;
     uint32_t seed = o->generator_params.seed;
     for (int i = 0; i < n; i++) {
@@ -130,11 +128,12 @@ static int init_noise_generators(struct noise_priv *s, int n)
 static int noise##type##_init(struct ngl_node *node)                        \
 {                                                                           \
     struct noise_priv *s = node->priv_data;                                 \
+    const struct noise_opts *o = node->opts;                                \
     s->var.data = s->var.vector;                                            \
     s->var.data_size = count * sizeof(float);                               \
     s->var.data_type = dtype;                                               \
     s->var.dynamic = 1;                                                     \
-    return init_noise_generators(s, count);                                 \
+    return init_noise_generators(s, o, count);                              \
 }                                                                           \
                                                                             \
 const struct node_class ngli_noise##type##_class = {                        \
@@ -143,6 +142,7 @@ const struct node_class ngli_noise##type##_class = {                        \
     .name      = class_name,                                                \
     .init      = noise##type##_init,                                        \
     .update    = noise##type##_update,                                      \
+    .opts_size = sizeof(struct noise_opts),                                 \
     .priv_size = sizeof(struct noise_priv),                                 \
     .params    = noise_params,                                              \
     .params_id = "Noise",                                                   \
