@@ -40,6 +40,21 @@
 #include "backends/gl/texture_gl.h"
 #endif
 
+struct media_opts {
+    const char *filename;
+    int sxplayer_min_level;
+    struct ngl_node *anim;
+    int audio_tex;
+    int max_nb_packets;
+    int max_nb_frames;
+    int max_nb_sink;
+    int max_pixels;
+    int stream_idx;
+    int hwaccel;
+    char *filters;
+    char *vt_pix_fmt;
+};
+
 static const struct param_choices sxplayer_log_level_choices = {
     .name = "sxplayer_log_level",
     .consts = {
