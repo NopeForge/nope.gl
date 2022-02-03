@@ -32,6 +32,7 @@ foreach backend : backends
   # last word in the output.
   has_block              = run_command(cap_cmd + ['block'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_compute            = run_command(cap_cmd + ['compute'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
+  has_ds_resolve         = run_command(cap_cmd + ['depth_stencil_resolve'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_instanced_draw     = run_command(cap_cmd + ['instanced_draw'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_shader_texture_lod = run_command(cap_cmd + ['shader_texture_lod'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
   has_texture_3d         = run_command(cap_cmd + ['texture_3d'], check: true).stdout().split()[-1].to_int() == 1 ? true : false
@@ -267,10 +268,15 @@ foreach backend : backends
     tests_rtt += [
       'feature_depth_msaa',
       'feature_depth_stencil_msaa',
-      'texture_depth_msaa',
-      'texture_depth_stencil_msaa',
-      'sample_depth_msaa',
     ]
+
+    if has_ds_resolve
+      tests_rtt += [
+        'texture_depth_msaa',
+        'texture_depth_stencil_msaa',
+        'sample_depth_msaa',
+    ]
+    endif
   endif
 
   tests_shape = [
