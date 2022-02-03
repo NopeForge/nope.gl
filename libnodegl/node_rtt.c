@@ -98,6 +98,7 @@ static const struct node_param rtt_params[] = {
 
 struct rtt_texture_info {
     struct texture_priv *texture_priv;
+    const struct texture_opts *texture_opts;
     int layer_base;
     int layer_count;
 };
@@ -107,16 +108,21 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
     if (node->cls->id == NGL_NODE_TEXTUREVIEW) {
         struct textureview_priv *textureview_priv = node->priv_data;
         const struct textureview_opts *textureview_opts = &textureview_priv->opts;
+        struct texture_priv *texture_priv = textureview_opts->texture->priv_data;
+        const struct texture_opts *texture_opts = &texture_priv->opts;
         const struct rtt_texture_info info = {
-            .texture_priv = textureview_opts->texture->priv_data,
+            .texture_priv = texture_priv,
+            .texture_opts = texture_opts,
             .layer_base = textureview_opts->layer,
             .layer_count = 1,
         };
         return info;
     } else {
         struct texture_priv *texture_priv = node->priv_data;
+        const struct texture_opts *texture_opts = &texture_priv->opts;
         const struct rtt_texture_info info = {
             .texture_priv = texture_priv,
+            .texture_opts = texture_opts,
             .layer_base = 0,
             .layer_count = node->cls->id == NGL_NODE_TEXTURECUBE ? 6 : 1,
         };
