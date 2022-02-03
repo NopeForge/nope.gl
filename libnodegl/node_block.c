@@ -283,8 +283,8 @@ static int check_dup_labels(const char *block_name, struct ngl_node * const *nod
     return 0;
 }
 
-#define FEATURES_STD140 (NGLI_FEATURE_UNIFORM_BUFFER_OBJECT | NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT)
-#define FEATURES_STD430 (NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT)
+#define FEATURES_STD140 (NGLI_FEATURE_UNIFORM_BUFFER | NGLI_FEATURE_STORAGE_BUFFER)
+#define FEATURES_STD430 (NGLI_FEATURE_STORAGE_BUFFER)
 
 static int block_init(struct ngl_node *node)
 {

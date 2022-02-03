@@ -22,7 +22,7 @@
 #ifndef FEATURE_H
 #define FEATURE_H
 
-#define NGLI_FEATURE_COMPUTE_SHADER_ALL                (1 << 0)
+#define NGLI_FEATURE_COMPUTE                           (1 << 0)
 #define NGLI_FEATURE_INSTANCED_DRAW                    (1 << 1)
 #define NGLI_FEATURE_FRAMEBUFFER_OBJECT                (1 << 2)
 #define NGLI_FEATURE_SHADER_TEXTURE_LOD                (1 << 3)
@@ -31,7 +31,7 @@
 #define NGLI_FEATURE_TEXTURE_CUBE_MAP                  (1 << 6)
 #define NGLI_FEATURE_TEXTURE_NPOT                      (1 << 7)
 #define NGLI_FEATURE_UINT_UNIFORMS                     (1 << 8)
-#define NGLI_FEATURE_UNIFORM_BUFFER_OBJECT             (1 << 9)
-#define NGLI_FEATURE_SHADER_STORAGE_BUFFER_OBJECT      (1 << 10)
+#define NGLI_FEATURE_UNIFORM_BUFFER                    (1 << 9)
+#define NGLI_FEATURE_STORAGE_BUFFER                    (1 << 10)
 
 #endif
