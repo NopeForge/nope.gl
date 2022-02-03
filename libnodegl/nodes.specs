@@ -1,7 +1,3 @@
-#
-# Nodes specifications for node.gl v0.1.0
-#
-
 _Node:
     - [label, str, ""]
 
