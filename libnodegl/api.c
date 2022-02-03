@@ -268,7 +268,6 @@ static int cmd_set_scene(struct ngl_ctx *s, void *arg)
             ngli_node_detach_ctx(scene, s);
             return ret;
         }
-
         s->scene = ngl_node_ref(scene);
     }
 
