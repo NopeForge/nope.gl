@@ -25,7 +25,7 @@
 #include "internal.h"
 #include "nodegl.h"
 
-#define OFFSET(x) offsetof(struct textureview_priv, x)
+#define OFFSET(x) offsetof(struct textureview_priv, opts.x)
 static const struct node_param textureview_params[] = {
     {"texture", NGLI_PARAM_TYPE_NODE, OFFSET(texture),
                 .flags = NGLI_PARAM_FLAG_NON_NULL,
@@ -39,18 +39,19 @@ static const struct node_param textureview_params[] = {
 static int textureview_init(struct ngl_node *node)
 {
     struct textureview_priv *s = node->priv_data;
+    const struct textureview_opts *o = &s->opts;
 
-    if (s->layer < 0) {
+    if (o->layer < 0) {
         LOG(ERROR, "layer cannot be negative");
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (s->texture->cls->id == NGL_NODE_TEXTURE2D && s->layer) {
+    if (o->texture->cls->id == NGL_NODE_TEXTURE2D && o->layer) {
         LOG(ERROR, "2d textures only have one layer");
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (s->texture->cls->id == NGL_NODE_TEXTURECUBE && s->layer >= 6) {
+    if (o->texture->cls->id == NGL_NODE_TEXTURECUBE && o->layer >= 6) {
         LOG(ERROR, "cubemap textures only have 6 layers");
         return NGL_ERROR_INVALID_ARG;
     }

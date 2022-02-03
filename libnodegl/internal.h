@@ -500,9 +500,13 @@ struct pathkey_bezier3_priv {
     struct pathkey_bezier3_opts opts;
 };
 
-struct textureview_priv {
+struct textureview_opts {
     struct ngl_node *texture;
     int layer;
+};
+
+struct textureview_priv {
+    struct textureview_opts opts;
 };
 
 enum {

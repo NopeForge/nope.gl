@@ -103,9 +103,10 @@ static struct rtt_texture_info get_rtt_texture_info(struct ngl_node *node)
 {
     if (node->cls->id == NGL_NODE_TEXTUREVIEW) {
         struct textureview_priv *textureview_priv = node->priv_data;
+        const struct textureview_opts *textureview_opts = &textureview_priv->opts;
         const struct rtt_texture_info info = {
-            .texture_priv = textureview_priv->texture->priv_data,
-            .layer_base = textureview_priv->layer,
+            .texture_priv = textureview_opts->texture->priv_data,
+            .layer_base = textureview_opts->layer,
             .layer_count = 1,
         };
         return info;
