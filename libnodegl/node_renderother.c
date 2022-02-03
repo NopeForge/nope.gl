@@ -739,17 +739,18 @@ static int rendertexture_prepare(struct ngl_node *node)
         return ret;
 
     struct texture_priv *texture_priv = o->texture_node->priv_data;
+    struct texture_opts *texture_opts = &texture_priv->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "tex",
             .stage       = NGLI_PROGRAM_SHADER_FRAG,
             .image       = &texture_priv->image,
             .format      = texture_priv->params.format,
-            .clamp_video = texture_priv->clamp_video,
+            .clamp_video = texture_opts->clamp_video,
         },
     };
 
-    if (texture_priv->data_src && texture_priv->data_src->cls->id == NGL_NODE_MEDIA)
+    if (texture_opts->data_src && texture_opts->data_src->cls->id == NGL_NODE_MEDIA)
         textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
     else
         textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;

@@ -326,13 +326,17 @@ struct program_priv {
 extern const struct param_choices ngli_mipmap_filter_choices;
 extern const struct param_choices ngli_filter_choices;
 
-struct texture_priv {
+struct texture_opts {
     int requested_format;
     struct texture_params params;
     struct ngl_node *data_src;
     int direct_rendering;
     int clamp_video;
+};
 
+struct texture_priv {
+    struct texture_params params;
+    struct texture_opts opts;
     uint32_t supported_image_layouts;
     struct texture *texture;
     struct image image;

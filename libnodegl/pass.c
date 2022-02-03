@@ -121,6 +121,7 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
         return NGL_ERROR_MEMORY;
 
     struct texture_priv *texture_priv = texture->priv_data;
+    struct texture_opts *texture_opts = &texture_priv->opts;
 
     /*
      * Note: we do not assign crafter_texture.texture here since it is not
@@ -131,13 +132,13 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
         .stage  = stage,
         .image  = &texture_priv->image,
         .format = texture_priv->params.format,
-        .clamp_video = texture_priv->clamp_video,
+        .clamp_video = texture_opts->clamp_video,
     };
     snprintf(crafter_texture.name, sizeof(crafter_texture.name), "%s", name);
 
     switch (texture->cls->id) {
     case NGL_NODE_TEXTURE2D:
-        if (texture_priv->data_src && texture_priv->data_src->cls->id == NGL_NODE_MEDIA)
+        if (texture_opts->data_src && texture_opts->data_src->cls->id == NGL_NODE_MEDIA)
             crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
         else
             crafter_texture.type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;

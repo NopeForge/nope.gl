@@ -128,7 +128,8 @@ static int rtt_init(struct ngl_node *node)
     for (int i = 0; i < s->nb_color_textures; i++) {
         const struct rtt_texture_info info = get_rtt_texture_info(s->color_textures[i]);
         const struct texture_priv *texture_priv = info.texture_priv;
-        if (texture_priv->data_src) {
+        const struct texture_opts *texture_opts = &texture_priv->opts;
+        if (texture_opts->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
         }
@@ -137,7 +138,8 @@ static int rtt_init(struct ngl_node *node)
     if (s->depth_texture) {
         const struct rtt_texture_info info = get_rtt_texture_info(s->depth_texture);
         const struct texture_priv *texture_priv = info.texture_priv;
-        if (texture_priv->data_src) {
+        const struct texture_opts *texture_opts = &texture_priv->opts;
+        if (texture_opts->data_src) {
             LOG(ERROR, "render targets cannot have a data source");
             return NGL_ERROR_INVALID_ARG;
         }

@@ -164,7 +164,7 @@ static const struct param_choices format_choices = {
                                              -1}
 
 
-#define OFFSET(x) offsetof(struct texture_priv, x)
+#define OFFSET(x) offsetof(struct texture_priv, opts.x)
 static const struct node_param texture2d_params[] = {
     {"format", NGLI_PARAM_TYPE_SELECT, OFFSET(requested_format), {.i32=NGLI_FORMAT_R8G8B8A8_UNORM},
                .choices=&format_choices,
@@ -250,6 +250,7 @@ static int texture_prefetch(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
+    const struct texture_opts *o = &s->opts;
     struct texture_params *params = &s->params;
 
     if (params->type == NGLI_TEXTURE_TYPE_CUBE)
@@ -262,10 +263,10 @@ static int texture_prefetch(struct ngl_node *node)
 
     const uint8_t *data = NULL;
 
-    if (s->data_src) {
-        switch (s->data_src->cls->id) {
+    if (o->data_src) {
+        switch (o->data_src->cls->id) {
         case NGL_NODE_MEDIA: {
-            struct ngl_node *media = s->data_src;
+            struct ngl_node *media = o->data_src;
             ngli_unused struct media_priv *media_priv = media->priv_data;
             const struct hwmap_params hwmap_params = {
                 .label                 = node->label,
@@ -307,7 +308,7 @@ static int texture_prefetch(struct ngl_node *node)
         case NGL_NODE_BUFFERFLOAT:
         case NGL_NODE_BUFFERVEC2:
         case NGL_NODE_BUFFERVEC4: {
-            struct buffer_priv *buffer = s->data_src->priv_data;
+            struct buffer_priv *buffer = o->data_src->priv_data;
             if (buffer->block) {
                 LOG(ERROR, "buffers used as a texture data source referencing a block are not supported");
                 return NGL_ERROR_UNSUPPORTED;
@@ -366,7 +367,8 @@ static int texture_prefetch(struct ngl_node *node)
 static int handle_media_frame(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
-    struct media_priv *media = s->data_src->priv_data;
+    const struct texture_opts *o = &s->opts;
+    struct media_priv *media = o->data_src->priv_data;
     struct sxplayer_frame *frame = media->frame;
     if (!frame)
         return 0;
@@ -390,7 +392,8 @@ static int handle_media_frame(struct ngl_node *node)
 static int handle_buffer_frame(struct ngl_node *node)
 {
     struct texture_priv *s = node->priv_data;
-    struct buffer_priv *buffer = s->data_src->priv_data;
+    const struct texture_opts *o = &s->opts;
+    struct buffer_priv *buffer = o->data_src->priv_data;
     const uint8_t *data = buffer->data;
 
     int ret = ngli_texture_upload(s->texture, data, 0);
@@ -405,15 +408,16 @@ static int handle_buffer_frame(struct ngl_node *node)
 static int texture_update(struct ngl_node *node, double t)
 {
     struct texture_priv *s = node->priv_data;
+    const struct texture_opts *o = &s->opts;
 
-    if (!s->data_src)
+    if (!o->data_src)
         return 0;
 
-    int ret = ngli_node_update(s->data_src, t);
+    int ret = ngli_node_update(o->data_src, t);
     if (ret < 0)
         return ret;
 
-    switch (s->data_src->cls->id) {
+    switch (o->data_src->cls->id) {
         case NGL_NODE_MEDIA:
             /*
              * Tolerate media frames mapping/upload failures because they are
@@ -460,6 +464,9 @@ static int texture2d_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct texture_priv *s = node->priv_data;
+    const struct texture_opts *o = &s->opts;
+
+    s->params = o->params;
 
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_2d;
     if (s->params.width  > max_dimension ||
@@ -469,15 +476,15 @@ static int texture2d_init(struct ngl_node *node)
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
     s->params.type = NGLI_TEXTURE_TYPE_2D;
-    s->params.format = get_preferred_format(gpu_ctx, s->requested_format);
-    s->supported_image_layouts = s->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
+    s->params.format = get_preferred_format(gpu_ctx, o->requested_format);
+    s->supported_image_layouts = o->direct_rendering ? -1 : (1 << NGLI_IMAGE_LAYOUT_DEFAULT);
 
     /*
      * On Android, the frame can only be uploaded once and each subsequent
      * upload will be a noop which results in an empty texture. This limitation
      * prevents us from sharing the Media node across multiple textures.
      */
-    struct ngl_node *data_src = s->data_src;
+    struct ngl_node *data_src = o->data_src;
     if (data_src && data_src->cls->id == NGL_NODE_MEDIA) {
         struct media_priv *media_priv = data_src->priv_data;
         if (media_priv->nb_parents++ > 0) {
@@ -494,13 +501,16 @@ static int texture3d_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct texture_priv *s = node->priv_data;
+    const struct texture_opts *o = &s->opts;
+
+    s->params = o->params;
 
     if (!(gpu_ctx->features & NGLI_FEATURE_TEXTURE_3D)) {
         LOG(ERROR, "context does not support 3D textures");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
-    struct texture_priv *s = node->priv_data;
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_3d;
     if (s->params.width  > max_dimension ||
         s->params.height > max_dimension ||
@@ -511,7 +521,7 @@ static int texture3d_init(struct ngl_node *node)
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
     s->params.type = NGLI_TEXTURE_TYPE_3D;
-    s->params.format = get_preferred_format(gpu_ctx, s->requested_format);
+    s->params.format = get_preferred_format(gpu_ctx, o->requested_format);
 
     return 0;
 }
@@ -520,13 +530,16 @@ static int texturecube_init(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct texture_priv *s = node->priv_data;
+    const struct texture_opts *o = &s->opts;
+
+    s->params = o->params;
 
     if (!(gpu_ctx->features & NGLI_FEATURE_TEXTURE_CUBE_MAP)) {
         LOG(ERROR, "context does not support cube map textures");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
 
-    struct texture_priv *s = node->priv_data;
     const int max_dimension = gpu_ctx->limits.max_texture_dimension_cube;
     if (s->params.width  > max_dimension ||
         s->params.height > max_dimension) {
@@ -535,7 +548,7 @@ static int texturecube_init(struct ngl_node *node)
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }
     s->params.type = NGLI_TEXTURE_TYPE_CUBE;
-    s->params.format = get_preferred_format(gpu_ctx, s->requested_format);
+    s->params.format = get_preferred_format(gpu_ctx, o->requested_format);
 
     return 0;
 }
