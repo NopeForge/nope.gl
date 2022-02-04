@@ -394,7 +394,8 @@ static int rtt_prefetch(struct ngl_node *node)
              * interrupted we can discard the depth attachment at the end of
              * the renderpass.
              */
-            rt_params.depth_stencil.store_op = nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+            const int store_op = nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+            rt_params.depth_stencil.store_op = store_op;
         }
     }
 
@@ -423,7 +424,8 @@ static int rtt_prefetch(struct ngl_node *node)
              * *once*, we can discard the depth attachment at the end of the
              * renderpass.
              */
-            rt_params.depth_stencil.store_op = nb_interruptions > 1 ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+            const int store_op = nb_interruptions > 1 ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+            rt_params.depth_stencil.store_op = store_op;
         }
 
         s->rt_resume = ngli_rendertarget_create(gpu_ctx);
