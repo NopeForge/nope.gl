@@ -283,6 +283,10 @@ static void mc_uninit(struct hwmap *hwmap)
 const struct hwmap_class ngli_hwmap_mc_gl_class = {
     .name      = "mediacodec (oes zero-copy)",
     .hwformat  = SXPLAYER_PIXFMT_MEDIACODEC,
+    .layouts   = (const int[]){
+        NGLI_IMAGE_LAYOUT_MEDIACODEC,
+        NGLI_IMAGE_LAYOUT_NONE
+    },
     .priv_size = sizeof(struct hwmap_mc),
     .init      = mc_init,
     .map_frame = mc_map_frame,

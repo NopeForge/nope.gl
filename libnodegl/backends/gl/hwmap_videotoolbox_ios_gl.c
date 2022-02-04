@@ -249,6 +249,11 @@ static int vt_ios_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
 const struct hwmap_class ngli_hwmap_vt_ios_gl_class = {
     .name      = "videotoolbox (zero-copy)",
     .hwformat  = SXPLAYER_PIXFMT_VT,
+    .layouts   = (const int[]){
+        NGLI_IMAGE_LAYOUT_DEFAULT,
+        NGLI_IMAGE_LAYOUT_NV12,
+        NGLI_IMAGE_LAYOUT_NONE
+    },
     .priv_size = sizeof(struct hwmap_vt_ios),
     .init      = vt_ios_init,
     .map_frame = vt_ios_map_frame,

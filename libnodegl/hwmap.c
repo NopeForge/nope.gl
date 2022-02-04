@@ -125,6 +125,37 @@ static int exec_hwconv(struct hwmap *hwmap)
     return 0;
 }
 
+static const struct hwmap_class **get_backend_hwmap_classes(int backend)
+{
+#ifdef BACKEND_GL
+    if (backend == NGL_BACKEND_OPENGL || backend == NGL_BACKEND_OPENGLES)
+        return ngli_hwmap_gl_classes;
+#endif
+    return NULL;
+}
+
+static int is_image_layout_supported(const struct hwmap_class **classes, int image_layout)
+{
+    if (!classes)
+        return 0;
+    for (int i = 0; classes[i]; i++) {
+        const int *layouts = classes[i]->layouts;
+        ngli_assert(layouts);
+        for (int j = 0; layouts[j] != NGLI_IMAGE_LAYOUT_NONE; j++)
+            if (layouts[j] == image_layout)
+                return 1;
+    }
+    return 0;
+}
+
+int ngli_hwmap_is_image_layout_supported(int backend, int image_layout)
+{
+    static const struct hwmap_class *default_hwmap_classes[] = {&ngli_hwmap_common_class, NULL};
+    const struct hwmap_class **extra_hwmap_classes = get_backend_hwmap_classes(backend);
+    return is_image_layout_supported(extra_hwmap_classes, image_layout) ||
+           is_image_layout_supported(default_hwmap_classes, image_layout);
+}
+
 int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap_params *params)
 {
     memset(hwmap, 0, sizeof(*hwmap));
@@ -132,11 +163,8 @@ int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap
     hwmap->params = *params;
     hwmap->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
 
-    ngli_unused const struct ngl_config *config = &ctx->config;
-#ifdef BACKEND_GL
-    if (config->backend == NGL_BACKEND_OPENGL || config->backend == NGL_BACKEND_OPENGLES)
-        hwmap->hwmap_classes = ngli_hwmap_gl_classes;
-#endif
+    const struct ngl_config *config = &ctx->config;
+    hwmap->hwmap_classes = get_backend_hwmap_classes(config->backend);
 
     return 0;
 }

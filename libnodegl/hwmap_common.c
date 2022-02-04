@@ -268,6 +268,12 @@ static int common_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
 const struct hwmap_class ngli_hwmap_common_class = {
     .name      = "default",
     .hwformat  = -1, /* TODO: replace with SXPLAYER_PIXFMT_NONE */
+    .layouts   = (const int[]){
+        NGLI_IMAGE_LAYOUT_DEFAULT,
+        NGLI_IMAGE_LAYOUT_NV12,
+        NGLI_IMAGE_LAYOUT_YUV,
+        NGLI_IMAGE_LAYOUT_NONE
+    },
     .priv_size = sizeof(struct hwmap_common),
     .init      = common_init,
     .map_frame = common_map_frame,
