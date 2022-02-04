@@ -527,15 +527,6 @@ static inline int get_pixel_pos(struct hud *s, int px, int py)
     return (py * s->canvas.w + px) * 4;
 }
 
-static int clip(int x, int min, int max)
-{
-    if (x < min)
-        return min;
-    if (x > max)
-        return max;
-    return x;
-}
-
 static void draw_block_graph(struct hud *s,
                              const struct data_graph *d,
                              const struct rect *rect,
@@ -549,7 +540,7 @@ static void draw_block_graph(struct hud *s,
     for (int k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (v - graph_min) * vscale;
-        const int y = clip(rect->h - h, 0, rect->h);
+        const int y = NGLI_CLAMP(rect->h - h, 0, rect->h);
         uint8_t *p = s->canvas.buf + get_pixel_pos(s, rect->x + k, rect->y + y);
 
         for (int z = 0; z < h; z++) {
@@ -573,7 +564,7 @@ static void draw_line_graph(struct hud *s,
     for (int k = 0; k < d->count; k++) {
         const int64_t v = d->values[(start + k) % d->nb_values];
         const int h = (v - graph_min) * vscale;
-        const int y = clip(rect->h - 1 - h, 0, rect->h - 1);
+        const int y = NGLI_CLAMP(rect->h - 1 - h, 0, rect->h - 1);
         uint8_t *p = s->canvas.buf + get_pixel_pos(s, rect->x + k, rect->y + y);
 
         set_color(p, c);
