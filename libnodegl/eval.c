@@ -65,9 +65,7 @@ static float f_noop(float x) { return x; }
 
 static float f_clamp(float x, float min, float max)
 {
-    if (x < min) return min;
-    if (x > max) return max;
-    return x;
+    return NGLI_CLAMP(x, min, max);
 }
 
 static float f_sign(float x)
