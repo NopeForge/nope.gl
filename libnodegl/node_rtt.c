@@ -230,6 +230,7 @@ static int rtt_prefetch(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct rtt_priv *s = node->priv_data;
+    const int nb_interruptions = s->renderpass_info.nb_interruptions;
 
     if (!(gpu_ctx->features & NGLI_FEATURE_COLOR_RESOLVE) && s->samples > 0) {
         LOG(WARNING, "context does not support resolving color attachments, "
@@ -393,7 +394,7 @@ static int rtt_prefetch(struct ngl_node *node)
              * interrupted we can discard the depth attachment at the end of
              * the renderpass.
              */
-            rt_params.depth_stencil.store_op = s->renderpass_info.nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+            rt_params.depth_stencil.store_op = nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
         }
     }
 
@@ -408,7 +409,7 @@ static int rtt_prefetch(struct ngl_node *node)
     s->available_rendertargets[0] = s->rt;
     s->available_rendertargets[1] = s->rt;
 
-    if (s->renderpass_info.nb_interruptions) {
+    if (nb_interruptions) {
         for (int i = 0; i < rt_params.nb_colors; i++)
             rt_params.colors[i].load_op = NGLI_LOAD_OP_LOAD;
         rt_params.depth_stencil.load_op = NGLI_LOAD_OP_LOAD;
@@ -422,7 +423,7 @@ static int rtt_prefetch(struct ngl_node *node)
              * *once*, we can discard the depth attachment at the end of the
              * renderpass.
              */
-            rt_params.depth_stencil.store_op = s->renderpass_info.nb_interruptions > 1 ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+            rt_params.depth_stencil.store_op = nb_interruptions > 1 ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
         }
 
         s->rt_resume = ngli_rendertarget_create(gpu_ctx);
