@@ -27,6 +27,7 @@
 #include "gpu_ctx.h"
 #include "format.h"
 #include "hmap.h"
+#include "hwmap.h"
 #include "log.h"
 #include "memory.h"
 #include "internal.h"
@@ -710,6 +711,9 @@ struct token {
 static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
                         const struct token *token, const char *p, struct bstr *dst)
 {
+    struct ngl_ctx *ctx = s->ctx;
+    const struct ngl_config *config = &ctx->config;
+
     /* Skip "ngl_XXX(" and the whitespaces */
     p += strlen(token->id);
     p += strspn(p, WHITESPACES);
@@ -747,37 +751,54 @@ static int handle_token(struct pgcraft *s, const struct pgcraft_params *params,
         if (clamp)
             ngli_bstr_print(dst, "clamp(");
 
-        /* Sampling mode values correspond to NGLI_IMAGE_LAYOUT_* constants */
         ngli_bstr_print(dst, "(");
-#if defined(TARGET_ANDROID)
-        ngli_bstr_printf(dst, "%.*s_sampling_mode == 2 ? ", ARG_FMT(arg0));
-        ngli_bstr_printf(dst, "ngl_tex2d(%.*s_oes, %.*s) : ", ARG_FMT(arg0), ARG_FMT(coords));
-#elif defined(TARGET_DARWIN)
-        ngli_bstr_printf(dst, " %.*s_sampling_mode == 4 ? ", ARG_FMT(arg0));
-        ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(ngl_tex2d(%.*s_rect_0, (%.*s) * %.*s_dimensions).r, "
-                                                       "ngl_tex2d(%.*s_rect_1, (%.*s) * %.*s_dimensions / 2.0).rg, 1.0) : ",
-                         ARG_FMT(arg0),
-                         ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0),
-                         ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
-        ngli_bstr_printf(dst, "%.*s_sampling_mode == 6 ? ", ARG_FMT(arg0));
-        ngli_bstr_printf(dst, "ngl_tex2d(%.*s_rect_0, (%.*s) * %.*s_dimensions) : ",
-                         ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
-#endif
-        ngli_bstr_printf(dst, "%.*s_sampling_mode == 3 ? ", ARG_FMT(arg0));
-        ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(ngl_tex2d(%.*s,   %.*s).r, "
-                                                       "ngl_tex2d(%.*s_1, %.*s).%s, 1.0) : ",
-                         ARG_FMT(arg0),
-                         ARG_FMT(arg0), ARG_FMT(coords),
-                         ARG_FMT(arg0), ARG_FMT(coords), s->rg);
-        ngli_bstr_printf(dst, "%.*s_sampling_mode == 5 ? ", ARG_FMT(arg0));
-        ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(ngl_tex2d(%.*s,   %.*s).r, "
-                                                       "ngl_tex2d(%.*s_1, %.*s).r, "
-                                                       "ngl_tex2d(%.*s_2, %.*s).r, 1.0)",
-                         ARG_FMT(arg0),
-                         ARG_FMT(arg0), ARG_FMT(coords),
-                         ARG_FMT(arg0), ARG_FMT(coords),
-                         ARG_FMT(arg0), ARG_FMT(coords));
-        ngli_bstr_printf(dst, " : ngl_tex2d(%.*s, %.*s)", ARG_FMT(arg0), ARG_FMT(coords));
+
+        if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_MEDIACODEC)) {
+            ngli_bstr_printf(dst, "%.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_MEDIACODEC);
+            ngli_bstr_printf(dst, "ngl_tex2d(%.*s_oes, %.*s) : ", ARG_FMT(arg0), ARG_FMT(coords));
+        }
+
+        if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_NV12_RECTANGLE)) {
+            ngli_bstr_printf(dst, " %.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_NV12_RECTANGLE);
+            ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(ngl_tex2d(%.*s_rect_0, (%.*s) * %.*s_dimensions).r, "
+                                                           "ngl_tex2d(%.*s_rect_1, (%.*s) * %.*s_dimensions / 2.0).rg, 1.0) : ",
+                             ARG_FMT(arg0),
+                             ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0),
+                             ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
+        }
+
+        if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_RECTANGLE)) {
+            ngli_bstr_printf(dst, "%.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_RECTANGLE);
+            ngli_bstr_printf(dst, "ngl_tex2d(%.*s_rect_0, (%.*s) * %.*s_dimensions) : ",
+                             ARG_FMT(arg0), ARG_FMT(coords), ARG_FMT(arg0));
+        }
+
+        if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_NV12)) {
+            ngli_bstr_printf(dst, "%.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_NV12);
+            ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(ngl_tex2d(%.*s,   %.*s).r, "
+                                                           "ngl_tex2d(%.*s_1, %.*s).%s, 1.0) : ",
+                             ARG_FMT(arg0),
+                             ARG_FMT(arg0), ARG_FMT(coords),
+                             ARG_FMT(arg0), ARG_FMT(coords), s->rg);
+        }
+
+        if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_YUV)) {
+            ngli_bstr_printf(dst, "%.*s_sampling_mode == %d ? ", ARG_FMT(arg0), NGLI_IMAGE_LAYOUT_YUV);
+            ngli_bstr_printf(dst, "%.*s_color_matrix * vec4(ngl_tex2d(%.*s,   %.*s).r, "
+                                                           "ngl_tex2d(%.*s_1, %.*s).r, "
+                                                           "ngl_tex2d(%.*s_2, %.*s).r, 1.0) : ",
+                             ARG_FMT(arg0),
+                             ARG_FMT(arg0), ARG_FMT(coords),
+                             ARG_FMT(arg0), ARG_FMT(coords),
+                             ARG_FMT(arg0), ARG_FMT(coords));
+        }
+
+        if (ngli_hwmap_is_image_layout_supported(config->backend, NGLI_IMAGE_LAYOUT_DEFAULT)) {
+            ngli_bstr_printf(dst, "ngl_tex2d(%.*s, %.*s)", ARG_FMT(arg0), ARG_FMT(coords));
+        } else {
+            LOG(WARNING, "default image layout not supported in current build");
+            ngli_bstr_print(dst, "vec4(1.0, 0.0, 0.0, 1.0)"); /* red color */
+        }
 
         ngli_bstr_print(dst, ")");
         if (clamp)
