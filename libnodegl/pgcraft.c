@@ -269,9 +269,10 @@ static int prepare_texture_info_fields(struct pgcraft *s, const struct pgcraft_p
     for (int i = 0; i < NGLI_INFO_FIELD_NB; i++) {
         struct pgcraft_texture_info_field *field = &info->fields[i];
 
-        field->type = types_map[i];
-        if (field->type == NGLI_TYPE_NONE)
+        const int type = types_map[i];
+        if (type == NGLI_TYPE_NONE)
             continue;
+        field->type = type;
         int len = snprintf(field->name, sizeof(field->name), "%s%s", texture->name, texture_info_suffixes[i]);
         if (len >= sizeof(field->name)) {
             LOG(ERROR, "texture name \"%s\" is too long", texture->name);
