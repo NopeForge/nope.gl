@@ -24,6 +24,7 @@
 #include "darray.h"
 #include "filterschain.h"
 #include "internal.h"
+#include "pgcraft.h"
 #include "type.h"
 
 /* GLSL filters as string */
