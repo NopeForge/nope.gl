@@ -101,17 +101,22 @@ static void config_reset(struct ngl_config *config)
     memset(config, 0, sizeof(*config));
 }
 
+static void scene_reset(struct ngl_ctx *s, int action)
+{
+    ngli_hud_freep(&s->hud);
+    if (s->scene) {
+        ngli_node_detach_ctx(s->scene, s);
+        if (action == UNREF_SCENE)
+            ngl_node_unrefp(&s->scene);
+    }
+    ngli_rnode_reset(&s->rnode);
+}
+
 static int cmd_reset(struct ngl_ctx *s, void *arg)
 {
     if (s->gpu_ctx)
         ngli_gpu_ctx_wait_idle(s->gpu_ctx);
-    ngli_hud_freep(&s->hud);
-    if (s->scene) {
-        ngli_node_detach_ctx(s->scene, s);
-        if (*(int *)arg == UNREF_SCENE)
-            ngl_node_unrefp(&s->scene);
-    }
-    ngli_rnode_reset(&s->rnode);
+    scene_reset(s, *(int *)arg);
 #if defined(HAVE_VAAPI)
     ngli_vaapi_ctx_reset(&s->vaapi_ctx);
 #endif
@@ -248,13 +253,7 @@ static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 {
     ngli_gpu_ctx_wait_idle(s->gpu_ctx);
-
-    ngli_hud_freep(&s->hud);
-    if (s->scene) {
-        ngli_node_detach_ctx(s->scene, s);
-        ngl_node_unrefp(&s->scene);
-    }
-    ngli_rnode_reset(&s->rnode);
+    scene_reset(s, UNREF_SCENE);
 
     ngli_rnode_init(&s->rnode);
     s->rnode_pos = &s->rnode;
