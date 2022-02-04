@@ -266,6 +266,8 @@ foreach backend : backends
 
   if max_samples >= 4
     tests_rtt += [
+      'load_attachment_msaa',
+      'load_attachment_nested_msaa',
       'feature_depth_msaa',
       'feature_depth_stencil_msaa',
     ]

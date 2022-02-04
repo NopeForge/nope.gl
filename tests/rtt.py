@@ -211,9 +211,13 @@ def rtt_load_attachment(cfg):
     return _rtt_load_attachment(cfg)
 
 
-@test_cuepoints(width=32, height=32, points={'bottom-left': (-0.5, -0.5), 'top-right': (0.5, 0.5)}, tolerance=1)
+@test_cuepoints(samples=4, width=32, height=32, points={'bottom-left': (-0.5, -0.5), 'top-right': (0.5, 0.5)}, tolerance=1)
 @scene()
-def rtt_load_attachment_nested(cfg):
+def rtt_load_attachment_msaa(cfg):
+    return _rtt_load_attachment(cfg)
+
+
+def _rtt_load_attachment_nested(cfg, samples=0):
     scene = _rtt_load_attachment(cfg)
 
     texture = ngl.Texture2D(width=16, height=16)
@@ -222,6 +226,17 @@ def rtt_load_attachment_nested(cfg):
     foreground = ngl.RenderTexture(texture)
 
     return ngl.Group(children=(rtt, foreground))
+
+@test_cuepoints(width=32, height=32, points={'bottom-left': (-0.5, -0.5), 'top-right': (0.5, 0.5)}, tolerance=1)
+@scene()
+def rtt_load_attachment_nested(cfg):
+    return _rtt_load_attachment_nested(cfg)
+
+
+@test_cuepoints(width=32, height=32, points={'bottom-left': (-0.5, -0.5), 'top-right': (0.5, 0.5)}, tolerance=1)
+@scene()
+def rtt_load_attachment_nested_msaa(cfg):
+    return _rtt_load_attachment_nested(cfg, 4)
 
 
 @test_fingerprint(width=512, height=512, nb_keyframes=10, tolerance=3)
