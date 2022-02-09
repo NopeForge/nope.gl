@@ -59,7 +59,35 @@ struct pgcraft_texture {
     int writable;
     int format;
     int clamp_video;
+    /*
+     * Just like the other types (uniforms, blocks, attributes), this field
+     * exists in order to be transmitted to the pipeline (through the
+     * pipeline_resource_params destination). That way, these resources can be
+     * associated with the pipeline straight after the pipeline initialization
+     * (using ngli_pipeline_set_resources()). In the case of the texture
+     * though, there is one exception: if the specified type is
+     * NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO, then the texture field must be NULL.
+     * Indeed, this type implies the potential use of multiple samplers (which
+     * can be hardware accelerated and platform/backend specific) depending on
+     * the image layout. This means that a single texture cannot be used as a
+     * default resource for all these samplers. Moreover, the image layout
+     * (which determines which samplers are used) is generally unknown at
+     * pipeline initialization and it is only known once a frame has been
+     * decoded/mapped. The image structure describes which layout to use and
+     * which textures to bind and the pgcraft_texture_info.fields describes
+     * where to bind the textures and their associated data.
+     */
     struct texture *texture;
+    /*
+     * The image field is a bit special, it is not transmitted directly to the
+     * pipeline but instead to the corresponding pgcraft_texture_info entry
+     * accessible through pgcraft.texture_infos. The user may optionally set it
+     * if they plan to have access to the image information directly through
+     * the pgcraft_texture_info structure. The field is pretty much mandatory
+     * if the user plans to use ngli_pipeline_utils_update_texture() in
+     * conjunction with pgcraft.texture_infos to instruct a pipeline on which
+     * texture resources to use.
+     */
     struct image *image;
 };
 

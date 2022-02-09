@@ -313,6 +313,8 @@ static int prepare_texture_infos(struct pgcraft *s, const struct pgcraft_params 
 {
     for (int i = 0; i < params->nb_textures; i++) {
         const struct pgcraft_texture *texture = &params->textures[i];
+        ngli_assert(!(texture->type == NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO && texture->texture));
+
         struct pgcraft_texture_info info = {
             .stage     = texture->stage,
             .precision = texture->precision,
