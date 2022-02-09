@@ -26,6 +26,7 @@ import hashlib
 import logging
 import os
 import os.path as op
+import stat
 import pathlib
 import platform
 import shlex
@@ -97,6 +98,26 @@ def _file_chk(path, chksum_hexdigest):
     return match
 
 
+def _fix_permissions(path):
+    for root, dirs, files in os.walk(path, topdown=True):
+        for file in files:
+            os.chmod(os.path.join(root, file), stat.S_IRUSR | stat.S_IWUSR)
+        for directory in dirs:
+            os.chmod(os.path.join(root, directory), stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+
+
+def _rmtree(path, ignore_errors=False, onerror=None):
+    """
+    shutil.rmtree wrapper that is resilient to permission issues when
+    encountering read-only files or directories lacking the executable
+    permission.
+    """
+    try:
+        shutil.rmtree(path, ignore_errors, onerror=onerror)
+    except Exception:
+        _fix_permissions(path)
+        shutil.rmtree(path, ignore_errors, onerror=onerror)
+
 def _download_extract(dep_item):
     logging.basicConfig(level='INFO')  # Needed for every process on Windows
 
@@ -142,7 +163,7 @@ def _download_extract(dep_item):
         os.unlink(target)
     elif op.exists(target) and not op.islink(target):
         logging.info('remove previous %s copy', target)
-        shutil.rmtree(target)
+        _rmtree(target)
 
     # Link (or copy)
     if not op.exists(target):
