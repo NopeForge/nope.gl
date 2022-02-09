@@ -49,9 +49,9 @@ struct gpu_ctx_gl {
     int viewport[4];
     int scissor[4];
     struct rendertarget_desc default_rt_desc;
-    /* default rendertarget with load op set to clear */
+    /* Default rendertarget with load op set to clear */
     struct rendertarget *default_rt;
-    /* default rendertarget with load op set to load, useful for resuming the
+    /* Default rendertarget with load op set to load, useful for resuming the
      * associated renderpass (without discarding its attachments) */
     struct rendertarget *default_rt_load;
     /* Offscreen render target resources */
