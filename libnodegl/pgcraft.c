@@ -446,18 +446,15 @@ static const char *glsl_layout_str_map[NGLI_BLOCK_NB_LAYOUTS] = {
 };
 
 static int inject_block(struct pgcraft *s, struct bstr *b,
-                        const struct pgcraft_block *named_block, int stage)
+                        const struct pgcraft_block *named_block)
 {
-    if (named_block->stage != stage)
-        return 0;
-
     const struct block *block = named_block->block;
 
     struct pipeline_buffer_desc pl_buffer_desc = {
         .type    = named_block->type,
         .binding = -1,
         .access  = named_block->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
-        .stage   = stage,
+        .stage   = named_block->stage,
     };
     int len = snprintf(pl_buffer_desc.name, sizeof(pl_buffer_desc.name), "%s_block", named_block->name);
     if (len >= sizeof(pl_buffer_desc.name)) {
@@ -467,7 +464,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
 
     const char *layout = glsl_layout_str_map[block->layout];
     const int bind_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
-    int *next_bind = s->next_bindings[BIND_ID(stage, bind_type)];
+    int *next_bind = s->next_bindings[BIND_ID(named_block->stage, bind_type)];
     pl_buffer_desc.binding = (*next_bind)++;
     if (s->has_explicit_bindings) {
         ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, pl_buffer_desc.binding);
@@ -505,7 +502,10 @@ static int inject_blocks(struct pgcraft *s, struct bstr *b,
                          const struct pgcraft_params *params, int stage)
 {
     for (int i = 0; i < params->nb_blocks; i++) {
-        int ret = inject_block(s, b, &params->blocks[i], stage);
+        const struct pgcraft_block *block = &params->blocks[i];
+        if (block->stage != stage)
+            continue;
+        int ret = inject_block(s, b, &params->blocks[i]);
         if (ret < 0)
             return ret;
     }
