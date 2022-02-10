@@ -183,11 +183,8 @@ static const char *get_precision_qualifier(const struct pgcraft *s, int type, in
 }
 
 static int inject_uniform(struct pgcraft *s, struct bstr *b,
-                          const struct pgcraft_uniform *uniform, int stage)
+                          const struct pgcraft_uniform *uniform)
 {
-    if (uniform->stage != stage)
-        return 0;
-
     struct pipeline_uniform_desc pl_uniform_desc = {
         .type  = uniform->type,
         .count = NGLI_MAX(uniform->count, 1),
@@ -212,7 +209,10 @@ static int inject_uniforms(struct pgcraft *s, struct bstr *b,
                            const struct pgcraft_params *params, int stage)
 {
     for (int i = 0; i < params->nb_uniforms; i++) {
-        int ret = inject_uniform(s, b, &params->uniforms[i], stage);
+        const struct pgcraft_uniform *uniform = &params->uniforms[i];
+        if (uniform->stage != stage)
+            continue;
+        int ret = inject_uniform(s, b, &params->uniforms[i]);
         if (ret < 0)
             return ret;
     }
@@ -419,7 +419,7 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
                 .type = field->type,
             };
             snprintf(uniform.name, sizeof(uniform.name), "%s", field->name);
-            int ret = inject_uniform(s, b, &uniform, stage);
+            int ret = inject_uniform(s, b, &uniform);
             if (ret < 0)
                 return ret;
         }
