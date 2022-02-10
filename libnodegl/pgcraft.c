@@ -501,6 +501,17 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     return 0;
 }
 
+static int inject_blocks(struct pgcraft *s, struct bstr *b,
+                         const struct pgcraft_params *params, int stage)
+{
+    for (int i = 0; i < params->nb_blocks; i++) {
+        int ret = inject_block(s, b, &params->blocks[i], stage);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
+
 static int get_location_count(int type)
 {
     switch (type) {
@@ -544,17 +555,6 @@ static int inject_attribute(struct pgcraft *s, struct bstr *b,
             return NGL_ERROR_MEMORY;
     }
 
-    return 0;
-}
-
-static int inject_blocks(struct pgcraft *s, struct bstr *b,
-                         const struct pgcraft_params *params, int stage)
-{
-    for (int i = 0; i < params->nb_blocks; i++) {
-        int ret = inject_block(s, b, &params->blocks[i], stage);
-        if (ret < 0)
-            return ret;
-    }
     return 0;
 }
 
