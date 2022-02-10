@@ -448,8 +448,6 @@ static const char *glsl_layout_str_map[NGLI_BLOCK_NB_LAYOUTS] = {
 static int inject_block(struct pgcraft *s, struct bstr *b,
                         const struct pgcraft_block *named_block)
 {
-    const struct block *block = named_block->block;
-
     struct pipeline_buffer_desc pl_buffer_desc = {
         .type    = named_block->type,
         .binding = -1,
@@ -462,6 +460,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
         return NGL_ERROR_MEMORY;
     }
 
+    const struct block *block = named_block->block;
     const char *layout = glsl_layout_str_map[block->layout];
     const int bind_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
     int *next_bind = s->next_bindings[BIND_ID(named_block->stage, bind_type)];
