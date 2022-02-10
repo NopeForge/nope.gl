@@ -208,6 +208,17 @@ static int inject_uniform(struct pgcraft *s, struct bstr *b,
     return 0;
 }
 
+static int inject_uniforms(struct pgcraft *s, struct bstr *b,
+                           const struct pgcraft_params *params, int stage)
+{
+    for (int i = 0; i < params->nb_uniforms; i++) {
+        int ret = inject_uniform(s, b, &params->uniforms[i], stage);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
+
 static const char * const texture_info_suffixes[NGLI_INFO_FIELD_NB] = {
     [NGLI_INFO_FIELD_SAMPLING_MODE]     = "_sampling_mode",
     [NGLI_INFO_FIELD_COORDINATE_MATRIX] = "_coord_matrix",
@@ -533,17 +544,6 @@ static int inject_attribute(struct pgcraft *s, struct bstr *b,
             return NGL_ERROR_MEMORY;
     }
 
-    return 0;
-}
-
-static int inject_uniforms(struct pgcraft *s, struct bstr *b,
-                           const struct pgcraft_params *params, int stage)
-{
-    for (int i = 0; i < params->nb_uniforms; i++) {
-        int ret = inject_uniform(s, b, &params->uniforms[i], stage);
-        if (ret < 0)
-            return ret;
-    }
     return 0;
 }
 
