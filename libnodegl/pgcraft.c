@@ -500,15 +500,13 @@ static int get_location_count(int type)
 }
 
 static int inject_attribute(struct pgcraft *s, struct bstr *b,
-                            const struct pgcraft_attribute *attribute, int stage)
+                            const struct pgcraft_attribute *attribute)
 {
-    ngli_assert(stage == NGLI_PROGRAM_SHADER_VERT);
-
     const char *type = get_glsl_type(attribute->type);
     const int attribute_count = get_location_count(attribute->type);
 
-    const int base_location = s->next_in_locations[stage];
-    s->next_in_locations[stage] += attribute_count;
+    const int base_location = s->next_in_locations[NGLI_PROGRAM_SHADER_VERT];
+    s->next_in_locations[NGLI_PROGRAM_SHADER_VERT] += attribute_count;
 
     if (s->has_in_out_layout_qualifiers) {
         ngli_bstr_printf(b, "layout(location=%d) ", base_location);
@@ -561,10 +559,10 @@ static int inject_blocks(struct pgcraft *s, struct bstr *b,
 }
 
 static int inject_attributes(struct pgcraft *s, struct bstr *b,
-                             const struct pgcraft_params *params, int stage)
+                             const struct pgcraft_params *params)
 {
     for (int i = 0; i < params->nb_attributes; i++) {
-        int ret = inject_attribute(s, b, &params->attributes[i], stage);
+        int ret = inject_attribute(s, b, &params->attributes[i]);
         if (ret < 0)
             return ret;
     }
@@ -959,7 +957,7 @@ static int craft_vert(struct pgcraft *s, const struct pgcraft_params *params)
         (ret = inject_uniforms(s, b, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
         (ret = inject_texture_infos(s, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
         (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = inject_attributes(s, b, params, NGLI_PROGRAM_SHADER_VERT)) < 0)
+        (ret = inject_attributes(s, b, params)) < 0)
         return ret;
 
     ngli_bstr_print(b, params->vert_base);
