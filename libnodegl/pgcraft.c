@@ -538,21 +538,38 @@ static int inject_attribute(struct pgcraft *s, struct bstr *b,
     return 0;
 }
 
-#define DEFINE_INJECT_FUNC(e)                                               \
-static int inject_##e##s(struct pgcraft *s, struct bstr *b,                 \
-                         const struct pgcraft_params *params, int stage)    \
-{                                                                           \
-    for (int i = 0; i < params->nb_##e##s; i++) {                           \
-        int ret = inject_##e(s, b, &params->e##s[i], stage);                \
-        if (ret < 0)                                                        \
-            return ret;                                                     \
-    }                                                                       \
-    return 0;                                                               \
+static int inject_uniforms(struct pgcraft *s, struct bstr *b,
+                           const struct pgcraft_params *params, int stage)
+{
+    for (int i = 0; i < params->nb_uniforms; i++) {
+        int ret = inject_uniform(s, b, &params->uniforms[i], stage);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
 }
 
-DEFINE_INJECT_FUNC(uniform)
-DEFINE_INJECT_FUNC(block)
-DEFINE_INJECT_FUNC(attribute)
+static int inject_blocks(struct pgcraft *s, struct bstr *b,
+                         const struct pgcraft_params *params, int stage)
+{
+    for (int i = 0; i < params->nb_blocks; i++) {
+        int ret = inject_block(s, b, &params->blocks[i], stage);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
+
+static int inject_attributes(struct pgcraft *s, struct bstr *b,
+                             const struct pgcraft_params *params, int stage)
+{
+    for (int i = 0; i < params->nb_attributes; i++) {
+        int ret = inject_attribute(s, b, &params->attributes[i], stage);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
 
 const char *ublock_names[] = {
     [NGLI_PROGRAM_SHADER_VERT] = "vert",
