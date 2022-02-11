@@ -1212,13 +1212,13 @@ static void setup_glsl_info_gl(struct pgcraft *s)
                                (gl->features & NGLI_FEATURE_GL_SHADING_LANGUAGE_420PACK);
 
     /*
-     * Bindings are shared across all stages. UBO and SSBO bindings are shared
-     * but distinct from textures bindings.
+     * Bindings are shared across all stages. UBO, SSBO and texture bindings
+     * use distinct binding points.
      */
     for (int i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
         s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_UBO)] = &s->bindings[0];
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_SSBO)] = &s->bindings[0];
-        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_TEXTURE)] = &s->bindings[1];
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_SSBO)] = &s->bindings[1];
+        s->next_bindings[BIND_ID(i, NGLI_BINDING_TYPE_TEXTURE)] = &s->bindings[2];
     }
 
     /* Force non-explicit texture bindings for contexts that do not support
