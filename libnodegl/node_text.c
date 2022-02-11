@@ -494,8 +494,7 @@ static int init_subdesc(struct ngl_node *node,
     if (!desc->crafter)
         return NGL_ERROR_MEMORY;
 
-    struct pipeline_resources pipeline_resources = {0};
-    int ret = ngli_pgcraft_craft(desc->crafter, pipeline_params, &pipeline_resources, crafter_params);
+    int ret = ngli_pgcraft_craft(desc->crafter, crafter_params);
     if (ret < 0)
         return ret;
 
@@ -503,10 +502,14 @@ static int init_subdesc(struct ngl_node *node,
     if (!desc->pipeline)
         return NGL_ERROR_MEMORY;
 
+    pipeline_params->program = ngli_pgcraft_get_program(desc->crafter);
+    pipeline_params->layout = ngli_pgcraft_get_pipeline_layout(desc->crafter);
+
     ret = ngli_pipeline_init(desc->pipeline, pipeline_params);
     if (ret < 0)
         return ret;
 
+    const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
     ret = ngli_pipeline_set_resources(desc->pipeline, &pipeline_resources);
     if (ret < 0)
         return ret;

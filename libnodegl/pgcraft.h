@@ -233,10 +233,7 @@ struct pgcraft {
 
 struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx);
 
-int ngli_pgcraft_craft(struct pgcraft *s,
-                       struct pipeline_params *dst_desc_params,
-                       struct pipeline_resources *dst_data_params,
-                       const struct pgcraft_params *params);
+int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params);
 
 int ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);
 const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s);

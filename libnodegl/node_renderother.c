@@ -510,21 +510,11 @@ static int finalize_pipeline(struct ngl_node *node, struct render_common *s,
     if (ret < 0)
         return ret;
 
-    struct pipeline_params pipeline_params = {
-        .type = NGLI_PIPELINE_TYPE_GRAPHICS,
-        .graphics = {
-            .topology = s->topology,
-            .state    = state,
-            .rt_desc  = rnode->rendertarget_desc,
-        }
-    };
-
     desc->crafter = ngli_pgcraft_create(ctx);
     if (!desc->crafter)
         return NGL_ERROR_MEMORY;
 
-    struct pipeline_resources pipeline_resources = {0};
-    ret = ngli_pgcraft_craft(desc->crafter, &pipeline_params, &pipeline_resources, crafter_params);
+    ret = ngli_pgcraft_craft(desc->crafter, crafter_params);
     if (ret < 0)
         return ret;
 
@@ -532,6 +522,18 @@ static int finalize_pipeline(struct ngl_node *node, struct render_common *s,
     if (!desc->pipeline)
         return NGL_ERROR_MEMORY;
 
+    const struct pipeline_params pipeline_params = {
+        .type = NGLI_PIPELINE_TYPE_GRAPHICS,
+        .graphics = {
+            .topology = s->topology,
+            .state    = state,
+            .rt_desc  = rnode->rendertarget_desc,
+        },
+        .program = ngli_pgcraft_get_program(desc->crafter),
+        .layout = ngli_pgcraft_get_pipeline_layout(desc->crafter),
+    };
+
+    const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
     if ((ret = ngli_pipeline_init(desc->pipeline, &pipeline_params)) < 0 ||
         (ret = ngli_pipeline_set_resources(desc->pipeline, &pipeline_resources)) < 0 ||
         (ret = build_uniforms_map(desc)) < 0)

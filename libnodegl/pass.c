@@ -505,11 +505,6 @@ int ngli_pass_prepare(struct pass *s)
     if (ret < 0)
         return ret;
 
-    struct pipeline_params pipeline_params = {
-        .type          = s->pipeline_type,
-        .graphics      = pipeline_graphics,
-    };
-
     const struct pgcraft_params crafter_params = {
         .vert_base         = s->params.vert_base,
         .frag_base         = s->params.frag_base,
@@ -539,8 +534,7 @@ int ngli_pass_prepare(struct pass *s)
     if (!desc->crafter)
         return NGL_ERROR_MEMORY;
 
-    struct pipeline_resources pipeline_resources = {0};
-    ret = ngli_pgcraft_craft(desc->crafter, &pipeline_params, &pipeline_resources, &crafter_params);
+    ret = ngli_pgcraft_craft(desc->crafter, &crafter_params);
     if (ret < 0)
         return ret;
 
@@ -548,10 +542,18 @@ int ngli_pass_prepare(struct pass *s)
     if (!desc->pipeline)
         return NGL_ERROR_MEMORY;
 
+    const struct pipeline_params pipeline_params = {
+        .type     = s->pipeline_type,
+        .graphics = pipeline_graphics,
+        .program  = ngli_pgcraft_get_program(desc->crafter),
+        .layout   = ngli_pgcraft_get_pipeline_layout(desc->crafter),
+    };
+
     ret = ngli_pipeline_init(desc->pipeline, &pipeline_params);
     if (ret < 0)
         return ret;
 
+    const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
     ret = ngli_pipeline_set_resources(desc->pipeline, &pipeline_resources);
     if (ret < 0)
         return ret;

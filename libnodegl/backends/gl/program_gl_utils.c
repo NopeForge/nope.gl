@@ -35,11 +35,11 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct program_gl *s_priv = (struct program_gl *)s;
 
-    const struct pipeline_attribute_desc *attribute_descs = ngli_darray_data(&crafter->filtered_pipeline_info.desc.attributes);
     const char *name = NULL;
     int need_relink = 0;
-    for (int i = 0; i < ngli_darray_count(&crafter->filtered_pipeline_info.desc.attributes); i++) {
-        const struct pipeline_attribute_desc *attribute_desc = &attribute_descs[i];
+    const struct pipeline_layout layout = ngli_pgcraft_get_pipeline_layout(crafter);
+    for (int i = 0; i < layout.nb_attributes; i++) {
+        const struct pipeline_attribute_desc *attribute_desc = &layout.attributes_desc[i];
         if (name && !strcmp(name, attribute_desc->name))
             continue;
         name = attribute_desc->name;
@@ -53,9 +53,8 @@ int ngli_program_gl_set_locations_and_bindings(struct program *s,
     if (need_relink)
         ngli_glLinkProgram(gl, s_priv->id);
 
-    const struct pipeline_buffer_desc *buffer_descs = ngli_darray_data(&crafter->filtered_pipeline_info.desc.buffers);
-    for (int i = 0; i < ngli_darray_count(&crafter->filtered_pipeline_info.desc.buffers); i++) {
-        const struct pipeline_buffer_desc *buffer_desc = &buffer_descs[i];
+    for (int i = 0; i < layout.nb_buffers; i++) {
+        const struct pipeline_buffer_desc *buffer_desc = &layout.buffers_desc[i];
         if (buffer_desc->type != NGLI_TYPE_UNIFORM_BUFFER)
             continue;
         const GLuint block_index = ngli_glGetUniformBlockIndex(gl, s_priv->id, buffer_desc->name);
