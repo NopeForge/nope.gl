@@ -174,62 +174,7 @@ struct pgcraft_params {
     int workgroup_size[3];
 };
 
-enum {
-    NGLI_BINDING_TYPE_UBO,
-    NGLI_BINDING_TYPE_SSBO,
-    NGLI_BINDING_TYPE_TEXTURE,
-    NGLI_BINDING_TYPE_NB
-};
-
-#define NB_BINDINGS (NGLI_PROGRAM_SHADER_NB * NGLI_BINDING_TYPE_NB)
-#define BIND_ID(stage, type) ((stage) * NGLI_BINDING_TYPE_NB + (type))
-
-struct pgcraft_pipeline_info {
-    struct {
-        struct darray uniforms;   // uniform_desc
-        struct darray textures;   // texture_desc
-        struct darray buffers;    // buffer_desc
-        struct darray attributes; // attribute_desc
-    } desc;
-    struct {
-        struct darray uniforms;   // uniform data pointer
-        struct darray textures;   // texture pointer
-        struct darray buffers;    // buffer pointer
-        struct darray attributes; // attribute pointer
-    } data;
-};
-
-struct pgcraft {
-    struct darray texture_infos; // pgcraft_texture_info
-
-    /* private */
-    struct ngl_ctx *ctx;
-    struct bstr *shaders[NGLI_PROGRAM_SHADER_NB];
-
-    struct pgcraft_pipeline_info pipeline_info;
-    struct pgcraft_pipeline_info filtered_pipeline_info;
-
-    struct darray vert_out_vars; // pgcraft_iovar
-
-    struct program *program;
-
-    int bindings[NB_BINDINGS];
-    int *next_bindings[NB_BINDINGS];
-    int next_in_locations[NGLI_PROGRAM_SHADER_NB];
-    int next_out_locations[NGLI_PROGRAM_SHADER_NB];
-
-    /* GLSL info */
-    int glsl_version;
-    const char *glsl_version_suffix;
-    const char *sym_vertex_index;
-    const char *sym_instance_index;
-    const char *rg; // 2-component texture picking (could be either rg or ra depending on the OpenGL version)
-    int has_in_out_qualifiers;
-    int has_in_out_layout_qualifiers;
-    int has_precision_qualifiers;
-    int has_modern_texture_picking;
-    int has_explicit_bindings;
-};
+struct pgcraft;
 
 struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx);
 int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params);
