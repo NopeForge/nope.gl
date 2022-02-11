@@ -97,13 +97,6 @@ struct pipeline_layout {
     int nb_attributes;
 };
 
-struct pipeline_params {
-    int type;
-    const struct pipeline_graphics graphics;
-    const struct program *program;
-    struct pipeline_layout layout;
-};
-
 struct pipeline_resource_params {
     struct texture **textures;
     int nb_textures;
@@ -113,6 +106,13 @@ struct pipeline_resource_params {
     int nb_buffers;
     struct buffer **attributes;
     int nb_attributes;
+};
+
+struct pipeline_params {
+    int type;
+    const struct pipeline_graphics graphics;
+    const struct program *program;
+    struct pipeline_layout layout;
 };
 
 struct pipeline {
