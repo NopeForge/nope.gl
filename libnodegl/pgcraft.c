@@ -1404,6 +1404,41 @@ const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s)
     return &s->texture_infos;
 }
 
+struct program *ngli_pgcraft_get_program(const struct pgcraft *s)
+{
+    return s->program;
+}
+
+struct pipeline_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s)
+{
+    const struct pipeline_layout layout = {
+        .uniforms_desc   = ngli_darray_data(&s->filtered_pipeline_info.desc.uniforms),
+        .nb_uniforms     = ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms),
+        .textures_desc   = ngli_darray_data(&s->filtered_pipeline_info.desc.textures),
+        .nb_textures     = ngli_darray_count(&s->filtered_pipeline_info.desc.textures),
+        .attributes_desc = ngli_darray_data(&s->filtered_pipeline_info.desc.attributes),
+        .nb_attributes   = ngli_darray_count(&s->filtered_pipeline_info.desc.attributes),
+        .buffers_desc    = ngli_darray_data(&s->filtered_pipeline_info.desc.buffers),
+        .nb_buffers      = ngli_darray_count(&s->filtered_pipeline_info.desc.buffers),
+    };
+    return layout;
+}
+
+struct pipeline_resources ngli_pgcraft_get_pipeline_resources(const struct pgcraft *s)
+{
+    const struct pipeline_resources resources = {
+        .uniforms      = ngli_darray_data(&s->filtered_pipeline_info.data.uniforms),
+        .nb_uniforms   = ngli_darray_count(&s->filtered_pipeline_info.data.uniforms),
+        .textures      = ngli_darray_data(&s->filtered_pipeline_info.data.textures),
+        .nb_textures   = ngli_darray_count(&s->filtered_pipeline_info.data.textures),
+        .attributes    = ngli_darray_data(&s->filtered_pipeline_info.data.attributes),
+        .nb_attributes = ngli_darray_count(&s->filtered_pipeline_info.data.attributes),
+        .buffers       = ngli_darray_data(&s->filtered_pipeline_info.data.buffers),
+        .nb_buffers    = ngli_darray_count(&s->filtered_pipeline_info.data.buffers),
+    };
+    return resources;
+}
+
 void ngli_pgcraft_freep(struct pgcraft **sp)
 {
     struct pgcraft *s = *sp;
