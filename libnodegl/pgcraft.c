@@ -458,11 +458,11 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
                         const struct pgcraft_block *named_block)
 {
     const struct block *block = named_block->block;
-    const int bind_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER
-                        ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
+    const int binding_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER
+                           ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
     struct pipeline_buffer_desc pl_buffer_desc = {
         .type    = named_block->type,
-        .binding = request_next_binding(s, named_block->stage, bind_type),
+        .binding = request_next_binding(s, named_block->stage, binding_type),
         .access  = named_block->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
         .stage   = named_block->stage,
     };
