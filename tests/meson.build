@@ -183,6 +183,7 @@ foreach backend : backends
       tests_data += test_name + '_std140'
     endforeach
     if has_compute
+      tests_data += 'vertex_and_fragment_blocks_std430'
       foreach test_name : block_names
         tests_data += test_name + '_std430'
       endforeach

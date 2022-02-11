@@ -485,9 +485,7 @@ def data_eval(cfg):
     return render
 
 
-@test_cuepoints(points={'c': (0, 0)}, nb_keyframes=1, tolerance=1)
-@scene()
-def data_vertex_and_fragment_blocks(cfg):
+def _data_vertex_and_fragment_blocks(cfg, layout):
     '''
     This test ensures that the block bindings are properly set by pgcraft
     when UBOs or SSBOs are bound to different stages.
@@ -505,7 +503,7 @@ def data_vertex_and_fragment_blocks(cfg):
         fields=[
             ngl.UniformVec3(value=COLORS.white, label='color'),
         ],
-        layout='std140',
+        layout=layout,
     )
     vert = textwrap.dedent('''\
     void main()
@@ -532,3 +530,15 @@ def data_vertex_and_fragment_blocks(cfg):
     render.update_frag_resources(dst=dst)
 
     return render
+
+
+@test_cuepoints(points={'c': (0, 0)}, nb_keyframes=1, tolerance=1)
+@scene()
+def data_vertex_and_fragment_blocks(cfg):
+    return _data_vertex_and_fragment_blocks(cfg, 'std140')
+
+
+@test_cuepoints(points={'c': (0, 0)}, nb_keyframes=1, tolerance=1)
+@scene()
+def data_vertex_and_fragment_blocks_std430(cfg):
+    return _data_vertex_and_fragment_blocks(cfg, 'std430')
