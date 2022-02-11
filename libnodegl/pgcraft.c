@@ -559,7 +559,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
         return NGL_ERROR_MEMORY;
     if (!ngli_darray_push(&s->pipeline_info.data.buffers, &named_block->buffer))
         return NGL_ERROR_MEMORY;
-    return 0;
+    return pl_buffer_desc.binding;
 }
 
 static int inject_blocks(struct pgcraft *s, struct bstr *b,
