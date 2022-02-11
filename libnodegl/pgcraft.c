@@ -1372,15 +1372,15 @@ int ngli_pgcraft_craft(struct pgcraft *s,
     }
 #endif
 
-    dst_desc_params->program            = s->program;
-    dst_desc_params->uniforms_desc      = ngli_darray_data(&s->filtered_pipeline_info.desc.uniforms);
-    dst_desc_params->nb_uniforms        = ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms);
-    dst_desc_params->textures_desc      = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
-    dst_desc_params->nb_textures        = ngli_darray_count(&s->filtered_pipeline_info.desc.textures);
-    dst_desc_params->attributes_desc    = ngli_darray_data(&s->filtered_pipeline_info.desc.attributes);
-    dst_desc_params->nb_attributes      = ngli_darray_count(&s->filtered_pipeline_info.desc.attributes);
-    dst_desc_params->buffers_desc       = ngli_darray_data(&s->filtered_pipeline_info.desc.buffers);
-    dst_desc_params->nb_buffers         = ngli_darray_count(&s->filtered_pipeline_info.desc.buffers);
+    dst_desc_params->program                   = s->program;
+    dst_desc_params->layout.uniforms_desc      = ngli_darray_data(&s->filtered_pipeline_info.desc.uniforms);
+    dst_desc_params->layout.nb_uniforms        = ngli_darray_count(&s->filtered_pipeline_info.desc.uniforms);
+    dst_desc_params->layout.textures_desc      = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
+    dst_desc_params->layout.nb_textures        = ngli_darray_count(&s->filtered_pipeline_info.desc.textures);
+    dst_desc_params->layout.attributes_desc    = ngli_darray_data(&s->filtered_pipeline_info.desc.attributes);
+    dst_desc_params->layout.nb_attributes      = ngli_darray_count(&s->filtered_pipeline_info.desc.attributes);
+    dst_desc_params->layout.buffers_desc       = ngli_darray_data(&s->filtered_pipeline_info.desc.buffers);
+    dst_desc_params->layout.nb_buffers         = ngli_darray_count(&s->filtered_pipeline_info.desc.buffers);
 
     dst_data_params->uniforms           = ngli_darray_data(&s->filtered_pipeline_info.data.uniforms);
     dst_data_params->nb_uniforms        = ngli_darray_count(&s->filtered_pipeline_info.data.uniforms);

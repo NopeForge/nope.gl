@@ -644,8 +644,8 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     if (ret < 0)
         return ret;
 
-    ngli_assert(!strcmp("position", pipeline_params.attributes_desc[0].name));
-    ngli_assert(!strcmp("uvcoord", pipeline_params.attributes_desc[1].name));
+    ngli_assert(!strcmp("position", pipeline_params.layout.attributes_desc[0].name));
+    ngli_assert(!strcmp("uvcoord", pipeline_params.layout.attributes_desc[1].name));
 
     return 0;
 }

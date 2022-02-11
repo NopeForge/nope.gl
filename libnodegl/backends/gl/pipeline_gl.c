@@ -158,8 +158,9 @@ static int build_uniform_bindings(struct pipeline *s, const struct pipeline_para
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    for (int i = 0; i < params->nb_uniforms; i++) {
-        const struct pipeline_uniform_desc *uniform_desc = &params->uniforms_desc[i];
+    const struct pipeline_layout *layout = &params->layout;
+    for (int i = 0; i < layout->nb_uniforms; i++) {
+        const struct pipeline_uniform_desc *uniform_desc = &layout->uniforms_desc[i];
         const struct program_variable_info *info = ngli_hmap_get(program->uniforms, uniform_desc->name);
         if (!info)
             continue;
@@ -203,8 +204,9 @@ static int build_texture_bindings(struct pipeline *s, const struct pipeline_para
 {
     struct pipeline_gl *s_priv = (struct pipeline_gl *)s;
 
-    for (int i = 0; i < params->nb_textures; i++) {
-        const struct pipeline_texture_desc *texture_desc = &params->textures_desc[i];
+    const struct pipeline_layout *layout = &params->layout;
+    for (int i = 0; i < layout->nb_textures; i++) {
+        const struct pipeline_texture_desc *texture_desc = &layout->textures_desc[i];
 
         if (texture_desc->type == NGLI_TYPE_IMAGE_2D) {
             struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
@@ -324,8 +326,9 @@ static int build_buffer_bindings(struct pipeline *s, const struct pipeline_param
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    for (int i = 0; i < params->nb_buffers; i++) {
-        const struct pipeline_buffer_desc *pipeline_buffer_desc = &params->buffers_desc[i];
+    const struct pipeline_layout *layout = &params->layout;
+    for (int i = 0; i < layout->nb_buffers; i++) {
+        const struct pipeline_buffer_desc *pipeline_buffer_desc = &layout->buffers_desc[i];
 
         if (pipeline_buffer_desc->type == NGLI_TYPE_UNIFORM_BUFFER &&
             !(gl->features & NGLI_FEATURE_GL_UNIFORM_BUFFER_OBJECT)) {
@@ -397,8 +400,9 @@ static int build_attribute_bindings(struct pipeline *s, const struct pipeline_pa
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    for (int i = 0; i < params->nb_attributes; i++) {
-        const struct pipeline_attribute_desc *pipeline_attribute_desc = &params->attributes_desc[i];
+    const struct pipeline_layout *layout = &params->layout;
+    for (int i = 0; i < layout->nb_attributes; i++) {
+        const struct pipeline_attribute_desc *pipeline_attribute_desc = &layout->attributes_desc[i];
 
         if (pipeline_attribute_desc->rate > 0 && !(gl->features & NGLI_FEATURE_GL_INSTANCED_ARRAY)) {
             LOG(ERROR, "context does not support instanced arrays");
@@ -411,7 +415,7 @@ static int build_attribute_bindings(struct pipeline *s, const struct pipeline_pa
         if (!ngli_darray_push(&s_priv->attribute_bindings, &desc))
             return NGL_ERROR_MEMORY;
     }
-    s_priv->nb_unbound_attributes = params->nb_attributes;
+    s_priv->nb_unbound_attributes = layout->nb_attributes;
 
     return 0;
 }

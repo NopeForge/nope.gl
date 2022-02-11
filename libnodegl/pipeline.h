@@ -86,11 +86,7 @@ enum {
     NGLI_PIPELINE_TYPE_COMPUTE,
 };
 
-struct pipeline_params {
-    int type;
-    const struct pipeline_graphics graphics;
-    const struct program *program;
-
+struct pipeline_layout {
     const struct pipeline_texture_desc *textures_desc;
     int nb_textures;
     const struct pipeline_uniform_desc *uniforms_desc;
@@ -99,6 +95,13 @@ struct pipeline_params {
     int nb_buffers;
     const struct pipeline_attribute_desc *attributes_desc;
     int nb_attributes;
+};
+
+struct pipeline_params {
+    int type;
+    const struct pipeline_graphics graphics;
+    const struct program *program;
+    struct pipeline_layout layout;
 };
 
 struct pipeline_resource_params {
