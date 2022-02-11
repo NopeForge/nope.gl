@@ -168,6 +168,19 @@ static const char *get_glsl_type(int type)
     return ret;
 }
 
+static int request_next_binding(struct pgcraft *s, int stage, int type)
+{
+    int *next_bind = s->next_bindings[BIND_ID(stage, type)];
+    if (!next_bind) {
+        /*
+         * Non-explicit bindings is still allowed for OpenGL context not
+         * supporting explicit locations/bindings.
+         */
+        return -1;
+    }
+    return (*next_bind)++;
+}
+
 static const char *get_precision_qualifier(const struct pgcraft *s, int type, int precision, const char *defaultp)
 {
     if (!s->has_precision_qualifiers || !type_has_precision(type))
@@ -359,15 +372,11 @@ static int inject_texture_info(struct pgcraft *s, struct pgcraft_texture_info *i
             struct pipeline_texture_desc pl_texture_desc = {
                 .type     = field->type,
                 .location = -1,
-                .binding  = -1,
+                .binding  = request_next_binding(s, stage, NGLI_BINDING_TYPE_TEXTURE),
                 .access   = info->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
                 .stage    = stage,
             };
             snprintf(pl_texture_desc.name, sizeof(pl_texture_desc.name), "%s", field->name);
-
-            int *next_bind = s->next_bindings[BIND_ID(stage, NGLI_BINDING_TYPE_TEXTURE)];
-            if (next_bind)
-                pl_texture_desc.binding = (*next_bind)++;
 
             const char *prefix = "";
             if (field->type == NGLI_TYPE_IMAGE_2D) {
@@ -448,9 +457,12 @@ static const char *glsl_layout_str_map[NGLI_BLOCK_NB_LAYOUTS] = {
 static int inject_block(struct pgcraft *s, struct bstr *b,
                         const struct pgcraft_block *named_block)
 {
+    const struct block *block = named_block->block;
+    const int bind_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER
+                        ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
     struct pipeline_buffer_desc pl_buffer_desc = {
         .type    = named_block->type,
-        .binding = -1,
+        .binding = request_next_binding(s, named_block->stage, bind_type),
         .access  = named_block->writable ? NGLI_ACCESS_READ_WRITE : NGLI_ACCESS_READ_BIT,
         .stage   = named_block->stage,
     };
@@ -460,11 +472,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
         return NGL_ERROR_MEMORY;
     }
 
-    const struct block *block = named_block->block;
     const char *layout = glsl_layout_str_map[block->layout];
-    const int bind_type = named_block->type == NGLI_TYPE_UNIFORM_BUFFER ? NGLI_BINDING_TYPE_UBO : NGLI_BINDING_TYPE_SSBO;
-    int *next_bind = s->next_bindings[BIND_ID(named_block->stage, bind_type)];
-    pl_buffer_desc.binding = (*next_bind)++;
     if (s->has_explicit_bindings) {
         ngli_bstr_printf(b, "layout(%s,binding=%d)", layout, pl_buffer_desc.binding);
     } else {
