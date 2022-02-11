@@ -1345,7 +1345,7 @@ static int get_program_graphics(struct pgcraft *s, const struct pgcraft_params *
 
 int ngli_pgcraft_craft(struct pgcraft *s,
                        struct pipeline_params *dst_desc_params,
-                       struct pipeline_resource_params *dst_data_params,
+                       struct pipeline_resources *dst_data_params,
                        const struct pgcraft_params *params)
 {
     int ret = params->comp_base ? get_program_compute(s, params)

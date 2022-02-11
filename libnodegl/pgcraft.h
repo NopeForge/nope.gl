@@ -62,7 +62,7 @@ struct pgcraft_texture {
     /*
      * Just like the other types (uniforms, blocks, attributes), this field
      * exists in order to be transmitted to the pipeline (through the
-     * pipeline_resource_params destination). That way, these resources can be
+     * pipeline_resources destination). That way, these resources can be
      * associated with the pipeline straight after the pipeline initialization
      * (using ngli_pipeline_set_resources()). In the case of the texture
      * though, there is one exception: if the specified type is
@@ -235,7 +235,7 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx);
 
 int ngli_pgcraft_craft(struct pgcraft *s,
                        struct pipeline_params *dst_desc_params,
-                       struct pipeline_resource_params *dst_data_params,
+                       struct pipeline_resources *dst_data_params,
                        const struct pgcraft_params *params);
 
 int ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);

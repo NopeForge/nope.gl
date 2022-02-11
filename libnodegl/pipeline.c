@@ -33,9 +33,9 @@ int ngli_pipeline_init(struct pipeline *s, const struct pipeline_params *params)
     return s->gpu_ctx->cls->pipeline_init(s, params);
 }
 
-int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resource_params *data_params)
+int ngli_pipeline_set_resources(struct pipeline *s, const struct pipeline_resources *resources)
 {
-    return s->gpu_ctx->cls->pipeline_set_resources(s, data_params);
+    return s->gpu_ctx->cls->pipeline_set_resources(s, resources);
 }
 
 int ngli_pipeline_update_attribute(struct pipeline *s, int index, const struct buffer *buffer)
