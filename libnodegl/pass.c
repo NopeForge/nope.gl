@@ -721,7 +721,7 @@ int ngli_pass_exec(struct pass *s)
         ngli_pipeline_update_uniform(pipeline, desc->normal_matrix_index, normal_matrix);
     }
 
-    const struct darray *texture_infos_array = &desc->crafter->texture_infos;
+    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
     const struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
     for (int i = 0; i < ngli_darray_count(texture_infos_array); i++)
         ngli_pipeline_utils_update_texture(pipeline, &texture_infos[i]);

@@ -752,7 +752,7 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s)
         ngli_pipeline_update_uniform(desc->pipeline, map[i].index, map[i].data);
 
     if (node->cls->id == NGL_NODE_RENDERTEXTURE) {
-        const struct darray *texture_infos_array = &desc->crafter->texture_infos;
+        const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
         const struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
         ngli_pipeline_utils_update_texture(desc->pipeline, info);
     }

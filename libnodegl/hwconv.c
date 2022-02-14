@@ -190,7 +190,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
 
     struct pipeline *pipeline = hwconv->pipeline;
 
-    const struct darray *texture_infos_array = &hwconv->crafter->texture_infos;
+    const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(hwconv->crafter);
     const struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
     ngli_assert(ngli_darray_count(texture_infos_array) == 1);
 
