@@ -39,6 +39,16 @@ int ngli_buffer_upload(struct buffer *s, const void *data, int size, int offset)
     return s->gpu_ctx->cls->buffer_upload(s, data, size, offset);
 }
 
+int ngli_buffer_map(struct buffer *s, int size, int offset, void **datap)
+{
+    return s->gpu_ctx->cls->buffer_map(s, size, offset, datap);
+}
+
+void ngli_buffer_unmap(struct buffer *s)
+{
+    s->gpu_ctx->cls->buffer_unmap(s);
+}
+
 void ngli_buffer_freep(struct buffer **sp)
 {
     if (!*sp)

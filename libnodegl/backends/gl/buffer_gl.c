@@ -68,6 +68,15 @@ int ngli_buffer_gl_upload(struct buffer *s, const void *data, int size, int offs
     return 0;
 }
 
+int ngli_buffer_gl_map(struct buffer *s, int size, int offset, void **datap)
+{
+    return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+}
+
+void ngli_buffer_gl_unmap(struct buffer *s)
+{
+}
+
 void ngli_buffer_gl_freep(struct buffer **sp)
 {
     if (!*sp)

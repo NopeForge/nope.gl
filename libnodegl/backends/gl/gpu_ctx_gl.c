@@ -825,6 +825,8 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
     .buffer_create                      = ngli_buffer_gl_create,                 \
     .buffer_init                        = ngli_buffer_gl_init,                   \
     .buffer_upload                      = ngli_buffer_gl_upload,                 \
+    .buffer_map                         = ngli_buffer_gl_map,                    \
+    .buffer_unmap                       = ngli_buffer_gl_unmap,                  \
     .buffer_freep                       = ngli_buffer_gl_freep,                  \
                                                                                  \
     .pipeline_create                    = ngli_pipeline_gl_create,               \
