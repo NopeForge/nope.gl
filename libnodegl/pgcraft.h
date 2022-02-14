@@ -239,6 +239,7 @@ int ngli_pgcraft_craft(struct pgcraft *s,
                        const struct pgcraft_params *params);
 
 int ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);
+const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s);
 
 void ngli_pgcraft_freep(struct pgcraft **sp);
 

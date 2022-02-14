@@ -1399,6 +1399,11 @@ int ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, in
     return get_uniform_index(s, name);
 }
 
+const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s)
+{
+    return &s->texture_infos;
+}
+
 void ngli_pgcraft_freep(struct pgcraft **sp)
 {
     struct pgcraft *s = *sp;
