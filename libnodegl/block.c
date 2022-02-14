@@ -161,14 +161,11 @@ void ngli_block_field_copy(const struct block_field *fi, uint8_t *dst, const uin
     uint8_t *dstp = dst;
     const uint8_t *srcp = src;
     const int src_stride = sizes_map[fi->type];
-    if (fi->count == 0 || src_stride == fi->stride) {
-        memcpy(dstp, srcp, fi->size);
-    } else {
-        for (int i = 0; i < fi->count; i++) {
-            memcpy(dstp, srcp, src_stride);
-            dstp += fi->stride;
-            srcp += src_stride;
-        }
+    const int count = NGLI_MAX(fi->count, 1);
+    for (int i = 0; i < count; i++) {
+        memcpy(dstp, srcp, src_stride);
+        dstp += fi->stride;
+        srcp += src_stride;
     }
 }
 
