@@ -327,7 +327,8 @@ static int rtt_prefetch(struct ngl_node *node)
                 rt_params.colors[rt_params.nb_colors].load_op = NGLI_LOAD_OP_CLEAR;
                 float *clear_value = rt_params.colors[rt_params.nb_colors].clear_value;
                 memcpy(clear_value, o->clear_color, sizeof(o->clear_color));
-                rt_params.colors[rt_params.nb_colors].store_op = NGLI_STORE_OP_STORE;
+                const int store_op = nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+                rt_params.colors[rt_params.nb_colors].store_op = store_op;
             } else {
                 rt_params.colors[rt_params.nb_colors].attachment = texture;
                 rt_params.colors[rt_params.nb_colors].attachment_layer = j;
@@ -368,7 +369,8 @@ static int rtt_prefetch(struct ngl_node *node)
             rt_params.depth_stencil.resolve_target = texture;
             rt_params.depth_stencil.resolve_target_layer = info.layer_base;
             rt_params.depth_stencil.load_op = NGLI_LOAD_OP_CLEAR;
-            rt_params.depth_stencil.store_op = NGLI_STORE_OP_DONT_CARE;
+            const int store_op = nb_interruptions ? NGLI_STORE_OP_STORE : NGLI_STORE_OP_DONT_CARE;
+            rt_params.depth_stencil.store_op = store_op;
         } else {
             rt_params.depth_stencil.attachment = texture;
             rt_params.depth_stencil.attachment_layer = info.layer_base;
