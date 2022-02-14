@@ -38,7 +38,6 @@
 #include "internal.h"
 #include "pass.h"
 #include "pgcraft.h"
-#include "pipeline.h"
 #include "pipeline_utils.h"
 #include "program.h"
 #include "texture.h"
@@ -48,7 +47,7 @@
 
 struct pipeline_desc {
     struct pgcraft *crafter;
-    struct pipeline *pipeline;
+    struct pipeline_compat *pipeline_compat;
     int modelview_matrix_index;
     int projection_matrix_index;
     int normal_matrix_index;
@@ -538,8 +537,8 @@ int ngli_pass_prepare(struct pass *s)
     if (ret < 0)
         return ret;
 
-    desc->pipeline = ngli_pipeline_create(gpu_ctx);
-    if (!desc->pipeline)
+    desc->pipeline_compat = ngli_pipeline_compat_create(gpu_ctx);
+    if (!desc->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_params pipeline_params = {
@@ -549,12 +548,13 @@ int ngli_pass_prepare(struct pass *s)
         .layout   = ngli_pgcraft_get_pipeline_layout(desc->crafter),
     };
 
-    ret = ngli_pipeline_init(desc->pipeline, &pipeline_params);
-    if (ret < 0)
-        return ret;
-
     const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
-    ret = ngli_pipeline_set_resources(desc->pipeline, &pipeline_resources);
+
+    const struct pipeline_compat_params params = {
+        .params = &pipeline_params,
+        .resources = &pipeline_resources,
+    };
+    ret = ngli_pipeline_compat_init(desc->pipeline_compat, &params);
     if (ret < 0)
         return ret;
 
@@ -562,6 +562,7 @@ int ngli_pass_prepare(struct pass *s)
     desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_projection_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->normal_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_normal_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->resolution_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_resolution", NGLI_PROGRAM_SHADER_FRAG);
+
     return 0;
 }
 
@@ -628,7 +629,7 @@ void ngli_pass_uninit(struct pass *s)
     const int nb_descs = ngli_darray_count(&s->pipeline_descs);
     for (int i = 0; i < nb_descs; i++) {
         struct pipeline_desc *desc = &descs[i];
-        ngli_pipeline_freep(&desc->pipeline);
+        ngli_pipeline_compat_freep(&desc->pipeline_compat);
         ngli_pgcraft_freep(&desc->crafter);
     }
     ngli_darray_reset(&s->pipeline_descs);
@@ -701,32 +702,32 @@ int ngli_pass_exec(struct pass *s)
     const struct pass_params *params = &s->params;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
     struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
-    struct pipeline *pipeline = desc->pipeline;
+    struct pipeline_compat *pipeline_compat = desc->pipeline_compat;
 
     const float *modelview_matrix = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
 
-    ngli_pipeline_update_uniform(pipeline, desc->modelview_matrix_index, modelview_matrix);
-    ngli_pipeline_update_uniform(pipeline, desc->projection_matrix_index, projection_matrix);
+    ngli_pipeline_compat_update_uniform(pipeline_compat, desc->modelview_matrix_index, modelview_matrix);
+    ngli_pipeline_compat_update_uniform(pipeline_compat, desc->projection_matrix_index, projection_matrix);
 
     int viewport[4] = {0};
     ngli_gpu_ctx_get_viewport(ctx->gpu_ctx, viewport);
 
     const float resolution[2] = {viewport[2], viewport[3]};
-    ngli_pipeline_update_uniform(pipeline, desc->resolution_index, resolution);
+    ngli_pipeline_compat_update_uniform(pipeline_compat, desc->resolution_index, resolution);
 
     if (desc->normal_matrix_index >= 0) {
         float normal_matrix[3*3];
         ngli_mat3_from_mat4(normal_matrix, modelview_matrix);
         ngli_mat3_inverse(normal_matrix, normal_matrix);
         ngli_mat3_transpose(normal_matrix, normal_matrix);
-        ngli_pipeline_update_uniform(pipeline, desc->normal_matrix_index, normal_matrix);
+        ngli_pipeline_compat_update_uniform(pipeline_compat, desc->normal_matrix_index, normal_matrix);
     }
 
     const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
     const struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
     for (int i = 0; i < ngli_darray_count(texture_infos_array); i++)
-        ngli_pipeline_utils_update_texture(pipeline, &texture_infos[i]);
+        ngli_pipeline_compat_update_texture_info(pipeline_compat, &texture_infos[i]);
 
     if (s->pipeline_type == NGLI_PIPELINE_TYPE_GRAPHICS) {
         if (!ctx->render_pass_started) {
@@ -736,10 +737,10 @@ int ngli_pass_exec(struct pass *s)
         }
 
         if (s->indices)
-            ngli_pipeline_draw_indexed(pipeline, s->indices, s->indices_layout->format,
-                                       s->indices_layout->count, s->nb_instances);
+            ngli_pipeline_compat_draw_indexed(pipeline_compat, s->indices, s->indices_layout->format,
+                                              s->indices_layout->count, s->nb_instances);
         else
-            ngli_pipeline_draw(pipeline, s->nb_vertices, s->nb_instances);
+            ngli_pipeline_compat_draw(pipeline_compat, s->nb_vertices, s->nb_instances);
     } else {
         if (ctx->render_pass_started) {
             struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -748,7 +749,7 @@ int ngli_pass_exec(struct pass *s)
             ctx->current_rendertarget = ctx->available_rendertargets[1];
         }
 
-        ngli_pipeline_dispatch(pipeline, NGLI_ARG_VEC3(params->workgroup_count));
+        ngli_pipeline_compat_dispatch(pipeline_compat, NGLI_ARG_VEC3(params->workgroup_count));
     }
 
     return 0;

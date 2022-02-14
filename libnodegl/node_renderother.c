@@ -30,7 +30,6 @@
 #include "log.h"
 #include "memory.h"
 #include "pgcraft.h"
-#include "pipeline.h"
 #include "pipeline_utils.h"
 #include "topology.h"
 #include "type.h"
@@ -73,7 +72,7 @@ struct uniform_map {
 
 struct pipeline_desc {
     struct pgcraft *crafter;
-    struct pipeline *pipeline;
+    struct pipeline_compat *pipeline_compat;
     int modelview_matrix_index;
     int projection_matrix_index;
     int aspect_index;
@@ -89,7 +88,7 @@ struct render_common {
     int nb_filters;
 
     uint32_t helpers;
-    void (*draw)(struct render_common *s, struct pipeline *pipeline);
+    void (*draw)(struct render_common *s, struct pipeline_compat *pl_compat);
     struct filterschain *filterschain;
     char *combined_fragment;
     struct pgcraft_attribute position_attr;
@@ -326,18 +325,18 @@ static int combine_filters_code(struct render_common *s, const char *base_name, 
     return 0;
 }
 
-static void draw_simple(struct render_common *s, struct pipeline *pipeline)
+static void draw_simple(struct render_common *s, struct pipeline_compat *pl_compat)
 {
-    ngli_pipeline_draw(pipeline, s->nb_vertices, 1);
+    ngli_pipeline_compat_draw(pl_compat, s->nb_vertices, 1);
 }
 
-static void draw_indexed(struct render_common *s, struct pipeline *pipeline)
+static void draw_indexed(struct render_common *s, struct pipeline_compat *pl_compat)
 {
     const struct geometry_priv *geom = s->geometry->priv_data;
-    ngli_pipeline_draw_indexed(pipeline,
-                               geom->indices_buffer,
-                               geom->indices_layout.format,
-                               geom->indices_layout.count, 1);
+    ngli_pipeline_compat_draw_indexed(pl_compat,
+                                      geom->indices_buffer,
+                                      geom->indices_layout.format,
+                                      geom->indices_layout.count, 1);
 }
 
 static int init(struct ngl_node *node, struct render_common *s, const char *base_name, const char *base_fragment)
@@ -518,8 +517,8 @@ static int finalize_pipeline(struct ngl_node *node, struct render_common *s,
     if (ret < 0)
         return ret;
 
-    desc->pipeline = ngli_pipeline_create(gpu_ctx);
-    if (!desc->pipeline)
+    desc->pipeline_compat = ngli_pipeline_compat_create(gpu_ctx);
+    if (!desc->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_params pipeline_params = {
@@ -534,9 +533,18 @@ static int finalize_pipeline(struct ngl_node *node, struct render_common *s,
     };
 
     const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(desc->crafter);
-    if ((ret = ngli_pipeline_init(desc->pipeline, &pipeline_params)) < 0 ||
-        (ret = ngli_pipeline_set_resources(desc->pipeline, &pipeline_resources)) < 0 ||
-        (ret = build_uniforms_map(desc)) < 0)
+
+    const struct pipeline_compat_params params = {
+        .params = &pipeline_params,
+        .resources = &pipeline_resources,
+    };
+
+    ret = ngli_pipeline_compat_init(desc->pipeline_compat, &params);
+    if (ret < 0)
+        return ret;
+
+    ret = build_uniforms_map(desc);
+    if (ret < 0)
         return ret;
 
     desc->modelview_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "modelview_matrix", NGLI_PROGRAM_SHADER_VERT);
@@ -735,28 +743,29 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s)
     struct ngl_ctx *ctx = node->ctx;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
     struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
+    struct pipeline_compat *pl_compat = desc->pipeline_compat;
 
     const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
 
-    ngli_pipeline_update_uniform(desc->pipeline, desc->modelview_matrix_index, modelview_matrix);
-    ngli_pipeline_update_uniform(desc->pipeline, desc->projection_matrix_index, projection_matrix);
+    ngli_pipeline_compat_update_uniform(pl_compat, desc->modelview_matrix_index, modelview_matrix);
+    ngli_pipeline_compat_update_uniform(pl_compat, desc->projection_matrix_index, projection_matrix);
 
     if (desc->aspect_index >= 0) {
         int viewport[4] = {0};
         ngli_gpu_ctx_get_viewport(ctx->gpu_ctx, viewport);
         const float aspect = viewport[2] / (float)viewport[3];
-        ngli_pipeline_update_uniform(desc->pipeline, desc->aspect_index, &aspect);
+        ngli_pipeline_compat_update_uniform(pl_compat, desc->aspect_index, &aspect);
     }
 
     const struct uniform_map *map = ngli_darray_data(&desc->uniforms_map);
     for (int i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
-        ngli_pipeline_update_uniform(desc->pipeline, map[i].index, map[i].data);
+        ngli_pipeline_compat_update_uniform(pl_compat, map[i].index, map[i].data);
 
     if (node->cls->id == NGL_NODE_RENDERTEXTURE) {
         const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
         const struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
-        ngli_pipeline_utils_update_texture(desc->pipeline, info);
+        ngli_pipeline_compat_update_texture_info(pl_compat, info);
     }
 
     if (!ctx->render_pass_started) {
@@ -765,7 +774,7 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s)
         ctx->render_pass_started = 1;
     }
 
-    s->draw(s, desc->pipeline);
+    s->draw(s, desc->pipeline_compat);
 }
 
 static void renderother_uninit(struct ngl_node *node, struct render_common *s)
@@ -775,7 +784,7 @@ static void renderother_uninit(struct ngl_node *node, struct render_common *s)
     for (int i = 0; i < nb_descs; i++) {
         struct pipeline_desc *desc = &descs[i];
         ngli_pgcraft_freep(&desc->crafter);
-        ngli_pipeline_freep(&desc->pipeline);
+        ngli_pipeline_compat_freep(&desc->pipeline_compat);
         ngli_darray_reset(&desc->uniforms);
         ngli_darray_reset(&desc->uniforms_map);
     }

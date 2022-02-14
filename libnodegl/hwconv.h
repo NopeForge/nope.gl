@@ -27,7 +27,7 @@
 #include "image.h"
 #include "pgcraft.h"
 #include "texture.h"
-#include "pipeline.h"
+#include "pipeline_utils.h"
 
 struct ngl_ctx;
 
@@ -38,7 +38,7 @@ struct hwconv {
     struct rendertarget *rt;
     struct buffer *vertices;
     struct pgcraft *crafter;
-    struct pipeline *pipeline;
+    struct pipeline_compat *pipeline_compat;
 };
 
 int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,

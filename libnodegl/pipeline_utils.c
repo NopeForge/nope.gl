@@ -19,20 +19,72 @@
  * under the License.
  */
 
+#include "darray.h"
+#include "memory.h"
+#include "nodegl.h"
 #include "pipeline_utils.h"
+#include "type.h"
 
-void ngli_pipeline_utils_update_texture(struct pipeline *pipeline, const struct pgcraft_texture_info *info)
+struct pipeline_compat {
+    struct gpu_ctx *gpu_ctx;
+    struct pipeline *pipeline;
+};
+
+struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx)
+{
+    struct pipeline_compat *s = ngli_calloc(1, sizeof(*s));
+    if (!s)
+        return NULL;
+    s->gpu_ctx = gpu_ctx;
+    return s;
+}
+
+int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_compat_params *params)
+{
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+
+    s->pipeline = ngli_pipeline_create(gpu_ctx);
+    if (!s->pipeline)
+        return NGL_ERROR_MEMORY;
+
+    const struct pipeline_params *pipeline_params = params->params;
+    const struct pipeline_resources *pipeline_resources = params->resources;
+
+    int ret;
+    if ((ret = ngli_pipeline_init(s->pipeline, pipeline_params)) < 0 ||
+        (ret = ngli_pipeline_set_resources(s->pipeline, pipeline_resources)) < 0)
+        return ret;
+
+    return 0;
+}
+
+int ngli_pipeline_compat_update_attribute(struct pipeline_compat *s, int index, const struct buffer *buffer)
+{
+    return ngli_pipeline_update_attribute(s->pipeline, index, buffer);
+}
+
+int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int index, const void *value)
+{
+    return ngli_pipeline_update_uniform(s->pipeline, index, value);
+}
+
+int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int index, const struct texture *texture)
+{
+    return ngli_pipeline_update_texture(s->pipeline, index, texture);
+}
+
+void ngli_pipeline_compat_update_texture_info(struct pipeline_compat *s, const struct pgcraft_texture_info *info)
 {
     const struct pgcraft_texture_info_field *fields = info->fields;
     const struct image *image = info->image;
 
-    ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
-    ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
-    ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_TIMESTAMP].index, &image->ts);
+    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
+    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
+    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_TIMESTAMP].index, &image->ts);
 
     if (image->params.layout) {
         const float dimensions[] = {image->params.width, image->params.height, image->params.depth};
-        ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
+        ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
     }
 
     const struct texture *textures[NGLI_INFO_FIELD_NB] = {0};
@@ -77,9 +129,37 @@ void ngli_pipeline_utils_update_texture(struct pipeline *pipeline, const struct 
         const int sampler = samplers[i];
         const int index = fields[sampler].index;
         const struct texture *texture = textures[sampler];
-        ret &= ngli_pipeline_update_texture(pipeline, index, texture);
+        ret &= ngli_pipeline_compat_update_texture(s, index, texture);
     };
 
     const int layout = ret < 0 ? NGLI_IMAGE_LAYOUT_NONE : image->params.layout;
-    ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &layout);
+    ngli_pipeline_compat_update_uniform(s, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &layout);
+}
+
+int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int index, const struct buffer *buffer, int offset, int size)
+{
+    return ngli_pipeline_update_buffer(s->pipeline, index, buffer, offset, size);
+}
+
+void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances)
+{
+    return ngli_pipeline_draw(s->pipeline, nb_vertices, nb_instances);
+}
+
+void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
+{
+    return ngli_pipeline_draw_indexed(s->pipeline, indices, indices_format, nb_indices, nb_instances);
+}
+
+void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, int nb_group_x, int nb_group_y, int nb_group_z)
+{
+    return ngli_pipeline_dispatch(s->pipeline, nb_group_x, nb_group_y, nb_group_z);
+}
+
+void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
+{
+    struct pipeline_compat *s = *sp;
+    if (!s)
+        return;
+    ngli_pipeline_freep(&s->pipeline);
 }

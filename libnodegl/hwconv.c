@@ -28,7 +28,7 @@
 #include "log.h"
 #include "internal.h"
 #include "pgcraft.h"
-#include "pipeline.h"
+#include "pipeline_utils.h"
 #include "texture.h"
 #include "topology.h"
 #include "type.h"
@@ -148,8 +148,8 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     if (ret < 0)
         return ret;
 
-    hwconv->pipeline = ngli_pipeline_create(gpu_ctx);
-    if (!hwconv->pipeline)
+    hwconv->pipeline_compat = ngli_pipeline_compat_create(gpu_ctx);
+    if (!hwconv->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_params pipeline_params = {
@@ -163,12 +163,14 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         .layout       = ngli_pgcraft_get_pipeline_layout(hwconv->crafter),
     };
 
-    ret = ngli_pipeline_init(hwconv->pipeline, &pipeline_params);
-    if (ret < 0)
-        return ret;
-
     const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(hwconv->crafter);
-    ret = ngli_pipeline_set_resources(hwconv->pipeline, &pipeline_resources);
+
+    const struct pipeline_compat_params params = {
+        .params = &pipeline_params,
+        .resources = &pipeline_resources,
+    };
+
+    ret = ngli_pipeline_compat_init(hwconv->pipeline_compat, &params);
     if (ret < 0)
         return ret;
 
@@ -190,7 +192,7 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
     const int vp[4] = {0, 0, rt->width, rt->height};
     ngli_gpu_ctx_set_viewport(gpu_ctx, vp);
 
-    struct pipeline *pipeline = hwconv->pipeline;
+    struct pipeline_compat *pipeline = hwconv->pipeline_compat;
 
     const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(hwconv->crafter);
     const struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
@@ -200,36 +202,36 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
 
     if (image->params.layout) {
         const float dimensions[] = {image->params.width, image->params.height, image->params.depth};
-        ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
+        ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_DIMENSIONS].index, dimensions);
     }
 
     int ret = -1;
     switch (image->params.layout) {
     case NGLI_IMAGE_LAYOUT_NV12:
-        ret = ngli_pipeline_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_0].index, image->planes[0]);
-        ret &= ngli_pipeline_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_1].index, image->planes[1]);
+        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_0].index, image->planes[0]);
+        ret &= ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_1].index, image->planes[1]);
         break;
     case NGLI_IMAGE_LAYOUT_NV12_RECTANGLE:
-        ret = ngli_pipeline_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_RECT_0].index, image->planes[0]);
-        ret &= ngli_pipeline_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_RECT_1].index, image->planes[1]);
+        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_RECT_0].index, image->planes[0]);
+        ret &= ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_RECT_1].index, image->planes[1]);
         break;
     case NGLI_IMAGE_LAYOUT_MEDIACODEC:
-        ret = ngli_pipeline_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_OES].index, image->planes[0]);
+        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_OES].index, image->planes[0]);
         break;
     case NGLI_IMAGE_LAYOUT_YUV:
-        ret = ngli_pipeline_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_0].index, image->planes[0]);
-        ret &= ngli_pipeline_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_1].index, image->planes[1]);
-        ret &= ngli_pipeline_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_2].index, image->planes[2]);
+        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_0].index, image->planes[0]);
+        ret &= ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_1].index, image->planes[1]);
+        ret &= ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_2].index, image->planes[2]);
         break;
     default:
         ngli_assert(0);
     }
     ngli_assert(ret == 0);
-    ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &image->params.layout);
-    ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
-    ngli_pipeline_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
+    ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_SAMPLING_MODE].index, &image->params.layout);
+    ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COORDINATE_MATRIX].index, image->coordinates_matrix);
+    ngli_pipeline_compat_update_uniform(pipeline, fields[NGLI_INFO_FIELD_COLOR_MATRIX].index, image->color_matrix);
 
-    ngli_pipeline_draw(hwconv->pipeline, 4, 1);
+    ngli_pipeline_compat_draw(pipeline, 4, 1);
 
     ngli_gpu_ctx_end_render_pass(gpu_ctx);
     ngli_gpu_ctx_set_viewport(gpu_ctx, prev_vp);
@@ -243,7 +245,7 @@ void ngli_hwconv_reset(struct hwconv *hwconv)
     if (!ctx)
         return;
 
-    ngli_pipeline_freep(&hwconv->pipeline);
+    ngli_pipeline_compat_freep(&hwconv->pipeline_compat);
     ngli_pgcraft_freep(&hwconv->crafter);
     ngli_buffer_freep(&hwconv->vertices);
     ngli_rendertarget_freep(&hwconv->rt);

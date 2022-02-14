@@ -84,7 +84,7 @@ struct pgcraft_texture {
      * accessible through pgcraft.texture_infos. The user may optionally set it
      * if they plan to have access to the image information directly through
      * the pgcraft_texture_info structure. The field is pretty much mandatory
-     * if the user plans to use ngli_pipeline_utils_update_texture() in
+     * if the user plans to use ngli_pipeline_compat_update_texture_info() in
      * conjunction with pgcraft.texture_infos to instruct a pipeline on which
      * texture resources to use.
      */

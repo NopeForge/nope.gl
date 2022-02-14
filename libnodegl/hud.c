@@ -35,7 +35,7 @@
 #include "drawutils.h"
 #include "pgcache.h"
 #include "pgcraft.h"
-#include "pipeline.h"
+#include "pipeline_utils.h"
 #include "type.h"
 #include "topology.h"
 #include "graphicstate.h"
@@ -60,7 +60,7 @@ struct hud {
     struct pgcraft *crafter;
     struct texture *texture;
     struct buffer *coords;
-    struct pipeline *pipeline;
+    struct pipeline_compat *pipeline_compat;
     struct graphicstate graphicstate;
 
     int modelview_matrix_index;
@@ -1283,8 +1283,8 @@ int ngli_hud_init(struct hud *s)
     if (ret < 0)
         return ret;
 
-    s->pipeline = ngli_pipeline_create(gpu_ctx);
-    if (!s->pipeline)
+    s->pipeline_compat = ngli_pipeline_compat_create(gpu_ctx);
+    if (!s->pipeline_compat)
         return NGL_ERROR_MEMORY;
 
     const struct pipeline_params pipeline_params = {
@@ -1298,12 +1298,14 @@ int ngli_hud_init(struct hud *s)
         .layout       = ngli_pgcraft_get_pipeline_layout(s->crafter),
     };
 
-    ret = ngli_pipeline_init(s->pipeline, &pipeline_params);
-    if (ret < 0)
-        return ret;
-
     const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(s->crafter);
-    ret = ngli_pipeline_set_resources(s->pipeline, &pipeline_resources);
+
+    const struct pipeline_compat_params params = {
+        .params = &pipeline_params,
+        .resources = &pipeline_resources,
+    };
+
+    ret = ngli_pipeline_compat_init(s->pipeline_compat, &params);
     if (ret < 0)
         return ret;
 
@@ -1362,9 +1364,9 @@ void ngli_hud_draw(struct hud *s)
 
     const float *modelview_matrix  = ngli_darray_tail(&ctx->modelview_matrix_stack);
     const float *projection_matrix = ngli_darray_tail(&ctx->projection_matrix_stack);
-    ngli_pipeline_update_uniform(s->pipeline, s->modelview_matrix_index, modelview_matrix);
-    ngli_pipeline_update_uniform(s->pipeline, s->projection_matrix_index, projection_matrix);
-    ngli_pipeline_draw(s->pipeline, 4, 1);
+    ngli_pipeline_compat_update_uniform(s->pipeline_compat, s->modelview_matrix_index, modelview_matrix);
+    ngli_pipeline_compat_update_uniform(s->pipeline_compat, s->projection_matrix_index, projection_matrix);
+    ngli_pipeline_compat_draw(s->pipeline_compat, 4, 1);
 }
 
 void ngli_hud_freep(struct hud **sp)
@@ -1373,7 +1375,7 @@ void ngli_hud_freep(struct hud **sp)
     if (!s)
         return;
 
-    ngli_pipeline_freep(&s->pipeline);
+    ngli_pipeline_compat_freep(&s->pipeline_compat);
     ngli_pgcraft_freep(&s->crafter);
     ngli_texture_freep(&s->texture);
     ngli_buffer_freep(&s->coords);
