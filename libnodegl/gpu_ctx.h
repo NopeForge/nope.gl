@@ -45,6 +45,7 @@
 #define NGLI_FEATURE_DEPTH_STENCIL_RESOLVE             (1 << 11)
 #define NGLI_FEATURE_TEXTURE_FLOAT_RENDERABLE          (1 << 12)
 #define NGLI_FEATURE_TEXTURE_HALF_FLOAT_RENDERABLE     (1 << 13)
+#define NGLI_FEATURE_BUFFER_MAP                        (1 << 14)
 
 struct gpu_ctx_class {
     const char *name;
