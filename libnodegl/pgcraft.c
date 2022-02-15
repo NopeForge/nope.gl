@@ -70,6 +70,7 @@ struct pgcraft {
     struct ngl_ctx *ctx;
 
     struct darray texture_infos; // pgcraft_texture_info
+    struct pgcraft_compat_info compat_info;
 
     struct bstr *shaders[NGLI_PROGRAM_SHADER_NB];
 
@@ -252,9 +253,26 @@ static const char *get_precision_qualifier(const struct pgcraft *s, int type, in
     return ret ? ret : defaultp;
 }
 
+static int inject_block_uniform(struct pgcraft *s, struct bstr *b,
+                                const struct pgcraft_uniform *uniform, int stage)
+{
+    struct pgcraft_compat_info *compat_info = &s->compat_info;
+    struct block *block = &compat_info->ublocks[stage];
+
+    /* Lazily initialize the block containing the uniforms */
+    if (!block->size)
+        ngli_block_init(block, NGLI_BLOCK_LAYOUT_STD140);
+
+    return ngli_block_add_field(block, uniform->name, uniform->type, uniform->count);
+}
+
 static int inject_uniform(struct pgcraft *s, struct bstr *b,
                           const struct pgcraft_uniform *uniform)
 {
+    struct pgcraft_compat_info *compat_info = &s->compat_info;
+    if (compat_info->use_ublocks)
+        return inject_block_uniform(s, b, uniform, uniform->stage);
+
     struct pipeline_uniform_desc pl_uniform_desc = {
         .type  = uniform->type,
         .count = NGLI_MAX(uniform->count, 1),
@@ -639,6 +657,34 @@ const char *ublock_names[] = {
     [NGLI_PROGRAM_SHADER_COMP] = "comp",
 };
 
+static int inject_ublock(struct pgcraft *s, struct bstr *b, int stage)
+{
+    struct pgcraft_compat_info *compat_info = &s->compat_info;
+    if (!compat_info->use_ublocks)
+        return 0;
+
+    struct block *block = &compat_info->ublocks[stage];
+    if (!block->size)
+        return 0;
+
+    struct pgcraft_block pgcraft_block = {
+        /* instance name is empty to make field accesses identical to uniform accesses */
+        .instance_name = "",
+        .type          = NGLI_TYPE_UNIFORM_BUFFER,
+        .stage         = stage,
+        .block         = block,
+        .buffer        = NULL,
+    };
+    snprintf(pgcraft_block.name, sizeof(pgcraft_block.name), "ngl_%s", ublock_names[stage]);
+
+    const int binding = inject_block(s, b, &pgcraft_block);
+    if (binding < 0)
+        return binding;
+    compat_info->ubindings[stage] = binding;
+
+    return 0;
+}
+
 static int params_have_ssbos(struct pgcraft *s, const struct pgcraft_params *params, int stage)
 {
     for (int i = 0; i < params->nb_blocks; i++) {
@@ -1021,7 +1067,8 @@ static int craft_vert(struct pgcraft *s, const struct pgcraft_params *params)
         (ret = inject_uniforms(s, b, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
         (ret = inject_texture_infos(s, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
         (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_VERT)) < 0 ||
-        (ret = inject_attributes(s, b, params)) < 0)
+        (ret = inject_attributes(s, b, params)) < 0 ||
+        (ret = inject_ublock(s, b, NGLI_PROGRAM_SHADER_VERT)) < 0)
         return ret;
 
     ngli_bstr_print(b, params->vert_base);
@@ -1070,7 +1117,8 @@ static int craft_frag(struct pgcraft *s, const struct pgcraft_params *params)
     if ((ret = inject_iovars(s, b, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
         (ret = inject_uniforms(s, b, params, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
         (ret = inject_texture_infos(s, params, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
-        (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_FRAG)) < 0)
+        (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_FRAG)) < 0 ||
+        (ret = inject_ublock(s, b, NGLI_PROGRAM_SHADER_FRAG)) < 0)
         return ret;
 
     ngli_bstr_print(b, params->frag_base);
@@ -1090,7 +1138,8 @@ static int craft_comp(struct pgcraft *s, const struct pgcraft_params *params)
     int ret;
     if ((ret = inject_uniforms(s, b, params, NGLI_PROGRAM_SHADER_COMP)) < 0 ||
         (ret = inject_texture_infos(s, params, NGLI_PROGRAM_SHADER_COMP)) < 0 ||
-        (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_COMP)) < 0)
+        (ret = inject_blocks(s, b, params, NGLI_PROGRAM_SHADER_COMP)) < 0 ||
+        (ret = inject_ublock(s, b, NGLI_PROGRAM_SHADER_COMP)) < 0)
         return ret;
 
     ngli_bstr_print(b, params->comp_base);
@@ -1184,6 +1233,17 @@ static int get_uniform_index(const struct pgcraft *s, const char *name)
     return -1;
 }
 
+static int get_ublock_index(const struct pgcraft *s, const char *name, int stage)
+{
+    const struct pgcraft_compat_info *compat_info = &s->compat_info;
+    const struct darray *fields_array = &compat_info->ublocks[stage].fields;
+    const struct block_field *fields = ngli_darray_data(fields_array);
+    for (int i = 0; i < ngli_darray_count(fields_array); i++)
+        if (!strcmp(fields[i].name, name))
+            return stage << 16 | i;
+    return -1;
+}
+
 static int get_texture_index(const struct pgcraft *s, const char *name)
 {
     const struct pipeline_texture_desc *pipeline_texture_descs = ngli_darray_data(&s->filtered_pipeline_info.desc.textures);
@@ -1204,7 +1264,7 @@ static void probe_texture_info_elems(const struct pgcraft *s, struct pgcraft_tex
         else if (is_sampler_or_image(field->type))
             field->index = get_texture_index(s, field->name);
         else
-            field->index = get_uniform_index(s, field->name);
+            field->index = ngli_pgcraft_get_uniform_index(s, field->name, field->stage);
     }
 }
 
@@ -1272,6 +1332,7 @@ static void setup_glsl_info_gl(struct pgcraft *s)
     s->has_in_out_layout_qualifiers = IS_GLSL_ES_MIN(310) || IS_GLSL_MIN(410);
     s->has_precision_qualifiers     = IS_GLSL_ES_MIN(100);
     s->has_modern_texture_picking   = IS_GLSL_ES_MIN(300) || IS_GLSL_MIN(330);
+    s->compat_info.use_ublocks       = 0;
 
     s->has_explicit_bindings = IS_GLSL_ES_MIN(310) || IS_GLSL_MIN(420) ||
                                (gl->features & NGLI_FEATURE_GL_SHADING_LANGUAGE_420PACK);
@@ -1325,6 +1386,14 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx)
     setup_glsl_info(s);
 
     ngli_darray_init(&s->texture_infos, sizeof(struct pgcraft_texture_info), 0);
+
+    struct pgcraft_compat_info *compat_info = &s->compat_info;
+    if (compat_info->use_ublocks) {
+        for (int i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
+            ngli_block_init(&compat_info->ublocks[i], NGLI_BLOCK_LAYOUT_STD140);
+            compat_info->ubindings[i] = -1;
+        }
+    }
 
     ngli_darray_init(&s->pipeline_info.desc.uniforms,   sizeof(struct pipeline_uniform_desc),   0);
     ngli_darray_init(&s->pipeline_info.desc.textures,   sizeof(struct pipeline_texture_desc),   0);
@@ -1431,12 +1500,21 @@ int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params)
 
 int ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage)
 {
-    return get_uniform_index(s, name);
+    const struct pgcraft_compat_info *compat_info = &s->compat_info;
+    if (compat_info->use_ublocks)
+        return get_ublock_index(s, name, stage);
+    else
+        return get_uniform_index(s, name);
 }
 
 const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s)
 {
     return &s->texture_infos;
+}
+
+const struct pgcraft_compat_info *ngli_pgcraft_get_compat_info(const struct pgcraft *s)
+{
+    return &s->compat_info;
 }
 
 struct program *ngli_pgcraft_get_program(const struct pgcraft *s)
@@ -1482,6 +1560,11 @@ void ngli_pgcraft_freep(struct pgcraft **sp)
 
     ngli_darray_reset(&s->texture_infos);
     ngli_darray_reset(&s->vert_out_vars);
+
+    struct pgcraft_compat_info *compat_info = &s->compat_info;
+    for (int i = 0; i < NGLI_ARRAY_NB(compat_info->ublocks); i++) {
+        ngli_block_reset(&compat_info->ublocks[i]);
+    }
 
     for (int i = 0; i < NGLI_ARRAY_NB(s->shaders); i++)
         ngli_bstr_freep(&s->shaders[i]);

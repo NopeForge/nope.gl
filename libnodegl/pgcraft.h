@@ -152,6 +152,23 @@ struct pgcraft_texture_info {
     struct pgcraft_texture_info_field fields[NGLI_INFO_FIELD_NB];
 };
 
+/*
+ * Oldest OpenGL flavours exclusively support single uniforms (no concept of
+ * blocks). And while OpenGL added support for blocks in addition to uniforms,
+ * modern backends such as Vulkan do not support the concept of single uniforms
+ * at all. This means there is no cross-API common ground.
+ *
+ * Since NodeGL still exposes some form of cross-backend uniform abstraction to
+ * the user (through the Uniform* nodes), we have to make a compatibility
+ * layer, which we name "ublock" (for uniform-block). This compatibility layer
+ * maps single uniforms to dedicated uniform blocks.
+ */
+struct pgcraft_compat_info {
+    int use_ublocks;
+    struct block ublocks[NGLI_PROGRAM_SHADER_NB];
+    int ubindings[NGLI_PROGRAM_SHADER_NB];
+};
+
 struct pgcraft_params {
     const char *vert_base;
     const char *frag_base;
@@ -180,6 +197,7 @@ struct pgcraft *ngli_pgcraft_create(struct ngl_ctx *ctx);
 int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params);
 int ngli_pgcraft_get_uniform_index(const struct pgcraft *s, const char *name, int stage);
 const struct darray *ngli_pgcraft_get_texture_infos(const struct pgcraft *s);
+const struct pgcraft_compat_info *ngli_pgcraft_get_compat_info(const struct pgcraft *s);
 struct program *ngli_pgcraft_get_program(const struct pgcraft *s);
 struct pipeline_layout ngli_pgcraft_get_pipeline_layout(const struct pgcraft *s);
 struct pipeline_resources ngli_pgcraft_get_pipeline_resources(const struct pgcraft *s);

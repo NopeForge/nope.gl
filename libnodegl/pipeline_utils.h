@@ -28,6 +28,7 @@
 struct pipeline_compat_params {
     const struct pipeline_params *params;
     const struct pipeline_resources *resources;
+    const struct pgcraft_compat_info *compat_info;
 };
 
 struct pipeline_compat;

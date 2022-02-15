@@ -28,6 +28,9 @@
 struct pipeline_compat {
     struct gpu_ctx *gpu_ctx;
     struct pipeline *pipeline;
+    const struct pgcraft_compat_info *compat_info;
+    struct buffer *ubuffers[NGLI_PROGRAM_SHADER_NB];
+    uint8_t *mapped_datas[NGLI_PROGRAM_SHADER_NB];
 };
 
 struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx)
@@ -37,6 +40,52 @@ struct pipeline_compat *ngli_pipeline_compat_create(struct gpu_ctx *gpu_ctx)
         return NULL;
     s->gpu_ctx = gpu_ctx;
     return s;
+}
+
+static int get_pipeline_ubo_index(const struct pipeline_params *params, int binding, int stage)
+{
+    const struct pipeline_layout *layout = &params->layout;
+    for (int i = 0; i < layout->nb_buffers; i++) {
+        if (layout->buffers_desc[i].type == NGLI_TYPE_UNIFORM_BUFFER &&
+            layout->buffers_desc[i].stage == stage &&
+            layout->buffers_desc[i].binding == binding) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_compat_params *params)
+{
+    struct gpu_ctx *gpu_ctx = s->gpu_ctx;
+
+    for (int i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
+        const struct block *block = &s->compat_info->ublocks[i];
+        if (!block->size)
+            continue;
+
+        struct buffer *buffer = ngli_buffer_create(gpu_ctx);
+        if (!buffer)
+            return NGL_ERROR_MEMORY;
+        s->ubuffers[i] = buffer;
+
+        int ret = ngli_buffer_init(buffer,
+                                   block->size,
+                                   NGLI_BUFFER_USAGE_DYNAMIC_BIT |
+                                   NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+        if (ret < 0)
+            return ret;
+
+        ret = ngli_buffer_map(buffer, buffer->size, 0, (void **)&s->mapped_datas[i]);
+        if (ret < 0)
+            return ret;
+
+        const struct pipeline_params *pipeline_params = params->params;
+        const int index = get_pipeline_ubo_index(pipeline_params, s->compat_info->ubindings[i], i);
+        ngli_pipeline_update_buffer(s->pipeline, index, buffer, 0, buffer->size);
+    }
+
+    return 0;
 }
 
 int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_compat_params *params)
@@ -55,6 +104,13 @@ int ngli_pipeline_compat_init(struct pipeline_compat *s, const struct pipeline_c
         (ret = ngli_pipeline_set_resources(s->pipeline, pipeline_resources)) < 0)
         return ret;
 
+    s->compat_info = params->compat_info;
+    if (s->compat_info->use_ublocks) {
+        ret = init_blocks_buffers(s, params);
+        if (ret < 0)
+            return ret;
+    }
+
     return 0;
 }
 
@@ -65,7 +121,23 @@ int ngli_pipeline_compat_update_attribute(struct pipeline_compat *s, int index, 
 
 int ngli_pipeline_compat_update_uniform(struct pipeline_compat *s, int index, const void *value)
 {
-    return ngli_pipeline_update_uniform(s->pipeline, index, value);
+    if (!s->compat_info->use_ublocks)
+        return ngli_pipeline_update_uniform(s->pipeline, index, value);
+
+    if (index == -1)
+        return NGL_ERROR_NOT_FOUND;
+
+    const int stage = index >> 16;
+    const int field_index = index & 0xffff;
+    const struct block *block = &s->compat_info->ublocks[stage];
+    const struct block_field *fields = ngli_darray_data(&block->fields);
+    const struct block_field *field = &fields[field_index];
+    if (value) {
+        uint8_t *dst = s->mapped_datas[stage] + field->offset;
+        ngli_block_field_copy(field, dst, value);
+    }
+
+    return 0;
 }
 
 int ngli_pipeline_compat_update_texture(struct pipeline_compat *s, int index, const struct texture *texture)
@@ -162,4 +234,12 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
     if (!s)
         return;
     ngli_pipeline_freep(&s->pipeline);
+    if (s->compat_info->use_ublocks) {
+        for (int i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
+            if (s->ubuffers[i]) {
+                ngli_buffer_unmap(s->ubuffers[i]);
+                ngli_buffer_freep(&s->ubuffers[i]);
+            }
+        }
+    }
 }

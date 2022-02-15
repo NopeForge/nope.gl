@@ -164,10 +164,12 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     };
 
     const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(hwconv->crafter);
+    const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(hwconv->crafter);
 
     const struct pipeline_compat_params params = {
         .params = &pipeline_params,
         .resources = &pipeline_resources,
+        .compat_info = compat_info,
     };
 
     ret = ngli_pipeline_compat_init(hwconv->pipeline_compat, &params);

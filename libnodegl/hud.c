@@ -1299,10 +1299,12 @@ int ngli_hud_init(struct hud *s)
     };
 
     const struct pipeline_resources pipeline_resources = ngli_pgcraft_get_pipeline_resources(s->crafter);
+    const struct pgcraft_compat_info *compat_info = ngli_pgcraft_get_compat_info(s->crafter);
 
     const struct pipeline_compat_params params = {
         .params = &pipeline_params,
         .resources = &pipeline_resources,
+        .compat_info = compat_info,
     };
 
     ret = ngli_pipeline_compat_init(s->pipeline_compat, &params);
