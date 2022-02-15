@@ -39,7 +39,7 @@
 #include "internal.h"
 #include "pass.h"
 #include "pgcraft.h"
-#include "pipeline_utils.h"
+#include "pipeline_compat.h"
 #include "program.h"
 #include "texture.h"
 #include "topology.h"

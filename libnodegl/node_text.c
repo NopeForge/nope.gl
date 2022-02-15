@@ -31,7 +31,7 @@
 #include "math_utils.h"
 #include "pgcache.h"
 #include "pgcraft.h"
-#include "pipeline_utils.h"
+#include "pipeline_compat.h"
 #include "type.h"
 #include "topology.h"
 #include "utils.h"

@@ -28,7 +28,7 @@
 #include "log.h"
 #include "internal.h"
 #include "pgcraft.h"
-#include "pipeline_utils.h"
+#include "pipeline_compat.h"
 #include "texture.h"
 #include "topology.h"
 #include "type.h"

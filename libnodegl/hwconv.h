@@ -27,7 +27,7 @@
 #include "image.h"
 #include "pgcraft.h"
 #include "texture.h"
-#include "pipeline_utils.h"
+#include "pipeline_compat.h"
 
 struct ngl_ctx;
 

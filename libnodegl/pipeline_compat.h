@@ -19,8 +19,8 @@
  * under the License.
  */
 
-#ifndef PIPELINE_UTILS_H
-#define PIPELINE_UTILS_H
+#ifndef PIPELINE_COMPAT_H
+#define PIPELINE_COMPAT_H
 
 #include "pgcraft.h"
 #include "pipeline.h"

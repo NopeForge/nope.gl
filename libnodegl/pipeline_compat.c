@@ -22,7 +22,7 @@
 #include "darray.h"
 #include "memory.h"
 #include "nodegl.h"
-#include "pipeline_utils.h"
+#include "pipeline_compat.h"
 #include "type.h"
 
 struct pipeline_compat {

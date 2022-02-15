@@ -30,7 +30,7 @@
 #include "log.h"
 #include "memory.h"
 #include "pgcraft.h"
-#include "pipeline_utils.h"
+#include "pipeline_compat.h"
 #include "topology.h"
 #include "type.h"
 #include "utils.h"
