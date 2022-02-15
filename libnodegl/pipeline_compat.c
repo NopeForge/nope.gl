@@ -72,7 +72,8 @@ static int init_blocks_buffers(struct pipeline_compat *s, const struct pipeline_
         int ret = ngli_buffer_init(buffer,
                                    block->size,
                                    NGLI_BUFFER_USAGE_DYNAMIC_BIT |
-                                   NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
+                                   NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT |
+                                   NGLI_BUFFER_USAGE_MAP_WRITE);
         if (ret < 0)
             return ret;
 
