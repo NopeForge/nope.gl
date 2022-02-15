@@ -28,6 +28,7 @@
 #include "blending.h"
 #include "block.h"
 #include "buffer.h"
+#include "darray.h"
 #include "gpu_ctx.h"
 #include "hmap.h"
 #include "image.h"
@@ -45,6 +46,11 @@
 #include "type.h"
 #include "utils.h"
 
+struct uniform_map {
+    int index;
+    const void *data;
+};
+
 struct pipeline_desc {
     struct pgcraft *crafter;
     struct pipeline_compat *pipeline_compat;
@@ -52,6 +58,7 @@ struct pipeline_desc {
     int projection_matrix_index;
     int normal_matrix_index;
     int resolution_index;
+    struct darray uniforms_map;
 };
 
 static int register_uniform(struct pass *s, const char *name, struct ngl_node *uniform, int stage)
@@ -465,6 +472,33 @@ static int pass_compute_init(struct pass *s)
     return 0;
 }
 
+static int build_uniforms_map(struct pipeline_desc *desc, struct darray *crafter_uniforms)
+{
+    ngli_darray_init(&desc->uniforms_map, sizeof(struct uniform_map), 0);
+
+    struct pgcraft_uniform *uniforms = ngli_darray_data(crafter_uniforms);
+    for (int i = 0; i < ngli_darray_count(crafter_uniforms); i++) {
+        const struct pgcraft_uniform *uniform = &uniforms[i];
+        const int index = ngli_pgcraft_get_uniform_index(desc->crafter, uniform->name, uniform->stage);
+
+        /* The following can happen if the driver makes optimisation and
+         * removes unused uniforms */
+        if (index < 0)
+            continue;
+
+        /* This skips unwanted uniforms such as modelview and projection which
+         * are handled separately */
+        if (!uniform->data)
+            continue;
+
+        const struct uniform_map map = {.index=index, .data=uniform->data};
+        if (!ngli_darray_push(&desc->uniforms_map, &map))
+            return NGL_ERROR_MEMORY;
+    }
+
+    return 0;
+}
+
 int ngli_pass_prepare(struct pass *s)
 {
     struct ngl_ctx *ctx = s->ctx;
@@ -558,6 +592,10 @@ int ngli_pass_prepare(struct pass *s)
     if (ret < 0)
         return ret;
 
+    ret = build_uniforms_map(desc, &s->crafter_uniforms);
+    if (ret < 0)
+        return ret;
+
     desc->modelview_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_modelview_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->projection_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_projection_matrix", NGLI_PROGRAM_SHADER_VERT);
     desc->normal_matrix_index = ngli_pgcraft_get_uniform_index(desc->crafter, "ngl_normal_matrix", NGLI_PROGRAM_SHADER_VERT);
@@ -631,6 +669,7 @@ void ngli_pass_uninit(struct pass *s)
         struct pipeline_desc *desc = &descs[i];
         ngli_pipeline_compat_freep(&desc->pipeline_compat);
         ngli_pgcraft_freep(&desc->crafter);
+        ngli_darray_reset(&desc->uniforms_map);
     }
     ngli_darray_reset(&s->pipeline_descs);
 
@@ -723,6 +762,10 @@ int ngli_pass_exec(struct pass *s)
         ngli_mat3_transpose(normal_matrix, normal_matrix);
         ngli_pipeline_compat_update_uniform(pipeline_compat, desc->normal_matrix_index, normal_matrix);
     }
+
+    const struct uniform_map *map = ngli_darray_data(&desc->uniforms_map);
+    for (int i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
+        ngli_pipeline_compat_update_uniform(pipeline_compat, map[i].index, map[i].data);
 
     const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
     const struct pgcraft_texture_info *texture_infos = ngli_darray_data(texture_infos_array);
