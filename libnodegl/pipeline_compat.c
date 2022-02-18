@@ -215,17 +215,17 @@ int ngli_pipeline_compat_update_buffer(struct pipeline_compat *s, int index, con
 
 void ngli_pipeline_compat_draw(struct pipeline_compat *s, int nb_vertices, int nb_instances)
 {
-    return ngli_pipeline_draw(s->pipeline, nb_vertices, nb_instances);
+    ngli_pipeline_draw(s->pipeline, nb_vertices, nb_instances);
 }
 
 void ngli_pipeline_compat_draw_indexed(struct pipeline_compat *s, const struct buffer *indices, int indices_format, int nb_indices, int nb_instances)
 {
-    return ngli_pipeline_draw_indexed(s->pipeline, indices, indices_format, nb_indices, nb_instances);
+    ngli_pipeline_draw_indexed(s->pipeline, indices, indices_format, nb_indices, nb_instances);
 }
 
 void ngli_pipeline_compat_dispatch(struct pipeline_compat *s, int nb_group_x, int nb_group_y, int nb_group_z)
 {
-    return ngli_pipeline_dispatch(s->pipeline, nb_group_x, nb_group_y, nb_group_z);
+    ngli_pipeline_dispatch(s->pipeline, nb_group_x, nb_group_y, nb_group_z);
 }
 
 void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
