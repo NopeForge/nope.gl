@@ -492,7 +492,7 @@ endif
 pkg.generate(
   libnodegl,
   name: 'libnodegl',  # not specifying the name would fallback on "nodegl.pc" instead of "libnodegl.pc"
-  description: 'Node/Graph based OpenGL engine',
+  description: 'Node/Graph based graphics engine',
   extra_cflags: pkg_extra_cflags,
   variables: ['datarootdir=${prefix}/share'],
 )
