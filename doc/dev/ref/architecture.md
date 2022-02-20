@@ -25,7 +25,41 @@ The `node.gl` project is split in several parts:
   `pynodegl` package). It is also recommended to install [Graphviz][graphviz]
   in order to render graph in the controller.
 
-![Dependencies](dependencies.png)
+```mermaid
+graph
+    libnodegl(libnodegl)
+    ngl_tools(ngl-tools)
+    pynodegl(pynodegl)
+    pynodegl_utils(pynodegl-utils)
+
+    cython[Cython]
+    ffmpeg[FFmpeg]
+    graphviz[Graphviz]
+    pyside6[PySide6]
+    python[Python]
+    sdl2[SDL2]
+    sxplayer[sxplayer]
+    watchdog[watchdog]
+
+    sxplayer --> ffmpeg
+    libnodegl --> sxplayer
+    ngl_tools --> sdl2
+    ngl_tools --> libnodegl
+    ngl_tools -. ngl-python .-> python
+    pynodegl --> libnodegl
+    pynodegl --> python
+    pynodegl --> cython
+    pynodegl_utils --> pynodegl
+    pynodegl_utils --> python
+    pynodegl_utils -.-> graphviz
+    pynodegl_utils --> pyside6
+    pynodegl_utils --> watchdog
+
+    classDef ngldep fill:#add8e6,color:#222
+    classDef extdep fill:#c0c0c0,color:#222
+    class libnodegl,ngl_tools,pynodegl,pynodegl_utils ngldep
+    class sxplayer,ffmpeg,sdl2,python,cython,graphviz,pyside6,watchdog extdep
+```
 
 [meson]: https://mesonbuild.com/
 [sxplayer]: https://github.com/stupeflix/sxplayer
