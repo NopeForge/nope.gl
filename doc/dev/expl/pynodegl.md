@@ -3,7 +3,42 @@ How the Python binding is created
 
 ## Simplified overview
 
-![Binding](binding.png)
+```mermaid
+graph
+
+    libnodegl_install(libnodegl install)
+    pynodegl_setup(pynodegl setup.py)
+
+    cython(Cython)
+    cc(C compiler)
+
+    specs(nodes.specs)
+    c(_pynodegl.c)
+    pyx(nodes_def.pyx)
+
+    mod(_pynodegl.so)
+
+    pymod(pynodegl)
+
+    libnodegl_install -- write --> specs
+    pynodegl_setup -- read --> specs
+    pynodegl_setup -- write --> pyx
+    cython -- read --> pyx
+    cython -- write --> c
+    cc -- read --> c
+    cc -- write --> mod
+    pymod -- import --> mod
+
+    classDef installers fill:#8ee5ee,color:#222
+    classDef ctools     fill:#ee6aa7,color:#222
+    classDef files      fill:#7cfc00,color:#222
+
+    class libnodegl_install,pynodegl_setup installers
+    class cython,cc ctools
+    class specs,c,pyx files
+    style mod fill:#ffd700,color:#222
+    style pymod fill:#ff7f50,color:#222
+```
 
 ## Detailed steps
 
