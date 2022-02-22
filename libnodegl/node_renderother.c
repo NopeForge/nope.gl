@@ -400,11 +400,11 @@ static int init(struct ngl_node *node,
         s->topology = NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
         s->draw = draw_simple;
     } else {
-        struct geometry *geom_node = *(struct geometry **)o->geometry->priv_data;
-        struct buffer *vertices = geom_node->vertices_buffer;
-        struct buffer *uvcoords = geom_node->uvcoords_buffer;
-        struct buffer_layout vertices_layout = geom_node->vertices_layout;
-        struct buffer_layout uvcoords_layout = geom_node->uvcoords_layout;
+        struct geometry *geometry = *(struct geometry **)o->geometry->priv_data;
+        struct buffer *vertices = geometry->vertices_buffer;
+        struct buffer *uvcoords = geometry->uvcoords_buffer;
+        struct buffer_layout vertices_layout = geometry->vertices_layout;
+        struct buffer_layout uvcoords_layout = geometry->uvcoords_layout;
 
         if (!uvcoords) {
             LOG(ERROR, "the specified geometry is missing UV coordinates");
@@ -430,8 +430,8 @@ static int init(struct ngl_node *node,
         s->uvcoord_attr.buffer = uvcoords;
 
         s->nb_vertices = vertices_layout.count;
-        s->topology = geom_node->topology;
-        s->draw = geom_node->indices_buffer ? draw_indexed : draw_simple;
+        s->topology = geometry->topology;
+        s->draw = geometry->indices_buffer ? draw_indexed : draw_simple;
     }
 
     return combine_filters_code(s, o, base_name, base_fragment);
