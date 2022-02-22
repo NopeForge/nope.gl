@@ -90,7 +90,7 @@ struct render_common_opts {
 
 struct render_common {
     uint32_t helpers;
-    void (*draw)(struct render_common *s, const struct render_common_opts *o, struct pipeline_compat *pl_compat);
+    void (*draw)(struct render_common *s, struct pipeline_compat *pl_compat);
     struct filterschain *filterschain;
     char *combined_fragment;
     struct pgcraft_attribute position_attr;
@@ -99,6 +99,7 @@ struct render_common {
     struct buffer *uvcoords;
     int nb_vertices;
     int topology;
+    const struct geometry *geometry;
     struct darray pipeline_descs;
 };
 
@@ -344,20 +345,17 @@ static int combine_filters_code(struct render_common *s, const struct render_com
     return 0;
 }
 
-static void draw_simple(struct render_common *s,  const struct render_common_opts *o,
-                        struct pipeline_compat *pl_compat)
+static void draw_simple(struct render_common *s, struct pipeline_compat *pl_compat)
 {
     ngli_pipeline_compat_draw(pl_compat, s->nb_vertices, 1);
 }
 
-static void draw_indexed(struct render_common *s,  const struct render_common_opts *o,
-                         struct pipeline_compat *pl_compat)
+static void draw_indexed(struct render_common *s, struct pipeline_compat *pl_compat)
 {
-    const struct geometry *geom = *(struct geometry **)o->geometry->priv_data;
     ngli_pipeline_compat_draw_indexed(pl_compat,
-                                      geom->indices_buffer,
-                                      geom->indices_layout.format,
-                                      geom->indices_layout.count, 1);
+                                      s->geometry->indices_buffer,
+                                      s->geometry->indices_layout.format,
+                                      s->geometry->indices_layout.count, 1);
 }
 
 static int init(struct ngl_node *node,
@@ -420,6 +418,8 @@ static int init(struct ngl_node *node,
             LOG(ERROR, "only geometry with vec2 uvcoords are supported");
             return NGL_ERROR_UNSUPPORTED;
         }
+
+        s->geometry = geometry;
 
         s->position_attr.stride = vertices_layout.stride;
         s->position_attr.offset = vertices_layout.offset;
@@ -813,7 +813,7 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
         ctx->render_pass_started = 1;
     }
 
-    s->draw(s, o, desc->pipeline_compat);
+    s->draw(s, desc->pipeline_compat);
 }
 
 static void renderother_uninit(struct ngl_node *node, struct render_common *s)
