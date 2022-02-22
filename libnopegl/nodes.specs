@@ -1697,6 +1697,92 @@
       "desc": "filter chain to apply on top of this source"
     }
   ],
+  "RenderPath": [
+    {
+      "name": "path",
+      "type": "node",
+      "node_types": ["Path", "SmoothPath"],
+      "flags": ["nonull"],
+      "desc": "path to draw"
+    },
+    {
+      "name": "viewbox",
+      "type": "vec4",
+      "default": [-1.000000,-1.000000,2.000000,2.000000],
+      "flags": [],
+      "desc": "vector space for interpreting the path (x, y, width, height)"
+    },
+    {
+      "name": "pt_size",
+      "type": "i32",
+      "default": 54,
+      "flags": [],
+      "desc": "size in point (nominal size, 1pt = 1/72 inch)"
+    },
+    {
+      "name": "dpi",
+      "type": "i32",
+      "default": 300,
+      "flags": [],
+      "desc": "resolution (dot per inch)"
+    },
+    {
+      "name": "aspect_ratio",
+      "type": "ivec2",
+      "default": [1,1],
+      "flags": [],
+      "desc": "aspect ratio"
+    },
+    {
+      "name": "color",
+      "type": "vec3",
+      "default": [1.000000,1.000000,1.000000],
+      "flags": ["live", "node"],
+      "desc": "path fill color"
+    },
+    {
+      "name": "opacity",
+      "type": "f32",
+      "default": 1.000000,
+      "flags": ["live", "node"],
+      "desc": "path fill opacity"
+    },
+    {
+      "name": "outline",
+      "type": "f32",
+      "default": 0.005000,
+      "flags": ["live", "node"],
+      "desc": "path outline width"
+    },
+    {
+      "name": "outline_color",
+      "type": "vec3",
+      "default": [1.000000,0.700000,0.000000],
+      "flags": ["live", "node"],
+      "desc": "path outline color"
+    },
+    {
+      "name": "glow",
+      "type": "f32",
+      "default": 0.000000,
+      "flags": ["live", "node"],
+      "desc": "path glow width"
+    },
+    {
+      "name": "glow_color",
+      "type": "vec3",
+      "default": [1.000000,1.000000,1.000000],
+      "flags": ["live", "node"],
+      "desc": "path glow color"
+    },
+    {
+      "name": "blur",
+      "type": "f32",
+      "default": 0.000000,
+      "flags": ["live", "node"],
+      "desc": "path blur"
+    }
+  ],
   "RenderTexture": [
     {
       "name": "texture",
