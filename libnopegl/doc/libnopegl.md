@@ -767,6 +767,27 @@ Parameter | Flags | Type | Description | Default
 **Source**: [src/node_renderother.c](/libnopegl/src/node_renderother.c)
 
 
+## RenderPath
+
+Parameter | Flags | Type | Description | Default
+--------- | ----- | ---- | ----------- | :-----:
+`path` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([Path](#path), [SmoothPath](#smoothpath)) | path to draw | 
+`viewbox` |  | [`vec4`](#parameter-types) | vector space for interpreting the path (x, y, width, height) | (`-1`,`-1`,`2`,`2`)
+`pt_size` |  | [`i32`](#parameter-types) | size in point (nominal size, 1pt = 1/72 inch) | `54`
+`dpi` |  | [`i32`](#parameter-types) | resolution (dot per inch) | `300`
+`aspect_ratio` |  | [`ivec2`](#parameter-types) | aspect ratio | (`1`,`1`)
+`color` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | path fill color | (`1`,`1`,`1`)
+`opacity` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | path fill opacity | `1`
+`outline` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | path outline width | `0.005`
+`outline_color` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | path outline color | (`1`,`0.7`,`0`)
+`glow` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | path glow width | `0`
+`glow_color` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | path glow color | (`1`,`1`,`1`)
+`blur` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | path blur | `0`
+
+
+**Source**: [src/node_renderpath.c](/libnopegl/src/node_renderpath.c)
+
+
 ## RenderTexture
 
 Parameter | Flags | Type | Description | Default
