@@ -71,7 +71,7 @@ const struct node_class ngli_resourceprops_class = {
     .id        = NGL_NODE_RESOURCEPROPS,
     .name      = "ResourceProps",
     .info_str  = resourceprops_info_str,
-    .priv_size = sizeof(struct resourceprops_opts),
+    .opts_size = sizeof(struct resourceprops_opts),
     .params    = resourceprops_params,
     .file      = __FILE__,
 };
