@@ -39,6 +39,8 @@ void *ngli_darray_pop(struct darray *darray);
 void *ngli_darray_pop_unsafe(struct darray *darray);
 void *ngli_darray_tail(const struct darray *darray);
 void *ngli_darray_get(const struct darray *darray, int index);
+void ngli_darray_remove(struct darray *darray, int index);
+void ngli_darray_remove_range(struct darray *darray, int index, int count);
 void ngli_darray_reset(struct darray *darray);
 
 static inline int ngli_darray_count(const struct darray *darray)
