@@ -207,7 +207,6 @@ static int media_init(struct ngl_node *node)
     struct android_ctx *android_ctx = &ctx->android_ctx;
     const struct ngl_config *config = &ctx->config;
 
-    if (config->backend == NGL_BACKEND_OPENGLES) {
         void *android_surface = NULL;
         if (android_ctx->has_native_imagereader_api) {
             s->android_imagereader = ngli_android_imagereader_create(android_ctx, 1, 1,
@@ -218,7 +217,7 @@ static int media_init(struct ngl_node *node)
             int ret = ngli_android_imagereader_get_window(s->android_imagereader, &android_surface);
             if (ret < 0)
                 return ret;
-        } else {
+        } else if (android_ctx->has_surface_texture_api) {
             s->android_handlerthread = ngli_android_handlerthread_new();
             if (!s->android_handlerthread)
                 return NGL_ERROR_MEMORY;
@@ -237,7 +236,6 @@ static int media_init(struct ngl_node *node)
         }
 
         sxplayer_set_option(s->player, "opaque", &android_surface);
-    }
 #elif defined(HAVE_VAAPI)
     struct ngl_ctx *ctx = node->ctx;
     struct vaapi_ctx *vaapi_ctx = &ctx->vaapi_ctx;
@@ -335,7 +333,7 @@ static void media_uninit(struct ngl_node *node)
     struct android_ctx *android_ctx = &ctx->android_ctx;
     if (android_ctx->has_native_imagereader_api) {
         ngli_android_imagereader_freep(&s->android_imagereader);
-    } else {
+    } else if (android_ctx->has_surface_texture_api) {
         ngli_android_surface_free(&s->android_surface);
         ngli_android_handlerthread_free(&s->android_handlerthread);
     }
