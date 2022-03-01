@@ -404,6 +404,8 @@ def _cmd_join(*cmds):
 
 
 def _get_make_vars(cfg):
+    debug = cfg.args.coverage or cfg.args.buildtype == 'debug'
+
     # We don't want Python to fallback on one found in the PATH so we explicit
     # it to the one in the venv.
     python = op.join(cfg.bin_path, 'python')
@@ -419,12 +421,11 @@ def _get_make_vars(cfg):
     #
     meson = 'MAKEFLAGS= meson' if _SYSTEM != 'Windows' else 'meson'
 
-    buildtype = 'debugoptimized' if cfg.args.coverage or cfg.args.buildtype == 'debug' else 'release'
     meson_setup = [
         'setup',
         '--prefix', cfg.prefix,
         '--pkg-config-path', cfg.pkg_config_path,
-        '--buildtype', buildtype,
+        '--buildtype', 'debugoptimized' if debug else 'release',
     ]
     if cfg.args.coverage:
         meson_setup += ['-Db_coverage=true']
