@@ -395,10 +395,12 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
     endif
 
     lib_src += gbackend_cfg.get('src')
-    lib_src += host_backend_cfg.get('src')
+    lib_src += host_backend_cfg.get('src', [])
     lib_deps += gbackend_deps
     conf_data.set10(gbackend_cfg.get('cfg'), true)
-    conf_data.set10(host_backend_cfg.get('cfg'), true)
+    if 'cfg' in host_backend_cfg
+      conf_data.set10(host_backend_cfg.get('cfg'), true)
+    endif
   endif
 endforeach
 
