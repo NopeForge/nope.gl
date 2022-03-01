@@ -229,16 +229,16 @@ def _renderdoc_install(cfg):
 
 @_block('nodegl-setup', [_sxplayer_install])
 def _nodegl_setup(cfg):
-    nodegl_debug_opts = []
+    nodegl_opts = []
     if cfg.args.debug_opts:
         debug_opts = ','.join(cfg.args.debug_opts)
-        nodegl_debug_opts += [f'-Ddebug_opts={debug_opts}']
+        nodegl_opts += [f'-Ddebug_opts={debug_opts}']
 
     if 'gpu_capture' in cfg.args.debug_opts:
         renderdoc_dir = cfg.externals[_RENDERDOC_ID]
-        nodegl_debug_opts += [f'-Drenderdoc_dir={renderdoc_dir}']
+        nodegl_opts += [f'-Drenderdoc_dir={renderdoc_dir}']
 
-    return ['$(MESON_SETUP) -Drpath=true ' + _cmd_join(*nodegl_debug_opts, 'libnodegl', op.join('builddir', 'libnodegl'))]
+    return ['$(MESON_SETUP) -Drpath=true ' + _cmd_join(*nodegl_opts, 'libnodegl', op.join('builddir', 'libnodegl'))]
 
 
 @_block('nodegl-install', [_nodegl_setup])
