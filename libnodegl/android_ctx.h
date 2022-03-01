@@ -50,6 +50,7 @@ struct android_ctx {
     void (*AHardwareBuffer_describe)(const AHardwareBuffer *buffer, AHardwareBuffer_Desc *outDesc);
 
     int has_native_imagereader_api;
+    int has_surface_texture_api;
 };
 
 int ngli_android_ctx_init(struct gpu_ctx *gpu_ctx, struct android_ctx *s);

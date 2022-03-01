@@ -112,6 +112,7 @@ int ngli_android_ctx_init(struct gpu_ctx *gpu_ctx, struct android_ctx *s)
                                   NGLI_FEATURE_GL_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
         if ((gl->features & features) == features)
             s->has_native_imagereader_api = 1;
+        s->has_surface_texture_api = 1;
     }
 #endif
 
