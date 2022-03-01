@@ -368,6 +368,10 @@ if host_system in ['darwin', 'iphone']
   add_languages('objc')
 endif
 
+# Additional search paths for find_library
+extra_library_dirs = get_option('extra_library_dirs')
+extra_include_dirs = get_option('extra_include_dirs')
+
 foreach gbackend_name, gbackend_cfg : gbackends_cfg
   opt_gbackend = get_option('gbackend-' + gbackend_name)
   if opt_gbackend.disabled()
@@ -382,8 +386,18 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
   foreach dep : host_backend_cfg.get('deps', [])
     gbackend_deps += dependency(dep, required: opt_gbackend)
   endforeach
-  foreach dep : host_backend_cfg.get('libs', [])
-    gbackend_deps += cc.find_library(dep, required: opt_gbackend)
+  foreach lib : host_backend_cfg.get('libs', [])
+    # We need to call find_library() twice because specifying the dirs
+    # parameter inhibits system library detection.
+    # See: https://github.com/mesonbuild/meson/issues/10120
+    dep = cc.find_library(lib, required: false)
+    if not dep.found()
+      dep = cc.find_library(lib, required: opt_gbackend, dirs: extra_library_dirs)
+      if dep.found()
+        gbackend_deps += declare_dependency(include_directories: extra_include_dirs)
+      endif
+    endif
+    gbackend_deps += dep
   endforeach
   if 'frameworks' in host_backend_cfg
     gbackend_deps += dependency('appleframeworks', modules: host_backend_cfg.get('frameworks'), required: opt_gbackend)

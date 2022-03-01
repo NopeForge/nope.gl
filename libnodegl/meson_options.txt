@@ -41,3 +41,8 @@ option('debug_opts', type: 'array', choices: ['gl', 'mem', 'scene', 'gpu_capture
 
 option('renderdoc_dir', type: 'string',
        description: 'Renderdoc directory')
+
+option('extra_library_dirs', type: 'array',
+       description: 'list of directories to look from for external libraries', value: [])
+option('extra_include_dirs', type: 'array',
+       description: 'list of directories to look from for external headers', value: [])
