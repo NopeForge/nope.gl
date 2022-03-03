@@ -70,7 +70,12 @@ static int query_cache(struct pgcache *s, struct program **dstp,
     if (!new_program)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_program_init(new_program, vert, frag, comp);
+    const struct program_params params = {
+        .vertex   = vert,
+        .fragment = frag,
+        .compute  = comp,
+    };
+    int ret = ngli_program_init(new_program, &params);
     if (ret < 0) {
         ngli_program_freep(&new_program);
         return ret;

@@ -253,7 +253,7 @@ struct program *ngli_program_gl_create(struct gpu_ctx *gpu_ctx)
     return (struct program *)s;
 }
 
-int ngli_program_gl_init(struct program *s, const char *vertex, const char *fragment, const char *compute)
+int ngli_program_gl_init(struct program *s, const struct program_params *params)
 {
     struct program_gl *s_priv = (struct program_gl *)s;
 
@@ -263,15 +263,15 @@ int ngli_program_gl_init(struct program *s, const char *vertex, const char *frag
         const char *src;
         GLuint id;
     } shaders[] = {
-        [NGLI_PROGRAM_SHADER_VERT] = {GL_VERTEX_SHADER,   vertex,   0},
-        [NGLI_PROGRAM_SHADER_FRAG] = {GL_FRAGMENT_SHADER, fragment, 0},
-        [NGLI_PROGRAM_SHADER_COMP] = {GL_COMPUTE_SHADER,  compute,  0},
+        [NGLI_PROGRAM_SHADER_VERT] = {GL_VERTEX_SHADER,   params->vertex,   0},
+        [NGLI_PROGRAM_SHADER_FRAG] = {GL_FRAGMENT_SHADER, params->fragment, 0},
+        [NGLI_PROGRAM_SHADER_COMP] = {GL_COMPUTE_SHADER,  params->compute,  0},
     };
 
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    if (compute && (gl->features & NGLI_FEATURE_GL_COMPUTE_SHADER_ALL) != NGLI_FEATURE_GL_COMPUTE_SHADER_ALL) {
+    if (params->compute && (gl->features & NGLI_FEATURE_GL_COMPUTE_SHADER_ALL) != NGLI_FEATURE_GL_COMPUTE_SHADER_ALL) {
         LOG(ERROR, "context does not support compute shaders");
         return NGL_ERROR_GRAPHICS_UNSUPPORTED;
     }

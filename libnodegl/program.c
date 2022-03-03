@@ -27,9 +27,9 @@ struct program *ngli_program_create(struct gpu_ctx *gpu_ctx)
     return gpu_ctx->cls->program_create(gpu_ctx);
 }
 
-int ngli_program_init(struct program *s, const char *vertex, const char *fragment, const char *compute)
+int ngli_program_init(struct program *s, const struct program_params *params)
 {
-    return s->gpu_ctx->cls->program_init(s, vertex, fragment, compute);
+    return s->gpu_ctx->cls->program_init(s, params);
 }
 
 void ngli_program_freep(struct program **sp)

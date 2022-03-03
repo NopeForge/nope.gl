@@ -33,7 +33,7 @@ struct program_gl {
 };
 
 struct program *ngli_program_gl_create(struct gpu_ctx *gpu_ctx);
-int ngli_program_gl_init(struct program *s, const char *vertex, const char *fragment, const char *compute);
+int ngli_program_gl_init(struct program *s, const struct program_params *params);
 void ngli_program_gl_freep(struct program **sp);
 
 #endif

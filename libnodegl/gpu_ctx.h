@@ -97,7 +97,7 @@ struct gpu_ctx_class {
     void (*pipeline_freep)(struct pipeline **sp);
 
     struct program *(*program_create)(struct gpu_ctx *ctx);
-    int (*program_init)(struct program *s, const char *vertex, const char *fragment, const char *compute);
+    int (*program_init)(struct program *s, const struct program_params *params);
     void (*program_freep)(struct program **sp);
 
     struct rendertarget *(*rendertarget_create)(struct gpu_ctx *ctx);
