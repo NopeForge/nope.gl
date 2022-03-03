@@ -31,6 +31,7 @@ struct ngl_ctx;
 
 struct pass_params {
     const char *label;
+    const char *program_label;
 
     /* graphics */
     const char *vert_base;

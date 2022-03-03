@@ -1438,6 +1438,7 @@ static int get_program_compute(struct pgcraft *s, const struct pgcraft_params *p
         return ret;
 
     const struct program_params program_params = {
+        .label   = params->program_label,
         .compute = ngli_bstr_strptr(s->shaders[NGLI_PROGRAM_SHADER_COMP]),
     };
     ret = ngli_pgcache_get_compute_program(&s->ctx->pgcache, &s->program, &program_params);
@@ -1464,6 +1465,7 @@ static int get_program_graphics(struct pgcraft *s, const struct pgcraft_params *
         return ret;
 
     const struct program_params program_params = {
+        .label    = params->program_label,
         .vertex   = ngli_bstr_strptr(s->shaders[NGLI_PROGRAM_SHADER_VERT]),
         .fragment = ngli_bstr_strptr(s->shaders[NGLI_PROGRAM_SHADER_FRAG]),
     };

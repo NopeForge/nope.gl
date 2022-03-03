@@ -572,6 +572,7 @@ static int bg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     };
 
     const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/text-bg",
         .vert_base        = bg_vertex_data,
         .frag_base        = bg_fragment_data,
         .uniforms         = uniforms,
@@ -641,6 +642,7 @@ static int fg_prepare(struct ngl_node *node, struct pipeline_subdesc *desc)
     };
 
     const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/text-fg",
         .vert_base        = vertex_data,
         .frag_base        = fragment_data,
         .uniforms         = uniforms,

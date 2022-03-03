@@ -181,6 +181,7 @@ static int render_init(struct ngl_node *node)
     const struct program_opts *program_opts = o->program->opts;
     struct pass_params params = {
         .label = node->label,
+        .program_label = o->program->label,
         .geometry = o->geometry,
         .vert_base = program_opts->vertex,
         .frag_base = program_opts->fragment,

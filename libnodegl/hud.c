@@ -1263,6 +1263,7 @@ int ngli_hud_init(struct hud *s)
     graphicstate.blend_dst_factor_a = NGLI_BLEND_FACTOR_ONE;
 
     const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/hud",
         .vert_base        = vertex_data,
         .frag_base        = fragment_data,
         .uniforms         = uniforms,

@@ -170,6 +170,7 @@ struct pgcraft_compat_info {
 };
 
 struct pgcraft_params {
+    const char *program_label;
     const char *vert_base;
     const char *frag_base;
     const char *comp_base;

@@ -615,6 +615,7 @@ static int rendercolor_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/rendercolor",
         .vert_base        = source_color_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -660,6 +661,7 @@ static int rendergradient_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/rendergradient",
         .vert_base        = source_gradient_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -705,6 +707,7 @@ static int rendergradient4_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/rendergradient4",
         .vert_base        = source_gradient4_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
@@ -761,6 +764,7 @@ static int rendertexture_prepare(struct ngl_node *node)
     const struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
     const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
     const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/rendertexture",
         .vert_base        = source_texture_vert,
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),

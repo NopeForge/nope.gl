@@ -541,6 +541,7 @@ int ngli_pass_prepare(struct pass *s)
         return ret;
 
     const struct pgcraft_params crafter_params = {
+        .program_label     = s->params.program_label,
         .vert_base         = s->params.vert_base,
         .frag_base         = s->params.frag_base,
         .comp_base         = s->params.comp_base,

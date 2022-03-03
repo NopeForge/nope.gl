@@ -130,6 +130,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     };
 
     const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/hwconv",
         .vert_base        = vert_base,
         .frag_base        = frag_base,
         .textures         = textures,
