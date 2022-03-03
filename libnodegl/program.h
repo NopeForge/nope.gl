@@ -41,6 +41,7 @@ enum {
 };
 
 struct program_params {
+    const char *label;
     const char *vertex;
     const char *fragment;
     const char *compute;

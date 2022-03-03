@@ -289,7 +289,8 @@ int ngli_program_gl_init(struct program *s, const struct program_params *params)
         if (ret < 0) {
             char *s_with_numbers = ngli_numbered_lines(shaders[i].src);
             if (s_with_numbers) {
-                LOG(ERROR, "failed to compile:\n%s", s_with_numbers);
+                LOG(ERROR, "failed to compile shader \"%s\":\n%s",
+                    params->label ? params->label : "", s_with_numbers);
                 ngli_free(s_with_numbers);
             }
             goto fail;
