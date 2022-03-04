@@ -234,7 +234,7 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
     if (!s)
         return;
     ngli_pipeline_freep(&s->pipeline);
-    if (s->compat_info->use_ublocks) {
+    if (s->compat_info && s->compat_info->use_ublocks) {
         for (int i = 0; i < NGLI_PROGRAM_SHADER_NB; i++) {
             if (s->ubuffers[i]) {
                 ngli_buffer_unmap(s->ubuffers[i]);
