@@ -52,7 +52,7 @@ int ngli_pgcache_init(struct pgcache *s, struct gpu_ctx *gpu_ctx)
 
 static int query_cache(struct pgcache *s, struct program **dstp,
                        struct hmap *cache, const char *cache_key,
-                       const char *vert, const char *frag, const char *comp)
+                       const struct program_params *params)
 {
     struct gpu_ctx *gpu_ctx = s->gpu_ctx;
 
@@ -70,12 +70,7 @@ static int query_cache(struct pgcache *s, struct program **dstp,
     if (!new_program)
         return NGL_ERROR_MEMORY;
 
-    const struct program_params params = {
-        .vertex   = vert,
-        .fragment = frag,
-        .compute  = comp,
-    };
-    int ret = ngli_program_init(new_program, &params);
+    int ret = ngli_program_init(new_program, params);
     if (ret < 0) {
         ngli_program_freep(&new_program);
         return ret;
@@ -112,12 +107,19 @@ int ngli_pgcache_get_graphics_program(struct pgcache *s, struct program **dstp, 
         }
     }
 
-    return query_cache(s, dstp, frag_map, frag, vert, frag, NULL);
+    const struct program_params params = {
+        .vertex   = vert,
+        .fragment = frag,
+    };
+    return query_cache(s, dstp, frag_map, frag, &params);
 }
 
 int ngli_pgcache_get_compute_program(struct pgcache *s, struct program **dstp, const char *comp)
 {
-    return query_cache(s, dstp, s->compute_cache, comp, NULL, NULL, comp);
+    const struct program_params params = {
+        .compute = comp,
+    };
+    return query_cache(s, dstp, s->compute_cache, comp, &params);
 }
 
 void ngli_pgcache_reset(struct pgcache *s)
