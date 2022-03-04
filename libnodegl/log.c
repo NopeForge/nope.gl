@@ -160,6 +160,18 @@ char *ngli_log_ret_str(char *buf, size_t buf_size, int ret)
         case NGL_ERROR_UNSUPPORTED:
             snprintf(buf, buf_size, "unsupported operation");
             break;
+        case NGL_ERROR_GRAPHICS_GENERIC:
+            snprintf(buf, buf_size, "generic graphics error");
+            break;
+        case NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED:
+            snprintf(buf, buf_size, "graphics limit exceeded");
+            break;
+        case NGL_ERROR_GRAPHICS_MEMORY:
+            snprintf(buf, buf_size, "graphics memory/allocation error");
+            break;
+        case NGL_ERROR_GRAPHICS_UNSUPPORTED:
+            snprintf(buf, buf_size, "unsupported graphics operation/feature");
+            break;
         default:
             if (ret < 0)
                 snprintf(buf, buf_size, "unknown error code %d", ret);
