@@ -86,40 +86,33 @@ static int query_cache(struct pgcache *s, struct program **dstp,
     return 0;
 }
 
-int ngli_pgcache_get_graphics_program(struct pgcache *s, struct program **dstp, const char *vert, const char *frag)
+int ngli_pgcache_get_graphics_program(struct pgcache *s, struct program **dstp, const struct program_params *params)
 {
     /*
      * The first dimension of the graphics_cache hmap is another hmap: what we
      * do is basically graphics_cache[vert][frag] to obtain the program. If the
      * 2nd hmap is not yet allocated, we do create a new one here.
      */
-    struct hmap *frag_map = ngli_hmap_get(s->graphics_cache, vert);
+    struct hmap *frag_map = ngli_hmap_get(s->graphics_cache, params->vertex);
     if (!frag_map) {
         frag_map = ngli_hmap_create();
         if (!frag_map)
             return NGL_ERROR_MEMORY;
         ngli_hmap_set_free(frag_map, reset_cached_program, s);
 
-        int ret = ngli_hmap_set(s->graphics_cache, vert, frag_map);
+        int ret = ngli_hmap_set(s->graphics_cache, params->vertex, frag_map);
         if (ret < 0) {
             ngli_hmap_freep(&frag_map);
             return NGL_ERROR_MEMORY;
         }
     }
 
-    const struct program_params params = {
-        .vertex   = vert,
-        .fragment = frag,
-    };
-    return query_cache(s, dstp, frag_map, frag, &params);
+    return query_cache(s, dstp, frag_map, params->fragment, params);
 }
 
-int ngli_pgcache_get_compute_program(struct pgcache *s, struct program **dstp, const char *comp)
+int ngli_pgcache_get_compute_program(struct pgcache *s, struct program **dstp, const struct program_params *params)
 {
-    const struct program_params params = {
-        .compute = comp,
-    };
-    return query_cache(s, dstp, s->compute_cache, comp, &params);
+    return query_cache(s, dstp, s->compute_cache, params->compute, params);
 }
 
 void ngli_pgcache_reset(struct pgcache *s)
