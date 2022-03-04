@@ -259,13 +259,14 @@ int ngli_program_gl_init(struct program *s, const struct program_params *params)
 
     int ret = 0;
     struct {
+        const char *name;
         GLenum type;
         const char *src;
         GLuint id;
     } shaders[] = {
-        [NGLI_PROGRAM_SHADER_VERT] = {GL_VERTEX_SHADER,   params->vertex,   0},
-        [NGLI_PROGRAM_SHADER_FRAG] = {GL_FRAGMENT_SHADER, params->fragment, 0},
-        [NGLI_PROGRAM_SHADER_COMP] = {GL_COMPUTE_SHADER,  params->compute,  0},
+        [NGLI_PROGRAM_SHADER_VERT] = {"vertex",   GL_VERTEX_SHADER,   params->vertex,   0},
+        [NGLI_PROGRAM_SHADER_FRAG] = {"fragment", GL_FRAGMENT_SHADER, params->fragment, 0},
+        [NGLI_PROGRAM_SHADER_COMP] = {"compute",  GL_COMPUTE_SHADER,  params->compute,  0},
     };
 
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
@@ -301,8 +302,25 @@ int ngli_program_gl_init(struct program *s, const struct program_params *params)
 
     ngli_glLinkProgram(gl, s_priv->id);
     ret = program_check_status(gl, s_priv->id, GL_LINK_STATUS);
-    if (ret < 0)
+    if (ret < 0) {
+        struct bstr *bstr = ngli_bstr_create();
+        if (bstr) {
+            ngli_bstr_printf(bstr, "failed to link shaders \"%s\":",
+                             params->label ? params->label : "");
+            for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++) {
+                if (!shaders[i].src)
+                    continue;
+                char *s_with_numbers = ngli_numbered_lines(shaders[i].src);
+                if (s_with_numbers) {
+                    ngli_bstr_printf(bstr, "\n\n%s shader:\n%s", shaders[i].name, s_with_numbers);
+                    ngli_free(s_with_numbers);
+                }
+            }
+            LOG(ERROR, "%s", ngli_bstr_strptr(bstr));
+            ngli_bstr_freep(&bstr);
+        }
         goto fail;
+    }
 
     for (int i = 0; i < NGLI_ARRAY_NB(shaders); i++)
         ngli_glDeleteShader(gl, shaders[i].id);
