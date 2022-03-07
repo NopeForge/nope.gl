@@ -207,35 +207,35 @@ static int media_init(struct ngl_node *node)
     struct android_ctx *android_ctx = &ctx->android_ctx;
     const struct ngl_config *config = &ctx->config;
 
-        void *android_surface = NULL;
-        if (android_ctx->has_native_imagereader_api) {
-            s->android_imagereader = ngli_android_imagereader_create(android_ctx, 1, 1,
-                                                                     NGLI_ANDROID_IMAGE_FORMAT_PRIVATE, 2);
-            if (!s->android_imagereader)
-                return NGL_ERROR_MEMORY;
+    void *android_surface = NULL;
+    if (android_ctx->has_native_imagereader_api) {
+        s->android_imagereader = ngli_android_imagereader_create(android_ctx, 1, 1,
+                                                                 NGLI_ANDROID_IMAGE_FORMAT_PRIVATE, 2);
+        if (!s->android_imagereader)
+            return NGL_ERROR_MEMORY;
 
-            int ret = ngli_android_imagereader_get_window(s->android_imagereader, &android_surface);
-            if (ret < 0)
-                return ret;
-        } else if (android_ctx->has_surface_texture_api) {
-            s->android_handlerthread = ngli_android_handlerthread_new();
-            if (!s->android_handlerthread)
-                return NGL_ERROR_MEMORY;
+        int ret = ngli_android_imagereader_get_window(s->android_imagereader, &android_surface);
+        if (ret < 0)
+            return ret;
+    } else if (android_ctx->has_surface_texture_api) {
+        s->android_handlerthread = ngli_android_handlerthread_new();
+        if (!s->android_handlerthread)
+            return NGL_ERROR_MEMORY;
 
-            void *handler = ngli_android_handlerthread_get_native_handler(s->android_handlerthread);
-            if (!handler)
-                return NGL_ERROR_EXTERNAL;
+        void *handler = ngli_android_handlerthread_get_native_handler(s->android_handlerthread);
+        if (!handler)
+            return NGL_ERROR_EXTERNAL;
 
-            s->android_surface = ngli_android_surface_new(0, handler);
-            if (!s->android_surface)
-                return NGL_ERROR_MEMORY;
+        s->android_surface = ngli_android_surface_new(0, handler);
+        if (!s->android_surface)
+            return NGL_ERROR_MEMORY;
 
-            android_surface = ngli_android_surface_get_surface(s->android_surface);
-            if (!android_surface)
-                return NGL_ERROR_EXTERNAL;
-        }
+        android_surface = ngli_android_surface_get_surface(s->android_surface);
+        if (!android_surface)
+            return NGL_ERROR_EXTERNAL;
+    }
 
-        sxplayer_set_option(s->player, "opaque", &android_surface);
+    sxplayer_set_option(s->player, "opaque", &android_surface);
 #elif defined(HAVE_VAAPI)
     struct ngl_ctx *ctx = node->ctx;
     struct vaapi_ctx *vaapi_ctx = &ctx->vaapi_ctx;
