@@ -370,8 +370,11 @@ endif
 
 foreach gbackend_name, gbackend_cfg : gbackends_cfg
   opt_gbackend = get_option('gbackend-' + gbackend_name)
-
-  host_backend_cfg = gbackend_cfg.get('hosts_cfg').get(host_system, {})
+  hosts_backend_cfg = gbackend_cfg.get('hosts_cfg')
+  if host_system not in hosts_backend_cfg
+    continue
+  endif
+  host_backend_cfg = hosts_backend_cfg.get(host_system)
   gbackend_deps = []
   foreach dep : host_backend_cfg.get('deps', [])
     gbackend_deps += dependency(dep, required: opt_gbackend)
