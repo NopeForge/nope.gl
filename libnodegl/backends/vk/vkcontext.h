@@ -80,6 +80,10 @@ struct vkcontext {
     VkPresentModeKHR *present_modes;
     uint32_t nb_present_modes;
     int support_present_mode_immediate;
+
+    /* Device functions */
+    VK_DECLARE_FUNC(GetMemoryFdKHR);
+    VK_DECLARE_FUNC(GetMemoryFdPropertiesKHR);
 };
 
 struct vkcontext *ngli_vkcontext_create(void);

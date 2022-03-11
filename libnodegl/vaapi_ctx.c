@@ -27,6 +27,10 @@
 #include "backends/gl/gpu_ctx_gl.h"
 #endif
 
+#if defined(BACKEND_VK)
+#include "backends/vk/gpu_ctx_vk.h"
+#endif
+
 #if defined(HAVE_VAAPI_X11)
 #include <X11/Xlib.h>
 #include <va/va_x11.h>
@@ -52,6 +56,20 @@ static int check_extensions(const struct gpu_ctx *gpu_ctx)
                               NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT;
     if ((gl->features & features) == features)
         return 1;
+#endif
+#if defined(BACKEND_VK)
+    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+    const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+    const char *required_extensions[] = {
+        VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
+        VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,
+        VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
+    };
+    for (int i = 0; i < NGLI_ARRAY_NB(required_extensions); i++) {
+        if (!ngli_vkcontext_has_extension(vk, required_extensions[i], 1))
+            return 0;
+    }
+    return 1;
 #endif
     return 0;
 }

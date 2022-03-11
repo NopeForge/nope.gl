@@ -31,6 +31,7 @@
 #endif
 
 #include <string.h>
+#include <stdlib.h>
 #include <vulkan/vulkan.h>
 
 #include "bstr.h"
@@ -569,6 +570,21 @@ static VkResult create_device(struct vkcontext *s)
         }
     }
 
+    static const char *optional_device_extensions[] = {
+        VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
+        VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,
+        VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
+    };
+
+    for (int i = 0; i < NGLI_ARRAY_NB(optional_device_extensions); i++) {
+        if (ngli_vkcontext_has_extension(s, optional_device_extensions[i], 1)) {
+            if (!ngli_darray_push(&enabled_extensions, &optional_device_extensions[i])) {
+                ngli_darray_reset(&enabled_extensions);
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
+            }
+        }
+    }
+
     const VkPhysicalDeviceFeatures2 dev_features2 = {
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
         .features = dev_features,
@@ -714,6 +730,15 @@ struct vk_extension {
     int device;
     const struct vk_function *functions;
 } vk_extensions[] = {
+    {
+        .name = VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
+        .device = 1,
+        .functions = (const struct vk_function[]) {
+            DECLARE_FUNC(GetMemoryFdKHR, 1),
+            DECLARE_FUNC(GetMemoryFdPropertiesKHR, 1),
+            {0},
+        },
+    },
 };
 
 static int load_function(struct vkcontext *s, const struct vk_function *func)

@@ -526,6 +526,10 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
       lib_src += files('backends/gl/hwmap_vaapi_gl.c')
     endif
 
+    if gbackend_name == 'vk' and vaapi_enabled
+      lib_src += files('backends/vk/hwmap_vaapi_vk.c')
+    endif
+
     lib_src += gbackend_cfg.get('src')
     lib_src += host_backend_cfg.get('src', [])
     lib_deps += gbackend_deps

@@ -23,6 +23,11 @@
 
 #include "config.h"
 
+extern const struct hwmap_class ngli_hwmap_vaapi_vk_class;
+
 const struct hwmap_class *ngli_hwmap_vk_classes[] = {
+#if defined(HAVE_VAAPI)
+    &ngli_hwmap_vaapi_vk_class,
+#endif
     NULL
 };
