@@ -697,6 +697,56 @@ static VkResult select_preferred_formats(struct vkcontext *s)
     return VK_SUCCESS;
 }
 
+struct vk_function {
+    const char *name;
+    size_t offset;
+    int device;
+};
+
+#define DECLARE_FUNC(n, d) {                 \
+    .name = "vk" #n,                         \
+    .offset = offsetof(struct vkcontext, n), \
+    .device = d,                             \
+}                                            \
+
+struct vk_extension {
+    const char *name;
+    int device;
+    const struct vk_function *functions;
+} vk_extensions[] = {
+};
+
+static int load_function(struct vkcontext *s, const struct vk_function *func)
+{
+    PFN_vkVoidFunction *func_ptr = (void *)((uint8_t *)s + func->offset);
+    if (func->device)
+        *func_ptr = vkGetDeviceProcAddr(s->device, func->name);
+    else
+        *func_ptr = vkGetInstanceProcAddr(s->instance, func->name);
+
+    if (!*func_ptr)
+        return 0;
+
+    return 1;
+}
+
+static VkResult load_functions(struct vkcontext *s)
+{
+    for (int i = 0; i < NGLI_ARRAY_NB(vk_extensions); i++) {
+        struct vk_extension *ext = &vk_extensions[i];
+        if (!ngli_vkcontext_has_extension(s, ext->name, ext->device))
+            continue;
+        for (const struct vk_function *func = ext->functions; func && func->name; func++) {
+            if (!load_function(s, func)) {
+                LOG(ERROR, "could not load %s() required by extension %s",
+                    func->name, ext->name);
+                return VK_ERROR_EXTENSION_NOT_PRESENT;
+            }
+        }
+    }
+    return VK_SUCCESS;
+}
+
 struct vkcontext *ngli_vkcontext_create(void)
 {
     struct vkcontext *s = ngli_calloc(1, sizeof(*s));
@@ -730,6 +780,10 @@ VkResult ngli_vkcontext_init(struct vkcontext *s, const struct ngl_config *confi
         return res;
 
     res = create_device(s);
+    if (res != VK_SUCCESS)
+        return res;
+
+    res = load_functions(s);
     if (res != VK_SUCCESS)
         return res;
 
