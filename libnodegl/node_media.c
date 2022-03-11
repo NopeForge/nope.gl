@@ -211,7 +211,7 @@ static int media_init(struct ngl_node *node)
         void *android_surface = NULL;
         if (android_ctx->has_native_imagereader_api) {
             s->android_imagereader = ngli_android_imagereader_create(android_ctx, 1, 1,
-                                                                     NGLI_ANDROID_IMAGE_FORMAT_YUV_420_888, 2);
+                                                                     NGLI_ANDROID_IMAGE_FORMAT_PRIVATE, 2);
             if (!s->android_imagereader)
                 return NGL_ERROR_MEMORY;
 
