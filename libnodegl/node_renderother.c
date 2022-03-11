@@ -826,8 +826,8 @@ static void renderother_uninit(struct ngl_node *node, struct render_common *s)
     const int nb_descs = ngli_darray_count(&s->pipeline_descs);
     for (int i = 0; i < nb_descs; i++) {
         struct pipeline_desc *desc = &descs[i];
-        ngli_pgcraft_freep(&desc->crafter);
         ngli_pipeline_compat_freep(&desc->pipeline_compat);
+        ngli_pgcraft_freep(&desc->crafter);
         ngli_darray_reset(&desc->uniforms);
         ngli_darray_reset(&desc->uniforms_map);
     }
