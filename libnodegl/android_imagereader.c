@@ -108,7 +108,8 @@ struct android_imagereader *ngli_android_imagereader_create(struct android_ctx *
         return NULL;
     }
 
-    media_status_t status = android_ctx->AImageReader_new(width, height, format, max_images, &s->reader);
+    const uint32_t usage = AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE;
+    media_status_t status = android_ctx->AImageReader_newWithUsage(width, height, format, usage, max_images, &s->reader);
     if (status != AMEDIA_OK) {
         LOG(ERROR, "failed to allocate AImageReader");
         goto fail;

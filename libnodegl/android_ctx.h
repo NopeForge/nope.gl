@@ -37,7 +37,7 @@ struct android_ctx {
     media_status_t (*AImage_getCropRect)(const AImage *image, AImageCropRect *rect);
 
     /* AImageReader */
-    media_status_t (*AImageReader_new)(int32_t width, int32_t height, int32_t format, int32_t maxImages, AImageReader **reader);
+    media_status_t (*AImageReader_newWithUsage)(int32_t width, int32_t height, int32_t format, uint64_t usage, int32_t maxImages, AImageReader **reader);
     media_status_t (*AImageReader_setImageListener)(AImageReader *reader, AImageReader_ImageListener *listener);
     media_status_t (*AImageReader_getWindow)(AImageReader *reader, ANativeWindow **window);
     media_status_t (*AImageReader_acquireNextImage)(AImageReader *reader, AImage **image);
