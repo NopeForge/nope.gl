@@ -370,6 +370,9 @@ endif
 
 foreach gbackend_name, gbackend_cfg : gbackends_cfg
   opt_gbackend = get_option('gbackend-' + gbackend_name)
+  if opt_gbackend.disabled()
+    continue
+  endif
   hosts_backend_cfg = gbackend_cfg.get('hosts_cfg')
   if host_system not in hosts_backend_cfg
     continue
