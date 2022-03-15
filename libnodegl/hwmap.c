@@ -132,6 +132,10 @@ static const struct hwmap_class **get_backend_hwmap_classes(int backend)
     if (backend == NGL_BACKEND_OPENGL || backend == NGL_BACKEND_OPENGLES)
         return ngli_hwmap_gl_classes;
 #endif
+#ifdef BACKEND_VK
+    if (backend == NGL_BACKEND_VULKAN)
+        return ngli_hwmap_vk_classes;
+#endif
     return NULL;
 }
 
@@ -166,11 +170,6 @@ int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap
 
     const struct ngl_config *config = &ctx->config;
     hwmap->hwmap_classes = get_backend_hwmap_classes(config->backend);
-
-#ifdef BACKEND_VK
-    if (config->backend == NGL_BACKEND_VULKAN)
-        hwmap->hwmap_classes = ngli_hwmap_vk_classes;
-#endif
 
     return 0;
 }
