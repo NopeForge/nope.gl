@@ -190,7 +190,7 @@ static void transition_image_layout(VkCommandBuffer cmd_buf,
     vkCmdPipelineBarrier(cmd_buf, src_stage, dst_stage, 0, 0, NULL, 0, NULL, 1, &barrier);
 }
 
-static VkImageUsageFlags get_vk_image_usage(int usage)
+VkImageUsageFlags ngli_vk_get_image_usage_flags(int usage)
 {
     return (usage & NGLI_TEXTURE_USAGE_TRANSFER_SRC_BIT             ? VK_IMAGE_USAGE_TRANSFER_SRC_BIT             : 0)
          | (usage & NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT             ? VK_IMAGE_USAGE_TRANSFER_DST_BIT             : 0)
@@ -244,7 +244,7 @@ static int init_fields(struct texture *s, const struct texture_params *params)
         s_priv->mipmap_levels = get_mipmap_levels(params->width, params->height);
     }
 
-    const VkImageUsageFlags usage = get_vk_image_usage(s->params.usage);
+    const VkImageUsageFlags usage = ngli_vk_get_image_usage_flags(s->params.usage);
     s_priv->default_image_layout = VK_IMAGE_LAYOUT_GENERAL;
     if (usage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT)
         s_priv->default_image_layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -362,7 +362,7 @@ VkResult ngli_texture_vk_init(struct texture *s, const struct texture_params *pa
         .format        = s_priv->format,
         .tiling        = tiling,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-        .usage         = get_vk_image_usage(s->params.usage),
+        .usage         = ngli_vk_get_image_usage_flags(s->params.usage),
         .samples       = ngli_ngl_samples_to_vk(s->params.samples),
         .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
         .flags         = flags,
