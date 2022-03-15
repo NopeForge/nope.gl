@@ -206,7 +206,7 @@ static EGLDisplay egl_get_display(struct glcontext *ctx, EGLNativeDisplayType na
     } else if (ctx->platform == NGL_PLATFORM_WAYLAND) {
 #if defined(HAVE_WAYLAND)
         if (!egl->native_display) {
-            LOG(ERROR, "no Wayland display specified\n");
+            LOG(ERROR, "no Wayland display specified");
             return EGL_NO_DISPLAY;
         }
 
