@@ -46,7 +46,7 @@
 #include "vkcontext.h"
 #include "vkutils.h"
 
-#ifdef DEBUG_VK
+#if DEBUG_VK
 static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverityFlagBitsEXT severity,
                                                      VkDebugUtilsMessageTypeFlagsEXT type,
                                                      const VkDebugUtilsMessengerCallbackDataEXT *cb_data,
@@ -193,7 +193,7 @@ static VkResult create_instance(struct vkcontext *s, int platform)
         }
     }
 
-#ifdef DEBUG_VK
+#if DEBUG_VK
     static const char *debug_ext = VK_EXT_DEBUG_UTILS_EXTENSION_NAME;
     const int has_debug_extension = ngli_vkcontext_has_extension(s, debug_ext, 0);
     if (has_debug_extension && !ngli_darray_push(&extensions, &debug_ext)) {
@@ -232,7 +232,7 @@ static VkResult create_instance(struct vkcontext *s, int platform)
     if (res != VK_SUCCESS)
         goto end;
 
-#ifdef DEBUG_VK
+#if DEBUG_VK
     if (has_debug_extension) {
         VK_LOAD_FUNC(s->instance, CreateDebugUtilsMessengerEXT);
         if (!CreateDebugUtilsMessengerEXT)
