@@ -19,8 +19,8 @@
  * under the License.
  */
 
-#ifndef GCTX_GL_H
-#define GCTX_GL_H
+#ifndef GPU_CTX_GL_H
+#define GPU_CTX_GL_H
 
 #include "config.h"
 

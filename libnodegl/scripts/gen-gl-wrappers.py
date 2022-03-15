@@ -287,8 +287,8 @@ def gen(gl_xml, func_file, def_file, wrap_file):
     ''')
 
     glfunctions = do_not_edit + textwrap.dedent('''
-    #ifndef NGL_GLFUNCS_H
-    #define NGL_GLFUNCS_H
+    #ifndef GLFUNCTIONS_H
+    #define GLFUNCTIONS_H
 
     #include "glincludes.h"
 

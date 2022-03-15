@@ -19,8 +19,8 @@
  * under the License.
  */
 
-#ifndef VAAPI_H
-#define VAAPI_H
+#ifndef VAAPI_CTX_H
+#define VAAPI_CTX_H
 
 #include "config.h"
 

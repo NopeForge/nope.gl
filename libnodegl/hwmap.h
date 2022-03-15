@@ -19,8 +19,8 @@
  * under the License.
  */
 
-#ifndef HWUPLOAD_H
-#define HWUPLOAD_H
+#ifndef HWMAP_H
+#define HWMAP_H
 
 #include <stdlib.h>
 #include <stdint.h>
