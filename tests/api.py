@@ -125,7 +125,7 @@ def api_ctx_ownership_subgraph():
         assert ctx.set_scene(render2) == 0
         assert ctx.draw(0) == 0
         assert ctx2.set_scene(scene) != 0
-        assert ctx2.draw(0) == 0  # XXX: drawing with no scene is allowed?
+        assert ctx2.draw(0) == 0
         del ctx
         del ctx2
 
