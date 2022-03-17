@@ -64,16 +64,6 @@ struct texture_binding {
     uint32_t update_desc_flags;
 };
 
-struct write_descriptor_set {
-    VkDescriptorType type;
-    union {
-        VkDescriptorImageInfo image_info;
-        VkDescriptorBufferInfo buffer_info;
-    };
-    int32_t binding;
-    VkDescriptorSet desc_set;
-};
-
 static const VkPrimitiveTopology vk_primitive_topology_map[NGLI_PRIMITIVE_TOPOLOGY_NB] = {
     [NGLI_PRIMITIVE_TOPOLOGY_POINT_LIST]     = VK_PRIMITIVE_TOPOLOGY_POINT_LIST,
     [NGLI_PRIMITIVE_TOPOLOGY_LINE_LIST]      = VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
