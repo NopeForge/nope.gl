@@ -79,7 +79,6 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugUtilsMessageSeverity
 
     return VK_FALSE;
 }
-#endif
 
 static int has_layer(struct vkcontext *s, const char *name)
 {
@@ -88,6 +87,7 @@ static int has_layer(struct vkcontext *s, const char *name)
             return 1;
     return 0;
 }
+#endif
 
 static const char *platform_ext_names[] = {
     [NGL_PLATFORM_XLIB]    = "VK_KHR_xlib_surface",
