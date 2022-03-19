@@ -38,7 +38,7 @@ struct texture_vk {
     VkImageLayout image_layout;
     VkDeviceMemory image_memory;
     VkImageView image_view;
-    VkSampler image_sampler;
+    VkSampler sampler;
     struct buffer *staging_buffer;
     VkDeviceSize staging_buffer_row_length;
     void *staging_buffer_ptr;

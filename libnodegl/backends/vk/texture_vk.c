@@ -305,7 +305,7 @@ static VkResult create_sampler(struct texture *s)
         .maxLod                  = s_priv->mipmap_levels,
         .mipLodBias              = 0.0f,
     };
-    return vkCreateSampler(vk->device, &sampler_info, NULL, &s_priv->image_sampler);
+    return vkCreateSampler(vk->device, &sampler_info, NULL, &s_priv->sampler);
 }
 
 struct texture *ngli_texture_vk_create(struct gpu_ctx *gpu_ctx)
@@ -773,7 +773,7 @@ void ngli_texture_vk_freep(struct texture **sp)
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
-    vkDestroySampler(vk->device, s_priv->image_sampler, NULL);
+    vkDestroySampler(vk->device, s_priv->sampler, NULL);
     vkDestroyImageView(vk->device, s_priv->image_view, NULL);
     if (!s->params.external_storage)
         vkDestroyImage(vk->device, s_priv->image, NULL);

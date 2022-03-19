@@ -716,7 +716,7 @@ static int update_descriptor_set(struct pipeline *s)
             const VkDescriptorImageInfo image_info = {
                 .imageLayout = texture_vk->default_image_layout,
                 .imageView   = texture_vk->image_view,
-                .sampler     = texture_vk->image_sampler,
+                .sampler     = texture_vk->sampler,
             };
             const struct pipeline_texture_desc *desc = &binding->desc;
             const VkWriteDescriptorSet write_descriptor_set = {
