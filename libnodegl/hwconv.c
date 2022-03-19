@@ -34,6 +34,9 @@
 #include "type.h"
 #include "utils.h"
 
+/* GLSL fragments as string */
+#include "hdr_hlg2sdr_frag.h"
+
 static const char *default_vert_base =
     "void main()"                                                               "\n"
     "{"                                                                         "\n"
@@ -129,10 +132,20 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         },
     };
 
+    const char *vert_base = default_vert_base;
+    const char *frag_base = default_frag_base;
+
+    const struct color_info *src_color_info = &src_params->color_info;
+    if (src_color_info->space == SXPLAYER_COL_SPC_BT2020_NCL) {
+        if (src_color_info->transfer == SXPLAYER_COL_TRC_ARIB_STD_B67) { // HLG
+            frag_base = hdr_hlg2sdr_frag;
+        }
+    }
+
     const struct pgcraft_params crafter_params = {
         .program_label    = "nodegl/hwconv",
-        .vert_base        = default_vert_base,
-        .frag_base        = default_frag_base,
+        .vert_base        = vert_base,
+        .frag_base        = frag_base,
         .textures         = textures,
         .nb_textures      = NGLI_ARRAY_NB(textures),
         .attributes       = attributes,

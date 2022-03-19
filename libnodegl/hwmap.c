@@ -197,6 +197,16 @@ static void hwmap_reset(struct hwmap *hwmap)
     hwmap->height = 0;
 }
 
+static int is_hdr(int trc)
+{
+    switch (trc) {
+    case SXPLAYER_COL_TRC_ARIB_STD_B67: // HLG
+        return 1;
+    default:
+        return 0;
+    }
+}
+
 int ngli_hwmap_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame, struct image *image)
 {
     if (frame->width  != hwmap->width ||
@@ -230,6 +240,9 @@ int ngli_hwmap_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame, stru
     int ret = hwmap->hwmap_class->map_frame(hwmap, frame);
     if (ret < 0)
         goto end;
+
+    if (is_hdr(frame->color_trc))
+        hwmap->require_hwconv = 1;
 
     if (hwmap->require_hwconv) {
         if (!hwmap->hwconv_initialized) {

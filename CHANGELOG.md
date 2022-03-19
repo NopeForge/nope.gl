@@ -14,6 +14,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 - Initial Vulkan support
 - VAAPI/Vulkan video acceleration support
 - Metal support through MoltenVK, including VideoToolbox video acceleration
+- HDR tone mapping support for HLG content
 
 ### Fixed
 - Fix OpenGL buffers and textures bindings
