@@ -92,7 +92,12 @@ static int init_hwconv(struct hwmap *hwmap)
         .height = mapped_image->params.height,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .color_scale = 1.f,
-        .color_info = NGLI_COLOR_INFO_DEFAULTS,
+        .color_info = {
+            .space     = SXPLAYER_COL_SPC_BT709,
+            .range     = SXPLAYER_COL_RNG_UNSPECIFIED,
+            .primaries = SXPLAYER_COL_PRI_BT709,
+            .transfer  = SXPLAYER_COL_TRC_IEC61966_2_1, // sRGB
+        },
     };
     ngli_image_init(hwconv_image, &image_params, &hwmap->hwconv_texture);
 
