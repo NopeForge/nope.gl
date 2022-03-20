@@ -65,13 +65,13 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     }
 
     struct texture *texture = dst_image->planes[0];
-    struct texture_params *texture_params = &texture->params;
+    const struct texture_params *texture_params = &texture->params;
 
-    struct rendertarget_desc rt_desc = {
+    const struct rendertarget_desc rt_desc = {
         .nb_colors = 1,
         .colors[0].format = texture_params->format,
     };
-    struct rendertarget_params rt_params = {
+    const struct rendertarget_params rt_params = {
         .width = dst_image->params.width,
         .height = dst_image->params.height,
         .nb_colors = 1,
@@ -88,7 +88,7 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     if (ret < 0)
         return ret;
 
-    enum image_layout src_layout = src_params->layout;
+    const enum image_layout src_layout = src_params->layout;
     if (src_layout != NGLI_IMAGE_LAYOUT_NV12 &&
         src_layout != NGLI_IMAGE_LAYOUT_YUV &&
         src_layout != NGLI_IMAGE_LAYOUT_NV12_RECTANGLE &&
