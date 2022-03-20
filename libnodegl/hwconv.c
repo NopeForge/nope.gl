@@ -34,14 +34,14 @@
 #include "type.h"
 #include "utils.h"
 
-static const char *vert_base =
+static const char *default_vert_base =
     "void main()"                                                               "\n"
     "{"                                                                         "\n"
     "    ngl_out_pos = vec4(position.xy, 0.0, 1.0);"                            "\n"
     "    var_tex_coord = (tex_coord_matrix * vec4(position.zw, 0.0, 1.0)).xy;"  "\n"
     "}";
 
-static const char *frag_base =
+static const char *default_frag_base =
     "void main()"                                                               "\n"
     "{"                                                                         "\n"
     "    ngl_out_color = ngl_texvideo(tex, var_tex_coord);"                     "\n"
@@ -131,8 +131,8 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
 
     const struct pgcraft_params crafter_params = {
         .program_label    = "nodegl/hwconv",
-        .vert_base        = vert_base,
-        .frag_base        = frag_base,
+        .vert_base        = default_vert_base,
+        .frag_base        = default_frag_base,
         .textures         = textures,
         .nb_textures      = NGLI_ARRAY_NB(textures),
         .attributes       = attributes,
