@@ -87,7 +87,7 @@ static int init_hwconv(struct hwmap *hwmap)
     if (ret < 0)
         goto end;
 
-    struct image_params image_params = {
+    const struct image_params image_params = {
         .width = mapped_image->params.width,
         .height = mapped_image->params.height,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
