@@ -44,6 +44,12 @@ vec3 hlg_eotf(vec3 x)
     return mix(x * x / 3.0, (exp((x - c) / a) + b) / 12.0, lessThan(vec3(0.5), x));
 }
 
+/* HLG Reference OOTF (linear scene light → linear display light), ITU-R BT.2100 */
+vec3 hlg_ootf(vec3 x)
+{
+    return x * vec3(pow(dot(luma_coeff, x), 0.2));
+}
+
 vec3 bt2020_to_bt709(vec3 x)
 {
     const mat3 bt2020_to_bt709 = mat3(
