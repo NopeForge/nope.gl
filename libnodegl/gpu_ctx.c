@@ -67,11 +67,19 @@ struct gpu_ctx *ngli_gpu_ctx_create(const struct ngl_config *config)
             backend_map[config->backend].string_id);
         return NULL;
     }
+
+    struct ngl_config ctx_config = {0};
+    int ret = ngli_config_copy(&ctx_config, config);
+    if (ret < 0)
+        return NULL;
+
     const struct gpu_ctx_class *cls = backend_map[config->backend].cls;
     struct gpu_ctx *s = cls->create(config);
-    if (!s)
+    if (!s) {
+        ngli_config_reset(&ctx_config);
         return NULL;
-    s->config = *config;
+    }
+    s->config = ctx_config;
     s->backend_str = backend_map[config->backend].string_id;
     s->cls = cls;
     return s;
@@ -134,6 +142,7 @@ void ngli_gpu_ctx_freep(struct gpu_ctx **sp)
     if (cls)
         cls->destroy(s);
 
+    ngli_config_reset(&s->config);
     ngli_freep(sp);
 }
 

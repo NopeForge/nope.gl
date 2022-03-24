@@ -28,6 +28,8 @@
 
 #include "config.h"
 
+#include "nodegl.h"
+
 #ifdef __GNUC__
 # define ngli_printf_format(fmtpos, attrpos) __attribute__((__format__(__printf__, fmtpos, attrpos)))
 #else
@@ -115,5 +117,7 @@ uint32_t ngli_crc32(const char *s);
 void ngli_thread_set_name(const char *name);
 int ngli_get_filesize(const char *name, int64_t *size);
 char *ngli_numbered_lines(const char *s);
+int ngli_config_copy(struct ngl_config *dst, const struct ngl_config *src);
+void ngli_config_reset(struct ngl_config *config);
 
 #endif /* UTILS_H */

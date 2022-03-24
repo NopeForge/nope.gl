@@ -245,3 +245,24 @@ char *ngli_numbered_lines(const char *s)
 
     return ret;
 }
+
+int ngli_config_copy(struct ngl_config *dst, const struct ngl_config *src)
+{
+    struct ngl_config tmp = *src;
+
+    if (src->hud_export_filename) {
+        tmp.hud_export_filename = ngli_strdup(src->hud_export_filename);
+        if (!tmp.hud_export_filename)
+            return NGL_ERROR_MEMORY;
+    }
+
+    *dst = tmp;
+
+    return 0;
+}
+
+void ngli_config_reset(struct ngl_config *config)
+{
+    ngli_freep(&config->hud_export_filename);
+    memset(config, 0, sizeof(*config));
+}

@@ -95,12 +95,6 @@ static int cmd_stop(struct ngl_ctx *s, void *arg)
     return 0;
 }
 
-static void config_reset(struct ngl_config *config)
-{
-    ngli_freep(&config->hud_export_filename);
-    memset(config, 0, sizeof(*config));
-}
-
 static void scene_reset(struct ngl_ctx *s, int action)
 {
     ngli_hud_freep(&s->hud);
@@ -126,7 +120,7 @@ static int cmd_reset(struct ngl_ctx *s, void *arg)
     ngli_texture_freep(&s->font_atlas); // allocated by the first node text
     ngli_pgcache_reset(&s->pgcache);
     ngli_gpu_ctx_freep(&s->gpu_ctx);
-    config_reset(&s->config);
+    ngli_config_reset(&s->config);
 
     return 0;
 }
@@ -145,24 +139,21 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
         return config->platform;
     }
 
-    s->config = *config;
-    if (s->config.hud_export_filename) {
-        s->config.hud_export_filename = ngli_strdup(s->config.hud_export_filename);
-        if (!s->config.hud_export_filename)
-            return NGL_ERROR_MEMORY;
-    }
+    int ret = ngli_config_copy(&s->config, config);
+    if (ret < 0)
+        return ret;
 
     s->gpu_ctx = ngli_gpu_ctx_create(config);
     if (!s->gpu_ctx) {
-        config_reset(&s->config);
+        ngli_config_reset(&s->config);
         return NGL_ERROR_MEMORY;
     }
 
-    int ret = ngli_gpu_ctx_init(s->gpu_ctx);
+    ret = ngli_gpu_ctx_init(s->gpu_ctx);
     if (ret < 0) {
         LOG(ERROR, "unable to initialize gpu context");
         ngli_gpu_ctx_freep(&s->gpu_ctx);
-        config_reset(&s->config);
+        ngli_config_reset(&s->config);
         return ret;
     }
 
