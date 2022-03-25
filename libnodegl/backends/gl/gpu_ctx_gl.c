@@ -448,7 +448,7 @@ static void gpu_ctx_info_init(struct gpu_ctx *s)
 static int gl_init(struct gpu_ctx *s)
 {
     int ret;
-    const struct ngl_config *config = &s->config;
+    struct ngl_config *config = &s->config;
     struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
 
 #if DEBUG_GPU_CAPTURE
@@ -490,6 +490,9 @@ static int gl_init(struct gpu_ctx *s)
     if (config->offscreen) {
         ret = offscreen_rendertarget_init(s);
     } else {
+        /* Sync context config dimensions with glcontext (swapchain) dimensions */
+        config->width = gl->width;
+        config->height = gl->height;
         ret = onscreen_rendertarget_init(s);
     }
     if (ret < 0)
