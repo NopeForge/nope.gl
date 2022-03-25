@@ -517,11 +517,11 @@ static int gl_init(struct gpu_ctx *s)
     if (viewport[2] > 0 && viewport[3] > 0) {
         gl_set_viewport(s, viewport);
     } else {
-        const int default_viewport[] = {0, 0, gl->width, gl->height};
+        const int default_viewport[] = {0, 0, config->width, config->height};
         gl_set_viewport(s, default_viewport);
     }
 
-    const GLint scissor[] = {0, 0, gl->width, gl->height};
+    const GLint scissor[] = {0, 0, config->width, config->height};
     gl_set_scissor(s, scissor);
 
     return 0;
@@ -540,10 +540,10 @@ static int gl_resize(struct gpu_ctx *s, int width, int height, const int *viewpo
     config->width = gl->width;
     config->height = gl->height;
 
-    s_priv->default_rt->width = gl->width;
-    s_priv->default_rt->height = gl->height;
-    s_priv->default_rt_load->width = gl->width;
-    s_priv->default_rt_load->height = gl->height;
+    s_priv->default_rt->width = config->width;
+    s_priv->default_rt->height = config->height;
+    s_priv->default_rt_load->width = config->width;
+    s_priv->default_rt_load->height = config->height;
 
     /*
      * The default framebuffer id can change after a resize operation on EAGL,
@@ -556,11 +556,11 @@ static int gl_resize(struct gpu_ctx *s, int width, int height, const int *viewpo
     if (viewport && viewport[2] > 0 && viewport[3] > 0) {
         gl_set_viewport(s, viewport);
     } else {
-        const int default_viewport[] = {0, 0, gl->width, gl->height};
+        const int default_viewport[] = {0, 0, config->width, config->height};
         gl_set_viewport(s, default_viewport);
     }
 
-    const int scissor[] = {0, 0, gl->width, gl->height};
+    const int scissor[] = {0, 0, config->width, config->height};
     gl_set_scissor(s, scissor);
 
     return 0;
