@@ -487,7 +487,11 @@ static int gl_init(struct gpu_ctx *s)
         ngli_gpu_capture_begin(s->gpu_capture_ctx);
 #endif
 
-    ret = config->offscreen ? offscreen_rendertarget_init(s) : onscreen_rendertarget_init(s);
+    if (config->offscreen) {
+        ret = offscreen_rendertarget_init(s);
+    } else {
+        ret = onscreen_rendertarget_init(s);
+    }
     if (ret < 0)
         return ret;
 
