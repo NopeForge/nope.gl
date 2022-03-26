@@ -104,8 +104,10 @@ static int circle_init(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = node->ctx->gpu_ctx;
 
     s->geom = ngli_geometry_create(gpu_ctx);
-    if (!s->geom)
-        return NGL_ERROR_MEMORY;
+    if (!s->geom) {
+        ret = NGL_ERROR_MEMORY;
+        goto end;
+    }
 
     if ((ret = ngli_geometry_set_vertices(s->geom, nb_vertices, vertices)) < 0 ||
         (ret = ngli_geometry_set_uvcoords(s->geom, nb_vertices, uvcoords)) < 0 ||
@@ -118,6 +120,10 @@ end:
     ngli_free(uvcoords);
     ngli_free(normals);
     ngli_free(indices);
+
+    if (ret < 0)
+        return ret;
+
     return ngli_geometry_init(s->geom, NGLI_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST);
 }
 
