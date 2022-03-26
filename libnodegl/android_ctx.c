@@ -32,7 +32,7 @@
 #include "internal.h"
 
 #if defined(BACKEND_GL)
-#include "backends/gl/gpu_ctx_gl.c"
+#include "backends/gl/gpu_ctx_gl.h"
 #endif
 
 #define NDK_LOAD_FUNC(handle, name) do {       \
