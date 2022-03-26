@@ -517,8 +517,11 @@ static VkResult select_physical_device(struct vkcontext *s, const struct ngl_con
 
     struct bstr *type = ngli_bstr_create();
     struct bstr *props = ngli_bstr_create();
-    if (!type || !props)
+    if (!type || !props) {
+        ngli_bstr_freep(&type);
+        ngli_bstr_freep(&props);
         return NGL_ERROR_MEMORY;
+    }
     LOG(DEBUG, "available memory types:");
     for (int i = 0; i < s->phydev_mem_props.memoryTypeCount; i++) {
         get_memory_property_flags_str(type, 1 << i);
@@ -527,6 +530,8 @@ static VkResult select_physical_device(struct vkcontext *s, const struct ngl_con
         ngli_bstr_clear(type);
         ngli_bstr_clear(props);
     }
+    ngli_bstr_freep(&type);
+    ngli_bstr_freep(&props);
 
     return VK_SUCCESS;
 }
