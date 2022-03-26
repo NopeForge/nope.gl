@@ -377,5 +377,5 @@ void ngli_rendertarget_vk_freep(struct rendertarget **sp)
     vkDestroyBuffer(vk->device, s_priv->staging_buffer, NULL);
     vkFreeMemory(vk->device, s_priv->staging_memory, NULL);
 
-    memset(s, 0, sizeof(*s));
+    ngli_freep(sp);
 }
