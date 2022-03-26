@@ -213,7 +213,6 @@ static int media_init(struct ngl_node *node)
 #if defined(TARGET_ANDROID)
     struct ngl_ctx *ctx = node->ctx;
     struct android_ctx *android_ctx = &ctx->android_ctx;
-    const struct ngl_config *config = &ctx->config;
 
     void *android_surface = NULL;
     if (android_ctx->has_native_imagereader_api) {
