@@ -604,6 +604,9 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
 
         if (!ngli_darray_push(&copy_regions, &region)) {
             ngli_darray_reset(&copy_regions);
+            if (!gpu_ctx_vk->cur_cmd) {
+                ngli_cmd_vk_freep(&cmd_vk);
+            }
             return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
     }
