@@ -582,7 +582,8 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
     struct darray copy_regions;
     ngli_darray_init(&copy_regions, sizeof(VkBufferImageCopy), 0);
 
-    const VkDeviceSize layer_size = s->params.width * s->params.height * ngli_format_get_bytes_per_pixel(s->params.format);
+    const int32_t bytes_per_pixel = ngli_format_get_bytes_per_pixel(params->format);
+    const VkDeviceSize layer_size = s->params.width * s->params.height * bytes_per_pixel;
     for (int32_t i = 0; i < s_priv->array_layers; i++) {
         const VkDeviceSize offset = i * layer_size;
         const VkBufferImageCopy region = {
