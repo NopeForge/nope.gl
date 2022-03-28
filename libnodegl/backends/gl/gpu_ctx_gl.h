@@ -76,5 +76,6 @@ struct gpu_ctx_gl {
 
 int ngli_gpu_ctx_gl_make_current(struct gpu_ctx *s);
 int ngli_gpu_ctx_gl_release_current(struct gpu_ctx *s);
+void ngli_gpu_ctx_gl_reset_state(struct gpu_ctx *s);
 
 #endif
