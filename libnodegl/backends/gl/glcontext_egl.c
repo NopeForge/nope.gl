@@ -396,6 +396,37 @@ try_again:;
     return 0;
 }
 
+static int egl_init_external(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
+{
+    struct egl_priv *egl = ctx->priv_data;
+
+    egl->handle = other ? (EGLContext)other : eglGetCurrentContext();
+    if (!egl->handle) {
+        LOG(ERROR, "could not retrieve EGL context");
+        return -1;
+    }
+
+    egl->display = eglGetCurrentDisplay();
+    if (!egl->display) {
+        LOG(ERROR, "could not retrieve EGL display");
+        return -1;
+    }
+
+    egl->surface = eglGetCurrentSurface(EGL_DRAW);
+
+    egl->extensions = eglQueryString(egl->display, EGL_EXTENSIONS);
+    if (!egl->extensions) {
+        LOG(ERROR, "could not retrieve EGL extensions");
+        return -1;
+    }
+
+    int ret = egl_probe_extensions(ctx);
+    if (ret < 0)
+        return ret;
+
+    return 0;
+}
+
 static void egl_uninit(struct glcontext *ctx)
 {
     struct egl_priv *egl = ctx->priv_data;
@@ -530,6 +561,15 @@ const struct glcontext_class ngli_glcontext_egl_class = {
     .swap_buffers = egl_swap_buffers,
     .set_swap_interval = egl_set_swap_interval,
     .set_surface_pts = egl_set_surface_pts,
+    .get_proc_address = egl_get_proc_address,
+    .get_handle = egl_get_handle,
+    .get_display = get_display,
+    .priv_size = sizeof(struct egl_priv),
+};
+
+const struct glcontext_class ngli_glcontext_egl_external_class = {
+    .init = egl_init_external,
+    .make_current = egl_make_current,
     .get_proc_address = egl_get_proc_address,
     .get_handle = egl_get_handle,
     .get_display = get_display,

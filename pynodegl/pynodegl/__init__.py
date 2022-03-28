@@ -33,6 +33,7 @@ if platform.system() == "Windows":
 
 import _pynodegl as _ngl
 from _pynodegl import (
+    ConfigGL,
     Context,
     easing_derivate,
     easing_evaluate,

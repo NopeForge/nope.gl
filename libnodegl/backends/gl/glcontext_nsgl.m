@@ -118,6 +118,36 @@ static int nsgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window,
     return 0;
 }
 
+static int nsgl_init_external(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
+{
+    struct nsgl_priv *nsgl = ctx->priv_data;
+
+    if (ctx->backend != NGL_BACKEND_OPENGL) {
+        LOG(ERROR, "unsupported backend: %d, only OpenGL is supported by NSGL", ctx->backend);
+        return -1;
+    }
+
+    CFBundleRef framework = CFBundleGetBundleWithIdentifier(CFSTR("com.apple.opengl"));
+    if (!framework) {
+        LOG(ERROR, "could not retrieve OpenGL framework");
+        return -1;
+    }
+
+    nsgl->framework = (CFBundleRef)CFRetain(framework);
+    if (!nsgl->framework) {
+        LOG(ERROR, "could not retain OpenGL framework object");
+        return -1;
+    }
+
+    nsgl->handle = [NSOpenGLContext currentContext];
+    if (!nsgl->handle) {
+        LOG(ERROR, "could not retrieve NSGL context");
+        return -1;
+    }
+
+    return 0;
+}
+
 static int nsgl_resize(struct glcontext *ctx, int width, int height)
 {
     struct nsgl_priv *nsgl = ctx->priv_data;
@@ -201,6 +231,14 @@ static void nsgl_uninit(struct glcontext *ctx)
         CFRelease(nsgl->pixel_format);
 }
 
+static void nsgl_uninit_external(struct glcontext *ctx)
+{
+    struct nsgl_priv *nsgl = ctx->priv_data;
+
+    if (nsgl->framework)
+        CFRelease(nsgl->framework);
+}
+
 const struct glcontext_class ngli_glcontext_nsgl_class = {
     .init = nsgl_init,
     .uninit = nsgl_uninit,
@@ -208,6 +246,15 @@ const struct glcontext_class ngli_glcontext_nsgl_class = {
     .make_current = nsgl_make_current,
     .swap_buffers = nsgl_swap_buffers,
     .set_swap_interval = nsgl_set_swap_interval,
+    .get_proc_address = nsgl_get_proc_address,
+    .get_handle = nsgl_get_handle,
+    .priv_size = sizeof(struct nsgl_priv),
+};
+
+const struct glcontext_class ngli_glcontext_nsgl_external_class = {
+    .init = nsgl_init_external,
+    .uninit = nsgl_uninit_external,
+    .make_current = nsgl_make_current,
     .get_proc_address = nsgl_get_proc_address,
     .get_handle = nsgl_get_handle,
     .priv_size = sizeof(struct nsgl_priv),

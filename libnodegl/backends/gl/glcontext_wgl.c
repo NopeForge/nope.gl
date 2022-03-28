@@ -240,6 +240,29 @@ static int wgl_init(struct glcontext *ctx, uintptr_t display, uintptr_t window, 
     return 0;
 }
 
+static int wgl_init_external(struct glcontext *ctx, uintptr_t display, uintptr_t window, uintptr_t other)
+{
+    struct wgl_priv *wgl = ctx->priv_data;
+
+    wgl->module = LoadLibrary("opengl32.dll");
+    if (!wgl->module) {
+        LOG(ERROR, "could not load opengl32.dll (%lu)", GetLastError());
+        return -1;
+    }
+
+    wgl->device_context = wglGetCurrentDC();
+    if (!wgl->device_context) {
+        LOG(ERROR, "could not retrieve current device context");
+        return -1;
+    }
+
+    wgl->rendering_context = wglGetCurrentContext();
+    if (!wgl->rendering_context) {
+        LOG(ERROR, "could not retrieve current rendering context");
+        return -1;
+    }
+}
+
 static void wgl_uninit(struct glcontext *ctx)
 {
     struct wgl_priv *wgl = ctx->priv_data;
@@ -249,6 +272,14 @@ static void wgl_uninit(struct glcontext *ctx)
 
     if (ctx->offscreen && wgl->window)
         DestroyWindow(wgl->window);
+
+    if (wgl->module)
+        FreeLibrary(wgl->module);
+}
+
+static void wgl_uninit_external(struct glcontext *ctx)
+{
+    struct wgl_priv *wgl = ctx->priv_data;
 
     if (wgl->module)
         FreeLibrary(wgl->module);
@@ -325,6 +356,15 @@ const struct glcontext_class ngli_glcontext_wgl_class = {
     .make_current = wgl_make_current,
     .swap_buffers = wgl_swap_buffers,
     .set_swap_interval = wgl_set_swap_interval,
+    .get_proc_address = wgl_get_proc_address,
+    .get_handle = wgl_get_handle,
+    .priv_size = sizeof(struct wgl_priv),
+};
+
+const struct glcontext_class ngli_glcontext_wgl_external_class = {
+    .init = wgl_init_external,
+    .uninit = wgl_uninit_external,
+    .make_current = wgl_make_current,
     .get_proc_address = wgl_get_proc_address,
     .get_handle = wgl_get_handle,
     .priv_size = sizeof(struct wgl_priv),

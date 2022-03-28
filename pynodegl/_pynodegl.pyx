@@ -109,9 +109,14 @@ cdef extern from "nodegl.h":
 
     cdef struct ngl_ctx
 
+    cdef struct ngl_config_gl:
+        int external
+        uint32_t external_framebuffer
+
     cdef struct ngl_config:
         int  platform
         int  backend
+        void *backend_config
         uintptr_t display
         uintptr_t window
         int  swap_interval
@@ -165,6 +170,8 @@ cdef extern from "nodegl.h":
                             const double *offsets, double t, double *v)
     int ngl_easing_solve(const char *name, const double *args, int nb_args,
                          const double *offsets, double v, double *t)
+
+    int ngl_gl_wrap_framebuffer(ngl_ctx *s, uint32_t framebuffer)
 
 PLATFORM_AUTO    = NGL_PLATFORM_AUTO
 PLATFORM_XLIB    = NGL_PLATFORM_XLIB
@@ -511,6 +518,18 @@ def get_livectls(_Node scene):
     return livectl_dict
 
 
+cdef class ConfigGL:
+    cdef ngl_config_gl config
+
+    def __cinit__(self, external=False, external_framebuffer=0):
+        memset(&self.config, 0, sizeof(self.config))
+        self.config.external = external
+        self.config.external_framebuffer = external_framebuffer
+
+    def cptr(self):
+        return <uintptr_t>&self.config
+
+
 cdef class Context:
     cdef ngl_ctx *ctx
     cdef object capture_buffer
@@ -525,6 +544,11 @@ cdef class Context:
         memset(config, 0, sizeof(ngl_config))
         config.platform = kwargs.get('platform', PLATFORM_AUTO)
         config.backend = kwargs.get('backend', BACKEND_AUTO)
+        backend_config = kwargs.get('backend_config')
+        cdef uintptr_t ptr
+        if backend_config is not None:
+            ptr = backend_config.cptr()
+            config.backend_config = <void *>ptr
         config.display = kwargs.get('display', 0)
         config.window = kwargs.get('window', 0)
         config.swap_interval = kwargs.get('swap_interval', -1)
@@ -595,3 +619,6 @@ cdef class Context:
 
     def __dealloc__(self):
         ngl_freep(&self.ctx)
+
+    def gl_wrap_framebuffer(self, uint32_t framebuffer):
+        return ngl_gl_wrap_framebuffer(self.ctx, framebuffer)

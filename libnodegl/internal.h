@@ -71,6 +71,9 @@ struct api_impl {
     int (*prepare_draw)(struct ngl_ctx *s, double t);
     int (*draw)(struct ngl_ctx *s, double t);
     void (*reset)(struct ngl_ctx *s, int action);
+
+    /* OpenGL */
+    int (*gl_wrap_framebuffer)(struct ngl_ctx *s, uint32_t framebuffer);
 };
 
 struct ngl_ctx {

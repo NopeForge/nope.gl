@@ -34,6 +34,7 @@ struct glcontext_class;
 struct glcontext_params {
     int platform;
     int backend;
+    int external;
     uintptr_t display;
     uintptr_t window;
     uintptr_t shared_ctx;
@@ -52,6 +53,7 @@ struct glcontext {
     /* User options */
     int platform;
     int backend;
+    int external;
     int offscreen;
     int width;
     int height;

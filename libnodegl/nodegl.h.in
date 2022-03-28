@@ -500,12 +500,34 @@ enum {
 };
 
 /**
+ * Backend specific configuration
+ */
+
+struct ngl_config_gl {
+    /*
+     * Whether the OpenGL context is external or not. If the OpenGL context is
+     * external, it is the user responsibility to manage the OpenGL context and
+     * make sure it is current before calling any of the ngl_* functions.
+     */
+    int external;
+    /*
+     * External OpenGL framebuffer used for rendering. The framebuffer must
+     * have a color attachment composed of 4 color components (R, G, B, A) and
+     * a combined depth and stencil buffer attached to it.
+     */
+    uint32_t external_framebuffer;
+};
+
+/**
  * node.gl configuration
  */
 struct ngl_config {
     int platform;  /* Platform-specific identifier (any of NGL_PLATFORM_*) */
 
     int backend;   /* Rendering backend (any of NGL_BACKEND_*) */
+
+    void *backend_config; /* Optional backend specific configuration (any of ngl_config_*
+                             depending on the selected backend) */
 
     uintptr_t display; /* A native display handle */
 
@@ -518,7 +540,8 @@ struct ngl_config {
                           Android (iOS does not provide swap interval control).
                           */
 
-    int offscreen; /* Whether the rendering should happen offscreen or not */
+    int offscreen; /* Whether the rendering should happen offscreen or not.
+                      This field is ignored if the context is external. */
 
     int width;     /* Graphic context width, mandatory for offscreen rendering */
 
@@ -804,6 +827,25 @@ NGL_API int ngl_easing_solve(const char *name, const double *args, int nb_args,
  */
 NGL_API int ngl_easing_derivate(const char *name, const double *args, int nb_args,
                                 const double *offsets, double t, double *v);
+
+/**
+ * OpenGL
+ */
+
+/**
+ * Wrap a new external OpenGL framebuffer and use it for rendering
+ *
+ * The framebuffer must have a color attachment composed of 4 color components
+ * (R, G, B, A) and a combined depth and stencil buffer attached to it.
+ *
+ * This function only works if the OpenGL context is external.
+ *
+ * @param s               pointer to a node.gl context
+ * @params framebuffer    OpenGL framebuffer identifier to wrap
+ *
+ * @return 0 on success, NGL_ERROR_* (< 0) on error
+ */
+NGL_API int ngl_gl_wrap_framebuffer(struct ngl_ctx *s, uint32_t framebuffer);
 
 /**
  * Android

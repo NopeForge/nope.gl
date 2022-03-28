@@ -621,6 +621,12 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return NGL_ERROR_INVALID_ARG;
     }
 
+    if (config->backend == NGL_BACKEND_AUTO && config->backend_config) {
+        LOG(ERROR, "backend specific configuration is not allowed "
+                   "while automatic backend selection is used");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
     if (config->backend == NGL_BACKEND_AUTO)
         config->backend = DEFAULT_BACKEND;
     if (config->platform == NGL_PLATFORM_AUTO)
@@ -705,6 +711,26 @@ int ngl_draw(struct ngl_ctx *s, double t)
 
     return s->api_impl->draw(s, t);
 }
+
+int ngl_gl_wrap_framebuffer(struct ngl_ctx *s, uint32_t framebuffer)
+{
+    if (!s->configured) {
+        LOG(ERROR, "context must be configured before wrapping a new external OpenGL framebuffer");
+        return NGL_ERROR_INVALID_USAGE;
+    }
+
+    if (!s->api_impl->gl_wrap_framebuffer) {
+        LOG(ERROR, "wrapping external OpenGL framebuffer is not supported by context");
+        return NGL_ERROR_UNSUPPORTED;
+    }
+
+    int ret = s->api_impl->gl_wrap_framebuffer(s, framebuffer);
+    if (ret < 0) {
+        s->configured = 0;
+        return ret;
+    }
+    return 0;
+ }
 
 int ngl_livectls_get(struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp)
 {

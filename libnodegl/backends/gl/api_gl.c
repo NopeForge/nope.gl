@@ -23,6 +23,7 @@
 
 #include "backends/gl/gpu_ctx_gl.h"
 #include "internal.h"
+#include "log.h"
 
 static int cmd_make_current(struct ngl_ctx *s, void *arg)
 {
@@ -54,6 +55,17 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
     }
 
     return ngli_ctx_dispatch_cmd(s, cmd_configure, (void *)config);
+}
+
+static int glw_configure(struct ngl_ctx *s, const struct ngl_config *config)
+{
+    int ret = ngli_ctx_configure(s, config);
+    if (ret < 0)
+        return ret;
+
+    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+
+    return 0;
 }
 
 struct resize_params {
@@ -94,6 +106,11 @@ static int gl_resize(struct ngl_ctx *s, int width, int height, const int *viewpo
     return ngli_ctx_dispatch_cmd(s, cmd_resize, &params);
 }
 
+static int glw_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
+{
+    return ngli_ctx_resize(s, width, height, viewport);
+}
+
 static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 {
     return ngli_ctx_set_capture_buffer(s, capture_buffer);
@@ -102,6 +119,12 @@ static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 static int gl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 {
     return ngli_ctx_dispatch_cmd(s, cmd_set_capture_buffer, capture_buffer);
+}
+
+static int glw_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
+{
+    LOG(ERROR, "capture_buffer is not supported by external OpenGL context");
+    return NGL_ERROR_UNSUPPORTED;
 }
 
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
@@ -115,6 +138,14 @@ static int gl_set_scene(struct ngl_ctx *s, struct ngl_node *node)
     return ngli_ctx_dispatch_cmd(s, cmd_set_scene, node);
 }
 
+static int glw_set_scene(struct ngl_ctx *s, struct ngl_node *node)
+{
+    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    int ret = ngli_ctx_set_scene(s, node);
+    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    return ret;
+}
+
 static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
@@ -126,6 +157,14 @@ static int gl_prepare_draw(struct ngl_ctx *s, double t)
     return ngli_ctx_dispatch_cmd(s, cmd_prepare_draw, &t);
 }
 
+static int glw_prepare_draw(struct ngl_ctx *s, double t)
+{
+    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    int ret = ngli_ctx_prepare_draw(s, t);
+    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    return ret;
+}
+
 static int cmd_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
@@ -135,6 +174,14 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
 static int gl_draw(struct ngl_ctx *s, double t)
 {
     return ngli_ctx_dispatch_cmd(s, cmd_draw, &t);
+}
+
+static int glw_draw(struct ngl_ctx *s, double t)
+{
+    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    int ret = ngli_ctx_draw(s, t);
+    ngli_gpu_ctx_gl_reset_state(s->gpu_ctx);
+    return ret;
 }
 
 static int cmd_reset(struct ngl_ctx *s, void *arg)
@@ -149,12 +196,85 @@ static void gl_reset(struct ngl_ctx *s, int action)
     ngli_ctx_dispatch_cmd(s, cmd_reset, &action);
 }
 
+static void glw_reset(struct ngl_ctx *s, int action)
+{
+    ngli_ctx_reset(s, action);
+}
+
+static int gl_wrap_framebuffer(struct ngl_ctx *s, uint32_t framebuffer)
+{
+    LOG(ERROR, "wrapping external OpenGL framebuffer is not supported by context");
+    return NGL_ERROR_UNSUPPORTED;
+}
+
+static int glw_wrap_framebuffer(struct ngl_ctx *s, uint32_t framebuffer)
+{
+    int ret = ngli_gpu_ctx_gl_wrap_framebuffer(s->gpu_ctx, framebuffer);
+    if (ret < 0) {
+        ngli_ctx_reset(s, NGLI_ACTION_KEEP_SCENE);
+        return ret;
+    }
+
+    struct ngl_config *config = &s->config;
+    struct ngl_config_gl *config_gl = config->backend_config;
+    config_gl->external_framebuffer = framebuffer;
+
+    return 0;
+}
+
+static int is_glw(const struct ngl_config *config)
+{
+    const struct ngl_config_gl *config_gl = config->backend_config;
+    return config_gl && config_gl->external;
+}
+
+static int glv_configure(struct ngl_ctx *s, const struct ngl_config *config)
+{
+    return is_glw(config) ? glw_configure(s, config) : gl_configure(s, config);
+}
+
+static int glv_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
+{
+    return is_glw(&s->config) ? glw_resize(s, width, height, viewport) : gl_resize(s, width, height, viewport);
+}
+
+static int glv_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
+{
+    return is_glw(&s->config) ? glw_set_capture_buffer(s, capture_buffer) : gl_set_capture_buffer(s, capture_buffer);
+}
+
+static int glv_set_scene(struct ngl_ctx *s, struct ngl_node *node)
+{
+    return is_glw(&s->config) ? glw_set_scene(s, node) : gl_set_scene(s, node);
+}
+
+static int glv_prepare_draw(struct ngl_ctx *s, double t)
+{
+    return is_glw(&s->config) ? glw_prepare_draw(s, t) : gl_prepare_draw(s, t);
+}
+
+static int glv_draw(struct ngl_ctx *s, double t)
+{
+    return is_glw(&s->config) ? glw_draw(s, t) : gl_draw(s, t);
+}
+
+static void glv_reset(struct ngl_ctx *s, int action)
+{
+    is_glw(&s->config) ? glw_reset(s, action) : gl_reset(s, action);
+}
+
+static int glv_wrap_framebuffer(struct ngl_ctx *s, uint32_t framebuffer)
+{
+    return is_glw(&s->config) ? glw_wrap_framebuffer(s, framebuffer) : gl_wrap_framebuffer(s, framebuffer);
+}
+
 const struct api_impl api_gl = {
-    .configure          = gl_configure,
-    .resize             = gl_resize,
-    .set_capture_buffer = gl_set_capture_buffer,
-    .set_scene          = gl_set_scene,
-    .prepare_draw       = gl_prepare_draw,
-    .draw               = gl_draw,
-    .reset              = gl_reset,
+    .configure           = glv_configure,
+    .resize              = glv_resize,
+    .set_capture_buffer  = glv_set_capture_buffer,
+    .set_scene           = glv_set_scene,
+    .prepare_draw        = glv_prepare_draw,
+    .draw                = glv_draw,
+    .reset               = glv_reset,
+    .gl_wrap_framebuffer = glv_wrap_framebuffer,
 };
