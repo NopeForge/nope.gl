@@ -182,16 +182,16 @@ VkResult ngli_cmd_vk_begin_transient(struct gpu_ctx *gpu_ctx, int type, struct c
 
     VkResult res = ngli_cmd_vk_init(s, type);
     if (res != VK_SUCCESS)
-        goto error;
+        goto fail;
 
     res = ngli_cmd_vk_begin(s);
     if (res != VK_SUCCESS)
-        goto error;
+        goto fail;
 
     *sp = s;
     return VK_SUCCESS;
 
-error:
+fail:
     ngli_cmd_vk_freep(&s);
     return res;
 }
