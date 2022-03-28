@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+
+## [2022.2] [libnodegl 0.2.0] - 2022-03-28
 ### Added
 - TextureView node, useful for targeting a specific layer of a texture in RTT
   scenarios
