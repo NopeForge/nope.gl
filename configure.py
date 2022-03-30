@@ -51,9 +51,9 @@ _EXTERNAL_DEPS = dict(
         sha256='4ada43545a8afe770775e2186e8349d8e4f03671ca4fd9f36e0ef3bf7916a088',
     ),
     pkgconf=dict(
-        version='1.7.4',
+        version='1.8.0',
         url='https://distfiles.dereferenced.org/pkgconf/pkgconf-@VERSION@.tar.xz',
-        sha256='d73f32c248a4591139a6b17777c80d4deab6b414ec2b3d21d0a24be348c476ab',
+        sha256='ef9c7e61822b7cb8356e6e9e1dca58d9556f3200d78acab35e4347e9d4c2bbaf',
     ),
     renderdoc_Windows=dict(
         version='1.17',
