@@ -8,6 +8,9 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+### Fixed
+- A crash happening in the VAAPI context module when both the OpenGL and Vulkan
+  backends were enabled.
 
 ## [2022.2] [libnodegl 0.2.0] - 2022-03-28
 ### Added

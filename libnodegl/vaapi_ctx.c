@@ -48,7 +48,10 @@
 
 static int check_extensions(const struct gpu_ctx *gpu_ctx)
 {
+    ngli_unused const struct ngl_config *config = &gpu_ctx->config;
 #if defined(BACKEND_GL)
+    if (config->backend == NGL_BACKEND_OPENGL ||
+        config->backend == NGL_BACKEND_OPENGLES) {
     const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
     const struct glcontext *gl = gpu_ctx_gl->glcontext;
     const uint64_t features = NGLI_FEATURE_GL_OES_EGL_IMAGE |
@@ -56,8 +59,10 @@ static int check_extensions(const struct gpu_ctx *gpu_ctx)
                               NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT;
     if ((gl->features & features) == features)
         return 1;
+    }
 #endif
 #if defined(BACKEND_VK)
+    if (config->backend == NGL_BACKEND_VULKAN) {
     const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     const char *required_extensions[] = {
@@ -70,6 +75,7 @@ static int check_extensions(const struct gpu_ctx *gpu_ctx)
             return 0;
     }
     return 1;
+    }
 #endif
     return 0;
 }
