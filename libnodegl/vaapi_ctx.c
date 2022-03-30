@@ -50,31 +50,31 @@ static int check_extensions(const struct gpu_ctx *gpu_ctx)
 {
     ngli_unused const struct ngl_config *config = &gpu_ctx->config;
 #if defined(BACKEND_GL)
-    if (config->backend == NGL_BACKEND_OPENGL ||
-        config->backend == NGL_BACKEND_OPENGLES) {
-    const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
-    const struct glcontext *gl = gpu_ctx_gl->glcontext;
-    const uint64_t features = NGLI_FEATURE_GL_OES_EGL_IMAGE |
-                              NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR |
-                              NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT;
-    if ((gl->features & features) == features)
-        return 1;
+        if (config->backend == NGL_BACKEND_OPENGL ||
+            config->backend == NGL_BACKEND_OPENGLES) {
+        const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+        const struct glcontext *gl = gpu_ctx_gl->glcontext;
+        const uint64_t features = NGLI_FEATURE_GL_OES_EGL_IMAGE |
+                                  NGLI_FEATURE_GL_EGL_IMAGE_BASE_KHR |
+                                  NGLI_FEATURE_GL_EGL_EXT_IMAGE_DMA_BUF_IMPORT;
+        if ((gl->features & features) == features)
+            return 1;
     }
 #endif
 #if defined(BACKEND_VK)
     if (config->backend == NGL_BACKEND_VULKAN) {
-    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
-    const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-    const char *required_extensions[] = {
-        VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
-        VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,
-        VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
-    };
-    for (int i = 0; i < NGLI_ARRAY_NB(required_extensions); i++) {
-        if (!ngli_vkcontext_has_extension(vk, required_extensions[i], 1))
-            return 0;
-    }
-    return 1;
+        const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+        const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+        const char *required_extensions[] = {
+            VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
+            VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,
+            VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
+        };
+        for (int i = 0; i < NGLI_ARRAY_NB(required_extensions); i++) {
+            if (!ngli_vkcontext_has_extension(vk, required_extensions[i], 1))
+                return 0;
+        }
+        return 1;
     }
 #endif
     return 0;
