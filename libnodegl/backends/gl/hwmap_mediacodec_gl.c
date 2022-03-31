@@ -277,6 +277,9 @@ static void mc_uninit(struct hwmap *hwmap)
     if (android_ctx->has_native_imagereader_api) {
         ngli_eglDestroyImageKHR(gl, mc->egl_image);
         ngli_android_image_freep(&mc->android_image);
+    } else {
+        const struct hwmap_params *params = &hwmap->params;
+        ngli_android_surface_detach_from_gl_context(params->android_surface);
     }
 }
 
