@@ -78,6 +78,8 @@ static int update_matrices(struct ngl_node *node, double t)
     NGLI_ALIGNED_VEC(center) = {NGLI_ARG_VEC3(o->center), 1.0f};
     NGLI_ALIGNED_VEC(up)     = {NGLI_ARG_VEC3(o->up),     1.0f};
 
+    ngli_vec3_norm(up, s->up_data);
+
     int ret;
     if ((ret = apply_transform(eye, o->eye_transform, t)) < 0 ||
         (ret = apply_transform(center, o->center_transform, t)) < 0 ||
@@ -126,8 +128,6 @@ static int update_params(struct ngl_node *node)
 {
     struct camera_priv *s = node->priv_data;
     struct camera_opts *o = node->opts;
-
-    ngli_vec3_norm(o->up, o->up);
 
     static const float zvec[4];
     s->use_perspective = memcmp(o->perspective, zvec, sizeof(o->perspective)) || o->perspective_node;
@@ -183,8 +183,6 @@ static int camera_init(struct ngl_node *node)
 {
     struct camera_priv *s = node->priv_data;
     struct camera_opts *o = node->opts;
-
-    ngli_vec3_norm(o->up, o->up);
 
     float ground[3];
     ngli_vec3_sub(ground, o->eye, o->center);
