@@ -86,6 +86,16 @@ static int update_matrices(struct ngl_node *node, double t)
         (ret = apply_transform(up, o->up_transform, t)) < 0)
         return ret;
 
+    float ground[3];
+    ngli_vec3_sub(ground, eye, center);
+    ngli_vec3_norm(ground, ground);
+    ngli_vec3_cross(ground, ground, up);
+
+    if (!ground[0] && !ground[1] && !ground[2]) {
+        LOG(ERROR, "view and up are collinear");
+        return NGL_ERROR_INVALID_ARG;
+    }
+
     ngli_mat4_look_at(s->modelview_matrix, eye, center, up);
 
     const float *perspective;
@@ -183,16 +193,6 @@ static int camera_init(struct ngl_node *node)
 {
     struct camera_priv *s = node->priv_data;
     struct camera_opts *o = node->opts;
-
-    float ground[3];
-    ngli_vec3_sub(ground, o->eye, o->center);
-    ngli_vec3_norm(ground, ground);
-    ngli_vec3_cross(ground, ground, o->up);
-
-    if (!ground[0] && !ground[1] && !ground[2]) {
-        LOG(ERROR, "view and up are collinear");
-        return NGL_ERROR_INVALID_ARG;
-    }
 
     static const float zvec[4];
     s->use_perspective = memcmp(o->perspective, zvec, sizeof(o->perspective)) || o->perspective_node;
