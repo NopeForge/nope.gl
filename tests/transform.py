@@ -91,6 +91,20 @@ def transform_animated_camera(cfg):
     return camera
 
 
+@test_fingerprint(nb_keyframes=12, tolerance=1)
+@scene()
+def transform_eye_camera(cfg):
+    cfg.duration = 3.
+    cfg.aspect_ratio = (1, 1)
+
+    node = ngl.RenderGradient4(geometry=ngl.Circle(radius=.7, npoints=128))
+    animkf = [
+        ngl.AnimKeyFrameVec3(0, (0, -.5, 0)),
+        ngl.AnimKeyFrameVec3(cfg.duration/2, (0, 1, 0)),
+        ngl.AnimKeyFrameVec3(cfg.duration, (0, -.5, 0)),
+    ]
+    return ngl.Camera(node, eye=ngl.AnimatedVec3(animkf))
+
 @test_fingerprint()
 @scene(vector=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
 def transform_translate(cfg, vector=(0.2, 0.7, -0.4)):

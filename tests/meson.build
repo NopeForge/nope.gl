@@ -365,6 +365,7 @@ foreach backend : backends
 
   tests_transform = [
     'animated_camera',
+    'eye_camera',
     'matrix',
     'translate',
     'translate_animated',
