@@ -110,11 +110,9 @@ float ngli_vec3_dot(const float *v1, const float *v2)
 
 void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float *c)
 {
-    float d[3];
-    float e[3];
+    float d[3] = NGLI_VEC3_SUB(b, a);
+    float e[3] = NGLI_VEC3_SUB(c, a);
 
-    ngli_vec3_sub(d, b, a);
-    ngli_vec3_sub(e, c, a);
     ngli_vec3_cross(dst, d, e);
     ngli_vec3_norm(dst, dst);
 }
@@ -306,11 +304,10 @@ void ngli_mat4_mul_vec4_c(float *dst, const float *m, const float *v)
 
 void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up)
 {
-    float f[3];
+    float f[3] = NGLI_VEC3_SUB(center, eye);
     float s[3];
     float u[3];
 
-    ngli_vec3_sub(f, center, eye);
     ngli_vec3_norm(f, f);
 
     ngli_vec3_cross(s, f, up);
