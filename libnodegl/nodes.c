@@ -749,6 +749,15 @@ int ngli_node_update_children(struct ngl_node *node, double t)
     return 0;
 }
 
+void *ngli_node_get_data_ptr(struct ngl_node *var_node, void *data_fallback)
+{
+    if (!var_node)
+        return data_fallback;
+    ngli_assert(var_node->cls->category == NGLI_NODE_CATEGORY_VARIABLE);
+    struct variable_info *var = var_node->priv_data;
+    return var->data;
+}
+
 void ngli_node_draw(struct ngl_node *node)
 {
     if (node->cls->draw) {
