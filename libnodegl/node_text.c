@@ -299,10 +299,8 @@ static int update_character_geometries(struct ngl_node *node)
     };
 
     /* Adjust text position according to alignment settings */
-    float align_padw[3];
-    float align_padh[3];
-    ngli_vec3_sub(align_padw, o->box_width,  width);
-    ngli_vec3_sub(align_padh, o->box_height, height);
+    const float align_padw[3] = NGLI_VEC3_SUB(o->box_width, width);
+    const float align_padh[3] = NGLI_VEC3_SUB(o->box_height, height);
 
     const float spx = (o->halign == HALIGN_CENTER ? .5f :
                        o->halign == HALIGN_RIGHT  ? 1.f :
