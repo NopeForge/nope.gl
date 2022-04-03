@@ -92,8 +92,7 @@ static int update_matrices(struct ngl_node *node, double t)
         (ret = apply_transform(up, o->up_transform, t)) < 0)
         return ret;
 
-    float ground[3];
-    ngli_vec3_sub(ground, eye, center);
+    float ground[3] = NGLI_VEC3_SUB(eye, center);
     ngli_vec3_norm(ground, ground);
     ngli_vec3_cross(ground, ground, up);
 
