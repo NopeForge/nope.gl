@@ -583,14 +583,6 @@ static int finalize_pipeline(struct ngl_node *node,
     return 0;
 }
 
-static void *get_data_ptr(struct ngl_node *var_node, void *data_fallback)
-{
-    if (!var_node)
-        return data_fallback;
-    struct variable_info *var = var_node->priv_data;
-    return var->data;
-}
-
 static int rendercolor_prepare(struct ngl_node *node)
 {
     struct rendercolor_priv *s = node->priv_data;
@@ -598,8 +590,8 @@ static int rendercolor_prepare(struct ngl_node *node)
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
-        {.name="color",             .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_node, o->color)},
-        {.name="opacity",           .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_node, &o->opacity)},
+        {.name="color",             .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_node, o->color)},
+        {.name="opacity",           .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_node, &o->opacity)},
     };
 
     struct render_common *c = &s->common;
@@ -638,14 +630,14 @@ static int rendergradient_prepare(struct ngl_node *node)
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="aspect",            .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG},
-        {.name="color0",            .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color0_node, o->color0)},
-        {.name="color1",            .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color1_node, o->color1)},
-        {.name="opacity0",          .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity0_node, &o->opacity0)},
-        {.name="opacity1",          .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity1_node, &o->opacity1)},
-        {.name="pos0",              .type=NGLI_TYPE_VEC2,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->pos0_node, o->pos0)},
-        {.name="pos1",              .type=NGLI_TYPE_VEC2,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->pos1_node, o->pos1)},
+        {.name="color0",            .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color0_node, o->color0)},
+        {.name="color1",            .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color1_node, o->color1)},
+        {.name="opacity0",          .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity0_node, &o->opacity0)},
+        {.name="opacity1",          .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity1_node, &o->opacity1)},
+        {.name="pos0",              .type=NGLI_TYPE_VEC2,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->pos0_node, o->pos0)},
+        {.name="pos1",              .type=NGLI_TYPE_VEC2,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->pos1_node, o->pos1)},
         {.name="mode",              .type=NGLI_TYPE_INT,   .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->mode},
-        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->linear_node, &o->linear)},
+        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->linear_node, &o->linear)},
     };
 
     struct render_common *c = &s->common;
@@ -683,15 +675,15 @@ static int rendergradient4_prepare(struct ngl_node *node)
     const struct pgcraft_uniform uniforms[] = {
         {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
         {.name="projection_matrix", .type=NGLI_TYPE_MAT4,  .stage=NGLI_PROGRAM_SHADER_VERT},
-        {.name="color_tl",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_tl_node, o->color_tl)},
-        {.name="color_tr",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_tr_node, o->color_tr)},
-        {.name="color_br",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_br_node, o->color_br)},
-        {.name="color_bl",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->color_bl_node, o->color_bl)},
-        {.name="opacity_tl",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_tl_node, &o->opacity_tl)},
-        {.name="opacity_tr",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_tr_node, &o->opacity_tr)},
-        {.name="opacity_br",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_br_node, &o->opacity_br)},
-        {.name="opacity_bl",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->opacity_bl_node, &o->opacity_bl)},
-        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=get_data_ptr(o->linear_node, &o->linear)},
+        {.name="color_tl",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tl_node, o->color_tl)},
+        {.name="color_tr",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_tr_node, o->color_tr)},
+        {.name="color_br",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_br_node, o->color_br)},
+        {.name="color_bl",          .type=NGLI_TYPE_VEC3,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->color_bl_node, o->color_bl)},
+        {.name="opacity_tl",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_tl_node, &o->opacity_tl)},
+        {.name="opacity_tr",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_tr_node, &o->opacity_tr)},
+        {.name="opacity_br",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_br_node, &o->opacity_br)},
+        {.name="opacity_bl",        .type=NGLI_TYPE_FLOAT, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->opacity_bl_node, &o->opacity_bl)},
+        {.name="linear",            .type=NGLI_TYPE_BOOL,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=ngli_node_get_data_ptr(o->linear_node, &o->linear)},
     };
 
     struct render_common *c = &s->common;
