@@ -171,12 +171,11 @@ static const struct node_param filtersaturation_params[] = {
 static int register_resource(struct darray *resources, const char *name,
                              struct ngl_node *pnode, void *data, int data_type)
 {
-    if (pnode) {
-        struct variable_info *var = pnode->priv_data;
-        ngli_assert(var->data_type == data_type);
-        data = var->data;
-    }
-    struct pgcraft_uniform res = {.type=data_type, .stage=NGLI_PROGRAM_SHADER_FRAG, .data=data};
+    struct pgcraft_uniform res = {
+        .type  = data_type,
+        .stage = NGLI_PROGRAM_SHADER_FRAG,
+        .data  = ngli_node_get_data_ptr(pnode, data),
+    };
     snprintf(res.name, sizeof(res.name), "%s", name);
     if (!ngli_darray_push(resources, &res))
         return NGL_ERROR_MEMORY;
