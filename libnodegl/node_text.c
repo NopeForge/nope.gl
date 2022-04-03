@@ -243,11 +243,11 @@ static int update_character_geometries(struct ngl_node *node)
         return 0;
     }
 
-    const int nb_vertices = text_nbchr * 4 * 3;
-    const int nb_uvcoords = text_nbchr * 4 * 2;
+    const int nb_vertices = text_nbchr * 4;
+    const int nb_uvcoords = text_nbchr * 4;
     const int nb_indices  = text_nbchr * 6;
-    float *vertices = ngli_calloc(nb_vertices, sizeof(*vertices));
-    float *uvcoords = ngli_calloc(nb_uvcoords, sizeof(*uvcoords));
+    float *vertices = ngli_calloc(nb_vertices, 3 * sizeof(*vertices));
+    float *uvcoords = ngli_calloc(nb_uvcoords, 2 * sizeof(*uvcoords));
     short *indices  = ngli_calloc(nb_indices, sizeof(*indices));
     if (!vertices || !uvcoords || !indices) {
         ret = NGL_ERROR_MEMORY;
@@ -363,8 +363,8 @@ static int update_character_geometries(struct ngl_node *node)
             goto end;
         }
 
-        if ((ret = ngli_buffer_init(s->vertices, nb_vertices * sizeof(*vertices), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
-            (ret = ngli_buffer_init(s->uvcoords, nb_uvcoords * sizeof(*uvcoords), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+        if ((ret = ngli_buffer_init(s->vertices, nb_vertices * 3 * sizeof(*vertices), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
+            (ret = ngli_buffer_init(s->uvcoords, nb_uvcoords * 2 * sizeof(*uvcoords), DYNAMIC_VERTEX_USAGE_FLAGS)) < 0 ||
             (ret = ngli_buffer_init(s->indices,  nb_indices  * sizeof(*indices),  DYNAMIC_INDEX_USAGE_FLAGS)) < 0)
             goto end;
 
@@ -378,8 +378,8 @@ static int update_character_geometries(struct ngl_node *node)
         }
     }
 
-    if ((ret = ngli_buffer_upload(s->vertices, vertices, nb_vertices * sizeof(*vertices), 0)) < 0 ||
-        (ret = ngli_buffer_upload(s->uvcoords, uvcoords, nb_uvcoords * sizeof(*uvcoords), 0)) < 0 ||
+    if ((ret = ngli_buffer_upload(s->vertices, vertices, nb_vertices * 3 * sizeof(*vertices), 0)) < 0 ||
+        (ret = ngli_buffer_upload(s->uvcoords, uvcoords, nb_uvcoords * 2 * sizeof(*uvcoords), 0)) < 0 ||
         (ret = ngli_buffer_upload(s->indices, indices, nb_indices * sizeof(*indices), 0)) < 0)
         goto end;
 
