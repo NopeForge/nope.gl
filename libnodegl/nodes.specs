@@ -156,9 +156,9 @@ BufferMat4: _Buffer
 
 Camera:
     - [child, node, "M"]
-    - [eye, vec3, "L"]
-    - [center, vec3, "L"]
-    - [up, vec3, "L"]
+    - [eye, vec3, "LN"]
+    - [center, vec3, "LN"]
+    - [up, vec3, "LN"]
     - [perspective, vec2, "LN"]
     - [orthographic, vec4, "L"]
     - [clipping, vec2, "L"]

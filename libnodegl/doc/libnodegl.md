@@ -241,9 +241,9 @@ List of `Buffer*` nodes:
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `child` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) | scene to observe through the lens of the camera | 
-`eye` |  [`live`](#Parameter-flags) | [`vec3`](#parameter-types) | eye position | (`0`,`0`,`0`)
-`center` |  [`live`](#Parameter-flags) | [`vec3`](#parameter-types) | center position | (`0`,`0`,`-1`)
-`up` |  [`live`](#Parameter-flags) | [`vec3`](#parameter-types) | up vector, must not be parallel to the line of sight from the eye point to the center point | (`0`,`1`,`0`)
+`eye` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | eye position | (`0`,`0`,`0`)
+`center` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | center position | (`0`,`0`,`-1`)
+`up` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | up vector, must not be parallel to the line of sight from the eye point to the center point | (`0`,`1`,`0`)
 `perspective` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec2`](#parameter-types) | the 2 following values: *fov*, *aspect* | (`0`,`0`)
 `orthographic` |  [`live`](#Parameter-flags) | [`vec4`](#parameter-types) | the 4 following values: *left*, *right*, *bottom*, *top* | (`0`,`0`,`0`,`0`)
 `clipping` |  [`live`](#Parameter-flags) | [`vec2`](#parameter-types) | the 2 following values: *near clipping plane*, *far clipping plane* | (`0`,`0`)

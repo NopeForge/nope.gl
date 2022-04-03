@@ -33,8 +33,11 @@
 
 struct camera_opts {
     struct ngl_node *child;
+    struct ngl_node *eye_node;
     float eye[3];
+    struct ngl_node *center_node;
     float center[3];
+    struct ngl_node *up_node;
     float up[3];
     struct ngl_node *perspective_node;
     float perspective[2];
@@ -46,6 +49,9 @@ struct camera_opts {
 };
 
 struct camera_priv {
+    const float *eye_data;
+    const float *center_data;
+    const float *up_data;
     int use_perspective;
     int use_orthographic;
 
@@ -74,9 +80,9 @@ static int update_matrices(struct ngl_node *node, double t)
     struct camera_priv *s = node->priv_data;
     const struct camera_opts *o = node->opts;
 
-    NGLI_ALIGNED_VEC(eye)    = {NGLI_ARG_VEC3(o->eye),    1.0f};
-    NGLI_ALIGNED_VEC(center) = {NGLI_ARG_VEC3(o->center), 1.0f};
-    NGLI_ALIGNED_VEC(up)     = {NGLI_ARG_VEC3(o->up),     1.0f};
+    NGLI_ALIGNED_VEC(eye)    = {NGLI_ARG_VEC3(s->eye_data),    1.0f};
+    NGLI_ALIGNED_VEC(center) = {NGLI_ARG_VEC3(s->center_data), 1.0f};
+    NGLI_ALIGNED_VEC(up)     = {NGLI_ARG_VEC3(s->up_data),     1.0f};
 
     ngli_vec3_norm(up, s->up_data);
 
@@ -150,16 +156,16 @@ static int update_params(struct ngl_node *node)
 static const struct node_param camera_params[] = {
     {"child", NGLI_PARAM_TYPE_NODE, OFFSET(child), .flags=NGLI_PARAM_FLAG_NON_NULL,
               .desc=NGLI_DOCSTRING("scene to observe through the lens of the camera")},
-    {"eye", NGLI_PARAM_TYPE_VEC3,  OFFSET(eye), {.vec={0.0f, 0.0f, 0.0f}},
-            .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+    {"eye", NGLI_PARAM_TYPE_VEC3,  OFFSET(eye_node), {.vec={0.0f, 0.0f, 0.0f}},
+            .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
             .update_func=update_params,
             .desc=NGLI_DOCSTRING("eye position")},
-    {"center", NGLI_PARAM_TYPE_VEC3,  OFFSET(center), {.vec={0.0f, 0.0f, -1.0f}},
-               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+    {"center", NGLI_PARAM_TYPE_VEC3,  OFFSET(center_node), {.vec={0.0f, 0.0f, -1.0f}},
+               .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
                .update_func=update_params,
                .desc=NGLI_DOCSTRING("center position")},
-    {"up", NGLI_PARAM_TYPE_VEC3,  OFFSET(up), {.vec={0.0f, 1.0f, 0.0f}},
-           .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
+    {"up", NGLI_PARAM_TYPE_VEC3,  OFFSET(up_node), {.vec={0.0f, 1.0f, 0.0f}},
+           .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE | NGLI_PARAM_FLAG_ALLOW_NODE,
            .update_func=update_params,
            .desc=NGLI_DOCSTRING("up vector, must not be parallel to the line of sight from the eye point to the center point")},
     {"perspective", NGLI_PARAM_TYPE_VEC2,  OFFSET(perspective_node),
@@ -204,6 +210,10 @@ static int camera_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
+    s->eye_data    = ngli_node_get_data_ptr(o->eye_node, o->eye);
+    s->center_data = ngli_node_get_data_ptr(o->center_node, o->center);
+    s->up_data     = ngli_node_get_data_ptr(o->up_node, o->up);
+
     int ret;
     if ((ret = ngli_transform_chain_check(o->eye_transform)) < 0 ||
         (ret = ngli_transform_chain_check(o->center_transform)) < 0 ||
@@ -217,6 +227,22 @@ static int camera_update(struct ngl_node *node, double t)
 {
     struct camera_opts *o = node->opts;
     struct ngl_node *child = o->child;
+
+    if (o->eye_node) {
+        int ret = ngli_node_update(o->eye_node, t);
+        if (ret < 0)
+            return ret;
+    }
+    if (o->center_node) {
+        int ret = ngli_node_update(o->center_node, t);
+        if (ret < 0)
+            return ret;
+    }
+    if (o->up_node) {
+        int ret = ngli_node_update(o->up_node, t);
+        if (ret < 0)
+            return ret;
+    }
 
     int ret = update_matrices(node, t);
     if (ret < 0)

@@ -8,6 +8,9 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+### Added
+- `eye`, `center` and `up` Camera parameters can now be node
+
 ### Fixed
 - A crash happening in the VAAPI context module when both the OpenGL and Vulkan
   backends were enabled.
