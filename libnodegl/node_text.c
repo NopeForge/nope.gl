@@ -334,8 +334,8 @@ static int update_character_geometries(struct ngl_node *node)
         const float chr_vertices[] = {
             C(0),               C(1),               C(2),
             C(0) + W(0),        C(1) + W(1),        C(2) + W(2),
-            C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2),
             C(0) + H(0),        C(1) + H(1),        C(2) + H(2),
+            C(0) + H(0) + W(0), C(1) + H(1) + W(1), C(2) + H(2) + W(2),
         };
         memcpy(vertices + 4 * 3 * n, chr_vertices, sizeof(chr_vertices));
 
@@ -343,7 +343,7 @@ static int update_character_geometries(struct ngl_node *node)
         ngli_drawutils_get_atlas_uvcoords(str[i], uvcoords + 4 * 2 * n);
 
         /* quad for each character is made of 2 triangles */
-        const short chr_indices[] = { n*4 + 0, n*4 + 1, n*4 + 2, n*4 + 0, n*4 + 2, n*4 + 3 };
+        const short chr_indices[] = { n*4 + 0, n*4 + 1, n*4 + 2, n*4 + 1, n*4 + 3, n*4 + 2 };
         memcpy(indices + n * NGLI_ARRAY_NB(chr_indices), chr_indices, sizeof(chr_indices));
 
         n++;

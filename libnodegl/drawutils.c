@@ -179,8 +179,8 @@ void ngli_drawutils_get_atlas_uvcoords(uint8_t chr, float *dst)
     const float chr_uvs[] = {
         cx,      1.f - cy,
         cx + cw, 1.f - cy,
-        cx + cw, 1.f - cy - ch,
         cx,      1.f - cy - ch,
+        cx + cw, 1.f - cy - ch,
     };
     memcpy(dst, chr_uvs, sizeof(chr_uvs));
 }
