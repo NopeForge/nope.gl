@@ -167,7 +167,6 @@ def media_timeranges_rtt(cfg):
     texture = ngl.Texture2D(data_src=media)
 
     # Diamond tree on the same media texture
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     render0 = ngl.RenderTexture(texture, label="leaf 0")
     render1 = ngl.RenderTexture(texture, label="leaf 1")
 
