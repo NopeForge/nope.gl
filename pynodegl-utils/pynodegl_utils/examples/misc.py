@@ -1,10 +1,12 @@
-import os.path as op
 import array
 import colorsys
 import math
-import pynodegl as ngl
+import os.path as op
+
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
+
+import pynodegl as ngl
 
 
 @scene(xsplit=scene.Range(range=[0, 1], unit_base=100),

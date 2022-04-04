@@ -1,5 +1,6 @@
-import pynodegl as ngl
 from pynodegl_utils.misc import scene
+
+import pynodegl as ngl
 
 
 @scene(uv_corner=scene.Vector(n=2),

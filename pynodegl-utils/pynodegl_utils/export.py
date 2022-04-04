@@ -23,11 +23,11 @@ import os
 import os.path as op
 import subprocess
 
-import pynodegl as ngl
-from PySide6 import QtGui, QtCore
-
 from pynodegl_utils.com import query_scene
-from pynodegl_utils.misc import get_backend, get_viewport, get_nodegl_tempdir
+from pynodegl_utils.misc import get_backend, get_nodegl_tempdir, get_viewport
+from PySide6 import QtCore, QtGui
+
+import pynodegl as ngl
 
 
 class Exporter(QtCore.QThread):

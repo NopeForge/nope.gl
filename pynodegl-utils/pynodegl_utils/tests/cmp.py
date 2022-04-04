@@ -19,11 +19,13 @@
 # under the License.
 #
 
+import difflib
 import os
 import os.path as op
-import difflib
-import pynodegl as ngl
+
 from pynodegl_utils.misc import get_backend, get_nodegl_tempdir
+
+import pynodegl as ngl
 
 
 class CompareBase:

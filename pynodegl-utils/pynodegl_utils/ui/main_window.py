@@ -21,19 +21,17 @@
 
 import sys
 
-from PySide6 import QtCore, QtGui, QtWidgets
-
 from pynodegl_utils.com import query_scene
 from pynodegl_utils.config import Config
+from pynodegl_utils.hooks import HooksCaller, HooksController
 from pynodegl_utils.scriptsmgr import ScriptsManager
-from pynodegl_utils.hooks import HooksController, HooksCaller
-
-from pynodegl_utils.ui.graph_view import GraphView
 from pynodegl_utils.ui.export_view import ExportView
+from pynodegl_utils.ui.graph_view import GraphView
 from pynodegl_utils.ui.hooks_view import HooksView
 from pynodegl_utils.ui.medias_view import MediasView
 from pynodegl_utils.ui.serial_view import SerialView
 from pynodegl_utils.ui.toolbar import Toolbar
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class MainWindow(QtWidgets.QSplitter):

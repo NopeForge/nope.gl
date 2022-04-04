@@ -21,13 +21,13 @@
 
 import os.path as op
 import subprocess
-from PySide6 import QtCore, QtGui, QtWidgets, QtSvgWidgets
-
-from .seekbar import Seekbar
 
 from pynodegl_utils import misc
+from PySide6 import QtCore, QtGui, QtSvgWidgets, QtWidgets
 
 import pynodegl as ngl
+
+from .seekbar import Seekbar
 
 
 class _SVGGraphView(QtWidgets.QGraphicsView):

@@ -1,6 +1,7 @@
-import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.colors import get_random_color_buffer
+
+import pynodegl as ngl
 
 
 @scene(color=scene.Color(),

@@ -19,12 +19,11 @@
 # under the License.
 #
 
-import os
 import csv
+import os
 import tempfile
 
 from .cmp import CompareSceneBase, get_test_decorator
-
 
 _COLS = (
     'Textures memory',

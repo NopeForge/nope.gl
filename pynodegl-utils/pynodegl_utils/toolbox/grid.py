@@ -20,6 +20,7 @@
 #
 
 import math
+
 import pynodegl as ngl
 
 

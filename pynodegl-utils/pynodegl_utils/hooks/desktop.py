@@ -1,7 +1,7 @@
 import os
+import shlex
 import subprocess
 import tempfile
-import shlex
 
 
 def _ipc_exec(*args):

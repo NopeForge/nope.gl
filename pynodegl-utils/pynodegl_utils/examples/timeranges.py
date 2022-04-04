@@ -1,6 +1,7 @@
-import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.grid import AutoGrid
+
+import pynodegl as ngl
 
 
 @scene(overlap_time=scene.Range(range=[0, 5], unit_base=10),

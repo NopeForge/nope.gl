@@ -19,18 +19,19 @@
 # under the License.
 #
 
-import os
-import os.path as op
-import tempfile
-import platform
-import math
 import inspect
 import json
-import subprocess
-import random
+import math
+import os
+import os.path as op
 import pkgutil
-import pynodegl as ngl
+import platform
+import random
+import subprocess
+import tempfile
 from collections import namedtuple
+
+import pynodegl as ngl
 
 
 def scene(**controls):

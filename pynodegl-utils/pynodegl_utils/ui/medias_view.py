@@ -21,9 +21,8 @@
 
 import os.path as op
 
-from PySide6 import QtCore, QtGui, QtWidgets
-
 from pynodegl_utils.misc import Media
+from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class MediasView(QtWidgets.QWidget):

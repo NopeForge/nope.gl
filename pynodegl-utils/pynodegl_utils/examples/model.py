@@ -1,7 +1,9 @@
-import os.path as op
 import array
-import pynodegl as ngl
+import os.path as op
+
 from pynodegl_utils.misc import scene
+
+import pynodegl as ngl
 
 
 def _load_model(fp):

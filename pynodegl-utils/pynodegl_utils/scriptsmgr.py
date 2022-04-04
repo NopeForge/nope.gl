@@ -19,14 +19,13 @@
 # under the License.
 #
 
-import sys
 import os.path as op
-
+import sys
 from threading import Timer
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
 
 from PySide6 import QtCore
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers import Observer
 
 from .com import query_list
 

@@ -19,8 +19,8 @@
 # under the License.
 #
 
-import sys
 import os.path as op
+import sys
 
 from PySide6 import QtWidgets
 

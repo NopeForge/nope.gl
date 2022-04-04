@@ -23,7 +23,6 @@ from PIL import Image
 
 from .cmp import CompareBase, CompareSceneBase, get_test_decorator
 
-
 _HSIZE = 8
 _HNBITS = _HSIZE * _HSIZE * 2
 _MODE = "RGBA"

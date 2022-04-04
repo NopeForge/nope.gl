@@ -20,6 +20,7 @@
 #
 
 import subprocess
+
 from PySide6 import QtCore, QtGui, QtWidgets
 
 
@@ -217,7 +218,10 @@ class HooksView(QtWidgets.QWidget):
 
 if __name__ == '__main__':
 
-    import random, string, sys
+    import random
+    import string
+    import sys
+
     from pynodegl_utils.hooks import HooksController
 
 

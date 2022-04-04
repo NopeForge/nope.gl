@@ -21,6 +21,7 @@
 
 import math
 from fractions import Fraction
+
 from PySide6 import QtCore, QtGui, QtWidgets
 
 

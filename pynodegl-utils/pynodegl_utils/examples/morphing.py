@@ -1,7 +1,9 @@
 import array
 import math
-import pynodegl as ngl
+
 from pynodegl_utils.misc import scene
+
+import pynodegl as ngl
 
 
 @scene(square_color=scene.Color(),

@@ -19,11 +19,12 @@
 # under the License.
 #
 
-import _io
-import sys
 import builtins
 import os.path as op
+import sys
 import sysconfig
+
+import _io
 
 from .config import Config
 

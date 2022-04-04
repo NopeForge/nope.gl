@@ -24,6 +24,7 @@ import inspect
 import os.path as op
 import pkgutil
 import traceback
+
 from pynodegl_utils.module import load_script
 from pynodegl_utils.resourcetracker import ResourceTracker
 

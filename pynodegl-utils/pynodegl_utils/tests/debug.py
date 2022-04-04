@@ -19,8 +19,9 @@
 # under the License.
 #
 
-import pynodegl as ngl
 from pynodegl_utils.toolbox.colors import COLORS
+
+import pynodegl as ngl
 
 
 def get_debug_points(cfg, points, radius=0.025, color=COLORS.green, text_size=(0.1, 0.1)):

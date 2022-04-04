@@ -20,12 +20,12 @@
 #
 
 from fractions import Fraction
-from PySide6 import QtCore, QtGui, QtWidgets
-
-import pynodegl as ngl
 
 from pynodegl_utils.config import Config
 from pynodegl_utils.control_widgets import control_to_widget
+from PySide6 import QtCore, QtGui, QtWidgets
+
+import pynodegl as ngl
 
 
 class Toolbar(QtWidgets.QWidget):

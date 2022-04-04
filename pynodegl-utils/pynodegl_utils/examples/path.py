@@ -20,10 +20,12 @@
 #
 
 import array
-import pynodegl as ngl
+
 from pynodegl_utils.misc import scene
 from pynodegl_utils.tests.debug import get_debug_points
 from pynodegl_utils.toolbox.colors import COLORS
+
+import pynodegl as ngl
 
 
 def _path_scene(cfg, path, points=None, controls=None, easing='linear'):

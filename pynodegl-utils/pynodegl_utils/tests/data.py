@@ -21,9 +21,10 @@
 
 import colorsys
 import random
-import pynodegl as ngl
+
 from pynodegl_utils.tests.debug import get_debug_points
 
+import pynodegl as ngl
 
 _FIELDS_VERT = '''
 void main()

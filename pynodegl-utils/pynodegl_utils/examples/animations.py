@@ -1,9 +1,11 @@
 import array
 import colorsys
 import math
-import pynodegl as ngl
+
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.grid import AutoGrid
+
+import pynodegl as ngl
 
 
 def _block(w, h, color, corner=None):

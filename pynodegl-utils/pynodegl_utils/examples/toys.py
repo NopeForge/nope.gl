@@ -19,9 +19,10 @@
 # under the License.
 #
 
-import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.toolbox.colors import COLORS
+
+import pynodegl as ngl
 
 
 @scene(

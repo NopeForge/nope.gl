@@ -19,9 +19,9 @@
 # under the License.
 #
 
-import sys
-import os.path as op
 import importlib
+import os.path as op
+import sys
 
 
 def load_script(path):

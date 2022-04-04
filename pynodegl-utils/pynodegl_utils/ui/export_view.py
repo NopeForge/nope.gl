@@ -19,10 +19,10 @@
 # under the License.
 #
 
-from PySide6 import QtCore, QtWidgets
 from fractions import Fraction
 
 from pynodegl_utils.export import Exporter
+from PySide6 import QtCore, QtWidgets
 
 
 class ExportView(QtWidgets.QWidget):
