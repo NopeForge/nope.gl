@@ -79,47 +79,49 @@ def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_coun
 
     spec = []
 
-    spec += [dict(name=f'b_{i}',    type='bool',      category='single', data=one_b)    for i in range(i_count)]
-    spec += [dict(name=f'f_{i}',    type='float',     category='single', data=one_f)    for i in range(f_count)]
-    spec += [dict(name=f'v2_{i}',   type='vec2',      category='single', data=one_v2)   for i in range(v2_count)]
-    spec += [dict(name=f'v3_{i}',   type='vec3',      category='single', data=one_v3)   for i in range(v3_count)]
-    spec += [dict(name=f'v4_{i}',   type='vec4',      category='single', data=one_v4)   for i in range(v4_count)]
-    spec += [dict(name=f'i_{i}',    type='int',       category='single', data=one_i)    for i in range(i_count)]
-    spec += [dict(name=f'iv2_{i}',  type='ivec2',     category='single', data=one_iv2)  for i in range(v2_count)]
-    spec += [dict(name=f'iv3_{i}',  type='ivec3',     category='single', data=one_iv3)  for i in range(v3_count)]
-    spec += [dict(name=f'iv4_{i}',  type='ivec4',     category='single', data=one_iv4)  for i in range(v4_count)]
-    spec += [dict(name=f'u_{i}',    type='uint',      category='single', data=one_u)    for i in range(i_count)]
-    spec += [dict(name=f'uiv2_{i}', type='uvec2',     category='single', data=one_uv2)  for i in range(v2_count)]
-    spec += [dict(name=f'uiv3_{i}', type='uvec3',     category='single', data=one_uv3)  for i in range(v3_count)]
-    spec += [dict(name=f'uiv4_{i}', type='uvec4',     category='single', data=one_uv4)  for i in range(v4_count)]
-    spec += [dict(name=f'm4_{i}',   type='mat4',      category='single', data=one_mat4) for i in range(mat_count)]
-    spec += [dict(name=f'qm_{i}',   type='quat_mat4', category='single', data=one_quat) for i in range(mat_count)]
-    spec += [dict(name=f'qv_{i}',   type='quat_vec4', category='single', data=one_quat) for i in range(v4_count)]
+    # fmt: off
+    spec += [dict(name=f"b_{i}",    type="bool",      category="single", data=one_b)    for i in range(i_count)]
+    spec += [dict(name=f"f_{i}",    type="float",     category="single", data=one_f)    for i in range(f_count)]
+    spec += [dict(name=f"v2_{i}",   type="vec2",      category="single", data=one_v2)   for i in range(v2_count)]
+    spec += [dict(name=f"v3_{i}",   type="vec3",      category="single", data=one_v3)   for i in range(v3_count)]
+    spec += [dict(name=f"v4_{i}",   type="vec4",      category="single", data=one_v4)   for i in range(v4_count)]
+    spec += [dict(name=f"i_{i}",    type="int",       category="single", data=one_i)    for i in range(i_count)]
+    spec += [dict(name=f"iv2_{i}",  type="ivec2",     category="single", data=one_iv2)  for i in range(v2_count)]
+    spec += [dict(name=f"iv3_{i}",  type="ivec3",     category="single", data=one_iv3)  for i in range(v3_count)]
+    spec += [dict(name=f"iv4_{i}",  type="ivec4",     category="single", data=one_iv4)  for i in range(v4_count)]
+    spec += [dict(name=f"u_{i}",    type="uint",      category="single", data=one_u)    for i in range(i_count)]
+    spec += [dict(name=f"uiv2_{i}", type="uvec2",     category="single", data=one_uv2)  for i in range(v2_count)]
+    spec += [dict(name=f"uiv3_{i}", type="uvec3",     category="single", data=one_uv3)  for i in range(v3_count)]
+    spec += [dict(name=f"uiv4_{i}", type="uvec4",     category="single", data=one_uv4)  for i in range(v4_count)]
+    spec += [dict(name=f"m4_{i}",   type="mat4",      category="single", data=one_mat4) for i in range(mat_count)]
+    spec += [dict(name=f"qm_{i}",   type="quat_mat4", category="single", data=one_quat) for i in range(mat_count)]
+    spec += [dict(name=f"qv_{i}",   type="quat_vec4", category="single", data=one_quat) for i in range(v4_count)]
     spec += [
-        dict(name='t_f',   type='float',     category='array',    data=f_array,    len=f_count),
-        dict(name='t_v2',  type='vec2',      category='array',    data=v2_array,   len=v2_count),
-        dict(name='t_v3',  type='vec3',      category='array',    data=v3_array,   len=v3_count),
-        dict(name='t_v4',  type='vec4',      category='array',    data=v4_array,   len=v4_count),
-        dict(name='a_qm4', type='quat_mat4', category='animated', data=one_quat),
-        dict(name='a_qv4', type='quat_vec4', category='animated', data=one_quat),
-        dict(name='a_f',   type='float',     category='animated', data=None),
-        dict(name='a_v2',  type='vec2',      category='animated', data=one_v2),
-        dict(name='a_v3',  type='vec3',      category='animated', data=one_v3),
-        dict(name='a_v4',  type='vec4',      category='animated', data=one_v4),
+        dict(name="t_f",   type="float",     category="array",    data=f_array,    len=f_count),
+        dict(name="t_v2",  type="vec2",      category="array",    data=v2_array,   len=v2_count),
+        dict(name="t_v3",  type="vec3",      category="array",    data=v3_array,   len=v3_count),
+        dict(name="t_v4",  type="vec4",      category="array",    data=v4_array,   len=v4_count),
+        dict(name="a_qm4", type="quat_mat4", category="animated", data=one_quat),
+        dict(name="a_qv4", type="quat_vec4", category="animated", data=one_quat),
+        dict(name="a_f",   type="float",     category="animated", data=None),
+        dict(name="a_v2",  type="vec2",      category="animated", data=one_v2),
+        dict(name="a_v3",  type="vec3",      category="animated", data=one_v3),
+        dict(name="a_v4",  type="vec4",      category="animated", data=one_v4),
     ]
 
-    if layout != 'uniform':
+    if layout != "uniform":
         spec += [
-            dict(name='t_i',    type='int',        category='array',           data=i_array,    len=i_count),
-            dict(name='t_iv2',  type='ivec2',      category='array',           data=iv2_array,  len=v2_count),
-            dict(name='t_iv3',  type='ivec3',      category='array',           data=iv3_array,  len=v3_count),
-            dict(name='t_iv4',  type='ivec4',      category='array',           data=iv4_array,  len=v4_count),
-            dict(name='t_mat4', type='mat4',       category='array',           data=mat4_array, len=mat_count),
-            dict(name='ab_f',   type='float',      category='animated_buffer', data=f_array,    len=f_count),
-            dict(name='ab_v2',  type='vec2',       category='animated_buffer', data=v2_array,   len=v2_count),
-            dict(name='ab_v3',  type='vec3',       category='animated_buffer', data=v3_array,   len=v3_count),
-            dict(name='ab_v4',  type='vec4',       category='animated_buffer', data=v4_array,   len=v4_count),
+            dict(name="t_i",    type="int",        category="array",           data=i_array,    len=i_count),
+            dict(name="t_iv2",  type="ivec2",      category="array",           data=iv2_array,  len=v2_count),
+            dict(name="t_iv3",  type="ivec3",      category="array",           data=iv3_array,  len=v3_count),
+            dict(name="t_iv4",  type="ivec4",      category="array",           data=iv4_array,  len=v4_count),
+            dict(name="t_mat4", type="mat4",       category="array",           data=mat4_array, len=mat_count),
+            dict(name="ab_f",   type="float",      category="animated_buffer", data=f_array,    len=f_count),
+            dict(name="ab_v2",  type="vec2",       category="animated_buffer", data=v2_array,   len=v2_count),
+            dict(name="ab_v3",  type="vec3",       category="animated_buffer", data=v3_array,   len=v3_count),
+            dict(name="ab_v4",  type="vec4",       category="animated_buffer", data=v4_array,   len=v4_count),
         ]
+    # fmt: on
 
     for item in spec:
         item['func'] = FUNCS['{category}_{type}'.format(**item)]

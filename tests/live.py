@@ -117,17 +117,19 @@ def _get_live_spec(layout):
     livechange_mat4   = gen_floats(4 * 4), gen_floats(4 * 4)[::-1]
     livechange_quat   = livechange_v4
 
+    # fmt: off
     spec = [
-        dict(name='b',  type='bool',      category='single', livechange=livechange_b),
-        dict(name='f',  type='float',     category='single', livechange=livechange_f),
-        dict(name='v2', type='vec2',      category='single', livechange=livechange_v2),
-        dict(name='v3', type='vec3',      category='single', livechange=livechange_v3),
-        dict(name='v4', type='vec4',      category='single', livechange=livechange_v4),
-        dict(name='i',  type='int',       category='single', livechange=livechange_i),
-        dict(name='m4', type='mat4',      category='single', livechange=livechange_mat4),
-        dict(name='qm', type='quat_mat4', category='single', livechange=livechange_quat),
-        dict(name='qv', type='quat_vec4', category='single', livechange=livechange_quat),
+        dict(name="b",  type="bool",      category="single", livechange=livechange_b),
+        dict(name="f",  type="float",     category="single", livechange=livechange_f),
+        dict(name="v2", type="vec2",      category="single", livechange=livechange_v2),
+        dict(name="v3", type="vec3",      category="single", livechange=livechange_v3),
+        dict(name="v4", type="vec4",      category="single", livechange=livechange_v4),
+        dict(name="i",  type="int",       category="single", livechange=livechange_i),
+        dict(name="m4", type="mat4",      category="single", livechange=livechange_mat4),
+        dict(name="qm", type="quat_mat4", category="single", livechange=livechange_quat),
+        dict(name="qv", type="quat_vec4", category="single", livechange=livechange_quat),
     ]
+    # fmt: on
 
     for item in spec:
         item['func'] = FUNCS['{category}_{type}'.format(**item)]
@@ -152,6 +154,7 @@ def _get_live_trf_spec(layout):
             category='single',
             func=lambda data: ngl.UniformMat4(data, transform=t6),
             livechange=(
+                # fmt: off
                 lambda: t1.set_matrix(                      # trf_step=1
                     0.1, 0.2, 0.0, 0.0,
                     0.0, 0.3, 0.4, 0.0,
@@ -174,6 +177,7 @@ def _get_live_trf_spec(layout):
                     0.0, 0.0, 1.0, 0.0,
                     0.0, 0.0, 0.0, 1.0,
                 )
+                # fmt: on
             ),
         ),
     ]

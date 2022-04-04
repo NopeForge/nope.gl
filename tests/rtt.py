@@ -28,6 +28,8 @@ from pynodegl_utils.toolbox.colors import COLORS
 
 
 def _get_cube():
+    # fmt: off
+
     # front
     p0 = (-1, -1, 1)
     p1 = ( 1, -1, 1)
@@ -41,7 +43,7 @@ def _get_cube():
     p7 = (-1,  1, -1)
 
     cube_vertices_data = array.array(
-        'f',
+        "f",
         p0 + p1 + p2 + p2 + p3 + p0 +  # front
         p1 + p5 + p6 + p6 + p2 + p1 +  # right
         p7 + p6 + p5 + p5 + p4 + p7 +  # back
@@ -49,6 +51,7 @@ def _get_cube():
         p4 + p5 + p1 + p1 + p0 + p4 +  # bottom
         p3 + p2 + p6 + p6 + p7 + p3    # top
     )
+    # fmt: on
 
     uvs = (0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1)
     cube_uvs_data = array.array('f', uvs * 6)

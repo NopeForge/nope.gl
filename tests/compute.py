@@ -257,10 +257,12 @@ def _compute_animation(cfg, animate_pre_render=True):
     local_size = 2
 
     vertices_data = array.array('f', [
+        # fmt: off
         -0.5, -0.5, 0.0,
          0.5, -0.5, 0.0,
         -0.5,  0.5, 0.0,
          0.5,  0.5, 0.0,
+        # fmt: on
     ])
     nb_vertices = 4
 

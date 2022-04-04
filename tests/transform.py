@@ -38,10 +38,12 @@ def transform_matrix(cfg):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape(cfg)
     mat = [
+        # fmt: off
         0.5, 0.5, 0.0, 0.0,
        -1.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0,
        -0.2, 0.4, 0.0, 1.0,
+        # fmt: on
     ]
     return ngl.Transform(shape, matrix=mat)
 
@@ -53,11 +55,13 @@ def transform_animated_camera(cfg):
     g = ngl.Group()
 
     elems = (
+        # fmt: off
         (COLORS.red,     None),
         (COLORS.yellow,  (-0.6,  0.8, -1)),
         (COLORS.green,   ( 0.6,  0.8, -1)),
         (COLORS.cyan,    (-0.6, -0.5, -1)),
         (COLORS.magenta, ( 0.6, -0.5, -1)),
+        # fmt: on
     )
 
     quad = ngl.Quad((-0.5, -0.5, 0), (1, 0, 0), (0, 1, 0))
@@ -254,6 +258,7 @@ def transform_path(cfg):
     cfg.duration = 7
     shape = _transform_shape(cfg, w=.2, h=.5)
 
+    # fmt: off
     points = (
         ( 0.7,  0.0, -0.3),
         (-0.8, -0.1,  0.1),
@@ -262,6 +267,7 @@ def transform_path(cfg):
         ( 0.2,  0.3, -0.2),
         (-0.2, -0.8, -0.4),
     )
+    # fmt: on
 
     keyframes = (
         ngl.PathKeyMove(to=points[0]),
@@ -287,6 +293,7 @@ def transform_smoothpath(cfg):
     cfg.duration = 3
     shape = _transform_shape(cfg, w=.3, h=.3)
 
+    # fmt: off
     points = (
         (-0.62, -0.30, 0.0),
         (-0.36,  0.40, 0.0),
@@ -298,6 +305,7 @@ def transform_smoothpath(cfg):
         (-0.84, 0.07, 0.0),
         ( 0.84, 0.04, 0.0),
     )
+    # fmt: on
 
     flat_points = (elt for point in points for elt in point)
     points_array = array.array('f', flat_points)

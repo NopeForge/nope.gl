@@ -37,19 +37,21 @@ def _easing_join(easing, args):
 
 
 _easing_specs = (
-    ('linear',    0),
-    ('quadratic', 3),
-    ('cubic',     3),
-    ('quartic',   3),
-    ('quintic',   3),
-    ('power:7.3', 3),
-    ('sinus',     3),
-    ('exp',       3),
-    ('circular',  3),
-    ('bounce',    1),
-    ('elastic',   1),
-    ('elastic:1.5:1.2', 1),
-    ('back',      3),
+    # fmt: off
+    ("linear",          0),
+    ("quadratic",       3),
+    ("cubic",           3),
+    ("quartic",         3),
+    ("quintic",         3),
+    ("power:7.3",       3),
+    ("sinus",           3),
+    ("exp",             3),
+    ("circular",        3),
+    ("bounce",          1),
+    ("elastic",         1),
+    ("elastic:1.5:1.2", 1),
+    ("back",            3),
+    # fmt: on
 )
 
 

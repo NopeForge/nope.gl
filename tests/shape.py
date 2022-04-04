@@ -104,21 +104,25 @@ def _shape_geometry(cfg, set_normals=False, set_indices=False):
     # Fake cube (3 faces only) obtained from:
     # echo 'cube();'>x.scad; openscad x.scad -o x.stl
     vertices = array.array('f', [x - 0.5 for x in [
+        # fmt: off
         1,1,0, 0,1,1, 1,1,1,
         0,1,1, 1,1,0, 0,1,0,
         0,0,0, 0,1,1, 0,1,0,
         0,1,1, 0,0,0, 0,0,1,
         0,1,1, 1,0,1, 1,1,1,
         1,0,1, 0,1,1, 0,0,1,
+        # fmt: on
     ]])
 
     normals = array.array('f', [
+        # fmt: off
         0,1,0,  0,1,0,  0,1,0,
         0,1,0,  0,1,0,  0,1,0,
        -1,0,0, -1,0,0, -1,0,0,
        -1,0,0, -1,0,0, -1,0,0,
         0,0,1,  0,0,1,  0,0,1,
         0,0,1,  0,0,1,  0,0,1,
+        # fmt: on
     ])
 
     vertices_buffer = ngl.BufferVec3(data=vertices)
@@ -242,17 +246,21 @@ def _get_cropboard_function(set_indices=False):
             indices_buffer = ngl.BufferUShort(data=indices)
 
             vertices = array.array('f', [
+                # fmt: off
                  0, 0,  0,
                 qw, qh, 0,
                 qw, 0,  0,
                  0, qh, 0,
+                # fmt: on
             ])
 
             uvcoords = array.array('f', [
+                # fmt: off
                  0, 1.0,
                 kw, 1.0 - kh,
                 kw, 1.0,
                  0, 1.0 - kh,
+                # fmt: on
             ])
 
             vertices_buffer = ngl.BufferVec3(data=vertices)
@@ -312,6 +320,7 @@ def shape_triangles_mat4_attribute(cfg):
     p0, p1, p2 = equilateral_triangle_coords(1)
     geometry = ngl.Triangle(p0, p1, p2)
     matrices = ngl.BufferMat4(data=array.array('f', [
+        # fmt: off
         1.0, 0.0, 0.0, 0.0,
         0.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
@@ -321,6 +330,7 @@ def shape_triangles_mat4_attribute(cfg):
         0.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0,
         0.5, 0.0, 0.0, 1.0,
+        # fmt: on
     ]))
 
     program = ngl.Program(
