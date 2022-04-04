@@ -29,8 +29,7 @@ from pynodegl_utils.resourcetracker import ResourceTracker
 
 
 def query_scene(pkg, **idict):
-    module_pkgname = pkg
-    module_is_script = module_pkgname.endswith('.py')
+    module_is_script = pkg.endswith('.py')
 
     # Start tracking the imported modules and opened files
     rtracker = ResourceTracker()
@@ -42,9 +41,9 @@ def query_scene(pkg, **idict):
         # Get module.func
         module_name, scene_name = idict['scene']
         if module_is_script:
-            module = load_script(module_pkgname)
+            module = load_script(pkg)
         else:
-            import_name = f'{module_pkgname}.{module_name}'
+            import_name = f'{pkg}.{module_name}'
             module = importlib.import_module(import_name)
         func = getattr(module, scene_name)
 
@@ -65,14 +64,13 @@ def query_scene(pkg, **idict):
     odict['filelist'] = rtracker.filelist
     odict['modulelist'] = rtracker.modulelist
     if module_is_script:
-        odict['filelist'].update([module_pkgname])
+        odict['filelist'].update([pkg])
 
     return odict
 
 
 def query_list(pkg):
-    module_pkgname = pkg
-    module_is_script = module_pkgname.endswith('.py')
+    module_is_script = pkg.endswith('.py')
 
     # Start tracking the imported modules and opened files
     rtracker = ResourceTracker()
@@ -85,16 +83,16 @@ def query_list(pkg):
 
         # Import the script, or the package and its sub-modules
         if module_is_script:
-            module_pkgname = op.realpath(module_pkgname)
-            module = load_script(module_pkgname)
+            pkg = op.realpath(pkg)
+            module = load_script(pkg)
             scripts.append((module.__name__, module))
         else:
-            module = importlib.import_module(module_pkgname)
+            module = importlib.import_module(pkg)
             for submod in pkgutil.iter_modules(module.__path__):
                 module_finder, module_name, ispkg = submod
                 if ispkg:
                     continue
-                script = importlib.import_module('.' + module_name, module_pkgname)
+                script = importlib.import_module('.' + module_name, pkg)
                 scripts.append((module_name, script))
 
         # Find all the scenes
@@ -121,6 +119,6 @@ def query_list(pkg):
     odict['filelist'] = rtracker.filelist
     odict['modulelist'] = rtracker.modulelist
     if module_is_script:
-        odict['filelist'].update([module_pkgname])
+        odict['filelist'].update([pkg])
 
     return odict
