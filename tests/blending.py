@@ -33,10 +33,10 @@ _CIRCLE_RADIUS = 0.5
 
 
 def _equilateral_triangle_coords(sz=0.5, balanced=True):
-    b = sz * math.sqrt(3) / 2.
-    c = sz / 2.
-    yoff = (c - sz) / 2. if balanced else 0.
-    return (-b, yoff - c, 0.), (b, yoff - c, 0.), (0., yoff + sz, 0.)
+    b = sz * math.sqrt(3) / 2.0
+    c = sz / 2.0
+    yoff = (c - sz) / 2.0 if balanced else 0.0
+    return (-b, yoff - c, 0.0), (b, yoff - c, 0.0), (0.0, yoff + sz, 0.0)
 
 
 def _mid_pos(*points):
@@ -47,8 +47,8 @@ def _color_positions(sz=0.5, balanced=True):
     pA, pB, pC = [(x, y) for (x, y, _) in _equilateral_triangle_coords(sz, balanced)]
     pD, pE, pF = [_mid_pos(p0, p1) for (p0, p1) in ((pA, pC), (pA, pB), (pB, pC))]
     pO = _mid_pos(pA, pB, pC)
-    yoff = -sz / 4. if balanced else 0.
-    return dict(A=pA, B=pB, C=pC, D=pD, E=pE, F=pF, O=pO, Z=(-1., yoff + 1.))
+    yoff = -sz / 4.0 if balanced else 0.0
+    return dict(A=pA, B=pB, C=pC, D=pD, E=pE, F=pF, O=pO, Z=(-1.0, yoff + 1.0))
 
 
 def _get_dbg_positions(n=1):
@@ -58,7 +58,7 @@ def _get_dbg_positions(n=1):
     ag = AutoGrid(range(n))
     for _, i, col, row in ag:
         dbg_positions = _color_positions(_CIRCLE_RADIUS)
-        dbg_positions = {'%s%d' % (name, i): ag.transform_coords(p, (col, row)) for name, p in dbg_positions.items()}
+        dbg_positions = {"%s%d" % (name, i): ag.transform_coords(p, (col, row)) for name, p in dbg_positions.items()}
         ret.update(dbg_positions)
     return ret
 
@@ -75,7 +75,7 @@ _CIRCLES_COLORS = [
 def _get_blending_base_objects(cfg):
     circle = ngl.Circle(radius=_CIRCLE_RADIUS, npoints=100)
     positions = _equilateral_triangle_coords(_CIRCLE_RADIUS * 2.0 / 3.0)
-    colored_circles = ngl.Group(label='colored circles')
+    colored_circles = ngl.Group(label="colored circles")
     for position, color in zip(positions, _CIRCLES_COLORS):
         render = ngl.RenderColor(color, geometry=circle)
         render = ngl.Translate(render, position)
@@ -96,7 +96,7 @@ def _get_blending_scene_with_args(cfg, colored_circles, circle, positions, bname
     g = ngl.Group(label=bname)
     if bcolor is not None:
         blend_bg = _get_background_circles(circle, positions, bcolor)
-        blend_bg.set_label(f'background for {bname}')
+        blend_bg.set_label(f"background for {bname}")
         g.add_children(blend_bg)
     blended_circles = ngl.GraphicConfig(colored_circles, blend=True, **bparams)
     g.add_children(blended_circles)
@@ -111,20 +111,36 @@ def _get_blending_scene(cfg, bname, bcolor, **bparams):
 
 _BLENDING_CFGS = (
     ("none", None, dict()),
-    ("multiply", COLORS.white, dict(
-        blend_src_factor='dst_color',
-        blend_dst_factor='zero',
-    )),
-    ("screen", COLORS.black, dict(
-        blend_src_factor="one",
-        blend_dst_factor="one_minus_src_color",
-    )),
-    ("darken", COLORS.white, dict(
-        blend_op='min',
-    )),
-    ("lighten", COLORS.black, dict(
-        blend_op='max',
-    )),
+    (
+        "multiply",
+        COLORS.white,
+        dict(
+            blend_src_factor="dst_color",
+            blend_dst_factor="zero",
+        ),
+    ),
+    (
+        "screen",
+        COLORS.black,
+        dict(
+            blend_src_factor="one",
+            blend_dst_factor="one_minus_src_color",
+        ),
+    ),
+    (
+        "darken",
+        COLORS.white,
+        dict(
+            blend_op="min",
+        ),
+    ),
+    (
+        "lighten",
+        COLORS.black,
+        dict(
+            blend_op="max",
+        ),
+    ),
 )
 _BLENDINGS = list(b[0] for b in _BLENDING_CFGS)
 _NB_BLENDINGS = len(_BLENDINGS)
@@ -159,17 +175,19 @@ def _debug_overlay(cfg, scene, grid_names, show_dbg_points=False, show_labels=Fa
         text_group = ngl.Group()
         ag = AutoGrid(grid_names)
         for grid_name, i, col, row in ag:
-            text = ngl.Text(grid_name,
-                            fg_color=COLORS.white,
-                            bg_opacity=1,
-                            valign='top',
-                            box_width=(2.0, 0, 0),
-                            box_height=(0, text_height, 0),
-                            box_corner=(-1, 1.0 - text_height, 0))
+            text = ngl.Text(
+                grid_name,
+                fg_color=COLORS.white,
+                bg_opacity=1,
+                valign="top",
+                box_width=(2.0, 0, 0),
+                box_height=(0, text_height, 0),
+                box_corner=(-1, 1.0 - text_height, 0),
+            )
             text = ag.place_node(text, (col, row))
             text_group.add_children(text)
 
-        scene = ngl.Translate(scene, (0, -text_height / 2.0 * ag.scale, 0), label='text offsetting')
+        scene = ngl.Translate(scene, (0, -text_height / 2.0 * ag.scale, 0), label="text offsetting")
         overlay.add_children(scene, text_group)
     else:
         overlay.add_children(scene)
@@ -211,6 +229,7 @@ def _get_blending_function(bname, bcolor, **bparams):
     def scene_func(cfg, show_dbg_points=True, show_labels=True):
         scene = _get_blending_scene(cfg, bname, bcolor, **bparams)
         return _debug_overlay(cfg, scene, [bname], show_dbg_points, show_labels)
+
     return scene_func
 
 

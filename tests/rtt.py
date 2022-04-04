@@ -56,7 +56,7 @@ def _get_cube():
     # fmt: on
 
     uvs = (0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1)
-    cube_uvs_data = array.array('f', uvs * 6)
+    cube_uvs_data = array.array("f", uvs * 6)
 
     up = (0, 1, 0)
     down = (0, -1, 0)
@@ -65,15 +65,7 @@ def _get_cube():
     left = (-1, 0, 0)
     right = (1, 0, 0)
 
-    cube_normals_data = array.array(
-        'f',
-        front * 6 +
-        right * 6 +
-        back * 6 +
-        left * 6 +
-        down * 6 +
-        up * 6
-    )
+    cube_normals_data = array.array("f", front * 6 + right * 6 + back * 6 + left * 6 + down * 6 + up * 6)
 
     return ngl.Geometry(
         vertices=ngl.BufferVec3(data=cube_vertices_data),
@@ -82,33 +74,33 @@ def _get_cube():
     )
 
 
-_RENDER_CUBE_VERT = '''
+_RENDER_CUBE_VERT = """
 void main()
 {
     ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
     var_normal = ngl_normal_matrix * ngl_normal;
 }
-'''
+"""
 
 
-_RENDER_CUBE_FRAG = '''
+_RENDER_CUBE_FRAG = """
 void main()
 {
     ngl_out_color = vec4((var_normal + 1.0) / 2.0, 1.0);
 }
-'''
+"""
 
 
-_RENDER_DEPTH = '''
+_RENDER_DEPTH = """
 void main()
 {
     float depth = ngl_texvideo(tex0, var_tex0_coord).r;
     ngl_out_color = vec4(depth, depth, depth, 1.0);
 }
-'''
+"""
 
 
-def _get_rtt_scene(cfg, features='depth', texture_ds_format=None, samples=0, mipmap_filter='none', sample_depth=False):
+def _get_rtt_scene(cfg, features="depth", texture_ds_format=None, samples=0, mipmap_filter="none", sample_depth=False):
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)
     cube = _get_cube()
@@ -118,10 +110,9 @@ def _get_rtt_scene(cfg, features='depth', texture_ds_format=None, samples=0, mip
     render = ngl.Scale(render, (0.5, 0.5, 0.5))
 
     for i in range(3):
-        rot_animkf = ngl.AnimatedFloat([
-            ngl.AnimKeyFrameFloat(0,            0),
-            ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))
-        ])
+        rot_animkf = ngl.AnimatedFloat(
+            [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
+        )
         axis = [int(i == x) for x in range(3)]
         render = ngl.Rotate(render, axis=axis, angle=rot_animkf)
 
@@ -144,7 +135,7 @@ def _get_rtt_scene(cfg, features='depth', texture_ds_format=None, samples=0, mip
     texture = ngl.Texture2D(
         width=size,
         height=size,
-        min_filter='linear',
+        min_filter="linear",
         mipmap_filter=mipmap_filter,
     )
     rtt = ngl.RenderToTexture(
@@ -158,7 +149,7 @@ def _get_rtt_scene(cfg, features='depth', texture_ds_format=None, samples=0, mip
 
     if sample_depth:
         quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-        program = ngl.Program(vertex=cfg.get_vert('texture'), fragment=_RENDER_DEPTH)
+        program = ngl.Program(vertex=cfg.get_vert("texture"), fragment=_RENDER_DEPTH)
         program.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_uvcoord=ngl.IOVec2())
         render = ngl.Render(quad, program)
         render.update_frag_resources(tex0=texture_depth)
@@ -172,26 +163,27 @@ def _get_rtt_function(**kwargs):
     @scene()
     def rtt_function(cfg):
         return _get_rtt_scene(cfg, **kwargs)
+
     return rtt_function
 
 
 _rtt_tests = dict(
-    feature_depth=dict(features='depth'),
-    feature_depth_stencil=dict(features='depth+stencil'),
-    feature_depth_msaa=dict(features='depth', samples=4),
-    feature_depth_stencil_msaa=dict(features='depth+stencil', samples=4),
-    mipmap=dict(features='depth', mipmap_filter='linear'),
-    sample_depth=dict(texture_ds_format='auto_depth', sample_depth=True),
-    sample_depth_msaa=dict(texture_ds_format='auto_depth', sample_depth=True, samples=4),
-    texture_depth=dict(texture_ds_format='auto_depth'),
-    texture_depth_stencil=dict(texture_ds_format='auto_depth_stencil'),
-    texture_depth_msaa=dict(texture_ds_format='auto_depth', samples=4),
-    texture_depth_stencil_msaa=dict(texture_ds_format='auto_depth_stencil', samples=4),
+    feature_depth=dict(features="depth"),
+    feature_depth_stencil=dict(features="depth+stencil"),
+    feature_depth_msaa=dict(features="depth", samples=4),
+    feature_depth_stencil_msaa=dict(features="depth+stencil", samples=4),
+    mipmap=dict(features="depth", mipmap_filter="linear"),
+    sample_depth=dict(texture_ds_format="auto_depth", sample_depth=True),
+    sample_depth_msaa=dict(texture_ds_format="auto_depth", sample_depth=True, samples=4),
+    texture_depth=dict(texture_ds_format="auto_depth"),
+    texture_depth_stencil=dict(texture_ds_format="auto_depth_stencil"),
+    texture_depth_msaa=dict(texture_ds_format="auto_depth", samples=4),
+    texture_depth_stencil_msaa=dict(texture_ds_format="auto_depth_stencil", samples=4),
 )
 
 
 for name, params in _rtt_tests.items():
-    globals()['rtt_' + name] = _get_rtt_function(**params)
+    globals()["rtt_" + name] = _get_rtt_function(**params)
 
 
 def _rtt_load_attachment(cfg):
@@ -210,13 +202,15 @@ def _rtt_load_attachment(cfg):
     return ngl.Group(children=(background, rtt, rtt_noop, foreground))
 
 
-@test_cuepoints(width=32, height=32, points={'bottom-left': (-0.5, -0.5), 'top-right': (0.5, 0.5)}, tolerance=1)
+@test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @scene()
 def rtt_load_attachment(cfg):
     return _rtt_load_attachment(cfg)
 
 
-@test_cuepoints(samples=4, width=32, height=32, points={'bottom-left': (-0.5, -0.5), 'top-right': (0.5, 0.5)}, tolerance=1)
+@test_cuepoints(
+    samples=4, width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1
+)
 @scene()
 def rtt_load_attachment_msaa(cfg):
     return _rtt_load_attachment(cfg)
@@ -232,13 +226,14 @@ def _rtt_load_attachment_nested(cfg, samples=0):
 
     return ngl.Group(children=(rtt, foreground))
 
-@test_cuepoints(width=32, height=32, points={'bottom-left': (-0.5, -0.5), 'top-right': (0.5, 0.5)}, tolerance=1)
+
+@test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @scene()
 def rtt_load_attachment_nested(cfg):
     return _rtt_load_attachment_nested(cfg)
 
 
-@test_cuepoints(width=32, height=32, points={'bottom-left': (-0.5, -0.5), 'top-right': (0.5, 0.5)}, tolerance=1)
+@test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @scene()
 def rtt_load_attachment_nested_msaa(cfg):
     return _rtt_load_attachment_nested(cfg, 4)

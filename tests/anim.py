@@ -28,14 +28,14 @@ import pynodegl as ngl
 
 
 def _easing_split(easing):
-    name_split = easing.split(':')
+    name_split = easing.split(":")
     easing_name = name_split[0]
     args = [float(x) for x in name_split[1:]] if len(name_split) > 1 else None
     return easing_name, args
 
 
 def _easing_join(easing, args):
-    return easing if not args else easing + ':' + ':'.join('%g' % x for x in args)
+    return easing if not args else easing + ":" + ":".join("%g" % x for x in args)
 
 
 _easing_specs = (
@@ -62,11 +62,11 @@ def _get_easing_list():
     for col, (easing, flags) in enumerate(_easing_specs):
         versions = []
         if flags & 1:
-            versions += ['_in', '_out']
+            versions += ["_in", "_out"]
         if flags & 2:
-            versions += ['_in_out', '_out_in']
+            versions += ["_in_out", "_out_in"]
         if not flags:
-            versions = ['']
+            versions = [""]
 
         for version in versions:
             base_name, args = _easing_split(easing)
@@ -81,7 +81,7 @@ _easing_list = _get_easing_list()
 
 @test_floats()
 def anim_forward_api(nb_points=7):
-    scale = 1. / float(nb_points)
+    scale = 1.0 / float(nb_points)
     ret = []
     times = [i * scale for i in range(nb_points + 1)]
     for easing in _easing_list:
@@ -102,12 +102,12 @@ def _approx_derivative(easing_name, t, easing_args, offsets):
 
 
 def _test_derivative_approximations(nb_points=20):
-    '''
+    """
     This test approximates the derivatives numerically by using 2 very close
     points around a given point. This is useful to test the exactitude of the
     derivative function implementation.
-    '''
-    scale = 1. / float(nb_points)
+    """
+    scale = 1.0 / float(nb_points)
 
     times = [i * scale for i in range(nb_points + 1)]
     max_err = 0.0005
@@ -122,21 +122,21 @@ def _test_derivative_approximations(nb_points=20):
             # Special exceptions for a few easings due to infinite derivatives
             # (vertical slopes) for which the approximation can not come close
             # enough.
-            if easing_name == 'circular_in_out':
+            if easing_name == "circular_in_out":
                 errors[nb_points // 2] = -1
-            elif easing_name == 'circular_out_in':
+            elif easing_name == "circular_out_in":
                 errors[0] = errors[-1] = -1
-            elif easing_name in {'circular_in', 'bounce_out', 'elastic_out'}:
+            elif easing_name in {"circular_in", "bounce_out", "elastic_out"}:
                 errors[-1] = -1
-            elif easing_name in {'circular_out', 'bounce_in', 'elastic_in'}:
+            elif easing_name in {"circular_out", "bounce_in", "elastic_in"}:
                 errors[0] = -1
 
             if max(errors) > max_err:
-                print(f'{easing=}')
+                print(f"{easing=}")
                 for t, out, approx, error in zip(times, out_vals, approx_vals, errors):
-                    prefix = '!' if error > max_err else ' '
-                    error = 'ignored' if error < 0 else error
-                    print(f' {prefix} {t=} {out=} {approx=} {error=}')
+                    prefix = "!" if error > max_err else " "
+                    error = "ignored" if error < 0 else error
+                    print(f" {prefix} {t=} {out=} {approx=} {error=}")
                 assert False
 
 
@@ -147,7 +147,7 @@ def anim_derivative_api(nb_points=7):
     # functions must have a reference in this file.
     _test_derivative_approximations()
 
-    scale = 1. / float(nb_points)
+    scale = 1.0 / float(nb_points)
     ret = []
     times = [i * scale for i in range(nb_points + 1)]
     for easing in _easing_list:
@@ -160,7 +160,7 @@ def anim_derivative_api(nb_points=7):
 
 @test_floats()
 def anim_resolution_api(nb_points=7):
-    scale = 1. / float(nb_points)
+    scale = 1.0 / float(nb_points)
     ret = []
     times = [i * scale for i in range(nb_points + 1)]
     for easing in _easing_list:
@@ -176,13 +176,12 @@ def anim_resolution_api(nb_points=7):
 
 
 def _get_anim_func(size, animated_type, kf_func, velocity_type=None):
-
     @test_floats()
     def test_func():
         offsets = ((None, None), (None, 0.7), (0.3, None), (0.3, 0.7))
         nb_kf = len(_easing_specs) + 1
         nb_queries = nb_kf - 1
-        scale = 1. / float(nb_kf)
+        scale = 1.0 / float(nb_kf)
         rng = random.Random(0)
         kfvalues = [[rng.uniform(0, 1) for r in range(size)] for i in range(nb_kf + 1)]
 
@@ -193,11 +192,16 @@ def _get_anim_func(size, animated_type, kf_func, velocity_type=None):
                 t = (j + 1) * scale
                 v = kfvalues[j + 1]
                 easing_name, easing_args = _easing_split(_easing_list[j])
-                anim_kf.append(kf_func(t, v,
-                                       easing=easing_name,
-                                       easing_args=easing_args,
-                                       easing_start_offset=easing_start_offset,
-                                       easing_end_offset=easing_end_offset))
+                anim_kf.append(
+                    kf_func(
+                        t,
+                        v,
+                        easing=easing_name,
+                        easing_args=easing_args,
+                        easing_start_offset=easing_start_offset,
+                        easing_end_offset=easing_end_offset,
+                    )
+                )
             anim = animated_type(anim_kf)
             if velocity_type is not None:
                 anim = velocity_type(anim)
@@ -210,9 +214,9 @@ def _get_anim_func(size, animated_type, kf_func, velocity_type=None):
             values += [anim.evaluate(1)]
             values += [anim.evaluate(5)]
 
-            if hasattr(values[0], '__iter__'):
+            if hasattr(values[0], "__iter__"):
                 values = list(itertools.chain(*values))
-            ret.append(['off%d' % i] + values)
+            ret.append(["off%d" % i] + values)
 
         return ret
 
@@ -220,18 +224,18 @@ def _get_anim_func(size, animated_type, kf_func, velocity_type=None):
 
 
 _float_kf_func = lambda t, v, **kw: ngl.AnimKeyFrameFloat(t, v[0], **kw)
-_vec2_kf_func  = lambda t, v, **kw: ngl.AnimKeyFrameVec2(t, v, **kw)
-_vec3_kf_func  = lambda t, v, **kw: ngl.AnimKeyFrameVec3(t, v, **kw)
-_vec4_kf_func  = lambda t, v, **kw: ngl.AnimKeyFrameVec4(t, v, **kw)
-_quat_kf_func  = lambda t, v, **kw: ngl.AnimKeyFrameQuat(t, v, **kw)
+_vec2_kf_func = lambda t, v, **kw: ngl.AnimKeyFrameVec2(t, v, **kw)
+_vec3_kf_func = lambda t, v, **kw: ngl.AnimKeyFrameVec3(t, v, **kw)
+_vec4_kf_func = lambda t, v, **kw: ngl.AnimKeyFrameVec4(t, v, **kw)
+_quat_kf_func = lambda t, v, **kw: ngl.AnimKeyFrameQuat(t, v, **kw)
 
 anim_forward_float = _get_anim_func(1, ngl.AnimatedFloat, _float_kf_func)
-anim_forward_vec2  = _get_anim_func(2, ngl.AnimatedVec2,  _vec2_kf_func)
-anim_forward_vec3  = _get_anim_func(3, ngl.AnimatedVec3,  _vec3_kf_func)
-anim_forward_vec4  = _get_anim_func(4, ngl.AnimatedVec4,  _vec4_kf_func)
-anim_forward_quat  = _get_anim_func(4, ngl.AnimatedQuat,  _quat_kf_func)
+anim_forward_vec2 = _get_anim_func(2, ngl.AnimatedVec2, _vec2_kf_func)
+anim_forward_vec3 = _get_anim_func(3, ngl.AnimatedVec3, _vec3_kf_func)
+anim_forward_vec4 = _get_anim_func(4, ngl.AnimatedVec4, _vec4_kf_func)
+anim_forward_quat = _get_anim_func(4, ngl.AnimatedQuat, _quat_kf_func)
 
 anim_velocity_float = _get_anim_func(1, ngl.AnimatedFloat, _float_kf_func, velocity_type=ngl.VelocityFloat)
-anim_velocity_vec2  = _get_anim_func(2, ngl.AnimatedVec2,  _vec2_kf_func,  velocity_type=ngl.VelocityVec2)
-anim_velocity_vec3  = _get_anim_func(3, ngl.AnimatedVec3,  _vec3_kf_func,  velocity_type=ngl.VelocityVec3)
-anim_velocity_vec4  = _get_anim_func(4, ngl.AnimatedVec4,  _vec4_kf_func,  velocity_type=ngl.VelocityVec4)
+anim_velocity_vec2 = _get_anim_func(2, ngl.AnimatedVec2, _vec2_kf_func, velocity_type=ngl.VelocityVec2)
+anim_velocity_vec3 = _get_anim_func(3, ngl.AnimatedVec3, _vec3_kf_func, velocity_type=ngl.VelocityVec3)
+anim_velocity_vec4 = _get_anim_func(4, ngl.AnimatedVec4, _vec4_kf_func, velocity_type=ngl.VelocityVec4)

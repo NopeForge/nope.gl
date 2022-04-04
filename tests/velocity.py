@@ -32,29 +32,31 @@ import pynodegl as ngl
 @test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)
 @scene()
 def velocity_triangle_rotate(cfg):
-    cfg.duration = 5.
+    cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
     anim_kf = [
         ngl.AnimKeyFrameFloat(0, 0),
-        ngl.AnimKeyFrameFloat(cfg.duration, 360*3, 'circular_in_out'),
+        ngl.AnimKeyFrameFloat(cfg.duration, 360 * 3, "circular_in_out"),
     ]
     anim = ngl.AnimatedFloat(anim_kf)
     velocity = ngl.VelocityFloat(anim)
 
-    frag = textwrap.dedent('''\
+    frag = textwrap.dedent(
+        """\
     void main()
     {
         float v = clamp(velocity / 3000., 0.0, 1.0);
         ngl_out_color = vec4(v, v / 2.0, 0.0, 1.0);
     }
-    ''')
+    """
+    )
 
     p0, p1, p2 = equilateral_triangle_coords(2.0)
     triangle = ngl.RenderColor(COLORS.white, geometry=ngl.Triangle(p0, p1, p2))
     triangle = ngl.Rotate(triangle, angle=anim)
 
-    prog_c = ngl.Program(vertex=cfg.get_vert('color'), fragment=frag)
+    prog_c = ngl.Program(vertex=cfg.get_vert("color"), fragment=frag)
     circle = ngl.Render(ngl.Circle(radius=1.0, npoints=128), prog_c)
     circle.update_frag_resources(velocity=velocity)
     return ngl.Group(children=(circle, triangle))
@@ -63,18 +65,18 @@ def velocity_triangle_rotate(cfg):
 @test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)
 @scene()
 def velocity_circle_distort_2d(cfg):
-    cfg.duration = 4.
+    cfg.duration = 4.0
     cfg.aspect_ratio = (1, 1)
 
     coords = list(equilateral_triangle_coords())
     coords.append(coords[0])
 
-    pos_kf = [ngl.AnimKeyFrameVec2(cfg.duration * i/3., pos[0:2], 'exp_in_out') for i, pos in enumerate(coords)]
+    pos_kf = [ngl.AnimKeyFrameVec2(cfg.duration * i / 3.0, pos[0:2], "exp_in_out") for i, pos in enumerate(coords)]
     anim = ngl.AnimatedVec2(pos_kf)
     velocity = ngl.VelocityVec2(anim)
 
     vert = textwrap.dedent(
-        '''\
+        """\
         void main()
         {
             float distort_max = 0.1;
@@ -86,11 +88,11 @@ def velocity_circle_distort_2d(cfg):
             vec4 pos = vec4(ngl_position, 1.0) + vec4(translate, 0.0, 0.0) + vec4(-distort * velocity, 0.0, 0.0);
             ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * pos;
         }
-        '''
+        """
     )
 
     geom = ngl.Circle(radius=0.2, npoints=128)
-    prog = ngl.Program(vertex=vert, fragment=cfg.get_frag('color'))
+    prog = ngl.Program(vertex=vert, fragment=cfg.get_frag("color"))
     shape = ngl.Render(geom, prog)
     shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white), opacity=ngl.UniformFloat(1))
     shape.update_vert_resources(velocity=velocity, translate=anim)
@@ -100,17 +102,17 @@ def velocity_circle_distort_2d(cfg):
 @test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)
 @scene()
 def velocity_circle_distort_3d(cfg):
-    cfg.duration = 4.
+    cfg.duration = 4.0
     cfg.aspect_ratio = (1, 1)
 
     coords = list(equilateral_triangle_coords())
     coords.append(coords[0])
-    pos_kf = [ngl.AnimKeyFrameVec3(cfg.duration * i/3., pos, 'exp_in_out') for i, pos in enumerate(coords)]
+    pos_kf = [ngl.AnimKeyFrameVec3(cfg.duration * i / 3.0, pos, "exp_in_out") for i, pos in enumerate(coords)]
     anim = ngl.AnimatedVec3(pos_kf)
     velocity = ngl.VelocityVec3(anim)
 
     vert = textwrap.dedent(
-        '''\
+        """\
         void main()
         {
             float distort_max = 0.1;
@@ -122,11 +124,11 @@ def velocity_circle_distort_3d(cfg):
             vec4 pos = vec4(ngl_position, 1.0) + vec4(-distort * velocity, 0.0);
             ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * pos;
         }
-        '''
+        """
     )
 
     geom = ngl.Circle(radius=0.2, npoints=128)
-    prog = ngl.Program(vertex=vert, fragment=cfg.get_frag('color'))
+    prog = ngl.Program(vertex=vert, fragment=cfg.get_frag("color"))
     shape = ngl.Render(geom, prog)
     shape.update_frag_resources(color=ngl.UniformVec3(COLORS.white), opacity=ngl.UniformFloat(1))
     shape.update_vert_resources(velocity=velocity)

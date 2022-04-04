@@ -25,7 +25,7 @@ from pynodegl_utils.toolbox.colors import COLORS
 
 import pynodegl as ngl
 
-_CUEPOINTS = dict(c=(0, 0), bl=(-.5, -.5), br=(.5, -.5), tr=(.5, .5), tl=(-.5, .5))
+_CUEPOINTS = dict(c=(0, 0), bl=(-0.5, -0.5), br=(0.5, -0.5), tr=(0.5, 0.5), tl=(-0.5, 0.5))
 
 
 def _base_scene(cfg, *filters):
@@ -95,21 +95,21 @@ def filter_composition_alpha(cfg):
         color1=(0, 1, 0.5),
         opacity0=0.8,
         opacity1=0.9,
-        mode='radial',
+        mode="radial",
         filters=(
             ngl.FilterAlpha(alpha=1.0),
             ngl.FilterInverseAlpha(),
             ngl.FilterAlpha(alpha=0.1),
             ngl.FilterInverseAlpha(),
             ngl.FilterPremult(),
-        )
+        ),
     )
 
 
 @test_cuepoints(points=_CUEPOINTS, width=320, height=240, nb_keyframes=1, tolerance=1)
 @scene(linear=scene.Bool())
 def filter_gamma_correct(cfg, linear=True):
-    '''This test operates a gamma correct blending (the blending happens in linear space)'''
+    """This test operates a gamma correct blending (the blending happens in linear space)"""
 
     # Hue colors rotated clockwise
     dst = ngl.RenderGradient4(
@@ -132,10 +132,10 @@ def filter_gamma_correct(cfg, linear=True):
     blend = ngl.GraphicConfig(
         ngl.Group(children=(dst, src)),
         blend=True,
-        blend_src_factor='one',
-        blend_dst_factor='one_minus_src_color',
-        blend_src_factor_a='one',
-        blend_dst_factor_a='zero',
+        blend_src_factor="one",
+        blend_dst_factor="one_minus_src_color",
+        blend_src_factor_a="one",
+        blend_dst_factor_a="zero",
     )
 
     # Intermediate RTT so that we can gamma correct the result

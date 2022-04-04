@@ -28,7 +28,7 @@ import pynodegl as ngl
 
 def _render_quad(cfg, corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0), color=(1, 1, 1), opacity=1):
     quad = ngl.Quad(corner, width, height)
-    return ngl.RenderColor(color, opacity=opacity, geometry=quad, blending='src_over')
+    return ngl.RenderColor(color, opacity=opacity, geometry=quad, blending="src_over")
 
 
 @test_fingerprint(width=16, height=16, nb_keyframes=2, tolerance=1)
@@ -44,7 +44,7 @@ def depth_stencil_depth(cfg):
         graphicconfig = ngl.GraphicConfig(
             render,
             depth_test=True,
-            depth_func='lequal',
+            depth_func="lequal",
         )
         group.add_children(graphicconfig)
 
@@ -55,7 +55,7 @@ def depth_stencil_depth(cfg):
         graphicconfig = ngl.GraphicConfig(
             render,
             depth_test=True,
-            depth_func='less',
+            depth_func="less",
             depth_write_mask=0,
         )
         group.add_children(graphicconfig)
@@ -73,15 +73,15 @@ def depth_stencil_stencil(cfg):
         render = _render_quad(cfg, corner=(-1 + (i * 2) / count, -1, 0), color=COLORS.black)
         graphicconfig = ngl.GraphicConfig(
             render,
-            color_write_mask='',
+            color_write_mask="",
             stencil_test=True,
-            stencil_write_mask=0xff,
-            stencil_func='always',
+            stencil_write_mask=0xFF,
+            stencil_func="always",
             stencil_ref=1,
-            stencil_read_mask=0xff,
-            stencil_fail='incr',
-            stencil_depth_fail='incr',
-            stencil_depth_pass='incr',
+            stencil_read_mask=0xFF,
+            stencil_fail="incr",
+            stencil_depth_fail="incr",
+            stencil_depth_pass="incr",
         )
         group.add_children(graphicconfig)
 
@@ -90,12 +90,12 @@ def depth_stencil_stencil(cfg):
         render,
         stencil_test=True,
         stencil_write_mask=0x0,
-        stencil_func='equal',
+        stencil_func="equal",
         stencil_ref=1,
         stencil_read_mask=0x1,
-        stencil_fail='keep',
-        stencil_depth_fail='keep',
-        stencil_depth_pass='keep',
+        stencil_fail="keep",
+        stencil_depth_fail="keep",
+        stencil_depth_pass="keep",
     )
     group.add_children(graphicconfig)
 

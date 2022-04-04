@@ -30,7 +30,7 @@ import pynodegl as ngl
 
 
 def _transform_shape(cfg, w=0.75, h=0.45):
-    geometry = ngl.Quad(corner=(-w/2., -h/2., 0), width=(w, 0, 0), height=(0, h, 0))
+    geometry = ngl.Quad(corner=(-w / 2.0, -h / 2.0, 0), width=(w, 0, 0), height=(0, h, 0))
     return ngl.RenderColor(COLORS.rose, geometry=geometry)
 
 
@@ -53,7 +53,7 @@ def transform_matrix(cfg):
 @test_fingerprint(nb_keyframes=8, tolerance=1)
 @scene()
 def transform_animated_camera(cfg):
-    cfg.duration = 5.
+    cfg.duration = 5.0
     g = ngl.Group()
 
     elems = (
@@ -80,18 +80,18 @@ def transform_animated_camera(cfg):
     camera.set_up(0.0, 1.0, 0.0)
     camera.set_clipping(0.1, 10.0)
 
-    tr_animkf = [ngl.AnimKeyFrameVec3(0,  (0.0, 0.0, 0.0)),
-                 ngl.AnimKeyFrameVec3(cfg.duration, (0.0, 0.0, 3.0))]
+    tr_animkf = [ngl.AnimKeyFrameVec3(0, (0.0, 0.0, 0.0)), ngl.AnimKeyFrameVec3(cfg.duration, (0.0, 0.0, 3.0))]
     eye_transform = ngl.Translate(ngl.Identity(), vector=ngl.AnimatedVec3(tr_animkf))
 
-    rot_animkf = [ngl.AnimKeyFrameFloat(0, 0),
-                  ngl.AnimKeyFrameFloat(cfg.duration, 360)]
+    rot_animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360)]
     eye_transform = ngl.Rotate(eye_transform, axis=(0, 1, 0), angle=ngl.AnimatedFloat(rot_animkf))
 
     camera.set_eye_transform(eye_transform)
 
-    perspective_animkf = [ngl.AnimKeyFrameVec2(0.5, (60.0, cfg.aspect_ratio_float)),
-                          ngl.AnimKeyFrameVec2(cfg.duration, (45.0, cfg.aspect_ratio_float))]
+    perspective_animkf = [
+        ngl.AnimKeyFrameVec2(0.5, (60.0, cfg.aspect_ratio_float)),
+        ngl.AnimKeyFrameVec2(cfg.duration, (45.0, cfg.aspect_ratio_float)),
+    ]
     camera.set_perspective(ngl.AnimatedVec2(perspective_animkf))
 
     return camera
@@ -100,16 +100,17 @@ def transform_animated_camera(cfg):
 @test_fingerprint(nb_keyframes=12, tolerance=1)
 @scene()
 def transform_eye_camera(cfg):
-    cfg.duration = 3.
+    cfg.duration = 3.0
     cfg.aspect_ratio = (1, 1)
 
-    node = ngl.RenderGradient4(geometry=ngl.Circle(radius=.7, npoints=128))
+    node = ngl.RenderGradient4(geometry=ngl.Circle(radius=0.7, npoints=128))
     animkf = [
-        ngl.AnimKeyFrameVec3(0, (0, -.5, 0)),
-        ngl.AnimKeyFrameVec3(cfg.duration/2, (0, 1, 0)),
-        ngl.AnimKeyFrameVec3(cfg.duration, (0, -.5, 0)),
+        ngl.AnimKeyFrameVec3(0, (0, -0.5, 0)),
+        ngl.AnimKeyFrameVec3(cfg.duration / 2, (0, 1, 0)),
+        ngl.AnimKeyFrameVec3(cfg.duration, (0, -0.5, 0)),
     ]
     return ngl.Camera(node, eye=ngl.AnimatedVec3(animkf))
+
 
 @test_fingerprint()
 @scene(vector=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
@@ -123,12 +124,12 @@ def transform_translate(cfg, vector=(0.2, 0.7, -0.4)):
 @scene()
 def transform_translate_animated(cfg):
     cfg.aspect_ratio = (1, 1)
-    cfg.duration = 3.
+    cfg.duration = 3.0
     p0, p1, p2 = equilateral_triangle_coords()
     anim = [
         ngl.AnimKeyFrameVec3(0, p0),
-        ngl.AnimKeyFrameVec3(1 * cfg.duration / 3., p1),
-        ngl.AnimKeyFrameVec3(2 * cfg.duration / 3., p2),
+        ngl.AnimKeyFrameVec3(1 * cfg.duration / 3.0, p1),
+        ngl.AnimKeyFrameVec3(2 * cfg.duration / 3.0, p2),
         ngl.AnimKeyFrameVec3(cfg.duration, p0),
     ]
     shape = _transform_shape(cfg)
@@ -144,8 +145,10 @@ def transform_scale(cfg, factors=(0.7, 1.4, 0)):
 
 
 @test_fingerprint()
-@scene(factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
-       anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
+@scene(
+    factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+)
 def transform_scale_anchor(cfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0.5, 0.7)):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape(cfg)
@@ -160,30 +163,34 @@ def transform_scale_animated(cfg, factors=(0.7, 1.4, 0)):
     shape = _transform_shape(cfg)
     anim = [
         ngl.AnimKeyFrameVec3(0, (0, 0, 0)),
-        ngl.AnimKeyFrameVec3(cfg.duration / 2., factors),
+        ngl.AnimKeyFrameVec3(cfg.duration / 2.0, factors),
         ngl.AnimKeyFrameVec3(cfg.duration, (0, 0, 0)),
     ]
     return ngl.Scale(shape, factors=ngl.AnimatedVec3(anim))
 
 
 @test_fingerprint()
-@scene(factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
-       anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
+@scene(
+    factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+    anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+)
 def transform_scale_anchor_animated(cfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0.5, 0.7)):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 2.0
     shape = _transform_shape(cfg)
     anim = [
         ngl.AnimKeyFrameVec3(0, (0, 0, 0)),
-        ngl.AnimKeyFrameVec3(cfg.duration / 2., factors),
+        ngl.AnimKeyFrameVec3(cfg.duration / 2.0, factors),
         ngl.AnimKeyFrameVec3(cfg.duration, (0, 0, 0)),
     ]
     return ngl.Scale(shape, factors=ngl.AnimatedVec3(anim), anchor=anchor)
 
 
 @test_fingerprint()
-@scene(angles=scene.Vector(n=3, minv=(-360, -360, -360), maxv=(360, 360, 360)),
-       axis=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
+@scene(
+    angles=scene.Vector(n=3, minv=(-360, -360, -360), maxv=(360, 360, 360)),
+    axis=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+)
 def transform_skew(cfg, angles=(0.0, -70, 14), axis=(1, 0, 0)):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape(cfg)
@@ -191,15 +198,17 @@ def transform_skew(cfg, angles=(0.0, -70, 14), axis=(1, 0, 0)):
 
 
 @test_fingerprint(nb_keyframes=8)
-@scene(angles=scene.Vector(n=3, minv=(-360, -360, -360), maxv=(360, 360, 360)),
-       axis=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
-def transform_skew_animated(cfg, angles=(0, -60, 14), axis=(1, 0, 0), anchor=(0, .05, -.5)):
+@scene(
+    angles=scene.Vector(n=3, minv=(-360, -360, -360), maxv=(360, 360, 360)),
+    axis=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+)
+def transform_skew_animated(cfg, angles=(0, -60, 14), axis=(1, 0, 0), anchor=(0, 0.05, -0.5)):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 2.0
     shape = _transform_shape(cfg)
     anim = [
         ngl.AnimKeyFrameVec3(0, (0, 0, 0)),
-        ngl.AnimKeyFrameVec3(cfg.duration / 2., angles),
+        ngl.AnimKeyFrameVec3(cfg.duration / 2.0, angles),
         ngl.AnimKeyFrameVec3(cfg.duration, (0, 0, 0)),
     ]
     return ngl.Skew(shape, angles=ngl.AnimatedVec3(anim), axis=axis, anchor=anchor)
@@ -214,8 +223,7 @@ def transform_rotate(cfg, angle=123.4):
 
 
 @test_fingerprint()
-@scene(angle=scene.Range(range=[0, 360], unit_base=10),
-       anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
+@scene(angle=scene.Range(range=[0, 360], unit_base=10), anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
 def transform_rotate_anchor(cfg, angle=123.4, anchor=(0.15, 0.35, 0.7)):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape(cfg)
@@ -231,8 +239,10 @@ def transform_rotate_quat(cfg, quat=(0, 0, -0.474, 0.880)):
 
 
 @test_fingerprint()
-@scene(quat=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
-       anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
+@scene(
+    quat=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
+    anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)),
+)
 def transform_rotate_quat_anchor(cfg, quat=(0, 0, -0.474, 0.880), anchor=(0.15, 0.35, 0.7)):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape(cfg)
@@ -240,14 +250,16 @@ def transform_rotate_quat_anchor(cfg, quat=(0, 0, -0.474, 0.880), anchor=(0.15, 
 
 
 @test_fingerprint(nb_keyframes=8)
-@scene(quat0=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
-       quat1=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)))
+@scene(
+    quat0=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
+    quat1=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)),
+)
 def transform_rotate_quat_animated(cfg, quat0=(0, 0, -0.474, 0.880), quat1=(0, 0, 0, 0)):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape(cfg)
     anim = [
         ngl.AnimKeyFrameQuat(0, quat0),
-        ngl.AnimKeyFrameQuat(cfg.duration / 2., quat1),
+        ngl.AnimKeyFrameQuat(cfg.duration / 2.0, quat1),
         ngl.AnimKeyFrameQuat(cfg.duration, quat0),
     ]
     return ngl.RotateQuat(shape, quat=ngl.AnimatedQuat(anim))
@@ -258,7 +270,7 @@ def transform_rotate_quat_animated(cfg, quat0=(0, 0, -0.474, 0.880), quat1=(0, 0
 def transform_path(cfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 7
-    shape = _transform_shape(cfg, w=.2, h=.5)
+    shape = _transform_shape(cfg, w=0.2, h=0.5)
 
     # fmt: off
     points = (
@@ -282,7 +294,7 @@ def transform_path(cfg):
     # We use back_in_out easing to force an overflow on both sides
     anim_kf = [
         ngl.AnimKeyFrameFloat(0, 0),
-        ngl.AnimKeyFrameFloat(cfg.duration - 1, 1, 'back_in_out'),
+        ngl.AnimKeyFrameFloat(cfg.duration - 1, 1, "back_in_out"),
     ]
 
     return ngl.Translate(shape, vector=ngl.AnimatedPath(anim_kf, path))
@@ -293,7 +305,7 @@ def transform_path(cfg):
 def transform_smoothpath(cfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 3
-    shape = _transform_shape(cfg, w=.3, h=.3)
+    shape = _transform_shape(cfg, w=0.3, h=0.3)
 
     # fmt: off
     points = (
@@ -310,7 +322,7 @@ def transform_smoothpath(cfg):
     # fmt: on
 
     flat_points = (elt for point in points for elt in point)
-    points_array = array.array('f', flat_points)
+    points_array = array.array("f", flat_points)
 
     path = ngl.SmoothPath(
         ngl.BufferVec3(data=points_array),
@@ -321,7 +333,7 @@ def transform_smoothpath(cfg):
 
     anim_kf = [
         ngl.AnimKeyFrameFloat(0, 0),
-        ngl.AnimKeyFrameFloat(cfg.duration, 1, 'exp_in_out'),
+        ngl.AnimKeyFrameFloat(cfg.duration, 1, "exp_in_out"),
     ]
 
     return ngl.Translate(shape, vector=ngl.AnimatedPath(anim_kf, path))

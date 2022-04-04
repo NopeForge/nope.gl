@@ -33,24 +33,24 @@ import pynodegl as ngl
 def _get_time_scene(cfg):
     m0 = cfg.medias[0]
 
-    media_seek        = 10
-    noop_duration     = 2
+    media_seek = 10
+    noop_duration = 2
     prefetch_duration = 2
-    freeze_duration   = 3
+    freeze_duration = 3
     playback_duration = 5
 
     range_start = noop_duration + prefetch_duration
-    play_start  = range_start   + freeze_duration
-    play_stop   = play_start    + playback_duration
-    range_stop  = play_stop     + freeze_duration
-    duration    = range_stop    + noop_duration
+    play_start = range_start + freeze_duration
+    play_stop = play_start + playback_duration
+    range_stop = play_stop + freeze_duration
+    duration = range_stop + noop_duration
 
     cfg.duration = duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
     media_animkf = [
         ngl.AnimKeyFrameFloat(play_start, media_seek),
-        ngl.AnimKeyFrameFloat(play_stop,  media_seek + playback_duration),
+        ngl.AnimKeyFrameFloat(play_stop, media_seek + playback_duration),
     ]
 
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
@@ -70,14 +70,14 @@ def _get_time_scene(cfg):
 @test_fingerprint(width=320, height=240, nb_keyframes=3, tolerance=1)
 @scene()
 def media_flat_remap(cfg):
-    cfg.medias = [Media('ngl-media-test.nut')]
+    cfg.medias = [Media("ngl-media-test.nut")]
 
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
     media_animkf = [
-        ngl.AnimKeyFrameFloat(cfg.duration/2, 1.833),
+        ngl.AnimKeyFrameFloat(cfg.duration / 2, 1.833),
     ]
 
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
@@ -85,26 +85,26 @@ def media_flat_remap(cfg):
     return ngl.RenderTexture(t)
 
 
-@test_cuepoints(points={'X': (0, -0.625)}, nb_keyframes=15, clear_color=list(COLORS.violet) + [1], tolerance=1)
+@test_cuepoints(points={"X": (0, -0.625)}, nb_keyframes=15, clear_color=list(COLORS.violet) + [1], tolerance=1)
 @scene()
 def media_phases_display(cfg):
-    cfg.medias = [Media('ngl-media-test.nut')]
+    cfg.medias = [Media("ngl-media-test.nut")]
     return _get_time_scene(cfg)
 
 
 @test_resources(nb_keyframes=15)
 @scene()
 def media_phases_resources(cfg):
-    cfg.medias = [Media('ngl-media-test.nut')]
+    cfg.medias = [Media("ngl-media-test.nut")]
     return _get_time_scene(cfg)
 
 
 # Note: the following test only makes sure the clamping code shader compiles,
 # not check for an actual overflow
-@test_cuepoints(points={'X': (0, -0.625)}, nb_keyframes=1, tolerance=1)
+@test_cuepoints(points={"X": (0, -0.625)}, nb_keyframes=1, tolerance=1)
 @scene()
 def media_clamp(cfg):
-    cfg.medias = [Media('ngl-media-test.nut')]
+    cfg.medias = [Media("ngl-media-test.nut")]
 
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
@@ -115,32 +115,32 @@ def media_clamp(cfg):
     return ngl.RenderTexture(texture)
 
 
-@test_cuepoints(points={f'P{i}': (i/5*2-1, 0) for i in range(5)}, nb_keyframes=5, tolerance=1)
+@test_cuepoints(points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, nb_keyframes=5, tolerance=1)
 @scene()
 def media_exposed_time(cfg):
-    cfg.medias = [Media('ngl-media-test.nut')]
+    cfg.medias = [Media("ngl-media-test.nut")]
 
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
 
     vert = textwrap.dedent(
-        '''\
+        """\
         void main()
         {
             ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
             uv = ngl_uvcoord;
         }
-        '''
+        """
     )
 
     frag = textwrap.dedent(
-        '''\
+        """\
         void main()
         {
             ngl_out_color = vec4(vec3(step(0.0, tex0_ts/duration - uv.x)), 1.0);
         }
-        '''
+        """
     )
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
@@ -156,7 +156,7 @@ def media_exposed_time(cfg):
 @test_fingerprint(width=320, height=240, nb_keyframes=20, tolerance=1)
 @scene()
 def media_timeranges_rtt(cfg):
-    cfg.medias = [Media('ngl-media-test.nut')]
+    cfg.medias = [Media("ngl-media-test.nut")]
 
     m0 = cfg.medias[0]
     cfg.duration = d = 10
@@ -168,8 +168,8 @@ def media_timeranges_rtt(cfg):
 
     # Diamond tree on the same media texture
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render0 = ngl.RenderTexture(texture, label='leaf 0')
-    render1 = ngl.RenderTexture(texture, label='leaf 1')
+    render0 = ngl.RenderTexture(texture, label="leaf 0")
+    render1 = ngl.RenderTexture(texture, label="leaf 1")
 
     # Create intermediate RTT "proxy" to exercise prefetch/release at this
     # level as well
@@ -179,12 +179,12 @@ def media_timeranges_rtt(cfg):
     rtt1 = ngl.RenderToTexture(render1, [dst_tex1])
 
     # Render the 2 RTTs vertically split (one half content each)
-    quad0 = ngl.Quad((-1, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(0, 0), uv_width=(.5, 0))
-    quad1 = ngl.Quad((0, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(.5, 0), uv_width=(.5, 0))
-    rtt_render0 = ngl.RenderTexture(dst_tex0, geometry=quad0, label='render RTT 0')
-    rtt_render1 = ngl.RenderTexture(dst_tex1, geometry=quad1, label='render RTT 1')
-    proxy0 = ngl.Group(children=(rtt0, rtt_render0), label='proxy 0')
-    proxy1 = ngl.Group(children=(rtt1, rtt_render1), label='proxy 1')
+    quad0 = ngl.Quad((-1, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(0, 0), uv_width=(0.5, 0))
+    quad1 = ngl.Quad((0, -1, 0), (1, 0, 0), (0, 2, 0), uv_corner=(0.5, 0), uv_width=(0.5, 0))
+    rtt_render0 = ngl.RenderTexture(dst_tex0, geometry=quad0, label="render RTT 0")
+    rtt_render1 = ngl.RenderTexture(dst_tex1, geometry=quad1, label="render RTT 1")
+    proxy0 = ngl.Group(children=(rtt0, rtt_render0), label="proxy 0")
+    proxy1 = ngl.Group(children=(rtt1, rtt_render1), label="proxy 1")
 
     # We want to make sure the idle times are enough to exercise the
     # prefetch/release mechanism
@@ -196,15 +196,15 @@ def media_timeranges_rtt(cfg):
     # RTTs
     ranges0 = (
         ngl.TimeRangeModeNoop(0),
-        ngl.TimeRangeModeCont(1/5 * d),
-        ngl.TimeRangeModeNoop(3/5 * d),
+        ngl.TimeRangeModeCont(1 / 5 * d),
+        ngl.TimeRangeModeNoop(3 / 5 * d),
     )
     ranges1 = (
         ngl.TimeRangeModeNoop(0),
-        ngl.TimeRangeModeCont(2/5 * d),
-        ngl.TimeRangeModeNoop(4/5 * d),
+        ngl.TimeRangeModeCont(2 / 5 * d),
+        ngl.TimeRangeModeNoop(4 / 5 * d),
     )
-    trange0 = ngl.TimeRangeFilter(proxy0, ranges=ranges0, prefetch_time=prefetch_time, label='left')
-    trange1 = ngl.TimeRangeFilter(proxy1, ranges=ranges1, prefetch_time=prefetch_time, label='right')
+    trange0 = ngl.TimeRangeFilter(proxy0, ranges=ranges0, prefetch_time=prefetch_time, label="left")
+    trange1 = ngl.TimeRangeFilter(proxy1, ranges=ranges1, prefetch_time=prefetch_time, label="right")
 
     return ngl.Group(children=(trange0, trange1))

@@ -28,7 +28,7 @@ from pynodegl_utils.toolbox.grid import autogrid_simple
 
 import pynodegl as ngl
 
-_backend_str = os.environ.get('BACKEND')
+_backend_str = os.environ.get("BACKEND")
 _backend = get_backend(_backend_str) if _backend_str else ngl.BACKEND_AUTO
 
 
@@ -58,6 +58,7 @@ def api_reconfigure():
 
 def api_reconfigure_clearcolor(width=16, height=16):
     import zlib
+
     capture_buffer = bytearray(width * height * 4)
     ctx = ngl.Context()
     ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend, capture_buffer=capture_buffer)
@@ -65,12 +66,18 @@ def api_reconfigure_clearcolor(width=16, height=16):
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
     assert ctx.draw(0) == 0
-    assert zlib.crc32(capture_buffer) == 0xb4bd32fa
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend, capture_buffer=capture_buffer,
-                        clear_color=(0.4, 0.4, 0.4, 1.0))
+    assert zlib.crc32(capture_buffer) == 0xB4BD32FA
+    ret = ctx.configure(
+        offscreen=1,
+        width=width,
+        height=height,
+        backend=_backend,
+        capture_buffer=capture_buffer,
+        clear_color=(0.4, 0.4, 0.4, 1.0),
+    )
     assert ret == 0
     assert ctx.draw(0) == 0
-    assert zlib.crc32(capture_buffer) == 0x05c44869
+    assert zlib.crc32(capture_buffer) == 0x05C44869
     del capture_buffer
     del ctx
 
@@ -90,6 +97,7 @@ def api_reconfigure_fail():
 
 def api_capture_buffer(width=16, height=16):
     import zlib
+
     ctx = ngl.Context()
     ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
     assert ret == 0
@@ -101,7 +109,7 @@ def api_capture_buffer(width=16, height=16):
         assert ctx.draw(0) == 0
         assert ctx.set_capture_buffer(None) == 0
         assert ctx.draw(0) == 0
-        assert zlib.crc32(capture_buffer) == 0xb4bd32fa
+        assert zlib.crc32(capture_buffer) == 0xB4BD32FA
     del ctx
 
 
@@ -164,12 +172,13 @@ def api_hud(width=234, height=123):
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
     for i in range(60 * 3):
-        assert ctx.draw(i / 60.) == 0
+        assert ctx.draw(i / 60.0) == 0
     del ctx
 
 
 def api_text_live_change(width=320, height=240):
     import zlib
+
     ctx = ngl.Context()
     capture_buffer = bytearray(width * height * 4)
     ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend, capture_buffer=capture_buffer)
@@ -198,16 +207,16 @@ def _ret_to_fourcc(ret):
     if ret >= 0:
         return None
     x = -ret
-    return chr(x>>24) + chr(x>>16 & 0xff) + chr(x>>8 & 0xff) + chr(x&0xff)
+    return chr(x >> 24) + chr(x >> 16 & 0xFF) + chr(x >> 8 & 0xFF) + chr(x & 0xFF)
 
 
 def api_media_sharing_failure():
     ctx = ngl.Context()
     ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
     assert ret == 0
-    m = ngl.Media('/dev/null')
+    m = ngl.Media("/dev/null")
     scene = ngl.Group(children=(ngl.Texture2D(data_src=m), ngl.Texture2D(data_src=m)))
-    assert _ret_to_fourcc(ctx.set_scene(scene)) == 'Eusg'  # Usage error
+    assert _ret_to_fourcc(ctx.set_scene(scene)) == "Eusg"  # Usage error
 
 
 def api_denied_node_live_change(width=320, height=240):
@@ -234,20 +243,24 @@ def api_denied_node_live_change(width=320, height=240):
 def api_livectls():
     # Build a scene and extract its live controls
     rng = random.Random(0)
-    scene = ngl.Group(children=(
-        ngl.UniformBool(live_id='b'),
-        ngl.UniformFloat(live_id='f'),
-        ngl.UniformIVec3(live_id='iv3'),
-        ngl.UserSwitch(
-            ngl.Group(children=(
-                ngl.UniformMat4(live_id='m4'),
-                ngl.UniformColorA(live_id='clr'),
-                ngl.UniformQuat(as_mat4=True, live_id='rot'),
-            )),
-            live_id='switch',
-        ),
-        ngl.Text(live_id='txt'),
-    ))
+    scene = ngl.Group(
+        children=(
+            ngl.UniformBool(live_id="b"),
+            ngl.UniformFloat(live_id="f"),
+            ngl.UniformIVec3(live_id="iv3"),
+            ngl.UserSwitch(
+                ngl.Group(
+                    children=(
+                        ngl.UniformMat4(live_id="m4"),
+                        ngl.UniformColorA(live_id="clr"),
+                        ngl.UniformQuat(as_mat4=True, live_id="rot"),
+                    )
+                ),
+                live_id="switch",
+            ),
+            ngl.Text(live_id="txt"),
+        )
+    )
     livectls = ngl.get_livectls(scene)
     assert len(livectls) == 8
 
@@ -265,19 +278,19 @@ def api_livectls():
         iv3=[rng.randint(-100, 100) for i in range(3)],
         switch=False,
         m4=[rng.uniform(-1, 1) for i in range(16)],
-        clr=(.9, .3, .8, .9),
-        rot=(.1, -.2, .5, -.3),
-        txt='test string',
+        clr=(0.9, 0.3, 0.8, 0.9),
+        rot=(0.1, -0.2, 0.5, -0.3),
+        txt="test string",
     )
     for live_id, value in values.items():
-        node = livectls[live_id]['node']
-        node_type = livectls[live_id]['node_type']
+        node = livectls[live_id]["node"]
+        node_type = livectls[live_id]["node_type"]
         assert node_type == node.__class__.__name__
-        if node_type == 'UserSwitch':
+        if node_type == "UserSwitch":
             node.set_enabled(value)
-        elif node_type == 'Text':
+        elif node_type == "Text":
             node.set_text(value)
-        elif hasattr(value, '__iter__'):
+        elif hasattr(value, "__iter__"):
             node.set_value(*value)
         else:
             node.set_value(value)
@@ -288,11 +301,11 @@ def api_livectls():
 
     # Inspect nodes to check if they were properly altered by the live changes
     for live_id, expected_value in values.items():
-        value = livectls[live_id]['val']
-        node_type = livectls[live_id]['node_type']
-        if node_type == 'Text':
+        value = livectls[live_id]["val"]
+        node_type = livectls[live_id]["node_type"]
+        if node_type == "Text":
             assert value == expected_value, (value, expected_value)
-        elif hasattr(value, '__iter__'):
+        elif hasattr(value, "__iter__"):
             assert all(math.isclose(v, e, rel_tol=1e-6) for v, e in zip(value, expected_value))
         else:
             assert math.isclose(value, expected_value, rel_tol=1e-6)
@@ -318,7 +331,7 @@ def api_shader_init_fail(width=320, height=240):
     ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
     assert ret == 0
 
-    render = ngl.Render(ngl.Quad(), ngl.Program(vertex='<bug>', fragment='<bug>'))
+    render = ngl.Render(ngl.Quad(), ngl.Program(vertex="<bug>", fragment="<bug>"))
 
     assert ctx.set_scene(render) != 0
     assert ctx.set_scene(render) != 0  # another try to make sure the state stays consistent

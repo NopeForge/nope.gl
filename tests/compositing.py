@@ -27,31 +27,31 @@ from pynodegl_utils.toolbox.grid import autogrid_simple
 import pynodegl as ngl
 
 _OPERATORS = (
-    'src_over',
-    'dst_over',
-    'src_out',
-    'dst_out',
-    'src_in',
-    'dst_in',
-    'src_atop',
-    'dst_atop',
-    'xor',
+    "src_over",
+    "dst_over",
+    "src_out",
+    "dst_out",
+    "src_in",
+    "dst_in",
+    "src_atop",
+    "dst_atop",
+    "xor",
 )
 
-_VERTEX = '''
+_VERTEX = """
 void main()
 {
     ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
     uv = (ngl_uvcoord - .5) * 2.;
 }
-'''
+"""
 
-_FRAGMENT = '''
+_FRAGMENT = """
 void main() {
     float sd = length(uv + off) - 0.5; // signed distance to a circle of radius 0.5
     ngl_out_color = vec4(color, 1.0) * step(sd, 0.0);
 }
-'''
+"""
 
 
 def _get_compositing_scene(cfg, op, show_label=False):
@@ -67,39 +67,39 @@ def _get_compositing_scene(cfg, op, show_label=False):
     prog.update_vert_out_vars(uv=ngl.IOVec2())
 
     A_off_kf = (
-        ngl.AnimKeyFrameVec2(0, (-1/3, 0)),
-        ngl.AnimKeyFrameVec2(cfg.duration/2, (1/3, 0)),
-        ngl.AnimKeyFrameVec2(cfg.duration, (-1/3, 0)),
+        ngl.AnimKeyFrameVec2(0, (-1 / 3, 0)),
+        ngl.AnimKeyFrameVec2(cfg.duration / 2, (1 / 3, 0)),
+        ngl.AnimKeyFrameVec2(cfg.duration, (-1 / 3, 0)),
     )
     B_off_kf = (
-        ngl.AnimKeyFrameVec2(0, (1/3, 0)),
-        ngl.AnimKeyFrameVec2(cfg.duration/2, (-1/3, 0)),
-        ngl.AnimKeyFrameVec2(cfg.duration, (1/3, 0)),
+        ngl.AnimKeyFrameVec2(0, (1 / 3, 0)),
+        ngl.AnimKeyFrameVec2(cfg.duration / 2, (-1 / 3, 0)),
+        ngl.AnimKeyFrameVec2(cfg.duration, (1 / 3, 0)),
     )
     A_off = ngl.AnimatedVec2(A_off_kf)
     B_off = ngl.AnimatedVec2(B_off_kf)
 
-    A = ngl.Render(quad, prog, label='A')
+    A = ngl.Render(quad, prog, label="A")
     A.update_frag_resources(color=ngl.UniformVec3(value=COLORS.azure), off=A_off)
 
-    B = ngl.Render(quad, prog, label='B', blending=op)
+    B = ngl.Render(quad, prog, label="B", blending=op)
     B.update_frag_resources(color=ngl.UniformVec3(value=COLORS.orange), off=B_off)
 
-    bg = ngl.RenderColor(blending='dst_over')
+    bg = ngl.RenderColor(blending="dst_over")
 
     # draw A in current FBO, then draw B with the current operator, and
     # then result goes over the white background
     ret = ngl.Group(children=(A, B, bg))
 
     if show_label:
-        label_h = 1/4
-        label_pad = .1
+        label_h = 1 / 4
+        label_pad = 0.1
         label = ngl.Text(
             op,
             fg_color=COLORS.black,
-            bg_color=(.8, .8, .8),
+            bg_color=(0.8, 0.8, 0.8),
             bg_opacity=1,
-            box_corner=(label_pad/2 - 1, 1 - label_h - label_pad/2, 0),
+            box_corner=(label_pad / 2 - 1, 1 - label_h - label_pad / 2, 0),
             box_width=(2 - label_pad, 0, 0),
             box_height=(0, label_h, 0),
         )
@@ -113,6 +113,7 @@ def _get_compositing_func(op):
     @scene()
     def scene_func(cfg):
         return _get_compositing_scene(cfg, op)
+
     return scene_func
 
 
@@ -126,4 +127,4 @@ def compositing_all_operators(cfg):
 
 
 for operator in _OPERATORS:
-    globals()[f'compositing_{operator}'] = _get_compositing_func(operator)
+    globals()[f"compositing_{operator}"] = _get_compositing_func(operator)

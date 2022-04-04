@@ -31,9 +31,9 @@ def _get_userlive_switch_func():
     scene1 = ngl.RenderColor(COLORS.red, geometry=ngl.Quad())
     scene2 = ngl.RenderColor(COLORS.azure, geometry=ngl.Triangle())
 
-    switch0 = ngl.UserSwitch(ngl.Scale(scene0, factors=(1/3, 1/3, 1/3), anchor=(-1, 0, 0)))
-    switch1 = ngl.UserSwitch(ngl.Scale(scene1, factors=(1/2, 1/2, 1/2)))
-    switch2 = ngl.UserSwitch(ngl.Scale(scene2, factors=(1/3, 1/3, 1/3), anchor=(1, 0, 0)))
+    switch0 = ngl.UserSwitch(ngl.Scale(scene0, factors=(1 / 3, 1 / 3, 1 / 3), anchor=(-1, 0, 0)))
+    switch1 = ngl.UserSwitch(ngl.Scale(scene1, factors=(1 / 2, 1 / 2, 1 / 2)))
+    switch2 = ngl.UserSwitch(ngl.Scale(scene2, factors=(1 / 3, 1 / 3, 1 / 3), anchor=(1, 0, 0)))
 
     def keyframes_callback(t_id):
         # Build a "random" composition of switches
@@ -41,10 +41,7 @@ def _get_userlive_switch_func():
         switch1.set_enabled(t_id % 3 == 0)
         switch2.set_enabled(t_id % 4 == 0)
 
-    @test_fingerprint(nb_keyframes=10,
-                      keyframes_callback=keyframes_callback,
-                      tolerance=1,
-                      exercise_serialization=False)
+    @test_fingerprint(nb_keyframes=10, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
     @scene(s0=scene.Bool(), s1=scene.Bool(), s2=scene.Bool())
     def scene_func(cfg, s0_enabled=True, s1_enabled=True, s2_enabled=True):
         cfg.aspect_ratio = (1, 1)
@@ -59,27 +56,27 @@ def _get_userlive_switch_func():
 def _get_userlive_select_func():
     # We point on the same underlying render to test the different render paths
     render = ngl.RenderColor(COLORS.white, opacity=0.5, geometry=ngl.Quad())
-    below = ngl.Translate(render, vector=(.5 - 2/3, .5 - 1/3, 0))
-    above = ngl.Translate(render, vector=(.5 - 1/3, .5 - 2/3, 0))
+    below = ngl.Translate(render, vector=(0.5 - 2 / 3, 0.5 - 1 / 3, 0))
+    above = ngl.Translate(render, vector=(0.5 - 1 / 3, 0.5 - 2 / 3, 0))
 
     # Additive blending (for premultiplied values): lighten
     gc0 = ngl.GraphicConfig(
         above,
         blend=True,
-        blend_src_factor='one',
-        blend_dst_factor='one',
-        blend_src_factor_a='one',
-        blend_dst_factor_a='one',
+        blend_src_factor="one",
+        blend_dst_factor="one",
+        blend_src_factor_a="one",
+        blend_dst_factor_a="one",
     )
 
     # Multiply blending (for premultiplied values): darken
     gc1 = ngl.GraphicConfig(
         above,
         blend=True,
-        blend_src_factor='zero',
-        blend_dst_factor='src_color',
-        blend_src_factor_a='zero',
-        blend_dst_factor_a='src_alpha',
+        blend_src_factor="zero",
+        blend_dst_factor="src_color",
+        blend_src_factor_a="zero",
+        blend_dst_factor_a="src_alpha",
     )
 
     # Select has 3 branches: simple over blending, additive blending, multiply
@@ -91,10 +88,7 @@ def _get_userlive_select_func():
         # (branch ID overflow). We remain on the each state for 2 frames.
         select.set_branch((t_id // 2) % 4)
 
-    @test_fingerprint(nb_keyframes=8,
-                      keyframes_callback=keyframes_callback,
-                      tolerance=1,
-                      exercise_serialization=False)
+    @test_fingerprint(nb_keyframes=8, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
     @scene(branch=scene.Range([0, 3]))
     def scene_func(cfg, branch=0):
         cfg.aspect_ratio = (1, 1)
