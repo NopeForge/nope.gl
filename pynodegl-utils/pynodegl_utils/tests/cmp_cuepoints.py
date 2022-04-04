@@ -96,8 +96,11 @@ class _CompareCuePoints(CompareSceneBase):
                 if any(d > self._tolerance for d in diff):
                     diff_str = ','.join('%d' % d for d in diff)
                     tolr_str = ','.join('%d' % t for t in [self._tolerance] * 4)
-                    err.append('{} frame #{} point {}: Diff too high ({} > {}) between ref:#{:08X} and out:#{:08X}'.format(
-                               test_name, frame, key, diff_str, tolr_str, refc, outc))
+                    err.append(
+                        f'{test_name} frame #{frame} point {key}: '
+                        f'Diff too high ({diff_str} > {tolr_str}) '
+                        f'between ref:#{refc:08X} and out:#{outc:08X}'
+                    )
         return err
 
 

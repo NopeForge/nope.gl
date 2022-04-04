@@ -105,8 +105,12 @@ class _CompareFingerprints(CompareSceneBase):
                 bstring = f'{hash_diff:b}'
                 diff = bstring.count('1') * 100 // _HNBITS
                 if diff > self._tolerance:
-                    err.append('{} frame #{} Component {}: Diff too high ({}% > {}%)\n{:s}'.format(
-                        test_name, frame, _MODE[comp], diff, self._tolerance, self._hash_repr(hash_diff)))
+                    hash_repr = self._hash_repr(hash_diff)
+                    err.append(
+                        f'{test_name} frame #{frame} Component {_MODE[comp]}: '
+                        f'Diff too high ({diff}% > {self._tolerance}%)\n'
+                        f'{hash_repr:s}'
+                    )
 
         return err
 

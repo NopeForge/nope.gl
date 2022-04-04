@@ -52,8 +52,10 @@ class _CompareFloats(CompareBase):
         for float_set_id, (ref_floats, out_floats) in enumerate(zip(ref_data, out_data)):
             name = ref_floats[0]
             if name != out_floats[0]:
-                err.append('{} float sets {} have different names: "{}" vs "{}"'.format(
-                    test_name, float_set_id, ref_floats[0], out_floats[0]))
+                err.append(
+                    f'{test_name} float sets {float_set_id} have different names: '
+                    f'"{ref_floats[0]}" vs "{out_floats[0]}"'
+                )
                 break
             if len(ref_floats) != len(out_floats):
                 err.append(f'{test_name}: number of floats is different '
@@ -62,8 +64,10 @@ class _CompareFloats(CompareBase):
             for i, (f0, f1) in enumerate(zip(ref_floats[1:], out_floats[1:])):
                 diff = abs(f0 - f1)
                 if diff > self._tolerance:
-                    err.append('{} diff too large for float {}[{}]: |{}-{}|={} (>{})'.format(
-                        test_name, name, i, f0, f1, diff, self._tolerance))
+                    err.append(
+                        f'{test_name} diff too large for float {name}[{i}]: '
+                        f'|{f0}-{f1}|={diff} (>{self._tolerance})'
+                    )
         return err
 
 

@@ -29,7 +29,7 @@ from pynodegl_utils.module import load_script
 def _run_test(func_name, tester, ref_data, out_data):
     err = []
     if len(ref_data) != len(out_data):
-        err = ['{}: data len mismatch (ref:{} out:{})'.format(func_name, len(ref_data), len(out_data))]
+        err = [f'{func_name}: data len mismatch (ref:{len(ref_data)} out:{len(out_data)})']
     err += tester.compare_data(func_name, ref_data, out_data)
     return err
 
@@ -101,14 +101,16 @@ def run():
 
     allowed_gen_opt = _refgen_map.keys()
     if refgen_opt not in allowed_gen_opt:
-        sys.stderr.write('REFGEN environment variable must be any of {}\n'.format(', '.join(allowed_gen_opt)))
+        allowed_str = ', '.join(allowed_gen_opt)
+        sys.stderr.write(f'REFGEN environment variable must be any of {allowed_str}\n')
         sys.exit(1)
 
     tests_opts = os.environ.get('TESTS_OPTIONS')
 
     allowed_tests_opts = ('dump',)
     if tests_opts is not None and tests_opts not in allowed_tests_opts:
-        sys.stderr.write('TESTS_OPTIONS environment variable must be any of {}\n'.format(', '.join(allowed_tests_opts)))
+        allowed_str = ', '.join(allowed_tests_opts)
+        sys.stderr.write(f'TESTS_OPTIONS environment variable must be any of {allowed_str}\n')
         sys.exit(1)
     dump = tests_opts == 'dump'
 
