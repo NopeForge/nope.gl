@@ -23,11 +23,10 @@ from PIL import Image
 
 from .cmp import CompareBase, CompareSceneBase, get_test_decorator
 
-_MODE = 'RGBA'
+_MODE = "RGBA"
 
 
 class _CompareCuePoints(CompareSceneBase):
-
     def __init__(self, scene_func, points, width=128, height=128, tolerance=0, **kwargs):
         super().__init__(scene_func, width=width, height=height, **kwargs)
         self._points = points
@@ -35,10 +34,10 @@ class _CompareCuePoints(CompareSceneBase):
 
     @staticmethod
     def serialize(data):
-        ret = ''
+        ret = ""
         for color_points in data:
-            color_strings = [f'{point_name}:{color:08X}' for point_name, color in sorted(color_points.items())]
-            ret += ' '.join(color_strings) + '\n'
+            color_strings = [f"{point_name}:{color:08X}" for point_name, color in sorted(color_points.items())]
+            ret += " ".join(color_strings) + "\n"
         return ret
 
     @staticmethod
@@ -47,15 +46,15 @@ class _CompareCuePoints(CompareSceneBase):
         for line in data.splitlines():
             color_points = {}
             for color_kv in line.split():
-                key, value = color_kv.split(':')
+                key, value = color_kv.split(":")
                 color_points[key] = int(value, 16)
             ret.append(color_points)
         return ret
 
     @staticmethod
     def _pos_to_px(pos, width, height):
-        x = int(round((pos[0] + 1.) / 2. * width))
-        y = height - 1 - int(round((pos[1] + 1.) / 2. * height))
+        x = int(round((pos[0] + 1.0) / 2.0 * width))
+        y = height - 1 - int(round((pos[1] + 1.0) / 2.0 * height))
         x = min(max(x, 0), width - 1)
         y = min(max(y, 0), height - 1)
         return [x, y]
@@ -65,22 +64,22 @@ class _CompareCuePoints(CompareSceneBase):
         dump_index = 0
         for (width, height, capture_buffer) in self.render_frames():
             if dump:
-                img = Image.frombuffer(_MODE, (width, height), capture_buffer, 'raw', _MODE, 0, 1)
+                img = Image.frombuffer(_MODE, (width, height), capture_buffer, "raw", _MODE, 0, 1)
                 CompareBase.dump_image(img, dump_index, func_name)
                 dump_index += 1
             frame_cpoints = {}
             for point_name, (x, y) in self._points.items():
                 pix_x, pix_y = self._pos_to_px((x, y), width, height)
                 pos = (pix_y * width + pix_x) * 4
-                c = capture_buffer[pos:pos + 4]
-                frame_cpoints[point_name] = c[0]<<24 | c[1]<<16 | c[2]<<8 | c[3]
+                c = capture_buffer[pos : pos + 4]
+                frame_cpoints[point_name] = c[0] << 24 | c[1] << 16 | c[2] << 8 | c[3]
             cpoints.append(frame_cpoints)
         return cpoints
 
     @staticmethod
     def _color_diff(c0, c1):
-        r0, g0, b0, a0 = c0 >> 24, c0 >> 16 & 0xff, c0 >> 8 & 0xff, c0 & 0xff
-        r1, g1, b1, a1 = c1 >> 24, c1 >> 16 & 0xff, c1 >> 8 & 0xff, c1 & 0xff
+        r0, g0, b0, a0 = c0 >> 24, c0 >> 16 & 0xFF, c0 >> 8 & 0xFF, c0 & 0xFF
+        r1, g1, b1, a1 = c1 >> 24, c1 >> 16 & 0xFF, c1 >> 8 & 0xFF, c1 & 0xFF
         return abs(r0 - r1), abs(g0 - g1), abs(b0 - b1), abs(a0 - a1)
 
     def compare_data(self, test_name, ref_data, out_data):
@@ -94,12 +93,12 @@ class _CompareCuePoints(CompareSceneBase):
                 outc = out_cpoints[key]
                 diff = self._color_diff(refc, outc)
                 if any(d > self._tolerance for d in diff):
-                    diff_str = ','.join('%d' % d for d in diff)
-                    tolr_str = ','.join('%d' % t for t in [self._tolerance] * 4)
+                    diff_str = ",".join("%d" % d for d in diff)
+                    tolr_str = ",".join("%d" % t for t in [self._tolerance] * 4)
                     err.append(
-                        f'{test_name} frame #{frame} point {key}: '
-                        f'Diff too high ({diff_str} > {tolr_str}) '
-                        f'between ref:#{refc:08X} and out:#{outc:08X}'
+                        f"{test_name} frame #{frame} point {key}: "
+                        f"Diff too high ({diff_str} > {tolr_str}) "
+                        f"between ref:#{refc:08X} and out:#{outc:08X}"
                     )
         return err
 

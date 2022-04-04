@@ -23,13 +23,12 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class SerialView(QtWidgets.QWidget):
-
     def __init__(self, get_scene_func):
         super().__init__()
 
         self._get_scene_func = get_scene_func
 
-        self._save_btn = QtWidgets.QPushButton('Save to file')
+        self._save_btn = QtWidgets.QPushButton("Save to file")
         self._graph_lbl = QtWidgets.QLabel()
         self._text = QtWidgets.QPlainTextEdit()
         self._text.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
@@ -48,14 +47,14 @@ class SerialView(QtWidgets.QWidget):
     @QtCore.Slot()
     def _save_to_file(self):
         data = self._text.toPlainText()
-        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
+        filenames = QtWidgets.QFileDialog.getSaveFileName(self, "Select export file")
         if not filenames[0]:
             return
-        with open(filenames[0], 'w') as f:
+        with open(filenames[0], "w") as f:
             f.write(data)
 
     def enter(self):
         cfg = self._get_scene_func()
         if not cfg:
             return
-        self._text.setPlainText(cfg['scene'].decode('ascii'))
+        self._text.setPlainText(cfg["scene"].decode("ascii"))

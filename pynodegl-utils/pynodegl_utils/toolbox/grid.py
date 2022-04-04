@@ -25,19 +25,18 @@ import pynodegl as ngl
 
 
 class AutoGrid:
-
     def __init__(self, elems):
         self.elems = elems
         self.nb = len(elems)
         self.nb_rows = int(round(math.sqrt(self.nb)))
         self.nb_cols = int(math.ceil(self.nb / float(self.nb_rows)))
         self.dim = max(self.nb_rows, self.nb_cols)
-        self.scale = 1. / self.dim
+        self.scale = 1.0 / self.dim
 
     def _get_coords(self, pos):
         col, row = pos
-        pos_x = self.scale * (col *  2. + 1.) - 1.
-        pos_y = self.scale * (row * -2. - 1.) + 1.
+        pos_x = self.scale * (col * 2.0 + 1.0) - 1.0
+        pos_y = self.scale * (row * -2.0 - 1.0) + 1.0
         return pos_x, pos_y, 0.0
 
     def transform_coords(self, coords, pos):
@@ -56,7 +55,7 @@ class AutoGrid:
             pos_x, pos_y, pos_z, 1,
             # fmt: on
         ]
-        return ngl.Transform(node, matrix=mat, label='grid(col=%d,row=%d)' % pos)
+        return ngl.Transform(node, matrix=mat, label="grid(col=%d,row=%d)" % pos)
 
     def __iter__(self):
         i = 0
@@ -87,20 +86,21 @@ def autogrid_queue(scenes, duration, overlap_time):
             start = scene_id * duration / ag.nb
             if start:
                 scene.add_ranges(ngl.TimeRangeModeNoop(0))
-            scene.add_ranges(ngl.TimeRangeModeCont(start),
-                             ngl.TimeRangeModeNoop(start + duration/ag.nb + overlap_time))
+            scene.add_ranges(
+                ngl.TimeRangeModeCont(start), ngl.TimeRangeModeNoop(start + duration / ag.nb + overlap_time)
+            )
         scene = ag.place_node(scene, (col, row))
         g.add_children(scene)
     return g
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     N = 10
     for n in range(1, N * N + 1):
         ag = AutoGrid(range(n))
-        buf = [['.'] * ag.nb_cols for i in range(ag.nb_rows)]
+        buf = [["."] * ag.nb_cols for i in range(ag.nb_rows)]
         for _, i, x, y in ag:
-            buf[y][x] = 'x'
-        print('#%d (cols:%d rows:%d)' % (n, ag.nb_cols, ag.nb_rows))
-        print('\n'.join(''.join(line) for line in buf))
+            buf[y][x] = "x"
+        print("#%d (cols:%d rows:%d)" % (n, ag.nb_cols, ag.nb_rows))
+        print("\n".join("".join(line) for line in buf))
         print()

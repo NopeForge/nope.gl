@@ -41,7 +41,7 @@ class MainWindow(QtWidgets.QSplitter):
 
     def __init__(self, module_pkgname, hooks_scripts):
         super().__init__(QtCore.Qt.Horizontal)
-        self._win_title_base = 'Node.gl controller'
+        self._win_title_base = "Node.gl controller"
         self.setWindowTitle(self._win_title_base)
 
         self._module_pkgname = module_pkgname
@@ -54,7 +54,7 @@ class MainWindow(QtWidgets.QSplitter):
         self._config = Config(module_pkgname)
 
         # Apply previous geometry (position + dimensions)
-        rect = self._config.get('geometry')
+        rect = self._config.get("geometry")
         if rect:
             geometry = QtCore.QRect(*rect)
             self.setGeometry(geometry)
@@ -66,11 +66,11 @@ class MainWindow(QtWidgets.QSplitter):
         serial_view = SerialView(get_scene_func)
 
         self._tabs = [
-            ('Hooks', hooks_view),
-            ('Graph view', graph_view),
-            ('Export', export_view),
-            ('Medias', self._medias_view),
-            ('Serialization', serial_view),
+            ("Hooks", hooks_view),
+            ("Graph view", graph_view),
+            ("Export", export_view),
+            ("Medias", self._medias_view),
+            ("Serialization", serial_view),
         ]
         self._last_tab_index = -1
 
@@ -78,7 +78,6 @@ class MainWindow(QtWidgets.QSplitter):
         for tab_name, tab_view in self._tabs:
             self._tab_widget.addTab(tab_view, tab_name)
         self._tab_widget.currentChanged.connect(self._currentTabChanged)
-
 
         self._scene_toolbar = Toolbar(self._config)
         self._scene_toolbar.sceneChanged.connect(self._scene_changed)
@@ -116,9 +115,9 @@ class MainWindow(QtWidgets.QSplitter):
 
         # Load the previous scene if the current and previously loaded
         # module packages match
-        prev_pkgname = self._config.get('pkg')
-        prev_module = self._config.get('module')
-        prev_scene = self._config.get('scene')
+        prev_pkgname = self._config.get("pkg")
+        prev_module = self._config.get("module")
+        prev_scene = self._config.get("scene")
         if prev_pkgname == module_pkgname:
             self._scene_toolbar.load_scene_from_name(prev_module, prev_scene)
 
@@ -138,23 +137,23 @@ class MainWindow(QtWidgets.QSplitter):
 
     def _get_scene(self, **cfg_overrides):
         cfg = self._scene_toolbar.get_cfg()
-        if cfg['scene'] is None:
+        if cfg["scene"] is None:
             return None
         medias = self._medias_view.get_medias()
-        cfg['medias'] = medias if medias else None
-        cfg['files'] = []
+        cfg["medias"] = medias if medias else None
+        cfg["files"] = []
         cfg.update(cfg_overrides)
 
         self._scripts_mgr.inc_query_count()
         self._scripts_mgr.pause()
         ret = query_scene(self._module_pkgname, **cfg)
-        self._scripts_mgr.update_filelist(ret['filelist'])
-        self._scripts_mgr.update_modulelist(ret['modulelist'])
+        self._scripts_mgr.update_filelist(ret["filelist"])
+        self._scripts_mgr.update_modulelist(ret["modulelist"])
         self._scripts_mgr.resume()
         self._scripts_mgr.dec_query_count()
 
-        if 'error' in ret:
-            self.error.emit(ret['error'])
+        if "error" in ret:
+            self.error.emit(ret["error"])
             return None
 
         self.error.emit(None)
@@ -164,7 +163,7 @@ class MainWindow(QtWidgets.QSplitter):
 
     @QtCore.Slot(str, str)
     def _scene_changed(self, module_name, scene_name):
-        self.setWindowTitle(f'{self._win_title_base} - {module_name}.{scene_name}')
+        self.setWindowTitle(f"{self._win_title_base} - {module_name}.{scene_name}")
         self._currentTabChanged(self._tab_widget.currentIndex())
 
     @QtCore.Slot(str, str)
@@ -200,8 +199,8 @@ class MainWindow(QtWidgets.QSplitter):
     def _currentTabChanged(self, index):
         next_view = self._tabs[index][1]
         prev_view = self._tabs[self._last_tab_index][1]
-        if index != self._last_tab_index and hasattr(prev_view, 'leave'):
+        if index != self._last_tab_index and hasattr(prev_view, "leave"):
             prev_view.leave()
-        if hasattr(next_view, 'enter'):
+        if hasattr(next_view, "enter"):
             next_view.enter()
         self._last_tab_index = index

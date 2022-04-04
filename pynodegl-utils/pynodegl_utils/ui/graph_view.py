@@ -31,7 +31,6 @@ from .seekbar import Seekbar
 
 
 class _SVGGraphView(QtWidgets.QGraphicsView):
-
     def __init__(self):
         super().__init__()
         self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
@@ -41,7 +40,7 @@ class _SVGGraphView(QtWidgets.QGraphicsView):
         y_degrees = event.angleDelta().y() / 8.0
         self._zoom_level += y_degrees / 15.0  # in the most common mouse step unit
         m = QtGui.QTransform()
-        factor = 1.25 ** self._zoom_level
+        factor = 1.25**self._zoom_level
         m.scale(factor, factor)
         self.setTransform(m)
 
@@ -63,35 +62,30 @@ class _Clock:
         return (self._playback_index, playback_time)
 
     def set_playback_time(self, time):
-        self._playback_index = int(round(
-            time * self._framerate[0] / self._framerate[1]
-        ))
+        self._playback_index = int(round(time * self._framerate[0] / self._framerate[1]))
 
     def step_playback_index(self, step):
-        max_duration_index = int(round(
-            self._duration * self._framerate[0] / float(self._framerate[1] * self.TIMEBASE)
-        ))
+        max_duration_index = int(round(self._duration * self._framerate[0] / float(self._framerate[1] * self.TIMEBASE)))
         self._playback_index = min(max(self._playback_index + step, 0), max_duration_index)
 
 
 class GraphView(QtWidgets.QWidget):
-
     def __init__(self, get_scene_func, config):
         super().__init__()
 
         self._get_scene_func = get_scene_func
-        self._framerate = config.get('framerate')
+        self._framerate = config.get("framerate")
         self._duration = 0.0
-        self._samples = config.get('samples')
+        self._samples = config.get("samples")
         self._ctx = None
 
-        self._save_btn = QtWidgets.QPushButton('Save image')
+        self._save_btn = QtWidgets.QPushButton("Save image")
 
         self._scene = QtWidgets.QGraphicsScene()
         self._view = _SVGGraphView()
         self._view.setScene(self._scene)
 
-        self._seek_chkbox = QtWidgets.QCheckBox('Show graph at a given time')
+        self._seek_chkbox = QtWidgets.QCheckBox("Show graph at a given time")
         self._seekbar = Seekbar(config)
         self._seekbar.setEnabled(False)
 
@@ -135,7 +129,7 @@ class GraphView(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def _save_to_file(self):
-        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
+        filenames = QtWidgets.QFileDialog.getSaveFileName(self, "Select export file")
         if not filenames[0]:
             return
         rect_size = self._scene.sceneRect().size()
@@ -149,7 +143,7 @@ class GraphView(QtWidgets.QWidget):
     def enter(self):
         cfg_overrides = {}
         if not self._seek_chkbox.isChecked():
-            cfg_overrides['fmt'] = 'dot'
+            cfg_overrides["fmt"] = "dot"
 
         cfg = self._get_scene_func(**cfg_overrides)
         if not cfg:
@@ -158,15 +152,15 @@ class GraphView(QtWidgets.QWidget):
         self._seekbar.set_scene_metadata(cfg)
 
         if self._seek_chkbox.isChecked():
-            self._init_ctx(cfg['backend'])
-            self._framerate = cfg['framerate']
-            self._duration = cfg['duration']
-            self._ctx.set_scene_from_string(cfg['scene'])
+            self._init_ctx(cfg["backend"])
+            self._framerate = cfg["framerate"]
+            self._duration = cfg["duration"]
+            self._ctx.set_scene_from_string(cfg["scene"])
             self._clock.configure(self._framerate, self._duration)
             self._update()
         else:
             self._reset_ctx()
-            dot_scene = cfg['scene']
+            dot_scene = cfg["scene"]
             self._update_graph(dot_scene)
 
     def _reset_ctx(self):
@@ -179,25 +173,23 @@ class GraphView(QtWidgets.QWidget):
         if self._ctx:
             return
         self._ctx = ngl.Context()
-        self._ctx.configure(
-            backend=misc.get_backend(rendering_backend),
-            offscreen=1,
-            width=16,
-            height=16
-        )
+        self._ctx.configure(backend=misc.get_backend(rendering_backend), offscreen=1, width=16, height=16)
 
     def _update_graph(self, dot_scene):
-        basename = op.join(misc.get_nodegl_tempdir(), 'ngl_scene.')
-        dotfile = basename + 'dot'
-        svgfile = basename + 'svg'
-        with open(dotfile, 'w') as f:
+        basename = op.join(misc.get_nodegl_tempdir(), "ngl_scene.")
+        dotfile = basename + "dot"
+        svgfile = basename + "svg"
+        with open(dotfile, "w") as f:
             f.write(dot_scene.decode())
         try:
-            subprocess.call(['dot', '-Tsvg', dotfile, '-o' + svgfile])
+            subprocess.call(["dot", "-Tsvg", dotfile, "-o" + svgfile])
         except OSError as e:
-            QtWidgets.QMessageBox.critical(self, 'Graphviz error',
-                                           'Error while executing dot (Graphviz): %s' % e.strerror,
-                                           QtWidgets.QMessageBox.Ok)
+            QtWidgets.QMessageBox.critical(
+                self,
+                "Graphviz error",
+                "Error while executing dot (Graphviz): %s" % e.strerror,
+                QtWidgets.QMessageBox.Ok,
+            )
             return
 
         item = QtSvgWidgets.QGraphicsSvgItem(svgfile)

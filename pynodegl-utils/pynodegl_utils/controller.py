@@ -31,12 +31,19 @@ def run():
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('-m', dest='module', default='pynodegl_utils.examples',
-                        help='set the module name containing the scene functions')
-    parser.add_argument('--hooks-script', dest='hooks_scripts',
-                        default=[op.join(op.dirname(__file__), 'hooks', 'desktop.py')],
-                        action='append',
-                        help='set the script containing event hooks')
+    parser.add_argument(
+        "-m",
+        dest="module",
+        default="pynodegl_utils.examples",
+        help="set the module name containing the scene functions",
+    )
+    parser.add_argument(
+        "--hooks-script",
+        dest="hooks_scripts",
+        default=[op.join(op.dirname(__file__), "hooks", "desktop.py")],
+        action="append",
+        help="set the script containing event hooks",
+    )
     pargs = parser.parse_args(sys.argv[1:])
 
     app = QtWidgets.QApplication(sys.argv)

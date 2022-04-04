@@ -49,9 +49,9 @@ class Exporter(QtCore.QThread):
     def run(self):
         filename, width, height = self._filename, self._width, self._height
 
-        if filename.endswith('gif'):
-            palette_filename = op.join(get_nodegl_tempdir(), 'palette.png')
-            pass1_args = ['-vf', 'palettegen']
+        if filename.endswith("gif"):
+            palette_filename = op.join(get_nodegl_tempdir(), "palette.png")
+            pass1_args = ["-vf", "palettegen"]
             pass2_args = self._extra_enc_args + [
                 # fmt: off
                 "-i", palette_filename,
@@ -75,9 +75,9 @@ class Exporter(QtCore.QThread):
             self.failed.emit()
             return False
 
-        fps = cfg['framerate']
-        duration = cfg['duration']
-        samples = cfg['samples']
+        fps = cfg["framerate"]
+        duration = cfg["duration"]
+        samples = cfg["samples"]
 
         cmd = [
             # fmt: off
@@ -91,7 +91,7 @@ class Exporter(QtCore.QThread):
         ]
         if extra_enc_args:
             cmd += extra_enc_args
-        cmd += ['-y', filename]
+        cmd += ["-y", filename]
 
         reader = subprocess.Popen(cmd, pass_fds=(fd_r,))
         os.close(fd_r)
@@ -102,16 +102,16 @@ class Exporter(QtCore.QThread):
         ctx = ngl.Context()
         ctx.configure(
             platform=ngl.PLATFORM_AUTO,
-            backend=get_backend(cfg['backend']),
+            backend=get_backend(cfg["backend"]),
             offscreen=1,
             width=width,
             height=height,
-            viewport=get_viewport(width, height, cfg['aspect_ratio']),
+            viewport=get_viewport(width, height, cfg["aspect_ratio"]),
             samples=samples,
-            clear_color=cfg['clear_color'],
+            clear_color=cfg["clear_color"],
             capture_buffer=capture_buffer,
         )
-        ctx.set_scene_from_string(cfg['scene'])
+        ctx.set_scene_from_string(cfg["scene"])
 
         if self._time is not None:
             ctx.draw(self._time)
@@ -126,7 +126,7 @@ class Exporter(QtCore.QThread):
                 time = i * fps[1] / float(fps[0])
                 ctx.draw(time)
                 os.write(fd_w, capture_buffer)
-                self.progressed.emit(i*100 / nb_frame)
+                self.progressed.emit(i * 100 / nb_frame)
             self.progressed.emit(100)
 
         os.close(fd_w)
@@ -142,25 +142,25 @@ def test_export():
 
     def _get_scene(**cfg_overrides):
         cfg = {
-            'scene': ('misc', 'triangle'),
-            'duration': 5,
+            "scene": ("misc", "triangle"),
+            "duration": 5,
         }
         cfg.update(cfg_overrides)
 
-        ret = query_scene('pynodegl_utils.examples', **cfg)
-        if 'error' in ret:
-            print(ret['error'])
+        ret = query_scene("pynodegl_utils.examples", **cfg)
+        if "error" in ret:
+            print(ret["error"])
             return None
         return ret
 
     def print_progress(progress):
-        sys.stdout.write('\r%d%%' % progress)
+        sys.stdout.write("\r%d%%" % progress)
         sys.stdout.flush()
         if progress == 100:
-            sys.stdout.write('\n')
+            sys.stdout.write("\n")
 
     if len(sys.argv) != 2:
-        print('Usage: %s <outfile>' % sys.argv[0])
+        print("Usage: %s <outfile>" % sys.argv[0])
         sys.exit(0)
 
     filename = sys.argv[1]
@@ -174,5 +174,5 @@ def test_export():
     app.exit()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_export()

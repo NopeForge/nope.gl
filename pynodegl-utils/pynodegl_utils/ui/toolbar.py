@@ -53,92 +53,92 @@ class Toolbar(QtWidgets.QWidget):
 
         self._current_scene_data = None
 
-        all_ar = config.CHOICES['aspect_ratio']
-        default_ar = config.get('aspect_ratio')
+        all_ar = config.CHOICES["aspect_ratio"]
+        default_ar = config.get("aspect_ratio")
         self._ar_cbbox = QtWidgets.QComboBox()
         for ar in all_ar:
-            self._ar_cbbox.addItem('%d:%d' % ar)
+            self._ar_cbbox.addItem("%d:%d" % ar)
         self._ar_cbbox.setCurrentIndex(all_ar.index(default_ar))
-        ar_lbl = QtWidgets.QLabel('Aspect ratio:')
+        ar_lbl = QtWidgets.QLabel("Aspect ratio:")
         ar_hbox = QtWidgets.QHBoxLayout()
         ar_hbox.addWidget(ar_lbl)
         ar_hbox.addWidget(self._ar_cbbox)
 
-        self._far_lbl = QtWidgets.QLabel('Forced aspect ratio:')
-        self._far_lbl.setStyleSheet('color: red;')
+        self._far_lbl = QtWidgets.QLabel("Forced aspect ratio:")
+        self._far_lbl.setStyleSheet("color: red;")
         self._far_lbl.setVisible(False)
-        self._far_lbl2 = QtWidgets.QLabel('1:1')
-        self._far_lbl2.setStyleSheet('color: red;')
+        self._far_lbl2 = QtWidgets.QLabel("1:1")
+        self._far_lbl2.setStyleSheet("color: red;")
         self._far_lbl2.setVisible(False)
         far_hbox = QtWidgets.QHBoxLayout()
         far_hbox.addWidget(self._far_lbl)
         far_hbox.addWidget(self._far_lbl2)
 
-        all_samples = config.CHOICES['samples']
-        default_samples = config.get('samples')
+        all_samples = config.CHOICES["samples"]
+        default_samples = config.get("samples")
         self._samples_cbbox = QtWidgets.QComboBox()
         for samples in all_samples:
-            self._samples_cbbox.addItem('%dx' % samples if samples else 'Disabled')
+            self._samples_cbbox.addItem("%dx" % samples if samples else "Disabled")
         self._samples_cbbox.setCurrentIndex(all_samples.index(default_samples))
-        samples_lbl = QtWidgets.QLabel('MSAA:')
+        samples_lbl = QtWidgets.QLabel("MSAA:")
         samples_hbox = QtWidgets.QHBoxLayout()
         samples_hbox.addWidget(samples_lbl)
         samples_hbox.addWidget(self._samples_cbbox)
 
-        all_fr = config.CHOICES['framerate']
-        default_fr = config.get('framerate')
+        all_fr = config.CHOICES["framerate"]
+        default_fr = config.get("framerate")
         self._fr_cbbox = QtWidgets.QComboBox()
         for fr in all_fr:
-            self._fr_cbbox.addItem('%.5g FPS' % (fr[0] / float(fr[1])))
+            self._fr_cbbox.addItem("%.5g FPS" % (fr[0] / float(fr[1])))
         self._fr_cbbox.setCurrentIndex(all_fr.index(default_fr))
-        fr_lbl = QtWidgets.QLabel('Frame rate:')
+        fr_lbl = QtWidgets.QLabel("Frame rate:")
         fr_hbox = QtWidgets.QHBoxLayout()
         fr_hbox.addWidget(fr_lbl)
         fr_hbox.addWidget(self._fr_cbbox)
 
-        all_loglevels = config.CHOICES['log_level']
-        default_loglevel = config.get('log_level')
+        all_loglevels = config.CHOICES["log_level"]
+        default_loglevel = config.get("log_level")
         self._loglevel_cbbox = QtWidgets.QComboBox()
         for level in all_loglevels:
             self._loglevel_cbbox.addItem(level.title())
         log_level_idx = all_loglevels.index(default_loglevel)
         self._loglevel_cbbox.setCurrentIndex(log_level_idx)
         self._set_loglevel(log_level_idx)
-        loglevel_lbl = QtWidgets.QLabel('Min log level:')
+        loglevel_lbl = QtWidgets.QLabel("Min log level:")
         loglevel_hbox = QtWidgets.QHBoxLayout()
         loglevel_hbox.addWidget(loglevel_lbl)
         loglevel_hbox.addWidget(self._loglevel_cbbox)
 
         backend_names = {
-            'opengl': 'OpenGL',
-            'opengles': 'OpenGL ES',
-            'vulkan': 'Vulkan',
+            "opengl": "OpenGL",
+            "opengles": "OpenGL ES",
+            "vulkan": "Vulkan",
         }
-        all_backends = config.CHOICES['backend']
-        default_backend = config.get('backend')
+        all_backends = config.CHOICES["backend"]
+        default_backend = config.get("backend")
         self._backend_cbbox = QtWidgets.QComboBox()
         for backend in all_backends:
             self._backend_cbbox.addItem(backend_names[backend])
         backend_idx = all_backends.index(default_backend)
         self._backend_cbbox.setCurrentIndex(backend_idx)
-        backend_lbl = QtWidgets.QLabel('Backend:')
+        backend_lbl = QtWidgets.QLabel("Backend:")
         backend_hbox = QtWidgets.QHBoxLayout()
         backend_hbox.addWidget(backend_lbl)
         backend_hbox.addWidget(self._backend_cbbox)
 
-        default_clearcolor = config.get('clear_color')
+        default_clearcolor = config.get("clear_color")
         self._clearcolor_btn = QtWidgets.QPushButton()
         color = QtGui.QColor()
         color.setRgbF(*default_clearcolor)
         self._set_widget_clear_color(color)
         self._clearcolor_btn.pressed.connect(self._set_clear_color)
 
-        clearcolor_lbl = QtWidgets.QLabel('Clear color:')
+        clearcolor_lbl = QtWidgets.QLabel("Clear color:")
         clearcolor_hbox = QtWidgets.QHBoxLayout()
         clearcolor_hbox.addWidget(clearcolor_lbl)
         clearcolor_hbox.addWidget(self._clearcolor_btn)
 
-        self.reload_btn = QtWidgets.QPushButton('Force scripts reload')
+        self.reload_btn = QtWidgets.QPushButton("Force scripts reload")
 
         self._scene_toolbar_layout = QtWidgets.QVBoxLayout(self)
         self._scene_toolbar_layout.addLayout(ar_hbox)
@@ -184,7 +184,7 @@ class Toolbar(QtWidgets.QWidget):
         if not widgets:
             return None
 
-        groupbox = QtWidgets.QGroupBox('Custom scene options')
+        groupbox = QtWidgets.QGroupBox("Custom scene options")
         vbox = QtWidgets.QVBoxLayout()
         for widget in widgets:
             vbox.addWidget(widget)
@@ -194,17 +194,16 @@ class Toolbar(QtWidgets.QWidget):
     def get_cfg(self):
         choices = Config.CHOICES
         return {
-            'scene': self._current_scene_data[:2] if self._current_scene_data else None,
-            'aspect_ratio': choices['aspect_ratio'][self._ar_cbbox.currentIndex()],
-            'framerate': choices['framerate'][self._fr_cbbox.currentIndex()],
-            'samples': choices['samples'][self._samples_cbbox.currentIndex()],
-            'extra_args': self._scene_extra_args,
-            'clear_color': self._clear_color,
-            'backend': choices['backend'][self._backend_cbbox.currentIndex()],
+            "scene": self._current_scene_data[:2] if self._current_scene_data else None,
+            "aspect_ratio": choices["aspect_ratio"][self._ar_cbbox.currentIndex()],
+            "framerate": choices["framerate"][self._fr_cbbox.currentIndex()],
+            "samples": choices["samples"][self._samples_cbbox.currentIndex()],
+            "extra_args": self._scene_extra_args,
+            "clear_color": self._clear_color,
+            "backend": choices["backend"][self._backend_cbbox.currentIndex()],
         }
 
     def load_scene_from_name(self, module_name, scene_name):
-
         def get_func_info(module_item, func_name):
             nb_funcs = module_item.rowCount()
             for i in range(nb_funcs):
@@ -266,12 +265,12 @@ class Toolbar(QtWidgets.QWidget):
 
     def set_cfg(self, cfg):
         try:
-            cfg_ar = Fraction(*cfg['aspect_ratio'])
+            cfg_ar = Fraction(*cfg["aspect_ratio"])
             cfg_ar = (cfg_ar.numerator, cfg_ar.denominator)
-            ar = Fraction(*Config.CHOICES['aspect_ratio'][self._ar_cbbox.currentIndex()])
+            ar = Fraction(*Config.CHOICES["aspect_ratio"][self._ar_cbbox.currentIndex()])
             ar = (ar.numerator, ar.denominator)
             if ar != cfg_ar:
-                self._far_lbl2.setText('%d:%d' % cfg_ar)
+                self._far_lbl2.setText("%d:%d" % cfg_ar)
                 self._far_lbl.setVisible(True)
                 self._far_lbl2.setVisible(True)
             else:
@@ -282,32 +281,32 @@ class Toolbar(QtWidgets.QWidget):
 
     @QtCore.Slot(int)
     def _set_loglevel(self, index):
-        level_str = Config.CHOICES['log_level'][index]
-        ngl_level = eval('ngl.LOG_%s' % level_str.upper())
+        level_str = Config.CHOICES["log_level"][index]
+        ngl_level = eval("ngl.LOG_%s" % level_str.upper())
         ngl.log_set_min_level(ngl_level)
         self.logLevelChanged.emit(level_str)
 
     @QtCore.Slot(int)
     def _set_aspect_ratio(self, index):
-        ar = Config.CHOICES['aspect_ratio'][index]
+        ar = Config.CHOICES["aspect_ratio"][index]
         self.aspectRatioChanged.emit(ar)
         self._load_current_scene()
 
     @QtCore.Slot(int)
     def _set_frame_rate(self, index):
-        fr = Config.CHOICES['framerate'][index]
+        fr = Config.CHOICES["framerate"][index]
         self.frameRateChanged.emit(fr)
         self._load_current_scene()
 
     @QtCore.Slot(int)
     def _set_samples(self, index):
-        samples = Config.CHOICES['samples'][index]
+        samples = Config.CHOICES["samples"][index]
         self.samplesChanged.emit(samples)
         self._load_current_scene()
 
     def _set_widget_clear_color(self, color):
         color_name = color.name()
-        self._clearcolor_btn.setStyleSheet('background-color: %s;' % color_name)
+        self._clearcolor_btn.setStyleSheet("background-color: %s;" % color_name)
         self._clear_color = color.getRgbF()
 
     @QtCore.Slot()
@@ -323,6 +322,6 @@ class Toolbar(QtWidgets.QWidget):
 
     @QtCore.Slot(int)
     def _set_backend(self, index):
-        backend = Config.CHOICES['backend'][index]
+        backend = Config.CHOICES["backend"][index]
         self.backendChanged.emit(backend)
         self._load_current_scene()

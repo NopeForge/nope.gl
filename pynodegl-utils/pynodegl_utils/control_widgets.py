@@ -38,11 +38,10 @@ class _ControlWidget(QtWidgets.QWidget):
         self.needSceneReload.emit(self._name, value)
 
     def get_label_text(self, value=None):
-        return f'<b>{self._name}:</b> {value}' if value is not None else f'<b>{self._name}:</b>'
+        return f"<b>{self._name}:</b> {value}" if value is not None else f"<b>{self._name}:</b>"
 
 
 class Slider(_ControlWidget):
-
     def __init__(self, name, value, range, unit_base):
         super().__init__(name)
         slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
@@ -62,7 +61,6 @@ class Slider(_ControlWidget):
 
 
 class VectorWidget(_ControlWidget):
-
     def __init__(self, name, value, n, minv, maxv):
         super().__init__(name)
         hlayout = QtWidgets.QHBoxLayout()
@@ -90,14 +88,13 @@ class VectorWidget(_ControlWidget):
 
 
 class ColorPicker(_ControlWidget):
-
     def __init__(self, name, value):
         super().__init__(name)
         self._color_btn = QtWidgets.QPushButton()
         color = QtGui.QColor()
         color.setRgbF(*value)
         color_name = color.name()
-        self._color_btn.setStyleSheet('background-color: %s;' % color_name)
+        self._color_btn.setStyleSheet("background-color: %s;" % color_name)
         self._label = QtWidgets.QLabel(self.get_label_text(color_name))
         self._color_btn.pressed.connect(self._pick_color)
         self._qcolor = color
@@ -109,14 +106,13 @@ class ColorPicker(_ControlWidget):
         color = QtWidgets.QColorDialog.getColor(initial=self._qcolor)
         if not color.isValid():
             return
-        self._color_btn.setStyleSheet('background-color: %s;' % color.name())
+        self._color_btn.setStyleSheet("background-color: %s;" % color.name())
         self._qcolor = color
         self._label.setText(self.get_label_text(color.name()))
         self.signal_change(color.getRgbF())
 
 
 class Checkbox(_ControlWidget):
-
     def __init__(self, name, value):
         super().__init__(name)
         self._chkbox = QtWidgets.QCheckBox(name)
@@ -130,11 +126,10 @@ class Checkbox(_ControlWidget):
 
 
 class FilePicker(_ControlWidget):
-
     def __init__(self, name, value, filter):
         super().__init__(name)
         self._filter = filter
-        dialog_btn = QtWidgets.QPushButton('Open file')
+        dialog_btn = QtWidgets.QPushButton("Open file")
         self._label = QtWidgets.QLabel(self.get_label_text(value))
         dialog_btn.pressed.connect(self._choose_filename)
         self.layout.addWidget(self._label)
@@ -142,7 +137,7 @@ class FilePicker(_ControlWidget):
 
     @QtCore.Slot()
     def _choose_filename(self):
-        filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open file', '', self._filter)
+        filename = QtWidgets.QFileDialog.getOpenFileName(self, "Open file", "", self._filter)
         if not filename[0]:
             return
         self._label.setText(self.get_label_text(op.basename(filename[0])))
@@ -150,7 +145,6 @@ class FilePicker(_ControlWidget):
 
 
 class ComboBox(_ControlWidget):
-
     def __init__(self, name, value, choices):
         super().__init__(name)
         combobox = QtWidgets.QComboBox()
@@ -167,7 +161,6 @@ class ComboBox(_ControlWidget):
 
 
 class TextInput(_ControlWidget):
-
     def __init__(self, name, value):
         super().__init__(name)
         self._text = QtWidgets.QPlainTextEdit()
@@ -175,7 +168,7 @@ class TextInput(_ControlWidget):
         label = QtWidgets.QLabel(self.get_label_text())
         self.layout.addWidget(label)
         self.layout.addWidget(self._text)
-        submit_btn = QtWidgets.QPushButton('OK')
+        submit_btn = QtWidgets.QPushButton("OK")
         submit_btn.pressed.connect(self._submit_text)
         self.layout.addWidget(label)
         self.layout.addWidget(self._text)

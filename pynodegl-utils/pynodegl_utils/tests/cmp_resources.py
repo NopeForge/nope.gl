@@ -26,30 +26,29 @@ import tempfile
 from .cmp import CompareSceneBase, get_test_decorator
 
 _COLS = (
-    'Textures memory',
-    'Buffers count',
-    'Buffers total',
-    'Blocks count',
-    'Blocks total',
-    'Medias count',
-    'Medias total',
-    'Textures count',
-    'Textures total',
-    'Computes',
-    'GraphicCfgs',
-    'Renders',
-    'RTTs',
+    "Textures memory",
+    "Buffers count",
+    "Buffers total",
+    "Blocks count",
+    "Blocks total",
+    "Medias count",
+    "Medias total",
+    "Textures count",
+    "Textures total",
+    "Computes",
+    "GraphicCfgs",
+    "Renders",
+    "RTTs",
 )
 
 
 class _CompareResources(CompareSceneBase):
-
     def __init__(self, scene_func, columns=_COLS, **kwargs):
         super().__init__(scene_func, width=320, height=240, **kwargs)
 
         # We can't use NamedTemporaryFile because we may not be able to open it
         # twice on some systems
-        fd, self._csvfile = tempfile.mkstemp(suffix='.csv', prefix='ngl-test-resources-')
+        fd, self._csvfile = tempfile.mkstemp(suffix=".csv", prefix="ngl-test-resources-")
         os.close(fd)
 
         self._columns = columns
@@ -68,9 +67,9 @@ class _CompareResources(CompareSceneBase):
                 data.append([row[k] for k in self._columns])
 
         # rely on base string diff
-        ret = ''
+        ret = ""
         for row in data:
-            ret += ','.join(row) + '\n'
+            ret += ",".join(row) + "\n"
 
         return ret
 

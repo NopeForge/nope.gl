@@ -26,46 +26,45 @@ from PySide6 import QtCore, QtWidgets
 
 
 class ExportView(QtWidgets.QWidget):
-
     def __init__(self, get_scene_func, config):
         super().__init__()
 
         self._get_scene_func = get_scene_func
-        self._framerate = config.get('framerate')
-        self._aspect_ratio = config.get('aspect_ratio')
+        self._framerate = config.get("framerate")
+        self._aspect_ratio = config.get("aspect_ratio")
 
-        self._ofile_text = QtWidgets.QLineEdit(config.get('export_filename'))
-        ofile_btn = QtWidgets.QPushButton('Browse')
+        self._ofile_text = QtWidgets.QLineEdit(config.get("export_filename"))
+        ofile_btn = QtWidgets.QPushButton("Browse")
 
         file_box = QtWidgets.QHBoxLayout()
         file_box.addWidget(self._ofile_text)
         file_box.addWidget(ofile_btn)
 
         self._spinbox_width = QtWidgets.QSpinBox()
-        self._spinbox_width.setRange(1, 0xffff)
-        self._spinbox_width.setValue(config.get('export_width'))
+        self._spinbox_width.setRange(1, 0xFFFF)
+        self._spinbox_width.setValue(config.get("export_width"))
 
         self._spinbox_height = QtWidgets.QSpinBox()
-        self._spinbox_height.setRange(1, 0xffff)
-        self._spinbox_height.setValue(config.get('export_height'))
+        self._spinbox_height.setRange(1, 0xFFFF)
+        self._spinbox_height.setValue(config.get("export_height"))
 
         self._encopts_text = QtWidgets.QLineEdit()
-        self._encopts_text.setText(config.get('export_extra_enc_args'))
+        self._encopts_text.setText(config.get("export_extra_enc_args"))
 
-        self._export_btn = QtWidgets.QPushButton('Export')
+        self._export_btn = QtWidgets.QPushButton("Export")
         btn_hbox = QtWidgets.QHBoxLayout()
         btn_hbox.addStretch()
         btn_hbox.addWidget(self._export_btn)
 
         self._warning_label = QtWidgets.QLabel()
-        self._warning_label.setStyleSheet('color: red')
+        self._warning_label.setStyleSheet("color: red")
         self._warning_label.hide()
 
         form = QtWidgets.QFormLayout(self)
-        form.addRow('Filename:', file_box)
-        form.addRow('Width:',    self._spinbox_width)
-        form.addRow('Height:',   self._spinbox_height)
-        form.addRow('Extra encoder arguments:', self._encopts_text)
+        form.addRow("Filename:", file_box)
+        form.addRow("Width:", self._spinbox_width)
+        form.addRow("Height:", self._spinbox_height)
+        form.addRow("Extra encoder arguments:", self._encopts_text)
         form.addRow(self._warning_label)
         form.addRow(btn_hbox)
 
@@ -86,8 +85,8 @@ class ExportView(QtWidgets.QWidget):
         if not cfg:
             return
 
-        self._framerate = cfg['framerate']
-        self._aspect_ratio = cfg['aspect_ratio']
+        self._framerate = cfg["framerate"]
+        self._aspect_ratio = cfg["aspect_ratio"]
 
         self._check_settings()
 
@@ -96,15 +95,17 @@ class ExportView(QtWidgets.QWidget):
 
         warnings = []
 
-        if self._ofile_text.text().endswith('.gif'):
+        if self._ofile_text.text().endswith(".gif"):
             fr = self._framerate
             gif_recommended_framerate = (Fraction(25, 1), Fraction(50, 1))
             if Fraction(*fr) not in gif_recommended_framerate:
-                gif_framerates = ', '.join('%s' % x for x in gif_recommended_framerate)
-                warnings.append(f'It is recommended to use one of these frame rate when exporting to GIF: {gif_framerates}')
+                gif_framerates = ", ".join("%s" % x for x in gif_recommended_framerate)
+                warnings.append(
+                    f"It is recommended to use one of these frame rate when exporting to GIF: {gif_framerates}"
+                )
 
         if warnings:
-            self._warning_label.setText('\n'.join('⚠ ' + w for w in warnings))
+            self._warning_label.setText("\n".join("⚠ " + w for w in warnings))
             self._warning_label.show()
         else:
             self._warning_label.hide()
@@ -123,10 +124,9 @@ class ExportView(QtWidgets.QWidget):
     @QtCore.Slot()
     def _fail(self):
         self._finish()
-        QtWidgets.QMessageBox.critical(self,
-                                       'Error',
-                                       "You didn't select any scene to export.",
-                                       QtWidgets.QMessageBox.Ok)
+        QtWidgets.QMessageBox.critical(
+            self, "Error", "You didn't select any scene to export.", QtWidgets.QMessageBox.Ok
+        )
 
     @QtCore.Slot()
     def _finish(self):
@@ -145,7 +145,7 @@ class ExportView(QtWidgets.QWidget):
         height = self._spinbox_height.value()
         extra_enc_args = self._encopts_text.text().split()
 
-        self._pgd = QtWidgets.QProgressDialog('Exporting to %s' % ofile, 'Stop', 0, 100, self)
+        self._pgd = QtWidgets.QProgressDialog("Exporting to %s" % ofile, "Stop", 0, 100, self)
         self._pgd.setWindowModality(QtCore.Qt.WindowModal)
         self._pgd.setMinimumDuration(100)
 
@@ -160,7 +160,7 @@ class ExportView(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def _select_ofile(self):
-        filenames = QtWidgets.QFileDialog.getSaveFileName(self, 'Select export file')
+        filenames = QtWidgets.QFileDialog.getSaveFileName(self, "Select export file")
         if not filenames[0]:
             return
         self._ofile_text.setText(filenames[0])

@@ -21,23 +21,24 @@
 
 from setuptools import find_packages, setup
 
-setup(name='pynodegl-utils',
-      version='0.1',
-      packages=find_packages(),
-      install_requires=['pynodegl'],
-      entry_points={
-          'console_scripts': [
-              'ngl-control = pynodegl_utils.controller:run',
-              'ngl-test = pynodegl_utils.tests:run',
-          ],
-      },
-      package_data={
-          '': [
-              'examples/data/*',
-              'examples/shaders/*.frag',
-              'examples/shaders/*.comp',
-              'examples/shaders/*.vert',
-              'hooks/desktop.py',
-          ],
-      }
+setup(
+    name="pynodegl-utils",
+    version="0.1",
+    packages=find_packages(),
+    install_requires=["pynodegl"],
+    entry_points={
+        "console_scripts": [
+            "ngl-control = pynodegl_utils.controller:run",
+            "ngl-test = pynodegl_utils.tests:run",
+        ],
+    },
+    package_data={
+        "": [
+            "examples/data/*",
+            "examples/shaders/*.frag",
+            "examples/shaders/*.comp",
+            "examples/shaders/*.vert",
+            "hooks/desktop.py",
+        ],
+    },
 )

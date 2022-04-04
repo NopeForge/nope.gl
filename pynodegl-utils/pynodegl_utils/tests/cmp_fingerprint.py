@@ -29,16 +29,15 @@ _MODE = "RGBA"
 
 
 class _CompareFingerprints(CompareSceneBase):
-
     def __init__(self, scene_func, tolerance=0, **kwargs):
         super().__init__(scene_func, **kwargs)
         self._tolerance = tolerance
 
     @staticmethod
     def serialize(data):
-        ret = ''
+        ret = ""
         for comp_hashes in data:
-            ret += ' '.join(format(x, '032X') for x in comp_hashes) + '\n'
+            ret += " ".join(format(x, "032X") for x in comp_hashes) + "\n"
         return ret
 
     @staticmethod
@@ -72,7 +71,7 @@ class _CompareFingerprints(CompareSceneBase):
         hashes = []
         dump_index = 0
         for (width, height, capture_buffer) in self.render_frames():
-            img = Image.frombuffer(_MODE, (width, height), capture_buffer, 'raw', _MODE, 0, 1)
+            img = Image.frombuffer(_MODE, (width, height), capture_buffer, "raw", _MODE, 0, 1)
             if dump:
                 CompareBase.dump_image(img, dump_index, func_name)
                 dump_index += 1
@@ -85,15 +84,15 @@ class _CompareFingerprints(CompareSceneBase):
     @staticmethod
     def _hash_repr(hash_val):
         linesize = _HSIZE + 1
-        diff_chars = '.v>+'  # identical, vertical diff, horizontal diff, vertical+horizontal diff
-        ret = ''
+        diff_chars = ".v>+"  # identical, vertical diff, horizontal diff, vertical+horizontal diff
+        ret = ""
         for y in range(_HSIZE):
-            line = ''
+            line = ""
             for x in range(_HSIZE):
                 pos = y * linesize + x
                 bits = hash_val >> (pos * 2) & 0b11
-                line += ' {}'.format(diff_chars[bits])
-            ret += line + '\n'
+                line += " {}".format(diff_chars[bits])
+            ret += line + "\n"
         return ret
 
     def compare_data(self, test_name, ref_data, out_data):
@@ -101,14 +100,14 @@ class _CompareFingerprints(CompareSceneBase):
         for frame, (frame_ref_hashes, frame_out_hashes) in enumerate(zip(ref_data, out_data)):
             for comp, (ref_hash, out_hash) in enumerate(zip(frame_ref_hashes, frame_out_hashes)):
                 hash_diff = ref_hash ^ out_hash
-                bstring = f'{hash_diff:b}'
-                diff = bstring.count('1') * 100 // _HNBITS
+                bstring = f"{hash_diff:b}"
+                diff = bstring.count("1") * 100 // _HNBITS
                 if diff > self._tolerance:
                     hash_repr = self._hash_repr(hash_diff)
                     err.append(
-                        f'{test_name} frame #{frame} Component {_MODE[comp]}: '
-                        f'Diff too high ({diff}% > {self._tolerance}%)\n'
-                        f'{hash_repr:s}'
+                        f"{test_name} frame #{frame} Component {_MODE[comp]}: "
+                        f"Diff too high ({diff}% > {self._tolerance}%)\n"
+                        f"{hash_repr:s}"
                     )
 
         return err

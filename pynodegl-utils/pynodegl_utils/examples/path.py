@@ -28,7 +28,7 @@ from pynodegl_utils.toolbox.colors import COLORS
 import pynodegl as ngl
 
 
-def _path_scene(cfg, path, points=None, controls=None, easing='linear'):
+def _path_scene(cfg, path, points=None, controls=None, easing="linear"):
     cfg.aspect_ratio = (1, 1)
 
     anim_kf = [
@@ -44,11 +44,11 @@ def _path_scene(cfg, path, points=None, controls=None, easing='linear'):
     objects = []
 
     if points:
-        debug_points = {f'P{i}': p[:2] for i, p in enumerate(points)}
+        debug_points = {f"P{i}": p[:2] for i, p in enumerate(points)}
         objects.append(get_debug_points(cfg, debug_points))
 
     if controls:
-        debug_controls = {f'C{i}': p[:2] for i, p in enumerate(controls)}
+        debug_controls = {f"C{i}": p[:2] for i, p in enumerate(controls)}
         objects.append(get_debug_points(cfg, debug_controls, color=COLORS.cyan))
 
     objects.append(moving_shape)
@@ -56,8 +56,8 @@ def _path_scene(cfg, path, points=None, controls=None, easing='linear'):
     return ngl.Group(children=objects)
 
 
-@scene(easing=scene.List(choices=['linear', 'back_in_out']))
-def simple_bezier(cfg, easing='linear'):
+@scene(easing=scene.List(choices=["linear", "back_in_out"]))
+def simple_bezier(cfg, easing="linear"):
     cfg.duration = 2
     # fmt: off
     points = (
@@ -97,7 +97,7 @@ def catmull(cfg, tension=0.5):
     # fmt: on
 
     flat_points = (elt for iterable in points for elt in iterable)
-    points_array = array.array('f', flat_points)
+    points_array = array.array("f", flat_points)
 
     path = ngl.SmoothPath(
         ngl.BufferVec3(data=points_array),
@@ -106,7 +106,7 @@ def catmull(cfg, tension=0.5):
         tension=tension,
     )
 
-    return _path_scene(cfg, path, points, controls, easing='exp_in_out')
+    return _path_scene(cfg, path, points, controls, easing="exp_in_out")
 
 
 @scene()
@@ -290,7 +290,7 @@ def character_otf(cfg):
     ]
 
     path = ngl.Path(keyframes)
-    return ngl.Scale(_path_scene(cfg, path), factors=(2,2,0), anchor=(1,1,0))
+    return ngl.Scale(_path_scene(cfg, path), factors=(2, 2, 0), anchor=(1, 1, 0))
 
 
 @scene()
@@ -336,4 +336,4 @@ def character_ttf(cfg):
     ]
 
     path = ngl.Path(keyframes)
-    return ngl.Scale(_path_scene(cfg, path), factors=(2,2,0), anchor=(1,1,0))
+    return ngl.Scale(_path_scene(cfg, path), factors=(2, 2, 0), anchor=(1, 1, 0))

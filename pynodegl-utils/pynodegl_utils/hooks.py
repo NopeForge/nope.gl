@@ -31,12 +31,12 @@ from PySide6 import QtCore
 
 class _HooksCaller:
 
-    _HOOKS = ('get_session_info', 'get_sessions', 'scene_change', 'sync_file')
+    _HOOKS = ("get_session_info", "get_sessions", "scene_change", "sync_file")
 
     def __init__(self, hooks_script):
         self._module = load_script(hooks_script)
         if not all(hasattr(self._module, hook) for hook in self._HOOKS):
-            raise NotImplementedError(f'{hooks_script}: the following functions must be implemented: {self._HOOKS}')
+            raise NotImplementedError(f"{hooks_script}: the following functions must be implemented: {self._HOOKS}")
 
     def _has_hook(self, name):
         return hasattr(self._module, name)
@@ -51,19 +51,19 @@ class _HooksCaller:
     def _uint_clear_color(vec4_color):
         uint_color = 0
         for i, comp in enumerate(vec4_color):
-            comp_val = int(round(comp*0xff)) & 0xff
-            uint_color |= comp_val << (24 - i*8)
+            comp_val = int(round(comp * 0xFF)) & 0xFF
+            uint_color |= comp_val << (24 - i * 8)
         return uint_color
 
     def scene_change(self, session_id, local_scene, cfg):
         return self._module.scene_change(
             session_id,
             local_scene,
-            cfg['duration'],
-            cfg['aspect_ratio'],
-            cfg['framerate'],
-            self._uint_clear_color(cfg['clear_color']),
-            cfg['samples'],
+            cfg["duration"],
+            cfg["aspect_ratio"],
+            cfg["framerate"],
+            self._uint_clear_color(cfg["clear_color"]),
+            cfg["samples"],
         )
 
     @staticmethod
@@ -82,16 +82,15 @@ class _HooksCaller:
 
 
 class HooksCaller:
-
     def __init__(self, hooks_scripts):
         self._callers = [_HooksCaller(hooks_script) for hooks_script in hooks_scripts]
 
     def _get_caller_session_id(self, unique_session_id):
-        istr, session_id = unique_session_id.split(':', maxsplit=1)
+        istr, session_id = unique_session_id.split(":", maxsplit=1)
         return self._callers[int(istr)], session_id
 
     def get_sessions(self):
-        '''
+        """
         Session IDs may be identical accross hook systems. A pathological case
         is with several instances of the same hook system, but it could
         happen in other situations as well since hook systems don't know each
@@ -100,11 +99,11 @@ class HooksCaller:
 
         This methods makes these session IDs unique by adding the index of
         the caller as prefix.
-        '''
+        """
         sessions = {}
         for caller_id, caller in enumerate(self._callers):
             for session_id, session_desc in caller.get_sessions():
-                sid = f'{caller_id}:{session_id}'
+                sid = f"{caller_id}:{session_id}"
                 sessions[sid] = dict(sid=sid, desc=session_desc)
         return sessions
 
@@ -149,7 +148,7 @@ class _SessionInfoWorker(QtCore.QObject):
         if not submit:
             return
         try:
-            info = self._hooks_caller.get_session_info(self._session['sid'])
+            info = self._hooks_caller.get_session_info(self._session["sid"])
         except Exception as e:
             print(f"Could not get information for session '{self._session['sid']}': {e}")
             self.error.emit(self._session)
@@ -181,13 +180,13 @@ class _SceneChangeWorker(QtCore.QObject):
 
     @staticmethod
     def _filename_escape(filename):
-        s = ''
+        s = ""
         for c in filename:
             cval = ord(c)
-            if cval >= ord('!') and cval <= ord('~') and cval != ord('%'):
+            if cval >= ord("!") and cval <= ord("~") and cval != ord("%"):
                 s += c
             else:
-                s += '%%%02x' % (cval & 0xff)
+                s += "%%%02x" % (cval & 0xFF)
         return s
 
     @QtCore.Slot()
@@ -201,14 +200,14 @@ class _SceneChangeWorker(QtCore.QObject):
 
         start_time = time.time()
         scene_id, session = scene_change
-        session_id = session['sid']
-        backend = session['backend']
-        system = session['system']
+        session_id = session["sid"]
+        backend = session["backend"]
+        system = session["system"]
 
         self.buildingScene.emit(session_id, backend, system)
         cfg = self._get_scene_func(backend=backend, system=system)
         if not cfg:
-            self.error.emit(session_id, 'Error getting scene')
+            self.error.emit(session_id, "Error getting scene")
             return
 
         try:
@@ -216,36 +215,36 @@ class _SceneChangeWorker(QtCore.QObject):
             # need to sync. Similarly, the remote assets directory might be
             # different from the one in local, so we need to fix up the scene
             # appropriately.
-            serialized_scene = cfg['scene'].decode('ascii')
-            filelist = [m.filename for m in cfg['medias']] + cfg['files']
+            serialized_scene = cfg["scene"].decode("ascii")
+            filelist = [m.filename for m in cfg["medias"]] + cfg["files"]
             for i, localfile in enumerate(filelist, 1):
                 self.uploadingFile.emit(session_id, i, len(filelist), localfile)
                 try:
                     remotefile = self._hooks_caller.sync_file(session_id, localfile)
                 except Exception as e:
-                    self.error.emit(session_id, 'Error while uploading %s: %s' % (localfile, str(e)))
+                    self.error.emit(session_id, "Error while uploading %s: %s" % (localfile, str(e)))
                     return
                 serialized_scene = serialized_scene.replace(
-                    self._filename_escape(localfile),
-                    self._filename_escape(remotefile))
+                    self._filename_escape(localfile), self._filename_escape(remotefile)
+                )
 
             # The serialized scene is then stored in a file which is then
             # communicated with additional parameters to the user
             # tempfile.NamedTemporaryFile has limitations on Windows, see
             # https://docs.python.org/3/library/tempfile.html#tempfile.NamedTemporaryFile
             with tempfile.TemporaryDirectory(prefix="ngl_") as td:
-                fname = op.join(td, 'scene.ngl')
-                with open(fname, 'w', newline='\n') as fp:
+                fname = op.join(td, "scene.ngl")
+                with open(fname, "w", newline="\n") as fp:
                     fp.write(serialized_scene)
                 self.sendingScene.emit(session_id, scene_id)
                 try:
                     self._hooks_caller.scene_change(session_id, fname, cfg)
                 except Exception as e:
-                    self.error.emit(session_id, 'Error while sending scene: %s' % str(e))
+                    self.error.emit(session_id, "Error while sending scene: %s" % str(e))
                     return
                 self.success.emit(session_id, scene_id, time.time() - start_time)
         except Exception as e:
-            self.error.emit(session_id, 'Error: %s' % str(e))
+            self.error.emit(session_id, "Error: %s" % str(e))
 
 
 class HooksController(QtCore.QObject):
@@ -304,37 +303,37 @@ class HooksController(QtCore.QObject):
 
     def enable_session(self, session_id, enabled):
         if session_id in self._sessions_cache:
-            self._sessions_cache[session_id]['enabled'] = enabled
+            self._sessions_cache[session_id]["enabled"] = enabled
             self._sessions_state[session_id] = enabled
 
     @QtCore.Slot(object, str, object)
     def _session_info_success(self, session, info):
-        if session['sid'] not in self._sessions_cache:
-            enabled = self._sessions_state.get(session['sid'], True)
+        if session["sid"] not in self._sessions_cache:
+            enabled = self._sessions_state.get(session["sid"], True)
             new_session = dict(
-                sid=session['sid'],
-                desc=session['desc'],
-                backend=info.get('backend'),
-                system=info.get('system'),
+                sid=session["sid"],
+                desc=session["desc"],
+                backend=info.get("backend"),
+                system=info.get("system"),
                 enabled=enabled,
-                status='',
+                status="",
             )
-            self._sessions_cache[new_session['sid']] = new_session
+            self._sessions_cache[new_session["sid"]] = new_session
             self.session_added.emit(new_session)
 
     @QtCore.Slot(object, str)
     def _session_info_error(self, session):
-        session_id = session['sid']
+        session_id = session["sid"]
         if session_id in self._sessions_cache:
             del self._sessions_cache[session_id]
             self.session_removed.emit(session_id)
 
     def process(self, module_name, scene_name):
         for session in self._sessions_cache.values():
-            if not session['enabled']:
+            if not session["enabled"]:
                 continue
-            scene_id = f'{module_name}.{scene_name}'
-            worker = self._scene_change_workers[session['sid']]
+            scene_id = f"{module_name}.{scene_name}"
+            worker = self._scene_change_workers[session["sid"]]
             worker.submit_scene_change(scene_id, session)
 
     @QtCore.Slot(str, int, int, str)
@@ -342,7 +341,7 @@ class HooksController(QtCore.QObject):
         session = self._sessions_cache.get(session_id, None)
         if not session:
             return
-        session['status'] = 'Uploading [%d/%d]: %s...' % (i, n, filename)
+        session["status"] = "Uploading [%d/%d]: %s..." % (i, n, filename)
         self.session_status_changed.emit(session)
 
     @QtCore.Slot(str, str, str)
@@ -350,7 +349,7 @@ class HooksController(QtCore.QObject):
         session = self._sessions_cache.get(session_id, None)
         if not session:
             return
-        session['status'] = f'Building {system} scene in {backend}...'
+        session["status"] = f"Building {system} scene in {backend}..."
         self.session_status_changed.emit(session)
 
     @QtCore.Slot(str, str)
@@ -358,7 +357,7 @@ class HooksController(QtCore.QObject):
         session = self._sessions_cache.get(session_id, None)
         if not session:
             return
-        session['status'] = 'Sending scene %s...' % scene
+        session["status"] = "Sending scene %s..." % scene
         self.session_status_changed.emit(session)
 
     @QtCore.Slot(str, str, float)
@@ -366,7 +365,7 @@ class HooksController(QtCore.QObject):
         session = self._sessions_cache.get(session_id, None)
         if not session:
             return
-        session['status'] = f'Submitted {scene} in {t:f}'
+        session["status"] = f"Submitted {scene} in {t:f}"
         self.session_status_changed.emit(session)
 
     @QtCore.Slot(str, str)
@@ -374,5 +373,5 @@ class HooksController(QtCore.QObject):
         session = self._sessions_cache.get(session_id, None)
         if not session:
             return
-        session['status'] = error
+        session["status"] = error
         self.session_status_changed.emit(session)

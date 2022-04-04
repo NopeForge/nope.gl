@@ -4,10 +4,9 @@ from pynodegl_utils.toolbox.grid import AutoGrid
 import pynodegl as ngl
 
 
-@scene(overlap_time=scene.Range(range=[0, 5], unit_base=10),
-       dim=scene.Range(range=[1, 10]))
-def queued_medias(cfg, overlap_time=1., dim=3):
-    '''Queue of medias, mainly used as a demonstration for the prefetch/release mechanism'''
+@scene(overlap_time=scene.Range(range=[0, 5], unit_base=10), dim=scene.Range(range=[1, 10]))
+def queued_medias(cfg, overlap_time=1.0, dim=3):
+    """Queue of medias, mainly used as a demonstration for the prefetch/release mechanism"""
     nb_videos = dim * dim
     tqs = []
 
@@ -19,62 +18,61 @@ def queued_medias(cfg, overlap_time=1., dim=3):
             ngl.AnimKeyFrameFloat(start + cfg.duration, cfg.duration),
         ]
         m = ngl.Media(cfg.medias[video_id % len(cfg.medias)].filename, time_anim=ngl.AnimatedTime(animkf))
-        m.set_label('media #%d' % video_id)
+        m.set_label("media #%d" % video_id)
 
         t = ngl.Texture2D(data_src=m)
 
         render = ngl.RenderTexture(t)
-        render.set_label('render #%d' % video_id)
+        render.set_label("render #%d" % video_id)
         render = ag.place_node(render, (col, pos))
 
         rf = ngl.TimeRangeFilter(render)
         if start:
             rf.add_ranges(ngl.TimeRangeModeNoop(0))
-        rf.add_ranges(ngl.TimeRangeModeCont(start),
-                      ngl.TimeRangeModeNoop(start + cfg.duration/nb_videos + overlap_time))
+        rf.add_ranges(
+            ngl.TimeRangeModeCont(start), ngl.TimeRangeModeNoop(start + cfg.duration / nb_videos + overlap_time)
+        )
 
         tqs.append(rf)
 
     return ngl.Group(children=tqs)
 
 
-@scene(fast=scene.Bool(),
-       segment_time=scene.Range(range=[0.1, 10], unit_base=10),
-       constrained_timeranges=scene.Bool())
-def parallel_playback(cfg, fast=True, segment_time=2., constrained_timeranges=False):
-    '''
+@scene(fast=scene.Bool(), segment_time=scene.Range(range=[0.1, 10], unit_base=10), constrained_timeranges=scene.Bool())
+def parallel_playback(cfg, fast=True, segment_time=2.0, constrained_timeranges=False):
+    """
     Parallel media playback, flipping between the two sources.
 
     The fast version makes sure the textures continue to be updated even though
     they are not displayed. On the other hand, the slow version will update the
     textures only when needed to be displayed, causing potential seek in the
     underlying media, and thus undesired delays.
-    '''
-    m1 = ngl.Media(cfg.medias[0].filename, label='media #1')
-    m2 = ngl.Media(cfg.medias[0].filename, label='media #2')
+    """
+    m1 = ngl.Media(cfg.medias[0].filename, label="media #1")
+    m2 = ngl.Media(cfg.medias[0].filename, label="media #2")
 
-    t1 = ngl.Texture2D(data_src=m1, label='texture #1')
-    t2 = ngl.Texture2D(data_src=m2, label='texture #2')
+    t1 = ngl.Texture2D(data_src=m1, label="texture #1")
+    t2 = ngl.Texture2D(data_src=m2, label="texture #2")
 
     render1 = ngl.RenderTexture(t1)
     render2 = ngl.RenderTexture(t2)
 
-    text_settings={
-        'box_corner': (-1, 1 - 0.2, 0),
-        'box_height': (0, 0.2, 0),
-        'aspect_ratio': cfg.aspect_ratio,
+    text_settings = {
+        "box_corner": (-1, 1 - 0.2, 0),
+        "box_height": (0, 0.2, 0),
+        "aspect_ratio": cfg.aspect_ratio,
     }
-    render1 = ngl.Group(children=(render1, ngl.Text('media #1', **text_settings)))
-    render2 = ngl.Group(children=(render2, ngl.Text('media #2', **text_settings)))
+    render1 = ngl.Group(children=(render1, ngl.Text("media #1", **text_settings)))
+    render2 = ngl.Group(children=(render2, ngl.Text("media #2", **text_settings)))
 
     rf1 = ngl.TimeRangeFilter(render1)
     rf2 = ngl.TimeRangeFilter(render2)
 
     if constrained_timeranges:
-        rf1.set_prefetch_time(segment_time / 3.)
-        rf2.set_prefetch_time(segment_time / 3.)
-        rf1.set_max_idle_time(segment_time / 2.)
-        rf2.set_max_idle_time(segment_time / 2.)
+        rf1.set_prefetch_time(segment_time / 3.0)
+        rf2.set_prefetch_time(segment_time / 3.0)
+        rf1.set_max_idle_time(segment_time / 2.0)
+        rf2.set_max_idle_time(segment_time / 2.0)
 
     t = 0
     rr1 = []
@@ -98,40 +96,41 @@ def parallel_playback(cfg, fast=True, segment_time=2., constrained_timeranges=Fa
     return g
 
 
-@scene(transition_start=scene.Range(range=[0, 30]),
-       transition_duration=scene.Range(range=[0, 30]))
+@scene(transition_start=scene.Range(range=[0, 30]), transition_duration=scene.Range(range=[0, 30]))
 def simple_transition(cfg, transition_start=2, transition_duration=4):
-    '''Fading transition between two medias'''
+    """Fading transition between two medias"""
 
-    cfg.duration = transition_start*2 + transition_duration
+    cfg.duration = transition_start * 2 + transition_duration
 
-    vertex = cfg.get_vert('dual-tex')
-    fragment = cfg.get_frag('tex-mix')
+    vertex = cfg.get_vert("dual-tex")
+    fragment = cfg.get_frag("tex-mix")
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     p1_2 = ngl.Program(vertex=vertex, fragment=fragment)
     p1_2.update_vert_out_vars(var_tex0_coord=ngl.IOVec2(), var_tex1_coord=ngl.IOVec2())
 
-    m1 = ngl.Media(cfg.medias[0].filename, label='media #1')
-    m2 = ngl.Media(cfg.medias[1 % len(cfg.medias)].filename, label='media #2')
+    m1 = ngl.Media(cfg.medias[0].filename, label="media #1")
+    m2 = ngl.Media(cfg.medias[1 % len(cfg.medias)].filename, label="media #2")
 
     animkf_m2 = [
         ngl.AnimKeyFrameFloat(transition_start, 0),
-        ngl.AnimKeyFrameFloat(transition_start + cfg.duration, cfg.duration)
+        ngl.AnimKeyFrameFloat(transition_start + cfg.duration, cfg.duration),
     ]
     m2.set_time_anim(ngl.AnimatedTime(animkf_m2))
 
-    t1 = ngl.Texture2D(data_src=m1, label='texture #1')
-    t2 = ngl.Texture2D(data_src=m2, label='texture #2')
+    t1 = ngl.Texture2D(data_src=m1, label="texture #1")
+    t2 = ngl.Texture2D(data_src=m2, label="texture #2")
 
-    render1 = ngl.RenderTexture(t1, label='render #1')
-    render2 = ngl.RenderTexture(t2, label='render #2')
+    render1 = ngl.RenderTexture(t1, label="render #1")
+    render2 = ngl.RenderTexture(t2, label="render #2")
 
-    delta_animkf = [ngl.AnimKeyFrameFloat(transition_start, 1.0),
-                    ngl.AnimKeyFrameFloat(transition_start + transition_duration, 0.0)]
+    delta_animkf = [
+        ngl.AnimKeyFrameFloat(transition_start, 1.0),
+        ngl.AnimKeyFrameFloat(transition_start + transition_duration, 0.0),
+    ]
     delta = ngl.AnimatedFloat(delta_animkf)
 
-    render1_2 = ngl.Render(q, p1_2, label='transition')
+    render1_2 = ngl.Render(q, p1_2, label="transition")
     render1_2.update_frag_resources(tex0=t1, tex1=t2)
     render1_2.update_frag_resources(delta=delta)
 

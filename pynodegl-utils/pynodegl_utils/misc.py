@@ -44,7 +44,7 @@ def scene(**controls):
             scene_cfg = SceneCfg(**idict)
             scene = scene_func(scene_cfg, **extra_args)
             odict = scene_cfg.as_dict()
-            odict['scene'] = scene
+            odict["scene"] = scene
             return odict
 
         # Construct widgets specs
@@ -78,37 +78,38 @@ def scene(**controls):
     return real_decorator
 
 
-scene.Range = namedtuple('Range',  'range unit_base', defaults=([0, 1], 1))
-scene.Vector = namedtuple('Vector', 'n minv maxv', defaults=(None, None))
-scene.Color = namedtuple('Color',  '')
-scene.Bool = namedtuple('Bool', '')
-scene.File = namedtuple('File', 'filter', defaults=('',))
-scene.List = namedtuple('List', 'choices')
-scene.Text = namedtuple('Text', '')
+scene.Range = namedtuple("Range", "range unit_base", defaults=([0, 1], 1))
+scene.Vector = namedtuple("Vector", "n minv maxv", defaults=(None, None))
+scene.Color = namedtuple("Color", "")
+scene.Bool = namedtuple("Bool", "")
+scene.File = namedtuple("File", "filter", defaults=("",))
+scene.List = namedtuple("List", "choices")
+scene.Text = namedtuple("Text", "")
 
 
 class Media:
-
     def __init__(self, filename):
         self._filename = filename
         self._set_media_dimensions()
 
     def _set_media_dimensions(self):
-        data = subprocess.check_output([
-            # fmt: off
+        data = subprocess.check_output(
+            [
+                # fmt: off
             "ffprobe",
             "-v", "0",
             "-select_streams", "v:0",
             "-of", "json",
             "-show_streams", "-show_format",
             self._filename,
-            # fmt: on
-        ])
+                # fmt: on
+            ]
+        )
         data = json.loads(data)
-        st = data['streams'][0]
-        self._dimensions = (st['width'], st['height'])
-        self._duration = float(data['format'].get('duration', 1))
-        self._framerate = tuple(int(x) for x in st['avg_frame_rate'].split('/'))
+        st = data["streams"][0]
+        self._dimensions = (st["width"], st["height"])
+        self._duration = float(data["format"].get("duration", 1))
+        self._framerate = tuple(int(x) for x in st["avg_frame_rate"].split("/"))
 
     @property
     def filename(self):
@@ -140,24 +141,24 @@ class Media:
 
 
 def get_nodegl_tempdir():
-    tmpdir = op.join(tempfile.gettempdir(), 'nodegl')
+    tmpdir = op.join(tempfile.gettempdir(), "nodegl")
     os.makedirs(tmpdir, exist_ok=True)
     return tmpdir
 
 
 class SceneCfg:
 
-    _DEFAULT_MEDIA_FILE = op.join(get_nodegl_tempdir(), 'ngl-media.mp4')
+    _DEFAULT_MEDIA_FILE = op.join(get_nodegl_tempdir(), "ngl-media.mp4")
     _DEFAULT_FIELDS = {
-        'aspect_ratio': (16, 9),
-        'duration': 30.0,
-        'framerate': (60, 1),
-        'backend': 'opengl',
-        'samples': 0,
-        'system': platform.system(),
-        'files': [],
-        'medias': None,
-        'clear_color': (0.0, 0.0, 0.0, 1.0),
+        "aspect_ratio": (16, 9),
+        "duration": 30.0,
+        "framerate": (60, 1),
+        "backend": "opengl",
+        "samples": 0,
+        "system": platform.system(),
+        "files": [],
+        "medias": None,
+        "clear_color": (0.0, 0.0, 0.0, 1.0),
     }
 
     def __init__(self, **kwargs):
@@ -170,17 +171,19 @@ class SceneCfg:
             if not op.exists(self._DEFAULT_MEDIA_FILE):
                 media_duration = int(math.ceil(self.duration))
                 media_fps = self.framerate
-                ret = subprocess.call([
-                    # fmt: off
+                ret = subprocess.call(
+                    [
+                        # fmt: off
                     "ffmpeg",
                     "-nostdin", "-nostats",
                     "-f", "lavfi",
                     "-i", f"testsrc2=d={media_duration}:r={media_fps[0]}/{media_fps[1]}",
                     media_file,
-                    # fmt: on
-                ])
+                        # fmt: on
+                    ]
+                )
                 if ret:
-                    raise Exception('Unable to create a media file using ffmpeg (ret=%d)' % ret)
+                    raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
             self.medias = [Media(media_file)]
 
         # Predictible random number generator
@@ -198,17 +201,17 @@ class SceneCfg:
 
     def _get_shader(self, name, stype, module):
         if module is None:
-            module = 'pynodegl_utils.examples.shaders'
-        return pkgutil.get_data(module, f'{name}.{stype}')
+            module = "pynodegl_utils.examples.shaders"
+        return pkgutil.get_data(module, f"{name}.{stype}")
 
     def get_frag(self, name, module=None):
-        return self._get_shader(name, 'frag', module)
+        return self._get_shader(name, "frag", module)
 
     def get_vert(self, name, module=None):
-        return self._get_shader(name, 'vert', module)
+        return self._get_shader(name, "vert", module)
 
     def get_comp(self, name, module=None):
-        return self._get_shader(name, 'comp', module)
+        return self._get_shader(name, "comp", module)
 
 
 def get_viewport(width, height, aspect_ratio):
@@ -224,8 +227,8 @@ def get_viewport(width, height, aspect_ratio):
 
 def get_backend(backend):
     backend_map = {
-        'opengl': ngl.BACKEND_OPENGL,
-        'opengles': ngl.BACKEND_OPENGLES,
-        'vulkan': ngl.BACKEND_VULKAN,
+        "opengl": ngl.BACKEND_OPENGL,
+        "opengles": ngl.BACKEND_OPENGLES,
+        "vulkan": ngl.BACKEND_VULKAN,
     }
     return backend_map[backend]

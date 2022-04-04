@@ -25,13 +25,13 @@ import pynodegl as ngl
 
 
 def get_debug_points(cfg, points, radius=0.025, color=COLORS.green, text_size=(0.1, 0.1)):
-    g = ngl.Group(label='Debug circles')
+    g = ngl.Group(label="Debug circles")
     circle = ngl.Circle(radius=radius)
     circle_render = ngl.RenderColor(color, geometry=circle)
     box_w = (text_size[0], 0, 0)
     box_h = (0, text_size[1], 0)
     for pos_name, position in points.items():
-        text = ngl.Text(pos_name, box_width=box_w, box_height=box_h, bg_opacity=0, valign='top')
+        text = ngl.Text(pos_name, box_width=box_w, box_height=box_h, bg_opacity=0, valign="top")
         text = ngl.Translate(text, (1 + radius, 1 - radius - text_size[1], 0))
         point = ngl.Group(children=(circle_render, text))
         point = ngl.Translate(point, list(position) + [0])

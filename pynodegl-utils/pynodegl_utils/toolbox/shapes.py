@@ -23,12 +23,12 @@ import math
 
 
 def equilateral_triangle_coords(d=1.0):
-    '''
+    """
     Return the 3 coordinates of an equilateral triangle in that order:
     bottom-left, bottom-right, top-center. d is the diameter of the circle in
     which the centered triangle fits, r its radius.
-    '''
-    r = d * .5
-    b = r * math.sqrt(3) * .5
-    c = r * .5
+    """
+    r = d * 0.5
+    b = r * math.sqrt(3) * 0.5
+    c = r * 0.5
     return (-b, -c, 0), (b, -c, 0), (0, r, 0)

@@ -30,13 +30,12 @@ from .config import Config
 
 
 class ResourceTracker:
-
     def __init__(self):
         self.filelist = set()
         self.modulelist = set()
         self._builtin_open = builtins.open
         self._io_open = _io.open
-        self._pysysdir = op.realpath(sysconfig.get_paths()['stdlib'])
+        self._pysysdir = op.realpath(sysconfig.get_paths()["stdlib"])
         self._configfile = op.realpath(Config.FILEPATH)
 
     def _register_file(self, file):
@@ -60,15 +59,15 @@ class ResourceTracker:
     def _get_trackable_files(self):
         files = set()
         for mod in sys.modules.values():
-            if not hasattr(mod, '__file__') or mod.__file__ is None:
+            if not hasattr(mod, "__file__") or mod.__file__ is None:
                 continue
             path = op.realpath(mod.__file__)
             modpath = op.dirname(path)
             if modpath.startswith(self._pysysdir):
                 continue
-            if path.endswith('.pyc'):
+            if path.endswith(".pyc"):
                 path = path[:-1]
-            elif not path.endswith('.py'):
+            elif not path.endswith(".py"):
                 continue
             files.update([path])
         return files
@@ -88,16 +87,17 @@ class ResourceTracker:
         _io.open = self._io_open
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import pkgutil
 
     tracker = ResourceTracker()
     tracker.start_hooking()
 
-    open(op.join(op.dirname(__file__), 'examples', 'shaders', 'texture.vert'))
-    pkgutil.get_data('pynodegl_utils.examples.shaders', 'texture.frag')
+    open(op.join(op.dirname(__file__), "examples", "shaders", "texture.vert"))
+    pkgutil.get_data("pynodegl_utils.examples.shaders", "texture.frag")
 
     tracker.end_hooking()
 
     import pprint
+
     pprint.pprint(tracker.filelist)

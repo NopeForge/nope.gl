@@ -31,7 +31,7 @@ class Seekbar(QtWidgets.QWidget):
     step = QtCore.Signal(int)
 
     SLIDER_TIMEBASE = 1000
-    SLIDER_TIMESCALE = 1. / SLIDER_TIMEBASE
+    SLIDER_TIMESCALE = 1.0 / SLIDER_TIMEBASE
 
     def __init__(self, config):
         super().__init__()
@@ -41,9 +41,9 @@ class Seekbar(QtWidgets.QWidget):
         self._time_lbl.setFont(QtGui.QFontDatabase.systemFont(QtGui.QFontDatabase.FixedFont))
 
         fw_btn = QtWidgets.QToolButton()
-        fw_btn.setText('>')
+        fw_btn.setText(">")
         bw_btn = QtWidgets.QToolButton()
-        bw_btn.setText('<')
+        bw_btn.setText("<")
 
         layout = QtWidgets.QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -54,7 +54,7 @@ class Seekbar(QtWidgets.QWidget):
 
         self._frame_index = 0
         self._scene_duration = 0
-        self._framerate = Fraction(*config.get('framerate'))
+        self._framerate = Fraction(*config.get("framerate"))
 
         self._slider.sliderMoved.connect(self._slider_moved)
         self._slider.sliderPressed.connect(self._slider_pressed)
@@ -88,14 +88,14 @@ class Seekbar(QtWidgets.QWidget):
         self.step.emit(-1)
 
     def _get_time_lbl_text(self, frame_index, frame_time):
-        cur_time = '%02d:%02d' % divmod(frame_time, 60)
-        duration = '%02d:%02d' % divmod(self._scene_duration, 60)
-        return '%s / %s (%d @ %.4gHz)' % (cur_time, duration, frame_index, self._framerate)
+        cur_time = "%02d:%02d" % divmod(frame_time, 60)
+        duration = "%02d:%02d" % divmod(self._scene_duration, 60)
+        return "%s / %s (%d @ %.4gHz)" % (cur_time, duration, frame_index, self._framerate)
 
     def _adjust_time_label_size(self):
         # Make the time label flexible again
         self._time_lbl.setMinimumSize(0, 0)
-        self._time_lbl.setMaximumSize(0xffffff, 0xffffff)
+        self._time_lbl.setMaximumSize(0xFFFFFF, 0xFFFFFF)
 
         # Set the label to its largest possible content (last frame)
         last_frame_index = int(math.ceil(self._scene_duration * self._framerate))
@@ -108,8 +108,8 @@ class Seekbar(QtWidgets.QWidget):
 
     @QtCore.Slot(dict)
     def set_scene_metadata(self, cfg):
-        self._scene_duration = cfg['duration']
-        self._framerate = Fraction(*cfg['framerate'])
+        self._scene_duration = cfg["duration"]
+        self._framerate = Fraction(*cfg["framerate"])
         self._slider.setRange(0, self._scene_duration * self.SLIDER_TIMEBASE)
         self._adjust_time_label_size()
         self._refresh()

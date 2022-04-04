@@ -29,7 +29,6 @@ import pynodegl as ngl
 
 
 class CompareBase:
-
     @staticmethod
     def serialize(data):
         return data
@@ -49,33 +48,36 @@ class CompareBase:
         if ref_data != out_data:
             ref_data = ref_data.splitlines(True)
             out_data = out_data.splitlines(True)
-            diff = ''.join(difflib.unified_diff(ref_data, out_data, fromfile=test_name + '-ref', tofile=test_name + '-out', n=10))
-            err.append(f'{test_name} fail:\n{diff}')
+            diff = "".join(
+                difflib.unified_diff(ref_data, out_data, fromfile=test_name + "-ref", tofile=test_name + "-out", n=10)
+            )
+            err.append(f"{test_name} fail:\n{diff}")
         return err
 
     @staticmethod
     def dump_image(img, dump_index, func_name=None):
-        test_tmpdir = op.join(get_nodegl_tempdir(), 'tests')
+        test_tmpdir = op.join(get_nodegl_tempdir(), "tests")
         os.makedirs(test_tmpdir, exist_ok=True)
-        filename = op.join(test_tmpdir, f'{func_name}_{dump_index:03}.png')
-        print(f'Dumping output image to {filename}')
+        filename = op.join(test_tmpdir, f"{func_name}_{dump_index:03}.png")
+        print(f"Dumping output image to {filename}")
         img.save(filename)
         dump_index += 1
 
 
 class CompareSceneBase(CompareBase):
-
-    def __init__(self,
-                 scene_func,
-                 width=1280,
-                 height=800,
-                 nb_keyframes=1,
-                 keyframes_callback=None,
-                 clear_color=(0.0, 0.0, 0.0, 1.0),
-                 exercise_serialization=True,
-                 exercise_dot=True,
-                 samples=0,
-                 **scene_kwargs):
+    def __init__(
+        self,
+        scene_func,
+        width=1280,
+        height=800,
+        nb_keyframes=1,
+        keyframes_callback=None,
+        clear_color=(0.0, 0.0, 0.0, 1.0),
+        exercise_serialization=True,
+        exercise_dot=True,
+        samples=0,
+        **scene_kwargs,
+    ):
         self._width = width
         self._height = height
         self._nb_keyframes = nb_keyframes
@@ -95,24 +97,28 @@ class CompareSceneBase(CompareBase):
         # default ngl-media.mp4.
         idict = dict(medias=[])
 
-        backend = os.environ.get('BACKEND')
+        backend = os.environ.get("BACKEND")
         if backend:
-            idict['backend'] = backend
+            idict["backend"] = backend
 
         ret = self._scene_func(idict=idict, **self._scene_kwargs)
         width, height = self._width, self._height
-        duration = ret['duration']
-        scene = ret['scene']
+        duration = ret["duration"]
+        scene = ret["scene"]
 
         capture_buffer = bytearray(width * height * 4)
         ctx = ngl.Context()
-        ret = ctx.configure(offscreen=1, width=width, height=height,
-                             backend=get_backend(backend) if backend else ngl.BACKEND_AUTO,
-                             samples=self._samples,
-                             clear_color=self._clear_color,
-                             capture_buffer=capture_buffer,
-                             hud=self._hud,
-                             hud_export_filename=self._hud_export_filename)
+        ret = ctx.configure(
+            offscreen=1,
+            width=width,
+            height=height,
+            backend=get_backend(backend) if backend else ngl.BACKEND_AUTO,
+            samples=self._samples,
+            clear_color=self._clear_color,
+            capture_buffer=capture_buffer,
+            hud=self._hud,
+            hud_export_filename=self._hud_export_filename,
+        )
         assert ret == 0
         timescale = duration / float(self._nb_keyframes)
 
@@ -142,5 +148,7 @@ def get_test_decorator(cls):
             # Inject a tester for ngl-test
             user_func.tester = cls(user_func, *args, **kwargs)
             return user_func
+
         return test_decorator
+
     return test_func

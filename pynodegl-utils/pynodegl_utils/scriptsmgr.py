@@ -62,8 +62,8 @@ class ScriptsManager(QtCore.QObject):
     def resume(self):
         self._observer.unschedule_all()
         for path in self._dirs_to_watch:
-            if path == '':
-                path = '.'
+            if path == "":
+                path = "."
             try:
                 self._observer.schedule(self._event_handler, path)
             except Exception as e:
@@ -93,30 +93,30 @@ class ScriptsManager(QtCore.QObject):
             del sys.modules[name]
         self._modules = set()
         odict = query_list(self._module_pkgname)
-        if 'error' in odict:
-            self.update_filelist(odict['filelist'])
-            self.update_modulelist(odict['modulelist'])
+        if "error" in odict:
+            self.update_filelist(odict["filelist"])
+            self.update_modulelist(odict["modulelist"])
             self.resume()
             self._set_reloaded()
-            self.error.emit(odict['error'])
+            self.error.emit(odict["error"])
             return
         self.error.emit(None)
 
-        self.set_filelist(odict['filelist'])
-        self.set_modulelist(odict['modulelist'])
+        self.set_filelist(odict["filelist"])
+        self.set_modulelist(odict["modulelist"])
         self.resume()
         self._set_reloaded()
 
-        scripts = odict['scenes']
+        scripts = odict["scenes"]
         self.scriptsChanged.emit(scripts)
 
     def _on_any_event(self, event):
         def print_reload():
-            print('Reloading scene')
+            print("Reloading scene")
             self.reload()
 
         if event.src_path in self._files_to_watch:
-            print('Change detected in %s' % event.src_path)
+            print("Change detected in %s" % event.src_path)
             if self._timer is not None:
                 self._timer.cancel()
             self._timer = Timer(MIN_RELOAD_INTERVAL, print_reload, ())

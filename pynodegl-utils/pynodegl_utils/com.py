@@ -30,9 +30,8 @@ from pynodegl_utils.resourcetracker import ResourceTracker
 
 
 def _wrap_query(func):
-
     def wrapped_func(pkg, *args, **kwargs):
-        module_is_script = pkg.endswith('.py')
+        module_is_script = pkg.endswith(".py")
 
         # Start tracking the imported modules and opened files
         rtracker = ResourceTracker()
@@ -43,14 +42,14 @@ def _wrap_query(func):
         try:
             odict = func(pkg, *args, **kwargs)
         except:
-            odict['error'] = traceback.format_exc()
+            odict["error"] = traceback.format_exc()
 
         # End of file and modules tracking
         rtracker.end_hooking()
-        odict['filelist'] = rtracker.filelist
-        odict['modulelist'] = rtracker.modulelist
+        odict["filelist"] = rtracker.filelist
+        odict["modulelist"] = rtracker.modulelist
         if module_is_script:
-            odict['filelist'].update([pkg])
+            odict["filelist"].update([pkg])
 
         return odict
 
@@ -59,31 +58,31 @@ def _wrap_query(func):
 
 @_wrap_query
 def query_scene(pkg, **idict):
-    module_is_script = pkg.endswith('.py')
+    module_is_script = pkg.endswith(".py")
 
     # Get module.func
-    module_name, scene_name = idict['scene']
+    module_name, scene_name = idict["scene"]
     if module_is_script:
         module = load_script(pkg)
     else:
-        import_name = f'{pkg}.{module_name}'
+        import_name = f"{pkg}.{module_name}"
         module = importlib.import_module(import_name)
     func = getattr(module, scene_name)
 
     # Call user constructing function
-    odict = func(idict, **idict.get('extra_args', {}))
-    scene = odict.pop('scene')
+    odict = func(idict, **idict.get("extra_args", {}))
+    scene = odict.pop("scene")
     scene.set_label(scene_name)
 
     # Prepare output data
-    odict['scene'] = scene.dot() if idict.get('fmt') == 'dot' else scene.serialize()
+    odict["scene"] = scene.dot() if idict.get("fmt") == "dot" else scene.serialize()
 
     return odict
 
 
 @_wrap_query
 def query_list(pkg):
-    module_is_script = pkg.endswith('.py')
+    module_is_script = pkg.endswith(".py")
 
     scripts = []
 
@@ -98,7 +97,7 @@ def query_list(pkg):
             module_finder, module_name, ispkg = submod
             if ispkg:
                 continue
-            script = importlib.import_module('.' + module_name, pkg)
+            script = importlib.import_module("." + module_name, pkg)
             scripts.append((module_name, script))
 
     # Find all the scenes
@@ -108,7 +107,7 @@ def query_list(pkg):
         sub_scenes = []
         for func in all_funcs:
             scene_name, func_wrapper = func
-            if not hasattr(func_wrapper, 'iam_a_ngl_scene_func'):
+            if not hasattr(func_wrapper, "iam_a_ngl_scene_func"):
                 continue
             sub_scenes.append((scene_name, func_wrapper.__doc__, func_wrapper.widgets_specs))
         if sub_scenes:

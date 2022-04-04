@@ -26,15 +26,15 @@ from pynodegl_utils.tests.debug import get_debug_points
 
 import pynodegl as ngl
 
-_FIELDS_VERT = '''
+_FIELDS_VERT = """
 void main()
 {
     ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
     var_uvcoord = ngl_uvcoord;
 }
-'''
+"""
 
-_FIELDS_FRAG = '''
+_FIELDS_FRAG = """
 float in_rect(vec4 rect, vec2 pos)
 {
     return (1.0 - step(pos.x, rect.x)) * step(pos.x, rect.x + rect.z) *
@@ -50,9 +50,9 @@ void main()
     vec3 res = %(func_calls)s;
     ngl_out_color = vec4(res, 1.0);
 }
-'''
+"""
 
-_ARRAY_TPL = '''
+_ARRAY_TPL = """
 vec3 get_color_%(field_name)s(float w, float h, float x, float y)
 {
     float amount = 0.0;
@@ -62,25 +62,25 @@ vec3 get_color_%(field_name)s(float w, float h, float x, float y)
     }
     return %(colors_prefix)s%(field_name)s * amount;
 }
-'''
+"""
 
-_SINGLE_TPL = '''
+_SINGLE_TPL = """
 vec3 get_color_%(field_name)s(float w, float h, float x, float y)
 {
     float amount = 0.0;
     %(amount_code)s
     return %(colors_prefix)s%(field_name)s * amount;
 }
-'''
+"""
 
-_COMMON_INT_TPL = 'amount += float(%(fields_prefix)s%(field_name)s%(vec_field)s) * %(scale)f * in_rect(rect_%(comp_id)d, var_uvcoord);'
-_COMMON_FLT_TPL = 'amount += %(fields_prefix)s%(field_name)s%(vec_field)s * in_rect(rect_%(comp_id)d, var_uvcoord);'
+_COMMON_INT_TPL = "amount += float(%(fields_prefix)s%(field_name)s%(vec_field)s) * %(scale)f * in_rect(rect_%(comp_id)d, var_uvcoord);"
+_COMMON_FLT_TPL = "amount += %(fields_prefix)s%(field_name)s%(vec_field)s * in_rect(rect_%(comp_id)d, var_uvcoord);"
 
-_RECT_ARRAY_TPL = 'vec4 rect_%(comp_id)d = vec4(x + %(row)f * w / (%(nb_rows)f * float(len)) + float(i) * w / float(len), y + %(col)f * h / %(nb_cols)f, w / %(nb_rows)f / float(len), h / %(nb_cols)f);'
-_RECT_SINGLE_TPL = 'vec4 rect_%(comp_id)d = vec4(x + %(col)f * w / %(nb_cols)f, y + %(row)f * h / %(nb_rows)f, w / %(nb_cols)f, h / %(nb_rows)f);'
+_RECT_ARRAY_TPL = "vec4 rect_%(comp_id)d = vec4(x + %(row)f * w / (%(nb_rows)f * float(len)) + float(i) * w / float(len), y + %(col)f * h / %(nb_cols)f, w / %(nb_rows)f / float(len), h / %(nb_cols)f);"
+_RECT_SINGLE_TPL = "vec4 rect_%(comp_id)d = vec4(x + %(col)f * w / %(nb_cols)f, y + %(row)f * h / %(nb_rows)f, w / %(nb_cols)f, h / %(nb_rows)f);"
 
 ANIM_DURATION = 5.0
-LAYOUTS = ('std140', 'std430', 'uniform')
+LAYOUTS = ("std140", "std430", "uniform")
 
 # row, col, scale
 _TYPE_SPEC = dict(
@@ -115,8 +115,8 @@ def _get_display_glsl_func(layout, field_name, field_type, field_len=None):
     amount_tpl = _COMMON_INT_TPL if scale is not None else _COMMON_FLT_TPL
 
     tpl_data = dict(
-        colors_prefix='color_' if layout == 'uniform' else 'colors.',
-        fields_prefix='field_' if layout == 'uniform' else 'fields.',
+        colors_prefix="color_" if layout == "uniform" else "colors.",
+        fields_prefix="field_" if layout == "uniform" else "fields.",
         field_name=field_name,
         field_len=field_len,
         nb_comp=nb_comp,
@@ -128,48 +128,48 @@ def _get_display_glsl_func(layout, field_name, field_type, field_len=None):
         for col in range(cols):
             comp_id = row * cols + col
 
-            tpl_data['col'] = col
-            tpl_data['row'] = row
-            tpl_data['nb_cols'] = cols
-            tpl_data['nb_rows'] = rows
+            tpl_data["col"] = col
+            tpl_data["row"] = row
+            tpl_data["nb_cols"] = cols
+            tpl_data["nb_rows"] = rows
 
             if nb_comp == 16:
-                tpl_data['vec_field'] = '[%d][%d]' % (col, row)
+                tpl_data["vec_field"] = "[%d][%d]" % (col, row)
             elif nb_comp >= 1 and nb_comp <= 4:
-                tpl_data['vec_field'] = '.' + "xyzw"[comp_id] if nb_comp != 1 else ''
+                tpl_data["vec_field"] = "." + "xyzw"[comp_id] if nb_comp != 1 else ""
             else:
                 assert False
 
             if is_array:
-                tpl_data['vec_field'] = '[i]' + tpl_data['vec_field']
+                tpl_data["vec_field"] = "[i]" + tpl_data["vec_field"]
 
             if scale:
-                tpl_data['scale'] = scale
+                tpl_data["scale"] = scale
 
-            tpl_data['comp_id'] = comp_id
+            tpl_data["comp_id"] = comp_id
             rect_lines.append(rect_tpl % tpl_data)
             amount_lines.append(amount_tpl % tpl_data)
 
-    tpl_data['amount_code'] = ('\n' + (1 + is_array) * 4 * ' ').join(rect_lines + amount_lines)
+    tpl_data["amount_code"] = ("\n" + (1 + is_array) * 4 * " ").join(rect_lines + amount_lines)
 
     return tpl % tpl_data
 
 
 def _get_debug_point(rect):
-    xpos = rect[0] + rect[2]/2.
-    ypos = rect[1] + rect[3]/2.
-    xpos = xpos * 2. - 1
-    ypos = ypos * 2. - 1
+    xpos = rect[0] + rect[2] / 2.0
+    ypos = rect[1] + rect[3] / 2.0
+    xpos = xpos * 2.0 - 1
+    ypos = ypos * 2.0 - 1
     return xpos, ypos
 
 
 def _get_debug_positions_from_fields(fields):
     debug_points = {}
     for i, field in enumerate(fields):
-        array_len = field.get('len')
-        nb_rows, nb_cols, _ = _TYPE_SPEC[field['type']]
+        array_len = field.get("len")
+        nb_rows, nb_cols, _ = _TYPE_SPEC[field["type"]]
 
-        name = field['name']
+        name = field["name"]
         comp_id = 0
 
         w = 1.0
@@ -180,22 +180,26 @@ def _get_debug_positions_from_fields(fields):
         if array_len is None:
             for row in range(nb_rows):
                 for col in range(nb_cols):
-                    rect = (x + col * w / float(nb_cols),
-                            y + row * h / float(nb_rows),
-                            w / float(nb_cols),
-                            h / float(nb_rows))
-                    debug_points[f'{name}_{comp_id}'] = _get_debug_point(rect)
+                    rect = (
+                        x + col * w / float(nb_cols),
+                        y + row * h / float(nb_rows),
+                        w / float(nb_cols),
+                        h / float(nb_rows),
+                    )
+                    debug_points[f"{name}_{comp_id}"] = _get_debug_point(rect)
                     comp_id += 1
 
         else:
             for i in range(array_len):
                 for row in range(nb_rows):
                     for col in range(nb_cols):
-                        rect = (x + row * w / (nb_rows * array_len) + i * w / float(array_len),
-                                y + col * h / float(nb_cols),
-                                w / float(nb_rows) / float(array_len),
-                                h / float(nb_cols))
-                        debug_points[f'{name}_{comp_id}'] = _get_debug_point(rect)
+                        rect = (
+                            x + row * w / (nb_rows * array_len) + i * w / float(array_len),
+                            y + col * h / float(nb_cols),
+                            w / float(nb_rows) / float(array_len),
+                            h / float(nb_cols),
+                        )
+                        debug_points[f"{name}_{comp_id}"] = _get_debug_point(rect)
                         comp_id += 1
 
     return debug_points
@@ -206,18 +210,20 @@ def get_data_debug_positions(spec, field_id):
     return _get_debug_positions_from_fields(fields)
 
 
-def get_render(cfg, quad, fields, block_definition, color_definition, block_fields, color_fields, layout, debug_positions=False):
+def get_render(
+    cfg, quad, fields, block_definition, color_definition, block_fields, color_fields, layout, debug_positions=False
+):
 
     func_calls = []
     func_definitions = []
     for i, field in enumerate(fields):
-        field_len = field.get('len')
-        func_calls.append('get_color_{}(w, h, 0.0, {:f} * h)'.format(field['name'], i))
-        func_definitions.append(_get_display_glsl_func(layout, field['name'], field['type'], field_len=field_len))
+        field_len = field.get("len")
+        func_calls.append("get_color_{}(w, h, 0.0, {:f} * h)".format(field["name"], i))
+        func_definitions.append(_get_display_glsl_func(layout, field["name"], field["type"], field_len=field_len))
 
     frag_data = dict(
-        func_definitions='\n'.join(func_definitions),
-        func_calls=' + '.join(func_calls),
+        func_definitions="\n".join(func_definitions),
+        func_calls=" + ".join(func_calls),
     )
 
     fragment = _FIELDS_FRAG % frag_data
@@ -229,10 +235,10 @@ def get_render(cfg, quad, fields, block_definition, color_definition, block_fiel
 
     if isinstance(color_fields, dict):
         assert isinstance(block_fields, dict)
-        field_names = {f['name'] for f in fields}
+        field_names = {f["name"] for f in fields}
         d = {}
-        d.update(('color_' + n, u) for (n, u) in color_fields.items() if n in field_names)
-        d.update(('field_' + n, u) for (n, u) in block_fields.items() if n in field_names)
+        d.update(("color_" + n, u) for (n, u) in color_fields.items() if n in field_names)
+        d.update(("field_" + n, u) for (n, u) in block_fields.items() if n in field_names)
         render.update_frag_resources(**d)
     else:
         render.update_frag_resources(fields=block_fields, colors=color_fields)
@@ -241,7 +247,7 @@ def get_render(cfg, quad, fields, block_definition, color_definition, block_fiel
 
     if debug_positions:
         debug_points = _get_debug_positions_from_fields(fields)
-        dbg_circles = get_debug_points(cfg, debug_points, text_size=(.2, .1))
+        dbg_circles = get_debug_points(cfg, debug_points, text_size=(0.2, 0.1))
         g = ngl.Group(children=(render, dbg_circles))
         return g
 
@@ -251,14 +257,14 @@ def get_render(cfg, quad, fields, block_definition, color_definition, block_fiel
 def match_fields(fields, target_field_id):
     ret = []
     for field_info in fields:
-        field_id = '{category}_{type}'.format(**field_info)
+        field_id = "{category}_{type}".format(**field_info)
         if field_id == target_field_id:
             ret.append(field_info)
     return ret
 
 
 def gen_floats(n):
-    return [(i + .5) / float(n) for i in range(n)]
+    return [(i + 0.5) / float(n) for i in range(n)]
 
 
 def gen_ints(n):
@@ -266,7 +272,7 @@ def gen_ints(n):
 
 
 def _get_anim_kf(key_cls, data):
-    t0, t1, t2 = 0, ANIM_DURATION / 2., ANIM_DURATION
+    t0, t1, t2 = 0, ANIM_DURATION / 2.0, ANIM_DURATION
     if data is None:
         _, v1, v2, _ = gen_floats(4)
         return [key_cls(t0, v1), key_cls(t1, v2), key_cls(t2, v1)]
@@ -319,14 +325,14 @@ FUNCS = dict(
 
 
 def _get_field_decl(layout, f):
-    t = f['type']
-    t = t.split('_')[1] if t.startswith('quat') else t
-    return '{}{:<5} {}{}{}'.format(
-        'uniform ' if layout == 'uniform' else '',
+    t = f["type"]
+    t = t.split("_")[1] if t.startswith("quat") else t
+    return "{}{:<5} {}{}{}".format(
+        "uniform " if layout == "uniform" else "",
         t,
-        'field_' if layout == 'uniform' else '',
-        f['name'],
-        '[%d]' % f['len'] if 'len' in f else ''
+        "field_" if layout == "uniform" else "",
+        f["name"],
+        "[%d]" % f["len"] if "len" in f else "",
     )
 
 
@@ -340,34 +346,34 @@ def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
     fields_info = []
     max_id_len = 0
     for i, field_info in enumerate(spec):
-        node = field_info['func'](field_info.get('data'))
-        node.set_label(field_info['name'])
-        field_info['node'] = node
-        field_info['decl'] = _get_field_decl(layout, field_info)
-        field_info['pos'] = fields_pos.index(i)
-        max_id_len = max(len(field_info['decl']), max_id_len)
+        node = field_info["func"](field_info.get("data"))
+        node.set_label(field_info["name"])
+        field_info["node"] = node
+        field_info["decl"] = _get_field_decl(layout, field_info)
+        field_info["pos"] = fields_pos.index(i)
+        max_id_len = max(len(field_info["decl"]), max_id_len)
         if color_tint:
             hue = clr_rng.uniform(0, 1)
-            field_info['color'] = colorsys.hls_to_rgb(hue, 0.6, 1.0)
+            field_info["color"] = colorsys.hls_to_rgb(hue, 0.6, 1.0)
         else:
-            field_info['color'] = (1, 1, 1)
+            field_info["color"] = (1, 1, 1)
         fields_info.append(field_info)
 
     shuf_fields = [fields_info[pos] for pos in fields_pos]
-    color_fields = [(f['name'], ngl.UniformVec3(f['color'], label=f['name'])) for f in fields_info]
-    block_fields = [(f['name'], f['node']) for f in shuf_fields]
-    if layout == 'uniform':
+    color_fields = [(f["name"], ngl.UniformVec3(f["color"], label=f["name"])) for f in fields_info]
+    block_fields = [(f["name"], f["node"]) for f in shuf_fields]
+    if layout == "uniform":
         color_fields = dict(color_fields)
         block_fields = dict(block_fields)
     else:
-        color_fields = ngl.Block(fields=[f for n, f in color_fields], layout=layout, label='colors_block')
-        block_fields = ngl.Block(fields=[f for n, f in block_fields], layout=layout, label='fields_block')
+        color_fields = ngl.Block(fields=[f for n, f in color_fields], layout=layout, label="colors_block")
+        block_fields = ngl.Block(fields=[f for n, f in block_fields], layout=layout, label="fields_block")
 
-    pad = lambda s: (max_id_len - len(s)) * ' '
-    block_definition = '\n'.join('%s;%s // #%02d' % (f['decl'], pad(f['decl']), i) for i, f in enumerate(shuf_fields))
+    pad = lambda s: (max_id_len - len(s)) * " "
+    block_definition = "\n".join("%s;%s // #%02d" % (f["decl"], pad(f["decl"]), i) for i, f in enumerate(shuf_fields))
 
-    color_prefix = 'color_' if layout == 'uniform' else ''
-    color_u = 'uniform ' if layout == 'uniform' else ''
-    color_definition = '\n'.join(color_u + 'vec3 %s;' % (color_prefix + f['name']) for f in fields_info)
+    color_prefix = "color_" if layout == "uniform" else ""
+    color_u = "uniform " if layout == "uniform" else ""
+    color_definition = "\n".join(color_u + "vec3 %s;" % (color_prefix + f["name"]) for f in fields_info)
 
     return fields_info, block_fields, color_fields, block_definition, color_definition

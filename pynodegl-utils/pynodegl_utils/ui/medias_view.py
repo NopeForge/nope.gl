@@ -26,7 +26,6 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class MediasView(QtWidgets.QWidget):
-
     def __init__(self, config):
         super().__init__()
         self._config = config
@@ -40,10 +39,10 @@ class MediasView(QtWidgets.QWidget):
         self._view.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self._view.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
-        add_btn = QtWidgets.QPushButton('+')
-        rm_btn = QtWidgets.QPushButton('-')
-        moveup_btn = QtWidgets.QPushButton('⬆')
-        movedown_btn = QtWidgets.QPushButton('⬇')
+        add_btn = QtWidgets.QPushButton("+")
+        rm_btn = QtWidgets.QPushButton("-")
+        moveup_btn = QtWidgets.QPushButton("⬆")
+        movedown_btn = QtWidgets.QPushButton("⬇")
 
         btn_layout = QtWidgets.QVBoxLayout()
         btn_layout.addWidget(add_btn)
@@ -63,14 +62,14 @@ class MediasView(QtWidgets.QWidget):
         moveup_btn.pressed.connect(self._list_moveup)
         movedown_btn.pressed.connect(self._list_movedown)
 
-        self._add_medias(*config.get('medias_list'))
+        self._add_medias(*config.get("medias_list"))
 
     def _add_medias(self, *paths):
         for path in paths[::-1]:
             try:
                 media = Media(path)
             except:
-                print(f'Unable to add media {path}')
+                print(f"Unable to add media {path}")
             else:
                 self._config.set_medias_last_dir(op.dirname(path))
                 item = QtGui.QStandardItem(path)
@@ -91,8 +90,8 @@ class MediasView(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def _list_add(self):
-        last_dir = self._config.get('medias_last_dir')
-        filenames = QtWidgets.QFileDialog.getOpenFileNames(self, 'Open media files', last_dir, '')
+        last_dir = self._config.get("medias_last_dir")
+        filenames = QtWidgets.QFileDialog.getOpenFileNames(self, "Open media files", last_dir, "")
         self._add_medias(*filenames[0])
 
     @QtCore.Slot()
