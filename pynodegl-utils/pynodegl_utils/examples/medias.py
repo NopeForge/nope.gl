@@ -76,7 +76,6 @@ def time_remapping(cfg):
         ngl.AnimKeyFrameFloat(play_stop, media_seek + playback_duration),
     ]
 
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
     m.set_sxplayer_min_level("verbose")
     t = ngl.Texture2D(data_src=m)

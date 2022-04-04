@@ -41,7 +41,6 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
     hue = cfg.rng.uniform(0, 0.6)
     color = colorsys.hls_to_rgb(hue, 0.6, 1.0)
     ucolor = ngl.UniformVec3(value=color)
-    uopacity = ngl.UniformFloat(value=1)
     line_ucolor = ngl.UniformVec3(value=(1, 1, 1))
 
     # Text legend
