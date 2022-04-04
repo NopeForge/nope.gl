@@ -84,8 +84,6 @@ def query_scene(pkg, **idict):
 def query_list(pkg):
     module_is_script = pkg.endswith('.py')
 
-    odict = {}
-
     scripts = []
 
     # Import the script, or the package and its sub-modules
@@ -115,6 +113,4 @@ def query_list(pkg):
         if sub_scenes:
             scenes.append((module_name, sub_scenes))
 
-    odict['scenes'] = scenes
-
-    return odict
+    return dict(scenes=scenes)
