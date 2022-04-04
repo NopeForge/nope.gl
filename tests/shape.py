@@ -36,19 +36,23 @@ from pynodegl_utils.toolbox.grid import autogrid_simple
 @scene()
 def shape_precision_iovar(cfg):
     cfg.aspect_ratio = (1, 1)
-    vert = textwrap.dedent('''\
-    void main()
-    {
-        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
-        color = vec4((ngl_out_pos.xy + 1.0) * .5, 1.0 - (ngl_out_pos.x + 1.0) * .5 - (ngl_out_pos.y + 1.0) * .5, 1.0);
-    }
-    ''')
-    frag = textwrap.dedent('''\
-    void main()
-    {
-        ngl_out_color = color;
-    }
-    ''')
+    vert = textwrap.dedent(
+        '''\
+        void main()
+        {
+            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+            color = vec4((ngl_out_pos.xy + 1.0) * .5, 1.0 - (ngl_out_pos.x + 1.0) * .5 - (ngl_out_pos.y + 1.0) * .5, 1.0);
+        }
+        '''
+    )
+    frag = textwrap.dedent(
+        '''\
+        void main()
+        {
+            ngl_out_color = color;
+        }
+        '''
+    )
     program = ngl.Program(vertex=vert, fragment=frag)
     program.update_vert_out_vars(color=ngl.IOVec4(precision_out='high', precision_in='low'))
     geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))

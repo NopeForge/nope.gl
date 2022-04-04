@@ -71,19 +71,21 @@ def velocity_circle_distort_2d(cfg):
     anim = ngl.AnimatedVec2(pos_kf)
     velocity = ngl.VelocityVec2(anim)
 
-    vert = textwrap.dedent('''\
-    void main()
-    {
-        float distort_max = 0.1;
-        float velocity_l = length(velocity);
-        float direction_l = length(ngl_position);
-        vec2 normed_velocity = velocity_l == 0.0 ? vec2(0.0) : -velocity / velocity_l;
-        vec2 normed_direction = direction_l == 0.0 ? vec2(0.0) : ngl_position.xy / direction_l;
-        float distort = clamp(dot(normed_velocity, normed_direction) / 2.0 * distort_max, 0.0, 1.0);
-        vec4 pos = vec4(ngl_position, 1.0) + vec4(translate, 0.0, 0.0) + vec4(-distort * velocity, 0.0, 0.0);
-        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * pos;
-    }
-    ''')
+    vert = textwrap.dedent(
+        '''\
+        void main()
+        {
+            float distort_max = 0.1;
+            float velocity_l = length(velocity);
+            float direction_l = length(ngl_position);
+            vec2 normed_velocity = velocity_l == 0.0 ? vec2(0.0) : -velocity / velocity_l;
+            vec2 normed_direction = direction_l == 0.0 ? vec2(0.0) : ngl_position.xy / direction_l;
+            float distort = clamp(dot(normed_velocity, normed_direction) / 2.0 * distort_max, 0.0, 1.0);
+            vec4 pos = vec4(ngl_position, 1.0) + vec4(translate, 0.0, 0.0) + vec4(-distort * velocity, 0.0, 0.0);
+            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * pos;
+        }
+        '''
+    )
 
     geom = ngl.Circle(radius=0.2, npoints=128)
     prog = ngl.Program(vertex=vert, fragment=cfg.get_frag('color'))
@@ -105,19 +107,21 @@ def velocity_circle_distort_3d(cfg):
     anim = ngl.AnimatedVec3(pos_kf)
     velocity = ngl.VelocityVec3(anim)
 
-    vert = textwrap.dedent('''\
-    void main()
-    {
-        float distort_max = 0.1;
-        float velocity_l = length(velocity);
-        float direction_l = length(ngl_position);
-        vec3 normed_velocity = velocity_l == 0.0 ? vec3(0.0) : -velocity / velocity_l;
-        vec3 normed_direction = direction_l == 0.0 ? vec3(0.0) : ngl_position / direction_l;
-        float distort = clamp(dot(normed_velocity, normed_direction) / 2.0 * distort_max, 0.0, 1.0);
-        vec4 pos = vec4(ngl_position, 1.0) + vec4(-distort * velocity, 0.0);
-        ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * pos;
-    }
-    ''')
+    vert = textwrap.dedent(
+        '''\
+        void main()
+        {
+            float distort_max = 0.1;
+            float velocity_l = length(velocity);
+            float direction_l = length(ngl_position);
+            vec3 normed_velocity = velocity_l == 0.0 ? vec3(0.0) : -velocity / velocity_l;
+            vec3 normed_direction = direction_l == 0.0 ? vec3(0.0) : ngl_position / direction_l;
+            float distort = clamp(dot(normed_velocity, normed_direction) / 2.0 * distort_max, 0.0, 1.0);
+            vec4 pos = vec4(ngl_position, 1.0) + vec4(-distort * velocity, 0.0);
+            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * pos;
+        }
+        '''
+    )
 
     geom = ngl.Circle(radius=0.2, npoints=128)
     prog = ngl.Program(vertex=vert, fragment=cfg.get_frag('color'))
