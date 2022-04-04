@@ -104,13 +104,14 @@ class CompareSceneBase(CompareBase):
 
         capture_buffer = bytearray(width * height * 4)
         ctx = ngl.Context()
-        assert ctx.configure(offscreen=1, width=width, height=height,
+        ret = ctx.configure(offscreen=1, width=width, height=height,
                              backend=get_backend(backend) if backend else ngl.BACKEND_AUTO,
                              samples=self._samples,
                              clear_color=self._clear_color,
                              capture_buffer=capture_buffer,
                              hud=self._hud,
-                             hud_export_filename=self._hud_export_filename) == 0
+                             hud_export_filename=self._hud_export_filename)
+        assert ret == 0
         timescale = duration / float(self._nb_keyframes)
 
         if self._exercise_dot:
