@@ -20,7 +20,8 @@
 #
 
 import pprint
-from setuptools import setup, find_packages, Command, Extension
+
+from setuptools import Command, Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 
@@ -73,6 +74,7 @@ class CommandUtils:
     @staticmethod
     def write_definitions_pyx():
         import os.path as op
+
         import yaml  # must NOT be on top of this file
 
         specs_file = op.join(_LIB_CFG.data_root_dir, 'nodegl', 'nodes.specs')

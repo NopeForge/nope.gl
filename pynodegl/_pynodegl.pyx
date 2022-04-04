@@ -21,13 +21,10 @@
 #
 
 from cpython cimport array
-from libc.stdlib cimport calloc
-from libc.stdlib cimport free
+from libc.stdint cimport int32_t, uint8_t, uint32_t, uintptr_t
+from libc.stdlib cimport calloc, free
 from libc.string cimport memset
-from libc.stdint cimport int32_t
-from libc.stdint cimport uint8_t
-from libc.stdint cimport uint32_t
-from libc.stdint cimport uintptr_t
+
 
 cdef extern from "nodegl.h":
     cdef int NGL_LOG_VERBOSE

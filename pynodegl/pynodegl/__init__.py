@@ -22,7 +22,6 @@
 import os
 import platform
 
-
 if platform.system() == 'Windows':
     ngl_dll_dirs = os.getenv('NGL_DLL_DIRS')
     if ngl_dll_dirs:
@@ -32,19 +31,11 @@ if platform.system() == 'Windows':
                 os.add_dll_directory(dll_dir)
 
 
-from .specs import SPECS
 import _pynodegl as _ngl
+from _pynodegl import (Context, easing_derivate, easing_evaluate, easing_solve, get_backends, get_livectls,
+                       log_set_min_level, probe_backends)
 
-from _pynodegl import (
-    log_set_min_level,
-    easing_evaluate,
-    easing_derivate,
-    easing_solve,
-    probe_backends,
-    get_backends,
-    get_livectls,
-    Context,
-)
+from .specs import SPECS
 
 
 def _create_arg_setter(cython_setter, param_name):
