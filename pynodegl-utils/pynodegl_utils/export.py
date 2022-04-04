@@ -33,7 +33,7 @@ import pynodegl as ngl
 class Exporter(QtCore.QThread):
 
     progressed = QtCore.Signal(int)
-    failed = QtCore.Signal()
+    failed = QtCore.Signal(str)
     export_finished = QtCore.Signal()
 
     def __init__(self, get_scene_func, filename, w, h, extra_enc_args=None, time=None):
@@ -72,7 +72,7 @@ class Exporter(QtCore.QThread):
 
         cfg = self._get_scene_func()
         if not cfg:
-            self.failed.emit()
+            self.failed.emit("You didn't select any scene to export.")
             return False
 
         fps = cfg["framerate"]
