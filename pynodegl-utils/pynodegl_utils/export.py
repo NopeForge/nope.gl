@@ -52,7 +52,10 @@ class Exporter(QtCore.QThread):
         if filename.endswith('gif'):
             palette_filename = op.join(get_nodegl_tempdir(), 'palette.png')
             pass1_args = ['-vf', 'palettegen']
-            pass2_args = self._extra_enc_args + ['-i', palette_filename, '-lavfi', 'paletteuse']
+            pass2_args = self._extra_enc_args + [
+                '-i', palette_filename,
+                '-lavfi', 'paletteuse',
+            ]
             ok = self._export(palette_filename, width, height, pass1_args)
             if not ok:
                 return
@@ -74,12 +77,14 @@ class Exporter(QtCore.QThread):
         duration = cfg['duration']
         samples = cfg['samples']
 
-        cmd = ['ffmpeg', '-r', '%d/%d' % fps,
-               '-nostats', '-nostdin',
-               '-f', 'rawvideo',
-               '-video_size', '%dx%d' % (width, height),
-               '-pixel_format', 'rgba',
-               '-i', 'pipe:%d' % fd_r]
+        cmd = [
+            'ffmpeg', '-r', '%d/%d' % fps,
+            '-nostats', '-nostdin',
+            '-f', 'rawvideo',
+            '-video_size', '%dx%d' % (width, height),
+            '-pixel_format', 'rgba',
+            '-i', 'pipe:%d' % fd_r
+        ]
         if extra_enc_args:
             cmd += extra_enc_args
         cmd += ['-y', filename]

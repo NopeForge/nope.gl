@@ -98,7 +98,14 @@ class _SpawnView(QtWidgets.QGroupBox):
         samples = self._config.get('samples')
         listen = self._listen_text.text()
         port = self._port_spin.value()
-        subprocess.Popen(['ngl-desktop', '--host', listen, '--backend', backend, '--loglevel', loglevel, '--port', str(port), '--samples', str(samples)])
+        subprocess.Popen([
+            'ngl-desktop',
+            '--host', listen,
+            '--backend', backend,
+            '--loglevel', loglevel,
+            '--port', str(port),
+            '--samples', str(samples),
+        ])
 
 
 class HooksView(QtWidgets.QWidget):
