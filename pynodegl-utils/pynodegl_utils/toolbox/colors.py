@@ -20,7 +20,6 @@
 #
 
 import array
-import random
 
 
 # https://en.wikipedia.org/wiki/Color_term
