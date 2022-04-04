@@ -49,23 +49,26 @@ class Exporter(QtCore.QThread):
     def run(self):
         filename, width, height = self._filename, self._width, self._height
 
-        if filename.endswith("gif"):
-            palette_filename = op.join(get_nodegl_tempdir(), "palette.png")
-            pass1_args = ["-vf", "palettegen"]
-            pass2_args = self._extra_enc_args + [
-                # fmt: off
-                "-i", palette_filename,
-                "-lavfi", "paletteuse",
-                # fmt: on
-            ]
-            ok = self._export(palette_filename, width, height, pass1_args)
-            if not ok:
-                return
-            ok = self._export(filename, width, height, pass2_args)
-        else:
-            ok = self._export(filename, width, height, self._extra_enc_args)
-        if ok:
-            self.export_finished.emit()
+        try:
+            if filename.endswith("gif"):
+                palette_filename = op.join(get_nodegl_tempdir(), "palette.png")
+                pass1_args = ["-vf", "palettegen"]
+                pass2_args = self._extra_enc_args + [
+                    # fmt: off
+                    "-i", palette_filename,
+                    "-lavfi", "paletteuse",
+                    # fmt: on
+                ]
+                ok = self._export(palette_filename, width, height, pass1_args)
+                if not ok:
+                    return
+                ok = self._export(filename, width, height, pass2_args)
+            else:
+                ok = self._export(filename, width, height, self._extra_enc_args)
+            if ok:
+                self.export_finished.emit()
+        except Exception:
+            self.failed.emit("Something went wrong while trying to encode, check encoding parameters")
 
     def _export(self, filename, width, height, extra_enc_args=None):
         fd_r, fd_w = os.pipe()

@@ -15,6 +15,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ### Fixed
 - A crash happening in the VAAPI context module when both the OpenGL and Vulkan
   backends were enabled.
+- A deadlock in `ngl-control` when specifying invalid encoding arguments
 
 ## [2022.2] [libnodegl 0.2.0] - 2022-03-28
 ### Added
