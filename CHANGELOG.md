@@ -10,6 +10,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ## [Unreleased]
 ### Added
 - `eye`, `center` and `up` Camera parameters can now be node
+- Honor [NO_COLOR](https://no-color.org/) environment variable
 
 ### Fixed
 - A crash happening in the VAAPI context module when both the OpenGL and Vulkan
