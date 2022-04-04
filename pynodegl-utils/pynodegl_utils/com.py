@@ -70,8 +70,8 @@ def query_scene(**idict):
     return odict
 
 
-def query_list(**idict):
-    module_pkgname = idict['pkg']
+def query_list(pkg):
+    module_pkgname = pkg
     module_is_script = module_pkgname.endswith('.py')
 
     # Start tracking the imported modules and opened files
