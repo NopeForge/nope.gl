@@ -142,7 +142,6 @@ class MainWindow(QtWidgets.QSplitter):
         cfg = self._scene_toolbar.get_cfg()
         if cfg['scene'] is None:
             return None
-        cfg['pkg'] = self._module_pkgname
         medias = self._medias_view.get_medias()
         cfg['medias'] = medias if medias else None
         cfg['files'] = []
@@ -150,7 +149,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         self._scripts_mgr.inc_query_count()
         self._scripts_mgr.pause()
-        ret = query_scene(**cfg)
+        ret = query_scene(self._module_pkgname, **cfg)
         self._scripts_mgr.update_filelist(ret['filelist'])
         self._scripts_mgr.update_modulelist(ret['modulelist'])
         self._scripts_mgr.resume()

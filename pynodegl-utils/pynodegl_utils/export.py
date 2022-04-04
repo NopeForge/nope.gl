@@ -133,13 +133,12 @@ def test_export():
 
     def _get_scene(**cfg_overrides):
         cfg = {
-            'pkg': 'pynodegl_utils.examples',
             'scene': ('misc', 'triangle'),
             'duration': 5,
         }
         cfg.update(cfg_overrides)
 
-        ret = query_scene(**cfg)
+        ret = query_scene('pynodegl_utils.examples', **cfg)
         if 'error' in ret:
             print(ret['error'])
             return None

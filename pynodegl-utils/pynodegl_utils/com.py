@@ -28,8 +28,8 @@ from pynodegl_utils.module import load_script
 from pynodegl_utils.resourcetracker import ResourceTracker
 
 
-def query_scene(**idict):
-    module_pkgname = idict['pkg']
+def query_scene(pkg, **idict):
+    module_pkgname = pkg
     module_is_script = module_pkgname.endswith('.py')
 
     # Start tracking the imported modules and opened files
