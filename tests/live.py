@@ -20,23 +20,15 @@
 #
 
 import textwrap
-import pynodegl as ngl
+
 from pynodegl_utils.misc import scene
-from pynodegl_utils.tests.debug import get_debug_points
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynodegl_utils.tests.data import (FUNCS, LAYOUTS, gen_floats, gen_ints, get_data_debug_positions,
+                                       get_random_block_info, get_render, match_fields)
+from pynodegl_utils.tests.debug import get_debug_points
 from pynodegl_utils.toolbox.colors import COLORS
 
-from pynodegl_utils.tests.data import (
-    LAYOUTS,
-    FUNCS,
-    gen_floats,
-    gen_ints,
-    get_data_debug_positions,
-    match_fields,
-    get_random_block_info,
-    get_render,
-)
-
+import pynodegl as ngl
 
 _SHARED_UNIFORM_CUEPOINTS = dict((('0', (-0.5, -0.5)), ('1', (0.5, 0.5))))
 

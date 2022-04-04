@@ -21,8 +21,10 @@
 
 import itertools
 import random
-import pynodegl as ngl
+
 from pynodegl_utils.tests.cmp_floats import test_floats
+
+import pynodegl as ngl
 
 
 def _easing_split(easing):

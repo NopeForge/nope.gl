@@ -19,10 +19,11 @@
 # under the License.
 #
 
-import pynodegl as ngl
 from pynodegl_utils.misc import scene
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.toolbox.colors import COLORS
+
+import pynodegl as ngl
 
 
 def _render_quad(cfg, corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0), color=(1, 1, 1), opacity=1):

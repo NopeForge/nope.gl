@@ -20,14 +20,14 @@
 #
 
 import array
-import pynodegl as ngl
-from pynodegl_utils.misc import scene
-from pynodegl_utils.tests.debug import get_debug_points
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynodegl_utils.toolbox.colors import COLORS
-from pynodegl_utils.toolbox.colors import get_random_color_buffer
 
+from pynodegl_utils.misc import scene
+from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynodegl_utils.tests.debug import get_debug_points
+from pynodegl_utils.toolbox.colors import COLORS, get_random_color_buffer
+
+import pynodegl as ngl
 
 _RENDER_BUFFER_FRAG = '''
 void main()

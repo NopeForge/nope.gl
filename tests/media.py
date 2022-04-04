@@ -20,12 +20,14 @@
 #
 
 import textwrap
-import pynodegl as ngl
-from pynodegl_utils.misc import scene, Media
-from pynodegl_utils.toolbox.colors import COLORS
+
+from pynodegl_utils.misc import Media, scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynodegl_utils.tests.cmp_resources import test_resources
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynodegl_utils.tests.cmp_resources import test_resources
+from pynodegl_utils.toolbox.colors import COLORS
+
+import pynodegl as ngl
 
 
 def _get_time_scene(cfg):

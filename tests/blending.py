@@ -20,14 +20,14 @@
 #
 
 import math
-import pynodegl as ngl
+
 from pynodegl_utils.misc import scene
-
-from pynodegl_utils.tests.debug import get_debug_points
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynodegl_utils.tests.debug import get_debug_points
 from pynodegl_utils.toolbox.colors import COLORS
-from pynodegl_utils.toolbox.grid import AutoGrid, autogrid_simple, autogrid_queue
+from pynodegl_utils.toolbox.grid import AutoGrid, autogrid_queue, autogrid_simple
 
+import pynodegl as ngl
 
 _CIRCLE_RADIUS = 0.5
 

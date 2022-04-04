@@ -21,24 +21,16 @@
 
 import array
 import textwrap
-import pynodegl as ngl
+
 from pynodegl_utils.misc import scene
-from pynodegl_utils.toolbox.colors import COLORS
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynodegl_utils.tests.data import (ANIM_DURATION, FUNCS, LAYOUTS, gen_floats, gen_ints, get_data_debug_positions,
+                                       get_random_block_info, get_render, match_fields)
 from pynodegl_utils.tests.debug import get_debug_points
+from pynodegl_utils.toolbox.colors import COLORS
 
-from pynodegl_utils.tests.data import (
-    ANIM_DURATION,
-    FUNCS,
-    LAYOUTS,
-    gen_floats,
-    gen_ints,
-    get_data_debug_positions,
-    match_fields,
-    get_random_block_info,
-    get_render,
-)
+import pynodegl as ngl
 
 
 def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_count=2, mat_count=3):
