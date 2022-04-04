@@ -71,8 +71,7 @@ def query_scene(pkg, **idict):
 
     # Call user constructing function
     odict = func(idict, **idict.get('extra_args', {}))
-    scene = odict['scene']
-    del odict['scene']
+    scene = odict.pop('scene')
     scene.set_label(scene_name)
 
     # Prepare output data
