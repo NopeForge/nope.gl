@@ -28,7 +28,7 @@ from watchdog.events import FileSystemEventHandler
 
 from PySide6 import QtCore
 
-from .com import query_inplace
+from .com import query_list
 
 MIN_RELOAD_INTERVAL = 0.0015
 
@@ -93,7 +93,7 @@ class ScriptsManager(QtCore.QObject):
         for name in self._modules:
             del sys.modules[name]
         self._modules = set()
-        odict = query_inplace(query='list', pkg=self._module_pkgname)
+        odict = query_list(self._module_pkgname)
         if 'error' in odict:
             self.update_filelist(odict['filelist'])
             self.update_modulelist(odict['modulelist'])

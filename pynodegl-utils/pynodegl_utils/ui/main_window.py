@@ -23,7 +23,7 @@ import sys
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
-from pynodegl_utils.com import query_inplace
+from pynodegl_utils.com import query_scene
 from pynodegl_utils.config import Config
 from pynodegl_utils.scriptsmgr import ScriptsManager
 from pynodegl_utils.hooks import HooksController, HooksCaller
@@ -150,7 +150,7 @@ class MainWindow(QtWidgets.QSplitter):
 
         self._scripts_mgr.inc_query_count()
         self._scripts_mgr.pause()
-        ret = query_inplace(query='scene', **cfg)
+        ret = query_scene(**cfg)
         self._scripts_mgr.update_filelist(ret['filelist'])
         self._scripts_mgr.update_modulelist(ret['modulelist'])
         self._scripts_mgr.resume()

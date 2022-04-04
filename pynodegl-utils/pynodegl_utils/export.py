@@ -26,7 +26,7 @@ import subprocess
 import pynodegl as ngl
 from PySide6 import QtGui, QtCore
 
-from pynodegl_utils.com import query_inplace
+from pynodegl_utils.com import query_scene
 from pynodegl_utils.misc import get_backend, get_viewport, get_nodegl_tempdir
 
 
@@ -139,7 +139,7 @@ def test_export():
         }
         cfg.update(cfg_overrides)
 
-        ret = query_inplace(query='scene', **cfg)
+        ret = query_scene(**cfg)
         if 'error' in ret:
             print(ret['error'])
             return None

@@ -28,7 +28,7 @@ from pynodegl_utils.module import load_script
 from pynodegl_utils.resourcetracker import ResourceTracker
 
 
-def query_inplace(**idict):
+def query_scene(**idict):
     module_pkgname = idict['pkg']
     module_is_script = module_pkgname.endswith('.py')
 
@@ -39,59 +39,79 @@ def query_inplace(**idict):
     odict = {}
 
     try:
-        if idict['query'] == 'scene':
+        # Get module.func
+        module_name, scene_name = idict['scene']
+        if module_is_script:
+            module = load_script(module_pkgname)
+        else:
+            import_name = f'{module_pkgname}.{module_name}'
+            module = importlib.import_module(import_name)
+        func = getattr(module, scene_name)
 
-            # Get module.func
-            module_name, scene_name = idict['scene']
-            if module_is_script:
-                module = load_script(module_pkgname)
-            else:
-                import_name = f'{module_pkgname}.{module_name}'
-                module = importlib.import_module(import_name)
-            func = getattr(module, scene_name)
+        # Call user constructing function
+        odict = func(idict, **idict.get('extra_args', {}))
+        scene = odict['scene']
+        del odict['scene']
+        scene.set_label(scene_name)
 
-            # Call user constructing function
-            odict = func(idict, **idict.get('extra_args', {}))
-            scene = odict['scene']
-            del odict['scene']
-            scene.set_label(scene_name)
+        # Prepare output data
+        odict['scene'] = scene.dot() if idict.get('fmt') == 'dot' else scene.serialize()
 
-            # Prepare output data
-            odict['scene'] = scene.dot() if idict.get('fmt') == 'dot' else scene.serialize()
+    except:
+        odict = {'error': traceback.format_exc()}
 
-        elif idict['query'] == 'list':
+    # End of file and modules tracking
+    rtracker.end_hooking()
+    odict['filelist'] = rtracker.filelist
+    odict['modulelist'] = rtracker.modulelist
+    if module_is_script:
+        odict['filelist'].update([module_pkgname])
 
-            scripts = []
+    return odict
 
-            # Import the script, or the package and its sub-modules
-            if module_is_script:
-                module_pkgname = op.realpath(module_pkgname)
-                module = load_script(module_pkgname)
-                scripts.append((module.__name__, module))
-            else:
-                module = importlib.import_module(module_pkgname)
-                for submod in pkgutil.iter_modules(module.__path__):
-                    module_finder, module_name, ispkg = submod
-                    if ispkg:
-                        continue
-                    script = importlib.import_module('.' + module_name, module_pkgname)
-                    scripts.append((module_name, script))
 
-            # Find all the scenes
-            scenes = []
-            for module_name, script in scripts:
-                all_funcs = inspect.getmembers(script, inspect.isfunction)
-                sub_scenes = []
-                for func in all_funcs:
-                    scene_name, func_wrapper = func
-                    if not hasattr(func_wrapper, 'iam_a_ngl_scene_func'):
-                        continue
-                    sub_scenes.append((scene_name, func_wrapper.__doc__, func_wrapper.widgets_specs))
-                if sub_scenes:
-                    scenes.append((module_name, sub_scenes))
+def query_list(**idict):
+    module_pkgname = idict['pkg']
+    module_is_script = module_pkgname.endswith('.py')
 
-            # Prepare output data
-            odict['scenes'] = scenes
+    # Start tracking the imported modules and opened files
+    rtracker = ResourceTracker()
+    rtracker.start_hooking()
+
+    odict = {}
+
+    try:
+        scripts = []
+
+        # Import the script, or the package and its sub-modules
+        if module_is_script:
+            module_pkgname = op.realpath(module_pkgname)
+            module = load_script(module_pkgname)
+            scripts.append((module.__name__, module))
+        else:
+            module = importlib.import_module(module_pkgname)
+            for submod in pkgutil.iter_modules(module.__path__):
+                module_finder, module_name, ispkg = submod
+                if ispkg:
+                    continue
+                script = importlib.import_module('.' + module_name, module_pkgname)
+                scripts.append((module_name, script))
+
+        # Find all the scenes
+        scenes = []
+        for module_name, script in scripts:
+            all_funcs = inspect.getmembers(script, inspect.isfunction)
+            sub_scenes = []
+            for func in all_funcs:
+                scene_name, func_wrapper = func
+                if not hasattr(func_wrapper, 'iam_a_ngl_scene_func'):
+                    continue
+                sub_scenes.append((scene_name, func_wrapper.__doc__, func_wrapper.widgets_specs))
+            if sub_scenes:
+                scenes.append((module_name, sub_scenes))
+
+        # Prepare output data
+        odict['scenes'] = scenes
 
     except:
         odict = {'error': traceback.format_exc()}
