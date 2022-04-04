@@ -57,6 +57,7 @@ def _path_scene(cfg, path, points=None, controls=None, easing='linear'):
 @scene(easing=scene.List(choices=['linear', 'back_in_out']))
 def simple_bezier(cfg, easing='linear'):
     cfg.duration = 2
+    # fmt: off
     points = (
         (-0.7, 0.0, 0.0),
         ( 0.8, 0.1, 0.0),
@@ -65,6 +66,7 @@ def simple_bezier(cfg, easing='linear'):
         (-0.2, -0.3, 0.0),
         ( 0.2,  0.8, 0.0),
     )
+    # fmt: on
 
     keyframes = (
         ngl.PathKeyMove(to=points[0]),
@@ -78,6 +80,7 @@ def simple_bezier(cfg, easing='linear'):
 @scene(tension=scene.Range(range=[0.01, 2], unit_base=100))
 def catmull(cfg, tension=0.5):
     cfg.duration = 3
+    # fmt: off
     points = (
         (-0.62, -0.30, 0.0),
         (-0.36,  0.40, 0.0),
@@ -89,6 +92,7 @@ def catmull(cfg, tension=0.5):
         (-0.84, 0.07, 0.0),
         ( 0.84, 0.04, 0.0),
     )
+    # fmt: on
 
     flat_points = (elt for iterable in points for elt in iterable)
     points_array = array.array('f', flat_points)
@@ -106,6 +110,7 @@ def catmull(cfg, tension=0.5):
 @scene()
 def complex_bezier(cfg):
     cfg.duration = 5
+    # fmt: off
     points = (
         (-0.70, 0.08, 0.0),
         (-0.15, 0.06, 0.0),
@@ -124,6 +129,7 @@ def complex_bezier(cfg):
         ( 0.0,  0.96, 0.0),
         ( 1.1, -0.86, 0.0),
     )
+    # fmt: on
 
     keyframes = [
         ngl.PathKeyMove(to=points[0]),
@@ -140,6 +146,7 @@ def complex_bezier(cfg):
 @scene()
 def composition(cfg):
     cfg.duration = 5
+    # fmt: off
     points = (
         (-.6,  .2, 0),
         (-.2,  .7, 0),
@@ -163,6 +170,7 @@ def composition(cfg):
         ( -.8,  .4, 0),
         (-1.2,  .5, 0),
     )
+    # fmt: on
 
     keyframes = [
         ngl.PathKeyMove(to=points[0]),
@@ -186,13 +194,15 @@ def composition(cfg):
 def lines(cfg):
     cfg.duration = 3
 
+    # fmt: off
     points = (
         (-2/3,  1/6, 0),
         (-1/6,  2/3, 0),
-        ( 0,  1/2, 0),
+        (   0,  1/2, 0),
         ( 1/2, -1/3, 0),
         (-1/2, -2/3, 0),
     )
+    # fmt: on
 
     keyframes = [
         ngl.PathKeyMove(to=points[0]),
@@ -210,6 +220,7 @@ def lines(cfg):
 def quadratic_arcs(cfg):
     cfg.duration = 3
 
+    # fmt: off
     points = (
         (-2/3,  1/3, 0),
         ( 2/3,  1/3, 0),
@@ -221,6 +232,7 @@ def quadratic_arcs(cfg):
         (  0,  5/6, 0),
         (1/3, -2/3, 0),
     )
+    # fmt: on
 
     keyframes = [
         ngl.PathKeyMove(to=points[0]),
@@ -238,6 +250,7 @@ def character_otf(cfg):
     """The 'g' glyph from Adobe Source Code Pro Black"""
     cfg.duration = 5
     keyframes = [
+        # fmt: off
         ngl.PathKeyMove(to=(0.423713,0,0)),
         ngl.PathKeyBezier3(control1=(0.775735,0,0), control2=(1,0.103331,0), to=(1,0.253569,0)),
         ngl.PathKeyBezier3(control1=(1,0.381373,0), control2=(0.856618,0.434398,0), to=(0.608456,0.434398,0)),
@@ -271,6 +284,7 @@ def character_otf(cfg):
         ngl.PathKeyLine(to=(0.545956,0.253569,0)),
         ngl.PathKeyBezier3(control1=(0.639706,0.253569,0), control2=(0.693015,0.248131,0), to=(0.693015,0.211421,0)),
         ngl.PathKeyBezier3(control1=(0.693015,0.172672,0), control2=(0.600184,0.147519,0), to=(0.474265,0.147519,0)),
+        # fmt: on
     ]
 
     path = ngl.Path(keyframes)
@@ -282,6 +296,7 @@ def character_ttf(cfg):
     """The 'g' glyph from Noto Sans Black"""
     cfg.duration = 5
     keyframes = [
+        # fmt: off
         ngl.PathKeyMove(to=(0.375912,1,0)),
         ngl.PathKeyBezier2(control=(0.483577,1,0), to=(0.550182,0.972036,0)),
         ngl.PathKeyBezier2(control=(0.616788,0.944073,0), to=(0.657847,0.902736,0)),
@@ -315,6 +330,7 @@ def character_ttf(cfg):
         ngl.PathKeyLine(to=(0.67062,0.646201,0)),
         ngl.PathKeyBezier2(control=(0.67062,0.72766,0), to=(0.637774,0.771429,0)),
         ngl.PathKeyBezier2(control=(0.605839,0.815805,0), to=(0.510036,0.815805,0)),
+        # fmt: on
     ]
 
     path = ngl.Path(keyframes)

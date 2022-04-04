@@ -83,6 +83,7 @@ LAYOUTS = ('std140', 'std430', 'uniform')
 
 # row, col, scale
 _TYPE_SPEC = dict(
+    # fmt: off
     bool=     (1, 1, 1.0),
     float=    (1, 1, None),
     vec2=     (1, 2, None),
@@ -99,6 +100,7 @@ _TYPE_SPEC = dict(
     uvec4=    (1, 4, 1. / 255.),
     quat_mat4=(4, 4, None),
     quat_vec4=(1, 4, None),
+    # fmt: on
 )
 
 
@@ -275,6 +277,7 @@ def _get_anim_kf(key_cls, data):
 
 
 FUNCS = dict(
+    # fmt: off
     animated_float=       lambda data: ngl.AnimatedFloat(keyframes=_get_anim_kf(ngl.AnimKeyFrameFloat, data)),
     animated_vec2=        lambda data: ngl.AnimatedVec2(keyframes=_get_anim_kf(ngl.AnimKeyFrameVec2, data)),
     animated_vec3=        lambda data: ngl.AnimatedVec3(keyframes=_get_anim_kf(ngl.AnimKeyFrameVec3, data)),
@@ -310,6 +313,7 @@ FUNCS = dict(
     single_vec2=          lambda data: ngl.UniformVec2(data),
     single_vec3=          lambda data: ngl.UniformVec3(data),
     single_vec4=          lambda data: ngl.UniformVec4(data),
+    # fmt: on
 )
 
 

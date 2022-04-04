@@ -123,18 +123,20 @@ def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
 
 
 _easing_specs = (
-    ('linear',    0, 1.),
-    ('quadratic', 3, 1.),
-    ('cubic',     3, 1.),
-    ('quartic',   3, 1.),
-    ('quintic',   3, 1.),
-    ('power:7.3', 3, 1.),
-    ('sinus',     3, 1.),
-    ('exp',       3, 1.),
-    ('circular',  3, 1.),
-    ('bounce',    1, 1.),
-    ('elastic',   1, 0.5),
-    ('back',      3, 0.7),
+    # fmt: off
+    ("linear",    0, 1.),
+    ("quadratic", 3, 1.),
+    ("cubic",     3, 1.),
+    ("quartic",   3, 1.),
+    ("quintic",   3, 1.),
+    ("power:7.3", 3, 1.),
+    ("sinus",     3, 1.),
+    ("exp",       3, 1.),
+    ("circular",  3, 1.),
+    ("bounce",    1, 1.),
+    ("elastic",   1, 0.5),
+    ("back",      3, 0.7),
+    # fmt: on
 )
 
 

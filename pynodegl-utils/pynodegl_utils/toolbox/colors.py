@@ -25,6 +25,7 @@ import random
 
 # https://en.wikipedia.org/wiki/Color_term
 class COLORS:
+    # fmt: off
     white =   (1.0, 1.0, 1.0)
     black =   (0.0, 0.0, 0.0)
     red =     (1.0, 0.0, 0.0)
@@ -39,6 +40,7 @@ class COLORS:
     violet =  (0.5, 0.0, 1.0)
     magenta = (1.0, 0.0, 1.0)
     rose =    (1.0, 0.0, 0.5)
+    # fmt: on
 
 
 def get_random_color_buffer(rng, dim):

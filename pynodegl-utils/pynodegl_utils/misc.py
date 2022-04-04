@@ -94,12 +94,14 @@ class Media:
 
     def _set_media_dimensions(self):
         data = subprocess.check_output([
-            'ffprobe',
-            '-v', '0',
-            '-select_streams', 'v:0',
-            '-of', 'json',
-            '-show_streams', '-show_format',
+            # fmt: off
+            "ffprobe",
+            "-v", "0",
+            "-select_streams", "v:0",
+            "-of", "json",
+            "-show_streams", "-show_format",
             self._filename,
+            # fmt: on
         ])
         data = json.loads(data)
         st = data['streams'][0]
@@ -168,11 +170,13 @@ class SceneCfg:
                 media_duration = int(math.ceil(self.duration))
                 media_fps = self.framerate
                 ret = subprocess.call([
-                    'ffmpeg',
-                    '-nostdin', '-nostats',
-                    '-f', 'lavfi',
-                    '-i', f'testsrc2=d={media_duration}:r={media_fps[0]}/{media_fps[1]}',
+                    # fmt: off
+                    "ffmpeg",
+                    "-nostdin", "-nostats",
+                    "-f", "lavfi",
+                    "-i", f"testsrc2=d={media_duration}:r={media_fps[0]}/{media_fps[1]}",
                     media_file,
+                    # fmt: on
                 ])
                 if ret:
                     raise Exception('Unable to create a media file using ffmpeg (ret=%d)' % ret)

@@ -48,10 +48,12 @@ class AutoGrid:
         pos_x, pos_y, pos_z = self._get_coords(pos)
         # This is equivalent to Translate(Scale(node))
         mat = [
+            # fmt: off
             self.scale, 0, 0, 0,
             0, self.scale, 0, 0,
             0, 0, 1, 0,
             pos_x, pos_y, pos_z, 1,
+            # fmt: on
         ]
         return ngl.Transform(node, matrix=mat, label='grid(col=%d,row=%d)' % pos)
 
