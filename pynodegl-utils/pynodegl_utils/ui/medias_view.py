@@ -68,7 +68,7 @@ class MediasView(QtWidgets.QWidget):
         for path in paths[::-1]:
             try:
                 media = Media(path)
-            except:
+            except Exception:
                 print(f"Unable to add media {path}")
             else:
                 self._config.set_medias_last_dir(op.dirname(path))

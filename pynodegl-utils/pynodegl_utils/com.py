@@ -41,7 +41,7 @@ def _wrap_query(func):
 
         try:
             odict = func(pkg, *args, **kwargs)
-        except:
+        except Exception:
             odict["error"] = traceback.format_exc()
 
         # End of file and modules tracking
