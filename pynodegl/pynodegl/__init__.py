@@ -22,8 +22,8 @@
 import os
 import platform
 
-if platform.system() == 'Windows':
-    ngl_dll_dirs = os.getenv('NGL_DLL_DIRS')
+if platform.system() == "Windows":
+    ngl_dll_dirs = os.getenv("NGL_DLL_DIRS")
     if ngl_dll_dirs:
         dll_dirs = ngl_dll_dirs.split(os.pathsep)
         for dll_dir in dll_dirs:
@@ -32,8 +32,16 @@ if platform.system() == 'Windows':
 
 
 import _pynodegl as _ngl
-from _pynodegl import (Context, easing_derivate, easing_evaluate, easing_solve, get_backends, get_livectls,
-                       log_set_min_level, probe_backends)
+from _pynodegl import (
+    Context,
+    easing_derivate,
+    easing_evaluate,
+    easing_solve,
+    get_backends,
+    get_livectls,
+    log_set_min_level,
+    probe_backends,
+)
 
 from .specs import SPECS
 
@@ -43,6 +51,7 @@ def _create_arg_setter(cython_setter, param_name):
         if isinstance(arg, _Node):
             return self._param_set_node(param_name, arg)
         return cython_setter(self, param_name, arg)
+
     return arg_setter
 
 
@@ -51,22 +60,25 @@ def _create_args_setter(cython_setter, param_name):
         if args and isinstance(args[0], _Node):
             return self._param_set_node(param_name, args[0])
         return cython_setter(self, param_name, args)
+
     return args_setter
 
 
 def _create_add_nodes(param_name):
     def add_nodes(self, *nodes):
-        if hasattr(nodes[0], '__iter__'):
+        if hasattr(nodes[0], "__iter__"):
             raise Exception(f"add_{param_name}() takes elements as positional arguments, not list")
         return self._param_add_nodes(param_name, len(nodes), nodes)
+
     return add_nodes
 
 
 def _create_add_f64s(param_name):
     def add_f64s(self, *f64s):
-        if hasattr(f64s[0], '__iter__'):
+        if hasattr(f64s[0], "__iter__"):
             raise Exception(f"add_{param_name}() takes elements as positional arguments, not list")
         return self._param_add_f64s(param_name, len(f64s), f64s)
+
     return add_f64s
 
 
@@ -75,46 +87,50 @@ def _create_update_dict(param_name):
         data_dict = {}
         if arg is not None:
             if not isinstance(arg, dict):
-                raise TypeError(f'{param_name} must be of type dict')
+                raise TypeError(f"{param_name} must be of type dict")
             data_dict.update(arg)
         data_dict.update(**kwargs)
         for key, val in data_dict.items():
             if not isinstance(key, str) or (val is not None and not isinstance(val, _Node)):
-                raise TypeError(f'update_{param_name}() takes a dictionary of <string, node>')
+                raise TypeError(f"update_{param_name}() takes a dictionary of <string, node>")
             ret = self._param_set_dict(param_name, key, val)
             if ret < 0:
                 return ret
         return 0
+
     return update_dict
 
 
 def _create_set_data(param_name):
     def set_data(self, arg):
         return self._param_set_data(param_name, arg)
+
     return set_data
 
 
 def _create_set_rational(param_name):
     def set_rational(self, ratio):
         return self._param_set_rational(param_name, ratio[0], ratio[1])
+
     return set_rational
 
 
 def _create_set_node(param_name):
     def set_node(self, node):
         return self._param_set_node(param_name, node)
+
     return set_node
 
 
 def _init_param(self, param_name, param_type, value):
-    if ('vec' in param_type or param_type == 'mat4') and not isinstance(value, _Node):
-        getattr(self, f'set_{param_name}')(*value)
-    elif param_type == 'node_dict':
-        getattr(self, f'update_{param_name}')(value)
-    elif param_type.endswith('_list'):
-        getattr(self, f'add_{param_name}')(*value)
+    if ("vec" in param_type or param_type == "mat4") and not isinstance(value, _Node):
+        getattr(self, f"set_{param_name}")(*value)
+    elif param_type == "node_dict":
+        getattr(self, f"update_{param_name}")(value)
+    elif param_type.endswith("_list"):
+        getattr(self, f"add_{param_name}")(*value)
     else:
-        getattr(self, f'set_{param_name}')(value)
+        getattr(self, f"set_{param_name}")(value)
 
 
 def _set_class_init(cls, base_class):
@@ -124,20 +140,20 @@ def _set_class_init(cls, base_class):
         # Consume args and kwargs from the leaf (user node) up to the root
         # (ngl._Node)
         for cls in self.__class__.mro():
-            params = getattr(cls, '_params', None)
+            params = getattr(cls, "_params", None)
             if not params:
                 continue
 
             # consume args
             args = list(args)
-            for param_name, param_type, _ in params[:len(args)]:
+            for param_name, param_type, _ in params[: len(args)]:
                 value = args.pop(0)
                 if value is None:
                     continue
                 _init_param(self, param_name, param_type, value)
 
             # consume kwargs
-            for param_name, param_type, _ in params[len(args):]:
+            for param_name, param_type, _ in params[len(args) :]:
                 value = kwargs.pop(param_name, None)
                 if value is None:
                     continue
@@ -179,22 +195,22 @@ def _set_class_setters(cls):
     for param_name, param_type, _ in cls._params:
         if param_type in cython_arg_setters:
             cython_setter = cython_arg_setters.get(param_type)
-            setattr(cls, f'set_{param_name}', _create_arg_setter(cython_setter, param_name))
+            setattr(cls, f"set_{param_name}", _create_arg_setter(cython_setter, param_name))
         elif param_type in cython_args_setters:
             cython_setter = cython_args_setters.get(param_type)
-            setattr(cls, f'set_{param_name}', _create_args_setter(cython_setter, param_name))
-        elif param_type == 'node_list':
-            setattr(cls, f'add_{param_name}', _create_add_nodes(param_name))
-        elif param_type == 'f64_list':
-            setattr(cls, f'add_{param_name}', _create_add_f64s(param_name))
-        elif param_type == 'node_dict':
-            setattr(cls, f'update_{param_name}', _create_update_dict(param_name))
-        elif param_type == 'data':
-            setattr(cls, f'set_{param_name}', _create_set_data(param_name))
-        elif param_type == 'rational':
-            setattr(cls, f'set_{param_name}', _create_set_rational(param_name))
-        elif param_type == 'node':
-            setattr(cls, f'set_{param_name}', _create_set_node(param_name))
+            setattr(cls, f"set_{param_name}", _create_args_setter(cython_setter, param_name))
+        elif param_type == "node_list":
+            setattr(cls, f"add_{param_name}", _create_add_nodes(param_name))
+        elif param_type == "f64_list":
+            setattr(cls, f"add_{param_name}", _create_add_f64s(param_name))
+        elif param_type == "node_dict":
+            setattr(cls, f"update_{param_name}", _create_update_dict(param_name))
+        elif param_type == "data":
+            setattr(cls, f"set_{param_name}", _create_set_data(param_name))
+        elif param_type == "rational":
+            setattr(cls, f"set_{param_name}", _create_set_rational(param_name))
+        elif param_type == "node":
+            setattr(cls, f"set_{param_name}", _create_set_node(param_name))
         else:
             assert False
 
@@ -219,16 +235,16 @@ def _set_class_eval_method(cls, class_name):
 
 def _declare_class(class_name, params):
     attr = dict(_params=params)
-    if class_name[0] == '_':
-        base_class = _ngl._Node if class_name == '_Node' else _Node
+    if class_name[0] == "_":
+        base_class = _ngl._Node if class_name == "_Node" else _Node
     else:
         # Finite user node with an ID
-        attr.update(type_id=getattr(_ngl, f'NODE_{class_name.upper()}'))
+        attr.update(type_id=getattr(_ngl, f"NODE_{class_name.upper()}"))
 
         # Handle node params inheritance vs generic _Node
         if isinstance(params, str):
             base_class = globals()[params]
-            attr['_params'] = None
+            attr["_params"] = None
         else:
             base_class = _Node
 
@@ -238,18 +254,18 @@ def _declare_class(class_name, params):
 
     # Set various node methods dynamically
     _set_class_setters(cls)
-    if class_name[0] != '_':
+    if class_name[0] != "_":
         if params and not isinstance(params, str):
 
             # Live controls handling
             dparams = {k: (dtype, flags) for k, dtype, flags in params}
-            if 'live_id' in dparams:
+            if "live_id" in dparams:
                 # Identify the first parameter with a "live" flag as the reference value
-                data_type = next(dtype for dtype, flags in dparams.values() if 'L' in flags)
+                data_type = next(dtype for dtype, flags in dparams.values() if "L" in flags)
                 # Expose enough information to the Cython such that it is able
                 # to construct and expose a usable dict of live controls to the
                 # user
-                _ngl.LIVECTL_INFO[attr['type_id']] = (cls, data_type)
+                _ngl.LIVECTL_INFO[attr["type_id"]] = (cls, data_type)
 
         _set_class_init(cls, base_class)
         _set_class_eval_method(cls, class_name)
@@ -262,7 +278,7 @@ def _declare_classes():
 
 def _declare_constants():
     for elem in dir(_ngl):
-        if elem.startswith(('PLATFORM_', 'BACKEND_', 'CAP_', 'LOG_')):
+        if elem.startswith(("PLATFORM_", "BACKEND_", "CAP_", "LOG_")):
             globals()[elem] = getattr(_ngl, elem)
 
 
