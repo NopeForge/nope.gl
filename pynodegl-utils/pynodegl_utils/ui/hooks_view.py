@@ -101,12 +101,12 @@ class _SpawnView(QtWidgets.QGroupBox):
         subprocess.Popen(
             [
                 # fmt: off
-            "ngl-desktop",
-            "--host", listen,
-            "--backend", backend,
-            "--loglevel", loglevel,
-            "--port", str(port),
-            "--samples", str(samples),
+                "ngl-desktop",
+                "--host", listen,
+                "--backend", backend,
+                "--loglevel", loglevel,
+                "--port", str(port),
+                "--samples", str(samples),
                 # fmt: on
             ]
         )

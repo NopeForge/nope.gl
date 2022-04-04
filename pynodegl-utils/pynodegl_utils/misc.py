@@ -96,12 +96,12 @@ class Media:
         data = subprocess.check_output(
             [
                 # fmt: off
-            "ffprobe",
-            "-v", "0",
-            "-select_streams", "v:0",
-            "-of", "json",
-            "-show_streams", "-show_format",
-            self._filename,
+                "ffprobe",
+                "-v", "0",
+                "-select_streams", "v:0",
+                "-of", "json",
+                "-show_streams", "-show_format",
+                self._filename,
                 # fmt: on
             ]
         )
@@ -174,11 +174,11 @@ class SceneCfg:
                 ret = subprocess.call(
                     [
                         # fmt: off
-                    "ffmpeg",
-                    "-nostdin", "-nostats",
-                    "-f", "lavfi",
-                    "-i", f"testsrc2=d={media_duration}:r={media_fps[0]}/{media_fps[1]}",
-                    media_file,
+                        "ffmpeg",
+                        "-nostdin", "-nostats",
+                        "-f", "lavfi",
+                        "-i", f"testsrc2=d={media_duration}:r={media_fps[0]}/{media_fps[1]}",
+                        media_file,
                         # fmt: on
                     ]
                 )
