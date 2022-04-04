@@ -235,7 +235,7 @@ def compute_histogram(cfg, show_dbg_points=False):
     render = ngl.Render(quad, program, label='render_histogram')
     render.update_frag_resources(hist=histogram_block)
 
-    group = ngl.Group(children=(clear_histogram, exec_histogram, render,))
+    group = ngl.Group(children=(clear_histogram, exec_histogram, render))
     if show_dbg_points:
         cuepoints = _get_compute_histogram_cuepoints()
         group.add_children(get_debug_points(cfg, cuepoints))
