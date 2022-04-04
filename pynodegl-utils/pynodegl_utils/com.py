@@ -28,6 +28,34 @@ from pynodegl_utils.module import load_script
 from pynodegl_utils.resourcetracker import ResourceTracker
 
 
+def _wrap_query(func):
+
+    def wrapped_func(pkg, *args, **kwargs):
+        module_is_script = pkg.endswith('.py')
+
+        # Start tracking the imported modules and opened files
+        rtracker = ResourceTracker()
+        rtracker.start_hooking()
+
+        odict = {}
+
+        try:
+            odict = func(pkg, *args, **kwargs)
+        except:
+            odict['error'] = traceback.format_exc()
+
+        # End of file and modules tracking
+        rtracker.end_hooking()
+        odict['filelist'] = rtracker.filelist
+        odict['modulelist'] = rtracker.modulelist
+        if module_is_script:
+            odict['filelist'].update([pkg])
+
+        return odict
+
+    return wrapped_func
+
+
 def query_scene(pkg, **idict):
     module_is_script = pkg.endswith('.py')
 
