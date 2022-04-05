@@ -447,7 +447,7 @@ struct glcontext *ngli_glcontext_new(const struct glcontext_params *params)
     glcontext->samples = params->samples;
 
     if (glcontext->cls->init) {
-        int ret = glcontext->cls->init(glcontext, params->display, params->window, params->handle);
+        int ret = glcontext->cls->init(glcontext, params->display, params->window, params->shared_ctx);
         if (ret < 0)
             goto fail;
     }

@@ -36,7 +36,7 @@ struct glcontext_params {
     int backend;
     uintptr_t display;
     uintptr_t window;
-    uintptr_t handle;
+    uintptr_t shared_ctx;
     int swap_interval;
     int offscreen;
     int width;
