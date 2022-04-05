@@ -31,6 +31,19 @@
 
 struct glcontext_class;
 
+struct glcontext_params {
+    int platform;
+    int backend;
+    uintptr_t display;
+    uintptr_t window;
+    uintptr_t handle;
+    int swap_interval;
+    int offscreen;
+    int width;
+    int height;
+    int samples;
+};
+
 struct glcontext {
     /* GL context */
     const struct glcontext_class *cls;
@@ -76,7 +89,7 @@ struct glcontext_class {
     size_t priv_size;
 };
 
-struct glcontext *ngli_glcontext_new(const struct ngl_config *config);
+struct glcontext *ngli_glcontext_new(const struct glcontext_params *params);
 int ngli_glcontext_make_current(struct glcontext *glcontext, int current);
 void ngli_glcontext_swap_buffers(struct glcontext *glcontext);
 int ngli_glcontext_set_swap_interval(struct glcontext *glcontext, int interval);

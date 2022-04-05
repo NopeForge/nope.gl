@@ -417,12 +417,12 @@ static int glcontext_load_extensions(struct glcontext *glcontext)
     return 0;
 }
 
-struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
+struct glcontext *ngli_glcontext_new(const struct glcontext_params *params)
 {
-    if (config->platform < 0 || config->platform >= NGLI_ARRAY_NB(platform_to_glplatform))
+    if (params->platform < 0 || params->platform >= NGLI_ARRAY_NB(platform_to_glplatform))
         return NULL;
 
-    const int glplatform = platform_to_glplatform[config->platform];
+    const int glplatform = platform_to_glplatform[params->platform];
     if (glplatform < 0 || glplatform >= NGLI_ARRAY_NB(glcontext_class_map))
         return NULL;
 
@@ -439,15 +439,15 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
         }
     }
 
-    glcontext->platform = config->platform;
-    glcontext->backend = config->backend;
-    glcontext->offscreen = config->offscreen;
-    glcontext->width = config->width;
-    glcontext->height = config->height;
-    glcontext->samples = config->samples;
+    glcontext->platform = params->platform;
+    glcontext->backend = params->backend;
+    glcontext->offscreen = params->offscreen;
+    glcontext->width = params->width;
+    glcontext->height = params->height;
+    glcontext->samples = params->samples;
 
     if (glcontext->cls->init) {
-        int ret = glcontext->cls->init(glcontext, config->display, config->window, config->handle);
+        int ret = glcontext->cls->init(glcontext, params->display, params->window, params->handle);
         if (ret < 0)
             goto fail;
     }
@@ -470,8 +470,8 @@ struct glcontext *ngli_glcontext_new(const struct ngl_config *config)
             goto fail;
     }
 
-    if (config->swap_interval >= 0)
-        ngli_glcontext_set_swap_interval(glcontext, config->swap_interval);
+    if (params->swap_interval >= 0)
+        ngli_glcontext_set_swap_interval(glcontext, params->swap_interval);
 
     return glcontext;
 fail:
