@@ -114,7 +114,6 @@ cdef extern from "nodegl.h":
         int  backend
         uintptr_t display
         uintptr_t window
-        uintptr_t handle
         int  swap_interval
         int  offscreen
         int  width
@@ -528,7 +527,6 @@ cdef class Context:
         config.backend = kwargs.get('backend', BACKEND_AUTO)
         config.display = kwargs.get('display', 0)
         config.window = kwargs.get('window', 0)
-        config.handle = kwargs.get('handle', 0)
         config.swap_interval = kwargs.get('swap_interval', -1)
         config.offscreen = kwargs.get('offscreen', 0)
         config.width = kwargs.get('width', 0)

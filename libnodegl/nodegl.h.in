@@ -511,8 +511,6 @@ struct ngl_config {
 
     uintptr_t window;  /* A native window handle */
 
-    uintptr_t handle;  /* A native OpenGL context handle */
-
     int swap_interval; /* Specifies the minimum number of video frames that are
                           displayed before a buffer swap will occur. -1 can be
                           used to use the default system implementation value.

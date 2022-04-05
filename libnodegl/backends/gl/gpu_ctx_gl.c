@@ -474,7 +474,6 @@ static int gl_init(struct gpu_ctx *s)
         .backend       = config->backend,
         .display       = config->display,
         .window        = config->window,
-        .handle        = config->handle,
         .swap_interval = config->swap_interval,
         .offscreen     = config->offscreen,
         .width         = config->width,

@@ -21,6 +21,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
   backends were enabled.
 - A deadlock in `ngl-control` when specifying invalid encoding arguments
 
+### Removed
+- `handle` field from the `ngl_config` structure
+
 ## [2022.2] [libnodegl 0.2.0] - 2022-03-28
 ### Added
 - TextureView node, useful for targeting a specific layer of a texture in RTT
