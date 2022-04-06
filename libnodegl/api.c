@@ -130,15 +130,6 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     int reset_param = KEEP_SCENE;
     struct ngl_config *config = arg;
 
-    if (config->backend == NGL_BACKEND_AUTO)
-        config->backend = DEFAULT_BACKEND;
-    if (config->platform == NGL_PLATFORM_AUTO)
-        config->platform = get_default_platform();
-    if (config->platform < 0) {
-        LOG(ERROR, "can not determine which platform to use");
-        return config->platform;
-    }
-
     int ret = ngli_config_copy(&s->config, config);
     if (ret < 0)
         return ret;
@@ -690,6 +681,15 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
             LOG(ERROR, "capture_buffer is only supported with offscreen rendering");
             return NGL_ERROR_INVALID_ARG;
         }
+    }
+
+    if (config->backend == NGL_BACKEND_AUTO)
+        config->backend = DEFAULT_BACKEND;
+    if (config->platform == NGL_PLATFORM_AUTO)
+        config->platform = get_default_platform();
+    if (config->platform < 0) {
+        LOG(ERROR, "can not determine which platform to use");
+        return config->platform;
     }
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
