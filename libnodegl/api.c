@@ -48,10 +48,8 @@
 #include "vaapi_ctx.h"
 #endif
 
-#if defined(TARGET_DARWIN) || defined(TARGET_IPHONE)
 #if defined(BACKEND_GL)
 #include "backends/gl/gpu_ctx_gl.h"
-#endif
 #endif
 
 #if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
@@ -388,7 +386,6 @@ static void *worker_thread(void *arg)
     return NULL;
 }
 
-#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
 static int cmd_make_current(struct ngl_ctx *s, void *arg)
 {
 #if defined(BACKEND_GL)
@@ -429,7 +426,6 @@ static int resize_from_current_thread(struct ngl_ctx *s, const struct resize_par
 
     return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
 }
-#endif
 
 static const char *get_cap_string_id(unsigned cap_id)
 {
@@ -692,13 +688,16 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return config->platform;
     }
 
-#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-    int ret = configure_from_current_thread(s, config);
-#else
-    int ret = dispatch_cmd(s, cmd_configure, config);
-#endif
+    int ret;
+    if (config->platform == NGL_PLATFORM_MACOS ||
+        config->platform == NGL_PLATFORM_IOS) {
+        ret = configure_from_current_thread(s, config);
+    } else {
+        ret = dispatch_cmd(s, cmd_configure, config);
+    }
     if (ret < 0)
         return ret;
+
     s->configured = 1;
     return 0;
 }
@@ -722,11 +721,12 @@ int ngl_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
         .viewport = viewport,
     };
 
-#if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
-    return resize_from_current_thread(s, &params);
-#else
+    if (config->platform == NGL_PLATFORM_MACOS ||
+        config->platform == NGL_PLATFORM_IOS) {
+        return resize_from_current_thread(s, &params);
+    }
+
     return dispatch_cmd(s, cmd_resize, &params);
-#endif
 }
 
 int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
