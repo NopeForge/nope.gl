@@ -667,6 +667,11 @@ fail:
 
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
+    if (s->configured) {
+        dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
+        s->configured = 0;
+    }
+
     if (!config) {
         LOG(ERROR, "context configuration cannot be NULL");
         return NGL_ERROR_INVALID_ARG;
@@ -685,11 +690,6 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
             LOG(ERROR, "capture_buffer is only supported with offscreen rendering");
             return NGL_ERROR_INVALID_ARG;
         }
-    }
-
-    if (s->configured) {
-        dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
-        s->configured = 0;
     }
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
