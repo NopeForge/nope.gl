@@ -386,6 +386,9 @@ static void *worker_thread(void *arg)
     return NULL;
 }
 
+#define MAKE_CURRENT &(int[]){1}
+#define DONE_CURRENT &(int[]){0}
+
 static int cmd_make_current(struct ngl_ctx *s, void *arg)
 {
 #if defined(BACKEND_GL)
@@ -400,8 +403,6 @@ static int cmd_make_current(struct ngl_ctx *s, void *arg)
     return 0;
 }
 
-#define MAKE_CURRENT &(int[]){1}
-#define DONE_CURRENT &(int[]){0}
 static int configure_from_current_thread(struct ngl_ctx *s, struct ngl_config *config)
 {
     int ret = cmd_configure(s, config);
