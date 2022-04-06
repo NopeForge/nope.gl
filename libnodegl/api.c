@@ -413,7 +413,7 @@ static int configure_from_current_thread(struct ngl_ctx *s, struct ngl_config *c
     return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
 }
 
-static int resize_from_current_thread(struct ngl_ctx *s, const struct resize_params *params)
+static int resize_from_current_thread(struct ngl_ctx *s, struct resize_params *params)
 {
     int ret = dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
     if (ret < 0)
