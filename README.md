@@ -15,6 +15,7 @@ and API can change at any time.
 ![tests MinGW](https://github.com/gopro/gopro-lib-node.gl/workflows/tests%20MinGW/badge.svg)
 ![tests MSVC](https://github.com/gopro/gopro-lib-node.gl/workflows/tests%20MSVC/badge.svg)
 [![coverage](https://codecov.io/gh/gopro/gopro-lib-node.gl/branch/master/graph/badge.svg)](https://codecov.io/gh/gopro/gopro-lib-node.gl)
+![build Android 🤖](https://github.com/stupeflix/sxplayer/workflows/build%20Android%20🤖/badge.svg)
 
 [gopro]: https://gopro.com/
 
