@@ -1,0 +1,78 @@
+# Warning: this name must stay in sync with the badges referenced in the README
+name: 'build Android 🤖'
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+
+jobs:
+  android-build:
+
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm, aarch64]
+        ffmpeg_version: ["4.4"]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        sudo apt -y update
+        sudo apt -y install ninja-build nasm
+        pip install --user meson
+
+    - name: Get ffmpeg source code
+      run: |
+        wget https://ffmpeg.org/releases/ffmpeg-${{ matrix.ffmpeg_version }}.tar.xz
+        tar -xf ffmpeg-${{ matrix.ffmpeg_version }}.tar.xz
+
+    - name: Compile ffmpeg source with the ndk toolchain for Android & install it to a specific directory
+      run: |
+        cd ffmpeg-${{ matrix.ffmpeg_version }}
+        android_suffix="android"
+        compiler=${{ matrix.arch }}
+
+        if [ ${{ matrix.arch }} == "arm" ]; then
+          android_suffix="androideabi"
+          compiler="armv7a"
+        fi
+
+        NDK_BIN_PATH=/usr/local/lib/android/sdk/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/bin
+        ./configure \
+        --disable-everything --disable-doc --disable-static --disable-autodetect --disable-programs \
+        --enable-shared --enable-cross-compile --enable-jni --enable-mediacodec --enable-hwaccels  \
+        --enable-avdevice --enable-swresample --enable-rdft \
+        --arch=${{ matrix.arch }} --target-os=android \
+        --cross-prefix=$NDK_BIN_PATH/${{ matrix.arch }}-linux-${android_suffix}- \
+        --cc=$NDK_BIN_PATH/${compiler}-linux-${android_suffix}28-clang \
+        --prefix=$HOME/ngl-env-${{ matrix.arch }}
+        make install -j$(($(nproc)+1))
+
+    - name: Build sxplayer lib for Android & reshape files tree
+      run: |
+        git clone --depth 1 https://github.com/Stupeflix/sxplayer
+        cd sxplayer
+        PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
+        meson setup --prefix $HOME/usr/local --cross-file .github/meson-android-${{ matrix.arch }}.ini builddir
+        meson compile -C builddir
+        meson install -C builddir
+
+    - name: Build nodegl lib for Android
+      run: |
+        cd libnodegl
+        PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/:$HOME/usr/local/lib/pkgconfig/ \
+        meson setup --cross-file ../.github/meson-android-${{ matrix.arch }}.ini builddir
+        meson compile -C builddir
+        meson test -C builddir
+
+    - name: Upload Logs
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: android-logs
+        path: libnodegl/builddir/meson-logs/testlog.txt
