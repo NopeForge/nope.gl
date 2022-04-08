@@ -40,27 +40,16 @@ struct rotate_opts {
 struct rotate_priv {
     struct transform trf;
     float normed_axis[3];
-    int use_anchor;
+    const float *anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, float deg_angle)
 {
     struct rotate_priv *s = node->priv_data;
-    const struct rotate_opts *o = node->opts;
     struct transform *trf = &s->trf;
-    float *matrix = trf->matrix;
 
     const float angle = NGLI_DEG2RAD(deg_angle);
-    ngli_mat4_rotate(matrix, angle, s->normed_axis);
-
-    if (s->use_anchor) {
-        const float *a = o->anchor;
-        NGLI_ALIGNED_MAT(transm);
-        ngli_mat4_translate(transm, a[0], a[1], a[2]);
-        ngli_mat4_mul(matrix, transm, matrix);
-        ngli_mat4_translate(transm, -a[0], -a[1], -a[2]);
-        ngli_mat4_mul(matrix, matrix, transm);
-    }
+    ngli_mat4_rotate(trf->matrix, angle, s->normed_axis, s->anchor);
 }
 
 static int rotate_init(struct ngl_node *node)
@@ -72,7 +61,8 @@ static int rotate_init(struct ngl_node *node)
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
         return NGL_ERROR_INVALID_ARG;
     }
-    s->use_anchor = memcmp(o->anchor, zvec, sizeof(zvec));
+    if (memcmp(o->anchor, zvec, sizeof(zvec)))
+        s->anchor = o->anchor;
     ngli_vec3_norm(s->normed_axis, o->axis);
     if (!o->angle_node)
         update_trf_matrix(node, o->angle);

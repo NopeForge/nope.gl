@@ -388,7 +388,7 @@ void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, floa
     dst[15] =  0;
 }
 
-void ngli_mat4_rotate(float *dst, float angle, float *axis)
+void ngli_mat4_rotate(float *dst, float angle, float *axis, const float *anchor)
 {
     const float a = cosf(angle);
     const float b = sinf(angle);
@@ -409,9 +409,15 @@ void ngli_mat4_rotate(float *dst, float angle, float *axis)
     dst[10] = a + axis[2] * axis[2] * c;
     dst[11] = 0.0f;
 
-    dst[12] = 0.0f;
-    dst[13] = 0.0f;
-    dst[14] = 0.0f;
+    if (anchor) {
+        dst[12] = anchor[0] - anchor[0]*dst[0] - anchor[1]*dst[4] - anchor[2]*dst[ 8];
+        dst[13] = anchor[1] - anchor[0]*dst[1] - anchor[1]*dst[5] - anchor[2]*dst[ 9];
+        dst[14] = anchor[2] - anchor[0]*dst[2] - anchor[1]*dst[6] - anchor[2]*dst[10];
+    } else {
+        dst[12] = 0.0f;
+        dst[13] = 0.0f;
+        dst[14] = 0.0f;
+    }
     dst[15] = 1.0f;
 }
 
