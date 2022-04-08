@@ -369,7 +369,7 @@ void ngli_mat4_orthographic(float *dst, float left, float right,
 void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, float far)
 {
     const float r = fov / 2 * M_PI / 180.0f;
-    const float s = sin(r);
+    const float s = sinf(r);
     const float z = far - near;
 
     ngli_mat4_identity(dst);
@@ -378,7 +378,7 @@ void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, floa
         return;
     }
 
-    const float c = cos(r) / s;
+    const float c = cosf(r) / s;
 
     dst[ 0] =  c / aspect;
     dst[ 5] =  c;
@@ -390,8 +390,8 @@ void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, floa
 
 void ngli_mat4_rotate(float *dst, float angle, float *axis)
 {
-    const float a = cos(angle);
-    const float b = sin(angle);
+    const float a = cosf(angle);
+    const float b = sinf(angle);
     const float c = 1.0f - a;
 
     dst[ 0] = a + axis[0] * axis[0] * c;
@@ -530,7 +530,7 @@ void ngli_quat_slerp(float *dst, const float *q1, const float *q2, float t)
 
     float tmp1[4];
     float tmp2[4];
-    ngli_vec4_scale(tmp1, tmp_q1p, cos(theta));
-    ngli_vec4_scale(tmp2, tmp, sin(theta));
+    ngli_vec4_scale(tmp1, tmp_q1p, cosf(theta));
+    ngli_vec4_scale(tmp2, tmp, sinf(theta));
     ngli_vec4_add(dst, tmp1, tmp2);
 }
