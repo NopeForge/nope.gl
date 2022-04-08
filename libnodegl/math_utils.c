@@ -470,12 +470,17 @@ void ngli_mat4_translate(float *dst, float x, float y, float z)
     dst[15] = 1.0f;
 }
 
-void ngli_mat4_scale(float *dst, float x, float y, float z)
+void ngli_mat4_scale(float *dst, float x, float y, float z, const float *anchor)
 {
     memset(dst, 0, 4 * 4 * sizeof(*dst));
     dst[ 0] =  x;
     dst[ 5] =  y;
     dst[10] =  z;
+    if (anchor) {
+        dst[12] = anchor[0] - anchor[0]*x;
+        dst[13] = anchor[1] - anchor[1]*y;
+        dst[14] = anchor[2] - anchor[2]*z;
+    }
     dst[15] =  1.0f;
 }
 

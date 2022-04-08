@@ -36,26 +36,15 @@ struct scale_opts {
 
 struct scale_priv {
     struct transform trf;
-    int use_anchor;
+    const float *anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *f)
 {
     struct scale_priv *s = node->priv_data;
-    const struct scale_opts *o = node->opts;
     struct transform *trf = &s->trf;
-    float *matrix = trf->matrix;
 
-    ngli_mat4_scale(matrix, f[0], f[1], f[2]);
-
-    if (s->use_anchor) {
-        const float *a = o->anchor;
-        NGLI_ALIGNED_MAT(tm);
-        ngli_mat4_translate(tm, a[0], a[1], a[2]);
-        ngli_mat4_mul(matrix, tm, matrix);
-        ngli_mat4_translate(tm, -a[0], -a[1], -a[2]);
-        ngli_mat4_mul(matrix, matrix, tm);
-    }
+    ngli_mat4_scale(trf->matrix, f[0], f[1], f[2], s->anchor);
 }
 
 static int scale_init(struct ngl_node *node)
@@ -63,7 +52,8 @@ static int scale_init(struct ngl_node *node)
     struct scale_priv *s = node->priv_data;
     const struct scale_opts *o = node->opts;
     static const float zero_anchor[3];
-    s->use_anchor = memcmp(o->anchor, zero_anchor, sizeof(o->anchor));
+    if (memcmp(o->anchor, zero_anchor, sizeof(o->anchor)))
+        s->anchor = o->anchor;
     if (!o->factors_node)
         update_trf_matrix(node, o->factors);
     s->trf.child = o->child;
