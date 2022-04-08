@@ -40,30 +40,19 @@ struct skew_opts {
 struct skew_priv {
     struct transform trf;
     float normed_axis[3];
-    int use_anchor;
+    const float *anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *angles)
 {
     struct skew_priv *s = node->priv_data;
-    const struct skew_opts *o = node->opts;
     struct transform *trf = &s->trf;
-    float *matrix = trf->matrix;
 
     const float skx = tanf(NGLI_DEG2RAD(angles[0]));
     const float sky = tanf(NGLI_DEG2RAD(angles[1]));
     const float skz = tanf(NGLI_DEG2RAD(angles[2]));
 
-    ngli_mat4_skew(matrix, skx, sky, skz, s->normed_axis);
-
-    if (s->use_anchor) {
-        const float *a = o->anchor;
-        NGLI_ALIGNED_MAT(transm);
-        ngli_mat4_translate(transm, a[0], a[1], a[2]);
-        ngli_mat4_mul(matrix, transm, matrix);
-        ngli_mat4_translate(transm, -a[0], -a[1], -a[2]);
-        ngli_mat4_mul(matrix, matrix, transm);
-    }
+    ngli_mat4_skew(trf->matrix, skx, sky, skz, s->normed_axis, s->anchor);
 }
 
 static int skew_init(struct ngl_node *node)
@@ -75,7 +64,8 @@ static int skew_init(struct ngl_node *node)
         LOG(ERROR, "(0.0, 0.0, 0.0) is not a valid axis");
         return NGL_ERROR_INVALID_ARG;
     }
-    s->use_anchor = memcmp(o->anchor, zvec, sizeof(zvec));
+    if (memcmp(o->anchor, zvec, sizeof(zvec)))
+        s->anchor = o->anchor;
     ngli_vec3_norm(s->normed_axis, o->axis);
     if (!o->angles_node)
         update_trf_matrix(node, o->angles);

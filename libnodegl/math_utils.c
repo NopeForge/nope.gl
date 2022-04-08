@@ -484,7 +484,7 @@ void ngli_mat4_scale(float *dst, float x, float y, float z, const float *anchor)
     dst[15] =  1.0f;
 }
 
-void ngli_mat4_skew(float *dst, float x, float y, float z, const float *axis)
+void ngli_mat4_skew(float *dst, float x, float y, float z, const float *axis, const float *anchor)
 {
     memset(dst, 0, 4 * 4 * sizeof(*dst));
     dst[ 0] = 1.f;
@@ -496,6 +496,11 @@ void ngli_mat4_skew(float *dst, float x, float y, float z, const float *axis)
     dst[ 8] = axis[0] * z;  // Z skew on X-axis
     dst[ 9] = axis[1] * z;  // Z skew on Y-axis
     dst[10] = 1.f;
+    if (anchor) {
+        dst[12] = -anchor[1]*dst[4] - anchor[2]*dst[8];
+        dst[13] = -anchor[0]*dst[1] - anchor[2]*dst[9];
+        dst[14] = -anchor[0]*dst[2] - anchor[1]*dst[6];
+    }
     dst[15] = 1.f;
 }
 
