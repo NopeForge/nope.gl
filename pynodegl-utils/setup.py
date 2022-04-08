@@ -30,6 +30,7 @@ setup(
         "console_scripts": [
             "ngl-control = pynodegl_utils.controller:run",
             "ngl-test = pynodegl_utils.tests:run",
+            "ngl-diff = pynodegl_utils.diff:run",
         ],
     },
     package_data={

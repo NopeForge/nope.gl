@@ -11,6 +11,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ### Added
 - Optional `backend_config` field to the `ngl_config` structure (ABI break)
 - External OpenGL context support
+- `ngl-diff` tool to visually compare videos
 
 ### Fixed
 - Various memory leaks
