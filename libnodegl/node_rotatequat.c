@@ -37,26 +37,15 @@ struct rotatequat_opts {
 
 struct rotatequat_priv {
     struct transform trf;
-    int use_anchor;
+    const float *anchor;
 };
 
 static void update_trf_matrix(struct ngl_node *node, const float *quat)
 {
     struct rotatequat_priv *s = node->priv_data;
-    const struct rotatequat_opts *o = node->opts;
     struct transform *trf = &s->trf;
-    float *matrix = trf->matrix;
 
-    ngli_mat4_rotate_from_quat(matrix, quat);
-
-    if (s->use_anchor) {
-        const float *a = o->anchor;
-        NGLI_ALIGNED_MAT(transm);
-        ngli_mat4_translate(transm, a[0], a[1], a[2]);
-        ngli_mat4_mul(matrix, transm, matrix);
-        ngli_mat4_translate(transm, -a[0], -a[1], -a[2]);
-        ngli_mat4_mul(matrix, matrix, transm);
-    }
+    ngli_mat4_rotate_from_quat(trf->matrix, quat, s->anchor);
 }
 
 static int rotatequat_init(struct ngl_node *node)
@@ -64,7 +53,8 @@ static int rotatequat_init(struct ngl_node *node)
     struct rotatequat_priv *s = node->priv_data;
     const struct rotatequat_opts *o = node->opts;
     static const float zvec[3];
-    s->use_anchor = memcmp(o->anchor, zvec, sizeof(zvec));
+    if (memcmp(o->anchor, zvec, sizeof(zvec)))
+        s->anchor = o->anchor;
     if (!o->quat_node)
         update_trf_matrix(node, o->quat);
     s->trf.child = o->child;

@@ -421,7 +421,7 @@ void ngli_mat4_rotate(float *dst, float angle, float *axis, const float *anchor)
     dst[15] = 1.0f;
 }
 
-void ngli_mat4_rotate_from_quat(float *dst, const float *q)
+void ngli_mat4_rotate_from_quat(float *dst, const float *q, const float *anchor)
 {
     float tmp[4];
     const float *tmpp = q;
@@ -458,9 +458,15 @@ void ngli_mat4_rotate_from_quat(float *dst, const float *q)
     dst[ 9] =  yz2 - wx2;
     dst[10] = -xx2 - yy2 + 1.0f;
     dst[11] =  0.0f;
-    dst[12] =  0.0f;
-    dst[13] =  0.0f;
-    dst[14] =  0.0f;
+    if (anchor) {
+        dst[12] = anchor[0] - anchor[0]*dst[0] - anchor[1]*dst[4] - anchor[2]*dst[ 8];
+        dst[13] = anchor[1] - anchor[0]*dst[1] - anchor[1]*dst[5] - anchor[2]*dst[ 9];
+        dst[14] = anchor[2] - anchor[0]*dst[2] - anchor[1]*dst[6] - anchor[2]*dst[10];
+    } else {
+        dst[12] = 0.0f;
+        dst[13] = 0.0f;
+        dst[14] = 0.0f;
+    }
     dst[15] =  1.0f;
 }
 

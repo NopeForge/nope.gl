@@ -357,7 +357,7 @@ static int animatedquat_update(struct ngl_node *node, double t)
     if (ret < 0)
         return ret;
     if (o->as_mat4)
-        ngli_mat4_rotate_from_quat(s->matrix, s->vector);
+        ngli_mat4_rotate_from_quat(s->matrix, s->vector, NULL);
     return 0;
 }
 

@@ -90,7 +90,7 @@ void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up);
 void ngli_mat4_orthographic(float *dst, float left, float right, float bottom, float top, float near, float far);
 void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, float far);
 void ngli_mat4_rotate(float *dst, float angle, float *axis, const float *anchor);
-void ngli_mat4_rotate_from_quat(float *dst, const float *quat);
+void ngli_mat4_rotate_from_quat(float *dst, const float *quat, const float *anchor);
 void ngli_mat4_translate(float *dst, float x, float y, float z);
 void ngli_mat4_scale(float *dst, float x, float y, float z, const float *anchor);
 void ngli_mat4_skew(float *dst, float x, float y, float z, const float *axis, const float *anchor);

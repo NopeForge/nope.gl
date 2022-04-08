@@ -123,7 +123,7 @@ static int uniformquat_update_func(struct ngl_node *node)
     live_boundaries_clamp_vec4(node);
     memcpy(s->vector, o->live.val.f, s->var.data_size);
     if (o->as_mat4)
-        ngli_mat4_rotate_from_quat(s->matrix, s->vector);
+        ngli_mat4_rotate_from_quat(s->matrix, s->vector, NULL);
     return 0;
 }
 
@@ -384,7 +384,7 @@ static int uniformquat_update(struct ngl_node *node, double t)
     struct uniform_priv *s = node->priv_data;
     const struct variable_opts *o = node->opts;
     if (o->as_mat4)
-        ngli_mat4_rotate_from_quat(s->matrix, s->vector);
+        ngli_mat4_rotate_from_quat(s->matrix, s->vector, NULL);
     return 0;
 }
 
@@ -442,7 +442,7 @@ static int uniformquat_init(struct ngl_node *node)
         s->var.data = s->matrix;
         s->var.data_size = sizeof(s->matrix);
         s->var.data_type = NGLI_TYPE_MAT4;
-        ngli_mat4_rotate_from_quat(s->matrix, s->vector);
+        ngli_mat4_rotate_from_quat(s->matrix, s->vector, NULL);
     }
     return 0;
 }
