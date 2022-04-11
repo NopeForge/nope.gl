@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         arch: [x86_64, arm, aarch64]
-        ffmpeg_version: ["4.4"]
+        ffmpeg_version: [5.0.1]
 
     steps:
     - uses: actions/checkout@v2
