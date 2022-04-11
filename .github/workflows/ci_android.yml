@@ -58,14 +58,14 @@ jobs:
         git clone --depth 1 https://github.com/Stupeflix/sxplayer
         cd sxplayer
         PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
-        meson setup --prefix $HOME/usr/local --cross-file .github/meson-android-${{ matrix.arch }}.ini builddir
+        meson setup --prefix $HOME/ngl-env-${{ matrix.arch }} --cross-file .github/meson-android-${{ matrix.arch }}.ini builddir
         meson compile -C builddir
         meson install -C builddir
 
     - name: Build nodegl lib for Android
       run: |
         cd libnodegl
-        PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/:$HOME/usr/local/lib/pkgconfig/ \
+        PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
         meson setup --cross-file ../.github/meson-android-${{ matrix.arch }}.ini builddir
         meson compile -C builddir
         meson test -C builddir
