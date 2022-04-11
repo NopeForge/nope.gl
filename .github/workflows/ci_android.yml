@@ -16,6 +16,7 @@ jobs:
       matrix:
         arch: [x86_64, arm, aarch64]
         ffmpeg_version: [5.0.1]
+        glslang_version: [11.9.0]
 
     steps:
     - uses: actions/checkout@v2
@@ -62,11 +63,36 @@ jobs:
         meson compile -C builddir
         meson install -C builddir
 
+    - name: Build glslang lib for Android
+      run: |
+        abi_arm="armeabi-v7a"
+        abi_aarch64="arm64-v8a"
+        abi_x86_64="x86_64"
+        abi=$abi_${{ matrix.arch }}
+        wget https://github.com/KhronosGroup/glslang/archive/refs/tags/${{ matrix.glslang_version }}.tar.gz
+        tar xf ${{ matrix.glslang_version }}.tar.gz
+        cd glslang-${{ matrix.glslang_version }}
+        cmake \
+            -GNinja \
+            -DCMAKE_TOOLCHAIN_FILE=/usr/local/lib/android/sdk/ndk/22.1.7171670/build/cmake/android.toolchain.cmake \
+            -DANDROID_STL=c++_shared \
+            -DANDROID_TOOLCHAIN=clang \
+            -DANDROID_PLATFORM=android-28 \
+            -DANDROID_ABI=$abi \
+            -DCMAKE_INSTALL_PREFIX=$HOME/ngl-env-${{ matrix.arch }} \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DBUILD_EXTERNAL=OFF
+        cmake --build .
+        cmake --install .
+
     - name: Build nodegl lib for Android
       run: |
         cd libnodegl
         PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
-        meson setup --cross-file ../.github/meson-android-${{ matrix.arch }}.ini builddir
+        meson setup builddir \
+            --cross-file ../.github/meson-android-${{ matrix.arch }}.ini \
+            -Dextra_library_dirs=$HOME/ngl-env-${{ matrix.arch }}/lib \
+            -Dextra_include_dirs=$HOME/ngl-env-${{ matrix.arch }}/include
         meson compile -C builddir
         meson test -C builddir
 
