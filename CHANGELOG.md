@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+
+## [2022.3] [libnodegl 0.3.0] - 2022-04-11
 ### Added
 - `eye`, `center` and `up` Camera parameters can now be node
 - Honor [NO_COLOR](https://no-color.org/) environment variable
