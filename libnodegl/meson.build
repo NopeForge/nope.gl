@@ -232,7 +232,7 @@ hosts_cfg = {
     ),
   },
   'iphone': {
-    'frameworks': ['CoreMedia'],
+    'frameworks': ['CoreVideo', 'Foundation'],
   },
 }
 
@@ -355,6 +355,7 @@ gbackends_cfg = {
       'iphone': {
         'src': files('backends/gl/glcontext_eagl.m', 'backends/gl/hwmap_videotoolbox_ios_gl.c'),
         'cfg': 'HAVE_GLPLATFORM_EAGL',
+        'frameworks': ['OpenGLES'],
       },
       'windows': {
         'src': files('backends/gl/glcontext_wgl.c'),
