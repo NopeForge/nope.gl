@@ -1,0 +1,94 @@
+# Warning: this name must stay in sync with the badges referenced in the README
+name: 'build iOS 🍏'
+
+on:
+  push:
+    branches:
+      - 'master'
+  pull_request:
+
+jobs:
+  ios-build:
+
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [x86_64, arm64]
+        ffmpeg_version: [5.0.1]
+        sxplayer_version: [9.12.0]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: |
+        brew install meson nasm jq pkg-config
+
+    - name: Get ffmpeg source code
+      run: |
+        wget https://ffmpeg.org/releases/ffmpeg-${{ matrix.ffmpeg_version }}.tar.xz
+        tar -xf ffmpeg-${{ matrix.ffmpeg_version }}.tar.xz
+
+    - name: Compile ffmpeg source with the Xcode toolchain for ios & install it to a specific directory
+      run: |
+        if [ ${{ matrix.arch }} == "x86_64" ]; then
+          PLATFORM="iphonesimulator"
+          IOS_VERSION=$(xcrun simctl list runtimes iOS -j|jq '.runtimes|last.version')
+          CFLAGS="-arch ${{ matrix.arch }} -mios-simulator-version-min=$IOS_VERSION"
+        elif [ ${{ matrix.arch }} == "arm64" ]; then
+          PLATFORM="iphoneos"
+          IOS_VERSION=$(xcrun --sdk $PLATFORM --show-sdk-version)
+          CFLAGS="-arch ${{ matrix.arch }} -mios-version-min=$IOS_VERSION"
+        else
+          echo "Unknown architecture ${{ matrix.arch }}"
+          exit 1
+        fi
+
+        SDK=$(xcrun --sdk $PLATFORM --show-sdk-path)
+        LDFLAGS="$CFLAGS"
+
+        cd ffmpeg-${{ matrix.ffmpeg_version }}
+
+        ./configure \
+        --disable-everything --disable-doc --disable-static --disable-autodetect --disable-programs \
+        --enable-shared --enable-cross-compile \
+        --enable-avdevice --enable-swresample --enable-rdft \
+        --enable-filter=aresample,aformat,asetnsamples,asettb,copy,format,scale,settb \
+        --enable-demuxer=image_jpeg_pipe,matroska \
+        --enable-decoder=mjpeg,flac,h264 \
+        --enable-parser=h264,mjpeg,flac \
+        --enable-protocol=file \
+        --target-os=darwin \
+        --arch=${{ matrix.arch }} \
+        --sysroot=$SDK \
+        --extra-cflags="$CFLAGS" \
+        --extra-ldflags="$LDFLAGS" \
+        --prefix=$HOME/ngl-env-${{ matrix.arch }}
+        make install -j $(sysctl -n hw.ncpu)
+
+    - name: Build sxplayer lib for ios & reshape files tree
+      run: |
+        curl -sL https://github.com/Stupeflix/sxplayer/archive/refs/tags/v${{ matrix.sxplayer_version }}.tar.gz -o sxplayer.tgz
+        tar xf sxplayer.tgz
+        cd sxplayer-${{ matrix.sxplayer_version }}
+        PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig \
+        LDFLAGS="$LDFLAGS -L/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/" \
+        meson setup --prefix $HOME/ngl-env-${{ matrix.arch }} --cross-file .github/meson-ios-${{ matrix.arch }}.ini builddir
+        meson compile -C builddir
+        meson install -C builddir
+
+    - name: Build nodegl lib for ios
+      run: |
+        cd libnodegl
+        PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
+        meson setup --cross-file ../.github/meson-ios-${{ matrix.arch }}.ini builddir
+        meson compile -C builddir
+        meson test -C builddir
+
+    - name: Upload Logs
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: ios-logs
+        path: libnodegl/builddir/meson-logs/testlog.txt
