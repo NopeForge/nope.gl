@@ -104,6 +104,38 @@ static void scene_reset(struct ngl_ctx *s, int action)
     ngli_rnode_reset(&s->rnode);
 }
 
+static int set_scene(struct ngl_ctx *s, struct ngl_node *scene)
+{
+    scene_reset(s, UNREF_SCENE);
+
+    ngli_rnode_init(&s->rnode);
+    s->rnode_pos = &s->rnode;
+    s->rnode_pos->graphicstate = NGLI_GRAPHICSTATE_DEFAULTS;
+    s->rnode_pos->rendertarget_desc = *ngli_gpu_ctx_get_default_rendertarget_desc(s->gpu_ctx);
+
+    if (scene) {
+        int ret = ngli_node_attach_ctx(scene, s);
+        if (ret < 0) {
+            ngli_node_detach_ctx(scene, s);
+            return ret;
+        }
+        s->scene = ngl_node_ref(scene);
+    }
+
+    const struct ngl_config *config = &s->config;
+    if (config->hud) {
+        s->hud = ngli_hud_create(s);
+        if (!s->hud)
+            return NGL_ERROR_MEMORY;
+
+        int ret = ngli_hud_init(s->hud);
+        if (ret < 0)
+            return ret;
+    }
+
+    return 0;
+}
+
 static int cmd_reset(struct ngl_ctx *s, void *arg)
 {
     if (s->gpu_ctx)
@@ -233,35 +265,7 @@ static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 {
     ngli_gpu_ctx_wait_idle(s->gpu_ctx);
-    scene_reset(s, UNREF_SCENE);
-
-    ngli_rnode_init(&s->rnode);
-    s->rnode_pos = &s->rnode;
-    s->rnode_pos->graphicstate = NGLI_GRAPHICSTATE_DEFAULTS;
-    s->rnode_pos->rendertarget_desc = *ngli_gpu_ctx_get_default_rendertarget_desc(s->gpu_ctx);
-
-    struct ngl_node *scene = arg;
-    if (scene) {
-        int ret = ngli_node_attach_ctx(scene, s);
-        if (ret < 0) {
-            ngli_node_detach_ctx(scene, s);
-            return ret;
-        }
-        s->scene = ngl_node_ref(scene);
-    }
-
-    const struct ngl_config *config = &s->config;
-    if (config->hud) {
-        s->hud = ngli_hud_create(s);
-        if (!s->hud)
-            return NGL_ERROR_MEMORY;
-
-        int ret = ngli_hud_init(s->hud);
-        if (ret < 0)
-            return ret;
-    }
-
-    return 0;
+    return set_scene(s, arg);
 }
 
 static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
