@@ -143,7 +143,7 @@ def _download_extract(dep_item):
     os.makedirs(dst_base, exist_ok=True)
 
     # Download
-    if not op.exists(dst_path) or not _file_chk(dst_path, dep['sha256']):
+    if not op.exists(dst_path) or not _file_chk(dst_path, chksum):
         logging.info('downloading %s to %s', url, dst_file)
         urllib.request.urlretrieve(url, dst_path)
 
