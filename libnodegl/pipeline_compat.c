@@ -243,4 +243,5 @@ void ngli_pipeline_compat_freep(struct pipeline_compat **sp)
             }
         }
     }
+    ngli_freep(sp);
 }
