@@ -26,11 +26,11 @@ import hashlib
 import logging
 import os
 import os.path as op
-import stat
 import pathlib
 import platform
 import shlex
 import shutil
+import stat
 import sysconfig
 import tarfile
 import urllib.request
@@ -38,7 +38,6 @@ import venv
 import zipfile
 from multiprocessing import Pool
 from subprocess import run
-
 
 _ROOTDIR = op.abspath(op.dirname(__file__))
 _SYSTEM = 'MinGW' if sysconfig.get_platform().startswith('mingw') else platform.system()
