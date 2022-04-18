@@ -620,6 +620,8 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
                            ngli_darray_count(&copy_regions),
                            ngli_darray_data(&copy_regions));
 
+    ngli_darray_reset(&copy_regions);
+
     transition_image_layout(cmd_buf,
                             s_priv->image,
                             VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
