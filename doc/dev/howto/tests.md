@@ -103,6 +103,12 @@ manually as well. This is still a work in progress.
 
 Beware that Valgrind only covers heap allocation, nothing GPU related.
 
+To detect GPU memory leaks, one can use the `scripts/gl-leaks.sh` helper, which
+is relying on [apitrace](https://apitrace.github.io/) as a meson wrap file:
+`meson test -C builddir/tests --suite opengl --wrap
+"$(pwd)/scripts/gl-leaks.sh"`. As the name suggests, this only works with
+OpenGL.
+
 
 ## Memory failure simulation
 
