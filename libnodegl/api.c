@@ -186,11 +186,6 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
         return ret;
     }
 
-    ngli_rnode_init(&s->rnode);
-    s->rnode_pos = &s->rnode;
-    s->rnode_pos->graphicstate = NGLI_GRAPHICSTATE_DEFAULTS;
-    s->rnode_pos->rendertarget_desc = *ngli_gpu_ctx_get_default_rendertarget_desc(s->gpu_ctx);
-
     ret = ngli_pgcache_init(&s->pgcache, s->gpu_ctx);
     if (ret < 0)
         goto fail;
@@ -216,25 +211,14 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
         goto fail;
     }
 
-    if (s->scene) {
-        ret = ngli_node_attach_ctx(s->scene, s);
-        if (ret < 0) {
-            reset_param = UNREF_SCENE;
-            goto fail;
-        }
+    struct ngl_node *old_scene = s->scene; // note: the old scene is detached
+    s->scene = NULL; // make sure the old scene is not unreferenced by set_scene()
+    ret = set_scene(s, old_scene);
+    if (ret < 0) {
+        s->scene = old_scene; // restore detached scene on error
+        goto fail;
     }
-
-    if (config->hud) {
-        s->hud = ngli_hud_create(s);
-        if (!s->hud) {
-            ret = NGL_ERROR_MEMORY;
-            goto fail;
-        }
-
-        ret = ngli_hud_init(s->hud);
-        if (ret < 0)
-            goto fail;
-    }
+    ngl_node_unrefp(&old_scene); // set_scene() incremented the reference, so we drop the old one
 
     return 0;
 
