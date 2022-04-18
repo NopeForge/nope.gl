@@ -529,6 +529,8 @@ enum {
 
 static int backend_probe(struct ngl_backend *backend, const struct ngl_config *config, int mode)
 {
+    int ret = 0;
+
     struct gpu_ctx *gpu_ctx = ngli_gpu_ctx_create(config);
     if (!gpu_ctx)
         return NGL_ERROR_MEMORY;
@@ -541,9 +543,9 @@ static int backend_probe(struct ngl_backend *backend, const struct ngl_config *c
     backend->name       = gpu_ctx->cls->name;
 
     if (mode == PROBE_MODE_NO_GRAPHICS)
-        return 0;
+        goto end;
 
-    int ret = ngli_gpu_ctx_init(gpu_ctx);
+    ret = ngli_gpu_ctx_init(gpu_ctx);
     if (ret < 0)
         goto end;
 
