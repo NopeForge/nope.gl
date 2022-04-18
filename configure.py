@@ -146,6 +146,7 @@ def _download_extract(dep_item):
     if not op.exists(dst_path) or not _file_chk(dst_path, chksum):
         logging.info('downloading %s to %s', url, dst_file)
         urllib.request.urlretrieve(url, dst_path)
+        assert _file_chk(dst_path, chksum)
 
     # Extract
     if tarfile.is_tarfile(dst_path):
