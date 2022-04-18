@@ -124,7 +124,7 @@ class ExportView(QtWidgets.QWidget):
     @QtCore.Slot(str)
     def _fail(self, message):
         self._finish()
-        QtWidgets.QMessageBox.critical(self, 'Error', message, QtWidgets.QMessageBox.Ok)
+        QtWidgets.QMessageBox.critical(self, "Error", message, QtWidgets.QMessageBox.Ok)
 
     @QtCore.Slot()
     def _finish(self):
