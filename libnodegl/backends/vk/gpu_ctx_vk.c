@@ -173,15 +173,15 @@ static VkResult create_render_resources(struct gpu_ctx *s)
         if (!colorp)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        *colorp = ngli_texture_create(s);
-        if (!*colorp)
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
-
         if (config->offscreen) {
             VkResult res = create_texture(s, color_format, 0, COLOR_USAGE, colorp);
             if (res != VK_SUCCESS)
                 return res;
         } else {
+            *colorp = ngli_texture_create(s);
+            if (!*colorp)
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
+
             const struct texture_params params = {
                 .type             = NGLI_TEXTURE_TYPE_2D,
                 .format           = color_format,
