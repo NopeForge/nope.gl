@@ -103,10 +103,10 @@ def _file_chk(path, chksum_hexdigest):
             if not buf:
                 break
             chksum.update(buf)
-    match = chksum.hexdigest() == chksum_hexdigest
-    if not match:
+    match_ = chksum.hexdigest() == chksum_hexdigest
+    if not match_:
         logging.warning('%s: mismatching check sum', path)
-    return match
+    return match_
 
 
 def _fix_permissions(path):
