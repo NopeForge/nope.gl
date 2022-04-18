@@ -361,6 +361,7 @@ static void destroy_command_pool_and_buffers(struct gpu_ctx *s)
     if (s_priv->update_cmds) {
         for (int i = 0; i < s_priv->nb_in_flight_frames; i++)
             ngli_cmd_vk_freep(&s_priv->update_cmds[i]);
+        ngli_freep(&s_priv->update_cmds);
     }
 
     vkDestroyCommandPool(vk->device, s_priv->cmd_pool, NULL);
