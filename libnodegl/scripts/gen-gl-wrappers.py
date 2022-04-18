@@ -26,240 +26,203 @@ from xml.etree import ElementTree as ET
 
 cmds_optional = [
     # Framebuffer
-    'glBlitFramebuffer',
-    'glInvalidateFramebuffer',
-
+    "glBlitFramebuffer",
+    "glInvalidateFramebuffer",
     # Renderbuffer
-    'glRenderbufferStorageMultisample',
-
+    "glRenderbufferStorageMultisample",
     # Texture
-    'glTexImage3D',
-    'glTexStorage2D',
-    'glTexStorage3D',
-    'glTexSubImage3D',
-    'glBindImageTexture',
-
+    "glTexImage3D",
+    "glTexStorage2D",
+    "glTexStorage3D",
+    "glTexSubImage3D",
+    "glBindImageTexture",
     # Vertex Arrays
-    'glBindVertexArray',
-    'glDeleteVertexArrays',
-    'glGenVertexArrays',
-
+    "glBindVertexArray",
+    "glDeleteVertexArrays",
+    "glGenVertexArrays",
     # Barrier
-    'glMemoryBarrier',
-
+    "glMemoryBarrier",
     #  Buffers
-    'glBindBufferBase',
-    'glBindBufferRange',
-    'glMapBufferRange',
-    'glUnmapBuffer',
-    'glBufferStorage',
-
+    "glBindBufferBase",
+    "glBindBufferRange",
+    "glMapBufferRange",
+    "glUnmapBuffer",
+    "glBufferStorage",
     # Compute shaders
-    'glDispatchCompute',
-
+    "glDispatchCompute",
     # Shaders
-    'glGetProgramResourceLocation',
-    'glGetProgramResourceIndex',
-    'glGetProgramResourceiv',
-    'glGetProgramInterfaceiv',
-    'glGetProgramResourceName',
-
+    "glGetProgramResourceLocation",
+    "glGetProgramResourceIndex",
+    "glGetProgramResourceiv",
+    "glGetProgramInterfaceiv",
+    "glGetProgramResourceName",
     # Polygon
-    'glPolygonMode',
-
+    "glPolygonMode",
     # Internal format
-    'glGetInternalformativ',
-
+    "glGetInternalformativ",
     # Query
-    'glBeginQuery',
-    'glEndQuery',
-    'glGenQueries',
-    'glDeleteQueries',
-    'glQueryCounter',
-    'glGetQueryObjectui64v',
-
+    "glBeginQuery",
+    "glEndQuery",
+    "glGenQueries",
+    "glDeleteQueries",
+    "glQueryCounter",
+    "glGetQueryObjectui64v",
     # Debug
-    'glDebugMessageCallback',
-
+    "glDebugMessageCallback",
     # Query EXT
-    'glBeginQueryEXT',
-    'glEndQueryEXT',
-    'glGenQueriesEXT',
-    'glDeleteQueriesEXT',
-    'glQueryCounterEXT',
-    'glGetQueryObjectui64vEXT',
-
+    "glBeginQueryEXT",
+    "glEndQueryEXT",
+    "glGenQueriesEXT",
+    "glDeleteQueriesEXT",
+    "glQueryCounterEXT",
+    "glGetQueryObjectui64vEXT",
     # Instancing
-    'glDrawArraysInstanced',
-    'glDrawElementsInstanced',
-    'glVertexAttribDivisor',
-
+    "glDrawArraysInstanced",
+    "glDrawElementsInstanced",
+    "glVertexAttribDivisor",
     # Uniform Block Object
-    'glGetUniformBlockIndex',
-    'glUniformBlockBinding',
-    'glGetActiveUniformBlockName',
-    'glGetActiveUniformBlockiv',
-
+    "glGetUniformBlockIndex",
+    "glUniformBlockBinding",
+    "glGetActiveUniformBlockName",
+    "glGetActiveUniformBlockiv",
     # EGL OES image
-    'glEGLImageTargetTexture2DOES',
-
+    "glEGLImageTargetTexture2DOES",
     # Sync object
-    'glFenceSync',
-    'glWaitSync',
-    'glClientWaitSync',
-
+    "glFenceSync",
+    "glWaitSync",
+    "glClientWaitSync",
     # Read/Draw Buffer
-    'glReadBuffer',
-    'glDrawBuffer',
-    'glDrawBuffers',
-
+    "glReadBuffer",
+    "glDrawBuffer",
+    "glDrawBuffers",
     # Clear Buffer
-    'glClearBufferfv',
-    'glClearBufferfi',
-
+    "glClearBufferfv",
+    "glClearBufferfi",
     # UInt uniforms
-    'glUniform1uiv',
-    'glUniform2uiv',
-    'glUniform3uiv',
-    'glUniform4uiv',
+    "glUniform1uiv",
+    "glUniform2uiv",
+    "glUniform3uiv",
+    "glUniform4uiv",
 ]
 
 cmds = [
     # Enable
-    'glEnable',
-    'glDisable',
-
+    "glEnable",
+    "glDisable",
     # Error
-    'glGetError',
-
+    "glGetError",
     # Get
-    'glGetBooleanv',
-    'glGetIntegeri_v',
-    'glGetIntegerv',
-    'glGetString',
-    'glGetStringi',
-
+    "glGetBooleanv",
+    "glGetIntegeri_v",
+    "glGetIntegerv",
+    "glGetString",
+    "glGetStringi",
     # Viewport
-    'glViewport',
-    'glScissor',
-
+    "glViewport",
+    "glScissor",
     # Color
-    'glColorMask',
-
+    "glColorMask",
     # Depth
-    'glDepthFunc',
-    'glDepthMask',
-
+    "glDepthFunc",
+    "glDepthMask",
     # Clear
-    'glClear',
-    'glClearColor',
-
+    "glClear",
+    "glClearColor",
     # Blending
-    'glBlendColor',
-    'glBlendEquation',
-    'glBlendEquationSeparate',
-    'glBlendFunc',
-    'glBlendFuncSeparate',
-
+    "glBlendColor",
+    "glBlendEquation",
+    "glBlendEquationSeparate",
+    "glBlendFunc",
+    "glBlendFuncSeparate",
     # Draw
-    'glDrawArrays',
-    'glDrawElements',
-
+    "glDrawArrays",
+    "glDrawElements",
     # Texture
-    'glActiveTexture',
-    'glBindTexture',
-    'glDeleteTextures',
-    'glGenTextures',
-    'glGenerateMipmap',
-    'glPixelStorei',
-    'glTexImage2D',
-    'glTexParameteri',
-    'glTexSubImage2D',
-
+    "glActiveTexture",
+    "glBindTexture",
+    "glDeleteTextures",
+    "glGenTextures",
+    "glGenerateMipmap",
+    "glPixelStorei",
+    "glTexImage2D",
+    "glTexParameteri",
+    "glTexSubImage2D",
     # Framebuffer
-    'glCheckFramebufferStatus',
-    'glBindFramebuffer',
-    'glDeleteFramebuffers',
-    'glFramebufferRenderbuffer',
-    'glFramebufferTexture2D',
-    'glGenFramebuffers',
-    'glReadPixels',
-
+    "glCheckFramebufferStatus",
+    "glBindFramebuffer",
+    "glDeleteFramebuffers",
+    "glFramebufferRenderbuffer",
+    "glFramebufferTexture2D",
+    "glGenFramebuffers",
+    "glReadPixels",
     # Buffer
-    'glBindBuffer',
-    'glBufferData',
-    'glBufferSubData',
-    'glDeleteBuffers',
-    'glGenBuffers',
-
+    "glBindBuffer",
+    "glBufferData",
+    "glBufferSubData",
+    "glDeleteBuffers",
+    "glGenBuffers",
     # Render buffer
-    'glBindRenderbuffer',
-    'glDeleteRenderbuffers',
-    'glGenRenderbuffers',
-    'glGetRenderbufferParameteriv',
-    'glRenderbufferStorage',
-
+    "glBindRenderbuffer",
+    "glDeleteRenderbuffers",
+    "glGenRenderbuffers",
+    "glGetRenderbufferParameteriv",
+    "glRenderbufferStorage",
     # Shader
-    'glCreateProgram',
-    'glCreateShader',
-    'glAttachShader',
-    'glCompileShader',
-    'glDeleteProgram',
-    'glDeleteShader',
-    'glDetachShader',
-    'glGetAttachedShaders',
-    'glGetProgramInfoLog',
-    'glGetProgramiv',
-    'glGetShaderInfoLog',
-    'glGetShaderSource',
-    'glGetShaderiv',
-    'glLinkProgram',
-    'glReleaseShaderCompiler',
-    'glShaderBinary',
-    'glShaderSource',
-    'glUseProgram',
-
+    "glCreateProgram",
+    "glCreateShader",
+    "glAttachShader",
+    "glCompileShader",
+    "glDeleteProgram",
+    "glDeleteShader",
+    "glDetachShader",
+    "glGetAttachedShaders",
+    "glGetProgramInfoLog",
+    "glGetProgramiv",
+    "glGetShaderInfoLog",
+    "glGetShaderSource",
+    "glGetShaderiv",
+    "glLinkProgram",
+    "glReleaseShaderCompiler",
+    "glShaderBinary",
+    "glShaderSource",
+    "glUseProgram",
     # Shader Attributes
-    'glGetAttribLocation',
-    'glBindAttribLocation',
-    'glEnableVertexAttribArray',
-    'glDisableVertexAttribArray',
-    'glVertexAttribPointer',
-    'glGetActiveAttrib',
-    'glGetActiveUniform',
-
+    "glGetAttribLocation",
+    "glBindAttribLocation",
+    "glEnableVertexAttribArray",
+    "glDisableVertexAttribArray",
+    "glVertexAttribPointer",
+    "glGetActiveAttrib",
+    "glGetActiveUniform",
     # Shader Uniforms
-    'glGetUniformLocation',
-    'glGetUniformiv',
-    'glUniform1fv',
-    'glUniform1i',
-    'glUniform1iv',
-    'glUniform2fv',
-    'glUniform2iv',
-    'glUniform3fv',
-    'glUniform3iv',
-    'glUniform4fv',
-    'glUniform4iv',
-    'glUniformMatrix2fv',
-    'glUniformMatrix3fv',
-    'glUniformMatrix4fv',
-
+    "glGetUniformLocation",
+    "glGetUniformiv",
+    "glUniform1fv",
+    "glUniform1i",
+    "glUniform1iv",
+    "glUniform2fv",
+    "glUniform2iv",
+    "glUniform3fv",
+    "glUniform3iv",
+    "glUniform4fv",
+    "glUniform4iv",
+    "glUniformMatrix2fv",
+    "glUniformMatrix3fv",
+    "glUniformMatrix4fv",
     # Stencil
-    'glStencilFunc',
-    'glStencilFuncSeparate',
-    'glStencilMask',
-    'glStencilMaskSeparate',
-    'glStencilOp',
-    'glStencilOpSeparate',
-
+    "glStencilFunc",
+    "glStencilFuncSeparate",
+    "glStencilMask",
+    "glStencilMaskSeparate",
+    "glStencilOp",
+    "glStencilOpSeparate",
     # Face Culling
-    'glCullFace',
-
+    "glCullFace",
     # Sync
-    'glFlush',
-    'glFinish',
-
+    "glFlush",
+    "glFinish",
 ] + cmds_optional
+
 
 def get_proto_elems(xml_node):
     elems = []
@@ -270,12 +233,13 @@ def get_proto_elems(xml_node):
         elems.append(text)
     return elems
 
+
 def gen(gl_xml, func_file, def_file, wrap_file):
 
-    do_not_edit = '/* DO NOT EDIT - This file is autogenerated */\n'
+    do_not_edit = "/* DO NOT EDIT - This file is autogenerated */\n"
 
     glwrappers = do_not_edit + textwrap.dedent(
-        '''
+        """
         /* WARNING: this file must only be included once */
 
         #include "config.h"
@@ -285,22 +249,22 @@ def gen(gl_xml, func_file, def_file, wrap_file):
         #else
         # define check_error_code(gl, glfuncname) do { } while (0)
         #endif
-        '''
+        """
     )
 
     glfunctions = do_not_edit + textwrap.dedent(
-        '''
+        """
         #ifndef GLFUNCTIONS_H
         #define GLFUNCTIONS_H
 
         #include "glincludes.h"
 
         struct glfunctions {
-        '''
+        """
     )
 
     gldefinitions = do_not_edit + textwrap.dedent(
-        '''
+        """
         /* WARNING: this file must only be included once */
 
         #include <stddef.h>
@@ -314,71 +278,73 @@ def gen(gl_xml, func_file, def_file, wrap_file):
             size_t offset;
             int flags;
         } gldefinitions[] = {
-        '''
+        """
     )
 
     xml = ET.parse(gl_xml)
     root = xml.getroot()
-    commands = root.find('commands')
+    commands = root.find("commands")
     for cmd in commands:
-        proto = cmd.find('proto')
-        funcname = proto.find('name').text
+        proto = cmd.find("proto")
+        funcname = proto.find("name").text
 
         if funcname not in cmds:
             continue
 
-        ptype = proto.find('ptype')
-        funcret = ' '.join(get_proto_elems(proto)[:-1])
+        ptype = proto.find("ptype")
+        funcret = " ".join(get_proto_elems(proto)[:-1])
 
         func_args_specs = []
         func_args = []
-        for param in cmd.findall('param'):
-            func_args_specs.append(' '.join(get_proto_elems(param)))
-            func_args.append(param.find('name').text)
+        for param in cmd.findall("param"):
+            func_args_specs.append(" ".join(get_proto_elems(param)))
+            func_args.append(param.find("name").text)
 
-        wrapper_args_specs = ['const struct glcontext *gl'] + func_args_specs
+        wrapper_args_specs = ["const struct glcontext *gl"] + func_args_specs
 
         data = {
-                'func_ret': funcret,
-                'func_name': funcname,
-                'func_name_nogl': funcname[2:], # with "gl" stripped
-                'wrapper_args_specs': ', '.join(wrapper_args_specs),
-                'func_args_specs': ', '.join(func_args_specs),
-                'func_args': ', '.join(func_args),
-                'flags': '0' if funcname in cmds_optional else 'M',
+            "func_ret": funcret,
+            "func_name": funcname,
+            "func_name_nogl": funcname[2:],  # with "gl" stripped
+            "wrapper_args_specs": ", ".join(wrapper_args_specs),
+            "func_args_specs": ", ".join(func_args_specs),
+            "func_args": ", ".join(func_args),
+            "flags": "0" if funcname in cmds_optional else "M",
         }
 
-        glfunctions   += '    %(func_ret)s (NGLI_GL_APIENTRY *%(func_name_nogl)s)(%(func_args_specs)s);\n' % data
+        glfunctions += "    %(func_ret)s (NGLI_GL_APIENTRY *%(func_name_nogl)s)(%(func_args_specs)s);\n" % data
         gldefinitions += '    {"%(func_name)s", offsetof(struct glfunctions, %(func_name_nogl)s), %(flags)s},\n' % data
-        if funcname == 'glGetError':
+        if funcname == "glGetError":
             glwrappers += textwrap.dedent(
-                '''
+                """
                 static inline GLenum ngli_glGetError(const struct glcontext *gl)
                 {
                     return gl->funcs.GetError();
                 }
-                '''
+                """
             )
-        elif funcret != 'void':
+        elif funcret != "void":
             glwrappers += textwrap.dedent(
-                '''
+                """
                 static inline %(func_ret)s ngli_%(func_name)s(%(wrapper_args_specs)s)
                 {
                     %(func_ret)s ret = gl->funcs.%(func_name_nogl)s(%(func_args)s);
                     check_error_code(gl, "%(func_name)s");
                     return ret;
                 }
-                ''' % data
+                """
+                % data
             )
         else:
             glwrappers += textwrap.dedent(
-                '''
+                """
                 static inline void ngli_%(func_name)s(%(wrapper_args_specs)s)
                 {
                     gl->funcs.%(func_name_nogl)s(%(func_args)s);
                     check_error_code(gl, "%(func_name)s");
                 }
-                ''' % data
+                """
+                % data
             )
 
         cmds.pop(cmds.index(funcname))
@@ -386,20 +352,21 @@ def gen(gl_xml, func_file, def_file, wrap_file):
             break
 
     if cmds:
-        print('WARNING: function(s) not found: ' + ', '.join(cmds))
+        print("WARNING: function(s) not found: " + ", ".join(cmds))
 
-    glfunctions   += '};\n\n#endif\n'
-    gldefinitions += '};\n'
+    glfunctions += "};\n\n#endif\n"
+    gldefinitions += "};\n"
 
-    with open(func_file, 'w', newline='\n') as f:
+    with open(func_file, "w", newline="\n") as f:
         f.write(glfunctions)
-    with open(def_file, 'w', newline='\n') as f:
+    with open(def_file, "w", newline="\n") as f:
         f.write(gldefinitions)
-    with open(wrap_file, 'w', newline='\n') as f:
+    with open(wrap_file, "w", newline="\n") as f:
         f.write(glwrappers)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     if len(sys.argv) != 5:
-        print('Usage: %s <gl.xml> <func.h> <def.h> <wrap.h>' % sys.argv[0])
+        print("Usage: %s <gl.xml> <func.h> <def.h> <wrap.h>" % sys.argv[0])
         sys.exit(0)
     gen(*sys.argv[1:])
