@@ -209,6 +209,11 @@ lib_src = files(
 if host_machine.cpu_family() == 'aarch64'
   lib_src += files('asm_aarch64.S')
 endif
+have_x86_intr = host_machine.cpu_family().startswith('x86') and cc.has_header('immintrin.h')
+if have_x86_intr
+  lib_src += files('simd_x86.c')
+  conf_data.set10('HAVE_X86_INTR', true)
+endif
 
 hosts_cfg = {
   'linux': {
@@ -752,6 +757,9 @@ run_target(
 test_asm_src = files('test_asm.c', 'math_utils.c')
 if host_machine.cpu_family() == 'aarch64'
   test_asm_src += files('asm_aarch64.S')
+endif
+if have_x86_intr
+  test_asm_src += files('simd_x86.c')
 endif
 
 test_progs = {

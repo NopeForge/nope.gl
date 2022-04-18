@@ -108,6 +108,9 @@ void ngli_mat4_skew(float * restrict dst, float x, float y, float z, const float
 #ifdef ARCH_AARCH64
 # define ngli_mat4_mul          ngli_mat4_mul_aarch64
 # define ngli_mat4_mul_vec4     ngli_mat4_mul_vec4_aarch64
+#elif defined(HAVE_X86_INTR)
+# define ngli_mat4_mul          ngli_mat4_mul_sse
+# define ngli_mat4_mul_vec4     ngli_mat4_mul_vec4_sse
 #else
 # define ngli_mat4_mul          ngli_mat4_mul_c
 # define ngli_mat4_mul_vec4     ngli_mat4_mul_vec4_c
@@ -115,6 +118,8 @@ void ngli_mat4_skew(float * restrict dst, float x, float y, float z, const float
 
 void ngli_mat4_mul_aarch64(float *dst, const float *m1, const float *m2);
 void ngli_mat4_mul_vec4_aarch64(float *dst, const float *m, const float *v);
+void ngli_mat4_mul_sse(float *dst, const float *m1, const float *m2);
+void ngli_mat4_mul_vec4_sse(float *dst, const float *m, const float *v);
 
 #define NGLI_QUAT_IDENTITY {0.0f, 0.0f, 0.0f, 1.0f}
 
