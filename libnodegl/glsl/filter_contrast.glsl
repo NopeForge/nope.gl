@@ -2,7 +2,7 @@ vec4 filter_contrast(vec4 color, vec2 coords, float contrast, float pivot)
 {
     vec3 rgb = color.rgb;
 
-    /* remap contrast in [0;2] to polar coordinates (in [0;π/2]) */
+    /* remap contrast in [0;2] to polar coordinates (in [0;PI/2]) */
     float polar_c = contrast * ngli_pi / 4.0;
     if (abs(polar_c - ngli_pi / 2.0) < 1e-6) /* at contrast=2, strength is infinite */
         return vec4(step(vec3(pivot), rgb), color.a);
