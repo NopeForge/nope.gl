@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 
-import re
 import os.path as op
-
+import re
 
 _include_re = re.compile(r"\s*#include\s+(?P<filename>.*)$")
 
