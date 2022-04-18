@@ -106,6 +106,8 @@ static void scene_reset(struct ngl_ctx *s, int action)
 
 static int set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
+    int ret = 0;
+
     scene_reset(s, UNREF_SCENE);
 
     ngli_rnode_init(&s->rnode);
@@ -125,15 +127,21 @@ static int set_scene(struct ngl_ctx *s, struct ngl_node *scene)
     const struct ngl_config *config = &s->config;
     if (config->hud) {
         s->hud = ngli_hud_create(s);
-        if (!s->hud)
-            return NGL_ERROR_MEMORY;
+        if (!s->hud) {
+            ret = NGL_ERROR_MEMORY;
+            goto fail;
+        }
 
         int ret = ngli_hud_init(s->hud);
         if (ret < 0)
-            return ret;
+            goto fail;
     }
 
     return 0;
+
+fail:
+    scene_reset(s, UNREF_SCENE);
+    return ret;
 }
 
 static int cmd_reset(struct ngl_ctx *s, void *arg)
