@@ -48,7 +48,7 @@ _EXTERNAL_DEPS = dict(
         version='9.12.0',
         url='https://github.com/Stupeflix/sxplayer/archive/v@VERSION@.tar.gz',
         dst_file='sxplayer-@VERSION@.tar.gz',
-        sha256='4ada43545a8afe770775e2186e8349d8e4f03671ca4fd9f36e0ef3bf7916a088',
+        sha256='07221f82a21ada83265465b4f0aa8d069a38b165a9f685597205e234f786e595',
     ),
     pkgconf=dict(
         version='1.8.0',
