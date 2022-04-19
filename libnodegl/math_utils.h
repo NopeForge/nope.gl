@@ -49,6 +49,10 @@
 #define NGLI_VEC3_SCALE(v, s) {(v)[0] * (s), (v)[1] * (s), (v)[2] * (s)}
 #define NGLI_VEC4_SCALE(v, s) {(v)[0] * (s), (v)[1] * (s), (v)[2] * (s), (v)[3] * (s)}
 
+#define NGLI_VEC2_NEG(v) {-(v)[0], -(v)[1]}
+#define NGLI_VEC3_NEG(v) {-(v)[0], -(v)[1], -(v)[2]}
+#define NGLI_VEC4_NEG(v) {-(v)[0], -(v)[1], -(v)[2], -(v)[3]}
+
 float ngli_vec2_length(const float *v);
 void ngli_vec2_scale(float *dst, const float *v, const float s);
 void ngli_vec2_sub(float *dst, const float *v1, const float *v2);
