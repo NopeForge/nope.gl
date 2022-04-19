@@ -186,58 +186,43 @@ void ngli_mat3_from_mat4(float *dst, const float *m)
 
 void ngli_mat3_mul_scalar(float *dst, const float *m, float s)
 {
-    float tmp[3*3];
-
-    for (int i = 0; i < 9; i++) {
-        tmp[i] = m[i] * s;
-    }
-
+    const float tmp[3*3] = {
+        m[0] * s, m[1] * s, m[2] * s,
+        m[3] * s, m[4] * s, m[5] * s,
+        m[6] * s, m[7] * s, m[8] * s,
+    };
     memcpy(dst, tmp, sizeof(tmp));
 }
 
 void ngli_mat3_transpose(float *dst, const float *m)
 {
-    float tmp[3*3];
-
-    tmp[0] = m[0];
-    tmp[1] = m[3];
-    tmp[2] = m[6];
-
-    tmp[3] = m[1];
-    tmp[4] = m[4];
-    tmp[5] = m[7];
-
-    tmp[6] = m[2];
-    tmp[7] = m[5];
-    tmp[8] = m[8];
-
+    const float tmp[3*3] = {
+        m[0], m[3], m[6],
+        m[1], m[4], m[7],
+        m[2], m[5], m[8],
+    };
     memcpy(dst, tmp, sizeof(tmp));
 }
 
 float ngli_mat3_determinant(const float *m)
 {
-    float ret;
-
-    ret  = m[0]*m[4]*m[8] + m[1]*m[5]*m[6] + m[2]*m[3]*m[7];
-    ret -= m[2]*m[4]*m[6] + m[1]*m[3]*m[8] + m[0]*m[5]*m[7];
-
-    return ret;
+    return m[0]*m[4]*m[8] + m[1]*m[5]*m[6] + m[2]*m[3]*m[7]
+         - m[2]*m[4]*m[6] - m[1]*m[3]*m[8] - m[0]*m[5]*m[7];
 }
 
-void ngli_mat3_adjugate(float *dst, const float* m)
+void ngli_mat3_adjugate(float *dst, const float *m)
 {
-    float tmp[3*3];
-
-    tmp[0] = m[4]*m[8] - m[5]*m[7];
-    tmp[1] = m[2]*m[7] - m[1]*m[8];
-    tmp[2] = m[1]*m[5] - m[2]*m[4];
-    tmp[3] = m[5]*m[6] - m[3]*m[8];
-    tmp[4] = m[0]*m[8] - m[2]*m[6];
-    tmp[5] = m[2]*m[3] - m[0]*m[5];
-    tmp[6] = m[3]*m[7] - m[4]*m[6];
-    tmp[7] = m[1]*m[6] - m[0]*m[7];
-    tmp[8] = m[0]*m[4] - m[1]*m[3];
-
+    const float tmp[3*3] = {
+        m[4]*m[8] - m[5]*m[7],
+        m[2]*m[7] - m[1]*m[8],
+        m[1]*m[5] - m[2]*m[4],
+        m[5]*m[6] - m[3]*m[8],
+        m[0]*m[8] - m[2]*m[6],
+        m[2]*m[3] - m[0]*m[5],
+        m[3]*m[7] - m[4]*m[6],
+        m[1]*m[6] - m[0]*m[7],
+        m[0]*m[4] - m[1]*m[3],
+    };
     memcpy(dst, tmp, sizeof(tmp));
 }
 
