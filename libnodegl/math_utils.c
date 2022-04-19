@@ -24,6 +24,7 @@
 #include <math.h>
 
 #include "math_utils.h"
+#include "utils.h"
 
 static const float zvec[4];
 
@@ -130,43 +131,32 @@ void ngli_vec4_norm(float *dst, const float *v)
     }
 
     const float l = 1.0f / ngli_vec4_length(v);
-
-    dst[0] = v[0] * l;
-    dst[1] = v[1] * l;
-    dst[2] = v[2] * l;
-    dst[3] = v[3] * l;
+    const float r[4] = NGLI_VEC4_SCALE(v, l);
+    memcpy(dst, r, sizeof(r));
 }
 
 void ngli_vec4_add(float *dst, const float *v1, const float *v2)
 {
-    dst[0] = v1[0] + v2[0];
-    dst[1] = v1[1] + v2[1];
-    dst[2] = v1[2] + v2[2];
-    dst[3] = v1[3] + v2[3];
+    const float r[4] = NGLI_VEC4_ADD(v1, v2);
+    memcpy(dst, r, sizeof(r));
 }
 
 void ngli_vec4_sub(float *dst, const float *v1, const float *v2)
 {
-    dst[0] = v1[0] - v2[0];
-    dst[1] = v1[1] - v2[1];
-    dst[2] = v1[2] - v2[2];
-    dst[3] = v1[3] - v2[3];
+    const float r[4] = NGLI_VEC4_SUB(v1, v2);
+    memcpy(dst, r, sizeof(r));
 }
 
 void ngli_vec4_neg(float *dst, const float *v)
 {
-    dst[0] = -v[0];
-    dst[1] = -v[1];
-    dst[2] = -v[2];
-    dst[3] = -v[3];
+    const float r[4] = NGLI_VEC4_NEG(v);
+    memcpy(dst, r, sizeof(r));
 }
 
 void ngli_vec4_scale(float *dst, const float *v, float s)
 {
-    dst[0] = v[0] * s;
-    dst[1] = v[1] * s;
-    dst[2] = v[2] * s;
-    dst[3] = v[3] * s;
+    const float r[4] = NGLI_VEC4_SCALE(v, s);
+    memcpy(dst, r, sizeof(r));
 }
 
 float ngli_vec4_dot(const float *v1, const float *v2)
@@ -179,10 +169,12 @@ float ngli_vec4_dot(const float *v1, const float *v2)
 
 void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c)
 {
-    dst[0] = v1[0] + c*(v2[0] - v1[0]);
-    dst[1] = v1[1] + c*(v2[1] - v1[1]);
-    dst[2] = v1[2] + c*(v2[2] - v1[2]);
-    dst[3] = v1[3] + c*(v2[3] - v1[3]);
+    const float a[4] = {NGLI_ARG_VEC4(v1)};
+    const float b[4] = {NGLI_ARG_VEC4(v2)};
+    dst[0] = a[0] + c*(b[0] - a[0]);
+    dst[1] = a[1] + c*(b[1] - a[1]);
+    dst[2] = a[2] + c*(b[2] - a[2]);
+    dst[3] = a[3] + c*(b[3] - a[3]);
 }
 
 void ngli_mat3_from_mat4(float *dst, const float *m)
