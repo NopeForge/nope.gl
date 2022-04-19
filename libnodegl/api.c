@@ -85,9 +85,6 @@ static int get_default_platform(void)
 #endif
 }
 
-#define KEEP_SCENE  0
-#define UNREF_SCENE 1
-
 static int cmd_stop(struct ngl_ctx *s, void *arg)
 {
     return 0;
@@ -98,17 +95,17 @@ static void scene_reset(struct ngl_ctx *s, int action)
     ngli_hud_freep(&s->hud);
     if (s->scene) {
         ngli_node_detach_ctx(s->scene, s);
-        if (action == UNREF_SCENE)
+        if (action == NGLI_ACTION_UNREF_SCENE)
             ngl_node_unrefp(&s->scene);
     }
     ngli_rnode_reset(&s->rnode);
 }
 
-static int set_scene(struct ngl_ctx *s, struct ngl_node *scene)
+int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
     int ret = 0;
 
-    scene_reset(s, UNREF_SCENE);
+    scene_reset(s, NGLI_ACTION_UNREF_SCENE);
 
     ngli_rnode_init(&s->rnode);
     s->rnode_pos = &s->rnode;
@@ -140,15 +137,15 @@ static int set_scene(struct ngl_ctx *s, struct ngl_node *scene)
     return 0;
 
 fail:
-    scene_reset(s, UNREF_SCENE);
+    scene_reset(s, NGLI_ACTION_UNREF_SCENE);
     return ret;
 }
 
-static int cmd_reset(struct ngl_ctx *s, void *arg)
+void ngli_ctx_reset(struct ngl_ctx *s, int action)
 {
     if (s->gpu_ctx)
         ngli_gpu_ctx_wait_idle(s->gpu_ctx);
-    scene_reset(s, *(int *)arg);
+    scene_reset(s, action);
 #if defined(HAVE_VAAPI)
     ngli_vaapi_ctx_reset(&s->vaapi_ctx);
 #endif
@@ -159,14 +156,18 @@ static int cmd_reset(struct ngl_ctx *s, void *arg)
     ngli_pgcache_reset(&s->pgcache);
     ngli_gpu_ctx_freep(&s->gpu_ctx);
     ngli_config_reset(&s->config);
+}
 
+static int cmd_reset(struct ngl_ctx *s, void *arg)
+{
+    const int action = *(int *)arg;
+    ngli_ctx_reset(s, action);
     return 0;
 }
 
-static int cmd_configure(struct ngl_ctx *s, void *arg)
+int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
 {
-    int reset_param = KEEP_SCENE;
-    struct ngl_config *config = arg;
+    int reset_param = NGLI_ACTION_KEEP_SCENE;
 
     int ret = ngli_config_copy(&s->config, config);
     if (ret < 0)
@@ -213,7 +214,7 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
 
     struct ngl_node *old_scene = s->scene; // note: the old scene is detached
     s->scene = NULL; // make sure the old scene is not unreferenced by set_scene()
-    ret = set_scene(s, old_scene);
+    ret = ngli_ctx_set_scene(s, old_scene);
     if (ret < 0) {
         s->scene = old_scene; // restore detached scene on error
         goto fail;
@@ -223,8 +224,19 @@ static int cmd_configure(struct ngl_ctx *s, void *arg)
     return 0;
 
 fail:
-    cmd_reset(s, &reset_param);
+    ngli_ctx_reset(s, reset_param);
     return ret;
+}
+
+static int cmd_configure(struct ngl_ctx *s, void *arg)
+{
+    const struct ngl_config *config = arg;
+    return ngli_ctx_configure(s, config);
+}
+
+int ngli_ctx_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
+{
+    return ngli_gpu_ctx_resize(s->gpu_ctx, width, height, viewport);
 }
 
 struct resize_params {
@@ -236,16 +248,16 @@ struct resize_params {
 static int cmd_resize(struct ngl_ctx *s, void *arg)
 {
     const struct resize_params *params = arg;
-    return ngli_gpu_ctx_resize(s->gpu_ctx, params->width, params->height, params->viewport);
+    return ngli_ctx_resize(s, params->width, params->height, params->viewport);
 }
 
-static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
+int ngli_ctx_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 {
     struct ngl_config *config = &s->config;
 
     int ret = ngli_gpu_ctx_set_capture_buffer(s->gpu_ctx, capture_buffer);
     if (ret < 0) {
-        cmd_reset(s, &(int[]){UNREF_SCENE});
+        ngli_ctx_reset(s, NGLI_ACTION_KEEP_SCENE);
         return ret;
     }
 
@@ -254,15 +266,20 @@ static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
     return 0;
 }
 
+static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
+{
+    return ngli_ctx_set_capture_buffer(s, capture_buffer);
+}
+
 static int cmd_set_scene(struct ngl_ctx *s, void *arg)
 {
     ngli_gpu_ctx_wait_idle(s->gpu_ctx);
-    return set_scene(s, arg);
+    struct ngl_node *scene = arg;
+    return ngli_ctx_set_scene(s, scene);
 }
 
-static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
+int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
 {
-    const double t = *(double *)arg;
     const int64_t start_time = s->hud ? ngli_gettime_relative() : 0;
 
     int ret = ngli_gpu_ctx_begin_update(s->gpu_ctx, t);
@@ -293,11 +310,15 @@ static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
     return 0;
 }
 
-static int cmd_draw(struct ngl_ctx *s, void *arg)
+static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
 {
     const double t = *(double *)arg;
+    return ngli_ctx_prepare_draw(s, t);
+}
 
-    int ret = cmd_prepare_draw(s, arg);
+int ngli_ctx_draw(struct ngl_ctx *s, double t)
+{
+    int ret = ngli_ctx_prepare_draw(s, t);
     if (ret < 0)
         return ret;
 
@@ -346,7 +367,13 @@ static int cmd_draw(struct ngl_ctx *s, void *arg)
     return ngli_gpu_ctx_end_draw(s->gpu_ctx, t);
 }
 
-static int dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg)
+static int cmd_draw(struct ngl_ctx *s, void *arg)
+{
+    const double t = *(double *)arg;
+    return ngli_ctx_draw(s, t);
+}
+
+int ngli_ctx_dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg)
 {
     pthread_mutex_lock(&s->lock);
     s->cmd_func = cmd_func;
@@ -406,12 +433,12 @@ static int configure_from_current_thread(struct ngl_ctx *s, struct ngl_config *c
         return ret;
     cmd_make_current(s, DONE_CURRENT);
 
-    return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
+    return ngli_ctx_dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
 }
 
 static int resize_from_current_thread(struct ngl_ctx *s, struct resize_params *params)
 {
-    int ret = dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
+    int ret = ngli_ctx_dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
     if (ret < 0)
         return ret;
 
@@ -421,7 +448,7 @@ static int resize_from_current_thread(struct ngl_ctx *s, struct resize_params *p
         return ret;
     cmd_make_current(s, DONE_CURRENT);
 
-    return dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
+    return ngli_ctx_dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
 }
 
 static const char *get_cap_string_id(unsigned cap_id)
@@ -652,7 +679,7 @@ fail:
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (s->configured) {
-        dispatch_cmd(s, cmd_reset, &(int[]){KEEP_SCENE});
+        ngli_ctx_dispatch_cmd(s, cmd_reset, &(int[]){NGLI_ACTION_KEEP_SCENE});
         s->configured = 0;
     }
 
@@ -690,7 +717,7 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         config->platform == NGL_PLATFORM_IOS) {
         ret = configure_from_current_thread(s, config);
     } else {
-        ret = dispatch_cmd(s, cmd_configure, config);
+        ret = ngli_ctx_dispatch_cmd(s, cmd_configure, config);
     }
     if (ret < 0)
         return ret;
@@ -723,7 +750,7 @@ int ngl_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
         return resize_from_current_thread(s, &params);
     }
 
-    return dispatch_cmd(s, cmd_resize, &params);
+    return ngli_ctx_dispatch_cmd(s, cmd_resize, &params);
 }
 
 int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
@@ -739,7 +766,7 @@ int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    int ret = dispatch_cmd(s, cmd_set_capture_buffer, capture_buffer);
+    int ret = ngli_ctx_dispatch_cmd(s, cmd_set_capture_buffer, capture_buffer);
     if (ret < 0) {
         s->configured = 0;
         return ret;
@@ -754,7 +781,7 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    return dispatch_cmd(s, cmd_set_scene, scene);
+    return ngli_ctx_dispatch_cmd(s, cmd_set_scene, scene);
 }
 
 int ngli_prepare_draw(struct ngl_ctx *s, double t)
@@ -764,7 +791,7 @@ int ngli_prepare_draw(struct ngl_ctx *s, double t)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    return dispatch_cmd(s, cmd_prepare_draw, &t);
+    return ngli_ctx_dispatch_cmd(s, cmd_prepare_draw, &t);
 }
 
 int ngl_draw(struct ngl_ctx *s, double t)
@@ -774,7 +801,7 @@ int ngl_draw(struct ngl_ctx *s, double t)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    return dispatch_cmd(s, cmd_draw, &t);
+    return ngli_ctx_dispatch_cmd(s, cmd_draw, &t);
 }
 
 int ngl_livectls_get(struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp)
@@ -795,10 +822,10 @@ void ngl_freep(struct ngl_ctx **ss)
         return;
 
     if (s->configured) {
-        dispatch_cmd(s, cmd_reset, &(int[]){UNREF_SCENE});
+        ngli_ctx_dispatch_cmd(s, cmd_reset, &(int[]){NGLI_ACTION_UNREF_SCENE});
         s->configured = 0;
     }
-    dispatch_cmd(s, cmd_stop, NULL);
+    ngli_ctx_dispatch_cmd(s, cmd_stop, NULL);
     pthread_join(s->worker_tid, NULL);
     pthread_cond_destroy(&s->cond_ctl);
     pthread_cond_destroy(&s->cond_wkr);

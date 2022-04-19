@@ -109,6 +109,18 @@ struct ngl_ctx {
     int cmd_ret;
 };
 
+#define NGLI_ACTION_KEEP_SCENE  0
+#define NGLI_ACTION_UNREF_SCENE 1
+
+int ngli_ctx_dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg);
+int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config);
+int ngli_ctx_resize(struct ngl_ctx *s, int width, int height, const int *viewport);
+int ngli_ctx_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer);
+int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_node *node);
+int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t);
+int ngli_ctx_draw(struct ngl_ctx *s, double t);
+void ngli_ctx_reset(struct ngl_ctx *s, int action);
+
 struct ngl_node {
     const struct node_class *cls;
     struct ngl_ctx *ctx;
