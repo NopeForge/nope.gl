@@ -321,6 +321,7 @@ endif
 gbackends_cfg = {
   'gl': {
     'src': files(
+      'backends/gl/api_gl.c',
       'backends/gl/buffer_gl.c',
       'backends/gl/format_gl.c',
       'backends/gl/gpu_ctx_gl.c',
@@ -366,6 +367,7 @@ gbackends_cfg = {
   },
   'vk': {
     'src': files(
+      'backends/vk/api_vk.c',
       'backends/vk/buffer_vk.c',
       'backends/vk/command_vk.c',
       'backends/vk/format_vk.c',

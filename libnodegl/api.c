@@ -48,15 +48,38 @@
 #include "vaapi_ctx.h"
 #endif
 
-#if defined(BACKEND_GL)
-#include "backends/gl/gpu_ctx_gl.h"
-#endif
-
 #if defined(TARGET_IPHONE) || defined(TARGET_ANDROID)
 # define DEFAULT_BACKEND NGL_BACKEND_OPENGLES
 #else
 # define DEFAULT_BACKEND NGL_BACKEND_OPENGL
 #endif
+
+extern const struct api_impl api_gl;
+extern const struct api_impl api_vk;
+
+static const struct {
+    const char *string_id;
+    const struct api_impl *api_impl;
+} api_map[] = {
+    [NGL_BACKEND_OPENGL] = {
+        .string_id = "opengl",
+#ifdef BACKEND_GL
+        .api_impl = &api_gl,
+#endif
+    },
+    [NGL_BACKEND_OPENGLES] = {
+        .string_id = "opengles",
+#ifdef BACKEND_GL
+        .api_impl = &api_gl,
+#endif
+    },
+    [NGL_BACKEND_VULKAN] = {
+        .string_id = "vulkan",
+#ifdef BACKEND_VK
+        .api_impl = &api_vk,
+#endif
+    },
+};
 
 void ngl_log_set_callback(void *arg, ngl_log_callback_type callback)
 {
@@ -159,13 +182,6 @@ void ngli_ctx_reset(struct ngl_ctx *s, int action)
     ngli_config_reset(&s->config);
 }
 
-static int cmd_reset(struct ngl_ctx *s, void *arg)
-{
-    const int action = *(int *)arg;
-    ngli_ctx_reset(s, action);
-    return 0;
-}
-
 int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
 {
     int reset_param = NGLI_ACTION_KEEP_SCENE;
@@ -229,27 +245,9 @@ fail:
     return ret;
 }
 
-static int cmd_configure(struct ngl_ctx *s, void *arg)
-{
-    const struct ngl_config *config = arg;
-    return ngli_ctx_configure(s, config);
-}
-
 int ngli_ctx_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
 {
     return ngli_gpu_ctx_resize(s->gpu_ctx, width, height, viewport);
-}
-
-struct resize_params {
-    int width;
-    int height;
-    const int *viewport;
-};
-
-static int cmd_resize(struct ngl_ctx *s, void *arg)
-{
-    const struct resize_params *params = arg;
-    return ngli_ctx_resize(s, params->width, params->height, params->viewport);
 }
 
 int ngli_ctx_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
@@ -265,17 +263,6 @@ int ngli_ctx_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
     config->capture_buffer = capture_buffer;
 
     return 0;
-}
-
-static int cmd_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
-{
-    return ngli_ctx_set_capture_buffer(s, capture_buffer);
-}
-
-static int cmd_set_scene(struct ngl_ctx *s, void *arg)
-{
-    struct ngl_node *scene = arg;
-    return ngli_ctx_set_scene(s, scene);
 }
 
 int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
@@ -308,12 +295,6 @@ int ngli_ctx_prepare_draw(struct ngl_ctx *s, double t)
     s->cpu_update_time = s->hud ? ngli_gettime_relative() - start_time : 0;
 
     return 0;
-}
-
-static int cmd_prepare_draw(struct ngl_ctx *s, void *arg)
-{
-    const double t = *(double *)arg;
-    return ngli_ctx_prepare_draw(s, t);
 }
 
 int ngli_ctx_draw(struct ngl_ctx *s, double t)
@@ -367,12 +348,6 @@ int ngli_ctx_draw(struct ngl_ctx *s, double t)
     return ngli_gpu_ctx_end_draw(s->gpu_ctx, t);
 }
 
-static int cmd_draw(struct ngl_ctx *s, void *arg)
-{
-    const double t = *(double *)arg;
-    return ngli_ctx_draw(s, t);
-}
-
 int ngli_ctx_dispatch_cmd(struct ngl_ctx *s, cmd_func_type cmd_func, void *arg)
 {
     pthread_mutex_lock(&s->lock);
@@ -407,48 +382,6 @@ static void *worker_thread(void *arg)
     pthread_mutex_unlock(&s->lock);
 
     return NULL;
-}
-
-#define MAKE_CURRENT &(int[]){1}
-#define DONE_CURRENT &(int[]){0}
-
-static int cmd_make_current(struct ngl_ctx *s, void *arg)
-{
-#if defined(BACKEND_GL)
-    const struct ngl_config *config = &s->config;
-    if (config->backend == NGL_BACKEND_OPENGL ||
-        config->backend == NGL_BACKEND_OPENGLES) {
-        const int current = *(int *)arg;
-        struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-        ngli_glcontext_make_current(gpu_ctx_gl->glcontext, current);
-    }
-#endif
-    return 0;
-}
-
-static int configure_from_current_thread(struct ngl_ctx *s, struct ngl_config *config)
-{
-    int ret = cmd_configure(s, config);
-    if (ret < 0)
-        return ret;
-    cmd_make_current(s, DONE_CURRENT);
-
-    return ngli_ctx_dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
-}
-
-static int resize_from_current_thread(struct ngl_ctx *s, struct resize_params *params)
-{
-    int ret = ngli_ctx_dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
-    if (ret < 0)
-        return ret;
-
-    cmd_make_current(s, MAKE_CURRENT);
-    ret = cmd_resize(s, params);
-    if (ret < 0)
-        return ret;
-    cmd_make_current(s, DONE_CURRENT);
-
-    return ngli_ctx_dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
 }
 
 static const char *get_cap_string_id(unsigned cap_id)
@@ -679,7 +612,7 @@ fail:
 int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
 {
     if (s->configured) {
-        ngli_ctx_dispatch_cmd(s, cmd_reset, &(int[]){NGLI_ACTION_KEEP_SCENE});
+        s->api_impl->reset(s, NGLI_ACTION_KEEP_SCENE);
         s->configured = 0;
     }
 
@@ -712,13 +645,20 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return config->platform;
     }
 
-    int ret;
-    if (config->platform == NGL_PLATFORM_MACOS ||
-        config->platform == NGL_PLATFORM_IOS) {
-        ret = configure_from_current_thread(s, config);
-    } else {
-        ret = ngli_ctx_dispatch_cmd(s, cmd_configure, config);
+    if (config->backend < 0 ||
+        config->backend >= NGLI_ARRAY_NB(api_map)) {
+        LOG(ERROR, "unknown backend %d", config->backend);
+        return NGL_ERROR_INVALID_ARG;
     }
+
+    s->api_impl = api_map[config->backend].api_impl;
+    if (!s->api_impl) {
+        LOG(ERROR, "backend \"%s\" not available with this build",
+            api_map[config->backend].string_id);
+        return NGL_ERROR_UNSUPPORTED;
+    }
+
+    int ret = s->api_impl->configure(s, config);
     if (ret < 0)
         return ret;
 
@@ -739,18 +679,7 @@ int ngl_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    struct resize_params params = {
-        .width = width,
-        .height = height,
-        .viewport = viewport,
-    };
-
-    if (config->platform == NGL_PLATFORM_MACOS ||
-        config->platform == NGL_PLATFORM_IOS) {
-        return resize_from_current_thread(s, &params);
-    }
-
-    return ngli_ctx_dispatch_cmd(s, cmd_resize, &params);
+    return s->api_impl->resize(s, width, height, viewport);
 }
 
 int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
@@ -766,7 +695,7 @@ int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    int ret = ngli_ctx_dispatch_cmd(s, cmd_set_capture_buffer, capture_buffer);
+    int ret = s->api_impl->set_capture_buffer(s, capture_buffer);
     if (ret < 0) {
         s->configured = 0;
         return ret;
@@ -781,7 +710,7 @@ int ngl_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    return ngli_ctx_dispatch_cmd(s, cmd_set_scene, scene);
+    return s->api_impl->set_scene(s, scene);
 }
 
 int ngli_prepare_draw(struct ngl_ctx *s, double t)
@@ -791,7 +720,7 @@ int ngli_prepare_draw(struct ngl_ctx *s, double t)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    return ngli_ctx_dispatch_cmd(s, cmd_prepare_draw, &t);
+    return s->api_impl->prepare_draw(s, t);
 }
 
 int ngl_draw(struct ngl_ctx *s, double t)
@@ -801,7 +730,7 @@ int ngl_draw(struct ngl_ctx *s, double t)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    return ngli_ctx_dispatch_cmd(s, cmd_draw, &t);
+    return s->api_impl->draw(s, t);
 }
 
 int ngl_livectls_get(struct ngl_node *scene, int *nb_livectlsp, struct ngl_livectl **livectlsp)
@@ -822,7 +751,7 @@ void ngl_freep(struct ngl_ctx **ss)
         return;
 
     if (s->configured) {
-        ngli_ctx_dispatch_cmd(s, cmd_reset, &(int[]){NGLI_ACTION_UNREF_SCENE});
+        s->api_impl->reset(s, NGLI_ACTION_UNREF_SCENE);
         s->configured = 0;
     }
     ngli_ctx_dispatch_cmd(s, cmd_stop, NULL);

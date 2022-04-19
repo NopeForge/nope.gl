@@ -63,10 +63,21 @@ struct node_class;
 
 typedef int (*cmd_func_type)(struct ngl_ctx *s, void *arg);
 
+struct api_impl {
+    int (*configure)(struct ngl_ctx *s, const struct ngl_config *config);
+    int (*resize)(struct ngl_ctx *s, int width, int height, const int *viewport);
+    int (*set_capture_buffer)(struct ngl_ctx *s, void *capture_buffer);
+    int (*set_scene)(struct ngl_ctx *s, struct ngl_node *scene);
+    int (*prepare_draw)(struct ngl_ctx *s, double t);
+    int (*draw)(struct ngl_ctx *s, double t);
+    void (*reset)(struct ngl_ctx *s, int action);
+};
+
 struct ngl_ctx {
     /* Controller-only fields */
     int configured;
     pthread_t worker_tid;
+    const struct api_impl *api_impl;
 
     /* Worker-only fields */
     struct gpu_ctx *gpu_ctx;
