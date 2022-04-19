@@ -171,10 +171,10 @@ void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c)
 {
     const float a[4] = {NGLI_ARG_VEC4(v1)};
     const float b[4] = {NGLI_ARG_VEC4(v2)};
-    dst[0] = a[0] + c*(b[0] - a[0]);
-    dst[1] = a[1] + c*(b[1] - a[1]);
-    dst[2] = a[2] + c*(b[2] - a[2]);
-    dst[3] = a[3] + c*(b[3] - a[3]);
+    dst[0] = NGLI_MIX(a[0], b[0], c);
+    dst[1] = NGLI_MIX(a[1], b[1], c);
+    dst[2] = NGLI_MIX(a[2], b[2], c);
+    dst[3] = NGLI_MIX(a[3], b[3], c);
 }
 
 void ngli_mat3_from_mat4(float *dst, const float *m)
