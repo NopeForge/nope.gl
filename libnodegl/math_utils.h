@@ -55,12 +55,16 @@
 
 float ngli_vec2_length(const float *v);
 void ngli_vec2_scale(float *dst, const float *v, const float s);
+void ngli_vec2_add(float *dst, const float *v1, const float *v2);
 void ngli_vec2_sub(float *dst, const float *v1, const float *v2);
+void ngli_vec2_neg(float *dst, const float *v);
 void ngli_vec2_norm(float *dst, const float *v);
 
 float ngli_vec3_length(const float *v);
 void ngli_vec3_scale(float *dst, const float *v, const float s);
+void ngli_vec3_add(float *dst, const float *v1, const float *v2);
 void ngli_vec3_sub(float *dst, const float *v1, const float *v2);
+void ngli_vec3_neg(float *dst, const float *v);
 void ngli_vec3_norm(float *dst, const float *v);
 void ngli_vec3_cross(float *dst, const float *v1, const float *v2);
 float ngli_vec3_dot(const float *v1, const float *v2);

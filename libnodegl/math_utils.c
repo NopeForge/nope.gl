@@ -28,67 +28,54 @@
 
 static const float zvec[4];
 
+#define DECLARE_BASE_VEC_FUNCS(n)                                       \
+void ngli_vec##n##_add(float *dst, const float *v1, const float *v2)    \
+{                                                                       \
+    const float r[] = NGLI_VEC##n##_ADD(v1, v2);                        \
+    memcpy(dst, r, sizeof(r));                                          \
+}                                                                       \
+                                                                        \
+void ngli_vec##n##_sub(float *dst, const float *v1, const float *v2)    \
+{                                                                       \
+    const float r[] = NGLI_VEC##n##_SUB(v1, v2);                        \
+    memcpy(dst, r, sizeof(r));                                          \
+}                                                                       \
+                                                                        \
+void ngli_vec##n##_neg(float *dst, const float *v)                      \
+{                                                                       \
+    const float r[] = NGLI_VEC##n##_NEG(v);                             \
+    memcpy(dst, r, sizeof(r));                                          \
+}                                                                       \
+                                                                        \
+void ngli_vec##n##_scale(float *dst, const float *v, float s)           \
+{                                                                       \
+    const float r[] = NGLI_VEC##n##_SCALE(v, s);                        \
+    memcpy(dst, r, sizeof(r));                                          \
+}                                                                       \
+                                                                        \
+void ngli_vec##n##_norm(float *dst, const float *v)                     \
+{                                                                       \
+    if (!memcmp(v, zvec, n * sizeof(*v))) {                             \
+        memset(dst, 0, n * sizeof(*v));                                 \
+        return;                                                         \
+    }                                                                   \
+    const float l = 1.0f / ngli_vec##n##_length(v);                     \
+    const float r[] = NGLI_VEC##n##_SCALE(v, l);                        \
+    memcpy(dst, r, sizeof(r));                                          \
+}                                                                       \
+
+DECLARE_BASE_VEC_FUNCS(2)
+DECLARE_BASE_VEC_FUNCS(3)
+DECLARE_BASE_VEC_FUNCS(4)
+
 float ngli_vec2_length(const float *v)
 {
     return sqrtf(v[0]*v[0] + v[1]*v[1]);
 }
 
-void ngli_vec2_scale(float *dst, const float *v, float s)
-{
-    dst[0] = v[0] * s;
-    dst[1] = v[1] * s;
-}
-
-void ngli_vec2_sub(float *dst, const float *v1, const float *v2)
-{
-    dst[0] = v1[0] - v2[0];
-    dst[1] = v1[1] - v2[1];
-}
-
-void ngli_vec2_norm(float *dst, const float *v)
-{
-    if (!memcmp(v, zvec, 2 * sizeof(*v))) {
-        memset(dst, 0, 2 * sizeof(*v));
-        return;
-    }
-
-    const float l = 1.0f / ngli_vec2_length(v);
-
-    dst[0] = v[0] * l;
-    dst[1] = v[1] * l;
-}
-
 float ngli_vec3_length(const float *v)
 {
     return sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2]);
-}
-
-void ngli_vec3_scale(float *dst, const float *v, float s)
-{
-    dst[0] = v[0] * s;
-    dst[1] = v[1] * s;
-    dst[2] = v[2] * s;
-}
-
-void ngli_vec3_sub(float *dst, const float *v1, const float *v2)
-{
-    dst[0] = v1[0] - v2[0];
-    dst[1] = v1[1] - v2[1];
-    dst[2] = v1[2] - v2[2];
-}
-
-void ngli_vec3_norm(float *dst, const float *v)
-{
-    if (!memcmp(v, zvec, 3 * sizeof(*v))) {
-        memset(dst, 0, 3 * sizeof(*v));
-        return;
-    }
-
-    const float l = 1.0f / ngli_vec3_length(v);
-
-    dst[0] = v[0] * l;
-    dst[1] = v[1] * l;
-    dst[2] = v[2] * l;
 }
 
 void ngli_vec3_cross(float *dst, const float *v1, const float *v2)
@@ -121,42 +108,6 @@ void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float
 float ngli_vec4_length(const float *v)
 {
     return sqrtf(v[0]*v[0] + v[1]*v[1] + v[2]*v[2] + v[3]*v[3]);
-}
-
-void ngli_vec4_norm(float *dst, const float *v)
-{
-    if (!memcmp(v, zvec, 4 * sizeof(*v))) {
-        memset(dst, 0, 4 * sizeof(*v));
-        return;
-    }
-
-    const float l = 1.0f / ngli_vec4_length(v);
-    const float r[4] = NGLI_VEC4_SCALE(v, l);
-    memcpy(dst, r, sizeof(r));
-}
-
-void ngli_vec4_add(float *dst, const float *v1, const float *v2)
-{
-    const float r[4] = NGLI_VEC4_ADD(v1, v2);
-    memcpy(dst, r, sizeof(r));
-}
-
-void ngli_vec4_sub(float *dst, const float *v1, const float *v2)
-{
-    const float r[4] = NGLI_VEC4_SUB(v1, v2);
-    memcpy(dst, r, sizeof(r));
-}
-
-void ngli_vec4_neg(float *dst, const float *v)
-{
-    const float r[4] = NGLI_VEC4_NEG(v);
-    memcpy(dst, r, sizeof(r));
-}
-
-void ngli_vec4_scale(float *dst, const float *v, float s)
-{
-    const float r[4] = NGLI_VEC4_SCALE(v, s);
-    memcpy(dst, r, sizeof(r));
 }
 
 float ngli_vec4_dot(const float *v1, const float *v2)
