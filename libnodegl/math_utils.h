@@ -53,31 +53,31 @@
 #define NGLI_VEC3_NEG(v) {-(v)[0], -(v)[1], -(v)[2]}
 #define NGLI_VEC4_NEG(v) {-(v)[0], -(v)[1], -(v)[2], -(v)[3]}
 
-float ngli_vec2_length(const float *v);
-void ngli_vec2_scale(float *dst, const float *v, const float s);
 void ngli_vec2_add(float *dst, const float *v1, const float *v2);
 void ngli_vec2_sub(float *dst, const float *v1, const float *v2);
 void ngli_vec2_neg(float *dst, const float *v);
+void ngli_vec2_scale(float *dst, const float *v, const float s);
 void ngli_vec2_norm(float *dst, const float *v);
+float ngli_vec2_length(const float *v);
 
-float ngli_vec3_length(const float *v);
-void ngli_vec3_scale(float *dst, const float *v, const float s);
 void ngli_vec3_add(float *dst, const float *v1, const float *v2);
 void ngli_vec3_sub(float *dst, const float *v1, const float *v2);
 void ngli_vec3_neg(float *dst, const float *v);
+void ngli_vec3_scale(float *dst, const float *v, const float s);
 void ngli_vec3_norm(float *dst, const float *v);
+float ngli_vec3_length(const float *v);
 void ngli_vec3_cross(float *dst, const float *v1, const float *v2);
 float ngli_vec3_dot(const float *v1, const float *v2);
 void ngli_vec3_normalvec(float *dst, const float *a, const float *b, const float *c);
 
+void ngli_vec4_add(float *dst, const float *v1, const float *v2);
+void ngli_vec4_sub(float *dst, const float *v1, const float *v2);
 void ngli_vec4_neg(float *dst, const float *v);
+void ngli_vec4_scale(float *dst, const float *v, float s);
+void ngli_vec4_norm(float *dst, const float *v);
 float ngli_vec4_dot(const float *v1, const float *v2);
 float ngli_vec4_length(const float *v);
-void ngli_vec4_add(float *dst, const float *v1, const float *v2);
 void ngli_vec4_lerp(float *dst, const float *v1, const float *v2, float c);
-void ngli_vec4_norm(float *dst, const float *v);
-void ngli_vec4_scale(float *dst, const float *v, float s);
-void ngli_vec4_sub(float *dst, const float *v1, const float *v2);
 
 void ngli_mat3_from_mat4(float *dst, const float *m);
 void ngli_mat3_mul_scalar(float *dst, const float *m, float s);
