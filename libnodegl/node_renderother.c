@@ -290,6 +290,7 @@ static const struct node_param rendergradient4_params[] = {
 #define OFFSET(x) offsetof(struct rendertexture_opts, x)
 static const struct node_param rendertexture_params[] = {
     {"texture",  NGLI_PARAM_TYPE_NODE, OFFSET(texture_node),
+                 .node_types=(const int[]){NGL_NODE_TEXTURE2D, -1},
                  .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .desc=NGLI_DOCSTRING("texture to render")},
     {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
