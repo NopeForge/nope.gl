@@ -24,14 +24,14 @@
 #include "backends/gl/gpu_ctx_gl.h"
 #include "internal.h"
 
-#define MAKE_CURRENT &(int[]){1}
-#define DONE_CURRENT &(int[]){0}
-
 static int cmd_make_current(struct ngl_ctx *s, void *arg)
 {
-    const int current = *(int *)arg;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-    return ngli_glcontext_make_current(gpu_ctx_gl->glcontext, current);
+    return ngli_gpu_ctx_gl_make_current(s->gpu_ctx);
+}
+
+static int cmd_release_current(struct ngl_ctx *s, void *arg)
+{
+    return ngli_gpu_ctx_gl_release_current(s->gpu_ctx);
 }
 
 static int cmd_configure(struct ngl_ctx *s, void *arg)
@@ -48,10 +48,9 @@ static int gl_configure(struct ngl_ctx *s, const struct ngl_config *config)
         if (ret < 0)
             return ret;
 
-        struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-        ngli_glcontext_make_current(gpu_ctx_gl->glcontext, 0);
+        ngli_gpu_ctx_gl_release_current(s->gpu_ctx);
 
-        return ngli_ctx_dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
+        return ngli_ctx_dispatch_cmd(s, cmd_make_current, NULL);
     }
 
     return ngli_ctx_dispatch_cmd(s, cmd_configure, (void *)config);
@@ -74,17 +73,17 @@ static int gl_resize(struct ngl_ctx *s, int width, int height, const int *viewpo
     const struct ngl_config *config = &s->config;
     if (config->platform == NGL_PLATFORM_MACOS ||
         config->platform == NGL_PLATFORM_IOS) {
-        int ret = ngli_ctx_dispatch_cmd(s, cmd_make_current, DONE_CURRENT);
+        int ret = ngli_ctx_dispatch_cmd(s, cmd_release_current, NULL);
         if (ret < 0)
             return ret;
 
-        cmd_make_current(s, MAKE_CURRENT);
+        ngli_gpu_ctx_gl_make_current(s->gpu_ctx);
         ret = ngli_ctx_resize(s, width, height, viewport);
         if (ret < 0)
             return ret;
-        cmd_make_current(s, DONE_CURRENT);
+        ngli_gpu_ctx_gl_release_current(s->gpu_ctx);
 
-        return ngli_ctx_dispatch_cmd(s, cmd_make_current, MAKE_CURRENT);
+        return ngli_ctx_dispatch_cmd(s, cmd_make_current, NULL);
     }
 
     struct resize_params params = {

@@ -74,4 +74,7 @@ struct gpu_ctx_gl {
     void (*glGetQueryObjectui64v)(const struct glcontext *gl, GLuint id, GLenum pname, GLuint64 *params);
 };
 
+int ngli_gpu_ctx_gl_make_current(struct gpu_ctx *s);
+int ngli_gpu_ctx_gl_release_current(struct gpu_ctx *s);
+
 #endif

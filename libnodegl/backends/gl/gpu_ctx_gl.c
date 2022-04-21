@@ -637,6 +637,20 @@ static int gl_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
     return 0;
 }
 
+int ngli_gpu_ctx_gl_make_current(struct gpu_ctx *s)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct glcontext *gl = s_priv->glcontext;
+    return ngli_glcontext_make_current(gl, 1);
+}
+
+int ngli_gpu_ctx_gl_release_current(struct gpu_ctx *s)
+{
+    struct gpu_ctx_gl *s_priv = (struct gpu_ctx_gl *)s;
+    struct glcontext *gl = s_priv->glcontext;
+    return ngli_glcontext_make_current(gl, 0);
+}
+
 static int gl_begin_update(struct gpu_ctx *s, double t)
 {
     return 0;
