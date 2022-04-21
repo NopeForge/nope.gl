@@ -90,7 +90,7 @@ static int cmd_stop(struct ngl_ctx *s, void *arg)
     return 0;
 }
 
-static void scene_reset(struct ngl_ctx *s, int action)
+static void reset_scene(struct ngl_ctx *s, int action)
 {
     ngli_hud_freep(&s->hud);
     if (s->scene) {
@@ -105,7 +105,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
 {
     int ret = 0;
 
-    scene_reset(s, NGLI_ACTION_UNREF_SCENE);
+    reset_scene(s, NGLI_ACTION_UNREF_SCENE);
 
     ngli_rnode_init(&s->rnode);
     s->rnode_pos = &s->rnode;
@@ -137,7 +137,7 @@ int ngli_ctx_set_scene(struct ngl_ctx *s, struct ngl_node *scene)
     return 0;
 
 fail:
-    scene_reset(s, NGLI_ACTION_UNREF_SCENE);
+    reset_scene(s, NGLI_ACTION_UNREF_SCENE);
     return ret;
 }
 
@@ -145,7 +145,7 @@ void ngli_ctx_reset(struct ngl_ctx *s, int action)
 {
     if (s->gpu_ctx)
         ngli_gpu_ctx_wait_idle(s->gpu_ctx);
-    scene_reset(s, action);
+    reset_scene(s, action);
 #if defined(HAVE_VAAPI)
     ngli_vaapi_ctx_reset(&s->vaapi_ctx);
 #endif
