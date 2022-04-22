@@ -619,8 +619,10 @@ static int gl_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
 {
     struct ngl_config *config = &s->config;
 
-    if (!config->offscreen)
-        return NGL_ERROR_INVALID_USAGE;
+    if (!config->offscreen) {
+        LOG(ERROR, "capture_buffer is not supported by onscreen context");
+        return NGL_ERROR_UNSUPPORTED;
+    }
 
     if (config->capture_buffer_type == NGL_CAPTURE_BUFFER_TYPE_COREVIDEO) {
 #if defined(TARGET_IPHONE)
