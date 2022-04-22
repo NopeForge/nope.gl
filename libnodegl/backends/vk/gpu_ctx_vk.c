@@ -915,7 +915,13 @@ static int vk_init(struct gpu_ctx *s)
 
 static int vk_resize(struct gpu_ctx *s, int width, int height, const int *viewport)
 {
+    const struct ngl_config *config = &s->config;
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+
+    if (config->offscreen) {
+        LOG(ERROR, "resize operation is not supported by offscreen context");
+        return NGL_ERROR_UNSUPPORTED;
+    }
 
     s_priv->recreate_swapchain = 1;
     s_priv->width = width;
