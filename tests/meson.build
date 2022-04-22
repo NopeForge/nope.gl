@@ -72,6 +72,7 @@ foreach backend : backends
     'reconfigure',
     'reconfigure_clearcolor',
     'reconfigure_fail',
+    'resize_fail',
     'capture_buffer',
     'ctx_ownership',
     'ctx_ownership_subgraph',

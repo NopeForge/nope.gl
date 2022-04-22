@@ -95,6 +95,15 @@ def api_reconfigure_fail():
     del ctx
 
 
+def api_resize_fail():
+    ctx = ngl.Context()
+    ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
+    assert ret == 0
+    ret = ctx.resize(32, 32)
+    assert ret != 0
+    del ctx
+
+
 def api_capture_buffer(width=16, height=16):
     import zlib
 
