@@ -558,6 +558,11 @@ static int gl_resize(struct gpu_ctx *s, int width, int height, const int *viewpo
     struct glcontext *gl = s_priv->glcontext;
     struct ngl_config *config = &s->config;
 
+    if (config->offscreen) {
+        LOG(ERROR, "resize operation is not supported by offscreen context");
+        return NGL_ERROR_UNSUPPORTED;
+    }
+
     int ret = ngli_glcontext_resize(gl, width, height);
     if (ret < 0)
         return ret;
