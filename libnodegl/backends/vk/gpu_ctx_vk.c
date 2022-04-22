@@ -934,6 +934,12 @@ static int vk_resize(struct gpu_ctx *s, int width, int height, const int *viewpo
 static int vk_set_capture_buffer(struct gpu_ctx *s, void *capture_buffer)
 {
     struct ngl_config *config = &s->config;
+
+    if (!config->offscreen) {
+        LOG(ERROR, "capture_buffer is not supported by onscreen context");
+        return NGL_ERROR_UNSUPPORTED;
+    }
+
     config->capture_buffer = capture_buffer;
     return 0;
 }
