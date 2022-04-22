@@ -760,6 +760,20 @@ static int vk_init(struct gpu_ctx *s)
 {
     const struct ngl_config *config = &s->config;
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
+
+    if (config->offscreen) {
+        if (config->width <= 0 || config->height <= 0) {
+            LOG(ERROR, "could not create offscreen context with invalid dimensions (%dx%d)",
+                config->width, config->height);
+            return NGL_ERROR_INVALID_ARG;
+        }
+    } else {
+        if (config->capture_buffer) {
+            LOG(ERROR, "capture_buffer is not supported by onscreen context");
+            return NGL_ERROR_INVALID_ARG;
+        }
+    }
+
 #if DEBUG_GPU_CAPTURE
     const char *var = getenv("NGL_GPU_CAPTURE");
     s->gpu_capture = var && !strcmp(var, "yes");
