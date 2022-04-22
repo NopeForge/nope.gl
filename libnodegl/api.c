@@ -198,7 +198,7 @@ int ngli_ctx_configure(struct ngl_ctx *s, const struct ngl_config *config)
 
     ret = ngli_gpu_ctx_init(s->gpu_ctx);
     if (ret < 0) {
-        LOG(ERROR, "unable to initialize gpu context");
+        LOG(ERROR, "could not initialize gpu context: %s", NGLI_RET_STR(ret));
         ngli_gpu_ctx_freep(&s->gpu_ctx);
         ngli_config_reset(&s->config);
         return ret;
