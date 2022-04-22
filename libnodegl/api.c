@@ -621,21 +621,6 @@ int ngl_configure(struct ngl_ctx *s, struct ngl_config *config)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    if (config->offscreen) {
-        if (config->width <= 0 || config->height <= 0) {
-            LOG(ERROR,
-                "could not initialize offscreen rendering with invalid dimensions (%dx%d)",
-                config->width,
-                config->height);
-            return NGL_ERROR_INVALID_ARG;
-        }
-    } else {
-        if (config->capture_buffer) {
-            LOG(ERROR, "capture_buffer is only supported with offscreen rendering");
-            return NGL_ERROR_INVALID_ARG;
-        }
-    }
-
     if (config->backend == NGL_BACKEND_AUTO)
         config->backend = DEFAULT_BACKEND;
     if (config->platform == NGL_PLATFORM_AUTO)
@@ -673,12 +658,6 @@ int ngl_resize(struct ngl_ctx *s, int width, int height, const int *viewport)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    const struct ngl_config *config = &s->config;
-    if (config->offscreen) {
-        LOG(ERROR, "offscreen context does not support resize operation");
-        return NGL_ERROR_INVALID_USAGE;
-    }
-
     return s->api_impl->resize(s, width, height, viewport);
 }
 
@@ -686,12 +665,6 @@ int ngl_set_capture_buffer(struct ngl_ctx *s, void *capture_buffer)
 {
     if (!s->configured) {
         LOG(ERROR, "context must be configured before setting a capture buffer");
-        return NGL_ERROR_INVALID_USAGE;
-    }
-
-    const struct ngl_config *config = &s->config;
-    if (!config->offscreen) {
-        LOG(ERROR, "capture buffers are only supported with offscreen rendering");
         return NGL_ERROR_INVALID_USAGE;
     }
 
