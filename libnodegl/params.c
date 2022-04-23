@@ -384,10 +384,9 @@ int ngli_params_set_data(uint8_t *dstp, const struct node_param *par, int size, 
 
     ngli_freep(dst);
     if (data && size) {
-        *dst = ngli_malloc(size);
+        *dst = ngli_memdup(data, size);
         if (!*dst)
             return NGL_ERROR_MEMORY;
-        memcpy(*dst, data, size);
     } else {
         size = 0;
     }
