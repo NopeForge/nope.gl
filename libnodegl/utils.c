@@ -52,7 +52,7 @@ char *ngli_strdup(const char *s)
         r = ngli_malloc(len + 1);
         if (!r)
             return NULL;
-        strcpy(r, s);
+        memcpy(r, s, len);
         r[len] = 0;
     }
     return r;
