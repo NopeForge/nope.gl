@@ -269,12 +269,11 @@ int ngli_config_copy(struct ngl_config *dst, const struct ngl_config *src)
         if (src->backend == NGL_BACKEND_OPENGL ||
             src->backend == NGL_BACKEND_OPENGLES) {
             const size_t size = sizeof(struct ngl_config_gl);
-            tmp.backend_config = ngli_calloc(1, size);
+            tmp.backend_config = ngli_memdup(src->backend_config, size);
             if (!tmp.backend_config) {
                 ngli_freep(&tmp.hud_export_filename);
                 return NGL_ERROR_MEMORY;
             }
-            memcpy(tmp.backend_config, src->backend_config, size);
         } else {
             ngli_freep(&tmp.hud_export_filename);
             LOG(ERROR, "backend_config %p is not supported by backend %d",
