@@ -368,6 +368,7 @@ static const struct node_param uniformmat4_params[] = {
 #define uniformvec2_update   NULL
 #define uniformvec3_update   NULL
 #define uniformvec4_update   NULL
+#define uniformquat_update   NULL
 #define uniformint_update    NULL
 #define uniformivec2_update  NULL
 #define uniformivec3_update  NULL
@@ -378,15 +379,6 @@ static const struct node_param uniformmat4_params[] = {
 #define uniformuivec4_update NULL
 #define uniformcolor_update  NULL
 #define uniformcolora_update NULL
-
-static int uniformquat_update(struct ngl_node *node, double t)
-{
-    struct uniform_priv *s = node->priv_data;
-    const struct variable_opts *o = node->opts;
-    if (o->as_mat4)
-        ngli_mat4_rotate_from_quat(s->matrix, s->vector, NULL);
-    return 0;
-}
 
 static int uniformmat4_update(struct ngl_node *node, double t)
 {
