@@ -180,8 +180,10 @@ int opts_parse(int ac, int ac_max, char **av, const struct opt *opts, int nb_opt
         }
         const char *arg = i == ac_max - 1 ? NULL : av[i + 1];
         if (o->type != OPT_TYPE_TOGGLE) {
-            if (!arg)
+            if (!arg) {
+                fprintf(stderr, "option %s is expecting an argument\n", av[i]);
                 return NGL_ERROR_INVALID_ARG;
+            }
             i++;
         }
         func_type func = o->func ? o->func : func_maps[o->type];
