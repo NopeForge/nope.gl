@@ -119,6 +119,7 @@ static const int log_levels[] = {
     [SXPLAYER_LOG_ERROR]   = NGL_LOG_ERROR,
 };
 
+ngli_printf_format(6, 0)
 static void callback_sxplayer_log(void *arg, int level, const char *filename, int ln,
                                   const char *fn, const char *fmt, va_list vl)
 {
