@@ -261,6 +261,8 @@ static int wgl_init_external(struct glcontext *ctx, uintptr_t display, uintptr_t
         LOG(ERROR, "could not retrieve current rendering context");
         return -1;
     }
+
+    return 0;
 }
 
 static void wgl_uninit(struct glcontext *ctx)
