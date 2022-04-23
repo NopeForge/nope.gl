@@ -465,8 +465,7 @@ void ngli_quat_slerp(float * restrict dst, const float *q1, const float *q2, flo
         return;
     }
 
-    if (cos_alpha > 1.0f)
-        cos_alpha = 1.0f;
+    cos_alpha = NGLI_MIN(cos_alpha, 1.0f);
 
     const float alpha = acosf(cos_alpha);
     const float theta = alpha * t;
