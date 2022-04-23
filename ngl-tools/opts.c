@@ -178,7 +178,7 @@ int opts_parse(int ac, int ac_max, char **av, const struct opt *opts, int nb_opt
             fprintf(stderr, "unrecognized option \"%s\"\n", av[i]);
             return NGL_ERROR_INVALID_ARG;
         }
-        const char *arg = i == ac - 1 ? NULL : av[i + 1];
+        const char *arg = i == ac_max - 1 ? NULL : av[i + 1];
         if (o->type != OPT_TYPE_TOGGLE) {
             if (!arg)
                 return NGL_ERROR_INVALID_ARG;
