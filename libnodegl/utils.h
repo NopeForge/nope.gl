@@ -111,6 +111,7 @@
 
 
 char *ngli_strdup(const char *s);
+void *ngli_memdup(const void *src, size_t n);
 int64_t ngli_gettime_relative(void);
 char *ngli_asprintf(const char *fmt, ...) ngli_printf_format(1, 2);
 uint32_t ngli_crc32(const char *s);
