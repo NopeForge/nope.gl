@@ -458,10 +458,9 @@ static int load_caps(struct ngl_backend *backend, const struct gpu_ctx *gpu_ctx)
     };
 
     backend->nb_caps = NGLI_ARRAY_NB(caps);
-    backend->caps = ngli_calloc(backend->nb_caps, sizeof(*backend->caps));
+    backend->caps = ngli_memdup(caps, sizeof(caps));
     if (!backend->caps)
         return NGL_ERROR_MEMORY;
-    memcpy(backend->caps, caps, sizeof(caps));
 
     return 0;
 }
