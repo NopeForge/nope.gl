@@ -230,7 +230,7 @@ void ngli_mat4_mul_vec4_c(float *dst, const float *m, const float *v)
     memcpy(dst, tmp, sizeof(tmp));
 }
 
-void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up)
+void ngli_mat4_look_at(float * restrict dst, float *eye, float *center, float *up)
 {
     float f[3] = NGLI_VEC3_SUB(center, eye);
     float s[3];
@@ -270,7 +270,7 @@ void ngli_mat4_identity(float *dst)
     memcpy(dst, id, sizeof(id));
 }
 
-void ngli_mat4_orthographic(float *dst, float left, float right,
+void ngli_mat4_orthographic(float * restrict dst, float left, float right,
                             float bottom, float top, float near, float far)
 {
     const float dx = right - left;
@@ -294,7 +294,7 @@ void ngli_mat4_orthographic(float *dst, float left, float right,
     dst[14] = tz;
 }
 
-void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, float far)
+void ngli_mat4_perspective(float * restrict dst, float fov, float aspect, float near, float far)
 {
     const float r = fov / 2 * M_PI / 180.0f;
     const float s = sinf(r);
@@ -316,7 +316,7 @@ void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, floa
     dst[15] =  0;
 }
 
-void ngli_mat4_rotate(float *dst, float angle, float *axis, const float *anchor)
+void ngli_mat4_rotate(float * restrict dst, float angle, float *axis, const float *anchor)
 {
     const float a = cosf(angle);
     const float b = sinf(angle);
@@ -349,7 +349,7 @@ void ngli_mat4_rotate(float *dst, float angle, float *axis, const float *anchor)
     dst[15] = 1.0f;
 }
 
-void ngli_mat4_rotate_from_quat(float *dst, const float *q, const float *anchor)
+void ngli_mat4_rotate_from_quat(float * restrict dst, const float *q, const float *anchor)
 {
     float tmp[4];
     const float *tmpp = q;
@@ -398,7 +398,7 @@ void ngli_mat4_rotate_from_quat(float *dst, const float *q, const float *anchor)
     dst[15] =  1.0f;
 }
 
-void ngli_mat4_translate(float *dst, float x, float y, float z)
+void ngli_mat4_translate(float * restrict dst, float x, float y, float z)
 {
     memset(dst, 0, 4 * 4 * sizeof(*dst));
     dst[ 0] = 1.0f;
@@ -410,7 +410,7 @@ void ngli_mat4_translate(float *dst, float x, float y, float z)
     dst[15] = 1.0f;
 }
 
-void ngli_mat4_scale(float *dst, float x, float y, float z, const float *anchor)
+void ngli_mat4_scale(float * restrict dst, float x, float y, float z, const float *anchor)
 {
     memset(dst, 0, 4 * 4 * sizeof(*dst));
     dst[ 0] =  x;
@@ -424,7 +424,7 @@ void ngli_mat4_scale(float *dst, float x, float y, float z, const float *anchor)
     dst[15] =  1.0f;
 }
 
-void ngli_mat4_skew(float *dst, float x, float y, float z, const float *axis, const float *anchor)
+void ngli_mat4_skew(float * restrict dst, float x, float y, float z, const float *axis, const float *anchor)
 {
     memset(dst, 0, 4 * 4 * sizeof(*dst));
     dst[ 0] = 1.f;
@@ -446,7 +446,7 @@ void ngli_mat4_skew(float *dst, float x, float y, float z, const float *axis, co
 
 #define COS_ALPHA_THRESHOLD 0.9995f
 
-void ngli_quat_slerp(float *dst, const float *q1, const float *q2, float t)
+void ngli_quat_slerp(float * restrict dst, const float *q1, const float *q2, float t)
 {
     float tmp_q1[4];
     const float *tmp_q1p = q1;

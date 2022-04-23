@@ -94,14 +94,14 @@ void ngli_mat3_inverse(float *dst, const float *m);
 void ngli_mat4_identity(float *dst);
 void ngli_mat4_mul_c(float *dst, const float *m1, const float *m2);
 void ngli_mat4_mul_vec4_c(float *dst, const float *m, const float *v);
-void ngli_mat4_look_at(float *dst, float *eye, float *center, float *up);
-void ngli_mat4_orthographic(float *dst, float left, float right, float bottom, float top, float near, float far);
-void ngli_mat4_perspective(float *dst, float fov, float aspect, float near, float far);
-void ngli_mat4_rotate(float *dst, float angle, float *axis, const float *anchor);
-void ngli_mat4_rotate_from_quat(float *dst, const float *quat, const float *anchor);
-void ngli_mat4_translate(float *dst, float x, float y, float z);
-void ngli_mat4_scale(float *dst, float x, float y, float z, const float *anchor);
-void ngli_mat4_skew(float *dst, float x, float y, float z, const float *axis, const float *anchor);
+void ngli_mat4_look_at(float * restrict dst, float *eye, float *center, float *up);
+void ngli_mat4_orthographic(float * restrict dst, float left, float right, float bottom, float top, float near, float far);
+void ngli_mat4_perspective(float * restrict dst, float fov, float aspect, float near, float far);
+void ngli_mat4_rotate(float * restrict dst, float angle, float *axis, const float *anchor);
+void ngli_mat4_rotate_from_quat(float * restrict dst, const float *quat, const float *anchor);
+void ngli_mat4_translate(float * restrict dst, float x, float y, float z);
+void ngli_mat4_scale(float * restrict dst, float x, float y, float z, const float *anchor);
+void ngli_mat4_skew(float * restrict dst, float x, float y, float z, const float *axis, const float *anchor);
 
 /* Arch specific versions */
 
@@ -118,6 +118,6 @@ void ngli_mat4_mul_vec4_aarch64(float *dst, const float *m, const float *v);
 
 #define NGLI_QUAT_IDENTITY {0.0f, 0.0f, 0.0f, 1.0f}
 
-void ngli_quat_slerp(float *dst, const float *q1, const float *q2, float t);
+void ngli_quat_slerp(float * restrict dst, const float *q1, const float *q2, float t);
 
 #endif
