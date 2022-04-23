@@ -52,25 +52,14 @@ enum {
     GLPLATFORM_WGL,
 };
 
-#ifdef HAVE_GLPLATFORM_EGL
 extern const struct glcontext_class ngli_glcontext_egl_class;
 extern const struct glcontext_class ngli_glcontext_egl_external_class;
-#endif
-
-#ifdef HAVE_GLPLATFORM_NSGL
 extern const struct glcontext_class ngli_glcontext_nsgl_class;
 extern const struct glcontext_class ngli_glcontext_nsgl_external_class;
-#endif
-
-#ifdef HAVE_GLPLATFORM_EAGL
 extern const struct glcontext_class ngli_glcontext_eagl_class;
 extern const struct glcontext_class ngli_glcontext_eagl_external_class;
-#endif
-
-#ifdef HAVE_GLPLATFORM_WGL
 extern const struct glcontext_class ngli_glcontext_wgl_class;
 extern const struct glcontext_class ngli_glcontext_wgl_external_class;
-#endif
 
 static const struct {
     const struct glcontext_class *cls;
