@@ -46,15 +46,14 @@
 
 char *ngli_strdup(const char *s)
 {
-    char *r = NULL;
-    if (s) {
-        size_t len = strlen(s);
-        r = ngli_malloc(len + 1);
-        if (!r)
-            return NULL;
-        memcpy(r, s, len);
-        r[len] = 0;
-    }
+    if (!s)
+        return NULL;
+    const size_t len = strlen(s);
+    char *r = ngli_malloc(len + 1);
+    if (!r)
+        return NULL;
+    memcpy(r, s, len);
+    r[len] = 0;
     return r;
 }
 
