@@ -155,6 +155,7 @@ int main(int argc, char *argv[])
     int fd = -1;
     struct ngl_ctx *ctx = NULL;
     uint8_t *capture_buffer = NULL;
+    const size_t capture_buffer_size = 4 * s.cfg.width * s.cfg.height;
 
     struct ngl_node *scene = get_scene(s.input);
     if (!scene) {
@@ -178,7 +179,7 @@ int main(int argc, char *argv[])
                 goto end;
             }
         }
-        capture_buffer = calloc(s.cfg.width * s.cfg.height, 4);
+        capture_buffer = calloc(1, capture_buffer_size);
         if (!capture_buffer)
             goto end;
     }
@@ -231,8 +232,13 @@ int main(int argc, char *argv[])
                 fprintf(stderr, "Unable to draw @ t=%g\n", t);
                 goto end;
             }
-            if (capture_buffer)
-                write(fd, capture_buffer, 4 * s.cfg.width * s.cfg.height);
+            if (capture_buffer) {
+                const size_t n = write(fd, capture_buffer, capture_buffer_size);
+                if (n != capture_buffer_size) {
+                    fprintf(stderr, "unable to write capture buffer to output\n");
+                    goto end;
+                }
+            }
             if (!s.cfg.offscreen) {
                 SDL_Event event;
                 while (SDL_PollEvent(&event)) {
