@@ -8,12 +8,12 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
-### Fixed
-- Various memory leaks
-
 ### Added
 - Optional `backend_config` field to the `ngl_config` structure (ABI break)
 - External OpenGL context support
+
+### Fixed
+- Various memory leaks
 
 ## [2022.3] [libnodegl 0.3.0] - 2022-04-11
 ### Added
