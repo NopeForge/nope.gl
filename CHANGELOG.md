@@ -15,6 +15,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ### Fixed
 - Various memory leaks
 
+### Removed
+- `handle` field from the `ngl_config` structure
+
 ## [2022.3] [libnodegl 0.3.0] - 2022-04-11
 ### Added
 - `eye`, `center` and `up` Camera parameters can now be node
@@ -24,9 +27,6 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 - A crash happening in the VAAPI context module when both the OpenGL and Vulkan
   backends were enabled.
 - A deadlock in `ngl-control` when specifying invalid encoding arguments
-
-### Removed
-- `handle` field from the `ngl_config` structure
 
 ## [2022.2] [libnodegl 0.2.0] - 2022-03-28
 ### Added
