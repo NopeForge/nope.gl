@@ -4,6 +4,7 @@ import math
 import os.path as op
 
 from pynodegl_utils.misc import scene
+from pynodegl_utils.toolbox.scenes import compare
 from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
 
 import pynodegl as ngl
@@ -31,15 +32,15 @@ def lut3d(cfg, xsplit=0.3, trilinear=True):
     video = ngl.Media(m0.filename)
     video_tex = ngl.Texture2D(data_src=video)
 
-    prog = ngl.Program(fragment=cfg.get_frag("lut3d"), vertex=cfg.get_vert("lut3d"))
-    prog.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
+    scene_tex = ngl.RenderTexture(video_tex)
 
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, prog)
-    render.update_frag_resources(tex0=video_tex, lut3d=lut3d_tex)
-    render.update_frag_resources(xsplit=ngl.UniformFloat(value=xsplit))
+    prog_lut = ngl.Program(fragment=cfg.get_frag("lut3d"), vertex=cfg.get_vert("lut3d"))
+    prog_lut.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
+    scene_lut = ngl.Render(quad, prog_lut)
+    scene_lut.update_frag_resources(tex0=video_tex, lut3d=lut3d_tex)
 
-    return render
+    return compare(cfg, scene_tex, scene_lut, xsplit)
 
 
 @scene(bgcolor1=scene.Color(), bgcolor2=scene.Color(), bilinear_filtering=scene.Bool())
