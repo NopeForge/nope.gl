@@ -41,17 +41,17 @@ static int refcount = 0;
 
 int ngli_glslang_init(void)
 {
+    int ret = 0;
     pthread_mutex_lock(&lock);
     if (!refcount++) {
-        int ret = glslang_initialize_process();
-        if (!ret) {
+        if (!glslang_initialize_process()) {
             refcount--;
             ret = NGL_ERROR_EXTERNAL;
         }
     }
     pthread_mutex_unlock(&lock);
 
-    return 0;
+    return ret;
 }
 
 int ngli_glslang_compile(int stage, const char *src, void **datap, size_t *sizep)
