@@ -85,7 +85,7 @@ static struct hmap_ref ref_from_entry(const struct hmap *hm, const struct hmap_e
         return NO_REF;
     struct hmap_ref ref = {
         .bucket_id = entry->bucket_id,
-        .entry_id  = (int)(entry - hm->buckets[ref.bucket_id].entries),
+        .entry_id  = (int)(entry - hm->buckets[entry->bucket_id].entries),
     };
     return ref;
 }
