@@ -266,11 +266,9 @@ end:
 
 int main(int ac, char **av)
 {
-    int ret;
-
-    if ((ret = test_bezier3_vec3()) < 0 ||
-        (ret = test_poly_bezier3()) < 0 ||
-        (ret = test_composition()) < 0)
+    if (test_bezier3_vec3() < 0 ||
+        test_poly_bezier3() < 0 ||
+        test_composition() < 0)
         return 1;
     return 0;
 }
