@@ -30,12 +30,14 @@ import random
 import subprocess
 import tempfile
 from collections import namedtuple
+from functools import wraps
 
 import pynodegl as ngl
 
 
 def scene(**controls):
     def real_decorator(scene_func):
+        @wraps(scene_func)
         def func_wrapper(idict=None, **extra_args):
             if idict is None:
                 idict = {}
@@ -69,9 +71,6 @@ def scene(**controls):
 
         # Flag the scene as a scene function so it's registered in the UI.
         func_wrapper.iam_a_ngl_scene_func = True
-
-        # Inherit doc from original function
-        func_wrapper.__doc__ = scene_func.__doc__
 
         return func_wrapper
 
