@@ -144,7 +144,7 @@ int ngli_glslang_compile(int stage, const char *src, void **datap, size_t *sizep
 void ngli_glslang_uninit(void)
 {
     pthread_mutex_lock(&lock);
-    if (refcount && (refcount-- == 0))
+    if (refcount && (refcount-- == 1))
         glslang_finalize_process();
     pthread_mutex_unlock(&lock);
 }
