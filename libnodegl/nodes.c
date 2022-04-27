@@ -1011,12 +1011,11 @@ struct ngl_node *ngl_node_ref(struct ngl_node *node)
 
 void ngl_node_unrefp(struct ngl_node **nodep)
 {
-    int delete = 0;
     struct ngl_node *node = *nodep;
 
     if (!node)
         return;
-    delete = node->refcount-- == 1;
+    const int delete = node->refcount-- == 1;
     if (delete) {
         LOG(VERBOSE, "DELETE %s @ %p", node->label, node);
         ngli_assert(!node->ctx);
