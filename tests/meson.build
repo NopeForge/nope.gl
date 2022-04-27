@@ -387,9 +387,21 @@ foreach backend : backends
     'switch',
   ]
 
+  tests_benchmark = [
+    'fingerprint_without_compute',
+    'resources_without_compute',
+  ]
+  if has_compute
+    tests_benchmark += [
+      'fingerprint_with_compute',
+      'resources_with_compute',
+    ]
+  endif
+
   tests = {
     'api':           {'tests': tests_api, 'has_refs': false},
     'anim':          {'tests': tests_anim},
+    'benchmark':     {'tests': tests_benchmark},
     'blending':      {'tests': tests_blending},
     'color':         {'tests': tests_color},
     'compositing':   {'tests': tests_compositing},
