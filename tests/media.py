@@ -21,7 +21,7 @@
 
 import textwrap
 
-from pynodegl_utils.misc import Media, scene
+from pynodegl_utils.misc import scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.tests.cmp_resources import test_resources
@@ -70,8 +70,6 @@ def _get_time_scene(cfg):
 @test_fingerprint(width=320, height=240, nb_keyframes=3, tolerance=1)
 @scene()
 def media_flat_remap(cfg):
-    cfg.medias = [Media("ngl-media-test.nut")]
-
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -88,14 +86,12 @@ def media_flat_remap(cfg):
 @test_cuepoints(points={"X": (0, -0.625)}, nb_keyframes=15, clear_color=list(COLORS.violet) + [1], tolerance=1)
 @scene()
 def media_phases_display(cfg):
-    cfg.medias = [Media("ngl-media-test.nut")]
     return _get_time_scene(cfg)
 
 
 @test_resources(nb_keyframes=15)
 @scene()
 def media_phases_resources(cfg):
-    cfg.medias = [Media("ngl-media-test.nut")]
     return _get_time_scene(cfg)
 
 
@@ -104,8 +100,6 @@ def media_phases_resources(cfg):
 @test_cuepoints(points={"X": (0, -0.625)}, nb_keyframes=1, tolerance=1)
 @scene()
 def media_clamp(cfg):
-    cfg.medias = [Media("ngl-media-test.nut")]
-
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -118,8 +112,6 @@ def media_clamp(cfg):
 @test_cuepoints(points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, nb_keyframes=5, tolerance=1)
 @scene()
 def media_exposed_time(cfg):
-    cfg.medias = [Media("ngl-media-test.nut")]
-
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -156,8 +148,6 @@ def media_exposed_time(cfg):
 @test_fingerprint(width=320, height=240, nb_keyframes=20, tolerance=1)
 @scene()
 def media_timeranges_rtt(cfg):
-    cfg.medias = [Media("ngl-media-test.nut")]
-
     m0 = cfg.medias[0]
     cfg.duration = d = 10
     cfg.aspect_ratio = (m0.width, m0.height)

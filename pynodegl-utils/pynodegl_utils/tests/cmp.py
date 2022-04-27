@@ -92,10 +92,7 @@ class CompareSceneBase(CompareBase):
         self._hud_export_filename = None
 
     def render_frames(self):
-        # We make sure the lists of medias is explicitly empty. If we don't a
-        # jobbed make on the tests will attempt concurrent generations of a
-        # default ngl-media.mp4.
-        idict = dict(medias=[])
+        idict = {}
 
         backend = os.environ.get("BACKEND")
         if backend:

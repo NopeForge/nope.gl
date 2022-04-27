@@ -12,19 +12,6 @@ foreach line : probe_output.split('\n')
   endif
 endforeach
 
-media_test_filename = 'ngl-media-test.nut'
-media_test_file = custom_target(
-  media_test_filename,
-  command: [
-    find_program('ffmpeg'),
-    '-nostdin', '-nostats',
-    '-f', 'lavfi', '-i', 'testsrc=d=30:r=60',
-    '-c:v', 'ffv1',
-    '-y', '@OUTPUT@',
-  ],
-  output: media_test_filename,
-)
-
 foreach backend : backends
   cap_cmd = [ngl_probe, '-l', 'quiet', '-b', backend, '--cap']
   # ngl-probe may display garbage on stdout: typically Mesa does this on
@@ -411,7 +398,7 @@ foreach backend : backends
     'depth_stencil': {'tests': tests_depth_stencil},
     'filter':        {'tests': tests_filter},
     'live':          {'tests': tests_live},
-    'media':         {'tests': tests_media, 'depends': media_test_file},
+    'media':         {'tests': tests_media},
     'velocity':      {'tests': tests_velocity},
     'rtt':           {'tests': tests_rtt},
     'shape':         {'tests': tests_shape},
