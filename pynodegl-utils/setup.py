@@ -35,6 +35,7 @@ setup(
     },
     package_data={
         "": [
+            "assets/*",
             "examples/data/*",
             "examples/shaders/*.frag",
             "examples/shaders/*.comp",

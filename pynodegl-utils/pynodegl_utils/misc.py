@@ -145,9 +145,17 @@ def get_nodegl_tempdir():
     return tmpdir
 
 
+_MEDIA_PATHS = [
+    op.join(op.dirname(__file__), "assets", name)
+    for name in (
+        "mire-hevc.mp4",
+        "mire-h264.mp4",
+    )
+]
+
+
 class SceneCfg:
 
-    _DEFAULT_MEDIA_FILE = op.join(get_nodegl_tempdir(), "ngl-media.mp4")
     _DEFAULT_FIELDS = {
         "aspect_ratio": (16, 9),
         "duration": 30.0,
@@ -166,24 +174,7 @@ class SceneCfg:
             setattr(self, field, val)
 
         if self.medias is None:
-            media_file = self._DEFAULT_MEDIA_FILE
-            if not op.exists(self._DEFAULT_MEDIA_FILE):
-                media_duration = int(math.ceil(self.duration))
-                media_fps = self.framerate
-                ret = subprocess.call(
-                    [
-                        # fmt: off
-                        "ffmpeg",
-                        "-nostdin", "-nostats",
-                        "-f", "lavfi",
-                        "-i", f"testsrc2=d={media_duration}:r={media_fps[0]}/{media_fps[1]}",
-                        media_file,
-                        # fmt: on
-                    ]
-                )
-                if ret:
-                    raise Exception("Unable to create a media file using ffmpeg (ret=%d)" % ret)
-            self.medias = [Media(media_file)]
+            self.medias = [Media(m) for m in _MEDIA_PATHS]
 
         # Predictible random number generator
         self.rng = random.Random(0)
