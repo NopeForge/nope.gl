@@ -175,7 +175,7 @@ static VkResult create_render_resources(struct gpu_ctx *s)
             if (res != VK_SUCCESS)
                 return res;
         } else {
-            color = ngli_texture_create(s);
+            color = ngli_texture_vk_create(s);
             if (!color)
                 return VK_ERROR_OUT_OF_HOST_MEMORY;
 
@@ -247,7 +247,7 @@ static VkResult create_render_resources(struct gpu_ctx *s)
     }
 
     if (config->offscreen) {
-        s_priv->capture_buffer = ngli_buffer_create(s);
+        s_priv->capture_buffer = ngli_buffer_vk_create(s);
         if (!s_priv->capture_buffer)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
@@ -273,34 +273,34 @@ static void destroy_render_resources(struct gpu_ctx *s)
 
     struct texture **colors = ngli_darray_data(&s_priv->colors);
     for (int i = 0; i < ngli_darray_count(&s_priv->colors); i++)
-        ngli_texture_freep(&colors[i]);
+        ngli_texture_vk_freep(&colors[i]);
     ngli_darray_reset(&s_priv->colors);
 
     struct texture **ms_colors = ngli_darray_data(&s_priv->ms_colors);
     for (int i = 0; i < ngli_darray_count(&s_priv->ms_colors); i++)
-        ngli_texture_freep(&ms_colors[i]);
+        ngli_texture_vk_freep(&ms_colors[i]);
     ngli_darray_reset(&s_priv->ms_colors);
 
     struct texture **depth_stencils = ngli_darray_data(&s_priv->depth_stencils);
     for (int i = 0; i < ngli_darray_count(&s_priv->depth_stencils); i++)
-        ngli_texture_freep(&depth_stencils[i]);
+        ngli_texture_vk_freep(&depth_stencils[i]);
     ngli_darray_reset(&s_priv->depth_stencils);
 
     struct rendertarget **rts = ngli_darray_data(&s_priv->rts);
     for (int i = 0; i < ngli_darray_count(&s_priv->rts); i++)
-        ngli_rendertarget_freep(&rts[i]);
+        ngli_rendertarget_vk_freep(&rts[i]);
     ngli_darray_reset(&s_priv->rts);
 
     struct rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
     for (int i = 0; i < ngli_darray_count(&s_priv->rts_load); i++)
-        ngli_rendertarget_freep(&rts_load[i]);
+        ngli_rendertarget_vk_freep(&rts_load[i]);
     ngli_darray_reset(&s_priv->rts_load);
 
     if (s_priv->mapped_data) {
         ngli_buffer_unmap(s_priv->capture_buffer);
         s_priv->mapped_data = NULL;
     }
-    ngli_buffer_freep(&s_priv->capture_buffer);
+    ngli_buffer_vk_freep(&s_priv->capture_buffer);
 }
 
 static VkResult create_query_pool(struct gpu_ctx *s)
@@ -633,27 +633,27 @@ static VkResult recreate_swapchain(struct gpu_ctx *gpu_ctx, struct vkcontext *vk
 
     struct texture **colors = ngli_darray_data(&s_priv->colors);
     for (int i = 0; i < ngli_darray_count(&s_priv->colors); i++)
-        ngli_texture_freep(&colors[i]);
+        ngli_texture_vk_freep(&colors[i]);
     ngli_darray_clear(&s_priv->colors);
 
     struct texture **ms_colors = ngli_darray_data(&s_priv->ms_colors);
     for (int i = 0; i < ngli_darray_count(&s_priv->ms_colors); i++)
-        ngli_texture_freep(&ms_colors[i]);
+        ngli_texture_vk_freep(&ms_colors[i]);
     ngli_darray_clear(&s_priv->ms_colors);
 
     struct texture **depth_stencils = ngli_darray_data(&s_priv->depth_stencils);
     for (int i = 0; i < ngli_darray_count(&s_priv->depth_stencils); i++)
-        ngli_texture_freep(&depth_stencils[i]);
+        ngli_texture_vk_freep(&depth_stencils[i]);
     ngli_darray_clear(&s_priv->depth_stencils);
 
     struct rendertarget **rts = ngli_darray_data(&s_priv->rts);
     for (int i = 0; i < ngli_darray_count(&s_priv->rts); i++)
-        ngli_rendertarget_freep(&rts[i]);
+        ngli_rendertarget_vk_freep(&rts[i]);
     ngli_darray_clear(&s_priv->rts);
 
     struct rendertarget **rts_load = ngli_darray_data(&s_priv->rts_load);
     for (int i = 0; i < ngli_darray_count(&s_priv->rts_load); i++)
-        ngli_rendertarget_freep(&rts_load[i]);
+        ngli_rendertarget_vk_freep(&rts_load[i]);
     ngli_darray_clear(&s_priv->rts_load);
 
     vkDestroySwapchainKHR(vk->device, s_priv->swapchain, NULL);
