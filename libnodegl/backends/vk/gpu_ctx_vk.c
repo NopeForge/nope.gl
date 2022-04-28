@@ -169,17 +169,14 @@ static VkResult create_render_resources(struct gpu_ctx *s)
 
     const int nb_images = config->offscreen ? s_priv->nb_in_flight_frames : s_priv->nb_images;
     for (uint32_t i = 0; i < nb_images; i++) {
-        struct texture **colorp = ngli_darray_push(&s_priv->colors, NULL);
-        if (!colorp)
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
-
+        struct texture *color = NULL;
         if (config->offscreen) {
-            VkResult res = create_texture(s, color_format, 0, COLOR_USAGE, colorp);
+            VkResult res = create_texture(s, color_format, 0, COLOR_USAGE, &color);
             if (res != VK_SUCCESS)
                 return res;
         } else {
-            *colorp = ngli_texture_create(s);
-            if (!*colorp)
+            color = ngli_texture_create(s);
+            if (!color)
                 return VK_ERROR_OUT_OF_HOST_MEMORY;
 
             const struct texture_params params = {
@@ -191,41 +188,62 @@ static VkResult create_render_resources(struct gpu_ctx *s)
                 .external_storage = 1,
             };
 
-            VkResult res = ngli_texture_vk_wrap(*colorp, &params, s_priv->images[i], VK_IMAGE_LAYOUT_UNDEFINED);
-            if (res != VK_SUCCESS)
+            VkResult res = ngli_texture_vk_wrap(color, &params, s_priv->images[i], VK_IMAGE_LAYOUT_UNDEFINED);
+            if (res != VK_SUCCESS) {
+                ngli_texture_vk_freep(&color);
                 return res;
+            }
         }
 
-        struct texture **depth_stencilp = ngli_darray_push(&s_priv->depth_stencils, NULL);
-        if (!depth_stencilp)
+        if (!ngli_darray_push(&s_priv->colors, &color)) {
+            ngli_texture_vk_freep(&color);
             return VK_ERROR_OUT_OF_HOST_MEMORY;
+        }
 
-        VkResult res = create_texture(s, ds_format, config->samples, DEPTH_USAGE, depth_stencilp);
+        struct texture *depth_stencil = NULL;
+        VkResult res = create_texture(s, ds_format, config->samples, DEPTH_USAGE, &depth_stencil);
         if (res != VK_SUCCESS)
             return res;
 
-        struct texture **ms_colorp = NULL;
-        if (config->samples) {
-            ms_colorp = ngli_darray_push(&s_priv->ms_colors, NULL);
-            if (!ms_colorp)
-                return VK_ERROR_OUT_OF_HOST_MEMORY;
-
-            res = create_texture(s, color_format, config->samples, COLOR_USAGE, ms_colorp);
-            if (res != VK_SUCCESS)
-                return res;
+        if (!ngli_darray_push(&s_priv->depth_stencils, &depth_stencil)) {
+            ngli_texture_vk_freep(&depth_stencil);
+            return VK_ERROR_OUT_OF_HOST_MEMORY;
         }
 
-        struct rendertarget **rt = ngli_darray_push(&s_priv->rts, NULL);
-        struct rendertarget **rt_load = ngli_darray_push(&s_priv->rts_load, NULL);
-        if (!rt || !rt_load)
-            return VK_ERROR_OUT_OF_HOST_MEMORY;
+        struct texture *ms_color = NULL;
+        if (config->samples) {
+            res = create_texture(s, color_format, config->samples, COLOR_USAGE, &ms_color);
+            if (res != VK_SUCCESS)
+                return res;
 
-        struct texture *color = ms_colorp ? *ms_colorp : *colorp;
-        struct texture *resolve_color = ms_colorp ? *colorp : NULL;
-        struct texture *depth_stencil = *depth_stencilp;
-        if ((res = create_rendertarget(s, color, resolve_color, depth_stencil, NGLI_LOAD_OP_CLEAR, rt)) != VK_SUCCESS ||
-            (res = create_rendertarget(s, color, resolve_color, depth_stencil, NGLI_LOAD_OP_LOAD, rt_load)) != VK_SUCCESS)
+            if (!ngli_darray_push(&s_priv->ms_colors, &ms_color)) {
+                ngli_texture_vk_freep(&ms_color);
+                return VK_ERROR_OUT_OF_HOST_MEMORY;
+            }
+        }
+
+        struct texture *target_color = ms_color ? ms_color : color;
+        struct texture *resolve_color = ms_color ? color : NULL;
+
+        struct rendertarget *rt = NULL;
+        res = create_rendertarget(s, target_color, resolve_color, depth_stencil, NGLI_LOAD_OP_CLEAR, &rt);
+        if (res != VK_SUCCESS)
             return res;
+
+        if (!ngli_darray_push(&s_priv->rts, &rt)) {
+            ngli_rendertarget_vk_freep(&rt);
+            return VK_ERROR_OUT_OF_HOST_MEMORY;
+        }
+
+        struct rendertarget *rt_load = NULL;
+        res = create_rendertarget(s, target_color, resolve_color, depth_stencil, NGLI_LOAD_OP_LOAD, &rt_load);
+        if (res != VK_SUCCESS)
+            return res;
+
+        if (!ngli_darray_push(&s_priv->rts_load, &rt_load)) {
+            ngli_rendertarget_vk_freep(&rt_load);
+            return VK_ERROR_OUT_OF_HOST_MEMORY;
+        }
     }
 
     if (config->offscreen) {
