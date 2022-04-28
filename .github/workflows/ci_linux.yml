@@ -35,7 +35,7 @@ jobs:
         #
         #         apt-get install python3-venv
         #
-        sudo apt -y install libsdl2-dev python3-venv valgrind apitrace
+        sudo apt -y install libsdl2-dev python3-venv valgrind
         sudo apt -y install ffmpeg libavcodec-dev libavutil-dev libavformat-dev libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev libpostproc-dev libvulkan-dev
         #
         # Install a more up-to-date version of glslang (from Ubuntu 21.10) that
@@ -56,12 +56,6 @@ jobs:
         . venv/bin/activate
         python -c "import pynodegl, pynodegl_utils"
         ngl-python -h
-
-    - name: GPU memory leaks
-      run: |
-        . venv/bin/activate
-        ${{matrix.custom_env}} make tests-setup
-        meson test -C builddir/tests --suite opengl --suite opengles --wrap "$(pwd)/scripts/gl-leaks.sh"
 
     - name: Native lib memory check
       run: |
