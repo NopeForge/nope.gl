@@ -450,57 +450,6 @@ def cube(cfg: SceneCfg, display_depth_buffer=False):
 
 
 @scene()
-def histogram(cfg: SceneCfg):
-    """Histogram using compute shaders"""
-    m0 = cfg.medias[0]
-    cfg.duration = m0.duration
-    cfg.aspect_ratio = (m0.width, m0.height)
-    g = ngl.Group()
-
-    m = ngl.Media(cfg.medias[0].filename)
-    t = ngl.Texture2D(data_src=m)
-
-    h = ngl.Block(label="histogram_block", layout="std430")
-    h.add_fields(
-        ngl.BufferUInt(256, label="r"),
-        ngl.BufferUInt(256, label="g"),
-        ngl.BufferUInt(256, label="b"),
-        ngl.UniformUInt(label="maximum"),
-    )
-
-    r = ngl.RenderTexture(t)
-    proxy_size = 128
-    proxy = ngl.Texture2D(width=proxy_size, height=proxy_size)
-    rtt = ngl.RenderToTexture(r)
-    rtt.add_color_textures(proxy)
-    g.add_children(rtt)
-
-    compute_program = ngl.ComputeProgram(cfg.get_comp("histogram-clear"), workgroup_size=(1, 1, 1))
-    compute_program.update_properties(hist=ngl.ResourceProps(writable=True))
-    compute = ngl.Compute(workgroup_count=(256, 1, 1), program=compute_program, label="histogram-clear")
-    compute.update_resources(hist=h)
-    g.add_children(compute)
-
-    local_size = 8
-    group_size = proxy_size // local_size
-    compute_program = ngl.ComputeProgram(cfg.get_comp("histogram-exec"), workgroup_size=(local_size, local_size, 1))
-    compute = ngl.Compute(workgroup_count=(group_size, group_size, 1), program=compute_program, label="histogram-exec")
-    compute.update_resources(hist=h, source=proxy)
-    compute_program.update_properties(hist=ngl.ResourceProps(writable=True))
-    compute_program.update_properties(source=ngl.ResourceProps(as_image=True))
-    g.add_children(compute)
-
-    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    p = ngl.Program(vertex=cfg.get_vert("histogram-display"), fragment=cfg.get_frag("histogram-display"))
-    p.update_vert_out_vars(var_uvcoord=ngl.IOVec2(), var_tex0_coord=ngl.IOVec2())
-    render = ngl.Render(q, p)
-    render.update_frag_resources(tex0=t, hist=h)
-    g.add_children(render)
-
-    return g
-
-
-@scene()
 def quaternion(cfg: SceneCfg):
     """Animated quaternion used to rotate a plane"""
     cfg.duration = 10.0
