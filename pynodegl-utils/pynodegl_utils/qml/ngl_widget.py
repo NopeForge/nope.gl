@@ -20,7 +20,7 @@
 #
 
 from PySide6 import QtCore
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QOpenGLContext, QOpenGLFunctions
 from PySide6.QtOpenGL import QOpenGLFramebufferObject, QOpenGLFramebufferObjectFormat
 from PySide6.QtQml import QmlElement
 from PySide6.QtQuick import QQuickFramebufferObject
@@ -117,6 +117,13 @@ class _NodeGLRenderer(QQuickFramebufferObject.Renderer):
         fmt = QOpenGLFramebufferObjectFormat()
         fmt.setAttachment(QOpenGLFramebufferObject.CombinedDepthStencil)
         self._fbo = QOpenGLFramebufferObject(size, fmt)
+
+        # Clear any previous OpenGL error. This workarounds an issue on macOS
+        # where the current context contains errors (due to Qt OpenGL
+        # implementation). These errors need to be cleared before calling the
+        # node.gl API otherwise node.gl will in turn error out.
+        gl_funcs = QOpenGLFunctions(QOpenGLContext.currentContext())
+        gl_funcs.glGetError()
 
         if not self._context:
             self._context = ngl.Context()
