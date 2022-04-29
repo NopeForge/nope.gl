@@ -321,20 +321,6 @@ static const struct node_param uniformcolor_params[] = {
     {NULL}
 };
 
-static const struct node_param uniformcolora_params[] = {
-    {"value",    NGLI_PARAM_TYPE_VEC4, OFFSET(live.val.f),
-                 .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
-                 .update_func=uniformvec4_update_func,
-                 .desc=NGLI_DOCSTRING("value exposed to the shader")},
-    {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
-                 .desc=NGLI_DOCSTRING("live control identifier")},
-    {"live_min", NGLI_PARAM_TYPE_VEC4, OFFSET(live.min.f), {.vec={0.f, 0.f, 0.f, 0.f}},
-                 .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
-    {"live_max", NGLI_PARAM_TYPE_VEC4, OFFSET(live.max.f), {.vec={1.f, 1.f, 1.f, 1.f}},
-                 .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
-    {NULL}
-};
-
 static const struct node_param uniformquat_params[] = {
     {"value",  NGLI_PARAM_TYPE_VEC4, OFFSET(live.val.f), {.vec=NGLI_QUAT_IDENTITY},
                .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
@@ -378,7 +364,6 @@ static const struct node_param uniformmat4_params[] = {
 #define uniformuivec3_update NULL
 #define uniformuivec4_update NULL
 #define uniformcolor_update  NULL
-#define uniformcolora_update NULL
 
 static int uniformmat4_update(struct ngl_node *node, double t)
 {
@@ -419,7 +404,6 @@ DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  o->live.val.f)
 DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  o->live.val.f)
 DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  o->live.val.f)
 DECLARE_INIT_FUNC(color,  NGLI_TYPE_VEC3,   3, s->vector,  o->live.val.f)
-DECLARE_INIT_FUNC(colora, NGLI_TYPE_VEC4,   4, s->vector,  o->live.val.f)
 
 static int uniformquat_init(struct ngl_node *node)
 {
@@ -493,4 +477,3 @@ DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUIVEC3, "UniformUIVec3", uivec3)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMUIVEC4, "UniformUIVec4", uivec4)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMMAT4,   "UniformMat4",   mat4)
 DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMCOLOR,  "UniformColor",  color)
-DEFINE_UNIFORM_CLASS(NGL_NODE_UNIFORMCOLORA, "UniformColorA", colora)

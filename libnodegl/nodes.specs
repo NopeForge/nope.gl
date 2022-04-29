@@ -802,12 +802,6 @@ UniformColor:
     - [live_min, vec3, ""]
     - [live_max, vec3, ""]
 
-UniformColorA:
-    - [value, vec4, "L"]
-    - [live_id, str, ""]
-    - [live_min, vec4, ""]
-    - [live_max, vec4, ""]
-
 UniformQuat:
     - [value, vec4, "L"]
     - [live_id, str, ""]

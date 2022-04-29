@@ -261,7 +261,7 @@ def api_livectls():
                 ngl.Group(
                     children=(
                         ngl.UniformMat4(live_id="m4"),
-                        ngl.UniformColorA(live_id="clr"),
+                        ngl.UniformColor(live_id="clr"),
                         ngl.UniformQuat(as_mat4=True, live_id="rot"),
                     )
                 ),
@@ -287,7 +287,7 @@ def api_livectls():
         iv3=[rng.randint(-100, 100) for i in range(3)],
         switch=False,
         m4=[rng.uniform(-1, 1) for i in range(16)],
-        clr=(0.9, 0.3, 0.8, 0.9),
+        clr=(0.9, 0.3, 0.8),
         rot=(0.1, -0.2, 0.5, -0.3),
         txt="test string",
     )

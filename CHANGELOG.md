@@ -18,6 +18,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ### Removed
 - `handle` field from the `ngl_config` structure
+- `UniformColorA` (use `UniformColor` instead, with a separate `UniformFloat`
+  for the opacity)
 
 ## [2022.3] [libnodegl 0.3.0] - 2022-04-11
 ### Added
