@@ -41,7 +41,7 @@ def text(
     cfg,
     txt="the quick brown fox\njumps over the lazy dog",
     fg_color=COLORS.cgreen,
-    bg_color=(0.3, 0.3, 0.3, 1.0),
+    bg_color=(0.3, 0.3, 0.3),
     box_corner=(-1 + 0.25, -1 + 0.25, 0),
     box_width=(1.5, 0, 0),
     box_height=(0, 1.5, 0),
@@ -52,8 +52,8 @@ def text(
 ):
     return ngl.Text(
         txt,
-        fg_color=fg_color[:3],
-        bg_color=bg_color[:3],
+        fg_color=fg_color,
+        bg_color=bg_color,
         box_corner=box_corner,
         box_width=box_width,
         box_height=box_height,

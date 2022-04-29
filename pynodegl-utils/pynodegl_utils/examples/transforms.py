@@ -5,14 +5,14 @@ import pynodegl as ngl
 
 
 @scene(color=scene.Color(), rotate=scene.Bool(), scale=scene.Bool(), translate=scene.Bool())
-def animated_square(cfg, color=(1, 0.66, 0, 1), rotate=True, scale=True, translate=True):
+def animated_square(cfg, color=(1, 0.66, 0), rotate=True, scale=True, translate=True):
     """Animated Translate/Scale/Rotate on a square"""
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
     sz = 1 / 3.0
     q = ngl.Quad((-sz / 2, -sz / 2, 0), (sz, 0, 0), (0, sz, 0))
-    node = ngl.RenderColor(color[:3], geometry=q)
+    node = ngl.RenderColor(color, geometry=q)
 
     coords = [(-1, 1), (1, 1), (1, -1), (-1, -1), (-1, 1)]
 

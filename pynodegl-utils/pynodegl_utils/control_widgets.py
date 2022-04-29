@@ -109,7 +109,7 @@ class ColorPicker(_ControlWidget):
         self._color_btn.setStyleSheet("background-color: %s;" % color.name())
         self._qcolor = color
         self._label.setText(self.get_label_text(color.name()))
-        self.signal_change(color.getRgbF())
+        self.signal_change(color.getRgbF()[:3])
 
 
 class Checkbox(_ControlWidget):

@@ -43,7 +43,7 @@ def lut3d(cfg, xsplit=0.3, trilinear=True):
 
 
 @scene(bgcolor1=scene.Color(), bgcolor2=scene.Color(), bilinear_filtering=scene.Bool())
-def buffer_dove(cfg, bgcolor1=(0.6, 0, 0, 1), bgcolor2=(0.8, 0.8, 0, 1), bilinear_filtering=True):
+def buffer_dove(cfg, bgcolor1=(0.6, 0, 0), bgcolor2=(0.8, 0.8, 0), bilinear_filtering=True):
     """Blending of a Render using a Buffer as data source"""
     cfg.duration = 3.0
 
@@ -64,9 +64,9 @@ def buffer_dove(cfg, bgcolor1=(0.6, 0, 0, 1), bgcolor2=(0.8, 0.8, 0, 1), bilinea
 
     shape_bg = ngl.Circle(radius=0.6, npoints=256)
     color_animkf = [
-        ngl.AnimKeyFrameVec3(0, bgcolor1[:3]),
-        ngl.AnimKeyFrameVec3(cfg.duration / 2.0, bgcolor2[:3]),
-        ngl.AnimKeyFrameVec3(cfg.duration, bgcolor1[:3]),
+        ngl.AnimKeyFrameVec3(0, bgcolor1),
+        ngl.AnimKeyFrameVec3(cfg.duration / 2.0, bgcolor2),
+        ngl.AnimKeyFrameVec3(cfg.duration, bgcolor1),
     ]
     ucolor = ngl.AnimatedVec3(color_animkf)
     render_bg = ngl.RenderColor(ucolor, geometry=shape_bg, label="background")
@@ -539,7 +539,7 @@ def quaternion(cfg):
     ref_color=scene.Color(),
     nb_mountains=scene.Range(range=[3, 15]),
 )
-def mountain(cfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75, 1.0), nb_mountains=6):
+def mountain(cfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb_mountains=6):
     """Mountain generated with a stack of noise shaders using Textures as random source"""
     random_dim = 1 << ndim
     cfg.aspect_ratio = (16, 9)
@@ -548,7 +548,7 @@ def mountain(cfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75, 1.0), nb_moun
     def get_rand():
         return array.array("f", [cfg.rng.uniform(0, 1) for x in range(random_dim)])
 
-    black, white = (0, 0, 0, 1), (1, 1, 1, 1)
+    black, white = (0, 0, 0), (1, 1, 1)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
     prog = ngl.Program(vertex=cfg.get_vert("texture"), fragment=cfg.get_frag("mountain"))
@@ -586,7 +586,7 @@ def mountain(cfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75, 1.0), nb_moun
         render.update_frag_resources(time=utime)
         render.update_frag_resources(lacunarity=ngl.UniformFloat(2.0))
         render.update_frag_resources(gain=ngl.UniformFloat(0.5))
-        render.update_frag_resources(mcolor=ngl.UniformVec4(mcolor))
+        render.update_frag_resources(mcolor=ngl.UniformVec3(mcolor))
         render.update_frag_resources(yoffset=uyoffset)
         render.update_frag_resources(hscale=ngl.UniformFloat(hscale))
 
@@ -668,7 +668,7 @@ def smptebars_glitch(cfg):
     c0=scene.Color(),
     c1=scene.Color(),
 )
-def gradient_eval(cfg, mode="ramp", c0=(1, 0.5, 0.5, 1), c1=(0.5, 1, 0.5, 1)):
+def gradient_eval(cfg, mode="ramp", c0=(1, 0.5, 0.5), c1=(0.5, 1, 0.5)):
     """Animate a gradient and objects using CPU evaluation"""
 
     pos_res = dict(t=ngl.Time())
@@ -690,6 +690,6 @@ def gradient_eval(cfg, mode="ramp", c0=(1, 0.5, 0.5, 1), c1=(0.5, 1, 0.5, 1)):
 
     pos0 = ngl.EvalVec2("x/2+.5", ".5-y/2", resources=dict(x=pos0_x, y=pos0_y))
     pos1 = ngl.EvalVec2("x/2+.5", ".5-y/2", resources=dict(x=pos1_x, y=pos1_y))
-    grad = ngl.RenderGradient(pos0=pos0, pos1=pos1, mode=mode, color0=c0[:3], color1=c1[:3])
+    grad = ngl.RenderGradient(pos0=pos0, pos1=pos1, mode=mode, color0=c0, color1=c1)
 
     return ngl.Group(children=(grad, p0, p1))

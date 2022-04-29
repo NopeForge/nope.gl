@@ -44,7 +44,7 @@ scene function argument.
 
 ```python
 @scene(foo=scene.Bool(), bar=scene.Color())
-def example(cfg, foo=True, bar=(1.0, 0.2, 0.5, 1.0)):
+def example(cfg, foo=True, bar=(1.0, 0.2, 0.5)):
     ...
 ```
 
@@ -101,13 +101,13 @@ def vector_example(cfg, vec=(0.4, -0.75, -0.2, 1.0))
 
 A `Color` is associated with a **color picker** widget.
 
-The associated argument value is expected to be a 4-value `tuple` or `list`.
+The associated argument value is expected to be a 3-value `tuple` or `list`.
 
 **Example**:
 
 ```python
 @scene(bgcolor=scene.Color())
-def color_example(cfg, bgcolor=(0.3, 0.4, 0.5, 1.0)):
+def color_example(cfg, bgcolor=(0.3, 0.4, 0.5)):
     ...
 ```
 

@@ -71,7 +71,7 @@ def shape_triangle(cfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
     geometry = ngl.Triangle(p0, p1, p2)
-    return _render_shape(cfg, geometry, color[:3])
+    return _render_shape(cfg, geometry, color)
 
 
 @test_fingerprint(samples=4)
@@ -80,7 +80,7 @@ def shape_triangle_msaa(cfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
     geometry = ngl.Triangle(p0, p1, p2)
-    return _render_shape(cfg, geometry, color[:3])
+    return _render_shape(cfg, geometry, color)
 
 
 @test_fingerprint()
@@ -93,7 +93,7 @@ def shape_triangle_msaa(cfg, sz=1, color=COLORS.orange):
 def shape_quad(cfg, corner=(-0.5, -0.8, 0), width=(0.9, 0.2, 0), height=(0.1, 1.3, 0), color=COLORS.sgreen):
     cfg.aspect_ratio = (1, 1)
     geometry = ngl.Quad(corner, width, height)
-    return _render_shape(cfg, geometry, color[:3])
+    return _render_shape(cfg, geometry, color)
 
 
 @test_fingerprint()
@@ -101,7 +101,7 @@ def shape_quad(cfg, corner=(-0.5, -0.8, 0), width=(0.9, 0.2, 0), height=(0.1, 1.
 def shape_circle(cfg, radius=0.5, color=COLORS.azure):
     cfg.aspect_ratio = (1, 1)
     geometry = ngl.Circle(radius, npoints=64)
-    return _render_shape(cfg, geometry, color[:3])
+    return _render_shape(cfg, geometry, color)
 
 
 def _shape_geometry(cfg, set_normals=False, set_indices=False):

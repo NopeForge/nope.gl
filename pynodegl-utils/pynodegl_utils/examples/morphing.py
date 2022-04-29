@@ -7,7 +7,7 @@ import pynodegl as ngl
 
 
 @scene(square_color=scene.Color(), circle_color=scene.Color())
-def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0, 1.0, 1.0)):
+def square2circle(cfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0, 1.0, 1.0)):
     """Morphing of a square (composed of many vertices) into a circle"""
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
@@ -62,9 +62,9 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3, 1.0), circle_color=(1.0, 1.0
     vertices = ngl.AnimatedBufferVec3(vertices_animkf)
 
     color_animkf = [
-        ngl.AnimKeyFrameVec3(0, square_color[:3]),
-        ngl.AnimKeyFrameVec3(cfg.duration / 2.0, circle_color[:3], interp),
-        ngl.AnimKeyFrameVec3(cfg.duration, square_color[:3], interp),
+        ngl.AnimKeyFrameVec3(0, square_color),
+        ngl.AnimKeyFrameVec3(cfg.duration / 2.0, circle_color, interp),
+        ngl.AnimKeyFrameVec3(cfg.duration, square_color, interp),
     ]
     ucolor = ngl.AnimatedVec3(color_animkf)
 

@@ -190,9 +190,9 @@ in the UI. For that, we can adjust the `@scene()` decorator and the
 
 ```python
 @scene(color=scene.Color())
-def test_demo(cfg, color=(1,0,0,1)):
+def test_demo(cfg, color=(1,0,0)):
     ...
-    ucolor = ngl.UniformVec4(value=color)
+    ucolor = ngl.UniformVec3(value=color)
     ...
 ```
 
@@ -238,7 +238,7 @@ The fragment shader ends up being:
 void main()
 {
     vec4 video = ngl_texvideo(tex0, var_tex0_coord);
-    ngl_out_color = mix(video, color, mixval);
+    ngl_out_color = mix(video, vec4(color, 1.0), mixval);
 }
 ```
 
@@ -259,7 +259,7 @@ Let's first reduce the time of the demo to make things a bit more interesting:
 
 ```python
 @scene(color=scene.Color())
-def test_demo(cfg, color=(1,0,0,1)):
+def test_demo(cfg, color=(1,0,0)):
     cfg.duration = 3.
     ...
 
@@ -299,13 +299,13 @@ _FRAGMENT = '''
 void main()
 {
     vec4 video = ngl_texvideo(tex0, var_tex0_coord);
-    ngl_out_color = mix(video, color, mixval);
+    ngl_out_color = mix(video, vec4(color, 1.0), mixval);
 }
 '''
 
 
 @scene(color=scene.Color())
-def test_demo(cfg, color=(1,0,0,1)):
+def test_demo(cfg, color=(1,0,0)):
     cfg.duration = 3.
 
     # Render branch for my video
@@ -321,7 +321,7 @@ def test_demo(cfg, color=(1,0,0,1)):
     mixval_animkf = [ngl.AnimKeyFrameFloat(0, 0),
                      ngl.AnimKeyFrameFloat(cfg.duration, 1)]
     mixval_anim = ngl.AnimatedFloat(mixval_animkf)
-    ucolor = ngl.UniformVec4(color)
+    ucolor = ngl.UniformVec3(color)
     render.update_frag_resources(color=ucolor, mixval=mixval_anim)
 
     # Translation
