@@ -572,10 +572,10 @@ static const int * const param_type_to_nodes[] = {
         -1
     },
     [NGLI_PARAM_TYPE_MAT4] = (const int[]){
+        NGL_NODE_ANIMATEDQUAT,
         NGL_NODE_STREAMEDMAT4,
         NGL_NODE_UNIFORMMAT4,
         NGL_NODE_UNIFORMQUAT,
-        NGL_NODE_ANIMATEDQUAT,
         -1
     },
     [NGLI_PARAM_TYPE_RATIONAL] = (const int[]){
@@ -613,25 +613,25 @@ static const int * const param_type_to_nodes[] = {
         -1
     },
     [NGLI_PARAM_TYPE_VEC3] = (const int[]){
+        NGL_NODE_ANIMATEDPATH,
         NGL_NODE_ANIMATEDVEC3,
         NGL_NODE_EVALVEC3,
         NGL_NODE_NOISEVEC3,
         NGL_NODE_STREAMEDVEC3,
+        NGL_NODE_UNIFORMCOLOR,
         NGL_NODE_UNIFORMVEC3,
         NGL_NODE_VELOCITYVEC3,
-        NGL_NODE_UNIFORMCOLOR,
-        NGL_NODE_ANIMATEDPATH,
         -1
     },
     [NGLI_PARAM_TYPE_VEC4] = (const int[]){
+        NGL_NODE_ANIMATEDQUAT,
         NGL_NODE_ANIMATEDVEC4,
         NGL_NODE_EVALVEC4,
         NGL_NODE_NOISEVEC4,
         NGL_NODE_STREAMEDVEC4,
+        NGL_NODE_UNIFORMQUAT,
         NGL_NODE_UNIFORMVEC4,
         NGL_NODE_VELOCITYVEC4,
-        NGL_NODE_UNIFORMQUAT,
-        NGL_NODE_ANIMATEDQUAT,
         -1
     },
 };
