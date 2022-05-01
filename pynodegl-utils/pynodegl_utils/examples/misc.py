@@ -65,11 +65,11 @@ def buffer_dove(cfg, bgcolor1=(0.6, 0, 0), bgcolor2=(0.8, 0.8, 0), bilinear_filt
 
     shape_bg = ngl.Circle(radius=0.6, npoints=256)
     color_animkf = [
-        ngl.AnimKeyFrameVec3(0, bgcolor1),
-        ngl.AnimKeyFrameVec3(cfg.duration / 2.0, bgcolor2),
-        ngl.AnimKeyFrameVec3(cfg.duration, bgcolor1),
+        ngl.AnimKeyFrameColor(0, bgcolor1),
+        ngl.AnimKeyFrameColor(cfg.duration / 2.0, bgcolor2),
+        ngl.AnimKeyFrameColor(cfg.duration, bgcolor1),
     ]
-    ucolor = ngl.AnimatedVec3(color_animkf)
+    ucolor = ngl.AnimatedColor(color_animkf)
     render_bg = ngl.RenderColor(ucolor, geometry=shape_bg, label="background")
 
     return ngl.Group(children=(render_bg, render))

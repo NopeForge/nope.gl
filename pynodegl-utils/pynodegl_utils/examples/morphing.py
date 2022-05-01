@@ -62,11 +62,11 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0, 1.0, 1.0
     vertices = ngl.AnimatedBufferVec3(vertices_animkf)
 
     color_animkf = [
-        ngl.AnimKeyFrameVec3(0, square_color),
-        ngl.AnimKeyFrameVec3(cfg.duration / 2.0, circle_color, interp),
-        ngl.AnimKeyFrameVec3(cfg.duration, square_color, interp),
+        ngl.AnimKeyFrameColor(0, square_color),
+        ngl.AnimKeyFrameColor(cfg.duration / 2.0, circle_color, interp),
+        ngl.AnimKeyFrameColor(cfg.duration, square_color, interp),
     ]
-    ucolor = ngl.AnimatedVec3(color_animkf)
+    ucolor = ngl.AnimatedColor(color_animkf)
 
     geom = ngl.Geometry(vertices, indices=ngl.BufferUShort(data=indices))
     p = ngl.Program(vertex=cfg.get_vert("color"), fragment=cfg.get_frag("color"))
