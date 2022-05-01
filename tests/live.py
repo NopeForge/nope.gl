@@ -185,9 +185,9 @@ def _get_live_trf_spec(layout):
     ]
 
 
-def _get_live_function(spec, field_id, layout):
+def _get_live_function(spec, category, field_type, layout):
 
-    fields = match_fields(spec, field_id)
+    fields = match_fields(spec, category, field_type)
     assert len(fields) == 1
     field = fields[0]
     data_src = field["livechange"]
@@ -198,7 +198,7 @@ def _get_live_function(spec, field_id, layout):
             field["node"].set_value(*v)
 
     @test_cuepoints(
-        points=get_data_debug_positions(spec, field_id),
+        points=get_data_debug_positions(spec, category, field_type),
         nb_keyframes=len(data_src) + 1,
         keyframes_callback=keyframes_callback,
         tolerance=1,
@@ -208,14 +208,14 @@ def _get_live_function(spec, field_id, layout):
     @scene(seed=scene.Range(range=[0, 100]), debug_positions=scene.Bool(), color_tint=scene.Bool())
     def scene_func(cfg, seed=0, debug_positions=True, color_tint=False):
         cfg.duration = 0
-        return get_field_scene(cfg, spec, field_id, seed, debug_positions, layout, color_tint)
+        return get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint)
 
     return scene_func
 
 
-def _get_live_trf_function(spec, field_id, layout):
+def _get_live_trf_function(spec, category, field_type, layout):
 
-    fields = match_fields(spec, field_id)
+    fields = match_fields(spec, category, field_type)
     assert len(fields) == 1
     field = fields[0]
     livechange_funcs = field["livechange"]
@@ -224,7 +224,7 @@ def _get_live_trf_function(spec, field_id, layout):
         livechange_funcs[t_id]()
 
     @test_cuepoints(
-        points=get_data_debug_positions(spec, field_id),
+        points=get_data_debug_positions(spec, category, field_type),
         nb_keyframes=len(livechange_funcs),
         keyframes_callback=keyframes_callback,
         tolerance=1,
@@ -239,7 +239,7 @@ def _get_live_trf_function(spec, field_id, layout):
     )
     def scene_func(cfg, seed=0, debug_positions=True, color_tint=False, trf_step=0):
         cfg.duration = 0
-        s = get_field_scene(cfg, spec, field_id, seed, debug_positions, layout, color_tint)
+        s = get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint)
         for i in range(trf_step):
             keyframes_callback(i)
         return s
@@ -251,13 +251,15 @@ def _bootstrap():
     for layout in LAYOUTS:
         spec = _get_live_spec(layout)
         for field_info in spec:
-            field_id = "{category}_{type}".format(**field_info)
-            globals()[f"live_{field_id}_{layout}"] = _get_live_function(spec, field_id, layout)
+            category, field_type = field_info["category"], field_info["type"]
+            func_name = f"live_{category}_{field_type}_{layout}"
+            globals()[func_name] = _get_live_function(spec, category, field_type, layout)
 
         spec = _get_live_trf_spec(layout)
         for field_info in spec:
-            field_id = "{category}_{type}".format(**field_info)
-            globals()[f"live_trf_{field_id}_{layout}"] = _get_live_trf_function(spec, field_id, layout)
+            category, field_type = field_info["category"], field_info["type"]
+            func_name = f"live_trf_{category}_{field_type}_{layout}"
+            globals()[func_name] = _get_live_trf_function(spec, category, field_type, layout)
 
 
 _bootstrap()

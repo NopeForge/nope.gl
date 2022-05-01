@@ -205,8 +205,8 @@ def _get_debug_positions_from_fields(fields):
     return debug_points
 
 
-def get_data_debug_positions(spec, field_id):
-    fields = match_fields(spec, field_id)
+def get_data_debug_positions(spec, category, field_type):
+    fields = match_fields(spec, category, field_type)
     return _get_debug_positions_from_fields(fields)
 
 
@@ -252,13 +252,9 @@ def _get_render(cfg, fields, block_fields, color_fields, layout, debug_positions
     return render
 
 
-def match_fields(fields, target_field_id):
-    ret = []
-    for field_info in fields:
-        field_id = "{category}_{type}".format(**field_info)
-        if field_id == target_field_id:
-            ret.append(field_info)
-    return ret
+def match_fields(fields, category, field_type):
+    target = (category, field_type)
+    return [f for f in fields if (f["category"], f["type"]) == target]
 
 
 def gen_floats(n):
@@ -357,10 +353,10 @@ def _get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
     return fields_info, block_fields, color_fields
 
 
-def get_field_scene(cfg, spec, field_id, seed, debug_positions, layout, color_tint):
+def get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint):
     cfg.aspect_ratio = (1, 1)
     fields_info, block_fields, color_fields = _get_random_block_info(spec, seed, layout, color_tint=color_tint)
-    fields = match_fields(fields_info, field_id)
+    fields = match_fields(fields_info, category, field_type)
     render = _get_render(
         cfg,
         fields,

@@ -125,17 +125,20 @@ def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_coun
     return spec
 
 
-def _get_data_function(field_id, layout):
-    nb_keyframes = 5 if "animated" in field_id else 1
+def _get_data_function(category, field_type, layout):
+    nb_keyframes = 5 if "animated" in category else 1
     spec = _get_data_spec(layout)
 
     @test_cuepoints(
-        points=get_data_debug_positions(spec, field_id), nb_keyframes=nb_keyframes, tolerance=1, debug_positions=False
+        points=get_data_debug_positions(spec, category, field_type),
+        nb_keyframes=nb_keyframes,
+        tolerance=1,
+        debug_positions=False,
     )
     @scene(seed=scene.Range(range=[0, 100]), debug_positions=scene.Bool(), color_tint=scene.Bool())
     def scene_func(cfg, seed=0, debug_positions=True, color_tint=False):
         cfg.duration = ANIM_DURATION
-        return get_field_scene(cfg, spec, field_id, seed, debug_positions, layout, color_tint)
+        return get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint)
 
     return scene_func
 
@@ -143,8 +146,8 @@ def _get_data_function(field_id, layout):
 for layout in {"std140", "std430", "uniform"}:
     spec = _get_data_spec(layout, i_count=1, f_count=1, v2_count=1, v3_count=1, v4_count=1, mat_count=1)
     for field_info in spec:
-        field_id = "{category}_{type}".format(**field_info)
-        globals()[f"data_{field_id}_{layout}"] = _get_data_function(field_id, layout)
+        category, field_type = field_info["category"], field_info["type"]
+        globals()[f"data_{category}_{field_type}_{layout}"] = _get_data_function(category, field_type, layout)
 
 
 _RENDER_STREAMEDBUFFER_VERT = """
