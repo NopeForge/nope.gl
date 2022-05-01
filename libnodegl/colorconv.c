@@ -19,6 +19,9 @@
  * under the License.
  */
 
+#include <math.h>
+#include <string.h>
+
 #include "log.h"
 #include "colorconv.h"
 
@@ -149,4 +152,71 @@ int ngli_colorconv_get_ycbcr_to_rgb_color_matrix(float *dst, const struct color_
     dst[15 /* A */] = 1;
 
     return 0;
+}
+
+static inline float linear2srgb(float x)
+{
+    return x < 0.0031308f ? x * 12.92f : powf(1.055f * x, 1.f/2.4f) - 0.055f;
+}
+
+static inline float srgb2linear(float x)
+{
+    return x < 0.04045f ? x / 12.92f : powf((x + .055f) / 1.055f, 2.4f);
+}
+
+void ngli_colorconv_srgb2linear(float *dst, const float *srgb)
+{
+    const float rgb[3] = {srgb2linear(srgb[0]), srgb2linear(srgb[1]), srgb2linear(srgb[2])};
+    memcpy(dst, rgb, sizeof(rgb));
+}
+
+void ngli_colorconv_linear2srgb(float *dst, const float *rgb)
+{
+    const float srgb[3] = {linear2srgb(rgb[0]), linear2srgb(rgb[1]), linear2srgb(rgb[2])};
+    memcpy(dst, srgb, sizeof(srgb));
+}
+
+static inline float sat(float x)
+{
+    return NGLI_CLAMP(x, 0.f, 1.f);
+}
+
+void ngli_colorconv_hsl2srgb(float *dst, const float *hsl)
+{
+    const float h = hsl[0], s = hsl[1], l = hsl[2];
+    const float h6 = h * 6.f;
+    const float c = (1.f - fabsf(2.f * l - 1.f)) * s;
+    dst[0] = (sat(fabsf(h6 - 3.f) - 1.f) - .5f) * c + l;
+    dst[1] = (sat(2.f - fabsf(h6 - 2.f)) - .5f) * c + l;
+    dst[2] = (sat(2.f - fabsf(h6 - 4.f)) - .5f) * c + l;
+}
+
+/*
+ * HSL is a polar form of an RGB coordinate, but it does not specify whether it
+ * is on linear RGB or gamma encoded sRGB. While it should be linear RGB, in
+ * practice it is always sRGB, so that's what we use here.
+ */
+void ngli_colorconv_hsl2linear(float *dst, const float *hsl)
+{
+    float srgb[3];
+    ngli_colorconv_hsl2srgb(srgb, hsl);
+    ngli_colorconv_srgb2linear(dst, srgb);
+}
+
+void ngli_colorconv_hsv2srgb(float *dst, const float *hsv)
+{
+    const float h = hsv[0], s = hsv[1], v = hsv[2];
+    const float h6 = h * 6.f;
+    const float c = v * s;
+    dst[0] = (sat(fabsf(h6 - 3.f) - 1.f) - 1.f) * c + v;
+    dst[1] = (sat(2.f - fabsf(h6 - 2.f)) - 1.f) * c + v;
+    dst[2] = (sat(2.f - fabsf(h6 - 4.f)) - 1.f) * c + v;
+}
+
+/* See HSL-to-linear comment */
+void ngli_colorconv_hsv2linear(float *dst, const float *hsv)
+{
+    float srgb[3];
+    ngli_colorconv_hsv2srgb(srgb, hsv);
+    ngli_colorconv_srgb2linear(dst, srgb);
 }

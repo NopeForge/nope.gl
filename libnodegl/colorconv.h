@@ -26,4 +26,13 @@
 
 int ngli_colorconv_get_ycbcr_to_rgb_color_matrix(float *dst, const struct color_info *info, float scale);
 
+void ngli_colorconv_srgb2linear(float *dst, const float *srgb);
+void ngli_colorconv_hsl2linear(float *dst, const float *hsl);
+void ngli_colorconv_hsv2linear(float *dst, const float *hsv);
+
+void ngli_colorconv_hsl2srgb(float *dst, const float *hsl);
+void ngli_colorconv_hsv2srgb(float *dst, const float *hsv);
+
+void ngli_colorconv_linear2srgb(float *dst, const float *rgb);
+
 #endif
