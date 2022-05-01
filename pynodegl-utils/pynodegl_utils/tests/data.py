@@ -321,18 +321,6 @@ FUNCS = dict(
 )
 
 
-def _get_field_decl(layout, f):
-    t = f["type"]
-    t = t.split("_")[1] if t.startswith("quat") else t
-    return "{}{:<5} {}{}{}".format(
-        "uniform " if layout == "uniform" else "",
-        t,
-        "field_" if layout == "uniform" else "",
-        f["name"],
-        "[%d]" % f["len"] if "len" in f else "",
-    )
-
-
 def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
     # Seed only defines the random for the position of the fields
     fields_pos = random.Random(seed).sample(range(len(spec)), len(spec))
@@ -341,14 +329,11 @@ def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
     clr_rng = random.Random(0)
 
     fields_info = []
-    max_id_len = 0
     for i, field_info in enumerate(spec):
         node = field_info["func"](field_info.get("data"))
         node.set_label(field_info["name"])
         field_info["node"] = node
-        field_info["decl"] = _get_field_decl(layout, field_info)
         field_info["pos"] = fields_pos.index(i)
-        max_id_len = max(len(field_info["decl"]), max_id_len)
         if color_tint:
             hue = clr_rng.uniform(0, 1)
             field_info["color"] = colorsys.hls_to_rgb(hue, 0.6, 1.0)
@@ -366,11 +351,4 @@ def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
         color_fields = ngl.Block(fields=[f for n, f in color_fields], layout=layout, label="colors_block")
         block_fields = ngl.Block(fields=[f for n, f in block_fields], layout=layout, label="fields_block")
 
-    pad = lambda s: (max_id_len - len(s)) * " "
-    block_definition = "\n".join("%s;%s // #%02d" % (f["decl"], pad(f["decl"]), i) for i, f in enumerate(shuf_fields))
-
-    color_prefix = "color_" if layout == "uniform" else ""
-    color_u = "uniform " if layout == "uniform" else ""
-    color_definition = "\n".join(color_u + "vec3 %s;" % (color_prefix + f["name"]) for f in fields_info)
-
-    return fields_info, block_fields, color_fields, block_definition, color_definition
+    return fields_info, block_fields, color_fields

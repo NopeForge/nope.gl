@@ -134,9 +134,7 @@ def _data_scene(cfg, spec, field_id, seed, layout, debug_positions, color_tint):
     cfg.duration = ANIM_DURATION
     cfg.aspect_ratio = (1, 1)
 
-    fields_info, block_fields, color_fields, block_definition, color_definition = get_random_block_info(
-        spec, seed, layout, color_tint=color_tint
-    )
+    fields_info, block_fields, color_fields = get_random_block_info(spec, seed, layout, color_tint=color_tint)
     fields = match_fields(fields_info, field_id)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     render = get_render(
