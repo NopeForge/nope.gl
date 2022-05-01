@@ -24,7 +24,6 @@ import textwrap
 from pynodegl_utils.misc import scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.data import (
-    FUNCS,
     LAYOUTS,
     gen_floats,
     gen_ints,
@@ -136,9 +135,6 @@ def _get_live_spec(layout):
         dict(name="qv", type="quat_vec4", category="single", livechange=livechange_quat),
     ]
     # fmt: on
-
-    for item in spec:
-        item["func"] = FUNCS["{category}_{type}".format(**item)]
 
     return spec
 

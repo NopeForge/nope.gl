@@ -280,7 +280,7 @@ def _get_anim_kf(key_cls, data):
     ]
 
 
-FUNCS = dict(
+_FUNCS = dict(
     # fmt: off
     animated_float=       lambda data: ngl.AnimatedFloat(keyframes=_get_anim_kf(ngl.AnimKeyFrameFloat, data)),
     animated_vec2=        lambda data: ngl.AnimatedVec2(keyframes=_get_anim_kf(ngl.AnimKeyFrameVec2, data)),
@@ -330,7 +330,10 @@ def _get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
 
     fields_info = []
     for i, field_info in enumerate(spec):
-        node = field_info["func"](field_info.get("data"))
+        create_func = field_info.get("func")
+        if create_func is None:
+            create_func = _FUNCS["{category}_{type}".format(**field_info)]
+        node = create_func(field_info.get("data"))
         node.set_label(field_info["name"])
         field_info["node"] = node
         if color_tint:

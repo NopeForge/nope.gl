@@ -27,7 +27,6 @@ from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.tests.data import (
     ANIM_DURATION,
-    FUNCS,
     LAYOUTS,
     gen_floats,
     gen_ints,
@@ -122,9 +121,6 @@ def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_coun
             dict(name="ab_v4",  type="vec4",       category="animated_buffer", data=v4_array,   len=v4_count),
         ]
     # fmt: on
-
-    for item in spec:
-        item["func"] = FUNCS["{category}_{type}".format(**item)]
 
     return spec
 
