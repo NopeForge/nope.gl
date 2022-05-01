@@ -272,6 +272,25 @@ _FUNCS = dict(
 
 
 def get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint):
+    """
+    Build a scene testing that a given data has been properly uploaded to the
+    GPU memory.
+
+    - `spec` contains all the fields that should also be declared (either in a
+      block or as uniforms). All the fields are shuffled such that the field we
+      are testing is always in a random position. This makes sure that we get
+      the data alignment right.
+    - `category` and `field_type` are filters in the spec to select the
+      field(s) from which we want to read the data
+    - `seed` is used to control the fields shuffling
+    - `debug_positions` controls whether there are debug circles in the scene
+      in order to make sure we are reading back the data colors at the
+      appropriate position
+    - `layout` controls the block layout or whether we are working with uniforms
+    - `color_tint` is a debug helper to give a different color for each field
+      (because if they have the same data, it is hard to indiscriminate them).
+    """
+
     cfg.aspect_ratio = (1, 1)
 
     # Seed only defines the random for the position of the fields
