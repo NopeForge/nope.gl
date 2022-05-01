@@ -205,48 +205,6 @@ def get_data_debug_positions(fields):
     return debug_points
 
 
-def _get_render(cfg, fields, block_fields, color_fields, layout, debug_positions=False):
-    func_calls = []
-    func_definitions = []
-    for i, field in enumerate(fields):
-        field_len = field.get("len")
-        func_calls.append("get_color_{}(w, h, 0.0, {:f} * h)".format(field["name"], i))
-        func_definitions.append(_get_display_glsl_func(layout, field["name"], field["type"], field_len=field_len))
-
-    frag_data = dict(
-        func_definitions="\n".join(func_definitions),
-        func_calls=" + ".join(func_calls),
-    )
-
-    fragment = _FIELDS_FRAG % frag_data
-    vertex = _FIELDS_VERT
-
-    program = ngl.Program(vertex=vertex, fragment=fragment)
-    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = ngl.Render(quad, program)
-
-    if isinstance(color_fields, dict):
-        assert isinstance(block_fields, dict)
-        field_names = {f["name"] for f in fields}
-        d = {}
-        d.update(("color_" + n, u) for (n, u) in color_fields.items() if n in field_names)
-        d.update(("field_" + n, u) for (n, u) in block_fields.items() if n in field_names)
-        render.update_frag_resources(**d)
-    else:
-        render.update_frag_resources(fields=block_fields, colors=color_fields)
-
-    render.update_frag_resources(nb_fields=ngl.UniformInt(len(fields)))
-
-    if debug_positions:
-        debug_points = get_data_debug_positions(fields)
-        dbg_circles = get_debug_points(cfg, debug_points, text_size=(0.2, 0.1))
-        g = ngl.Group(children=(render, dbg_circles))
-        return g
-
-    return render
-
-
 def match_fields(fields, category, field_type):
     target = (category, field_type)
     return [f for f in fields if (f["category"], f["type"]) == target]
@@ -313,7 +271,9 @@ _FUNCS = dict(
 )
 
 
-def _get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
+def get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint):
+    cfg.aspect_ratio = (1, 1)
+
     # Seed only defines the random for the position of the fields
     fields_pos = random.Random(seed).sample(range(len(spec)), len(spec))
 
@@ -345,19 +305,44 @@ def _get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
         color_fields = ngl.Block(fields=[f for n, f in color_fields], layout=layout, label="colors_block")
         block_fields = ngl.Block(fields=[f for n, f in block_fields], layout=layout, label="fields_block")
 
-    return fields_info, block_fields, color_fields
-
-
-def get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint):
-    cfg.aspect_ratio = (1, 1)
-    fields_info, block_fields, color_fields = _get_random_block_info(spec, seed, layout, color_tint=color_tint)
     fields = match_fields(fields_info, category, field_type)
-    render = _get_render(
-        cfg,
-        fields,
-        block_fields,
-        color_fields,
-        layout,
-        debug_positions=debug_positions,
+
+    func_calls = []
+    func_definitions = []
+    for i, field in enumerate(fields):
+        field_len = field.get("len")
+        func_calls.append("get_color_{}(w, h, 0.0, {:f} * h)".format(field["name"], i))
+        func_definitions.append(_get_display_glsl_func(layout, field["name"], field["type"], field_len=field_len))
+
+    frag_data = dict(
+        func_definitions="\n".join(func_definitions),
+        func_calls=" + ".join(func_calls),
     )
+
+    fragment = _FIELDS_FRAG % frag_data
+    vertex = _FIELDS_VERT
+
+    program = ngl.Program(vertex=vertex, fragment=fragment)
+    program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render = ngl.Render(quad, program)
+
+    if isinstance(color_fields, dict):
+        assert isinstance(block_fields, dict)
+        field_names = {f["name"] for f in fields}
+        d = {}
+        d.update(("color_" + n, u) for (n, u) in color_fields.items() if n in field_names)
+        d.update(("field_" + n, u) for (n, u) in block_fields.items() if n in field_names)
+        render.update_frag_resources(**d)
+    else:
+        render.update_frag_resources(fields=block_fields, colors=color_fields)
+
+    render.update_frag_resources(nb_fields=ngl.UniformInt(len(fields)))
+
+    if debug_positions:
+        debug_points = get_data_debug_positions(fields)
+        dbg_circles = get_debug_points(cfg, debug_points, text_size=(0.2, 0.1))
+        g = ngl.Group(children=(render, dbg_circles))
+        return g
+
     return render
