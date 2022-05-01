@@ -23,6 +23,13 @@
 #define COLORCONV_H
 
 #include "image.h"
+#include "params.h"
+
+#define NGLI_COLORCONV_SPACE_SRGB   0
+#define NGLI_COLORCONV_SPACE_HSL    1
+#define NGLI_COLORCONV_SPACE_HSV    2
+
+extern const struct param_choices ngli_colorconv_colorspace_choices;
 
 int ngli_colorconv_get_ycbcr_to_rgb_color_matrix(float *dst, const struct color_info *info, float scale);
 

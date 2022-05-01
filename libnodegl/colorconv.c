@@ -154,6 +154,16 @@ int ngli_colorconv_get_ycbcr_to_rgb_color_matrix(float *dst, const struct color_
     return 0;
 }
 
+const struct param_choices ngli_colorconv_colorspace_choices = {
+    .name = "colorspace",
+    .consts = {
+        {"srgb",  NGLI_COLORCONV_SPACE_SRGB,  .desc=NGLI_DOCSTRING("sRGB (standard RGB)")},
+        {"hsl",   NGLI_COLORCONV_SPACE_HSL,   .desc=NGLI_DOCSTRING("Hue/Saturation/Lightness (polar form of sRGB)")},
+        {"hsv",   NGLI_COLORCONV_SPACE_HSV,   .desc=NGLI_DOCSTRING("Hue/Saturation/Value (polar form of sRGB)")},
+        {NULL}
+    }
+};
+
 static inline float linear2srgb(float x)
 {
     return x < 0.0031308f ? x * 12.92f : powf(1.055f * x, 1.f/2.4f) - 0.055f;

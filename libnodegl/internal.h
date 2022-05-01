@@ -218,6 +218,7 @@ struct variable_opts {
         struct ngl_node *path_node; /* AnimatedPath only */
         struct ngl_node *transform; /* UniformMat4 only */
         int as_mat4; /* UniformQuat and AnimatedQuat only */
+        int space; /* UniformColor and AnimatedColor only */
     };
 };
 

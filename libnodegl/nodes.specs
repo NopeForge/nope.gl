@@ -801,6 +801,7 @@ UniformColor:
     - [live_id, str, ""]
     - [live_min, vec3, ""]
     - [live_max, vec3, ""]
+    - [space, select, ""]
 
 UniformQuat:
     - [value, vec4, "L"]

@@ -1519,6 +1519,7 @@ Parameter | Flags | Type | Description | Default
 `live_id` |  | [`str`](#parameter-types) | live control identifier | 
 `live_min` |  | [`vec3`](#parameter-types) | minimum value allowed during live change (only honored when live_id is set) | (`0`,`0`,`0`)
 `live_max` |  | [`vec3`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`,`1`)
+`space` |  | [`colorspace`](#colorspace-choices) | color space defining how to interpret `value` | `srgb`
 
 
 **Source**: [node_uniform.c](/libnodegl/node_uniform.c)
@@ -1937,3 +1938,11 @@ Constant | Description
 `clamp_to_edge` | clamp to edge wrapping
 `mirrored_repeat` | mirrored repeat wrapping
 `repeat` | repeat pattern wrapping
+
+## colorspace choices
+
+Constant | Description
+-------- | -----------
+`srgb` | sRGB (standard RGB)
+`hsl` | Hue/Saturation/Lightness (polar form of sRGB)
+`hsv` | Hue/Saturation/Value (polar form of sRGB)

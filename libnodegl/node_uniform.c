@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "colorconv.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
@@ -124,6 +125,21 @@ static int uniformquat_update_func(struct ngl_node *node)
     memcpy(s->vector, o->live.val.f, s->var.data_size);
     if (o->as_mat4)
         ngli_mat4_rotate_from_quat(s->matrix, s->vector, NULL);
+    return 0;
+}
+
+static int uniformcolor_update_func(struct ngl_node *node)
+{
+    struct uniform_priv *s = node->priv_data;
+    const struct variable_opts *o = node->opts;
+    live_boundaries_clamp_vec3(node);
+    switch (o->space) {
+    case NGLI_COLORCONV_SPACE_SRGB:  memcpy(s->var.data, o->live.val.f, s->var.data_size);  break;
+    case NGLI_COLORCONV_SPACE_HSL:   ngli_colorconv_hsl2srgb(s->var.data, o->live.val.f);   break;
+    case NGLI_COLORCONV_SPACE_HSV:   ngli_colorconv_hsv2srgb(s->var.data, o->live.val.f);   break;
+    default:
+        ngli_assert(0);
+    }
     return 0;
 }
 
@@ -310,7 +326,7 @@ static const struct node_param uniformuivec4_params[] = {
 static const struct node_param uniformcolor_params[] = {
     {"value",    NGLI_PARAM_TYPE_VEC3, OFFSET(live.val.f),
                  .flags=NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE,
-                 .update_func=uniformvec4_update_func,
+                 .update_func=uniformcolor_update_func,
                  .desc=NGLI_DOCSTRING("value exposed to the shader")},
     {"live_id",  NGLI_PARAM_TYPE_STR, OFFSET(live.id),
                  .desc=NGLI_DOCSTRING("live control identifier")},
@@ -318,6 +334,9 @@ static const struct node_param uniformcolor_params[] = {
                  .desc=NGLI_DOCSTRING("minimum value allowed during live change (only honored when live_id is set)")},
     {"live_max", NGLI_PARAM_TYPE_VEC3, OFFSET(live.max.f), {.vec={1.f, 1.f, 1.f}},
                  .desc=NGLI_DOCSTRING("maximum value allowed during live change (only honored when live_id is set)")},
+    {"space",    NGLI_PARAM_TYPE_SELECT, OFFSET(space), {.i32=NGLI_COLORCONV_SPACE_SRGB},
+                 .choices=&ngli_colorconv_colorspace_choices,
+                 .desc=NGLI_DOCSTRING("color space defining how to interpret `value`")},
     {NULL}
 };
 
@@ -403,7 +422,6 @@ DECLARE_INIT_FUNC(float,  NGLI_TYPE_FLOAT,  1, s->vector,  o->live.val.f)
 DECLARE_INIT_FUNC(vec2,   NGLI_TYPE_VEC2,   2, s->vector,  o->live.val.f)
 DECLARE_INIT_FUNC(vec3,   NGLI_TYPE_VEC3,   3, s->vector,  o->live.val.f)
 DECLARE_INIT_FUNC(vec4,   NGLI_TYPE_VEC4,   4, s->vector,  o->live.val.f)
-DECLARE_INIT_FUNC(color,  NGLI_TYPE_VEC3,   3, s->vector,  o->live.val.f)
 
 static int uniformquat_init(struct ngl_node *node)
 {
@@ -444,6 +462,15 @@ static int uniformmat4_init(struct ngl_node *node)
     s->var.dynamic = !!o->transform;
     memcpy(s->var.data, o->live.val.m, s->var.data_size);
     return 0;
+}
+
+static int uniformcolor_init(struct ngl_node *node)
+{
+    struct uniform_priv *s = node->priv_data;
+    s->var.data = s->vector;
+    s->var.data_size = 3 * sizeof(*s->vector);
+    s->var.data_type = NGLI_TYPE_VEC3;
+    return uniformcolor_update_func(node);
 }
 
 #define DEFINE_UNIFORM_CLASS(class_id, class_name, type)        \
