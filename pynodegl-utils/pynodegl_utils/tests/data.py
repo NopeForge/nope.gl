@@ -101,6 +101,7 @@ _TYPE_SPEC = dict(
     uvec4=    (1, 4, 1. / 255.),
     quat_mat4=(4, 4, None),
     quat_vec4=(1, 4, None),
+    color=    (1, 3, None),
     # fmt: on
 )
 

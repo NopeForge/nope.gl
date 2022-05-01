@@ -136,6 +136,16 @@ def _get_live_spec(layout):
     ]
     # fmt: on
 
+    spec.append(
+        dict(
+            name="c",
+            type="color",
+            func=lambda data: ngl.UniformColor(data, space="hsl"),
+            category="single",
+            livechange=livechange_v3,
+        ),
+    )
+
     return spec
 
 

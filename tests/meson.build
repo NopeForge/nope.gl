@@ -96,6 +96,15 @@ foreach backend : backends
     'lighten',
   ]
 
+  tests_color = [
+    'anim_srgb',
+    'anim_hsl',
+    'anim_hsv',
+    'static_srgb',
+    'static_hsl',
+    'static_hsv',
+  ]
+
   tests_compositing = [
     'src_over',
     'dst_over',
@@ -212,6 +221,7 @@ foreach backend : backends
 
   live_names = [
     'single_bool',
+    'single_color',
     'single_float',
     'single_int',
     'single_mat4',
@@ -394,6 +404,7 @@ foreach backend : backends
     'api':           {'tests': tests_api, 'has_refs': false},
     'anim':          {'tests': tests_anim},
     'blending':      {'tests': tests_blending},
+    'color':         {'tests': tests_color},
     'compositing':   {'tests': tests_compositing},
     'compute':       {'tests': tests_compute},
     'data':          {'tests': tests_data},
