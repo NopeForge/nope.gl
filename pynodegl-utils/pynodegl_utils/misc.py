@@ -150,6 +150,10 @@ _MEDIA_PATHS = [
     for name in (
         "mire-hevc.mp4",
         "mire-h264.mp4",
+        "OpenMoji-1F342-Fallen_Leaf.png",
+        "OpenMoji-1F439-Hamster.png",
+        "Unsplash-Michael_Anfang-Rooster-cropped.jpg",
+        "Unsplash-Romane_Gautun-Red_Panda-cropped.jpg",
     )
 ]
 
