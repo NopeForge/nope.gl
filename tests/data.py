@@ -143,7 +143,7 @@ def _get_data_function(category, field_type, layout):
     return scene_func
 
 
-for layout in {"std140", "std430", "uniform"}:
+for layout in LAYOUTS:
     spec = _get_data_spec(layout, i_count=1, f_count=1, v2_count=1, v3_count=1, v4_count=1, mat_count=1)
     for field_info in spec:
         category, field_type = field_info["category"], field_info["type"]
