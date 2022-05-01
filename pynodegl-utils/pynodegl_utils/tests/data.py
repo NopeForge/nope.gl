@@ -210,7 +210,7 @@ def get_data_debug_positions(spec, field_id):
     return _get_debug_positions_from_fields(fields)
 
 
-def _get_render(cfg, quad, fields, block_fields, color_fields, layout, debug_positions=False):
+def _get_render(cfg, fields, block_fields, color_fields, layout, debug_positions=False):
     func_calls = []
     func_definitions = []
     for i, field in enumerate(fields):
@@ -228,6 +228,7 @@ def _get_render(cfg, quad, fields, block_fields, color_fields, layout, debug_pos
 
     program = ngl.Program(vertex=vertex, fragment=fragment)
     program.update_vert_out_vars(var_uvcoord=ngl.IOVec2())
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     render = ngl.Render(quad, program)
 
     if isinstance(color_fields, dict):
@@ -360,10 +361,8 @@ def get_field_scene(cfg, spec, field_id, seed, debug_positions, layout, color_ti
     cfg.aspect_ratio = (1, 1)
     fields_info, block_fields, color_fields = _get_random_block_info(spec, seed, layout, color_tint=color_tint)
     fields = match_fields(fields_info, field_id)
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     render = _get_render(
         cfg,
-        quad,
         fields,
         block_fields,
         color_fields,
