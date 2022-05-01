@@ -164,7 +164,7 @@ def _get_render_with_legend(
         text_group.add_children(text_node)
 
     quad = ngl.Quad((ax + aw / 2.0, ay, 0), (aw / 2.0, 0, 0), (0, ah - title_h, 0))
-    render = get_render(cfg, quad, fields, block_definition, color_definition, block_fields, color_fields, layout)
+    render = get_render(cfg, quad, fields, block_fields, color_fields, layout)
 
     return ngl.Group(children=(title_node, text_group, render))
 
@@ -221,8 +221,6 @@ def _data_scene(cfg, spec, field_id, seed, layout, debug_positions, color_tint):
         cfg,
         quad,
         fields,
-        block_definition,
-        color_definition,
         block_fields,
         color_fields,
         layout,

@@ -203,8 +203,6 @@ def _live_scene(cfg, spec, field_id, seed, layout, debug_positions, color_tint):
         cfg,
         quad,
         fields,
-        block_definition,
-        color_definition,
         block_fields,
         color_fields,
         layout,

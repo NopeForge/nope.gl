@@ -210,10 +210,7 @@ def get_data_debug_positions(spec, field_id):
     return _get_debug_positions_from_fields(fields)
 
 
-def get_render(
-    cfg, quad, fields, block_definition, color_definition, block_fields, color_fields, layout, debug_positions=False
-):
-
+def get_render(cfg, quad, fields, block_fields, color_fields, layout, debug_positions=False):
     func_calls = []
     func_definitions = []
     for i, field in enumerate(fields):
