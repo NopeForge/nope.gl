@@ -125,9 +125,8 @@ def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_coun
     return spec
 
 
-def _get_data_function(category, field_type, layout):
+def _get_data_function(spec, category, field_type, layout):
     nb_keyframes = 5 if "animated" in category else 1
-    spec = _get_data_spec(layout)
     fields = match_fields(spec, category, field_type)
 
     @test_cuepoints(
@@ -145,10 +144,10 @@ def _get_data_function(category, field_type, layout):
 
 
 for layout in LAYOUTS:
-    spec = _get_data_spec(layout, i_count=1, f_count=1, v2_count=1, v3_count=1, v4_count=1, mat_count=1)
-    for field_info in spec:
-        category, field_type = field_info["category"], field_info["type"]
-        globals()[f"data_{category}_{field_type}_{layout}"] = _get_data_function(category, field_type, layout)
+    spec = _get_data_spec(layout)
+    test_fields = set((f["category"], f["type"]) for f in spec)
+    for category, field_type in test_fields:
+        globals()[f"data_{category}_{field_type}_{layout}"] = _get_data_function(spec, category, field_type, layout)
 
 
 _RENDER_STREAMEDBUFFER_VERT = """
