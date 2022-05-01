@@ -515,11 +515,6 @@ def data_eval(cfg):
         """
     )
     program = ngl.Program(vertex=vert, fragment=frag)
-    program.update_vert_out_vars(
-        var_mat3=ngl.IOMat3(),
-        var_mat4=ngl.IOMat4(),
-        var_vec4=ngl.IOVec4(),
-    )
     geometry = ngl.Quad(corner=(-1, -1, 0), width=(2, 0, 0), height=(0, 2, 0))
     render = ngl.Render(geometry, program)
     render.update_frag_resources(color=color)
