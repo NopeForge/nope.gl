@@ -99,6 +99,7 @@ struct render_priv {
                                           NGL_NODE_ANIMATEDVEC3,    \
                                           NGL_NODE_ANIMATEDVEC4,    \
                                           NGL_NODE_ANIMATEDQUAT,    \
+                                          NGL_NODE_ANIMATEDCOLOR,   \
                                           NGL_NODE_STREAMEDINT,     \
                                           NGL_NODE_STREAMEDIVEC2,   \
                                           NGL_NODE_STREAMEDIVEC3,   \

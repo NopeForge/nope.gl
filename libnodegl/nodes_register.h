@@ -27,6 +27,7 @@
     action(NGL_NODE_ANIMATEDBUFFERVEC2,     ngli_animatedbuffervec2_class)      \
     action(NGL_NODE_ANIMATEDBUFFERVEC3,     ngli_animatedbuffervec3_class)      \
     action(NGL_NODE_ANIMATEDBUFFERVEC4,     ngli_animatedbuffervec4_class)      \
+    action(NGL_NODE_ANIMATEDCOLOR,          ngli_animatedcolor_class)           \
     action(NGL_NODE_ANIMATEDPATH,           ngli_animatedpath_class)            \
     action(NGL_NODE_ANIMATEDTIME,           ngli_animatedtime_class)            \
     action(NGL_NODE_ANIMATEDFLOAT,          ngli_animatedfloat_class)           \
@@ -39,6 +40,7 @@
     action(NGL_NODE_ANIMKEYFRAMEVEC3,       ngli_animkeyframevec3_class)        \
     action(NGL_NODE_ANIMKEYFRAMEVEC4,       ngli_animkeyframevec4_class)        \
     action(NGL_NODE_ANIMKEYFRAMEQUAT,       ngli_animkeyframequat_class)        \
+    action(NGL_NODE_ANIMKEYFRAMECOLOR,      ngli_animkeyframecolor_class)       \
     action(NGL_NODE_ANIMKEYFRAMEBUFFER,     ngli_animkeyframebuffer_class)      \
     action(NGL_NODE_BLOCK,                  ngli_block_class)                   \
     action(NGL_NODE_BUFFERBYTE,             ngli_bufferbyte_class)              \

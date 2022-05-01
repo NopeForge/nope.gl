@@ -23,6 +23,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "animation.h"
+#include "colorconv.h"
 #include "log.h"
 #include "math_utils.h"
 #include "nodegl.h"
@@ -86,6 +87,16 @@ static const struct node_param animatedpath_params[] = {
     {NULL}
 };
 
+static const struct node_param animatedcolor_params[] = {
+    {"keyframes", NGLI_PARAM_TYPE_NODELIST, OFFSET(animkf), .flags=NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
+                  .node_types=(const int[]){NGL_NODE_ANIMKEYFRAMECOLOR, -1},
+                  .desc=NGLI_DOCSTRING("color key frames to interpolate from")},
+    {"space",     NGLI_PARAM_TYPE_SELECT, OFFSET(space), {.i32=NGLI_COLORCONV_SPACE_SRGB},
+                  .choices=&ngli_colorconv_colorspace_choices,
+                  .desc=NGLI_DOCSTRING("color space defining how to interpret `value`")},
+    {NULL}
+};
+
 struct animated_priv {
     struct variable_info var;
     float vector[4];
@@ -144,6 +155,37 @@ static void mix_vector(void *user_arg, void *dst,
         dstf[i] = NGLI_MIX(kf0->value[i], kf1->value[i], ratio);
 }
 
+#define DECLARE_COLOR_MIX_FUNCS(space)                          \
+static void mix_##space(void *user_arg, void *dst,              \
+                        const struct animkeyframe_opts *kf0,    \
+                        const struct animkeyframe_opts *kf1,    \
+                        double ratio)                           \
+{                                                               \
+    float rgb0[3], rgb1[3];                                     \
+    ngli_colorconv_##space##2linear(rgb0, kf0->value);          \
+    ngli_colorconv_##space##2linear(rgb1, kf1->value);          \
+    const float mixed[3] = {                                    \
+        NGLI_MIX(rgb0[0], rgb1[0], ratio),                      \
+        NGLI_MIX(rgb0[1], rgb1[1], ratio),                      \
+        NGLI_MIX(rgb0[2], rgb1[2], ratio),                      \
+    };                                                          \
+    ngli_colorconv_linear2srgb(dst, mixed);                     \
+}                                                               \
+
+DECLARE_COLOR_MIX_FUNCS(srgb)
+DECLARE_COLOR_MIX_FUNCS(hsl)
+DECLARE_COLOR_MIX_FUNCS(hsv)
+
+#define DECLARE_COLOR_CPY_FUNCS(space)                          \
+static void cpy_##space(void *user_arg, void *dst,              \
+                        const struct animkeyframe_opts *kf)     \
+{                                                               \
+    ngli_colorconv_##space##2srgb(dst, kf->value);              \
+}
+
+DECLARE_COLOR_CPY_FUNCS(hsl)
+DECLARE_COLOR_CPY_FUNCS(hsv)
+
 #define DECLARE_VEC_MIX_AND_CPY_FUNCS(len)                      \
 static void mix_vec##len(void *user_arg, void *dst,             \
                          const struct animkeyframe_opts *kf0,   \
@@ -183,7 +225,27 @@ static void cpy_scalar(void *user_arg, void *dst,
     *(float *)dst = kf->scalar;  // double → float
 }
 
-static ngli_animation_mix_func_type get_mix_func(int node_class)
+static ngli_animation_mix_func_type get_color_mix_func(int space)
+{
+    switch (space) {
+    case NGLI_COLORCONV_SPACE_SRGB:  return mix_srgb;
+    case NGLI_COLORCONV_SPACE_HSL:   return mix_hsl;
+    case NGLI_COLORCONV_SPACE_HSV:   return mix_hsv;
+    }
+    return NULL;
+}
+
+static ngli_animation_cpy_func_type get_color_cpy_func(int space)
+{
+    switch (space) {
+    case NGLI_COLORCONV_SPACE_SRGB:  return cpy_vec3;
+    case NGLI_COLORCONV_SPACE_HSL:   return cpy_hsl;
+    case NGLI_COLORCONV_SPACE_HSV:   return cpy_hsv;
+    }
+    return NULL;
+}
+
+static ngli_animation_mix_func_type get_mix_func(const struct variable_opts *o, int node_class)
 {
     switch (node_class) {
         case NGL_NODE_ANIMATEDTIME:  return mix_time;
@@ -193,11 +255,12 @@ static ngli_animation_mix_func_type get_mix_func(int node_class)
         case NGL_NODE_ANIMATEDVEC4:  return mix_vec4;
         case NGL_NODE_ANIMATEDQUAT:  return mix_quat;
         case NGL_NODE_ANIMATEDPATH:  return mix_path;
+        case NGL_NODE_ANIMATEDCOLOR: return get_color_mix_func(o->space);
     }
     return NULL;
 }
 
-static ngli_animation_cpy_func_type get_cpy_func(int node_class)
+static ngli_animation_cpy_func_type get_cpy_func(const struct variable_opts *o, int node_class)
 {
     switch (node_class) {
         case NGL_NODE_ANIMATEDTIME:  return cpy_time;
@@ -207,6 +270,7 @@ static ngli_animation_cpy_func_type get_cpy_func(int node_class)
         case NGL_NODE_ANIMATEDVEC4:  return cpy_vec4;
         case NGL_NODE_ANIMATEDQUAT:  return cpy_vec4;
         case NGL_NODE_ANIMATEDPATH:  return cpy_path;
+        case NGL_NODE_ANIMATEDCOLOR: return get_color_cpy_func(o->space);
     }
     return NULL;
 }
@@ -239,8 +303,8 @@ int ngl_anim_evaluate(struct ngl_node *node, void *dst, double t)
     if (!s->anim_eval.kfs) {
         int ret = ngli_animation_init(&s->anim_eval, s,
                                       o->animkf, o->nb_animkf,
-                                      get_mix_func(node->cls->id),
-                                      get_cpy_func(node->cls->id));
+                                      get_mix_func(o, node->cls->id),
+                                      get_cpy_func(o, node->cls->id));
         if (ret < 0)
             return ret;
     }
@@ -264,8 +328,8 @@ static int animation_init(struct ngl_node *node)
     s->var.dynamic = 1;
     return ngli_animation_init(&s->anim, node->opts,
                                o->animkf, o->nb_animkf,
-                               get_mix_func(node->cls->id),
-                               get_cpy_func(node->cls->id));
+                               get_mix_func(o, node->cls->id),
+                               get_cpy_func(o, node->cls->id));
 }
 
 #define DECLARE_INIT_FUNC(suffix, class_data, class_data_size, class_data_type) \
@@ -282,6 +346,7 @@ DECLARE_INIT_FUNC(float, s->vector,  1 * sizeof(*s->vector), NGLI_TYPE_FLOAT)
 DECLARE_INIT_FUNC(vec2,  s->vector,  2 * sizeof(*s->vector), NGLI_TYPE_VEC2)
 DECLARE_INIT_FUNC(vec3,  s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
 DECLARE_INIT_FUNC(vec4,  s->vector,  4 * sizeof(*s->vector), NGLI_TYPE_VEC4)
+DECLARE_INIT_FUNC(color, s->vector,  3 * sizeof(*s->vector), NGLI_TYPE_VEC3)
 
 static int animatedtime_init(struct ngl_node *node)
 {
@@ -348,6 +413,7 @@ static int animation_update(struct ngl_node *node, double t)
 #define animatedvec3_update  animation_update
 #define animatedvec4_update  animation_update
 #define animatedpath_update  animation_update
+#define animatedcolor_update animation_update
 
 static int animatedquat_update(struct ngl_node *node, double t)
 {
@@ -381,3 +447,4 @@ DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDVEC3,  "AnimatedVec3",  vec3)
 DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDVEC4,  "AnimatedVec4",  vec4)
 DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDQUAT,  "AnimatedQuat",  quat)
 DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDPATH,  "AnimatedPath",  path)
+DEFINE_ANIMATED_CLASS(NGL_NODE_ANIMATEDCOLOR, "AnimatedColor", color)

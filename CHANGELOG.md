@@ -13,6 +13,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 - External OpenGL context support
 - `ngl-diff` tool to visually compare videos
 - `UniformColor.space` colorspace configuration (sRGB, HSL, HSV)
+- `AnimatedColor` and `AnimKeyFrameColor` nodes
 
 ### Fixed
 - Various memory leaks

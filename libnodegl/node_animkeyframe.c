@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include "bstr.h"
+#include "colorconv.h"
 #include "log.h"
 #include "nodegl.h"
 #include "internal.h"
@@ -92,6 +93,7 @@ ANIMKEYFRAME_PARAMS(vec2,  value, NGLI_PARAM_TYPE_VEC2, value);
 ANIMKEYFRAME_PARAMS(vec3,  value, NGLI_PARAM_TYPE_VEC3, value);
 ANIMKEYFRAME_PARAMS(vec4,  value, NGLI_PARAM_TYPE_VEC4, value);
 ANIMKEYFRAME_PARAMS(quat,  quat,  NGLI_PARAM_TYPE_VEC4, value);
+ANIMKEYFRAME_PARAMS(color, color, NGLI_PARAM_TYPE_VEC3, value);
 ANIMKEYFRAME_PARAMS(buffer, data, NGLI_PARAM_TYPE_DATA, data);
 
 #define TRANSFORM_IN(f, x)     f(x, args_nb, args)
@@ -405,6 +407,10 @@ static int animkeyframe_init(struct ngl_node *node)
         LOG(VERBOSE, "%s of type %s starting at (%f,%f,%f,%f) for t=%f",
             node->cls->name, easing_name,
             o->value[0], o->value[1], o->value[2], o->value[3], o->time);
+    else if (node->cls->id == NGL_NODE_ANIMKEYFRAMECOLOR)
+        LOG(VERBOSE, "%s of type %s starting at (%f,%f,%f) for t=%f",
+            node->cls->name, easing_name,
+            o->value[0], o->value[1], o->value[2], o->time);
     else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEFLOAT)
         LOG(VERBOSE, "%s of type %s starting at %f for t=%f",
             node->cls->name, easing_name,
@@ -468,6 +474,8 @@ static char *animkeyframe_info_str(const struct ngl_node *node)
         ngli_bstr_printf(b, "with data size of %dB", o->data_size);
     } else if (node->cls->id == NGL_NODE_ANIMKEYFRAMEQUAT) {
         ngli_bstr_printf(b, "with quat=(%g,%g,%g,%g)", NGLI_ARG_VEC4(o->value));
+    } else if (node->cls->id == NGL_NODE_ANIMKEYFRAMECOLOR) {
+        ngli_bstr_printf(b, "with color=(%g,%g,%g)", NGLI_ARG_VEC3(o->value));
     } else {
         ngli_bstr_print(b, "with v=");
         const struct node_param *val_par = ngli_params_find(params, "value");
@@ -583,3 +591,4 @@ DECLARE_ANIMKF_CLASS(NGL_NODE_ANIMKEYFRAMEVEC3,   "AnimKeyFrameVec3",   vec3)
 DECLARE_ANIMKF_CLASS(NGL_NODE_ANIMKEYFRAMEVEC4,   "AnimKeyFrameVec4",   vec4)
 DECLARE_ANIMKF_CLASS(NGL_NODE_ANIMKEYFRAMEBUFFER, "AnimKeyFrameBuffer", buffer)
 DECLARE_ANIMKF_CLASS(NGL_NODE_ANIMKEYFRAMEQUAT,   "AnimKeyFrameQuat",   quat)
+DECLARE_ANIMKF_CLASS(NGL_NODE_ANIMKEYFRAMECOLOR,  "AnimKeyFrameColor",  color)

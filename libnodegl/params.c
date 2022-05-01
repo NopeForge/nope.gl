@@ -613,6 +613,7 @@ static const int * const param_type_to_nodes[] = {
         -1
     },
     [NGLI_PARAM_TYPE_VEC3] = (const int[]){
+        NGL_NODE_ANIMATEDCOLOR,
         NGL_NODE_ANIMATEDPATH,
         NGL_NODE_ANIMATEDVEC3,
         NGL_NODE_EVALVEC3,

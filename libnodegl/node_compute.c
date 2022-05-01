@@ -68,6 +68,7 @@ struct compute_priv {
                                           NGL_NODE_ANIMATEDVEC3,    \
                                           NGL_NODE_ANIMATEDVEC4,    \
                                           NGL_NODE_ANIMATEDQUAT,    \
+                                          NGL_NODE_ANIMATEDCOLOR,   \
                                           NGL_NODE_NOISEFLOAT,      \
                                           NGL_NODE_NOISEVEC2,       \
                                           NGL_NODE_NOISEVEC3,       \

@@ -12,6 +12,10 @@ AnimatedBufferVec3: _AnimatedBuffer
 
 AnimatedBufferVec4: _AnimatedBuffer
 
+AnimatedColor:
+    - [keyframes, node_list, ""]
+    - [space, select, ""]
+
 AnimatedPath:
     - [keyframes, node_list, ""]
     - [path, node, "M"]
@@ -70,6 +74,14 @@ AnimKeyFrameVec4:
 AnimKeyFrameQuat:
     - [time, f64, ""]
     - [quat, vec4, ""]
+    - [easing, select, ""]
+    - [easing_args, f64_list, ""]
+    - [easing_start_offset, f64, ""]
+    - [easing_end_offset, f64, ""]
+
+AnimKeyFrameColor:
+    - [time, f64, ""]
+    - [color, vec3, ""]
     - [easing, select, ""]
     - [easing_args, f64_list, ""]
     - [easing_start_offset, f64, ""]
