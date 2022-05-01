@@ -210,7 +210,7 @@ def get_data_debug_positions(spec, field_id):
     return _get_debug_positions_from_fields(fields)
 
 
-def get_render(cfg, quad, fields, block_fields, color_fields, layout, debug_positions=False):
+def _get_render(cfg, quad, fields, block_fields, color_fields, layout, debug_positions=False):
     func_calls = []
     func_definitions = []
     for i, field in enumerate(fields):
@@ -321,7 +321,7 @@ FUNCS = dict(
 )
 
 
-def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
+def _get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
     # Seed only defines the random for the position of the fields
     fields_pos = random.Random(seed).sample(range(len(spec)), len(spec))
 
@@ -351,3 +351,20 @@ def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
         block_fields = ngl.Block(fields=[f for n, f in block_fields], layout=layout, label="fields_block")
 
     return fields_info, block_fields, color_fields
+
+
+def get_field_scene(cfg, spec, field_id, seed, debug_positions, layout, color_tint):
+    cfg.aspect_ratio = (1, 1)
+    fields_info, block_fields, color_fields = _get_random_block_info(spec, seed, layout, color_tint=color_tint)
+    fields = match_fields(fields_info, field_id)
+    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    render = _get_render(
+        cfg,
+        quad,
+        fields,
+        block_fields,
+        color_fields,
+        layout,
+        debug_positions=debug_positions,
+    )
+    return render

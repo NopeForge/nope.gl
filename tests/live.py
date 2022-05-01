@@ -29,8 +29,7 @@ from pynodegl_utils.tests.data import (
     gen_floats,
     gen_ints,
     get_data_debug_positions,
-    get_random_block_info,
-    get_render,
+    get_field_scene,
     match_fields,
 )
 from pynodegl_utils.tests.debug import get_debug_points
@@ -190,25 +189,6 @@ def _get_live_trf_spec(layout):
     ]
 
 
-def _live_scene(cfg, spec, field_id, seed, layout, debug_positions, color_tint):
-
-    cfg.duration = 0
-    cfg.aspect_ratio = (1, 1)
-    fields_info, block_fields, color_fields = get_random_block_info(spec, seed, layout, color_tint=color_tint)
-    fields = match_fields(fields_info, field_id)
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = get_render(
-        cfg,
-        quad,
-        fields,
-        block_fields,
-        color_fields,
-        layout,
-        debug_positions=debug_positions,
-    )
-    return render
-
-
 def _get_live_function(spec, field_id, layout):
 
     fields = match_fields(spec, field_id)
@@ -231,7 +211,8 @@ def _get_live_function(spec, field_id, layout):
     )
     @scene(seed=scene.Range(range=[0, 100]), debug_positions=scene.Bool(), color_tint=scene.Bool())
     def scene_func(cfg, seed=0, debug_positions=True, color_tint=False):
-        return _live_scene(cfg, spec, field_id, seed, layout, debug_positions, color_tint)
+        cfg.duration = 0
+        return get_field_scene(cfg, spec, field_id, seed, debug_positions, layout, color_tint)
 
     return scene_func
 
@@ -261,7 +242,8 @@ def _get_live_trf_function(spec, field_id, layout):
         trf_step=scene.Range(range=[0, len(livechange_funcs)]),
     )
     def scene_func(cfg, seed=0, debug_positions=True, color_tint=False, trf_step=0):
-        s = _live_scene(cfg, spec, field_id, seed, layout, debug_positions, color_tint)
+        cfg.duration = 0
+        s = get_field_scene(cfg, spec, field_id, seed, debug_positions, layout, color_tint)
         for i in range(trf_step):
             keyframes_callback(i)
         return s

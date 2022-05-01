@@ -32,8 +32,7 @@ from pynodegl_utils.tests.data import (
     gen_floats,
     gen_ints,
     get_data_debug_positions,
-    get_random_block_info,
-    get_render,
+    get_field_scene,
     match_fields,
 )
 from pynodegl_utils.tests.debug import get_debug_points
@@ -130,25 +129,6 @@ def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_coun
     return spec
 
 
-def _data_scene(cfg, spec, field_id, seed, layout, debug_positions, color_tint):
-    cfg.duration = ANIM_DURATION
-    cfg.aspect_ratio = (1, 1)
-
-    fields_info, block_fields, color_fields = get_random_block_info(spec, seed, layout, color_tint=color_tint)
-    fields = match_fields(fields_info, field_id)
-    quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-    render = get_render(
-        cfg,
-        quad,
-        fields,
-        block_fields,
-        color_fields,
-        layout,
-        debug_positions=debug_positions,
-    )
-    return render
-
-
 def _get_data_function(field_id, layout):
     nb_keyframes = 5 if "animated" in field_id else 1
     spec = _get_data_spec(layout)
@@ -158,7 +138,8 @@ def _get_data_function(field_id, layout):
     )
     @scene(seed=scene.Range(range=[0, 100]), debug_positions=scene.Bool(), color_tint=scene.Bool())
     def scene_func(cfg, seed=0, debug_positions=True, color_tint=False):
-        return _data_scene(cfg, spec, field_id, seed, layout, debug_positions, color_tint)
+        cfg.duration = ANIM_DURATION
+        return get_field_scene(cfg, spec, field_id, seed, debug_positions, layout, color_tint)
 
     return scene_func
 
