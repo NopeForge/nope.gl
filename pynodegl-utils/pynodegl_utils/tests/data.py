@@ -333,7 +333,6 @@ def get_random_block_info(spec, seed=0, layout=LAYOUTS[0], color_tint=True):
         node = field_info["func"](field_info.get("data"))
         node.set_label(field_info["name"])
         field_info["node"] = node
-        field_info["pos"] = fields_pos.index(i)
         if color_tint:
             hue = clr_rng.uniform(0, 1)
             field_info["color"] = colorsys.hls_to_rgb(hue, 0.6, 1.0)
