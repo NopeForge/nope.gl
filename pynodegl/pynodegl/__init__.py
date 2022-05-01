@@ -22,6 +22,8 @@
 import os
 import platform
 
+__all__ = []
+
 if platform.system() == "Windows":
     ngl_dll_dirs = os.getenv("NGL_DLL_DIRS")
     if ngl_dll_dirs:
@@ -32,17 +34,8 @@ if platform.system() == "Windows":
 
 
 import _pynodegl as _ngl
-from _pynodegl import (
-    ConfigGL,
-    Context,
-    easing_derivate,
-    easing_evaluate,
-    easing_solve,
-    get_backends,
-    get_livectls,
-    log_set_min_level,
-    probe_backends,
-)
+
+from _pynodegl import _Node
 
 from .specs import SPECS
 
@@ -252,6 +245,7 @@ def _declare_class(class_name, params):
     # Create a new class for this type of node
     cls = type(class_name, (base_class,), attr)
     globals()[class_name] = cls
+    __all__.append(class_name)
 
     # Set various node methods dynamically
     _set_class_setters(cls)
@@ -277,11 +271,23 @@ def _declare_classes():
         _declare_class(class_name, params)
 
 
-def _declare_constants():
+def _declare_misc_symbols():
+    export_list = {
+        "ConfigGL",
+        "Context",
+        "easing_derivate",
+        "easing_evaluate",
+        "easing_solve",
+        "get_backends",
+        "get_livectls",
+        "log_set_min_level",
+        "probe_backends",
+    }
     for elem in dir(_ngl):
-        if elem.startswith(("PLATFORM_", "BACKEND_", "CAP_", "LOG_")):
+        if elem.startswith(("PLATFORM_", "BACKEND_", "CAP_", "LOG_")) or elem in export_list:
             globals()[elem] = getattr(_ngl, elem)
+            __all__.append(elem)
 
 
 _declare_classes()
-_declare_constants()
+_declare_misc_symbols()
