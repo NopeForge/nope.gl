@@ -87,7 +87,8 @@ class _CompareCuePoints(CompareSceneBase):
         for frame, (ref_cpoints, out_cpoints) in enumerate(zip(ref_data, out_data)):
             ref_keys = sorted(ref_cpoints.keys())
             out_keys = sorted(out_cpoints.keys())
-            assert ref_keys == out_keys
+            if ref_keys != out_keys:
+                return ["Mismatching key points"]
             for key in ref_keys:
                 refc = ref_cpoints[key]
                 outc = out_cpoints[key]
