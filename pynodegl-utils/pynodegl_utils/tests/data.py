@@ -163,7 +163,7 @@ def _get_debug_point(rect):
     return xpos, ypos
 
 
-def _get_debug_positions_from_fields(fields):
+def get_data_debug_positions(fields):
     debug_points = {}
     for i, field in enumerate(fields):
         array_len = field.get("len")
@@ -205,11 +205,6 @@ def _get_debug_positions_from_fields(fields):
     return debug_points
 
 
-def get_data_debug_positions(spec, category, field_type):
-    fields = match_fields(spec, category, field_type)
-    return _get_debug_positions_from_fields(fields)
-
-
 def _get_render(cfg, fields, block_fields, color_fields, layout, debug_positions=False):
     func_calls = []
     func_definitions = []
@@ -244,7 +239,7 @@ def _get_render(cfg, fields, block_fields, color_fields, layout, debug_positions
     render.update_frag_resources(nb_fields=ngl.UniformInt(len(fields)))
 
     if debug_positions:
-        debug_points = _get_debug_positions_from_fields(fields)
+        debug_points = get_data_debug_positions(fields)
         dbg_circles = get_debug_points(cfg, debug_points, text_size=(0.2, 0.1))
         g = ngl.Group(children=(render, dbg_circles))
         return g

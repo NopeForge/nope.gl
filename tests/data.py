@@ -128,9 +128,10 @@ def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_coun
 def _get_data_function(category, field_type, layout):
     nb_keyframes = 5 if "animated" in category else 1
     spec = _get_data_spec(layout)
+    fields = match_fields(spec, category, field_type)
 
     @test_cuepoints(
-        points=get_data_debug_positions(spec, category, field_type),
+        points=get_data_debug_positions(fields),
         nb_keyframes=nb_keyframes,
         tolerance=1,
         debug_positions=False,

@@ -198,7 +198,7 @@ def _get_live_function(spec, category, field_type, layout):
             field["node"].set_value(*v)
 
     @test_cuepoints(
-        points=get_data_debug_positions(spec, category, field_type),
+        points=get_data_debug_positions(fields),
         nb_keyframes=len(data_src) + 1,
         keyframes_callback=keyframes_callback,
         tolerance=1,
@@ -224,7 +224,7 @@ def _get_live_trf_function(spec, category, field_type, layout):
         livechange_funcs[t_id]()
 
     @test_cuepoints(
-        points=get_data_debug_positions(spec, category, field_type),
+        points=get_data_debug_positions(fields),
         nb_keyframes=len(livechange_funcs),
         keyframes_callback=keyframes_callback,
         tolerance=1,
