@@ -66,7 +66,7 @@ struct gpu_ctx_vk {
     struct darray rts;
     struct darray rts_load;
     struct buffer *capture_buffer;
-    int staging_buffer_size;
+    int capture_buffer_size;
     void *mapped_data;
 
     struct rendertarget *default_rt;

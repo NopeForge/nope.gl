@@ -251,15 +251,15 @@ static VkResult create_render_resources(struct gpu_ctx *s)
         if (!s_priv->capture_buffer)
             return VK_ERROR_OUT_OF_HOST_MEMORY;
 
-        s_priv->staging_buffer_size = s_priv->width * s_priv->height * ngli_format_get_bytes_per_pixel(color_format);
+        s_priv->capture_buffer_size = s_priv->width * s_priv->height * ngli_format_get_bytes_per_pixel(color_format);
         VkResult res = ngli_buffer_vk_init(s_priv->capture_buffer,
-                                           s_priv->staging_buffer_size,
+                                           s_priv->capture_buffer_size,
                                            NGLI_BUFFER_USAGE_MAP_READ |
                                            NGLI_BUFFER_USAGE_TRANSFER_DST_BIT);
         if (res != VK_SUCCESS)
             return res;
 
-        res = ngli_buffer_vk_map(s_priv->capture_buffer, s_priv->staging_buffer_size, 0, &s_priv->mapped_data);
+        res = ngli_buffer_vk_map(s_priv->capture_buffer, s_priv->capture_buffer_size, 0, &s_priv->mapped_data);
         if (res != VK_SUCCESS)
             return res;
     }
@@ -1114,7 +1114,7 @@ static int vk_end_draw(struct gpu_ctx *s, double t)
             if (res != VK_SUCCESS)
                 return ngli_vk_res2ret(res);
 
-            memcpy(config->capture_buffer, s_priv->mapped_data, s_priv->staging_buffer_size);
+            memcpy(config->capture_buffer, s_priv->mapped_data, s_priv->capture_buffer_size);
         } else {
             VkResult res = ngli_cmd_vk_submit(s_priv->cur_cmd);
             if (res != VK_SUCCESS)
