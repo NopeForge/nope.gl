@@ -84,6 +84,8 @@ struct vkcontext {
     /* Device functions */
     VK_DECLARE_FUNC(GetMemoryFdKHR);
     VK_DECLARE_FUNC(GetMemoryFdPropertiesKHR);
+    VK_DECLARE_FUNC(GetRefreshCycleDurationGOOGLE);
+    VK_DECLARE_FUNC(GetPastPresentationTimingGOOGLE);
 };
 
 struct vkcontext *ngli_vkcontext_create(void);

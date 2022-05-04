@@ -621,6 +621,7 @@ static VkResult create_device(struct vkcontext *s)
         VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
         VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,
         VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
+        VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME,
     };
 
     for (int i = 0; i < NGLI_ARRAY_NB(optional_device_extensions); i++) {
@@ -783,6 +784,14 @@ struct vk_extension {
         .functions = (const struct vk_function[]) {
             DECLARE_FUNC(GetMemoryFdKHR, 1),
             DECLARE_FUNC(GetMemoryFdPropertiesKHR, 1),
+            {0},
+        },
+    }, {
+        .name = VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME,
+        .device = 1,
+        .functions = (const struct vk_function[]) {
+            DECLARE_FUNC(GetRefreshCycleDurationGOOGLE, 1),
+            DECLARE_FUNC(GetPastPresentationTimingGOOGLE, 1),
             {0},
         },
     },
