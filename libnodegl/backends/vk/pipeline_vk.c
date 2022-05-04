@@ -209,17 +209,13 @@ static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline
     return VK_SUCCESS;
 }
 
-static VkResult pipeline_graphics_init(struct pipeline *s, const struct pipeline_params *params)
+static VkResult pipeline_graphics_init(struct pipeline *s)
 {
     const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     const struct pipeline_graphics *graphics = &s->graphics;
     const struct graphicstate *state = &graphics->state;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-
-    VkResult res = create_attribute_descs(s, params);
-    if (res != VK_SUCCESS)
-        return res;
 
     const VkPipelineVertexInputStateCreateInfo vertex_input_state_create_info = {
         .sType                           = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO,
@@ -336,7 +332,7 @@ static VkResult pipeline_graphics_init(struct pipeline *s, const struct pipeline
     };
 
     VkRenderPass render_pass;
-    res = ngli_vk_create_compatible_renderpass(s->gpu_ctx, &graphics->rt_desc, &render_pass);
+    VkResult res = ngli_vk_create_compatible_renderpass(s->gpu_ctx, &graphics->rt_desc, &render_pass);
     if (res != VK_SUCCESS)
         return res;
 
@@ -582,7 +578,11 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
         return res;
 
     if (params->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
-        res = pipeline_graphics_init(s, params);
+        res = create_attribute_descs(s, params);
+        if (res != VK_SUCCESS)
+            return res;
+
+        res = pipeline_graphics_init(s);
         if (res != VK_SUCCESS)
             return res;
     } else if (params->type == NGLI_PIPELINE_TYPE_COMPUTE) {
