@@ -53,6 +53,7 @@ struct gpu_ctx_vk {
     VkImage *images;
     uint32_t nb_images;
     uint32_t cur_image_index;
+    int64_t present_time_offset;
 
     int width;
     int height;

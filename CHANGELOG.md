@@ -14,6 +14,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 - `ngl-diff` tool to visually compare videos
 - `UniformColor.space` colorspace configuration (sRGB, HSL, HSV)
 - `AnimatedColor` and `AnimKeyFrameColor` nodes
+- `set_surface_pts` support to the Vulkan backend (Android)
 
 ### Fixed
 - Various memory leaks

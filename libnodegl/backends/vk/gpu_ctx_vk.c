@@ -711,14 +711,15 @@ static VkResult swapchain_acquire_image(struct gpu_ctx *s, uint32_t *image_index
     return VK_SUCCESS;
 }
 
-static VkResult swapchain_present_buffer(struct gpu_ctx *s)
+static VkResult swapchain_present_buffer(struct gpu_ctx *s, double t)
 {
+    const struct ngl_config *config = &s->config;
     struct gpu_ctx_vk *s_priv = (struct gpu_ctx_vk *)s;
     struct vkcontext *vk = s_priv->vkcontext;
 
     VkSemaphore sem = s_priv->render_finished_sems[s_priv->cur_frame_index];
 
-    const VkPresentInfoKHR present_info = {
+    VkPresentInfoKHR present_info = {
         .sType              = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
         .waitSemaphoreCount = 1,
         .pWaitSemaphores    = &sem,
@@ -726,6 +727,33 @@ static VkResult swapchain_present_buffer(struct gpu_ctx *s)
         .pSwapchains        = &s_priv->swapchain,
         .pImageIndices      = &s_priv->cur_image_index,
     };
+
+    VkPresentTimeGOOGLE present_time = {
+        .presentID = 0,
+    };
+
+    VkPresentTimesInfoGOOGLE present_time_info = {
+        .sType = VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE,
+        .swapchainCount = 1,
+        .pTimes = &present_time,
+    };
+
+    if (config->set_surface_pts) {
+        /*
+         * On first frame, compute the presentation time offset based on
+         * ngli_gettime_relative() result converted to ns. This is mandatory as
+         * setting desiredPresentTime to 0 specifies that the presentation
+         * engine may display the image at any time. In practice, when
+         * desiredPresentTime is set to 0 for the first frame, the Mediacodec
+         * encoder providing the surface only encodes the first frame and
+         * discards the others.
+         */
+        if (s_priv->present_time_offset == 0)
+            s_priv->present_time_offset = ngli_gettime_relative() * 1000;
+        present_time.desiredPresentTime = s_priv->present_time_offset + t * 1000000000LL;
+        present_info.pNext = &present_time_info;
+    }
+
     VkResult res = vkQueuePresentKHR(vk->present_queue, &present_info);
     switch (res) {
     case VK_SUCCESS:
@@ -870,6 +898,13 @@ static int vk_init(struct gpu_ctx *s)
      * direct Vulkan equivalent so use a sane default value */
     s->limits.max_texture_image_units            = 32;
     s->limits.max_uniform_block_size             = limits->maxUniformBufferRange;
+
+    if (config->set_surface_pts &&
+        !ngli_vkcontext_has_extension(vk, VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME, 1)) {
+        LOG(ERROR, "context does not support setting surface pts: %s is not supported",
+            VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME);
+        return NGL_ERROR_GRAPHICS_UNSUPPORTED;
+    }
 
     s_priv->width = config->width;
     s_priv->height = config->height;
@@ -1127,7 +1162,7 @@ static int vk_end_draw(struct gpu_ctx *s, double t)
         if (res != VK_SUCCESS)
             return ngli_vk_res2ret(res);
 
-        res = swapchain_present_buffer(s);
+        res = swapchain_present_buffer(s, t);
         if (res != VK_SUCCESS)
             return ngli_vk_res2ret(res);
     }
