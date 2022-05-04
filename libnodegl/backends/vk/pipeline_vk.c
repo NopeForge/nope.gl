@@ -160,7 +160,7 @@ static VkColorComponentFlags get_vk_color_write_mask(int color_write_mask)
          | (color_write_mask & NGLI_COLOR_COMPONENT_A_BIT ? VK_COLOR_COMPONENT_A_BIT : 0);
 }
 
-static VkResult build_attribute_descs(struct pipeline *s, const struct pipeline_params *params)
+static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline_params *params)
 {
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
@@ -217,7 +217,7 @@ static VkResult pipeline_graphics_init(struct pipeline *s, const struct pipeline
     const struct graphicstate *state = &graphics->state;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
 
-    VkResult res = build_attribute_descs(s, params);
+    VkResult res = create_attribute_descs(s, params);
     if (res != VK_SUCCESS)
         return res;
 
