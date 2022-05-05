@@ -206,19 +206,20 @@ def _block(name, prerequisites=None):
     return real_decorator
 
 
-def _meson_compile_install_cmd(component):
-    builddir = op.join("builddir", component)
+def _meson_compile_install_cmd(component, external=False):
+    builddir = op.join("external", component, "builddir") if external else op.join("builddir", component)
     return ["$(MESON) " + _cmd_join(action, "-C", builddir) for action in ("compile", "install")]
 
 
 @_block("pkgconf-setup")
 def _pkgconf_setup(cfg):
-    return ["$(MESON_SETUP) " + _cmd_join("-Dtests=false", cfg.externals["pkgconf"], op.join("builddir", "pkgconf"))]
+    builddir = op.join("external", "pkgconf", "builddir")
+    return ["$(MESON_SETUP) " + _cmd_join("-Dtests=false", cfg.externals["pkgconf"], builddir)]
 
 
 @_block("pkgconf-install", [_pkgconf_setup])
 def _pkgconf_install(cfg):
-    ret = _meson_compile_install_cmd("pkgconf")
+    ret = _meson_compile_install_cmd("pkgconf", external=True)
     pkgconf_exe = op.join(cfg.bin_path, "pkgconf.exe")
     pkgconfig_exe = op.join(cfg.bin_path, "pkg-config.exe")
     return ret + [f"copy {pkgconf_exe} {pkgconfig_exe}"]
@@ -226,12 +227,13 @@ def _pkgconf_install(cfg):
 
 @_block("sxplayer-setup")
 def _sxplayer_setup(cfg):
-    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(cfg.externals["sxplayer"], op.join("builddir", "sxplayer"))]
+    builddir = op.join("external", "sxplayer", "builddir")
+    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(cfg.externals["sxplayer"], builddir)]
 
 
 @_block("sxplayer-install", [_sxplayer_setup])
 def _sxplayer_install(cfg):
-    return _meson_compile_install_cmd("sxplayer")
+    return _meson_compile_install_cmd("sxplayer", external=True)
 
 
 @_block("renderdoc-install")
@@ -400,11 +402,11 @@ def _clean_py(cfg):
 @_block("clean", [_clean_py])
 def _clean(cfg):
     return [
-        _rd(op.join("builddir", "pkgconf")),
-        _rd(op.join("builddir", "sxplayer")),
         _rd(op.join("builddir", "libnodegl")),
         _rd(op.join("builddir", "ngl-tools")),
         _rd(op.join("builddir", "tests")),
+        _rd(op.join("external", "pkgconf", "builddir")),
+        _rd(op.join("external", "sxplayer", "builddir")),
     ]
 
 
