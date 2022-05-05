@@ -251,7 +251,7 @@ class HooksController(QtCore.QObject):
 
     session_added = QtCore.Signal(object)
     session_removed = QtCore.Signal(str)
-    session_status_changed = QtCore.Signal(object)
+    session_info_changed = QtCore.Signal(object)
 
     def __init__(self, get_scene_func, hooks_caller):
         super().__init__()
@@ -331,7 +331,7 @@ class HooksController(QtCore.QObject):
             cached_session["desc"] = session["desc"]
             cached_session["backend"] = backend
             cached_session["system"] = system
-            self.session_status_changed.emit(cached_session)
+            self.session_info_changed.emit(cached_session)
 
     @QtCore.Slot(object, str)
     def _session_info_error(self, session):
@@ -354,7 +354,7 @@ class HooksController(QtCore.QObject):
         if not session:
             return
         session["status"] = "Uploading [%d/%d]: %s..." % (i, n, filename)
-        self.session_status_changed.emit(session)
+        self.session_info_changed.emit(session)
 
     @QtCore.Slot(str, str, str)
     def _hooks_building_scene(self, session_id, backend, system):
@@ -362,7 +362,7 @@ class HooksController(QtCore.QObject):
         if not session:
             return
         session["status"] = f"Building {system} scene in {backend}..."
-        self.session_status_changed.emit(session)
+        self.session_info_changed.emit(session)
 
     @QtCore.Slot(str, str)
     def _hooks_sending_scene(self, session_id, scene):
@@ -370,7 +370,7 @@ class HooksController(QtCore.QObject):
         if not session:
             return
         session["status"] = "Sending scene %s..." % scene
-        self.session_status_changed.emit(session)
+        self.session_info_changed.emit(session)
 
     @QtCore.Slot(str, str, float)
     def _hooks_success(self, session_id, scene, t):
@@ -378,7 +378,7 @@ class HooksController(QtCore.QObject):
         if not session:
             return
         session["status"] = f"Submitted {scene} in {t:f}"
-        self.session_status_changed.emit(session)
+        self.session_info_changed.emit(session)
 
     @QtCore.Slot(str, str)
     def _hooks_error(self, session_id, error):
@@ -386,4 +386,4 @@ class HooksController(QtCore.QObject):
         if not session:
             return
         session["status"] = error
-        self.session_status_changed.emit(session)
+        self.session_info_changed.emit(session)

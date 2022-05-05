@@ -159,7 +159,7 @@ class HooksView(QtWidgets.QWidget):
 
         self._hooks_ctl.session_added.connect(self._add_session)
         self._hooks_ctl.session_removed.connect(self._remove_session)
-        self._hooks_ctl.session_status_changed.connect(self._update_session_status)
+        self._hooks_ctl.session_info_changed.connect(self._update_session_info)
 
         self._model.clear()
         labels = [label for label, _ in self._COLUMNS]
@@ -195,7 +195,7 @@ class HooksView(QtWidgets.QWidget):
         self._view.resizeColumnsToContents()
 
     @QtCore.Slot(object)
-    def _update_session_status(self, session):
+    def _update_session_info(self, session):
         session_id = session["sid"]
         row = self._get_row_from_session_id(session_id)
         if row == -1:
