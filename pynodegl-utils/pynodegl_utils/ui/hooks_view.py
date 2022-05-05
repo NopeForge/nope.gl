@@ -128,9 +128,6 @@ class HooksView(QtWidgets.QWidget):
 
         self._hooks_ctl = hooks_ctl
 
-        self._status_column = len(self._COLUMNS) - 1
-        assert self._COLUMNS[self._status_column][1] == "status"
-
         self._model = QtGui.QStandardItemModel()
 
         self._view = QtWidgets.QTableView()
@@ -203,8 +200,8 @@ class HooksView(QtWidgets.QWidget):
         row = self._get_row_from_session_id(session_id)
         if row == -1:
             return
-        status = session["status"]
-        self._model.item(row, self._status_column).setText(status)
+        for i, (_, key) in enumerate(self._COLUMNS):
+            self._model.item(row, i).setText(session[key])
         self._view.resizeColumnsToContents()
 
     @QtCore.Slot(object)

@@ -308,18 +308,30 @@ class HooksController(QtCore.QObject):
 
     @QtCore.Slot(object, str, object)
     def _session_info_success(self, session, info):
-        if session["sid"] not in self._sessions_cache:
+        backend = info.get("backend")
+        system = info.get("system")
+        cached_session = self._sessions_cache.get(session["sid"])
+        if cached_session is None:
             enabled = self._sessions_state.get(session["sid"], True)
             new_session = dict(
                 sid=session["sid"],
                 desc=session["desc"],
-                backend=info.get("backend"),
-                system=info.get("system"),
+                backend=backend,
+                system=system,
                 enabled=enabled,
                 status="",
             )
             self._sessions_cache[new_session["sid"]] = new_session
             self.session_added.emit(new_session)
+        elif (
+            session["desc"] != cached_session["desc"]
+            or backend != cached_session["backend"]
+            or system != cached_session["system"]
+        ):
+            cached_session["desc"] = session["desc"]
+            cached_session["backend"] = backend
+            cached_session["system"] = system
+            self.session_status_changed.emit(cached_session)
 
     @QtCore.Slot(object, str)
     def _session_info_error(self, session):

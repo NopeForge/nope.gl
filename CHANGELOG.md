@@ -18,6 +18,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ### Fixed
 - Various memory leaks
+- Hooks session information sometimes not being updated in `ngl-control`
 
 ### Removed
 - `handle` field from the `ngl_config` structure
