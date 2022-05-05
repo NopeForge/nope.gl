@@ -179,23 +179,29 @@ class HooksView(QtWidgets.QWidget):
         self._model.appendRow(row)
         self._view.resizeColumnsToContents()
 
-    @QtCore.Slot(str)
-    def _remove_session(self, session_id):
+    def _get_row_from_session_id(self, session_id):
         for i in range(self._model.rowCount()):
             sid = self._model.item(i, 0)
             if sid.text() == session_id:
-                self._model.removeRows(i, 1)
-                self._view.resizeColumnsToContents()
-                return
+                return i
+        return -1
+
+    @QtCore.Slot(str)
+    def _remove_session(self, session_id):
+        row = self._get_row_from_session_id(session_id)
+        if row == -1:
+            return
+        self._model.removeRows(row, 1)
+        self._view.resizeColumnsToContents()
 
     @QtCore.Slot(object)
     def _update_session_status(self, session):
         session_id = session["sid"]
+        row = self._get_row_from_session_id(session_id)
+        if row == -1:
+            return
         status = session["status"]
-        for i in range(self._model.rowCount()):
-            sid = self._model.item(i, 0)
-            if sid.text() == session_id:
-                self._model.item(i, self._status_column).setText(status)
+        self._model.item(row, self._status_column).setText(status)
         self._view.resizeColumnsToContents()
 
     @QtCore.Slot(object)
