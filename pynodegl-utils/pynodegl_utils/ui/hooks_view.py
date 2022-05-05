@@ -114,14 +114,22 @@ class _SpawnView(QtWidgets.QGroupBox):
 
 class HooksView(QtWidgets.QWidget):
 
-    _COLUMNS = ("Session", "Description", "Backend", "System", "Status")
+    # Associates the UI column labels with the data session keys
+    _COLUMNS = (
+        ("Session", "sid"),
+        ("Description", "desc"),
+        ("Backend", "backend"),
+        ("System", "system"),
+        ("Status", "status"),
+    )
 
     def __init__(self, hooks_ctl, config=None):
         super().__init__()
 
         self._hooks_ctl = hooks_ctl
 
-        self._status_column = self._COLUMNS.index("Status")
+        self._status_column = len(self._COLUMNS) - 1
+        assert self._COLUMNS[self._status_column][1] == "status"
 
         self._model = QtGui.QStandardItemModel()
 
@@ -157,7 +165,8 @@ class HooksView(QtWidgets.QWidget):
         self._hooks_ctl.session_status_changed.connect(self._update_session_status)
 
         self._model.clear()
-        self._model.setHorizontalHeaderLabels(self._COLUMNS)
+        labels = [label for label, _ in self._COLUMNS]
+        self._model.setHorizontalHeaderLabels(labels)
 
         self._refresh_timer = QtCore.QTimer(self)
         self._refresh_timer.setInterval(500)
@@ -166,13 +175,7 @@ class HooksView(QtWidgets.QWidget):
 
     @QtCore.Slot(object)
     def _add_session(self, session):
-        row = [
-            QtGui.QStandardItem(session["sid"]),
-            QtGui.QStandardItem(session["desc"]),
-            QtGui.QStandardItem(session["backend"]),
-            QtGui.QStandardItem(session["system"]),
-            QtGui.QStandardItem(session["status"]),
-        ]
+        row = [QtGui.QStandardItem(session[key]) for _, key in self._COLUMNS]
         row[0].setCheckable(True)
         row[0].setCheckState(QtCore.Qt.Checked if session["enabled"] else QtCore.Qt.Unchecked)
 
