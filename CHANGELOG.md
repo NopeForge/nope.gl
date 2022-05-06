@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+### Fixed
+- Missing package data files for `ngl-diff`
 
 ## [2022.4] [libnodegl 0.4.0] - 2022-05-06
 ### Added

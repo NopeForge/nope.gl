@@ -36,11 +36,13 @@ setup(
     package_data={
         "": [
             "assets/*",
+            "diff/shaders/*",
             "examples/data/*",
             "examples/shaders/*.frag",
             "examples/shaders/*.comp",
             "examples/shaders/*.vert",
             "hooks/desktop.py",
+            "qml/*.qml",
         ],
     },
 )
