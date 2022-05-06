@@ -12,6 +12,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 - Mediacodec/Vulkan video acceleration support
 - EGL device platform support (allows to support NVIDIA GPUs in headless
   environments)
+- Compatibility with static analyzers for symbols discovery in `pynodegl`
 
 ## [2022.5] [libnodegl 0.4.0] - 2022-05-06
 ### Fixed

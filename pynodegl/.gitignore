@@ -2,7 +2,7 @@ build
 nodes_def.pyx
 _pynodegl.c
 pynodegl.egg-info
-pynodegl/specs.py
+pynodegl/__init__.py
 _pynodegl.*.so
 .eggs
 *.pyd

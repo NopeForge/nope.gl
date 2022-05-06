@@ -390,7 +390,7 @@ def _clean_py(cfg):
         _rm(op.join("pynodegl", "_pynodegl.c")),
         _rm(op.join("pynodegl", "_pynodegl.*.so")),
         _rm(op.join("pynodegl", "pynodegl.*.pyd")),
-        _rm(op.join("pynodegl", "pynodegl/specs.py")),
+        _rm(op.join("pynodegl", "pynodegl/__init__.py")),
         _rd(op.join("pynodegl", "build")),
         _rd(op.join("pynodegl", "pynodegl.egg-info")),
         _rd(op.join("pynodegl", ".eggs")),
