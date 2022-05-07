@@ -188,7 +188,13 @@ static VkResult create_render_resources(struct gpu_ctx *s)
                 .external_storage = 1,
             };
 
-            VkResult res = ngli_texture_vk_wrap(color, &params, s_priv->images[i], VK_IMAGE_LAYOUT_UNDEFINED);
+            const struct texture_vk_wrap_params wrap_params = {
+                .params       = &params,
+                .image        = s_priv->images[i],
+                .image_layout = VK_IMAGE_LAYOUT_UNDEFINED,
+            };
+
+            VkResult res = ngli_texture_vk_wrap(color, &wrap_params);
             if (res != VK_SUCCESS) {
                 ngli_texture_vk_freep(&color);
                 return res;

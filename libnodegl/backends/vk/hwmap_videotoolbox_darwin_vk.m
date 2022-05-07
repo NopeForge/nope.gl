@@ -172,8 +172,13 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame
             .external_storage = 1,
         };
 
-        res = ngli_texture_vk_wrap(vt->planes[i], &plane_params, plane_vk->image,
-                                   VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+        const struct texture_vk_wrap_params wrap_params = {
+            .params       = &plane_params,
+            .image        = plane_vk->image,
+            .image_layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+        };
+
+        res = ngli_texture_vk_wrap(vt->planes[i], &wrap_params);
         if (res != VK_SUCCESS) {
             LOG(ERROR, "could not wrap texture: %s", ngli_vk_res2str(res));
             CFRelease(texture_ref);

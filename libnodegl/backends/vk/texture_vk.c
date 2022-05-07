@@ -438,18 +438,18 @@ VkResult ngli_texture_vk_init(struct texture *s, const struct texture_params *pa
     return create_sampler(s);
 }
 
-VkResult ngli_texture_vk_wrap(struct texture *s, const struct texture_params *params, VkImage image, VkImageLayout layout)
+VkResult ngli_texture_vk_wrap(struct texture *s, const struct texture_vk_wrap_params *wrap_params)
 {
     struct texture_vk *s_priv = (struct texture_vk *)s;
 
-    ngli_assert(params->external_storage);
+    ngli_assert(wrap_params->params->external_storage);
 
-    VkResult res = init_fields(s, params);
+    VkResult res = init_fields(s, wrap_params->params);
     if (res != VK_SUCCESS)
         return res;
 
-    s_priv->image = image;
-    s_priv->image_layout = layout;
+    s_priv->image = wrap_params->image;
+    s_priv->image_layout = wrap_params->image_layout;
 
     res = create_image_view(s);
     if (res != VK_SUCCESS)

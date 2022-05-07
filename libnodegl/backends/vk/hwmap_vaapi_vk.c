@@ -394,8 +394,14 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
             .usage            = params->texture_usage,
             .external_storage = 1,
         };
-        res = ngli_texture_vk_wrap(vaapi->planes[i], &plane_params,
-                                   vaapi->images[i], VK_IMAGE_LAYOUT_UNDEFINED);
+
+        const struct texture_vk_wrap_params wrap_params = {
+            .params       = &plane_params,
+            .image        = vaapi->images[i],
+            .image_layout = VK_IMAGE_LAYOUT_UNDEFINED,
+        };
+
+        res = ngli_texture_vk_wrap(vaapi->planes[i], &wrap_params);
         if (res != VK_SUCCESS)
             return NGL_ERROR_GRAPHICS_GENERIC;
 
