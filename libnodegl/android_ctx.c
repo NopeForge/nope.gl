@@ -30,9 +30,14 @@
 #include "gpu_ctx.h"
 #include "log.h"
 #include "internal.h"
+#include "utils.h"
 
 #if defined(BACKEND_GL)
 #include "backends/gl/gpu_ctx_gl.h"
+#endif
+
+#if defined(BACKEND_VK)
+#include "backends/vk/gpu_ctx_vk.h"
 #endif
 
 #define NDK_LOAD_FUNC(handle, name) do {       \
@@ -97,6 +102,22 @@ static int has_native_imagereader_api_support(struct gpu_ctx *gpu_ctx)
         const uint64_t features = NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE |
                                   NGLI_FEATURE_GL_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
         return ((gl->features & features) == features);
+    }
+#endif
+#if defined(BACKEND_VK)
+    if (config->backend == NGL_BACKEND_VULKAN) {
+        const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
+        const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+        static const char * const required_extensions[] = {
+            VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
+            VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME,
+            VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME,
+        };
+        for (int i = 0; i < NGLI_ARRAY_NB(required_extensions); i++) {
+            if (!ngli_vkcontext_has_extension(vk, required_extensions[i], 1))
+                return 0;
+        }
+        return 1;
     }
 #endif
     return 0;

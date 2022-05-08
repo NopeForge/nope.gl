@@ -27,11 +27,15 @@
 #include "buffer.h"
 #include "texture.h"
 #include "vkcontext.h"
+#include "ycbcr_sampler_vk.h"
 
 struct texture_vk_wrap_params {
     const struct texture_params *params;
     VkImage image;
     VkImageLayout image_layout;
+    VkImageView image_view;
+    VkSampler sampler;
+    struct ycbcr_sampler_vk *ycbcr_sampler;
 };
 
 struct texture_vk {
@@ -45,7 +49,11 @@ struct texture_vk {
     VkImageLayout image_layout;
     VkDeviceMemory image_memory;
     VkImageView image_view;
+    int wrapped_image_view;
     VkSampler sampler;
+    int wrapped_sampler;
+    int use_ycbcr_sampler;
+    struct ycbcr_sampler_vk *ycbcr_sampler;
     struct buffer *staging_buffer;
     VkDeviceSize staging_buffer_row_length;
     void *staging_buffer_ptr;

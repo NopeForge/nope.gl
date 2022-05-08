@@ -451,12 +451,29 @@ VkResult ngli_texture_vk_wrap(struct texture *s, const struct texture_vk_wrap_pa
     s_priv->image = wrap_params->image;
     s_priv->wrapped_image = 1;
     s_priv->image_layout = wrap_params->image_layout;
+    s_priv->image_view = wrap_params->image_view;
+    s_priv->wrapped_image_view = wrap_params->image_view != VK_NULL_HANDLE;
+    s_priv->sampler = wrap_params->sampler;
+    s_priv->wrapped_sampler = wrap_params->sampler != VK_NULL_HANDLE;
+    if (wrap_params->ycbcr_sampler) {
+        ngli_assert(s_priv->sampler == VK_NULL_HANDLE);
+        s_priv->use_ycbcr_sampler = 1;
+        s_priv->ycbcr_sampler = ngli_ycbcr_sampler_vk_ref(wrap_params->ycbcr_sampler);
+    }
 
-    res = create_image_view(s);
-    if (res != VK_SUCCESS)
-        return res;
+    if (!s_priv->image_view) {
+        res = create_image_view(s);
+        if (res != VK_SUCCESS)
+            return res;
+    }
 
-    return create_sampler(s);
+    if (!s_priv->sampler) {
+        res = create_sampler(s);
+        if (res != VK_SUCCESS)
+            return res;
+    }
+
+    return VK_SUCCESS;
 }
 
 void ngli_texture_vk_transition_layout(struct texture *s, VkImageLayout layout)
@@ -780,8 +797,11 @@ void ngli_texture_vk_freep(struct texture **sp)
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
-    vkDestroySampler(vk->device, s_priv->sampler, NULL);
-    vkDestroyImageView(vk->device, s_priv->image_view, NULL);
+    ngli_ycbcr_sampler_vk_unrefp(&s_priv->ycbcr_sampler);
+    if (!s_priv->wrapped_sampler)
+        vkDestroySampler(vk->device, s_priv->sampler, NULL);
+    if (!s_priv->wrapped_image_view)
+        vkDestroyImageView(vk->device, s_priv->image_view, NULL);
     if (!s_priv->wrapped_image)
         vkDestroyImage(vk->device, s_priv->image, NULL);
     vkFreeMemory(vk->device, s_priv->image_memory, NULL);

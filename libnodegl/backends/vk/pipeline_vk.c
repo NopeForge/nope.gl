@@ -46,6 +46,7 @@
 #include "buffer_vk.h"
 #include "program_vk.h"
 #include "rendertarget_vk.h"
+#include "ycbcr_sampler_vk.h"
 
 struct attribute_binding {
     struct pipeline_attribute_desc desc;
@@ -60,8 +61,11 @@ struct buffer_binding {
 
 struct texture_binding {
     struct pipeline_texture_desc desc;
+    uint32_t desc_binding_index;
     const struct texture *texture;
     uint32_t update_desc_flags;
+    int use_ycbcr_sampler;
+    struct ycbcr_sampler_vk *ycbcr_sampler;
 };
 
 static const VkPrimitiveTopology vk_primitive_topology_map[NGLI_PRIMITIVE_TOPOLOGY_NB] = {
@@ -464,6 +468,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s, const struct
 
         const struct texture_binding texture_binding = {
             .desc = *desc,
+            .desc_binding_index = ngli_darray_count(&s_priv->desc_set_layout_bindings) - 1,
         };
         if (!ngli_darray_push(&s_priv->texture_bindings, &texture_binding))
             return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -589,7 +594,7 @@ static VkResult create_pipeline(struct pipeline *s)
     return VK_SUCCESS;
 }
 
-static void destroy_pipeline(struct pipeline *s)
+static void destroy_pipeline_keep_pool(struct pipeline *s)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
@@ -603,10 +608,67 @@ static void destroy_pipeline(struct pipeline *s)
 
     vkDestroyDescriptorSetLayout(vk->device, s_priv->desc_set_layout, NULL);
     s_priv->desc_set_layout = VK_NULL_HANDLE;
+}
+
+static void destroy_pipeline(struct pipeline *s)
+{
+    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
+
+    destroy_pipeline_keep_pool(s);
 
     vkDestroyDescriptorPool(vk->device, s_priv->desc_pool, NULL);
     s_priv->desc_pool = VK_NULL_HANDLE;
     ngli_freep(&s_priv->desc_sets);
+}
+
+static void request_desc_sets_update(struct pipeline *s)
+{
+    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
+
+    struct texture_binding *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
+    for (int i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
+        struct texture_binding *binding = &texture_bindings[i];
+        binding->update_desc_flags = ~0;
+    }
+
+    struct buffer_binding *buffer_bindings = ngli_darray_data(&s_priv->buffer_bindings);
+    for (int i = 0; i < ngli_darray_count(&s_priv->buffer_bindings); i++) {
+        struct buffer_binding *binding = &buffer_bindings[i];
+        binding->update_desc_flags = ~0;
+    }
+}
+
+static VkResult recreate_pipeline(struct pipeline *s)
+{
+    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
+    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+
+    /*
+     * Destroy the current pipeline but keep the descriptor pool to avoid
+     * re-allocating the descriptor sets.
+     */
+    destroy_pipeline_keep_pool(s);
+
+    VkResult res = vkResetDescriptorPool(vk->device, s_priv->desc_pool, 0);
+    if (res != VK_SUCCESS)
+        return res;
+    ngli_freep(&s_priv->desc_sets);
+
+    res = create_pipeline(s);
+    if (res != VK_SUCCESS)
+        return res;
+
+    /*
+     * The descriptor sets have been reset during pipeline re-creation, thus,
+     * we need to ensure they are properly updated before the next pipeline
+     * execution.
+     */
+    request_desc_sets_update(s);
+
+    return VK_SUCCESS;
 }
 
 struct pipeline *ngli_pipeline_vk_create(struct gpu_ctx *gpu_ctx)
@@ -702,6 +764,28 @@ int ngli_pipeline_vk_update_uniform(struct pipeline *s, int index, const void *v
     return NGL_ERROR_GRAPHICS_UNSUPPORTED;
 }
 
+static int need_desc_set_layout_update(const struct texture_binding *binding,
+                                       const struct texture *texture)
+{
+    const struct texture_vk *texture_vk = (const struct texture_vk *)texture;
+
+    if (binding->use_ycbcr_sampler != texture_vk->use_ycbcr_sampler)
+        return 1;
+
+    if (binding->use_ycbcr_sampler) {
+        /*
+         * The specification mandates that, for a given combined image sampler
+         * descriptor set, the sampler and image view with YCbCr conversion
+         * enabled must have been created with an identical
+         * VkSamplerYcbcrConversionInfo object (ie: with the same
+         * VkSamplerYcbcrConversion object).
+         */
+        return binding->ycbcr_sampler != texture_vk->ycbcr_sampler;
+    }
+
+    return 0;
+}
+
 int ngli_pipeline_vk_update_texture(struct pipeline *s, int index, const struct texture *texture)
 {
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
@@ -715,6 +799,37 @@ int ngli_pipeline_vk_update_texture(struct pipeline *s, int index, const struct 
 
     texture_binding->texture = texture ? texture : gpu_ctx_vk->dummy_texture;
     texture_binding->update_desc_flags = ~0;
+
+    if (texture) {
+        struct texture_vk *texture_vk = (struct texture_vk *)texture;
+        if (need_desc_set_layout_update(texture_binding, texture)) {
+            VkDescriptorSetLayoutBinding *desc_bindings = ngli_darray_data(&s_priv->desc_set_layout_bindings);
+            VkDescriptorSetLayoutBinding *desc_binding = &desc_bindings[texture_binding->desc_binding_index];
+            texture_binding->use_ycbcr_sampler = texture_vk->use_ycbcr_sampler;
+            ngli_ycbcr_sampler_vk_unrefp(&texture_binding->ycbcr_sampler);
+            if (texture_vk->use_ycbcr_sampler) {
+                /*
+                 * YCbCr conversion enabled samplers must be set at pipeline
+                 * creation (through the pImmutableSamplers field). Moreover,
+                 * the YCbCr conversion and sampler objects must be kept alive
+                 * as long as they are used by the pipeline. For that matter,
+                 * we hold a reference on the ycbcr_sampler_vk structure
+                 * (containing the conversion and sampler objects) as long as
+                 * necessary.
+                 */
+                texture_binding->ycbcr_sampler = ngli_ycbcr_sampler_vk_ref(texture_vk->ycbcr_sampler);
+                desc_binding->pImmutableSamplers = &texture_vk->ycbcr_sampler->sampler;
+            } else {
+                desc_binding->pImmutableSamplers = VK_NULL_HANDLE;
+            }
+
+            VkResult res = recreate_pipeline(s);
+            if (res != VK_SUCCESS) {
+                LOG(ERROR, "could not recreate pipeline");
+                return ngli_vk_res2ret(res);
+            }
+        }
+    }
 
     return 0;
 }
@@ -946,6 +1061,11 @@ void ngli_pipeline_vk_freep(struct pipeline **sp)
 
     destroy_pipeline(s);
 
+    struct texture_binding *texture_bindings = ngli_darray_data(&s_priv->texture_bindings);
+    for (int i = 0; i < ngli_darray_count(&s_priv->texture_bindings); i++) {
+        struct texture_binding *binding = &texture_bindings[i];
+        ngli_ycbcr_sampler_vk_unrefp(&binding->ycbcr_sampler);
+    }
     ngli_darray_reset(&s_priv->texture_bindings);
     ngli_darray_reset(&s_priv->buffer_bindings);
     ngli_darray_reset(&s_priv->attribute_bindings);

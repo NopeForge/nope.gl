@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+### Added
+- Mediacodec/Vulkan video acceleration support
 
 ## [2022.5] [libnodegl 0.4.0] - 2022-05-06
 ### Fixed

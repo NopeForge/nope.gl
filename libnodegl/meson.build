@@ -385,6 +385,7 @@ gbackends_cfg = {
       'backends/vk/vkcontext.c',
       'backends/vk/vkutils.c',
       'backends/vk/glslang_utils.c',
+      'backends/vk/ycbcr_sampler_vk.c',
     ),
     'cfg': 'BACKEND_VK',
     'hosts_cfg': {
@@ -398,6 +399,7 @@ gbackends_cfg = {
         'frameworks': ['Metal'],
       },
       'android': {
+        'src': files('backends/vk/hwmap_mediacodec_vk.c'),
         'deps': ['vulkan', 'glslang'],
       },
       'iphone': {
