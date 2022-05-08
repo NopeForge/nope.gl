@@ -25,6 +25,7 @@
 #include <stdlib.h>
 
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_android.h>
 
 #include "config.h"
 
@@ -84,6 +85,10 @@ struct vkcontext {
     /* Device functions */
     VK_DECLARE_FUNC(CreateSamplerYcbcrConversionKHR);
     VK_DECLARE_FUNC(DestroySamplerYcbcrConversionKHR);
+#if defined(TARGET_ANDROID)
+    VK_DECLARE_FUNC(GetAndroidHardwareBufferPropertiesANDROID);
+    VK_DECLARE_FUNC(GetMemoryAndroidHardwareBufferANDROID);
+#endif
     VK_DECLARE_FUNC(GetMemoryFdKHR);
     VK_DECLARE_FUNC(GetMemoryFdPropertiesKHR);
     VK_DECLARE_FUNC(GetRefreshCycleDurationGOOGLE);

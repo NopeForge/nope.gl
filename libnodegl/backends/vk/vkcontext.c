@@ -623,6 +623,10 @@ static VkResult create_device(struct vkcontext *s)
         VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
         VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME,
         VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
+#if defined(TARGET_ANDROID)
+        VK_EXT_QUEUE_FAMILY_FOREIGN_EXTENSION_NAME,
+        VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME,
+#endif
     };
 
     for (int i = 0; i < NGLI_ARRAY_NB(optional_device_extensions); i++) {
@@ -812,6 +816,17 @@ struct vk_extension {
             {0},
         },
     },
+#if defined(TARGET_ANDROID)
+    {
+        .name = VK_ANDROID_EXTERNAL_MEMORY_ANDROID_HARDWARE_BUFFER_EXTENSION_NAME,
+        .device = 1,
+        .functions = (const struct vk_function[]) {
+            DECLARE_FUNC(GetAndroidHardwareBufferPropertiesANDROID, 1),
+            DECLARE_FUNC(GetMemoryAndroidHardwareBufferANDROID, 1),
+            {0},
+        },
+    },
+#endif
 };
 
 static int load_function(struct vkcontext *s, const struct vk_function *func)
