@@ -19,8 +19,10 @@
 # under the License.
 #
 
+import array
 import os
 import platform
+from typing import Mapping, Optional, Sequence, Tuple, Union
 
 if platform.system() == "Windows":
     ngl_dll_dirs = os.getenv("NGL_DLL_DIRS")

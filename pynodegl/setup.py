@@ -58,6 +58,46 @@ class _WrapperGenerator:
     _ARG_TYPES = {"bool", "f32", "f64", "flags", "i32", "select", "str", "u32", "data", "node"}
     _ARGS_TYPES = {"ivec2", "ivec3", "ivec4", "mat4", "uvec2", "uvec3", "uvec4", "vec2", "vec3", "vec4"}
 
+    _TYPING_MAP = dict(
+        bool="bool",
+        data="array.array",
+        f32="float",
+        f64="float",
+        f64_list="Sequence[float]",
+        flags="str",
+        i32="int",
+        ivec2="Tuple[int, int]",
+        ivec3="Tuple[int, int, int]",
+        ivec4="Tuple[int, int, int, int]",
+        mat4="Tuple[" + ", ".join(["float"] * 16) + "]",
+        node="Node",
+        node_dict="Mapping[str, Node]",
+        node_list="Sequence[Node]",
+        rational="Tuple[int, int]",
+        select="str",
+        str="str",
+        u32="int",
+        uvec2="Tuple[int, int]",
+        uvec3="Tuple[int, int, int]",
+        uvec4="Tuple[int, int, int, int]",
+        vec2="Tuple[float, float]",
+        vec3="Tuple[float, float, float]",
+        vec4="Tuple[float, float, float, float]",
+    )
+
+    _TYPING_SINGLE_MAP = dict(
+        ivec2="int",
+        ivec3="int",
+        ivec4="int",
+        mat4="float",
+        uvec2="int",
+        uvec3="int",
+        uvec4="int",
+        vec2="float",
+        vec3="float",
+        vec4="float",
+    )
+
     def __init__(self, specs):
         self._specs = specs
 
@@ -85,31 +125,34 @@ class _WrapperGenerator:
         assert False
 
     @classmethod
-    def _get_setter_prototype(cls, param_name, param_type):
+    def _get_setter_prototype(cls, param_name, param_type, param_flags):
+        type_ = cls._TYPING_SINGLE_MAP.get(param_type, cls._TYPING_MAP[param_type])
+        if "N" in param_flags:
+            type_ = f"Union[{type_}, Node]"
         if param_type in cls._ARG_TYPES:
-            return f"set_{param_name}(self, {param_name})"
+            return f"set_{param_name}(self, {param_name}: {type_})"
         if param_type in cls._ARGS_TYPES:
-            return f"set_{param_name}(self, *{param_name})"
+            return f"set_{param_name}(self, *{param_name}: {type_})"
         if param_type == "node_list":
-            return f"add_{param_name}(self, *{param_name})"
+            return f"add_{param_name}(self, *{param_name}: Node)"
         if param_type == "f64_list":
-            return f"add_{param_name}(self, *{param_name})"
+            return f"add_{param_name}(self, *{param_name}: float)"
         if param_type == "node_dict":
-            return f"update_{param_name}(self, {param_name}=None, **kwargs)"
+            return f"update_{param_name}(self, {param_name}: Optional[{type_}] = None, **kwargs: Optional[Node])"
         if param_type == "rational":
-            return f"set_{param_name}(self, {param_name})"
+            return f"set_{param_name}(self, {param_name}: Tuple[int, int])"
         assert False
 
     @classmethod
     def _get_class_setters(cls, params):
         setters = []
-        for param_name, param_type, _ in params:
-            prototype = cls._get_setter_prototype(param_name, param_type)
+        for param_name, param_type, param_flags in params:
+            prototype = cls._get_setter_prototype(param_name, param_type, param_flags)
             setter_code = cls._get_setter_code(param_name, param_type, has_kwargs=True)
             setters.append(
                 textwrap.dedent(
                     f"""
-                    def {prototype}:
+                    def {prototype} -> int:
                         return {setter_code}
                     """
                 )
@@ -133,9 +176,10 @@ class _WrapperGenerator:
         eval_type = animated_nodes.get(class_name)
         if not eval_type:
             return ""
+        ret_type = cls._TYPING_MAP[eval_type]
         return textwrap.dedent(
             f"""
-            def evaluate(self, t):
+            def evaluate(self, t: float) -> {ret_type}:
                 return self._eval_{eval_type}(t)
             """
         )
@@ -176,7 +220,10 @@ class _WrapperGenerator:
         # allow us to get rid of the use of obscure **kwargs.
         kwargs = ["self"]
         for param_name, param_type, param_flags in params + parent_params:
-            kwargs.append(f"{param_name} = None")
+            param_type = cls._TYPING_MAP[param_type]
+            if "N" in param_flags:
+                param_type = f"Union[{param_type}, Node]"
+            kwargs.append(f"{param_name}: Optional[{param_type}] = None")
 
         # The leaf is the only node supposed to overload the __init__ method
         # because it must call _pynodegl._Node.__init__ with the context before
