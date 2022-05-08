@@ -493,13 +493,22 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s, const struct
     if (res != VK_SUCCESS)
         return res;
 
+    return VK_SUCCESS;
+}
+
+static VkResult create_desc_layout(struct pipeline *s)
+{
+    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
+
     const VkDescriptorSetLayoutCreateInfo descriptor_set_layout_create_info = {
         .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
         .bindingCount = ngli_darray_count(&s_priv->desc_set_layout_bindings),
         .pBindings    = ngli_darray_data(&s_priv->desc_set_layout_bindings),
     };
 
-    res = vkCreateDescriptorSetLayout(vk->device, &descriptor_set_layout_create_info, NULL, &s_priv->desc_set_layout);
+    VkResult res = vkCreateDescriptorSetLayout(vk->device, &descriptor_set_layout_create_info, NULL, &s_priv->desc_set_layout);
     if (res != VK_SUCCESS)
         return res;
 
@@ -579,6 +588,10 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
     ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding), 0);
 
     VkResult res = create_desc_set_layout_bindings(s, params);
+    if (res != VK_SUCCESS)
+        return res;
+
+    res = create_desc_layout(s);
     if (res != VK_SUCCESS)
         return res;
 
