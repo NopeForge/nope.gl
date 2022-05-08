@@ -92,7 +92,8 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
         return ret;
 
     const enum image_layout src_layout = src_params->layout;
-    if (src_layout != NGLI_IMAGE_LAYOUT_NV12 &&
+    if (src_layout != NGLI_IMAGE_LAYOUT_DEFAULT &&
+        src_layout != NGLI_IMAGE_LAYOUT_NV12 &&
         src_layout != NGLI_IMAGE_LAYOUT_YUV &&
         src_layout != NGLI_IMAGE_LAYOUT_NV12_RECTANGLE &&
         src_layout != NGLI_IMAGE_LAYOUT_MEDIACODEC) {
@@ -223,6 +224,9 @@ int ngli_hwconv_convert_image(struct hwconv *hwconv, const struct image *image)
 
     int ret = -1;
     switch (image->params.layout) {
+    case NGLI_IMAGE_LAYOUT_DEFAULT:
+        ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_0].index, image->planes[0]);
+        break;
     case NGLI_IMAGE_LAYOUT_NV12:
         ret = ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_0].index, image->planes[0]);
         ret &= ngli_pipeline_compat_update_texture(pipeline, fields[NGLI_INFO_FIELD_SAMPLER_1].index, image->planes[1]);
