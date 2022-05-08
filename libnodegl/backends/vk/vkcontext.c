@@ -622,6 +622,7 @@ static VkResult create_device(struct vkcontext *s)
         VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,
         VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
         VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME,
+        VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
     };
 
     for (int i = 0; i < NGLI_ARRAY_NB(optional_device_extensions); i++) {
@@ -633,10 +634,18 @@ static VkResult create_device(struct vkcontext *s)
         }
     }
 
-    const VkPhysicalDeviceFeatures2 dev_features2 = {
+    VkPhysicalDeviceFeatures2 dev_features2 = {
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
         .features = dev_features,
     };
+
+    VkPhysicalDeviceSamplerYcbcrConversionFeatures ycbcr_features = {
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SAMPLER_YCBCR_CONVERSION_FEATURES,
+        .samplerYcbcrConversion = 1,
+    };
+
+    if (ngli_vkcontext_has_extension(s, VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME, 1))
+        dev_features2.pNext = &ycbcr_features;
 
     const VkDeviceCreateInfo device_create_info = {
         .sType                   = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -792,6 +801,14 @@ struct vk_extension {
         .functions = (const struct vk_function[]) {
             DECLARE_FUNC(GetRefreshCycleDurationGOOGLE, 1),
             DECLARE_FUNC(GetPastPresentationTimingGOOGLE, 1),
+            {0},
+        },
+    }, {
+        .name = VK_KHR_SAMPLER_YCBCR_CONVERSION_EXTENSION_NAME,
+        .device = 1,
+        .functions = (const struct vk_function[]) {
+            DECLARE_FUNC(CreateSamplerYcbcrConversionKHR, 1),
+            DECLARE_FUNC(DestroySamplerYcbcrConversionKHR, 1),
             {0},
         },
     },

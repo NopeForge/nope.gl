@@ -82,6 +82,8 @@ struct vkcontext {
     int support_present_mode_immediate;
 
     /* Device functions */
+    VK_DECLARE_FUNC(CreateSamplerYcbcrConversionKHR);
+    VK_DECLARE_FUNC(DestroySamplerYcbcrConversionKHR);
     VK_DECLARE_FUNC(GetMemoryFdKHR);
     VK_DECLARE_FUNC(GetMemoryFdPropertiesKHR);
     VK_DECLARE_FUNC(GetRefreshCycleDurationGOOGLE);
