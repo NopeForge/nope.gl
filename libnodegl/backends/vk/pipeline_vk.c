@@ -503,6 +503,15 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s, const struct
     if (res != VK_SUCCESS)
         return res;
 
+    return VK_SUCCESS;
+}
+
+static VkResult create_desc_sets(struct pipeline *s)
+{
+    const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
+
     VkDescriptorSetLayout *desc_set_layouts = ngli_calloc(gpu_ctx_vk->nb_in_flight_frames, sizeof(*desc_set_layouts));
     if (!desc_set_layouts)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
@@ -523,7 +532,7 @@ static VkResult create_desc_set_layout_bindings(struct pipeline *s, const struct
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     }
 
-    res = vkAllocateDescriptorSets(vk->device, &descriptor_set_allocate_info, s_priv->desc_sets);
+    VkResult res = vkAllocateDescriptorSets(vk->device, &descriptor_set_allocate_info, s_priv->desc_sets);
     if (res != VK_SUCCESS) {
         ngli_free(desc_set_layouts);
         return res;
@@ -570,6 +579,10 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
     ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding), 0);
 
     VkResult res = create_desc_set_layout_bindings(s, params);
+    if (res != VK_SUCCESS)
+        return res;
+
+    res = create_desc_sets(s);
     if (res != VK_SUCCESS)
         return res;
 
