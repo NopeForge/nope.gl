@@ -449,6 +449,7 @@ VkResult ngli_texture_vk_wrap(struct texture *s, const struct texture_vk_wrap_pa
         return res;
 
     s_priv->image = wrap_params->image;
+    s_priv->wrapped_image = 1;
     s_priv->image_layout = wrap_params->image_layout;
 
     res = create_image_view(s);
@@ -781,7 +782,7 @@ void ngli_texture_vk_freep(struct texture **sp)
 
     vkDestroySampler(vk->device, s_priv->sampler, NULL);
     vkDestroyImageView(vk->device, s_priv->image_view, NULL);
-    if (!s->params.external_storage)
+    if (!s_priv->wrapped_image)
         vkDestroyImage(vk->device, s_priv->image, NULL);
     vkFreeMemory(vk->device, s_priv->image_memory, NULL);
 

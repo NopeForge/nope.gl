@@ -40,6 +40,7 @@ struct texture_vk {
     int array_layers;
     int mipmap_levels;
     VkImage image;
+    int wrapped_image;
     VkImageLayout default_image_layout;
     VkImageLayout image_layout;
     VkDeviceMemory image_memory;
