@@ -38,7 +38,7 @@ static const VkFilter vk_filter_map[NGLI_NB_FILTER] = {
     [NGLI_FILTER_LINEAR]  = VK_FILTER_LINEAR,
 };
 
-static VkFilter get_vk_filter(int filter)
+VkFilter ngli_vk_get_filter(int filter)
 {
     return vk_filter_map[filter];
 }
@@ -289,8 +289,8 @@ static VkResult create_sampler(struct texture *s)
 
     const VkSamplerCreateInfo sampler_info = {
         .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-        .magFilter               = get_vk_filter(s->params.mag_filter),
-        .minFilter               = get_vk_filter(s->params.min_filter),
+        .magFilter               = ngli_vk_get_filter(s->params.mag_filter),
+        .minFilter               = ngli_vk_get_filter(s->params.min_filter),
         .addressModeU            = get_vk_wrap(s->params.wrap_s),
         .addressModeV            = get_vk_wrap(s->params.wrap_t),
         .addressModeW            = get_vk_wrap(s->params.wrap_r),

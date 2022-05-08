@@ -61,6 +61,7 @@ void ngli_texture_vk_transition_to_default_layout(struct texture *s);
 void ngli_texture_vk_copy_to_buffer(struct texture *s, struct buffer *buffer);
 void ngli_texture_vk_freep(struct texture **sp);
 
+VkFilter ngli_vk_get_filter(int filter);
 VkImageUsageFlags ngli_vk_get_image_usage_flags(int usage);
 
 #endif
