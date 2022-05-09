@@ -62,10 +62,13 @@ const char *ngli_vk_res2str(VkResult res)
     case VK_ERROR_NOT_PERMITTED_EXT:        return "not permitted";
     case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
                                             return "full screen exclusive mode lost";
-    case VK_THREAD_IDLE_KHR:                return "thread idle";
-    case VK_THREAD_DONE_KHR:                return "thread done";
-    case VK_OPERATION_DEFERRED_KHR:         return "operation defered";
-    case VK_OPERATION_NOT_DEFERRED_KHR:     return "operation not defered";
+    /*
+     * Currently unmapped VkResult:
+     * - VK_THREAD_IDLE_KHR
+     * - VK_THREAD_DONE_KHR
+     * - VK_OPERATION_DEFERRED_KHR
+     * - VK_OPERATION_NOT_DEFERRED_KHR
+     */
     default:                                return "unknown";
     }
 }
