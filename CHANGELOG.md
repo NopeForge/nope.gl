@@ -14,6 +14,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
   environments)
 - Compatibility with static analyzers for symbols discovery in `pynodegl`,
   including typing annotations
+- Compatibility with Vulkan devices not supporting host cached memory
 
 ### Fixed
 - Missing exposed constants in `pynodegl` (some backend capabilities and
