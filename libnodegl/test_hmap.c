@@ -76,9 +76,25 @@ static void check_order(const struct hmap *hm)
     }
 }
 
+static int test_bucket_delete_reuse(void)
+{
+    struct hmap *hm = ngli_hmap_create();
+    if (!hm)
+        return -1;
+    ngli_hmap_set(hm, "foo", "bar");
+    ngli_hmap_set(hm, "foo", NULL);
+    ngli_hmap_set(hm, "foo", "bar");
+    ngli_hmap_freep(&hm);
+    return 0;
+}
+
 int main(void)
 {
     ngli_assert(ngli_crc32("codding") == ngli_crc32("gnu"));
+
+    int ret = test_bucket_delete_reuse();
+    if (ret < 0)
+        return 1;
 
     for (int custom_alloc = 0; custom_alloc <= 1; custom_alloc++) {
         struct hmap *hm = ngli_hmap_create();

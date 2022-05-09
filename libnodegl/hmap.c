@@ -198,7 +198,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                 hm->count--;
                 b->nb_entries--;
                 if (!b->nb_entries) {
-                    ngli_free(b->entries);
+                    ngli_freep(&b->entries);
                 } else {
                     memmove(e, e + 1, (b->nb_entries - i) * sizeof(*b->entries));
                     struct hmap_entry *entries =
