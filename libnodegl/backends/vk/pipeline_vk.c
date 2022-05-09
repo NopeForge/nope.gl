@@ -607,19 +607,14 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
         res = create_attribute_descs(s, params);
         if (res != VK_SUCCESS)
             return res;
-
         res = pipeline_graphics_init(s);
-        if (res != VK_SUCCESS)
-            return res;
     } else if (params->type == NGLI_PIPELINE_TYPE_COMPUTE) {
         res = pipeline_compute_init(s);
-        if (res != VK_SUCCESS)
-            return res;
     } else {
         ngli_assert(0);
     }
 
-    return VK_SUCCESS;
+    return res;
 }
 
 int ngli_pipeline_vk_set_resources(struct pipeline *s, const struct pipeline_resources *resources)
