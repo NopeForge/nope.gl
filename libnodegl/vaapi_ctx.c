@@ -65,7 +65,7 @@ static int check_extensions(const struct gpu_ctx *gpu_ctx)
     if (config->backend == NGL_BACKEND_VULKAN) {
         const struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
         const struct vkcontext *vk = gpu_ctx_vk->vkcontext;
-        const char *required_extensions[] = {
+        static const char * const required_extensions[] = {
             VK_KHR_EXTERNAL_MEMORY_FD_EXTENSION_NAME,
             VK_EXT_EXTERNAL_MEMORY_DMA_BUF_EXTENSION_NAME,
             VK_EXT_IMAGE_DRM_FORMAT_MODIFIER_EXTENSION_NAME,
