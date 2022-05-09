@@ -15,6 +15,10 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 - Compatibility with static analyzers for symbols discovery in `pynodegl`,
   including typing annotations
 
+### Fixed
+- Missing exposed constants in `pynodegl` (some backend capabilities and
+  the Wayland platform ID)
+
 ## [2022.5] [libnodegl 0.4.0] - 2022-05-06
 ### Fixed
 - Missing package data files for `ngl-diff`
