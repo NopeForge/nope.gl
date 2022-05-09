@@ -1,6 +1,5 @@
 /*
  * Copyright 2018 GoPro Inc.
- * Copyright 2010 The Android Open Source Project
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
@@ -179,51 +178,9 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct sxplayer_frame *
     if (ret < 0)
         return ret;
 
-    float sx = 1.0f, sy = 1.0f, tx = 0.0f, ty = 0.0f;
-    const int32_t width = crop_rect.right - crop_rect.left;
-    const int32_t height = crop_rect.bottom - crop_rect.top;
-    if (width > 0 && height > 0) {
-        float shrink = 0.0f;
-        if (params->texture_min_filter == NGLI_FILTER_LINEAR ||
-            params->texture_mag_filter == NGLI_FILTER_LINEAR) {
-            /*
-             * In order to prevent bilinear sampling beyond the edge of the
-             * crop rectangle we shrink a certain amount of texels on each side
-             * depending on the buffer format. This logic matches what is done
-             * internally in SurfaceTexture.getTransformatMatrix().
-             */
-            switch (desc.format) {
-            case AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM:
-            case AHARDWAREBUFFER_FORMAT_R8G8B8X8_UNORM:
-            case AHARDWAREBUFFER_FORMAT_R16G16B16A16_FLOAT:
-            case AHARDWAREBUFFER_FORMAT_R10G10B10A2_UNORM:
-            case AHARDWAREBUFFER_FORMAT_R8G8B8_UNORM:
-            case AHARDWAREBUFFER_FORMAT_R5G6B5_UNORM:
-                /* No subsampling, shrink by half a texel on each side */
-                shrink = 0.5f;
-                break;
-            default:
-                 /* Assume YUV420P, shrink by one texel on each side */
-                shrink = 1.0f;
-            }
-        }
-        if (width < desc.width) {
-            tx = (crop_rect.left + shrink) / (float)desc.width;
-            sx = (width - 2.0f * shrink) / (float)desc.width;
-        }
-        if (height < desc.height) {
-            ty = (crop_rect.top + shrink) / (float)desc.height;
-            sy = (height - 2.0f * shrink) / (float)desc.height;
-        }
-    }
-    NGLI_ALIGNED_MAT(crop_matrix) = {
-        sx,   0.0f, 0.0f, 0.0f,
-        0.0f, sy,   0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        tx,   ty,   0.0f, 1.0f,
-    };
     float *matrix = hwmap->mapped_image.coordinates_matrix;
-    memcpy(matrix, crop_matrix, sizeof(crop_matrix));
+    const int filtering = params->texture_min_filter || params->texture_mag_filter;
+    ngli_android_get_crop_matrix(matrix, &desc, &crop_rect, filtering);
 
     EGLClientBuffer egl_buffer = ngli_eglGetNativeClientBufferANDROID(gl, hardware_buffer);
     if (!egl_buffer)

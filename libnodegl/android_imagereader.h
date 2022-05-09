@@ -47,6 +47,8 @@ enum {
     NGLI_ANDROID_IMAGE_FORMAT_DEPTH_JPEG        = 0x69656963
 };
 
+void ngli_android_get_crop_matrix(float *matrix, const AHardwareBuffer_Desc *desc, const AImageCropRect *crop_rect, int filtering);
+
 struct android_image;
 
 AHardwareBuffer *ngli_android_image_get_hardware_buffer(struct android_image *s);
