@@ -247,6 +247,16 @@ foreach backend : backends
     'timeranges_rtt',
   ]
 
+  tests_py_bindings = [
+    'allow_node',
+    'dict',
+    'f64s',
+    'no_param',
+    'nodes',
+    'rational',
+    'wrong_param',
+  ]
+
   tests_velocity = [
     'circle_distort_2d',
     'circle_distort_3d',
@@ -411,6 +421,7 @@ foreach backend : backends
     'filter':        {'tests': tests_filter},
     'live':          {'tests': tests_live},
     'media':         {'tests': tests_media},
+    'py_bindings':   {'tests': tests_py_bindings, 'has_refs': false},
     'velocity':      {'tests': tests_velocity},
     'rtt':           {'tests': tests_rtt},
     'shape':         {'tests': tests_shape},
