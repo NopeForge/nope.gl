@@ -87,6 +87,21 @@ done:
     return NGL_ERROR_UNSUPPORTED;
 }
 
+static int has_native_imagereader_api_support(struct gpu_ctx *gpu_ctx)
+{
+    ngli_unused const struct ngl_config *config = &gpu_ctx->config;
+#if defined(BACKEND_GL)
+    if (config->backend == NGL_BACKEND_OPENGLES) {
+        const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+        const struct glcontext *gl = gpu_ctx_gl->glcontext;
+        const uint64_t features = NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE |
+                                  NGLI_FEATURE_GL_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
+        return ((gl->features & features) == features);
+    }
+#endif
+    return 0;
+}
+
 int ngli_android_ctx_init(struct gpu_ctx *gpu_ctx, struct android_ctx *s)
 {
     memset(s, 0, sizeof(*s));
@@ -103,18 +118,9 @@ int ngli_android_ctx_init(struct gpu_ctx *gpu_ctx, struct android_ctx *s)
         return ret;
     }
 
-#if defined(BACKEND_GL)
     const struct ngl_config *config = &gpu_ctx->config;
-    if (config->backend == NGL_BACKEND_OPENGLES) {
-        const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
-        const struct glcontext *gl = gpu_ctx_gl->glcontext;
-        const uint64_t features = NGLI_FEATURE_GL_OES_EGL_EXTERNAL_IMAGE |
-                                  NGLI_FEATURE_GL_EGL_ANDROID_GET_IMAGE_NATIVE_CLIENT_BUFFER;
-        if ((gl->features & features) == features)
-            s->has_native_imagereader_api = 1;
-        s->has_surface_texture_api = 1;
-    }
-#endif
+    s->has_surface_texture_api = config->backend == NGL_BACKEND_OPENGLES;
+    s->has_native_imagereader_api = has_native_imagereader_api_support(gpu_ctx);
 
     return 0;
 }
