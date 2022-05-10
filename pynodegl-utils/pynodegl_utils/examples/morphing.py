@@ -81,7 +81,7 @@ def urchin(cfg, npoints=25):
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
 
-    def get_vertices(n, radius_func, offset=0):
+    def get_vertices(n, radius_func, offset=0.0):
         vertices = []
         step = 2 * math.pi / n
         for i in range(n):
