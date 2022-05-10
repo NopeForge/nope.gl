@@ -121,7 +121,7 @@ def fibo(cfg, n=8):
     for i, x in enumerate(fib[:-1]):
         w = x * shape_scale
         gray = 1.0 - i / float(n)
-        color = [gray, gray, gray]
+        color = (gray, gray, gray)
         q = ngl.Quad(orig, (w, 0, 0), (0, w, 0))
         render = ngl.RenderColor(color, geometry=q)
 
@@ -408,7 +408,7 @@ def cube(cfg, display_depth_buffer=False):
         rot_animkf = ngl.AnimatedFloat(
             [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
         )
-        axis = [int(i == x) for x in range(3)]
+        axis = tuple(int(i == x) for x in range(3))
         cube = ngl.Rotate(cube, axis=axis, angle=rot_animkf)
 
     config = ngl.GraphicConfig(cube, depth_test=True)
@@ -565,7 +565,7 @@ def mountain(cfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb_mountains
         else:
             c0, c1 = black, ref_color
             x = (i - nb_mountains / 2) / float((nb_mountains - 1) / 2)
-        mcolor = [x * a + (1.0 - x) * b for a, b in zip(c0, c1)]
+        mcolor = tuple(x * a + (1.0 - x) * b for a, b in zip(c0, c1))
 
         random_buf = ngl.BufferFloat(data=get_rand())
         random_tex = ngl.Texture2D(data_src=random_buf, width=random_dim, height=1)

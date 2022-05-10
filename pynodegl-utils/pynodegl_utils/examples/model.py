@@ -127,13 +127,13 @@ def stl(cfg, stl=None, scale=0.8):
     solid = ngl.Render(g, p, label=solid_label)
     solid = ngl.GraphicConfig(solid, depth_test=True)
 
-    solid = ngl.Scale(solid, [scale] * 3)
+    solid = ngl.Scale(solid, (scale, scale, scale))
 
     for i in range(3):
         rot_animkf = ngl.AnimatedFloat(
             [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
         )
-        axis = [int(i == x) for x in range(3)]
+        axis = tuple(int(i == x) for x in range(3))
         solid = ngl.Rotate(solid, axis=axis, angle=rot_animkf)
 
     camera = ngl.Camera(solid)

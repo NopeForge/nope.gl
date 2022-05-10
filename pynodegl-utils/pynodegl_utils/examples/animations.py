@@ -178,7 +178,7 @@ def _get_easing_nodes(cfg, color_program):
     for easing, _, col, row in ag:
         easing_name, zoom = easing
         easing_node = _get_easing_node(cfg, easing_name, zoom, color_program)
-        easing_node = ngl.Scale(easing_node, factors=[easing_w, easing_h, 0])
+        easing_node = ngl.Scale(easing_node, factors=(easing_w, easing_h, 0))
         x = easing_w * (-ag.nb_cols + 1 + 2 * col)
         y = easing_h * (ag.nb_rows - 1 - 2 * row)
         easing_node = ngl.Translate(easing_node, vector=(x, y, 0))

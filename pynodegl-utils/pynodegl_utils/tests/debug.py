@@ -34,6 +34,6 @@ def get_debug_points(cfg, points, radius=0.025, color=COLORS.green, text_size=(0
         text = ngl.Text(pos_name, box_width=box_w, box_height=box_h, bg_opacity=0, valign="top")
         text = ngl.Translate(text, (1 + radius, 1 - radius - text_size[1], 0))
         point = ngl.Group(children=(circle_render, text))
-        point = ngl.Translate(point, list(position) + [0])
+        point = ngl.Translate(point, position + (0,))
         g.add_children(point)
     return g
