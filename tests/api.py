@@ -112,7 +112,7 @@ def api_capture_buffer(width=16, height=16):
     assert ret == 0
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
-    for i in range(2):
+    for _ in range(2):
         capture_buffer = bytearray(width * height * 4)
         assert ctx.set_capture_buffer(capture_buffer) == 0
         assert ctx.draw(0) == 0
@@ -284,9 +284,9 @@ def api_livectls():
     values = dict(
         b=True,
         f=rng.uniform(-1, 1),
-        iv3=[rng.randint(-100, 100) for i in range(3)],
+        iv3=[rng.randint(-100, 100) for _ in range(3)],
         switch=False,
-        m4=[rng.uniform(-1, 1) for i in range(16)],
+        m4=[rng.uniform(-1, 1) for _ in range(16)],
         clr=(0.9, 0.3, 0.8),
         rot=(0.1, -0.2, 0.5, -0.3),
         txt="test string",

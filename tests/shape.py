@@ -225,7 +225,7 @@ def shape_diamond_colormask(cfg):
 
 
 def _get_morphing_coordinates(rng, n, x_off, y_off):
-    coords = [(rng.uniform(0, 1) + x_off, rng.uniform(0, 1) + y_off, 0) for i in range(n - 1)]
+    coords = [(rng.uniform(0, 1) + x_off, rng.uniform(0, 1) + y_off, 0) for _ in range(n - 1)]
     coords.append(coords[0])  # smooth loop
     return coords
 
@@ -261,7 +261,7 @@ def _get_cropboard_function(set_indices=False):
         cfg.duration = 5.0 + 1.0
 
         nb_kf = 2
-        buffers = [get_random_color_buffer(cfg.rng, dim_clr) for i in range(nb_kf)]
+        buffers = [get_random_color_buffer(cfg.rng, dim_clr) for _ in range(nb_kf)]
         random_animkf = []
         time_scale = cfg.duration / float(nb_kf)
         for i, buf in enumerate(buffers + [buffers[0]]):

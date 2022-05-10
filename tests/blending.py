@@ -174,7 +174,7 @@ def _debug_overlay(cfg, scene, grid_names, show_dbg_points=False, show_labels=Fa
     if show_labels:
         text_group = ngl.Group()
         ag = AutoGrid(grid_names)
-        for grid_name, i, col, row in ag:
+        for grid_name, _, col, row in ag:
             text = ngl.Text(
                 grid_name,
                 fg_color=COLORS.white,

@@ -66,7 +66,7 @@ def compute_particles(cfg):
 
     positions = array.array("f")
     velocities = array.array("f")
-    for i in range(nb_particles):
+    for _ in range(nb_particles):
         positions.extend(
             [
                 cfg.rng.uniform(-2.0, 1.0),
@@ -186,7 +186,7 @@ def compute_histogram(cfg, show_dbg_points=False):
     cfg.aspect_ratio = (1, 1)
     hsize, size, local_size = _N * _N, _N, _N // 2
     data = array.array("f")
-    for i in range(size * size):
+    for _ in range(size * size):
         data.extend(
             (
                 cfg.rng.uniform(0.0, 0.5),

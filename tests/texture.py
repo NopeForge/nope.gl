@@ -62,7 +62,7 @@ def texture_data(cfg, w=4, h=5):
 def texture_data_animated(cfg, dim=8):
     cfg.duration = 3.0
     nb_kf = int(cfg.duration)
-    buffers = [get_random_color_buffer(cfg.rng, dim) for i in range(nb_kf)]
+    buffers = [get_random_color_buffer(cfg.rng, dim) for _ in range(nb_kf)]
     random_animkf = []
     time_scale = cfg.duration / float(nb_kf)
     for i, buf in enumerate(buffers + [buffers[0]]):

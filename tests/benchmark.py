@@ -268,7 +268,7 @@ def _get_random_transform(cfg, rng, t0, t1, child):
         anchor=_get_random_anchor(rng),
     )
 
-    for i in range(rng.randint(1, 2)):
+    for _ in range(rng.randint(1, 2)):
         trf_func = rng.choice((translate, scale, rotate))
         child = trf_func(rng, child)
     return child

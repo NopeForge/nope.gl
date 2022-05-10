@@ -59,7 +59,7 @@ _easing_specs = (
 
 def _get_easing_list():
     easings = []
-    for col, (easing, flags) in enumerate(_easing_specs):
+    for easing, flags in _easing_specs:
         versions = []
         if flags & 1:
             versions += ["_in", "_out"]
@@ -183,7 +183,7 @@ def _get_anim_func(size, animated_type, kf_func, velocity_type=None):
         nb_queries = nb_kf - 1
         scale = 1.0 / float(nb_kf)
         rng = random.Random(0)
-        kfvalues = [[rng.uniform(0, 1) for r in range(size)] for i in range(nb_kf + 1)]
+        kfvalues = [[rng.uniform(0, 1) for _ in range(size)] for _ in range(nb_kf + 1)]
 
         ret = []
         for i, (easing_start_offset, easing_end_offset) in enumerate(offsets):
