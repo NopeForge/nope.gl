@@ -34,7 +34,6 @@ if platform.system() == "Windows":
 
 
 import _pynodegl as _ngl
-
 from _pynodegl import _Node
 
 from .specs import SPECS
