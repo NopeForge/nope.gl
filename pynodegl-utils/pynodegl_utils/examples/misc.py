@@ -199,7 +199,7 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
 
     q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
 
-    audio_m = ngl.Media(media.filename, audio_tex=1)
+    audio_m = ngl.Media(media.filename, audio_tex=True)
     audio_tex = ngl.Texture2D(data_src=audio_m)
 
     video_m = ngl.Media(media.filename)
