@@ -315,16 +315,6 @@ def get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layo
             field_info["color"] = (1, 1, 1)
         fields_info.append(field_info)
 
-    shuf_fields = [fields_info[pos] for pos in fields_pos]
-    color_fields = [(f["name"], ngl.UniformVec3(f["color"], label=f["name"])) for f in fields_info]
-    block_fields = [(f["name"], f["node"]) for f in shuf_fields]
-    if layout == "uniform":
-        color_fields = dict(color_fields)
-        block_fields = dict(block_fields)
-    else:
-        color_fields = ngl.Block(fields=[f for _, f in color_fields], layout=layout, label="colors_block")
-        block_fields = ngl.Block(fields=[f for _, f in block_fields], layout=layout, label="fields_block")
-
     fields = match_fields(fields_info, category, field_type)
 
     func_calls = []
@@ -347,14 +337,20 @@ def get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layo
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
     render = ngl.Render(quad, program)
 
-    if isinstance(color_fields, dict):
-        assert isinstance(block_fields, dict)
+    shuf_fields = [fields_info[pos] for pos in fields_pos]
+    color_fields = [(f["name"], ngl.UniformVec3(f["color"], label=f["name"])) for f in fields_info]
+    block_fields = [(f["name"], f["node"]) for f in shuf_fields]
+    if layout == "uniform":
+        color_fields = dict(color_fields)
+        block_fields = dict(block_fields)
         field_names = {f["name"] for f in fields}
         d = {}
         d.update(("color_" + n, u) for (n, u) in color_fields.items() if n in field_names)
         d.update(("field_" + n, u) for (n, u) in block_fields.items() if n in field_names)
         render.update_frag_resources(**d)
     else:
+        color_fields = ngl.Block(fields=[f for _, f in color_fields], layout=layout, label="colors_block")
+        block_fields = ngl.Block(fields=[f for _, f in block_fields], layout=layout, label="fields_block")
         render.update_frag_resources(fields=block_fields, colors=color_fields)
 
     render.update_frag_resources(nb_fields=ngl.UniformInt(len(fields)))
