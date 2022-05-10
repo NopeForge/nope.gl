@@ -121,6 +121,9 @@ def _get_display_glsl_func(layout, field_name, field_type, field_len=None):
         field_name=field_name,
         field_len=field_len,
         nb_comp=nb_comp,
+        scale=scale if scale is not None else 1.0,
+        nb_cols=cols,
+        nb_rows=rows,
     )
 
     rect_lines = []
@@ -131,8 +134,6 @@ def _get_display_glsl_func(layout, field_name, field_type, field_len=None):
 
             tpl_data["col"] = col
             tpl_data["row"] = row
-            tpl_data["nb_cols"] = cols
-            tpl_data["nb_rows"] = rows
 
             if nb_comp == 16:
                 tpl_data["vec_field"] = "[%d][%d]" % (col, row)
@@ -143,9 +144,6 @@ def _get_display_glsl_func(layout, field_name, field_type, field_len=None):
 
             if is_array:
                 tpl_data["vec_field"] = "[i]" + tpl_data["vec_field"]
-
-            if scale:
-                tpl_data["scale"] = scale
 
             tpl_data["comp_id"] = comp_id
             rect_lines.append(rect_tpl % tpl_data)
