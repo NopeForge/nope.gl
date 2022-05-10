@@ -481,7 +481,7 @@ def histogram(cfg):
     g.add_children(compute)
 
     local_size = 8
-    group_size = proxy_size / local_size
+    group_size = proxy_size // local_size
     compute_program = ngl.ComputeProgram(cfg.get_comp("histogram-exec"), workgroup_size=(local_size, local_size, 1))
     compute = ngl.Compute(workgroup_count=(group_size, group_size, 1), program=compute_program, label="histogram-exec")
     compute.update_resources(hist=h, source=proxy)
