@@ -230,7 +230,7 @@ def particles(cfg, particles=32):
     positions = array.array("f")
     velocities = array.array("f")
 
-    for i in range(p):
+    for _ in range(p):
         positions.extend(
             [
                 cfg.rng.uniform(-1.0, 1.0),
@@ -547,7 +547,7 @@ def mountain(cfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb_mountains
     cfg.duration = nb_mountains**2
 
     def get_rand():
-        return array.array("f", [cfg.rng.uniform(0, 1) for x in range(random_dim)])
+        return array.array("f", [cfg.rng.uniform(0, 1) for _ in range(random_dim)])
 
     black, white = (0, 0, 0), (1, 1, 1)
     quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))

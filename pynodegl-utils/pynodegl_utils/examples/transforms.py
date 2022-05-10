@@ -123,7 +123,7 @@ def animated_buffer(cfg, dim=50):
     cfg.duration = 5.0
 
     nb_kf = int(cfg.duration)
-    buffers = [get_random_color_buffer(cfg.rng, dim) for i in range(nb_kf)]
+    buffers = [get_random_color_buffer(cfg.rng, dim) for _ in range(nb_kf)]
     random_animkf = []
     time_scale = cfg.duration / float(nb_kf)
     for i, buf in enumerate(buffers + [buffers[0]]):

@@ -56,7 +56,7 @@ class _CompareResources(CompareSceneBase):
         self._hud_export_filename = self._csvfile
 
     def get_out_data(self, debug=False, debug_func=None):
-        for frame in self.render_frames():
+        for _ in self.render_frames():
             pass
 
         # filter columns

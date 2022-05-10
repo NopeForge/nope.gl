@@ -94,7 +94,7 @@ def query_list(pkg):
     else:
         module = importlib.import_module(pkg)
         for submod in pkgutil.iter_modules(module.__path__):
-            module_finder, module_name, ispkg = submod
+            _, module_name, ispkg = submod
             if ispkg:
                 continue
             script = importlib.import_module("." + module_name, pkg)

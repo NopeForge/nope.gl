@@ -322,8 +322,8 @@ def get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layo
         color_fields = dict(color_fields)
         block_fields = dict(block_fields)
     else:
-        color_fields = ngl.Block(fields=[f for n, f in color_fields], layout=layout, label="colors_block")
-        block_fields = ngl.Block(fields=[f for n, f in block_fields], layout=layout, label="fields_block")
+        color_fields = ngl.Block(fields=[f for _, f in color_fields], layout=layout, label="colors_block")
+        block_fields = ngl.Block(fields=[f for _, f in block_fields], layout=layout, label="fields_block")
 
     fields = match_fields(fields_info, category, field_type)
 

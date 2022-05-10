@@ -150,7 +150,7 @@ _easing_specs = (
 
 def _get_easing_list():
     easings = []
-    for col, (easing, flags, zoom) in enumerate(_easing_specs):
+    for easing, flags, zoom in _easing_specs:
         versions = []
         if flags & 1:
             versions += ["_in", "_out"]
@@ -175,7 +175,7 @@ def _get_easing_nodes(cfg, color_program):
     cfg.aspect_ratio = (ag.nb_cols, ag.nb_rows)
     easing_h = 1.0 / ag.nb_rows
     easing_w = 1.0 / ag.nb_cols
-    for easing, easing_id, col, row in ag:
+    for easing, _, col, row in ag:
         easing_name, zoom = easing
         easing_node = _get_easing_node(cfg, easing_name, zoom, color_program)
         easing_node = ngl.Scale(easing_node, factors=[easing_w, easing_h, 0])

@@ -70,7 +70,7 @@ class AutoGrid:
 def autogrid_simple(scenes):
     ag = AutoGrid(scenes)
     g = ngl.Group()
-    for scene, scene_id, col, row in ag:
+    for scene, _, col, row in ag:
         scene = ag.place_node(scene, (col, row))
         g.add_children(scene)
     return g
@@ -98,7 +98,7 @@ if __name__ == "__main__":
     N = 10
     for n in range(1, N * N + 1):
         ag = AutoGrid(range(n))
-        buf = [["."] * ag.nb_cols for i in range(ag.nb_rows)]
+        buf = [["."] * ag.nb_cols for _ in range(ag.nb_rows)]
         for _, i, x, y in ag:
             buf[y][x] = "x"
         print("#%d (cols:%d rows:%d)" % (n, ag.nb_cols, ag.nb_rows))

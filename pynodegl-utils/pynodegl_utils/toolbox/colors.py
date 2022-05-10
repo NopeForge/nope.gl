@@ -44,6 +44,6 @@ class COLORS:
 
 def get_random_color_buffer(rng, dim):
     data = []
-    for i in range(dim**2):
+    for _ in range(dim**2):
         data += (rng.random(), rng.random(), rng.random(), 1.0)
     return array.array("f", data)
