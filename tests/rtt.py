@@ -113,7 +113,7 @@ def _get_rtt_scene(cfg, features="depth", texture_ds_format=None, samples=0, mip
         rot_animkf = ngl.AnimatedFloat(
             [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360 * (i + 1))]
         )
-        axis = [int(i == x) for x in range(3)]
+        axis = tuple(int(i == x) for x in range(3))
         render = ngl.Rotate(render, axis=axis, angle=rot_animkf)
 
     config = ngl.GraphicConfig(render, depth_test=True)

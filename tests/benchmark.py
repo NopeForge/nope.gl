@@ -299,7 +299,7 @@ def _get_random_layer(cfg, rng, t0, t1, enable_computes, layer=4):
             )
             rtt = ngl.RenderToTexture(
                 child,
-                clear_color=list(_get_random_color(rng)) + [1],
+                clear_color=_get_random_color(rng) + (1,),
             )
             rtt.add_color_textures(rtt_tex)
             rtt_render = ngl.RenderTexture(

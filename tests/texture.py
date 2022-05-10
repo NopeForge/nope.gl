@@ -234,7 +234,7 @@ def texture_clear_and_scissor(cfg):
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask="")
 
     texture = ngl.Texture2D(width=64, height=64)
-    rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=list(COLORS.orange) + [1])
+    rtt = ngl.RenderToTexture(ngl.Identity(), [texture], clear_color=COLORS.orange + (1,))
     render = ngl.RenderTexture(texture)
 
     return ngl.Group(children=(graphic_config, rtt, render))

@@ -39,14 +39,14 @@ def _transform_shape(cfg, w=0.75, h=0.45):
 def transform_matrix(cfg):
     cfg.aspect_ratio = (1, 1)
     shape = _transform_shape(cfg)
-    mat = [
+    mat = (
         # fmt: off
         0.5, 0.5, 0.0, 0.0,
        -1.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 0.0, 0.0,
        -0.2, 0.4, 0.0, 1.0,
         # fmt: on
-    ]
+    )
     return ngl.Transform(shape, matrix=mat)
 
 
