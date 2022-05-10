@@ -56,7 +56,7 @@ def _load_model(fp):
 
 
 @scene(model=scene.File(filter="Object files (*.obj)"))
-def obj(cfg, n=0.5, model=None):
+def obj(cfg, model=None):
     """Load and display a cube object (generated with Blender)"""
 
     if model is None:
