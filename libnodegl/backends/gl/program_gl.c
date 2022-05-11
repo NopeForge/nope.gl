@@ -66,9 +66,9 @@ static int program_check_status(const struct glcontext *gl, GLuint id, GLenum st
 
     get_log(gl, id, info_log_length, NULL, info_log);
     while (info_log_length && strchr(" \r\n", info_log[info_log_length - 1]))
-        info_log[--info_log_length] = 0;
+        info_log_length--;
 
-    LOG(ERROR, "could not %s shader: %s", type_str, info_log);
+    LOG(ERROR, "could not %s shader: %.*s", type_str, info_log_length, info_log);
     ngli_free(info_log);
     return NGL_ERROR_INVALID_DATA;
 }
