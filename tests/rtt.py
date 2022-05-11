@@ -220,7 +220,7 @@ def _rtt_load_attachment_nested(cfg, samples=0):
     scene = _rtt_load_attachment(cfg)
 
     texture = ngl.Texture2D(width=16, height=16)
-    rtt = ngl.RenderToTexture(scene, [texture])
+    rtt = ngl.RenderToTexture(scene, [texture], samples=samples)
 
     foreground = ngl.RenderTexture(texture)
 
