@@ -326,9 +326,6 @@ try_again:;
                 EGL_NONE
             };
 
-            if (i)
-                LOG(WARNING, "falling back on OpenGL %d.%d", gl_versions[i].major, gl_versions[i].minor);
-
             egl->handle = eglCreateContext(egl->display, egl->config, shared_context, ctx_attribs);
             if (egl->handle)
                 break;
