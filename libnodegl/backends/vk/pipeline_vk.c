@@ -203,7 +203,6 @@ static VkResult create_attribute_descs(struct pipeline *s, const struct pipeline
         const VkDeviceSize offset = 0;
         if (!ngli_darray_push(&s_priv->vertex_offsets, &offset))
             return VK_ERROR_OUT_OF_HOST_MEMORY;
-
     }
 
     return VK_SUCCESS;
