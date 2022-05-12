@@ -46,6 +46,7 @@
 #include "nodegl.h"
 #include "utils.h"
 
+#define EGL_PLATFORM_DEVICE_EXT 0x313F
 #define EGL_PLATFORM_X11 0x31D5
 #define EGL_PLATFORM_WAYLAND 0x31D8
 #define EGL_PLATFORM_SURFACELESS_MESA 0x31DD
@@ -63,6 +64,7 @@ struct egl_priv {
     EGLDisplay (*GetPlatformDisplay)(EGLenum platform, void *native_display, const EGLint *attrib_list);
     EGLAPIENTRY EGLImageKHR (*CreateImageKHR)(EGLDisplay, EGLContext, EGLenum, EGLClientBuffer, const EGLint *);
     EGLAPIENTRY EGLBoolean (*DestroyImageKHR)(EGLDisplay, EGLImageKHR);
+    EGLAPIENTRY EGLBoolean (*QueryDevices)(EGLint max_devices, EGLDeviceEXT *devices, EGLint *num_devices);
 #if defined(TARGET_ANDROID)
     EGLAPIENTRY EGLClientBuffer (*GetNativeClientBufferANDROID)(const struct AHardwareBuffer *);
 #endif
@@ -70,6 +72,7 @@ struct egl_priv {
     int has_platform_mesa_surfaceless_ext;
     int has_platform_wayland_ext;
     int has_surfaceless_context_ext;
+    int has_device_base_ext;
 #if defined(HAVE_WAYLAND)
     struct wl_egl_window *wl_egl_window;
 #endif
@@ -170,7 +173,53 @@ static int egl_probe_client_extensions(struct egl_priv *egl)
         ngli_glcontext_check_extension("EGL_EXT_platform_wayland", client_extensions))
         egl->has_platform_wayland_ext = 1;
 
+    if ((ngli_glcontext_check_extension("EGL_EXT_device_enumeration", client_extensions) &&
+        ngli_glcontext_check_extension("EGL_EXT_platform_device", client_extensions)) ||
+        ngli_glcontext_check_extension("EGL_EXT_device_base", client_extensions)) {
+        egl->QueryDevices = (void *)eglGetProcAddress("eglQueryDevicesEXT");
+        if (!egl->QueryDevices) {
+            LOG(ERROR, "could not retrieve eglQueryDevicesEXT()");
+            return -1;
+        }
+        egl->has_device_base_ext = 1;
+    }
+
     return 0;
+}
+
+static int egl_check_display(struct egl_priv *egl, EGLDisplay display)
+{
+    EGLint major, minor;
+    EGLBoolean ret = eglInitialize(display, &major, &minor);
+    if (!ret)
+        return -1;
+    eglTerminate(display);
+    return 0;
+}
+
+#define MAX_DEVICES 16
+
+static EGLDisplay egl_get_device_display(struct egl_priv *egl)
+{
+    EGLint nb_devices;
+    EGLDeviceEXT devices[MAX_DEVICES];
+    if (!egl->QueryDevices(MAX_DEVICES, devices, &nb_devices)) {
+        LOG(ERROR, "failed to query available devices");
+        return EGL_NO_DISPLAY;
+    }
+
+    for (int i = 0; i < nb_devices; i++) {
+        EGLDisplay display = egl->GetPlatformDisplay(EGL_PLATFORM_DEVICE_EXT, devices[i], NULL);
+        if (!display)
+            continue;
+
+        if (egl_check_display(egl, display) < 0)
+            continue;
+
+        return display;
+    }
+
+    return EGL_NO_DISPLAY;
 }
 #endif
 
@@ -222,6 +271,13 @@ static EGLDisplay egl_get_display(struct glcontext *ctx, EGLNativeDisplayType na
     }
 
     if (offscreen) {
+        if (egl->has_device_base_ext) {
+            LOG(DEBUG, "no display available, falling back on device platform");
+            EGLDisplay display = egl_get_device_display(egl);
+            if (display)
+                return display;
+        }
+
         if (egl->has_platform_mesa_surfaceless_ext) {
             LOG(DEBUG, "no display available, falling back on Mesa surfaceless platform");
             return egl->GetPlatformDisplay(EGL_PLATFORM_SURFACELESS_MESA, EGL_DEFAULT_DISPLAY, NULL);
