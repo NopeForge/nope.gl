@@ -47,8 +47,8 @@
 #include "utils.h"
 
 #define EGL_PLATFORM_X11 0x31D5
-#define EGL_PLATFORM_SURFACELESS_MESA 0x31DD
 #define EGL_PLATFORM_WAYLAND 0x31D8
+#define EGL_PLATFORM_SURFACELESS_MESA 0x31DD
 
 struct egl_priv {
     EGLNativeDisplayType native_display;
