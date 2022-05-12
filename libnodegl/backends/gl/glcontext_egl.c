@@ -240,8 +240,6 @@ static EGLDisplay egl_get_display(struct glcontext *ctx, EGLNativeDisplayType na
     if (ctx->platform == NGL_PLATFORM_XLIB) {
         if (!egl->native_display) {
             egl->native_display = XOpenDisplay(NULL);
-            if (!egl->native_display)
-                LOG(WARNING, "could not retrieve X11 display");
             egl->own_native_display = egl->native_display ? 1 : 0;
         }
 
