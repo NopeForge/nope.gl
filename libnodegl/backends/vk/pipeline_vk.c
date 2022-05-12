@@ -565,6 +565,50 @@ static VkResult create_pipeline_layout(struct pipeline *s)
     return vkCreatePipelineLayout(vk->device, &pipeline_layout_create_info, NULL, &s_priv->pipeline_layout);
 }
 
+static VkResult create_pipeline(struct pipeline *s)
+{
+    VkResult res = create_desc_layout(s);
+    if (res != VK_SUCCESS)
+        return res;
+
+    res = create_desc_sets(s);
+    if (res != VK_SUCCESS)
+        return res;
+
+    res = create_pipeline_layout(s);
+    if (res != VK_SUCCESS)
+        return res;
+
+    if (s->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
+        res = pipeline_graphics_init(s);
+    } else if (s->type == NGLI_PIPELINE_TYPE_COMPUTE) {
+        res = pipeline_compute_init(s);
+    } else {
+        ngli_assert(0);
+    }
+    return VK_SUCCESS;
+}
+
+static void destroy_pipeline(struct pipeline *s)
+{
+    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
+    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
+    struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
+
+    vkDestroyPipeline(vk->device, s_priv->pipeline, NULL);
+    s_priv->pipeline = VK_NULL_HANDLE;
+
+    vkDestroyPipelineLayout(vk->device, s_priv->pipeline_layout, NULL);
+    s_priv->pipeline_layout = VK_NULL_HANDLE;
+
+    vkDestroyDescriptorSetLayout(vk->device, s_priv->desc_set_layout, NULL);
+    s_priv->desc_set_layout = VK_NULL_HANDLE;
+
+    vkDestroyDescriptorPool(vk->device, s_priv->desc_pool, NULL);
+    s_priv->desc_pool = VK_NULL_HANDLE;
+    ngli_freep(&s_priv->desc_sets);
+}
+
 struct pipeline *ngli_pipeline_vk_create(struct gpu_ctx *gpu_ctx)
 {
     struct pipeline_vk *s = ngli_calloc(1, sizeof(*s));
@@ -586,34 +630,17 @@ VkResult ngli_pipeline_vk_init(struct pipeline *s, const struct pipeline_params 
     ngli_darray_init(&s_priv->buffer_bindings,  sizeof(struct buffer_binding), 0);
     ngli_darray_init(&s_priv->attribute_bindings, sizeof(struct attribute_binding), 0);
 
+    if (params->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
+        VkResult res = create_attribute_descs(s, params);
+        if (res != VK_SUCCESS)
+            return res;
+    }
+
     VkResult res = create_desc_set_layout_bindings(s, params);
     if (res != VK_SUCCESS)
         return res;
 
-    res = create_desc_layout(s);
-    if (res != VK_SUCCESS)
-        return res;
-
-    res = create_desc_sets(s);
-    if (res != VK_SUCCESS)
-        return res;
-
-    res = create_pipeline_layout(s);
-    if (res != VK_SUCCESS)
-        return res;
-
-    if (params->type == NGLI_PIPELINE_TYPE_GRAPHICS) {
-        res = create_attribute_descs(s, params);
-        if (res != VK_SUCCESS)
-            return res;
-        res = pipeline_graphics_init(s);
-    } else if (params->type == NGLI_PIPELINE_TYPE_COMPUTE) {
-        res = pipeline_compute_init(s);
-    } else {
-        ngli_assert(0);
-    }
-
-    return res;
+    return create_pipeline(s);
 }
 
 int ngli_pipeline_vk_set_resources(struct pipeline *s, const struct pipeline_resources *resources)
@@ -916,15 +943,8 @@ void ngli_pipeline_vk_freep(struct pipeline **sp)
 
     struct pipeline *s = *sp;
     struct pipeline_vk *s_priv = (struct pipeline_vk *)s;
-    struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)s->gpu_ctx;
-    struct vkcontext *vk = gpu_ctx_vk->vkcontext;
 
-    vkDestroyDescriptorPool(vk->device, s_priv->desc_pool, NULL);
-    vkDestroyDescriptorSetLayout(vk->device, s_priv->desc_set_layout, NULL);
-    ngli_free(s_priv->desc_sets);
-
-    vkDestroyPipeline(vk->device, s_priv->pipeline, NULL);
-    vkDestroyPipelineLayout(vk->device, s_priv->pipeline_layout, NULL);
+    destroy_pipeline(s);
 
     ngli_darray_reset(&s_priv->texture_bindings);
     ngli_darray_reset(&s_priv->buffer_bindings);
