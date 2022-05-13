@@ -37,22 +37,22 @@ class AutoGrid:
         col, row = pos
         pos_x = self.scale * (col * 2.0 + 1.0) - 1.0
         pos_y = self.scale * (row * -2.0 - 1.0) + 1.0
-        return pos_x, pos_y, 0.0
+        return pos_x, pos_y
 
     def transform_coords(self, coords, pos):
         adjust = self._get_coords(pos)
-        scales = (self.scale, self.scale, 1.0)
+        scales = (self.scale, self.scale)
         return tuple(c * s + a for c, s, a in zip(coords, scales, adjust))
 
     def place_node(self, node, pos):
-        pos_x, pos_y, pos_z = self._get_coords(pos)
+        pos_x, pos_y = self._get_coords(pos)
         # This is equivalent to Translate(Scale(node))
         mat = (
             # fmt: off
             self.scale, 0, 0, 0,
             0, self.scale, 0, 0,
             0, 0, 1, 0,
-            pos_x, pos_y, pos_z, 1,
+            pos_x, pos_y, 0, 1,
             # fmt: on
         )
         return ngl.Transform(node, matrix=mat, label="grid(col=%d,row=%d)" % pos)

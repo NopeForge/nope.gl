@@ -36,7 +36,7 @@ def _equilateral_triangle_coords(sz=0.5, balanced=True):
     b = sz * math.sqrt(3) / 2.0
     c = sz / 2.0
     yoff = (c - sz) / 2.0 if balanced else 0.0
-    return (-b, yoff - c, 0.0), (b, yoff - c, 0.0), (0.0, yoff + sz, 0.0)
+    return (-b, yoff - c), (b, yoff - c), (0.0, yoff + sz)
 
 
 def _mid_pos(*points):
@@ -44,7 +44,7 @@ def _mid_pos(*points):
 
 
 def _color_positions(sz=0.5, balanced=True):
-    pA, pB, pC = [(x, y) for (x, y, _) in _equilateral_triangle_coords(sz, balanced)]
+    pA, pB, pC = _equilateral_triangle_coords(sz, balanced)
     pD, pE, pF = [_mid_pos(p0, p1) for (p0, p1) in ((pA, pC), (pA, pB), (pB, pC))]
     pO = _mid_pos(pA, pB, pC)
     yoff = -sz / 4.0 if balanced else 0.0
@@ -78,7 +78,7 @@ def _get_blending_base_objects(cfg):
     colored_circles = ngl.Group(label="colored circles")
     for position, color in zip(positions, _CIRCLES_COLORS):
         render = ngl.RenderColor(color, geometry=circle)
-        render = ngl.Translate(render, position)
+        render = ngl.Translate(render, position + (0.0,))
         colored_circles.add_children(render)
     return colored_circles, circle, positions
 
@@ -87,7 +87,7 @@ def _get_background_circles(circle, positions, bcolor):
     blend_bg = ngl.Group()
     render = ngl.RenderColor(bcolor, geometry=circle)
     for position in positions:
-        trender = ngl.Translate(render, position)
+        trender = ngl.Translate(render, position + (0.0,))
         blend_bg.add_children(trender)
     return blend_bg
 
