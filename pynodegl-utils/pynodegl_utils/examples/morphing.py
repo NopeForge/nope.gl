@@ -1,13 +1,13 @@
 import array
 import math
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 
 import pynodegl as ngl
 
 
 @scene(square_color=scene.Color(), circle_color=scene.Color())
-def square2circle(cfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0, 1.0, 1.0)):
+def square2circle(cfg: SceneCfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0, 1.0, 1.0)):
     """Morphing of a square (composed of many vertices) into a circle"""
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
@@ -76,7 +76,7 @@ def square2circle(cfg, square_color=(0.9, 0.1, 0.3), circle_color=(1.0, 1.0, 1.0
 
 
 @scene(npoints=scene.Range(range=[3, 100]))
-def urchin(cfg, npoints=25):
+def urchin(cfg: SceneCfg, npoints=25):
     """Urchin with animated vertices"""
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)

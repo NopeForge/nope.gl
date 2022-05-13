@@ -3,7 +3,7 @@ import colorsys
 import math
 import os.path as op
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.toolbox.scenes import compare
 from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
 
@@ -11,7 +11,7 @@ import pynodegl as ngl
 
 
 @scene(xsplit=scene.Range(range=[0, 1], unit_base=100), trilinear=scene.Bool())
-def lut3d(cfg, xsplit=0.3, trilinear=True):
+def lut3d(cfg: SceneCfg, xsplit=0.3, trilinear=True):
     """Lookup Table 3D using a Texture3D"""
     level = 6
     level2 = level**2
@@ -44,7 +44,7 @@ def lut3d(cfg, xsplit=0.3, trilinear=True):
 
 
 @scene(bgcolor1=scene.Color(), bgcolor2=scene.Color(), bilinear_filtering=scene.Bool())
-def buffer_dove(cfg, bgcolor1=(0.6, 0, 0), bgcolor2=(0.8, 0.8, 0), bilinear_filtering=True):
+def buffer_dove(cfg: SceneCfg, bgcolor1=(0.6, 0, 0), bgcolor2=(0.8, 0.8, 0), bilinear_filtering=True):
     """Blending of a Render using a Buffer as data source"""
     cfg.duration = 3.0
 
@@ -76,7 +76,7 @@ def buffer_dove(cfg, bgcolor1=(0.6, 0, 0), bgcolor2=(0.8, 0.8, 0), bilinear_filt
 
 
 @scene(size=scene.Range(range=[0, 2], unit_base=1000))
-def triangle(cfg, size=4 / 3):
+def triangle(cfg: SceneCfg, size=4 / 3):
     """Rotating triangle with edge coloring specified in a vertex attribute"""
     cfg.duration = 3.0
     cfg.aspect_ratio = (1, 1)
@@ -102,7 +102,7 @@ def triangle(cfg, size=4 / 3):
 
 
 @scene(n=scene.Range(range=[2, 10]))
-def fibo(cfg, n=8):
+def fibo(cfg: SceneCfg, n=8):
     """Fibonacci with a recursive tree (nodes inherit transforms)"""
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
@@ -145,7 +145,7 @@ def fibo(cfg, n=8):
 
 
 @scene(dim=scene.Range(range=[1, 50]))
-def cropboard(cfg, dim=15):
+def cropboard(cfg: SceneCfg, dim=15):
     """Divided media using instancing draw and UV coords offsetting from a buffer"""
     m0 = cfg.medias[0]
     cfg.duration = 10
@@ -192,7 +192,7 @@ def cropboard(cfg, dim=15):
 
 
 @scene(freq_precision=scene.Range(range=[1, 10]), overlay=scene.Range(unit_base=100))
-def audiotex(cfg, freq_precision=7, overlay=0.6):
+def audiotex(cfg: SceneCfg, freq_precision=7, overlay=0.6):
     """FFT/Waves audio texture of the audio stream blended on top of the video stream"""
     media = cfg.medias[0]
     cfg.duration = media.duration
@@ -216,7 +216,7 @@ def audiotex(cfg, freq_precision=7, overlay=0.6):
 
 
 @scene(particles=scene.Range(range=[1, 1023]))
-def particles(cfg, particles=32):
+def particles(cfg: SceneCfg, particles=32):
     """Particules demo using compute shaders and instancing"""
 
     compute_shader = cfg.get_comp("particles")
@@ -285,7 +285,7 @@ def particles(cfg, particles=32):
 
 
 @scene()
-def blending_and_stencil(cfg):
+def blending_and_stencil(cfg: SceneCfg):
     """Scene using blending and stencil graphic features"""
     cfg.duration = 5
     vertex = cfg.get_vert("color")
@@ -389,7 +389,7 @@ def _get_cube_side(texture, program, corner, width, height, color):
 
 
 @scene(display_depth_buffer=scene.Bool())
-def cube(cfg, display_depth_buffer=False):
+def cube(cfg: SceneCfg, display_depth_buffer=False):
     """
     Cube with a common media Texture but a different color tainting on each side.
     Also includes a depth map visualization.
@@ -450,7 +450,7 @@ def cube(cfg, display_depth_buffer=False):
 
 
 @scene()
-def histogram(cfg):
+def histogram(cfg: SceneCfg):
     """Histogram using compute shaders"""
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
@@ -501,7 +501,7 @@ def histogram(cfg):
 
 
 @scene()
-def quaternion(cfg):
+def quaternion(cfg: SceneCfg):
     """Animated quaternion used to rotate a plane"""
     cfg.duration = 10.0
     step = cfg.duration / 5.0
@@ -541,7 +541,7 @@ def quaternion(cfg):
     ref_color=scene.Color(),
     nb_mountains=scene.Range(range=[3, 15]),
 )
-def mountain(cfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb_mountains=6):
+def mountain(cfg: SceneCfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb_mountains=6):
     """Mountain generated with a stack of noise shaders using Textures as random source"""
     random_dim = 1 << ndim
     cfg.aspect_ratio = (16, 9)
@@ -601,7 +601,7 @@ def mountain(cfg, ndim=3, nb_layers=7, ref_color=(0.5, 0.75, 0.75), nb_mountains
 
 
 @scene(demo_str=scene.Text(), time_unit=scene.Range(range=[0.01, 0.3], unit_base=100))
-def text(cfg, demo_str="Hello World!\n\nThis is a multi-line\ntext demonstration.", time_unit=0.05):
+def text(cfg: SceneCfg, demo_str="Hello World!\n\nThis is a multi-line\ntext demonstration.", time_unit=0.05):
     """Demonstrate the text node features (colors, scale, alignment, fitting, ...)"""
 
     group = ngl.Group()
@@ -645,7 +645,7 @@ def text(cfg, demo_str="Hello World!\n\nThis is a multi-line\ntext demonstration
 
 
 @scene()
-def smptebars_glitch(cfg):
+def smptebars_glitch(cfg: SceneCfg):
     """SMPTE bars glitching at irregular intervals"""
 
     cfg.duration = 15
@@ -670,7 +670,7 @@ def smptebars_glitch(cfg):
     c0=scene.Color(),
     c1=scene.Color(),
 )
-def gradient_eval(cfg, mode="ramp", c0=(1, 0.5, 0.5), c1=(0.5, 1, 0.5)):
+def gradient_eval(cfg: SceneCfg, mode="ramp", c0=(1, 0.5, 0.5), c1=(0.5, 1, 0.5)):
     """Animate a gradient and objects using CPU evaluation"""
 
     pos_res = dict(t=ngl.Time())

@@ -19,7 +19,7 @@
 # under the License.
 #
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.toolbox.colors import COLORS
 
 import pynodegl as ngl
@@ -38,7 +38,7 @@ import pynodegl as ngl
     halign=scene.List(choices=("left", "center", "right")),
 )
 def text(
-    cfg,
+    cfg: SceneCfg,
     txt="the quick brown fox\njumps over the lazy dog",
     fg_color=COLORS.cgreen,
     bg_color=(0.3, 0.3, 0.3),

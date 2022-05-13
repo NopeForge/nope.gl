@@ -21,14 +21,14 @@
 
 import array
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.debug import get_debug_points
 from pynodegl_utils.toolbox.colors import COLORS
 
 import pynodegl as ngl
 
 
-def _path_scene(cfg, path, points=None, controls=None, easing="linear"):
+def _path_scene(cfg: SceneCfg, path, points=None, controls=None, easing="linear"):
     cfg.aspect_ratio = (1, 1)
 
     anim_kf = [
@@ -57,7 +57,7 @@ def _path_scene(cfg, path, points=None, controls=None, easing="linear"):
 
 
 @scene(easing=scene.List(choices=["linear", "back_in_out"]))
-def simple_bezier(cfg, easing="linear"):
+def simple_bezier(cfg: SceneCfg, easing="linear"):
     cfg.duration = 2
     # fmt: off
     points = (
@@ -80,7 +80,7 @@ def simple_bezier(cfg, easing="linear"):
 
 
 @scene(tension=scene.Range(range=[0.01, 2], unit_base=100))
-def catmull(cfg, tension=0.5):
+def catmull(cfg: SceneCfg, tension=0.5):
     cfg.duration = 3
     # fmt: off
     points = (
@@ -110,7 +110,7 @@ def catmull(cfg, tension=0.5):
 
 
 @scene()
-def complex_bezier(cfg):
+def complex_bezier(cfg: SceneCfg):
     cfg.duration = 5
     # fmt: off
     points = (
@@ -146,7 +146,7 @@ def complex_bezier(cfg):
 
 
 @scene()
-def composition(cfg):
+def composition(cfg: SceneCfg):
     cfg.duration = 5
     # fmt: off
     points = (
@@ -193,7 +193,7 @@ def composition(cfg):
 
 
 @scene()
-def lines(cfg):
+def lines(cfg: SceneCfg):
     cfg.duration = 3
 
     # fmt: off
@@ -219,7 +219,7 @@ def lines(cfg):
 
 
 @scene()
-def quadratic_arcs(cfg):
+def quadratic_arcs(cfg: SceneCfg):
     cfg.duration = 3
 
     # fmt: off
@@ -248,7 +248,7 @@ def quadratic_arcs(cfg):
 
 
 @scene()
-def character_otf(cfg):
+def character_otf(cfg: SceneCfg):
     """The 'g' glyph from Adobe Source Code Pro Black"""
     cfg.duration = 5
     keyframes = [
@@ -294,7 +294,7 @@ def character_otf(cfg):
 
 
 @scene()
-def character_ttf(cfg):
+def character_ttf(cfg: SceneCfg):
     """The 'g' glyph from Noto Sans Black"""
     cfg.duration = 5
     keyframes = [

@@ -1,10 +1,10 @@
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 
 import pynodegl as ngl
 
 
 @scene(uv_corner=scene.Vector(n=2), uv_width=scene.Vector(n=2), uv_height=scene.Vector(n=2), progress_bar=scene.Bool())
-def centered_media(cfg, uv_corner=(0, 0), uv_width=(1, 0), uv_height=(0, 1), progress_bar=True):
+def centered_media(cfg: SceneCfg, uv_corner=(0, 0), uv_width=(1, 0), uv_height=(0, 1), progress_bar=True):
     """A simple centered media with an optional progress bar in the shader"""
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
@@ -28,7 +28,7 @@ def centered_media(cfg, uv_corner=(0, 0), uv_width=(1, 0), uv_height=(0, 1), pro
 
 
 @scene(speed=scene.Range(range=[0.01, 2], unit_base=1000))
-def playback_speed(cfg, speed=1.0):
+def playback_speed(cfg: SceneCfg, speed=1.0):
     """Adjust media playback speed using animation keyframes"""
     m0 = cfg.medias[0]
     media_duration = m0.duration
@@ -45,7 +45,7 @@ def playback_speed(cfg, speed=1.0):
 
 
 @scene()
-def time_remapping(cfg):
+def time_remapping(cfg: SceneCfg):
     """
     Time remapping in the following order:
     - nothing displayed for a while (but media prefetch happening in background)

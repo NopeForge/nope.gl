@@ -1,11 +1,11 @@
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.toolbox.colors import get_random_color_buffer
 
 import pynodegl as ngl
 
 
 @scene(color=scene.Color(), rotate=scene.Bool(), scale=scene.Bool(), translate=scene.Bool())
-def animated_square(cfg, color=(1, 0.66, 0), rotate=True, scale=True, translate=True):
+def animated_square(cfg: SceneCfg, color=(1, 0.66, 0), rotate=True, scale=True, translate=True):
     """Animated Translate/Scale/Rotate on a square"""
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
@@ -41,7 +41,7 @@ def animated_square(cfg, color=(1, 0.66, 0), rotate=True, scale=True, translate=
 
 
 @scene()
-def animated_uniform(cfg):
+def animated_uniform(cfg: SceneCfg):
     """Uniform mat4 animated with a transform chain"""
     m0 = cfg.medias[0]
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -70,7 +70,7 @@ def animated_uniform(cfg):
 
 
 @scene(rotate=scene.Bool())
-def animated_camera(cfg, rotate=True):
+def animated_camera(cfg: SceneCfg, rotate=True):
     """Animated camera around a scene"""
     g = ngl.Group()
 
@@ -118,7 +118,7 @@ def animated_camera(cfg, rotate=True):
 
 
 @scene(dim=scene.Range(range=[1, 100]))
-def animated_buffer(cfg, dim=50):
+def animated_buffer(cfg: SceneCfg, dim=50):
     """Transform a random buffer content using animations"""
     cfg.duration = 5.0
 
@@ -134,7 +134,7 @@ def animated_buffer(cfg, dim=50):
 
 
 @scene()
-def animated_circles(cfg):
+def animated_circles(cfg: SceneCfg):
     """Simple cyclic circles animation"""
     group = ngl.Group()
 

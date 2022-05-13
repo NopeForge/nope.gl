@@ -1,7 +1,7 @@
 import array
 import os.path as op
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 
 import pynodegl as ngl
 
@@ -56,7 +56,7 @@ def _load_model(fp):
 
 
 @scene(model=scene.File(filter="Object files (*.obj)"))
-def obj(cfg, model=None):
+def obj(cfg: SceneCfg, model=None):
     """Load and display a cube object (generated with Blender)"""
 
     if model is None:
@@ -92,7 +92,7 @@ def obj(cfg, model=None):
 
 
 @scene(stl=scene.File(filter="STL files (*.stl)"), scale=scene.Range(range=[0.01, 10], unit_base=100))
-def stl(cfg, stl=None, scale=0.8):
+def stl(cfg: SceneCfg, stl=None, scale=0.8):
     """Load and display a sphere generated with OpenSCAD"""
 
     if stl is None:

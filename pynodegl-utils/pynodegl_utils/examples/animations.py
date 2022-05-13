@@ -2,7 +2,7 @@ import array
 import colorsys
 import math
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.toolbox.grid import AutoGrid
 
 import pynodegl as ngl
@@ -28,7 +28,7 @@ def _easing_join(easing, args):
     return easing if not args else easing + ":" + ":".join("%g" % x for x in args)
 
 
-def _get_easing_node(cfg, easing, curve_zoom, color_program, nb_points=128):
+def _get_easing_node(cfg: SceneCfg, easing, curve_zoom, color_program, nb_points=128):
     text_vratio = 1 / 8.0
     graph_hpad_ratio = 1 / 16.0
 
@@ -170,7 +170,7 @@ _easing_list = _get_easing_list()
 _easing_names = [e[0] for e in _easing_list]
 
 
-def _get_easing_nodes(cfg, color_program):
+def _get_easing_nodes(cfg: SceneCfg, color_program):
     ag = AutoGrid(_easing_list)
     cfg.aspect_ratio = (ag.nb_cols, ag.nb_rows)
     easing_h = 1.0 / ag.nb_rows
@@ -186,7 +186,7 @@ def _get_easing_nodes(cfg, color_program):
 
 
 @scene(easing_id=scene.List(choices=["*"] + _easing_names))
-def easings(cfg, easing_id="*"):
+def easings(cfg: SceneCfg, easing_id="*"):
     """Display all the easings (primitive for animation / motion design) at once"""
     cfg.duration = 2.0
 
