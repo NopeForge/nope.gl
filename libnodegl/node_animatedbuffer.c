@@ -58,13 +58,13 @@ static void mix_buffer(void *user_arg, void *dst,
 {
     float *dstf = dst;
     const struct animatedbuffer_priv *s = user_arg;
-    const float *d1 = (const float *)kf0->data;
-    const float *d2 = (const float *)kf1->data;
+    const float *d0 = (const float *)kf0->data;
+    const float *d1 = (const float *)kf1->data;
     const struct buffer_layout *layout = &s->buf.layout;
     const int comp = layout->comp;
     for (int k = 0; k < layout->count; k++)
         for (int i = 0; i < comp; i++)
-            dstf[k*comp + i] = NGLI_MIX(d1[k*comp + i], d2[k*comp + i], ratio);
+            dstf[k*comp + i] = NGLI_MIX(d0[k*comp + i], d1[k*comp + i], ratio);
 }
 
 static void cpy_buffer(void *user_arg, void *dst,
