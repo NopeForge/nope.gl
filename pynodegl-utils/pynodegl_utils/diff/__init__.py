@@ -218,7 +218,7 @@ class _Diff:
         frag = pkgutil.get_data("pynodegl_utils.diff.shaders", "diff.frag")
         assert vert is not None and frag is not None
         quad = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
-        prog = ngl.Program(vertex=vert, fragment=frag)
+        prog = ngl.Program(vertex=vert.decode(), fragment=frag.decode())
         prog.update_vert_out_vars(
             uv=ngl.IOVec2(),
             tex0_coord=ngl.IOVec2(),
