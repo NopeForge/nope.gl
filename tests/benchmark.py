@@ -133,7 +133,7 @@ def _get_random_rendertexture(cfg, rng):
     )
 
 
-def _get_random_text(cfg, rng):
+def _get_random_text(rng):
     words = """
         Broccoli Cabbage Mushroom Cucumber Kombu Potato Celery Lettuce Garlic
         Pumpkin Leek Bulbasaur Monkey Goose Axolotl Capybara Wombat Kakapo
@@ -239,7 +239,7 @@ def _get_random_render(cfg, rng, t0, t1, enable_computes):
         blending="src_over",
     )
     texture = lambda rng: _get_random_rendertexture(cfg, rng)
-    text = lambda rng: _get_random_text(cfg, rng)
+    text = lambda rng: _get_random_text(rng)
     compute = lambda rng: _get_random_compute(cfg, rng, t0, t1)
     render_funcs = [
         color,
@@ -252,7 +252,7 @@ def _get_random_render(cfg, rng, t0, t1, enable_computes):
     return rng.choice(render_funcs)(rng)
 
 
-def _get_random_transform(cfg, rng, t0, t1, child):
+def _get_random_transform(rng, t0, t1, child):
     translate = lambda rng, child: ngl.Translate(
         child,
         vector=_get_random_animated_vec3(rng, t0, t1, _get_random_position),
@@ -289,7 +289,7 @@ def _get_random_layer(cfg, rng, t0, t1, enable_computes, layer=4):
         if i in sub_layers and layer != 0:
             # Recursively create another layer
             child = _get_random_layer(cfg, rng, t0, t1, enable_computes, layer=layer - 1)
-            child = _get_random_transform(cfg, rng, t0, t1, child)
+            child = _get_random_transform(rng, t0, t1, child)
             child.set_label(f"layer={layer}")
 
             # Create a (small) RTT of the children
@@ -307,7 +307,7 @@ def _get_random_layer(cfg, rng, t0, t1, enable_computes, layer=4):
                 geometry=_get_random_geometry(rng),
                 blending="src_over",
             )
-            rtt_render = _get_random_transform(cfg, rng, t0, t1, rtt_render)
+            rtt_render = _get_random_transform(rng, t0, t1, rtt_render)
             t_start, t_end = _get_random_time_range(rng, t0, t1)
             rtt_group = ngl.Group(children=(rtt, rtt_render))
             t_filter = ngl.TimeRangeFilter(rtt_group)
@@ -325,7 +325,7 @@ def _get_random_layer(cfg, rng, t0, t1, enable_computes, layer=4):
             t_start, t_end = _get_random_time_range(rng, t0, t1)
             child = _get_random_render(cfg, rng, t_start, t_end, enable_computes)
             if rng.random() < 1 / 3:
-                child = _get_random_transform(cfg, rng, t_start, t_end, child)
+                child = _get_random_transform(rng, t_start, t_end, child)
             child = ngl.TimeRangeFilter(child)
             child.add_ranges(
                 ngl.TimeRangeModeNoop(0),

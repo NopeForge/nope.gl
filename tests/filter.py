@@ -28,7 +28,7 @@ import pynodegl as ngl
 _CUEPOINTS = dict(c=(0, 0), bl=(-0.5, -0.5), br=(0.5, -0.5), tr=(0.5, 0.5), tl=(-0.5, 0.5))
 
 
-def _base_scene(cfg, *filters):
+def _base_scene(*filters):
     return ngl.RenderGradient4(
         opacity_tl=0.3,
         opacity_tr=0.4,
@@ -41,37 +41,37 @@ def _base_scene(cfg, *filters):
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
 def filter_alpha(cfg):
-    return _base_scene(cfg, ngl.FilterAlpha(0.4321))
+    return _base_scene(ngl.FilterAlpha(0.4321))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
 def filter_contrast(cfg):
-    return _base_scene(cfg, ngl.FilterContrast(1.2, pivot=0.3))
+    return _base_scene(ngl.FilterContrast(1.2, pivot=0.3))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
 def filter_exposure(cfg):
-    return _base_scene(cfg, ngl.FilterExposure(0.7))
+    return _base_scene(ngl.FilterExposure(0.7))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
 def filter_inversealpha(cfg):
-    return _base_scene(cfg, ngl.FilterInverseAlpha())
+    return _base_scene(ngl.FilterInverseAlpha())
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
 def filter_opacity(cfg):
-    return _base_scene(cfg, ngl.FilterOpacity(0.4321))
+    return _base_scene(ngl.FilterOpacity(0.4321))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
 def filter_saturation(cfg):
-    return _base_scene(cfg, ngl.FilterSaturation(1.5))
+    return _base_scene(ngl.FilterSaturation(1.5))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)

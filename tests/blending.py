@@ -72,7 +72,7 @@ _CIRCLES_COLORS = [
 ]
 
 
-def _get_blending_base_objects(cfg):
+def _get_blending_base_objects():
     circle = ngl.Circle(radius=_CIRCLE_RADIUS, npoints=100)
     positions = _equilateral_triangle_coords(_CIRCLE_RADIUS * 2.0 / 3.0)
     colored_circles = ngl.Group(label="colored circles")
@@ -92,7 +92,7 @@ def _get_background_circles(circle, positions, bcolor):
     return blend_bg
 
 
-def _get_blending_scene_with_args(cfg, colored_circles, circle, positions, bname, bcolor, **bparams):
+def _get_blending_scene_with_args(colored_circles, circle, positions, bname, bcolor, **bparams):
     g = ngl.Group(label=bname)
     if bcolor is not None:
         blend_bg = _get_background_circles(circle, positions, bcolor)
@@ -105,8 +105,8 @@ def _get_blending_scene_with_args(cfg, colored_circles, circle, positions, bname
 
 def _get_blending_scene(cfg, bname, bcolor, **bparams):
     cfg.aspect_ratio = (1, 1)
-    colored_circles, circle, positions = _get_blending_base_objects(cfg)
-    return _get_blending_scene_with_args(cfg, colored_circles, circle, positions, bname, bcolor, **bparams)
+    colored_circles, circle, positions = _get_blending_base_objects()
+    return _get_blending_scene_with_args(colored_circles, circle, positions, bname, bcolor, **bparams)
 
 
 _BLENDING_CFGS = (
@@ -153,11 +153,11 @@ def _get_blending_scenes(cfg):
     # WARNING: it is important to keep the creation of these base objects
     # outside of the loop below to test the diamond tree infrastructure
     # (multiple pipelines for one render).
-    colored_circles, circle, positions = _get_blending_base_objects(cfg)
+    colored_circles, circle, positions = _get_blending_base_objects()
 
     scenes = []
     for bname, bcolor, bparams in _BLENDING_CFGS:
-        scenes.append(_get_blending_scene_with_args(cfg, colored_circles, circle, positions, bname, bcolor, **bparams))
+        scenes.append(_get_blending_scene_with_args(colored_circles, circle, positions, bname, bcolor, **bparams))
     return scenes
 
 

@@ -29,7 +29,7 @@ from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
 import pynodegl as ngl
 
 
-def _transform_shape(cfg, w=0.75, h=0.45):
+def _transform_shape(w=0.75, h=0.45):
     geometry = ngl.Quad(corner=(-w / 2.0, -h / 2.0, 0), width=(w, 0, 0), height=(0, h, 0))
     return ngl.RenderColor(COLORS.rose, geometry=geometry)
 
@@ -38,7 +38,7 @@ def _transform_shape(cfg, w=0.75, h=0.45):
 @scene()
 def transform_matrix(cfg):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     mat = (
         # fmt: off
         0.5, 0.5, 0.0, 0.0,
@@ -116,7 +116,7 @@ def transform_eye_camera(cfg):
 @scene(vector=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
 def transform_translate(cfg, vector=(0.2, 0.7, -0.4)):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     return ngl.Translate(shape, vector)
 
 
@@ -132,7 +132,7 @@ def transform_translate_animated(cfg):
         ngl.AnimKeyFrameVec3(2 * cfg.duration / 3.0, p2),
         ngl.AnimKeyFrameVec3(cfg.duration, p0),
     ]
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     return ngl.Translate(shape, vector=ngl.AnimatedVec3(anim))
 
 
@@ -140,7 +140,7 @@ def transform_translate_animated(cfg):
 @scene(factors=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
 def transform_scale(cfg, factors=(0.7, 1.4, 0)):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     return ngl.Scale(shape, factors)
 
 
@@ -151,7 +151,7 @@ def transform_scale(cfg, factors=(0.7, 1.4, 0)):
 )
 def transform_scale_anchor(cfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0.5, 0.7)):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     return ngl.Scale(shape, factors, anchor=anchor)
 
 
@@ -160,7 +160,7 @@ def transform_scale_anchor(cfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0.5, 0.7)):
 def transform_scale_animated(cfg, factors=(0.7, 1.4, 0)):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 2.0
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     anim = [
         ngl.AnimKeyFrameVec3(0, (0, 0, 0)),
         ngl.AnimKeyFrameVec3(cfg.duration / 2.0, factors),
@@ -177,7 +177,7 @@ def transform_scale_animated(cfg, factors=(0.7, 1.4, 0)):
 def transform_scale_anchor_animated(cfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0.5, 0.7)):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 2.0
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     anim = [
         ngl.AnimKeyFrameVec3(0, (0, 0, 0)),
         ngl.AnimKeyFrameVec3(cfg.duration / 2.0, factors),
@@ -193,7 +193,7 @@ def transform_scale_anchor_animated(cfg, factors=(0.7, 1.4, 0), anchor=(-0.4, 0.
 )
 def transform_skew(cfg, angles=(0.0, -70, 14), axis=(1, 0, 0)):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     return ngl.Skew(shape, angles=angles, axis=axis)
 
 
@@ -205,7 +205,7 @@ def transform_skew(cfg, angles=(0.0, -70, 14), axis=(1, 0, 0)):
 def transform_skew_animated(cfg, angles=(0, -60, 14), axis=(1, 0, 0), anchor=(0, 0.05, -0.5)):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 2.0
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     anim = [
         ngl.AnimKeyFrameVec3(0, (0, 0, 0)),
         ngl.AnimKeyFrameVec3(cfg.duration / 2.0, angles),
@@ -218,7 +218,7 @@ def transform_skew_animated(cfg, angles=(0, -60, 14), axis=(1, 0, 0), anchor=(0,
 @scene(angle=scene.Range(range=[0, 360], unit_base=10))
 def transform_rotate(cfg, angle=123.4):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     return ngl.Rotate(shape, angle)
 
 
@@ -226,7 +226,7 @@ def transform_rotate(cfg, angle=123.4):
 @scene(angle=scene.Range(range=[0, 360], unit_base=10), anchor=scene.Vector(n=3, minv=(-1, -1, -1), maxv=(1, 1, 1)))
 def transform_rotate_anchor(cfg, angle=123.4, anchor=(0.15, 0.35, 0.7)):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     return ngl.Rotate(shape, angle, anchor=anchor)
 
 
@@ -234,7 +234,7 @@ def transform_rotate_anchor(cfg, angle=123.4, anchor=(0.15, 0.35, 0.7)):
 @scene(quat=scene.Vector(n=4, minv=(-1, -1, -1, -1), maxv=(1, 1, 1, 1)))
 def transform_rotate_quat(cfg, quat=(0, 0, -0.474, 0.880)):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     return ngl.RotateQuat(shape, quat)
 
 
@@ -245,7 +245,7 @@ def transform_rotate_quat(cfg, quat=(0, 0, -0.474, 0.880)):
 )
 def transform_rotate_quat_anchor(cfg, quat=(0, 0, -0.474, 0.880), anchor=(0.15, 0.35, 0.7)):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     return ngl.RotateQuat(shape, quat, anchor=anchor)
 
 
@@ -256,7 +256,7 @@ def transform_rotate_quat_anchor(cfg, quat=(0, 0, -0.474, 0.880), anchor=(0.15, 
 )
 def transform_rotate_quat_animated(cfg, quat0=(0, 0, -0.474, 0.880), quat1=(0, 0, 0, 0)):
     cfg.aspect_ratio = (1, 1)
-    shape = _transform_shape(cfg)
+    shape = _transform_shape()
     anim = [
         ngl.AnimKeyFrameQuat(0, quat0),
         ngl.AnimKeyFrameQuat(cfg.duration / 2.0, quat1),
@@ -270,7 +270,7 @@ def transform_rotate_quat_animated(cfg, quat0=(0, 0, -0.474, 0.880), quat1=(0, 0
 def transform_path(cfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 7
-    shape = _transform_shape(cfg, w=0.2, h=0.5)
+    shape = _transform_shape(w=0.2, h=0.5)
 
     # fmt: off
     points = (
@@ -305,7 +305,7 @@ def transform_path(cfg):
 def transform_smoothpath(cfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 3
-    shape = _transform_shape(cfg, w=0.3, h=0.3)
+    shape = _transform_shape(w=0.3, h=0.3)
 
     # fmt: off
     points = (

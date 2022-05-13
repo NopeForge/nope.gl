@@ -186,7 +186,7 @@ for name, params in _rtt_tests.items():
     globals()["rtt_" + name] = _get_rtt_function(**params)
 
 
-def _rtt_load_attachment(cfg):
+def _rtt_load_attachment():
     background = ngl.RenderColor(COLORS.white)
     render = ngl.RenderColor(COLORS.orange)
 
@@ -205,7 +205,7 @@ def _rtt_load_attachment(cfg):
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @scene()
 def rtt_load_attachment(cfg):
-    return _rtt_load_attachment(cfg)
+    return _rtt_load_attachment()
 
 
 @test_cuepoints(
@@ -213,11 +213,11 @@ def rtt_load_attachment(cfg):
 )
 @scene()
 def rtt_load_attachment_msaa(cfg):
-    return _rtt_load_attachment(cfg)
+    return _rtt_load_attachment()
 
 
-def _rtt_load_attachment_nested(cfg, samples=0):
-    scene = _rtt_load_attachment(cfg)
+def _rtt_load_attachment_nested(samples=0):
+    scene = _rtt_load_attachment()
 
     texture = ngl.Texture2D(width=16, height=16)
     rtt = ngl.RenderToTexture(scene, [texture], samples=samples)
@@ -230,13 +230,13 @@ def _rtt_load_attachment_nested(cfg, samples=0):
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @scene()
 def rtt_load_attachment_nested(cfg):
-    return _rtt_load_attachment_nested(cfg)
+    return _rtt_load_attachment_nested()
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @scene()
 def rtt_load_attachment_nested_msaa(cfg):
-    return _rtt_load_attachment_nested(cfg, 4)
+    return _rtt_load_attachment_nested(4)
 
 
 @test_fingerprint(width=512, height=512, nb_keyframes=10, tolerance=3)
