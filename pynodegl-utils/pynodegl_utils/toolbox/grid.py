@@ -42,7 +42,7 @@ class AutoGrid:
     def transform_coords(self, coords, pos):
         adjust = self._get_coords(pos)
         scales = (self.scale, self.scale, 1.0)
-        return [c * s + a for c, s, a in zip(coords, scales, adjust)]
+        return tuple(c * s + a for c, s, a in zip(coords, scales, adjust))
 
     def place_node(self, node, pos):
         pos_x, pos_y, pos_z = self._get_coords(pos)
