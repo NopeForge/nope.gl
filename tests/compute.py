@@ -284,7 +284,7 @@ def _compute_animation(cfg, animate_pre_render=True):
 
     program = ngl.ComputeProgram(_ANIMATION_COMPUTE, workgroup_size=(local_size, local_size, 1))
     program.update_properties(dst=ngl.ResourceProps(writable=True))
-    compute = ngl.Compute(workgroup_count=(nb_vertices / (local_size**2), 1, 1), program=program)
+    compute = ngl.Compute(workgroup_count=(nb_vertices // (local_size**2), 1, 1), program=program)
     compute.update_resources(transform=transform, src=input_block, dst=output_block)
 
     quad_buffer = ngl.BufferVec3(block=output_block, block_field=0)
