@@ -112,7 +112,7 @@ live_shared_uniform_std140 = _get_live_shared_uniform_function("std140")
 live_shared_uniform_std430 = _get_live_shared_uniform_function("std430")
 
 
-def _get_live_spec(layout):
+def _get_live_spec():
     livechange_b = [[True], [False]]
     livechange_f = [[v] for v in gen_floats(4)[1:3]]
     livechange_v2 = gen_floats(2), gen_floats(2)[::-1]
@@ -149,7 +149,7 @@ def _get_live_spec(layout):
     return spec
 
 
-def _get_live_trf_spec(layout):
+def _get_live_trf_spec():
 
     t0 = ngl.Identity()
     t1 = ngl.Transform(t0)
@@ -259,13 +259,13 @@ def _get_live_trf_function(spec, category, field_type, layout):
 
 def _bootstrap():
     for layout in LAYOUTS:
-        spec = _get_live_spec(layout)
+        spec = _get_live_spec()
         for field_info in spec:
             category, field_type = field_info["category"], field_info["type"]
             func_name = f"live_{category}_{field_type}_{layout}"
             globals()[func_name] = _get_live_function(spec, category, field_type, layout)
 
-        spec = _get_live_trf_spec(layout)
+        spec = _get_live_trf_spec()
         for field_info in spec:
             category, field_type = field_info["category"], field_info["type"]
             func_name = f"live_trf_{category}_{field_type}_{layout}"
