@@ -56,7 +56,7 @@ def depth_stencil_depth(cfg):
             render,
             depth_test=True,
             depth_func="less",
-            depth_write_mask=0,
+            depth_write_mask=False,
         )
         group.add_children(graphicconfig)
 
