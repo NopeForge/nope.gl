@@ -43,7 +43,7 @@ class _CompareFloats(CompareBase):
             ret.append([name] + [float(f) for f in floats.split()])
         return ret
 
-    def get_out_data(self, debug=False, debug_func=None):
+    def get_out_data(self, dump=False, func_name=None):
         return self._func(**self._func_kwargs)
 
     def compare_data(self, test_name, ref_data, out_data):
