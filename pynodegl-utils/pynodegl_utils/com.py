@@ -61,7 +61,7 @@ def query_scene(pkg, **idict):
     module_is_script = pkg.endswith(".py")
 
     # Get module.func
-    module_name, scene_name = idict["scene"]
+    module_name, scene_name = idict.pop("scene")
     if module_is_script:
         module = load_script(pkg)
     else:
@@ -70,7 +70,8 @@ def query_scene(pkg, **idict):
     func = getattr(module, scene_name)
 
     # Call user constructing function
-    odict = func(idict, **idict.get("extra_args", {}))
+    extra_args = idict.pop("extra_args", {})
+    odict = func(idict, **extra_args)
     scene = odict.pop("scene")
     scene.set_label(scene_name)
 
