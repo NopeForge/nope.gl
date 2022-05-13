@@ -168,20 +168,12 @@ static int media_init(struct ngl_node *node)
             const struct animkeyframe_opts *kf0 = anim->animkf[0]->opts;
             const double initial_seek = kf0->scalar;
 
-#if SXPLAYER_VERSION_INT >= SXPLAYER_GET_VERSION(9, 12, 0)
             sxplayer_set_option(s->player, "start_time", initial_seek);
-#else
-            sxplayer_set_option(s->player, "skip", initial_seek);
-#endif
 
             if (anim->nb_animkf > 1) {
                 const struct animkeyframe_opts *kfn = anim->animkf[anim->nb_animkf - 1]->opts;
                 const double last_time = kfn->scalar;
-#if SXPLAYER_VERSION_INT >= SXPLAYER_GET_VERSION(9, 12, 0)
                 sxplayer_set_option(s->player, "end_time", last_time);
-#else
-                sxplayer_set_option(s->player, "trim_duration", last_time - initial_seek);
-#endif
             }
         }
     }
