@@ -152,7 +152,6 @@ def _get_random_text(rng):
 
 def _get_random_compute(cfg, rng, t0, t1):
     count = 10
-    fragment_shader = cfg.get_frag("texture")
 
     vertex_shader = textwrap.dedent(
         """
