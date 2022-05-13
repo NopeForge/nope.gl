@@ -140,6 +140,7 @@ def fibo(cfg, n=8):
         new_g.add_children(render)
         orig = (orig[0] + w, orig[1] + w, 0)
 
+    assert root is not None
     return root
 
 
