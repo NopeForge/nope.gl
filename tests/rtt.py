@@ -21,7 +21,7 @@
 
 import array
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.toolbox.colors import COLORS
@@ -100,7 +100,9 @@ void main()
 """
 
 
-def _get_rtt_scene(cfg, features="depth", texture_ds_format=None, samples=0, mipmap_filter="none", sample_depth=False):
+def _get_rtt_scene(
+    cfg: SceneCfg, features="depth", texture_ds_format=None, samples=0, mipmap_filter="none", sample_depth=False
+):
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)
     cube = _get_cube()
@@ -161,7 +163,7 @@ def _get_rtt_scene(cfg, features="depth", texture_ds_format=None, samples=0, mip
 def _get_rtt_function(**kwargs):
     @test_fingerprint(width=512, height=512, nb_keyframes=10)
     @scene()
-    def rtt_function(cfg):
+    def rtt_function(cfg: SceneCfg):
         return _get_rtt_scene(cfg, **kwargs)
 
     return rtt_function
@@ -241,7 +243,7 @@ def rtt_load_attachment_nested_msaa(_):
 
 @test_fingerprint(width=512, height=512, nb_keyframes=10, tolerance=3)
 @scene()
-def rtt_clear_attachment_with_timeranges(cfg):
+def rtt_clear_attachment_with_timeranges(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     # Time-disabled full screen white quad

@@ -20,7 +20,7 @@
 #
 
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 
 import pynodegl as ngl
@@ -29,7 +29,7 @@ import pynodegl as ngl
 def _get_anim_color_scene_func(c0, c1, space):
     @test_cuepoints(points={"c": (0, 0)}, nb_keyframes=10, tolerance=1)
     @scene()
-    def scene_func(cfg):
+    def scene_func(cfg: SceneCfg):
         cfg.duration = 5
         color_animkf = [
             # Start at t=1 and end 1s earlier so that it tests the underflow
@@ -63,7 +63,7 @@ color_static_hsv = _get_static_color_scene_func((0.3, 0.7, 0.6), "hsv")
 
 @test_cuepoints(points={"c": (0, 0)}, nb_keyframes=10, tolerance=0)
 @scene()
-def color_negative_values_srgb(cfg):
+def color_negative_values_srgb(cfg: SceneCfg):
     cfg.duration = 5
     kfs = (
         # The elastic_in easing has the special property to undershoot under 0

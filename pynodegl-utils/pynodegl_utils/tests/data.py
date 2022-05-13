@@ -22,6 +22,7 @@
 import colorsys
 import random
 
+from pynodegl_utils.misc import SceneCfg
 from pynodegl_utils.tests.debug import get_debug_points
 
 import pynodegl as ngl
@@ -270,7 +271,7 @@ _FUNCS = dict(
 )
 
 
-def get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint):
+def get_field_scene(cfg: SceneCfg, spec, category, field_type, seed, debug_positions, layout, color_tint):
     """
     Build a scene testing that a given data has been properly uploaded to the
     GPU memory.

@@ -19,7 +19,7 @@
 # under the License.
 #
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.toolbox.colors import COLORS
 from pynodegl_utils.toolbox.grid import autogrid_simple
@@ -54,7 +54,7 @@ void main() {
 """
 
 
-def _get_compositing_scene(cfg, op, show_label=False):
+def _get_compositing_scene(cfg: SceneCfg, op, show_label=False):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 6
 
@@ -111,14 +111,14 @@ def _get_compositing_scene(cfg, op, show_label=False):
 def _get_compositing_func(op):
     @test_fingerprint(nb_keyframes=10, tolerance=1)
     @scene()
-    def scene_func(cfg):
+    def scene_func(cfg: SceneCfg):
         return _get_compositing_scene(cfg, op)
 
     return scene_func
 
 
 @scene()
-def compositing_all_operators(cfg):
+def compositing_all_operators(cfg: SceneCfg):
     scenes = []
     for op in _OPERATORS:
         scene = _get_compositing_scene(cfg, op, show_label=True)

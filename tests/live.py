@@ -21,7 +21,7 @@
 
 import textwrap
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.data import (
     LAYOUTS,
@@ -39,7 +39,7 @@ import pynodegl as ngl
 _SHARED_UNIFORM_CUEPOINTS = dict((("0", (-0.5, -0.5)), ("1", (0.5, 0.5))))
 
 
-def _get_live_shared_uniform_scene(cfg, color, debug_positions):
+def _get_live_shared_uniform_scene(cfg: SceneCfg, color, debug_positions):
     group = ngl.Group()
     for i in range(2):
         quad = ngl.Quad((-1 + i, -1 + i, 0), (1, 0, 0), (0, 1, 0))
@@ -50,7 +50,7 @@ def _get_live_shared_uniform_scene(cfg, color, debug_positions):
     return group
 
 
-def _get_live_shared_uniform_with_block_scene(cfg, color, layout, debug_positions):
+def _get_live_shared_uniform_with_block_scene(cfg: SceneCfg, color, layout, debug_positions):
     vertex = textwrap.dedent(
         """\
     void main()
@@ -96,7 +96,7 @@ def _get_live_shared_uniform_function(layout=None):
         debug_positions=False,
     )
     @scene(debug_positions=scene.Bool())
-    def scene_func(cfg, debug_positions=True):
+    def scene_func(cfg: SceneCfg, debug_positions=True):
         cfg.duration = 0
         cfg.aspect_ratio = (1, 1)
         if layout:
@@ -216,7 +216,7 @@ def _get_live_function(spec, category, field_type, layout):
         debug_positions=False,
     )
     @scene(seed=scene.Range(range=[0, 100]), debug_positions=scene.Bool(), color_tint=scene.Bool())
-    def scene_func(cfg, seed=0, debug_positions=True, color_tint=False):
+    def scene_func(cfg: SceneCfg, seed=0, debug_positions=True, color_tint=False):
         cfg.duration = 0
         return get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint)
 
@@ -247,7 +247,7 @@ def _get_live_trf_function(spec, category, field_type, layout):
         color_tint=scene.Bool(),
         trf_step=scene.Range(range=[0, len(livechange_funcs)]),
     )
-    def scene_func(cfg, seed=0, debug_positions=True, color_tint=False, trf_step=0):
+    def scene_func(cfg: SceneCfg, seed=0, debug_positions=True, color_tint=False, trf_step=0):
         cfg.duration = 0
         s = get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint)
         for i in range(trf_step):

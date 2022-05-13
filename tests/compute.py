@@ -21,7 +21,7 @@
 
 import array
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.tests.debug import get_debug_points
@@ -58,7 +58,7 @@ void main()
 
 @test_fingerprint(nb_keyframes=10, tolerance=1)
 @scene()
-def compute_particles(cfg):
+def compute_particles(cfg: SceneCfg):
     cfg.duration = 10
     workgroups = (2, 1, 4)
     local_size = (4, 4, 1)
@@ -181,7 +181,7 @@ def _get_compute_histogram_cuepoints():
 
 @test_cuepoints(points=_get_compute_histogram_cuepoints(), tolerance=1)
 @scene(show_dbg_points=scene.Bool())
-def compute_histogram(cfg, show_dbg_points=False):
+def compute_histogram(cfg: SceneCfg, show_dbg_points=False):
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)
     hsize, size, local_size = _N * _N, _N, _N // 2
@@ -255,7 +255,7 @@ void main()
 """
 
 
-def _compute_animation(cfg, animate_pre_render=True):
+def _compute_animation(cfg: SceneCfg, animate_pre_render=True):
     cfg.duration = 5
     cfg.aspect_ratio = (1, 1)
     local_size = 2
@@ -301,13 +301,13 @@ def _compute_animation(cfg, animate_pre_render=True):
 
 @test_fingerprint(nb_keyframes=5, tolerance=1)
 @scene()
-def compute_animation(cfg):
+def compute_animation(cfg: SceneCfg):
     return _compute_animation(cfg)
 
 
 @test_fingerprint(nb_keyframes=5, tolerance=1)
 @scene()
-def compute_animation_post_render(cfg):
+def compute_animation_post_render(cfg: SceneCfg):
     return _compute_animation(cfg, False)
 
 
@@ -328,7 +328,7 @@ void main()
 
 @test_cuepoints(points=_get_compute_histogram_cuepoints(), tolerance=1)
 @scene(show_dbg_points=scene.Bool())
-def compute_image_load_store(cfg, show_dbg_points=False):
+def compute_image_load_store(cfg: SceneCfg, show_dbg_points=False):
     size = _N
     texture_data = ngl.BufferFloat(data=array.array("f", [x / (size**2) for x in range(size**2)]))
     texture_r = ngl.Texture2D(format="r32_sfloat", width=size, height=size, data_src=texture_data)

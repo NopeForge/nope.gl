@@ -21,7 +21,7 @@
 
 import array
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.tests.debug import get_debug_points
@@ -38,7 +38,7 @@ void main()
 """
 
 
-def _render_buffer(cfg, w, h):
+def _render_buffer(cfg: SceneCfg, w, h):
     n = w * h
     data = array.array("B", [i * 255 // n for i in range(n)])
     buf = ngl.BufferUByte(data=data)
@@ -52,14 +52,14 @@ def _render_buffer(cfg, w, h):
 
 @test_fingerprint()
 @scene(w=scene.Range(range=[1, 128]), h=scene.Range(range=[1, 128]))
-def texture_data(cfg, w=4, h=5):
+def texture_data(cfg: SceneCfg, w=4, h=5):
     cfg.aspect_ratio = (1, 1)
     return _render_buffer(cfg, w, h)
 
 
 @test_fingerprint()
 @scene(dim=scene.Range(range=[1, 100]))
-def texture_data_animated(cfg, dim=8):
+def texture_data_animated(cfg: SceneCfg, dim=8):
     cfg.duration = 3.0
     nb_kf = int(cfg.duration)
     buffers = [get_random_color_buffer(cfg.rng, dim) for _ in range(nb_kf)]
@@ -74,7 +74,7 @@ def texture_data_animated(cfg, dim=8):
 
 @test_fingerprint()
 @scene(h=scene.Range(range=[1, 32]))
-def texture_data_unaligned_row(cfg, h=32):
+def texture_data_unaligned_row(cfg: SceneCfg, h=32):
     """Tests upload of buffers with rows that are not 4-byte aligned"""
     cfg.aspect_ratio = (1, 1)
     return _render_buffer(cfg, 1, h)
@@ -242,7 +242,7 @@ def texture_clear_and_scissor(_):
 
 @test_fingerprint(width=64, height=64)
 @scene()
-def texture_scissor(cfg):
+def texture_scissor(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     render = ngl.RenderColor(COLORS.orange)
@@ -274,7 +274,7 @@ void main()
 
 @test_fingerprint()
 @scene()
-def texture_3d(cfg):
+def texture_3d(cfg: SceneCfg):
     width, height, depth = 9, 9, 3
     n = width * height
     data = array.array("B")
@@ -324,7 +324,7 @@ def _get_texture_mipmap_cuepoints():
 
 @test_cuepoints(points=_get_texture_mipmap_cuepoints(), tolerance=1)
 @scene(show_dbg_points=scene.Bool())
-def texture_mipmap(cfg, show_dbg_points=False):
+def texture_mipmap(cfg: SceneCfg, show_dbg_points=False):
     cfg.aspect_ratio = (1, 1)
     cuepoints = _get_texture_mipmap_cuepoints()
     black = (0, 0, 0, 255)

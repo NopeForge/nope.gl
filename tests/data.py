@@ -22,7 +22,7 @@
 import array
 import textwrap
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.tests.data import (
@@ -136,7 +136,7 @@ def _get_data_function(spec, category, field_type, layout):
         debug_positions=False,
     )
     @scene(seed=scene.Range(range=[0, 100]), debug_positions=scene.Bool(), color_tint=scene.Bool())
-    def scene_func(cfg, seed=0, debug_positions=True, color_tint=False):
+    def scene_func(cfg: SceneCfg, seed=0, debug_positions=True, color_tint=False):
         cfg.duration = ANIM_DURATION
         return get_field_scene(cfg, spec, category, field_type, seed, debug_positions, layout, color_tint)
 
@@ -177,7 +177,7 @@ def _get_data_streamed_buffer_cuepoints(size):
     return {f"{x}{y}": (c(x), c(y)) for y in range(size) for x in range(size)}
 
 
-def _get_data_streamed_buffer_vec4_scene(cfg, size, nb_keyframes, scale, single, show_dbg_points):
+def _get_data_streamed_buffer_vec4_scene(cfg: SceneCfg, size, nb_keyframes, scale, single, show_dbg_points):
     cfg.duration = nb_keyframes * scale
     cfg.aspect_ratio = (1, 1)
     data_size = size * size
@@ -240,7 +240,7 @@ def _get_data_streamed_buffer_function(scale, single):
 
     @test_cuepoints(points=_get_data_streamed_buffer_cuepoints(size), nb_keyframes=nb_keyframes, tolerance=1)
     @scene(show_dbg_points=scene.Bool())
-    def scene_func(cfg, show_dbg_points=False):
+    def scene_func(cfg: SceneCfg, show_dbg_points=False):
         return _get_data_streamed_buffer_vec4_scene(cfg, size, nb_keyframes, scale, single, show_dbg_points)
 
     return scene_func
@@ -254,7 +254,7 @@ data_streamed_buffer_vec4_time_anim = _get_data_streamed_buffer_function(2, Fals
 
 @test_cuepoints(points={"c": (0, 0)}, tolerance=1)
 @scene()
-def data_integer_iovars(cfg):
+def data_integer_iovars(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
     vert = textwrap.dedent(
         """\
@@ -283,7 +283,7 @@ def data_integer_iovars(cfg):
 
 @test_cuepoints(points={"c": (0, 0)}, tolerance=1)
 @scene()
-def data_mat_iovars(cfg):
+def data_mat_iovars(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
     vert = textwrap.dedent(
         """\
@@ -317,7 +317,7 @@ def data_mat_iovars(cfg):
 
 @test_fingerprint(nb_keyframes=10, tolerance=1)
 @scene()
-def data_noise_time(cfg):
+def data_noise_time(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 2
     vert = textwrap.dedent(
@@ -348,7 +348,7 @@ def data_noise_time(cfg):
 
 @test_fingerprint(nb_keyframes=30, tolerance=1)
 @scene()
-def data_noise_wiggle(cfg):
+def data_noise_wiggle(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
     cfg.duration = 3
     vert = textwrap.dedent(
@@ -379,7 +379,7 @@ def data_noise_wiggle(cfg):
 
 @test_cuepoints(points={"c": (0, 0)}, nb_keyframes=10, tolerance=1)
 @scene()
-def data_eval(cfg):
+def data_eval(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     # Entangled dependencies between evals
@@ -420,7 +420,7 @@ def data_eval(cfg):
     return render
 
 
-def _data_vertex_and_fragment_blocks(cfg, layout):
+def _data_vertex_and_fragment_blocks(cfg: SceneCfg, layout):
     """
     This test ensures that the block bindings are properly set by pgcraft
     when UBOs or SSBOs are bound to different stages.
@@ -473,11 +473,11 @@ def _data_vertex_and_fragment_blocks(cfg, layout):
 
 @test_cuepoints(points={"c": (0, 0)}, nb_keyframes=1, tolerance=1)
 @scene()
-def data_vertex_and_fragment_blocks(cfg):
+def data_vertex_and_fragment_blocks(cfg: SceneCfg):
     return _data_vertex_and_fragment_blocks(cfg, "std140")
 
 
 @test_cuepoints(points={"c": (0, 0)}, nb_keyframes=1, tolerance=1)
 @scene()
-def data_vertex_and_fragment_blocks_std430(cfg):
+def data_vertex_and_fragment_blocks_std430(cfg: SceneCfg):
     return _data_vertex_and_fragment_blocks(cfg, "std430")

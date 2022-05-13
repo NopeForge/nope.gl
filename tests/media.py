@@ -21,7 +21,7 @@
 
 import textwrap
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.tests.cmp_resources import test_resources
@@ -31,7 +31,7 @@ from pynodegl_utils.toolbox.grid import AutoGrid
 import pynodegl as ngl
 
 
-def _get_time_scene(cfg):
+def _get_time_scene(cfg: SceneCfg):
     m0 = cfg.medias[0]
 
     media_seek = 10
@@ -70,7 +70,7 @@ def _get_time_scene(cfg):
 
 @test_fingerprint(width=320, height=240, nb_keyframes=3, tolerance=1)
 @scene()
-def media_flat_remap(cfg):
+def media_flat_remap(cfg: SceneCfg):
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -86,13 +86,13 @@ def media_flat_remap(cfg):
 
 @test_cuepoints(points={"X": (0, -0.625)}, nb_keyframes=15, clear_color=list(COLORS.violet) + [1], tolerance=1)
 @scene()
-def media_phases_display(cfg):
+def media_phases_display(cfg: SceneCfg):
     return _get_time_scene(cfg)
 
 
 @test_resources(nb_keyframes=15)
 @scene()
-def media_phases_resources(cfg):
+def media_phases_resources(cfg: SceneCfg):
     return _get_time_scene(cfg)
 
 
@@ -100,7 +100,7 @@ def media_phases_resources(cfg):
 # not check for an actual overflow
 @test_cuepoints(points={"X": (0, -0.625)}, nb_keyframes=1, tolerance=1)
 @scene()
-def media_clamp(cfg):
+def media_clamp(cfg: SceneCfg):
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -112,7 +112,7 @@ def media_clamp(cfg):
 
 @test_cuepoints(points={f"P{i}": (i / 5 * 2 - 1, 0) for i in range(5)}, nb_keyframes=5, tolerance=1)
 @scene()
-def media_exposed_time(cfg):
+def media_exposed_time(cfg: SceneCfg):
     m0 = cfg.medias[0]
     cfg.duration = m0.duration
     cfg.aspect_ratio = (m0.width, m0.height)
@@ -148,7 +148,7 @@ def media_exposed_time(cfg):
 
 @test_fingerprint(width=1024, height=1024, nb_keyframes=30, tolerance=1)
 @scene(overlap_time=scene.Range(range=[0, 10], unit_base=10), dim=scene.Range(range=[1, 10]))
-def media_queue(cfg, overlap_time=7.0, dim=3):
+def media_queue(cfg: SceneCfg, overlap_time=7.0, dim=3):
     cfg.duration = 10
     cfg.aspect_ratio = (1, 1)
 
@@ -184,7 +184,7 @@ def media_queue(cfg, overlap_time=7.0, dim=3):
 
 @test_fingerprint(width=320, height=240, nb_keyframes=20, tolerance=1)
 @scene()
-def media_timeranges_rtt(cfg):
+def media_timeranges_rtt(cfg: SceneCfg):
     m0 = cfg.medias[0]
     cfg.duration = d = 10
     cfg.aspect_ratio = (m0.width, m0.height)

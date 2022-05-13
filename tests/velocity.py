@@ -21,7 +21,7 @@
 
 import textwrap
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.toolbox.colors import COLORS
 from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
@@ -31,7 +31,7 @@ import pynodegl as ngl
 
 @test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)
 @scene()
-def velocity_triangle_rotate(cfg):
+def velocity_triangle_rotate(cfg: SceneCfg):
     cfg.duration = 5.0
     cfg.aspect_ratio = (1, 1)
 
@@ -64,7 +64,7 @@ def velocity_triangle_rotate(cfg):
 
 @test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)
 @scene()
-def velocity_circle_distort_2d(cfg):
+def velocity_circle_distort_2d(cfg: SceneCfg):
     cfg.duration = 4.0
     cfg.aspect_ratio = (1, 1)
 
@@ -101,7 +101,7 @@ def velocity_circle_distort_2d(cfg):
 
 @test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)
 @scene()
-def velocity_circle_distort_3d(cfg):
+def velocity_circle_distort_3d(cfg: SceneCfg):
     cfg.duration = 4.0
     cfg.aspect_ratio = (1, 1)
 

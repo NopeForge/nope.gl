@@ -23,7 +23,7 @@ import array
 import itertools
 import textwrap
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.toolbox.colors import COLORS, get_random_color_buffer
@@ -35,7 +35,7 @@ import pynodegl as ngl
 
 @test_cuepoints(points=dict(bl=(-1, -1), br=(1, -1), tr=(1, 1), tl=(-1, 1), c=(0, 0)), tolerance=5)
 @scene()
-def shape_precision_iovar(cfg):
+def shape_precision_iovar(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
     vert = textwrap.dedent(
         """\
@@ -67,7 +67,7 @@ def _render_shape(geometry, color):
 
 @test_fingerprint()
 @scene(sz=scene.Range(range=[0.1, 2], unit_base=100), color=scene.Color())
-def shape_triangle(cfg, sz=1, color=COLORS.orange):
+def shape_triangle(cfg: SceneCfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
     geometry = ngl.Triangle(p0, p1, p2)
@@ -76,7 +76,7 @@ def shape_triangle(cfg, sz=1, color=COLORS.orange):
 
 @test_fingerprint(samples=4)
 @scene(sz=scene.Range(range=[0.1, 2], unit_base=100), color=scene.Color())
-def shape_triangle_msaa(cfg, sz=1, color=COLORS.orange):
+def shape_triangle_msaa(cfg: SceneCfg, sz=1, color=COLORS.orange):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(sz)
     geometry = ngl.Triangle(p0, p1, p2)
@@ -90,7 +90,7 @@ def shape_triangle_msaa(cfg, sz=1, color=COLORS.orange):
     height=scene.Vector(n=3, minv=(0, 0, 0), maxv=(2, 2, 2)),
     color=scene.Color(),
 )
-def shape_quad(cfg, corner=(-0.5, -0.8, 0), width=(0.9, 0.2, 0), height=(0.1, 1.3, 0), color=COLORS.sgreen):
+def shape_quad(cfg: SceneCfg, corner=(-0.5, -0.8, 0), width=(0.9, 0.2, 0), height=(0.1, 1.3, 0), color=COLORS.sgreen):
     cfg.aspect_ratio = (1, 1)
     geometry = ngl.Quad(corner, width, height)
     return _render_shape(geometry, color)
@@ -98,13 +98,13 @@ def shape_quad(cfg, corner=(-0.5, -0.8, 0), width=(0.9, 0.2, 0), height=(0.1, 1.
 
 @test_fingerprint()
 @scene(radius=scene.Range(range=[0.1, 2], unit_base=100), color=scene.Color())
-def shape_circle(cfg, radius=0.5, color=COLORS.azure):
+def shape_circle(cfg: SceneCfg, radius=0.5, color=COLORS.azure):
     cfg.aspect_ratio = (1, 1)
     geometry = ngl.Circle(radius, npoints=64)
     return _render_shape(geometry, color)
 
 
-def _shape_geometry(cfg, set_normals=False, set_indices=False):
+def _shape_geometry(cfg: SceneCfg, set_normals=False, set_indices=False):
     # Fake cube (3 faces only) obtained from:
     # echo 'cube();'>x.scad; openscad x.scad -o x.stl
     vertices = array.array(
@@ -164,31 +164,31 @@ def _shape_geometry(cfg, set_normals=False, set_indices=False):
 
 @test_fingerprint()
 @scene()
-def shape_geometry(cfg):
+def shape_geometry(cfg: SceneCfg):
     return _shape_geometry(cfg, set_normals=False, set_indices=False)
 
 
 @test_fingerprint()
 @scene()
-def shape_geometry_normals(cfg):
+def shape_geometry_normals(cfg: SceneCfg):
     return _shape_geometry(cfg, set_normals=True, set_indices=False)
 
 
 @test_fingerprint()
 @scene()
-def shape_geometry_indices(cfg):
+def shape_geometry_indices(cfg: SceneCfg):
     return _shape_geometry(cfg, set_normals=False, set_indices=True)
 
 
 @test_fingerprint()
 @scene()
-def shape_geometry_normals_indices(cfg):
+def shape_geometry_normals_indices(cfg: SceneCfg):
     return _shape_geometry(cfg, set_normals=True, set_indices=True)
 
 
 @test_fingerprint()
 @scene()
-def shape_geometry_with_renderother(cfg):
+def shape_geometry_with_renderother(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
 
     vertices_data = array.array("f")
@@ -232,7 +232,7 @@ def _get_morphing_coordinates(rng, n, x_off, y_off):
 
 @test_fingerprint(nb_keyframes=8, tolerance=1)
 @scene(n=scene.Range(range=[2, 50]))
-def shape_morphing(cfg, n=6):
+def shape_morphing(cfg: SceneCfg, n=6):
     cfg.duration = 5.0
     vertices_tl = _get_morphing_coordinates(cfg.rng, n, -1, 0)
     vertices_tr = _get_morphing_coordinates(cfg.rng, n, 0, 0)
@@ -257,7 +257,7 @@ def shape_morphing(cfg, n=6):
 def _get_cropboard_function(set_indices=False):
     @test_fingerprint(nb_keyframes=10, tolerance=1)
     @scene(dim_clr=scene.Range(range=[1, 50]), dim_cut=scene.Range(range=[1, 50]))
-    def cropboard(cfg, dim_clr=3, dim_cut=9):
+    def cropboard(cfg: SceneCfg, dim_clr=3, dim_cut=9):
         cfg.duration = 5.0 + 1.0
 
         nb_kf = 2
@@ -362,7 +362,7 @@ void main()
 
 @test_fingerprint()
 @scene()
-def shape_triangles_mat4_attribute(cfg):
+def shape_triangles_mat4_attribute(cfg: SceneCfg):
     cfg.aspect_ratio = (1, 1)
     p0, p1, p2 = equilateral_triangle_coords(1)
     geometry = ngl.Triangle(p0, p1, p2)
@@ -395,7 +395,7 @@ def shape_triangles_mat4_attribute(cfg):
     return render
 
 
-def _get_shape_scene(cfg, shape, cull_mode):
+def _get_shape_scene(cfg: SceneCfg, shape, cull_mode):
     cfg.aspect_ratio = (1, 1)
 
     geometry_cls = dict(
@@ -412,7 +412,7 @@ def _get_shape_scene(cfg, shape, cull_mode):
 def _get_shape_function(shape, cull_mode):
     @test_fingerprint()
     @scene()
-    def shape_function(cfg):
+    def shape_function(cfg: SceneCfg):
         return _get_shape_scene(cfg, shape, cull_mode)
 
     return shape_function

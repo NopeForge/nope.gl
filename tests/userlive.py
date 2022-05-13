@@ -19,7 +19,7 @@
 # under the License.
 #
 
-from pynodegl_utils.misc import scene
+from pynodegl_utils.misc import SceneCfg, scene
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.toolbox.colors import COLORS
 
@@ -43,7 +43,7 @@ def _get_userlive_switch_func():
 
     @test_fingerprint(nb_keyframes=10, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
     @scene(s0=scene.Bool(), s1=scene.Bool(), s2=scene.Bool())
-    def scene_func(cfg, s0_enabled=True, s1_enabled=True, s2_enabled=True):
+    def scene_func(cfg: SceneCfg, s0_enabled=True, s1_enabled=True, s2_enabled=True):
         cfg.aspect_ratio = (1, 1)
         switch0.set_enabled(s0_enabled)
         switch1.set_enabled(s1_enabled)
@@ -90,7 +90,7 @@ def _get_userlive_select_func():
 
     @test_fingerprint(nb_keyframes=8, keyframes_callback=keyframes_callback, tolerance=1, exercise_serialization=False)
     @scene(branch=scene.Range([0, 3]))
-    def scene_func(cfg, branch=0):
+    def scene_func(cfg: SceneCfg, branch=0):
         cfg.aspect_ratio = (1, 1)
         select.set_branch(branch)
         return ngl.Group(children=(below, select))
