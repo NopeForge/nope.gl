@@ -129,7 +129,7 @@ ngl-serialize pynodegl_utils.examples.misc fibo /tmp/fibo.ngl
 
 # Count the number of mallocs (the last lines will contain something like
 # MEMCOUNT: 858)
-NGL_MEM_ALLOC_FAIL=count ngl-render -t 0:30:60 /tmp/fibo.ngl
+NGL_MEM_ALLOC_FAIL=count ngl-render -t 0:30:60 -i /tmp/fibo.ngl
 
 # Make them fail one by one
 for i in $(seq 0 858); do
