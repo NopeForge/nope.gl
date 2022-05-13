@@ -88,7 +88,7 @@ def anim_forward_api(nb_points=7):
         easing_name, easing_args = _easing_split(easing)
         for offsets in _offsets:
             values = [ngl.easing_evaluate(easing_name, t, easing_args, offsets) for t in times]
-            ret.append([easing_name] + values)
+            ret.append((easing_name, values))
     return ret
 
 
@@ -154,7 +154,7 @@ def anim_derivative_api(nb_points=7):
         easing_name, easing_args = _easing_split(easing)
         for offsets in _offsets:
             values = [ngl.easing_derivate(easing_name, t, easing_args, offsets) for t in times]
-            ret.append([easing_name] + values)
+            ret.append((easing_name, values))
     return ret
 
 
@@ -171,7 +171,7 @@ def anim_resolution_api(nb_points=7):
             except Exception:
                 pass
             else:
-                ret.append([easing_name] + values)
+                ret.append((easing_name, values))
     return ret
 
 
@@ -216,7 +216,7 @@ def _get_anim_func(size, animated_type, kf_func, velocity_type=None):
 
             if hasattr(values[0], "__iter__"):
                 values = list(itertools.chain(*values))
-            ret.append(["off%d" % i] + values)
+            ret.append(("off%d" % i, values))
 
         return ret
 

@@ -31,8 +31,8 @@ class _CompareFloats(CompareBase):
     @staticmethod
     def serialize(data):
         ret = ""
-        for float_set in data:
-            ret += "{}: {}\n".format(float_set[0], " ".join("%f" % f for f in float_set[1:]))
+        for name, floats in data:
+            ret += "{}: {}\n".format(name, " ".join("%f" % f for f in floats))
         return ret
 
     @staticmethod
@@ -40,7 +40,7 @@ class _CompareFloats(CompareBase):
         ret = []
         for line in data.splitlines():
             name, floats = line.split(":", 1)
-            ret.append([name] + [float(f) for f in floats.split()])
+            ret.append((name, [float(f) for f in floats.split()]))
         return ret
 
     def get_out_data(self, dump=False, func_name=None):
@@ -48,12 +48,12 @@ class _CompareFloats(CompareBase):
 
     def compare_data(self, test_name, ref_data, out_data):
         err = []
-        for float_set_id, (ref_floats, out_floats) in enumerate(zip(ref_data, out_data)):
-            name = ref_floats[0]
-            if name != out_floats[0]:
+        for float_set_id, (ref, out) in enumerate(zip(ref_data, out_data)):
+            ref_name, ref_floats = ref
+            out_name, out_floats = out
+            if ref_name != out_name:
                 err.append(
-                    f"{test_name} float sets {float_set_id} have different names: "
-                    f'"{ref_floats[0]}" vs "{out_floats[0]}"'
+                    f"{test_name} float sets {float_set_id} have different names: " f'"{ref_name}" vs "{out_name}"'
                 )
                 break
             if len(ref_floats) != len(out_floats):
@@ -61,11 +61,12 @@ class _CompareFloats(CompareBase):
                     f"{test_name}: number of floats is different " f"(ref:{len(ref_floats)}, out:{len(out_floats)})"
                 )
                 break
-            for i, (f0, f1) in enumerate(zip(ref_floats[1:], out_floats[1:])):
+            for i, (f0, f1) in enumerate(zip(ref_floats, out_floats)):
                 diff = abs(f0 - f1)
                 if diff > self._tolerance:
                     err.append(
-                        f"{test_name} diff too large for float {name}[{i}]: " f"|{f0}-{f1}|={diff} (>{self._tolerance})"
+                        f"{test_name} diff too large for float {ref_name}[{i}]: "
+                        f"|{f0}-{f1}|={diff} (>{self._tolerance})"
                     )
         return err
 
