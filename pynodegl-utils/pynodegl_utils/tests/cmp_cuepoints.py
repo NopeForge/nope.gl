@@ -57,7 +57,7 @@ class _CompareCuePoints(CompareSceneBase):
         y = height - 1 - int(round((pos[1] + 1.0) / 2.0 * height))
         x = min(max(x, 0), width - 1)
         y = min(max(y, 0), height - 1)
-        return [x, y]
+        return (x, y)
 
     def get_out_data(self, dump=False, func_name=None):
         cpoints = []
