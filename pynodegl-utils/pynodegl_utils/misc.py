@@ -198,7 +198,7 @@ class SceneCfg:
         data = pkgutil.get_data(module, f"{name}.{stype}")
         if data is None:
             raise FileNotFoundError(f"Unable to find shader {name}")
-        return data
+        return data.decode()
 
     def get_frag(self, name, module=None):
         return self._get_shader(name, "frag", module)
