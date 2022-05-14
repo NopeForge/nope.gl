@@ -308,6 +308,7 @@ foreach backend : backends
     'geometry_normals',
     'geometry_indices',
     'geometry_normals_indices',
+    'geometry_with_renderother',
     'morphing',
   ]
 

@@ -188,6 +188,34 @@ def shape_geometry_normals_indices(cfg):
 
 @test_fingerprint()
 @scene()
+def shape_geometry_with_renderother(cfg):
+    cfg.aspect_ratio = (1, 1)
+
+    vertices_data = array.array("f")
+    uvcoords_data = array.array("f")
+    boundaries = (
+        (-1, 0, 0, 1),
+        (0, 1, 0, 1),
+        (-1, 0, -1, 0),
+        (0, 1, -1, 0),
+    )
+    for xmin, xmax, ymin, ymax in boundaries:
+        x0, y0 = cfg.rng.uniform(xmin, xmax), cfg.rng.uniform(ymin, ymax)
+        x1, y1 = cfg.rng.uniform(xmin, xmax), cfg.rng.uniform(ymin, ymax)
+        vertices_data.extend((0, 0, 0, x0, y0, 0, x1, y1, 0))
+        uvcoords_data.extend((0, 0, x0, y0, x1, y1))
+
+    geometry = ngl.Geometry(
+        vertices=ngl.BufferVec3(data=vertices_data),
+        uvcoords=ngl.BufferVec2(data=uvcoords_data),
+        topology="triangle_list",
+    )
+
+    return ngl.RenderColor(geometry=geometry)
+
+
+@test_fingerprint()
+@scene()
 def shape_diamond_colormask(cfg):
     color_write_masks = ("r+g+b+a", "r+g+a", "g+b+a", "r+b+a")
     geometry = ngl.Circle(npoints=5)
