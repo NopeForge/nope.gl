@@ -570,6 +570,10 @@ static int finalize_pipeline(struct ngl_node *node,
         .compat_info = compat_info,
     };
 
+    ret = ngli_node_prepare_children(node);
+    if (ret < 0)
+        return ret;
+
     ret = ngli_pipeline_compat_init(desc->pipeline_compat, &params);
     if (ret < 0)
         return ret;

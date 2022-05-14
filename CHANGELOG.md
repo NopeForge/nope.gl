@@ -18,6 +18,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ### Fixed
 - Missing exposed constants in `pynodegl` (some backend capabilities and
   the Wayland platform ID)
+- Undefined behaviour when using geometries with `Render*` nodes (`Render` node
+  is not affected)
 
 ## [2022.5] [libnodegl 0.4.0] - 2022-05-06
 ### Fixed
