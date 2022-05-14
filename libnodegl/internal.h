@@ -621,6 +621,7 @@ struct node_class {
 void ngli_node_print_specs(void);
 
 int ngli_node_prepare(struct ngl_node *node);
+int ngli_node_prepare_children(struct ngl_node *node);
 int ngli_node_visit(struct ngl_node *node, int is_active, double t);
 int ngli_node_honor_release_prefetch(struct ngl_node *scene, double t);
 int ngli_node_update(struct ngl_node *node, double t);

@@ -584,6 +584,19 @@ void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
     ngli_assert(ret == 0);
 }
 
+int ngli_node_prepare_children(struct ngl_node *node)
+{
+    struct darray *children_array = &node->children;
+    struct ngl_node **children = ngli_darray_data(children_array);
+    for (int i = 0; i < ngli_darray_count(children_array); i++) {
+        struct ngl_node *child = children[i];
+        int ret = ngli_node_prepare(child);
+        if (ret < 0)
+            return ret;
+    }
+    return 0;
+}
+
 int ngli_node_prepare(struct ngl_node *node)
 {
     if (node->cls->prepare) {
@@ -593,18 +606,9 @@ int ngli_node_prepare(struct ngl_node *node)
             LOG(ERROR, "preparing node %s failed: %s", node->label, NGLI_RET_STR(ret));
             return ret;
         }
-    } else {
-        struct darray *children_array = &node->children;
-        struct ngl_node **children = ngli_darray_data(children_array);
-        for (int i = 0; i < ngli_darray_count(children_array); i++) {
-            struct ngl_node *child = children[i];
-            int ret = ngli_node_prepare(child);
-            if (ret < 0)
-                return ret;
-        }
+        return 0;
     }
-
-    return 0;
+    return ngli_node_prepare_children(node);
 }
 
 int ngli_node_visit(struct ngl_node *node, int is_active, double t)
