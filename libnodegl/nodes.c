@@ -586,11 +586,9 @@ void ngli_node_detach_ctx(struct ngl_node *node, struct ngl_ctx *ctx)
 
 int ngli_node_prepare_children(struct ngl_node *node)
 {
-    struct darray *children_array = &node->children;
-    struct ngl_node **children = ngli_darray_data(children_array);
-    for (int i = 0; i < ngli_darray_count(children_array); i++) {
-        struct ngl_node *child = children[i];
-        int ret = ngli_node_prepare(child);
+    struct ngl_node **children = ngli_darray_data(&node->children);
+    for (int i = 0; i < ngli_darray_count(&node->children); i++) {
+        int ret = ngli_node_prepare(children[i]);
         if (ret < 0)
             return ret;
     }
