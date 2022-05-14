@@ -223,14 +223,7 @@ static int rtt_prepare(struct ngl_node *node)
     }
     rnode->rendertarget_desc = desc;
 
-    struct ngl_node **children = ngli_darray_data(&node->children);
-    for (int i = 0; i < ngli_darray_count(&node->children); i++) {
-        int ret = ngli_node_prepare(children[i]);
-        if (ret < 0)
-            return ret;
-    }
-
-    return 0;
+    return ngli_node_prepare_children(node);
 }
 
 static int rtt_prefetch(struct ngl_node *node)
