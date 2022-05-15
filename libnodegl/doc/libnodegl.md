@@ -224,7 +224,7 @@ Parameter | Flags | Type | Description | Default
 `data` |  | [`data`](#parameter-types) | buffer of `count` elements | 
 `filename` |  | [`str`](#parameter-types) | filename from which the buffer will be read, cannot be used with `data` | 
 `block` |  | [`node`](#parameter-types) ([Block](#block)) | reference a field from the given block | 
-`block_field` |  | [`i32`](#parameter-types) | field index in `block` | `0`
+`block_field` |  | [`str`](#parameter-types) | field name in `block` | 
 
 
 **Source**: [node_buffer.c](/libnodegl/node_buffer.c)

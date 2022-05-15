@@ -104,7 +104,7 @@ _Buffer:
     - [data, data, ""]
     - [filename, str, ""]
     - [block, node, ""]
-    - [block_field, i32, ""]
+    - [block_field, str, ""]
 
 BufferByte: _Buffer
 

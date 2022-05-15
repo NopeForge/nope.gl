@@ -289,7 +289,7 @@ def _compute_animation(cfg, animate_pre_render=True):
     compute = ngl.Compute(workgroup_count=(nb_vertices // (local_size**2), 1, 1), program=program)
     compute.update_resources(transform=transform, src=input_block, dst=output_block)
 
-    quad_buffer = ngl.BufferVec3(block=output_block, block_field=1)
+    quad_buffer = ngl.BufferVec3(block=output_block, block_field="vertices")
     geometry = ngl.Geometry(quad_buffer, topology="triangle_strip")
     program = ngl.Program(vertex=cfg.get_vert("color"), fragment=cfg.get_frag("color"))
     render = ngl.Render(geometry, program)

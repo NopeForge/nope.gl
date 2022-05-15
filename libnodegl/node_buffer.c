@@ -23,6 +23,7 @@
 #include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -40,7 +41,7 @@ struct buffer_opts {
     int data_size;
     char *filename;
     struct ngl_node *block;
-    int block_field;
+    char *block_field;
 };
 
 struct buffer_priv {
@@ -61,8 +62,8 @@ static const struct node_param buffer_params[] = {
     {"block",  NGLI_PARAM_TYPE_NODE,    OFFSET(block),
                .node_types=(const int[]){NGL_NODE_BLOCK, -1},
                .desc=NGLI_DOCSTRING("reference a field from the given block")},
-    {"block_field", NGLI_PARAM_TYPE_I32, OFFSET(block_field),
-                    .desc=NGLI_DOCSTRING("field index in `block`")},
+    {"block_field", NGLI_PARAM_TYPE_STR, OFFSET(block_field),
+                    .desc=NGLI_DOCSTRING("field name in `block`")},
     {NULL}
 };
 
@@ -256,6 +257,17 @@ static int buffer_init_from_count(struct ngl_node *node)
     return 0;
 }
 
+static const struct block_field *get_block_field(const struct darray *fields_array, const char *name)
+{
+    const struct block_field *fields = ngli_darray_data(fields_array);
+    for (int i = 0; i < ngli_darray_count(fields_array); i++) {
+        const struct block_field *field = &fields[i];
+        if (!strcmp(field->name, name))
+            return field;
+    }
+    return NULL;
+}
+
 static int buffer_init_from_block(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
@@ -264,18 +276,20 @@ static int buffer_init_from_block(struct ngl_node *node)
 
     const struct block_info *block_info = o->block->priv_data;
     const struct block *block = &block_info->block;
-    const struct block_field *fields = ngli_darray_data(&block->fields);
-    const int nb_fields = ngli_darray_count(&block->fields);
 
-    if (o->block_field < 0 || o->block_field >= nb_fields) {
-        LOG(ERROR, "invalid field id %d; %s has %d fields",
-            o->block_field, o->block->label, nb_fields);
-        return NGL_ERROR_INVALID_ARG;
+    if (!o->block_field) {
+        LOG(ERROR, "`block_field` must be set when setting a block");
+        return NGL_ERROR_INVALID_USAGE;
     }
 
-    const struct block_field *fi = &fields[o->block_field];
+    const struct block_field *fi = get_block_field(&block->fields, o->block_field);
+    if (!fi) {
+        LOG(ERROR, "field %s not found in %s", o->block_field, o->block->label);
+        return NGL_ERROR_NOT_FOUND;
+    }
+
     if (layout->type != fi->type) {
-        LOG(ERROR, "%s[%d] of type %s mismatches %s local type",
+        LOG(ERROR, "%s.%s of type %s mismatches %s local type",
             o->block->label, o->block_field, ngli_type_get_name(fi->type), ngli_type_get_name(layout->type));
         return NGL_ERROR_INVALID_ARG;
     }

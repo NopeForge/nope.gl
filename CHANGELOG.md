@@ -23,6 +23,10 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
   is not affected)
 - Undefined behaviour in sRGB/linear conversions with negative colors
 
+### Changed
+- `Buffer.block_field` is now a string corresponding to the field name instead
+  of an integer index
+
 ## [2022.5] [libnodegl 0.4.0] - 2022-05-06
 ### Fixed
 - Missing package data files for `ngl-diff`
