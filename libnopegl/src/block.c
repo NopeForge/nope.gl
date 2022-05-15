@@ -156,6 +156,24 @@ static int fill_tail_field_info(const struct block *s, struct block_field *field
     return offset + size;
 }
 
+int ngli_block_get_size(const struct block *s, int variadic_field_count)
+{
+    if (variadic_field_count == 0)
+        return s->size;
+
+    /*
+     * If the last field is variadic, we create an identical artificial field
+     * where we set the count to the one specified in this function, and
+     * recalculate the new size as if it was a normal field.
+     */
+    const struct block_field *last = ngli_darray_tail(&s->fields);
+    ngli_assert(last->count == NGLI_BLOCK_VARIADIC_COUNT);
+
+    struct block_field tmp = *last;
+    tmp.count = variadic_field_count;
+    return fill_tail_field_info(s, &tmp);
+}
+
 int ngli_block_add_field(struct block *s, const char *name, int type, int count)
 {
     ngli_assert(s->layout != NGLI_BLOCK_LAYOUT_UNKNOWN);
