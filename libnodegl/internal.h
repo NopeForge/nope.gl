@@ -186,7 +186,6 @@ struct buffer_info {
     int data_size;          // total buffer data size in bytes
 
     struct ngl_node *block;
-    int block_field;
     int usage;              // flags defining buffer use
 
     int dynamic;

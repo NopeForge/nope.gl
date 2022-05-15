@@ -302,7 +302,6 @@ static int buffer_init(struct ngl_node *node)
 
     layout->count      = o->count;
     s->buf.block       = o->block;
-    s->buf.block_field = o->block_field;
 
     if (o->data && o->filename) {
         LOG(ERROR,
