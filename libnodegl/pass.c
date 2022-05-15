@@ -331,36 +331,16 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
         return NGL_ERROR_MEMORY;
     }
 
-    struct buffer_info *attribute_priv = attribute->priv_data;
-    const int format = attribute_priv->layout.format;
-    int stride;
-    int offset;
-    struct buffer *buffer;
-    if (attribute_priv->block) {
-        struct ngl_node *block_node = attribute_priv->block;
-        struct block_priv *block_priv = block_node->priv_data;
-        const struct block *block = &block_priv->block;
-        const struct block_field *fields = ngli_darray_data(&block->fields);
-        const struct block_field *fi = &fields[attribute_priv->block_field];
-        stride = fi->stride;
-        offset = fi->offset;
-        buffer = block_priv->buffer;
-    } else {
-        stride = attribute_priv->layout.stride;
-        offset = 0;
-        buffer = attribute_priv->buffer;
-    }
     ngli_node_buffer_extend_usage(attribute, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
-    const int attr_type = attribute_priv->layout.type;
-
+    struct buffer_info *attribute_priv = attribute->priv_data;
     struct pgcraft_attribute crafter_attribute = {
-        .type   = attr_type,
-        .format = format,
-        .stride = stride,
-        .offset = offset,
+        .type   = attribute_priv->layout.type,
+        .format = attribute_priv->layout.format,
+        .stride = attribute_priv->layout.stride,
+        .offset = attribute_priv->layout.offset,
         .rate   = rate,
-        .buffer = buffer,
+        .buffer = attribute_priv->buffer,
     };
     snprintf(crafter_attribute.name, sizeof(crafter_attribute.name), "%s", name);
 
