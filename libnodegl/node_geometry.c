@@ -118,7 +118,7 @@ static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buff
         layout->stride = fi->stride;
         layout->offset = fi->offset;
 
-        block_priv->usage |= usage;
+        ngli_node_block_extend_usage(block_node, usage);
     } else {
         *bufferp = buffer_info->buffer;
         *layout = buffer_info->layout;

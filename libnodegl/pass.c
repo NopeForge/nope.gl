@@ -226,9 +226,9 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     }
 
     if (type == NGLI_TYPE_UNIFORM_BUFFER)
-        block_priv->usage |= NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        ngli_node_block_extend_usage(block_node, NGLI_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
     else if (type == NGLI_TYPE_STORAGE_BUFFER)
-        block_priv->usage |= NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        ngli_node_block_extend_usage(block_node, NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
     else
         ngli_assert(0);
 
@@ -345,7 +345,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
         stride = fi->stride;
         offset = fi->offset;
         buffer = block_priv->buffer;
-        block_priv->usage |= NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        ngli_node_block_extend_usage(block_node, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     } else {
         stride = attribute_priv->layout.stride;
         offset = 0;

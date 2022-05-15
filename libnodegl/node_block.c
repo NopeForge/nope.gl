@@ -133,6 +133,12 @@ int ngli_node_block_ref(struct ngl_node *node)
     return 0;
 }
 
+void ngli_node_block_extend_usage(struct ngl_node *node, int usage)
+{
+    struct block_priv *s = node->priv_data;
+    s->usage |= usage;
+}
+
 int ngli_node_block_init(struct ngl_node *node)
 {
     struct block_priv *s = node->priv_data;
