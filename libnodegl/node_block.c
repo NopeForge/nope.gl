@@ -177,6 +177,18 @@ int ngli_node_block_upload(struct ngl_node *node)
     return 0;
 }
 
+int ngli_node_block_get_cpu_size(struct ngl_node *node)
+{
+    struct block_priv *s = node->priv_data;
+    return s->data_size;
+}
+
+int ngli_node_block_get_gpu_size(struct ngl_node *node)
+{
+    struct block_priv *s = node->priv_data;
+    return s->data_size * (s->buffer_refcount > 0);
+}
+
 static int get_node_data_type(const struct ngl_node *node)
 {
     if (node->cls->category == NGLI_NODE_CATEGORY_VARIABLE) {
