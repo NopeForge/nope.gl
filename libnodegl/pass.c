@@ -350,7 +350,7 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
         stride = attribute_priv->layout.stride;
         offset = 0;
         buffer = attribute_priv->buffer;
-        attribute_priv->usage |= NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        ngli_node_buffer_extend_usage(attribute, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     }
 
     const int attr_type = attribute_priv->layout.type;

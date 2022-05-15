@@ -85,6 +85,12 @@ int ngli_node_buffer_ref(struct ngl_node *node)
     return 0;
 }
 
+void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage)
+{
+    struct buffer_info *s = node->priv_data;
+    s->usage |= usage;
+}
+
 int ngli_node_buffer_init(struct ngl_node *node)
 {
     struct buffer_info *s = node->priv_data;

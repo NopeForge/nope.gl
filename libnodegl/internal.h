@@ -197,6 +197,7 @@ struct buffer_info {
 };
 
 int ngli_node_buffer_ref(struct ngl_node *node);
+void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage);
 int ngli_node_buffer_init(struct ngl_node *node);
 void ngli_node_buffer_unref(struct ngl_node *node);
 int ngli_node_buffer_upload(struct ngl_node *node);

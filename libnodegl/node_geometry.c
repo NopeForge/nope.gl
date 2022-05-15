@@ -123,7 +123,7 @@ static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buff
         *bufferp = buffer_info->buffer;
         *layout = buffer_info->layout;
 
-        buffer_info->usage |= usage;
+        ngli_node_buffer_extend_usage(buffer_node, usage);
     }
 
     return 0;
