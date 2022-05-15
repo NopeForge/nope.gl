@@ -76,7 +76,7 @@ int ngli_node_buffer_ref(struct ngl_node *node)
         int ret = ngli_node_block_ref(s->block);
         if (ret < 0)
             return ret;
-        struct block_priv *block = s->block->priv_data;
+        struct block_info *block = s->block->priv_data;
         s->buffer = block->buffer;
         return 0;
     }
@@ -262,8 +262,8 @@ static int buffer_init_from_block(struct ngl_node *node)
     struct buffer_layout *layout = &s->buf.layout;
     const struct buffer_opts *o = node->opts;
 
-    const struct block_priv *block_priv = o->block->priv_data;
-    const struct block *block = &block_priv->block;
+    const struct block_info *block_info = o->block->priv_data;
+    const struct block *block = &block_info->block;
     const struct block_field *fields = ngli_darray_data(&block->fields);
     const int nb_fields = ngli_darray_count(&block->fields);
 
@@ -286,7 +286,7 @@ static int buffer_init_from_block(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
     layout->count = layout->count ? layout->count : fi->count;
-    s->buf.data = block_priv->data + fi->offset;
+    s->buf.data = block_info->data + fi->offset;
     layout->stride = fi->stride;
     layout->offset = fi->offset;
     s->buf.data_size = layout->count * layout->stride;

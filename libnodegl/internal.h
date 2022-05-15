@@ -239,9 +239,8 @@ struct block_opts {
     int layout;
 };
 
-struct block_priv {
+struct block_info {
     struct block block;
-    int force_update;
 
     uint8_t *data;
     int data_size;

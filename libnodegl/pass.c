@@ -196,8 +196,8 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     const struct gpu_limits *limits = &gpu_ctx->limits;
 
-    struct block_priv *block_priv = block_node->priv_data;
-    struct block *block = &block_priv->block;
+    struct block_info *block_info = block_node->priv_data;
+    struct block *block = &block_info->block;
 
     /*
      * Select buffer type. We prefer UBO over SSBO, but in the following
@@ -237,7 +237,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
         .stage    = stage,
         .writable = writable,
         .block    = block,
-        .buffer   = block_priv->buffer,
+        .buffer   = block_info->buffer,
     };
     snprintf(crafter_block.name, sizeof(crafter_block.name), "%s", name);
 
