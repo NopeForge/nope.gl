@@ -34,8 +34,6 @@ static const struct node_param resourceprops_params[] = {
                  .desc=NGLI_DOCSTRING("flag this resource for image accessing (only applies to texture nodes)")},
     {"writable", NGLI_PARAM_TYPE_BOOL, OFFSET(writable),
                  .desc=NGLI_DOCSTRING("flag this resource as writable in the shader")},
-    {"variadic", NGLI_PARAM_TYPE_BOOL, OFFSET(variadic),
-                 .desc=NGLI_DOCSTRING("flag this resource as variadic (only applies to block nodes)")},
     {NULL}
 };
 
@@ -59,8 +57,6 @@ static char *resourceprops_info_str(const struct ngl_node *node)
         ngli_bstr_printf(b, "%sas_image", ngli_bstr_len(b) ? " " : "");
     if (o->writable)
         ngli_bstr_printf(b, "%swritable", ngli_bstr_len(b) ? " " : "");
-    if (o->variadic)
-        ngli_bstr_printf(b, "%svariadic", ngli_bstr_len(b) ? " " : "");
 
     char *ret = ngli_bstr_strdup(b);
     ngli_bstr_freep(&b);

@@ -204,7 +204,7 @@ static int register_block(struct pass *s, const char *name, struct ngl_node *blo
         const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);
         if (resprops_node) {
             const struct resourceprops_opts *resprops = resprops_node->opts;
-            if (resprops->variadic || resprops->writable)
+            if (resprops->writable)
                 type = NGLI_TYPE_STORAGE_BUFFER;
             writable = resprops->writable;
         }

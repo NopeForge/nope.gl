@@ -1744,13 +1744,6 @@
       "default": 0,
       "flags": [],
       "desc": "flag this resource as writable in the shader"
-    },
-    {
-      "name": "variadic",
-      "type": "bool",
-      "default": 0,
-      "flags": [],
-      "desc": "flag this resource as variadic (only applies to block nodes)"
     }
   ],
   "Rotate": [

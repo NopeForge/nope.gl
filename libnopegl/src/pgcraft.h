@@ -96,7 +96,6 @@ struct pgcraft_block {
     const char *instance_name;
     int type;
     int stage;
-    int variadic;
     int writable;
     const struct block *block;
     struct buffer *buffer;
