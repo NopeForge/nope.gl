@@ -72,8 +72,14 @@ int ngli_node_buffer_ref(struct ngl_node *node)
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct buffer_info *s = node->priv_data;
 
-    if (s->block)
-        return ngli_node_block_ref(s->block);
+    if (s->block) {
+        int ret = ngli_node_block_ref(s->block);
+        if (ret < 0)
+            return ret;
+        struct block_priv *block = s->block->priv_data;
+        s->buffer = block->buffer;
+        return 0;
+    }
 
     if (s->buffer_refcount++ == 0) {
         s->buffer = ngli_buffer_create(gpu_ctx);
@@ -125,6 +131,7 @@ void ngli_node_buffer_unref(struct ngl_node *node)
 
     if (s->block) {
         ngli_node_block_unref(s->block);
+        s->buffer = NULL;
         return;
     }
 
@@ -281,6 +288,7 @@ static int buffer_init_from_block(struct ngl_node *node)
     layout->count = layout->count ? layout->count : fi->count;
     s->buf.data = block_priv->data + fi->offset;
     layout->stride = fi->stride;
+    layout->offset = fi->offset;
     s->buf.data_size = layout->count * layout->stride;
 
     return 0;
