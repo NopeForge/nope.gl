@@ -106,21 +106,8 @@ static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buff
     if (ret < 0)
         return ret;
 
-    if (buffer_info->block) {
-        struct ngl_node *block_node = buffer_info->block;
-        struct block_priv *block_priv = block_node->priv_data;
-        const struct block *block = &block_priv->block;
-        const struct block_field *fields = ngli_darray_data(&block->fields);
-        const struct block_field *fi = &fields[buffer_info->block_field];
-
-        *bufferp = block_priv->buffer;
-        *layout = buffer_info->layout;
-        layout->stride = fi->stride;
-        layout->offset = fi->offset;
-    } else {
-        *bufferp = buffer_info->buffer;
-        *layout = buffer_info->layout;
-    }
+    *bufferp = buffer_info->buffer;
+    *layout = buffer_info->layout;
     ngli_node_buffer_extend_usage(buffer_node, usage);
 
     return 0;
