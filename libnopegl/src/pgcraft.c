@@ -556,8 +556,7 @@ static int inject_block(struct pgcraft *s, struct bstr *b,
     for (int i = 0; i < ngli_darray_count(&block->fields); i++) {
         const struct block_field *fi = &field_info[i];
         const char *type = get_glsl_type(fi->type);
-        if (fi->count == NGLI_BLOCK_VARIADIC_COUNT ||
-            (named_block->variadic && fi->count && i == ngli_darray_count(&block->fields)))
+        if (fi->count == NGLI_BLOCK_VARIADIC_COUNT)
             ngli_bstr_printf(b, "    %s %s[];\n", type, fi->name);
         else if (fi->count)
             ngli_bstr_printf(b, "    %s %s[%d];\n", type, fi->name, fi->count);

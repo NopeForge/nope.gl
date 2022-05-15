@@ -19,6 +19,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 - `max_texture_dimensions_*` capabilities are renamed to `max_texture_dimension_*`
 - Backend probing in `pynopegl` now returns a more Pythonic output
 
+### Removed
+- `ResourceProps.variadic` bool flag as it was never a functional interface
+
 ## [2023.1] [libnopegl 0.8.0] - 2023-04-07
 ### Changed
 - Project renamed to `nope.gl`, as part of the Nope Project

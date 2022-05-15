@@ -773,7 +773,6 @@ Parameter | Flags | Type | Description | Default
 `precision` |  | [`precision`](#precision-choices) | precision qualifier for the shader | `auto`
 `as_image` |  | [`bool`](#parameter-types) | flag this resource for image accessing (only applies to texture nodes) | `0`
 `writable` |  | [`bool`](#parameter-types) | flag this resource as writable in the shader | `0`
-`variadic` |  | [`bool`](#parameter-types) | flag this resource as variadic (only applies to block nodes) | `0`
 
 
 **Source**: [src/node_resourceprops.c](/libnopegl/src/node_resourceprops.c)
