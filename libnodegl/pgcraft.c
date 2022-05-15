@@ -174,54 +174,51 @@ enum {
     TYPE_FLAG_IS_INT              = 1 << 2,
 };
 
-static const struct {
-    int flags;
-    const char *glsl_type;
-} type_info_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_INT]                         = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT, "int"},
-    [NGLI_TYPE_IVEC2]                       = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT, "ivec2"},
-    [NGLI_TYPE_IVEC3]                       = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT, "ivec3"},
-    [NGLI_TYPE_IVEC4]                       = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT, "ivec4"},
-    [NGLI_TYPE_UINT]                        = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT, "uint"},
-    [NGLI_TYPE_UIVEC2]                      = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT, "uvec2"},
-    [NGLI_TYPE_UIVEC3]                      = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT, "uvec3"},
-    [NGLI_TYPE_UIVEC4]                      = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT, "uvec4"},
-    [NGLI_TYPE_FLOAT]                       = {TYPE_FLAG_HAS_PRECISION, "float"},
-    [NGLI_TYPE_VEC2]                        = {TYPE_FLAG_HAS_PRECISION, "vec2"},
-    [NGLI_TYPE_VEC3]                        = {TYPE_FLAG_HAS_PRECISION, "vec3"},
-    [NGLI_TYPE_VEC4]                        = {TYPE_FLAG_HAS_PRECISION, "vec4"},
-    [NGLI_TYPE_MAT3]                        = {TYPE_FLAG_HAS_PRECISION, "mat3"},
-    [NGLI_TYPE_MAT4]                        = {TYPE_FLAG_HAS_PRECISION, "mat4"},
-    [NGLI_TYPE_BOOL]                        = {0, "bool"},
-    [NGLI_TYPE_SAMPLER_2D]                  = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE, "sampler2D"},
-    [NGLI_TYPE_SAMPLER_2D_RECT]             = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE, "sampler2DRect"},
-    [NGLI_TYPE_SAMPLER_3D]                  = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE, "sampler3D"},
-    [NGLI_TYPE_SAMPLER_CUBE]                = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE, "samplerCube"},
-    [NGLI_TYPE_SAMPLER_EXTERNAL_OES]        = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE, "samplerExternalOES"},
-    [NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE, "__samplerExternal2DY2YEXT"},
-    [NGLI_TYPE_IMAGE_2D]                    = {TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE, "image2D"},
-    [NGLI_TYPE_UNIFORM_BUFFER]              = {0, "uniform"},
-    [NGLI_TYPE_STORAGE_BUFFER]              = {0, "buffer"},
+static const int type_flags_map[NGLI_TYPE_NB] = {
+    [NGLI_TYPE_INT]                         = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGLI_TYPE_IVEC2]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGLI_TYPE_IVEC3]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGLI_TYPE_IVEC4]                       = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGLI_TYPE_UINT]                        = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGLI_TYPE_UIVEC2]                      = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGLI_TYPE_UIVEC3]                      = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGLI_TYPE_UIVEC4]                      = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_INT,
+    [NGLI_TYPE_FLOAT]                       = TYPE_FLAG_HAS_PRECISION,
+    [NGLI_TYPE_VEC2]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGLI_TYPE_VEC3]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGLI_TYPE_VEC4]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGLI_TYPE_MAT3]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGLI_TYPE_MAT4]                        = TYPE_FLAG_HAS_PRECISION,
+    [NGLI_TYPE_BOOL]                        = 0,
+    [NGLI_TYPE_SAMPLER_2D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_SAMPLER_2D_RECT]             = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_SAMPLER_3D]                  = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_SAMPLER_CUBE]                = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_SAMPLER_EXTERNAL_OES]        = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_SAMPLER_EXTERNAL_2D_Y2Y_EXT] = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_IMAGE_2D]                    = TYPE_FLAG_HAS_PRECISION|TYPE_FLAG_IS_SAMPLER_OR_IMAGE,
+    [NGLI_TYPE_UNIFORM_BUFFER]              = 0,
+    [NGLI_TYPE_STORAGE_BUFFER]              = 0,
 };
 
 static int is_sampler_or_image(int type)
 {
-    return type_info_map[type].flags & TYPE_FLAG_IS_SAMPLER_OR_IMAGE;
+    return type_flags_map[type] & TYPE_FLAG_IS_SAMPLER_OR_IMAGE;
 }
 
 static int type_has_precision(int type)
 {
-    return type_info_map[type].flags & TYPE_FLAG_HAS_PRECISION;
+    return type_flags_map[type] & TYPE_FLAG_HAS_PRECISION;
 }
 
 static int type_is_int(int type)
 {
-    return type_info_map[type].flags & TYPE_FLAG_IS_INT;
+    return type_flags_map[type] & TYPE_FLAG_IS_INT;
 }
 
 static const char *get_glsl_type(int type)
 {
-    const char *ret = type_info_map[type].glsl_type;
+    const char *ret = ngli_type_get_name(type);
     ngli_assert(ret);
     return ret;
 }
