@@ -242,30 +242,34 @@ static int buffer_init_from_block(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
     struct buffer_layout *layout = &s->buf.layout;
-    const struct block_opts *block = s->buf.block->opts;
+    const struct buffer_opts *o = node->opts;
 
-    if (s->buf.block_field < 0 || s->buf.block_field >= block->nb_fields) {
+    const struct block_priv *block_priv = o->block->priv_data;
+    const struct block *block = &block_priv->block;
+    const struct block_field *fields = ngli_darray_data(&block->fields);
+    const int nb_fields = ngli_darray_count(&block->fields);
+
+    if (o->block_field < 0 || o->block_field >= nb_fields) {
         LOG(ERROR, "invalid field id %d; %s has %d fields",
-            s->buf.block_field, s->buf.block->label, block->nb_fields);
+            o->block_field, o->block->label, nb_fields);
         return NGL_ERROR_INVALID_ARG;
     }
 
-    struct ngl_node *buffer_target = block->fields[s->buf.block_field];
-    if (buffer_target->cls->id != node->cls->id) {
+    const struct block_field *fi = &fields[o->block_field];
+    if (layout->type != fi->type) {
         LOG(ERROR, "%s[%d] of type %s mismatches %s local type",
-            s->buf.block->label, s->buf.block_field, buffer_target->cls->name, node->cls->name);
+            o->block->label, o->block_field, ngli_type_get_name(fi->type), ngli_type_get_name(layout->type));
         return NGL_ERROR_INVALID_ARG;
     }
 
-    struct buffer_info *buffer_target_info = buffer_target->priv_data;
-    if (layout->count > buffer_target_info->layout.count) {
+    if (layout->count > fi->count) {
         LOG(ERROR, "block buffer reference count can not be larger than target buffer count (%d > %d)",
-            layout->count, buffer_target_info->layout.count);
+            layout->count, fi->count);
         return NGL_ERROR_INVALID_ARG;
     }
-    layout->count = layout->count ? layout->count : buffer_target_info->layout.count;
-    s->buf.data = buffer_target_info->data;
-    layout->stride = buffer_target_info->layout.stride;
+    layout->count = layout->count ? layout->count : fi->count;
+    s->buf.data = block_priv->data + fi->offset;
+    layout->stride = fi->stride;
     s->buf.data_size = layout->count * layout->stride;
 
     return 0;
