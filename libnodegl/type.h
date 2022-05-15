@@ -51,4 +51,6 @@ enum {
     NGLI_TYPE_NB
 };
 
+const char *ngli_type_get_name(int type);
+
 #endif

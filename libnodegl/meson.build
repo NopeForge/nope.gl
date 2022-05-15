@@ -203,6 +203,7 @@ lib_src = files(
   'serialize.c',
   'texture.c',
   'transforms.c',
+  'type.c',
   'utils.c',
 )
 
