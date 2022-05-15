@@ -275,8 +275,10 @@ def _compute_animation(cfg, animate_pre_render=True):
 
     input_vertices = ngl.BufferVec3(data=vertices_data, label="vertices")
     output_vertices = ngl.BufferVec3(data=vertices_data, label="vertices")
-    input_block = ngl.Block(fields=[input_vertices], layout="std140")
-    output_block = ngl.Block(fields=[output_vertices], layout="std140")
+    input_padding = ngl.UniformVec3(label="padding")
+    output_padding = ngl.UniformVec4(label="padding")
+    input_block = ngl.Block(fields=[input_padding, input_vertices], layout="std140")
+    output_block = ngl.Block(fields=[output_padding, output_vertices], layout="std140")
 
     rotate_animkf = [ngl.AnimKeyFrameFloat(0, 0), ngl.AnimKeyFrameFloat(cfg.duration, 360)]
     rotate = ngl.Rotate(ngl.Identity(), axis=(0, 0, 1), angle=ngl.AnimatedFloat(rotate_animkf))
@@ -287,7 +289,7 @@ def _compute_animation(cfg, animate_pre_render=True):
     compute = ngl.Compute(workgroup_count=(nb_vertices // (local_size**2), 1, 1), program=program)
     compute.update_resources(transform=transform, src=input_block, dst=output_block)
 
-    quad_buffer = ngl.BufferVec3(block=output_block, block_field=0)
+    quad_buffer = ngl.BufferVec3(block=output_block, block_field=1)
     geometry = ngl.Geometry(quad_buffer, topology="triangle_strip")
     program = ngl.Program(vertex=cfg.get_vert("color"), fragment=cfg.get_frag("color"))
     render = ngl.Render(geometry, program)
