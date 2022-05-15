@@ -55,6 +55,7 @@ struct block {
 #define NGLI_BLOCK_VARIADIC_COUNT -1
 
 void ngli_block_init(struct block *s, enum block_layout layout);
+int ngli_block_get_size(const struct block *s, int variadic_count);
 int ngli_block_add_field(struct block *s, const char *name, int type, int count);
 void ngli_block_reset(struct block *s);
 
