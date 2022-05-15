@@ -88,6 +88,11 @@ int ngli_node_buffer_ref(struct ngl_node *node)
 void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage)
 {
     struct buffer_info *s = node->priv_data;
+
+    if (s->block) {
+        ngli_node_block_extend_usage(s->block, usage);
+        return;
+    }
     s->usage |= usage;
 }
 

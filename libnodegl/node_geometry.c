@@ -117,14 +117,11 @@ static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buff
         *layout = buffer_info->layout;
         layout->stride = fi->stride;
         layout->offset = fi->offset;
-
-        ngli_node_block_extend_usage(block_node, usage);
     } else {
         *bufferp = buffer_info->buffer;
         *layout = buffer_info->layout;
-
-        ngli_node_buffer_extend_usage(buffer_node, usage);
     }
+    ngli_node_buffer_extend_usage(buffer_node, usage);
 
     return 0;
 }

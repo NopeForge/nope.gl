@@ -345,13 +345,12 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
         stride = fi->stride;
         offset = fi->offset;
         buffer = block_priv->buffer;
-        ngli_node_block_extend_usage(block_node, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     } else {
         stride = attribute_priv->layout.stride;
         offset = 0;
         buffer = attribute_priv->buffer;
-        ngli_node_buffer_extend_usage(attribute, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
     }
+    ngli_node_buffer_extend_usage(attribute, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
     const int attr_type = attribute_priv->layout.type;
 
