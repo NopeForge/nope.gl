@@ -111,6 +111,12 @@ struct block_priv {
     int force_update;
 };
 
+struct block_opts {
+    struct ngl_node **fields;
+    int nb_fields;
+    int layout;
+};
+
 #define OFFSET(x) offsetof(struct block_opts, x)
 static const struct node_param block_params[] = {
     {"fields", NGLI_PARAM_TYPE_NODELIST, OFFSET(fields),

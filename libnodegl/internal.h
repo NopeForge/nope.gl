@@ -233,12 +233,6 @@ struct variable_info {
 
 int ngli_velocity_evaluate(struct ngl_node *node, void *dst, double t);
 
-struct block_opts {
-    struct ngl_node **fields;
-    int nb_fields;
-    int layout;
-};
-
 struct block_info {
     struct block block;
 
