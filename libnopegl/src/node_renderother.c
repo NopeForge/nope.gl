@@ -50,6 +50,8 @@
 #include "source_histogram_vert.h"
 #include "source_texture_frag.h"
 #include "source_texture_vert.h"
+#include "source_waveform_frag.h"
+#include "source_waveform_vert.h"
 
 #define VERTEX_USAGE_FLAGS (NGLI_BUFFER_USAGE_TRANSFER_DST_BIT | \
                             NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT) \
@@ -198,6 +200,17 @@ struct rendertexture_opts {
 struct rendertexture_priv {
     struct render_common common;
 };
+
+struct renderwaveform_opts {
+    struct ngl_node *stats;
+    int mode;
+    struct render_common_opts common;
+};
+
+struct renderwaveform_priv {
+    struct render_common common;
+};
+
 
 #define OFFSET(x) offsetof(struct rendercolor_opts, x)
 static const struct node_param rendercolor_params[] = {
@@ -393,6 +406,28 @@ static const struct node_param rendertexture_params[] = {
 };
 #undef OFFSET
 
+#define OFFSET(x) offsetof(struct renderwaveform_opts, x)
+static const struct node_param renderwaveform_params[] = {
+    {"stats",    NGLI_PARAM_TYPE_NODE, OFFSET(stats),
+                 .node_types=(const uint32_t[]){NGL_NODE_COLORSTATS, NGLI_NODE_NONE},
+                 .flags=NGLI_PARAM_FLAG_NON_NULL,
+                 .desc=NGLI_DOCSTRING("texture to render")},
+    {"mode",     NGLI_PARAM_TYPE_SELECT, OFFSET(mode),
+                 .choices=&scope_mode_choices,
+                 .desc=NGLI_DOCSTRING("define how to represent the data")},
+    {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
+                 .choices=&ngli_blending_choices,
+                 .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
+    {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
+                 .node_types=GEOMETRY_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("geometry to be rasterized")},
+    {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
+                 .node_types=FILTERS_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    {NULL}
+};
+#undef OFFSET
+
 static const float default_vertices[] = {
    -1.f,-1.f, 0.f,
     1.f,-1.f, 0.f,
@@ -572,6 +607,18 @@ static int rendertexture_init(struct ngl_node *node)
     struct rendertexture_priv *s = node->priv_data;
     struct rendertexture_opts *o = node->opts;
     return init(node, &s->common, &o->common, "source_texture", source_texture_frag);
+}
+
+static int renderwaveform_init(struct ngl_node *node)
+{
+    struct renderwaveform_priv *s = node->priv_data;
+    struct renderwaveform_opts *o = node->opts;
+
+    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
+    if (!ngli_darray_push(&s->common.draw_resources, &o->stats))
+        return NGL_ERROR_MEMORY;
+
+    return init(node, &s->common, &o->common, "source_waveform", source_waveform_frag);
 }
 
 static int init_desc(struct ngl_node *node, struct render_common *s,
@@ -1008,6 +1055,57 @@ static int rendertexture_prepare(struct ngl_node *node)
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
+static int renderwaveform_prepare(struct ngl_node *node)
+{
+    struct renderwaveform_priv *s = node->priv_data;
+    struct renderwaveform_opts *o = node->opts;
+    const struct pgcraft_uniform uniforms[] = {
+        {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="mode",              .type=NGLI_TYPE_I32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->mode},
+    };
+
+    struct render_common *c = &s->common;
+    int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
+    if (ret < 0)
+        return ret;
+
+    static const struct pgcraft_iovar vert_out_vars[] = {
+        {.name = "uv", .type = NGLI_TYPE_VEC2},
+    };
+
+    const struct block_info *block_info = o->stats->priv_data;
+    const struct pgcraft_block crafter_block = {
+        .name     = "stats",
+        .type     = NGLI_TYPE_STORAGE_BUFFER,
+        .stage    = NGLI_PROGRAM_SHADER_FRAG,
+        .block    = &block_info->block,
+        .buffer   = block_info->buffer,
+    };
+
+    const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
+    const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
+    const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
+    const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/renderwaveform",
+        .vert_base        = source_waveform_vert,
+        .frag_base        = c->combined_fragment,
+        .uniforms         = ngli_darray_data(&desc->uniforms),
+        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .attributes       = attributes,
+        .nb_attributes    = NGLI_ARRAY_NB(attributes),
+        .blocks           = &crafter_block,
+        .nb_blocks        = 1,
+        .vert_out_vars    = vert_out_vars,
+        .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
+    };
+
+    ngli_node_block_extend_usage(o->stats, NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+
+    const struct render_common_opts *co = &o->common;
+    return finalize_pipeline(node, c, co, &crafter_params);
+}
+
 static void renderother_draw(struct ngl_node *node, struct render_common *s, const struct render_common_opts *o)
 {
     struct ngl_node **draw_resources = ngli_darray_data(&s->draw_resources);
@@ -1108,3 +1206,4 @@ DECLARE_RENDEROTHER(rendergradient,  NGL_NODE_RENDERGRADIENT,  "RenderGradient")
 DECLARE_RENDEROTHER(rendergradient4, NGL_NODE_RENDERGRADIENT4, "RenderGradient4")
 DECLARE_RENDEROTHER(renderhistogram, NGL_NODE_RENDERHISTOGRAM, "RenderHistogram")
 DECLARE_RENDEROTHER(rendertexture,   NGL_NODE_RENDERTEXTURE,   "RenderTexture")
+DECLARE_RENDEROTHER(renderwaveform,  NGL_NODE_RENDERWAVEFORM,  "RenderWaveform")
