@@ -87,6 +87,7 @@ foreach backend : backends
     'anim_srgb',
     'anim_hsl',
     'anim_hsv',
+    'negative_values_srgb',
     'static_srgb',
     'static_hsl',
     'static_hsv',
