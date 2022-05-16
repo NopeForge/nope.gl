@@ -36,6 +36,9 @@ struct texture_gl {
     GLint format;
     GLint internal_format;
     GLenum format_type;
+    int wrapped;
+    int external_storage;
+    int bytes_per_pixel;
 };
 
 struct texture *ngli_texture_gl_create(struct gpu_ctx *gpu_ctx);

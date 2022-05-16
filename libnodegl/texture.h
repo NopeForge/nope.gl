@@ -90,9 +90,6 @@ struct texture_params {
 struct texture {
     struct gpu_ctx *gpu_ctx;
     struct texture_params params;
-    int wrapped;
-    int external_storage;
-    int bytes_per_pixel;
 };
 
 struct texture *ngli_texture_create(struct gpu_ctx *gpu_ctx);

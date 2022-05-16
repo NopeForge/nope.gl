@@ -80,7 +80,7 @@ static void texture_set_image(struct texture *s, const uint8_t *data)
         ngli_glTexImage3D(gl, GL_TEXTURE_3D, 0, s_priv->internal_format, params->width, params->height, params->depth, 0, s_priv->format, s_priv->format_type, data);
         break;
     case GL_TEXTURE_CUBE_MAP: {
-        const int face_size = data ? s->bytes_per_pixel * params->width * params->height : 0;
+        const int face_size = data ? s_priv->bytes_per_pixel * params->width * params->height : 0;
         for (int face = 0; face < 6; face++) {
             ngli_glTexImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, s_priv->internal_format, params->width, params->height, 0, s_priv->format, s_priv->format_type, data);
             data += face_size;
@@ -100,7 +100,7 @@ static void texture2d_set_sub_image(struct texture *s, const uint8_t *data, int 
     if (row_upload) {
         for (int y = 0; y < params->height; y++) {
             ngli_glTexSubImage2D(gl, GL_TEXTURE_2D, 0, 0, y, params->width, 1, s_priv->format, s_priv->format_type, data);
-            data += linesize * s->bytes_per_pixel;
+            data += linesize * s_priv->bytes_per_pixel;
         }
         return;
     }
@@ -118,7 +118,7 @@ static void texture3d_set_sub_image(struct texture *s, const uint8_t *data, int 
         for (int z = 0; z < params->depth; z++) {
             for (int y = 0; y < params->height; y++) {
                 ngli_glTexSubImage3D(gl, GL_TEXTURE_3D, 0, 0, y, z, params->width, 1, params->depth, s_priv->format, s_priv->format_type, data);
-                data += linesize * s->bytes_per_pixel;
+                data += linesize * s_priv->bytes_per_pixel;
             }
         }
         return;
@@ -137,12 +137,12 @@ static void texturecube_set_sub_image(struct texture *s, const uint8_t *data, in
         for (int face = 0; face < 6; face++) {
             for (int y = 0; y < params->height; y++) {
                 ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, y, params->width, 1, s_priv->format, s_priv->format_type, data);
-                data += linesize * s->bytes_per_pixel;
+                data += linesize * s_priv->bytes_per_pixel;
             }
         }
         return;
     }
-    const int face_size = data ? s->bytes_per_pixel * linesize * params->height : 0;
+    const int face_size = data ? s_priv->bytes_per_pixel * linesize * params->height : 0;
     for (int face = 0; face < 6; face++) {
         ngli_glTexSubImage2D(gl, GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, 0, 0, params->width, params->height, s_priv->format, s_priv->format_type, data);
         data += face_size;
@@ -258,7 +258,7 @@ static int texture_init_fields(struct texture *s)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct texture_params *params = &s->params;
 
-    if (!s->wrapped &&
+    if (!s_priv->wrapped &&
         (params->usage == COLOR_USAGE ||
          params->usage == DEPTH_USAGE ||
          params->usage == TRANSIENT_COLOR_USAGE ||
@@ -303,10 +303,10 @@ static int texture_init_fields(struct texture *s)
     if (ret < 0)
         return ret;
 
-    s->bytes_per_pixel = ngli_format_get_bytes_per_pixel(params->format);
+    s_priv->bytes_per_pixel = ngli_format_get_bytes_per_pixel(params->format);
 
     if (params->external_storage || params->external_oes)
-        s->external_storage = 1;
+        s_priv->external_storage = 1;
 
     return 0;
 }
@@ -363,7 +363,7 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
         if (s_priv->target == GL_TEXTURE_3D || s_priv->target == GL_TEXTURE_CUBE_MAP)
             ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_R, wrap_r);
 
-        if (!s->external_storage) {
+        if (!s_priv->external_storage) {
             if (!params->width || !params->height ||
                 (params->type == NGLI_TEXTURE_TYPE_3D && !params->depth)) {
                 LOG(ERROR, "invalid texture type %dx%dx%d",
@@ -386,32 +386,36 @@ int ngli_texture_gl_wrap(struct texture *s,
                          GLuint texture)
 {
     s->params = *params;
-    s->wrapped = 1;
+
+    struct texture_gl *s_priv = (struct texture_gl *)s;
+    s_priv->wrapped = 1;
 
     int ret = texture_init_fields(s);
     if (ret < 0)
         return ret;
 
-    struct texture_gl *s_priv = (struct texture_gl *)s;
     s_priv->id = texture;
-    s->external_storage = 1;
+    s_priv->external_storage = 1;
 
     return 0;
 }
 
 void ngli_texture_gl_set_id(struct texture *s, GLuint id)
 {
-    /* only wrapped textures can update their id with this function */
-    ngli_assert(s->wrapped);
-
     struct texture_gl *s_priv = (struct texture_gl *)s;
+
+    /* only wrapped textures can update their id with this function */
+    ngli_assert(s_priv->wrapped);
+
     s_priv->id = id;
 }
 
 void ngli_texture_gl_set_dimensions(struct texture *s, int width, int height, int depth)
 {
+    struct texture_gl *s_priv = (struct texture_gl *)s;
+
     /* only textures with external storage can update their dimensions with this function */
-    ngli_assert(s->external_storage);
+    ngli_assert(s_priv->external_storage);
 
     struct texture_params *params = &s->params;
     params->width = width;
@@ -428,7 +432,7 @@ int ngli_texture_gl_upload(struct texture *s, const uint8_t *data, int linesize)
 
     /* texture with external storage (including wrapped textures and render
      * buffers) cannot update their content with this function */
-    ngli_assert(!s->external_storage);
+    ngli_assert(!s_priv->external_storage);
     ngli_assert(params->usage & NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT);
 
     ngli_glBindTexture(gl, s_priv->target, s_priv->id);
@@ -467,7 +471,7 @@ void ngli_texture_gl_freep(struct texture **sp)
     struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
     struct glcontext *gl = gpu_ctx_gl->glcontext;
 
-    if (!s->wrapped) {
+    if (!s_priv->wrapped) {
         if (s_priv->target == GL_RENDERBUFFER)
             ngli_glDeleteRenderbuffers(gl, 1, &s_priv->id);
         else
