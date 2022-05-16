@@ -209,6 +209,7 @@ struct ngl_node;
 #define NGL_NODE_RENDERHISTOGRAM        NGLI_FOURCC('R','h','s','t')
 #define NGL_NODE_RENDERTEXTURE          NGLI_FOURCC('R','t','e','x')
 #define NGL_NODE_RENDERTOTEXTURE        NGLI_FOURCC('R','T','T',' ')
+#define NGL_NODE_RENDERWAVEFORM         NGLI_FOURCC('R','w','f','m')
 #define NGL_NODE_RESOURCEPROPS          NGLI_FOURCC('R','e','s','P')
 #define NGL_NODE_ROTATE                 NGLI_FOURCC('T','R','o','t')
 #define NGL_NODE_ROTATEQUAT             NGLI_FOURCC('T','R','o','Q')
