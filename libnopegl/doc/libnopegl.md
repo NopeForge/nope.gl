@@ -748,6 +748,20 @@ Parameter | Flags | Type | Description | Default
 **Source**: [src/node_renderother.c](/libnopegl/src/node_renderother.c)
 
 
+## RenderHistogram
+
+Parameter | Flags | Type | Description | Default
+--------- | ----- | ---- | ----------- | :-----:
+`stats` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([ColorStats](#colorstats)) | texture to render | 
+`mode` |  | [`scope_mode`](#scope_mode-choices) | define how to represent the data | `mixed`
+`blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
+`geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
+
+
+**Source**: [src/node_renderother.c](/libnopegl/src/node_renderother.c)
+
+
 ## RenderTexture
 
 Parameter | Flags | Type | Description | Default
@@ -1894,6 +1908,14 @@ Constant | Description
 -------- | -----------
 `ramp` | straight line gradient, uniform perpendicularly to the line between the points
 `radial` | distance between the points spread circularly
+
+## scope_mode choices
+
+Constant | Description
+-------- | -----------
+`mixed` | R, G and B channels overlap on each others
+`parade` | split R, G and B channels
+`luma_only` | only the luma channel
 
 ## framebuffer_features choices
 

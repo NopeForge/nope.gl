@@ -46,6 +46,8 @@
 #include "source_gradient_vert.h"
 #include "source_gradient4_frag.h"
 #include "source_gradient4_vert.h"
+#include "source_histogram_frag.h"
+#include "source_histogram_vert.h"
 #include "source_texture_frag.h"
 #include "source_texture_vert.h"
 
@@ -175,6 +177,16 @@ struct rendergradient4_opts {
 };
 
 struct rendergradient4_priv {
+    struct render_common common;
+};
+
+struct renderhistogram_opts {
+    struct ngl_node *stats;
+    int mode;
+    struct render_common_opts common;
+};
+
+struct renderhistogram_priv {
     struct render_common common;
 };
 
@@ -320,6 +332,44 @@ static const struct node_param rendergradient4_params[] = {
     {"filters",    NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
                    .node_types=FILTERS_TYPES_LIST,
                    .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    {NULL}
+};
+#undef OFFSET
+
+enum {
+    SCOPE_MODE_MIXED,
+    SCOPE_MODE_PARADE,
+    SCOPE_MODE_LUMA_ONLY,
+};
+
+const struct param_choices scope_mode_choices = {
+    .name = "scope_mode",
+    .consts = {
+        {"mixed",     SCOPE_MODE_MIXED,     .desc=NGLI_DOCSTRING("R, G and B channels overlap on each others")},
+        {"parade",    SCOPE_MODE_PARADE,    .desc=NGLI_DOCSTRING("split R, G and B channels")},
+        {"luma_only", SCOPE_MODE_LUMA_ONLY, .desc=NGLI_DOCSTRING("only the luma channel")},
+        {NULL}
+    }
+};
+
+#define OFFSET(x) offsetof(struct renderhistogram_opts, x)
+static const struct node_param renderhistogram_params[] = {
+    {"stats",    NGLI_PARAM_TYPE_NODE, OFFSET(stats),
+                 .node_types=(const uint32_t[]){NGL_NODE_COLORSTATS, NGLI_NODE_NONE},
+                 .flags=NGLI_PARAM_FLAG_NON_NULL,
+                 .desc=NGLI_DOCSTRING("texture to render")},
+    {"mode",     NGLI_PARAM_TYPE_SELECT, OFFSET(mode),
+                 .choices=&scope_mode_choices,
+                 .desc=NGLI_DOCSTRING("define how to represent the data")},
+    {"blending", NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
+                 .choices=&ngli_blending_choices,
+                 .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
+    {"geometry", NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
+                 .node_types=GEOMETRY_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("geometry to be rasterized")},
+    {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
+                 .node_types=FILTERS_TYPES_LIST,
+                 .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
     {NULL}
 };
 #undef OFFSET
@@ -503,6 +553,18 @@ static int rendergradient4_init(struct ngl_node *node)
     struct rendergradient4_opts *o = node->opts;
     s->common.helpers = NGLI_FILTER_HELPER_LINEAR2SRGB | NGLI_FILTER_HELPER_SRGB2LINEAR;
     return init(node, &s->common, &o->common, "source_gradient4", source_gradient4_frag);
+}
+
+static int renderhistogram_init(struct ngl_node *node)
+{
+    struct renderhistogram_priv *s = node->priv_data;
+    struct renderhistogram_opts *o = node->opts;
+
+    ngli_darray_init(&s->common.draw_resources, sizeof(struct ngl_node *), 0);
+    if (!ngli_darray_push(&s->common.draw_resources, &o->stats))
+        return NGL_ERROR_MEMORY;
+
+    return init(node, &s->common, &o->common, "source_histogram", source_histogram_frag);
 }
 
 static int rendertexture_init(struct ngl_node *node)
@@ -836,6 +898,57 @@ static int rendergradient4_prepare(struct ngl_node *node)
     return finalize_pipeline(node, c, co, &crafter_params);
 }
 
+static int renderhistogram_prepare(struct ngl_node *node)
+{
+    struct renderhistogram_priv *s = node->priv_data;
+    struct renderhistogram_opts *o = node->opts;
+    const struct pgcraft_uniform uniforms[] = {
+        {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="mode",              .type=NGLI_TYPE_I32,  .stage=NGLI_PROGRAM_SHADER_FRAG, .data=&o->mode},
+    };
+
+    struct render_common *c = &s->common;
+    int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
+    if (ret < 0)
+        return ret;
+
+    static const struct pgcraft_iovar vert_out_vars[] = {
+        {.name = "uv", .type = NGLI_TYPE_VEC2},
+    };
+
+    const struct block_info *block_info = o->stats->priv_data;
+    const struct pgcraft_block crafter_block = {
+        .name     = "stats",
+        .type     = NGLI_TYPE_STORAGE_BUFFER,
+        .stage    = NGLI_PROGRAM_SHADER_FRAG,
+        .block    = &block_info->block,
+        .buffer   = block_info->buffer,
+    };
+
+    const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
+    const struct pipeline_desc *desc = &descs[node->ctx->rnode_pos->id];
+    const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
+    const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/renderhistogram",
+        .vert_base        = source_histogram_vert,
+        .frag_base        = c->combined_fragment,
+        .uniforms         = ngli_darray_data(&desc->uniforms),
+        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .attributes       = attributes,
+        .nb_attributes    = NGLI_ARRAY_NB(attributes),
+        .blocks           = &crafter_block,
+        .nb_blocks        = 1,
+        .vert_out_vars    = vert_out_vars,
+        .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
+    };
+
+    ngli_node_block_extend_usage(o->stats, NGLI_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+
+    const struct render_common_opts *co = &o->common;
+    return finalize_pipeline(node, c, co, &crafter_params);
+}
+
 static int rendertexture_prepare(struct ngl_node *node)
 {
     struct ngl_ctx *ctx = node->ctx;
@@ -993,4 +1106,5 @@ DECLARE_RENDEROTHER(rendercolor,     NGL_NODE_RENDERCOLOR,     "RenderColor")
 DECLARE_RENDEROTHER(renderdisplace,  NGL_NODE_RENDERDISPLACE,  "RenderDisplace")
 DECLARE_RENDEROTHER(rendergradient,  NGL_NODE_RENDERGRADIENT,  "RenderGradient")
 DECLARE_RENDEROTHER(rendergradient4, NGL_NODE_RENDERGRADIENT4, "RenderGradient4")
+DECLARE_RENDEROTHER(renderhistogram, NGL_NODE_RENDERHISTOGRAM, "RenderHistogram")
 DECLARE_RENDEROTHER(rendertexture,   NGL_NODE_RENDERTEXTURE,   "RenderTexture")
