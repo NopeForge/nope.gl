@@ -46,7 +46,7 @@ def _get_anim_color_scene_func(c0, c1, space):
 def _get_static_color_scene_func(c, space):
     @test_cuepoints(points={"c": (0, 0)}, nb_keyframes=1, tolerance=1)
     @scene()
-    def scene_func(cfg):
+    def scene_func(_):
         return ngl.RenderColor(color=ngl.UniformColor(c, space=space))
 
     return scene_func
