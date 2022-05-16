@@ -539,7 +539,7 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
 
     /* texture with external storage cannot update their content with this
      * function */
-    ngli_assert(!s->external_storage);
+    ngli_assert(!s->params.external_storage);
     ngli_assert(params->usage & NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT);
 
     if (!data)
