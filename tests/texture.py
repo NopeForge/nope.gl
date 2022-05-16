@@ -180,7 +180,7 @@ def _get_texture_cubemap_from_mrt_scene_2_pass(samples=0):
 
 @test_fingerprint()
 @scene()
-def texture_cubemap(cfg):
+def texture_cubemap(_):
     n = 64
     p = n * n
     cb_data = array.array(
@@ -205,31 +205,31 @@ def texture_cubemap(cfg):
 
 @test_fingerprint()
 @scene()
-def texture_cubemap_from_mrt(cfg):
+def texture_cubemap_from_mrt(_):
     return _get_texture_cubemap_from_mrt_scene()
 
 
 @test_fingerprint()
 @scene()
-def texture_cubemap_from_mrt_msaa(cfg):
+def texture_cubemap_from_mrt_msaa(_):
     return _get_texture_cubemap_from_mrt_scene(4)
 
 
 @test_fingerprint()
 @scene()
-def texture_cubemap_from_mrt_2_pass(cfg):
+def texture_cubemap_from_mrt_2_pass(_):
     return _get_texture_cubemap_from_mrt_scene_2_pass()
 
 
 @test_fingerprint()
 @scene()
-def texture_cubemap_from_mrt_2_pass_msaa(cfg):
+def texture_cubemap_from_mrt_2_pass_msaa(_):
     return _get_texture_cubemap_from_mrt_scene_2_pass(4)
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-1, -1), "top-right": (1, 1)}, tolerance=1)
 @scene()
-def texture_clear_and_scissor(cfg):
+def texture_clear_and_scissor(_):
     render = ngl.RenderColor(COLORS.white)
     graphic_config = ngl.GraphicConfig(render, scissor_test=True, scissor=(0, 0, 0, 0), color_write_mask="")
 

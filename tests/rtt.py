@@ -204,7 +204,7 @@ def _rtt_load_attachment():
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @scene()
-def rtt_load_attachment(cfg):
+def rtt_load_attachment(_):
     return _rtt_load_attachment()
 
 
@@ -212,7 +212,7 @@ def rtt_load_attachment(cfg):
     samples=4, width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1
 )
 @scene()
-def rtt_load_attachment_msaa(cfg):
+def rtt_load_attachment_msaa(_):
     return _rtt_load_attachment()
 
 
@@ -229,13 +229,13 @@ def _rtt_load_attachment_nested(samples=0):
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @scene()
-def rtt_load_attachment_nested(cfg):
+def rtt_load_attachment_nested(_):
     return _rtt_load_attachment_nested()
 
 
 @test_cuepoints(width=32, height=32, points={"bottom-left": (-0.5, -0.5), "top-right": (0.5, 0.5)}, tolerance=1)
 @scene()
-def rtt_load_attachment_nested_msaa(cfg):
+def rtt_load_attachment_nested_msaa(_):
     return _rtt_load_attachment_nested(4)
 
 

@@ -40,43 +40,43 @@ def _base_scene(*filters):
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
-def filter_alpha(cfg):
+def filter_alpha(_):
     return _base_scene(ngl.FilterAlpha(0.4321))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
-def filter_contrast(cfg):
+def filter_contrast(_):
     return _base_scene(ngl.FilterContrast(1.2, pivot=0.3))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
-def filter_exposure(cfg):
+def filter_exposure(_):
     return _base_scene(ngl.FilterExposure(0.7))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
-def filter_inversealpha(cfg):
+def filter_inversealpha(_):
     return _base_scene(ngl.FilterInverseAlpha())
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
-def filter_opacity(cfg):
+def filter_opacity(_):
     return _base_scene(ngl.FilterOpacity(0.4321))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
-def filter_saturation(cfg):
+def filter_saturation(_):
     return _base_scene(ngl.FilterSaturation(1.5))
 
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
-def filter_composition_colors(cfg):
+def filter_composition_colors(_):
     return ngl.RenderGradient4(
         filters=(
             ngl.FilterExposure(exposure=0.9),
@@ -89,7 +89,7 @@ def filter_composition_colors(cfg):
 
 @test_cuepoints(points=_CUEPOINTS, nb_keyframes=1, tolerance=1)
 @scene()
-def filter_composition_alpha(cfg):
+def filter_composition_alpha(_):
     return ngl.RenderGradient(
         color0=(1, 0.5, 0),
         color1=(0, 1, 0.5),
@@ -108,7 +108,7 @@ def filter_composition_alpha(cfg):
 
 @test_cuepoints(points=_CUEPOINTS, width=320, height=240, nb_keyframes=1, tolerance=1)
 @scene(linear=scene.Bool())
-def filter_gamma_correct(cfg, linear=True):
+def filter_gamma_correct(_, linear=True):
     """This test operates a gamma correct blending (the blending happens in linear space)"""
 
     # Hue colors rotated clockwise

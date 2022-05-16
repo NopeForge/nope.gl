@@ -216,7 +216,7 @@ def shape_geometry_with_renderother(cfg):
 
 @test_fingerprint()
 @scene()
-def shape_diamond_colormask(cfg):
+def shape_diamond_colormask(_):
     color_write_masks = ("r+g+b+a", "r+g+a", "g+b+a", "r+b+a")
     geometry = ngl.Circle(npoints=5)
     render = ngl.RenderColor(COLORS.white, geometry=geometry)

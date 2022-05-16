@@ -28,7 +28,7 @@ import pynodegl as ngl
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_0_to_127(cfg):
+def text_0_to_127(_):
     s = ""
     for y in range(8):
         for x in range(16):
@@ -44,59 +44,59 @@ def _text(**params):
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_colors(cfg):
+def text_colors(_):
     return _text(fg_color=COLORS.rose, bg_color=COLORS.cgreen, bg_opacity=1)
 
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_align_cc(cfg):
+def text_align_cc(_):
     return _text(valign="center", halign="center")
 
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_align_cr(cfg):
+def text_align_cr(_):
     return _text(valign="center", halign="right")
 
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_align_cl(cfg):
+def text_align_cl(_):
     return _text(valign="center", halign="left")
 
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_align_bc(cfg):
+def text_align_bc(_):
     return _text(valign="bottom", halign="center")
 
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_align_br(cfg):
+def text_align_br(_):
     return _text(valign="bottom", halign="right")
 
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_align_bl(cfg):
+def text_align_bl(_):
     return _text(valign="bottom", halign="left")
 
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_align_tc(cfg):
+def text_align_tc(_):
     return _text(valign="top", halign="center")
 
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_align_tr(cfg):
+def text_align_tr(_):
     return _text(valign="top", halign="right")
 
 
 @test_fingerprint(tolerance=1)
 @scene()
-def text_align_tl(cfg):
+def text_align_tl(_):
     return _text(valign="top", halign="left")
