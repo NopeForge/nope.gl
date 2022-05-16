@@ -1656,6 +1656,45 @@
       "desc": "filter chain to apply on top of this source"
     }
   ],
+  "RenderHistogram": [
+    {
+      "name": "stats",
+      "type": "node",
+      "node_types": ["ColorStats"],
+      "flags": ["nonull"],
+      "desc": "texture to render"
+    },
+    {
+      "name": "mode",
+      "type": "select",
+      "default": "mixed",
+      "choices": ["mixed", "parade", "luma_only"],
+      "flags": [],
+      "desc": "define how to represent the data"
+    },
+    {
+      "name": "blending",
+      "type": "select",
+      "default": "default",
+      "choices": ["default", "src_over", "dst_over", "src_out", "dst_out", "src_in", "dst_in", "src_atop", "dst_atop", "xor"],
+      "flags": [],
+      "desc": "define how this node and the current frame buffer are blending together"
+    },
+    {
+      "name": "geometry",
+      "type": "node",
+      "node_types": ["Circle", "Geometry", "Quad", "Triangle"],
+      "flags": [],
+      "desc": "geometry to be rasterized"
+    },
+    {
+      "name": "filters",
+      "type": "node_list",
+      "node_types": ["FilterAlpha", "FilterContrast", "FilterExposure", "FilterInverseAlpha", "FilterLinear2sRGB", "FilterOpacity", "FilterPremult", "FilterSaturation", "FilterSRGB2Linear"],
+      "flags": [],
+      "desc": "filter chain to apply on top of this source"
+    }
+  ],
   "RenderTexture": [
     {
       "name": "texture",

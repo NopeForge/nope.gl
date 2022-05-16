@@ -242,6 +242,7 @@ static const struct drawcall_spec {
             NGL_NODE_RENDERCOLOR,
             NGL_NODE_RENDERGRADIENT,
             NGL_NODE_RENDERGRADIENT4,
+            NGL_NODE_RENDERHISTOGRAM,
             NGL_NODE_RENDERTEXTURE,
             NGLI_NODE_NONE
         },

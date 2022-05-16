@@ -644,6 +644,8 @@ shaders = {
   'source_gradient.vert': 'source_gradient_vert.h',
   'source_gradient4.frag': 'source_gradient4_frag.h',
   'source_gradient4.vert': 'source_gradient4_vert.h',
+  'source_histogram.frag': 'source_histogram_frag.h',
+  'source_histogram.vert': 'source_histogram_vert.h',
   'source_texture.frag': 'source_texture_frag.h',
   'source_texture.vert': 'source_texture_vert.h',
 }
