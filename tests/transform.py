@@ -300,7 +300,7 @@ def transform_path(cfg):
     return ngl.Translate(shape, vector=ngl.AnimatedPath(anim_kf, path))
 
 
-@test_fingerprint(nb_keyframes=15)
+@test_fingerprint(nb_keyframes=15, tolerance=2)
 @scene()
 def transform_smoothpath(cfg):
     cfg.aspect_ratio = (1, 1)
