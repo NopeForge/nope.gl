@@ -20,6 +20,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
   the Wayland platform ID)
 - Undefined behaviour when using geometries with `Render*` nodes (`Render` node
   is not affected)
+- Undefined behaviour in sRGB/linear conversions with negative colors
 
 ## [2022.5] [libnodegl 0.4.0] - 2022-05-06
 ### Fixed
