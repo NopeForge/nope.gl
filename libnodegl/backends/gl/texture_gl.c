@@ -327,15 +327,15 @@ struct texture *ngli_texture_gl_create(struct gpu_ctx *gpu_ctx)
 
 int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
 {
+    struct texture_gl *s_priv = (struct texture_gl *)s;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
+
     s->params = *params;
 
     int ret = texture_init_fields(s);
     if (ret < 0)
         return ret;
-
-    struct texture_gl *s_priv = (struct texture_gl *)s;
-    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)s->gpu_ctx;
-    struct glcontext *gl = gpu_ctx_gl->glcontext;
 
     if (s_priv->target == GL_RENDERBUFFER) {
         ngli_glGenRenderbuffers(gl, 1, &s_priv->id);
