@@ -32,6 +32,7 @@ GLint ngli_texture_get_gl_wrap(int wrap);
 struct texture_gl_wrap_params {
     const struct texture_params *params;
     GLuint texture;
+    GLuint target;
 };
 
 struct texture_gl {

@@ -393,6 +393,8 @@ int ngli_texture_gl_wrap(struct texture *s, const struct texture_gl_wrap_params 
         return ret;
 
     s_priv->id = wrap_params->texture;
+    if (wrap_params->target)
+        s_priv->target = wrap_params->target;
     s_priv->external_storage = 1;
 
     return 0;
