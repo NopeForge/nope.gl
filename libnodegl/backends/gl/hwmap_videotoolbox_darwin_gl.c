@@ -94,7 +94,7 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, int in
     struct texture *plane = vt->planes[index];
     struct texture_gl *plane_gl = (struct texture_gl *)plane;
 
-    ngli_glBindTexture(gl, plane_gl->target, plane_gl->id);
+    ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, plane_gl->id);
 
     int width = IOSurfaceGetWidthOfPlane(surface, index);
     int height = IOSurfaceGetHeightOfPlane(surface, index);
@@ -103,7 +103,7 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, int in
     /* CGLTexImageIOSurface2D() requires GL_UNSIGNED_INT_8_8_8_8_REV instead of GL_UNSIGNED_SHORT to map BGRA IOSurface2D */
     const GLenum format_type = plane_gl->format == GL_BGRA ? GL_UNSIGNED_INT_8_8_8_8_REV : plane_gl->format_type;
 
-    CGLError err = CGLTexImageIOSurface2D(CGLGetCurrentContext(), plane_gl->target,
+    CGLError err = CGLTexImageIOSurface2D(CGLGetCurrentContext(), GL_TEXTURE_RECTANGLE,
                                           plane_gl->internal_format, width, height,
                                           plane_gl->format, format_type, surface, index);
     if (err != kCGLNoError) {
