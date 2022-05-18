@@ -425,6 +425,7 @@ int ngli_texture_gl_upload(struct texture *s, const uint8_t *data, int linesize)
     /* texture with external storage (including wrapped textures and render
      * buffers) cannot update their content with this function */
     ngli_assert(!s_priv->external_storage);
+    ngli_assert(!s_priv->wrapped);
     ngli_assert(params->usage & NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT);
 
     ngli_glBindTexture(gl, s_priv->target, s_priv->id);
