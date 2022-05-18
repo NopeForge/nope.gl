@@ -381,11 +381,9 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
     return 0;
 }
 
-int ngli_texture_gl_wrap(struct texture *s,
-                         const struct texture_params *params,
-                         GLuint texture)
+int ngli_texture_gl_wrap(struct texture *s, const struct texture_gl_wrap_params *wrap_params)
 {
-    s->params = *params;
+    s->params = *wrap_params->params;
 
     struct texture_gl *s_priv = (struct texture_gl *)s;
     s_priv->wrapped = 1;
@@ -394,7 +392,7 @@ int ngli_texture_gl_wrap(struct texture *s,
     if (ret < 0)
         return ret;
 
-    s_priv->id = texture;
+    s_priv->id = wrap_params->texture;
     s_priv->external_storage = 1;
 
     return 0;

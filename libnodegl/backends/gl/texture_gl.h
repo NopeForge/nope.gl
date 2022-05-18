@@ -29,6 +29,11 @@ GLint ngli_texture_get_gl_min_filter(int min_filter, int mipmap_filter);
 GLint ngli_texture_get_gl_mag_filter(int mag_filter);
 GLint ngli_texture_get_gl_wrap(int wrap);
 
+struct texture_gl_wrap_params {
+    const struct texture_params *params;
+    GLuint texture;
+};
+
 struct texture_gl {
     struct texture parent;
     GLenum target;
@@ -46,9 +51,7 @@ struct texture *ngli_texture_gl_create(struct gpu_ctx *gpu_ctx);
 int ngli_texture_gl_init(struct texture *s,
                       const struct texture_params *params);
 
-int ngli_texture_gl_wrap(struct texture *s,
-                         const struct texture_params *params,
-                         GLuint id);
+int ngli_texture_gl_wrap(struct texture *s, const struct texture_gl_wrap_params *wrap_params);
 
 void ngli_texture_gl_set_id(struct texture *s, GLuint id);
 void ngli_texture_gl_set_dimensions(struct texture *s, int width, int height, int depth);

@@ -223,11 +223,15 @@ static int vt_ios_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
             .usage            = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
         };
 
+        const struct texture_gl_wrap_params wrap_params = {
+            .params = &plane_params,
+        };
+
         vt->planes[i] = ngli_texture_create(gpu_ctx);
         if (!vt->planes[i])
             return NGL_ERROR_MEMORY;
 
-        ret = ngli_texture_gl_wrap(vt->planes[i], &plane_params, 0);
+        ret = ngli_texture_gl_wrap(vt->planes[i], &wrap_params);
         if (ret < 0)
             return ret;
     }

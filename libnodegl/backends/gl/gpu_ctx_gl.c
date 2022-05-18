@@ -113,7 +113,13 @@ static int wrap_capture_cvpixelbuffer(struct gpu_ctx *s,
         .height = height,
         .usage  = NGLI_TEXTURE_USAGE_COLOR_ATTACHMENT_BIT,
     };
-    int ret = ngli_texture_gl_wrap(texture, &attachment_params, id);
+
+    const struct texture_gl_wrap_params wrap_params = {
+        .params  = &attachment_params,
+        .texture = id,
+    };
+
+    int ret = ngli_texture_gl_wrap(texture, &wrap_params);
     if (ret < 0) {
         CFRelease(cv_texture);
         ngli_texture_freep(&texture);
