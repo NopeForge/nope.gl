@@ -297,9 +297,6 @@ static int texture_init_fields(struct texture *s)
 
     s_priv->bytes_per_pixel = ngli_format_get_bytes_per_pixel(params->format);
 
-    if (params->external_storage)
-        s_priv->external_storage = 1;
-
     return 0;
 }
 
@@ -355,18 +352,16 @@ int ngli_texture_gl_init(struct texture *s, const struct texture_params *params)
         if (s_priv->target == GL_TEXTURE_3D || s_priv->target == GL_TEXTURE_CUBE_MAP)
             ngli_glTexParameteri(gl, s_priv->target, GL_TEXTURE_WRAP_R, wrap_r);
 
-        if (!s_priv->external_storage) {
-            if (!params->width || !params->height ||
-                (params->type == NGLI_TEXTURE_TYPE_3D && !params->depth)) {
-                LOG(ERROR, "invalid texture type %dx%dx%d",
-                    params->width, params->height, params->depth);
-                return NGL_ERROR_INVALID_ARG;
-            }
-            if (gl->features & NGLI_FEATURE_GL_TEXTURE_STORAGE) {
-                texture_set_storage(s);
-            } else {
-                texture_set_image(s, NULL);
-            }
+        if (!params->width || !params->height ||
+            (params->type == NGLI_TEXTURE_TYPE_3D && !params->depth)) {
+            LOG(ERROR, "invalid texture type %dx%dx%d",
+                params->width, params->height, params->depth);
+            return NGL_ERROR_INVALID_ARG;
+        }
+        if (gl->features & NGLI_FEATURE_GL_TEXTURE_STORAGE) {
+            texture_set_storage(s);
+        } else {
+            texture_set_image(s, NULL);
         }
     }
 
@@ -387,7 +382,6 @@ int ngli_texture_gl_wrap(struct texture *s, const struct texture_gl_wrap_params 
     s_priv->id = wrap_params->texture;
     if (wrap_params->target)
         s_priv->target = wrap_params->target;
-    s_priv->external_storage = 1;
 
     return 0;
 }
@@ -406,8 +400,8 @@ void ngli_texture_gl_set_dimensions(struct texture *s, int width, int height, in
 {
     struct texture_gl *s_priv = (struct texture_gl *)s;
 
-    /* only textures with external storage can update their dimensions with this function */
-    ngli_assert(s_priv->external_storage);
+    /* only wrapped textures can update their dimensions with this function */
+    ngli_assert(s_priv->wrapped);
 
     struct texture_params *params = &s->params;
     params->width = width;
@@ -422,9 +416,8 @@ int ngli_texture_gl_upload(struct texture *s, const uint8_t *data, int linesize)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct texture_params *params = &s->params;
 
-    /* texture with external storage (including wrapped textures and render
-     * buffers) cannot update their content with this function */
-    ngli_assert(!s_priv->external_storage);
+    /* Wrapped textures and render buffers cannot update their content with
+     * this function */
     ngli_assert(!s_priv->wrapped);
     ngli_assert(params->usage & NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT);
 

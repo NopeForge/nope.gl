@@ -443,8 +443,6 @@ VkResult ngli_texture_vk_wrap(struct texture *s, const struct texture_vk_wrap_pa
 {
     struct texture_vk *s_priv = (struct texture_vk *)s;
 
-    ngli_assert(wrap_params->params->external_storage);
-
     VkResult res = init_fields(s, wrap_params->params);
     if (res != VK_SUCCESS)
         return res;
@@ -538,9 +536,7 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
     const struct texture_params *params = &s->params;
     struct texture_vk *s_priv = (struct texture_vk *)s;
 
-    /* texture with external storage (including wrapped images) cannot update
-     * their content with this function */
-    ngli_assert(!s->params.external_storage);
+    /* Wrapped textures cannot update their content with this function */
     ngli_assert(!s_priv->wrapped_image);
     ngli_assert(params->usage & NGLI_TEXTURE_USAGE_TRANSFER_DST_BIT);
 

@@ -43,7 +43,6 @@ struct texture_gl {
     GLint internal_format;
     GLenum format_type;
     int wrapped;
-    int external_storage;
     int bytes_per_pixel;
 };
 

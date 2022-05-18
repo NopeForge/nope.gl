@@ -82,7 +82,6 @@ struct texture_params {
     int wrap_t;
     int wrap_r;
     int usage;
-    int external_storage;
 };
 
 struct texture {

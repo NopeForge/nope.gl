@@ -185,7 +185,6 @@ static VkResult create_render_resources(struct gpu_ctx *s)
                 .width            = s_priv->width,
                 .height           = s_priv->height,
                 .usage            = COLOR_USAGE,
-                .external_storage = 1,
             };
 
             const struct texture_vk_wrap_params wrap_params = {
