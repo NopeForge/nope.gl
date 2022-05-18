@@ -80,6 +80,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 struct hwmap_vt_darwin {
     struct sxplayer_frame *frame;
     struct texture *planes[2];
+    GLuint gl_planes[2];
     OSType format;
     struct format_desc format_desc;
 };
@@ -182,6 +183,8 @@ static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
     const struct hwmap_params *params = &hwmap->params;
 
@@ -192,7 +195,19 @@ static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
     if (ret < 0)
         return ret;
 
+    ngli_glGenTextures(gl, 2, vt->gl_planes);
+
     for (int i = 0; i < vt->format_desc.nb_planes; i++) {
+        const GLint min_filter = ngli_texture_get_gl_min_filter(params->texture_min_filter, NGLI_MIPMAP_FILTER_NONE);
+        const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->texture_mag_filter);
+
+        ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, vt->gl_planes[i]);
+        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_MIN_FILTER, min_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_MAG_FILTER, mag_filter);
+        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        ngli_glTexParameteri(gl, GL_TEXTURE_RECTANGLE, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        ngli_glBindTexture(gl, GL_TEXTURE_RECTANGLE, 0);
+
         const struct texture_params plane_params = {
             .type             = NGLI_TEXTURE_TYPE_2D,
             .format           = vt->format_desc.planes[i].format,
@@ -202,14 +217,18 @@ static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
             .wrap_t           = NGLI_WRAP_CLAMP_TO_EDGE,
             .usage            = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
             .rectangle        = 1,
-            .external_storage = 1,
+        };
+
+        const struct texture_gl_wrap_params wrap_params = {
+            .params  = &plane_params,
+            .texture = vt->gl_planes[i],
         };
 
         vt->planes[i] = ngli_texture_create(gpu_ctx);
         if (!vt->planes[i])
             return NGL_ERROR_MEMORY;
 
-        int ret = ngli_texture_init(vt->planes[i], &plane_params);
+        int ret = ngli_texture_gl_wrap(vt->planes[i], &wrap_params);
         if (ret < 0)
             return ret;
     }
@@ -230,10 +249,16 @@ static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
 
 static void vt_darwin_uninit(struct hwmap *hwmap)
 {
+    struct ngl_ctx *ctx = hwmap->ctx;
+    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
 
     for (int i = 0; i < 2; i++)
         ngli_texture_freep(&vt->planes[i]);
+
+    ngli_glDeleteTextures(gl, 2, vt->gl_planes);
 
     sxplayer_release_frame(vt->frame);
     vt->frame = NULL;
