@@ -392,7 +392,6 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
             .wrap_s           = params->texture_wrap_s,
             .wrap_t           = params->texture_wrap_t,
             .usage            = params->texture_usage,
-            .external_storage = 1,
         };
 
         const struct texture_vk_wrap_params wrap_params = {

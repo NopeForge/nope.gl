@@ -351,7 +351,6 @@ static int mc_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
         .wrap_s           = NGLI_WRAP_CLAMP_TO_EDGE,
         .wrap_t           = NGLI_WRAP_CLAMP_TO_EDGE,
         .usage            = params->texture_usage,
-        .external_storage = 1,
     };
 
     const struct texture_vk_wrap_params wrap_params = {
