@@ -44,6 +44,7 @@
 struct hwmap_mc {
     struct android_image *android_image;
     EGLImageKHR egl_image;
+    GLuint gl_texture;
     struct texture *texture;
 };
 
@@ -74,8 +75,22 @@ static int mc_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
     struct ngl_ctx *ctx = hwmap->ctx;
     struct android_ctx *android_ctx = &ctx->android_ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
+    struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
+    struct glcontext *gl = gpu_ctx_gl->glcontext;
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
+
+    ngli_glGenTextures(gl, 1, &mc->gl_texture);
+
+    const GLint min_filter = ngli_texture_get_gl_min_filter(params->texture_min_filter, NGLI_MIPMAP_FILTER_NONE);
+    const GLint mag_filter = ngli_texture_get_gl_mag_filter(params->texture_mag_filter);
+
+    ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, mc->gl_texture);
+    ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MIN_FILTER, min_filter);
+    ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_MAG_FILTER, mag_filter);
+    ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    ngli_glTexParameteri(gl, GL_TEXTURE_EXTERNAL_OES, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    ngli_glBindTexture(gl, GL_TEXTURE_EXTERNAL_OES, 0);
 
     struct texture_params texture_params = {
         .type         = NGLI_TEXTURE_TYPE_2D,
@@ -89,11 +104,16 @@ static int mc_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
         .external_oes = 1,
     };
 
+    struct texture_gl_wrap_params wrap_params = {
+        .params  = &texture_params,
+        .texture = mc->gl_texture,
+    };
+
     mc->texture = ngli_texture_create(gpu_ctx);
     if (!mc->texture)
         return NGL_ERROR_MEMORY;
 
-    int ret = ngli_texture_init(mc->texture, &texture_params);
+    int ret = ngli_texture_gl_wrap(mc->texture, &wrap_params);
     if (ret < 0)
         return ret;
 
@@ -230,6 +250,7 @@ static void mc_uninit(struct hwmap *hwmap)
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
     ngli_texture_freep(&mc->texture);
+    ngli_glDeleteTextures(gl, 1, &mc->gl_texture);
 
     if (android_ctx->has_native_imagereader_api) {
         ngli_eglDestroyImageKHR(gl, mc->egl_image);
