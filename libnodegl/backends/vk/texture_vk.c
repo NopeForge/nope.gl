@@ -233,6 +233,7 @@ static int init_fields(struct texture *s, const struct texture_params *params)
     s->params.depth = depth;
 
     s_priv->format = ngli_format_ngl_to_vk(s->params.format);
+    s_priv->bytes_per_pixel = ngli_format_get_bytes_per_pixel(s->params.format);
 
     s_priv->array_layers = 1;
     if (params->type == NGLI_TEXTURE_TYPE_CUBE) {
@@ -546,9 +547,8 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
         return VK_SUCCESS;
 
     if (!s_priv->staging_buffer || s_priv->staging_buffer_row_length != linesize) {
-        const int32_t bytes_per_pixel = ngli_format_get_bytes_per_pixel(params->format);
         const int32_t width = linesize ? linesize : s->params.width;
-        const int32_t staging_buffer_size = width * s->params.height * s->params.depth * bytes_per_pixel * s_priv->array_layers;
+        const int32_t staging_buffer_size = width * s->params.height * s->params.depth * s_priv->bytes_per_pixel * s_priv->array_layers;
 
         if (s_priv->staging_buffer_ptr) {
             ngli_buffer_vk_unmap(s_priv->staging_buffer);
@@ -600,8 +600,7 @@ VkResult ngli_texture_vk_upload(struct texture *s, const uint8_t *data, int line
     struct darray copy_regions;
     ngli_darray_init(&copy_regions, sizeof(VkBufferImageCopy), 0);
 
-    const int32_t bytes_per_pixel = ngli_format_get_bytes_per_pixel(params->format);
-    const VkDeviceSize layer_size = s->params.width * s->params.height * bytes_per_pixel;
+    const VkDeviceSize layer_size = s->params.width * s->params.height * s_priv->bytes_per_pixel;
     for (int32_t i = 0; i < s_priv->array_layers; i++) {
         const VkDeviceSize offset = i * layer_size;
         const VkBufferImageCopy region = {

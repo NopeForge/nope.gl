@@ -41,6 +41,7 @@ struct texture_vk_wrap_params {
 struct texture_vk {
     struct texture parent;
     VkFormat format;
+    int bytes_per_pixel;
     int array_layers;
     int mipmap_levels;
     VkImage image;
