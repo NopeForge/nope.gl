@@ -322,6 +322,15 @@ static int block_init(struct ngl_node *node)
 
     for (int i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
+
+        if (field_node->cls->category == NGLI_NODE_CATEGORY_BUFFER) {
+            const struct buffer_info *info = field_node->priv_data;
+            if (info->block) {
+                LOG(ERROR, "buffers used as a block field referencing a block are not supported");
+                return NGL_ERROR_UNSUPPORTED;
+            }
+        }
+
         const int type  = get_node_data_type(field_node);
         const int count = get_node_data_count(field_node);
 
