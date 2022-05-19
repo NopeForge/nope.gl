@@ -486,7 +486,7 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
       glslang_include_dirs = include_directories(extra_include_dirs)
       if cxx.has_header(glslang_header, include_directories: glslang_include_dirs)
         glslang_ver_array = []
-        foreach comp : ['MAJOR', 'MINOR']
+        foreach comp : ['MAJOR', 'MINOR', 'PATCH']
           glslang_ver_array += cxx.get_define(
             'GLSLANG_VERSION_' + comp,
             prefix: '#include <' + glslang_header + '>',
