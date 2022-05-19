@@ -485,20 +485,15 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
       glslang_header = 'glslang/build_info.h'
       glslang_include_dirs = include_directories(extra_include_dirs)
       if cxx.has_header(glslang_header, include_directories: glslang_include_dirs)
-        glslang_ver_major = cxx.get_define(
-          'GLSLANG_VERSION_MAJOR',
-          prefix: '#include <' + glslang_header + '>',
-          include_directories: glslang_include_dirs,
-        ).to_int()
-        glslang_ver_minor = cxx.get_define(
-          'GLSLANG_VERSION_MINOR',
-          prefix: '#include <' + glslang_header + '>',
-          include_directories: glslang_include_dirs,
-        ).to_int()
-        glslang_ver = '@0@.@1@'.format(
-            glslang_ver_major,
-            glslang_ver_minor,
-        )
+        glslang_ver_array = []
+        foreach comp : ['MAJOR', 'MINOR']
+          glslang_ver_array += cxx.get_define(
+            'GLSLANG_VERSION_' + comp,
+            prefix: '#include <' + glslang_header + '>',
+            include_directories: glslang_include_dirs,
+          )
+        endforeach
+        glslang_ver = '.'.join(glslang_ver_array)
         glslang_min_ver = '>= 11.1.0'
         if glslang_ver.version_compare(glslang_min_ver)
           gbackend_deps += declare_dependency(include_directories: glslang_include_dirs)
