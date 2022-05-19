@@ -494,7 +494,7 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
           )
         endforeach
         glslang_ver = '.'.join(glslang_ver_array)
-        glslang_min_ver = '>= 11.1.0'
+        glslang_min_ver = '>= 11.3.0'
         if glslang_ver.version_compare(glslang_min_ver)
           gbackend_deps += declare_dependency(include_directories: glslang_include_dirs)
         else
