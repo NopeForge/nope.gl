@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+
+## [2022.6] [libnodegl 0.5.0] - 2022-05-19
 ### Added
 - Mediacodec/Vulkan video acceleration support
 - EGL device platform support (allows to support NVIDIA GPUs in headless
