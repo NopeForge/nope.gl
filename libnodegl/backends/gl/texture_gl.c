@@ -287,14 +287,6 @@ static int texture_init_fields(struct texture *s)
     else
         ngli_assert(0);
 
-    if (params->external_oes) {
-        ngli_assert(params->type == NGLI_TEXTURE_TYPE_2D);
-        s_priv->target = GL_TEXTURE_EXTERNAL_OES;
-    } else if (params->rectangle) {
-        ngli_assert(params->type == NGLI_TEXTURE_TYPE_2D);
-        s_priv->target = GL_TEXTURE_RECTANGLE;
-    }
-
     int ret = ngli_format_get_gl_texture_format(gl,
                                                 params->format,
                                                 &s_priv->format,
@@ -305,7 +297,7 @@ static int texture_init_fields(struct texture *s)
 
     s_priv->bytes_per_pixel = ngli_format_get_bytes_per_pixel(params->format);
 
-    if (params->external_storage || params->external_oes)
+    if (params->external_storage)
         s_priv->external_storage = 1;
 
     return 0;
