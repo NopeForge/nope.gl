@@ -1,41 +1,6 @@
 from pynodegl_utils.misc import scene
-from pynodegl_utils.toolbox.grid import AutoGrid
 
 import pynodegl as ngl
-
-
-@scene(overlap_time=scene.Range(range=[0, 5], unit_base=10), dim=scene.Range(range=[1, 10]))
-def queued_medias(cfg, overlap_time=1.0, dim=3):
-    """Queue of medias, mainly used as a demonstration for the prefetch/release mechanism"""
-    nb_videos = dim * dim
-    tqs = []
-
-    ag = AutoGrid(range(nb_videos))
-    for video_id, _, col, pos in ag:
-        start = video_id * cfg.duration / nb_videos
-        animkf = [
-            ngl.AnimKeyFrameFloat(start, 0),
-            ngl.AnimKeyFrameFloat(start + cfg.duration, cfg.duration),
-        ]
-        m = ngl.Media(cfg.medias[video_id % len(cfg.medias)].filename, time_anim=ngl.AnimatedTime(animkf))
-        m.set_label("media #%d" % video_id)
-
-        t = ngl.Texture2D(data_src=m)
-
-        render = ngl.RenderTexture(t)
-        render.set_label("render #%d" % video_id)
-        render = ag.place_node(render, (col, pos))
-
-        rf = ngl.TimeRangeFilter(render)
-        if start:
-            rf.add_ranges(ngl.TimeRangeModeNoop(0))
-        rf.add_ranges(
-            ngl.TimeRangeModeCont(start), ngl.TimeRangeModeNoop(start + cfg.duration / nb_videos + overlap_time)
-        )
-
-        tqs.append(rf)
-
-    return ngl.Group(children=tqs)
 
 
 @scene(fast=scene.Bool(), segment_time=scene.Range(range=[0.1, 10], unit_base=10), constrained_timeranges=scene.Bool())
