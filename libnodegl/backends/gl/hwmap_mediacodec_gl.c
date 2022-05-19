@@ -101,12 +101,12 @@ static int mc_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
         .wrap_t       = NGLI_WRAP_CLAMP_TO_EDGE,
         .wrap_r       = NGLI_WRAP_CLAMP_TO_EDGE,
         .usage        = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
-        .external_oes = 1,
     };
 
     struct texture_gl_wrap_params wrap_params = {
         .params  = &texture_params,
         .texture = mc->gl_texture,
+        .target  = GL_TEXTURE_EXTERNAL_OES,
     };
 
     mc->texture = ngli_texture_create(gpu_ctx);

@@ -216,12 +216,12 @@ static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
             .wrap_s           = NGLI_WRAP_CLAMP_TO_EDGE,
             .wrap_t           = NGLI_WRAP_CLAMP_TO_EDGE,
             .usage            = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
-            .rectangle        = 1,
         };
 
         const struct texture_gl_wrap_params wrap_params = {
             .params  = &plane_params,
             .texture = vt->gl_planes[i],
+            .target  = GL_TEXTURE_RECTANGLE,
         };
 
         vt->planes[i] = ngli_texture_create(gpu_ctx);
