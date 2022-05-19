@@ -26,6 +26,7 @@ from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
 from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
 from pynodegl_utils.tests.cmp_resources import test_resources
 from pynodegl_utils.toolbox.colors import COLORS
+from pynodegl_utils.toolbox.grid import AutoGrid
 
 import pynodegl as ngl
 
@@ -143,6 +144,42 @@ def media_exposed_time(cfg):
     render = ngl.Render(quad, program)
     render.update_frag_resources(tex0=texture, duration=ngl.UniformFloat(cfg.duration))
     return render
+
+
+@test_fingerprint(width=1024, height=1024, nb_keyframes=30, tolerance=1)
+@scene(overlap_time=scene.Range(range=[0, 10], unit_base=10), dim=scene.Range(range=[1, 10]))
+def media_queue(cfg, overlap_time=7.0, dim=3):
+    cfg.duration = 10
+    cfg.aspect_ratio = (1, 1)
+
+    nb_medias = dim * dim
+
+    medias = [m.filename for m in cfg.medias if m.filename.endswith(("mp4", "jpg"))]
+
+    queued_medias = []
+    ag = AutoGrid(range(nb_medias))
+    for video_id, _, col, pos in ag:
+        start = video_id * cfg.duration / nb_medias
+        animkf = [
+            ngl.AnimKeyFrameFloat(start, 0),
+            ngl.AnimKeyFrameFloat(start + cfg.duration, cfg.duration),
+        ]
+        media = ngl.Media(medias[video_id % len(medias)], time_anim=ngl.AnimatedTime(animkf))
+
+        texture = ngl.Texture2D(data_src=media, min_filter="linear", mag_filter="linear")
+        render = ngl.RenderTexture(texture)
+        render = ag.place_node(render, (col, pos))
+
+        rf = ngl.TimeRangeFilter(render)
+        if start:
+            rf.add_ranges(ngl.TimeRangeModeNoop(0))
+        rf.add_ranges(
+            ngl.TimeRangeModeCont(start), ngl.TimeRangeModeNoop(start + cfg.duration / nb_medias + overlap_time)
+        )
+
+        queued_medias.append(rf)
+
+    return ngl.Group(children=queued_medias)
 
 
 @test_fingerprint(width=320, height=240, nb_keyframes=20, tolerance=1)

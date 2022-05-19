@@ -245,6 +245,7 @@ foreach backend : backends
     'flat_remap',
     'phases_display',
     'phases_resources',
+    'queue',
     'timeranges_rtt',
   ]
 
