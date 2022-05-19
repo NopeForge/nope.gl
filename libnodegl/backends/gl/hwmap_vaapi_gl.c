@@ -105,7 +105,6 @@ static int vaapi_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
             .format           = format,
             .min_filter       = params->texture_min_filter,
             .mag_filter       = params->texture_mag_filter,
-            .mipmap_filter    = NGLI_MIPMAP_FILTER_NONE,
             .wrap_s           = params->texture_wrap_s,
             .wrap_t           = params->texture_wrap_t,
             .usage            = NGLI_TEXTURE_USAGE_SAMPLED_BIT,
