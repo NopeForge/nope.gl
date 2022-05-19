@@ -164,6 +164,8 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame
         const struct texture_params plane_params = {
             .type             = NGLI_TEXTURE_TYPE_2D,
             .format           = format,
+            .width            = width,
+            .height           = height,
             .min_filter       = params->texture_min_filter,
             .mag_filter       = params->texture_mag_filter,
             .wrap_s           = params->texture_wrap_s,
