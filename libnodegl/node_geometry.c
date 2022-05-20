@@ -98,7 +98,7 @@ NGLI_STATIC_ASSERT(geom_on_top_of_geometry, offsetof(struct geometry_priv, geom)
     }                                                      \
 } while (0)                                                \
 
-static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buffer **bufferp, struct buffer_layout *layout)
+static void configure_buffer(struct ngl_node *buffer_node, int usage, struct buffer **bufferp, struct buffer_layout *layout)
 {
     struct buffer_info *buffer_info = buffer_node->priv_data;
 
@@ -106,8 +106,6 @@ static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buff
     *layout = buffer_info->layout;
     ngli_node_buffer_extend_usage(buffer_node, usage);
     buffer_info->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
-
-    return 0;
 }
 
 static int geometry_init(struct ngl_node *node)
@@ -123,24 +121,18 @@ static int geometry_init(struct ngl_node *node)
     struct buffer *buffer;
     struct buffer_layout layout;
 
-    int ret = configure_buffer(o->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
-    if (ret < 0)
-        return ret;
+    configure_buffer(o->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
     ngli_geometry_set_vertices_buffer(s->geom, buffer, layout);
     s->update_nodes[s->nb_update_nodes++] = o->vertices;
 
     if (o->uvcoords) {
-        ret = configure_buffer(o->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
-        if (ret < 0)
-            return ret;
+        configure_buffer(o->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
         ngli_geometry_set_uvcoords_buffer(s->geom, buffer, layout);
         s->update_nodes[s->nb_update_nodes++] = o->uvcoords;
     }
 
     if (o->normals) {
-        ret = configure_buffer(o->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
-        if (ret < 0)
-            return ret;
+        configure_buffer(o->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
         ngli_geometry_set_normals_buffer(s->geom, buffer, layout);
         s->update_nodes[s->nb_update_nodes++] = o->normals;
     }
@@ -152,9 +144,7 @@ static int geometry_init(struct ngl_node *node)
             return NGL_ERROR_UNSUPPORTED;
         }
 
-        ret = configure_buffer(o->indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT, &buffer, &layout);
-        if (ret < 0)
-            return ret;
+        configure_buffer(o->indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT, &buffer, &layout);
 
         int64_t max_indices = 0;
         switch (layout.format) {
