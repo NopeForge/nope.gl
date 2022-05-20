@@ -148,7 +148,7 @@ _MEDIA_PATHS = [
     op.join(op.dirname(__file__), "assets", name)
     for name in (
         "mire-hevc.mp4",
-        "mire-h264.mp4",
+        "cat.mp4",
         "OpenMoji-1F342-Fallen_Leaf.png",
         "OpenMoji-1F439-Hamster.png",
         "Unsplash-Michael_Anfang-Rooster-cropped.jpg",

@@ -1,5 +1,12 @@
 # Assets credits and sources
 
+## `cat.mp4`
+
+- Downloaded from https://pixabay.com/videos/cat-feline-animal-mammal-kitten-65438/
+- Author: `Kmeel_Stock`
+- Reencoded with: `ffmpeg -i Original-Cat.mp4 -vf scale=640:360 -preset placebo -crf 30 -y cat.mp4`
+- License: [Pixabay License](https://pixabay.com/service/license/)
+
 ## `mire-h264.mp4`
 
 Generated with `ffmpeg -f lavfi -i testsrc=d=15:r=60:s=hd720 -preset placebo -c:v h264 mire-h264.mp4`
