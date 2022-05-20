@@ -183,14 +183,8 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
 
 static int register_block(struct pass *s, const char *name, struct ngl_node *block_node, int stage)
 {
-    int ret = ngli_node_block_ref(block_node);
-    if (ret < 0)
-        return ret;
-
-    if (!ngli_darray_push(&s->block_nodes, &block_node)) {
-        ngli_node_block_unref(block_node);
+    if (!ngli_darray_push(&s->block_nodes, &block_node))
         return NGL_ERROR_MEMORY;
-    }
 
     struct ngl_ctx *ctx = s->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -623,26 +617,14 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
 #define NODE_TYPE_BLOCK   1
 #define NODE_TYPE_BUFFER  2
 
-static void reset_nodes(struct darray *p, int type)
+static void reset_buffer_nodes(struct darray *p)
 {
     struct ngl_node **nodes = ngli_darray_data(p);
     for (int i = 0; i < ngli_darray_count(p); i++) {
-        if (type == NODE_TYPE_BLOCK)
-            ngli_node_block_unref(nodes[i]);
-        else if (type == NODE_TYPE_BUFFER)
-            ngli_node_buffer_unref(nodes[i]);
+        ngli_node_buffer_unref(nodes[i]);
     }
     ngli_darray_reset(p);
 }
-
-#define DECLARE_RESET_NODES_FUNC(name, type)       \
-static void reset_##name##_nodes(struct darray *p) \
-{                                                  \
-    reset_nodes(p, type);                          \
-}                                                  \
-
-DECLARE_RESET_NODES_FUNC(block, NODE_TYPE_BLOCK)
-DECLARE_RESET_NODES_FUNC(buffer, NODE_TYPE_BUFFER)
 
 void ngli_pass_uninit(struct pass *s)
 {
@@ -661,7 +643,7 @@ void ngli_pass_uninit(struct pass *s)
 
     ngli_darray_reset(&s->uniform_nodes);
     ngli_darray_reset(&s->texture_nodes);
-    reset_block_nodes(&s->block_nodes);
+    ngli_darray_reset(&s->block_nodes);
     reset_buffer_nodes(&s->attribute_nodes);
 
     ngli_darray_reset(&s->crafter_attributes);

@@ -74,9 +74,6 @@ int ngli_node_buffer_ref(struct ngl_node *node)
     struct buffer_info *s = node->priv_data;
 
     if (s->block) {
-        int ret = ngli_node_block_ref(s->block);
-        if (ret < 0)
-            return ret;
         struct block_info *block = s->block->priv_data;
         s->buffer = block->buffer;
         return 0;
@@ -134,7 +131,6 @@ void ngli_node_buffer_unref(struct ngl_node *node)
     struct buffer_info *s = node->priv_data;
 
     if (s->block) {
-        ngli_node_block_unref(s->block);
         s->buffer = NULL;
         return;
     }

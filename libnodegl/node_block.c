@@ -130,22 +130,6 @@ static const struct node_param block_params[] = {
 
 NGLI_STATIC_ASSERT(block_info_is_first, offsetof(struct block_priv, blk) == 0);
 
-int ngli_node_block_ref(struct ngl_node *node)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct block_info *s = node->priv_data;
-
-    if (s->buffer_refcount++ == 0) {
-        s->buffer = ngli_buffer_create(gpu_ctx);
-        if (!s->buffer)
-            return NGL_ERROR_MEMORY;
-        s->buffer_last_upload_time = -1.;
-    }
-
-    return 0;
-}
-
 void ngli_node_block_extend_usage(struct ngl_node *node, int usage)
 {
     struct block_info *s = node->priv_data;
@@ -172,15 +156,6 @@ int ngli_node_block_init(struct ngl_node *node)
     return 0;
 }
 
-void ngli_node_block_unref(struct ngl_node *node)
-{
-    struct block_info *s = node->priv_data;
-
-    ngli_assert(s->buffer_refcount);
-    if (s->buffer_refcount-- == 1)
-        ngli_buffer_freep(&s->buffer);
-}
-
 int ngli_node_block_upload(struct ngl_node *node)
 {
     struct block_info *s = node->priv_data;
@@ -205,7 +180,7 @@ int ngli_node_block_get_cpu_size(struct ngl_node *node)
 int ngli_node_block_get_gpu_size(struct ngl_node *node)
 {
     struct block_info *s = node->priv_data;
-    return s->data_size * (s->buffer_refcount > 0);
+    return s->data_size;
 }
 
 static int get_node_data_type(const struct ngl_node *node)
@@ -385,6 +360,12 @@ static int block_init(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
 
     update_block_data(node, 1);
+
+    s->blk.buffer = ngli_buffer_create(gpu_ctx);
+    if (!s->blk.buffer)
+        return NGL_ERROR_MEMORY;
+    s->blk.buffer_last_upload_time = -1.;
+
     return 0;
 }
 
@@ -416,6 +397,7 @@ static void block_uninit(struct ngl_node *node)
 {
     struct block_priv *s = node->priv_data;
 
+    ngli_buffer_freep(&s->blk.buffer);
     ngli_block_reset(&s->blk.block);
     ngli_free(s->blk.data);
 }
