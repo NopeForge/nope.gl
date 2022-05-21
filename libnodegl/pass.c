@@ -645,7 +645,7 @@ int ngli_pass_update(struct pass *s, double t)
     if ((ret = update_nodes(&s->uniform_nodes, t)) < 0 ||
         (ret = update_nodes(&s->texture_nodes, t)) < 0 ||
         (ret = update_nodes(&s->block_nodes, t)) < 0 ||
-        (ret = update_nodes(&s->attribute_nodes, t)))
+        (ret = update_nodes(&s->attribute_nodes, t)) < 0)
         return ret;
 
     return 0;
