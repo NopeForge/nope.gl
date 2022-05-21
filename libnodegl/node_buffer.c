@@ -310,6 +310,20 @@ static int buffer_init_from_block(struct ngl_node *node)
     return 0;
 }
 
+static int buffer_init_from_type(struct ngl_node *node)
+{
+    const struct buffer_opts *o = node->opts;
+
+    if (o->data)
+        return buffer_init_from_data(node);
+    if (o->filename)
+        return buffer_init_from_filename(node);
+    if (o->block)
+        return buffer_init_from_block(node);
+
+    return buffer_init_from_count(node);
+}
+
 static int buffer_init(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
@@ -339,14 +353,11 @@ static int buffer_init(struct ngl_node *node)
 
     s->buf.usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
 
-    if (o->data)
-        return buffer_init_from_data(node);
-    if (o->filename)
-        return buffer_init_from_filename(node);
-    if (o->block)
-        return buffer_init_from_block(node);
+    int ret = buffer_init_from_type(node);
+    if (ret < 0)
+        return ret;
 
-    return buffer_init_from_count(node);
+    return 0;
 }
 
 static void buffer_uninit(struct ngl_node *node)
