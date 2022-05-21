@@ -15,6 +15,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 - Visual glitches when seeking with the VAAPI/Vulkan acceleration
 - Crash with specific draw time sequences in some time filtered diamond-tree
   graphs
+- Memory leak with `Buffer*(count=N)` (only when no data is specified)
 
 ### Changed
 - Handle OpenGLES as a separate backend build-wise

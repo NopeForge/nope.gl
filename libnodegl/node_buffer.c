@@ -353,8 +353,10 @@ static void buffer_uninit(struct ngl_node *node)
     struct buffer_priv *s = node->priv_data;
     const struct buffer_opts *o = node->opts;
 
-    if (o->filename) {
+    if (!o->data && !o->block)
         ngli_freep(&s->buf.data);
+
+    if (o->filename) {
         s->buf.data_size = 0;
 
         if (s->fp) {
