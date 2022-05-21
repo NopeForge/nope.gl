@@ -256,10 +256,6 @@ static int inject_block_uniform(struct pgcraft *s, struct bstr *b,
     struct pgcraft_compat_info *compat_info = &s->compat_info;
     struct block *block = &compat_info->ublocks[stage];
 
-    /* Lazily initialize the block containing the uniforms */
-    if (!block->size)
-        ngli_block_init(block, NGLI_BLOCK_LAYOUT_STD140);
-
     return ngli_block_add_field(block, uniform->name, uniform->type, uniform->count);
 }
 
