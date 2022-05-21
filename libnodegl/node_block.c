@@ -149,10 +149,6 @@ static int block_prepare(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_upload(s->blk.buffer, s->blk.data, s->blk.data_size, 0);
-    if (ret < 0)
-        return ret;
-
     return ngli_node_prepare_children(node);
 }
 
