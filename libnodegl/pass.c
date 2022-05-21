@@ -494,13 +494,6 @@ int ngli_pass_prepare(struct pass *s)
             return ret;
     }
 
-    struct ngl_node **block_nodes = ngli_darray_data(&s->block_nodes);
-    for (int i = 0; i < ngli_darray_count(&s->block_nodes); i++) {
-        int ret = ngli_node_block_init(block_nodes[i]);
-        if (ret < 0)
-            return ret;
-    }
-
     struct pipeline_graphics pipeline_graphics = s->pipeline_graphics;
     pipeline_graphics.state = rnode->graphicstate;
     pipeline_graphics.rt_desc = rnode->rendertarget_desc;

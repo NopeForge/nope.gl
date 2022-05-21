@@ -83,7 +83,7 @@ int ngli_node_buffer_init(struct ngl_node *node)
     struct buffer_info *s = node->priv_data;
 
     if (s->block)
-        return ngli_node_block_init(s->block);
+        return 0;
 
     ngli_assert(s->buffer);
 

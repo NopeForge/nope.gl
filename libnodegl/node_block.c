@@ -136,24 +136,24 @@ void ngli_node_block_extend_usage(struct ngl_node *node, int usage)
     s->usage |= usage;
 }
 
-int ngli_node_block_init(struct ngl_node *node)
+static int block_prepare(struct ngl_node *node)
 {
-    struct block_info *s = node->priv_data;
+    struct block_priv *s = node->priv_data;
 
-    ngli_assert(s->buffer);
+    ngli_assert(s->blk.buffer);
 
-    if (s->buffer->size)
+    if (s->blk.buffer->size)
         return 0;
 
-    int ret = ngli_buffer_init(s->buffer, s->data_size, s->usage);
+    int ret = ngli_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_upload(s->buffer, s->data, s->data_size, 0);
+    ret = ngli_buffer_upload(s->blk.buffer, s->blk.data, s->blk.data_size, 0);
     if (ret < 0)
         return ret;
 
-    return 0;
+    return ngli_node_prepare_children(node);
 }
 
 int ngli_node_block_upload(struct ngl_node *node)
@@ -407,6 +407,7 @@ const struct node_class ngli_block_class = {
     .category  = NGLI_NODE_CATEGORY_BLOCK,
     .name      = "Block",
     .init      = block_init,
+    .prepare   = block_prepare,
     .invalidate = block_invalidate,
     .update    = block_update,
     .uninit    = block_uninit,
