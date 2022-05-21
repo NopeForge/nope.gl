@@ -152,21 +152,6 @@ static int block_prepare(struct ngl_node *node)
     return ngli_node_prepare_children(node);
 }
 
-int ngli_node_block_upload(struct ngl_node *node)
-{
-    struct block_info *s = node->priv_data;
-
-    if (s->has_changed && s->buffer_last_upload_time != node->last_update_time) {
-        int ret = ngli_buffer_upload(s->buffer, s->data, s->data_size, 0);
-        if (ret < 0)
-            return ret;
-        s->buffer_last_upload_time = node->last_update_time;
-        s->has_changed = 0;
-    }
-
-    return 0;
-}
-
 int ngli_node_block_get_cpu_size(struct ngl_node *node)
 {
     struct block_info *s = node->priv_data;
@@ -360,7 +345,6 @@ static int block_init(struct ngl_node *node)
     s->blk.buffer = ngli_buffer_create(gpu_ctx);
     if (!s->blk.buffer)
         return NGL_ERROR_MEMORY;
-    s->blk.buffer_last_upload_time = -1.;
 
     return 0;
 }
@@ -370,7 +354,6 @@ static int block_invalidate(struct ngl_node *node)
     struct block_priv *s = node->priv_data;
 
     s->force_update = 1;
-    s->blk.buffer_last_upload_time = -1;
 
     return 0;
 }
@@ -385,6 +368,13 @@ static int block_update(struct ngl_node *node, double t)
 
     update_block_data(node, s->force_update);
     s->force_update = 0;
+
+    if (s->blk.has_changed) {
+        ret = ngli_buffer_upload(s->blk.buffer, s->blk.data, s->blk.data_size, 0);
+        if (ret < 0)
+            return ret;
+        s->blk.has_changed = 0;
+    }
 
     return 0;
 }

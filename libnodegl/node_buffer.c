@@ -109,7 +109,7 @@ int ngli_node_buffer_upload(struct ngl_node *node)
     struct buffer_info *s = node->priv_data;
 
     if (s->block)
-        return ngli_node_block_upload(s->block);
+        return 0;
 
     if (!(s->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return 0;
@@ -374,6 +374,7 @@ const struct node_class ngli_buffer##type_name##_class = {      \
     .name      = class_name,                                    \
     .init      = buffer##type_name##_init,                      \
     .prepare   = buffer_prepare,                                \
+    .update    = ngli_node_update_children,                     \
     .uninit    = buffer_uninit,                                 \
     .opts_size = sizeof(struct buffer_opts),                    \
     .priv_size = sizeof(struct buffer_priv),                    \

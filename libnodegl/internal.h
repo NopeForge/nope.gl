@@ -241,11 +241,9 @@ struct block_info {
 
     struct buffer *buffer;
     int has_changed;
-    double buffer_last_upload_time;
 };
 
 void ngli_node_block_extend_usage(struct ngl_node *node, int usage);
-int ngli_node_block_upload(struct ngl_node *node);
 int ngli_node_block_get_cpu_size(struct ngl_node *node);
 int ngli_node_block_get_gpu_size(struct ngl_node *node);
 

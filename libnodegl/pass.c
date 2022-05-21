@@ -594,8 +594,7 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
 }
 
 #define NODE_TYPE_DEFAULT 0
-#define NODE_TYPE_BLOCK   1
-#define NODE_TYPE_BUFFER  2
+#define NODE_TYPE_BUFFER  1
 
 void ngli_pass_uninit(struct pass *s)
 {
@@ -633,11 +632,7 @@ static int update_nodes(struct darray *p, double t, int type)
         int ret = ngli_node_update(node, t);
         if (ret < 0)
             return ret;
-        if (type == NODE_TYPE_BLOCK) {
-            ret = ngli_node_block_upload(node);
-            if (ret < 0)
-                return ret;
-        } else if (type == NODE_TYPE_BUFFER) {
+        if (type == NODE_TYPE_BUFFER) {
             ret = ngli_node_buffer_upload(node);
             if (ret < 0)
                 return ret;
@@ -653,7 +648,6 @@ static int update_##name##_nodes(struct darray *p, double t) \
 }
 
 DECLARE_UPDATE_NODES_FUNC(common, NODE_TYPE_DEFAULT)
-DECLARE_UPDATE_NODES_FUNC(block, NODE_TYPE_BLOCK)
 DECLARE_UPDATE_NODES_FUNC(buffer, NODE_TYPE_BUFFER)
 
 int ngli_pass_update(struct pass *s, double t)
@@ -667,7 +661,7 @@ int ngli_pass_update(struct pass *s, double t)
     int ret;
     if ((ret = update_common_nodes(&s->uniform_nodes, t)) < 0 ||
         (ret = update_common_nodes(&s->texture_nodes, t)) < 0 ||
-        (ret = update_block_nodes(&s->block_nodes, t)) < 0 ||
+        (ret = update_common_nodes(&s->block_nodes, t)) < 0 ||
         (ret = update_buffer_nodes(&s->attribute_nodes, t)))
         return ret;
 
