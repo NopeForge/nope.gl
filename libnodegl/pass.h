@@ -64,11 +64,6 @@ struct pass {
     struct ngl_ctx *ctx;
     struct pass_params params;
 
-    struct darray attribute_nodes;
-    struct darray texture_nodes;
-    struct darray uniform_nodes;
-    struct darray block_nodes;
-
     struct buffer *indices;
     const struct buffer_layout *indices_layout;
     int nb_vertices;

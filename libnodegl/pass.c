@@ -64,9 +64,6 @@ struct pipeline_desc {
 
 static int register_uniform(struct pass *s, const char *name, struct ngl_node *uniform, int stage)
 {
-    if (!ngli_darray_push(&s->uniform_nodes, &uniform))
-        return NGL_ERROR_MEMORY;
-
     struct pgcraft_uniform crafter_uniform = {.stage = stage};
     snprintf(crafter_uniform.name, sizeof(crafter_uniform.name), "%s", name);
 
@@ -118,9 +115,6 @@ static int register_builtin_uniforms(struct pass *s)
 
 static int register_texture(struct pass *s, const char *name, struct ngl_node *texture, int stage)
 {
-    if (!ngli_darray_push(&s->texture_nodes, &texture))
-        return NGL_ERROR_MEMORY;
-
     struct texture_priv *texture_priv = texture->priv_data;
     struct texture_opts *texture_opts = texture->opts;
 
@@ -183,9 +177,6 @@ static int register_texture(struct pass *s, const char *name, struct ngl_node *t
 
 static int register_block(struct pass *s, const char *name, struct ngl_node *block_node, int stage)
 {
-    if (!ngli_darray_push(&s->block_nodes, &block_node))
-        return NGL_ERROR_MEMORY;
-
     struct ngl_ctx *ctx = s->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     const struct gpu_limits *limits = &gpu_ctx->limits;
@@ -315,9 +306,6 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
 {
     if (!attribute)
         return 0;
-
-    if (!ngli_darray_push(&s->attribute_nodes, &attribute))
-        return NGL_ERROR_MEMORY;
 
     ngli_node_buffer_extend_usage(attribute, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
@@ -569,11 +557,6 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
     s->ctx = ctx;
     s->params = *params;
 
-    ngli_darray_init(&s->attribute_nodes, sizeof(struct ngl_node *), 0);
-    ngli_darray_init(&s->texture_nodes, sizeof(struct ngl_node *), 0);
-    ngli_darray_init(&s->uniform_nodes, sizeof(struct ngl_node *), 0);
-    ngli_darray_init(&s->block_nodes, sizeof(struct ngl_node *), 0);
-
     ngli_darray_init(&s->crafter_attributes, sizeof(struct pgcraft_attribute), 0);
     ngli_darray_init(&s->crafter_textures, sizeof(struct pgcraft_texture), 0);
     ngli_darray_init(&s->crafter_uniforms, sizeof(struct pgcraft_uniform), 0);
@@ -607,11 +590,6 @@ void ngli_pass_uninit(struct pass *s)
         ngli_darray_reset(&desc->uniforms_map);
     }
     ngli_darray_reset(&s->pipeline_descs);
-
-    ngli_darray_reset(&s->uniform_nodes);
-    ngli_darray_reset(&s->texture_nodes);
-    ngli_darray_reset(&s->block_nodes);
-    ngli_darray_reset(&s->attribute_nodes);
 
     ngli_darray_reset(&s->crafter_attributes);
     ngli_darray_reset(&s->crafter_textures);
