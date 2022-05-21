@@ -621,36 +621,6 @@ void ngli_pass_uninit(struct pass *s)
     memset(s, 0, sizeof(*s));
 }
 
-static int update_nodes(struct darray *p, double t)
-{
-    struct ngl_node **nodes = ngli_darray_data(p);
-    for (int i = 0; i < ngli_darray_count(p); i++) {
-        struct ngl_node *node = nodes[i];
-        int ret = ngli_node_update(node, t);
-        if (ret < 0)
-            return ret;
-    }
-    return 0;
-}
-
-int ngli_pass_update(struct pass *s, double t)
-{
-    if (s->params.geometry) {
-        int ret = ngli_node_update(s->params.geometry, t);
-        if (ret < 0)
-            return ret;
-    }
-
-    int ret;
-    if ((ret = update_nodes(&s->uniform_nodes, t)) < 0 ||
-        (ret = update_nodes(&s->texture_nodes, t)) < 0 ||
-        (ret = update_nodes(&s->block_nodes, t)) < 0 ||
-        (ret = update_nodes(&s->attribute_nodes, t)) < 0)
-        return ret;
-
-    return 0;
-}
-
 int ngli_pass_exec(struct pass *s)
 {
     struct ngl_ctx *ctx = s->ctx;

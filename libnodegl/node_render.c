@@ -216,12 +216,6 @@ static void render_uninit(struct ngl_node *node)
     ngli_pass_uninit(&s->pass);
 }
 
-static int render_update(struct ngl_node *node, double t)
-{
-    struct render_priv *s = node->priv_data;
-    return ngli_pass_update(&s->pass, t);
-}
-
 static void render_draw(struct ngl_node *node)
 {
     struct render_priv *s = node->priv_data;
@@ -235,7 +229,7 @@ const struct node_class ngli_render_class = {
     .init      = render_init,
     .prepare   = render_prepare,
     .uninit    = render_uninit,
-    .update    = render_update,
+    .update    = ngli_node_update_children,
     .draw      = render_draw,
     .opts_size = sizeof(struct render_opts),
     .priv_size = sizeof(struct render_priv),

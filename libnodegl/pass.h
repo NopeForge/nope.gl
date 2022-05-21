@@ -86,7 +86,6 @@ struct pass {
 int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params *params);
 int ngli_pass_prepare(struct pass *s);
 void ngli_pass_uninit(struct pass *s);
-int ngli_pass_update(struct pass *s, double t);
 void ngli_pass_update_texture_uniforms(struct pipeline *pipeline, const struct pgcraft_texture_info *info);
 int ngli_pass_exec(struct pass *s);
 

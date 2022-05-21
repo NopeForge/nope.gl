@@ -162,12 +162,6 @@ static void compute_uninit(struct ngl_node *node)
     ngli_pass_uninit(&s->pass);
 }
 
-static int compute_update(struct ngl_node *node, double t)
-{
-    struct compute_priv *s = node->priv_data;
-    return ngli_pass_update(&s->pass, t);
-}
-
 static void compute_draw(struct ngl_node *node)
 {
     struct compute_priv *s = node->priv_data;
@@ -180,7 +174,7 @@ const struct node_class ngli_compute_class = {
     .init      = compute_init,
     .prepare   = compute_prepare,
     .uninit    = compute_uninit,
-    .update    = compute_update,
+    .update    = ngli_node_update_children,
     .draw      = compute_draw,
     .opts_size = sizeof(struct compute_opts),
     .priv_size = sizeof(struct compute_priv),
