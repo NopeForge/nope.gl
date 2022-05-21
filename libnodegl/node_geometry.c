@@ -60,8 +60,6 @@ struct geometry_opts {
 
 struct geometry_priv {
     struct geometry *geom;
-    struct ngl_node *update_nodes[3]; /* {vertices, uvcoords, normals} at most */
-    int nb_update_nodes;
 };
 
 #define OFFSET(x) offsetof(struct geometry_opts, x)
@@ -123,18 +121,15 @@ static int geometry_init(struct ngl_node *node)
 
     configure_buffer(o->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
     ngli_geometry_set_vertices_buffer(s->geom, buffer, layout);
-    s->update_nodes[s->nb_update_nodes++] = o->vertices;
 
     if (o->uvcoords) {
         configure_buffer(o->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
         ngli_geometry_set_uvcoords_buffer(s->geom, buffer, layout);
-        s->update_nodes[s->nb_update_nodes++] = o->uvcoords;
     }
 
     if (o->normals) {
         configure_buffer(o->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
         ngli_geometry_set_normals_buffer(s->geom, buffer, layout);
-        s->update_nodes[s->nb_update_nodes++] = o->normals;
     }
 
     if (o->indices) {
@@ -160,20 +155,6 @@ static int geometry_init(struct ngl_node *node)
     return ngli_geometry_init(s->geom, o->topology);
 }
 
-static int geometry_update(struct ngl_node *node, double t)
-{
-    struct geometry_priv *s = node->priv_data;
-
-    for (int i = 0; i < s->nb_update_nodes; i++) {
-        struct ngl_node *update_node = s->update_nodes[i];
-        int ret = ngli_node_update(update_node, t);
-        if (ret < 0)
-            return ret;
-    }
-
-    return 0;
-}
-
 static void geometry_uninit(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
@@ -187,7 +168,7 @@ const struct node_class ngli_geometry_class = {
     .init      = geometry_init,
     .prepare   = ngli_node_prepare_children,
     .uninit    = geometry_uninit,
-    .update    = geometry_update,
+    .update    = ngli_node_update_children,
     .opts_size = sizeof(struct geometry_opts),
     .priv_size = sizeof(struct geometry_priv),
     .params    = geometry_params,
