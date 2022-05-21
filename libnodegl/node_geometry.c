@@ -182,7 +182,7 @@ static int geometry_prepare(struct ngl_node *node)
             return ret;
     }
 
-    return 0;
+    return ngli_node_prepare_children(node);
 }
 
 static int geometry_update(struct ngl_node *node, double t)
