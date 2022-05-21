@@ -136,22 +136,6 @@ void ngli_node_block_extend_usage(struct ngl_node *node, int usage)
     s->usage |= usage;
 }
 
-static int block_prepare(struct ngl_node *node)
-{
-    struct block_priv *s = node->priv_data;
-
-    ngli_assert(s->blk.buffer);
-
-    if (s->blk.buffer->size)
-        return 0;
-
-    int ret = ngli_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
-    if (ret < 0)
-        return ret;
-
-    return ngli_node_prepare_children(node);
-}
-
 int ngli_node_block_get_cpu_size(struct ngl_node *node)
 {
     struct block_info *s = node->priv_data;
@@ -350,6 +334,22 @@ static int block_init(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
 
     return 0;
+}
+
+static int block_prepare(struct ngl_node *node)
+{
+    struct block_priv *s = node->priv_data;
+
+    ngli_assert(s->blk.buffer);
+
+    if (s->blk.buffer->size)
+        return 0;
+
+    int ret = ngli_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
+    if (ret < 0)
+        return ret;
+
+    return ngli_node_prepare_children(node);
 }
 
 static int block_invalidate(struct ngl_node *node)
