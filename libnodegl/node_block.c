@@ -211,6 +211,11 @@ static const struct {
     [IS_ARRAY]  = {has_changed_buffer,  update_buffer_field},
 };
 
+static int field_has_changed(const struct ngl_node *node, const struct block_field *fi)
+{
+    return field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].has_changed(node);
+}
+
 static int update_block_data(struct ngl_node *node, int forced)
 {
     int has_changed = 0;
@@ -220,7 +225,7 @@ static int update_block_data(struct ngl_node *node, int forced)
     for (int i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
         const struct block_field *fi = &field_info[i];
-        if (!forced && !field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].has_changed(field_node))
+        if (!forced && !field_has_changed(field_node, fi))
             continue;
         field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].update_data(s->blk.data + fi->offset, field_node, fi);
         has_changed = 1; // TODO: only re-upload the changing data segments
@@ -311,13 +316,13 @@ static int block_init(struct ngl_node *node)
         if (ret < 0)
             return ret;
 
-        if (field_funcs[count ? IS_ARRAY : IS_SINGLE].has_changed(field_node))
-            s->blk.usage |= NGLI_BUFFER_USAGE_DYNAMIC_BIT;
-
         const struct block_field *fields = ngli_darray_data(&s->blk.block.fields);
         const struct block_field *fi = &fields[i];
         LOG(DEBUG, "%s.field[%d]: %s offset=%d size=%d stride=%d",
             node->label, i, field_node->label, fi->offset, fi->size, fi->stride);
+
+        if (field_has_changed(field_node, fi))
+            s->blk.usage |= NGLI_BUFFER_USAGE_DYNAMIC_BIT;
     }
 
     s->blk.data_size = s->blk.block.size;
