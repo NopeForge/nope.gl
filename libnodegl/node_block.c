@@ -109,7 +109,6 @@ static const struct param_choices layout_choices = {
 struct block_priv {
     struct block_info blk;
     int force_update;
-    int has_changed;
 };
 
 struct block_opts {
@@ -228,8 +227,9 @@ static const struct {
     [IS_ARRAY]  = {has_changed_buffer,  update_buffer_field},
 };
 
-static void update_block_data(struct ngl_node *node, int forced)
+static int update_block_data(struct ngl_node *node, int forced)
 {
+    int has_changed = 0;
     struct block_priv *s = node->priv_data;
     const struct block_opts *o = node->opts;
     const struct block_field *field_info = ngli_darray_data(&s->blk.block.fields);
@@ -239,8 +239,9 @@ static void update_block_data(struct ngl_node *node, int forced)
         if (!forced && !field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].has_changed(field_node))
             continue;
         field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].update_data(s->blk.data + fi->offset, field_node, fi);
-        s->has_changed = 1; // TODO: only re-upload the changing data segments
+        has_changed = 1; // TODO: only re-upload the changing data segments
     }
+    return has_changed;
 }
 
 static int cmp_str(const void *a, const void *b)
@@ -342,6 +343,7 @@ static int block_init(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
 
     update_block_data(node, 1);
+    s->force_update = 1; /* First update will need an upload */
 
     s->blk.buffer = ngli_buffer_create(gpu_ctx);
     if (!s->blk.buffer)
@@ -367,14 +369,13 @@ static int block_update(struct ngl_node *node, double t)
     if (ret < 0)
         return ret;
 
-    update_block_data(node, s->force_update);
+    const int has_changed = update_block_data(node, s->force_update);
     s->force_update = 0;
 
-    if (s->has_changed) {
+    if (has_changed) {
         ret = ngli_buffer_upload(s->blk.buffer, s->blk.data, s->blk.data_size, 0);
         if (ret < 0)
             return ret;
-        s->has_changed = 0;
     }
 
     return 0;
