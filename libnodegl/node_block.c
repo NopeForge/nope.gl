@@ -173,13 +173,13 @@ static int get_node_data_count(const struct ngl_node *node)
     }
 }
 
-static int has_changed_uniform(const struct ngl_node *unode)
+static int is_dynamic_uniform(const struct ngl_node *unode)
 {
     const struct variable_info *uniform = unode->priv_data;
     return uniform->dynamic;
 }
 
-static int has_changed_buffer(const struct ngl_node *bnode)
+static int is_dynamic_buffer(const struct ngl_node *bnode)
 {
     const struct buffer_info *buffer = bnode->priv_data;
     return buffer->flags & NGLI_BUFFER_INFO_FLAG_DYNAMIC;
@@ -204,16 +204,16 @@ static void update_buffer_field(uint8_t *dst,
 enum field_type { IS_SINGLE, IS_ARRAY };
 
 static const struct {
-    int (*has_changed)(const struct ngl_node *node);
+    int (*is_dynamic)(const struct ngl_node *node);
     void (*update_data)(uint8_t *dst, const struct ngl_node *node, const struct block_field *fi);
 } field_funcs[] = {
-    [IS_SINGLE] = {has_changed_uniform, update_uniform_field},
-    [IS_ARRAY]  = {has_changed_buffer,  update_buffer_field},
+    [IS_SINGLE] = {is_dynamic_uniform, update_uniform_field},
+    [IS_ARRAY]  = {is_dynamic_buffer,  update_buffer_field},
 };
 
-static int field_has_changed(const struct ngl_node *node, const struct block_field *fi)
+static int field_is_dynamic(const struct ngl_node *node, const struct block_field *fi)
 {
-    return field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].has_changed(node);
+    return field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].is_dynamic(node);
 }
 
 static int update_block_data(struct ngl_node *node, int forced)
@@ -225,7 +225,7 @@ static int update_block_data(struct ngl_node *node, int forced)
     for (int i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
         const struct block_field *fi = &field_info[i];
-        if (!forced && !field_has_changed(field_node, fi))
+        if (!forced && !field_is_dynamic(field_node, fi))
             continue;
         field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].update_data(s->blk.data + fi->offset, field_node, fi);
         has_changed = 1; // TODO: only re-upload the changing data segments
@@ -321,7 +321,7 @@ static int block_init(struct ngl_node *node)
         LOG(DEBUG, "%s.field[%d]: %s offset=%d size=%d stride=%d",
             node->label, i, field_node->label, fi->offset, fi->size, fi->stride);
 
-        if (field_has_changed(field_node, fi))
+        if (field_is_dynamic(field_node, fi))
             s->blk.usage |= NGLI_BUFFER_USAGE_DYNAMIC_BIT;
     }
 
