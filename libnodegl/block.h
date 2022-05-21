@@ -29,6 +29,7 @@
 #include "program.h" // MAX_ID_LEN
 
 enum block_layout {
+    NGLI_BLOCK_LAYOUT_UNKNOWN,
     NGLI_BLOCK_LAYOUT_STD140,
     NGLI_BLOCK_LAYOUT_STD430,
     NGLI_BLOCK_NB_LAYOUTS
