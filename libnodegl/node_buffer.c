@@ -78,32 +78,6 @@ void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage)
     s->usage |= usage;
 }
 
-static int buffer_prepare(struct ngl_node *node)
-{
-    struct buffer_priv *s = node->priv_data;
-
-    if (s->buf.block)
-        return ngli_node_prepare(s->buf.block);
-
-    ngli_assert(s->buf.buffer);
-
-    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
-        return 0;
-
-    if (s->buf.buffer->size)
-        return 0;
-
-    int ret = ngli_buffer_init(s->buf.buffer, s->buf.data_size, s->buf.usage);
-    if (ret < 0)
-        return ret;
-
-    ret = ngli_buffer_upload(s->buf.buffer, s->buf.data, s->buf.data_size, 0);
-    if (ret < 0)
-        return ret;
-
-    return ngli_node_prepare_children(node);
-}
-
 int ngli_node_buffer_get_cpu_size(struct ngl_node *node)
 {
     struct buffer_info *s = node->priv_data;
@@ -311,6 +285,32 @@ static int buffer_init(struct ngl_node *node)
     }
 
     return 0;
+}
+
+static int buffer_prepare(struct ngl_node *node)
+{
+    struct buffer_priv *s = node->priv_data;
+
+    if (s->buf.block)
+        return ngli_node_prepare(s->buf.block);
+
+    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+        return 0;
+
+    ngli_assert(s->buf.buffer);
+
+    if (s->buf.buffer->size)
+        return 0;
+
+    int ret = ngli_buffer_init(s->buf.buffer, s->buf.data_size, s->buf.usage);
+    if (ret < 0)
+        return ret;
+
+    ret = ngli_buffer_upload(s->buf.buffer, s->buf.data, s->buf.data_size, 0);
+    if (ret < 0)
+        return ret;
+
+    return ngli_node_prepare_children(node);
 }
 
 static void buffer_uninit(struct ngl_node *node)
