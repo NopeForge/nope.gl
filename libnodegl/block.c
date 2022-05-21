@@ -132,6 +132,8 @@ static int get_field_align(const struct block_field *field, int layout)
 
 int ngli_block_add_field(struct block *s, const char *name, int type, int count)
 {
+    ngli_assert(s->layout != NGLI_BLOCK_LAYOUT_UNKNOWN);
+
     struct block_field field = {
         .type = type,
         .count = count,
