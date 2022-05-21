@@ -109,6 +109,7 @@ static const struct param_choices layout_choices = {
 struct block_priv {
     struct block_info blk;
     int force_update;
+    int has_changed;
 };
 
 struct block_opts {
@@ -238,7 +239,7 @@ static void update_block_data(struct ngl_node *node, int forced)
         if (!forced && !field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].has_changed(field_node))
             continue;
         field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].update_data(s->blk.data + fi->offset, field_node, fi);
-        s->blk.has_changed = 1; // TODO: only re-upload the changing data segments
+        s->has_changed = 1; // TODO: only re-upload the changing data segments
     }
 }
 
@@ -369,11 +370,11 @@ static int block_update(struct ngl_node *node, double t)
     update_block_data(node, s->force_update);
     s->force_update = 0;
 
-    if (s->blk.has_changed) {
+    if (s->has_changed) {
         ret = ngli_buffer_upload(s->blk.buffer, s->blk.data, s->blk.data_size, 0);
         if (ret < 0)
             return ret;
-        s->blk.has_changed = 0;
+        s->has_changed = 0;
     }
 
     return 0;
