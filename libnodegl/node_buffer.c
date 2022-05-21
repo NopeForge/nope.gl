@@ -104,26 +104,6 @@ static int buffer_prepare(struct ngl_node *node)
     return ngli_node_prepare_children(node);
 }
 
-int ngli_node_buffer_upload(struct ngl_node *node)
-{
-    struct buffer_info *s = node->priv_data;
-
-    if (s->block)
-        return 0;
-
-    if (!(s->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
-        return 0;
-
-    if ((s->flags & NGLI_BUFFER_INFO_FLAG_DYNAMIC) && s->buffer_last_upload_time != node->last_update_time) {
-        int ret = ngli_buffer_upload(s->buffer, s->data, s->data_size, 0);
-        if (ret < 0)
-            return ret;
-        s->buffer_last_upload_time = node->last_update_time;
-    }
-
-    return 0;
-}
-
 int ngli_node_buffer_get_cpu_size(struct ngl_node *node)
 {
     struct buffer_info *s = node->priv_data;
@@ -328,7 +308,6 @@ static int buffer_init(struct ngl_node *node)
         s->buf.buffer = ngli_buffer_create(node->ctx->gpu_ctx);
         if (!s->buf.buffer)
             return NGL_ERROR_MEMORY;
-        s->buf.buffer_last_upload_time = -1.;
     }
 
     return 0;

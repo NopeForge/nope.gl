@@ -162,13 +162,12 @@ static int geometry_init(struct ngl_node *node)
 
 static int geometry_update(struct ngl_node *node, double t)
 {
-    int ret;
     struct geometry_priv *s = node->priv_data;
 
     for (int i = 0; i < s->nb_update_nodes; i++) {
         struct ngl_node *update_node = s->update_nodes[i];
-        if ((ret = ngli_node_update(update_node, t)) < 0 ||
-            (ret = ngli_node_buffer_upload(update_node)) < 0)
+        int ret = ngli_node_update(update_node, t);
+        if (ret < 0)
             return ret;
     }
 

@@ -77,7 +77,14 @@ static void cpy_buffer(void *user_arg, void *dst,
 static int animatedbuffer_update(struct ngl_node *node, double t)
 {
     struct animatedbuffer_priv *s = node->priv_data;
-    return ngli_animation_evaluate(&s->anim, s->buf.data, t);
+    int ret = ngli_animation_evaluate(&s->anim, s->buf.data, t);
+    if (ret < 0)
+        return ret;
+
+    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+        return 0;
+
+    return ngli_buffer_upload(s->buf.buffer, s->buf.data, s->buf.data_size, 0);
 }
 
 static int animatedbuffer_init(struct ngl_node *node)
@@ -127,7 +134,6 @@ static int animatedbuffer_init(struct ngl_node *node)
     s->buf.buffer = ngli_buffer_create(node->ctx->gpu_ctx);
     if (!s->buf.buffer)
         return NGL_ERROR_MEMORY;
-    s->buf.buffer_last_upload_time = -1.;
 
     return 0;
 }

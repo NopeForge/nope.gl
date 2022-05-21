@@ -130,7 +130,10 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
     const struct buffer_layout *layout = &s->buf.layout;
     s->buf.data = buffer_info->data + layout->stride * layout->count * index;
 
-    return 0;
+    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+        return 0;
+
+    return ngli_buffer_upload(s->buf.buffer, s->buf.data, s->buf.data_size, 0);
 }
 
 static int check_timestamps_buffer(const struct ngl_node *node)
@@ -208,7 +211,6 @@ static int streamedbuffer_init(struct ngl_node *node)
     s->buf.buffer = ngli_buffer_create(node->ctx->gpu_ctx);
     if (!s->buf.buffer)
         return NGL_ERROR_MEMORY;
-    s->buf.buffer_last_upload_time = -1.;
 
     return 0;
 }
