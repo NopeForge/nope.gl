@@ -47,6 +47,7 @@ struct compute_priv {
 
 #define DATA_TYPES_LIST     (const uint32_t[]){NGL_NODE_TEXTURE2D,       \
                                                NGL_NODE_BLOCK,           \
+                                               NGL_NODE_COLORSTATS,      \
                                                NGL_NODE_UNIFORMFLOAT,    \
                                                NGL_NODE_UNIFORMVEC2,     \
                                                NGL_NODE_UNIFORMVEC3,     \
