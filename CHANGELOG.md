@@ -11,6 +11,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 ### Added
 - Much more detailed typing annotations in `pynopegl`
 - `RenderDisplace` node for texture displacement
+- Visual scopes support through the `ColorStats`, `RenderHistogram` and
+  `RenderWaveform` nodes (see `scopes` example in the demos)
 
 ### Changed
 - CSV export in the HUD now always prints floats in C locale instead of quoted
