@@ -130,6 +130,24 @@ static int get_field_align(const struct block_field *field, int layout)
     return aligns_map[field->type];
 }
 
+static int fill_tail_field_info(const struct block *s, struct block_field *field)
+{
+    const int size  = get_field_size(field, s->layout);
+    const int align = get_field_align(field, s->layout);
+
+    ngli_assert(field->type != NGLI_TYPE_NONE);
+    ngli_assert(size);
+    ngli_assert(align);
+
+    const int remain = s->size % align;
+    const int offset = s->size + (remain ? align - remain : 0);
+
+    field->size   = size;
+    field->stride = get_buffer_stride(field, s->layout);
+    field->offset = offset;
+    return offset + size;
+}
+
 int ngli_block_add_field(struct block *s, const char *name, int type, int count)
 {
     ngli_assert(s->layout != NGLI_BLOCK_LAYOUT_UNKNOWN);
@@ -139,25 +157,9 @@ int ngli_block_add_field(struct block *s, const char *name, int type, int count)
         .count = count,
     };
     snprintf(field.name, sizeof(field.name), "%s", name);
-
-    const int size  = get_field_size(&field, s->layout);
-    const int align = get_field_align(&field, s->layout);
-
-    ngli_assert(type != NGLI_TYPE_NONE);
-    ngli_assert(size);
-    ngli_assert(align);
-
-    const int remain = s->size % align;
-    const int offset = s->size + (remain ? align - remain : 0);
-
-    field.size   = size;
-    field.stride = get_buffer_stride(&field, s->layout);
-    field.offset = offset;
-
+    s->size = fill_tail_field_info(s, &field);
     if (!ngli_darray_push(&s->fields, &field))
         return NGL_ERROR_MEMORY;
-
-    s->size = offset + field.size;
 
     return 0;
 }
