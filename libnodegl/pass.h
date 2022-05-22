@@ -39,7 +39,7 @@ struct pass_params {
     struct hmap *vert_resources;
     struct hmap *frag_resources;
     const struct hmap *properties;
-    struct ngl_node *geometry;
+    struct geometry *geometry;
     int nb_instances;
     struct hmap *attributes;
     struct hmap *instance_attributes;

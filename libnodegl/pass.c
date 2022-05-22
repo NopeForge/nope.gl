@@ -237,7 +237,7 @@ static int check_attributes(struct pass *s, struct hmap *attributes, int per_ins
     if (!attributes)
         return 0;
 
-    const struct geometry *geometry = *(struct geometry **)s->params.geometry->priv_data;
+    const struct geometry *geometry = s->params.geometry;
     const int64_t max_indices = geometry->max_indices;
 
     const int nb_vertices = geometry->vertices_layout.count;
@@ -369,7 +369,7 @@ static int pass_graphics_init(struct pass *s)
 
     s->pipeline_type = NGLI_PIPELINE_TYPE_GRAPHICS;
 
-    struct geometry *geometry = *(struct geometry **)params->geometry->priv_data;
+    struct geometry *geometry = params->geometry;
     struct pipeline_graphics *graphics = &s->pipeline_graphics;
 
     graphics->topology = geometry->topology;
