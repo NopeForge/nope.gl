@@ -104,6 +104,7 @@ struct render_common {
     int topology;
     const struct geometry *geometry;
     struct darray pipeline_descs;
+    struct darray draw_resources;
 };
 
 struct rendercolor_opts {
@@ -896,6 +897,10 @@ static int rendertexture_prepare(struct ngl_node *node)
 
 static void renderother_draw(struct ngl_node *node, struct render_common *s, const struct render_common_opts *o)
 {
+    struct ngl_node **draw_resources = ngli_darray_data(&s->draw_resources);
+    for (int i = 0; i < ngli_darray_count(&s->draw_resources); i++)
+        ngli_node_draw(draw_resources[i]);
+
     struct ngl_ctx *ctx = node->ctx;
     struct pipeline_desc *descs = ngli_darray_data(&s->pipeline_descs);
     struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
@@ -952,6 +957,7 @@ static void renderother_uninit(struct ngl_node *node, struct render_common *s)
     ngli_darray_reset(&s->pipeline_descs);
     ngli_buffer_freep(&s->vertices);
     ngli_buffer_freep(&s->uvcoords);
+    ngli_darray_reset(&s->draw_resources);
 }
 
 #define DECLARE_RENDEROTHER(type, cls_id, cls_name) \
