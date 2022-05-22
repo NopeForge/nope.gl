@@ -197,19 +197,14 @@ static const uint8_t *get_buffer_data_ptr(const struct ngl_node *node)
     return buffer->data;
 }
 
-enum field_type { IS_SINGLE, IS_ARRAY };
-
-static const struct {
-    int (*is_dynamic)(const struct ngl_node *node);
-    const uint8_t *(*get_data_ptr)(const struct ngl_node *node);
-} field_funcs[] = {
-    [IS_SINGLE] = {is_dynamic_uniform, get_variable_data_ptr},
-    [IS_ARRAY]  = {is_dynamic_buffer,  get_buffer_data_ptr},
-};
-
 static int field_is_dynamic(const struct ngl_node *node, const struct block_field *fi)
 {
-    return field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].is_dynamic(node);
+    return fi->count ? is_dynamic_buffer(node) : is_dynamic_uniform(node);
+}
+
+static const uint8_t *get_data_ptr(const struct ngl_node *node, const struct block_field *fi)
+{
+    return fi->count ? get_buffer_data_ptr(node) : get_variable_data_ptr(node);
 }
 
 static int update_block_data(struct ngl_node *node, int forced)
@@ -223,7 +218,7 @@ static int update_block_data(struct ngl_node *node, int forced)
         const struct block_field *fi = &field_info[i];
         if (!forced && !field_is_dynamic(field_node, fi))
             continue;
-        const uint8_t *src = field_funcs[fi->count ? IS_ARRAY : IS_SINGLE].get_data_ptr(field_node);
+        const uint8_t *src = get_data_ptr(field_node, fi);
         ngli_block_field_copy(fi, s->blk.data + fi->offset, src);
         has_changed = 1; // TODO: only re-upload the changing data segments
     }
