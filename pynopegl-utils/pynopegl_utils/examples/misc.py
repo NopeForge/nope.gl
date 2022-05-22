@@ -4,6 +4,7 @@ import math
 import os.path as op
 
 from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.toolbox.grid import autogrid_simple
 from pynopegl_utils.toolbox.scenes import compare
 from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 
@@ -644,3 +645,43 @@ def gradient_eval(cfg: SceneCfg, mode="ramp", c0=(1, 0.5, 0.5), c1=(0.5, 1, 0.5)
     grad = ngl.RenderGradient(pos0=pos0, pos1=pos1, mode=mode, color0=c0, color1=c1)
 
     return ngl.Group(children=(grad, p0, p1))
+
+
+_SCENE_CHOICES = (
+    "media",
+    "histogram/mixed",
+    "histogram/parade",
+    "histogram/luma_only",
+    "waveform/mixed",
+    "waveform/parade",
+    "waveform/luma_only",
+)
+
+
+@scene(
+    scene0=scene.List(choices=_SCENE_CHOICES),
+    scene1=scene.List(choices=_SCENE_CHOICES),
+    scene2=scene.List(choices=_SCENE_CHOICES),
+    scene3=scene.List(choices=_SCENE_CHOICES),
+)
+def scopes(cfg, scene0="media", scene1="waveform/parade", scene2="waveform/mixed", scene3="histogram/parade"):
+    m = cfg.medias[0]
+    cfg.duration = m.duration
+    cfg.aspect_ratio = (m.width, m.height)
+
+    texture = ngl.Texture2D(data_src=ngl.Media(m.filename), mag_filter="linear", min_filter="linear")
+
+    stats = ngl.ColorStats(texture)
+
+    children = []
+    for scene in (scene0, scene1, scene2, scene3):
+        if scene == "media":
+            children.append(ngl.RenderTexture(texture))
+            continue
+        render_name, mode = scene.split("/", maxsplit=1)
+        if render_name == "histogram":
+            render = ngl.RenderHistogram(stats=stats, mode=mode)
+        else:
+            render = ngl.RenderWaveform(stats=stats, mode=mode)
+        children.append(render)
+    return autogrid_simple(children)
