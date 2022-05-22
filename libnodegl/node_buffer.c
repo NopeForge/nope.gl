@@ -314,12 +314,11 @@ static int buffer_init(struct ngl_node *node)
     const struct buffer_opts *o = node->opts;
     struct buffer_layout *layout = &s->buf.layout;
 
-    layout->count      = o->count;
-    s->buf.block       = o->block;
+    layout->count = o->count;
+    s->buf.block  = o->block;
 
     if (o->data && o->filename) {
-        LOG(ERROR,
-            "data and filename option cannot be set at the same time");
+        LOG(ERROR, "data and filename option cannot be set at the same time");
         return NGL_ERROR_INVALID_ARG;
     }
 
