@@ -376,7 +376,7 @@ Quad:
 
 Render:
     - [geometry, node, "M"]
-    - [program, node, ""]
+    - [program, node, "M"]
     - [vert_resources, node_dict, ""]
     - [frag_resources, node_dict, ""]
     - [attributes, node_dict, ""]

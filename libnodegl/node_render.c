@@ -140,6 +140,7 @@ static const struct node_param render_params[] = {
                  .desc=NGLI_DOCSTRING("geometry to be rasterized")},
     {"program",  NGLI_PARAM_TYPE_NODE, OFFSET(program),
                  .node_types=PROGRAMS_TYPES_LIST,
+                 .flags=NGLI_PARAM_FLAG_NON_NULL,
                  .desc=NGLI_DOCSTRING("program to be executed")},
     {"vert_resources", NGLI_PARAM_TYPE_NODEDICT, OFFSET(vert_resources),
                          .node_types=INPUT_TYPES_LIST,
@@ -170,11 +171,6 @@ static int render_init(struct ngl_node *node)
     if (o->nb_instances < 1) {
         LOG(ERROR, "nb_instances must be > 0");
         return NGL_ERROR_INVALID_ARG;
-    }
-
-    if (!o->program) {
-        LOG(ERROR, "program must be set");
-        return NGL_ERROR_INVALID_USAGE;
     }
 
     const struct program_priv *program_priv = o->program->priv_data;
