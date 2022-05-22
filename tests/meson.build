@@ -299,6 +299,20 @@ foreach backend : backends
     endif
   endif
 
+  tests_scope = []
+  if has_compute and has_block
+    tests_scope += [
+      'colorstats',
+      'render_histogram_luma_only',
+      'render_histogram_mixed',
+      'render_histogram_parade',
+      'render_waveform_luma_only',
+      'render_waveform_mixed',
+      'render_waveform_parade',
+      'rtt',
+    ]
+  endif
+
   tests_shape = [
     'precision_iovar',
     'triangle',
@@ -433,6 +447,7 @@ foreach backend : backends
     'py_bindings':   {'tests': tests_py_bindings, 'has_refs': false},
     'velocity':      {'tests': tests_velocity},
     'rtt':           {'tests': tests_rtt},
+    'scope':         {'tests': tests_scope},
     'shape':         {'tests': tests_shape},
     'text':          {'tests': tests_text},
     'texture':       {'tests': tests_texture},
