@@ -132,6 +132,14 @@ static int get_field_align(const struct block_field *field, int layout)
 
 static int fill_tail_field_info(const struct block *s, struct block_field *field)
 {
+    /* Ignore the last field until the count is known */
+    if (field->count == NGLI_BLOCK_VARIADIC_COUNT) {
+        field->size = 0;
+        field->stride = 0;
+        field->offset = 0;
+        return s->size;
+    }
+
     const int size  = get_field_size(field, s->layout);
     const int align = get_field_align(field, s->layout);
 
@@ -151,6 +159,11 @@ static int fill_tail_field_info(const struct block *s, struct block_field *field
 int ngli_block_add_field(struct block *s, const char *name, int type, int count)
 {
     ngli_assert(s->layout != NGLI_BLOCK_LAYOUT_UNKNOWN);
+
+    /* check that we are not adding a field after a variadic one */
+    const struct block_field *last = ngli_darray_tail(&s->fields);
+    if (last)
+        ngli_assert(last->count != NGLI_BLOCK_VARIADIC_COUNT);
 
     struct block_field field = {
         .type = type,
