@@ -54,6 +54,7 @@ struct render_priv {
                                                NGL_NODE_TEXTURE3D,           \
                                                NGL_NODE_TEXTURECUBE,         \
                                                NGL_NODE_BLOCK,               \
+                                               NGL_NODE_COLORSTATS,          \
                                                NGL_NODE_BUFFERFLOAT,         \
                                                NGL_NODE_BUFFERVEC2,          \
                                                NGL_NODE_BUFFERVEC3,          \
