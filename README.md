@@ -43,6 +43,7 @@ and API can change at any time.
 - [Media (video) time remapping][usr-expl-time-remap]
 - [Graphic configuration (blending, inheritance, ...)][usr-expl-graphicconfig]
 - [How the Noise node works][usr-expl-noise]
+- [Scopes (ColorStats, Histogram, Waveform)][usr-expl-scopes]
 
 ### 🗜 Reference documentation
 
@@ -86,6 +87,7 @@ and API can change at any time.
 [usr-expl-time-remap]:       /doc/usr/expl/media-time-remapping.md
 [usr-expl-graphicconfig]:    /doc/usr/expl/graphicconfig.md
 [usr-expl-noise]:            /doc/usr/expl/noise.md
+[usr-expl-scopes]:           /doc/usr/expl/scopes.md
 [usr-ref-libnopegl]:         /libnopegl/doc/libnopegl.md
 [usr-ref-pynopegl]:          /doc/usr/ref/pynopegl.md
 [usr-ref-pynopegl-utils]:    /doc/usr/ref/pynopegl-utils.md
