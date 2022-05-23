@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+### Fixed
+- Visual glitches when seeking with the VAAPI/Vulkan acceleration
 
 ## [2022.6] [libnodegl 0.5.0] - 2022-05-19
 ### Added

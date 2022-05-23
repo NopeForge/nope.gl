@@ -206,6 +206,10 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
     }
     vaapi->surface_acquired = 1;
 
+    status = vaSyncSurface(vaapi_ctx->va_display, surface_id);
+    if (status != VA_STATUS_SUCCESS)
+        LOG(WARNING, "failed to sync surface");
+
     if (vaapi->surface_descriptor.fourcc != VA_FOURCC_NV12 &&
         vaapi->surface_descriptor.fourcc != VA_FOURCC_P010 &&
         vaapi->surface_descriptor.fourcc != VA_FOURCC_P016) {
