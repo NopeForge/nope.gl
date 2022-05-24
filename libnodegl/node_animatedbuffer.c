@@ -86,7 +86,7 @@ static int animatedbuffer_init(struct ngl_node *node)
     const struct animatedbuffer_opts *o = node->opts;
     struct buffer_layout *layout = &s->buf.layout;
 
-    s->buf.dynamic = 1;
+    s->buf.flags |= NGLI_BUFFER_INFO_FLAG_DYNAMIC;
     s->buf.usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT | NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
     layout->comp = ngli_format_get_nb_comp(layout->format);
     layout->stride = ngli_format_get_bytes_per_pixel(layout->format);

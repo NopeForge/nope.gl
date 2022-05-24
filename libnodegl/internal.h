@@ -180,6 +180,7 @@ struct buffer_layout {
 };
 
 #define NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD (1 << 0) /* The buffer is responsible for uploading its data to the GPU */
+#define NGLI_BUFFER_INFO_FLAG_DYNAMIC    (1 << 1) /* The buffer CPU data may change at every update */
 
 struct buffer_info {
     struct buffer_layout layout;
@@ -190,7 +191,6 @@ struct buffer_info {
     struct ngl_node *block;
     int usage;              // flags defining buffer use
 
-    int dynamic;
     uint32_t flags;
 
     struct buffer *buffer;

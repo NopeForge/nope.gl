@@ -242,7 +242,7 @@ static int has_changed_uniform(const struct ngl_node *unode)
 static int has_changed_buffer(const struct ngl_node *bnode)
 {
     const struct buffer_info *buffer = bnode->priv_data;
-    return buffer->dynamic;
+    return buffer->flags & NGLI_BUFFER_INFO_FLAG_DYNAMIC;
 }
 
 static void update_uniform_field(uint8_t *dst,

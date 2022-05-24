@@ -194,7 +194,7 @@ static int streamedbuffer_init(struct ngl_node *node)
     s->buf.data = buffer_info->data;
     s->buf.data_size = buffer_info->data_size / layout->count;
     s->buf.usage = buffer_info->usage;
-    s->buf.dynamic = 1;
+    s->buf.flags |= NGLI_BUFFER_INFO_FLAG_DYNAMIC;
 
     if (!o->timebase[1]) {
         LOG(ERROR, "invalid timebase: %d/%d", o->timebase[0], o->timebase[1]);

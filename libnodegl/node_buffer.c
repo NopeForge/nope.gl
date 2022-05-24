@@ -154,7 +154,7 @@ int ngli_node_buffer_upload(struct ngl_node *node)
     if (!(s->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return 0;
 
-    if (s->dynamic && s->buffer_last_upload_time != node->last_update_time) {
+    if ((s->flags & NGLI_BUFFER_INFO_FLAG_DYNAMIC) && s->buffer_last_upload_time != node->last_update_time) {
         int ret = ngli_buffer_upload(s->buffer, s->data, s->data_size, 0);
         if (ret < 0)
             return ret;
