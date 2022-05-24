@@ -58,9 +58,10 @@ static void mix_buffer(void *user_arg, void *dst,
 {
     float *dstf = dst;
     const struct animatedbuffer_priv *s = user_arg;
+    const struct buffer_info *info = &s->buf;
     const float *d0 = (const float *)kf0->data;
     const float *d1 = (const float *)kf1->data;
-    const struct buffer_layout *layout = &s->buf.layout;
+    const struct buffer_layout *layout = &info->layout;
     const int comp = layout->comp;
     for (int k = 0; k < layout->count; k++)
         for (int i = 0; i < comp; i++)
@@ -71,30 +72,33 @@ static void cpy_buffer(void *user_arg, void *dst,
                        const struct animkeyframe_opts *kf)
 {
     const struct animatedbuffer_priv *s = user_arg;
-    memcpy(dst, kf->data, s->buf.data_size);
+    const struct buffer_info *info = &s->buf;
+    memcpy(dst, kf->data, info->data_size);
 }
 
 static int animatedbuffer_update(struct ngl_node *node, double t)
 {
     struct animatedbuffer_priv *s = node->priv_data;
-    int ret = ngli_animation_evaluate(&s->anim, s->buf.data, t);
+    struct buffer_info *info = &s->buf;
+    int ret = ngli_animation_evaluate(&s->anim, info->data, t);
     if (ret < 0)
         return ret;
 
-    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+    if (!(info->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return 0;
 
-    return ngli_buffer_upload(s->buf.buffer, s->buf.data, s->buf.data_size, 0);
+    return ngli_buffer_upload(info->buffer, info->data, info->data_size, 0);
 }
 
 static int animatedbuffer_init(struct ngl_node *node)
 {
     struct animatedbuffer_priv *s = node->priv_data;
     const struct animatedbuffer_opts *o = node->opts;
-    struct buffer_layout *layout = &s->buf.layout;
+    struct buffer_info *info = &s->buf;
+    struct buffer_layout *layout = &info->layout;
 
-    s->buf.flags |= NGLI_BUFFER_INFO_FLAG_DYNAMIC;
-    s->buf.usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT | NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
+    info->flags |= NGLI_BUFFER_INFO_FLAG_DYNAMIC;
+    info->usage = NGLI_BUFFER_USAGE_DYNAMIC_BIT | NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
     layout->comp = ngli_format_get_nb_comp(layout->format);
     layout->stride = ngli_format_get_bytes_per_pixel(layout->format);
 
@@ -126,13 +130,13 @@ static int animatedbuffer_init(struct ngl_node *node)
     if (!layout->count)
         return NGL_ERROR_INVALID_ARG;
 
-    s->buf.data = ngli_calloc(layout->count, layout->stride);
-    if (!s->buf.data)
+    info->data = ngli_calloc(layout->count, layout->stride);
+    if (!info->data)
         return NGL_ERROR_MEMORY;
-    s->buf.data_size = layout->count * layout->stride;
+    info->data_size = layout->count * layout->stride;
 
-    s->buf.buffer = ngli_buffer_create(node->ctx->gpu_ctx);
-    if (!s->buf.buffer)
+    info->buffer = ngli_buffer_create(node->ctx->gpu_ctx);
+    if (!info->buffer)
         return NGL_ERROR_MEMORY;
 
     return 0;
@@ -141,14 +145,15 @@ static int animatedbuffer_init(struct ngl_node *node)
 static int animatedbuffer_prepare(struct ngl_node *node)
 {
     struct animatedbuffer_priv *s = node->priv_data;
+    struct buffer_info *info = &s->buf;
 
-    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+    if (!(info->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return ngli_node_prepare_children(node);
 
-    if (s->buf.buffer->size)
+    if (info->buffer->size)
         return 0;
 
-    int ret = ngli_buffer_init(s->buf.buffer, s->buf.data_size, s->buf.usage);
+    int ret = ngli_buffer_init(info->buffer, info->data_size, info->usage);
     if (ret < 0)
         return ret;
 
@@ -158,17 +163,19 @@ static int animatedbuffer_prepare(struct ngl_node *node)
 static void animatedbuffer_uninit(struct ngl_node *node)
 {
     struct animatedbuffer_priv *s = node->priv_data;
+    struct buffer_info *info = &s->buf;
 
-    ngli_buffer_freep(&s->buf.buffer);
-    ngli_freep(&s->buf.data);
+    ngli_buffer_freep(&info->buffer);
+    ngli_freep(&info->data);
 }
 
 #define DEFINE_ABUFFER_CLASS(class_id, class_name, type_name, class_data_type, class_data_format)  \
 static int animatedbuffer##type_name##_init(struct ngl_node *node)                 \
 {                                                                                  \
     struct animatedbuffer_priv *s = node->priv_data;                               \
-    s->buf.layout.format = class_data_format;                                      \
-    s->buf.layout.type   = class_data_type;                                        \
+    struct buffer_info *info = &s->buf;                                            \
+    info->layout.format = class_data_format;                                       \
+    info->layout.type   = class_data_type;                                         \
     return animatedbuffer_init(node);                                              \
 }                                                                                  \
                                                                                    \
