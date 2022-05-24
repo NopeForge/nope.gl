@@ -98,6 +98,7 @@ static int get_data_index(const struct ngl_node *node, int start, int64_t t64)
 static int streamedbuffer_update(struct ngl_node *node, double t)
 {
     struct streamedbuffer_priv *s = node->priv_data;
+    struct buffer_info *info = &s->buf;
     const struct streamedbuffer_opts *o = node->opts;
     struct ngl_node *time_anim = o->time_anim;
 
@@ -127,19 +128,20 @@ static int streamedbuffer_update(struct ngl_node *node, double t)
     s->last_index = index;
 
     const struct buffer_info *buffer_info = o->buffer_node->priv_data;
-    const struct buffer_layout *layout = &s->buf.layout;
-    s->buf.data = buffer_info->data + layout->stride * layout->count * index;
+    const struct buffer_layout *layout = &info->layout;
+    info->data = buffer_info->data + layout->stride * layout->count * index;
 
-    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+    if (!(info->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return 0;
 
-    return ngli_buffer_upload(s->buf.buffer, s->buf.data, s->buf.data_size, 0);
+    return ngli_buffer_upload(info->buffer, info->data, info->data_size, 0);
 }
 
 static int check_timestamps_buffer(const struct ngl_node *node)
 {
     const struct streamedbuffer_priv *s = node->priv_data;
     const struct streamedbuffer_opts *o = node->opts;
+    const struct buffer_info *info = &s->buf;
     const struct buffer_info *timestamps_priv = o->timestamps->priv_data;
     const int64_t *timestamps = (int64_t *)timestamps_priv->data;
     const int nb_timestamps = timestamps_priv->layout.count;
@@ -150,7 +152,7 @@ static int check_timestamps_buffer(const struct ngl_node *node)
     }
 
     const struct buffer_info *buffer_info = o->buffer_node->priv_data;
-    const int count = buffer_info->layout.count / s->buf.layout.count;
+    const int count = buffer_info->layout.count / info->layout.count;
     if (nb_timestamps != count) {
         LOG(ERROR, "timestamps count must match buffer chunk count: %d != %d", nb_timestamps, count);
         return NGL_ERROR_INVALID_ARG;
@@ -177,8 +179,9 @@ static int streamedbuffer_init(struct ngl_node *node)
 {
     struct streamedbuffer_priv *s = node->priv_data;
     const struct streamedbuffer_opts *o = node->opts;
+    struct buffer_info *info = &s->buf;
     struct buffer_info *buffer_info = o->buffer_node->priv_data;
-    struct buffer_layout *layout = &s->buf.layout;
+    struct buffer_layout *layout = &info->layout;
 
     *layout = buffer_info->layout;
     layout->count = o->count;
@@ -194,10 +197,10 @@ static int streamedbuffer_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    s->buf.data = buffer_info->data;
-    s->buf.data_size = buffer_info->data_size / layout->count;
-    s->buf.usage = buffer_info->usage;
-    s->buf.flags |= NGLI_BUFFER_INFO_FLAG_DYNAMIC;
+    info->data = buffer_info->data;
+    info->data_size = buffer_info->data_size / layout->count;
+    info->usage = buffer_info->usage;
+    info->flags |= NGLI_BUFFER_INFO_FLAG_DYNAMIC;
 
     if (!o->timebase[1]) {
         LOG(ERROR, "invalid timebase: %d/%d", o->timebase[0], o->timebase[1]);
@@ -208,8 +211,8 @@ static int streamedbuffer_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    s->buf.buffer = ngli_buffer_create(node->ctx->gpu_ctx);
-    if (!s->buf.buffer)
+    info->buffer = ngli_buffer_create(node->ctx->gpu_ctx);
+    if (!info->buffer)
         return NGL_ERROR_MEMORY;
 
     return 0;
@@ -218,14 +221,15 @@ static int streamedbuffer_init(struct ngl_node *node)
 static int streamedbuffer_prepare(struct ngl_node *node)
 {
     struct streamedbuffer_priv *s = node->priv_data;
+    struct buffer_info *info = &s->buf;
 
-    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+    if (!(info->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return ngli_node_prepare_children(node);
 
-    if (s->buf.buffer->size)
+    if (info->buffer->size)
         return 0;
 
-    int ret = ngli_buffer_init(s->buf.buffer, s->buf.data_size, s->buf.usage);
+    int ret = ngli_buffer_init(info->buffer, info->data_size, info->usage);
     if (ret < 0)
         return ret;
 
@@ -235,8 +239,9 @@ static int streamedbuffer_prepare(struct ngl_node *node)
 static void streamedbuffer_uninit(struct ngl_node *node)
 {
     struct streamedbuffer_priv *s = node->priv_data;
+    struct buffer_info *info = &s->buf;
 
-    ngli_buffer_freep(&s->buf.buffer);
+    ngli_buffer_freep(&info->buffer);
 }
 
 #define DECLARE_STREAMED_CLASS(class_id, class_name, class_suffix)          \
