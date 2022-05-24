@@ -173,10 +173,10 @@ static int get_node_data_count(const struct ngl_node *node)
     }
 }
 
-static int is_dynamic_uniform(const struct ngl_node *unode)
+static int is_dynamic_variable(const struct ngl_node *vnode)
 {
-    const struct variable_info *uniform = unode->priv_data;
-    return uniform->dynamic;
+    const struct variable_info *variable = vnode->priv_data;
+    return variable->dynamic;
 }
 
 static int is_dynamic_buffer(const struct ngl_node *bnode)
@@ -199,7 +199,7 @@ static const uint8_t *get_buffer_data_ptr(const struct ngl_node *node)
 
 static int field_is_dynamic(const struct ngl_node *node, const struct block_field *fi)
 {
-    return fi->count ? is_dynamic_buffer(node) : is_dynamic_uniform(node);
+    return fi->count ? is_dynamic_buffer(node) : is_dynamic_variable(node);
 }
 
 static const uint8_t *get_data_ptr(const struct ngl_node *node, const struct block_field *fi)
