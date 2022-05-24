@@ -67,28 +67,6 @@ static const struct node_param buffer_params[] = {
     {NULL}
 };
 
-int ngli_node_buffer_ref(struct ngl_node *node)
-{
-    struct ngl_ctx *ctx = node->ctx;
-    struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
-    struct buffer_info *s = node->priv_data;
-
-    if (s->block) {
-        struct block_info *block = s->block->priv_data;
-        s->buffer = block->buffer;
-        return 0;
-    }
-
-    if (s->buffer_refcount++ == 0) {
-        s->buffer = ngli_buffer_create(gpu_ctx);
-        if (!s->buffer)
-            return NGL_ERROR_MEMORY;
-        s->buffer_last_upload_time = -1.;
-    }
-
-    return 0;
-}
-
 void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage)
 {
     struct buffer_info *s = node->priv_data;
@@ -124,20 +102,6 @@ int ngli_node_buffer_init(struct ngl_node *node)
         return ret;
 
     return 0;
-}
-
-void ngli_node_buffer_unref(struct ngl_node *node)
-{
-    struct buffer_info *s = node->priv_data;
-
-    if (s->block) {
-        s->buffer = NULL;
-        return;
-    }
-
-    ngli_assert(s->buffer_refcount);
-    if (s->buffer_refcount-- == 1)
-        ngli_buffer_freep(&s->buffer);
 }
 
 int ngli_node_buffer_upload(struct ngl_node *node)
@@ -357,6 +321,16 @@ static int buffer_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
+    if (s->buf.block) {
+        const struct block_info *block_info = s->buf.block->priv_data;
+        s->buf.buffer = block_info->buffer;
+    } else {
+        s->buf.buffer = ngli_buffer_create(node->ctx->gpu_ctx);
+        if (!s->buf.buffer)
+            return NGL_ERROR_MEMORY;
+        s->buf.buffer_last_upload_time = -1.;
+    }
+
     return 0;
 }
 
@@ -364,6 +338,11 @@ static void buffer_uninit(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
     const struct buffer_opts *o = node->opts;
+
+    if (s->buf.block)
+        s->buf.buffer = NULL;
+    else
+        ngli_buffer_freep(&s->buf.buffer);
 
     if (!o->data && !o->block)
         ngli_freep(&s->buf.data);

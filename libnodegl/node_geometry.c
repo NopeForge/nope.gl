@@ -102,10 +102,6 @@ static int configure_buffer(struct ngl_node *buffer_node, int usage, struct buff
 {
     struct buffer_info *buffer_info = buffer_node->priv_data;
 
-    int ret = ngli_node_buffer_ref(buffer_node);
-    if (ret < 0)
-        return ret;
-
     *bufferp = buffer_info->buffer;
     *layout = buffer_info->layout;
     ngli_node_buffer_extend_usage(buffer_node, usage);
@@ -217,16 +213,8 @@ static int geometry_update(struct ngl_node *node, double t)
 static void geometry_uninit(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
-    const struct geometry_opts *o = node->opts;
 
     ngli_geometry_freep(&s->geom);
-    ngli_node_buffer_unref(o->vertices);
-    if (o->uvcoords)
-        ngli_node_buffer_unref(o->uvcoords);
-    if (o->normals)
-        ngli_node_buffer_unref(o->normals);
-    if (o->indices)
-        ngli_node_buffer_unref(o->indices);
 }
 
 const struct node_class ngli_geometry_class = {

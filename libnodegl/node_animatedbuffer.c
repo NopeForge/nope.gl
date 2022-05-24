@@ -124,6 +124,11 @@ static int animatedbuffer_init(struct ngl_node *node)
         return NGL_ERROR_MEMORY;
     s->buf.data_size = layout->count * layout->stride;
 
+    s->buf.buffer = ngli_buffer_create(node->ctx->gpu_ctx);
+    if (!s->buf.buffer)
+        return NGL_ERROR_MEMORY;
+    s->buf.buffer_last_upload_time = -1.;
+
     return 0;
 }
 
@@ -131,6 +136,7 @@ static void animatedbuffer_uninit(struct ngl_node *node)
 {
     struct animatedbuffer_priv *s = node->priv_data;
 
+    ngli_buffer_freep(&s->buf.buffer);
     ngli_freep(&s->buf.data);
 }
 

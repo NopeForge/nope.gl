@@ -316,14 +316,8 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     if (!attribute)
         return 0;
 
-    int ret = ngli_node_buffer_ref(attribute);
-    if (ret < 0)
-        return ret;
-
-    if (!ngli_darray_push(&s->attribute_nodes, &attribute)) {
-        ngli_node_buffer_unref(attribute);
+    if (!ngli_darray_push(&s->attribute_nodes, &attribute))
         return NGL_ERROR_MEMORY;
-    }
 
     ngli_node_buffer_extend_usage(attribute, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
 
@@ -617,15 +611,6 @@ int ngli_pass_init(struct pass *s, struct ngl_ctx *ctx, const struct pass_params
 #define NODE_TYPE_BLOCK   1
 #define NODE_TYPE_BUFFER  2
 
-static void reset_buffer_nodes(struct darray *p)
-{
-    struct ngl_node **nodes = ngli_darray_data(p);
-    for (int i = 0; i < ngli_darray_count(p); i++) {
-        ngli_node_buffer_unref(nodes[i]);
-    }
-    ngli_darray_reset(p);
-}
-
 void ngli_pass_uninit(struct pass *s)
 {
     if (!s->ctx)
@@ -644,7 +629,7 @@ void ngli_pass_uninit(struct pass *s)
     ngli_darray_reset(&s->uniform_nodes);
     ngli_darray_reset(&s->texture_nodes);
     ngli_darray_reset(&s->block_nodes);
-    reset_buffer_nodes(&s->attribute_nodes);
+    ngli_darray_reset(&s->attribute_nodes);
 
     ngli_darray_reset(&s->crafter_attributes);
     ngli_darray_reset(&s->crafter_textures);

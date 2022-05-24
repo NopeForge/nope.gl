@@ -201,9 +201,24 @@ static int streamedbuffer_init(struct ngl_node *node)
         return NGL_ERROR_INVALID_ARG;
     }
 
-    return check_timestamps_buffer(node);
+    int ret = check_timestamps_buffer(node);
+    if (ret < 0)
+        return ret;
+
+    s->buf.buffer = ngli_buffer_create(node->ctx->gpu_ctx);
+    if (!s->buf.buffer)
+        return NGL_ERROR_MEMORY;
+    s->buf.buffer_last_upload_time = -1.;
+
+    return 0;
 }
 
+static void streamedbuffer_uninit(struct ngl_node *node)
+{
+    struct streamedbuffer_priv *s = node->priv_data;
+
+    ngli_buffer_freep(&s->buf.buffer);
+}
 
 #define DECLARE_STREAMED_CLASS(class_id, class_name, class_suffix)          \
 const struct node_class ngli_streamedbuffer##class_suffix##_class = {       \
@@ -212,6 +227,7 @@ const struct node_class ngli_streamedbuffer##class_suffix##_class = {       \
     .name      = class_name,                                                \
     .init      = streamedbuffer_init,                                       \
     .update    = streamedbuffer_update,                                     \
+    .uninit    = streamedbuffer_uninit,                                     \
     .opts_size = sizeof(struct streamedbuffer_opts),                        \
     .priv_size = sizeof(struct streamedbuffer_priv),                        \
     .params    = streamedbuffer##class_suffix##_params,                     \
