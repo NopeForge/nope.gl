@@ -133,7 +133,7 @@ static int exec_hwconv(struct hwmap *hwmap)
 
 static const struct hwmap_class **get_backend_hwmap_classes(int backend)
 {
-#ifdef BACKEND_GL
+#if defined(BACKEND_GL) || defined(BACKEND_GLES)
     if (backend == NGL_BACKEND_OPENGL || backend == NGL_BACKEND_OPENGLES)
         return ngli_hwmap_gl_classes;
 #endif

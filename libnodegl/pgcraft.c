@@ -35,7 +35,7 @@
 #include "precision.h"
 #include "type.h"
 
-#ifdef BACKEND_GL
+#if defined(BACKEND_GL) || defined(BACKEND_GLES)
 #include "backends/gl/gpu_ctx_gl.h"
 #include "backends/gl/feature_gl.h"
 #include "backends/gl/program_gl_utils.h"
@@ -1299,7 +1299,7 @@ static int probe_pipeline_elems(struct pgcraft *s)
     return 0;
 }
 
-#if defined(BACKEND_GL)
+#if defined(BACKEND_GL) || defined(BACKEND_GLES)
 
 #define IS_GLSL_ES_MIN(min) (config->backend == NGL_BACKEND_OPENGLES && s->glsl_version >= (min))
 #define IS_GLSL_MIN(min)    (config->backend == NGL_BACKEND_OPENGL   && s->glsl_version >= (min))
@@ -1383,7 +1383,7 @@ static void setup_glsl_info(struct pgcraft *s)
     s->rg = "rg";
     s->glsl_version_suffix = "";
 
-#if defined(BACKEND_GL)
+#if defined(BACKEND_GL) || defined(BACKEND_GLES)
     if (config->backend == NGL_BACKEND_OPENGL || config->backend == NGL_BACKEND_OPENGLES) {
         setup_glsl_info_gl(s);
         return;
@@ -1511,7 +1511,7 @@ int ngli_pgcraft_craft(struct pgcraft *s, const struct pgcraft_params *params)
     if (ret < 0)
         return ret;
 
-#ifdef BACKEND_GL
+#if defined(BACKEND_GL) || defined(BACKEND_GLES)
     struct ngl_ctx *ctx = s->ctx;
     struct ngl_config *config = &ctx->config;
     if (config->backend == NGL_BACKEND_OPENGL ||

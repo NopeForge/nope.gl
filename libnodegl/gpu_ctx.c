@@ -43,7 +43,7 @@ static const struct {
     },
     [NGL_BACKEND_OPENGLES] = {
         .string_id = "opengles",
-#ifdef BACKEND_GL
+#ifdef BACKEND_GLES
         .cls = &ngli_gpu_ctx_gles,
 #endif
     },

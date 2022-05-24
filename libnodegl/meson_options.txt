@@ -20,6 +20,7 @@
 #
 
 option('gbackend-gl', type: 'feature', value: 'auto')
+option('gbackend-gles', type: 'feature', value: 'auto')
 option('gbackend-vk', type: 'feature', value: 'auto')
 
 option('wayland', type: 'feature', value: 'auto',

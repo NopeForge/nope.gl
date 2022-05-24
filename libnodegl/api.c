@@ -69,7 +69,7 @@ static const struct {
     },
     [NGL_BACKEND_OPENGLES] = {
         .string_id = "opengles",
-#ifdef BACKEND_GL
+#ifdef BACKEND_GLES
         .api_impl = &api_gl,
 #endif
     },
@@ -504,6 +504,8 @@ end:
 static const int backend_ids[] = {
 #if defined(BACKEND_GL)
     NGL_BACKEND_OPENGL,
+#endif
+#if defined(BACKEND_GLES)
     NGL_BACKEND_OPENGLES,
 #endif
 #ifdef BACKEND_VK

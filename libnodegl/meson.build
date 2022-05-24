@@ -354,6 +354,37 @@ gbackends_cfg = {
         'cfg': 'HAVE_GLPLATFORM_NSGL',
         'frameworks': ['OpenGL'],
       },
+      'windows': {
+        'src': files('backends/gl/glcontext_wgl.c'),
+        'cfg': 'HAVE_GLPLATFORM_WGL',
+        'libs': ['OpenGL32', 'gdi32'],
+      },
+    },
+  },
+  'gles': {
+    'src': files(
+      'backends/gl/api_gl.c',
+      'backends/gl/buffer_gl.c',
+      'backends/gl/format_gl.c',
+      'backends/gl/gpu_ctx_gl.c',
+      'backends/gl/glcontext.c',
+      'backends/gl/glstate.c',
+      'backends/gl/hwmap_gl.c',
+      'backends/gl/pipeline_gl.c',
+      'backends/gl/program_gl.c',
+      'backends/gl/program_gl_utils.c',
+      'backends/gl/rendertarget_gl.c',
+      'backends/gl/texture_gl.c',
+      'backends/gl/topology_gl.c',
+      'backends/gl/type_gl.c',
+    ),
+    'cfg': 'BACKEND_GLES',
+    'hosts_cfg': {
+      'linux': {
+        'src': files('backends/gl/glcontext_egl.c'),
+        'cfg': 'HAVE_GLPLATFORM_EGL',
+        'deps': ['gl', 'egl'],
+      },
       'android': {
         'src': files('backends/gl/glcontext_egl.c', 'backends/gl/hwmap_mediacodec_gl.c'),
         'cfg': 'HAVE_GLPLATFORM_EGL',
@@ -540,7 +571,7 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
   message('backend: @0@ enabled: @1@'.format(gbackend_name, all_dep_found.to_string()))
   if all_dep_found
 
-    if gbackend_name == 'gl' and vaapi_enabled
+    if gbackend_name in ['gl', 'gles'] and vaapi_enabled
       lib_src += files('backends/gl/hwmap_vaapi_gl.c')
     endif
 

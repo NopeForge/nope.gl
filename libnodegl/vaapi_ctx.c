@@ -23,7 +23,7 @@
 
 #include "config.h"
 
-#if defined(BACKEND_GL)
+#if defined(BACKEND_GL) || defined(BACKEND_GLES)
 #include "backends/gl/gpu_ctx_gl.h"
 #endif
 
@@ -49,7 +49,7 @@
 static int check_extensions(const struct gpu_ctx *gpu_ctx)
 {
     ngli_unused const struct ngl_config *config = &gpu_ctx->config;
-#if defined(BACKEND_GL)
+#if defined(BACKEND_GL) || defined(BACKEND_GLES)
         if (config->backend == NGL_BACKEND_OPENGL ||
             config->backend == NGL_BACKEND_OPENGLES) {
         const struct gpu_ctx_gl *gpu_ctx_gl = (struct gpu_ctx_gl *)gpu_ctx;
