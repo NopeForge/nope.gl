@@ -160,31 +160,6 @@ static int geometry_init(struct ngl_node *node)
     return ngli_geometry_init(s->geom, o->topology);
 }
 
-static int geometry_prepare(struct ngl_node *node)
-{
-    struct geometry_priv *s = node->priv_data;
-    const struct geometry_opts *o = node->opts;
-
-    /*
-     * Init of buffers must happen after all usage flags are set (the usage of
-     * a given buffer may differ according to how it is shared)
-     */
-    for (int i = 0; i < s->nb_update_nodes; i++) {
-        struct ngl_node *update_node = s->update_nodes[i];
-        int ret = ngli_node_buffer_init(update_node);
-        if (ret < 0)
-            return ret;
-    }
-
-    if (o->indices) {
-        int ret = ngli_node_buffer_init(o->indices);
-        if (ret < 0)
-            return ret;
-    }
-
-    return ngli_node_prepare_children(node);
-}
-
 static int geometry_update(struct ngl_node *node, double t)
 {
     int ret;
@@ -211,7 +186,7 @@ const struct node_class ngli_geometry_class = {
     .id        = NGL_NODE_GEOMETRY,
     .name      = "Geometry",
     .init      = geometry_init,
-    .prepare   = geometry_prepare,
+    .prepare   = ngli_node_prepare_children,
     .uninit    = geometry_uninit,
     .update    = geometry_update,
     .opts_size = sizeof(struct geometry_opts),

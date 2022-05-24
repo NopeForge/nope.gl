@@ -78,30 +78,30 @@ void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage)
     s->usage |= usage;
 }
 
-int ngli_node_buffer_init(struct ngl_node *node)
+static int buffer_prepare(struct ngl_node *node)
 {
-    struct buffer_info *s = node->priv_data;
+    struct buffer_priv *s = node->priv_data;
 
-    if (s->block)
+    if (s->buf.block)
+        return ngli_node_prepare(s->buf.block);
+
+    ngli_assert(s->buf.buffer);
+
+    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return 0;
 
-    ngli_assert(s->buffer);
-
-    if (!(s->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+    if (s->buf.buffer->size)
         return 0;
 
-    if (s->buffer->size)
-        return 0;
-
-    int ret = ngli_buffer_init(s->buffer, s->data_size, s->usage);
+    int ret = ngli_buffer_init(s->buf.buffer, s->buf.data_size, s->buf.usage);
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_upload(s->buffer, s->data, s->data_size, 0);
+    ret = ngli_buffer_upload(s->buf.buffer, s->buf.data, s->buf.data_size, 0);
     if (ret < 0)
         return ret;
 
-    return 0;
+    return ngli_node_prepare_children(node);
 }
 
 int ngli_node_buffer_upload(struct ngl_node *node)
@@ -373,6 +373,7 @@ const struct node_class ngli_buffer##type_name##_class = {      \
     .category  = NGLI_NODE_CATEGORY_BUFFER,                     \
     .name      = class_name,                                    \
     .init      = buffer##type_name##_init,                      \
+    .prepare   = buffer_prepare,                                \
     .uninit    = buffer_uninit,                                 \
     .opts_size = sizeof(struct buffer_opts),                    \
     .priv_size = sizeof(struct buffer_priv),                    \

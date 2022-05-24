@@ -132,6 +132,23 @@ static int animatedbuffer_init(struct ngl_node *node)
     return 0;
 }
 
+static int animatedbuffer_prepare(struct ngl_node *node)
+{
+    struct animatedbuffer_priv *s = node->priv_data;
+
+    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+        return ngli_node_prepare_children(node);
+
+    if (s->buf.buffer->size)
+        return 0;
+
+    int ret = ngli_buffer_init(s->buf.buffer, s->buf.data_size, s->buf.usage);
+    if (ret < 0)
+        return ret;
+
+    return ngli_node_prepare_children(node);
+}
+
 static void animatedbuffer_uninit(struct ngl_node *node)
 {
     struct animatedbuffer_priv *s = node->priv_data;
@@ -154,6 +171,7 @@ const struct node_class ngli_animatedbuffer##type_name##_class = {              
     .category  = NGLI_NODE_CATEGORY_BUFFER,                                        \
     .name      = class_name,                                                       \
     .init      = animatedbuffer##type_name##_init,                                 \
+    .prepare   = animatedbuffer_prepare,                                           \
     .update    = animatedbuffer_update,                                            \
     .uninit    = animatedbuffer_uninit,                                            \
     .opts_size = sizeof(struct animatedbuffer_opts),                               \

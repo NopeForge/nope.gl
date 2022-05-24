@@ -487,13 +487,6 @@ int ngli_pass_prepare(struct pass *s)
         return NGL_ERROR_INVALID_USAGE;
     }
 
-    struct ngl_node **attribute_nodes = ngli_darray_data(&s->attribute_nodes);
-    for (int i = 0; i < ngli_darray_count(&s->attribute_nodes); i++) {
-        int ret = ngli_node_buffer_init(attribute_nodes[i]);
-        if (ret < 0)
-            return ret;
-    }
-
     struct pipeline_graphics pipeline_graphics = s->pipeline_graphics;
     pipeline_graphics.state = rnode->graphicstate;
     pipeline_graphics.rt_desc = rnode->rendertarget_desc;
