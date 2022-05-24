@@ -96,16 +96,6 @@ NGLI_STATIC_ASSERT(geom_on_top_of_geometry, offsetof(struct geometry_priv, geom)
     }                                                      \
 } while (0)                                                \
 
-static void configure_buffer(struct ngl_node *buffer_node, int usage, struct buffer **bufferp, struct buffer_layout *layout)
-{
-    struct buffer_info *buffer_info = buffer_node->priv_data;
-
-    *bufferp = buffer_info->buffer;
-    *layout = buffer_info->layout;
-    ngli_node_buffer_extend_usage(buffer_node, usage);
-    buffer_info->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
-}
-
 static int geometry_init(struct ngl_node *node)
 {
     struct geometry_priv *s = node->priv_data;
@@ -116,20 +106,23 @@ static int geometry_init(struct ngl_node *node)
     if (!s->geom)
         return NGL_ERROR_MEMORY;
 
-    struct buffer *buffer;
-    struct buffer_layout layout;
-
-    configure_buffer(o->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
-    ngli_geometry_set_vertices_buffer(s->geom, buffer, layout);
+    struct buffer_info *vertices = o->vertices->priv_data;
+    ngli_geometry_set_vertices_buffer(s->geom, vertices->buffer, vertices->layout);
+    ngli_node_buffer_extend_usage(o->vertices, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+    vertices->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
 
     if (o->uvcoords) {
-        configure_buffer(o->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
-        ngli_geometry_set_uvcoords_buffer(s->geom, buffer, layout);
+        struct buffer_info *uvcoords = o->uvcoords->priv_data;
+        ngli_geometry_set_uvcoords_buffer(s->geom, uvcoords->buffer, uvcoords->layout);
+        ngli_node_buffer_extend_usage(o->uvcoords, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        uvcoords->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
     }
 
     if (o->normals) {
-        configure_buffer(o->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT, &buffer, &layout);
-        ngli_geometry_set_normals_buffer(s->geom, buffer, layout);
+        struct buffer_info *normals = o->normals->priv_data;
+        ngli_geometry_set_normals_buffer(s->geom, normals->buffer, normals->layout);
+        ngli_node_buffer_extend_usage(o->normals, NGLI_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+        normals->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
     }
 
     if (o->indices) {
@@ -139,17 +132,18 @@ static int geometry_init(struct ngl_node *node)
             return NGL_ERROR_UNSUPPORTED;
         }
 
-        configure_buffer(o->indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT, &buffer, &layout);
+        ngli_node_buffer_extend_usage(o->indices, NGLI_BUFFER_USAGE_INDEX_BUFFER_BIT);
+        indices->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
 
         int64_t max_indices = 0;
-        switch (layout.format) {
+        switch (indices->layout.format) {
         case NGLI_FORMAT_R16_UNORM: GET_MAX_INDICES(uint16_t); break;
         case NGLI_FORMAT_R32_UINT:  GET_MAX_INDICES(uint32_t); break;
         default:
             ngli_assert(0);
         }
 
-        ngli_geometry_set_indices_buffer(s->geom, buffer, layout, max_indices);
+        ngli_geometry_set_indices_buffer(s->geom, indices->buffer, indices->layout, max_indices);
     }
 
     return ngli_geometry_init(s->geom, o->topology);
