@@ -173,7 +173,7 @@ int ngli_node_buffer_get_cpu_size(struct ngl_node *node)
 int ngli_node_buffer_get_gpu_size(struct ngl_node *node)
 {
     struct buffer_info *s = node->priv_data;
-    return s->block ? 0 : s->data_size * (s->buffer_refcount > 0);
+    return s->block || !(s->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD) ? 0 : s->data_size;
 }
 
 static int buffer_init_from_data(struct ngl_node *node)
