@@ -211,15 +211,16 @@ static int update_block_data(struct ngl_node *node, int forced)
 {
     int has_changed = 0;
     struct block_priv *s = node->priv_data;
+    struct block_info *info = &s->blk;
     const struct block_opts *o = node->opts;
-    const struct block_field *field_info = ngli_darray_data(&s->blk.block.fields);
+    const struct block_field *field_info = ngli_darray_data(&info->block.fields);
     for (int i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
         const struct block_field *fi = &field_info[i];
         if (!forced && !field_is_dynamic(field_node, fi))
             continue;
         const uint8_t *src = get_data_ptr(field_node, fi);
-        ngli_block_field_copy(fi, s->blk.data + fi->offset, src);
+        ngli_block_field_copy(fi, info->data + fi->offset, src);
         has_changed = 1; // TODO: only re-upload the changing data segments
     }
     return has_changed;
@@ -265,6 +266,7 @@ static int block_init(struct ngl_node *node)
     struct ngl_ctx *ctx = node->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct block_priv *s = node->priv_data;
+    struct block_info *info = &s->blk;
     const struct block_opts *o = node->opts;
 
     if (o->layout == NGLI_BLOCK_LAYOUT_STD140 && !(gpu_ctx->features & FEATURES_STD140)) {
@@ -286,9 +288,9 @@ static int block_init(struct ngl_node *node)
     if (ret < 0)
         return ret;
 
-    ngli_block_init(&s->blk.block, o->layout);
+    ngli_block_init(&info->block, o->layout);
 
-    s->blk.usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
+    info->usage = NGLI_BUFFER_USAGE_TRANSFER_DST_BIT;
 
     for (int i = 0; i < o->nb_fields; i++) {
         const struct ngl_node *field_node = o->fields[i];
@@ -304,30 +306,30 @@ static int block_init(struct ngl_node *node)
         const int type  = get_node_data_type(field_node);
         const int count = get_node_data_count(field_node);
 
-        int ret = ngli_block_add_field(&s->blk.block, field_node->label, type, count);
+        int ret = ngli_block_add_field(&info->block, field_node->label, type, count);
         if (ret < 0)
             return ret;
 
-        const struct block_field *fields = ngli_darray_data(&s->blk.block.fields);
+        const struct block_field *fields = ngli_darray_data(&info->block.fields);
         const struct block_field *fi = &fields[i];
         LOG(DEBUG, "%s.field[%d]: %s offset=%d size=%d stride=%d",
             node->label, i, field_node->label, fi->offset, fi->size, fi->stride);
 
         if (field_is_dynamic(field_node, fi))
-            s->blk.usage |= NGLI_BUFFER_USAGE_DYNAMIC_BIT;
+            info->usage |= NGLI_BUFFER_USAGE_DYNAMIC_BIT;
     }
 
-    s->blk.data_size = s->blk.block.size;
-    LOG(DEBUG, "total %s size: %d", node->label, s->blk.data_size);
-    s->blk.data = ngli_calloc(1, s->blk.data_size);
-    if (!s->blk.data)
+    info->data_size = info->block.size;
+    LOG(DEBUG, "total %s size: %d", node->label, info->data_size);
+    info->data = ngli_calloc(1, info->data_size);
+    if (!info->data)
         return NGL_ERROR_MEMORY;
 
     update_block_data(node, 1);
     s->force_update = 1; /* First update will need an upload */
 
-    s->blk.buffer = ngli_buffer_create(gpu_ctx);
-    if (!s->blk.buffer)
+    info->buffer = ngli_buffer_create(gpu_ctx);
+    if (!info->buffer)
         return NGL_ERROR_MEMORY;
 
     return 0;
@@ -336,13 +338,14 @@ static int block_init(struct ngl_node *node)
 static int block_prepare(struct ngl_node *node)
 {
     struct block_priv *s = node->priv_data;
+    struct block_info *info = &s->blk;
 
-    ngli_assert(s->blk.buffer);
+    ngli_assert(info->buffer);
 
-    if (s->blk.buffer->size)
+    if (info->buffer->size)
         return 0;
 
-    int ret = ngli_buffer_init(s->blk.buffer, s->blk.data_size, s->blk.usage);
+    int ret = ngli_buffer_init(info->buffer, info->data_size, info->usage);
     if (ret < 0)
         return ret;
 
@@ -361,6 +364,7 @@ static int block_invalidate(struct ngl_node *node)
 static int block_update(struct ngl_node *node, double t)
 {
     struct block_priv *s = node->priv_data;
+    struct block_info *info = &s->blk;
 
     int ret = ngli_node_update_children(node, t);
     if (ret < 0)
@@ -370,7 +374,7 @@ static int block_update(struct ngl_node *node, double t)
     s->force_update = 0;
 
     if (has_changed) {
-        ret = ngli_buffer_upload(s->blk.buffer, s->blk.data, s->blk.data_size, 0);
+        ret = ngli_buffer_upload(info->buffer, info->data, info->data_size, 0);
         if (ret < 0)
             return ret;
     }
@@ -381,10 +385,11 @@ static int block_update(struct ngl_node *node, double t)
 static void block_uninit(struct ngl_node *node)
 {
     struct block_priv *s = node->priv_data;
+    struct block_info *info = &s->blk;
 
-    ngli_buffer_freep(&s->blk.buffer);
-    ngli_block_reset(&s->blk.block);
-    ngli_free(s->blk.data);
+    ngli_buffer_freep(&info->buffer);
+    ngli_block_reset(&info->block);
+    ngli_free(info->data);
 }
 
 const struct node_class ngli_block_class = {
