@@ -179,6 +179,8 @@ struct buffer_layout {
     int offset;     // offset where the data starts in the buffer, in bytes
 };
 
+#define NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD (1 << 0) /* The buffer is responsible for uploading its data to the GPU */
+
 struct buffer_info {
     struct buffer_layout layout;
 
@@ -189,6 +191,7 @@ struct buffer_info {
     int usage;              // flags defining buffer use
 
     int dynamic;
+    uint32_t flags;
 
     struct buffer *buffer;
     int buffer_refcount;

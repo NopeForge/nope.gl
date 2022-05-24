@@ -344,6 +344,8 @@ static int register_attribute(struct pass *s, const char *name, struct ngl_node 
     };
     snprintf(crafter_attribute.name, sizeof(crafter_attribute.name), "%s", name);
 
+    attribute_priv->flags |= NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD;
+
     const struct pass_params *params = &s->params;
     if (params->properties) {
         const struct ngl_node *resprops_node = ngli_hmap_get(params->properties, name);

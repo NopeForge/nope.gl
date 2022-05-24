@@ -112,6 +112,9 @@ int ngli_node_buffer_init(struct ngl_node *node)
 
     ngli_assert(s->buffer);
 
+    if (!(s->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+        return 0;
+
     if (s->buffer->size)
         return 0;
 
@@ -147,6 +150,9 @@ int ngli_node_buffer_upload(struct ngl_node *node)
 
     if (s->block)
         return ngli_node_block_upload(s->block);
+
+    if (!(s->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+        return 0;
 
     if (s->dynamic && s->buffer_last_upload_time != node->last_update_time) {
         int ret = ngli_buffer_upload(s->buffer, s->data, s->data_size, 0);
