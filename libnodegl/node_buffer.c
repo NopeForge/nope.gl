@@ -290,23 +290,24 @@ static int buffer_init(struct ngl_node *node)
 static int buffer_prepare(struct ngl_node *node)
 {
     struct buffer_priv *s = node->priv_data;
+    struct buffer_info *info = &s->buf;
 
-    if (s->buf.block)
+    if (info->block)
         return ngli_node_prepare(s->buf.block);
 
-    if (!(s->buf.flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
+    if (!(info->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD))
         return 0;
 
-    ngli_assert(s->buf.buffer);
+    ngli_assert(info->buffer);
 
-    if (s->buf.buffer->size)
+    if (info->buffer->size)
         return 0;
 
-    int ret = ngli_buffer_init(s->buf.buffer, s->buf.data_size, s->buf.usage);
+    int ret = ngli_buffer_init(info->buffer, info->data_size, info->usage);
     if (ret < 0)
         return ret;
 
-    ret = ngli_buffer_upload(s->buf.buffer, s->buf.data, s->buf.data_size, 0);
+    ret = ngli_buffer_upload(info->buffer, info->data, info->data_size, 0);
     if (ret < 0)
         return ret;
 
