@@ -1050,5 +1050,9 @@ const struct gpu_ctx_class ngli_gpu_ctx_##cls_suffix = {                        
     .texture_freep                      = ngli_texture_gl_freep,                 \
 }                                                                                \
 
+#ifdef BACKEND_GL
 DECLARE_GPU_CTX_CLASS(gl,   "OpenGL");
+#endif
+#ifdef BACKEND_GLES
 DECLARE_GPU_CTX_CLASS(gles, "OpenGL ES");
+#endif
