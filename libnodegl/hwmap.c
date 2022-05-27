@@ -201,6 +201,7 @@ static int is_hdr(int trc)
 {
     switch (trc) {
     case SXPLAYER_COL_TRC_ARIB_STD_B67: // HLG
+    case SXPLAYER_COL_TRC_SMPTE2084:    // PQ
         return 1;
     default:
         return 0;

@@ -604,6 +604,7 @@ shaders = {
   'filter_saturation.glsl': 'filter_saturation.h',
   'filter_srgb2linear.glsl': 'filter_srgb2linear.h',
   'hdr_hlg2sdr.frag': 'hdr_hlg2sdr_frag.h',
+  'hdr_pq2sdr.frag': 'hdr_pq2sdr_frag.h',
   'helper_linear2srgb.glsl': 'helper_linear2srgb_glsl.h',
   'helper_srgb2linear.glsl': 'helper_srgb2linear_glsl.h',
   'helper_misc_utils.glsl': 'helper_misc_utils_glsl.h',

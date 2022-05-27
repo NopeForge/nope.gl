@@ -36,6 +36,7 @@
 
 /* GLSL fragments as string */
 #include "hdr_hlg2sdr_frag.h"
+#include "hdr_pq2sdr_frag.h"
 
 static const char *default_vert_base =
     "void main()"                                                               "\n"
@@ -140,6 +141,8 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     if (src_color_info->space == SXPLAYER_COL_SPC_BT2020_NCL) {
         if (src_color_info->transfer == SXPLAYER_COL_TRC_ARIB_STD_B67) { // HLG
             frag_base = hdr_hlg2sdr_frag;
+        } else if (src_color_info->transfer == SXPLAYER_COL_TRC_SMPTE2084)  { // PQ
+            frag_base = hdr_pq2sdr_frag;
         }
     }
 

@@ -8,6 +8,9 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+### Added
+- HDR tone mapping support for PQ content
+
 ### Fixed
 - Visual glitches when seeking with the VAAPI/Vulkan acceleration
 
