@@ -35,21 +35,6 @@ vec3 tonemap(vec3 x)
     return y_tmo + vec3(cr_tmo, cg_tmo, cb_tmo);
 }
 
-/* HLG Reference EOTF (linearize: R'G'B' HDR → RGB HDR), normalized, ITU-R BT.2100 */
-vec3 hlg_eotf(vec3 x)
-{
-    const float a = 0.17883277;
-    const float b = 0.28466892;
-    const float c = 0.55991073;
-    return mix(x * x / 3.0, (exp((x - c) / a) + b) / 12.0, lessThan(vec3(0.5), x));
-}
-
-/* HLG Reference OOTF (linear scene light → linear display light), ITU-R BT.2100 */
-vec3 hlg_ootf(vec3 x)
-{
-    return x * vec3(pow(dot(luma_coeff, x), 0.2));
-}
-
 vec3 bt2020_to_bt709(vec3 x)
 {
     const mat3 bt2020_to_bt709 = mat3(
