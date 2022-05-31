@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 GoPro Inc.
+ * Copyright 2020-2022 GoPro Inc.
  * Copyright 2010 The Android Open Source Project
  *
  * Licensed to the Apache Software Foundation (ASF) under one
