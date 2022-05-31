@@ -1,5 +1,6 @@
 /*
  * Copyright 2019-2022 GoPro Inc.
+ * Copyright 2019-2022 Clément Bœsch <u pkh.me>
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
