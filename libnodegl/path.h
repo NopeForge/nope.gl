@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 GoPro Inc.
+ * Copyright 2020-2022 GoPro Inc.
  *
  * Licensed to the Apache Software Foundation (ASF) under one
  * or more contributor license agreements.  See the NOTICE file
