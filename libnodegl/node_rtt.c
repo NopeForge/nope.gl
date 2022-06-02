@@ -529,6 +529,9 @@ static void rtt_release(struct ngl_node *node)
 {
     struct rtt_priv *s = node->priv_data;
 
+    s->available_rendertargets[0] = NULL;
+    s->available_rendertargets[1] = NULL;
+
     ngli_rendertarget_freep(&s->rt);
     ngli_rendertarget_freep(&s->rt_resume);
     ngli_texture_freep(&s->depth);
