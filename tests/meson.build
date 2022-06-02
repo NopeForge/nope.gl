@@ -71,6 +71,7 @@ foreach backend : backends
     'livectls',
     'reset_scene',
     'shader_init_fail',
+    'trf_seek',
   ]
 
   tests_blending = [

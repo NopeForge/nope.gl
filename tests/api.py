@@ -345,3 +345,49 @@ def api_shader_init_fail(width=320, height=240):
     assert ctx.set_scene(render) != 0
     assert ctx.set_scene(render) != 0  # another try to make sure the state stays consistent
     assert ctx.draw(0) == 0
+
+
+def _create_trf(scene, start, end):
+    trfs = (
+        ngl.TimeRangeModeNoop(-1),
+        ngl.TimeRangeModeCont(start),
+        ngl.TimeRangeModeNoop(end),
+    )
+    return ngl.TimeRangeFilter(scene, ranges=trfs)
+
+
+def _create_trf_scene(start, end):
+    texture = ngl.Texture2D(width=64, height=64)
+    # A subgraph using a RTT will produce a clear crash if its draw is called without a prefetch
+    rtt = ngl.RenderToTexture(ngl.Identity(), clear_color=(1.0, 0.0, 0.0, 1.0), color_textures=(texture,))
+    render = ngl.RenderTexture(texture=texture)
+    group = ngl.Group(children=(rtt, render))
+    trf = _create_trf(group, start, start + 1)
+
+    trf_start = _create_trf(trf, start, start + 1)
+    # This group could be any node as long as it has no prefetch/release callback
+    group = ngl.Group(children=(trf,))
+    trf_end = _create_trf(group, end - 1.0, end + 1.0)
+
+    return ngl.Group(children=(trf_start, trf_end))
+
+
+def api_trf_seek(width=320, height=240):
+    """
+    Run a special time sequence on a particularly crafted time filtered
+    diamond-tree graph to detect potential release/prefetch issues.
+    """
+    ctx = ngl.Context()
+    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    assert ret == 0
+
+    start = 0.0
+    end = 10.0
+    scene = _create_trf_scene(start, end)
+    ret = ctx.set_scene(scene)
+    assert ret == 0
+
+    # The following time sequence is designed to create an inconsistent time state
+    assert ctx.draw(end) == 0
+    assert ctx.draw(start) == 0
+    assert ctx.draw(end) == 0
