@@ -628,6 +628,14 @@ int ngli_node_visit(struct ngl_node *node, int is_active, double t)
 
     if (queue_node) {
         /*
+         * If a node is going to be activated but has already been updated for
+         * that time previously, we need to force its update. This scenario is
+         * rare but can happen with specific time sequences on time filtered
+         * diamond-tree graphs.
+         */
+        if (!node->is_active && is_active && node->last_update_time == t)
+            node->last_update_time = -1.;
+        /*
          * If we never passed through this node for that given time, the new
          * active state takes over to replace the one from a previous update.
          */

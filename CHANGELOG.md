@@ -13,6 +13,8 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ### Fixed
 - Visual glitches when seeking with the VAAPI/Vulkan acceleration
+- Crash with specific draw time sequences in some time filtered diamond-tree
+  graphs
 
 ### Changed
 - Handle OpenGLES as a separate backend build-wise
