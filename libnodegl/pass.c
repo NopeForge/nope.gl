@@ -369,7 +369,7 @@ static int pass_graphics_init(struct pass *s)
 
     s->pipeline_type = NGLI_PIPELINE_TYPE_GRAPHICS;
 
-    struct geometry *geometry = params->geometry;
+    const struct geometry *geometry = params->geometry;
     struct pipeline_graphics *graphics = &s->pipeline_graphics;
 
     graphics->topology = geometry->topology;
