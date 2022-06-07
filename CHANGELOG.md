@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+
+## [2022.7] [libnodegl 0.6.0] - 2022-06-07
 ### Added
 - HDR tone mapping support for PQ content
 
