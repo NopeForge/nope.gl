@@ -8,6 +8,9 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+### Fixed
+- Crash with specific draw time sequences in some time filtered diamond-tree
+  graphs involving `TimeRangeFilter` nodes keeping some parts of the graph active
 
 ## [2022.7] [libnodegl 0.6.0] - 2022-06-07
 ### Added
