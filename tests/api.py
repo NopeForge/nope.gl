@@ -347,16 +347,20 @@ def api_shader_init_fail(width=320, height=240):
     assert ctx.draw(0) == 0
 
 
-def _create_trf(scene, start, end):
+def _create_trf(scene, start, end, prefetch_time=None):
     trfs = (
         ngl.TimeRangeModeNoop(-1),
         ngl.TimeRangeModeCont(start),
         ngl.TimeRangeModeNoop(end),
     )
-    return ngl.TimeRangeFilter(scene, ranges=trfs)
+    trf = ngl.TimeRangeFilter(scene, ranges=trfs)
+    if prefetch_time is not None:
+        trf.set_prefetch_time(prefetch_time)
+        trf.set_max_idle_time(prefetch_time + 1)
+    return trf
 
 
-def _create_trf_scene(start, end):
+def _create_trf_scene(start, end, keep_active=False):
     texture = ngl.Texture2D(width=64, height=64)
     # A subgraph using a RTT will produce a clear crash if its draw is called without a prefetch
     rtt = ngl.RenderToTexture(ngl.Identity(), clear_color=(1.0, 0.0, 0.0, 1.0), color_textures=(texture,))
@@ -369,7 +373,18 @@ def _create_trf_scene(start, end):
     group = ngl.Group(children=(trf,))
     trf_end = _create_trf(group, end - 1.0, end + 1.0)
 
-    return ngl.Group(children=(trf_start, trf_end))
+    children = [trf_start, trf_end]
+
+    if keep_active:
+        # This TimeRangeFilter keeps the underyling graph active while preventing
+        # the update/draw operations to descent into the graph for the [start, end]
+        # time interval
+        offset = 10.0
+        prefetch_time = offset + end - start
+        trf_keep_active = _create_trf(group, end + offset, end + offset + 1.0, prefetch_time)
+        children += [trf_keep_active]
+
+    return ngl.Group(children=children)
 
 
 def api_trf_seek(width=320, height=240):
@@ -384,6 +399,28 @@ def api_trf_seek(width=320, height=240):
     start = 0.0
     end = 10.0
     scene = _create_trf_scene(start, end)
+    ret = ctx.set_scene(scene)
+    assert ret == 0
+
+    # The following time sequence is designed to create an inconsistent time state
+    assert ctx.draw(end) == 0
+    assert ctx.draw(start) == 0
+    assert ctx.draw(end) == 0
+
+
+def api_trf_seek_keep_alive(width=320, height=240):
+    """
+    Run a special time sequence on a particularly crafted time filtered
+    diamond-tree graph (with nodes being kept active artificially) to detect
+    potential release/prefetch issues.
+    """
+    ctx = ngl.Context()
+    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    assert ret == 0
+
+    start = 0.0
+    end = 10.0
+    scene = _create_trf_scene(start, end, True)
     ret = ctx.set_scene(scene)
     assert ret == 0
 

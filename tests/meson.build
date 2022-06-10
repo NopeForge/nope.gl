@@ -72,6 +72,7 @@ foreach backend : backends
     'reset_scene',
     'shader_init_fail',
     'trf_seek',
+    'trf_seek_keep_alive',
   ]
 
   tests_blending = [
