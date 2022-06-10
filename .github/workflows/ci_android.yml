@@ -44,13 +44,13 @@ jobs:
           compiler="armv7a"
         fi
 
-        NDK_BIN_PATH=/usr/local/lib/android/sdk/ndk/22.1.7171670/toolchains/llvm/prebuilt/linux-x86_64/bin
+        NDK_BIN_PATH=/usr/local/lib/android/sdk/ndk/23.2.8568313/toolchains/llvm/prebuilt/linux-x86_64/bin
         ./configure \
         --disable-everything --disable-doc --disable-static --disable-autodetect --disable-programs \
         --enable-shared --enable-cross-compile --enable-jni --enable-mediacodec --enable-hwaccels  \
         --enable-avdevice --enable-swresample --enable-rdft \
         --arch=${{ matrix.arch }} --target-os=android \
-        --cross-prefix=$NDK_BIN_PATH/${{ matrix.arch }}-linux-${android_suffix}- \
+        --cross-prefix=$NDK_BIN_PATH/llvm- \
         --cc=$NDK_BIN_PATH/${compiler}-linux-${android_suffix}28-clang \
         --prefix=$HOME/ngl-env-${{ matrix.arch }}
         make install -j$(($(nproc)+1))
@@ -76,7 +76,7 @@ jobs:
         cd glslang-${{ matrix.glslang_version }}
         cmake \
             -GNinja \
-            -DCMAKE_TOOLCHAIN_FILE=/usr/local/lib/android/sdk/ndk/22.1.7171670/build/cmake/android.toolchain.cmake \
+            -DCMAKE_TOOLCHAIN_FILE=/usr/local/lib/android/sdk/ndk/23.2.8568313/build/cmake/android.toolchain.cmake \
             -DANDROID_STL=c++_shared \
             -DANDROID_TOOLCHAIN=clang \
             -DANDROID_PLATFORM=android-28 \
