@@ -18,29 +18,29 @@ today=$(date -I)
 # simply increment it
 cur_year=$(date '+%Y')
 prv_prj_year=$(cut -f1 -d. VERSION)
-if [ $prv_prj_year -ne $cur_year ]; then
+if [ "$prv_prj_year" -ne "$cur_year" ]; then
     new_digit=0
 else
     prv_prj_digit=$(cut -f2 -d. VERSION)
-    new_digit=$(($prv_prj_digit+1))
+    new_digit=$((prv_prj_digit+1))
 fi
 
 # Project version bump
 prv_prj_ver=$(cat VERSION)
-new_prj_ver=${cur_year}.${new_digit}
+new_prj_ver="${cur_year}.${new_digit}"
 echo "New project version: $prv_prj_ver → $new_prj_ver"
 
 # libnodegl version bump
 cur_lib_ver=$(cat libnodegl/VERSION)
-echo -n "Enter new libnodegl version [current: $cur_lib_ver]: "
+printf "Enter new libnodegl version [current: %s]: " "$cur_lib_ver"
 read -r new_lib_ver
 
 # Execute the version bump: we are verbose with set -x to be transparent about
 # the actions that matters
 set -x
-echo $new_prj_ver > VERSION
-echo $new_lib_ver > libnodegl/VERSION
+echo "$new_prj_ver" > VERSION
+echo "$new_lib_ver" > libnodegl/VERSION
 sed "/^## \[Unreleased\]/a \\\n## [$new_prj_ver] [libnodegl $new_lib_ver] - $today" -i CHANGELOG.md
 git add CHANGELOG.md VERSION libnodegl/VERSION
 git commit -m "Release $new_prj_ver"
-git tag v${new_prj_ver}
+git tag "v${new_prj_ver}"
