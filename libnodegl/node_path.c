@@ -46,7 +46,7 @@ static const struct node_param path_params[] = {
                       NGL_NODE_PATHKEYBEZIER2,
                       NGL_NODE_PATHKEYBEZIER3,
                       -1
-                    },
+                  },
                   .flags=NGLI_PARAM_FLAG_NON_NULL | NGLI_PARAM_FLAG_DOT_DISPLAY_PACKED,
                   .desc=NGLI_DOCSTRING("anchor points the path go through")},
     {"precision", NGLI_PARAM_TYPE_I32, OFFSET(precision), {.i32=64},
