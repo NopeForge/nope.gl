@@ -144,17 +144,18 @@ def get_nodegl_tempdir():
     return tmpdir
 
 
-_MEDIA_PATHS = [
-    op.join(op.dirname(__file__), "assets", name)
-    for name in (
-        "mire-hevc.mp4",
-        "cat.mp4",
-        "OpenMoji-1F342-Fallen_Leaf.png",
-        "OpenMoji-1F439-Hamster.png",
-        "Unsplash-Michael_Anfang-Rooster-cropped.jpg",
-        "Unsplash-Romane_Gautun-Red_Panda-cropped.jpg",
-    )
-]
+def _get_default_medias():
+    return [
+        Media(op.join(op.dirname(__file__), "assets", name))
+        for name in (
+            "mire-hevc.mp4",
+            "cat.mp4",
+            "OpenMoji-1F342-Fallen_Leaf.png",
+            "OpenMoji-1F439-Hamster.png",
+            "Unsplash-Michael_Anfang-Rooster-cropped.jpg",
+            "Unsplash-Romane_Gautun-Red_Panda-cropped.jpg",
+        )
+    ]
 
 
 class SceneCfg:
@@ -178,7 +179,7 @@ class SceneCfg:
             setattr(self, field, val)
 
         if self.medias is None:
-            self.medias = [Media(m) for m in _MEDIA_PATHS]
+            self.medias = _get_default_medias()
 
         # Predictible random number generator
         self.rng = random.Random(0)
