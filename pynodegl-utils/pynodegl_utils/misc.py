@@ -135,7 +135,7 @@ class Media:
 
     @property
     def framerate_float(self):
-        return self._framerate[0] / float(self._framerate[1])
+        return self._framerate[0] / self._framerate[1]
 
 
 def get_nodegl_tempdir():
@@ -185,7 +185,7 @@ class SceneCfg:
 
     @property
     def aspect_ratio_float(self):
-        return self.aspect_ratio[0] / float(self.aspect_ratio[1])
+        return self.aspect_ratio[0] / self.aspect_ratio[1]
 
     def as_dict(self):
         odict = {}
