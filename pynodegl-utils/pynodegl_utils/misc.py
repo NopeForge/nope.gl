@@ -169,6 +169,7 @@ class SceneCfg:
         "files": [],
         "medias": None,
         "clear_color": (0.0, 0.0, 0.0, 1.0),
+        "shaders_module": "pynodegl_utils.examples.shaders",
     }
 
     def __init__(self, **kwargs):
@@ -194,7 +195,7 @@ class SceneCfg:
 
     def _get_shader(self, name, stype, module):
         if module is None:
-            module = "pynodegl_utils.examples.shaders"
+            module = self.shaders_module
         data = pkgutil.get_data(module, f"{name}.{stype}")
         if data is None:
             raise FileNotFoundError(f"Unable to find shader {name}")
