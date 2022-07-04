@@ -166,7 +166,7 @@ Option      | Description
 
 **Example**:
 
-```
+```python
 @scene(easing=scene.List(choices=('linear', 'exp_in', 'sinus_in')))
 def anim(cfg, easing='exp_in'):
     ...
@@ -182,7 +182,7 @@ The associated argument is expected to be a `str`.
 
 **Example**:
 
-```
+```python
 @scene(intro=scene.Text())
 def demo(cfg, intro='Hello World!'):
     ...
