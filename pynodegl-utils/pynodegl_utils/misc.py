@@ -29,7 +29,7 @@ import random
 import subprocess
 import tempfile
 from collections import namedtuple
-from functools import wraps
+from functools import partialmethod, wraps
 
 import pynodegl as ngl
 
@@ -193,20 +193,15 @@ class SceneCfg:
             odict[field] = getattr(self, field)
         return odict
 
-    def _get_shader(self, name, stype):
+    def _get_shader(self, stype, name):
         data = pkgutil.get_data(self.shaders_module, f"{name}.{stype}")
         if data is None:
             raise FileNotFoundError(f"Unable to find shader {name}")
         return data.decode()
 
-    def get_frag(self, name):
-        return self._get_shader(name, "frag")
-
-    def get_vert(self, name):
-        return self._get_shader(name, "vert")
-
-    def get_comp(self, name):
-        return self._get_shader(name, "comp")
+    get_frag = partialmethod(_get_shader, "frag")
+    get_vert = partialmethod(_get_shader, "vert")
+    get_comp = partialmethod(_get_shader, "comp")
 
 
 def get_viewport(width, height, aspect_ratio):
