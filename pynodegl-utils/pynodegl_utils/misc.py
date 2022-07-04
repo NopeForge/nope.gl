@@ -193,22 +193,20 @@ class SceneCfg:
             odict[field] = getattr(self, field)
         return odict
 
-    def _get_shader(self, name, stype, module):
-        if module is None:
-            module = self.shaders_module
-        data = pkgutil.get_data(module, f"{name}.{stype}")
+    def _get_shader(self, name, stype):
+        data = pkgutil.get_data(self.shaders_module, f"{name}.{stype}")
         if data is None:
             raise FileNotFoundError(f"Unable to find shader {name}")
         return data.decode()
 
-    def get_frag(self, name, module=None):
-        return self._get_shader(name, "frag", module)
+    def get_frag(self, name):
+        return self._get_shader(name, "frag")
 
-    def get_vert(self, name, module=None):
-        return self._get_shader(name, "vert", module)
+    def get_vert(self, name):
+        return self._get_shader(name, "vert")
 
-    def get_comp(self, name, module=None):
-        return self._get_shader(name, "comp", module)
+    def get_comp(self, name):
+        return self._get_shader(name, "comp")
 
 
 def get_viewport(width, height, aspect_ratio):
