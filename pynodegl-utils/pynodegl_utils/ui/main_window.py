@@ -140,7 +140,10 @@ class MainWindow(QtWidgets.QSplitter):
         if cfg["scene"] is None:
             return None
         medias = self._medias_view.get_medias()
-        cfg["medias"] = medias if medias else None
+        if medias:
+            # Replace the default medias with user medias only if the user has
+            # specified some
+            cfg["medias"] = medias
         cfg["files"] = []
         cfg.update(cfg_overrides)
 

@@ -168,7 +168,7 @@ class SceneCfg:
         "samples": 0,
         "system": platform.system(),
         "files": [],
-        "medias": None,
+        "medias": _get_default_medias(),
         "clear_color": (0.0, 0.0, 0.0, 1.0),
         "shaders_module": "pynodegl_utils.examples.shaders",
     }
@@ -177,9 +177,6 @@ class SceneCfg:
         for field, def_val in self._DEFAULT_FIELDS.items():
             val = kwargs.get(field, def_val)
             setattr(self, field, val)
-
-        if self.medias is None:
-            self.medias = _get_default_medias()
 
         # Predictible random number generator
         self.rng = random.Random(0)
