@@ -39,7 +39,7 @@ class _MediaInfo:
     width: int
     height: int
     pix_fmt: str
-    duration: Fraction
+    duration: float
     time_base: Fraction
     avg_frame_rate: Fraction
 
@@ -57,6 +57,7 @@ class _MediaInfo:
             duration = Fraction(data["format"]["duration"])
         else:
             duration = Fraction(1)
+        duration = float(duration)
         avg_frame_rate = Fraction(vst["avg_frame_rate"])
 
         return cls(
@@ -105,10 +106,10 @@ class _Diff:
             app_window.setProperty(f"width{i}", media.width)
             app_window.setProperty(f"height{i}", media.height)
             app_window.setProperty(f"pix_fmt{i}", media.pix_fmt)
-            app_window.setProperty(f"duration{i}", float(media.duration))
+            app_window.setProperty(f"duration{i}", media.duration)
             app_window.setProperty(f"avg_frame_rate{i}", float(media.avg_frame_rate))
 
-        self._player.setProperty("duration", float(duration))
+        self._player.setProperty("duration", duration)
         self._player.setProperty("framerate", list(avg_frame_rate.as_integer_ratio()))
         self._player.setProperty("aspect", [width, height])
 
