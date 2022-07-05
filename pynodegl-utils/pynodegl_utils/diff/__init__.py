@@ -33,7 +33,7 @@ from PySide6.QtCore import QObject, Slot
 import pynodegl as ngl
 
 
-@dataclass
+@dataclass(frozen=True)
 class _MediaInfo:
     fname: str
     width: int
