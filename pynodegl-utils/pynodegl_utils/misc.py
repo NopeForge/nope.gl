@@ -124,20 +124,8 @@ class Media:
         return self._dimensions[1]
 
     @property
-    def dimensions(self):
-        return self._dimensions
-
-    @property
     def duration(self):
         return self._duration
-
-    @property
-    def framerate(self):
-        return self._framerate
-
-    @property
-    def framerate_float(self):
-        return self._framerate[0] / self._framerate[1]
 
 
 def get_nodegl_tempdir():
