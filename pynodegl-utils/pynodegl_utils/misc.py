@@ -30,6 +30,7 @@ import subprocess
 import tempfile
 from collections import namedtuple
 from dataclasses import asdict, dataclass, field
+from fractions import Fraction
 from functools import partialmethod, wraps
 from typing import List, Tuple
 
@@ -126,6 +127,44 @@ class Media:
     @property
     def duration(self):
         return self._duration
+
+
+@dataclass(frozen=True)
+class MediaInfo:
+    filename: str
+    width: int
+    height: int
+    pix_fmt: str
+    duration: float
+    time_base: Fraction
+    avg_frame_rate: Fraction
+
+    @classmethod
+    def from_filename(cls, filename: str):
+        cmd = ["ffprobe", "-show_format", "-show_streams", "-of", "json", "-i", filename]
+        out = subprocess.run(cmd, capture_output=True).stdout
+        data = json.loads(out)
+
+        vst = next(st for st in data["streams"] if st["codec_type"] == "video")
+        time_base = Fraction(vst["time_base"])
+        if "duration_ts" in vst:
+            duration = vst["duration_ts"] * time_base
+        elif "duration" in data["format"]:
+            duration = Fraction(data["format"]["duration"])
+        else:
+            duration = Fraction(1)
+        duration = float(duration)
+        avg_frame_rate = Fraction(vst["avg_frame_rate"])
+
+        return cls(
+            filename=filename,
+            width=vst["width"],
+            height=vst["height"],
+            pix_fmt=vst["pix_fmt"],
+            duration=duration,
+            time_base=time_base,
+            avg_frame_rate=avg_frame_rate,
+        )
 
 
 def get_nodegl_tempdir():
