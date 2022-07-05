@@ -88,47 +88,6 @@ scene.List = namedtuple("List", "choices")
 scene.Text = namedtuple("Text", "")
 
 
-class Media:
-    def __init__(self, filename):
-        self._filename = filename
-        self._set_media_dimensions()
-
-    def _set_media_dimensions(self):
-        data = subprocess.check_output(
-            [
-                # fmt: off
-                "ffprobe",
-                "-v", "0",
-                "-select_streams", "v:0",
-                "-of", "json",
-                "-show_streams", "-show_format",
-                self._filename,
-                # fmt: on
-            ]
-        )
-        data = json.loads(data)
-        st = data["streams"][0]
-        self._dimensions = (st["width"], st["height"])
-        self._duration = float(data["format"].get("duration", 1))
-        self._framerate = tuple(int(x) for x in st["avg_frame_rate"].split("/"))
-
-    @property
-    def filename(self):
-        return self._filename
-
-    @property
-    def width(self):
-        return self._dimensions[0]
-
-    @property
-    def height(self):
-        return self._dimensions[1]
-
-    @property
-    def duration(self):
-        return self._duration
-
-
 @dataclass(frozen=True)
 class MediaInfo:
     filename: str
@@ -175,7 +134,7 @@ def get_nodegl_tempdir():
 
 def _get_default_medias():
     return [
-        Media(op.join(op.dirname(__file__), "assets", name))
+        MediaInfo.from_filename(op.join(op.dirname(__file__), "assets", name))
         for name in (
             "mire-hevc.mp4",
             "cat.mp4",
@@ -196,7 +155,7 @@ class SceneCfg:
     samples: int = 0
     system: str = platform.system()
     files: List[str] = field(default_factory=list)
-    medias: List[Media] = field(default_factory=_get_default_medias)
+    medias: List[MediaInfo] = field(default_factory=_get_default_medias)
     autofill_medias: bool = True
     clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
     shaders_module: str = "pynodegl_utils.examples.shaders"

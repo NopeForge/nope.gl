@@ -21,7 +21,7 @@
 
 import os.path as op
 
-from pynodegl_utils.misc import Media
+from pynodegl_utils.misc import MediaInfo
 from PySide6 import QtCore, QtGui, QtWidgets
 
 
@@ -67,7 +67,7 @@ class MediasView(QtWidgets.QWidget):
     def _add_medias(self, *paths):
         for path in paths[::-1]:
             try:
-                media = Media(path)
+                media = MediaInfo.from_filename(path)
             except Exception:
                 print(f"Unable to add media {path}")
             else:
