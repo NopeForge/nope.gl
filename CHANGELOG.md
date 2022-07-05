@@ -15,6 +15,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 - Hooks file synchronization for file names with special chars
 - A race condition in `ngl-control` reload mechanism
 
+### Added
+- `ngl-diff` can now open images
+
 ## [2022.7] [libnodegl 0.6.0] - 2022-06-07
 ### Added
 - HDR tone mapping support for PQ content

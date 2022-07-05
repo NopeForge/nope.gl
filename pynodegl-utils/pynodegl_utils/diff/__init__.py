@@ -53,8 +53,10 @@ class _MediaInfo:
         time_base = Fraction(vst["time_base"])
         if "duration_ts" in vst:
             duration = vst["duration_ts"] * time_base
-        else:
+        elif "duration" in data["format"]:
             duration = Fraction(data["format"]["duration"])
+        else:
+            duration = Fraction(1)
         avg_frame_rate = Fraction(vst["avg_frame_rate"])
 
         return cls(
