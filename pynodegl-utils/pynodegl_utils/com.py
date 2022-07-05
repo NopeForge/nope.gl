@@ -71,12 +71,13 @@ def query_scene(pkg, **idict):
 
     # Call user constructing function
     extra_args = idict.pop("extra_args", {})
+    fmt = idict.pop("fmt", None)
     odict = func(idict, **extra_args)
     scene = odict.pop("scene")
     scene.set_label(scene_name)
 
     # Prepare output data
-    odict["scene"] = scene.dot() if idict.get("fmt") == "dot" else scene.serialize()
+    odict["scene"] = scene.dot() if fmt == "dot" else scene.serialize()
 
     return odict
 
