@@ -35,7 +35,7 @@ import pynodegl as ngl
 
 @dataclass(frozen=True)
 class _MediaInfo:
-    fname: str
+    filename: str
     width: int
     height: int
     pix_fmt: str
@@ -44,8 +44,8 @@ class _MediaInfo:
     avg_frame_rate: Fraction
 
     @classmethod
-    def from_filename(cls, fname: str):
-        cmd = ["ffprobe", "-show_format", "-show_streams", "-of", "json", "-i", fname]
+    def from_filename(cls, filename: str):
+        cmd = ["ffprobe", "-show_format", "-show_streams", "-of", "json", "-i", filename]
         out = subprocess.run(cmd, capture_output=True).stdout
         data = json.loads(out)
 
@@ -61,7 +61,7 @@ class _MediaInfo:
         avg_frame_rate = Fraction(vst["avg_frame_rate"])
 
         return cls(
-            fname=fname,
+            filename=filename,
             width=vst["width"],
             height=vst["height"],
             pix_fmt=vst["pix_fmt"],
@@ -102,7 +102,7 @@ class _Diff:
         self._player = app_window.findChild(QObject, "player")
 
         for i, media in enumerate((media0, media1)):
-            app_window.setProperty(f"filename{i}", op.basename(media.fname))
+            app_window.setProperty(f"filename{i}", op.basename(media.filename))
             app_window.setProperty(f"width{i}", media.width)
             app_window.setProperty(f"height{i}", media.height)
             app_window.setProperty(f"pix_fmt{i}", media.pix_fmt)
