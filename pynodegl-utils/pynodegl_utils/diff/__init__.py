@@ -43,29 +43,29 @@ class _MediaInfo:
     time_base: Fraction
     avg_frame_rate: Fraction
 
+    @classmethod
+    def from_filename(cls, fname: str):
+        cmd = ["ffprobe", "-show_format", "-show_streams", "-of", "json", "-i", fname]
+        out = subprocess.run(cmd, capture_output=True).stdout
+        data = json.loads(out)
 
-def _probe_media(fname: str):
-    cmd = ["ffprobe", "-show_format", "-show_streams", "-of", "json", "-i", fname]
-    out = subprocess.run(cmd, capture_output=True).stdout
-    data = json.loads(out)
+        vst = next(st for st in data["streams"] if st["codec_type"] == "video")
+        time_base = Fraction(vst["time_base"])
+        if "duration_ts" in vst:
+            duration = vst["duration_ts"] * time_base
+        else:
+            duration = Fraction(data["format"]["duration"])
+        avg_frame_rate = Fraction(vst["avg_frame_rate"])
 
-    vst = next(st for st in data["streams"] if st["codec_type"] == "video")
-    time_base = Fraction(vst["time_base"])
-    if "duration_ts" in vst:
-        duration = vst["duration_ts"] * time_base
-    else:
-        duration = Fraction(data["format"]["duration"])
-    avg_frame_rate = Fraction(vst["avg_frame_rate"])
-
-    return _MediaInfo(
-        fname=fname,
-        width=vst["width"],
-        height=vst["height"],
-        pix_fmt=vst["pix_fmt"],
-        duration=duration,
-        time_base=time_base,
-        avg_frame_rate=avg_frame_rate,
-    )
+        return cls(
+            fname=fname,
+            width=vst["width"],
+            height=vst["height"],
+            pix_fmt=vst["pix_fmt"],
+            duration=duration,
+            time_base=time_base,
+            avg_frame_rate=avg_frame_rate,
+        )
 
 
 class _Diff:
@@ -82,8 +82,8 @@ class _Diff:
         self._ngl_widget.livectls_changed.connect(self._livectls_changed)
 
         fname0, fname1 = args[1], args[2]
-        media0 = _probe_media(fname0)
-        media1 = _probe_media(fname1)
+        media0 = _MediaInfo.from_filename(fname0)
+        media1 = _MediaInfo.from_filename(fname1)
 
         width = max(media0.width, media1.width)
         height = max(media0.height, media1.height)
