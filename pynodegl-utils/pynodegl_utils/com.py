@@ -104,7 +104,7 @@ def query_list(pkg):
     # Find all the scenes
     scenes = []
     for module_name, script in scripts:
-        all_funcs = inspect.getmembers(script, inspect.isfunction)
+        all_funcs = inspect.getmembers(script, callable)
         sub_scenes = []
         for func in all_funcs:
             scene_name, func_wrapper = func
