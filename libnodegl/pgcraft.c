@@ -740,6 +740,7 @@ static void set_glsl_header(struct pgcraft *s, struct bstr *b, const struct pgcr
 #endif
         {NGL_BACKEND_OPENGLES, "GL_EXT_shader_texture_lod",           300, enable_shader_texture_lod},
         {NGL_BACKEND_OPENGLES, "GL_OES_texture_3D",                   300, enable_texture_3d},
+        {NGL_BACKEND_OPENGLES, "GL_OES_standard_derivatives",         300, stage == NGLI_PROGRAM_SHADER_FRAG},
     };
 
     for (int i = 0; i < NGLI_ARRAY_NB(features); i++) {

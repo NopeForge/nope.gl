@@ -62,6 +62,7 @@
 #define NGLI_FEATURE_GL_COLOR_BUFFER_HALF_FLOAT                    (1ULL << 37)
 #define NGLI_FEATURE_GL_MAP_BUFFER_RANGE                           (1ULL << 38)
 #define NGLI_FEATURE_GL_BUFFER_STORAGE                             (1ULL << 39)
+#define NGLI_FEATURE_GL_OES_STANDARD_DERIVATIVES                   (1ULL << 40)
 
 #define NGLI_FEATURE_GL_COMPUTE_SHADER_ALL (NGLI_FEATURE_GL_COMPUTE_SHADER           | \
                                             NGLI_FEATURE_GL_PROGRAM_INTERFACE_QUERY  | \

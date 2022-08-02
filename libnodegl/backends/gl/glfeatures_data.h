@@ -316,5 +316,10 @@ static const struct glfeature {
         .extensions     = (const char*[]){"GL_ARB_buffer_storage", NULL},
         .funcs_offsets  = (const size_t[]){OFFSET(BufferStorage),
                                            -1}
+    }, {
+        .name           = "oes_standard_derivatives",
+        .flag           = NGLI_FEATURE_GL_OES_STANDARD_DERIVATIVES,
+        .es_version     = 300,
+        .es_extensions  = (const char*[]){"GL_OES_standard_derivatives", NULL},
     }
 };
