@@ -61,7 +61,7 @@ jobs:
         tar xf sxplayer.tgz
         cd sxplayer-${{ matrix.sxplayer_version }}
         PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
-        meson setup --prefix $HOME/ngl-env-${{ matrix.arch }} --cross-file .github/meson-android-${{ matrix.arch }}.ini builddir
+        meson setup --prefix $HOME/ngl-env-${{ matrix.arch }} --cross-file ../.github/meson-android-${{ matrix.arch }}.ini builddir
         meson compile -C builddir
         meson install -C builddir
 
