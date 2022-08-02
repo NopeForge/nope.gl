@@ -323,9 +323,11 @@ static int glcontext_check_mandatory_extensions(struct glcontext *glcontext)
     if (glcontext->version >= 300)
         return 0;
 
-    if (!(glcontext->features & (NGLI_FEATURE_GL_RGB8_RGBA8    |
-                                 NGLI_FEATURE_GL_DEPTH_TEXTURE |
-                                 NGLI_FEATURE_GL_PACKED_DEPTH_STENCIL))) {
+    const int64_t features = NGLI_FEATURE_GL_RGB8_RGBA8 |
+                             NGLI_FEATURE_GL_DEPTH_TEXTURE |
+                             NGLI_FEATURE_GL_PACKED_DEPTH_STENCIL;
+
+    if ((glcontext->features & features) != features) {
         LOG(ERROR,
             "OpenGLES 2.0 context does not support mandatory extensions: "
             "OES_rgb8_rgba8, OES_depth_texture, OES_packed_depth_stencil");
