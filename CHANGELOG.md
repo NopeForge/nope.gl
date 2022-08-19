@@ -13,6 +13,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
   graphs involving `TimeRangeFilter` nodes keeping some parts of the graph active
 - Build `setuptools>=60` on MinGW
 - Hooks file synchronization for file names with special chars
+- A race condition in `ngl-control` reload mechanism
 
 ## [2022.7] [libnodegl 0.6.0] - 2022-06-07
 ### Added

@@ -58,7 +58,8 @@ class ResourceTracker:
 
     def _get_trackable_files(self):
         files = set()
-        for mod in sys.modules.values():
+        modules = list(sys.modules.values())
+        for mod in modules:
             if not hasattr(mod, "__file__") or mod.__file__ is None:
                 continue
             path = op.realpath(mod.__file__)
