@@ -181,10 +181,9 @@ class _SceneChangeWorker(QtCore.QObject):
     @staticmethod
     def _filename_escape(filename):
         s = ""
-        for c in filename:
-            cval = ord(c)
+        for cval in filename.encode("utf-8"):
             if cval >= ord("!") and cval <= ord("~") and cval != ord("%"):
-                s += c
+                s += chr(cval)
             else:
                 s += "%%%02x" % (cval & 0xFF)
         return s
