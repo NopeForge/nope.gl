@@ -16,7 +16,7 @@ jobs:
       matrix:
         arch: [x86_64, arm64]
         ffmpeg_version: [5.0.1]
-        sxplayer_version: [9.12.0]
+        sxplayer_version: [9.13.0]
 
     steps:
     - uses: actions/checkout@v2
