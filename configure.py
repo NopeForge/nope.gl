@@ -597,6 +597,9 @@ class _Config:
         if _SYSTEM == "Windows":
             env["PKG_CONFIG_ALLOW_SYSTEM_LIBS"] = "1"
             env["PKG_CONFIG_ALLOW_SYSTEM_CFLAGS"] = "1"
+        elif _SYSTEM == "MinGW":
+            # See https://setuptools.pypa.io/en/latest/deprecated/distutils-legacy.html
+            env["SETUPTOOLS_USE_DISTUTILS"] = "stdlib"
         return env
 
 

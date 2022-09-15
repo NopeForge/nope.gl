@@ -11,6 +11,7 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ### Fixed
 - Crash with specific draw time sequences in some time filtered diamond-tree
   graphs involving `TimeRangeFilter` nodes keeping some parts of the graph active
+- Build `setuptools>=60` on MinGW
 
 ## [2022.7] [libnodegl 0.6.0] - 2022-06-07
 ### Added
