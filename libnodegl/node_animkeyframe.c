@@ -176,7 +176,7 @@ DECLARE_EASINGS_DERIVATIVES_RESOLUTION(circular,
 
 static inline easing_type exp_func(easing_type x, easing_type exp_base)
 {
-    return NGLI_LINEAR_INTERP(1.0, exp_base, pow(exp_base, x));
+    return NGLI_LINEAR_NORM(1.0, exp_base, pow(exp_base, x));
 }
 
 static inline easing_type exp_derivative(easing_type x, easing_type exp_base)
@@ -509,7 +509,7 @@ int ngl_easing_evaluate(const char *name, const double *args, int nb_args,
         ret = check_boundaries(y0, y1);
         if (ret < 0)
             return ret;
-        value = NGLI_LINEAR_INTERP(y0, y1, value);
+        value = NGLI_LINEAR_NORM(y0, y1, value);
     }
     *v = value;
     return 0;
@@ -568,7 +568,7 @@ int ngl_easing_solve(const char *name, const double *args, int nb_args,
     }
     double time = easings[easing_id].resolution(v, nb_args, args);
     if (offsets)
-        time = NGLI_LINEAR_INTERP(offsets[0], offsets[1], time);
+        time = NGLI_LINEAR_NORM(offsets[0], offsets[1], time);
     *t = time;
     return 0;
 }

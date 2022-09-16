@@ -53,12 +53,12 @@ int ngli_animation_evaluate(struct animation *s, void *dst, double t)
         const double t0 = kf0->time;
         const double t1 = kf1->time;
 
-        double tnorm = NGLI_LINEAR_INTERP(t0, t1, t);
+        double tnorm = NGLI_LINEAR_NORM(t0, t1, t);
         if (kf1_priv->scale_boundaries)
             tnorm = NGLI_MIX(kf1->offsets[0], kf1->offsets[1], tnorm);
         double ratio = kf1_priv->function(tnorm, kf1->nb_args, kf1->args);
         if (kf1_priv->scale_boundaries)
-            ratio = NGLI_LINEAR_INTERP(kf1_priv->boundaries[0], kf1_priv->boundaries[1], ratio);
+            ratio = NGLI_LINEAR_NORM(kf1_priv->boundaries[0], kf1_priv->boundaries[1], ratio);
 
         s->current_kf = kf_id;
         s->mix_func(s->user_arg, dst, kf0, kf1, ratio);
@@ -85,7 +85,7 @@ int ngli_animation_derivate(struct animation *s, void *dst, double t)
         const double t0 = kf0->time;
         const double t1 = kf1->time;
 
-        double tnorm = NGLI_LINEAR_INTERP(t0, t1, t);
+        double tnorm = NGLI_LINEAR_NORM(t0, t1, t);
         if (kf1_priv->scale_boundaries)
             tnorm = NGLI_MIX(kf1->offsets[0], kf1->offsets[1], tnorm);
         double ratio = kf1_priv->derivative(tnorm, kf1->nb_args, kf1->args);
