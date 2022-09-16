@@ -33,9 +33,13 @@
 #define NGLI_POLY3(a, b, c, d, x) (NGLI_POLY2(a, b, c, x) * (x) + (d))
 
 #define NGLI_DEG2RAD(x) ((x) * (2.f * M_PI / 360.f))
-#define NGLI_MIX(a, b, x) ((a)*(1.-(x)) + (b)*(x))
-#define NGLI_LINEAR_NORM(a, b, x) (((x) - (a)) / ((b) - (a)))
 #define NGLI_CEIL_RSHIFT(a, b) -((-(a)) >> (b))
+
+/* Map a normalized value to [a;b] range */
+#define NGLI_MIX(a, b, x) ((a)*(1.-(x)) + (b)*(x))
+
+/* Map a value in [a;b] range to a normalized value */
+#define NGLI_LINEAR_NORM(a, b, x) (((x) - (a)) / ((b) - (a)))
 
 #define NGLI_VEC2_ADD(a, b) {(a)[0] + (b)[0], (a)[1] + (b)[1]}
 #define NGLI_VEC3_ADD(a, b) {(a)[0] + (b)[0], (a)[1] + (b)[1], (a)[2] + (b)[2]}
