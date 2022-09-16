@@ -606,7 +606,6 @@ class _Config:
 def _run():
     default_build_backend = "ninja" if _SYSTEM != "Windows" else "vs"
     parser = argparse.ArgumentParser(
-        prog="ngl-env",
         description="Create and manage a standalone node.gl virtual environement",
     )
     parser.add_argument("-p", "--venv-path", default=op.join(_ROOTDIR, "venv"), help="Virtual environment directory")
