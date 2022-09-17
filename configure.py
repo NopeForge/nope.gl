@@ -111,9 +111,9 @@ def _file_chk(path, chksum_hexdigest):
 def _fix_permissions(path):
     for root, dirs, files in os.walk(path, topdown=True):
         for file in files:
-            os.chmod(os.path.join(root, file), stat.S_IRUSR | stat.S_IWUSR)
+            os.chmod(op.join(root, file), stat.S_IRUSR | stat.S_IWUSR)
         for directory in dirs:
-            os.chmod(os.path.join(root, directory), stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
+            os.chmod(op.join(root, directory), stat.S_IRUSR | stat.S_IWUSR | stat.S_IXUSR)
 
 
 def _rmtree(path, ignore_errors=False, onerror=None):
