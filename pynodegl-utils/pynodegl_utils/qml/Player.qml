@@ -163,18 +163,21 @@ ColumnLayout {
         id: play_action
         checkable: true
         text: "▶"
+        shortcut: "Space"
         onTriggered: timer.running ? stop_timer() : start_timer()
     }
 
     Action {
         id: prevframe_action
         text: "<"
+        shortcut: "Left"
         onTriggered: set_frame_index(clamp(frame_index - 1, 0, duration_i))
     }
 
     Action {
         id: nextframe_action
         text: ">"
+        shortcut: "Right"
         onTriggered: set_frame_index(clamp(frame_index + 1, 0, duration_i))
     }
 
