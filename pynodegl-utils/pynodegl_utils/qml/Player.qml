@@ -159,26 +159,32 @@ ColumnLayout {
         }
     }
 
+    Action {
+        id: play_action
+        checkable: true
+        text: "▶"
+        onTriggered: timer.running ? stop_timer() : start_timer()
+    }
+
+    Action {
+        id: prevframe_action
+        text: "<"
+        onTriggered: set_frame_index(clamp(frame_index - 1, 0, duration_i))
+    }
+
+    Action {
+        id: nextframe_action
+        text: ">"
+        onTriggered: set_frame_index(clamp(frame_index + 1, 0, duration_i))
+    }
+
     RowLayout {
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignCenter
 
-        Button {
-            text: "<"
-            onClicked: set_frame_index(clamp(frame_index - 1, 0, duration_i))
-        }
-
-        Button {
-            id: "play_pause_button"
-            text: "▶"
-            checkable: true
-            onClicked: checked ? start_timer() : stop_timer()
-        }
-
-        Button {
-            text: ">"
-            onClicked: set_frame_index(clamp(frame_index + 1, 0, duration_i))
-        }
+        Button { action: prevframe_action }
+        Button { action: play_action }
+        Button { action: nextframe_action }
 
         Label {
             text: timed_text()
@@ -187,7 +193,7 @@ ColumnLayout {
 
     Timer {
         id: timer
-        running: play_pause_button.checked
+        running: false
         repeat: true
         interval: 1
         onTriggered: update_time(-1)
