@@ -18,6 +18,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ### Added
 - `ngl-diff` can now open images
 
+### Changed
+- Improved `ngl-diff` color map
+
 ## [2022.7] [libnodegl 0.6.0] - 2022-06-07
 ### Added
 - HDR tone mapping support for PQ content

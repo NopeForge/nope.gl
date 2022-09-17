@@ -20,7 +20,8 @@
  */
 
 const vec3 cmap0 = vec3(0.0, 0.5, 1.0);
-const vec3 cmap1 = vec3(1.0, 0.5, 0.0);
+const vec3 cmap1 = vec3(0.0, 1.0, 0.5);
+const vec3 cmap2 = vec3(1.0, 0.5, 0.0);
 const vec3 luma_weights = vec3(.2126, .7152, .0722); // BT.709
 
 vec3 lin2srgb(vec3 c) { return mix(c * 12.92, 1.055 * pow(c, vec3(1. / 2.4)) - .055, step(vec3(0.0031308), c)); }
@@ -35,7 +36,8 @@ vec4 color_diff(vec4 c0, vec4 c1)
     float sum = diff2.r + diff2.g + diff2.b + diff2.a;
     float err = sqrt(sum / n);
     float amp = (err - threshold) / (1 - threshold); // remap err from [0;1] to [thres;1]
-    vec3 grad = lin_mix(cmap0, cmap1, pow(amp, 1.0 / 3.0)); // power 1/3 to boost the differences of the small amplitude
+    float amount = pow(amp, 1.0 / 3.0); // power 1/3 to boost the differences of the small amplitude
+    vec3 grad = lin_mix(lin_mix(cmap0, cmap1, amount), lin_mix(cmap1, cmap2, amount), amount);
 
     /* Apply gradient only if there is an actual mismatch (honoring threshold) */
     return vec4(grad * float(err > threshold), 1.0);
