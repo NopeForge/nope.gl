@@ -1,4 +1,5 @@
 import os
+import os.path as op
 import shlex
 import subprocess
 import tempfile
@@ -19,12 +20,12 @@ def get_session_info(session_id):
 def get_sessions():
     sessions = []
     session_dirs = []
-    tmp_dir = os.path.join(tempfile.gettempdir(), "ngl-desktop")
-    if os.path.isdir(tmp_dir):
+    tmp_dir = op.join(tempfile.gettempdir(), "ngl-desktop")
+    if op.isdir(tmp_dir):
         session_dirs = os.listdir(tmp_dir)
     for session_dir in session_dirs:
-        session_file = os.path.join(tmp_dir, session_dir, "session")
-        if not os.path.isfile(session_file):
+        session_file = op.join(tmp_dir, session_dir, "session")
+        if not op.isfile(session_file):
             continue
         sessions.append((session_dir, "local ngl-desktop"))
 
