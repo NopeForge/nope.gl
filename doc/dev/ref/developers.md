@@ -22,7 +22,7 @@ topics:
 Some simple checks to greatly improve the basic functionality of your
 submission:
 
-- Make sure the build and **tests pass for every commits**: `git rebase master
+- Make sure the build and **tests pass for every commits**: `git rebase main
   --exec "make clean && make test"`
 - Can the same changes be **applied elsewhere** in the code base?
 - Avoid at all cost **glob-like code** such as `import *` or `*.ext` file
@@ -92,7 +92,7 @@ quality:
 ## Review Process
 
 If your code passes the check list, you can submit a Pull Request for the
-`master` branch on Github.  Reviewers will likely make comments and request for
+`main` branch on Github.  Reviewers will likely make comments and request for
 changes. You are expected to discuss your changes, and rework the history as
 needed until it reaches a consensus.
 
