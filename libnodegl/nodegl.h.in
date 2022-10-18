@@ -279,23 +279,25 @@ struct ngl_node;
  *
  * All NGL_ERROR_* values shall remain < 0.
  */
-#define NGL_ERROR_GENERIC           -1                                  /* Generic error */
-#define NGL_ERROR_ACCESS            -NGLI_FOURCC('E','a','c','c')       /* Operation not allowed */
-#define NGL_ERROR_BUG               -NGLI_FOURCC('E','b','u','g')       /* A buggy code path was triggered, please report if it happens */
-#define NGL_ERROR_EXTERNAL          -NGLI_FOURCC('E','e','x','t')       /* An error occurred in an external dependency */
-#define NGL_ERROR_INVALID_ARG       -NGLI_FOURCC('E','a','r','g')       /* Invalid user argument specified */
-#define NGL_ERROR_INVALID_DATA      -NGLI_FOURCC('E','d','a','t')       /* Invalid input data */
-#define NGL_ERROR_INVALID_USAGE     -NGLI_FOURCC('E','u','s','g')       /* Invalid public API usage */
-#define NGL_ERROR_IO                -NGLI_FOURCC('E','i','o',' ')       /* Input/Output error */
-#define NGL_ERROR_LIMIT_EXCEEDED    -NGLI_FOURCC('E','l','i','m')       /* Hardware or resource limit exceeded */
-#define NGL_ERROR_MEMORY            -NGLI_FOURCC('E','m','e','m')       /* Memory/allocation error */
-#define NGL_ERROR_NOT_FOUND         -NGLI_FOURCC('E','f','n','d')       /* Target not found */
-#define NGL_ERROR_UNSUPPORTED       -NGLI_FOURCC('E','s','u','p')       /* Unsupported operation */
+#define NGLI_ERROR(a,b,c,d) (-(int32_t)NGLI_FOURCC(a,b,c,d))
 
-#define NGL_ERROR_GRAPHICS_GENERIC         -NGLI_FOURCC('G','g','e','n')    /* Generic graphics error */
-#define NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED  -NGLI_FOURCC('G','l','i','m')    /* Graphics hardware or resource limit exceeded */
-#define NGL_ERROR_GRAPHICS_MEMORY          -NGLI_FOURCC('G','m','e','m')    /* Graphics memory/allocation error */
-#define NGL_ERROR_GRAPHICS_UNSUPPORTED     -NGLI_FOURCC('G','s','u','p')    /* Unsupported graphics operation */
+#define NGL_ERROR_GENERIC           -1                                  /* Generic error */
+#define NGL_ERROR_ACCESS            NGLI_ERROR('E','a','c','c')       /* Operation not allowed */
+#define NGL_ERROR_BUG               NGLI_ERROR('E','b','u','g')       /* A buggy code path was triggered, please report if it happens */
+#define NGL_ERROR_EXTERNAL          NGLI_ERROR('E','e','x','t')       /* An error occurred in an external dependency */
+#define NGL_ERROR_INVALID_ARG       NGLI_ERROR('E','a','r','g')       /* Invalid user argument specified */
+#define NGL_ERROR_INVALID_DATA      NGLI_ERROR('E','d','a','t')       /* Invalid input data */
+#define NGL_ERROR_INVALID_USAGE     NGLI_ERROR('E','u','s','g')       /* Invalid public API usage */
+#define NGL_ERROR_IO                NGLI_ERROR('E','i','o',' ')       /* Input/Output error */
+#define NGL_ERROR_LIMIT_EXCEEDED    NGLI_ERROR('E','l','i','m')       /* Hardware or resource limit exceeded */
+#define NGL_ERROR_MEMORY            NGLI_ERROR('E','m','e','m')       /* Memory/allocation error */
+#define NGL_ERROR_NOT_FOUND         NGLI_ERROR('E','f','n','d')       /* Target not found */
+#define NGL_ERROR_UNSUPPORTED       NGLI_ERROR('E','s','u','p')       /* Unsupported operation */
+
+#define NGL_ERROR_GRAPHICS_GENERIC         NGLI_ERROR('G','g','e','n')    /* Generic graphics error */
+#define NGL_ERROR_GRAPHICS_LIMIT_EXCEEDED  NGLI_ERROR('G','l','i','m')    /* Graphics hardware or resource limit exceeded */
+#define NGL_ERROR_GRAPHICS_MEMORY          NGLI_ERROR('G','m','e','m')    /* Graphics memory/allocation error */
+#define NGL_ERROR_GRAPHICS_UNSUPPORTED     NGLI_ERROR('G','s','u','p')    /* Unsupported graphics operation */
 
 /**
  * Allocate a node.
