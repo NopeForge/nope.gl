@@ -31,7 +31,7 @@ vec3 lin_mix(vec3 c0, vec3 c1, float v) { return lin2srgb(mix(srgb2lin(c0), srgb
 vec4 color_diff(vec4 c0, vec4 c1)
 {
     float n = float(show_r) + float(show_g) + float(show_b) + float(show_a);
-    vec4 diff = c0 - c1;
+    vec4 diff = vec4(srgb2lin(c0.rgb), c0.a) - vec4(srgb2lin(c1.rgb), c1.a);
     vec4 diff2 = diff * diff * vec4(show_r, show_g, show_b, show_a); // filtered squared difference
     float sum = diff2.r + diff2.g + diff2.b + diff2.a;
     float err = sqrt(sum / n);

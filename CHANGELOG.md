@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 
 ## [Unreleased]
+### Fixed
+- Color channel difference in `ngl-diff` is now done in linear space
 
 ## [2022.8] [libnodegl 0.6.1] - 2022-09-22
 ### Fixed
