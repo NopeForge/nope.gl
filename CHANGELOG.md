@@ -11,6 +11,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ### Fixed
 - Color channel difference in `ngl-diff` is now done in linear space
 
+### Changed
+- The installed `nodes.specs` is now in `JSON` instead of `YAML`
+
 ## [2022.8] [libnodegl 0.6.1] - 2022-09-22
 ### Fixed
 - Crash with specific draw time sequences in some time filtered diamond-tree

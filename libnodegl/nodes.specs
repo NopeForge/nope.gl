@@ -1,848 +1,797 @@
-_Node:
-    - [label, str, ""]
-
-_AnimatedBuffer:
-    - [keyframes, node_list, ""]
-
-AnimatedBufferFloat: _AnimatedBuffer
-
-AnimatedBufferVec2: _AnimatedBuffer
-
-AnimatedBufferVec3: _AnimatedBuffer
-
-AnimatedBufferVec4: _AnimatedBuffer
-
-AnimatedColor:
-    - [keyframes, node_list, ""]
-    - [space, select, ""]
-
-AnimatedPath:
-    - [keyframes, node_list, ""]
-    - [path, node, "M"]
-
-AnimatedTime:
-    - [keyframes, node_list, ""]
-
-AnimatedFloat:
-    - [keyframes, node_list, ""]
-
-AnimatedVec2:
-    - [keyframes, node_list, ""]
-
-AnimatedVec3:
-    - [keyframes, node_list, ""]
-
-AnimatedVec4:
-    - [keyframes, node_list, ""]
-
-AnimatedQuat:
-    - [keyframes, node_list, ""]
-    - [as_mat4, bool, ""]
-
-AnimKeyFrameFloat:
-    - [time, f64, ""]
-    - [value, f64, ""]
-    - [easing, select, ""]
-    - [easing_args, f64_list, ""]
-    - [easing_start_offset, f64, ""]
-    - [easing_end_offset, f64, ""]
-
-AnimKeyFrameVec2:
-    - [time, f64, ""]
-    - [value, vec2, ""]
-    - [easing, select, ""]
-    - [easing_args, f64_list, ""]
-    - [easing_start_offset, f64, ""]
-    - [easing_end_offset, f64, ""]
-
-AnimKeyFrameVec3:
-    - [time, f64, ""]
-    - [value, vec3, ""]
-    - [easing, select, ""]
-    - [easing_args, f64_list, ""]
-    - [easing_start_offset, f64, ""]
-    - [easing_end_offset, f64, ""]
-
-AnimKeyFrameVec4:
-    - [time, f64, ""]
-    - [value, vec4, ""]
-    - [easing, select, ""]
-    - [easing_args, f64_list, ""]
-    - [easing_start_offset, f64, ""]
-    - [easing_end_offset, f64, ""]
-
-AnimKeyFrameQuat:
-    - [time, f64, ""]
-    - [quat, vec4, ""]
-    - [easing, select, ""]
-    - [easing_args, f64_list, ""]
-    - [easing_start_offset, f64, ""]
-    - [easing_end_offset, f64, ""]
-
-AnimKeyFrameColor:
-    - [time, f64, ""]
-    - [color, vec3, ""]
-    - [easing, select, ""]
-    - [easing_args, f64_list, ""]
-    - [easing_start_offset, f64, ""]
-    - [easing_end_offset, f64, ""]
-
-AnimKeyFrameBuffer:
-    - [time, f64, ""]
-    - [data, data, ""]
-    - [easing, select, ""]
-    - [easing_args, f64_list, ""]
-    - [easing_start_offset, f64, ""]
-    - [easing_end_offset, f64, ""]
-
-Block:
-    - [fields, node_list, ""]
-    - [layout, select, ""]
-
-_Buffer:
-    - [count, i32, ""]
-    - [data, data, ""]
-    - [filename, str, ""]
-    - [block, node, ""]
-    - [block_field, str, ""]
-
-BufferByte: _Buffer
-
-BufferBVec2: _Buffer
-
-BufferBVec3: _Buffer
-
-BufferBVec4: _Buffer
-
-BufferInt: _Buffer
-
-BufferInt64: _Buffer
-
-BufferIVec2: _Buffer
-
-BufferIVec3: _Buffer
-
-BufferIVec4: _Buffer
-
-BufferShort: _Buffer
-
-BufferSVec2: _Buffer
-
-BufferSVec3: _Buffer
-
-BufferSVec4: _Buffer
-
-BufferUByte: _Buffer
-
-BufferUBVec2: _Buffer
-
-BufferUBVec3: _Buffer
-
-BufferUBVec4: _Buffer
-
-BufferUInt: _Buffer
-
-BufferUIVec2: _Buffer
-
-BufferUIVec3: _Buffer
-
-BufferUIVec4: _Buffer
-
-BufferUShort: _Buffer
-
-BufferUSVec2: _Buffer
-
-BufferUSVec3: _Buffer
-
-BufferUSVec4: _Buffer
-
-BufferFloat: _Buffer
-
-BufferVec2: _Buffer
-
-BufferVec3: _Buffer
-
-BufferVec4: _Buffer
-
-BufferMat4: _Buffer
-
-Camera:
-    - [child, node, "M"]
-    - [eye, vec3, "LN"]
-    - [center, vec3, "LN"]
-    - [up, vec3, "LN"]
-    - [perspective, vec2, "LN"]
-    - [orthographic, vec4, "L"]
-    - [clipping, vec2, "L"]
-    - [eye_transform, node, ""]
-    - [center_transform, node, ""]
-    - [up_transform, node, ""]
-
-Circle:
-    - [radius, f32, ""]
-    - [npoints, i32, ""]
-
-Compute:
-    - [workgroup_count, ivec3, ""]
-    - [program, node, "M"]
-    - [resources, node_dict, ""]
-
-ComputeProgram:
-    - [compute, str, "M"]
-    - [workgroup_size, ivec3, ""]
-    - [properties, node_dict, ""]
-
-FilterAlpha:
-    - [alpha, f32, "LN"]
-
-FilterContrast:
-    - [contrast, f32, "LN"]
-    - [pivot, f32, "LN"]
-
-FilterExposure:
-    - [exposure, f32, "LN"]
-
-FilterInverseAlpha:
-
-FilterLinear2sRGB:
-
-FilterOpacity:
-    - [opacity, f32, "LN"]
-
-FilterPremult:
-
-FilterSaturation:
-    - [saturation, f32, "LN"]
-
-FilterSRGB2Linear:
-
-Geometry:
-    - [vertices, node, "M"]
-    - [uvcoords, node, ""]
-    - [normals, node, ""]
-    - [indices, node, ""]
-    - [topology, select, ""]
-
-GraphicConfig:
-    - [child, node, "M"]
-    - [blend, bool, ""]
-    - [blend_src_factor, select, ""]
-    - [blend_dst_factor, select, ""]
-    - [blend_src_factor_a, select, ""]
-    - [blend_dst_factor_a, select, ""]
-    - [blend_op, select, ""]
-    - [blend_op_a, select, ""]
-    - [color_write_mask, flags, ""]
-    - [depth_test, bool, ""]
-    - [depth_write_mask, bool, ""]
-    - [depth_func, select, ""]
-    - [stencil_test, bool, ""]
-    - [stencil_write_mask, i32, ""]
-    - [stencil_func, select, ""]
-    - [stencil_ref, i32, ""]
-    - [stencil_read_mask, i32, ""]
-    - [stencil_fail, select, ""]
-    - [stencil_depth_fail, select, ""]
-    - [stencil_depth_pass, select, ""]
-    - [cull_mode, select, ""]
-    - [scissor_test, bool, ""]
-    - [scissor, vec4, ""]
-
-Group:
-    - [children, node_list, ""]
-
-Identity:
-
-_IOVar:
-    - [precision_out, select, ""]
-    - [precision_in, select, ""]
-
-IOInt: _IOVar
-
-IOIVec2: _IOVar
-
-IOIVec3: _IOVar
-
-IOIVec4: _IOVar
-
-IOUInt: _IOVar
-
-IOUIvec2: _IOVar
-
-IOUIvec3: _IOVar
-
-IOUIvec4: _IOVar
-
-IOFloat: _IOVar
-
-IOVec2: _IOVar
-
-IOVec3: _IOVar
-
-IOVec4: _IOVar
-
-IOMat3: _IOVar
-
-IOMat4: _IOVar
-
-IOBool: _IOVar
-
-EvalFloat:
-    - [expr0, str, "M"]
-    - [resources, node_dict, ""]
-
-EvalVec2:
-    - [expr0, str, "M"]
-    - [expr1, str, ""]
-    - [resources, node_dict, ""]
-
-EvalVec3:
-    - [expr0, str, "M"]
-    - [expr1, str, ""]
-    - [expr2, str, ""]
-    - [resources, node_dict, ""]
-
-EvalVec4:
-    - [expr0, str, "M"]
-    - [expr1, str, ""]
-    - [expr2, str, ""]
-    - [expr3, str, ""]
-    - [resources, node_dict, ""]
-
-Media:
-    - [filename, str, "M"]
-    - [sxplayer_min_level, select, ""]
-    - [time_anim, node, ""]
-    - [audio_tex, bool, ""]
-    - [max_nb_packets, i32, ""]
-    - [max_nb_frames, i32, ""]
-    - [max_nb_sink, i32, ""]
-    - [max_pixels, i32, ""]
-    - [stream_idx, i32, ""]
-    - [hwaccel, select, ""]
-    - [filters, str, ""]
-    - [vt_pix_fmt, str, ""]
-
-_Noise:
-    - [frequency, f32, "L"]
-    - [amplitude, f32, "L"]
-    - [octaves, i32, "L"]
-    - [lacunarity, f32, "L"]
-    - [gain, f32, "L"]
-    - [seed, u32, ""]
-    - [interpolant, select, ""]
-
-NoiseFloat: _Noise
-
-NoiseVec2: _Noise
-
-NoiseVec3: _Noise
-
-NoiseVec4: _Noise
-
-Path:
-    - [keyframes, node_list, "M"]
-    - [precision, i32, ""]
-
-PathKeyBezier2:
-    - [control, vec3, ""]
-    - [to, vec3, ""]
-
-PathKeyBezier3:
-    - [control1, vec3, ""]
-    - [control2, vec3, ""]
-    - [to, vec3, ""]
-
-PathKeyLine:
-    - [to, vec3, ""]
-
-PathKeyMove:
-    - [to, vec3, ""]
-
-Program:
-    - [vertex, str, ""]
-    - [fragment, str, ""]
-    - [properties, node_dict, ""]
-    - [vert_out_vars, node_dict, ""]
-    - [nb_frag_output, i32, ""]
-
-Quad:
-    - [corner, vec3, ""]
-    - [width, vec3, ""]
-    - [height, vec3, ""]
-    - [uv_corner, vec2, ""]
-    - [uv_width, vec2, ""]
-    - [uv_height, vec2, ""]
-
-Render:
-    - [geometry, node, "M"]
-    - [program, node, "M"]
-    - [vert_resources, node_dict, ""]
-    - [frag_resources, node_dict, ""]
-    - [attributes, node_dict, ""]
-    - [instance_attributes, node_dict, ""]
-    - [nb_instances, i32, ""]
-    - [blending, select, ""]
-
-RenderColor:
-    - [color, vec3, "LN"]
-    - [opacity, f32, "LN"]
-    - [blending, select, ""]
-    - [geometry, node, ""]
-    - [filters, node_list, ""]
-
-RenderGradient:
-    - [color0, vec3, "LN"]
-    - [color1, vec3, "LN"]
-    - [opacity0, f32, "LN"]
-    - [opacity1, f32, "LN"]
-    - [pos0, vec2, "LN"]
-    - [pos1, vec2, "LN"]
-    - [mode, select, ""]
-    - [linear, bool, "LN"]
-    - [blending, select, ""]
-    - [geometry, node, ""]
-    - [filters, node_list, ""]
-
-RenderGradient4:
-    - [color_tl, vec3, "LN"]
-    - [color_tr, vec3, "LN"]
-    - [color_br, vec3, "LN"]
-    - [color_bl, vec3, "LN"]
-    - [opacity_tl, f32, "LN"]
-    - [opacity_tr, f32, "LN"]
-    - [opacity_br, f32, "LN"]
-    - [opacity_bl, f32, "LN"]
-    - [linear, bool, "LN"]
-    - [blending, select, ""]
-    - [geometry, node, ""]
-    - [filters, node_list, ""]
-
-RenderTexture:
-    - [texture, node, "M"]
-    - [blending, select, ""]
-    - [geometry, node, ""]
-    - [filters, node_list, ""]
-
-RenderToTexture:
-    - [child, node, "M"]
-    - [color_textures, node_list, ""]
-    - [depth_texture, node, ""]
-    - [samples, i32, ""]
-    - [clear_color, vec4, ""]
-    - [features, flags, ""]
-
-ResourceProps:
-    - [precision, select, ""]
-    - [as_image, bool, ""]
-    - [writable, bool, ""]
-    - [variadic, bool, ""]
-
-Rotate:
-    - [child, node, "M"]
-    - [angle, f32, "LN"]
-    - [axis, vec3, ""]
-    - [anchor, vec3, ""]
-
-RotateQuat:
-    - [child, node, "M"]
-    - [quat, vec4, "LN"]
-    - [anchor, vec3, ""]
-
-Scale:
-    - [child, node, "M"]
-    - [factors, vec3, "LN"]
-    - [anchor, vec3, ""]
-
-Skew:
-    - [child, node, "M"]
-    - [angles, vec3, "LN"]
-    - [axis, vec3, ""]
-    - [anchor, vec3, ""]
-
-SmoothPath:
-    - [points, node, "M"]
-    - [control1, vec3, ""]
-    - [control2, vec3, ""]
-    - [precision, i32, ""]
-    - [tension, f32, ""]
-
-Text:
-    - [text, str, "LM"]
-    - [live_id, str, ""]
-    - [fg_color, vec3, "L"]
-    - [fg_opacity, f32, "L"]
-    - [bg_color, vec3, "L"]
-    - [bg_opacity, f32, "L"]
-    - [box_corner, vec3, ""]
-    - [box_width, vec3, ""]
-    - [box_height, vec3, ""]
-    - [padding, i32, ""]
-    - [font_scale, f32, ""]
-    - [valign, select, ""]
-    - [halign, select, ""]
-    - [aspect_ratio, rational, "L"]
-
-Texture2D:
-    - [format, select, ""]
-    - [width, i32, ""]
-    - [height, i32, ""]
-    - [min_filter, select, ""]
-    - [mag_filter, select, ""]
-    - [mipmap_filter, select, ""]
-    - [wrap_s, select, ""]
-    - [wrap_t, select, ""]
-    - [data_src, node, ""]
-    - [direct_rendering, bool, ""]
-    - [clamp_video, bool, ""]
-
-Texture3D:
-    - [format, select, ""]
-    - [width, i32, ""]
-    - [height, i32, ""]
-    - [depth, i32, ""]
-    - [min_filter, select, ""]
-    - [mag_filter, select, ""]
-    - [mipmap_filter, select, ""]
-    - [wrap_s, select, ""]
-    - [wrap_t, select, ""]
-    - [wrap_r, select, ""]
-    - [data_src, node, ""]
-
-TextureCube:
-    - [format, select, ""]
-    - [size, i32, ""]
-    - [min_filter, select, ""]
-    - [mag_filter, select, ""]
-    - [mipmap_filter, select, ""]
-    - [wrap_s, select, ""]
-    - [wrap_t, select, ""]
-    - [wrap_r, select, ""]
-    - [data_src, node, ""]
-
-TextureView:
-    - [texture, node, "M"]
-    - [layer, i32, ""]
-
-Time:
-
-TimeRangeFilter:
-    - [child, node, "M"]
-    - [ranges, node_list, ""]
-    - [prefetch_time, f64, ""]
-    - [max_idle_time, f64, ""]
-
-TimeRangeModeCont:
-    - [start_time, f64, ""]
-
-TimeRangeModeNoop:
-    - [start_time, f64, ""]
-
-TimeRangeModeOnce:
-    - [start_time, f64, ""]
-    - [render_time, f64, ""]
-
-Transform:
-    - [child, node, "M"]
-    - [matrix, mat4, "L"]
-
-Translate:
-    - [child, node, "M"]
-    - [vector, vec3, "LN"]
-
-Triangle:
-    - [edge0, vec3, ""]
-    - [edge1, vec3, ""]
-    - [edge2, vec3, ""]
-    - [uv_edge0, vec2, ""]
-    - [uv_edge1, vec2, ""]
-    - [uv_edge2, vec2, ""]
-
-StreamedInt:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedIVec2:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedIVec3:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedIVec4:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedUInt:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedUIVec2:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedUIVec3:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedUIVec4:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedFloat:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedVec2:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedVec3:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedVec4:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedMat4:
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferInt:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferIVec2:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferIVec3:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferIVec4:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferUInt:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferUIVec2:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferUIVec3:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferUIVec4:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferFloat:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferVec2:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferVec3:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferVec4:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-StreamedBufferMat4:
-    - [count, i32, ""]
-    - [timestamps, node, "M"]
-    - [buffer, node, "M"]
-    - [timebase, rational, ""]
-    - [time_anim, node, ""]
-
-UniformBool:
-    - [value, bool, "L"]
-    - [live_id, str, ""]
-
-UniformInt:
-    - [value, i32, "L"]
-    - [live_id, str, ""]
-    - [live_min, i32, ""]
-    - [live_max, i32, ""]
-
-UniformIVec2:
-    - [value, ivec2, "L"]
-    - [live_id, str, ""]
-    - [live_min, ivec2, ""]
-    - [live_max, ivec2, ""]
-
-UniformIVec3:
-    - [value, ivec3, "L"]
-    - [live_id, str, ""]
-    - [live_min, ivec3, ""]
-    - [live_max, ivec3, ""]
-
-UniformIVec4:
-    - [value, ivec4, "L"]
-    - [live_id, str, ""]
-    - [live_min, ivec4, ""]
-    - [live_max, ivec4, ""]
-
-UniformUInt:
-    - [value, u32, "L"]
-    - [live_id, str, ""]
-    - [live_min, u32, ""]
-    - [live_max, u32, ""]
-
-UniformUIVec2:
-    - [value, uvec2, "L"]
-    - [live_id, str, ""]
-    - [live_min, uvec2, ""]
-    - [live_max, uvec2, ""]
-
-UniformUIVec3:
-    - [value, uvec3, "L"]
-    - [live_id, str, ""]
-    - [live_min, uvec3, ""]
-    - [live_max, uvec3, ""]
-
-UniformUIVec4:
-    - [value, uvec4, "L"]
-    - [live_id, str, ""]
-    - [live_min, uvec4, ""]
-    - [live_max, uvec4, ""]
-
-UniformMat4:
-    - [value, mat4, "L"]
-    - [live_id, str, ""]
-    - [transform, node, ""]
-
-UniformFloat:
-    - [value, f32, "L"]
-    - [live_id, str, ""]
-    - [live_min, f32, ""]
-    - [live_max, f32, ""]
-
-UniformVec2:
-    - [value, vec2, "L"]
-    - [live_id, str, ""]
-    - [live_min, vec2, ""]
-    - [live_max, vec2, ""]
-
-UniformVec3:
-    - [value, vec3, "L"]
-    - [live_id, str, ""]
-    - [live_min, vec3, ""]
-    - [live_max, vec3, ""]
-
-UniformVec4:
-    - [value, vec4, "L"]
-    - [live_id, str, ""]
-    - [live_min, vec4, ""]
-    - [live_max, vec4, ""]
-
-UniformColor:
-    - [value, vec3, "L"]
-    - [live_id, str, ""]
-    - [live_min, vec3, ""]
-    - [live_max, vec3, ""]
-    - [space, select, ""]
-
-UniformQuat:
-    - [value, vec4, "L"]
-    - [live_id, str, ""]
-    - [live_min, vec4, ""]
-    - [live_max, vec4, ""]
-    - [as_mat4, bool, ""]
-
-UserSelect:
-    - [branches, node_list, ""]
-    - [branch, i32, "L"]
-    - [live_id, str, ""]
-    - [live_min, i32, ""]
-    - [live_max, i32, ""]
-
-UserSwitch:
-    - [child, node, "M"]
-    - [enabled, bool, "L"]
-    - [live_id, str, ""]
-
-VelocityFloat:
-    - [animation, node, "M"]
-
-VelocityVec2:
-    - [animation, node, "M"]
-
-VelocityVec3:
-    - [animation, node, "M"]
-
-VelocityVec4:
-    - [animation, node, "M"]
-
+{
+  "_Node": [
+    ["label", "str", ""]
+  ],
+  "_AnimatedBuffer": [
+    ["keyframes", "node_list", ""]
+  ],
+  "AnimatedBufferFloat": "_AnimatedBuffer",
+  "AnimatedBufferVec2": "_AnimatedBuffer",
+  "AnimatedBufferVec3": "_AnimatedBuffer",
+  "AnimatedBufferVec4": "_AnimatedBuffer",
+  "AnimatedColor": [
+    ["keyframes", "node_list", ""],
+    ["space", "select", ""]
+  ],
+  "AnimatedPath": [
+    ["keyframes", "node_list", ""],
+    ["path", "node", "M"]
+  ],
+  "AnimatedTime": [
+    ["keyframes", "node_list", ""]
+  ],
+  "AnimatedFloat": [
+    ["keyframes", "node_list", ""]
+  ],
+  "AnimatedVec2": [
+    ["keyframes", "node_list", ""]
+  ],
+  "AnimatedVec3": [
+    ["keyframes", "node_list", ""]
+  ],
+  "AnimatedVec4": [
+    ["keyframes", "node_list", ""]
+  ],
+  "AnimatedQuat": [
+    ["keyframes", "node_list", ""],
+    ["as_mat4", "bool", ""]
+  ],
+  "AnimKeyFrameFloat": [
+    ["time", "f64", ""],
+    ["value", "f64", ""],
+    ["easing", "select", ""],
+    ["easing_args", "f64_list", ""],
+    ["easing_start_offset", "f64", ""],
+    ["easing_end_offset", "f64", ""]
+  ],
+  "AnimKeyFrameVec2": [
+    ["time", "f64", ""],
+    ["value", "vec2", ""],
+    ["easing", "select", ""],
+    ["easing_args", "f64_list", ""],
+    ["easing_start_offset", "f64", ""],
+    ["easing_end_offset", "f64", ""]
+  ],
+  "AnimKeyFrameVec3": [
+    ["time", "f64", ""],
+    ["value", "vec3", ""],
+    ["easing", "select", ""],
+    ["easing_args", "f64_list", ""],
+    ["easing_start_offset", "f64", ""],
+    ["easing_end_offset", "f64", ""]
+  ],
+  "AnimKeyFrameVec4": [
+    ["time", "f64", ""],
+    ["value", "vec4", ""],
+    ["easing", "select", ""],
+    ["easing_args", "f64_list", ""],
+    ["easing_start_offset", "f64", ""],
+    ["easing_end_offset", "f64", ""]
+  ],
+  "AnimKeyFrameQuat": [
+    ["time", "f64", ""],
+    ["quat", "vec4", ""],
+    ["easing", "select", ""],
+    ["easing_args", "f64_list", ""],
+    ["easing_start_offset", "f64", ""],
+    ["easing_end_offset", "f64", ""]
+  ],
+  "AnimKeyFrameColor": [
+    ["time", "f64", ""],
+    ["color", "vec3", ""],
+    ["easing", "select", ""],
+    ["easing_args", "f64_list", ""],
+    ["easing_start_offset", "f64", ""],
+    ["easing_end_offset", "f64", ""]
+  ],
+  "AnimKeyFrameBuffer": [
+    ["time", "f64", ""],
+    ["data", "data", ""],
+    ["easing", "select", ""],
+    ["easing_args", "f64_list", ""],
+    ["easing_start_offset", "f64", ""],
+    ["easing_end_offset", "f64", ""]
+  ],
+  "Block": [
+    ["fields", "node_list", ""],
+    ["layout", "select", ""]
+  ],
+  "_Buffer": [
+    ["count", "i32", ""],
+    ["data", "data", ""],
+    ["filename", "str", ""],
+    ["block", "node", ""],
+    ["block_field", "str", ""]
+  ],
+  "BufferByte": "_Buffer",
+  "BufferBVec2": "_Buffer",
+  "BufferBVec3": "_Buffer",
+  "BufferBVec4": "_Buffer",
+  "BufferInt": "_Buffer",
+  "BufferInt64": "_Buffer",
+  "BufferIVec2": "_Buffer",
+  "BufferIVec3": "_Buffer",
+  "BufferIVec4": "_Buffer",
+  "BufferShort": "_Buffer",
+  "BufferSVec2": "_Buffer",
+  "BufferSVec3": "_Buffer",
+  "BufferSVec4": "_Buffer",
+  "BufferUByte": "_Buffer",
+  "BufferUBVec2": "_Buffer",
+  "BufferUBVec3": "_Buffer",
+  "BufferUBVec4": "_Buffer",
+  "BufferUInt": "_Buffer",
+  "BufferUIVec2": "_Buffer",
+  "BufferUIVec3": "_Buffer",
+  "BufferUIVec4": "_Buffer",
+  "BufferUShort": "_Buffer",
+  "BufferUSVec2": "_Buffer",
+  "BufferUSVec3": "_Buffer",
+  "BufferUSVec4": "_Buffer",
+  "BufferFloat": "_Buffer",
+  "BufferVec2": "_Buffer",
+  "BufferVec3": "_Buffer",
+  "BufferVec4": "_Buffer",
+  "BufferMat4": "_Buffer",
+  "Camera": [
+    ["child", "node", "M"],
+    ["eye", "vec3", "LN"],
+    ["center", "vec3", "LN"],
+    ["up", "vec3", "LN"],
+    ["perspective", "vec2", "LN"],
+    ["orthographic", "vec4", "L"],
+    ["clipping", "vec2", "L"],
+    ["eye_transform", "node", ""],
+    ["center_transform", "node", ""],
+    ["up_transform", "node", ""]
+  ],
+  "Circle": [
+    ["radius", "f32", ""],
+    ["npoints", "i32", ""]
+  ],
+  "Compute": [
+    ["workgroup_count", "ivec3", ""],
+    ["program", "node", "M"],
+    ["resources", "node_dict", ""]
+  ],
+  "ComputeProgram": [
+    ["compute", "str", "M"],
+    ["workgroup_size", "ivec3", ""],
+    ["properties", "node_dict", ""]
+  ],
+  "FilterAlpha": [
+    ["alpha", "f32", "LN"]
+  ],
+  "FilterContrast": [
+    ["contrast", "f32", "LN"],
+    ["pivot", "f32", "LN"]
+  ],
+  "FilterExposure": [
+    ["exposure", "f32", "LN"]
+  ],
+  "FilterInverseAlpha": [
+  ],
+  "FilterLinear2sRGB": [
+  ],
+  "FilterOpacity": [
+    ["opacity", "f32", "LN"]
+  ],
+  "FilterPremult": [
+  ],
+  "FilterSaturation": [
+    ["saturation", "f32", "LN"]
+  ],
+  "FilterSRGB2Linear": [
+  ],
+  "Geometry": [
+    ["vertices", "node", "M"],
+    ["uvcoords", "node", ""],
+    ["normals", "node", ""],
+    ["indices", "node", ""],
+    ["topology", "select", ""]
+  ],
+  "GraphicConfig": [
+    ["child", "node", "M"],
+    ["blend", "bool", ""],
+    ["blend_src_factor", "select", ""],
+    ["blend_dst_factor", "select", ""],
+    ["blend_src_factor_a", "select", ""],
+    ["blend_dst_factor_a", "select", ""],
+    ["blend_op", "select", ""],
+    ["blend_op_a", "select", ""],
+    ["color_write_mask", "flags", ""],
+    ["depth_test", "bool", ""],
+    ["depth_write_mask", "bool", ""],
+    ["depth_func", "select", ""],
+    ["stencil_test", "bool", ""],
+    ["stencil_write_mask", "i32", ""],
+    ["stencil_func", "select", ""],
+    ["stencil_ref", "i32", ""],
+    ["stencil_read_mask", "i32", ""],
+    ["stencil_fail", "select", ""],
+    ["stencil_depth_fail", "select", ""],
+    ["stencil_depth_pass", "select", ""],
+    ["cull_mode", "select", ""],
+    ["scissor_test", "bool", ""],
+    ["scissor", "vec4", ""]
+  ],
+  "Group": [
+    ["children", "node_list", ""]
+  ],
+  "Identity": [
+  ],
+  "_IOVar": [
+    ["precision_out", "select", ""],
+    ["precision_in", "select", ""]
+  ],
+  "IOInt": "_IOVar",
+  "IOIVec2": "_IOVar",
+  "IOIVec3": "_IOVar",
+  "IOIVec4": "_IOVar",
+  "IOUInt": "_IOVar",
+  "IOUIvec2": "_IOVar",
+  "IOUIvec3": "_IOVar",
+  "IOUIvec4": "_IOVar",
+  "IOFloat": "_IOVar",
+  "IOVec2": "_IOVar",
+  "IOVec3": "_IOVar",
+  "IOVec4": "_IOVar",
+  "IOMat3": "_IOVar",
+  "IOMat4": "_IOVar",
+  "IOBool": "_IOVar",
+  "EvalFloat": [
+    ["expr0", "str", "M"],
+    ["resources", "node_dict", ""]
+  ],
+  "EvalVec2": [
+    ["expr0", "str", "M"],
+    ["expr1", "str", ""],
+    ["resources", "node_dict", ""]
+  ],
+  "EvalVec3": [
+    ["expr0", "str", "M"],
+    ["expr1", "str", ""],
+    ["expr2", "str", ""],
+    ["resources", "node_dict", ""]
+  ],
+  "EvalVec4": [
+    ["expr0", "str", "M"],
+    ["expr1", "str", ""],
+    ["expr2", "str", ""],
+    ["expr3", "str", ""],
+    ["resources", "node_dict", ""]
+  ],
+  "Media": [
+    ["filename", "str", "M"],
+    ["sxplayer_min_level", "select", ""],
+    ["time_anim", "node", ""],
+    ["audio_tex", "bool", ""],
+    ["max_nb_packets", "i32", ""],
+    ["max_nb_frames", "i32", ""],
+    ["max_nb_sink", "i32", ""],
+    ["max_pixels", "i32", ""],
+    ["stream_idx", "i32", ""],
+    ["hwaccel", "select", ""],
+    ["filters", "str", ""],
+    ["vt_pix_fmt", "str", ""]
+  ],
+  "_Noise": [
+    ["frequency", "f32", "L"],
+    ["amplitude", "f32", "L"],
+    ["octaves", "i32", "L"],
+    ["lacunarity", "f32", "L"],
+    ["gain", "f32", "L"],
+    ["seed", "u32", ""],
+    ["interpolant", "select", ""]
+  ],
+  "NoiseFloat": "_Noise",
+  "NoiseVec2": "_Noise",
+  "NoiseVec3": "_Noise",
+  "NoiseVec4": "_Noise",
+  "Path": [
+    ["keyframes", "node_list", "M"],
+    ["precision", "i32", ""]
+  ],
+  "PathKeyBezier2": [
+    ["control", "vec3", ""],
+    ["to", "vec3", ""]
+  ],
+  "PathKeyBezier3": [
+    ["control1", "vec3", ""],
+    ["control2", "vec3", ""],
+    ["to", "vec3", ""]
+  ],
+  "PathKeyLine": [
+    ["to", "vec3", ""]
+  ],
+  "PathKeyMove": [
+    ["to", "vec3", ""]
+  ],
+  "Program": [
+    ["vertex", "str", ""],
+    ["fragment", "str", ""],
+    ["properties", "node_dict", ""],
+    ["vert_out_vars", "node_dict", ""],
+    ["nb_frag_output", "i32", ""]
+  ],
+  "Quad": [
+    ["corner", "vec3", ""],
+    ["width", "vec3", ""],
+    ["height", "vec3", ""],
+    ["uv_corner", "vec2", ""],
+    ["uv_width", "vec2", ""],
+    ["uv_height", "vec2", ""]
+  ],
+  "Render": [
+    ["geometry", "node", "M"],
+    ["program", "node", "M"],
+    ["vert_resources", "node_dict", ""],
+    ["frag_resources", "node_dict", ""],
+    ["attributes", "node_dict", ""],
+    ["instance_attributes", "node_dict", ""],
+    ["nb_instances", "i32", ""],
+    ["blending", "select", ""]
+  ],
+  "RenderColor": [
+    ["color", "vec3", "LN"],
+    ["opacity", "f32", "LN"],
+    ["blending", "select", ""],
+    ["geometry", "node", ""],
+    ["filters", "node_list", ""]
+  ],
+  "RenderGradient": [
+    ["color0", "vec3", "LN"],
+    ["color1", "vec3", "LN"],
+    ["opacity0", "f32", "LN"],
+    ["opacity1", "f32", "LN"],
+    ["pos0", "vec2", "LN"],
+    ["pos1", "vec2", "LN"],
+    ["mode", "select", ""],
+    ["linear", "bool", "LN"],
+    ["blending", "select", ""],
+    ["geometry", "node", ""],
+    ["filters", "node_list", ""]
+  ],
+  "RenderGradient4": [
+    ["color_tl", "vec3", "LN"],
+    ["color_tr", "vec3", "LN"],
+    ["color_br", "vec3", "LN"],
+    ["color_bl", "vec3", "LN"],
+    ["opacity_tl", "f32", "LN"],
+    ["opacity_tr", "f32", "LN"],
+    ["opacity_br", "f32", "LN"],
+    ["opacity_bl", "f32", "LN"],
+    ["linear", "bool", "LN"],
+    ["blending", "select", ""],
+    ["geometry", "node", ""],
+    ["filters", "node_list", ""]
+  ],
+  "RenderTexture": [
+    ["texture", "node", "M"],
+    ["blending", "select", ""],
+    ["geometry", "node", ""],
+    ["filters", "node_list", ""]
+  ],
+  "RenderToTexture": [
+    ["child", "node", "M"],
+    ["color_textures", "node_list", ""],
+    ["depth_texture", "node", ""],
+    ["samples", "i32", ""],
+    ["clear_color", "vec4", ""],
+    ["features", "flags", ""]
+  ],
+  "ResourceProps": [
+    ["precision", "select", ""],
+    ["as_image", "bool", ""],
+    ["writable", "bool", ""],
+    ["variadic", "bool", ""]
+  ],
+  "Rotate": [
+    ["child", "node", "M"],
+    ["angle", "f32", "LN"],
+    ["axis", "vec3", ""],
+    ["anchor", "vec3", ""]
+  ],
+  "RotateQuat": [
+    ["child", "node", "M"],
+    ["quat", "vec4", "LN"],
+    ["anchor", "vec3", ""]
+  ],
+  "Scale": [
+    ["child", "node", "M"],
+    ["factors", "vec3", "LN"],
+    ["anchor", "vec3", ""]
+  ],
+  "Skew": [
+    ["child", "node", "M"],
+    ["angles", "vec3", "LN"],
+    ["axis", "vec3", ""],
+    ["anchor", "vec3", ""]
+  ],
+  "SmoothPath": [
+    ["points", "node", "M"],
+    ["control1", "vec3", ""],
+    ["control2", "vec3", ""],
+    ["precision", "i32", ""],
+    ["tension", "f32", ""]
+  ],
+  "Text": [
+    ["text", "str", "LM"],
+    ["live_id", "str", ""],
+    ["fg_color", "vec3", "L"],
+    ["fg_opacity", "f32", "L"],
+    ["bg_color", "vec3", "L"],
+    ["bg_opacity", "f32", "L"],
+    ["box_corner", "vec3", ""],
+    ["box_width", "vec3", ""],
+    ["box_height", "vec3", ""],
+    ["padding", "i32", ""],
+    ["font_scale", "f32", ""],
+    ["valign", "select", ""],
+    ["halign", "select", ""],
+    ["aspect_ratio", "rational", "L"]
+  ],
+  "Texture2D": [
+    ["format", "select", ""],
+    ["width", "i32", ""],
+    ["height", "i32", ""],
+    ["min_filter", "select", ""],
+    ["mag_filter", "select", ""],
+    ["mipmap_filter", "select", ""],
+    ["wrap_s", "select", ""],
+    ["wrap_t", "select", ""],
+    ["data_src", "node", ""],
+    ["direct_rendering", "bool", ""],
+    ["clamp_video", "bool", ""]
+  ],
+  "Texture3D": [
+    ["format", "select", ""],
+    ["width", "i32", ""],
+    ["height", "i32", ""],
+    ["depth", "i32", ""],
+    ["min_filter", "select", ""],
+    ["mag_filter", "select", ""],
+    ["mipmap_filter", "select", ""],
+    ["wrap_s", "select", ""],
+    ["wrap_t", "select", ""],
+    ["wrap_r", "select", ""],
+    ["data_src", "node", ""]
+  ],
+  "TextureCube": [
+    ["format", "select", ""],
+    ["size", "i32", ""],
+    ["min_filter", "select", ""],
+    ["mag_filter", "select", ""],
+    ["mipmap_filter", "select", ""],
+    ["wrap_s", "select", ""],
+    ["wrap_t", "select", ""],
+    ["wrap_r", "select", ""],
+    ["data_src", "node", ""]
+  ],
+  "TextureView": [
+    ["texture", "node", "M"],
+    ["layer", "i32", ""]
+  ],
+  "Time": [
+  ],
+  "TimeRangeFilter": [
+    ["child", "node", "M"],
+    ["ranges", "node_list", ""],
+    ["prefetch_time", "f64", ""],
+    ["max_idle_time", "f64", ""]
+  ],
+  "TimeRangeModeCont": [
+    ["start_time", "f64", ""]
+  ],
+  "TimeRangeModeNoop": [
+    ["start_time", "f64", ""]
+  ],
+  "TimeRangeModeOnce": [
+    ["start_time", "f64", ""],
+    ["render_time", "f64", ""]
+  ],
+  "Transform": [
+    ["child", "node", "M"],
+    ["matrix", "mat4", "L"]
+  ],
+  "Translate": [
+    ["child", "node", "M"],
+    ["vector", "vec3", "LN"]
+  ],
+  "Triangle": [
+    ["edge0", "vec3", ""],
+    ["edge1", "vec3", ""],
+    ["edge2", "vec3", ""],
+    ["uv_edge0", "vec2", ""],
+    ["uv_edge1", "vec2", ""],
+    ["uv_edge2", "vec2", ""]
+  ],
+  "StreamedInt": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedIVec2": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedIVec3": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedIVec4": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedUInt": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedUIVec2": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedUIVec3": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedUIVec4": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedFloat": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedVec2": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedVec3": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedVec4": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedMat4": [
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferInt": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferIVec2": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferIVec3": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferIVec4": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferUInt": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferUIVec2": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferUIVec3": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferUIVec4": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferFloat": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferVec2": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferVec3": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferVec4": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "StreamedBufferMat4": [
+    ["count", "i32", ""],
+    ["timestamps", "node", "M"],
+    ["buffer", "node", "M"],
+    ["timebase", "rational", ""],
+    ["time_anim", "node", ""]
+  ],
+  "UniformBool": [
+    ["value", "bool", "L"],
+    ["live_id", "str", ""]
+  ],
+  "UniformInt": [
+    ["value", "i32", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "i32", ""],
+    ["live_max", "i32", ""]
+  ],
+  "UniformIVec2": [
+    ["value", "ivec2", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "ivec2", ""],
+    ["live_max", "ivec2", ""]
+  ],
+  "UniformIVec3": [
+    ["value", "ivec3", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "ivec3", ""],
+    ["live_max", "ivec3", ""]
+  ],
+  "UniformIVec4": [
+    ["value", "ivec4", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "ivec4", ""],
+    ["live_max", "ivec4", ""]
+  ],
+  "UniformUInt": [
+    ["value", "u32", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "u32", ""],
+    ["live_max", "u32", ""]
+  ],
+  "UniformUIVec2": [
+    ["value", "uvec2", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "uvec2", ""],
+    ["live_max", "uvec2", ""]
+  ],
+  "UniformUIVec3": [
+    ["value", "uvec3", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "uvec3", ""],
+    ["live_max", "uvec3", ""]
+  ],
+  "UniformUIVec4": [
+    ["value", "uvec4", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "uvec4", ""],
+    ["live_max", "uvec4", ""]
+  ],
+  "UniformMat4": [
+    ["value", "mat4", "L"],
+    ["live_id", "str", ""],
+    ["transform", "node", ""]
+  ],
+  "UniformFloat": [
+    ["value", "f32", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "f32", ""],
+    ["live_max", "f32", ""]
+  ],
+  "UniformVec2": [
+    ["value", "vec2", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "vec2", ""],
+    ["live_max", "vec2", ""]
+  ],
+  "UniformVec3": [
+    ["value", "vec3", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "vec3", ""],
+    ["live_max", "vec3", ""]
+  ],
+  "UniformVec4": [
+    ["value", "vec4", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "vec4", ""],
+    ["live_max", "vec4", ""]
+  ],
+  "UniformColor": [
+    ["value", "vec3", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "vec3", ""],
+    ["live_max", "vec3", ""],
+    ["space", "select", ""]
+  ],
+  "UniformQuat": [
+    ["value", "vec4", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "vec4", ""],
+    ["live_max", "vec4", ""],
+    ["as_mat4", "bool", ""]
+  ],
+  "UserSelect": [
+    ["branches", "node_list", ""],
+    ["branch", "i32", "L"],
+    ["live_id", "str", ""],
+    ["live_min", "i32", ""],
+    ["live_max", "i32", ""]
+  ],
+  "UserSwitch": [
+    ["child", "node", "M"],
+    ["enabled", "bool", "L"],
+    ["live_id", "str", ""]
+  ],
+  "VelocityFloat": [
+    ["animation", "node", "M"]
+  ],
+  "VelocityVec2": [
+    ["animation", "node", "M"]
+  ],
+  "VelocityVec3": [
+    ["animation", "node", "M"]
+  ],
+  "VelocityVec4": [
+    ["animation", "node", "M"]
+  ]
+}

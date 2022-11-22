@@ -19,6 +19,7 @@
 # under the License.
 #
 
+import json
 import textwrap
 
 from setuptools import Command, Extension, find_packages, setup
@@ -349,11 +350,9 @@ class CommandUtils:
     def write_definitions_pyx():
         import os.path as op
 
-        import yaml  # must NOT be on top of this file
-
         specs_file = op.join(_LIB_CFG.data_root_dir, "nodegl", "nodes.specs")
         with open(specs_file) as f:
-            specs = yaml.safe_load(f)
+            specs = json.load(f)
         content = CommandUtils._gen_definitions_pyx(specs)
         with open("nodes_def.pyx", "w") as output:
             output.write(content)
@@ -393,7 +392,6 @@ setup(
     setup_requires=[
         "setuptools>=18.0",
         "cython>=0.29.6",
-        "pyyaml",
     ],
     cmdclass={
         "build_ext": BuildExtCommand,

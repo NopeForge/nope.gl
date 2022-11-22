@@ -33,23 +33,26 @@ extern const struct param_specs ngli_params_specs[];
 
 static void print_node_params(const char *name, const struct node_param *p)
 {
-    printf("%s:\n", name);
+    printf("  \"%s\": [\n", name);
     if (p) {
         while (p->key) {
-            printf("    - [%s, %s, \"%s%s%s\"]\n", p->key, ngli_params_specs[p->type].name,
+            printf("    [\"%s\", \"%s\", \"%s%s%s\"]%s\n", p->key, ngli_params_specs[p->type].name,
                    (p->flags & NGLI_PARAM_FLAG_ALLOW_LIVE_CHANGE) ? "L" : "",  /* [L]ive */
                    (p->flags & NGLI_PARAM_FLAG_ALLOW_NODE)        ? "N" : "",  /* [N]ode */
-                   (p->flags & NGLI_PARAM_FLAG_NON_NULL)          ? "M" : ""); /* [M]andatory */
+                   (p->flags & NGLI_PARAM_FLAG_NON_NULL)          ? "M" : "",  /* [M]andatory */
+                   (p + 1)->key ? "," : ""
+            );
             p++;
         }
     }
-    printf("\n");
+    printf("  ]");
 }
 
 #define CLASS_COMMALIST(type_name, cls) &cls,
 
 int main(void)
 {
+    printf("{\n");
     print_node_params("_Node", ngli_base_node_params);
 
     static const struct node_class *node_classes[] = {
@@ -74,16 +77,20 @@ int main(void)
             if (mapped_param) {
                 ngli_assert(mapped_param == p);
             } else {
+                printf(",\n");
                 print_node_params(pname, p);
                 ngli_hmap_set(params_map, c->params_id, (void *)p);
             }
-            printf("%s: %s\n\n", c->name, pname);
+            printf(",\n");
+            printf("  \"%s\": \"%s\"", c->name, pname);
             ngli_free(pname);
         } else {
+            printf(",\n");
             print_node_params(c->name, p);
         }
     }
 
     ngli_hmap_freep(&params_map);
+    printf("\n}\n");
     return 0;
 }
