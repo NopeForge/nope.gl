@@ -62,7 +62,7 @@ graph
 ```
 
 [meson]: https://mesonbuild.com/
-[sxplayer]: https://github.com/stupeflix/sxplayer
+[sxplayer]: https://github.com/gopro/sxplayer
 [graphviz]: http://www.graphviz.org/
 [python]: https://www.python.org/
 [cython]: http://cython.org/

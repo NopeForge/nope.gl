@@ -45,7 +45,7 @@ _RENDERDOC_ID = f"renderdoc_{_SYSTEM}"
 _EXTERNAL_DEPS = dict(
     sxplayer=dict(
         version="9.13.0",
-        url="https://github.com/Stupeflix/sxplayer/archive/v@VERSION@.tar.gz",
+        url="https://github.com/gopro/sxplayer/archive/v@VERSION@.tar.gz",
         dst_file="sxplayer-@VERSION@.tar.gz",
         sha256="272ecf2a31238440a8fc70dbe6431989d06cf77b9f15a26a55c6c91244768fca",
     ),

@@ -59,7 +59,7 @@ jobs:
 
     - name: Build sxplayer lib for Android & reshape files tree
       run: |
-        curl -sL https://github.com/Stupeflix/sxplayer/archive/refs/tags/v${{ matrix.sxplayer_version }}.tar.gz -o sxplayer.tgz
+        curl -sL https://github.com/gopro/sxplayer/archive/refs/tags/v${{ matrix.sxplayer_version }}.tar.gz -o sxplayer.tgz
         tar xf sxplayer.tgz
         cd sxplayer-${{ matrix.sxplayer_version }}
         PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
