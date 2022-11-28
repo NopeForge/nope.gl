@@ -94,11 +94,11 @@ void *ngli_malloc_aligned(size_t size)
     return ptr;
 }
 
-void *ngli_realloc(void *ptr, size_t size)
+void *ngli_realloc(void *ptr, size_t n, size_t size)
 {
     if (failure_requested())
         return NULL;
-    return realloc(ptr, size);
+    return realloc(ptr, n * size);
 }
 
 void ngli_free(void *ptr)

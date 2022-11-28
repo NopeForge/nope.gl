@@ -58,7 +58,7 @@ void ngli_bstr_print(struct bstr *b, const char *str)
     const size_t avail = b->bufsize - b->len;
     if (len + 1 > avail) {
         const int new_size = b->len + len + 1 + BUFFER_PADDING;
-        void *ptr = ngli_realloc(b->str, new_size);
+        void *ptr = ngli_realloc(b->str, new_size, 1);
         if (!ptr) {
             b->state = NGL_ERROR_MEMORY;
             return;
@@ -86,7 +86,7 @@ void ngli_bstr_printf(struct bstr *b, const char *fmt, ...)
 
     if (len + 1 > avail) {
         const int new_size = b->len + len + 1 + BUFFER_PADDING;
-        void *ptr = ngli_realloc(b->str, new_size);
+        void *ptr = ngli_realloc(b->str, new_size, 1);
         if (!ptr) {
             b->state = NGL_ERROR_MEMORY;
             return;

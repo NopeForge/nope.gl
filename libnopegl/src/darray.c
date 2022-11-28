@@ -31,7 +31,7 @@ static int reserve_non_aligned(struct darray *darray, int capacity)
     if (capacity < darray->capacity)
         return 0;
 
-    void *ptr = ngli_realloc(darray->data, capacity * darray->element_size);
+    void *ptr = ngli_realloc(darray->data, capacity, darray->element_size);
     if (!ptr)
         return NGL_ERROR_MEMORY;
     darray->data = ptr;
