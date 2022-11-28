@@ -140,7 +140,7 @@ static void fix_refs(struct hmap *hm, struct bucket *b, struct hmap_ref removed)
 
 static int add_entry(struct hmap *hm, struct bucket *b, char *key, void *data, int id)
 {
-    struct hmap_entry *entries = ngli_realloc(b->entries, (b->nb_entries + 1) * sizeof(*b->entries));
+    struct hmap_entry *entries = ngli_realloc(b->entries, b->nb_entries + 1, sizeof(*b->entries));
     if (!entries)
         return NGL_ERROR_MEMORY;
     b->entries = entries;
@@ -202,7 +202,7 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
                 } else {
                     memmove(e, e + 1, (b->nb_entries - i) * sizeof(*b->entries));
                     struct hmap_entry *entries =
-                        ngli_realloc(b->entries, b->nb_entries * sizeof(*b->entries));
+                        ngli_realloc(b->entries, b->nb_entries, sizeof(*b->entries));
                     if (!entries)
                         return 0; // unable to realloc but entry got dropped, so this is OK
                     b->entries = entries;

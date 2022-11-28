@@ -592,7 +592,7 @@ static VkResult create_swapchain(struct gpu_ctx *s)
     if (res != VK_SUCCESS)
         return res;
 
-    VkImage *images = ngli_realloc(s_priv->images, s_priv->nb_images * sizeof(VkImage));
+    VkImage *images = ngli_realloc(s_priv->images, s_priv->nb_images, sizeof(VkImage));
     if (!images)
         return VK_ERROR_OUT_OF_HOST_MEMORY;
     s_priv->images = images;
