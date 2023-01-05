@@ -1079,8 +1079,10 @@ static int craft_frag(struct pgcraft *s, const struct pgcraft_params *params)
     if (s->has_precision_qualifiers)
         ngli_bstr_print(b, "#if GL_FRAGMENT_PRECISION_HIGH\n"
                            "precision highp float;\n"
+                           "precision highp int;\n"
                            "#else\n"
                            "precision mediump float;\n"
+                           "precision mediump int;\n"
                            "#endif\n");
     else
         /*
