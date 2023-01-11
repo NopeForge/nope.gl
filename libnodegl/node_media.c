@@ -32,6 +32,7 @@
 #endif
 
 #include "log.h"
+#include "memory.h"
 #include "nodegl.h"
 #include "internal.h"
 
@@ -130,11 +131,33 @@ static void callback_sxplayer_log(void *arg, int level, const char *filename, in
     if (level < o->sxplayer_min_level)
         return;
 
-    char buf[512];
-    vsnprintf(buf, sizeof(buf), fmt, vl);
-    if (buf[0])
+    char logline[128];
+    char *logbuf = NULL;
+    const char *logp = logline;
+
+    /* we need a copy because it may be re-used a 2nd time */
+    va_list vl_copy;
+    va_copy(vl_copy, vl);
+
+    int len = vsnprintf(logline, sizeof(logline), fmt, vl);
+
+    /* handle the case where the line doesn't fit the stack buffer */
+    if (len >= sizeof(logline)) {
+        logbuf = ngli_malloc(len + 1);
+        if (!logbuf) {
+            va_end(vl_copy);
+            return;
+        }
+        vsnprintf(logbuf, len + 1, fmt, vl_copy);
+        logp = logbuf;
+    }
+
+    if (logp[0])
         ngli_log_print(log_levels[level], __FILE__, __LINE__, __func__,
-                       "[SXPLAYER %s:%d %s] %s", filename, ln, fn, buf);
+                       "[SXPLAYER %s:%d %s] %s", filename, ln, fn, logp);
+
+    ngli_free(logbuf);
+    va_end(vl_copy);
 }
 
 #if defined(TARGET_IPHONE) || defined(TARGET_DARWIN)
