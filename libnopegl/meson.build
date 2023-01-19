@@ -475,9 +475,9 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
       # linked to SPIRV-Tools:
       # - on Linux, it is generally distributed as shared libraries, more
       #   specifically, libglslang.so, libHLSL.so, libSPVRemapper.so and
-      #   libSPIRV.so are installed. libOGLCompiler.a and libOSDependent.a are
-      #   also provided but not required by the shared libraries. There is no
-      #   dependency between the shared libraries.
+      #   libSPIRV.so are installed. libOGLCompiler.a and libOSDependent.a may
+      #   also be provided but are not required by the shared libraries. There
+      #   is no dependency between the shared libraries.
       # - on the other platforms (macOS, Windows, Android, iOS) it is generally
       #   distributed or installed as static libraries, more specifically,
       #   libglslang.a, libMachineIndependent.a, libOSDependent.a, libHLSL.a,
@@ -492,9 +492,9 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
         {'name': 'glslang',                         'required': true},
         {'name': 'glslang-default-resource-limits', 'required': true},
         {'name': 'MachineIndependent',              'required': false},
-        {'name': 'OSDependent',                     'required': true},
+        {'name': 'OSDependent',                     'required': false},
         {'name': 'HLSL',                            'required': true},
-        {'name': 'OGLCompiler',                     'required': true},
+        {'name': 'OGLCompiler',                     'required': false},
         {'name': 'GenericCodeGen',                  'required': false},
         {'name': 'SPVRemapper',                     'required': true},
         {'name': 'SPIRV',                           'required': true},
