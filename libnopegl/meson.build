@@ -475,7 +475,7 @@ foreach gbackend_name, gbackend_cfg : gbackends_cfg
       # linked to SPIRV-Tools:
       # - on Linux, it is generally distributed as shared libraries, more
       #   specifically, libglslang.so, libHLSL.so, libSPVRemapper.so and
-      #   libSPIRV.so are installed. libOGLCompiler.a and libOSDependant.a are
+      #   libSPIRV.so are installed. libOGLCompiler.a and libOSDependent.a are
       #   also provided but not required by the shared libraries. There is no
       #   dependency between the shared libraries.
       # - on the other platforms (macOS, Windows, Android, iOS) it is generally
