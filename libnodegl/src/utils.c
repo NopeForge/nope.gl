@@ -181,7 +181,7 @@ void ngli_thread_set_name(const char *name)
 int ngli_get_filesize(const char *filename, int64_t *size)
 {
 #ifdef _WIN32
-    HANDLE file_handle = CreateFile(TEXT(filename), GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    HANDLE file_handle = CreateFile(TEXT(filename), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (file_handle == INVALID_HANDLE_VALUE)
         return NGL_ERROR_IO;
 
