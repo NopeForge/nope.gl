@@ -29,7 +29,6 @@ import pynodegl as ngl
 
 
 class Toolbar(QtWidgets.QWidget):
-
     sceneChanged = QtCore.Signal(str, str)
     aspectRatioChanged = QtCore.Signal(tuple)
     samplesChanged = QtCore.Signal(int)

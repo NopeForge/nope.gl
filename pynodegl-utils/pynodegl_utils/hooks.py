@@ -30,7 +30,6 @@ from PySide6 import QtCore
 
 
 class _HooksCaller:
-
     _HOOKS = ("get_session_info", "get_sessions", "scene_change", "sync_file")
 
     def __init__(self, hooks_script):
@@ -121,7 +120,6 @@ class HooksCaller:
 
 
 class _SessionInfoWorker(QtCore.QObject):
-
     _process = QtCore.Signal()
     success = QtCore.Signal(object, object)
     error = QtCore.Signal(object)
@@ -157,7 +155,6 @@ class _SessionInfoWorker(QtCore.QObject):
 
 
 class _SceneChangeWorker(QtCore.QObject):
-
     _process = QtCore.Signal()
     uploadingFile = QtCore.Signal(str, int, int, str)
     buildingScene = QtCore.Signal(str, str, str)
@@ -247,7 +244,6 @@ class _SceneChangeWorker(QtCore.QObject):
 
 
 class HooksController(QtCore.QObject):
-
     session_added = QtCore.Signal(object)
     session_removed = QtCore.Signal(str)
     session_info_changed = QtCore.Signal(object)

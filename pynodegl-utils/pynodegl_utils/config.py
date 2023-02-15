@@ -29,7 +29,6 @@ from .misc import get_nodegl_tempdir
 
 
 class Config(QtCore.QObject):
-
     FILEPATH = op.join(os.environ.get("XDG_DATA_HOME", op.expanduser("~/.local/share")), "node.gl", "controller.json")
     CHOICES = {
         "aspect_ratio": [

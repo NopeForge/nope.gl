@@ -142,7 +142,6 @@ def _test_derivative_approximations(nb_points=20):
 
 @test_floats()
 def anim_derivative_api(nb_points=7):
-
     # We slip the approximation test in this function because all the test
     # functions must have a reference in this file.
     _test_derivative_approximations()

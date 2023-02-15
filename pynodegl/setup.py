@@ -27,7 +27,6 @@ from setuptools.command.build_ext import build_ext
 
 
 class LibNodeGLConfig:
-
     PKG_LIB_NAME = "libnodegl"
 
     def __init__(self, pkg_config_bin="pkg-config"):
@@ -187,7 +186,6 @@ class _WrapperGenerator:
 
     @classmethod
     def _get_class_init(cls, parent_params, params, inherited):
-
         # Generate the code responsible for honoring all direct parameters (if
         # they are not None)
         init_code = ""

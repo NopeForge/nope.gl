@@ -150,7 +150,6 @@ def _get_live_spec():
 
 
 def _get_live_trf_spec():
-
     t0 = ngl.Identity()
     t1 = ngl.Transform(t0)
     t2 = ngl.Translate(t1)
@@ -196,7 +195,6 @@ def _get_live_trf_spec():
 
 
 def _get_live_function(spec, category, field_type, layout):
-
     fields = match_fields(spec, category, field_type)
     assert len(fields) == 1
     field = fields[0]
@@ -224,7 +222,6 @@ def _get_live_function(spec, category, field_type, layout):
 
 
 def _get_live_trf_function(spec, category, field_type, layout):
-
     fields = match_fields(spec, category, field_type)
     assert len(fields) == 1
     field = fields[0]

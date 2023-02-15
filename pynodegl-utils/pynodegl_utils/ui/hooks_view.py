@@ -26,7 +26,6 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 class _SpawnView(QtWidgets.QGroupBox):
     def __init__(self, config):
-
         QtWidgets.QGroupBox.__init__(self, "Local ngl-desktop")
         self._config = config
 
@@ -113,7 +112,6 @@ class _SpawnView(QtWidgets.QGroupBox):
 
 
 class HooksView(QtWidgets.QWidget):
-
     # Associates the UI column labels with the data session keys
     _COLUMNS = (
         ("Session", "sid"),
@@ -224,7 +222,6 @@ class HooksView(QtWidgets.QWidget):
 
 
 if __name__ == "__main__":
-
     import random
     import string
     import sys

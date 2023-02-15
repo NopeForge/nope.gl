@@ -46,7 +46,6 @@ class _SVGGraphView(QtWidgets.QGraphicsView):
 
 
 class _Clock:
-
     TIMEBASE = 1000000000  # nanoseconds
 
     def __init__(self, framerate, duration):

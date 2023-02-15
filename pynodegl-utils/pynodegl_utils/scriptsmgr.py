@@ -33,7 +33,6 @@ MIN_RELOAD_INTERVAL = 0.0015
 
 
 class ScriptsManager(QtCore.QObject):
-
     scriptsChanged = QtCore.Signal(list)
     error = QtCore.Signal(str)
 

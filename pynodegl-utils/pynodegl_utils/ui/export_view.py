@@ -92,7 +92,6 @@ class ExportView(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def _check_settings(self):
-
         warnings = []
 
         if self._ofile_text.text().endswith(".gif"):

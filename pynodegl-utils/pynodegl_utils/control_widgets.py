@@ -25,7 +25,6 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class _ControlWidget(QtWidgets.QWidget):
-
     needSceneReload = QtCore.Signal(str, object)
 
     def __init__(self, name):

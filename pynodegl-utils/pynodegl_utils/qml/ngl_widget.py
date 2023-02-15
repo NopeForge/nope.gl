@@ -34,7 +34,6 @@ QML_IMPORT_MINOR_VERSION = 0
 
 @QmlElement
 class NodeGLWidget(QQuickFramebufferObject):
-
     livectls_changed = QtCore.Signal(object)
 
     _NODE_TYPES_MODEL_MAP = dict(

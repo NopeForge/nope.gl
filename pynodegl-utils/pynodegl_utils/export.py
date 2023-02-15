@@ -31,7 +31,6 @@ import pynodegl as ngl
 
 
 class Exporter(QtCore.QThread):
-
     progressed = QtCore.Signal(int)
     failed = QtCore.Signal(str)
     export_finished = QtCore.Signal()

@@ -26,7 +26,6 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class Seekbar(QtWidgets.QWidget):
-
     seek = QtCore.Signal(float)
     step = QtCore.Signal(int)
 

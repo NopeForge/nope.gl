@@ -35,7 +35,6 @@ from PySide6 import QtCore, QtGui, QtWidgets
 
 
 class MainWindow(QtWidgets.QSplitter):
-
     sceneLoaded = QtCore.Signal(dict)
     error = QtCore.Signal(str)
 

@@ -62,7 +62,7 @@ class _CompareCuePoints(CompareSceneBase):
     def get_out_data(self, dump=False, func_name=None):
         cpoints = []
         dump_index = 0
-        for (width, height, capture_buffer) in self.render_frames():
+        for width, height, capture_buffer in self.render_frames():
             if dump:
                 img = Image.frombuffer(_MODE, (width, height), capture_buffer, "raw", _MODE, 0, 1)
                 CompareBase.dump_image(img, dump_index, func_name)
