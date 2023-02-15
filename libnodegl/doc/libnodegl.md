@@ -8,7 +8,7 @@ Parameter | Flags | Type | Description | Default
 `keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameBuffer](#animkeyframebuffer)) | key frame buffers to interpolate from | 
 
 
-**Source**: [node_animatedbuffer.c](/libnodegl/node_animatedbuffer.c)
+**Source**: [src/node_animatedbuffer.c](/libnodegl/src/node_animatedbuffer.c)
 
 List of `AnimatedBuffer*` nodes:
 
@@ -25,7 +25,7 @@ Parameter | Flags | Type | Description | Default
 `space` |  | [`colorspace`](#colorspace-choices) | color space defining how to interpret `value` | `srgb`
 
 
-**Source**: [node_animated.c](/libnodegl/node_animated.c)
+**Source**: [src/node_animated.c](/libnodegl/src/node_animated.c)
 
 
 ## AnimatedPath
@@ -36,7 +36,7 @@ Parameter | Flags | Type | Description | Default
 `path` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([Path](#path), [SmoothPath](#smoothpath)) | path to follow | 
 
 
-**Source**: [node_animated.c](/libnodegl/node_animated.c)
+**Source**: [src/node_animated.c](/libnodegl/src/node_animated.c)
 
 
 ## AnimatedTime
@@ -46,7 +46,7 @@ Parameter | Flags | Type | Description | Default
 `keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | time key frames to interpolate from | 
 
 
-**Source**: [node_animated.c](/libnodegl/node_animated.c)
+**Source**: [src/node_animated.c](/libnodegl/src/node_animated.c)
 
 
 ## AnimatedFloat
@@ -56,7 +56,7 @@ Parameter | Flags | Type | Description | Default
 `keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameFloat](#animkeyframefloat)) | float key frames to interpolate from | 
 
 
-**Source**: [node_animated.c](/libnodegl/node_animated.c)
+**Source**: [src/node_animated.c](/libnodegl/src/node_animated.c)
 
 
 ## AnimatedVec2
@@ -66,7 +66,7 @@ Parameter | Flags | Type | Description | Default
 `keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameVec2](#animkeyframevec2)) | vec2 key frames to interpolate from | 
 
 
-**Source**: [node_animated.c](/libnodegl/node_animated.c)
+**Source**: [src/node_animated.c](/libnodegl/src/node_animated.c)
 
 
 ## AnimatedVec3
@@ -76,7 +76,7 @@ Parameter | Flags | Type | Description | Default
 `keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameVec3](#animkeyframevec3)) | vec3 key frames to interpolate from | 
 
 
-**Source**: [node_animated.c](/libnodegl/node_animated.c)
+**Source**: [src/node_animated.c](/libnodegl/src/node_animated.c)
 
 
 ## AnimatedVec4
@@ -86,7 +86,7 @@ Parameter | Flags | Type | Description | Default
 `keyframes` |  | [`node_list`](#parameter-types) ([AnimKeyFrameVec4](#animkeyframevec4)) | vec4 key frames to interpolate from | 
 
 
-**Source**: [node_animated.c](/libnodegl/node_animated.c)
+**Source**: [src/node_animated.c](/libnodegl/src/node_animated.c)
 
 
 ## AnimatedQuat
@@ -97,7 +97,7 @@ Parameter | Flags | Type | Description | Default
 `as_mat4` |  | [`bool`](#parameter-types) | exposed as a 4x4 rotation matrix in the program | `0`
 
 
-**Source**: [node_animated.c](/libnodegl/node_animated.c)
+**Source**: [src/node_animated.c](/libnodegl/src/node_animated.c)
 
 
 ## AnimKeyFrameFloat
@@ -112,7 +112,7 @@ Parameter | Flags | Type | Description | Default
 `easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
-**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+**Source**: [src/node_animkeyframe.c](/libnodegl/src/node_animkeyframe.c)
 
 
 ## AnimKeyFrameVec2
@@ -127,7 +127,7 @@ Parameter | Flags | Type | Description | Default
 `easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
-**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+**Source**: [src/node_animkeyframe.c](/libnodegl/src/node_animkeyframe.c)
 
 
 ## AnimKeyFrameVec3
@@ -142,7 +142,7 @@ Parameter | Flags | Type | Description | Default
 `easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
-**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+**Source**: [src/node_animkeyframe.c](/libnodegl/src/node_animkeyframe.c)
 
 
 ## AnimKeyFrameVec4
@@ -157,7 +157,7 @@ Parameter | Flags | Type | Description | Default
 `easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
-**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+**Source**: [src/node_animkeyframe.c](/libnodegl/src/node_animkeyframe.c)
 
 
 ## AnimKeyFrameQuat
@@ -172,7 +172,7 @@ Parameter | Flags | Type | Description | Default
 `easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
-**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+**Source**: [src/node_animkeyframe.c](/libnodegl/src/node_animkeyframe.c)
 
 
 ## AnimKeyFrameColor
@@ -187,7 +187,7 @@ Parameter | Flags | Type | Description | Default
 `easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
-**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+**Source**: [src/node_animkeyframe.c](/libnodegl/src/node_animkeyframe.c)
 
 
 ## AnimKeyFrameBuffer
@@ -202,7 +202,7 @@ Parameter | Flags | Type | Description | Default
 `easing_end_offset` |  | [`f64`](#parameter-types) | ending offset of the truncation of the easing | `1`
 
 
-**Source**: [node_animkeyframe.c](/libnodegl/node_animkeyframe.c)
+**Source**: [src/node_animkeyframe.c](/libnodegl/src/node_animkeyframe.c)
 
 
 ## Block
@@ -213,7 +213,7 @@ Parameter | Flags | Type | Description | Default
 `layout` |  | [`memory_layout`](#memory_layout-choices) | memory layout set in the graphic program | `std140`
 
 
-**Source**: [node_block.c](/libnodegl/node_block.c)
+**Source**: [src/node_block.c](/libnodegl/src/node_block.c)
 
 
 ## Buffer*
@@ -227,7 +227,7 @@ Parameter | Flags | Type | Description | Default
 `block_field` |  | [`str`](#parameter-types) | field name in `block` | 
 
 
-**Source**: [node_buffer.c](/libnodegl/node_buffer.c)
+**Source**: [src/node_buffer.c](/libnodegl/src/node_buffer.c)
 
 List of `Buffer*` nodes:
 
@@ -278,7 +278,7 @@ Parameter | Flags | Type | Description | Default
 `up_transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `up` transformation chain | 
 
 
-**Source**: [node_camera.c](/libnodegl/node_camera.c)
+**Source**: [src/node_camera.c](/libnodegl/src/node_camera.c)
 
 
 ## Circle
@@ -289,7 +289,7 @@ Parameter | Flags | Type | Description | Default
 `npoints` |  | [`i32`](#parameter-types) | number of points | `16`
 
 
-**Source**: [node_circle.c](/libnodegl/node_circle.c)
+**Source**: [src/node_circle.c](/libnodegl/src/node_circle.c)
 
 
 ## Compute
@@ -301,7 +301,7 @@ Parameter | Flags | Type | Description | Default
 `resources` |  | [`node_dict`](#parameter-types) ([Texture2D](#texture2d), [Block](#block), [UniformFloat](#uniformfloat), [UniformVec2](#uniformvec2), [UniformVec3](#uniformvec3), [UniformVec4](#uniformvec4), [UniformColor](#uniformcolor), [UniformQuat](#uniformquat), [UniformBool](#uniformbool), [UniformInt](#uniformint), [UniformIVec2](#uniformivec2), [UniformIVec3](#uniformivec3), [UniformIVec4](#uniformivec4), [UniformUInt](#uniformuint), [UniformUIVec2](#uniformuivec2), [UniformUIVec3](#uniformuivec3), [UniformUIVec4](#uniformuivec4), [UniformMat4](#uniformmat4), [AnimatedFloat](#animatedfloat), [AnimatedVec2](#animatedvec2), [AnimatedVec3](#animatedvec3), [AnimatedVec4](#animatedvec4), [AnimatedQuat](#animatedquat), [AnimatedColor](#animatedcolor), [NoiseFloat](#noise), [NoiseVec2](#noise), [NoiseVec3](#noise), [NoiseVec4](#noise), [EvalFloat](#evalfloat), [EvalVec2](#evalvec2), [EvalVec3](#evalvec3), [EvalVec4](#evalvec4), [StreamedInt](#streamedint), [StreamedIVec2](#streamedivec2), [StreamedIVec3](#streamedivec3), [StreamedIVec4](#streamedivec4), [StreamedUInt](#streameduint), [StreamedUIVec2](#streameduivec2), [StreamedUIVec3](#streameduivec3), [StreamedUIVec4](#streameduivec4), [StreamedFloat](#streamedfloat), [StreamedVec2](#streamedvec2), [StreamedVec3](#streamedvec3), [StreamedVec4](#streamedvec4), [StreamedMat4](#streamedmat4), [Time](#time), [VelocityFloat](#velocityfloat), [VelocityVec2](#velocityvec2), [VelocityVec3](#velocityvec3), [VelocityVec4](#velocityvec4)) | resources made accessible to the compute `program` | 
 
 
-**Source**: [node_compute.c](/libnodegl/node_compute.c)
+**Source**: [src/node_compute.c](/libnodegl/src/node_compute.c)
 
 
 ## ComputeProgram
@@ -313,7 +313,7 @@ Parameter | Flags | Type | Description | Default
 `properties` |  | [`node_dict`](#parameter-types) ([ResourceProps](#resourceprops)) | resource properties | 
 
 
-**Source**: [node_computeprogram.c](/libnodegl/node_computeprogram.c)
+**Source**: [src/node_computeprogram.c](/libnodegl/src/node_computeprogram.c)
 
 
 ## FilterAlpha
@@ -323,7 +323,7 @@ Parameter | Flags | Type | Description | Default
 `alpha` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | alpha channel value | `1`
 
 
-**Source**: [node_filters.c](/libnodegl/node_filters.c)
+**Source**: [src/node_filters.c](/libnodegl/src/node_filters.c)
 
 
 ## FilterContrast
@@ -334,7 +334,7 @@ Parameter | Flags | Type | Description | Default
 `pivot` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | pivot point between light and dark | `0.5`
 
 
-**Source**: [node_filters.c](/libnodegl/node_filters.c)
+**Source**: [src/node_filters.c](/libnodegl/src/node_filters.c)
 
 
 ## FilterExposure
@@ -344,17 +344,17 @@ Parameter | Flags | Type | Description | Default
 `exposure` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | exposure | `0`
 
 
-**Source**: [node_filters.c](/libnodegl/node_filters.c)
+**Source**: [src/node_filters.c](/libnodegl/src/node_filters.c)
 
 
 ## FilterInverseAlpha
 
-**Source**: [node_filters.c](/libnodegl/node_filters.c)
+**Source**: [src/node_filters.c](/libnodegl/src/node_filters.c)
 
 
 ## FilterLinear2sRGB
 
-**Source**: [node_filters.c](/libnodegl/node_filters.c)
+**Source**: [src/node_filters.c](/libnodegl/src/node_filters.c)
 
 
 ## FilterOpacity
@@ -364,12 +364,12 @@ Parameter | Flags | Type | Description | Default
 `opacity` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | opacity value (color gets premultiplied by this value) | `1`
 
 
-**Source**: [node_filters.c](/libnodegl/node_filters.c)
+**Source**: [src/node_filters.c](/libnodegl/src/node_filters.c)
 
 
 ## FilterPremult
 
-**Source**: [node_filters.c](/libnodegl/node_filters.c)
+**Source**: [src/node_filters.c](/libnodegl/src/node_filters.c)
 
 
 ## FilterSaturation
@@ -379,12 +379,12 @@ Parameter | Flags | Type | Description | Default
 `saturation` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`f32`](#parameter-types) | saturation | `1`
 
 
-**Source**: [node_filters.c](/libnodegl/node_filters.c)
+**Source**: [src/node_filters.c](/libnodegl/src/node_filters.c)
 
 
 ## FilterSRGB2Linear
 
-**Source**: [node_filters.c](/libnodegl/node_filters.c)
+**Source**: [src/node_filters.c](/libnodegl/src/node_filters.c)
 
 
 ## Geometry
@@ -398,7 +398,7 @@ Parameter | Flags | Type | Description | Default
 `topology` |  | [`topology`](#topology-choices) | primitive topology | `triangle_list`
 
 
-**Source**: [node_geometry.c](/libnodegl/node_geometry.c)
+**Source**: [src/node_geometry.c](/libnodegl/src/node_geometry.c)
 
 
 ## GraphicConfig
@@ -430,7 +430,7 @@ Parameter | Flags | Type | Description | Default
 `scissor` |  | [`vec4`](#parameter-types) | define an area where all pixels outside are discarded | (`-1`,`-1`,`-1`,`-1`)
 
 
-**Source**: [node_graphicconfig.c](/libnodegl/node_graphicconfig.c)
+**Source**: [src/node_graphicconfig.c](/libnodegl/src/node_graphicconfig.c)
 
 
 ## Group
@@ -440,12 +440,12 @@ Parameter | Flags | Type | Description | Default
 `children` |  | [`node_list`](#parameter-types) | a set of scenes | 
 
 
-**Source**: [node_group.c](/libnodegl/node_group.c)
+**Source**: [src/node_group.c](/libnodegl/src/node_group.c)
 
 
 ## Identity
 
-**Source**: [node_identity.c](/libnodegl/node_identity.c)
+**Source**: [src/node_identity.c](/libnodegl/src/node_identity.c)
 
 
 ## IOVar*
@@ -456,7 +456,7 @@ Parameter | Flags | Type | Description | Default
 `precision_in` |  | [`precision`](#precision-choices) | precision qualifier for the input side (fragment) | `auto`
 
 
-**Source**: [node_io.c](/libnodegl/node_io.c)
+**Source**: [src/node_io.c](/libnodegl/src/node_io.c)
 
 List of `IOVar*` nodes:
 
@@ -484,7 +484,7 @@ Parameter | Flags | Type | Description | Default
 `resources` |  | [`node_dict`](#parameter-types) ([NoiseFloat](#noise), [EvalFloat](#evalfloat), [UniformFloat](#uniformfloat), [AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat), [Time](#time), [VelocityFloat](#velocityfloat)) | resources made accessible to the `expr0` | 
 
 
-**Source**: [node_eval.c](/libnodegl/node_eval.c)
+**Source**: [src/node_eval.c](/libnodegl/src/node_eval.c)
 
 
 ## EvalVec2
@@ -496,7 +496,7 @@ Parameter | Flags | Type | Description | Default
 `resources` |  | [`node_dict`](#parameter-types) ([NoiseFloat](#noise), [EvalFloat](#evalfloat), [UniformFloat](#uniformfloat), [AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat), [Time](#time), [VelocityFloat](#velocityfloat)) | resources made accessible to the `expr0` and `expr1` | 
 
 
-**Source**: [node_eval.c](/libnodegl/node_eval.c)
+**Source**: [src/node_eval.c](/libnodegl/src/node_eval.c)
 
 
 ## EvalVec3
@@ -509,7 +509,7 @@ Parameter | Flags | Type | Description | Default
 `resources` |  | [`node_dict`](#parameter-types) ([NoiseFloat](#noise), [EvalFloat](#evalfloat), [UniformFloat](#uniformfloat), [AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat), [Time](#time), [VelocityFloat](#velocityfloat)) | resources made accessible to the `expr0`, `expr1` and `expr2` | 
 
 
-**Source**: [node_eval.c](/libnodegl/node_eval.c)
+**Source**: [src/node_eval.c](/libnodegl/src/node_eval.c)
 
 
 ## EvalVec4
@@ -523,7 +523,7 @@ Parameter | Flags | Type | Description | Default
 `resources` |  | [`node_dict`](#parameter-types) ([NoiseFloat](#noise), [EvalFloat](#evalfloat), [UniformFloat](#uniformfloat), [AnimatedFloat](#animatedfloat), [StreamedFloat](#streamedfloat), [Time](#time), [VelocityFloat](#velocityfloat)) | resources made accessible to the `expr0`, `expr1`, `expr2` and `expr3` | 
 
 
-**Source**: [node_eval.c](/libnodegl/node_eval.c)
+**Source**: [src/node_eval.c](/libnodegl/src/node_eval.c)
 
 
 ## Media
@@ -544,7 +544,7 @@ Parameter | Flags | Type | Description | Default
 `vt_pix_fmt` |  | [`str`](#parameter-types) | auto or a comma or space separated list of VideoToolbox (Apple) allowed output pixel formats | 
 
 
-**Source**: [node_media.c](/libnodegl/node_media.c)
+**Source**: [src/node_media.c](/libnodegl/src/node_media.c)
 
 
 ## Noise*
@@ -560,7 +560,7 @@ Parameter | Flags | Type | Description | Default
 `interpolant` |  | [`interp_noise`](#interp_noise-choices) | interpolation function to use between noise points | `quintic`
 
 
-**Source**: [node_noise.c](/libnodegl/node_noise.c)
+**Source**: [src/node_noise.c](/libnodegl/src/node_noise.c)
 
 List of `Noise*` nodes:
 
@@ -577,7 +577,7 @@ Parameter | Flags | Type | Description | Default
 `precision` |  | [`i32`](#parameter-types) | number of divisions per curve segment | `64`
 
 
-**Source**: [node_path.c](/libnodegl/node_path.c)
+**Source**: [src/node_path.c](/libnodegl/src/node_path.c)
 
 
 ## PathKeyBezier2
@@ -588,7 +588,7 @@ Parameter | Flags | Type | Description | Default
 `to` |  | [`vec3`](#parameter-types) | end point of the curve, new cursor position | (`0`,`0`,`0`)
 
 
-**Source**: [node_pathkey.c](/libnodegl/node_pathkey.c)
+**Source**: [src/node_pathkey.c](/libnodegl/src/node_pathkey.c)
 
 
 ## PathKeyBezier3
@@ -600,7 +600,7 @@ Parameter | Flags | Type | Description | Default
 `to` |  | [`vec3`](#parameter-types) | end point of the curve, new cursor position | (`0`,`0`,`0`)
 
 
-**Source**: [node_pathkey.c](/libnodegl/node_pathkey.c)
+**Source**: [src/node_pathkey.c](/libnodegl/src/node_pathkey.c)
 
 
 ## PathKeyLine
@@ -610,7 +610,7 @@ Parameter | Flags | Type | Description | Default
 `to` |  | [`vec3`](#parameter-types) | end point of the line, new cursor position | (`0`,`0`,`0`)
 
 
-**Source**: [node_pathkey.c](/libnodegl/node_pathkey.c)
+**Source**: [src/node_pathkey.c](/libnodegl/src/node_pathkey.c)
 
 
 ## PathKeyMove
@@ -620,7 +620,7 @@ Parameter | Flags | Type | Description | Default
 `to` |  | [`vec3`](#parameter-types) | new cursor position | (`0`,`0`,`0`)
 
 
-**Source**: [node_pathkey.c](/libnodegl/node_pathkey.c)
+**Source**: [src/node_pathkey.c](/libnodegl/src/node_pathkey.c)
 
 
 ## Program
@@ -634,7 +634,7 @@ Parameter | Flags | Type | Description | Default
 `nb_frag_output` |  | [`i32`](#parameter-types) | number of color outputs in the fragment shader | `0`
 
 
-**Source**: [node_program.c](/libnodegl/node_program.c)
+**Source**: [src/node_program.c](/libnodegl/src/node_program.c)
 
 
 ## Quad
@@ -649,7 +649,7 @@ Parameter | Flags | Type | Description | Default
 `uv_height` |  | [`vec2`](#parameter-types) | UV coordinates height vector | (`0`,`1`)
 
 
-**Source**: [node_quad.c](/libnodegl/node_quad.c)
+**Source**: [src/node_quad.c](/libnodegl/src/node_quad.c)
 
 
 ## Render
@@ -666,7 +666,7 @@ Parameter | Flags | Type | Description | Default
 `blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blended together | `default`
 
 
-**Source**: [node_render.c](/libnodegl/node_render.c)
+**Source**: [src/node_render.c](/libnodegl/src/node_render.c)
 
 
 ## RenderColor
@@ -680,7 +680,7 @@ Parameter | Flags | Type | Description | Default
 `filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
 
 
-**Source**: [node_renderother.c](/libnodegl/node_renderother.c)
+**Source**: [src/node_renderother.c](/libnodegl/src/node_renderother.c)
 
 
 ## RenderGradient
@@ -700,7 +700,7 @@ Parameter | Flags | Type | Description | Default
 `filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
 
 
-**Source**: [node_renderother.c](/libnodegl/node_renderother.c)
+**Source**: [src/node_renderother.c](/libnodegl/src/node_renderother.c)
 
 
 ## RenderGradient4
@@ -721,7 +721,7 @@ Parameter | Flags | Type | Description | Default
 `filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
 
 
-**Source**: [node_renderother.c](/libnodegl/node_renderother.c)
+**Source**: [src/node_renderother.c](/libnodegl/src/node_renderother.c)
 
 
 ## RenderTexture
@@ -734,7 +734,7 @@ Parameter | Flags | Type | Description | Default
 `filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
 
 
-**Source**: [node_renderother.c](/libnodegl/node_renderother.c)
+**Source**: [src/node_renderother.c](/libnodegl/src/node_renderother.c)
 
 
 ## RenderToTexture
@@ -749,7 +749,7 @@ Parameter | Flags | Type | Description | Default
 `features` |  | [`framebuffer_features`](#framebuffer_features-choices) | framebuffer feature mask | `0`
 
 
-**Source**: [node_rtt.c](/libnodegl/node_rtt.c)
+**Source**: [src/node_rtt.c](/libnodegl/src/node_rtt.c)
 
 
 ## ResourceProps
@@ -762,7 +762,7 @@ Parameter | Flags | Type | Description | Default
 `variadic` |  | [`bool`](#parameter-types) | flag this resource as variadic (only applies to block nodes) | `0`
 
 
-**Source**: [node_resourceprops.c](/libnodegl/node_resourceprops.c)
+**Source**: [src/node_resourceprops.c](/libnodegl/src/node_resourceprops.c)
 
 
 ## Rotate
@@ -775,7 +775,7 @@ Parameter | Flags | Type | Description | Default
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
 
 
-**Source**: [node_rotate.c](/libnodegl/node_rotate.c)
+**Source**: [src/node_rotate.c](/libnodegl/src/node_rotate.c)
 
 
 ## RotateQuat
@@ -787,7 +787,7 @@ Parameter | Flags | Type | Description | Default
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the rotation | (`0`,`0`,`0`)
 
 
-**Source**: [node_rotatequat.c](/libnodegl/node_rotatequat.c)
+**Source**: [src/node_rotatequat.c](/libnodegl/src/node_rotatequat.c)
 
 
 ## Scale
@@ -799,7 +799,7 @@ Parameter | Flags | Type | Description | Default
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the scale | (`0`,`0`,`0`)
 
 
-**Source**: [node_scale.c](/libnodegl/node_scale.c)
+**Source**: [src/node_scale.c](/libnodegl/src/node_scale.c)
 
 
 ## Skew
@@ -812,7 +812,7 @@ Parameter | Flags | Type | Description | Default
 `anchor` |  | [`vec3`](#parameter-types) | vector to the center point of the skew | (`0`,`0`,`0`)
 
 
-**Source**: [node_skew.c](/libnodegl/node_skew.c)
+**Source**: [src/node_skew.c](/libnodegl/src/node_skew.c)
 
 
 ## SmoothPath
@@ -826,7 +826,7 @@ Parameter | Flags | Type | Description | Default
 `tension` |  | [`f32`](#parameter-types) | tension between points | `0.5`
 
 
-**Source**: [node_smoothpath.c](/libnodegl/node_smoothpath.c)
+**Source**: [src/node_smoothpath.c](/libnodegl/src/node_smoothpath.c)
 
 
 ## Text
@@ -849,7 +849,7 @@ Parameter | Flags | Type | Description | Default
 `aspect_ratio` |  [`live`](#Parameter-flags) | [`rational`](#parameter-types) | box aspect ratio | 
 
 
-**Source**: [node_text.c](/libnodegl/node_text.c)
+**Source**: [src/node_text.c](/libnodegl/src/node_text.c)
 
 
 ## Texture2D
@@ -869,7 +869,7 @@ Parameter | Flags | Type | Description | Default
 `clamp_video` |  | [`bool`](#parameter-types) | clamp ngl_texvideo() output to [0;1] | `0`
 
 
-**Source**: [node_texture.c](/libnodegl/node_texture.c)
+**Source**: [src/node_texture.c](/libnodegl/src/node_texture.c)
 
 
 ## Texture3D
@@ -889,7 +889,7 @@ Parameter | Flags | Type | Description | Default
 `data_src` |  | [`node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
 
 
-**Source**: [node_texture.c](/libnodegl/node_texture.c)
+**Source**: [src/node_texture.c](/libnodegl/src/node_texture.c)
 
 
 ## TextureCube
@@ -907,7 +907,7 @@ Parameter | Flags | Type | Description | Default
 `data_src` |  | [`node`](#parameter-types) ([AnimatedBufferFloat](#animatedbuffer), [AnimatedBufferVec2](#animatedbuffer), [AnimatedBufferVec4](#animatedbuffer), [BufferByte](#buffer), [BufferBVec2](#buffer), [BufferBVec4](#buffer), [BufferInt](#buffer), [BufferIVec2](#buffer), [BufferIVec4](#buffer), [BufferShort](#buffer), [BufferSVec2](#buffer), [BufferSVec4](#buffer), [BufferUByte](#buffer), [BufferUBVec2](#buffer), [BufferUBVec4](#buffer), [BufferUInt](#buffer), [BufferUIVec2](#buffer), [BufferUIVec4](#buffer), [BufferUShort](#buffer), [BufferUSVec2](#buffer), [BufferUSVec4](#buffer), [BufferFloat](#buffer), [BufferVec2](#buffer), [BufferVec4](#buffer)) | data source | 
 
 
-**Source**: [node_texture.c](/libnodegl/node_texture.c)
+**Source**: [src/node_texture.c](/libnodegl/src/node_texture.c)
 
 
 ## TextureView
@@ -918,12 +918,12 @@ Parameter | Flags | Type | Description | Default
 `layer` |  | [`i32`](#parameter-types) | texture layer used for the view | `0`
 
 
-**Source**: [node_textureview.c](/libnodegl/node_textureview.c)
+**Source**: [src/node_textureview.c](/libnodegl/src/node_textureview.c)
 
 
 ## Time
 
-**Source**: [node_time.c](/libnodegl/node_time.c)
+**Source**: [src/node_time.c](/libnodegl/src/node_time.c)
 
 
 ## TimeRangeFilter
@@ -936,7 +936,7 @@ Parameter | Flags | Type | Description | Default
 `max_idle_time` |  | [`f64`](#parameter-types) | `child` will not be released if it is required in the next incoming `max_idle_time` seconds | `4`
 
 
-**Source**: [node_timerangefilter.c](/libnodegl/node_timerangefilter.c)
+**Source**: [src/node_timerangefilter.c](/libnodegl/src/node_timerangefilter.c)
 
 
 ## TimeRangeModeCont
@@ -946,7 +946,7 @@ Parameter | Flags | Type | Description | Default
 `start_time` |  | [`f64`](#parameter-types) | starting time for the scene to be drawn | `0`
 
 
-**Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
+**Source**: [src/node_timerangemodes.c](/libnodegl/src/node_timerangemodes.c)
 
 
 ## TimeRangeModeNoop
@@ -956,7 +956,7 @@ Parameter | Flags | Type | Description | Default
 `start_time` |  | [`f64`](#parameter-types) | starting time for the scene to stop being drawn | `0`
 
 
-**Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
+**Source**: [src/node_timerangemodes.c](/libnodegl/src/node_timerangemodes.c)
 
 
 ## TimeRangeModeOnce
@@ -967,7 +967,7 @@ Parameter | Flags | Type | Description | Default
 `render_time` |  | [`f64`](#parameter-types) | chosen time to draw | `0`
 
 
-**Source**: [node_timerangemodes.c](/libnodegl/node_timerangemodes.c)
+**Source**: [src/node_timerangemodes.c](/libnodegl/src/node_timerangemodes.c)
 
 
 ## Transform
@@ -978,7 +978,7 @@ Parameter | Flags | Type | Description | Default
 `matrix` |  [`live`](#Parameter-flags) | [`mat4`](#parameter-types) | transformation matrix | 
 
 
-**Source**: [node_transform.c](/libnodegl/node_transform.c)
+**Source**: [src/node_transform.c](/libnodegl/src/node_transform.c)
 
 
 ## Translate
@@ -989,7 +989,7 @@ Parameter | Flags | Type | Description | Default
 `vector` |  [`live`](#Parameter-flags) [`node`](#Parameter-flags) | [`vec3`](#parameter-types) | translation vector | (`0`,`0`,`0`)
 
 
-**Source**: [node_translate.c](/libnodegl/node_translate.c)
+**Source**: [src/node_translate.c](/libnodegl/src/node_translate.c)
 
 
 ## Triangle
@@ -1004,7 +1004,7 @@ Parameter | Flags | Type | Description | Default
 `uv_edge2` |  | [`vec2`](#parameter-types) | UV coordinate associated with `edge2` | (`1`,`1`)
 
 
-**Source**: [node_triangle.c](/libnodegl/node_triangle.c)
+**Source**: [src/node_triangle.c](/libnodegl/src/node_triangle.c)
 
 
 ## StreamedInt
@@ -1017,7 +1017,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedIVec2
@@ -1030,7 +1030,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedIVec3
@@ -1043,7 +1043,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedIVec4
@@ -1056,7 +1056,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedUInt
@@ -1069,7 +1069,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedUIVec2
@@ -1082,7 +1082,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedUIVec3
@@ -1095,7 +1095,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedUIVec4
@@ -1108,7 +1108,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedFloat
@@ -1121,7 +1121,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedVec2
@@ -1134,7 +1134,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedVec3
@@ -1147,7 +1147,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedVec4
@@ -1160,7 +1160,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedMat4
@@ -1173,7 +1173,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamed.c](/libnodegl/node_streamed.c)
+**Source**: [src/node_streamed.c](/libnodegl/src/node_streamed.c)
 
 
 ## StreamedBufferInt
@@ -1187,7 +1187,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferIVec2
@@ -1201,7 +1201,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferIVec3
@@ -1215,7 +1215,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferIVec4
@@ -1229,7 +1229,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferUInt
@@ -1243,7 +1243,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferUIVec2
@@ -1257,7 +1257,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferUIVec3
@@ -1271,7 +1271,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferUIVec4
@@ -1285,7 +1285,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferFloat
@@ -1299,7 +1299,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferVec2
@@ -1313,7 +1313,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferVec3
@@ -1327,7 +1327,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferVec4
@@ -1341,7 +1341,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## StreamedBufferMat4
@@ -1355,7 +1355,7 @@ Parameter | Flags | Type | Description | Default
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 
 
-**Source**: [node_streamedbuffer.c](/libnodegl/node_streamedbuffer.c)
+**Source**: [src/node_streamedbuffer.c](/libnodegl/src/node_streamedbuffer.c)
 
 
 ## UniformBool
@@ -1366,7 +1366,7 @@ Parameter | Flags | Type | Description | Default
 `live_id` |  | [`str`](#parameter-types) | live control identifier | 
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformInt
@@ -1379,7 +1379,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`i32`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | `100`
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformIVec2
@@ -1392,7 +1392,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`ivec2`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`)
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformIVec3
@@ -1405,7 +1405,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`ivec3`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`,`100`)
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformIVec4
@@ -1418,7 +1418,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`ivec4`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`,`100`,`100`)
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformUInt
@@ -1431,7 +1431,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`u32`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | `100`
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformUIVec2
@@ -1444,7 +1444,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`uvec2`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`)
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformUIVec3
@@ -1457,7 +1457,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`uvec3`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`,`100`)
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformUIVec4
@@ -1470,7 +1470,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`uvec4`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`100`,`100`,`100`,`100`)
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformMat4
@@ -1482,7 +1482,7 @@ Parameter | Flags | Type | Description | Default
 `transform` |  | [`node`](#parameter-types) ([Rotate](#rotate), [RotateQuat](#rotatequat), [Transform](#transform), [Translate](#translate), [Scale](#scale), [Skew](#skew), [Identity](#identity)) | `value` transformation chain | 
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformFloat
@@ -1495,7 +1495,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`f32`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | `1`
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformVec2
@@ -1508,7 +1508,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`vec2`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`)
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformVec3
@@ -1521,7 +1521,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`vec3`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`,`1`)
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformVec4
@@ -1534,7 +1534,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`vec4`](#parameter-types) | maximum value allowed during live change (only honored when live_id is set) | (`1`,`1`,`1`,`1`)
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformColor
@@ -1548,7 +1548,7 @@ Parameter | Flags | Type | Description | Default
 `space` |  | [`colorspace`](#colorspace-choices) | color space defining how to interpret `value` | `srgb`
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UniformQuat
@@ -1562,7 +1562,7 @@ Parameter | Flags | Type | Description | Default
 `as_mat4` |  | [`bool`](#parameter-types) | exposed as a 4x4 rotation matrix in the program | `0`
 
 
-**Source**: [node_uniform.c](/libnodegl/node_uniform.c)
+**Source**: [src/node_uniform.c](/libnodegl/src/node_uniform.c)
 
 
 ## UserSelect
@@ -1576,7 +1576,7 @@ Parameter | Flags | Type | Description | Default
 `live_max` |  | [`i32`](#parameter-types) | maximum value allowed during live change (only_honored when live_id is set) | `10`
 
 
-**Source**: [node_userselect.c](/libnodegl/node_userselect.c)
+**Source**: [src/node_userselect.c](/libnodegl/src/node_userselect.c)
 
 
 ## UserSwitch
@@ -1588,7 +1588,7 @@ Parameter | Flags | Type | Description | Default
 `live_id` |  | [`str`](#parameter-types) | live control identifier | 
 
 
-**Source**: [node_userswitch.c](/libnodegl/node_userswitch.c)
+**Source**: [src/node_userswitch.c](/libnodegl/src/node_userswitch.c)
 
 
 ## VelocityFloat
@@ -1598,7 +1598,7 @@ Parameter | Flags | Type | Description | Default
 `animation` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([AnimatedFloat](#animatedfloat)) | 1D animation to analyze the velocity from | 
 
 
-**Source**: [node_velocity.c](/libnodegl/node_velocity.c)
+**Source**: [src/node_velocity.c](/libnodegl/src/node_velocity.c)
 
 
 ## VelocityVec2
@@ -1608,7 +1608,7 @@ Parameter | Flags | Type | Description | Default
 `animation` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([AnimatedVec2](#animatedvec2)) | 2D animation to analyze the velocity from | 
 
 
-**Source**: [node_velocity.c](/libnodegl/node_velocity.c)
+**Source**: [src/node_velocity.c](/libnodegl/src/node_velocity.c)
 
 
 ## VelocityVec3
@@ -1618,7 +1618,7 @@ Parameter | Flags | Type | Description | Default
 `animation` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([AnimatedVec3](#animatedvec3)) | 3D animation to analyze the velocity from | 
 
 
-**Source**: [node_velocity.c](/libnodegl/node_velocity.c)
+**Source**: [src/node_velocity.c](/libnodegl/src/node_velocity.c)
 
 
 ## VelocityVec4
@@ -1628,7 +1628,7 @@ Parameter | Flags | Type | Description | Default
 `animation` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([AnimatedVec4](#animatedvec4)) | 4D animation to analyze the velocity from | 
 
 
-**Source**: [node_velocity.c](/libnodegl/node_velocity.c)
+**Source**: [src/node_velocity.c](/libnodegl/src/node_velocity.c)
 
 Parameter types
 ===============

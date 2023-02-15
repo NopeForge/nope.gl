@@ -8,7 +8,7 @@ top-level API usage or anything non-visual. Some examples can be found in
 `tests/api.py`.
 
 `libnodegl` also includes dedicated programs for unit-tests (see
-`libnodegl/test_*`) to cover code which is usually harder to access from a
+`libnodegl/src/test_*`) to cover code which is usually harder to access from a
 top-level interface like the one provided by the Python binding.
 
 

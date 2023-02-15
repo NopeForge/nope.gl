@@ -22,4 +22,4 @@ In order to add a node, you need to:
   implement in your class map
 
 [libnodegl-ref]: /libnodegl/doc/libnodegl.md
-[internal-h]: /libnodegl/internal.h
+[internal-h]: /libnodegl/src/internal.h
