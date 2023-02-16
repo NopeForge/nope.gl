@@ -11,6 +11,9 @@ Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
 ### Fixed
 - Color channel difference in `ngl-diff` is now done in linear space
 
+### Added
+- Windows DLL information (Copyrights, Version, Name)
+
 ### Changed
 - The installed `nodes.specs` is now in `JSON` instead of `YAML`
 - The default branch is now named `main`

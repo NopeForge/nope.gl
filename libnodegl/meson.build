@@ -654,6 +654,25 @@ elif host_system == 'iphone'
   lib_objc_args += '-DGLES_SILENCE_DEPRECATION'
 endif
 
+
+# Create nodegl version data for rc
+nodegl_version_cdata = configuration_data()
+nodegl_version_cdata.set('NODEGL_COPYRIGHT', 'Copyright GoPro Inc.')
+nodegl_version_cdata.set('NODEGL_MAJOR_VERSION', version_array[0])
+nodegl_version_cdata.set('NODEGL_MINOR_VERSION', version_array[1])
+nodegl_version_cdata.set('NODEGL_MICRO_VERSION', version_array[2])
+nodegl_version_cdata.set('NODEGL_VERSION', meson.project_version())
+
+# Add properties information with a rc file for the DLL under Windows
+if cc.get_id() == 'msvc'
+  nodegl_rc = configure_file(
+    input: 'nodegl.rc.in',
+    output: 'nodegl.rc',
+    configuration: nodegl_version_cdata,
+  )
+  lib_src += import('windows').compile_resources(nodegl_rc)
+endif
+
 libnodegl = library(
   'nodegl',
   lib_src,

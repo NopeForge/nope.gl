@@ -1,0 +1,32 @@
+#include <winver.h>
+
+VS_VERSION_INFO VERSIONINFO
+  FILEVERSION @NODEGL_MAJOR_VERSION@,@NODEGL_MINOR_VERSION@,@NODEGL_MICRO_VERSION@,0
+  PRODUCTVERSION @NODEGL_MAJOR_VERSION@,@NODEGL_MINOR_VERSION@,@NODEGL_MICRO_VERSION@,0
+  FILEFLAGSMASK 0
+  FILEFLAGS 0
+  FILEOS VOS__WINDOWS32
+  FILETYPE VFT_DLL
+  FILESUBTYPE VFT2_UNKNOWN
+  BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+      BLOCK "040904B0"
+      BEGIN
+	VALUE "CompanyName", "GoPro"
+	VALUE "FileDescription", "node.gl"
+	VALUE "FileVersion", "@NODEGL_VERSION@"
+	VALUE "InternalName", "nodegl-@NODEGL_MAJOR_VERSION@.dll"
+	VALUE "LegalCopyright", "@NODEGL_COPYRIGHT@"
+	VALUE "OriginalFilename", "nodegl-@NODEGL_MAJOR_VERSION@.dll"
+	VALUE "ProductName", "node.gl"
+	VALUE "ProductVersion", "@NODEGL_VERSION@"
+    VALUE "Licence", "Apache-2.0 license"
+    VALUE "Info", "https://github.com/gopro/gopro-lib-node.gl"
+      END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+      VALUE "Translation", 0x409, 1200
+    END
+  END
