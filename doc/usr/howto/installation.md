@@ -47,7 +47,7 @@ building and running the complete `node.gl` stack.
   `C:\vcpkg`, then from Windows PowerShell:
     ```shell
     .\bootstrap-vcpkg.bat
-    .\vcpkg.exe install --triplet x64-windows opengl-registry ffmpeg[ffmpeg,ffprobe] sdl2 glslang
+    .\vcpkg.exe install --triplet x64-windows opengl-registry ffmpeg[ffmpeg,ffprobe,zlib] sdl2 glslang
     ```
 - Add `C:\vcpkg\installed\x64-windows\tools\ffmpeg` path to your windows system
   `%PATH%` environment variable (`ffmpeg` and `ffprobe` binaries must be
