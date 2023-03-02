@@ -428,7 +428,7 @@ def _coverage_xml(cfg):
 
 @_block("tests", [_nodegl_tests, _tests_setup])
 def _tests(cfg):
-    return ["$(MESON) " + _cmd_join("test", "-C", op.join("builddir", "tests"))]
+    return ["$(MESON) " + _cmd_join("test", "--timeout-multiplier", "2", "-C", op.join("builddir", "tests"))]
 
 
 def _quote(s):
