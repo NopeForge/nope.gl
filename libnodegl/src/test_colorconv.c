@@ -29,17 +29,17 @@ static const struct {
     int val;
     const char *name;
 } ranges[] = {
-    {SXPLAYER_COL_RNG_LIMITED, "limited range"},
-    {SXPLAYER_COL_RNG_FULL,    "full range"},
+    {NMD_COL_RNG_LIMITED, "limited range"},
+    {NMD_COL_RNG_FULL,    "full range"},
 };
 
 static const struct {
     int val;
     const char *name;
 } spaces[] = {
-    {SXPLAYER_COL_SPC_BT470BG,    "bt601"},
-    {SXPLAYER_COL_SPC_BT709,      "bt709"},
-    {SXPLAYER_COL_SPC_BT2020_NCL, "bt2020"},
+    {NMD_COL_SPC_BT470BG,    "bt601"},
+    {NMD_COL_SPC_BT709,      "bt709"},
+    {NMD_COL_SPC_BT2020_NCL, "bt2020"},
 };
 
 static const float expected_colormatrices[2][3][4 * 4]= {

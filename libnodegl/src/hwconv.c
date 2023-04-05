@@ -138,10 +138,10 @@ int ngli_hwconv_init(struct hwconv *hwconv, struct ngl_ctx *ctx,
     const char *frag_base = default_frag_base;
 
     const struct color_info *src_color_info = &src_params->color_info;
-    if (src_color_info->space == SXPLAYER_COL_SPC_BT2020_NCL) {
-        if (src_color_info->transfer == SXPLAYER_COL_TRC_ARIB_STD_B67) { // HLG
+    if (src_color_info->space == NMD_COL_SPC_BT2020_NCL) {
+        if (src_color_info->transfer == NMD_COL_TRC_ARIB_STD_B67) { // HLG
             frag_base = hdr_hlg2sdr_frag;
-        } else if (src_color_info->transfer == SXPLAYER_COL_TRC_SMPTE2084)  { // PQ
+        } else if (src_color_info->transfer == NMD_COL_TRC_SMPTE2084)  { // PQ
             frag_base = hdr_pq2sdr_frag;
         }
     }

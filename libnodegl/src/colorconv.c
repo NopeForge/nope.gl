@@ -36,39 +36,39 @@ enum {
 
 #define DEFAULT_COLORMATRIX COLORMATRIX_BT709
 
-static const char * sxplayer_col_spc_str[] = {
-    [SXPLAYER_COL_SPC_RGB]                = "rgb",
-    [SXPLAYER_COL_SPC_BT709]              = "bt709",
-    [SXPLAYER_COL_SPC_UNSPECIFIED]        = "unspecified",
-    [SXPLAYER_COL_SPC_RESERVED]           = "reserved",
-    [SXPLAYER_COL_SPC_FCC]                = "fcc",
-    [SXPLAYER_COL_SPC_BT470BG]            = "bt470bg",
-    [SXPLAYER_COL_SPC_SMPTE170M]          = "smpte170m",
-    [SXPLAYER_COL_SPC_SMPTE240M]          = "smpte240m",
-    [SXPLAYER_COL_SPC_YCGCO]              = "ycgco",
-    [SXPLAYER_COL_SPC_BT2020_NCL]         = "bt2020_ncl",
-    [SXPLAYER_COL_SPC_BT2020_CL]          = "bt2020_cl",
-    [SXPLAYER_COL_SPC_SMPTE2085]          = "smpte2085",
-    [SXPLAYER_COL_SPC_CHROMA_DERIVED_NCL] = "chroma_derived_ncl",
-    [SXPLAYER_COL_SPC_CHROMA_DERIVED_CL]  = "chroma_derived_cl",
-    [SXPLAYER_COL_SPC_ICTCP]              = "ictcp",
+static const char * nopemd_col_spc_str[] = {
+    [NMD_COL_SPC_RGB]                = "rgb",
+    [NMD_COL_SPC_BT709]              = "bt709",
+    [NMD_COL_SPC_UNSPECIFIED]        = "unspecified",
+    [NMD_COL_SPC_RESERVED]           = "reserved",
+    [NMD_COL_SPC_FCC]                = "fcc",
+    [NMD_COL_SPC_BT470BG]            = "bt470bg",
+    [NMD_COL_SPC_SMPTE170M]          = "smpte170m",
+    [NMD_COL_SPC_SMPTE240M]          = "smpte240m",
+    [NMD_COL_SPC_YCGCO]              = "ycgco",
+    [NMD_COL_SPC_BT2020_NCL]         = "bt2020_ncl",
+    [NMD_COL_SPC_BT2020_CL]          = "bt2020_cl",
+    [NMD_COL_SPC_SMPTE2085]          = "smpte2085",
+    [NMD_COL_SPC_CHROMA_DERIVED_NCL] = "chroma_derived_ncl",
+    [NMD_COL_SPC_CHROMA_DERIVED_CL]  = "chroma_derived_cl",
+    [NMD_COL_SPC_ICTCP]              = "ictcp",
 };
 
 static const int color_space_map[] = {
-    [SXPLAYER_COL_SPC_BT470BG]    = COLORMATRIX_BT601,
-    [SXPLAYER_COL_SPC_SMPTE170M]  = COLORMATRIX_BT601,
-    [SXPLAYER_COL_SPC_BT709]      = COLORMATRIX_BT709,
-    [SXPLAYER_COL_SPC_BT2020_NCL] = COLORMATRIX_BT2020,
-    [SXPLAYER_COL_SPC_BT2020_CL]  = COLORMATRIX_BT2020,
+    [NMD_COL_SPC_BT470BG]    = COLORMATRIX_BT601,
+    [NMD_COL_SPC_SMPTE170M]  = COLORMATRIX_BT601,
+    [NMD_COL_SPC_BT709]      = COLORMATRIX_BT709,
+    [NMD_COL_SPC_BT2020_NCL] = COLORMATRIX_BT2020,
+    [NMD_COL_SPC_BT2020_CL]  = COLORMATRIX_BT2020,
 };
 
 NGLI_STATIC_ASSERT(undefined_col_is_zero, COLORMATRIX_UNDEFINED == 0);
 
 static const char *get_col_spc_str(int color_space)
 {
-    if (color_space < 0 || color_space >= NGLI_ARRAY_NB(sxplayer_col_spc_str))
+    if (color_space < 0 || color_space >= NGLI_ARRAY_NB(nopemd_col_spc_str))
         return NULL;
-    return sxplayer_col_spc_str[color_space];
+    return nopemd_col_spc_str[color_space];
 }
 
 static int unsupported_colormatrix(int color_space)
@@ -81,9 +81,9 @@ static int unsupported_colormatrix(int color_space)
     return DEFAULT_COLORMATRIX;
 }
 
-static int get_colormatrix_from_sxplayer(int color_space)
+static int get_colormatrix_from_nopemd(int color_space)
 {
-    if (color_space == SXPLAYER_COL_SPC_UNSPECIFIED) {
+    if (color_space == NMD_COL_SPC_UNSPECIFIED) {
         LOG(DEBUG, "media colormatrix unspecified, fallback on default matrix");
         return DEFAULT_COLORMATRIX;
     }
@@ -117,8 +117,8 @@ static const struct range_info {
 
 int ngli_colorconv_get_ycbcr_to_rgb_color_matrix(float *dst, const struct color_info *info, float scale)
 {
-    const int colormatrix = get_colormatrix_from_sxplayer(info->space);
-    const int video_range = info->range != SXPLAYER_COL_RNG_FULL;
+    const int colormatrix = get_colormatrix_from_nopemd(info->space);
+    const int video_range = info->range != NMD_COL_RNG_FULL;
     const struct range_info range = range_infos[video_range];
     const struct k_constants k = k_constants_infos[colormatrix];
 

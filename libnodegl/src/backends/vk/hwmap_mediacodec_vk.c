@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 #include <libavcodec/mediacodec.h>
 #include <vulkan/vulkan.h>
 #include <vulkan/vulkan_android.h>
@@ -74,7 +74,7 @@ static int support_direct_rendering(struct hwmap *hwmap)
     return 1;
 }
 
-static int mc_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
 
@@ -83,7 +83,7 @@ static int mc_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
         .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .color_scale = 1.f,
-        .color_info = ngli_color_info_from_sxplayer_frame(frame),
+        .color_info = ngli_color_info_from_nopemd_frame(frame),
     };
     ngli_image_init(&hwmap->mapped_image, &image_params, &mc->texture);
 
@@ -115,7 +115,7 @@ static void mc_release_frame_resources(struct hwmap *hwmap)
     ngli_android_image_freep(&mc->android_image);
 }
 
-static int mc_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
@@ -125,7 +125,7 @@ static int mc_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
     struct vkcontext *vk = gpu_ctx_vk->vkcontext;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
-    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
+    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->datap[0];
     int ret = av_mediacodec_release_buffer(buffer, 1);
     if (ret < 0)
         return ret;
@@ -383,7 +383,7 @@ static void mc_uninit(struct hwmap *hwmap)
 
 const struct hwmap_class ngli_hwmap_mc_vk_class = {
     .name      = "mediacodec (hw buffer → vk image)",
-    .hwformat  = SXPLAYER_PIXFMT_MEDIACODEC,
+    .hwformat  = NMD_PIXFMT_MEDIACODEC,
     .layouts   = (const int[]){
         NGLI_IMAGE_LAYOUT_DEFAULT,
         NGLI_IMAGE_LAYOUT_NONE

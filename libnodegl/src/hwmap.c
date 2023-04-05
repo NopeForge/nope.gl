@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include "config.h"
 #include "gpu_ctx.h"
@@ -37,7 +37,7 @@ extern const struct hwmap_class ngli_hwmap_common_class;
 extern const struct hwmap_class *ngli_hwmap_gl_classes[];
 extern const struct hwmap_class *ngli_hwmap_vk_classes[];
 
-static const struct hwmap_class *get_hwmap_class(const struct hwmap *hwmap, struct sxplayer_frame *frame)
+static const struct hwmap_class *get_hwmap_class(const struct hwmap *hwmap, struct nmd_frame *frame)
 {
     const struct hwmap_class **hwmap_classes = hwmap->hwmap_classes;
 
@@ -93,10 +93,10 @@ static int init_hwconv(struct hwmap *hwmap)
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .color_scale = 1.f,
         .color_info = {
-            .space     = SXPLAYER_COL_SPC_BT709,
-            .range     = SXPLAYER_COL_RNG_UNSPECIFIED,
-            .primaries = SXPLAYER_COL_PRI_BT709,
-            .transfer  = SXPLAYER_COL_TRC_IEC61966_2_1, // sRGB
+            .space     = NMD_COL_SPC_BT709,
+            .range     = NMD_COL_RNG_UNSPECIFIED,
+            .primaries = NMD_COL_PRI_BT709,
+            .transfer  = NMD_COL_TRC_IEC61966_2_1, // sRGB
         },
     };
     ngli_image_init(hwconv_image, &image_params, &hwmap->hwconv_texture);
@@ -171,7 +171,7 @@ int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap
     memset(hwmap, 0, sizeof(*hwmap));
     hwmap->ctx = ctx;
     hwmap->params = *params;
-    hwmap->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
+    hwmap->pix_fmt = -1; /* TODO: replace by NMD_PIXFMT_NONE */
 
     const struct ngl_config *config = &ctx->config;
     hwmap->hwmap_classes = get_backend_hwmap_classes(config->backend);
@@ -192,7 +192,7 @@ static void hwmap_reset(struct hwmap *hwmap)
     }
     hwmap->hwmap_class = NULL;
     ngli_freep(&hwmap->hwmap_priv_data);
-    hwmap->pix_fmt = -1; /* TODO: replace by SXPLAYER_PIXFMT_NONE */
+    hwmap->pix_fmt = -1; /* TODO: replace by NMD_PIXFMT_NONE */
     hwmap->width = 0;
     hwmap->height = 0;
 }
@@ -200,15 +200,15 @@ static void hwmap_reset(struct hwmap *hwmap)
 static int is_hdr(int trc)
 {
     switch (trc) {
-    case SXPLAYER_COL_TRC_ARIB_STD_B67: // HLG
-    case SXPLAYER_COL_TRC_SMPTE2084:    // PQ
+    case NMD_COL_TRC_ARIB_STD_B67: // HLG
+    case NMD_COL_TRC_SMPTE2084:    // PQ
         return 1;
     default:
         return 0;
     }
 }
 
-int ngli_hwmap_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame, struct image *image)
+int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct image *image)
 {
     if (frame->width  != hwmap->width ||
         frame->height != hwmap->height ||
@@ -222,13 +222,13 @@ int ngli_hwmap_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame, stru
 
         hwmap->hwmap_priv_data = ngli_calloc(1, hwmap_class->priv_size);
         if (!hwmap->hwmap_priv_data) {
-            sxplayer_release_frame(frame);
+            nmd_release_frame(frame);
             return NGL_ERROR_MEMORY;
         }
 
         int ret = hwmap_class->init(hwmap, frame);
         if (ret < 0) {
-            sxplayer_release_frame(frame);
+            nmd_release_frame(frame);
             return ret;
         }
         hwmap->pix_fmt = frame->pix_fmt;
@@ -264,7 +264,7 @@ end:
     image->ts = frame->ts;
 
     if (!(hwmap->hwmap_class->flags &  HWMAP_FLAG_FRAME_OWNER))
-        sxplayer_release_frame(frame);
+        nmd_release_frame(frame);
     return ret;
 }
 

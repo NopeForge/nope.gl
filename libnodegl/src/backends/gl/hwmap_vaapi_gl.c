@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include <va/va.h>
 #include <va/va_drmcommon.h>
@@ -41,7 +41,7 @@
 #include "utils.h"
 
 struct hwmap_vaapi {
-    struct sxplayer_frame *frame;
+    struct nmd_frame *frame;
     struct texture *planes[2];
 
     GLuint gl_planes[2];
@@ -67,7 +67,7 @@ static int support_direct_rendering(struct hwmap *hwmap)
     return direct_rendering;
 }
 
-static int vaapi_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int vaapi_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     const struct hwmap_params *params = &hwmap->params;
     struct ngl_ctx *ctx = hwmap->ctx;
@@ -129,7 +129,7 @@ static int vaapi_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
         .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_NV12,
         .color_scale = 1.f,
-        .color_info = ngli_color_info_from_sxplayer_frame(frame),
+        .color_info = ngli_color_info_from_nopemd_frame(frame),
     };
     ngli_image_init(&hwmap->mapped_image, &image_params, vaapi->planes);
 
@@ -164,11 +164,11 @@ static void vaapi_uninit(struct hwmap *hwmap)
         vaapi->surface_acquired = 0;
     }
 
-    sxplayer_release_frame(vaapi->frame);
+    nmd_release_frame(vaapi->frame);
     vaapi->frame = NULL;
 }
 
-static int vaapi_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int vaapi_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct vaapi_ctx *vaapi_ctx = &ctx->vaapi_ctx;
@@ -177,7 +177,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct hwmap_vaapi *vaapi = hwmap->hwmap_priv_data;
 
-    sxplayer_release_frame(vaapi->frame);
+    nmd_release_frame(vaapi->frame);
     vaapi->frame = frame;
 
     if (vaapi->surface_acquired) {
@@ -193,7 +193,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
         vaapi->surface_acquired = 0;
     }
 
-    VASurfaceID surface_id = (VASurfaceID)(intptr_t)frame->data;
+    VASurfaceID surface_id = (VASurfaceID)(intptr_t)frame->datap[0];
     VAStatus status = vaExportSurfaceHandle(vaapi_ctx->va_display,
                                             surface_id,
                                             VA_SURFACE_ATTRIB_MEM_TYPE_DRM_PRIME_2,
@@ -282,7 +282,7 @@ static int vaapi_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
 
 const struct hwmap_class ngli_hwmap_vaapi_gl_class = {
     .name      = "vaapi (dma buf → egl image)",
-    .hwformat  = SXPLAYER_PIXFMT_VAAPI,
+    .hwformat  = NMD_PIXFMT_VAAPI,
     .layouts   = (const int[]){
         NGLI_IMAGE_LAYOUT_NV12,
         NGLI_IMAGE_LAYOUT_NONE

@@ -111,15 +111,15 @@ def media_time_remapping(cfg):
 
 ## Behind the scene
 
-For media playback `node.gl` relies on the `sxplayer` project. Internally, the
-`sxplayer` context is configured with an `initial_seek` and a `end_time`
+For media playback `node.gl` relies on the `nope.media` project. Internally, the
+`nope.media` context is configured with an `initial_seek` and a `end_time`
 based on the `Media.time_anim` user configuration. These settings respectively
 help getting the first frame quickly and closing the media and resources faster
 when reaching the end of the trim:
 
 - `initial_seek` notably makes sure a seek command is queued to the demuxer
   before any packet is extracted.
-- `end_time` prevents the `sxplayer` queues to be filled until a
+- `end_time` prevents the `node.media` queues to be filled until a
   `TimeRangeFilter` triggers a release emptying these queues.
 
 Additionally, the `TimeRangeFilter` will cause asynchronous calls starting and

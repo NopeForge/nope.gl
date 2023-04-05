@@ -77,7 +77,7 @@ def time_remapping(cfg: SceneCfg):
     ]
 
     m = ngl.Media(m0.filename, time_anim=ngl.AnimatedTime(media_animkf))
-    m.set_sxplayer_min_level("verbose")
+    m.set_nopemd_min_level("verbose")
     t = ngl.Texture2D(data_src=m)
     r = ngl.RenderTexture(t)
 

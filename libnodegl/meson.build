@@ -245,7 +245,7 @@ hosts_cfg = {
 
 lib_deps = [
   cc.find_library('m', required: false),
-  dependency('libsxplayer', version: '>= 9.12.0'),
+  dependency('libnopemd', version: '>= 10.0.0'),
   dependency('threads'),
 ]
 
