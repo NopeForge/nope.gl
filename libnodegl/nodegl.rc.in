@@ -22,7 +22,7 @@ VS_VERSION_INFO VERSIONINFO
 	VALUE "ProductName", "node.gl"
 	VALUE "ProductVersion", "@NODEGL_VERSION@"
     VALUE "Licence", "Apache-2.0 license"
-    VALUE "Info", "https://github.com/gopro/gopro-lib-node.gl"
+    VALUE "Info", "https://github.com/nope-project/nope.gl"
       END
     END
     BLOCK "VarFileInfo"
