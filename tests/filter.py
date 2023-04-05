@@ -19,11 +19,11 @@
 # under the License.
 #
 
-from pynodegl_utils.misc import scene
-from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynodegl_utils.toolbox.colors import COLORS
+from pynopegl_utils.misc import scene
+from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynopegl_utils.toolbox.colors import COLORS
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 _CUEPOINTS = dict(c=(0, 0), bl=(-0.5, -0.5), br=(0.5, -0.5), tr=(0.5, 0.5), tl=(-0.5, 0.5))
 

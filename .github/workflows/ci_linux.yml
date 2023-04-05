@@ -48,13 +48,13 @@ jobs:
     - name: Python import and dylib runtime test
       run: |
         . venv/bin/activate
-        python -c "import pynodegl, pynodegl_utils"
+        python -c "import pynopegl, pynopegl_utils"
         ngl-python -h
 
     - name: Native lib memory check
       run: |
         . venv/bin/activate
-        meson test -C builddir/libnodegl --wrap 'valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1'
+        meson test -C builddir/libnopegl --wrap 'valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1'
 
     - name: Run tests ${{matrix.backend}}
       run: |

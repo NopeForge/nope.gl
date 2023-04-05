@@ -1,0 +1,9 @@
+build
+nodes_def.pyx
+_pynopegl.c
+pynopegl.egg-info
+pynopegl/__init__.py
+_pynopegl.*.so
+.eggs
+*.pyd
+*.dll

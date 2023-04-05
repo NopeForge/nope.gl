@@ -30,17 +30,17 @@ prv_prj_ver=$(cat VERSION)
 new_prj_ver="${cur_year}.${new_digit}"
 echo "New project version: $prv_prj_ver → $new_prj_ver"
 
-# libnodegl version bump
-cur_lib_ver=$(cat libnodegl/VERSION)
-printf "Enter new libnodegl version [current: %s]: " "$cur_lib_ver"
+# libnopegl version bump
+cur_lib_ver=$(cat libnopegl/VERSION)
+printf "Enter new libnopegl version [current: %s]: " "$cur_lib_ver"
 read -r new_lib_ver
 
 # Execute the version bump: we are verbose with set -x to be transparent about
 # the actions that matters
 set -x
 echo "$new_prj_ver" > VERSION
-echo "$new_lib_ver" > libnodegl/VERSION
-sed "/^## \[Unreleased\]/a \\\n## [$new_prj_ver] [libnodegl $new_lib_ver] - $today" -i CHANGELOG.md
-git add CHANGELOG.md VERSION libnodegl/VERSION
+echo "$new_lib_ver" > libnopegl/VERSION
+sed "/^## \[Unreleased\]/a \\\n## [$new_prj_ver] [libnopegl $new_lib_ver] - $today" -i CHANGELOG.md
+git add CHANGELOG.md VERSION libnopegl/VERSION
 git commit -m "Release $new_prj_ver"
 git tag "v${new_prj_ver}"

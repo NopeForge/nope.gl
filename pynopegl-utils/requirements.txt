@@ -1,0 +1,4 @@
+pillow
+pynopegl
+pyside6
+watchdog

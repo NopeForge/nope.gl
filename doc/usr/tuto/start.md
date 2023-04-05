@@ -2,14 +2,14 @@
 ===================
 
 This starter tutorial will guide you through the installation and basic usage
-of `node.gl`. At the end of this tutorial, you will be able to write your own
+of `nope.gl`. At the end of this tutorial, you will be able to write your own
 demo scripts in Python and how to read the advanced technical documentation for
 your future creative adventures.
 
 ## 🏗️ Installation
 
 Follow the ["Dependencies" and "Quick user installation" guides][install] to
-bootstrap the node.gl environment. The rest of the tutorial will assume you are
+bootstrap the nope.gl environment. The rest of the tutorial will assume you are
 in that environment.
 
 [install]: /doc/usr/howto/installation.md
@@ -43,7 +43,7 @@ selecting one, the `ngl-desktop` instances should update shortly after. Each
 toggling pause (space) or seeking (arrows, mouse clicking, ...).
 
 All the scenes listed on the left tree view can be found in the
-[pynodegl_utils.examples][demo-tree] Python module. If you are curious on how
+[pynopegl_utils.examples][demo-tree] Python module. If you are curious on how
 each demo scene operates, look into this place.
 
 Also note that `ngl-control` supports live code editing by monitoring the files
@@ -69,7 +69,7 @@ not a very interesting asset for most demos. It is suggested to select your own
 assets using this tab, and then play around with the controller and its
 default demos.
 
-[demo-tree]: /pynodegl-utils/pynodegl_utils/examples
+[demo-tree]: /pynopegl-utils/pynopegl_utils/examples
 
 
 ## 🐍 Creating a simple scene in Python
@@ -82,8 +82,8 @@ first demo.
 Edit a script such as `~/mydemo.py` and add the following:
 
 ```python
-import pynodegl as ngl
-from pynodegl_utils.misc import scene
+import pynopegl as ngl
+from pynopegl_utils.misc import scene
 
 
 _VERTEX = '''
@@ -134,7 +134,7 @@ book of shaders][book-of-shaders] or any beginner resource of your choice.
 
 You may want to refer to the [vertex and fragment shader
 parameters][expl-shaders] documentation to know which parameters are exposed by
-`node.gl`.
+`nope.gl`.
 
 We are now going to pimp a little our fragment shader. Instead of just picking
 into the texture, we will mix it with some red by replacing the `ngl_out_color`
@@ -201,7 +201,7 @@ def test_demo(cfg, color=(1,0,0)):
 All the other widgets are documented in the [Controller widgets
 documentation][controller-widgets].
 
-[controller-widgets]: /doc/usr/ref/pynodegl-utils.md#controller-widgets
+[controller-widgets]: /doc/usr/ref/pynopegl-utils.md#controller-widgets
 
 ### Animations
 
@@ -282,8 +282,8 @@ At this point, our demo code looks like this:
 
 ```python
 import os.path as op
-import pynodegl as ngl
-from pynodegl_utils.misc import scene
+import pynopegl as ngl
+from pynopegl_utils.misc import scene
 
 
 _VERTEX = '''
@@ -339,7 +339,7 @@ Little exercise suggestion: make your video do a 360° rotation using the
 
 ### Playing with time (time range filters)
 
-One last important brick in the `node.gl` creative workflow is the time range
+One last important brick in the `nope.gl` creative workflow is the time range
 control. Assuming your demo is segmented in multiple time sections, you will
 need the help of the `TimeRangeFilter` node.
 
@@ -347,8 +347,8 @@ We will start with the current new scene template:
 
 ```python
 import math
-import pynodegl as ngl
-from pynodegl_utils.misc import scene
+import pynopegl as ngl
+from pynopegl_utils.misc import scene
 
 ...
 
@@ -394,10 +394,10 @@ following new ones:
 - `Triangle` and `Circle`, which are just like `Quad`: basic geometries
 - a `Group` as root node, for rendering multiple `Render`
 
-You may also notice we picked a basic coloring fragment from `pynodegl_utils`
+You may also notice we picked a basic coloring fragment from `pynopegl_utils`
 with `get_frag('color')`, grabbing the content of [color.frag][color-frag].
 
-[color-frag]: /pynodegl-utils/pynodegl_utils/examples/shaders/color.frag
+[color-frag]: /pynopegl-utils/pynopegl_utils/examples/shaders/color.frag
 
 ![3 basic shapes](img/ngl-control-3-basic-shapes.png)
 
@@ -446,12 +446,12 @@ the [discussions and explanations][expl] section will come to an help.
 
 Finally, in every situation, you will feel the need to check out the [reference
 documentation][refdoc] for austere but exhaustive information, and in
-particular, [all the node definitions][ref-libnodegl]. The [pynodegl-utils
-reference documentation][ref-pynodegl-utils] will typically offer many helpers
+particular, [all the node definitions][ref-libnopegl]. The [pynopegl-utils
+reference documentation][ref-pynopegl-utils] will typically offer many helpers
 when starting a creative process.
 
 [howto]:                 /README.md#-how-to-guides
 [expl]:                  /README.md#%EF%B8%8F-discussions-and-explanations
 [refdoc]:                /README.md#-reference-documentation
-[ref-libnodegl]:         /libnodegl/doc/libnodegl.md
-[ref-pynodegl-utils]:    /doc/usr/ref/pynodegl-utils.md
+[ref-libnopegl]:         /libnopegl/doc/libnopegl.md
+[ref-pynopegl-utils]:    /doc/usr/ref/pynopegl-utils.md

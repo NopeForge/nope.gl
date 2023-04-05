@@ -1,7 +1,7 @@
 Using the C API
 ===============
 
-All the C API is documented in the installed header [nodegl.h][nodegl-header].
+All the C API is documented in the installed header [nopegl.h][nopegl-header].
 Since the header documentation doesn't provide the big picture on how things
 fit together, this how-to will serve as a guide.
 
@@ -14,16 +14,16 @@ The `ngli_*` symbols share this meaning and correspond to symbols shared inside
 the project but never exposed to the user (you will never see them in the
 public header).
 
-[nodegl-header]: /libnodegl/src/nodegl.h.in
+[nopegl-header]: /libnopegl/src/nopegl.h.in
 
 
-## Compilation and linking with node.gl
+## Compilation and linking with nope.gl
 
-In order to compile a source code using the `node.gl` C-API, the main and only
+In order to compile a source code using the `nope.gl` C-API, the main and only
 header has to be included:
 
 ```c
-#include <nodegl.h>
+#include <nopegl.h>
 ```
 
 This is a C header, so if you are writing code in another language, you must
@@ -32,7 +32,7 @@ like this:
 
 ```c++
 extern "C" {
-#include <nodegl.h>
+#include <nopegl.h>
 }
 ```
 
@@ -40,7 +40,7 @@ If you are using a standard build tool-chain, you will need `pkg-config` to
 obtain the compilation and linker flags:
 
 ```shell
-pkg-config --cflags --libs libnodegl
+pkg-config --cflags --libs libnopegl
 ```
 
 Check the `pkg-config` documentation and your build system for more
@@ -65,7 +65,7 @@ Allocating the context can be made at any time using `ngl_create()`:
 
 ### Method 1: de-serializing an existing scene
 
-When a scene is already available under the `node.gl` serialized form (`.ngl`),
+When a scene is already available under the `nope.gl` serialized form (`.ngl`),
 obtaining the scene is a simple call:
 
 ```c
@@ -142,7 +142,7 @@ children.  As a result, you **must release your own references** using
 
 ## Drawing
 
-First step is to associate the scene with the `node.gl` context:
+First step is to associate the scene with the `nope.gl` context:
 
 ```c
     struct ngl_ctx *ctx = ...;
@@ -176,7 +176,7 @@ operations such as media seeking, which may cause a delay in the rendering.
 ## Exit
 
 At the end of the rendering, you need to destroy the scene by unreferencing the
-root node and destroying the `node.gl` context:
+root node and destroying the `nope.gl` context:
 
 ```c
     ngl_node_unrefp(&scene);

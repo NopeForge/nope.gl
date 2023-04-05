@@ -89,9 +89,9 @@ jobs:
         cmake --build .
         cmake --install .
 
-    - name: Build nodegl lib for Android
+    - name: Build nopegl lib for Android
       run: |
-        cd libnodegl
+        cd libnopegl
         PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
         meson setup builddir \
             --cross-file ../.github/meson-android-${{ matrix.arch }}.ini \
@@ -105,4 +105,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: android-logs
-        path: libnodegl/builddir/meson-logs/testlog.txt
+        path: libnopegl/builddir/meson-logs/testlog.txt

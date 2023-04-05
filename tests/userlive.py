@@ -19,11 +19,11 @@
 # under the License.
 #
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.toolbox.colors import COLORS
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.toolbox.colors import COLORS
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 def _get_userlive_switch_func():

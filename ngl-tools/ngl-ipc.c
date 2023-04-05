@@ -37,7 +37,7 @@
 #include <sys/stat.h>
 #endif
 
-#include <nodegl.h>
+#include <nopegl.h>
 
 #include "common.h"
 #include "ipc.h"

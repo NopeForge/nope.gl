@@ -23,10 +23,10 @@ import math
 import os
 import random
 
-from pynodegl_utils.misc import get_backend
-from pynodegl_utils.toolbox.grid import autogrid_simple
+from pynopegl_utils.misc import get_backend
+from pynopegl_utils.toolbox.grid import autogrid_simple
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 _backend_str = os.environ.get("BACKEND")
 _backend = get_backend(_backend_str) if _backend_str else ngl.BACKEND_AUTO

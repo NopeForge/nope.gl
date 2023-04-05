@@ -3,7 +3,7 @@
 Color and alpha blending, depth, stencil and culling are controlled by the
 `GraphicConfig` node.
 
-`node.gl` is aligned with the traditional blending mode concepts from graphics
+`nope.gl` is aligned with the traditional blending mode concepts from graphics
 APIs. For example, color and alpha blending involves source and destination
 factors for color channels or alpha, and a blending operation (addition,
 subtraction, etc). This document will assume you are familiar with these
@@ -17,7 +17,7 @@ can be respectively found in `GraphicConfig` parameters prefixed by `depth` and
 
 ## Defaults
 
-By default, `node.gl` aligns its defaults with the sane ones from OpenGL:
+By default, `nope.gl` aligns its defaults with the sane ones from OpenGL:
 
 - Blending: *disabled*
 - Blending source factor: `1`

@@ -21,9 +21,9 @@
 
 import textwrap
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynodegl_utils.tests.data import (
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynopegl_utils.tests.data import (
     LAYOUTS,
     gen_floats,
     gen_ints,
@@ -31,10 +31,10 @@ from pynodegl_utils.tests.data import (
     get_field_scene,
     match_fields,
 )
-from pynodegl_utils.tests.debug import get_debug_points
-from pynodegl_utils.toolbox.colors import COLORS
+from pynopegl_utils.tests.debug import get_debug_points
+from pynopegl_utils.toolbox.colors import COLORS
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 _SHARED_UNIFORM_CUEPOINTS = dict((("0", (-0.5, -0.5)), ("1", (0.5, 0.5))))
 

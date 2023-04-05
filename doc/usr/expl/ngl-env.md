@@ -1,10 +1,10 @@
-# node.gl standalone build environment
+# nope.gl standalone build environment
 
-`configure.py` is the root script used to prepare a standalone node.gl virtual
+`configure.py` is the root script used to prepare a standalone nope.gl virtual
 environment for casual users and developers. If you are a packager, you
 probably do **not** want to use this script and instead package every component
-independently using their respective build systems (`meson` for `libnodegl` and
-`ngl-tools`, `pip` for `pynodegl` and `pynodegl-utils`).
+independently using their respective build systems (`meson` for `libnopegl` and
+`ngl-tools`, `pip` for `pynopegl` and `pynopegl-utils`).
 
 The goal of this script is to have an isolated environment without being
 intrusive on the host system, being as simple and straightforward as possible
@@ -20,16 +20,16 @@ external dependencies such as `nope.media` are then pulled, and a `Makefile`
 is generated.
 
 The generated `Makefile` (compatible `NMake` on Windows and `GNU/Make` on other
-systems) provides a build chain for compiling and installing the node.gl
+systems) provides a build chain for compiling and installing the nope.gl
 components within this environment.
 
 Running `make` (or `nmake`) is re-entrant, so developers can do their
 modifications to the code and iterate easily. It is possible to iterate faster
-by selecting the specific build chain rule, for example: `make nodegl-install`.
+by selecting the specific build chain rule, for example: `make nopegl-install`.
 
 After the build, it is possible to enter the environment with the provided
 activation command to access the tools (`ngl-control`, `ngl-desktop`, etc.), as
-well as importing `pynodegl` and `pynodegl-utils` within Python.
+well as importing `pynopegl` and `pynopegl-utils` within Python.
 
 The temporary build files are located in `builddir`. This means that if the
 virtual env is activated, you can also typically manually run `meson` commands

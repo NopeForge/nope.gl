@@ -21,12 +21,12 @@
 
 import textwrap
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.toolbox.colors import COLORS
-from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.toolbox.colors import COLORS
+from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 @test_fingerprint(width=320, height=320, nb_keyframes=20, tolerance=1)

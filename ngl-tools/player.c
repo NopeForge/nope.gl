@@ -92,7 +92,7 @@ static int screenshot(struct player *p)
 
     int ret = ngl_configure(p->ngl, config);
     if (ret < 0) {
-        fprintf(stderr, "Could not configure node.gl for offscreen capture\n");
+        fprintf(stderr, "Could not configure nope.gl for offscreen capture\n");
         goto end;
     }
     ngl_draw(p->ngl, p->frame_time);
@@ -109,7 +109,7 @@ end:
     *config = backup;
     ret = ngl_configure(p->ngl, config);
     if (ret < 0)
-        fprintf(stderr, "Could not configure node.gl for onscreen rendering\n");
+        fprintf(stderr, "Could not configure nope.gl for onscreen rendering\n");
     p->clock_off = gettime_relative() - p->frame_ts;
 
     free(capture_buffer);

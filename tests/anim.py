@@ -22,9 +22,9 @@
 import itertools
 import random
 
-from pynodegl_utils.tests.cmp_floats import test_floats
+from pynopegl_utils.tests.cmp_floats import test_floats
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 def _easing_split(easing):

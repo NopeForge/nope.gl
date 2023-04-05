@@ -22,7 +22,7 @@
 #include <Cocoa/Cocoa.h>
 #include <SDL.h>
 #include <SDL_syswm.h>
-#include <nodegl.h>
+#include <nopegl.h>
 
 #include "wsi.h"
 

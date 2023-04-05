@@ -242,16 +242,16 @@ def _renderdoc_install(cfg):
     return [f"copy {renderdoc_dll} {cfg.bin_path}"]
 
 
-@_block("nodegl-setup", [_nopemd_install])
-def _nodegl_setup(cfg):
-    nodegl_opts = []
+@_block("nopegl-setup", [_nopemd_install])
+def _nopegl_setup(cfg):
+    nopegl_opts = []
     if cfg.args.debug_opts:
         debug_opts = ",".join(cfg.args.debug_opts)
-        nodegl_opts += [f"-Ddebug_opts={debug_opts}"]
+        nopegl_opts += [f"-Ddebug_opts={debug_opts}"]
 
     if "gpu_capture" in cfg.args.debug_opts:
         renderdoc_dir = cfg.externals[_RENDERDOC_ID]
-        nodegl_opts += [f"-Drenderdoc_dir={renderdoc_dir}"]
+        nopegl_opts += [f"-Drenderdoc_dir={renderdoc_dir}"]
 
     extra_library_dirs = []
     extra_include_dirs = []
@@ -273,31 +273,31 @@ def _nodegl_setup(cfg):
 
     if extra_library_dirs:
         opts = ",".join(extra_library_dirs)
-        nodegl_opts += [f"-Dextra_library_dirs={opts}"]
+        nopegl_opts += [f"-Dextra_library_dirs={opts}"]
 
     if extra_include_dirs:
         opts = ",".join(extra_include_dirs)
-        nodegl_opts += [f"-Dextra_include_dirs={opts}"]
+        nopegl_opts += [f"-Dextra_include_dirs={opts}"]
 
-    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(*nodegl_opts, "libnodegl", op.join("builddir", "libnodegl"))]
-
-
-@_block("nodegl-install", [_nodegl_setup])
-def _nodegl_install(cfg):
-    return _meson_compile_install_cmd("libnodegl")
+    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(*nopegl_opts, "libnopegl", op.join("builddir", "libnopegl"))]
 
 
-@_block("pynodegl-deps-install", [_nodegl_install])
-def _pynodegl_deps_install(cfg):
-    return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "pynodegl", "requirements.txt"))]
+@_block("nopegl-install", [_nopegl_setup])
+def _nopegl_install(cfg):
+    return _meson_compile_install_cmd("libnopegl")
 
 
-@_block("pynodegl-install", [_pynodegl_deps_install])
-def _pynodegl_install(cfg):
-    ret = ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join(".", "pynodegl"))]
+@_block("pynopegl-deps-install", [_nopegl_install])
+def _pynopegl_deps_install(cfg):
+    return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "pynopegl", "requirements.txt"))]
+
+
+@_block("pynopegl-install", [_pynopegl_deps_install])
+def _pynopegl_install(cfg):
+    ret = ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join(".", "pynopegl"))]
     if _SYSTEM == "Windows":
         dlls = op.join(cfg.prefix, "Scripts", "*.dll")
-        ret += [f"xcopy /Y {dlls} pynodegl\\."]
+        ret += [f"xcopy /Y {dlls} pynopegl\\."]
     else:
         rpath = op.join(cfg.prefix, "lib")
         ldflags = f"-Wl,-rpath,{rpath}"
@@ -305,8 +305,8 @@ def _pynodegl_install(cfg):
     return ret
 
 
-@_block("pynodegl-utils-deps-install", [_pynodegl_install])
-def _pynodegl_utils_deps_install(cfg):
+@_block("pynopegl-utils-deps-install", [_pynopegl_install])
+def _pynopegl_utils_deps_install(cfg):
     #
     # Requirements not installed on MinGW because:
     # - PySide6 can't be pulled (required to be installed by the user outside the
@@ -316,15 +316,15 @@ def _pynodegl_utils_deps_install(cfg):
     #
     if _SYSTEM == "MinGW":
         return ["@"]  # noop
-    return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "pynodegl-utils", "requirements.txt"))]
+    return ["$(PIP) " + _cmd_join("install", "-r", op.join(".", "pynopegl-utils", "requirements.txt"))]
 
 
-@_block("pynodegl-utils-install", [_pynodegl_utils_deps_install])
-def _pynodegl_utils_install(cfg):
-    return ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join(".", "pynodegl-utils"))]
+@_block("pynopegl-utils-install", [_pynopegl_utils_deps_install])
+def _pynopegl_utils_install(cfg):
+    return ["$(PIP) " + _cmd_join("-v", "install", "-e", op.join(".", "pynopegl-utils"))]
 
 
-@_block("ngl-tools-setup", [_nodegl_install])
+@_block("ngl-tools-setup", [_nopegl_install])
 def _ngl_tools_setup(cfg):
     return ["$(MESON_SETUP) -Drpath=true " + _cmd_join("ngl-tools", op.join("builddir", "ngl-tools"))]
 
@@ -334,27 +334,27 @@ def _ngl_tools_install(cfg):
     return _meson_compile_install_cmd("ngl-tools")
 
 
-def _nodegl_run_target_cmd(cfg, target):
-    builddir = op.join("builddir", "libnodegl")
+def _nopegl_run_target_cmd(cfg, target):
+    builddir = op.join("builddir", "libnopegl")
     return ["$(MESON) " + _cmd_join("compile", "-C", builddir, target)]
 
 
-@_block("nodegl-updatedoc", [_nodegl_install])
-def _nodegl_updatedoc(cfg):
-    return _nodegl_run_target_cmd(cfg, "updatedoc")
+@_block("nopegl-updatedoc", [_nopegl_install])
+def _nopegl_updatedoc(cfg):
+    return _nopegl_run_target_cmd(cfg, "updatedoc")
 
 
-@_block("nodegl-updatespecs", [_nodegl_install])
-def _nodegl_updatespecs(cfg):
-    return _nodegl_run_target_cmd(cfg, "updatespecs")
+@_block("nopegl-updatespecs", [_nopegl_install])
+def _nopegl_updatespecs(cfg):
+    return _nopegl_run_target_cmd(cfg, "updatespecs")
 
 
-@_block("nodegl-updateglwrappers", [_nodegl_install])
-def _nodegl_updateglwrappers(cfg):
-    return _nodegl_run_target_cmd(cfg, "updateglwrappers")
+@_block("nopegl-updateglwrappers", [_nopegl_install])
+def _nopegl_updateglwrappers(cfg):
+    return _nopegl_run_target_cmd(cfg, "updateglwrappers")
 
 
-@_block("all", [_ngl_tools_install, _pynodegl_utils_install])
+@_block("all", [_ngl_tools_install, _pynopegl_utils_install])
 def _all(cfg):
     echo = ["", "Build completed.", "", "You can now enter the venv with:"]
     if _SYSTEM == "Windows":
@@ -365,14 +365,14 @@ def _all(cfg):
         return [f'@echo "    {e}"' for e in echo]
 
 
-@_block("tests-setup", [_ngl_tools_install, _pynodegl_utils_install])
+@_block("tests-setup", [_ngl_tools_install, _pynopegl_utils_install])
 def _tests_setup(cfg):
     return ["$(MESON_SETUP_TESTS) " + _cmd_join("tests", op.join("builddir", "tests"))]
 
 
-@_block("nodegl-tests", [_nodegl_install])
-def _nodegl_tests(cfg):
-    return ["$(MESON) " + _cmd_join("test", "-C", op.join("builddir", "libnodegl"))]
+@_block("nopegl-tests", [_nopegl_install])
+def _nopegl_tests(cfg):
+    return ["$(MESON) " + _cmd_join("test", "-C", op.join("builddir", "libnopegl"))]
 
 
 def _rm(f):
@@ -386,23 +386,23 @@ def _rd(d):
 @_block("clean-py")
 def _clean_py(cfg):
     return [
-        _rm(op.join("pynodegl", "nodes_def.pyx")),
-        _rm(op.join("pynodegl", "_pynodegl.c")),
-        _rm(op.join("pynodegl", "_pynodegl.*.so")),
-        _rm(op.join("pynodegl", "pynodegl.*.pyd")),
-        _rm(op.join("pynodegl", "pynodegl", "__init__.py")),
-        _rd(op.join("pynodegl", "build")),
-        _rd(op.join("pynodegl", "pynodegl.egg-info")),
-        _rd(op.join("pynodegl", ".eggs")),
-        _rd(op.join("pynodegl-utils", "pynodegl_utils.egg-info")),
-        _rd(op.join("pynodegl-utils", ".eggs")),
+        _rm(op.join("pynopegl", "nodes_def.pyx")),
+        _rm(op.join("pynopegl", "_pynopegl.c")),
+        _rm(op.join("pynopegl", "_pynopegl.*.so")),
+        _rm(op.join("pynopegl", "pynopegl.*.pyd")),
+        _rm(op.join("pynopegl", "pynopegl", "__init__.py")),
+        _rd(op.join("pynopegl", "build")),
+        _rd(op.join("pynopegl", "pynopegl.egg-info")),
+        _rd(op.join("pynopegl", ".eggs")),
+        _rd(op.join("pynopegl-utils", "pynopegl_utils.egg-info")),
+        _rd(op.join("pynopegl-utils", ".eggs")),
     ]
 
 
 @_block("clean", [_clean_py])
 def _clean(cfg):
     return [
-        _rd(op.join("builddir", "libnodegl")),
+        _rd(op.join("builddir", "libnopegl")),
         _rd(op.join("builddir", "ngl-tools")),
         _rd(op.join("builddir", "tests")),
         _rd(op.join("external", "pkgconf", "builddir")),
@@ -413,7 +413,7 @@ def _clean(cfg):
 def _coverage(cfg, output):
     # We don't use `meson coverage` here because of
     # https://github.com/mesonbuild/meson/issues/7895
-    return [_cmd_join("ninja", "-C", op.join("builddir", "libnodegl"), f"coverage-{output}")]
+    return [_cmd_join("ninja", "-C", op.join("builddir", "libnopegl"), f"coverage-{output}")]
 
 
 @_block("coverage-html")
@@ -426,7 +426,7 @@ def _coverage_xml(cfg):
     return _coverage(cfg, "xml")
 
 
-@_block("tests", [_nodegl_tests, _tests_setup])
+@_block("tests", [_nopegl_tests, _tests_setup])
 def _tests(cfg):
     return ["$(MESON) " + _cmd_join("test", "--timeout-multiplier", "2", "-C", op.join("builddir", "tests"))]
 
@@ -541,7 +541,7 @@ def _get_makefile(cfg, blocks):
 
 class _EnvBuilder(venv.EnvBuilder):
     def __init__(self):
-        super().__init__(system_site_packages=_SYSTEM == "MinGW", with_pip=True, prompt="nodegl")
+        super().__init__(system_site_packages=_SYSTEM == "MinGW", with_pip=True, prompt="nopegl")
 
     def post_setup(self, context):
         if _SYSTEM == "MinGW":
@@ -582,7 +582,7 @@ class _Config:
         if _SYSTEM == "Windows":
             _nopemd_setup.prerequisites.append(_pkgconf_install)
             if "gpu_capture" in args.debug_opts:
-                _nodegl_setup.prerequisites.append(_renderdoc_install)
+                _nopegl_setup.prerequisites.append(_renderdoc_install)
 
             vcpkg_bin = op.join(args.vcpkg_dir, "installed", "x64-windows", "bin")
             for f in glob.glob(op.join(vcpkg_bin, "*.dll")):
@@ -606,7 +606,7 @@ class _Config:
 def _run():
     default_build_backend = "ninja" if _SYSTEM != "Windows" else "vs"
     parser = argparse.ArgumentParser(
-        description="Create and manage a standalone node.gl virtual environement",
+        description="Create and manage a standalone nope.gl virtual environement",
     )
     parser.add_argument("-p", "--venv-path", default=op.join(_ROOTDIR, "venv"), help="Virtual environment directory")
     parser.add_argument("--buildtype", choices=("release", "debug"), default="release", help="Build type")
@@ -638,9 +638,9 @@ def _run():
         _all,
         _tests,
         _clean,
-        _nodegl_updatedoc,
-        _nodegl_updatespecs,
-        _nodegl_updateglwrappers,
+        _nopegl_updatedoc,
+        _nopegl_updatespecs,
+        _nopegl_updateglwrappers,
     ]
     if args.coverage:
         blocks += [_coverage_html, _coverage_xml]
