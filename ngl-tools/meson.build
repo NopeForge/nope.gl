@@ -67,7 +67,7 @@ endif
 #
 tool_deps = [
   cc.find_library('m', required: false),
-  dependency('libnodegl'),
+  dependency('libnopegl'),
 ]
 nopemd_dep = dependency('libnopemd', version: '>= 10.0.0')  # for media probing
 threads_dep = dependency('threads', required: false)

@@ -8,7 +8,7 @@ that's what we rely on.
 
 ## Basic Usage
 
-Assuming node.gl has been configured through the standard procedure (using
+Assuming nope.gl has been configured through the standard procedure (using
 `configure.py`), executing `make tests` is enough to trigger all the tests
 (including the component specific tests). For more information on the bootstrap
 procedure, see the [installation documentation](/doc/usr/howto/installation.md).
@@ -36,7 +36,7 @@ example: `ngl-control -m ./tests/blending.py`. For more information on the
 controller usage, check out the [starter tutorial](/doc/usr/tuto/start.md).
 
 For cue-points or fingerprint based tests, the `TESTS_OPTIONS=dump` environment
-toggle can be used to dump pictures (in `<tempdir>/nodegl/tests`).
+toggle can be used to dump pictures (in `<tempdir>/nopegl/tests`).
 
 Additional tooling is available, such as GPU capture and code coverage (see
 associated sections below).
@@ -70,7 +70,7 @@ On Linux, a typical workflow will look like this:
 
 ```sh
 # Serialize a scene
-ngl-serialize pynodegl_utils.examples.misc fibo /tmp/fibo.ngl
+ngl-serialize pynopegl_utils.examples.misc fibo /tmp/fibo.ngl
 
 # Execute a command with librenderdoc hook and capture enabled
 # A renderdoc capture path will be indicated on stdout
@@ -93,7 +93,7 @@ also available for a report meant to be parsed by other tools.
 
 For the native tests, meson test wrapper can be used in combination with
 [Valgrind](https://www.valgrind.org/). After activating the `venv`, they can be
-executed with Valgrind using: `meson test -C builddir/libnodegl --wrap
+executed with Valgrind using: `meson test -C builddir/libnopegl --wrap
 'valgrind --leak-check=full --show-leak-kinds=all --error-exitcode=1'`
 
 Running the Python tests with that method is not well supported currently. It
@@ -113,7 +113,7 @@ OpenGL.
 ## Memory failure simulation
 
 Sometimes we want to test that error codepaths are properly handled and do not
-lead to memory leaks. To achieve that, node.gl includes a memory failure
+lead to memory leaks. To achieve that, nope.gl includes a memory failure
 simulation that can be enabled at configure time with `--buildtype debug
 --debug-opt mem`.
 
@@ -125,7 +125,7 @@ how many allocations happen for a given execution (using
 For example:
 ```sh
 # Serialize a scene
-ngl-serialize pynodegl_utils.examples.misc fibo /tmp/fibo.ngl
+ngl-serialize pynopegl_utils.examples.misc fibo /tmp/fibo.ngl
 
 # Count the number of mallocs (the last lines will contain something like
 # MEMCOUNT: 858)

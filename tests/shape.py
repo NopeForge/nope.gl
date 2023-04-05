@@ -23,14 +23,14 @@ import array
 import itertools
 import textwrap
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.toolbox.colors import COLORS, get_random_color_buffer
-from pynodegl_utils.toolbox.grid import autogrid_simple
-from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.toolbox.colors import COLORS, get_random_color_buffer
+from pynopegl_utils.toolbox.grid import autogrid_simple
+from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 @test_cuepoints(points=dict(bl=(-1, -1), br=(1, -1), tr=(1, 1), tl=(-1, 1), c=(0, 0)), tolerance=5)

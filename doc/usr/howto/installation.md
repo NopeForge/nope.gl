@@ -1,7 +1,7 @@
 # Quick user build & installation
 
 This page includes the system requirements as well as the steps needed for
-building and running the complete `node.gl` stack.
+building and running the complete `nope.gl` stack.
 
 ## Quick user installation on Linux and MacOS
 
@@ -54,7 +54,7 @@ building and running the complete `node.gl` stack.
   available in order to run the tests)
 - To be allowed to run the build scripts, you will need to run this once in an
   administrator Powershell: `Set-ExecutionPolicy RemoteSigned`
-- In a Powershell (as user), in the `node.gl` sources, run
+- In a Powershell (as user), in the `nope.gl` sources, run
   `.\scripts\msvc-env.ps1` to import all the necessary variables for the MSVC
   environment. Alternatively, you can open *VS Native Tools Prompt* and spawn a
   `powershell` from here.
@@ -66,9 +66,9 @@ building and running the complete `node.gl` stack.
 This section is targeted at packagers willing to build packages for every
 individual components.
 
-## Installation of `libnodegl` (the core library)
+## Installation of `libnopegl` (the core library)
 
-`libnodegl` uses [Meson][meson] for its build system. Its compilation and
+`libnopegl` uses [Meson][meson] for its build system. Its compilation and
 installation usually looks like the following:
 
 ```sh
@@ -85,19 +85,19 @@ documentation][meson-doc] for more information.
 
 ## Installation of `ngl-tools`
 
-The `node.gl` tools located in the `ngl-tools/` directory are to be built and
-installed exactly the same way as `libnodegl`.
+The `nope.gl` tools located in the `ngl-tools/` directory are to be built and
+installed exactly the same way as `libnopegl`.
 
-## Installation of `pynodegl` (the Python binding)
+## Installation of `pynopegl` (the Python binding)
 
 ```shell
-pip install -r ./pynodegl/requirements.txt
-pip install ./pynodegl
+pip install -r ./pynopegl/requirements.txt
+pip install ./pynopegl
 ```
 
-## Installation of `pynodegl-utils` (the Python utilities and examples)
+## Installation of `pynopegl-utils` (the Python utilities and examples)
 
 ```shell
-pip install -r ./pynodegl-utils/requirements.txt
-pip install ./pynodegl-utils
+pip install -r ./pynopegl-utils/requirements.txt
+pip install ./pynopegl-utils
 ```

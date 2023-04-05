@@ -1,6 +1,6 @@
 # Shaders
 
-In `node.gl`, shaders are written in GLSL, but inputs and outputs are
+In `nope.gl`, shaders are written in GLSL, but inputs and outputs are
 abstracted by the tree. Similarly, `#version` directive and `precision` are
 controlled outside the shader strings. This means that user-provided shaders
 usually only contain functions.
@@ -14,7 +14,7 @@ allowing node trees to be as portable as possible.
 ### Builtin inputs
 
 When constructing a graphic pipeline (`Render` node), the geometry information
-needs to be transmitted to the vertex stage. To achieve that, `node.gl`
+needs to be transmitted to the vertex stage. To achieve that, `nope.gl`
 provides the following inputs to the vertex stage:
 
 Type   | Name           | Description
@@ -51,7 +51,7 @@ The vertex shader will get two extra attributes:
 ### Builtin variables
 
 The variables are another type of inputs made accessible to the shader.
-`node.gl` provides the following as builtin:
+`nope.gl` provides the following as builtin:
 
 Type   | Name                    | Stage    | Description
 -------|-------------------------|----------|------------
@@ -127,7 +127,7 @@ stages of the pipeline. This means they need to be added to
 respectively made accessible to the vertex stage, fragment stage or compute
 stage.
 
-Textures need special care in `node.gl`, mainly because of the hardware
+Textures need special care in `nope.gl`, mainly because of the hardware
 acceleration abstraction provided by the engine for multimedia files.
 
 A `Texture2D` can have different types of source set to its `data_src`

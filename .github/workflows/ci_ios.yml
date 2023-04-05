@@ -80,9 +80,9 @@ jobs:
         meson compile -C builddir
         meson install -C builddir
 
-    - name: Build nodegl lib for ios
+    - name: Build nopegl lib for ios
       run: |
-        cd libnodegl
+        cd libnopegl
         PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
         meson setup --cross-file ../.github/meson-ios-${{ matrix.arch }}.ini builddir
         meson compile -C builddir
@@ -93,4 +93,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ios-logs
-        path: libnodegl/builddir/meson-logs/testlog.txt
+        path: libnopegl/builddir/meson-logs/testlog.txt

@@ -19,12 +19,12 @@
 # under the License.
 #
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.toolbox.colors import COLORS
-from pynodegl_utils.toolbox.grid import autogrid_simple
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.toolbox.colors import COLORS
+from pynopegl_utils.toolbox.grid import autogrid_simple
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 _OPERATORS = (
     "src_over",

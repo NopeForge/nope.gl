@@ -2,7 +2,7 @@ Media time remapping
 ====================
 
 When using one or more `Media` nodes in a demo, it is often needed to map the
-`node.gl` time (referred in this document as `t`) to a different media time
+`nope.gl` time (referred in this document as `t`) to a different media time
 (referred in this document as `Tm`). This time remapping is controlled by the
 `Media.time_anim` parameter and `TimeRangeFilter` nodes.
 
@@ -12,7 +12,7 @@ All the concepts explained here are summarized in the demo
 ## Time anim key frames
 
 `Media.time_anim` is an animation composed of at least one animation key frame.
-Each key frame associates a `node.gl` time to a media time: `f(t) = Tm` with
+Each key frame associates a `nope.gl` time to a media time: `f(t) = Tm` with
 `f()` being the time interpolation function.
 
 ### Example:
@@ -79,8 +79,8 @@ In this case, `my_render` will be visible between `t=2` and `t=9`.
 Associated code:
 
 ```python
-import pynodegl as ngl
-from pynodegl_utils.misc import scene
+import pynopegl as ngl
+from pynopegl_utils.misc import scene
 
 
 @scene()
@@ -111,7 +111,7 @@ def media_time_remapping(cfg):
 
 ## Behind the scene
 
-For media playback `node.gl` relies on the `nope.media` project. Internally, the
+For media playback `nope.gl` relies on the `nope.media` project. Internally, the
 `nope.media` context is configured with an `initial_seek` and a `end_time`
 based on the `Media.time_anim` user configuration. These settings respectively
 help getting the first frame quickly and closing the media and resources faster

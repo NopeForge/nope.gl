@@ -28,7 +28,7 @@
 #include <sys/socket.h>
 #endif
 
-#include <nodegl.h>
+#include <nopegl.h>
 
 #include "ipc.h"
 

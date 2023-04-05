@@ -5,9 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 This project adheres to a flavour of [Calendar Versioning](https://calver.org/)
 for the globale releases (`YYYY.MINOR`), and to [Semantic
-Versioning](https://semver.org/spec/v2.0.0.html) for `libnodegl`.
+Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+### Changed
+- Project renamed to `nope.gl`, as part of the Nope Project
 
 ## [2023.0] [libnodegl 0.7.0] - 2023-03-09
 ### Fixed

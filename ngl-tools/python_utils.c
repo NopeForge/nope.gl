@@ -21,7 +21,7 @@
 
 #include <Python.h>
 
-#include <nodegl.h>
+#include <nopegl.h>
 
 #include "python_utils.h"
 
@@ -38,7 +38,7 @@ struct ngl_node *python_get_scene(const char *modname, const char *func_name, do
 
     const size_t len = strlen(modname);
     if (len > 3 && !strcmp(modname + len - 3, ".py")) {
-        if (!(com         = PyImport_ImportModule("pynodegl_utils.module")) ||
+        if (!(com         = PyImport_ImportModule("pynopegl_utils.module")) ||
             !(load_script = PyObject_GetAttrString(com, "load_script"))  ||
             !(path        = PyUnicode_FromString(modname))               ||
             !(mod         = PyObject_CallFunctionObjArgs(load_script, path, NULL)))

@@ -7,8 +7,8 @@ Python functions, calling `assert` directly. These tests usually cover
 top-level API usage or anything non-visual. Some examples can be found in
 `tests/api.py`.
 
-`libnodegl` also includes dedicated programs for unit-tests (see
-`libnodegl/src/test_*`) to cover code which is usually harder to access from a
+`libnopegl` also includes dedicated programs for unit-tests (see
+`libnopegl/src/test_*`) to cover code which is usually harder to access from a
 top-level interface like the one provided by the Python binding.
 
 

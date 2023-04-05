@@ -22,10 +22,10 @@
 import array
 import textwrap
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.tests.data import (
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.tests.data import (
     ANIM_DURATION,
     LAYOUTS,
     gen_floats,
@@ -34,10 +34,10 @@ from pynodegl_utils.tests.data import (
     get_field_scene,
     match_fields,
 )
-from pynodegl_utils.tests.debug import get_debug_points
-from pynodegl_utils.toolbox.colors import COLORS
+from pynopegl_utils.tests.debug import get_debug_points
+from pynopegl_utils.toolbox.colors import COLORS
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 def _get_data_spec(layout, i_count=6, f_count=7, v2_count=5, v3_count=9, v4_count=2, mat_count=3):

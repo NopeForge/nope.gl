@@ -19,11 +19,11 @@
 # under the License.
 #
 
-from pynodegl_utils.misc import scene
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.toolbox.colors import COLORS
+from pynopegl_utils.misc import scene
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.toolbox.colors import COLORS
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 @test_fingerprint(tolerance=1)
@@ -39,7 +39,7 @@ def text_0_to_127(_):
 
 
 def _text(**params):
-    return ngl.Text("This\nis\nnode.gl", font_scale=0.7, padding=8, **params)
+    return ngl.Text("This\nis\nnope.gl", font_scale=0.7, padding=8, **params)
 
 
 @test_fingerprint(tolerance=1)

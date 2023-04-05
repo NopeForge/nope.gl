@@ -21,12 +21,12 @@
 
 import array
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.toolbox.colors import COLORS
-from pynodegl_utils.toolbox.shapes import equilateral_triangle_coords
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.toolbox.colors import COLORS
+from pynopegl_utils.toolbox.shapes import equilateral_triangle_coords
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 def _transform_shape(w=0.75, h=0.45):

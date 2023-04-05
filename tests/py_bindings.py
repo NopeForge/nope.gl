@@ -19,7 +19,7 @@
 # under the License.
 #
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 def py_bindings_allow_node():

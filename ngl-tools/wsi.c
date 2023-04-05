@@ -50,7 +50,7 @@ SDL_Window *get_window(const char *title, int width, int height)
      * SDL_WINDOW_OPENGL flag internally, causing the Wayland backend to create
      * a Wayland EGL surface, an EGL context and expects the user to call
      * SDL_*_SwapWindow(). This conflicts with what we want to do (ie: manage
-     * the underlying GPU buffers in node.gl). Adding the SDL_WINDOW_VULKAN
+     * the underlying GPU buffers in nope.gl). Adding the SDL_WINDOW_VULKAN
      * flag workarounds the issue and fixes resizing issues on Wayland.
      */
     const char *name = SDL_GetCurrentVideoDriver();

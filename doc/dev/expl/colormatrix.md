@@ -158,7 +158,7 @@ def _get_matrix(name, video_range=True):
     ]
 ```
 
-This code is re-written in C in `libnodegl`, with a `float` precision approximation.
+This code is re-written in C in `libnopegl`, with a `float` precision approximation.
 
 
 ## Accuracy testing

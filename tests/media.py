@@ -21,14 +21,14 @@
 
 import textwrap
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.tests.cmp_resources import test_resources
-from pynodegl_utils.toolbox.colors import COLORS
-from pynodegl_utils.toolbox.grid import AutoGrid
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.tests.cmp_resources import test_resources
+from pynopegl_utils.toolbox.colors import COLORS
+from pynopegl_utils.toolbox.grid import AutoGrid
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 def _get_time_scene(cfg: SceneCfg):

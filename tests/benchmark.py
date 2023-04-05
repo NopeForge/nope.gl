@@ -22,11 +22,11 @@
 import colorsys
 import textwrap
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_fingerprint import test_fingerprint
-from pynodegl_utils.tests.cmp_resources import test_resources
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_fingerprint import test_fingerprint
+from pynopegl_utils.tests.cmp_resources import test_resources
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 def _get_random_easing(rng):

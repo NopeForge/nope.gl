@@ -20,10 +20,10 @@
 #
 
 
-from pynodegl_utils.misc import SceneCfg, scene
-from pynodegl_utils.tests.cmp_cuepoints import test_cuepoints
+from pynopegl_utils.misc import SceneCfg, scene
+from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
 
-import pynodegl as ngl
+import pynopegl as ngl
 
 
 def _get_anim_color_scene_func(c0, c1, space):

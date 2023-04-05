@@ -6,4 +6,4 @@ codecov:
 codecov:
   disable_default_path_fixes: yes
 fixes:
-  - "::libnodegl/"
+  - "::libnopegl/"
