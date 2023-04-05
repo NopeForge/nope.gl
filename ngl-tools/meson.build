@@ -69,7 +69,7 @@ tool_deps = [
   cc.find_library('m', required: false),
   dependency('libnodegl'),
 ]
-nopemd_dep = dependency('libnopemd')  # for media probing
+nopemd_dep = dependency('libnopemd', version: '>= 10.0.0')  # for media probing
 threads_dep = dependency('threads', required: false)
 
 python_mod = import('python')
