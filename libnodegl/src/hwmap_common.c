@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include "format.h"
 #include "hwmap.h"
@@ -49,26 +49,26 @@ static const struct format_desc {
     int format_depth;
     int formats[4];
 } format_descs[] = {
-    [SXPLAYER_PIXFMT_RGBA] = {
+    [NMD_PIXFMT_RGBA] = {
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .depth = 8,
         .nb_planes = 1,
         .format_depth = 8,
         .formats[0] = NGLI_FORMAT_R8G8B8A8_UNORM,
     },
-    [SXPLAYER_PIXFMT_BGRA] = {
+    [NMD_PIXFMT_BGRA] = {
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .depth = 8,
         .nb_planes = 1,
         .format_depth = 8,
         .formats[0] = NGLI_FORMAT_B8G8R8A8_UNORM,
     },
-    [SXPLAYER_SMPFMT_FLT] = {
+    [NMD_SMPFMT_FLT] = {
         .layout = NGLI_IMAGE_LAYOUT_DEFAULT,
         .nb_planes = 1,
         .formats[0] = NGLI_FORMAT_R32_SFLOAT,
     },
-    [SXPLAYER_PIXFMT_NV12] = {
+    [NMD_PIXFMT_NV12] = {
         .layout = NGLI_IMAGE_LAYOUT_NV12,
         .depth = 8,
         .nb_planes = 2,
@@ -78,7 +78,7 @@ static const struct format_desc {
         .formats[0] = NGLI_FORMAT_R8_UNORM,
         .formats[1] = NGLI_FORMAT_R8G8_UNORM,
     },
-    [SXPLAYER_PIXFMT_YUV420P] = {
+    [NMD_PIXFMT_YUV420P] = {
         .layout = NGLI_IMAGE_LAYOUT_YUV,
         .depth = 8,
         .nb_planes = 3,
@@ -89,7 +89,7 @@ static const struct format_desc {
         .formats[1] = NGLI_FORMAT_R8_UNORM,
         .formats[2] = NGLI_FORMAT_R8_UNORM,
     },
-    [SXPLAYER_PIXFMT_YUV422P] = {
+    [NMD_PIXFMT_YUV422P] = {
         .layout = NGLI_IMAGE_LAYOUT_YUV,
         .depth = 8,
         .nb_planes = 3,
@@ -100,7 +100,7 @@ static const struct format_desc {
         .formats[1] = NGLI_FORMAT_R8_UNORM,
         .formats[2] = NGLI_FORMAT_R8_UNORM,
     },
-    [SXPLAYER_PIXFMT_YUV444P] = {
+    [NMD_PIXFMT_YUV444P] = {
         .layout = NGLI_IMAGE_LAYOUT_YUV,
         .depth = 8,
         .nb_planes = 3,
@@ -111,7 +111,7 @@ static const struct format_desc {
         .formats[1] = NGLI_FORMAT_R8_UNORM,
         .formats[2] = NGLI_FORMAT_R8_UNORM,
     },
-    [SXPLAYER_PIXFMT_P010LE] = {
+    [NMD_PIXFMT_P010LE] = {
         .layout = NGLI_IMAGE_LAYOUT_NV12,
         .depth = 10,
         .shift = 6,
@@ -122,7 +122,7 @@ static const struct format_desc {
         .formats[0] = NGLI_FORMAT_R16_UNORM,
         .formats[1] = NGLI_FORMAT_R16G16_UNORM,
     },
-    [SXPLAYER_PIXFMT_YUV420P10LE] = {
+    [NMD_PIXFMT_YUV420P10LE] = {
         .layout = NGLI_IMAGE_LAYOUT_YUV,
         .depth = 10,
         .nb_planes = 3,
@@ -133,7 +133,7 @@ static const struct format_desc {
         .formats[1] = NGLI_FORMAT_R16_UNORM,
         .formats[2] = NGLI_FORMAT_R16_UNORM,
     },
-    [SXPLAYER_PIXFMT_YUV422P10LE] = {
+    [NMD_PIXFMT_YUV422P10LE] = {
         .layout = NGLI_IMAGE_LAYOUT_YUV,
         .depth = 10,
         .nb_planes = 3,
@@ -144,7 +144,7 @@ static const struct format_desc {
         .formats[1] = NGLI_FORMAT_R16_UNORM,
         .formats[2] = NGLI_FORMAT_R16_UNORM,
     },
-    [SXPLAYER_PIXFMT_YUV444P10LE] = {
+    [NMD_PIXFMT_YUV444P10LE] = {
         .layout = NGLI_IMAGE_LAYOUT_YUV,
         .depth = 10,
         .nb_planes = 3,
@@ -183,7 +183,7 @@ static int support_direct_rendering(struct hwmap *hwmap, const struct format_des
     return direct_rendering;
 }
 
-static int common_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int common_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -192,7 +192,7 @@ static int common_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
 
     const struct format_desc *desc = common_get_format_desc(frame->pix_fmt);
     if (!desc) {
-        LOG(ERROR, "unsupported sxplayer pixel format (%d)", frame->pix_fmt);
+        LOG(ERROR, "unsupported nope.media pixel format (%d)", frame->pix_fmt);
         return NGL_ERROR_UNSUPPORTED;
     }
 
@@ -232,7 +232,7 @@ static int common_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
         .height = frame->height,
         .layout = desc->layout,
         .color_scale = color_scale,
-        .color_info = ngli_color_info_from_sxplayer_frame(frame),
+        .color_info = ngli_color_info_from_nopemd_frame(frame),
     };
     ngli_image_init(&hwmap->mapped_image, &image_params, common->planes);
 
@@ -249,7 +249,7 @@ static void common_uninit(struct hwmap *hwmap)
         ngli_texture_freep(&common->planes[i]);
 }
 
-static int common_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int common_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct hwmap_common *common = hwmap->hwmap_priv_data;
 
@@ -267,7 +267,7 @@ static int common_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
 
 const struct hwmap_class ngli_hwmap_common_class = {
     .name      = "default",
-    .hwformat  = -1, /* TODO: replace with SXPLAYER_PIXFMT_NONE */
+    .hwformat  = -1, /* TODO: replace with NMD_PIXFMT_NONE */
     .layouts   = (const int[]){
         NGLI_IMAGE_LAYOUT_DEFAULT,
         NGLI_IMAGE_LAYOUT_NV12,

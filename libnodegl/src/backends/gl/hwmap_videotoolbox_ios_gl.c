@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include <CoreVideo/CoreVideo.h>
 
@@ -139,11 +139,11 @@ static int vt_ios_map_plane(struct hwmap *hwmap, CVPixelBufferRef cvpixbuf, int 
     return 0;
 }
 
-static int vt_ios_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int vt_ios_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct hwmap_vt_ios *vt = hwmap->hwmap_priv_data;
 
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
     ngli_assert(vt->format == cvformat);
 
@@ -170,11 +170,11 @@ static void vt_ios_uninit(struct hwmap *hwmap)
     NGLI_CFRELEASE(vt->ios_textures[1]);
 }
 
-static int support_direct_rendering(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int support_direct_rendering(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     const struct hwmap_params *params = &hwmap->params;
 
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
     int direct_rendering = 1;
 
@@ -198,14 +198,14 @@ static int support_direct_rendering(struct hwmap *hwmap, struct sxplayer_frame *
     return direct_rendering;
 }
 
-static int vt_ios_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int vt_ios_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct hwmap_vt_ios *vt = hwmap->hwmap_priv_data;
     const struct hwmap_params *params = &hwmap->params;
 
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
     vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
     int ret = vt_get_format_desc(vt->format, &vt->format_desc);
@@ -241,7 +241,7 @@ static int vt_ios_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
         .height = frame->height,
         .layout = vt->format_desc.layout,
         .color_scale = 1.f,
-        .color_info = ngli_color_info_from_sxplayer_frame(frame),
+        .color_info = ngli_color_info_from_nopemd_frame(frame),
     };
     ngli_image_init(&hwmap->mapped_image, &image_params, vt->planes);
 
@@ -252,7 +252,7 @@ static int vt_ios_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
 
 const struct hwmap_class ngli_hwmap_vt_ios_gl_class = {
     .name      = "videotoolbox (zero-copy)",
-    .hwformat  = SXPLAYER_PIXFMT_VT,
+    .hwformat  = NMD_PIXFMT_VT,
     .layouts   = (const int[]){
         NGLI_IMAGE_LAYOUT_DEFAULT,
         NGLI_IMAGE_LAYOUT_NV12,

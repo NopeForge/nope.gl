@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include <vulkan/vulkan.h>
 
@@ -96,7 +96,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 }
 
 struct hwmap_vt_darwin {
-    struct sxplayer_frame *frame;
+    struct nmd_frame *frame;
     struct texture *planes[2];
     OSType format;
     struct format_desc format_desc;
@@ -104,7 +104,7 @@ struct hwmap_vt_darwin {
     CVMetalTextureCacheRef texture_cache;
 };
 
-static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -113,10 +113,10 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
     const struct hwmap_params *params = &hwmap->params;
 
-    sxplayer_release_frame(vt->frame);
+    nmd_release_frame(vt->frame);
     vt->frame = frame;
 
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
     IOSurfaceRef surface = CVPixelBufferGetIOSurface(cvpixbuf);
     if (!surface) {
         LOG(ERROR, "could not get IOSurface from buffer");
@@ -215,14 +215,14 @@ static int support_direct_rendering(struct hwmap *hwmap)
     return direct_rendering;
 }
 
-static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
+static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
     struct gpu_ctx_vk *gpu_ctx_vk = (struct gpu_ctx_vk *)gpu_ctx;
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
 
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
     vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
     int ret = vt_get_format_desc(vt->format, &vt->format_desc);
@@ -247,7 +247,7 @@ static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
         .height = frame->height,
         .layout = vt->format_desc.layout,
         .color_scale = 1.f,
-        .color_info = ngli_color_info_from_sxplayer_frame(frame),
+        .color_info = ngli_color_info_from_nopemd_frame(frame),
     };
     ngli_image_init(&hwmap->mapped_image, &image_params, vt->planes);
 
@@ -263,13 +263,13 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
     for (int i = 0; i < 2; i++)
         ngli_texture_freep(&vt->planes[i]);
 
-    sxplayer_release_frame(vt->frame);
+    nmd_release_frame(vt->frame);
     vt->frame = NULL;
 }
 
 const struct hwmap_class ngli_hwmap_vt_darwin_vk_class = {
     .name      = "videotoolbox (iosurface → nv12)",
-    .hwformat  = SXPLAYER_PIXFMT_VT,
+    .hwformat  = NMD_PIXFMT_VT,
     .layouts   = (const int[]){
         NGLI_IMAGE_LAYOUT_DEFAULT,
         NGLI_IMAGE_LAYOUT_NV12,

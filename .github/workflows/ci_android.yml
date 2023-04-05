@@ -19,7 +19,7 @@ jobs:
         arch: [x86_64, arm, aarch64]
         ffmpeg_version: [5.0.1]
         glslang_version: [11.9.0]
-        sxplayer_version: [9.13.0]
+        nopemd_version: [10.0.0]
 
     steps:
     - uses: actions/checkout@v2
@@ -57,11 +57,11 @@ jobs:
         --prefix=$HOME/ngl-env-${{ matrix.arch }}
         make install -j$(($(nproc)+1))
 
-    - name: Build sxplayer lib for Android & reshape files tree
+    - name: Build nope.media for Android & reshape files tree
       run: |
-        curl -sL https://github.com/gopro/sxplayer/archive/refs/tags/v${{ matrix.sxplayer_version }}.tar.gz -o sxplayer.tgz
-        tar xf sxplayer.tgz
-        cd sxplayer-${{ matrix.sxplayer_version }}
+        curl -sL https://github.com/nope-project/nope.media/archive/refs/tags/v${{ matrix.nopemd_version }}.tar.gz -o nope.media.tgz
+        tar xf nope.media.tgz
+        cd nope.media-${{ matrix.nopemd_version }}
         PKG_CONFIG_LIBDIR=$HOME/ngl-env-${{ matrix.arch }}/lib/pkgconfig/ \
         meson setup --prefix $HOME/ngl-env-${{ matrix.arch }} --cross-file ../.github/meson-android-${{ matrix.arch }}.ini builddir
         meson compile -C builddir

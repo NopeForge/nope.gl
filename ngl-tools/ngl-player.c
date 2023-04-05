@@ -27,7 +27,7 @@
 #endif
 
 #include <nodegl.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include "common.h"
 #include "opts.h"
@@ -43,7 +43,7 @@ struct ctx {
     int hwaccel;
     int mipmap;
 
-    struct sxplayer_info media_info;
+    struct nmd_info media_info;
 };
 
 #define OFFSET(x) offsetof(struct ctx, x)
@@ -83,17 +83,17 @@ static struct ngl_node *get_scene(const char *filename, int direct_rendering, in
     return render;
 }
 
-static int probe(const char *filename, struct sxplayer_info *media_info)
+static int probe(const char *filename, struct nmd_info *media_info)
 {
-    struct sxplayer_ctx *ctx = sxplayer_create(filename);
+    struct nmd_ctx *ctx = nmd_create(filename);
     if (!ctx)
         return -1;
 
-    int ret = sxplayer_get_info(ctx, media_info);
+    int ret = nmd_get_info(ctx, media_info);
     if (ret < 0)
         return ret;
 
-    sxplayer_free(&ctx);
+    nmd_free(&ctx);
 
     return 0;
 }

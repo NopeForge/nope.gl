@@ -22,16 +22,16 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include "texture.h"
 #include "utils.h"
 
 #define NGLI_COLOR_INFO_DEFAULTS {             \
-    .space     = SXPLAYER_COL_SPC_UNSPECIFIED, \
-    .range     = SXPLAYER_COL_RNG_UNSPECIFIED, \
-    .primaries = SXPLAYER_COL_PRI_UNSPECIFIED, \
-    .transfer  = SXPLAYER_COL_TRC_UNSPECIFIED, \
+    .space     = NMD_COL_SPC_UNSPECIFIED,      \
+    .range     = NMD_COL_RNG_UNSPECIFIED,      \
+    .primaries = NMD_COL_PRI_UNSPECIFIED,      \
+    .transfer  = NMD_COL_TRC_UNSPECIFIED,      \
 }                                              \
 
 struct color_info {
@@ -41,7 +41,7 @@ struct color_info {
     int transfer;
 };
 
-struct color_info ngli_color_info_from_sxplayer_frame(const struct sxplayer_frame *frame);
+struct color_info ngli_color_info_from_nopemd_frame(const struct nmd_frame *frame);
 
 enum image_layout {
     NGLI_IMAGE_LAYOUT_NONE           = 0,

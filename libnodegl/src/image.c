@@ -20,7 +20,7 @@
  */
 
 #include <string.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include "colorconv.h"
 #include "format.h"
@@ -28,7 +28,7 @@
 #include "math_utils.h"
 #include "utils.h"
 
-struct color_info ngli_color_info_from_sxplayer_frame(const struct sxplayer_frame *frame)
+struct color_info ngli_color_info_from_nopemd_frame(const struct nmd_frame *frame)
 {
     return (struct color_info){
         .space     = frame->color_space,

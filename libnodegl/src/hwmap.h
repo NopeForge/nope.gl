@@ -24,7 +24,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include "hwconv.h"
 #include "image.h"
@@ -70,15 +70,15 @@ struct hwmap_class {
     int hwformat;
     const int *layouts;
     size_t priv_size;
-    int (*init)(struct hwmap *hwmap, struct sxplayer_frame *frame);
-    int (*map_frame)(struct hwmap *hwmap, struct sxplayer_frame *frame);
+    int (*init)(struct hwmap *hwmap, struct nmd_frame *frame);
+    int (*map_frame)(struct hwmap *hwmap, struct nmd_frame *frame);
     void (*uninit)(struct hwmap *hwmap);
 };
 
 int ngli_hwmap_is_image_layout_supported(int backend, int image_layout);
 
 int ngli_hwmap_init(struct hwmap *hwmap, struct ngl_ctx *ctx, const struct hwmap_params *params);
-int ngli_hwmap_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame, struct image *image);
+int ngli_hwmap_map_frame(struct hwmap *hwmap, struct nmd_frame *frame, struct image *image);
 void ngli_hwmap_uninit(struct hwmap *hwmap);
 
 #endif /* HWUPLOAD_H */

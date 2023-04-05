@@ -23,7 +23,7 @@
 #define INTERNAL_H
 
 #include <stdlib.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include "config.h"
 
@@ -278,8 +278,8 @@ struct texture_priv {
 };
 
 struct media_priv {
-    struct sxplayer_ctx *player;
-    struct sxplayer_frame *frame;
+    struct nmd_ctx *player;
+    struct nmd_frame *frame;
     int nb_parents;
 
 #if defined(TARGET_ANDROID)
@@ -519,8 +519,8 @@ struct node_class {
 
     /*
      * Pre-allocate resources or start background processing so that they are
-     * ready at update time (typically sxplayer). Contrary to allocations done
-     * in the init, the prefetched resources lifetime is reduced to active
+     * ready at update time (typically nope.media). Contrary to allocations
+     * done in the init, the prefetched resources lifetime is reduced to active
      * timeranges.
      *
      * The symmetrical callback for prefetch is the release callback.
@@ -569,7 +569,7 @@ struct node_class {
     /*
      * Must release resources (allocated during the prefetch phase) that will
      * not be used any time soon, or query a stop to potential background
-     * processing (typically sxplayer).
+     * processing (typically nope.media).
      *
      * The symmetrical callback for release is the prefetch callback.
      *

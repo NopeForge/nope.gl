@@ -43,11 +43,11 @@ _ROOTDIR = op.abspath(op.dirname(__file__))
 _SYSTEM = "MinGW" if sysconfig.get_platform().startswith("mingw") else platform.system()
 _RENDERDOC_ID = f"renderdoc_{_SYSTEM}"
 _EXTERNAL_DEPS = dict(
-    sxplayer=dict(
-        version="9.13.0",
-        url="https://github.com/gopro/sxplayer/archive/v@VERSION@.tar.gz",
-        dst_file="sxplayer-@VERSION@.tar.gz",
-        sha256="272ecf2a31238440a8fc70dbe6431989d06cf77b9f15a26a55c6c91244768fca",
+    nopemd=dict(
+        version="10.0.0",
+        url="https://github.com/nope-project/nope.media/archive/v@VERSION@.tar.gz",
+        dst_file="nope.media-@VERSION@.tar.gz",
+        sha256="b11cad7ed46b507312410386000261797f41eaa0d7e6e108da52e5adfbc6090c",
     ),
     pkgconf=dict(
         version="1.8.0",
@@ -68,7 +68,7 @@ _EXTERNAL_DEPS = dict(
 
 
 def _get_external_deps(args):
-    deps = ["sxplayer"]
+    deps = ["nopemd"]
     if _SYSTEM == "Windows":
         deps.append("pkgconf")
     if "gpu_capture" in args.debug_opts:
@@ -225,15 +225,15 @@ def _pkgconf_install(cfg):
     return ret + [f"copy {pkgconf_exe} {pkgconfig_exe}"]
 
 
-@_block("sxplayer-setup")
-def _sxplayer_setup(cfg):
-    builddir = op.join("external", "sxplayer", "builddir")
-    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(cfg.externals["sxplayer"], builddir)]
+@_block("nopemd-setup")
+def _nopemd_setup(cfg):
+    builddir = op.join("external", "nopemd", "builddir")
+    return ["$(MESON_SETUP) -Drpath=true " + _cmd_join(cfg.externals["nopemd"], builddir)]
 
 
-@_block("sxplayer-install", [_sxplayer_setup])
-def _sxplayer_install(cfg):
-    return _meson_compile_install_cmd("sxplayer", external=True)
+@_block("nopemd-install", [_nopemd_setup])
+def _nopemd_install(cfg):
+    return _meson_compile_install_cmd("nopemd", external=True)
 
 
 @_block("renderdoc-install")
@@ -242,7 +242,7 @@ def _renderdoc_install(cfg):
     return [f"copy {renderdoc_dll} {cfg.bin_path}"]
 
 
-@_block("nodegl-setup", [_sxplayer_install])
+@_block("nodegl-setup", [_nopemd_install])
 def _nodegl_setup(cfg):
     nodegl_opts = []
     if cfg.args.debug_opts:
@@ -406,7 +406,7 @@ def _clean(cfg):
         _rd(op.join("builddir", "ngl-tools")),
         _rd(op.join("builddir", "tests")),
         _rd(op.join("external", "pkgconf", "builddir")),
-        _rd(op.join("external", "sxplayer", "builddir")),
+        _rd(op.join("external", "nopemd", "builddir")),
     ]
 
 
@@ -580,7 +580,7 @@ class _Config:
         self.externals = _fetch_externals(args)
 
         if _SYSTEM == "Windows":
-            _sxplayer_setup.prerequisites.append(_pkgconf_install)
+            _nopemd_setup.prerequisites.append(_pkgconf_install)
             if "gpu_capture" in args.debug_opts:
                 _nodegl_setup.prerequisites.append(_renderdoc_install)
 

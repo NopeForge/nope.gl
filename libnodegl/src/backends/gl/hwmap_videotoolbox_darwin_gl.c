@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include <CoreVideo/CoreVideo.h>
 #include <IOSurface/IOSurface.h>
@@ -78,7 +78,7 @@ static int vt_get_format_desc(OSType format, struct format_desc *desc)
 }
 
 struct hwmap_vt_darwin {
-    struct sxplayer_frame *frame;
+    struct nmd_frame *frame;
     struct texture *planes[2];
     GLuint gl_planes[2];
     OSType format;
@@ -116,14 +116,14 @@ static int vt_darwin_map_plane(struct hwmap *hwmap, IOSurfaceRef surface, int in
     return 0;
 }
 
-static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int vt_darwin_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
     ngli_assert(vt->format == cvformat);
 
-    sxplayer_release_frame(vt->frame);
+    nmd_release_frame(vt->frame);
     vt->frame = frame;
 
     IOSurfaceRef surface = CVPixelBufferGetIOSurface(cvpixbuf);
@@ -141,11 +141,11 @@ static int vt_darwin_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame
     return 0;
 }
 
-static int support_direct_rendering(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int support_direct_rendering(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     const struct hwmap_params *params = &hwmap->params;
 
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
     OSType cvformat = CVPixelBufferGetPixelFormatType(cvpixbuf);
     int direct_rendering = 1;
 
@@ -179,7 +179,7 @@ static int support_direct_rendering(struct hwmap *hwmap, struct sxplayer_frame *
     return direct_rendering;
 }
 
-static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
+static int vt_darwin_init(struct hwmap *hwmap, struct nmd_frame * frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct gpu_ctx *gpu_ctx = ctx->gpu_ctx;
@@ -188,7 +188,7 @@ static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
     struct hwmap_vt_darwin *vt = hwmap->hwmap_priv_data;
     const struct hwmap_params *params = &hwmap->params;
 
-    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->data;
+    CVPixelBufferRef cvpixbuf = (CVPixelBufferRef)frame->datap[0];
     vt->format = CVPixelBufferGetPixelFormatType(cvpixbuf);
 
     int ret = vt_get_format_desc(vt->format, &vt->format_desc);
@@ -238,7 +238,7 @@ static int vt_darwin_init(struct hwmap *hwmap, struct sxplayer_frame * frame)
         .height = frame->height,
         .layout = vt->format_desc.layout,
         .color_scale = 1.f,
-        .color_info = ngli_color_info_from_sxplayer_frame(frame),
+        .color_info = ngli_color_info_from_nopemd_frame(frame),
     };
     ngli_image_init(&hwmap->mapped_image, &image_params, vt->planes);
 
@@ -260,13 +260,13 @@ static void vt_darwin_uninit(struct hwmap *hwmap)
 
     ngli_glDeleteTextures(gl, 2, vt->gl_planes);
 
-    sxplayer_release_frame(vt->frame);
+    nmd_release_frame(vt->frame);
     vt->frame = NULL;
 }
 
 const struct hwmap_class ngli_hwmap_vt_darwin_gl_class = {
     .name      = "videotoolbox (iosurface)",
-    .hwformat  = SXPLAYER_PIXFMT_VT,
+    .hwformat  = NMD_PIXFMT_VT,
     .layouts   = (const int[]){
         NGLI_IMAGE_LAYOUT_RECTANGLE,
         NGLI_IMAGE_LAYOUT_NV12_RECTANGLE,

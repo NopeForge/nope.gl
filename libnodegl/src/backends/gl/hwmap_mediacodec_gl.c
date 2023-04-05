@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 #include <libavcodec/mediacodec.h>
 #include <android/hardware_buffer.h>
 #include <android/hardware_buffer_jni.h>
@@ -70,7 +70,7 @@ static int support_direct_rendering(struct hwmap *hwmap)
     return direct_rendering;
 }
 
-static int mc_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int mc_init(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct android_ctx *android_ctx = &ctx->android_ctx;
@@ -122,7 +122,7 @@ static int mc_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
         .height = frame->height,
         .layout = NGLI_IMAGE_LAYOUT_MEDIACODEC,
         .color_scale = 1.f,
-        .color_info = ngli_color_info_from_sxplayer_frame(frame),
+        .color_info = ngli_color_info_from_nopemd_frame(frame),
     };
     ngli_image_init(&hwmap->mapped_image, &image_params, &mc->texture);
 
@@ -138,11 +138,11 @@ static int mc_init(struct hwmap *hwmap, struct sxplayer_frame *frame)
     return 0;
 }
 
-static int mc_map_frame_surfacetexture(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int mc_map_frame_surfacetexture(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
-    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
+    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->datap[0];
 
     NGLI_ALIGNED_MAT(flip_matrix) = {
         1.0f, 0.0f, 0.0f, 0.0f,
@@ -160,7 +160,7 @@ static int mc_map_frame_surfacetexture(struct hwmap *hwmap, struct sxplayer_fram
     return 0;
 }
 
-static int mc_map_frame_imagereader(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int mc_map_frame_imagereader(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     const struct hwmap_params *params = &hwmap->params;
     struct hwmap_mc *mc = hwmap->hwmap_priv_data;
@@ -170,7 +170,7 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct sxplayer_frame *
     struct glcontext *gl = gpu_ctx_gl->glcontext;
     struct android_ctx *android_ctx = &ctx->android_ctx;
 
-    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->data;
+    AVMediaCodecBuffer *buffer = (AVMediaCodecBuffer *)frame->datap[0];
     int ret = av_mediacodec_release_buffer(buffer, 1);
     if (ret < 0)
         return ret;
@@ -229,7 +229,7 @@ static int mc_map_frame_imagereader(struct hwmap *hwmap, struct sxplayer_frame *
     return 0;
 }
 
-static int mc_map_frame(struct hwmap *hwmap, struct sxplayer_frame *frame)
+static int mc_map_frame(struct hwmap *hwmap, struct nmd_frame *frame)
 {
     struct ngl_ctx *ctx = hwmap->ctx;
     struct android_ctx *android_ctx = &ctx->android_ctx;
@@ -263,7 +263,7 @@ static void mc_uninit(struct hwmap *hwmap)
 
 const struct hwmap_class ngli_hwmap_mc_gl_class = {
     .name      = "mediacodec (oes zero-copy)",
-    .hwformat  = SXPLAYER_PIXFMT_MEDIACODEC,
+    .hwformat  = NMD_PIXFMT_MEDIACODEC,
     .layouts   = (const int[]){
         NGLI_IMAGE_LAYOUT_MEDIACODEC,
         NGLI_IMAGE_LAYOUT_NONE

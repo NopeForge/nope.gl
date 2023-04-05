@@ -14,9 +14,9 @@ The `node.gl` project is split in several parts:
 ## Dependencies
 
 - `libnodegl` requires a standard C toolchain and [meson build system][meson].
-  It also depends on [sxplayer library][sxplayer] for media (video and images)
-  playback. [Graphviz][graphviz] is optional but can be used to render and
-  preview graphs obtained from the API.
+  It also depends on [nope.media][nope_media] (libnopemd) for media (video and
+  images) playback. [Graphviz][graphviz] is optional but can be used to render
+  and preview graphs obtained from the API.
 - `ngl-tools` needs [SDL2][sdl2] and `libnodegl` installed.
 - `pynodegl` needs [Python][python] and [Cython][cython], and `libnodegl`
   installed.
@@ -38,11 +38,11 @@ graph
     pyside6[PySide6]
     python[Python]
     sdl2[SDL2]
-    sxplayer[sxplayer]
+    libnopemd[libnopemd]
     watchdog[watchdog]
 
-    sxplayer --> ffmpeg
-    libnodegl --> sxplayer
+    libnopemd --> ffmpeg
+    libnodegl --> libnopemd
     ngl_tools --> sdl2
     ngl_tools --> libnodegl
     ngl_tools -. ngl-python .-> python
@@ -58,11 +58,11 @@ graph
     classDef ngldep fill:#add8e6,color:#222
     classDef extdep fill:#c0c0c0,color:#222
     class libnodegl,ngl_tools,pynodegl,pynodegl_utils ngldep
-    class sxplayer,ffmpeg,sdl2,python,cython,graphviz,pyside6,watchdog extdep
+    class libnopemd,ffmpeg,sdl2,python,cython,graphviz,pyside6,watchdog extdep
 ```
 
 [meson]: https://mesonbuild.com/
-[sxplayer]: https://github.com/gopro/sxplayer
+[nope_media]: https://github.com/nope-project/nope.media
 [graphviz]: http://www.graphviz.org/
 [python]: https://www.python.org/
 [cython]: http://cython.org/

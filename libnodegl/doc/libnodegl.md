@@ -531,16 +531,16 @@ Parameter | Flags | Type | Description | Default
 Parameter | Flags | Type | Description | Default
 --------- | ----- | ---- | ----------- | :-----:
 `filename` |  [`nonull`](#Parameter-flags) | [`str`](#parameter-types) | path to input media file | 
-`sxplayer_min_level` |  | [`sxplayer_log_level`](#sxplayer_log_level-choices) | sxplayer min logging level | `warning`
+`nopemd_min_level` |  | [`nopemd_log_level`](#nopemd_log_level-choices) | nope.media min logging level | `warning`
 `time_anim` |  | [`node`](#parameter-types) ([AnimatedTime](#animatedtime)) | time remapping animation (must use a `linear` interpolation) | 
 `audio_tex` |  | [`bool`](#parameter-types) | load the audio and expose it as a stereo waves and frequencies buffer | `0`
-`max_nb_packets` |  | [`i32`](#parameter-types) | maximum number of packets in sxplayer demuxing queue | `1`
-`max_nb_frames` |  | [`i32`](#parameter-types) | maximum number of frames in sxplayer decoding queue | `1`
-`max_nb_sink` |  | [`i32`](#parameter-types) | maximum number of frames in sxplayer filtering queue | `1`
+`max_nb_packets` |  | [`i32`](#parameter-types) | maximum number of packets in nope.media demuxing queue | `1`
+`max_nb_frames` |  | [`i32`](#parameter-types) | maximum number of frames in nope.media decoding queue | `1`
+`max_nb_sink` |  | [`i32`](#parameter-types) | maximum number of frames in nope.media filtering queue | `1`
 `max_pixels` |  | [`i32`](#parameter-types) | maximum number of pixels per frame | `0`
 `stream_idx` |  | [`i32`](#parameter-types) | force a stream number instead of picking the "best" one | `-1`
-`hwaccel` |  | [`sxplayer_hwaccel`](#sxplayer_hwaccel-choices) | hardware acceleration | `auto`
-`filters` |  | [`str`](#parameter-types) | filters to apply on the media (sxplayer/libavfilter) | 
+`hwaccel` |  | [`nopemd_hwaccel`](#nopemd_hwaccel-choices) | hardware acceleration | `auto`
+`filters` |  | [`str`](#parameter-types) | filters to apply on the media (nope.media/libavfilter) | 
 `vt_pix_fmt` |  | [`str`](#parameter-types) | auto or a comma or space separated list of VideoToolbox (Apple) allowed output pixel formats | 
 
 
@@ -1825,7 +1825,7 @@ Constant | Description
 `medium` | medium
 `low` | low
 
-## sxplayer_log_level choices
+## nopemd_log_level choices
 
 Constant | Description
 -------- | -----------
@@ -1835,7 +1835,7 @@ Constant | Description
 `warning` | warning messages
 `error` | error messages
 
-## sxplayer_hwaccel choices
+## nopemd_hwaccel choices
 
 Constant | Description
 -------- | -----------

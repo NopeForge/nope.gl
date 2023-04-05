@@ -263,7 +263,7 @@
   ],
   "Media": [
     ["filename", "str", "M"],
-    ["sxplayer_min_level", "select", ""],
+    ["nopemd_min_level", "select", ""],
     ["time_anim", "node", ""],
     ["audio_tex", "bool", ""],
     ["max_nb_packets", "i32", ""],

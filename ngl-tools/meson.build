@@ -69,7 +69,7 @@ tool_deps = [
   cc.find_library('m', required: false),
   dependency('libnodegl'),
 ]
-sxplayer_dep = dependency('libsxplayer')  # for media probing
+nopemd_dep = dependency('libnopemd')  # for media probing
 threads_dep = dependency('threads', required: false)
 
 python_mod = import('python')
@@ -119,7 +119,7 @@ tools_specs = {
   },
   'ngl-player': {
     'src': files('ngl-player.c', 'player.c', 'opts.c') + wsi_src,
-    'deps': wsi_deps + [sxplayer_dep],
+    'deps': wsi_deps + [nopemd_dep],
   },
   'ngl-probe': {
     'src': files('ngl-probe.c', 'opts.c'),

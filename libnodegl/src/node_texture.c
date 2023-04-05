@@ -22,7 +22,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
-#include <sxplayer.h>
+#include <nopemd.h>
 
 #include "format.h"
 #include "gpu_ctx.h"
@@ -369,7 +369,7 @@ static int handle_media_frame(struct ngl_node *node)
     struct texture_priv *s = node->priv_data;
     const struct texture_opts *o = node->opts;
     struct media_priv *media = o->data_src->priv_data;
-    struct sxplayer_frame *frame = media->frame;
+    struct nmd_frame *frame = media->frame;
     if (!frame)
         return 0;
 
