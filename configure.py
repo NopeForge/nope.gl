@@ -50,9 +50,9 @@ _EXTERNAL_DEPS = dict(
         sha256="b11cad7ed46b507312410386000261797f41eaa0d7e6e108da52e5adfbc6090c",
     ),
     pkgconf=dict(
-        version="1.8.0",
+        version="1.9.4",
         url="https://distfiles.dereferenced.org/pkgconf/pkgconf-@VERSION@.tar.xz",
-        sha256="ef9c7e61822b7cb8356e6e9e1dca58d9556f3200d78acab35e4347e9d4c2bbaf",
+        sha256="daccf1bbe5a30d149b556c7d2ffffeafd76d7b514e249271abdd501533c1d8ae",
     ),
     renderdoc_Windows=dict(
         version="1.18",
@@ -214,7 +214,7 @@ def _meson_compile_install_cmd(component, external=False):
 @_block("pkgconf-setup")
 def _pkgconf_setup(cfg):
     builddir = op.join("external", "pkgconf", "builddir")
-    return ["$(MESON_SETUP) " + _cmd_join("-Dtests=false", cfg.externals["pkgconf"], builddir)]
+    return ["$(MESON_SETUP) " + _cmd_join("-Dtests=disabled", cfg.externals["pkgconf"], builddir)]
 
 
 @_block("pkgconf-install", [_pkgconf_setup])
