@@ -34,6 +34,7 @@ import shutil
 import stat
 import sysconfig
 import tarfile
+import textwrap
 import urllib.request
 import venv
 import zipfile
@@ -68,6 +69,12 @@ _EXTERNAL_DEPS = dict(
         dst_file="opengl-registry-@VERSION@.zip",
         sha256="8e6efa8d9ec5ef1b2c735b2fc2afdfed210a3a5aa01c48e572326914e27bb221",
     ),
+    sdl2=dict(
+        version="2.26.5",
+        url="https://github.com/libsdl-org/SDL/releases/download/release-@VERSION@/SDL2-devel-@VERSION@-VC.zip",
+        dst_file="SDL2-@VERSION@.zip",
+        sha256="446cf6277ff0dd4211e6dc19c1b9015210a72758f53f5034c7e4d6b60e540ecf",
+    ),
     pkgconf=dict(
         version="1.9.4",
         url="https://distfiles.dereferenced.org/pkgconf/pkgconf-@VERSION@.tar.xz",
@@ -93,6 +100,7 @@ def _get_external_deps(args):
         deps.append("egl_registry")
         deps.append("opengl_registry")
         deps.append("ffmpeg")
+        deps.append("sdl2")
     if "gpu_capture" in args.debug_opts:
         if _SYSTEM not in {"Windows", "Linux"}:
             raise Exception(f"Renderdoc is not supported on {_SYSTEM}")
@@ -291,6 +299,54 @@ def _ffmpeg_install(cfg):
         src = op.join(cfg.externals["ffmpeg"], src, "*")
         dst = op.join(cfg.prefix, dst)
         cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
+    return cmds
+
+
+@_block("sdl2-install", [])
+def _sdl2_install(cfg):
+    dirs = (
+        "lib",
+        "include",
+    )
+    cmds = []
+    for d in dirs:
+        src = op.join(cfg.externals["sdl2"], d, "*")
+        dst = op.join(cfg.prefix, d)
+        cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
+
+    src = op.join(cfg.externals["sdl2"], "lib", "x64", "SDL2.dll")
+    dst = op.join(cfg.prefix, "Scripts")
+    cmds.append(_cmd_join("xcopy", src, dst, "/y"))
+
+    # On Windows, the SDL2 library is generally provided with only CMake config
+    # files and no pkg-config file. Until meson supports falling back on CMake
+    # to find the SDL2 library we need to manually create a pkg-config file so
+    # it can be detected.
+    # See: https://github.com/mesonbuild/meson/pull/11661.
+    pc = textwrap.dedent(
+        """\
+        prefix=${pcfiledir}/../..
+        # sdl pkg-config source file
+
+        exec_prefix=${prefix}
+        libdir=${exec_prefix}/lib/x64
+        includedir=${prefix}/../include
+
+        Name: sdl2
+        Description: Simple DirectMedia Layer
+        Version: 2.26.5
+        Requires:
+        Conflicts:
+        Libs: "-L${libdir}" -lSDL2
+        Libs.private: -luser32 -lgdi32 -lwinmm -limm32 -lole32 -loleaut32 -lversion -luuid -ladvapi32 -lsetupapi -lshell32 -ldinput8
+        Cflags: "-I${includedir}" "-I${includedir}/SDL2"
+        """
+    )
+    pc_dir = op.join(cfg.prefix, "lib", "pkgconfig")
+    os.makedirs(pc_dir, exist_ok=True)
+    with open(op.join(pc_dir, "sdl2.pc"), "w") as fp:
+        fp.write(pc)
+
     return cmds
 
 
@@ -653,6 +709,7 @@ class _Config:
             _nopemd_setup.prerequisites.append(_egl_registry_install)
             _nopemd_setup.prerequisites.append(_opengl_registry_install)
             _nopemd_setup.prerequisites.append(_ffmpeg_install)
+            _nopemd_setup.prerequisites.append(_sdl2_install)
             if "gpu_capture" in args.debug_opts:
                 _nopegl_setup.prerequisites.append(_renderdoc_install)
 
