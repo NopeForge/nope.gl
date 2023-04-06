@@ -49,6 +49,18 @@ _EXTERNAL_DEPS = dict(
         dst_file="nope.media-@VERSION@.tar.gz",
         sha256="b11cad7ed46b507312410386000261797f41eaa0d7e6e108da52e5adfbc6090c",
     ),
+    egl_registry=dict(
+        version="9ab6036",
+        url="https://github.com/KhronosGroup/EGL-Registry/archive/@VERSION@.zip",
+        dst_file="egl-registry-@VERSION@.zip",
+        sha256="b981b5a250d4f10284c670ae89f4a43c9eac42adca65306e5d56b921f609c46b",
+    ),
+    opengl_registry=dict(
+        version="d0342a4",
+        url="https://github.com/KhronosGroup/OpenGL-Registry/archive/@VERSION@.zip",
+        dst_file="opengl-registry-@VERSION@.zip",
+        sha256="8e6efa8d9ec5ef1b2c735b2fc2afdfed210a3a5aa01c48e572326914e27bb221",
+    ),
     pkgconf=dict(
         version="1.9.4",
         url="https://distfiles.dereferenced.org/pkgconf/pkgconf-@VERSION@.tar.xz",
@@ -71,6 +83,8 @@ def _get_external_deps(args):
     deps = ["nopemd"]
     if _SYSTEM == "Windows":
         deps.append("pkgconf")
+        deps.append("egl_registry")
+        deps.append("opengl_registry")
     if "gpu_capture" in args.debug_opts:
         if _SYSTEM not in {"Windows", "Linux"}:
             raise Exception(f"Renderdoc is not supported on {_SYSTEM}")
@@ -223,6 +237,38 @@ def _pkgconf_install(cfg):
     pkgconf_exe = op.join(cfg.bin_path, "pkgconf.exe")
     pkgconfig_exe = op.join(cfg.bin_path, "pkg-config.exe")
     return ret + [f"copy {pkgconf_exe} {pkgconfig_exe}"]
+
+
+@_block("egl-registry-install", [])
+def _egl_registry_install(cfg):
+    dirs = (
+        "EGL",
+        "KHR",
+    )
+    cmds = []
+    for d in dirs:
+        src = op.join(cfg.externals["egl_registry"], "api", d)
+        dst = op.join(cfg.prefix, "Include", d)
+        cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y", "/i"))
+    return cmds
+
+
+@_block("opengl-registry-install", [])
+def _opengl_registry_install(cfg):
+    dirs = (
+        "GL",
+        "GLES",
+        "GLES2",
+        "GLES3",
+        "GLSC",
+        "GLSC2",
+    )
+    cmds = []
+    for d in dirs:
+        src = op.join(cfg.externals["opengl_registry"], "api", d)
+        dst = op.join(cfg.prefix, "Include", d)
+        cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y", "/i"))
+    return cmds
 
 
 @_block("nopemd-setup")
@@ -581,6 +627,8 @@ class _Config:
 
         if _SYSTEM == "Windows":
             _nopemd_setup.prerequisites.append(_pkgconf_install)
+            _nopemd_setup.prerequisites.append(_egl_registry_install)
+            _nopemd_setup.prerequisites.append(_opengl_registry_install)
             if "gpu_capture" in args.debug_opts:
                 _nopegl_setup.prerequisites.append(_renderdoc_install)
 
