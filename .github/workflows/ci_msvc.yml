@@ -15,7 +15,7 @@ jobs:
     runs-on: windows-latest
     env:
         VCPKG_TRIPLET: x64-windows
-        VCPKG_INSTALL_PACKAGES: ffmpeg[ffmpeg,ffprobe,zlib] sdl2 glslang # zlib is necessary for ffprobe and png to get "pix_fmt"
+        VCPKG_INSTALL_PACKAGES: sdl2 glslang
         VULKAN_SDK_VERSION: 1.3.204.1
     strategy:
       matrix:

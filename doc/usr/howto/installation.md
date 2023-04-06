@@ -47,11 +47,8 @@ building and running the complete `nope.gl` stack.
   `C:\vcpkg`, then from Windows PowerShell:
     ```shell
     .\bootstrap-vcpkg.bat
-    .\vcpkg.exe install --triplet x64-windows ffmpeg[ffmpeg,ffprobe,zlib] sdl2 glslang
+    .\vcpkg.exe install --triplet x64-windows sdl2 glslang
     ```
-- Add `C:\vcpkg\installed\x64-windows\tools\ffmpeg` path to your windows system
-  `%PATH%` environment variable (`ffmpeg` and `ffprobe` binaries must be
-  available in order to run the tests)
 - To be allowed to run the build scripts, you will need to run this once in an
   administrator Powershell: `Set-ExecutionPolicy RemoteSigned`
 - In a Powershell (as user), in the `nope.gl` sources, run
