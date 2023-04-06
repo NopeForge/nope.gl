@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 #
+# Copyright 2023 Nope Project
 # Copyright 2021-2022 GoPro Inc.
 #
 # Licensed to the Apache Software Foundation (ASF) under one
