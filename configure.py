@@ -44,6 +44,12 @@ _ROOTDIR = op.abspath(op.dirname(__file__))
 _SYSTEM = "MinGW" if sysconfig.get_platform().startswith("mingw") else platform.system()
 _RENDERDOC_ID = f"renderdoc_{_SYSTEM}"
 _EXTERNAL_DEPS = dict(
+    ffmpeg=dict(
+        version="6.0",
+        url="https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2023-04-03-12-51/ffmpeg-n@VERSION@-12-ga6dc92968a-win64-lgpl-shared-@VERSION@.zip",
+        dst_file="ffmpeg-@VERSION@.zip",
+        sha256="42f9795804dd1e80a1a61393fe7394d7c1c2a9400cbc5058f7f1f0b391b988f6",
+    ),
     nopemd=dict(
         version="10.0.0",
         url="https://github.com/nope-project/nope.media/archive/v@VERSION@.tar.gz",
@@ -86,6 +92,7 @@ def _get_external_deps(args):
         deps.append("pkgconf")
         deps.append("egl_registry")
         deps.append("opengl_registry")
+        deps.append("ffmpeg")
     if "gpu_capture" in args.debug_opts:
         if _SYSTEM not in {"Windows", "Linux"}:
             raise Exception(f"Renderdoc is not supported on {_SYSTEM}")
@@ -269,6 +276,21 @@ def _opengl_registry_install(cfg):
         src = op.join(cfg.externals["opengl_registry"], "api", d)
         dst = op.join(cfg.prefix, "Include", d)
         cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y", "/i"))
+    return cmds
+
+
+@_block("ffmpeg-install", [])
+def _ffmpeg_install(cfg):
+    dirs = (
+        ("bin", "Scripts"),
+        ("lib", "Lib"),
+        ("include", "Include"),
+    )
+    cmds = []
+    for src, dst in dirs:
+        src = op.join(cfg.externals["ffmpeg"], src, "*")
+        dst = op.join(cfg.prefix, dst)
+        cmds.append(_cmd_join("xcopy", src, dst, "/s", "/y"))
     return cmds
 
 
@@ -630,6 +652,7 @@ class _Config:
             _nopemd_setup.prerequisites.append(_pkgconf_install)
             _nopemd_setup.prerequisites.append(_egl_registry_install)
             _nopemd_setup.prerequisites.append(_opengl_registry_install)
+            _nopemd_setup.prerequisites.append(_ffmpeg_install)
             if "gpu_capture" in args.debug_opts:
                 _nopegl_setup.prerequisites.append(_renderdoc_install)
 
