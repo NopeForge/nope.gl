@@ -15,7 +15,7 @@ jobs:
     runs-on: windows-latest
     env:
         VCPKG_TRIPLET: x64-windows
-        VCPKG_INSTALL_PACKAGES: sdl2 glslang
+        VCPKG_INSTALL_PACKAGES: glslang
         VULKAN_SDK_VERSION: 1.3.204.1
     strategy:
       matrix:

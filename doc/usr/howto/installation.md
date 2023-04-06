@@ -47,7 +47,7 @@ building and running the complete `nope.gl` stack.
   `C:\vcpkg`, then from Windows PowerShell:
     ```shell
     .\bootstrap-vcpkg.bat
-    .\vcpkg.exe install --triplet x64-windows sdl2 glslang
+    .\vcpkg.exe install --triplet x64-windows glslang
     ```
 - To be allowed to run the build scripts, you will need to run this once in an
   administrator Powershell: `Set-ExecutionPolicy RemoteSigned`
