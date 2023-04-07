@@ -634,6 +634,8 @@ shaders = {
   'helper_misc_utils.glsl': 'helper_misc_utils_glsl.h',
   'source_color.frag': 'source_color_frag.h',
   'source_color.vert': 'source_color_vert.h',
+  'source_displace.frag': 'source_displace_frag.h',
+  'source_displace.vert': 'source_displace_vert.h',
   'source_gradient.frag': 'source_gradient_frag.h',
   'source_gradient.vert': 'source_gradient_vert.h',
   'source_gradient4.frag': 'source_gradient4_frag.h',

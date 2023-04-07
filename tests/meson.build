@@ -352,6 +352,7 @@ foreach backend : backends
     'data',
     'data_animated',
     'data_unaligned_row',
+    'displacement',
     'scissor',
   ]
 

@@ -683,6 +683,20 @@ Parameter | Flags | Type | Description | Default
 **Source**: [src/node_renderother.c](/libnopegl/src/node_renderother.c)
 
 
+## RenderDisplace
+
+Parameter | Flags | Type | Description | Default
+--------- | ----- | ---- | ----------- | :-----:
+`source` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([Texture2D](#texture2d)) | source texture to displace | 
+`displacement` |  [`nonull`](#Parameter-flags) | [`node`](#parameter-types) ([Texture2D](#texture2d)) | displacement vectors stored in a texture | 
+`blending` |  | [`blend_preset`](#blend_preset-choices) | define how this node and the current frame buffer are blending together | `default`
+`geometry` |  | [`node`](#parameter-types) ([Circle](#circle), [Geometry](#geometry), [Quad](#quad), [Triangle](#triangle)) | geometry to be rasterized | 
+`filters` |  | [`node_list`](#parameter-types) ([FilterAlpha](#filteralpha), [FilterContrast](#filtercontrast), [FilterExposure](#filterexposure), [FilterInverseAlpha](#filterinversealpha), [FilterLinear2sRGB](#filterlinear2srgb), [FilterOpacity](#filteropacity), [FilterPremult](#filterpremult), [FilterSaturation](#filtersaturation), [FilterSRGB2Linear](#filtersrgb2linear)) | filter chain to apply on top of this source | 
+
+
+**Source**: [src/node_renderother.c](/libnopegl/src/node_renderother.c)
+
+
 ## RenderGradient
 
 Parameter | Flags | Type | Description | Default

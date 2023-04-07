@@ -40,6 +40,8 @@
 /* GLSL fragments as string */
 #include "source_color_frag.h"
 #include "source_color_vert.h"
+#include "source_displace_frag.h"
+#include "source_displace_vert.h"
 #include "source_gradient_frag.h"
 #include "source_gradient_vert.h"
 #include "source_gradient4_frag.h"
@@ -113,6 +115,16 @@ struct rendercolor_opts {
 };
 
 struct rendercolor_priv {
+    struct render_common common;
+};
+
+struct renderdisplace_opts {
+    struct ngl_node *source_node;
+    struct ngl_node *displacement_node;
+    struct render_common_opts common;
+};
+
+struct renderdisplace_priv {
     struct render_common common;
 };
 
@@ -191,6 +203,29 @@ static const struct node_param rendercolor_params[] = {
     {"filters",  NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
                  .node_types=FILTERS_TYPES_LIST,
                  .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
+    {NULL}
+};
+#undef OFFSET
+
+#define OFFSET(x) offsetof(struct renderdisplace_opts, x)
+static const struct node_param renderdisplace_params[] = {
+    {"source",       NGLI_PARAM_TYPE_NODE, OFFSET(source_node),
+                     .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
+                     .flags=NGLI_PARAM_FLAG_NON_NULL,
+                     .desc=NGLI_DOCSTRING("source texture to displace")},
+    {"displacement", NGLI_PARAM_TYPE_NODE, OFFSET(displacement_node),
+                     .node_types=(const uint32_t[]){NGL_NODE_TEXTURE2D, NGLI_NODE_NONE},
+                     .flags=NGLI_PARAM_FLAG_NON_NULL,
+                     .desc=NGLI_DOCSTRING("displacement vectors stored in a texture")},
+    {"blending",     NGLI_PARAM_TYPE_SELECT, OFFSET(common.blending),
+                     .choices=&ngli_blending_choices,
+                     .desc=NGLI_DOCSTRING("define how this node and the current frame buffer are blending together")},
+    {"geometry",     NGLI_PARAM_TYPE_NODE, OFFSET(common.geometry),
+                     .node_types=GEOMETRY_TYPES_LIST,
+                     .desc=NGLI_DOCSTRING("geometry to be rasterized")},
+    {"filters",      NGLI_PARAM_TYPE_NODELIST, OFFSET(common.filters),
+                     .node_types=FILTERS_TYPES_LIST,
+                     .desc=NGLI_DOCSTRING("filter chain to apply on top of this source")},
     {NULL}
 };
 #undef OFFSET
@@ -446,6 +481,13 @@ static int rendercolor_init(struct ngl_node *node)
     return init(node, &s->common, &o->common, "source_color", source_color_frag);
 }
 
+static int renderdisplace_init(struct ngl_node *node)
+{
+    struct renderdisplace_priv *s = node->priv_data;
+    struct renderdisplace_opts *o = node->opts;
+    return init(node, &s->common, &o->common, "source_displace", source_displace_frag);
+}
+
 static int rendergradient_init(struct ngl_node *node)
 {
     struct rendergradient_priv *s = node->priv_data;
@@ -618,6 +660,79 @@ static int rendercolor_prepare(struct ngl_node *node)
         .frag_base        = c->combined_fragment,
         .uniforms         = ngli_darray_data(&desc->uniforms),
         .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .attributes       = attributes,
+        .nb_attributes    = NGLI_ARRAY_NB(attributes),
+        .vert_out_vars    = vert_out_vars,
+        .nb_vert_out_vars = NGLI_ARRAY_NB(vert_out_vars),
+    };
+
+    const struct render_common_opts *co = &o->common;
+    return finalize_pipeline(node, c, co, &crafter_params);
+}
+
+static int renderdisplace_prepare(struct ngl_node *node)
+{
+    struct ngl_ctx *ctx = node->ctx;
+    struct renderdisplace_priv *s = node->priv_data;
+    struct renderdisplace_opts *o = node->opts;
+
+    static const struct pgcraft_uniform uniforms[] = {
+        {.name="modelview_matrix",  .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+        {.name="projection_matrix", .type=NGLI_TYPE_MAT4, .stage=NGLI_PROGRAM_SHADER_VERT},
+    };
+
+    struct render_common *c = &s->common;
+    int ret = init_desc(node, c, uniforms, NGLI_ARRAY_NB(uniforms));
+    if (ret < 0)
+        return ret;
+
+    struct texture_priv *source_priv = o->source_node->priv_data;
+    const struct texture_opts *source_opts = o->source_node->opts;
+    struct texture_priv *displacement_priv = o->displacement_node->priv_data;
+    const struct texture_opts *displacement_opts = o->displacement_node->opts;
+    struct pgcraft_texture textures[] = {
+        {
+            .name        = "source",
+            .stage       = NGLI_PROGRAM_SHADER_FRAG,
+            .image       = &source_priv->image,
+            .format      = source_priv->params.format,
+            .clamp_video = source_opts->clamp_video,
+        }, {
+            .name        = "displacement",
+            .stage       = NGLI_PROGRAM_SHADER_FRAG,
+            .image       = &displacement_priv->image,
+            .format      = displacement_priv->params.format,
+            .clamp_video = displacement_opts->clamp_video,
+        },
+    };
+
+    if (source_opts->data_src && source_opts->data_src->cls->id == NGL_NODE_MEDIA)
+        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
+    else
+        textures[0].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
+
+    if (displacement_opts->data_src && displacement_opts->data_src->cls->id == NGL_NODE_MEDIA)
+        textures[1].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_VIDEO;
+    else
+        textures[1].type = NGLI_PGCRAFT_SHADER_TEX_TYPE_2D;
+
+    static const struct pgcraft_iovar vert_out_vars[] = {
+        {.name = "uv",                 .type = NGLI_TYPE_VEC2},
+        {.name = "source_coord",       .type = NGLI_TYPE_VEC2},
+        {.name = "displacement_coord", .type = NGLI_TYPE_VEC2},
+    };
+
+    const struct pipeline_desc *descs = ngli_darray_data(&c->pipeline_descs);
+    const struct pipeline_desc *desc = &descs[ctx->rnode_pos->id];
+    const struct pgcraft_attribute attributes[] = {c->position_attr, c->uvcoord_attr};
+    const struct pgcraft_params crafter_params = {
+        .program_label    = "nodegl/renderdisplace",
+        .vert_base        = source_displace_vert,
+        .frag_base        = c->combined_fragment,
+        .uniforms         = ngli_darray_data(&desc->uniforms),
+        .nb_uniforms      = ngli_darray_count(&desc->uniforms),
+        .textures         = textures,
+        .nb_textures      = NGLI_ARRAY_NB(textures),
         .attributes       = attributes,
         .nb_attributes    = NGLI_ARRAY_NB(attributes),
         .vert_out_vars    = vert_out_vars,
@@ -803,10 +918,13 @@ static void renderother_draw(struct ngl_node *node, struct render_common *s, con
     for (int i = 0; i < ngli_darray_count(&desc->uniforms_map); i++)
         ngli_pipeline_compat_update_uniform(pl_compat, map[i].index, map[i].data);
 
-    if (node->cls->id == NGL_NODE_RENDERTEXTURE) {
+    if (node->cls->id == NGL_NODE_RENDERTEXTURE || node->cls->id == NGL_NODE_RENDERDISPLACE) {
         const struct darray *texture_infos_array = ngli_pgcraft_get_texture_infos(desc->crafter);
-        const struct pgcraft_texture_info *info = ngli_darray_data(texture_infos_array);
-        ngli_pipeline_compat_update_texture_info(pl_compat, info);
+        const struct pgcraft_texture_info *texture_info = ngli_darray_data(texture_infos_array);
+        for (int i = 0; i < ngli_darray_count(texture_infos_array); i++) {
+            const struct pgcraft_texture_info *info = &texture_info[i];
+            ngli_pipeline_compat_update_texture_info(pl_compat, info);
+        }
     }
 
     if (!ctx->render_pass_started) {
@@ -866,6 +984,7 @@ const struct node_class ngli_##type##_class = {     \
 };
 
 DECLARE_RENDEROTHER(rendercolor,     NGL_NODE_RENDERCOLOR,     "RenderColor")
+DECLARE_RENDEROTHER(renderdisplace,  NGL_NODE_RENDERDISPLACE,  "RenderDisplace")
 DECLARE_RENDEROTHER(rendergradient,  NGL_NODE_RENDERGRADIENT,  "RenderGradient")
 DECLARE_RENDEROTHER(rendergradient4, NGL_NODE_RENDERGRADIENT4, "RenderGradient4")
 DECLARE_RENDEROTHER(rendertexture,   NGL_NODE_RENDERTEXTURE,   "RenderTexture")

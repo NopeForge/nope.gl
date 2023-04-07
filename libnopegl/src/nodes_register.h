@@ -123,6 +123,7 @@
     action(NGL_NODE_QUAD,                   ngli_quad_class)                    \
     action(NGL_NODE_RENDER,                 ngli_render_class)                  \
     action(NGL_NODE_RENDERCOLOR,            ngli_rendercolor_class)             \
+    action(NGL_NODE_RENDERDISPLACE,         ngli_renderdisplace_class)          \
     action(NGL_NODE_RENDERGRADIENT,         ngli_rendergradient_class)          \
     action(NGL_NODE_RENDERGRADIENT4,        ngli_rendergradient4_class)         \
     action(NGL_NODE_RENDERTEXTURE,          ngli_rendertexture_class)           \
