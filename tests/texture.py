@@ -20,6 +20,7 @@
 #
 
 import array
+from textwrap import dedent
 
 from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
@@ -78,6 +79,48 @@ def texture_data_unaligned_row(cfg: SceneCfg, h=32):
     """Tests upload of buffers with rows that are not 4-byte aligned"""
     cfg.aspect_ratio = (1, 1)
     return _render_buffer(cfg, 1, h)
+
+
+@test_fingerprint(nb_keyframes=5)
+@scene()
+def texture_displacement(cfg: SceneCfg):
+    m0 = cfg.medias[0]
+    cfg.duration = m0.duration
+    cfg.aspect_ratio = (m0.width, m0.height)
+    m = ngl.Media(m0.filename)
+    source_tex = ngl.Texture2D(data_src=m)
+
+    # Generate a displacement texture
+    vert = dedent(
+        """
+        void main()
+        {
+            ngl_out_pos = ngl_projection_matrix * ngl_modelview_matrix * vec4(ngl_position, 1.0);
+            uv = ngl_uvcoord;
+        }
+        """
+    )
+    frag = dedent(
+        """
+        void main()
+        {
+            float d = (sin(uv.y * 10.0 + t) + 1.0) / 2.0 * 0.1;
+            ngl_out_color = vec4(0.0, d, 0.0, 0.0);
+        }
+        """
+    )
+    q = ngl.Quad((-1, -1, 0), (2, 0, 0), (0, 2, 0))
+    p = ngl.Program(vertex=vert, fragment=frag)
+    p.update_vert_out_vars(uv=ngl.IOVec2())
+    displace_render = ngl.Render(q, p)
+    displace_render.update_frag_resources(t=ngl.Time())
+
+    displace_tex = ngl.Texture2D(width=m0.width, height=m0.height)
+    rtt = ngl.RenderToTexture(displace_render)
+    rtt.add_color_textures(displace_tex)
+
+    render = ngl.RenderDisplace(source_tex, displace_tex)
+    return ngl.Group(children=[rtt, render])
 
 
 _RENDER_TO_CUBEMAP_VERT = """
