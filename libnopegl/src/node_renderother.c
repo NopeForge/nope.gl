@@ -737,7 +737,7 @@ static int rendertexture_prepare(struct ngl_node *node)
         return ret;
 
     struct texture_priv *texture_priv = o->texture_node->priv_data;
-    struct texture_opts *texture_opts = o->texture_node->opts;
+    const struct texture_opts *texture_opts = o->texture_node->opts;
     struct pgcraft_texture textures[] = {
         {
             .name        = "tex",
