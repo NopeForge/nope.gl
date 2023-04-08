@@ -19,9 +19,13 @@
 # under the License.
 #
 
+import atexit
+import csv
+import locale
 import math
 import os
 import random
+import tempfile
 
 from pynopegl_utils.misc import get_backend
 from pynopegl_utils.toolbox.grid import autogrid_simple
@@ -183,6 +187,36 @@ def api_hud(width=234, height=123):
     for i in range(60 * 3):
         assert ctx.draw(i / 60.0) == 0
     del ctx
+
+
+def api_hud_csv(width=16, height=16):
+    ctx = ngl.Context()
+
+    # We can't use NamedTemporaryFile because we may not be able to open it
+    # twice on some systems
+    fd, csvpath = tempfile.mkstemp(suffix=".csv", prefix="ngl-test-hud-")
+    os.close(fd)
+    atexit.register(lambda: os.remove(csvpath))
+
+    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend, hud=1, hud_export_filename=csvpath)
+    assert ret == 0
+    scene = _get_scene()
+    assert ctx.set_scene(scene) == 0
+    for t in [0.0, 0.15, 0.30, 0.45, 1.0]:
+        # Try to set a locale that messes up the representation of floats
+        try:
+            locale.setlocale(locale.LC_ALL, "fr_FR.UTF-8")
+        except locale.Error:
+            print("unable to set french locale")
+
+        assert ctx.draw(t) == 0
+    del ctx
+
+    with open(csvpath) as csvfile:
+        reader = csv.DictReader(csvfile)
+        time_column = [row["time"] for row in reader]
+
+    assert time_column == ["0.000000", "0.150000", "0.300000", "0.450000", "1.000000"], time_column
 
 
 def api_text_live_change(width=320, height=240):

@@ -8,6 +8,8 @@ for the globale releases (`YYYY.MINOR`), and to [Semantic
 Versioning](https://semver.org/spec/v2.0.0.html) for `libnopegl`.
 
 ## [Unreleased]
+### Changed
+- CSV export in the HUD now always prints floats in C locale instead of quoted
 
 ## [2023.1] [libnopegl 0.8.0] - 2023-04-07
 ### Changed

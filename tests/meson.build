@@ -65,6 +65,7 @@ foreach backend : backends
     'ctx_ownership_subgraph',
     'capture_buffer_lifetime',
     'hud',
+    'hud_csv',
     'text_live_change',
     'media_sharing_failure',
     'denied_node_live_change',
