@@ -60,6 +60,21 @@ conf_data.set10('HAVE_USELOCALE', cc.has_function('uselocale', prefix: '''
 #endif
 '''))
 
+# Builtins checks
+builtins = [
+  '__builtin_add_overflow',
+  '__builtin_sub_overflow',
+  '__builtin_mul_overflow',
+]
+has_builtin_overflow = true
+foreach builtin : builtins
+  if not cc.has_function(builtin)
+    warning('Builtin @0@ is not available, important security checks will be missing'.format(builtin))
+    has_builtin_overflow = false
+  endif
+endforeach
+conf_data.set10('HAVE_BUILTIN_OVERFLOW', has_builtin_overflow)
+
 install_rpath = get_option('rpath') ? get_option('prefix') / get_option('libdir') : ''
 
 debug_opts = get_option('debug_opts')
