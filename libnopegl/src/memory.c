@@ -98,7 +98,14 @@ void *ngli_realloc(void *ptr, size_t n, size_t size)
 {
     if (failure_requested())
         return NULL;
-    return realloc(ptr, n * size);
+#if HAVE_BUILTIN_OVERFLOW
+    size_t bytes;
+    if (__builtin_mul_overflow(n, size, &bytes))
+        return NULL;
+#else
+    size_t bytes = n * size;
+#endif
+    return realloc(ptr, bytes);
 }
 
 void ngli_free(void *ptr)
