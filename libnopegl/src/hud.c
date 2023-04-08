@@ -19,6 +19,18 @@
  * under the License.
  */
 
+#include "config.h"
+
+#if HAVE_USELOCALE
+# define _POSIX_C_SOURCE 200809L
+# include <locale.h>
+# ifdef __APPLE__
+#  include <xlocale.h>
+# endif
+#elif defined(_WIN32)
+# include <locale.h>
+#endif
+
 #include <inttypes.h>
 #include <math.h>
 #include <stdio.h>
@@ -49,6 +61,9 @@ struct hud {
     const char *export_filename;
     int scale;
 
+#if HAVE_USELOCALE
+    locale_t c_locale;
+#endif
     struct darray widgets;
     uint32_t bg_color_u32;
     FILE *fp_export;
@@ -1080,9 +1095,21 @@ static void widgets_csv_report(struct hud *s)
     const struct ngl_ctx *ctx = s->ctx;
     const struct ngl_node *scene = ctx->scene;
 
+    /*
+     * Set C locale temporarily so floats are printed deterministically. We
+     * don't know how the API user is handling the locale, so we do it at the
+     * beginning of the inner draw function and restore it at its end.
+     */
+#if HAVE_USELOCALE
+    const locale_t prev_locale = uselocale(s->c_locale);
+#elif defined(_WIN32)
+    const char *prev_locale = setlocale(LC_ALL, NULL);
+    if (!setlocale(LC_ALL, "C"))
+        LOG(ERROR, "unable to set C locale");
+#endif
+
     ngli_bstr_clear(s->csv_line);
-    /* Quoting to prevent locale issues with float printing */
-    ngli_bstr_printf(s->csv_line, "\"%f\"", scene ? scene->last_update_time : 0);
+    ngli_bstr_printf(s->csv_line, "%f", scene ? scene->last_update_time : 0);
 
     struct darray *widgets_array = &s->widgets;
     struct widget *widgets = ngli_darray_data(widgets_array);
@@ -1095,6 +1122,12 @@ static void widgets_csv_report(struct hud *s)
 
     const int len = ngli_bstr_len(s->csv_line);
     fwrite(ngli_bstr_strptr(s->csv_line), 1, len, s->fp_export);
+
+#if HAVE_USELOCALE
+    uselocale(prev_locale);
+#elif defined(_WIN32)
+    setlocale(LC_ALL, prev_locale);
+#endif
 }
 
 static void free_widget(struct widget *widget)
@@ -1169,8 +1202,21 @@ int ngli_hud_init(struct hud *s)
     if (ret < 0)
         return ret;
 
-    if (s->export_filename)
+    if (s->export_filename) {
+#if HAVE_USELOCALE
+    s->c_locale = newlocale(LC_CTYPE_MASK, "C", (locale_t)0);
+    if (!s->c_locale) {
+        LOG(ERROR, "unable to create C locale");
+        return NGL_ERROR_EXTERNAL;
+    }
+#elif defined(_WIN32)
+    _configthreadlocale(_ENABLE_PER_THREAD_LOCALE);
+#else
+    LOG(WARNING, "no locale support found, assuming C is currently in use");
+#endif
+
         return widgets_csv_header(s);
+    }
 
     s->canvas.buf = ngli_calloc(s->canvas.w * s->canvas.h, 4);
     if (!s->canvas.buf)

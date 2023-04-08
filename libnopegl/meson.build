@@ -52,6 +52,14 @@ if host_system == 'darwin' and cc.compiles(iphone_check, name: 'iPhone target')
   host_system = 'iphone'
 endif
 
+conf_data.set10('HAVE_USELOCALE', cc.has_function('uselocale', prefix: '''
+#define _POSIX_C_SOURCE 200809L
+#include <locale.h>
+#ifdef __APPLE__
+# include <xlocale.h>
+#endif
+'''))
+
 install_rpath = get_option('rpath') ? get_option('prefix') / get_option('libdir') : ''
 
 debug_opts = get_option('debug_opts')
