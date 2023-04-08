@@ -56,7 +56,7 @@ static int reserve_aligned(struct darray *darray, int capacity)
     return 0;
 }
 
-void ngli_darray_init(struct darray *darray, int element_size, int aligned)
+void ngli_darray_init(struct darray *darray, size_t element_size, int aligned)
 {
     darray->data = NULL;
     darray->count = 0;
