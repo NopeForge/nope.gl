@@ -229,14 +229,22 @@ int ngli_hmap_set(struct hmap *hm, const char *key, void *data)
     if (hm->count * 3 / 4 >= hm->size) {
         struct hmap old_hm = *hm;
 
+#if HAVE_BUILTIN_OVERFLOW
+        size_t new_size;
+        if (__builtin_mul_overflow(hm->size, 2, &new_size))
+            return NGL_ERROR_LIMIT_EXCEEDED;
+#else
+        /* Also includes the realloc overflow check */
         if (hm->size >= 1 << (sizeof(hm->size)*8 - 2))
             return NGL_ERROR_LIMIT_EXCEEDED;
+        size_t new_size = hm->size * 2;
+#endif
 
-        struct bucket *new_buckets = ngli_calloc(hm->size << 1, sizeof(*new_buckets));
+        struct bucket *new_buckets = ngli_calloc(new_size, sizeof(*new_buckets));
         if (new_buckets) {
             hm->buckets = new_buckets;
             hm->count = 0;
-            hm->size <<= 1;
+            hm->size = new_size;
             hm->mask = hm->size - 1;
             hm->first = hm->last = NO_REF;
 
