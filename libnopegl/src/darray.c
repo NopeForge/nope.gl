@@ -44,7 +44,14 @@ static int reserve_aligned(struct darray *darray, int capacity)
     if (capacity < darray->capacity)
         return 0;
 
-    void *ptr = ngli_malloc_aligned(capacity * darray->element_size);
+#if HAVE_BUILTIN_OVERFLOW
+    size_t bytes;
+    if (__builtin_mul_overflow(capacity, darray->element_size, &bytes))
+        return NGL_ERROR_MEMORY;
+#else
+    size_t bytes = capacity * darray->element_size;
+#endif
+    void *ptr = ngli_malloc_aligned(bytes);
     if (!ptr)
         return NGL_ERROR_MEMORY;
     if (darray->data) {
@@ -74,9 +81,17 @@ void ngli_darray_init(struct darray *darray, size_t element_size, int aligned)
 void *ngli_darray_push(struct darray *darray, const void *element)
 {
     if (darray->count >= darray->capacity - 1) {
+#if HAVE_BUILTIN_OVERFLOW
+        size_t new_capacity;
+        if (__builtin_mul_overflow(darray->capacity, 2, &new_capacity))
+            return NULL;
+#else
+        /* Also includes the realloc overflow check */
         if (darray->capacity >= 1 << (sizeof(darray->capacity)*8 - 2))
             return NULL;
-        int ret = darray->reserve(darray, darray->capacity ? darray->capacity << 1: 8);
+        size_t new_capacity = darray->capacity * 2;
+#endif
+        int ret = darray->reserve(darray, darray->capacity ? new_capacity : 8);
         if (ret < 0)
             return NULL;
     }
