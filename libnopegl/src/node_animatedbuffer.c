@@ -194,7 +194,7 @@ const struct node_class ngli_animatedbuffer##type_name##_class = {              
     .file      = __FILE__,                                                         \
 };                                                                                 \
 
-DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERFLOAT, "AnimatedBufferFloat", float, NGLI_TYPE_FLOAT, NGLI_FORMAT_R32_SFLOAT)
+DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERFLOAT, "AnimatedBufferFloat", float, NGLI_TYPE_F32,   NGLI_FORMAT_R32_SFLOAT)
 DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC2,  "AnimatedBufferVec2",  vec2,  NGLI_TYPE_VEC2,  NGLI_FORMAT_R32G32_SFLOAT)
 DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC3,  "AnimatedBufferVec3",  vec3,  NGLI_TYPE_VEC3,  NGLI_FORMAT_R32G32B32_SFLOAT)
 DEFINE_ABUFFER_CLASS(NGL_NODE_ANIMATEDBUFFERVEC4,  "AnimatedBufferVec4",  vec4,  NGLI_TYPE_VEC4,  NGLI_FORMAT_R32G32B32A32_SFLOAT)

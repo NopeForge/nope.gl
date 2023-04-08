@@ -209,7 +209,7 @@ const struct node_class ngli_velocity##type##_class = {                         
     .file      = __FILE__,                                                      \
 };
 
-DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYFLOAT, "VelocityFloat", float, NGLI_TYPE_FLOAT, 1)
+DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYFLOAT, "VelocityFloat", float, NGLI_TYPE_F32,   1)
 DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC2,  "VelocityVec2",  vec2,  NGLI_TYPE_VEC2,  2)
 DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC3,  "VelocityVec3",  vec3,  NGLI_TYPE_VEC3,  3)
 DEFINE_VELOCITY_CLASS(NGL_NODE_VELOCITYVEC4,  "VelocityVec4",  vec4,  NGLI_TYPE_VEC4,  4)

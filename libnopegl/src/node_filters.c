@@ -198,7 +198,7 @@ static int filteralpha_init(struct ngl_node *node)
     struct filteralpha_opts *o = node->opts;
     s->filter.name = "alpha";
     s->filter.code = filter_alpha_glsl;
-    return register_resource(&s->filter.resources, "alpha", o->alpha_node, &o->alpha, NGLI_TYPE_FLOAT);
+    return register_resource(&s->filter.resources, "alpha", o->alpha_node, &o->alpha, NGLI_TYPE_F32);
 }
 
 static int filtercontrast_init(struct ngl_node *node)
@@ -211,8 +211,8 @@ static int filtercontrast_init(struct ngl_node *node)
     s->filter.name = "contrast";
     s->filter.code = filter_contrast_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS;
-    if ((ret = register_resource(&s->filter.resources, "contrast", o->contrast_node, &o->contrast, NGLI_TYPE_FLOAT)) < 0 ||
-        (ret = register_resource(&s->filter.resources, "pivot", o->pivot_node, &o->pivot, NGLI_TYPE_FLOAT)) < 0)
+    if ((ret = register_resource(&s->filter.resources, "contrast", o->contrast_node, &o->contrast, NGLI_TYPE_F32)) < 0 ||
+        (ret = register_resource(&s->filter.resources, "pivot", o->pivot_node, &o->pivot, NGLI_TYPE_F32)) < 0)
         return ret;
     return 0;
 }
@@ -227,7 +227,7 @@ static int filterexposure_init(struct ngl_node *node)
     s->filter.name = "exposure";
     s->filter.code = filter_exposure_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS;
-    return register_resource(&s->filter.resources, "exposure", o->exposure_node, &o->exposure, NGLI_TYPE_FLOAT);
+    return register_resource(&s->filter.resources, "exposure", o->exposure_node, &o->exposure, NGLI_TYPE_F32);
 }
 
 static int filterinversealpha_init(struct ngl_node *node)
@@ -262,7 +262,7 @@ static int filteropacity_init(struct ngl_node *node)
     struct filteropacity_opts *o = node->opts;
     s->filter.name = "opacity";
     s->filter.code = filter_opacity_glsl;
-    return register_resource(&s->filter.resources, "opacity", o->opacity_node, &o->opacity, NGLI_TYPE_FLOAT);
+    return register_resource(&s->filter.resources, "opacity", o->opacity_node, &o->opacity, NGLI_TYPE_F32);
 }
 
 static int filterpremult_init(struct ngl_node *node)
@@ -286,7 +286,7 @@ static int filtersaturation_init(struct ngl_node *node)
     s->filter.name = "saturation";
     s->filter.code = filter_saturation_glsl;
     s->filter.helpers = NGLI_FILTER_HELPER_MISC_UTILS;
-    return register_resource(&s->filter.resources, "saturation", o->saturation_node, &o->saturation, NGLI_TYPE_FLOAT);
+    return register_resource(&s->filter.resources, "saturation", o->saturation_node, &o->saturation, NGLI_TYPE_F32);
 }
 
 static int filtersrgb2linear_init(struct ngl_node *node)

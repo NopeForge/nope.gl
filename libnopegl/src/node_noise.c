@@ -150,7 +150,7 @@ const struct node_class ngli_noise##type##_class = {                        \
     .file      = __FILE__,                                                  \
 };
 
-DEFINE_NOISE_CLASS(NGL_NODE_NOISEFLOAT, "NoiseFloat", float, NGLI_TYPE_FLOAT, 1)
+DEFINE_NOISE_CLASS(NGL_NODE_NOISEFLOAT, "NoiseFloat", float, NGLI_TYPE_F32,   1)
 DEFINE_NOISE_CLASS(NGL_NODE_NOISEVEC2,  "NoiseVec2",  vec2,  NGLI_TYPE_VEC2,  2)
 DEFINE_NOISE_CLASS(NGL_NODE_NOISEVEC3,  "NoiseVec3",  vec3,  NGLI_TYPE_VEC3,  3)
 DEFINE_NOISE_CLASS(NGL_NODE_NOISEVEC4,  "NoiseVec4",  vec4,  NGLI_TYPE_VEC4,  4)
