@@ -23,15 +23,15 @@
 
 /* This needs to match the GLSL type name */
 static const char * const type_map[NGLI_TYPE_NB] = {
-    [NGLI_TYPE_INT]                         = "int",
+    [NGLI_TYPE_I32]                         = "int",
     [NGLI_TYPE_IVEC2]                       = "ivec2",
     [NGLI_TYPE_IVEC3]                       = "ivec3",
     [NGLI_TYPE_IVEC4]                       = "ivec4",
-    [NGLI_TYPE_UINT]                        = "uint",
-    [NGLI_TYPE_UIVEC2]                      = "uvec2",
-    [NGLI_TYPE_UIVEC3]                      = "uvec3",
-    [NGLI_TYPE_UIVEC4]                      = "uvec4",
-    [NGLI_TYPE_FLOAT]                       = "float",
+    [NGLI_TYPE_U32]                         = "uint",
+    [NGLI_TYPE_UVEC2]                       = "uvec2",
+    [NGLI_TYPE_UVEC3]                       = "uvec3",
+    [NGLI_TYPE_UVEC4]                       = "uvec4",
+    [NGLI_TYPE_F32]                         = "float",
     [NGLI_TYPE_VEC2]                        = "vec2",
     [NGLI_TYPE_VEC3]                        = "vec3",
     [NGLI_TYPE_VEC4]                        = "vec4",

@@ -22,15 +22,15 @@
 #include "type_gl.h"
 
 static int gl_type_map[] = {
-    [NGLI_TYPE_INT]                         = GL_INT,
+    [NGLI_TYPE_I32]                         = GL_INT,
     [NGLI_TYPE_IVEC2]                       = GL_INT_VEC2,
     [NGLI_TYPE_IVEC3]                       = GL_INT_VEC3,
     [NGLI_TYPE_IVEC4]                       = GL_INT_VEC4,
-    [NGLI_TYPE_UINT]                        = GL_UNSIGNED_INT,
-    [NGLI_TYPE_UIVEC2]                      = GL_UNSIGNED_INT_VEC2,
-    [NGLI_TYPE_UIVEC3]                      = GL_UNSIGNED_INT_VEC3,
-    [NGLI_TYPE_UIVEC4]                      = GL_UNSIGNED_INT_VEC4,
-    [NGLI_TYPE_FLOAT]                       = GL_FLOAT,
+    [NGLI_TYPE_U32]                         = GL_UNSIGNED_INT,
+    [NGLI_TYPE_UVEC2]                       = GL_UNSIGNED_INT_VEC2,
+    [NGLI_TYPE_UVEC3]                       = GL_UNSIGNED_INT_VEC3,
+    [NGLI_TYPE_UVEC4]                       = GL_UNSIGNED_INT_VEC4,
+    [NGLI_TYPE_F32]                         = GL_FLOAT,
     [NGLI_TYPE_VEC2]                        = GL_FLOAT_VEC2,
     [NGLI_TYPE_VEC3]                        = GL_FLOAT_VEC3,
     [NGLI_TYPE_VEC4]                        = GL_FLOAT_VEC4,

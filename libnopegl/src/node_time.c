@@ -37,7 +37,7 @@ static int time_init(struct ngl_node *node)
     struct time_priv *s = node->priv_data;
     s->var.data = &s->time;
     s->var.data_size = sizeof(s->time);
-    s->var.data_type = NGLI_TYPE_FLOAT;
+    s->var.data_type = NGLI_TYPE_F32;
     s->var.dynamic = 1;
     return 0;
 }

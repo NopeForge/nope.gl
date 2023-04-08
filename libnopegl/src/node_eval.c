@@ -121,7 +121,7 @@ static int eval_init(struct ngl_node *node)
         while ((entry = ngli_hmap_next(o->resources, entry))) {
             struct ngl_node *res = entry->data;
             struct variable_info *var = res->priv_data;
-            ngli_assert(var->data_type == NGLI_TYPE_FLOAT);
+            ngli_assert(var->data_type == NGLI_TYPE_F32);
             int ret = ngli_hmap_set(s->vars, entry->key, var->data);
             if (ret < 0)
                 return ret;
@@ -203,7 +203,7 @@ const struct node_class ngli_eval##type##_class = {                 \
     .file      = __FILE__,                                          \
 };
 
-DEFINE_EVAL_CLASS(NGL_NODE_EVALFLOAT, "EvalFloat", float, NGLI_TYPE_FLOAT, 1)
+DEFINE_EVAL_CLASS(NGL_NODE_EVALFLOAT, "EvalFloat", float, NGLI_TYPE_F32,   1)
 DEFINE_EVAL_CLASS(NGL_NODE_EVALVEC2,  "EvalVec2",  vec2,  NGLI_TYPE_VEC2,  2)
 DEFINE_EVAL_CLASS(NGL_NODE_EVALVEC3,  "EvalVec3",  vec3,  NGLI_TYPE_VEC3,  3)
 DEFINE_EVAL_CLASS(NGL_NODE_EVALVEC4,  "EvalVec4",  vec4,  NGLI_TYPE_VEC4,  4)
