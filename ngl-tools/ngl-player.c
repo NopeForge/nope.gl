@@ -140,9 +140,9 @@ int main(int argc, char *argv[])
     s.cfg.width  = s.media_info.width;
     s.cfg.height = s.media_info.height;
     ret = player_init(&p, "ngl-player", scene, &s.cfg, s.media_info.duration, s.framerate, s.player_ui);
+    ngl_node_unrefp(&scene);
     if (ret < 0)
         goto end;
-    ngl_node_unrefp(&scene);
 
     update_window_title(p.window, filename);
 
