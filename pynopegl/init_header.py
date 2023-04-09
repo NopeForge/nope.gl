@@ -90,12 +90,14 @@ CAP_TEXTURE_3D                     = _ngl.CAP_TEXTURE_3D
 CAP_TEXTURE_CUBE                   = _ngl.CAP_TEXTURE_CUBE
 CAP_UINT_UNIFORMS                  = _ngl.CAP_UINT_UNIFORMS
 
-LOG_VERBOSE = _ngl.LOG_VERBOSE
-LOG_DEBUG   = _ngl.LOG_DEBUG
-LOG_INFO    = _ngl.LOG_INFO
-LOG_WARNING = _ngl.LOG_WARNING
-LOG_ERROR   = _ngl.LOG_ERROR
-LOG_QUIET   = _ngl.LOG_QUIET
+
+class Log(IntEnum):
+    VERBOSE = _ngl.LOG_VERBOSE
+    DEBUG   = _ngl.LOG_DEBUG
+    INFO    = _ngl.LOG_INFO
+    WARNING = _ngl.LOG_WARNING
+    ERROR   = _ngl.LOG_ERROR
+    QUIET   = _ngl.LOG_QUIET
 # fmt: on
 
 

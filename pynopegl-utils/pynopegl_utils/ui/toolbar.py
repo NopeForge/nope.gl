@@ -281,7 +281,7 @@ class Toolbar(QtWidgets.QWidget):
     @QtCore.Slot(int)
     def _set_loglevel(self, index):
         level_str = Config.CHOICES["log_level"][index]
-        ngl_level = eval("ngl.LOG_%s" % level_str.upper())
+        ngl_level = eval("ngl.Log.%s" % level_str.upper())
         ngl.log_set_min_level(ngl_level)
         self.logLevelChanged.emit(level_str)
 
