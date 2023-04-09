@@ -75,6 +75,7 @@ foreach backend : backends
     'trf_seek',
     'trf_seek_keep_alive',
     'dot',
+    'probing',
   ]
 
   tests_blending = [

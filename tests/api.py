@@ -24,6 +24,7 @@ import csv
 import locale
 import math
 import os
+import pprint
 import random
 import tempfile
 from collections import namedtuple
@@ -487,3 +488,14 @@ def api_dot(width=320, height=240):
     assert ctx.set_scene(scene) == 0
     assert ctx.dot(0.0) is not None
     assert ctx.dot(1.0) is not None
+
+
+def api_probing():
+    """
+    Exercise the probing APIs; the result is platform/hardware specific so
+    tricky to test its output
+    """
+    backends = ngl.get_backends()
+    probe = ngl.probe_backends()
+    pprint.pprint(backends)
+    pprint.pprint(probe)
