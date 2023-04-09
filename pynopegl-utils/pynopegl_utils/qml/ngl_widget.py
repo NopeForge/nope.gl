@@ -128,10 +128,12 @@ class _NopeGLRenderer(QQuickFramebufferObject.Renderer):
             self._context = ngl.Context()
             config_gl = ngl.ConfigGL(external=True, external_framebuffer=self._fbo.handle())
             self._context.configure(
-                backend=ngl.BACKEND_OPENGL,
-                width=self._fbo.width(),
-                height=self._fbo.height(),
-                backend_config=config_gl,
+                ngl.Config(
+                    backend=ngl.Backend.OPENGL,
+                    width=self._fbo.width(),
+                    height=self._fbo.height(),
+                    backend_config=config_gl,
+                )
             )
         else:
             self._context.gl_wrap_framebuffer(self._fbo.handle())

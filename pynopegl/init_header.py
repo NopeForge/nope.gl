@@ -22,6 +22,7 @@
 import array
 import os
 import platform
+from enum import IntEnum
 from typing import Mapping, Optional, Sequence, Tuple, Union
 
 if platform.system() == "Windows":
@@ -47,18 +48,23 @@ get_livectls      = _ngl.get_livectls
 log_set_min_level = _ngl.log_set_min_level
 probe_backends    = _ngl.probe_backends
 
-PLATFORM_AUTO    = _ngl.PLATFORM_AUTO
-PLATFORM_XLIB    = _ngl.PLATFORM_XLIB
-PLATFORM_ANDROID = _ngl.PLATFORM_ANDROID
-PLATFORM_MACOS   = _ngl.PLATFORM_MACOS
-PLATFORM_IOS     = _ngl.PLATFORM_IOS
-PLATFORM_WINDOWS = _ngl.PLATFORM_WINDOWS
-PLATFORM_WAYLAND = _ngl.PLATFORM_WAYLAND
 
-BACKEND_AUTO      = _ngl.BACKEND_AUTO
-BACKEND_OPENGL    = _ngl.BACKEND_OPENGL
-BACKEND_OPENGLES  = _ngl.BACKEND_OPENGLES
-BACKEND_VULKAN    = _ngl.BACKEND_VULKAN
+class Platform(IntEnum):
+    AUTO    = _ngl.PLATFORM_AUTO
+    XLIB    = _ngl.PLATFORM_XLIB
+    ANDROID = _ngl.PLATFORM_ANDROID
+    MACOS   = _ngl.PLATFORM_MACOS
+    IOS     = _ngl.PLATFORM_IOS
+    WINDOWS = _ngl.PLATFORM_WINDOWS
+    WAYLAND = _ngl.PLATFORM_WAYLAND
+
+
+class Backend(IntEnum):
+    AUTO     = _ngl.BACKEND_AUTO
+    OPENGL   = _ngl.BACKEND_OPENGL
+    OPENGLES = _ngl.BACKEND_OPENGLES
+    VULKAN   = _ngl.BACKEND_VULKAN
+
 
 CAP_BLOCK                          = _ngl.CAP_BLOCK
 CAP_COMPUTE                        = _ngl.CAP_COMPUTE
@@ -91,6 +97,55 @@ LOG_WARNING = _ngl.LOG_WARNING
 LOG_ERROR   = _ngl.LOG_ERROR
 LOG_QUIET   = _ngl.LOG_QUIET
 # fmt: on
+
+
+class Config(_ngl.Config):
+    def __init__(
+        self,
+        platform: Platform = Platform.AUTO,
+        backend: Backend = Backend.AUTO,
+        backend_config: Optional[ConfigGL] = None,
+        display: int = 0,
+        window: int = 0,
+        swap_interval: int = -1,
+        offscreen: bool = False,
+        width: int = 0,
+        height: int = 0,
+        viewport: Tuple[int, int, int, int] = (0, 0, 0, 0),
+        samples: int = 0,
+        set_surface_pts: bool = False,
+        clear_color: Tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0),
+        capture_buffer: Optional[bytearray] = None,
+        # capture_buffer_type: int = 0,
+        hud: bool = False,
+        hud_measure_window: int = 0,
+        hud_refresh_rate: Tuple[int, int] = (0, 0),
+        hud_export_filename: Optional[str] = None,
+        hud_scale: int = 0,
+    ):
+        self.capture_buffer = capture_buffer
+        super().__init__(
+            platform,
+            backend,
+            backend_config,
+            display,
+            window,
+            swap_interval,
+            offscreen,
+            width,
+            height,
+            viewport,
+            samples,
+            set_surface_pts,
+            clear_color,
+            capture_buffer,
+            0,
+            hud,
+            hud_measure_window,
+            hud_refresh_rate,
+            hud_export_filename,
+            hud_scale,
+        )
 
 
 class Node(_Node):

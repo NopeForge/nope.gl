@@ -103,15 +103,17 @@ class Exporter(QtCore.QThread):
         # nope.gl context
         ctx = ngl.Context()
         ctx.configure(
-            platform=ngl.PLATFORM_AUTO,
-            backend=get_backend(cfg["backend"]),
-            offscreen=1,
-            width=width,
-            height=height,
-            viewport=get_viewport(width, height, cfg["aspect_ratio"]),
-            samples=samples,
-            clear_color=cfg["clear_color"],
-            capture_buffer=capture_buffer,
+            ngl.Config(
+                platform=ngl.Platform.AUTO,
+                backend=get_backend(cfg["backend"]),
+                offscreen=True,
+                width=width,
+                height=height,
+                viewport=get_viewport(width, height, cfg["aspect_ratio"]),
+                samples=samples,
+                clear_color=cfg["clear_color"],
+                capture_buffer=capture_buffer,
+            )
         )
         ctx.set_scene_from_string(cfg["scene"])
 

@@ -195,8 +195,8 @@ def get_viewport(width, height, aspect_ratio):
 
 def get_backend(backend):
     backend_map = {
-        "opengl": ngl.BACKEND_OPENGL,
-        "opengles": ngl.BACKEND_OPENGLES,
-        "vulkan": ngl.BACKEND_VULKAN,
+        "opengl": ngl.Backend.OPENGL,
+        "opengles": ngl.Backend.OPENGLES,
+        "vulkan": ngl.Backend.VULKAN,
     }
     return backend_map[backend]

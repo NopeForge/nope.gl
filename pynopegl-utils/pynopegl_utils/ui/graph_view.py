@@ -172,7 +172,14 @@ class GraphView(QtWidgets.QWidget):
         if self._ctx:
             return
         self._ctx = ngl.Context()
-        self._ctx.configure(backend=misc.get_backend(rendering_backend), offscreen=1, width=16, height=16)
+        self._ctx.configure(
+            ngl.Config(
+                backend=misc.get_backend(rendering_backend),
+                offscreen=True,
+                width=16,
+                height=16,
+            )
+        )
 
     def _update_graph(self, dot_scene):
         basename = op.join(misc.get_nopegl_tempdir(), "ngl_scene.")

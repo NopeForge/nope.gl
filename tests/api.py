@@ -26,6 +26,7 @@ import math
 import os
 import random
 import tempfile
+from collections import namedtuple
 
 from pynopegl_utils.misc import get_backend
 from pynopegl_utils.toolbox.grid import autogrid_simple
@@ -33,7 +34,7 @@ from pynopegl_utils.toolbox.grid import autogrid_simple
 import pynopegl as ngl
 
 _backend_str = os.environ.get("BACKEND")
-_backend = get_backend(_backend_str) if _backend_str else ngl.BACKEND_AUTO
+_backend = get_backend(_backend_str) if _backend_str else ngl.Backend.AUTO
 
 
 def _get_scene(geometry=None):
@@ -42,19 +43,21 @@ def _get_scene(geometry=None):
 
 def api_backend():
     ctx = ngl.Context()
-    ret = ctx.configure(backend=0x1234)
-    assert ret < 0
+    fake_backend_cls = namedtuple("FakeBackend", "value")
+    fake_backend = fake_backend_cls(value=0x1234)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=fake_backend))
+    assert _ret_to_fourcc(ret) == "Earg"
     del ctx
 
 
 def api_reconfigure():
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
     assert ctx.draw(0) == 0
-    ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
     assert ctx.draw(1) == 0
     del ctx
@@ -65,19 +68,23 @@ def api_reconfigure_clearcolor(width=16, height=16):
 
     capture_buffer = bytearray(width * height * 4)
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend, capture_buffer=capture_buffer)
+    ret = ctx.configure(
+        ngl.Config(offscreen=True, width=width, height=height, backend=_backend, capture_buffer=capture_buffer)
+    )
     assert ret == 0
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
     assert ctx.draw(0) == 0
     assert zlib.crc32(capture_buffer) == 0xB4BD32FA
     ret = ctx.configure(
-        offscreen=1,
-        width=width,
-        height=height,
-        backend=_backend,
-        capture_buffer=capture_buffer,
-        clear_color=(0.4, 0.4, 0.4, 1.0),
+        ngl.Config(
+            offscreen=True,
+            width=width,
+            height=height,
+            backend=_backend,
+            capture_buffer=capture_buffer,
+            clear_color=(0.4, 0.4, 0.4, 1.0),
+        )
     )
     assert ret == 0
     assert ctx.draw(0) == 0
@@ -88,12 +95,12 @@ def api_reconfigure_clearcolor(width=16, height=16):
 
 def api_reconfigure_fail():
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
     assert ctx.draw(0) == 0
-    ret = ctx.configure(offscreen=0, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=False, backend=_backend))
     assert ret != 0
     assert ctx.draw(1) != 0
     del ctx
@@ -101,7 +108,7 @@ def api_reconfigure_fail():
 
 def api_resize_fail():
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
     ret = ctx.resize(32, 32)
     assert ret != 0
@@ -112,7 +119,7 @@ def api_capture_buffer(width=16, height=16):
     import zlib
 
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     assert ret == 0
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
@@ -129,9 +136,9 @@ def api_capture_buffer(width=16, height=16):
 def api_ctx_ownership():
     ctx = ngl.Context()
     ctx2 = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
-    ret = ctx2.configure(offscreen=1, width=16, height=16, backend=_backend)
+    ret = ctx2.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
@@ -146,9 +153,9 @@ def api_ctx_ownership_subgraph():
     for shared in (True, False):
         ctx = ngl.Context()
         ctx2 = ngl.Context()
-        ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
+        ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
         assert ret == 0
-        ret = ctx2.configure(offscreen=1, width=16, height=16, backend=_backend)
+        ret = ctx2.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
         assert ret == 0
         quad = ngl.Quad()
         render1 = _get_scene(quad)
@@ -167,7 +174,9 @@ def api_ctx_ownership_subgraph():
 def api_capture_buffer_lifetime(width=1024, height=1024):
     capture_buffer = bytearray(width * height * 4)
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend, capture_buffer=capture_buffer)
+    ret = ctx.configure(
+        ngl.Config(offscreen=True, width=width, height=height, backend=_backend, capture_buffer=capture_buffer)
+    )
     assert ret == 0
     del capture_buffer
     scene = _get_scene()
@@ -180,7 +189,7 @@ def api_capture_buffer_lifetime(width=1024, height=1024):
 # just for blind coverage and similar code instrumentalization.
 def api_hud(width=234, height=123):
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend, hud=1)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend, hud=True))
     assert ret == 0
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
@@ -198,7 +207,9 @@ def api_hud_csv(width=16, height=16):
     os.close(fd)
     atexit.register(lambda: os.remove(csvpath))
 
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend, hud=1, hud_export_filename=csvpath)
+    ret = ctx.configure(
+        ngl.Config(offscreen=True, width=width, height=height, backend=_backend, hud=True, hud_export_filename=csvpath)
+    )
     assert ret == 0
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
@@ -224,7 +235,9 @@ def api_text_live_change(width=320, height=240):
 
     ctx = ngl.Context()
     capture_buffer = bytearray(width * height * 4)
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend, capture_buffer=capture_buffer)
+    ret = ctx.configure(
+        ngl.Config(offscreen=True, width=width, height=height, backend=_backend, capture_buffer=capture_buffer)
+    )
     assert ret == 0
 
     # An empty string forces the text node to deal with a pipeline with nul
@@ -255,7 +268,7 @@ def _ret_to_fourcc(ret):
 
 def api_media_sharing_failure():
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
     m = ngl.Media("/dev/null")
     scene = ngl.Group(children=(ngl.Texture2D(data_src=m), ngl.Texture2D(data_src=m)))
@@ -264,7 +277,7 @@ def api_media_sharing_failure():
 
 def api_denied_node_live_change(width=320, height=240):
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     assert ret == 0
 
     scene = ngl.Translate(ngl.Group())
@@ -309,7 +322,7 @@ def api_livectls():
 
     # Attach scene and run a dummy draw to make sure it's valid
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=16, height=16, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=16, height=16, backend=_backend))
     assert ret == 0
     assert ctx.set_scene(scene) == 0
     assert ctx.draw(0) == 0
@@ -356,7 +369,7 @@ def api_livectls():
 
 def api_reset_scene(width=320, height=240):
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     assert ret == 0
     render = _get_scene()
     assert ctx.set_scene(render) == 0
@@ -371,7 +384,7 @@ def api_reset_scene(width=320, height=240):
 
 def api_shader_init_fail(width=320, height=240):
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     assert ret == 0
 
     render = ngl.Render(ngl.Quad(), ngl.Program(vertex="<bug>", fragment="<bug>"))
@@ -427,7 +440,7 @@ def api_trf_seek(width=320, height=240):
     diamond-tree graph to detect potential release/prefetch issues.
     """
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     assert ret == 0
 
     start = 0.0
@@ -449,7 +462,7 @@ def api_trf_seek_keep_alive(width=320, height=240):
     potential release/prefetch issues.
     """
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     assert ret == 0
 
     start = 0.0
@@ -469,7 +482,7 @@ def api_dot(width=320, height=240):
     Exercise the ngl.dot() API.
     """
     ctx = ngl.Context()
-    ret = ctx.configure(offscreen=1, width=width, height=height, backend=_backend)
+    ret = ctx.configure(ngl.Config(offscreen=True, width=width, height=height, backend=_backend))
     scene = _get_scene()
     assert ctx.set_scene(scene) == 0
     assert ctx.dot(0.0) is not None
