@@ -449,12 +449,12 @@ _PROBE_MODE_FULL = 0
 _PROBE_MODE_NO_GRAPHICS = 1
 
 
-def _probe_backends(mode, **kwargs):
-    cdef ngl_config config
+def _probe_backends(mode, py_config):
     cdef ngl_config *configp = NULL
-    if kwargs:
-        configp = &config
-        Context._init_ngl_config_from_dict(configp, kwargs)
+    cdef uintptr_t ptr
+    if py_config is not None:
+        ptr = py_config.cptr()
+        configp = <ngl_config *>ptr
     cdef int nb_backends = 0
     cdef ngl_backend *backend = NULL
     cdef ngl_backend *backends = NULL
@@ -488,12 +488,12 @@ def _probe_backends(mode, **kwargs):
     return backend_set
 
 
-def probe_backends(**kwargs):
-    return _probe_backends(_PROBE_MODE_FULL, **kwargs)
+def probe_backends(config=None):
+    return _probe_backends(_PROBE_MODE_FULL, config)
 
 
-def get_backends(**kwargs):
-    return _probe_backends(_PROBE_MODE_NO_GRAPHICS, **kwargs)
+def get_backends(config=None):
+    return _probe_backends(_PROBE_MODE_NO_GRAPHICS, config)
 
 
 LIVECTL_INFO = {}  # Filled dynamically by the Python side
@@ -558,6 +558,68 @@ cdef class ConfigGL:
         return <uintptr_t>&self.config
 
 
+cdef class Config:
+    cdef ngl_config config
+
+    def __cinit__(self):
+        memset(&self.config, 0, sizeof(self.config))
+
+    def __init__(
+        self,
+        platform,
+        backend,
+        backend_config,
+        display,
+        window,
+        swap_interval,
+        offscreen,
+        width,
+        height,
+        viewport,
+        samples,
+        set_surface_pts,
+        clear_color,
+        capture_buffer,
+        capture_buffer_type,
+        hud,
+        hud_measure_window,
+        hud_refresh_rate,
+        hud_export_filename,
+        hud_scale,
+    ):
+        self.config.platform = platform.value
+        self.config.backend = backend.value
+        cdef uintptr_t ptr
+        if backend_config is not None:
+            ptr = backend_config.cptr()
+            self.config.backend_config = <void *>ptr
+        self.config.display = display
+        self.config.window = window
+        self.config.swap_interval = swap_interval
+        self.config.offscreen = offscreen
+        self.config.width = width
+        self.config.height = height
+        for i in range(4):
+            self.config.viewport[i] = viewport[i]
+        self.config.samples = samples
+        self.config.set_surface_pts = set_surface_pts
+        for i in range(4):
+            self.config.clear_color[i] = clear_color[i]
+        if capture_buffer is not None:
+            self.config.capture_buffer = <uint8_t *>capture_buffer
+        self.config.capture_buffer_type = capture_buffer_type
+        self.config.hud = hud
+        self.config.hud_measure_window = hud_measure_window
+        self.config.hud_refresh_rate[0] = hud_refresh_rate[0]
+        self.config.hud_refresh_rate[1] = hud_refresh_rate[1]
+        if hud_export_filename is not None:
+            self.config.hud_export_filename = hud_export_filename
+        self.config.hud_scale = hud_scale
+
+    def cptr(self):
+        return <uintptr_t>&self.config
+
+
 cdef class Context:
     cdef ngl_ctx *ctx
     cdef object capture_buffer
@@ -567,48 +629,11 @@ cdef class Context:
         if self.ctx is NULL:
             raise MemoryError()
 
-    @staticmethod
-    cdef void _init_ngl_config_from_dict(ngl_config *config, kwargs):
-        memset(config, 0, sizeof(ngl_config))
-        config.platform = kwargs.get('platform', PLATFORM_AUTO)
-        config.backend = kwargs.get('backend', BACKEND_AUTO)
-        backend_config = kwargs.get('backend_config')
-        cdef uintptr_t ptr
-        if backend_config is not None:
-            ptr = backend_config.cptr()
-            config.backend_config = <void *>ptr
-        config.display = kwargs.get('display', 0)
-        config.window = kwargs.get('window', 0)
-        config.swap_interval = kwargs.get('swap_interval', -1)
-        config.offscreen = kwargs.get('offscreen', 0)
-        config.width = kwargs.get('width', 0)
-        config.height = kwargs.get('height', 0)
-        viewport = kwargs.get('viewport', (0, 0, 0, 0))
-        for i in range(4):
-            config.viewport[i] = viewport[i]
-        config.samples = kwargs.get('samples', 0)
-        config.set_surface_pts = kwargs.get('set_surface_pts', 0)
-        clear_color = kwargs.get('clear_color', (0.0, 0.0, 0.0, 1.0))
-        for i in range(4):
-            config.clear_color[i] = clear_color[i]
-        capture_buffer = kwargs.get('capture_buffer')
-        if capture_buffer is not None:
-            config.capture_buffer = <uint8_t *>capture_buffer
-        config.hud = kwargs.get('hud', 0)
-        config.hud_measure_window = kwargs.get('hud_measure_window', 0)
-        hud_refresh_rate = kwargs.get('hud_refresh_rate', (0, 0))
-        config.hud_refresh_rate[0] = hud_refresh_rate[0]
-        config.hud_refresh_rate[1] = hud_refresh_rate[1]
-        hud_export_filename = kwargs.get('hud_export_filename')
-        if hud_export_filename is not None:
-            config.hud_export_filename = hud_export_filename
-        config.hud_scale = kwargs.get('hud_scale', 0)
-
-    def configure(self, **kwargs):
-        self.capture_buffer = kwargs.get('capture_buffer')
-        cdef ngl_config config
-        Context._init_ngl_config_from_dict(&config, kwargs)
-        return ngl_configure(self.ctx, &config)
+    def configure(self, py_config):
+        self.capture_buffer = py_config.capture_buffer
+        cdef uintptr_t ptr = py_config.cptr()
+        cdef ngl_config *configp = <ngl_config *>ptr
+        return ngl_configure(self.ctx, configp)
 
     def resize(self, width, height, viewport=None):
         if viewport is None:

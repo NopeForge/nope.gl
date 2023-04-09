@@ -52,7 +52,7 @@ class _CompareResources(CompareSceneBase):
         os.close(fd)
 
         self._columns = columns
-        self._hud = 1
+        self._hud = True
         self._hud_export_filename = self._csvfile
 
     def get_out_data(self, debug=False, debug_func=None):
