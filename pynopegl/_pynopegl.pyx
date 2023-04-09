@@ -465,24 +465,18 @@ def _probe_backends(mode, py_config):
         ret = ngl_backends_probe(configp, &nb_backends, &backends)
     if ret < 0:
         raise Exception("Error probing backends")
-    backend_set = []
+    backend_set = {}
     for i in range(nb_backends):
         backend = &backends[i]
-        caps = []
+        caps = {}
         for j in range(backend.nb_caps):
             cap = &backend.caps[j]
-            caps.append(dict(
-                id=cap.id,
-                string_id=cap.string_id,
-                value=cap.value,
-            ))
-        backend_set.append(dict(
-            id=backend.id,
-            string_id=backend.string_id,
+            caps[cap.string_id] = cap.value
+        backend_set[backend.string_id] = dict(
             name=backend.name,
             is_default=True if backend.is_default else False,
             caps=caps,
-        ))
+        )
     ngl_backends_freep(&backends)
     return backend_set
 
