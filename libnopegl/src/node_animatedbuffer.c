@@ -111,7 +111,7 @@ static int animatedbuffer_init(struct ngl_node *node)
     for (int i = 0; i < o->nb_animkf; i++) {
         const struct animkeyframe_opts *kf = o->animkf[i]->opts;
         const size_t data_count = kf->data_size / layout->stride;
-        const int data_pad   = (int)(kf->data_size % layout->stride);
+        const size_t data_pad   = kf->data_size % layout->stride;
 
         if (layout->count && layout->count != data_count) {
             static const char *types[] = {"float", "vec2", "vec3", "vec4"};
@@ -122,7 +122,7 @@ static int animatedbuffer_init(struct ngl_node *node)
         }
 
         if (data_pad)
-            LOG(WARNING, "the data buffer has %d trailing bytes", data_pad);
+            LOG(WARNING, "the data buffer has %zd trailing bytes", data_pad);
 
         layout->count = data_count;
     }

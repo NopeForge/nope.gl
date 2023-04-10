@@ -904,7 +904,7 @@ int ngl_node_param_set_bool(struct ngl_node *node, const char *key, int value)
     FORWARD_TO_PARAM(bool, value);
 }
 
-int ngl_node_param_set_data(struct ngl_node *node, const char *key, int size, const void *data)
+int ngl_node_param_set_data(struct ngl_node *node, const char *key, size_t size, const void *data)
 {
     FORWARD_TO_PARAM(data, size, data);
 }
