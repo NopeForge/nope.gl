@@ -1402,7 +1402,7 @@ static int vk_get_preferred_depth_stencil_format(struct gpu_ctx *s)
     return vk->preferred_depth_stencil_format;
 }
 
-static int vk_buffer_init(struct buffer *s, int size, int usage)
+static int vk_buffer_init(struct buffer *s, size_t size, int usage)
 {
     VkResult res = ngli_buffer_vk_init(s, size, usage);
     if (res != VK_SUCCESS)
@@ -1410,7 +1410,7 @@ static int vk_buffer_init(struct buffer *s, int size, int usage)
     return ngli_vk_res2ret(res);
 }
 
-static int vk_buffer_upload(struct buffer *s, const void *data, int size, int offset)
+static int vk_buffer_upload(struct buffer *s, const void *data, size_t size, size_t offset)
 {
     VkResult res = ngli_buffer_vk_upload(s, data, size, offset);
     if (res != VK_SUCCESS)
@@ -1418,7 +1418,7 @@ static int vk_buffer_upload(struct buffer *s, const void *data, int size, int of
     return ngli_vk_res2ret(res);
 }
 
-static int vk_buffer_map(struct buffer *s, int size, int offset, void **data)
+static int vk_buffer_map(struct buffer *s, size_t size, size_t offset, void **data)
 {
     VkResult res = ngli_buffer_vk_map(s, size, offset, data);
     if (res != VK_SUCCESS)

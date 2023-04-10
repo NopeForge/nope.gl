@@ -80,9 +80,9 @@ struct gpu_ctx_class {
     int (*get_preferred_depth_stencil_format)(struct gpu_ctx *s);
 
     struct buffer *(*buffer_create)(struct gpu_ctx *ctx);
-    int (*buffer_init)(struct buffer *s, int size, int usage);
-    int (*buffer_upload)(struct buffer *s, const void *data, int size, int offset);
-    int (*buffer_map)(struct buffer *s, int size, int offset, void **datap);
+    int (*buffer_init)(struct buffer *s, size_t size, int usage);
+    int (*buffer_upload)(struct buffer *s, const void *data, size_t size, size_t offset);
+    int (*buffer_map)(struct buffer *s, size_t size, size_t offset, void **datap);
     void (*buffer_unmap)(struct buffer *s);
     void (*buffer_freep)(struct buffer **sp);
 
