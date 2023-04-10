@@ -19,6 +19,8 @@
 # under the License.
 #
 
+from typing import Optional, Sequence
+
 from PIL import Image
 
 from .cmp import CompareBase, CompareSceneBase, get_test_decorator
@@ -29,19 +31,19 @@ _MODE = "RGBA"
 
 
 class _CompareFingerprints(CompareSceneBase):
-    def __init__(self, scene_func, tolerance=0, **kwargs):
+    def __init__(self, scene_func, tolerance: int = 0, **kwargs):
         super().__init__(scene_func, **kwargs)
         self._tolerance = tolerance
 
     @staticmethod
-    def serialize(data):
+    def serialize(data: Sequence[Sequence[int]]) -> str:
         ret = ""
         for comp_hashes in data:
             ret += " ".join(format(x, "032X") for x in comp_hashes) + "\n"
         return ret
 
     @staticmethod
-    def deserialize(data):
+    def deserialize(data: str) -> Sequence[Sequence[int]]:
         ret = []
         for line in data.splitlines():
             hashes = [int(x, 16) for x in line.split()]
@@ -49,7 +51,7 @@ class _CompareFingerprints(CompareSceneBase):
         return ret
 
     @staticmethod
-    def _get_plane_hashes(buf):
+    def _get_plane_hashes(buf) -> Sequence[int]:
         hashes = []
         linesize = _HSIZE + 1
         comp_bufs = (buf[x::4] for x in range(4))  # R, G, B, A
@@ -67,7 +69,7 @@ class _CompareFingerprints(CompareSceneBase):
             hashes.append(comp_hash)
         return hashes
 
-    def get_out_data(self, dump=False, func_name=None):
+    def get_out_data(self, dump: bool = False, func_name: Optional[str] = None) -> Sequence[Sequence[int]]:
         hashes = []
         dump_index = 0
         for width, height, capture_buffer in self.render_frames():
@@ -82,7 +84,7 @@ class _CompareFingerprints(CompareSceneBase):
         return hashes
 
     @staticmethod
-    def _hash_repr(hash_val):
+    def _hash_repr(hash_val: int) -> str:
         linesize = _HSIZE + 1
         diff_chars = ".v>+"  # identical, vertical diff, horizontal diff, vertical+horizontal diff
         ret = ""
@@ -95,7 +97,7 @@ class _CompareFingerprints(CompareSceneBase):
             ret += line + "\n"
         return ret
 
-    def compare_data(self, test_name, ref_data, out_data):
+    def compare_data(self, test_name: str, ref_data, out_data) -> Sequence[str]:
         err = []
         for frame, (frame_ref_hashes, frame_out_hashes) in enumerate(zip(ref_data, out_data)):
             for comp, (ref_hash, out_hash) in enumerate(zip(frame_ref_hashes, frame_out_hashes)):

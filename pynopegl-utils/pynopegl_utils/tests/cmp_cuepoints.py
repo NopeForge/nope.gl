@@ -19,6 +19,8 @@
 # under the License.
 #
 
+from typing import Sequence, Tuple
+
 from PIL import Image
 
 from .cmp import CompareBase, CompareSceneBase, get_test_decorator
@@ -27,13 +29,13 @@ _MODE = "RGBA"
 
 
 class _CompareCuePoints(CompareSceneBase):
-    def __init__(self, scene_func, points, width=128, height=128, tolerance=0, **kwargs):
+    def __init__(self, scene_func, points, width: int = 128, height: int = 128, tolerance: int = 0, **kwargs):
         super().__init__(scene_func, width=width, height=height, **kwargs)
         self._points = points
         self._tolerance = tolerance
 
     @staticmethod
-    def serialize(data):
+    def serialize(data) -> str:
         ret = ""
         for color_points in data:
             color_strings = [f"{point_name}:{color:08X}" for point_name, color in sorted(color_points.items())]
@@ -41,7 +43,7 @@ class _CompareCuePoints(CompareSceneBase):
         return ret
 
     @staticmethod
-    def deserialize(data):
+    def deserialize(data: str):
         ret = []
         for line in data.splitlines():
             color_points = {}
@@ -52,7 +54,7 @@ class _CompareCuePoints(CompareSceneBase):
         return ret
 
     @staticmethod
-    def _pos_to_px(pos, width, height):
+    def _pos_to_px(pos: Tuple[float, float], width: int, height: int) -> Tuple[int, int]:
         x = int(round((pos[0] + 1.0) / 2.0 * width))
         y = height - 1 - int(round((pos[1] + 1.0) / 2.0 * height))
         x = min(max(x, 0), width - 1)
@@ -77,12 +79,12 @@ class _CompareCuePoints(CompareSceneBase):
         return cpoints
 
     @staticmethod
-    def _color_diff(c0, c1):
+    def _color_diff(c0: int, c1: int) -> Tuple[int, int, int, int]:
         r0, g0, b0, a0 = c0 >> 24, c0 >> 16 & 0xFF, c0 >> 8 & 0xFF, c0 & 0xFF
         r1, g1, b1, a1 = c1 >> 24, c1 >> 16 & 0xFF, c1 >> 8 & 0xFF, c1 & 0xFF
         return abs(r0 - r1), abs(g0 - g1), abs(b0 - b1), abs(a0 - a1)
 
-    def compare_data(self, test_name, ref_data, out_data):
+    def compare_data(self, test_name: str, ref_data, out_data) -> Sequence[str]:
         err = []
         for frame, (ref_cpoints, out_cpoints) in enumerate(zip(ref_data, out_data)):
             ref_keys = sorted(ref_cpoints.keys())

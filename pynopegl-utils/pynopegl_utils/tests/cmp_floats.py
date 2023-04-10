@@ -19,24 +19,26 @@
 # under the License.
 #
 
+from typing import Sequence
+
 from .cmp import CompareBase, get_test_decorator
 
 
 class _CompareFloats(CompareBase):
-    def __init__(self, func, tolerance=0.001, **func_kwargs):
+    def __init__(self, func, tolerance: float = 0.001, **func_kwargs):
         self._func = func
         self._func_kwargs = func_kwargs
         self._tolerance = tolerance
 
     @staticmethod
-    def serialize(data):
+    def serialize(data) -> str:
         ret = ""
         for name, floats in data:
             ret += "{}: {}\n".format(name, " ".join("%f" % f for f in floats))
         return ret
 
     @staticmethod
-    def deserialize(data):
+    def deserialize(data: str):
         ret = []
         for line in data.splitlines():
             name, floats = line.split(":", 1)
@@ -46,7 +48,7 @@ class _CompareFloats(CompareBase):
     def get_out_data(self, dump=False, func_name=None):
         return self._func(**self._func_kwargs)
 
-    def compare_data(self, test_name, ref_data, out_data):
+    def compare_data(self, test_name: str, ref_data, out_data) -> Sequence[str]:
         err = []
         for float_set_id, (ref, out) in enumerate(zip(ref_data, out_data)):
             ref_name, ref_floats = ref

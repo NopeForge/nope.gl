@@ -32,13 +32,13 @@ from collections import namedtuple
 from dataclasses import asdict, dataclass, field
 from fractions import Fraction
 from functools import partialmethod, wraps
-from typing import List, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 
 import pynopegl as ngl
 
 
 def scene(**controls):
-    def real_decorator(scene_func):
+    def real_decorator(scene_func: Callable[..., ngl.Node]) -> Callable[..., Dict]:
         @wraps(scene_func)
         def func_wrapper(idict=None, **extra_args):
             if idict is None:
@@ -126,7 +126,7 @@ class MediaInfo:
         )
 
 
-def get_nopegl_tempdir():
+def get_nopegl_tempdir() -> str:
     tmpdir = op.join(tempfile.gettempdir(), "nopegl")
     os.makedirs(tmpdir, exist_ok=True)
     return tmpdir
@@ -165,13 +165,13 @@ class SceneCfg:
         self.rng = random.Random(0)
 
     @property
-    def aspect_ratio_float(self):
+    def aspect_ratio_float(self) -> float:
         return self.aspect_ratio[0] / self.aspect_ratio[1]
 
-    def as_dict(self):
+    def as_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
-    def _get_shader(self, stype, name):
+    def _get_shader(self, stype: str, name: str) -> str:
         data = pkgutil.get_data(self.shaders_module, f"{name}.{stype}")
         if data is None:
             raise FileNotFoundError(f"Unable to find shader {name}")
@@ -182,7 +182,7 @@ class SceneCfg:
     get_comp = partialmethod(_get_shader, "comp")
 
 
-def get_viewport(width, height, aspect_ratio):
+def get_viewport(width: int, height: int, aspect_ratio: Tuple[int, int]) -> Tuple[int, int, int, int]:
     view_width = width
     view_height = width * aspect_ratio[1] // aspect_ratio[0]
     if view_height > height:
@@ -193,5 +193,5 @@ def get_viewport(width, height, aspect_ratio):
     return (view_x, view_y, view_width, view_height)
 
 
-def get_backend(backend):
+def get_backend(backend: str) -> ngl.Backend:
     return ngl.Backend[backend.upper()]

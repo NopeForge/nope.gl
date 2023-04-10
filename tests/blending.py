@@ -20,6 +20,7 @@
 #
 
 import math
+from typing import Mapping, Tuple
 
 from pynopegl_utils.misc import SceneCfg, scene
 from pynopegl_utils.tests.cmp_cuepoints import test_cuepoints
@@ -32,18 +33,21 @@ import pynopegl as ngl
 _CIRCLE_RADIUS = 0.5
 
 
-def _equilateral_triangle_coords(sz=0.5, balanced=True):
+def _equilateral_triangle_coords(
+    sz: float = 0.5, balanced: bool = True
+) -> Tuple[Tuple[float, float], Tuple[float, float], Tuple[float, float]]:
     b = sz * math.sqrt(3) / 2.0
     c = sz / 2.0
     yoff = (c - sz) / 2.0 if balanced else 0.0
     return (-b, yoff - c), (b, yoff - c), (0.0, yoff + sz)
 
 
-def _mid_pos(*points):
-    return [sum(x) / len(x) for x in zip(*points)]
+def _mid_pos(*points: Tuple[float, float]) -> Tuple[float, float]:
+    a, b = zip(*points)
+    return (sum(a) / 2, sum(b) / 2)
 
 
-def _color_positions(sz=0.5, balanced=True):
+def _color_positions(sz: float = 0.5, balanced: bool = True) -> Mapping[str, Tuple[float, float]]:
     pA, pB, pC = _equilateral_triangle_coords(sz, balanced)
     pD, pE, pF = [_mid_pos(p0, p1) for (p0, p1) in ((pA, pC), (pA, pB), (pB, pC))]
     pO = _mid_pos(pA, pB, pC)

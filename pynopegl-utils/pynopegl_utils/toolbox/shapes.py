@@ -22,7 +22,7 @@
 import math
 
 
-def equilateral_triangle_coords(d=1.0):
+def equilateral_triangle_coords(d: float = 1.0):
     """
     Return the 3 coordinates of an equilateral triangle in that order:
     bottom-left, bottom-right, top-center. d is the diameter of the circle in
