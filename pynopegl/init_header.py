@@ -45,7 +45,6 @@ easing_evaluate   = _ngl.easing_evaluate
 easing_solve      = _ngl.easing_solve
 get_backends      = _ngl.get_backends
 get_livectls      = _ngl.get_livectls
-log_set_min_level = _ngl.log_set_min_level
 probe_backends    = _ngl.probe_backends
 
 
@@ -99,6 +98,10 @@ class Log(IntEnum):
     ERROR   = _ngl.LOG_ERROR
     QUIET   = _ngl.LOG_QUIET
 # fmt: on
+
+
+def log_set_min_level(level: Log):
+    return _ngl.log_set_min_level(level.value)
 
 
 class Config(_ngl.Config):
