@@ -240,8 +240,7 @@ cdef _ret_pystr(char *s):
 
 include "nodes_def.pyx"
 
-def log_set_min_level(level):
-    ngl_log_set_min_level(level.value)
+log_set_min_level = ngl_log_set_min_level
 
 
 cdef class _Node:
