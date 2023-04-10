@@ -40,9 +40,6 @@ from _pynopegl import _Node
 # fmt: off
 ConfigGL          = _ngl.ConfigGL
 Context           = _ngl.Context
-easing_derivate   = _ngl.easing_derivate
-easing_evaluate   = _ngl.easing_evaluate
-easing_solve      = _ngl.easing_solve
 get_livectls      = _ngl.get_livectls
 
 
@@ -212,3 +209,30 @@ class Node(_Node):
 
     def _set_rational(self, param_name, ratio):
         return self._param_set_rational(param_name, ratio[0], ratio[1])
+
+
+def easing_evaluate(
+    name: str,
+    t: float,
+    args: Optional[Sequence[float]] = None,
+    offsets: Optional[Tuple[float, float]] = None,
+) -> float:
+    return _ngl.animate(name, t, args, offsets, _ngl.ANIM_EVALUATE)
+
+
+def easing_derivate(
+    name: str,
+    t: float,
+    args: Optional[Sequence[float]] = None,
+    offsets: Optional[Tuple[float, float]] = None,
+) -> float:
+    return _ngl.animate(name, t, args, offsets, _ngl.ANIM_DERIVATE)
+
+
+def easing_solve(
+    name: str,
+    v: float,
+    args: Optional[Sequence[float]] = None,
+    offsets: Optional[Tuple[float, float]] = None,
+) -> float:
+    return _ngl.animate(name, v, args, offsets, _ngl.ANIM_SOLVE)
