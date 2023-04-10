@@ -444,11 +444,11 @@ def easing_solve(name, v, args=None, offsets=None):
     return _animate(name, v, args, offsets, _ANIM_SOLVE)
 
 
-_PROBE_MODE_FULL = 0
-_PROBE_MODE_NO_GRAPHICS = 1
+PROBE_MODE_FULL = 0
+PROBE_MODE_NO_GRAPHICS = 1
 
 
-def _probe_backends(mode, py_config):
+def probe_backends(mode, py_config):
     cdef ngl_config *configp = NULL
     cdef uintptr_t ptr
     if py_config is not None:
@@ -459,7 +459,7 @@ def _probe_backends(mode, py_config):
     cdef ngl_backend *backends = NULL
     cdef ngl_cap *cap = NULL
     cdef int ret
-    if mode == _PROBE_MODE_NO_GRAPHICS:
+    if mode == PROBE_MODE_NO_GRAPHICS:
         ret = ngl_backends_get(configp, &nb_backends, &backends)
     else:
         ret = ngl_backends_probe(configp, &nb_backends, &backends)
@@ -479,14 +479,6 @@ def _probe_backends(mode, py_config):
         )
     ngl_backends_freep(&backends)
     return backend_set
-
-
-def probe_backends(config=None):
-    return _probe_backends(_PROBE_MODE_FULL, config)
-
-
-def get_backends(config=None):
-    return _probe_backends(_PROBE_MODE_NO_GRAPHICS, config)
 
 
 LIVECTL_INFO = {}  # Filled dynamically by the Python side

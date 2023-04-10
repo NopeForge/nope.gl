@@ -23,7 +23,7 @@ import array
 import os
 import platform
 from enum import IntEnum
-from typing import Mapping, Optional, Sequence, Tuple, Union
+from typing import Any, Mapping, Optional, Sequence, Tuple, Union
 
 if platform.system() == "Windows":
     ngl_dll_dirs = os.getenv("NGL_DLL_DIRS")
@@ -43,9 +43,7 @@ Context           = _ngl.Context
 easing_derivate   = _ngl.easing_derivate
 easing_evaluate   = _ngl.easing_evaluate
 easing_solve      = _ngl.easing_solve
-get_backends      = _ngl.get_backends
 get_livectls      = _ngl.get_livectls
-probe_backends    = _ngl.probe_backends
 
 
 class Platform(IntEnum):
@@ -65,29 +63,30 @@ class Backend(IntEnum):
     VULKAN   = _ngl.BACKEND_VULKAN
 
 
-CAP_BLOCK                          = _ngl.CAP_BLOCK
-CAP_COMPUTE                        = _ngl.CAP_COMPUTE
-CAP_DEPTH_STENCIL_RESOLVE          = _ngl.CAP_DEPTH_STENCIL_RESOLVE
-CAP_INSTANCED_DRAW                 = _ngl.CAP_INSTANCED_DRAW
-CAP_MAX_COLOR_ATTACHMENTS          = _ngl.CAP_MAX_COLOR_ATTACHMENTS
-CAP_MAX_COMPUTE_GROUP_COUNT_X      = _ngl.CAP_MAX_COMPUTE_GROUP_COUNT_X
-CAP_MAX_COMPUTE_GROUP_COUNT_Y      = _ngl.CAP_MAX_COMPUTE_GROUP_COUNT_Y
-CAP_MAX_COMPUTE_GROUP_COUNT_Z      = _ngl.CAP_MAX_COMPUTE_GROUP_COUNT_Z
-CAP_MAX_COMPUTE_GROUP_INVOCATIONS  = _ngl.CAP_MAX_COMPUTE_GROUP_INVOCATIONS
-CAP_MAX_COMPUTE_GROUP_SIZE_X       = _ngl.CAP_MAX_COMPUTE_GROUP_SIZE_X
-CAP_MAX_COMPUTE_GROUP_SIZE_Y       = _ngl.CAP_MAX_COMPUTE_GROUP_SIZE_Y
-CAP_MAX_COMPUTE_GROUP_SIZE_Z       = _ngl.CAP_MAX_COMPUTE_GROUP_SIZE_Z
-CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE = _ngl.CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE
-CAP_MAX_SAMPLES                    = _ngl.CAP_MAX_SAMPLES
-CAP_MAX_TEXTURE_DIMENSION_1D       = _ngl.CAP_MAX_TEXTURE_DIMENSION_1D
-CAP_MAX_TEXTURE_DIMENSION_2D       = _ngl.CAP_MAX_TEXTURE_DIMENSION_2D
-CAP_MAX_TEXTURE_DIMENSION_3D       = _ngl.CAP_MAX_TEXTURE_DIMENSION_3D
-CAP_MAX_TEXTURE_DIMENSION_CUBE     = _ngl.CAP_MAX_TEXTURE_DIMENSION_CUBE
-CAP_NPOT_TEXTURE                   = _ngl.CAP_NPOT_TEXTURE
-CAP_SHADER_TEXTURE_LOD             = _ngl.CAP_SHADER_TEXTURE_LOD
-CAP_TEXTURE_3D                     = _ngl.CAP_TEXTURE_3D
-CAP_TEXTURE_CUBE                   = _ngl.CAP_TEXTURE_CUBE
-CAP_UINT_UNIFORMS                  = _ngl.CAP_UINT_UNIFORMS
+class Cap(IntEnum):
+    BLOCK                          = _ngl.CAP_BLOCK
+    COMPUTE                        = _ngl.CAP_COMPUTE
+    DEPTH_STENCIL_RESOLVE          = _ngl.CAP_DEPTH_STENCIL_RESOLVE
+    INSTANCED_DRAW                 = _ngl.CAP_INSTANCED_DRAW
+    MAX_COLOR_ATTACHMENTS          = _ngl.CAP_MAX_COLOR_ATTACHMENTS
+    MAX_COMPUTE_GROUP_COUNT_X      = _ngl.CAP_MAX_COMPUTE_GROUP_COUNT_X
+    MAX_COMPUTE_GROUP_COUNT_Y      = _ngl.CAP_MAX_COMPUTE_GROUP_COUNT_Y
+    MAX_COMPUTE_GROUP_COUNT_Z      = _ngl.CAP_MAX_COMPUTE_GROUP_COUNT_Z
+    MAX_COMPUTE_GROUP_INVOCATIONS  = _ngl.CAP_MAX_COMPUTE_GROUP_INVOCATIONS
+    MAX_COMPUTE_GROUP_SIZE_X       = _ngl.CAP_MAX_COMPUTE_GROUP_SIZE_X
+    MAX_COMPUTE_GROUP_SIZE_Y       = _ngl.CAP_MAX_COMPUTE_GROUP_SIZE_Y
+    MAX_COMPUTE_GROUP_SIZE_Z       = _ngl.CAP_MAX_COMPUTE_GROUP_SIZE_Z
+    MAX_COMPUTE_SHARED_MEMORY_SIZE = _ngl.CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE
+    MAX_SAMPLES                    = _ngl.CAP_MAX_SAMPLES
+    MAX_TEXTURE_DIMENSION_1D       = _ngl.CAP_MAX_TEXTURE_DIMENSION_1D
+    MAX_TEXTURE_DIMENSION_2D       = _ngl.CAP_MAX_TEXTURE_DIMENSION_2D
+    MAX_TEXTURE_DIMENSION_3D       = _ngl.CAP_MAX_TEXTURE_DIMENSION_3D
+    MAX_TEXTURE_DIMENSION_CUBE     = _ngl.CAP_MAX_TEXTURE_DIMENSION_CUBE
+    NPOT_TEXTURE                   = _ngl.CAP_NPOT_TEXTURE
+    SHADER_TEXTURE_LOD             = _ngl.CAP_SHADER_TEXTURE_LOD
+    TEXTURE_3D                     = _ngl.CAP_TEXTURE_3D
+    TEXTURE_CUBE                   = _ngl.CAP_TEXTURE_CUBE
+    UINT_UNIFORMS                  = _ngl.CAP_UINT_UNIFORMS
 
 
 class Log(IntEnum):
@@ -151,6 +150,28 @@ class Config(_ngl.Config):
             hud_export_filename,
             hud_scale,
         )
+
+
+def _pythonize_backends(backends: Mapping[str, Any]) -> Mapping[Backend, Any]:
+    """Replace key string identifiers with their corresponding enum (Backend and Cap)"""
+    ret = {}
+    for backend_str, backend_data in backends.items():
+        backend_id = Backend[backend_str.upper()]
+        new_caps = {}
+        for cap_str, cap_data in backend_data["caps"].items():
+            cap_id = Cap[cap_str.upper()]
+            new_caps[cap_id] = cap_data
+        backend_data["caps"] = new_caps
+        ret[backend_id] = backend_data
+    return ret
+
+
+def get_backends(config: Optional[Config] = None) -> Mapping[Backend, Any]:
+    return _pythonize_backends(_ngl.probe_backends(_ngl.PROBE_MODE_FULL, config))
+
+
+def probe_backends(config: Optional[Config] = None) -> Mapping[Backend, Any]:
+    return _pythonize_backends(_ngl.probe_backends(_ngl.PROBE_MODE_NO_GRAPHICS, config))
 
 
 class Node(_Node):
