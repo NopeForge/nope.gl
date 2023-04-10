@@ -78,13 +78,13 @@ void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage)
     s->usage |= usage;
 }
 
-int ngli_node_buffer_get_cpu_size(struct ngl_node *node)
+size_t ngli_node_buffer_get_cpu_size(struct ngl_node *node)
 {
     struct buffer_info *s = node->priv_data;
     return s->block ? 0 : s->data_size;
 }
 
-int ngli_node_buffer_get_gpu_size(struct ngl_node *node)
+size_t ngli_node_buffer_get_gpu_size(struct ngl_node *node)
 {
     struct buffer_info *s = node->priv_data;
     return s->block || !(s->flags & NGLI_BUFFER_INFO_FLAG_GPU_UPLOAD) ? 0 : s->data_size;

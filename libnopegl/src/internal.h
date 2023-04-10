@@ -199,8 +199,8 @@ struct buffer_info {
 };
 
 void ngli_node_buffer_extend_usage(struct ngl_node *node, int usage);
-int ngli_node_buffer_get_cpu_size(struct ngl_node *node);
-int ngli_node_buffer_get_gpu_size(struct ngl_node *node);
+size_t ngli_node_buffer_get_cpu_size(struct ngl_node *node);
+size_t ngli_node_buffer_get_gpu_size(struct ngl_node *node);
 
 struct livectl {
     union ngl_livectl_data val;
