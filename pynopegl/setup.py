@@ -193,12 +193,16 @@ class _WrapperGenerator:
         for param in params:
             prototype = cls._get_setter_prototype(param)
             setter_code = cls._get_setter_code(param, has_kwargs=True)
+            desc = param["desc"]
             setters.append(
                 textwrap.dedent(
-                    f"""
+                    f'''
                     def {prototype} -> int:
+                        """
+                        {desc}
+                        """
                         return {setter_code}
-                    """
+                    '''
                 )
             )
         return "".join(setters)
