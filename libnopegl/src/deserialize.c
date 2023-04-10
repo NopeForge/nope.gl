@@ -31,17 +31,17 @@
 #include "internal.h"
 #include "params.h"
 
-static int parse_int(const char *s, int *valp)
+static int parse_i32(const char *s, int32_t *valp)
 {
     char *endptr = NULL;
-    *valp = (int)strtol(s, &endptr, 10);
+    *valp = (int32_t)strtol(s, &endptr, 10);
     return (int)(endptr - s);
 }
 
-static int parse_uint(const char *s, unsigned *valp)
+static int parse_u32(const char *s, uint32_t *valp)
 {
     char *endptr = NULL;
-    *valp = (unsigned)strtol(s, &endptr, 10);
+    *valp = (uint32_t)strtol(s, &endptr, 10);
     return (int)(endptr - s);
 }
 
@@ -54,7 +54,7 @@ static int parse_hexint(const char *s, int *valp)
 
 static int parse_bool(const char *s, int *valp)
 {
-    int ret = parse_int(s, valp);
+    int ret = parse_i32(s, valp);
     if (ret < 0)
         return ret;
     if (*valp != -1)
@@ -130,8 +130,8 @@ static int parse_func##s(const char *s, type **valsp, int *nb_valsp)        \
 DECLARE_PARSE_LIST_FUNC(float,    parse_float)
 DECLARE_PARSE_LIST_FUNC(double,   parse_double)
 DECLARE_PARSE_LIST_FUNC(int,      parse_hexint)
-DECLARE_PARSE_LIST_FUNC(int,      parse_int)
-DECLARE_PARSE_LIST_FUNC(unsigned, parse_uint)
+DECLARE_PARSE_LIST_FUNC(int32_t,  parse_i32)
+DECLARE_PARSE_LIST_FUNC(uint32_t, parse_u32)
 
 #define FREE_KVS(count, keys, vals) do {                                    \
     for (int k = 0; k < (count); k++)                                       \
@@ -221,8 +221,8 @@ static int parse_param_##set_type(struct darray *nodes_array, uint8_t *dstp,    
     return len;                                                                     \
 }
 
-DEFINE_LITERAL_PARSE_FUNC(parse_int,    int,      i32)
-DEFINE_LITERAL_PARSE_FUNC(parse_uint,   unsigned, u32)
+DEFINE_LITERAL_PARSE_FUNC(parse_i32,    int32_t,  i32)
+DEFINE_LITERAL_PARSE_FUNC(parse_u32,    uint32_t, u32)
 DEFINE_LITERAL_PARSE_FUNC(parse_bool,   int,      bool)
 DEFINE_LITERAL_PARSE_FUNC(parse_float,  float,    f32)
 DEFINE_LITERAL_PARSE_FUNC(parse_double, double,   f64)
@@ -245,12 +245,12 @@ static int parse_param_##set_type(struct darray *nodes_array, uint8_t *dstp,    
     return len;                                                                     \
 }
 
-DEFINE_VEC_PARSE_FUNC(parse_ints,   int,      ivec2, 2)
-DEFINE_VEC_PARSE_FUNC(parse_ints,   int,      ivec3, 3)
-DEFINE_VEC_PARSE_FUNC(parse_ints,   int,      ivec4, 4)
-DEFINE_VEC_PARSE_FUNC(parse_uints,  unsigned, uvec2, 2)
-DEFINE_VEC_PARSE_FUNC(parse_uints,  unsigned, uvec3, 3)
-DEFINE_VEC_PARSE_FUNC(parse_uints,  unsigned, uvec4, 4)
+DEFINE_VEC_PARSE_FUNC(parse_i32s,   int32_t,  ivec2, 2)
+DEFINE_VEC_PARSE_FUNC(parse_i32s,   int32_t,  ivec3, 3)
+DEFINE_VEC_PARSE_FUNC(parse_i32s,   int32_t,  ivec4, 4)
+DEFINE_VEC_PARSE_FUNC(parse_u32s,   uint32_t, uvec2, 2)
+DEFINE_VEC_PARSE_FUNC(parse_u32s,   uint32_t, uvec3, 3)
+DEFINE_VEC_PARSE_FUNC(parse_u32s,   uint32_t, uvec4, 4)
 DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec2,  2)
 DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec3,  3)
 DEFINE_VEC_PARSE_FUNC(parse_floats, float,    vec4,  4)
@@ -259,7 +259,7 @@ DEFINE_VEC_PARSE_FUNC(parse_floats, float,    mat4, 16)
 static int parse_param_rational(struct darray *nodes_array, uint8_t *dstp,
                                 const struct node_param *par, const char *str)
 {
-    int r[2] = {0};
+    int32_t r[2] = {0};
     int len = -1;
     int ret = sscanf(str, "%d/%d%n", &r[0], &r[1], &len);
     if (ret != 2)

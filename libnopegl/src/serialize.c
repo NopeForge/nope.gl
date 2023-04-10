@@ -83,22 +83,22 @@ static void print_##type(struct bstr *b, type f)                        \
 DECLARE_FLT_PRINT_FUNC(float,  32, 23, 'z')
 DECLARE_FLT_PRINT_FUNC(double, 64, 52, 'Z')
 
-#define print_int(b, v)      ngli_bstr_printf(b, "%d", v)
-#define print_unsigned(b, v) ngli_bstr_printf(b, "%u", v)
+#define print_i32(b, v) ngli_bstr_printf(b, "%d", v)
+#define print_u32(b, v) ngli_bstr_printf(b, "%u", v)
 
-#define DECLARE_PRINT_FUNC(type)                                        \
-static void print_##type##s(struct bstr *b, int n, const type *v)       \
+#define DECLARE_PRINT_FUNC(name, type)                                  \
+static void print_##name##s(struct bstr *b, int n, const type *v)       \
 {                                                                       \
     for (int i = 0; i < n; i++) {                                       \
         ngli_bstr_printf(b, "%s", i ? "," : "");                        \
-        print_##type(b, v[i]);                                          \
+        print_##name(b, v[i]);                                          \
     }                                                                   \
 }
 
-DECLARE_PRINT_FUNC(float)
-DECLARE_PRINT_FUNC(double)
-DECLARE_PRINT_FUNC(int)
-DECLARE_PRINT_FUNC(unsigned)
+DECLARE_PRINT_FUNC(float, float)
+DECLARE_PRINT_FUNC(double, double)
+DECLARE_PRINT_FUNC(i32, int32_t)
+DECLARE_PRINT_FUNC(u32, uint32_t)
 
 struct item {
     const char *key;
@@ -220,21 +220,21 @@ static void serialize_data(struct bstr *b, const uint8_t *srcp, const struct nod
 
 static void serialize_ivec(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
 {
-    const int *iv = (const int *)srcp;
+    const int32_t *iv = (const int *)srcp;
     const int n = par->type - NGLI_PARAM_TYPE_IVEC2 + 2;
     if (memcmp(iv, par->def_value.ivec, n * sizeof(*iv))) {
         ngli_bstr_printf(b, " %s:", par->key);
-        print_ints(b, n, iv);
+        print_i32s(b, n, iv);
     }
 }
 
 static void serialize_uvec(struct bstr *b, const uint8_t *srcp, const struct node_param *par)
 {
-    const unsigned *uv = (const unsigned *)srcp;
+    const uint32_t *uv = (const uint32_t *)srcp;
     const int n = par->type - NGLI_PARAM_TYPE_UVEC2 + 2;
     if (memcmp(uv, par->def_value.uvec, n * sizeof(*uv))) {
         ngli_bstr_printf(b, " %s:", par->key);
-        print_unsigneds(b, n, uv);
+        print_u32s(b, n, uv);
     }
 }
 

@@ -37,8 +37,8 @@ struct uniform_priv {
     struct variable_info var;
     float vector[4];
     float matrix[4*4];
-    int ivector[4];
-    unsigned uvector[4];
+    int32_t ivector[4];
+    uint32_t uvector[4];
 };
 
 NGLI_STATIC_ASSERT(variable_info_is_first, offsetof(struct uniform_priv, var) == 0);

@@ -39,42 +39,42 @@ NGLI_STATIC_ASSERT(param_uvec, NGLI_PARAM_TYPE_UVEC4 - NGLI_PARAM_TYPE_U32  == 3
 const struct param_specs ngli_params_specs[] = {
     [NGLI_PARAM_TYPE_I32] = {
         .name = "i32",
-        .size = sizeof(int),
+        .size = sizeof(int32_t),
         .desc = NGLI_DOCSTRING("32-bit integer"),
     },
     [NGLI_PARAM_TYPE_IVEC2] = {
         .name = "ivec2",
-        .size = sizeof(int[2]),
+        .size = sizeof(int32_t[2]),
         .desc = NGLI_DOCSTRING("2 32-bit integers"),
     },
     [NGLI_PARAM_TYPE_IVEC3] = {
         .name = "ivec3",
-        .size = sizeof(int[3]),
+        .size = sizeof(int32_t[3]),
         .desc = NGLI_DOCSTRING("3 32-bit integers"),
     },
     [NGLI_PARAM_TYPE_IVEC4] = {
         .name = "ivec4",
-        .size = sizeof(int[4]),
+        .size = sizeof(int32_t[4]),
         .desc = NGLI_DOCSTRING("4 32-bit integers"),
     },
     [NGLI_PARAM_TYPE_U32] = {
         .name = "u32",
-        .size = sizeof(unsigned),
+        .size = sizeof(uint32_t),
         .desc = NGLI_DOCSTRING("32-bit unsigned integer"),
     },
     [NGLI_PARAM_TYPE_UVEC2] = {
         .name = "uvec2",
-        .size = sizeof(unsigned[2]),
+        .size = sizeof(uint32_t[2]),
         .desc = NGLI_DOCSTRING("2 32-bit unsigned integers"),
     },
     [NGLI_PARAM_TYPE_UVEC3] = {
         .name = "uvec3",
-        .size = sizeof(unsigned[3]),
+        .size = sizeof(uint32_t[3]),
         .desc = NGLI_DOCSTRING("3 32-bit unsigned integers"),
     },
     [NGLI_PARAM_TYPE_UVEC4] = {
         .name = "uvec4",
-        .size = sizeof(unsigned[4]),
+        .size = sizeof(uint32_t[4]),
         .desc = NGLI_DOCSTRING("4 32-bit unsigned integers"),
     },
     [NGLI_PARAM_TYPE_BOOL] = {
@@ -154,7 +154,7 @@ const struct param_specs ngli_params_specs[] = {
     },
     [NGLI_PARAM_TYPE_RATIONAL] = {
         .name = "rational",
-        .size = sizeof(int[2]),
+        .size = sizeof(int32_t[2]),
         .desc = NGLI_DOCSTRING("Rational number (expressed as 2 32-bit integers, respectively as numerator and denominator)"),
     },
 };
@@ -290,14 +290,14 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
         }
         case NGLI_PARAM_TYPE_F32:    ngli_bstr_printf(b, "%g",            *(const float *)srcp);                  break;
         case NGLI_PARAM_TYPE_F64:    ngli_bstr_printf(b, "%g",            *(const double *)srcp);                 break;
-        case NGLI_PARAM_TYPE_I32:    ngli_bstr_printf(b, "%d",            *(const int *)srcp);                    break;
-        case NGLI_PARAM_TYPE_U32:    ngli_bstr_printf(b, "%u",            *(const unsigned *)srcp);               break;
-        case NGLI_PARAM_TYPE_IVEC2:  ngli_bstr_printf(b, "(%d,%d)",       NGLI_ARG_VEC2((const int *)srcp));      break;
-        case NGLI_PARAM_TYPE_IVEC3:  ngli_bstr_printf(b, "(%d,%d,%d)",    NGLI_ARG_VEC3((const int *)srcp));      break;
-        case NGLI_PARAM_TYPE_IVEC4:  ngli_bstr_printf(b, "(%d,%d,%d,%d)", NGLI_ARG_VEC4((const int *)srcp));      break;
-        case NGLI_PARAM_TYPE_UVEC2:  ngli_bstr_printf(b, "(%u,%u)",       NGLI_ARG_VEC2((const unsigned *)srcp)); break;
-        case NGLI_PARAM_TYPE_UVEC3:  ngli_bstr_printf(b, "(%u,%u,%u)",    NGLI_ARG_VEC3((const unsigned *)srcp)); break;
-        case NGLI_PARAM_TYPE_UVEC4:  ngli_bstr_printf(b, "(%u,%u,%u,%u)", NGLI_ARG_VEC4((const unsigned *)srcp)); break;
+        case NGLI_PARAM_TYPE_I32:    ngli_bstr_printf(b, "%d",            *(const int32_t *)srcp);                break;
+        case NGLI_PARAM_TYPE_U32:    ngli_bstr_printf(b, "%u",            *(const uint32_t *)srcp);               break;
+        case NGLI_PARAM_TYPE_IVEC2:  ngli_bstr_printf(b, "(%d,%d)",       NGLI_ARG_VEC2((const int32_t *)srcp));  break;
+        case NGLI_PARAM_TYPE_IVEC3:  ngli_bstr_printf(b, "(%d,%d,%d)",    NGLI_ARG_VEC3((const int32_t *)srcp));  break;
+        case NGLI_PARAM_TYPE_IVEC4:  ngli_bstr_printf(b, "(%d,%d,%d,%d)", NGLI_ARG_VEC4((const int32_t *)srcp));  break;
+        case NGLI_PARAM_TYPE_UVEC2:  ngli_bstr_printf(b, "(%u,%u)",       NGLI_ARG_VEC2((const uint32_t *)srcp)); break;
+        case NGLI_PARAM_TYPE_UVEC3:  ngli_bstr_printf(b, "(%u,%u,%u)",    NGLI_ARG_VEC3((const uint32_t *)srcp)); break;
+        case NGLI_PARAM_TYPE_UVEC4:  ngli_bstr_printf(b, "(%u,%u,%u,%u)", NGLI_ARG_VEC4((const uint32_t *)srcp)); break;
         case NGLI_PARAM_TYPE_VEC2:   ngli_bstr_printf(b, "(%g,%g)",       NGLI_ARG_VEC2((const float *)srcp));    break;
         case NGLI_PARAM_TYPE_VEC3:   ngli_bstr_printf(b, "(%g,%g,%g)",    NGLI_ARG_VEC3((const float *)srcp));    break;
         case NGLI_PARAM_TYPE_VEC4:   ngli_bstr_printf(b, "(%g,%g,%g,%g)", NGLI_ARG_VEC4((const float *)srcp));    break;
@@ -325,7 +325,7 @@ void ngli_params_bstr_print_val(struct bstr *b, uint8_t *base_ptr, const struct 
             break;
         }
         case NGLI_PARAM_TYPE_RATIONAL:
-            ngli_bstr_printf(b, "%d/%d", NGLI_ARG_VEC2((const int *)srcp));
+            ngli_bstr_printf(b, "%d/%d", NGLI_ARG_VEC2((const int32_t *)srcp));
             break;
     }
 }
@@ -467,7 +467,7 @@ int ngli_params_set_flags(uint8_t *dstp, const struct node_param *par, const cha
     return 0;
 }
 
-int ngli_params_set_i32(uint8_t *dstp, const struct node_param *par, int value)
+int ngli_params_set_i32(uint8_t *dstp, const struct node_param *par, int32_t value)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_I32);
     if (ret < 0)
@@ -481,7 +481,7 @@ int ngli_params_set_i32(uint8_t *dstp, const struct node_param *par, int value)
     return 0;
 }
 
-int ngli_params_set_ivec2(uint8_t *dstp, const struct node_param *par, const int *value)
+int ngli_params_set_ivec2(uint8_t *dstp, const struct node_param *par, const int32_t *value)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_IVEC2);
     if (ret < 0)
@@ -495,7 +495,7 @@ int ngli_params_set_ivec2(uint8_t *dstp, const struct node_param *par, const int
     return 0;
 }
 
-int ngli_params_set_ivec3(uint8_t *dstp, const struct node_param *par, const int *value)
+int ngli_params_set_ivec3(uint8_t *dstp, const struct node_param *par, const int32_t *value)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_IVEC3);
     if (ret < 0)
@@ -509,7 +509,7 @@ int ngli_params_set_ivec3(uint8_t *dstp, const struct node_param *par, const int
     return 0;
 }
 
-int ngli_params_set_ivec4(uint8_t *dstp, const struct node_param *par, const int *value)
+int ngli_params_set_ivec4(uint8_t *dstp, const struct node_param *par, const int32_t *value)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_IVEC4);
     if (ret < 0)
@@ -684,7 +684,7 @@ int ngli_params_set_node(uint8_t *dstp, const struct node_param *par, struct ngl
     return 0;
 }
 
-int ngli_params_set_rational(uint8_t *dstp, const struct node_param *par, int num, int den)
+int ngli_params_set_rational(uint8_t *dstp, const struct node_param *par, int32_t num, int32_t den)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_RATIONAL);
     if (ret < 0)
@@ -738,7 +738,7 @@ int ngli_params_set_str(uint8_t *dstp, const struct node_param *par, const char 
     return 0;
 }
 
-int ngli_params_set_u32(uint8_t *dstp, const struct node_param *par, const unsigned value)
+int ngli_params_set_u32(uint8_t *dstp, const struct node_param *par, const uint32_t value)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_U32);
     if (ret < 0)
@@ -752,7 +752,7 @@ int ngli_params_set_u32(uint8_t *dstp, const struct node_param *par, const unsig
     return 0;
 }
 
-int ngli_params_set_uvec2(uint8_t *dstp, const struct node_param *par, const unsigned *value)
+int ngli_params_set_uvec2(uint8_t *dstp, const struct node_param *par, const uint32_t *value)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_UVEC2);
     if (ret < 0)
@@ -766,7 +766,7 @@ int ngli_params_set_uvec2(uint8_t *dstp, const struct node_param *par, const uns
     return 0;
 }
 
-int ngli_params_set_uvec3(uint8_t *dstp, const struct node_param *par, const unsigned *value)
+int ngli_params_set_uvec3(uint8_t *dstp, const struct node_param *par, const uint32_t *value)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_UVEC3);
     if (ret < 0)
@@ -780,7 +780,7 @@ int ngli_params_set_uvec3(uint8_t *dstp, const struct node_param *par, const uns
     return 0;
 }
 
-int ngli_params_set_uvec4(uint8_t *dstp, const struct node_param *par, const unsigned *value)
+int ngli_params_set_uvec4(uint8_t *dstp, const struct node_param *par, const uint32_t *value)
 {
     int ret = check_param_type(par, NGLI_PARAM_TYPE_UVEC4);
     if (ret < 0)

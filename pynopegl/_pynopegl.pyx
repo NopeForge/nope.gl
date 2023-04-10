@@ -49,19 +49,19 @@ cdef extern from "nopegl.h":
     int ngl_node_param_set_f32(ngl_node *node, const char *key, float value)
     int ngl_node_param_set_f64(ngl_node *node, const char *key, double value)
     int ngl_node_param_set_flags(ngl_node *node, const char *key, const char *value)
-    int ngl_node_param_set_i32(ngl_node *node, const char *key, int value)
-    int ngl_node_param_set_ivec2(ngl_node *node, const char *key, const int *value)
-    int ngl_node_param_set_ivec3(ngl_node *node, const char *key, const int *value)
-    int ngl_node_param_set_ivec4(ngl_node *node, const char *key, const int *value)
+    int ngl_node_param_set_i32(ngl_node *node, const char *key, int32_t value)
+    int ngl_node_param_set_ivec2(ngl_node *node, const char *key, const int32_t *value)
+    int ngl_node_param_set_ivec3(ngl_node *node, const char *key, const int32_t *value)
+    int ngl_node_param_set_ivec4(ngl_node *node, const char *key, const int32_t *value)
     int ngl_node_param_set_mat4(ngl_node *node, const char *key, const float *value)
     int ngl_node_param_set_node(ngl_node *node, const char *key, ngl_node *value)
-    int ngl_node_param_set_rational(ngl_node *node, const char *key, int num, int den)
+    int ngl_node_param_set_rational(ngl_node *node, const char *key, int32_t num, int32_t den)
     int ngl_node_param_set_select(ngl_node *node, const char *key, const char *value)
     int ngl_node_param_set_str(ngl_node *node, const char *key, const char *value)
-    int ngl_node_param_set_u32(ngl_node *node, const char *key, const unsigned value)
-    int ngl_node_param_set_uvec2(ngl_node *node, const char *key, const unsigned *value)
-    int ngl_node_param_set_uvec3(ngl_node *node, const char *key, const unsigned *value)
-    int ngl_node_param_set_uvec4(ngl_node *node, const char *key, const unsigned *value)
+    int ngl_node_param_set_u32(ngl_node *node, const char *key, const uint32_t value)
+    int ngl_node_param_set_uvec2(ngl_node *node, const char *key, const uint32_t *value)
+    int ngl_node_param_set_uvec3(ngl_node *node, const char *key, const uint32_t *value)
+    int ngl_node_param_set_uvec4(ngl_node *node, const char *key, const uint32_t *value)
     int ngl_node_param_set_vec2(ngl_node *node, const char *key, const float *value)
     int ngl_node_param_set_vec3(ngl_node *node, const char *key, const float *value)
     int ngl_node_param_set_vec4(ngl_node *node, const char *key, const float *value)
@@ -293,19 +293,19 @@ cdef class _Node:
     def _param_set_flags(self, const char *key, const char *value):
         return ngl_node_param_set_flags(self.ctx, key, value)
 
-    def _param_set_i32(self, const char *key, int value):
+    def _param_set_i32(self, const char *key, int32_t value):
         return ngl_node_param_set_i32(self.ctx, key, value)
 
     def _param_set_ivec2(self, const char *key, value):
-        cdef int[2] ivec = value
+        cdef int32_t[2] ivec = value
         return ngl_node_param_set_ivec2(self.ctx, key, ivec)
 
     def _param_set_ivec3(self, const char *key, value):
-        cdef int[3] ivec = value
+        cdef int32_t[3] ivec = value
         return ngl_node_param_set_ivec3(self.ctx, key, ivec)
 
     def _param_set_ivec4(self, const char *key, value):
-        cdef int[4] ivec = value
+        cdef int32_t[4] ivec = value
         return ngl_node_param_set_ivec4(self.ctx, key, ivec)
 
     def _param_set_mat4(self, const char *key, value):
@@ -324,19 +324,19 @@ cdef class _Node:
     def _param_set_str(self, const char *key, const char *value):
         return ngl_node_param_set_str(self.ctx, key, value)
 
-    def _param_set_u32(self, const char *key, const unsigned value):
+    def _param_set_u32(self, const char *key, const uint32_t value):
         return ngl_node_param_set_u32(self.ctx, key, value)
 
     def _param_set_uvec2(self, const char *key, value):
-        cdef unsigned[2] uvec = value
+        cdef uint32_t[2] uvec = value
         return ngl_node_param_set_uvec2(self.ctx, key, uvec)
 
     def _param_set_uvec3(self, const char *key, value):
-        cdef unsigned[3] uvec = value
+        cdef uint32_t[3] uvec = value
         return ngl_node_param_set_uvec3(self.ctx, key, uvec)
 
     def _param_set_uvec4(self, const char *key, value):
-        cdef unsigned[4] uvec = value
+        cdef uint32_t[4] uvec = value
         return ngl_node_param_set_uvec4(self.ctx, key, uvec)
 
     def _param_set_vec2(self, const char *key, value):

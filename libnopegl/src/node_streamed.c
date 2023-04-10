@@ -40,8 +40,8 @@ struct streamed_priv {
     struct variable_info var;
     float vector[4];
     float matrix[4*4];
-    int ivector[4];
-    unsigned uvector[4];
+    int32_t ivector[4];
+    uint32_t uvector[4];
     int last_index;
 };
 

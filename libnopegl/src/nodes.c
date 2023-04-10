@@ -924,22 +924,22 @@ int ngl_node_param_set_flags(struct ngl_node *node, const char *key, const char 
     FORWARD_TO_PARAM(flags, value);
 }
 
-int ngl_node_param_set_i32(struct ngl_node *node, const char *key, int value)
+int ngl_node_param_set_i32(struct ngl_node *node, const char *key, int32_t value)
 {
     FORWARD_TO_PARAM(i32, value);
 }
 
-int ngl_node_param_set_ivec2(struct ngl_node *node, const char *key, const int *value)
+int ngl_node_param_set_ivec2(struct ngl_node *node, const char *key, const int32_t *value)
 {
     FORWARD_TO_PARAM(ivec2, value);
 }
 
-int ngl_node_param_set_ivec3(struct ngl_node *node, const char *key, const int *value)
+int ngl_node_param_set_ivec3(struct ngl_node *node, const char *key, const int32_t *value)
 {
     FORWARD_TO_PARAM(ivec3, value);
 }
 
-int ngl_node_param_set_ivec4(struct ngl_node *node, const char *key, const int *value)
+int ngl_node_param_set_ivec4(struct ngl_node *node, const char *key, const int32_t *value)
 {
     FORWARD_TO_PARAM(ivec4, value);
 }
@@ -958,7 +958,7 @@ int ngl_node_param_set_node(struct ngl_node *node, const char *key, struct ngl_n
     FORWARD_TO_PARAM(node, value);
 }
 
-int ngl_node_param_set_rational(struct ngl_node *node, const char *key, int num, int den)
+int ngl_node_param_set_rational(struct ngl_node *node, const char *key, int32_t num, int32_t den)
 {
     FORWARD_TO_PARAM(rational, num, den);
 }
@@ -973,22 +973,22 @@ int ngl_node_param_set_str(struct ngl_node *node, const char *key, const char *v
     FORWARD_TO_PARAM(str, value);
 }
 
-int ngl_node_param_set_u32(struct ngl_node *node, const char *key, const unsigned value)
+int ngl_node_param_set_u32(struct ngl_node *node, const char *key, const uint32_t value)
 {
     FORWARD_TO_PARAM(u32, value);
 }
 
-int ngl_node_param_set_uvec2(struct ngl_node *node, const char *key, const unsigned *value)
+int ngl_node_param_set_uvec2(struct ngl_node *node, const char *key, const uint32_t *value)
 {
     FORWARD_TO_PARAM(uvec2, value);
 }
 
-int ngl_node_param_set_uvec3(struct ngl_node *node, const char *key, const unsigned *value)
+int ngl_node_param_set_uvec3(struct ngl_node *node, const char *key, const uint32_t *value)
 {
     FORWARD_TO_PARAM(uvec3, value);
 }
 
-int ngl_node_param_set_uvec4(struct ngl_node *node, const char *key, const unsigned *value)
+int ngl_node_param_set_uvec4(struct ngl_node *node, const char *key, const uint32_t *value)
 {
     FORWARD_TO_PARAM(uvec4, value);
 }
