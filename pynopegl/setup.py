@@ -193,18 +193,21 @@ class _WrapperGenerator:
         for param in params:
             prototype = cls._get_setter_prototype(param)
             setter_code = cls._get_setter_code(param, has_kwargs=True)
-            desc = param["desc"]
-            setters.append(
-                textwrap.dedent(
-                    f'''
-                    def {prototype} -> int:
-                        """
-                        {desc}
-                        """
-                        return {setter_code}
-                    '''
-                )
-            )
+
+            desc = f'"""\n{param["desc"]}\n'
+            choices = param.get("choices")
+            if choices:
+                choices = ", ".join(choices)
+                if param["type"] == "flags":
+                    desc += f"Combination of: {choices}\n"
+                elif param["type"] == "select":
+                    desc += f"Possible choices: {choices}\n"
+                else:
+                    assert False
+            desc += '"""'
+            desc = textwrap.indent(desc, " " * 4)
+
+            setters.append(f"\ndef {prototype} -> int:\n{desc}\n    return {setter_code}\n")
         return "".join(setters)
 
     @classmethod
