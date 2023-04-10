@@ -401,10 +401,10 @@ static const char *get_cap_string_id(unsigned cap_id)
     case NGL_CAP_MAX_COMPUTE_GROUP_SIZE_Z:      return "max_compute_group_size_z";
     case NGL_CAP_MAX_COMPUTE_SHARED_MEMORY_SIZE:return "max_compute_shared_memory_size";
     case NGL_CAP_MAX_SAMPLES:                   return "max_samples";
-    case NGL_CAP_MAX_TEXTURE_DIMENSION_1D:      return "max_texture_dimensions_1d";
-    case NGL_CAP_MAX_TEXTURE_DIMENSION_2D:      return "max_texture_dimensions_2d";
-    case NGL_CAP_MAX_TEXTURE_DIMENSION_3D:      return "max_texture_dimensions_3d";
-    case NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE:    return "max_texture_dimensions_cube";
+    case NGL_CAP_MAX_TEXTURE_DIMENSION_1D:      return "max_texture_dimension_1d";
+    case NGL_CAP_MAX_TEXTURE_DIMENSION_2D:      return "max_texture_dimension_2d";
+    case NGL_CAP_MAX_TEXTURE_DIMENSION_3D:      return "max_texture_dimension_3d";
+    case NGL_CAP_MAX_TEXTURE_DIMENSION_CUBE:    return "max_texture_dimension_cube";
     case NGL_CAP_NPOT_TEXTURE:                  return "npot_texture";
     case NGL_CAP_SHADER_TEXTURE_LOD:            return "shader_texture_lod";
     case NGL_CAP_TEXTURE_3D:                    return "texture_3d";
