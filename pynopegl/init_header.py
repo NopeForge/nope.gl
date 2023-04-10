@@ -39,7 +39,6 @@ from _pynopegl import _Node
 
 # fmt: off
 ConfigGL          = _ngl.ConfigGL
-Context           = _ngl.Context
 get_livectls      = _ngl.get_livectls
 
 
@@ -209,6 +208,37 @@ class Node(_Node):
 
     def _set_rational(self, param_name, ratio):
         return self._param_set_rational(param_name, ratio[0], ratio[1])
+
+
+class Context(_ngl.Context):
+    def configure(self, config: Config) -> int:
+        return super().configure(config)
+
+    def resize(
+        self,
+        width: int,
+        height: int,
+        viewport: Optional[Tuple[int, int, int, int]] = None,
+    ) -> int:
+        return super().resize(width, height, viewport)
+
+    def set_capture_buffer(self, capture_buffer: Optional[bytearray]) -> int:
+        return super().set_capture_buffer(capture_buffer)
+
+    def set_scene(self, scene: Optional[Node]) -> int:
+        return super().set_scene(scene)
+
+    def set_scene_from_string(self, s: str) -> int:
+        return super().set_scene_from_string(s)
+
+    def draw(self, t: float) -> int:
+        return super().draw(t)
+
+    def dot(self, t: float) -> Optional[str]:
+        return super().dot(t)
+
+    def gl_wrap_framebuffer(self, framebuffer: int) -> int:
+        return super().gl_wrap_framebuffer(framebuffer)
 
 
 def easing_evaluate(
