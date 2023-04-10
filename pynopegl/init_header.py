@@ -39,7 +39,6 @@ from _pynopegl import _Node
 
 # fmt: off
 ConfigGL          = _ngl.ConfigGL
-get_livectls      = _ngl.get_livectls
 
 
 class Platform(IntEnum):
@@ -266,3 +265,7 @@ def easing_solve(
     offsets: Optional[Tuple[float, float]] = None,
 ) -> float:
     return _ngl.animate(name, v, args, offsets, _ngl.ANIM_SOLVE)
+
+
+def get_livectls(scene: Node) -> Mapping[str, Mapping[str, Any]]:
+    return _ngl.get_livectls(scene)
